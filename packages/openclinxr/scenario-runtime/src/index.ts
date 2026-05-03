@@ -1,4 +1,4 @@
-import { createEdChestPainPlaceholderManifests, InMemoryAssetRegistry, type ScenarioAssetReadiness } from "@openclinxr/asset-registry";
+import { createScenarioPlaceholderManifests, InMemoryAssetRegistry, type ScenarioAssetReadiness } from "@openclinxr/asset-registry";
 import { createStationRun, transitionStation, type StationRun } from "@openclinxr/domain";
 import {
   createDefaultModelGateway,
@@ -417,7 +417,7 @@ export class ScenarioRuntime {
 
 export function createDefaultScenarioRuntime(): ScenarioRuntime {
   const assetRegistry = new InMemoryAssetRegistry();
-  for (const manifest of createEdChestPainPlaceholderManifests()) {
+  for (const manifest of createScenarioPlaceholderManifests(edChestPainScenario)) {
     assetRegistry.upsert(manifest);
   }
 

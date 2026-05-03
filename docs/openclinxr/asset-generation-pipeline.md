@@ -45,12 +45,13 @@ Every station should produce an `asset_manifest` before any modeling work starts
 
 First implementation status:
 
-- `packages/openclinxr/asset-registry` implements `AssetManifest`, `InMemoryAssetRegistry`, `evaluateAssetManifest`, and `createEdChestPainPlaceholderManifests`.
+- `packages/openclinxr/asset-registry` implements `AssetManifest`, `InMemoryAssetRegistry`, `evaluateAssetManifest`, `createEdChestPainPlaceholderManifests`, and `createScenarioPlaceholderManifests`.
 - The first registry gate blocks assets with `copyleft_blocked`, `unknown`, or review-required license posture.
 - The first registry gate blocks assets that have not reached `qa_ready`.
 - The first registry gate blocks Quest 3 assets over initial triangle, texture-memory, or draw-call budgets.
 - The first registry gate also sums required station assets and blocks aggregate Quest 3 station bundles over 180,000 visible triangles, 512 MB texture memory, or 120 draw calls.
 - ED chest pain placeholder manifests now cover the patient character, nurse character, and ED exam bay environment.
+- The generic placeholder-manifest factory can materialize dev-ready, production-blocked manifests from every seed-bank scenario `assetNeeds` entry, allowing all 12 stations to be checked against Quest budgets before real asset generation.
 - These placeholders are runtime scaffolding only; they are not production clinical realism assets.
 
 ```json

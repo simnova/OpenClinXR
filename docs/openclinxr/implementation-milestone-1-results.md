@@ -297,6 +297,7 @@ Started on 2026-05-03:
 - The Azure bundle smoke now verifies the seed timing-plan endpoint in the bundled API, not only `/health`.
 - `pnpm bench:mock` now prints trace quality, review signals, and an adversarial probe report.
 - `packages/openclinxr/agent-loop` executable roster now aligns with the richer physician charter bench.
+- `packages/openclinxr/asset-registry` now creates generic placeholder manifests from scenario `assetNeeds`, making all 12 seed-bank cases dev-ready for asset readiness checks while still blocking production release.
 
 Local evidence:
 

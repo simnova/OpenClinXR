@@ -1,6 +1,6 @@
-import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
+import { edChestPainScenario, scenarioBank } from "@openclinxr/scenario-fixtures";
 import { describe, expect, it } from "vitest";
-import { createEdChestPainPlaceholderManifests, evaluateAssetManifest, InMemoryAssetRegistry, type AssetManifest } from "./index.js";
+import { createEdChestPainPlaceholderManifests, createScenarioPlaceholderManifests, evaluateAssetManifest, InMemoryAssetRegistry, type AssetManifest } from "./index.js";
 
 function requireManifest(manifests: AssetManifest[], index: number): AssetManifest {
   const manifest = manifests[index];
@@ -148,5 +148,24 @@ describe("asset registry", () => {
       totalDrawCalls: 36,
       blockers: ["station_triangle_budget_exceeded"],
     });
+  });
+
+  it("creates dev-ready placeholder manifests for every seed-bank scenario without production release claims", () => {
+    const registry = new InMemoryAssetRegistry();
+    for (const scenario of scenarioBank) {
+      for (const manifest of createScenarioPlaceholderManifests(scenario)) {
+        registry.upsert(manifest);
+      }
+    }
+
+    for (const scenario of scenarioBank) {
+      const readiness = registry.evaluateScenarioReadiness(scenario);
+      expect(readiness.devReady).toBe(true);
+      expect(readiness.productionReady).toBe(false);
+      expect(readiness.missingRequiredAssetIds).toEqual([]);
+      expect(readiness.blockedAssets).toEqual([]);
+      expect(readiness.productionBlockedAssets).toHaveLength(scenario.assetNeeds?.length ?? 0);
+      expect(readiness.stationBudget.blockers).toEqual([]);
+    }
   });
 });

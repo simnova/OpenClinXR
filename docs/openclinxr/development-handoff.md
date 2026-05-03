@@ -281,6 +281,7 @@ Asset registry milestone has also started:
 
 - `packages/openclinxr/asset-registry` exists.
 - ED chest pain placeholder manifests exist for patient, nurse, and ED bay assets.
+- Generic scenario placeholder manifests now cover all 12 seed-bank scenarios from their `assetNeeds` entries for dev readiness and Quest budget checks, while preserving production blockers for placeholder assets.
 - Registry readiness checks block copyleft/unknown/review-required licenses, missing QA, and over-budget Quest 3 geometry/texture/draw-call profiles.
 - Registry readiness now separates `devReady` from `productionReady`; placeholders can support deterministic smoke tests but block production clinical release readiness.
 - This is the gate to use before attempting Anny, MakeHuman, StableGen, SMPLitex, clothing, rigging, or generated-environment ingestion.

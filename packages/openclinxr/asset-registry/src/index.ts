@@ -217,6 +217,7 @@ export function evaluateScenarioAssetBudget(manifests: readonly AssetManifest[])
 export function createEdChestPainPlaceholderManifests(): AssetManifest[] {
   return [
     createManifest({
+      scenarioId: "ed_chest_pain_priority_v1",
       assetId: "patient_robert_hayes_character",
       kind: "character",
       displayName: "Robert Hayes patient character",
@@ -229,6 +230,7 @@ export function createEdChestPainPlaceholderManifests(): AssetManifest[] {
       tags: ["patient", "diaphoretic", "hospital-gown"],
     }),
     createManifest({
+      scenarioId: "ed_chest_pain_priority_v1",
       assetId: "nurse_maria_alvarez_character",
       kind: "character",
       displayName: "Maria Alvarez nurse character",
@@ -241,6 +243,7 @@ export function createEdChestPainPlaceholderManifests(): AssetManifest[] {
       tags: ["nurse", "scrubs", "team-communication"],
     }),
     createManifest({
+      scenarioId: "ed_chest_pain_priority_v1",
       assetId: "ed_exam_bay_environment",
       kind: "environment",
       displayName: "Emergency department exam bay",
@@ -255,7 +258,29 @@ export function createEdChestPainPlaceholderManifests(): AssetManifest[] {
   ];
 }
 
+export function createScenarioPlaceholderManifests(scenario: Scenario): AssetManifest[] {
+  return (scenario.assetNeeds ?? []).map((assetNeed) => {
+    const kind = assetKindFromNeed(assetNeed.assetType);
+    const budget = placeholderBudgetForKind(kind);
+
+    return createManifest({
+      scenarioId: scenario.scenarioId,
+      assetId: assetNeed.assetId,
+      kind,
+      displayName: humanizeAssetId(assetNeed.assetId),
+      description: assetNeed.description,
+      generationMethod: kind === "environment" ? "manual_modeling" : "procedural_placeholder",
+      sourceRefs: [`openclinxr-placeholder-${kind}`],
+      maxTriangles: budget.maxTriangles,
+      maxTextureMegabytes: budget.maxTextureMegabytes,
+      maxDrawCalls: budget.maxDrawCalls,
+      tags: [kind, scenario.scenarioId],
+    });
+  });
+}
+
 function createManifest(input: {
+  scenarioId: string;
   assetId: string;
   kind: AssetKind;
   displayName: string;
@@ -269,7 +294,7 @@ function createManifest(input: {
 }): AssetManifest {
   return {
     assetId: input.assetId,
-    scenarioId: "ed_chest_pain_priority_v1",
+    scenarioId: input.scenarioId,
     kind: input.kind,
     displayName: input.displayName,
     description: input.description,
@@ -286,7 +311,7 @@ function createManifest(input: {
       maxDrawCalls: input.maxDrawCalls,
     },
     pipelineStages: [
-      stage("requested", "Asset need extracted from approved ED chest pain fixture."),
+      stage("requested", `Asset need extracted from ${input.scenarioId}.`),
       stage("source_reviewed", "Placeholder source is local and approved for repository use."),
       stage("mesh_generated", "Low-poly placeholder mesh generated for runtime scaffolding."),
       stage("rigged", "Placeholder character or static-scene rig metadata recorded."),
@@ -295,6 +320,34 @@ function createManifest(input: {
     ],
     tags: [...input.tags],
   };
+}
+
+function assetKindFromNeed(assetType: string): AssetKind {
+  if (assetType === "character" || assetType === "environment" || assetType === "equipment" || assetType === "prop" || assetType === "texture" || assetType === "audio") {
+    return assetType;
+  }
+  return "prop";
+}
+
+function placeholderBudgetForKind(kind: AssetKind): Pick<AssetManifest["geometryBudget"], "maxTriangles" | "maxTextureMegabytes" | "maxDrawCalls"> {
+  if (kind === "character") {
+    return { maxTriangles: 18000, maxTextureMegabytes: 24, maxDrawCalls: 8 };
+  }
+  if (kind === "environment") {
+    return { maxTriangles: 24000, maxTextureMegabytes: 32, maxDrawCalls: 12 };
+  }
+  if (kind === "equipment" || kind === "prop") {
+    return { maxTriangles: 5000, maxTextureMegabytes: 8, maxDrawCalls: 4 };
+  }
+  return { maxTriangles: 1000, maxTextureMegabytes: 4, maxDrawCalls: 2 };
+}
+
+function humanizeAssetId(assetId: string): string {
+  return assetId
+    .split("_")
+    .filter(Boolean)
+    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
+    .join(" ");
 }
 
 function stage(stageName: AssetPipelineStageName, notes: string): AssetPipelineStage {
