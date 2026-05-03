@@ -156,6 +156,7 @@ export class MockVoiceProviderAdapter implements VoiceProviderAdapter {
 
 export type LocalVoiceProviderOptions = {
   providerId: string;
+  blockers?: string[];
 };
 
 export class LocalVoiceProviderAdapter implements VoiceProviderAdapter {
@@ -168,7 +169,11 @@ export class LocalVoiceProviderAdapter implements VoiceProviderAdapter {
   }
 
   async health(): Promise<ProviderHealth> {
-    return { providerId: this.id, status: "not_configured" };
+    return {
+      providerId: this.id,
+      status: "not_configured",
+      blockers: this.options.blockers ?? ["local_voice_runtime_not_configured"],
+    };
   }
 
   async *transcribe(): AsyncIterable<TranscriptEvent> {

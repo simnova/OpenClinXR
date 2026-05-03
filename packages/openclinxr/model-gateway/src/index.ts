@@ -188,6 +188,7 @@ function isHiddenTruthExtractionAttempt(utterance: string): boolean {
 
 export type LocalModelProviderOptions = {
   providerId: string;
+  blockers?: string[];
 };
 
 export class LocalModelProviderAdapter implements ModelProviderAdapter {
@@ -200,7 +201,11 @@ export class LocalModelProviderAdapter implements ModelProviderAdapter {
   }
 
   async health(): Promise<ProviderHealth> {
-    return { providerId: this.id, status: "not_configured" };
+    return {
+      providerId: this.id,
+      status: "not_configured",
+      blockers: this.options.blockers ?? ["local_model_runtime_not_configured"],
+    };
   }
 
   async generateActorResponse(): Promise<ActorResponseResult> {

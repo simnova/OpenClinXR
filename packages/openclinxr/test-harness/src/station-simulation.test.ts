@@ -17,8 +17,8 @@ describe("ED chest pain deterministic simulation", () => {
     expect(result.providerHealth).toEqual({
       model: { providerId: "mock-model", status: "ready" },
       voice: { providerId: "mock-voice", status: "ready" },
-      localModel: { providerId: "local-model", status: "not_configured" },
-      localVoice: { providerId: "local-voice", status: "not_configured" },
+      localModel: { providerId: "local-model", status: "not_configured", blockers: ["local_model_runtime_not_configured"] },
+      localVoice: { providerId: "local-voice", status: "not_configured", blockers: ["local_voice_runtime_not_configured"] },
     });
   });
 });

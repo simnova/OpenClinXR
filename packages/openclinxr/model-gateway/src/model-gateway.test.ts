@@ -113,6 +113,7 @@ describe("model gateway", () => {
       {
         providerId: "local-qwen-mlx",
         status: "not_configured",
+        blockers: ["local_model_runtime_not_configured"],
       },
     ]);
 

@@ -172,6 +172,7 @@ export const ProviderHealthSchema = Type.Object({
     Type.Literal("not_configured"),
     Type.Literal("blocked"),
   ]),
+  blockers: Type.Optional(Type.Array(Type.String({ minLength: 1 }))),
 });
 
 export type ActorCard = Static<typeof ActorCardSchema>;

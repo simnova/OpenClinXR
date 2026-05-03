@@ -69,7 +69,13 @@ describe("voice gateway", () => {
       routeId: "voice-local-v1",
     });
 
-    expect(await gateway.health()).toEqual([{ providerId: "local-vibevoice", status: "not_configured" }]);
+    expect(await gateway.health()).toEqual([
+      {
+        providerId: "local-vibevoice",
+        status: "not_configured",
+        blockers: ["local_voice_runtime_not_configured"],
+      },
+    ]);
     await expect(
       collectVoiceStream(
         gateway.synthesize({
