@@ -140,12 +140,15 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   return app;
 }
 
-function sessionErrorResponse(context: { json: (body: { error: string }, status: 400 | 404 | 500) => Response }, error: unknown): Response {
+function sessionErrorResponse(context: { json: (body: { error: string }, status: 400 | 404 | 500 | 503) => Response }, error: unknown): Response {
   if (error instanceof Error && error.message.startsWith("Session not found")) {
     return context.json({ error: "session_not_found" }, 404);
   }
   if (error instanceof Error && error.message.startsWith("Actor not found")) {
     return context.json({ error: "actor_not_found" }, 400);
+  }
+  if (error instanceof Error && error.message.startsWith("Actor response generation failed")) {
+    return context.json({ error: "actor_response_generation_failed" }, 503);
   }
   return context.json({ error: "runtime_error" }, 500);
 }

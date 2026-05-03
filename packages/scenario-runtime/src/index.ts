@@ -179,25 +179,41 @@ export class ScenarioRuntime {
       },
     });
     const conversationTurn = this.actorResponseTurnCount(stationRunId, input.actorId) + 1;
-    const response = await this.options.modelGateway.generateActorResponse({
-      stationRunId,
-      scenarioId: this.options.scenario.scenarioId,
-      scenarioVersion: this.options.scenario.version,
-      actorId: actor.actorId,
-      actorDisplayName: actor.displayName,
-      actorRole: actor.role,
-      conversationTurn,
-      learnerUtterance: input.learnerUtterance,
-      visibleFacts: actorVisibleFacts(this.options.scenario, actor),
-      hiddenFacts: [],
-      retrievedMemoryIds: [
-        `scenario:${this.options.scenario.scenarioId}:v${this.options.scenario.version}`,
-        `actor:${actor.actorId}`,
-        `governance:${this.options.scenario.scenarioId}:hidden-fact-policy`,
-      ],
-      traceContextTags,
-      policy: actorResponsePolicy,
-    });
+    let response: ActorResponseResult;
+    try {
+      response = await this.options.modelGateway.generateActorResponse({
+        stationRunId,
+        scenarioId: this.options.scenario.scenarioId,
+        scenarioVersion: this.options.scenario.version,
+        actorId: actor.actorId,
+        actorDisplayName: actor.displayName,
+        actorRole: actor.role,
+        conversationTurn,
+        learnerUtterance: input.learnerUtterance,
+        visibleFacts: actorVisibleFacts(this.options.scenario, actor),
+        hiddenFacts: [],
+        retrievedMemoryIds: [
+          `scenario:${this.options.scenario.scenarioId}:v${this.options.scenario.version}`,
+          `actor:${actor.actorId}`,
+          `governance:${this.options.scenario.scenarioId}:hidden-fact-policy`,
+        ],
+        traceContextTags,
+        policy: actorResponsePolicy,
+      });
+    } catch {
+      this.appendTrace(session, {
+        eventType: "actor.response.failed",
+        atSecond: input.atSecond,
+        source: "model-gateway",
+        actorId: input.actorId,
+        ...(primaryTag ? { tag: primaryTag } : {}),
+        payload: {
+          errorCode: "model_provider_error",
+          traceContextTags,
+        },
+      });
+      throw new Error("Actor response generation failed");
+    }
     const actorResponseEvent = this.appendTrace(session, {
       eventType: "actor.response.generated",
       atSecond: input.atSecond,
@@ -337,7 +353,9 @@ export class ScenarioRuntime {
   }
 
   private actorResponseTurnCount(stationRunId: string, actorId: string): number {
-    return this.options.ledger.replay(stationRunId).filter((event) => event.eventType === "actor.response.generated" && event.actorId === actorId).length;
+    return this.options.ledger.replay(stationRunId).filter((event) =>
+      (event.eventType === "actor.response.generated" || event.eventType === "actor.response.failed") && event.actorId === actorId
+    ).length;
   }
 }
 

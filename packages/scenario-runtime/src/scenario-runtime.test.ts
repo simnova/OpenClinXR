@@ -201,6 +201,42 @@ describe("scenario runtime", () => {
     expect(JSON.stringify(runtime.traceEvents(session.stationRunId))).not.toContain("Father died of myocardial infarction");
   });
 
+  it("records safe trace evidence when actor response generation fails", async () => {
+    const runtime = createRuntimeWithModelProvider(new FailingModelProviderAdapter());
+    const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });
+    runtime.startEncounter(session.stationRunId, { atSecond: 60 });
+
+    await expect(
+      runtime.generateActorResponse(session.stationRunId, {
+        actorId: "patient_robert_hayes_v1",
+        learnerUtterance: "When did the chest pressure start?",
+        atSecond: 120,
+        traceContextTags: ["history_opqrst"],
+      }),
+    ).rejects.toThrow("Actor response generation failed");
+
+    const traceEvents = runtime.traceEvents(session.stationRunId);
+    expect(traceEvents.map((trace) => trace.eventType)).toEqual([
+      "station.started",
+      "consent.accepted",
+      "encounter.started",
+      "learner.utterance",
+      "actor.response.failed",
+    ]);
+    expect(traceEvents[4]).toMatchObject({
+      sequence: 4,
+      eventType: "actor.response.failed",
+      source: "model-gateway",
+      actorId: "patient_robert_hayes_v1",
+      tag: "history_opqrst",
+      payload: {
+        errorCode: "model_provider_error",
+        traceContextTags: ["history_opqrst"],
+      },
+    });
+    expect(JSON.stringify(traceEvents)).not.toContain("hidden provider prompt material");
+  });
+
   it("evaluates scenario publication readiness with required reviewer evidence", () => {
     const runtime = createDefaultScenarioRuntime();
 
@@ -305,6 +341,19 @@ class CapturingModelProviderAdapter implements ModelProviderAdapter {
         },
       },
     };
+  }
+}
+
+class FailingModelProviderAdapter implements ModelProviderAdapter {
+  readonly id = "failing-model";
+  readonly capabilities: ModelCapability[] = ["actor_response"];
+
+  async health() {
+    return { providerId: this.id, status: "ready" as const };
+  }
+
+  async generateActorResponse(): Promise<ActorResponseResult> {
+    throw new Error("provider exploded with hidden provider prompt material");
   }
 }
 

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createApiApp } from "./index.js";
 
 async function json(response: Response): Promise<unknown> {
@@ -229,6 +230,28 @@ describe("OpenClinXR API shell", () => {
 
     expect(response.status).toBe(400);
     expect(await json(response)).toEqual({ error: "actor_not_found" });
+  });
+
+  it("returns service unavailable when actor response generation fails", async () => {
+    const app = createApiApp({
+      async generateActorResponse() {
+        throw new Error("Actor response generation failed");
+      },
+    } as unknown as ScenarioRuntime);
+
+    const response = await app.request("/sessions/run_001/actor-response", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        actorId: "patient_robert_hayes_v1",
+        learnerUtterance: "When did the pressure start?",
+        atSecond: 120,
+        traceContextTags: ["history_opqrst"],
+      }),
+    });
+
+    expect(response.status).toBe(503);
+    expect(await json(response)).toEqual({ error: "actor_response_generation_failed" });
   });
 
   it("returns not found for missing runtime sessions", async () => {
