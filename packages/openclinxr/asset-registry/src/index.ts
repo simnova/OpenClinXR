@@ -51,6 +51,7 @@ export type ScenarioAssetReadiness = {
   scenarioId: string;
   devReady: boolean;
   productionReady: boolean;
+  stationBudget: ScenarioAssetBudget;
   missingRequiredAssetIds: string[];
   blockedAssets: Array<{
     assetId: string;
@@ -62,10 +63,26 @@ export type ScenarioAssetReadiness = {
   }>;
 };
 
-const quest3Budget = {
+export type ScenarioAssetBudget = {
+  maxVisibleTriangles: number;
+  maxTextureMegabytes: number;
+  maxDrawCalls: number;
+  totalTriangles: number;
+  totalTextureMegabytes: number;
+  totalDrawCalls: number;
+  blockers: string[];
+};
+
+const quest3AssetBudget = {
   maxTriangles: 60000,
   maxTextureMegabytes: 64,
   maxDrawCalls: 24,
+};
+
+const quest3StationBudget = {
+  maxVisibleTriangles: 180000,
+  maxTextureMegabytes: 512,
+  maxDrawCalls: 120,
 };
 
 export function evaluateAssetManifest(manifest: AssetManifest): AssetReadiness {
@@ -86,13 +103,13 @@ export function evaluateAssetManifest(manifest: AssetManifest): AssetReadiness {
   if (!stages.has("qa_ready")) {
     blockers.push("missing_qa_ready_stage");
   }
-  if (manifest.geometryBudget.maxTriangles > quest3Budget.maxTriangles) {
+  if (manifest.geometryBudget.maxTriangles > quest3AssetBudget.maxTriangles) {
     blockers.push("over_triangle_budget");
   }
-  if (manifest.geometryBudget.maxTextureMegabytes > quest3Budget.maxTextureMegabytes) {
+  if (manifest.geometryBudget.maxTextureMegabytes > quest3AssetBudget.maxTextureMegabytes) {
     blockers.push("over_texture_budget");
   }
-  if (manifest.geometryBudget.maxDrawCalls > quest3Budget.maxDrawCalls) {
+  if (manifest.geometryBudget.maxDrawCalls > quest3AssetBudget.maxDrawCalls) {
     blockers.push("over_draw_call_budget");
   }
   if (!stages.has("optimized")) {
@@ -132,6 +149,7 @@ export class InMemoryAssetRegistry {
     const missingRequiredAssetIds: string[] = [];
     const blockedAssets: Array<{ assetId: string; blockers: string[] }> = [];
     const productionBlockedAssets: Array<{ assetId: string; blockers: string[] }> = [];
+    const presentRequiredManifests: AssetManifest[] = [];
 
     for (const assetId of requiredAssetIds) {
       const manifest = this.manifests.get(assetId);
@@ -139,6 +157,7 @@ export class InMemoryAssetRegistry {
         missingRequiredAssetIds.push(assetId);
         continue;
       }
+      presentRequiredManifests.push(manifest);
 
       const readiness = evaluateAssetManifest(manifest);
       if (!readiness.productionReady) {
@@ -156,16 +175,43 @@ export class InMemoryAssetRegistry {
         });
       }
     }
+    const stationBudget = evaluateScenarioAssetBudget(presentRequiredManifests);
 
     return {
       scenarioId: scenario.scenarioId,
-      devReady: missingRequiredAssetIds.length === 0 && blockedAssets.length === 0,
-      productionReady: missingRequiredAssetIds.length === 0 && blockedAssets.length === 0 && productionBlockedAssets.length === 0,
+      devReady: missingRequiredAssetIds.length === 0 && blockedAssets.length === 0 && stationBudget.blockers.length === 0,
+      productionReady: missingRequiredAssetIds.length === 0
+        && blockedAssets.length === 0
+        && productionBlockedAssets.length === 0
+        && stationBudget.blockers.length === 0,
+      stationBudget,
       missingRequiredAssetIds,
       blockedAssets,
       productionBlockedAssets,
     };
   }
+}
+
+export function evaluateScenarioAssetBudget(manifests: readonly AssetManifest[]): ScenarioAssetBudget {
+  const totals = manifests.reduce(
+    (sum, manifest) => ({
+      totalTriangles: sum.totalTriangles + manifest.geometryBudget.maxTriangles,
+      totalTextureMegabytes: sum.totalTextureMegabytes + manifest.geometryBudget.maxTextureMegabytes,
+      totalDrawCalls: sum.totalDrawCalls + manifest.geometryBudget.maxDrawCalls,
+    }),
+    { totalTriangles: 0, totalTextureMegabytes: 0, totalDrawCalls: 0 },
+  );
+  const blockers = [
+    totals.totalTriangles > quest3StationBudget.maxVisibleTriangles ? "station_triangle_budget_exceeded" : undefined,
+    totals.totalTextureMegabytes > quest3StationBudget.maxTextureMegabytes ? "station_texture_budget_exceeded" : undefined,
+    totals.totalDrawCalls > quest3StationBudget.maxDrawCalls ? "station_draw_call_budget_exceeded" : undefined,
+  ].filter((blocker): blocker is string => typeof blocker === "string");
+
+  return {
+    ...quest3StationBudget,
+    ...totals,
+    blockers,
+  };
 }
 
 export function createEdChestPainPlaceholderManifests(): AssetManifest[] {

@@ -106,4 +106,47 @@ describe("asset registry", () => {
       },
     ]);
   });
+
+  it("blocks scenario readiness when aggregate Quest station budgets are exceeded", () => {
+    const registry = new InMemoryAssetRegistry();
+    const baseManifests = createEdChestPainPlaceholderManifests().map((manifest) => ({
+      ...manifest,
+      geometryBudget: {
+        ...manifest.geometryBudget,
+        maxTriangles: 50000,
+      },
+    }));
+    const extraActor: AssetManifest = {
+      ...requireManifest(baseManifests, 0),
+      assetId: "spouse_anna_hayes_character",
+      displayName: "Anna Hayes spouse character",
+      description: "Additional family member actor for interruption and emotional-pressure testing.",
+      tags: ["family", "interruption"],
+    };
+
+    for (const manifest of [...baseManifests, extraActor]) {
+      registry.upsert(manifest);
+    }
+
+    const readiness = registry.evaluateScenarioReadiness({
+      ...edChestPainScenario,
+      assetNeeds: [...baseManifests, extraActor].map((manifest) => ({
+        assetId: manifest.assetId,
+        assetType: manifest.kind,
+        description: manifest.description,
+        licenseStatus: "placeholder-approved",
+      })),
+    });
+
+    expect(readiness.devReady).toBe(false);
+    expect(readiness.stationBudget).toEqual({
+      maxVisibleTriangles: 180000,
+      maxTextureMegabytes: 512,
+      maxDrawCalls: 120,
+      totalTriangles: 200000,
+      totalTextureMegabytes: 104,
+      totalDrawCalls: 36,
+      blockers: ["station_triangle_budget_exceeded"],
+    });
+  });
 });
