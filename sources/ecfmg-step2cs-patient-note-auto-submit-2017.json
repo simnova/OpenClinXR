@@ -1,0 +1,19 @@
+{
+  "source_id": "src-ecfmg-step2cs-patient-note-auto-submit-2017",
+  "title": "UPDATE: Change to Patient Note Program for the Step 2 CS Exam",
+  "url": "https://www.ecfmg.org/news/2017/06/19/change-patient-note-program-step-2-cs-exam/",
+  "source_type": "authoritative-standard",
+  "citation": "ECFMG. UPDATE: Change to Patient Note Program for the Step 2 CS Exam. Jun 19, 2017. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Historical patient-note timing and auto-submit behavior for station runtime design."
+  ],
+  "claims_supported": [
+    "ECFMG announced automatic submission of Step 2 CS patient notes at the end of the allotted 25-minute patient encounter period."
+  ],
+  "claims_not_supported": [
+    "That OpenClinXR should reuse any confidential patient-note interface or exam content.",
+    "That OpenClinXR patient-note scoring is validated for high-stakes use."
+  ],
+  "confidence": 0.91
+}

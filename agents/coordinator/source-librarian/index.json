@@ -1,7 +1,7 @@
 {
   "agent_id": "source-librarian",
   "team": "coordinator",
-  "last_updated": "2026-05-02",
+  "last_updated": "2026-05-03",
   "entries": [
     {
       "id": "source-librarian-lesson-0001",
@@ -13,6 +13,28 @@
         "design-spec-2026-05-02"
       ],
       "iteration": 0,
+      "status": "active",
+      "supersedes": []
+    },
+    {
+      "id": "source-librarian-lesson-0002",
+      "type": "lesson",
+      "topic": "iteration-0002-source-ledger",
+      "summary": "Iteration 0002 source ledger covers Step 2 CS public structure, ECFMG operational notices, AMA day-one skills, LLM virtual patient articles, patient-note corpus caution, and CellixJS DDD/monorepo docs; the supplied IEEE link remains unresolved evidence debt.",
+      "confidence": 0.85,
+      "source_ids": [
+        "src-usmle-2020-bulletin-step2cs",
+        "src-usmle-step2cs-discontinuation",
+        "src-ecfmg-step2cs-break-schedule-2015",
+        "src-ecfmg-step2cs-patient-note-auto-submit-2017",
+        "src-ama-day-one-skills-2026",
+        "src-llm-generative-agents-anamnesis-2025",
+        "src-raspatient-pi-2024",
+        "src-nbme-step2cs-patient-note-corpus-2022",
+        "src-cellixjs-ddd-docs-2026",
+        "src-cellixjs-monorepo-pipeline-docs-2026"
+      ],
+      "iteration": 2,
       "status": "active",
       "supersedes": []
     }

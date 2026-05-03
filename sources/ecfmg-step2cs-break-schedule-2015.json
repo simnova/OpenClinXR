@@ -1,0 +1,20 @@
+{
+  "source_id": "src-ecfmg-step2cs-break-schedule-2015",
+  "title": "Break Time for USMLE Step 2 Clinical Skills (CS) Examinations",
+  "url": "https://www.ecfmg.org/news/2015/02/05/break-time-usmle-step-2-clinical-skills-cs-examinations/",
+  "source_type": "authoritative-standard",
+  "citation": "ECFMG. Break Time for USMLE Step 2 Clinical Skills (CS) Examinations. Feb 5, 2015. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Historical Step 2 CS break cadence and whole-exam session structure for station-sequencing inspiration."
+  ],
+  "claims_supported": [
+    "The Step 2 CS exam consisted of 12 patient encounters and lasted approximately 8 hours.",
+    "The historical break schedule included breaks after the 3rd, 6th, and 9th patient encounters."
+  ],
+  "claims_not_supported": [
+    "That OpenClinXR must duplicate the former exam schedule exactly.",
+    "That OpenClinXR can claim ECFMG, USMLE, or NBME endorsement."
+  ],
+  "confidence": 0.94
+}

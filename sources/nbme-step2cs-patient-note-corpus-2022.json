@@ -1,0 +1,21 @@
+{
+  "source_id": "src-nbme-step2cs-patient-note-corpus-2022",
+  "title": "The USMLE Step 2 Clinical Skills Patient Note Corpus",
+  "url": "https://aclanthology.org/anthology-files/pdf/naacl/2022.naacl-main.208.pdf",
+  "source_type": "peer-reviewed",
+  "citation": "Yaneva V, Mee J, Ha L, Harik P, Jodoin M, Mechaber A. The USMLE Step 2 Clinical Skills Patient Note Corpus. NAACL-HLT 2022. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Evidence context for physician-rater scoring of patient notes, rubric concepts, clinical-case features, and automated scoring caution."
+  ],
+  "claims_supported": [
+    "The paper describes a corpus of 43,985 Step 2 CS patient notes written by 35,156 examinees.",
+    "The paper describes physician raters scoring patient notes using case-specific rubrics of clinical concepts.",
+    "The paper notes high accuracy requirements and high societal/personal costs for automated scoring errors."
+  ],
+  "claims_not_supported": [
+    "That OpenClinXR can automate scoring safely.",
+    "That OpenClinXR has access to the corpus or can recreate confidential exam materials."
+  ],
+  "confidence": 0.91
+}

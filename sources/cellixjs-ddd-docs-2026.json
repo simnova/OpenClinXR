@@ -1,0 +1,20 @@
+{
+  "source_id": "src-cellixjs-ddd-docs-2026",
+  "title": "CellixJS Domain Driven Design Decision",
+  "url": "https://developers.cellixjs.org/docs/decisions/domain-driven-design/",
+  "source_type": "vendor",
+  "citation": "CellixJS Docs. Use DDD Framework to build the data-access project. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Vendor/project architecture context for DDD terminology, domain layer, application service layer, infrastructure layer, aggregates, repositories, and unit-of-work patterns."
+  ],
+  "claims_supported": [
+    "CellixJS documentation describes a DDD architecture with domain, application service, and infrastructure service layers.",
+    "CellixJS documentation describes contexts, entities, value objects, aggregate roots, unit of work, and repositories."
+  ],
+  "claims_not_supported": [
+    "That CellixJS is suitable for OpenClinXR without a spike.",
+    "That CellixJS provides the exact actor-cell runtime described in earlier OpenClinXR artifacts."
+  ],
+  "confidence": 0.78
+}

@@ -1,7 +1,7 @@
 {
   "agent_id": "xr-systems-architect",
   "team": "core",
-  "last_updated": "2026-05-02",
+  "last_updated": "2026-05-03",
   "entries": [
     {
       "id": "xr-systems-architect-lesson-0001",
@@ -26,6 +26,21 @@
         "src-internal-openclinxr-architecture-bundle"
       ],
       "iteration": 1,
+      "status": "active",
+      "supersedes": []
+    },
+    {
+      "id": "xr-systems-architect-decision-0003",
+      "type": "decision",
+      "topic": "actor-cell-runtime",
+      "summary": "Use actor-like runtime cells for exam session, station, environment, patient, family, nurse, evaluator, and guardrail responsibilities, with immutable messages and auditable state transitions.",
+      "confidence": 0.83,
+      "source_ids": [
+        "src-cellixjs-ddd-docs-2026",
+        "src-cellixjs-monorepo-pipeline-docs-2026",
+        "src-llm-generative-agents-anamnesis-2025"
+      ],
+      "iteration": 2,
       "status": "active",
       "supersedes": []
     }

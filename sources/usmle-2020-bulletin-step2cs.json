@@ -1,0 +1,24 @@
+{
+  "source_id": "src-usmle-2020-bulletin-step2cs",
+  "title": "USMLE 2020 Bulletin of Information - Step 2 CS Format",
+  "url": "https://www.usmle.org/sites/default/files/2021-08/2020bulletin.pdf",
+  "source_type": "authoritative-standard",
+  "citation": "Federation of State Medical Boards and National Board of Medical Examiners. 2020 Bulletin of Information. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Historical description of Step 2 CS format, timing, standardized-patient use, subcomponents, and scoring requirements.",
+    "Architecture inspiration for a station-based clinical skills exam simulator."
+  ],
+  "claims_supported": [
+    "Step 2 CS used 12 patient cases with 15 minutes for each encounter plus 10 minutes for the patient note.",
+    "Step 2 CS used standardized patients to assess information gathering, physical examination, and communication of findings.",
+    "Step 2 CS had three subcomponents: Communication and Interpersonal Skills, Integrated Clinical Encounter, and Spoken English Proficiency.",
+    "Step 2 CS required passing all three subcomponents in one administration."
+  ],
+  "claims_not_supported": [
+    "That OpenClinXR is equivalent to Step 2 CS.",
+    "That OpenClinXR can be used for licensure decisions.",
+    "That historical Step 2 CS exam content can be reproduced."
+  ],
+  "confidence": 0.96
+}

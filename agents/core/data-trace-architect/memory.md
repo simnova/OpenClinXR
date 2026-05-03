@@ -3,6 +3,7 @@
 ## Durable Lessons
 
 - No durable lessons recorded yet.
+- Iteration 0002 MongoDB model separates blueprints, scenario bank, actor cards, forms, sessions, station runs, traces, LLM audit events, review packets, and knowledge graph nodes/edges.
 
 ## Active Risks
 
@@ -18,4 +19,3 @@
 - Track event-taxonomy across iterations.
 - Track replay across iterations.
 - Track audit-export across iterations.
-

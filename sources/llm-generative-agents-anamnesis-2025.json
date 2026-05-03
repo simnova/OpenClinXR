@@ -1,0 +1,23 @@
+{
+  "source_id": "src-llm-generative-agents-anamnesis-2025",
+  "title": "Integrating large language model-based agents into a virtual patient chatbot for clinical anamnesis training",
+  "url": "https://www.sciencedirect.com/science/article/pii/S2001037025001850",
+  "source_type": "peer-reviewed",
+  "citation": "Laverde N, Grevisse C, Jaramillo S, Manrique R. Integrating large language model-based agents into a virtual patient chatbot for clinical anamnesis training. Computational and Structural Biotechnology Journal. 2025;27:2481-2491. doi:10.1016/j.csbj.2025.05.025. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Architecture context for LLM-based virtual patient agents using memory, retrieval, cognitive mechanisms, and teacher-authored cases.",
+    "Research context for asynchronous clinical history-taking practice."
+  ],
+  "claims_supported": [
+    "The article describes LLM-based generative agents for virtual patient history-taking practice.",
+    "The article reports use of memory/retrieval/cognitive mechanisms and teacher-created cases.",
+    "The article highlights plausible, context-aware responses and usability evaluation."
+  ],
+  "claims_not_supported": [
+    "That OpenClinXR is clinically validated.",
+    "That LLM agents are safe for unsupervised high-stakes scoring.",
+    "That XR multimodal encounters are validated by the article."
+  ],
+  "confidence": 0.88
+}

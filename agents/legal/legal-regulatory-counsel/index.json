@@ -1,7 +1,7 @@
 {
   "agent_id": "legal-regulatory-counsel",
   "team": "legal",
-  "last_updated": "2026-05-02",
+  "last_updated": "2026-05-03",
   "entries": [
     {
       "id": "legal-regulatory-counsel-lesson-0001",
@@ -29,6 +29,24 @@
       "iteration": 1,
       "status": "active",
       "supersedes": []
+    },
+    {
+      "id": "legal-regulatory-counsel-risk-0003",
+      "type": "risk",
+      "topic": "claims-non-equivalence",
+      "summary": "OpenClinXR may reference public Step 2 CS structure only as historical inspiration; it must not claim USMLE, ECFMG, NBME, AMA, licensure, or high-stakes equivalence or endorsement.",
+      "confidence": 0.92,
+      "source_ids": [
+        "src-usmle-2020-bulletin-step2cs",
+        "src-usmle-step2cs-discontinuation",
+        "src-ecfmg-step2cs-break-schedule-2015",
+        "src-ecfmg-step2cs-patient-note-auto-submit-2017"
+      ],
+      "iteration": 2,
+      "status": "active",
+      "supersedes": [
+        "legal-regulatory-counsel-risk-0002"
+      ]
     }
   ]
 }

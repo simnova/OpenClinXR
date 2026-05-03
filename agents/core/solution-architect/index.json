@@ -1,7 +1,7 @@
 {
   "agent_id": "solution-architect",
   "team": "core",
-  "last_updated": "2026-05-02",
+  "last_updated": "2026-05-03",
   "entries": [
     {
       "id": "solution-architect-lesson-0001",
@@ -13,6 +13,22 @@
         "design-spec-2026-05-02"
       ],
       "iteration": 0,
+      "status": "active",
+      "supersedes": []
+    },
+    {
+      "id": "solution-architect-decision-0002",
+      "type": "decision",
+      "topic": "exam-blueprint-form-station-actor-architecture",
+      "summary": "Use ExamBlueprint, ExamForm, Station, ActorCard, StationRun, TraceEvent, ReviewPacket, and KnowledgeGraph nodes as the primary implementation boundaries for the clinical skills exam platform.",
+      "confidence": 0.88,
+      "source_ids": [
+        "src-usmle-2020-bulletin-step2cs",
+        "src-cellixjs-ddd-docs-2026",
+        "src-cellixjs-monorepo-pipeline-docs-2026",
+        "src-internal-openclinxr-architecture-bundle"
+      ],
+      "iteration": 2,
       "status": "active",
       "supersedes": []
     }

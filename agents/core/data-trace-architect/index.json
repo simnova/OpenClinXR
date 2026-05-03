@@ -1,7 +1,7 @@
 {
   "agent_id": "data-trace-architect",
   "team": "core",
-  "last_updated": "2026-05-02",
+  "last_updated": "2026-05-03",
   "entries": [
     {
       "id": "data-trace-architect-lesson-0001",
@@ -13,6 +13,21 @@
         "design-spec-2026-05-02"
       ],
       "iteration": 0,
+      "status": "active",
+      "supersedes": []
+    },
+    {
+      "id": "data-trace-architect-decision-0002",
+      "type": "decision",
+      "topic": "mongodb-knowledge-graph-trace-ledger",
+      "summary": "MongoDB persistence should separate authored scenario truth from learner-visible station state, store append-only trace events and LLM audit events, and index knowledge nodes/edges for scenario generation and actor memory retrieval.",
+      "confidence": 0.86,
+      "source_ids": [
+        "src-llm-generative-agents-anamnesis-2025",
+        "src-raspatient-pi-2024",
+        "src-internal-openclinxr-architecture-bundle"
+      ],
+      "iteration": 2,
       "status": "active",
       "supersedes": []
     }

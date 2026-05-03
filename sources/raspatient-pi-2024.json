@@ -1,0 +1,21 @@
+{
+  "source_id": "src-raspatient-pi-2024",
+  "title": "RasPatient Pi: A Low-Cost Customizable LLM-Based Virtual Standardized Patient Simulator",
+  "url": "https://orbilu.uni.lu/handle/10993/62284",
+  "source_type": "peer-reviewed",
+  "citation": "Grevisse C. RasPatient Pi: A Low-Cost Customizable LLM-Based Virtual Standardized Patient Simulator. Communications in Computer and Information Science. 2024. doi:10.1007/978-3-031-75147-9_9. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Architecture context for customizable LLM-based virtual standardized patient simulators using ASR, LLMs, TTS, browser deployment, and teacher-authored scenario descriptions."
+  ],
+  "claims_supported": [
+    "RasPatient Pi is described as a low-cost customizable LLM-based virtual standardized patient simulator.",
+    "The simulator leverages automatic speech recognition, LLMs, and text-to-speech.",
+    "Teachers can specify scenarios with short descriptions and the simulator can run alongside a manikin or in a browser with a 3D avatar."
+  ],
+  "claims_not_supported": [
+    "That OpenClinXR can rely on unconstrained LLM dialogue for assessment.",
+    "That RasPatient Pi's design is sufficient for high-stakes exam-grade psychometrics."
+  ],
+  "confidence": 0.86
+}

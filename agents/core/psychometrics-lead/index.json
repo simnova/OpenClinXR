@@ -1,7 +1,7 @@
 {
   "agent_id": "psychometrics-lead",
   "team": "core",
-  "last_updated": "2026-05-02",
+  "last_updated": "2026-05-03",
   "entries": [
     {
       "id": "psychometrics-lead-lesson-0001",
@@ -26,6 +26,21 @@
         "src-internal-chatgpt-business-plan"
       ],
       "iteration": 1,
+      "status": "active",
+      "supersedes": []
+    },
+    {
+      "id": "psychometrics-lead-decision-0003",
+      "type": "decision",
+      "topic": "formative-local-score-use",
+      "summary": "OpenClinXR score outputs remain formative or local-programmatic until a score-use statement, rater training, difficulty metadata, trace-quality metric, and validation evidence exist.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-nbme-step2cs-patient-note-corpus-2022",
+        "src-usmle-2020-bulletin-step2cs",
+        "src-internal-chatgpt-business-plan"
+      ],
+      "iteration": 2,
       "status": "active",
       "supersedes": []
     }

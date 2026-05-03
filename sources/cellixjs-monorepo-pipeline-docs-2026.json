@@ -1,0 +1,20 @@
+{
+  "source_id": "src-cellixjs-monorepo-pipeline-docs-2026",
+  "title": "CellixJS Azure DevOps Monorepo Pipeline Architecture",
+  "url": "https://developers.cellixjs.org/docs/decisions/azure-devops-monorepo-pipeline/",
+  "source_type": "vendor",
+  "citation": "CellixJS Docs. Azure DevOps Monorepo Pipeline Architecture. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Vendor/project architecture context for monorepo, Turborepo affected-package analysis, change detection, conditional deployment, and cache strategy."
+  ],
+  "claims_supported": [
+    "CellixJS documentation describes a monorepo with API, UI Community, Docs, and shared packages.",
+    "CellixJS documentation describes Turborepo affected-package analysis and conditional deployment."
+  ],
+  "claims_not_supported": [
+    "That OpenClinXR must use Azure DevOps.",
+    "That CellixJS operational patterns are production-ready for OpenClinXR without evaluation."
+  ],
+  "confidence": 0.76
+}

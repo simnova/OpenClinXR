@@ -1,8 +1,102 @@
 {
   "generated_by": "tools/agent-factory/build-memory-index.ts",
   "agent_count": 55,
-  "entry_count": 60,
+  "entry_count": 68,
   "entries": [
+    {
+      "id": "xr-systems-architect-decision-0003",
+      "type": "decision",
+      "topic": "actor-cell-runtime",
+      "summary": "Use actor-like runtime cells for exam session, station, environment, patient, family, nurse, evaluator, and guardrail responsibilities, with immutable messages and auditable state transitions.",
+      "confidence": 0.83,
+      "source_ids": [
+        "src-cellixjs-ddd-docs-2026",
+        "src-cellixjs-monorepo-pipeline-docs-2026",
+        "src-llm-generative-agents-anamnesis-2025"
+      ],
+      "iteration": 2,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "xr-systems-architect",
+      "team": "core",
+      "source_file": "agents/core/xr-systems-architect/index.json"
+    },
+    {
+      "id": "legal-regulatory-counsel-risk-0003",
+      "type": "risk",
+      "topic": "claims-non-equivalence",
+      "summary": "OpenClinXR may reference public Step 2 CS structure only as historical inspiration; it must not claim USMLE, ECFMG, NBME, AMA, licensure, or high-stakes equivalence or endorsement.",
+      "confidence": 0.92,
+      "source_ids": [
+        "src-usmle-2020-bulletin-step2cs",
+        "src-usmle-step2cs-discontinuation",
+        "src-ecfmg-step2cs-break-schedule-2015",
+        "src-ecfmg-step2cs-patient-note-auto-submit-2017"
+      ],
+      "iteration": 2,
+      "status": "active",
+      "supersedes": [
+        "legal-regulatory-counsel-risk-0002"
+      ],
+      "agent_id": "legal-regulatory-counsel",
+      "team": "legal",
+      "source_file": "agents/legal/legal-regulatory-counsel/index.json"
+    },
+    {
+      "id": "solution-architect-decision-0002",
+      "type": "decision",
+      "topic": "exam-blueprint-form-station-actor-architecture",
+      "summary": "Use ExamBlueprint, ExamForm, Station, ActorCard, StationRun, TraceEvent, ReviewPacket, and KnowledgeGraph nodes as the primary implementation boundaries for the clinical skills exam platform.",
+      "confidence": 0.88,
+      "source_ids": [
+        "src-usmle-2020-bulletin-step2cs",
+        "src-cellixjs-ddd-docs-2026",
+        "src-cellixjs-monorepo-pipeline-docs-2026",
+        "src-internal-openclinxr-architecture-bundle"
+      ],
+      "iteration": 2,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "solution-architect",
+      "team": "core",
+      "source_file": "agents/core/solution-architect/index.json"
+    },
+    {
+      "id": "clinical-simulation-lead-lesson-0002",
+      "type": "lesson",
+      "topic": "expanded-multi-actor-stations",
+      "summary": "Stations must support realistic environments with additional actors, interruptions, emotional/pain responses, urgent deterioration, team communication, and post-encounter documentation.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-ama-day-one-skills-2026",
+        "src-llm-generative-agents-anamnesis-2025",
+        "src-raspatient-pi-2024"
+      ],
+      "iteration": 2,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "clinical-simulation-lead",
+      "team": "core",
+      "source_file": "agents/core/clinical-simulation-lead/index.json"
+    },
+    {
+      "id": "psychometrics-lead-decision-0003",
+      "type": "decision",
+      "topic": "formative-local-score-use",
+      "summary": "OpenClinXR score outputs remain formative or local-programmatic until a score-use statement, rater training, difficulty metadata, trace-quality metric, and validation evidence exist.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-nbme-step2cs-patient-note-corpus-2022",
+        "src-usmle-2020-bulletin-step2cs",
+        "src-internal-chatgpt-business-plan"
+      ],
+      "iteration": 2,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "psychometrics-lead",
+      "team": "core",
+      "source_file": "agents/core/psychometrics-lead/index.json"
+    },
     {
       "id": "anesthesiology-critical-care-physician-lesson-0001",
       "type": "lesson",
@@ -884,6 +978,31 @@
       "source_file": "agents/core/xr-systems-architect/index.json"
     },
     {
+      "id": "source-librarian-lesson-0002",
+      "type": "lesson",
+      "topic": "iteration-0002-source-ledger",
+      "summary": "Iteration 0002 source ledger covers Step 2 CS public structure, ECFMG operational notices, AMA day-one skills, LLM virtual patient articles, patient-note corpus caution, and CellixJS DDD/monorepo docs; the supplied IEEE link remains unresolved evidence debt.",
+      "confidence": 0.85,
+      "source_ids": [
+        "src-usmle-2020-bulletin-step2cs",
+        "src-usmle-step2cs-discontinuation",
+        "src-ecfmg-step2cs-break-schedule-2015",
+        "src-ecfmg-step2cs-patient-note-auto-submit-2017",
+        "src-ama-day-one-skills-2026",
+        "src-llm-generative-agents-anamnesis-2025",
+        "src-raspatient-pi-2024",
+        "src-nbme-step2cs-patient-note-corpus-2022",
+        "src-cellixjs-ddd-docs-2026",
+        "src-cellixjs-monorepo-pipeline-docs-2026"
+      ],
+      "iteration": 2,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "source-librarian",
+      "team": "coordinator",
+      "source_file": "agents/coordinator/source-librarian/index.json"
+    },
+    {
       "id": "open-source-governance-lead-decision-0002",
       "type": "decision",
       "topic": "marketplace-deferral",
@@ -899,6 +1018,24 @@
       "agent_id": "open-source-governance-lead",
       "team": "core",
       "source_file": "agents/core/open-source-governance-lead/index.json"
+    },
+    {
+      "id": "data-trace-architect-decision-0002",
+      "type": "decision",
+      "topic": "mongodb-knowledge-graph-trace-ledger",
+      "summary": "MongoDB persistence should separate authored scenario truth from learner-visible station state, store append-only trace events and LLM audit events, and index knowledge nodes/edges for scenario generation and actor memory retrieval.",
+      "confidence": 0.86,
+      "source_ids": [
+        "src-llm-generative-agents-anamnesis-2025",
+        "src-raspatient-pi-2024",
+        "src-internal-openclinxr-architecture-bundle"
+      ],
+      "iteration": 2,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "data-trace-architect",
+      "team": "core",
+      "source_file": "agents/core/data-trace-architect/index.json"
     },
     {
       "id": "chief-coordinator-decision-0002",
@@ -950,6 +1087,27 @@
       "agent_id": "xr-systems-architect",
       "team": "core",
       "source_file": "agents/core/xr-systems-architect/index.json"
+    },
+    {
+      "id": "chief-coordinator-decision-0003",
+      "type": "decision",
+      "topic": "step2cs-inspired-sequential-exam",
+      "summary": "OpenClinXR's design baseline is now a source-backed sequential clinical skills exam architecture supporting 12 timed stations, note windows, breaks, human review, and a deterministic ED chest pain first proof slice.",
+      "confidence": 0.87,
+      "source_ids": [
+        "src-usmle-2020-bulletin-step2cs",
+        "src-ecfmg-step2cs-break-schedule-2015",
+        "src-ecfmg-step2cs-patient-note-auto-submit-2017",
+        "src-ama-day-one-skills-2026"
+      ],
+      "iteration": 2,
+      "status": "active",
+      "supersedes": [
+        "chief-coordinator-decision-0002"
+      ],
+      "agent_id": "chief-coordinator",
+      "team": "coordinator",
+      "source_file": "agents/coordinator/chief-coordinator/index.json"
     },
     {
       "id": "psychometrics-lead-lesson-0002",

@@ -1,0 +1,20 @@
+{
+  "source_id": "src-usmle-step2cs-discontinuation",
+  "title": "Work to relaunch USMLE Step 2 CS discontinued",
+  "url": "https://www.usmle.org/work-relaunch-usmle-step-2-cs-discontinued",
+  "source_type": "regulator",
+  "citation": "USMLE. Work to relaunch USMLE Step 2 CS discontinued. Posted January 26, 2021. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Historical context for Step 2 CS discontinuation and the need for innovative clinical-skills assessment approaches."
+  ],
+  "claims_supported": [
+    "USMLE announced discontinuation of work to relaunch a modified Step 2 CS in January 2021.",
+    "USMLE stated it intended to work with medical education and medical board communities on innovative ways to assess clinical skills."
+  ],
+  "claims_not_supported": [
+    "That USMLE endorses OpenClinXR.",
+    "That OpenClinXR satisfies licensure requirements."
+  ],
+  "confidence": 0.97
+}

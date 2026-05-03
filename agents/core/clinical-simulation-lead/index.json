@@ -1,7 +1,7 @@
 {
   "agent_id": "clinical-simulation-lead",
   "team": "core",
-  "last_updated": "2026-05-02",
+  "last_updated": "2026-05-03",
   "entries": [
     {
       "id": "clinical-simulation-lead-lesson-0001",
@@ -13,6 +13,21 @@
         "design-spec-2026-05-02"
       ],
       "iteration": 0,
+      "status": "active",
+      "supersedes": []
+    },
+    {
+      "id": "clinical-simulation-lead-lesson-0002",
+      "type": "lesson",
+      "topic": "expanded-multi-actor-stations",
+      "summary": "Stations must support realistic environments with additional actors, interruptions, emotional/pain responses, urgent deterioration, team communication, and post-encounter documentation.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-ama-day-one-skills-2026",
+        "src-llm-generative-agents-anamnesis-2025",
+        "src-raspatient-pi-2024"
+      ],
+      "iteration": 2,
       "status": "active",
       "supersedes": []
     }

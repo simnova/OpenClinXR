@@ -1,0 +1,20 @@
+{
+  "source_id": "src-ama-day-one-skills-2026",
+  "title": "The 5 skills residency program directors expect on day one",
+  "url": "https://www.ama-assn.org/medical-students/preparing-residency/5-skills-residency-program-directors-expect-day-one",
+  "source_type": "professional-guidance",
+  "citation": "American Medical Association. The 5 skills residency program directors expect on day one. Mar 18, 2026. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Competency framing for exam scenario design, workflow-readiness testing, and day-one residency readiness hypotheses."
+  ],
+  "claims_supported": [
+    "The article lists five residency day-one skills: gather history/physical, oral summary, documentation, interprofessional team participation, and recognition/initial management of urgent or emergent care.",
+    "The article highlights time management, prioritization, and organizing work as transition pain points."
+  ],
+  "claims_not_supported": [
+    "That XR simulation improves those skills.",
+    "That OpenClinXR has validated resident-readiness outcomes."
+  ],
+  "confidence": 0.93
+}

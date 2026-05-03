@@ -4,6 +4,7 @@
 
 - No durable lessons recorded yet.
 - Trace completeness is a prerequisite for defensible evidence, not validity evidence by itself.
+- Iteration 0002 score-use boundary: keep scores formative/local until score-use statement, rater training, difficulty metadata, trace-quality metric, and validation evidence exist.
 
 ## Active Risks
 

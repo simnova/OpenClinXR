@@ -1,0 +1,104 @@
+{
+  "iteration_id": "iteration-0002",
+  "plan_type": "adversarial-counterplan",
+  "scored_by": "rubric-steward",
+  "scored_at": "2026-05-03",
+  "dimensions": {
+    "clinical_validity": {
+      "score": 4.45,
+      "rationale": "The counterplan preserves the multi-station vision while forcing the first implementation to prove one clinically coherent, reviewable station."
+    },
+    "psychometric_defensibility": {
+      "score": 4.35,
+      "rationale": "It prioritizes construct clarity, review gates, trace quality, score-use statements, and human scoring before any automation claim."
+    },
+    "technical_feasibility": {
+      "score": 4.3,
+      "rationale": "The proof ladder de-risks deterministic runtime, bounded LLMs, and XR/speech separately."
+    },
+    "architecture_coherence": {
+      "score": 4.5,
+      "rationale": "The architecture remains full-fidelity, but the first build path is constrained to verifiable layers."
+    },
+    "security_privacy": {
+      "score": 4.15,
+      "rationale": "The counterplan strengthens trace audit, prompt logging, consent, and claims governance, though a threat model is still pending."
+    },
+    "ux_workflow_fit": {
+      "score": 4.25,
+      "rationale": "Faculty and psychometric review become the first-class proof point, reducing risk that learner XR polish hides review defects."
+    },
+    "cost_performance_efficiency": {
+      "score": 4.15,
+      "rationale": "Scripted-first and mock-provider proofs delay expensive multimodal runtime costs until evidence flow is validated."
+    },
+    "open_source_sustainability": {
+      "score": 3.85,
+      "rationale": "Deferring CellixJS commitment and provider choices keeps the design more portable."
+    },
+    "market_gtm_strength": {
+      "score": 4,
+      "rationale": "An evidence-first demo is more credible for institutional design partners than a broad but unvalidated XR showcase."
+    },
+    "evidence_discipline": {
+      "score": 4.35,
+      "rationale": "The counterplan isolates unresolved IEEE, latency, validation, and CellixJS claims instead of blurring them into the roadmap."
+    },
+    "implementation_readiness": {
+      "score": 4.45,
+      "rationale": "The proof ladder can be translated directly into Phase 0 through Phase 5 engineering tickets."
+    },
+    "adversarial_robustness": {
+      "score": 4.65,
+      "rationale": "The adversarial team produced concrete replacements for fragile assumptions and introduced pass conditions."
+    },
+    "legal_regulatory_resilience": {
+      "score": 4.4,
+      "rationale": "The plan adds claims registry, formative/local score-use statements, and review gates before activation."
+    },
+    "specialty_clinical_generalizability": {
+      "score": 4.15,
+      "rationale": "It keeps the specialty-capable architecture while narrowing the first proof to an ED case with internal medicine and cardiology relevance."
+    }
+  },
+  "critical_risks": [
+    {
+      "id": "risk-adv-0003",
+      "severity": "high",
+      "summary": "If the first demo skips deterministic trace proof, LLM and XR variability may hide invalid evidence capture.",
+      "owner": "red-team-coordinator",
+      "status": "open"
+    },
+    {
+      "id": "risk-adv-0004",
+      "severity": "high",
+      "summary": "If automated scoring appears learner-facing too early, legal and psychometric exposure rises sharply.",
+      "owner": "legal-liability-attacker",
+      "status": "open"
+    }
+  ],
+  "evidence_debt": [
+    {
+      "id": "evidence-adv-0002",
+      "summary": "Run adversarial prompt tests against candidate LLM actor policies using hidden-truth leakage, bias, unsafe advice, and derailment probes.",
+      "owner": "clinical-safety-critic",
+      "status": "open"
+    },
+    {
+      "id": "evidence-adv-0003",
+      "summary": "Create a station trace-quality metric and validate it on deterministic synthetic runs before LLM runs.",
+      "owner": "psychometric-overclaim-critic",
+      "status": "open"
+    }
+  ],
+  "decision_debt": [
+    {
+      "id": "decision-adv-0002",
+      "summary": "Choose the deterministic actor fixture format before implementing the LLM actor gateway.",
+      "owner": "solution-architect",
+      "status": "open"
+    }
+  ],
+  "confidence": 0.88,
+  "summary": "The adversarial counterplan upgrades the architecture by forcing a proof ladder: evidence station pack, deterministic runtime, bounded LLM, then XR/speech."
+}

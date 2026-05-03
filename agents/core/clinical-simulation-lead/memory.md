@@ -3,6 +3,7 @@
 ## Durable Lessons
 
 - No durable lessons recorded yet.
+- Iteration 0002 requires every scenario to define environment, actor roster, hidden truth, disclosure rules, event schedule, safety-critical actions, documentation task, and scoring rubric before review.
 
 ## Active Risks
 
@@ -18,4 +19,3 @@
 - Track faculty-review across iterations.
 - Track debriefing across iterations.
 - Track learner-progression across iterations.
-

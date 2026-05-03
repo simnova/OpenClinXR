@@ -4,6 +4,7 @@
 
 - No durable lessons recorded yet.
 - Quest XR should be treated as an M1 interaction slice after the M0 evidence workflow is clear.
+- Iteration 0002 runtime abstraction: ExamSessionCell, StationCell, EnvironmentCell, PatientActorCell, FamilyActorCell, NurseActorCell, EvaluatorCell, and SafetyGuardrailCell coordinate timed station flow and actor behavior.
 
 ## Active Risks
 
