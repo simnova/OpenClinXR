@@ -1,6 +1,12 @@
-import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
+import { edChestPainScenario, scenarioBank } from "@openclinxr/scenario-fixtures";
 import { describe, expect, it } from "vitest";
-import { assembleExamForm, createDefaultClinicalSkillsBlueprint, evaluateScenarioVersionDrift } from "./index.js";
+import {
+  assembleExamForm,
+  createDefaultClinicalSkillsBlueprint,
+  createStep2CsStyleSeedBlueprint,
+  evaluateBlueprintScenarioReadiness,
+  evaluateScenarioVersionDrift,
+} from "./index.js";
 
 describe("exam assembly", () => {
   it("assembles approved scenarios into an ordered exam form with complete coverage", () => {
@@ -100,5 +106,24 @@ describe("exam assembly", () => {
         scenarios: [{ ...edChestPainScenario, status: "draft" }],
       }),
     ).toThrow("Cannot assemble unapproved scenario");
+  });
+
+  it("creates a 12-station seed blueprint without making draft stations runnable", () => {
+    const blueprint = createStep2CsStyleSeedBlueprint();
+    expect(blueprint.stationSlots).toHaveLength(12);
+    expect(blueprint.stationSlots.map((slot) => slot.order)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+    expect(blueprint.timing).toEqual({
+      doorwaySeconds: 60,
+      encounterSeconds: 900,
+      noteSeconds: 600,
+      breakAfterStationOrders: [3, 6, 9],
+    });
+    expect(blueprint.requiredTraceTags).toEqual(expect.arrayContaining(["ecg_request", "teach_back", "stroke_team_activation", "interpreter_use"]));
+
+    const readiness = evaluateBlueprintScenarioReadiness(blueprint, scenarioBank);
+    expect(readiness.canAssembleReadyForm).toBe(false);
+    expect(readiness.activationEligibleScenarioIds).toEqual(["ed_chest_pain_priority_v1"]);
+    expect(readiness.blockedScenarioIds).toHaveLength(11);
+    expect(readiness.blockedScenarioIds).toContainEqual({ scenarioId: "ward_delirium_med_rec_v1", reason: "not_approved" });
   });
 });

@@ -27,6 +27,8 @@ export const openClinXrRestRoutes = Object.freeze([
   route("scenario-asset-readiness", "GET", "/scenarios/ed-chest-pain/assets/readiness", "control-plane"),
   route("scenario-publication-readiness", "POST", "/scenarios/ed-chest-pain/publication-readiness", "control-plane"),
   route("default-exam-blueprint", "GET", "/exam-blueprints/default", "control-plane"),
+  route("step2cs-seed-exam-blueprint", "GET", "/exam-blueprints/step2cs-seed", "control-plane"),
+  route("step2cs-seed-exam-blueprint-readiness", "GET", "/exam-blueprints/step2cs-seed/readiness", "control-plane"),
   route("create-exam-form", "POST", "/exam-forms", "control-plane"),
   route("exam-form-version-drift", "POST", "/exam-forms/version-drift", "control-plane"),
   route("start-session", "POST", "/sessions", "xr-runtime"),

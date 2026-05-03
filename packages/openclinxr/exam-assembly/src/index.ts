@@ -1,12 +1,20 @@
-import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
+import { edChestPainScenario, scenarioBank } from "@openclinxr/scenario-fixtures";
 import type { Scenario } from "@openclinxr/shared-schemas";
 
 export type ExamBlueprint = {
   blueprintId: string;
   title: string;
   stationSlots: ExamStationSlot[];
+  timing: ExamBlueprintTiming;
   requiredTraceTags: string[];
   requiredSafetyCriticalTraceTags: string[];
+};
+
+export type ExamBlueprintTiming = {
+  doorwaySeconds: number;
+  encounterSeconds: number;
+  noteSeconds: number;
+  breakAfterStationOrders: number[];
 };
 
 export type ExamStationSlot = {
@@ -65,6 +73,26 @@ export type ScenarioVersionDrift = {
   currentVersion: number | null;
 };
 
+export type BlueprintScenarioReadiness = {
+  blueprintId: string;
+  canAssembleReadyForm: boolean;
+  stationCount: {
+    required: number;
+    candidate: number;
+    activationEligible: number;
+  };
+  activationEligibleScenarioIds: string[];
+  blockedScenarioIds: Array<{ scenarioId: string; reason: "not_approved" | "governance_not_ready" }>;
+  missingScenarioSlotIds: string[];
+};
+
+const step2CsStyleTiming: ExamBlueprintTiming = {
+  doorwaySeconds: 60,
+  encounterSeconds: 900,
+  noteSeconds: 600,
+  breakAfterStationOrders: [3, 6, 9],
+};
+
 export function createDefaultClinicalSkillsBlueprint(): ExamBlueprint {
   return {
     blueprintId: "blueprint_openclinxr_clinical_skills_pilot_v1",
@@ -78,8 +106,58 @@ export function createDefaultClinicalSkillsBlueprint(): ExamBlueprint {
         requiredTraceTags: [...edChestPainScenario.requiredTraceTags],
       },
     ],
+    timing: { ...step2CsStyleTiming },
     requiredTraceTags: [...edChestPainScenario.requiredTraceTags],
     requiredSafetyCriticalTraceTags: [...edChestPainScenario.governance.safetyCriticalTraceTags],
+  };
+}
+
+export function createStep2CsStyleSeedBlueprint(scenarios: readonly Scenario[] = scenarioBank): ExamBlueprint {
+  const stationSlots = scenarios.map((scenario, index): ExamStationSlot => ({
+    slotId: `station_${String(index + 1).padStart(3, "0")}_${scenario.scenarioId}`,
+    order: index + 1,
+    label: scenario.title,
+    requiredEnvironmentIds: scenario.environment?.environmentId ? [scenario.environment.environmentId] : [],
+    requiredTraceTags: [...scenario.requiredTraceTags],
+  }));
+
+  return {
+    blueprintId: "blueprint_openclinxr_step2cs_style_seed_v1",
+    title: "OpenClinXR Step 2 CS-Style 12-Station Seed Form",
+    stationSlots,
+    timing: { ...step2CsStyleTiming },
+    requiredTraceTags: uniqueInOrder(scenarios.flatMap((scenario) => scenario.requiredTraceTags)),
+    requiredSafetyCriticalTraceTags: uniqueInOrder(scenarios.flatMap((scenario) => scenario.governance.safetyCriticalTraceTags)),
+  };
+}
+
+export function evaluateBlueprintScenarioReadiness(blueprint: ExamBlueprint, scenarios: readonly Scenario[]): BlueprintScenarioReadiness {
+  const activationEligibleScenarioIds: string[] = [];
+  const blockedScenarioIds: BlueprintScenarioReadiness["blockedScenarioIds"] = [];
+
+  for (const scenario of scenarios) {
+    if (isActivationEligible(scenario)) {
+      activationEligibleScenarioIds.push(scenario.scenarioId);
+      continue;
+    }
+
+    blockedScenarioIds.push({
+      scenarioId: scenario.scenarioId,
+      reason: scenario.status !== "approved" ? "not_approved" : "governance_not_ready",
+    });
+  }
+
+  return {
+    blueprintId: blueprint.blueprintId,
+    canAssembleReadyForm: activationEligibleScenarioIds.length === blueprint.stationSlots.length && blockedScenarioIds.length === 0,
+    stationCount: {
+      required: blueprint.stationSlots.length,
+      candidate: scenarios.length,
+      activationEligible: activationEligibleScenarioIds.length,
+    },
+    activationEligibleScenarioIds,
+    blockedScenarioIds,
+    missingScenarioSlotIds: blueprint.stationSlots.slice(scenarios.length).map((slot) => slot.slotId),
   };
 }
 
@@ -175,6 +253,13 @@ function examFormStatus(input: {
     return "coverage_incomplete";
   }
   return "ready_for_review";
+}
+
+function isActivationEligible(scenario: Scenario): boolean {
+  return scenario.status === "approved"
+    && Object.values(scenario.review).every((state) => state === "approved")
+    && scenario.governance.validationStage !== "stage_0_synthetic_draft"
+    && scenario.governance.scoreUseLabel !== "validated_summative";
 }
 
 function uniqueInOrder(values: string[]): string[] {

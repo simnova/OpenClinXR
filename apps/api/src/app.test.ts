@@ -198,6 +198,35 @@ describe("OpenClinXR API shell", () => {
     ]);
   });
 
+  it("serves the 12-station seed blueprint with governance readiness blockers", async () => {
+    const app = createApiApp();
+    const blueprintResponse = await app.request("/exam-blueprints/step2cs-seed");
+    const blueprint = await json(blueprintResponse) as {
+      stationSlots: Array<{ order: number; requiredEnvironmentIds: string[] }>;
+      timing: { doorwaySeconds: number; encounterSeconds: number; noteSeconds: number; breakAfterStationOrders: number[] };
+      requiredTraceTags: string[];
+    };
+
+    expect(blueprintResponse.status).toBe(200);
+    expect(blueprint.stationSlots).toHaveLength(12);
+    expect(blueprint.stationSlots.map((slot) => slot.order)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+    expect(blueprint.timing).toEqual({ doorwaySeconds: 60, encounterSeconds: 900, noteSeconds: 600, breakAfterStationOrders: [3, 6, 9] });
+    expect(blueprint.requiredTraceTags).toEqual(expect.arrayContaining(["ecg_request", "teach_back", "stroke_team_activation", "interpreter_use"]));
+
+    const readinessResponse = await app.request("/exam-blueprints/step2cs-seed/readiness");
+    const readiness = await json(readinessResponse) as {
+      canAssembleReadyForm: boolean;
+      activationEligibleScenarioIds: string[];
+      blockedScenarioIds: Array<{ scenarioId: string; reason: string }>;
+    };
+
+    expect(readinessResponse.status).toBe(200);
+    expect(readiness.canAssembleReadyForm).toBe(false);
+    expect(readiness.activationEligibleScenarioIds).toEqual(["ed_chest_pain_priority_v1"]);
+    expect(readiness.blockedScenarioIds).toHaveLength(11);
+    expect(readiness.blockedScenarioIds).toContainEqual({ scenarioId: "clinic_abdominal_pain_interpreter_v1", reason: "not_approved" });
+  });
+
   it("publishes persistence snapshots for exam forms, trace events, and review packets", async () => {
     const savedExamFormIds: string[] = [];
     const traceSnapshotSizes: number[] = [];

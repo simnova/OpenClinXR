@@ -1,8 +1,15 @@
-import { assembleExamForm, createDefaultClinicalSkillsBlueprint, evaluateScenarioVersionDrift, type ExamForm } from "@openclinxr/exam-assembly";
+import {
+  assembleExamForm,
+  createDefaultClinicalSkillsBlueprint,
+  createStep2CsStyleSeedBlueprint,
+  evaluateBlueprintScenarioReadiness,
+  evaluateScenarioVersionDrift,
+  type ExamForm,
+} from "@openclinxr/exam-assembly";
 import { adminGraphqlDocuments, createGraphqlCodegenPlan, openClinXrAdminSchemaSdl } from "@openclinxr/graphql";
 import { matchOpenClinXrRestRoute, routeById } from "@openclinxr/rest";
 import { createDefaultScenarioRuntime, type PublicationTargetUse, type ReviewerEvidence, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
-import { createLearnerScenarioView, edChestPainScenario } from "@openclinxr/scenario-fixtures";
+import { createLearnerScenarioView, edChestPainScenario, scenarioBank } from "@openclinxr/scenario-fixtures";
 import {
   createNoopTelemetryRecorder,
   openClinXrSpanNames,
@@ -88,6 +95,12 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   });
 
   app.get(routeById("default-exam-blueprint").path, (context) => context.json(createDefaultClinicalSkillsBlueprint()));
+
+  app.get(routeById("step2cs-seed-exam-blueprint").path, (context) => context.json(createStep2CsStyleSeedBlueprint()));
+
+  app.get(routeById("step2cs-seed-exam-blueprint-readiness").path, (context) =>
+    context.json(evaluateBlueprintScenarioReadiness(createStep2CsStyleSeedBlueprint(), scenarioBank)),
+  );
 
   app.post(routeById("create-exam-form").path, async (context) => {
     const body = (await context.req.json().catch(() => ({}))) as { examFormId?: string };
