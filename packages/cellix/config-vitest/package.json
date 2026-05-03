@@ -1,0 +1,34 @@
+{
+  "name": "@cellix/config-vitest",
+  "version": "1.0.0-openclinxr.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "files": [
+    "src",
+    "vitest.config.ts",
+    "tsconfig.json",
+    "tsconfig.vitest.json",
+    "CHANGELOG.md"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./base": "./src/configs/base.config.ts",
+    "./node": "./src/configs/node.config.ts",
+    "./storybook": "./src/configs/storybook.config.ts",
+    "./dirname": "./src/utils/dirname.ts"
+  },
+  "scripts": {
+    "typecheck": "tsgo --noEmit -p tsconfig.json",
+    "test": "vitest run --root ."
+  },
+  "dependencies": {
+    "@cellix/config-typescript": "workspace:*"
+  },
+  "devDependencies": {
+    "@typescript/native-preview": "7.0.0-dev.20260503.1",
+    "typescript": "6.0.3",
+    "vitest": "4.1.5"
+  }
+}

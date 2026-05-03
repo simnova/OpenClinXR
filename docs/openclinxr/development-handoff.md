@@ -331,6 +331,7 @@ XR shell integration milestone has also started:
 - Project packages have moved under `packages/openclinxr/*`, while `packages/cellix/*` is reserved for immutable shared Cellix-compatible library copies.
 - `docs/openclinxr/cellix-package-adoption-brief.md` reviews the current CellixJS `packages/cellix` catalog and recommends deferring copies until a concrete implementation slice needs one.
 - `packages/cellix/config-typescript` is the first copied Cellix-derived package, with local TypeScript 6-compatible config contents and a package changelog. Root `tsconfig.base.json` now extends it.
+- Typechecking now uses Cellix's `tsgo` path through `@typescript/native-preview` across root, app, and package scripts after a local spike showed the root check completing faster than the previous `tsc` command on this hardware.
 - `packages/openclinxr/config-rolldown` is a local compatibility spike for the Cellix `config-rolldown` Azure Functions bundling pattern, while keeping the project on latest-package posture before any immutable Cellix copy is vendored.
 - `packages/openclinxr/data-sources-mongoose-models` exists with a first scenario-bank Mongoose model, publication indexes, and a learner projection that redacts hidden clinical truth.
 - `packages/openclinxr/ui-route-shared`, `packages/openclinxr/ui-route-admin`, `packages/openclinxr/ui-shared`, and `packages/openclinxr/architecture-rules` now start the portal package split and enforce early ArchUnitTS rules.

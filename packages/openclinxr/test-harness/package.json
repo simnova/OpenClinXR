@@ -10,7 +10,7 @@
     "openclinxr-bench-mock": "./src/bench-mock.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck": "tsgo --noEmit -p tsconfig.json",
     "test": "vitest run --root .",
     "bench:mock": "tsx src/bench-mock.ts"
   },

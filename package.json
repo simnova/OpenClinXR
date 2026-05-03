@@ -16,7 +16,7 @@
     "agent:sources": "tsx tools/agent-factory/check-source-ledger.ts",
     "agent:loop": "tsx tools/agent-factory/run-agent-loop.ts",
     "agent:verify": "pnpm agent:validate && pnpm agent:index && pnpm agent:sources && pnpm agent:risks && pnpm agent:evidence",
-    "typecheck": "tsc --noEmit && pnpm -r --if-present --filter '@openclinxr/*' --filter '@cellix/*' typecheck",
+    "typecheck": "tsgo --noEmit && pnpm -r --if-present --filter '@openclinxr/*' --filter '@cellix/*' typecheck",
     "test": "pnpm -r --if-present --filter '@openclinxr/*' --filter '@cellix/*' test",
     "verify": "pnpm agent:verify && pnpm typecheck && pnpm test",
     "bench:mock": "pnpm --filter @openclinxr/test-harness bench:mock",
@@ -32,6 +32,7 @@
   "devDependencies": {
     "@e18e/cli": "^0.5.0",
     "@types/node": "25.6.0",
+    "@typescript/native-preview": "7.0.0-dev.20260503.1",
     "archunit": "2.3.0",
     "knip": "^6.11.0",
     "tsx": "4.21.0",

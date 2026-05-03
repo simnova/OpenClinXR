@@ -1,7 +1,7 @@
 lockfileVersion: '9.0'
 
 settings:
-  autoInstallPeers: true
+  autoInstallPeers: false
   excludeLinksFromLockfile: false
 
 importers:
@@ -24,6 +24,9 @@ importers:
       '@types/node':
         specifier: 25.6.0
         version: 25.6.0
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260503.1
+        version: 7.0.0-dev.20260503.1
       archunit:
         specifier: 2.3.0
         version: 2.3.0
@@ -38,7 +41,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   apps/api:
     dependencies:
@@ -72,7 +75,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   apps/ui-admin:
     dependencies:
@@ -100,7 +103,13 @@ importers:
       react-router:
         specifier: 7.14.2
         version: 7.14.2(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      rxjs:
+        specifier: 7.8.2
+        version: 7.8.2
     devDependencies:
+      '@testing-library/dom':
+        specifier: 10.4.1
+        version: 10.4.1
       '@testing-library/jest-dom':
         specifier: 6.9.1
         version: 6.9.1
@@ -127,7 +136,7 @@ importers:
         version: 8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4)
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   apps/ui-xr:
     dependencies:
@@ -149,9 +158,25 @@ importers:
         version: 8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4)
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/cellix/config-typescript: {}
+
+  packages/cellix/config-vitest:
+    dependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../config-typescript
+    devDependencies:
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260503.1
+        version: 7.0.0-dev.20260503.1
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.5
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/agent-loop:
     devDependencies:
@@ -160,7 +185,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/architecture-rules:
     dependencies:
@@ -173,7 +198,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/asset-registry:
     dependencies:
@@ -189,7 +214,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/config-rolldown:
     devDependencies:
@@ -201,7 +226,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/data-mongodb:
     dependencies:
@@ -223,7 +248,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/data-sources-mongoose-models:
     dependencies:
@@ -236,7 +261,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/domain:
     dependencies:
@@ -249,7 +274,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/exam-assembly:
     dependencies:
@@ -265,7 +290,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/graphql:
     dependencies:
@@ -278,7 +303,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/model-gateway:
     dependencies:
@@ -291,7 +316,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/rest:
     devDependencies:
@@ -300,7 +325,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/review-workflow:
     dependencies:
@@ -319,7 +344,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/scenario-fixtures:
     dependencies:
@@ -332,7 +357,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/scenario-runtime:
     dependencies:
@@ -366,7 +391,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/shared-schemas:
     dependencies:
@@ -385,7 +410,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/telemetry:
     devDependencies:
@@ -394,7 +419,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/test-harness:
     dependencies:
@@ -416,7 +441,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/trace-ledger:
     dependencies:
@@ -429,7 +454,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/ui-route-admin:
     dependencies:
@@ -442,7 +467,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/ui-route-shared:
     devDependencies:
@@ -451,7 +476,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/ui-shared:
     devDependencies:
@@ -460,7 +485,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/voice-gateway:
     dependencies:
@@ -473,7 +498,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
 packages:
 
@@ -1875,6 +1900,53 @@ packages:
   '@types/whatwg-url@13.0.0':
     resolution: {integrity: sha512-N8WXpbE6Wgri7KUSvrmQcqrMllKZ9uxkYWMt+mCSGwNc0Hsw9VQTW7ApqI4XNrx6/SaM2QQJCzMPDEXE058s+Q==}
 
+  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260503.1':
+    resolution: {integrity: sha512-rUZQVuBcZlxADagx+pnhDHqjX2Ewh+KWave6vtilRWR5vsGyR3FaCzPFqXteiwPg6XRijEMnMaXg60t5itm8EA==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260503.1':
+    resolution: {integrity: sha512-YtK8ac8RCkRh7jwoP8Wt4LaBhpGK8cOVMi3e0cvF/8Xn5XV1ewJK3/HdNBnlDhCib3j0eVRxK/Pg9GIq/hFUxQ==}
+    engines: {node: '>=16.20.0'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260503.1':
+    resolution: {integrity: sha512-c5yM3Ea2WZSLKmscMxUhEDdaR2Ugp7P9CX6osciIPgZIF9c4LDiuKQohjQAyidx9JZKCsSXnfS88QssWH/+ONQ==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@typescript/native-preview-linux-arm@7.0.0-dev.20260503.1':
+    resolution: {integrity: sha512-28vAomYeU8hpz1f0dDoWz6PYehz0ffEfkJhFq4tqXzUM/QY1I15u5y03EJQ5UcP4LRwrdJe22J5LdrYpM2Lr3w==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm]
+    os: [linux]
+
+  '@typescript/native-preview-linux-x64@7.0.0-dev.20260503.1':
+    resolution: {integrity: sha512-M64z7LwpqNfOXYCBKmD/ObwyxYOobUk4tDv0ECNLit7pDER1sswNZjJGjgRYjQsKokmydy6p3FqtJ1uUPUP/sw==}
+    engines: {node: '>=16.20.0'}
+    cpu: [x64]
+    os: [linux]
+
+  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260503.1':
+    resolution: {integrity: sha512-QHy3R1VBb8MYszjpz0IyuDjKaW6JUHg8hYEqzhZIxvrydKLF3gyDeKohnmWSFTS/oII0GvUmYM3h83fbanBvcQ==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm64]
+    os: [win32]
+
+  '@typescript/native-preview-win32-x64@7.0.0-dev.20260503.1':
+    resolution: {integrity: sha512-nrapqpVONrg0IZjKp3AzV9M+jxPwKGTQZEOxuKh6WHMhy/UElN8RnOFlfetA8ZMtKvPkmjgjqw0qoAa5QMwhPA==}
+    engines: {node: '>=16.20.0'}
+    cpu: [x64]
+    os: [win32]
+
+  '@typescript/native-preview@7.0.0-dev.20260503.1':
+    resolution: {integrity: sha512-gDro38CPFiBUGbaFGNt+ufOsEd1OrZrfrOPxsLSfBcvvoGaqAxV++ul/BHTOShoEkIYHiFsoDX2az1IPCDV2jQ==}
+    engines: {node: '>=16.20.0'}
+    hasBin: true
+
   '@vitejs/plugin-react@6.0.1':
     resolution: {integrity: sha512-l9X/E3cDb+xY3SWzlG1MOGt2usfEHGMNIaegaUGFsLkb3RCn/k8/TOXBcab+OndDI4TBtktT8/9BwwW8Vi9KUQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -3262,7 +3334,6 @@ packages:
       '@vitest/ui': 4.1.5
       happy-dom: '*'
       jsdom: '*'
-      vite: ^6.0.0 || ^7.0.0 || ^8.0.0
     peerDependenciesMeta:
       '@edge-runtime/vm':
         optional: true
@@ -4616,6 +4687,37 @@ snapshots:
   '@types/whatwg-url@13.0.0':
     dependencies:
       '@types/webidl-conversions': 7.0.3
+
+  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260503.1':
+    optional: true
+
+  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260503.1':
+    optional: true
+
+  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260503.1':
+    optional: true
+
+  '@typescript/native-preview-linux-arm@7.0.0-dev.20260503.1':
+    optional: true
+
+  '@typescript/native-preview-linux-x64@7.0.0-dev.20260503.1':
+    optional: true
+
+  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260503.1':
+    optional: true
+
+  '@typescript/native-preview-win32-x64@7.0.0-dev.20260503.1':
+    optional: true
+
+  '@typescript/native-preview@7.0.0-dev.20260503.1':
+    optionalDependencies:
+      '@typescript/native-preview-darwin-arm64': 7.0.0-dev.20260503.1
+      '@typescript/native-preview-darwin-x64': 7.0.0-dev.20260503.1
+      '@typescript/native-preview-linux-arm': 7.0.0-dev.20260503.1
+      '@typescript/native-preview-linux-arm64': 7.0.0-dev.20260503.1
+      '@typescript/native-preview-linux-x64': 7.0.0-dev.20260503.1
+      '@typescript/native-preview-win32-arm64': 7.0.0-dev.20260503.1
+      '@typescript/native-preview-win32-x64': 7.0.0-dev.20260503.1
 
   '@vitejs/plugin-react@6.0.1(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))':
     dependencies:
@@ -6037,7 +6139,7 @@ snapshots:
       tsx: 4.21.0
       yaml: 2.8.4
 
-  vitest@4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4)):
+  vitest@4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4):
     dependencies:
       '@vitest/expect': 4.1.5
       '@vitest/mocker': 4.1.5(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
@@ -6063,7 +6165,18 @@ snapshots:
       '@types/node': 25.6.0
       jsdom: 29.1.1
     transitivePeerDependencies:
+      - '@vitejs/devtools'
+      - esbuild
+      - jiti
+      - less
       - msw
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - terser
+      - tsx
+      - yaml
 
   w3c-xmlserializer@5.0.0:
     dependencies:
