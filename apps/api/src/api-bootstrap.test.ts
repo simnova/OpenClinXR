@@ -5,7 +5,7 @@ describe("OpenClinXR API startup", () => {
   it("starts through a CellixJS-inspired fluent bootstrap with Azure-compatible handler metadata", async () => {
     const startup = createOpenClinXrApiStartup().startUp();
 
-    expect(startup.infrastructureServiceIds).toEqual(["scenarioRuntime", "apiPersistence"]);
+    expect(startup.infrastructureServiceIds).toEqual(["scenarioRuntime", "apiPersistence", "telemetry"]);
     expect(startup.handlerSpecs).toEqual([
       {
         name: "graphql-contract",

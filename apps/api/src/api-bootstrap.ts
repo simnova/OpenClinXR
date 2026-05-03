@@ -1,5 +1,6 @@
 import type { ExamForm } from "@openclinxr/exam-assembly";
 import { createDefaultScenarioRuntime, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
+import { createNoopTelemetryRecorder, type TelemetryRecorder } from "@openclinxr/telemetry";
 import { createApiApp, type ApiPersistenceSink } from "./app.js";
 
 export type AzureFunctionHttpMethod = "GET" | "POST" | "PATCH" | "PUT" | "DELETE" | "OPTIONS" | "HEAD";
@@ -17,6 +18,7 @@ export type AzureFunctionHttpHandlerSpec = {
 type ApiInfrastructureServices = {
   scenarioRuntime: ScenarioRuntime;
   apiPersistence: ApiPersistenceSink;
+  telemetry: TelemetryRecorder;
 };
 
 type ApiInfrastructureServiceId = keyof ApiInfrastructureServices;
@@ -24,6 +26,7 @@ type ApiInfrastructureServiceId = keyof ApiInfrastructureServices;
 type ApiStartupContext = {
   runtime: ScenarioRuntime;
   persistence: ApiPersistenceSink;
+  telemetry: TelemetryRecorder;
 };
 
 type ApiApplicationServices = {
@@ -44,6 +47,7 @@ export type NodeServerConfig = {
 export type OpenClinXrApiStartupOptions = {
   runtime?: ScenarioRuntime;
   persistence?: ApiPersistenceSink;
+  telemetry?: TelemetryRecorder;
 };
 
 class ApiInfrastructureRegistry {
@@ -108,12 +112,14 @@ export class OpenClinXrApiStartupBuilder {
 export function createOpenClinXrApiStartup(options: OpenClinXrApiStartupOptions = {}): OpenClinXrApiStartupBuilder {
   const persistence = options.persistence ?? createNoopPersistenceSink();
   const runtime = options.runtime ?? createDefaultScenarioRuntime();
+  const telemetry = options.telemetry ?? createNoopTelemetryRecorder();
 
   return new OpenClinXrApiStartupBuilder()
     .initializeInfrastructureServices((serviceRegistry) => {
       serviceRegistry
         .registerInfrastructureService("scenarioRuntime", runtime)
-        .registerInfrastructureService("apiPersistence", persistence);
+        .registerInfrastructureService("apiPersistence", persistence)
+        .registerInfrastructureService("telemetry", telemetry);
     })
     .setContext(defaultContextFactory)
     .initializeApplicationServices(defaultApplicationServicesFactory)
@@ -138,11 +144,12 @@ function defaultContextFactory(serviceRegistry: ApiInfrastructureRegistry): ApiS
   return {
     runtime: serviceRegistry.getInfrastructureService("scenarioRuntime"),
     persistence: serviceRegistry.getInfrastructureService("apiPersistence"),
+    telemetry: serviceRegistry.getInfrastructureService("telemetry"),
   };
 }
 
 function defaultApplicationServicesFactory(context: ApiStartupContext): ApiApplicationServices {
-  const app = createApiApp(context.runtime, context.persistence);
+  const app = createApiApp(context.runtime, context.persistence, { telemetry: context.telemetry });
   return {
     fetch: (request) => app.fetch(request),
   };

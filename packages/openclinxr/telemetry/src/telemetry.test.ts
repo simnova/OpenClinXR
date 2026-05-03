@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  createInMemoryTelemetryRecorder,
+  createNoopTelemetryRecorder,
   openClinXrSpanNames,
   safeTelemetryAttributes,
   telemetryAttributeNames,
@@ -65,5 +67,36 @@ describe("OpenClinXR telemetry contract", () => {
       "scenarioVersion",
       "stationRunId",
     ]);
+  });
+
+  it("offers no-op and in-memory recorders for local verification before exporters exist", async () => {
+    await expect(Promise.resolve(createNoopTelemetryRecorder().recordSpan({
+      name: openClinXrSpanNames.apiRoute,
+      attributes: {},
+      durationMs: 1,
+    }))).resolves.toBeUndefined();
+
+    const recorder = createInMemoryTelemetryRecorder();
+    recorder.recordSpan({
+      name: openClinXrSpanNames.apiRoute,
+      attributes: telemetryRouteAttributes({ routeId: "actor-response", stationRunId: "run_001" }),
+      durationMs: 2.5,
+      statusCode: 201,
+    });
+
+    expect(recorder.spans()).toEqual([
+      {
+        name: "openclinxr.api.route",
+        attributes: {
+          "openclinxr.route_id": "actor-response",
+          "openclinxr.station_run_id": "run_001",
+        },
+        durationMs: 2.5,
+        statusCode: 201,
+      },
+    ]);
+
+    recorder.clear();
+    expect(recorder.spans()).toEqual([]);
   });
 });

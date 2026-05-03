@@ -15,7 +15,7 @@ OpenClinXR should prefer latest compatible packages. This means keeping Mongoose
 
 | Cellix package | Fit for OpenClinXR | Recommendation |
 | --- | --- | --- |
-| `@cellix/api-services-spec` | Aligns with API service metadata and fluent startup thinking. | Revisit when Azure Functions handler metadata becomes executable deployment config. |
+| `@cellix/api-services-spec` | Aligns with API service metadata and fluent startup thinking. The current package is intentionally tiny, while OpenClinXR needs route telemetry and handler metadata tied to its Hono/Azure startup path. | Do not copy now; OpenClinXR has extended the local startup builder with injectable telemetry and Azure handler metadata while preserving the same service start/stop spirit. |
 | `@cellix/archunit-tests` | Aligns with architecture fitness tests. | Do not copy; OpenClinXR already has a native `packages/openclinxr/architecture-rules` package using ArchUnitTS directly. |
 | `@cellix/config-rolldown` | Relevant to Azure Functions deployment bundling. It peers Rolldown beta.55, while latest npm Rolldown metadata now reports `1.0.0-rc.18`. | Keep the project-owned `packages/openclinxr/config-rolldown` wrapper for now; it now mirrors Cellix's workspace alias discovery and Azure Functions deploy prep while staying on latest Rolldown and OpenClinXR package names. |
 | `@cellix/config-typescript` | Shared TS config package. | Copied as `packages/cellix/config-typescript`, upgraded for the local TypeScript 6 posture, and wired into the root `tsconfig.base.json`. |

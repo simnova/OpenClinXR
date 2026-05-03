@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildSessionRoutePath, openClinXrRestRouteIds, openClinXrRestRoutes, routeById } from "./index.js";
+import { buildSessionRoutePath, matchOpenClinXrRestRoute, openClinXrRestRouteIds, openClinXrRestRoutes, routeById } from "./index.js";
 
 describe("OpenClinXR REST route contract", () => {
   it("captures the API route catalog with stable route ids and methods", () => {
@@ -40,5 +40,15 @@ describe("OpenClinXR REST route contract", () => {
   it("rejects route ids that are not station-run scoped", () => {
     expect(() => buildSessionRoutePath("health", "run_001")).toThrow("Route health is not station-run scoped");
     expect(() => buildSessionRoutePath("actor-response", "")).toThrow("stationRunId is required");
+  });
+
+  it("matches concrete request paths to stable route ids and decoded params", () => {
+    expect(matchOpenClinXrRestRoute("GET", "/health")?.route.id).toBe("health");
+    expect(matchOpenClinXrRestRoute("POST", "/sessions/run%201%2F2/actor-response")).toMatchObject({
+      route: { id: "actor-response" },
+      params: { stationRunId: "run 1/2" },
+    });
+    expect(matchOpenClinXrRestRoute("GET", "/sessions/run_001/actor-response")).toBeUndefined();
+    expect(matchOpenClinXrRestRoute("GET", "/unknown")).toBeUndefined();
   });
 });

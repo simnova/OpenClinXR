@@ -10,6 +10,13 @@ export type OpenClinXrRestRoute = {
   stationRunScoped: boolean;
 };
 
+export type OpenClinXrRestRouteMatch = {
+  route: (typeof openClinXrRestRoutes)[number];
+  params: {
+    stationRunId?: string;
+  };
+};
+
 export const openClinXrRestRoutes = Object.freeze([
   route("health", "GET", "/health", "control-plane"),
   route("providers-health", "GET", "/providers/health", "control-plane"),
@@ -58,6 +65,24 @@ export function buildSessionRoutePath(routeId: OpenClinXrRestRouteId, stationRun
   return route.path.replace(":stationRunId", encodeURIComponent(stationRunId));
 }
 
+export function matchOpenClinXrRestRoute(method: string, pathname: string): OpenClinXrRestRouteMatch | undefined {
+  const normalizedMethod = method.toUpperCase();
+  const pathSegments = splitPath(pathname);
+
+  for (const route of openClinXrRestRoutes) {
+    if (route.method !== normalizedMethod) {
+      continue;
+    }
+
+    const params = matchRouteSegments(route.path, pathSegments);
+    if (params) {
+      return { route, params };
+    }
+  }
+
+  return undefined;
+}
+
 function route<const TId extends string, const TMethod extends OpenClinXrRestMethod, const TPath extends `/${string}`>(
   id: TId,
   method: TMethod,
@@ -72,4 +97,40 @@ function route<const TId extends string, const TMethod extends OpenClinXrRestMet
   stationRunScoped: boolean;
 }> {
   return Object.freeze({ id, method, path, surface, stationRunScoped });
+}
+
+function matchRouteSegments(routePath: string, pathSegments: string[]): OpenClinXrRestRouteMatch["params"] | undefined {
+  const routeSegments = splitPath(routePath);
+  if (routeSegments.length !== pathSegments.length) {
+    return undefined;
+  }
+
+  const params: OpenClinXrRestRouteMatch["params"] = {};
+  for (let index = 0; index < routeSegments.length; index += 1) {
+    const routeSegment = routeSegments[index];
+    const pathSegment = pathSegments[index];
+
+    if (routeSegment === ":stationRunId") {
+      params.stationRunId = decodePathSegment(pathSegment ?? "");
+      continue;
+    }
+
+    if (routeSegment !== pathSegment) {
+      return undefined;
+    }
+  }
+
+  return params;
+}
+
+function splitPath(pathname: string): string[] {
+  return pathname.split("/").filter(Boolean);
+}
+
+function decodePathSegment(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
 }

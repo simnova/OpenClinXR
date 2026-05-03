@@ -1,8 +1,15 @@
 import { assembleExamForm, createDefaultClinicalSkillsBlueprint, evaluateScenarioVersionDrift, type ExamForm } from "@openclinxr/exam-assembly";
 import { adminGraphqlDocuments, createGraphqlCodegenPlan, openClinXrAdminSchemaSdl } from "@openclinxr/graphql";
-import { routeById } from "@openclinxr/rest";
+import { matchOpenClinXrRestRoute, routeById } from "@openclinxr/rest";
 import { createDefaultScenarioRuntime, type PublicationTargetUse, type ReviewerEvidence, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createLearnerScenarioView, edChestPainScenario } from "@openclinxr/scenario-fixtures";
+import {
+  createNoopTelemetryRecorder,
+  openClinXrSpanNames,
+  telemetryRouteAttributes,
+  type TelemetryRecorder,
+  type TelemetrySpanRecord,
+} from "@openclinxr/telemetry";
 import { Hono } from "hono";
 
 type RuntimeTraceEvents = ReturnType<ScenarioRuntime["traceEvents"]>;
@@ -14,8 +21,33 @@ export type ApiPersistenceSink = {
   saveReviewPacket?: (stationRunId: string, packet: RuntimeReviewPacket) => Promise<void> | void;
 };
 
-export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRuntime(), persistence: ApiPersistenceSink = {}): Hono {
+export type ApiAppOptions = {
+  telemetry?: TelemetryRecorder;
+};
+
+export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRuntime(), persistence: ApiPersistenceSink = {}, options: ApiAppOptions = {}): Hono {
   const app = new Hono();
+  const telemetry = options.telemetry ?? createNoopTelemetryRecorder();
+
+  app.use("*", async (context, next) => {
+    const started = performance.now();
+    let errorType: string | undefined;
+
+    try {
+      await next();
+    } catch (error) {
+      errorType = error instanceof Error ? error.name : "unknown";
+      throw error;
+    } finally {
+      await recordApiRouteSpan(telemetry, {
+        method: context.req.method,
+        url: context.req.url,
+        statusCode: context.res.status,
+        durationMs: Number((performance.now() - started).toFixed(2)),
+        ...(errorType ? { errorType } : {}),
+      });
+    }
+  });
 
   app.get(routeById("health").path, async (context) =>
     context.json({
@@ -209,6 +241,31 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   });
 
   return app;
+}
+
+async function recordApiRouteSpan(
+  telemetry: TelemetryRecorder,
+  input: {
+    method: string;
+    url: string;
+    statusCode: number;
+    durationMs: number;
+    errorType?: string;
+  },
+): Promise<void> {
+  const routeMatch = matchOpenClinXrRestRoute(input.method, new URL(input.url).pathname);
+  const span: TelemetrySpanRecord = {
+    name: openClinXrSpanNames.apiRoute,
+    attributes: telemetryRouteAttributes({
+      routeId: routeMatch?.route.id ?? "unmatched",
+      ...(routeMatch?.params.stationRunId ? { stationRunId: routeMatch.params.stationRunId } : {}),
+    }),
+    durationMs: input.durationMs,
+    statusCode: input.statusCode,
+    ...(input.errorType ? { errorType: input.errorType } : {}),
+  };
+
+  await Promise.resolve(telemetry.recordSpan(span)).catch(() => undefined);
 }
 
 async function persistTraceSnapshot(runtime: ScenarioRuntime, persistence: ApiPersistenceSink, stationRunId: string): Promise<void> {

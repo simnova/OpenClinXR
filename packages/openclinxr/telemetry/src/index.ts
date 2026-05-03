@@ -29,6 +29,25 @@ export type TelemetryAttributeInput = Partial<Record<keyof typeof telemetryAttri
 
 export type SafeTelemetryAttributes = Record<(typeof telemetryAttributeNames)[keyof typeof telemetryAttributeNames], string | number | boolean>;
 
+export type OpenClinXrSpanName = (typeof openClinXrSpanNames)[keyof typeof openClinXrSpanNames];
+
+export type TelemetrySpanRecord = {
+  name: OpenClinXrSpanName;
+  attributes: Partial<SafeTelemetryAttributes>;
+  durationMs: number;
+  statusCode?: number;
+  errorType?: string;
+};
+
+export type TelemetryRecorder = {
+  recordSpan: (span: TelemetrySpanRecord) => Promise<void> | void;
+};
+
+export type InMemoryTelemetryRecorder = TelemetryRecorder & {
+  spans: () => TelemetrySpanRecord[];
+  clear: () => void;
+};
+
 const allowedInputKeys = Object.keys(telemetryAttributeNames) as Array<keyof typeof telemetryAttributeNames>;
 
 export function telemetryRouteAttributes(input: TelemetryAttributeInput): Partial<SafeTelemetryAttributes> {
@@ -44,4 +63,24 @@ export function safeTelemetryAttributes(input: TelemetryAttributeInput): Partial
     }
   }
   return attributes;
+}
+
+export function createNoopTelemetryRecorder(): TelemetryRecorder {
+  return {
+    recordSpan: () => undefined,
+  };
+}
+
+export function createInMemoryTelemetryRecorder(): InMemoryTelemetryRecorder {
+  const records: TelemetrySpanRecord[] = [];
+
+  return {
+    recordSpan: (span) => {
+      records.push({ ...span, attributes: { ...span.attributes } });
+    },
+    spans: () => records.map((span) => ({ ...span, attributes: { ...span.attributes } })),
+    clear: () => {
+      records.splice(0, records.length);
+    },
+  };
 }
