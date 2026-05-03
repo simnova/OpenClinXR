@@ -155,6 +155,52 @@ describe("OpenClinXR API shell", () => {
     ]);
   });
 
+  it("publishes persistence snapshots for exam forms, trace events, and review packets", async () => {
+    const savedExamFormIds: string[] = [];
+    const traceSnapshotSizes: number[] = [];
+    const savedReviewStationRunIds: string[] = [];
+    const app = createApiApp(undefined, {
+      saveExamForm: async (form) => {
+        savedExamFormIds.push(form.examFormId);
+      },
+      saveTraceEvents: async (_stationRunId, events) => {
+        traceSnapshotSizes.push(events.length);
+      },
+      saveReviewPacket: async (_stationRunId, packet) => {
+        savedReviewStationRunIds.push(packet.stationRunId);
+      },
+    });
+
+    await app.request("/exam-forms", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ examFormId: "form_persistence_001" }),
+    });
+
+    const start = await app.request("/sessions", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ learnerId: "learner_persistence", consentAccepted: true }),
+    });
+    const started = await json(start) as { stationRunId: string };
+
+    await app.request(`/sessions/${started.stationRunId}/start-encounter`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ atSecond: 60 }),
+    });
+    await app.request(`/sessions/${started.stationRunId}/events`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ eventType: "learner.history", atSecond: 120, tag: "history_opqrst", actorId: "patient_robert_hayes_v1" }),
+    });
+    await app.request(`/sessions/${started.stationRunId}/review-packet`);
+
+    expect(savedExamFormIds).toEqual(["form_persistence_001"]);
+    expect(traceSnapshotSizes).toEqual([2, 3, 4]);
+    expect(savedReviewStationRunIds).toEqual([started.stationRunId]);
+  });
+
   it("starts a session, records events, submits a note, and returns a review packet", async () => {
     const app = createApiApp();
     const missingConsent = await app.request("/sessions", {

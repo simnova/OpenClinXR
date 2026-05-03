@@ -3,7 +3,16 @@ import { createDefaultScenarioRuntime, type PublicationTargetUse, type ReviewerE
 import { createLearnerScenarioView, edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { Hono } from "hono";
 
-export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRuntime()): Hono {
+type RuntimeTraceEvents = ReturnType<ScenarioRuntime["traceEvents"]>;
+type RuntimeReviewPacket = ReturnType<ScenarioRuntime["reviewPacket"]>;
+
+export type ApiPersistenceSink = {
+  saveExamForm?: (form: ExamForm) => Promise<void> | void;
+  saveTraceEvents?: (stationRunId: string, events: RuntimeTraceEvents) => Promise<void> | void;
+  saveReviewPacket?: (stationRunId: string, packet: RuntimeReviewPacket) => Promise<void> | void;
+};
+
+export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRuntime(), persistence: ApiPersistenceSink = {}): Hono {
   const app = new Hono();
 
   app.get("/health", async (context) =>
@@ -43,6 +52,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
       blueprint: createDefaultClinicalSkillsBlueprint(),
       scenarios: [edChestPainScenario],
     });
+    await persistence.saveExamForm?.(form);
     return context.json(form, 201);
   });
 
@@ -61,6 +71,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
       return context.json({ error: "consent_required" }, 400);
     }
     const run = await runtime.startSession({ learnerId: body.learnerId ?? "learner_001", consentAccepted: true });
+    await persistTraceSnapshot(runtime, persistence, run.stationRunId);
 
     return context.json(run, 201);
   });
@@ -70,7 +81,9 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     const body = (await context.req.json().catch(() => ({}))) as { atSecond?: number };
 
     try {
-      return context.json(runtime.startEncounter(stationRunId, { atSecond: body.atSecond ?? 60 }));
+      const summary = runtime.startEncounter(stationRunId, { atSecond: body.atSecond ?? 60 });
+      await persistTraceSnapshot(runtime, persistence, stationRunId);
+      return context.json(summary);
     } catch (error) {
       return sessionErrorResponse(context, error);
     }
@@ -92,6 +105,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
         ...(body.tag ? { tag: body.tag } : {}),
         ...(body.actorId ? { actorId: body.actorId } : {}),
       });
+      await persistTraceSnapshot(runtime, persistence, stationRunId);
       return context.json(event, 201);
     } catch (error) {
       return sessionErrorResponse(context, error);
@@ -114,6 +128,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
         atSecond: body.atSecond ?? 0,
         traceContextTags: Array.isArray(body.traceContextTags) ? body.traceContextTags.filter((tag): tag is string => typeof tag === "string") : [],
       });
+      await persistTraceSnapshot(runtime, persistence, stationRunId);
       return context.json(result, 201);
     } catch (error) {
       return sessionErrorResponse(context, error);
@@ -136,6 +151,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
         text: body.text ?? "",
         atSecond: body.atSecond ?? 0,
       });
+      await persistTraceSnapshot(runtime, persistence, stationRunId);
       return context.json(result, 201);
     } catch (error) {
       return sessionErrorResponse(context, error);
@@ -147,22 +163,24 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     const body = (await context.req.json().catch(() => ({}))) as { atSecond?: number; text?: string };
 
     try {
-      return context.json(
-        runtime.submitNote(stationRunId, {
-          atSecond: body.atSecond ?? 1260,
-          text: body.text ?? "",
-        }),
-      );
+      const result = runtime.submitNote(stationRunId, {
+        atSecond: body.atSecond ?? 1260,
+        text: body.text ?? "",
+      });
+      await persistTraceSnapshot(runtime, persistence, stationRunId);
+      return context.json(result);
     } catch (error) {
       return sessionErrorResponse(context, error);
     }
   });
 
-  app.get("/sessions/:stationRunId/review-packet", (context) => {
+  app.get("/sessions/:stationRunId/review-packet", async (context) => {
     const stationRunId = context.req.param("stationRunId");
 
     try {
-      return context.json(runtime.reviewPacket(stationRunId));
+      const packet = runtime.reviewPacket(stationRunId);
+      await persistence.saveReviewPacket?.(stationRunId, packet);
+      return context.json(packet);
     } catch (error) {
       return sessionErrorResponse(context, error);
     }
@@ -179,6 +197,10 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   });
 
   return app;
+}
+
+async function persistTraceSnapshot(runtime: ScenarioRuntime, persistence: ApiPersistenceSink, stationRunId: string): Promise<void> {
+  await persistence.saveTraceEvents?.(stationRunId, runtime.traceEvents(stationRunId));
 }
 
 function sessionErrorResponse(context: { json: (body: { error: string }, status: 400 | 404 | 500 | 503) => Response }, error: unknown): Response {
