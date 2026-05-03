@@ -39,16 +39,21 @@ UX artifacts to maintain:
 Use:
 
 - React 19 and TypeScript.
+- React Router for nested administrative routes, deep links, loader/action boundaries where useful, and role-specific workbench navigation.
 - Ant Design 6 components.
 - Ant Design Pro layout conventions through `@ant-design/pro-components`.
 - `@xyflow/react` for scenario graph and state-machine editing.
+- Apollo GraphQL as the likely admin query layer once core REST/domain contracts and Mongo repositories stabilize.
 - Zod or JSON Schema-driven forms where feasible.
 - Storybook 10.3 for component states and visual review.
+
+Development-team familiarity should bias implementation choices toward pnpm, Mongoose, Apollo GraphQL, TurboRepo, Biome, React Router, Knip, and E18E for non-XR surfaces and developer tooling. The examinee runtime can stay thinner and more performance-oriented, especially where Quest 3 frame stability is more important than admin developer ergonomics.
 
 Recommended shell:
 
 - Top navigation for product area.
 - Left side navigation for domain module.
+- Route modules for scenario authoring, exam assembly, review queue, trace replay, assets, governance, and system operations.
 - Dense tables with filters for scenario bank, reviews, assets, and traces.
 - Drawer-based edit flows for narrow metadata.
 - Full-page editors for scenario graph, station timeline, and trace replay.
@@ -115,6 +120,9 @@ Automated from the first implementation sprint:
 - Storybook stories for every admin component state.
 - Storybook interaction tests for form validation, review state changes, and graph editor controls.
 - Serenity/JS acceptance tests in domain language.
+- Biome formatting/lint checks once adopted by the workspace.
+- Knip checks for unused files, exports, dependencies, and stale workspace references.
+- E18E dependency-health checks for modernization and ecosystem-risk review.
 - Playwright tests for admin UI and non-XR fallback.
 - Synthetic WebGL/WebXR smoke tests in browser automation.
 - Asset QA scripts for GLB integrity, texture format, bundle size, material count, and triangle count.

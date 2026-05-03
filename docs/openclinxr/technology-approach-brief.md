@@ -57,6 +57,7 @@ The examinee should spend most time inside WebXR. Browser DOM and Ant Design com
 ### Administrative Web Apps
 
 - React 19 + TypeScript.
+- React Router for route ownership, nested administrative layouts, and workstation-friendly deep links.
 - Ant Design 6 for enterprise UI components.
 - Ant Design Pro layout patterns for admin/faculty/scenario-author screens.
 - `@xyflow/react` for scenario graph editing.
@@ -71,11 +72,22 @@ Penpot is the preferred design collaboration tool. OpenPencil is a promising MIT
 
 - Bun + Hono as the TypeScript API runtime.
 - Hono for REST, middleware, request validation, and lightweight service boundaries.
+- Apollo GraphQL as the preferred query/BFF layer for administrative workbenches once domain contracts stabilize.
 - Bun native WebSockets for the first real-time channel.
 - A transport adapter interface that can later support WebTransport where the browser, server, and Azure/proxy path all support HTTP/3 end to end.
 - MongoDB API compatible persistence, with Azure Cosmos DB or MongoDB Atlas depending on deployment.
+- Mongoose as the team-familiar ODM candidate for mature admin-facing schemas, while low-level trace replay can keep thin repository contracts for ordered append/upsert performance.
 - Object storage/CDN for optimized assets.
 - Worker queue for asset-processing jobs, never synchronous heavy processing on B1.
+
+### Monorepo And Developer Tooling
+
+- pnpm workspaces are the preferred package-management baseline; keep npm scripts only as compatibility shims where they already exist, and avoid introducing npm-first workflows.
+- TurboRepo should be adopted when package count and CI time justify task caching, affected-package execution, and clearer build graph ownership.
+- Biome should be the default lint/format candidate because it is fast, TypeScript-friendly, and easier to standardize across apps/packages than a loose formatter/linter mix.
+- Knip should be added as the unused-files/exports/dependencies gate once package boundaries stabilize.
+- E18E should be used as an ecosystem-health and dependency-modernization signal when evaluating package choices and periodic upgrades.
+- Keep package boundaries compatible with CellixJS-style domain cells so TurboRepo tasks can map cleanly to domain ownership.
 
 ### LLM And Voice
 
@@ -132,10 +144,16 @@ Changes from this pass:
 | Auto-rig/animation | Mesh2Motion | MIT code, CC0 exported animation content claimed | QA every rig and retarget |
 | Face/lip sync | Baked visemes, optional NVIDIA ACE/Audio2Face | Commercial/proprietary terms | Adapter only; no hard dependency |
 | WebXR | Three.js, R3F, @react-three/xr | Mostly MIT-compatible; verify @react-three/xr license file | Device-test Quest 3 early |
-| Admin UI | Ant Design 6, Pro Components | MIT | Use Ant Design Pro layout conventions |
+| Admin UI | Ant Design 6, Pro Components, React Router | MIT | Use Ant Design Pro layout conventions and route-based workbench modules |
 | Graph editor | @xyflow/react | MIT | Scenario graph, state machine, review workflows |
+| Admin query layer | Apollo GraphQL | MIT | Add after REST/domain contracts stabilize; best fit for trace/review/schema-rich admin screens |
+| Mongo ODM | Mongoose | MIT | Candidate for scenario, review, user-facing admin schemas; keep trace repositories performance-oriented |
 | Testing | Vitest, Storybook, Serenity/JS, Playwright | MIT/Apache-2.0 mix | Add headset smoke tests outside browser emulation |
 | Backend | Bun, Hono | MIT | Use WebSocket first; spike WebTransport |
+| Package manager | pnpm | MIT | Preferred over npm for workspace security posture and deterministic dependency management |
+| Monorepo orchestration | TurboRepo | MPL-2.0 | Good fit once CI caching/affected builds matter; verify deployment implications |
+| Lint/format | Biome | MIT/Apache-2.0 | Candidate single-command style and lint gate |
+| Dependency hygiene | Knip, E18E | MIT/Apache-2.0 mix; verify exact package licenses | Detect unused exports/dependencies and flag ecosystem modernization opportunities |
 | Local LLM | llama.cpp/Ollama/MLX | Verify runtime and model licenses | Feasible for dev/demo on M4 Max, not validated clinically |
 
 ## Development Team Guidance
@@ -149,6 +167,7 @@ Changes from this pass:
 7. Run LLM and speech providers behind adapters so Grok, local LLMs, and future providers can be swapped without changing station logic.
 8. Use Storybook and Serenity/JS from the start so non-XR workflows remain testable while XR testing matures.
 9. Treat communication style as a first-class actor-card property with explicit QA, not as a loose prompt adjective.
+10. Bias implementation decisions toward the support team's known tools where they do not weaken runtime performance or governance: pnpm, Mongoose, Apollo GraphQL, TurboRepo, Biome, React Router, Knip, and E18E are preferred candidates for the admin/control-plane and developer-tooling surface.
 
 ## Sources
 
