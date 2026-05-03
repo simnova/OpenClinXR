@@ -15,6 +15,20 @@
       "iteration": 0,
       "status": "active",
       "supersedes": []
+    },
+    {
+      "id": "open-source-governance-lead-decision-0002",
+      "type": "decision",
+      "topic": "marketplace-deferral",
+      "summary": "Public marketplace launch should remain outside the first MVP until scenario provenance and certification governance mature.",
+      "confidence": 0.81,
+      "source_ids": [
+        "src-internal-chatgpt-business-plan",
+        "src-internal-grok-business-plan"
+      ],
+      "iteration": 1,
+      "status": "active",
+      "supersedes": []
     }
   ]
 }

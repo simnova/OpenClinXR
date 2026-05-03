@@ -1,0 +1,23 @@
+{
+  "source_id": "src-internal-grok-business-plan",
+  "title": "OpenClinXR Comprehensive Master Business Plan v27",
+  "file_path": "/Users/patrick/Downloads/grok.docx",
+  "source_type": "internal-artifact",
+  "citation": "User-provided OpenClinXR comprehensive business plan. Accessed locally on 2026-05-02.",
+  "accessed_at": "2026-05-02",
+  "permitted_uses": [
+    "Internal planning context for broader market, AI capability, competitor, and strategic influence hypotheses.",
+    "Contrasting input for adversarial review."
+  ],
+  "claims_supported": [
+    "The broader plan proposes an ambitious open-source AI-native XR training and assessment platform.",
+    "The broader plan includes competitor, influence, roadmap, and AI-capability framing that should be treated as hypotheses."
+  ],
+  "claims_not_supported": [
+    "Confirmed competitor influence mapping.",
+    "Validated clinical or psychometric outcomes.",
+    "Confirmed market share forecasts.",
+    "Legal, clinical, or regulatory conclusions."
+  ],
+  "confidence": 0.74
+}

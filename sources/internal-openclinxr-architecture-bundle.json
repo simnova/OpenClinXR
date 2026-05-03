@@ -1,0 +1,23 @@
+{
+  "source_id": "src-internal-openclinxr-architecture-bundle",
+  "title": "OpenClinXR Architecture Bundle v1.4",
+  "file_path": "/Users/patrick/Downloads/xr-solution.zip",
+  "source_type": "internal-artifact",
+  "citation": "User-provided OpenClinXR architecture bundle. Accessed locally on 2026-05-02.",
+  "accessed_at": "2026-05-02",
+  "permitted_uses": [
+    "Planning context for architecture, data model, UX, security, validation workflow, MADRs, and deployment assumptions.",
+    "Internal design rationale and hypothesis generation."
+  ],
+  "claims_supported": [
+    "The prior design direction targets Quest 3 pass-through AR, React/WebXR, Bun/Hono, Cosmos DB, trace logging, validation workflow, and role-based UX.",
+    "The architecture package already identifies security, deployment, clinical validation, UX, multi-tenancy, memory efficiency, and critic-review concerns."
+  ],
+  "claims_not_supported": [
+    "External validation of market demand.",
+    "Clinical effectiveness.",
+    "Regulatory clearance.",
+    "Current vendor capability or pricing."
+  ],
+  "confidence": 0.9
+}

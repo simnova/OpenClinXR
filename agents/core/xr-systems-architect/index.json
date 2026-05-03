@@ -15,6 +15,19 @@
       "iteration": 0,
       "status": "active",
       "supersedes": []
+    },
+    {
+      "id": "xr-systems-architect-decision-0002",
+      "type": "decision",
+      "topic": "quest-runtime-stage",
+      "summary": "Quest XR should be treated as an M1 interaction slice after the M0 evidence workflow is clear.",
+      "confidence": 0.78,
+      "source_ids": [
+        "src-internal-openclinxr-architecture-bundle"
+      ],
+      "iteration": 1,
+      "status": "active",
+      "supersedes": []
     }
   ]
 }

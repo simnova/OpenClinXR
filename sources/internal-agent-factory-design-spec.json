@@ -1,0 +1,20 @@
+{
+  "source_id": "src-internal-agent-factory-design-spec",
+  "title": "OpenClinXR Agent Factory Design Spec",
+  "file_path": "docs/superpowers/specs/2026-05-02-openclinxr-agent-factory-design.md",
+  "source_type": "internal-artifact",
+  "citation": "OpenClinXR Agent Factory Design Spec committed in this repository on 2026-05-02.",
+  "accessed_at": "2026-05-02",
+  "permitted_uses": [
+    "Operating source for the agent roster, maturity ladder, rubric, memory model, and review loop."
+  ],
+  "claims_supported": [
+    "The Agent Factory should include Core, Adversarial, and Senior Leadership teams with persistent indexed memory.",
+    "The Agent Factory should measure improvement using a weighted rubric and senior approval gates."
+  ],
+  "claims_not_supported": [
+    "External validation of OpenClinXR product feasibility.",
+    "External legal or clinical advice."
+  ],
+  "confidence": 1
+}

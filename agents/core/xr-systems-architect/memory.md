@@ -3,6 +3,7 @@
 ## Durable Lessons
 
 - No durable lessons recorded yet.
+- Quest XR should be treated as an M1 interaction slice after the M0 evidence workflow is clear.
 
 ## Active Risks
 
@@ -18,4 +19,3 @@
 - Track quest-performance across iterations.
 - Track asset-pipeline across iterations.
 - Track interaction-model across iterations.
-

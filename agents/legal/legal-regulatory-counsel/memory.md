@@ -7,6 +7,7 @@
 ## Active Risks
 
 - No active risks recorded yet.
+- Design-partner outreach requires prohibited claims, consent matrix, retention schedule, and data-flow appendix before external use.
 
 ## Open Questions
 
@@ -18,4 +19,3 @@
 - Track regulatory-boundaries across iterations.
 - Track liability across iterations.
 - Track contracts across iterations.
-

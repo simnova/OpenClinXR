@@ -3,6 +3,7 @@
 ## Durable Lessons
 
 - No durable lessons recorded yet.
+- Public marketplace launch should remain outside the first MVP until scenario provenance and certification governance mature.
 
 ## Active Risks
 
@@ -18,4 +19,3 @@
 - Track licensing across iterations.
 - Track contributor-governance across iterations.
 - Track marketplace-trust across iterations.
-

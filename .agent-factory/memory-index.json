@@ -1,7 +1,7 @@
 {
   "generated_by": "tools/agent-factory/build-memory-index.ts",
   "agent_count": 55,
-  "entry_count": 55,
+  "entry_count": 60,
   "entries": [
     {
       "id": "anesthesiology-critical-care-physician-lesson-0001",
@@ -882,6 +882,90 @@
       "agent_id": "xr-systems-architect",
       "team": "core",
       "source_file": "agents/core/xr-systems-architect/index.json"
+    },
+    {
+      "id": "open-source-governance-lead-decision-0002",
+      "type": "decision",
+      "topic": "marketplace-deferral",
+      "summary": "Public marketplace launch should remain outside the first MVP until scenario provenance and certification governance mature.",
+      "confidence": 0.81,
+      "source_ids": [
+        "src-internal-chatgpt-business-plan",
+        "src-internal-grok-business-plan"
+      ],
+      "iteration": 1,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "open-source-governance-lead",
+      "team": "core",
+      "source_file": "agents/core/open-source-governance-lead/index.json"
+    },
+    {
+      "id": "chief-coordinator-decision-0002",
+      "type": "decision",
+      "topic": "pilot-evidence-spine",
+      "summary": "Use M0 faculty evidence prototype, M1 Quest XR interaction slice, and M2 design-partner pilot as the next planning baseline.",
+      "confidence": 0.82,
+      "source_ids": [
+        "src-internal-openclinxr-architecture-bundle",
+        "src-internal-chatgpt-business-plan",
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 1,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "chief-coordinator",
+      "team": "coordinator",
+      "source_file": "agents/coordinator/chief-coordinator/index.json"
+    },
+    {
+      "id": "legal-regulatory-counsel-risk-0002",
+      "type": "risk",
+      "topic": "prohibited-claims",
+      "summary": "Prohibited claims, consent matrix, retention schedule, and data-flow appendix are required before design-partner outreach.",
+      "confidence": 0.84,
+      "source_ids": [
+        "src-internal-chatgpt-business-plan",
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 1,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "legal-regulatory-counsel",
+      "team": "legal",
+      "source_file": "agents/legal/legal-regulatory-counsel/index.json"
+    },
+    {
+      "id": "xr-systems-architect-decision-0002",
+      "type": "decision",
+      "topic": "quest-runtime-stage",
+      "summary": "Quest XR should be treated as an M1 interaction slice after the M0 evidence workflow is clear.",
+      "confidence": 0.78,
+      "source_ids": [
+        "src-internal-openclinxr-architecture-bundle"
+      ],
+      "iteration": 1,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "xr-systems-architect",
+      "team": "core",
+      "source_file": "agents/core/xr-systems-architect/index.json"
+    },
+    {
+      "id": "psychometrics-lead-lesson-0002",
+      "type": "lesson",
+      "topic": "trace-completeness",
+      "summary": "Trace completeness is a prerequisite for defensible evidence but is not validity evidence by itself.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-internal-chatgpt-business-plan"
+      ],
+      "iteration": 1,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "psychometrics-lead",
+      "team": "core",
+      "source_file": "agents/core/psychometrics-lead/index.json"
     }
   ]
 }

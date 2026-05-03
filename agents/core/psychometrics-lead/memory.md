@@ -3,6 +3,7 @@
 ## Durable Lessons
 
 - No durable lessons recorded yet.
+- Trace completeness is a prerequisite for defensible evidence, not validity evidence by itself.
 
 ## Active Risks
 
@@ -19,4 +20,3 @@
 - Track fairness across iterations.
 - Track rater-calibration across iterations.
 - Track consequence-validity across iterations.
-

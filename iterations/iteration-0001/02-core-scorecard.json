@@ -5,65 +5,113 @@
   "scored_at": "2026-05-02",
   "dimensions": {
     "clinical_validity": {
-      "score": 0,
-      "rationale": "Core plan has not been produced yet."
+      "score": 3.7,
+      "rationale": "The plan stays formative and uses specialty review, but clinical scenario details remain draft-level."
     },
     "psychometric_defensibility": {
-      "score": 0,
-      "rationale": "Core plan has not been produced yet."
+      "score": 3.6,
+      "rationale": "The plan preserves score-use gates and trace completeness targets, but lacks a concrete rubric and rater-calibration protocol."
     },
     "technical_feasibility": {
-      "score": 0,
-      "rationale": "Core plan has not been produced yet."
+      "score": 3.3,
+      "rationale": "The stack is plausible, but Quest/WebXR latency and runtime assumptions remain unmeasured."
     },
     "architecture_coherence": {
-      "score": 0,
-      "rationale": "Core plan has not been produced yet."
+      "score": 3.5,
+      "rationale": "The staged M0/M1 framing is coherent, but event streaming and storage boundaries need more precise interface contracts."
     },
     "security_privacy": {
-      "score": 0,
-      "rationale": "Core plan has not been produced yet."
+      "score": 3.4,
+      "rationale": "The plan identifies tenant isolation, consent, audit, and retention needs, but does not yet include a data-flow appendix."
     },
     "ux_workflow_fit": {
-      "score": 0,
-      "rationale": "Core plan has not been produced yet."
+      "score": 3.5,
+      "rationale": "Learner and faculty workflows are clear enough for planning, but review-time ergonomics need prototype validation."
     },
     "cost_performance_efficiency": {
-      "score": 0,
-      "rationale": "Core plan has not been produced yet."
+      "score": 3,
+      "rationale": "Scripted-first and staged XR improve cost control, but model, cloud, and staffing bands are not yet quantified."
     },
     "open_source_sustainability": {
-      "score": 0,
-      "rationale": "Core plan has not been produced yet."
+      "score": 3.2,
+      "rationale": "Marketplace deferral is sensible, but license and contribution boundaries remain undecided."
     },
     "market_gtm_strength": {
-      "score": 0,
-      "rationale": "Core plan has not been produced yet."
+      "score": 3.6,
+      "rationale": "The design-partner wedge is focused, but buyer proof points and outreach claims need verification."
     },
     "evidence_discipline": {
-      "score": 0,
-      "rationale": "Core plan has not been produced yet."
+      "score": 3,
+      "rationale": "The plan distinguishes internal artifacts from external evidence, but live source verification is not complete."
     },
     "implementation_readiness": {
-      "score": 0,
-      "rationale": "Core plan has not been produced yet."
+      "score": 3.6,
+      "rationale": "M0/M1/M2 staging is actionable, but milestone acceptance criteria still need drafting."
     },
     "adversarial_robustness": {
-      "score": 0,
-      "rationale": "Core plan has not been challenged yet."
+      "score": 1,
+      "rationale": "This is the pre-challenge Core Plan, so robustness is intentionally low."
     },
     "legal_regulatory_resilience": {
-      "score": 0,
-      "rationale": "Core plan has not been produced yet."
+      "score": 3.1,
+      "rationale": "Legal concerns are identified, but counsel-ready documents and prohibited claims are not drafted."
     },
     "specialty_clinical_generalizability": {
-      "score": 0,
-      "rationale": "Core plan has not been reviewed by specialty physicians yet."
+      "score": 3.2,
+      "rationale": "Specialty review needs are listed, but only the first scenario has a clear specialty center of gravity."
     }
   },
-  "critical_risks": [],
-  "evidence_debt": [],
-  "decision_debt": [],
-  "confidence": 0,
-  "summary": "Initialized scorecard for the first Core Plan."
+  "critical_risks": [
+    {
+      "id": "risk-core-0001",
+      "severity": "high",
+      "summary": "External claims from prior artifacts are not yet verified for external use.",
+      "owner": "source-librarian",
+      "status": "open"
+    },
+    {
+      "id": "risk-core-0002",
+      "severity": "high",
+      "summary": "Faculty rubric and rater-calibration protocol are not yet drafted.",
+      "owner": "psychometrics-lead",
+      "status": "open"
+    },
+    {
+      "id": "risk-core-0003",
+      "severity": "high",
+      "summary": "Quest/WebXR performance assumptions are unmeasured.",
+      "owner": "xr-systems-architect",
+      "status": "open"
+    }
+  ],
+  "evidence_debt": [
+    {
+      "id": "evidence-core-0001",
+      "summary": "Verify current WebXR/OpenXR/headset browser capability before external architecture claims.",
+      "owner": "source-librarian",
+      "status": "open"
+    },
+    {
+      "id": "evidence-core-0002",
+      "summary": "Verify education, assessment, and regulatory facts cited by the business-plan artifacts.",
+      "owner": "source-librarian",
+      "status": "open"
+    }
+  ],
+  "decision_debt": [
+    {
+      "id": "decision-core-0001",
+      "summary": "Choose the second communication scenario scope.",
+      "owner": "specialty-advisory-board-chair",
+      "status": "open"
+    },
+    {
+      "id": "decision-core-0002",
+      "summary": "Decide whether generative dialogue is prohibited through M1 or through M2.",
+      "owner": "clinical-simulation-lead",
+      "status": "open"
+    }
+  ],
+  "confidence": 0.72,
+  "summary": "The Core Plan provides a useful first MVP direction but needs adversarial narrowing, legal/compliance packet work, source verification, and operational psychometric artifacts."
 }

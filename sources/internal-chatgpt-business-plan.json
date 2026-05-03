@@ -1,0 +1,23 @@
+{
+  "source_id": "src-internal-chatgpt-business-plan",
+  "title": "OpenClinXR Business Plan: Source-Disciplined Variant",
+  "file_path": "/Users/patrick/Documents/agent-factory/reports/chatgpt.docx",
+  "source_type": "internal-artifact",
+  "citation": "User-provided OpenClinXR business plan variant. Accessed locally on 2026-05-02.",
+  "accessed_at": "2026-05-02",
+  "permitted_uses": [
+    "Internal planning context for business model, evidence discipline, GTM, risk register, and roadmap assumptions.",
+    "Source-ledger seed material requiring external verification before external use."
+  ],
+  "claims_supported": [
+    "The plan frames OpenClinXR as open-core plus hosted enterprise, validation network, and scenario marketplace.",
+    "The plan recommends a UME OSCE/EPA communication and diagnostic reasoning beachhead with formative assessment posture."
+  ],
+  "claims_not_supported": [
+    "Verified financial forecast.",
+    "Verified market demand.",
+    "Verified competitor positioning.",
+    "Verified legal or regulatory advice."
+  ],
+  "confidence": 0.86
+}
