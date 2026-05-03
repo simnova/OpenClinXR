@@ -6,6 +6,7 @@ import {
   actorResponseTextFromApiResult,
   formatStationClock,
   remoteActorTurnForTraceTag,
+  manualPerformanceMetricsFromFrameStats,
   stationTraceActionTags,
   summarizeFrameDeltas,
   summarizeTraceReadiness,
@@ -78,6 +79,26 @@ describe("XR runtime state", () => {
       p95FrameMs: 33,
       maxFrameMs: 33,
       approxFps: 45.5,
+    });
+  });
+
+  it("derives manual Quest performance metrics from rolling frame stats", () => {
+    expect(manualPerformanceMetricsFromFrameStats({
+      sampleCount: 3,
+      avgFrameMs: 22,
+      p95FrameMs: 33,
+      maxFrameMs: 40,
+      approxFps: 45.5,
+      framesObserved: 4,
+      sampleWindowSize: 3,
+      latestFrameAtMs: 1234.56,
+    })).toEqual({
+      avgFps: 45.5,
+      p95FrameMs: 33,
+      minimumObservedFps: 25,
+      source: "window.__openClinXrFrameStats",
+      framesObserved: 4,
+      sampleWindowSize: 3,
     });
   });
 });

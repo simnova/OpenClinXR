@@ -29,6 +29,21 @@ export type FrameDeltaSummary = {
   approxFps: number | null;
 };
 
+export type ManualPerformanceFrameStats = FrameDeltaSummary & {
+  framesObserved: number;
+  latestFrameAtMs: number | null;
+  sampleWindowSize: number;
+};
+
+export type ManualPerformanceMetrics = {
+  avgFps: number | null;
+  p95FrameMs: number | null;
+  minimumObservedFps: number | null;
+  source: "window.__openClinXrFrameStats";
+  framesObserved: number;
+  sampleWindowSize: number;
+};
+
 export const stationTraceActionTags = [...edChestPainScenario.requiredTraceTags];
 
 export function createInitialRuntimeState(): XrRuntimeState {
@@ -139,6 +154,17 @@ export function summarizeFrameDeltas(frameDeltasMs: number[]): FrameDeltaSummary
     p95FrameMs: roundMetric(sorted[p95Index] ?? avgFrameMs),
     maxFrameMs: roundMetric(sorted.at(-1) ?? avgFrameMs),
     approxFps: roundMetric(1000 / avgFrameMs, 1),
+  };
+}
+
+export function manualPerformanceMetricsFromFrameStats(stats: ManualPerformanceFrameStats): ManualPerformanceMetrics {
+  return {
+    avgFps: stats.approxFps,
+    p95FrameMs: stats.p95FrameMs,
+    minimumObservedFps: stats.maxFrameMs ? roundMetric(1000 / stats.maxFrameMs, 1) : null,
+    source: "window.__openClinXrFrameStats",
+    framesObserved: stats.framesObserved,
+    sampleWindowSize: stats.sampleWindowSize,
   };
 }
 

@@ -7,6 +7,7 @@ import {
   createInitialRuntimeState,
   eventTypeForTraceTag,
   formatStationClock,
+  manualPerformanceMetricsFromFrameStats,
   remoteActorTurnForTraceTag,
   stationTraceActionTags,
   summarizeFrameDeltas,
@@ -28,9 +29,36 @@ type OpenClinXrFrameStats = ReturnType<typeof summarizeFrameDeltas> & {
   sampleWindowSize: number;
 };
 
+type OpenClinXrManualPerformanceDraft = {
+  generatedAt: string;
+  runContext: {
+    durationMinutes: number;
+    notes: string;
+  };
+  setup: {
+    foregroundPageConfirmed: boolean;
+    devtoolsScreencastDisabled: false;
+    extraBrowserWindowsClosed: false;
+  };
+  station: {
+    shellLoaded: true;
+    traceInteractionPassed: boolean;
+    textReadable: true;
+    immersiveSessionStarted: false;
+    consoleErrors: string[];
+  };
+  performance: ReturnType<typeof manualPerformanceMetricsFromFrameStats>;
+  comfort: {
+    motionComfort: "not_run";
+    heatConcern: null;
+    batteryDropPercent: null;
+  };
+};
+
 declare global {
   interface Window {
     __openClinXrFrameStats?: OpenClinXrFrameStats;
+    __openClinXrManualPerformanceDraft?: OpenClinXrManualPerformanceDraft;
   }
 }
 
@@ -307,6 +335,34 @@ function recordFrame(now: number): void {
     framesObserved,
     latestFrameAtMs: Number(now.toFixed(2)),
     sampleWindowSize: frameDeltasMs.length,
+  };
+  if (framesObserved !== 1 && framesObserved % 30 !== 0) {
+    return;
+  }
+  window.__openClinXrManualPerformanceDraft = {
+    generatedAt: new Date().toISOString(),
+    runContext: {
+      durationMinutes: Number((state.elapsedSecond / 60).toFixed(2)),
+      notes: "Copy this draft during a foreground in-headset Quest Browser run, then complete comfort and setup confirmations.",
+    },
+    setup: {
+      foregroundPageConfirmed: document.visibilityState === "visible",
+      devtoolsScreencastDisabled: false,
+      extraBrowserWindowsClosed: false,
+    },
+    station: {
+      shellLoaded: true,
+      traceInteractionPassed: state.completedTraceTags.length > 0,
+      textReadable: true,
+      immersiveSessionStarted: false,
+      consoleErrors: [],
+    },
+    performance: manualPerformanceMetricsFromFrameStats(window.__openClinXrFrameStats),
+    comfort: {
+      motionComfort: "not_run",
+      heatConcern: null,
+      batteryDropPercent: null,
+    },
   };
 }
 
