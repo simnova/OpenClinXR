@@ -46,6 +46,26 @@ describe("OpenClinXR API shell", () => {
     expect(JSON.stringify(body)).not.toContain("Father died of myocardial infarction");
   });
 
+  it("serves the admin GraphQL schema contract and codegen plan", async () => {
+    const app = createApiApp();
+
+    const schemaResponse = await app.request("/admin/graphql/schema");
+    expect(schemaResponse.status).toBe(200);
+    expect(schemaResponse.headers.get("content-type")).toContain("text/plain");
+    const schema = await schemaResponse.text();
+    expect(schema).toContain("type Query");
+    expect(schema).toContain("type ReviewTraceQuality");
+    expect(schema).toContain("syntheticCaseDisclosure");
+
+    const codegenResponse = await app.request("/admin/graphql/codegen-plan");
+    const codegenPlan = await json(codegenResponse) as { schema: string; documents: string[]; generates: Record<string, unknown> };
+    expect(codegenResponse.status).toBe(200);
+    expect(codegenPlan.schema).toBe("packages/admin-graphql/src/schema.graphql");
+    expect(codegenPlan.documents).toContain("apps/admin/src/**/*.graphql");
+    expect(codegenPlan.generates).toHaveProperty("apps/admin/src/graphql/generated/");
+    expect(codegenPlan.generates).toHaveProperty("apps/api/src/graphql/generated/resolvers.ts");
+  });
+
   it("serves ED chest pain asset readiness from the shared runtime", async () => {
     const app = createApiApp();
     const response = await app.request("/scenarios/ed-chest-pain/assets/readiness");
