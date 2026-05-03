@@ -2,10 +2,11 @@
   "generated_by": "tools/agent-factory/find-evidence-debt.ts",
   "scorecard_count": 12,
   "debt_count": 21,
-  "open_count": 21,
-  "closed_count": 0,
+  "open_count": 19,
+  "closed_count": 2,
   "status_counts": {
-    "open": 21
+    "open": 19,
+    "resolved": 2
   },
   "open_by_iteration": {
     "iteration-0001": 3,
@@ -13,8 +14,8 @@
     "iteration-0003": 5,
     "iteration-0004": 2,
     "iteration-0005": 1,
-    "iteration-0006": 2,
-    "iteration-0007": 2
+    "iteration-0006": 1,
+    "iteration-0007": 1
   },
   "open_by_owner": {
     "chief-medical-officer": 1,
@@ -27,7 +28,7 @@
     "psychometrics-lead": 1,
     "solution-architect": 1,
     "source-librarian": 4,
-    "test-automation-lead": 3,
+    "test-automation-lead": 1,
     "voice-speech-engineer": 1,
     "xr-systems-architect": 1
   },
@@ -220,17 +221,6 @@
       "status": "open"
     },
     {
-      "id": "evidence-leadership-0006-001",
-      "file": "iterations/iteration-0006/06-leadership-scorecard.json",
-      "iteration_id": "iteration-0006",
-      "iteration_number": 6,
-      "plan_type": "leadership-review",
-      "scored_by": "senior-leadership-panel",
-      "owner": "test-automation-lead",
-      "summary": "Run a clean pnpm install once the actual monorepo files are created.",
-      "status": "open"
-    },
-    {
       "id": "evidence-leadership-0006-002",
       "file": "iterations/iteration-0006/06-leadership-scorecard.json",
       "iteration_id": "iteration-0006",
@@ -239,17 +229,6 @@
       "scored_by": "senior-leadership-panel",
       "owner": "local-ai-inference-engineer",
       "summary": "Benchmark a small local Qwen GGUF or MLX model on the target Apple Silicon hardware before enabling local dialogue.",
-      "status": "open"
-    },
-    {
-      "id": "evidence-leadership-0007-001",
-      "file": "iterations/iteration-0007/06-leadership-scorecard.json",
-      "iteration_id": "iteration-0007",
-      "iteration_number": 7,
-      "plan_type": "leadership-review",
-      "scored_by": "senior-leadership-panel",
-      "owner": "test-automation-lead",
-      "summary": "Run clean install, tests, and browser checks after the actual application monorepo is created.",
       "status": "open"
     },
     {
@@ -461,7 +440,7 @@
       "scored_by": "senior-leadership-panel",
       "owner": "test-automation-lead",
       "summary": "Run a clean pnpm install once the actual monorepo files are created.",
-      "status": "open"
+      "status": "resolved"
     },
     {
       "id": "evidence-leadership-0006-002",
@@ -483,7 +462,7 @@
       "scored_by": "senior-leadership-panel",
       "owner": "test-automation-lead",
       "summary": "Run clean install, tests, and browser checks after the actual application monorepo is created.",
-      "status": "open"
+      "status": "resolved"
     },
     {
       "id": "evidence-leadership-0007-002",

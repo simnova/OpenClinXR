@@ -24,7 +24,7 @@
     { "id": "risk-leadership-0006-002", "severity": "medium", "summary": "Quest 3 comfort and latency remain unproven until device smoke testing is available.", "owner": "xr-systems-architect", "status": "open" }
   ],
   "evidence_debt": [
-    { "id": "evidence-leadership-0006-001", "summary": "Run a clean pnpm install once the actual monorepo files are created.", "owner": "test-automation-lead", "status": "open" },
+    { "id": "evidence-leadership-0006-001", "summary": "Run a clean pnpm install once the actual monorepo files are created.", "owner": "test-automation-lead", "status": "resolved" },
     { "id": "evidence-leadership-0006-002", "summary": "Benchmark a small local Qwen GGUF or MLX model on the target Apple Silicon hardware before enabling local dialogue.", "owner": "local-ai-inference-engineer", "status": "open" }
   ],
   "decision_debt": [
@@ -33,4 +33,3 @@
   "confidence": 0.92,
   "summary": "Iteration 0006 closes major implementation gaps by narrowing the first sprint, binding each subsystem to tests, and keeping optional local AI, voice, and XR capabilities behind explicit gates."
 }
-

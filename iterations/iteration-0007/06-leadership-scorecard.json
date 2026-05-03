@@ -24,7 +24,7 @@
     { "id": "risk-leadership-0007-002", "severity": "medium", "summary": "Psychometric and clinical validity evidence remain future research and cannot be inferred from the prototype.", "owner": "chief-psychometrician", "status": "open" }
   ],
   "evidence_debt": [
-    { "id": "evidence-leadership-0007-001", "summary": "Run clean install, tests, and browser checks after the actual application monorepo is created.", "owner": "test-automation-lead", "status": "open" },
+    { "id": "evidence-leadership-0007-001", "summary": "Run clean install, tests, and browser checks after the actual application monorepo is created.", "owner": "test-automation-lead", "status": "resolved" },
     { "id": "evidence-leadership-0007-002", "summary": "Run Quest 3 and target Apple Silicon model/voice benchmarks before enabling immersive or local AI claims.", "owner": "xr-systems-architect", "status": "open" }
   ],
   "decision_debt": [
@@ -33,4 +33,3 @@
   "confidence": 0.93,
   "summary": "Iteration 0007 locks the code-phase handoff with milestones, hard stops, commit sequencing, and evidence gates suitable for starting a deterministic local-first implementation."
 }
-

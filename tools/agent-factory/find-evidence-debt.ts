@@ -72,7 +72,7 @@ function buildEvidenceDebtReport(scorecardCount: number, allDebt: EvidenceDebtRe
     scorecard_count: scorecardCount,
     debt_count: sortedDebt.length,
     open_count: openDebt.length,
-    closed_count: sortedDebt.filter((debt) => debt.status === "closed").length,
+    closed_count: sortedDebt.filter((debt) => debt.status === "closed" || debt.status === "resolved").length,
     status_counts: countBy(sortedDebt, (debt) => debt.status),
     open_by_iteration: countBy(openDebt, (debt) => debt.iteration_id),
     open_by_owner: countBy(openDebt, (debt) => debt.owner),

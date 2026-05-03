@@ -132,6 +132,43 @@ What this does not prove:
 - Thermal comfort or battery behavior.
 - Speech, local LLM, or local voice performance.
 
+## Smoke Run 0004: Fresh Desktop And Mobile Browser Regression
+
+Run time: 2026-05-03 17:58 EDT
+
+Result: pass for local desktop and mobile-browser regression after monorepo package verification.
+
+Evidence:
+
+- `pnpm install --force --frozen-lockfile` completed with the committed lockfile and repaired a locally mutated pnpm store; `pnpm store status` then reported packages untouched.
+- `pnpm verify` passed after the clean install refresh, including agent artifact checks, `tsgo` typechecks, Vitest suites, and `pnpm audit --audit-level=high`.
+- `apps/ui-xr` Vite dev server served `http://localhost:5173/`.
+- Desktop Chrome loaded `OpenClinXR Station Runtime` at `http://localhost:5173/`.
+- Desktop probe reported:
+  - `title`: `OpenClinXR Station Runtime`.
+  - `hasEdChestPain`: `true`.
+  - `hasNavigatorXr`: `true`.
+  - Canvas CSS size: `1395x945`.
+  - Canvas PNG data URL length: `143754`.
+  - Vite error overlay: `false`.
+- Desktop console showed only Vite debug connection messages before interaction and no warning/error messages during the mobile regression pass.
+- Clicking `Ecg Request` changed the trace to `Trace 1/10` and updated dialogue to `Nurse Alvarez: I will get the ECG now and call it out as soon as it prints.`
+- Mobile-sized viewport reported:
+  - Viewport: `500x844`, DPR `2`.
+  - Canvas CSS size: `500x473`.
+  - `hasReadableEhr`: `true`.
+  - Clicking `Urgent Escalation` changed the trace to `Trace 2/10`.
+  - Vite error overlay: `false`.
+- Screenshots captured:
+  - `docs/openclinxr/screenshots/xr-browser-smoke-2026-05-03.png`
+  - `docs/openclinxr/screenshots/xr-browser-smoke-mobile-2026-05-03.png`
+
+Debt impact:
+
+- Closes `evidence-leadership-0006-001`: clean pnpm install after monorepo creation.
+- Closes `evidence-leadership-0007-001`: clean install, tests, and browser checks after application monorepo creation.
+- Does not close Quest 3 immersive, local model, local voice, sustained performance, or validation-study evidence debt.
+
 ## Setup
 
 1. Connect Quest 3 directly to the Mac with a USB3-capable USB-C cable.
