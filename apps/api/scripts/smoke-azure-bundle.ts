@@ -25,4 +25,19 @@ if (body.ok !== true || body.service !== "openclinxr-api") {
   throw new Error(`Azure bundle smoke received unexpected /health payload: ${JSON.stringify(body)}`);
 }
 
+const timingResponse = await startup.fetch(new Request("http://localhost/exam-blueprints/step2cs-seed/timing-plan"));
+if (timingResponse.status !== 200) {
+  throw new Error(`Azure bundle smoke expected timing plan to return 200, got ${timingResponse.status}`);
+}
+
+const timingPlan = await timingResponse.json() as {
+  stationWindows?: unknown[];
+  breakCheckpoints?: unknown[];
+  totalStationTimeSeconds?: number;
+};
+
+if (timingPlan.stationWindows?.length !== 12 || timingPlan.breakCheckpoints?.length !== 3 || timingPlan.totalStationTimeSeconds !== 18720) {
+  throw new Error(`Azure bundle smoke received unexpected timing plan payload: ${JSON.stringify(timingPlan)}`);
+}
+
 console.log("Azure bundle smoke passed");

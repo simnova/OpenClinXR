@@ -212,6 +212,7 @@ Use these commands when moving from design intent to verified readiness:
 - `pnpm xr:quest:smoke`: starts a CDP-backed Quest Browser smoke against the local XR app. It requires the dev server to be running and the Quest 3 connected/authorized over USB-C.
 - `pnpm xr:quest:manual:check`: validates a foreground in-headset manual performance report, or records `missing_quest_manual_performance_report` until one exists. Use `docs/openclinxr/quest-manual-performance-template.json` as the capture template.
 - `pnpm local:runtime:probe`: checks local hardware/runtime prerequisites without cloud or paid API usage.
+- `pnpm --filter @openclinxr/api smoke:azure`: locally bundles the Hono/Azure-compatible API with Rolldown and smoke-tests `/health` plus the Step 2 CS-style seed timing-plan endpoint.
 - `pnpm security:audit`: runs `pnpm audit --audit-level=high`.
 - `pnpm security:licenses`: checks dependency licenses against the OpenClinXR policy and writes `docs/openclinxr/dependency-license-policy-2026-05-03.json`.
 
