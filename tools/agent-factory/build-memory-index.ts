@@ -17,7 +17,7 @@ async function main(): Promise<void> {
   }
 
   const output = {
-    generated_at: new Date().toISOString(),
+    generated_by: "tools/agent-factory/build-memory-index.ts",
     agent_count: indexFiles.length,
     entry_count: entries.length,
     entries: entries.sort((a, b) => `${a.topic}:${a.id}`.localeCompare(`${b.topic}:${b.id}`)),
@@ -28,4 +28,3 @@ async function main(): Promise<void> {
 }
 
 await main();
-

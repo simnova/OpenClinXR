@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-03T02:28:07.129Z",
+  "generated_by": "tools/agent-factory/build-memory-index.ts",
   "agent_count": 55,
   "entry_count": 55,
   "entries": [
