@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openclinxr.local/schemas/decision-record.schema.json",
+  "title": "Decision Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["decision_id", "title", "status", "iteration", "context", "decision", "alternatives", "rationale", "consequences", "reversal_trigger", "linked_rubric_dimensions"],
+  "properties": {
+    "decision_id": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "enum": ["proposed", "accepted", "rejected", "superseded", "deferred"] },
+    "iteration": { "type": "integer", "minimum": 0 },
+    "context": { "type": "string", "minLength": 1 },
+    "decision": { "type": "string", "minLength": 1 },
+    "alternatives": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" }
+    },
+    "rationale": { "type": "string", "minLength": 1 },
+    "consequences": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "reversal_trigger": { "type": "string", "minLength": 1 },
+    "linked_rubric_dimensions": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}
