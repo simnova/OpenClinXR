@@ -1,4 +1,5 @@
 import type { ProviderHealth } from "@openclinxr/shared-schemas";
+import { openClinXrSpanNames, telemetryRouteAttributes } from "@openclinxr/telemetry";
 import { buildAdversarialProbeReport, type AdversarialProbeReport } from "./adversarial-report.js";
 import type { SimulationResult } from "./station-simulation.js";
 
@@ -15,6 +16,10 @@ export type MockBenchmarkReport = {
     missingRequiredTraceTagCount: number;
     lateTraceTagCount: number;
     unsafeEventCount: number;
+  };
+  telemetryPlan: {
+    spanNames: typeof openClinXrSpanNames;
+    benchmarkAttributes: ReturnType<typeof telemetryRouteAttributes>;
   };
   adversarialReport: AdversarialProbeReport;
   providerHealth: {
@@ -39,6 +44,15 @@ export function buildMockBenchmarkReport(result: SimulationResult, elapsedMs: nu
       missingRequiredTraceTagCount: result.reviewPacket.missingRequiredTraceTags.length,
       lateTraceTagCount: result.reviewPacket.lateTraceTags.length,
       unsafeEventCount: result.reviewPacket.unsafeEvents.length,
+    },
+    telemetryPlan: {
+      spanNames: openClinXrSpanNames,
+      benchmarkAttributes: telemetryRouteAttributes({
+        scenarioId: "ed_chest_pain_priority_v1",
+        stationRunId: result.stationRunId,
+        providerId: result.providerHealth.model.providerId,
+        routeId: "actor-dialogue-offline-v1",
+      }),
     },
     adversarialReport: buildAdversarialProbeReport(result, {
       hiddenFactCanaries: ["Father died of myocardial infarction"],

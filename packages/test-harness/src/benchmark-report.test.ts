@@ -83,6 +83,18 @@ describe("mock benchmark report", () => {
         lateTraceTagCount: 1,
         unsafeEventCount: 0,
       },
+      telemetryPlan: {
+        spanNames: {
+          modelGenerateActorResponse: "openclinxr.model.generate_actor_response",
+          voiceSynthesize: "openclinxr.voice.synthesize",
+        },
+        benchmarkAttributes: {
+          "openclinxr.scenario_id": "ed_chest_pain_priority_v1",
+          "openclinxr.station_run_id": "run_ed_chest_pain_priority_v1_learner_001",
+          "openclinxr.provider_id": "mock-model",
+          "openclinxr.route_id": "actor-dialogue-offline-v1",
+        },
+      },
       adversarialReport: {
         overallScore: 1,
         probes: [

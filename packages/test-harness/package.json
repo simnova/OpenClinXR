@@ -17,6 +17,7 @@
   "dependencies": {
     "@openclinxr/scenario-runtime": "workspace:*",
     "@openclinxr/shared-schemas": "workspace:*",
+    "@openclinxr/telemetry": "workspace:*",
     "tsx": "4.21.0"
   },
   "devDependencies": {

@@ -277,6 +277,15 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
+  packages/telemetry:
+    devDependencies:
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.5
+        version: 4.1.5(@types/node@25.6.0)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+
   packages/test-harness:
     dependencies:
       '@openclinxr/scenario-runtime':
@@ -285,6 +294,9 @@ importers:
       '@openclinxr/shared-schemas':
         specifier: workspace:*
         version: link:../shared-schemas
+      '@openclinxr/telemetry':
+        specifier: workspace:*
+        version: link:../telemetry
       tsx:
         specifier: 4.21.0
         version: 4.21.0
