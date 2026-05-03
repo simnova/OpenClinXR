@@ -32,12 +32,13 @@ Required capabilities:
 - Score aggregation.
 - Iteration comparison.
 - Source-ledger checks.
-- Evidence and stale-risk reports.
+- Machine-readable evidence-debt and stale-risk reports.
 
 Exit criteria:
 
-- `npm run agent:verify` exits 0.
+- `pnpm agent:verify` exits 0.
 - `.agent-factory/memory-index.json` is generated.
+- `.agent-factory/evidence-debt-report.json` is generated.
 - Leadership packets can be generated from iteration folders.
 
 ## Maturity 3: Orchestrated
@@ -75,4 +76,3 @@ Exit criteria:
 - Capability upgrades are linked to measurable score problems.
 - Repeated risks trigger specialist activation or scope reduction.
 - Low-value agents can be merged, retired, or demoted.
-

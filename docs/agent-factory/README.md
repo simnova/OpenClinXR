@@ -31,13 +31,16 @@ The factory is for planning and design maturity. It must not generate OpenClinXR
 ## Key Commands
 
 ```bash
-npm run agent:generate
-npm run agent:validate
-npm run agent:index
-npm run agent:score -- iterations/iteration-0001
-npm run agent:leadership -- iterations/iteration-0001
-npm run agent:verify
+pnpm agent:generate
+pnpm agent:validate
+pnpm agent:index
+pnpm agent:evidence
+pnpm agent:score -- iterations/iteration-0001
+pnpm agent:leadership -- iterations/iteration-0001
+pnpm agent:verify
 ```
+
+`pnpm agent:evidence` prints open evidence debt and writes `.agent-factory/evidence-debt-report.json` so future iterations can compare open debt by iteration and owner.
 
 ## Quality Bar
 
@@ -50,4 +53,3 @@ The plan is not mature until it has:
 - Psychometric defensibility at least 4.5.
 - Specialty clinical generalizability at least 4.2.
 - Senior Leadership majority approval with no block from General Counsel, Chief Medical Education Officer, Chief Psychometrician, or Chief Security and Privacy Officer.
-
