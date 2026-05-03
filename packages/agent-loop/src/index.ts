@@ -207,14 +207,30 @@ export const defaultAgentLoopRoster = {
       "clinical_validity",
       "specialty_clinical_generalizability",
     ], ["ed-realism", "acute-escalation"]),
+    role("anesthesiology-critical-care-physician", "physicians", "Anesthesiology And Critical Care Physician", [
+      "clinical_validity",
+      "specialty_clinical_generalizability",
+    ], ["airway-hemodynamics", "critical-care"]),
     role("cardiology-physician", "physicians", "Cardiology Physician", [
       "clinical_validity",
       "specialty_clinical_generalizability",
     ], ["chest-pain", "cardiac-risk"]),
+    role("family-medicine-physician", "physicians", "Family Medicine Physician", [
+      "clinical_validity",
+      "specialty_clinical_generalizability",
+    ], ["primary-care", "continuity-of-care"]),
+    role("infectious-disease-physician", "physicians", "Infectious Disease Physician", [
+      "clinical_validity",
+      "specialty_clinical_generalizability",
+    ], ["infection-control", "antimicrobial-stewardship"]),
     role("internal-medicine-physician", "physicians", "Internal Medicine Physician", [
       "clinical_validity",
       "specialty_clinical_generalizability",
     ], ["adult-medicine", "diagnostic-reasoning"]),
+    role("neurology-physician", "physicians", "Neurology Physician", [
+      "clinical_validity",
+      "specialty_clinical_generalizability",
+    ], ["neurologic-exam", "stroke-recognition"]),
     role("psychiatry-physician", "physicians", "Psychiatry Physician", [
       "clinical_validity",
       "specialty_clinical_generalizability",
@@ -223,6 +239,10 @@ export const defaultAgentLoopRoster = {
       "clinical_validity",
       "specialty_clinical_generalizability",
     ], ["pediatric-assessment", "guardian-communication"]),
+    role("radiology-imaging-physician", "physicians", "Radiology Imaging Physician", [
+      "clinical_validity",
+      "specialty_clinical_generalizability",
+    ], ["imaging-appropriateness", "diagnostic-imaging"]),
     role("obgyn-physician", "physicians", "Obstetrics And Gynecology Physician", [
       "clinical_validity",
       "specialty_clinical_generalizability",
