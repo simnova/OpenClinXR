@@ -19,9 +19,60 @@ describe("OpenClinXR shared schemas", () => {
       requiredTraceTags: ["ecg_request"],
       eventSchedule: [{ eventId: "nurse_vitals_change", atSecond: 420, actorId: "nurse_maria_alvarez_v1", tag: "vitals_review" }],
       reviewRubric: [{ rubricId: "urgent_recognition", label: "Urgent recognition", requiredTraceTags: ["ecg_request"] }],
+      governance: {
+        scoreUseLabel: "formative_local_only",
+        syntheticCaseDisclosure: "Synthetic training case for local formative review only.",
+        validationStage: "stage_1_expert_reviewed",
+        validationLimitations: ["No outcomes validity evidence yet."],
+        requiredReviewerRoles: ["clinician", "psychometrician", "legal", "simulation_qa"],
+        sourceIds: ["src-step2cs-public-archive"],
+        safetyCriticalTraceTags: ["ecg_request"],
+        hiddenFactPolicy: {
+          learnerView: "redact_hidden_facts",
+          disclosureRequiresTrigger: true,
+        },
+      },
     });
 
     expect(result.ok).toBe(true);
+  });
+
+  it("rejects summative score-use claims before validation evidence exists", () => {
+    const result = validateScenario({
+      scenarioId: "overclaimed_station",
+      version: 1,
+      title: "Overclaimed Station",
+      status: "approved",
+      review: {
+        clinical: "approved",
+        psychometric: "approved",
+        legal: "approved",
+        simulationQa: "approved",
+      },
+      clinicalObjectives: ["Assess something"],
+      actors: [{ actorId: "patient_001", role: "patient", displayName: "Patient" }],
+      requiredTraceTags: ["safety_plan"],
+      eventSchedule: [],
+      reviewRubric: [{ rubricId: "safety", label: "Safety", requiredTraceTags: ["safety_plan"] }],
+      governance: {
+        scoreUseLabel: "validated_summative",
+        syntheticCaseDisclosure: "Synthetic case.",
+        validationStage: "stage_1_expert_reviewed",
+        validationLimitations: ["No generalizability or consequence evidence yet."],
+        requiredReviewerRoles: ["clinician", "psychometrician", "legal", "simulation_qa"],
+        sourceIds: ["src-example"],
+        safetyCriticalTraceTags: ["safety_plan"],
+        hiddenFactPolicy: {
+          learnerView: "redact_hidden_facts",
+          disclosureRequiresTrigger: true,
+        },
+      },
+    });
+
+    expect(result).toEqual({
+      ok: false,
+      errors: ["validated summative score use requires stage_3_validated governance evidence"],
+    });
   });
 
   it("rejects scenario publication without all approval gates", () => {
@@ -74,4 +125,3 @@ describe("OpenClinXR shared schemas", () => {
     ).toBe(true);
   });
 });
-

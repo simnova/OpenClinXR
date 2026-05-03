@@ -83,6 +83,22 @@ export const edChestPainScenario: Scenario = {
       requiredTraceTags: ["patient_note_submitted"],
     },
   ],
+  governance: {
+    scoreUseLabel: "formative_local_only",
+    syntheticCaseDisclosure: "Synthetic local training scenario inspired by public clinical-skills exam patterns; not a validated summative assessment.",
+    validationStage: "stage_1_expert_reviewed",
+    validationLimitations: [
+      "No learner-outcome, reliability, fairness, generalizability, or consequence-validity evidence exists for score use.",
+      "Current approvals mean fixture completeness for prototype development, not production clinical assessment validity.",
+    ],
+    requiredReviewerRoles: ["clinician", "psychometrician", "legal", "simulation_qa"],
+    sourceIds: ["src-step2cs-public-archive", "src-ama-clinical-skills-competencies", "src-llm-vsp-literature-2025"],
+    safetyCriticalTraceTags: ["vitals_review", "ecg_request", "urgent_escalation", "team_communication"],
+    hiddenFactPolicy: {
+      learnerView: "redact_hidden_facts",
+      disclosureRequiresTrigger: true,
+    },
+  },
   environment: {
     environmentId: "ed_exam_bay_v1",
     name: "Emergency Department Exam Bay",
@@ -110,4 +126,3 @@ export const edChestPainScenario: Scenario = {
     },
   ],
 };
-

@@ -249,3 +249,28 @@ API follow-up:
 - `apps/api` added `GET /exam-blueprints/default`.
 - `apps/api` added `POST /exam-forms` for local assembly of the ED chest pain pilot form.
 - API tests cover ready-for-review form assembly with no missing trace coverage.
+
+## Milestone 9 Progress: Agent Loop And Scenario Governance
+
+Started on 2026-05-03:
+
+- `packages/agent-loop` workspace package added.
+- Agent-loop planner turns local memory entries and existing scorecards into staged work orders.
+- Planner activates physician and legal review stages when clinical, specialty, security, or legal dimensions are below threshold.
+- Planner sends senior leadership only to review when maturity gates pass; otherwise it creates a blocker-focused leadership preflight.
+- `tools/agent-factory/run-agent-loop.ts` added and exposed through `npm run agent:loop`.
+- `iterations/iteration-0007/09-agent-loop-plan.json` generated from iteration 0007 with iteration 0006 as the comparison baseline.
+- Scenario governance metadata added to the shared schema and ED fixture.
+- Scenario bank expanded with three draft synthetic cases while keeping only the ED fixture activation-eligible.
+- API learner scenario response now redacts actor hidden facts.
+- Mock actor responses no longer reveal hidden facts and block hidden-truth extraction attempts.
+
+Local evidence:
+
+- `pnpm --filter @openclinxr/agent-loop test` passed.
+- `pnpm --filter @openclinxr/agent-loop typecheck` passed.
+- `npm run agent:loop -- iterations/iteration-0007 --previous iterations/iteration-0006 --dry-run` passed.
+- `pnpm --filter @openclinxr/shared-schemas test` passed.
+- `pnpm --filter @openclinxr/scenario-fixtures test` passed.
+- `pnpm --filter @openclinxr/model-gateway test` passed.
+- `pnpm --filter @openclinxr/api test` passed.

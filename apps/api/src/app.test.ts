@@ -36,11 +36,13 @@ describe("OpenClinXR API shell", () => {
   it("serves the ED chest pain scenario fixture", async () => {
     const app = createApiApp();
     const response = await app.request("/scenarios/ed-chest-pain");
-    const body = await json(response) as { scenarioId: string; actors: Array<{ role: string }> };
+    const body = await json(response) as { scenarioId: string; actors: Array<{ role: string; hiddenFacts?: string[] }> };
 
     expect(response.status).toBe(200);
     expect(body.scenarioId).toBe("ed_chest_pain_priority_v1");
     expect(body.actors.map((actor) => actor.role)).toEqual(["patient", "family", "nurse"]);
+    expect(body.actors.some((actor) => "hiddenFacts" in actor)).toBe(false);
+    expect(JSON.stringify(body)).not.toContain("Father died of myocardial infarction");
   });
 
   it("serves ED chest pain asset readiness from the shared runtime", async () => {

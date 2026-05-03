@@ -23,6 +23,19 @@ const scenario: Scenario = {
   requiredTraceTags: ["ecg_request"],
   eventSchedule: [],
   reviewRubric: [],
+  governance: {
+    scoreUseLabel: "formative_local_only",
+    syntheticCaseDisclosure: "Synthetic repository-contract fixture.",
+    validationStage: "stage_1_expert_reviewed",
+    validationLimitations: ["Repository fixture only; no validity evidence."],
+    requiredReviewerRoles: ["clinician", "psychometrician", "legal", "simulation_qa"],
+    sourceIds: ["src-test-fixture"],
+    safetyCriticalTraceTags: ["ecg_request"],
+    hiddenFactPolicy: {
+      learnerView: "redact_hidden_facts",
+      disclosureRequiresTrigger: true,
+    },
+  },
 };
 
 function trace(sequence: number, tag?: string): TraceEvent {
@@ -76,4 +89,3 @@ describe("MongoDB memory repositories", () => {
     await expect(repository.replay("run_001")).resolves.toEqual([expect.objectContaining({ sequence: 0 }), expect.objectContaining({ sequence: 1 })]);
   });
 });
-

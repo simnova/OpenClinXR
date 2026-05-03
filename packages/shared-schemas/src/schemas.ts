@@ -42,6 +42,35 @@ export const ReviewRubricItemSchema = Type.Object({
   requiredTraceTags: Type.Array(Type.String({ minLength: 1 })),
 });
 
+export const ScoreUseLabelSchema = Type.Union([
+  Type.Literal("formative_local_only"),
+  Type.Literal("pilot_research_only"),
+  Type.Literal("validated_summative"),
+]);
+
+export const ValidationStageSchema = Type.Union([
+  Type.Literal("stage_0_synthetic_draft"),
+  Type.Literal("stage_1_expert_reviewed"),
+  Type.Literal("stage_2_pilot_ready"),
+  Type.Literal("stage_3_validated"),
+]);
+
+export const HiddenFactPolicySchema = Type.Object({
+  learnerView: Type.Literal("redact_hidden_facts"),
+  disclosureRequiresTrigger: Type.Boolean(),
+});
+
+export const ScenarioGovernanceSchema = Type.Object({
+  scoreUseLabel: ScoreUseLabelSchema,
+  syntheticCaseDisclosure: Type.String({ minLength: 1 }),
+  validationStage: ValidationStageSchema,
+  validationLimitations: Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
+  requiredReviewerRoles: Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
+  sourceIds: Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
+  safetyCriticalTraceTags: Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
+  hiddenFactPolicy: HiddenFactPolicySchema,
+});
+
 export const EnvironmentSchema = Type.Object({
   environmentId: Type.String({ minLength: 1 }),
   name: Type.String({ minLength: 1 }),
@@ -71,6 +100,7 @@ export const ScenarioSchema = Type.Object({
   requiredTraceTags: Type.Array(Type.String({ minLength: 1 })),
   eventSchedule: Type.Array(EventScheduleEntrySchema),
   reviewRubric: Type.Array(ReviewRubricItemSchema),
+  governance: ScenarioGovernanceSchema,
   environment: Type.Optional(EnvironmentSchema),
   equipment: Type.Optional(Type.Array(Type.String({ minLength: 1 }))),
   assetNeeds: Type.Optional(Type.Array(AssetNeedSchema)),
@@ -120,9 +150,9 @@ export const ProviderHealthSchema = Type.Object({
 });
 
 export type ActorCard = Static<typeof ActorCardSchema>;
+export type ScenarioGovernance = Static<typeof ScenarioGovernanceSchema>;
 export type Scenario = Static<typeof ScenarioSchema>;
 export type TraceEvent = Static<typeof TraceEventSchema>;
 export type PatientNote = Static<typeof PatientNoteSchema>;
 export type ReviewPacket = Static<typeof ReviewPacketSchema>;
 export type ProviderHealth = Static<typeof ProviderHealthSchema>;
-

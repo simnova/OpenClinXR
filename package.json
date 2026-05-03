@@ -14,6 +14,7 @@
     "agent:risks": "tsx tools/agent-factory/find-stale-risks.ts",
     "agent:evidence": "tsx tools/agent-factory/find-evidence-debt.ts",
     "agent:sources": "tsx tools/agent-factory/check-source-ledger.ts",
+    "agent:loop": "tsx tools/agent-factory/run-agent-loop.ts",
     "agent:verify": "npm run agent:validate && npm run agent:index && npm run agent:sources && npm run agent:risks && npm run agent:evidence",
     "typecheck": "tsc --noEmit && pnpm -r --filter @openclinxr/* typecheck",
     "test": "pnpm -r --filter @openclinxr/* test",

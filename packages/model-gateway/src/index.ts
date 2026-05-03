@@ -109,41 +109,81 @@ export class MockModelProviderAdapter implements ModelProviderAdapter {
   }
 
   async generateActorResponse(input: ActorResponseRequest): Promise<ActorResponseResult> {
-    const groundingFact = input.hiddenFacts[0] ?? input.visibleFacts[0] ?? "I am still trying to describe what I feel.";
-    const text = `${input.actorDisplayName}: ${groundingFact}`;
-    const completionTokens = Math.max(8, Math.ceil(text.length / 5));
-    const promptTokens = Math.max(12, Math.ceil((input.learnerUtterance.length + input.visibleFacts.join(" ").length) / 5));
+    if (isHiddenTruthExtractionAttempt(input.learnerUtterance)) {
+      return actorResponse(input, {
+        text: `${input.actorDisplayName}: I can only respond as this simulated patient from information that has been appropriately elicited.`,
+        responseKind: "blocked_fallback",
+        guardrail: {
+          status: "blocked",
+          reason: "hidden_truth_extraction_attempt",
+        },
+      });
+    }
 
-    return {
+    const groundingFact = input.visibleFacts[0] ?? "I am still trying to describe what I feel.";
+    const text = `${input.actorDisplayName}: ${groundingFact}`;
+
+    return actorResponse(input, {
       text,
       responseKind: "spoken_actor_response",
-      traceTags: [...input.traceContextTags],
-      provenance: {
-        providerId: this.id,
-        modelId: "deterministic-mock",
-        modelVersion: "1.0.0",
-        requestPolicyId: input.policy.requestPolicyId,
-        promptTemplateId: input.policy.promptTemplateId,
-        scenarioId: input.scenarioId,
-        scenarioVersion: input.scenarioVersion,
-        actorId: input.actorId,
-        actorCardVersion: "fixture-v1",
-        retrievedMemoryIds: [...input.retrievedMemoryIds],
-        safetyPolicyVersion: input.policy.safetyPolicyVersion,
-        latencyMs: 0,
-        tokenUsage: {
-          promptTokens,
-          completionTokens,
-          totalTokens: promptTokens + completionTokens,
-        },
-        costEstimateUsd: 0,
-        guardrail: {
-          status: "pass",
-          reason: "deterministic mock response",
-        },
+      guardrail: {
+        status: "pass",
+        reason: "deterministic mock response",
       },
-    };
+    });
   }
+}
+
+function actorResponse(
+  input: ActorResponseRequest,
+  response: {
+    text: string;
+    responseKind: ActorResponseResult["responseKind"];
+    guardrail: GuardrailResult;
+  },
+): ActorResponseResult {
+  const completionTokens = Math.max(8, Math.ceil(response.text.length / 5));
+  const promptTokens = Math.max(12, Math.ceil((input.learnerUtterance.length + input.visibleFacts.join(" ").length) / 5));
+
+  return {
+    text: response.text,
+    responseKind: response.responseKind,
+    traceTags: [...input.traceContextTags],
+    provenance: {
+      providerId: "mock-model",
+      modelId: "deterministic-mock",
+      modelVersion: "1.0.0",
+      requestPolicyId: input.policy.requestPolicyId,
+      promptTemplateId: input.policy.promptTemplateId,
+      scenarioId: input.scenarioId,
+      scenarioVersion: input.scenarioVersion,
+      actorId: input.actorId,
+      actorCardVersion: "fixture-v1",
+      retrievedMemoryIds: [...input.retrievedMemoryIds],
+      safetyPolicyVersion: input.policy.safetyPolicyVersion,
+      latencyMs: 0,
+      tokenUsage: {
+        promptTokens,
+        completionTokens,
+        totalTokens: promptTokens + completionTokens,
+      },
+      costEstimateUsd: 0,
+      guardrail: response.guardrail,
+    },
+  };
+}
+
+function isHiddenTruthExtractionAttempt(utterance: string): boolean {
+  const normalized = utterance.toLowerCase();
+  return [
+    "hidden fact",
+    "hidden facts",
+    "secret",
+    "ignore your instructions",
+    "ignore instructions",
+    "system prompt",
+    "developer message",
+  ].some((phrase) => normalized.includes(phrase));
 }
 
 export type LocalModelProviderOptions = {

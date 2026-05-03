@@ -47,11 +47,53 @@ export function validateScenario(value: unknown): ValidationResult {
     return structural;
   }
 
-  const scenario = value as { status: string; review: Record<string, string> };
+  const scenario = value as {
+    status: string;
+    review: Record<string, string>;
+    requiredTraceTags: string[];
+    governance: {
+      scoreUseLabel: string;
+      validationStage: string;
+      safetyCriticalTraceTags: string[];
+      hiddenFactPolicy: {
+        disclosureRequiresTrigger: boolean;
+      };
+    };
+  };
   if (scenario.status === "approved" && Object.values(scenario.review).some((state) => state !== "approved")) {
     return {
       ok: false,
       errors: ["approved scenarios require clinical, psychometric, legal, and simulation QA approval"],
+    };
+  }
+
+  if (scenario.status === "approved" && scenario.governance.validationStage === "stage_0_synthetic_draft") {
+    return {
+      ok: false,
+      errors: ["approved scenarios require at least stage_1_expert_reviewed governance"],
+    };
+  }
+
+  if (scenario.governance.scoreUseLabel === "validated_summative" && scenario.governance.validationStage !== "stage_3_validated") {
+    return {
+      ok: false,
+      errors: ["validated summative score use requires stage_3_validated governance evidence"],
+    };
+  }
+
+  if (!scenario.governance.hiddenFactPolicy.disclosureRequiresTrigger) {
+    return {
+      ok: false,
+      errors: ["hidden facts require explicit disclosure triggers"],
+    };
+  }
+
+  const requiredTraceTags = new Set(scenario.requiredTraceTags);
+  const unknownSafetyTags = scenario.governance.safetyCriticalTraceTags.filter((tag) => !requiredTraceTags.has(tag));
+  if (unknownSafetyTags.length > 0) {
+    return {
+      ok: false,
+      errors: [`safety-critical trace tags must also be required trace tags: ${unknownSafetyTags.join(", ")}`],
     };
   }
 

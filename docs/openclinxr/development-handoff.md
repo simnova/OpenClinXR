@@ -257,3 +257,26 @@ Exam assembly milestone has also started:
 - It creates ordered exam forms from approved scenarios and reports required trace-tag coverage gaps.
 - It rejects unapproved scenarios before exam-form lock, preserving the human review gates from the scenario fixture.
 - `apps/api` exposes the default blueprint and a local exam-form assembly endpoint for the first ED chest pain pilot form.
+
+Agent-loop orchestration milestone has also started:
+
+- `packages/agent-loop` exists.
+- It indexes active persistent memories while hiding superseded entries.
+- It normalizes existing agent-factory scorecards into an executable loop model.
+- It computes weighted maturity deltas on the 0-5 rubric and blocks senior leadership readiness when evidence, decision, or high/critical risk debt remains open.
+- It emits staged work orders for core revision, physician specialty review, legal governance review, adversarial counterplanning, and leadership review or preflight.
+- `npm run agent:loop -- iterations/iteration-0007 --previous iterations/iteration-0006` writes `iterations/iteration-0007/09-agent-loop-plan.json`.
+
+Scenario-bank governance milestone has also started:
+
+- Scenario schemas now require governance metadata: formative/pilot/summative score-use label, synthetic disclosure, validation stage, limitations, reviewer roles, source IDs, safety-critical trace tags, and hidden-fact policy.
+- Validated summative score-use claims are rejected unless governance is `stage_3_validated`.
+- ED chest pain is marked `formative_local_only` with explicit validation limitations.
+- Three synthetic draft cases now exist for maturity breadth: pediatric asthma with parent anxiety, suicidal ideation safety planning, and telehealth diabetes health-literacy counseling.
+- `evaluateScenarioBankMaturity` reports status counts, validation-stage counts, activation-eligible scenarios, blocked draft scenarios, setting diversity, actor-role coverage, safety-critical trace tags, and hidden-fact policy coverage.
+- The default API scenario endpoint now returns a learner-safe projection with actor hidden facts redacted.
+
+Actor-response safety milestone has also started:
+
+- The deterministic mock model provider now grounds normal responses on visible facts rather than hidden facts.
+- Hidden-truth extraction attempts such as requests to reveal hidden facts or ignore instructions return an auditable `blocked_fallback`.

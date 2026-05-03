@@ -1,6 +1,6 @@
 import { assembleExamForm, createDefaultClinicalSkillsBlueprint } from "@openclinxr/exam-assembly";
 import { createDefaultScenarioRuntime, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
-import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
+import { createLearnerScenarioView, edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { Hono } from "hono";
 
 export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRuntime()): Hono {
@@ -16,7 +16,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
 
   app.get("/providers/health", async (context) => context.json(await runtime.providerHealth()));
 
-  app.get("/scenarios/ed-chest-pain", (context) => context.json(edChestPainScenario));
+  app.get("/scenarios/ed-chest-pain", (context) => context.json(createLearnerScenarioView(edChestPainScenario)));
 
   app.get("/scenarios/ed-chest-pain/assets/readiness", (context) => context.json(runtime.assetReadiness()));
 

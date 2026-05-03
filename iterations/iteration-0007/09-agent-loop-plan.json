@@ -1,0 +1,186 @@
+{
+  "iterationId": "iteration-0007",
+  "candidatePlanTitle": "Iteration 0007 Brief",
+  "rosterVersion": "agent-loop-roster-v1",
+  "maturityDelta": {
+    "trend": "improving",
+    "weightedScore": 4.748,
+    "confidence": 0.93,
+    "readyForLeadershipReview": false,
+    "blockers": [
+      "open_evidence_debt",
+      "open_decision_debt"
+    ],
+    "lowDimensions": [],
+    "previousWeightedScore": 4.676,
+    "scoreDelta": 0.072
+  },
+  "leadershipGate": {
+    "ready": false,
+    "blockers": [
+      "open_evidence_debt",
+      "open_decision_debt"
+    ]
+  },
+  "nextActions": [
+    {
+      "id": "evidence-leadership-0007-001",
+      "actionType": "close_evidence_debt",
+      "owner": "test-automation-lead",
+      "summary": "Run clean install, tests, and browser checks after the actual application monorepo is created.",
+      "dimensions": [
+        "implementation_readiness",
+        "evidence_discipline"
+      ]
+    },
+    {
+      "id": "evidence-leadership-0007-002",
+      "actionType": "close_evidence_debt",
+      "owner": "xr-systems-architect",
+      "summary": "Run Quest 3 and target Apple Silicon model/voice benchmarks before enabling immersive or local AI claims.",
+      "dimensions": [
+        "technical_feasibility",
+        "cost_performance_efficiency"
+      ]
+    },
+    {
+      "id": "decision-leadership-0007-001",
+      "actionType": "resolve_decision_debt",
+      "owner": "implementation-planning-lead",
+      "summary": "Choose exact pinned versions during package creation after license and compatibility checks.",
+      "dimensions": [
+        "implementation_readiness",
+        "architecture_coherence"
+      ]
+    },
+    {
+      "id": "risk-leadership-0007-001",
+      "actionType": "mitigate_critical_risk",
+      "owner": "vp-engineering-delivery",
+      "summary": "The first implementation can still drift if optional local AI or asset work begins before the deterministic station core passes.",
+      "dimensions": [
+        "implementation_readiness",
+        "technical_feasibility"
+      ]
+    },
+    {
+      "id": "risk-leadership-0007-002",
+      "actionType": "mitigate_critical_risk",
+      "owner": "chief-psychometrician",
+      "summary": "Psychometric and clinical validity evidence remain future research and cannot be inferred from the prototype.",
+      "dimensions": [
+        "clinical_validity",
+        "specialty_clinical_generalizability"
+      ]
+    }
+  ],
+  "workOrders": [
+    {
+      "id": "iteration-0007-core-revision",
+      "stage": "core_revision",
+      "goal": "Revise the implementation plan and code backlog around the weakest rubric dimensions and open debts.",
+      "assignedAgentIds": [
+        "chief-coordinator",
+        "rubric-steward",
+        "solution-architect",
+        "implementation-planning-lead"
+      ],
+      "dimensions": [
+        "implementation_readiness"
+      ],
+      "memoryTopics": [
+        "implementation-plan",
+        "evidence-discipline",
+        "component-boundaries"
+      ],
+      "requiredOutput": "Core revision memo with closed or explicitly re-owned score, evidence, and decision gaps.",
+      "dependsOnStages": []
+    },
+    {
+      "id": "iteration-0007-adversarial-counterplan",
+      "stage": "adversarial_counterplan",
+      "goal": "Attack the revised plan and produce a stronger counterplan or required remediations.",
+      "assignedAgentIds": [
+        "implementation-plan-gap-attacker"
+      ],
+      "dimensions": [
+        "adversarial_robustness"
+      ],
+      "memoryTopics": [
+        "plan-gaps",
+        "unsafe-assumptions",
+        "privacy-exposure"
+      ],
+      "requiredOutput": "Adversarial counterplan with blocking issues, outdo strategy, and testable acceptance gates.",
+      "dependsOnStages": [
+        "core_revision"
+      ]
+    },
+    {
+      "id": "iteration-0007-leadership-preflight",
+      "stage": "leadership_preflight",
+      "goal": "Prepare blocker-focused leadership preflight without pretending the plan is ready for approval.",
+      "assignedAgentIds": [
+        "cto",
+        "chief-medical-officer",
+        "chief-psychometrician",
+        "general-counsel"
+      ],
+      "dimensions": [
+        "implementation_readiness"
+      ],
+      "memoryTopics": [
+        "leadership-blockers",
+        "score-use",
+        "delivery-risk"
+      ],
+      "requiredOutput": "Leadership review packet or preflight blocker brief tied to the rubric.",
+      "dependsOnStages": [
+        "adversarial_counterplan"
+      ]
+    }
+  ],
+  "memoryRetrieval": {
+    "activeEntryCount": 105,
+    "topics": [
+      "actor-cell-runtime",
+      "adb-platform-tools-installed",
+      "admin-ux-testing-stack",
+      "azure-b1-orchestration-websocket-first",
+      "case-bank-and-communication-styles",
+      "claims-non-equivalence",
+      "commit-sequence",
+      "copyleft-asset-pipeline",
+      "exam-blueprint-form-station-actor-architecture",
+      "expanded-multi-actor-stations",
+      "faculty-review-first-demo",
+      "first-sprint-gate",
+      "formative-local-score-use",
+      "hardware-assumption-gap",
+      "initial-charter",
+      "interprofessional-trace-tags",
+      "iteration-0002-source-ledger",
+      "iteration-0003-score-improvement",
+      "iteration-0003-technology-source-ledger",
+      "local-device-and-mongo-gates",
+      "local-model-tiering",
+      "marketplace-deferral",
+      "mongodb-knowledge-graph-trace-ledger",
+      "mongodb-memory-server-contract-tests",
+      "optional-dependency-intake",
+      "optional-runtime-skips",
+      "over-scaffolding-risk",
+      "provider-adapter-and-communication-profile-architecture",
+      "provider-audit-records",
+      "quest-runtime-stage",
+      "quest3-prebaked-performance-budget",
+      "quest3-usb-smoke-gate",
+      "runtime-license-posture",
+      "step2cs-inspired-sequential-exam",
+      "synthetic-voice-governance",
+      "trace-completeness",
+      "vibevoice-safety-gate",
+      "voice-misuse"
+    ]
+  }
+}
