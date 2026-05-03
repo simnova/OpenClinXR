@@ -1,0 +1,20 @@
+{
+  "agent_id": "ip-open-source-counsel",
+  "team": "legal",
+  "last_updated": "2026-05-02",
+  "entries": [
+    {
+      "id": "ip-open-source-counsel-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "IP And Open-Source Counsel initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": []
+    }
+  ]
+}
