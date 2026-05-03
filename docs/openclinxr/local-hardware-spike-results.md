@@ -81,6 +81,34 @@ Gate results:
 
 The probe intentionally does not download models, install runtimes, or call cloud APIs. It is suitable for repeating before a local-model or local-voice benchmark so the team can separate "runtime not installed" from "runtime installed but model not benchmarked."
 
+## GLB Pipeline Smoke
+
+Run time: 2026-05-03 18:35 EDT
+
+Command:
+
+```bash
+pnpm asset:gltf:smoke -- --output docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json
+```
+
+Machine-readable evidence:
+
+- `docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json`
+
+Result:
+
+| Check | Result |
+| --- | --- |
+| Tool | `gltf-pipeline` 4.3.1, Apache-2.0 |
+| Input | Generated single-triangle glTF |
+| Output | 848-byte GLB |
+| GLB magic | `glTF` |
+| GLB version | 2 |
+| Declared length | Matches file length |
+| Verdict | Passed |
+
+This proves the local permissive GLB conversion path is executable. It does not replace Blender, mesh decimation, texture compression, headset frame pacing, or visual QA.
+
 ## Lightweight Throughput Smokes
 
 These are local-only Node checks. They do not use cloud services and do not download model weights.
@@ -170,7 +198,7 @@ Local gaps:
 Recommended local-only next spikes:
 
 1. Install Bun and verify Hono WebSocket local server.
-2. Run `gltf-pipeline` on a small placeholder GLB and add the result to the asset-readiness gate; keep `gltf-transform` as an optional external workstation tool until its CLI dependency path satisfies the copyleft policy.
+2. Install Blender and run the next asset bake smoke against a small placeholder GLB; keep `gltf-transform` as an optional external workstation tool until its CLI dependency path satisfies the copyleft policy.
 3. Install MLX LM or llama.cpp and benchmark Qwen3-4B/Qwen3-8B or DeepSeek-R1-Distill-Qwen-7B quantized model.
 4. Install VibeVoice-Realtime-0.5B only after reviewing model terms and disk/runtime requirements.
 5. Add a measured Quest 3 10-minute performance and comfort smoke for the real station shell with DevTools screencasting disabled.

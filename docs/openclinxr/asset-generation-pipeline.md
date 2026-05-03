@@ -241,7 +241,7 @@ All equipment must include:
 
 ## Optimization Bake
 
-Use a deterministic build script around Blender and glTF Transform.
+Use a deterministic build script around Blender and a permissive GLB conversion/optimization CLI. The current pinned local CLI is `gltf-pipeline` 4.3.1 (Apache-2.0). Treat `gltf-transform` as an optional external workstation tool until its current CLI dependency path satisfies the copyleft policy.
 
 Suggested build phases:
 
@@ -264,13 +264,16 @@ Suggested build phases:
 Example optimization command shape:
 
 ```bash
-gltf-transform optimize input.glb output.glb \
-  --compress meshopt \
-  --texture-compress ktx2 \
-  --texture-size 2048
+gltf-pipeline -i input.gltf -o output.glb -b
 ```
 
-Do not treat a successful compression command as proof of runtime readiness. Runtime readiness requires headset FPS, memory, interaction, and visual checks.
+The first executable local smoke is:
+
+```bash
+pnpm asset:gltf:smoke -- --output docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json
+```
+
+Do not treat a successful conversion command as proof of runtime readiness. Runtime readiness requires headset FPS, memory, interaction, visual checks, and later compression/texture-bake evidence.
 
 ## QA Gates
 
@@ -300,7 +303,7 @@ Add these fields to `assets` or a dedicated `asset_versions` collection:
   "asset_id": "patient_robert_hayes_v1_lod0",
   "asset_family": "patient_robert_hayes",
   "asset_type": "character",
-  "source_tools": ["anny", "blender", "mesh2motion", "gltf-transform"],
+  "source_tools": ["anny", "blender", "mesh2motion", "gltf-pipeline"],
   "source_license_ids": ["apache-2.0", "cc0", "mit"],
   "forbidden_runtime_dependencies": ["stablegen-gpl3"],
   "gltf_url": "https://cdn.openclinxr.local/assets/patient_robert_hayes_v1_lod0.glb",

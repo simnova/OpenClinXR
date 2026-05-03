@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-05-03T22:35:14.615Z",
+  "tool": {
+    "command": "gltf-pipeline",
+    "package": "gltf-pipeline",
+    "version": "4.3.1",
+    "license": "Apache-2.0"
+  },
+  "input": {
+    "primitive": "single_triangle",
+    "vertices": 3,
+    "triangles": 1,
+    "gltfBytes": 700
+  },
+  "output": {
+    "glbBytes": 848,
+    "magic": "glTF",
+    "version": 2,
+    "declaredLength": 848,
+    "elapsedMs": 543.75
+  },
+  "verdict": {
+    "passed": true,
+    "blockers": []
+  }
+}

@@ -38,6 +38,25 @@
       }
     }
   },
+  "gltf_pipeline_smoke": {
+    "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
+    "generated_at": "2026-05-03T22:35:14.615Z",
+    "tool": {
+      "command": "gltf-pipeline",
+      "package": "gltf-pipeline",
+      "version": "4.3.1",
+      "license": "Apache-2.0"
+    },
+    "output": {
+      "glbBytes": 848,
+      "magic": "glTF",
+      "version": 2,
+      "declaredLength": 848,
+      "elapsedMs": 543.75
+    },
+    "passed": true,
+    "blockers": []
+  },
   "evidence_gates": [
     {
       "evidence_id": "evidence-leadership-0007-002",
@@ -45,7 +64,8 @@
       "satisfied_conditions": [
         "quest_shell_loaded",
         "quest_trace_interaction_advanced",
-        "quest_usb_ready"
+        "quest_usb_ready",
+        "asset_pipeline_gltf_pipeline_smoke_passed"
       ],
       "blockers": [
         "quest_cdp_frame_sample_incomplete",

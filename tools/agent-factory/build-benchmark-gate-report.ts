@@ -25,6 +25,27 @@ type LocalRuntimeProbeReport = {
   };
 };
 
+type GltfPipelineSmokeReport = {
+  generatedAt: string;
+  tool: {
+    command: string;
+    package: string;
+    version: string;
+    license: string;
+  };
+  output: {
+    glbBytes: number;
+    magic: string;
+    version: number | null;
+    declaredLength: number | null;
+    elapsedMs: number;
+  };
+  verdict: {
+    passed: boolean;
+    blockers: string[];
+  };
+};
+
 type EvidenceGateReport = {
   generated_by: string;
   quest_smoke?: {
@@ -40,6 +61,14 @@ type EvidenceGateReport = {
     generated_at: string;
     gates: LocalRuntimeProbeReport["gates"];
   };
+  gltf_pipeline_smoke?: {
+    file: string;
+    generated_at: string;
+    tool: GltfPipelineSmokeReport["tool"];
+    output: GltfPipelineSmokeReport["output"];
+    passed: boolean;
+    blockers: string[];
+  };
   evidence_gates: Array<{
     evidence_id: string;
     ready_to_resolve: boolean;
@@ -51,7 +80,8 @@ type EvidenceGateReport = {
 async function main(): Promise<void> {
   const questSmoke = await latestJson<QuestSmokeReport>("docs/openclinxr/quest-cdp-smoke-*.json");
   const localRuntime = await latestJson<LocalRuntimeProbeReport>("docs/openclinxr/local-runtime-probe-*.json");
-  const report = buildReport(questSmoke, localRuntime);
+  const gltfPipelineSmoke = await latestJson<GltfPipelineSmokeReport>("docs/openclinxr/gltf-pipeline-smoke-*.json");
+  const report = buildReport(questSmoke, localRuntime, gltfPipelineSmoke);
   await writeJson(".agent-factory/benchmark-gate-report.json", report);
   console.log(`Wrote .agent-factory/benchmark-gate-report.json; evidence-leadership-0007-002 ready=${report.evidence_gates[0]?.ready_to_resolve ?? false}`);
 }
@@ -68,16 +98,19 @@ async function latestJson<TValue>(pattern: string): Promise<{ file: string; valu
 function buildReport(
   questSmoke: { file: string; value: QuestSmokeReport } | undefined,
   localRuntime: { file: string; value: LocalRuntimeProbeReport } | undefined,
+  gltfPipelineSmoke: { file: string; value: GltfPipelineSmokeReport } | undefined,
 ): EvidenceGateReport {
   const blockers = [
     ...questBlockers(questSmoke?.value),
     ...localRuntimeBlockers(localRuntime?.value),
+    ...gltfPipelineSmokeBlockers(gltfPipelineSmoke?.value),
   ];
   const satisfiedConditions = [
     questSmoke?.value.verdict.shellLoaded ? "quest_shell_loaded" : undefined,
     questSmoke?.value.verdict.interactionAdvanced ? "quest_trace_interaction_advanced" : undefined,
     localRuntime?.value.gates.questUsb.status === "ready" ? "quest_usb_ready" : undefined,
     localRuntime?.value.gates.assetPipeline.status === "ready" ? "asset_pipeline_runtime_ready" : undefined,
+    gltfPipelineSmoke?.value.verdict.passed ? "asset_pipeline_gltf_pipeline_smoke_passed" : undefined,
     localRuntime?.value.gates.localModel.status === "ready" ? "local_model_runtime_ready" : undefined,
     localRuntime?.value.gates.localVoice.status === "ready" ? "local_voice_runtime_ready" : undefined,
   ].filter((condition): condition is string => typeof condition === "string");
@@ -99,6 +132,16 @@ function buildReport(
         file: localRuntime.file,
         generated_at: localRuntime.value.generatedAt,
         gates: localRuntime.value.gates,
+      },
+    } : {}),
+    ...(gltfPipelineSmoke ? {
+      gltf_pipeline_smoke: {
+        file: gltfPipelineSmoke.file,
+        generated_at: gltfPipelineSmoke.value.generatedAt,
+        tool: gltfPipelineSmoke.value.tool,
+        output: gltfPipelineSmoke.value.output,
+        passed: gltfPipelineSmoke.value.verdict.passed,
+        blockers: [...gltfPipelineSmoke.value.verdict.blockers],
       },
     } : {}),
     evidence_gates: [
@@ -143,6 +186,16 @@ function localRuntimeBlockers(report: LocalRuntimeProbeReport | undefined): stri
     report.gates.localModel.status === "ready" ? "local_model_runtime_not_benchmarked" : undefined,
     report.gates.localVoice.status === "ready" ? "local_voice_runtime_not_benchmarked" : undefined,
   ]);
+}
+
+function gltfPipelineSmokeBlockers(report: GltfPipelineSmokeReport | undefined): string[] {
+  if (!report) {
+    return ["missing_gltf_pipeline_smoke_report"];
+  }
+  if (report.verdict.passed) {
+    return [];
+  }
+  return unique(report.verdict.blockers.map((blocker) => `gltf_pipeline_smoke:${blocker}`));
 }
 
 function prefixBlockers(prefix: string, gate: GateStatus): Array<string | undefined> {
