@@ -213,6 +213,7 @@ Milestone 2 API shell has also started:
 - Hono API app exists at `apps/api`.
 - API can serve the ED fixture, start a session, append learner trace events, submit a note, and return a review packet.
 - API state is intentionally in-memory for this slice; MongoDB remains a later repository-contract milestone.
+- API provider health is now sourced from the offline model and voice gateways rather than hard-coded local literals.
 
 MongoDB repository-contract milestone has also started:
 

@@ -1,8 +1,10 @@
 import { createStationRun, transitionStation, type StationRun } from "@openclinxr/domain";
+import { createDefaultModelGateway, LocalModelProviderAdapter, MockModelProviderAdapter } from "@openclinxr/model-gateway";
 import { buildReviewPacket } from "@openclinxr/review-workflow";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import type { ProviderHealth, TraceEvent } from "@openclinxr/shared-schemas";
 import { InMemoryTraceLedger } from "@openclinxr/trace-ledger";
+import { createDefaultVoiceGateway, LocalVoiceProviderAdapter, MockVoiceProviderAdapter } from "@openclinxr/voice-gateway";
 import { Hono } from "hono";
 
 type SessionRecord = {
@@ -10,12 +12,12 @@ type SessionRecord = {
   nextSequence: number;
 };
 
-const providerHealth = {
-  model: { providerId: "mock-model", status: "ready" },
-  voice: { providerId: "mock-voice", status: "ready" },
-  localModel: { providerId: "local-model", status: "not_configured" },
-  localVoice: { providerId: "local-voice", status: "not_configured" },
-} satisfies Record<string, ProviderHealth>;
+type ProviderHealthSnapshot = {
+  model: ProviderHealth;
+  voice: ProviderHealth;
+  localModel: ProviderHealth;
+  localVoice: ProviderHealth;
+};
 
 function occurredAt(atSecond: number): string {
   return new Date(Date.parse("2026-05-03T15:38:58.000Z") + atSecond * 1000).toISOString();
@@ -54,16 +56,34 @@ export function createApiApp(): Hono {
   const app = new Hono();
   const sessions = new Map<string, SessionRecord>();
   const ledger = new InMemoryTraceLedger();
+  const modelGateway = createDefaultModelGateway({
+    routeId: "actor-dialogue-offline-v1",
+    adapters: [new MockModelProviderAdapter(), new LocalModelProviderAdapter({ providerId: "local-model" })],
+  });
+  const voiceGateway = createDefaultVoiceGateway({
+    routeId: "voice-offline-v1",
+    adapters: [new MockVoiceProviderAdapter(), new LocalVoiceProviderAdapter({ providerId: "local-voice" })],
+  });
 
-  app.get("/health", (context) =>
+  async function providerHealthSnapshot(): Promise<ProviderHealthSnapshot> {
+    const [modelHealth, voiceHealth] = await Promise.all([modelGateway.health(), voiceGateway.health()]);
+    return {
+      model: requireProviderHealth(modelHealth, "mock-model"),
+      voice: requireProviderHealth(voiceHealth, "mock-voice"),
+      localModel: requireProviderHealth(modelHealth, "local-model"),
+      localVoice: requireProviderHealth(voiceHealth, "local-voice"),
+    };
+  }
+
+  app.get("/health", async (context) =>
     context.json({
       ok: true,
       service: "openclinxr-api",
-      providerHealth,
+      providerHealth: await providerHealthSnapshot(),
     }),
   );
 
-  app.get("/providers/health", (context) => context.json(providerHealth));
+  app.get("/providers/health", async (context) => context.json(await providerHealthSnapshot()));
 
   app.get("/scenarios/ed-chest-pain", (context) => context.json(edChestPainScenario));
 
@@ -175,4 +195,12 @@ export function createApiApp(): Hono {
   });
 
   return app;
+}
+
+function requireProviderHealth(health: ProviderHealth[], providerId: string): ProviderHealth {
+  const provider = health.find((entry) => entry.providerId === providerId);
+  if (!provider) {
+    throw new Error(`Missing provider health for ${providerId}`);
+  }
+  return provider;
 }

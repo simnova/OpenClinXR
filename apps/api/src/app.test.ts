@@ -5,6 +5,13 @@ async function json(response: Response): Promise<unknown> {
   return response.json() as Promise<unknown>;
 }
 
+const expectedProviderHealth = {
+  model: { providerId: "mock-model", status: "ready" },
+  voice: { providerId: "mock-voice", status: "ready" },
+  localModel: { providerId: "local-model", status: "not_configured" },
+  localVoice: { providerId: "local-voice", status: "not_configured" },
+};
+
 describe("OpenClinXR API shell", () => {
   it("reports health without requiring cloud providers", async () => {
     const app = createApiApp();
@@ -14,13 +21,16 @@ describe("OpenClinXR API shell", () => {
     expect(await json(response)).toEqual({
       ok: true,
       service: "openclinxr-api",
-      providerHealth: {
-        model: { providerId: "mock-model", status: "ready" },
-        voice: { providerId: "mock-voice", status: "ready" },
-        localModel: { providerId: "local-model", status: "not_configured" },
-        localVoice: { providerId: "local-voice", status: "not_configured" },
-      },
+      providerHealth: expectedProviderHealth,
     });
+  });
+
+  it("reports provider health from the gateway layer", async () => {
+    const app = createApiApp();
+    const response = await app.request("/providers/health");
+
+    expect(response.status).toBe(200);
+    expect(await json(response)).toEqual(expectedProviderHealth);
   });
 
   it("serves the ED chest pain scenario fixture", async () => {
@@ -68,4 +78,3 @@ describe("OpenClinXR API shell", () => {
     expect(packet.missingRequiredTraceTags).not.toContain("patient_note_submitted");
   });
 });
-

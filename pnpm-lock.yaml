@@ -39,6 +39,9 @@ importers:
       '@openclinxr/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@openclinxr/model-gateway':
+        specifier: workspace:*
+        version: link:../../packages/model-gateway
       '@openclinxr/review-workflow':
         specifier: workspace:*
         version: link:../../packages/review-workflow
@@ -51,6 +54,9 @@ importers:
       '@openclinxr/trace-ledger':
         specifier: workspace:*
         version: link:../../packages/trace-ledger
+      '@openclinxr/voice-gateway':
+        specifier: workspace:*
+        version: link:../../packages/voice-gateway
       hono:
         specifier: 4.12.16
         version: 4.12.16

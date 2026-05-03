@@ -179,3 +179,8 @@ Local evidence:
 - `pnpm --filter @openclinxr/voice-gateway typecheck` passed.
 - `pnpm --filter @openclinxr/test-harness test` passed with the async gateway-backed simulation.
 - `pnpm bench:mock` still returns mock model/voice as `ready` and local model/voice as `not_configured`.
+
+API follow-up:
+
+- `apps/api` now obtains `/health` and `/providers/health` provider status through the same model and voice gateways.
+- API tests cover the gateway-backed provider health response while preserving the prior response contract.
