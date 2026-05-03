@@ -36,3 +36,10 @@ Progress through 2026-05-03 14:57 EDT:
 - Added the admin GraphQL SDL package, API schema/codegen-plan endpoints, and validated seed operation documents.
 - Added an OpenTelemetry naming contract package and wired benchmark reports to emit sanitized span/attribute plans.
 - Current next slice: expose and test admin GraphQL operation documents, then continue into admin/runtime contracts.
+
+Progress through 2026-05-03 15:30 EDT:
+
+- Renamed SPA workspaces to `apps/ui-admin` and `apps/ui-xr`.
+- Renamed the GraphQL contract workspace to `packages/graphql` and updated codegen paths.
+- Added team naming conventions for route packages, shared UI packages, protocol packages, Mongoose model packages, and local mock servers.
+- Added the CellixJS API fluent startup source record and started adapting the API server toward a fluent bootstrap path.
