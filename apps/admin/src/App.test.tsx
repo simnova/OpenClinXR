@@ -26,6 +26,7 @@ describe("AdminApp", () => {
     expect(screen.getByRole("link", { name: "Exam Forms" })).toHaveAttribute("href", "/exam-forms");
     expect(screen.getByText("GraphQL Codegen")).toBeInTheDocument();
     expect(screen.getByText("Apollo Client")).toBeInTheDocument();
+    expect(screen.getByText("ProComponents v3")).toBeInTheDocument();
     expect(screen.getByText("Clinical, psychometric, legal, and simulation QA gates")).toBeInTheDocument();
   });
 });

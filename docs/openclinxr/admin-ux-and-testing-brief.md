@@ -41,7 +41,8 @@ Use:
 - React 19 and TypeScript.
 - React Router for nested administrative routes, deep links, loader/action boundaries where useful, and role-specific workbench navigation.
 - Ant Design 6 components.
-- Ant Design Pro layout conventions through `@ant-design/pro-components`.
+- Ant Design Pro v6 layout conventions. Runtime use of `@ant-design/pro-components` should stay behind a compatibility gate until the AntD 6-compatible v3 line resolves cleanly in the selected Vite/Vitest/NodeNext toolchain. On 2026-05-03 npm metadata showed the old `latest` tag at `2.8.10` with AntD 4/5 peers, while the v3 prerelease line was available at `3.1.12-0` with `antd: ^6.0.0`; a local import spike found package-resolution issues in the current toolchain.
+- Tailwind CSS v4 is acceptable for admin layout utilities when it reduces local CSS surface area, while Ant Design tokens should remain the source of truth for component theming.
 - `@xyflow/react` for scenario graph and state-machine editing.
 - Apollo GraphQL as the likely admin query layer once core REST/domain contracts and Mongo repositories stabilize.
 - GraphQL Code Generator for typed route/workbench queries, mutations, subscriptions, fragments, and resolver contracts.
@@ -171,6 +172,7 @@ On the M4 Max development mode:
 - `src-npm-stack-metadata-2026-05-03`
 - `src-graphql-codegen-docs-2026`
 - `src-knip-e18e-tooling-2026`
+- `src-ant-design-pro-v6-release-2026`
 - `src-storybook-10-3-2026`
 - `src-serenity-js-screenplay-2026`
 - `src-mdn-webxr-performance-2026`

@@ -1,0 +1,21 @@
+{
+  "source_id": "src-ant-design-pro-v6-release-2026",
+  "title": "Ant Design Pro v6.0.0 Release Notes",
+  "url": "https://github.com/ant-design/ant-design-pro/releases/tag/v6.0.0",
+  "source_type": "vendor",
+  "citation": "Ant Design Pro v6.0.0 GitHub release notes, accessed 2026-05-03; npm package metadata queried for @ant-design/pro-components v3 beta on 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Administrative UI stack planning and implementation guidance for Ant Design 6-compatible Pro layout conventions."
+  ],
+  "claims_supported": [
+    "Ant Design Pro v6.0.0 was released on 2026-04-30.",
+    "The v6 release notes describe React 19, Ant Design 6, Tailwind CSS, Biome, and ProComponents v3 as part of the modernized stack.",
+    "As queried on 2026-05-03, @ant-design/pro-components@3.1.12-0 is MIT licensed and declares peer dependency antd ^6.0.0."
+  ],
+  "claims_not_supported": [
+    "That the ProComponents v3 prerelease API will remain stable before a non-prerelease npm latest tag.",
+    "That OpenClinXR should adopt Umi Max or utoopack instead of its current Vite/React Router direction without a dedicated architecture decision."
+  ],
+  "confidence": 0.86
+}

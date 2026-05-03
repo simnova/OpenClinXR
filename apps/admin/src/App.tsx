@@ -73,6 +73,7 @@ export function AdminApp({ router = "memory" }: AdminAppProps): React.ReactEleme
                 <Space wrap>
                   <Tag color="green">GraphQL Codegen</Tag>
                   <Tag color="blue">Apollo Client</Tag>
+                  <Tag color="purple">ProComponents v3</Tag>
                   <Tag color="cyan">React Router</Tag>
                   <Tag color="gold">Ant Design 6</Tag>
                 </Space>
