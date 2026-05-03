@@ -133,3 +133,29 @@ Important caveat:
 
 - pnpm ignored the package postinstall script, so the binary path is runtime/cache driven rather than postinstall driven.
 - The local cache already contains MongoDB binaries; fresh machines may need a first-run download or a preseeded `MONGOMS_SYSTEM_BINARY`.
+
+## Milestone 4 Progress: XR Station Shell
+
+Started on 2026-05-03:
+
+- `apps/xr` workspace app added.
+- Vite and Three.js desktop/WebXR shell added for the ED chest pain fixture.
+- The shell renders a nonblank emergency department bay with patient, nurse, spouse, bed, monitor, clock prop, status strip, simulated EHR panel, mock dialogue, station timer, and trace action controls.
+- Runtime state helpers cover station clock formatting, trace-action completion, and required-trace readiness summaries.
+- Unit tests cover timer formatting and duplicate-safe trace completion.
+
+Local browser evidence:
+
+- `pnpm --filter @openclinxr/xr test` passed.
+- `pnpm --filter @openclinxr/xr typecheck` passed.
+- `pnpm --filter @openclinxr/xr build` passed with the expected initial Three.js bundle-size warning.
+- Vite served the shell at `http://localhost:5173/`.
+- Desktop browser load reported title `OpenClinXR Station Runtime` and no warning/error console logs beyond Vite debug messages.
+- Desktop screenshot pixel sample found 346 unique sampled colors and 5,211 non-background pixels in the stage region.
+- Mobile viewport screenshot pixel sample found 830 unique sampled colors and 9,950 non-background pixels in the stage region.
+- Trace action interaction updated `Trace 0/10` to `Trace 1/10` and replaced the mock dialogue with the OPQRST response.
+
+Quest evidence:
+
+- The Quest 3 is currently visible to `adb` but reports `unauthorized`.
+- The new XR shell was not rerun on headset in this pass because ADB authorization must be accepted again in the headset.

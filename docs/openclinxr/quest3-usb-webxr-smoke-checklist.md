@@ -63,6 +63,32 @@ What this does not prove:
 
 Practical note: after restarting the ADB daemon, the Quest can return to `unauthorized`; accept the in-headset USB debugging prompt again if needed.
 
+## Smoke Run 0002: XR Shell Local Browser Preflight
+
+Run time: 2026-05-03
+
+Result: pass for desktop/mobile browser preflight; blocked for headset rerun.
+
+Evidence:
+
+- `apps/xr` Vite dev server served `http://localhost:5173/`.
+- Desktop browser loaded `OpenClinXR Station Runtime`.
+- Desktop browser console showed no warning/error logs beyond Vite debug messages.
+- Desktop viewport canvas check reported:
+  - Canvas CSS size: `1020x900`.
+  - Runtime panel CSS width: `420`.
+  - Canvas/panel overlap: `false`.
+  - Canvas data URL length: `28606`.
+- Desktop screenshot pixel sample reported 346 unique sampled colors and 5,211 non-background pixels in the stage region.
+- Mobile emulation `390x844x2,mobile,touch` showed readable stacked station content and trace controls.
+- Mobile screenshot pixel sample reported 830 unique sampled colors and 9,950 non-background pixels in the stage region.
+- A trace button interaction changed the status from `Trace 0/10` to `Trace 1/10`.
+
+Headset blocker:
+
+- `adb devices -l` currently reports `2G0YC5ZGB5000J unauthorized usb:0-1 transport_id:1`.
+- Rerun headset smoke after accepting the USB debugging prompt in the headset.
+
 ## Setup
 
 1. Connect Quest 3 directly to the Mac with a USB3-capable USB-C cable.

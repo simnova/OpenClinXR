@@ -191,7 +191,7 @@ The next implementation plan should not start until these docs are reviewed:
 ## Local Hardware Updates
 
 - Android Platform Tools were installed locally on 2026-05-03.
-- The Quest 3 is visible to `adb`, USB debugging has been authorized, `adb reverse tcp:5173 tcp:5173` succeeded, and Quest Browser loaded a static local smoke page. The actual OpenClinXR XR smoke is blocked only by the absence of an implemented XR app/dev server.
+- The Quest 3 is visible to `adb`; USB debugging was authorized earlier, `adb reverse tcp:5173 tcp:5173` succeeded, and Quest Browser loaded a static local smoke page. A later check saw the same headset as `unauthorized`, so the next headset smoke requires accepting the USB debugging prompt again.
 - `mongodb-memory-server` is accepted as the local MongoDB integration-test path, with binary download/cache behavior documented as an explicit setup gate.
 
 ## Implementation Progress
@@ -219,3 +219,11 @@ MongoDB repository-contract milestone has also started:
 - `packages/data-mongodb` exists.
 - `mongodb-memory-server` tests pass locally using MongoDB binary `7.0.24`.
 - Scenario and trace repositories now have first contract tests for versioned scenario lookup, approved scenario queries, trace append, ordered replay, and sequence uniqueness.
+
+XR station-shell milestone has also started:
+
+- `apps/xr` exists.
+- The ED chest pain station shell renders a Three.js emergency department bay with patient, nurse, spouse, bed, monitor, timer/status strip, simulated EHR, mock dialogue, and trace action controls.
+- Runtime state tests, package typecheck, and production build pass locally.
+- Desktop and mobile browser smoke checks show a nonblank canvas with no console errors and readable control surfaces.
+- The current Quest 3 device smoke is blocked by ADB reporting `unauthorized`; the headset needs the USB debugging prompt accepted again before rerunning the shell in Quest Browser.
