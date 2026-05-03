@@ -4,6 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   createMongoMemoryTestContext,
   MongoExamFormRepository,
+  createMongoApiPersistenceSink,
   MongoScenarioRepository,
   MongoTraceRepository,
   MongoReviewPacketRepository,
@@ -198,5 +199,28 @@ describe("MongoDB memory repositories", () => {
       ],
     });
     await expect(repository.listByBlueprint("blueprint_openclinxr_clinical_skills_pilot_v1")).resolves.toHaveLength(1);
+  });
+
+  it("persists API snapshots through a Mongo-backed sink", async () => {
+    const sink = createMongoApiPersistenceSink(context.db);
+    await sink.ensureIndexes();
+    const form = assembleExamForm({
+      examFormId: "form_sink_001",
+      blueprint: createDefaultClinicalSkillsBlueprint(),
+      scenarios: [scenario],
+    });
+
+    await sink.saveExamForm(form);
+    await sink.saveTraceEvents("run_sink", [trace(0, "station_started", "run_sink"), trace(1, "ecg_request", "run_sink")]);
+    await sink.saveTraceEvents("run_sink", [trace(0, "station_started", "run_sink"), trace(1, "ecg_request", "run_sink"), trace(2, "team_communication", "run_sink")]);
+    await sink.saveReviewPacket("run_sink", { ...reviewPacket, stationRunId: "run_sink" });
+
+    await expect(new MongoExamFormRepository(context.db).findById("form_sink_001")).resolves.toMatchObject({
+      examFormId: "form_sink_001",
+    });
+    await expect(new MongoTraceRepository(context.db).replay("run_sink")).resolves.toHaveLength(3);
+    await expect(new MongoReviewPacketRepository(context.db).findByStationRunId("run_sink")).resolves.toMatchObject({
+      stationRunId: "run_sink",
+    });
   });
 });

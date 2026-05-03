@@ -132,3 +132,35 @@ export class MongoExamFormRepository {
     return this.collection.find({ blueprintId }, { projection: { _id: 0 } }).sort({ examFormId: 1 }).toArray();
   }
 }
+
+export class MongoApiPersistenceSink {
+  private readonly examForms: MongoExamFormRepository;
+  private readonly traces: MongoTraceRepository;
+  private readonly reviewPackets: MongoReviewPacketRepository;
+
+  constructor(db: Db) {
+    this.examForms = new MongoExamFormRepository(db);
+    this.traces = new MongoTraceRepository(db);
+    this.reviewPackets = new MongoReviewPacketRepository(db);
+  }
+
+  async ensureIndexes(): Promise<void> {
+    await Promise.all([this.examForms.ensureIndexes(), this.traces.ensureIndexes(), this.reviewPackets.ensureIndexes()]);
+  }
+
+  async saveExamForm(form: ExamForm): Promise<void> {
+    await this.examForms.save(form);
+  }
+
+  async saveTraceEvents(_stationRunId: string, events: TraceEvent[]): Promise<void> {
+    await this.traces.upsertMany(events);
+  }
+
+  async saveReviewPacket(_stationRunId: string, packet: ReviewPacket): Promise<void> {
+    await this.reviewPackets.save(packet);
+  }
+}
+
+export function createMongoApiPersistenceSink(db: Db): MongoApiPersistenceSink {
+  return new MongoApiPersistenceSink(db);
+}
