@@ -47,9 +47,18 @@ Supporting checks run during the decision:
 
 - `pnpm audit --audit-level=high`: no known vulnerabilities found.
 - `pnpm licenses list --json`: license inventory generated for local dependencies; no active AGPL/GPL runtime exception was added.
-- `pnpm security:licenses -- --output docs/openclinxr/dependency-license-policy-2026-05-03.json`: 459 dependency license records checked, 0 blockers, 5 review-only findings.
+- `pnpm security:licenses -- --output docs/openclinxr/dependency-license-policy-2026-05-03.json`: 493 dependency license records checked, 0 blockers, 7 review-only findings.
 - `pnpm knip --version`: `6.11.0`.
 - `pnpm e18e-cli --version`: `0.5.0`.
+
+## Dependency Decisions With No Exception
+
+- `@gltf-transform/cli@4.3.0` was evaluated on 2026-05-03 and removed before commit because its current CLI dependency path installed `sharp@0.34.5`, which installed `@img/sharp-libvips-darwin-arm64@1.2.4` reporting `LGPL-3.0-or-later`. No pnpm override, audit ignore, or license exception was added.
+- `gltf-pipeline@4.3.1` was selected instead as the pinned local GLB conversion/optimization CLI because it is Apache-2.0 and passes the current license gate.
+
+## Build Script Approval Notes
+
+No dependency build scripts have been explicitly approved through `pnpm approve-builds` in this slice. pnpm reported ignored build scripts for development dependencies such as `esbuild`, `mongodb-memory-server`, and `protobufjs`; those remain package-manager defaults rather than local allow-list exceptions.
 
 ## Historical Exceptions
 

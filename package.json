@@ -44,6 +44,7 @@
     "@types/node": "25.6.0",
     "@typescript/native-preview": "7.0.0-dev.20260503.1",
     "archunit": "2.3.0",
+    "gltf-pipeline": "4.3.1",
     "knip": "6.11.0",
     "tsx": "4.21.0",
     "typescript": "6.0.3",

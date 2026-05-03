@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-03T22:19:50.537Z",
+  "generatedAt": "2026-05-03T22:31:38.263Z",
   "system": {
     "macosVersion": "26.4.1",
     "macosBuild": "25E253",
@@ -13,7 +13,7 @@
       "filesystem": "/dev/disk3s1s1",
       "oneKBlocks": 3902665360,
       "used": 12257544,
-      "available": 2658346936,
+      "available": 2658161100,
       "capacity": "1%",
       "mountedOn": "/"
     }
@@ -84,6 +84,12 @@
       "status": "missing"
     },
     {
+      "command": "gltf-pipeline",
+      "status": "available",
+      "path": "/Users/patrick/Documents/New project 2/node_modules/.bin/gltf-pipeline",
+      "version": "4.3.1"
+    },
+    {
       "command": "blender",
       "status": "missing"
     }
@@ -138,7 +144,7 @@
     "assetPipeline": {
       "status": "not_configured",
       "blockers": [
-        "missing_blender_or_gltf_transform"
+        "missing_blender"
       ]
     }
   }

@@ -24,7 +24,7 @@ Default development mode:
 
 The machine used for this spike reports Apple M1 Max with 64 GB RAM. The user mentioned Apple M4 Pro as a target. Treat M4 Pro/M4 Max support as a target profile, not proven by this machine.
 
-The current machine lacks Bun, Blender, gltf-transform, Ollama, llama.cpp binaries, Whisper binaries, and MLX LM. Local model execution is therefore a planned spike, not a completed benchmark.
+The current machine lacks Bun, Blender, Ollama, llama.cpp binaries, Whisper binaries, and MLX LM. The pinned pnpm `gltf-pipeline` CLI is now available for permissive GLB conversion/optimization checks, but local model execution remains a planned spike, not a completed benchmark.
 
 ## Recommended Local Reasoning Stack
 

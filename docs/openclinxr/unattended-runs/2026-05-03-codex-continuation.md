@@ -17,6 +17,12 @@ Renewed instruction at 2026-05-03 15:27:01 EDT:
 - Do not stop immediately at that time; continue to the next verified logical breakpoint.
 - Use steering comments as input, but keep working unless they introduce one of the explicit stop conditions above.
 
+Renewed instruction at 2026-05-03 18:27:28 EDT:
+
+- Continue advancing iterations unattended until at least 2026-05-03 22:27:28 EDT.
+- Do not stop immediately at that time; continue to the next verified logical breakpoint.
+- Keep making clean commits after verified slices and automatically start the next highest-value blocker-reduction or evidence-hardening slice.
+
 Progress through 2026-05-03 14:16 EDT:
 
 - Added benchmark trace-quality reporting and adversarial probe scoring to `pnpm bench:mock`.
@@ -45,3 +51,13 @@ Progress through 2026-05-03 15:30 EDT:
 - Added ArchUnitTS as the enforcement path for architecture decisions, beginning with approved app naming, UI/backend dependency boundaries, and shared UI cycle checks.
 - Reshaped package topology toward `packages/cellix/*` for immutable shared Cellix-style libraries and `packages/openclinxr/*` for project-specific packages.
 - Added the CellixJS API fluent startup source record and started adapting the API server toward a fluent bootstrap path.
+
+Progress through 2026-05-03 18:27 EDT:
+
+- Resolved selected decision debt in iteration 0007 and refreshed the executable agent-loop plan.
+- Added stale-plan detection for agent-loop outputs.
+- Added a repeatable Quest CDP smoke probe; Quest 3 USB, `adb reverse`, shell load, and trace interaction are proven, while sustained CDP frame sampling remains blocked.
+- Added local runtime readiness probing for Quest USB, local model runtime, local voice runtime, and asset-pipeline tools.
+- Added pinned-dependency enforcement, pnpm audit gating, and dependency license policy gating.
+- Added local model and voice provider health blockers so not-configured states are explicit and test-covered.
+- Added benchmark evidence-gate reporting for `evidence-leadership-0007-002`, tying Quest smoke and local runtime probe outputs into the agent maturity gate.

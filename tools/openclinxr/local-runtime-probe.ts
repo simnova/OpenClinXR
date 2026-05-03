@@ -64,6 +64,7 @@ const commandSpecs: CommandSpec[] = [
   { command: "mlx_lm", args: ["--help"], firstLineOnly: true },
   { command: "vibevoice", args: ["--help"], firstLineOnly: true },
   { command: "gltf-transform", args: ["--version"] },
+  { command: "gltf-pipeline", args: ["--version"] },
   { command: "blender", args: ["--version"], firstLineOnly: true },
 ] as const;
 
@@ -188,7 +189,12 @@ function buildReport(input: {
   const adbHasQuestDevice = /\sdevice\s/.test(input.adbDevices) && /Quest_3|eureka/.test(input.adbDevices);
   const localModelRuntimeAvailable = hasCommand("ollama") || hasCommand("llama-cli") || hasCommand("llama-server") || hasCommand("mlx_lm") || hasModule("mlx");
   const localVoiceRuntimeAvailable = hasCommand("vibevoice");
-  const assetToolsAvailable = hasCommand("gltf-transform") && hasCommand("blender");
+  const hasGltfOptimizationCli = hasCommand("gltf-transform") || hasCommand("gltf-pipeline");
+  const hasBlender = hasCommand("blender");
+  const assetPipelineBlockers = [
+    hasGltfOptimizationCli ? undefined : "missing_permissive_gltf_optimization_cli",
+    hasBlender ? undefined : "missing_blender",
+  ].filter((blocker): blocker is string => typeof blocker === "string");
 
   return {
     generatedAt: new Date().toISOString(),
@@ -203,7 +209,7 @@ function buildReport(input: {
       questUsb: adbHasQuestDevice ? readyGate() : blockedGate("quest_3_not_authorized_or_not_connected"),
       localModel: localModelRuntimeAvailable ? blockedGate("model_weights_not_selected_or_benchmarked") : notConfiguredGate("no_ollama_llama_cpp_or_mlx_runtime_detected"),
       localVoice: localVoiceRuntimeAvailable ? blockedGate("voice_model_not_selected_or_benchmarked") : notConfiguredGate("no_vibevoice_runtime_detected"),
-      assetPipeline: assetToolsAvailable ? readyGate() : notConfiguredGate("missing_blender_or_gltf_transform"),
+      assetPipeline: assetPipelineBlockers.length === 0 ? readyGate() : notConfiguredGate(...assetPipelineBlockers),
     },
   };
 }
@@ -212,8 +218,8 @@ function readyGate(): GateStatus {
   return { status: "ready", blockers: [] };
 }
 
-function notConfiguredGate(blocker: string): GateStatus {
-  return { status: "not_configured", blockers: [blocker] };
+function notConfiguredGate(...blockers: string[]): GateStatus {
+  return { status: "not_configured", blockers };
 }
 
 function blockedGate(blocker: string): GateStatus {

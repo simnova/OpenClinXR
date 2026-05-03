@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-03T22:21:37.982Z",
+  "generatedAt": "2026-05-03T22:31:38.337Z",
   "allowedLicenses": [
     "(MIT OR CC0-1.0)",
     "0BSD",
@@ -25,9 +25,29 @@
     "UNKNOWN",
     "UNLICENSED"
   ],
-  "packageCount": 459,
+  "packageCount": 493,
   "blockedFindings": [],
   "reviewFindings": [
+    {
+      "license": "(MIT AND Zlib)",
+      "name": "pako",
+      "versions": [
+        "2.1.0"
+      ],
+      "paths": [
+        "/Users/patrick/Documents/New project 2/node_modules/.pnpm/pako@2.1.0/node_modules/pako"
+      ]
+    },
+    {
+      "license": "(MPL-2.0 OR Apache-2.0)",
+      "name": "dompurify",
+      "versions": [
+        "3.4.2"
+      ],
+      "paths": [
+        "/Users/patrick/Documents/New project 2/node_modules/.pnpm/dompurify@3.4.2/node_modules/dompurify"
+      ]
+    },
     {
       "license": "CC-BY-4.0",
       "name": "caniuse-lite",
@@ -82,6 +102,6 @@
   "verdict": {
     "passed": true,
     "blockerCount": 0,
-    "reviewCount": 5
+    "reviewCount": 7
   }
 }

@@ -37,7 +37,8 @@ Important note: this is not the M4 Pro mentioned by the user. Treat these result
 | Android Platform Tools | Installed on 2026-05-03 | `adb` is available for Quest 3 USB-C WebXR smoke testing |
 | Bun | Not installed | Bun/Hono production path needs install gate or Node adapter during development |
 | Blender | Not installed | Asset pipeline needs install gate before 3D generation/optimization |
-| gltf-transform | Not installed | Asset optimization CLI needs install gate |
+| gltf-pipeline | 4.3.1 installed as a pinned pnpm dev dependency | Apache-2.0 local GLB conversion/optimization CLI available through pnpm |
+| gltf-transform | Not installed | Keep as optional external workstation tool until its current CLI dependency path is cleared by license review |
 | ImageMagick | Not installed | Texture pipeline needs install gate or alternative |
 | Ollama | Not installed | Local LLM convenience runtime unavailable until installed |
 | llama.cpp binaries | Not installed | Local GGUF inference needs install/build gate |
@@ -57,7 +58,7 @@ Python module check:
 
 ## Repeatable Local Runtime Probe
 
-Run time: 2026-05-03 18:19 EDT
+Run time: 2026-05-03 18:31 EDT
 
 Command:
 
@@ -76,7 +77,7 @@ Gate results:
 | Quest USB | Ready | None |
 | Local model | Not configured | `no_ollama_llama_cpp_or_mlx_runtime_detected` |
 | Local voice | Not configured | `no_vibevoice_runtime_detected` |
-| Asset pipeline | Not configured | `missing_blender_or_gltf_transform` |
+| Asset pipeline | Not configured | `missing_blender` |
 
 The probe intentionally does not download models, install runtimes, or call cloud APIs. It is suitable for repeating before a local-model or local-voice benchmark so the team can separate "runtime not installed" from "runtime installed but model not benchmarked."
 
@@ -161,7 +162,7 @@ Local strengths:
 Local gaps:
 
 - Bun must be installed or the first implementation must use a Node Hono adapter locally.
-- Blender and glTF Transform must be installed before asset pipeline spikes.
+- Blender must be installed before asset pipeline generation/bake spikes. `gltf-pipeline` is now available as the pinned pnpm CLI for permissive local GLB conversion/optimization checks.
 - llama.cpp, Ollama, MLX LM, and VibeVoice are not installed.
 - Quest 3 USB debugging was authorized, `adb reverse tcp:5173 tcp:5173` succeeded, and Quest Browser loaded both a static local smoke page and the OpenClinXR XR station shell.
 - No immersive WebXR runtime benchmark has been run yet; the current evidence is browser-shell rendering and interaction only.
@@ -169,7 +170,7 @@ Local gaps:
 Recommended local-only next spikes:
 
 1. Install Bun and verify Hono WebSocket local server.
-2. Install `gltf-transform` and run GLB validation on a small placeholder asset.
+2. Run `gltf-pipeline` on a small placeholder GLB and add the result to the asset-readiness gate; keep `gltf-transform` as an optional external workstation tool until its CLI dependency path satisfies the copyleft policy.
 3. Install MLX LM or llama.cpp and benchmark Qwen3-4B/Qwen3-8B or DeepSeek-R1-Distill-Qwen-7B quantized model.
 4. Install VibeVoice-Realtime-0.5B only after reviewing model terms and disk/runtime requirements.
 5. Add a measured Quest 3 10-minute performance and comfort smoke for the real station shell with DevTools screencasting disabled.

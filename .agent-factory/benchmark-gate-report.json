@@ -12,7 +12,7 @@
   },
   "local_runtime_probe": {
     "file": "docs/openclinxr/local-runtime-probe-2026-05-03.json",
-    "generated_at": "2026-05-03T22:19:50.537Z",
+    "generated_at": "2026-05-03T22:31:38.263Z",
     "gates": {
       "questUsb": {
         "status": "ready",
@@ -33,7 +33,7 @@
       "assetPipeline": {
         "status": "not_configured",
         "blockers": [
-          "missing_blender_or_gltf_transform"
+          "missing_blender"
         ]
       }
     }
@@ -50,7 +50,7 @@
       "blockers": [
         "quest_cdp_frame_sample_incomplete",
         "quest_sustained_frame_sample_not_complete",
-        "asset_pipeline:missing_blender_or_gltf_transform",
+        "asset_pipeline:missing_blender",
         "local_model:no_ollama_llama_cpp_or_mlx_runtime_detected",
         "local_voice:no_vibevoice_runtime_detected"
       ]
