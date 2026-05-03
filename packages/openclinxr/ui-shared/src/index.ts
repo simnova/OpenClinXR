@@ -3,6 +3,7 @@ export const openClinXrAdminTheme = {
     borderRadius: 6,
     colorPrimary: "#245b55",
     colorInfo: "#315f91",
+    colorTextHeading: "#17211f",
   },
 } as const;
 
