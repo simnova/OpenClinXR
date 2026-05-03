@@ -293,7 +293,7 @@ Started on 2026-05-03:
 - `packages/openclinxr/data-mongodb` now persists exam forms with locked scenario versions.
 - `packages/openclinxr/exam-assembly` now exposes the full 12-station Step 2 CS-style seed blueprint and a readiness report that blocks the eleven unreviewed draft stations from runnable form assembly.
 - `packages/openclinxr/exam-assembly` now derives deterministic doorway, encounter, note, and break-checkpoint timing windows from blueprint timing.
-- `apps/api` now serves `/exam-blueprints/step2cs-seed` and `/exam-blueprints/step2cs-seed/readiness` for admin planning surfaces.
+- `apps/api` now serves `/exam-blueprints/step2cs-seed`, `/exam-blueprints/step2cs-seed/readiness`, and `/exam-blueprints/step2cs-seed/timing-plan` for admin planning surfaces.
 - `pnpm bench:mock` now prints trace quality, review signals, and an adversarial probe report.
 - `packages/openclinxr/agent-loop` executable roster now aligns with the richer physician charter bench.
 

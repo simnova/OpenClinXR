@@ -1,6 +1,7 @@
 import {
   assembleExamForm,
   createDefaultClinicalSkillsBlueprint,
+  createExamTimingPlan,
   createStep2CsStyleSeedBlueprint,
   evaluateBlueprintScenarioReadiness,
   evaluateScenarioVersionDrift,
@@ -100,6 +101,10 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
 
   app.get(routeById("step2cs-seed-exam-blueprint-readiness").path, (context) =>
     context.json(evaluateBlueprintScenarioReadiness(createStep2CsStyleSeedBlueprint(), scenarioBank)),
+  );
+
+  app.get(routeById("step2cs-seed-exam-timing-plan").path, (context) =>
+    context.json(createExamTimingPlan(createStep2CsStyleSeedBlueprint())),
   );
 
   app.post(routeById("create-exam-form").path, async (context) => {

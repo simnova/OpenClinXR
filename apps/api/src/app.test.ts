@@ -225,6 +225,23 @@ describe("OpenClinXR API shell", () => {
     expect(readiness.activationEligibleScenarioIds).toEqual(["ed_chest_pain_priority_v1"]);
     expect(readiness.blockedScenarioIds).toHaveLength(11);
     expect(readiness.blockedScenarioIds).toContainEqual({ scenarioId: "clinic_abdominal_pain_interpreter_v1", reason: "not_approved" });
+
+    const timingResponse = await app.request("/exam-blueprints/step2cs-seed/timing-plan");
+    const timingPlan = await json(timingResponse) as {
+      stationWindows: Array<{ stationOrder: number; note: { endsAtSecond: number } }>;
+      breakCheckpoints: Array<{ afterStationOrder: number; atSecond: number }>;
+      totalStationTimeSeconds: number;
+    };
+
+    expect(timingResponse.status).toBe(200);
+    expect(timingPlan.stationWindows).toHaveLength(12);
+    expect(timingPlan.stationWindows[0]).toMatchObject({ stationOrder: 1, note: { endsAtSecond: 1560 } });
+    expect(timingPlan.breakCheckpoints).toEqual([
+      { afterStationOrder: 3, atSecond: 4680 },
+      { afterStationOrder: 6, atSecond: 9360 },
+      { afterStationOrder: 9, atSecond: 14040 },
+    ]);
+    expect(timingPlan.totalStationTimeSeconds).toBe(18720);
   });
 
   it("publishes persistence snapshots for exam forms, trace events, and review packets", async () => {
