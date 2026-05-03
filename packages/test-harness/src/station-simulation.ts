@@ -5,6 +5,7 @@ export type SimulationResult = {
   stationRunId: string;
   eventCount: number;
   actorResponseCount: number;
+  voiceAudioEventCount: number;
   reviewPacket: ReviewPacket;
   providerHealth: {
     model: ProviderHealth;
@@ -32,6 +33,12 @@ export async function runEdChestPainSimulation(): Promise<SimulationResult> {
       traceContextTags: ["guardrail_hidden_truth"],
     }),
   ];
+  const voiceSynthesis = await runtime.synthesizeActorSpeech(run.stationRunId, {
+    actorId: "patient_robert_hayes_v1",
+    voiceId: "mock-robert-hayes",
+    text: actorResponses[0]?.response.text ?? "Robert Hayes: It started while I was walking upstairs.",
+    atSecond: 102,
+  });
 
   const traceTags: Array<[number, string, string, string | undefined]> = [
     [110, "learner.history", "history_opqrst", "patient_robert_hayes_v1"],
@@ -66,6 +73,7 @@ export async function runEdChestPainSimulation(): Promise<SimulationResult> {
     stationRunId: run.stationRunId,
     eventCount: events.length,
     actorResponseCount: actorResponses.length,
+    voiceAudioEventCount: voiceSynthesis.audioEvents.length,
     reviewPacket,
     providerHealth,
   };

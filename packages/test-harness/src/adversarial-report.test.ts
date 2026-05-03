@@ -6,6 +6,7 @@ const result: SimulationResult = {
   stationRunId: "run_ed_chest_pain_priority_v1_learner_001",
   eventCount: 18,
   actorResponseCount: 2,
+  voiceAudioEventCount: 1,
   reviewPacket: {
     stationRunId: "run_ed_chest_pain_priority_v1_learner_001",
     scenarioId: "ed_chest_pain_priority_v1",

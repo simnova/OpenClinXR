@@ -8,9 +8,11 @@ describe("ED chest pain deterministic simulation", () => {
     expect(result.stationRunId).toContain("ed_chest_pain_priority_v1");
     expect(result.eventCount).toBeGreaterThanOrEqual(9);
     expect(result.actorResponseCount).toBe(2);
+    expect(result.voiceAudioEventCount).toBe(1);
     expect(result.reviewPacket.missingRequiredTraceTags).toEqual([]);
     expect(result.reviewPacket.traceQuality.modelGeneratedEventCount).toBe(2);
     expect(result.reviewPacket.traceQuality.blockedGuardrailCount).toBe(1);
+    expect(result.reviewPacket.timeline.some((entry) => entry.eventType === "voice.audio.generated")).toBe(true);
     expect(JSON.stringify(result.reviewPacket)).not.toContain("Father died of myocardial infarction");
     expect(result.providerHealth).toEqual({
       model: { providerId: "mock-model", status: "ready" },
