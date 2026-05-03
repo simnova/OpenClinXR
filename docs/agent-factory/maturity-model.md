@@ -39,6 +39,7 @@ Exit criteria:
 - `pnpm agent:verify` exits 0.
 - `.agent-factory/memory-index.json` is generated.
 - `.agent-factory/evidence-debt-report.json` is generated.
+- `.agent-factory/risk-report.json` is generated.
 - Leadership packets can be generated from iteration folders.
 
 ## Maturity 3: Orchestrated
