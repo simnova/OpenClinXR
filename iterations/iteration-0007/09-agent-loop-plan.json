@@ -4929,16 +4929,6 @@
   ],
   "nextActions": [
     {
-      "id": "evidence-leadership-0007-001",
-      "actionType": "close_evidence_debt",
-      "owner": "test-automation-lead",
-      "summary": "Run clean install, tests, and browser checks after the actual application monorepo is created.",
-      "dimensions": [
-        "implementation_readiness",
-        "evidence_discipline"
-      ]
-    },
-    {
       "id": "evidence-leadership-0007-002",
       "actionType": "close_evidence_debt",
       "owner": "xr-systems-architect",
@@ -5127,16 +5117,6 @@
       ],
       "nextActions": [
         {
-          "id": "evidence-leadership-0007-001",
-          "actionType": "close_evidence_debt",
-          "owner": "test-automation-lead",
-          "summary": "Run clean install, tests, and browser checks after the actual application monorepo is created.",
-          "dimensions": [
-            "implementation_readiness",
-            "evidence_discipline"
-          ]
-        },
-        {
           "id": "decision-leadership-0007-001",
           "actionType": "resolve_decision_debt",
           "owner": "implementation-planning-lead",
@@ -5280,16 +5260,6 @@
         }
       ],
       "nextActions": [
-        {
-          "id": "evidence-leadership-0007-001",
-          "actionType": "close_evidence_debt",
-          "owner": "test-automation-lead",
-          "summary": "Run clean install, tests, and browser checks after the actual application monorepo is created.",
-          "dimensions": [
-            "implementation_readiness",
-            "evidence_discipline"
-          ]
-        },
         {
           "id": "decision-leadership-0007-001",
           "actionType": "resolve_decision_debt",
