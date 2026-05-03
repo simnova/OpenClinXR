@@ -182,7 +182,15 @@ describe("agent-loop synthesis planning", () => {
       "leadership_preflight",
     ]);
     expect(plan.workOrders.find((order) => order.stage === "physician_specialty_review")?.assignedAgentIds).toEqual(
-      expect.arrayContaining(["emergency-medicine-physician", "cardiology-physician"]),
+      expect.arrayContaining([
+        "emergency-medicine-physician",
+        "cardiology-physician",
+        "internal-medicine-physician",
+        "psychiatry-physician",
+        "pediatrics-physician",
+        "obgyn-physician",
+        "surgery-physician",
+      ]),
     );
     expect(plan.workOrders.find((order) => order.stage === "legal_governance_review")?.assignedAgentIds).toEqual(
       expect.arrayContaining(["general-counsel", "healthcare-compliance-counsel", "ai-governance-counsel"]),

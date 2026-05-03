@@ -211,6 +211,26 @@ export const defaultAgentLoopRoster = {
       "clinical_validity",
       "specialty_clinical_generalizability",
     ], ["chest-pain", "cardiac-risk"]),
+    role("internal-medicine-physician", "physicians", "Internal Medicine Physician", [
+      "clinical_validity",
+      "specialty_clinical_generalizability",
+    ], ["adult-medicine", "diagnostic-reasoning"]),
+    role("psychiatry-physician", "physicians", "Psychiatry Physician", [
+      "clinical_validity",
+      "specialty_clinical_generalizability",
+    ], ["behavioral-health", "suicide-risk"]),
+    role("pediatrics-physician", "physicians", "Pediatrics Physician", [
+      "clinical_validity",
+      "specialty_clinical_generalizability",
+    ], ["pediatric-assessment", "guardian-communication"]),
+    role("obgyn-physician", "physicians", "Obstetrics And Gynecology Physician", [
+      "clinical_validity",
+      "specialty_clinical_generalizability",
+    ], ["pregnancy-triage", "reproductive-health"]),
+    role("surgery-physician", "physicians", "Surgery Physician", [
+      "clinical_validity",
+      "specialty_clinical_generalizability",
+    ], ["procedural-triage", "perioperative-risk"]),
     role("general-counsel", "leadership", "General Counsel", ["legal_regulatory_resilience", "evidence_discipline"], [
       "claims-governance",
       "liability",
