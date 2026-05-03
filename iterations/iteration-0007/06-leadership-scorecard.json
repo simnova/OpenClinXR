@@ -28,7 +28,7 @@
     { "id": "evidence-leadership-0007-002", "summary": "Run Quest 3 and target Apple Silicon model/voice benchmarks before enabling immersive or local AI claims.", "owner": "xr-systems-architect", "status": "open" }
   ],
   "decision_debt": [
-    { "id": "decision-leadership-0007-001", "summary": "Choose exact pinned versions during package creation after license and compatibility checks.", "owner": "implementation-planning-lead", "status": "open" }
+    { "id": "decision-leadership-0007-001", "summary": "Choose exact pinned versions during package creation after license and compatibility checks.", "owner": "implementation-planning-lead", "status": "resolved" }
   ],
   "confidence": 0.93,
   "summary": "Iteration 0007 locks the code-phase handoff with milestones, hard stops, commit sequencing, and evidence gates suitable for starting a deterministic local-first implementation."

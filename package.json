@@ -14,10 +14,11 @@
     "agent:risks": "tsx tools/agent-factory/find-stale-risks.ts",
     "agent:evidence": "tsx tools/agent-factory/find-evidence-debt.ts",
     "agent:sources": "tsx tools/agent-factory/check-source-ledger.ts",
+    "agent:pins": "tsx tools/agent-factory/check-pinned-dependencies.ts",
     "agent:loop": "tsx tools/agent-factory/run-agent-loop.ts",
     "agent:loop:verify": "tsx tools/agent-factory/check-agent-loop-artifacts.ts",
     "agent:maturity": "tsx tools/agent-factory/build-maturity-report.ts",
-    "agent:verify": "pnpm agent:validate && pnpm agent:index && pnpm agent:sources && pnpm agent:loop:verify && pnpm agent:risks && pnpm agent:evidence && pnpm agent:maturity",
+    "agent:verify": "pnpm agent:validate && pnpm agent:index && pnpm agent:sources && pnpm agent:pins && pnpm agent:loop:verify && pnpm agent:risks && pnpm agent:evidence && pnpm agent:maturity",
     "typecheck": "tsgo --noEmit && pnpm -r --if-present --filter '@openclinxr/*' --filter '@cellix/*' typecheck",
     "test": "pnpm -r --if-present --filter '@openclinxr/*' --filter '@cellix/*' test",
     "security:audit": "pnpm audit --audit-level=high",
@@ -36,11 +37,11 @@
     "gray-matter": "4.0.3"
   },
   "devDependencies": {
-    "@e18e/cli": "^0.5.0",
+    "@e18e/cli": "0.5.0",
     "@types/node": "25.6.0",
     "@typescript/native-preview": "7.0.0-dev.20260503.1",
     "archunit": "2.3.0",
-    "knip": "^6.11.0",
+    "knip": "6.11.0",
     "tsx": "4.21.0",
     "typescript": "6.0.3",
     "vitest": "4.1.5"

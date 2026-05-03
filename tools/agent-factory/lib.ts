@@ -57,7 +57,7 @@ export async function globFiles(patterns: string | string[]): Promise<string[]> 
     absolute: false,
     dot: true,
     onlyFiles: true,
-    ignore: ["node_modules/**", ".git/**"],
+    ignore: ["node_modules/**", "**/node_modules/**", ".git/**"],
   });
 }
 
@@ -115,4 +115,3 @@ export function requireArgs(args: string[], usage: string): void {
     throw new Error(`Missing argument. Usage: ${usage}`);
   }
 }
-
