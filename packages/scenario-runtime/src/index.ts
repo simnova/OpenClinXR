@@ -8,11 +8,19 @@ import {
   type ModelGateway,
   type ModelRequestPolicy,
 } from "@openclinxr/model-gateway";
-import { buildReviewPacket } from "@openclinxr/review-workflow";
+import {
+  buildReviewPacket,
+  evaluateScenarioPublicationReadiness,
+  type PublicationTargetUse,
+  type ReviewerEvidence,
+  type ScenarioPublicationReadiness,
+} from "@openclinxr/review-workflow";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import type { ProviderHealth, ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
 import { InMemoryTraceLedger } from "@openclinxr/trace-ledger";
 import { createDefaultVoiceGateway, LocalVoiceProviderAdapter, MockVoiceProviderAdapter, type VoiceGateway } from "@openclinxr/voice-gateway";
+
+export type { PublicationTargetUse, ReviewerEvidence, ScenarioPublicationReadiness } from "@openclinxr/review-workflow";
 
 export type ProviderHealthSnapshot = {
   model: ProviderHealth;
@@ -60,6 +68,11 @@ export type GenerateActorResponseResult = {
   response: ActorResponseResult;
   learnerEvent: TraceEvent;
   actorResponseEvent: TraceEvent;
+};
+
+export type ScenarioPublicationReadinessInput = {
+  targetUse: PublicationTargetUse;
+  reviewerEvidence: ReviewerEvidence[];
 };
 
 export type SubmitNoteResult = {
@@ -278,6 +291,15 @@ export class ScenarioRuntime {
 
   assetReadiness(): ScenarioAssetReadiness {
     return this.options.assetRegistry.evaluateScenarioReadiness(this.options.scenario);
+  }
+
+  scenarioPublicationReadiness(input: ScenarioPublicationReadinessInput): ScenarioPublicationReadiness {
+    return evaluateScenarioPublicationReadiness({
+      scenario: this.options.scenario,
+      targetUse: input.targetUse,
+      reviewerEvidence: input.reviewerEvidence,
+      assetReadiness: this.assetReadiness(),
+    });
   }
 
   private requireSession(stationRunId: string): SessionRecord {

@@ -1,5 +1,5 @@
 import { assembleExamForm, createDefaultClinicalSkillsBlueprint } from "@openclinxr/exam-assembly";
-import { createDefaultScenarioRuntime, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
+import { createDefaultScenarioRuntime, type PublicationTargetUse, type ReviewerEvidence, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createLearnerScenarioView, edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { Hono } from "hono";
 
@@ -19,6 +19,20 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   app.get("/scenarios/ed-chest-pain", (context) => context.json(createLearnerScenarioView(edChestPainScenario)));
 
   app.get("/scenarios/ed-chest-pain/assets/readiness", (context) => context.json(runtime.assetReadiness()));
+
+  app.post("/scenarios/ed-chest-pain/publication-readiness", async (context) => {
+    const body = (await context.req.json().catch(() => ({}))) as {
+      targetUse?: unknown;
+      reviewerEvidence?: unknown;
+    };
+
+    return context.json(
+      runtime.scenarioPublicationReadiness({
+        targetUse: parsePublicationTargetUse(body.targetUse),
+        reviewerEvidence: parseReviewerEvidence(body.reviewerEvidence),
+      }),
+    );
+  });
 
   app.get("/exam-blueprints/default", (context) => context.json(createDefaultClinicalSkillsBlueprint()));
 
@@ -134,4 +148,34 @@ function sessionErrorResponse(context: { json: (body: { error: string }, status:
     return context.json({ error: "actor_not_found" }, 400);
   }
   return context.json({ error: "runtime_error" }, 500);
+}
+
+function parsePublicationTargetUse(value: unknown): PublicationTargetUse {
+  if (value === "pilot_research" || value === "summative") {
+    return value;
+  }
+  return "local_formative";
+}
+
+function parseReviewerEvidence(value: unknown): ReviewerEvidence[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter(isReviewerEvidence);
+}
+
+function isReviewerEvidence(value: unknown): value is ReviewerEvidence {
+  return isRecord(value)
+    && typeof value.reviewerRole === "string"
+    && typeof value.reviewerId === "string"
+    && (value.decision === "approved" || value.decision === "changes_requested")
+    && typeof value.comments === "string"
+    && Array.isArray(value.evidenceRefs)
+    && value.evidenceRefs.every((ref) => typeof ref === "string")
+    && typeof value.reviewedAt === "string";
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

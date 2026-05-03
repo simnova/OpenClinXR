@@ -201,6 +201,56 @@ describe("scenario runtime", () => {
     expect(JSON.stringify(runtime.traceEvents(session.stationRunId))).not.toContain("Father died of myocardial infarction");
   });
 
+  it("evaluates scenario publication readiness with required reviewer evidence", () => {
+    const runtime = createDefaultScenarioRuntime();
+
+    const blocked = runtime.scenarioPublicationReadiness({
+      targetUse: "local_formative",
+      reviewerEvidence: [],
+    });
+    expect(blocked.canPublishForLearnerUse).toBe(false);
+    expect(blocked.missingReviewerRoles).toEqual(["clinician", "psychometrician", "legal", "simulation_qa"]);
+
+    const ready = runtime.scenarioPublicationReadiness({
+      targetUse: "local_formative",
+      reviewerEvidence: [
+        reviewer("clinician", "clinical-cmo-001"),
+        reviewer("psychometrician", "psychometrician-001"),
+        reviewer("legal", "legal-001"),
+        reviewer("simulation_qa", "simulation-qa-001"),
+      ],
+    });
+
+    expect(ready.canPublishForLearnerUse).toBe(true);
+    expect(ready.gateResults.filter((gate) => gate.status === "block")).toEqual([]);
+    expect(ready.gateResults).toContainEqual({
+      gate: "asset_readiness",
+      status: "warn",
+      details: ["Production assets are not ready; local formative release may use dev-ready placeholders."],
+    });
+  });
+
+  it("blocks publication readiness target-use overclaims", () => {
+    const runtime = createDefaultScenarioRuntime();
+
+    const readiness = runtime.scenarioPublicationReadiness({
+      targetUse: "pilot_research",
+      reviewerEvidence: [
+        reviewer("clinician", "clinical-cmo-001"),
+        reviewer("psychometrician", "psychometrician-001"),
+        reviewer("legal", "legal-001"),
+        reviewer("simulation_qa", "simulation-qa-001"),
+      ],
+    });
+
+    expect(readiness.canPublishForLearnerUse).toBe(false);
+    expect(readiness.gateResults).toContainEqual({
+      gate: "score_use",
+      status: "block",
+      details: ["pilot_research target use requires pilot_research_only or validated_summative score-use governance."],
+    });
+  });
+
   it("rejects trace and review operations for unknown sessions", () => {
     const runtime = createDefaultScenarioRuntime();
 
@@ -277,4 +327,15 @@ function createRuntimeWithModelProvider(provider: ModelProviderAdapter): Scenari
       adapters: [new MockVoiceProviderAdapter()],
     }),
   });
+}
+
+function reviewer(reviewerRole: string, reviewerId: string) {
+  return {
+    reviewerRole,
+    reviewerId,
+    decision: "approved" as const,
+    comments: `Approved by ${reviewerRole}.`,
+    evidenceRefs: [`evidence:${reviewerRole}:2026-05-03`],
+    reviewedAt: "2026-05-03T17:00:00.000Z",
+  };
 }

@@ -71,6 +71,43 @@ describe("OpenClinXR API shell", () => {
     );
   });
 
+  it("evaluates ED chest pain publication readiness from reviewer evidence", async () => {
+    const app = createApiApp();
+    const blockedResponse = await app.request("/scenarios/ed-chest-pain/publication-readiness", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ targetUse: "local_formative", reviewerEvidence: [] }),
+    });
+    const blocked = await json(blockedResponse) as { canPublishForLearnerUse: boolean; missingReviewerRoles: string[] };
+
+    expect(blockedResponse.status).toBe(200);
+    expect(blocked.canPublishForLearnerUse).toBe(false);
+    expect(blocked.missingReviewerRoles).toEqual(["clinician", "psychometrician", "legal", "simulation_qa"]);
+
+    const readyResponse = await app.request("/scenarios/ed-chest-pain/publication-readiness", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        targetUse: "local_formative",
+        reviewerEvidence: [
+          reviewer("clinician", "clinical-cmo-001"),
+          reviewer("psychometrician", "psychometrician-001"),
+          reviewer("legal", "legal-001"),
+          reviewer("simulation_qa", "simulation-qa-001"),
+        ],
+      }),
+    });
+    const ready = await json(readyResponse) as { canPublishForLearnerUse: boolean; gateResults: Array<{ gate: string; status: string; details: string[] }> };
+
+    expect(readyResponse.status).toBe(200);
+    expect(ready.canPublishForLearnerUse).toBe(true);
+    expect(ready.gateResults).toContainEqual({
+      gate: "asset_readiness",
+      status: "warn",
+      details: ["Production assets are not ready; local formative release may use dev-ready placeholders."],
+    });
+  });
+
   it("serves the default exam blueprint and assembles a ready review form", async () => {
     const app = createApiApp();
     const blueprintResponse = await app.request("/exam-blueprints/default");
@@ -202,3 +239,14 @@ describe("OpenClinXR API shell", () => {
     expect(await json(response)).toEqual({ error: "session_not_found" });
   });
 });
+
+function reviewer(reviewerRole: string, reviewerId: string) {
+  return {
+    reviewerRole,
+    reviewerId,
+    decision: "approved",
+    comments: `Approved by ${reviewerRole}.`,
+    evidenceRefs: [`evidence:${reviewerRole}:2026-05-03`],
+    reviewedAt: "2026-05-03T17:00:00.000Z",
+  };
+}
