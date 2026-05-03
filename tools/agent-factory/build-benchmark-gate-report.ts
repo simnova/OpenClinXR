@@ -131,7 +131,23 @@ type EvidenceGateReport = {
     ready_to_resolve: boolean;
     satisfied_conditions: string[];
     blockers: string[];
+    blocker_summary: BlockerSummary;
   }>;
+};
+
+type BlockerSummary = {
+  total_blockers: number;
+  distinct_problem_count: number;
+  groups: BlockerGroup[];
+  ungrouped_blockers: string[];
+};
+
+type BlockerGroup = {
+  group_id: string;
+  title: string;
+  owner: string;
+  blockers: string[];
+  next_step: string;
 };
 
 async function main(): Promise<void> {
@@ -247,8 +263,37 @@ function buildReport(
         ready_to_resolve: blockers.length === 0,
         satisfied_conditions: satisfiedConditions,
         blockers,
+        blocker_summary: summarizeBlockers(blockers),
       },
     ],
+  };
+}
+
+function summarizeBlockers(blockers: string[]): BlockerSummary {
+  const remaining = new Set(blockers);
+  const groups: BlockerGroup[] = [];
+
+  for (const group of blockerGroups) {
+    const groupBlockers = unique(blockers.filter(group.matches));
+    for (const blocker of groupBlockers) {
+      remaining.delete(blocker);
+    }
+    if (groupBlockers.length > 0) {
+      groups.push({
+        group_id: group.groupId,
+        title: group.title,
+        owner: group.owner,
+        blockers: groupBlockers,
+        next_step: group.nextStep,
+      });
+    }
+  }
+
+  return {
+    total_blockers: blockers.length,
+    distinct_problem_count: groups.length + remaining.size,
+    groups,
+    ungrouped_blockers: [...remaining].sort(),
   };
 }
 
@@ -323,6 +368,37 @@ function prefixBlockers(prefix: string, gate: GateStatus): Array<string | undefi
   }
   return gate.blockers.map((blocker) => `${prefix}:${blocker}`);
 }
+
+const blockerGroups = [
+  {
+    groupId: "quest_foreground_frame_pacing",
+    title: "Foreground Quest frame pacing evidence",
+    owner: "xr-systems-architect",
+    matches: (blocker: string) => blocker.startsWith("quest_") || blocker.startsWith("quest_manual_performance:"),
+    nextStep: "Capture a foreground in-headset manual performance report and keep CDP hidden-page blockers until that report passes.",
+  },
+  {
+    groupId: "local_model_runtime",
+    title: "Local model runtime benchmark",
+    owner: "local-ai-inference-engineer",
+    matches: (blocker: string) => blocker.startsWith("local_model:") || blocker.startsWith("local_model_benchmark:"),
+    nextStep: "Install or point to one approved local model runtime, set the runtime and model environment variables, then rerun the benchmark.",
+  },
+  {
+    groupId: "local_voice_runtime",
+    title: "Local voice runtime benchmark",
+    owner: "voice-speech-engineer",
+    matches: (blocker: string) => blocker.startsWith("local_voice:") || blocker.startsWith("local_voice_benchmark:"),
+    nextStep: "Complete voice safety and license review, configure one local voice runtime and voice ID, then record first-audio latency evidence.",
+  },
+  {
+    groupId: "asset_pipeline_blender",
+    title: "Blender-backed asset bake",
+    owner: "asset-pipeline-lead",
+    matches: (blocker: string) => blocker.startsWith("asset_pipeline:"),
+    nextStep: "Install Blender locally and run the small humanoid asset bake before treating the asset pipeline as ready.",
+  },
+] as const;
 
 function unique(values: Array<string | undefined>): string[] {
   return [...new Set(values.filter((value): value is string => typeof value === "string"))].sort();
