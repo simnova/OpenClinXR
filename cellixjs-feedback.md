@@ -12,7 +12,7 @@ This log captures observations from adapting CellixJS patterns inside OpenClinXR
 - OpenClinXR context: Rolldown packaging exposed runtime file-loading risk when GraphQL schema/documents were read from `.graphql` files at startup. CellixJS already points in the right direction with static type-def generation and resolver manifests.
 - Why it matters: Teams adopting CellixJS may not realize this is required until deployment bundling fails, especially for Azure Functions/serverless builds where runtime filesystem layout differs from source.
 - Suggested improvement: Add a short migration guide showing before/after examples for replacing `readFileSync`, glob loading, and `loadFilesSync` with generated static artifacts, plus a recommended drift test that compares generated output back to source SDL.
-- OpenClinXR workaround: Embedded SDL and operation strings as static TypeScript exports with tests that compare them to the source `.graphql` files. A later slice should replace the hand-maintained constants with codegen.
+- OpenClinXR workaround: Added a lightweight static artifact generator that emits TypeScript schema/document exports and a `generate:check` test gate. A later slice should replace the local script with GraphQL Code Generator plugins once server resolvers and permission manifests mature.
 
 ### CFX-002: Support source-entry bundling in the Rolldown config helper
 

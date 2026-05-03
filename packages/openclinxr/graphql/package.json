@@ -7,13 +7,16 @@
     ".": "./src/index.ts"
   },
   "scripts": {
+    "generate": "tsx scripts/generate-static-artifacts.ts",
+    "generate:check": "tsx scripts/generate-static-artifacts.ts --check",
     "typecheck": "tsgo --noEmit -p tsconfig.json",
-    "test": "vitest run --root ."
+    "test": "pnpm run generate:check && vitest run --root ."
   },
   "dependencies": {
     "graphql": "16.12.0"
   },
   "devDependencies": {
+    "tsx": "4.21.0",
     "typescript": "6.0.3",
     "vitest": "4.1.5"
   }
