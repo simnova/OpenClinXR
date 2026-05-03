@@ -1,0 +1,887 @@
+{
+  "generated_at": "2026-05-03T02:28:07.129Z",
+  "agent_count": 55,
+  "entry_count": 55,
+  "entries": [
+    {
+      "id": "anesthesiology-critical-care-physician-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Anesthesiology And Critical Care Physician initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "anesthesiology-critical-care-physician",
+      "team": "physicians",
+      "source_file": "agents/physicians/anesthesiology-critical-care-physician/index.json"
+    },
+    {
+      "id": "business-gtm-lead-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Business And GTM Lead initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "business-gtm-lead",
+      "team": "core",
+      "source_file": "agents/core/business-gtm-lead/index.json"
+    },
+    {
+      "id": "cardiology-physician-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Cardiology Physician initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "cardiology-physician",
+      "team": "physicians",
+      "source_file": "agents/physicians/cardiology-physician/index.json"
+    },
+    {
+      "id": "ceo-strategy-chair-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "CEO And Strategy Chair initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "ceo-strategy-chair",
+      "team": "leadership",
+      "source_file": "agents/leadership/ceo-strategy-chair/index.json"
+    },
+    {
+      "id": "cfo-operations-lead-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "CFO And Operations Lead initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "cfo-operations-lead",
+      "team": "leadership",
+      "source_file": "agents/leadership/cfo-operations-lead/index.json"
+    },
+    {
+      "id": "chief-compliance-officer-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Chief Compliance Officer initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "chief-compliance-officer",
+      "team": "leadership",
+      "source_file": "agents/leadership/chief-compliance-officer/index.json"
+    },
+    {
+      "id": "chief-coordinator-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Chief Coordinator initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "chief-coordinator",
+      "team": "coordinator",
+      "source_file": "agents/coordinator/chief-coordinator/index.json"
+    },
+    {
+      "id": "chief-medical-education-officer-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Chief Medical Education Officer initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "chief-medical-education-officer",
+      "team": "leadership",
+      "source_file": "agents/leadership/chief-medical-education-officer/index.json"
+    },
+    {
+      "id": "chief-medical-officer-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Chief Medical Officer initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "chief-medical-officer",
+      "team": "leadership",
+      "source_file": "agents/leadership/chief-medical-officer/index.json"
+    },
+    {
+      "id": "chief-psychometrician-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Chief Psychometrician initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "chief-psychometrician",
+      "team": "leadership",
+      "source_file": "agents/leadership/chief-psychometrician/index.json"
+    },
+    {
+      "id": "chief-security-privacy-officer-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Chief Security And Privacy Officer initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "chief-security-privacy-officer",
+      "team": "leadership",
+      "source_file": "agents/leadership/chief-security-privacy-officer/index.json"
+    },
+    {
+      "id": "clinical-safety-critic-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Clinical Safety Critic initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "clinical-safety-critic",
+      "team": "adversarial",
+      "source_file": "agents/adversarial/clinical-safety-critic/index.json"
+    },
+    {
+      "id": "clinical-simulation-lead-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Clinical Simulation Lead initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "clinical-simulation-lead",
+      "team": "core",
+      "source_file": "agents/core/clinical-simulation-lead/index.json"
+    },
+    {
+      "id": "competitor-fork-strategist-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Competitor And Fork Strategist initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "competitor-fork-strategist",
+      "team": "adversarial",
+      "source_file": "agents/adversarial/competitor-fork-strategist/index.json"
+    },
+    {
+      "id": "cost-performance-attacker-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Cost And Performance Attacker initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "cost-performance-attacker",
+      "team": "adversarial",
+      "source_file": "agents/adversarial/cost-performance-attacker/index.json"
+    },
+    {
+      "id": "cto-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "CTO initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "cto",
+      "team": "leadership",
+      "source_file": "agents/leadership/cto/index.json"
+    },
+    {
+      "id": "data-trace-architect-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Data And Trace Architect initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "data-trace-architect",
+      "team": "core",
+      "source_file": "agents/core/data-trace-architect/index.json"
+    },
+    {
+      "id": "emergency-medicine-physician-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Emergency Medicine Physician initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "emergency-medicine-physician",
+      "team": "physicians",
+      "source_file": "agents/physicians/emergency-medicine-physician/index.json"
+    },
+    {
+      "id": "external-academic-advisor-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "External Academic Advisor initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "external-academic-advisor",
+      "team": "leadership",
+      "source_file": "agents/leadership/external-academic-advisor/index.json"
+    },
+    {
+      "id": "family-medicine-physician-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Family Medicine Physician initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "family-medicine-physician",
+      "team": "physicians",
+      "source_file": "agents/physicians/family-medicine-physician/index.json"
+    },
+    {
+      "id": "feasibility-skeptic-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Feasibility Skeptic initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "feasibility-skeptic",
+      "team": "adversarial",
+      "source_file": "agents/adversarial/feasibility-skeptic/index.json"
+    },
+    {
+      "id": "general-counsel-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "General Counsel initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "general-counsel",
+      "team": "leadership",
+      "source_file": "agents/leadership/general-counsel/index.json"
+    },
+    {
+      "id": "healthcare-compliance-counsel-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Healthcare Compliance Counsel initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "healthcare-compliance-counsel",
+      "team": "legal",
+      "source_file": "agents/legal/healthcare-compliance-counsel/index.json"
+    },
+    {
+      "id": "infectious-disease-physician-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Infectious Disease Physician initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "infectious-disease-physician",
+      "team": "physicians",
+      "source_file": "agents/physicians/infectious-disease-physician/index.json"
+    },
+    {
+      "id": "internal-medicine-physician-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Internal Medicine Physician initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "internal-medicine-physician",
+      "team": "physicians",
+      "source_file": "agents/physicians/internal-medicine-physician/index.json"
+    },
+    {
+      "id": "investor-board-skeptic-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Investor And Board Skeptic initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "investor-board-skeptic",
+      "team": "leadership",
+      "source_file": "agents/leadership/investor-board-skeptic/index.json"
+    },
+    {
+      "id": "ip-open-source-counsel-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "IP And Open-Source Counsel initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "ip-open-source-counsel",
+      "team": "legal",
+      "source_file": "agents/legal/ip-open-source-counsel/index.json"
+    },
+    {
+      "id": "legal-liability-attacker-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Legal Liability Attacker initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "legal-liability-attacker",
+      "team": "adversarial",
+      "source_file": "agents/adversarial/legal-liability-attacker/index.json"
+    },
+    {
+      "id": "legal-regulatory-counsel-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Legal And Regulatory Counsel initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "legal-regulatory-counsel",
+      "team": "legal",
+      "source_file": "agents/legal/legal-regulatory-counsel/index.json"
+    },
+    {
+      "id": "memory-archivist-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Memory Archivist initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "memory-archivist",
+      "team": "coordinator",
+      "source_file": "agents/coordinator/memory-archivist/index.json"
+    },
+    {
+      "id": "neurology-physician-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Neurology Physician initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "neurology-physician",
+      "team": "physicians",
+      "source_file": "agents/physicians/neurology-physician/index.json"
+    },
+    {
+      "id": "obgyn-physician-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "OB/GYN Physician initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "obgyn-physician",
+      "team": "physicians",
+      "source_file": "agents/physicians/obgyn-physician/index.json"
+    },
+    {
+      "id": "open-source-governance-lead-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Open Source And Governance Lead initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "open-source-governance-lead",
+      "team": "core",
+      "source_file": "agents/core/open-source-governance-lead/index.json"
+    },
+    {
+      "id": "open-source-sustainability-critic-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Open-Source Sustainability Critic initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "open-source-sustainability-critic",
+      "team": "adversarial",
+      "source_file": "agents/adversarial/open-source-sustainability-critic/index.json"
+    },
+    {
+      "id": "pediatrics-physician-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Pediatrics Physician initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "pediatrics-physician",
+      "team": "physicians",
+      "source_file": "agents/physicians/pediatrics-physician/index.json"
+    },
+    {
+      "id": "platform-devops-lead-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Platform And DevOps Lead initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "platform-devops-lead",
+      "team": "core",
+      "source_file": "agents/core/platform-devops-lead/index.json"
+    },
+    {
+      "id": "procurement-gtm-critic-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Procurement And GTM Critic initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "procurement-gtm-critic",
+      "team": "adversarial",
+      "source_file": "agents/adversarial/procurement-gtm-critic/index.json"
+    },
+    {
+      "id": "product-growth-executive-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Product And Growth Executive initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "product-growth-executive",
+      "team": "leadership",
+      "source_file": "agents/leadership/product-growth-executive/index.json"
+    },
+    {
+      "id": "psychiatry-physician-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Psychiatry Physician initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "psychiatry-physician",
+      "team": "physicians",
+      "source_file": "agents/physicians/psychiatry-physician/index.json"
+    },
+    {
+      "id": "psychometric-overclaim-critic-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Psychometric Overclaim Critic initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "psychometric-overclaim-critic",
+      "team": "adversarial",
+      "source_file": "agents/adversarial/psychometric-overclaim-critic/index.json"
+    },
+    {
+      "id": "psychometrics-lead-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Psychometrics Lead initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "psychometrics-lead",
+      "team": "core",
+      "source_file": "agents/core/psychometrics-lead/index.json"
+    },
+    {
+      "id": "radiology-imaging-physician-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Radiology And Imaging Physician initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "radiology-imaging-physician",
+      "team": "physicians",
+      "source_file": "agents/physicians/radiology-imaging-physician/index.json"
+    },
+    {
+      "id": "red-team-coordinator-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Red-Team Coordinator initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "red-team-coordinator",
+      "team": "adversarial",
+      "source_file": "agents/adversarial/red-team-coordinator/index.json"
+    },
+    {
+      "id": "rotating-specialty-physician-reviewer-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Rotating Specialty Physician Reviewer initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "rotating-specialty-physician-reviewer",
+      "team": "leadership",
+      "source_file": "agents/leadership/rotating-specialty-physician-reviewer/index.json"
+    },
+    {
+      "id": "rubric-steward-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Rubric Steward initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "rubric-steward",
+      "team": "coordinator",
+      "source_file": "agents/coordinator/rubric-steward/index.json"
+    },
+    {
+      "id": "security-privacy-attacker-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Security And Privacy Attacker initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "security-privacy-attacker",
+      "team": "adversarial",
+      "source_file": "agents/adversarial/security-privacy-attacker/index.json"
+    },
+    {
+      "id": "security-privacy-lead-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Security And Privacy Lead initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "security-privacy-lead",
+      "team": "core",
+      "source_file": "agents/core/security-privacy-lead/index.json"
+    },
+    {
+      "id": "solution-architect-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Solution Architect initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "solution-architect",
+      "team": "core",
+      "source_file": "agents/core/solution-architect/index.json"
+    },
+    {
+      "id": "source-librarian-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Source Librarian initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "source-librarian",
+      "team": "coordinator",
+      "source_file": "agents/coordinator/source-librarian/index.json"
+    },
+    {
+      "id": "specialty-advisory-board-chair-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Specialty Advisory Board Chair initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "specialty-advisory-board-chair",
+      "team": "leadership",
+      "source_file": "agents/leadership/specialty-advisory-board-chair/index.json"
+    },
+    {
+      "id": "specialty-clinical-attacker-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Specialty Clinical Attacker initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "specialty-clinical-attacker",
+      "team": "adversarial",
+      "source_file": "agents/adversarial/specialty-clinical-attacker/index.json"
+    },
+    {
+      "id": "surgery-physician-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Surgery Physician initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "surgery-physician",
+      "team": "physicians",
+      "source_file": "agents/physicians/surgery-physician/index.json"
+    },
+    {
+      "id": "ux-friction-critic-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "UX Friction Critic initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "ux-friction-critic",
+      "team": "adversarial",
+      "source_file": "agents/adversarial/ux-friction-critic/index.json"
+    },
+    {
+      "id": "ux-product-lead-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "UX And Product Lead initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "ux-product-lead",
+      "team": "core",
+      "source_file": "agents/core/ux-product-lead/index.json"
+    },
+    {
+      "id": "xr-systems-architect-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "XR Systems Architect initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "design-spec-2026-05-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "xr-systems-architect",
+      "team": "core",
+      "source_file": "agents/core/xr-systems-architect/index.json"
+    }
+  ]
+}
