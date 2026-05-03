@@ -1,0 +1,69 @@
+{
+  "iteration_id": "iteration-0001",
+  "plan_type": "core-plan",
+  "scored_by": "rubric-steward",
+  "scored_at": "2026-05-02",
+  "dimensions": {
+    "clinical_validity": {
+      "score": 0,
+      "rationale": "Core plan has not been produced yet."
+    },
+    "psychometric_defensibility": {
+      "score": 0,
+      "rationale": "Core plan has not been produced yet."
+    },
+    "technical_feasibility": {
+      "score": 0,
+      "rationale": "Core plan has not been produced yet."
+    },
+    "architecture_coherence": {
+      "score": 0,
+      "rationale": "Core plan has not been produced yet."
+    },
+    "security_privacy": {
+      "score": 0,
+      "rationale": "Core plan has not been produced yet."
+    },
+    "ux_workflow_fit": {
+      "score": 0,
+      "rationale": "Core plan has not been produced yet."
+    },
+    "cost_performance_efficiency": {
+      "score": 0,
+      "rationale": "Core plan has not been produced yet."
+    },
+    "open_source_sustainability": {
+      "score": 0,
+      "rationale": "Core plan has not been produced yet."
+    },
+    "market_gtm_strength": {
+      "score": 0,
+      "rationale": "Core plan has not been produced yet."
+    },
+    "evidence_discipline": {
+      "score": 0,
+      "rationale": "Core plan has not been produced yet."
+    },
+    "implementation_readiness": {
+      "score": 0,
+      "rationale": "Core plan has not been produced yet."
+    },
+    "adversarial_robustness": {
+      "score": 0,
+      "rationale": "Core plan has not been challenged yet."
+    },
+    "legal_regulatory_resilience": {
+      "score": 0,
+      "rationale": "Core plan has not been produced yet."
+    },
+    "specialty_clinical_generalizability": {
+      "score": 0,
+      "rationale": "Core plan has not been reviewed by specialty physicians yet."
+    }
+  },
+  "critical_risks": [],
+  "evidence_debt": [],
+  "decision_debt": [],
+  "confidence": 0,
+  "summary": "Initialized scorecard for the first Core Plan."
+}
