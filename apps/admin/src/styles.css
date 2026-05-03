@@ -1,0 +1,92 @@
+:root {
+  color: #17211f;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f5f7f8;
+}
+
+body {
+  margin: 0;
+}
+
+a {
+  color: #245b55;
+  font-weight: 600;
+}
+
+.admin-shell {
+  min-height: 100vh;
+}
+
+.admin-sider {
+  background: #ffffff;
+  border-right: 1px solid #dbe3e1;
+  padding: 24px 18px;
+}
+
+.admin-sider h1 {
+  font-size: 22px;
+  line-height: 1.2;
+  margin: 0 0 28px;
+}
+
+.admin-nav {
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.admin-nav a {
+  border-radius: 6px;
+  color: #17211f;
+  display: block;
+  padding: 10px 12px;
+  text-decoration: none;
+}
+
+.admin-nav a:hover,
+.admin-nav a:focus-visible {
+  background: #e7f1ef;
+  outline: none;
+}
+
+.admin-content {
+  padding: 28px;
+}
+
+.admin-heading {
+  max-width: 980px;
+  padding-bottom: 24px;
+}
+
+.eyebrow {
+  color: #5c6f6a;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.admin-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  max-width: 1120px;
+}
+
+@media (max-width: 760px) {
+  .admin-shell {
+    display: block;
+  }
+
+  .admin-sider {
+    border-bottom: 1px solid #dbe3e1;
+    border-right: 0;
+    width: auto !important;
+  }
+
+  .admin-content {
+    padding: 18px;
+  }
+}
