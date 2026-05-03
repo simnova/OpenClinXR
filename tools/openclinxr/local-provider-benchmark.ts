@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { performance } from "node:perf_hooks";
 import { promisify } from "node:util";
@@ -8,6 +8,7 @@ const execFileAsync = promisify(execFile);
 
 type CliOptions = {
   outputPath?: string;
+  envFilePath?: string;
 };
 
 type BenchmarkStatus = "passed" | "not_configured" | "blocked";
@@ -40,9 +41,18 @@ type LocalProviderBenchmarkReport = {
 
 const localModelCommands = ["ollama", "llama-cli", "llama-server", "mlx_lm"] as const;
 const localVoiceCommands = ["vibevoice"] as const;
+const localProviderEnvKeys = new Set([
+  "OPENCLINXR_LOCAL_MODEL_RUNTIME",
+  "OPENCLINXR_LOCAL_MODEL_ID",
+  "OPENCLINXR_LOCAL_VOICE_RUNTIME",
+  "OPENCLINXR_LOCAL_VOICE_ID",
+]);
 
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
+  if (options.envFilePath) {
+    await loadEnvFile(options.envFilePath);
+  }
   const report = await buildReport();
 
   if (options.outputPath) {
@@ -69,6 +79,11 @@ function parseArgs(args: string[]): CliOptions {
       index += 1;
       continue;
     }
+    if (arg === "--env-file") {
+      options.envFilePath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
     throw new Error(`Unknown argument: ${arg ?? ""}`);
   }
 
@@ -79,6 +94,33 @@ function requireValue(args: string[], index: number, flag: string): string {
   const value = args[index + 1];
   if (!value) {
     throw new Error(`${flag} requires a value`);
+  }
+  return value;
+}
+
+async function loadEnvFile(filePath: string): Promise<void> {
+  const content = await readFile(filePath, "utf8");
+  for (const line of content.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) {
+      continue;
+    }
+    const assignment = trimmed.startsWith("export ") ? trimmed.slice("export ".length).trim() : trimmed;
+    const separator = assignment.indexOf("=");
+    if (separator <= 0) {
+      continue;
+    }
+    const key = assignment.slice(0, separator).trim();
+    if (!localProviderEnvKeys.has(key)) {
+      continue;
+    }
+    process.env[key] = unquoteEnvValue(assignment.slice(separator + 1).trim());
+  }
+}
+
+function unquoteEnvValue(value: string): string {
+  if ((value.startsWith("\"") && value.endsWith("\"")) || (value.startsWith("'") && value.endsWith("'"))) {
+    return value.slice(1, -1);
   }
   return value;
 }
