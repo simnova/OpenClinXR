@@ -97,6 +97,15 @@ importers:
       '@apollo/client':
         specifier: 4.1.9
         version: 4.1.9(graphql@16.12.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(rxjs@7.8.2)
+      '@openclinxr/asset-registry':
+        specifier: workspace:*
+        version: link:../../packages/openclinxr/asset-registry
+      '@openclinxr/exam-assembly':
+        specifier: workspace:*
+        version: link:../../packages/openclinxr/exam-assembly
+      '@openclinxr/rest':
+        specifier: workspace:*
+        version: link:../../packages/openclinxr/rest
       '@openclinxr/ui-route-admin':
         specifier: workspace:*
         version: link:../../packages/openclinxr/ui-route-admin

@@ -75,6 +75,82 @@ a {
   max-width: 1120px;
 }
 
+.seed-workbench {
+  max-width: 1180px;
+}
+
+.workbench-title-row {
+  align-items: start;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.workbench-title-row h3 {
+  margin: 4px 0 0;
+}
+
+.readiness-strip {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(5, minmax(150px, 1fr));
+  margin-bottom: 18px;
+}
+
+.readiness-metric {
+  background: #ffffff;
+  border: 1px solid #dbe3e1;
+  border-radius: 6px;
+  display: grid;
+  gap: 4px;
+  min-height: 72px;
+  padding: 12px;
+}
+
+.workbench-panels {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 1.2fr 1fr 1fr;
+}
+
+.workbench-panel {
+  background: #ffffff;
+  border: 1px solid #dbe3e1;
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.workbench-panel h4 {
+  font-size: 16px;
+  margin: 0 0 10px;
+}
+
+.station-window-list,
+.blocked-scenario-list,
+.asset-readiness-list {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+}
+
+.station-window-list li,
+.blocked-scenario-list li,
+.asset-readiness-list li {
+  align-items: center;
+  border-top: 1px solid #edf2f1;
+  display: grid;
+  gap: 6px;
+  padding-top: 10px;
+}
+
+.blocked-scenario-list li,
+.asset-readiness-list li {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
 @media (max-width: 760px) {
   .admin-shell {
     display: block;
@@ -88,5 +164,14 @@ a {
 
   .admin-content {
     padding: 18px;
+  }
+
+  .workbench-title-row {
+    display: grid;
+  }
+
+  .readiness-strip,
+  .workbench-panels {
+    grid-template-columns: 1fr;
   }
 }
