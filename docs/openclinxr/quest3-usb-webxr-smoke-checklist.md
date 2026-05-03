@@ -89,6 +89,49 @@ Headset blocker:
 - `adb devices -l` currently reports `2G0YC5ZGB5000J unauthorized usb:0-1 transport_id:1`.
 - Rerun headset smoke after accepting the USB debugging prompt in the headset.
 
+## Smoke Run 0003: XR Shell Quest Browser Rerun
+
+Run time: 2026-05-03
+
+Result: pass for Quest Browser shell delivery, nonblank canvas, and trace-control interaction; inconclusive for immersive support through CDP.
+
+Evidence:
+
+- `adb devices -l` reported `2G0YC5ZGB5000J device usb:0-1 product:eureka model:Quest_3 device:eureka transport_id:1`.
+- `adb reverse tcp:5173 tcp:5173` succeeded.
+- `adb forward tcp:9222 localabstract:chrome_devtools_remote` succeeded.
+- Quest Browser launched `http://localhost:5173/` with package `com.oculus.browser`.
+- DevTools target list showed `OpenClinXR Station Runtime` at `http://localhost:5173/`.
+- Remote page probe reported:
+  - `title`: `OpenClinXR Station Runtime`.
+  - `hasContent`: `true` for `ED Chest Pain`.
+  - `canvas`: `860x774`.
+  - `overlay`: `false`.
+  - `hasNavigatorXr`: `true`.
+- Remote interaction probe:
+  - After clicking `Ecg Request`, the trace showed `Trace 1/10`.
+  - After clicking `Urgent Escalation`, the trace showed `Trace 2/10`.
+  - Dialogue changed to `Spouse: Are you saying this could be his heart?`.
+
+Probe limitation:
+
+- `navigator.xr.isSessionSupported("immersive-vr")` did not resolve through CDP before the probe timeout. This result should be recorded as inconclusive because `navigator.xr` itself was present and the page remained responsive.
+
+What this proves:
+
+- The current OpenClinXR XR shell reaches Quest Browser over USB-C local forwarding.
+- The 3D canvas is nonblank in the headset browser.
+- HTML station controls remain clickable and update local station state.
+- No Vite/framework overlay was detected during the probe.
+
+What this does not prove:
+
+- Entering an immersive VR session.
+- Controller or hand input.
+- Sustained frame pacing.
+- Thermal comfort or battery behavior.
+- Speech, local LLM, or local voice performance.
+
 ## Setup
 
 1. Connect Quest 3 directly to the Mac with a USB3-capable USB-C cable.

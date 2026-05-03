@@ -7,7 +7,7 @@ Status: Internal planning evidence
 
 The user asked for local-only validation where possible, avoiding cloud charges and third-party model API use. This spike checks the current machine, installed runtime tools, and lightweight local throughput assumptions for planning-scale OpenClinXR work.
 
-This is not a local LLM or local voice benchmark. It now includes one static Quest 3 USB-C browser routing smoke, but not an OpenClinXR XR performance benchmark.
+This is not a local LLM or local voice benchmark. It now includes static and OpenClinXR XR-shell Quest 3 USB-C browser routing smokes, but not an immersive performance benchmark.
 
 ## Current Machine
 
@@ -138,8 +138,8 @@ Local gaps:
 - Bun must be installed or the first implementation must use a Node Hono adapter locally.
 - Blender and glTF Transform must be installed before asset pipeline spikes.
 - llama.cpp, Ollama, MLX LM, and VibeVoice are not installed.
-- Quest 3 USB debugging was authorized, `adb reverse tcp:5173 tcp:5173` succeeded, and Quest Browser loaded a static local smoke page.
-- No OpenClinXR XR runtime benchmark has been run yet because the XR app does not exist.
+- Quest 3 USB debugging was authorized, `adb reverse tcp:5173 tcp:5173` succeeded, and Quest Browser loaded both a static local smoke page and the OpenClinXR XR station shell.
+- No immersive WebXR runtime benchmark has been run yet; the current evidence is browser-shell rendering and interaction only.
 
 Recommended local-only next spikes:
 
@@ -147,7 +147,7 @@ Recommended local-only next spikes:
 2. Install `gltf-transform` and run GLB validation on a small placeholder asset.
 3. Install MLX LM or llama.cpp and benchmark Qwen3-4B/Qwen3-8B or DeepSeek-R1-Distill-Qwen-7B quantized model.
 4. Install VibeVoice-Realtime-0.5B only after reviewing model terms and disk/runtime requirements.
-5. Build the OpenClinXR XR fallback app and rerun the Quest 3 smoke against the real station shell.
+5. Add a measured Quest 3 10-minute performance and comfort smoke for the real station shell with DevTools screencasting disabled.
 
 ## Quest 3 USB Preflight
 
@@ -183,6 +183,29 @@ Static smoke result:
 - Browser user agent included `Quest 3`, `OculusBrowser/146.0.0.19.27.942135376`, and `Chrome/146.0.7680.177`.
 
 This validates the local USB-C development loop. It does not validate the future XR scene.
+
+OpenClinXR XR shell smoke result:
+
+- `apps/xr` Vite dev server served `http://localhost:5173/`.
+- `adb devices -l` reported `2G0YC5ZGB5000J device usb:0-1 product:eureka model:Quest_3 device:eureka`.
+- `adb reverse tcp:5173 tcp:5173` and `adb forward tcp:9222 localabstract:chrome_devtools_remote` succeeded.
+- Quest Browser loaded `OpenClinXR Station Runtime` at `http://localhost:5173/`.
+- Remote DevTools reported:
+  - Page title: `OpenClinXR Station Runtime`.
+  - Body content includes `ED Chest Pain`.
+  - Canvas dimensions: `860x774`.
+  - Vite/framework overlay: `false`.
+  - `navigator.xr` exists.
+- Trace interaction smoke:
+  - Clicking `Ecg Request` advanced the local trace to `Trace 1/10`.
+  - Clicking `Urgent Escalation` advanced the local trace to `Trace 2/10`.
+  - Dialogue changed to the expected urgent-escalation line.
+
+Probe limitation:
+
+- Calling `navigator.xr.isSessionSupported("immersive-vr")` through CDP did not resolve before the probe timeout. Treat this as inconclusive, not a negative WebXR-support result.
+
+This validates Quest Browser delivery of the current OpenClinXR shell, nonblank 3D canvas rendering, and basic trace-control interaction. It does not validate immersive session entry, controller interaction, frame pacing, comfort, heat, battery use, speech, or local model/voice latency.
 
 ## Sources
 
