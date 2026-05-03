@@ -1,0 +1,187 @@
+{
+  "generated_by": "tools/agent-factory/build-maturity-report.ts",
+  "iteration_count": 7,
+  "improving_iteration_count": 5,
+  "plateaued_iteration_count": 1,
+  "regressing_iteration_count": 0,
+  "leadership_quality_bar_ready_count": 0,
+  "iterations": [
+    {
+      "iteration_id": "iteration-0001",
+      "iteration_number": 1,
+      "selected_scorecard_file": "iterations/iteration-0001/04-adversarial-scorecard.json",
+      "selected_plan_type": "adversarial-counterplan",
+      "scored_by": "rubric-steward",
+      "confidence": 0.8,
+      "weighted_score": 3.93,
+      "composite_score": 3.929,
+      "open_selected_evidence_debt_count": 1,
+      "open_selected_decision_debt_count": 1,
+      "open_selected_risk_count": 2,
+      "open_selected_high_or_critical_risk_count": 2,
+      "dimensions_below_quality_bar": [
+        "clinical_validity",
+        "psychometric_defensibility",
+        "legal_regulatory_resilience",
+        "specialty_clinical_generalizability"
+      ],
+      "blockers": [
+        "weighted_score_below_quality_bar",
+        "open_selected_evidence_debt",
+        "open_selected_decision_debt",
+        "open_selected_high_or_critical_risk",
+        "required_dimensions_below_quality_bar"
+      ],
+      "leadership_quality_bar_ready": false
+    },
+    {
+      "iteration_id": "iteration-0002",
+      "iteration_number": 2,
+      "selected_scorecard_file": "iterations/iteration-0002/06-leadership-scorecard.json",
+      "selected_plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "confidence": 0.86,
+      "weighted_score": 4.25,
+      "composite_score": 4.243,
+      "open_selected_evidence_debt_count": 1,
+      "open_selected_decision_debt_count": 1,
+      "open_selected_risk_count": 2,
+      "open_selected_high_or_critical_risk_count": 2,
+      "dimensions_below_quality_bar": [
+        "clinical_validity",
+        "psychometric_defensibility"
+      ],
+      "blockers": [
+        "weighted_score_below_quality_bar",
+        "open_selected_evidence_debt",
+        "open_selected_decision_debt",
+        "open_selected_high_or_critical_risk",
+        "required_dimensions_below_quality_bar"
+      ],
+      "leadership_quality_bar_ready": false,
+      "weighted_delta_from_previous": 0.32,
+      "composite_delta_from_previous": 0.314
+    },
+    {
+      "iteration_id": "iteration-0003",
+      "iteration_number": 3,
+      "selected_scorecard_file": "iterations/iteration-0003/06-leadership-scorecard.json",
+      "selected_plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "confidence": 0.89,
+      "weighted_score": 4.506,
+      "composite_score": 4.507,
+      "open_selected_evidence_debt_count": 2,
+      "open_selected_decision_debt_count": 2,
+      "open_selected_risk_count": 2,
+      "open_selected_high_or_critical_risk_count": 2,
+      "dimensions_below_quality_bar": [
+        "psychometric_defensibility"
+      ],
+      "blockers": [
+        "open_selected_evidence_debt",
+        "open_selected_decision_debt",
+        "open_selected_high_or_critical_risk",
+        "required_dimensions_below_quality_bar"
+      ],
+      "leadership_quality_bar_ready": false,
+      "weighted_delta_from_previous": 0.256,
+      "composite_delta_from_previous": 0.264
+    },
+    {
+      "iteration_id": "iteration-0004",
+      "iteration_number": 4,
+      "selected_scorecard_file": "iterations/iteration-0004/06-leadership-scorecard.json",
+      "selected_plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "confidence": 0.9,
+      "weighted_score": 4.563,
+      "composite_score": 4.564,
+      "open_selected_evidence_debt_count": 2,
+      "open_selected_decision_debt_count": 1,
+      "open_selected_risk_count": 1,
+      "open_selected_high_or_critical_risk_count": 1,
+      "dimensions_below_quality_bar": [
+        "psychometric_defensibility"
+      ],
+      "blockers": [
+        "open_selected_evidence_debt",
+        "open_selected_decision_debt",
+        "open_selected_high_or_critical_risk",
+        "required_dimensions_below_quality_bar"
+      ],
+      "leadership_quality_bar_ready": false,
+      "weighted_delta_from_previous": 0.057,
+      "composite_delta_from_previous": 0.057
+    },
+    {
+      "iteration_id": "iteration-0005",
+      "iteration_number": 5,
+      "selected_scorecard_file": "iterations/iteration-0005/06-leadership-scorecard.json",
+      "selected_plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "confidence": 0.91,
+      "weighted_score": 4.602,
+      "composite_score": 4.603,
+      "open_selected_evidence_debt_count": 1,
+      "open_selected_decision_debt_count": 1,
+      "open_selected_risk_count": 1,
+      "open_selected_high_or_critical_risk_count": 0,
+      "dimensions_below_quality_bar": [],
+      "blockers": [
+        "open_selected_evidence_debt",
+        "open_selected_decision_debt"
+      ],
+      "leadership_quality_bar_ready": false,
+      "weighted_delta_from_previous": 0.039,
+      "composite_delta_from_previous": 0.039
+    },
+    {
+      "iteration_id": "iteration-0006",
+      "iteration_number": 6,
+      "selected_scorecard_file": "iterations/iteration-0006/06-leadership-scorecard.json",
+      "selected_plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "confidence": 0.92,
+      "weighted_score": 4.676,
+      "composite_score": 4.676,
+      "open_selected_evidence_debt_count": 2,
+      "open_selected_decision_debt_count": 1,
+      "open_selected_risk_count": 2,
+      "open_selected_high_or_critical_risk_count": 0,
+      "dimensions_below_quality_bar": [],
+      "blockers": [
+        "open_selected_evidence_debt",
+        "open_selected_decision_debt"
+      ],
+      "leadership_quality_bar_ready": false,
+      "weighted_delta_from_previous": 0.074,
+      "composite_delta_from_previous": 0.073
+    },
+    {
+      "iteration_id": "iteration-0007",
+      "iteration_number": 7,
+      "selected_scorecard_file": "iterations/iteration-0007/06-leadership-scorecard.json",
+      "selected_plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "confidence": 0.93,
+      "weighted_score": 4.748,
+      "composite_score": 4.747,
+      "open_selected_evidence_debt_count": 2,
+      "open_selected_decision_debt_count": 1,
+      "open_selected_risk_count": 2,
+      "open_selected_high_or_critical_risk_count": 0,
+      "dimensions_below_quality_bar": [],
+      "blockers": [
+        "open_selected_evidence_debt",
+        "open_selected_decision_debt"
+      ],
+      "leadership_quality_bar_ready": false,
+      "weighted_delta_from_previous": 0.072,
+      "composite_delta_from_previous": 0.071
+    }
+  ],
+  "latest_iteration_id": "iteration-0007",
+  "latest_weighted_score": 4.748,
+  "latest_weighted_delta_from_previous": 0.072
+}

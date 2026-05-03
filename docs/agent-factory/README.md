@@ -36,6 +36,7 @@ pnpm agent:validate
 pnpm agent:index
 pnpm agent:evidence
 pnpm agent:risks
+pnpm agent:maturity
 pnpm agent:score -- iterations/iteration-0001
 pnpm agent:leadership -- iterations/iteration-0001
 pnpm agent:verify
@@ -43,6 +44,7 @@ pnpm agent:verify
 
 `pnpm agent:evidence` prints open evidence debt and writes `.agent-factory/evidence-debt-report.json` so future iterations can compare open debt by iteration and owner.
 `pnpm agent:risks` prints open critical risks and writes `.agent-factory/risk-report.json` with open-risk rollups by severity, iteration, and owner.
+`pnpm agent:maturity` writes `.agent-factory/maturity-report.json` with selected scorecards, weighted deltas, blockers, and leadership quality-bar readiness.
 
 ## Quality Bar
 
