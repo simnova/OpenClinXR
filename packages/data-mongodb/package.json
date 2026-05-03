@@ -1,0 +1,29 @@
+{
+  "name": "@openclinxr/data-mongodb",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --root .",
+    "test:mongo": "vitest run --root ."
+  },
+  "dependencies": {
+    "@openclinxr/shared-schemas": "workspace:*",
+    "mongodb": "7.2.0",
+    "mongodb-memory-server": "11.1.0"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "vitest": "4.1.5"
+  },
+  "config": {
+    "mongodbMemoryServer": {
+      "version": "7.0.24"
+    }
+  }
+}
+

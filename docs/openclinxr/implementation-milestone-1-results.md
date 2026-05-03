@@ -111,3 +111,25 @@ Still outside this slice:
 - Admin app.
 - XR app.
 - Local LLM/voice providers.
+
+## Milestone 3 Progress: Local Mongo Repository Tests
+
+Started on 2026-05-03:
+
+- `packages/data-mongodb` workspace package added.
+- `mongodb-memory-server@11.1.0` and `mongodb@7.2.0` added.
+- MongoDB binary version pinned to `7.0.24` for the package configuration and test context.
+- `MongoScenarioRepository` supports scenario upsert, version lookup, approved-list query, and indexes.
+- `MongoTraceRepository` supports append-only trace writes, ordered replay, and sequence uniqueness through a compound unique index.
+- Repository tests passed against local `mongodb-memory-server`.
+
+Observed local cache:
+
+```text
+~/.cache/mongodb-binaries/mongod-arm64-darwin-7.0.24
+```
+
+Important caveat:
+
+- pnpm ignored the package postinstall script, so the binary path is runtime/cache driven rather than postinstall driven.
+- The local cache already contains MongoDB binaries; fresh machines may need a first-run download or a preseeded `MONGOMS_SYSTEM_BINARY`.

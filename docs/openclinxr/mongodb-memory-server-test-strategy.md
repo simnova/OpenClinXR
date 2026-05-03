@@ -79,8 +79,29 @@ Contract coverage:
 - Tests fail if required indexes are missing.
 - Tests do not require a cloud database or production connection string.
 
+## Implementation Status
+
+Implemented on 2026-05-03:
+
+- `packages/data-mongodb` added.
+- `mongodb-memory-server@11.1.0` added.
+- `mongodb@7.2.0` added.
+- MongoDB binary version pinned to `7.0.24`.
+- Local tests passed using cached binary `mongod-arm64-darwin-7.0.24`.
+
+Current repositories:
+
+- `MongoScenarioRepository`
+- `MongoTraceRepository`
+
+Current tests:
+
+- Versioned scenario save/read.
+- Approved scenario query.
+- Trace append and ordered replay.
+- Duplicate trace sequence rejection through unique index.
+
 ## Sources
 
 - `src-mongodb-memory-server-2026`
 - `src-mongodb-memory-server-config-2026`
-
