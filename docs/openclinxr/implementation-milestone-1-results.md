@@ -240,7 +240,10 @@ Started on 2026-05-03:
 - Default clinical skills pilot blueprint added for the ED urgent-recognition station.
 - Exam form assembler locks approved scenarios into ordered station references.
 - Coverage evaluator reports required trace tags, covered trace tags, and missing trace tags.
+- Coverage evaluator now also reports station-count fit, required environment coverage, safety-critical trace-tag coverage, and assembly issues.
+- Scenario version drift detection compares locked exam-form station references against current scenario-bank versions.
 - Form status is `ready_for_review` only when required trace coverage is complete.
+- Form status is `blueprint_incomplete` when station count, environment coverage, or safety-critical trace coverage fails.
 - Unapproved scenarios are rejected before form lock.
 
 Local evidence:
@@ -268,6 +271,29 @@ Started on 2026-05-03:
 - Scenario bank expanded with three draft synthetic cases while keeping only the ED fixture activation-eligible.
 - API learner scenario response now redacts actor hidden facts.
 - Mock actor responses no longer reveal hidden facts and block hidden-truth extraction attempts.
+
+## Milestone 10 Progress: Runtime Audit, Review, Publication, And Persistence
+
+Started on 2026-05-03:
+
+- Scenario runtime added `generateActorResponse`, which records learner utterance and generated actor-response trace events.
+- Actor-response trace payloads include response text, response kind, trace tags, model provenance, token usage, guardrail status, and zero-cost accounting for the mock route.
+- Runtime actor-response requests pass visible facts and memory IDs, while keeping hidden facts out of model requests.
+- API added `POST /sessions/:stationRunId/actor-response`.
+- Review packets now include an ordered trace timeline, patient note evidence, and trace-quality counts for model events, blocked guardrails, unsafe events, missing required tags, and model provenance.
+- Scenario publication readiness gates now require approved scenario status, review-state approval, target-use score governance, validation-stage maturity, complete reviewer evidence, hidden-fact policy, and asset readiness.
+- Runtime and API expose publication readiness for the ED chest pain station through `POST /scenarios/ed-chest-pain/publication-readiness`.
+- MongoDB memory repository contracts now include review-packet persistence with timeline and trace-quality evidence.
+- Test harness benchmark now exercises two actor responses: one normal grounded patient response and one blocked hidden-fact extraction probe.
+- XR shell added an optional typed API client for background trace sync when `VITE_OPENCLINXR_API_BASE_URL` is configured.
+
+Local evidence:
+
+- `pnpm verify` passed after each code slice.
+- `pnpm bench:mock` passed with `eventCount` 18 and no missing required trace tags.
+- `pnpm --filter @openclinxr/xr build` passed; Vite reported the existing large bundle warning from Three.js.
+- In-app browser smoke loaded `http://localhost:5173/`, rendered the station shell, advanced `Trace 1/10` after `Ecg Request`, and showed no warning/error logs.
+- Quest 3 smoke loaded `OpenClinXR Station Runtime`, rendered a nonblank `860x774` canvas, advanced to `Trace 2/10`, and reported no Vite/framework overlay. The CDP immersive support probe was inconclusive because `navigator.xr.isSessionSupported("immersive-vr")` did not resolve before timeout.
 
 Local evidence:
 

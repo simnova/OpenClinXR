@@ -258,6 +258,8 @@ Exam assembly milestone has also started:
 
 - `packages/exam-assembly` exists.
 - It creates ordered exam forms from approved scenarios and reports required trace-tag coverage gaps.
+- It now reports station-count fit, required environment coverage, safety-critical trace-tag coverage, and assembly issues.
+- It can detect scenario version drift after a form has locked station references.
 - It rejects unapproved scenarios before exam-form lock, preserving the human review gates from the scenario fixture.
 - `apps/api` exposes the default blueprint and a local exam-form assembly endpoint for the first ED chest pain pilot form.
 
@@ -283,3 +285,19 @@ Actor-response safety milestone has also started:
 
 - The deterministic mock model provider now grounds normal responses on visible facts rather than hidden facts.
 - Hidden-truth extraction attempts such as requests to reveal hidden facts or ignore instructions return an auditable `blocked_fallback`.
+- Scenario runtime records actor responses as trace events with model provenance, guardrail status, token usage, and zero-cost mock accounting.
+- API exposes `POST /sessions/:stationRunId/actor-response` for actor turns.
+- Test harness now includes both a normal actor turn and a blocked hidden-fact extraction probe.
+
+Review, publication, and persistence milestones have also started:
+
+- Review packets now include ordered replay timelines, trace-quality counts, patient-note evidence, model provenance presence, blocked guardrail counts, and unsafe-event counts.
+- Scenario publication readiness gates require reviewer evidence by role, validation-stage maturity, target-use score governance, hidden-fact policy, and asset readiness.
+- API exposes publication readiness through `POST /scenarios/ed-chest-pain/publication-readiness`.
+- MongoDB memory repositories now persist review packets with timeline and trace-quality fields intact.
+
+XR shell integration milestone has also started:
+
+- `apps/xr` has a typed optional API client for session start, encounter start, trace event sync, actor response requests, and note submission.
+- The UI stays local-first and only syncs trace actions in the background when `VITE_OPENCLINXR_API_BASE_URL` is configured.
+- Fresh browser and Quest 3 smoke evidence is recorded in `docs/openclinxr/quest3-usb-webxr-smoke-checklist.md`.
