@@ -1,0 +1,22 @@
+{
+  "source_id": "src-kimi-k2-thinking-2026",
+  "title": "Kimi-K2-Thinking Model Card",
+  "url": "https://huggingface.co/moonshotai/Kimi-K2-Thinking",
+  "source_type": "vendor",
+  "citation": "Moonshot AI. Kimi-K2-Thinking model card. Hugging Face. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Planning source for rejecting Kimi-K2-class models as a laptop-local default and for considering Kimi-style reasoning only as a future on-prem or hosted provider option."
+  ],
+  "claims_supported": [
+    "The Kimi-K2-Thinking card describes a Mixture-of-Experts architecture with 1T total parameters and 32B activated parameters.",
+    "The card lists a 256K context length and modified MIT license.",
+    "The card recommends deployment through engines such as vLLM, SGLang, and KTransformers."
+  ],
+  "claims_not_supported": [
+    "That Kimi-K2-Thinking is feasible on this 64 GB laptop.",
+    "That Kimi-K2-Thinking is clinically validated.",
+    "That Kimi should be used without model-governance and hardware-cost review."
+  ],
+  "confidence": 0.88
+}

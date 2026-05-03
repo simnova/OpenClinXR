@@ -1,7 +1,7 @@
 {
   "generated_by": "tools/agent-factory/build-memory-index.ts",
-  "agent_count": 55,
-  "entry_count": 77,
+  "agent_count": 68,
+  "entry_count": 103,
   "entries": [
     {
       "id": "xr-systems-architect-decision-0003",
@@ -99,6 +99,22 @@
       "source_file": "agents/legal/legal-regulatory-counsel/index.json"
     },
     {
+      "id": "vp-engineering-delivery-lesson-0002",
+      "type": "lesson",
+      "topic": "commit-sequence",
+      "summary": "The first implementation should proceed through small tested commits from workspace to schemas, domain, fixture, trace, review, harness, API, admin, XR, providers, assets, and verification.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 7,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "vp-engineering-delivery",
+      "team": "leadership",
+      "source_file": "agents/leadership/vp-engineering-delivery/index.json"
+    },
+    {
       "id": "ip-open-source-counsel-risk-0002",
       "type": "risk",
       "topic": "copyleft-asset-pipeline",
@@ -154,6 +170,39 @@
       "source_file": "agents/core/clinical-simulation-lead/index.json"
     },
     {
+      "id": "simulation-center-director-lesson-0002",
+      "type": "lesson",
+      "topic": "faculty-review-first-demo",
+      "summary": "The first demo must show faculty review and debrief value, not only immersive learner presentation.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 7,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "simulation-center-director",
+      "team": "leadership",
+      "source_file": "agents/leadership/simulation-center-director/index.json"
+    },
+    {
+      "id": "implementation-planning-lead-lesson-0002",
+      "type": "lesson",
+      "topic": "first-sprint-gate",
+      "summary": "The first implementation sprint must be blocked by a deterministic ED chest pain station simulation, not by package scaffolding volume.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-local-hardware-spike-2026-05-03",
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 7,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "implementation-planning-lead",
+      "team": "core",
+      "source_file": "agents/core/implementation-planning-lead/index.json"
+    },
+    {
       "id": "psychometrics-lead-decision-0003",
       "type": "decision",
       "topic": "formative-local-score-use",
@@ -172,13 +221,45 @@
       "source_file": "agents/core/psychometrics-lead/index.json"
     },
     {
+      "id": "local-model-performance-skeptic-risk-0002",
+      "type": "risk",
+      "topic": "hardware-assumption-gap",
+      "summary": "The local hardware spike ran on an M1 Max with 64 GB RAM, so M4Pro/M4Max performance assumptions remain evidence debt until target hardware benchmarks run.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-local-hardware-spike-2026-05-03"
+      ],
+      "iteration": 7,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "local-model-performance-skeptic",
+      "team": "adversarial",
+      "source_file": "agents/adversarial/local-model-performance-skeptic/index.json"
+    },
+    {
+      "id": "ai-governance-counsel-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "AI Governance Counsel initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "ai-governance-counsel",
+      "team": "legal",
+      "source_file": "agents/legal/ai-governance-counsel/index.json"
+    },
+    {
       "id": "anesthesiology-critical-care-physician-lesson-0001",
       "type": "lesson",
       "topic": "initial-charter",
       "summary": "Anesthesiology And Critical Care Physician initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -194,7 +275,7 @@
       "summary": "Business And GTM Lead initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -210,7 +291,7 @@
       "summary": "Cardiology Physician initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -226,7 +307,7 @@
       "summary": "CEO And Strategy Chair initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -242,7 +323,7 @@
       "summary": "CFO And Operations Lead initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -252,13 +333,29 @@
       "source_file": "agents/leadership/cfo-operations-lead/index.json"
     },
     {
+      "id": "chief-ai-safety-officer-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Chief AI Safety Officer initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "chief-ai-safety-officer",
+      "team": "leadership",
+      "source_file": "agents/leadership/chief-ai-safety-officer/index.json"
+    },
+    {
       "id": "chief-compliance-officer-lesson-0001",
       "type": "lesson",
       "topic": "initial-charter",
       "summary": "Chief Compliance Officer initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -274,7 +371,7 @@
       "summary": "Chief Coordinator initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -290,7 +387,7 @@
       "summary": "Chief Medical Education Officer initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -306,7 +403,7 @@
       "summary": "Chief Medical Officer initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -316,13 +413,29 @@
       "source_file": "agents/leadership/chief-medical-officer/index.json"
     },
     {
+      "id": "chief-nursing-interprofessional-officer-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Chief Nursing And Interprofessional Officer initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "chief-nursing-interprofessional-officer",
+      "team": "leadership",
+      "source_file": "agents/leadership/chief-nursing-interprofessional-officer/index.json"
+    },
+    {
       "id": "chief-psychometrician-lesson-0001",
       "type": "lesson",
       "topic": "initial-charter",
       "summary": "Chief Psychometrician initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -338,7 +451,7 @@
       "summary": "Chief Security And Privacy Officer initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -354,7 +467,7 @@
       "summary": "Clinical Safety Critic initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -370,7 +483,7 @@
       "summary": "Clinical Simulation Lead initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -386,7 +499,7 @@
       "summary": "Competitor And Fork Strategist initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -402,7 +515,7 @@
       "summary": "Cost And Performance Attacker initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -418,7 +531,7 @@
       "summary": "CTO initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -434,7 +547,7 @@
       "summary": "Data And Trace Architect initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -450,7 +563,7 @@
       "summary": "Emergency Medicine Physician initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -466,7 +579,7 @@
       "summary": "External Academic Advisor initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -482,7 +595,7 @@
       "summary": "Family Medicine Physician initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -498,7 +611,7 @@
       "summary": "Feasibility Skeptic initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -514,7 +627,7 @@
       "summary": "General Counsel initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -530,7 +643,7 @@
       "summary": "Healthcare Compliance Counsel initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -540,13 +653,45 @@
       "source_file": "agents/legal/healthcare-compliance-counsel/index.json"
     },
     {
+      "id": "implementation-plan-gap-attacker-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Implementation Plan Gap Attacker initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "implementation-plan-gap-attacker",
+      "team": "adversarial",
+      "source_file": "agents/adversarial/implementation-plan-gap-attacker/index.json"
+    },
+    {
+      "id": "implementation-planning-lead-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Implementation Planning Lead initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "implementation-planning-lead",
+      "team": "core",
+      "source_file": "agents/core/implementation-planning-lead/index.json"
+    },
+    {
       "id": "infectious-disease-physician-lesson-0001",
       "type": "lesson",
       "topic": "initial-charter",
       "summary": "Infectious Disease Physician initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -562,7 +707,7 @@
       "summary": "Internal Medicine Physician initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -578,7 +723,7 @@
       "summary": "Investor And Board Skeptic initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -594,7 +739,7 @@
       "summary": "IP And Open-Source Counsel initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -610,7 +755,7 @@
       "summary": "Legal Liability Attacker initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -626,7 +771,7 @@
       "summary": "Legal And Regulatory Counsel initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -636,13 +781,45 @@
       "source_file": "agents/legal/legal-regulatory-counsel/index.json"
     },
     {
+      "id": "local-ai-inference-engineer-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Local AI Inference Engineer initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "local-ai-inference-engineer",
+      "team": "core",
+      "source_file": "agents/core/local-ai-inference-engineer/index.json"
+    },
+    {
+      "id": "local-model-performance-skeptic-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Local Model Performance Skeptic initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "local-model-performance-skeptic",
+      "team": "adversarial",
+      "source_file": "agents/adversarial/local-model-performance-skeptic/index.json"
+    },
+    {
       "id": "memory-archivist-lesson-0001",
       "type": "lesson",
       "topic": "initial-charter",
       "summary": "Memory Archivist initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -658,7 +835,7 @@
       "summary": "Neurology Physician initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -674,7 +851,7 @@
       "summary": "OB/GYN Physician initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -690,7 +867,7 @@
       "summary": "Open Source And Governance Lead initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -706,7 +883,7 @@
       "summary": "Open-Source Sustainability Critic initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -722,7 +899,7 @@
       "summary": "Pediatrics Physician initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -738,7 +915,7 @@
       "summary": "Platform And DevOps Lead initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -754,7 +931,7 @@
       "summary": "Procurement And GTM Critic initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -770,7 +947,7 @@
       "summary": "Product And Growth Executive initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -786,7 +963,7 @@
       "summary": "Psychiatry Physician initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -802,7 +979,7 @@
       "summary": "Psychometric Overclaim Critic initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -818,7 +995,7 @@
       "summary": "Psychometrics Lead initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -834,7 +1011,7 @@
       "summary": "Radiology And Imaging Physician initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -850,7 +1027,7 @@
       "summary": "Red-Team Coordinator initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -866,7 +1043,7 @@
       "summary": "Rotating Specialty Physician Reviewer initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -882,7 +1059,7 @@
       "summary": "Rubric Steward initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -898,7 +1075,7 @@
       "summary": "Security And Privacy Attacker initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -914,7 +1091,7 @@
       "summary": "Security And Privacy Lead initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -924,13 +1101,29 @@
       "source_file": "agents/core/security-privacy-lead/index.json"
     },
     {
+      "id": "simulation-center-director-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Simulation Center Director initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "simulation-center-director",
+      "team": "leadership",
+      "source_file": "agents/leadership/simulation-center-director/index.json"
+    },
+    {
       "id": "solution-architect-lesson-0001",
       "type": "lesson",
       "topic": "initial-charter",
       "summary": "Solution Architect initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -946,7 +1139,7 @@
       "summary": "Source Librarian initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -962,7 +1155,7 @@
       "summary": "Specialty Advisory Board Chair initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -978,7 +1171,7 @@
       "summary": "Specialty Clinical Attacker initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -988,13 +1181,29 @@
       "source_file": "agents/adversarial/specialty-clinical-attacker/index.json"
     },
     {
+      "id": "supply-chain-dependency-attacker-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Supply Chain And Dependency Attacker initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "supply-chain-dependency-attacker",
+      "team": "adversarial",
+      "source_file": "agents/adversarial/supply-chain-dependency-attacker/index.json"
+    },
+    {
       "id": "surgery-physician-lesson-0001",
       "type": "lesson",
       "topic": "initial-charter",
       "summary": "Surgery Physician initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -1004,13 +1213,29 @@
       "source_file": "agents/physicians/surgery-physician/index.json"
     },
     {
+      "id": "test-automation-lead-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Test Automation Lead initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "test-automation-lead",
+      "team": "core",
+      "source_file": "agents/core/test-automation-lead/index.json"
+    },
+    {
       "id": "ux-friction-critic-lesson-0001",
       "type": "lesson",
       "topic": "initial-charter",
       "summary": "UX Friction Critic initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -1026,7 +1251,7 @@
       "summary": "UX And Product Lead initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -1036,13 +1261,61 @@
       "source_file": "agents/core/ux-product-lead/index.json"
     },
     {
+      "id": "voice-safety-misuse-attacker-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Voice Safety And Misuse Attacker initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "voice-safety-misuse-attacker",
+      "team": "adversarial",
+      "source_file": "agents/adversarial/voice-safety-misuse-attacker/index.json"
+    },
+    {
+      "id": "voice-speech-engineer-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Voice And Speech Engineer initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "voice-speech-engineer",
+      "team": "core",
+      "source_file": "agents/core/voice-speech-engineer/index.json"
+    },
+    {
+      "id": "vp-engineering-delivery-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "VP Engineering Delivery initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "vp-engineering-delivery",
+      "team": "leadership",
+      "source_file": "agents/leadership/vp-engineering-delivery/index.json"
+    },
+    {
       "id": "xr-systems-architect-lesson-0001",
       "type": "lesson",
       "topic": "initial-charter",
       "summary": "XR Systems Architect initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",
@@ -1050,6 +1323,23 @@
       "agent_id": "xr-systems-architect",
       "team": "core",
       "source_file": "agents/core/xr-systems-architect/index.json"
+    },
+    {
+      "id": "chief-nursing-interprofessional-officer-lesson-0002",
+      "type": "lesson",
+      "topic": "interprofessional-trace-tags",
+      "summary": "Nurse interruption, escalation handling, and teamwork communication must remain first-class trace requirements in the first ED station.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-ama-day-one-skills-2026",
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 7,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "chief-nursing-interprofessional-officer",
+      "team": "leadership",
+      "source_file": "agents/leadership/chief-nursing-interprofessional-officer/index.json"
     },
     {
       "id": "source-librarian-lesson-0002",
@@ -1117,6 +1407,26 @@
       "source_file": "agents/coordinator/source-librarian/index.json"
     },
     {
+      "id": "local-ai-inference-engineer-lesson-0002",
+      "type": "lesson",
+      "topic": "local-model-tiering",
+      "summary": "Use small Qwen GGUF or MLX-compatible models for first Apple Silicon smoke tests, treat DeepSeek distills as follow-on reasoning candidates, and keep Kimi-class models as server/offload research candidates.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-mlx-lm-github-2026",
+        "src-qwen-local-docs-2026",
+        "src-qwen3-4b-gguf-2026",
+        "src-deepseek-r1-distill-qwen-2025",
+        "src-kimi-k2-thinking-2026"
+      ],
+      "iteration": 7,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "local-ai-inference-engineer",
+      "team": "core",
+      "source_file": "agents/core/local-ai-inference-engineer/index.json"
+    },
+    {
       "id": "open-source-governance-lead-decision-0002",
       "type": "decision",
       "topic": "marketplace-deferral",
@@ -1150,6 +1460,56 @@
       "agent_id": "data-trace-architect",
       "team": "core",
       "source_file": "agents/core/data-trace-architect/index.json"
+    },
+    {
+      "id": "supply-chain-dependency-attacker-risk-0002",
+      "type": "risk",
+      "topic": "optional-dependency-intake",
+      "summary": "Optional XR, local AI, voice, and asset-generation packages need license, install, and runtime-risk intake before entering default setup.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-npm-stack-metadata-2026-05-03",
+        "src-makehuman-community-license-2026",
+        "src-vibevoice-github-2026"
+      ],
+      "iteration": 7,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "supply-chain-dependency-attacker",
+      "team": "adversarial",
+      "source_file": "agents/adversarial/supply-chain-dependency-attacker/index.json"
+    },
+    {
+      "id": "test-automation-lead-lesson-0002",
+      "type": "lesson",
+      "topic": "optional-runtime-skips",
+      "summary": "Optional runtimes should report machine-readable not_configured or skipped statuses and must not fail baseline verification.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-local-hardware-spike-2026-05-03"
+      ],
+      "iteration": 7,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "test-automation-lead",
+      "team": "core",
+      "source_file": "agents/core/test-automation-lead/index.json"
+    },
+    {
+      "id": "implementation-plan-gap-attacker-lesson-0002",
+      "type": "lesson",
+      "topic": "over-scaffolding-risk",
+      "summary": "The main code-phase failure mode is over-scaffolding many packages without proving a runnable station lifecycle.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 7,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "implementation-plan-gap-attacker",
+      "team": "adversarial",
+      "source_file": "agents/adversarial/implementation-plan-gap-attacker/index.json"
     },
     {
       "id": "chief-coordinator-decision-0002",
@@ -1204,6 +1564,23 @@
       "agent_id": "solution-architect",
       "team": "core",
       "source_file": "agents/core/solution-architect/index.json"
+    },
+    {
+      "id": "chief-ai-safety-officer-risk-0002",
+      "type": "risk",
+      "topic": "provider-audit-records",
+      "summary": "Model and voice providers require audit records before learner exposure, including provider ID, runtime/model, request ID, latency, and safety status.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-vibevoice-github-2026",
+        "src-xai-voice-api-docs-2026"
+      ],
+      "iteration": 7,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "chief-ai-safety-officer",
+      "team": "leadership",
+      "source_file": "agents/leadership/chief-ai-safety-officer/index.json"
     },
     {
       "id": "xr-systems-architect-decision-0002",
@@ -1281,6 +1658,24 @@
       "source_file": "agents/coordinator/chief-coordinator/index.json"
     },
     {
+      "id": "ai-governance-counsel-risk-0002",
+      "type": "risk",
+      "topic": "synthetic-voice-governance",
+      "summary": "Synthetic voice and virtual patient dialogue can create disclosure, consent, misuse, provenance, and overreliance risks even in training simulations.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-vibevoice-github-2026",
+        "src-local-laverde-llm-agents-pdf-2025",
+        "src-local-bodonhelyi-medical-communication-pdf-2025"
+      ],
+      "iteration": 7,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "ai-governance-counsel",
+      "team": "legal",
+      "source_file": "agents/legal/ai-governance-counsel/index.json"
+    },
+    {
       "id": "psychometrics-lead-lesson-0002",
       "type": "lesson",
       "topic": "trace-completeness",
@@ -1295,6 +1690,38 @@
       "agent_id": "psychometrics-lead",
       "team": "core",
       "source_file": "agents/core/psychometrics-lead/index.json"
+    },
+    {
+      "id": "voice-speech-engineer-risk-0002",
+      "type": "risk",
+      "topic": "vibevoice-safety-gate",
+      "summary": "VibeVoice is a promising local voice research candidate but must remain behind disclosure, consent, provenance, and misuse gates before learner exposure.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-vibevoice-github-2026"
+      ],
+      "iteration": 7,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "voice-speech-engineer",
+      "team": "core",
+      "source_file": "agents/core/voice-speech-engineer/index.json"
+    },
+    {
+      "id": "voice-safety-misuse-attacker-risk-0002",
+      "type": "risk",
+      "topic": "voice-misuse",
+      "summary": "Voice cloning or realistic local speech synthesis increases misuse, consent, and learner trust risks; mock voice should remain acceptable for first slice.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-vibevoice-github-2026"
+      ],
+      "iteration": 7,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "voice-safety-misuse-attacker",
+      "team": "adversarial",
+      "source_file": "agents/adversarial/voice-safety-misuse-attacker/index.json"
     }
   ]
 }

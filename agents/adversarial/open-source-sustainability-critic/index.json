@@ -10,7 +10,7 @@
       "summary": "Open-Source Sustainability Critic initialized with persistent memory and rubric-linked responsibilities.",
       "confidence": 1,
       "source_ids": [
-        "design-spec-2026-05-02"
+        "src-internal-agent-factory-design-spec"
       ],
       "iteration": 0,
       "status": "active",

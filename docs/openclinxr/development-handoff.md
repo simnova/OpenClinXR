@@ -19,19 +19,32 @@ Build the first OpenClinXR planning-to-runtime skeleton for a Step 2 CS-inspired
 
 ## Recommended First Implementation Phases
 
+The most detailed build sequence now lives in:
+
+- `docs/openclinxr/code-implementation-plan.md`
+- `docs/openclinxr/worker-backlog-and-validation-matrix.md`
+- `docs/superpowers/plans/2026-05-03-openclinxr-code-implementation-plan.md`
+
+Use those documents as the implementation source of truth. The phase outline below is the shorter orientation version.
+
 ### Phase 0: Repo And Domain Skeleton
 
 Create a TypeScript monorepo influenced by CellixJS DDD patterns:
 
 - `apps/api`
 - `apps/web`
+- `apps/admin`
+- `apps/xr`
 - `packages/domain`
 - `packages/data-mongodb`
 - `packages/scenario-runtime`
-- `packages/llm-gateway`
+- `packages/model-gateway`
+- `packages/voice-gateway`
 - `packages/trace-ledger`
 - `packages/review-workflow`
 - `packages/shared-schemas`
+- `packages/test-harness`
+- `packages/asset-registry`
 
 ### Phase 1: Blueprint And Scenario Bank
 
@@ -155,5 +168,19 @@ The next implementation plan should not start until these docs are reviewed:
 - `docs/openclinxr/sample-case-bank-v1.md`
 - `docs/openclinxr/admin-ux-and-testing-brief.md`
 - `docs/openclinxr/model-provider-and-voice-routing.md`
+- `docs/openclinxr/local-hardware-spike-results.md`
+- `docs/openclinxr/local-ai-voice-model-strategy.md`
+- `docs/openclinxr/code-implementation-plan.md`
+- `docs/openclinxr/worker-backlog-and-validation-matrix.md`
 - `docs/openclinxr/development-handoff.md`
-- MADRs 0011 through 0020
+- `docs/superpowers/plans/2026-05-03-openclinxr-code-implementation-plan.md`
+- MADRs 0011 through 0025
+
+## Code-Phase Hard Stops
+
+- Do not require cloud API keys, paid services, local model downloads, local voice runtimes, MongoDB, Bun, or Quest 3 hardware for the first deterministic station simulation.
+- Do not start local LLM or voice implementation until mock provider audit contracts exist.
+- Do not start generated-human asset work until asset manifest validation and license/provenance gates exist.
+- Do not claim diagnostic performance, licensure readiness, ECFMG replacement, USMLE equivalence, or validated high-stakes scoring.
+- Do not call the first XR shell ready until the desktop fallback renders a nonblank canvas and core text does not overlap.
+- Do not approve a scenario without clinical, psychometric, legal, and simulation QA review states.

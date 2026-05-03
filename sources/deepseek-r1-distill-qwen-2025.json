@@ -1,0 +1,22 @@
+{
+  "source_id": "src-deepseek-r1-distill-qwen-2025",
+  "title": "DeepSeek-R1-Distill-Qwen Model Cards",
+  "url": "https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+  "source_type": "vendor",
+  "citation": "DeepSeek AI. DeepSeek-R1-Distill-Qwen model cards. Hugging Face. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Planning source for local reasoning model candidates and usage recommendations for distilled DeepSeek-Qwen models."
+  ],
+  "claims_supported": [
+    "DeepSeek describes open-sourced distilled 1.5B, 7B, 14B, 32B, and larger R1-derived dense models based on Qwen and Llama families.",
+    "The DeepSeek-R1-Distill-Qwen-7B and 14B model cards list MIT license.",
+    "The model card provides usage recommendations including temperature 0.5-0.7 and notes about avoiding endless repetition or incoherent outputs."
+  ],
+  "claims_not_supported": [
+    "That the models are installed locally.",
+    "That any distilled model is safe or valid for autonomous medical advice.",
+    "That a 14B or 32B quantization meets OpenClinXR latency targets on this machine."
+  ],
+  "confidence": 0.88
+}

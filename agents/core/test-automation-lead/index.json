@@ -1,0 +1,33 @@
+{
+  "agent_id": "test-automation-lead",
+  "team": "core",
+  "last_updated": "2026-05-03",
+  "entries": [
+    {
+      "id": "test-automation-lead-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Test Automation Lead initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": []
+    },
+    {
+      "id": "test-automation-lead-lesson-0002",
+      "type": "lesson",
+      "topic": "optional-runtime-skips",
+      "summary": "Optional runtimes should report machine-readable not_configured or skipped statuses and must not fail baseline verification.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-local-hardware-spike-2026-05-03"
+      ],
+      "iteration": 7,
+      "status": "active",
+      "supersedes": []
+    }
+  ]
+}

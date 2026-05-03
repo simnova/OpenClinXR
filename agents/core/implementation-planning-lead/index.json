@@ -1,0 +1,34 @@
+{
+  "agent_id": "implementation-planning-lead",
+  "team": "core",
+  "last_updated": "2026-05-03",
+  "entries": [
+    {
+      "id": "implementation-planning-lead-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Implementation Planning Lead initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": []
+    },
+    {
+      "id": "implementation-planning-lead-lesson-0002",
+      "type": "lesson",
+      "topic": "first-sprint-gate",
+      "summary": "The first implementation sprint must be blocked by a deterministic ED chest pain station simulation, not by package scaffolding volume.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-local-hardware-spike-2026-05-03",
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 7,
+      "status": "active",
+      "supersedes": []
+    }
+  ]
+}

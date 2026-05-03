@@ -1,0 +1,23 @@
+{
+  "source_id": "src-local-hardware-spike-2026-05-03",
+  "title": "Local Hardware And Runtime Spike Results",
+  "file_path": "/Users/patrick/Documents/New project 2/docs/openclinxr/local-hardware-spike-results.md",
+  "source_type": "internal-artifact",
+  "citation": "Codex local terminal spike on /Users/patrick/Documents/New project 2, executed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Internal planning evidence for current hardware, installed tools, and lightweight local throughput checks."
+  ],
+  "claims_supported": [
+    "The current machine reports Apple M1 Max, 10 CPU cores, and 64 GB memory.",
+    "Node 22.19.0, npm 10.9.3, Python 3.11.4, and ffmpeg 8.1 are installed.",
+    "Bun, Blender, gltf-transform, Ollama, llama.cpp binaries, Whisper binaries, and MLX are not currently installed.",
+    "Local JS brute-force vector retrieval, JSON trace serialization, and AJV validation throughput are not immediate blockers for planning-scale artifacts."
+  ],
+  "claims_not_supported": [
+    "That the user's target M4 Pro or M4 Max hardware will perform identically.",
+    "That any local LLM or VibeVoice model has been installed or benchmarked.",
+    "That Quest 3 runtime performance has been validated."
+  ],
+  "confidence": 0.95
+}

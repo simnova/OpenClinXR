@@ -1,0 +1,23 @@
+{
+  "source_id": "src-qwen-local-docs-2026",
+  "title": "Qwen Local Inference Documentation For MLX LM And llama.cpp",
+  "url": "https://qwen.readthedocs.io/en/stable/run_locally/llama.cpp.html",
+  "source_type": "vendor",
+  "citation": "Qwen Team. Run Locally: llama.cpp and MLX LM documentation. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Planning source for Qwen local model runtime options on Apple Silicon, GGUF/MLX model selection, and llama.cpp/MLX command planning."
+  ],
+  "claims_supported": [
+    "Qwen docs state llama.cpp supports Apple Silicon via Metal and Accelerate.",
+    "Qwen docs state llama.cpp supports Qwen3 and Qwen3MoE from version b5092.",
+    "Qwen docs describe official Qwen GGUF models and example commands for Qwen3 models.",
+    "Qwen docs describe MLX LM use on Apple Silicon and Qwen MLX checkpoints."
+  ],
+  "claims_not_supported": [
+    "That llama.cpp, MLX LM, or Qwen models are installed locally.",
+    "That Qwen models have been benchmarked for OpenClinXR clinical simulation on this hardware.",
+    "That larger Qwen models fit a 64 GB machine at the desired latency."
+  ],
+  "confidence": 0.9
+}

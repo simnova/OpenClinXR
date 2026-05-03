@@ -1,0 +1,24 @@
+{
+  "source_id": "src-vibevoice-github-2026",
+  "title": "Microsoft VibeVoice GitHub Repository",
+  "url": "https://github.com/microsoft/VibeVoice",
+  "source_type": "vendor",
+  "citation": "Microsoft. VibeVoice: Open-Source Frontier Voice AI. GitHub repository. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Planning source for local voice adapter spikes, VibeVoice-ASR/TTS capability review, licensing posture, and voice safety gates."
+  ],
+  "claims_supported": [
+    "The repository is MIT licensed.",
+    "The README describes VibeVoice-ASR, VibeVoice-TTS, and VibeVoice-Realtime-0.5B model families.",
+    "The README describes VibeVoice-Realtime-0.5B as supporting streaming text input and roughly 300 ms first audible latency.",
+    "The README warns about unexpected, biased, or inaccurate outputs and deepfake/disinformation misuse risk, and says real-world/commercial use is not recommended without further testing and development.",
+    "The README says VibeVoice-TTS code was removed from the repository after misuse concerns, while ASR and realtime model references remain."
+  ],
+  "claims_not_supported": [
+    "That VibeVoice is clinically validated for medical education.",
+    "That VibeVoice runs acceptably on this machine without installation and benchmarking.",
+    "That VibeVoice can replace Grok voice in production without safety, privacy, latency, and license review."
+  ],
+  "confidence": 0.91
+}

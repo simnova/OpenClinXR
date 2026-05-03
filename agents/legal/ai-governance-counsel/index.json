@@ -1,0 +1,35 @@
+{
+  "agent_id": "ai-governance-counsel",
+  "team": "legal",
+  "last_updated": "2026-05-03",
+  "entries": [
+    {
+      "id": "ai-governance-counsel-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "AI Governance Counsel initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": []
+    },
+    {
+      "id": "ai-governance-counsel-risk-0002",
+      "type": "risk",
+      "topic": "synthetic-voice-governance",
+      "summary": "Synthetic voice and virtual patient dialogue can create disclosure, consent, misuse, provenance, and overreliance risks even in training simulations.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-vibevoice-github-2026",
+        "src-local-laverde-llm-agents-pdf-2025",
+        "src-local-bodonhelyi-medical-communication-pdf-2025"
+      ],
+      "iteration": 7,
+      "status": "active",
+      "supersedes": []
+    }
+  ]
+}

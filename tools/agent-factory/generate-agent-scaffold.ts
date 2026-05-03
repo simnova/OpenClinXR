@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { agentRoster, type AgentDefinition } from "./agent-roster.js";
 
-const today = "2026-05-02";
+const today = "2026-05-03";
 
 async function exists(filePath: string): Promise<boolean> {
   try {
@@ -100,7 +100,7 @@ function index(agent: AgentDefinition): string {
           topic: "initial-charter",
           summary: `${agent.name} initialized with persistent memory and rubric-linked responsibilities.`,
           confidence: 1,
-          source_ids: ["design-spec-2026-05-02"],
+          source_ids: ["src-internal-agent-factory-design-spec"],
           iteration: 0,
           status: "active",
           supersedes: [],
@@ -162,4 +162,3 @@ async function main(): Promise<void> {
 }
 
 await main();
-

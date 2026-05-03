@@ -1,0 +1,23 @@
+{
+  "source_id": "src-mlx-lm-github-2026",
+  "title": "MLX LM GitHub Repository",
+  "url": "https://github.com/ml-explore/mlx-lm",
+  "source_type": "vendor",
+  "citation": "MLX Explore. mlx-lm: Run LLMs with MLX. GitHub repository. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Planning source for Apple Silicon local LLM runtime strategy, prompt caching, streaming, quantization, and local model adapter design."
+  ],
+  "claims_supported": [
+    "MLX LM is a Python package for generating text and fine-tuning large language models on Apple Silicon with MLX.",
+    "The README describes Hugging Face Hub integration, quantization, streaming generation, prompt caching, and support for many compatible models.",
+    "The repository is MIT licensed.",
+    "The README notes large models can be slow relative to total RAM and discusses wired memory limits on macOS."
+  ],
+  "claims_not_supported": [
+    "That MLX LM is installed in the current workspace.",
+    "That any specific Qwen, Kimi, or DeepSeek model meets OpenClinXR latency or clinical-quality requirements.",
+    "That model weights available through Hugging Face are all acceptable for commercial or institutional use."
+  ],
+  "confidence": 0.9
+}

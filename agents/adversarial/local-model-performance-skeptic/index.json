@@ -1,0 +1,33 @@
+{
+  "agent_id": "local-model-performance-skeptic",
+  "team": "adversarial",
+  "last_updated": "2026-05-03",
+  "entries": [
+    {
+      "id": "local-model-performance-skeptic-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Local Model Performance Skeptic initialized with persistent memory and rubric-linked responsibilities.",
+      "confidence": 1,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": []
+    },
+    {
+      "id": "local-model-performance-skeptic-risk-0002",
+      "type": "risk",
+      "topic": "hardware-assumption-gap",
+      "summary": "The local hardware spike ran on an M1 Max with 64 GB RAM, so M4Pro/M4Max performance assumptions remain evidence debt until target hardware benchmarks run.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-local-hardware-spike-2026-05-03"
+      ],
+      "iteration": 7,
+      "status": "active",
+      "supersedes": []
+    }
+  ]
+}
