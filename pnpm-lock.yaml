@@ -41,7 +41,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   apps/api:
     dependencies:
@@ -84,7 +84,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   apps/ui-admin:
     dependencies:
@@ -145,7 +145,7 @@ importers:
         version: 8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4)
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   apps/ui-xr:
     dependencies:
@@ -167,7 +167,7 @@ importers:
         version: 8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4)
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/cellix/config-typescript: {}
 
@@ -185,7 +185,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/agent-loop:
     devDependencies:
@@ -194,7 +194,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/architecture-rules:
     dependencies:
@@ -207,7 +207,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/asset-registry:
     dependencies:
@@ -223,7 +223,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/config-rolldown:
     devDependencies:
@@ -235,7 +235,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/data-mongodb:
     dependencies:
@@ -257,7 +257,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/data-sources-mongoose-models:
     dependencies:
@@ -265,12 +265,15 @@ importers:
         specifier: 9.6.1
         version: 9.6.1
     devDependencies:
+      mongodb-memory-server:
+        specifier: 11.1.0
+        version: 11.1.0
       typescript:
         specifier: 6.0.3
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/domain:
     dependencies:
@@ -283,7 +286,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/exam-assembly:
     dependencies:
@@ -299,7 +302,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/graphql:
     dependencies:
@@ -315,7 +318,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/model-gateway:
     dependencies:
@@ -328,7 +331,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/rest:
     devDependencies:
@@ -337,7 +340,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/review-workflow:
     dependencies:
@@ -356,7 +359,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/scenario-fixtures:
     dependencies:
@@ -369,7 +372,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/scenario-runtime:
     dependencies:
@@ -403,7 +406,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/shared-schemas:
     dependencies:
@@ -422,7 +425,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/telemetry:
     devDependencies:
@@ -431,7 +434,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/test-harness:
     dependencies:
@@ -453,7 +456,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/trace-ledger:
     dependencies:
@@ -466,7 +469,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/ui-route-admin:
     dependencies:
@@ -479,7 +482,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/ui-route-shared:
     devDependencies:
@@ -488,7 +491,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/ui-shared:
     devDependencies:
@@ -497,7 +500,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
   packages/openclinxr/voice-gateway:
     dependencies:
@@ -510,7 +513,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
 packages:
 
@@ -3346,7 +3349,6 @@ packages:
       '@vitest/ui': 4.1.5
       happy-dom: '*'
       jsdom: '*'
-      vite: ^6.0.0 || ^7.0.0 || ^8.0.0
     peerDependenciesMeta:
       '@edge-runtime/vm':
         optional: true
@@ -6152,7 +6154,7 @@ snapshots:
       tsx: 4.21.0
       yaml: 2.8.4
 
-  vitest@4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4)):
+  vitest@4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4):
     dependencies:
       '@vitest/expect': 4.1.5
       '@vitest/mocker': 4.1.5(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
@@ -6178,7 +6180,18 @@ snapshots:
       '@types/node': 25.6.0
       jsdom: 29.1.1
     transitivePeerDependencies:
+      - '@vitejs/devtools'
+      - esbuild
+      - jiti
+      - less
       - msw
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - terser
+      - tsx
+      - yaml
 
   w3c-xmlserializer@5.0.0:
     dependencies:
