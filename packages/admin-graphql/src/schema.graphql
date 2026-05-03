@@ -1,0 +1,196 @@
+scalar JSON
+
+enum ScenarioStatus {
+  DRAFT
+  READY_FOR_REVIEW
+  APPROVED
+  ARCHIVED
+}
+
+enum ReviewDecision {
+  APPROVED
+  CHANGES_REQUESTED
+}
+
+type Query {
+  scenario(scenarioId: ID!, version: Int): Scenario
+  scenarios(status: ScenarioStatus): [Scenario!]!
+  examForm(examFormId: ID!): ExamForm
+  reviewPacket(stationRunId: ID!): ReviewPacket
+  traceEvents(stationRunId: ID!): [TraceEvent!]!
+  assetReadiness(scenarioId: ID!, version: Int!): AssetReadiness!
+}
+
+type Mutation {
+  assembleExamForm(input: AssembleExamFormInput!): ExamForm!
+  submitScenarioReview(input: ScenarioReviewDecisionInput!): Scenario!
+  saveFacultyScoreDraft(input: FacultyScoreDraftInput!): ReviewPacket!
+}
+
+type Scenario {
+  scenarioId: ID!
+  version: Int!
+  title: String!
+  status: ScenarioStatus!
+  clinicalObjectives: [String!]!
+  actors: [Actor!]!
+  requiredTraceTags: [String!]!
+  review: ScenarioReviewState!
+  governance: ScenarioGovernance!
+  environment: ScenarioEnvironment
+  equipment: [String!]!
+  assetNeeds: [AssetNeed!]!
+}
+
+type Actor {
+  actorId: ID!
+  role: String!
+  displayName: String!
+  demeanor: String
+}
+
+type ScenarioReviewState {
+  clinical: String!
+  psychometric: String!
+  legal: String!
+  simulationQa: String!
+}
+
+type ScenarioGovernance {
+  scoreUseLabel: String!
+  syntheticCaseDisclosure: String!
+  validationStage: String!
+  validationLimitations: [String!]!
+  requiredReviewerRoles: [String!]!
+  sourceIds: [String!]!
+  safetyCriticalTraceTags: [String!]!
+  hiddenFactPolicy: HiddenFactPolicy!
+}
+
+type HiddenFactPolicy {
+  learnerView: String!
+  disclosureRequiresTrigger: Boolean!
+}
+
+type ScenarioEnvironment {
+  environmentId: ID!
+  name: String!
+  description: String!
+}
+
+type AssetNeed {
+  assetId: ID!
+  assetType: String!
+  description: String!
+  licenseStatus: String!
+}
+
+type AssetReadiness {
+  devReady: Boolean!
+  productionReady: Boolean!
+  missingRequiredAssetIds: [ID!]!
+  blockedAssets: [AssetBlocker!]!
+  productionBlockedAssets: [AssetBlocker!]!
+}
+
+type AssetBlocker {
+  assetId: ID!
+  blockers: [String!]!
+}
+
+type ExamForm {
+  examFormId: ID!
+  blueprintId: ID!
+  status: String!
+  stationRefs: [StationRef!]!
+  coverage: JSON!
+}
+
+type StationRef {
+  order: Int!
+  scenarioId: ID!
+  scenarioVersion: Int!
+  title: String!
+}
+
+type ReviewPacket {
+  stationRunId: ID!
+  scenarioId: ID!
+  observedTraceTags: [String!]!
+  missingRequiredTraceTags: [String!]!
+  lateTraceTags: [String!]!
+  unsafeEvents: [TraceEvent!]!
+  timeline: [TraceTimelineEntry!]!
+  traceQuality: ReviewTraceQuality!
+  patientNote: PatientNote
+  facultyScoreDraft: FacultyScoreDraft!
+}
+
+type TraceTimelineEntry {
+  sequence: Int!
+  atSecond: Int!
+  eventType: String!
+  source: String!
+  actorId: ID
+  tag: String
+  summary: String!
+}
+
+type ReviewTraceQuality {
+  eventCount: Int!
+  modelGeneratedEventCount: Int!
+  modelFailedEventCount: Int!
+  voiceAudioEventCount: Int!
+  blockedGuardrailCount: Int!
+  unsafeEventCount: Int!
+  missingRequiredTraceTagCount: Int!
+  hasPatientNote: Boolean!
+  hasModelProvenance: Boolean!
+}
+
+type PatientNote {
+  stationRunId: ID!
+  submittedAtSecond: Int!
+  text: String!
+}
+
+type FacultyScoreDraft {
+  reviewerId: ID!
+  status: String!
+  comments: String!
+}
+
+type TraceEvent {
+  stationRunId: ID!
+  sequence: Int!
+  eventType: String!
+  occurredAt: String!
+  atSecond: Int!
+  source: String!
+  actorId: ID
+  tag: String
+  payload: JSON!
+}
+
+input AssembleExamFormInput {
+  examFormId: ID!
+  blueprintId: ID
+  scenarioIds: [ID!]!
+}
+
+input ScenarioReviewDecisionInput {
+  scenarioId: ID!
+  version: Int!
+  reviewerRole: String!
+  reviewerId: ID!
+  decision: ReviewDecision!
+  comments: String!
+  evidenceRefs: [String!]!
+}
+
+input FacultyScoreDraftInput {
+  stationRunId: ID!
+  reviewerId: ID!
+  comments: String!
+  rubricScores: JSON!
+}
