@@ -1,4 +1,6 @@
-import { scoreWeights, globFiles, readJson, type ScoreDimension } from "./lib.js";
+import path from "node:path";
+import { buildAgentLoopArtifact, canonicalAgentLoopArtifact, inferPreviousIterationDir } from "./agent-loop-plan.js";
+import { scoreWeights, globFiles, readJson, readText, type ScoreDimension } from "./lib.js";
 
 type Failure = {
   file: string;
@@ -85,6 +87,7 @@ async function main(): Promise<void> {
   for (const file of files.sort()) {
     try {
       validateArtifact(file, await readJson<unknown>(file), failures);
+      await validateFreshGeneration(file, failures);
     } catch (error) {
       failures.push({
         file,
@@ -102,6 +105,22 @@ async function main(): Promise<void> {
   }
 
   console.log(`Checked ${files.length} generated agent loop artifact${files.length === 1 ? "" : "s"}.`);
+}
+
+async function validateFreshGeneration(file: string, failures: Failure[]): Promise<void> {
+  const iterationDir = path.dirname(file);
+  const expected = canonicalAgentLoopArtifact(await buildAgentLoopArtifact({
+    iterationDir,
+    previousDir: inferPreviousIterationDir(iterationDir),
+  }));
+  const actual = await readText(file);
+
+  if (actual !== expected) {
+    failures.push({
+      file,
+      message: "agent loop artifact drifted from current scorecards or memory index; rerun pnpm agent:loop -- <iteration-dir> --previous <previous-iteration-dir>",
+    });
+  }
 }
 
 function validateArtifact(file: string, value: unknown, failures: Failure[]): void {
