@@ -6,6 +6,7 @@ export type ExamBlueprint = {
   title: string;
   stationSlots: ExamStationSlot[];
   requiredTraceTags: string[];
+  requiredSafetyCriticalTraceTags: string[];
 };
 
 export type ExamStationSlot = {
@@ -27,9 +28,20 @@ export type ExamCoverage = {
   requiredTraceTags: string[];
   coveredTraceTags: string[];
   missingTraceTags: string[];
+  requiredEnvironmentIds: string[];
+  coveredEnvironmentIds: string[];
+  missingEnvironmentIds: string[];
+  requiredSafetyCriticalTraceTags: string[];
+  coveredSafetyCriticalTraceTags: string[];
+  missingSafetyCriticalTraceTags: string[];
+  stationCount: {
+    required: number;
+    actual: number;
+    ok: boolean;
+  };
 };
 
-export type ExamFormStatus = "ready_for_review" | "coverage_incomplete";
+export type ExamFormStatus = "ready_for_review" | "coverage_incomplete" | "blueprint_incomplete";
 
 export type ExamForm = {
   examFormId: string;
@@ -37,6 +49,7 @@ export type ExamForm = {
   title: string;
   stationRefs: ExamStationRef[];
   coverage: ExamCoverage;
+  assemblyIssues: string[];
   status: ExamFormStatus;
 };
 
@@ -44,6 +57,12 @@ export type AssembleExamFormInput = {
   examFormId: string;
   blueprint: ExamBlueprint;
   scenarios: Scenario[];
+};
+
+export type ScenarioVersionDrift = {
+  scenarioId: string;
+  lockedVersion: number;
+  currentVersion: number | null;
 };
 
 export function createDefaultClinicalSkillsBlueprint(): ExamBlueprint {
@@ -60,6 +79,7 @@ export function createDefaultClinicalSkillsBlueprint(): ExamBlueprint {
       },
     ],
     requiredTraceTags: [...edChestPainScenario.requiredTraceTags],
+    requiredSafetyCriticalTraceTags: [...edChestPainScenario.governance.safetyCriticalTraceTags],
   };
 }
 
@@ -82,6 +102,22 @@ export function assembleExamForm(input: AssembleExamFormInput): ExamForm {
 
   const coveredTraceTags = uniqueInOrder(input.scenarios.flatMap((scenario) => scenario.requiredTraceTags));
   const missingTraceTags = input.blueprint.requiredTraceTags.filter((tag) => !coveredTraceTags.includes(tag));
+  const requiredEnvironmentIds = uniqueInOrder(input.blueprint.stationSlots.flatMap((slot) => slot.requiredEnvironmentIds));
+  const coveredEnvironmentIds = uniqueInOrder(input.scenarios.map((scenario) => scenario.environment?.environmentId).filter((environmentId): environmentId is string => Boolean(environmentId)));
+  const missingEnvironmentIds = requiredEnvironmentIds.filter((environmentId) => !coveredEnvironmentIds.includes(environmentId));
+  const coveredSafetyCriticalTraceTags = uniqueInOrder(input.scenarios.flatMap((scenario) => scenario.governance.safetyCriticalTraceTags));
+  const missingSafetyCriticalTraceTags = input.blueprint.requiredSafetyCriticalTraceTags.filter((tag) => !coveredSafetyCriticalTraceTags.includes(tag));
+  const stationCount = {
+    required: input.blueprint.stationSlots.length,
+    actual: input.scenarios.length,
+    ok: input.blueprint.stationSlots.length === input.scenarios.length,
+  };
+  const assemblyIssues = [
+    ...stationCountIssues(stationCount),
+    ...missingTraceTags.map((tag) => `missing_trace_coverage:${tag}`),
+    ...missingEnvironmentIds.map((environmentId) => `missing_environment_coverage:${environmentId}`),
+    ...missingSafetyCriticalTraceTags.map((tag) => `missing_safety_critical_trace_coverage:${tag}`),
+  ];
 
   return {
     examFormId: input.examFormId,
@@ -92,9 +128,53 @@ export function assembleExamForm(input: AssembleExamFormInput): ExamForm {
       requiredTraceTags: [...input.blueprint.requiredTraceTags],
       coveredTraceTags,
       missingTraceTags,
+      requiredEnvironmentIds,
+      coveredEnvironmentIds,
+      missingEnvironmentIds,
+      requiredSafetyCriticalTraceTags: [...input.blueprint.requiredSafetyCriticalTraceTags],
+      coveredSafetyCriticalTraceTags,
+      missingSafetyCriticalTraceTags,
+      stationCount,
     },
-    status: missingTraceTags.length === 0 ? "ready_for_review" : "coverage_incomplete",
+    assemblyIssues,
+    status: examFormStatus({ stationCount, missingTraceTags, missingEnvironmentIds, missingSafetyCriticalTraceTags }),
   };
+}
+
+export function evaluateScenarioVersionDrift(form: ExamForm, currentScenarios: readonly Scenario[]): ScenarioVersionDrift[] {
+  const currentVersionByScenarioId = new Map(currentScenarios.map((scenario) => [scenario.scenarioId, scenario.version]));
+  return form.stationRefs
+    .map((stationRef) => ({
+      scenarioId: stationRef.scenarioId,
+      lockedVersion: stationRef.scenarioVersion,
+      currentVersion: currentVersionByScenarioId.get(stationRef.scenarioId) ?? null,
+    }))
+    .filter((drift) => drift.currentVersion !== drift.lockedVersion);
+}
+
+function stationCountIssues(stationCount: ExamCoverage["stationCount"]): string[] {
+  if (stationCount.ok) {
+    return [];
+  }
+  if (stationCount.actual < stationCount.required) {
+    return [`missing_station_slots:${stationCount.required - stationCount.actual}`];
+  }
+  return [`extra_station_scenarios:${stationCount.actual - stationCount.required}`];
+}
+
+function examFormStatus(input: {
+  stationCount: ExamCoverage["stationCount"];
+  missingTraceTags: string[];
+  missingEnvironmentIds: string[];
+  missingSafetyCriticalTraceTags: string[];
+}): ExamFormStatus {
+  if (!input.stationCount.ok || input.missingEnvironmentIds.length > 0 || input.missingSafetyCriticalTraceTags.length > 0) {
+    return "blueprint_incomplete";
+  }
+  if (input.missingTraceTags.length > 0) {
+    return "coverage_incomplete";
+  }
+  return "ready_for_review";
 }
 
 function uniqueInOrder(values: string[]): string[] {
