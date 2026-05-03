@@ -15,11 +15,14 @@
     "agent:evidence": "tsx tools/agent-factory/find-evidence-debt.ts",
     "agent:sources": "tsx tools/agent-factory/check-source-ledger.ts",
     "agent:loop": "tsx tools/agent-factory/run-agent-loop.ts",
-    "agent:verify": "npm run agent:validate && npm run agent:index && npm run agent:sources && npm run agent:risks && npm run agent:evidence",
+    "agent:verify": "pnpm agent:validate && pnpm agent:index && pnpm agent:sources && pnpm agent:risks && pnpm agent:evidence",
     "typecheck": "tsc --noEmit && pnpm -r --filter @openclinxr/* typecheck",
     "test": "pnpm -r --filter @openclinxr/* test",
-    "verify": "npm run agent:verify && pnpm typecheck && pnpm test",
-    "bench:mock": "pnpm --filter @openclinxr/test-harness bench:mock"
+    "verify": "pnpm agent:verify && pnpm typecheck && pnpm test",
+    "bench:mock": "pnpm --filter @openclinxr/test-harness bench:mock",
+    "hygiene:knip": "knip --no-progress --reporter compact --no-exit-code",
+    "hygiene:e18e:help": "e18e-cli analyze --help",
+    "hygiene:e18e:analyze": "e18e-cli analyze --log-level error"
   },
   "dependencies": {
     "ajv": "8.20.0",
@@ -27,7 +30,9 @@
     "gray-matter": "4.0.3"
   },
   "devDependencies": {
+    "@e18e/cli": "^0.5.0",
     "@types/node": "25.6.0",
+    "knip": "^6.11.0",
     "tsx": "4.21.0",
     "typescript": "6.0.3",
     "vitest": "4.1.5"

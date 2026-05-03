@@ -1,0 +1,22 @@
+{
+  "source_id": "src-knip-e18e-tooling-2026",
+  "title": "Knip And E18E JavaScript Tooling Metadata",
+  "url": "https://knip.dev/reference/configuration",
+  "source_type": "vendor",
+  "citation": "Knip documentation, Socket.dev E18E initiative summary, and npm package metadata queried on 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Developer-tooling hygiene planning for unused files, unused dependencies, unused exports, and ecosystem modernization review."
+  ],
+  "claims_supported": [
+    "Knip supports JavaScript/TypeScript unused file, dependency, and export analysis, including monorepo-oriented configuration and ignore lists.",
+    "As queried on 2026-05-03, knip 6.11.0 is ISC licensed.",
+    "As queried on 2026-05-03, @e18e/cli 0.5.0 and @e18e/eslint-plugin 0.4.1 are MIT licensed.",
+    "The E18E initiative focuses on ecosystem performance by reducing dependency-tree cost and documenting lighter alternatives."
+  ],
+  "claims_not_supported": [
+    "That Knip or E18E can become blocking CI gates without project-specific baselines and false-positive review.",
+    "That E18E whole-repo analysis is currently fast enough for the OpenClinXR verify gate."
+  ],
+  "confidence": 0.78
+}

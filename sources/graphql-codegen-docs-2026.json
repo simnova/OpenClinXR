@@ -1,0 +1,21 @@
+{
+  "source_id": "src-graphql-codegen-docs-2026",
+  "title": "GraphQL Code Generator Documentation",
+  "url": "https://the-guild.dev/graphql/codegen/docs/getting-started/index/",
+  "source_type": "vendor",
+  "citation": "The Guild GraphQL Code Generator documentation, accessed 2026-05-03; npm package metadata queried for @graphql-codegen packages on 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Developer-tooling and GraphQL type-generation planning for OpenClinXR administrative workbenches."
+  ],
+  "claims_supported": [
+    "GraphQL Code Generator is a plugin-based tool for generating typed GraphQL operations and resolver-related TypeScript artifacts.",
+    "The Guild documentation recommends the client preset for client applications and identifies lower-level TypeScript plugins for schema/type generation.",
+    "As queried on 2026-05-03, @graphql-codegen/cli 7.0.0, @graphql-codegen/client-preset 6.0.0, @graphql-codegen/typescript 6.0.0, and @graphql-codegen/typescript-resolvers 6.0.0 are MIT licensed."
+  ],
+  "claims_not_supported": [
+    "That a GraphQL layer should replace the existing REST/runtime API before admin schema contracts stabilize.",
+    "That Apollo-specific generated hooks are compatible with every Apollo Client version without checking the selected version."
+  ],
+  "confidence": 0.84
+}

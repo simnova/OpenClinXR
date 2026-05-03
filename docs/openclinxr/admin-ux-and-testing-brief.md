@@ -44,10 +44,11 @@ Use:
 - Ant Design Pro layout conventions through `@ant-design/pro-components`.
 - `@xyflow/react` for scenario graph and state-machine editing.
 - Apollo GraphQL as the likely admin query layer once core REST/domain contracts and Mongo repositories stabilize.
+- GraphQL Code Generator for typed route/workbench queries, mutations, subscriptions, fragments, and resolver contracts.
 - Zod or JSON Schema-driven forms where feasible.
 - Storybook 10.3 for component states and visual review.
 
-Development-team familiarity should bias implementation choices toward pnpm, Mongoose, Apollo GraphQL, TurboRepo, Biome, React Router, Knip, and E18E for non-XR surfaces and developer tooling. The examinee runtime can stay thinner and more performance-oriented, especially where Quest 3 frame stability is more important than admin developer ergonomics.
+Development-team familiarity should bias implementation choices toward pnpm, Mongoose, Apollo GraphQL, GraphQL Code Generator, TurboRepo, Biome, React Router, Knip, and E18E for non-XR surfaces and developer tooling. The examinee runtime can stay thinner and more performance-oriented, especially where Quest 3 frame stability is more important than admin developer ergonomics.
 
 Recommended shell:
 
@@ -117,6 +118,7 @@ Automated from the first implementation sprint:
 
 - Domain unit tests with Vitest.
 - Contract tests for scenario schemas, actor response schemas, trace events, and model-provider adapters.
+- GraphQL Code Generator checks once GraphQL schema/documents exist, including generated client operations and resolver signatures.
 - Storybook stories for every admin component state.
 - Storybook interaction tests for form validation, review state changes, and graph editor controls.
 - Serenity/JS acceptance tests in domain language.
@@ -167,6 +169,8 @@ On the M4 Max development mode:
 - `src-penpot-github-2026`
 - `src-openpencil-2026`
 - `src-npm-stack-metadata-2026-05-03`
+- `src-graphql-codegen-docs-2026`
+- `src-knip-e18e-tooling-2026`
 - `src-storybook-10-3-2026`
 - `src-serenity-js-screenplay-2026`
 - `src-mdn-webxr-performance-2026`

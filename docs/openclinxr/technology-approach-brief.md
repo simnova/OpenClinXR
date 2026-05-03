@@ -73,6 +73,7 @@ Penpot is the preferred design collaboration tool. OpenPencil is a promising MIT
 - Bun + Hono as the TypeScript API runtime.
 - Hono for REST, middleware, request validation, and lightweight service boundaries.
 - Apollo GraphQL as the preferred query/BFF layer for administrative workbenches once domain contracts stabilize.
+- GraphQL Code Generator for typed operations, resolver signatures, and generated client/admin SDK artifacts once the GraphQL schema is introduced.
 - Bun native WebSockets for the first real-time channel.
 - A transport adapter interface that can later support WebTransport where the browser, server, and Azure/proxy path all support HTTP/3 end to end.
 - MongoDB API compatible persistence, with Azure Cosmos DB or MongoDB Atlas depending on deployment.
@@ -87,6 +88,7 @@ Penpot is the preferred design collaboration tool. OpenPencil is a promising MIT
 - Biome should be the default lint/format candidate because it is fast, TypeScript-friendly, and easier to standardize across apps/packages than a loose formatter/linter mix.
 - Knip should be added as the unused-files/exports/dependencies gate once package boundaries stabilize.
 - E18E should be used as an ecosystem-health and dependency-modernization signal when evaluating package choices and periodic upgrades.
+- Use `@graphql-codegen/cli` with the client preset for route/workbench query documents and TypeScript resolver plugins for server contracts; avoid older Apollo-specific generated hooks until compatibility with the selected Apollo Client version is verified.
 - Keep package boundaries compatible with CellixJS-style domain cells so TurboRepo tasks can map cleanly to domain ownership.
 
 ### LLM And Voice
@@ -147,13 +149,14 @@ Changes from this pass:
 | Admin UI | Ant Design 6, Pro Components, React Router | MIT | Use Ant Design Pro layout conventions and route-based workbench modules |
 | Graph editor | @xyflow/react | MIT | Scenario graph, state machine, review workflows |
 | Admin query layer | Apollo GraphQL | MIT | Add after REST/domain contracts stabilize; best fit for trace/review/schema-rich admin screens |
+| GraphQL typing | GraphQL Code Generator | MIT | Generate typed admin operations and resolver signatures from schema/documents |
 | Mongo ODM | Mongoose | MIT | Candidate for scenario, review, user-facing admin schemas; keep trace repositories performance-oriented |
 | Testing | Vitest, Storybook, Serenity/JS, Playwright | MIT/Apache-2.0 mix | Add headset smoke tests outside browser emulation |
 | Backend | Bun, Hono | MIT | Use WebSocket first; spike WebTransport |
 | Package manager | pnpm | MIT | Preferred over npm for workspace security posture and deterministic dependency management |
 | Monorepo orchestration | TurboRepo | MPL-2.0 | Good fit once CI caching/affected builds matter; verify deployment implications |
 | Lint/format | Biome | MIT/Apache-2.0 | Candidate single-command style and lint gate |
-| Dependency hygiene | Knip, E18E | MIT/Apache-2.0 mix; verify exact package licenses | Detect unused exports/dependencies and flag ecosystem modernization opportunities |
+| Dependency hygiene | Knip, E18E | ISC/MIT mix; verify exact package licenses | Detect unused exports/dependencies and flag ecosystem modernization opportunities |
 | Local LLM | llama.cpp/Ollama/MLX | Verify runtime and model licenses | Feasible for dev/demo on M4 Max, not validated clinically |
 
 ## Development Team Guidance
@@ -167,7 +170,7 @@ Changes from this pass:
 7. Run LLM and speech providers behind adapters so Grok, local LLMs, and future providers can be swapped without changing station logic.
 8. Use Storybook and Serenity/JS from the start so non-XR workflows remain testable while XR testing matures.
 9. Treat communication style as a first-class actor-card property with explicit QA, not as a loose prompt adjective.
-10. Bias implementation decisions toward the support team's known tools where they do not weaken runtime performance or governance: pnpm, Mongoose, Apollo GraphQL, TurboRepo, Biome, React Router, Knip, and E18E are preferred candidates for the admin/control-plane and developer-tooling surface.
+10. Bias implementation decisions toward the support team's known tools where they do not weaken runtime performance or governance: pnpm, Mongoose, Apollo GraphQL, GraphQL Code Generator, TurboRepo, Biome, React Router, Knip, and E18E are preferred candidates for the admin/control-plane and developer-tooling surface.
 
 ## Sources
 
@@ -185,6 +188,8 @@ Changes from this pass:
 - `src-penpot-github-2026`
 - `src-openpencil-2026`
 - `src-npm-stack-metadata-2026-05-03`
+- `src-graphql-codegen-docs-2026`
+- `src-knip-e18e-tooling-2026`
 - `src-storybook-10-3-2026`
 - `src-serenity-js-screenplay-2026`
 - `src-azure-app-service-plan-docs-2026`
