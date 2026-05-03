@@ -236,3 +236,10 @@ Offline model/voice gateway milestone has also started:
 - Mock model responses are deterministic and include provider/model IDs, policy IDs, prompt template ID, scenario version, actor ID, retrieved memory IDs, safety policy version, token usage, zero cost, and guardrail result.
 - Mock voice streaming emits partial/final transcript events and audio chunk events with provenance and a viseme cue.
 - Local model and voice adapters are intentionally surfaced as `not_configured` until local Qwen/Kimi/DeepSeek or VibeVoice-style runtime adapters are explicitly installed and benchmarked.
+
+Asset registry milestone has also started:
+
+- `packages/asset-registry` exists.
+- ED chest pain placeholder manifests exist for patient, nurse, and ED bay assets.
+- Registry readiness checks block copyleft/unknown/review-required licenses, missing QA, and over-budget Quest 3 geometry/texture/draw-call profiles.
+- This is the gate to use before attempting Anny, MakeHuman, StableGen, SMPLitex, clothing, rigging, or generated-environment ingestion.

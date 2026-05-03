@@ -184,3 +184,18 @@ API follow-up:
 
 - `apps/api` now obtains `/health` and `/providers/health` provider status through the same model and voice gateways.
 - API tests cover the gateway-backed provider health response while preserving the prior response contract.
+
+## Milestone 6 Progress: Asset Registry Gate
+
+Started on 2026-05-03:
+
+- `packages/asset-registry` workspace package added.
+- Asset manifest types cover asset kind, target runtime, generation method, license status, pipeline stages, geometry budget, provenance, and tags.
+- In-memory registry supports manifest upsert, lookup, scenario listing, and scenario-readiness evaluation against approved fixture asset needs.
+- ED chest pain placeholder manifests cover Robert Hayes, Maria Alvarez, and the ED exam bay.
+- Readiness evaluation blocks copyleft/unknown/review-required licenses, missing QA stage, and over-budget Quest 3 assets.
+
+Local evidence:
+
+- `pnpm --filter @openclinxr/asset-registry test` passed.
+- `pnpm --filter @openclinxr/asset-registry typecheck` passed.

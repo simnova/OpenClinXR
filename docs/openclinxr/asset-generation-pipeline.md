@@ -1,7 +1,7 @@
 # Automated Asset Generation Pipeline
 
 Date: 2026-05-03
-Status: Development-team guidance
+Status: Development-team guidance with first registry contract implemented
 
 ## Goal
 
@@ -42,6 +42,15 @@ flowchart LR
 ## Asset Manifest
 
 Every station should produce an `asset_manifest` before any modeling work starts.
+
+First implementation status:
+
+- `packages/asset-registry` implements `AssetManifest`, `InMemoryAssetRegistry`, `evaluateAssetManifest`, and `createEdChestPainPlaceholderManifests`.
+- The first registry gate blocks assets with `copyleft_blocked`, `unknown`, or review-required license posture.
+- The first registry gate blocks assets that have not reached `qa_ready`.
+- The first registry gate blocks Quest 3 assets over initial triangle, texture-memory, or draw-call budgets.
+- ED chest pain placeholder manifests now cover the patient character, nurse character, and ED exam bay environment.
+- These placeholders are runtime scaffolding only; they are not production clinical realism assets.
 
 ```json
 {
