@@ -48,8 +48,30 @@ export class MongoTraceRepository {
     await this.collection.insertOne(event);
   }
 
+  async upsertMany(events: TraceEvent[]): Promise<void> {
+    if (events.length === 0) {
+      return;
+    }
+
+    await this.collection.bulkWrite(
+      events.map((event) => ({
+        updateOne: {
+          filter: { stationRunId: event.stationRunId, sequence: event.sequence },
+          update: { $set: event },
+          upsert: true,
+        },
+      })),
+      { ordered: true },
+    );
+  }
+
   async replay(stationRunId: string): Promise<TraceEvent[]> {
     return this.collection.find({ stationRunId }, { projection: { _id: 0 } }).sort({ sequence: 1 }).toArray();
+  }
+
+  async latestSequence(stationRunId: string): Promise<number | null> {
+    const latest = await this.collection.find({ stationRunId }, { projection: { _id: 0, sequence: 1 } }).sort({ sequence: -1 }).limit(1).next();
+    return latest?.sequence ?? null;
   }
 }
 

@@ -41,9 +41,9 @@ const scenario: Scenario = {
   },
 };
 
-function trace(sequence: number, tag?: string): TraceEvent {
+function trace(sequence: number, tag?: string, stationRunId = "run_001"): TraceEvent {
   const event: TraceEvent = {
-    stationRunId: "run_001",
+    stationRunId,
     sequence,
     eventType: "learner.action",
     occurredAt: new Date(Date.parse("2026-05-03T15:38:58.000Z") + sequence * 1000).toISOString(),
@@ -138,6 +138,22 @@ describe("MongoDB memory repositories", () => {
 
     await expect(repository.append(trace(1, "duplicate_sequence"))).rejects.toThrow();
     await expect(repository.replay("run_001")).resolves.toEqual([expect.objectContaining({ sequence: 0 }), expect.objectContaining({ sequence: 1 })]);
+  });
+
+  it("upserts replay snapshots idempotently and reports the latest sequence", async () => {
+    const repository = new MongoTraceRepository(context.db);
+    await repository.ensureIndexes();
+
+    await repository.upsertMany([trace(10, "station_started", "run_snapshot"), trace(11, "history_opqrst", "run_snapshot")]);
+    await repository.upsertMany([trace(10, "station_started", "run_snapshot"), trace(11, "history_opqrst", "run_snapshot"), trace(12, "ecg_request", "run_snapshot")]);
+
+    await expect(repository.replay("run_snapshot")).resolves.toEqual([
+      expect.objectContaining({ sequence: 10 }),
+      expect.objectContaining({ sequence: 11 }),
+      expect.objectContaining({ sequence: 12 }),
+    ]);
+    await expect(repository.latestSequence("run_snapshot")).resolves.toBe(12);
+    await expect(repository.latestSequence("missing_run")).resolves.toBeNull();
   });
 
   it("stores and retrieves review packets with trace quality evidence", async () => {
