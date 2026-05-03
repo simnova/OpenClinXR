@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
   buildAgentMemoryIndex,
   createAgentLoopPlan,
+  createAgentDispatchPackets,
   defaultAgentLoopRoster,
   evaluateMaturityDelta,
   normalizeLegacyScorecard,
+  serializeAgentLoopPlan,
   type AgentMemoryEntry,
   type IterationScorecard,
 } from "./index.js";
@@ -245,5 +247,67 @@ describe("agent-loop synthesis planning", () => {
     expect(plan.workOrders.find((order) => order.stage === "leadership_preflight")?.assignedAgentIds).toEqual(
       expect.arrayContaining(["cto", "chief-medical-officer", "chief-psychometrician", "general-counsel"]),
     );
+  });
+
+  it("serializes loop plans and creates memory-rich dispatch packets for agents", () => {
+    const memoryEntries: AgentMemoryEntry[] = [
+      {
+        id: "memory-architecture-001",
+        agentId: "solution-architect",
+        team: "core",
+        topic: "component-boundaries",
+        summary: "Keep GraphQL static artifacts out of runtime file loading.",
+        confidence: 0.91,
+        iteration: 8,
+        status: "active",
+      },
+      {
+        id: "memory-legal-001",
+        agentId: "general-counsel",
+        team: "leadership",
+        topic: "claims-governance",
+        summary: "No ECFMG equivalence or validated high-stakes scoring claim.",
+        confidence: 0.94,
+        iteration: 8,
+        status: "active",
+      },
+    ];
+    const plan = createAgentLoopPlan({
+      iterationId: "iteration-0008",
+      candidatePlanTitle: "Serializable agent loop",
+      scorecard: scorecard(),
+      memoryEntries,
+      leadershipThreshold: 4,
+    });
+
+    const serialized = serializeAgentLoopPlan(plan);
+    expect(serialized.memoryIndex.byTopic["component-boundaries"]?.[0]?.id).toBe("memory-architecture-001");
+    expect(JSON.parse(JSON.stringify(serialized))).toMatchObject({
+      iterationId: "iteration-0008",
+      memoryIndex: {
+        byAgent: {
+          "general-counsel": [
+            {
+              id: "memory-legal-001",
+            },
+          ],
+        },
+      },
+    });
+
+    const packets = createAgentDispatchPackets(plan, { memoryLimit: 2 });
+    expect(packets.find((packet) => packet.stage === "core_revision")).toMatchObject({
+      retrievedMemoryEntries: expect.arrayContaining([
+        expect.objectContaining({ id: "memory-architecture-001" }),
+      ]),
+      nextActions: expect.arrayContaining([
+        expect.objectContaining({ actionType: "close_evidence_debt" }),
+      ]),
+    });
+    expect(packets.find((packet) => packet.stage === "legal_governance_review")).toMatchObject({
+      retrievedMemoryEntries: expect.arrayContaining([
+        expect.objectContaining({ id: "memory-legal-001" }),
+      ]),
+    });
   });
 });

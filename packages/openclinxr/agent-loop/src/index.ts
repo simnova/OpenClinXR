@@ -47,6 +47,12 @@ export type AgentMemoryIndex = {
   search(query: string): AgentMemoryEntry[];
 };
 
+export type SerializableAgentMemoryIndex = {
+  activeEntries: AgentMemoryEntry[];
+  byTopic: Record<string, AgentMemoryEntry[]>;
+  byAgent: Record<string, AgentMemoryEntry[]>;
+};
+
 export type IterationDebt = {
   id: string;
   owner: string;
@@ -151,6 +157,22 @@ export type AgentLoopPlan = {
   workOrders: AgentWorkOrder[];
   nextActions: NextAction[];
   leadershipGate: LeadershipGate;
+};
+
+export type SerializableAgentLoopPlan = Omit<AgentLoopPlan, "memoryIndex"> & {
+  memoryIndex: SerializableAgentMemoryIndex;
+};
+
+export type AgentDispatchPacket = {
+  workOrderId: string;
+  stage: WorkOrderStage;
+  goal: string;
+  assignedAgentIds: string[];
+  dimensions: ScoreDimension[];
+  requiredOutput: string;
+  dependsOnStages: WorkOrderStage[];
+  retrievedMemoryEntries: AgentMemoryEntry[];
+  nextActions: NextAction[];
 };
 
 export type CreateAgentLoopPlanInput = {
@@ -397,6 +419,54 @@ export function createAgentLoopPlan(input: CreateAgentLoopPlanInput): AgentLoopP
   };
 }
 
+export function serializeAgentMemoryIndex(index: AgentMemoryIndex): SerializableAgentMemoryIndex {
+  return {
+    activeEntries: [...index.activeEntries],
+    byTopic: mapToRecord(index.byTopic),
+    byAgent: mapToRecord(index.byAgent),
+  };
+}
+
+export function serializeAgentLoopPlan(plan: AgentLoopPlan): SerializableAgentLoopPlan {
+  return {
+    ...plan,
+    memoryIndex: serializeAgentMemoryIndex(plan.memoryIndex),
+  };
+}
+
+export function createAgentDispatchPackets(plan: AgentLoopPlan, options: { memoryLimit?: number } = {}): AgentDispatchPacket[] {
+  const memoryLimit = options.memoryLimit ?? 8;
+
+  return plan.workOrders.map((order) => {
+    const memory = new Map<string, AgentMemoryEntry>();
+    for (const topic of order.memoryTopics) {
+      for (const entry of plan.memoryIndex.byTopic.get(topic) ?? []) {
+        memory.set(entry.id, entry);
+      }
+    }
+    for (const agentId of order.assignedAgentIds) {
+      for (const entry of plan.memoryIndex.byAgent.get(agentId) ?? []) {
+        memory.set(entry.id, entry);
+      }
+    }
+
+    const orderDimensions = new Set(order.dimensions);
+    const nextActions = plan.nextActions.filter((action) => action.dimensions.some((dimension) => orderDimensions.has(dimension)));
+
+    return {
+      workOrderId: order.id,
+      stage: order.stage,
+      goal: order.goal,
+      assignedAgentIds: order.assignedAgentIds,
+      dimensions: order.dimensions,
+      requiredOutput: order.requiredOutput,
+      dependsOnStages: order.dependsOnStages,
+      retrievedMemoryEntries: [...memory.values()].sort(compareMemoryEntries).slice(0, memoryLimit),
+      nextActions,
+    };
+  });
+}
+
 export function normalizeLegacyScorecard(scorecard: LegacyScorecard): IterationScorecard {
   return {
     iterationId: scorecard.iteration_id,
@@ -423,6 +493,10 @@ export function normalizeLegacyScorecard(scorecard: LegacyScorecard): IterationS
       status: debt.status,
     })),
   };
+}
+
+function mapToRecord<T>(map: Map<string, T[]>): Record<string, T[]> {
+  return Object.fromEntries([...map.entries()].sort(([left], [right]) => left.localeCompare(right)));
 }
 
 function role(

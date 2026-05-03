@@ -294,6 +294,7 @@ Agent-loop orchestration milestone has also started:
 - It normalizes existing agent-factory scorecards into an executable loop model.
 - It computes weighted maturity deltas on the 0-5 rubric and blocks senior leadership readiness when evidence, decision, or high/critical risk debt remains open.
 - It emits staged work orders for core revision, physician specialty review, legal governance review, adversarial counterplanning, and leadership review or preflight.
+- It serializes agent-loop plans into JSON-safe memory indexes and creates per-work-order dispatch packets with retrieved memory entries and relevant next actions.
 - Its executable physician roster now includes emergency medicine, anesthesiology/critical care, cardiology, family medicine, infectious disease, internal medicine, neurology, psychiatry, pediatrics, radiology/imaging, OB/GYN, and surgery.
 - `npm run agent:loop -- iterations/iteration-0007 --previous iterations/iteration-0006` writes `iterations/iteration-0007/09-agent-loop-plan.json`.
 
