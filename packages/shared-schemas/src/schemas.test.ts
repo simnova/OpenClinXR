@@ -132,6 +132,7 @@ describe("OpenClinXR shared schemas", () => {
         traceQuality: {
           eventCount: 1,
           modelGeneratedEventCount: 0,
+          modelFailedEventCount: 0,
           blockedGuardrailCount: 0,
           unsafeEventCount: 0,
           missingRequiredTraceTagCount: 0,

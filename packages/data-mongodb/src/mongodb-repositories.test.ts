@@ -83,6 +83,7 @@ const reviewPacket: ReviewPacket = {
   traceQuality: {
     eventCount: 2,
     modelGeneratedEventCount: 1,
+    modelFailedEventCount: 0,
     blockedGuardrailCount: 0,
     unsafeEventCount: 0,
     missingRequiredTraceTagCount: 0,

@@ -41,6 +41,7 @@ const result: SimulationResult = {
     traceQuality: {
       eventCount: 18,
       modelGeneratedEventCount: 2,
+      modelFailedEventCount: 0,
       blockedGuardrailCount: 1,
       unsafeEventCount: 0,
       missingRequiredTraceTagCount: 0,
