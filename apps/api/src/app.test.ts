@@ -115,6 +115,30 @@ describe("OpenClinXR API shell", () => {
     );
   });
 
+  it("serves seed-bank asset readiness from generated placeholder manifests", async () => {
+    const app = createApiApp();
+    const response = await app.request("/scenario-bank/assets/readiness");
+    const body = await json(response) as Array<{
+      scenarioId: string;
+      devReady: boolean;
+      productionReady: boolean;
+      missingRequiredAssetIds: string[];
+      blockedAssets: unknown[];
+      productionBlockedAssets: unknown[];
+      stationBudget: { blockers: string[] };
+    }>;
+
+    expect(response.status).toBe(200);
+    expect(body).toHaveLength(12);
+    expect(body.map((readiness) => readiness.scenarioId)).toContain("clinic_abdominal_pain_interpreter_v1");
+    expect(body.every((readiness) => readiness.devReady)).toBe(true);
+    expect(body.every((readiness) => !readiness.productionReady)).toBe(true);
+    expect(body.every((readiness) => readiness.missingRequiredAssetIds.length === 0)).toBe(true);
+    expect(body.every((readiness) => readiness.blockedAssets.length === 0)).toBe(true);
+    expect(body.every((readiness) => readiness.productionBlockedAssets.length > 0)).toBe(true);
+    expect(body.every((readiness) => readiness.stationBudget.blockers.length === 0)).toBe(true);
+  });
+
   it("evaluates ED chest pain publication readiness from reviewer evidence", async () => {
     const app = createApiApp();
     const blockedResponse = await app.request("/scenarios/ed-chest-pain/publication-readiness", {

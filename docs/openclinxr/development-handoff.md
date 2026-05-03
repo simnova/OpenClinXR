@@ -306,7 +306,7 @@ Exam assembly milestone has also started:
 - It can detect scenario version drift after a form has locked station references.
 - It rejects unapproved scenarios before exam-form lock, preserving the human review gates from the scenario fixture.
 - `apps/api` exposes the default blueprint and a local exam-form assembly endpoint for the first ED chest pain pilot form.
-- `apps/api` exposes the 12-station seed blueprint, governance readiness blockers, and deterministic timing plan through `/exam-blueprints/step2cs-seed`, `/exam-blueprints/step2cs-seed/readiness`, and `/exam-blueprints/step2cs-seed/timing-plan`.
+- `apps/api` exposes the 12-station seed blueprint, governance readiness blockers, deterministic timing plan, and seed-bank asset readiness through `/exam-blueprints/step2cs-seed`, `/exam-blueprints/step2cs-seed/readiness`, `/exam-blueprints/step2cs-seed/timing-plan`, and `/scenario-bank/assets/readiness`.
 - `apps/api` exposes version-drift comparison for a submitted exam form against current scenario versions.
 - `packages/openclinxr/data-mongodb` persists exam forms with locked scenario refs for later drift review.
 

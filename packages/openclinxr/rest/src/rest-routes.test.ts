@@ -10,6 +10,7 @@ describe("OpenClinXR REST route contract", () => {
       "admin-graphql-codegen-plan",
       "admin-graphql-documents",
       "learner-scenario",
+      "scenario-bank-asset-readiness",
       "scenario-asset-readiness",
       "scenario-publication-readiness",
       "default-exam-blueprint",
@@ -31,6 +32,11 @@ describe("OpenClinXR REST route contract", () => {
       method: "POST",
       path: "/sessions/:stationRunId/actor-response",
       surface: "xr-runtime",
+    });
+    expect(routeById("scenario-bank-asset-readiness")).toMatchObject({
+      method: "GET",
+      path: "/scenario-bank/assets/readiness",
+      surface: "control-plane",
     });
     expect(routeById("step2cs-seed-exam-blueprint-readiness")).toMatchObject({
       method: "GET",

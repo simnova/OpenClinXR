@@ -298,6 +298,7 @@ Started on 2026-05-03:
 - `pnpm bench:mock` now prints trace quality, review signals, and an adversarial probe report.
 - `packages/openclinxr/agent-loop` executable roster now aligns with the richer physician charter bench.
 - `packages/openclinxr/asset-registry` now creates generic placeholder manifests from scenario `assetNeeds`, making all 12 seed-bank cases dev-ready for asset readiness checks while still blocking production release.
+- `apps/api` now serves `/scenario-bank/assets/readiness` so admin surfaces can inspect dev readiness, production blockers, and aggregate Quest budget blockers across all 12 seed-bank scenarios.
 
 Local evidence:
 

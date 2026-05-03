@@ -1,3 +1,4 @@
+import { createScenarioPlaceholderManifests, InMemoryAssetRegistry } from "@openclinxr/asset-registry";
 import {
   assembleExamForm,
   createDefaultClinicalSkillsBlueprint,
@@ -78,6 +79,8 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   app.get(routeById("admin-graphql-documents").path, (context) => context.json(adminGraphqlDocuments));
 
   app.get(routeById("learner-scenario").path, (context) => context.json(createLearnerScenarioView(edChestPainScenario)));
+
+  app.get(routeById("scenario-bank-asset-readiness").path, (context) => context.json(createSeedBankAssetReadiness()));
 
   app.get(routeById("scenario-asset-readiness").path, (context) => context.json(runtime.assetReadiness()));
 
@@ -288,6 +291,17 @@ async function recordApiRouteSpan(
 
 async function persistTraceSnapshot(runtime: ScenarioRuntime, persistence: ApiPersistenceSink, stationRunId: string): Promise<void> {
   await persistence.saveTraceEvents?.(stationRunId, runtime.traceEvents(stationRunId));
+}
+
+function createSeedBankAssetReadiness() {
+  const registry = new InMemoryAssetRegistry();
+  for (const scenario of scenarioBank) {
+    for (const manifest of createScenarioPlaceholderManifests(scenario)) {
+      registry.upsert(manifest);
+    }
+  }
+
+  return scenarioBank.map((scenario) => registry.evaluateScenarioReadiness(scenario));
 }
 
 function sessionErrorResponse(context: { json: (body: { error: string }, status: 400 | 404 | 500 | 503) => Response }, error: unknown): Response {

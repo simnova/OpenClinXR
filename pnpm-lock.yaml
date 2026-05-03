@@ -51,6 +51,9 @@ importers:
       '@hono/node-server':
         specifier: 2.0.1
         version: 2.0.1(hono@4.12.16)
+      '@openclinxr/asset-registry':
+        specifier: workspace:*
+        version: link:../../packages/openclinxr/asset-registry
       '@openclinxr/exam-assembly':
         specifier: workspace:*
         version: link:../../packages/openclinxr/exam-assembly
