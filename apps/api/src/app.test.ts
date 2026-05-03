@@ -54,6 +54,28 @@ describe("OpenClinXR API shell", () => {
     expect(body.blockedAssets).toEqual([]);
   });
 
+  it("serves the default exam blueprint and assembles a ready review form", async () => {
+    const app = createApiApp();
+    const blueprintResponse = await app.request("/exam-blueprints/default");
+    const blueprint = await json(blueprintResponse) as { blueprintId: string; stationSlots: Array<{ order: number }> };
+
+    expect(blueprintResponse.status).toBe(200);
+    expect(blueprint.blueprintId).toBe("blueprint_openclinxr_clinical_skills_pilot_v1");
+    expect(blueprint.stationSlots.map((slot) => slot.order)).toEqual([1]);
+
+    const formResponse = await app.request("/exam-forms", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ examFormId: "form_openclinxr_pilot_001" }),
+    });
+    const form = await json(formResponse) as { status: string; stationRefs: Array<{ order: number; scenarioId: string }>; coverage: { missingTraceTags: string[] } };
+
+    expect(formResponse.status).toBe(201);
+    expect(form.status).toBe("ready_for_review");
+    expect(form.stationRefs).toEqual([{ order: 1, scenarioId: "ed_chest_pain_priority_v1", scenarioVersion: 1, title: "ED Chest Pain With Nurse Interruption And Family Pressure" }]);
+    expect(form.coverage.missingTraceTags).toEqual([]);
+  });
+
   it("starts a session, records events, submits a note, and returns a review packet", async () => {
     const app = createApiApp();
     const start = await app.request("/sessions", {

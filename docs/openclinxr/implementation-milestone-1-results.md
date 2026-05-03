@@ -243,3 +243,9 @@ Local evidence:
 
 - `pnpm --filter @openclinxr/exam-assembly test` passed.
 - `pnpm --filter @openclinxr/exam-assembly typecheck` passed.
+
+API follow-up:
+
+- `apps/api` added `GET /exam-blueprints/default`.
+- `apps/api` added `POST /exam-forms` for local assembly of the ED chest pain pilot form.
+- API tests cover ready-for-review form assembly with no missing trace coverage.

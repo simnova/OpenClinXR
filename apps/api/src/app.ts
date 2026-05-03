@@ -1,3 +1,4 @@
+import { assembleExamForm, createDefaultClinicalSkillsBlueprint } from "@openclinxr/exam-assembly";
 import { createDefaultScenarioRuntime, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { Hono } from "hono";
@@ -18,6 +19,18 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   app.get("/scenarios/ed-chest-pain", (context) => context.json(edChestPainScenario));
 
   app.get("/scenarios/ed-chest-pain/assets/readiness", (context) => context.json(runtime.assetReadiness()));
+
+  app.get("/exam-blueprints/default", (context) => context.json(createDefaultClinicalSkillsBlueprint()));
+
+  app.post("/exam-forms", async (context) => {
+    const body = (await context.req.json().catch(() => ({}))) as { examFormId?: string };
+    const form = assembleExamForm({
+      examFormId: body.examFormId ?? "form_openclinxr_pilot_001",
+      blueprint: createDefaultClinicalSkillsBlueprint(),
+      scenarios: [edChestPainScenario],
+    });
+    return context.json(form, 201);
+  });
 
   app.post("/sessions", async (context) => {
     const body = (await context.req.json().catch(() => ({}))) as { learnerId?: string };

@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@hono/node-server": "2.0.1",
+    "@openclinxr/exam-assembly": "workspace:*",
     "@openclinxr/scenario-runtime": "workspace:*",
     "@openclinxr/scenario-fixtures": "workspace:*",
     "hono": "4.12.16",

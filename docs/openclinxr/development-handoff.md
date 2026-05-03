@@ -256,3 +256,4 @@ Exam assembly milestone has also started:
 - `packages/exam-assembly` exists.
 - It creates ordered exam forms from approved scenarios and reports required trace-tag coverage gaps.
 - It rejects unapproved scenarios before exam-form lock, preserving the human review gates from the scenario fixture.
+- `apps/api` exposes the default blueprint and a local exam-form assembly endpoint for the first ED chest pain pilot form.
