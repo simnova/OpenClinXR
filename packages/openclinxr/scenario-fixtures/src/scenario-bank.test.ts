@@ -18,6 +18,8 @@ describe("scenario bank maturity", () => {
     const report = evaluateScenarioBankMaturity(scenarioBank);
 
     expect(report.scenarioCount).toBe(4);
+    expect(report.targetScenarioCount).toBe(12);
+    expect(report.missingScenarioCount).toBe(8);
     expect(report.statusCounts).toEqual({ approved: 1, draft: 3, retired: 0 });
     expect(report.validationStageCounts.stage_0_synthetic_draft).toBe(3);
     expect(report.activationEligibleScenarioIds).toEqual([edChestPainScenario.scenarioId]);

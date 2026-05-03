@@ -369,6 +369,8 @@ export const scenarioBank = [
 
 export type ScenarioBankMaturityReport = {
   scenarioCount: number;
+  targetScenarioCount: number;
+  missingScenarioCount: number;
   statusCounts: Record<Scenario["status"], number>;
   validationStageCounts: Record<Scenario["governance"]["validationStage"], number>;
   activationEligibleScenarioIds: string[];
@@ -381,6 +383,8 @@ export type ScenarioBankMaturityReport = {
     requiresTriggerForAll: boolean;
   };
 };
+
+const targetStep2CsStyleStationCount = 12;
 
 export function evaluateScenarioBankMaturity(scenarios: readonly Scenario[]): ScenarioBankMaturityReport {
   const activationEligibleScenarioIds: string[] = [];
@@ -399,6 +403,8 @@ export function evaluateScenarioBankMaturity(scenarios: readonly Scenario[]): Sc
 
   return {
     scenarioCount: scenarios.length,
+    targetScenarioCount: targetStep2CsStyleStationCount,
+    missingScenarioCount: Math.max(targetStep2CsStyleStationCount - scenarios.length, 0),
     statusCounts: countBy(["approved", "draft", "retired"], scenarios.map((scenario) => scenario.status)),
     validationStageCounts: countBy(
       ["stage_0_synthetic_draft", "stage_1_expert_reviewed", "stage_2_pilot_ready", "stage_3_validated"],

@@ -321,7 +321,7 @@ Scenario-bank governance milestone has also started:
 - Validated summative score-use claims are rejected unless governance is `stage_3_validated`.
 - ED chest pain is marked `formative_local_only` with explicit validation limitations.
 - Three synthetic draft cases now exist for maturity breadth: pediatric asthma with parent anxiety, suicidal ideation safety planning, and telehealth diabetes health-literacy counseling.
-- `evaluateScenarioBankMaturity` reports status counts, validation-stage counts, activation-eligible scenarios, blocked draft scenarios, setting diversity, actor-role coverage, safety-critical trace tags, and hidden-fact policy coverage.
+- `evaluateScenarioBankMaturity` reports status counts, validation-stage counts, activation-eligible scenarios, blocked draft scenarios, setting diversity, actor-role coverage, safety-critical trace tags, hidden-fact policy coverage, and the gap from the 12-station Step 2 CS-style target.
 - The default API scenario endpoint now returns a learner-safe projection with actor hidden facts redacted.
 
 Actor-response safety milestone has also started:
