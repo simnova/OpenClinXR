@@ -11,12 +11,15 @@
   "claims_supported": [
     "The CellixJS root package declares an MIT license.",
     "The CellixJS repository includes packages/cellix/api-services-spec, archunit-tests, config-rolldown, config-typescript, config-vitest, domain-seedwork, event-bus-seedwork-node, graphql-codegen, graphql-core, mongoose-seedwork, server-mongodb-memory-mock-seedwork, server-oauth2-mock-seedwork, and ui-core.",
+    "The CellixJS config-rolldown package peers rolldown 1.0.0-beta.55 and provides an Azure Functions Rolldown config factory plus deploy artifact preparation helper.",
+    "The CellixJS config-typescript package exports base, node, and vitest tsconfig files.",
+    "The CellixJS config-vitest package exports base, node, and Storybook-oriented Vitest configs.",
     "The CellixJS mongoose-seedwork package declares peer dependencies on mongoose ^8.0.0 and mongodb ^6.0.0.",
     "The CellixJS ui-core package declares peer dependencies compatible with Ant Design 6, React, React DOM, react-oidc-context, and React Router DOM."
   ],
   "claims_not_supported": [
     "That OpenClinXR should vendor any CellixJS package before a concrete implementation slice needs it.",
-    "That CellixJS package internals can be changed locally while still treating packages/cellix as external library code."
+    "That OpenClinXR-specific product behavior belongs inside packages/cellix rather than packages/openclinxr."
   ],
   "confidence": 0.84
 }

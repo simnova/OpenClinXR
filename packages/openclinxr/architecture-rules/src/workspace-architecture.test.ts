@@ -1,3 +1,5 @@
+import { existsSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 import { projectFiles } from "archunit";
 import { describe, expect, it } from "vitest";
 
@@ -15,6 +17,26 @@ describe("workspace architecture rules", () => {
       .check();
 
     expect(violations).toEqual([]);
+  });
+
+  it("keeps Cellix package copies free of OpenClinXR product semantics", async () => {
+    const violations = await projectFiles(archTsconfig)
+      .inFolder("packages/cellix/**/src/**")
+      .should()
+      .adhereTo(
+        (file) => !/@openclinxr\/|OpenClinXR|openclinxr/.test(file.content),
+        "packages/cellix code may receive dependency upgrades and required compatibility changes but must not gain OpenClinXR-specific product semantics",
+      )
+      .check({ allowEmptyTests: true });
+
+    expect(violations).toEqual([]);
+  });
+
+  it("requires changelogs for evolved Cellix package copies", () => {
+    const cellixPackageDirs = workspacePackageDirs("packages/cellix");
+    const missingChangelogs = cellixPackageDirs.filter((packageDir) => !existsSync(join(packageDir, "CHANGELOG.md")));
+
+    expect(missingChangelogs).toEqual([]);
   });
 
   it("keeps source folders inside approved app naming conventions", async () => {
@@ -57,3 +79,14 @@ describe("workspace architecture rules", () => {
     expect(violations).toEqual([]);
   });
 });
+
+function workspacePackageDirs(root: string): string[] {
+  if (!existsSync(root)) {
+    return [];
+  }
+
+  return readdirSync(root, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => join(root, entry.name))
+    .filter((packageDir) => existsSync(join(packageDir, "package.json")));
+}
