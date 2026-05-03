@@ -1,4 +1,4 @@
-import type { Scenario, TraceEvent } from "@openclinxr/shared-schemas";
+import type { ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
 import type { Collection, Db } from "mongodb";
 
 export class MongoScenarioRepository {
@@ -52,3 +52,31 @@ export class MongoTraceRepository {
   }
 }
 
+export class MongoReviewPacketRepository {
+  private readonly collection: Collection<ReviewPacket>;
+
+  constructor(db: Db) {
+    this.collection = db.collection<ReviewPacket>("review_packets");
+  }
+
+  async ensureIndexes(): Promise<void> {
+    await this.collection.createIndex({ stationRunId: 1 }, { unique: true });
+    await this.collection.createIndex({ scenarioId: 1 });
+  }
+
+  async save(packet: ReviewPacket): Promise<void> {
+    await this.collection.updateOne(
+      { stationRunId: packet.stationRunId },
+      { $set: packet },
+      { upsert: true },
+    );
+  }
+
+  async findByStationRunId(stationRunId: string): Promise<ReviewPacket | null> {
+    return this.collection.findOne({ stationRunId }, { projection: { _id: 0 } });
+  }
+
+  async listByScenario(scenarioId: string): Promise<ReviewPacket[]> {
+    return this.collection.find({ scenarioId }, { projection: { _id: 0 } }).sort({ stationRunId: 1 }).toArray();
+  }
+}
