@@ -2,7 +2,9 @@ import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
   createAgentLoopPlan,
+  createAgentDispatchPackets,
   normalizeLegacyScorecard,
+  serializeAgentLoopPlan,
   type AgentMemoryEntry,
   type AgentLoopPlan,
   type LegacyScorecard,
@@ -57,8 +59,9 @@ async function main(): Promise<void> {
 }
 
 function parseArgs(args: string[]): CliOptions {
-  requireArgs(args, "npm run agent:loop -- <iteration-dir> [--previous <iteration-dir>] [--output <path>] [--dry-run]");
-  const [iterationDir, ...rest] = args;
+  const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
+  requireArgs(normalizedArgs, "npm run agent:loop -- <iteration-dir> [--previous <iteration-dir>] [--output <path>] [--dry-run]");
+  const [iterationDir, ...rest] = normalizedArgs;
   const options: CliOptions = {
     iterationDir,
     dryRun: false,
@@ -145,17 +148,14 @@ async function titleFor(iterationDir: string): Promise<string> {
 }
 
 function toJsonPlan(plan: AgentLoopPlan): unknown {
+  const serialized = serializeAgentLoopPlan(plan);
+
   return {
-    iterationId: plan.iterationId,
-    candidatePlanTitle: plan.candidatePlanTitle,
-    rosterVersion: plan.rosterVersion,
-    maturityDelta: plan.maturityDelta,
-    leadershipGate: plan.leadershipGate,
-    nextActions: plan.nextActions,
-    workOrders: plan.workOrders,
+    ...serialized,
+    dispatchPackets: createAgentDispatchPackets(plan),
     memoryRetrieval: {
       activeEntryCount: plan.memoryIndex.activeEntries.length,
-      topics: [...plan.memoryIndex.byTopic.keys()].sort(),
+      topics: Object.keys(serialized.memoryIndex.byTopic).sort(),
     },
   };
 }
