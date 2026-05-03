@@ -1,0 +1,257 @@
+import { execFile } from "node:child_process";
+import { mkdir, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { promisify } from "node:util";
+
+const execFileAsync = promisify(execFile);
+
+type CliOptions = {
+  outputPath?: string;
+};
+
+type CommandProbe = {
+  command: string;
+  status: "available" | "missing";
+  path?: string;
+  version?: string;
+  error?: string;
+};
+
+type CommandSpec = {
+  command: string;
+  args: readonly string[];
+  firstLineOnly?: boolean;
+};
+
+type PythonModuleProbe = {
+  module: string;
+  status: "available" | "missing" | "not_checked";
+};
+
+type GateStatus = {
+  status: "ready" | "not_configured" | "blocked";
+  blockers: string[];
+};
+
+type LocalRuntimeProbeReport = {
+  generatedAt: string;
+  system: Record<string, unknown>;
+  commands: CommandProbe[];
+  pythonModules: PythonModuleProbe[];
+  adb: {
+    devices: string;
+    reverseList?: string;
+  };
+  gates: {
+    questUsb: GateStatus;
+    localModel: GateStatus;
+    localVoice: GateStatus;
+    assetPipeline: GateStatus;
+  };
+};
+
+const commandSpecs: CommandSpec[] = [
+  { command: "node", args: ["--version"] },
+  { command: "pnpm", args: ["--version"] },
+  { command: "npm", args: ["--version"] },
+  { command: "bun", args: ["--version"] },
+  { command: "python3", args: ["--version"] },
+  { command: "ffmpeg", args: ["-version"], firstLineOnly: true },
+  { command: "adb", args: ["version"], firstLineOnly: true },
+  { command: "ollama", args: ["--version"] },
+  { command: "llama-cli", args: ["--version"] },
+  { command: "llama-server", args: ["--version"] },
+  { command: "mlx_lm", args: ["--help"], firstLineOnly: true },
+  { command: "vibevoice", args: ["--help"], firstLineOnly: true },
+  { command: "gltf-transform", args: ["--version"] },
+  { command: "blender", args: ["--version"], firstLineOnly: true },
+] as const;
+
+const pythonModules = ["torch", "transformers", "numpy", "scipy", "mlx", "soundfile"] as const;
+
+async function main(): Promise<void> {
+  const options = parseArgs(process.argv.slice(2));
+  const commands = await Promise.all(commandSpecs.map((spec) => probeCommand(spec)));
+  const modules = await probePythonModules(commands);
+  const adbDevices = await runOptional("adb", ["devices", "-l"]);
+  const adbReverse = await runOptional("adb", ["reverse", "--list"]);
+  const report = buildReport({
+    system: await probeSystem(),
+    commands,
+    pythonModules: modules,
+    adbDevices,
+    adbReverse,
+  });
+
+  if (options.outputPath) {
+    await mkdir(path.dirname(options.outputPath), { recursive: true });
+    await writeFile(options.outputPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+    console.log(`Wrote ${options.outputPath}`);
+  } else {
+    console.log(JSON.stringify(report, null, 2));
+  }
+}
+
+function parseArgs(args: string[]): CliOptions {
+  const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
+  const options: CliOptions = {};
+
+  for (let index = 0; index < normalizedArgs.length; index += 1) {
+    const arg = normalizedArgs[index];
+    if (arg === "--output") {
+      options.outputPath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    throw new Error(`Unknown argument: ${arg ?? ""}`);
+  }
+
+  return options;
+}
+
+function requireValue(args: string[], index: number, flag: string): string {
+  const value = args[index + 1];
+  if (!value) {
+    throw new Error(`${flag} requires a value`);
+  }
+  return value;
+}
+
+async function probeSystem(): Promise<Record<string, unknown>> {
+  const [macosVersion, macosBuild, kernel, arch, chip, physicalCores, logicalCores, memoryBytes, disk] = await Promise.all([
+    runOptional("sw_vers", ["-productVersion"]),
+    runOptional("sw_vers", ["-buildVersion"]),
+    runOptional("uname", ["-r"]),
+    runOptional("uname", ["-m"]),
+    runOptional("sysctl", ["-n", "machdep.cpu.brand_string"]),
+    runOptional("sysctl", ["-n", "hw.physicalcpu"]),
+    runOptional("sysctl", ["-n", "hw.logicalcpu"]),
+    runOptional("sysctl", ["-n", "hw.memsize"]),
+    runOptional("df", ["-kP", "/"]),
+  ]);
+
+  return {
+    macosVersion,
+    macosBuild,
+    kernel,
+    arch,
+    chip,
+    physicalCores: parseInteger(physicalCores),
+    logicalCores: parseInteger(logicalCores),
+    memoryBytes: parseInteger(memoryBytes),
+    rootDisk: parseDisk(disk),
+  };
+}
+
+async function probeCommand(spec: CommandSpec): Promise<CommandProbe> {
+  const commandPath = await runOptional("/usr/bin/which", [spec.command]);
+  if (!commandPath) {
+    return { command: spec.command, status: "missing" };
+  }
+
+  const version = await runOptional(spec.command, [...spec.args]);
+  return {
+    command: spec.command,
+    status: "available",
+    path: commandPath,
+    version: spec.firstLineOnly ? version.split("\n")[0] : version,
+  };
+}
+
+async function probePythonModules(commands: CommandProbe[]): Promise<PythonModuleProbe[]> {
+  if (!commands.some((command) => command.command === "python3" && command.status === "available")) {
+    return pythonModules.map((module) => ({ module, status: "not_checked" }));
+  }
+
+  const script = [
+    "import importlib.util, json",
+    `mods = ${JSON.stringify([...pythonModules])}`,
+    "print(json.dumps({name: importlib.util.find_spec(name) is not None for name in mods}))",
+  ].join("\n");
+  const result = await runOptional("python3", ["-c", script]);
+  if (!result) {
+    return pythonModules.map((module) => ({ module, status: "not_checked" }));
+  }
+  const parsed = JSON.parse(result) as Record<string, boolean>;
+  return pythonModules.map((module) => ({ module, status: parsed[module] ? "available" : "missing" }));
+}
+
+function buildReport(input: {
+  system: Record<string, unknown>;
+  commands: CommandProbe[];
+  pythonModules: PythonModuleProbe[];
+  adbDevices: string;
+  adbReverse: string;
+}): LocalRuntimeProbeReport {
+  const hasCommand = (command: string) => input.commands.some((probe) => probe.command === command && probe.status === "available");
+  const hasModule = (module: string) => input.pythonModules.some((probe) => probe.module === module && probe.status === "available");
+  const adbHasQuestDevice = /\sdevice\s/.test(input.adbDevices) && /Quest_3|eureka/.test(input.adbDevices);
+  const localModelRuntimeAvailable = hasCommand("ollama") || hasCommand("llama-cli") || hasCommand("llama-server") || hasCommand("mlx_lm") || hasModule("mlx");
+  const localVoiceRuntimeAvailable = hasCommand("vibevoice");
+  const assetToolsAvailable = hasCommand("gltf-transform") && hasCommand("blender");
+
+  return {
+    generatedAt: new Date().toISOString(),
+    system: input.system,
+    commands: input.commands,
+    pythonModules: input.pythonModules,
+    adb: {
+      devices: input.adbDevices,
+      reverseList: input.adbReverse || undefined,
+    },
+    gates: {
+      questUsb: adbHasQuestDevice ? readyGate() : blockedGate("quest_3_not_authorized_or_not_connected"),
+      localModel: localModelRuntimeAvailable ? blockedGate("model_weights_not_selected_or_benchmarked") : notConfiguredGate("no_ollama_llama_cpp_or_mlx_runtime_detected"),
+      localVoice: localVoiceRuntimeAvailable ? blockedGate("voice_model_not_selected_or_benchmarked") : notConfiguredGate("no_vibevoice_runtime_detected"),
+      assetPipeline: assetToolsAvailable ? readyGate() : notConfiguredGate("missing_blender_or_gltf_transform"),
+    },
+  };
+}
+
+function readyGate(): GateStatus {
+  return { status: "ready", blockers: [] };
+}
+
+function notConfiguredGate(blocker: string): GateStatus {
+  return { status: "not_configured", blockers: [blocker] };
+}
+
+function blockedGate(blocker: string): GateStatus {
+  return { status: "blocked", blockers: [blocker] };
+}
+
+async function runOptional(command: string, args: string[]): Promise<string> {
+  try {
+    const { stdout, stderr } = await execFileAsync(command, args, {
+      encoding: "utf8",
+      timeout: 5000,
+    });
+    return `${stdout}${stderr}`.trim();
+  } catch {
+    return "";
+  }
+}
+
+function parseInteger(value: string): number | null {
+  const parsed = Number.parseInt(value.trim(), 10);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function parseDisk(value: string): Record<string, unknown> | null {
+  const lines = value.split("\n").filter(Boolean);
+  const row = lines.at(-1);
+  if (!row) {
+    return null;
+  }
+  const [filesystem, oneKBlocks, used, available, capacity, mountedOn] = row.trim().split(/\s+/);
+  return {
+    filesystem,
+    oneKBlocks: parseInteger(oneKBlocks ?? ""),
+    used: parseInteger(used ?? ""),
+    available: parseInteger(available ?? ""),
+    capacity,
+    mountedOn,
+  };
+}
+
+await main();

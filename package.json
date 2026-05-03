@@ -26,6 +26,7 @@
     "security:audit:dev": "pnpm audit --dev --audit-level=high",
     "verify": "pnpm agent:verify && pnpm typecheck && pnpm test && pnpm security:audit",
     "bench:mock": "pnpm --filter @openclinxr/test-harness bench:mock",
+    "local:runtime:probe": "tsx tools/openclinxr/local-runtime-probe.ts",
     "xr:quest:smoke": "tsx tools/openclinxr/quest-cdp-smoke.ts",
     "hygiene:knip": "knip --no-progress --reporter compact --no-exit-code",
     "hygiene:e18e:help": "e18e-cli analyze --help",

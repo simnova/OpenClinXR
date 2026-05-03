@@ -55,6 +55,31 @@ Python module check:
 | `mlx` | Not installed |
 | `soundfile` | Not installed |
 
+## Repeatable Local Runtime Probe
+
+Run time: 2026-05-03 18:19 EDT
+
+Command:
+
+```bash
+pnpm local:runtime:probe -- --output docs/openclinxr/local-runtime-probe-2026-05-03.json
+```
+
+Machine-readable evidence:
+
+- `docs/openclinxr/local-runtime-probe-2026-05-03.json`
+
+Gate results:
+
+| Gate | Status | Blockers |
+| --- | --- | --- |
+| Quest USB | Ready | None |
+| Local model | Not configured | `no_ollama_llama_cpp_or_mlx_runtime_detected` |
+| Local voice | Not configured | `no_vibevoice_runtime_detected` |
+| Asset pipeline | Not configured | `missing_blender_or_gltf_transform` |
+
+The probe intentionally does not download models, install runtimes, or call cloud APIs. It is suitable for repeating before a local-model or local-voice benchmark so the team can separate "runtime not installed" from "runtime installed but model not benchmarked."
+
 ## Lightweight Throughput Smokes
 
 These are local-only Node checks. They do not use cloud services and do not download model weights.
