@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@apollo/client": "4.1.9",
+    "@openclinxr/ui-route-admin": "workspace:*",
+    "@openclinxr/ui-shared": "workspace:*",
     "antd": "6.3.7",
     "graphql": "16.12.0",
     "react": "19.2.5",

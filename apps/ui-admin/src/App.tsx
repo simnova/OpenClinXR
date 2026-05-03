@@ -1,5 +1,7 @@
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
+import { adminPublicationGates, adminWorkbenchRoutes } from "@openclinxr/ui-route-admin";
+import { adminWorkbenchCapabilityTags, openClinXrAdminTheme } from "@openclinxr/ui-shared";
 import { Card, ConfigProvider, Layout, Space, Steps, Tag, Typography } from "antd";
 import { BrowserRouter, Link, MemoryRouter, Route, Routes } from "react-router";
 
@@ -8,24 +10,6 @@ const { Content, Sider } = Layout;
 type AdminAppProps = {
   router?: "browser" | "memory";
 };
-
-const workbenchRoutes = [
-  {
-    path: "/scenarios",
-    label: "Scenario Bank",
-    description: "Author, validate, and review case-bank scenarios before publication.",
-  },
-  {
-    path: "/reviews",
-    label: "Review Replay",
-    description: "Inspect trace replay, actor responses, scoring evidence, and reviewer findings.",
-  },
-  {
-    path: "/exam-forms",
-    label: "Exam Forms",
-    description: "Assemble locked station sequences from approved scenarios and coverage targets.",
-  },
-] as const;
 
 export const adminApolloClient = new ApolloClient({
   cache: new InMemoryCache(),
@@ -36,15 +20,7 @@ export function AdminApp({ router = "memory" }: AdminAppProps): React.ReactEleme
   const Router = router === "browser" ? BrowserRouter : MemoryRouter;
 
   return (
-    <ConfigProvider
-      theme={{
-        token: {
-          borderRadius: 6,
-          colorPrimary: "#245b55",
-          colorInfo: "#315f91",
-        },
-      }}
-    >
+    <ConfigProvider theme={openClinXrAdminTheme}>
       <ApolloProvider client={adminApolloClient}>
         <Router>
           <Layout className="admin-shell">
@@ -52,7 +28,7 @@ export function AdminApp({ router = "memory" }: AdminAppProps): React.ReactEleme
               <Typography.Title level={1}>OpenClinXR Admin</Typography.Title>
               <nav aria-label="Admin workbench">
                 <ul className="admin-nav">
-                  {workbenchRoutes.map((route) => (
+                  {adminWorkbenchRoutes.map((route) => (
                     <li key={route.path}>
                       <Link to={route.path}>{route.label}</Link>
                     </li>
@@ -71,11 +47,11 @@ export function AdminApp({ router = "memory" }: AdminAppProps): React.ReactEleme
                   {" stay visible before a scenario can feed a learner-facing XR station."}
                 </Typography.Paragraph>
                 <Space wrap>
-                  <Tag color="green">GraphQL Codegen</Tag>
-                  <Tag color="blue">Apollo Client</Tag>
-                  <Tag color="purple">ProComponents v3</Tag>
-                  <Tag color="cyan">React Router</Tag>
-                  <Tag color="gold">Ant Design 6</Tag>
+                  {adminWorkbenchCapabilityTags.map((tag) => (
+                    <Tag key={tag} color={capabilityTagColor(tag)}>
+                      {tag}
+                    </Tag>
+                  ))}
                 </Space>
               </section>
 
@@ -96,7 +72,7 @@ export function AdminApp({ router = "memory" }: AdminAppProps): React.ReactEleme
 function WorkbenchOverview(): React.ReactElement {
   return (
     <div className="admin-grid">
-      {workbenchRoutes.map((route) => (
+      {adminWorkbenchRoutes.map((route) => (
         <Card key={route.path} title={route.label}>
           <Typography.Paragraph>{route.description}</Typography.Paragraph>
           <Link to={route.path}>Open {route.label}</Link>
@@ -106,12 +82,10 @@ function WorkbenchOverview(): React.ReactElement {
         <Steps
           orientation="vertical"
           size="small"
-          items={[
-            { title: "Clinical review", status: "process" },
-            { title: "Psychometric review", status: "wait" },
-            { title: "Legal review", status: "wait" },
-            { title: "Simulation QA", status: "wait" },
-          ]}
+          items={adminPublicationGates.map((title, index) => ({
+            title,
+            status: index === 0 ? "process" : "wait",
+          }))}
         />
       </Card>
     </div>
@@ -126,4 +100,16 @@ function WorkbenchPanel({ routeId }: { routeId: string }): React.ReactElement {
       </Typography.Paragraph>
     </Card>
   );
+}
+
+function capabilityTagColor(tag: string): string {
+  const colorByTag = new Map([
+    ["GraphQL Codegen", "green"],
+    ["Apollo Client", "blue"],
+    ["ProComponents v3", "purple"],
+    ["React Router", "cyan"],
+    ["Ant Design 6", "gold"],
+  ]);
+
+  return colorByTag.get(tag) ?? "default";
 }

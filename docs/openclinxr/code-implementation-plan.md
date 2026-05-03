@@ -65,6 +65,7 @@ packages/
   graphql/
   rest/
   data-sources-mongoose-models/
+  architecture-rules/
   test-harness/
 docs/
   openclinxr/
@@ -81,6 +82,7 @@ Workspace naming should follow the development team's Turborepo convention:
 - Protocol contracts/adapters: `packages/graphql`, `packages/rest`, and additional `packages/...` protocols as needed.
 - Mongoose model layer: `packages/data-sources-mongoose-models`.
 - Local dependency simulators: `apps/mock-<<server-type>>-server`.
+- Architecture enforcement: `packages/architecture-rules` with ArchUnitTS tests that turn naming and dependency-direction decisions into executable checks.
 
 ## Dependency Posture
 

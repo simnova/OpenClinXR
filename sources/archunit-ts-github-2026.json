@@ -1,0 +1,22 @@
+{
+  "source_id": "src-archunit-ts-github-2026",
+  "title": "ArchUnitTS Architecture Testing Library",
+  "url": "https://github.com/LukasNiessen/ArchUnitTS",
+  "source_type": "vendor",
+  "citation": "ArchUnitTS README and package metadata, accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Executable architecture-rule enforcement for TypeScript package boundaries, dependency direction checks, circular dependency checks, and naming conventions."
+  ],
+  "claims_supported": [
+    "ArchUnitTS is an architecture testing library for TypeScript and JavaScript projects.",
+    "ArchUnitTS supports dependency-direction rules, circular dependency detection, naming conventions, custom rules, and Vitest integration.",
+    "ArchUnitTS recommends Vitest globals for the toPassAsync matcher, while rule check() can be asserted directly in tests.",
+    "As queried on 2026-05-03, archunit 2.3.0 is MIT licensed."
+  ],
+  "claims_not_supported": [
+    "That all architectural decisions can be fully enforced through static import analysis alone.",
+    "That ArchUnitTS replaces package-level typechecks, runtime integration tests, or security review."
+  ],
+  "confidence": 0.84
+}

@@ -204,6 +204,7 @@ Use these preferences when making new implementation decisions unless a runtime 
 
 - Prefer pnpm over npm for workspace dependency management and command examples.
 - Use Turborepo-friendly names: `apps/ui-<<portal-name>>` for React SPAs, `packages/ui-route-<<top-level-route>>` for route-owned code, `packages/ui-route-shared` for route-shared SPA code, `packages/ui-shared` for cross-portal SPA code, `packages/graphql` and `packages/rest` for protocol packages, `packages/data-sources-mongoose-models` for Mongoose models, and `apps/mock-<<server-type>>-server` for local mock servers.
+- Treat architectural decisions as executable rules: `packages/architecture-rules` uses ArchUnitTS to enforce approved app naming, prevent UI portal imports from backend persistence/runtime packages, and check shared UI packages for import cycles.
 - Prefer Mongoose for mature MongoDB admin/control-plane schemas, while keeping high-volume trace replay repositories thin and performance-oriented.
 - Prefer Apollo GraphQL plus GraphQL Code Generator for admin workbench queries and generated TypeScript operation/resolver contracts once GraphQL is introduced.
 - Prefer React Router for administrative app routing and nested workbench modules.
@@ -327,5 +328,6 @@ XR shell integration milestone has also started:
 - `apps/ui-xr` has a typed optional API client for session start, encounter start, trace event sync, actor response requests, and note submission.
 - `apps/api` now has a CellixJS-inspired fluent startup builder that registers infrastructure service IDs, initializes application services, records Azure Function-compatible GraphQL/REST handler metadata, and feeds the local Hono Node server through the same startup path.
 - `packages/data-sources-mongoose-models` exists with a first scenario-bank Mongoose model, publication indexes, and a learner projection that redacts hidden clinical truth.
+- `packages/ui-route-shared`, `packages/ui-route-admin`, `packages/ui-shared`, and `packages/architecture-rules` now start the portal package split and enforce early ArchUnitTS rules.
 - The UI stays local-first and only syncs trace actions in the background when `VITE_OPENCLINXR_API_BASE_URL` is configured.
 - Fresh browser and Quest 3 smoke evidence is recorded in `docs/openclinxr/quest3-usb-webxr-smoke-checklist.md`.
