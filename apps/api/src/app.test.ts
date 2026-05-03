@@ -123,12 +123,36 @@ describe("OpenClinXR API shell", () => {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ examFormId: "form_openclinxr_pilot_001" }),
     });
-    const form = await json(formResponse) as { status: string; stationRefs: Array<{ order: number; scenarioId: string }>; coverage: { missingTraceTags: string[] } };
+    const form = await json(formResponse) as {
+      status: string;
+      stationRefs: Array<{ order: number; scenarioId: string; scenarioVersion: number; title: string }>;
+      coverage: { missingTraceTags: string[] };
+    };
 
     expect(formResponse.status).toBe(201);
     expect(form.status).toBe("ready_for_review");
     expect(form.stationRefs).toEqual([{ order: 1, scenarioId: "ed_chest_pain_priority_v1", scenarioVersion: 1, title: "ED Chest Pain With Nurse Interruption And Family Pressure" }]);
     expect(form.coverage.missingTraceTags).toEqual([]);
+
+    const driftResponse = await app.request("/exam-forms/version-drift", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        form: {
+          ...form,
+          stationRefs: form.stationRefs.map((stationRef) => ({ ...stationRef, scenarioVersion: 0 })),
+        },
+      }),
+    });
+
+    expect(driftResponse.status).toBe(200);
+    expect(await json(driftResponse)).toEqual([
+      {
+        scenarioId: "ed_chest_pain_priority_v1",
+        lockedVersion: 0,
+        currentVersion: 1,
+      },
+    ]);
   });
 
   it("starts a session, records events, submits a note, and returns a review packet", async () => {

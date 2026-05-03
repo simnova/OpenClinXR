@@ -1,4 +1,4 @@
-import { assembleExamForm, createDefaultClinicalSkillsBlueprint } from "@openclinxr/exam-assembly";
+import { assembleExamForm, createDefaultClinicalSkillsBlueprint, evaluateScenarioVersionDrift, type ExamForm } from "@openclinxr/exam-assembly";
 import { createDefaultScenarioRuntime, type PublicationTargetUse, type ReviewerEvidence, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createLearnerScenarioView, edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { Hono } from "hono";
@@ -44,6 +44,15 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
       scenarios: [edChestPainScenario],
     });
     return context.json(form, 201);
+  });
+
+  app.post("/exam-forms/version-drift", async (context) => {
+    const body = (await context.req.json().catch(() => ({}))) as { form?: unknown };
+    if (!isExamForm(body.form)) {
+      return context.json({ error: "invalid_exam_form" }, 400);
+    }
+
+    return context.json(evaluateScenarioVersionDrift(body.form, [edChestPainScenario]));
   });
 
   app.post("/sessions", async (context) => {
@@ -187,6 +196,21 @@ function isReviewerEvidence(value: unknown): value is ReviewerEvidence {
     && Array.isArray(value.evidenceRefs)
     && value.evidenceRefs.every((ref) => typeof ref === "string")
     && typeof value.reviewedAt === "string";
+}
+
+function isExamForm(value: unknown): value is ExamForm {
+  return isRecord(value)
+    && typeof value.examFormId === "string"
+    && Array.isArray(value.stationRefs)
+    && value.stationRefs.every(isStationRef);
+}
+
+function isStationRef(value: unknown): value is ExamForm["stationRefs"][number] {
+  return isRecord(value)
+    && typeof value.order === "number"
+    && typeof value.scenarioId === "string"
+    && typeof value.scenarioVersion === "number"
+    && typeof value.title === "string";
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
