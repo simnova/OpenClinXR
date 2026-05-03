@@ -22,6 +22,9 @@ Primary docs:
 - `docs/openclinxr/statecharts-and-sequences.md`
 - `docs/openclinxr/ux-flows.md`
 - `docs/openclinxr/knowledge-graph-and-indexing.md`
+- `docs/openclinxr/station-pack-ed-chest-pain-v1.md`
+- `docs/openclinxr/psychometric-and-review-governance.md`
+- `docs/openclinxr/claims-consent-privacy-governance.md`
 - `docs/openclinxr/development-handoff.md`
 
 Architecture decisions:

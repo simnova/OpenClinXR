@@ -22,3 +22,6 @@ Date: 2026-05-03
 - `cellixjs-inspired-ddd-spike`
 - `formative-local-score-use`
 - `claims-non-equivalence`
+- `deterministic-ed-chest-pain-seed`
+- `trace-quality-metric`
+- `claims-consent-privacy-gates`
