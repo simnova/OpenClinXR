@@ -41,6 +41,13 @@ describe("scenario runtime", () => {
       text: "Concern for ACS. ECG requested.",
     });
     expect(note.phase).toBe("review");
+    expect(runtime.traceEvents(session.stationRunId).map((trace) => trace.eventType)).toEqual([
+      "station.started",
+      "encounter.started",
+      "learner.order",
+      "encounter.ended",
+      "note.submitted",
+    ]);
 
     const packet = runtime.reviewPacket(session.stationRunId);
     expect(packet.observedTraceTags).toEqual(["ecg_request", "patient_note_submitted"]);

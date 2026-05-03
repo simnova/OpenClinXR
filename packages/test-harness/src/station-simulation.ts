@@ -1,10 +1,5 @@
-import { createStationRun, transitionStation } from "@openclinxr/domain";
-import { createDefaultModelGateway, LocalModelProviderAdapter, MockModelProviderAdapter } from "@openclinxr/model-gateway";
-import { buildReviewPacket } from "@openclinxr/review-workflow";
-import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
-import type { ProviderHealth, ReviewPacket, TraceEvent } from "@openclinxr/shared-schemas";
-import { InMemoryTraceLedger } from "@openclinxr/trace-ledger";
-import { createDefaultVoiceGateway, LocalVoiceProviderAdapter, MockVoiceProviderAdapter } from "@openclinxr/voice-gateway";
+import { createDefaultScenarioRuntime } from "@openclinxr/scenario-runtime";
+import type { ProviderHealth, ReviewPacket } from "@openclinxr/shared-schemas";
 
 export type SimulationResult = {
   stationRunId: string;
@@ -18,57 +13,9 @@ export type SimulationResult = {
   };
 };
 
-const baseTime = Date.parse("2026-05-03T15:38:58.000Z");
-
-function occurredAt(atSecond: number): string {
-  return new Date(baseTime + atSecond * 1000).toISOString();
-}
-
-function event(
-  stationRunId: string,
-  sequence: number,
-  eventType: string,
-  atSecond: number,
-  source: string,
-  tag?: string,
-  actorId?: string,
-): TraceEvent {
-  const trace: TraceEvent = {
-    stationRunId,
-    sequence,
-    eventType,
-    occurredAt: occurredAt(atSecond),
-    atSecond,
-    source,
-    payload: {},
-  };
-
-  if (tag) {
-    trace.tag = tag;
-  }
-  if (actorId) {
-    trace.actorId = actorId;
-  }
-
-  return trace;
-}
-
 export async function runEdChestPainSimulation(): Promise<SimulationResult> {
-  const ledger = new InMemoryTraceLedger();
-  const modelGateway = createDefaultModelGateway({
-    routeId: "actor-dialogue-offline-v1",
-    adapters: [new MockModelProviderAdapter(), new LocalModelProviderAdapter({ providerId: "local-model" })],
-  });
-  const voiceGateway = createDefaultVoiceGateway({
-    routeId: "voice-offline-v1",
-    adapters: [new MockVoiceProviderAdapter(), new LocalVoiceProviderAdapter({ providerId: "local-voice" })],
-  });
-  let run = createStationRun(edChestPainScenario.scenarioId, "learner_001");
-  let sequence = 0;
-
-  ledger.append(event(run.stationRunId, sequence++, "station.started", 0, "system"));
-  run = transitionStation(run, { type: "START_ENCOUNTER", atSecond: 60 });
-  ledger.append(event(run.stationRunId, sequence++, "encounter.started", 60, "system"));
+  const runtime = createDefaultScenarioRuntime();
+  const run = await runtime.startSession({ learnerId: "learner_001" });
 
   const traceTags: Array<[number, string, string, string | undefined]> = [
     [110, "learner.history", "history_opqrst", "patient_robert_hayes_v1"],
@@ -83,45 +30,26 @@ export async function runEdChestPainSimulation(): Promise<SimulationResult> {
   ];
 
   for (const [atSecond, eventType, tag, actorId] of traceTags) {
-    ledger.append(event(run.stationRunId, sequence++, eventType, atSecond, "learner", tag, actorId));
+    runtime.appendLearnerEvent(run.stationRunId, {
+      eventType,
+      atSecond,
+      tag,
+      ...(actorId ? { actorId } : {}),
+    });
   }
 
-  run = transitionStation(run, { type: "END_ENCOUNTER", atSecond: 960 });
-  ledger.append(event(run.stationRunId, sequence++, "encounter.ended", 960, "system"));
-  run = transitionStation(run, { type: "SUBMIT_NOTE", atSecond: 1260, noteText: "Concern for ACS. ECG requested. Escalated to senior physician." });
-  ledger.append(event(run.stationRunId, sequence++, "note.submitted", 1260, "learner", "patient_note_submitted"));
-
-  const events = ledger.replay(run.stationRunId);
-  const reviewPacket = buildReviewPacket({
-    stationRunId: run.stationRunId,
-    scenarioId: edChestPainScenario.scenarioId,
-    requiredTraceTags: edChestPainScenario.requiredTraceTags,
-    traceEvents: events,
-    facultyScoreDraft: {
-      reviewerId: "faculty_001",
-      status: "draft",
-      comments: "Deterministic simulation completed all required first-slice behaviors.",
-    },
+  runtime.submitNote(run.stationRunId, {
+    atSecond: 1260,
+    text: "Concern for ACS. ECG requested. Escalated to senior physician.",
   });
-  const [modelHealth, voiceHealth] = await Promise.all([modelGateway.health(), voiceGateway.health()]);
+  const events = runtime.traceEvents(run.stationRunId);
+  const reviewPacket = runtime.reviewPacket(run.stationRunId);
+  const providerHealth = await runtime.providerHealth();
 
   return {
     stationRunId: run.stationRunId,
     eventCount: events.length,
     reviewPacket,
-    providerHealth: {
-      model: requireProviderHealth(modelHealth, "mock-model"),
-      voice: requireProviderHealth(voiceHealth, "mock-voice"),
-      localModel: requireProviderHealth(modelHealth, "local-model"),
-      localVoice: requireProviderHealth(voiceHealth, "local-voice"),
-    },
+    providerHealth,
   };
-}
-
-function requireProviderHealth(health: ProviderHealth[], providerId: string): ProviderHealth {
-  const provider = health.find((entry) => entry.providerId === providerId);
-  if (!provider) {
-    throw new Error(`Missing provider health for ${providerId}`);
-  }
-  return provider;
 }

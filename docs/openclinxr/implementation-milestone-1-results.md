@@ -222,3 +222,8 @@ API follow-up:
 - `apps/api` now delegates session start, learner event append, note submission, provider health, asset readiness, and review-packet generation to `packages/scenario-runtime`.
 - API added `GET /scenarios/ed-chest-pain/assets/readiness`.
 - API tests now cover missing-session 404 behavior from the runtime boundary.
+
+Harness follow-up:
+
+- `packages/test-harness` now uses `packages/scenario-runtime` for the ED chest pain deterministic simulation instead of maintaining a separate station-flow loop.
+- Scenario runtime now exposes trace replay and records `encounter.ended` when note submission auto-closes the encounter.

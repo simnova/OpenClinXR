@@ -223,27 +223,12 @@ importers:
 
   packages/test-harness:
     dependencies:
-      '@openclinxr/domain':
+      '@openclinxr/scenario-runtime':
         specifier: workspace:*
-        version: link:../domain
-      '@openclinxr/model-gateway':
-        specifier: workspace:*
-        version: link:../model-gateway
-      '@openclinxr/review-workflow':
-        specifier: workspace:*
-        version: link:../review-workflow
-      '@openclinxr/scenario-fixtures':
-        specifier: workspace:*
-        version: link:../scenario-fixtures
+        version: link:../scenario-runtime
       '@openclinxr/shared-schemas':
         specifier: workspace:*
         version: link:../shared-schemas
-      '@openclinxr/trace-ledger':
-        specifier: workspace:*
-        version: link:../trace-ledger
-      '@openclinxr/voice-gateway':
-        specifier: workspace:*
-        version: link:../voice-gateway
       tsx:
         specifier: 4.21.0
         version: 4.21.0

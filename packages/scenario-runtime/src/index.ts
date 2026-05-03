@@ -99,6 +99,16 @@ export class ScenarioRuntime {
     const session = this.requireSession(stationRunId);
     if (session.run.phase === "encounter") {
       session.run = transitionStation(session.run, { type: "END_ENCOUNTER", atSecond: 960 });
+      this.options.ledger.append(
+        traceEvent({
+          stationRunId,
+          sequence: session.nextSequence,
+          eventType: "encounter.ended",
+          atSecond: 960,
+          source: "system",
+        }),
+      );
+      session.nextSequence += 1;
     }
     session.run = transitionStation(session.run, {
       type: "SUBMIT_NOTE",
@@ -136,6 +146,11 @@ export class ScenarioRuntime {
         comments: "Generated from local in-memory scenario runtime.",
       },
     });
+  }
+
+  traceEvents(stationRunId: string): TraceEvent[] {
+    this.requireSession(stationRunId);
+    return this.options.ledger.replay(stationRunId);
   }
 
   async providerHealth(): Promise<ProviderHealthSnapshot> {

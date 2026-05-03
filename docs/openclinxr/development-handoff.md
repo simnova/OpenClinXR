@@ -249,4 +249,4 @@ Scenario runtime milestone has also started:
 - `packages/scenario-runtime` exists.
 - It centralizes the ED chest pain station session flow, trace append, note submission, provider health, asset readiness, and review packet generation.
 - `apps/api` now uses it for station sessions, provider health, asset readiness, and review packets.
-- The next likely cleanup is to have `packages/test-harness` use the same runtime instead of retaining its older deterministic simulation loop.
+- `packages/test-harness` now uses it for the deterministic ED chest pain benchmark.
