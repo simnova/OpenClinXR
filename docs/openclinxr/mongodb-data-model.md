@@ -400,6 +400,8 @@ Use Mongoose first for admin and control-plane collections where schema validati
 - asset manifests and generation jobs
 - source, claim, consent, and governance ledgers
 
+Executable model ownership starts in `packages/data-sources-mongoose-models`. The first model is the scenario-bank control-plane schema with publication indexes and an explicit learner projection that redacts hidden clinical truth.
+
 Keep thin MongoDB-driver repositories first for high-write or runtime-critical collections:
 
 - `trace_events`
