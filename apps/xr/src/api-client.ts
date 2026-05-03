@@ -27,6 +27,13 @@ export type ActorResponseRequest = {
   traceContextTags?: string[];
 };
 
+export type VoiceSynthesisRequest = {
+  actorId: string;
+  voiceId: string;
+  text: string;
+  atSecond: number;
+};
+
 export type SubmitNoteRequest = {
   atSecond: number;
   text: string;
@@ -54,6 +61,7 @@ export type StationApiClient = {
   startEncounter(stationRunId: string, input: StartEncounterRequest): Promise<RuntimeSessionSummary>;
   recordTraceAction(stationRunId: string, input: TraceActionRequest): Promise<unknown>;
   requestActorResponse(stationRunId: string, input: ActorResponseRequest): Promise<unknown>;
+  synthesizeActorSpeech(stationRunId: string, input: VoiceSynthesisRequest): Promise<unknown>;
   submitNote(stationRunId: string, input: SubmitNoteRequest): Promise<unknown>;
   listTraceEvents(stationRunId: string): Promise<TraceEventSummary[]>;
 };
@@ -67,6 +75,7 @@ export function createStationApiClient(options: StationApiClientOptions): Statio
     startEncounter: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/start-encounter`, input),
     recordTraceAction: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/events`, input),
     requestActorResponse: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/actor-response`, input),
+    synthesizeActorSpeech: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/voice-synthesis`, input),
     submitNote: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/note`, input),
     listTraceEvents: (stationRunId) => get(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/trace-events`),
   };

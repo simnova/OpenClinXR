@@ -49,6 +49,12 @@ describe("XR station API client", () => {
       atSecond: 120,
       traceContextTags: ["history_opqrst"],
     });
+    await client.synthesizeActorSpeech("run_001", {
+      actorId: "patient_robert_hayes_v1",
+      voiceId: "mock-robert-hayes",
+      text: "It started while I was walking upstairs.",
+      atSecond: 121,
+    });
     await client.listTraceEvents("run_001");
 
     expect(requests).toEqual([
@@ -70,6 +76,16 @@ describe("XR station API client", () => {
           learnerUtterance: "When did this start?",
           atSecond: 120,
           traceContextTags: ["history_opqrst"],
+        },
+      },
+      {
+        url: "http://localhost:8787/sessions/run_001/voice-synthesis",
+        method: "POST",
+        body: {
+          actorId: "patient_robert_hayes_v1",
+          voiceId: "mock-robert-hayes",
+          text: "It started while I was walking upstairs.",
+          atSecond: 121,
         },
       },
       {
