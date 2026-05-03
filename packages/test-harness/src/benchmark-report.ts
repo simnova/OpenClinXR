@@ -1,4 +1,5 @@
 import type { ProviderHealth } from "@openclinxr/shared-schemas";
+import { buildAdversarialProbeReport, type AdversarialProbeReport } from "./adversarial-report.js";
 import type { SimulationResult } from "./station-simulation.js";
 
 export type MockBenchmarkReport = {
@@ -14,6 +15,7 @@ export type MockBenchmarkReport = {
     lateTraceTagCount: number;
     unsafeEventCount: number;
   };
+  adversarialReport: AdversarialProbeReport;
   providerHealth: {
     model: ProviderHealth;
     voice: ProviderHealth;
@@ -36,6 +38,9 @@ export function buildMockBenchmarkReport(result: SimulationResult, elapsedMs: nu
       lateTraceTagCount: result.reviewPacket.lateTraceTags.length,
       unsafeEventCount: result.reviewPacket.unsafeEvents.length,
     },
+    adversarialReport: buildAdversarialProbeReport(result, {
+      hiddenFactCanaries: ["Father died of myocardial infarction"],
+    }),
     providerHealth: result.providerHealth,
   };
 }
