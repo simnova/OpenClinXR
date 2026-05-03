@@ -49,6 +49,7 @@ describe("XR station API client", () => {
       atSecond: 120,
       traceContextTags: ["history_opqrst"],
     });
+    await client.listTraceEvents("run_001");
 
     expect(requests).toEqual([
       {
@@ -70,6 +71,11 @@ describe("XR station API client", () => {
           atSecond: 120,
           traceContextTags: ["history_opqrst"],
         },
+      },
+      {
+        url: "http://localhost:8787/sessions/run_001/trace-events",
+        method: "GET",
+        body: undefined,
       },
     ]);
     expect(JSON.stringify(requests)).not.toContain("hiddenFacts");

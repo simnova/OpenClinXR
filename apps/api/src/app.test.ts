@@ -207,6 +207,26 @@ describe("OpenClinXR API shell", () => {
     expect(packet.observedTraceTags).toContain("ecg_request");
     expect(packet.missingRequiredTraceTags).toContain("team_communication");
     expect(packet.missingRequiredTraceTags).not.toContain("patient_note_submitted");
+
+    const traceResponse = await app.request(`/sessions/${started.stationRunId}/trace-events`);
+    const traceEvents = await json(traceResponse) as Array<{ eventType: string; tag?: string; actorId?: string }>;
+
+    expect(traceResponse.status).toBe(200);
+    expect(traceEvents.map((trace) => trace.eventType)).toEqual([
+      "station.started",
+      "consent.accepted",
+      "encounter.started",
+      "learner.order",
+      "learner.utterance",
+      "actor.response.generated",
+      "encounter.ended",
+      "note.submitted",
+    ]);
+    expect(traceEvents).toContainEqual(expect.objectContaining({
+      eventType: "actor.response.generated",
+      tag: "guardrail_hidden_truth",
+      actorId: "patient_robert_hayes_v1",
+    }));
   });
 
   it("returns bad request for unknown actor response requests", async () => {

@@ -32,6 +32,18 @@ export type SubmitNoteRequest = {
   text: string;
 };
 
+export type TraceEventSummary = {
+  stationRunId: string;
+  sequence: number;
+  eventType: string;
+  occurredAt: string;
+  atSecond: number;
+  source: string;
+  actorId?: string;
+  tag?: string;
+  payload?: Record<string, unknown>;
+};
+
 export type StationApiClientOptions = {
   baseUrl: string;
   fetch?: typeof fetch;
@@ -43,6 +55,7 @@ export type StationApiClient = {
   recordTraceAction(stationRunId: string, input: TraceActionRequest): Promise<unknown>;
   requestActorResponse(stationRunId: string, input: ActorResponseRequest): Promise<unknown>;
   submitNote(stationRunId: string, input: SubmitNoteRequest): Promise<unknown>;
+  listTraceEvents(stationRunId: string): Promise<TraceEventSummary[]>;
 };
 
 export function createStationApiClient(options: StationApiClientOptions): StationApiClient {
@@ -55,6 +68,7 @@ export function createStationApiClient(options: StationApiClientOptions): Statio
     recordTraceAction: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/events`, input),
     requestActorResponse: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/actor-response`, input),
     submitNote: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/note`, input),
+    listTraceEvents: (stationRunId) => get(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/trace-events`),
   };
 }
 
@@ -70,6 +84,21 @@ async function request<TResponse>(fetcher: typeof fetch, baseUrl: string, path: 
     const errorBody = await response.json().catch(() => ({}));
     const errorCode = isRecord(errorBody) && typeof errorBody.error === "string" ? errorBody.error : "unknown_error";
     throw new Error(`OpenClinXR API request failed: POST ${url} ${response.status} ${errorCode}`);
+  }
+
+  return response.json() as Promise<TResponse>;
+}
+
+async function get<TResponse>(fetcher: typeof fetch, baseUrl: string, path: string): Promise<TResponse> {
+  const url = `${baseUrl}${path}`;
+  const response = await fetcher(url, {
+    method: "GET",
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => ({}));
+    const errorCode = isRecord(errorBody) && typeof errorBody.error === "string" ? errorBody.error : "unknown_error";
+    throw new Error(`OpenClinXR API request failed: GET ${url} ${response.status} ${errorCode}`);
   }
 
   return response.json() as Promise<TResponse>;

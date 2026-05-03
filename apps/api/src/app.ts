@@ -137,6 +137,16 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     }
   });
 
+  app.get("/sessions/:stationRunId/trace-events", (context) => {
+    const stationRunId = context.req.param("stationRunId");
+
+    try {
+      return context.json(runtime.traceEvents(stationRunId));
+    } catch (error) {
+      return sessionErrorResponse(context, error);
+    }
+  });
+
   return app;
 }
 
