@@ -75,6 +75,28 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     }
   });
 
+  app.post("/sessions/:stationRunId/actor-response", async (context) => {
+    const stationRunId = context.req.param("stationRunId");
+    const body = (await context.req.json().catch(() => ({}))) as {
+      actorId?: string;
+      learnerUtterance?: string;
+      atSecond?: number;
+      traceContextTags?: unknown;
+    };
+
+    try {
+      const result = await runtime.generateActorResponse(stationRunId, {
+        actorId: body.actorId ?? "",
+        learnerUtterance: body.learnerUtterance ?? "",
+        atSecond: body.atSecond ?? 0,
+        traceContextTags: Array.isArray(body.traceContextTags) ? body.traceContextTags.filter((tag): tag is string => typeof tag === "string") : [],
+      });
+      return context.json(result, 201);
+    } catch (error) {
+      return sessionErrorResponse(context, error);
+    }
+  });
+
   app.post("/sessions/:stationRunId/note", async (context) => {
     const stationRunId = context.req.param("stationRunId");
     const body = (await context.req.json().catch(() => ({}))) as { atSecond?: number; text?: string };
@@ -104,9 +126,12 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   return app;
 }
 
-function sessionErrorResponse(context: { json: (body: { error: string }, status: 404 | 500) => Response }, error: unknown): Response {
+function sessionErrorResponse(context: { json: (body: { error: string }, status: 400 | 404 | 500) => Response }, error: unknown): Response {
   if (error instanceof Error && error.message.startsWith("Session not found")) {
     return context.json({ error: "session_not_found" }, 404);
+  }
+  if (error instanceof Error && error.message.startsWith("Actor not found")) {
+    return context.json({ error: "actor_not_found" }, 400);
   }
   return context.json({ error: "runtime_error" }, 500);
 }

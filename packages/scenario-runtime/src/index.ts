@@ -1,6 +1,13 @@
 import { createEdChestPainPlaceholderManifests, InMemoryAssetRegistry, type ScenarioAssetReadiness } from "@openclinxr/asset-registry";
 import { createStationRun, transitionStation, type StationRun } from "@openclinxr/domain";
-import { createDefaultModelGateway, LocalModelProviderAdapter, MockModelProviderAdapter, type ModelGateway } from "@openclinxr/model-gateway";
+import {
+  createDefaultModelGateway,
+  LocalModelProviderAdapter,
+  MockModelProviderAdapter,
+  type ActorResponseResult,
+  type ModelGateway,
+  type ModelRequestPolicy,
+} from "@openclinxr/model-gateway";
 import { buildReviewPacket } from "@openclinxr/review-workflow";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import type { ProviderHealth, ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
@@ -39,6 +46,20 @@ export type SubmitNoteInput = {
 
 export type StartEncounterInput = {
   atSecond: number;
+};
+
+export type GenerateActorResponseInput = {
+  actorId: string;
+  learnerUtterance: string;
+  atSecond: number;
+  traceContextTags?: string[];
+};
+
+export type GenerateActorResponseResult = {
+  conversationTurn: number;
+  response: ActorResponseResult;
+  learnerEvent: TraceEvent;
+  actorResponseEvent: TraceEvent;
 };
 
 export type SubmitNoteResult = {
@@ -124,6 +145,68 @@ export class ScenarioRuntime {
     return event;
   }
 
+  async generateActorResponse(stationRunId: string, input: GenerateActorResponseInput): Promise<GenerateActorResponseResult> {
+    const session = this.requireSession(stationRunId);
+    const actor = this.options.scenario.actors.find((candidate) => candidate.actorId === input.actorId);
+    if (!actor) {
+      throw new Error(`Actor not found: ${input.actorId}`);
+    }
+
+    const traceContextTags = [...(input.traceContextTags ?? [])];
+    const primaryTag = traceContextTags[0];
+    const learnerEvent = this.appendTrace(session, {
+      eventType: "learner.utterance",
+      atSecond: input.atSecond,
+      source: "learner",
+      actorId: input.actorId,
+      ...(primaryTag ? { tag: primaryTag } : {}),
+      payload: {
+        text: input.learnerUtterance,
+        traceContextTags,
+      },
+    });
+    const conversationTurn = this.actorResponseTurnCount(stationRunId, input.actorId) + 1;
+    const response = await this.options.modelGateway.generateActorResponse({
+      stationRunId,
+      scenarioId: this.options.scenario.scenarioId,
+      scenarioVersion: this.options.scenario.version,
+      actorId: actor.actorId,
+      actorDisplayName: actor.displayName,
+      actorRole: actor.role,
+      conversationTurn,
+      learnerUtterance: input.learnerUtterance,
+      visibleFacts: actorVisibleFacts(this.options.scenario, actor),
+      hiddenFacts: [],
+      retrievedMemoryIds: [
+        `scenario:${this.options.scenario.scenarioId}:v${this.options.scenario.version}`,
+        `actor:${actor.actorId}`,
+        `governance:${this.options.scenario.scenarioId}:hidden-fact-policy`,
+      ],
+      traceContextTags,
+      policy: actorResponsePolicy,
+    });
+    const actorResponseEvent = this.appendTrace(session, {
+      eventType: "actor.response.generated",
+      atSecond: input.atSecond,
+      source: "model-gateway",
+      actorId: input.actorId,
+      ...(primaryTag ? { tag: primaryTag } : {}),
+      payload: {
+        text: response.text,
+        responseKind: response.responseKind,
+        traceTags: response.traceTags,
+        provenance: response.provenance,
+      },
+    });
+
+    return {
+      conversationTurn,
+      response,
+      learnerEvent,
+      actorResponseEvent,
+    };
+  }
+
   submitNote(stationRunId: string, input: SubmitNoteInput): SubmitNoteResult {
     const session = this.requireSession(stationRunId);
     if (session.run.phase === "encounter") {
@@ -203,6 +286,36 @@ export class ScenarioRuntime {
     }
     return session;
   }
+
+  private appendTrace(
+    session: SessionRecord,
+    input: {
+      eventType: string;
+      atSecond: number;
+      source: string;
+      actorId?: string;
+      tag?: string;
+      payload?: Record<string, unknown>;
+    },
+  ): TraceEvent {
+    const event = traceEvent({
+      stationRunId: session.run.stationRunId,
+      sequence: session.nextSequence,
+      eventType: input.eventType,
+      atSecond: input.atSecond,
+      source: input.source,
+      ...(input.actorId ? { actorId: input.actorId } : {}),
+      ...(input.tag ? { tag: input.tag } : {}),
+      ...(input.payload ? { payload: input.payload } : {}),
+    });
+    this.options.ledger.append(event);
+    session.nextSequence += 1;
+    return event;
+  }
+
+  private actorResponseTurnCount(stationRunId: string, actorId: string): number {
+    return this.options.ledger.replay(stationRunId).filter((event) => event.eventType === "actor.response.generated" && event.actorId === actorId).length;
+  }
 }
 
 export function createDefaultScenarioRuntime(): ScenarioRuntime {
@@ -234,6 +347,7 @@ type TraceEventInput = {
   source: string;
   tag?: string;
   actorId?: string;
+  payload?: Record<string, unknown>;
 };
 
 function traceEvent(input: TraceEventInput): TraceEvent {
@@ -244,7 +358,7 @@ function traceEvent(input: TraceEventInput): TraceEvent {
     occurredAt: occurredAt(input.atSecond),
     atSecond: input.atSecond,
     source: input.source,
-    payload: {},
+    payload: input.payload ?? {},
   };
 
   if (input.tag) {
@@ -255,6 +369,20 @@ function traceEvent(input: TraceEventInput): TraceEvent {
   }
 
   return event;
+}
+
+const actorResponsePolicy: ModelRequestPolicy = {
+  requestPolicyId: "actor-dialogue-offline-v1",
+  promptTemplateId: "mock-actor-response-v1",
+  safetyPolicyVersion: "clinical-simulation-safety-v1",
+};
+
+function actorVisibleFacts(scenario: Scenario, actor: Scenario["actors"][number]): string[] {
+  return [
+    `${actor.displayName} is the ${actor.role} in ${scenario.title}.`,
+    ...(actor.demeanor ? [`Demeanor: ${actor.demeanor}.`] : []),
+    ...(scenario.environment ? [`Environment: ${scenario.environment.name}.`] : []),
+  ];
 }
 
 function occurredAt(atSecond: number): string {
