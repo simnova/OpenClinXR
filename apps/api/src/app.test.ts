@@ -43,6 +43,17 @@ describe("OpenClinXR API shell", () => {
     expect(body.actors.map((actor) => actor.role)).toEqual(["patient", "family", "nurse"]);
   });
 
+  it("serves ED chest pain asset readiness from the shared runtime", async () => {
+    const app = createApiApp();
+    const response = await app.request("/scenarios/ed-chest-pain/assets/readiness");
+    const body = await json(response) as { productionReady: boolean; missingRequiredAssetIds: string[]; blockedAssets: unknown[] };
+
+    expect(response.status).toBe(200);
+    expect(body.productionReady).toBe(true);
+    expect(body.missingRequiredAssetIds).toEqual([]);
+    expect(body.blockedAssets).toEqual([]);
+  });
+
   it("starts a session, records events, submits a note, and returns a review packet", async () => {
     const app = createApiApp();
     const start = await app.request("/sessions", {
@@ -76,5 +87,13 @@ describe("OpenClinXR API shell", () => {
     expect(packet.observedTraceTags).toContain("ecg_request");
     expect(packet.missingRequiredTraceTags).toContain("team_communication");
     expect(packet.missingRequiredTraceTags).not.toContain("patient_note_submitted");
+  });
+
+  it("returns not found for missing runtime sessions", async () => {
+    const app = createApiApp();
+    const response = await app.request("/sessions/missing-run/review-packet");
+
+    expect(response.status).toBe(404);
+    expect(await json(response)).toEqual({ error: "session_not_found" });
   });
 });

@@ -1,110 +1,33 @@
-import { createStationRun, transitionStation, type StationRun } from "@openclinxr/domain";
-import { createDefaultModelGateway, LocalModelProviderAdapter, MockModelProviderAdapter } from "@openclinxr/model-gateway";
-import { buildReviewPacket } from "@openclinxr/review-workflow";
+import { createDefaultScenarioRuntime, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
-import type { ProviderHealth, TraceEvent } from "@openclinxr/shared-schemas";
-import { InMemoryTraceLedger } from "@openclinxr/trace-ledger";
-import { createDefaultVoiceGateway, LocalVoiceProviderAdapter, MockVoiceProviderAdapter } from "@openclinxr/voice-gateway";
 import { Hono } from "hono";
 
-type SessionRecord = {
-  run: StationRun;
-  nextSequence: number;
-};
-
-type ProviderHealthSnapshot = {
-  model: ProviderHealth;
-  voice: ProviderHealth;
-  localModel: ProviderHealth;
-  localVoice: ProviderHealth;
-};
-
-function occurredAt(atSecond: number): string {
-  return new Date(Date.parse("2026-05-03T15:38:58.000Z") + atSecond * 1000).toISOString();
-}
-
-function traceEvent(input: {
-  stationRunId: string;
-  sequence: number;
-  eventType: string;
-  atSecond: number;
-  source: string;
-  tag?: string;
-  actorId?: string;
-}): TraceEvent {
-  const event: TraceEvent = {
-    stationRunId: input.stationRunId,
-    sequence: input.sequence,
-    eventType: input.eventType,
-    occurredAt: occurredAt(input.atSecond),
-    atSecond: input.atSecond,
-    source: input.source,
-    payload: {},
-  };
-
-  if (input.tag) {
-    event.tag = input.tag;
-  }
-  if (input.actorId) {
-    event.actorId = input.actorId;
-  }
-
-  return event;
-}
-
-export function createApiApp(): Hono {
+export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRuntime()): Hono {
   const app = new Hono();
-  const sessions = new Map<string, SessionRecord>();
-  const ledger = new InMemoryTraceLedger();
-  const modelGateway = createDefaultModelGateway({
-    routeId: "actor-dialogue-offline-v1",
-    adapters: [new MockModelProviderAdapter(), new LocalModelProviderAdapter({ providerId: "local-model" })],
-  });
-  const voiceGateway = createDefaultVoiceGateway({
-    routeId: "voice-offline-v1",
-    adapters: [new MockVoiceProviderAdapter(), new LocalVoiceProviderAdapter({ providerId: "local-voice" })],
-  });
-
-  async function providerHealthSnapshot(): Promise<ProviderHealthSnapshot> {
-    const [modelHealth, voiceHealth] = await Promise.all([modelGateway.health(), voiceGateway.health()]);
-    return {
-      model: requireProviderHealth(modelHealth, "mock-model"),
-      voice: requireProviderHealth(voiceHealth, "mock-voice"),
-      localModel: requireProviderHealth(modelHealth, "local-model"),
-      localVoice: requireProviderHealth(voiceHealth, "local-voice"),
-    };
-  }
 
   app.get("/health", async (context) =>
     context.json({
       ok: true,
       service: "openclinxr-api",
-      providerHealth: await providerHealthSnapshot(),
+      providerHealth: await runtime.providerHealth(),
     }),
   );
 
-  app.get("/providers/health", async (context) => context.json(await providerHealthSnapshot()));
+  app.get("/providers/health", async (context) => context.json(await runtime.providerHealth()));
 
   app.get("/scenarios/ed-chest-pain", (context) => context.json(edChestPainScenario));
 
+  app.get("/scenarios/ed-chest-pain/assets/readiness", (context) => context.json(runtime.assetReadiness()));
+
   app.post("/sessions", async (context) => {
     const body = (await context.req.json().catch(() => ({}))) as { learnerId?: string };
-    let run = createStationRun(edChestPainScenario.scenarioId, body.learnerId ?? "learner_001");
-    ledger.append(traceEvent({ stationRunId: run.stationRunId, sequence: 0, eventType: "station.started", atSecond: 0, source: "system" }));
-    run = transitionStation(run, { type: "START_ENCOUNTER", atSecond: 60 });
-    ledger.append(traceEvent({ stationRunId: run.stationRunId, sequence: 1, eventType: "encounter.started", atSecond: 60, source: "system" }));
-    sessions.set(run.stationRunId, { run, nextSequence: 2 });
+    const run = await runtime.startSession({ learnerId: body.learnerId ?? "learner_001" });
 
-    return context.json({ stationRunId: run.stationRunId, phase: run.phase }, 201);
+    return context.json(run, 201);
   });
 
   app.post("/sessions/:stationRunId/events", async (context) => {
     const stationRunId = context.req.param("stationRunId");
-    const session = sessions.get(stationRunId);
-    if (!session) {
-      return context.json({ error: "session_not_found" }, 404);
-    }
-
     const body = (await context.req.json().catch(() => ({}))) as {
       eventType?: string;
       atSecond?: number;
@@ -112,95 +35,51 @@ export function createApiApp(): Hono {
       actorId?: string;
     };
 
-    const eventInput: {
-      stationRunId: string;
-      sequence: number;
-      eventType: string;
-      atSecond: number;
-      source: string;
-      tag?: string;
-      actorId?: string;
-    } = {
-      stationRunId,
-      sequence: session.nextSequence,
-      eventType: body.eventType ?? "learner.action",
-      atSecond: body.atSecond ?? 0,
-      source: "learner",
-    };
-    if (body.tag) {
-      eventInput.tag = body.tag;
+    try {
+      const event = runtime.appendLearnerEvent(stationRunId, {
+        eventType: body.eventType ?? "learner.action",
+        atSecond: body.atSecond ?? 0,
+        ...(body.tag ? { tag: body.tag } : {}),
+        ...(body.actorId ? { actorId: body.actorId } : {}),
+      });
+      return context.json(event, 201);
+    } catch (error) {
+      return sessionErrorResponse(context, error);
     }
-    if (body.actorId) {
-      eventInput.actorId = body.actorId;
-    }
-
-    const event = traceEvent(eventInput);
-
-    ledger.append(event);
-    session.nextSequence += 1;
-    return context.json(event, 201);
   });
 
   app.post("/sessions/:stationRunId/note", async (context) => {
     const stationRunId = context.req.param("stationRunId");
-    const session = sessions.get(stationRunId);
-    if (!session) {
-      return context.json({ error: "session_not_found" }, 404);
-    }
-
     const body = (await context.req.json().catch(() => ({}))) as { atSecond?: number; text?: string };
-    if (session.run.phase === "encounter") {
-      session.run = transitionStation(session.run, { type: "END_ENCOUNTER", atSecond: 960 });
+
+    try {
+      return context.json(
+        runtime.submitNote(stationRunId, {
+          atSecond: body.atSecond ?? 1260,
+          text: body.text ?? "",
+        }),
+      );
+    } catch (error) {
+      return sessionErrorResponse(context, error);
     }
-    session.run = transitionStation(session.run, {
-      type: "SUBMIT_NOTE",
-      atSecond: body.atSecond ?? 1260,
-      noteText: body.text ?? "",
-    });
-
-    const event = traceEvent({
-      stationRunId,
-      sequence: session.nextSequence,
-      eventType: "note.submitted",
-      atSecond: body.atSecond ?? 1260,
-      source: "learner",
-      tag: "patient_note_submitted",
-    });
-    ledger.append(event);
-    session.nextSequence += 1;
-
-    return context.json({ phase: session.run.phase, note: session.run.note });
   });
 
   app.get("/sessions/:stationRunId/review-packet", (context) => {
     const stationRunId = context.req.param("stationRunId");
-    const session = sessions.get(stationRunId);
-    if (!session) {
-      return context.json({ error: "session_not_found" }, 404);
+
+    try {
+      return context.json(runtime.reviewPacket(stationRunId));
+    } catch (error) {
+      return sessionErrorResponse(context, error);
     }
-
-    const packet = buildReviewPacket({
-      stationRunId,
-      scenarioId: edChestPainScenario.scenarioId,
-      requiredTraceTags: edChestPainScenario.requiredTraceTags,
-      traceEvents: ledger.replay(stationRunId),
-      facultyScoreDraft: {
-        reviewerId: "faculty_001",
-        status: "draft",
-        comments: "Generated from local in-memory API trace.",
-      },
-    });
-
-    return context.json(packet);
   });
 
   return app;
 }
 
-function requireProviderHealth(health: ProviderHealth[], providerId: string): ProviderHealth {
-  const provider = health.find((entry) => entry.providerId === providerId);
-  if (!provider) {
-    throw new Error(`Missing provider health for ${providerId}`);
+function sessionErrorResponse(context: { json: (body: { error: string }, status: 404 | 500) => Response }, error: unknown): Response {
+  if (error instanceof Error && error.message.startsWith("Session not found")) {
+    return context.json({ error: "session_not_found" }, 404);
   }
-  return provider;
+  return context.json({ error: "runtime_error" }, 500);
 }

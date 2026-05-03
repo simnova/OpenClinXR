@@ -216,3 +216,9 @@ Local evidence:
 
 - `pnpm --filter @openclinxr/scenario-runtime test` passed.
 - `pnpm --filter @openclinxr/scenario-runtime typecheck` passed.
+
+API follow-up:
+
+- `apps/api` now delegates session start, learner event append, note submission, provider health, asset readiness, and review-packet generation to `packages/scenario-runtime`.
+- API added `GET /scenarios/ed-chest-pain/assets/readiness`.
+- API tests now cover missing-session 404 behavior from the runtime boundary.

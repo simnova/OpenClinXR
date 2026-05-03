@@ -36,27 +36,12 @@ importers:
       '@hono/node-server':
         specifier: 2.0.1
         version: 2.0.1(hono@4.12.16)
-      '@openclinxr/domain':
-        specifier: workspace:*
-        version: link:../../packages/domain
-      '@openclinxr/model-gateway':
-        specifier: workspace:*
-        version: link:../../packages/model-gateway
-      '@openclinxr/review-workflow':
-        specifier: workspace:*
-        version: link:../../packages/review-workflow
       '@openclinxr/scenario-fixtures':
         specifier: workspace:*
         version: link:../../packages/scenario-fixtures
-      '@openclinxr/shared-schemas':
+      '@openclinxr/scenario-runtime':
         specifier: workspace:*
-        version: link:../../packages/shared-schemas
-      '@openclinxr/trace-ledger':
-        specifier: workspace:*
-        version: link:../../packages/trace-ledger
-      '@openclinxr/voice-gateway':
-        specifier: workspace:*
-        version: link:../../packages/voice-gateway
+        version: link:../../packages/scenario-runtime
       hono:
         specifier: 4.12.16
         version: 4.12.16

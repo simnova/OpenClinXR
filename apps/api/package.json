@@ -13,13 +13,8 @@
   },
   "dependencies": {
     "@hono/node-server": "2.0.1",
-    "@openclinxr/domain": "workspace:*",
-    "@openclinxr/model-gateway": "workspace:*",
-    "@openclinxr/review-workflow": "workspace:*",
+    "@openclinxr/scenario-runtime": "workspace:*",
     "@openclinxr/scenario-fixtures": "workspace:*",
-    "@openclinxr/shared-schemas": "workspace:*",
-    "@openclinxr/trace-ledger": "workspace:*",
-    "@openclinxr/voice-gateway": "workspace:*",
     "hono": "4.12.16",
     "tsx": "4.21.0"
   },
