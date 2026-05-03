@@ -250,3 +250,9 @@ Scenario runtime milestone has also started:
 - It centralizes the ED chest pain station session flow, trace append, note submission, provider health, asset readiness, and review packet generation.
 - `apps/api` now uses it for station sessions, provider health, asset readiness, and review packets.
 - `packages/test-harness` now uses it for the deterministic ED chest pain benchmark.
+
+Exam assembly milestone has also started:
+
+- `packages/exam-assembly` exists.
+- It creates ordered exam forms from approved scenarios and reports required trace-tag coverage gaps.
+- It rejects unapproved scenarios before exam-form lock, preserving the human review gates from the scenario fixture.

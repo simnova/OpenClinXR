@@ -227,3 +227,19 @@ Harness follow-up:
 
 - `packages/test-harness` now uses `packages/scenario-runtime` for the ED chest pain deterministic simulation instead of maintaining a separate station-flow loop.
 - Scenario runtime now exposes trace replay and records `encounter.ended` when note submission auto-closes the encounter.
+
+## Milestone 8 Progress: Exam Assembly
+
+Started on 2026-05-03:
+
+- `packages/exam-assembly` workspace package added.
+- Default clinical skills pilot blueprint added for the ED urgent-recognition station.
+- Exam form assembler locks approved scenarios into ordered station references.
+- Coverage evaluator reports required trace tags, covered trace tags, and missing trace tags.
+- Form status is `ready_for_review` only when required trace coverage is complete.
+- Unapproved scenarios are rejected before form lock.
+
+Local evidence:
+
+- `pnpm --filter @openclinxr/exam-assembly test` passed.
+- `pnpm --filter @openclinxr/exam-assembly typecheck` passed.
