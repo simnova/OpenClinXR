@@ -199,3 +199,20 @@ Local evidence:
 
 - `pnpm --filter @openclinxr/asset-registry test` passed.
 - `pnpm --filter @openclinxr/asset-registry typecheck` passed.
+
+## Milestone 7 Progress: Scenario Runtime Orchestration
+
+Started on 2026-05-03:
+
+- `packages/scenario-runtime` workspace package added.
+- Runtime starts the ED chest pain station from the approved fixture and immediately transitions to encounter phase.
+- Runtime appends deterministic system trace events, learner trace events, and note-submission trace events.
+- Runtime generates review packets through `packages/review-workflow`.
+- Runtime exposes model/voice provider health through the offline gateways.
+- Runtime exposes ED chest pain asset readiness through the asset registry.
+- Runtime rejects trace and review operations for unknown station sessions.
+
+Local evidence:
+
+- `pnpm --filter @openclinxr/scenario-runtime test` passed.
+- `pnpm --filter @openclinxr/scenario-runtime typecheck` passed.

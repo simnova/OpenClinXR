@@ -243,3 +243,9 @@ Asset registry milestone has also started:
 - ED chest pain placeholder manifests exist for patient, nurse, and ED bay assets.
 - Registry readiness checks block copyleft/unknown/review-required licenses, missing QA, and over-budget Quest 3 geometry/texture/draw-call profiles.
 - This is the gate to use before attempting Anny, MakeHuman, StableGen, SMPLitex, clothing, rigging, or generated-environment ingestion.
+
+Scenario runtime milestone has also started:
+
+- `packages/scenario-runtime` exists.
+- It centralizes the ED chest pain station session flow, trace append, note submission, provider health, asset readiness, and review packet generation.
+- It is the intended shared orchestration layer for future API and XR runtime integration, replacing duplicated station-flow logic as the next cleanup.
