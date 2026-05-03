@@ -169,6 +169,42 @@ Debt impact:
 - Closes `evidence-leadership-0007-001`: clean install, tests, and browser checks after application monorepo creation.
 - Does not close Quest 3 immersive, local model, local voice, sustained performance, or validation-study evidence debt.
 
+## Smoke Run 0005: Repeatable Quest CDP Probe
+
+Run time: 2026-05-03 18:12 EDT
+
+Result: pass for repeatable Quest Browser shell and trace interaction probe; blocked for CDP frame pacing sample.
+
+Command:
+
+```bash
+pnpm xr:quest:smoke -- --url 'http://localhost:5173/?questSmoke=20260503-1' --output docs/openclinxr/quest-cdp-smoke-2026-05-03.json
+```
+
+Evidence:
+
+- Machine-readable report: `docs/openclinxr/quest-cdp-smoke-2026-05-03.json`.
+- `adb devices -l` reported `2G0YC5ZGB5000J device usb:0-1 product:eureka model:Quest_3 device:eureka transport_id:1`.
+- `adb reverse tcp:5173 tcp:5173` was active.
+- Quest Browser reported `OculusBrowser/146.0.0.19.27.942135376 Chrome/146.0.7680.177`.
+- Remote CDP snapshot reported:
+  - `title`: `OpenClinXR Station Runtime`.
+  - `hasNavigatorXr`: `true`.
+  - `xrStatus`: `WebXR ready`.
+  - `canvas`: `860x902`.
+  - Canvas PNG data URL length: `100634`.
+  - Vite error overlay: `false`.
+- Fresh interaction probe reloaded the page, started from `Trace 0/10`, clicked `ecg request` and `urgent escalation`, and ended at `Trace 2/10`.
+
+Probe limitation:
+
+- CDP `requestAnimationFrame` sampling observed `0` frames before the local timeout. Treat this as a CDP/foregrounding measurement blocker, not proof of poor headset frame pacing. Sustained performance still needs a manual in-headset comfort run or a more reliable browser performance trace path.
+
+Debt impact:
+
+- Strengthens Quest Browser shell evidence and makes future USB-C headset checks repeatable.
+- Does not close `evidence-leadership-0007-002` because local model, local voice, immersive entry, and sustained frame pacing remain unbenchmarked.
+
 ## Setup
 
 1. Connect Quest 3 directly to the Mac with a USB3-capable USB-C cable.
@@ -236,7 +272,15 @@ If Chrome port forwarding is unreliable, use the direct `adb reverse tcp:5173 tc
 
 ## Smoke Test Script
 
-Run the ED station desktop/XR fallback in Quest Browser and capture:
+Automated shell and interaction probe:
+
+```bash
+pnpm xr:quest:smoke -- --url http://localhost:5173/ --output docs/openclinxr/quest-cdp-smoke-YYYY-MM-DD.json
+```
+
+This requires the local XR app server to already be running. It sets `adb reverse`, exposes Quest Browser CDP on port `9222`, launches Quest Browser, reloads the station page, checks the canvas/WebXR shell, clicks two trace controls, and records explicit blockers for incomplete frame sampling.
+
+Manual in-headset run still needs to capture:
 
 - Quest Browser version.
 - Horizon OS version.
