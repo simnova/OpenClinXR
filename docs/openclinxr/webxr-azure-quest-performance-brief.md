@@ -202,6 +202,14 @@ Suggested measurement events:
 | Avatar starts response gesture | 100 ms after response selected | `animation_started` |
 | Trace event persisted | 1000 ms batched | `trace_persisted` |
 
+Use OpenTelemetry as the shared performance-analysis vocabulary:
+
+- Server spans should cover HTTP routes, GraphQL operations, Mongo persistence, model gateway calls, voice gateway calls, and trace snapshot upserts.
+- XR client measurements should use the same event names and include a generated session correlation ID that can be joined to server spans without storing PHI.
+- Prefer low-cardinality attributes such as scenario ID, station run ID, route ID, actor role, provider ID, and device profile.
+- Avoid high-cardinality or sensitive attributes such as raw learner utterances, generated clinical text, hidden facts, note text, raw audio, or full prompts.
+- Start with console/local OTLP exporters for development; do not require a paid observability backend for the local single-user pilot.
+
 ## Testing Strategy
 
 Automated:
@@ -259,6 +267,7 @@ Scale path:
 - `src-azure-app-service-plan-docs-2026`
 - `src-mdn-webtransport-2026`
 - `src-mdn-webxr-performance-2026`
+- `src-opentelemetry-js-semantics-2026`
 - `src-xai-voice-api-docs-2026`
 - `src-llama-cpp-github-2026`
 - `src-npm-stack-metadata-2026-05-03`

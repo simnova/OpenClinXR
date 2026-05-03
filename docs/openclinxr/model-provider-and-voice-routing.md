@@ -51,6 +51,14 @@ Adapters must return provenance:
 - Cost estimate.
 - Guardrail result.
 
+OpenTelemetry alignment:
+
+- Wrap each model and voice provider call in spans such as `openclinxr.model.generate_actor_response` and `openclinxr.voice.synthesize`.
+- Attach low-cardinality attributes for `openclinxr.scenario_id`, `openclinxr.scenario_version`, `openclinxr.station_run_id`, `openclinxr.actor_id`, `openclinxr.provider_id`, `openclinxr.route_id`, and `openclinxr.request_policy_id`.
+- Record latency, token/audio duration, guardrail status, and fallback status as metrics or span attributes.
+- Do not attach prompt text, hidden facts, learner transcript text, raw audio, or patient-note text as span attributes.
+- Correlate OpenTelemetry trace IDs with trace-ledger events so faculty replay can connect station behavior with infrastructure timing.
+
 ## Routing Policy
 
 First implementation:
@@ -160,6 +168,8 @@ Output metrics:
 - Guardrail pass/fail rate.
 - Cost per station.
 - Reviewer acceptance rate.
+- OpenTelemetry span duration by provider route.
+- Fallback and timeout rate by provider route.
 
 ## Sources
 
@@ -167,5 +177,6 @@ Output metrics:
 - `src-xai-voice-api-docs-2026`
 - `src-llama-cpp-github-2026`
 - `src-npm-stack-metadata-2026-05-03`
+- `src-opentelemetry-js-semantics-2026`
 - `src-local-laverde-llm-agents-pdf-2025`
 - `src-local-bodonhelyi-medical-communication-pdf-2025`

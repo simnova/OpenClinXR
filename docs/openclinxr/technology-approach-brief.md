@@ -89,6 +89,7 @@ Penpot is the preferred design collaboration tool. OpenPencil is a promising MIT
 - Knip should be added as the unused-files/exports/dependencies gate once package boundaries stabilize.
 - E18E should be used as an ecosystem-health and dependency-modernization signal when evaluating package choices and periodic upgrades.
 - Use `@graphql-codegen/cli` with the client preset for route/workbench query documents and TypeScript resolver plugins for server contracts; avoid older Apollo-specific generated hooks until compatibility with the selected Apollo Client version is verified.
+- Use OpenTelemetry as the shared performance-analysis vocabulary across API routes, GraphQL operations, Mongo persistence, model gateway calls, voice gateway calls, and XR client timing events.
 - Keep package boundaries compatible with CellixJS-style domain cells so TurboRepo tasks can map cleanly to domain ownership.
 
 ### LLM And Voice
@@ -157,6 +158,7 @@ Changes from this pass:
 | Monorepo orchestration | TurboRepo | MPL-2.0 | Good fit once CI caching/affected builds matter; verify deployment implications |
 | Lint/format | Biome | MIT/Apache-2.0 | Candidate single-command style and lint gate |
 | Dependency hygiene | Knip, E18E | ISC/MIT mix; verify exact package licenses | Detect unused exports/dependencies and flag ecosystem modernization opportunities |
+| Observability | OpenTelemetry | Apache-2.0 | Common traces/metrics for API, GraphQL, model/voice gateways, Mongo, and XR performance events |
 | Local LLM | llama.cpp/Ollama/MLX | Verify runtime and model licenses | Feasible for dev/demo on M4 Max, not validated clinically |
 
 ## Development Team Guidance
@@ -170,7 +172,7 @@ Changes from this pass:
 7. Run LLM and speech providers behind adapters so Grok, local LLMs, and future providers can be swapped without changing station logic.
 8. Use Storybook and Serenity/JS from the start so non-XR workflows remain testable while XR testing matures.
 9. Treat communication style as a first-class actor-card property with explicit QA, not as a loose prompt adjective.
-10. Bias implementation decisions toward the support team's known tools where they do not weaken runtime performance or governance: pnpm, Mongoose, Apollo GraphQL, GraphQL Code Generator, TurboRepo, Biome, React Router, Knip, and E18E are preferred candidates for the admin/control-plane and developer-tooling surface.
+10. Bias implementation decisions toward the support team's known tools where they do not weaken runtime performance or governance: pnpm, Mongoose, Apollo GraphQL, GraphQL Code Generator, TurboRepo, Biome, React Router, Knip, E18E, and OpenTelemetry are preferred candidates for the admin/control-plane, performance-analysis, and developer-tooling surface.
 
 ## Sources
 
@@ -190,6 +192,7 @@ Changes from this pass:
 - `src-npm-stack-metadata-2026-05-03`
 - `src-graphql-codegen-docs-2026`
 - `src-knip-e18e-tooling-2026`
+- `src-opentelemetry-js-semantics-2026`
 - `src-storybook-10-3-2026`
 - `src-serenity-js-screenplay-2026`
 - `src-azure-app-service-plan-docs-2026`

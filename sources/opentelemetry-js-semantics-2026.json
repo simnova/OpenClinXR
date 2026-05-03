@@ -1,0 +1,22 @@
+{
+  "source_id": "src-opentelemetry-js-semantics-2026",
+  "title": "OpenTelemetry JavaScript And Semantic Conventions Documentation",
+  "url": "https://opentelemetry.io/docs/languages/js/",
+  "source_type": "professional-guidance",
+  "citation": "OpenTelemetry JavaScript documentation and semantic convention documentation, accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Performance-analysis and observability planning for TypeScript API, GraphQL, model, voice, MongoDB, and WebXR runtime events."
+  ],
+  "claims_supported": [
+    "OpenTelemetry provides JavaScript APIs and SDKs for collecting telemetry data such as traces and metrics.",
+    "OpenTelemetry semantic conventions define common attribute and span naming guidance for HTTP and GraphQL.",
+    "OpenTelemetry JavaScript traces and metrics are documented as stable, while browser client instrumentation is described as experimental and less specified."
+  ],
+  "claims_not_supported": [
+    "That OpenTelemetry instrumentation is zero-overhead or automatically safe for high-cardinality clinical payloads.",
+    "That a paid observability vendor is required for the local single-user pilot.",
+    "That browser/WebXR instrumentation semantics are as mature as server-side Node.js instrumentation."
+  ],
+  "confidence": 0.86
+}

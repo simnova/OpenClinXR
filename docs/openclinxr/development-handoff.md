@@ -204,6 +204,7 @@ Use these preferences when making new implementation decisions unless a runtime 
 - Prefer React Router for administrative app routing and nested workbench modules.
 - Prefer TurboRepo when package count and CI/runtime tasks need caching or affected-package execution.
 - Prefer Biome, Knip, and E18E for lint/format, unused dependency/export detection, and ecosystem-health review after scoped baselines are tuned.
+- Prefer OpenTelemetry for performance analysis and trace/metric naming across API, GraphQL, MongoDB, model/voice gateways, and XR runtime events.
 
 Current tooling note: `knip` and `@e18e/cli` are installed as pnpm-managed root dev dependencies. `pnpm hygiene:knip` is report-only for now. `pnpm hygiene:e18e:help` verifies the E18E CLI entrypoint. `pnpm hygiene:e18e:analyze` is intentionally outside the main `verify` gate because a whole-repo spike on 2026-05-03 did not return promptly and needs a scoped baseline before becoming blocking.
 
