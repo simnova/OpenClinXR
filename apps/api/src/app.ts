@@ -1,5 +1,5 @@
 import { assembleExamForm, createDefaultClinicalSkillsBlueprint, evaluateScenarioVersionDrift, type ExamForm } from "@openclinxr/exam-assembly";
-import { createGraphqlCodegenPlan, openClinXrAdminSchemaSdl } from "@openclinxr/admin-graphql";
+import { adminGraphqlDocuments, createGraphqlCodegenPlan, openClinXrAdminSchemaSdl } from "@openclinxr/admin-graphql";
 import { createDefaultScenarioRuntime, type PublicationTargetUse, type ReviewerEvidence, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createLearnerScenarioView, edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { Hono } from "hono";
@@ -33,6 +33,8 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   );
 
   app.get("/admin/graphql/codegen-plan", (context) => context.json(createGraphqlCodegenPlan()));
+
+  app.get("/admin/graphql/documents", (context) => context.json(adminGraphqlDocuments));
 
   app.get("/scenarios/ed-chest-pain", (context) => context.json(createLearnerScenarioView(edChestPainScenario)));
 

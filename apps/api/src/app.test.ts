@@ -66,6 +66,28 @@ describe("OpenClinXR API shell", () => {
     expect(codegenPlan.generates).toHaveProperty("apps/api/src/graphql/generated/resolvers.ts");
   });
 
+  it("serves validated admin GraphQL seed operation documents", async () => {
+    const app = createApiApp();
+    const response = await app.request("/admin/graphql/documents");
+    const documents = await json(response) as Array<{ routeId: string; operationName: string; source: string }>;
+
+    expect(response.status).toBe(200);
+    expect(documents.map((document) => document.routeId)).toEqual([
+      "scenario-bank",
+      "review-packet-replay",
+      "exam-form-workbench",
+      "exam-form-assembly",
+    ]);
+    expect(documents.map((document) => document.operationName)).toEqual([
+      "ScenarioBank",
+      "ReviewPacketReplay",
+      "ExamFormWorkbench",
+      "AssembleExamForm",
+    ]);
+    expect(documents[0]?.source).toContain("query ScenarioBank");
+    expect(JSON.stringify(documents)).not.toContain("hiddenFacts");
+  });
+
   it("serves ED chest pain asset readiness from the shared runtime", async () => {
     const app = createApiApp();
     const response = await app.request("/scenarios/ed-chest-pain/assets/readiness");
