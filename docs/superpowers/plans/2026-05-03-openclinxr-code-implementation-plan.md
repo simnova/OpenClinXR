@@ -17,8 +17,8 @@
 Create these workspaces:
 
 - `apps/api`: Hono API and local server.
-- `apps/admin`: React/Ant Design admin workflow.
-- `apps/xr`: learner WebXR/non-XR station runtime.
+- `apps/ui-admin`: React/Ant Design admin workflow.
+- `apps/ui-xr`: learner WebXR/non-XR station runtime.
 - `packages/shared-schemas`: TypeBox schemas and AJV validators.
 - `packages/domain`: pure domain functions.
 - `packages/scenario-fixtures`: ED chest pain seed data.
@@ -64,8 +64,8 @@ packages:
     "test": "vitest run",
     "verify": "pnpm typecheck && pnpm test",
     "dev:api": "pnpm --filter @openclinxr/api dev",
-    "dev:admin": "pnpm --filter @openclinxr/admin dev",
-    "dev:xr": "pnpm --filter @openclinxr/xr dev",
+    "dev:admin": "pnpm --filter @openclinxr/ui-admin dev",
+    "dev:xr": "pnpm --filter @openclinxr/ui-xr dev",
     "bench:mock": "pnpm --filter @openclinxr/test-harness bench:mock"
   },
   "devDependencies": {
@@ -944,12 +944,12 @@ git commit -m "feat: add mock actor model provider"
 ### Task 10: Add Admin App Shell
 
 **Files:**
-- Create: `apps/admin/package.json`
-- Create: `apps/admin/index.html`
-- Create: `apps/admin/tsconfig.json`
-- Create: `apps/admin/src/App.tsx`
-- Create: `apps/admin/src/main.tsx`
-- Create: `apps/admin/src/App.test.tsx`
+- Create: `apps/ui-admin/package.json`
+- Create: `apps/ui-admin/index.html`
+- Create: `apps/ui-admin/tsconfig.json`
+- Create: `apps/ui-admin/src/App.tsx`
+- Create: `apps/ui-admin/src/main.tsx`
+- Create: `apps/ui-admin/src/App.test.tsx`
 
 - [ ] **Step 1: Create React admin shell**
 
@@ -1003,7 +1003,7 @@ Use React Testing Library to assert `OpenClinXR Admin` renders.
 - [ ] **Step 4: Run tests**
 
 ```bash
-pnpm --filter @openclinxr/admin test
+pnpm --filter @openclinxr/ui-admin test
 ```
 
 Expected: admin shell test passes.
@@ -1011,19 +1011,19 @@ Expected: admin shell test passes.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add apps/admin package.json pnpm-lock.yaml
+git add apps/ui-admin package.json pnpm-lock.yaml
 git commit -m "feat: add admin app shell"
 ```
 
 ### Task 11: Add Learner XR Shell With Desktop Fallback
 
 **Files:**
-- Create: `apps/xr/package.json`
-- Create: `apps/xr/index.html`
-- Create: `apps/xr/tsconfig.json`
-- Create: `apps/xr/src/App.tsx`
-- Create: `apps/xr/src/main.tsx`
-- Create: `apps/xr/src/App.test.tsx`
+- Create: `apps/ui-xr/package.json`
+- Create: `apps/ui-xr/index.html`
+- Create: `apps/ui-xr/tsconfig.json`
+- Create: `apps/ui-xr/src/App.tsx`
+- Create: `apps/ui-xr/src/main.tsx`
+- Create: `apps/ui-xr/src/App.test.tsx`
 
 - [ ] **Step 1: Implement fallback-first XR shell**
 
@@ -1049,7 +1049,7 @@ Assert the fallback text and station title render.
 - [ ] **Step 3: Run tests**
 
 ```bash
-pnpm --filter @openclinxr/xr test
+pnpm --filter @openclinxr/ui-xr test
 ```
 
 Expected: XR shell fallback test passes.
@@ -1057,7 +1057,7 @@ Expected: XR shell fallback test passes.
 - [ ] **Step 4: Commit**
 
 ```bash
-git add apps/xr package.json pnpm-lock.yaml
+git add apps/ui-xr package.json pnpm-lock.yaml
 git commit -m "feat: add learner XR shell fallback"
 ```
 

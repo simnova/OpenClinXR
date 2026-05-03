@@ -138,7 +138,7 @@ Important caveat:
 
 Started on 2026-05-03:
 
-- `apps/xr` workspace app added.
+- `apps/ui-xr` workspace app added.
 - Vite and Three.js desktop/WebXR shell added for the ED chest pain fixture.
 - The shell renders a nonblank emergency department bay with patient, nurse, spouse, bed, monitor, clock prop, status strip, simulated EHR panel, mock dialogue, station timer, and trace action controls.
 - Runtime state helpers cover station clock formatting, trace-action completion, and required-trace readiness summaries.
@@ -146,9 +146,9 @@ Started on 2026-05-03:
 
 Local browser evidence:
 
-- `pnpm --filter @openclinxr/xr test` passed.
-- `pnpm --filter @openclinxr/xr typecheck` passed.
-- `pnpm --filter @openclinxr/xr build` passed with the expected initial Three.js bundle-size warning.
+- `pnpm --filter @openclinxr/ui-xr test` passed.
+- `pnpm --filter @openclinxr/ui-xr typecheck` passed.
+- `pnpm --filter @openclinxr/ui-xr build` passed with the expected initial Three.js bundle-size warning.
 - Vite served the shell at `http://localhost:5173/`.
 - Desktop browser load reported title `OpenClinXR Station Runtime` and no warning/error console logs beyond Vite debug messages.
 - Desktop screenshot pixel sample found 346 unique sampled colors and 5,211 non-background pixels in the stage region.
@@ -298,7 +298,7 @@ Local evidence:
 
 - `pnpm verify` passed after each code slice.
 - `pnpm bench:mock` passed with `eventCount` 18, no missing required trace tags, `modelFailedEventCount` 0, and adversarial `overallScore` 1.
-- `pnpm --filter @openclinxr/xr build` passed; Vite reported the existing large bundle warning from Three.js.
+- `pnpm --filter @openclinxr/ui-xr build` passed; Vite reported the existing large bundle warning from Three.js.
 - In-app browser smoke loaded `http://localhost:5173/`, rendered the station shell, advanced `Trace 1/10` after `Ecg Request`, and showed no warning/error logs.
 - Quest 3 smoke loaded `OpenClinXR Station Runtime`, rendered a nonblank `860x774` canvas, advanced to `Trace 2/10`, and reported no Vite/framework overlay. The CDP immersive support probe was inconclusive because `navigator.xr.isSessionSupported("immersive-vr")` did not resolve before timeout.
 

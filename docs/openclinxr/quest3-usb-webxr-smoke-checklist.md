@@ -71,7 +71,7 @@ Result: pass for desktop/mobile browser preflight; blocked for headset rerun.
 
 Evidence:
 
-- `apps/xr` Vite dev server served `http://localhost:5173/`.
+- `apps/ui-xr` Vite dev server served `http://localhost:5173/`.
 - Desktop browser loaded `OpenClinXR Station Runtime`.
 - Desktop browser console showed no warning/error logs beyond Vite debug messages.
 - Desktop viewport canvas check reported:
@@ -171,7 +171,7 @@ After the XR app exists:
 1. Start the local Vite dev server:
 
 ```bash
-pnpm --filter @openclinxr/xr dev -- --host 0.0.0.0
+pnpm --filter @openclinxr/ui-xr dev -- --host 0.0.0.0
 ```
 
 2. Open desktop Chrome:

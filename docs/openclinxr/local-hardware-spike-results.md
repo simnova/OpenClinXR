@@ -186,7 +186,7 @@ This validates the local USB-C development loop. It does not validate the future
 
 OpenClinXR XR shell smoke result:
 
-- `apps/xr` Vite dev server served `http://localhost:5173/`.
+- `apps/ui-xr` Vite dev server served `http://localhost:5173/`.
 - `adb devices -l` reported `2G0YC5ZGB5000J device usb:0-1 product:eureka model:Quest_3 device:eureka`.
 - `adb reverse tcp:5173 tcp:5173` and `adb forward tcp:9222 localabstract:chrome_devtools_remote` succeeded.
 - Quest Browser loaded `OpenClinXR Station Runtime` at `http://localhost:5173/`.

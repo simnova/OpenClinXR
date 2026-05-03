@@ -32,17 +32,21 @@ Use those documents as the implementation source of truth. The phase outline bel
 Create a TypeScript monorepo influenced by CellixJS DDD patterns:
 
 - `apps/api`
-- `apps/web`
-- `apps/admin`
-- `apps/xr`
+- `apps/ui-admin`
+- `apps/ui-xr`
 - `packages/domain`
 - `packages/data-mongodb`
+- `packages/data-sources-mongoose-models`
 - `packages/scenario-runtime`
 - `packages/model-gateway`
 - `packages/voice-gateway`
 - `packages/trace-ledger`
 - `packages/review-workflow`
 - `packages/shared-schemas`
+- `packages/graphql`
+- `packages/rest`
+- `packages/ui-route-shared`
+- `packages/ui-shared`
 - `packages/test-harness`
 - `packages/asset-registry`
 
@@ -199,12 +203,14 @@ The next implementation plan should not start until these docs are reviewed:
 Use these preferences when making new implementation decisions unless a runtime constraint argues against them:
 
 - Prefer pnpm over npm for workspace dependency management and command examples.
+- Use Turborepo-friendly names: `apps/ui-<<portal-name>>` for React SPAs, `packages/ui-route-<<top-level-route>>` for route-owned code, `packages/ui-route-shared` for route-shared SPA code, `packages/ui-shared` for cross-portal SPA code, `packages/graphql` and `packages/rest` for protocol packages, `packages/data-sources-mongoose-models` for Mongoose models, and `apps/mock-<<server-type>>-server` for local mock servers.
 - Prefer Mongoose for mature MongoDB admin/control-plane schemas, while keeping high-volume trace replay repositories thin and performance-oriented.
 - Prefer Apollo GraphQL plus GraphQL Code Generator for admin workbench queries and generated TypeScript operation/resolver contracts once GraphQL is introduced.
 - Prefer React Router for administrative app routing and nested workbench modules.
 - Prefer TurboRepo when package count and CI/runtime tasks need caching or affected-package execution.
 - Prefer Biome, Knip, and E18E for lint/format, unused dependency/export detection, and ecosystem-health review after scoped baselines are tuned.
 - Prefer OpenTelemetry for performance analysis and trace/metric naming across API, GraphQL, MongoDB, model/voice gateways, and XR runtime events.
+- Prefer a CellixJS-inspired fluent API bootstrap for `apps/api`: register infrastructure services, set request/application context, initialize application services, register Azure Function-compatible GraphQL/REST handlers, then start up. Keep the OpenClinXR variant Hono/Azure Functions-compatible and local-testable.
 
 Current tooling note: `knip` and `@e18e/cli` are installed as pnpm-managed root dev dependencies. `pnpm hygiene:knip` is report-only for now. `pnpm hygiene:e18e:help` verifies the E18E CLI entrypoint. `pnpm hygiene:e18e:analyze` is intentionally outside the main `verify` gate because a whole-repo spike on 2026-05-03 did not return promptly and needs a scoped baseline before becoming blocking.
 
@@ -237,7 +243,7 @@ MongoDB repository-contract milestone has also started:
 
 XR station-shell milestone has also started:
 
-- `apps/xr` exists.
+- `apps/ui-xr` exists.
 - The ED chest pain station shell renders a Three.js emergency department bay with patient, nurse, spouse, bed, monitor, timer/status strip, simulated EHR, mock dialogue, and trace action controls.
 - Runtime state tests, package typecheck, and production build pass locally.
 - Desktop and mobile browser smoke checks show a nonblank canvas with no console errors and readable control surfaces.
@@ -318,6 +324,6 @@ Review, publication, and persistence milestones have also started:
 
 XR shell integration milestone has also started:
 
-- `apps/xr` has a typed optional API client for session start, encounter start, trace event sync, actor response requests, and note submission.
+- `apps/ui-xr` has a typed optional API client for session start, encounter start, trace event sync, actor response requests, and note submission.
 - The UI stays local-first and only syncs trace actions in the background when `VITE_OPENCLINXR_API_BASE_URL` is configured.
 - Fresh browser and Quest 3 smoke evidence is recorded in `docs/openclinxr/quest3-usb-webxr-smoke-checklist.md`.

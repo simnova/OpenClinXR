@@ -211,7 +211,7 @@ Done when:
 
 Owned paths:
 
-- `apps/admin`
+- `apps/ui-admin`
 
 Screens:
 
@@ -237,7 +237,7 @@ Done when:
 
 Owned paths:
 
-- `apps/xr`
+- `apps/ui-xr`
 
 Runtime elements:
 

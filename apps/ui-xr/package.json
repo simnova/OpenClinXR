@@ -1,20 +1,22 @@
 {
-  "name": "@openclinxr/admin-graphql",
+  "name": "@openclinxr/ui-xr",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "exports": {
-    ".": "./src/index.ts"
-  },
   "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run --root ."
   },
   "dependencies": {
-    "graphql": "16.12.0"
+    "@openclinxr/scenario-fixtures": "workspace:*",
+    "three": "0.184.0"
   },
   "devDependencies": {
+    "@types/three": "0.184.0",
     "typescript": "6.0.3",
+    "vite": "8.0.10",
     "vitest": "4.1.5"
   }
 }

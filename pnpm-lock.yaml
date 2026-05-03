@@ -37,7 +37,38 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  apps/admin:
+  apps/api:
+    dependencies:
+      '@hono/node-server':
+        specifier: 2.0.1
+        version: 2.0.1(hono@4.12.16)
+      '@openclinxr/exam-assembly':
+        specifier: workspace:*
+        version: link:../../packages/exam-assembly
+      '@openclinxr/graphql':
+        specifier: workspace:*
+        version: link:../../packages/graphql
+      '@openclinxr/scenario-fixtures':
+        specifier: workspace:*
+        version: link:../../packages/scenario-fixtures
+      '@openclinxr/scenario-runtime':
+        specifier: workspace:*
+        version: link:../../packages/scenario-runtime
+      hono:
+        specifier: 4.12.16
+        version: 4.12.16
+      tsx:
+        specifier: 4.21.0
+        version: 4.21.0
+    devDependencies:
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.5
+        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+
+  apps/ui-admin:
     dependencies:
       '@apollo/client':
         specifier: 4.1.9
@@ -86,38 +117,7 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  apps/api:
-    dependencies:
-      '@hono/node-server':
-        specifier: 2.0.1
-        version: 2.0.1(hono@4.12.16)
-      '@openclinxr/admin-graphql':
-        specifier: workspace:*
-        version: link:../../packages/admin-graphql
-      '@openclinxr/exam-assembly':
-        specifier: workspace:*
-        version: link:../../packages/exam-assembly
-      '@openclinxr/scenario-fixtures':
-        specifier: workspace:*
-        version: link:../../packages/scenario-fixtures
-      '@openclinxr/scenario-runtime':
-        specifier: workspace:*
-        version: link:../../packages/scenario-runtime
-      hono:
-        specifier: 4.12.16
-        version: 4.12.16
-      tsx:
-        specifier: 4.21.0
-        version: 4.21.0
-    devDependencies:
-      typescript:
-        specifier: 6.0.3
-        version: 6.0.3
-      vitest:
-        specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
-
-  apps/xr:
+  apps/ui-xr:
     dependencies:
       '@openclinxr/scenario-fixtures':
         specifier: workspace:*
@@ -135,19 +135,6 @@ importers:
       vite:
         specifier: 8.0.10
         version: 8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4)
-      vitest:
-        specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
-
-  packages/admin-graphql:
-    dependencies:
-      graphql:
-        specifier: 16.12.0
-        version: 16.12.0
-    devDependencies:
-      typescript:
-        specifier: 6.0.3
-        version: 6.0.3
       vitest:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
@@ -220,6 +207,19 @@ importers:
       '@openclinxr/shared-schemas':
         specifier: workspace:*
         version: link:../shared-schemas
+    devDependencies:
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.5
+        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+
+  packages/graphql:
+    dependencies:
+      graphql:
+        specifier: 16.12.0
+        version: 16.12.0
     devDependencies:
       typescript:
         specifier: 6.0.3

@@ -20,10 +20,10 @@ export function buildAdminGraphqlSchema(): GraphQLSchema {
 
 export function createGraphqlCodegenPlan(): GraphqlCodegenPlan {
   return {
-    schema: "packages/admin-graphql/src/schema.graphql",
-    documents: ["packages/admin-graphql/src/documents/**/*.graphql", "apps/admin/src/**/*.graphql", "apps/admin/src/**/*.tsx"],
+    schema: "packages/graphql/src/schema.graphql",
+    documents: ["packages/graphql/src/documents/**/*.graphql", "apps/ui-admin/src/**/*.graphql", "apps/ui-admin/src/**/*.tsx"],
     generates: {
-      "apps/admin/src/graphql/generated/": {
+      "apps/ui-admin/src/graphql/generated/": {
         preset: "client",
         config: {
           useTypeImports: true,

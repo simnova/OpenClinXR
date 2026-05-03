@@ -43,8 +43,8 @@ Use a pnpm workspace because pnpm is already installed locally and works with Ty
 ```text
 apps/
   api/
-  admin/
-  xr/
+  ui-admin/
+  ui-xr/
 packages/
   shared-schemas/
   domain/
@@ -57,13 +57,30 @@ packages/
   voice-gateway/
   asset-registry/
   asset-pipeline/
-  ui-admin/
-  ui-xr/
+  ui-route-scenario-bank/
+  ui-route-review-replay/
+  ui-route-exam-forms/
+  ui-route-shared/
+  ui-shared/
+  graphql/
+  rest/
+  data-sources-mongoose-models/
   test-harness/
 docs/
   openclinxr/
   superpowers/plans/
 ```
+
+Workspace naming should follow the development team's Turborepo convention:
+
+- SPA portals: `apps/ui-<<portal-name>>`.
+- Route packages: `packages/ui-route-<<top-level-route>>`.
+- Shared route code: `packages/ui-route-shared`.
+- Shared UI across portals: `packages/ui-shared`.
+- Main Azure Functions-compatible backend: `apps/api`.
+- Protocol contracts/adapters: `packages/graphql`, `packages/rest`, and additional `packages/...` protocols as needed.
+- Mongoose model layer: `packages/data-sources-mongoose-models`.
+- Local dependency simulators: `apps/mock-<<server-type>>-server`.
 
 ## Dependency Posture
 

@@ -11,6 +11,12 @@ Instruction to future Codex context:
 - Stop only for safety or confirmation blockers, destructive actions, paid/cloud/API usage, or if the worktree cannot be made clean safely.
 - Prefer local-only validation and hardware spikes. Do not incur cloud charges or call paid third-party APIs.
 
+Renewed instruction at 2026-05-03 15:27:01 EDT:
+
+- Continue advancing iterations unattended until at least 2026-05-03 18:27:01 EDT.
+- Do not stop immediately at that time; continue to the next verified logical breakpoint.
+- Use steering comments as input, but keep working unless they introduce one of the explicit stop conditions above.
+
 Progress through 2026-05-03 14:16 EDT:
 
 - Added benchmark trace-quality reporting and adversarial probe scoring to `pnpm bench:mock`.

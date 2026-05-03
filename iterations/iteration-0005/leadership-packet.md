@@ -56,8 +56,8 @@ Out of first build:
 The first implementation uses a pnpm TypeScript monorepo:
 
 - `apps/api`
-- `apps/admin`
-- `apps/xr`
+- `apps/ui-admin`
+- `apps/ui-xr`
 - `packages/shared-schemas`
 - `packages/domain`
 - `packages/scenario-fixtures`

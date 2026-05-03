@@ -1,0 +1,21 @@
+{
+  "source_id": "src-cellixjs-api-fluent-startup-2026",
+  "title": "CellixJS API Fluent Startup Example",
+  "url": "https://github.com/CellixJs/cellixjs/blob/main/apps/api/src/index.ts",
+  "source_type": "vendor",
+  "citation": "CellixJS apps/api/src/index.ts, accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Architecture inspiration for OpenClinXR API bootstrapping, service registration, context setup, and Azure Function-compatible handler registration."
+  ],
+  "claims_supported": [
+    "The CellixJS API startup example imports OpenTelemetry setup before app initialization.",
+    "The example uses a fluent startup chain to register infrastructure services, set context, initialize application services, register Azure Function HTTP handlers for GraphQL and REST, and call startUp().",
+    "The example registers services for Mongoose, blob storage, token validation, Apollo Server, GraphQL handlers, and REST handlers."
+  ],
+  "claims_not_supported": [
+    "That OpenClinXR should copy the CellixJS implementation directly rather than adapting the pattern to Hono, Azure Functions compatibility, and local deterministic tests.",
+    "That every CellixJS service boundary maps one-to-one onto OpenClinXR package boundaries."
+  ],
+  "confidence": 0.86
+}

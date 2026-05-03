@@ -166,7 +166,7 @@ Acceptance:
 
 Owns:
 
-- `apps/admin`
+- `apps/ui-admin`
 - reusable admin components if created later
 
 Acceptance:
@@ -180,7 +180,7 @@ Acceptance:
 
 Owns:
 
-- `apps/xr`
+- `apps/ui-xr`
 - XR runtime fixtures
 
 Acceptance:
