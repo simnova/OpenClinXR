@@ -69,6 +69,48 @@ describe("workspace architecture rules", () => {
     expect(violations).toEqual([]);
   });
 
+  it("keeps telemetry contracts independent from application and runtime packages", async () => {
+    const forbiddenImports = /@openclinxr\//;
+    const violations = await projectFiles(archTsconfig)
+      .inFolder("packages/openclinxr/telemetry/src/**")
+      .should()
+      .adhereTo(
+        (file) => !forbiddenImports.test(file.content),
+        "telemetry contracts must stay dependency-light so API, XR, model, voice, Mongo, and test harness packages can all consume them",
+      )
+      .check();
+
+    expect(violations).toEqual([]);
+  });
+
+  it("keeps Mongoose data sources out of station runtime and trace-ledger dependencies", async () => {
+    const forbiddenImports = /@openclinxr\/(?:scenario-runtime|trace-ledger|model-gateway|voice-gateway)|apps\//;
+    const violations = await projectFiles(archTsconfig)
+      .inFolder("packages/openclinxr/data-sources-mongoose-models/src/**")
+      .should()
+      .adhereTo(
+        (file) => !forbiddenImports.test(file.content),
+        "Mongoose control-plane data sources must not import station runtime, trace ledger, model/voice gateways, or app shells",
+      )
+      .check();
+
+    expect(violations).toEqual([]);
+  });
+
+  it("keeps the agent-loop orchestration package independent from app and station runtime code", async () => {
+    const forbiddenImports = /@openclinxr\/(?:scenario-runtime|data-|data-sources-|model-gateway|voice-gateway|trace-ledger)|apps\//;
+    const violations = await projectFiles(archTsconfig)
+      .inFolder("packages/openclinxr/agent-loop/src/**")
+      .should()
+      .adhereTo(
+        (file) => !forbiddenImports.test(file.content),
+        "agent-loop orchestration must remain a pure planning package rather than coupling to runtime implementations",
+      )
+      .check();
+
+    expect(violations).toEqual([]);
+  });
+
   it("keeps shared UI packages free of circular imports", async () => {
     const violations = await projectFiles(archTsconfig)
       .inFolder("packages/openclinxr/ui-*/src/**")
