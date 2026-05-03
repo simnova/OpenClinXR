@@ -1,4 +1,5 @@
 import type { ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
+import type { ExamForm } from "@openclinxr/exam-assembly";
 import type { Collection, Db } from "mongodb";
 
 export class MongoScenarioRepository {
@@ -78,5 +79,34 @@ export class MongoReviewPacketRepository {
 
   async listByScenario(scenarioId: string): Promise<ReviewPacket[]> {
     return this.collection.find({ scenarioId }, { projection: { _id: 0 } }).sort({ stationRunId: 1 }).toArray();
+  }
+}
+
+export class MongoExamFormRepository {
+  private readonly collection: Collection<ExamForm>;
+
+  constructor(db: Db) {
+    this.collection = db.collection<ExamForm>("exam_forms");
+  }
+
+  async ensureIndexes(): Promise<void> {
+    await this.collection.createIndex({ examFormId: 1 }, { unique: true });
+    await this.collection.createIndex({ blueprintId: 1, status: 1 });
+  }
+
+  async save(form: ExamForm): Promise<void> {
+    await this.collection.updateOne(
+      { examFormId: form.examFormId },
+      { $set: form },
+      { upsert: true },
+    );
+  }
+
+  async findById(examFormId: string): Promise<ExamForm | null> {
+    return this.collection.findOne({ examFormId }, { projection: { _id: 0 } });
+  }
+
+  async listByBlueprint(blueprintId: string): Promise<ExamForm[]> {
+    return this.collection.find({ blueprintId }, { projection: { _id: 0 } }).sort({ examFormId: 1 }).toArray();
   }
 }

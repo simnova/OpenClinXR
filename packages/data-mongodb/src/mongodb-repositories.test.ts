@@ -1,7 +1,9 @@
 import type { ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
+import { assembleExamForm, createDefaultClinicalSkillsBlueprint } from "@openclinxr/exam-assembly";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   createMongoMemoryTestContext,
+  MongoExamFormRepository,
   MongoScenarioRepository,
   MongoTraceRepository,
   MongoReviewPacketRepository,
@@ -155,5 +157,29 @@ describe("MongoDB memory repositories", () => {
     });
 
     await expect(repository.listByScenario("ed_chest_pain_priority_v1")).resolves.toHaveLength(1);
+  });
+
+  it("stores exam forms with locked scenario versions for drift review", async () => {
+    const repository = new MongoExamFormRepository(context.db);
+    await repository.ensureIndexes();
+    const form = assembleExamForm({
+      examFormId: "form_openclinxr_pilot_001",
+      blueprint: createDefaultClinicalSkillsBlueprint(),
+      scenarios: [scenario],
+    });
+
+    await repository.save(form);
+
+    await expect(repository.findById("form_openclinxr_pilot_001")).resolves.toMatchObject({
+      examFormId: "form_openclinxr_pilot_001",
+      blueprintId: "blueprint_openclinxr_clinical_skills_pilot_v1",
+      stationRefs: [
+        {
+          scenarioId: "ed_chest_pain_priority_v1",
+          scenarioVersion: 1,
+        },
+      ],
+    });
+    await expect(repository.listByBlueprint("blueprint_openclinxr_clinical_skills_pilot_v1")).resolves.toHaveLength(1);
   });
 });

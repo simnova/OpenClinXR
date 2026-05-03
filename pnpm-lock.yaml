@@ -108,6 +108,9 @@ importers:
 
   packages/data-mongodb:
     dependencies:
+      '@openclinxr/exam-assembly':
+        specifier: workspace:*
+        version: link:../exam-assembly
       '@openclinxr/shared-schemas':
         specifier: workspace:*
         version: link:../shared-schemas

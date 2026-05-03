@@ -12,6 +12,7 @@
     "test:mongo": "vitest run --root ."
   },
   "dependencies": {
+    "@openclinxr/exam-assembly": "workspace:*",
     "@openclinxr/shared-schemas": "workspace:*",
     "mongodb": "7.2.0",
     "mongodb-memory-server": "11.1.0"
@@ -26,4 +27,3 @@
     }
   }
 }
-
