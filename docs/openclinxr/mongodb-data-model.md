@@ -386,6 +386,37 @@ Indexes:
 
 Hidden clinical truth must not be sent to the XR client. The Station Runtime should send only learner-visible actor and environment state. LLM prompts should receive only the minimum hidden truth needed for the actor role and should be audited.
 
+## Repository And Mongoose Boundary
+
+The implementation should support the development team's Mongoose familiarity without putting latency-sensitive replay paths behind unnecessary ODM overhead.
+
+Use Mongoose first for admin and control-plane collections where schema validation, middleware, discriminators, and reviewer workflow ergonomics are valuable:
+
+- `exam_blueprints`
+- `scenario_bank`
+- `actor_cards`
+- `exam_forms`
+- `review_packets`
+- asset manifests and generation jobs
+- source, claim, consent, and governance ledgers
+
+Keep thin MongoDB-driver repositories first for high-write or runtime-critical collections:
+
+- `trace_events`
+- station runtime snapshots
+- actor memory retrieval snapshots
+- model, voice, and ASR audit events
+- OpenTelemetry-correlated latency samples
+
+The recommended boundary is:
+
+- Mongoose models validate admin writes and authored content before publication.
+- Shared TypeScript schemas remain the cross-package contract for XR runtime, API responses, tests, and generated GraphQL types.
+- Thin repositories own deterministic replay, idempotent upsert snapshots, and compound-index performance tests.
+- `mongodb-memory-server` remains the default integration-test harness for both repository styles.
+- Any Mongoose projection exposed to the learner must explicitly redact hidden clinical truth and reviewer-only fields.
+- Runtime traces should store OpenTelemetry trace/span correlation IDs only as low-cardinality audit references, not raw prompts, transcripts, or patient-note text in span attributes.
+
 ## Psychometric Export
 
 Psychometric exports should be generated from:

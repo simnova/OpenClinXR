@@ -21,3 +21,12 @@ Progress through 2026-05-03 14:16 EDT:
 - Added MongoDB exam-form persistence for locked station versions.
 - Expanded the executable agent-loop physician roster to match the static physician charter bench.
 - Each code slice was committed after targeted checks and full `pnpm verify`.
+
+Progress through 2026-05-03 14:57 EDT:
+
+- Added XR actor-response and voice-turn wiring for ED trace actions.
+- Added MongoDB trace snapshot upserts, API persistence snapshots, and a Mongo-backed API persistence sink.
+- Updated stack guidance for Mongoose, Apollo GraphQL, TurboRepo, Biome, React Router, pnpm, Knip, E18E, GraphQL Code Generator, and OpenTelemetry.
+- Added the admin GraphQL SDL package, API schema/codegen-plan endpoints, and validated seed operation documents.
+- Added an OpenTelemetry naming contract package and wired benchmark reports to emit sanitized span/attribute plans.
+- Current next slice: expose and test admin GraphQL operation documents, then continue into admin/runtime contracts.
