@@ -1,0 +1,29 @@
+{
+  "name": "@openclinxr/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "dev": "tsx src/server.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --root ."
+  },
+  "dependencies": {
+    "@hono/node-server": "2.0.1",
+    "@openclinxr/domain": "workspace:*",
+    "@openclinxr/review-workflow": "workspace:*",
+    "@openclinxr/scenario-fixtures": "workspace:*",
+    "@openclinxr/shared-schemas": "workspace:*",
+    "@openclinxr/trace-ledger": "workspace:*",
+    "hono": "4.12.16",
+    "tsx": "4.21.0"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "vitest": "4.1.5"
+  }
+}
+

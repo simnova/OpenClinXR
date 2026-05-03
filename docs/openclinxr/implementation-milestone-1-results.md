@@ -88,3 +88,26 @@ This validates routing and inspection only. It does not validate the future Open
 
 Milestone 2 should build the Hono API shell around the same fixture, trace ledger, review packet, and mock provider contracts.
 
+## Milestone 2 Progress
+
+Started on 2026-05-03:
+
+- `apps/api` workspace app added.
+- Hono API shell added with in-memory state only.
+- Endpoints added:
+  - `GET /health`
+  - `GET /providers/health`
+  - `GET /scenarios/ed-chest-pain`
+  - `POST /sessions`
+  - `POST /sessions/:stationRunId/events`
+  - `POST /sessions/:stationRunId/note`
+  - `GET /sessions/:stationRunId/review-packet`
+- API tests cover health, fixture serving, session start, learner event append, note submission, and review packet generation.
+
+Still outside this slice:
+
+- MongoDB repositories.
+- API auth.
+- Admin app.
+- XR app.
+- Local LLM/voice providers.

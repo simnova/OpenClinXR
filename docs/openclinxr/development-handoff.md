@@ -207,3 +207,9 @@ Milestone 1 deterministic station core has started:
 - Test harness package added.
 
 The current deterministic harness runs the ED chest pain fixture through station start, encounter, nurse interruption, learner actions, patient note submission, trace replay, and faculty review packet generation using mock provider health states.
+
+Milestone 2 API shell has also started:
+
+- Hono API app exists at `apps/api`.
+- API can serve the ED fixture, start a session, append learner trace events, submit a note, and return a review packet.
+- API state is intentionally in-memory for this slice; MongoDB remains a later repository-contract milestone.
