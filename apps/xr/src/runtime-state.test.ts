@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { completeTraceAction, createInitialRuntimeState, formatStationClock, summarizeTraceReadiness } from "./runtime-state.js";
+import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
+import {
+  completeTraceAction,
+  createInitialRuntimeState,
+  actorResponseTextFromApiResult,
+  formatStationClock,
+  remoteActorTurnForTraceTag,
+  stationTraceActionTags,
+  summarizeTraceReadiness,
+} from "./runtime-state.js";
 
 describe("XR runtime state", () => {
   it("formats station time without viewport-dependent sizing", () => {
@@ -17,5 +26,39 @@ describe("XR runtime state", () => {
     expect(summarizeTraceReadiness(state).observedCount).toBe(2);
     expect(summarizeTraceReadiness(state).missingCount).toBeGreaterThan(0);
   });
-});
 
+  it("exposes every required ED trace tag for headset trace controls", () => {
+    expect(stationTraceActionTags).toEqual(edChestPainScenario.requiredTraceTags);
+  });
+
+  it("plans remote actor turns without embedding hidden scenario facts", () => {
+    expect(remoteActorTurnForTraceTag("risk_factor_question")).toEqual({
+      actorId: "patient_robert_hayes_v1",
+      voiceId: "mock-robert-hayes",
+      learnerUtterance: "Do you have any heart risk factors or family history I should know about?",
+      traceContextTags: ["risk_factor_question"],
+    });
+    expect(remoteActorTurnForTraceTag("family_communication")).toEqual({
+      actorId: "spouse_anna_hayes_v1",
+      voiceId: "mock-anna-hayes",
+      learnerUtterance: "Anna, I know this is frightening. I will explain what we are doing and keep you updated.",
+      traceContextTags: ["family_communication"],
+    });
+
+    const plannedTurns = stationTraceActionTags.map((tag) => remoteActorTurnForTraceTag(tag)).filter(Boolean);
+    const serializedPlans = JSON.stringify(plannedTurns);
+    expect(serializedPlans).not.toContain("walking upstairs");
+    expect(serializedPlans).not.toContain("Father died");
+    expect(serializedPlans).not.toContain("skipped blood pressure medication");
+  });
+
+  it("does not request remote dialogue for note submission", () => {
+    expect(remoteActorTurnForTraceTag("patient_note_submitted")).toBeUndefined();
+  });
+
+  it("extracts actor response text from the API result before voice synthesis", () => {
+    expect(actorResponseTextFromApiResult({ response: { text: "I feel pressure in my chest." } })).toBe("I feel pressure in my chest.");
+    expect(actorResponseTextFromApiResult({ response: { text: "" } })).toBeUndefined();
+    expect(actorResponseTextFromApiResult({ response: { text: 123 } })).toBeUndefined();
+  });
+});

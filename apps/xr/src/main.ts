@@ -1,9 +1,14 @@
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import * as THREE from "three";
 import {
+  actorIdForTraceTag,
+  actorResponseTextFromApiResult,
   completeTraceAction,
   createInitialRuntimeState,
+  eventTypeForTraceTag,
   formatStationClock,
+  remoteActorTurnForTraceTag,
+  stationTraceActionTags,
   summarizeTraceReadiness,
   type XrRuntimeState,
 } from "./runtime-state.js";
@@ -30,7 +35,6 @@ function requireElement<TElement extends Element>(selector: string): TElement {
 }
 
 let state: XrRuntimeState = createInitialRuntimeState();
-const visibleTraceTags = ["history_opqrst", "vitals_review", "ecg_request", "urgent_escalation", "team_communication", "patient_note_submitted"];
 const configuredApiBaseUrl = typeof import.meta.env.VITE_OPENCLINXR_API_BASE_URL === "string" ? import.meta.env.VITE_OPENCLINXR_API_BASE_URL : "";
 const stationApi = configuredApiBaseUrl ? createStationApiClient({ baseUrl: configuredApiBaseUrl }) : undefined;
 let remoteStationRunId: string | undefined;
@@ -83,7 +87,7 @@ const dialogueLine = requireElement<HTMLElement>("#dialogue-line");
 
 function renderControls(): void {
   traceActions.innerHTML = "";
-  for (const tag of visibleTraceTags) {
+  for (const tag of stationTraceActionTags) {
     const button = document.createElement("button");
     button.type = "button";
     button.textContent = tag.replaceAll("_", " ");
@@ -121,40 +125,44 @@ async function recordRemoteTraceAction(tag: string): Promise<void> {
     return;
   }
 
+  const atSecond = state.elapsedSecond;
   try {
     const actorId = actorIdForTraceTag(tag);
     await stationApi.recordTraceAction(remoteStationRunId, {
       eventType: eventTypeForTraceTag(tag),
-      atSecond: state.elapsedSecond,
+      atSecond,
       tag,
       ...(actorId ? { actorId } : {}),
     });
   } catch {
     remoteStationRunId = undefined;
+    return;
   }
-}
 
-function eventTypeForTraceTag(tag: string): string {
-  const eventTypes: Record<string, string> = {
-    history_opqrst: "learner.history",
-    vitals_review: "learner.vitals_review",
-    ecg_request: "learner.order",
-    urgent_escalation: "learner.escalation",
-    team_communication: "learner.team",
-    patient_note_submitted: "learner.note",
-  };
-  return eventTypes[tag] ?? "learner.action";
-}
+  const actorTurn = remoteActorTurnForTraceTag(tag);
+  if (!actorTurn) {
+    return;
+  }
 
-function actorIdForTraceTag(tag: string): string | undefined {
-  const actorIds: Record<string, string> = {
-    history_opqrst: "patient_robert_hayes_v1",
-    vitals_review: "nurse_maria_alvarez_v1",
-    ecg_request: "nurse_maria_alvarez_v1",
-    urgent_escalation: "nurse_maria_alvarez_v1",
-    team_communication: "nurse_maria_alvarez_v1",
-  };
-  return actorIds[tag];
+  try {
+    const actorResponse = await stationApi.requestActorResponse(remoteStationRunId, {
+      actorId: actorTurn.actorId,
+      learnerUtterance: actorTurn.learnerUtterance,
+      atSecond,
+      traceContextTags: actorTurn.traceContextTags,
+    });
+    const text = actorResponseTextFromApiResult(actorResponse);
+    if (text) {
+      await stationApi.synthesizeActorSpeech(remoteStationRunId, {
+        actorId: actorTurn.actorId,
+        voiceId: actorTurn.voiceId,
+        text,
+        atSecond,
+      });
+    }
+  } catch {
+    // Remote dialogue is useful evidence, but local headset tracing should continue if model or voice providers fail.
+  }
 }
 
 function updateReadiness(): void {
