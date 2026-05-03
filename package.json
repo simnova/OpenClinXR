@@ -32,6 +32,7 @@
     "local:provider:benchmark": "tsx tools/openclinxr/local-provider-benchmark.ts",
     "asset:gltf:smoke": "tsx tools/openclinxr/gltf-pipeline-smoke.ts",
     "xr:quest:smoke": "tsx tools/openclinxr/quest-cdp-smoke.ts",
+    "xr:quest:manual:check": "tsx tools/openclinxr/check-quest-manual-performance.ts",
     "hygiene:knip": "knip --no-progress --reporter compact --no-exit-code",
     "hygiene:e18e:help": "e18e-cli analyze --help",
     "hygiene:e18e:analyze": "e18e-cli analyze --log-level error"

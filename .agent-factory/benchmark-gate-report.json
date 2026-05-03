@@ -129,6 +129,16 @@
       ]
     }
   },
+  "quest_manual_performance": {
+    "file": ".agent-factory/quest-manual-performance-report.json",
+    "generated_at": "2026-05-03T22:57:26.207Z",
+    "input_file": null,
+    "ready_to_claim_frame_pacing": false,
+    "satisfied_conditions": [],
+    "blockers": [
+      "missing_quest_manual_performance_report"
+    ]
+  },
   "evidence_gates": [
     {
       "evidence_id": "evidence-leadership-0007-002",
@@ -144,6 +154,7 @@
         "quest_cdp_frame_sample_incomplete",
         "quest_page_hidden_or_inactive",
         "quest_sustained_frame_sample_not_complete",
+        "quest_manual_performance:missing_quest_manual_performance_report",
         "asset_pipeline:missing_blender",
         "local_model:no_ollama_llama_cpp_or_mlx_runtime_detected",
         "local_voice:no_vibevoice_runtime_detected",

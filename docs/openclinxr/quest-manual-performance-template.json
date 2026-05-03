@@ -1,0 +1,30 @@
+{
+  "generatedAt": "YYYY-MM-DDTHH:mm:ss.sssZ",
+  "runContext": {
+    "performedBy": "",
+    "durationMinutes": 0,
+    "notes": "Complete this during a foreground in-headset Quest Browser run."
+  },
+  "setup": {
+    "foregroundPageConfirmed": false,
+    "devtoolsScreencastDisabled": false,
+    "extraBrowserWindowsClosed": false
+  },
+  "station": {
+    "shellLoaded": false,
+    "traceInteractionPassed": false,
+    "textReadable": false,
+    "immersiveSessionStarted": false,
+    "consoleErrors": []
+  },
+  "performance": {
+    "avgFps": null,
+    "p95FrameMs": null,
+    "minimumObservedFps": null
+  },
+  "comfort": {
+    "motionComfort": "not_run",
+    "heatConcern": null,
+    "batteryDropPercent": null
+  }
+}

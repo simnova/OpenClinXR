@@ -78,6 +78,14 @@ type LocalProviderBenchmarkReport = {
   };
 };
 
+type QuestManualPerformanceCheck = {
+  generatedAt: string;
+  inputFile: string | null;
+  readyToClaimFramePacing: boolean;
+  satisfiedConditions: string[];
+  blockers: string[];
+};
+
 type EvidenceGateReport = {
   generated_by: string;
   quest_smoke?: {
@@ -110,6 +118,14 @@ type EvidenceGateReport = {
     local_voice: LocalProviderBenchmarkReport["localVoice"];
     verdict: LocalProviderBenchmarkReport["verdict"];
   };
+  quest_manual_performance?: {
+    file: string;
+    generated_at: string;
+    input_file: string | null;
+    ready_to_claim_frame_pacing: boolean;
+    satisfied_conditions: string[];
+    blockers: string[];
+  };
   evidence_gates: Array<{
     evidence_id: string;
     ready_to_resolve: boolean;
@@ -123,7 +139,8 @@ async function main(): Promise<void> {
   const localRuntime = await latestJson<LocalRuntimeProbeReport>("docs/openclinxr/local-runtime-probe-*.json");
   const gltfPipelineSmoke = await latestJson<GltfPipelineSmokeReport>("docs/openclinxr/gltf-pipeline-smoke-*.json");
   const localProviderBenchmark = await latestJson<LocalProviderBenchmarkReport>("docs/openclinxr/local-provider-benchmark-*.json");
-  const report = buildReport(questSmoke, localRuntime, gltfPipelineSmoke, localProviderBenchmark);
+  const questManualPerformance = await fileJson<QuestManualPerformanceCheck>(".agent-factory/quest-manual-performance-report.json");
+  const report = buildReport(questSmoke, localRuntime, gltfPipelineSmoke, localProviderBenchmark, questManualPerformance);
   await writeJson(".agent-factory/benchmark-gate-report.json", report);
   console.log(`Wrote .agent-factory/benchmark-gate-report.json; evidence-leadership-0007-002 ready=${report.evidence_gates[0]?.ready_to_resolve ?? false}`);
 }
@@ -137,14 +154,24 @@ async function latestJson<TValue>(pattern: string): Promise<{ file: string; valu
   return { file, value: await readJson<TValue>(file) };
 }
 
+async function fileJson<TValue>(file: string): Promise<{ file: string; value: TValue } | undefined> {
+  try {
+    return { file, value: await readJson<TValue>(file) };
+  } catch {
+    return undefined;
+  }
+}
+
 function buildReport(
   questSmoke: { file: string; value: QuestSmokeReport } | undefined,
   localRuntime: { file: string; value: LocalRuntimeProbeReport } | undefined,
   gltfPipelineSmoke: { file: string; value: GltfPipelineSmokeReport } | undefined,
   localProviderBenchmark: { file: string; value: LocalProviderBenchmarkReport } | undefined,
+  questManualPerformance: { file: string; value: QuestManualPerformanceCheck } | undefined,
 ): EvidenceGateReport {
   const blockers = [
     ...questBlockers(questSmoke?.value),
+    ...questManualPerformanceBlockers(questManualPerformance?.value),
     ...localRuntimeBlockers(localRuntime?.value),
     ...gltfPipelineSmokeBlockers(gltfPipelineSmoke?.value),
     ...localProviderBenchmarkBlockers(localProviderBenchmark?.value),
@@ -152,6 +179,8 @@ function buildReport(
   const satisfiedConditions = [
     questSmoke?.value.verdict.shellLoaded ? "quest_shell_loaded" : undefined,
     questSmoke?.value.verdict.interactionAdvanced ? "quest_trace_interaction_advanced" : undefined,
+    questManualPerformance?.value.readyToClaimFramePacing ? "quest_manual_frame_pacing_ready" : undefined,
+    ...(questManualPerformance?.value.satisfiedConditions ?? []),
     localRuntime?.value.gates.questUsb.status === "ready" ? "quest_usb_ready" : undefined,
     localRuntime?.value.gates.assetPipeline.status === "ready" ? "asset_pipeline_runtime_ready" : undefined,
     gltfPipelineSmoke?.value.verdict.passed ? "asset_pipeline_gltf_pipeline_smoke_passed" : undefined,
@@ -202,6 +231,16 @@ function buildReport(
         verdict: localProviderBenchmark.value.verdict,
       },
     } : {}),
+    ...(questManualPerformance ? {
+      quest_manual_performance: {
+        file: questManualPerformance.file,
+        generated_at: questManualPerformance.value.generatedAt,
+        input_file: questManualPerformance.value.inputFile,
+        ready_to_claim_frame_pacing: questManualPerformance.value.readyToClaimFramePacing,
+        satisfied_conditions: [...questManualPerformance.value.satisfiedConditions],
+        blockers: [...questManualPerformance.value.blockers],
+      },
+    } : {}),
     evidence_gates: [
       {
         evidence_id: "evidence-leadership-0007-002",
@@ -229,6 +268,16 @@ function questBlockers(report: QuestSmokeReport | undefined): string[] {
     blockers.push("quest_sustained_frame_sample_not_complete");
   }
   return unique(blockers);
+}
+
+function questManualPerformanceBlockers(report: QuestManualPerformanceCheck | undefined): string[] {
+  if (!report) {
+    return ["missing_quest_manual_performance_check"];
+  }
+  if (report.readyToClaimFramePacing) {
+    return [];
+  }
+  return unique(report.blockers.map((blocker) => `quest_manual_performance:${blocker}`));
 }
 
 function localRuntimeBlockers(report: LocalRuntimeProbeReport | undefined): string[] {

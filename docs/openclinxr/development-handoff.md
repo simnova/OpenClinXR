@@ -210,6 +210,7 @@ Use these commands when moving from design intent to verified readiness:
 - `pnpm asset:gltf:smoke`: generates a tiny local glTF, runs the pinned `gltf-pipeline` CLI, validates the resulting GLB header/length, and writes a machine-readable smoke report when `--output` is supplied.
 - `pnpm local:provider:benchmark`: records deterministic mock model/voice benchmark evidence and explicit local model/voice readiness blockers without downloads, cloud calls, or local runtime execution.
 - `pnpm xr:quest:smoke`: starts a CDP-backed Quest Browser smoke against the local XR app. It requires the dev server to be running and the Quest 3 connected/authorized over USB-C.
+- `pnpm xr:quest:manual:check`: validates a foreground in-headset manual performance report, or records `missing_quest_manual_performance_report` until one exists. Use `docs/openclinxr/quest-manual-performance-template.json` as the capture template.
 - `pnpm local:runtime:probe`: checks local hardware/runtime prerequisites without cloud or paid API usage.
 - `pnpm security:audit`: runs `pnpm audit --audit-level=high`.
 - `pnpm security:licenses`: checks dependency licenses against the OpenClinXR policy and writes `docs/openclinxr/dependency-license-policy-2026-05-03.json`.

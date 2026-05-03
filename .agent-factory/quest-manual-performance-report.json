@@ -1,0 +1,9 @@
+{
+  "generatedAt": "2026-05-03T22:57:26.207Z",
+  "inputFile": null,
+  "readyToClaimFramePacing": false,
+  "satisfiedConditions": [],
+  "blockers": [
+    "missing_quest_manual_performance_report"
+  ]
+}

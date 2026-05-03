@@ -134,6 +134,25 @@ Result:
 
 The benchmark contract intentionally avoids cloud calls, model downloads, and local runtime execution. It is ready to become a real local-provider benchmark once runtimes and model IDs are configured explicitly.
 
+## Quest Manual Performance Gate
+
+Command:
+
+```bash
+pnpm xr:quest:manual:check
+```
+
+Machine-readable evidence:
+
+- `.agent-factory/quest-manual-performance-report.json`
+- `docs/openclinxr/quest-manual-performance-template.json`
+
+Current result:
+
+- No foreground manual performance report has been captured yet.
+- The check records `missing_quest_manual_performance_report`.
+- A passing report requires a foreground page, DevTools screencasting disabled, extra browser windows closed, a 10-minute run, readable text, trace interaction, no console errors, average FPS at or above 72, p95 frame time at or below 25 ms, minimum observed FPS at or above 60, comfortable motion, and no heat concern.
+
 ## Lightweight Throughput Smokes
 
 These are local-only Node checks. They do not use cloud services and do not download model weights.

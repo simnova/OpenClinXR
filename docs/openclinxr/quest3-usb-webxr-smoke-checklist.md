@@ -287,6 +287,14 @@ Latest automated probe detail:
 - CDP reported `document.visibilityState` as `hidden` and `document.hidden` as `true`.
 - Treat frame-pacing evidence as blocked until a foreground in-headset manual run or a better Quest Browser automation path proves sustained frames.
 
+Manual foreground performance evidence:
+
+```bash
+pnpm xr:quest:manual:check -- --input docs/openclinxr/quest-manual-performance-YYYY-MM-DD.json
+```
+
+Use `docs/openclinxr/quest-manual-performance-template.json` to capture the run. Until a completed report exists, the benchmark gate records `quest_manual_performance:missing_quest_manual_performance_report`.
+
 Manual in-headset run still needs to capture:
 
 - Quest Browser version.
