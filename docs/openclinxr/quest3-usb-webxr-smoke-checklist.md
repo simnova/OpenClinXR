@@ -29,6 +29,40 @@ Device fingerprint captured:
 | Browser package | `com.oculus.browser` |
 | Browser version observed | `146.0.0.19.27.942135376` |
 
+## Smoke Run 0001: Static Local Page
+
+Run time: 2026-05-03
+
+Result: pass for USB-C local dev routing and remote inspection.
+
+Evidence:
+
+- Headset reported `mWakefulness=Awake`.
+- `adb devices -l` reported `2G0YC5ZGB5000J device usb:0-1 product:eureka model:Quest_3 device:eureka`.
+- `adb reverse tcp:5173 tcp:5173` was active.
+- A local Node HTTP server on `127.0.0.1:5173` received Quest Browser requests:
+  - `GET /`
+  - `GET /favicon.ico`
+- `adb forward tcp:9222 localabstract:chrome_devtools_remote` exposed the Quest Browser DevTools endpoint.
+- `http://127.0.0.1:9222/json/version` reported `OculusBrowser/146.0.0.19.27.942135376 Chrome/146.0.7680.177`.
+- `http://127.0.0.1:9222/json` listed `OpenClinXR Quest Smoke` at `http://localhost:5173/`.
+
+What this proves:
+
+- USB-C ADB authorization works.
+- Local dev server routing to Quest Browser works.
+- Desktop-side remote inspection of Quest Browser works.
+
+What this does not prove:
+
+- OpenClinXR XR scene frame rate.
+- WebXR immersive session entry.
+- Controller, hand, or gaze interaction.
+- Comfort, thermal, or battery performance.
+- Clinical station usability.
+
+Practical note: after restarting the ADB daemon, the Quest can return to `unauthorized`; accept the in-headset USB debugging prompt again if needed.
+
 ## Setup
 
 1. Connect Quest 3 directly to the Mac with a USB3-capable USB-C cable.

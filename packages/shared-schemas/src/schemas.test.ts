@@ -1,0 +1,77 @@
+import { describe, expect, it } from "vitest";
+import { validateActorCard, validatePatientNote, validateReviewPacket, validateScenario, validateTraceEvent } from "./index.js";
+
+describe("OpenClinXR shared schemas", () => {
+  it("accepts a reviewed ED chest pain scenario shape", () => {
+    const result = validateScenario({
+      scenarioId: "ed_chest_pain_priority_v1",
+      version: 1,
+      title: "ED Chest Pain With Nurse Interruption",
+      status: "approved",
+      review: {
+        clinical: "approved",
+        psychometric: "approved",
+        legal: "approved",
+        simulationQa: "approved",
+      },
+      clinicalObjectives: ["Recognize possible ACS", "Escalate care"],
+      actors: [{ actorId: "patient_robert_hayes_v1", role: "patient", displayName: "Robert Hayes" }],
+      requiredTraceTags: ["ecg_request"],
+      eventSchedule: [{ eventId: "nurse_vitals_change", atSecond: 420, actorId: "nurse_maria_alvarez_v1", tag: "vitals_review" }],
+      reviewRubric: [{ rubricId: "urgent_recognition", label: "Urgent recognition", requiredTraceTags: ["ecg_request"] }],
+    });
+
+    expect(result.ok).toBe(true);
+  });
+
+  it("rejects scenario publication without all approval gates", () => {
+    const result = validateScenario({
+      scenarioId: "draft_station",
+      version: 1,
+      title: "Draft Station",
+      status: "approved",
+      review: {
+        clinical: "approved",
+        psychometric: "draft",
+        legal: "approved",
+        simulationQa: "approved",
+      },
+      clinicalObjectives: [],
+      actors: [],
+      requiredTraceTags: [],
+      eventSchedule: [],
+      reviewRubric: [],
+    });
+
+    expect(result.ok).toBe(false);
+  });
+
+  it("rejects trace events without sequence numbers", () => {
+    const result = validateTraceEvent({
+      stationRunId: "run_001",
+      eventType: "station.started",
+      occurredAt: "2026-05-03T00:00:00.000Z",
+      source: "system",
+      payload: {},
+    });
+
+    expect(result.ok).toBe(false);
+  });
+
+  it("validates actor cards, patient notes, and review packets", () => {
+    expect(validateActorCard({ actorId: "nurse_maria_alvarez_v1", role: "nurse", displayName: "Maria Alvarez" }).ok).toBe(true);
+    expect(validatePatientNote({ stationRunId: "run_001", submittedAtSecond: 1260, text: "Concern for ACS. ECG requested." }).ok).toBe(true);
+    expect(
+      validateReviewPacket({
+        stationRunId: "run_001",
+        scenarioId: "ed_chest_pain_priority_v1",
+        observedTraceTags: ["ecg_request"],
+        missingRequiredTraceTags: [],
+        lateTraceTags: [],
+        unsafeEvents: [],
+        facultyScoreDraft: { reviewerId: "faculty_001", status: "draft", comments: "Good escalation." },
+      }).ok,
+    ).toBe(true);
+  });
+});
+

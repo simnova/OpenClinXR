@@ -191,5 +191,19 @@ The next implementation plan should not start until these docs are reviewed:
 ## Local Hardware Updates
 
 - Android Platform Tools were installed locally on 2026-05-03.
-- The Quest 3 is visible to `adb`, USB debugging has been authorized, and `adb reverse tcp:5173 tcp:5173` succeeded. The actual WebXR smoke is blocked only by the absence of an implemented XR app/dev server.
+- The Quest 3 is visible to `adb`, USB debugging has been authorized, `adb reverse tcp:5173 tcp:5173` succeeded, and Quest Browser loaded a static local smoke page. The actual OpenClinXR XR smoke is blocked only by the absence of an implemented XR app/dev server.
 - `mongodb-memory-server` is accepted as the local MongoDB integration-test path, with binary download/cache behavior documented as an explicit setup gate.
+
+## Implementation Progress
+
+Milestone 1 deterministic station core has started:
+
+- pnpm workspace added.
+- Shared schemas package added.
+- Pure station domain package added.
+- ED chest pain fixture package added.
+- In-memory trace ledger package added.
+- Review workflow package added.
+- Test harness package added.
+
+The current deterministic harness runs the ED chest pain fixture through station start, encounter, nurse interruption, learner actions, patient note submission, trace replay, and faculty review packet generation using mock provider health states.

@@ -7,7 +7,7 @@ Status: Internal planning evidence
 
 The user asked for local-only validation where possible, avoiding cloud charges and third-party model API use. This spike checks the current machine, installed runtime tools, and lightweight local throughput assumptions for planning-scale OpenClinXR work.
 
-This is not a Quest 3 performance test and not a local LLM or local voice benchmark.
+This is not a local LLM or local voice benchmark. It now includes one static Quest 3 USB-C browser routing smoke, but not an OpenClinXR XR performance benchmark.
 
 ## Current Machine
 
@@ -138,8 +138,8 @@ Local gaps:
 - Bun must be installed or the first implementation must use a Node Hono adapter locally.
 - Blender and glTF Transform must be installed before asset pipeline spikes.
 - llama.cpp, Ollama, MLX LM, and VibeVoice are not installed.
-- Quest 3 USB debugging is now authorized and `adb reverse tcp:5173 tcp:5173` succeeded; no OpenClinXR XR app exists yet to run the actual WebXR smoke.
-- No Quest 3 runtime benchmark has been run yet.
+- Quest 3 USB debugging was authorized, `adb reverse tcp:5173 tcp:5173` succeeded, and Quest Browser loaded a static local smoke page.
+- No OpenClinXR XR runtime benchmark has been run yet because the XR app does not exist.
 
 Recommended local-only next spikes:
 
@@ -147,7 +147,7 @@ Recommended local-only next spikes:
 2. Install `gltf-transform` and run GLB validation on a small placeholder asset.
 3. Install MLX LM or llama.cpp and benchmark Qwen3-4B/Qwen3-8B or DeepSeek-R1-Distill-Qwen-7B quantized model.
 4. Install VibeVoice-Realtime-0.5B only after reviewing model terms and disk/runtime requirements.
-5. Run a Quest 3 WebXR smoke against a static local Vite scene.
+5. Build the OpenClinXR XR fallback app and rerun the Quest 3 smoke against the real station shell.
 
 ## Quest 3 USB Preflight
 
@@ -174,6 +174,15 @@ Port reverse setup also succeeded:
 ```text
 UsbFfs tcp:5173 tcp:5173
 ```
+
+Static smoke result:
+
+- Local Node HTTP server on `127.0.0.1:5173` served the Quest Browser.
+- Quest Browser requested `/` and `/favicon.ico`.
+- Remote DevTools over `adb forward tcp:9222 localabstract:chrome_devtools_remote` listed the `OpenClinXR Quest Smoke` page.
+- Browser user agent included `Quest 3`, `OculusBrowser/146.0.0.19.27.942135376`, and `Chrome/146.0.7680.177`.
+
+This validates the local USB-C development loop. It does not validate the future XR scene.
 
 ## Sources
 

@@ -12,12 +12,13 @@
     "The current machine reports Apple M1 Max, 10 CPU cores, and 64 GB memory.",
     "Node 22.19.0, npm 10.9.3, Python 3.11.4, and ffmpeg 8.1 are installed.",
     "Bun, Blender, gltf-transform, Ollama, llama.cpp binaries, Whisper binaries, and MLX are not currently installed.",
-    "Local JS brute-force vector retrieval, JSON trace serialization, and AJV validation throughput are not immediate blockers for planning-scale artifacts."
+    "Local JS brute-force vector retrieval, JSON trace serialization, and AJV validation throughput are not immediate blockers for planning-scale artifacts.",
+    "The Quest 3 USB-C local development loop loaded a static local page through Quest Browser using ADB reverse and exposed the page through the Chrome DevTools remote endpoint."
   ],
   "claims_not_supported": [
     "That the user's target M4 Pro or M4 Max hardware will perform identically.",
     "That any local LLM or VibeVoice model has been installed or benchmarked.",
-    "That Quest 3 runtime performance has been validated."
+    "That OpenClinXR XR scene runtime performance has been validated."
   ],
   "confidence": 0.95
 }
