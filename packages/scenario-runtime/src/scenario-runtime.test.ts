@@ -19,9 +19,16 @@ describe("scenario runtime", () => {
     });
     expect(runtime.assetReadiness()).toMatchObject({
       scenarioId: edChestPainScenario.scenarioId,
-      productionReady: true,
+      devReady: true,
+      productionReady: false,
       missingRequiredAssetIds: [],
       blockedAssets: [],
+      productionBlockedAssets: expect.arrayContaining([
+        {
+          assetId: "patient_robert_hayes_character",
+          blockers: ["placeholder_asset_not_clinical_release_ready"],
+        },
+      ]),
     });
   });
 

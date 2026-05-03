@@ -242,6 +242,7 @@ Asset registry milestone has also started:
 - `packages/asset-registry` exists.
 - ED chest pain placeholder manifests exist for patient, nurse, and ED bay assets.
 - Registry readiness checks block copyleft/unknown/review-required licenses, missing QA, and over-budget Quest 3 geometry/texture/draw-call profiles.
+- Registry readiness now separates `devReady` from `productionReady`; placeholders can support deterministic smoke tests but block production clinical release readiness.
 - This is the gate to use before attempting Anny, MakeHuman, StableGen, SMPLitex, clothing, rigging, or generated-environment ingestion.
 
 Scenario runtime milestone has also started:

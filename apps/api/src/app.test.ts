@@ -48,12 +48,27 @@ describe("OpenClinXR API shell", () => {
   it("serves ED chest pain asset readiness from the shared runtime", async () => {
     const app = createApiApp();
     const response = await app.request("/scenarios/ed-chest-pain/assets/readiness");
-    const body = await json(response) as { productionReady: boolean; missingRequiredAssetIds: string[]; blockedAssets: unknown[] };
+    const body = await json(response) as {
+      devReady: boolean;
+      productionReady: boolean;
+      missingRequiredAssetIds: string[];
+      blockedAssets: unknown[];
+      productionBlockedAssets: Array<{ assetId: string; blockers: string[] }>;
+    };
 
     expect(response.status).toBe(200);
-    expect(body.productionReady).toBe(true);
+    expect(body.devReady).toBe(true);
+    expect(body.productionReady).toBe(false);
     expect(body.missingRequiredAssetIds).toEqual([]);
     expect(body.blockedAssets).toEqual([]);
+    expect(body.productionBlockedAssets).toEqual(
+      expect.arrayContaining([
+        {
+          assetId: "patient_robert_hayes_character",
+          blockers: ["placeholder_asset_not_clinical_release_ready"],
+        },
+      ]),
+    );
   });
 
   it("serves the default exam blueprint and assembles a ready review form", async () => {

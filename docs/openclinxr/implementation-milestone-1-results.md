@@ -194,6 +194,7 @@ Started on 2026-05-03:
 - In-memory registry supports manifest upsert, lookup, scenario listing, and scenario-readiness evaluation against approved fixture asset needs.
 - ED chest pain placeholder manifests cover Robert Hayes, Maria Alvarez, and the ED exam bay.
 - Readiness evaluation blocks copyleft/unknown/review-required licenses, missing QA stage, and over-budget Quest 3 assets.
+- Readiness evaluation now reports `devReady` separately from `productionReady`; placeholder assets are dev-ready only and carry `placeholder_asset_not_clinical_release_ready` production blockers.
 
 Local evidence:
 

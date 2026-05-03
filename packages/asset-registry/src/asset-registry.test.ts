@@ -11,14 +11,16 @@ function requireManifest(manifests: AssetManifest[], index: number): AssetManife
 }
 
 describe("asset registry", () => {
-  it("marks approved Quest-budgeted placeholder assets as production ready", () => {
+  it("marks approved Quest-budgeted placeholder assets as dev ready but not production ready", () => {
     const patient = requireManifest(createEdChestPainPlaceholderManifests(), 0);
     const readiness = evaluateAssetManifest(patient);
 
     expect(readiness).toEqual({
       assetId: "patient_robert_hayes_character",
-      productionReady: true,
+      devReady: true,
+      productionReady: false,
       blockers: [],
+      productionBlockers: ["placeholder_asset_not_clinical_release_ready"],
       warnings: [],
     });
   });
@@ -60,9 +62,24 @@ describe("asset registry", () => {
     const readiness = registry.evaluateScenarioReadiness(edChestPainScenario);
 
     expect(readiness.scenarioId).toBe("ed_chest_pain_priority_v1");
-    expect(readiness.productionReady).toBe(true);
+    expect(readiness.devReady).toBe(true);
+    expect(readiness.productionReady).toBe(false);
     expect(readiness.missingRequiredAssetIds).toEqual([]);
     expect(readiness.blockedAssets).toEqual([]);
+    expect(readiness.productionBlockedAssets).toEqual([
+      {
+        assetId: "patient_robert_hayes_character",
+        blockers: ["placeholder_asset_not_clinical_release_ready"],
+      },
+      {
+        assetId: "nurse_maria_alvarez_character",
+        blockers: ["placeholder_asset_not_clinical_release_ready"],
+      },
+      {
+        assetId: "ed_exam_bay_environment",
+        blockers: ["placeholder_asset_not_clinical_release_ready"],
+      },
+    ]);
   });
 
   it("reports missing or not-QA-ready assets as blockers", () => {
@@ -80,6 +97,7 @@ describe("asset registry", () => {
     const readiness = registry.evaluateScenarioReadiness(edChestPainScenario);
 
     expect(readiness.productionReady).toBe(false);
+    expect(readiness.devReady).toBe(false);
     expect(readiness.missingRequiredAssetIds).toEqual(["ed_exam_bay_environment"]);
     expect(readiness.blockedAssets).toEqual([
       {

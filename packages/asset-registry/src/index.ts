@@ -40,16 +40,23 @@ export type AssetManifest = {
 
 export type AssetReadiness = {
   assetId: string;
+  devReady: boolean;
   productionReady: boolean;
   blockers: string[];
+  productionBlockers: string[];
   warnings: string[];
 };
 
 export type ScenarioAssetReadiness = {
   scenarioId: string;
+  devReady: boolean;
   productionReady: boolean;
   missingRequiredAssetIds: string[];
   blockedAssets: Array<{
+    assetId: string;
+    blockers: string[];
+  }>;
+  productionBlockedAssets: Array<{
     assetId: string;
     blockers: string[];
   }>;
@@ -63,6 +70,7 @@ const quest3Budget = {
 
 export function evaluateAssetManifest(manifest: AssetManifest): AssetReadiness {
   const blockers: string[] = [];
+  const productionBlockers: string[] = [];
   const warnings: string[] = [];
   const stages = new Set(manifest.pipelineStages.map((stage) => stage.stage));
 
@@ -90,11 +98,16 @@ export function evaluateAssetManifest(manifest: AssetManifest): AssetReadiness {
   if (!stages.has("optimized")) {
     warnings.push("missing_optimized_stage");
   }
+  if (isPlaceholderAsset(manifest)) {
+    productionBlockers.push("placeholder_asset_not_clinical_release_ready");
+  }
 
   return {
     assetId: manifest.assetId,
-    productionReady: blockers.length === 0,
+    devReady: blockers.length === 0,
+    productionReady: blockers.length === 0 && productionBlockers.length === 0,
     blockers,
+    productionBlockers,
     warnings,
   };
 }
@@ -118,6 +131,7 @@ export class InMemoryAssetRegistry {
     const requiredAssetIds = scenario.assetNeeds?.map((assetNeed) => assetNeed.assetId) ?? [];
     const missingRequiredAssetIds: string[] = [];
     const blockedAssets: Array<{ assetId: string; blockers: string[] }> = [];
+    const productionBlockedAssets: Array<{ assetId: string; blockers: string[] }> = [];
 
     for (const assetId of requiredAssetIds) {
       const manifest = this.manifests.get(assetId);
@@ -128,6 +142,14 @@ export class InMemoryAssetRegistry {
 
       const readiness = evaluateAssetManifest(manifest);
       if (!readiness.productionReady) {
+        if (readiness.productionBlockers.length > 0) {
+          productionBlockedAssets.push({
+            assetId,
+            blockers: readiness.productionBlockers,
+          });
+        }
+      }
+      if (!readiness.devReady) {
         blockedAssets.push({
           assetId,
           blockers: readiness.blockers,
@@ -137,9 +159,11 @@ export class InMemoryAssetRegistry {
 
     return {
       scenarioId: scenario.scenarioId,
-      productionReady: missingRequiredAssetIds.length === 0 && blockedAssets.length === 0,
+      devReady: missingRequiredAssetIds.length === 0 && blockedAssets.length === 0,
+      productionReady: missingRequiredAssetIds.length === 0 && blockedAssets.length === 0 && productionBlockedAssets.length === 0,
       missingRequiredAssetIds,
       blockedAssets,
+      productionBlockedAssets,
     };
   }
 }
@@ -233,4 +257,10 @@ function stage(stageName: AssetPipelineStageName, notes: string): AssetPipelineS
     completedAt: "2026-05-03T16:15:00.000Z",
     notes,
   };
+}
+
+function isPlaceholderAsset(manifest: AssetManifest): boolean {
+  return manifest.provenance.generationMethod === "procedural_placeholder"
+    || manifest.provenance.sourceRefs.some((sourceRef) => sourceRef.includes("placeholder"))
+    || manifest.pipelineStages.some((stage) => stage.notes.toLowerCase().includes("not production clinical realism"));
 }
