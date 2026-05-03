@@ -208,6 +208,7 @@ Use these commands when moving from design intent to verified readiness:
 - `pnpm agent:verify`: agent-factory gate covering memory index, source ledger, pinned dependencies, stale loop-plan detection, risk/evidence debt, maturity, and benchmark evidence reporting.
 - `pnpm agent:benchmarks`: regenerates `.agent-factory/benchmark-gate-report.json` from the latest Quest CDP smoke and local runtime probe outputs.
 - `pnpm asset:gltf:smoke`: generates a tiny local glTF, runs the pinned `gltf-pipeline` CLI, validates the resulting GLB header/length, and writes a machine-readable smoke report when `--output` is supplied.
+- `pnpm local:provider:benchmark`: records deterministic mock model/voice benchmark evidence and explicit local model/voice readiness blockers without downloads, cloud calls, or local runtime execution.
 - `pnpm xr:quest:smoke`: starts a CDP-backed Quest Browser smoke against the local XR app. It requires the dev server to be running and the Quest 3 connected/authorized over USB-C.
 - `pnpm local:runtime:probe`: checks local hardware/runtime prerequisites without cloud or paid API usage.
 - `pnpm security:audit`: runs `pnpm audit --audit-level=high`.

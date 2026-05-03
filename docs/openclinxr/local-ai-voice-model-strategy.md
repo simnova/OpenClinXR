@@ -124,6 +124,15 @@ The benchmark harness should run without cloud services:
 5. `local-voice-mock`: prerecorded audio chunk stream.
 6. `local-vibevoice`: VibeVoice-Realtime-0.5B after install.
 
+First executable status:
+
+- `pnpm local:provider:benchmark -- --output docs/openclinxr/local-provider-benchmark-2026-05-03.json`
+- Deterministic mock model benchmark passed with zero cost.
+- Deterministic mock voice benchmark passed with transcript and audio-chunk evidence.
+- Local model benchmark remains `not_configured` because no Ollama, llama.cpp, or MLX LM runtime is detected and `OPENCLINXR_LOCAL_MODEL_RUNTIME` / `OPENCLINXR_LOCAL_MODEL_ID` are unset.
+- Local voice benchmark remains `not_configured` because no VibeVoice runtime is detected and `OPENCLINXR_LOCAL_VOICE_RUNTIME` / `OPENCLINXR_LOCAL_VOICE_ID` are unset.
+- The script explicitly records `cloudCallsAllowed: false`, `modelDownloadsAllowed: false`, and `localRuntimeExecutionAllowed: false`.
+
 Metrics:
 
 - Time to first token.

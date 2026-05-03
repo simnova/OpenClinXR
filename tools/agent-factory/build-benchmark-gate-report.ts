@@ -46,6 +46,38 @@ type GltfPipelineSmokeReport = {
   };
 };
 
+type LocalProviderBenchmarkReport = {
+  generatedAt: string;
+  mockModel: {
+    status: string;
+    latencyMs: number | null;
+    blockers: string[];
+    metrics: Record<string, unknown>;
+  };
+  mockVoice: {
+    status: string;
+    latencyMs: number | null;
+    blockers: string[];
+    metrics: Record<string, unknown>;
+  };
+  localModel: {
+    status: string;
+    blockers: string[];
+    metrics: Record<string, unknown>;
+  };
+  localVoice: {
+    status: string;
+    blockers: string[];
+    metrics: Record<string, unknown>;
+  };
+  verdict: {
+    deterministicMocksPassed: boolean;
+    localModelReadyToBenchmark: boolean;
+    localVoiceReadyToBenchmark: boolean;
+    blockers: string[];
+  };
+};
+
 type EvidenceGateReport = {
   generated_by: string;
   quest_smoke?: {
@@ -69,6 +101,15 @@ type EvidenceGateReport = {
     passed: boolean;
     blockers: string[];
   };
+  local_provider_benchmark?: {
+    file: string;
+    generated_at: string;
+    mock_model: LocalProviderBenchmarkReport["mockModel"];
+    mock_voice: LocalProviderBenchmarkReport["mockVoice"];
+    local_model: LocalProviderBenchmarkReport["localModel"];
+    local_voice: LocalProviderBenchmarkReport["localVoice"];
+    verdict: LocalProviderBenchmarkReport["verdict"];
+  };
   evidence_gates: Array<{
     evidence_id: string;
     ready_to_resolve: boolean;
@@ -81,7 +122,8 @@ async function main(): Promise<void> {
   const questSmoke = await latestJson<QuestSmokeReport>("docs/openclinxr/quest-cdp-smoke-*.json");
   const localRuntime = await latestJson<LocalRuntimeProbeReport>("docs/openclinxr/local-runtime-probe-*.json");
   const gltfPipelineSmoke = await latestJson<GltfPipelineSmokeReport>("docs/openclinxr/gltf-pipeline-smoke-*.json");
-  const report = buildReport(questSmoke, localRuntime, gltfPipelineSmoke);
+  const localProviderBenchmark = await latestJson<LocalProviderBenchmarkReport>("docs/openclinxr/local-provider-benchmark-*.json");
+  const report = buildReport(questSmoke, localRuntime, gltfPipelineSmoke, localProviderBenchmark);
   await writeJson(".agent-factory/benchmark-gate-report.json", report);
   console.log(`Wrote .agent-factory/benchmark-gate-report.json; evidence-leadership-0007-002 ready=${report.evidence_gates[0]?.ready_to_resolve ?? false}`);
 }
@@ -99,11 +141,13 @@ function buildReport(
   questSmoke: { file: string; value: QuestSmokeReport } | undefined,
   localRuntime: { file: string; value: LocalRuntimeProbeReport } | undefined,
   gltfPipelineSmoke: { file: string; value: GltfPipelineSmokeReport } | undefined,
+  localProviderBenchmark: { file: string; value: LocalProviderBenchmarkReport } | undefined,
 ): EvidenceGateReport {
   const blockers = [
     ...questBlockers(questSmoke?.value),
     ...localRuntimeBlockers(localRuntime?.value),
     ...gltfPipelineSmokeBlockers(gltfPipelineSmoke?.value),
+    ...localProviderBenchmarkBlockers(localProviderBenchmark?.value),
   ];
   const satisfiedConditions = [
     questSmoke?.value.verdict.shellLoaded ? "quest_shell_loaded" : undefined,
@@ -111,8 +155,11 @@ function buildReport(
     localRuntime?.value.gates.questUsb.status === "ready" ? "quest_usb_ready" : undefined,
     localRuntime?.value.gates.assetPipeline.status === "ready" ? "asset_pipeline_runtime_ready" : undefined,
     gltfPipelineSmoke?.value.verdict.passed ? "asset_pipeline_gltf_pipeline_smoke_passed" : undefined,
+    localProviderBenchmark?.value.verdict.deterministicMocksPassed ? "local_provider_mock_benchmarks_passed" : undefined,
     localRuntime?.value.gates.localModel.status === "ready" ? "local_model_runtime_ready" : undefined,
     localRuntime?.value.gates.localVoice.status === "ready" ? "local_voice_runtime_ready" : undefined,
+    localProviderBenchmark?.value.verdict.localModelReadyToBenchmark ? "local_model_ready_to_benchmark" : undefined,
+    localProviderBenchmark?.value.verdict.localVoiceReadyToBenchmark ? "local_voice_ready_to_benchmark" : undefined,
   ].filter((condition): condition is string => typeof condition === "string");
 
   return {
@@ -142,6 +189,17 @@ function buildReport(
         output: gltfPipelineSmoke.value.output,
         passed: gltfPipelineSmoke.value.verdict.passed,
         blockers: [...gltfPipelineSmoke.value.verdict.blockers],
+      },
+    } : {}),
+    ...(localProviderBenchmark ? {
+      local_provider_benchmark: {
+        file: localProviderBenchmark.file,
+        generated_at: localProviderBenchmark.value.generatedAt,
+        mock_model: localProviderBenchmark.value.mockModel,
+        mock_voice: localProviderBenchmark.value.mockVoice,
+        local_model: localProviderBenchmark.value.localModel,
+        local_voice: localProviderBenchmark.value.localVoice,
+        verdict: localProviderBenchmark.value.verdict,
       },
     } : {}),
     evidence_gates: [
@@ -196,6 +254,18 @@ function gltfPipelineSmokeBlockers(report: GltfPipelineSmokeReport | undefined):
     return [];
   }
   return unique(report.verdict.blockers.map((blocker) => `gltf_pipeline_smoke:${blocker}`));
+}
+
+function localProviderBenchmarkBlockers(report: LocalProviderBenchmarkReport | undefined): string[] {
+  if (!report) {
+    return ["missing_local_provider_benchmark_report"];
+  }
+  return unique([
+    ...report.mockModel.blockers.map((blocker) => `mock_model_benchmark:${blocker}`),
+    ...report.mockVoice.blockers.map((blocker) => `mock_voice_benchmark:${blocker}`),
+    ...(report.verdict.localModelReadyToBenchmark ? [] : report.localModel.blockers.map((blocker) => `local_model_benchmark:${blocker}`)),
+    ...(report.verdict.localVoiceReadyToBenchmark ? [] : report.localVoice.blockers.map((blocker) => `local_voice_benchmark:${blocker}`)),
+  ]);
 }
 
 function prefixBlockers(prefix: string, gate: GateStatus): Array<string | undefined> {

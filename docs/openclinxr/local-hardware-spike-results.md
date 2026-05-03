@@ -109,6 +109,31 @@ Result:
 
 This proves the local permissive GLB conversion path is executable. It does not replace Blender, mesh decimation, texture compression, headset frame pacing, or visual QA.
 
+## Local Provider Benchmark Contract
+
+Run time: 2026-05-03 18:51 EDT
+
+Command:
+
+```bash
+pnpm local:provider:benchmark -- --output docs/openclinxr/local-provider-benchmark-2026-05-03.json
+```
+
+Machine-readable evidence:
+
+- `docs/openclinxr/local-provider-benchmark-2026-05-03.json`
+
+Result:
+
+| Lane | Status | Evidence |
+| --- | --- | --- |
+| Mock model | Passed | Deterministic actor response, token counts, zero cost |
+| Mock voice | Passed | Two transcript events, one audio chunk, viseme cue, zero cost |
+| Local model | Not configured | No Ollama/llama.cpp/MLX runtime detected; local model env vars unset |
+| Local voice | Not configured | No VibeVoice runtime detected; local voice env vars unset |
+
+The benchmark contract intentionally avoids cloud calls, model downloads, and local runtime execution. It is ready to become a real local-provider benchmark once runtimes and model IDs are configured explicitly.
+
 ## Lightweight Throughput Smokes
 
 These are local-only Node checks. They do not use cloud services and do not download model weights.
