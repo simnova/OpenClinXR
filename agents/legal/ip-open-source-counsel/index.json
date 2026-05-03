@@ -1,7 +1,7 @@
 {
   "agent_id": "ip-open-source-counsel",
   "team": "legal",
-  "last_updated": "2026-05-02",
+  "last_updated": "2026-05-03",
   "entries": [
     {
       "id": "ip-open-source-counsel-lesson-0001",
@@ -13,6 +13,21 @@
         "design-spec-2026-05-02"
       ],
       "iteration": 0,
+      "status": "active",
+      "supersedes": []
+    },
+    {
+      "id": "ip-open-source-counsel-risk-0002",
+      "type": "risk",
+      "topic": "copyleft-asset-pipeline",
+      "summary": "StableGen GPL-3.0 and MakeHuman/MPFB AGPL/GPL source create runtime and distribution risk; asset ingestion must enforce provenance, output license review, and forbidden runtime dependency tags.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-stablegen-github-2026",
+        "src-makehuman-community-license-2026",
+        "src-makehuman-makeclothes-github-2026"
+      ],
+      "iteration": 3,
       "status": "active",
       "supersedes": []
     }

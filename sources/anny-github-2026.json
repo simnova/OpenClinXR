@@ -1,0 +1,21 @@
+{
+  "source_id": "src-anny-github-2026",
+  "title": "naver/anny GitHub Repository",
+  "url": "https://github.com/naver/anny",
+  "source_type": "vendor",
+  "citation": "NAVER. naver/anny GitHub repository. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Technology evaluation for permissively licensed parametric human generation."
+  ],
+  "claims_supported": [
+    "Anny is a differentiable human body mesh model written in PyTorch.",
+    "Anny models body shapes from infants to elders using a common topology and parameter space.",
+    "Anny code is licensed under Apache-2.0 and uses adapted MPFB2 assets licensed CC0."
+  ],
+  "claims_not_supported": [
+    "That Anny is already optimized for Quest 3 runtime use without a separate export, rigging, and optimization pipeline.",
+    "That Anny alone supplies clothing, clinical equipment, or animation behavior."
+  ],
+  "confidence": 0.91
+}

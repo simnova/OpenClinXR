@@ -1,0 +1,21 @@
+{
+  "source_id": "src-adaptive-vp-2025",
+  "title": "Adaptive-VP: A Framework for LLM-Based Virtual Patients that Adapts to Trainees' Dialogue",
+  "url": "https://arxiv.org/abs/2506.00386",
+  "source_type": "peer-reviewed",
+  "citation": "Lee K, Lee S, Kim EH, et al. Adaptive-VP: A Framework for LLM-Based Virtual Patients that Adapts to Trainees' Dialogue to Facilitate Nurse Communication Training. Findings of ACL 2025. arXiv:2506.00386.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Interaction-model precedent for adaptive virtual patient behavior and escalating/uncooperative patient responses."
+  ],
+  "claims_supported": [
+    "Adaptive-VP uses LLMs to adapt virtual patient behavior based on trainee input.",
+    "The framework includes scenario construction, communication assessment, response adjustment, and learner-safety considerations.",
+    "Expert nurses judged Adaptive-VP interactions more natural and realistic than existing approaches in the reported study."
+  ],
+  "claims_not_supported": [
+    "That Adaptive-VP validates physician licensure or summative assessment.",
+    "That OpenClinXR can use its data without checking repository-specific license terms."
+  ],
+  "confidence": 0.86
+}

@@ -1,7 +1,7 @@
 {
   "agent_id": "rubric-steward",
   "team": "coordinator",
-  "last_updated": "2026-05-02",
+  "last_updated": "2026-05-03",
   "entries": [
     {
       "id": "rubric-steward-lesson-0001",
@@ -13,6 +13,21 @@
         "design-spec-2026-05-02"
       ],
       "iteration": 0,
+      "status": "active",
+      "supersedes": []
+    },
+    {
+      "id": "rubric-steward-lesson-0002",
+      "type": "lesson",
+      "topic": "iteration-0003-score-improvement",
+      "summary": "Iteration 0003 improves implementation readiness by adding technology, asset, provider, admin UX/testing, communication-style QA, and case-bank guidance while preserving open evidence debt for device, provider, license, and review-throughput validation.",
+      "confidence": 0.87,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec",
+        "src-local-laverde-llm-agents-pdf-2025",
+        "src-local-bodonhelyi-medical-communication-pdf-2025"
+      ],
+      "iteration": 3,
       "status": "active",
       "supersedes": []
     }

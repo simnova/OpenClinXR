@@ -2,11 +2,11 @@
 
 ## Durable Lessons
 
-- No durable lessons recorded yet.
+- Iteration 0003: runtime and distributed product should avoid GPL/AGPL/copyleft source. StableGen is optional isolated authoring only; MakeHuman/MPFB source is authoring-only; asset outputs require provenance and counsel review when terms are ambiguous.
 
 ## Active Risks
 
-- No active risks recorded yet.
+- Copyleft or unclear output licensing can contaminate the asset pipeline if source tool, source asset, output license, reviewer, and hash are not recorded.
 
 ## Open Questions
 
@@ -18,4 +18,3 @@
 - Track open-source-license across iterations.
 - Track asset-provenance across iterations.
 - Track scenario-ownership across iterations.
-

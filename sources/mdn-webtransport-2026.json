@@ -1,0 +1,20 @@
+{
+  "source_id": "src-mdn-webtransport-2026",
+  "title": "MDN WebTransport API",
+  "url": "https://developer.mozilla.org/en-US/docs/Web/API/WebTransport_API",
+  "source_type": "authoritative-standard",
+  "citation": "MDN Web Docs. WebTransport API. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Browser API capability assessment for low-latency transport planning."
+  ],
+  "claims_supported": [
+    "MDN marks WebTransport as Baseline 2026 and newly available since March 2026.",
+    "WebTransport uses HTTP/3 transport and supports multiple streams and UDP-like datagrams."
+  ],
+  "claims_not_supported": [
+    "That every Azure App Service, proxy, or Hono/Bun deployment path supports WebTransport end to end.",
+    "That WebTransport is required for the first single-user demo."
+  ],
+  "confidence": 0.86
+}

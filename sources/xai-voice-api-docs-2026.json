@@ -1,0 +1,21 @@
+{
+  "source_id": "src-xai-voice-api-docs-2026",
+  "title": "xAI Voice API Documentation",
+  "url": "https://docs.x.ai/developers/rest-api-reference/inference/voice",
+  "source_type": "vendor",
+  "citation": "xAI Docs. Voice API Reference. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "API integration planning for real-time voice, streaming TTS, and streaming STT."
+  ],
+  "claims_supported": [
+    "xAI documents real-time voice conversations with Grok models via WebSocket.",
+    "xAI documents streaming TTS and streaming STT endpoints.",
+    "xAI documents optional speaker diarization for STT."
+  ],
+  "claims_not_supported": [
+    "That xAI data processing terms satisfy OpenClinXR institutional compliance without legal and security review.",
+    "That xAI WebSocket transport eliminates the need for OpenClinXR trace and audit controls."
+  ],
+  "confidence": 0.88
+}

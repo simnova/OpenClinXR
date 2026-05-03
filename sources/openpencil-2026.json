@@ -1,0 +1,20 @@
+{
+  "source_id": "src-openpencil-2026",
+  "title": "OpenPencil Open-Source Design Editor",
+  "url": "https://openpencil.dev/",
+  "source_type": "vendor",
+  "citation": "OpenPencil project website. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Alternative UX design tooling evaluation for MIT-licensed local/headless design workflows."
+  ],
+  "claims_supported": [
+    "OpenPencil states it is MIT licensed.",
+    "OpenPencil advertises local usage, headless CLI, JSON output, and design/code collaboration workflows."
+  ],
+  "claims_not_supported": [
+    "That OpenPencil is as mature as Penpot for enterprise design collaboration.",
+    "That OpenPencil exports production-ready Ant Design components without review."
+  ],
+  "confidence": 0.76
+}

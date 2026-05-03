@@ -1,0 +1,98 @@
+{
+  "iteration_id": "iteration-0003",
+  "plan_type": "adversarial-counterplan",
+  "scored_by": "adversarial-red-team",
+  "scored_at": "2026-05-03",
+  "dimensions": {
+    "clinical_validity": {
+      "score": 4.5,
+      "rationale": "The adversarial pass forces specialty and bias review for each case rather than accepting generated case-bank breadth as validity."
+    },
+    "psychometric_defensibility": {
+      "score": 4.4,
+      "rationale": "Score-use blockers, blueprint linkage, and pilot debrief data are required before learner-consequence claims."
+    },
+    "technical_feasibility": {
+      "score": 4.5,
+      "rationale": "The red team narrows phase 1 to deterministic, optimized, device-gated runtime behavior."
+    },
+    "architecture_coherence": {
+      "score": 4.55,
+      "rationale": "The counterplan preserves the adapter and registry architecture while adding gates rather than redesigning the system."
+    },
+    "security_privacy": {
+      "score": 4.35,
+      "rationale": "Provider benchmark and retention gates strengthen the privacy posture, though formal controls remain future work."
+    },
+    "ux_workflow_fit": {
+      "score": 4.35,
+      "rationale": "Review workflow burden is now explicit and matched to admin UX needs."
+    },
+    "cost_performance_efficiency": {
+      "score": 4.45,
+      "rationale": "No-live-generation, B1 orchestration, and text fallback reduce early cost and latency risk."
+    },
+    "open_source_sustainability": {
+      "score": 4.45,
+      "rationale": "The asset ingestion gate and blocklist directly address copyleft contamination risk."
+    },
+    "market_gtm_strength": {
+      "score": 4.2,
+      "rationale": "The counterplan favors a credible formative training product over a risky high-stakes replacement story."
+    },
+    "evidence_discipline": {
+      "score": 4.55,
+      "rationale": "Every major capability now has an evidence gate before claims or dependency lock."
+    },
+    "implementation_readiness": {
+      "score": 4.45,
+      "rationale": "The narrowed first milestone is easier to implement and test."
+    },
+    "adversarial_robustness": {
+      "score": 4.6,
+      "rationale": "The red team identified and patched the largest feasibility, licensing, provider, and score-use risks."
+    },
+    "legal_regulatory_resilience": {
+      "score": 4.45,
+      "rationale": "License, score-use, provider, and claims gates improve legal resilience."
+    },
+    "specialty_clinical_generalizability": {
+      "score": 4.35,
+      "rationale": "The plan scales across specialties only through reviewer-gated case families."
+    }
+  },
+  "critical_risks": [
+    {
+      "id": "risk-adv-0003-001",
+      "severity": "high",
+      "summary": "Reviewer throughput could become the bottleneck if scenario generation outpaces clinical, psychometric, legal, and simulation QA capacity.",
+      "owner": "chief-coordinator",
+      "status": "open"
+    },
+    {
+      "id": "risk-adv-0003-002",
+      "severity": "high",
+      "summary": "Speech/voice latency could make the XR experience feel broken even if text dialogue works.",
+      "owner": "xr-systems-architect",
+      "status": "open"
+    }
+  ],
+  "evidence_debt": [
+    {
+      "id": "evidence-adv-0003-001",
+      "summary": "Run an end-to-end Quest 3 station smoke with optimized placeholder assets and WebSocket control events.",
+      "owner": "platform-devops-lead",
+      "status": "open"
+    }
+  ],
+  "decision_debt": [
+    {
+      "id": "decision-adv-0003-001",
+      "summary": "Approve the asset registry license blocklist before importing any third-party character or texture assets.",
+      "owner": "ip-open-source-counsel",
+      "status": "open"
+    }
+  ],
+  "confidence": 0.88,
+  "summary": "The adversarial team accepts the direction only with strict phase-1 runtime, license, provider, device, and score-use gates."
+}

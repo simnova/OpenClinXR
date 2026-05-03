@@ -1,0 +1,21 @@
+{
+  "source_id": "src-llama-cpp-github-2026",
+  "title": "ggml-org/llama.cpp GitHub Repository",
+  "url": "https://github.com/ggml-org/llama.cpp",
+  "source_type": "vendor",
+  "citation": "ggml-org. llama.cpp GitHub repository. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Local LLM feasibility planning for Apple Silicon development and offline demo mode."
+  ],
+  "claims_supported": [
+    "llama.cpp is a C/C++ LLM inference project.",
+    "The repository describes Apple silicon as a first-class citizen and lists ARM NEON, Accelerate, and Metal optimizations.",
+    "The repository supports quantization options for reduced memory use."
+  ],
+  "claims_not_supported": [
+    "That any particular medical model is clinically safe or license-compatible.",
+    "That local LLM inference on M4 Max can replace frontier cloud models without benchmarking."
+  ],
+  "confidence": 0.86
+}

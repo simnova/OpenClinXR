@@ -1,7 +1,7 @@
 {
   "generated_by": "tools/agent-factory/build-memory-index.ts",
   "agent_count": 55,
-  "entry_count": 68,
+  "entry_count": 77,
   "entries": [
     {
       "id": "xr-systems-architect-decision-0003",
@@ -20,6 +20,62 @@
       "agent_id": "xr-systems-architect",
       "team": "core",
       "source_file": "agents/core/xr-systems-architect/index.json"
+    },
+    {
+      "id": "ux-product-lead-decision-0002",
+      "type": "decision",
+      "topic": "admin-ux-testing-stack",
+      "summary": "Use Penpot/OpenPencil for design exploration and React, Ant Design 6, Pro Components, Storybook, Serenity/JS, Playwright, and Vitest for dense non-examinee authoring, review, and trace workflows.",
+      "confidence": 0.89,
+      "source_ids": [
+        "src-penpot-github-2026",
+        "src-openpencil-2026",
+        "src-npm-stack-metadata-2026-05-03",
+        "src-storybook-10-3-2026",
+        "src-serenity-js-screenplay-2026"
+      ],
+      "iteration": 3,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "ux-product-lead",
+      "team": "core",
+      "source_file": "agents/core/ux-product-lead/index.json"
+    },
+    {
+      "id": "platform-devops-lead-decision-0002",
+      "type": "decision",
+      "topic": "azure-b1-orchestration-websocket-first",
+      "summary": "Azure App Service Plan B1 should orchestrate one-user pilot sessions, REST, WebSocket control, trace batching, and provider calls, while heavy assets, inference, and animation generation run offline or outside B1.",
+      "confidence": 0.86,
+      "source_ids": [
+        "src-azure-app-service-plan-docs-2026",
+        "src-mdn-webtransport-2026",
+        "src-xai-voice-api-docs-2026"
+      ],
+      "iteration": 3,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "platform-devops-lead",
+      "team": "core",
+      "source_file": "agents/core/platform-devops-lead/index.json"
+    },
+    {
+      "id": "clinical-simulation-lead-lesson-0003",
+      "type": "lesson",
+      "topic": "case-bank-and-communication-styles",
+      "summary": "The first case bank should include 12 reviewed specialty stations with environment, actors, hidden truth, event schedule, 3D assets, trace tags, and explicit communication-style profiles for empathy, de-escalation, and team-pressure testing.",
+      "confidence": 0.88,
+      "source_ids": [
+        "src-local-laverde-llm-agents-pdf-2025",
+        "src-local-bodonhelyi-medical-communication-pdf-2025",
+        "src-ama-day-one-skills-2026"
+      ],
+      "iteration": 3,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "clinical-simulation-lead",
+      "team": "core",
+      "source_file": "agents/core/clinical-simulation-lead/index.json"
     },
     {
       "id": "legal-regulatory-counsel-risk-0003",
@@ -41,6 +97,24 @@
       "agent_id": "legal-regulatory-counsel",
       "team": "legal",
       "source_file": "agents/legal/legal-regulatory-counsel/index.json"
+    },
+    {
+      "id": "ip-open-source-counsel-risk-0002",
+      "type": "risk",
+      "topic": "copyleft-asset-pipeline",
+      "summary": "StableGen GPL-3.0 and MakeHuman/MPFB AGPL/GPL source create runtime and distribution risk; asset ingestion must enforce provenance, output license review, and forbidden runtime dependency tags.",
+      "confidence": 0.9,
+      "source_ids": [
+        "src-stablegen-github-2026",
+        "src-makehuman-community-license-2026",
+        "src-makehuman-makeclothes-github-2026"
+      ],
+      "iteration": 3,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "ip-open-source-counsel",
+      "team": "legal",
+      "source_file": "agents/legal/ip-open-source-counsel/index.json"
     },
     {
       "id": "solution-architect-decision-0002",
@@ -1003,6 +1077,46 @@
       "source_file": "agents/coordinator/source-librarian/index.json"
     },
     {
+      "id": "rubric-steward-lesson-0002",
+      "type": "lesson",
+      "topic": "iteration-0003-score-improvement",
+      "summary": "Iteration 0003 improves implementation readiness by adding technology, asset, provider, admin UX/testing, communication-style QA, and case-bank guidance while preserving open evidence debt for device, provider, license, and review-throughput validation.",
+      "confidence": 0.87,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec",
+        "src-local-laverde-llm-agents-pdf-2025",
+        "src-local-bodonhelyi-medical-communication-pdf-2025"
+      ],
+      "iteration": 3,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "rubric-steward",
+      "team": "coordinator",
+      "source_file": "agents/coordinator/rubric-steward/index.json"
+    },
+    {
+      "id": "source-librarian-lesson-0003",
+      "type": "lesson",
+      "topic": "iteration-0003-technology-source-ledger",
+      "summary": "Iteration 0003 source ledger adds original asset bundle findings, local virtual-patient PDFs, current technology/license checks, WebXR/WebTransport performance references, provider docs, and npm package metadata; unresolved evidence remains Quest 3 device benchmarks, provider privacy/latency, and final asset-output licensing.",
+      "confidence": 0.88,
+      "source_ids": [
+        "src-internal-openclinxr-architecture-bundle",
+        "src-local-laverde-llm-agents-pdf-2025",
+        "src-local-bodonhelyi-medical-communication-pdf-2025",
+        "src-anny-github-2026",
+        "src-stablegen-github-2026",
+        "src-mdn-webxr-performance-2026",
+        "src-xai-voice-api-docs-2026"
+      ],
+      "iteration": 3,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "source-librarian",
+      "team": "coordinator",
+      "source_file": "agents/coordinator/source-librarian/index.json"
+    },
+    {
       "id": "open-source-governance-lead-decision-0002",
       "type": "decision",
       "topic": "marketplace-deferral",
@@ -1073,6 +1187,25 @@
       "source_file": "agents/legal/legal-regulatory-counsel/index.json"
     },
     {
+      "id": "solution-architect-decision-0003",
+      "type": "decision",
+      "topic": "provider-adapter-and-communication-profile-architecture",
+      "summary": "Model, voice, and local LLM capabilities should be exposed through auditable provider adapters, while every actor card carries a communication profile, bounded-stubbornness policy, and emotion/style QA hooks.",
+      "confidence": 0.88,
+      "source_ids": [
+        "src-xai-grok-voice-think-fast-2026",
+        "src-xai-voice-api-docs-2026",
+        "src-local-laverde-llm-agents-pdf-2025",
+        "src-local-bodonhelyi-medical-communication-pdf-2025"
+      ],
+      "iteration": 3,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "solution-architect",
+      "team": "core",
+      "source_file": "agents/core/solution-architect/index.json"
+    },
+    {
       "id": "xr-systems-architect-decision-0002",
       "type": "decision",
       "topic": "quest-runtime-stage",
@@ -1087,6 +1220,44 @@
       "agent_id": "xr-systems-architect",
       "team": "core",
       "source_file": "agents/core/xr-systems-architect/index.json"
+    },
+    {
+      "id": "xr-systems-architect-decision-0004",
+      "type": "decision",
+      "topic": "quest3-prebaked-performance-budget",
+      "summary": "Quest 3 runtime should load pre-baked GLB/KTX2/meshopt station bundles with no live body, texture, clothing, or full-motion generation; target 72 FPS and gate station approval on device smoke tests.",
+      "confidence": 0.87,
+      "source_ids": [
+        "src-mdn-webxr-performance-2026",
+        "src-internal-openclinxr-architecture-bundle",
+        "src-npm-stack-metadata-2026-05-03"
+      ],
+      "iteration": 3,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "xr-systems-architect",
+      "team": "core",
+      "source_file": "agents/core/xr-systems-architect/index.json"
+    },
+    {
+      "id": "open-source-governance-lead-decision-0003",
+      "type": "decision",
+      "topic": "runtime-license-posture",
+      "summary": "Runtime dependencies and asset pipeline outputs should prefer MIT, Apache-2.0, BSD-style, and CC0/CC-BY assets; MPL tools may be standalone, while GPL/AGPL code stays out of runtime/distributed product.",
+      "confidence": 0.88,
+      "source_ids": [
+        "src-anny-github-2026",
+        "src-mesh2motion-2026",
+        "src-penpot-github-2026",
+        "src-npm-stack-metadata-2026-05-03",
+        "src-stablegen-github-2026"
+      ],
+      "iteration": 3,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "open-source-governance-lead",
+      "team": "core",
+      "source_file": "agents/core/open-source-governance-lead/index.json"
     },
     {
       "id": "chief-coordinator-decision-0003",

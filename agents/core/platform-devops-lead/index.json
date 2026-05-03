@@ -1,7 +1,7 @@
 {
   "agent_id": "platform-devops-lead",
   "team": "core",
-  "last_updated": "2026-05-02",
+  "last_updated": "2026-05-03",
   "entries": [
     {
       "id": "platform-devops-lead-lesson-0001",
@@ -13,6 +13,21 @@
         "design-spec-2026-05-02"
       ],
       "iteration": 0,
+      "status": "active",
+      "supersedes": []
+    },
+    {
+      "id": "platform-devops-lead-decision-0002",
+      "type": "decision",
+      "topic": "azure-b1-orchestration-websocket-first",
+      "summary": "Azure App Service Plan B1 should orchestrate one-user pilot sessions, REST, WebSocket control, trace batching, and provider calls, while heavy assets, inference, and animation generation run offline or outside B1.",
+      "confidence": 0.86,
+      "source_ids": [
+        "src-azure-app-service-plan-docs-2026",
+        "src-mdn-webtransport-2026",
+        "src-xai-voice-api-docs-2026"
+      ],
+      "iteration": 3,
       "status": "active",
       "supersedes": []
     }

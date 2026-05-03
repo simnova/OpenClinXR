@@ -1,0 +1,20 @@
+{
+  "source_id": "src-xai-grok-voice-think-fast-2026",
+  "title": "Grok Voice Think Fast 1.0",
+  "url": "https://x.ai/news/grok-voice-think-fast-1",
+  "source_type": "vendor",
+  "citation": "xAI. Grok Voice Think Fast 1.0. Apr 23, 2026. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Vendor capability assessment for commercial voice-agent adapter planning."
+  ],
+  "claims_supported": [
+    "xAI announced grok-voice-think-fast-1.0 as a flagship voice model available via API.",
+    "xAI describes the model as optimized for low response latency, tool orchestration, interruptions, noisy audio, accents, and multilingual use."
+  ],
+  "claims_not_supported": [
+    "That Grok voice is medically validated for clinical education.",
+    "That Grok voice should be the only provider or that it satisfies institutional privacy requirements without review."
+  ],
+  "confidence": 0.84
+}

@@ -43,6 +43,21 @@
       "iteration": 2,
       "status": "active",
       "supersedes": []
+    },
+    {
+      "id": "xr-systems-architect-decision-0004",
+      "type": "decision",
+      "topic": "quest3-prebaked-performance-budget",
+      "summary": "Quest 3 runtime should load pre-baked GLB/KTX2/meshopt station bundles with no live body, texture, clothing, or full-motion generation; target 72 FPS and gate station approval on device smoke tests.",
+      "confidence": 0.87,
+      "source_ids": [
+        "src-mdn-webxr-performance-2026",
+        "src-internal-openclinxr-architecture-bundle",
+        "src-npm-stack-metadata-2026-05-03"
+      ],
+      "iteration": 3,
+      "status": "active",
+      "supersedes": []
     }
   ]
 }

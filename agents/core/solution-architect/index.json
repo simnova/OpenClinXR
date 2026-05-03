@@ -31,6 +31,22 @@
       "iteration": 2,
       "status": "active",
       "supersedes": []
+    },
+    {
+      "id": "solution-architect-decision-0003",
+      "type": "decision",
+      "topic": "provider-adapter-and-communication-profile-architecture",
+      "summary": "Model, voice, and local LLM capabilities should be exposed through auditable provider adapters, while every actor card carries a communication profile, bounded-stubbornness policy, and emotion/style QA hooks.",
+      "confidence": 0.88,
+      "source_ids": [
+        "src-xai-grok-voice-think-fast-2026",
+        "src-xai-voice-api-docs-2026",
+        "src-local-laverde-llm-agents-pdf-2025",
+        "src-local-bodonhelyi-medical-communication-pdf-2025"
+      ],
+      "iteration": 3,
+      "status": "active",
+      "supersedes": []
     }
   ]
 }

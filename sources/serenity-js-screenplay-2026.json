@@ -1,0 +1,20 @@
+{
+  "source_id": "src-serenity-js-screenplay-2026",
+  "title": "Serenity/JS Screenplay Pattern",
+  "url": "https://serenity-js.org/handbook/design/screenplay-pattern/",
+  "source_type": "vendor",
+  "citation": "Serenity/JS Handbook. Screenplay Pattern. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Acceptance testing approach for actor-based clinical workflows and domain-language tests."
+  ],
+  "claims_supported": [
+    "Serenity/JS supports the Screenplay Pattern for user-centered automated acceptance tests.",
+    "The framework supports multiple test automation types including end-to-end, component, mobile, and API testing."
+  ],
+  "claims_not_supported": [
+    "That Serenity/JS alone can simulate Quest 3 headset sensor behavior.",
+    "That all clinical psychometric validation can be automated."
+  ],
+  "confidence": 0.82
+}

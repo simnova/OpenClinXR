@@ -1,0 +1,26 @@
+{
+  "source_id": "src-local-bodonhelyi-medical-communication-pdf-2025",
+  "title": "Modeling Challenging Patient Interactions: LLMs for Medical Communication Training",
+  "url": "https://arxiv.org/abs/2503.22250",
+  "file_path": "/Users/patrick/Downloads/llms-medical-communication.pdf",
+  "source_type": "preprint",
+  "citation": "Bodonhelyi A, Stegemann-Philipps C, Sonanini A, Herschbach L, Szep M, Herrmann-Werner A, Festl-Wietek T, Kasneci E, Holderried F. Modeling Challenging Patient Interactions: LLMs for Medical Communication Training. arXiv:2503.22250v2. 2025.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Architecture inspiration for virtual patient communication styles, prompt scaffolds, emotional response QA, multilingual persona support, and difficult-patient scenario authoring."
+  ],
+  "claims_supported": [
+    "The preprint describes virtual patients based on Satir communication styles, specifically accuser and rationalizer personas.",
+    "The implementation used author notes, first assistant messages, behavioral instruction prompts, hidden thoughts, and a bounded stubbornness mechanism to improve role consistency.",
+    "The authors reported that early prompts drifted toward neutral tone after 4 to 6 prompts unless mood and situation fields were made more detailed.",
+    "The study used questionnaires, Likert realism/authenticity ratings, adjective identification, emotion analysis, and sentiment analysis to evaluate persona adherence.",
+    "The authors cautioned that repeated predefined responses and unbounded nonverbal cue prompting can become unnatural or exaggerated."
+  ],
+  "claims_not_supported": [
+    "That the approach is peer-reviewed clinical validation.",
+    "That Satir-style virtual patients are sufficient for high-stakes scoring.",
+    "That text-only emotion analysis proves embodied XR behavior fidelity.",
+    "That all communication styles, specialties, languages, or cultural contexts have been validated."
+  ],
+  "confidence": 0.9
+}

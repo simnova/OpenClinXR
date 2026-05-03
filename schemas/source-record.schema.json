@@ -12,7 +12,7 @@
     "file_path": { "type": "string" },
     "source_type": {
       "type": "string",
-      "enum": ["authoritative-standard", "regulator", "peer-reviewed", "professional-guidance", "market-research", "financial-media", "vendor", "internal-artifact", "legal-context", "clinical-guideline"]
+      "enum": ["authoritative-standard", "regulator", "peer-reviewed", "preprint", "professional-guidance", "market-research", "financial-media", "vendor", "internal-artifact", "legal-context", "clinical-guideline"]
     },
     "citation": { "type": "string", "minLength": 1 },
     "accessed_at": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },

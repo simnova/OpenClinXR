@@ -1,0 +1,20 @@
+{
+  "source_id": "src-storybook-10-3-2026",
+  "title": "Storybook 10.3 Release",
+  "url": "https://storybook.js.org/releases/10.3",
+  "source_type": "vendor",
+  "citation": "Storybook. Storybook 10.3 release notes. Mar 2026. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Frontend component testing and documentation workflow planning."
+  ],
+  "claims_supported": [
+    "Storybook 10.3 includes Vite 8 support, Next.js 16.2 support, accessibility improvements, and Storybook MCP preview for React.",
+    "Storybook 10.3 includes Addon-Vitest simplification."
+  ],
+  "claims_not_supported": [
+    "That Storybook can validate WebXR headset performance.",
+    "That Storybook MCP should be used without security review."
+  ],
+  "confidence": 0.84
+}

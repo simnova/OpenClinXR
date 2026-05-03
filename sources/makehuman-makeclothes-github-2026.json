@@ -1,0 +1,21 @@
+{
+  "source_id": "src-makehuman-makeclothes-github-2026",
+  "title": "MakeHuman Community GitHub Repository List",
+  "url": "https://github.com/orgs/makehumancommunity/repositories",
+  "source_type": "vendor",
+  "citation": "MakeHuman Community GitHub organization repository list. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Technology evaluation for clothing and auxiliary asset authoring tools."
+  ],
+  "claims_supported": [
+    "community-plugins-makeclothes is listed as MIT licensed.",
+    "community-plugins-makeskin is listed as MIT licensed.",
+    "makehuman-assets is listed as CC0 licensed."
+  ],
+  "claims_not_supported": [
+    "That all third-party clothes created with the tools are permissively licensed.",
+    "That MakeHuman runtime source should be bundled into the product."
+  ],
+  "confidence": 0.84
+}

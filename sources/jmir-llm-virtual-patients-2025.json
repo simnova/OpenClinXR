@@ -1,0 +1,21 @@
+{
+  "source_id": "src-jmir-llm-virtual-patients-2025",
+  "title": "Virtual Patients Using Large Language Models: Scalable, Contextualized Simulation of Clinician-Patient Dialogue With Feedback",
+  "url": "https://www.jmir.org/2025/1/e68486",
+  "source_type": "peer-reviewed",
+  "citation": "Cook DA, Overgaard J, Pankratz VS, Del Fiol G, Aakre CA. Virtual Patients Using Large Language Models: Scalable, Contextualized Simulation of Clinician-Patient Dialogue With Feedback. J Med Internet Res. 2025;27:e68486. doi:10.2196/68486.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Scholarly support for LLM-powered virtual patient dialogue, patient preference representation, and feedback workflows."
+  ],
+  "claims_supported": [
+    "The study used LLM-powered virtual patients to generate clinician-patient dialogues and feedback.",
+    "The study included outpatient chronic cough diagnosis and diabetes management topics.",
+    "The authors concluded that LLM-powered virtual patients can simulate patient-clinician dialogues and provide personalized feedback."
+  ],
+  "claims_not_supported": [
+    "That LLM feedback is sufficient for high-stakes scoring.",
+    "That OpenClinXR's XR embodiment or voice system is validated."
+  ],
+  "confidence": 0.93
+}

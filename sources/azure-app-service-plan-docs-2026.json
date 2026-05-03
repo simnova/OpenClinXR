@@ -1,0 +1,20 @@
+{
+  "source_id": "src-azure-app-service-plan-docs-2026",
+  "title": "Azure App Service Plans",
+  "url": "https://learn.microsoft.com/en-us/azure/app-service/overview-hosting-plans",
+  "source_type": "vendor",
+  "citation": "Microsoft Learn. Azure App Service plans overview. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Infrastructure planning for Azure App Service Plan B1/B2/Premium scale-up path."
+  ],
+  "claims_supported": [
+    "Microsoft documents that apps in the same App Service plan share compute resources.",
+    "Microsoft documents scale-up from lower tiers to higher tiers when more cores, memory, or storage are needed."
+  ],
+  "claims_not_supported": [
+    "That B1 can run heavy 3D generation, LLM inference, ASR, or TTS locally.",
+    "That HTTP/3/WebTransport is guaranteed through every Azure App Service deployment path."
+  ],
+  "confidence": 0.84
+}

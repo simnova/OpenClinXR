@@ -1,0 +1,20 @@
+{
+  "source_id": "src-mdn-webxr-performance-2026",
+  "title": "MDN WebXR Performance Guide",
+  "url": "https://developer.mozilla.org/en-US/docs/Web/API/WebXR_Device_API/Performance",
+  "source_type": "authoritative-standard",
+  "citation": "MDN Web Docs. WebXR Performance Guide. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "General WebXR runtime performance guidance."
+  ],
+  "claims_supported": [
+    "WebXR applications need memory and frame-performance optimization.",
+    "Avoiding frequent allocation/deallocation in per-frame loops is important for performance."
+  ],
+  "claims_not_supported": [
+    "That a specific OpenClinXR triangle, texture, or draw-call budget has been validated on Quest 3.",
+    "That WebXR performance can be guaranteed without device testing."
+  ],
+  "confidence": 0.82
+}

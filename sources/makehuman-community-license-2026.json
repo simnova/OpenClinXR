@@ -1,0 +1,21 @@
+{
+  "source_id": "src-makehuman-community-license-2026",
+  "title": "MakeHuman Community Licensing",
+  "url": "https://static.makehumancommunity.org/about/license.html",
+  "source_type": "vendor",
+  "citation": "MakeHuman Community. License. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "License-risk assessment for MakeHuman, MPFB, and generated graphics assets."
+  ],
+  "claims_supported": [
+    "MakeHuman and MPFB use a split license model.",
+    "Core graphics assets are shared under CC0.",
+    "MPFB source code is GPL and MakeHuman source code is AGPL."
+  ],
+  "claims_not_supported": [
+    "That AGPL/GPL source code can be embedded into OpenClinXR runtime without legal review.",
+    "That third-party community assets share the same license as core assets."
+  ],
+  "confidence": 0.9
+}

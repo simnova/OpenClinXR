@@ -1,0 +1,24 @@
+{
+  "source_id": "src-local-laverde-llm-agents-pdf-2025",
+  "title": "Integrating Large Language Model-Based Agents into a Virtual Patient Chatbot for Clinical Anamnesis Training",
+  "file_path": "/Users/patrick/Downloads/Integrating_Large_Language_Model-Based_Agents_into.pdf",
+  "source_type": "peer-reviewed",
+  "citation": "Laverde N, Grevisse C, Jaramillo S, Manrique R. Integrating large language model-based agents into a virtual patient chatbot for clinical anamnesis training. Computational and Structural Biotechnology Journal. 2025;27:2481-2491. doi:10.1016/j.csbj.2025.05.025.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Architecture inspiration for virtual patient memory, retrieval, reflection, planning, case templates, usability evaluation, and response-grounding QA."
+  ],
+  "claims_supported": [
+    "The paper describes a generative-agent architecture with memory stream, retriever, cognitive mechanisms, and interview functionality.",
+    "The retriever combines recency, importance, and relevance metrics and reports k=4 as satisfactory in the implementation.",
+    "The implementation used predefined cases for diabetes, dyslipidemia, and joint pain, plus a teacher-created custom case workflow.",
+    "The system categorized responses as explicit, implicit, or fictional relative to case descriptions and assessed plausibility with specialists.",
+    "The study reported a CUQ score of 86.25 out of 100 and identified latency, voice realism, hallucination, bias, and limited objective skill-improvement evidence as limitations."
+  ],
+  "claims_not_supported": [
+    "That OpenClinXR's XR multi-actor stations are validated.",
+    "That LLM-generated responses can be used for high-stakes scoring.",
+    "That avatar video generation should run synchronously during a Quest 3 WebXR station."
+  ],
+  "confidence": 0.94
+}

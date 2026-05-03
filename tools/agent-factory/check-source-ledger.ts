@@ -2,7 +2,7 @@ import { Ajv2020 } from "ajv/dist/2020.js";
 import { readFile } from "node:fs/promises";
 import { globFiles, readJson } from "./lib.js";
 
-const restrictedTypes = new Set(["vendor", "market-research", "financial-media", "internal-artifact"]);
+const restrictedTypes = new Set(["vendor", "market-research", "financial-media", "internal-artifact", "preprint"]);
 const forbiddenPhrases = ["validity proven", "regulatory approval", "clinical outcome proven", "licensure ready"];
 
 async function main(): Promise<void> {

@@ -5,10 +5,11 @@
 - No durable lessons recorded yet.
 - Quest XR should be treated as an M1 interaction slice after the M0 evidence workflow is clear.
 - Iteration 0002 runtime abstraction: ExamSessionCell, StationCell, EnvironmentCell, PatientActorCell, FamilyActorCell, NurseActorCell, EvaluatorCell, and SafetyGuardrailCell coordinate timed station flow and actor behavior.
+- Iteration 0003 runtime rule: Quest 3 receives pre-baked GLB/KTX2/meshopt assets, no live generation, and station approval requires device FPS/readability/interaction smoke tests.
 
 ## Active Risks
 
-- No active risks recorded yet.
+- Quest 3 budgets remain unproven until tested with actual station bundles.
 
 ## Open Questions
 

@@ -30,6 +30,21 @@
       "iteration": 2,
       "status": "active",
       "supersedes": []
+    },
+    {
+      "id": "clinical-simulation-lead-lesson-0003",
+      "type": "lesson",
+      "topic": "case-bank-and-communication-styles",
+      "summary": "The first case bank should include 12 reviewed specialty stations with environment, actors, hidden truth, event schedule, 3D assets, trace tags, and explicit communication-style profiles for empathy, de-escalation, and team-pressure testing.",
+      "confidence": 0.88,
+      "source_ids": [
+        "src-local-laverde-llm-agents-pdf-2025",
+        "src-local-bodonhelyi-medical-communication-pdf-2025",
+        "src-ama-day-one-skills-2026"
+      ],
+      "iteration": 3,
+      "status": "active",
+      "supersedes": []
     }
   ]
 }

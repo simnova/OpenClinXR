@@ -1,0 +1,20 @@
+{
+  "source_id": "src-nvidia-ace-audio2face-2026",
+  "title": "NVIDIA ACE Overview and Audio2Face",
+  "url": "https://docs.nvidia.com/ace/overview/2025.04.28/index.html",
+  "source_type": "vendor",
+  "citation": "NVIDIA Docs. NVIDIA ACE Overview. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Commercial animation-adapter evaluation for Audio2Face, Audio2Emotion, and digital human pipelines."
+  ],
+  "claims_supported": [
+    "NVIDIA ACE includes digital human technologies for speech, intelligence, and animation.",
+    "NVIDIA ACE documentation references Audio2Face 2D/3D and Audio2Emotion capabilities."
+  ],
+  "claims_not_supported": [
+    "That NVIDIA ACE is open-source or permissively licensed for unrestricted redistribution.",
+    "That OpenClinXR can use NVIDIA services without accepting vendor terms and privacy review."
+  ],
+  "confidence": 0.84
+}

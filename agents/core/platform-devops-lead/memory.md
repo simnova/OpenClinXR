@@ -2,11 +2,11 @@
 
 ## Durable Lessons
 
-- No durable lessons recorded yet.
+- Iteration 0003: Azure App Service B1 is orchestration only for the single-user pilot; use WebSocket first, keep WebTransport behind a spike, and move heavy asset/model work offline or to providers.
 
 ## Active Risks
 
-- No active risks recorded yet.
+- Voice/model latency and Azure path constraints may require a higher tier or alternate deployment path after benchmarking.
 
 ## Open Questions
 
@@ -19,4 +19,3 @@
 - Track cost across iterations.
 - Track ci-cd across iterations.
 - Track disaster-recovery across iterations.
-

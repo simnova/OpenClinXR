@@ -40,6 +40,7 @@ Implement:
 - Exam blueprint CRUD.
 - Scenario bank CRUD.
 - Actor card CRUD.
+- Communication-style profile CRUD.
 - Environment catalog CRUD.
 - Review status workflow.
 - Source and claim ledger.
@@ -85,6 +86,7 @@ Implement:
 
 - Actor dialogue request contract.
 - Prompt policy.
+- Communication-style and bounded-stubbornness policy.
 - Memory retrieval pack.
 - Safety guardrail.
 - LLM audit event.
@@ -116,8 +118,9 @@ Acceptance:
 2. ASR latency and medical vocabulary reliability.
 3. TTS naturalness and emotional controllability.
 4. LLM actor consistency under adversarial learner inputs.
-5. MongoDB schema and index performance for trace replay.
-6. CellixJS fit for DDD/monorepo/runtime patterns.
+5. Communication-style adherence without repetitive or exaggerated behavior.
+6. MongoDB schema and index performance for trace replay.
+7. CellixJS fit for DDD/monorepo/runtime patterns.
 
 ## First Acceptance Test Scenario
 
@@ -144,5 +147,13 @@ The next implementation plan should not start until these docs are reviewed:
 - `docs/openclinxr/station-pack-ed-chest-pain-v1.md`
 - `docs/openclinxr/psychometric-and-review-governance.md`
 - `docs/openclinxr/claims-consent-privacy-governance.md`
+- `docs/openclinxr/technology-approach-brief.md`
+- `docs/openclinxr/asset-generation-pipeline.md`
+- `docs/openclinxr/webxr-azure-quest-performance-brief.md`
+- `docs/openclinxr/virtual-patient-agent-model.md`
+- `docs/openclinxr/communication-style-and-emotion-qa.md`
+- `docs/openclinxr/sample-case-bank-v1.md`
+- `docs/openclinxr/admin-ux-and-testing-brief.md`
+- `docs/openclinxr/model-provider-and-voice-routing.md`
 - `docs/openclinxr/development-handoff.md`
-- MADRs 0011 through 0015
+- MADRs 0011 through 0020

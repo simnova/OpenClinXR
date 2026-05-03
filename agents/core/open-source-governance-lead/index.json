@@ -29,6 +29,23 @@
       "iteration": 1,
       "status": "active",
       "supersedes": []
+    },
+    {
+      "id": "open-source-governance-lead-decision-0003",
+      "type": "decision",
+      "topic": "runtime-license-posture",
+      "summary": "Runtime dependencies and asset pipeline outputs should prefer MIT, Apache-2.0, BSD-style, and CC0/CC-BY assets; MPL tools may be standalone, while GPL/AGPL code stays out of runtime/distributed product.",
+      "confidence": 0.88,
+      "source_ids": [
+        "src-anny-github-2026",
+        "src-mesh2motion-2026",
+        "src-penpot-github-2026",
+        "src-npm-stack-metadata-2026-05-03",
+        "src-stablegen-github-2026"
+      ],
+      "iteration": 3,
+      "status": "active",
+      "supersedes": []
     }
   ]
 }

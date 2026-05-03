@@ -4,10 +4,11 @@
 
 - No durable lessons recorded yet.
 - Public marketplace launch should remain outside the first MVP until scenario provenance and certification governance mature.
+- Iteration 0003 runtime license posture: prefer MIT, Apache-2.0, BSD-style, CC0/CC-BY assets; keep MPL tools standalone; keep GPL/AGPL code out of runtime/distributed product.
 
 ## Active Risks
 
-- No active risks recorded yet.
+- `@react-three/xr`, generated asset outputs, and local model weights still need exact license verification before dependency lock.
 
 ## Open Questions
 

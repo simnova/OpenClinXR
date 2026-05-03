@@ -37,6 +37,25 @@
       "iteration": 2,
       "status": "active",
       "supersedes": []
+    },
+    {
+      "id": "source-librarian-lesson-0003",
+      "type": "lesson",
+      "topic": "iteration-0003-technology-source-ledger",
+      "summary": "Iteration 0003 source ledger adds original asset bundle findings, local virtual-patient PDFs, current technology/license checks, WebXR/WebTransport performance references, provider docs, and npm package metadata; unresolved evidence remains Quest 3 device benchmarks, provider privacy/latency, and final asset-output licensing.",
+      "confidence": 0.88,
+      "source_ids": [
+        "src-internal-openclinxr-architecture-bundle",
+        "src-local-laverde-llm-agents-pdf-2025",
+        "src-local-bodonhelyi-medical-communication-pdf-2025",
+        "src-anny-github-2026",
+        "src-stablegen-github-2026",
+        "src-mdn-webxr-performance-2026",
+        "src-xai-voice-api-docs-2026"
+      ],
+      "iteration": 3,
+      "status": "active",
+      "supersedes": []
     }
   ]
 }

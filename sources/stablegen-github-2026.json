@@ -1,0 +1,21 @@
+{
+  "source_id": "src-stablegen-github-2026",
+  "title": "sakalond/StableGen GitHub Repository",
+  "url": "https://github.com/sakalond/StableGen",
+  "source_type": "vendor",
+  "citation": "sakalond. StableGen GitHub repository. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Technology evaluation for optional offline texture authoring and license-risk assessment."
+  ],
+  "claims_supported": [
+    "StableGen is a Blender add-on for generative 3D texturing and asset generation.",
+    "StableGen is released under GPL-3.0.",
+    "StableGen uses ComfyUI-backed pipelines and can work with generated 3D meshes."
+  ],
+  "claims_not_supported": [
+    "That StableGen is suitable as an embedded runtime or distributed dependency under a copyleft-avoidance policy.",
+    "That all model weights and optional pipelines have commercial-friendly licenses."
+  ],
+  "confidence": 0.88
+}

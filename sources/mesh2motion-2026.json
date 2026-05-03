@@ -1,0 +1,21 @@
+{
+  "source_id": "src-mesh2motion-2026",
+  "title": "Mesh2Motion",
+  "url": "https://mesh2motion.org/",
+  "source_type": "vendor",
+  "citation": "Mesh2Motion. Project website. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Technology evaluation for browser-based auto-rigging and animation export."
+  ],
+  "claims_supported": [
+    "Mesh2Motion is a 3D animation library and auto-rigging tool for web and game engines.",
+    "Mesh2Motion supports GLB export and states code is MIT licensed.",
+    "The site states exported animation content is free for personal or commercial use and licensed CC0."
+  ],
+  "claims_not_supported": [
+    "That Mesh2Motion can rig every clinical character mesh without manual QA.",
+    "That Mesh2Motion supplies medically specific gestures or facial animation."
+  ],
+  "confidence": 0.82
+}

@@ -1,0 +1,20 @@
+{
+  "source_id": "src-penpot-github-2026",
+  "title": "Penpot GitHub Repository",
+  "url": "https://github.com/penpot/penpot",
+  "source_type": "vendor",
+  "citation": "Penpot GitHub repository. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "UX design tooling evaluation for open-source design collaboration."
+  ],
+  "claims_supported": [
+    "Penpot is an open-source design tool for design and code collaboration.",
+    "Penpot source is licensed under MPL-2.0."
+  ],
+  "claims_not_supported": [
+    "That Penpot components should be embedded into OpenClinXR runtime.",
+    "That modifying Penpot source has no file-level license obligations."
+  ],
+  "confidence": 0.86
+}

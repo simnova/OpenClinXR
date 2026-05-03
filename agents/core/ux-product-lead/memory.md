@@ -2,11 +2,11 @@
 
 ## Durable Lessons
 
-- No durable lessons recorded yet.
+- Iteration 0003: non-examinee workflows should use Ant Design 6/Pro patterns, Penpot/OpenPencil design artifacts, Storybook, Serenity/JS, Playwright, and Vitest; examinee UX remains mostly WebXR with canvas-backed clinical data panels.
 
 ## Active Risks
 
-- No active risks recorded yet.
+- Admin UX could become too dense unless review queues, status gates, and graph editing stay disciplined.
 
 ## Open Questions
 
@@ -19,4 +19,3 @@
 - Track admin-ux across iterations.
 - Track researcher-ux across iterations.
 - Track accessibility across iterations.
-
