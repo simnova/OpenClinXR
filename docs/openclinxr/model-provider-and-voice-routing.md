@@ -30,9 +30,9 @@ export interface VoiceProviderAdapter {
 
 First implementation status:
 
-- `packages/model-gateway` implements `ModelGateway`, `ModelProviderAdapter`, `MockModelProviderAdapter`, and `LocalModelProviderAdapter`.
-- `packages/model-gateway` currently implements actor responses and health routing; scenario draft and scenario review methods remain planned.
-- `packages/voice-gateway` implements `VoiceGateway`, `VoiceProviderAdapter`, `MockVoiceProviderAdapter`, `LocalVoiceProviderAdapter`, and `collectVoiceStream`.
+- `packages/openclinxr/model-gateway` implements `ModelGateway`, `ModelProviderAdapter`, `MockModelProviderAdapter`, and `LocalModelProviderAdapter`.
+- `packages/openclinxr/model-gateway` currently implements actor responses and health routing; scenario draft and scenario review methods remain planned.
+- `packages/openclinxr/voice-gateway` implements `VoiceGateway`, `VoiceProviderAdapter`, `MockVoiceProviderAdapter`, `LocalVoiceProviderAdapter`, and `collectVoiceStream`.
 - Mock model and voice providers are deterministic, offline, zero-cost, and return provenance.
 - Local model and voice providers are intentionally visible but report `not_configured` until a real local runtime command or adapter is installed.
 - The deterministic ED chest pain harness now obtains provider health through the gateways instead of hard-coded health literals.

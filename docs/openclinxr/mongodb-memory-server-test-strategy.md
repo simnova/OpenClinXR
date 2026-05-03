@@ -63,7 +63,7 @@ Contract coverage:
 
 ## First Implementation Tasks
 
-1. Add `packages/data-mongodb`.
+1. Add `packages/openclinxr/data-mongodb`.
 2. Define repository interfaces that match the in-memory API repositories.
 3. Add `createMongoMemoryTestContext`.
 4. Add `MongoMemoryServer` CRUD/index tests.
@@ -83,7 +83,7 @@ Contract coverage:
 
 Implemented on 2026-05-03:
 
-- `packages/data-mongodb` added.
+- `packages/openclinxr/data-mongodb` added.
 - `mongodb-memory-server@11.1.0` added.
 - `mongodb@7.2.0` added.
 - MongoDB binary version pinned to `7.0.24`.

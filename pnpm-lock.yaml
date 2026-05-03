@@ -47,16 +47,19 @@ importers:
         version: 2.0.1(hono@4.12.16)
       '@openclinxr/exam-assembly':
         specifier: workspace:*
-        version: link:../../packages/exam-assembly
+        version: link:../../packages/openclinxr/exam-assembly
       '@openclinxr/graphql':
         specifier: workspace:*
-        version: link:../../packages/graphql
+        version: link:../../packages/openclinxr/graphql
+      '@openclinxr/rest':
+        specifier: workspace:*
+        version: link:../../packages/openclinxr/rest
       '@openclinxr/scenario-fixtures':
         specifier: workspace:*
-        version: link:../../packages/scenario-fixtures
+        version: link:../../packages/openclinxr/scenario-fixtures
       '@openclinxr/scenario-runtime':
         specifier: workspace:*
-        version: link:../../packages/scenario-runtime
+        version: link:../../packages/openclinxr/scenario-runtime
       hono:
         specifier: 4.12.16
         version: 4.12.16
@@ -78,10 +81,10 @@ importers:
         version: 4.1.9(graphql@16.12.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(rxjs@7.8.2)
       '@openclinxr/ui-route-admin':
         specifier: workspace:*
-        version: link:../../packages/ui-route-admin
+        version: link:../../packages/openclinxr/ui-route-admin
       '@openclinxr/ui-shared':
         specifier: workspace:*
-        version: link:../../packages/ui-shared
+        version: link:../../packages/openclinxr/ui-shared
       antd:
         specifier: 6.3.7
         version: 6.3.7(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -130,7 +133,7 @@ importers:
     dependencies:
       '@openclinxr/scenario-fixtures':
         specifier: workspace:*
-        version: link:../../packages/scenario-fixtures
+        version: link:../../packages/openclinxr/scenario-fixtures
       three:
         specifier: 0.184.0
         version: 0.184.0
@@ -148,7 +151,7 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/agent-loop:
+  packages/openclinxr/agent-loop:
     devDependencies:
       typescript:
         specifier: 6.0.3
@@ -157,7 +160,7 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/architecture-rules:
+  packages/openclinxr/architecture-rules:
     dependencies:
       archunit:
         specifier: 2.3.0
@@ -170,7 +173,7 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/asset-registry:
+  packages/openclinxr/asset-registry:
     dependencies:
       '@openclinxr/scenario-fixtures':
         specifier: workspace:*
@@ -186,7 +189,7 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/data-mongodb:
+  packages/openclinxr/data-mongodb:
     dependencies:
       '@openclinxr/exam-assembly':
         specifier: workspace:*
@@ -208,7 +211,7 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/data-sources-mongoose-models:
+  packages/openclinxr/data-sources-mongoose-models:
     dependencies:
       mongoose:
         specifier: 9.6.1
@@ -221,7 +224,7 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/domain:
+  packages/openclinxr/domain:
     dependencies:
       '@openclinxr/shared-schemas':
         specifier: workspace:*
@@ -234,7 +237,7 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/exam-assembly:
+  packages/openclinxr/exam-assembly:
     dependencies:
       '@openclinxr/scenario-fixtures':
         specifier: workspace:*
@@ -250,7 +253,7 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/graphql:
+  packages/openclinxr/graphql:
     dependencies:
       graphql:
         specifier: 16.12.0
@@ -263,7 +266,7 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/model-gateway:
+  packages/openclinxr/model-gateway:
     dependencies:
       '@openclinxr/shared-schemas':
         specifier: workspace:*
@@ -276,7 +279,16 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/review-workflow:
+  packages/openclinxr/rest:
+    devDependencies:
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.5
+        version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+
+  packages/openclinxr/review-workflow:
     dependencies:
       '@openclinxr/domain':
         specifier: workspace:*
@@ -295,7 +307,7 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/scenario-fixtures:
+  packages/openclinxr/scenario-fixtures:
     dependencies:
       '@openclinxr/shared-schemas':
         specifier: workspace:*
@@ -308,7 +320,7 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/scenario-runtime:
+  packages/openclinxr/scenario-runtime:
     dependencies:
       '@openclinxr/asset-registry':
         specifier: workspace:*
@@ -342,7 +354,7 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/shared-schemas:
+  packages/openclinxr/shared-schemas:
     dependencies:
       '@sinclair/typebox':
         specifier: 0.34.49
@@ -361,7 +373,7 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/telemetry:
+  packages/openclinxr/telemetry:
     devDependencies:
       typescript:
         specifier: 6.0.3
@@ -370,7 +382,7 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/test-harness:
+  packages/openclinxr/test-harness:
     dependencies:
       '@openclinxr/scenario-runtime':
         specifier: workspace:*
@@ -392,7 +404,7 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/trace-ledger:
+  packages/openclinxr/trace-ledger:
     dependencies:
       '@openclinxr/shared-schemas':
         specifier: workspace:*
@@ -405,7 +417,7 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/ui-route-admin:
+  packages/openclinxr/ui-route-admin:
     dependencies:
       '@openclinxr/ui-route-shared':
         specifier: workspace:*
@@ -418,7 +430,7 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/ui-route-shared:
+  packages/openclinxr/ui-route-shared:
     devDependencies:
       typescript:
         specifier: 6.0.3
@@ -427,7 +439,7 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/ui-shared:
+  packages/openclinxr/ui-shared:
     devDependencies:
       typescript:
         specifier: 6.0.3
@@ -436,7 +448,7 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/voice-gateway:
+  packages/openclinxr/voice-gateway:
     dependencies:
       '@openclinxr/shared-schemas':
         specifier: workspace:*

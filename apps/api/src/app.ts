@@ -1,5 +1,6 @@
 import { assembleExamForm, createDefaultClinicalSkillsBlueprint, evaluateScenarioVersionDrift, type ExamForm } from "@openclinxr/exam-assembly";
 import { adminGraphqlDocuments, createGraphqlCodegenPlan, openClinXrAdminSchemaSdl } from "@openclinxr/graphql";
+import { routeById } from "@openclinxr/rest";
 import { createDefaultScenarioRuntime, type PublicationTargetUse, type ReviewerEvidence, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createLearnerScenarioView, edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { Hono } from "hono";
@@ -16,7 +17,7 @@ export type ApiPersistenceSink = {
 export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRuntime(), persistence: ApiPersistenceSink = {}): Hono {
   const app = new Hono();
 
-  app.get("/health", async (context) =>
+  app.get(routeById("health").path, async (context) =>
     context.json({
       ok: true,
       service: "openclinxr-api",
@@ -24,23 +25,23 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     }),
   );
 
-  app.get("/providers/health", async (context) => context.json(await runtime.providerHealth()));
+  app.get(routeById("providers-health").path, async (context) => context.json(await runtime.providerHealth()));
 
-  app.get("/admin/graphql/schema", (context) =>
+  app.get(routeById("admin-graphql-schema").path, (context) =>
     new Response(openClinXrAdminSchemaSdl, {
       headers: { "content-type": "text/plain; charset=utf-8" },
     }),
   );
 
-  app.get("/admin/graphql/codegen-plan", (context) => context.json(createGraphqlCodegenPlan()));
+  app.get(routeById("admin-graphql-codegen-plan").path, (context) => context.json(createGraphqlCodegenPlan()));
 
-  app.get("/admin/graphql/documents", (context) => context.json(adminGraphqlDocuments));
+  app.get(routeById("admin-graphql-documents").path, (context) => context.json(adminGraphqlDocuments));
 
-  app.get("/scenarios/ed-chest-pain", (context) => context.json(createLearnerScenarioView(edChestPainScenario)));
+  app.get(routeById("learner-scenario").path, (context) => context.json(createLearnerScenarioView(edChestPainScenario)));
 
-  app.get("/scenarios/ed-chest-pain/assets/readiness", (context) => context.json(runtime.assetReadiness()));
+  app.get(routeById("scenario-asset-readiness").path, (context) => context.json(runtime.assetReadiness()));
 
-  app.post("/scenarios/ed-chest-pain/publication-readiness", async (context) => {
+  app.post(routeById("scenario-publication-readiness").path, async (context) => {
     const body = (await context.req.json().catch(() => ({}))) as {
       targetUse?: unknown;
       reviewerEvidence?: unknown;
@@ -54,9 +55,9 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     );
   });
 
-  app.get("/exam-blueprints/default", (context) => context.json(createDefaultClinicalSkillsBlueprint()));
+  app.get(routeById("default-exam-blueprint").path, (context) => context.json(createDefaultClinicalSkillsBlueprint()));
 
-  app.post("/exam-forms", async (context) => {
+  app.post(routeById("create-exam-form").path, async (context) => {
     const body = (await context.req.json().catch(() => ({}))) as { examFormId?: string };
     const form = assembleExamForm({
       examFormId: body.examFormId ?? "form_openclinxr_pilot_001",
@@ -67,7 +68,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     return context.json(form, 201);
   });
 
-  app.post("/exam-forms/version-drift", async (context) => {
+  app.post(routeById("exam-form-version-drift").path, async (context) => {
     const body = (await context.req.json().catch(() => ({}))) as { form?: unknown };
     if (!isExamForm(body.form)) {
       return context.json({ error: "invalid_exam_form" }, 400);
@@ -76,7 +77,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     return context.json(evaluateScenarioVersionDrift(body.form, [edChestPainScenario]));
   });
 
-  app.post("/sessions", async (context) => {
+  app.post(routeById("start-session").path, async (context) => {
     const body = (await context.req.json().catch(() => ({}))) as { learnerId?: string; consentAccepted?: boolean };
     if (body.consentAccepted !== true) {
       return context.json({ error: "consent_required" }, 400);
@@ -87,7 +88,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     return context.json(run, 201);
   });
 
-  app.post("/sessions/:stationRunId/start-encounter", async (context) => {
+  app.post(routeById("start-encounter").path, async (context) => {
     const stationRunId = context.req.param("stationRunId");
     const body = (await context.req.json().catch(() => ({}))) as { atSecond?: number };
 
@@ -100,7 +101,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     }
   });
 
-  app.post("/sessions/:stationRunId/events", async (context) => {
+  app.post(routeById("append-trace-event").path, async (context) => {
     const stationRunId = context.req.param("stationRunId");
     const body = (await context.req.json().catch(() => ({}))) as {
       eventType?: string;
@@ -123,7 +124,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     }
   });
 
-  app.post("/sessions/:stationRunId/actor-response", async (context) => {
+  app.post(routeById("actor-response").path, async (context) => {
     const stationRunId = context.req.param("stationRunId");
     const body = (await context.req.json().catch(() => ({}))) as {
       actorId?: string;
@@ -146,7 +147,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     }
   });
 
-  app.post("/sessions/:stationRunId/voice-synthesis", async (context) => {
+  app.post(routeById("voice-synthesis").path, async (context) => {
     const stationRunId = context.req.param("stationRunId");
     const body = (await context.req.json().catch(() => ({}))) as {
       actorId?: string;
@@ -169,7 +170,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     }
   });
 
-  app.post("/sessions/:stationRunId/note", async (context) => {
+  app.post(routeById("submit-note").path, async (context) => {
     const stationRunId = context.req.param("stationRunId");
     const body = (await context.req.json().catch(() => ({}))) as { atSecond?: number; text?: string };
 
@@ -185,7 +186,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     }
   });
 
-  app.get("/sessions/:stationRunId/review-packet", async (context) => {
+  app.get(routeById("review-packet").path, async (context) => {
     const stationRunId = context.req.param("stationRunId");
 
     try {
@@ -197,7 +198,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     }
   });
 
-  app.get("/sessions/:stationRunId/trace-events", (context) => {
+  app.get(routeById("trace-events").path, (context) => {
     const stationRunId = context.req.param("stationRunId");
 
     try {

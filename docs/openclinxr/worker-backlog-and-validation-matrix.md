@@ -48,7 +48,7 @@ Done when:
 
 Owned paths:
 
-- `packages/shared-schemas`
+- `packages/openclinxr/shared-schemas`
 
 Schemas:
 
@@ -82,7 +82,7 @@ Done when:
 
 Owned paths:
 
-- `packages/domain`
+- `packages/openclinxr/domain`
 
 Tasks:
 
@@ -107,7 +107,7 @@ Done when:
 
 Owned paths:
 
-- `packages/scenario-fixtures`
+- `packages/openclinxr/scenario-fixtures`
 
 Tasks:
 
@@ -133,8 +133,8 @@ Done when:
 
 Owned paths:
 
-- `packages/trace-ledger`
-- `packages/review-workflow`
+- `packages/openclinxr/trace-ledger`
+- `packages/openclinxr/review-workflow`
 
 Tasks:
 
@@ -159,7 +159,7 @@ Done when:
 
 Owned paths:
 
-- `packages/test-harness`
+- `packages/openclinxr/test-harness`
 
 Tasks:
 
@@ -268,8 +268,8 @@ Done when:
 
 Owned paths:
 
-- `packages/model-gateway`
-- `packages/voice-gateway`
+- `packages/openclinxr/model-gateway`
+- `packages/openclinxr/voice-gateway`
 
 Tasks:
 
@@ -293,7 +293,7 @@ Done when:
 
 Owned paths:
 
-- `packages/asset-registry`
+- `packages/openclinxr/asset-registry`
 
 Tasks:
 
@@ -317,7 +317,7 @@ Done when:
 
 Owned paths:
 
-- `packages/data-mongodb`
+- `packages/openclinxr/data-mongodb`
 
 Tasks:
 

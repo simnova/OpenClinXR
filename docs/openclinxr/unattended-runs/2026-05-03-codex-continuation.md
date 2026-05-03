@@ -40,7 +40,8 @@ Progress through 2026-05-03 14:57 EDT:
 Progress through 2026-05-03 15:30 EDT:
 
 - Renamed SPA workspaces to `apps/ui-admin` and `apps/ui-xr`.
-- Renamed the GraphQL contract workspace to `packages/graphql` and updated codegen paths.
+- Renamed the GraphQL contract workspace to `packages/openclinxr/graphql` and updated codegen paths.
 - Added team naming conventions for route packages, shared UI packages, protocol packages, Mongoose model packages, and local mock servers.
 - Added ArchUnitTS as the enforcement path for architecture decisions, beginning with approved app naming, UI/backend dependency boundaries, and shared UI cycle checks.
+- Reshaped package topology toward `packages/cellix/*` for immutable shared Cellix-style libraries and `packages/openclinxr/*` for project-specific packages.
 - Added the CellixJS API fluent startup source record and started adapting the API server toward a fluent bootstrap path.

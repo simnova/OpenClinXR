@@ -46,27 +46,30 @@ apps/
   ui-admin/
   ui-xr/
 packages/
-  shared-schemas/
-  domain/
-  scenario-fixtures/
-  scenario-runtime/
-  trace-ledger/
-  review-workflow/
-  data-mongodb/
-  model-gateway/
-  voice-gateway/
-  asset-registry/
-  asset-pipeline/
-  ui-route-scenario-bank/
-  ui-route-review-replay/
-  ui-route-exam-forms/
-  ui-route-shared/
-  ui-shared/
-  graphql/
-  rest/
-  data-sources-mongoose-models/
-  architecture-rules/
-  test-harness/
+  cellix/
+    <external Cellix-compatible packages used as-is>
+  openclinxr/
+    shared-schemas/
+    domain/
+    scenario-fixtures/
+    scenario-runtime/
+    trace-ledger/
+    review-workflow/
+    data-mongodb/
+    model-gateway/
+    voice-gateway/
+    asset-registry/
+    asset-pipeline/
+    ui-route-scenario-bank/
+    ui-route-review-replay/
+    ui-route-exam-forms/
+    ui-route-shared/
+    ui-shared/
+    graphql/
+    rest/
+    data-sources-mongoose-models/
+    architecture-rules/
+    test-harness/
 docs/
   openclinxr/
   superpowers/plans/
@@ -75,14 +78,16 @@ docs/
 Workspace naming should follow the development team's Turborepo convention:
 
 - SPA portals: `apps/ui-<<portal-name>>`.
-- Route packages: `packages/ui-route-<<top-level-route>>`.
-- Shared route code: `packages/ui-route-shared`.
-- Shared UI across portals: `packages/ui-shared`.
+- Shared external packages: `packages/cellix/*`, treated as immutable vendor-style code when copied from CellixJS.
+- Project-owned packages: `packages/openclinxr/*`.
+- Route packages: `packages/openclinxr/ui-route-<<top-level-route>>`.
+- Shared route code: `packages/openclinxr/ui-route-shared`.
+- Shared UI across portals: `packages/openclinxr/ui-shared`.
 - Main Azure Functions-compatible backend: `apps/api`.
-- Protocol contracts/adapters: `packages/graphql`, `packages/rest`, and additional `packages/...` protocols as needed.
-- Mongoose model layer: `packages/data-sources-mongoose-models`.
+- Protocol contracts/adapters: `packages/openclinxr/graphql`, `packages/openclinxr/rest`, and additional `packages/openclinxr/...` protocols as needed.
+- Mongoose model layer: `packages/openclinxr/data-sources-mongoose-models`.
 - Local dependency simulators: `apps/mock-<<server-type>>-server`.
-- Architecture enforcement: `packages/architecture-rules` with ArchUnitTS tests that turn naming and dependency-direction decisions into executable checks.
+- Architecture enforcement: `packages/openclinxr/architecture-rules` with ArchUnitTS tests that turn naming and dependency-direction decisions into executable checks.
 
 ## Dependency Posture
 

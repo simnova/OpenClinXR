@@ -1,0 +1,44 @@
+import { describe, expect, it } from "vitest";
+import { buildSessionRoutePath, openClinXrRestRouteIds, openClinXrRestRoutes, routeById } from "./index.js";
+
+describe("OpenClinXR REST route contract", () => {
+  it("captures the API route catalog with stable route ids and methods", () => {
+    expect(openClinXrRestRouteIds).toEqual([
+      "health",
+      "providers-health",
+      "admin-graphql-schema",
+      "admin-graphql-codegen-plan",
+      "admin-graphql-documents",
+      "learner-scenario",
+      "scenario-asset-readiness",
+      "scenario-publication-readiness",
+      "default-exam-blueprint",
+      "create-exam-form",
+      "exam-form-version-drift",
+      "start-session",
+      "start-encounter",
+      "append-trace-event",
+      "actor-response",
+      "voice-synthesis",
+      "submit-note",
+      "review-packet",
+      "trace-events",
+    ]);
+    expect(routeById("actor-response")).toMatchObject({
+      method: "POST",
+      path: "/sessions/:stationRunId/actor-response",
+      surface: "xr-runtime",
+    });
+    expect(openClinXrRestRoutes.every((route) => route.path.startsWith("/"))).toBe(true);
+  });
+
+  it("builds encoded session URLs from Hono-compatible route templates", () => {
+    expect(buildSessionRoutePath("actor-response", "run 1/2")).toBe("/sessions/run%201%2F2/actor-response");
+    expect(buildSessionRoutePath("trace-events", "run_001")).toBe("/sessions/run_001/trace-events");
+  });
+
+  it("rejects route ids that are not station-run scoped", () => {
+    expect(() => buildSessionRoutePath("health", "run_001")).toThrow("Route health is not station-run scoped");
+    expect(() => buildSessionRoutePath("actor-response", "")).toThrow("stationRunId is required");
+  });
+});

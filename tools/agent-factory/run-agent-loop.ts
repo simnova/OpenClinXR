@@ -6,7 +6,7 @@ import {
   type AgentMemoryEntry,
   type AgentLoopPlan,
   type LegacyScorecard,
-} from "../../packages/agent-loop/src/index.js";
+} from "../../packages/openclinxr/agent-loop/src/index.js";
 import { globFiles, iterationScorecardPaths, readJson, requireArgs } from "./lib.js";
 
 type MemoryIndexFile = {

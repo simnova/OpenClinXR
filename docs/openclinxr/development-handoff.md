@@ -34,21 +34,21 @@ Create a TypeScript monorepo influenced by CellixJS DDD patterns:
 - `apps/api`
 - `apps/ui-admin`
 - `apps/ui-xr`
-- `packages/domain`
-- `packages/data-mongodb`
-- `packages/data-sources-mongoose-models`
-- `packages/scenario-runtime`
-- `packages/model-gateway`
-- `packages/voice-gateway`
-- `packages/trace-ledger`
-- `packages/review-workflow`
-- `packages/shared-schemas`
-- `packages/graphql`
-- `packages/rest`
-- `packages/ui-route-shared`
-- `packages/ui-shared`
-- `packages/test-harness`
-- `packages/asset-registry`
+- `packages/openclinxr/domain`
+- `packages/openclinxr/data-mongodb`
+- `packages/openclinxr/data-sources-mongoose-models`
+- `packages/openclinxr/scenario-runtime`
+- `packages/openclinxr/model-gateway`
+- `packages/openclinxr/voice-gateway`
+- `packages/openclinxr/trace-ledger`
+- `packages/openclinxr/review-workflow`
+- `packages/openclinxr/shared-schemas`
+- `packages/openclinxr/graphql`
+- `packages/openclinxr/rest`
+- `packages/openclinxr/ui-route-shared`
+- `packages/openclinxr/ui-shared`
+- `packages/openclinxr/test-harness`
+- `packages/openclinxr/asset-registry`
 
 ### Phase 1: Blueprint And Scenario Bank
 
@@ -203,8 +203,9 @@ The next implementation plan should not start until these docs are reviewed:
 Use these preferences when making new implementation decisions unless a runtime constraint argues against them:
 
 - Prefer pnpm over npm for workspace dependency management and command examples.
-- Use Turborepo-friendly names: `apps/ui-<<portal-name>>` for React SPAs, `packages/ui-route-<<top-level-route>>` for route-owned code, `packages/ui-route-shared` for route-shared SPA code, `packages/ui-shared` for cross-portal SPA code, `packages/graphql` and `packages/rest` for protocol packages, `packages/data-sources-mongoose-models` for Mongoose models, and `apps/mock-<<server-type>>-server` for local mock servers.
-- Treat architectural decisions as executable rules: `packages/architecture-rules` uses ArchUnitTS to enforce approved app naming, prevent UI portal imports from backend persistence/runtime packages, and check shared UI packages for import cycles.
+- Use Turborepo-friendly names: `apps/ui-<<portal-name>>` for React SPAs, `packages/openclinxr/ui-route-<<top-level-route>>` for route-owned code, `packages/openclinxr/ui-route-shared` for route-shared SPA code, `packages/openclinxr/ui-shared` for cross-portal SPA code, `packages/openclinxr/graphql` and `packages/openclinxr/rest` for protocol packages, `packages/openclinxr/data-sources-mongoose-models` for Mongoose models, and `apps/mock-<<server-type>>-server` for local mock servers.
+- Keep `packages/cellix/*` reserved for shared Cellix-compatible packages copied from CellixJS and used as-is. If project-specific edits are needed, make a modified copy under `packages/openclinxr/*` instead of changing `packages/cellix/*`.
+- Treat architectural decisions as executable rules: `packages/openclinxr/architecture-rules` uses ArchUnitTS to enforce approved app naming, prevent UI portal imports from backend persistence/runtime packages, and check shared UI packages for import cycles.
 - Prefer Mongoose for mature MongoDB admin/control-plane schemas, while keeping high-volume trace replay repositories thin and performance-oriented.
 - Prefer Apollo GraphQL plus GraphQL Code Generator for admin workbench queries and generated TypeScript operation/resolver contracts once GraphQL is introduced.
 - Prefer React Router for administrative app routing and nested workbench modules.
@@ -238,7 +239,7 @@ Milestone 2 API shell has also started:
 
 MongoDB repository-contract milestone has also started:
 
-- `packages/data-mongodb` exists.
+- `packages/openclinxr/data-mongodb` exists.
 - `mongodb-memory-server` tests pass locally using MongoDB binary `7.0.24`.
 - Scenario and trace repositories now have first contract tests for versioned scenario lookup, approved scenario queries, trace append, ordered replay, and sequence uniqueness.
 
@@ -252,15 +253,15 @@ XR station-shell milestone has also started:
 
 Offline model/voice gateway milestone has also started:
 
-- `packages/model-gateway` exists.
-- `packages/voice-gateway` exists.
+- `packages/openclinxr/model-gateway` exists.
+- `packages/openclinxr/voice-gateway` exists.
 - Mock model responses are deterministic and include provider/model IDs, policy IDs, prompt template ID, scenario version, actor ID, retrieved memory IDs, safety policy version, token usage, zero cost, and guardrail result.
 - Mock voice streaming emits partial/final transcript events and audio chunk events with provenance and a viseme cue.
 - Local model and voice adapters are intentionally surfaced as `not_configured` until local Qwen/Kimi/DeepSeek or VibeVoice-style runtime adapters are explicitly installed and benchmarked.
 
 Asset registry milestone has also started:
 
-- `packages/asset-registry` exists.
+- `packages/openclinxr/asset-registry` exists.
 - ED chest pain placeholder manifests exist for patient, nurse, and ED bay assets.
 - Registry readiness checks block copyleft/unknown/review-required licenses, missing QA, and over-budget Quest 3 geometry/texture/draw-call profiles.
 - Registry readiness now separates `devReady` from `productionReady`; placeholders can support deterministic smoke tests but block production clinical release readiness.
@@ -268,27 +269,27 @@ Asset registry milestone has also started:
 
 Scenario runtime milestone has also started:
 
-- `packages/scenario-runtime` exists.
+- `packages/openclinxr/scenario-runtime` exists.
 - It centralizes the ED chest pain station session flow, trace append, note submission, provider health, asset readiness, and review packet generation.
 - Session creation now requires explicit consent and starts in doorway phase.
 - Encounter start is a separate runtime/API transition, preserving the doorway hold expected in a clinical-skills exam station.
 - `apps/api` now uses it for station sessions, provider health, asset readiness, and review packets.
-- `packages/test-harness` now uses it for the deterministic ED chest pain benchmark.
+- `packages/openclinxr/test-harness` now uses it for the deterministic ED chest pain benchmark.
 
 Exam assembly milestone has also started:
 
-- `packages/exam-assembly` exists.
+- `packages/openclinxr/exam-assembly` exists.
 - It creates ordered exam forms from approved scenarios and reports required trace-tag coverage gaps.
 - It now reports station-count fit, required environment coverage, safety-critical trace-tag coverage, and assembly issues.
 - It can detect scenario version drift after a form has locked station references.
 - It rejects unapproved scenarios before exam-form lock, preserving the human review gates from the scenario fixture.
 - `apps/api` exposes the default blueprint and a local exam-form assembly endpoint for the first ED chest pain pilot form.
 - `apps/api` exposes version-drift comparison for a submitted exam form against current scenario versions.
-- `packages/data-mongodb` persists exam forms with locked scenario refs for later drift review.
+- `packages/openclinxr/data-mongodb` persists exam forms with locked scenario refs for later drift review.
 
 Agent-loop orchestration milestone has also started:
 
-- `packages/agent-loop` exists.
+- `packages/openclinxr/agent-loop` exists.
 - It indexes active persistent memories while hiding superseded entries.
 - It normalizes existing agent-factory scorecards into an executable loop model.
 - It computes weighted maturity deltas on the 0-5 rubric and blocks senior leadership readiness when evidence, decision, or high/critical risk debt remains open.
@@ -327,7 +328,8 @@ XR shell integration milestone has also started:
 
 - `apps/ui-xr` has a typed optional API client for session start, encounter start, trace event sync, actor response requests, and note submission.
 - `apps/api` now has a CellixJS-inspired fluent startup builder that registers infrastructure service IDs, initializes application services, records Azure Function-compatible GraphQL/REST handler metadata, and feeds the local Hono Node server through the same startup path.
-- `packages/data-sources-mongoose-models` exists with a first scenario-bank Mongoose model, publication indexes, and a learner projection that redacts hidden clinical truth.
-- `packages/ui-route-shared`, `packages/ui-route-admin`, `packages/ui-shared`, and `packages/architecture-rules` now start the portal package split and enforce early ArchUnitTS rules.
+- Project packages have moved under `packages/openclinxr/*`, while `packages/cellix/*` is reserved for immutable shared Cellix-compatible library copies.
+- `packages/openclinxr/data-sources-mongoose-models` exists with a first scenario-bank Mongoose model, publication indexes, and a learner projection that redacts hidden clinical truth.
+- `packages/openclinxr/ui-route-shared`, `packages/openclinxr/ui-route-admin`, `packages/openclinxr/ui-shared`, and `packages/openclinxr/architecture-rules` now start the portal package split and enforce early ArchUnitTS rules.
 - The UI stays local-first and only syncs trace actions in the background when `VITE_OPENCLINXR_API_BASE_URL` is configured.
 - Fresh browser and Quest 3 smoke evidence is recorded in `docs/openclinxr/quest3-usb-webxr-smoke-checklist.md`.

@@ -60,7 +60,7 @@ describe("OpenClinXR API shell", () => {
     const codegenResponse = await app.request("/admin/graphql/codegen-plan");
     const codegenPlan = await json(codegenResponse) as { schema: string; documents: string[]; generates: Record<string, unknown> };
     expect(codegenResponse.status).toBe(200);
-    expect(codegenPlan.schema).toBe("packages/graphql/src/schema.graphql");
+    expect(codegenPlan.schema).toBe("packages/openclinxr/graphql/src/schema.graphql");
     expect(codegenPlan.documents).toContain("apps/ui-admin/src/**/*.graphql");
     expect(codegenPlan.generates).toHaveProperty("apps/ui-admin/src/graphql/generated/");
     expect(codegenPlan.generates).toHaveProperty("apps/api/src/graphql/generated/resolvers.ts");

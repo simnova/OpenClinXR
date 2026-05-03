@@ -45,7 +45,7 @@ Every station should produce an `asset_manifest` before any modeling work starts
 
 First implementation status:
 
-- `packages/asset-registry` implements `AssetManifest`, `InMemoryAssetRegistry`, `evaluateAssetManifest`, and `createEdChestPainPlaceholderManifests`.
+- `packages/openclinxr/asset-registry` implements `AssetManifest`, `InMemoryAssetRegistry`, `evaluateAssetManifest`, and `createEdChestPainPlaceholderManifests`.
 - The first registry gate blocks assets with `copyleft_blocked`, `unknown`, or review-required license posture.
 - The first registry gate blocks assets that have not reached `qa_ready`.
 - The first registry gate blocks Quest 3 assets over initial triangle, texture-memory, or draw-call budgets.

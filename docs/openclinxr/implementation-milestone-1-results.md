@@ -9,12 +9,12 @@ Milestone 1 implemented the local deterministic station core. It does not includ
 
 Packages added:
 
-- `packages/shared-schemas`
-- `packages/domain`
-- `packages/scenario-fixtures`
-- `packages/trace-ledger`
-- `packages/review-workflow`
-- `packages/test-harness`
+- `packages/openclinxr/shared-schemas`
+- `packages/openclinxr/domain`
+- `packages/openclinxr/scenario-fixtures`
+- `packages/openclinxr/trace-ledger`
+- `packages/openclinxr/review-workflow`
+- `packages/openclinxr/test-harness`
 
 Workspace files added:
 
@@ -116,7 +116,7 @@ Still outside this slice:
 
 Started on 2026-05-03:
 
-- `packages/data-mongodb` workspace package added.
+- `packages/openclinxr/data-mongodb` workspace package added.
 - `mongodb-memory-server@11.1.0` and `mongodb@7.2.0` added.
 - MongoDB binary version pinned to `7.0.24` for the package configuration and test context.
 - `MongoScenarioRepository` supports scenario upsert, version lookup, approved-list query, and indexes.
@@ -164,12 +164,12 @@ Quest evidence:
 
 Started on 2026-05-03:
 
-- `packages/model-gateway` workspace package added.
-- `packages/voice-gateway` workspace package added.
+- `packages/openclinxr/model-gateway` workspace package added.
+- `packages/openclinxr/voice-gateway` workspace package added.
 - Model gateway supports actor-response routing, health checks, deterministic mock model output, provenance, guardrail status, token usage, and zero-cost accounting.
 - Voice gateway supports streaming mock transcript events, streaming mock audio events, viseme cue metadata, provenance, health checks, and stream collection for tests.
 - Local model and local voice adapters are present but intentionally report `not_configured`.
-- `packages/test-harness` now obtains model and voice health through the gateways.
+- `packages/openclinxr/test-harness` now obtains model and voice health through the gateways.
 
 Local evidence:
 
@@ -189,7 +189,7 @@ API follow-up:
 
 Started on 2026-05-03:
 
-- `packages/asset-registry` workspace package added.
+- `packages/openclinxr/asset-registry` workspace package added.
 - Asset manifest types cover asset kind, target runtime, generation method, license status, pipeline stages, geometry budget, provenance, and tags.
 - In-memory registry supports manifest upsert, lookup, scenario listing, and scenario-readiness evaluation against approved fixture asset needs.
 - ED chest pain placeholder manifests cover Robert Hayes, Maria Alvarez, and the ED exam bay.
@@ -205,11 +205,11 @@ Local evidence:
 
 Started on 2026-05-03:
 
-- `packages/scenario-runtime` workspace package added.
+- `packages/openclinxr/scenario-runtime` workspace package added.
 - Runtime starts the ED chest pain station from the approved fixture only after explicit consent.
 - Runtime now holds the station in doorway phase until `startEncounter` is called.
 - Runtime appends deterministic system trace events, learner trace events, and note-submission trace events.
-- Runtime generates review packets through `packages/review-workflow`.
+- Runtime generates review packets through `packages/openclinxr/review-workflow`.
 - Runtime exposes model/voice provider health through the offline gateways.
 - Runtime exposes ED chest pain asset readiness through the asset registry.
 - Runtime rejects trace and review operations for unknown station sessions.
@@ -221,13 +221,13 @@ Local evidence:
 
 API follow-up:
 
-- `apps/api` now delegates session start, learner event append, note submission, provider health, asset readiness, and review-packet generation to `packages/scenario-runtime`.
+- `apps/api` now delegates session start, learner event append, note submission, provider health, asset readiness, and review-packet generation to `packages/openclinxr/scenario-runtime`.
 - API added `GET /scenarios/ed-chest-pain/assets/readiness`.
 - API tests now cover missing-session 404 behavior from the runtime boundary.
 
 Harness follow-up:
 
-- `packages/test-harness` now uses `packages/scenario-runtime` for the ED chest pain deterministic simulation instead of maintaining a separate station-flow loop.
+- `packages/openclinxr/test-harness` now uses `packages/openclinxr/scenario-runtime` for the ED chest pain deterministic simulation instead of maintaining a separate station-flow loop.
 - Scenario runtime now exposes trace replay and records `encounter.ended` when note submission auto-closes the encounter.
 - API session creation now rejects missing consent with `consent_required`.
 - API added `POST /sessions/:stationRunId/start-encounter` for explicit doorway-to-encounter transition.
@@ -236,7 +236,7 @@ Harness follow-up:
 
 Started on 2026-05-03:
 
-- `packages/exam-assembly` workspace package added.
+- `packages/openclinxr/exam-assembly` workspace package added.
 - Default clinical skills pilot blueprint added for the ED urgent-recognition station.
 - Exam form assembler locks approved scenarios into ordered station references.
 - Coverage evaluator reports required trace tags, covered trace tags, and missing trace tags.
@@ -261,7 +261,7 @@ API follow-up:
 
 Started on 2026-05-03:
 
-- `packages/agent-loop` workspace package added.
+- `packages/openclinxr/agent-loop` workspace package added.
 - Agent-loop planner turns local memory entries and existing scorecards into staged work orders.
 - Planner activates physician and legal review stages when clinical, specialty, security, or legal dimensions are below threshold.
 - Planner sends senior leadership only to review when maturity gates pass; otherwise it creates a blocker-focused leadership preflight.
@@ -290,9 +290,9 @@ Started on 2026-05-03:
 - API now exposes `GET /sessions/:stationRunId/trace-events` for ordered trace replay.
 - API now exposes `POST /exam-forms/version-drift` to compare a locked form to current scenario versions.
 - Review trace quality now includes `modelFailedEventCount`.
-- `packages/data-mongodb` now persists exam forms with locked scenario versions.
+- `packages/openclinxr/data-mongodb` now persists exam forms with locked scenario versions.
 - `pnpm bench:mock` now prints trace quality, review signals, and an adversarial probe report.
-- `packages/agent-loop` executable roster now aligns with the richer physician charter bench.
+- `packages/openclinxr/agent-loop` executable roster now aligns with the richer physician charter bench.
 
 Local evidence:
 
