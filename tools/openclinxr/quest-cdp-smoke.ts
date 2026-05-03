@@ -213,11 +213,15 @@ function browserSnapshotExpression(): string {
       url: location.href,
       userAgent: navigator.userAgent,
       devicePixelRatio,
+      visibilityState: document.visibilityState,
+      hidden: document.hidden,
+      hasFocus: document.hasFocus(),
       bodyHasEdChestPain: document.body.textContent.includes("ED Chest Pain"),
       hasViteOverlay: !!document.querySelector("vite-error-overlay"),
       hasNavigatorXr: !!navigator.xr,
       xrStatus: document.querySelector("#xr-status")?.textContent ?? null,
       trace: document.body.textContent.match(/Trace\s+\d+\/\d+/)?.[0] ?? null,
+      frameStats: window.__openClinXrFrameStats ?? null,
       canvas: canvas ? {
         width: canvas.width,
         height: canvas.height,
@@ -255,42 +259,45 @@ function interactionExpression(): string {
 
 function frameSampleExpression(frameSampleCount: number, frameTimeoutMs: number): string {
   return String.raw`(async () => {
-    const frameSamples = [];
     const started = performance.now();
-    let last = started;
+    const readStats = () => window.__openClinXrFrameStats ?? null;
+    const initialStats = readStats();
+    const initialFrames = initialStats?.framesObserved ?? 0;
+    let latestStats = initialStats;
     let timedOut = false;
-    await new Promise((resolve) => {
-      let frames = 0;
-      const timeout = setTimeout(() => {
-        timedOut = true;
-        resolve();
-      }, ${frameTimeoutMs});
-      function tick(now) {
-        if (frames > 0) {
-          frameSamples.push(now - last);
-        }
-        last = now;
-        frames += 1;
-        if (frames >= ${frameSampleCount}) {
-          clearTimeout(timeout);
-          resolve();
-        } else {
-          requestAnimationFrame(tick);
-        }
+
+    while (performance.now() - started < ${frameTimeoutMs}) {
+      latestStats = readStats();
+      const framesObserved = latestStats?.framesObserved ?? 0;
+      const sampleCount = latestStats?.sampleCount ?? 0;
+      const framesObservedDuringProbe = framesObserved - initialFrames;
+      if (sampleCount >= ${frameSampleCount} || framesObservedDuringProbe >= ${frameSampleCount}) {
+        break;
       }
-      requestAnimationFrame(tick);
-    });
-    frameSamples.sort((a, b) => a - b);
-    const avgFrameMs = frameSamples.length ? frameSamples.reduce((sum, value) => sum + value, 0) / frameSamples.length : null;
-    const p95FrameMs = frameSamples.length ? frameSamples[Math.floor(frameSamples.length * 0.95)] : null;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+
+    latestStats = readStats();
+    const elapsedWallMs = Number((performance.now() - started).toFixed(2));
+    const sampleCount = latestStats?.sampleCount ?? 0;
+    const framesObserved = latestStats?.framesObserved ?? 0;
+    const framesObservedDuringProbe = framesObserved - initialFrames;
+    const latestFrameAgeMs = typeof latestStats?.latestFrameAtMs === "number"
+      ? Number((performance.now() - latestStats.latestFrameAtMs).toFixed(2))
+      : null;
+    timedOut = sampleCount < ${frameSampleCount} && framesObservedDuringProbe < ${frameSampleCount};
+
     return {
-      framesObserved: frameSamples.length,
+      framesObserved,
+      framesObservedDuringProbe,
+      sampleCount,
       timedOut,
-      elapsedWallMs: Number((performance.now() - started).toFixed(2)),
-      avgFrameMs: avgFrameMs === null ? null : Number(avgFrameMs.toFixed(2)),
-      p95FrameMs: p95FrameMs === null ? null : Number(p95FrameMs.toFixed(2)),
-      maxFrameMs: frameSamples.length ? Number(Math.max(...frameSamples).toFixed(2)) : null,
-      approxFps: avgFrameMs === null ? null : Number((1000 / avgFrameMs).toFixed(1)),
+      elapsedWallMs,
+      latestFrameAgeMs,
+      avgFrameMs: latestStats?.avgFrameMs ?? null,
+      p95FrameMs: latestStats?.p95FrameMs ?? null,
+      maxFrameMs: latestStats?.maxFrameMs ?? null,
+      approxFps: latestStats?.approxFps ?? null,
     };
   })()`;
 }
@@ -312,10 +319,12 @@ function buildReport(input: {
     && browser.hasViteOverlay === false
     && asRecord(browser.canvas).dataUrlLength !== undefined;
   const interactionAdvanced = interaction.afterTrace === "Trace 2/10" && interaction.clickedEcg === true && interaction.clickedUrgent === true;
-  const frameSampleComplete = frameSample.timedOut === false && typeof frameSample.avgFrameMs === "number";
+  const pageVisible = browser.hidden === false && browser.visibilityState === "visible";
+  const frameSampleComplete = pageVisible && frameSample.timedOut === false && typeof frameSample.avgFrameMs === "number";
   const blockers = [
     shellLoaded ? undefined : "quest_shell_not_loaded",
     interactionAdvanced ? undefined : "quest_trace_interaction_not_advanced",
+    pageVisible ? undefined : "quest_page_hidden_or_inactive",
     frameSampleComplete ? undefined : "quest_cdp_frame_sample_incomplete",
   ].filter((item): item is string => typeof item === "string");
 

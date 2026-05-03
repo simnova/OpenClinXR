@@ -196,7 +196,7 @@ The next implementation plan should not start until these docs are reviewed:
 
 - Android Platform Tools were installed locally on 2026-05-03.
 - The Quest 3 is visible to `adb` as device serial `2G0YC5ZGB5000J`; USB debugging is authorized, `adb reverse tcp:5173 tcp:5173` succeeds, and Quest Browser can load the local XR app through the reversed port.
-- `pnpm xr:quest:smoke` produced `docs/openclinxr/quest-cdp-smoke-2026-05-03.json`: the Quest Browser shell loaded, the Three.js canvas was nonblank, WebXR was exposed as ready, and a trace interaction advanced. The current blocker is sustained CDP frame sampling: the probe could not complete a reliable browser-side frame sample, so do not claim Quest frame-pacing readiness yet.
+- `pnpm xr:quest:smoke` produced `docs/openclinxr/quest-cdp-smoke-2026-05-03.json`: the Quest Browser shell loaded, the Three.js canvas was nonblank, WebXR was exposed as ready, and a trace interaction advanced. The current blocker is sustained frame sampling: the app now exposes frame telemetry, but CDP reports the Quest page as `document.hidden`, so the render loop records only the initial frame. Do not claim Quest frame-pacing readiness yet.
 - `mongodb-memory-server` is accepted as the local MongoDB integration-test path, with binary download/cache behavior documented as an explicit setup gate.
 - `pnpm local:runtime:probe` produced `docs/openclinxr/local-runtime-probe-2026-05-03.json`: Quest USB and the pinned Apache-2.0 `gltf-pipeline` CLI are ready on this machine, while local model runtime, local voice runtime, and Blender-backed asset generation/bake steps are intentionally marked `not_configured` until Ollama/llama.cpp/MLX, VibeVoice-style voice runtime, and Blender are installed and benchmarked.
 
@@ -264,7 +264,7 @@ XR station-shell milestone has also started:
 - The ED chest pain station shell renders a Three.js emergency department bay with patient, nurse, spouse, bed, monitor, timer/status strip, simulated EHR, mock dialogue, and trace action controls.
 - Runtime state tests, package typecheck, and production build pass locally.
 - Desktop and mobile browser smoke checks show a nonblank canvas with no console errors and readable control surfaces.
-- Quest 3 smoke has advanced past USB authorization: the local shell loads and trace controls advance in Quest Browser. The remaining hardware-performance blocker is reliable sustained frame sampling and frame-pacing evidence on the headset.
+- Quest 3 smoke has advanced past USB authorization: the local shell loads and trace controls advance in Quest Browser. The remaining hardware-performance blocker is reliable sustained frame sampling and frame-pacing evidence on the headset; current CDP evidence reports the page as hidden/inactive during the automated sample.
 
 Offline model/voice gateway milestone has also started:
 

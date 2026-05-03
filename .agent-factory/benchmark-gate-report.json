@@ -2,11 +2,12 @@
   "generated_by": "tools/agent-factory/build-benchmark-gate-report.ts",
   "quest_smoke": {
     "file": "docs/openclinxr/quest-cdp-smoke-2026-05-03.json",
-    "generated_at": "2026-05-03T22:12:56.263Z",
+    "generated_at": "2026-05-03T22:47:16.190Z",
     "shell_loaded": true,
     "interaction_advanced": true,
     "frame_sample_complete": false,
     "blockers": [
+      "quest_page_hidden_or_inactive",
       "quest_cdp_frame_sample_incomplete"
     ]
   },
@@ -69,6 +70,7 @@
       ],
       "blockers": [
         "quest_cdp_frame_sample_incomplete",
+        "quest_page_hidden_or_inactive",
         "quest_sustained_frame_sample_not_complete",
         "asset_pipeline:missing_blender",
         "local_model:no_ollama_llama_cpp_or_mlx_runtime_detected",

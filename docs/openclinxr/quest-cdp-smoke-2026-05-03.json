@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-03T22:12:56.263Z",
-  "url": "http://localhost:5173/?questSmoke=20260503-1",
+  "generatedAt": "2026-05-03T22:47:16.190Z",
+  "url": "http://localhost:5173/?questSmoke=20260503-frame-stats-hidden",
   "adb": {
     "version": "Android Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as /opt/homebrew/bin/adb\nRunning on Darwin 25.4.0 (arm64)",
     "deviceLine": "2G0YC5ZGB5000J         device usb:0-1 product:eureka model:Quest_3 device:eureka transport_id:1",
@@ -11,17 +11,30 @@
     "url": "http://localhost:5173/",
     "userAgent": "Mozilla/5.0 (X11; Linux x86_64; Quest 3) AppleWebKit/537.36 (KHTML, like Gecko) OculusBrowser/146.0.0.19.27.942135376 Chrome/146.0.7680.177 VR Safari/537.36",
     "devicePixelRatio": 1,
+    "visibilityState": "hidden",
+    "hidden": true,
+    "hasFocus": true,
     "bodyHasEdChestPain": true,
     "hasViteOverlay": false,
     "hasNavigatorXr": true,
     "xrStatus": "WebXR ready",
     "trace": "Trace 0/10",
+    "frameStats": {
+      "sampleCount": 0,
+      "avgFrameMs": null,
+      "p95FrameMs": null,
+      "maxFrameMs": null,
+      "approxFps": null,
+      "framesObserved": 1,
+      "latestFrameAtMs": 223.4,
+      "sampleWindowSize": 0
+    },
     "canvas": {
       "width": 860,
       "height": 902,
       "clientWidth": 860,
       "clientHeight": 902,
-      "dataUrlLength": 100634
+      "dataUrlLength": 100446
     }
   },
   "interaction": {
@@ -33,9 +46,12 @@
     "dialogue": "Spouse: Are you saying this could be his heart?"
   },
   "frameSample": {
-    "framesObserved": 0,
+    "framesObserved": 1,
+    "framesObservedDuringProbe": 0,
+    "sampleCount": 0,
     "timedOut": true,
-    "elapsedWallMs": 4992,
+    "elapsedWallMs": 5992.9,
+    "latestFrameAgeMs": 7786.3,
     "avgFrameMs": null,
     "p95FrameMs": null,
     "maxFrameMs": null,
@@ -46,6 +62,7 @@
     "interactionAdvanced": true,
     "frameSampleComplete": false,
     "blockers": [
+      "quest_page_hidden_or_inactive",
       "quest_cdp_frame_sample_incomplete"
     ]
   }

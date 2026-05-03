@@ -9,6 +9,7 @@ import {
   formatStationClock,
   remoteActorTurnForTraceTag,
   stationTraceActionTags,
+  summarizeFrameDeltas,
   summarizeTraceReadiness,
   type XrRuntimeState,
 } from "./runtime-state.js";
@@ -20,6 +21,18 @@ type NavigatorWithXr = Navigator & {
     isSessionSupported(mode: "immersive-vr"): Promise<boolean>;
   };
 };
+
+type OpenClinXrFrameStats = ReturnType<typeof summarizeFrameDeltas> & {
+  framesObserved: number;
+  latestFrameAtMs: number | null;
+  sampleWindowSize: number;
+};
+
+declare global {
+  interface Window {
+    __openClinXrFrameStats?: OpenClinXrFrameStats;
+  }
+}
 
 const app = document.querySelector<HTMLDivElement>("#app");
 if (!app) {
@@ -254,9 +267,11 @@ function createStationScene(): void {
   }
 
   function animate(): void {
+    const now = performance.now();
     resize();
-    patient.rotation.y = Math.sin(performance.now() / 1200) * 0.08;
-    nurse.rotation.y = Math.sin(performance.now() / 900) * 0.12;
+    recordFrame(now);
+    patient.rotation.y = Math.sin(now / 1200) * 0.08;
+    nurse.rotation.y = Math.sin(now / 900) * 0.12;
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
   }
@@ -272,6 +287,27 @@ function actorMesh(color: number): THREE.Group {
   head.position.y = 1.15;
   group.add(body, head);
   return group;
+}
+
+const frameDeltasMs: number[] = [];
+let framesObserved = 0;
+let lastFrameAtMs: number | undefined;
+
+function recordFrame(now: number): void {
+  if (lastFrameAtMs !== undefined) {
+    frameDeltasMs.push(now - lastFrameAtMs);
+    if (frameDeltasMs.length > 180) {
+      frameDeltasMs.shift();
+    }
+  }
+  lastFrameAtMs = now;
+  framesObserved += 1;
+  window.__openClinXrFrameStats = {
+    ...summarizeFrameDeltas(frameDeltasMs),
+    framesObserved,
+    latestFrameAtMs: Number(now.toFixed(2)),
+    sampleWindowSize: frameDeltasMs.length,
+  };
 }
 
 let start = performance.now();

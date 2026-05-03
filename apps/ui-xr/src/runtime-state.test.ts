@@ -7,6 +7,7 @@ import {
   formatStationClock,
   remoteActorTurnForTraceTag,
   stationTraceActionTags,
+  summarizeFrameDeltas,
   summarizeTraceReadiness,
 } from "./runtime-state.js";
 
@@ -60,5 +61,23 @@ describe("XR runtime state", () => {
     expect(actorResponseTextFromApiResult({ response: { text: "I feel pressure in my chest." } })).toBe("I feel pressure in my chest.");
     expect(actorResponseTextFromApiResult({ response: { text: "" } })).toBeUndefined();
     expect(actorResponseTextFromApiResult({ response: { text: 123 } })).toBeUndefined();
+  });
+
+  it("summarizes rolling frame deltas for headset smoke evidence", () => {
+    expect(summarizeFrameDeltas([])).toEqual({
+      sampleCount: 0,
+      avgFrameMs: null,
+      p95FrameMs: null,
+      maxFrameMs: null,
+      approxFps: null,
+    });
+
+    expect(summarizeFrameDeltas([16, 17, 33])).toEqual({
+      sampleCount: 3,
+      avgFrameMs: 22,
+      p95FrameMs: 33,
+      maxFrameMs: 33,
+      approxFps: 45.5,
+    });
   });
 });

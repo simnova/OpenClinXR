@@ -254,10 +254,15 @@ OpenClinXR XR shell smoke result:
   - Clicking `Ecg Request` advanced the local trace to `Trace 1/10`.
   - Clicking `Urgent Escalation` advanced the local trace to `Trace 2/10`.
   - Dialogue changed to the expected urgent-escalation line.
+- Frame telemetry smoke:
+  - The app exposed `window.__openClinXrFrameStats` to CDP.
+  - Quest Browser reported `document.visibilityState` as `hidden` during the automated CDP sample.
+  - The render loop recorded the first frame but did not accumulate sustained frame deltas while hidden.
 
 Probe limitation:
 
 - Calling `navigator.xr.isSessionSupported("immersive-vr")` through CDP did not resolve before the probe timeout. Treat this as inconclusive, not a negative WebXR-support result.
+- CDP-based frame sampling is currently blocked by the Quest page being reported as hidden/inactive. Treat this as a precise automation limitation and require a foreground in-headset run before making frame-pacing claims.
 
 This validates Quest Browser delivery of the current OpenClinXR shell, nonblank 3D canvas rendering, and basic trace-control interaction. It does not validate immersive session entry, controller interaction, frame pacing, comfort, heat, battery use, speech, or local model/voice latency.
 

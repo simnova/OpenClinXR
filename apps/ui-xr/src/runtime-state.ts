@@ -21,6 +21,14 @@ export type RemoteActorTurnPlan = {
   traceContextTags: string[];
 };
 
+export type FrameDeltaSummary = {
+  sampleCount: number;
+  avgFrameMs: number | null;
+  p95FrameMs: number | null;
+  maxFrameMs: number | null;
+  approxFps: number | null;
+};
+
 export const stationTraceActionTags = [...edChestPainScenario.requiredTraceTags];
 
 export function createInitialRuntimeState(): XrRuntimeState {
@@ -110,6 +118,30 @@ export function actorResponseTextFromApiResult(result: unknown): string | undefi
   return text ? text : undefined;
 }
 
+export function summarizeFrameDeltas(frameDeltasMs: number[]): FrameDeltaSummary {
+  if (frameDeltasMs.length === 0) {
+    return {
+      sampleCount: 0,
+      avgFrameMs: null,
+      p95FrameMs: null,
+      maxFrameMs: null,
+      approxFps: null,
+    };
+  }
+
+  const sorted = [...frameDeltasMs].sort((left, right) => left - right);
+  const avgFrameMs = sorted.reduce((sum, value) => sum + value, 0) / sorted.length;
+  const p95Index = Math.min(sorted.length - 1, Math.floor(sorted.length * 0.95));
+
+  return {
+    sampleCount: sorted.length,
+    avgFrameMs: roundMetric(avgFrameMs),
+    p95FrameMs: roundMetric(sorted[p95Index] ?? avgFrameMs),
+    maxFrameMs: roundMetric(sorted.at(-1) ?? avgFrameMs),
+    approxFps: roundMetric(1000 / avgFrameMs, 1),
+  };
+}
+
 function patientTurn(traceTag: string, learnerUtterance: string): RemoteActorTurnPlan {
   return {
     actorId: "patient_robert_hayes_v1",
@@ -130,4 +162,8 @@ function nurseTurn(traceTag: string, learnerUtterance: string): RemoteActorTurnP
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function roundMetric(value: number, fractionDigits = 2): number {
+  return Number(value.toFixed(fractionDigits));
 }
