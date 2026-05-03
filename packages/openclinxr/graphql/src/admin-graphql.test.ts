@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { parse, validate } from "graphql";
 import { adminGraphqlDocuments, buildAdminGraphqlSchema, createGraphqlCodegenPlan, openClinXrAdminSchemaSdl } from "./index.js";
@@ -61,5 +62,22 @@ describe("OpenClinXR admin GraphQL contract", () => {
       expect(validate(schema, parse(document.source)), document.operationName).toEqual([]);
     }
     expect(JSON.stringify(adminGraphqlDocuments)).not.toContain("hiddenFacts");
+  });
+
+  it("keeps bundled schema and operation strings in sync with source GraphQL files", () => {
+    expect(openClinXrAdminSchemaSdl).toBe(readFileSync(new URL("./schema.graphql", import.meta.url), "utf8"));
+
+    const documentPathsByRouteId = new Map([
+      ["scenario-bank", "./documents/scenario-bank.graphql"],
+      ["review-packet-replay", "./documents/review-packet-replay.graphql"],
+      ["exam-form-workbench", "./documents/exam-form-workbench.graphql"],
+      ["exam-form-assembly", "./documents/assemble-exam-form.graphql"],
+    ]);
+
+    for (const document of adminGraphqlDocuments) {
+      const documentPath = documentPathsByRouteId.get(document.routeId);
+      expect(documentPath, document.routeId).toBeDefined();
+      expect(document.source, document.routeId).toBe(readFileSync(new URL(documentPath ?? "", import.meta.url), "utf8"));
+    }
   });
 });

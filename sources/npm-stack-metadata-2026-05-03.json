@@ -19,6 +19,7 @@
     "As queried on 2026-05-03, @typescript/native-preview 7.0.0-dev.20260503.1 is Apache-2.0 licensed and exposes the `tsgo` binary.",
     "As queried on 2026-05-03, @testing-library/dom 10.4.1 is MIT licensed and rxjs 7.8.2 is Apache-2.0 licensed.",
     "As queried on 2026-05-03, @storybook/addon-mcp 0.6.0 is MIT licensed, describes itself as helping agents write and test UI stories, and peers on Storybook plus @storybook/addon-vitest.",
+    "As queried on 2026-05-03, ajv 8.20.0 and ajv-formats 3.0.1 are MIT licensed.",
     "As queried on 2026-05-03, mongoose 9.6.1 is MIT licensed.",
     "As queried on 2026-05-03, archunit 2.3.0 is MIT licensed.",
     "As queried on 2026-05-03, rolldown 1.0.0-rc.18 is MIT licensed."

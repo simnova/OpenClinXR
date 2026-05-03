@@ -106,18 +106,21 @@ describe("OpenClinXR Rolldown config adoption", () => {
         2,
       ),
       "host.json": JSON.stringify({ version: "2.0" }, null, 2),
+      ".funcignore": "*.ts\nnode_modules/typescript/\n",
       "deploy/dist/index.js": "export const handler = () => 'ok';\n",
     });
 
     await prepareOpenClinXrAzureFunctionsDeploy({ appDir });
 
     const copiedHostJson = await fs.readFile(path.join(appDir, "deploy/host.json"), "utf8");
+    const copiedFuncIgnore = await fs.readFile(path.join(appDir, "deploy/.funcignore"), "utf8");
     const deployPackageJson = JSON.parse(await fs.readFile(path.join(appDir, "deploy/package.json"), "utf8")) as Record<
       string,
       unknown
     >;
 
     expect(JSON.parse(copiedHostJson)).toEqual({ version: "2.0" });
+    expect(copiedFuncIgnore).toBe("*.ts\nnode_modules/typescript/\n");
     expect(deployPackageJson).toEqual({
       name: "@openclinxr/api",
       version: "0.1.0",

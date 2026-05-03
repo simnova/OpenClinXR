@@ -1,4 +1,6 @@
 node_modules/
 .DS_Store
 apps/*/dist/
+apps/*/deploy/
 packages/*/dist/
+packages/*/*/dist/

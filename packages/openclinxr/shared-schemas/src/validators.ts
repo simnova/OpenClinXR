@@ -1,5 +1,5 @@
 import { Ajv2020, type ErrorObject, type ValidateFunction } from "ajv/dist/2020.js";
-import { createRequire } from "node:module";
+import * as ajvFormatsModule from "ajv-formats";
 import {
   ActorCardSchema,
   PatientNoteSchema,
@@ -10,9 +10,9 @@ import {
 
 export type ValidationResult = { ok: true } | { ok: false; errors: string[] };
 
-const require = createRequire(import.meta.url);
-const addFormats = require("ajv-formats") as (ajv: Ajv2020) => void;
-
+const addFormats = ("default" in ajvFormatsModule ? ajvFormatsModule.default : ajvFormatsModule) as unknown as (
+  ajv: Ajv2020,
+) => void;
 const ajv = new Ajv2020({ allErrors: true });
 addFormats(ajv);
 

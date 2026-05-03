@@ -47,6 +47,7 @@ export type PrepareOpenClinXrAzureFunctionsDeployOptions = {
   deployDirName?: string;
   bundleEntryRelativePath?: string;
   hostJsonFilename?: string;
+  funcIgnoreFilename?: string;
 };
 
 const nodeRequire = createRequire(import.meta.url);
@@ -136,6 +137,7 @@ export async function prepareOpenClinXrAzureFunctionsDeploy(
     deployDirName = "deploy",
     bundleEntryRelativePath = "dist/index.js",
     hostJsonFilename = "host.json",
+    funcIgnoreFilename = ".funcignore",
   } = options;
 
   const deployDir = path.join(appDir, deployDirName);
@@ -151,6 +153,7 @@ export async function prepareOpenClinXrAzureFunctionsDeploy(
 
   await Promise.all([
     fs.copyFile(hostJsonPath, path.join(deployDir, hostJsonFilename)),
+    copyFileIfPresent(path.join(appDir, funcIgnoreFilename), path.join(deployDir, funcIgnoreFilename)),
     writeDeployPackageJson(packageJsonPath, path.join(deployDir, "package.json")),
   ]);
 }
@@ -179,6 +182,16 @@ async function writeDeployPackageJson(packageJsonPath: string, deployPackageJson
   };
 
   await fs.writeFile(deployPackageJsonPath, `${JSON.stringify(deployPackageJson, null, 2)}\n`);
+}
+
+async function copyFileIfPresent(fromPath: string, toPath: string): Promise<void> {
+  await fs.copyFile(fromPath, toPath).catch((error: unknown) => {
+    if (isNodeErrnoException(error) && error.code === "ENOENT") {
+      return;
+    }
+
+    throw error;
+  });
 }
 
 async function collectExternalDeps(

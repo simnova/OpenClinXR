@@ -1,8 +1,7 @@
-import { readFileSync } from "node:fs";
 import { buildSchema, type GraphQLSchema } from "graphql";
 export { adminGraphqlDocuments, type AdminGraphqlDocument } from "./documents.js";
-
-export const openClinXrAdminSchemaSdl = readFileSync(new URL("./schema.graphql", import.meta.url), "utf8");
+export { openClinXrAdminSchemaSdl } from "./schema.js";
+import { openClinXrAdminSchemaSdl } from "./schema.js";
 
 export type GraphqlCodegenPlan = {
   schema: string;

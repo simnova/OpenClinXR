@@ -14,6 +14,8 @@
     "The CellixJS config-rolldown package peers rolldown 1.0.0-beta.55 and provides an Azure Functions Rolldown config factory plus deploy artifact preparation helper.",
     "The CellixJS config-typescript package exports base, node, and vitest tsconfig files, and OpenClinXR copied that package shape while updating local config contents for TypeScript 6 compatibility.",
     "The CellixJS config-vitest package exports base, node, and Storybook-oriented Vitest configs, uses the `tsgo` checker, and OpenClinXR copied that package shape while updating the local config for Vitest 4, TypeScript 6, tsgo via @typescript/native-preview, and opt-in Storybook browser dependencies.",
+    "The CellixJS graphql-codegen package documents static type-def and resolver-manifest plugins that replace runtime GraphQL glob/file discovery with build-time TypeScript artifacts for Rolldown/serverless bundling.",
+    "The CellixJS graphql-core package documents that Cellix projects should consume generated static SDL exports instead of dynamically loading `.graphql` files at runtime.",
     "The CellixJS mongoose-seedwork package declares peer dependencies on mongoose ^8.0.0 and mongodb ^6.0.0.",
     "The CellixJS ui-core package declares peer dependencies compatible with Ant Design 6, React, React DOM, react-oidc-context, and React Router DOM."
   ],
