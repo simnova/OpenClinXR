@@ -111,6 +111,10 @@ describe("OpenClinXR shared schemas", () => {
 
   it("validates actor cards, patient notes, and review packets", () => {
     expect(validateActorCard({ actorId: "nurse_maria_alvarez_v1", role: "nurse", displayName: "Maria Alvarez" }).ok).toBe(true);
+    expect(validateActorCard({ actorId: "neurology_consultant_phone_v1", role: "consultant", displayName: "Neurology Consultant" }).ok).toBe(true);
+    expect(validateActorCard({ actorId: "remote_interpreter_tablet_v1", role: "interpreter", displayName: "Remote Interpreter" }).ok).toBe(true);
+    expect(validateActorCard({ actorId: "medical_assistant_jones_v1", role: "medical_assistant", displayName: "Medical Assistant Jones" }).ok).toBe(true);
+    expect(validateActorCard({ actorId: "respiratory_therapist_ng_v1", role: "respiratory_therapist", displayName: "Respiratory Therapist Ng" }).ok).toBe(true);
     expect(validatePatientNote({ stationRunId: "run_001", submittedAtSecond: 1260, text: "Concern for ACS. ECG requested." }).ok).toBe(true);
     expect(
       validateReviewPacket({

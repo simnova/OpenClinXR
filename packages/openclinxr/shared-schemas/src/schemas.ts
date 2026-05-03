@@ -18,6 +18,10 @@ export const ActorRoleSchema = Type.Union([
   Type.Literal("family"),
   Type.Literal("nurse"),
   Type.Literal("physician"),
+  Type.Literal("consultant"),
+  Type.Literal("interpreter"),
+  Type.Literal("medical_assistant"),
+  Type.Literal("respiratory_therapist"),
   Type.Literal("system"),
 ]);
 

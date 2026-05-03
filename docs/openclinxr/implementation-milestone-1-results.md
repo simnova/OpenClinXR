@@ -268,7 +268,7 @@ Started on 2026-05-03:
 - `tools/agent-factory/run-agent-loop.ts` added and exposed through `npm run agent:loop`.
 - `iterations/iteration-0007/09-agent-loop-plan.json` generated from iteration 0007 with iteration 0006 as the comparison baseline.
 - Scenario governance metadata added to the shared schema and ED fixture.
-- Scenario bank expanded with three draft synthetic cases while keeping only the ED fixture activation-eligible.
+- Scenario bank expanded to the full 12-station seed form while keeping only the ED fixture activation-eligible and treating the other eleven synthetic cases as governance-blocked drafts.
 - API learner scenario response now redacts actor hidden facts.
 - Mock actor responses no longer reveal hidden facts and block hidden-truth extraction attempts.
 

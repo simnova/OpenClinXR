@@ -5,6 +5,80 @@ export type LearnerScenarioView = Omit<Scenario, "actors"> & {
   actors: Array<Omit<Scenario["actors"][number], "hiddenFacts">>;
 };
 
+type DraftScenarioInput = {
+  scenarioId: string;
+  title: string;
+  clinicalObjectives: string[];
+  actors: Scenario["actors"];
+  requiredTraceTags: string[];
+  eventSchedule: Scenario["eventSchedule"];
+  reviewRubric: Scenario["reviewRubric"];
+  requiredReviewerRoles: string[];
+  safetyCriticalTraceTags: string[];
+  environment: NonNullable<Scenario["environment"]>;
+  equipment: string[];
+  assetNeeds: NonNullable<Scenario["assetNeeds"]>;
+  syntheticCaseDisclosure: string;
+};
+
+function draftScenario(input: DraftScenarioInput): Scenario {
+  return {
+    scenarioId: input.scenarioId,
+    version: 1,
+    title: input.title,
+    status: "draft",
+    review: {
+      clinical: "draft",
+      psychometric: "draft",
+      legal: "draft",
+      simulationQa: "draft",
+    },
+    clinicalObjectives: input.clinicalObjectives,
+    actors: input.actors,
+    requiredTraceTags: input.requiredTraceTags,
+    eventSchedule: input.eventSchedule,
+    reviewRubric: input.reviewRubric,
+    governance: {
+      scoreUseLabel: "formative_local_only",
+      syntheticCaseDisclosure: input.syntheticCaseDisclosure,
+      validationStage: "stage_0_synthetic_draft",
+      validationLimitations: ["Requires specialty clinician, psychometric, legal, and simulation QA review before learner use."],
+      requiredReviewerRoles: input.requiredReviewerRoles,
+      sourceIds: ["src-openclinxr-sample-case-bank-v1"],
+      safetyCriticalTraceTags: input.safetyCriticalTraceTags,
+      hiddenFactPolicy: {
+        learnerView: "redact_hidden_facts",
+        disclosureRequiresTrigger: true,
+      },
+    },
+    environment: input.environment,
+    equipment: input.equipment,
+    assetNeeds: input.assetNeeds,
+  };
+}
+
+function actor(
+  actorId: string,
+  role: Scenario["actors"][number]["role"],
+  displayName: string,
+  demeanor: string,
+  hiddenFacts: string[],
+): Scenario["actors"][number] {
+  return { actorId, role, displayName, demeanor, hiddenFacts };
+}
+
+function rubric(rubricId: string, label: string, requiredTraceTags: string[]): Scenario["reviewRubric"][number] {
+  return { rubricId, label, requiredTraceTags };
+}
+
+function event(eventId: string, atSecond: number, actorId: string, tag: string): Scenario["eventSchedule"][number] {
+  return { eventId, atSecond, actorId, tag };
+}
+
+function asset(assetId: string, assetType: string, description: string): NonNullable<Scenario["assetNeeds"]>[number] {
+  return { assetId, assetType, description, licenseStatus: "placeholder-approved" };
+}
+
 export const pediatricAsthmaScenario: Scenario = {
   scenarioId: "peds_asthma_parent_anxiety_v1",
   version: 1,
@@ -360,11 +434,482 @@ export const telehealthDiabetesScenario: Scenario = {
   ],
 };
 
+export const wardDeliriumScenario = draftScenario({
+  scenarioId: "ward_delirium_med_rec_v1",
+  title: "Inpatient Ward Delirium And Medication Reconciliation",
+  clinicalObjectives: [
+    "Distinguish delirium from baseline cognitive impairment",
+    "Obtain collateral history and medication reconciliation",
+    "Identify infection and medication adverse-effect clues",
+    "Mitigate fall risk and communicate a concise team plan",
+  ],
+  actors: [
+    actor("patient_margaret_ellis_v1", "patient", "Margaret Ellis", "fluctuating confusion, hard of hearing, frail, trying to leave bed", [
+      "Recently started diphenhydramine for sleep",
+      "Burning urination and frequency are present but not volunteered",
+      "Baseline is independent and oriented",
+    ]),
+    actor("daughter_lena_ellis_v1", "family", "Lena Ellis", "concerned daughter with medication list on phone", [
+      "Can provide baseline cognition and home medication list if invited",
+    ]),
+    actor("ward_nurse_patel_v1", "nurse", "Nurse Patel", "practical ward nurse worried about nighttime agitation and falls", [
+      "Patient tried to get out of bed overnight and has poor sleep",
+    ]),
+    actor("senior_resident_ward_v1", "physician", "Senior Resident", "asks for concise oral summary and safety plan at minute ten", [
+      "Wants delirium, medication, infection, and fall-risk priorities",
+    ]),
+  ],
+  requiredTraceTags: [
+    "orientation_assessment",
+    "collateral_history",
+    "medication_reconciliation",
+    "infection_symptom_question",
+    "fall_risk_action",
+    "oral_summary",
+    "team_escalation",
+    "patient_note_submitted",
+  ],
+  eventSchedule: [
+    event("nurse_fall_risk_update", 240, "ward_nurse_patel_v1", "fall_risk_action"),
+    event("daughter_med_list_offer", 360, "daughter_lena_ellis_v1", "medication_reconciliation"),
+    event("senior_resident_summary_request", 600, "senior_resident_ward_v1", "oral_summary"),
+  ],
+  reviewRubric: [
+    rubric("delirium_assessment", "Delirium assessment", ["orientation_assessment", "collateral_history"]),
+    rubric("medication_and_infection", "Medication and infection clues", ["medication_reconciliation", "infection_symptom_question"]),
+    rubric("ward_safety_handoff", "Ward safety and handoff", ["fall_risk_action", "oral_summary", "team_escalation"]),
+    rubric("documentation", "Patient note", ["patient_note_submitted"]),
+  ],
+  requiredReviewerRoles: ["internist", "geriatrician", "psychometrician", "legal", "simulation_qa"],
+  safetyCriticalTraceTags: ["orientation_assessment", "fall_risk_action", "team_escalation"],
+  environment: {
+    environmentId: "inpatient_ward_room_v1",
+    name: "Inpatient Medical Ward Room",
+    description: "Medical ward room with bed rails, medication cart, IV pump, whiteboard, call bell, fall-risk sign, and EHR laptop.",
+  },
+  equipment: ["hospital bed", "side rails", "medication cart", "IV pump", "whiteboard", "call bell", "EHR laptop", "fall-risk sign"],
+  assetNeeds: [
+    asset("patient_margaret_ellis_character", "character", "Older adult with frailty, confusion, hearing difficulty, and bed-exit motion clips"),
+    asset("daughter_lena_ellis_character", "character", "Concerned adult daughter with phone medication-list prop"),
+    asset("ward_room_environment", "environment", "Ward room with fall-risk signage, bed alarm affordance, medication cart, and EHR laptop"),
+  ],
+  syntheticCaseDisclosure: "Synthetic inpatient delirium and medication-reconciliation draft; not validated for summative assessment.",
+});
+
+export const obPreeclampsiaScenario = draftScenario({
+  scenarioId: "ob_headache_preeclampsia_triage_v1",
+  title: "OB Triage Headache In Pregnancy",
+  clinicalObjectives: [
+    "Elicit pregnancy-specific red flags for severe headache",
+    "Recognize possible preeclampsia and severe-range blood pressure",
+    "Collaborate with OB nursing and escalate urgently",
+    "Explain risk to patient and partner respectfully",
+  ],
+  actors: [
+    actor("patient_aisha_khan_v1", "patient", "Aisha Khan", "34 weeks pregnant, worried, headache with visual symptoms", [
+      "Headache has persistent pressure quality",
+      "Visual spots and swelling are present if asked",
+      "First pregnancy and no seizure history",
+    ]),
+    actor("partner_omar_khan_v1", "family", "Omar Khan", "concerned partner asking about baby and urgency", [
+      "Asks about fetal risk if learner does not explain",
+    ]),
+    actor("ob_nurse_williams_v1", "nurse", "Nurse Williams", "calm OB triage nurse reporting blood pressure and fetal-monitor setup", [
+      "Severe-range blood pressure appears at minute five",
+    ]),
+  ],
+  requiredTraceTags: [
+    "pregnancy_red_flag_question",
+    "bp_review",
+    "visual_symptom_question",
+    "edema_question",
+    "urgent_ob_escalation",
+    "patient_partner_explanation",
+    "patient_note_submitted",
+  ],
+  eventSchedule: [
+    event("partner_baby_question", 180, "partner_omar_khan_v1", "patient_partner_explanation"),
+    event("nurse_severe_bp", 300, "ob_nurse_williams_v1", "bp_review"),
+    event("worsening_headache", 480, "patient_aisha_khan_v1", "urgent_ob_escalation"),
+  ],
+  reviewRubric: [
+    rubric("preeclampsia_red_flags", "Pregnancy red flags", ["pregnancy_red_flag_question", "visual_symptom_question", "edema_question"]),
+    rubric("ob_escalation", "OB escalation", ["bp_review", "urgent_ob_escalation"]),
+    rubric("respectful_explanation", "Patient and partner explanation", ["patient_partner_explanation"]),
+    rubric("documentation", "Patient note", ["patient_note_submitted"]),
+  ],
+  requiredReviewerRoles: ["obgyn", "psychometrician", "legal", "simulation_qa"],
+  safetyCriticalTraceTags: ["bp_review", "urgent_ob_escalation"],
+  environment: {
+    environmentId: "ob_triage_room_v1",
+    name: "OB Triage Room",
+    description: "OB triage bay with bed, fetal monitor prop, blood-pressure cuff, urine cup, call light, fetal-heart audio placeholder, and privacy curtain.",
+  },
+  equipment: ["fetal monitor", "blood-pressure cuff", "urine cup", "call light", "privacy curtain", "OB triage bed"],
+  assetNeeds: [
+    asset("patient_aisha_khan_character", "character", "Pregnant patient with seated/bed posture, headache discomfort, and swelling cues"),
+    asset("partner_omar_khan_character", "character", "Concerned partner actor with baby-risk interruption gestures"),
+    asset("ob_triage_room_environment", "environment", "Privacy-aware OB triage room with fetal monitor, BP cuff, and call-light affordance"),
+  ],
+  syntheticCaseDisclosure: "Synthetic OB triage preeclampsia draft; not validated for summative assessment.",
+});
+
+export const strokeAlertScenario = draftScenario({
+  scenarioId: "ed_stroke_alert_handoff_v1",
+  title: "Stroke Alert With Time Pressure And Handoff",
+  clinicalObjectives: [
+    "Elicit last-known-well and focused stroke history",
+    "Recognize neurologic red flags and activate stroke pathway",
+    "Communicate with nurse, family, and consultant under time pressure",
+    "Deliver concise oral handoff",
+  ],
+  actors: [
+    actor("patient_samuel_brooks_v1", "patient", "Samuel Brooks", "slurred speech, right arm weakness, frustrated by word-finding difficulty", [
+      "Last known well was 70 minutes ago",
+      "Takes aspirin and blood pressure medication, not anticoagulants",
+      "Has diabetes and hypertension",
+    ]),
+    actor("son_eric_brooks_v1", "family", "Eric Brooks", "anxious son who knows last-known-well and gets frustrated if ignored", [
+      "Saw patient normal at breakfast at 7:30",
+    ]),
+    actor("stroke_nurse_chen_v1", "nurse", "Nurse Chen", "focused stroke nurse asking for last-known-well and glucose", [
+      "Needs concise facts for stroke-team activation",
+    ]),
+    actor("neurology_consultant_phone_v1", "consultant", "Neurology Consultant", "phone consultant asking for age, deficits, last-known-well, anticoagulants, and glucose", [
+      "Will push back if handoff omits anticoagulants or glucose",
+    ]),
+  ],
+  requiredTraceTags: [
+    "last_known_well",
+    "focused_neuro_assessment",
+    "anticoagulant_question",
+    "glucose_or_vitals_review",
+    "stroke_team_activation",
+    "oral_handoff",
+    "family_communication",
+    "patient_note_submitted",
+  ],
+  eventSchedule: [
+    event("nurse_last_known_well_prompt", 120, "stroke_nurse_chen_v1", "last_known_well"),
+    event("son_frustration", 300, "son_eric_brooks_v1", "family_communication"),
+    event("consultant_handoff_request", 480, "neurology_consultant_phone_v1", "oral_handoff"),
+  ],
+  reviewRubric: [
+    rubric("stroke_history", "Stroke history", ["last_known_well", "anticoagulant_question"]),
+    rubric("neuro_assessment", "Neurologic assessment", ["focused_neuro_assessment", "glucose_or_vitals_review"]),
+    rubric("activation_and_handoff", "Activation and handoff", ["stroke_team_activation", "oral_handoff", "family_communication"]),
+    rubric("documentation", "Patient note", ["patient_note_submitted"]),
+  ],
+  requiredReviewerRoles: ["neurologist", "emergency_physician", "psychometrician", "legal", "simulation_qa"],
+  safetyCriticalTraceTags: ["last_known_well", "stroke_team_activation", "oral_handoff"],
+  environment: {
+    environmentId: "ed_stroke_bay_v1",
+    name: "ED Stroke Bay",
+    description: "ED hallway-to-stroke-bay setting with bed, monitor, wall clock, CT direction sign, neuro exam props, and family chair.",
+  },
+  equipment: ["wall clock", "bedside monitor", "CT direction sign", "glucose meter", "neuro exam card", "family chair"],
+  assetNeeds: [
+    asset("patient_samuel_brooks_character", "character", "Older adult with facial droop, right-arm weakness pose, and slurred-speech audio style"),
+    asset("son_eric_brooks_character", "character", "Anxious son actor for last-known-well and family-pressure interactions"),
+    asset("ed_stroke_bay_environment", "environment", "Stroke bay with wall clock, CT sign, monitor, and neuro exam props"),
+  ],
+  syntheticCaseDisclosure: "Synthetic stroke-alert handoff draft; not validated for summative assessment.",
+});
+
+export const stepdownSepsisScenario = draftScenario({
+  scenarioId: "stepdown_sepsis_nurse_escalation_v1",
+  title: "Sepsis In ICU Stepdown With Nurse Escalation",
+  clinicalObjectives: [
+    "Recognize sepsis and clinical deterioration",
+    "Review vital-sign trends and infection source clues",
+    "Communicate priorities with nurse and respiratory therapist",
+    "Initiate early management plan and document urgency",
+  ],
+  actors: [
+    actor("patient_helen_carter_v1", "patient", "Helen Carter", "feverish, confused, shivering, short of breath", [
+      "Sepsis from pneumonia is possible",
+      "Penicillin allergy was a childhood rash",
+      "Productive cough and hypotension trend are present",
+    ]),
+    actor("stepdown_nurse_rivera_v1", "nurse", "Nurse Rivera", "worried, assertive, reports worsening vitals", [
+      "Blood pressure dropped compared with one hour ago",
+    ]),
+    actor("respiratory_therapist_ng_v1", "respiratory_therapist", "Respiratory Therapist Ng", "asks for respiratory priorities when oxygen saturation falls", [
+      "Can escalate oxygen support if learner prioritizes it",
+    ]),
+  ],
+  requiredTraceTags: [
+    "sepsis_recognition",
+    "vitals_trend_review",
+    "infection_source_question",
+    "allergy_question",
+    "team_priority_communication",
+    "initial_management_plan",
+    "patient_note_submitted",
+  ],
+  eventSchedule: [
+    event("nurse_bp_drop", 180, "stepdown_nurse_rivera_v1", "vitals_trend_review"),
+    event("oxygen_saturation_drop", 360, "patient_helen_carter_v1", "team_priority_communication"),
+    event("rt_priority_request", 540, "respiratory_therapist_ng_v1", "initial_management_plan"),
+  ],
+  reviewRubric: [
+    rubric("sepsis_detection", "Sepsis detection", ["sepsis_recognition", "vitals_trend_review"]),
+    rubric("source_and_allergy", "Source and allergy", ["infection_source_question", "allergy_question"]),
+    rubric("team_management", "Team management", ["team_priority_communication", "initial_management_plan"]),
+    rubric("documentation", "Patient note", ["patient_note_submitted"]),
+  ],
+  requiredReviewerRoles: ["critical_care_physician", "infectious_disease_physician", "psychometrician", "legal", "simulation_qa"],
+  safetyCriticalTraceTags: ["sepsis_recognition", "vitals_trend_review", "initial_management_plan"],
+  environment: {
+    environmentId: "stepdown_room_v1",
+    name: "ICU Stepdown Room",
+    description: "Stepdown room with monitor, IV pump, oxygen, blood-culture kit prop, medication cart, and sepsis alert panel.",
+  },
+  equipment: ["monitor", "IV pump", "oxygen cannula", "blood-culture kit", "medication cart", "sepsis alert panel"],
+  assetNeeds: [
+    asset("patient_helen_carter_character", "character", "Feverish confused patient with oxygen cannula, shivering, and dyspnea cues"),
+    asset("stepdown_nurse_rivera_character", "character", "Assertive stepdown nurse with urgent body language"),
+    asset("stepdown_room_environment", "environment", "Stepdown room with changing monitor vitals, oxygen, IV props, and sepsis alert panel"),
+  ],
+  syntheticCaseDisclosure: "Synthetic sepsis deterioration draft; not validated for summative assessment.",
+});
+
+export const abdominalPainInterpreterScenario = draftScenario({
+  scenarioId: "clinic_abdominal_pain_interpreter_v1",
+  title: "Abdominal Pain With Parent Interpreter Issue",
+  clinicalObjectives: [
+    "Elicit migratory abdominal pain and associated symptoms",
+    "Use a qualified interpreter and manage family dynamics",
+    "Establish privacy for sensitive adolescent history",
+    "Recognize surgical red flags and document escalation",
+  ],
+  actors: [
+    actor("patient_lucia_morales_v1", "patient", "Lucia Morales", "quiet teen with guarded posture and right-lower-quadrant pain", [
+      "Pain migrated from periumbilical area to right lower quadrant",
+      "Nausea and decreased appetite are present",
+      "Sensitive history requires privacy",
+    ]),
+    actor("father_carlos_morales_v1", "family", "Carlos Morales", "Spanish-speaking father who tries to answer for patient", [
+      "Believes patient ate something bad and may resist private history",
+    ]),
+    actor("remote_interpreter_tablet_v1", "interpreter", "Remote Interpreter", "neutral interpreter through tablet UI", [
+      "Will interpret everything said in the room when requested",
+    ]),
+  ],
+  requiredTraceTags: [
+    "pain_migration_question",
+    "associated_gi_symptoms",
+    "privacy_request",
+    "interpreter_use",
+    "surgical_red_flag_recognition",
+    "abdominal_exam_action",
+    "patient_note_submitted",
+  ],
+  eventSchedule: [
+    event("father_answers_for_patient", 180, "father_carlos_morales_v1", "interpreter_use"),
+    event("interpreter_available", 360, "remote_interpreter_tablet_v1", "interpreter_use"),
+    event("private_sensitive_detail", 540, "patient_lucia_morales_v1", "privacy_request"),
+  ],
+  reviewRubric: [
+    rubric("abdominal_history", "Abdominal history", ["pain_migration_question", "associated_gi_symptoms"]),
+    rubric("communication_and_privacy", "Interpreter and privacy", ["privacy_request", "interpreter_use"]),
+    rubric("surgical_red_flags", "Surgical red flags", ["surgical_red_flag_recognition", "abdominal_exam_action"]),
+    rubric("documentation", "Patient note", ["patient_note_submitted"]),
+  ],
+  requiredReviewerRoles: ["surgeon", "pediatrician", "legal", "psychometrician", "simulation_qa"],
+  safetyCriticalTraceTags: ["privacy_request", "interpreter_use", "surgical_red_flag_recognition"],
+  environment: {
+    environmentId: "urgent_care_clinic_room_v1",
+    name: "Urgent Care Clinic Room",
+    description: "Urgent care room with exam table, stool, abdominal exam zone, tablet interpreter station, and vitals panel.",
+  },
+  equipment: ["exam table", "abdominal exam zone", "tablet interpreter station", "vitals panel", "privacy curtain"],
+  assetNeeds: [
+    asset("patient_lucia_morales_character", "character", "Teen patient with guarded posture, abdominal pain flinch, and quiet affect"),
+    asset("father_carlos_morales_character", "character", "Concerned father actor for interpreter and family-dynamics pressure"),
+    asset("urgent_care_clinic_room_environment", "environment", "Urgent care clinic room with tablet interpreter UI and abdominal exam affordance"),
+  ],
+  syntheticCaseDisclosure: "Synthetic abdominal-pain interpreter-use draft; not validated for summative assessment.",
+});
+
+export const oncologyBadNewsScenario = draftScenario({
+  scenarioId: "oncology_bad_news_family_v1",
+  title: "Breaking Bad News In Oncology Clinic",
+  clinicalObjectives: [
+    "Deliver serious news using plain language",
+    "Pause for emotion and respond empathically",
+    "Check understanding and discuss next steps",
+    "Support family presence while centering the patient",
+  ],
+  actors: [
+    actor("patient_david_miller_v1", "patient", "David Miller", "anxious, awaiting biopsy results, hopes it is inflammation", [
+      "Biopsy shows pancreatic adenocarcinoma",
+      "Wants plain language and time to process",
+    ]),
+    actor("sister_rachel_miller_v1", "family", "Rachel Miller", "quiet supportive sister who becomes tearful", [
+      "Will ask about next steps after patient absorbs diagnosis",
+    ]),
+  ],
+  requiredTraceTags: [
+    "warning_shot",
+    "plain_language_diagnosis",
+    "pause_for_emotion",
+    "empathy_statement",
+    "check_understanding",
+    "next_steps_discussion",
+    "patient_note_submitted",
+  ],
+  eventSchedule: [
+    event("patient_direct_cancer_question", 240, "patient_david_miller_v1", "plain_language_diagnosis"),
+    event("sister_next_steps", 420, "sister_rachel_miller_v1", "next_steps_discussion"),
+    event("patient_silence_if_abrupt", 660, "patient_david_miller_v1", "pause_for_emotion"),
+  ],
+  reviewRubric: [
+    rubric("bad_news_delivery", "Bad news delivery", ["warning_shot", "plain_language_diagnosis", "pause_for_emotion"]),
+    rubric("empathy_and_understanding", "Empathy and understanding", ["empathy_statement", "check_understanding"]),
+    rubric("planning", "Next steps", ["next_steps_discussion"]),
+    rubric("documentation", "Patient note", ["patient_note_submitted"]),
+  ],
+  requiredReviewerRoles: ["oncologist", "palliative_care_clinician", "psychometrician", "legal", "simulation_qa"],
+  safetyCriticalTraceTags: ["plain_language_diagnosis", "pause_for_emotion", "next_steps_discussion"],
+  environment: {
+    environmentId: "oncology_consult_room_v1",
+    name: "Oncology Consultation Room",
+    description: "Calm oncology room with desk, chairs, tissue box, imaging report panel, and subdued lighting.",
+  },
+  equipment: ["chairs", "tissue box", "imaging report panel", "consultation desk", "soft lighting"],
+  assetNeeds: [
+    asset("patient_david_miller_character", "character", "Seated anxious patient with hand-wringing, stunned silence, and grief-response animations"),
+    asset("sister_rachel_miller_character", "character", "Supportive sister actor with tearful listening and next-step question gestures"),
+    asset("oncology_consult_room_environment", "environment", "Consult room with tissue box, report panel, and calm lighting"),
+  ],
+  syntheticCaseDisclosure: "Synthetic oncology communication draft; not validated for summative assessment.",
+});
+
+export const postopFeverScenario = draftScenario({
+  scenarioId: "postop_fever_consult_pressure_v1",
+  title: "Postoperative Fever With Surgical Consultant Pressure",
+  clinicalObjectives: [
+    "Develop focused postoperative fever differential",
+    "Ask about wound, respiratory, device, urinary, and thrombotic clues",
+    "Manage consultant pressure with concise handoff",
+    "Communicate uncertainty and document next steps",
+  ],
+  actors: [
+    actor("patient_priya_shah_v1", "patient", "Priya Shah", "post-op day 2, feverish, sore, worried about another surgery", [
+      "Mild cough and poor incentive spirometer use",
+      "Wound pain without obvious purulence unless examined",
+      "Foley was removed yesterday",
+    ]),
+    actor("floor_nurse_bennett_v1", "nurse", "Nurse Bennett", "floor nurse reporting fever and asking about cultures", [
+      "Needs orders and prioritization if learner hesitates",
+    ]),
+    actor("surgery_resident_kim_v1", "consultant", "Surgery Resident Kim", "impatient consultant asking for concise assessment", [
+      "Wants differential and what the learner needs from surgery",
+    ]),
+  ],
+  requiredTraceTags: [
+    "postop_day_identified",
+    "focused_fever_differential",
+    "wound_symptom_question",
+    "respiratory_symptom_question",
+    "device_catheter_question",
+    "consult_handoff",
+    "patient_note_submitted",
+  ],
+  eventSchedule: [
+    event("nurse_culture_question", 240, "floor_nurse_bennett_v1", "focused_fever_differential"),
+    event("resident_interrupts", 480, "surgery_resident_kim_v1", "consult_handoff"),
+    event("patient_surgery_fear", 660, "patient_priya_shah_v1", "consult_handoff"),
+  ],
+  reviewRubric: [
+    rubric("postop_fever_differential", "Postoperative fever differential", ["postop_day_identified", "focused_fever_differential"]),
+    rubric("focused_history", "Focused history", ["wound_symptom_question", "respiratory_symptom_question", "device_catheter_question"]),
+    rubric("consult_communication", "Consult communication", ["consult_handoff"]),
+    rubric("documentation", "Patient note", ["patient_note_submitted"]),
+  ],
+  requiredReviewerRoles: ["surgeon", "internist", "psychometrician", "legal", "simulation_qa"],
+  safetyCriticalTraceTags: ["focused_fever_differential", "consult_handoff"],
+  environment: {
+    environmentId: "surgical_ward_room_v1",
+    name: "Surgical Ward Room",
+    description: "Post-op ward room with abdominal dressing, drain, incentive spirometer, vitals board, medication list, and IV props.",
+  },
+  equipment: ["post-op bed", "abdominal dressing", "drain", "incentive spirometer", "vitals board", "medication list"],
+  assetNeeds: [
+    asset("patient_priya_shah_character", "character", "Postoperative patient with abdominal dressing, limited movement, and fever discomfort"),
+    asset("floor_nurse_bennett_character", "character", "Floor nurse with vitals tablet and blood-culture pressure"),
+    asset("surgical_ward_room_environment", "environment", "Surgical ward room with post-op props, drain, and incentive spirometer"),
+  ],
+  syntheticCaseDisclosure: "Synthetic postoperative fever draft; not validated for summative assessment.",
+});
+
+export const primaryCareDyslipidemiaScenario = draftScenario({
+  scenarioId: "primary_care_dyslipidemia_joint_pain_v1",
+  title: "Dyslipidemia And Joint Pain Primary Care Visit",
+  clinicalObjectives: [
+    "Characterize chronic joint pain and screen inflammatory red flags",
+    "Explore statin adherence and medication fears",
+    "Counsel cardiovascular risk with shared decision-making",
+    "Address work and diet constraints in a longitudinal plan",
+  ],
+  actors: [
+    actor("patient_mario_guzman_v1", "patient", "Mario Guzman", "construction worker with knee and hand pain, worried about cholesterol medication", [
+      "Stopped statin because of muscle-pain fear",
+      "Joint pain pattern is more consistent with osteoarthritis",
+      "Diet is shaped by quick food near job sites",
+    ]),
+    actor("medical_assistant_jones_v1", "medical_assistant", "Medical Assistant Jones", "optional vitals and lab handoff", [
+      "Can surface EHR lab panel at minute eight",
+    ]),
+  ],
+  requiredTraceTags: [
+    "joint_pain_characterization",
+    "inflammatory_red_flag_question",
+    "medication_adherence_question",
+    "risk_counseling",
+    "shared_decision_making",
+    "documentation",
+  ],
+  eventSchedule: [
+    event("statin_fear_question", 300, "patient_mario_guzman_v1", "medication_adherence_question"),
+    event("ehr_labs_available", 480, "medical_assistant_jones_v1", "risk_counseling"),
+    event("stronger_pain_med_request", 660, "patient_mario_guzman_v1", "shared_decision_making"),
+  ],
+  reviewRubric: [
+    rubric("joint_pain_history", "Joint pain history", ["joint_pain_characterization", "inflammatory_red_flag_question"]),
+    rubric("risk_and_adherence", "Risk and adherence", ["medication_adherence_question", "risk_counseling"]),
+    rubric("shared_plan", "Shared decision-making", ["shared_decision_making"]),
+    rubric("documentation", "Documentation", ["documentation"]),
+  ],
+  requiredReviewerRoles: ["family_physician", "rheumatologist", "psychometrician", "legal", "simulation_qa"],
+  safetyCriticalTraceTags: ["medication_adherence_question", "risk_counseling"],
+  environment: {
+    environmentId: "primary_care_clinic_room_v1",
+    name: "Primary Care Clinic Room",
+    description: "Primary care room with exam table, chairs, EHR screen, lab results, joint diagram, and medication list.",
+  },
+  equipment: ["EHR screen", "lab results panel", "joint diagram", "medication list", "exam table", "chairs"],
+  assetNeeds: [
+    asset("patient_mario_guzman_character", "character", "Middle-aged construction worker with hand and knee pain gestures"),
+    asset("primary_care_room_environment", "environment", "Clinic room with EHR labs, joint diagram, and medication-list panel"),
+  ],
+  syntheticCaseDisclosure: "Synthetic primary-care dyslipidemia and joint-pain draft; not validated for summative assessment.",
+});
+
 export const scenarioBank = [
   edChestPainScenario,
   pediatricAsthmaScenario,
-  psychiatricSafetyScenario,
+  wardDeliriumScenario,
   telehealthDiabetesScenario,
+  obPreeclampsiaScenario,
+  psychiatricSafetyScenario,
+  strokeAlertScenario,
+  stepdownSepsisScenario,
+  abdominalPainInterpreterScenario,
+  oncologyBadNewsScenario,
+  postopFeverScenario,
+  primaryCareDyslipidemiaScenario,
 ] as const satisfies readonly Scenario[];
 
 export type ScenarioBankMaturityReport = {

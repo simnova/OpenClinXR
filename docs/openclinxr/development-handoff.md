@@ -320,8 +320,9 @@ Scenario-bank governance milestone has also started:
 - Scenario schemas now require governance metadata: formative/pilot/summative score-use label, synthetic disclosure, validation stage, limitations, reviewer roles, source IDs, safety-critical trace tags, and hidden-fact policy.
 - Validated summative score-use claims are rejected unless governance is `stage_3_validated`.
 - ED chest pain is marked `formative_local_only` with explicit validation limitations.
-- Three synthetic draft cases now exist for maturity breadth: pediatric asthma with parent anxiety, suicidal ideation safety planning, and telehealth diabetes health-literacy counseling.
-- `evaluateScenarioBankMaturity` reports status counts, validation-stage counts, activation-eligible scenarios, blocked draft scenarios, setting diversity, actor-role coverage, safety-critical trace tags, hidden-fact policy coverage, and the gap from the 12-station Step 2 CS-style target.
+- The executable fixture bank now mirrors the 12-station seed form from `sample-case-bank-v1`: ED chest pain is the only activation-eligible reviewed fixture, while eleven synthetic drafts preserve governance blockers until specialty clinician, psychometric, legal, and simulation QA review evidence exists.
+- Shared scenario schemas now allow the expanded actor roles needed by the case bank: consultant, interpreter, medical assistant, and respiratory therapist, in addition to patient, family, nurse, physician, and system.
+- `evaluateScenarioBankMaturity` reports status counts, validation-stage counts, activation-eligible scenarios, blocked draft scenarios, setting diversity across all 12 environments, actor-role coverage, safety-critical trace tags, hidden-fact policy coverage, and the gap from the 12-station Step 2 CS-style target.
 - The default API scenario endpoint now returns a learner-safe projection with actor hidden facts redacted.
 
 Actor-response safety milestone has also started:
