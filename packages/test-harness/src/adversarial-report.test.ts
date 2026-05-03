@@ -38,6 +38,7 @@ const result: SimulationResult = {
       eventCount: 18,
       modelGeneratedEventCount: 2,
       modelFailedEventCount: 0,
+      voiceAudioEventCount: 1,
       blockedGuardrailCount: 1,
       unsafeEventCount: 0,
       missingRequiredTraceTagCount: 0,

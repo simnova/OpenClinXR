@@ -34,6 +34,7 @@ export function buildReviewPacket(input: BuildReviewPacketInput): ReviewPacket {
     .filter((eventType): eventType is string => Boolean(eventType));
   const modelGeneratedEvents = input.traceEvents.filter((event) => event.eventType === "actor.response.generated");
   const modelFailedEvents = input.traceEvents.filter((event) => event.eventType === "actor.response.failed");
+  const voiceAudioEvents = input.traceEvents.filter((event) => event.eventType === "voice.audio.generated");
   const packet: ReviewPacket = {
     stationRunId: input.stationRunId,
     scenarioId: input.scenarioId,
@@ -54,6 +55,7 @@ export function buildReviewPacket(input: BuildReviewPacketInput): ReviewPacket {
       eventCount: input.traceEvents.length,
       modelGeneratedEventCount: modelGeneratedEvents.length,
       modelFailedEventCount: modelFailedEvents.length,
+      voiceAudioEventCount: voiceAudioEvents.length,
       blockedGuardrailCount: input.traceEvents.filter(hasBlockedGuardrail).length,
       unsafeEventCount: unsafeEvents.length,
       missingRequiredTraceTagCount: missing.length,
@@ -108,6 +110,10 @@ function summarizeTimelineEvent(event: ReviewTraceInput): string {
 
   if (event.eventType === "actor.response.failed" && event.actorId) {
     return `${event.actorId} response generation failed`;
+  }
+
+  if (event.eventType === "voice.audio.generated" && event.actorId) {
+    return `${event.actorId} voice audio generated`;
   }
 
   if (event.eventType === "note.submitted") {

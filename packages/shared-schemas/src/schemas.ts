@@ -144,6 +144,7 @@ export const ReviewTraceQualitySchema = Type.Object({
   eventCount: Type.Integer({ minimum: 0 }),
   modelGeneratedEventCount: Type.Integer({ minimum: 0 }),
   modelFailedEventCount: Type.Integer({ minimum: 0 }),
+  voiceAudioEventCount: Type.Integer({ minimum: 0 }),
   blockedGuardrailCount: Type.Integer({ minimum: 0 }),
   unsafeEventCount: Type.Integer({ minimum: 0 }),
   missingRequiredTraceTagCount: Type.Integer({ minimum: 0 }),

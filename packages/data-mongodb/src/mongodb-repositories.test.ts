@@ -86,6 +86,7 @@ const reviewPacket: ReviewPacket = {
     eventCount: 2,
     modelGeneratedEventCount: 1,
     modelFailedEventCount: 0,
+    voiceAudioEventCount: 0,
     blockedGuardrailCount: 0,
     unsafeEventCount: 0,
     missingRequiredTraceTagCount: 0,
