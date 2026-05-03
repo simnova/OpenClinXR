@@ -191,7 +191,7 @@ export type EvaluateMaturityDeltaInput = {
 };
 
 export const defaultAgentLoopRoster = {
-  version: "agent-loop-roster-v1",
+  version: "agent-loop-roster-v2",
   roles: [
     role("chief-coordinator", "coordinator", "Chief Coordinator", ["implementation_readiness", "adversarial_robustness"], [
       "loop-performance",
@@ -209,6 +209,12 @@ export const defaultAgentLoopRoster = {
       "quest-webxr",
       "asset-pipeline",
     ]),
+    role("asset-pipeline-lead", "core", "Asset Pipeline Lead", [
+      "technical_feasibility",
+      "cost_performance_efficiency",
+      "open_source_sustainability",
+      "architecture_coherence",
+    ], ["humanoid-generation", "glb-optimization", "asset-provenance", "blender-pipeline"]),
     role("clinical-simulation-lead", "core", "Clinical Simulation Lead", ["clinical_validity", "ux_workflow_fit"], [
       "scenario-realism",
       "faculty-review",
@@ -225,6 +231,16 @@ export const defaultAgentLoopRoster = {
       "implementation-plan",
       "tdd",
     ]),
+    role("local-ai-inference-engineer", "core", "Local AI Inference Engineer", [
+      "technical_feasibility",
+      "cost_performance_efficiency",
+      "open_source_sustainability",
+    ], ["local-llm", "mlx", "llama-cpp", "qwen", "deepseek", "kimi", "apple-silicon"]),
+    role("voice-speech-engineer", "core", "Voice And Speech Engineer", [
+      "technical_feasibility",
+      "security_privacy",
+      "cost_performance_efficiency",
+    ], ["local-voice", "vibevoice", "stt", "tts", "turn-taking", "voice-safety"]),
     role("emergency-medicine-physician", "physicians", "Emergency Medicine Physician", [
       "clinical_validity",
       "specialty_clinical_generalizability",
@@ -676,6 +692,11 @@ function agentsForDimensions(dimensions: readonly ScoreDimension[], teams: reado
 }
 
 function dimensionsForOwnerOrText(owner: string, summary: string, low: ScoreDimension[]): ScoreDimension[] {
+  const ownerRole = defaultAgentLoopRoster.roles.find((candidate) => candidate.agentId === owner);
+  if (ownerRole) {
+    return priorityDimensions([...ownerRole.dimensions], low);
+  }
+
   const text = `${owner} ${summary}`.toLowerCase();
   if (text.includes("xr") || text.includes("quest") || text.includes("webxr")) {
     const dimensions: ScoreDimension[] = ["technical_feasibility", "cost_performance_efficiency"];

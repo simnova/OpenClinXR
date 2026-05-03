@@ -106,6 +106,18 @@ export const agentRoster: AgentDefinition[] = [
     rubricDimensions: ["technical_feasibility", "cost_performance_efficiency", "architecture_coherence"],
   },
   {
+    id: "asset-pipeline-lead",
+    name: "Asset Pipeline Lead",
+    team: "core",
+    mission: "Own humanoid, clothing, skin, rigging, GLB optimization, provenance, and headset-ready asset generation pipelines.",
+    owns: ["Humanoid generation", "Skin and clothing pipeline", "Rigging", "GLB optimization", "Asset provenance", "Quest asset budgets"],
+    outputs: commonOutputs,
+    escalationTriggers: ["Copyleft asset risk", "Frame-rate budget risk", "Unproven optimization path", "Missing provenance metadata"],
+    memoryTopics: ["humanoid-generation", "glb-optimization", "asset-provenance", "quest-asset-budgets", "blender-pipeline"],
+    toolPermissions: [...commonToolPermissions, "run-local-spikes", "internet-research-when-approved"],
+    rubricDimensions: ["technical_feasibility", "cost_performance_efficiency", "open_source_sustainability", "architecture_coherence"],
+  },
+  {
     id: "clinical-simulation-lead",
     name: "Clinical Simulation Lead",
     team: "core",

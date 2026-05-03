@@ -1,8 +1,8 @@
 {
   "generated_by": "tools/agent-factory/build-maturity-report.ts",
-  "iteration_count": 7,
+  "iteration_count": 8,
   "improving_iteration_count": 5,
-  "plateaued_iteration_count": 1,
+  "plateaued_iteration_count": 2,
   "regressing_iteration_count": 0,
   "leadership_quality_bar_ready_count": 0,
   "iterations": [
@@ -178,9 +178,30 @@
       "leadership_quality_bar_ready": false,
       "weighted_delta_from_previous": 0.072,
       "composite_delta_from_previous": 0.071
+    },
+    {
+      "iteration_id": "iteration-0008",
+      "iteration_number": 8,
+      "selected_scorecard_file": "iterations/iteration-0008/06-leadership-scorecard.json",
+      "selected_plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "confidence": 0.94,
+      "weighted_score": 4.779,
+      "composite_score": 4.778,
+      "open_selected_evidence_debt_count": 4,
+      "open_selected_decision_debt_count": 0,
+      "open_selected_risk_count": 3,
+      "open_selected_high_or_critical_risk_count": 0,
+      "dimensions_below_quality_bar": [],
+      "blockers": [
+        "open_selected_evidence_debt"
+      ],
+      "leadership_quality_bar_ready": false,
+      "weighted_delta_from_previous": 0.031,
+      "composite_delta_from_previous": 0.031
     }
   ],
-  "latest_iteration_id": "iteration-0007",
-  "latest_weighted_score": 4.748,
-  "latest_weighted_delta_from_previous": 0.072
+  "latest_iteration_id": "iteration-0008",
+  "latest_weighted_score": 4.779,
+  "latest_weighted_delta_from_previous": 0.031
 }

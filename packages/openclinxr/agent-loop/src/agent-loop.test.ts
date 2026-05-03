@@ -249,6 +249,63 @@ describe("agent-loop synthesis planning", () => {
     );
   });
 
+  it("keeps specialist-owned blocker actions tied to scored dimensions after the plan clears low score thresholds", () => {
+    const current = scorecard({
+      confidence: 0.94,
+      dimensions: Object.fromEntries(
+        Object.entries(scorecard().dimensions).map(([dimension, value]) => [dimension, { ...value, score: Math.max(value.score, 4.35) }]),
+      ) as IterationScorecard["dimensions"],
+      evidenceDebt: [
+        {
+          id: "local-runtime-benchmark",
+          owner: "local-ai-inference-engineer",
+          summary: "Configure and run a no-cloud Apple Silicon model benchmark.",
+          status: "open",
+        },
+        {
+          id: "voice-runtime-benchmark",
+          owner: "voice-speech-engineer",
+          summary: "Configure and run a local VibeVoice or text fallback speech benchmark.",
+          status: "open",
+        },
+        {
+          id: "asset-pipeline-benchmark",
+          owner: "asset-pipeline-lead",
+          summary: "Install Blender and run a humanoid GLB optimization benchmark.",
+          status: "open",
+        },
+      ],
+      decisionDebt: [],
+      criticalRisks: [],
+    });
+
+    const plan = createAgentLoopPlan({
+      iterationId: "iteration-0008",
+      candidatePlanTitle: "Specialist evidence owners",
+      scorecard: current,
+      memoryEntries: [],
+      leadershipThreshold: 4,
+    });
+
+    expect(plan.nextActions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "local-runtime-benchmark",
+          dimensions: expect.arrayContaining(["technical_feasibility", "cost_performance_efficiency"]),
+        }),
+        expect.objectContaining({
+          id: "voice-runtime-benchmark",
+          dimensions: expect.arrayContaining(["technical_feasibility", "security_privacy"]),
+        }),
+        expect.objectContaining({
+          id: "asset-pipeline-benchmark",
+          dimensions: expect.arrayContaining(["technical_feasibility", "open_source_sustainability"]),
+        }),
+      ]),
+    );
+    expect(plan.nextActions.every((action) => action.dimensions.length > 0)).toBe(true);
+  });
+
   it("serializes loop plans and creates memory-rich dispatch packets for agents", () => {
     const memoryEntries: AgentMemoryEntry[] = [
       {

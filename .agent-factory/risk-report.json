@@ -1,16 +1,16 @@
 {
   "generated_by": "tools/agent-factory/find-stale-risks.ts",
-  "scorecard_count": 12,
-  "risk_count": 24,
-  "open_count": 24,
+  "scorecard_count": 13,
+  "risk_count": 27,
+  "open_count": 27,
   "open_critical_count": 0,
   "open_high_or_critical_count": 19,
   "status_counts": {
-    "open": 24
+    "open": 27
   },
   "open_by_severity": {
     "high": 19,
-    "medium": 5
+    "medium": 8
   },
   "open_by_iteration": {
     "iteration-0001": 5,
@@ -19,9 +19,11 @@
     "iteration-0004": 1,
     "iteration-0005": 1,
     "iteration-0006": 2,
-    "iteration-0007": 2
+    "iteration-0007": 2,
+    "iteration-0008": 3
   },
   "open_by_owner": {
+    "asset-pipeline-lead": 1,
     "chief-coordinator": 1,
     "chief-medical-education-officer": 1,
     "chief-psychometrician": 4,
@@ -31,12 +33,12 @@
     "ip-open-source-counsel": 1,
     "legal-liability-attacker": 1,
     "legal-regulatory-counsel": 1,
-    "local-ai-inference-engineer": 1,
+    "local-ai-inference-engineer": 2,
     "psychometrics-lead": 1,
     "red-team-coordinator": 1,
     "source-librarian": 1,
     "vp-engineering-delivery": 1,
-    "xr-systems-architect": 5
+    "xr-systems-architect": 6
   },
   "open_high_or_critical_risks": [
     {
@@ -556,6 +558,42 @@
       "owner": "chief-psychometrician",
       "summary": "Psychometric and clinical validity evidence remain future research and cannot be inferred from the prototype.",
       "status": "open"
+    },
+    {
+      "id": "risk-leadership-0008-001",
+      "file": "iterations/iteration-0008/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0008",
+      "iteration_number": 8,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "severity": "medium",
+      "owner": "xr-systems-architect",
+      "summary": "Stakeholders may confuse shell and interaction evidence with immersive Quest performance readiness.",
+      "status": "open"
+    },
+    {
+      "id": "risk-leadership-0008-002",
+      "file": "iterations/iteration-0008/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0008",
+      "iteration_number": 8,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "severity": "medium",
+      "owner": "local-ai-inference-engineer",
+      "summary": "Local AI and voice paths may be prematurely enabled before latency, safety, license, and thermal evidence exists.",
+      "status": "open"
+    },
+    {
+      "id": "risk-leadership-0008-003",
+      "file": "iterations/iteration-0008/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0008",
+      "iteration_number": 8,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "severity": "medium",
+      "owner": "asset-pipeline-lead",
+      "summary": "Asset work may be underestimated because GLB conversion passed while Blender-backed generation and optimization remain unproven.",
+      "status": "open"
     }
   ],
   "all_risks": [
@@ -845,6 +883,42 @@
       "severity": "medium",
       "owner": "chief-psychometrician",
       "summary": "Psychometric and clinical validity evidence remain future research and cannot be inferred from the prototype.",
+      "status": "open"
+    },
+    {
+      "id": "risk-leadership-0008-001",
+      "file": "iterations/iteration-0008/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0008",
+      "iteration_number": 8,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "severity": "medium",
+      "owner": "xr-systems-architect",
+      "summary": "Stakeholders may confuse shell and interaction evidence with immersive Quest performance readiness.",
+      "status": "open"
+    },
+    {
+      "id": "risk-leadership-0008-002",
+      "file": "iterations/iteration-0008/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0008",
+      "iteration_number": 8,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "severity": "medium",
+      "owner": "local-ai-inference-engineer",
+      "summary": "Local AI and voice paths may be prematurely enabled before latency, safety, license, and thermal evidence exists.",
+      "status": "open"
+    },
+    {
+      "id": "risk-leadership-0008-003",
+      "file": "iterations/iteration-0008/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0008",
+      "iteration_number": 8,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "severity": "medium",
+      "owner": "asset-pipeline-lead",
+      "summary": "Asset work may be underestimated because GLB conversion passed while Blender-backed generation and optimization remain unproven.",
       "status": "open"
     }
   ]

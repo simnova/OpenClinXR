@@ -1,6 +1,6 @@
 {
-  "iterationId": "iteration-0007",
-  "candidatePlanTitle": "Iteration 0007 Brief",
+  "iterationId": "iteration-0008",
+  "candidatePlanTitle": "Iteration 0008 Brief",
   "rosterVersion": "agent-loop-roster-v2",
   "memoryIndex": {
     "activeEntries": [
@@ -4893,20 +4893,20 @@
     }
   },
   "maturityDelta": {
-    "trend": "improving",
-    "weightedScore": 4.748,
-    "confidence": 0.93,
+    "trend": "plateaued",
+    "weightedScore": 4.779,
+    "confidence": 0.94,
     "readyForLeadershipReview": false,
     "blockers": [
       "open_evidence_debt"
     ],
     "lowDimensions": [],
-    "previousWeightedScore": 4.676,
-    "scoreDelta": 0.072
+    "previousWeightedScore": 4.748,
+    "scoreDelta": 0.031
   },
   "workOrders": [
     {
-      "id": "iteration-0007-core-revision",
+      "id": "iteration-0008-core-revision",
       "stage": "core_revision",
       "goal": "Revise the implementation plan and code backlog around the weakest rubric dimensions and open debts.",
       "assignedAgentIds": [
@@ -4927,7 +4927,7 @@
       "dependsOnStages": []
     },
     {
-      "id": "iteration-0007-adversarial-counterplan",
+      "id": "iteration-0008-adversarial-counterplan",
       "stage": "adversarial_counterplan",
       "goal": "Attack the revised plan and produce a stronger counterplan or required remediations.",
       "assignedAgentIds": [
@@ -4947,7 +4947,7 @@
       ]
     },
     {
-      "id": "iteration-0007-leadership-preflight",
+      "id": "iteration-0008-leadership-preflight",
       "stage": "leadership_preflight",
       "goal": "Prepare blocker-focused leadership preflight without pretending the plan is ready for approval.",
       "assignedAgentIds": [
@@ -4972,33 +4972,80 @@
   ],
   "nextActions": [
     {
-      "id": "evidence-leadership-0007-002",
+      "id": "evidence-leadership-0008-001",
       "actionType": "close_evidence_debt",
       "owner": "xr-systems-architect",
-      "summary": "Run Quest 3 and target Apple Silicon model/voice benchmarks before enabling immersive or local AI claims.",
+      "summary": "Capture and validate a foreground in-headset Quest manual performance report before claiming frame pacing or comfort readiness.",
       "dimensions": [
         "technical_feasibility",
         "cost_performance_efficiency"
       ]
     },
     {
-      "id": "risk-leadership-0007-001",
-      "actionType": "mitigate_critical_risk",
-      "owner": "vp-engineering-delivery",
-      "summary": "The first implementation can still drift if optional local AI or asset work begins before the deterministic station core passes.",
+      "id": "evidence-leadership-0008-002",
+      "actionType": "close_evidence_debt",
+      "owner": "local-ai-inference-engineer",
+      "summary": "Install and benchmark one explicit local model runtime and model ID on target Apple Silicon hardware before enabling local dialogue.",
       "dimensions": [
-        "implementation_readiness",
-        "technical_feasibility"
+        "technical_feasibility",
+        "cost_performance_efficiency",
+        "open_source_sustainability"
       ]
     },
     {
-      "id": "risk-leadership-0007-002",
-      "actionType": "mitigate_critical_risk",
-      "owner": "chief-psychometrician",
-      "summary": "Psychometric and clinical validity evidence remain future research and cannot be inferred from the prototype.",
+      "id": "evidence-leadership-0008-003",
+      "actionType": "close_evidence_debt",
+      "owner": "voice-speech-engineer",
+      "summary": "Install and benchmark a local voice runtime only after safety and misuse review, then record first-audio latency and transcript/synthesis evidence.",
       "dimensions": [
-        "psychometric_defensibility",
-        "evidence_discipline"
+        "technical_feasibility",
+        "security_privacy",
+        "cost_performance_efficiency"
+      ]
+    },
+    {
+      "id": "evidence-leadership-0008-004",
+      "actionType": "close_evidence_debt",
+      "owner": "asset-pipeline-lead",
+      "summary": "Install Blender and run a small asset bake report before calling the 3D asset pipeline ready.",
+      "dimensions": [
+        "technical_feasibility",
+        "cost_performance_efficiency",
+        "open_source_sustainability",
+        "architecture_coherence"
+      ]
+    },
+    {
+      "id": "risk-leadership-0008-001",
+      "actionType": "mitigate_critical_risk",
+      "owner": "xr-systems-architect",
+      "summary": "Stakeholders may confuse shell and interaction evidence with immersive Quest performance readiness.",
+      "dimensions": [
+        "technical_feasibility",
+        "cost_performance_efficiency"
+      ]
+    },
+    {
+      "id": "risk-leadership-0008-002",
+      "actionType": "mitigate_critical_risk",
+      "owner": "local-ai-inference-engineer",
+      "summary": "Local AI and voice paths may be prematurely enabled before latency, safety, license, and thermal evidence exists.",
+      "dimensions": [
+        "technical_feasibility",
+        "cost_performance_efficiency",
+        "open_source_sustainability"
+      ]
+    },
+    {
+      "id": "risk-leadership-0008-003",
+      "actionType": "mitigate_critical_risk",
+      "owner": "asset-pipeline-lead",
+      "summary": "Asset work may be underestimated because GLB conversion passed while Blender-backed generation and optimization remain unproven.",
+      "dimensions": [
+        "technical_feasibility",
+        "cost_performance_efficiency",
+        "open_source_sustainability",
+        "architecture_coherence"
       ]
     }
   ],
@@ -5010,7 +5057,7 @@
   },
   "dispatchPackets": [
     {
-      "workOrderId": "iteration-0007-core-revision",
+      "workOrderId": "iteration-0008-core-revision",
       "stage": "core_revision",
       "goal": "Revise the implementation plan and code backlog around the weakest rubric dimensions and open debts.",
       "assignedAgentIds": [
@@ -5147,21 +5194,10 @@
           "supersedes": []
         }
       ],
-      "nextActions": [
-        {
-          "id": "risk-leadership-0007-001",
-          "actionType": "mitigate_critical_risk",
-          "owner": "vp-engineering-delivery",
-          "summary": "The first implementation can still drift if optional local AI or asset work begins before the deterministic station core passes.",
-          "dimensions": [
-            "implementation_readiness",
-            "technical_feasibility"
-          ]
-        }
-      ]
+      "nextActions": []
     },
     {
-      "workOrderId": "iteration-0007-adversarial-counterplan",
+      "workOrderId": "iteration-0008-adversarial-counterplan",
       "stage": "adversarial_counterplan",
       "goal": "Attack the revised plan and produce a stronger counterplan or required remediations.",
       "assignedAgentIds": [
@@ -5207,7 +5243,7 @@
       "nextActions": []
     },
     {
-      "workOrderId": "iteration-0007-leadership-preflight",
+      "workOrderId": "iteration-0008-leadership-preflight",
       "stage": "leadership_preflight",
       "goal": "Prepare blocker-focused leadership preflight without pretending the plan is ready for approval.",
       "assignedAgentIds": [
@@ -5281,18 +5317,7 @@
           "supersedes": []
         }
       ],
-      "nextActions": [
-        {
-          "id": "risk-leadership-0007-001",
-          "actionType": "mitigate_critical_risk",
-          "owner": "vp-engineering-delivery",
-          "summary": "The first implementation can still drift if optional local AI or asset work begins before the deterministic station core passes.",
-          "dimensions": [
-            "implementation_readiness",
-            "technical_feasibility"
-          ]
-        }
-      ]
+      "nextActions": []
     }
   ],
   "memoryRetrieval": {

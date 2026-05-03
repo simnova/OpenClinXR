@@ -1,0 +1,36 @@
+{
+  "iteration_id": "iteration-0008",
+  "plan_type": "leadership-review",
+  "scored_by": "senior-leadership-panel",
+  "scored_at": "2026-05-03",
+  "dimensions": {
+    "clinical_validity": { "score": 4.74, "rationale": "The ED station remains clinically bounded and claim-limited while new evidence work avoids overstating simulation readiness." },
+    "psychometric_defensibility": { "score": 4.72, "rationale": "The plan continues to separate trace-supported formative review from any high-stakes scoring claim." },
+    "technical_feasibility": { "score": 4.86, "rationale": "Quest, local runtime, provider, GLB, audit, and manual performance gates now make feasibility blockers executable." },
+    "architecture_coherence": { "score": 4.88, "rationale": "Benchmark, runtime, provider, asset, and architecture-rule evidence now align with the monorepo boundaries." },
+    "security_privacy": { "score": 4.7, "rationale": "Local-only defaults, no cloud calls, no model downloads, audit gates, and license rejection behavior strengthen the security posture." },
+    "ux_workflow_fit": { "score": 4.74, "rationale": "The XR shell, trace controls, manual Quest performance template, and admin handoff remain aligned to real user workflows." },
+    "cost_performance_efficiency": { "score": 4.84, "rationale": "The plan avoids paid APIs and expensive downloads while still gathering useful local performance evidence." },
+    "open_source_sustainability": { "score": 4.78, "rationale": "Pinned dependencies, license gating, and rejection of the LGPL transitive path improve sustainability." },
+    "market_gtm_strength": { "score": 4.52, "rationale": "The demo path is more credible, but market evidence and design-partner validation remain future work." },
+    "evidence_discipline": { "score": 4.92, "rationale": "The latest work turns key unknowns into commands, JSON reports, benchmark gates, and precise blockers." },
+    "implementation_readiness": { "score": 4.93, "rationale": "The development team now has executable readiness probes for Quest, local runtime, provider mocks, GLB conversion, audit, and manual performance." },
+    "adversarial_robustness": { "score": 4.86, "rationale": "The plan absorbed attacks on Quest theater, local AI halo effects, asset false readiness, and dependency optimism." },
+    "legal_regulatory_resilience": { "score": 4.78, "rationale": "Claim limits, voice safety gates, dependency license notes, and no high-stakes assertions remain explicit." },
+    "specialty_clinical_generalizability": { "score": 4.62, "rationale": "The architecture remains station-general, though clinical breadth still depends on later expert-reviewed case expansion." }
+  },
+  "critical_risks": [
+    { "id": "risk-leadership-0008-001", "severity": "medium", "summary": "Stakeholders may confuse shell and interaction evidence with immersive Quest performance readiness.", "owner": "xr-systems-architect", "status": "open" },
+    { "id": "risk-leadership-0008-002", "severity": "medium", "summary": "Local AI and voice paths may be prematurely enabled before latency, safety, license, and thermal evidence exists.", "owner": "local-ai-inference-engineer", "status": "open" },
+    { "id": "risk-leadership-0008-003", "severity": "medium", "summary": "Asset work may be underestimated because GLB conversion passed while Blender-backed generation and optimization remain unproven.", "owner": "asset-pipeline-lead", "status": "open" }
+  ],
+  "evidence_debt": [
+    { "id": "evidence-leadership-0008-001", "summary": "Capture and validate a foreground in-headset Quest manual performance report before claiming frame pacing or comfort readiness.", "owner": "xr-systems-architect", "status": "open" },
+    { "id": "evidence-leadership-0008-002", "summary": "Install and benchmark one explicit local model runtime and model ID on target Apple Silicon hardware before enabling local dialogue.", "owner": "local-ai-inference-engineer", "status": "open" },
+    { "id": "evidence-leadership-0008-003", "summary": "Install and benchmark a local voice runtime only after safety and misuse review, then record first-audio latency and transcript/synthesis evidence.", "owner": "voice-speech-engineer", "status": "open" },
+    { "id": "evidence-leadership-0008-004", "summary": "Install Blender and run a small asset bake report before calling the 3D asset pipeline ready.", "owner": "asset-pipeline-lead", "status": "open" }
+  ],
+  "decision_debt": [],
+  "confidence": 0.94,
+  "summary": "Iteration 0008 improves maturity by converting Quest, local provider, asset, audit, and manual performance unknowns into executable evidence gates while preserving claim limits."
+}

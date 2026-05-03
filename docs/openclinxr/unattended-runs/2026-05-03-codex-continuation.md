@@ -23,6 +23,12 @@ Renewed instruction at 2026-05-03 18:27:28 EDT:
 - Do not stop immediately at that time; continue to the next verified logical breakpoint.
 - Keep making clean commits after verified slices and automatically start the next highest-value blocker-reduction or evidence-hardening slice.
 
+Renewed instruction at 2026-05-03 19:06:10 EDT:
+
+- Continue advancing iterations unattended until at least 2026-05-03 23:06:10 EDT.
+- Do not stop immediately at that time; continue to the next verified logical breakpoint.
+- Treat steering comments as live prioritization input, but keep the working loop moving unless a safety, destructive-action, paid/cloud/API, or unsafe worktree blocker appears.
+
 Progress through 2026-05-03 14:16 EDT:
 
 - Added benchmark trace-quality reporting and adversarial probe scoring to `pnpm bench:mock`.
