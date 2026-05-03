@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { buildAdminGraphqlSchema, createGraphqlCodegenPlan, openClinXrAdminSchemaSdl } from "./index.js";
+import { parse, validate } from "graphql";
+import { adminGraphqlDocuments, buildAdminGraphqlSchema, createGraphqlCodegenPlan, openClinXrAdminSchemaSdl } from "./index.js";
 
 describe("OpenClinXR admin GraphQL contract", () => {
   it("builds a schema with admin workbench query and mutation roots", () => {
@@ -29,7 +30,7 @@ describe("OpenClinXR admin GraphQL contract", () => {
   it("describes a GraphQL Code Generator plan without Apollo-version-specific generated hooks", () => {
     expect(createGraphqlCodegenPlan()).toEqual({
       schema: "packages/admin-graphql/src/schema.graphql",
-      documents: ["apps/admin/src/**/*.graphql", "apps/admin/src/**/*.tsx"],
+      documents: ["packages/admin-graphql/src/documents/**/*.graphql", "apps/admin/src/**/*.graphql", "apps/admin/src/**/*.tsx"],
       generates: {
         "apps/admin/src/graphql/generated/": {
           preset: "client",
@@ -45,5 +46,20 @@ describe("OpenClinXR admin GraphQL contract", () => {
         },
       },
     });
+  });
+
+  it("ships seed admin operation documents that validate against the schema", () => {
+    const schema = buildAdminGraphqlSchema();
+    expect(adminGraphqlDocuments.map((document) => document.operationName)).toEqual([
+      "ScenarioBank",
+      "ReviewPacketReplay",
+      "ExamFormWorkbench",
+      "AssembleExamForm",
+    ]);
+
+    for (const document of adminGraphqlDocuments) {
+      expect(validate(schema, parse(document.source)), document.operationName).toEqual([]);
+    }
+    expect(JSON.stringify(adminGraphqlDocuments)).not.toContain("hiddenFacts");
   });
 });

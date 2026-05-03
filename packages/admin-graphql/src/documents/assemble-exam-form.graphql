@@ -1,0 +1,13 @@
+mutation AssembleExamForm($input: AssembleExamFormInput!) {
+  assembleExamForm(input: $input) {
+    examFormId
+    blueprintId
+    status
+    stationRefs {
+      order
+      scenarioId
+      scenarioVersion
+      title
+    }
+  }
+}

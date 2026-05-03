@@ -1,0 +1,34 @@
+query ScenarioBank($status: ScenarioStatus) {
+  scenarios(status: $status) {
+    scenarioId
+    version
+    title
+    status
+    clinicalObjectives
+    requiredTraceTags
+    review {
+      clinical
+      psychometric
+      legal
+      simulationQa
+    }
+    governance {
+      scoreUseLabel
+      syntheticCaseDisclosure
+      validationStage
+      requiredReviewerRoles
+      sourceIds
+    }
+    actors {
+      actorId
+      role
+      displayName
+      demeanor
+    }
+    assetNeeds {
+      assetId
+      assetType
+      licenseStatus
+    }
+  }
+}

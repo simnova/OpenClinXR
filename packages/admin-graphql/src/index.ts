@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { buildSchema, type GraphQLSchema } from "graphql";
+export { adminGraphqlDocuments, type AdminGraphqlDocument } from "./documents.js";
 
 export const openClinXrAdminSchemaSdl = readFileSync(new URL("./schema.graphql", import.meta.url), "utf8");
 
@@ -20,7 +21,7 @@ export function buildAdminGraphqlSchema(): GraphQLSchema {
 export function createGraphqlCodegenPlan(): GraphqlCodegenPlan {
   return {
     schema: "packages/admin-graphql/src/schema.graphql",
-    documents: ["apps/admin/src/**/*.graphql", "apps/admin/src/**/*.tsx"],
+    documents: ["packages/admin-graphql/src/documents/**/*.graphql", "apps/admin/src/**/*.graphql", "apps/admin/src/**/*.tsx"],
     generates: {
       "apps/admin/src/graphql/generated/": {
         preset: "client",

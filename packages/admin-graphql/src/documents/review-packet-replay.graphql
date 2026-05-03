@@ -1,0 +1,46 @@
+query ReviewPacketReplay($stationRunId: ID!) {
+  reviewPacket(stationRunId: $stationRunId) {
+    stationRunId
+    scenarioId
+    observedTraceTags
+    missingRequiredTraceTags
+    lateTraceTags
+    timeline {
+      sequence
+      atSecond
+      eventType
+      source
+      actorId
+      tag
+      summary
+    }
+    traceQuality {
+      eventCount
+      modelGeneratedEventCount
+      modelFailedEventCount
+      voiceAudioEventCount
+      blockedGuardrailCount
+      unsafeEventCount
+      missingRequiredTraceTagCount
+      hasPatientNote
+      hasModelProvenance
+    }
+    patientNote {
+      submittedAtSecond
+      text
+    }
+    facultyScoreDraft {
+      reviewerId
+      status
+      comments
+    }
+  }
+  traceEvents(stationRunId: $stationRunId) {
+    sequence
+    eventType
+    atSecond
+    source
+    actorId
+    tag
+  }
+}

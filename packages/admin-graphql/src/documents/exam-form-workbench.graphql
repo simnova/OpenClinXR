@@ -1,0 +1,23 @@
+query ExamFormWorkbench($examFormId: ID!, $scenarioId: ID!, $scenarioVersion: Int!) {
+  examForm(examFormId: $examFormId) {
+    examFormId
+    blueprintId
+    status
+    stationRefs {
+      order
+      scenarioId
+      scenarioVersion
+      title
+    }
+    coverage
+  }
+  assetReadiness(scenarioId: $scenarioId, version: $scenarioVersion) {
+    devReady
+    productionReady
+    missingRequiredAssetIds
+    productionBlockedAssets {
+      assetId
+      blockers
+    }
+  }
+}
