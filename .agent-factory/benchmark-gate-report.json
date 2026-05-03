@@ -1,0 +1,59 @@
+{
+  "generated_by": "tools/agent-factory/build-benchmark-gate-report.ts",
+  "quest_smoke": {
+    "file": "docs/openclinxr/quest-cdp-smoke-2026-05-03.json",
+    "generated_at": "2026-05-03T22:12:56.263Z",
+    "shell_loaded": true,
+    "interaction_advanced": true,
+    "frame_sample_complete": false,
+    "blockers": [
+      "quest_cdp_frame_sample_incomplete"
+    ]
+  },
+  "local_runtime_probe": {
+    "file": "docs/openclinxr/local-runtime-probe-2026-05-03.json",
+    "generated_at": "2026-05-03T22:19:50.537Z",
+    "gates": {
+      "questUsb": {
+        "status": "ready",
+        "blockers": []
+      },
+      "localModel": {
+        "status": "not_configured",
+        "blockers": [
+          "no_ollama_llama_cpp_or_mlx_runtime_detected"
+        ]
+      },
+      "localVoice": {
+        "status": "not_configured",
+        "blockers": [
+          "no_vibevoice_runtime_detected"
+        ]
+      },
+      "assetPipeline": {
+        "status": "not_configured",
+        "blockers": [
+          "missing_blender_or_gltf_transform"
+        ]
+      }
+    }
+  },
+  "evidence_gates": [
+    {
+      "evidence_id": "evidence-leadership-0007-002",
+      "ready_to_resolve": false,
+      "satisfied_conditions": [
+        "quest_shell_loaded",
+        "quest_trace_interaction_advanced",
+        "quest_usb_ready"
+      ],
+      "blockers": [
+        "quest_cdp_frame_sample_incomplete",
+        "quest_sustained_frame_sample_not_complete",
+        "asset_pipeline:missing_blender_or_gltf_transform",
+        "local_model:no_ollama_llama_cpp_or_mlx_runtime_detected",
+        "local_voice:no_vibevoice_runtime_detected"
+      ]
+    }
+  ]
+}
