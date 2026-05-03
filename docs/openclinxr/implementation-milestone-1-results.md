@@ -159,3 +159,23 @@ Quest evidence:
 
 - The Quest 3 is currently visible to `adb` but reports `unauthorized`.
 - The new XR shell was not rerun on headset in this pass because ADB authorization must be accepted again in the headset.
+
+## Milestone 5 Progress: Offline Provider Gateways
+
+Started on 2026-05-03:
+
+- `packages/model-gateway` workspace package added.
+- `packages/voice-gateway` workspace package added.
+- Model gateway supports actor-response routing, health checks, deterministic mock model output, provenance, guardrail status, token usage, and zero-cost accounting.
+- Voice gateway supports streaming mock transcript events, streaming mock audio events, viseme cue metadata, provenance, health checks, and stream collection for tests.
+- Local model and local voice adapters are present but intentionally report `not_configured`.
+- `packages/test-harness` now obtains model and voice health through the gateways.
+
+Local evidence:
+
+- `pnpm --filter @openclinxr/model-gateway test` passed.
+- `pnpm --filter @openclinxr/voice-gateway test` passed.
+- `pnpm --filter @openclinxr/model-gateway typecheck` passed.
+- `pnpm --filter @openclinxr/voice-gateway typecheck` passed.
+- `pnpm --filter @openclinxr/test-harness test` passed with the async gateway-backed simulation.
+- `pnpm bench:mock` still returns mock model/voice as `ready` and local model/voice as `not_configured`.

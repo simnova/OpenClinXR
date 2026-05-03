@@ -1,7 +1,7 @@
 import { runEdChestPainSimulation } from "./index.js";
 
 const started = performance.now();
-const result = runEdChestPainSimulation();
+const result = await runEdChestPainSimulation();
 const elapsedMs = Number((performance.now() - started).toFixed(2));
 
 console.log(
@@ -18,4 +18,3 @@ console.log(
     2,
   ),
 );
-

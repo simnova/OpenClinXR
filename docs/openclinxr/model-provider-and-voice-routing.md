@@ -1,7 +1,7 @@
 # Model Provider And Voice Routing
 
 Date: 2026-05-03
-Status: Development-team guidance
+Status: Development-team guidance with first offline contracts implemented
 
 ## Purpose
 
@@ -9,7 +9,7 @@ OpenClinXR should use frontier models and voice systems without binding clinical
 
 ## Provider Adapter Boundary
 
-All model calls go through typed adapters:
+All model calls should go through typed adapters. The full target boundary is:
 
 ```ts
 export interface ModelProviderAdapter {
@@ -27,6 +27,15 @@ export interface VoiceProviderAdapter {
   synthesize(input: SpeechSynthesisRequest): AsyncIterable<AudioEvent>;
 }
 ```
+
+First implementation status:
+
+- `packages/model-gateway` implements `ModelGateway`, `ModelProviderAdapter`, `MockModelProviderAdapter`, and `LocalModelProviderAdapter`.
+- `packages/model-gateway` currently implements actor responses and health routing; scenario draft and scenario review methods remain planned.
+- `packages/voice-gateway` implements `VoiceGateway`, `VoiceProviderAdapter`, `MockVoiceProviderAdapter`, `LocalVoiceProviderAdapter`, and `collectVoiceStream`.
+- Mock model and voice providers are deterministic, offline, zero-cost, and return provenance.
+- Local model and voice providers are intentionally visible but report `not_configured` until a real local runtime command or adapter is installed.
+- The deterministic ED chest pain harness now obtains provider health through the gateways instead of hard-coded health literals.
 
 Adapters must return provenance:
 
@@ -104,6 +113,8 @@ Required gates before production use:
 - Failover behavior.
 - Cost per station and cost per exam form.
 - Human reviewer override path.
+
+Implementation note: no Grok API, cloud provider, paid API, or downloaded local runtime is used in the current codebase.
 
 ## Local Model Mode
 

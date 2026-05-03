@@ -1,8 +1,10 @@
 import { createStationRun, transitionStation } from "@openclinxr/domain";
+import { createDefaultModelGateway, LocalModelProviderAdapter, MockModelProviderAdapter } from "@openclinxr/model-gateway";
 import { buildReviewPacket } from "@openclinxr/review-workflow";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import type { ProviderHealth, ReviewPacket, TraceEvent } from "@openclinxr/shared-schemas";
 import { InMemoryTraceLedger } from "@openclinxr/trace-ledger";
+import { createDefaultVoiceGateway, LocalVoiceProviderAdapter, MockVoiceProviderAdapter } from "@openclinxr/voice-gateway";
 
 export type SimulationResult = {
   stationRunId: string;
@@ -51,8 +53,16 @@ function event(
   return trace;
 }
 
-export function runEdChestPainSimulation(): SimulationResult {
+export async function runEdChestPainSimulation(): Promise<SimulationResult> {
   const ledger = new InMemoryTraceLedger();
+  const modelGateway = createDefaultModelGateway({
+    routeId: "actor-dialogue-offline-v1",
+    adapters: [new MockModelProviderAdapter(), new LocalModelProviderAdapter({ providerId: "local-model" })],
+  });
+  const voiceGateway = createDefaultVoiceGateway({
+    routeId: "voice-offline-v1",
+    adapters: [new MockVoiceProviderAdapter(), new LocalVoiceProviderAdapter({ providerId: "local-voice" })],
+  });
   let run = createStationRun(edChestPainScenario.scenarioId, "learner_001");
   let sequence = 0;
 
@@ -93,17 +103,25 @@ export function runEdChestPainSimulation(): SimulationResult {
       comments: "Deterministic simulation completed all required first-slice behaviors.",
     },
   });
+  const [modelHealth, voiceHealth] = await Promise.all([modelGateway.health(), voiceGateway.health()]);
 
   return {
     stationRunId: run.stationRunId,
     eventCount: events.length,
     reviewPacket,
     providerHealth: {
-      model: { providerId: "mock-model", status: "ready" },
-      voice: { providerId: "mock-voice", status: "ready" },
-      localModel: { providerId: "local-model", status: "not_configured" },
-      localVoice: { providerId: "local-voice", status: "not_configured" },
+      model: requireProviderHealth(modelHealth, "mock-model"),
+      voice: requireProviderHealth(voiceHealth, "mock-voice"),
+      localModel: requireProviderHealth(modelHealth, "local-model"),
+      localVoice: requireProviderHealth(voiceHealth, "local-voice"),
     },
   };
 }
 
+function requireProviderHealth(health: ProviderHealth[], providerId: string): ProviderHealth {
+  const provider = health.find((entry) => entry.providerId === providerId);
+  if (!provider) {
+    throw new Error(`Missing provider health for ${providerId}`);
+  }
+  return provider;
+}

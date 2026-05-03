@@ -16,10 +16,12 @@
   },
   "dependencies": {
     "@openclinxr/domain": "workspace:*",
+    "@openclinxr/model-gateway": "workspace:*",
     "@openclinxr/review-workflow": "workspace:*",
     "@openclinxr/scenario-fixtures": "workspace:*",
     "@openclinxr/shared-schemas": "workspace:*",
     "@openclinxr/trace-ledger": "workspace:*",
+    "@openclinxr/voice-gateway": "workspace:*",
     "tsx": "4.21.0"
   },
   "devDependencies": {

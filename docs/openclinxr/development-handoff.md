@@ -181,7 +181,7 @@ The next implementation plan should not start until these docs are reviewed:
 ## Code-Phase Hard Stops
 
 - Do not require cloud API keys, paid services, local model downloads, local voice runtimes, MongoDB, Bun, or Quest 3 hardware for the first deterministic station simulation.
-- Do not start local LLM or voice implementation until mock provider audit contracts exist.
+- Do not start local LLM or voice runtime implementation until mock provider audit contracts exist and pass verification.
 - Do not start generated-human asset work until asset manifest validation and license/provenance gates exist.
 - Do not claim diagnostic performance, licensure readiness, ECFMG replacement, USMLE equivalence, or validated high-stakes scoring.
 - Do not call the first XR shell ready until the desktop fallback renders a nonblank canvas and core text does not overlap.
@@ -206,7 +206,7 @@ Milestone 1 deterministic station core has started:
 - Review workflow package added.
 - Test harness package added.
 
-The current deterministic harness runs the ED chest pain fixture through station start, encounter, nurse interruption, learner actions, patient note submission, trace replay, and faculty review packet generation using mock provider health states.
+The current deterministic harness runs the ED chest pain fixture through station start, encounter, nurse interruption, learner actions, patient note submission, trace replay, and faculty review packet generation using the offline model and voice gateways for provider health.
 
 Milestone 2 API shell has also started:
 
@@ -227,3 +227,11 @@ XR station-shell milestone has also started:
 - Runtime state tests, package typecheck, and production build pass locally.
 - Desktop and mobile browser smoke checks show a nonblank canvas with no console errors and readable control surfaces.
 - The current Quest 3 device smoke is blocked by ADB reporting `unauthorized`; the headset needs the USB debugging prompt accepted again before rerunning the shell in Quest Browser.
+
+Offline model/voice gateway milestone has also started:
+
+- `packages/model-gateway` exists.
+- `packages/voice-gateway` exists.
+- Mock model responses are deterministic and include provider/model IDs, policy IDs, prompt template ID, scenario version, actor ID, retrieved memory IDs, safety policy version, token usage, zero cost, and guardrail result.
+- Mock voice streaming emits partial/final transcript events and audio chunk events with provenance and a viseme cue.
+- Local model and voice adapters are intentionally surfaced as `not_configured` until local Qwen/Kimi/DeepSeek or VibeVoice-style runtime adapters are explicitly installed and benchmarked.

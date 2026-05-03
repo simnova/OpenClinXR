@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { runEdChestPainSimulation } from "./index.js";
 
 describe("ED chest pain deterministic simulation", () => {
-  it("runs from fixture to review packet without cloud services", () => {
-    const result = runEdChestPainSimulation();
+  it("runs from fixture to review packet without cloud services", async () => {
+    const result = await runEdChestPainSimulation();
 
     expect(result.stationRunId).toContain("ed_chest_pain_priority_v1");
     expect(result.eventCount).toBeGreaterThanOrEqual(9);
@@ -16,4 +16,3 @@ describe("ED chest pain deterministic simulation", () => {
     });
   });
 });
-
