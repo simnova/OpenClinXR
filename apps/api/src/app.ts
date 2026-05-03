@@ -33,10 +33,24 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   });
 
   app.post("/sessions", async (context) => {
-    const body = (await context.req.json().catch(() => ({}))) as { learnerId?: string };
-    const run = await runtime.startSession({ learnerId: body.learnerId ?? "learner_001" });
+    const body = (await context.req.json().catch(() => ({}))) as { learnerId?: string; consentAccepted?: boolean };
+    if (body.consentAccepted !== true) {
+      return context.json({ error: "consent_required" }, 400);
+    }
+    const run = await runtime.startSession({ learnerId: body.learnerId ?? "learner_001", consentAccepted: true });
 
     return context.json(run, 201);
+  });
+
+  app.post("/sessions/:stationRunId/start-encounter", async (context) => {
+    const stationRunId = context.req.param("stationRunId");
+    const body = (await context.req.json().catch(() => ({}))) as { atSecond?: number };
+
+    try {
+      return context.json(runtime.startEncounter(stationRunId, { atSecond: body.atSecond ?? 60 }));
+    } catch (error) {
+      return sessionErrorResponse(context, error);
+    }
   });
 
   app.post("/sessions/:stationRunId/events", async (context) => {

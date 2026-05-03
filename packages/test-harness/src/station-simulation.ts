@@ -15,7 +15,8 @@ export type SimulationResult = {
 
 export async function runEdChestPainSimulation(): Promise<SimulationResult> {
   const runtime = createDefaultScenarioRuntime();
-  const run = await runtime.startSession({ learnerId: "learner_001" });
+  const run = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });
+  runtime.startEncounter(run.stationRunId, { atSecond: 60 });
 
   const traceTags: Array<[number, string, string, string | undefined]> = [
     [110, "learner.history", "history_opqrst", "patient_robert_hayes_v1"],

@@ -205,7 +205,8 @@ Local evidence:
 Started on 2026-05-03:
 
 - `packages/scenario-runtime` workspace package added.
-- Runtime starts the ED chest pain station from the approved fixture and immediately transitions to encounter phase.
+- Runtime starts the ED chest pain station from the approved fixture only after explicit consent.
+- Runtime now holds the station in doorway phase until `startEncounter` is called.
 - Runtime appends deterministic system trace events, learner trace events, and note-submission trace events.
 - Runtime generates review packets through `packages/review-workflow`.
 - Runtime exposes model/voice provider health through the offline gateways.
@@ -227,6 +228,8 @@ Harness follow-up:
 
 - `packages/test-harness` now uses `packages/scenario-runtime` for the ED chest pain deterministic simulation instead of maintaining a separate station-flow loop.
 - Scenario runtime now exposes trace replay and records `encounter.ended` when note submission auto-closes the encounter.
+- API session creation now rejects missing consent with `consent_required`.
+- API added `POST /sessions/:stationRunId/start-encounter` for explicit doorway-to-encounter transition.
 
 ## Milestone 8 Progress: Exam Assembly
 

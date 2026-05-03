@@ -248,6 +248,8 @@ Scenario runtime milestone has also started:
 
 - `packages/scenario-runtime` exists.
 - It centralizes the ED chest pain station session flow, trace append, note submission, provider health, asset readiness, and review packet generation.
+- Session creation now requires explicit consent and starts in doorway phase.
+- Encounter start is a separate runtime/API transition, preserving the doorway hold expected in a clinical-skills exam station.
 - `apps/api` now uses it for station sessions, provider health, asset readiness, and review packets.
 - `packages/test-harness` now uses it for the deterministic ED chest pain benchmark.
 

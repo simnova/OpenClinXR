@@ -80,15 +80,32 @@ describe("OpenClinXR API shell", () => {
 
   it("starts a session, records events, submits a note, and returns a review packet", async () => {
     const app = createApiApp();
-    const start = await app.request("/sessions", {
+    const missingConsent = await app.request("/sessions", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ learnerId: "learner_001" }),
     });
+    expect(missingConsent.status).toBe(400);
+    expect(await json(missingConsent)).toEqual({ error: "consent_required" });
+
+    const start = await app.request("/sessions", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ learnerId: "learner_001", consentAccepted: true }),
+    });
     const started = await json(start) as { stationRunId: string; phase: string };
 
     expect(start.status).toBe(201);
-    expect(started.phase).toBe("encounter");
+    expect(started.phase).toBe("doorway");
+
+    const encounterStart = await app.request(`/sessions/${started.stationRunId}/start-encounter`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ atSecond: 60 }),
+    });
+    const encounter = await json(encounterStart) as { phase: string };
+    expect(encounterStart.status).toBe(200);
+    expect(encounter.phase).toBe("encounter");
 
     const action = await app.request(`/sessions/${started.stationRunId}/events`, {
       method: "POST",

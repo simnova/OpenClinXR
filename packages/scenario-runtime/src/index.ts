@@ -16,6 +16,7 @@ export type ProviderHealthSnapshot = {
 
 export type StartSessionInput = {
   learnerId: string;
+  consentAccepted: boolean;
 };
 
 export type RuntimeSessionSummary = {
@@ -34,6 +35,10 @@ export type LearnerEventInput = {
 export type SubmitNoteInput = {
   atSecond: number;
   text: string;
+};
+
+export type StartEncounterInput = {
+  atSecond: number;
 };
 
 export type SubmitNoteResult = {
@@ -60,16 +65,40 @@ export class ScenarioRuntime {
   constructor(private readonly options: ScenarioRuntimeOptions) {}
 
   async startSession(input: StartSessionInput): Promise<RuntimeSessionSummary> {
+    if (!input.consentAccepted) {
+      throw new Error("Consent is required before starting a station session");
+    }
+
     let run = createStationRun(this.options.scenario.scenarioId, input.learnerId);
     this.options.ledger.append(traceEvent({ stationRunId: run.stationRunId, sequence: 0, eventType: "station.started", atSecond: 0, source: "system" }));
-    run = transitionStation(run, { type: "START_ENCOUNTER", atSecond: 60 });
-    this.options.ledger.append(traceEvent({ stationRunId: run.stationRunId, sequence: 1, eventType: "encounter.started", atSecond: 60, source: "system" }));
+    this.options.ledger.append(traceEvent({ stationRunId: run.stationRunId, sequence: 1, eventType: "consent.accepted", atSecond: 0, source: "learner" }));
     this.sessions.set(run.stationRunId, { run, nextSequence: 2 });
 
     return {
       stationRunId: run.stationRunId,
       scenarioId: this.options.scenario.scenarioId,
       phase: run.phase,
+    };
+  }
+
+  startEncounter(stationRunId: string, input: StartEncounterInput): RuntimeSessionSummary {
+    const session = this.requireSession(stationRunId);
+    session.run = transitionStation(session.run, { type: "START_ENCOUNTER", atSecond: input.atSecond });
+    this.options.ledger.append(
+      traceEvent({
+        stationRunId,
+        sequence: session.nextSequence,
+        eventType: "encounter.started",
+        atSecond: input.atSecond,
+        source: "system",
+      }),
+    );
+    session.nextSequence += 1;
+
+    return {
+      stationRunId,
+      scenarioId: this.options.scenario.scenarioId,
+      phase: session.run.phase,
     };
   }
 

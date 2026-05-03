@@ -5,11 +5,12 @@ import { createDefaultScenarioRuntime } from "./index.js";
 describe("scenario runtime", () => {
   it("starts an ED station with provider and asset readiness visible", async () => {
     const runtime = createDefaultScenarioRuntime();
-    const session = await runtime.startSession({ learnerId: "learner_001" });
+    const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });
 
     expect(session.stationRunId).toBe("run_ed_chest_pain_priority_v1_learner_001");
-    expect(session.phase).toBe("encounter");
+    expect(session.phase).toBe("doorway");
     expect(session.scenarioId).toBe(edChestPainScenario.scenarioId);
+    expect(runtime.traceEvents(session.stationRunId).map((trace) => trace.eventType)).toEqual(["station.started", "consent.accepted"]);
     expect(await runtime.providerHealth()).toEqual({
       model: { providerId: "mock-model", status: "ready" },
       voice: { providerId: "mock-voice", status: "ready" },
@@ -24,9 +25,26 @@ describe("scenario runtime", () => {
     });
   });
 
+  it("requires consent before creating a station session and starts encounter explicitly", async () => {
+    const runtime = createDefaultScenarioRuntime();
+
+    await expect(runtime.startSession({ learnerId: "learner_001", consentAccepted: false })).rejects.toThrow("Consent is required");
+
+    const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });
+    const encounter = runtime.startEncounter(session.stationRunId, { atSecond: 60 });
+
+    expect(encounter.phase).toBe("encounter");
+    expect(runtime.traceEvents(session.stationRunId).map((trace) => trace.eventType)).toEqual([
+      "station.started",
+      "consent.accepted",
+      "encounter.started",
+    ]);
+  });
+
   it("records learner events and patient note into a review packet", async () => {
     const runtime = createDefaultScenarioRuntime();
-    const session = await runtime.startSession({ learnerId: "learner_001" });
+    const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });
+    runtime.startEncounter(session.stationRunId, { atSecond: 60 });
 
     const event = runtime.appendLearnerEvent(session.stationRunId, {
       eventType: "learner.order",
@@ -34,7 +52,7 @@ describe("scenario runtime", () => {
       tag: "ecg_request",
       actorId: "nurse_maria_alvarez_v1",
     });
-    expect(event.sequence).toBe(2);
+    expect(event.sequence).toBe(3);
 
     const note = runtime.submitNote(session.stationRunId, {
       atSecond: 1260,
@@ -43,6 +61,7 @@ describe("scenario runtime", () => {
     expect(note.phase).toBe("review");
     expect(runtime.traceEvents(session.stationRunId).map((trace) => trace.eventType)).toEqual([
       "station.started",
+      "consent.accepted",
       "encounter.started",
       "learner.order",
       "encounter.ended",
