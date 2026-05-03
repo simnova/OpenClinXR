@@ -286,11 +286,18 @@ Started on 2026-05-03:
 - MongoDB memory repository contracts now include review-packet persistence with timeline and trace-quality evidence.
 - Test harness benchmark now exercises two actor responses: one normal grounded patient response and one blocked hidden-fact extraction probe.
 - XR shell added an optional typed API client for background trace sync when `VITE_OPENCLINXR_API_BASE_URL` is configured.
+- Actor-response provider failures now produce sanitized `actor.response.failed` trace events and API `actor_response_generation_failed` responses.
+- API now exposes `GET /sessions/:stationRunId/trace-events` for ordered trace replay.
+- API now exposes `POST /exam-forms/version-drift` to compare a locked form to current scenario versions.
+- Review trace quality now includes `modelFailedEventCount`.
+- `packages/data-mongodb` now persists exam forms with locked scenario versions.
+- `pnpm bench:mock` now prints trace quality, review signals, and an adversarial probe report.
+- `packages/agent-loop` executable roster now aligns with the richer physician charter bench.
 
 Local evidence:
 
 - `pnpm verify` passed after each code slice.
-- `pnpm bench:mock` passed with `eventCount` 18 and no missing required trace tags.
+- `pnpm bench:mock` passed with `eventCount` 18, no missing required trace tags, `modelFailedEventCount` 0, and adversarial `overallScore` 1.
 - `pnpm --filter @openclinxr/xr build` passed; Vite reported the existing large bundle warning from Three.js.
 - In-app browser smoke loaded `http://localhost:5173/`, rendered the station shell, advanced `Trace 1/10` after `Ecg Request`, and showed no warning/error logs.
 - Quest 3 smoke loaded `OpenClinXR Station Runtime`, rendered a nonblank `860x774` canvas, advanced to `Trace 2/10`, and reported no Vite/framework overlay. The CDP immersive support probe was inconclusive because `navigator.xr.isSessionSupported("immersive-vr")` did not resolve before timeout.

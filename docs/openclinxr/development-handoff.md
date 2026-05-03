@@ -262,6 +262,8 @@ Exam assembly milestone has also started:
 - It can detect scenario version drift after a form has locked station references.
 - It rejects unapproved scenarios before exam-form lock, preserving the human review gates from the scenario fixture.
 - `apps/api` exposes the default blueprint and a local exam-form assembly endpoint for the first ED chest pain pilot form.
+- `apps/api` exposes version-drift comparison for a submitted exam form against current scenario versions.
+- `packages/data-mongodb` persists exam forms with locked scenario refs for later drift review.
 
 Agent-loop orchestration milestone has also started:
 
@@ -270,6 +272,7 @@ Agent-loop orchestration milestone has also started:
 - It normalizes existing agent-factory scorecards into an executable loop model.
 - It computes weighted maturity deltas on the 0-5 rubric and blocks senior leadership readiness when evidence, decision, or high/critical risk debt remains open.
 - It emits staged work orders for core revision, physician specialty review, legal governance review, adversarial counterplanning, and leadership review or preflight.
+- Its executable physician roster now includes emergency medicine, anesthesiology/critical care, cardiology, family medicine, infectious disease, internal medicine, neurology, psychiatry, pediatrics, radiology/imaging, OB/GYN, and surgery.
 - `npm run agent:loop -- iterations/iteration-0007 --previous iterations/iteration-0006` writes `iterations/iteration-0007/09-agent-loop-plan.json`.
 
 Scenario-bank governance milestone has also started:
@@ -287,14 +290,17 @@ Actor-response safety milestone has also started:
 - Hidden-truth extraction attempts such as requests to reveal hidden facts or ignore instructions return an auditable `blocked_fallback`.
 - Scenario runtime records actor responses as trace events with model provenance, guardrail status, token usage, and zero-cost mock accounting.
 - API exposes `POST /sessions/:stationRunId/actor-response` for actor turns.
+- Actor-response generation failures now append sanitized `actor.response.failed` trace events and return a controlled API error.
 - Test harness now includes both a normal actor turn and a blocked hidden-fact extraction probe.
 
 Review, publication, and persistence milestones have also started:
 
-- Review packets now include ordered replay timelines, trace-quality counts, patient-note evidence, model provenance presence, blocked guardrail counts, and unsafe-event counts.
+- Review packets now include ordered replay timelines, trace-quality counts, patient-note evidence, model provenance presence, blocked guardrail counts, actor-response failure counts, and unsafe-event counts.
 - Scenario publication readiness gates require reviewer evidence by role, validation-stage maturity, target-use score governance, hidden-fact policy, and asset readiness.
 - API exposes publication readiness through `POST /scenarios/ed-chest-pain/publication-readiness`.
 - MongoDB memory repositories now persist review packets with timeline and trace-quality fields intact.
+- API exposes station trace replay through `GET /sessions/:stationRunId/trace-events`.
+- The deterministic benchmark now reports trace quality, review signals, and an adversarial probe report with hidden-fact leakage, hidden-truth guardrail, and actor-response provider-failure probes.
 
 XR shell integration milestone has also started:
 
