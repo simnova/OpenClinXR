@@ -86,6 +86,28 @@ export type BlueprintScenarioReadiness = {
   missingScenarioSlotIds: string[];
 };
 
+export type ExamTimingWindow = {
+  startsAtSecond: number;
+  endsAtSecond: number;
+  durationSeconds: number;
+};
+
+export type ExamStationTimingWindow = {
+  stationOrder: number;
+  slotId: string;
+  label: string;
+  doorway: ExamTimingWindow;
+  encounter: ExamTimingWindow;
+  note: ExamTimingWindow;
+};
+
+export type ExamTimingPlan = {
+  blueprintId: string;
+  stationWindows: ExamStationTimingWindow[];
+  breakCheckpoints: Array<{ afterStationOrder: number; atSecond: number }>;
+  totalStationTimeSeconds: number;
+};
+
 const step2CsStyleTiming: ExamBlueprintTiming = {
   doorwaySeconds: 60,
   encounterSeconds: 900,
@@ -158,6 +180,39 @@ export function evaluateBlueprintScenarioReadiness(blueprint: ExamBlueprint, sce
     activationEligibleScenarioIds,
     blockedScenarioIds,
     missingScenarioSlotIds: blueprint.stationSlots.slice(scenarios.length).map((slot) => slot.slotId),
+  };
+}
+
+export function createExamTimingPlan(blueprint: ExamBlueprint): ExamTimingPlan {
+  const sortedSlots = [...blueprint.stationSlots].sort((left, right) => left.order - right.order);
+  const stationWindows = sortedSlots.map((slot, index): ExamStationTimingWindow => {
+    const startsAtSecond = index * stationDurationSeconds(blueprint.timing);
+    const doorway = timingWindow(startsAtSecond, blueprint.timing.doorwaySeconds);
+    const encounter = timingWindow(doorway.endsAtSecond, blueprint.timing.encounterSeconds);
+    const note = timingWindow(encounter.endsAtSecond, blueprint.timing.noteSeconds);
+
+    return {
+      stationOrder: slot.order,
+      slotId: slot.slotId,
+      label: slot.label,
+      doorway,
+      encounter,
+      note,
+    };
+  });
+
+  const breakCheckpoints = blueprint.timing.breakAfterStationOrders
+    .map((afterStationOrder) => {
+      const station = stationWindows.find((window) => window.stationOrder === afterStationOrder);
+      return station ? { afterStationOrder, atSecond: station.note.endsAtSecond } : undefined;
+    })
+    .filter((checkpoint): checkpoint is { afterStationOrder: number; atSecond: number } => Boolean(checkpoint));
+
+  return {
+    blueprintId: blueprint.blueprintId,
+    stationWindows,
+    breakCheckpoints,
+    totalStationTimeSeconds: stationWindows.at(-1)?.note.endsAtSecond ?? 0,
   };
 }
 
@@ -260,6 +315,18 @@ function isActivationEligible(scenario: Scenario): boolean {
     && Object.values(scenario.review).every((state) => state === "approved")
     && scenario.governance.validationStage !== "stage_0_synthetic_draft"
     && scenario.governance.scoreUseLabel !== "validated_summative";
+}
+
+function stationDurationSeconds(timing: ExamBlueprintTiming): number {
+  return timing.doorwaySeconds + timing.encounterSeconds + timing.noteSeconds;
+}
+
+function timingWindow(startsAtSecond: number, durationSeconds: number): ExamTimingWindow {
+  return {
+    startsAtSecond,
+    endsAtSecond: startsAtSecond + durationSeconds,
+    durationSeconds,
+  };
 }
 
 function uniqueInOrder(values: string[]): string[] {

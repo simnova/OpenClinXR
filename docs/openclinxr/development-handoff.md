@@ -299,6 +299,7 @@ Exam assembly milestone has also started:
 - It creates ordered exam forms from approved scenarios and reports required trace-tag coverage gaps.
 - It now reports station-count fit, required environment coverage, safety-critical trace-tag coverage, and assembly issues.
 - It now creates a Step 2 CS-style 12-station seed blueprint with 60-second doorway reading, 15-minute encounters, 10-minute notes, and breaks after stations 3, 6, and 9.
+- It now derives deterministic station timing windows and break checkpoints from blueprint timing, giving XR/admin runtime a pure sequence plan before station execution is wired.
 - It can evaluate seed-blueprint scenario readiness separately from exam-form lock, so the full sequence is visible while the eleven unreviewed draft stations remain blocked from runnable form assembly.
 - It can detect scenario version drift after a form has locked station references.
 - It rejects unapproved scenarios before exam-form lock, preserving the human review gates from the scenario fixture.

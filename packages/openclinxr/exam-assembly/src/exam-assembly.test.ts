@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   assembleExamForm,
   createDefaultClinicalSkillsBlueprint,
+  createExamTimingPlan,
   createStep2CsStyleSeedBlueprint,
   evaluateBlueprintScenarioReadiness,
   evaluateScenarioVersionDrift,
@@ -125,5 +126,22 @@ describe("exam assembly", () => {
     expect(readiness.activationEligibleScenarioIds).toEqual(["ed_chest_pain_priority_v1"]);
     expect(readiness.blockedScenarioIds).toHaveLength(11);
     expect(readiness.blockedScenarioIds).toContainEqual({ scenarioId: "ward_delirium_med_rec_v1", reason: "not_approved" });
+  });
+
+  it("derives deterministic station timing windows and break checkpoints", () => {
+    const plan = createExamTimingPlan(createStep2CsStyleSeedBlueprint());
+    expect(plan.stationWindows).toHaveLength(12);
+    expect(plan.stationWindows[0]).toMatchObject({
+      stationOrder: 1,
+      doorway: { startsAtSecond: 0, endsAtSecond: 60 },
+      encounter: { startsAtSecond: 60, endsAtSecond: 960 },
+      note: { startsAtSecond: 960, endsAtSecond: 1560 },
+    });
+    expect(plan.breakCheckpoints).toEqual([
+      { afterStationOrder: 3, atSecond: 4680 },
+      { afterStationOrder: 6, atSecond: 9360 },
+      { afterStationOrder: 9, atSecond: 14040 },
+    ]);
+    expect(plan.totalStationTimeSeconds).toBe(18720);
   });
 });
