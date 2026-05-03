@@ -89,6 +89,16 @@ describe("scenario runtime", () => {
     expect(packet.observedTraceTags).toEqual(["ecg_request", "patient_note_submitted"]);
     expect(packet.missingRequiredTraceTags).toContain("team_communication");
     expect(packet.missingRequiredTraceTags).not.toContain("patient_note_submitted");
+    expect(packet.patientNote?.text).toBe("Concern for ACS. ECG requested.");
+    expect(packet.traceQuality.hasPatientNote).toBe(true);
+    expect(packet.timeline.map((entry) => entry.eventType)).toEqual([
+      "station.started",
+      "consent.accepted",
+      "encounter.started",
+      "learner.order",
+      "encounter.ended",
+      "note.submitted",
+    ]);
   });
 
   it("generates actor responses with model provenance recorded in the trace", async () => {

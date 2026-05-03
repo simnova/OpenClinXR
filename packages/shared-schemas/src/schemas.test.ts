@@ -120,8 +120,40 @@ describe("OpenClinXR shared schemas", () => {
         missingRequiredTraceTags: [],
         lateTraceTags: [],
         unsafeEvents: [],
+        timeline: [
+          {
+            sequence: 0,
+            atSecond: 0,
+            eventType: "station.started",
+            source: "system",
+            summary: "system station.started",
+          },
+        ],
+        traceQuality: {
+          eventCount: 1,
+          modelGeneratedEventCount: 0,
+          blockedGuardrailCount: 0,
+          unsafeEventCount: 0,
+          missingRequiredTraceTagCount: 0,
+          hasPatientNote: false,
+          hasModelProvenance: false,
+        },
         facultyScoreDraft: { reviewerId: "faculty_001", status: "draft", comments: "Good escalation." },
       }).ok,
     ).toBe(true);
+  });
+
+  it("requires review packets to include replay timeline and trace quality evidence", () => {
+    expect(
+      validateReviewPacket({
+        stationRunId: "run_001",
+        scenarioId: "ed_chest_pain_priority_v1",
+        observedTraceTags: ["ecg_request"],
+        missingRequiredTraceTags: [],
+        lateTraceTags: [],
+        unsafeEvents: [],
+        facultyScoreDraft: { reviewerId: "faculty_001", status: "draft", comments: "Missing replay evidence." },
+      }).ok,
+    ).toBe(false);
   });
 });

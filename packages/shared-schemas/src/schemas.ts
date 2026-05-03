@@ -130,6 +130,26 @@ export const FacultyScoreDraftSchema = Type.Object({
   comments: Type.String(),
 });
 
+export const ReviewTimelineEntrySchema = Type.Object({
+  sequence: Type.Integer({ minimum: 0 }),
+  atSecond: Type.Integer({ minimum: 0 }),
+  eventType: Type.String({ minLength: 1 }),
+  source: Type.String({ minLength: 1 }),
+  actorId: Type.Optional(Type.String({ minLength: 1 })),
+  tag: Type.Optional(Type.String({ minLength: 1 })),
+  summary: Type.String({ minLength: 1 }),
+});
+
+export const ReviewTraceQualitySchema = Type.Object({
+  eventCount: Type.Integer({ minimum: 0 }),
+  modelGeneratedEventCount: Type.Integer({ minimum: 0 }),
+  blockedGuardrailCount: Type.Integer({ minimum: 0 }),
+  unsafeEventCount: Type.Integer({ minimum: 0 }),
+  missingRequiredTraceTagCount: Type.Integer({ minimum: 0 }),
+  hasPatientNote: Type.Boolean(),
+  hasModelProvenance: Type.Boolean(),
+});
+
 export const ReviewPacketSchema = Type.Object({
   stationRunId: Type.String({ minLength: 1 }),
   scenarioId: Type.String({ minLength: 1 }),
@@ -137,6 +157,9 @@ export const ReviewPacketSchema = Type.Object({
   missingRequiredTraceTags: Type.Array(Type.String({ minLength: 1 })),
   lateTraceTags: Type.Array(Type.String({ minLength: 1 })),
   unsafeEvents: Type.Array(Type.String({ minLength: 1 })),
+  timeline: Type.Array(ReviewTimelineEntrySchema),
+  traceQuality: ReviewTraceQualitySchema,
+  patientNote: Type.Optional(PatientNoteSchema),
   facultyScoreDraft: FacultyScoreDraftSchema,
 });
 

@@ -246,12 +246,13 @@ export class ScenarioRuntime {
   }
 
   reviewPacket(stationRunId: string): ReviewPacket {
-    this.requireSession(stationRunId);
+    const session = this.requireSession(stationRunId);
     return buildReviewPacket({
       stationRunId,
       scenarioId: this.options.scenario.scenarioId,
       requiredTraceTags: this.options.scenario.requiredTraceTags,
       traceEvents: this.options.ledger.replay(stationRunId),
+      ...(session.run.note ? { patientNote: session.run.note } : {}),
       facultyScoreDraft: {
         reviewerId: "faculty_001",
         status: "draft",
