@@ -18,7 +18,15 @@ import {
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import type { ProviderHealth, ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
 import { InMemoryTraceLedger } from "@openclinxr/trace-ledger";
-import { createDefaultVoiceGateway, LocalVoiceProviderAdapter, MockVoiceProviderAdapter, type VoiceGateway } from "@openclinxr/voice-gateway";
+import {
+  collectVoiceStream,
+  createDefaultVoiceGateway,
+  LocalVoiceProviderAdapter,
+  MockVoiceProviderAdapter,
+  type AudioEvent,
+  type VoiceGateway,
+  type VoiceRequestPolicy,
+} from "@openclinxr/voice-gateway";
 
 export type { PublicationTargetUse, ReviewerEvidence, ScenarioPublicationReadiness } from "@openclinxr/review-workflow";
 
@@ -50,6 +58,18 @@ export type LearnerEventInput = {
 export type SubmitNoteInput = {
   atSecond: number;
   text: string;
+};
+
+export type SynthesizeActorSpeechInput = {
+  actorId: string;
+  voiceId: string;
+  text: string;
+  atSecond: number;
+};
+
+export type SynthesizeActorSpeechResult = {
+  audioEvents: AudioEvent[];
+  traceEvents: TraceEvent[];
 };
 
 export type StartEncounterInput = {
@@ -236,6 +256,42 @@ export class ScenarioRuntime {
     };
   }
 
+  async synthesizeActorSpeech(stationRunId: string, input: SynthesizeActorSpeechInput): Promise<SynthesizeActorSpeechResult> {
+    const session = this.requireSession(stationRunId);
+    const actor = this.options.scenario.actors.find((candidate) => candidate.actorId === input.actorId);
+    if (!actor) {
+      throw new Error(`Actor not found: ${input.actorId}`);
+    }
+
+    const audioEvents = await collectVoiceStream(
+      this.options.voiceGateway.synthesize({
+        stationRunId,
+        actorId: input.actorId,
+        voiceId: input.voiceId,
+        text: input.text,
+        policy: voiceSynthesisPolicy,
+      }),
+    );
+    const traceEvents = audioEvents.map((audioEvent) =>
+      this.appendTrace(session, {
+        eventType: "voice.audio.generated",
+        atSecond: input.atSecond,
+        source: "voice-gateway",
+        actorId: input.actorId,
+        payload: {
+          voiceId: input.voiceId,
+          audioFormat: audioEvent.audioFormat,
+          chunkIndex: audioEvent.chunkIndex,
+          durationMs: audioEvent.durationMs,
+          visemeCue: audioEvent.visemeCue,
+          provenance: audioEvent.provenance,
+        },
+      }),
+    );
+
+    return { audioEvents, traceEvents };
+  }
+
   submitNote(stationRunId: string, input: SubmitNoteInput): SubmitNoteResult {
     const session = this.requireSession(stationRunId);
     if (session.run.phase === "encounter") {
@@ -415,6 +471,11 @@ function traceEvent(input: TraceEventInput): TraceEvent {
 const actorResponsePolicy: ModelRequestPolicy = {
   requestPolicyId: "actor-dialogue-offline-v1",
   promptTemplateId: "mock-actor-response-v1",
+  safetyPolicyVersion: "clinical-simulation-safety-v1",
+};
+
+const voiceSynthesisPolicy: VoiceRequestPolicy = {
+  requestPolicyId: "voice-offline-v1",
   safetyPolicyVersion: "clinical-simulation-safety-v1",
 };
 

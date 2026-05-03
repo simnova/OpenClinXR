@@ -201,6 +201,46 @@ describe("scenario runtime", () => {
     expect(JSON.stringify(runtime.traceEvents(session.stationRunId))).not.toContain("Father died of myocardial infarction");
   });
 
+  it("synthesizes actor speech through the voice gateway and records audio trace evidence", async () => {
+    const runtime = createDefaultScenarioRuntime();
+    const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });
+    runtime.startEncounter(session.stationRunId, { atSecond: 60 });
+
+    const synthesized = await runtime.synthesizeActorSpeech(session.stationRunId, {
+      actorId: "patient_robert_hayes_v1",
+      voiceId: "mock-robert-hayes",
+      text: "It started while I was walking upstairs.",
+      atSecond: 121,
+    });
+
+    expect(synthesized.audioEvents).toEqual([
+      expect.objectContaining({
+        eventType: "audio_chunk",
+        audioFormat: "audio/mock",
+        chunkIndex: 0,
+        durationMs: 1100,
+        visemeCue: "neutral-pain",
+        provenance: expect.objectContaining({
+          providerId: "mock-voice",
+          costEstimateUsd: 0,
+        }),
+      }),
+    ]);
+    expect(synthesized.traceEvents).toEqual([
+      expect.objectContaining({
+        sequence: 3,
+        eventType: "voice.audio.generated",
+        source: "voice-gateway",
+        actorId: "patient_robert_hayes_v1",
+        payload: expect.objectContaining({
+          voiceId: "mock-robert-hayes",
+          audioFormat: "audio/mock",
+          visemeCue: "neutral-pain",
+        }),
+      }),
+    ]);
+  });
+
   it("records safe trace evidence when actor response generation fails", async () => {
     const runtime = createRuntimeWithModelProvider(new FailingModelProviderAdapter());
     const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });

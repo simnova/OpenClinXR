@@ -217,6 +217,37 @@ describe("OpenClinXR API shell", () => {
     });
     expect(JSON.stringify(actorResponseBody)).not.toContain("Father died of myocardial infarction");
 
+    const voiceResponse = await app.request(`/sessions/${started.stationRunId}/voice-synthesis`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        actorId: "patient_robert_hayes_v1",
+        voiceId: "mock-robert-hayes",
+        text: actorResponseBody.response.text,
+        atSecond: 541,
+      }),
+    });
+    const voiceBody = await json(voiceResponse) as {
+      audioEvents: Array<{ audioFormat: string; visemeCue: string; provenance: { providerId: string } }>;
+      traceEvents: Array<{ eventType: string; payload: { voiceId: string; audioFormat: string } }>;
+    };
+
+    expect(voiceResponse.status).toBe(201);
+    expect(voiceBody.audioEvents).toEqual([
+      expect.objectContaining({
+        audioFormat: "audio/mock",
+        visemeCue: "neutral-pain",
+        provenance: expect.objectContaining({ providerId: "mock-voice" }),
+      }),
+    ]);
+    expect(voiceBody.traceEvents[0]).toMatchObject({
+      eventType: "voice.audio.generated",
+      payload: {
+        voiceId: "mock-robert-hayes",
+        audioFormat: "audio/mock",
+      },
+    });
+
     const note = await app.request(`/sessions/${started.stationRunId}/note`, {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -243,6 +274,7 @@ describe("OpenClinXR API shell", () => {
       "learner.order",
       "learner.utterance",
       "actor.response.generated",
+      "voice.audio.generated",
       "encounter.ended",
       "note.submitted",
     ]);

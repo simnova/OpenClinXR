@@ -120,6 +120,28 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     }
   });
 
+  app.post("/sessions/:stationRunId/voice-synthesis", async (context) => {
+    const stationRunId = context.req.param("stationRunId");
+    const body = (await context.req.json().catch(() => ({}))) as {
+      actorId?: string;
+      voiceId?: string;
+      text?: string;
+      atSecond?: number;
+    };
+
+    try {
+      const result = await runtime.synthesizeActorSpeech(stationRunId, {
+        actorId: body.actorId ?? "",
+        voiceId: body.voiceId ?? "",
+        text: body.text ?? "",
+        atSecond: body.atSecond ?? 0,
+      });
+      return context.json(result, 201);
+    } catch (error) {
+      return sessionErrorResponse(context, error);
+    }
+  });
+
   app.post("/sessions/:stationRunId/note", async (context) => {
     const stationRunId = context.req.param("stationRunId");
     const body = (await context.req.json().catch(() => ({}))) as { atSecond?: number; text?: string };
