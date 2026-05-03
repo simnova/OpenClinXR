@@ -7,6 +7,7 @@ import {
   summarizeTraceReadiness,
   type XrRuntimeState,
 } from "./runtime-state.js";
+import { createStationApiClient, type StationApiClient } from "./api-client.js";
 import "./styles.css";
 
 type NavigatorWithXr = Navigator & {
@@ -30,6 +31,9 @@ function requireElement<TElement extends Element>(selector: string): TElement {
 
 let state: XrRuntimeState = createInitialRuntimeState();
 const visibleTraceTags = ["history_opqrst", "vitals_review", "ecg_request", "urgent_escalation", "team_communication", "patient_note_submitted"];
+const configuredApiBaseUrl = typeof import.meta.env.VITE_OPENCLINXR_API_BASE_URL === "string" ? import.meta.env.VITE_OPENCLINXR_API_BASE_URL : "";
+const stationApi = configuredApiBaseUrl ? createStationApiClient({ baseUrl: configuredApiBaseUrl }) : undefined;
+let remoteStationRunId: string | undefined;
 
 app.innerHTML = `
   <main class="station-shell">
@@ -89,9 +93,68 @@ function renderControls(): void {
       dialogueLine.textContent = dialogueFor(tag);
       renderControls();
       updateReadiness();
+      void recordRemoteTraceAction(tag);
     });
     traceActions.append(button);
   }
+}
+
+async function initializeRemoteTraceSession(client: StationApiClient | undefined): Promise<void> {
+  if (!client) {
+    return;
+  }
+
+  try {
+    const session = await client.startSession({
+      learnerId: "quest3_local_learner",
+      consentAccepted: true,
+    });
+    remoteStationRunId = session.stationRunId;
+    await client.startEncounter(session.stationRunId, { atSecond: 0 });
+  } catch {
+    remoteStationRunId = undefined;
+  }
+}
+
+async function recordRemoteTraceAction(tag: string): Promise<void> {
+  if (!stationApi || !remoteStationRunId) {
+    return;
+  }
+
+  try {
+    const actorId = actorIdForTraceTag(tag);
+    await stationApi.recordTraceAction(remoteStationRunId, {
+      eventType: eventTypeForTraceTag(tag),
+      atSecond: state.elapsedSecond,
+      tag,
+      ...(actorId ? { actorId } : {}),
+    });
+  } catch {
+    remoteStationRunId = undefined;
+  }
+}
+
+function eventTypeForTraceTag(tag: string): string {
+  const eventTypes: Record<string, string> = {
+    history_opqrst: "learner.history",
+    vitals_review: "learner.vitals_review",
+    ecg_request: "learner.order",
+    urgent_escalation: "learner.escalation",
+    team_communication: "learner.team",
+    patient_note_submitted: "learner.note",
+  };
+  return eventTypes[tag] ?? "learner.action";
+}
+
+function actorIdForTraceTag(tag: string): string | undefined {
+  const actorIds: Record<string, string> = {
+    history_opqrst: "patient_robert_hayes_v1",
+    vitals_review: "nurse_maria_alvarez_v1",
+    ecg_request: "nurse_maria_alvarez_v1",
+    urgent_escalation: "nurse_maria_alvarez_v1",
+    team_communication: "nurse_maria_alvarez_v1",
+  };
+  return actorIds[tag];
 }
 
 function updateReadiness(): void {
@@ -213,6 +276,7 @@ function tick(): void {
 start = performance.now();
 renderControls();
 updateReadiness();
+void initializeRemoteTraceSession(stationApi);
 void updateXrStatus();
 createStationScene();
 tick();
