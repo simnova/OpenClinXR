@@ -48,6 +48,7 @@ Use:
 - GraphQL Code Generator for typed route/workbench queries, mutations, subscriptions, fragments, and resolver contracts.
 - Zod or JSON Schema-driven forms where feasible.
 - Storybook 10.3 for component states and visual review.
+- `@storybook/addon-mcp` should be considered once Storybook stories become a maintained admin workbench artifact, because it can expose component/story context to local agents that help write and test stories. Keep it optional until Storybook and `@storybook/addon-vitest` are installed deliberately.
 
 Development-team familiarity should bias implementation choices toward pnpm, Mongoose, Apollo GraphQL, GraphQL Code Generator, TurboRepo, Biome, React Router, Knip, and E18E for non-XR surfaces and developer tooling. The examinee runtime can stay thinner and more performance-oriented, especially where Quest 3 frame stability is more important than admin developer ergonomics.
 
@@ -122,6 +123,7 @@ Automated from the first implementation sprint:
 - GraphQL Code Generator checks once GraphQL schema/documents exist, including generated client operations and resolver signatures.
 - Storybook stories for every admin component state.
 - Storybook interaction tests for form validation, review state changes, and graph editor controls.
+- Optional Storybook MCP workbench for agent-assisted story authoring and UI state inspection after the Storybook lane is explicit.
 - Serenity/JS acceptance tests in domain language.
 - Biome formatting/lint checks once adopted by the workspace.
 - Knip checks for unused files, exports, dependencies, and stale workspace references.
