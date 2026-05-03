@@ -2,7 +2,7 @@
 
 ## Durable Lessons
 
-- No durable lessons recorded yet.
+- Local MongoDB tests should use mongodb-memory-server after repository interfaces exist; production Mongo URI tests remain a separate gate.
 - Iteration 0002 MongoDB model separates blueprints, scenario bank, actor cards, forms, sessions, station runs, traces, LLM audit events, review packets, and knowledge graph nodes/edges.
 
 ## Active Risks

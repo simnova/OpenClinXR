@@ -1,7 +1,7 @@
 {
   "generated_by": "tools/agent-factory/build-memory-index.ts",
   "agent_count": 68,
-  "entry_count": 103,
+  "entry_count": 107,
   "entries": [
     {
       "id": "xr-systems-architect-decision-0003",
@@ -20,6 +20,22 @@
       "agent_id": "xr-systems-architect",
       "team": "core",
       "source_file": "agents/core/xr-systems-architect/index.json"
+    },
+    {
+      "id": "platform-devops-lead-lesson-0003",
+      "type": "lesson",
+      "topic": "adb-platform-tools-installed",
+      "summary": "Android Platform Tools were installed locally through Homebrew; adb 37.0.0 can see the Quest 3 and reverse port 5173 for local Vite testing.",
+      "confidence": 0.92,
+      "source_ids": [
+        "src-chrome-android-remote-debugging-2026"
+      ],
+      "iteration": 8,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "platform-devops-lead",
+      "team": "core",
+      "source_file": "agents/core/platform-devops-lead/index.json"
     },
     {
       "id": "ux-product-lead-decision-0002",
@@ -1407,6 +1423,23 @@
       "source_file": "agents/coordinator/source-librarian/index.json"
     },
     {
+      "id": "test-automation-lead-decision-0003",
+      "type": "decision",
+      "topic": "local-device-and-mongo-gates",
+      "summary": "The verification ladder should include mongodb-memory-server repository tests and a Quest 3 manual smoke result, each with pass/skip/blocker status.",
+      "confidence": 0.92,
+      "source_ids": [
+        "src-mongodb-memory-server-2026",
+        "src-chrome-android-remote-debugging-2026"
+      ],
+      "iteration": 8,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "test-automation-lead",
+      "team": "core",
+      "source_file": "agents/core/test-automation-lead/index.json"
+    },
+    {
       "id": "local-ai-inference-engineer-lesson-0002",
       "type": "lesson",
       "topic": "local-model-tiering",
@@ -1455,6 +1488,23 @@
         "src-internal-openclinxr-architecture-bundle"
       ],
       "iteration": 2,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "data-trace-architect",
+      "team": "core",
+      "source_file": "agents/core/data-trace-architect/index.json"
+    },
+    {
+      "id": "data-trace-architect-decision-0004",
+      "type": "decision",
+      "topic": "mongodb-memory-server-contract-tests",
+      "summary": "Use mongodb-memory-server as the local MongoDB repository contract test path, with MongoMemoryReplSet for transaction-sensitive behavior and production URI tests gated separately.",
+      "confidence": 0.92,
+      "source_ids": [
+        "src-mongodb-memory-server-2026",
+        "src-mongodb-memory-server-config-2026"
+      ],
+      "iteration": 8,
       "status": "active",
       "supersedes": [],
       "agent_id": "data-trace-architect",
@@ -1610,6 +1660,23 @@
         "src-npm-stack-metadata-2026-05-03"
       ],
       "iteration": 3,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "xr-systems-architect",
+      "team": "core",
+      "source_file": "agents/core/xr-systems-architect/index.json"
+    },
+    {
+      "id": "xr-systems-architect-decision-0005",
+      "type": "decision",
+      "topic": "quest3-usb-smoke-gate",
+      "summary": "Use the user-attached Quest 3 over USB-C, adb authorization, Quest Browser, and local port forwarding as the first manual WebXR device smoke gate.",
+      "confidence": 0.92,
+      "source_ids": [
+        "src-chrome-android-remote-debugging-2026",
+        "src-cognitive3d-webxr-quest-dev-setup-2026"
+      ],
+      "iteration": 8,
       "status": "active",
       "supersedes": [],
       "agent_id": "xr-systems-architect",

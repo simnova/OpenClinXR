@@ -9,6 +9,8 @@ Companion artifacts:
 - `docs/superpowers/plans/2026-05-03-openclinxr-code-implementation-plan.md`
 - `docs/openclinxr/local-hardware-spike-results.md`
 - `docs/openclinxr/local-ai-voice-model-strategy.md`
+- `docs/openclinxr/mongodb-memory-server-test-strategy.md`
+- `docs/openclinxr/quest3-usb-webxr-smoke-checklist.md`
 
 ## Goal
 
@@ -81,7 +83,8 @@ Default local dev dependencies:
 Optional local-only dependencies behind install gates:
 
 - Bun.
-- MongoDB local or Docker.
+- `mongodb-memory-server` for local Mongo repository tests.
+- MongoDB local, Docker, or production URI only for later environment parity tests.
 - llama.cpp.
 - MLX LM.
 - VibeVoice.
@@ -169,6 +172,8 @@ Acceptance:
 - Replay reconstructs station timeline.
 - Review packet highlights required trace tags.
 - MongoDB indexes are declared and tested with repository contract tests.
+- `mongodb-memory-server` runs local Mongo repository tests once the pinned `mongod` binary is cached.
+- `MongoMemoryReplSet` is used for transaction-sensitive tests.
 
 ### Phase 5: API
 
@@ -186,7 +191,8 @@ Implement Hono API:
 Acceptance:
 
 - API contract tests pass without MongoDB using in-memory repositories.
-- MongoDB repository tests are skipped unless `OPENCLINXR_MONGO_URI` is set.
+- MongoDB repository contract tests use `mongodb-memory-server` locally after the pinned binary is cached.
+- Production MongoDB repository tests are skipped unless `OPENCLINXR_MONGO_URI` is set.
 - No cloud API keys are required.
 
 ### Phase 6: Admin App
@@ -224,6 +230,7 @@ Acceptance:
 - Desktop fallback loads in Playwright.
 - WebGL canvas renders nonblank.
 - XR mode is feature-detected.
+- Quest 3 USB-C smoke loads the local Vite app through Quest Browser port forwarding after `adb` authorization.
 - Quest 3 smoke remains a manual gate until device automation is available.
 
 ### Phase 8: Model And Voice Gateways
@@ -267,6 +274,8 @@ Add:
 - API contract tests.
 - Playwright admin tests.
 - Storybook stories.
+- `mongodb-memory-server` repository tests.
+- Quest 3 USB-C manual smoke checklist output.
 - Scenario simulation tests.
 - Fixture replay tests.
 - Local-only benchmark scripts.

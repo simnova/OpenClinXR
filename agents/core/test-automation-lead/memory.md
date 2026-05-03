@@ -3,6 +3,7 @@
 ## Durable Lessons
 
 - Baseline verification must pass without cloud keys, model downloads, voice runtimes, MongoDB, Bun, or Quest hardware; skipped optional gates need explicit reasons.
+- Verification output should distinguish Mongo memory tests, production Mongo tests, and Quest 3 manual smoke as separate gates with explicit statuses.
 
 ## Active Risks
 

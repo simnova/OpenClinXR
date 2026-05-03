@@ -12,6 +12,7 @@ This document translates the architecture into worker-owned build slices. It com
 - No cloud APIs, paid services, or third-party model calls in default setup.
 - No model or voice downloads during install, test, or dev startup.
 - Optional local runtimes must report `not_configured` instead of failing.
+- `mongodb-memory-server` may download a `mongod` binary for local integration tests; this must be pinned, documented, and skippable until cached.
 - Every package gets unit tests before downstream UI depends on it.
 - Every user-facing assessment phrase must avoid licensure, diagnosis, and exam-equivalence claims.
 - Every asset record must carry provenance, license, optimization target, and QA status.
@@ -256,10 +257,12 @@ Validation:
 - WebGL canvas is nonblank.
 - Core UI text does not overlap at desktop and mobile widths.
 - XR feature detection does not throw when WebXR is unavailable.
+- Quest 3 USB-C smoke loads the local Vite app through Quest Browser port forwarding after `adb devices -l` reports the headset as `device`.
+- DevTools screencasting is disabled during comfort observations.
 
 Done when:
 
-- A learner can complete the station in desktop fallback with mock interactions.
+- A learner can complete the station in desktop fallback with mock interactions, and the Quest 3 manual smoke checklist is either passed or recorded as blocked with a concrete reason.
 
 ## Worker 10: Provider Gateway Steward
 
@@ -321,17 +324,23 @@ Tasks:
 - Define repository interfaces shared with in-memory API.
 - Add collection names and indexes.
 - Add repository contract tests.
-- Gate runtime tests behind `OPENCLINXR_MONGO_URI`.
+- Add `mongodb-memory-server` local tests.
+- Use `MongoMemoryServer` for CRUD/index contract tests.
+- Use `MongoMemoryReplSet` for transaction-sensitive repository tests.
+- Gate production-URI tests behind `OPENCLINXR_MONGO_URI`.
+- Print whether Mongo memory tests ran, skipped due missing binary, or used a cached binary.
 
 Validation:
 
-- Tests skip cleanly without Mongo URI.
-- Repository contracts pass when URI is provided.
+- In-memory repository contracts pass by default.
+- Mongo memory repository contracts pass after the binary is available.
+- Tests skip cleanly without production Mongo URI.
+- Production repository contracts pass when `OPENCLINXR_MONGO_URI` is provided.
 - Index declarations cover scenario version, station run trace sequence, review status, and source IDs.
 
 Done when:
 
-- MongoDB can replace in-memory repositories without API contract changes.
+- MongoDB can replace in-memory repositories without API contract changes, with local Mongo behavior covered by `mongodb-memory-server`.
 
 ## First Sprint Completion Command
 
@@ -346,7 +355,8 @@ Expected evidence:
 - Typecheck passes.
 - Unit and contract tests pass.
 - Deterministic station simulation produces a review packet.
-- Optional local model, voice, MongoDB, Bun, and Quest gates are reported as skipped or not configured.
+- Mongo memory tests pass or report a clear first-run binary/cache skip.
+- Optional local model, voice, Bun, and Quest gates are reported as skipped, not configured, blocked, or passed.
 
 ## Development Stop Conditions
 
@@ -357,4 +367,3 @@ Expected evidence:
 - UI says or implies licensure, diagnosis, ECFMG replacement, or validated high-stakes scoring.
 - XR app renders a blank canvas or inaccessible controls.
 - Asset manifest accepts missing license or provenance.
-

@@ -58,6 +58,20 @@
       "iteration": 3,
       "status": "active",
       "supersedes": []
+    },
+    {
+      "id": "xr-systems-architect-decision-0005",
+      "type": "decision",
+      "topic": "quest3-usb-smoke-gate",
+      "summary": "Use the user-attached Quest 3 over USB-C, adb authorization, Quest Browser, and local port forwarding as the first manual WebXR device smoke gate.",
+      "confidence": 0.92,
+      "source_ids": [
+        "src-chrome-android-remote-debugging-2026",
+        "src-cognitive3d-webxr-quest-dev-setup-2026"
+      ],
+      "iteration": 8,
+      "status": "active",
+      "supersedes": []
     }
   ]
 }

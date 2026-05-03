@@ -8,6 +8,8 @@
 
 **Tech Stack:** pnpm, TypeScript, Vitest, AJV, TypeBox, Hono, React, Vite, Ant Design 6, Playwright, Storybook, Three.js/R3F/WebXR after license verification, MongoDB repositories behind optional environment gates.
 
+**Accepted local test additions:** use `mongodb-memory-server` for local Mongo repository contract tests after repository interfaces exist, and use the user's Quest 3 over USB-C as the first manual WebXR device smoke gate after `adb` authorization.
+
 ---
 
 ## File Structure

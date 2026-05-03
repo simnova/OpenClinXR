@@ -30,6 +30,19 @@
       "iteration": 3,
       "status": "active",
       "supersedes": []
+    },
+    {
+      "id": "platform-devops-lead-lesson-0003",
+      "type": "lesson",
+      "topic": "adb-platform-tools-installed",
+      "summary": "Android Platform Tools were installed locally through Homebrew; adb 37.0.0 can see the Quest 3 and reverse port 5173 for local Vite testing.",
+      "confidence": 0.92,
+      "source_ids": [
+        "src-chrome-android-remote-debugging-2026"
+      ],
+      "iteration": 8,
+      "status": "active",
+      "supersedes": []
     }
   ]
 }

@@ -28,6 +28,20 @@
       "iteration": 7,
       "status": "active",
       "supersedes": []
+    },
+    {
+      "id": "test-automation-lead-decision-0003",
+      "type": "decision",
+      "topic": "local-device-and-mongo-gates",
+      "summary": "The verification ladder should include mongodb-memory-server repository tests and a Quest 3 manual smoke result, each with pass/skip/blocker status.",
+      "confidence": 0.92,
+      "source_ids": [
+        "src-mongodb-memory-server-2026",
+        "src-chrome-android-remote-debugging-2026"
+      ],
+      "iteration": 8,
+      "status": "active",
+      "supersedes": []
     }
   ]
 }

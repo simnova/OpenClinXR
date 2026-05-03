@@ -3,6 +3,7 @@
 ## Durable Lessons
 
 - Iteration 0003: Azure App Service B1 is orchestration only for the single-user pilot; use WebSocket first, keep WebTransport behind a spike, and move heavy asset/model work offline or to providers.
+- Android Platform Tools are now present locally; use adb reverse tcp:5173 tcp:5173 for first Quest Browser dev-server smoke.
 
 ## Active Risks
 

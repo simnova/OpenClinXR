@@ -1,0 +1,23 @@
+{
+  "source_id": "src-cognitive3d-webxr-quest-dev-setup-2026",
+  "title": "Cognitive3D WebXR Developer Setup For Meta Quest",
+  "url": "https://docs.cognitive3d.com/webxr/developer-setup/",
+  "source_type": "vendor",
+  "citation": "Cognitive3D. WebXR Developer Setup. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Planning source for practical Quest WebXR local development setup with USB-C, Developer Mode, MQDH, Chrome port forwarding, and Quest Browser inspection."
+  ],
+  "claims_supported": [
+    "A Meta Quest headset can access a local development server through USB-C and Chrome port forwarding.",
+    "The setup requires Developer Mode, Meta Quest Developer Hub or equivalent device tooling, and a compatible USB3 cable.",
+    "The headset may prompt the user to allow USB debugging.",
+    "The Meta Quest Browser tab can be inspected from chrome://inspect after the page is active."
+  ],
+  "claims_not_supported": [
+    "That a USB-C smoke test replaces extended comfort, thermal, and performance validation.",
+    "That the setup validates all OpenClinXR XR interactions without a built application."
+  ],
+  "confidence": 0.86
+}
+

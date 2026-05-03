@@ -1,0 +1,24 @@
+{
+  "source_id": "src-mongodb-memory-server-2026",
+  "title": "mongodb-memory-server npm Package",
+  "url": "https://www.npmjs.com/package/mongodb-memory-server",
+  "source_type": "vendor",
+  "citation": "Typegoose. mongodb-memory-server npm package. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Planning source for local MongoDB integration tests, repository contract tests, and local-only development dependency posture."
+  ],
+  "claims_supported": [
+    "The package provides a MongoDB server for testing and is MIT licensed.",
+    "The main package downloads a mongod binary into a cache directory during package install.",
+    "The package includes TypeScript declarations.",
+    "The package has a mongodb-memory-server-core dependency that can be configured separately from the default package."
+  ],
+  "claims_not_supported": [
+    "That mongodb-memory-server is appropriate for production database hosting.",
+    "That it removes the need for production MongoDB index and persistence testing.",
+    "That it can be used fully offline before the mongod binary has been cached."
+  ],
+  "confidence": 0.9
+}
+

@@ -1,0 +1,22 @@
+{
+  "source_id": "src-mongodb-memory-server-config-2026",
+  "title": "mongodb-memory-server Config Options",
+  "url": "https://typegoose.github.io/mongodb-memory-server/docs/api/config-options/",
+  "source_type": "vendor",
+  "citation": "Typegoose. mongodb-memory-server configuration options. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Planning source for binary download/cache configuration, postinstall controls, and local test reproducibility guidance."
+  ],
+  "claims_supported": [
+    "The package exposes configuration options for binary download directory and related download behavior.",
+    "The package supports environment-variable and package configuration for mongodb-memory-server behavior.",
+    "Global and local binary cache paths can be controlled or preferred through configuration."
+  ],
+  "claims_not_supported": [
+    "That every developer machine already has a compatible mongod binary cached.",
+    "That binary download behavior is acceptable for air-gapped environments without pre-seeding."
+  ],
+  "confidence": 0.88
+}
+

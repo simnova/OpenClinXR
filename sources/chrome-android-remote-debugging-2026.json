@@ -1,0 +1,23 @@
+{
+  "source_id": "src-chrome-android-remote-debugging-2026",
+  "title": "Chrome DevTools Remote Debug Android Devices",
+  "url": "https://developer.chrome.com/docs/devtools/remote-debugging",
+  "source_type": "professional-guidance",
+  "citation": "Chrome for Developers. Remote debug Android devices. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Planning source for USB debugging, chrome://inspect device discovery, Android Debug Bridge, and Chrome DevTools Protocol forwarding."
+  ],
+  "claims_supported": [
+    "Chrome DevTools can discover USB-debuggable Android devices through chrome://inspect.",
+    "A user must enable USB debugging and accept the debugging authorization prompt on the device.",
+    "ADB can forward the Chrome DevTools remote socket to a local port such as 9222.",
+    "DevTools screencasting can affect frame rates and should be disabled for accurate performance measurement."
+  ],
+  "claims_not_supported": [
+    "That Meta Quest Browser exposes every performance signal needed for production XR certification.",
+    "That automated headset testing is solved by USB debugging alone."
+  ],
+  "confidence": 0.9
+}
+

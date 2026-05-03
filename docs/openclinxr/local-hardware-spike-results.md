@@ -34,6 +34,7 @@ Important note: this is not the M4 Pro mentioned by the user. Treat these result
 | yarn | Installed | Available, not preferred |
 | Python | 3.11.4 | Available for local AI/asset tooling |
 | ffmpeg | 8.1 | Good for local audio and media processing |
+| Android Platform Tools | Installed on 2026-05-03 | `adb` is available for Quest 3 USB-C WebXR smoke testing |
 | Bun | Not installed | Bun/Hono production path needs install gate or Node adapter during development |
 | Blender | Not installed | Asset pipeline needs install gate before 3D generation/optimization |
 | gltf-transform | Not installed | Asset optimization CLI needs install gate |
@@ -137,7 +138,8 @@ Local gaps:
 - Bun must be installed or the first implementation must use a Node Hono adapter locally.
 - Blender and glTF Transform must be installed before asset pipeline spikes.
 - llama.cpp, Ollama, MLX LM, and VibeVoice are not installed.
-- No Quest 3 runtime benchmark has been run.
+- Quest 3 USB debugging is now authorized and `adb reverse tcp:5173 tcp:5173` succeeded; no OpenClinXR XR app exists yet to run the actual WebXR smoke.
+- No Quest 3 runtime benchmark has been run yet.
 
 Recommended local-only next spikes:
 
@@ -146,6 +148,32 @@ Recommended local-only next spikes:
 3. Install MLX LM or llama.cpp and benchmark Qwen3-4B/Qwen3-8B or DeepSeek-R1-Distill-Qwen-7B quantized model.
 4. Install VibeVoice-Realtime-0.5B only after reviewing model terms and disk/runtime requirements.
 5. Run a Quest 3 WebXR smoke against a static local Vite scene.
+
+## Quest 3 USB Preflight
+
+Android Platform Tools were installed through Homebrew. The local `adb` version is 37.0.0. The headset was visible with serial `2G0YC5ZGB5000J`.
+
+After the in-headset USB debugging prompt was accepted, the device reported:
+
+```text
+List of devices attached
+2G0YC5ZGB5000J         device usb:0-1 product:eureka model:Quest_3 device:eureka transport_id:1
+```
+
+Device details:
+
+- Model: Quest 3.
+- Device codename: `eureka`.
+- Android release base: `14`.
+- Build incremental: `52083180032000520`.
+- Browser package: `com.oculus.browser`.
+- Browser version observed: `146.0.0.19.27.942135376`.
+
+Port reverse setup also succeeded:
+
+```text
+UsbFfs tcp:5173 tcp:5173
+```
 
 ## Sources
 

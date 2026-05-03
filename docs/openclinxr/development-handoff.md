@@ -170,11 +170,13 @@ The next implementation plan should not start until these docs are reviewed:
 - `docs/openclinxr/model-provider-and-voice-routing.md`
 - `docs/openclinxr/local-hardware-spike-results.md`
 - `docs/openclinxr/local-ai-voice-model-strategy.md`
+- `docs/openclinxr/mongodb-memory-server-test-strategy.md`
+- `docs/openclinxr/quest3-usb-webxr-smoke-checklist.md`
 - `docs/openclinxr/code-implementation-plan.md`
 - `docs/openclinxr/worker-backlog-and-validation-matrix.md`
 - `docs/openclinxr/development-handoff.md`
 - `docs/superpowers/plans/2026-05-03-openclinxr-code-implementation-plan.md`
-- MADRs 0011 through 0025
+- MADRs 0011 through 0027
 
 ## Code-Phase Hard Stops
 
@@ -183,4 +185,11 @@ The next implementation plan should not start until these docs are reviewed:
 - Do not start generated-human asset work until asset manifest validation and license/provenance gates exist.
 - Do not claim diagnostic performance, licensure readiness, ECFMG replacement, USMLE equivalence, or validated high-stakes scoring.
 - Do not call the first XR shell ready until the desktop fallback renders a nonblank canvas and core text does not overlap.
+- Do not claim Quest readiness until the Quest 3 USB-C smoke checklist records a pass or a precise blocker.
 - Do not approve a scenario without clinical, psychometric, legal, and simulation QA review states.
+
+## Local Hardware Updates
+
+- Android Platform Tools were installed locally on 2026-05-03.
+- The Quest 3 is visible to `adb`, USB debugging has been authorized, and `adb reverse tcp:5173 tcp:5173` succeeded. The actual WebXR smoke is blocked only by the absence of an implemented XR app/dev server.
+- `mongodb-memory-server` is accepted as the local MongoDB integration-test path, with binary download/cache behavior documented as an explicit setup gate.

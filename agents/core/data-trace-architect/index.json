@@ -30,6 +30,20 @@
       "iteration": 2,
       "status": "active",
       "supersedes": []
+    },
+    {
+      "id": "data-trace-architect-decision-0004",
+      "type": "decision",
+      "topic": "mongodb-memory-server-contract-tests",
+      "summary": "Use mongodb-memory-server as the local MongoDB repository contract test path, with MongoMemoryReplSet for transaction-sensitive behavior and production URI tests gated separately.",
+      "confidence": 0.92,
+      "source_ids": [
+        "src-mongodb-memory-server-2026",
+        "src-mongodb-memory-server-config-2026"
+      ],
+      "iteration": 8,
+      "status": "active",
+      "supersedes": []
     }
   ]
 }
