@@ -313,6 +313,27 @@ Manual in-headset run still needs to capture:
 - Frame comfort observations.
 - Heat/battery observations after 10 minutes.
 
+## IWSDK Sidecar Criteria
+
+If `apps/ui-xr-iwsdk-spike` is created later, treat it as a separate sidecar run, not as proof that the production `apps/ui-xr` shell is ready.
+
+Additional IWSDK sidecar evidence:
+
+- `pnpm iwsdk:verify` passes before device testing starts.
+- The sidecar records installed footprint, injected dev runtime size, JS bundle size, bundle delta versus `apps/ui-xr`, and console error count.
+- IWSDK MCP agent-mode evidence records `iwsdk dev status`, `xr_get_session_status`, `xr_accept_session`, `browser_screenshot`, `scene_get_hierarchy`, `xr_select`, and `browser_get_console_logs` in that order.
+- MCP screenshot is nonblank and scene hierarchy includes named station objects.
+- MCP `xr_select` triggers exactly one known station trace action in the emulated runtime.
+- A foreground Quest Browser run confirms the same trace action with a physical controller or hand input.
+- Foreground Quest Browser average FPS is at least 72, p95 frame time is at or below 25 ms, controller-select latency is at or below 150 ms, and the 10-minute comfort/thermal check has no blocker.
+
+IWSDK sidecar evidence that remains insufficient by itself:
+
+- MCP screenshots without physical Quest Browser foreground evidence.
+- Desktop emulation without controller or hand parity.
+- CDP frame sampling while `document.hidden` is true.
+- Any run that requires `@iwsdk/reference`, `@meta-quest/hzdb`, or production adoption of `@iwsdk/vite-plugin-gltf-optimizer`.
+
 ## Pass Criteria
 
 Minimum early pass:
@@ -345,3 +366,6 @@ Minimum early pass:
 
 - `src-chrome-android-remote-debugging-2026`
 - `src-cognitive3d-webxr-quest-dev-setup-2026`
+- `src-meta-iwsdk-github-2026`
+- `src-iwsdk-ai-docs-2026`
+- `src-openclinxr-iwsdk-spike-plan-2026-05-04`
