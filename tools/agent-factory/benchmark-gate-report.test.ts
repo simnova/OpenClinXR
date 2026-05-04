@@ -852,6 +852,57 @@ describe("benchmark gate report", () => {
     });
   });
 
+  it("blocks realtime voice evidence when frame metadata is incomplete or mismatched", () => {
+    const buildReport = buildBenchmarkGateReport as (
+      input: Parameters<typeof buildBenchmarkGateReport>[0],
+      options: { now: Date; maxEvidenceAgeHours: number },
+    ) => BenchmarkGateReport;
+    const report = buildReport({
+      realtimeVoiceTransportSpike: {
+        file: "docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json",
+        value: {
+          generatedAt: "2026-05-04T20:16:00.000Z",
+          status: "transport_spike_passed",
+          harness: {
+            roundTripLatencyMs: 42,
+            audioMetadataFramesSent: 2,
+            audioChunkMetadataReceived: 1,
+            frameLatencySamplesMs: [],
+            audioChunkIndexesReceived: [1],
+            latencyBudget: {
+              targetMs: 250,
+              passed: true,
+            },
+          },
+          pythonBackendVerifier: {
+            status: "passed",
+            blockers: [],
+          },
+          verdict: {
+            transportContractPassed: true,
+            readyForLiveDialog: false,
+            blockers: [],
+            caveats: [],
+          },
+        },
+      },
+    }, { now: new Date("2026-05-04T20:20:00.000Z"), maxEvidenceAgeHours: 24 });
+
+    const liveDialogGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-003");
+
+    expect(liveDialogGate?.blockers).toEqual(expect.arrayContaining([
+      "local_voice_live_dialog:realtime_transport_spike:audio_metadata_count_mismatch",
+      "local_voice_live_dialog:realtime_transport_spike:frame_latency_samples_incomplete",
+      "local_voice_live_dialog:realtime_transport_spike:audio_chunk_indexes_not_contiguous",
+    ]));
+    expect(liveDialogGate?.blockers).not.toEqual(expect.arrayContaining([
+      "local_voice_live_dialog:realtime_transport_spike:transport_contract_failed",
+    ]));
+    expect(liveDialogGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
+      "local_voice_realtime_transport_spike_passed",
+    ]));
+  });
+
   it("uses asset production readiness evidence to replace generic placeholder asset blockers", () => {
     const buildReport = buildBenchmarkGateReport as (
       input: Parameters<typeof buildBenchmarkGateReport>[0] & {
