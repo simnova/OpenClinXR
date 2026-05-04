@@ -294,6 +294,11 @@ describe("MongoDB memory repositories", () => {
     await sink.saveTraceEvents("run_sink", [trace(0, "station_started", "run_sink"), trace(1, "ecg_request", "run_sink")]);
     await sink.saveTraceEvents("run_sink", [trace(0, "station_started", "run_sink"), trace(1, "ecg_request", "run_sink"), trace(2, "team_communication", "run_sink")]);
     await sink.saveReviewPacket("run_sink", { ...reviewPacket, stationRunId: "run_sink" });
+    await sink.saveStationRunQueueSnapshot({
+      snapshotId: "queue_snapshot_sink_001",
+      createdAt: "2026-05-03T16:45:00.000Z",
+      queue: createExamStationRunQueue(createStep2CsStyleSeedBlueprint(seedQueueScenarios), seedQueueScenarios),
+    });
 
     await expect(new MongoExamFormRepository(context.db).findById("form_sink_001")).resolves.toMatchObject({
       examFormId: "form_sink_001",
@@ -301,6 +306,12 @@ describe("MongoDB memory repositories", () => {
     await expect(new MongoTraceRepository(context.db).replay("run_sink")).resolves.toHaveLength(3);
     await expect(new MongoReviewPacketRepository(context.db).findByStationRunId("run_sink")).resolves.toMatchObject({
       stationRunId: "run_sink",
+    });
+    await expect(new MongoStationRunQueueRepository(context.db).findById("queue_snapshot_sink_001")).resolves.toMatchObject({
+      snapshotId: "queue_snapshot_sink_001",
+      queue: {
+        summary: { activationReady: 1, draftBlocked: 11 },
+      },
     });
   });
 });

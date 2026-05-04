@@ -172,21 +172,32 @@ export class MongoStationRunQueueRepository {
 
 export class MongoApiPersistenceSink {
   private readonly examForms: MongoExamFormRepository;
+  private readonly stationRunQueueSnapshots: MongoStationRunQueueRepository;
   private readonly traces: MongoTraceRepository;
   private readonly reviewPackets: MongoReviewPacketRepository;
 
   constructor(db: Db) {
     this.examForms = new MongoExamFormRepository(db);
+    this.stationRunQueueSnapshots = new MongoStationRunQueueRepository(db);
     this.traces = new MongoTraceRepository(db);
     this.reviewPackets = new MongoReviewPacketRepository(db);
   }
 
   async ensureIndexes(): Promise<void> {
-    await Promise.all([this.examForms.ensureIndexes(), this.traces.ensureIndexes(), this.reviewPackets.ensureIndexes()]);
+    await Promise.all([
+      this.examForms.ensureIndexes(),
+      this.stationRunQueueSnapshots.ensureIndexes(),
+      this.traces.ensureIndexes(),
+      this.reviewPackets.ensureIndexes(),
+    ]);
   }
 
   async saveExamForm(form: ExamForm): Promise<void> {
     await this.examForms.save(form);
+  }
+
+  async saveStationRunQueueSnapshot(snapshot: ExamStationRunQueueSnapshot): Promise<void> {
+    await this.stationRunQueueSnapshots.save(snapshot);
   }
 
   async saveTraceEvents(_stationRunId: string, events: TraceEvent[]): Promise<void> {

@@ -158,6 +158,7 @@ function defaultApplicationServicesFactory(context: ApiStartupContext): ApiAppli
 function createNoopPersistenceSink(): ApiPersistenceSink {
   return {
     saveExamForm: (_form: ExamForm) => undefined,
+    saveStationRunQueueSnapshot: () => undefined,
     saveTraceEvents: () => undefined,
     saveReviewPacket: () => undefined,
   };

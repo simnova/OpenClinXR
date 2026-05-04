@@ -284,11 +284,23 @@ describe("OpenClinXR API shell", () => {
 
   it("publishes persistence snapshots for exam forms, trace events, and review packets", async () => {
     const savedExamFormIds: string[] = [];
+    const savedQueueSnapshots: Array<{
+      snapshotId: string;
+      reviewerId?: string;
+      queue: {
+        canStartLearnerExam: boolean;
+        summary: { activationReady: number; draftBlocked: number };
+        stationQueue: Array<{ stationOrder: number; scenarioId: string | null; status: string }>;
+      };
+    }> = [];
     const traceSnapshotSizes: number[] = [];
     const savedReviewStationRunIds: string[] = [];
     const app = createApiApp(undefined, {
       saveExamForm: async (form) => {
         savedExamFormIds.push(form.examFormId);
+      },
+      saveStationRunQueueSnapshot: async (snapshot) => {
+        savedQueueSnapshots.push(snapshot);
       },
       saveTraceEvents: async (_stationRunId, events) => {
         traceSnapshotSizes.push(events.length);
@@ -303,6 +315,25 @@ describe("OpenClinXR API shell", () => {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ examFormId: "form_persistence_001" }),
     });
+    const queueSnapshotResponse = await app.request("/exam-blueprints/step2cs-seed/station-run-queue/snapshots", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "queue_snapshot_api_001",
+        reviewerId: "psychometrician_001",
+        createdAt: "2026-05-03T16:30:00.000Z",
+      }),
+    });
+    expect(queueSnapshotResponse.status).toBe(201);
+    const queueSnapshot = await json(queueSnapshotResponse) as {
+      snapshotId: string;
+      reviewerId?: string;
+      queue: {
+        canStartLearnerExam: boolean;
+        summary: { activationReady: number; draftBlocked: number };
+        stationQueue: Array<{ stationOrder: number; scenarioId: string | null; status: string }>;
+      };
+    };
 
     const start = await app.request("/sessions", {
       method: "POST",
@@ -324,6 +355,24 @@ describe("OpenClinXR API shell", () => {
     await app.request(`/sessions/${started.stationRunId}/review-packet`);
 
     expect(savedExamFormIds).toEqual(["form_persistence_001"]);
+    expect(queueSnapshot).toMatchObject({
+      snapshotId: "queue_snapshot_api_001",
+      reviewerId: "psychometrician_001",
+      queue: {
+        canStartLearnerExam: false,
+        summary: { activationReady: 1, draftBlocked: 11 },
+        stationQueue: expect.arrayContaining([
+          expect.objectContaining({ stationOrder: 9, scenarioId: "clinic_abdominal_pain_interpreter_v1", status: "draft_blocked" }),
+        ]),
+      },
+    });
+    expect(savedQueueSnapshots).toEqual([
+      expect.objectContaining({
+        snapshotId: "queue_snapshot_api_001",
+        createdAt: "2026-05-03T16:30:00.000Z",
+        queue: expect.objectContaining({ canStartLearnerExam: false }),
+      }),
+    ]);
     expect(traceSnapshotSizes).toEqual([2, 3, 4]);
     expect(savedReviewStationRunIds).toEqual([started.stationRunId]);
   });

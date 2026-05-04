@@ -122,6 +122,12 @@ function fakeControlPlaneClient(): AdminControlPlaneClient {
       totalStationTimeSeconds: 18720,
       summary: { activationReady: 1, draftBlocked: 11, governanceBlocked: 0, missingScenario: 0 },
     }),
+    createStep2CsSeedStationRunQueueSnapshot: async (input) => ({
+      snapshotId: input.snapshotId ?? "queue_snapshot_test_001",
+      createdAt: input.createdAt ?? "2026-05-03T17:00:00.000Z",
+      ...(input.reviewerId ? { reviewerId: input.reviewerId } : {}),
+      queue: await fakeControlPlaneClient().getStep2CsSeedStationRunQueue(),
+    }),
     getScenarioBankAssetReadiness: async () =>
       Array.from({ length: 12 }, (_, index) => ({
         scenarioId: index === 4 ? "clinic_abdominal_pain_interpreter_v1" : `scenario_${index + 1}`,

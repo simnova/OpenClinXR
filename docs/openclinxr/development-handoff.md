@@ -308,10 +308,11 @@ Exam assembly milestone has also started:
 - It can detect scenario version drift after a form has locked station references.
 - It rejects unapproved scenarios before exam-form lock, preserving the human review gates from the scenario fixture.
 - `apps/api` exposes the default blueprint and a local exam-form assembly endpoint for the first ED chest pain pilot form.
-- `apps/api` exposes the 12-station seed blueprint, governance readiness blockers, deterministic timing plan, station-run queue, and seed-bank asset readiness through `/exam-blueprints/step2cs-seed`, `/exam-blueprints/step2cs-seed/readiness`, `/exam-blueprints/step2cs-seed/timing-plan`, `/exam-blueprints/step2cs-seed/station-run-queue`, and `/scenario-bank/assets/readiness`.
+- `apps/api` exposes the 12-station seed blueprint, governance readiness blockers, deterministic timing plan, station-run queue, reviewer queue snapshot creation, and seed-bank asset readiness through `/exam-blueprints/step2cs-seed`, `/exam-blueprints/step2cs-seed/readiness`, `/exam-blueprints/step2cs-seed/timing-plan`, `/exam-blueprints/step2cs-seed/station-run-queue`, `POST /exam-blueprints/step2cs-seed/station-run-queue/snapshots`, and `/scenario-bank/assets/readiness`.
 - `apps/api` exposes version-drift comparison for a submitted exam form against current scenario versions.
 - `packages/openclinxr/data-mongodb` persists exam forms with locked scenario refs for later drift review.
 - `packages/openclinxr/data-mongodb` persists station-run queue snapshots with reviewer provenance, timing, launch-gating status, and per-station blockers so admin approval can reference the exact queue that was reviewed.
+- `apps/ui-admin` has a typed control-plane client method for creating seed station-run queue review snapshots through the stable REST route.
 
 Agent-loop orchestration milestone has also started:
 

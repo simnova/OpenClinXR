@@ -63,4 +63,35 @@ if (
   throw new Error(`Azure bundle smoke received unexpected station run queue payload: ${JSON.stringify(stationRunQueue)}`);
 }
 
+const snapshotResponse = await startup.fetch(new Request("http://localhost/exam-blueprints/step2cs-seed/station-run-queue/snapshots", {
+  method: "POST",
+  headers: { "content-type": "application/json" },
+  body: JSON.stringify({
+    snapshotId: "queue_snapshot_azure_smoke_001",
+    createdAt: "2026-05-03T17:15:00.000Z",
+    reviewerId: "azure_smoke",
+  }),
+}));
+if (snapshotResponse.status !== 201) {
+  throw new Error(`Azure bundle smoke expected station run queue snapshot to return 201, got ${snapshotResponse.status}`);
+}
+
+const snapshot = await snapshotResponse.json() as {
+  snapshotId?: string;
+  reviewerId?: string;
+  queue?: {
+    canStartLearnerExam?: boolean;
+    stationQueue?: unknown[];
+  };
+};
+
+if (
+  snapshot.snapshotId !== "queue_snapshot_azure_smoke_001"
+  || snapshot.reviewerId !== "azure_smoke"
+  || snapshot.queue?.canStartLearnerExam !== false
+  || snapshot.queue?.stationQueue?.length !== 12
+) {
+  throw new Error(`Azure bundle smoke received unexpected station run queue snapshot payload: ${JSON.stringify(snapshot)}`);
+}
+
 console.log("Azure bundle smoke passed");

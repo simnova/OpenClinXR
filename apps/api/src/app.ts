@@ -8,6 +8,7 @@ import {
   evaluateBlueprintScenarioReadiness,
   evaluateScenarioVersionDrift,
   type ExamForm,
+  type ExamStationRunQueue,
 } from "@openclinxr/exam-assembly";
 import { adminGraphqlDocuments, createGraphqlCodegenPlan, openClinXrAdminSchemaSdl } from "@openclinxr/graphql";
 import { matchOpenClinXrRestRoute, routeById } from "@openclinxr/rest";
@@ -25,8 +26,16 @@ import { Hono } from "hono";
 type RuntimeTraceEvents = ReturnType<ScenarioRuntime["traceEvents"]>;
 type RuntimeReviewPacket = ReturnType<ScenarioRuntime["reviewPacket"]>;
 
+export type ApiStationRunQueueSnapshot = {
+  snapshotId: string;
+  createdAt: string;
+  reviewerId?: string;
+  queue: ExamStationRunQueue;
+};
+
 export type ApiPersistenceSink = {
   saveExamForm?: (form: ExamForm) => Promise<void> | void;
+  saveStationRunQueueSnapshot?: (snapshot: ApiStationRunQueueSnapshot) => Promise<void> | void;
   saveTraceEvents?: (stationRunId: string, events: RuntimeTraceEvents) => Promise<void> | void;
   saveReviewPacket?: (stationRunId: string, packet: RuntimeReviewPacket) => Promise<void> | void;
 };
@@ -114,6 +123,23 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   app.get(routeById("step2cs-seed-station-run-queue").path, (context) =>
     context.json(createExamStationRunQueue(createStep2CsStyleSeedBlueprint(), scenarioBank)),
   );
+
+  app.post(routeById("create-step2cs-seed-station-run-queue-snapshot").path, async (context) => {
+    const body = (await context.req.json().catch(() => ({}))) as {
+      snapshotId?: unknown;
+      createdAt?: unknown;
+      reviewerId?: unknown;
+    };
+    const snapshot: ApiStationRunQueueSnapshot = {
+      snapshotId: typeof body.snapshotId === "string" && body.snapshotId.length > 0 ? body.snapshotId : `queue_snapshot_${Date.now()}`,
+      createdAt: typeof body.createdAt === "string" && body.createdAt.length > 0 ? body.createdAt : new Date().toISOString(),
+      ...(typeof body.reviewerId === "string" && body.reviewerId.length > 0 ? { reviewerId: body.reviewerId } : {}),
+      queue: createExamStationRunQueue(createStep2CsStyleSeedBlueprint(), scenarioBank),
+    };
+
+    await persistence.saveStationRunQueueSnapshot?.(snapshot);
+    return context.json(snapshot, 201);
+  });
 
   app.post(routeById("create-exam-form").path, async (context) => {
     const body = (await context.req.json().catch(() => ({}))) as { examFormId?: string };
