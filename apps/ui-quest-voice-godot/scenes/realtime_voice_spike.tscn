@@ -1,0 +1,66 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/Main.gd" id="1_main"]
+[ext_resource type="Script" path="res://src/RealtimeVoiceClient.gd" id="2_voice"]
+
+[node name="RealtimeVoiceSpike" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_main")
+
+[node name="RealtimeVoiceClient" type="Node" parent="."]
+script = ExtResource("2_voice")
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -360.0
+offset_top = -180.0
+offset_right = 360.0
+offset_bottom = 180.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+text = "OpenClinXR Quest Voice Transport"
+
+[node name="Endpoint" type="LineEdit" parent="Panel/VBox"]
+layout_mode = 2
+text = "ws://127.0.0.1:3000/voice/realtime/ws"
+
+[node name="ConnectButton" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+text = "Connect"
+
+[node name="StartButton" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+text = "Start"
+
+[node name="ProbeButton" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+text = "Binary Probe"
+
+[node name="StopButton" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+text = "Stop"
+
+[node name="Status" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+text = "idle"
+
+[connection signal="pressed" from="Panel/VBox/ConnectButton" to="." method="_on_connect_pressed"]
+[connection signal="pressed" from="Panel/VBox/StartButton" to="." method="_on_start_pressed"]
+[connection signal="pressed" from="Panel/VBox/ProbeButton" to="." method="_on_probe_pressed"]
+[connection signal="pressed" from="Panel/VBox/StopButton" to="." method="_on_stop_pressed"]

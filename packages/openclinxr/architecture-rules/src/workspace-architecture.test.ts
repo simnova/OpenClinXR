@@ -298,6 +298,23 @@ describe("workspace architecture rules", () => {
     expect(apiSourceViolations).toEqual([]);
   });
 
+  it("keeps the Quest Godot voice client as a dependency-free sidecar until headset codec evidence exists", () => {
+    const godotRoot = join(workspaceRoot, "apps/ui-quest-voice-godot");
+    const project = readFileSync(join(godotRoot, "project.godot"), "utf8");
+    const client = readFileSync(join(godotRoot, "src/RealtimeVoiceClient.gd"), "utf8");
+    const readme = readFileSync(join(godotRoot, "README.md"), "utf8");
+
+    expect(existsSync(godotRoot)).toBe(true);
+    expect(existsSync(join(godotRoot, "package.json"))).toBe(false);
+    expect(project).toContain('run/main_scene="res://scenes/realtime_voice_spike.tscn"');
+    expect(project).toContain('renderer/rendering_method="mobile"');
+    expect(client).toContain("WebSocketPeer.new()");
+    expect(client).toContain("/voice/realtime/ws");
+    expect(client).toContain('const CODEC := "opus"');
+    expect(readme).toContain("does not yet prove Quest microphone capture");
+    expect(readme).toContain("native Opus encode/decode");
+  });
+
   it("keeps project-specific packages under packages/openclinxr", () => {
     const violations = sourceFilesUnder("packages").filter(
       (filePath) => !filePath.startsWith("packages/openclinxr/") && !filePath.startsWith("packages/cellix/"),

@@ -1,0 +1,18 @@
+config_version=5
+
+[application]
+
+config/name="OpenClinXR Quest Voice Spike"
+run/main_scene="res://scenes/realtime_voice_spike.tscn"
+config/features=PackedStringArray("4.3", "Mobile")
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/handheld/orientation=1
+
+[rendering]
+
+renderer/rendering_method="mobile"
+renderer/rendering_method.mobile="mobile"
