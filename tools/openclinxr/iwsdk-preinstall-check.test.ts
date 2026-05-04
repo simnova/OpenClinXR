@@ -88,6 +88,7 @@ describe("IWSDK preinstall checker", () => {
 
       expect(failedRun.code).toBe(1);
       expect(report.verdict.blockers).toEqual([
+        "@iwsdk/vite-plugin-gltf-optimizer:not_allowed_in_first_slice",
         "@iwsdk/vite-plugin-gltf-optimizer:blocked_transitive_@img/sharp-libvips-darwin-arm64",
         "missing_package_manager_control_record_pnpm_audit",
         "missing_package_manager_control_record_license_policy_report",

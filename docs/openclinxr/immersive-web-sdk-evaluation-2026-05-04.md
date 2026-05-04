@@ -110,10 +110,10 @@ Create an isolated package or worktree spike before touching the production XR s
 The executable policy is intentionally stricter than the prose recommendation:
 
 - First-slice packages: exact-versioned `@iwsdk/core` and `@iwsdk/xr-input`.
-- Review-required packages: `@iwsdk/locomotor`, `@iwsdk/vite-plugin-dev`, and `@iwsdk/vite-plugin-gltf-optimizer`.
+- Review-required packages: `@iwsdk/locomotor`, `@iwsdk/vite-plugin-dev`, and `@iwsdk/vite-plugin-gltf-optimizer`; these are not ready for unattended first-slice install even when exact-versioned.
 - Blocked packages: `@iwsdk/reference` and `@meta-quest/hzdb`.
-- Blocked transitive package: `@img/sharp-libvips-darwin-arm64`.
-- Blocked license expressions: `AGPL`, `GPL`, `LGPL`, `UNLICENSED`, and `Unknown`.
+- Blocked transitive package path: any `sharp-libvips` variant, including `@img/sharp-libvips-darwin-arm64`.
+- Blocked license expressions: `AGPL`, `GPL`, `LGPL`, `UNLICENSED`, and `Unknown`, matched case-insensitively without collapsing `LGPL` into `GPL`.
 - Required package-manager controls: exact version pins, a Three.js pnpm override, recorded `pnpm audit`, and a recorded license-policy report.
 
 Run `pnpm iwsdk:preinstall` to print the default first-slice JSON report, or pass `--proposal path/to/proposal.json` to score a concrete dependency proposal before package manifests or the workspace lockfile change. The opt-in `pnpm iwsdk:verify` lane also runs the default preinstall report, so policy drift is caught before source and architecture checks complete. This means a runnable sidecar is not just a folder-creation task.

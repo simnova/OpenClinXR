@@ -679,6 +679,14 @@ export function evaluateIwsdkPreInstallPackageSelection(
       blockers.push(`${selectedPackage.name}:version_not_exact`);
     }
 
+    if (
+      selectedPackage.name.startsWith("@iwsdk/")
+      && !policy.allowedFirstSlicePackages.includes(selectedPackage.name)
+      && !policy.blockedPackages.includes(selectedPackage.name)
+    ) {
+      blockers.push(`${selectedPackage.name}:not_allowed_in_first_slice`);
+    }
+
     if (policy.blockedPackages.includes(selectedPackage.name)) {
       blockers.push(`${selectedPackage.name}:blocked_package`);
     }
@@ -688,21 +696,21 @@ export function evaluateIwsdkPreInstallPackageSelection(
     }
 
     const blockedLicense = policy.blockedLicenseExpressions.find((licenseExpression) =>
-      selectedPackage.license.includes(licenseExpression)
+      licenseExpressionMatches(selectedPackage.license, licenseExpression)
     );
     if (blockedLicense) {
       blockers.push(`${selectedPackage.name}:blocked_license_${blockedLicense}`);
     }
 
     for (const transitivePackage of selectedPackage.transitivePackages) {
-      if (policy.blockedTransitivePackages.includes(transitivePackage)) {
+      if (transitivePackageIsBlocked(transitivePackage, policy.blockedTransitivePackages)) {
         blockers.push(`${selectedPackage.name}:blocked_transitive_${transitivePackage}`);
       }
     }
   }
 
   return {
-    readyToInstallInSidecar: blockers.length === 0,
+    readyToInstallInSidecar: blockers.length === 0 && reviewWarnings.length === 0,
     blockers,
     reviewWarnings,
   };
@@ -866,4 +874,20 @@ function missingOrUnderMin(
 
 function isExactVersion(version: string): boolean {
   return /^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/.test(version);
+}
+
+function transitivePackageIsBlocked(transitivePackage: string, blockedTransitivePackages: string[]): boolean {
+  const normalizedPackage = transitivePackage.toLowerCase();
+  return blockedTransitivePackages.some((blockedPackage) => {
+    const normalizedBlockedPackage = blockedPackage.toLowerCase();
+    return normalizedPackage === normalizedBlockedPackage
+      || (normalizedBlockedPackage.includes("sharp-libvips") && normalizedPackage.includes("sharp-libvips"));
+  });
+}
+
+function licenseExpressionMatches(license: string, blockedExpression: string): boolean {
+  const normalizedLicense = license.toLowerCase();
+  const normalizedBlockedExpression = blockedExpression.toLowerCase();
+  const escapedExpression = normalizedBlockedExpression.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(^|[^a-z])${escapedExpression}([^a-z]|$)`).test(normalizedLicense);
 }

@@ -408,6 +408,47 @@ describe("IWSDK spike plan", () => {
     });
   });
 
+  it("blocks IWSDK package selections outside the allowed unattended first slice", () => {
+    expect(evaluateIwsdkPreInstallPackageSelection([
+      { name: "@iwsdk/spatial-ui", version: "0.3.1", license: "MIT", transitivePackages: [] },
+      { name: "@iwsdk/locomotor", version: "0.3.1", license: "MIT", transitivePackages: [] },
+    ])).toEqual({
+      readyToInstallInSidecar: false,
+      blockers: [
+        "@iwsdk/spatial-ui:not_allowed_in_first_slice",
+        "@iwsdk/locomotor:not_allowed_in_first_slice",
+      ],
+      reviewWarnings: [
+        "@iwsdk/locomotor:review_required_package",
+      ],
+    });
+  });
+
+  it("blocks sharp-libvips transitive variants and normalizes copyleft license matching", () => {
+    expect(evaluateIwsdkPreInstallPackageSelection([
+      {
+        name: "@iwsdk/core",
+        version: "0.3.1",
+        license: "lgpl-3.0-or-later",
+        transitivePackages: ["@img/sharp-libvips-linux-x64"],
+      },
+      {
+        name: "@iwsdk/xr-input",
+        version: "0.3.1",
+        license: "Apache-2.0 OR gpl-3.0-only",
+        transitivePackages: [],
+      },
+    ])).toEqual({
+      readyToInstallInSidecar: false,
+      blockers: [
+        "@iwsdk/core:blocked_license_LGPL",
+        "@iwsdk/core:blocked_transitive_@img/sharp-libvips-linux-x64",
+        "@iwsdk/xr-input:blocked_license_GPL",
+      ],
+      reviewWarnings: [],
+    });
+  });
+
   it("blocks unpinned, blocked, and license-sensitive IWSDK package selections before installation", () => {
     expect(evaluateIwsdkPreInstallPackageSelection([
       { name: "@iwsdk/core", version: "^0.3.1", license: "MIT", transitivePackages: [] },
@@ -426,6 +467,7 @@ describe("IWSDK spike plan", () => {
         "@iwsdk/reference:blocked_package",
         "@meta-quest/hzdb:blocked_package",
         "@meta-quest/hzdb:blocked_license_UNLICENSED",
+        "@iwsdk/vite-plugin-gltf-optimizer:not_allowed_in_first_slice",
         "@iwsdk/vite-plugin-gltf-optimizer:blocked_transitive_@img/sharp-libvips-darwin-arm64",
       ],
       reviewWarnings: [
