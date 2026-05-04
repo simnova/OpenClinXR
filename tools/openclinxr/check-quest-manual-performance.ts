@@ -200,6 +200,9 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
     controllerSelectLatencyMs === null || (controllerSelectLatencyMsValid && controllerSelectLatencyMs > 150)
       ? "controller_select_latency_ms_above_150_or_missing"
       : undefined,
+    traceLatencyProxy?.productionControllerLatencySubstitute === true
+      ? "trace_latency_proxy_marked_as_production_substitute"
+      : undefined,
     report.comfort?.motionComfort === "comfortable" ? undefined : "motion_comfort_not_confirmed",
     report.comfort?.heatConcern === false ? undefined : "heat_concern_not_cleared",
     typeof batteryDropPercent === "number" && !batteryDropPercentValid ? "battery_drop_not_finite_range_0_to_100" : undefined,
@@ -291,6 +294,8 @@ function questManualNextStepForBlocker(blocker: string): string {
       return "Record controller-select latency as a positive finite number.";
     case "controller_select_latency_ms_above_150_or_missing":
       return "Record controller-select latency at or below 150 ms.";
+    case "trace_latency_proxy_marked_as_production_substitute":
+      return "Record a real headset controller-select latency measurement; DOM trace-click latency is supporting evidence only.";
     case "motion_comfort_not_confirmed":
       return "Confirm motion comfort is comfortable.";
     case "heat_concern_not_cleared":

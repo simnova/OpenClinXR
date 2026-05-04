@@ -176,6 +176,77 @@ describe("Quest manual performance checker", () => {
     ]));
   });
 
+  it("blocks attempts to use DOM trace latency as production controller latency", async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-quest-manual-proxy-latency-"));
+    const input = path.join(dir, "quest-manual-performance.json");
+    const output = path.join(dir, "quest-manual-performance-check.json");
+    await writeFile(input, JSON.stringify({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      runContext: {
+        performedBy: "xr-systems-architect",
+        durationMinutes: 10,
+      },
+      setup: {
+        foregroundPageConfirmed: true,
+        devtoolsScreencastDisabled: true,
+        extraBrowserWindowsClosed: true,
+      },
+      station: {
+        shellLoaded: true,
+        traceInteractionPassed: true,
+        textReadable: true,
+        immersiveSessionStarted: true,
+        consoleErrors: [],
+      },
+      traceLatencyProxy: {
+        source: "dom_click_trace_button",
+        lastTraceTag: "ecg_request",
+        lastSelectLatencyMs: 12,
+        measuredAtMs: 1234,
+        productionControllerLatencySubstitute: true,
+      },
+      performance: {
+        source: "window.__openClinXrFrameStats",
+        framesObserved: 600,
+        sampleWindowSize: 120,
+        avgFps: 72,
+        p95FrameMs: 25,
+        minimumObservedFps: 60,
+        controllerSelectLatencyMs: null,
+      },
+      comfort: {
+        motionComfort: "comfortable",
+        heatConcern: false,
+        batteryDropPercent: 2,
+      },
+    }, null, 2), "utf8");
+
+    await execFileAsync(path.resolve("node_modules/.bin/tsx"), [
+      "tools/openclinxr/check-quest-manual-performance.ts",
+      "--input",
+      input,
+      "--output",
+      output,
+    ], { encoding: "utf8", timeout: 15000 });
+
+    const check = JSON.parse(await readFile(output, "utf8")) as {
+      readyToClaimFramePacing: boolean;
+      blockers: string[];
+      satisfiedConditions: string[];
+      nextSteps: string[];
+    };
+
+    expect(check.readyToClaimFramePacing).toBe(false);
+    expect(check.blockers).toEqual(expect.arrayContaining([
+      "controller_select_latency_ms_above_150_or_missing",
+      "trace_latency_proxy_marked_as_production_substitute",
+    ]));
+    expect(check.satisfiedConditions).not.toContain("trace_latency_proxy_recorded_as_supporting_evidence");
+    expect(check.nextSteps).toEqual(expect.arrayContaining([
+      "Record a real headset controller-select latency measurement; DOM trace-click latency is supporting evidence only.",
+    ]));
+  });
+
   it("rejects malformed console error arrays and impossible frame metrics", async () => {
     const dir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-quest-manual-impossible-"));
     const input = path.join(dir, "quest-manual-performance.json");
