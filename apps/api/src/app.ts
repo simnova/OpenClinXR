@@ -36,12 +36,24 @@ import {
   type TelemetryRecorder,
   type TelemetrySpanRecord,
 } from "@openclinxr/telemetry";
-import { createRealtimeVoiceGatewayPosture, type RealtimeVoiceGatewayPostureInput } from "@openclinxr/voice-gateway";
+import {
+  createRealtimeVoiceGatewayPosture,
+  selectRealtimeVoiceProtocol,
+  type RealtimeVoiceGatewayPostureInput,
+  type RealtimeVoiceProtocolLaneId,
+} from "@openclinxr/voice-gateway";
 import { Hono } from "hono";
 import { createOpenClinXrApiProtocolPosture } from "./protocol-support.js";
 
 type RuntimeTraceEvents = ReturnType<ScenarioRuntime["traceEvents"]>;
 type RuntimeReviewPacket = ReturnType<ScenarioRuntime["reviewPacket"]>;
+
+const realtimeVoiceProtocolPreference: RealtimeVoiceProtocolLaneId[] = [
+  "web3-identity-signaling",
+  "webtransport-http3-media",
+  "direct-quic-media-gateway",
+  "websocket-media",
+];
 
 export type ApiStationRunQueueSnapshot = {
   snapshotId: string;
@@ -118,8 +130,16 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
 
   app.get(routeById("runtime-protocols").path, (context) => context.json(createOpenClinXrApiProtocolPosture()));
 
-  app.get(routeById("realtime-voice-posture").path, (context) =>
-    context.json(createRealtimeVoiceGatewayPosture(realtimeVoiceGatewayPosture)));
+  app.get(routeById("realtime-voice-posture").path, (context) => {
+    const posture = createRealtimeVoiceGatewayPosture(realtimeVoiceGatewayPosture);
+    return context.json({
+      ...posture,
+      recommendedProtocolSelection: selectRealtimeVoiceProtocol(posture, {
+        preferredProtocolLaneIds: realtimeVoiceProtocolPreference,
+        requireMedia: true,
+      }),
+    });
+  });
 
   app.get(routeById("admin-graphql-schema").path, (context) =>
     new Response(openClinXrAdminSchemaSdl, {

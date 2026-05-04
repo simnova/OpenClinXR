@@ -106,6 +106,27 @@ describe("OpenClinXR API shell", () => {
           blockers: ["fastapi_uvicorn_websockets_not_installed", "mlx_moshi_or_qwen3_tts_not_installed"],
         },
       },
+      recommendedProtocolSelection: {
+        selectedLane: expect.objectContaining({
+          id: "websocket-media",
+          protocol: "websocket",
+          mediaAllowed: true,
+        }),
+        rejectedLaneReasons: expect.arrayContaining([
+          expect.objectContaining({
+            id: "web3-identity-signaling",
+            reason: "media_not_allowed",
+          }),
+          expect.objectContaining({
+            id: "webtransport-http3-media",
+            reason: "proposal_required",
+          }),
+          expect.objectContaining({
+            id: "direct-quic-media-gateway",
+            reason: "proposal_required",
+          }),
+        ]),
+      },
     });
   });
 
