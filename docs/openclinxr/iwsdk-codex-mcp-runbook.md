@@ -91,6 +91,20 @@ pnpm iwsdk:sidecar:metrics -- --input path/to/iwsdk-sidecar-metrics.json --outpu
 
 This checker uses the same budgets as `packages/openclinxr/iwsdk-spike`: installed footprint, injected dev runtime, app bundle, bundle delta, console errors, foreground Quest FPS, p95 frame time, and controller-select latency.
 
+Before creating or running any committed sidecar, scan the workspace posture with:
+
+```bash
+pnpm iwsdk:workspace:posture
+```
+
+When the operator has approved the install-backed sidecar scope, rerun it as:
+
+```bash
+pnpm iwsdk:workspace:posture -- --approved-sidecar
+```
+
+The checker exits nonzero if IWSDK dependencies or imports leak outside `apps/ui-xr-iwsdk-spike/`, if blocked packages appear in the lockfile, if the sidecar exists without explicit approval, or if required audit/license/Three override controls are missing once the sidecar is approved.
+
 ## Managed Browser Evidence Contract
 
 `packages/openclinxr/iwsdk-spike` exposes `buildIwsdkManagedBrowserEvidenceContract()` and `evaluateIwsdkManagedBrowserEvidence()` so browser-mode claims are scored separately from generic MCP readiness.

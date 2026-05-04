@@ -59,6 +59,8 @@ The same planning package now exposes `buildIwsdkAiModeProfiles()` and `buildIws
 
 `pnpm iwsdk:sidecar:metrics -- --input path/to/metrics.json --output docs/openclinxr/iwsdk-sidecar-metrics-YYYY-MM-DD.json` scores committed sidecar and production-runtime budgets from a captured metrics JSON file, including install footprint, dev runtime size, bundle delta, console errors, Quest FPS, p95 frame time, and controller-select latency.
 
+`pnpm iwsdk:workspace:posture` scans the committed workspace for IWSDK package dependencies, source imports, blocked lockfile packages, sidecar approval state, and root package-manager controls. In the current contract-only state it should report the sidecar as absent and ready; if `apps/ui-xr-iwsdk-spike/` exists later, run it with `--approved-sidecar` only after operator install-scope approval is recorded.
+
 `pnpm iwsdk:evidence` prints the current no-install evidence report. In the current contract-only state it exits nonzero by design, with JSON blockers for sidecar approval, agent tooling, and production runtime evidence.
 
 `pnpm iwsdk:evidence:validate` validates the latest committed evidence-contract JSON shape without requiring the blockers to be resolved. The opt-in `pnpm iwsdk:verify` lane runs that shape check so future edits cannot silently drift the advisory evidence consumed by the benchmark report.

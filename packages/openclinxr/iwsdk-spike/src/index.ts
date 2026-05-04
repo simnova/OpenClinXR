@@ -219,6 +219,49 @@ export type IwsdkPreInstallPackageSelectionResult = {
   reviewWarnings: string[];
 };
 
+export type IwsdkWorkspaceDependencyField =
+  | "dependencies"
+  | "devDependencies"
+  | "peerDependencies"
+  | "optionalDependencies";
+
+export type IwsdkWorkspaceDependency = {
+  manifestPath: string;
+  field: IwsdkWorkspaceDependencyField;
+  name: string;
+  version: string;
+};
+
+export type IwsdkWorkspaceSourceReference = {
+  filePath: string;
+  packageName: string;
+};
+
+export type IwsdkWorkspacePackageManagerControls = {
+  workspacePostureInVerify: boolean;
+  threeOverrideExact?: boolean;
+  auditScriptPresent: boolean;
+  licenseScriptPresent: boolean;
+};
+
+export type IwsdkWorkspacePostureInput = {
+  sidecarAppExists: boolean;
+  sidecarInstallApproved: boolean;
+  dependencies: IwsdkWorkspaceDependency[];
+  sourceReferences: IwsdkWorkspaceSourceReference[];
+  lockfilePackageNames: string[];
+  packageManagerControls: IwsdkWorkspacePackageManagerControls;
+};
+
+export type IwsdkWorkspaceSidecarStatus = "absent_contract_only" | "present_unapproved" | "present_approved";
+
+export type IwsdkWorkspacePostureReadiness = {
+  ready: boolean;
+  sidecarStatus: IwsdkWorkspaceSidecarStatus;
+  blockers: string[];
+  reviewWarnings: string[];
+};
+
 const sourceRecordIds = [
   "src-meta-iwsdk-github-2026",
   "src-iwsdk-ai-docs-2026",
@@ -816,6 +859,71 @@ export function evaluateIwsdkPreInstallPackageSelection(
   };
 }
 
+export function evaluateIwsdkWorkspacePosture(
+  input: IwsdkWorkspacePostureInput,
+  policy: IwsdkPreInstallPackagePolicy = buildIwsdkPreInstallPackagePolicy(),
+): IwsdkWorkspacePostureReadiness {
+  const plan = buildIwsdkSpikePlan();
+  const sidecarRoot = buildIwsdkSidecarReadinessContract().sidecarAppRoot;
+  const allowedRoots = plan.workspaceScope.allowedRoots;
+  const iwsdkDependencies = input.dependencies.filter((dependency) => isIwsdkWorkspacePackage(dependency.name));
+  const iwsdkSourceReferences = input.sourceReferences.filter((reference) =>
+    isIwsdkWorkspacePackage(reference.packageName)
+  );
+  const blockers: string[] = [];
+
+  blockers.push(
+    ...iwsdkDependencies
+      .filter((dependency) => !pathStartsWithAllowedRoot(dependency.manifestPath, allowedRoots))
+      .map((dependency) =>
+        `dependency_outside_iwsdk_sidecar:${dependency.manifestPath}:${dependency.field}.${dependency.name}`
+      ),
+  );
+  blockers.push(
+    ...iwsdkSourceReferences
+      .filter((reference) => !pathStartsWithAllowedRoot(reference.filePath, allowedRoots))
+      .map((reference) => `source_import_outside_iwsdk_sidecar:${reference.filePath}:${reference.packageName}`),
+  );
+
+  if (input.sidecarAppExists && !input.sidecarInstallApproved) {
+    blockers.push("sidecar_app_present_without_operator_approval");
+  }
+
+  const sidecarDependencies = iwsdkDependencies.filter((dependency) => dependency.manifestPath.startsWith(sidecarRoot));
+  const sidecarSelection = evaluateIwsdkPreInstallPackageSelection(
+    sidecarDependencies.map((dependency) => ({
+      name: dependency.name,
+      version: dependency.version,
+      license: "MIT",
+      transitivePackages: [],
+    })),
+    policy,
+  );
+  blockers.push(...sidecarSelection.blockers);
+
+  for (const packageName of input.lockfilePackageNames) {
+    if (policy.blockedPackages.includes(packageName)) {
+      blockers.push(`blocked_package_in_lockfile:${packageName}`);
+    }
+  }
+
+  if (input.sidecarAppExists && input.sidecarInstallApproved) {
+    appendWorkspacePackageManagerControlBlockers(input.packageManagerControls, blockers);
+  }
+  if (!input.packageManagerControls.workspacePostureInVerify) {
+    blockers.push("iwsdk_workspace_posture_not_in_verify");
+  }
+
+  const reviewWarnings = [...sidecarSelection.reviewWarnings];
+  const uniqueBlockers = dedupePreserveOrder(blockers);
+  return {
+    ready: uniqueBlockers.length === 0 && reviewWarnings.length === 0,
+    sidecarStatus: sidecarStatusFor(input),
+    blockers: uniqueBlockers,
+    reviewWarnings,
+  };
+}
+
 export function buildIwsdkAgentVerificationRunbook(options: {
   aiTool: IwsdkAiTool;
   mode: IwsdkAgentMode;
@@ -910,6 +1018,36 @@ function adapterConfigTargetFor(aiTool: IwsdkAiTool): string {
   }
 }
 
+function appendWorkspacePackageManagerControlBlockers(
+  controls: IwsdkWorkspacePackageManagerControls,
+  blockers: string[],
+): void {
+  if (controls.threeOverrideExact !== true) {
+    blockers.push("missing_package_manager_control_pin_three_override");
+  }
+  if (controls.auditScriptPresent !== true) {
+    blockers.push("missing_package_manager_control_record_pnpm_audit");
+  }
+  if (controls.licenseScriptPresent !== true) {
+    blockers.push("missing_package_manager_control_record_license_policy_report");
+  }
+}
+
+function sidecarStatusFor(input: IwsdkWorkspacePostureInput): IwsdkWorkspaceSidecarStatus {
+  if (!input.sidecarAppExists) {
+    return "absent_contract_only";
+  }
+  return input.sidecarInstallApproved ? "present_approved" : "present_unapproved";
+}
+
+function pathStartsWithAllowedRoot(filePath: string, allowedRoots: string[]): boolean {
+  return allowedRoots.some((root) => filePath.startsWith(root));
+}
+
+function isIwsdkWorkspacePackage(packageName: string): boolean {
+  return packageName.startsWith("@iwsdk/") || packageName === "@meta-quest/hzdb";
+}
+
 function appendAgentModeBrowserBlockers(evidence: IwsdkManagedBrowserEvidence, blockers: string[]): void {
   if (evidence.normalBrowserOpened !== true) {
     blockers.push("normal_browser_not_opened_independently");
@@ -994,4 +1132,15 @@ function licenseExpressionMatches(license: string, blockedExpression: string): b
 
 function unique(values: string[]): string[] {
   return [...new Set(values)].sort();
+}
+
+function dedupePreserveOrder(values: string[]): string[] {
+  const seen = new Set<string>();
+  return values.filter((value) => {
+    if (seen.has(value)) {
+      return false;
+    }
+    seen.add(value);
+    return true;
+  });
 }

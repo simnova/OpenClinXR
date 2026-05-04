@@ -12,6 +12,7 @@ import {
   buildIwsdkSidecarReadinessContract,
   buildIwsdkSpikeMetricThresholds,
   buildIwsdkSpikePlan,
+  evaluateIwsdkWorkspacePosture,
   evaluateIwsdkAgentToolingEvidence,
   evaluateIwsdkManagedBrowserEvidence,
   evaluateIwsdkPreInstallPackageSelection,
@@ -610,6 +611,170 @@ describe("IWSDK spike plan", () => {
       ],
       reviewWarnings: [
         "@iwsdk/vite-plugin-gltf-optimizer:review_required_package",
+      ],
+    });
+  });
+
+  it("treats the current no-sidecar workspace as contract-only and posture-ready", () => {
+    expect(evaluateIwsdkWorkspacePosture({
+      sidecarAppExists: false,
+      sidecarInstallApproved: false,
+      dependencies: [],
+      sourceReferences: [],
+      lockfilePackageNames: [],
+      packageManagerControls: {
+        workspacePostureInVerify: true,
+        auditScriptPresent: true,
+        licenseScriptPresent: true,
+      },
+    })).toEqual({
+      ready: true,
+      sidecarStatus: "absent_contract_only",
+      blockers: [],
+      reviewWarnings: [],
+    });
+  });
+
+  it("blocks IWSDK dependencies or imports outside the sidecar roots", () => {
+    expect(evaluateIwsdkWorkspacePosture({
+      sidecarAppExists: false,
+      sidecarInstallApproved: false,
+      dependencies: [
+        {
+          manifestPath: "apps/ui-xr/package.json",
+          field: "dependencies",
+          name: "@iwsdk/core",
+          version: "0.3.1",
+        },
+      ],
+      sourceReferences: [
+        {
+          filePath: "apps/ui-xr/src/runtime.tsx",
+          packageName: "@iwsdk/xr-input",
+        },
+      ],
+      lockfilePackageNames: [],
+      packageManagerControls: {
+        workspacePostureInVerify: true,
+        auditScriptPresent: true,
+        licenseScriptPresent: true,
+      },
+    })).toEqual({
+      ready: false,
+      sidecarStatus: "absent_contract_only",
+      blockers: [
+        "dependency_outside_iwsdk_sidecar:apps/ui-xr/package.json:dependencies.@iwsdk/core",
+        "source_import_outside_iwsdk_sidecar:apps/ui-xr/src/runtime.tsx:@iwsdk/xr-input",
+      ],
+      reviewWarnings: [],
+    });
+  });
+
+  it("requires operator approval and root package-manager controls when the sidecar exists", () => {
+    expect(evaluateIwsdkWorkspacePosture({
+      sidecarAppExists: true,
+      sidecarInstallApproved: false,
+      dependencies: [
+        {
+          manifestPath: "apps/ui-xr-iwsdk-spike/package.json",
+          field: "dependencies",
+          name: "@iwsdk/core",
+          version: "0.3.1",
+        },
+      ],
+      sourceReferences: [],
+      lockfilePackageNames: [],
+      packageManagerControls: {
+        workspacePostureInVerify: true,
+        auditScriptPresent: true,
+        licenseScriptPresent: true,
+      },
+    })).toEqual({
+      ready: false,
+      sidecarStatus: "present_unapproved",
+      blockers: ["sidecar_app_present_without_operator_approval"],
+      reviewWarnings: [],
+    });
+
+    expect(evaluateIwsdkWorkspacePosture({
+      sidecarAppExists: true,
+      sidecarInstallApproved: true,
+      dependencies: [
+        {
+          manifestPath: "apps/ui-xr-iwsdk-spike/package.json",
+          field: "dependencies",
+          name: "@iwsdk/core",
+          version: "0.3.1",
+        },
+        {
+          manifestPath: "apps/ui-xr-iwsdk-spike/package.json",
+          field: "dependencies",
+          name: "@iwsdk/xr-input",
+          version: "0.3.1",
+        },
+      ],
+      sourceReferences: [],
+      lockfilePackageNames: [],
+      packageManagerControls: {
+        workspacePostureInVerify: true,
+        threeOverrideExact: true,
+        auditScriptPresent: true,
+        licenseScriptPresent: true,
+      },
+    })).toEqual({
+      ready: true,
+      sidecarStatus: "present_approved",
+      blockers: [],
+      reviewWarnings: [],
+    });
+  });
+
+  it("blocks unpinned, review-only, and blocked IWSDK workspace package posture", () => {
+    expect(evaluateIwsdkWorkspacePosture({
+      sidecarAppExists: true,
+      sidecarInstallApproved: true,
+      dependencies: [
+        {
+          manifestPath: "apps/ui-xr-iwsdk-spike/package.json",
+          field: "dependencies",
+          name: "@iwsdk/core",
+          version: "^0.3.1",
+        },
+        {
+          manifestPath: "apps/ui-xr-iwsdk-spike/package.json",
+          field: "devDependencies",
+          name: "@iwsdk/vite-plugin-uikitml",
+          version: "0.3.1",
+        },
+        {
+          manifestPath: "apps/ui-xr-iwsdk-spike/package.json",
+          field: "devDependencies",
+          name: "@iwsdk/reference",
+          version: "0.3.1",
+        },
+      ],
+      sourceReferences: [],
+      lockfilePackageNames: ["@meta-quest/hzdb"],
+      packageManagerControls: {
+        workspacePostureInVerify: false,
+        auditScriptPresent: false,
+        licenseScriptPresent: false,
+      },
+    })).toEqual({
+      ready: false,
+      sidecarStatus: "present_approved",
+      blockers: [
+        "@iwsdk/core:version_not_exact",
+        "@iwsdk/vite-plugin-uikitml:not_allowed_in_first_slice",
+        "@iwsdk/reference:blocked_package",
+        "blocked_package_in_lockfile:@meta-quest/hzdb",
+        "missing_package_manager_control_pin_three_override",
+        "missing_package_manager_control_record_pnpm_audit",
+        "missing_package_manager_control_record_license_policy_report",
+        "iwsdk_workspace_posture_not_in_verify",
+      ],
+      reviewWarnings: [
+        "@iwsdk/vite-plugin-uikitml:review_required_package",
       ],
     });
   });

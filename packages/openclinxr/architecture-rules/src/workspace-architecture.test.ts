@@ -48,6 +48,7 @@ describe("workspace architecture rules", () => {
     expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm --filter @openclinxr/iwsdk-spike typecheck");
     expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm --filter @openclinxr/iwsdk-spike test");
     expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm iwsdk:preinstall");
+    expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm iwsdk:workspace:posture");
     expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm iwsdk:evidence:validate");
     expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm --filter @openclinxr/architecture-rules typecheck");
     expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm --filter @openclinxr/architecture-rules test");
