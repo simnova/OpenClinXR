@@ -193,7 +193,7 @@ Result:
 | Mock model | Passed | Deterministic actor response, token counts, zero cost |
 | Mock voice | Passed | Two transcript events, one audio chunk, viseme cue, zero cost |
 | Local model | Not configured | `llama.cpp` is available, but local model runtime/model ID env vars are unset and execution is disabled by policy |
-| Local voice | Not configured | No VibeVoice runtime detected; local voice env vars unset |
+| Local voice | Not configured | No VibeVoice runtime detected; local voice env vars unset; safety/license intake keeps runtime disabled |
 
 The benchmark contract intentionally avoids cloud calls, model downloads, and local runtime execution. It is ready to become a real local-provider benchmark once runtimes and model IDs are configured explicitly.
 
@@ -307,7 +307,7 @@ Recommended local-only next spikes:
 1. Install Bun and verify Hono WebSocket local server if Bun remains a desired local networking path.
 2. Extend the Blender bake from placeholder GLB validation into mesh decimation, texture atlas, LOD, and collider evidence; keep `gltf-transform` as an optional external workstation tool until its CLI dependency path satisfies the copyleft policy.
 3. Select and approve one small local model download for the installed `llama.cpp` runtime, then benchmark Qwen3-4B/Qwen3-8B or DeepSeek-R1-Distill-Qwen-7B quantized model.
-4. Install VibeVoice-Realtime-0.5B only after reviewing model terms and disk/runtime requirements.
+4. Use `docs/openclinxr/spikes/vibevoice-local-voice-spike.md` as the VibeVoice intake gate; install VibeVoice-Realtime-0.5B only after reviewing model terms, disk/runtime requirements, and voice-safety constraints.
 5. Add a measured Quest 3 10-minute performance and comfort smoke for the real station shell with DevTools screencasting disabled.
 
 ## Quest 3 USB Preflight

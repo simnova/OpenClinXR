@@ -72,6 +72,8 @@ But it is not production-ready by assumption:
 
 Recommendation: build `VoiceProviderAdapter` support for VibeVoice, but keep it disabled by default until local benchmark, voice-safety review, license review, and disclosure UX pass.
 
+Current intake: `docs/openclinxr/spikes/vibevoice-local-voice-spike.md` records the safe spike boundary. VibeVoice remains disabled, uninstalled, and blocked on operator-approved model/voice ID, license/safety review, install/uninstall commands, and first-audio benchmark evidence.
+
 ### Voice Fallback Ladder
 
 | Layer | Default | Local experimental | Gate |
@@ -132,7 +134,7 @@ First executable status:
 - Deterministic mock model benchmark passed with zero cost.
 - Deterministic mock voice benchmark passed with transcript and audio-chunk evidence.
 - Local model benchmark remains `not_configured` because `llama.cpp` is installed but `OPENCLINXR_LOCAL_MODEL_RUNTIME` / `OPENCLINXR_LOCAL_MODEL_ID` are unset and no model weights have been selected, downloaded, licensed, or benchmarked.
-- Local voice benchmark remains `not_configured` because no VibeVoice runtime is detected and `OPENCLINXR_LOCAL_VOICE_RUNTIME` / `OPENCLINXR_LOCAL_VOICE_ID` are unset.
+- Local voice benchmark remains `not_configured` because no VibeVoice runtime is detected, `OPENCLINXR_LOCAL_VOICE_RUNTIME` / `OPENCLINXR_LOCAL_VOICE_ID` are unset, and the VibeVoice intake keeps runtime installation blocked until operator-approved safety/license review.
 - The script explicitly records `cloudCallsAllowed: false`, `modelDownloadsAllowed: false`, and `localRuntimeExecutionAllowed: false`.
 
 Metrics:

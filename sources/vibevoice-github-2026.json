@@ -3,8 +3,8 @@
   "title": "Microsoft VibeVoice GitHub Repository",
   "url": "https://github.com/microsoft/VibeVoice",
   "source_type": "vendor",
-  "citation": "Microsoft. VibeVoice: Open-Source Frontier Voice AI. GitHub repository. Accessed 2026-05-03.",
-  "accessed_at": "2026-05-03",
+  "citation": "Microsoft. VibeVoice: Open-Source Frontier Voice AI. GitHub repository. Accessed 2026-05-04.",
+  "accessed_at": "2026-05-04",
   "permitted_uses": [
     "Planning source for local voice adapter spikes, VibeVoice-ASR/TTS capability review, licensing posture, and voice safety gates."
   ],
