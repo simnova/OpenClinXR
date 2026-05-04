@@ -42,6 +42,10 @@ import {
 type CliOptions = {
   outputPath?: string;
   validateLatestPattern?: string;
+  agentToolingInputPath?: string;
+  compatibilityInputPath?: string;
+  metadataDriftInputPath?: string;
+  sidecarMetricsInputPath?: string;
 };
 
 export type IwsdkEvidenceContractReport = {
@@ -89,7 +93,12 @@ async function main(): Promise<void> {
     return;
   }
 
-  const report = buildIwsdkEvidenceContractReport();
+  const report = buildIwsdkEvidenceContractReport({
+    agentToolingEvidence: await readJsonFile<IwsdkAgentToolingEvidence>(options.agentToolingInputPath),
+    compatibilityEvidence: await readJsonFile<IwsdkCompatibilityEvidence>(options.compatibilityInputPath),
+    metadataDriftEvidence: await readJsonFile<IwsdkPackageMetadataDriftEvidence>(options.metadataDriftInputPath),
+    sidecarMetrics: await readJsonFile<IwsdkSpikeMetrics>(options.sidecarMetricsInputPath),
+  });
   const payload = `${JSON.stringify(report, null, 2)}\n`;
 
   if (options.outputPath) {
@@ -430,6 +439,26 @@ function parseArgs(args: string[]): CliOptions {
       index += 1;
       continue;
     }
+    if (arg === "--agent-tooling-input") {
+      options.agentToolingInputPath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--compatibility-input") {
+      options.compatibilityInputPath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--metadata-drift-input") {
+      options.metadataDriftInputPath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--sidecar-metrics-input") {
+      options.sidecarMetricsInputPath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
     if (arg === "--validate-latest") {
       const possiblePattern = normalizedArgs[index + 1];
       if (possiblePattern && !possiblePattern.startsWith("--")) {
@@ -444,6 +473,13 @@ function parseArgs(args: string[]): CliOptions {
   }
 
   return options;
+}
+
+async function readJsonFile<T>(filePath: string | undefined): Promise<T | undefined> {
+  if (!filePath) {
+    return undefined;
+  }
+  return JSON.parse(await readFile(filePath, "utf8")) as T;
 }
 
 function requireValue(args: string[], index: number, flag: string): string {

@@ -222,6 +222,65 @@ describe("IWSDK evidence contract checker", () => {
     }
   });
 
+  it("exposes CLI inputs for captured Phase 2 evidence while preserving production blockers", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwsdk-evidence-inputs-"));
+    const agentToolingInputPath = path.join(tempDir, "agent-tooling.json");
+    const compatibilityInputPath = path.join(tempDir, "compatibility.json");
+    const metadataInputPath = path.join(tempDir, "metadata-drift.json");
+    const outputPath = path.join(tempDir, "iwsdk-evidence-contract.json");
+
+    await writeFile(agentToolingInputPath, `${JSON.stringify(readyAgentToolingEvidence(), null, 2)}\n`, "utf8");
+    await writeFile(compatibilityInputPath, `${JSON.stringify({
+      openclinxrViteMajor: 8,
+      iwsdkVitePluginPeerRange: "^7.0.0 || ^8.0.0",
+      nodeMajor: 22,
+      nodeRuntimePath: "/Users/patrick/.nvm/versions/node/v22.19.0/bin/node",
+      rolldownNativeBindingLoaded: true,
+    }, null, 2)}\n`, "utf8");
+    await writeFile(metadataInputPath, `${JSON.stringify({
+      packageName: "@iwsdk/reference",
+      docsVersion: "0.3.2",
+      npmLatestVersion: "0.3.2",
+    }, null, 2)}\n`, "utf8");
+
+    try {
+      await execFileAsync(
+        path.resolve("node_modules/.bin/tsx"),
+        [
+          "tools/openclinxr/iwsdk-evidence-contract-check.ts",
+          "--agent-tooling-input",
+          agentToolingInputPath,
+          "--compatibility-input",
+          compatibilityInputPath,
+          "--metadata-drift-input",
+          metadataInputPath,
+          "--output",
+          outputPath,
+        ],
+        { encoding: "utf8", timeout: 15000 },
+      );
+      throw new Error("Expected IWSDK evidence contract checker to preserve production blockers");
+    } catch (error) {
+      const failedRun = error as { code: number; stdout: string };
+      const report = JSON.parse(await readFile(outputPath, "utf8")) as IwsdkEvidenceContractReport;
+
+      expect(failedRun.code).toBe(1);
+      expect(failedRun.stdout).toContain(`Wrote ${outputPath}`);
+      expect(report.verdict.readyForAgentTooling).toBe(true);
+      expect(report.verdict.readyForProductionRuntime).toBe(false);
+      expect(report.verdict.blockers).toEqual(expect.arrayContaining([
+        "tool_selection:manual_quest_foreground_required_for_production_readiness",
+        "production_runtime:avg_fps_below_floor",
+      ]));
+      expect(report.verdict.blockers).not.toEqual(expect.arrayContaining([
+        "agent_tooling:adapter_sync_not_recorded",
+        "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
+        "metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
+        "tool_selection:iwsdk_mcp_future_blocked_until_sidecar",
+      ]));
+    }
+  });
+
   it("validates the generated evidence contract shape independently from readiness blockers", () => {
     const report = buildIwsdkEvidenceContractReport({
       generatedAt: "2026-05-04T00:00:00.000Z",
