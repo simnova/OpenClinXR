@@ -78,14 +78,17 @@ describe("OpenClinXR API shell", () => {
       "review-packet-replay",
       "exam-form-workbench",
       "exam-form-assembly",
+      "station-run-queue-snapshot",
     ]);
     expect(documents.map((document) => document.operationName)).toEqual([
       "ScenarioBank",
       "ReviewPacketReplay",
       "ExamFormWorkbench",
       "AssembleExamForm",
+      "CreateStationRunQueueSnapshot",
     ]);
     expect(documents[0]?.source).toContain("query ScenarioBank");
+    expect(documents.at(-1)?.source).toContain("createStationRunQueueSnapshot");
     expect(JSON.stringify(documents)).not.toContain("hiddenFacts");
   });
 

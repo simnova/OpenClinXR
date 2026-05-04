@@ -24,4 +24,9 @@ export const adminGraphqlDocuments = [
     "operationName": "AssembleExamForm",
     "source": "mutation AssembleExamForm($input: AssembleExamFormInput!) {\n  assembleExamForm(input: $input) {\n    examFormId\n    blueprintId\n    status\n    stationRefs {\n      order\n      scenarioId\n      scenarioVersion\n      title\n    }\n  }\n}\n"
   },
+  {
+    "routeId": "station-run-queue-snapshot",
+    "operationName": "CreateStationRunQueueSnapshot",
+    "source": "mutation CreateStationRunQueueSnapshot($input: CreateStationRunQueueSnapshotInput!) {\n  createStationRunQueueSnapshot(input: $input) {\n    snapshotId\n    createdAt\n    reviewerId\n    queue {\n      blueprintId\n      canStartLearnerExam\n      summary {\n        activationReady\n        draftBlocked\n        governanceBlocked\n        missingScenario\n      }\n      stationQueue {\n        stationOrder\n        slotId\n        label\n        scenarioId\n        scenarioVersion\n        status\n        blockers\n      }\n    }\n  }\n}\n"
+  },
 ] satisfies AdminGraphqlDocument[];

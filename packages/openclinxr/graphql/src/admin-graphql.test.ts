@@ -15,6 +15,7 @@ describe("OpenClinXR admin GraphQL contract", () => {
     expect(query?.getFields()).toHaveProperty("traceEvents");
     expect(mutation?.getFields()).toHaveProperty("assembleExamForm");
     expect(mutation?.getFields()).toHaveProperty("submitScenarioReview");
+    expect(mutation?.getFields()).toHaveProperty("createStationRunQueueSnapshot");
   });
 
   it("includes clinical governance and trace quality types needed by the admin UI", () => {
@@ -24,6 +25,8 @@ describe("OpenClinXR admin GraphQL contract", () => {
     expect(schema.getType("ReviewTraceQuality")).toBeDefined();
     expect(schema.getType("TraceEvent")).toBeDefined();
     expect(schema.getType("AssetReadiness")).toBeDefined();
+    expect(schema.getType("StationRunQueueSnapshot")).toBeDefined();
+    expect(schema.getType("StationRunQueueItem")).toBeDefined();
     expect(openClinXrAdminSchemaSdl).toContain("syntheticCaseDisclosure");
     expect(openClinXrAdminSchemaSdl).toContain("voiceAudioEventCount");
   });
@@ -56,6 +59,7 @@ describe("OpenClinXR admin GraphQL contract", () => {
       "ReviewPacketReplay",
       "ExamFormWorkbench",
       "AssembleExamForm",
+      "CreateStationRunQueueSnapshot",
     ]);
 
     for (const document of adminGraphqlDocuments) {
@@ -72,6 +76,7 @@ describe("OpenClinXR admin GraphQL contract", () => {
       ["review-packet-replay", "./documents/review-packet-replay.graphql"],
       ["exam-form-workbench", "./documents/exam-form-workbench.graphql"],
       ["exam-form-assembly", "./documents/assemble-exam-form.graphql"],
+      ["station-run-queue-snapshot", "./documents/create-station-run-queue-snapshot.graphql"],
     ]);
 
     for (const document of adminGraphqlDocuments) {

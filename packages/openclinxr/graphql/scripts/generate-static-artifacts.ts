@@ -19,10 +19,12 @@ const documentOrder = [
   "review-packet-replay.graphql",
   "exam-form-workbench.graphql",
   "assemble-exam-form.graphql",
+  "create-station-run-queue-snapshot.graphql",
 ] as const;
 
 const routeIdsByFileName = new Map<string, string>([
   ["assemble-exam-form.graphql", "exam-form-assembly"],
+  ["create-station-run-queue-snapshot.graphql", "station-run-queue-snapshot"],
 ]);
 
 const files = await buildGeneratedFiles();

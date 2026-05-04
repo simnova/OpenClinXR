@@ -23,6 +23,7 @@ type Query {
 
 type Mutation {
   assembleExamForm(input: AssembleExamFormInput!): ExamForm!
+  createStationRunQueueSnapshot(input: CreateStationRunQueueSnapshotInput!): StationRunQueueSnapshot!
   submitScenarioReview(input: ScenarioReviewDecisionInput!): Scenario!
   saveFacultyScoreDraft(input: FacultyScoreDraftInput!): ReviewPacket!
 }
@@ -113,6 +114,37 @@ type StationRef {
   title: String!
 }
 
+type StationRunQueueSnapshot {
+  snapshotId: ID!
+  createdAt: String!
+  reviewerId: ID
+  queue: StationRunQueue!
+}
+
+type StationRunQueue {
+  blueprintId: ID!
+  canStartLearnerExam: Boolean!
+  stationQueue: [StationRunQueueItem!]!
+  summary: StationRunQueueSummary!
+}
+
+type StationRunQueueItem {
+  stationOrder: Int!
+  slotId: ID!
+  label: String!
+  scenarioId: ID
+  scenarioVersion: Int
+  status: String!
+  blockers: [String!]!
+}
+
+type StationRunQueueSummary {
+  activationReady: Int!
+  draftBlocked: Int!
+  governanceBlocked: Int!
+  missingScenario: Int!
+}
+
 type ReviewPacket {
   stationRunId: ID!
   scenarioId: ID!
@@ -176,6 +208,12 @@ input AssembleExamFormInput {
   examFormId: ID!
   blueprintId: ID
   scenarioIds: [ID!]!
+}
+
+input CreateStationRunQueueSnapshotInput {
+  snapshotId: ID
+  createdAt: String
+  reviewerId: ID
 }
 
 input ScenarioReviewDecisionInput {

@@ -1,0 +1,26 @@
+mutation CreateStationRunQueueSnapshot($input: CreateStationRunQueueSnapshotInput!) {
+  createStationRunQueueSnapshot(input: $input) {
+    snapshotId
+    createdAt
+    reviewerId
+    queue {
+      blueprintId
+      canStartLearnerExam
+      summary {
+        activationReady
+        draftBlocked
+        governanceBlocked
+        missingScenario
+      }
+      stationQueue {
+        stationOrder
+        slotId
+        label
+        scenarioId
+        scenarioVersion
+        status
+        blockers
+      }
+    }
+  }
+}
