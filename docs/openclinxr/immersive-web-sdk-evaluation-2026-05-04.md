@@ -60,6 +60,17 @@ Create an isolated package or worktree spike before touching the production XR s
 
 Use IWSDK as a spike candidate, not a committed runtime dependency.
 
+## Committed Sidecar Sequence
+
+If the team decides to make the experiment visible in the monorepo, use `apps/ui-xr-iwsdk-spike/` and keep `apps/ui-xr/`, `apps/api/`, and `packages/openclinxr/scenario-runtime/` blocked from IWSDK dependencies until the spike exits. The sequence should be:
+
+1. `phase-0-policy`: install only `@iwsdk/core` and `@iwsdk/xr-input`; verify pinned package specs, license policy, and the existing architecture boundary test. Keep `@iwsdk/reference`, `@meta-quest/hzdb`, and `@iwsdk/vite-plugin-gltf-optimizer` blocked.
+2. `phase-1-runtime-shell`: rebuild the minimal ED bay shell with IWSDK core/input and compare nonblank canvas, bundle-size delta versus `apps/ui-xr`, controller-select trace events, and desktop fallback behavior.
+3. `phase-2-agent-devtools`: add `@iwsdk/vite-plugin-dev` only after the shell is stable; measure Vite 8 compatibility, Node 22 runtime path, MCP scene hierarchy, MCP controller select, and console log capture. Do not run `@iwsdk/reference` warmup unattended.
+4. `phase-3-quest-device-proof`: use physical Quest 3 evidence before any production adoption decision, including foreground frame pacing, controller-select latency, headset text readability, and thermal/comfort notes.
+
+Azure B1/App Service should remain the orchestration/API target. IWSDK dev tooling, Playwright, MCP runtime support, reference warmups, and asset optimization experiments belong on the local M4-class workstation or a non-production spike environment, not the production App Service deployment path.
+
 Most promising first packages:
 
 - `@iwsdk/xr-input` for controller/hand interaction modeling.

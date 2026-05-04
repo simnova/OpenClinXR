@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildIwsdkAgentVerificationRunbook,
+  buildIwsdkCommittedSpikeSequence,
   buildIwsdkSpikePlan,
   evaluateIwsdkSpikeReadiness,
   type IwsdkSpikeGateEvidence,
@@ -80,5 +81,33 @@ describe("IWSDK spike plan", () => {
       "install @meta-quest/hzdb",
       "adopt @iwsdk/vite-plugin-gltf-optimizer in production builds",
     ]);
+  });
+
+  it("defines a contained committed sidecar spike sequence before production adoption", () => {
+    const sequence = buildIwsdkCommittedSpikeSequence();
+
+    expect(sequence.sidecarAppRoot).toBe("apps/ui-xr-iwsdk-spike/");
+    expect(sequence.productionRootsBlocked).toEqual(["apps/ui-xr/", "apps/api/", "packages/openclinxr/scenario-runtime/"]);
+    expect(sequence.phases.map((phase) => phase.id)).toEqual([
+      "phase-0-policy",
+      "phase-1-runtime-shell",
+      "phase-2-agent-devtools",
+      "phase-3-quest-device-proof",
+    ]);
+    expect(sequence.phases).toHaveLength(4);
+    const [policyPhase, runtimeShellPhase, agentDevtoolsPhase, questDevicePhase] = sequence.phases;
+
+    expect(policyPhase?.allowedPackages).toEqual(["@iwsdk/core", "@iwsdk/xr-input"]);
+    expect(runtimeShellPhase?.requiredMetrics).toEqual(expect.arrayContaining([
+      "canvas_nonblank",
+      "bundle_size_delta_vs_apps_ui_xr",
+      "controller_select_trace_event",
+    ]));
+    expect(agentDevtoolsPhase?.blockedPackages).toEqual(["@iwsdk/reference", "@meta-quest/hzdb"]);
+    expect(questDevicePhase?.requiredMetrics).toEqual(expect.arrayContaining([
+      "foreground_frame_pacing",
+      "quest3_controller_select_latency",
+      "headset_text_readability",
+    ]));
   });
 });
