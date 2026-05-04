@@ -5,6 +5,7 @@ import {
   createRealtimeVoiceGatewayPosture,
   LocalVoiceProviderAdapter,
   MockVoiceProviderAdapter,
+  selectRealtimeVoiceProtocol,
 } from "./index.js";
 
 describe("voice gateway", () => {
@@ -76,6 +77,48 @@ describe("voice gateway", () => {
           "web3_identity_and_signaling_protocol_not_selected",
           "web3_media_transport_disallowed",
         ]),
+      }),
+    ]));
+  });
+
+  it("negotiates preferred realtime protocol lanes without allowing Web3 to carry media", () => {
+    const posture = createRealtimeVoiceGatewayPosture({
+      bunAvailable: true,
+      pythonBackendDependenciesInstalled: true,
+      pythonInferenceRuntimeInstalled: false,
+    });
+
+    const selection = selectRealtimeVoiceProtocol(posture, {
+      preferredProtocolLaneIds: [
+        "web3-identity-signaling",
+        "direct-quic-media-gateway",
+        "webtransport-http3-media",
+        "websocket-media",
+      ],
+      requireMedia: true,
+    });
+
+    expect(selection.selectedLane).toMatchObject({
+      id: "websocket-media",
+      protocol: "websocket",
+      mediaAllowed: true,
+      blockers: [],
+    });
+    expect(selection.rejectedLaneReasons).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: "web3-identity-signaling",
+        reason: "media_not_allowed",
+        blockers: expect.arrayContaining(["web3_media_transport_disallowed"]),
+      }),
+      expect.objectContaining({
+        id: "direct-quic-media-gateway",
+        reason: "proposal_required",
+        blockers: expect.arrayContaining(["operator_quic_gateway_proposal_missing", "quic_gateway_not_implemented"]),
+      }),
+      expect.objectContaining({
+        id: "webtransport-http3-media",
+        reason: "proposal_required",
+        blockers: expect.arrayContaining(["bun_http3_webtransport_not_verified", "quest_webtransport_path_not_verified"]),
       }),
     ]));
   });

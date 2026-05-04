@@ -2,6 +2,31 @@ import type { ProviderHealth } from "@openclinxr/shared-schemas";
 
 export type VoiceCapability = "transcription" | "synthesis" | "viseme_cues";
 
+export type RealtimeVoiceProtocolLaneId =
+  | "websocket-media"
+  | "webtransport-http3-media"
+  | "direct-quic-media-gateway"
+  | "web3-identity-signaling";
+
+export type RealtimeVoiceProtocolLane = {
+  id: RealtimeVoiceProtocolLaneId;
+  protocol: "websocket" | "webtransport" | "direct-quic" | "web3-signaling";
+  role: "media-transport" | "identity-signaling-audit";
+  status: "working_spike_transport" | "proposal_required";
+  mediaAllowed: boolean;
+  blockers: string[];
+  notes: string;
+};
+
+export type RealtimeVoiceProtocolSelection = {
+  selectedLane?: RealtimeVoiceProtocolLane;
+  rejectedLaneReasons: Array<{
+    id: RealtimeVoiceProtocolLaneId;
+    reason: "media_not_allowed" | "proposal_required";
+    blockers: string[];
+  }>;
+};
+
 export type RealtimeVoiceGatewayPosture = {
   policy: {
     cloudApisUsed: false;
@@ -37,19 +62,7 @@ export type RealtimeVoiceGatewayPosture = {
       localExecutionClaimed: false;
     }>;
   };
-  protocolLanes: Array<{
-    id:
-      | "websocket-media"
-      | "webtransport-http3-media"
-      | "direct-quic-media-gateway"
-      | "web3-identity-signaling";
-    protocol: "websocket" | "webtransport" | "direct-quic" | "web3-signaling";
-    role: "media-transport" | "identity-signaling-audit";
-    status: "working_spike_transport" | "proposal_required";
-    mediaAllowed: boolean;
-    blockers: string[];
-    notes: string;
-  }>;
+  protocolLanes: RealtimeVoiceProtocolLane[];
 };
 
 export type VoiceRequestPolicy = {
@@ -256,6 +269,57 @@ export function createRealtimeVoiceGatewayPosture(input: RealtimeVoiceGatewayPos
       },
     ],
   };
+}
+
+export function selectRealtimeVoiceProtocol(
+  posture: RealtimeVoiceGatewayPosture,
+  options: {
+    preferredProtocolLaneIds?: RealtimeVoiceProtocolLaneId[];
+    requireMedia?: boolean;
+  } = {},
+): RealtimeVoiceProtocolSelection {
+  const requireMedia = options.requireMedia ?? true;
+  const preference = options.preferredProtocolLaneIds ?? posture.protocolLanes.map((lane) => lane.id);
+  const lanesById = new Map(posture.protocolLanes.map((lane) => [lane.id, lane]));
+  const rejectedLaneReasons: RealtimeVoiceProtocolSelection["rejectedLaneReasons"] = [];
+
+  for (const laneId of preference) {
+    const lane = lanesById.get(laneId);
+    if (!lane) {
+      continue;
+    }
+
+    if (requireMedia && lane.role !== "media-transport") {
+      rejectedLaneReasons.push({
+        id: lane.id,
+        reason: "media_not_allowed",
+        blockers: lane.blockers,
+      });
+      continue;
+    }
+
+    if (lane.status !== "working_spike_transport") {
+      rejectedLaneReasons.push({
+        id: lane.id,
+        reason: "proposal_required",
+        blockers: lane.blockers,
+      });
+      continue;
+    }
+
+    if (requireMedia && !lane.mediaAllowed) {
+      rejectedLaneReasons.push({
+        id: lane.id,
+        reason: "media_not_allowed",
+        blockers: lane.blockers,
+      });
+      continue;
+    }
+
+    return { selectedLane: lane, rejectedLaneReasons };
+  }
+
+  return { rejectedLaneReasons };
 }
 
 export async function collectVoiceStream<TEvent>(events: AsyncIterable<TEvent>): Promise<TEvent[]> {
