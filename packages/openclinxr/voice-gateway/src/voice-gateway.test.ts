@@ -44,6 +44,40 @@ describe("voice gateway", () => {
         },
       },
     });
+    expect(posture.protocolLanes).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: "websocket-media",
+        protocol: "websocket",
+        role: "media-transport",
+        status: "working_spike_transport",
+        mediaAllowed: true,
+        blockers: [],
+      }),
+      expect.objectContaining({
+        id: "direct-quic-media-gateway",
+        protocol: "direct-quic",
+        role: "media-transport",
+        status: "proposal_required",
+        mediaAllowed: false,
+        blockers: expect.arrayContaining([
+          "operator_quic_gateway_proposal_missing",
+          "quic_gateway_not_implemented",
+          "azure_quic_ingress_not_verified",
+        ]),
+      }),
+      expect.objectContaining({
+        id: "web3-identity-signaling",
+        protocol: "web3-signaling",
+        role: "identity-signaling-audit",
+        status: "proposal_required",
+        mediaAllowed: false,
+        blockers: expect.arrayContaining([
+          "operator_web3_signaling_proposal_missing",
+          "web3_identity_and_signaling_protocol_not_selected",
+          "web3_media_transport_disallowed",
+        ]),
+      }),
+    ]));
   });
 
   it("streams deterministic mock transcript and synthesis events with provenance", async () => {

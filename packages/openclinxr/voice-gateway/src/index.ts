@@ -37,6 +37,19 @@ export type RealtimeVoiceGatewayPosture = {
       localExecutionClaimed: false;
     }>;
   };
+  protocolLanes: Array<{
+    id:
+      | "websocket-media"
+      | "webtransport-http3-media"
+      | "direct-quic-media-gateway"
+      | "web3-identity-signaling";
+    protocol: "websocket" | "webtransport" | "direct-quic" | "web3-signaling";
+    role: "media-transport" | "identity-signaling-audit";
+    status: "working_spike_transport" | "proposal_required";
+    mediaAllowed: boolean;
+    blockers: string[];
+    notes: string;
+  }>;
 };
 
 export type VoiceRequestPolicy = {
@@ -192,6 +205,56 @@ export function createRealtimeVoiceGatewayPosture(input: RealtimeVoiceGatewayPos
         },
       ],
     },
+    protocolLanes: [
+      {
+        id: "websocket-media",
+        protocol: "websocket",
+        role: "media-transport",
+        status: "working_spike_transport",
+        mediaAllowed: true,
+        blockers: [],
+        notes: "Only WebSocket binary-frame media has local transport evidence today.",
+      },
+      {
+        id: "webtransport-http3-media",
+        protocol: "webtransport",
+        role: "media-transport",
+        status: "proposal_required",
+        mediaAllowed: false,
+        blockers: [
+          "bun_http3_webtransport_not_verified",
+          "quest_webtransport_path_not_verified",
+          "azure_http3_gateway_path_not_verified",
+        ],
+        notes: "HTTP/3 WebTransport remains a future media lane until server, headset, and ingress evidence are captured.",
+      },
+      {
+        id: "direct-quic-media-gateway",
+        protocol: "direct-quic",
+        role: "media-transport",
+        status: "proposal_required",
+        mediaAllowed: false,
+        blockers: [
+          "operator_quic_gateway_proposal_missing",
+          "quic_gateway_not_implemented",
+          "azure_quic_ingress_not_verified",
+        ],
+        notes: "Direct QUIC may become a low-latency gateway lane only after architecture/security approval and local evidence.",
+      },
+      {
+        id: "web3-identity-signaling",
+        protocol: "web3-signaling",
+        role: "identity-signaling-audit",
+        status: "proposal_required",
+        mediaAllowed: false,
+        blockers: [
+          "operator_web3_signaling_proposal_missing",
+          "web3_identity_and_signaling_protocol_not_selected",
+          "web3_media_transport_disallowed",
+        ],
+        notes: "Web3 is scoped to identity, signaling, consent, or audit experiments; it is not a clinical audio media path.",
+      },
+    ],
   };
 }
 
