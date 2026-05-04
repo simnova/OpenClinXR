@@ -13,6 +13,8 @@ type BlockerGroup = {
 type BenchmarkGateReport = {
   evidence_gates: Array<{
     evidence_id: string;
+    ready_to_resolve?: boolean;
+    satisfied_conditions?: string[];
     blockers: string[];
     blocker_summary?: {
       groups: BlockerGroup[];
@@ -62,6 +64,40 @@ describe("benchmark gate report", () => {
       ]),
     );
     expect(groups.every((group) => group.next_step.length > 0)).toBe(true);
+  });
+
+  it("splits iteration 0008 benchmark evidence debt by owner-specific leadership gates", async () => {
+    const report = JSON.parse(await readFile(".agent-factory/benchmark-gate-report.json", "utf8")) as BenchmarkGateReport;
+    const gatesById = new Map(report.evidence_gates.map((gate) => [gate.evidence_id, gate]));
+
+    expect([...gatesById.keys()].sort()).toEqual([
+      "evidence-leadership-0007-002",
+      "evidence-leadership-0008-001",
+      "evidence-leadership-0008-002",
+      "evidence-leadership-0008-003",
+    ]);
+
+    expect(gatesById.get("evidence-leadership-0008-001")).toEqual(expect.objectContaining({
+      ready_to_resolve: false,
+      blockers: expect.arrayContaining([
+        "quest_cdp_frame_sample_incomplete",
+        "quest_manual_performance:missing_quest_manual_performance_report",
+      ]),
+    }));
+    expect(gatesById.get("evidence-leadership-0008-002")).toEqual(expect.objectContaining({
+      ready_to_resolve: false,
+      blockers: expect.arrayContaining([
+        "local_model:model_weights_not_selected_or_benchmarked",
+        "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_ID_not_set",
+      ]),
+    }));
+    expect(gatesById.get("evidence-leadership-0008-003")).toEqual(expect.objectContaining({
+      ready_to_resolve: false,
+      blockers: expect.arrayContaining([
+        "local_voice:no_vibevoice_runtime_detected",
+        "local_voice_benchmark:OPENCLINXR_LOCAL_VOICE_ID_not_set",
+      ]),
+    }));
   });
 
   it("summarizes missing Blender asset evidence as an asset-pipeline group", () => {

@@ -214,7 +214,10 @@ async function main(): Promise<void> {
     questManualPerformance,
   });
   await writeJson(".agent-factory/benchmark-gate-report.json", report);
-  console.log(`Wrote .agent-factory/benchmark-gate-report.json; evidence-leadership-0007-002 ready=${report.evidence_gates[0]?.ready_to_resolve ?? false}`);
+  const readySummary = report.evidence_gates
+    .map((gate) => `${gate.evidence_id}=${gate.ready_to_resolve}`)
+    .join(", ");
+  console.log(`Wrote .agent-factory/benchmark-gate-report.json; gates ${readySummary}`);
 }
 
 async function latestJson<TValue>(pattern: string): Promise<{ file: string; value: TValue } | undefined> {
@@ -236,15 +239,31 @@ async function fileJson<TValue>(file: string): Promise<{ file: string; value: TV
 
 export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): EvidenceGateReport {
   const { questSmoke, localRuntime, gltfPipelineSmoke, blenderAssetBakeSmoke, localProviderBenchmark, questManualPerformance } = input;
-  const blockers = [
+  const questEvidenceBlockers = [
     ...questBlockers(questSmoke?.value),
     ...questManualPerformanceBlockers(questManualPerformance?.value),
-    ...localRuntimeBlockers(localRuntime?.value),
+    ...questUsbBlockers(localRuntime?.value),
+  ];
+  const localModelEvidenceBlockers = [
+    ...localModelRuntimeBlockers(localRuntime?.value),
+    ...localModelBenchmarkBlockers(localProviderBenchmark?.value),
+  ];
+  const localVoiceEvidenceBlockers = [
+    ...localVoiceRuntimeBlockers(localRuntime?.value),
+    ...localVoiceBenchmarkBlockers(localProviderBenchmark?.value),
+  ];
+  const assetEvidenceBlockers = [
+    ...assetRuntimeBlockers(localRuntime?.value),
     ...gltfPipelineSmokeBlockers(gltfPipelineSmoke?.value),
     ...blenderAssetBakeSmokeBlockers(blenderAssetBakeSmoke?.value),
-    ...localProviderBenchmarkBlockers(localProviderBenchmark?.value),
   ];
-  const satisfiedConditions = [
+  const combinedBlockers = unique([
+    ...questEvidenceBlockers,
+    ...localModelEvidenceBlockers,
+    ...localVoiceEvidenceBlockers,
+    ...assetEvidenceBlockers,
+  ]);
+  const combinedSatisfiedConditions = [
     questSmoke?.value.verdict.shellLoaded ? "quest_shell_loaded" : undefined,
     questSmoke?.value.verdict.interactionAdvanced ? "quest_trace_interaction_advanced" : undefined,
     questManualPerformance?.value.readyToClaimFramePacing ? "quest_manual_frame_pacing_ready" : undefined,
@@ -259,6 +278,15 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): Evide
     localProviderBenchmark?.value.verdict.localModelReadyToBenchmark ? "local_model_ready_to_benchmark" : undefined,
     localProviderBenchmark?.value.verdict.localVoiceReadyToBenchmark ? "local_voice_ready_to_benchmark" : undefined,
   ].filter((condition): condition is string => typeof condition === "string");
+  const questSatisfiedConditions = combinedSatisfiedConditions.filter((condition) =>
+    condition.startsWith("quest_") || (questManualPerformance?.value.satisfiedConditions ?? []).includes(condition)
+  );
+  const localModelSatisfiedConditions = combinedSatisfiedConditions.filter((condition) =>
+    condition.startsWith("local_model_") || condition === "local_provider_mock_benchmarks_passed"
+  );
+  const localVoiceSatisfiedConditions = combinedSatisfiedConditions.filter((condition) =>
+    condition.startsWith("local_voice_") || condition === "local_provider_mock_benchmarks_passed"
+  );
 
   return {
     generated_by: "tools/agent-factory/build-benchmark-gate-report.ts",
@@ -322,14 +350,21 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): Evide
       },
     } : {}),
     evidence_gates: [
-      {
-        evidence_id: "evidence-leadership-0007-002",
-        ready_to_resolve: blockers.length === 0,
-        satisfied_conditions: satisfiedConditions,
-        blockers,
-        blocker_summary: summarizeBlockers(blockers),
-      },
+      buildEvidenceGate("evidence-leadership-0007-002", combinedSatisfiedConditions, combinedBlockers),
+      buildEvidenceGate("evidence-leadership-0008-001", questSatisfiedConditions, unique(questEvidenceBlockers)),
+      buildEvidenceGate("evidence-leadership-0008-002", localModelSatisfiedConditions, unique(localModelEvidenceBlockers)),
+      buildEvidenceGate("evidence-leadership-0008-003", localVoiceSatisfiedConditions, unique(localVoiceEvidenceBlockers)),
     ],
+  };
+}
+
+function buildEvidenceGate(evidenceId: string, satisfiedConditions: string[], blockers: string[]): EvidenceGateReport["evidence_gates"][number] {
+  return {
+    evidence_id: evidenceId,
+    ready_to_resolve: blockers.length === 0,
+    satisfied_conditions: satisfiedConditions,
+    blockers,
+    blocker_summary: summarizeBlockers(blockers),
   };
 }
 
@@ -389,17 +424,32 @@ function questManualPerformanceBlockers(report: QuestManualPerformanceCheck | un
   return unique(report.blockers.map((blocker) => `quest_manual_performance:${blocker}`));
 }
 
-function localRuntimeBlockers(report: LocalRuntimeProbeReport | undefined): string[] {
+function questUsbBlockers(report: LocalRuntimeProbeReport | undefined): string[] {
   if (!report) {
     return ["missing_local_runtime_probe_report"];
   }
+  return unique(prefixBlockers("quest_usb", report.gates.questUsb));
+}
 
-  return unique([
-    ...prefixBlockers("quest_usb", report.gates.questUsb),
-    ...prefixBlockers("local_model", report.gates.localModel),
-    ...prefixBlockers("local_voice", report.gates.localVoice),
-    ...prefixBlockers("asset_pipeline", report.gates.assetPipeline),
-  ]);
+function localModelRuntimeBlockers(report: LocalRuntimeProbeReport | undefined): string[] {
+  if (!report) {
+    return ["missing_local_runtime_probe_report"];
+  }
+  return unique(prefixBlockers("local_model", report.gates.localModel));
+}
+
+function localVoiceRuntimeBlockers(report: LocalRuntimeProbeReport | undefined): string[] {
+  if (!report) {
+    return ["missing_local_runtime_probe_report"];
+  }
+  return unique(prefixBlockers("local_voice", report.gates.localVoice));
+}
+
+function assetRuntimeBlockers(report: LocalRuntimeProbeReport | undefined): string[] {
+  if (!report) {
+    return ["missing_local_runtime_probe_report"];
+  }
+  return unique(prefixBlockers("asset_pipeline", report.gates.assetPipeline));
 }
 
 function gltfPipelineSmokeBlockers(report: GltfPipelineSmokeReport | undefined): string[] {
@@ -422,14 +472,22 @@ function blenderAssetBakeSmokeBlockers(report: BlenderAssetBakeSmokeReport | und
   return unique(report.verdict.blockers.map((blocker) => `blender_asset_bake_smoke:${blocker}`));
 }
 
-function localProviderBenchmarkBlockers(report: LocalProviderBenchmarkReport | undefined): string[] {
+function localModelBenchmarkBlockers(report: LocalProviderBenchmarkReport | undefined): string[] {
   if (!report) {
     return ["missing_local_provider_benchmark_report"];
   }
   return unique([
     ...report.mockModel.blockers.map((blocker) => `mock_model_benchmark:${blocker}`),
-    ...report.mockVoice.blockers.map((blocker) => `mock_voice_benchmark:${blocker}`),
     ...(report.verdict.localModelReadyToBenchmark ? [] : report.localModel.blockers.map((blocker) => `local_model_benchmark:${blocker}`)),
+  ]);
+}
+
+function localVoiceBenchmarkBlockers(report: LocalProviderBenchmarkReport | undefined): string[] {
+  if (!report) {
+    return ["missing_local_provider_benchmark_report"];
+  }
+  return unique([
+    ...report.mockVoice.blockers.map((blocker) => `mock_voice_benchmark:${blocker}`),
     ...(report.verdict.localVoiceReadyToBenchmark ? [] : report.localVoice.blockers.map((blocker) => `local_voice_benchmark:${blocker}`)),
   ]);
 }

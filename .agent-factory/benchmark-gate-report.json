@@ -174,17 +174,17 @@
         "local_provider_mock_benchmarks_passed"
       ],
       "blockers": [
-        "quest_cdp_frame_sample_incomplete",
-        "quest_page_hidden_or_inactive",
-        "quest_sustained_frame_sample_not_complete",
-        "quest_manual_performance:missing_quest_manual_performance_report",
         "local_model:model_weights_not_selected_or_benchmarked",
-        "local_voice:no_vibevoice_runtime_detected",
         "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_ID_not_set",
         "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_RUNTIME_not_set",
+        "local_voice:no_vibevoice_runtime_detected",
         "local_voice_benchmark:OPENCLINXR_LOCAL_VOICE_ID_not_set",
         "local_voice_benchmark:OPENCLINXR_LOCAL_VOICE_RUNTIME_not_set",
-        "local_voice_benchmark:no_vibevoice_runtime_detected"
+        "local_voice_benchmark:no_vibevoice_runtime_detected",
+        "quest_cdp_frame_sample_incomplete",
+        "quest_manual_performance:missing_quest_manual_performance_report",
+        "quest_page_hidden_or_inactive",
+        "quest_sustained_frame_sample_not_complete"
       ],
       "blocker_summary": {
         "total_blockers": 11,
@@ -213,6 +213,102 @@
             ],
             "next_step": "Install or point to one approved local model runtime if missing; otherwise approve one model ID/download, set runtime and model environment variables, then rerun the benchmark."
           },
+          {
+            "group_id": "local_voice_runtime",
+            "title": "Local voice runtime benchmark",
+            "owner": "voice-speech-engineer",
+            "blockers": [
+              "local_voice:no_vibevoice_runtime_detected",
+              "local_voice_benchmark:OPENCLINXR_LOCAL_VOICE_ID_not_set",
+              "local_voice_benchmark:OPENCLINXR_LOCAL_VOICE_RUNTIME_not_set",
+              "local_voice_benchmark:no_vibevoice_runtime_detected"
+            ],
+            "next_step": "Complete voice safety and license review, configure one local voice runtime and voice ID, then record first-audio latency evidence."
+          }
+        ],
+        "ungrouped_blockers": []
+      }
+    },
+    {
+      "evidence_id": "evidence-leadership-0008-001",
+      "ready_to_resolve": false,
+      "satisfied_conditions": [
+        "quest_shell_loaded",
+        "quest_trace_interaction_advanced",
+        "quest_usb_ready"
+      ],
+      "blockers": [
+        "quest_cdp_frame_sample_incomplete",
+        "quest_manual_performance:missing_quest_manual_performance_report",
+        "quest_page_hidden_or_inactive",
+        "quest_sustained_frame_sample_not_complete"
+      ],
+      "blocker_summary": {
+        "total_blockers": 4,
+        "distinct_problem_count": 1,
+        "groups": [
+          {
+            "group_id": "quest_foreground_frame_pacing",
+            "title": "Foreground Quest frame pacing evidence",
+            "owner": "xr-systems-architect",
+            "blockers": [
+              "quest_cdp_frame_sample_incomplete",
+              "quest_manual_performance:missing_quest_manual_performance_report",
+              "quest_page_hidden_or_inactive",
+              "quest_sustained_frame_sample_not_complete"
+            ],
+            "next_step": "Capture a foreground in-headset manual performance report and keep CDP hidden-page blockers until that report passes."
+          }
+        ],
+        "ungrouped_blockers": []
+      }
+    },
+    {
+      "evidence_id": "evidence-leadership-0008-002",
+      "ready_to_resolve": false,
+      "satisfied_conditions": [
+        "local_provider_mock_benchmarks_passed"
+      ],
+      "blockers": [
+        "local_model:model_weights_not_selected_or_benchmarked",
+        "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_ID_not_set",
+        "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_RUNTIME_not_set"
+      ],
+      "blocker_summary": {
+        "total_blockers": 3,
+        "distinct_problem_count": 1,
+        "groups": [
+          {
+            "group_id": "local_model_runtime",
+            "title": "Local model runtime benchmark",
+            "owner": "local-ai-inference-engineer",
+            "blockers": [
+              "local_model:model_weights_not_selected_or_benchmarked",
+              "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_ID_not_set",
+              "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_RUNTIME_not_set"
+            ],
+            "next_step": "Install or point to one approved local model runtime if missing; otherwise approve one model ID/download, set runtime and model environment variables, then rerun the benchmark."
+          }
+        ],
+        "ungrouped_blockers": []
+      }
+    },
+    {
+      "evidence_id": "evidence-leadership-0008-003",
+      "ready_to_resolve": false,
+      "satisfied_conditions": [
+        "local_provider_mock_benchmarks_passed"
+      ],
+      "blockers": [
+        "local_voice:no_vibevoice_runtime_detected",
+        "local_voice_benchmark:OPENCLINXR_LOCAL_VOICE_ID_not_set",
+        "local_voice_benchmark:OPENCLINXR_LOCAL_VOICE_RUNTIME_not_set",
+        "local_voice_benchmark:no_vibevoice_runtime_detected"
+      ],
+      "blocker_summary": {
+        "total_blockers": 4,
+        "distinct_problem_count": 1,
+        "groups": [
           {
             "group_id": "local_voice_runtime",
             "title": "Local voice runtime benchmark",
