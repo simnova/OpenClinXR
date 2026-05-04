@@ -1,7 +1,7 @@
 import type { ExamForm } from "@openclinxr/exam-assembly";
 import { createDefaultScenarioRuntime, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createNoopTelemetryRecorder, type TelemetryRecorder } from "@openclinxr/telemetry";
-import { createApiApp, type ApiPersistenceSink, type ApiStationRunQueueSnapshot } from "./app.js";
+import { createApiApp, type ApiPersistenceSink, type ApiScenarioReviewDecisionRecord, type ApiStationRunQueueSnapshot } from "./app.js";
 
 export type AzureFunctionHttpMethod = "GET" | "POST" | "PATCH" | "PUT" | "DELETE" | "OPTIONS" | "HEAD";
 
@@ -158,6 +158,7 @@ function defaultApplicationServicesFactory(context: ApiStartupContext): ApiAppli
 function createSingleUserMemoryPersistenceSink(): ApiPersistenceSink {
   const examForms = new Map<string, ExamForm>();
   const stationRunQueueSnapshots = new Map<string, ApiStationRunQueueSnapshot>();
+  const scenarioReviewDecisions: ApiScenarioReviewDecisionRecord[] = [];
 
   return {
     saveExamForm: (form) => {
@@ -170,6 +171,16 @@ function createSingleUserMemoryPersistenceSink(): ApiPersistenceSink {
       Array.from(stationRunQueueSnapshots.values())
         .filter((snapshot) => snapshot.queue.blueprintId === blueprintId)
         .sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt)),
+    saveScenarioReviewDecision: (record) => {
+      scenarioReviewDecisions.push({
+        ...record,
+        evidenceRefs: [...record.evidenceRefs],
+      });
+    },
+    listScenarioReviewDecisions: () =>
+      scenarioReviewDecisions
+        .map((record) => ({ ...record, evidenceRefs: [...record.evidenceRefs] }))
+        .sort((left, right) => Date.parse(left.reviewedAt) - Date.parse(right.reviewedAt)),
     saveTraceEvents: () => undefined,
     saveReviewPacket: () => undefined,
   };

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
 import { createOpenClinXrApiStartup, createNodeServerConfig } from "./index.js";
 
 describe("OpenClinXR API startup", () => {
@@ -69,5 +70,54 @@ describe("OpenClinXR API startup", () => {
         }),
       ]),
     );
+  });
+
+  it("persists scenario review decisions in the default single-user startup", async () => {
+    const startup = createOpenClinXrApiStartup().startUp();
+    const submitScenarioReviewDocument = adminGraphqlDocumentByOperationName("SubmitScenarioReview");
+    const scenarioDetailDocument = adminGraphqlDocumentByOperationName("ScenarioDetail");
+
+    const reviewResponse = await startup.fetch(new Request("http://localhost/admin/graphql", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        query: submitScenarioReviewDocument.source,
+        operationName: "SubmitScenarioReview",
+        variables: {
+          input: {
+            scenarioId: "peds_asthma_parent_anxiety_v1",
+            version: 1,
+            reviewerRole: "clinical",
+            reviewerId: "pediatrician_001",
+            decision: "APPROVED",
+            comments: "Clinical approval recorded in the default startup sink.",
+            evidenceRefs: ["evidence:peds:clinical:startup"],
+          },
+        },
+      }),
+    }));
+
+    expect(reviewResponse.status).toBe(200);
+
+    const detailResponse = await startup.fetch(new Request("http://localhost/admin/graphql", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        query: scenarioDetailDocument.source,
+        operationName: "ScenarioDetail",
+        variables: { scenarioId: "peds_asthma_parent_anxiety_v1", version: 1 },
+      }),
+    }));
+
+    await expect(detailResponse.json()).resolves.toMatchObject({
+      data: {
+        scenario: {
+          status: "READY_FOR_REVIEW",
+          review: {
+            clinical: "approved",
+          },
+        },
+      },
+    });
   });
 });

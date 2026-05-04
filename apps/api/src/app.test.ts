@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
 import type { ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createInMemoryTelemetryRecorder, openClinXrSpanNames, telemetryAttributeNames } from "@openclinxr/telemetry";
-import { createApiApp, type ApiStationRunQueueSnapshot } from "./index.js";
+import { createApiApp, type ApiPersistenceSink, type ApiScenarioReviewDecisionRecord, type ApiStationRunQueueSnapshot } from "./index.js";
 
 async function json(response: Response): Promise<unknown> {
   return response.json() as Promise<unknown>;
@@ -526,7 +526,14 @@ describe("OpenClinXR API shell", () => {
   });
 
   it("executes generated scenario review decisions and reflects them in later ScenarioDetail queries", async () => {
-    const app = createApiApp();
+    const scenarioReviewDecisions: ApiScenarioReviewDecisionRecord[] = [];
+    const persistence: ApiPersistenceSink = {
+      saveScenarioReviewDecision: (record) => {
+        scenarioReviewDecisions.push(record);
+      },
+      listScenarioReviewDecisions: () => scenarioReviewDecisions,
+    };
+    const app = createApiApp(undefined, persistence);
     const submitScenarioReviewDocument = adminGraphqlDocumentByOperationName("SubmitScenarioReview");
     const scenarioDetailDocument = adminGraphqlDocumentByOperationName("ScenarioDetail");
 
@@ -575,6 +582,18 @@ describe("OpenClinXR API shell", () => {
       },
     });
     expect(JSON.stringify(reviewed)).not.toContain("hiddenFacts");
+    expect(scenarioReviewDecisions).toEqual([
+      expect.objectContaining({
+        scenarioId: "peds_asthma_parent_anxiety_v1",
+        version: 1,
+        reviewerRole: "clinical",
+        reviewerId: "pediatrician_001",
+        decision: "approved",
+        comments: "Clinical objectives are plausible for local formative review.",
+        evidenceRefs: ["evidence:peds:clinical:2026-05-04"],
+      }),
+    ]);
+    expect(Date.parse(scenarioReviewDecisions[0]?.reviewedAt ?? "")).not.toBeNaN();
 
     const detailResponse = await app.request("/admin/graphql", {
       method: "POST",
@@ -589,6 +608,24 @@ describe("OpenClinXR API shell", () => {
 
     expect(detailResponse.status).toBe(200);
     expect(detail.data?.scenario).toMatchObject({
+      status: "READY_FOR_REVIEW",
+      review: { clinical: "approved" },
+    });
+
+    const restartedApp = createApiApp(undefined, persistence);
+    const restartedDetailResponse = await restartedApp.request("/admin/graphql", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        query: scenarioDetailDocument.source,
+        operationName: "ScenarioDetail",
+        variables: { scenarioId: "peds_asthma_parent_anxiety_v1", version: 1 },
+      }),
+    });
+    const restartedDetail = await json(restartedDetailResponse) as { data?: { scenario: { status: string; review: { clinical: string } } | null } };
+
+    expect(restartedDetailResponse.status).toBe(200);
+    expect(restartedDetail.data?.scenario).toMatchObject({
       status: "READY_FOR_REVIEW",
       review: { clinical: "approved" },
     });

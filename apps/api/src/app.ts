@@ -42,10 +42,23 @@ export type ApiStationRunQueueSnapshot = {
   queue: ExamStationRunQueue;
 };
 
+export type ApiScenarioReviewDecisionRecord = {
+  scenarioId: string;
+  version: number;
+  reviewerRole: keyof AdminGraphqlScenario["review"];
+  reviewerId: string;
+  decision: "approved" | "changes_requested";
+  comments: string;
+  evidenceRefs: string[];
+  reviewedAt: string;
+};
+
 export type ApiPersistenceSink = {
   saveExamForm?: (form: ExamForm) => Promise<void> | void;
   saveStationRunQueueSnapshot?: (snapshot: ApiStationRunQueueSnapshot) => Promise<void> | void;
   listStationRunQueueSnapshots?: (blueprintId: string) => Promise<ApiStationRunQueueSnapshot[]> | ApiStationRunQueueSnapshot[];
+  saveScenarioReviewDecision?: (record: ApiScenarioReviewDecisionRecord) => Promise<void> | void;
+  listScenarioReviewDecisions?: () => Promise<ApiScenarioReviewDecisionRecord[]> | ApiScenarioReviewDecisionRecord[];
   saveTraceEvents?: (stationRunId: string, events: RuntimeTraceEvents) => Promise<void> | void;
   saveReviewPacket?: (stationRunId: string, packet: RuntimeReviewPacket) => Promise<void> | void;
 };
@@ -344,18 +357,16 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
 }
 
 function createAdminGraphqlRoot(persistence: ApiPersistenceSink, scenarioOverrides: Map<string, AdminGraphqlScenario>): AdminGraphqlRootValue {
-  const adminScenarios = scenarioBank.map((scenario) =>
-    scenarioOverrides.get(scenarioVersionKey(scenario.scenarioId, scenario.version)) ?? toAdminGraphqlScenario(scenario)
-  );
-
   return {
     assetReadiness: ({ scenarioId, version }) => findSeedBankAssetReadiness(String(scenarioId), version),
-    scenario: ({ scenarioId, version }) =>
-      adminScenarios.find((scenario) =>
+    scenario: async ({ scenarioId, version }) =>
+      (await listAdminGraphqlScenarios(persistence, scenarioOverrides)).find((scenario) =>
         scenario.scenarioId === scenarioId && (version === undefined || scenario.version === version)
       ),
-    scenarios: ({ status }) => adminScenarios.filter((scenario) => status === undefined || scenario.status === status),
-    submitScenarioReview: ({ input }) => {
+    scenarios: async ({ status }) =>
+      (await listAdminGraphqlScenarios(persistence, scenarioOverrides)).filter((scenario) => status === undefined || scenario.status === status),
+    submitScenarioReview: async ({ input }) => {
+      const adminScenarios = await listAdminGraphqlScenarios(persistence, scenarioOverrides);
       const scenario = adminScenarios.find((candidate) => candidate.scenarioId === input.scenarioId && candidate.version === input.version);
       if (!scenario) {
         throw new Error(`Scenario not found: ${input.scenarioId} v${input.version}`);
@@ -364,15 +375,9 @@ function createAdminGraphqlRoot(persistence: ApiPersistenceSink, scenarioOverrid
       const reviewGate = parseScenarioReviewGate(input.reviewerRole);
       validateScenarioReviewDecisionInput(input);
 
-      const nextReview = {
-        ...scenario.review,
-        [reviewGate]: input.decision === AdminGraphqlReviewDecision.Approved ? "approved" : "changes_requested",
-      };
-      const nextScenario = {
-        ...scenario,
-        review: nextReview,
-        status: scenarioStatusForReview(nextReview),
-      };
+      const reviewDecision = toApiScenarioReviewDecisionRecord(input, reviewGate);
+      const nextScenario = applyScenarioReviewDecision(scenario, reviewDecision);
+      await persistence.saveScenarioReviewDecision?.(reviewDecision);
       scenarioOverrides.set(scenarioVersionKey(nextScenario.scenarioId, nextScenario.version), nextScenario);
 
       return nextScenario;
@@ -384,6 +389,23 @@ function createAdminGraphqlRoot(persistence: ApiPersistenceSink, scenarioOverrid
       return snapshot;
     },
   };
+}
+
+async function listAdminGraphqlScenarios(
+  persistence: ApiPersistenceSink,
+  scenarioOverrides: Map<string, AdminGraphqlScenario>,
+): Promise<AdminGraphqlScenario[]> {
+  const reviewDecisions = await Promise.resolve(persistence.listScenarioReviewDecisions?.() ?? []);
+
+  return scenarioBank.map((scenario) => {
+    const scenarioKey = scenarioVersionKey(scenario.scenarioId, scenario.version);
+    const baseScenario = scenarioOverrides.get(scenarioKey) ?? toAdminGraphqlScenario(scenario);
+
+    return reviewDecisions
+      .filter((decision) => decision.scenarioId === baseScenario.scenarioId && decision.version === baseScenario.version)
+      .sort(compareScenarioReviewDecisions)
+      .reduce(applyScenarioReviewDecision, baseScenario);
+  });
 }
 
 function toAdminGraphqlScenario(scenario: (typeof scenarioBank)[number]): AdminGraphqlScenario {
@@ -440,6 +462,49 @@ function validateScenarioReviewDecisionInput(input: {
   if (input.evidenceRefs.length === 0 || input.evidenceRefs.some((evidenceRef) => evidenceRef.trim().length === 0)) {
     throw new Error("Scenario review decision requires evidenceRefs.");
   }
+}
+
+function toApiScenarioReviewDecisionRecord(
+  input: {
+    scenarioId: string | number;
+    version: number;
+    reviewerId: string | number;
+    decision: AdminGraphqlReviewDecision;
+    comments: string;
+    evidenceRefs: Array<string>;
+  },
+  reviewerRole: keyof AdminGraphqlScenario["review"],
+): ApiScenarioReviewDecisionRecord {
+  return {
+    scenarioId: String(input.scenarioId),
+    version: input.version,
+    reviewerRole,
+    reviewerId: String(input.reviewerId),
+    decision: input.decision === AdminGraphqlReviewDecision.Approved ? "approved" : "changes_requested",
+    comments: input.comments,
+    evidenceRefs: [...input.evidenceRefs],
+    reviewedAt: new Date().toISOString(),
+  };
+}
+
+function applyScenarioReviewDecision(
+  scenario: AdminGraphqlScenario,
+  reviewDecision: ApiScenarioReviewDecisionRecord,
+): AdminGraphqlScenario {
+  const nextReview = {
+    ...scenario.review,
+    [reviewDecision.reviewerRole]: reviewDecision.decision,
+  };
+
+  return {
+    ...scenario,
+    review: nextReview,
+    status: scenarioStatusForReview(nextReview),
+  };
+}
+
+function compareScenarioReviewDecisions(left: ApiScenarioReviewDecisionRecord, right: ApiScenarioReviewDecisionRecord): number {
+  return Date.parse(left.reviewedAt) - Date.parse(right.reviewedAt);
 }
 
 function scenarioStatusForReview(review: AdminGraphqlScenario["review"]): AdminGraphqlScenario["status"] {
