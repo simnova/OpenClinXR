@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { buildIwsdkUiXrStationParityContract } from "@openclinxr/iwsdk-spike";
 import {
+  buildIwsdkSidecarLocalMetricsEvidence,
   buildIwsdkSidecarRuntimeEvidence,
   completeIwsdkSidecarTraceAction,
   createIwsdkSidecarRuntimeState,
@@ -68,6 +69,36 @@ describe("IWSDK sidecar runtime state", () => {
       p95FrameMs: 40,
       maxFrameMs: 40,
       approxFps: 40,
+    });
+  });
+
+  it("adapts local sidecar observations into IWSDK shell metrics without headset-only claims", () => {
+    expect(buildIwsdkSidecarLocalMetricsEvidence({
+      installedNodeModulesMb: 24,
+      injectedDevRuntimeKb: 0,
+      appJsBundleKb: 504,
+      bundleDeltaVsUiXrKb: 24,
+      baselineAppBundleSource: "apps/ui-xr/dist/assets/index-D2UAcKLL.js",
+      canvasNonblank: true,
+      observedSceneObjectNames: iwsdkSidecarSceneObjectNames,
+      observedTraceActionTags: [iwsdkSidecarControllerSelectTraceTag],
+      frameDeltasMs: [12, 13, 14, 15],
+      consoleErrorCount: 0,
+    })).toEqual({
+      installedNodeModulesMb: 24,
+      injectedDevRuntimeKb: 0,
+      appJsBundleKb: 504,
+      bundleDeltaVsUiXrKb: 24,
+      baselineAppBundleSource: "apps/ui-xr/dist/assets/index-D2UAcKLL.js",
+      smokePlanHash: iwsdkSidecarSmokePlanHash,
+      canvasNonblank: true,
+      requiredSceneObjectNames: iwsdkSidecarSceneObjectNames,
+      observedSceneObjectNames: iwsdkSidecarSceneObjectNames,
+      controllerSelectTraceTag: iwsdkSidecarControllerSelectTraceTag,
+      observedTraceActionTags: [iwsdkSidecarControllerSelectTraceTag],
+      avgFps: 74.1,
+      p95FrameMs: 15,
+      consoleErrorCount: 0,
     });
   });
 

@@ -1,5 +1,5 @@
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
-import { buildIwsdkUiXrStationParityContract } from "@openclinxr/iwsdk-spike";
+import { buildIwsdkUiXrStationParityContract, type IwsdkSpikeMetrics } from "@openclinxr/iwsdk-spike";
 
 export type IwsdkSidecarRuntimeState = {
   scenarioId: string;
@@ -35,6 +35,19 @@ export type IwsdkSidecarFrameDeltaSummary = {
   p95FrameMs: number | null;
   maxFrameMs: number | null;
   approxFps: number | null;
+};
+
+export type IwsdkSidecarLocalMetricsEvidenceInput = {
+  installedNodeModulesMb: number;
+  injectedDevRuntimeKb: number;
+  appJsBundleKb: number;
+  bundleDeltaVsUiXrKb: number;
+  baselineAppBundleSource: string;
+  canvasNonblank: boolean;
+  observedSceneObjectNames: string[];
+  observedTraceActionTags: string[];
+  frameDeltasMs: number[];
+  consoleErrorCount: number;
 };
 
 const parityContract = buildIwsdkUiXrStationParityContract();
@@ -123,6 +136,33 @@ export function buildIwsdkSidecarRuntimeEvidence(input: {
     requiredSceneObjectNames: [...iwsdkSidecarSceneObjectNames],
     traceActionTags: [...iwsdkSidecarTraceActionTags],
   };
+}
+
+export function buildIwsdkSidecarLocalMetricsEvidence(input: IwsdkSidecarLocalMetricsEvidenceInput): IwsdkSpikeMetrics {
+  const frameSummary = summarizeIwsdkSidecarFrameDeltas(input.frameDeltasMs);
+  const metrics: IwsdkSpikeMetrics = {
+    installedNodeModulesMb: input.installedNodeModulesMb,
+    injectedDevRuntimeKb: input.injectedDevRuntimeKb,
+    appJsBundleKb: input.appJsBundleKb,
+    bundleDeltaVsUiXrKb: input.bundleDeltaVsUiXrKb,
+    baselineAppBundleSource: input.baselineAppBundleSource,
+    smokePlanHash: iwsdkSidecarSmokePlanHash,
+    canvasNonblank: input.canvasNonblank,
+    requiredSceneObjectNames: [...iwsdkSidecarSceneObjectNames],
+    observedSceneObjectNames: [...input.observedSceneObjectNames],
+    controllerSelectTraceTag: iwsdkSidecarControllerSelectTraceTag,
+    observedTraceActionTags: [...input.observedTraceActionTags],
+    consoleErrorCount: input.consoleErrorCount,
+  };
+
+  if (frameSummary.approxFps !== null) {
+    metrics.avgFps = frameSummary.approxFps;
+  }
+  if (frameSummary.p95FrameMs !== null) {
+    metrics.p95FrameMs = frameSummary.p95FrameMs;
+  }
+
+  return metrics;
 }
 
 function roundMetric(value: number, digits = 2): number {

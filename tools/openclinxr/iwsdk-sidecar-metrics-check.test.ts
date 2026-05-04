@@ -59,6 +59,22 @@ describe("IWSDK sidecar metrics checker", () => {
     });
   });
 
+  it("accepts local shell metrics while preserving headset-only production blockers", () => {
+    const report = buildIwsdkSidecarMetricsReport({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      metrics: localShellMetrics(),
+    });
+
+    expect(report.result).toEqual({
+      readyForCommittedSpike: true,
+      readyForProductionRuntime: false,
+      blockers: [
+        "missing_foreground_quest_preflight_ready",
+        "missing_controller_select_latency_ms",
+      ],
+    });
+  });
+
   it("exposes a CLI for scoring captured IWSDK sidecar metrics JSON", async () => {
     const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
       scripts: Record<string, string>;
@@ -110,6 +126,33 @@ function readyMetrics(): IwsdkSidecarMetricsReport["metrics"] {
     p95FrameMs: 24,
     controllerSelectLatencyMs: 140,
     foregroundQuestPreflightReady: true,
+    consoleErrorCount: 0,
+  };
+}
+
+function localShellMetrics(): IwsdkSidecarMetricsReport["metrics"] {
+  return {
+    installedNodeModulesMb: 24,
+    injectedDevRuntimeKb: 0,
+    appJsBundleKb: 504,
+    bundleDeltaVsUiXrKb: 24,
+    baselineAppBundleSource: "apps/ui-xr/dist/assets/index-D2UAcKLL.js",
+    smokePlanHash: "runtime-state:iwsdk-station-mcp-smoke-plan:v1",
+    canvasNonblank: true,
+    requiredSceneObjectNames: [
+      "openclinxr.ed-chest-pain.bed",
+      "openclinxr.ed-chest-pain.monitor",
+      "openclinxr.ed-chest-pain.patient-robert-hayes",
+    ],
+    observedSceneObjectNames: [
+      "openclinxr.ed-chest-pain.bed",
+      "openclinxr.ed-chest-pain.monitor",
+      "openclinxr.ed-chest-pain.patient-robert-hayes",
+    ],
+    controllerSelectTraceTag: "ecg_request",
+    observedTraceActionTags: ["ecg_request"],
+    avgFps: 74.1,
+    p95FrameMs: 15,
     consoleErrorCount: 0,
   };
 }
