@@ -69,6 +69,14 @@ export type RealtimeVoiceTransportSpikeReport = {
     }>;
   };
   apiProtocolPosture: OpenClinXrApiProtocolPosture;
+  protocolEvidence: {
+    websocketLocalHarnessObserved: boolean;
+    bunHonoRuntimeObserved: boolean;
+    webTransportObserved: boolean;
+    quicObserved: boolean;
+    web3SignalingObserved: boolean;
+    notes: string[];
+  };
   pythonBackendVerifier: {
     status: "passed" | "blocked";
     command: "python3 apps/api-python-backend/scripts/verify_backend.py";
@@ -204,6 +212,17 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
       ],
     },
     apiProtocolPosture: createOpenClinXrApiProtocolPosture(),
+    protocolEvidence: {
+      websocketLocalHarnessObserved: true,
+      bunHonoRuntimeObserved: bunAvailable,
+      webTransportObserved: false,
+      quicObserved: false,
+      web3SignalingObserved: false,
+      notes: [
+        "Only the local WebSocket transport harness has execution evidence in this report.",
+        "WebTransport, direct QUIC, and Web3 signaling remain proposal- and evidence-gated.",
+      ],
+    },
     pythonBackendVerifier,
     ...(pythonBackendRuntimeSmoke ? { pythonBackendRuntimeSmoke } : {}),
     harness,

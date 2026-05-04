@@ -234,16 +234,17 @@ describe("workspace architecture rules", () => {
     );
 
     expect(protocolSupport).toContain('protocolId: "webtransport"');
-    expect(protocolSupport).toContain('status: input.bunHttp3WebTransportVerified ? "ready" : "blocked"');
+    expect(protocolSupport).toContain("input.bunHttp3WebTransportVerified && input.questWebTransportVerified");
     expect(protocolSupport).toContain("bun_http3_webtransport_not_verified");
     expect(protocolSupport).toContain("quest_webtransport_path_not_verified");
     expect(protocolSupport).toContain('protocolId: "quic"');
-    expect(protocolSupport).toContain('status: input.quicGatewayImplemented ? "ready" : "planned"');
+    expect(protocolSupport).toContain("operator_quic_gateway_proposal_missing");
     expect(protocolSupport).toContain("quic_gateway_not_implemented");
     expect(protocolSupport).toContain("azure_quic_ingress_not_verified");
     expect(protocolSupport).toContain('protocolId: "web3-signaling"');
-    expect(protocolSupport).toContain('status: input.web3SignalingProtocolSelected ? "ready" : "planned"');
+    expect(protocolSupport).toContain("operator_web3_signaling_proposal_missing");
     expect(protocolSupport).toContain("web3_identity_and_signaling_protocol_not_selected");
+    expect(protocolSupport).toContain("web3 support stays scoped to identity/signaling");
     expect([...dependencyViolations, ...sourceViolations]).toEqual([]);
   });
 

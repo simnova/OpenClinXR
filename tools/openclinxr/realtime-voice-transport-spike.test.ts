@@ -36,6 +36,17 @@ describe("realtime voice transport spike report", () => {
       expect.objectContaining({ protocolId: "quic", status: "planned" }),
       expect.objectContaining({ protocolId: "web3-signaling", status: "planned" }),
     ]));
+    expect(report.protocolEvidence).toEqual({
+      websocketLocalHarnessObserved: true,
+      bunHonoRuntimeObserved: false,
+      webTransportObserved: false,
+      quicObserved: false,
+      web3SignalingObserved: false,
+      notes: [
+        "Only the local WebSocket transport harness has execution evidence in this report.",
+        "WebTransport, direct QUIC, and Web3 signaling remain proposal- and evidence-gated.",
+      ],
+    });
     expect(report.harness).toMatchObject({
       controlFramesSent: 2,
       binaryAudioChunksSent: 2,

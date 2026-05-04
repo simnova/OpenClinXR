@@ -19,17 +19,17 @@ describe("OpenClinXR API startup", () => {
       expect.objectContaining({
         protocolId: "webtransport",
         status: "blocked",
-        blockers: expect.arrayContaining(["bun_http3_webtransport_not_verified"]),
+        blockers: expect.arrayContaining(["bun_http3_webtransport_not_verified", "quest_webtransport_path_not_verified"]),
       }),
       expect.objectContaining({
         protocolId: "quic",
         status: "planned",
-        blockers: expect.arrayContaining(["quic_gateway_not_implemented"]),
+        blockers: expect.arrayContaining(["operator_quic_gateway_proposal_missing", "quic_gateway_not_implemented"]),
       }),
       expect.objectContaining({
         protocolId: "web3-signaling",
         status: "planned",
-        blockers: expect.arrayContaining(["web3_identity_and_signaling_protocol_not_selected"]),
+        blockers: expect.arrayContaining(["operator_web3_signaling_proposal_missing", "web3_identity_and_signaling_protocol_not_selected"]),
       }),
     ]));
     expect(startup.handlerSpecs).toEqual([
