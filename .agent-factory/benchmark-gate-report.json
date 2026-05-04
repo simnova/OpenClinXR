@@ -41,7 +41,7 @@
       "evidence_id": "asset_capability_job_evidence",
       "file": "docs/openclinxr/asset-capability-job-evidence-2026-05-04.json",
       "generated_at": "2026-05-04T21:21:14.173Z",
-      "age_hours": 0,
+      "age_hours": 1,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -103,7 +103,7 @@
     {
       "evidence_id": "realtime_voice_transport_spike",
       "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json",
-      "generated_at": "2026-05-04T22:18:44.844Z",
+      "generated_at": "2026-05-04T22:23:06.830Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -917,9 +917,9 @@
   },
   "realtime_voice_transport_spike": {
     "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json",
-    "generated_at": "2026-05-04T22:18:44.844Z",
+    "generated_at": "2026-05-04T22:23:06.830Z",
     "status": "transport_spike_passed",
-    "round_trip_latency_ms": 10.9,
+    "round_trip_latency_ms": 11.13,
     "latency_budget": {
       "targetMs": 250,
       "passed": true

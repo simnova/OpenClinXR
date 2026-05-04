@@ -28,6 +28,9 @@ describe("Godot Quest voice client contract", () => {
     expect(client).toContain("const SAMPLE_RATE_HZ := 48000");
     expect(client).toContain('"type": "voice.start"');
     expect(client).toContain('"type": "voice.stop"');
+    expect(client).toContain('"type": "voice.audio_metadata"');
+    expect(client).toContain('"chunkIndex": next_chunk_index');
+    expect(client).toContain('"clientSentAtMs": Time.get_ticks_msec()');
     expect(client).toContain("socket.send_text(JSON.stringify(payload))");
     expect(client).toContain("socket.put_packet(packet)");
     expect(client).toContain("socket.get_packet()");

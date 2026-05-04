@@ -15,6 +15,7 @@ Use WebSocket-first for the immediate Quest 3 voice path, with `/apps/api` treat
 - `docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json` records a no-cloud bidirectional streaming harness run.
 - `docs/openclinxr/api-python-backend-runtime-smoke-2026-05-04.json` is now linked into the realtime report, retiring the stale FastAPI-not-executed blocker while preserving model, Quest audio, Opus, and safety blockers.
 - The report now records protocol evidence separately: WebSocket local harness observed; Bun/Hono runtime, WebTransport, direct QUIC, and Web3 signaling remain unobserved and evidence-gated.
+- Godot and the local gateway contract now send `voice.audio_metadata` before binary chunks so chunk indexes and per-frame latency samples can be measured before native Opus and real model integration.
 
 ## Sequence
 

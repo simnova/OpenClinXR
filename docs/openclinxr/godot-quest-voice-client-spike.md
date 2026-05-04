@@ -17,6 +17,7 @@ sequenceDiagram
   participant Backend as "FastAPI Voice Backend"
 
   Client->>Gateway: "voice.start JSON"
+  Client->>Gateway: "voice.audio_metadata JSON"
   Client->>Gateway: "binary encoded audio packet"
   Gateway->>Backend: "proxied JSON/binary WebSocket frame"
   Backend-->>Gateway: "transcript JSON + binary audio packet"
@@ -31,6 +32,7 @@ This sidecar validates code shape only:
 - Godot `WebSocketPeer` is the client transport.
 - Binary packets use `put_packet`.
 - JSON control frames use `send_text`.
+- `voice.audio_metadata` carries chunk index, byte length, codec, and client timestamp before each binary packet.
 - The endpoint is `/voice/realtime/ws`.
 - The future codec lane is `opus` at 48 kHz.
 

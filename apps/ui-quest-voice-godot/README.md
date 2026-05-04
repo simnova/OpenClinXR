@@ -10,6 +10,8 @@ native Opus encode/decode, playback, or end-to-end headset latency.
 
 - Connects to `/voice/realtime/ws`.
 - Sends JSON control frames for `voice.start` and `voice.stop`.
+- Sends `voice.audio_metadata` JSON before each binary packet with chunk index,
+  byte length, codec, and client timestamp.
 - Sends opaque binary audio packets through `WebSocketPeer.put_packet`.
 - Receives JSON transcript/control frames and binary audio packets.
 - Defaults to `opus` at 48 kHz for the future Quest audio codec lane.

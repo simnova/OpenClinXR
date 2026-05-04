@@ -13,6 +13,7 @@ const CLIENT_TARGET := "quest3-godot"
 var gateway_url := VOICE_GATEWAY_URL
 var socket := WebSocketPeer.new()
 var last_status := "idle"
+var next_chunk_index := 0
 
 func connect_gateway(url: String = VOICE_GATEWAY_URL) -> int:
 	gateway_url = url
@@ -33,6 +34,7 @@ func _process(_delta: float) -> void:
 			audio_packet_received.emit(packet)
 
 func start_session() -> void:
+	next_chunk_index = 0
 	_send_json({
 		"type": "voice.start",
 		"codec": CODEC,
@@ -47,7 +49,15 @@ func stop_session() -> void:
 
 func send_encoded_audio_packet(packet: PackedByteArray) -> void:
 	if socket.get_ready_state() == WebSocketPeer.STATE_OPEN:
+		_send_json({
+			"type": "voice.audio_metadata",
+			"chunkIndex": next_chunk_index,
+			"byteLength": packet.size(),
+			"codec": CODEC,
+			"clientSentAtMs": Time.get_ticks_msec(),
+		})
 		socket.put_packet(packet)
+		next_chunk_index += 1
 
 func send_transport_probe() -> void:
 	var packet := PackedByteArray()

@@ -55,12 +55,16 @@ export type RealtimeVoiceProxyHarnessInput = {
 
 export type RealtimeVoiceProxyHarnessResult = {
   controlFramesSent: number;
+  audioMetadataFramesSent: number;
   binaryAudioChunksSent: number;
   transcriptEventsReceived: number;
+  audioChunkMetadataReceived: number;
   binaryAudioChunksReceived: number;
   backendProtocol: "python-fastapi-compatible-websocket";
   codec: "opus";
   roundTripLatencyMs: number;
+  frameLatencySamplesMs: number[];
+  audioChunkIndexesReceived: number[];
   latencyBudget: {
     targetMs: number;
     passed: boolean;
@@ -156,6 +160,7 @@ export async function startPythonCompatibleVoiceBackendFixture(options: BackendF
   let chunkIndex = 0;
 
   websocketServer.on("connection", (socket) => {
+    const pendingAudioMetadata = new Map<number, { clientSentAtMs: number }>();
     sendJson(socket, { type: "backend.ready", backendProtocol: "python-fastapi-compatible-websocket" });
 
     socket.on("message", async (data, isBinary) => {
@@ -167,13 +172,22 @@ export async function startPythonCompatibleVoiceBackendFixture(options: BackendF
           codec: "opus",
           chunkIndex,
           byteLength: chunk.byteLength,
+          clientSentAtMs: pendingAudioMetadata.get(chunkIndex)?.clientSentAtMs ?? null,
+          backendObservedAtMs: Number(performance.now().toFixed(2)),
         });
         socket.send(chunk, { binary: true });
+        pendingAudioMetadata.delete(chunkIndex);
         chunkIndex += 1;
         return;
       }
 
       const message = parseJsonFrame(data);
+      if (message?.type === "voice.audio_metadata" && typeof message.chunkIndex === "number") {
+        pendingAudioMetadata.set(message.chunkIndex, {
+          clientSentAtMs: typeof message.clientSentAtMs === "number" ? message.clientSentAtMs : performance.now(),
+        });
+        return;
+      }
       if (message?.type === "voice.start") {
         sendJson(socket, { type: "voice.started", codec: "opus" });
         sendJson(socket, {
@@ -287,7 +301,10 @@ export async function startRealtimeVoiceGatewayServer(options: RealtimeGatewayOp
 export async function runRealtimeVoiceProxyHarness(input: RealtimeVoiceProxyHarnessInput): Promise<RealtimeVoiceProxyHarnessResult> {
   const startedAt = performance.now();
   const eventTypes: string[] = [];
+  const frameLatencySamplesMs: number[] = [];
+  const audioChunkIndexesReceived: number[] = [];
   let transcriptEventsReceived = 0;
+  let audioChunkMetadataReceived = 0;
   let binaryAudioChunksReceived = 0;
   let resolved = false;
 
@@ -308,9 +325,16 @@ export async function runRealtimeVoiceProxyHarness(input: RealtimeVoiceProxyHarn
         sampleRateHz: 48_000,
         targetBackend: "moshi-mlx",
       });
-      for (const chunk of input.audioChunks) {
+      input.audioChunks.forEach((chunk, chunkIndex) => {
+        sendJson(socket, {
+          type: "voice.audio_metadata",
+          chunkIndex,
+          byteLength: chunk.byteLength,
+          codec: "opus",
+          clientSentAtMs: Number(performance.now().toFixed(2)),
+        });
         socket.send(chunk, { binary: true });
-      }
+      });
       sendJson(socket, { type: "voice.stop" });
     });
     socket.on("message", (data, isBinary) => {
@@ -327,19 +351,36 @@ export async function runRealtimeVoiceProxyHarness(input: RealtimeVoiceProxyHarn
       if (message.type.startsWith("transcript.")) {
         transcriptEventsReceived += 1;
       }
-      if (message.type === "voice.stopped" && binaryAudioChunksReceived >= input.audioChunks.length) {
+      if (message.type === "audio.chunk") {
+        audioChunkMetadataReceived += 1;
+        if (typeof message.chunkIndex === "number") {
+          audioChunkIndexesReceived.push(message.chunkIndex);
+        }
+        if (typeof message.clientSentAtMs === "number") {
+          frameLatencySamplesMs.push(Number((performance.now() - message.clientSentAtMs).toFixed(2)));
+        }
+      }
+      if (
+        message.type === "voice.stopped"
+        && binaryAudioChunksReceived >= input.audioChunks.length
+        && audioChunkMetadataReceived >= input.audioChunks.length
+      ) {
         resolved = true;
         clearTimeout(timeout);
         socket.close();
         const roundTripLatencyMs = Number((performance.now() - startedAt).toFixed(2));
         resolve({
           controlFramesSent: 2,
+          audioMetadataFramesSent: input.audioChunks.length,
           binaryAudioChunksSent: input.audioChunks.length,
           transcriptEventsReceived,
+          audioChunkMetadataReceived,
           binaryAudioChunksReceived,
           backendProtocol: "python-fastapi-compatible-websocket",
           codec: "opus",
           roundTripLatencyMs,
+          frameLatencySamplesMs,
+          audioChunkIndexesReceived,
           latencyBudget: {
             targetMs: input.targetLatencyMs,
             passed: roundTripLatencyMs < input.targetLatencyMs,
@@ -401,7 +442,7 @@ function sendJson(socket: WebSocket, body: Record<string, unknown>): void {
   }
 }
 
-function parseJsonFrame(data: RawData): { type?: string } | null {
+function parseJsonFrame(data: RawData): { type?: string; chunkIndex?: number; clientSentAtMs?: number } | null {
   try {
     const text = toBuffer(data).toString("utf8");
     const parsed = JSON.parse(text) as unknown;
