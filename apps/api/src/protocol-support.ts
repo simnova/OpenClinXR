@@ -37,7 +37,7 @@ export function createOpenClinXrApiProtocolPosture(input: {
   web3SignalingProtocolSelected?: boolean;
 } = {}): OpenClinXrApiProtocolPosture {
   const webTransportReady = Boolean(input.bunHttp3WebTransportVerified && input.questWebTransportVerified);
-  const quicReady = Boolean(input.quicGatewayImplemented && input.azureQuicIngressVerified);
+  const quicReady = Boolean(input.quicGatewayDesignReviewed && input.quicGatewayImplemented && input.azureQuicIngressVerified);
   const web3SignalingProtocolSelected = Boolean(
     input.web3IdentityAndSignalingProtocolSelected || input.web3SignalingProtocolSelected,
   );
