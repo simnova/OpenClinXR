@@ -1,5 +1,61 @@
 {
   "generated_by": "tools/agent-factory/build-benchmark-gate-report.ts",
+  "evidence_freshness": [
+    {
+      "evidence_id": "quest_smoke",
+      "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
+      "generated_at": "2026-05-04T05:32:46.441Z",
+      "age_hours": 7,
+      "max_age_hours": 24,
+      "status": "fresh",
+      "blockers": []
+    },
+    {
+      "evidence_id": "local_runtime_probe",
+      "file": "docs/openclinxr/local-runtime-probe-2026-05-04.json",
+      "generated_at": "2026-05-04T06:36:03.273Z",
+      "age_hours": 6,
+      "max_age_hours": 24,
+      "status": "fresh",
+      "blockers": []
+    },
+    {
+      "evidence_id": "gltf_pipeline_smoke",
+      "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
+      "generated_at": "2026-05-03T22:35:14.615Z",
+      "age_hours": 14,
+      "max_age_hours": 24,
+      "status": "fresh",
+      "blockers": []
+    },
+    {
+      "evidence_id": "blender_asset_bake_smoke",
+      "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
+      "generated_at": "2026-05-04T05:06:10.560Z",
+      "age_hours": 8,
+      "max_age_hours": 24,
+      "status": "fresh",
+      "blockers": []
+    },
+    {
+      "evidence_id": "local_provider_benchmark",
+      "file": "docs/openclinxr/local-provider-benchmark-2026-05-04.json",
+      "generated_at": "2026-05-04T08:37:30.181Z",
+      "age_hours": 4,
+      "max_age_hours": 24,
+      "status": "fresh",
+      "blockers": []
+    },
+    {
+      "evidence_id": "quest_manual_performance",
+      "file": ".agent-factory/quest-manual-performance-report.json",
+      "generated_at": "2026-05-04T05:33:53.981Z",
+      "age_hours": 7,
+      "max_age_hours": 24,
+      "status": "fresh",
+      "blockers": []
+    }
+  ],
   "quest_smoke": {
     "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
     "generated_at": "2026-05-04T05:32:46.441Z",

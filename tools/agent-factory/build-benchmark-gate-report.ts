@@ -129,6 +129,7 @@ type IwsdkLeadershipPosture = {
 
 type EvidenceGateReport = {
   generated_by: string;
+  evidence_freshness: EvidenceFreshnessEntry[];
   quest_smoke?: {
     file: string;
     generated_at: string;
@@ -215,6 +216,18 @@ type BlockerGroup = {
 
 type EvidenceFile<TValue> = { file: string; value: TValue };
 
+type EvidenceFreshnessStatus = "fresh" | "stale" | "missing" | "invalid";
+
+type EvidenceFreshnessEntry = {
+  evidence_id: string;
+  file: string | null;
+  generated_at: string | null;
+  age_hours: number | null;
+  max_age_hours: number;
+  status: EvidenceFreshnessStatus;
+  blockers: string[];
+};
+
 export type BenchmarkGateReportInput = {
   questSmoke?: EvidenceFile<QuestSmokeReport>;
   localRuntime?: EvidenceFile<LocalRuntimeProbeReport>;
@@ -225,6 +238,14 @@ export type BenchmarkGateReportInput = {
   questManualPerformanceReport?: EvidenceFile<QuestManualPerformanceReport>;
   iwsdkEvidenceContract?: EvidenceFile<IwsdkEvidenceContractReport>;
 };
+
+export type BenchmarkGateReportOptions = {
+  now?: Date | string;
+  maxEvidenceAgeHours?: number;
+};
+
+const defaultMaxEvidenceAgeHours = 24;
+const hourMs = 60 * 60 * 1000;
 
 async function main(): Promise<void> {
   const questSmoke = await latestJson<QuestSmokeReport>("docs/openclinxr/quest-cdp-smoke-*.json");
@@ -271,7 +292,7 @@ async function fileJson<TValue>(file: string): Promise<{ file: string; value: TV
   }
 }
 
-export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): EvidenceGateReport {
+export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, options: BenchmarkGateReportOptions = {}): EvidenceGateReport {
   const { questSmoke, localRuntime, gltfPipelineSmoke, blenderAssetBakeSmoke, localProviderBenchmark, iwsdkEvidenceContract } = input;
   const questSmokeEvidenceCheck = questSmoke
     ? { file: questSmoke.file, value: buildQuestSmokeEvidenceCheck(questSmoke.file, questSmoke.value) }
@@ -279,24 +300,54 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): Evide
   const questManualPerformance = input.questManualPerformanceReport
     ? manualPerformanceReportToCheck(input.questManualPerformanceReport)
     : input.questManualPerformance;
+  const evidenceFreshness = buildEvidenceFreshnessReport({
+    questSmoke,
+    localRuntime,
+    gltfPipelineSmoke,
+    blenderAssetBakeSmoke,
+    localProviderBenchmark,
+    questManualPerformance,
+  }, options);
+  const questEvidenceFreshnessBlockers = freshnessBlockers(evidenceFreshness, [
+    "quest_smoke",
+    "local_runtime_probe",
+    "quest_manual_performance",
+  ]);
+  const localModelEvidenceFreshnessBlockers = freshnessBlockers(evidenceFreshness, [
+    "local_runtime_probe",
+    "local_provider_benchmark",
+  ]);
+  const localVoiceEvidenceFreshnessBlockers = freshnessBlockers(evidenceFreshness, [
+    "local_runtime_probe",
+    "local_provider_benchmark",
+  ]);
+  const assetEvidenceFreshnessBlockers = freshnessBlockers(evidenceFreshness, [
+    "local_runtime_probe",
+    "gltf_pipeline_smoke",
+    "blender_asset_bake_smoke",
+  ]);
   const questEvidenceBlockers = [
     ...questBlockers(questSmoke?.value, questSmokeEvidenceCheck?.value),
     ...questManualPerformanceBlockers(questManualPerformance?.value),
     ...questUsbBlockers(localRuntime?.value),
     ...questForegroundPreflightBlockers(localRuntime?.value),
+    ...questEvidenceFreshnessBlockers,
   ];
   const localModelEvidenceBlockers = [
     ...localModelRuntimeBlockers(localRuntime?.value),
     ...localModelBenchmarkBlockers(localProviderBenchmark?.value),
+    ...localModelEvidenceFreshnessBlockers,
   ];
   const localVoiceEvidenceBlockers = [
     ...localVoiceRuntimeBlockers(localRuntime?.value),
     ...localVoiceBenchmarkBlockers(localProviderBenchmark?.value),
+    ...localVoiceEvidenceFreshnessBlockers,
   ];
   const assetEvidenceBlockers = [
     ...assetRuntimeBlockers(localRuntime?.value),
     ...gltfPipelineSmokeBlockers(gltfPipelineSmoke?.value),
     ...blenderAssetBakeSmokeBlockers(blenderAssetBakeSmoke?.value),
+    ...assetEvidenceFreshnessBlockers,
   ];
   const iwsdkEvidenceBlockers = iwsdkEvidenceContractBlockers(iwsdkEvidenceContract?.value);
   const combinedBlockers = unique([
@@ -342,6 +393,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): Evide
 
   return {
     generated_by: "tools/agent-factory/build-benchmark-gate-report.ts",
+    evidence_freshness: evidenceFreshness,
     ...(questSmoke ? {
       quest_smoke: {
         file: questSmoke.file,
@@ -424,6 +476,103 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): Evide
       buildEvidenceGate("evidence-leadership-0008-004", iwsdkSatisfiedConditions, unique(iwsdkEvidenceBlockers)),
     ],
   };
+}
+
+function buildEvidenceFreshnessReport(
+  evidence: {
+    questSmoke?: EvidenceFile<QuestSmokeReport>;
+    localRuntime?: EvidenceFile<LocalRuntimeProbeReport>;
+    gltfPipelineSmoke?: EvidenceFile<GltfPipelineSmokeReport>;
+    blenderAssetBakeSmoke?: EvidenceFile<BlenderAssetBakeSmokeReport>;
+    localProviderBenchmark?: EvidenceFile<LocalProviderBenchmarkReport>;
+    questManualPerformance?: EvidenceFile<QuestManualPerformanceCheck>;
+  },
+  options: BenchmarkGateReportOptions,
+): EvidenceFreshnessEntry[] {
+  const now = resolveNow(options.now);
+  const maxAgeHours = options.maxEvidenceAgeHours ?? defaultMaxEvidenceAgeHours;
+
+  return [
+    evidenceFreshnessEntry("quest_smoke", evidence.questSmoke, now, maxAgeHours),
+    evidenceFreshnessEntry("local_runtime_probe", evidence.localRuntime, now, maxAgeHours),
+    evidenceFreshnessEntry("gltf_pipeline_smoke", evidence.gltfPipelineSmoke, now, maxAgeHours),
+    evidenceFreshnessEntry("blender_asset_bake_smoke", evidence.blenderAssetBakeSmoke, now, maxAgeHours),
+    evidenceFreshnessEntry("local_provider_benchmark", evidence.localProviderBenchmark, now, maxAgeHours),
+    evidenceFreshnessEntry("quest_manual_performance", evidence.questManualPerformance, now, maxAgeHours),
+  ];
+}
+
+function evidenceFreshnessEntry(
+  evidenceId: string,
+  evidence: EvidenceFile<{ generatedAt: string }> | undefined,
+  now: Date,
+  maxAgeHours: number,
+): EvidenceFreshnessEntry {
+  if (!evidence) {
+    return {
+      evidence_id: evidenceId,
+      file: null,
+      generated_at: null,
+      age_hours: null,
+      max_age_hours: maxAgeHours,
+      status: "missing",
+      blockers: [`${evidenceId}:evidence_missing`],
+    };
+  }
+
+  const generatedAt = new Date(evidence.value.generatedAt);
+  if (Number.isNaN(generatedAt.getTime())) {
+    return {
+      evidence_id: evidenceId,
+      file: evidence.file,
+      generated_at: evidence.value.generatedAt,
+      age_hours: null,
+      max_age_hours: maxAgeHours,
+      status: "invalid",
+      blockers: [`${evidenceId}:evidence_timestamp_invalid`],
+    };
+  }
+
+  const ageHours = wholeHours(Math.max(0, now.getTime() - generatedAt.getTime()) / hourMs);
+  if (ageHours > maxAgeHours) {
+    return {
+      evidence_id: evidenceId,
+      file: evidence.file,
+      generated_at: evidence.value.generatedAt,
+      age_hours: ageHours,
+      max_age_hours: maxAgeHours,
+      status: "stale",
+      blockers: [`${evidenceId}:evidence_stale_over_${maxAgeHours}h`],
+    };
+  }
+
+  return {
+    evidence_id: evidenceId,
+    file: evidence.file,
+    generated_at: evidence.value.generatedAt,
+    age_hours: ageHours,
+    max_age_hours: maxAgeHours,
+    status: "fresh",
+    blockers: [],
+  };
+}
+
+function freshnessBlockers(entries: EvidenceFreshnessEntry[], evidenceIds: string[]): string[] {
+  const ids = new Set(evidenceIds);
+  return unique(entries
+    .filter((entry) => ids.has(entry.evidence_id) && entry.status !== "missing")
+    .flatMap((entry) => entry.blockers));
+}
+
+function resolveNow(now: BenchmarkGateReportOptions["now"]): Date {
+  if (!now) {
+    return new Date();
+  }
+  return typeof now === "string" ? new Date(now) : now;
+}
+
+function wholeHours(value: number): number {
+  return Math.floor(value);
 }
 
 async function latestQuestManualPerformanceReportJson(): Promise<EvidenceFile<QuestManualPerformanceReport> | undefined> {
@@ -674,6 +823,13 @@ function blockedGate(blocker: string): GateStatus {
 }
 
 const blockerGroups = [
+  {
+    groupId: "benchmark_evidence_freshness",
+    title: "Benchmark evidence freshness",
+    owner: "qa-evidence-lead",
+    matches: (blocker: string) => blocker.includes(":evidence_stale_over_") || blocker.endsWith(":evidence_timestamp_invalid"),
+    nextStep: "Regenerate the stale local evidence files before using the benchmark gate as leadership-ready proof.",
+  },
   {
     groupId: "quest_foreground_frame_pacing",
     title: "Foreground Quest frame pacing evidence",

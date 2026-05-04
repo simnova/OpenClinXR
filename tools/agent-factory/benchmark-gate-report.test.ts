@@ -35,6 +35,15 @@ type BenchmarkGateReport = {
       }>;
     };
   };
+  evidence_freshness?: Array<{
+    evidence_id: string;
+    file: string | null;
+    generated_at: string | null;
+    age_hours: number | null;
+    max_age_hours: number;
+    status: string;
+    blockers: string[];
+  }>;
   evidence_gates: Array<{
     evidence_id: string;
     ready_to_resolve?: boolean;
@@ -88,6 +97,119 @@ describe("benchmark gate report", () => {
       ]),
     );
     expect(groups.every((group) => group.next_step.length > 0)).toBe(true);
+  });
+
+  it("blocks leadership gates when non-IWSDK benchmark evidence is stale", () => {
+    const buildReport = buildBenchmarkGateReport as (
+      input: Parameters<typeof buildBenchmarkGateReport>[0],
+      options: { now: Date; maxEvidenceAgeHours: number },
+    ) => BenchmarkGateReport;
+    const report = buildReport({
+      questSmoke: {
+        file: "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
+        value: {
+          generatedAt: "2026-05-04T00:00:00.000Z",
+          url: "http://localhost:5173/",
+          adb: {
+            version: "Android Debug Bridge version 1.0.41",
+            deviceLine: "1234 device product:quest3",
+            reverseList: "1234 tcp:5173 tcp:5173",
+          },
+          browser: {
+            userAgent: "Mozilla/5.0 Quest 3",
+            hidden: false,
+            visibilityState: "visible",
+            frameStats: { framesObserved: 120 },
+          },
+          interaction: {},
+          frameSample: {
+            timedOut: false,
+            latestFrameAgeMs: 16,
+            framesObservedDuringProbe: 120,
+          },
+          verdict: {
+            shellLoaded: true,
+            interactionAdvanced: true,
+            frameSampleComplete: true,
+            blockers: [],
+          },
+        },
+      },
+      localRuntime: {
+        file: "docs/openclinxr/local-runtime-probe-2026-05-04.json",
+        value: {
+          generatedAt: "2026-05-04T00:00:00.000Z",
+          gates: {
+            questUsb: { status: "ready", blockers: [] },
+            questForegroundPreflight: { status: "ready", blockers: [] },
+            localModel: { status: "ready", blockers: [] },
+            localVoice: { status: "ready", blockers: [] },
+            assetPipeline: { status: "ready", blockers: [] },
+          },
+        },
+      },
+      localProviderBenchmark: {
+        file: "docs/openclinxr/local-provider-benchmark-2026-05-04.json",
+        value: {
+          generatedAt: "2026-05-04T00:00:00.000Z",
+          mockModel: { status: "passed", latencyMs: 1, blockers: [], metrics: {} },
+          mockVoice: { status: "passed", latencyMs: 1, blockers: [], metrics: {} },
+          localModel: { status: "passed", blockers: [], metrics: {} },
+          localVoice: { status: "passed", blockers: [], metrics: {} },
+          verdict: {
+            deterministicMocksPassed: true,
+            localModelReadyToBenchmark: true,
+            localVoiceReadyToBenchmark: true,
+            blockers: [],
+          },
+        },
+      },
+      iwsdkEvidenceContract: {
+        file: "docs/openclinxr/iwsdk-evidence-contract-2026-05-04.json",
+        value: {
+          generatedAt: "2026-05-04T00:00:00.000Z",
+          status: "contract_only",
+          verdict: {
+            readyForInstallBackedSidecar: false,
+            readyForAgentTooling: false,
+            readyForProductionRuntime: false,
+            blockers: ["sidecar:operator_accepts_iwsdk_install_scope"],
+          },
+        },
+      },
+    }, { now: new Date("2026-05-05T01:00:00.000Z"), maxEvidenceAgeHours: 24 });
+
+    expect(report.evidence_freshness).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        evidence_id: "quest_smoke",
+        status: "stale",
+        age_hours: 25,
+        blockers: ["quest_smoke:evidence_stale_over_24h"],
+      }),
+      expect.objectContaining({
+        evidence_id: "local_runtime_probe",
+        status: "stale",
+        age_hours: 25,
+        blockers: ["local_runtime_probe:evidence_stale_over_24h"],
+      }),
+      expect.objectContaining({
+        evidence_id: "local_provider_benchmark",
+        status: "stale",
+        age_hours: 25,
+        blockers: ["local_provider_benchmark:evidence_stale_over_24h"],
+      }),
+    ]));
+    expect(report.evidence_freshness?.map((entry) => entry.evidence_id)).not.toContain("iwsdk_evidence_contract");
+
+    expect(report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0008-001")?.blockers).toEqual(
+      expect.arrayContaining(["quest_smoke:evidence_stale_over_24h", "local_runtime_probe:evidence_stale_over_24h"]),
+    );
+    expect(report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0008-002")?.blockers).toEqual(
+      expect.arrayContaining(["local_runtime_probe:evidence_stale_over_24h", "local_provider_benchmark:evidence_stale_over_24h"]),
+    );
+    expect(report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0008-004")?.blockers).toEqual([
+      "iwsdk:sidecar:operator_accepts_iwsdk_install_scope",
+    ]);
   });
 
   it("splits iteration 0008 benchmark evidence debt by owner-specific leadership gates", async () => {
