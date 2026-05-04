@@ -9,6 +9,7 @@ Use WebSocket-first for the immediate Quest 3 voice path, with `/apps/api` treat
 ## Implemented Local Evidence
 
 - `apps/api` exposes protocol posture at `GET /runtime/protocols`.
+- `apps/api` also exposes realtime voice gateway posture at `GET /voice/realtime/posture`, using the shared `@openclinxr/voice-gateway` contract while keeping runtime availability conservative.
 - `apps/api/src/bun-server.ts` is the Bun + Hono entrypoint; `pnpm --filter @openclinxr/api dev:bun` is available when Bun is installed.
 - `apps/mock-realtime-voice-server` provides the verified Node/Hono/WebSocket fallback harness.
 - `apps/api-python-backend` provides a FastAPI/Uvicorn source skeleton with stdlib-only verification.

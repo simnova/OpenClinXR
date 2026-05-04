@@ -29,6 +29,7 @@
     "@openclinxr/scenario-fixtures": "workspace:*",
     "@openclinxr/scenario-runtime": "workspace:*",
     "@openclinxr/telemetry": "workspace:*",
+    "@openclinxr/voice-gateway": "workspace:*",
     "hono": "4.12.16",
     "tsx": "4.21.0"
   },

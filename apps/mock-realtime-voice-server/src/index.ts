@@ -1,50 +1,16 @@
 import { Buffer } from "node:buffer";
 import { createServer, type IncomingMessage, type Server as NodeHttpServer, type ServerResponse } from "node:http";
 import { performance } from "node:perf_hooks";
+import { createRealtimeVoiceGatewayPosture } from "@openclinxr/voice-gateway";
 import { Hono } from "hono";
 import WebSocket, { WebSocketServer, type RawData } from "ws";
+
+export { createRealtimeVoiceGatewayPosture, type RealtimeVoiceGatewayPosture } from "@openclinxr/voice-gateway";
 
 export type StoppableServer = {
   httpUrl: string;
   wsUrl: string;
   stop: () => Promise<void>;
-};
-
-export type RealtimeVoiceGatewayPosture = {
-  policy: {
-    cloudApisUsed: false;
-    paidApisUsed: false;
-    modelDownloadsPerformed: false;
-    productionUseAllowed: false;
-  };
-  transports: {
-    websocket: {
-      status: "working_spike_transport";
-      path: "/voice/realtime/ws";
-      codec: "opus";
-    };
-    webTransport: {
-      status: "blocked_pending_runtime_support";
-      blockers: string[];
-    };
-  };
-  gatewayRuntime: {
-    target: "bun-hono-http3";
-    localVerifiedFallback: "node-hono-ws";
-    blockers: string[];
-  };
-  backends: {
-    pythonFastApi: {
-      status: "source_present_not_executed" | "available_for_local_run";
-      websocketPath: "/voice/realtime/ws";
-      blockers: string[];
-    };
-    inferenceCandidates: Array<{
-      id: "moshi-mlx" | "qwen3-tts";
-      role: "full_duplex_speech_dialogue" | "streaming_tts_candidate";
-      localExecutionClaimed: false;
-    }>;
-  };
 };
 
 export type RealtimeVoiceProxyHarnessInput = {
@@ -83,66 +49,6 @@ type RealtimeGatewayOptions = {
 };
 
 const realtimeVoicePath = "/voice/realtime/ws";
-
-export function createRealtimeVoiceGatewayPosture(input: {
-  bunAvailable: boolean;
-  pythonBackendDependenciesInstalled: boolean;
-  pythonInferenceRuntimeInstalled: boolean;
-}): RealtimeVoiceGatewayPosture {
-  return {
-    policy: {
-      cloudApisUsed: false,
-      paidApisUsed: false,
-      modelDownloadsPerformed: false,
-      productionUseAllowed: false,
-    },
-    transports: {
-      websocket: {
-        status: "working_spike_transport",
-        path: realtimeVoicePath,
-        codec: "opus",
-      },
-      webTransport: {
-        status: "blocked_pending_runtime_support",
-        blockers: [
-          "quest_godot_webtransport_client_not_implemented",
-          "bun_http3_webtransport_not_verified",
-          "azure_http3_gateway_path_not_verified",
-        ],
-      },
-    },
-    gatewayRuntime: {
-      target: "bun-hono-http3",
-      localVerifiedFallback: "node-hono-ws",
-      blockers: [
-        ...(input.bunAvailable ? [] : ["bun_not_installed"]),
-        "http3_webtransport_not_verified",
-      ],
-    },
-    backends: {
-      pythonFastApi: {
-        status: input.pythonBackendDependenciesInstalled ? "available_for_local_run" : "source_present_not_executed",
-        websocketPath: realtimeVoicePath,
-        blockers: [
-          ...(input.pythonBackendDependenciesInstalled ? [] : ["fastapi_uvicorn_websockets_not_installed"]),
-          ...(input.pythonInferenceRuntimeInstalled ? [] : ["mlx_moshi_or_qwen3_tts_not_installed"]),
-        ],
-      },
-      inferenceCandidates: [
-        {
-          id: "moshi-mlx",
-          role: "full_duplex_speech_dialogue",
-          localExecutionClaimed: false,
-        },
-        {
-          id: "qwen3-tts",
-          role: "streaming_tts_candidate",
-          localExecutionClaimed: false,
-        },
-      ],
-    },
-  };
-}
 
 export async function startPythonCompatibleVoiceBackendFixture(options: BackendFixtureOptions): Promise<StoppableServer> {
   const delayMs = options.artificialDelayMs ?? 0;

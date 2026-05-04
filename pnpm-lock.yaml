@@ -81,6 +81,9 @@ importers:
       '@openclinxr/telemetry':
         specifier: workspace:*
         version: link:../../packages/openclinxr/telemetry
+      '@openclinxr/voice-gateway':
+        specifier: workspace:*
+        version: link:../../packages/openclinxr/voice-gateway
       hono:
         specifier: 4.12.16
         version: 4.12.16
@@ -104,8 +107,13 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
+  apps/api-python-backend: {}
+
   apps/mock-realtime-voice-server:
     dependencies:
+      '@openclinxr/voice-gateway':
+        specifier: workspace:*
+        version: link:../../packages/openclinxr/voice-gateway
       hono:
         specifier: 4.12.16
         version: 4.12.16

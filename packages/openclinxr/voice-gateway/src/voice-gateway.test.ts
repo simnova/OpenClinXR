@@ -1,7 +1,51 @@
 import { describe, expect, it } from "vitest";
-import { collectVoiceStream, createDefaultVoiceGateway, LocalVoiceProviderAdapter, MockVoiceProviderAdapter } from "./index.js";
+import {
+  collectVoiceStream,
+  createDefaultVoiceGateway,
+  createRealtimeVoiceGatewayPosture,
+  LocalVoiceProviderAdapter,
+  MockVoiceProviderAdapter,
+} from "./index.js";
 
 describe("voice gateway", () => {
+  it("owns realtime gateway posture separately from the mock server harness", () => {
+    const posture = createRealtimeVoiceGatewayPosture({
+      bunAvailable: false,
+      pythonBackendDependenciesInstalled: true,
+      pythonInferenceRuntimeInstalled: false,
+    });
+
+    expect(posture).toMatchObject({
+      policy: {
+        cloudApisUsed: false,
+        paidApisUsed: false,
+        modelDownloadsPerformed: false,
+        productionUseAllowed: false,
+      },
+      transports: {
+        websocket: {
+          status: "working_spike_transport",
+          path: "/voice/realtime/ws",
+          codec: "opus",
+        },
+        webTransport: {
+          status: "blocked_pending_runtime_support",
+        },
+      },
+      gatewayRuntime: {
+        target: "bun-hono-http3",
+        localVerifiedFallback: "node-hono-ws",
+        blockers: ["bun_not_installed", "http3_webtransport_not_verified"],
+      },
+      backends: {
+        pythonFastApi: {
+          status: "available_for_local_run",
+          blockers: ["mlx_moshi_or_qwen3_tts_not_installed"],
+        },
+      },
+    });
+  });
+
   it("streams deterministic mock transcript and synthesis events with provenance", async () => {
     const gateway = createDefaultVoiceGateway({
       adapters: [new MockVoiceProviderAdapter()],

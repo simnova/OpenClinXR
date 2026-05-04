@@ -36,6 +36,7 @@ import {
   type TelemetryRecorder,
   type TelemetrySpanRecord,
 } from "@openclinxr/telemetry";
+import { createRealtimeVoiceGatewayPosture } from "@openclinxr/voice-gateway";
 import { Hono } from "hono";
 import { createOpenClinXrApiProtocolPosture } from "./protocol-support.js";
 
@@ -114,6 +115,13 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   app.get(routeById("providers-health").path, async (context) => context.json(await runtime.providerHealth()));
 
   app.get(routeById("runtime-protocols").path, (context) => context.json(createOpenClinXrApiProtocolPosture()));
+
+  app.get(routeById("realtime-voice-posture").path, (context) =>
+    context.json(createRealtimeVoiceGatewayPosture({
+      bunAvailable: false,
+      pythonBackendDependenciesInstalled: false,
+      pythonInferenceRuntimeInstalled: false,
+    })));
 
   app.get(routeById("admin-graphql-schema").path, (context) =>
     new Response(openClinXrAdminSchemaSdl, {

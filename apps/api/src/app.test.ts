@@ -71,6 +71,43 @@ describe("OpenClinXR API shell", () => {
     });
   });
 
+  it("reports realtime voice gateway posture through the main API facade", async () => {
+    const app = createApiApp();
+    const response = await app.request("/voice/realtime/posture");
+
+    expect(response.status).toBe(200);
+    expect(await json(response)).toMatchObject({
+      policy: {
+        cloudApisUsed: false,
+        paidApisUsed: false,
+        modelDownloadsPerformed: false,
+        productionUseAllowed: false,
+      },
+      transports: {
+        websocket: {
+          status: "working_spike_transport",
+          path: "/voice/realtime/ws",
+          codec: "opus",
+        },
+        webTransport: {
+          status: "blocked_pending_runtime_support",
+        },
+      },
+      gatewayRuntime: {
+        target: "bun-hono-http3",
+        localVerifiedFallback: "node-hono-ws",
+        blockers: expect.arrayContaining(["bun_not_installed", "http3_webtransport_not_verified"]),
+      },
+      backends: {
+        pythonFastApi: {
+          status: "source_present_not_executed",
+          websocketPath: "/voice/realtime/ws",
+          blockers: ["fastapi_uvicorn_websockets_not_installed", "mlx_moshi_or_qwen3_tts_not_installed"],
+        },
+      },
+    });
+  });
+
   it("serves the ED chest pain scenario fixture", async () => {
     const app = createApiApp();
     const response = await app.request("/scenarios/ed-chest-pain");

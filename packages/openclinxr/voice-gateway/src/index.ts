@@ -2,6 +2,43 @@ import type { ProviderHealth } from "@openclinxr/shared-schemas";
 
 export type VoiceCapability = "transcription" | "synthesis" | "viseme_cues";
 
+export type RealtimeVoiceGatewayPosture = {
+  policy: {
+    cloudApisUsed: false;
+    paidApisUsed: false;
+    modelDownloadsPerformed: false;
+    productionUseAllowed: false;
+  };
+  transports: {
+    websocket: {
+      status: "working_spike_transport";
+      path: "/voice/realtime/ws";
+      codec: "opus";
+    };
+    webTransport: {
+      status: "blocked_pending_runtime_support";
+      blockers: string[];
+    };
+  };
+  gatewayRuntime: {
+    target: "bun-hono-http3";
+    localVerifiedFallback: "node-hono-ws";
+    blockers: string[];
+  };
+  backends: {
+    pythonFastApi: {
+      status: "source_present_not_executed" | "available_for_local_run";
+      websocketPath: "/voice/realtime/ws";
+      blockers: string[];
+    };
+    inferenceCandidates: Array<{
+      id: "moshi-mlx" | "qwen3-tts";
+      role: "full_duplex_speech_dialogue" | "streaming_tts_candidate";
+      localExecutionClaimed: false;
+    }>;
+  };
+};
+
 export type VoiceRequestPolicy = {
   requestPolicyId: string;
   safetyPolicyVersion: string;
@@ -94,6 +131,66 @@ export class VoiceGateway {
 
 export function createDefaultVoiceGateway(options: VoiceGatewayOptions): VoiceGateway {
   return new VoiceGateway(options);
+}
+
+export function createRealtimeVoiceGatewayPosture(input: {
+  bunAvailable: boolean;
+  pythonBackendDependenciesInstalled: boolean;
+  pythonInferenceRuntimeInstalled: boolean;
+}): RealtimeVoiceGatewayPosture {
+  return {
+    policy: {
+      cloudApisUsed: false,
+      paidApisUsed: false,
+      modelDownloadsPerformed: false,
+      productionUseAllowed: false,
+    },
+    transports: {
+      websocket: {
+        status: "working_spike_transport",
+        path: "/voice/realtime/ws",
+        codec: "opus",
+      },
+      webTransport: {
+        status: "blocked_pending_runtime_support",
+        blockers: [
+          "quest_godot_webtransport_client_not_implemented",
+          "bun_http3_webtransport_not_verified",
+          "azure_http3_gateway_path_not_verified",
+        ],
+      },
+    },
+    gatewayRuntime: {
+      target: "bun-hono-http3",
+      localVerifiedFallback: "node-hono-ws",
+      blockers: [
+        ...(input.bunAvailable ? [] : ["bun_not_installed"]),
+        "http3_webtransport_not_verified",
+      ],
+    },
+    backends: {
+      pythonFastApi: {
+        status: input.pythonBackendDependenciesInstalled ? "available_for_local_run" : "source_present_not_executed",
+        websocketPath: "/voice/realtime/ws",
+        blockers: [
+          ...(input.pythonBackendDependenciesInstalled ? [] : ["fastapi_uvicorn_websockets_not_installed"]),
+          ...(input.pythonInferenceRuntimeInstalled ? [] : ["mlx_moshi_or_qwen3_tts_not_installed"]),
+        ],
+      },
+      inferenceCandidates: [
+        {
+          id: "moshi-mlx",
+          role: "full_duplex_speech_dialogue",
+          localExecutionClaimed: false,
+        },
+        {
+          id: "qwen3-tts",
+          role: "streaming_tts_candidate",
+          localExecutionClaimed: false,
+        },
+      ],
+    },
+  };
 }
 
 export async function collectVoiceStream<TEvent>(events: AsyncIterable<TEvent>): Promise<TEvent[]> {

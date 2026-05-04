@@ -7,6 +7,7 @@ describe("OpenClinXR REST route contract", () => {
       "health",
       "providers-health",
       "runtime-protocols",
+      "realtime-voice-posture",
       "admin-graphql-schema",
       "admin-graphql-codegen-plan",
       "admin-graphql-documents",
@@ -49,6 +50,11 @@ describe("OpenClinXR REST route contract", () => {
       method: "GET",
       path: "/runtime/protocols",
       surface: "control-plane",
+    });
+    expect(routeById("realtime-voice-posture")).toMatchObject({
+      method: "GET",
+      path: "/voice/realtime/posture",
+      surface: "xr-runtime",
     });
     expect(routeById("admin-graphql-execute")).toMatchObject({
       method: "POST",
