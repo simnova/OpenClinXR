@@ -20,6 +20,12 @@ import {
   type AdminGraphqlScenario,
   type AdminGraphqlRootValue,
 } from "@openclinxr/graphql";
+import {
+  AssetGenerationCapabilityFacade,
+  type AssetGenerationCapabilityId,
+  type AssetGenerationJobPolicyInput,
+  type RuntimeProfile,
+} from "@openclinxr/capability-gateway";
 import { matchOpenClinXrRestRoute, routeById } from "@openclinxr/rest";
 import { createDefaultScenarioRuntime, type PublicationTargetUse, type ReviewerEvidence, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createLearnerScenarioView, edChestPainScenario, scenarioBank } from "@openclinxr/scenario-fixtures";
@@ -67,11 +73,13 @@ export type ApiPersistenceSink = {
 
 export type ApiAppOptions = {
   telemetry?: TelemetryRecorder;
+  assetGenerationFacade?: AssetGenerationCapabilityFacade;
 };
 
 export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRuntime(), persistence: ApiPersistenceSink = {}, options: ApiAppOptions = {}): Hono {
   const app = new Hono();
   const telemetry = options.telemetry ?? createNoopTelemetryRecorder();
+  const assetGenerationFacade = options.assetGenerationFacade ?? new AssetGenerationCapabilityFacade();
   const adminScenarioOverrides = new Map<string, AdminGraphqlScenario>();
 
   app.use("*", async (context, next) => {
@@ -222,6 +230,42 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     }
 
     return context.json(evaluateScenarioVersionDrift(body.form, [edChestPainScenario]));
+  });
+
+  app.post(routeById("submit-internal-capability-job").path, async (context) => {
+    const capabilityId = context.req.param("capabilityId");
+    if (!isAssetGenerationCapabilityId(capabilityId)) {
+      return context.json({ error: "invalid_capability_id" }, 400);
+    }
+
+    const body = (await context.req.json().catch(() => ({}))) as {
+      profile?: unknown;
+      payload?: unknown;
+      policy?: unknown;
+    };
+    const job = await assetGenerationFacade.submit({
+      profile: parseRuntimeProfile(body.profile),
+      capabilityId,
+      payload: body.payload,
+      ...(isRecord(body.policy) ? { policy: body.policy as AssetGenerationJobPolicyInput } : {}),
+    });
+
+    return context.json(job, 201);
+  });
+
+  app.get(routeById("read-internal-capability-job").path, async (context) => {
+    const capabilityId = context.req.param("capabilityId");
+    if (!isAssetGenerationCapabilityId(capabilityId)) {
+      return context.json({ error: "invalid_capability_id" }, 400);
+    }
+
+    const jobId = context.req.param("jobId");
+    const job = await assetGenerationFacade.get(jobId);
+    if (!job || job.request.capabilityId !== capabilityId) {
+      return context.json({ error: "job_not_found" }, 404);
+    }
+
+    return context.json(job);
   });
 
   app.post(routeById("start-session").path, async (context) => {
@@ -688,4 +732,18 @@ function isStationRef(value: unknown): value is ExamForm["stationRefs"][number] 
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isAssetGenerationCapabilityId(value: string): value is AssetGenerationCapabilityId {
+  return value === "character-generation"
+    || value === "medical-equipment-generation"
+    || value === "asset-bake";
+}
+
+function parseRuntimeProfile(value: unknown): RuntimeProfile {
+  if (value === "local-development" || value === "local-production" || value === "production") {
+    return value;
+  }
+
+  return "local-development";
 }

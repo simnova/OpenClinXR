@@ -23,6 +23,8 @@ describe("OpenClinXR REST route contract", () => {
       "create-step2cs-seed-station-run-queue-snapshot",
       "create-exam-form",
       "exam-form-version-drift",
+      "submit-internal-capability-job",
+      "read-internal-capability-job",
       "start-session",
       "start-encounter",
       "append-trace-event",
@@ -46,6 +48,16 @@ describe("OpenClinXR REST route contract", () => {
       method: "POST",
       path: "/admin/graphql",
       surface: "admin-graphql",
+    });
+    expect(routeById("submit-internal-capability-job")).toMatchObject({
+      method: "POST",
+      path: "/internal/capabilities/:capabilityId/jobs",
+      surface: "control-plane",
+    });
+    expect(routeById("read-internal-capability-job")).toMatchObject({
+      method: "GET",
+      path: "/internal/capabilities/:capabilityId/jobs/:jobId",
+      surface: "control-plane",
     });
     expect(routeById("step2cs-seed-exam-blueprint-readiness")).toMatchObject({
       method: "GET",
@@ -90,6 +102,14 @@ describe("OpenClinXR REST route contract", () => {
     expect(matchOpenClinXrRestRoute("POST", "/sessions/run%201%2F2/actor-response")).toMatchObject({
       route: { id: "actor-response" },
       params: { stationRunId: "run 1/2" },
+    });
+    expect(matchOpenClinXrRestRoute("POST", "/internal/capabilities/character-generation/jobs")).toMatchObject({
+      route: { id: "submit-internal-capability-job" },
+      params: { capabilityId: "character-generation" },
+    });
+    expect(matchOpenClinXrRestRoute("GET", "/internal/capabilities/asset-bake/jobs/job%2F1")).toMatchObject({
+      route: { id: "read-internal-capability-job" },
+      params: { capabilityId: "asset-bake", jobId: "job/1" },
     });
     expect(matchOpenClinXrRestRoute("GET", "/sessions/run_001/actor-response")).toBeUndefined();
     expect(matchOpenClinXrRestRoute("GET", "/unknown")).toBeUndefined();

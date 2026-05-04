@@ -14,6 +14,8 @@ export type OpenClinXrRestRouteMatch = {
   route: (typeof openClinXrRestRoutes)[number];
   params: {
     stationRunId?: string;
+    capabilityId?: string;
+    jobId?: string;
   };
 };
 
@@ -37,6 +39,8 @@ export const openClinXrRestRoutes = Object.freeze([
   route("create-step2cs-seed-station-run-queue-snapshot", "POST", "/exam-blueprints/step2cs-seed/station-run-queue/snapshots", "control-plane"),
   route("create-exam-form", "POST", "/exam-forms", "control-plane"),
   route("exam-form-version-drift", "POST", "/exam-forms/version-drift", "control-plane"),
+  route("submit-internal-capability-job", "POST", "/internal/capabilities/:capabilityId/jobs", "control-plane"),
+  route("read-internal-capability-job", "GET", "/internal/capabilities/:capabilityId/jobs/:jobId", "control-plane"),
   route("start-session", "POST", "/sessions", "xr-runtime"),
   route("start-encounter", "POST", "/sessions/:stationRunId/start-encounter", "xr-runtime", true),
   route("append-trace-event", "POST", "/sessions/:stationRunId/events", "xr-runtime", true),
@@ -120,6 +124,14 @@ function matchRouteSegments(routePath: string, pathSegments: string[]): OpenClin
 
     if (routeSegment === ":stationRunId") {
       params.stationRunId = decodePathSegment(pathSegment ?? "");
+      continue;
+    }
+    if (routeSegment === ":capabilityId") {
+      params.capabilityId = decodePathSegment(pathSegment ?? "");
+      continue;
+    }
+    if (routeSegment === ":jobId") {
+      params.jobId = decodePathSegment(pathSegment ?? "");
       continue;
     }
 

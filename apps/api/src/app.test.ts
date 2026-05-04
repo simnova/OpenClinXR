@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
 import type { ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createInMemoryTelemetryRecorder, openClinXrSpanNames, telemetryAttributeNames } from "@openclinxr/telemetry";
@@ -1243,6 +1244,92 @@ describe("OpenClinXR API shell", () => {
       tag: "guardrail_hidden_truth",
       actorId: "patient_robert_hayes_v1",
     }));
+  });
+
+  it("submits and reads deterministic internal asset-generation jobs with no spend", async () => {
+    const app = createApiApp(undefined, {}, {
+      assetGenerationFacade: new AssetGenerationCapabilityFacade({
+        idFactory: () => "asset-job-test-001",
+        now: () => "2026-05-04T12:00:00.000Z",
+      }),
+    });
+
+    const submitResponse = await app.request("/internal/capabilities/character-generation/jobs", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        profile: "local-development",
+        payload: { prompt: "paramedic character" },
+      }),
+    });
+    const submitBody = await json(submitResponse) as {
+      id: string;
+      status: string;
+      request: { capabilityId: string; profile: string; payload: { prompt: string } };
+      provenance?: { spendCents: number; externalNetworkUsed: boolean };
+    };
+
+    expect(submitResponse.status).toBe(201);
+    expect(submitBody).toMatchObject({
+      id: "asset-job-test-001",
+      status: "succeeded",
+      request: {
+        capabilityId: "character-generation",
+        profile: "local-development",
+        payload: { prompt: "paramedic character" },
+      },
+      provenance: {
+        spendCents: 0,
+        externalNetworkUsed: false,
+      },
+    });
+
+    const readResponse = await app.request("/internal/capabilities/character-generation/jobs/asset-job-test-001");
+    expect(readResponse.status).toBe(200);
+    await expect(json(readResponse)).resolves.toMatchObject({
+      id: "asset-job-test-001",
+      request: { capabilityId: "character-generation" },
+      provenance: { spendCents: 0, externalNetworkUsed: false },
+    });
+  });
+
+  it("rejects unsupported internal asset-generation capability ids", async () => {
+    const app = createApiApp();
+
+    const submitResponse = await app.request("/internal/capabilities/voice-synthesis/jobs", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ payload: {} }),
+    });
+    expect(submitResponse.status).toBe(400);
+    await expect(json(submitResponse)).resolves.toEqual({ error: "invalid_capability_id" });
+
+    const readResponse = await app.request("/internal/capabilities/voice-synthesis/jobs/asset-job-123");
+    expect(readResponse.status).toBe(400);
+    await expect(json(readResponse)).resolves.toEqual({ error: "invalid_capability_id" });
+  });
+
+  it("returns not found when internal asset-generation job is missing or capability-mismatched", async () => {
+    const app = createApiApp(undefined, {}, {
+      assetGenerationFacade: new AssetGenerationCapabilityFacade({
+        idFactory: () => "asset-job-test-002",
+        now: () => "2026-05-04T12:00:00.000Z",
+      }),
+    });
+
+    await app.request("/internal/capabilities/character-generation/jobs", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ payload: { prompt: "icu bed" } }),
+    });
+
+    const missingResponse = await app.request("/internal/capabilities/character-generation/jobs/asset-job-missing");
+    expect(missingResponse.status).toBe(404);
+    await expect(json(missingResponse)).resolves.toEqual({ error: "job_not_found" });
+
+    const mismatchResponse = await app.request("/internal/capabilities/asset-bake/jobs/asset-job-test-002");
+    expect(mismatchResponse.status).toBe(404);
+    await expect(json(mismatchResponse)).resolves.toEqual({ error: "job_not_found" });
   });
 
   it("returns bad request for unknown actor response requests", async () => {

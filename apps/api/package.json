@@ -20,6 +20,7 @@
   "dependencies": {
     "@hono/node-server": "2.0.1",
     "@openclinxr/asset-registry": "workspace:*",
+    "@openclinxr/capability-gateway": "workspace:*",
     "@openclinxr/exam-assembly": "workspace:*",
     "@openclinxr/graphql": "workspace:*",
     "@openclinxr/rest": "workspace:*",
