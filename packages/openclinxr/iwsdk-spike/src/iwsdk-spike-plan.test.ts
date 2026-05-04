@@ -13,6 +13,7 @@ import {
   buildIwsdkMcpToolInventoryRequirement,
   buildIwsdkMcpToolCoverage,
   buildIwsdkOptionalMcpServerPolicy,
+  buildIwsdkOperatorSteeringBlockers,
   buildIwsdkPackageMetadataDriftPolicies,
   buildIwsdkPreInstallPackagePolicy,
   buildIwsdkSidecarReadinessContract,
@@ -128,6 +129,31 @@ describe("IWSDK spike plan", () => {
         "foreground_frame_pacing",
       ],
     });
+  });
+
+  it("declares IWSDK blockers that require operator steering before unattended execution", () => {
+    expect(buildIwsdkOperatorSteeringBlockers()).toEqual([
+      expect.objectContaining({
+        id: "iwsdk-install-backed-sidecar-approval",
+        operatorQuestionText: "IWSDK install-backed sidecar approval",
+        blockedAction: "apps/ui-xr-iwsdk-spike",
+      }),
+      expect.objectContaining({
+        id: "iwsdk-reference-warmup-download-approval",
+        operatorQuestionText: "IWSDK reference corpus/model warmup approval",
+        blockedAction: "npx iwsdk reference warmup",
+      }),
+      expect.objectContaining({
+        id: "iwsdk-hzdb-legal-procurement-approval",
+        operatorQuestionText: "Meta Quest hzdb legal/procurement approval",
+        blockedAction: "@meta-quest/hzdb",
+      }),
+      expect.objectContaining({
+        id: "iwsdk-quest-foreground-frame-pacing",
+        operatorQuestionText: "Quest foreground performance capture",
+        blockedAction: "foreground Quest frame pacing",
+      }),
+    ]);
   });
 
   it("keeps agent verification ordered around session status before XR interaction", () => {

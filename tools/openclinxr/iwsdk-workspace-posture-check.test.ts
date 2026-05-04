@@ -103,6 +103,62 @@ describe("IWSDK workspace posture checker", () => {
     ]);
   });
 
+  it("blocks sidecar coupling to production UI app internals", async () => {
+    const workspaceRoot = await createWorkspaceFixture({
+      rootPackage: postureReadyRootPackage(),
+      sidecarDependencies: {
+        "@iwsdk/core": "0.3.1",
+        "@iwsdk/xr-input": "0.3.1",
+        "@openclinxr/ui-xr": "workspace:*",
+      },
+      writeSidecarLockfileImporter: true,
+    });
+    await mkdir(path.join(workspaceRoot, "apps/ui-xr/src"), { recursive: true });
+    await mkdir(path.join(workspaceRoot, "apps/ui-xr-iwsdk-spike/src"), { recursive: true });
+    await writeFile(
+      path.join(workspaceRoot, "apps/ui-xr/src/runtime-state.ts"),
+      "export const smokePlan = 'production';\n",
+      "utf8",
+    );
+    await writeFile(
+      path.join(workspaceRoot, "apps/ui-xr-iwsdk-spike/src/main.ts"),
+      [
+        "import { smokePlan } from '../../ui-xr/src/runtime-state.js';",
+        "import { AdminApp } from '@openclinxr/ui-xr';",
+        "void smokePlan;",
+        "void AdminApp;",
+        "",
+      ].join("\n"),
+      "utf8",
+    );
+
+    const report = await buildIwsdkWorkspacePostureReport({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      workspaceRoot,
+      sidecarInstallApproved: true,
+    });
+
+    expect(report.detected.sidecarProductionUiCouplings).toEqual([
+      {
+        filePath: "apps/ui-xr-iwsdk-spike/package.json",
+        specifier: "@openclinxr/ui-xr",
+      },
+      {
+        filePath: "apps/ui-xr-iwsdk-spike/src/main.ts",
+        specifier: "../../ui-xr/src/runtime-state.js",
+      },
+      {
+        filePath: "apps/ui-xr-iwsdk-spike/src/main.ts",
+        specifier: "@openclinxr/ui-xr",
+      },
+    ]);
+    expect(report.result.blockers).toEqual([
+      "sidecar_coupling_to_production_ui:apps/ui-xr-iwsdk-spike/package.json:@openclinxr/ui-xr",
+      "sidecar_coupling_to_production_ui:apps/ui-xr-iwsdk-spike/src/main.ts:../../ui-xr/src/runtime-state.js",
+      "sidecar_coupling_to_production_ui:apps/ui-xr-iwsdk-spike/src/main.ts:@openclinxr/ui-xr",
+    ]);
+  });
+
   it("blocks IWSDK references in root package-manager controls", async () => {
     const workspaceRoot = await createWorkspaceFixture({
       rootPackage: {

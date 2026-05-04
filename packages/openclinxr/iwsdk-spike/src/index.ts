@@ -380,6 +380,11 @@ export type IwsdkWorkspaceSourceReference = {
   packageName: string;
 };
 
+export type IwsdkWorkspaceSidecarProductionUiCoupling = {
+  filePath: string;
+  specifier: string;
+};
+
 export type IwsdkWorkspaceScriptReference = {
   manifestPath: string;
   scriptName: string;
@@ -407,6 +412,7 @@ export type IwsdkWorkspacePostureInput = {
   sidecarLockfilePackageNames?: string[];
   dependencies: IwsdkWorkspaceDependency[];
   sourceReferences: IwsdkWorkspaceSourceReference[];
+  sidecarProductionUiCouplings?: IwsdkWorkspaceSidecarProductionUiCoupling[];
   scriptReferences: IwsdkWorkspaceScriptReference[];
   lockfilePackageNames: string[];
   packageManagerReferences?: IwsdkWorkspacePackageManagerReference[];
@@ -420,6 +426,13 @@ export type IwsdkWorkspacePostureReadiness = {
   sidecarStatus: IwsdkWorkspaceSidecarStatus;
   blockers: string[];
   reviewWarnings: string[];
+};
+
+export type IwsdkOperatorSteeringBlocker = {
+  id: string;
+  operatorQuestionText: string;
+  blockedAction: string;
+  whyHumanApprovalIsRequired: string;
 };
 
 const sourceRecordIds = [
@@ -609,6 +622,35 @@ export function buildIwsdkSpikeMetricThresholds(): IwsdkSpikeMetricThresholds {
     controllerSelectLatencyMsMax: 150,
     consoleErrorCountMax: 0,
   };
+}
+
+export function buildIwsdkOperatorSteeringBlockers(): IwsdkOperatorSteeringBlocker[] {
+  return [
+    {
+      id: "iwsdk-install-backed-sidecar-approval",
+      operatorQuestionText: "IWSDK install-backed sidecar approval",
+      blockedAction: "apps/ui-xr-iwsdk-spike",
+      whyHumanApprovalIsRequired: "Creating the sidecar would add executable IWSDK packages and lockfile state to the workspace.",
+    },
+    {
+      id: "iwsdk-reference-warmup-download-approval",
+      operatorQuestionText: "IWSDK reference corpus/model warmup approval",
+      blockedAction: "npx iwsdk reference warmup",
+      whyHumanApprovalIsRequired: "Reference warmup can download a model and reference corpus into local cache state.",
+    },
+    {
+      id: "iwsdk-hzdb-legal-procurement-approval",
+      operatorQuestionText: "Meta Quest hzdb legal/procurement approval",
+      blockedAction: "@meta-quest/hzdb",
+      whyHumanApprovalIsRequired: "The optional Quest device-management package requires terms and metadata review before use.",
+    },
+    {
+      id: "iwsdk-quest-foreground-frame-pacing",
+      operatorQuestionText: "Quest foreground performance capture",
+      blockedAction: "foreground Quest frame pacing",
+      whyHumanApprovalIsRequired: "MCP emulation cannot prove physical headset frame pacing, comfort, or readable in-headset text.",
+    },
+  ];
 }
 
 export function buildIwsdkUiXrStationParityContract(): IwsdkUiXrStationParityContract {
@@ -1360,6 +1402,11 @@ export function evaluateIwsdkWorkspacePosture(
       .map(({ dependency, aliasTarget }) =>
         `iwsdk_alias_specifier_not_allowed:${dependency.manifestPath}:${dependency.field}.${dependency.name}:${aliasTarget}`
       ),
+  );
+  blockers.push(
+    ...(input.sidecarProductionUiCouplings ?? []).map((reference) =>
+      `sidecar_coupling_to_production_ui:${reference.filePath}:${reference.specifier}`
+    ),
   );
   blockers.push(...blockedWorkspaceScriptActions(input.scriptReferences));
   blockers.push(

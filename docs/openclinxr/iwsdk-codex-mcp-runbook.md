@@ -13,7 +13,7 @@ Current state: contract only. Do not create a no-install `apps/ui-xr-iwsdk-spike
 
 Use `pnpm iwsdk:evidence` to print the current no-install evidence contract report. A nonzero exit is expected while the sidecar is contract-only; the JSON blockers are the evidence to carry into leadership review.
 
-Use `pnpm iwsdk:evidence:validate` to validate the latest committed `docs/openclinxr/iwsdk-evidence-contract-*.json` snapshot's structure without treating current readiness blockers as command failures. This check is now part of `pnpm iwsdk:verify`. The snapshot also carries the preinstall package policy and the Vite/Node/Rolldown compatibility gate so leadership can see which packages are allowed, review-required, or blocked without running the TypeScript package.
+Use `pnpm iwsdk:evidence:validate` to validate the latest committed `docs/openclinxr/iwsdk-evidence-contract-*.json` snapshot's structure without treating current readiness blockers as command failures. This check is now part of `pnpm iwsdk:verify`, alongside the contract tests that bind UI-XR parity and operator-steering blockers. The snapshot also carries the preinstall package policy and the Vite/Node/Rolldown compatibility gate so leadership can see which packages are allowed, review-required, or blocked without running the TypeScript package.
 
 ## Preconditions
 
@@ -25,6 +25,7 @@ Use `pnpm iwsdk:evidence:validate` to validate the latest committed `docs/opencl
 - The `metadataDrift` section in the latest evidence snapshot has no blockers before any `@iwsdk/reference` warmup; current evidence records docs `v0.3.1` versus npm latest `0.3.2`.
 - `apps/ui-xr-iwsdk-spike` exists and is intentionally outside production runtime paths.
 - IWSDK dependencies are exact-versioned in the sidecar app.
+- The sidecar app does not import or depend on `@openclinxr/ui-xr` or `apps/ui-xr/src/**`; parity must flow through explicit contracts, shared packages, or committed evidence snapshots.
 - `@iwsdk/reference`, `@meta-quest/hzdb`, and production adoption of `@iwsdk/vite-plugin-gltf-optimizer` remain blocked unless the policy is deliberately changed.
 - The sidecar app has recorded installed footprint, injected dev runtime size, JS bundle size, console errors, and bundle delta versus `apps/ui-xr`.
 
@@ -139,7 +140,9 @@ When the operator has approved the install-backed sidecar scope, rerun it as:
 pnpm iwsdk:workspace:posture -- --approved-sidecar
 ```
 
-The checker exits nonzero if IWSDK dependencies or imports leak outside `apps/ui-xr-iwsdk-spike/`, including from the advisory `packages/openclinxr/iwsdk-spike/` policy package; if a package tries to reach IWSDK through an `npm:@iwsdk/...` alias specifier; if root package-manager controls or `pnpm-workspace.yaml` catalogs reference IWSDK packages; if package scripts attempt blocked actions such as `iwsdk reference warmup`, `@iwsdk/create`, or `pnpm create @iwsdk`; if IWSDK packages remain in quoted or unquoted lockfile keys after the sidecar app is absent; if blocked packages or sharp/libvips-style blocked transitive packages appear in the lockfile; if the sidecar manifest and `pnpm-lock.yaml` importer are out of sync; if approved exact first-slice sidecar IWSDK dependencies are missing from the lockfile importer; if the sidecar exists without explicit approval; or if required audit/license/Three override controls are missing once the sidecar is approved. Placeholder controls such as `echo pnpm audit` or `true` do not satisfy the audit/license checks.
+The checker exits nonzero if IWSDK dependencies or imports leak outside `apps/ui-xr-iwsdk-spike/`, including from the advisory `packages/openclinxr/iwsdk-spike/` policy package; if the sidecar imports or depends on production `apps/ui-xr` internals instead of parity contracts; if a package tries to reach IWSDK through an `npm:@iwsdk/...` alias specifier; if root package-manager controls or `pnpm-workspace.yaml` catalogs reference IWSDK packages; if package scripts attempt blocked actions such as `iwsdk reference warmup`, `@iwsdk/create`, or `pnpm create @iwsdk`; if IWSDK packages remain in quoted or unquoted lockfile keys after the sidecar app is absent; if blocked packages or sharp/libvips-style blocked transitive packages appear in the lockfile; if the sidecar manifest and `pnpm-lock.yaml` importer are out of sync; if approved exact first-slice sidecar IWSDK dependencies are missing from the lockfile importer; if the sidecar exists without explicit approval; or if required audit/license/Three override controls are missing once the sidecar is approved. Placeholder controls such as `echo pnpm audit` or `true` do not satisfy the audit/license checks.
+
+`packages/openclinxr/iwsdk-spike` also exposes `buildIwsdkOperatorSteeringBlockers()`. `tools/openclinxr/iwsdk-operator-steering-blockers.test.ts` keeps those true human-approval blockers mirrored in `operator-steering-needed-questions.md`, including install-backed sidecar approval, reference warmup downloads, `@meta-quest/hzdb`, and physical Quest foreground frame pacing.
 
 ## Managed Browser Evidence Contract
 

@@ -10,6 +10,7 @@ import {
   type IwsdkWorkspacePackageManagerReference,
   type IwsdkWorkspacePackageManagerControls,
   type IwsdkWorkspacePostureReadiness,
+  type IwsdkWorkspaceSidecarProductionUiCoupling,
   type IwsdkWorkspaceScriptReference,
   type IwsdkWorkspaceSourceReference,
 } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
@@ -39,6 +40,7 @@ export type IwsdkWorkspacePostureReport = {
     sidecarLockfilePackageNames: string[];
     dependencies: IwsdkWorkspaceDependency[];
     sourceReferences: IwsdkWorkspaceSourceReference[];
+    sidecarProductionUiCouplings: IwsdkWorkspaceSidecarProductionUiCoupling[];
     scriptReferences: IwsdkWorkspaceScriptReference[];
     lockfilePackageNames: string[];
     packageManagerReferences: IwsdkWorkspacePackageManagerReference[];
@@ -86,6 +88,7 @@ export async function buildIwsdkWorkspacePostureReport(input: {
   const sidecarAppExists = existsSync(path.join(workspaceRoot, "apps/ui-xr-iwsdk-spike"));
   const dependencies = await scanPackageDependencies(workspaceRoot);
   const sourceReferences = await scanSourceReferences(workspaceRoot);
+  const sidecarProductionUiCouplings = await scanSidecarProductionUiCouplings(workspaceRoot, dependencies);
   const scriptReferences = await scanPackageScripts(workspaceRoot);
   const lockfilePackageNames = await scanLockfileBlockedPackages(workspaceRoot);
   const sidecarLockfileImporterPresent = await scanSidecarLockfileImporter(workspaceRoot);
@@ -98,6 +101,7 @@ export async function buildIwsdkWorkspacePostureReport(input: {
     sidecarLockfileImporterPresent,
     dependencies,
     sourceReferences,
+    sidecarProductionUiCouplings,
     scriptReferences,
     lockfilePackageNames,
     packageManagerReferences,
@@ -115,6 +119,7 @@ export async function buildIwsdkWorkspacePostureReport(input: {
       sidecarLockfilePackageNames,
       dependencies,
       sourceReferences,
+      sidecarProductionUiCouplings,
       scriptReferences,
       lockfilePackageNames,
       packageManagerReferences,
@@ -190,6 +195,81 @@ async function scanSourceReferences(workspaceRoot: string): Promise<IwsdkWorkspa
   }
 
   return references;
+}
+
+async function scanSidecarProductionUiCouplings(
+  workspaceRoot: string,
+  dependencies: IwsdkWorkspaceDependency[],
+): Promise<IwsdkWorkspaceSidecarProductionUiCoupling[]> {
+  const sidecarRoot = path.join(workspaceRoot, "apps/ui-xr-iwsdk-spike");
+  const sourceFiles = await walk(sidecarRoot, isSourceFile);
+  const importPattern =
+    /(?:from\s*["']|import\s*["']|import\s*\(\s*["']|require\s*\(\s*["'])([^"']+)/g;
+  const manifestCouplings = dependencies
+    .filter((dependency) => dependency.manifestPath === "apps/ui-xr-iwsdk-spike/package.json")
+    .filter((dependency) => dependency.name === "@openclinxr/ui-xr")
+    .map((dependency) => ({
+      filePath: dependency.manifestPath,
+      specifier: dependency.name,
+    }));
+  const sidecarManifestCouplings = await scanSidecarProductionUiManifestCouplings(workspaceRoot);
+  const sourceCouplings: IwsdkWorkspaceSidecarProductionUiCoupling[] = [];
+
+  for (const sourceFile of sourceFiles) {
+    const sourceText = await readFile(sourceFile, "utf8");
+    for (const match of sourceText.matchAll(importPattern)) {
+      const specifier = match[1];
+      if (specifier && sidecarSpecifierTargetsProductionUi(workspaceRoot, sourceFile, specifier)) {
+        sourceCouplings.push({
+          filePath: toPosixRelative(workspaceRoot, sourceFile),
+          specifier,
+        });
+      }
+    }
+  }
+
+  return [...manifestCouplings, ...sidecarManifestCouplings, ...sourceCouplings]
+    .filter((reference, index, references) =>
+      references.findIndex((candidate) =>
+        candidate.filePath === reference.filePath && candidate.specifier === reference.specifier
+      ) === index
+    );
+}
+
+async function scanSidecarProductionUiManifestCouplings(
+  workspaceRoot: string,
+): Promise<IwsdkWorkspaceSidecarProductionUiCoupling[]> {
+  const sidecarManifestPath = path.join(workspaceRoot, "apps/ui-xr-iwsdk-spike/package.json");
+  if (!existsSync(sidecarManifestPath)) {
+    return [];
+  }
+
+  const packageJson = await readPackageJson(sidecarManifestPath);
+  return dependencyFields
+    .filter((field) => packageJson[field]?.["@openclinxr/ui-xr"])
+    .map(() => ({
+      filePath: "apps/ui-xr-iwsdk-spike/package.json",
+      specifier: "@openclinxr/ui-xr",
+    }));
+}
+
+function sidecarSpecifierTargetsProductionUi(workspaceRoot: string, sourceFile: string, specifier: string): boolean {
+  if (specifier === "@openclinxr/ui-xr" || specifier.startsWith("@openclinxr/ui-xr/")) {
+    return true;
+  }
+  if (specifier.includes("apps/ui-xr/src")) {
+    return true;
+  }
+  if (!specifier.startsWith(".")) {
+    return false;
+  }
+
+  return pathIsInside(path.join(workspaceRoot, "apps/ui-xr/src"), path.resolve(path.dirname(sourceFile), specifier));
+}
+
+function pathIsInside(parentPath: string, candidatePath: string): boolean {
+  const relativePath = path.relative(parentPath, candidatePath);
+  return relativePath === "" || (!relativePath.startsWith("..") && !path.isAbsolute(relativePath));
 }
 
 async function scanPackageScripts(workspaceRoot: string): Promise<IwsdkWorkspaceScriptReference[]> {

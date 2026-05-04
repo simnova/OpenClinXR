@@ -101,6 +101,7 @@ describe("workspace architecture rules", () => {
 
     expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm --filter @openclinxr/iwsdk-spike typecheck");
     expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm --filter @openclinxr/iwsdk-spike test");
+    expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm iwsdk:contract:tests");
     expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm iwsdk:preinstall");
     expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm iwsdk:workspace:posture");
     expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm iwsdk:evidence:validate");
@@ -377,6 +378,23 @@ describe("workspace architecture rules", () => {
     expect(existsSync(join(workspaceRoot, "apps/ui-xr-iwsdk-spike"))).toBe(false);
   });
 
+  it("keeps a future IWSDK sidecar from importing production ui-xr app internals", async () => {
+    const sidecarRoot = join(workspaceRoot, "apps/ui-xr-iwsdk-spike");
+    if (!existsSync(sidecarRoot)) {
+      return;
+    }
+
+    const sourceImportViolations = findSidecarProductionUiCouplings();
+    const archUnitViolations = await projectFiles(archTsconfig)
+      .inFolder("apps/ui-xr-iwsdk-spike/src/**")
+      .shouldNot()
+      .dependOnFiles()
+      .inFolder("apps/ui-xr/src/**")
+      .check();
+
+    expect([...sourceImportViolations, ...archUnitViolations]).toEqual([]);
+  }, 20_000);
+
   it("keeps IWSDK lockfile packages absent while the sidecar app is absent", () => {
     if (existsSync(join(workspaceRoot, "apps/ui-xr-iwsdk-spike"))) {
       return;
@@ -601,6 +619,40 @@ function findIwsdkLockfilePackages(lockfileText: string): string[] {
   return [...new Set([...lockfileText.matchAll(/(?:^|\n)\s*\/?(@iwsdk\/[^@\s:]+|@meta-quest\/hzdb)@/g)]
     .map((match) => match[1])
     .filter((dependency): dependency is string => Boolean(dependency)))];
+}
+
+function findSidecarProductionUiCouplings(): string[] {
+  const sidecarSourceFiles = sourceFilesUnder("apps/ui-xr-iwsdk-spike");
+  const sourceImportPattern =
+    /(?:from\s*["']|import\s*["']|import\s*\(\s*["']|require\s*\(\s*["'])([^"']+)/g;
+  const sourceViolations = sidecarSourceFiles.flatMap((filePath) => {
+    const sourceText = readFileSync(join(workspaceRoot, filePath), "utf8");
+    return [...sourceText.matchAll(sourceImportPattern)]
+      .map((match) => match[1])
+      .filter((specifier): specifier is string => Boolean(specifier))
+      .filter((specifier) => sidecarImportTargetsProductionUi(filePath, specifier))
+      .map((specifier) => `source:${filePath}:${specifier}`);
+  });
+  const manifestViolations = workspacePackageDependencyReferences(["@openclinxr/ui-xr"])
+    .filter(({ manifestPath }) => manifestPath === "apps/ui-xr-iwsdk-spike/package.json")
+    .map(({ manifestPath, field, dependency }) => `manifest:${manifestPath}:${field}.${dependency}`);
+
+  return [...manifestViolations, ...sourceViolations].sort();
+}
+
+function sidecarImportTargetsProductionUi(importerFilePath: string, specifier: string): boolean {
+  if (specifier === "@openclinxr/ui-xr" || specifier.startsWith("@openclinxr/ui-xr/")) {
+    return true;
+  }
+  if (specifier.includes("apps/ui-xr/src")) {
+    return true;
+  }
+  if (!specifier.startsWith(".")) {
+    return false;
+  }
+
+  const resolvedPath = join(workspaceRoot, dirname(importerFilePath), specifier);
+  return relative(join(workspaceRoot, "apps/ui-xr/src"), resolvedPath).split(sep).join("/").startsWith("..") === false;
 }
 
 function userFacingTextFragments(filePath: string): string[] {
