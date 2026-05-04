@@ -318,6 +318,18 @@ describe("workspace architecture rules", () => {
     expect(findPaidProviderBoundaryViolations(scanPaidProviderBoundary())).toEqual([]);
   });
 
+  it("scans package scripts, config files, env templates, and tools for paid provider credentials", () => {
+    expect(paidProviderPolicyTextFiles()).toEqual(expect.arrayContaining([
+      ".env.openclinxr.local.example",
+      "package.json",
+      "turbo.json",
+      "vitest.config.ts",
+      "apps/api/tsdown.config.ts",
+      "apps/ui-xr/vite.config.ts",
+      "tools/openclinxr/local-provider-benchmark.ts",
+    ]));
+  });
+
   it("keeps shared UI packages free of circular imports", async () => {
     const violations = await projectFiles(archTsconfig)
       .inFolder("packages/openclinxr/ui-*/src/**")
@@ -470,12 +482,12 @@ function scanMongoMemoryServerBoundary(): MongoMemoryServerBoundaryInput {
 }
 
 function scanPaidProviderBoundary(): PaidProviderBoundaryInput {
-  const runtimeSourceFiles = runtimePolicySourceFiles();
+  const policyTextFiles = paidProviderPolicyTextFiles();
 
   return {
     manifestDependencies: workspacePackageDependencyReferences([...paidCloudProviderDependencies]),
-    sourceReferences: paidCloudProviderDependencies.flatMap((dependency) => sourceImportReferences(dependency, runtimeSourceFiles)),
-    envKeyReferences: findEnvKeyReferences(runtimeSourceFiles, [...paidCloudProviderEnvKeys]),
+    sourceReferences: paidCloudProviderDependencies.flatMap((dependency) => sourceImportReferences(dependency, policyTextFiles)),
+    envKeyReferences: findEnvKeyReferences(policyTextFiles, [...paidCloudProviderEnvKeys]),
   };
 }
 
@@ -534,6 +546,26 @@ function runtimePolicySourceFiles(): string[] {
   return [...typescriptFilesUnder("apps"), ...typescriptFilesUnder("packages"), ...typescriptFilesUnder("tools")]
     .filter((filePath) => !/\.test\.tsx?$/.test(filePath))
     .filter((filePath) => !filePath.includes("/generated/"));
+}
+
+function paidProviderPolicyTextFiles(): string[] {
+  return [...new Set([
+    ...runtimePolicySourceFiles(),
+    ...packageManifestFiles(),
+    ...workspaceConfigAndEnvFiles(),
+  ])].sort();
+}
+
+function workspaceConfigAndEnvFiles(): string[] {
+  return walk(workspaceRoot)
+    .map((filePath) => relative(workspaceRoot, filePath).split(sep).join("/"))
+    .filter((filePath) =>
+      filePath.startsWith(".env")
+      || filePath === "turbo.json"
+      || filePath === "pnpm-workspace.yaml"
+      || /(^|\/)tsconfig(?:\.[^/]+)?\.json$/.test(filePath)
+      || /(^|\/)(?:vite|vitest|tsdown|rolldown|biome|eslint|storybook|codegen|tailwind|postcss)\.config\.[cm]?[jt]s$/.test(filePath)
+    );
 }
 
 function typescriptFilesUnder(root: string): string[] {
