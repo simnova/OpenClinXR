@@ -6,9 +6,22 @@
     "shell_loaded": true,
     "interaction_advanced": true,
     "frame_sample_complete": false,
+    "ready_for_foreground_quest_claim": false,
+    "classification": "shell_interaction_only_hidden_page",
+    "satisfied_conditions": [
+      "quest_cdp_generated_at_valid",
+      "quest_cdp_adb_device_recorded",
+      "quest_cdp_user_agent_recorded",
+      "quest_shell_loaded",
+      "quest_trace_interaction_advanced",
+      "quest_frame_stats_present"
+    ],
     "blockers": [
-      "quest_page_hidden_or_inactive",
-      "quest_cdp_frame_sample_incomplete"
+      "quest_cdp_frame_sample_incomplete",
+      "quest_cdp_frame_sample_timed_out",
+      "quest_latest_frame_stale_over_1000ms",
+      "quest_no_frames_observed_during_probe",
+      "quest_page_hidden_or_inactive"
     ]
   },
   "local_runtime_probe": {
@@ -319,13 +332,17 @@
       "evidence_id": "evidence-leadership-0007-002",
       "ready_to_resolve": false,
       "satisfied_conditions": [
+        "asset_pipeline_blender_bake_smoke_passed",
+        "asset_pipeline_gltf_pipeline_smoke_passed",
+        "asset_pipeline_runtime_ready",
+        "local_provider_mock_benchmarks_passed",
+        "quest_cdp_adb_device_recorded",
+        "quest_cdp_generated_at_valid",
+        "quest_cdp_user_agent_recorded",
+        "quest_frame_stats_present",
         "quest_shell_loaded",
         "quest_trace_interaction_advanced",
-        "quest_usb_ready",
-        "asset_pipeline_runtime_ready",
-        "asset_pipeline_gltf_pipeline_smoke_passed",
-        "asset_pipeline_blender_bake_smoke_passed",
-        "local_provider_mock_benchmarks_passed"
+        "quest_usb_ready"
       ],
       "blockers": [
         "local_model:model_weights_not_selected_or_benchmarked",
@@ -336,13 +353,16 @@
         "local_voice_benchmark:OPENCLINXR_LOCAL_VOICE_RUNTIME_not_set",
         "local_voice_benchmark:no_vibevoice_runtime_detected",
         "quest_cdp_frame_sample_incomplete",
+        "quest_cdp_frame_sample_timed_out",
         "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
+        "quest_latest_frame_stale_over_1000ms",
         "quest_manual_performance:missing_quest_manual_performance_report",
+        "quest_no_frames_observed_during_probe",
         "quest_page_hidden_or_inactive",
         "quest_sustained_frame_sample_not_complete"
       ],
       "blocker_summary": {
-        "total_blockers": 12,
+        "total_blockers": 15,
         "distinct_problem_count": 3,
         "groups": [
           {
@@ -351,8 +371,11 @@
             "owner": "xr-systems-architect",
             "blockers": [
               "quest_cdp_frame_sample_incomplete",
+              "quest_cdp_frame_sample_timed_out",
               "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
+              "quest_latest_frame_stale_over_1000ms",
               "quest_manual_performance:missing_quest_manual_performance_report",
+              "quest_no_frames_observed_during_probe",
               "quest_page_hidden_or_inactive",
               "quest_sustained_frame_sample_not_complete"
             ],
@@ -389,19 +412,26 @@
       "evidence_id": "evidence-leadership-0008-001",
       "ready_to_resolve": false,
       "satisfied_conditions": [
+        "quest_cdp_adb_device_recorded",
+        "quest_cdp_generated_at_valid",
+        "quest_cdp_user_agent_recorded",
+        "quest_frame_stats_present",
         "quest_shell_loaded",
         "quest_trace_interaction_advanced",
         "quest_usb_ready"
       ],
       "blockers": [
         "quest_cdp_frame_sample_incomplete",
+        "quest_cdp_frame_sample_timed_out",
         "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
+        "quest_latest_frame_stale_over_1000ms",
         "quest_manual_performance:missing_quest_manual_performance_report",
+        "quest_no_frames_observed_during_probe",
         "quest_page_hidden_or_inactive",
         "quest_sustained_frame_sample_not_complete"
       ],
       "blocker_summary": {
-        "total_blockers": 5,
+        "total_blockers": 8,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -410,8 +440,11 @@
             "owner": "xr-systems-architect",
             "blockers": [
               "quest_cdp_frame_sample_incomplete",
+              "quest_cdp_frame_sample_timed_out",
               "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
+              "quest_latest_frame_stale_over_1000ms",
               "quest_manual_performance:missing_quest_manual_performance_report",
+              "quest_no_frames_observed_during_probe",
               "quest_page_hidden_or_inactive",
               "quest_sustained_frame_sample_not_complete"
             ],

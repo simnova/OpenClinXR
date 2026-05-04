@@ -1,0 +1,21 @@
+{
+  "generatedAt": "2026-05-04T12:06:18.480Z",
+  "inputFile": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
+  "readyForForegroundQuestClaim": false,
+  "classification": "shell_interaction_only_hidden_page",
+  "satisfiedConditions": [
+    "quest_cdp_generated_at_valid",
+    "quest_cdp_adb_device_recorded",
+    "quest_cdp_user_agent_recorded",
+    "quest_shell_loaded",
+    "quest_trace_interaction_advanced",
+    "quest_frame_stats_present"
+  ],
+  "blockers": [
+    "quest_cdp_frame_sample_incomplete",
+    "quest_cdp_frame_sample_timed_out",
+    "quest_latest_frame_stale_over_1000ms",
+    "quest_no_frames_observed_during_probe",
+    "quest_page_hidden_or_inactive"
+  ]
+}

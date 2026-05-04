@@ -11,6 +11,13 @@ type BlockerGroup = {
 };
 
 type BenchmarkGateReport = {
+  quest_smoke?: {
+    file: string;
+    classification: string;
+    ready_for_foreground_quest_claim: boolean;
+    satisfied_conditions: string[];
+    blockers: string[];
+  };
   iwsdk_evidence_contract?: {
     file: string;
     generated_at: string;
@@ -287,6 +294,19 @@ describe("benchmark gate report", () => {
         file: "quest.json",
         value: {
           generatedAt: "2026-05-04T00:00:00.000Z",
+          url: "http://localhost:5173/",
+          adb: {
+            version: "Android Debug Bridge version 1.0.41",
+            deviceLine: "1234 device product:quest3",
+            reverseList: "1234 tcp:5173 tcp:5173",
+          },
+          browser: {
+            userAgent: "Mozilla/5.0 Quest 3",
+            hidden: false,
+            visibilityState: "visible",
+          },
+          interaction: {},
+          frameSample: {},
           verdict: {
             shellLoaded: true,
             interactionAdvanced: true,
@@ -348,6 +368,14 @@ describe("benchmark gate report", () => {
 
     expect(report.quest_manual_performance?.file).toBe("docs/openclinxr/quest-manual-performance-2026-05-04.json");
     expect(report.quest_manual_performance?.input_file).toBe("docs/openclinxr/quest-manual-performance-2026-05-04.json");
+    expect(report.quest_smoke).toEqual(expect.objectContaining({
+      classification: "blocked",
+      ready_for_foreground_quest_claim: false,
+      blockers: expect.arrayContaining([
+        "quest_cdp_frame_sample_incomplete",
+        "quest_frame_stats_missing",
+      ]),
+    }));
     expect(questGate?.satisfied_conditions).toEqual(expect.arrayContaining([
       "quest_manual_frame_pacing_ready",
       "performed_by_recorded",
@@ -366,6 +394,24 @@ describe("benchmark gate report", () => {
         file: "quest.json",
         value: {
           generatedAt: "2026-05-04T00:00:00.000Z",
+          url: "http://localhost:5173/",
+          adb: {
+            version: "Android Debug Bridge version 1.0.41",
+            deviceLine: "1234 device product:quest3",
+            reverseList: "1234 tcp:5173 tcp:5173",
+          },
+          browser: {
+            userAgent: "Mozilla/5.0 Quest 3",
+            hidden: false,
+            visibilityState: "visible",
+            frameStats: { framesObserved: 120 },
+          },
+          interaction: {},
+          frameSample: {
+            timedOut: false,
+            latestFrameAgeMs: 16,
+            framesObservedDuringProbe: 120,
+          },
           verdict: {
             shellLoaded: true,
             interactionAdvanced: true,

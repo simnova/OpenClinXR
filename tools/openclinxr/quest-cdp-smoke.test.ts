@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   browserSnapshotExpression,
+  buildQuestSmokeEvidenceCheck,
   buildReport,
   frameSampleExpression,
   interactionExpression,
@@ -17,6 +18,8 @@ describe("Quest CDP smoke probe", () => {
       frameSampleCount: 90,
       frameTimeoutMs: 4000,
       skipLaunch: false,
+      mode: "run",
+      inputPattern: "docs/openclinxr/quest-cdp-smoke-*.json",
     });
 
     expect(parseArgs([
@@ -32,6 +35,7 @@ describe("Quest CDP smoke probe", () => {
       "900",
       "--skip-launch",
     ])).toMatchObject({
+      mode: "run",
       url: "http://localhost:5174/quest?smoke=1",
       appPort: 5174,
       cdpPort: 9333,
@@ -39,6 +43,33 @@ describe("Quest CDP smoke probe", () => {
       frameSampleCount: 12,
       frameTimeoutMs: 900,
       skipLaunch: true,
+    });
+
+    expect(parseArgs([
+      "--validate-latest",
+      "docs/openclinxr/quest-cdp-smoke-fixture-*.json",
+      "--output",
+      ".agent-factory/quest-cdp-smoke-check.json",
+    ])).toMatchObject({
+      mode: "validate",
+      inputPattern: "docs/openclinxr/quest-cdp-smoke-fixture-*.json",
+      outputPath: ".agent-factory/quest-cdp-smoke-check.json",
+    });
+
+    expect(parseArgs([
+      "--validate-latest",
+      "--",
+      "--output",
+      ".agent-factory/quest-cdp-smoke-check.json",
+    ])).toMatchObject({
+      mode: "validate",
+      inputPattern: "docs/openclinxr/quest-cdp-smoke-*.json",
+      outputPath: ".agent-factory/quest-cdp-smoke-check.json",
+    });
+
+    expect(parseArgs(["--input", "docs/openclinxr/quest-cdp-smoke-2026-05-04.json"])).toMatchObject({
+      mode: "validate",
+      inputPath: "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
     });
   });
 
@@ -102,6 +133,56 @@ describe("Quest CDP smoke probe", () => {
     });
   });
 
+  it("classifies a foreground-ready Quest smoke report for leadership evidence", () => {
+    const report = buildReport({
+      options: parseArgs(["--url", "http://localhost:5173/?questSmoke=1"]),
+      adbVersion: "Android Debug Bridge version 1.0.41",
+      deviceLine: "1234 device product:quest3",
+      reverseList: "1234 tcp:5173 tcp:5173",
+      browser: {
+        title: "OpenClinXR Station Runtime",
+        userAgent: "Mozilla/5.0 (X11; Linux x86_64; Quest 3) OculusBrowser/146.0.0",
+        bodyHasEdChestPain: true,
+        hasViteOverlay: false,
+        hidden: false,
+        visibilityState: "visible",
+        canvas: { dataUrlLength: 4096 },
+        frameStats: { framesObserved: 120 },
+      },
+      interaction: {
+        afterTrace: "Trace 2/10",
+        clickedEcg: true,
+        clickedUrgent: true,
+      },
+      frameSample: {
+        timedOut: false,
+        avgFrameMs: 13.5,
+        latestFrameAgeMs: 25,
+        framesObservedDuringProbe: 120,
+      },
+    });
+
+    const check = buildQuestSmokeEvidenceCheck("quest.json", {
+      ...report,
+      generatedAt: "2026-05-04T00:00:00.000Z",
+    });
+
+    expect(check).toEqual(expect.objectContaining({
+      inputFile: "quest.json",
+      readyForForegroundQuestClaim: true,
+      classification: "foreground_ready",
+      blockers: [],
+      satisfiedConditions: expect.arrayContaining([
+        "quest_shell_loaded",
+        "quest_trace_interaction_advanced",
+        "quest_page_visible",
+        "quest_cdp_frame_sample_complete",
+        "quest_latest_frame_fresh",
+        "quest_frames_advanced_during_probe",
+      ]),
+    }));
+  });
+
   it("keeps Quest readiness blockers explicit when probe evidence is incomplete", () => {
     const report = buildReport({
       options: parseArgs([]),
@@ -138,5 +219,66 @@ describe("Quest CDP smoke probe", () => {
         "quest_cdp_frame_sample_incomplete",
       ],
     });
+  });
+
+  it("classifies the known hidden Quest browser state without promoting frame-pacing claims", () => {
+    const report = buildReport({
+      options: parseArgs([]),
+      adbVersion: "Android Debug Bridge version 1.0.41",
+      deviceLine: "1234 device product:quest3",
+      reverseList: "1234 tcp:5173 tcp:5173",
+      browser: {
+        title: "OpenClinXR Station Runtime",
+        userAgent: "Mozilla/5.0 (X11; Linux x86_64; Quest 3) OculusBrowser/146.0.0",
+        bodyHasEdChestPain: true,
+        hasViteOverlay: false,
+        hidden: true,
+        visibilityState: "hidden",
+        canvas: { dataUrlLength: 4096 },
+        frameStats: { framesObserved: 1 },
+      },
+      interaction: {
+        afterTrace: "Trace 2/10",
+        clickedEcg: true,
+        clickedUrgent: true,
+      },
+      frameSample: {
+        framesObservedDuringProbe: 0,
+        timedOut: true,
+        avgFrameMs: null,
+        latestFrameAgeMs: 9450.2,
+      },
+    });
+
+    const check = buildQuestSmokeEvidenceCheck("docs/openclinxr/quest-cdp-smoke-2026-05-04.json", {
+      ...report,
+      generatedAt: "2026-05-04T00:00:00.000Z",
+    });
+
+    expect(check.readyForForegroundQuestClaim).toBe(false);
+    expect(check.classification).toBe("shell_interaction_only_hidden_page");
+    expect(check.blockers).toEqual(expect.arrayContaining([
+      "quest_page_hidden_or_inactive",
+      "quest_cdp_frame_sample_incomplete",
+      "quest_cdp_frame_sample_timed_out",
+      "quest_no_frames_observed_during_probe",
+      "quest_latest_frame_stale_over_1000ms",
+    ]));
+    expect(check.satisfiedConditions).toEqual(expect.arrayContaining([
+      "quest_shell_loaded",
+      "quest_trace_interaction_advanced",
+      "quest_frame_stats_present",
+    ]));
+    expect(check.satisfiedConditions).not.toContain("quest_page_visible");
+  });
+
+  it("keeps missing Quest smoke evidence as an explicit offline validation blocker", () => {
+    expect(buildQuestSmokeEvidenceCheck(undefined, undefined)).toEqual(expect.objectContaining({
+      inputFile: null,
+      readyForForegroundQuestClaim: false,
+      classification: "missing",
+      satisfiedConditions: [],
+      blockers: ["missing_quest_cdp_smoke_report"],
+    }));
   });
 });

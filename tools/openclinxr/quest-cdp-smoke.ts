@@ -1,13 +1,15 @@
 import { execFile } from "node:child_process";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
+import fg from "fast-glob";
 
 const execFileAsync = promisify(execFile);
 
 export type CliOptions = {
+  mode: "run" | "validate";
   url: string;
   appPort: number;
   cdpPort: number;
@@ -15,6 +17,8 @@ export type CliOptions = {
   frameSampleCount: number;
   frameTimeoutMs: number;
   skipLaunch: boolean;
+  inputPath?: string;
+  inputPattern: string;
 };
 
 type CdpPage = {
@@ -59,6 +63,21 @@ export type QuestSmokeReport = {
   };
 };
 
+export type QuestSmokeEvidenceClassification =
+  | "missing"
+  | "foreground_ready"
+  | "shell_interaction_only_hidden_page"
+  | "blocked";
+
+export type QuestSmokeEvidenceCheck = {
+  generatedAt: string;
+  inputFile: string | null;
+  readyForForegroundQuestClaim: boolean;
+  classification: QuestSmokeEvidenceClassification;
+  satisfiedConditions: string[];
+  blockers: string[];
+};
+
 export type QuestSmokeReportInput = {
   options: CliOptions;
   adbVersion: string;
@@ -71,6 +90,21 @@ export type QuestSmokeReportInput = {
 
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
+  if (options.mode === "validate") {
+    const inputPath = options.inputPath ?? await latestQuestSmokeReportPath(options.inputPattern);
+    const report = inputPath ? await readJson<QuestSmokeReport>(inputPath) : undefined;
+    const check = buildQuestSmokeEvidenceCheck(inputPath, report);
+    const payload = `${JSON.stringify(check, null, 2)}\n`;
+    if (options.outputPath) {
+      await mkdir(path.dirname(options.outputPath), { recursive: true });
+      await writeFile(options.outputPath, payload, "utf8");
+      console.log(`Wrote ${options.outputPath}; classification=${check.classification}`);
+    } else {
+      console.log(payload.trimEnd());
+    }
+    return;
+  }
+
   const adbVersion = await adb(["version"]);
   const devices = await adb(["devices", "-l"]);
   const deviceLine = devices.split("\n").find((line) => /\sdevice\s/.test(line));
@@ -119,20 +153,40 @@ async function main(): Promise<void> {
 export function parseArgs(args: string[]): CliOptions {
   const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
   const options: CliOptions = {
+    mode: "run",
     url: "http://localhost:5173/",
     appPort: 5173,
     cdpPort: 9222,
     frameSampleCount: 90,
     frameTimeoutMs: 4000,
     skipLaunch: false,
+    inputPattern: "docs/openclinxr/quest-cdp-smoke-*.json",
   };
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
+    if (arg === "--") {
+      continue;
+    }
     if (arg === "--url") {
       options.url = requireValue(normalizedArgs, index, arg);
       options.appPort = Number(new URL(options.url).port || "80");
       index += 1;
+      continue;
+    }
+    if (arg === "--input") {
+      options.inputPath = requireValue(normalizedArgs, index, arg);
+      options.mode = "validate";
+      index += 1;
+      continue;
+    }
+    if (arg === "--validate-latest") {
+      options.mode = "validate";
+      const nextArg = normalizedArgs[index + 1];
+      if (nextArg && !nextArg.startsWith("--")) {
+        options.inputPattern = nextArg;
+        index += 1;
+      }
       continue;
     }
     if (arg === "--app-port") {
@@ -207,6 +261,14 @@ async function waitForQuestPage(options: CliOptions): Promise<CdpPage> {
     await delay(250);
   }
   throw new Error(`Quest Browser page ${options.url} was not exposed through CDP port ${options.cdpPort}`);
+}
+
+async function latestQuestSmokeReportPath(pattern: string): Promise<string | undefined> {
+  return (await fg(pattern, { onlyFiles: true })).sort().at(-1);
+}
+
+async function readJson<TValue>(filePath: string): Promise<TValue> {
+  return JSON.parse(await readFile(filePath, "utf8")) as TValue;
 }
 
 export function pageMatchesRequestedUrl(actual: string, requested: string): boolean {
@@ -357,8 +419,107 @@ export function buildReport(input: QuestSmokeReportInput): QuestSmokeReport {
   };
 }
 
+export function buildQuestSmokeEvidenceCheck(inputFile: string | undefined, report: QuestSmokeReport | undefined): QuestSmokeEvidenceCheck {
+  if (!report) {
+    return {
+      generatedAt: new Date().toISOString(),
+      inputFile: null,
+      readyForForegroundQuestClaim: false,
+      classification: "missing",
+      satisfiedConditions: [],
+      blockers: ["missing_quest_cdp_smoke_report"],
+    };
+  }
+
+  const browser = asRecord(report.browser);
+  const frameSample = asRecord(report.frameSample);
+  const adb = asRecord(report.adb);
+  const verdict = report.verdict;
+  const pageVisible = browser.hidden === false && browser.visibilityState === "visible";
+  const frameStatsPresent = typeof browser.frameStats === "object" && browser.frameStats !== null;
+  const latestFrameAgeMs = frameSample.latestFrameAgeMs;
+  const latestFrameFresh = typeof latestFrameAgeMs === "number" && Number.isFinite(latestFrameAgeMs) && latestFrameAgeMs <= 1000;
+  const framesObservedDuringProbe = frameSample.framesObservedDuringProbe;
+  const framesAdvancedDuringProbe = typeof framesObservedDuringProbe === "number"
+    && Number.isFinite(framesObservedDuringProbe)
+    && framesObservedDuringProbe > 0;
+  const rawBlockers = Array.isArray(verdict?.blockers) ? verdict.blockers.filter((blocker): blocker is string => typeof blocker === "string") : [];
+  const readyForForegroundQuestClaim = verdict?.shellLoaded === true
+    && verdict.interactionAdvanced === true
+    && verdict.frameSampleComplete === true
+    && rawBlockers.length === 0
+    && pageVisible
+    && latestFrameFresh
+    && framesAdvancedDuringProbe;
+  const blockers = unique([
+    isValidIsoDate(report.generatedAt) ? undefined : "quest_cdp_generated_at_invalid_or_missing",
+    typeof adb.deviceLine === "string" && adb.deviceLine.trim().length > 0 ? undefined : "quest_cdp_adb_device_line_missing",
+    typeof browser.userAgent === "string" && browser.userAgent.trim().length > 0 ? undefined : "quest_cdp_user_agent_missing",
+    verdict?.shellLoaded === true ? undefined : "quest_shell_not_loaded",
+    verdict?.interactionAdvanced === true ? undefined : "quest_trace_interaction_not_advanced",
+    pageVisible ? undefined : "quest_page_hidden_or_inactive",
+    verdict?.frameSampleComplete === true ? undefined : "quest_cdp_frame_sample_incomplete",
+    frameStatsPresent ? undefined : "quest_frame_stats_missing",
+    frameSample.timedOut === true ? "quest_cdp_frame_sample_timed_out" : undefined,
+    framesAdvancedDuringProbe ? undefined : "quest_no_frames_observed_during_probe",
+    latestFrameFresh ? undefined : "quest_latest_frame_stale_over_1000ms",
+    ...rawBlockers,
+  ]);
+
+  return {
+    generatedAt: new Date().toISOString(),
+    inputFile: inputFile ?? null,
+    readyForForegroundQuestClaim,
+    classification: classifyQuestSmokeEvidence(verdict, blockers),
+    satisfiedConditions: [
+      isValidIsoDate(report.generatedAt) ? "quest_cdp_generated_at_valid" : undefined,
+      typeof adb.deviceLine === "string" && adb.deviceLine.trim().length > 0 ? "quest_cdp_adb_device_recorded" : undefined,
+      typeof browser.userAgent === "string" && browser.userAgent.trim().length > 0 ? "quest_cdp_user_agent_recorded" : undefined,
+      verdict?.shellLoaded === true ? "quest_shell_loaded" : undefined,
+      verdict?.interactionAdvanced === true ? "quest_trace_interaction_advanced" : undefined,
+      pageVisible ? "quest_page_visible" : undefined,
+      verdict?.frameSampleComplete === true ? "quest_cdp_frame_sample_complete" : undefined,
+      frameStatsPresent ? "quest_frame_stats_present" : undefined,
+      latestFrameFresh ? "quest_latest_frame_fresh" : undefined,
+      framesAdvancedDuringProbe ? "quest_frames_advanced_during_probe" : undefined,
+    ].filter((condition): condition is string => typeof condition === "string"),
+    blockers,
+  };
+}
+
+function classifyQuestSmokeEvidence(
+  verdict: QuestSmokeReport["verdict"],
+  blockers: string[],
+): QuestSmokeEvidenceClassification {
+  if (blockers.length === 0 && verdict.shellLoaded && verdict.interactionAdvanced && verdict.frameSampleComplete) {
+    return "foreground_ready";
+  }
+  if (
+    verdict.shellLoaded
+    && verdict.interactionAdvanced
+    && blockers.includes("quest_page_hidden_or_inactive")
+    && blockers.includes("quest_cdp_frame_sample_incomplete")
+  ) {
+    return "shell_interaction_only_hidden_page";
+  }
+  return "blocked";
+}
+
 function asRecord(value: unknown): Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function isValidIsoDate(value: string | undefined): boolean {
+  if (!value) {
+    return false;
+  }
+
+  const parsed = new Date(value);
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString() === value;
+}
+
+function unique(values: Array<string | undefined>): string[] {
+  return [...new Set(values.filter((value): value is string => typeof value === "string"))].sort();
 }
 
 class CdpClient {

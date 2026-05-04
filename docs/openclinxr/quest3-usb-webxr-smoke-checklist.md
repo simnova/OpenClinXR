@@ -289,6 +289,14 @@ pnpm xr:quest:smoke -- --url http://localhost:5173/ --output docs/openclinxr/que
 
 This requires the local XR app server to already be running. It sets `adb reverse`, exposes Quest Browser CDP on port `9222`, launches Quest Browser, reloads the station page, checks the canvas/WebXR shell, clicks two trace controls, reads app-side frame telemetry from `window.__openClinXrFrameStats`, and records explicit blockers for hidden/inactive pages or incomplete frame sampling.
 
+Validate the latest committed machine-readable report without re-running ADB or touching the headset:
+
+```bash
+pnpm xr:quest:smoke:validate -- --output .agent-factory/quest-cdp-smoke-check.json
+```
+
+The current 2026-05-04 report classifies as `shell_interaction_only_hidden_page`: shell delivery and trace controls passed, but foreground frame pacing remains blocked by the hidden Quest Browser page state, stale frame telemetry, and zero frames observed during the CDP sampling window.
+
 Latest automated probe detail:
 
 - `docs/openclinxr/quest-cdp-smoke-2026-05-04.json` loaded the station shell in Quest Browser

@@ -4,17 +4,12 @@ import {
   type QuestManualPerformanceCheck,
   type QuestManualPerformanceReport,
 } from "../openclinxr/check-quest-manual-performance.js";
+import {
+  buildQuestSmokeEvidenceCheck,
+  type QuestSmokeEvidenceCheck,
+  type QuestSmokeReport,
+} from "../openclinxr/quest-cdp-smoke.js";
 import { globFiles, readJson, writeJson } from "./lib.js";
-
-type QuestSmokeReport = {
-  generatedAt: string;
-  verdict: {
-    shellLoaded: boolean;
-    interactionAdvanced: boolean;
-    frameSampleComplete: boolean;
-    blockers: string[];
-  };
-};
 
 type GateStatus = {
   status: "ready" | "not_configured" | "blocked";
@@ -140,6 +135,9 @@ type EvidenceGateReport = {
     shell_loaded: boolean;
     interaction_advanced: boolean;
     frame_sample_complete: boolean;
+    ready_for_foreground_quest_claim: boolean;
+    classification: QuestSmokeEvidenceCheck["classification"];
+    satisfied_conditions: string[];
     blockers: string[];
   };
   local_runtime_probe?: {
@@ -275,11 +273,14 @@ async function fileJson<TValue>(file: string): Promise<{ file: string; value: TV
 
 export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): EvidenceGateReport {
   const { questSmoke, localRuntime, gltfPipelineSmoke, blenderAssetBakeSmoke, localProviderBenchmark, iwsdkEvidenceContract } = input;
+  const questSmokeEvidenceCheck = questSmoke
+    ? { file: questSmoke.file, value: buildQuestSmokeEvidenceCheck(questSmoke.file, questSmoke.value) }
+    : undefined;
   const questManualPerformance = input.questManualPerformanceReport
     ? manualPerformanceReportToCheck(input.questManualPerformanceReport)
     : input.questManualPerformance;
   const questEvidenceBlockers = [
-    ...questBlockers(questSmoke?.value),
+    ...questBlockers(questSmoke?.value, questSmokeEvidenceCheck?.value),
     ...questManualPerformanceBlockers(questManualPerformance?.value),
     ...questUsbBlockers(localRuntime?.value),
     ...questForegroundPreflightBlockers(localRuntime?.value),
@@ -304,9 +305,10 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): Evide
     ...localVoiceEvidenceBlockers,
     ...assetEvidenceBlockers,
   ]);
-  const combinedSatisfiedConditions = [
+  const combinedSatisfiedConditions = unique([
     questSmoke?.value.verdict.shellLoaded ? "quest_shell_loaded" : undefined,
     questSmoke?.value.verdict.interactionAdvanced ? "quest_trace_interaction_advanced" : undefined,
+    ...(questSmokeEvidenceCheck?.value.satisfiedConditions ?? []),
     questManualPerformance?.value.readyToClaimFramePacing ? "quest_manual_frame_pacing_ready" : undefined,
     ...(questManualPerformance?.value.satisfiedConditions ?? []),
     localRuntime?.value.gates.questUsb.status === "ready" ? "quest_usb_ready" : undefined,
@@ -319,7 +321,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): Evide
     localRuntime?.value.gates.localVoice.status === "ready" ? "local_voice_runtime_ready" : undefined,
     localProviderBenchmark?.value.verdict.localModelReadyToBenchmark ? "local_model_ready_to_benchmark" : undefined,
     localProviderBenchmark?.value.verdict.localVoiceReadyToBenchmark ? "local_voice_ready_to_benchmark" : undefined,
-  ].filter((condition): condition is string => typeof condition === "string");
+  ]);
   const questSatisfiedConditions = combinedSatisfiedConditions.filter((condition) =>
     condition.startsWith("quest_") || (questManualPerformance?.value.satisfiedConditions ?? []).includes(condition)
   );
@@ -347,7 +349,10 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): Evide
         shell_loaded: questSmoke.value.verdict.shellLoaded,
         interaction_advanced: questSmoke.value.verdict.interactionAdvanced,
         frame_sample_complete: questSmoke.value.verdict.frameSampleComplete,
-        blockers: [...questSmoke.value.verdict.blockers],
+        ready_for_foreground_quest_claim: questSmokeEvidenceCheck?.value.readyForForegroundQuestClaim ?? false,
+        classification: questSmokeEvidenceCheck?.value.classification ?? "missing",
+        satisfied_conditions: questSmokeEvidenceCheck?.value.satisfiedConditions ?? [],
+        blockers: questSmokeEvidenceCheck?.value.blockers ?? [...questSmoke.value.verdict.blockers],
       },
     } : {}),
     ...(localRuntime ? {
@@ -479,12 +484,12 @@ function summarizeBlockers(blockers: string[]): BlockerSummary {
   };
 }
 
-function questBlockers(report: QuestSmokeReport | undefined): string[] {
+function questBlockers(report: QuestSmokeReport | undefined, evidenceCheck: QuestSmokeEvidenceCheck | undefined): string[] {
   if (!report) {
     return ["missing_quest_cdp_smoke_report"];
   }
 
-  const blockers = [...report.verdict.blockers];
+  const blockers = [...(evidenceCheck?.blockers ?? report.verdict.blockers)];
   if (!report.verdict.shellLoaded) {
     blockers.push("quest_shell_not_loaded");
   }
