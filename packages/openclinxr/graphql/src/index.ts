@@ -4,6 +4,8 @@ export { openClinXrAdminSchemaSdl } from "./schema.js";
 import { openClinXrAdminSchemaSdl } from "./schema.js";
 
 export type GraphqlCodegenPlan = {
+  tool: "graphql-code-generator";
+  configPath: string;
   schema: string;
   documents: string[];
   generates: Record<string, {
@@ -11,6 +13,7 @@ export type GraphqlCodegenPlan = {
     plugins?: string[];
     config?: Record<string, unknown>;
   }>;
+  guardrails: string[];
 };
 
 export type AdminGraphqlExecutionInput = {
@@ -35,21 +38,29 @@ export function executeAdminGraphql(input: AdminGraphqlExecutionInput, rootValue
 
 export function createGraphqlCodegenPlan(): GraphqlCodegenPlan {
   return {
+    tool: "graphql-code-generator",
+    configPath: "packages/openclinxr/graphql/codegen.ts",
     schema: "packages/openclinxr/graphql/src/schema.graphql",
-    documents: ["packages/openclinxr/graphql/src/documents/**/*.graphql", "apps/ui-admin/src/**/*.graphql", "apps/ui-admin/src/**/*.tsx"],
+    documents: ["packages/openclinxr/graphql/src/documents/**/*.graphql"],
     generates: {
-      "apps/ui-admin/src/graphql/generated/": {
+      "packages/openclinxr/graphql/src/generated/client/": {
         preset: "client",
         config: {
+          emitLegacyCommonJSImports: false,
           useTypeImports: true,
         },
       },
-      "apps/api/src/graphql/generated/resolvers.ts": {
+      "packages/openclinxr/graphql/src/generated/resolvers.generated.ts": {
         plugins: ["typescript", "typescript-resolvers"],
         config: {
+          emitLegacyCommonJSImports: false,
           useTypeImports: true,
         },
       },
     },
+    guardrails: [
+      "Generate typed documents from local schema and operation files only.",
+      "Do not generate Apollo-version-specific React hooks until Apollo Client compatibility is verified.",
+    ],
   };
 }

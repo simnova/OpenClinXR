@@ -62,9 +62,9 @@ describe("OpenClinXR API shell", () => {
     const codegenPlan = await json(codegenResponse) as { schema: string; documents: string[]; generates: Record<string, unknown> };
     expect(codegenResponse.status).toBe(200);
     expect(codegenPlan.schema).toBe("packages/openclinxr/graphql/src/schema.graphql");
-    expect(codegenPlan.documents).toContain("apps/ui-admin/src/**/*.graphql");
-    expect(codegenPlan.generates).toHaveProperty("apps/ui-admin/src/graphql/generated/");
-    expect(codegenPlan.generates).toHaveProperty("apps/api/src/graphql/generated/resolvers.ts");
+    expect(codegenPlan.documents).toEqual(["packages/openclinxr/graphql/src/documents/**/*.graphql"]);
+    expect(codegenPlan.generates).toHaveProperty("packages/openclinxr/graphql/src/generated/client/");
+    expect(codegenPlan.generates).toHaveProperty("packages/openclinxr/graphql/src/generated/resolvers.generated.ts");
   });
 
   it("serves validated admin GraphQL seed operation documents", async () => {

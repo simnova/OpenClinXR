@@ -40,22 +40,30 @@ describe("OpenClinXR admin GraphQL contract", () => {
 
   it("describes a GraphQL Code Generator plan without Apollo-version-specific generated hooks", () => {
     expect(createGraphqlCodegenPlan()).toEqual({
+      tool: "graphql-code-generator",
+      configPath: "packages/openclinxr/graphql/codegen.ts",
       schema: "packages/openclinxr/graphql/src/schema.graphql",
-      documents: ["packages/openclinxr/graphql/src/documents/**/*.graphql", "apps/ui-admin/src/**/*.graphql", "apps/ui-admin/src/**/*.tsx"],
+      documents: ["packages/openclinxr/graphql/src/documents/**/*.graphql"],
       generates: {
-        "apps/ui-admin/src/graphql/generated/": {
+        "packages/openclinxr/graphql/src/generated/client/": {
           preset: "client",
           config: {
+            emitLegacyCommonJSImports: false,
             useTypeImports: true,
           },
         },
-        "apps/api/src/graphql/generated/resolvers.ts": {
+        "packages/openclinxr/graphql/src/generated/resolvers.generated.ts": {
           plugins: ["typescript", "typescript-resolvers"],
           config: {
+            emitLegacyCommonJSImports: false,
             useTypeImports: true,
           },
         },
       },
+      guardrails: [
+        "Generate typed documents from local schema and operation files only.",
+        "Do not generate Apollo-version-specific React hooks until Apollo Client compatibility is verified.",
+      ],
     });
   });
 

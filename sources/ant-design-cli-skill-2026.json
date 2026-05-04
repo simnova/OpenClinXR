@@ -3,7 +3,7 @@
   "title": "Ant Design CLI Agent Skill",
   "url": "https://github.com/ant-design/ant-design-cli/blob/main/skills/antd/SKILL.md",
   "source_type": "vendor",
-  "citation": "Ant Design CLI antd skill SKILL.md, accessed 2026-05-04.",
+  "citation": "Ant Design CLI antd skill SKILL.md, accessed 2026-05-04; npm package metadata queried for @ant-design/cli on 2026-05-04.",
   "accessed_at": "2026-05-04",
   "permitted_uses": [
     "Agent workflow guidance for Ant Design component API lookup, demos, design tokens, semantic class names, project linting, and doctor checks."
@@ -12,7 +12,8 @@
     "The skill describes @ant-design/cli as a local CLI with bundled Ant Design metadata for v3, v4, v5, and v6.",
     "The skill instructs agents to use structured JSON output when querying Ant Design CLI commands.",
     "The skill recommends querying component info, demos, semantic class names, and tokens before writing Ant Design component code.",
-    "The skill describes env, doctor, lint, usage, changelog, migrate, bug, bug-cli, and MCP server workflows."
+    "The skill describes env, doctor, lint, usage, changelog, migrate, bug, bug-cli, and MCP server workflows.",
+    "As queried on 2026-05-04, @ant-design/cli 6.3.7 is MIT licensed."
   ],
   "claims_not_supported": [
     "That @ant-design/cli is installed in this repository or should be installed globally.",

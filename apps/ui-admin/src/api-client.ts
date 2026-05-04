@@ -1,7 +1,13 @@
 import type { ScenarioAssetReadiness } from "@openclinxr/asset-registry";
 import type { BlueprintScenarioReadiness, ExamBlueprint, ExamStationRunQueue, ExamTimingPlan } from "@openclinxr/exam-assembly";
-import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql/documents";
+import {
+  CreateStationRunQueueSnapshotDocument,
+  StationRunQueueSnapshotsDocument,
+  type CreateStationRunQueueSnapshotMutation,
+  type StationRunQueueSnapshotsQuery,
+} from "@openclinxr/graphql/client";
 import { routeById } from "@openclinxr/rest";
+import { print } from "graphql";
 
 export type AdminControlPlaneClientOptions = {
   baseUrl?: string;
@@ -24,17 +30,12 @@ export type CreateStationRunQueueSnapshotInput = {
   reviewerId?: string;
 };
 
-export type AdminStationRunQueueSnapshot = {
-  snapshotId: string;
-  createdAt: string;
-  reviewerId?: string;
-  queue: ExamStationRunQueue;
-};
+export type AdminStationRunQueueSnapshot = StationRunQueueSnapshotsQuery["stationRunQueueSnapshots"][number];
 
 export const defaultAdminApiBaseUrl = import.meta.env.VITE_OPENCLINXR_API_BASE_URL ?? "";
 
-const stationRunQueueSnapshotsDocument = adminGraphqlDocumentByOperationName("StationRunQueueSnapshots").source;
-const createStationRunQueueSnapshotDocument = adminGraphqlDocumentByOperationName("CreateStationRunQueueSnapshot").source;
+const stationRunQueueSnapshotsDocument = print(StationRunQueueSnapshotsDocument);
+const createStationRunQueueSnapshotDocument = print(CreateStationRunQueueSnapshotDocument);
 
 export function createAdminControlPlaneClient(options: AdminControlPlaneClientOptions = {}): AdminControlPlaneClient {
   const baseUrl = normalizeBaseUrl(options.baseUrl ?? defaultAdminApiBaseUrl);
@@ -46,7 +47,7 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
     getStep2CsSeedTimingPlan: () => get(fetcher, baseUrl, routeById("step2cs-seed-exam-timing-plan").path),
     getStep2CsSeedStationRunQueue: () => get(fetcher, baseUrl, routeById("step2cs-seed-station-run-queue").path),
     listStep2CsSeedStationRunQueueSnapshots: async () => {
-      const data = await graphql<{ stationRunQueueSnapshots: AdminStationRunQueueSnapshot[] }>(
+      const data = await graphql<StationRunQueueSnapshotsQuery>(
         fetcher,
         baseUrl,
         "StationRunQueueSnapshots",
@@ -56,7 +57,7 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
       return data.stationRunQueueSnapshots;
     },
     createStep2CsSeedStationRunQueueSnapshot: async (input) => {
-      const data = await graphql<{ createStationRunQueueSnapshot: AdminStationRunQueueSnapshot }>(
+      const data = await graphql<CreateStationRunQueueSnapshotMutation>(
         fetcher,
         baseUrl,
         "CreateStationRunQueueSnapshot",

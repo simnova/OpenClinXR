@@ -96,8 +96,8 @@ describe("workspace architecture rules", () => {
     expect(violations).toEqual([]);
   });
 
-  it("keeps UI app GraphQL imports on generated documents instead of the executable server surface", () => {
-    const violations = filesWithContentMatching("apps", /@openclinxr\/graphql(?!\/documents)/)
+  it("keeps UI app GraphQL imports on generated document subpaths instead of the executable server surface", () => {
+    const violations = filesWithContentMatching("apps", /@openclinxr\/graphql(?!\/(?:documents|client)\b)/)
       .filter((filePath) => /^apps\/ui-[^/]+\/src\//.test(filePath));
 
     expect(violations).toEqual([]);

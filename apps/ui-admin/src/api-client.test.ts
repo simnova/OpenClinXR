@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql/documents";
+import { print } from "graphql";
+import { CreateStationRunQueueSnapshotDocument, StationRunQueueSnapshotsDocument } from "@openclinxr/graphql/client";
 import { createAdminControlPlaneClient } from "./api-client.js";
 
 describe("admin control-plane API client", () => {
   it("reads readiness through stable REST routes and queue snapshots through GraphQL", async () => {
-    const listSnapshotsDocument = adminGraphqlDocumentByOperationName("StationRunQueueSnapshots");
-    const createSnapshotDocument = adminGraphqlDocumentByOperationName("CreateStationRunQueueSnapshot");
+    const listSnapshotsDocument = print(StationRunQueueSnapshotsDocument);
+    const createSnapshotDocument = print(CreateStationRunQueueSnapshotDocument);
     const requests: RecordedRequest[] = [];
     const queueSnapshot = {
       snapshotId: "queue_snapshot_ui_001",
@@ -48,7 +49,7 @@ describe("admin control-plane API client", () => {
         method: "POST",
         body: expect.objectContaining({
           operationName: "StationRunQueueSnapshots",
-          query: listSnapshotsDocument.source,
+          query: listSnapshotsDocument,
           variables: {
             blueprintId: "blueprint_openclinxr_step2cs_style_seed_v1",
           },
@@ -59,7 +60,7 @@ describe("admin control-plane API client", () => {
         method: "POST",
         body: expect.objectContaining({
           operationName: "CreateStationRunQueueSnapshot",
-          query: createSnapshotDocument.source,
+          query: createSnapshotDocument,
           variables: {
             input: {
               snapshotId: "queue_snapshot_ui_001",
@@ -84,9 +85,9 @@ describe("admin control-plane API client", () => {
     });
 
     await expect(client.createStep2CsSeedStationRunQueueSnapshot({
-          snapshotId: "queue_snapshot_ui_001",
-          reviewerId: "psychometrician_001",
-          createdAt: "2026-05-03T17:00:00.000Z",
+      snapshotId: "queue_snapshot_ui_001",
+      reviewerId: "psychometrician_001",
+      createdAt: "2026-05-03T17:00:00.000Z",
     })).rejects.toThrow("OpenClinXR admin GraphQL request failed: CreateStationRunQueueSnapshot reviewer_not_authorized");
   });
 

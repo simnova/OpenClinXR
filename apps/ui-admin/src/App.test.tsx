@@ -170,7 +170,7 @@ function fakeControlPlaneClient(): AdminControlPlaneClient {
     createStep2CsSeedStationRunQueueSnapshot: async (input) => ({
       snapshotId: input.snapshotId ?? "queue_snapshot_test_001",
       createdAt: input.createdAt ?? "2026-05-03T17:00:00.000Z",
-      ...(input.reviewerId ? { reviewerId: input.reviewerId } : {}),
+      reviewerId: input.reviewerId ?? null,
       queue: await fakeControlPlaneClient().getStep2CsSeedStationRunQueue(),
     }),
     listStep2CsSeedStationRunQueueSnapshots: async () => [],
