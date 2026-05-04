@@ -20,8 +20,11 @@
     "agent:loop:verify": "tsx tools/agent-factory/check-agent-loop-artifacts.ts",
     "agent:maturity": "tsx tools/agent-factory/build-maturity-report.ts",
     "agent:verify": "pnpm agent:validate && pnpm agent:index && pnpm agent:sources && pnpm agent:pins && pnpm agent:loop:verify && pnpm agent:risks && pnpm agent:evidence && pnpm agent:maturity && pnpm agent:benchmarks",
-    "typecheck": "tsgo --noEmit && pnpm -r --if-present --filter '@openclinxr/*' --filter '@cellix/*' typecheck",
-    "test": "pnpm test:tools && pnpm -r --if-present --filter '@openclinxr/*' --filter '@cellix/*' test",
+    "packages:typecheck": "turbo run typecheck --filter '@openclinxr/*' --filter '@cellix/*'",
+    "packages:test": "turbo run test --filter '@openclinxr/*' --filter '@cellix/*'",
+    "packages:build": "turbo run build --filter '@openclinxr/*' --filter '@cellix/*'",
+    "typecheck": "tsgo --noEmit && pnpm packages:typecheck",
+    "test": "pnpm test:tools && pnpm packages:test",
     "test:tools": "vitest run tools/**/*.test.ts",
     "security:audit": "pnpm audit --audit-level=high",
     "security:audit:prod": "pnpm audit --prod --audit-level=high",
@@ -51,6 +54,7 @@
     "gltf-pipeline": "4.3.1",
     "knip": "6.11.0",
     "tsx": "4.21.0",
+    "turbo": "2.9.8",
     "typescript": "6.0.3",
     "vitest": "4.1.5"
   }
