@@ -262,6 +262,7 @@ export type IwsdkWorkspacePostureInput = {
   sidecarAppExists: boolean;
   sidecarInstallApproved: boolean;
   sidecarLockfileImporterPresent?: boolean;
+  sidecarLockfilePackageNames?: string[];
   dependencies: IwsdkWorkspaceDependency[];
   sourceReferences: IwsdkWorkspaceSourceReference[];
   scriptReferences: IwsdkWorkspaceScriptReference[];
@@ -881,9 +882,8 @@ export function evaluateIwsdkWorkspacePosture(
   input: IwsdkWorkspacePostureInput,
   policy: IwsdkPreInstallPackagePolicy = buildIwsdkPreInstallPackagePolicy(),
 ): IwsdkWorkspacePostureReadiness {
-  const plan = buildIwsdkSpikePlan();
   const sidecarRoot = buildIwsdkSidecarReadinessContract().sidecarAppRoot;
-  const allowedRoots = plan.workspaceScope.allowedRoots;
+  const executableIwsdkAllowedRoots = [sidecarRoot];
   const iwsdkDependencies = input.dependencies.filter((dependency) => dependencyReferencesIwsdkPackage(dependency));
   const iwsdkSourceReferences = input.sourceReferences.filter((reference) =>
     isIwsdkWorkspacePackage(reference.packageName)
@@ -892,14 +892,14 @@ export function evaluateIwsdkWorkspacePosture(
 
   blockers.push(
     ...iwsdkDependencies
-      .filter((dependency) => !pathStartsWithAllowedRoot(dependency.manifestPath, allowedRoots))
+      .filter((dependency) => !pathStartsWithAllowedRoot(dependency.manifestPath, executableIwsdkAllowedRoots))
       .map((dependency) =>
         `dependency_outside_iwsdk_sidecar:${dependency.manifestPath}:${dependency.field}.${dependency.name}`
       ),
   );
   blockers.push(
     ...iwsdkSourceReferences
-      .filter((reference) => !pathStartsWithAllowedRoot(reference.filePath, allowedRoots))
+      .filter((reference) => !pathStartsWithAllowedRoot(reference.filePath, executableIwsdkAllowedRoots))
       .map((reference) => `source_import_outside_iwsdk_sidecar:${reference.filePath}:${reference.packageName}`),
   );
   blockers.push(
@@ -934,6 +934,19 @@ export function evaluateIwsdkWorkspacePosture(
     && input.sidecarLockfileImporterPresent !== true) {
     blockers.push("missing_iwsdk_sidecar_lockfile_importer");
   }
+  if (input.sidecarAppExists && input.sidecarInstallApproved && input.sidecarLockfileImporterPresent === true) {
+    const sidecarLockfilePackageNames = input.sidecarLockfilePackageNames ?? [];
+    const lockfileParityDependencies = sidecarDependencies.filter((dependency) => {
+      const expectedPackageName = iwsdkPackageNameFromSpecifier(dependency.version) ?? dependency.name;
+      return policy.allowedFirstSlicePackages.includes(expectedPackageName) && isExactVersion(dependency.version);
+    });
+    for (const dependency of lockfileParityDependencies) {
+      const expectedPackageName = iwsdkPackageNameFromSpecifier(dependency.version) ?? dependency.name;
+      if (!sidecarLockfilePackageNames.includes(expectedPackageName)) {
+        blockers.push(`missing_iwsdk_sidecar_lockfile_dependency:${sidecarRoot.slice(0, -1)}:${expectedPackageName}`);
+      }
+    }
+  }
 
   const sidecarSelection = evaluateIwsdkPreInstallPackageSelection(
     sidecarDependencies.map((dependency) => ({
@@ -947,13 +960,12 @@ export function evaluateIwsdkWorkspacePosture(
   blockers.push(...sidecarSelection.blockers);
 
   for (const packageName of input.lockfilePackageNames) {
-    if (!input.sidecarAppExists && isIwsdkWorkspacePackage(packageName)) {
-      blockers.push(`iwsdk_package_in_lockfile_without_sidecar_app:${packageName}`);
-    }
     if (policy.blockedPackages.includes(packageName)) {
       blockers.push(`blocked_package_in_lockfile:${packageName}`);
     } else if (transitivePackageIsBlocked(packageName, policy.blockedTransitivePackages)) {
       blockers.push(`blocked_transitive_package_in_lockfile:${packageName}`);
+    } else if (!input.sidecarAppExists && isIwsdkWorkspacePackage(packageName)) {
+      blockers.push(`iwsdk_package_in_lockfile_without_sidecar_app:${packageName}`);
     }
   }
 
@@ -1115,7 +1127,7 @@ function blockedWorkspaceScriptActions(scriptReferences: IwsdkWorkspaceScriptRef
     },
     {
       id: "iwsdk_create",
-      pattern: /(?:\biwsdk\s+create\b|@iwsdk\/create\b)/,
+      pattern: /(?:\biwsdk\s+create\b|@iwsdk\/create\b|\b(?:pnpm|npm|yarn|bun)\s+create\s+@iwsdk(?:@|\b))/,
     },
     {
       id: "iwsdk_starter_assets",

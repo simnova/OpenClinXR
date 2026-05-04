@@ -59,7 +59,7 @@ The same planning package now exposes `buildIwsdkAiModeProfiles()` and `buildIws
 
 `pnpm iwsdk:sidecar:metrics -- --input path/to/metrics.json --output docs/openclinxr/iwsdk-sidecar-metrics-YYYY-MM-DD.json` scores committed sidecar and production-runtime budgets from a captured metrics JSON file, including install footprint, dev runtime size, bundle delta, console errors, foreground Quest preflight readiness, Quest FPS, p95 frame time, and controller-select latency.
 
-`pnpm iwsdk:workspace:posture` scans the committed workspace for IWSDK package dependencies, npm alias specifiers that target IWSDK packages, IWSDK references in root package-manager controls and workspace catalogs, source imports, blocked script actions, IWSDK lockfile package residue, blocked lockfile packages, sharp/libvips-style blocked transitive lockfile packages, sidecar lockfile importer parity, sidecar approval state, and root package-manager controls. In the current contract-only state it should report the sidecar as absent and ready; if `apps/ui-xr-iwsdk-spike/` exists later, run it with `--approved-sidecar` only after operator install-scope approval is recorded.
+`pnpm iwsdk:workspace:posture` scans the committed workspace for IWSDK package dependencies, npm alias specifiers that target IWSDK packages, IWSDK references in root package-manager controls and workspace catalogs, source imports, blocked script actions, IWSDK lockfile package residue, blocked lockfile packages, quoted pnpm lockfile package keys, sharp/libvips-style blocked transitive lockfile packages, sidecar lockfile importer parity, sidecar lockfile dependency parity, sidecar approval state, and root package-manager controls. The planning package `packages/openclinxr/iwsdk-spike/` may hold advisory policy and tests, but executable `@iwsdk/*` imports or dependencies are allowed only in `apps/ui-xr-iwsdk-spike/` after approval. In the current contract-only state the posture check should report the sidecar as absent and ready; if `apps/ui-xr-iwsdk-spike/` exists later, run it with `--approved-sidecar` only after operator install-scope approval is recorded.
 
 `pnpm iwsdk:evidence` prints the current no-install evidence report. In the current contract-only state it exits nonzero by design, with JSON blockers for sidecar approval, agent tooling, and production runtime evidence.
 
@@ -127,6 +127,7 @@ The executable policy is intentionally stricter than the prose recommendation:
 - Blocked transitive package path: any `sharp-libvips` variant, including `@img/sharp-libvips-darwin-arm64`.
 - Blocked license expressions: `AGPL`, `GPL`, `LGPL`, `UNLICENSED`, and `Unknown`, matched case-insensitively without collapsing `LGPL` into `GPL`.
 - Required package-manager controls: exact version pins, a Three.js pnpm override, recorded `pnpm audit`, and a recorded license-policy report.
+- Workspace posture controls are intentionally concrete: placeholder scripts such as `echo pnpm audit` or `true` do not satisfy the audit/license controls, and launcher aliases such as `pnpm create @iwsdk@...` remain blocked in unattended runs.
 
 Run `pnpm iwsdk:preinstall` to print the default first-slice JSON report, or pass `--proposal path/to/proposal.json` to score a concrete dependency proposal before package manifests or the workspace lockfile change. The opt-in `pnpm iwsdk:verify` lane also runs the default preinstall report, so policy drift is caught before source and architecture checks complete. This means a runnable sidecar is not just a folder-creation task.
 
@@ -140,7 +141,7 @@ The sidecar path is contract-only today. Do not create a no-install `apps/ui-xr-
 
 If the team decides to make the experiment visible in the monorepo, use `apps/ui-xr-iwsdk-spike/` and keep `apps/ui-xr/`, `apps/api/`, and `packages/openclinxr/scenario-runtime/` blocked from IWSDK dependencies until the spike exits. The sequence should be:
 
-1. `phase-0-policy`: install only `@iwsdk/core` and `@iwsdk/xr-input`; verify pinned package specs, license policy, and the existing architecture boundary test. Keep `@iwsdk/reference`, `@meta-quest/hzdb`, and `@iwsdk/vite-plugin-gltf-optimizer` blocked.
+1. `phase-0-policy`: install only `@iwsdk/core` and `@iwsdk/xr-input`; verify pinned package specs, license policy, sidecar lockfile importer dependency parity, and the existing architecture boundary test. Keep `@iwsdk/reference`, `@meta-quest/hzdb`, `@iwsdk/create`, and `@iwsdk/vite-plugin-gltf-optimizer` blocked.
 2. `phase-1-runtime-shell`: rebuild the minimal ED bay shell with IWSDK core/input and compare nonblank canvas, bundle-size delta versus `apps/ui-xr`, controller-select trace events, and desktop fallback behavior.
 3. `phase-2-agent-devtools`: add `@iwsdk/vite-plugin-dev` only after the shell is stable; measure Vite 8 compatibility, Node 22 runtime path, MCP scene hierarchy, MCP controller select, and console log capture. Do not run `@iwsdk/reference` warmup unattended.
 4. `phase-3-quest-device-proof`: use physical Quest 3 evidence before any production adoption decision, including foreground frame pacing, controller-select latency, headset text readability, and thermal/comfort notes.

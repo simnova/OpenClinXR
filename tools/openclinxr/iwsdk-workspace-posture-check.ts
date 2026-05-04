@@ -36,6 +36,7 @@ export type IwsdkWorkspacePostureReport = {
   detected: {
     sidecarAppExists: boolean;
     sidecarLockfileImporterPresent: boolean;
+    sidecarLockfilePackageNames: string[];
     dependencies: IwsdkWorkspaceDependency[];
     sourceReferences: IwsdkWorkspaceSourceReference[];
     scriptReferences: IwsdkWorkspaceScriptReference[];
@@ -88,6 +89,7 @@ export async function buildIwsdkWorkspacePostureReport(input: {
   const scriptReferences = await scanPackageScripts(workspaceRoot);
   const lockfilePackageNames = await scanLockfileBlockedPackages(workspaceRoot);
   const sidecarLockfileImporterPresent = await scanSidecarLockfileImporter(workspaceRoot);
+  const sidecarLockfilePackageNames = await scanSidecarLockfilePackageNames(workspaceRoot);
   const packageManagerReferences = await scanPackageManagerReferences(workspaceRoot, rootPackage);
   const packageManagerControls = buildPackageManagerControls(rootPackage);
   const result = evaluateIwsdkWorkspacePosture({
@@ -100,6 +102,7 @@ export async function buildIwsdkWorkspacePostureReport(input: {
     lockfilePackageNames,
     packageManagerReferences,
     packageManagerControls,
+    sidecarLockfilePackageNames,
   });
 
   return {
@@ -109,6 +112,7 @@ export async function buildIwsdkWorkspacePostureReport(input: {
     detected: {
       sidecarAppExists,
       sidecarLockfileImporterPresent,
+      sidecarLockfilePackageNames,
       dependencies,
       sourceReferences,
       scriptReferences,
@@ -213,11 +217,13 @@ async function scanLockfileBlockedPackages(workspaceRoot: string): Promise<strin
 
   const lockfileText = await readFile(lockfilePath, "utf8");
   const policy = buildIwsdkPreInstallPackagePolicy();
-  const iwsdkPackages = [...lockfileText.matchAll(/(?:^|\n)\s*\/?(@iwsdk\/[^@\s:]+|@meta-quest\/hzdb)@/g)]
+  const iwsdkPackages = [...lockfileText.matchAll(/(?:^|\n)\s*['"]?\/?(@iwsdk\/[^@'"\s:]+|@meta-quest\/hzdb)@/g)]
     .map((match) => match[1])
     .filter((packageName): packageName is string => Boolean(packageName));
   const blockedPackages = policy.blockedPackages.filter((packageName) => lockfileContainsPackage(lockfileText, packageName));
-  const blockedTransitivePackages = [...lockfileText.matchAll(/\/(@img\/sharp-libvips-[^@\s:]+)@/g)]
+  const blockedTransitivePackages = [...lockfileText.matchAll(
+    /(?:^|\n)\s*['"]?\/?(@img\/sharp-libvips-[^@'"\s:]+)@/g,
+  )]
     .map((match) => match[1])
     .filter((packageName): packageName is string => Boolean(packageName));
 
@@ -231,7 +237,54 @@ async function scanSidecarLockfileImporter(workspaceRoot: string): Promise<boole
   }
 
   const lockfileText = await readFile(lockfilePath, "utf8");
-  return /(?:^|\n) {2}apps\/ui-xr-iwsdk-spike:\s*(?:\n|$)/.test(lockfileText);
+  return sidecarLockfileImporterBlock(lockfileText) !== undefined;
+}
+
+async function scanSidecarLockfilePackageNames(workspaceRoot: string): Promise<string[]> {
+  const lockfilePath = path.join(workspaceRoot, "pnpm-lock.yaml");
+  if (!existsSync(lockfilePath)) {
+    return [];
+  }
+
+  const sidecarImporterBlock = sidecarLockfileImporterBlock(await readFile(lockfilePath, "utf8"));
+  if (sidecarImporterBlock === undefined) {
+    return [];
+  }
+
+  const directPackageKeys = [...sidecarImporterBlock.matchAll(
+    /^\s+['"]?(@iwsdk\/[^'":\s]+|@meta-quest\/hzdb)['"]?:/gm,
+  )]
+    .map((match) => match[1])
+    .filter((packageName): packageName is string => Boolean(packageName));
+  const aliasedSpecifiers = [...sidecarImporterBlock.matchAll(
+    /\bspecifier:\s*['"]?(?:npm:)?(@iwsdk\/[^@\s'"]+|@meta-quest\/hzdb)@/g,
+  )]
+    .map((match) => match[1])
+    .filter((packageName): packageName is string => Boolean(packageName));
+
+  return [...new Set([...directPackageKeys, ...aliasedSpecifiers])];
+}
+
+function sidecarLockfileImporterBlock(lockfileText: string): string | undefined {
+  const lines = lockfileText.split(/\r?\n/);
+  const blockLines: string[] = [];
+  let foundSidecarImporter = false;
+
+  for (const line of lines) {
+    if (/^ {2}['"]?apps\/ui-xr-iwsdk-spike['"]?:\s*$/.test(line)) {
+      foundSidecarImporter = true;
+      continue;
+    }
+    if (!foundSidecarImporter) {
+      continue;
+    }
+    if (/^ {0,2}\S/.test(line)) {
+      break;
+    }
+    blockLines.push(line);
+  }
+
+  return foundSidecarImporter ? blockLines.join("\n") : undefined;
 }
 
 async function scanPackageManagerReferences(
@@ -341,9 +394,19 @@ function buildPackageManagerControls(rootPackage: PackageJson): IwsdkWorkspacePa
   return {
     workspacePostureInVerify: iwsdkVerify.includes("pnpm iwsdk:workspace:posture"),
     threeOverrideExact: typeof threeOverride === "string" && isExactVersion(threeOverride),
-    auditScriptPresent: /\bpnpm\s+audit\b/.test(auditScript),
-    licenseScriptPresent: licenseScript.length > 0,
+    auditScriptPresent: scriptRunsPnpmAudit(auditScript),
+    licenseScriptPresent: scriptRunsLicensePolicyCheck(licenseScript),
   };
+}
+
+function scriptRunsPnpmAudit(command: string): boolean {
+  return /^(?:[A-Z][A-Z0-9_]*=[^\s]+\s+)*pnpm\s+audit\b/.test(command.trim());
+}
+
+function scriptRunsLicensePolicyCheck(command: string): boolean {
+  return /^(?:[A-Z][A-Z0-9_]*=[^\s]+\s+)*tsx\s+tools\/openclinxr\/check-license-policy\.ts\b/.test(
+    command.trim(),
+  );
 }
 
 async function readPackageJson(filePath: string): Promise<PackageJson> {
@@ -401,8 +464,14 @@ function iwsdkPackageNameFromReferenceText(value: string): string | undefined {
 }
 
 function lockfileContainsPackage(lockfileText: string, packageName: string): boolean {
-  const escapedPackageName = packageName.replaceAll("/", "\\/").replaceAll("@", "\\@");
-  return new RegExp(`(?:^|\\n)\\s*(?:${escapedPackageName}:|/${escapedPackageName}@)`).test(lockfileText);
+  const escapedPackageName = escapeRegExp(packageName);
+  return new RegExp(`(?:^|\\n)\\s*['"]?(?:${escapedPackageName}:|/${escapedPackageName}@|${escapedPackageName}@)`).test(
+    lockfileText,
+  );
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function isExactVersion(version: string): boolean {

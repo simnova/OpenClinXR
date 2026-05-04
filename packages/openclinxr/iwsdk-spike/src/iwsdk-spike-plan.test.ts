@@ -672,6 +672,49 @@ describe("IWSDK spike plan", () => {
     });
   });
 
+  it("blocks IWSDK installs and imports in the advisory policy package", () => {
+    expect(evaluateIwsdkWorkspacePosture({
+      sidecarAppExists: false,
+      sidecarInstallApproved: false,
+      dependencies: [
+        {
+          manifestPath: "packages/openclinxr/iwsdk-spike/package.json",
+          field: "devDependencies",
+          name: "@iwsdk/core",
+          version: "0.3.1",
+        },
+      ],
+      sourceReferences: [
+        {
+          filePath: "packages/openclinxr/iwsdk-spike/src/accidental.ts",
+          packageName: "@iwsdk/xr-input",
+        },
+      ],
+      scriptReferences: [
+        {
+          manifestPath: "package.json",
+          scriptName: "iwsdk:create",
+          command: "pnpm create @iwsdk@0.3.1",
+        },
+      ],
+      lockfilePackageNames: [],
+      packageManagerControls: {
+        workspacePostureInVerify: true,
+        auditScriptPresent: true,
+        licenseScriptPresent: true,
+      },
+    })).toEqual({
+      ready: false,
+      sidecarStatus: "absent_contract_only",
+      blockers: [
+        "dependency_outside_iwsdk_sidecar:packages/openclinxr/iwsdk-spike/package.json:devDependencies.@iwsdk/core",
+        "source_import_outside_iwsdk_sidecar:packages/openclinxr/iwsdk-spike/src/accidental.ts:@iwsdk/xr-input",
+        "blocked_script_action:package.json:scripts.iwsdk:create:iwsdk_create",
+      ],
+      reviewWarnings: [],
+    });
+  });
+
   it("requires operator approval and root package-manager controls when the sidecar exists", () => {
     expect(evaluateIwsdkWorkspacePosture({
       sidecarAppExists: true,
@@ -703,6 +746,7 @@ describe("IWSDK spike plan", () => {
       sidecarAppExists: true,
       sidecarInstallApproved: true,
       sidecarLockfileImporterPresent: true,
+      sidecarLockfilePackageNames: ["@iwsdk/core", "@iwsdk/xr-input"],
       dependencies: [
         {
           manifestPath: "apps/ui-xr-iwsdk-spike/package.json",

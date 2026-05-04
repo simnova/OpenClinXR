@@ -192,6 +192,106 @@ describe("IWSDK workspace posture checker", () => {
     ]);
   });
 
+  it("blocks quoted pnpm lockfile IWSDK package keys", async () => {
+    const workspaceRoot = await createWorkspaceFixture({
+      rootPackage: postureReadyRootPackage(),
+      lockfileText: [
+        "'@iwsdk/core@0.3.1':",
+        "'@meta-quest/hzdb@1.1.0':",
+        "'@img/sharp-libvips-linux-x64@1.0.4':",
+        "",
+      ].join("\n"),
+    });
+
+    const report = await buildIwsdkWorkspacePostureReport({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      workspaceRoot,
+    });
+
+    expect(report.detected.lockfilePackageNames).toEqual([
+      "@iwsdk/core",
+      "@meta-quest/hzdb",
+      "@img/sharp-libvips-linux-x64",
+    ]);
+    expect(report.result.blockers).toEqual([
+      "iwsdk_package_in_lockfile_without_sidecar_app:@iwsdk/core",
+      "blocked_package_in_lockfile:@meta-quest/hzdb",
+      "blocked_transitive_package_in_lockfile:@img/sharp-libvips-linux-x64",
+    ]);
+  });
+
+  it("blocks approved sidecar dependencies when the lockfile importer lacks matching IWSDK entries", async () => {
+    const workspaceRoot = await createWorkspaceFixture({
+      sidecarDependencies: {
+        "@iwsdk/core": "0.3.1",
+        "@iwsdk/xr-input": "0.3.1",
+      },
+      rootPackage: postureReadyRootPackage(),
+      lockfileText: [
+        "lockfileVersion: '9.0'",
+        "",
+        "importers:",
+        "",
+        "  apps/ui-xr-iwsdk-spike:",
+        "    dependencies:",
+        "      react:",
+        "        specifier: 19.2.3",
+        "        version: 19.2.3",
+        "",
+      ].join("\n"),
+    });
+
+    const report = await buildIwsdkWorkspacePostureReport({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      workspaceRoot,
+      sidecarInstallApproved: true,
+    });
+
+    expect(report.detected.sidecarLockfileImporterPresent).toBe(true);
+    expect(report.detected.sidecarLockfilePackageNames).toEqual([]);
+    expect(report.result.blockers).toEqual([
+      "missing_iwsdk_sidecar_lockfile_dependency:apps/ui-xr-iwsdk-spike:@iwsdk/core",
+      "missing_iwsdk_sidecar_lockfile_dependency:apps/ui-xr-iwsdk-spike:@iwsdk/xr-input",
+    ]);
+  });
+
+  it("does not accept placeholder audit and license scripts as sidecar controls", async () => {
+    const workspaceRoot = await createWorkspaceFixture({
+      sidecarDependencies: {
+        "@iwsdk/core": "0.3.1",
+        "@iwsdk/xr-input": "0.3.1",
+      },
+      writeSidecarLockfileImporter: true,
+      rootPackage: {
+        scripts: {
+          "iwsdk:verify": "pnpm iwsdk:workspace:posture && pnpm security:audit && pnpm security:licenses",
+          "security:audit": "echo pnpm audit",
+          "security:licenses": "true",
+        },
+        pnpm: {
+          overrides: {
+            three: "0.184.0",
+          },
+        },
+      },
+    });
+
+    const report = await buildIwsdkWorkspacePostureReport({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      workspaceRoot,
+      sidecarInstallApproved: true,
+    });
+
+    expect(report.detected.packageManagerControls).toMatchObject({
+      auditScriptPresent: false,
+      licenseScriptPresent: false,
+    });
+    expect(report.result.blockers).toEqual([
+      "missing_package_manager_control_record_pnpm_audit",
+      "missing_package_manager_control_record_license_policy_report",
+    ]);
+  });
+
   it("reports production leakage, blocked packages, and missing controls from workspace files", async () => {
     const workspaceRoot = await createWorkspaceFixture({
       rootPackage: {
