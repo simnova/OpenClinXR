@@ -1,12 +1,12 @@
 {
   "generated_by": "tools/agent-factory/find-evidence-debt.ts",
-  "scorecard_count": 13,
-  "debt_count": 25,
-  "open_count": 22,
-  "closed_count": 3,
+  "scorecard_count": 14,
+  "debt_count": 31,
+  "open_count": 27,
+  "closed_count": 4,
   "status_counts": {
-    "open": 22,
-    "resolved": 3
+    "open": 27,
+    "resolved": 4
   },
   "open_by_iteration": {
     "iteration-0001": 3,
@@ -16,24 +16,82 @@
     "iteration-0005": 1,
     "iteration-0006": 1,
     "iteration-0007": 1,
-    "iteration-0008": 3
+    "iteration-0008": 3,
+    "iteration-0009": 5
   },
   "open_by_owner": {
+    "asset-pipeline-lead": 1,
     "chief-medical-officer": 1,
     "clinical-safety-critic": 1,
     "cto": 2,
-    "local-ai-inference-engineer": 3,
+    "local-ai-inference-engineer": 4,
     "open-source-governance-lead": 1,
+    "platform-architect": 1,
     "platform-devops-lead": 2,
     "psychometric-overclaim-critic": 1,
     "psychometrics-lead": 1,
     "solution-architect": 1,
     "source-librarian": 4,
     "test-automation-lead": 1,
-    "voice-speech-engineer": 2,
-    "xr-systems-architect": 2
+    "voice-speech-engineer": 3,
+    "xr-systems-architect": 3
   },
   "priority_open_debt": [
+    {
+      "id": "evidence-leadership-0009-005",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "asset-pipeline-lead",
+      "summary": "Add production-grade asset-pipeline reports for generated humans, skin, clothing, rigging, animation, equipment, optimization, and headset budgets before calling the asset lane production-ready.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0009-002",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "local-ai-inference-engineer",
+      "summary": "Run structured-output, hidden-truth, actor-policy, and target M4 Pro or M4 Max local model benchmarks before enabling local dialogue in station runtime.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0009-004",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "platform-architect",
+      "summary": "Align IWSDK benchmark-gate IDs with scorecard debt and record Phase 2 devtools, MCP inventory, Vite peer-range, reference metadata, bundle, and Quest evidence before runtime adoption.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0009-003",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "voice-speech-engineer",
+      "summary": "Prove streaming local voice with first audible playback latency, WebXR playback, disclosure, retention, and misuse controls before live voice use.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0009-001",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "xr-systems-architect",
+      "summary": "Capture and validate a human worn-headset Quest manual performance report that proves immersive entry, readable in-scene text, controller/hand affordances, locomotion comfort, frame pacing, heat, and battery observations.",
+      "status": "open"
+    },
     {
       "id": "evidence-leadership-0008-002",
       "file": "iterations/iteration-0008/06-leadership-scorecard.json",
@@ -519,6 +577,61 @@
       "owner": "voice-speech-engineer",
       "summary": "Install and benchmark a local voice runtime only after safety and misuse review, then record first-audio latency and transcript/synthesis evidence.",
       "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0009-001",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "xr-systems-architect",
+      "summary": "Capture and validate a human worn-headset Quest manual performance report that proves immersive entry, readable in-scene text, controller/hand affordances, locomotion comfort, frame pacing, heat, and battery observations.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0009-002",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "local-ai-inference-engineer",
+      "summary": "Run structured-output, hidden-truth, actor-policy, and target M4 Pro or M4 Max local model benchmarks before enabling local dialogue in station runtime.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0009-003",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "voice-speech-engineer",
+      "summary": "Prove streaming local voice with first audible playback latency, WebXR playback, disclosure, retention, and misuse controls before live voice use.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0009-004",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "platform-architect",
+      "summary": "Align IWSDK benchmark-gate IDs with scorecard debt and record Phase 2 devtools, MCP inventory, Vite peer-range, reference metadata, bundle, and Quest evidence before runtime adoption.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0009-005",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "asset-pipeline-lead",
+      "summary": "Add production-grade asset-pipeline reports for generated humans, skin, clothing, rigging, animation, equipment, optimization, and headset budgets before calling the asset lane production-ready.",
+      "status": "open"
     }
   ],
   "all_debt": [
@@ -795,6 +908,72 @@
       "scored_by": "senior-leadership-panel",
       "owner": "asset-pipeline-lead",
       "summary": "Install Blender and run a small asset bake report before calling the 3D asset pipeline ready.",
+      "status": "resolved"
+    },
+    {
+      "id": "evidence-leadership-0009-001",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "xr-systems-architect",
+      "summary": "Capture and validate a human worn-headset Quest manual performance report that proves immersive entry, readable in-scene text, controller/hand affordances, locomotion comfort, frame pacing, heat, and battery observations.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0009-002",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "local-ai-inference-engineer",
+      "summary": "Run structured-output, hidden-truth, actor-policy, and target M4 Pro or M4 Max local model benchmarks before enabling local dialogue in station runtime.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0009-003",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "voice-speech-engineer",
+      "summary": "Prove streaming local voice with first audible playback latency, WebXR playback, disclosure, retention, and misuse controls before live voice use.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0009-004",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "platform-architect",
+      "summary": "Align IWSDK benchmark-gate IDs with scorecard debt and record Phase 2 devtools, MCP inventory, Vite peer-range, reference metadata, bundle, and Quest evidence before runtime adoption.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0009-005",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "asset-pipeline-lead",
+      "summary": "Add production-grade asset-pipeline reports for generated humans, skin, clothing, rigging, animation, equipment, optimization, and headset budgets before calling the asset lane production-ready.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0009-006",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "senior-leadership-panel",
+      "summary": "Prior local model, local voice, and Blender placeholder-bake installation smokes were captured without cloud spend and are sufficient to retire the narrower installation-only blockers.",
       "status": "resolved"
     }
   ]

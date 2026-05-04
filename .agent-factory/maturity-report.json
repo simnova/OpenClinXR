@@ -1,9 +1,9 @@
 {
   "generated_by": "tools/agent-factory/build-maturity-report.ts",
-  "iteration_count": 8,
+  "iteration_count": 9,
   "improving_iteration_count": 5,
   "plateaued_iteration_count": 2,
-  "regressing_iteration_count": 0,
+  "regressing_iteration_count": 1,
   "leadership_quality_bar_ready_count": 0,
   "iterations": [
     {
@@ -298,9 +298,52 @@
       "leadership_quality_bar_ready": false,
       "weighted_delta_from_previous": 0.031,
       "composite_delta_from_previous": 0.031
+    },
+    {
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "selected_scorecard_file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "selected_plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "confidence": 0.79,
+      "weighted_score": 4.619,
+      "composite_score": 4.616,
+      "open_selected_evidence_debt_count": 5,
+      "open_selected_decision_debt_count": 1,
+      "open_selected_risk_count": 5,
+      "open_selected_high_or_critical_risk_count": 1,
+      "open_selected_evidence_debt_ids": [
+        "evidence-leadership-0009-001",
+        "evidence-leadership-0009-002",
+        "evidence-leadership-0009-003",
+        "evidence-leadership-0009-004",
+        "evidence-leadership-0009-005"
+      ],
+      "open_selected_decision_debt_ids": [
+        "decision-leadership-0009-001"
+      ],
+      "open_selected_risk_ids": [
+        "risk-leadership-0009-001",
+        "risk-leadership-0009-002",
+        "risk-leadership-0009-003",
+        "risk-leadership-0009-004",
+        "risk-leadership-0009-005"
+      ],
+      "open_selected_high_or_critical_risk_ids": [
+        "risk-leadership-0009-005"
+      ],
+      "dimensions_below_quality_bar": [],
+      "blockers": [
+        "open_selected_evidence_debt",
+        "open_selected_decision_debt",
+        "open_selected_high_or_critical_risk"
+      ],
+      "leadership_quality_bar_ready": false,
+      "weighted_delta_from_previous": -0.16,
+      "composite_delta_from_previous": -0.162
     }
   ],
-  "latest_iteration_id": "iteration-0008",
-  "latest_weighted_score": 4.779,
-  "latest_weighted_delta_from_previous": 0.031
+  "latest_iteration_id": "iteration-0009",
+  "latest_weighted_score": 4.619,
+  "latest_weighted_delta_from_previous": -0.16
 }

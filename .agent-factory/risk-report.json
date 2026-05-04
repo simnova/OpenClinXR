@@ -1,16 +1,16 @@
 {
   "generated_by": "tools/agent-factory/find-stale-risks.ts",
-  "scorecard_count": 13,
-  "risk_count": 27,
-  "open_count": 27,
+  "scorecard_count": 14,
+  "risk_count": 32,
+  "open_count": 32,
   "open_critical_count": 0,
-  "open_high_or_critical_count": 19,
+  "open_high_or_critical_count": 20,
   "status_counts": {
-    "open": 27
+    "open": 32
   },
   "open_by_severity": {
-    "high": 19,
-    "medium": 8
+    "high": 20,
+    "medium": 12
   },
   "open_by_iteration": {
     "iteration-0001": 5,
@@ -20,10 +20,11 @@
     "iteration-0005": 1,
     "iteration-0006": 2,
     "iteration-0007": 2,
-    "iteration-0008": 3
+    "iteration-0008": 3,
+    "iteration-0009": 5
   },
   "open_by_owner": {
-    "asset-pipeline-lead": 1,
+    "asset-pipeline-lead": 2,
     "chief-coordinator": 1,
     "chief-medical-education-officer": 1,
     "chief-psychometrician": 4,
@@ -33,12 +34,14 @@
     "ip-open-source-counsel": 1,
     "legal-liability-attacker": 1,
     "legal-regulatory-counsel": 1,
-    "local-ai-inference-engineer": 2,
+    "local-ai-inference-engineer": 3,
+    "platform-architect": 1,
     "psychometrics-lead": 1,
     "red-team-coordinator": 1,
+    "rubric-steward": 1,
     "source-librarian": 1,
     "vp-engineering-delivery": 1,
-    "xr-systems-architect": 6
+    "xr-systems-architect": 7
   },
   "open_high_or_critical_risks": [
     {
@@ -267,6 +270,18 @@
       "severity": "high",
       "owner": "local-ai-inference-engineer",
       "summary": "Local model and voice quality may be insufficient for realistic clinical actor behavior.",
+      "status": "open"
+    },
+    {
+      "id": "risk-leadership-0009-005",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "severity": "high",
+      "owner": "rubric-steward",
+      "summary": "Evidence ledger ID drift may cause leadership to believe a blocker was closed or reopened for the wrong reason.",
       "status": "open"
     }
   ],
@@ -594,6 +609,66 @@
       "owner": "asset-pipeline-lead",
       "summary": "Asset work may be underestimated because placeholder Blender baking passed while production avatar quality, rigging, LODs, texture atlasing, colliders, and headset frame pacing remain unproven.",
       "status": "open"
+    },
+    {
+      "id": "risk-leadership-0009-005",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "severity": "high",
+      "owner": "rubric-steward",
+      "summary": "Evidence ledger ID drift may cause leadership to believe a blocker was closed or reopened for the wrong reason.",
+      "status": "open"
+    },
+    {
+      "id": "risk-leadership-0009-001",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "severity": "medium",
+      "owner": "local-ai-inference-engineer",
+      "summary": "Stakeholders may treat local model and voice smoke results as live clinical simulation readiness.",
+      "status": "open"
+    },
+    {
+      "id": "risk-leadership-0009-002",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "severity": "medium",
+      "owner": "xr-systems-architect",
+      "summary": "Quest shell, CDP frame, and sidecar evidence may still be confused with worn-headset immersive comfort evidence.",
+      "status": "open"
+    },
+    {
+      "id": "risk-leadership-0009-003",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "severity": "medium",
+      "owner": "asset-pipeline-lead",
+      "summary": "The asset-job facade may be mistaken for production asset-generation readiness before rigging, animation, texture, LOD, collider, and headset budget evidence exists.",
+      "status": "open"
+    },
+    {
+      "id": "risk-leadership-0009-004",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "severity": "medium",
+      "owner": "platform-architect",
+      "summary": "IWSDK sidecar momentum may pull incompatible or oversized packages into the primary XR runtime before MCP, bundle, peer-range, and Quest evidence clears.",
+      "status": "open"
     }
   ],
   "all_risks": [
@@ -919,6 +994,66 @@
       "severity": "medium",
       "owner": "asset-pipeline-lead",
       "summary": "Asset work may be underestimated because placeholder Blender baking passed while production avatar quality, rigging, LODs, texture atlasing, colliders, and headset frame pacing remain unproven.",
+      "status": "open"
+    },
+    {
+      "id": "risk-leadership-0009-005",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "severity": "high",
+      "owner": "rubric-steward",
+      "summary": "Evidence ledger ID drift may cause leadership to believe a blocker was closed or reopened for the wrong reason.",
+      "status": "open"
+    },
+    {
+      "id": "risk-leadership-0009-001",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "severity": "medium",
+      "owner": "local-ai-inference-engineer",
+      "summary": "Stakeholders may treat local model and voice smoke results as live clinical simulation readiness.",
+      "status": "open"
+    },
+    {
+      "id": "risk-leadership-0009-002",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "severity": "medium",
+      "owner": "xr-systems-architect",
+      "summary": "Quest shell, CDP frame, and sidecar evidence may still be confused with worn-headset immersive comfort evidence.",
+      "status": "open"
+    },
+    {
+      "id": "risk-leadership-0009-003",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "severity": "medium",
+      "owner": "asset-pipeline-lead",
+      "summary": "The asset-job facade may be mistaken for production asset-generation readiness before rigging, animation, texture, LOD, collider, and headset budget evidence exists.",
+      "status": "open"
+    },
+    {
+      "id": "risk-leadership-0009-004",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "severity": "medium",
+      "owner": "platform-architect",
+      "summary": "IWSDK sidecar momentum may pull incompatible or oversized packages into the primary XR runtime before MCP, bundle, peer-range, and Quest evidence clears.",
       "status": "open"
     }
   ]

@@ -1,0 +1,42 @@
+{
+  "iteration_id": "iteration-0009",
+  "plan_type": "leadership-review",
+  "scored_by": "senior-leadership-panel",
+  "scored_at": "2026-05-04",
+  "dimensions": {
+    "clinical_validity": { "score": 4.62, "rationale": "Clinical claims remain bounded, but local actor behavior, specialty review, and live dialogue safety are still unvalidated." },
+    "psychometric_defensibility": { "score": 4.58, "rationale": "The plan rejects autonomous scoring claims, but validated score use, rater calibration, and trace-quality evidence remain open." },
+    "technical_feasibility": { "score": 4.62, "rationale": "The API asset-job lane, local model smoke, local voice smoke, Blender bake, IWSDK sidecar, and Quest CDP gates improve feasibility, but immersive entry, live voice, and target-hardware proof remain blocked." },
+    "architecture_coherence": { "score": 4.74, "rationale": "Internal capability jobs, API startup wiring, and ArchUnitTS boundaries align with the intended monorepo architecture, while benchmark-gate evidence IDs still need reconciliation." },
+    "security_privacy": { "score": 4.62, "rationale": "Local-only defaults and internal endpoints help, but voice disclosure, retention, misuse controls, and production worker isolation are not complete." },
+    "ux_workflow_fit": { "score": 4.58, "rationale": "The station UX has in-scene text, trace controls, and sidecar learning paths, but headset comfort, hand/controller affordances, locomotion, and readability need a worn-headset report." },
+    "cost_performance_efficiency": { "score": 4.55, "rationale": "The team avoided paid APIs and recorded local performance, but local voice latency and missing Quest performance evidence keep efficiency uncertain." },
+    "open_source_sustainability": { "score": 4.68, "rationale": "Pinned package posture, audit/license gates, Blender tooling caveats, and IWSDK isolation reduce open-source risk, though IWSDK reference metadata and peer-range issues remain." },
+    "market_gtm_strength": { "score": 4.36, "rationale": "Demo credibility improves with local evidence and asset lanes, but design-partner, legal, validation, and headset-readiness materials still block stronger market claims." },
+    "evidence_discipline": { "score": 4.82, "rationale": "The latest work records exact blockers, smoke reports, benchmark reports, and architecture tests, but debt-ID drift prevents a near-green evidence posture." },
+    "implementation_readiness": { "score": 4.64, "rationale": "Development can proceed against API asset-job contracts and package boundaries, but the next implementation priorities are still evidence closure and ledger repair." },
+    "adversarial_robustness": { "score": 4.72, "rationale": "The plan absorbs attacks on local AI halo effects, voice latency, Quest theater, IWSDK enthusiasm, asset-pipeline optimism, and ledger drift." },
+    "legal_regulatory_resilience": { "score": 4.62, "rationale": "The plan guards high-stakes, endorsement, diagnostic, scoring, retention, and voice-disclosure claims, but counsel-ready external governance remains incomplete." },
+    "specialty_clinical_generalizability": { "score": 4.48, "rationale": "The architecture remains station-general, but specialty breadth still depends on expert-reviewed case-bank expansion and actor behavior validation." }
+  },
+  "critical_risks": [
+    { "id": "risk-leadership-0009-001", "severity": "medium", "summary": "Stakeholders may treat local model and voice smoke results as live clinical simulation readiness.", "owner": "local-ai-inference-engineer", "status": "open" },
+    { "id": "risk-leadership-0009-002", "severity": "medium", "summary": "Quest shell, CDP frame, and sidecar evidence may still be confused with worn-headset immersive comfort evidence.", "owner": "xr-systems-architect", "status": "open" },
+    { "id": "risk-leadership-0009-003", "severity": "medium", "summary": "The asset-job facade may be mistaken for production asset-generation readiness before rigging, animation, texture, LOD, collider, and headset budget evidence exists.", "owner": "asset-pipeline-lead", "status": "open" },
+    { "id": "risk-leadership-0009-004", "severity": "medium", "summary": "IWSDK sidecar momentum may pull incompatible or oversized packages into the primary XR runtime before MCP, bundle, peer-range, and Quest evidence clears.", "owner": "platform-architect", "status": "open" },
+    { "id": "risk-leadership-0009-005", "severity": "high", "summary": "Evidence ledger ID drift may cause leadership to believe a blocker was closed or reopened for the wrong reason.", "owner": "rubric-steward", "status": "open" }
+  ],
+  "evidence_debt": [
+    { "id": "evidence-leadership-0009-001", "summary": "Capture and validate a human worn-headset Quest manual performance report that proves immersive entry, readable in-scene text, controller/hand affordances, locomotion comfort, frame pacing, heat, and battery observations.", "owner": "xr-systems-architect", "status": "open" },
+    { "id": "evidence-leadership-0009-002", "summary": "Run structured-output, hidden-truth, actor-policy, and target M4 Pro or M4 Max local model benchmarks before enabling local dialogue in station runtime.", "owner": "local-ai-inference-engineer", "status": "open" },
+    { "id": "evidence-leadership-0009-003", "summary": "Prove streaming local voice with first audible playback latency, WebXR playback, disclosure, retention, and misuse controls before live voice use.", "owner": "voice-speech-engineer", "status": "open" },
+    { "id": "evidence-leadership-0009-004", "summary": "Align IWSDK benchmark-gate IDs with scorecard debt and record Phase 2 devtools, MCP inventory, Vite peer-range, reference metadata, bundle, and Quest evidence before runtime adoption.", "owner": "platform-architect", "status": "open" },
+    { "id": "evidence-leadership-0009-005", "summary": "Add production-grade asset-pipeline reports for generated humans, skin, clothing, rigging, animation, equipment, optimization, and headset budgets before calling the asset lane production-ready.", "owner": "asset-pipeline-lead", "status": "open" },
+    { "id": "evidence-leadership-0009-006", "summary": "Prior local model, local voice, and Blender placeholder-bake installation smokes were captured without cloud spend and are sufficient to retire the narrower installation-only blockers.", "owner": "senior-leadership-panel", "status": "resolved" }
+  ],
+  "decision_debt": [
+    { "id": "decision-leadership-0009-001", "summary": "Decide whether benchmark gate IDs should follow the original debt item or the current capability area when evidence evolves across iterations.", "owner": "rubric-steward", "status": "open" }
+  ],
+  "confidence": 0.79,
+  "summary": "Iteration 0009 is amber: implementation readiness improves through API asset-job routing, architecture enforcement, and local evidence capture, but headset validation, live voice/dialogue, production assets, and evidence-ledger integrity remain blocking."
+}
