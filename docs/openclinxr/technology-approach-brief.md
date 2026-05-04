@@ -93,7 +93,7 @@ Penpot is the preferred design collaboration tool. OpenPencil is a promising MIT
 - Treat [Apollo GraphQL Skills](https://github.com/apollographql/skills) as optional local agent guidance for schema, operation, Apollo Client, Rover, and GraphQL MCP review. Keep the skills advisory unless the recommendation is backed by generated documents, repo tests, and the selected Apollo/GraphQL Code Generator versions.
 - Use OpenTelemetry as the shared performance-analysis vocabulary across API routes, GraphQL operations, Mongo persistence, model gateway calls, voice gateway calls, and XR client timing events.
 - Keep package boundaries compatible with CellixJS-style domain cells so TurboRepo tasks can map cleanly to domain ownership.
-- When TurboRepo is introduced, follow the current [Turborepo skill](https://github.com/vercel/turborepo/blob/main/skills/turborepo/SKILL.md): keep task logic in package-level `package.json` scripts, have root scripts delegate with `turbo run`, use `--affected` for changed packages plus dependents, mark dev/watch tasks as persistent and uncached, and keep remote caching opt-in only.
+- When TurboRepo is introduced, follow the current [Turborepo skill](https://github.com/vercel/turborepo/blob/main/skills/turborepo/SKILL.md): keep task logic in package-level `package.json` scripts, have root scripts delegate with `turbo run`, use `--affected` for changed packages plus dependents, mark dev/watch tasks as persistent and uncached, disable anonymous telemetry in repo scripts with `TURBO_TELEMETRY_DISABLED=1` and `DO_NOT_TRACK=1`, and keep remote caching opt-in only.
 
 ### LLM And Voice
 

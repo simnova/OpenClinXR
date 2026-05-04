@@ -15,6 +15,12 @@ describe("workspace architecture rules", () => {
 
     expect(rootPackage.scripts?.["packages:typecheck"]).toContain("turbo run typecheck");
     expect(rootPackage.scripts?.["packages:test"]).toContain("turbo run test");
+    expect(rootPackage.scripts?.["packages:typecheck"]).toContain("TURBO_TELEMETRY_DISABLED=1");
+    expect(rootPackage.scripts?.["packages:test"]).toContain("TURBO_TELEMETRY_DISABLED=1");
+    expect(rootPackage.scripts?.["packages:build"]).toContain("TURBO_TELEMETRY_DISABLED=1");
+    expect(rootPackage.scripts?.["packages:typecheck"]).toContain("DO_NOT_TRACK=1");
+    expect(rootPackage.scripts?.["packages:test"]).toContain("DO_NOT_TRACK=1");
+    expect(rootPackage.scripts?.["packages:build"]).toContain("DO_NOT_TRACK=1");
     expect(rootPackage.scripts?.typecheck).toContain("pnpm packages:typecheck");
     expect(rootPackage.scripts?.test).toContain("pnpm packages:test");
     expect(rootPackage.scripts?.typecheck).not.toContain("pnpm -r");
