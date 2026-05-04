@@ -16,6 +16,7 @@ type Query {
   scenario(scenarioId: ID!, version: Int): Scenario
   scenarios(status: ScenarioStatus): [Scenario!]!
   examForm(examFormId: ID!): ExamForm
+  stationRunQueueSnapshots(blueprintId: ID!): [StationRunQueueSnapshot!]!
   reviewPacket(stationRunId: ID!): ReviewPacket
   traceEvents(stationRunId: ID!): [TraceEvent!]!
   assetReadiness(scenarioId: ID!, version: Int!): AssetReadiness!

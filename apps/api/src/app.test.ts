@@ -79,6 +79,7 @@ describe("OpenClinXR API shell", () => {
       "exam-form-workbench",
       "exam-form-assembly",
       "station-run-queue-snapshot",
+      "station-run-queue-snapshots",
     ]);
     expect(documents.map((document) => document.operationName)).toEqual([
       "ScenarioBank",
@@ -86,9 +87,11 @@ describe("OpenClinXR API shell", () => {
       "ExamFormWorkbench",
       "AssembleExamForm",
       "CreateStationRunQueueSnapshot",
+      "StationRunQueueSnapshots",
     ]);
     expect(documents[0]?.source).toContain("query ScenarioBank");
-    expect(documents.at(-1)?.source).toContain("createStationRunQueueSnapshot");
+    expect(documents.find((document) => document.routeId === "station-run-queue-snapshot")?.source).toContain("createStationRunQueueSnapshot");
+    expect(documents.at(-1)?.source).toContain("stationRunQueueSnapshots");
     expect(JSON.stringify(documents)).not.toContain("hiddenFacts");
   });
 

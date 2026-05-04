@@ -29,4 +29,9 @@ export const adminGraphqlDocuments = [
     "operationName": "CreateStationRunQueueSnapshot",
     "source": "mutation CreateStationRunQueueSnapshot($input: CreateStationRunQueueSnapshotInput!) {\n  createStationRunQueueSnapshot(input: $input) {\n    snapshotId\n    createdAt\n    reviewerId\n    queue {\n      blueprintId\n      canStartLearnerExam\n      summary {\n        activationReady\n        draftBlocked\n        governanceBlocked\n        missingScenario\n      }\n      stationQueue {\n        stationOrder\n        slotId\n        label\n        scenarioId\n        scenarioVersion\n        status\n        blockers\n      }\n    }\n  }\n}\n"
   },
+  {
+    "routeId": "station-run-queue-snapshots",
+    "operationName": "StationRunQueueSnapshots",
+    "source": "query StationRunQueueSnapshots($blueprintId: ID!) {\n  stationRunQueueSnapshots(blueprintId: $blueprintId) {\n    snapshotId\n    createdAt\n    reviewerId\n    queue {\n      blueprintId\n      canStartLearnerExam\n      summary {\n        activationReady\n        draftBlocked\n        governanceBlocked\n        missingScenario\n      }\n      stationQueue {\n        stationOrder\n        slotId\n        label\n        scenarioId\n        scenarioVersion\n        status\n        blockers\n      }\n    }\n  }\n}\n"
+  },
 ] satisfies AdminGraphqlDocument[];
