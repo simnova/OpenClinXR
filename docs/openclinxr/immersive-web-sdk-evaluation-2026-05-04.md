@@ -156,6 +156,8 @@ Use IWSDK as a spike candidate, not a committed runtime dependency.
 
 The sidecar path is contract-only today. Do not create a no-install `apps/ui-xr-iwsdk-spike` app, because that would not measure IWSDK package compatibility, MCP runtime behavior, install footprint, bundle impact, or physical Quest 3 performance. Create the runnable sidecar only after the install scope, exact package versions, and license posture are accepted.
 
+MADR 0028 captures this as an accepted spike-planning decision. The production `apps/ui-xr` shell now contributes baseline MCP targets without adding IWSDK dependencies: `buildIwsdkStationMcpSmokePlan()` defines the ED chest pain agent-mode smoke order, required named scene objects, and the first controller-select trace target. A future sidecar should preserve those semantic scene names or explain any migration before parity can be claimed.
+
 ## Committed Sidecar Sequence
 
 If the team decides to make the experiment visible in the monorepo, use `apps/ui-xr-iwsdk-spike/` and keep `apps/ui-xr/`, `apps/api/`, and `packages/openclinxr/scenario-runtime/` blocked from IWSDK dependencies until the spike exits. The sequence should be:

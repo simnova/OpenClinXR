@@ -17,6 +17,16 @@ describe("static browser assets", () => {
     expect(mainSource).toContain('} from "three"');
   });
 
+  it("names station scene objects for future IWSDK scene hierarchy checks", () => {
+    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+
+    expect(mainSource).toContain("scene.name = iwsdkStationSceneObjects.stationRoot");
+    expect(mainSource).toContain("patient.name = iwsdkStationSceneObjects.patientRobertHayes");
+    expect(mainSource).toContain("nurse.name = iwsdkStationSceneObjects.nurseMariaAlvarez");
+    expect(mainSource).toContain("spouse.name = iwsdkStationSceneObjects.spouseAnnaHayes");
+    expect(mainSource).toContain("monitor.name = iwsdkStationSceneObjects.monitor");
+  });
+
   it("loads only the active scenario fixture subpath in the headset app", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
     const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");

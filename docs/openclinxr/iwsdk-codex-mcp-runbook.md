@@ -66,6 +66,8 @@ Keep this adapter local and reversible. Do not commit `.codex/config.toml` chang
 
 Default to IWSDK `agent` mode for unattended Codex checks: headless fixed viewport, DevUI off, and a separate normal browser for manual development. Use `oversight` mode only when Patrick or a developer needs to watch the Playwright browser directly. Use `collaborate` mode only for hands-on controller, hand, or spatial UI tuning after the sidecar shell is stable.
 
+The current production `apps/ui-xr` shell is the baseline station for future sidecar parity checks. It now exposes a source-controlled smoke plan through `buildIwsdkStationMcpSmokePlan()` in `apps/ui-xr/src/runtime-state.ts`. The first plan targets the ED chest pain station, requires named Three.js scene objects for patient, nurse, spouse, monitor, bed, floor, lights, and wall clock, and uses `ecg_request` as the first controller-select trace action.
+
 Run IWSDK MCP checks in this order:
 
 1. `iwsdk dev status`
@@ -83,8 +85,8 @@ Evidence to record:
 - Managed browser readiness.
 - Confirmation that the managed Playwright browser is separate from the normal browser when using `agent` mode.
 - Nonblank screenshot.
-- Scene hierarchy including named station objects.
-- One controller select mapped to a station trace action.
+- Scene hierarchy including every `openclinxr.ed-chest-pain.*` object from the station smoke plan.
+- One controller select mapped to the plan's station trace action, initially `ecg_request`.
 - Empty warning/error console logs, or explicit blockers.
 - 32-tool inventory with exact observed tool names and session, transforms, input mode, select/trigger, gamepad, device state, browser, scene, and ECS category coverage before claiming IWSDK agent-tooling readiness.
 

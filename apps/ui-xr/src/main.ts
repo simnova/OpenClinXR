@@ -21,6 +21,7 @@ import {
   createInitialRuntimeState,
   eventTypeForTraceTag,
   formatStationClock,
+  iwsdkStationSceneObjects,
   manualPerformanceMetricsFromFrameStats,
   remoteActorTurnForTraceTag,
   stationTraceActionTags,
@@ -257,6 +258,7 @@ function createStationScene(): void {
   renderer.setClearColor(0x101820);
 
   const scene = new Scene();
+  scene.name = iwsdkStationSceneObjects.stationRoot;
   scene.background = new Color(0x101820);
 
   const camera = new PerspectiveCamera(52, 1, 0.1, 100);
@@ -264,38 +266,47 @@ function createStationScene(): void {
   camera.lookAt(0, 1.1, 0);
 
   const ambient = new HemisphereLight(0xf4f0dc, 0x223042, 2.2);
+  ambient.name = iwsdkStationSceneObjects.ambientLight;
   scene.add(ambient);
 
   const key = new DirectionalLight(0xffffff, 2.5);
+  key.name = iwsdkStationSceneObjects.keyLight;
   key.position.set(3, 5, 4);
   scene.add(key);
 
   const floor = new Mesh(new BoxGeometry(7, 0.08, 5), new MeshStandardMaterial({ color: 0x55606b, roughness: 0.8 }));
+  floor.name = iwsdkStationSceneObjects.floor;
   floor.position.y = -0.04;
   scene.add(floor);
 
   const bed = new Mesh(new BoxGeometry(2.4, 0.35, 1.05), new MeshStandardMaterial({ color: 0xd9dde3, roughness: 0.65 }));
+  bed.name = iwsdkStationSceneObjects.bed;
   bed.position.set(-0.4, 0.55, 0);
   scene.add(bed);
 
   const monitor = new Mesh(new BoxGeometry(0.8, 0.55, 0.08), new MeshStandardMaterial({ color: 0x203040, emissive: 0x0b3d2e }));
+  monitor.name = iwsdkStationSceneObjects.monitor;
   monitor.position.set(1.7, 1.45, -0.65);
   scene.add(monitor);
 
   const patient = actorMesh(0x8fb9aa);
+  patient.name = iwsdkStationSceneObjects.patientRobertHayes;
   patient.position.set(-0.6, 1.0, 0.05);
   patient.scale.set(1.1, 1.1, 1.1);
   scene.add(patient);
 
   const nurse = actorMesh(0x5a9bd5);
+  nurse.name = iwsdkStationSceneObjects.nurseMariaAlvarez;
   nurse.position.set(1.45, 0.95, 0.55);
   scene.add(nurse);
 
   const spouse = actorMesh(0xd5a75a);
+  spouse.name = iwsdkStationSceneObjects.spouseAnnaHayes;
   spouse.position.set(-2.0, 0.95, 0.7);
   scene.add(spouse);
 
   const clockMesh = new Mesh(new CylinderGeometry(0.25, 0.25, 0.05, 48), new MeshStandardMaterial({ color: 0xf3e8c9 }));
+  clockMesh.name = iwsdkStationSceneObjects.wallClock;
   clockMesh.rotation.x = Math.PI / 2;
   clockMesh.position.set(0.9, 2.2, -1.2);
   scene.add(clockMesh);

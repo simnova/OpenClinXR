@@ -21,6 +21,44 @@ export type RemoteActorTurnPlan = {
   traceContextTags: string[];
 };
 
+export type IwsdkStationMcpSmokeTool =
+  | "xr_get_session_status"
+  | "xr_accept_session"
+  | "browser_screenshot"
+  | "scene_get_hierarchy"
+  | "xr_select"
+  | "browser_get_console_logs";
+
+export type IwsdkStationMcpSmokeStep = {
+  id: string;
+  toolName: IwsdkStationMcpSmokeTool;
+  expectedEvidence: string;
+  traceTag?: string;
+  requiredSceneObjects?: string[];
+};
+
+export type IwsdkStationMcpSmokePlan = {
+  mode: "agent";
+  scenarioId: string;
+  scenarioVersion: number;
+  scenarioTitle: string;
+  mcpToolOrder: IwsdkStationMcpSmokeTool[];
+  requiredSceneObjectNames: string[];
+  controllerSelectTraceTag: string;
+  steps: IwsdkStationMcpSmokeStep[];
+  blockedUntil: string[];
+};
+
+export type IwsdkStationMcpSmokeEvidence = {
+  objectNames: string[];
+  traceActionTags?: string[];
+};
+
+export type IwsdkStationMcpSmokeReadiness = {
+  ready: boolean;
+  blockers: string[];
+};
+
 export type FrameDeltaSummary = {
   sampleCount: number;
   avgFrameMs: number | null;
@@ -45,6 +83,30 @@ export type ManualPerformanceMetrics = {
 };
 
 export const stationTraceActionTags = [...edChestPainScenario.requiredTraceTags];
+
+export const iwsdkStationSceneObjects = {
+  stationRoot: "openclinxr.ed-chest-pain.station-root",
+  ambientLight: "openclinxr.ed-chest-pain.ambient-light",
+  keyLight: "openclinxr.ed-chest-pain.key-light",
+  floor: "openclinxr.ed-chest-pain.floor",
+  bed: "openclinxr.ed-chest-pain.bed",
+  monitor: "openclinxr.ed-chest-pain.monitor",
+  patientRobertHayes: "openclinxr.ed-chest-pain.patient-robert-hayes",
+  nurseMariaAlvarez: "openclinxr.ed-chest-pain.nurse-maria-alvarez",
+  spouseAnnaHayes: "openclinxr.ed-chest-pain.spouse-anna-hayes",
+  wallClock: "openclinxr.ed-chest-pain.wall-clock",
+} as const;
+
+export const iwsdkStationSceneObjectNames = Object.values(iwsdkStationSceneObjects);
+
+export const iwsdkStationMcpSmokeToolOrder: IwsdkStationMcpSmokeTool[] = [
+  "xr_get_session_status",
+  "xr_accept_session",
+  "browser_screenshot",
+  "scene_get_hierarchy",
+  "xr_select",
+  "browser_get_console_logs",
+];
 
 export function createInitialRuntimeState(): XrRuntimeState {
   return {
@@ -80,6 +142,85 @@ export function summarizeTraceReadiness(state: XrRuntimeState): TraceReadinessSu
     observedCount: state.completedTraceTags.length,
     missingCount: missingTraceTags.length,
     missingTraceTags,
+  };
+}
+
+export function buildIwsdkStationMcpSmokePlan(state: XrRuntimeState = createInitialRuntimeState()): IwsdkStationMcpSmokePlan {
+  const controllerSelectTraceTag = state.requiredTraceTags.includes("ecg_request")
+    ? "ecg_request"
+    : state.requiredTraceTags[0] ?? "";
+
+  return {
+    mode: "agent",
+    scenarioId: state.scenarioId,
+    scenarioVersion: edChestPainScenario.version,
+    scenarioTitle: state.title,
+    mcpToolOrder: [...iwsdkStationMcpSmokeToolOrder],
+    requiredSceneObjectNames: [...iwsdkStationSceneObjectNames],
+    controllerSelectTraceTag,
+    steps: [
+      {
+        id: "session-status",
+        toolName: "xr_get_session_status",
+        expectedEvidence: "XR session support state is recorded before accepting or emulating input.",
+      },
+      {
+        id: "accept-session",
+        toolName: "xr_accept_session",
+        expectedEvidence: "Immersive session enters a ready state without warning or error console output.",
+      },
+      {
+        id: "nonblank-screenshot",
+        toolName: "browser_screenshot",
+        expectedEvidence: "The ED bay canvas is nonblank and the EHR/control panel remains readable at the bounded agent screenshot size.",
+      },
+      {
+        id: "scene-hierarchy",
+        toolName: "scene_get_hierarchy",
+        expectedEvidence: "Named station objects are present so agent reviewers can verify clinical actors and equipment without screenshot-only inference.",
+        requiredSceneObjects: [...iwsdkStationSceneObjectNames],
+      },
+      {
+        id: "controller-select-trace",
+        toolName: "xr_select",
+        expectedEvidence: "A controller select records the same learner trace action as the desktop trace button.",
+        traceTag: controllerSelectTraceTag,
+      },
+      {
+        id: "console-clean",
+        toolName: "browser_get_console_logs",
+        expectedEvidence: "No warning or error console messages are present after the trace interaction.",
+      },
+    ],
+    blockedUntil: [
+      "apps_ui_xr_iwsdk_sidecar_exists_with_exact_iwsdk_versions",
+      "iwsdk_agent_tooling_evidence_records_32_tool_inventory",
+      "physical_quest3_foreground_frame_pacing_still_required_for_production",
+    ],
+  };
+}
+
+export function evaluateIwsdkStationMcpSmokeEvidence(
+  evidence: IwsdkStationMcpSmokeEvidence,
+  requiredSceneObjectNames: readonly string[] = iwsdkStationSceneObjectNames,
+): IwsdkStationMcpSmokeReadiness {
+  const objectNames = new Set(evidence.objectNames.filter((name) => name.trim().length > 0));
+  const traceActionTags = evidence.traceActionTags ? new Set(evidence.traceActionTags) : undefined;
+  const plan = buildIwsdkStationMcpSmokePlan();
+  const missingSceneObjectBlockers = requiredSceneObjectNames
+    .filter((name) => !objectNames.has(name))
+    .map((name) => `missing_scene_object:${name}`);
+  const missingTraceActionBlocker = traceActionTags?.has(plan.controllerSelectTraceTag)
+    ? undefined
+    : `missing_controller_select_trace_tag:${plan.controllerSelectTraceTag}`;
+  const blockers = [
+    ...missingSceneObjectBlockers,
+    ...(missingTraceActionBlocker ? [missingTraceActionBlocker] : []),
+  ];
+
+  return {
+    ready: blockers.length === 0,
+    blockers,
   };
 }
 
