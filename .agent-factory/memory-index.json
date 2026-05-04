@@ -1,7 +1,8 @@
 {
   "generated_by": "tools/agent-factory/build-memory-index.ts",
   "agent_count": 69,
-  "entry_count": 108,
+  "entry_count": 106,
+  "superseded_entry_count": 2,
   "entries": [
     {
       "id": "xr-systems-architect-decision-0003",
@@ -1576,41 +1577,6 @@
       "agent_id": "implementation-plan-gap-attacker",
       "team": "adversarial",
       "source_file": "agents/adversarial/implementation-plan-gap-attacker/index.json"
-    },
-    {
-      "id": "chief-coordinator-decision-0002",
-      "type": "decision",
-      "topic": "pilot-evidence-spine",
-      "summary": "Use M0 faculty evidence prototype, M1 Quest XR interaction slice, and M2 design-partner pilot as the next planning baseline.",
-      "confidence": 0.82,
-      "source_ids": [
-        "src-internal-openclinxr-architecture-bundle",
-        "src-internal-chatgpt-business-plan",
-        "src-internal-agent-factory-design-spec"
-      ],
-      "iteration": 1,
-      "status": "active",
-      "supersedes": [],
-      "agent_id": "chief-coordinator",
-      "team": "coordinator",
-      "source_file": "agents/coordinator/chief-coordinator/index.json"
-    },
-    {
-      "id": "legal-regulatory-counsel-risk-0002",
-      "type": "risk",
-      "topic": "prohibited-claims",
-      "summary": "Prohibited claims, consent matrix, retention schedule, and data-flow appendix are required before design-partner outreach.",
-      "confidence": 0.84,
-      "source_ids": [
-        "src-internal-chatgpt-business-plan",
-        "src-internal-agent-factory-design-spec"
-      ],
-      "iteration": 1,
-      "status": "active",
-      "supersedes": [],
-      "agent_id": "legal-regulatory-counsel",
-      "team": "legal",
-      "source_file": "agents/legal/legal-regulatory-counsel/index.json"
     },
     {
       "id": "solution-architect-decision-0003",
