@@ -209,6 +209,7 @@ export type AgentWorkflowSkillRecommendation = {
   name: string;
   sourceUrl?: string;
   sourceRecordId?: string;
+  sourceRecordIds?: string[];
   useWhen: string;
   guardrails: string[];
 };
@@ -662,10 +663,17 @@ export function recommendWorkflowSkillsForWorkOrder(
       name: "Meta Immersive Web SDK MCP Tooling",
       sourceUrl: "https://iwsdk.dev/ai/",
       sourceRecordId: "src-iwsdk-ai-docs-2026",
+      sourceRecordIds: [
+        "src-meta-iwsdk-github-2026",
+        "src-iwsdk-ai-docs-2026",
+        "src-iwsdk-npm-metadata-2026-05-04",
+        "src-iwsdk-local-spike-2026-05-04",
+      ],
       useWhen: "Use for optional WebXR scene inspection, controller input simulation, ECS debugging, XR screenshots, and IWSDK spike planning.",
       guardrails: [
-        "Keep advisory until an isolated spike validates Vite 8 compatibility, install size, and Quest 3 behavior.",
+        "Keep advisory until a committed isolated spike resolves the observed Vite 8 compatibility peer mismatch, Node 22 execution path, package weight, and Quest 3 behavior.",
         "Do not use optional @meta-quest/hzdb without legal review because npm metadata reports UNLICENSED.",
+        "Treat sharp/libvips LGPL and Unknown pmndrs license metadata from the local scratch spike as dependency-governance blockers until resolved.",
         "Do not run reference warmup or model/corpus downloads unattended.",
       ],
     });

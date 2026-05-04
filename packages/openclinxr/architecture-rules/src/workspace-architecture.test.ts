@@ -169,6 +169,18 @@ describe("workspace architecture rules", () => {
     expect(violations).toEqual([]);
   }, 20_000);
 
+  it("keeps Meta Immersive Web SDK dependencies isolated from production runtime paths", () => {
+    const allowedSpikeRoots = ["apps/ui-xr-iwsdk-spike/", "packages/openclinxr/iwsdk-spike/"];
+    const sourceViolations = [...sourceFilesUnder("apps"), ...sourceFilesUnder("packages")]
+      .filter((filePath) => /@iwsdk\//.test(readFileSync(join(workspaceRoot, filePath), "utf8")))
+      .filter((filePath) => !allowedSpikeRoots.some((root) => filePath.startsWith(root)));
+    const manifestViolations = packageManifestFiles()
+      .filter((filePath) => /"@iwsdk\//.test(readFileSync(join(workspaceRoot, filePath), "utf8")))
+      .filter((filePath) => !allowedSpikeRoots.some((root) => filePath.startsWith(root)));
+
+    expect([...sourceViolations, ...manifestViolations]).toEqual([]);
+  });
+
   it("keeps UI app source from depending on Mongo persistence source files", async () => {
     const violations = await projectFiles(archTsconfig)
       .inFolder("apps/ui-*/src/**")
@@ -208,6 +220,13 @@ function sourceFilesUnder(root: string): string[] {
 
 function filesWithContentMatching(root: string, pattern: RegExp): string[] {
   return sourceFilesUnder(root).filter((filePath) => pattern.test(readFileSync(join(workspaceRoot, filePath), "utf8")));
+}
+
+function packageManifestFiles(): string[] {
+  return walk(workspaceRoot)
+    .map((filePath) => relative(workspaceRoot, filePath).split(sep).join("/"))
+    .filter((filePath) => filePath.endsWith("package.json"))
+    .filter((filePath) => !filePath.includes("/node_modules/") && !filePath.includes("/dist/"));
 }
 
 function walk(root: string): string[] {
