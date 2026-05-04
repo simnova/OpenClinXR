@@ -141,4 +141,73 @@ describe("Quest manual performance checker", () => {
       "battery_drop_not_recorded",
     ]));
   });
+
+  it("rejects malformed console error arrays and impossible frame metrics", async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-quest-manual-impossible-"));
+    const input = path.join(dir, "quest-manual-performance.json");
+    const output = path.join(dir, "quest-manual-performance-check.json");
+    await writeFile(input, JSON.stringify({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      runContext: {
+        performedBy: "xr-systems-architect",
+        durationMinutes: 10,
+      },
+      setup: {
+        foregroundPageConfirmed: true,
+        devtoolsScreencastDisabled: true,
+        extraBrowserWindowsClosed: true,
+      },
+      station: {
+        shellLoaded: true,
+        traceInteractionPassed: true,
+        textReadable: true,
+        immersiveSessionStarted: true,
+        consoleErrors: [42],
+      },
+      performance: {
+        source: "window.__openClinXrFrameStats",
+        framesObserved: 600,
+        sampleWindowSize: 700,
+        avgFps: 180,
+        p95FrameMs: -1,
+        minimumObservedFps: 190,
+      },
+      comfort: {
+        motionComfort: "comfortable",
+        heatConcern: false,
+        batteryDropPercent: -2,
+      },
+    }, null, 2), "utf8");
+
+    await execFileAsync(path.resolve("node_modules/.bin/tsx"), [
+      "tools/openclinxr/check-quest-manual-performance.ts",
+      "--input",
+      input,
+      "--output",
+      output,
+    ], { encoding: "utf8", timeout: 15000 });
+
+    const check = JSON.parse(await readFile(output, "utf8")) as {
+      readyToClaimFramePacing: boolean;
+      blockers: string[];
+      satisfiedConditions: string[];
+    };
+
+    expect(check.readyToClaimFramePacing).toBe(false);
+    expect(check.blockers).toEqual(expect.arrayContaining([
+      "console_errors_not_string_array",
+      "rolling_frame_window_exceeds_frames_observed",
+      "average_fps_unrealistic_or_non_finite",
+      "minimum_fps_unrealistic_or_non_finite",
+      "minimum_fps_above_average_fps",
+      "p95_frame_ms_not_positive_finite",
+      "battery_drop_not_finite_range_0_to_100",
+    ]));
+    expect(check.satisfiedConditions).not.toEqual(expect.arrayContaining([
+      "average_fps_72_or_higher",
+      "minimum_fps_60_or_higher",
+      "p95_frame_ms_25_or_lower",
+      "battery_drop_recorded_under_20",
+    ]));
+  });
 });

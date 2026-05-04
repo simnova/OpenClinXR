@@ -115,7 +115,10 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
   }
 
   const durationMinutes = report.runContext?.durationMinutes ?? 0;
-  const consoleErrors = report.station?.consoleErrors ?? [];
+  const rawConsoleErrors = report.station?.consoleErrors;
+  const consoleErrors = Array.isArray(rawConsoleErrors) ? rawConsoleErrors : [];
+  const consoleErrorsAreStringArray = rawConsoleErrors === undefined
+    || (Array.isArray(rawConsoleErrors) && rawConsoleErrors.every((entry) => typeof entry === "string"));
   const performedBy = report.runContext?.performedBy ?? "";
   const framesObserved = report.performance?.framesObserved ?? null;
   const sampleWindowSize = report.performance?.sampleWindowSize ?? null;
@@ -123,6 +126,21 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
   const avgFps = report.performance?.avgFps ?? null;
   const p95FrameMs = report.performance?.p95FrameMs ?? null;
   const minimumObservedFps = report.performance?.minimumObservedFps ?? null;
+  const framesObservedValid = isNonNegativeInteger(framesObserved);
+  const sampleWindowSizeValid = isNonNegativeInteger(sampleWindowSize);
+  const sampleWindowWithinObservedFrames = framesObservedValid
+    && sampleWindowSizeValid
+    && sampleWindowSize <= framesObserved;
+  const avgFpsPlausible = isPlausibleFps(avgFps);
+  const minimumObservedFpsPlausible = isPlausibleFps(minimumObservedFps);
+  const minimumFpsAtOrBelowAverage = typeof minimumObservedFps === "number"
+    && typeof avgFps === "number"
+    && Number.isFinite(minimumObservedFps)
+    && Number.isFinite(avgFps)
+    ? minimumObservedFps <= avgFps
+    : true;
+  const p95FrameMsValid = isPositiveFiniteNumber(p95FrameMs);
+  const batteryDropPercentValid = isPercentInRange(batteryDropPercent);
   const blockers = [
     isValidIsoDate(report.generatedAt) ? undefined : "generated_at_invalid_or_missing",
     performedBy.trim().length > 0 ? undefined : "performed_by_missing",
@@ -134,17 +152,26 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
     report.station?.traceInteractionPassed === true ? undefined : "trace_interaction_not_confirmed",
     report.station?.textReadable === true ? undefined : "text_readability_not_confirmed",
     report.station?.immersiveSessionStarted === true ? undefined : "immersive_session_not_confirmed",
+    consoleErrorsAreStringArray ? undefined : "console_errors_not_string_array",
     consoleErrors.length === 0 ? undefined : "console_errors_present",
     report.performance?.source === "window.__openClinXrFrameStats" ? undefined : "performance_source_not_openclinxr_frame_stats",
-    typeof framesObserved === "number" && framesObserved >= 600 ? undefined : "frame_sample_under_600_or_missing",
-    typeof sampleWindowSize === "number" && sampleWindowSize >= 120 ? undefined : "rolling_frame_window_under_120_or_missing",
-    typeof avgFps === "number" && avgFps >= 72 ? undefined : "average_fps_below_72_or_missing",
-    typeof minimumObservedFps === "number" && minimumObservedFps >= 60 ? undefined : "minimum_fps_below_60_or_missing",
-    typeof p95FrameMs === "number" && p95FrameMs <= 25 ? undefined : "p95_frame_ms_above_25_or_missing",
+    typeof framesObserved === "number" && !framesObservedValid ? "frames_observed_not_non_negative_integer" : undefined,
+    framesObserved === null || (framesObservedValid && framesObserved < 600) ? "frame_sample_under_600_or_missing" : undefined,
+    typeof sampleWindowSize === "number" && !sampleWindowSizeValid ? "rolling_frame_window_not_non_negative_integer" : undefined,
+    sampleWindowSizeValid && framesObservedValid && sampleWindowSize > framesObserved ? "rolling_frame_window_exceeds_frames_observed" : undefined,
+    sampleWindowSize === null || (sampleWindowSizeValid && sampleWindowSize < 120) ? "rolling_frame_window_under_120_or_missing" : undefined,
+    typeof avgFps === "number" && !avgFpsPlausible ? "average_fps_unrealistic_or_non_finite" : undefined,
+    avgFps === null || (avgFpsPlausible && avgFps < 72) ? "average_fps_below_72_or_missing" : undefined,
+    typeof minimumObservedFps === "number" && !minimumObservedFpsPlausible ? "minimum_fps_unrealistic_or_non_finite" : undefined,
+    minimumFpsAtOrBelowAverage ? undefined : "minimum_fps_above_average_fps",
+    minimumObservedFps === null || (minimumObservedFpsPlausible && minimumObservedFps < 60) ? "minimum_fps_below_60_or_missing" : undefined,
+    typeof p95FrameMs === "number" && !p95FrameMsValid ? "p95_frame_ms_not_positive_finite" : undefined,
+    p95FrameMs === null || (p95FrameMsValid && p95FrameMs > 25) ? "p95_frame_ms_above_25_or_missing" : undefined,
     report.comfort?.motionComfort === "comfortable" ? undefined : "motion_comfort_not_confirmed",
     report.comfort?.heatConcern === false ? undefined : "heat_concern_not_cleared",
-    typeof batteryDropPercent === "number" ? undefined : "battery_drop_not_recorded",
-    typeof batteryDropPercent === "number" && batteryDropPercent > 20 ? "battery_drop_above_20" : undefined,
+    typeof batteryDropPercent === "number" && !batteryDropPercentValid ? "battery_drop_not_finite_range_0_to_100" : undefined,
+    batteryDropPercent === null ? "battery_drop_not_recorded" : undefined,
+    batteryDropPercentValid && batteryDropPercent > 20 ? "battery_drop_above_20" : undefined,
   ].filter((blocker): blocker is string => typeof blocker === "string");
 
   return {
@@ -160,12 +187,12 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
       durationMinutes >= 10 ? "duration_10_minutes_or_more" : undefined,
       report.station?.immersiveSessionStarted === true ? "immersive_session_started" : undefined,
       report.performance?.source === "window.__openClinXrFrameStats" ? "performance_source_openclinxr_frame_stats" : undefined,
-      typeof framesObserved === "number" && framesObserved >= 600 ? "frame_sample_600_or_more" : undefined,
-      typeof sampleWindowSize === "number" && sampleWindowSize >= 120 ? "rolling_frame_window_120_or_more" : undefined,
-      typeof avgFps === "number" && avgFps >= 72 ? "average_fps_72_or_higher" : undefined,
-      typeof minimumObservedFps === "number" && minimumObservedFps >= 60 ? "minimum_fps_60_or_higher" : undefined,
-      typeof p95FrameMs === "number" && p95FrameMs <= 25 ? "p95_frame_ms_25_or_lower" : undefined,
-      typeof batteryDropPercent === "number" && batteryDropPercent <= 20 ? "battery_drop_recorded_under_20" : undefined,
+      framesObservedValid && framesObserved >= 600 ? "frame_sample_600_or_more" : undefined,
+      sampleWindowWithinObservedFrames && sampleWindowSize >= 120 ? "rolling_frame_window_120_or_more" : undefined,
+      avgFpsPlausible && avgFps >= 72 ? "average_fps_72_or_higher" : undefined,
+      minimumObservedFpsPlausible && minimumFpsAtOrBelowAverage && minimumObservedFps >= 60 ? "minimum_fps_60_or_higher" : undefined,
+      p95FrameMsValid && p95FrameMs <= 25 ? "p95_frame_ms_25_or_lower" : undefined,
+      batteryDropPercentValid && batteryDropPercent <= 20 ? "battery_drop_recorded_under_20" : undefined,
     ].filter((condition): condition is string => typeof condition === "string"),
     blockers,
   };
@@ -178,6 +205,22 @@ function isValidIsoDate(value: string | undefined): boolean {
 
   const parsed = new Date(value);
   return !Number.isNaN(parsed.getTime()) && parsed.toISOString() === value;
+}
+
+function isNonNegativeInteger(value: number | null): value is number {
+  return typeof value === "number" && Number.isFinite(value) && Number.isInteger(value) && value >= 0;
+}
+
+function isPlausibleFps(value: number | null): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 144;
+}
+
+function isPositiveFiniteNumber(value: number | null): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value > 0;
+}
+
+function isPercentInRange(value: number | null): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
