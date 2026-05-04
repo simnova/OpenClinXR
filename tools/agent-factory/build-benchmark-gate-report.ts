@@ -157,6 +157,30 @@ type LocalVoiceRuntimeBenchmarkReport = {
   };
 };
 
+type LocalVoiceLiveDialogBenchmarkReport = {
+  generatedAt: string;
+  status: string;
+  mockStream: {
+    passed: boolean;
+    blockers: string[];
+  };
+  runtimeFit: {
+    blockers: string[];
+  };
+  webxrPlayback: {
+    observed: boolean;
+    blockers: string[];
+  };
+  safetyControls: {
+    blockers: string[];
+  };
+  verdict: {
+    passed: boolean;
+    blockers: string[];
+    caveats: string[];
+  };
+};
+
 type IwsdkEvidenceContractReport = {
   generatedAt: string;
   status: string;
@@ -249,6 +273,16 @@ type EvidenceGateReport = {
     metrics: LocalVoiceRuntimeBenchmarkReport["metrics"];
     verdict: LocalVoiceRuntimeBenchmarkReport["verdict"];
   };
+  local_voice_live_dialog_benchmark?: {
+    file: string;
+    generated_at: string;
+    status: string;
+    mock_stream: LocalVoiceLiveDialogBenchmarkReport["mockStream"];
+    runtime_fit: LocalVoiceLiveDialogBenchmarkReport["runtimeFit"];
+    webxr_playback: LocalVoiceLiveDialogBenchmarkReport["webxrPlayback"];
+    safety_controls: LocalVoiceLiveDialogBenchmarkReport["safetyControls"];
+    verdict: LocalVoiceLiveDialogBenchmarkReport["verdict"];
+  };
   quest_manual_performance?: {
     file: string;
     generated_at: string;
@@ -314,6 +348,7 @@ export type BenchmarkGateReportInput = {
   localModelRuntimeBenchmark?: EvidenceFile<LocalModelRuntimeBenchmarkReport>;
   localModelQualityBenchmark?: EvidenceFile<LocalModelQualityBenchmarkReport>;
   localVoiceRuntimeBenchmark?: EvidenceFile<LocalVoiceRuntimeBenchmarkReport>;
+  localVoiceLiveDialogBenchmark?: EvidenceFile<LocalVoiceLiveDialogBenchmarkReport>;
   questManualPerformance?: EvidenceFile<QuestManualPerformanceCheck>;
   questManualPerformanceReport?: EvidenceFile<QuestManualPerformanceReport>;
   iwsdkEvidenceContract?: EvidenceFile<IwsdkEvidenceContractReport>;
@@ -339,6 +374,7 @@ async function main(): Promise<void> {
   const localModelRuntimeBenchmark = await latestJson<LocalModelRuntimeBenchmarkReport>("docs/openclinxr/local-model-runtime-benchmark-*.json");
   const localModelQualityBenchmark = await latestJson<LocalModelQualityBenchmarkReport>("docs/openclinxr/local-model-quality-benchmark-*.json");
   const localVoiceRuntimeBenchmark = await latestJson<LocalVoiceRuntimeBenchmarkReport>("docs/openclinxr/local-voice-runtime-benchmark-*.json");
+  const localVoiceLiveDialogBenchmark = await latestJson<LocalVoiceLiveDialogBenchmarkReport>("docs/openclinxr/local-voice-live-dialog-benchmark-*.json");
   const iwsdkEvidenceContract = await latestJson<IwsdkEvidenceContractReport>("docs/openclinxr/iwsdk-evidence-contract-*.json");
   const questManualPerformanceReport = await latestQuestManualPerformanceReportJson();
   const questManualPerformance = questManualPerformanceReport
@@ -353,6 +389,7 @@ async function main(): Promise<void> {
     localModelRuntimeBenchmark,
     localModelQualityBenchmark,
     localVoiceRuntimeBenchmark,
+    localVoiceLiveDialogBenchmark,
     iwsdkEvidenceContract,
     questManualPerformance,
     questManualPerformanceReport,
@@ -394,6 +431,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localModelRuntimeBenchmark,
     localModelQualityBenchmark,
     localVoiceRuntimeBenchmark,
+    localVoiceLiveDialogBenchmark,
     iwsdkEvidenceContract,
   } = input;
   const questSmokeEvidenceCheck = questSmoke
@@ -411,6 +449,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localModelRuntimeBenchmark,
     localModelQualityBenchmark,
     localVoiceRuntimeBenchmark,
+    localVoiceLiveDialogBenchmark,
     questManualPerformance,
   }, options);
   const localModelRuntimeBenchmarkIsRequired = requiresLocalModelRuntimeBenchmark(localRuntime?.value);
@@ -470,8 +509,13 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     ]),
   ];
   const localVoiceLiveDialogEvidenceBlockers = [
-    ...localVoiceLiveDialogBlockers(localVoiceRuntimeBenchmark),
-    ...localVoiceEvidenceFreshnessBlockers,
+    ...localVoiceLiveDialogBlockers(localVoiceRuntimeBenchmark, localVoiceLiveDialogBenchmark),
+    ...freshnessBlockers(evidenceFreshness, [
+      "local_runtime_probe",
+      "local_provider_benchmark",
+      "local_voice_runtime_benchmark",
+      "local_voice_live_dialog_benchmark",
+    ]),
   ];
   const assetProductionEvidenceBlockers = [
     ...assetProductionBlockers(gltfPipelineSmoke, blenderAssetBakeSmoke),
@@ -507,6 +551,11 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localModelQualityBenchmark?.value.targetHardware.passed ? "local_model_quality_target_hardware_passed" : undefined,
     localModelQualityBenchmark?.value.verdict.passed ? "local_model_quality_benchmark_passed" : undefined,
     localVoiceRuntimeBenchmark?.value.verdict.passed ? "local_voice_first_audio_benchmark_passed" : undefined,
+    localVoiceLiveDialogBenchmark ? "local_voice_live_dialog_report_present" : undefined,
+    localVoiceLiveDialogBenchmark?.value.mockStream.passed ? "local_voice_live_dialog_mock_stream_passed" : undefined,
+    localVoiceLiveDialogBenchmark?.value.webxrPlayback.observed ? "local_voice_live_dialog_webxr_playback_observed" : undefined,
+    localVoiceLiveDialogBenchmark && localVoiceLiveDialogBenchmark.value.safetyControls.blockers.length === 0 ? "local_voice_live_dialog_safety_controls_observed" : undefined,
+    localVoiceLiveDialogBenchmark?.value.verdict.passed ? "local_voice_live_dialog_benchmark_passed" : undefined,
   ]);
   const questSatisfiedConditions = combinedSatisfiedConditions.filter((condition) =>
     condition.startsWith("quest_") || (questManualPerformance?.value.satisfiedConditions ?? []).includes(condition)
@@ -518,6 +567,9 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     condition.startsWith("local_model_") || condition === "local_provider_mock_benchmarks_passed"
   );
   const localVoiceSatisfiedConditions = combinedSatisfiedConditions.filter((condition) =>
+    (condition.startsWith("local_voice_") && !condition.startsWith("local_voice_live_dialog_")) || condition === "local_provider_mock_benchmarks_passed"
+  );
+  const localVoiceLiveDialogSatisfiedConditions = combinedSatisfiedConditions.filter((condition) =>
     condition.startsWith("local_voice_") || condition === "local_provider_mock_benchmarks_passed"
   );
   const assetSatisfiedConditions = combinedSatisfiedConditions.filter((condition) =>
@@ -620,6 +672,18 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         verdict: localVoiceRuntimeBenchmark.value.verdict,
       },
     } : {}),
+    ...(localVoiceLiveDialogBenchmark ? {
+      local_voice_live_dialog_benchmark: {
+        file: localVoiceLiveDialogBenchmark.file,
+        generated_at: localVoiceLiveDialogBenchmark.value.generatedAt,
+        status: localVoiceLiveDialogBenchmark.value.status,
+        mock_stream: localVoiceLiveDialogBenchmark.value.mockStream,
+        runtime_fit: localVoiceLiveDialogBenchmark.value.runtimeFit,
+        webxr_playback: localVoiceLiveDialogBenchmark.value.webxrPlayback,
+        safety_controls: localVoiceLiveDialogBenchmark.value.safetyControls,
+        verdict: localVoiceLiveDialogBenchmark.value.verdict,
+      },
+    } : {}),
     ...(questManualPerformance ? {
       quest_manual_performance: {
         file: questManualPerformance.file,
@@ -649,7 +713,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
       buildEvidenceGate("evidence-leadership-0008-003", localVoiceSatisfiedConditions, unique(localVoiceEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0008-004", assetSatisfiedConditions, unique(assetEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0009-002", localModelQualitySatisfiedConditions, unique(localModelQualityEvidenceBlockers)),
-      buildEvidenceGate("evidence-leadership-0009-003", localVoiceSatisfiedConditions, unique(localVoiceLiveDialogEvidenceBlockers)),
+      buildEvidenceGate("evidence-leadership-0009-003", localVoiceLiveDialogSatisfiedConditions, unique(localVoiceLiveDialogEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0009-004", iwsdkSatisfiedConditions, unique(iwsdkEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0009-005", assetSatisfiedConditions, unique(assetProductionEvidenceBlockers)),
     ],
@@ -666,6 +730,7 @@ function buildEvidenceFreshnessReport(
     localModelRuntimeBenchmark?: EvidenceFile<LocalModelRuntimeBenchmarkReport>;
     localModelQualityBenchmark?: EvidenceFile<LocalModelQualityBenchmarkReport>;
     localVoiceRuntimeBenchmark?: EvidenceFile<LocalVoiceRuntimeBenchmarkReport>;
+    localVoiceLiveDialogBenchmark?: EvidenceFile<LocalVoiceLiveDialogBenchmarkReport>;
     questManualPerformance?: EvidenceFile<QuestManualPerformanceCheck>;
   },
   options: BenchmarkGateReportOptions,
@@ -682,6 +747,7 @@ function buildEvidenceFreshnessReport(
     evidenceFreshnessEntry("local_model_runtime_benchmark", evidence.localModelRuntimeBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_model_quality_benchmark", evidence.localModelQualityBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_voice_runtime_benchmark", evidence.localVoiceRuntimeBenchmark, now, maxAgeHours),
+    evidenceFreshnessEntry("local_voice_live_dialog_benchmark", evidence.localVoiceLiveDialogBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("quest_manual_performance", evidence.questManualPerformance, now, maxAgeHours),
   ];
 }
@@ -1013,9 +1079,25 @@ function localVoiceRuntimeBenchmarkBlockers(
   return unique(benchmark.value.verdict.blockers.map((blocker) => `local_voice_runtime_benchmark:${blocker}`));
 }
 
-function localVoiceLiveDialogBlockers(benchmark: EvidenceFile<LocalVoiceRuntimeBenchmarkReport> | undefined): string[] {
+function localVoiceLiveDialogBlockers(
+  benchmark: EvidenceFile<LocalVoiceRuntimeBenchmarkReport> | undefined,
+  liveDialogBenchmark: EvidenceFile<LocalVoiceLiveDialogBenchmarkReport> | undefined,
+): string[] {
   if (!benchmark) {
     return ["missing_local_voice_runtime_benchmark_report"];
+  }
+
+  if (liveDialogBenchmark) {
+    return unique([
+      ...liveDialogBenchmark.value.verdict.blockers.map((blocker) => `local_voice_live_dialog:${blocker}`),
+      ...(liveDialogBenchmark.value.mockStream.passed
+        ? []
+        : (liveDialogBenchmark.value.mockStream.blockers.length > 0 ? liveDialogBenchmark.value.mockStream.blockers : ["mock_stream_probe_failed"])
+          .map((blocker) => `local_voice_live_dialog:mock_stream:${blocker}`)),
+      ...liveDialogBenchmark.value.runtimeFit.blockers.map((blocker) => `local_voice_live_dialog:runtime:${blocker}`),
+      ...liveDialogBenchmark.value.webxrPlayback.blockers.map((blocker) => `local_voice_live_dialog:webxr_playback:${blocker}`),
+      ...liveDialogBenchmark.value.safetyControls.blockers.map((blocker) => `local_voice_live_dialog:safety_controls:${blocker}`),
+    ]);
   }
 
   const blockers: string[] = [];

@@ -32,7 +32,7 @@
       "evidence_id": "blender_asset_bake_smoke",
       "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T05:06:10.560Z",
-      "age_hours": 14,
+      "age_hours": 15,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -69,6 +69,15 @@
       "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T15:01:12Z",
       "age_hours": 5,
+      "max_age_hours": 24,
+      "status": "fresh",
+      "blockers": []
+    },
+    {
+      "evidence_id": "local_voice_live_dialog_benchmark",
+      "file": "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-04.json",
+      "generated_at": "2026-05-04T20:09:47.014Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -453,6 +462,56 @@
       ]
     }
   },
+  "local_voice_live_dialog_benchmark": {
+    "file": "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-04.json",
+    "generated_at": "2026-05-04T20:09:47.014Z",
+    "status": "blocked",
+    "mock_stream": {
+      "provider": "deterministic-mock-voice-gateway",
+      "transcriptEvents": 2,
+      "audioChunks": 1,
+      "firstAudiblePlaybackLatencyMs": 0,
+      "visemeCuesPresent": true,
+      "passed": true,
+      "blockers": []
+    },
+    "runtime_fit": {
+      "fileGenerationOnly": true,
+      "realTimeFactor": 5.24,
+      "realTimeCapable": false,
+      "blockers": [
+        "runtime_file_generation_only",
+        "real_time_factor_above_1"
+      ]
+    },
+    "webxr_playback": {
+      "observed": false,
+      "evidenceSource": "not_captured",
+      "blockers": [
+        "webxr_playback_not_observed"
+      ]
+    },
+    "safety_controls": {
+      "disclosureRequired": true,
+      "generatedAudioCommitted": false,
+      "misuseControlsRequired": true,
+      "retentionPolicyObserved": true,
+      "blockers": []
+    },
+    "verdict": {
+      "passed": false,
+      "readyForLiveDialog": false,
+      "blockers": [
+        "runtime:runtime_file_generation_only",
+        "runtime:real_time_factor_above_1",
+        "webxr_playback:webxr_playback_not_observed"
+      ],
+      "caveats": [
+        "Mock stream evidence proves gateway event shape only; it is not a real VibeVoice streaming or Quest playback capture.",
+        "The source runtime benchmark is an existing file-generation smoke; this live-dialog report does not execute a voice runtime."
+      ]
+    }
+  },
   "quest_manual_performance": {
     "file": ".agent-factory/quest-manual-performance-report.json",
     "generated_at": "2026-05-04T15:37:29.215Z",
@@ -593,6 +652,9 @@
         "local_model_runtime_benchmark_passed",
         "local_provider_mock_benchmarks_passed",
         "local_voice_first_audio_benchmark_passed",
+        "local_voice_live_dialog_mock_stream_passed",
+        "local_voice_live_dialog_report_present",
+        "local_voice_live_dialog_safety_controls_observed",
         "local_voice_ready_to_benchmark",
         "quest_cdp_adb_device_recorded",
         "quest_cdp_frame_sample_complete",
@@ -763,16 +825,18 @@
       "satisfied_conditions": [
         "local_provider_mock_benchmarks_passed",
         "local_voice_first_audio_benchmark_passed",
+        "local_voice_live_dialog_mock_stream_passed",
+        "local_voice_live_dialog_report_present",
+        "local_voice_live_dialog_safety_controls_observed",
         "local_voice_ready_to_benchmark"
       ],
       "blockers": [
-        "local_voice_live_dialog:file_generation_only",
-        "local_voice_live_dialog:missing_disclosure_retention_misuse_controls",
-        "local_voice_live_dialog:missing_streaming_webxr_playback_benchmark",
-        "local_voice_live_dialog:real_time_factor_above_1"
+        "local_voice_live_dialog:runtime:real_time_factor_above_1",
+        "local_voice_live_dialog:runtime:runtime_file_generation_only",
+        "local_voice_live_dialog:webxr_playback:webxr_playback_not_observed"
       ],
       "blocker_summary": {
-        "total_blockers": 4,
+        "total_blockers": 3,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -780,10 +844,9 @@
             "title": "Local voice live-dialog evidence",
             "owner": "voice-speech-engineer",
             "blockers": [
-              "local_voice_live_dialog:file_generation_only",
-              "local_voice_live_dialog:missing_disclosure_retention_misuse_controls",
-              "local_voice_live_dialog:missing_streaming_webxr_playback_benchmark",
-              "local_voice_live_dialog:real_time_factor_above_1"
+              "local_voice_live_dialog:runtime:real_time_factor_above_1",
+              "local_voice_live_dialog:runtime:runtime_file_generation_only",
+              "local_voice_live_dialog:webxr_playback:webxr_playback_not_observed"
             ],
             "next_step": "Prove streaming WebXR playback, first audible playback latency, real-time factor, disclosure, retention, and misuse controls before enabling live local voice."
           }

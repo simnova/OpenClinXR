@@ -51,6 +51,7 @@
     "local:runtime:probe": "tsx tools/openclinxr/local-runtime-probe.ts",
     "local:provider:benchmark": "tsx tools/openclinxr/local-provider-benchmark.ts",
     "local:model:quality": "tsx tools/openclinxr/local-model-quality-benchmark.ts",
+    "local:voice:live-dialog": "tsx tools/openclinxr/local-voice-live-dialog-benchmark.ts",
     "asset:gltf:smoke": "tsx tools/openclinxr/gltf-pipeline-smoke.ts",
     "asset:blender:bake": "tsx tools/openclinxr/blender-asset-bake-smoke.ts",
     "xr:quest:smoke": "tsx tools/openclinxr/quest-cdp-smoke.ts",

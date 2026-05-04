@@ -299,12 +299,15 @@ describe("benchmark gate report", () => {
     expect(gatesById.get("evidence-leadership-0009-003")).toEqual(expect.objectContaining({
       ready_to_resolve: false,
       blockers: expect.arrayContaining([
-        "local_voice_live_dialog:file_generation_only",
-        "local_voice_live_dialog:missing_streaming_webxr_playback_benchmark",
-        "local_voice_live_dialog:real_time_factor_above_1",
+        "local_voice_live_dialog:runtime:runtime_file_generation_only",
+        "local_voice_live_dialog:runtime:real_time_factor_above_1",
+        "local_voice_live_dialog:webxr_playback:webxr_playback_not_observed",
       ]),
       satisfied_conditions: expect.arrayContaining([
         "local_voice_first_audio_benchmark_passed",
+        "local_voice_live_dialog_mock_stream_passed",
+        "local_voice_live_dialog_report_present",
+        "local_voice_live_dialog_safety_controls_observed",
       ]),
     }));
     expect(gatesById.get("evidence-leadership-0009-005")).toEqual(expect.objectContaining({
@@ -441,6 +444,133 @@ describe("benchmark gate report", () => {
     expect(qualityGate?.blockers).not.toEqual(expect.arrayContaining([
       "local_model_quality:missing_hidden_truth_actor_policy_benchmark",
       "local_model_quality:missing_schema_grammar_benchmark",
+    ]));
+  });
+
+  it("uses local voice live-dialog evidence to replace generic streaming blockers with precise findings", () => {
+    const buildReport = buildBenchmarkGateReport as (
+      input: Parameters<typeof buildBenchmarkGateReport>[0] & {
+        localVoiceLiveDialogBenchmark?: {
+          file: string;
+          value: {
+            generatedAt: string;
+            status: string;
+            mockStream: {
+              passed: boolean;
+              blockers: string[];
+            };
+            runtimeFit: {
+              blockers: string[];
+            };
+            webxrPlayback: {
+              observed: boolean;
+              blockers: string[];
+            };
+            safetyControls: {
+              blockers: string[];
+            };
+            verdict: {
+              passed: boolean;
+              blockers: string[];
+              caveats: string[];
+            };
+          };
+        };
+      },
+      options: { now: Date; maxEvidenceAgeHours: number },
+    ) => BenchmarkGateReport;
+    const report = buildReport({
+      localRuntime: {
+        file: "docs/openclinxr/local-runtime-probe-2026-05-04.json",
+        value: {
+          generatedAt: "2026-05-04T20:00:00.000Z",
+          gates: {
+            questUsb: { status: "ready", blockers: [] },
+            questForegroundPreflight: { status: "ready", blockers: [] },
+            localModel: { status: "ready", blockers: [] },
+            localVoice: { status: "ready", blockers: [] },
+            assetPipeline: { status: "ready", blockers: [] },
+          },
+        },
+      },
+      localProviderBenchmark: {
+        file: "docs/openclinxr/local-provider-benchmark-2026-05-04.json",
+        value: {
+          generatedAt: "2026-05-04T20:00:00.000Z",
+          mockModel: { status: "passed", latencyMs: 1, blockers: [], metrics: {} },
+          mockVoice: { status: "passed", latencyMs: 1, blockers: [], metrics: {} },
+          localModel: { status: "passed", blockers: [], metrics: {} },
+          localVoice: { status: "passed", blockers: [], metrics: {} },
+          verdict: {
+            deterministicMocksPassed: true,
+            localModelReadyToBenchmark: true,
+            localVoiceReadyToBenchmark: true,
+            blockers: [],
+          },
+        },
+      },
+      localVoiceRuntimeBenchmark: {
+        file: "docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json",
+        value: {
+          generatedAt: "2026-05-04T20:00:00.000Z",
+          status: "passed_with_caveats",
+          runtime: {},
+          audio: {},
+          metrics: { realTimeFactor: 5.24 },
+          verdict: {
+            passed: true,
+            blockers: [],
+            caveats: ["This measured file-based local generation."],
+          },
+        },
+      },
+      localVoiceLiveDialogBenchmark: {
+        file: "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-04.json",
+        value: {
+          generatedAt: "2026-05-04T20:15:00.000Z",
+          status: "blocked",
+          mockStream: {
+            passed: true,
+            blockers: [],
+          },
+          runtimeFit: {
+            blockers: ["runtime_file_generation_only", "real_time_factor_above_1"],
+          },
+          webxrPlayback: {
+            observed: false,
+            blockers: ["webxr_playback_not_observed"],
+          },
+          safetyControls: {
+            blockers: [],
+          },
+          verdict: {
+            passed: false,
+            blockers: [
+              "runtime:runtime_file_generation_only",
+              "runtime:real_time_factor_above_1",
+              "webxr_playback:webxr_playback_not_observed",
+            ],
+            caveats: [],
+          },
+        },
+      },
+    }, { now: new Date("2026-05-04T20:20:00.000Z"), maxEvidenceAgeHours: 24 });
+
+    const liveDialogGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-003");
+
+    expect(liveDialogGate?.satisfied_conditions).toEqual(expect.arrayContaining([
+      "local_voice_live_dialog_report_present",
+      "local_voice_live_dialog_mock_stream_passed",
+      "local_voice_live_dialog_safety_controls_observed",
+    ]));
+    expect(liveDialogGate?.blockers).toEqual(expect.arrayContaining([
+      "local_voice_live_dialog:runtime:runtime_file_generation_only",
+      "local_voice_live_dialog:runtime:real_time_factor_above_1",
+      "local_voice_live_dialog:webxr_playback:webxr_playback_not_observed",
+    ]));
+    expect(liveDialogGate?.blockers).not.toEqual(expect.arrayContaining([
+      "local_voice_live_dialog:missing_streaming_webxr_playback_benchmark",
+      "local_voice_live_dialog:missing_disclosure_retention_misuse_controls",
     ]));
   });
 
