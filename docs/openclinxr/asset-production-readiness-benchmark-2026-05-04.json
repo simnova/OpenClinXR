@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T20:16:29.062Z",
+  "generatedAt": "2026-05-04T20:30:31.328Z",
   "status": "blocked",
   "policy": {
     "cloudApisUsed": false,
@@ -80,16 +80,31 @@
       ]
     },
     "multiActorQuestBudget": {
-      "observed": false,
+      "observed": true,
       "requiredEvidence": [
         "multi-actor station budget",
         "Quest frame budget",
         "draw-call and texture-memory budget"
       ],
-      "blockers": [
-        "multi_actor_quest_budget_missing"
-      ]
+      "blockers": []
     }
+  },
+  "stationBudgetEvidence": {
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "source": "@openclinxr/asset-registry:createEdChestPainPlaceholderManifests",
+    "requiredAssetCount": 3,
+    "budget": {
+      "maxVisibleTriangles": 180000,
+      "maxTextureMegabytes": 512,
+      "maxDrawCalls": 120,
+      "totalTriangles": 60000,
+      "totalTextureMegabytes": 80,
+      "totalDrawCalls": 28,
+      "blockers": []
+    },
+    "placeholderOnly": true,
+    "observed": true,
+    "blockers": []
   },
   "runtimeBudget": {
     "singlePlaceholderGlbBytes": 27284,
@@ -97,10 +112,8 @@
     "maxVisibleTriangles": 180000,
     "maxDrawCalls": 120,
     "maxTextureMemoryMb": 512,
-    "multiActorBudgetObserved": false,
-    "blockers": [
-      "multi_actor_quest_budget_missing"
-    ]
+    "multiActorBudgetObserved": true,
+    "blockers": []
   },
   "verdict": {
     "passed": false,
@@ -111,8 +124,7 @@
       "generation:skin_clothing_provenance_missing",
       "generation:medical_equipment_library_missing",
       "generation:animation_retargeting_missing",
-      "optimization:lod_texture_collider_budget_missing",
-      "runtime:multi_actor_quest_budget_missing"
+      "optimization:lod_texture_collider_budget_missing"
     ],
     "caveats": [
       "This report evaluates production-readiness evidence from local smoke outputs only; it does not generate new third-party assets.",

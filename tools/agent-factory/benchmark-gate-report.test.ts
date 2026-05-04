@@ -46,6 +46,24 @@ type BenchmarkGateReport = {
     status: string;
     blockers: string[];
   }>;
+  asset_production_readiness_benchmark?: {
+    station_budget_evidence?: {
+      scenarioId: string;
+      source: string;
+      requiredAssetCount: number;
+      observed: boolean;
+      blockers: string[];
+      budget: {
+        maxVisibleTriangles: number;
+        maxTextureMegabytes: number;
+        maxDrawCalls: number;
+        totalTriangles: number;
+        totalTextureMegabytes: number;
+        totalDrawCalls: number;
+        blockers: string[];
+      };
+    };
+  };
   evidence_gates: Array<{
     evidence_id: string;
     ready_to_resolve?: boolean;
@@ -316,11 +334,11 @@ describe("benchmark gate report", () => {
         "asset_production:source:placeholder_bake_only",
         "asset_production:generation:generated_human_rigging_missing",
         "asset_production:optimization:lod_texture_collider_budget_missing",
-        "asset_production:runtime:multi_actor_quest_budget_missing",
       ]),
       satisfied_conditions: expect.arrayContaining([
         "asset_pipeline_blender_bake_smoke_passed",
         "asset_pipeline_gltf_pipeline_smoke_passed",
+        "asset_production_multi_actor_quest_budget_observed",
         "asset_production_readiness_report_present",
         "asset_production_source_smokes_passed",
       ]),
@@ -592,6 +610,22 @@ describe("benchmark gate report", () => {
               blockers: string[];
             };
             productionProofs: Record<string, { observed: boolean; blockers: string[] }>;
+            stationBudgetEvidence: {
+              scenarioId: string;
+              source: string;
+              requiredAssetCount: number;
+              observed: boolean;
+              blockers: string[];
+              budget: {
+                maxVisibleTriangles: number;
+                maxTextureMegabytes: number;
+                maxDrawCalls: number;
+                totalTriangles: number;
+                totalTextureMegabytes: number;
+                totalDrawCalls: number;
+                blockers: string[];
+              };
+            };
             runtimeBudget: {
               multiActorBudgetObserved: boolean;
               blockers: string[];
@@ -663,6 +697,22 @@ describe("benchmark gate report", () => {
             lodTextureColliderBudget: { observed: false, blockers: ["lod_texture_collider_budget_missing"] },
             multiActorQuestBudget: { observed: false, blockers: ["multi_actor_quest_budget_missing"] },
           },
+          stationBudgetEvidence: {
+            scenarioId: "ed_chest_pain_priority_v1",
+            source: "@openclinxr/asset-registry:createEdChestPainPlaceholderManifests",
+            requiredAssetCount: 3,
+            observed: true,
+            blockers: [],
+            budget: {
+              maxVisibleTriangles: 180000,
+              maxTextureMegabytes: 512,
+              maxDrawCalls: 120,
+              totalTriangles: 60000,
+              totalTextureMegabytes: 80,
+              totalDrawCalls: 28,
+              blockers: [],
+            },
+          },
           runtimeBudget: {
             multiActorBudgetObserved: false,
             blockers: ["multi_actor_quest_budget_missing"],
@@ -706,6 +756,22 @@ describe("benchmark gate report", () => {
       "asset_production:placeholder_bake_only",
     ]));
     expect(assetGate?.blockers.some((blocker) => blocker.startsWith("asset_production:proof:"))).toBe(false);
+    expect(report.asset_production_readiness_benchmark?.station_budget_evidence).toEqual({
+      scenarioId: "ed_chest_pain_priority_v1",
+      source: "@openclinxr/asset-registry:createEdChestPainPlaceholderManifests",
+      requiredAssetCount: 3,
+      observed: true,
+      blockers: [],
+      budget: {
+        maxVisibleTriangles: 180000,
+        maxTextureMegabytes: 512,
+        maxDrawCalls: 120,
+        totalTriangles: 60000,
+        totalTextureMegabytes: 80,
+        totalDrawCalls: 28,
+        blockers: [],
+      },
+    });
   });
 
   it("summarizes missing Blender asset evidence as an asset-pipeline group", () => {

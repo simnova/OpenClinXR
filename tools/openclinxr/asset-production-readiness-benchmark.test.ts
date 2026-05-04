@@ -34,7 +34,7 @@ describe("asset production readiness report", () => {
       medicalEquipmentLibrary: { observed: false },
       animationRetargeting: { observed: false },
       lodTextureColliderBudget: { observed: false },
-      multiActorQuestBudget: { observed: false },
+      multiActorQuestBudget: { observed: true },
     });
     expect(report.runtimeBudget).toEqual({
       singlePlaceholderGlbBytes: 27284,
@@ -42,8 +42,8 @@ describe("asset production readiness report", () => {
       maxVisibleTriangles: 180000,
       maxDrawCalls: 120,
       maxTextureMemoryMb: 512,
-      multiActorBudgetObserved: false,
-      blockers: ["multi_actor_quest_budget_missing"],
+      multiActorBudgetObserved: true,
+      blockers: [],
     });
     expect(report.verdict).toEqual({
       passed: false,
@@ -55,7 +55,6 @@ describe("asset production readiness report", () => {
         "generation:medical_equipment_library_missing",
         "generation:animation_retargeting_missing",
         "optimization:lod_texture_collider_budget_missing",
-        "runtime:multi_actor_quest_budget_missing",
       ],
       caveats: [
         "This report evaluates production-readiness evidence from local smoke outputs only; it does not generate new third-party assets.",
@@ -88,6 +87,48 @@ describe("asset production readiness report", () => {
       readyForProductionAssets: false,
       blockers: [],
     });
+  });
+
+  it("uses local ED placeholder manifests as station-level Quest budget evidence without releasing production assets", () => {
+    const report = buildAssetProductionReadinessReport({
+      generatedAt: "2026-05-04T20:30:00.000Z",
+      gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
+      blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
+      gltfPipelineSmoke: gltfSmoke({ passed: true }),
+      blenderAssetBakeSmoke: blenderSmoke({ passed: true, sourceLicensePosture: "repo_generated_placeholder" }),
+    });
+
+    expect(report.stationBudgetEvidence).toEqual({
+      scenarioId: "ed_chest_pain_priority_v1",
+      source: "@openclinxr/asset-registry:createEdChestPainPlaceholderManifests",
+      requiredAssetCount: 3,
+      budget: {
+        maxVisibleTriangles: 180000,
+        maxTextureMegabytes: 512,
+        maxDrawCalls: 120,
+        totalTriangles: 60000,
+        totalTextureMegabytes: 80,
+        totalDrawCalls: 28,
+        blockers: [],
+      },
+      placeholderOnly: true,
+      observed: true,
+      blockers: [],
+    });
+    expect(report.productionProofs.multiActorQuestBudget).toMatchObject({
+      observed: true,
+      blockers: [],
+    });
+    expect(report.runtimeBudget).toMatchObject({
+      multiActorBudgetObserved: true,
+      blockers: [],
+    });
+    expect(report.verdict.blockers).not.toContain("runtime:multi_actor_quest_budget_missing");
+    expect(report.verdict.blockers).toEqual(expect.arrayContaining([
+      "source:placeholder_bake_only",
+      "generation:generated_human_rigging_missing",
+      "optimization:lod_texture_collider_budget_missing",
+    ]));
   });
 });
 

@@ -86,6 +86,14 @@ type AssetProductionReadinessBenchmarkReport = {
     blockers: string[];
   };
   productionProofs: Record<string, { observed: boolean; blockers: string[] }>;
+  stationBudgetEvidence?: {
+    scenarioId: string;
+    source: string;
+    requiredAssetCount: number;
+    observed: boolean;
+    blockers: string[];
+    budget: Record<string, unknown>;
+  };
   runtimeBudget: {
     multiActorBudgetObserved: boolean;
     blockers: string[];
@@ -264,6 +272,7 @@ type EvidenceGateReport = {
     status: string;
     source_evidence: AssetProductionReadinessBenchmarkReport["sourceEvidence"];
     production_proofs: AssetProductionReadinessBenchmarkReport["productionProofs"];
+    station_budget_evidence?: AssetProductionReadinessBenchmarkReport["stationBudgetEvidence"];
     runtime_budget: AssetProductionReadinessBenchmarkReport["runtimeBudget"];
     verdict: AssetProductionReadinessBenchmarkReport["verdict"];
   };
@@ -679,6 +688,9 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         status: assetProductionReadinessBenchmark.value.status,
         source_evidence: assetProductionReadinessBenchmark.value.sourceEvidence,
         production_proofs: assetProductionReadinessBenchmark.value.productionProofs,
+        ...(assetProductionReadinessBenchmark.value.stationBudgetEvidence ? {
+          station_budget_evidence: assetProductionReadinessBenchmark.value.stationBudgetEvidence,
+        } : {}),
         runtime_budget: assetProductionReadinessBenchmark.value.runtimeBudget,
         verdict: assetProductionReadinessBenchmark.value.verdict,
       },
@@ -1368,7 +1380,7 @@ const blockerGroups = [
     title: "Production asset generation readiness",
     owner: "asset-pipeline-lead",
     matches: (blocker: string) => blocker.startsWith("asset_production:"),
-    nextStep: "Add generated human, skin, clothing, rigging, animation, equipment, optimization, collider, and multi-actor Quest budget reports before claiming production asset readiness.",
+    nextStep: "Add generated human, skin, clothing, rigging, animation, equipment, LOD, texture, and collider reports before claiming production asset readiness.",
   },
   {
     groupId: "iwsdk_sidecar_tooling",

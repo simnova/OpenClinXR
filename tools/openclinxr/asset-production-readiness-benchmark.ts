@@ -1,5 +1,10 @@
 import { pathToFileURL } from "node:url";
 import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
+import {
+  createEdChestPainPlaceholderManifests,
+  evaluateScenarioAssetBudget,
+  type ScenarioAssetBudget,
+} from "../../packages/openclinxr/asset-registry/src/index.js";
 
 type CliOptions = {
   gltfPipelineSmokePath?: string;
@@ -71,6 +76,16 @@ type ProofLaneReport = {
   blockers: string[];
 };
 
+type StationBudgetEvidence = {
+  scenarioId: string;
+  source: string;
+  requiredAssetCount: number;
+  budget: ScenarioAssetBudget;
+  placeholderOnly: boolean;
+  observed: boolean;
+  blockers: string[];
+};
+
 export type AssetProductionReadinessReport = {
   generatedAt: string;
   status: "passed" | "blocked";
@@ -95,6 +110,7 @@ export type AssetProductionReadinessReport = {
     blockers: string[];
   };
   productionProofs: Record<ProofLaneId, ProofLaneReport>;
+  stationBudgetEvidence: StationBudgetEvidence;
   runtimeBudget: {
     singlePlaceholderGlbBytes: number;
     targetStationBundleMb: 80;
@@ -186,10 +202,12 @@ export function buildAssetProductionReadinessReport(input: {
   gltfPipelineSmoke: GltfPipelineSmokeReport;
   blenderAssetBakeSmoke: BlenderAssetBakeSmokeReport;
   proofOverrides?: Partial<ProofLanes>;
+  stationBudgetEvidence?: StationBudgetEvidence;
 }): AssetProductionReadinessReport {
-  const proofs = buildProofLanes(input.proofOverrides ?? {});
+  const stationBudgetEvidence = input.stationBudgetEvidence ?? buildEdChestPainStationBudgetEvidence();
+  const proofs = buildProofLanes(input.proofOverrides ?? {}, stationBudgetEvidence);
   const sourceEvidence = inspectSourceEvidence(input.gltfPipelineSmoke, input.blenderAssetBakeSmoke);
-  const runtimeBudget = inspectRuntimeBudget(input.blenderAssetBakeSmoke, proofs.multiActorQuestBudget.observed);
+  const runtimeBudget = inspectRuntimeBudget(input.blenderAssetBakeSmoke, stationBudgetEvidence.observed);
   const blockers = [
     ...sourceEvidence.blockers.map((blocker) => `source:${blocker}`),
     ...proofs.generatedHumanRigging.blockers.map((blocker) => `generation:${blocker}`),
@@ -219,6 +237,7 @@ export function buildAssetProductionReadinessReport(input: {
     },
     sourceEvidence,
     productionProofs: proofs,
+    stationBudgetEvidence,
     runtimeBudget,
     verdict: {
       passed,
@@ -229,6 +248,21 @@ export function buildAssetProductionReadinessReport(input: {
         "Placeholder GLB smoke proves the authoring tool chain can emit a GLB, not that generated clinical characters or environments are production-ready.",
       ],
     },
+  };
+}
+
+function buildEdChestPainStationBudgetEvidence(): StationBudgetEvidence {
+  const manifests = createEdChestPainPlaceholderManifests();
+  const budget = evaluateScenarioAssetBudget(manifests);
+
+  return {
+    scenarioId: "ed_chest_pain_priority_v1",
+    source: "@openclinxr/asset-registry:createEdChestPainPlaceholderManifests",
+    requiredAssetCount: manifests.length,
+    budget,
+    placeholderOnly: true,
+    observed: budget.blockers.length === 0,
+    blockers: [...budget.blockers],
   };
 }
 
@@ -253,7 +287,10 @@ function inspectSourceEvidence(
   };
 }
 
-function buildProofLanes(overrides: Partial<ProofLanes>): Record<ProofLaneId, ProofLaneReport> {
+function buildProofLanes(
+  overrides: Partial<ProofLanes>,
+  stationBudgetEvidence: StationBudgetEvidence,
+): Record<ProofLaneId, ProofLaneReport> {
   return {
     generatedHumanRigging: proofLane(overrides.generatedHumanRigging ?? false, [
       "neutral generated human GLB",
@@ -280,7 +317,7 @@ function buildProofLanes(overrides: Partial<ProofLanes>): Record<ProofLaneId, Pr
       "KTX2 or texture budget report",
       "collider simplification report",
     ], "lod_texture_collider_budget_missing"),
-    multiActorQuestBudget: proofLane(overrides.multiActorQuestBudget ?? false, [
+    multiActorQuestBudget: proofLane(overrides.multiActorQuestBudget ?? stationBudgetEvidence.observed, [
       "multi-actor station budget",
       "Quest frame budget",
       "draw-call and texture-memory budget",
