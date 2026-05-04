@@ -7,6 +7,7 @@ import {
   evaluateIwsdkWorkspacePosture,
   type IwsdkWorkspaceDependency,
   type IwsdkWorkspaceDependencyField,
+  type IwsdkWorkspacePackageManagerReference,
   type IwsdkWorkspacePackageManagerControls,
   type IwsdkWorkspacePostureReadiness,
   type IwsdkWorkspaceScriptReference,
@@ -21,9 +22,11 @@ type CliOptions = {
 
 type PackageJson = {
   scripts?: Record<string, string>;
+  catalog?: unknown;
+  catalogs?: unknown;
   pnpm?: {
     overrides?: Record<string, string>;
-  };
+  } & Record<string, unknown>;
 } & Partial<Record<IwsdkWorkspaceDependencyField, Record<string, string>>>;
 
 export type IwsdkWorkspacePostureReport = {
@@ -37,6 +40,7 @@ export type IwsdkWorkspacePostureReport = {
     sourceReferences: IwsdkWorkspaceSourceReference[];
     scriptReferences: IwsdkWorkspaceScriptReference[];
     lockfilePackageNames: string[];
+    packageManagerReferences: IwsdkWorkspacePackageManagerReference[];
     packageManagerControls: IwsdkWorkspacePackageManagerControls;
   };
   result: IwsdkWorkspacePostureReadiness;
@@ -84,6 +88,7 @@ export async function buildIwsdkWorkspacePostureReport(input: {
   const scriptReferences = await scanPackageScripts(workspaceRoot);
   const lockfilePackageNames = await scanLockfileBlockedPackages(workspaceRoot);
   const sidecarLockfileImporterPresent = await scanSidecarLockfileImporter(workspaceRoot);
+  const packageManagerReferences = scanPackageManagerReferences(rootPackage);
   const packageManagerControls = buildPackageManagerControls(rootPackage);
   const result = evaluateIwsdkWorkspacePosture({
     sidecarAppExists,
@@ -93,6 +98,7 @@ export async function buildIwsdkWorkspacePostureReport(input: {
     sourceReferences,
     scriptReferences,
     lockfilePackageNames,
+    packageManagerReferences,
     packageManagerControls,
   });
 
@@ -107,6 +113,7 @@ export async function buildIwsdkWorkspacePostureReport(input: {
       sourceReferences,
       scriptReferences,
       lockfilePackageNames,
+      packageManagerReferences,
       packageManagerControls,
     },
     result,
@@ -224,6 +231,39 @@ async function scanSidecarLockfileImporter(workspaceRoot: string): Promise<boole
   return /(?:^|\n) {2}apps\/ui-xr-iwsdk-spike:\s*(?:\n|$)/.test(lockfileText);
 }
 
+function scanPackageManagerReferences(rootPackage: PackageJson): IwsdkWorkspacePackageManagerReference[] {
+  const references: IwsdkWorkspacePackageManagerReference[] = [];
+  collectPackageManagerReferences(rootPackage.pnpm, "pnpm", references);
+  collectPackageManagerReferences(rootPackage.catalog, "catalog", references);
+  collectPackageManagerReferences(rootPackage.catalogs, "catalogs", references);
+  return references;
+}
+
+function collectPackageManagerReferences(
+  value: unknown,
+  location: string,
+  references: IwsdkWorkspacePackageManagerReference[],
+): void {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return;
+  }
+
+  for (const [key, childValue] of Object.entries(value)) {
+    const childLocation = `${location}.${key}`;
+    const childSpecifier = typeof childValue === "string" ? childValue : "";
+    const packageName = iwsdkPackageNameFromReferenceText(key) ?? iwsdkPackageNameFromReferenceText(childSpecifier);
+    if (packageName) {
+      references.push({
+        manifestPath: "package.json",
+        location: childLocation,
+        packageName,
+        specifier: childSpecifier,
+      });
+    }
+    collectPackageManagerReferences(childValue, childLocation, references);
+  }
+}
+
 function buildPackageManagerControls(rootPackage: PackageJson): IwsdkWorkspacePackageManagerControls {
   const iwsdkVerify = rootPackage.scripts?.["iwsdk:verify"] ?? "";
   const auditScript = rootPackage.scripts?.["security:audit"] ?? "";
@@ -278,6 +318,18 @@ function isIwsdkPackageName(packageName: string): boolean {
 
 function isIwsdkPackageSpecifier(specifier: string): boolean {
   return /^npm:(@iwsdk\/[^@]+|@meta-quest\/hzdb)@/.test(specifier);
+}
+
+function iwsdkPackageNameFromReferenceText(value: string): string | undefined {
+  if (isIwsdkPackageName(value)) {
+    return value;
+  }
+  const aliasMatch = value.match(/^npm:(@iwsdk\/[^@]+|@meta-quest\/hzdb)@/);
+  if (aliasMatch?.[1]) {
+    return aliasMatch[1];
+  }
+  const keyedPackageMatch = value.match(/^(@iwsdk\/[^@]+|@meta-quest\/hzdb)@/);
+  return keyedPackageMatch?.[1];
 }
 
 function lockfileContainsPackage(lockfileText: string, packageName: string): boolean {

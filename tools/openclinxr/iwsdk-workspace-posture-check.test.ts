@@ -103,6 +103,47 @@ describe("IWSDK workspace posture checker", () => {
     ]);
   });
 
+  it("blocks IWSDK references in root package-manager controls", async () => {
+    const workspaceRoot = await createWorkspaceFixture({
+      rootPackage: {
+        ...postureReadyRootPackage(),
+        catalog: {
+          "local-iwsdk-core": "npm:@iwsdk/core@0.3.1",
+        },
+        pnpm: {
+          overrides: {
+            three: "0.184.0",
+            "@iwsdk/xr-input": "0.3.1",
+          },
+        },
+      },
+    });
+
+    const report = await buildIwsdkWorkspacePostureReport({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      workspaceRoot,
+    });
+
+    expect(report.detected.packageManagerReferences).toEqual([
+      {
+        manifestPath: "package.json",
+        location: "pnpm.overrides.@iwsdk/xr-input",
+        packageName: "@iwsdk/xr-input",
+        specifier: "0.3.1",
+      },
+      {
+        manifestPath: "package.json",
+        location: "catalog.local-iwsdk-core",
+        packageName: "@iwsdk/core",
+        specifier: "npm:@iwsdk/core@0.3.1",
+      },
+    ]);
+    expect(report.result.blockers).toEqual([
+      "iwsdk_package_manager_reference_not_allowed:package.json:pnpm.overrides.@iwsdk/xr-input:@iwsdk/xr-input",
+      "iwsdk_package_manager_reference_not_allowed:package.json:catalog.local-iwsdk-core:@iwsdk/core",
+    ]);
+  });
+
   it("reports production leakage, blocked packages, and missing controls from workspace files", async () => {
     const workspaceRoot = await createWorkspaceFixture({
       rootPackage: {

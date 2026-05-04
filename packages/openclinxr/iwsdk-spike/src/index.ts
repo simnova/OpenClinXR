@@ -244,6 +244,13 @@ export type IwsdkWorkspaceScriptReference = {
   command: string;
 };
 
+export type IwsdkWorkspacePackageManagerReference = {
+  manifestPath: string;
+  location: string;
+  packageName: string;
+  specifier: string;
+};
+
 export type IwsdkWorkspacePackageManagerControls = {
   workspacePostureInVerify: boolean;
   threeOverrideExact?: boolean;
@@ -259,6 +266,7 @@ export type IwsdkWorkspacePostureInput = {
   sourceReferences: IwsdkWorkspaceSourceReference[];
   scriptReferences: IwsdkWorkspaceScriptReference[];
   lockfilePackageNames: string[];
+  packageManagerReferences?: IwsdkWorkspacePackageManagerReference[];
   packageManagerControls: IwsdkWorkspacePackageManagerControls;
 };
 
@@ -908,6 +916,11 @@ export function evaluateIwsdkWorkspacePosture(
       ),
   );
   blockers.push(...blockedWorkspaceScriptActions(input.scriptReferences));
+  blockers.push(
+    ...(input.packageManagerReferences ?? []).map((reference) =>
+      `iwsdk_package_manager_reference_not_allowed:${reference.manifestPath}:${reference.location}:${reference.packageName}`
+    ),
+  );
 
   if (input.sidecarAppExists && !input.sidecarInstallApproved) {
     blockers.push("sidecar_app_present_without_operator_approval");
