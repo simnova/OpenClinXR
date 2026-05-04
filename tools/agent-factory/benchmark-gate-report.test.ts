@@ -84,6 +84,7 @@ describe("benchmark gate report", () => {
       "evidence-leadership-0008-001",
       "evidence-leadership-0008-002",
       "evidence-leadership-0008-003",
+      "evidence-leadership-0008-004",
     ]);
 
     expect(gatesById.get("evidence-leadership-0008-001")).toEqual(expect.objectContaining({
@@ -168,7 +169,7 @@ describe("benchmark gate report", () => {
     ]));
   });
 
-  it("surfaces IWSDK evidence contract status without changing leadership gate semantics", () => {
+  it("surfaces IWSDK evidence contract status as a dedicated leadership gate", () => {
     const report = buildBenchmarkGateReport({
       iwsdkEvidenceContract: {
         file: "docs/openclinxr/iwsdk-evidence-contract-2026-05-04.json",
@@ -200,12 +201,26 @@ describe("benchmark gate report", () => {
         "agent_tooling:adapter_sync_not_recorded",
       ],
     });
-    expect(report.evidence_gates.map((gate) => gate.evidence_id).sort()).toEqual([
-      "evidence-leadership-0007-002",
-      "evidence-leadership-0008-001",
-      "evidence-leadership-0008-002",
-      "evidence-leadership-0008-003",
-    ]);
+    const iwsdkGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0008-004");
+
+    expect(iwsdkGate).toEqual(expect.objectContaining({
+      ready_to_resolve: false,
+      satisfied_conditions: ["iwsdk_evidence_contract_present"],
+      blockers: [
+        "iwsdk:agent_tooling:adapter_sync_not_recorded",
+        "iwsdk:sidecar:operator_accepts_iwsdk_install_scope",
+      ],
+    }));
+    expect(iwsdkGate?.blocker_summary?.groups).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        group_id: "iwsdk_sidecar_tooling",
+        owner: "xr-systems-architect",
+        blockers: [
+          "iwsdk:agent_tooling:adapter_sync_not_recorded",
+          "iwsdk:sidecar:operator_accepts_iwsdk_install_scope",
+        ],
+      }),
+    ]));
   });
 
   it("derives Quest manual performance checks from raw foreground headset reports", () => {

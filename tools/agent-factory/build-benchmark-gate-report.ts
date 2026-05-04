@@ -287,6 +287,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): Evide
     ...gltfPipelineSmokeBlockers(gltfPipelineSmoke?.value),
     ...blenderAssetBakeSmokeBlockers(blenderAssetBakeSmoke?.value),
   ];
+  const iwsdkEvidenceBlockers = iwsdkEvidenceContractBlockers(iwsdkEvidenceContract?.value);
   const combinedBlockers = unique([
     ...questEvidenceBlockers,
     ...localModelEvidenceBlockers,
@@ -318,6 +319,14 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): Evide
   const localVoiceSatisfiedConditions = combinedSatisfiedConditions.filter((condition) =>
     condition.startsWith("local_voice_") || condition === "local_provider_mock_benchmarks_passed"
   );
+  const iwsdkSatisfiedConditions = iwsdkEvidenceContract
+    ? [
+      "iwsdk_evidence_contract_present",
+      iwsdkEvidenceContract.value.verdict.readyForInstallBackedSidecar ? "iwsdk_install_backed_sidecar_ready" : undefined,
+      iwsdkEvidenceContract.value.verdict.readyForAgentTooling ? "iwsdk_agent_tooling_ready" : undefined,
+      iwsdkEvidenceContract.value.verdict.readyForProductionRuntime ? "iwsdk_production_runtime_ready" : undefined,
+    ].filter((condition): condition is string => typeof condition === "string")
+    : [];
 
   return {
     generated_by: "tools/agent-factory/build-benchmark-gate-report.ts",
@@ -396,6 +405,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): Evide
       buildEvidenceGate("evidence-leadership-0008-001", questSatisfiedConditions, unique(questEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0008-002", localModelSatisfiedConditions, unique(localModelEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0008-003", localVoiceSatisfiedConditions, unique(localVoiceEvidenceBlockers)),
+      buildEvidenceGate("evidence-leadership-0008-004", iwsdkSatisfiedConditions, unique(iwsdkEvidenceBlockers)),
     ],
   };
 }
@@ -561,6 +571,20 @@ function localVoiceBenchmarkBlockers(report: LocalProviderBenchmarkReport | unde
   ]);
 }
 
+function iwsdkEvidenceContractBlockers(report: IwsdkEvidenceContractReport | undefined): string[] {
+  if (!report) {
+    return ["missing_iwsdk_evidence_contract_report"];
+  }
+  if (
+    report.verdict.readyForInstallBackedSidecar
+    && report.verdict.readyForAgentTooling
+    && report.verdict.readyForProductionRuntime
+  ) {
+    return [];
+  }
+  return unique(report.verdict.blockers.map((blocker) => `iwsdk:${blocker}`));
+}
+
 function prefixBlockers(prefix: string, gate: GateStatus): Array<string | undefined> {
   if (gate.status === "ready") {
     return [];
@@ -603,6 +627,14 @@ const blockerGroups = [
       || blocker === "missing_blender_asset_bake_smoke_report"
       || blocker.startsWith("blender_asset_bake_smoke:"),
     nextStep: "Install Blender locally and run the small humanoid asset bake before treating the asset pipeline as ready.",
+  },
+  {
+    groupId: "iwsdk_sidecar_tooling",
+    title: "IWSDK sidecar and MCP tooling evidence",
+    owner: "xr-systems-architect",
+    matches: (blocker: string) =>
+      blocker === "missing_iwsdk_evidence_contract_report" || blocker.startsWith("iwsdk:"),
+    nextStep: "Keep IWSDK contract-only until the operator approves the sidecar install scope, exact versions, license posture, adapter-sync evidence, and foreground Quest performance proof.",
   },
 ] as const;
 
