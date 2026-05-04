@@ -16,7 +16,7 @@ This evidence improves confidence that the sidecar can render and interact on Qu
 ## Observed Result
 
 - Quest device: `Quest_3` over USB-C with ADB authorization.
-- URL: `http://localhost:5183/?questSmoke=stale-close-check-20260504`.
+- URL: `http://localhost:5183/?questSmoke=lazy-iwsdk-hydration-20260504`.
 - Browser title: `OpenClinXR IWSDK Spike`.
 - User agent: Quest Browser `146.0.0.19.27`.
 - Page state: visible, not hidden, focused.
@@ -27,9 +27,11 @@ This evidence improves confidence that the sidecar can render and interact on Qu
 - Boot evidence: Quest CDP records startup through `station_scene_ready` and `clock_started`; this confirms station creation is no longer the failing boundary.
 - Flat preview fallback: Quest Browser CDP did not advance `renderer.setAnimationLoop`/`requestAnimationFrame` in non-immersive flat-page mode, so the apps now include a timer-backed flat preview fallback. Immersive VR should still rely on the WebXR animation loop.
 - Stale page hygiene: the CDP harness now prefers the exact requested URL and closes stale same-path smoke tabs before sampling; the latest run left one `localhost:5183` page target.
-- Canvas: nonblank, `880 x 924`, PNG data URL length `135974`.
+- IWSDK bundle posture: the build now keeps `iwsdk-vendor` out of the initial modulepreload list. Initial modulepreloaded JS is about `22.89 KB`; the deferred `iwsdk-vendor` chunk remains about `2404.88 KB`.
+- Deferred evidence hydration: browser snapshot starts with package export counts at `0/0`, and the CDP frame-sample result confirms hydration to `586/31`.
+- Canvas: nonblank, `880 x 924`, PNG data URL length `136082`.
 - Trace interaction: `Trace 0/10` to `Trace 2/10`.
-- CDP frame sample: `120` samples, `15.3` approximate FPS, p95 frame time `66.1 ms`, max frame time `66.3 ms`.
+- CDP frame sample: `120` samples, `15.4` approximate FPS, p95 frame time `66.1 ms`, max frame time `69.6 ms`.
 - Evidence classification: `foreground_ready`.
 
 ## Remaining Production Blockers

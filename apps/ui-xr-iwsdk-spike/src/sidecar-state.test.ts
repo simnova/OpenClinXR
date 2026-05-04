@@ -74,8 +74,9 @@ describe("IWSDK sidecar runtime state", () => {
   it("uses the approved IWSDK Phase 1 packages in the browser entrypoint", () => {
     const source = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
 
-    expect(source).toContain('from "@iwsdk/core"');
-    expect(source).toContain('from "@iwsdk/xr-input"');
+    expect(source).toContain('import("@iwsdk/core")');
+    expect(source).toContain('import("@iwsdk/xr-input")');
+    expect(source).toContain("hydrateIwsdkPackageEvidence");
     expect(source).not.toContain("apps/ui-xr/src");
     expect(source).not.toContain("@openclinxr/ui-xr");
   });

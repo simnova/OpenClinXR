@@ -346,6 +346,7 @@ export function browserSnapshotExpression(): string {
       xrStatus: document.querySelector("#xr-status")?.textContent ?? null,
       trace: document.body.textContent.match(/Trace\s+\d+\/\d+/)?.[0] ?? null,
       bootEvidence: window.__openClinXrBootEvidence ?? null,
+      iwsdkEvidence: window.__openClinXrIwsdkSidecarEvidence ?? null,
       frameStats: window.__openClinXrFrameStats ?? null,
       inputEvidence: window.__openClinXrInputEvidence ?? null,
       canvas: canvas ? {
@@ -430,6 +431,7 @@ export function frameSampleExpression(frameSampleCount: number, frameTimeoutMs: 
       p95FrameMs: latestStats?.p95FrameMs ?? null,
       maxFrameMs: latestStats?.maxFrameMs ?? null,
       approxFps: latestStats?.approxFps ?? null,
+      iwsdkEvidence: window.__openClinXrIwsdkSidecarEvidence ?? null,
     };
   })()`;
 }

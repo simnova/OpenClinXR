@@ -24,9 +24,16 @@ export const openClinXrIwsdkSpikeBuildOutput = Object.freeze({
 
 export const openClinXrIwsdkSpikeChunkSizeWarningLimitKb = 650;
 
+export function resolveOpenClinXrIwsdkSpikeModulePreloads(_url: string, deps: string[]): string[] {
+  return deps.filter((dep) => !dep.includes("iwsdk-vendor"));
+}
+
 export default defineConfig({
   build: {
     chunkSizeWarningLimit: openClinXrIwsdkSpikeChunkSizeWarningLimitKb,
+    modulePreload: {
+      resolveDependencies: resolveOpenClinXrIwsdkSpikeModulePreloads,
+    },
     rolldownOptions: {
       output: openClinXrIwsdkSpikeBuildOutput,
     },

@@ -1,5 +1,3 @@
-import * as IwsdkCore from "@iwsdk/core";
-import * as IwsdkXrInput from "@iwsdk/xr-input";
 import {
   BoxGeometry,
   BufferGeometry,
@@ -133,8 +131,8 @@ function formatUnknownError(error: unknown): string {
 }
 
 let state: IwsdkSidecarRuntimeState = createIwsdkSidecarRuntimeState();
-const iwsdkCoreExportCount = Object.keys(IwsdkCore).length;
-const iwsdkXrInputExportCount = Object.keys(IwsdkXrInput).length;
+let iwsdkCoreExportCount = 0;
+let iwsdkXrInputExportCount = 0;
 
 app.innerHTML = `
   <main class="spike-shell">
@@ -142,7 +140,7 @@ app.innerHTML = `
       <canvas id="iwsdk-sidecar-canvas" aria-label="IWSDK ED chest pain bay preview"></canvas>
       <div class="status-strip">
         <span id="xr-status">WebXR checking</span>
-        <span id="iwsdk-status">IWSDK runtime linked</span>
+        <span id="iwsdk-status">IWSDK evidence pending</span>
         <span id="trace-summary">Trace 0/${state.requiredTraceTags.length}</span>
         <button id="enter-xr-button" class="xr-entry-button" type="button" disabled>Enter VR</button>
       </div>
@@ -160,8 +158,8 @@ app.innerHTML = `
       <section class="evidence-panel" aria-label="IWSDK runtime evidence">
         <h2>Runtime Evidence</h2>
         <dl>
-          <div><dt>Core exports</dt><dd id="core-export-count">${iwsdkCoreExportCount}</dd></div>
-          <div><dt>XR input exports</dt><dd id="input-export-count">${iwsdkXrInputExportCount}</dd></div>
+          <div><dt>Core exports</dt><dd id="core-export-count">loading</dd></div>
+          <div><dt>XR input exports</dt><dd id="input-export-count">loading</dd></div>
           <div><dt>Scene objects</dt><dd>${iwsdkSidecarSceneObjectNames.length} parity targets</dd></div>
         </dl>
       </section>
@@ -183,6 +181,8 @@ const traceSummary = requireElement<HTMLElement>("#trace-summary");
 const traceActions = requireElement<HTMLElement>("#trace-actions");
 const xrStatus = requireElement<HTMLElement>("#xr-status");
 const iwsdkStatus = requireElement<HTMLElement>("#iwsdk-status");
+const coreExportCount = requireElement<HTMLElement>("#core-export-count");
+const inputExportCount = requireElement<HTMLElement>("#input-export-count");
 const dialogueLine = requireElement<HTMLElement>("#dialogue-line");
 const enterXrButton = requireElement<HTMLButtonElement>("#enter-xr-button");
 
@@ -191,7 +191,36 @@ window.__openClinXrIwsdkSidecarEvidence = buildIwsdkSidecarRuntimeEvidence({
   iwsdkXrInputExportCount,
 });
 window.__openClinXrIwsdkSidecarTraceTags = [];
-iwsdkStatus.textContent = `IWSDK exports ${iwsdkCoreExportCount}/${iwsdkXrInputExportCount}`;
+scheduleIwsdkEvidenceHydration();
+
+function scheduleIwsdkEvidenceHydration(): void {
+  window.setTimeout(() => {
+    void hydrateIwsdkPackageEvidence();
+  }, 1000);
+}
+
+async function hydrateIwsdkPackageEvidence(): Promise<void> {
+  recordBootPhase("iwsdk_evidence_load_start");
+  try {
+    const [iwsdkCore, iwsdkXrInput] = await Promise.all([
+      import("@iwsdk/core"),
+      import("@iwsdk/xr-input"),
+    ]);
+    iwsdkCoreExportCount = Object.keys(iwsdkCore).length;
+    iwsdkXrInputExportCount = Object.keys(iwsdkXrInput).length;
+    coreExportCount.textContent = String(iwsdkCoreExportCount);
+    inputExportCount.textContent = String(iwsdkXrInputExportCount);
+    window.__openClinXrIwsdkSidecarEvidence = buildIwsdkSidecarRuntimeEvidence({
+      iwsdkCoreExportCount,
+      iwsdkXrInputExportCount,
+    });
+    iwsdkStatus.textContent = `IWSDK exports ${iwsdkCoreExportCount}/${iwsdkXrInputExportCount}`;
+    recordBootPhase("iwsdk_evidence_loaded");
+  } catch (error) {
+    iwsdkStatus.textContent = "IWSDK evidence blocked";
+    recordBootPhase("iwsdk_evidence_failed", error);
+  }
+}
 
 function renderControls(): void {
   traceActions.innerHTML = "";

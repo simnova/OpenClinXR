@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-05-04T17:06:41Z",
+  "generatedAt": "2026-05-04T17:12:56Z",
   "source": "Quest Browser Chrome DevTools Protocol read after timer-backed flat preview fallback reload",
   "target": "apps/ui-xr-iwsdk-spike",
-  "url": "http://localhost:5183/?questSmoke=stale-close-check-20260504",
+  "url": "http://localhost:5183/?questSmoke=lazy-iwsdk-hydration-20260504",
   "xrStatus": "WebXR ready",
   "enterButtonText": "Enter VR",
   "visibilityState": "visible",
@@ -10,6 +10,7 @@
     "This read did not start an immersive session because WebXR session entry requires a physical user gesture in the headset.",
     "The live sidecar now exposes the Phase 1 VR posture fields after reload, including primitive hand model and experimental locomotion posture.",
     "The flat Quest Browser CDP page required a timer-backed fallback because renderer.setAnimationLoop/requestAnimationFrame did not advance in this non-immersive probe.",
+    "The initial HTML no longer modulepreloads the heavy IWSDK vendor chunk; CDP frame-sample evidence confirms the deferred export-count evidence hydrates to 586/31 after first render.",
     "Primitive WebXR hand models are installed lazily after the immersive session is accepted so browser-mode smoke can render without hand setup blocking station boot.",
     "This evidence confirms mode labeling only; it does not prove in-headset readability, comfort, foreground frame pacing, passthrough support, or controller latency."
   ],

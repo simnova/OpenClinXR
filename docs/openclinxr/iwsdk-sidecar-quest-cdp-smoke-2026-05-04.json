@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-04T17:06:41.152Z",
-  "url": "http://localhost:5183/?questSmoke=stale-close-check-20260504",
+  "generatedAt": "2026-05-04T17:12:56.644Z",
+  "url": "http://localhost:5183/?questSmoke=lazy-iwsdk-hydration-20260504",
   "target": "iwsdk-sidecar",
   "adb": {
     "version": "Android Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as /opt/homebrew/bin/adb\nRunning on Darwin 25.4.0 (arm64)",
@@ -9,7 +9,7 @@
   },
   "browser": {
     "title": "OpenClinXR IWSDK Spike",
-    "url": "http://localhost:5183/?questSmoke=stale-close-check-20260504",
+    "url": "http://localhost:5183/?questSmoke=lazy-iwsdk-hydration-20260504",
     "userAgent": "Mozilla/5.0 (X11; Linux x86_64; Quest 3) AppleWebKit/537.36 (KHTML, like Gecko) OculusBrowser/146.0.0.19.27.942135376 Chrome/146.0.7680.177 VR Safari/537.36",
     "devicePixelRatio": 1,
     "visibilityState": "visible",
@@ -25,39 +25,74 @@
       "events": [
         {
           "phase": "controls_start",
-          "atMs": 0.5
+          "atMs": 1
         },
         {
           "phase": "controls_ready",
-          "atMs": 0.7
+          "atMs": 1.5
         },
         {
           "phase": "station_scene_start",
-          "atMs": 0.9
+          "atMs": 2.1
         },
         {
           "phase": "station_render_loop_started",
-          "atMs": 21.2
+          "atMs": 24.5
         },
         {
           "phase": "station_scene_ready",
-          "atMs": 21.3
+          "atMs": 24.5
         },
         {
           "phase": "clock_started",
-          "atMs": 21.3
+          "atMs": 24.5
         }
       ]
     },
+    "iwsdkEvidence": {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "sidecar": "apps/ui-xr-iwsdk-spike",
+      "iwsdkCoreExportCount": 0,
+      "iwsdkXrInputExportCount": 0,
+      "phaseLabel": "Phase 1 VR",
+      "requestedSessionMode": "immersive-vr",
+      "mixedRealityPassthroughImplemented": false,
+      "handTrackingPosture": "optional_feature_with_primitive_hand_model",
+      "locomotionPosture": "experimental_keyboard_and_thumbstick_dolly",
+      "requiredSceneObjectNames": [
+        "openclinxr.ed-chest-pain.station-root",
+        "openclinxr.ed-chest-pain.ambient-light",
+        "openclinxr.ed-chest-pain.key-light",
+        "openclinxr.ed-chest-pain.floor",
+        "openclinxr.ed-chest-pain.bed",
+        "openclinxr.ed-chest-pain.monitor",
+        "openclinxr.ed-chest-pain.patient-robert-hayes",
+        "openclinxr.ed-chest-pain.nurse-maria-alvarez",
+        "openclinxr.ed-chest-pain.spouse-anna-hayes",
+        "openclinxr.ed-chest-pain.wall-clock"
+      ],
+      "traceActionTags": [
+        "history_opqrst",
+        "risk_factor_question",
+        "associated_symptom_question",
+        "vitals_review",
+        "ecg_request",
+        "urgent_escalation",
+        "team_communication",
+        "family_communication",
+        "empathy_statement",
+        "patient_note_submitted"
+      ]
+    },
     "frameStats": {
-      "sampleCount": 8,
-      "avgFrameMs": 57.72,
-      "p95FrameMs": 66,
-      "maxFrameMs": 66,
-      "approxFps": 17.3,
-      "framesObserved": 9,
-      "latestFrameAtMs": 749,
-      "sampleWindowSize": 8
+      "sampleCount": 9,
+      "avgFrameMs": 58.66,
+      "p95FrameMs": 66.2,
+      "maxFrameMs": 66.2,
+      "approxFps": 17,
+      "framesObserved": 10,
+      "latestFrameAtMs": 752,
+      "sampleWindowSize": 9
     },
     "inputEvidence": {
       "handModelCount": 0,
@@ -75,7 +110,7 @@
       "height": 924,
       "clientWidth": 880,
       "clientHeight": 924,
-      "dataUrlLength": 135974
+      "dataUrlLength": 136082
     }
   },
   "interaction": {
@@ -89,15 +124,50 @@
   },
   "frameSample": {
     "framesObserved": 121,
-    "framesObservedDuringProbe": 108,
+    "framesObservedDuringProbe": 107,
     "sampleCount": 120,
     "timedOut": false,
-    "elapsedWallMs": 7122.8,
-    "latestFrameAgeMs": 17.8,
-    "avgFrameMs": 65.17,
+    "elapsedWallMs": 7032.5,
+    "latestFrameAgeMs": 27.9,
+    "avgFrameMs": 64.9,
     "p95FrameMs": 66.1,
-    "maxFrameMs": 66.3,
-    "approxFps": 15.3
+    "maxFrameMs": 69.6,
+    "approxFps": 15.4,
+    "iwsdkEvidence": {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "sidecar": "apps/ui-xr-iwsdk-spike",
+      "iwsdkCoreExportCount": 586,
+      "iwsdkXrInputExportCount": 31,
+      "phaseLabel": "Phase 1 VR",
+      "requestedSessionMode": "immersive-vr",
+      "mixedRealityPassthroughImplemented": false,
+      "handTrackingPosture": "optional_feature_with_primitive_hand_model",
+      "locomotionPosture": "experimental_keyboard_and_thumbstick_dolly",
+      "requiredSceneObjectNames": [
+        "openclinxr.ed-chest-pain.station-root",
+        "openclinxr.ed-chest-pain.ambient-light",
+        "openclinxr.ed-chest-pain.key-light",
+        "openclinxr.ed-chest-pain.floor",
+        "openclinxr.ed-chest-pain.bed",
+        "openclinxr.ed-chest-pain.monitor",
+        "openclinxr.ed-chest-pain.patient-robert-hayes",
+        "openclinxr.ed-chest-pain.nurse-maria-alvarez",
+        "openclinxr.ed-chest-pain.spouse-anna-hayes",
+        "openclinxr.ed-chest-pain.wall-clock"
+      ],
+      "traceActionTags": [
+        "history_opqrst",
+        "risk_factor_question",
+        "associated_symptom_question",
+        "vitals_review",
+        "ecg_request",
+        "urgent_escalation",
+        "team_communication",
+        "family_communication",
+        "empathy_statement",
+        "patient_note_submitted"
+      ]
+    }
   },
   "verdict": {
     "shellLoaded": true,
