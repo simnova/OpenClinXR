@@ -167,13 +167,14 @@ describe("workspace architecture rules", () => {
   });
 
   it("keeps Turborepo cache artifacts out of tracked workspace files", () => {
-    const trackedFiles = execFileSync("git", ["ls-files"], { cwd: workspaceRoot, encoding: "utf8" })
-      .split("\n")
-      .filter(Boolean);
-    const violations = trackedFiles
+    const violations = trackedWorkspaceFiles()
       .filter((filePath) => filePath.includes("/.turbo/") || filePath.startsWith(".turbo/"));
 
     expect(violations).toEqual([]);
+  });
+
+  it("keeps generated local runtime artifacts out of tracked workspace files", () => {
+    expect(trackedLocalArtifactViolations()).toEqual([]);
   });
 
   it("keeps the API deploy bundle on the smoke-tested tsdown path with a Rolldown fallback", () => {
@@ -191,6 +192,110 @@ describe("workspace architecture rules", () => {
     expect(tsdownConfig).toContain("onlyBundle");
     expect(tsdownConfig).toContain("neverBundle: [\"@azure/functions-core\"]");
     expect(tsdownConfig).toContain("alwaysBundle: [/^@openclinxr\\//, \"hono\", \"graphql\"]");
+  });
+
+  it("keeps the API runtime posture Bun and Hono primary with an explicit Node fallback", () => {
+    const apiPackage = JSON.parse(readFileSync(join(workspaceRoot, "apps/api/package.json"), "utf8")) as {
+      dependencies?: Record<string, string>;
+      scripts?: Record<string, string>;
+    };
+    const protocolSupport = readFileSync(join(workspaceRoot, "apps/api/src/protocol-support.ts"), "utf8");
+    const bunServer = readFileSync(join(workspaceRoot, "apps/api/src/bun-server.ts"), "utf8");
+    const nodeServer = readFileSync(join(workspaceRoot, "apps/api/src/server.ts"), "utf8");
+
+    expect(apiPackage.dependencies?.hono).toMatch(/^\d+\.\d+\.\d+/);
+    expect(apiPackage.dependencies?.["@hono/node-server"]).toMatch(/^\d+\.\d+\.\d+/);
+    expect(apiPackage.scripts?.dev).toBe("tsx src/server.ts");
+    expect(apiPackage.scripts?.["dev:node"]).toBe("tsx src/server.ts");
+    expect(apiPackage.scripts?.["dev:bun"]).toBe("bun src/bun-server.ts");
+    expect(protocolSupport).toContain('primaryRuntimeTarget: "bun-hono"');
+    expect(protocolSupport).toContain('localFallbackRuntimeTarget: "node-hono"');
+    expect(protocolSupport).toContain('azureRuntimeTarget: "azure-functions-node"');
+    expect(bunServer).toContain("globalThis as { Bun?: BunRuntime }");
+    expect(bunServer).toContain("bun.serve");
+    expect(bunServer).toContain("pnpm --filter @openclinxr/api dev:node");
+    expect(nodeServer).toContain('@hono/node-server');
+  });
+
+  it("keeps WebTransport, QUIC, and Web3 signaling evidence-gated behind protocol posture", () => {
+    const protocolSupport = readFileSync(join(workspaceRoot, "apps/api/src/protocol-support.ts"), "utf8");
+    const speculativeProtocolDependencies = [
+      "@fails-components/webtransport",
+      "webtransport",
+      "quic",
+      "ethers",
+      "viem",
+      "web3",
+    ];
+    const dependencyViolations = workspacePackageDependencyFindings(speculativeProtocolDependencies);
+    const sourceViolations = speculativeProtocolDependencies.flatMap((dependency) =>
+      sourceImportReferences(dependency, [...sourceFilesUnder("apps/api"), ...sourceFilesUnder("apps/mock-realtime-voice-server")])
+        .map(({ filePath, specifier }) => `source:${filePath}:${specifier}`)
+    );
+
+    expect(protocolSupport).toContain('protocolId: "webtransport"');
+    expect(protocolSupport).toContain('status: input.bunHttp3WebTransportVerified ? "ready" : "blocked"');
+    expect(protocolSupport).toContain("bun_http3_webtransport_not_verified");
+    expect(protocolSupport).toContain("quest_webtransport_path_not_verified");
+    expect(protocolSupport).toContain('protocolId: "quic"');
+    expect(protocolSupport).toContain('status: input.quicGatewayImplemented ? "ready" : "planned"');
+    expect(protocolSupport).toContain("quic_gateway_not_implemented");
+    expect(protocolSupport).toContain("azure_quic_ingress_not_verified");
+    expect(protocolSupport).toContain('protocolId: "web3-signaling"');
+    expect(protocolSupport).toContain('status: input.web3SignalingProtocolSelected ? "ready" : "planned"');
+    expect(protocolSupport).toContain("web3_identity_and_signaling_protocol_not_selected");
+    expect([...dependencyViolations, ...sourceViolations]).toEqual([]);
+  });
+
+  it("keeps the realtime Python backend as an internal opt-in sidecar instead of a public app surface", () => {
+    const backendPackage = JSON.parse(readFileSync(join(workspaceRoot, "apps/api-python-backend/package.json"), "utf8")) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+      private?: boolean;
+      scripts?: Record<string, string>;
+    };
+    const backendSource = readFileSync(join(workspaceRoot, "apps/api-python-backend/src/api_python_backend/main.py"), "utf8");
+    const pyproject = readFileSync(join(workspaceRoot, "apps/api-python-backend/pyproject.toml"), "utf8");
+    const publicRestRoutes = readFileSync(join(workspaceRoot, "packages/openclinxr/rest/src/index.ts"), "utf8");
+    const uiBackendReferences = filesWithContentMatching("apps", /api-python-backend|uvicorn|FastAPI/)
+      .filter((filePath) => /^apps\/ui-[^/]+\/src\//.test(filePath));
+
+    expect(backendPackage.private).toBe(true);
+    expect(backendPackage.dependencies).toBeUndefined();
+    expect(backendPackage.devDependencies).toBeUndefined();
+    expect(Object.keys(backendPackage.scripts ?? {}).sort()).toEqual(["dev", "test", "typecheck"]);
+    expect(backendPackage.scripts?.dev).toContain("uvicorn api_python_backend.main:app");
+    expect(backendPackage.scripts?.test).toBe("python3 scripts/verify_backend.py");
+    expect(backendSource).toContain('@app.get("/health")');
+    expect(backendSource).toContain('@app.websocket("/voice/realtime/ws")');
+    expect(pyproject).toContain("fastapi>=");
+    expect(pyproject).toContain("uvicorn[standard]>=");
+    expect(pyproject).toContain("websockets>=");
+    expect(pyproject).toContain("mlx-moshi-qwen-notes = []");
+    expect(pyproject).not.toMatch(/^\s*"(?:mlx|moshi|qwen)[^"]*>=/im);
+    expect(publicRestRoutes).not.toContain("/voice/realtime/ws");
+    expect(uiBackendReferences).toEqual([]);
+  });
+
+  it("keeps realtime transport harness dependencies out of the production API manifest", () => {
+    const apiPackage = JSON.parse(readFileSync(join(workspaceRoot, "apps/api/package.json"), "utf8")) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+    const mockPackage = JSON.parse(readFileSync(join(workspaceRoot, "apps/mock-realtime-voice-server/package.json"), "utf8")) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+    const apiSourceViolations = sourceImportReferences("ws", sourceFilesUnder("apps/api")).map(({ filePath, specifier }) =>
+      `${filePath}:${specifier}`
+    );
+
+    expect({ ...apiPackage.dependencies, ...apiPackage.devDependencies }).not.toHaveProperty("ws");
+    expect(mockPackage.dependencies).toMatchObject({
+      hono: "4.12.16",
+      ws: "8.20.0",
+    });
+    expect(apiSourceViolations).toEqual([]);
   });
 
   it("keeps project-specific packages under packages/openclinxr", () => {
@@ -218,6 +323,7 @@ describe("workspace architecture rules", () => {
     const violations = sourceFilesUnder("apps").filter(
       (filePath) =>
         !filePath.startsWith("apps/api/src/")
+        && !filePath.startsWith("apps/api-python-backend/src/")
         && !/^apps\/ui-[^/]+\/src\//.test(filePath)
         && !/^apps\/mock-[^/]+-server\/src\//.test(filePath),
     );
@@ -642,6 +748,25 @@ function packageManifestFiles(): string[] {
     .map((filePath) => relative(workspaceRoot, filePath).split(sep).join("/"))
     .filter((filePath) => filePath.endsWith("package.json"))
     .filter((filePath) => !filePath.includes("/node_modules/") && !filePath.includes("/dist/"));
+}
+
+function trackedWorkspaceFiles(): string[] {
+  return execFileSync("git", ["ls-files"], { cwd: workspaceRoot, encoding: "utf8" })
+    .split("\n")
+    .filter(Boolean);
+}
+
+function trackedLocalArtifactViolations(files = trackedWorkspaceFiles()): string[] {
+  const approvedGeneratedRoots = ["packages/openclinxr/graphql/src/generated/"];
+
+  return files
+    .filter((filePath) => !approvedGeneratedRoots.some((root) => filePath.startsWith(root)))
+    .filter((filePath) =>
+      /(^|\/)(?:dist|coverage|node_modules|\.turbo|\.venv|__pycache__|\.pytest_cache|\.mypy_cache|\.ruff_cache)(?:\/|$)/.test(filePath)
+      || /(^|\/)\.env\.openclinxr\.local$/.test(filePath)
+      || /(^|\/)\.DS_Store$/.test(filePath)
+      || /\.(?:pyc|pyo|log|tmp)$/.test(filePath)
+    );
 }
 
 function workspacePackageDependencyReferences(dependencies: string[]): WorkspaceDependencyReference[] {
