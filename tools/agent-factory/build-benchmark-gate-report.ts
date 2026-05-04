@@ -1409,10 +1409,14 @@ function realtimeVoiceTransportSpikeFrameMetadataBlockers(
   const chunkIndexes = Array.isArray(harness.audioChunkIndexesReceived) ? harness.audioChunkIndexesReceived : [];
 
   return unique([
+    harness.latencyBudget.passed ? undefined : "latency_budget_failed",
     metadataFramesSent > 0 && Number.isFinite(metadataFramesSent) ? undefined : "audio_metadata_frames_missing",
     metadataFramesReceived > 0 && Number.isFinite(metadataFramesReceived) ? undefined : "audio_chunk_metadata_missing",
     metadataFramesSent === metadataFramesReceived ? undefined : "audio_metadata_count_mismatch",
     frameLatencySamples.length === metadataFramesReceived ? undefined : "frame_latency_samples_incomplete",
+    frameLatencySamples.every((sample) => typeof sample === "number" && Number.isFinite(sample) && sample >= 0)
+      ? undefined
+      : "frame_latency_samples_invalid",
     chunkIndexes.length === metadataFramesReceived ? undefined : "audio_chunk_indexes_incomplete",
     chunkIndexes.every((chunkIndex, index) => chunkIndex === index) ? undefined : "audio_chunk_indexes_not_contiguous",
   ]);
