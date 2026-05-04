@@ -345,6 +345,7 @@ function createAdminGraphqlRoot(persistence: ApiPersistenceSink): AdminGraphqlRo
   const adminScenarios = scenarioBank.map(toAdminGraphqlScenario);
 
   return {
+    assetReadiness: ({ scenarioId, version }) => findSeedBankAssetReadiness(String(scenarioId), version),
     scenario: ({ scenarioId, version }) =>
       adminScenarios.find((scenario) =>
         scenario.scenarioId === scenarioId && (version === undefined || scenario.version === version)
@@ -454,6 +455,20 @@ function createSeedBankAssetReadiness() {
   }
 
   return scenarioBank.map((scenario) => registry.evaluateScenarioReadiness(scenario));
+}
+
+function findSeedBankAssetReadiness(scenarioId: string, version: number) {
+  const scenarioExists = scenarioBank.some((scenario) => scenario.scenarioId === scenarioId && scenario.version === version);
+  if (!scenarioExists) {
+    throw new Error(`Scenario not found: ${scenarioId} v${version}`);
+  }
+
+  const readiness = createSeedBankAssetReadiness().find((candidate) => candidate.scenarioId === scenarioId);
+  if (!readiness) {
+    throw new Error(`Scenario asset readiness not found: ${scenarioId} v${version}`);
+  }
+
+  return readiness;
 }
 
 function sessionErrorResponse(context: { json: (body: { error: string }, status: 400 | 404 | 500 | 503) => Response }, error: unknown): Response {

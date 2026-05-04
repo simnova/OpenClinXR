@@ -76,6 +76,7 @@ describe("OpenClinXR API shell", () => {
     expect(response.status).toBe(200);
     expect(documents.map((document) => document.routeId)).toEqual([
       "scenario-bank",
+      "scenario-detail",
       "review-packet-replay",
       "exam-form-workbench",
       "exam-form-assembly",
@@ -84,6 +85,7 @@ describe("OpenClinXR API shell", () => {
     ]);
     expect(documents.map((document) => document.operationName)).toEqual([
       "ScenarioBank",
+      "ScenarioDetail",
       "ReviewPacketReplay",
       "ExamFormWorkbench",
       "AssembleExamForm",
@@ -91,6 +93,7 @@ describe("OpenClinXR API shell", () => {
       "StationRunQueueSnapshots",
     ]);
     expect(documents[0]?.source).toContain("query ScenarioBank");
+    expect(documents.find((document) => document.routeId === "scenario-detail")?.source).toContain("query ScenarioDetail");
     expect(documents.find((document) => document.routeId === "station-run-queue-snapshot")?.source).toContain("createStationRunQueueSnapshot");
     expect(documents.at(-1)?.source).toContain("stationRunQueueSnapshots");
     expect(JSON.stringify(documents)).not.toContain("hiddenFacts");
@@ -452,6 +455,69 @@ describe("OpenClinXR API shell", () => {
       "Maria Alvarez",
     ]);
     expect(body.data?.scenarios[0]?.assetNeeds.map((asset) => asset.assetId)).toContain("ed_exam_bay_environment");
+    expect(JSON.stringify(body)).not.toContain("Father died of myocardial infarction");
+    expect(JSON.stringify(body)).not.toContain("hiddenFacts");
+  });
+
+  it("executes the generated ScenarioDetail operation with asset readiness and redacted actor facts", async () => {
+    const app = createApiApp();
+    const scenarioDetailDocument = adminGraphqlDocumentByOperationName("ScenarioDetail");
+    const response = await app.request("/admin/graphql", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        query: scenarioDetailDocument.source,
+        operationName: "ScenarioDetail",
+        variables: { scenarioId: "ed_chest_pain_priority_v1", version: 1 },
+      }),
+    });
+
+    const body = await json(response) as {
+      data?: {
+        scenario: {
+          scenarioId: string;
+          status: string;
+          environment?: { environmentId: string; name: string };
+          equipment: string[];
+          actors: Array<{ actorId: string; displayName: string; hiddenFacts?: string[] }>;
+        } | null;
+        assetReadiness: {
+          scenarioId: string;
+          devReady: boolean;
+          productionReady: boolean;
+          missingRequiredAssetIds: string[];
+          productionBlockedAssets: Array<{ assetId: string; blockers: string[] }>;
+        };
+      };
+      errors?: Array<{ message: string }>;
+    };
+
+    expect(response.status).toBe(200);
+    expect(body.errors).toBeUndefined();
+    expect(body.data?.scenario).toMatchObject({
+      scenarioId: "ed_chest_pain_priority_v1",
+      status: "APPROVED",
+      environment: {
+        environmentId: "ed_exam_bay_v1",
+      },
+    });
+    expect(body.data?.scenario?.equipment).toContain("12-lead ECG machine");
+    expect(body.data?.scenario?.actors.map((actor) => actor.displayName)).toEqual([
+      "Robert Hayes",
+      "Anna Hayes",
+      "Maria Alvarez",
+    ]);
+    expect(body.data?.assetReadiness).toMatchObject({
+      scenarioId: "ed_chest_pain_priority_v1",
+      devReady: true,
+      productionReady: false,
+      missingRequiredAssetIds: [],
+    });
+    expect(body.data?.assetReadiness.productionBlockedAssets).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ assetId: "patient_robert_hayes_character" }),
+      ]),
+    );
     expect(JSON.stringify(body)).not.toContain("Father died of myocardial infarction");
     expect(JSON.stringify(body)).not.toContain("hiddenFacts");
   });

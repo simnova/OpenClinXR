@@ -1,0 +1,55 @@
+query ScenarioDetail($scenarioId: ID!, $version: Int!) {
+  scenario(scenarioId: $scenarioId, version: $version) {
+    scenarioId
+    version
+    title
+    status
+    clinicalObjectives
+    requiredTraceTags
+    review {
+      clinical
+      psychometric
+      legal
+      simulationQa
+    }
+    governance {
+      scoreUseLabel
+      syntheticCaseDisclosure
+      validationStage
+      requiredReviewerRoles
+      sourceIds
+    }
+    environment {
+      environmentId
+      name
+      description
+    }
+    equipment
+    actors {
+      actorId
+      role
+      displayName
+      demeanor
+    }
+    assetNeeds {
+      assetId
+      assetType
+      description
+      licenseStatus
+    }
+  }
+  assetReadiness(scenarioId: $scenarioId, version: $version) {
+    scenarioId
+    devReady
+    productionReady
+    missingRequiredAssetIds
+    blockedAssets {
+      assetId
+      blockers
+    }
+    productionBlockedAssets {
+      assetId
+      blockers
+    }
+  }
+}

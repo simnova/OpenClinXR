@@ -80,6 +80,25 @@ describe("AdminApp", () => {
     expect(scenarioBank.textContent).not.toContain("__typename");
   });
 
+  it("renders scenario detail with asset readiness and no hidden facts", async () => {
+    render(<AdminApp initialPath="/scenarios/ed_chest_pain_priority_v1?version=1" controlPlaneClient={fakeControlPlaneClient()} />);
+
+    expect(await screen.findByRole("heading", { name: "ED Chest Pain With Nurse Interruption And Family Pressure" })).toBeInTheDocument();
+    expect(within(screen.getByLabelText("Scenario environment")).getByText("Emergency department exam bay")).toBeInTheDocument();
+    expect(within(screen.getByLabelText("Scenario equipment")).getByText("12-lead ECG machine")).toBeInTheDocument();
+    expect(screen.getByText("Robert Hayes")).toBeInTheDocument();
+    expect(within(screen.getByLabelText("Scenario production blockers")).getByText("patient_robert_hayes_character")).toBeInTheDocument();
+    expect(screen.getByText("Dev-ready assets")).toBeInTheDocument();
+    expect(screen.getByText("Production blocked")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Back to Scenario Bank" })).toHaveAttribute("href", "/scenarios");
+
+    const scenarioDetail = screen.getByLabelText("Scenario detail governance");
+    expect(findUnsafeClaimLanguage(scenarioDetail.textContent ?? "")).toEqual([]);
+    expect(scenarioDetail.textContent).not.toContain("Father died of myocardial infarction");
+    expect(scenarioDetail.textContent).not.toContain("hiddenFacts");
+    expect(scenarioDetail.textContent).not.toContain("__typename");
+  });
+
   it("renders existing station run queue review snapshots", async () => {
     const client = fakeControlPlaneClient();
     client.listStep2CsSeedStationRunQueueSnapshots = async () => [
@@ -240,6 +259,49 @@ function fakeControlPlaneClient(): AdminControlPlaneClient {
         assetNeeds: [],
       },
     ],
+    getScenarioDetail: async () => ({
+      scenario: {
+        scenarioId: "ed_chest_pain_priority_v1",
+        version: 1,
+        title: "ED Chest Pain With Nurse Interruption And Family Pressure",
+        status: "APPROVED",
+        clinicalObjectives: ["Elicit focused chest pain history and risk factors"],
+        requiredTraceTags: ["ecg_request", "urgent_escalation", "team_communication"],
+        review: { __typename: "ScenarioReviewState", clinical: "approved", psychometric: "approved", legal: "approved", simulationQa: "approved" },
+        governance: {
+          scoreUseLabel: "formative_local_only",
+          syntheticCaseDisclosure: "Synthetic local training scenario; not a validated summative assessment.",
+          validationStage: "stage_1_expert_reviewed",
+          requiredReviewerRoles: ["clinician", "psychometrician", "legal", "simulation_qa"],
+          sourceIds: ["src-step2cs-public-archive"],
+        },
+        environment: {
+          environmentId: "ed_exam_bay_v1",
+          name: "Emergency department exam bay",
+          description: "Busy ED exam bay with monitor alarms, family pressure, and nurse interruptions.",
+        },
+        equipment: ["12-lead ECG machine", "bedside monitor"],
+        actors: [
+          { actorId: "patient_robert_hayes_v1", role: "patient", displayName: "Robert Hayes", demeanor: "anxious" },
+          { actorId: "spouse_anna_hayes_v1", role: "family", displayName: "Anna Hayes", demeanor: "worried" },
+          { actorId: "nurse_maria_alvarez_v1", role: "nurse", displayName: "Maria Alvarez", demeanor: "direct" },
+        ],
+        assetNeeds: [
+          { assetId: "ed_exam_bay_environment", assetType: "environment", description: "ED bay", licenseStatus: "placeholder-approved" },
+          { assetId: "patient_robert_hayes_character", assetType: "character", description: "Chest pain patient", licenseStatus: "placeholder-approved" },
+        ],
+      },
+      assetReadiness: {
+        scenarioId: "ed_chest_pain_priority_v1",
+        devReady: true,
+        productionReady: false,
+        missingRequiredAssetIds: [],
+        blockedAssets: [],
+        productionBlockedAssets: [
+          { assetId: "patient_robert_hayes_character", blockers: ["placeholder_asset_not_clinical_release_ready"] },
+        ],
+      },
+    }),
     createStep2CsSeedStationRunQueueSnapshot: async (input) => ({
       snapshotId: input.snapshotId ?? "queue_snapshot_test_001",
       createdAt: input.createdAt ?? "2026-05-03T17:00:00.000Z",

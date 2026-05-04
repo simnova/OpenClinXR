@@ -3,7 +3,9 @@ export { adminGraphqlDocumentByOperationName, adminGraphqlDocuments, type AdminG
 export { openClinXrAdminSchemaSdl } from "./schema.js";
 import { openClinXrAdminSchemaSdl } from "./schema.js";
 import type {
+  AssetReadiness,
   MutationCreateStationRunQueueSnapshotArgs,
+  QueryAssetReadinessArgs,
   QueryScenarioArgs,
   QueryScenariosArgs,
   QueryStationRunQueueSnapshotsArgs,
@@ -34,6 +36,9 @@ export type AdminGraphqlExecutionInput = {
 };
 
 export type AdminGraphqlRootValue = {
+  assetReadiness?: (
+    args: QueryAssetReadinessArgs,
+  ) => Promise<AssetReadiness> | AssetReadiness;
   scenario?: (
     args: QueryScenarioArgs,
   ) => Promise<AdminGraphqlScenario | null | undefined> | AdminGraphqlScenario | null | undefined;

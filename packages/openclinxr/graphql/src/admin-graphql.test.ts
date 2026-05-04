@@ -71,6 +71,7 @@ describe("OpenClinXR admin GraphQL contract", () => {
     const schema = buildAdminGraphqlSchema();
     expect(adminGraphqlDocuments.map((document) => document.operationName)).toEqual([
       "ScenarioBank",
+      "ScenarioDetail",
       "ReviewPacketReplay",
       "ExamFormWorkbench",
       "AssembleExamForm",
@@ -100,6 +101,7 @@ describe("OpenClinXR admin GraphQL contract", () => {
 
     const documentPathsByRouteId = new Map([
       ["scenario-bank", "./documents/scenario-bank.graphql"],
+      ["scenario-detail", "./documents/scenario-detail.graphql"],
       ["review-packet-replay", "./documents/review-packet-replay.graphql"],
       ["exam-form-workbench", "./documents/exam-form-workbench.graphql"],
       ["exam-form-assembly", "./documents/assemble-exam-form.graphql"],

@@ -4,11 +4,14 @@ import type { BlueprintScenarioReadiness, ExamBlueprint, ExamStationRunQueue, Ex
 import {
   CreateStationRunQueueSnapshotDocument,
   ScenarioBankDocument,
+  ScenarioDetailDocument,
   StationRunQueueSnapshotsDocument,
   type CreateStationRunQueueSnapshotMutation,
   type CreateStationRunQueueSnapshotMutationVariables,
   type ScenarioBankQuery,
   type ScenarioBankQueryVariables,
+  type ScenarioDetailQuery,
+  type ScenarioDetailQueryVariables,
   type ScenarioStatus,
   type StationRunQueueSnapshotsQuery,
   type StationRunQueueSnapshotsQueryVariables,
@@ -38,6 +41,7 @@ export type AdminControlPlaneClient = {
   getStep2CsSeedTimingPlan(): Promise<ExamTimingPlan>;
   getStep2CsSeedStationRunQueue(): Promise<ExamStationRunQueue>;
   listScenarios(input?: ListScenariosInput): Promise<AdminScenario[]>;
+  getScenarioDetail(input: GetScenarioDetailInput): Promise<AdminScenarioDetail>;
   listStep2CsSeedStationRunQueueSnapshots(): Promise<AdminStationRunQueueSnapshot[]>;
   createStep2CsSeedStationRunQueueSnapshot(input: CreateStationRunQueueSnapshotInput): Promise<AdminStationRunQueueSnapshot>;
   getScenarioBankAssetReadiness(): Promise<ScenarioAssetReadiness[]>;
@@ -47,6 +51,11 @@ export type ListScenariosInput = {
   status?: ScenarioStatus;
 };
 
+export type GetScenarioDetailInput = {
+  scenarioId: string;
+  version: number;
+};
+
 export type CreateStationRunQueueSnapshotInput = {
   snapshotId?: string;
   createdAt?: string;
@@ -54,6 +63,7 @@ export type CreateStationRunQueueSnapshotInput = {
 };
 
 export type AdminScenario = ScenarioBankQuery["scenarios"][number];
+export type AdminScenarioDetail = ScenarioDetailQuery;
 export type AdminStationRunQueueSnapshot = StationRunQueueSnapshotsQuery["stationRunQueueSnapshots"][number];
 
 export const defaultAdminApiBaseUrl = import.meta.env.VITE_OPENCLINXR_API_BASE_URL ?? "";
@@ -61,6 +71,7 @@ export const defaultAdminApiBaseUrl = import.meta.env.VITE_OPENCLINXR_API_BASE_U
 const stationRunQueueSnapshotsDocument = print(StationRunQueueSnapshotsDocument);
 const createStationRunQueueSnapshotDocument = print(CreateStationRunQueueSnapshotDocument);
 const scenarioBankDocument = print(ScenarioBankDocument);
+const scenarioDetailDocument = print(ScenarioDetailDocument);
 
 export function buildAdminGraphqlEndpoint(baseUrl: string = defaultAdminApiBaseUrl): string {
   return `${normalizeBaseUrl(baseUrl)}${routeById("admin-graphql-execute").path}`;
@@ -98,6 +109,31 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
         variables,
       );
       return data.scenarios;
+    },
+    getScenarioDetail: async (input) => {
+      const variables: ScenarioDetailQueryVariables = {
+        scenarioId: input.scenarioId,
+        version: input.version,
+      };
+      if (apolloClient) {
+        const { data } = await apolloClient.query<ScenarioDetailQuery, ScenarioDetailQueryVariables>({
+          query: ScenarioDetailDocument,
+          variables,
+          fetchPolicy: "network-only",
+        });
+        if (!data) {
+          throw new Error("OpenClinXR admin GraphQL request failed: ScenarioDetail missing_data");
+        }
+        return data;
+      }
+
+      return graphql<ScenarioDetailQuery>(
+        fetcher,
+        baseUrl,
+        "ScenarioDetail",
+        scenarioDetailDocument,
+        variables,
+      );
     },
     listStep2CsSeedStationRunQueueSnapshots: async () => {
       if (apolloClient) {

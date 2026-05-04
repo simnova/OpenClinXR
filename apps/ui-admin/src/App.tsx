@@ -5,11 +5,12 @@ import { adminPublicationGates, adminWorkbenchRoutes } from "@openclinxr/ui-rout
 import { adminWorkbenchCapabilityTags, openClinXrAdminTheme } from "@openclinxr/ui-shared";
 import { Alert, Button, Card, ConfigProvider, Layout, Space, Spin, Steps, Tag, Typography } from "antd";
 import { useEffect, useMemo, useState } from "react";
-import { BrowserRouter, Link, MemoryRouter, Route, Routes } from "react-router";
+import { BrowserRouter, Link, MemoryRouter, Route, Routes, useParams, useSearchParams } from "react-router";
 import {
   createAdminControlPlaneClient,
   buildAdminGraphqlEndpoint,
   type AdminScenario,
+  type AdminScenarioDetail,
   type AdminControlPlaneClient,
   type AdminStationRunQueueSnapshot,
   type BlueprintScenarioReadiness,
@@ -88,6 +89,7 @@ export function AdminApp({ router = "memory", initialPath = "/", controlPlaneCli
               <Routes>
                 <Route path="/" element={<WorkbenchOverview />} />
                 <Route path="/scenarios" element={<ScenarioBankWorkbench controlPlaneClient={client} />} />
+                <Route path="/scenarios/:scenarioId" element={<ScenarioDetailWorkbench controlPlaneClient={client} />} />
                 <Route path="/reviews" element={<WorkbenchPanel routeId="review-packet-replay" />} />
                 <Route path="/exam-forms" element={<SeedBlueprintWorkbench controlPlaneClient={client} />} />
               </Routes>
@@ -233,7 +235,10 @@ function ScenarioBankWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
                 <Typography.Title level={4}>{scenario.title}</Typography.Title>
                 <Typography.Text type="secondary">{`${scenario.scenarioId} v${scenario.version}`}</Typography.Text>
               </div>
-              <Tag color={scenarioStatusColor(scenario.status)}>{scenario.status.toLowerCase().replaceAll("_", " ")}</Tag>
+              <Space wrap>
+                <Tag color={scenarioStatusColor(scenario.status)}>{scenario.status.toLowerCase().replaceAll("_", " ")}</Tag>
+                <Link to={`/scenarios/${scenario.scenarioId}?version=${scenario.version}`}>Open detail</Link>
+              </Space>
             </div>
 
             <div className="scenario-row-grid">
@@ -275,6 +280,181 @@ function ScenarioBankWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
             </div>
           </article>
         ))}
+      </div>
+    </section>
+  );
+}
+
+type ScenarioDetailWorkbenchState =
+  | { status: "loading" }
+  | { status: "error"; message: string }
+  | { status: "ready"; detail: AdminScenarioDetail };
+
+function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: AdminControlPlaneClient }): React.ReactElement {
+  const { scenarioId = "" } = useParams();
+  const [searchParams] = useSearchParams();
+  const version = Number.parseInt(searchParams.get("version") ?? "1", 10);
+  const [state, setState] = useState<ScenarioDetailWorkbenchState>({ status: "loading" });
+
+  useEffect(() => {
+    let active = true;
+
+    controlPlaneClient.getScenarioDetail({ scenarioId, version: Number.isFinite(version) ? version : 1 })
+      .then((detail) => {
+        if (active) {
+          setState({ status: "ready", detail });
+        }
+      })
+      .catch((error: unknown) => {
+        if (active) {
+          setState({ status: "error", message: error instanceof Error ? error.message : "Unknown ScenarioDetail error" });
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [controlPlaneClient, scenarioId, version]);
+
+  if (state.status === "loading") {
+    return (
+      <section className="scenario-detail-workbench" aria-labelledby="scenario-detail-title">
+        <Link to="/scenarios">Back to Scenario Bank</Link>
+        <Typography.Title id="scenario-detail-title" level={3}>
+          Scenario Detail
+        </Typography.Title>
+        <Spin />
+      </section>
+    );
+  }
+
+  if (state.status === "error") {
+    return (
+      <section className="scenario-detail-workbench" aria-labelledby="scenario-detail-title">
+        <Link to="/scenarios">Back to Scenario Bank</Link>
+        <Typography.Title id="scenario-detail-title" level={3}>
+          Scenario Detail
+        </Typography.Title>
+        <Alert type="error" title="Scenario detail unavailable" description={state.message} showIcon />
+      </section>
+    );
+  }
+
+  const { scenario, assetReadiness } = state.detail;
+
+  if (!scenario) {
+    return (
+      <section className="scenario-detail-workbench" aria-labelledby="scenario-detail-title">
+        <Link to="/scenarios">Back to Scenario Bank</Link>
+        <Typography.Title id="scenario-detail-title" level={3}>
+          Scenario Detail
+        </Typography.Title>
+        <Alert type="warning" title="Scenario not found" description={`${scenarioId} v${Number.isFinite(version) ? version : 1}`} showIcon />
+      </section>
+    );
+  }
+
+  return (
+    <section className="scenario-detail-workbench" aria-labelledby="scenario-detail-title" aria-label="Scenario detail governance">
+      <div className="workbench-title-row">
+        <div>
+          <Link to="/scenarios">Back to Scenario Bank</Link>
+          <Typography.Text className="eyebrow">Generated ScenarioDetail</Typography.Text>
+          <Typography.Title id="scenario-detail-title" level={3}>
+            {scenario.title}
+          </Typography.Title>
+          <Typography.Text type="secondary">{`${scenario.scenarioId} v${scenario.version}`}</Typography.Text>
+        </div>
+        <Space wrap>
+          <Tag color={scenarioStatusColor(scenario.status)}>{scenario.status.toLowerCase().replaceAll("_", " ")}</Tag>
+          <Tag color={assetReadiness.devReady ? "green" : "red"}>Dev-ready assets</Tag>
+          <Tag color={assetReadiness.productionReady ? "green" : "gold"}>
+            {assetReadiness.productionReady ? "Production ready" : "Production blocked"}
+          </Tag>
+        </Space>
+      </div>
+
+      <Alert
+        type="info"
+        title="Governance posture"
+        description={formatScenarioGovernanceNotice(scenario)}
+        showIcon
+      />
+
+      <div className="readiness-strip scenario-bank-strip" aria-label="Scenario detail summary">
+        <ReadinessMetric label={`${scenario.clinicalObjectives.length} objectives`} detail={`${scenario.requiredTraceTags.length} required trace tags`} />
+        <ReadinessMetric label={`${scenario.actors.length} actors`} detail={`${uniqueValues(scenario.actors.map((actor) => actor.role)).length} actor roles`} />
+        <ReadinessMetric label={`${scenario.assetNeeds.length} asset needs`} detail={`${assetReadiness.productionBlockedAssets.length} production blockers`} />
+        <ReadinessMetric label={scenario.environment?.name ?? "Environment pending"} detail={`${scenario.equipment.length} equipment items`} />
+      </div>
+
+      <div className="scenario-detail-grid">
+        <section className="workbench-panel" aria-label="Scenario environment">
+          <Typography.Title level={4}>Environment</Typography.Title>
+          <Typography.Text strong>{scenario.environment?.name ?? "Environment pending"}</Typography.Text>
+          <Typography.Paragraph>{scenario.environment?.description ?? "No environment description supplied."}</Typography.Paragraph>
+          <Typography.Text type="secondary">{scenario.environment?.environmentId ?? "missing environment ID"}</Typography.Text>
+        </section>
+
+        <section className="workbench-panel" aria-label="Scenario equipment">
+          <Typography.Title level={4}>Equipment</Typography.Title>
+          <ol className="compact-list">
+            {scenario.equipment.map((item) => (
+              <li key={item}>
+                <Typography.Text>{item}</Typography.Text>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section className="workbench-panel" aria-label="Scenario actors">
+          <Typography.Title level={4}>Actors</Typography.Title>
+          <ol className="compact-list">
+            {scenario.actors.map((actor) => (
+              <li key={actor.actorId}>
+                <Typography.Text>{actor.displayName}</Typography.Text>
+                <Typography.Text type="secondary">{`${actor.role}${actor.demeanor ? `, ${actor.demeanor}` : ""}`}</Typography.Text>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section className="workbench-panel" aria-label="Scenario review gates">
+          <Typography.Title level={4}>Review Gates</Typography.Title>
+          <div className="tag-row">
+            {scenarioReviewGateEntries(scenario).map(([gate, stateName]) => (
+              <Tag key={gate} color={reviewGateColor(stateName)}>{`${gate}: ${stateName}`}</Tag>
+            ))}
+          </div>
+        </section>
+
+        <section className="workbench-panel" aria-label="Scenario asset needs">
+          <Typography.Title level={4}>Asset Needs</Typography.Title>
+          <ol className="compact-list">
+            {scenario.assetNeeds.map((asset) => (
+              <li key={asset.assetId}>
+                <Typography.Text>{asset.assetId}</Typography.Text>
+                <Typography.Text type="secondary">{`${asset.assetType} / ${asset.licenseStatus}`}</Typography.Text>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section className="workbench-panel" aria-label="Scenario production blockers">
+          <Typography.Title level={4}>Production Blockers</Typography.Title>
+          {assetReadiness.productionBlockedAssets.length === 0 ? (
+            <Typography.Paragraph className="empty-panel-note">No production blockers recorded.</Typography.Paragraph>
+          ) : (
+            <ol className="compact-list">
+              {assetReadiness.productionBlockedAssets.map((asset) => (
+                <li key={asset.assetId}>
+                  <Typography.Text>{asset.assetId}</Typography.Text>
+                  <Typography.Text type="secondary">{asset.blockers.join(", ")}</Typography.Text>
+                </li>
+              ))}
+            </ol>
+          )}
+        </section>
       </div>
     </section>
   );

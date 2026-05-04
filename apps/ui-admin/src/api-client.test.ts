@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { print } from "graphql";
-import { CreateStationRunQueueSnapshotDocument, ScenarioBankDocument, StationRunQueueSnapshotsDocument } from "@openclinxr/graphql/client";
+import { CreateStationRunQueueSnapshotDocument, ScenarioBankDocument, ScenarioDetailDocument, StationRunQueueSnapshotsDocument } from "@openclinxr/graphql/client";
 import { buildAdminGraphqlEndpoint, createAdminControlPlaneClient, type AdminApolloGraphqlClient } from "./api-client.js";
 
 describe("admin control-plane API client", () => {
@@ -13,6 +13,7 @@ describe("admin control-plane API client", () => {
     const listSnapshotsDocument = print(StationRunQueueSnapshotsDocument);
     const createSnapshotDocument = print(CreateStationRunQueueSnapshotDocument);
     const scenarioBankDocument = print(ScenarioBankDocument);
+    const scenarioDetailDocument = print(ScenarioDetailDocument);
     const requests: RecordedRequest[] = [];
     const queueSnapshot = {
       snapshotId: "queue_snapshot_ui_001",
@@ -55,6 +56,48 @@ describe("admin control-plane API client", () => {
             ],
           },
         },
+        "/admin/graphql#ScenarioDetail": {
+          data: {
+            scenario: {
+              scenarioId: "ed_chest_pain_priority_v1",
+              version: 1,
+              title: "ED Chest Pain With Nurse Interruption And Family Pressure",
+              status: "APPROVED",
+              clinicalObjectives: ["Elicit focused chest pain history and risk factors"],
+              requiredTraceTags: ["ecg_request", "urgent_escalation"],
+              review: { clinical: "approved", psychometric: "approved", legal: "approved", simulationQa: "approved" },
+              governance: {
+                scoreUseLabel: "formative_local_only",
+                syntheticCaseDisclosure: "Synthetic local training scenario; not a validated summative assessment.",
+                validationStage: "stage_1_expert_reviewed",
+                requiredReviewerRoles: ["clinician", "psychometrician", "legal", "simulation_qa"],
+                sourceIds: ["src-step2cs-public-archive"],
+              },
+              environment: {
+                environmentId: "ed_exam_bay_v1",
+                name: "Emergency department exam bay",
+                description: "Busy ED bay with monitor alarms and nurse interruptions",
+              },
+              equipment: ["12-lead ECG machine"],
+              actors: [
+                { actorId: "patient_robert_hayes_v1", role: "patient", displayName: "Robert Hayes", demeanor: "anxious" },
+              ],
+              assetNeeds: [
+                { assetId: "ed_exam_bay_environment", assetType: "environment", description: "ED bay", licenseStatus: "placeholder-approved" },
+              ],
+            },
+            assetReadiness: {
+              scenarioId: "ed_chest_pain_priority_v1",
+              devReady: true,
+              productionReady: false,
+              missingRequiredAssetIds: [],
+              blockedAssets: [],
+              productionBlockedAssets: [
+                { assetId: "patient_robert_hayes_character", blockers: ["placeholder_asset_not_clinical_release_ready"] },
+              ],
+            },
+          },
+        },
         "/admin/graphql#StationRunQueueSnapshots": { data: { stationRunQueueSnapshots: [queueSnapshot] } },
         "/admin/graphql#CreateStationRunQueueSnapshot": { data: { createStationRunQueueSnapshot: queueSnapshot } },
         "/scenario-bank/assets/readiness": [{ scenarioId: "ed_chest_pain_priority_v1", devReady: true, productionReady: false }],
@@ -72,6 +115,16 @@ describe("admin control-plane API client", () => {
         actors: [expect.objectContaining({ displayName: "Robert Hayes" })],
       }),
     ]);
+    await expect(client.getScenarioDetail({ scenarioId: "ed_chest_pain_priority_v1", version: 1 })).resolves.toEqual({
+      scenario: expect.objectContaining({
+        scenarioId: "ed_chest_pain_priority_v1",
+        equipment: ["12-lead ECG machine"],
+      }),
+      assetReadiness: expect.objectContaining({
+        devReady: true,
+        productionReady: false,
+      }),
+    });
     await expect(client.listStep2CsSeedStationRunQueueSnapshots()).resolves.toEqual([queueSnapshot]);
     await expect(client.createStep2CsSeedStationRunQueueSnapshot({
       snapshotId: "queue_snapshot_ui_001",
@@ -93,6 +146,18 @@ describe("admin control-plane API client", () => {
           query: scenarioBankDocument,
           variables: {
             status: "APPROVED",
+          },
+        }),
+      },
+      {
+        url: "http://localhost:8787/admin/graphql",
+        method: "POST",
+        body: expect.objectContaining({
+          operationName: "ScenarioDetail",
+          query: scenarioDetailDocument,
+          variables: {
+            scenarioId: "ed_chest_pain_priority_v1",
+            version: 1,
           },
         }),
       },
@@ -170,6 +235,21 @@ describe("admin control-plane API client", () => {
     };
     const apolloClient = {
       query: vi.fn(async ({ query }) => {
+        if (query === ScenarioDetailDocument) {
+          return {
+            data: {
+              scenario,
+              assetReadiness: {
+                scenarioId: "ed_chest_pain_priority_v1",
+                devReady: true,
+                productionReady: false,
+                missingRequiredAssetIds: [],
+                blockedAssets: [],
+                productionBlockedAssets: [],
+              },
+            },
+          };
+        }
         if (query === ScenarioBankDocument) {
           return { data: { scenarios: [scenario] } };
         }
@@ -185,6 +265,10 @@ describe("admin control-plane API client", () => {
     });
 
     await expect(client.listScenarios({ status: "APPROVED" })).resolves.toEqual([scenario]);
+    await expect(client.getScenarioDetail({ scenarioId: "ed_chest_pain_priority_v1", version: 1 })).resolves.toEqual({
+      scenario,
+      assetReadiness: expect.objectContaining({ devReady: true }),
+    });
     await expect(client.listStep2CsSeedStationRunQueueSnapshots()).resolves.toEqual([queueSnapshot]);
     await expect(client.createStep2CsSeedStationRunQueueSnapshot({
       createdAt: "2026-05-04T02:30:00.000Z",
@@ -194,6 +278,14 @@ describe("admin control-plane API client", () => {
       query: ScenarioBankDocument,
       variables: {
         status: "APPROVED",
+      },
+      fetchPolicy: "network-only",
+    });
+    expect(apolloClient.query).toHaveBeenCalledWith({
+      query: ScenarioDetailDocument,
+      variables: {
+        scenarioId: "ed_chest_pain_priority_v1",
+        version: 1,
       },
       fetchPolicy: "network-only",
     });

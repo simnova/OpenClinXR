@@ -76,7 +76,8 @@ a {
 }
 
 .seed-workbench,
-.scenario-bank-workbench {
+.scenario-bank-workbench,
+.scenario-detail-workbench {
   max-width: 1180px;
 }
 
@@ -215,6 +216,12 @@ a {
   padding-top: 10px;
 }
 
+.scenario-detail-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .tag-row {
   display: flex;
   flex-wrap: wrap;
@@ -255,7 +262,8 @@ a {
 
   .readiness-strip,
   .scenario-bank-strip,
-  .workbench-panels {
+  .workbench-panels,
+  .scenario-detail-grid {
     grid-template-columns: 1fr;
   }
 

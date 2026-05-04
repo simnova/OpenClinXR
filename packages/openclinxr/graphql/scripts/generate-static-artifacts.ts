@@ -16,6 +16,7 @@ const generatedDir = path.join(packageRoot, "src/generated");
 
 const documentOrder = [
   "scenario-bank.graphql",
+  "scenario-detail.graphql",
   "review-packet-replay.graphql",
   "exam-form-workbench.graphql",
   "assemble-exam-form.graphql",

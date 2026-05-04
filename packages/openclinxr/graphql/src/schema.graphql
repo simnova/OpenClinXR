@@ -88,6 +88,7 @@ type AssetNeed {
 }
 
 type AssetReadiness {
+  scenarioId: ID!
   devReady: Boolean!
   productionReady: Boolean!
   missingRequiredAssetIds: [ID!]!

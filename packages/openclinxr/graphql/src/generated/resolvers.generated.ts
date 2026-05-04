@@ -47,6 +47,7 @@ export type AssetReadiness = {
   missingRequiredAssetIds: Array<Scalars['ID']['output']>;
   productionBlockedAssets: Array<AssetBlocker>;
   productionReady: Scalars['Boolean']['output'];
+  scenarioId: Scalars['ID']['output'];
 };
 
 export type CreateStationRunQueueSnapshotInput = {
@@ -528,6 +529,7 @@ export type AssetReadinessResolvers<ContextType = any, ParentType extends Resolv
   missingRequiredAssetIds?: Resolver<Array<ResolversTypes['ID']>, ParentType, ContextType>;
   productionBlockedAssets?: Resolver<Array<ResolversTypes['AssetBlocker']>, ParentType, ContextType>;
   productionReady?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  scenarioId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
 };
 
 export type ExamBreakCheckpointResolvers<ContextType = any, ParentType extends ResolversParentTypes['ExamBreakCheckpoint'] = ResolversParentTypes['ExamBreakCheckpoint']> = {
