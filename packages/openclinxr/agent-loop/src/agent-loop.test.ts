@@ -8,6 +8,7 @@ import {
   normalizeLegacyScorecard,
   recommendAgentModelForWorkOrder,
   recommendBackgroundAgentModel,
+  recommendWorkflowSkillsForWorkOrder,
   serializeAgentLoopPlan,
   type AgentMemoryEntry,
   type IterationScorecard,
@@ -285,6 +286,52 @@ describe("agent-loop synthesis planning", () => {
       reasoningEffort: "xhigh",
       policyTier: "frontier_thinking",
     });
+  });
+
+  it("recommends workflow skills from work order intent without making them runtime dependencies", () => {
+    const graphQlAdminSkills = recommendWorkflowSkillsForWorkOrder({
+      stage: "core_revision",
+      goal: "Implement an admin GraphQL workbench with Ant Design forms and executable package boundaries.",
+      dimensions: ["architecture_coherence", "ux_workflow_fit"],
+      memoryTopics: ["graphql-codegen", "admin-ui", "component-boundaries"],
+    });
+
+    expect(graphQlAdminSkills.map((skill) => skill.id)).toEqual([
+      "apollo-graphql-skills",
+      "ant-design-cli-skill",
+      "archunitts",
+    ]);
+    expect(graphQlAdminSkills.find((skill) => skill.id === "apollo-graphql-skills")?.guardrails.join(" ")).toContain(
+      "not a runtime dependency",
+    );
+    expect(graphQlAdminSkills.find((skill) => skill.id === "ant-design-cli-skill")?.guardrails.join(" ")).toContain(
+      "exact-version APIs",
+    );
+
+    const monorepoSkills = recommendWorkflowSkillsForWorkOrder({
+      stage: "core_revision",
+      goal: "Refine Turborepo affected-package CI cache behavior for package tasks.",
+      dimensions: ["implementation_readiness"],
+      memoryTopics: ["monorepo", "ci", "package-tasks"],
+    });
+
+    expect(monorepoSkills).toEqual([
+      expect.objectContaining({
+        id: "turborepo-skill",
+        guardrails: expect.arrayContaining([expect.stringContaining("telemetry disabled")]),
+      }),
+    ]);
+
+    const storybookSkills = recommendWorkflowSkillsForWorkOrder({
+      stage: "core_revision",
+      goal: "Review Storybook component states for the faculty review queue.",
+      dimensions: ["ux_workflow_fit"],
+      memoryTopics: ["storybook", "component state"],
+    });
+
+    expect(storybookSkills).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: "storybook-mcp" }),
+    ]));
   });
 
   it("keeps specialist-owned blocker actions tied to scored dimensions after the plan clears low score thresholds", () => {

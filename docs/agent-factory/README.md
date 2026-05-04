@@ -50,6 +50,10 @@ pnpm agent:verify
 
 Use `docs/agent-factory/model-assignment-policy.md` and the `packages/openclinxr/agent-loop` recommendation helpers when assigning background agents. `gpt-5.4-mini` is for bounded scouting, `gpt-5.4` is for ordinary execution and specialist review, and `gpt-5.5` with extra-high reasoning is reserved for adversarial or leadership synthesis.
 
+## Workflow Skills
+
+Use `docs/agent-factory/workflow-skill-policy.md` and `recommendWorkflowSkillsForWorkOrder` in `packages/openclinxr/agent-loop` when assigning local workflow skills. These recommendations are advisory tooling support for agents; they do not create runtime dependencies unless a later verified implementation slice installs and tests one deliberately.
+
 ## Quality Bar
 
 The plan is not mature until it has:

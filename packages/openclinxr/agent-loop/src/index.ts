@@ -195,6 +195,21 @@ export type BackgroundAgentModelRecommendation = {
   rationale: string;
 };
 
+export type AgentWorkflowSkillId =
+  | "ant-design-cli-skill"
+  | "apollo-graphql-skills"
+  | "archunitts"
+  | "storybook-mcp"
+  | "turborepo-skill";
+
+export type AgentWorkflowSkillRecommendation = {
+  id: AgentWorkflowSkillId;
+  name: string;
+  sourceUrl?: string;
+  useWhen: string;
+  guardrails: string[];
+};
+
 export type RecommendBackgroundAgentModelInput = {
   taskType: BackgroundAgentTaskType;
 };
@@ -569,6 +584,84 @@ export function recommendAgentModelForWorkOrder(order: Pick<AgentWorkOrder, "sta
   }
 }
 
+export function recommendWorkflowSkillsForWorkOrder(
+  order: Pick<AgentWorkOrder, "stage" | "goal" | "dimensions" | "memoryTopics">,
+): AgentWorkflowSkillRecommendation[] {
+  const text = [
+    order.stage,
+    order.goal,
+    ...order.dimensions,
+    ...order.memoryTopics,
+  ].join(" ").toLowerCase();
+  const recommendations: AgentWorkflowSkillRecommendation[] = [];
+
+  if (matchesAny(text, ["graphql", "apollo", "schema", "operation", "resolver", "codegen"])) {
+    recommendations.push({
+      id: "apollo-graphql-skills",
+      name: "Apollo GraphQL Skills",
+      sourceUrl: "https://github.com/apollographql/skills",
+      useWhen: "Use for GraphQL schema, operation, Apollo Client, Rover, and GraphQL MCP review.",
+      guardrails: [
+        "Treat as advisory workflow guidance, not a runtime dependency.",
+        "Back recommendations with generated documents, repository tests, and selected GraphQL Code Generator/Apollo versions.",
+      ],
+    });
+  }
+
+  if (matchesAny(text, ["turbo", "turborepo", "monorepo", "package task", "package-task", "cache", "affected", "ci"])) {
+    recommendations.push({
+      id: "turborepo-skill",
+      name: "Turborepo Skill",
+      sourceUrl: "https://github.com/vercel/turborepo/blob/main/skills/turborepo/SKILL.md",
+      useWhen: "Use for package task orchestration, cache behavior, affected-package execution, and CI build graph design.",
+      guardrails: [
+        "Keep task logic package-local and root scripts delegated through turbo run.",
+        "Keep anonymous telemetry disabled in repo scripts and keep remote caching opt-in.",
+      ],
+    });
+  }
+
+  if (matchesAny(text, ["ant design", "antd", "admin ui", "component", "table", "form", "token", "design system"])) {
+    recommendations.push({
+      id: "ant-design-cli-skill",
+      name: "Ant Design CLI Skill",
+      sourceUrl: "https://github.com/ant-design/ant-design-cli/blob/main/skills/antd/SKILL.md",
+      useWhen: "Use for Ant Design 6 component props, demos, semantic class names, tokens, linting, and doctor checks.",
+      guardrails: [
+        "Prefer package-managed execution over an untracked global install.",
+        "Query exact-version APIs with JSON output before writing or changing Ant Design components.",
+      ],
+    });
+  }
+
+  if (matchesAny(text, ["storybook", "story", "visual", "component state", "workshop"])) {
+    recommendations.push({
+      id: "storybook-mcp",
+      name: "Storybook MCP Addon",
+      useWhen: "Use when Storybook stories become maintained admin/XR component artifacts for local agent inspection.",
+      guardrails: [
+        "Keep optional until Storybook and addon packages are installed deliberately.",
+        "Use alongside component tests rather than as a replacement for repository verification.",
+      ],
+    });
+  }
+
+  if (order.dimensions.includes("architecture_coherence") || matchesAny(text, ["architecture", "boundary", "import", "cycle", "archunit"])) {
+    recommendations.push({
+      id: "archunitts",
+      name: "ArchUnitTS",
+      sourceUrl: "https://github.com/LukasNiessen/ArchUnitTS",
+      useWhen: "Use to turn architecture decisions into executable package, import, and dependency-boundary checks.",
+      guardrails: [
+        "Prefer narrow rules with clear ownership and low false-positive risk.",
+        "Keep rules in package-local tests so pnpm verify and Turbo package tasks enforce them.",
+      ],
+    });
+  }
+
+  return uniqueSkillRecommendations(recommendations);
+}
+
 export function normalizeLegacyScorecard(scorecard: LegacyScorecard): IterationScorecard {
   return {
     iterationId: scorecard.iteration_id,
@@ -836,6 +929,20 @@ function isLegalDimension(dimension: ScoreDimension): boolean {
 
 function uniqueAgentIds(agentIds: readonly string[]): string[] {
   return [...new Set(agentIds)].filter((agentId) => agentId.length > 0);
+}
+
+function uniqueSkillRecommendations(recommendations: readonly AgentWorkflowSkillRecommendation[]): AgentWorkflowSkillRecommendation[] {
+  const byId = new Map<AgentWorkflowSkillId, AgentWorkflowSkillRecommendation>();
+  for (const recommendation of recommendations) {
+    if (!byId.has(recommendation.id)) {
+      byId.set(recommendation.id, recommendation);
+    }
+  }
+  return [...byId.values()];
+}
+
+function matchesAny(value: string, needles: readonly string[]): boolean {
+  return needles.some((needle) => value.includes(needle));
 }
 
 function roundScore(value: number): number {
