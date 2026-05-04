@@ -267,14 +267,14 @@ Milestone 2 API shell has also started:
 
 - Hono API app exists at `apps/api`.
 - API can serve the ED fixture, start a session, append learner trace events, submit a note, and return a review packet.
-- API state is intentionally in-memory for this slice; MongoDB remains a later repository-contract milestone.
+- API state is intentionally in-memory by default for this slice, but the persistence boundary now has Mongo-backed integration coverage for review replay.
 - API provider health is now sourced from the offline model and voice gateways rather than hard-coded local literals.
 
 MongoDB repository-contract milestone has also started:
 
 - `packages/openclinxr/data-mongodb` exists.
 - `mongodb-memory-server` tests pass locally using MongoDB binary `7.0.24`.
-- Scenario and trace repositories now have first contract tests for versioned scenario lookup, approved scenario queries, trace append, ordered replay, and sequence uniqueness.
+- Scenario, trace, review-packet, scenario-review-decision, exam-form, and station-run queue repositories now have contract tests for versioned scenario lookup, approved scenario queries, trace append, ordered replay, sequence uniqueness, review replay order, locked scenario refs, and reviewer queue snapshots.
 
 XR station-shell milestone has also started:
 
@@ -326,6 +326,7 @@ Exam assembly milestone has also started:
 - `apps/api` exposes version-drift comparison for a submitted exam form against current scenario versions.
 - `packages/openclinxr/data-mongodb` persists exam forms with locked scenario refs for later drift review.
 - `packages/openclinxr/data-mongodb` persists station-run queue snapshots with reviewer provenance, timing, launch-gating status, and per-station blockers so admin approval can reference the exact queue that was reviewed.
+- `packages/openclinxr/data-mongodb` has a dev-only API restart integration test that submits `SubmitScenarioReview`, recreates the app with a fresh Mongo-backed persistence sink, and confirms `ScenarioDetail` replays the persisted review decision without exposing hidden facts.
 - `apps/ui-admin` has typed control-plane client methods and an exam-forms workbench action for listing and creating seed station-run queue review snapshots through GraphQL Code Generator typed documents exported from `@openclinxr/graphql/client`. The default admin app now executes those generated GraphQL operations through Apollo Client with network-only query fetch policy, while retaining fetch-based REST calls and injectable test clients.
 - `packages/openclinxr/architecture-rules` enforces the current boundary decision that UI apps call REST through app-local API clients, UI GraphQL imports stay on the generated document subpath, API persistence remains injected instead of importing concrete Mongo packages, and UI apps do not depend on Mongo persistence source packages.
 - `packages/openclinxr/graphql` includes `createStationRunQueueSnapshot` and `stationRunQueueSnapshots` operation contracts, exports static document metadata through `@openclinxr/graphql/documents`, exports typed generated documents through `@openclinxr/graphql/client`, generates TypeScript resolver signatures through `@openclinxr/graphql/resolvers`, and now types the executable API GraphQL root value against the generated station-run queue snapshot args/results.

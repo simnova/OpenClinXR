@@ -93,6 +93,11 @@ Current repositories:
 
 - `MongoScenarioRepository`
 - `MongoTraceRepository`
+- `MongoReviewPacketRepository`
+- `MongoScenarioReviewDecisionRepository`
+- `MongoExamFormRepository`
+- `MongoStationRunQueueRepository`
+- `MongoApiPersistenceSink`
 
 Current tests:
 
@@ -100,6 +105,11 @@ Current tests:
 - Approved scenario query.
 - Trace append and ordered replay.
 - Duplicate trace sequence rejection through unique index.
+- Scenario review decision replay order.
+- Exam form persistence with locked scenario versions.
+- Station run queue snapshot persistence for reviewer launch gating.
+- API sink persistence for exam forms, trace snapshots, review packets, scenario review decisions, and station queues.
+- API restart replay: `packages/openclinxr/data-mongodb` now uses a dev-only Mongo memory integration test to submit `SubmitScenarioReview`, recreate the app with a fresh Mongo-backed sink, and confirm `ScenarioDetail` reflects the persisted review decision without exposing hidden facts.
 
 ## Sources
 

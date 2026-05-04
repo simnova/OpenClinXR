@@ -17,6 +17,8 @@
     "mongodb": "7.2.0"
   },
   "devDependencies": {
+    "@openclinxr/api": "workspace:*",
+    "@openclinxr/graphql": "workspace:*",
     "mongodb-memory-server": "11.1.0",
     "typescript": "6.0.3",
     "vitest": "4.1.5"

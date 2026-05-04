@@ -42,10 +42,12 @@ export type ApiStationRunQueueSnapshot = {
   queue: ExamStationRunQueue;
 };
 
+export type ApiScenarioReviewerRole = "clinical" | "psychometric" | "legal" | "simulationQa";
+
 export type ApiScenarioReviewDecisionRecord = {
   scenarioId: string;
   version: number;
-  reviewerRole: keyof AdminGraphqlScenario["review"];
+  reviewerRole: ApiScenarioReviewerRole;
   reviewerId: string;
   decision: "approved" | "changes_requested";
   comments: string;
@@ -457,7 +459,7 @@ function scenarioVersionKey(scenarioId: string, version: number): string {
   return `${scenarioId}:${version}`;
 }
 
-function parseScenarioReviewGate(reviewerRole: string): keyof AdminGraphqlScenario["review"] {
+function parseScenarioReviewGate(reviewerRole: string): ApiScenarioReviewerRole {
   if (reviewerRole === "clinical" || reviewerRole === "psychometric" || reviewerRole === "legal" || reviewerRole === "simulationQa") {
     return reviewerRole;
   }
@@ -490,7 +492,7 @@ function toApiScenarioReviewDecisionRecord(
     comments: string;
     evidenceRefs: Array<string>;
   },
-  reviewerRole: keyof AdminGraphqlScenario["review"],
+  reviewerRole: ApiScenarioReviewerRole,
 ): ApiScenarioReviewDecisionRecord {
   return {
     scenarioId: String(input.scenarioId),
