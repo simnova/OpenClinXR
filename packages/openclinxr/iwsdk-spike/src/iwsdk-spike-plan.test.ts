@@ -822,6 +822,7 @@ describe("IWSDK spike plan", () => {
       readyForCommittedSpike: true,
       readyForProductionRuntime: false,
       blockers: [
+        "missing_foreground_quest_preflight_ready",
         "missing_avg_fps",
         "missing_p95_frame_ms",
         "missing_controller_select_latency_ms",
@@ -839,6 +840,7 @@ describe("IWSDK spike plan", () => {
       p95FrameMs: 31,
       controllerSelectLatencyMs: 220,
       consoleErrorCount: 1,
+      foregroundQuestPreflightReady: false,
     })).toEqual({
       readyForCommittedSpike: false,
       readyForProductionRuntime: false,
@@ -848,6 +850,7 @@ describe("IWSDK spike plan", () => {
         "app_js_bundle_kb_over_budget",
         "bundle_delta_vs_ui_xr_kb_over_budget",
         "console_errors_present",
+        "foreground_quest_preflight_not_ready",
         "avg_fps_below_floor",
         "p95_frame_ms_over_budget",
         "controller_select_latency_ms_over_budget",

@@ -172,7 +172,7 @@
   },
   "iwsdk_evidence_contract": {
     "file": "docs/openclinxr/iwsdk-evidence-contract-2026-05-04.json",
-    "generated_at": "2026-05-04T07:13:02.877Z",
+    "generated_at": "2026-05-04T07:40:15.400Z",
     "status": "contract_only",
     "ready_for_install_backed_sidecar": false,
     "ready_for_agent_tooling": false,
@@ -198,6 +198,7 @@
       "production_runtime:missing_bundle_delta_vs_ui_xr_kb",
       "production_runtime:missing_console_error_count",
       "production_runtime:missing_controller_select_latency_ms",
+      "production_runtime:missing_foreground_quest_preflight_ready",
       "production_runtime:missing_injected_dev_runtime_kb",
       "production_runtime:missing_installed_node_modules_mb",
       "production_runtime:missing_p95_frame_ms",

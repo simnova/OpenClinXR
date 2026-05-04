@@ -89,7 +89,7 @@ Score a future committed sidecar metrics JSON file with:
 pnpm iwsdk:sidecar:metrics -- --input path/to/iwsdk-sidecar-metrics.json --output docs/openclinxr/iwsdk-sidecar-metrics-YYYY-MM-DD.json
 ```
 
-This checker uses the same budgets as `packages/openclinxr/iwsdk-spike`: installed footprint, injected dev runtime, app bundle, bundle delta, console errors, foreground Quest FPS, p95 frame time, and controller-select latency.
+This checker uses the same budgets as `packages/openclinxr/iwsdk-spike`: installed footprint, injected dev runtime, app bundle, bundle delta, console errors, foreground Quest preflight readiness, foreground Quest FPS, p95 frame time, and controller-select latency.
 
 Before creating or running any committed sidecar, scan the workspace posture with:
 

@@ -45,6 +45,7 @@ describe("IWSDK sidecar metrics checker", () => {
       readyForCommittedSpike: true,
       readyForProductionRuntime: false,
       blockers: [
+        "missing_foreground_quest_preflight_ready",
         "missing_avg_fps",
         "missing_p95_frame_ms",
         "missing_controller_select_latency_ms",
@@ -87,6 +88,7 @@ function readyMetrics(): IwsdkSidecarMetricsReport["metrics"] {
     avgFps: 72,
     p95FrameMs: 24,
     controllerSelectLatencyMs: 140,
+    foregroundQuestPreflightReady: true,
     consoleErrorCount: 0,
   };
 }

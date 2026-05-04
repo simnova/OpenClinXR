@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T07:13:02.877Z",
+  "generatedAt": "2026-05-04T07:40:15.400Z",
   "status": "contract_only",
   "sidecar": {
     "sidecarAppRoot": "apps/ui-xr-iwsdk-spike/",
@@ -90,6 +90,7 @@
       "missing_app_js_bundle_kb",
       "missing_bundle_delta_vs_ui_xr_kb",
       "missing_console_error_count",
+      "missing_foreground_quest_preflight_ready",
       "missing_avg_fps",
       "missing_p95_frame_ms",
       "missing_controller_select_latency_ms"
@@ -120,6 +121,7 @@
       "production_runtime:missing_bundle_delta_vs_ui_xr_kb",
       "production_runtime:missing_console_error_count",
       "production_runtime:missing_controller_select_latency_ms",
+      "production_runtime:missing_foreground_quest_preflight_ready",
       "production_runtime:missing_injected_dev_runtime_kb",
       "production_runtime:missing_installed_node_modules_mb",
       "production_runtime:missing_p95_frame_ms",

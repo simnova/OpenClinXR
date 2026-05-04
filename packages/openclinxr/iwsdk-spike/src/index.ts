@@ -56,6 +56,7 @@ export type IwsdkSpikeMetrics = {
   avgFps?: number;
   p95FrameMs?: number;
   controllerSelectLatencyMs?: number;
+  foregroundQuestPreflightReady?: boolean;
   consoleErrorCount?: number;
 };
 
@@ -450,6 +451,7 @@ export function evaluateIwsdkSpikeMetrics(
     ),
   ].filter((blocker): blocker is string => Boolean(blocker));
   const productionBlockers = [
+    foregroundQuestPreflightBlocker(metrics.foregroundQuestPreflightReady),
     missingOrUnderMin(metrics.avgFps, thresholds.avgFpsMin, "missing_avg_fps", "avg_fps_below_floor"),
     missingOrOverMax(metrics.p95FrameMs, thresholds.p95FrameMsMax, "missing_p95_frame_ms", "p95_frame_ms_over_budget"),
     missingOrOverMax(
@@ -1151,6 +1153,13 @@ function missingOrUnderMin(
     return missingBlocker;
   }
   return value < minimum ? underBudgetBlocker : undefined;
+}
+
+function foregroundQuestPreflightBlocker(value: boolean | undefined): string | undefined {
+  if (value === true) {
+    return undefined;
+  }
+  return value === false ? "foreground_quest_preflight_not_ready" : "missing_foreground_quest_preflight_ready";
 }
 
 function isExactVersion(version: string): boolean {

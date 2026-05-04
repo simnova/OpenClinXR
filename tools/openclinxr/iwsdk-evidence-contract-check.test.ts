@@ -40,6 +40,7 @@ describe("IWSDK evidence contract checker", () => {
         "sidecar:exact_iwsdk_versions_selected",
         "agent_tooling:adapter_sync_not_recorded",
         "agent_tooling:mcp_tool_inventory_count_not_32",
+        "production_runtime:missing_foreground_quest_preflight_ready",
         "production_runtime:missing_avg_fps",
       ]),
     });
@@ -67,6 +68,7 @@ describe("IWSDK evidence contract checker", () => {
       expect(report.verdict.blockers).toEqual(expect.arrayContaining([
         "sidecar:operator_accepts_iwsdk_install_scope",
         "agent_tooling:missing_managed_browser_evidence",
+        "production_runtime:missing_foreground_quest_preflight_ready",
         "production_runtime:missing_controller_select_latency_ms",
       ]));
     }
