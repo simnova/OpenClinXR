@@ -28,4 +28,24 @@ describe("OpenClinXR API protocol posture", () => {
       blockers: [],
     });
   });
+
+  it("keeps Web3 signaling out of the clinical media path while QUIC remains evidence gated", () => {
+    const posture = createOpenClinXrApiProtocolPosture();
+    const quic = posture.protocols.find((protocol) => protocol.protocolId === "quic");
+    const web3 = posture.protocols.find((protocol) => protocol.protocolId === "web3-signaling");
+
+    expect(quic).toMatchObject({
+      role: "media-transport",
+      clinicalMediaAllowed: false,
+      blockers: expect.arrayContaining(["operator_quic_gateway_proposal_missing", "quic_gateway_not_implemented"]),
+    });
+    expect(web3).toMatchObject({
+      role: "identity-signaling-audit",
+      clinicalMediaAllowed: false,
+      blockers: expect.arrayContaining([
+        "operator_web3_signaling_proposal_missing",
+        "web3_identity_and_signaling_protocol_not_selected",
+      ]),
+    });
+  });
 });

@@ -14,6 +14,8 @@ export type OpenClinXrApiProtocolSupport = {
   protocolId: OpenClinXrRealtimeProtocolId;
   status: OpenClinXrApiProtocolStatus;
   runtimeTarget: OpenClinXrApiRuntimeTarget;
+  role: "control-plane" | "admin-graphql" | "media-transport" | "identity-signaling-audit";
+  clinicalMediaAllowed: boolean;
   path?: `/${string}`;
   blockers: string[];
   notes: string;
@@ -52,6 +54,8 @@ export function createOpenClinXrApiProtocolPosture(input: {
         protocolId: "http-rest",
         status: "ready",
         runtimeTarget: "bun-hono",
+        role: "control-plane",
+        clinicalMediaAllowed: false,
         path: "/",
         blockers: [],
         notes: "Hono fetch handlers are runtime-portable and remain the main public API surface.",
@@ -60,6 +64,8 @@ export function createOpenClinXrApiProtocolPosture(input: {
         protocolId: "admin-graphql",
         status: "ready",
         runtimeTarget: "bun-hono",
+        role: "admin-graphql",
+        clinicalMediaAllowed: false,
         path: "/admin/graphql",
         blockers: [],
         notes: "Apollo-style GraphQL contracts run through the same Hono application boundary.",
@@ -68,6 +74,8 @@ export function createOpenClinXrApiProtocolPosture(input: {
         protocolId: "websocket",
         status: "contract_ready",
         runtimeTarget: "bun-hono",
+        role: "media-transport",
+        clinicalMediaAllowed: true,
         path: "/voice/realtime/ws",
         blockers: ["api_bun_websocket_upgrade_not_implemented"],
         notes: "Realtime audio is WebSocket-first, but the verified bidirectional media path is still the mock gateway fallback until apps/api owns a Bun WebSocket upgrade handler.",
@@ -76,6 +84,8 @@ export function createOpenClinXrApiProtocolPosture(input: {
         protocolId: "webtransport",
         status: webTransportReady ? "ready" : "blocked",
         runtimeTarget: "bun-hono",
+        role: "media-transport",
+        clinicalMediaAllowed: webTransportReady,
         path: "/voice/realtime/webtransport",
         blockers: [
           input.bunHttp3WebTransportVerified ? undefined : "bun_http3_webtransport_not_verified",
@@ -87,6 +97,8 @@ export function createOpenClinXrApiProtocolPosture(input: {
         protocolId: "quic",
         status: quicReady ? "ready" : "planned",
         runtimeTarget: "bun-hono",
+        role: "media-transport",
+        clinicalMediaAllowed: quicReady,
         blockers: [
           input.quicGatewayDesignReviewed ? undefined : "operator_quic_gateway_proposal_missing",
           input.quicGatewayImplemented ? undefined : "quic_gateway_not_implemented",
@@ -98,6 +110,8 @@ export function createOpenClinXrApiProtocolPosture(input: {
         protocolId: "web3-signaling",
         status: web3SignalingReady ? "ready" : "planned",
         runtimeTarget: "bun-hono",
+        role: "identity-signaling-audit",
+        clinicalMediaAllowed: false,
         blockers: [
           input.web3SignalingDesignReviewed ? undefined : "operator_web3_signaling_proposal_missing",
           web3SignalingProtocolSelected ? undefined : "web3_identity_and_signaling_protocol_not_selected",
