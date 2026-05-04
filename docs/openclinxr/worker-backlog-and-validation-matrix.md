@@ -266,12 +266,15 @@ Done when:
 
 Optional isolated spike:
 
-- A future `apps/ui-xr-iwsdk-spike` or `packages/openclinxr/iwsdk-spike` package may evaluate Meta Immersive Web SDK for controller input, locomotion, spatial UI, ECS debugging, screenshots, and AI/MCP-assisted XR inspection.
+- `packages/openclinxr/iwsdk-spike` now contains the source-backed planning contract for Meta Immersive Web SDK package posture, adoption gates, and Codex-oriented agent verification. It is intentionally dependency-free.
+- A future `apps/ui-xr-iwsdk-spike` app may evaluate Meta Immersive Web SDK for controller input, locomotion, spatial UI, ECS debugging, screenshots, and AI/MCP-assisted XR inspection.
 - Keep IWSDK out of `apps/ui-xr` and shared production packages until the local scratch blockers are resolved: Vite 8 peer mismatch, explicit Node 22 execution path, Rolldown native binding setup, install/runtime weight, physical Quest 3 behavior, `@meta-quest/hzdb` legal status, sharp/libvips LGPL path, and Unknown pmndrs license metadata.
 - Do not add IWSDK commands to `pnpm verify`, install hooks, or default dev startup until the spike has a committed source record and legal/license review path.
 
 Validation:
 
+- `pnpm --filter @openclinxr/iwsdk-spike test`
+- `pnpm --filter @openclinxr/iwsdk-spike typecheck`
 - `pnpm --filter @openclinxr/architecture-rules test`
 - `pnpm agent:sources`
 - A committed spike report comparable to `docs/openclinxr/immersive-web-sdk-evaluation-2026-05-04.md`

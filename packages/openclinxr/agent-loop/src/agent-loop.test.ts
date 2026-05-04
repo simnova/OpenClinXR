@@ -360,10 +360,13 @@ describe("agent-loop synthesis planning", () => {
         sourceRecordIds: expect.arrayContaining([
           "src-iwsdk-npm-metadata-2026-05-04",
           "src-iwsdk-local-spike-2026-05-04",
+          "src-openclinxr-iwsdk-spike-plan-2026-05-04",
         ]),
         guardrails: expect.arrayContaining([
           expect.stringContaining("Vite 8 compatibility"),
           expect.stringContaining("Node 22"),
+          expect.stringContaining("xr_get_session_status"),
+          expect.stringContaining(".codex/config.toml"),
           expect.stringContaining("@meta-quest/hzdb"),
           expect.stringContaining("LGPL"),
           expect.stringContaining("reference warmup"),

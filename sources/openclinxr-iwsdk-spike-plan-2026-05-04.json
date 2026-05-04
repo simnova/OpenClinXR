@@ -1,0 +1,25 @@
+{
+  "source_id": "src-openclinxr-iwsdk-spike-plan-2026-05-04",
+  "title": "OpenClinXR IWSDK Spike Plan Package",
+  "file_path": "/Users/patrick/Documents/New project 2/packages/openclinxr/iwsdk-spike",
+  "source_type": "internal-artifact",
+  "citation": "OpenClinXR package @openclinxr/iwsdk-spike, created 2026-05-04 to encode Meta Immersive Web SDK adoption gates and agent verification runbooks without adding IWSDK runtime dependencies.",
+  "accessed_at": "2026-05-04",
+  "permitted_uses": [
+    "Internal implementation planning for an isolated Meta Immersive Web SDK spike, including package posture, source traceability, local agent verification, and production-adoption blockers."
+  ],
+  "claims_supported": [
+    "The OpenClinXR workspace now has a project-owned @openclinxr/iwsdk-spike package that contains typed spike planning data but does not depend on @iwsdk packages.",
+    "The package restricts IWSDK experimentation to apps/ui-xr-iwsdk-spike/ and packages/openclinxr/iwsdk-spike/ while keeping production XR roots blocked.",
+    "The package records source-backed candidate packages, including @iwsdk/core, @iwsdk/xr-input, @iwsdk/locomotor, @iwsdk/vite-plugin-dev, and @iwsdk/vite-plugin-gltf-optimizer.",
+    "The package records blocked or unattended-only posture for @meta-quest/hzdb and @iwsdk/reference.",
+    "The package records a Codex-oriented verification runbook that checks iwsdk dev status, then xr_get_session_status, then XR entry, screenshot, scene hierarchy, controller select, and console logs."
+  ],
+  "claims_not_supported": [
+    "That IWSDK has been installed as a production or spike app dependency in the main workspace.",
+    "That the IWSDK MCP runtime has been configured for Codex in this workspace.",
+    "That IWSDK has passed physical Quest 3 frame-pacing, thermal, comfort, or controller-behavior validation.",
+    "That license/procurement blockers for @meta-quest/hzdb, sharp/libvips, or unknown pmndrs metadata are resolved."
+  ],
+  "confidence": 0.93
+}

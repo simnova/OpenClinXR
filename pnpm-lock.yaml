@@ -365,6 +365,15 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
 
+  packages/openclinxr/iwsdk-spike:
+    devDependencies:
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.5
+        version: 4.1.5(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.1.1)(tsx@4.21.0)(yaml@2.8.4)
+
   packages/openclinxr/model-gateway:
     dependencies:
       '@openclinxr/shared-schemas':

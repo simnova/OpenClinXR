@@ -1,0 +1,17 @@
+{
+  "name": "@openclinxr/iwsdk-spike",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsgo --noEmit -p tsconfig.json",
+    "test": "vitest run --root ."
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "vitest": "4.1.5"
+  }
+}

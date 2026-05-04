@@ -47,13 +47,14 @@ Interpretation: IWSDK dev tooling appears technically viable enough for a commit
 
 Create an isolated package or worktree spike before touching the production XR shell:
 
-1. Add a project-specific spike app, for example `apps/ui-xr-iwsdk-spike`, only if the team wants a committed experiment; otherwise use an ignored scratch worktree.
-2. Install exact versions of `@iwsdk/core`, `@iwsdk/xr-input`, `@iwsdk/locomotor`, and possibly `@iwsdk/vite-plugin-dev`.
-3. Use pnpm overrides to keep Three.js aligned with the repo's selected version.
-4. Validate Vite 8 behavior before accepting any plugin into the main workspace.
-5. Build a minimal ED bay scene that mirrors the current `apps/ui-xr` smoke: one patient, one nurse interruption, one EHR panel, trace action buttons, and a live canvas.
-6. Compare build size, dev network requests, frame telemetry, console logs, and Quest 3 smoke behavior against the existing `apps/ui-xr` baseline.
-7. Try the MCP runtime in agent mode only after local install and trust/network implications are explicit; do not run `@iwsdk/reference` warmup unattended because it downloads model/reference assets.
+1. Use `packages/openclinxr/iwsdk-spike` as the source-backed planning contract for package posture, adoption gates, and the agent verification runbook. It intentionally has no `@iwsdk/*` runtime dependency.
+2. Add a project-specific spike app, for example `apps/ui-xr-iwsdk-spike`, only if the team wants a committed experiment; otherwise use an ignored scratch worktree.
+3. Install exact versions of `@iwsdk/core`, `@iwsdk/xr-input`, `@iwsdk/locomotor`, and possibly `@iwsdk/vite-plugin-dev`.
+4. Use pnpm overrides to keep Three.js aligned with the repo's selected version.
+5. Validate Vite 8 behavior before accepting any plugin into the main workspace.
+6. Build a minimal ED bay scene that mirrors the current `apps/ui-xr` smoke: one patient, one nurse interruption, one EHR panel, trace action buttons, and a live canvas.
+7. Compare build size, dev network requests, frame telemetry, console logs, and Quest 3 smoke behavior against the existing `apps/ui-xr` baseline.
+8. Try the MCP runtime in agent mode only after local install and trust/network implications are explicit. For Codex, the docs point adapter generation at `.codex/config.toml`; start runtime verification with `iwsdk dev status`, then `xr_get_session_status`, then XR entry/screenshot/scene checks. Do not run `@iwsdk/reference` warmup unattended because it downloads model/reference assets.
 
 ## Decision For Now
 
@@ -78,3 +79,4 @@ Avoid for now:
 - `src-iwsdk-ai-docs-2026`
 - `src-iwsdk-npm-metadata-2026-05-04`
 - `src-iwsdk-local-spike-2026-05-04`
+- `src-openclinxr-iwsdk-spike-plan-2026-05-04`

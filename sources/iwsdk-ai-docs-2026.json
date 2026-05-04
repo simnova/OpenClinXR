@@ -9,10 +9,13 @@
     "Planning optional local XR agent tooling for screenshots, controller input simulation, scene inspection, ECS debugging, and Quest-oriented development workflow experiments."
   ],
   "claims_supported": [
+    "As accessed on 2026-05-04, the documentation showed IWSDK documentation version v0.3.1.",
     "The documentation says IWSDK exposes 32 MCP tools for AI-assisted WebXR development, including screenshots, controller input, scene inspection, and ECS debugging.",
     "The documentation describes a managed Playwright browser, an iwsdk mcp stdio server, and Vite development integration coordinated by iwsdk dev up.",
     "The documentation describes three development modes: Agent, Oversight, and Collaborate.",
     "The documentation states the normal browser can run independently while the agent works in the background.",
+    "The documentation says Codex adapter generation targets .codex/config.toml when ai.tools includes codex.",
+    "The documentation recommends checking xr_get_session_status first before other MCP runtime actions.",
     "The documentation says optional @iwsdk/reference warmup downloads a pinned model and reference corpus, and optional @meta-quest/hzdb can add Meta Quest device management, asset search, and IWSDK documentation lookup."
   ],
   "claims_not_supported": [
