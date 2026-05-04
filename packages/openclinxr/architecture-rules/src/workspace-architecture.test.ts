@@ -228,10 +228,10 @@ describe("workspace architecture rules", () => {
     expect(violations).toEqual([]);
   });
 
-  it("reports API route telemetry attributes that include station-run identity", () => {
-    const violations = findApiRouteTelemetryIdentityViolations([
+  it("reports route telemetry attributes that include station-run identity", () => {
+    const violations = findRouteTelemetryIdentityViolations([
       {
-        filePath: "apps/api/src/app.ts",
+        filePath: "packages/openclinxr/test-harness/src/benchmark-report.ts",
         sourceText: `
           telemetryRouteAttributes({
             routeId: "actor-response",
@@ -241,11 +241,11 @@ describe("workspace architecture rules", () => {
       },
     ]);
 
-    expect(violations).toEqual(["apps/api/src/app.ts:telemetryRouteAttributes.stationRunId"]);
+    expect(violations).toEqual(["packages/openclinxr/test-harness/src/benchmark-report.ts:telemetryRouteAttributes.stationRunId"]);
   });
 
-  it("keeps API route telemetry low-cardinality and free of station-run identity", () => {
-    expect(findApiRouteTelemetryIdentityViolations(apiSourceFiles())).toEqual([]);
+  it("keeps runtime route telemetry low-cardinality and free of station-run identity", () => {
+    expect(findRouteTelemetryIdentityViolations(routeTelemetryPolicySourceFiles())).toEqual([]);
   });
 
   it("keeps Mongoose data sources out of station runtime and trace-ledger dependencies", () => {
@@ -492,14 +492,17 @@ function filesWithContentMatching(root: string, pattern: RegExp): string[] {
   return sourceFilesUnder(root).filter((filePath) => pattern.test(readFileSync(join(workspaceRoot, filePath), "utf8")));
 }
 
-function apiSourceFiles(): SourceTextReference[] {
-  return sourceFilesUnder("apps/api/src").map((filePath) => ({
+function routeTelemetryPolicySourceFiles(): SourceTextReference[] {
+  return [...typescriptFilesUnder("apps"), ...typescriptFilesUnder("packages"), ...typescriptFilesUnder("tools")]
+    .filter((filePath) => !/\.test\.tsx?$/.test(filePath))
+    .filter((filePath) => !filePath.includes("/generated/"))
+    .map((filePath) => ({
     filePath,
     sourceText: readFileSync(join(workspaceRoot, filePath), "utf8"),
   }));
 }
 
-function findApiRouteTelemetryIdentityViolations(files: SourceTextReference[]): string[] {
+function findRouteTelemetryIdentityViolations(files: SourceTextReference[]): string[] {
   return files.flatMap(({ filePath, sourceText }) => {
     const sourceFile = ts.createSourceFile(filePath, sourceText, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
     const violations: string[] = [];
