@@ -1,6 +1,7 @@
 import { execFile } from "node:child_process";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
@@ -9,7 +10,7 @@ type CliOptions = {
   outputPath?: string;
 };
 
-type CommandProbe = {
+export type CommandProbe = {
   command: string;
   status: "available" | "missing";
   path?: string;
@@ -23,17 +24,17 @@ type CommandSpec = {
   firstLineOnly?: boolean;
 };
 
-type PythonModuleProbe = {
+export type PythonModuleProbe = {
   module: string;
   status: "available" | "missing" | "not_checked";
 };
 
-type GateStatus = {
+export type GateStatus = {
   status: "ready" | "not_configured" | "blocked";
   blockers: string[];
 };
 
-type LocalRuntimeProbeReport = {
+export type LocalRuntimeProbeReport = {
   generatedAt: string;
   system: Record<string, unknown>;
   commands: CommandProbe[];
@@ -76,7 +77,7 @@ async function main(): Promise<void> {
   const modules = await probePythonModules(commands);
   const adbDevices = await runOptional("adb", ["devices", "-l"]);
   const adbReverse = await runOptional("adb", ["reverse", "--list"]);
-  const report = buildReport({
+  const report = buildLocalRuntimeProbeReport({
     system: await probeSystem(),
     commands,
     pythonModules: modules,
@@ -177,7 +178,8 @@ async function probePythonModules(commands: CommandProbe[]): Promise<PythonModul
   return pythonModules.map((module) => ({ module, status: parsed[module] ? "available" : "missing" }));
 }
 
-function buildReport(input: {
+export function buildLocalRuntimeProbeReport(input: {
+  generatedAt?: string;
   system: Record<string, unknown>;
   commands: CommandProbe[];
   pythonModules: PythonModuleProbe[];
@@ -197,7 +199,7 @@ function buildReport(input: {
   ].filter((blocker): blocker is string => typeof blocker === "string");
 
   return {
-    generatedAt: new Date().toISOString(),
+    generatedAt: input.generatedAt ?? new Date().toISOString(),
     system: input.system,
     commands: input.commands,
     pythonModules: input.pythonModules,
@@ -260,4 +262,6 @@ function parseDisk(value: string): Record<string, unknown> | null {
   };
 }
 
-await main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await main();
+}
