@@ -47,6 +47,19 @@ describe("asset production readiness report", () => {
         "collider_simplification_report_missing",
       ],
     });
+    expect(report.generationEvidence).toEqual({
+      generatedHumanRiggingObserved: false,
+      skinClothingProvenanceObserved: false,
+      medicalEquipmentLibraryObserved: false,
+      animationRetargetingObserved: false,
+      placeholderOnly: true,
+      blockers: [
+        "generated_human_rigging_missing",
+        "skin_clothing_provenance_missing",
+        "medical_equipment_library_missing",
+        "animation_retargeting_missing",
+      ],
+    });
     expect(report.runtimeBudget).toEqual({
       singlePlaceholderGlbBytes: 27284,
       targetStationBundleMb: 80,
@@ -83,13 +96,8 @@ describe("asset production readiness report", () => {
       blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
       gltfPipelineSmoke: gltfSmoke({ passed: true }),
       blenderAssetBakeSmoke: blenderSmoke({ passed: true, sourceLicensePosture: "reviewed_generated_character_pipeline" }),
-      proofOverrides: {
-        generatedHumanRigging: true,
-        skinClothingProvenance: true,
-        medicalEquipmentLibrary: true,
-        animationRetargeting: true,
-        multiActorQuestBudget: true,
-      },
+      proofOverrides: { multiActorQuestBudget: true },
+      generationEvidence: completeGenerationEvidence(),
       optimizationEvidence: completeOptimizationEvidence(),
     });
 
@@ -172,6 +180,34 @@ describe("asset production readiness report", () => {
     ]));
     expect(report.verdict.blockers).not.toContain("optimization:lod_texture_collider_budget_missing");
   });
+
+  it("splits missing generation evidence into manifest-derived production blockers", () => {
+    const report = buildAssetProductionReadinessReport({
+      generatedAt: "2026-05-04T20:30:00.000Z",
+      gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
+      blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
+      gltfPipelineSmoke: gltfSmoke({ passed: true }),
+      blenderAssetBakeSmoke: blenderSmoke({ passed: true, sourceLicensePosture: "repo_generated_placeholder" }),
+    });
+
+    expect(report.productionProofs.generatedHumanRigging.blockers).toEqual(["generated_human_rigging_missing"]);
+    expect(report.productionProofs.skinClothingProvenance.blockers).toEqual(["skin_clothing_provenance_missing"]);
+    expect(report.productionProofs.medicalEquipmentLibrary.blockers).toEqual(["medical_equipment_library_missing"]);
+    expect(report.productionProofs.animationRetargeting.blockers).toEqual(["animation_retargeting_missing"]);
+    expect(report.generationEvidence.blockers).toEqual([
+      "generated_human_rigging_missing",
+      "skin_clothing_provenance_missing",
+      "medical_equipment_library_missing",
+      "animation_retargeting_missing",
+    ]);
+    expect(report.verdict.blockers).toEqual(expect.arrayContaining([
+      "generation:generated_human_rigging_missing",
+      "generation:skin_clothing_provenance_missing",
+      "generation:medical_equipment_library_missing",
+      "generation:animation_retargeting_missing",
+    ]));
+    expect(report.verdict.blockers).not.toContain("generation:production_asset_generation_missing");
+  });
 });
 
 function gltfSmoke(input: {
@@ -204,6 +240,17 @@ function completeOptimizationEvidence() {
     lodTiersObserved: true,
     textureCompressionBudgetObserved: true,
     colliderSimplificationObserved: true,
+    placeholderOnly: false,
+    blockers: [],
+  };
+}
+
+function completeGenerationEvidence() {
+  return {
+    generatedHumanRiggingObserved: true,
+    skinClothingProvenanceObserved: true,
+    medicalEquipmentLibraryObserved: true,
+    animationRetargetingObserved: true,
     placeholderOnly: false,
     blockers: [],
   };

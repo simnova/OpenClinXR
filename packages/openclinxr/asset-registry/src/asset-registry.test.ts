@@ -6,6 +6,7 @@ import {
   evaluateAssetManifest,
   evaluateAssetPipelineTool,
   evaluateAssetPipelineToolMatrix,
+  evaluateScenarioGenerationEvidence,
   evaluateScenarioOptimizationEvidence,
   InMemoryAssetRegistry,
   recommendedAssetPipelineTools,
@@ -174,6 +175,57 @@ describe("asset registry", () => {
         "texture_compression_budget_missing",
         "collider_simplification_report_missing",
       ],
+    });
+  });
+
+  it("derives scenario generation evidence from manifest-level slots", () => {
+    const placeholderEvidence = evaluateScenarioGenerationEvidence(createEdChestPainPlaceholderManifests());
+
+    expect(placeholderEvidence).toEqual({
+      generatedHumanRiggingObserved: false,
+      skinClothingProvenanceObserved: false,
+      medicalEquipmentLibraryObserved: false,
+      animationRetargetingObserved: false,
+      placeholderOnly: true,
+      blockers: [
+        "generated_human_rigging_missing",
+        "skin_clothing_provenance_missing",
+        "medical_equipment_library_missing",
+        "animation_retargeting_missing",
+      ],
+    });
+
+    const productionManifests = createEdChestPainPlaceholderManifests().map((manifest) => ({
+      ...manifest,
+      provenance: {
+        ...manifest.provenance,
+        generationMethod: manifest.kind === "environment" ? "manual_modeling" as const : "anny" as const,
+        sourceRefs: [`${manifest.assetId}_reviewed_generation_source`],
+        licenseStatus: "approved" as const,
+      },
+      generationEvidence: {
+        ...(manifest.kind === "character" ? {
+          generatedHumanRiggingReportId: `${manifest.assetId}_rig_report`,
+          skinClothingProvenanceId: `${manifest.assetId}_skin_clothing_manifest`,
+          animationRetargetingReportId: `${manifest.assetId}_animation_retarget_report`,
+        } : {}),
+        ...(manifest.kind === "environment" ? {
+          medicalEquipmentLibraryRecordId: `${manifest.assetId}_equipment_library_record`,
+        } : {}),
+      },
+      pipelineStages: manifest.pipelineStages.map((stage) => ({
+        ...stage,
+        notes: `Reviewed production ${stage.stage} evidence for ${manifest.assetId}.`,
+      })),
+    }));
+
+    expect(evaluateScenarioGenerationEvidence(productionManifests)).toEqual({
+      generatedHumanRiggingObserved: true,
+      skinClothingProvenanceObserved: true,
+      medicalEquipmentLibraryObserved: true,
+      animationRetargetingObserved: true,
+      placeholderOnly: false,
+      blockers: [],
     });
   });
 

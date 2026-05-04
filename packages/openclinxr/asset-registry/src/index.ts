@@ -77,6 +77,13 @@ export type AssetOptimizationEvidence = {
   colliderSimplificationReportId?: string;
 };
 
+export type AssetGenerationEvidence = {
+  generatedHumanRiggingReportId?: string;
+  skinClothingProvenanceId?: string;
+  medicalEquipmentLibraryRecordId?: string;
+  animationRetargetingReportId?: string;
+};
+
 export type AssetManifest = {
   assetId: string;
   scenarioId: string;
@@ -90,6 +97,7 @@ export type AssetManifest = {
     sourceRefs: string[];
     licenseStatus: AssetLicenseStatus;
   };
+  generationEvidence?: AssetGenerationEvidence;
   optimizationEvidence?: AssetOptimizationEvidence;
   geometryBudget: {
     maxTriangles: number;
@@ -139,6 +147,15 @@ export type ScenarioOptimizationEvidence = {
   lodTiersObserved: boolean;
   textureCompressionBudgetObserved: boolean;
   colliderSimplificationObserved: boolean;
+  placeholderOnly: boolean;
+  blockers: string[];
+};
+
+export type ScenarioGenerationEvidence = {
+  generatedHumanRiggingObserved: boolean;
+  skinClothingProvenanceObserved: boolean;
+  medicalEquipmentLibraryObserved: boolean;
+  animationRetargetingObserved: boolean;
   placeholderOnly: boolean;
   blockers: string[];
 };
@@ -465,6 +482,42 @@ export function evaluateScenarioOptimizationEvidence(manifests: readonly AssetMa
     textureCompressionBudgetObserved,
     colliderSimplificationObserved,
     placeholderOnly: manifests.length > 0 && manifests.every(isPlaceholderAsset),
+    blockers,
+  };
+}
+
+export function evaluateScenarioGenerationEvidence(manifests: readonly AssetManifest[]): ScenarioGenerationEvidence {
+  const characterManifests = manifests.filter((manifest) => manifest.kind === "character");
+  const equipmentOrEnvironmentManifests = manifests.filter((manifest) => manifest.kind === "equipment" || manifest.kind === "environment");
+  const placeholderOnly = manifests.length > 0 && manifests.every(isPlaceholderAsset);
+  const hasProductionSource = (manifest: AssetManifest) => !isPlaceholderAsset(manifest)
+    && manifest.provenance.licenseStatus === "approved"
+    && manifest.provenance.sourceRefs.length > 0;
+  const generatedHumanRiggingObserved = characterManifests.length > 0
+    && characterManifests.every((manifest) => hasProductionSource(manifest)
+      && Boolean(manifest.generationEvidence?.generatedHumanRiggingReportId));
+  const skinClothingProvenanceObserved = characterManifests.length > 0
+    && characterManifests.every((manifest) => hasProductionSource(manifest)
+      && Boolean(manifest.generationEvidence?.skinClothingProvenanceId));
+  const medicalEquipmentLibraryObserved = equipmentOrEnvironmentManifests.length > 0
+    && equipmentOrEnvironmentManifests.every((manifest) => hasProductionSource(manifest)
+      && Boolean(manifest.generationEvidence?.medicalEquipmentLibraryRecordId));
+  const animationRetargetingObserved = characterManifests.length > 0
+    && characterManifests.every((manifest) => hasProductionSource(manifest)
+      && Boolean(manifest.generationEvidence?.animationRetargetingReportId));
+  const blockers = [
+    generatedHumanRiggingObserved ? undefined : "generated_human_rigging_missing",
+    skinClothingProvenanceObserved ? undefined : "skin_clothing_provenance_missing",
+    medicalEquipmentLibraryObserved ? undefined : "medical_equipment_library_missing",
+    animationRetargetingObserved ? undefined : "animation_retargeting_missing",
+  ].filter((blocker): blocker is string => typeof blocker === "string");
+
+  return {
+    generatedHumanRiggingObserved,
+    skinClothingProvenanceObserved,
+    medicalEquipmentLibraryObserved,
+    animationRetargetingObserved,
+    placeholderOnly,
     blockers,
   };
 }

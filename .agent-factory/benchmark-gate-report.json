@@ -32,7 +32,7 @@
       "evidence_id": "blender_asset_bake_smoke",
       "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T05:06:10.560Z",
-      "age_hours": 15,
+      "age_hours": 16,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -40,7 +40,7 @@
     {
       "evidence_id": "asset_production_readiness_benchmark",
       "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-04.json",
-      "generated_at": "2026-05-04T21:01:39.565Z",
+      "generated_at": "2026-05-04T21:11:11.999Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -202,7 +202,7 @@
   },
   "asset_production_readiness_benchmark": {
     "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-04.json",
-    "generated_at": "2026-05-04T21:01:39.565Z",
+    "generated_at": "2026-05-04T21:11:11.999Z",
     "status": "blocked",
     "source_evidence": {
       "gltfPipelineSmokePassed": true,
@@ -280,6 +280,19 @@
         ],
         "blockers": []
       }
+    },
+    "generation_evidence": {
+      "generatedHumanRiggingObserved": false,
+      "skinClothingProvenanceObserved": false,
+      "medicalEquipmentLibraryObserved": false,
+      "animationRetargetingObserved": false,
+      "placeholderOnly": true,
+      "blockers": [
+        "generated_human_rigging_missing",
+        "skin_clothing_provenance_missing",
+        "medical_equipment_library_missing",
+        "animation_retargeting_missing"
+      ]
     },
     "optimization_evidence": {
       "lodTiersObserved": false,

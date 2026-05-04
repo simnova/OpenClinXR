@@ -86,6 +86,14 @@ type AssetProductionReadinessBenchmarkReport = {
     blockers: string[];
   };
   productionProofs: Record<string, { observed: boolean; blockers: string[] }>;
+  generationEvidence?: {
+    generatedHumanRiggingObserved: boolean;
+    skinClothingProvenanceObserved: boolean;
+    medicalEquipmentLibraryObserved: boolean;
+    animationRetargetingObserved: boolean;
+    placeholderOnly: boolean;
+    blockers: string[];
+  };
   optimizationEvidence?: {
     lodTiersObserved: boolean;
     textureCompressionBudgetObserved: boolean;
@@ -283,6 +291,7 @@ type EvidenceGateReport = {
     status: string;
     source_evidence: AssetProductionReadinessBenchmarkReport["sourceEvidence"];
     production_proofs: AssetProductionReadinessBenchmarkReport["productionProofs"];
+    generation_evidence: AssetProductionReadinessBenchmarkReport["generationEvidence"];
     optimization_evidence: AssetProductionReadinessBenchmarkReport["optimizationEvidence"];
     station_budget_evidence?: AssetProductionReadinessBenchmarkReport["stationBudgetEvidence"];
     runtime_budget: AssetProductionReadinessBenchmarkReport["runtimeBudget"];
@@ -603,6 +612,10 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     blenderAssetBakeSmoke?.value.verdict.passed ? "asset_pipeline_blender_bake_smoke_passed" : undefined,
     assetProductionReadinessBenchmark ? "asset_production_readiness_report_present" : undefined,
     assetProductionReadinessBenchmark?.value.sourceEvidence.gltfPipelineSmokePassed && assetProductionReadinessBenchmark.value.sourceEvidence.blenderBakeSmokePassed ? "asset_production_source_smokes_passed" : undefined,
+    assetProductionReadinessBenchmark?.value.generationEvidence?.generatedHumanRiggingObserved ? "asset_production_generated_human_rigging_observed" : undefined,
+    assetProductionReadinessBenchmark?.value.generationEvidence?.skinClothingProvenanceObserved ? "asset_production_skin_clothing_provenance_observed" : undefined,
+    assetProductionReadinessBenchmark?.value.generationEvidence?.medicalEquipmentLibraryObserved ? "asset_production_medical_equipment_library_observed" : undefined,
+    assetProductionReadinessBenchmark?.value.generationEvidence?.animationRetargetingObserved ? "asset_production_animation_retargeting_observed" : undefined,
     assetProductionReadinessBenchmark?.value.optimizationEvidence?.lodTiersObserved ? "asset_production_lod_tiers_observed" : undefined,
     assetProductionReadinessBenchmark?.value.optimizationEvidence?.textureCompressionBudgetObserved ? "asset_production_texture_compression_budget_observed" : undefined,
     assetProductionReadinessBenchmark?.value.optimizationEvidence?.colliderSimplificationObserved ? "asset_production_collider_simplification_observed" : undefined,
@@ -705,6 +718,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         status: assetProductionReadinessBenchmark.value.status,
         source_evidence: assetProductionReadinessBenchmark.value.sourceEvidence,
         production_proofs: assetProductionReadinessBenchmark.value.productionProofs,
+        generation_evidence: assetProductionReadinessBenchmark.value.generationEvidence,
         optimization_evidence: assetProductionReadinessBenchmark.value.optimizationEvidence,
         ...(assetProductionReadinessBenchmark.value.stationBudgetEvidence ? {
           station_budget_evidence: assetProductionReadinessBenchmark.value.stationBudgetEvidence,

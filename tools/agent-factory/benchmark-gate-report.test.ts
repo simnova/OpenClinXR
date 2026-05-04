@@ -47,6 +47,14 @@ type BenchmarkGateReport = {
     blockers: string[];
   }>;
   asset_production_readiness_benchmark?: {
+    generation_evidence?: {
+      generatedHumanRiggingObserved: boolean;
+      skinClothingProvenanceObserved: boolean;
+      medicalEquipmentLibraryObserved: boolean;
+      animationRetargetingObserved: boolean;
+      placeholderOnly: boolean;
+      blockers: string[];
+    };
     optimization_evidence?: {
       lodTiersObserved: boolean;
       textureCompressionBudgetObserved: boolean;
@@ -636,6 +644,14 @@ describe("benchmark gate report", () => {
               blockers: string[];
             };
             productionProofs: Record<string, { observed: boolean; blockers: string[] }>;
+            generationEvidence: {
+              generatedHumanRiggingObserved: boolean;
+              skinClothingProvenanceObserved: boolean;
+              medicalEquipmentLibraryObserved: boolean;
+              animationRetargetingObserved: boolean;
+              placeholderOnly: boolean;
+              blockers: string[];
+            };
             optimizationEvidence: {
               lodTiersObserved: boolean;
               textureCompressionBudgetObserved: boolean;
@@ -737,6 +753,19 @@ describe("benchmark gate report", () => {
             },
             multiActorQuestBudget: { observed: false, blockers: ["multi_actor_quest_budget_missing"] },
           },
+          generationEvidence: {
+            generatedHumanRiggingObserved: false,
+            skinClothingProvenanceObserved: false,
+            medicalEquipmentLibraryObserved: false,
+            animationRetargetingObserved: false,
+            placeholderOnly: true,
+            blockers: [
+              "generated_human_rigging_missing",
+              "skin_clothing_provenance_missing",
+              "medical_equipment_library_missing",
+              "animation_retargeting_missing",
+            ],
+          },
           optimizationEvidence: {
             lodTiersObserved: false,
             textureCompressionBudgetObserved: false,
@@ -796,6 +825,12 @@ describe("benchmark gate report", () => {
       "asset_production_source_smokes_passed",
     ]));
     expect(assetGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
+      "asset_production_generated_human_rigging_observed",
+      "asset_production_skin_clothing_provenance_observed",
+      "asset_production_medical_equipment_library_observed",
+      "asset_production_animation_retargeting_observed",
+    ]));
+    expect(assetGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
       "asset_production_lod_tiers_observed",
       "asset_production_texture_compression_budget_observed",
       "asset_production_collider_simplification_observed",
@@ -831,6 +866,19 @@ describe("benchmark gate report", () => {
         totalDrawCalls: 28,
         blockers: [],
       },
+    });
+    expect(report.asset_production_readiness_benchmark?.generation_evidence).toEqual({
+      generatedHumanRiggingObserved: false,
+      skinClothingProvenanceObserved: false,
+      medicalEquipmentLibraryObserved: false,
+      animationRetargetingObserved: false,
+      placeholderOnly: true,
+      blockers: [
+        "generated_human_rigging_missing",
+        "skin_clothing_provenance_missing",
+        "medical_equipment_library_missing",
+        "animation_retargeting_missing",
+      ],
     });
     expect(report.asset_production_readiness_benchmark?.optimization_evidence).toEqual({
       lodTiersObserved: false,

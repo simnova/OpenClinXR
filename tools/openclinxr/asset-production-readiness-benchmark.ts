@@ -3,8 +3,10 @@ import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 import {
   createEdChestPainPlaceholderManifests,
   evaluateScenarioAssetBudget,
+  evaluateScenarioGenerationEvidence,
   evaluateScenarioOptimizationEvidence,
   type ScenarioAssetBudget,
+  type ScenarioGenerationEvidence,
   type ScenarioOptimizationEvidence,
 } from "../../packages/openclinxr/asset-registry/src/index.js";
 
@@ -113,6 +115,7 @@ export type AssetProductionReadinessReport = {
   };
   productionProofs: Record<ProofLaneId, ProofLaneReport>;
   stationBudgetEvidence: StationBudgetEvidence;
+  generationEvidence: ScenarioGenerationEvidence;
   optimizationEvidence: ScenarioOptimizationEvidence;
   runtimeBudget: {
     singlePlaceholderGlbBytes: number;
@@ -206,11 +209,13 @@ export function buildAssetProductionReadinessReport(input: {
   blenderAssetBakeSmoke: BlenderAssetBakeSmokeReport;
   proofOverrides?: Partial<ProofLanes>;
   stationBudgetEvidence?: StationBudgetEvidence;
+  generationEvidence?: ScenarioGenerationEvidence;
   optimizationEvidence?: ScenarioOptimizationEvidence;
 }): AssetProductionReadinessReport {
   const stationBudgetEvidence = input.stationBudgetEvidence ?? buildEdChestPainStationBudgetEvidence();
+  const generationEvidence = input.generationEvidence ?? buildEdChestPainGenerationEvidence();
   const optimizationEvidence = input.optimizationEvidence ?? buildEdChestPainOptimizationEvidence();
-  const proofs = buildProofLanes(input.proofOverrides ?? {}, stationBudgetEvidence, optimizationEvidence);
+  const proofs = buildProofLanes(input.proofOverrides ?? {}, stationBudgetEvidence, generationEvidence, optimizationEvidence);
   const sourceEvidence = inspectSourceEvidence(input.gltfPipelineSmoke, input.blenderAssetBakeSmoke);
   const runtimeBudget = inspectRuntimeBudget(input.blenderAssetBakeSmoke, stationBudgetEvidence.observed);
   const blockers = [
@@ -243,6 +248,7 @@ export function buildAssetProductionReadinessReport(input: {
     sourceEvidence,
     productionProofs: proofs,
     stationBudgetEvidence,
+    generationEvidence,
     optimizationEvidence,
     runtimeBudget,
     verdict: {
@@ -270,6 +276,10 @@ function buildEdChestPainStationBudgetEvidence(): StationBudgetEvidence {
     observed: budget.blockers.length === 0,
     blockers: [...budget.blockers],
   };
+}
+
+function buildEdChestPainGenerationEvidence(): ScenarioGenerationEvidence {
+  return evaluateScenarioGenerationEvidence(createEdChestPainPlaceholderManifests());
 }
 
 function buildEdChestPainOptimizationEvidence(): ScenarioOptimizationEvidence {
@@ -300,25 +310,26 @@ function inspectSourceEvidence(
 function buildProofLanes(
   overrides: Partial<ProofLanes>,
   stationBudgetEvidence: StationBudgetEvidence,
+  generationEvidence: ScenarioGenerationEvidence,
   optimizationEvidence: ScenarioOptimizationEvidence,
 ): Record<ProofLaneId, ProofLaneReport> {
   return {
-    generatedHumanRigging: proofLane(overrides.generatedHumanRigging ?? false, [
+    generatedHumanRigging: proofLane(overrides.generatedHumanRigging ?? generationEvidence.generatedHumanRiggingObserved, [
       "neutral generated human GLB",
       "canonical skeleton binding",
       "skin-weight or rigging report",
     ], "generated_human_rigging_missing"),
-    skinClothingProvenance: proofLane(overrides.skinClothingProvenance ?? false, [
+    skinClothingProvenance: proofLane(overrides.skinClothingProvenance ?? generationEvidence.skinClothingProvenanceObserved, [
       "skin/texture provenance",
       "clothing mesh provenance",
       "runtime-safe material report",
     ], "skin_clothing_provenance_missing"),
-    medicalEquipmentLibrary: proofLane(overrides.medicalEquipmentLibrary ?? false, [
+    medicalEquipmentLibrary: proofLane(overrides.medicalEquipmentLibrary ?? generationEvidence.medicalEquipmentLibraryObserved, [
       "equipment GLB library",
       "clinical equipment metadata",
       "license provenance",
     ], "medical_equipment_library_missing"),
-    animationRetargeting: proofLane(overrides.animationRetargeting ?? false, [
+    animationRetargeting: proofLane(overrides.animationRetargeting ?? generationEvidence.animationRetargetingObserved, [
       "canonical skeleton clips",
       "viseme or facial target mapping",
       "retargeting QA report",
