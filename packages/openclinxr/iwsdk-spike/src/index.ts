@@ -275,6 +275,12 @@ export function buildIwsdkSpikePlan(): IwsdkSpikePlan {
         gates: ["controller_input_smoke", "desktop_fallback_smoke", "quest3_physical_smoke"],
       },
       {
+        name: "@iwsdk/glxf",
+        posture: "review_required",
+        intendedUse: "Evaluate the GLXF scene loader only if it improves reusable exam-room scene composition without fragmenting the existing GLB/GLTF asset pipeline.",
+        gates: ["scene_format_review", "bundle_size_budget", "asset_pipeline_smoke"],
+      },
+      {
         name: "@iwsdk/locomotor",
         posture: "spike_candidate",
         intendedUse: "Evaluate locomotion only for stations that need movement beyond a fixed examination bay.",
@@ -293,10 +299,34 @@ export function buildIwsdkSpikePlan(): IwsdkSpikePlan {
         gates: ["vite_8_peer_compatibility", "license_review", "asset_pipeline_smoke"],
       },
       {
+        name: "@iwsdk/vite-plugin-uikitml",
+        posture: "review_required",
+        intendedUse: "Evaluate spatial UI markup for in-headset EHR panels and case-note surfaces only after text readability, accessibility, and Vite compatibility checks.",
+        gates: ["vite_8_peer_compatibility", "headset_text_readability", "accessibility_review", "ehr_panel_smoke"],
+      },
+      {
+        name: "@iwsdk/vite-plugin-metaspatial",
+        posture: "review_required",
+        intendedUse: "Evaluate Meta Spatial Editor integration only as an optional authoring workflow after asset provenance and build-pipeline impact are reviewed.",
+        gates: ["asset_authoring_workflow_review", "license_review", "vite_8_peer_compatibility"],
+      },
+      {
+        name: "@iwsdk/create",
+        posture: "blocked_unattended",
+        intendedUse: "Do not run the project generator inside this workspace unattended; use it only after the operator approves scaffold scope and workspace boundaries.",
+        gates: ["operator_approves_scaffold_generation", "workspace_boundary_review"],
+      },
+      {
         name: "@iwsdk/reference",
         posture: "blocked_unattended",
         intendedUse: "Optional local IWSDK reference lookup after an operator approves model and reference-corpus downloads.",
         gates: ["operator_approval_for_model_and_corpus_downloads", "cache_location_documented"],
+      },
+      {
+        name: "@iwsdk/starter-assets",
+        posture: "blocked_unattended",
+        intendedUse: "Do not rely on CDN-hosted starter templates or assets until asset licensing, cache location, and offline reproducibility are reviewed.",
+        gates: ["asset_license_and_cache_review", "cache_location_documented", "offline_reproducibility_review"],
       },
       {
         name: "@meta-quest/hzdb",
@@ -483,8 +513,15 @@ export function buildIwsdkPreInstallPackagePolicy(): IwsdkPreInstallPackagePolic
   return {
     exactVersionRequired: true,
     allowedFirstSlicePackages: ["@iwsdk/core", "@iwsdk/xr-input"],
-    reviewRequiredPackages: ["@iwsdk/locomotor", "@iwsdk/vite-plugin-dev", "@iwsdk/vite-plugin-gltf-optimizer"],
-    blockedPackages: ["@iwsdk/reference", "@meta-quest/hzdb"],
+    reviewRequiredPackages: [
+      "@iwsdk/glxf",
+      "@iwsdk/locomotor",
+      "@iwsdk/vite-plugin-dev",
+      "@iwsdk/vite-plugin-gltf-optimizer",
+      "@iwsdk/vite-plugin-uikitml",
+      "@iwsdk/vite-plugin-metaspatial",
+    ],
+    blockedPackages: ["@iwsdk/create", "@iwsdk/reference", "@iwsdk/starter-assets", "@meta-quest/hzdb"],
     blockedTransitivePackages: ["@img/sharp-libvips-darwin-arm64"],
     blockedLicenseExpressions: ["AGPL", "GPL", "LGPL", "UNLICENSED", "Unknown"],
     requiredPackageManagerControls: ["pin_exact_versions", "pin_three_override", "record_pnpm_audit", "record_license_policy_report"],

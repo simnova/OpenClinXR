@@ -48,6 +48,7 @@ describe("workspace architecture rules", () => {
     expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm --filter @openclinxr/iwsdk-spike typecheck");
     expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm --filter @openclinxr/iwsdk-spike test");
     expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm iwsdk:preinstall");
+    expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm iwsdk:evidence:validate");
     expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm --filter @openclinxr/architecture-rules typecheck");
     expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm --filter @openclinxr/architecture-rules test");
     expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm agent:sources");
@@ -215,7 +216,7 @@ describe("workspace architecture rules", () => {
   });
 
   it("keeps blocked IWSDK optional packages out of package manifests and the lockfile", () => {
-    const blockedDependencies = ["@iwsdk/reference", "@meta-quest/hzdb"];
+    const blockedDependencies = ["@iwsdk/create", "@iwsdk/reference", "@iwsdk/starter-assets", "@meta-quest/hzdb"];
     const manifestViolations = workspacePackageDependencyFindings(blockedDependencies);
     const lockfileText = readFileSync(join(workspaceRoot, "pnpm-lock.yaml"), "utf8");
     const lockfileViolations = blockedDependencies.filter((dependency) => lockfileContainsDependency(lockfileText, dependency));

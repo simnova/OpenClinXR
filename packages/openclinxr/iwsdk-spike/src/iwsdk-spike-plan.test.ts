@@ -37,9 +37,34 @@ describe("IWSDK spike plan", () => {
     ]);
     expect(plan.packages).toEqual(expect.arrayContaining([
       expect.objectContaining({
+        name: "@iwsdk/glxf",
+        posture: "review_required",
+        gates: expect.arrayContaining(["scene_format_review", "asset_pipeline_smoke"]),
+      }),
+      expect.objectContaining({
         name: "@iwsdk/vite-plugin-dev",
         posture: "spike_candidate",
         gates: expect.arrayContaining(["vite_8_peer_compatibility", "agent_mcp_runtime_smoke"]),
+      }),
+      expect.objectContaining({
+        name: "@iwsdk/vite-plugin-uikitml",
+        posture: "review_required",
+        gates: expect.arrayContaining(["headset_text_readability", "accessibility_review"]),
+      }),
+      expect.objectContaining({
+        name: "@iwsdk/vite-plugin-metaspatial",
+        posture: "review_required",
+        gates: expect.arrayContaining(["asset_authoring_workflow_review", "license_review"]),
+      }),
+      expect.objectContaining({
+        name: "@iwsdk/create",
+        posture: "blocked_unattended",
+        gates: expect.arrayContaining(["operator_approves_scaffold_generation"]),
+      }),
+      expect.objectContaining({
+        name: "@iwsdk/starter-assets",
+        posture: "blocked_unattended",
+        gates: expect.arrayContaining(["asset_license_and_cache_review"]),
       }),
       expect.objectContaining({
         name: "@iwsdk/reference",
@@ -492,8 +517,15 @@ describe("IWSDK spike plan", () => {
     expect(buildIwsdkPreInstallPackagePolicy()).toEqual({
       exactVersionRequired: true,
       allowedFirstSlicePackages: ["@iwsdk/core", "@iwsdk/xr-input"],
-      reviewRequiredPackages: ["@iwsdk/locomotor", "@iwsdk/vite-plugin-dev", "@iwsdk/vite-plugin-gltf-optimizer"],
-      blockedPackages: ["@iwsdk/reference", "@meta-quest/hzdb"],
+      reviewRequiredPackages: [
+        "@iwsdk/glxf",
+        "@iwsdk/locomotor",
+        "@iwsdk/vite-plugin-dev",
+        "@iwsdk/vite-plugin-gltf-optimizer",
+        "@iwsdk/vite-plugin-uikitml",
+        "@iwsdk/vite-plugin-metaspatial",
+      ],
+      blockedPackages: ["@iwsdk/create", "@iwsdk/reference", "@iwsdk/starter-assets", "@meta-quest/hzdb"],
       blockedTransitivePackages: ["@img/sharp-libvips-darwin-arm64"],
       blockedLicenseExpressions: ["AGPL", "GPL", "LGPL", "UNLICENSED", "Unknown"],
       requiredPackageManagerControls: ["pin_exact_versions", "pin_three_override", "record_pnpm_audit", "record_license_policy_report"],
@@ -515,14 +547,17 @@ describe("IWSDK spike plan", () => {
     expect(evaluateIwsdkPreInstallPackageSelection([
       { name: "@iwsdk/spatial-ui", version: "0.3.1", license: "MIT", transitivePackages: [] },
       { name: "@iwsdk/locomotor", version: "0.3.1", license: "MIT", transitivePackages: [] },
+      { name: "@iwsdk/vite-plugin-uikitml", version: "0.3.1", license: "MIT", transitivePackages: [] },
     ])).toEqual({
       readyToInstallInSidecar: false,
       blockers: [
         "@iwsdk/spatial-ui:not_allowed_in_first_slice",
         "@iwsdk/locomotor:not_allowed_in_first_slice",
+        "@iwsdk/vite-plugin-uikitml:not_allowed_in_first_slice",
       ],
       reviewWarnings: [
         "@iwsdk/locomotor:review_required_package",
+        "@iwsdk/vite-plugin-uikitml:review_required_package",
       ],
     });
   });

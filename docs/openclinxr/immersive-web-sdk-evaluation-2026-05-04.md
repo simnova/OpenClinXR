@@ -116,8 +116,8 @@ Create an isolated package or worktree spike before touching the production XR s
 The executable policy is intentionally stricter than the prose recommendation:
 
 - First-slice packages: exact-versioned `@iwsdk/core` and `@iwsdk/xr-input`.
-- Review-required packages: `@iwsdk/locomotor`, `@iwsdk/vite-plugin-dev`, and `@iwsdk/vite-plugin-gltf-optimizer`; these are not ready for unattended first-slice install even when exact-versioned.
-- Blocked packages: `@iwsdk/reference` and `@meta-quest/hzdb`.
+- Review-required packages: `@iwsdk/glxf`, `@iwsdk/locomotor`, `@iwsdk/vite-plugin-dev`, `@iwsdk/vite-plugin-gltf-optimizer`, `@iwsdk/vite-plugin-uikitml`, and `@iwsdk/vite-plugin-metaspatial`; these are not ready for unattended first-slice install even when exact-versioned.
+- Blocked packages: `@iwsdk/create`, `@iwsdk/reference`, `@iwsdk/starter-assets`, and `@meta-quest/hzdb`.
 - Blocked transitive package path: any `sharp-libvips` variant, including `@img/sharp-libvips-darwin-arm64`.
 - Blocked license expressions: `AGPL`, `GPL`, `LGPL`, `UNLICENSED`, and `Unknown`, matched case-insensitively without collapsing `LGPL` into `GPL`.
 - Required package-manager controls: exact version pins, a Three.js pnpm override, recorded `pnpm audit`, and a recorded license-policy report.
@@ -145,12 +145,17 @@ Most promising first packages:
 
 - `@iwsdk/xr-input` for controller/hand interaction modeling.
 - `@iwsdk/locomotor` for locomotion patterns if future stations need movement beyond a fixed exam bay.
+- `@iwsdk/glxf` for scene format loading, only if it simplifies exam-room scene composition without fragmenting the GLB/GLTF asset pipeline.
+- `@iwsdk/vite-plugin-uikitml` for spatial UI/EHR panel experiments, only after Vite compatibility, accessibility, and in-headset text-readability checks.
+- `@iwsdk/vite-plugin-metaspatial` for optional Meta Spatial Editor authoring workflow experiments, only after asset provenance and build-pipeline review.
 - `@iwsdk/vite-plugin-gltf-optimizer` for asset optimization, only after Vite 8 peer compatibility and the sharp/libvips license path are resolved.
 - `@iwsdk/vite-plugin-dev` for local MCP-driven XR debugging, kept outside required verification at first.
 - `@iwsdk/core` only if the ECS/runtime model proves valuable enough to justify adopting its dependency graph.
 
 Avoid for now:
 
+- `@iwsdk/create`, because unattended scaffold generation can create misleading runtime-looking workspace changes before install scope is approved.
+- `@iwsdk/starter-assets`, because CDN-hosted starter templates/assets need asset-license, cache-location, and offline reproducibility review.
 - `@meta-quest/hzdb`, because npm metadata reports `UNLICENSED`.
 - `@iwsdk/reference` warmup in unattended runs, because it can download a pinned model and reference corpus.
 
