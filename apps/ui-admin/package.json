@@ -12,6 +12,7 @@
   "dependencies": {
     "@apollo/client": "4.1.9",
     "@openclinxr/asset-registry": "workspace:*",
+    "@openclinxr/domain": "workspace:*",
     "@openclinxr/exam-assembly": "workspace:*",
     "@openclinxr/graphql": "workspace:*",
     "@openclinxr/rest": "workspace:*",

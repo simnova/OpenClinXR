@@ -1,5 +1,6 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { findUnsafeClaimLanguage } from "@openclinxr/domain";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { AdminApp } from "./App.js";
 import type { AdminControlPlaneClient } from "./api-client.js";
@@ -48,9 +49,14 @@ describe("AdminApp", () => {
     expect(screen.getByText("0 production-ready scenes")).toBeInTheDocument();
     expect(screen.getByText("Learner launch blocked")).toBeInTheDocument();
     expect(screen.getByText("11 draft-blocked stations")).toBeInTheDocument();
+    expect(screen.getByText("Clinical-skills seed form")).toBeInTheDocument();
+    expect(screen.getByText("Formative local practice.")).toBeInTheDocument();
     expect(screen.getByText("Station 9")).toBeInTheDocument();
     expect(screen.getAllByText("draft_blocked").length).toBe(11);
     expect(screen.getAllByText("clinic_abdominal_pain_interpreter_v1").length).toBeGreaterThan(0);
+
+    const governanceNotice = screen.getByLabelText("Seed exam governance notice");
+    expect(findUnsafeClaimLanguage(governanceNotice.textContent ?? "")).toEqual([]);
   });
 
   it("renders existing station run queue review snapshots", async () => {

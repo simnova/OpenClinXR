@@ -106,6 +106,9 @@ importers:
       '@openclinxr/asset-registry':
         specifier: workspace:*
         version: link:../../packages/openclinxr/asset-registry
+      '@openclinxr/domain':
+        specifier: workspace:*
+        version: link:../../packages/openclinxr/domain
       '@openclinxr/exam-assembly':
         specifier: workspace:*
         version: link:../../packages/openclinxr/exam-assembly

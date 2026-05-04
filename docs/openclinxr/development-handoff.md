@@ -344,6 +344,7 @@ Scenario-bank governance milestone has also started:
 - `evaluateScenarioBankMaturity` reports status counts, validation-stage counts, activation-eligible scenarios, blocked draft scenarios, setting diversity across all 12 environments, actor-role coverage, safety-critical trace tags, hidden-fact policy coverage, and the gap from the 12-station Step 2 CS-style target.
 - The default API scenario endpoint now returns a learner-safe projection with actor hidden facts redacted.
 - `packages/openclinxr/domain` now exports safe claim-language constants and an unsafe-claim scanner for user-facing assessment copy, blocking exam-equivalence, licensure/credentialing, diagnostic-performance, high-stakes score-use, and unsupported validation claims before UI/API surfaces adopt them.
+- `apps/ui-admin` now renders the seed exam governance notice from the domain claim-language module and tests that the rendered notice has no unsafe claim-language findings.
 
 Actor-response safety milestone has also started:
 

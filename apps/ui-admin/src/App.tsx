@@ -1,6 +1,7 @@
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
 import type { ScenarioAssetReadiness } from "@openclinxr/asset-registry";
+import { buildScenarioGovernanceCopy } from "@openclinxr/domain";
 import type { BlueprintScenarioReadiness, ExamBlueprint, ExamStationRunQueue, ExamTimingPlan } from "@openclinxr/exam-assembly";
 import { adminPublicationGates, adminWorkbenchRoutes } from "@openclinxr/ui-route-admin";
 import { adminWorkbenchCapabilityTags, openClinXrAdminTheme } from "@openclinxr/ui-shared";
@@ -20,6 +21,20 @@ type AdminAppProps = {
 export const adminApolloClient = new ApolloClient({
   cache: new InMemoryCache(),
   link: new HttpLink({ uri: "/admin/graphql" }),
+});
+
+const seedExamGovernanceCopy = buildScenarioGovernanceCopy({
+  scoreUseLabel: "formative_local_only",
+  syntheticCaseDisclosure: "Synthetic training scenario for local review.",
+  validationStage: "stage_1_expert_reviewed",
+  validationLimitations: ["Prototype fixture review only."],
+  requiredReviewerRoles: ["clinician", "psychometrician", "legal", "simulation_qa"],
+  sourceIds: ["src-public-clinical-skills-structure", "src-ama-clinical-skills-competencies"],
+  safetyCriticalTraceTags: ["ecg_request", "urgent_escalation", "team_communication"],
+  hiddenFactPolicy: {
+    learnerView: "redact_hidden_facts",
+    disclosureRequiresTrigger: true,
+  },
 });
 
 export function AdminApp({ router = "memory", initialPath = "/", controlPlaneClient }: AdminAppProps): React.ReactElement {
@@ -217,7 +232,7 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
     <section className="seed-workbench" aria-labelledby="seed-exam-readiness-title">
       <div className="workbench-title-row">
         <div>
-          <Typography.Text className="eyebrow">Step 2 CS-style seed form</Typography.Text>
+          <Typography.Text className="eyebrow">Clinical-skills seed form</Typography.Text>
           <Typography.Title id="seed-exam-readiness-title" level={3}>
             Seed Exam Readiness
           </Typography.Title>
@@ -231,6 +246,14 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
           </Tag>
         </Space>
       </div>
+
+      <Alert
+        aria-label="Seed exam governance notice"
+        type="info"
+        title={seedExamGovernanceCopy.scoreUseNotice}
+        description={`${seedExamGovernanceCopy.syntheticCaseNotice} ${seedExamGovernanceCopy.validationNotice} ${seedExamGovernanceCopy.humanReviewNotice}`}
+        showIcon
+      />
 
       <div className="readiness-strip" aria-label="Seed exam readiness summary">
         <ReadinessMetric label={`${state.blueprint.stationSlots.length} stations`} detail={`${state.blueprint.requiredTraceTags.length} trace tags`} />
