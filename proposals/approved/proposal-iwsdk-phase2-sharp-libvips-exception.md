@@ -1,10 +1,26 @@
 # Proposal: IWSDK Phase 2 Sharp Native Libvips Exception
 
-Status: Proposed on 2026-05-04 after a sidecar-only `@iwsdk/vite-plugin-dev@0.3.1` install attempt exposed blocked `@img/sharp-libvips-*` native transitive packages. Awaiting Patrick/legal/security approval before reinstalling or committing the package.
+Status: Approved by Patrick Gidich on 2026-05-04 19:18:43 EDT.
 
-## Decision Needed
+Approved scope: sidecar-only devDependency inside `apps/ui-xr-iwsdk-spike`; never for production use.
 
-Approve, reject, or defer a license/security exception for the native `@img/sharp-libvips-*` transitive path brought in through `sharp` by `@iwsdk/vite-plugin-dev@0.3.1`.
+## Decision Record
+
+Approve a license/security exception for the native `@img/sharp-libvips-*` transitive path brought in through `sharp` by `@iwsdk/vite-plugin-dev@0.3.1`.
+
+Approved package set:
+
+- `sharp@0.33.5` (`Apache-2.0`)
+- `@img/sharp-libvips-darwin-arm64@1.0.4` (`LGPL-3.0-or-later`) and any other platform-specific `@img/sharp-libvips-*` packages pulled by the exact `sharp@0.33.5` package for local dev machines
+- `@iwsdk/vite-plugin-dev@0.3.1` and its direct dependencies
+
+Restrictions:
+
+- Only inside `apps/ui-xr-iwsdk-spike`
+- DevDependency only
+- Excluded from production builds and default `pnpm verify`
+- Exact version pinning enforced
+- Vite peer compatibility verified before commit
 
 ## Context
 
@@ -34,9 +50,9 @@ Codex rolled the package and lockfile changes back before committing, so the cur
 
 ## Recommendation
 
-Defer or reject for now. The value of IWSDK MCP/browser tooling is real, but the existing Quest CDP harness, browser verification, and manual headset path are already producing useful evidence. `sharp` itself is Apache-2.0; accepting the native `@img/sharp-libvips-*` LGPL path should still be an explicit legal/security decision, not a side effect of a devtool install.
+Proceed with the approved sidecar-only devDependency exception. The value of IWSDK MCP/browser tooling is scene inspection, screenshots, console capture, and controller emulation for accelerated local XR evidence collection. Existing Quest CDP and manual headset paths remain primary.
 
-If Patrick approves the exception, Codex should:
+Codex should:
 
 - Add a dedicated license exception markdown file explaining scope and rationale.
 - Extend the license checker to allow only the exact sidecar devtool transitive package/version set.
