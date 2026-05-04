@@ -30,7 +30,7 @@ type AdminAppProps = {
   controlPlaneClient?: AdminControlPlaneClient;
 };
 
-export const adminApolloClient = new ApolloClient({
+const adminApolloClient = new ApolloClient({
   cache: new InMemoryCache(),
   link: new HttpLink({ uri: buildAdminGraphqlEndpoint("") }),
 });
