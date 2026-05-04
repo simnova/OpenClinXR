@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T20:40:28.835Z",
+  "generatedAt": "2026-05-04T20:51:52.057Z",
   "status": "blocked",
   "policy": {
     "cloudApisUsed": false,
@@ -29,6 +29,28 @@
     ],
     "requiredKeysPresent": true,
     "noReasoningMarkup": false,
+    "allowedGuardrailLabels": [
+      "fictional_or_unverified",
+      "hidden_truth_boundary",
+      "needs_human_review",
+      "out_of_role",
+      "prompt_injection",
+      "unsafe_clinical_advice"
+    ],
+    "observedSafetyFlags": [
+      "anxiety",
+      "chest pain",
+      "diaphoresis",
+      "hypotension",
+      "nausea"
+    ],
+    "unsupportedSafetyFlags": [
+      "anxiety",
+      "chest pain",
+      "diaphoresis",
+      "hypotension",
+      "nausea"
+    ],
     "safetyFlagsUseGuardrailLabels": false,
     "schemaGrammarEnforced": false,
     "blockers": [

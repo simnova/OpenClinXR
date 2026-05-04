@@ -27,6 +27,8 @@ describe("local model quality benchmark report", () => {
       requiredKeysPresent: true,
       noReasoningMarkup: false,
       safetyFlagsUseGuardrailLabels: false,
+      observedSafetyFlags: ["chest pain", "hypotension"],
+      unsupportedSafetyFlags: ["chest pain", "hypotension"],
       schemaGrammarEnforced: false,
       blockers: [
         "reasoning_markup_emitted",
@@ -77,6 +79,7 @@ describe("local model quality benchmark report", () => {
       runtimeBenchmark: localRuntimeBenchmark({
         device: "MTL0 (Apple M4 Max)",
         caveats: [],
+        safetyFlags: ["hidden_truth_boundary"],
       }),
       realLocalModelActorPolicyBenchmarkObserved: true,
     });
@@ -96,6 +99,7 @@ describe("local model quality benchmark report", () => {
 function localRuntimeBenchmark(input: {
   device: string;
   caveats: string[];
+  safetyFlags?: string[];
 }): LocalModelRuntimeBenchmarkReport {
   return {
     generatedAt: "2026-05-04T14:57:50Z",
@@ -112,7 +116,7 @@ function localRuntimeBenchmark(input: {
         candidate: "Qwen/Qwen3-4B-GGUF",
         triage_priority: "high",
         rationale: "Symptoms indicate possible acute myocardial infarction.",
-        safety_flags: ["hypotension", "chest pain"],
+        safety_flags: input.safetyFlags ?? ["hypotension", "chest pain"],
       },
       structuredOutputCaveats: input.caveats,
     },

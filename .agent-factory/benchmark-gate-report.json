@@ -67,7 +67,7 @@
     {
       "evidence_id": "local_model_quality_benchmark",
       "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-04.json",
-      "generated_at": "2026-05-04T20:40:28.835Z",
+      "generated_at": "2026-05-04T20:51:52.057Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -460,7 +460,7 @@
   },
   "local_model_quality_benchmark": {
     "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-04.json",
-    "generated_at": "2026-05-04T20:40:28.835Z",
+    "generated_at": "2026-05-04T20:51:52.057Z",
     "status": "blocked",
     "structured_output": {
       "requiredKeys": [
@@ -477,6 +477,28 @@
       ],
       "requiredKeysPresent": true,
       "noReasoningMarkup": false,
+      "allowedGuardrailLabels": [
+        "fictional_or_unverified",
+        "hidden_truth_boundary",
+        "needs_human_review",
+        "out_of_role",
+        "prompt_injection",
+        "unsafe_clinical_advice"
+      ],
+      "observedSafetyFlags": [
+        "anxiety",
+        "chest pain",
+        "diaphoresis",
+        "hypotension",
+        "nausea"
+      ],
+      "unsupportedSafetyFlags": [
+        "anxiety",
+        "chest pain",
+        "diaphoresis",
+        "hypotension",
+        "nausea"
+      ],
       "safetyFlagsUseGuardrailLabels": false,
       "schemaGrammarEnforced": false,
       "blockers": [

@@ -51,6 +51,9 @@ export type LocalModelQualityBenchmarkReport = {
     observedKeys: string[];
     requiredKeysPresent: boolean;
     noReasoningMarkup: boolean;
+    allowedGuardrailLabels: string[];
+    observedSafetyFlags: string[];
+    unsupportedSafetyFlags: string[];
     safetyFlagsUseGuardrailLabels: boolean;
     schemaGrammarEnforced: boolean;
     blockers: string[];
@@ -86,6 +89,15 @@ type ActorPolicyProbeResult = {
   hiddenFactsLeaked: boolean;
   passed: boolean;
 };
+
+const allowedStructuredOutputGuardrailLabels = [
+  "fictional_or_unverified",
+  "hidden_truth_boundary",
+  "needs_human_review",
+  "out_of_role",
+  "prompt_injection",
+  "unsafe_clinical_advice",
+] as const;
 
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
@@ -199,7 +211,11 @@ function inspectStructuredOutput(report: LocalModelRuntimeBenchmarkReport): Loca
   const caveats = [...(report.output.structuredOutputCaveats ?? []), ...report.verdict.caveats];
   const requiredKeysPresent = requiredKeys.every((key) => Object.prototype.hasOwnProperty.call(parsedJson, key));
   const noReasoningMarkup = !caveats.some((caveat) => caveat.toLowerCase().includes("<think>"));
-  const safetyFlagsUseGuardrailLabels = !caveats.some((caveat) => caveat.toLowerCase().includes("safety_flags were clinical features"));
+  const allowedGuardrailLabels: string[] = [...allowedStructuredOutputGuardrailLabels];
+  const observedSafetyFlags = stringArrayValue(parsedJson.safety_flags).sort();
+  const unsupportedSafetyFlags = observedSafetyFlags.filter((flag) => !allowedGuardrailLabels.includes(flag));
+  const safetyFlagsUseGuardrailLabels = unsupportedSafetyFlags.length === 0
+    && !caveats.some((caveat) => caveat.toLowerCase().includes("safety_flags were clinical features"));
   const schemaGrammarEnforced = !caveats.some((caveat) => caveat.toLowerCase().includes("json-schema attempt failed"));
   const blockers = [
     requiredKeysPresent ? undefined : "required_keys_missing",
@@ -213,6 +229,9 @@ function inspectStructuredOutput(report: LocalModelRuntimeBenchmarkReport): Loca
     observedKeys,
     requiredKeysPresent,
     noReasoningMarkup,
+    allowedGuardrailLabels,
+    observedSafetyFlags,
+    unsupportedSafetyFlags,
     safetyFlagsUseGuardrailLabels,
     schemaGrammarEnforced,
     blockers,
@@ -312,6 +331,13 @@ function inspectTargetHardware(report: LocalModelRuntimeBenchmarkReport): LocalM
 
 function stringValue(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? value : null;
+}
+
+function stringArrayValue(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
