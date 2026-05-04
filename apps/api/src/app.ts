@@ -394,12 +394,17 @@ function createAdminGraphqlRoot(
       await persistence.saveStationRunQueueSnapshot?.(snapshot);
       return snapshot;
     },
-    saveFacultyScoreDraft: ({ input }) =>
-      runtime.saveFacultyScoreDraft(String(input.stationRunId), {
+    saveFacultyScoreDraft: async ({ input }) => {
+      const stationRunId = String(input.stationRunId);
+      const packet = runtime.saveFacultyScoreDraft(stationRunId, {
         reviewerId: String(input.reviewerId),
         comments: input.comments,
         rubricScores: isRecord(input.rubricScores) ? input.rubricScores : {},
-      }),
+      });
+      await persistence.saveTraceEvents?.(stationRunId, runtime.traceEvents(stationRunId));
+      await persistence.saveReviewPacket?.(stationRunId, packet);
+      return packet;
+    },
   };
 }
 

@@ -635,7 +635,21 @@ describe("OpenClinXR API shell", () => {
   });
 
   it("executes faculty score draft saves through the admin GraphQL mutation", async () => {
-    const app = createApiApp();
+    const savedTraceEventTypes: string[][] = [];
+    const savedReviewPackets: Array<{ stationRunId: string; reviewerId: string; comments: string }> = [];
+    const persistence: ApiPersistenceSink = {
+      saveTraceEvents: async (_stationRunId, events) => {
+        savedTraceEventTypes.push(events.map((event) => event.eventType));
+      },
+      saveReviewPacket: async (stationRunId, packet) => {
+        savedReviewPackets.push({
+          stationRunId,
+          reviewerId: packet.facultyScoreDraft.reviewerId,
+          comments: packet.facultyScoreDraft.comments,
+        });
+      },
+    };
+    const app = createApiApp(undefined, persistence);
     const sessionResponse = await app.request("/sessions", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -683,6 +697,14 @@ describe("OpenClinXR API shell", () => {
         comments: "ECG escalation was captured; team communication still needs review.",
       },
     });
+    expect(savedTraceEventTypes.at(-1)).toEqual(expect.arrayContaining(["faculty.score_draft.saved"]));
+    expect(savedReviewPackets).toEqual([
+      {
+        stationRunId: session.stationRunId,
+        reviewerId: "faculty_002",
+        comments: "ECG escalation was captured; team communication still needs review.",
+      },
+    ]);
 
     const reviewPacketReplayDocument = adminGraphqlDocumentByOperationName("ReviewPacketReplay");
     const replayResponse = await app.request("/admin/graphql", {
