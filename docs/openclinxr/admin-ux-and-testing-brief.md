@@ -120,7 +120,7 @@ Automated from the first implementation sprint:
 
 - Domain unit tests with Vitest.
 - Contract tests for scenario schemas, actor response schemas, trace events, and model-provider adapters.
-- GraphQL Code Generator checks once GraphQL schema/documents exist, including generated client operations and resolver signatures.
+- GraphQL Code Generator checks for the current GraphQL schema/documents, including generated document drift checks now and generated client operations/resolver signatures as the Apollo layer matures.
 - Storybook stories for every admin component state.
 - Storybook interaction tests for form validation, review state changes, and graph editor controls.
 - Optional Storybook MCP workbench for agent-assisted story authoring and UI state inspection after the Storybook lane is explicit.
