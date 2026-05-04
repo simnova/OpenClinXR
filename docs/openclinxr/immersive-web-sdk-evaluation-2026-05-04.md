@@ -47,6 +47,32 @@ Interpretation: IWSDK dev tooling appears technically viable enough for a commit
 
 `packages/openclinxr/iwsdk-spike` now exposes `buildIwsdkSpikeMetricThresholds()` and `evaluateIwsdkSpikeMetrics()` so a committed sidecar spike can be scored with stable pass/fail bars instead of prose-only judgment.
 
+The same planning package now exposes `buildIwsdkAiModeProfiles()` and `buildIwsdkMcpToolCoverage()` so agent runs can pick an explicit verification posture:
+
+`buildIwsdkMcpToolInventoryRequirement()` preserves the source-backed claim that IWSDK exposes 32 MCP tools. OpenClinXR should not claim IWSDK agent-tooling readiness until a sidecar run records the 32-tool inventory, shows coverage for session, transforms, input, browser, scene, and ECS categories, and validates the minimal smoke subset.
+
+| IWSDK AI mode | Browser posture | DevUI | OpenClinXR use |
+| --- | --- | --- | --- |
+| `agent` | Headless fixed viewport with the normal browser open independently | Off | Default unattended Codex smoke for screenshots, console logs, scene hierarchy, and controller-input regression. |
+| `oversight` | Visible, resizable Playwright browser | Off | Human-observed debug run when visual framing, text readability, or XR entry behavior needs review. |
+| `collaborate` | Visible, resizable Playwright browser | On | Hands-on pairing session for controller, hand, or spatial UI tuning after the sidecar shell is stable. |
+
+IWSDK MCP evidence should be categorized rather than treated as one generic pass/fail:
+
+| MCP category | Representative tools | Evidence use |
+| --- | --- | --- |
+| Session | `xr_get_session_status`, `xr_accept_session` | XR entry readiness and session state before screenshots or controller actions. |
+| Browser | `browser_screenshot`, `browser_get_console_logs` | Nonblank canvas and warning/error capture for unattended sidecar smoke. |
+| Scene | `scene_get_hierarchy` | Named station object presence without relying only on visual screenshots. |
+| Input | `xr_select` | Controller-triggered learner trace actions in the emulated runtime. |
+| Transforms | `xr_set_headset_transform`, `xr_set_controller_transform` | Repeatable headset/controller positioning for station framing checks. |
+| ECS | `ecs_pause`, `ecs_step`, `ecs_query_entities` | Deterministic inspection of runtime entity state during scenario transitions. |
+
+Optional MCP servers remain separately controlled:
+
+- `iwsdk-reference` / `@iwsdk/reference`: blocked in unattended runs because warmup can download a pinned model and reference corpus.
+- `hzdb` / `@meta-quest/hzdb`: blocked until legal/procurement review, because package metadata and terms need explicit acceptance.
+
 Committed sidecar spike budget:
 
 - `installedNodeModulesMbMax`: 300 MB.

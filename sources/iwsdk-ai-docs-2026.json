@@ -12,6 +12,7 @@
     "As accessed on 2026-05-04, the documentation showed IWSDK documentation version v0.3.1.",
     "The documentation says IWSDK exposes 32 MCP tools for AI-assisted WebXR development, including screenshots, controller input, scene inspection, and ECS debugging.",
     "The documentation describes a managed Playwright browser, an iwsdk mcp stdio server, and Vite development integration coordinated by iwsdk dev up.",
+    "The documentation says iwsdk adapter sync writes workspace-based MCP config files so AI tools can discover the runtime MCP server.",
     "The documentation describes three development modes: Agent, Oversight, and Collaborate.",
     "The documentation states the normal browser can run independently while the agent works in the background.",
     "The documentation says Codex adapter generation targets .codex/config.toml when ai.tools includes codex.",

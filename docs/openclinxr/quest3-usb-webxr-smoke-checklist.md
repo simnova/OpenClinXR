@@ -323,6 +323,8 @@ Additional IWSDK sidecar evidence:
 
 - `pnpm iwsdk:verify` passes before device testing starts.
 - The sidecar records installed footprint, injected dev runtime size, JS bundle size, bundle delta versus `apps/ui-xr`, and console error count.
+- IWSDK adapter evidence records `iwsdk adapter sync`, the local config target, and a reversible rollback path.
+- IWSDK MCP inventory evidence records the expected 32 tools and category coverage for session, transforms, input, browser, scene, and ECS before any agent-tooling readiness claim.
 - IWSDK MCP agent-mode evidence records `iwsdk dev status`, `xr_get_session_status`, `xr_accept_session`, `browser_screenshot`, `scene_get_hierarchy`, `xr_select`, and `browser_get_console_logs` in that order.
 - MCP screenshot is nonblank and scene hierarchy includes named station objects.
 - MCP `xr_select` triggers exactly one known station trace action in the emulated runtime.

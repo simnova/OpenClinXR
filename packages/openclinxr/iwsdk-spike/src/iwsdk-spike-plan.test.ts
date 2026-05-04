@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildIwsdkAiModeProfiles,
   buildIwsdkAgentVerificationRunbook,
   buildIwsdkCodexMcpAdapterTemplate,
   buildIwsdkCommittedSpikeSequence,
+  buildIwsdkMcpToolInventoryRequirement,
+  buildIwsdkMcpToolCoverage,
+  buildIwsdkOptionalMcpServerPolicy,
   buildIwsdkPreInstallPackagePolicy,
   buildIwsdkSidecarReadinessContract,
   buildIwsdkSpikeMetricThresholds,
@@ -76,6 +80,9 @@ describe("IWSDK spike plan", () => {
     const runbook = buildIwsdkAgentVerificationRunbook({ aiTool: "codex", mode: "agent" });
 
     expect(runbook.adapterConfigTarget).toBe(".codex/config.toml");
+    expect(runbook.adapterSyncCommand).toBe("iwsdk adapter sync");
+    expect(runbook.modeProfile.mode).toBe("agent");
+    expect(runbook.modeProfile.playwrightBrowser).toBe("headless_fixed_viewport");
     expect(runbook.steps.map((step) => step.toolOrCommand).slice(0, 4)).toEqual([
       "iwsdk dev status",
       "xr_get_session_status",
@@ -86,6 +93,109 @@ describe("IWSDK spike plan", () => {
       "npx iwsdk reference warmup",
       "install @meta-quest/hzdb",
       "adopt @iwsdk/vite-plugin-gltf-optimizer in production builds",
+    ]);
+  });
+
+  it("defines IWSDK AI mode profiles so agents can pick the right verification posture", () => {
+    expect(buildIwsdkAiModeProfiles()).toEqual([
+      {
+        mode: "agent",
+        playwrightBrowser: "headless_fixed_viewport",
+        devUi: "off",
+        normalBrowser: "opens_independently",
+        openclinxrUse: "Default unattended Codex smoke for screenshots, console logs, scene hierarchy, and controller-input regression.",
+      },
+      {
+        mode: "oversight",
+        playwrightBrowser: "visible_resizable",
+        devUi: "off",
+        normalBrowser: "playwright_browser",
+        openclinxrUse: "Human-observed debug run when visual framing, text readability, or XR entry behavior needs review.",
+      },
+      {
+        mode: "collaborate",
+        playwrightBrowser: "visible_resizable",
+        devUi: "on",
+        normalBrowser: "playwright_browser",
+        openclinxrUse: "Hands-on pairing session for controller, hand, or spatial UI tuning after the sidecar shell is stable.",
+      },
+    ]);
+  });
+
+  it("maps IWSDK MCP tool categories to OpenClinXR evidence needs", () => {
+    expect(buildIwsdkMcpToolCoverage()).toEqual([
+      {
+        category: "session",
+        representativeTools: ["xr_get_session_status", "xr_accept_session"],
+        evidenceUse: "XR entry readiness and session state before screenshots or controller actions.",
+      },
+      {
+        category: "browser",
+        representativeTools: ["browser_screenshot", "browser_get_console_logs"],
+        evidenceUse: "Nonblank canvas and warning/error capture for unattended sidecar smoke.",
+      },
+      {
+        category: "scene",
+        representativeTools: ["scene_get_hierarchy"],
+        evidenceUse: "Named station object presence without relying only on visual screenshots.",
+      },
+      {
+        category: "input",
+        representativeTools: ["xr_select"],
+        evidenceUse: "Controller-triggered learner trace actions in the emulated runtime.",
+      },
+      {
+        category: "transforms",
+        representativeTools: ["xr_set_headset_transform", "xr_set_controller_transform"],
+        evidenceUse: "Repeatable headset/controller positioning for station framing checks.",
+      },
+      {
+        category: "ecs",
+        representativeTools: ["ecs_pause", "ecs_step", "ecs_query_entities"],
+        evidenceUse: "Deterministic inspection of runtime entity state during scenario transitions.",
+      },
+    ]);
+  });
+
+  it("requires the IWSDK 32-tool MCP inventory before agent tooling readiness is claimed", () => {
+    expect(buildIwsdkMcpToolInventoryRequirement()).toEqual({
+      expectedToolCount: 32,
+      sourceRecordIds: ["src-iwsdk-ai-docs-2026"],
+      requiredCategories: ["session", "transforms", "input", "browser", "scene", "ecs"],
+      minimalSmokeSubset: [
+        "xr_get_session_status",
+        "xr_accept_session",
+        "browser_screenshot",
+        "scene_get_hierarchy",
+        "xr_select",
+        "browser_get_console_logs",
+      ],
+      readinessBlockersWhenMissing: [
+        "mcp_tool_inventory_count_not_recorded",
+        "mcp_required_category_missing",
+        "mcp_smoke_subset_not_validated",
+      ],
+    });
+  });
+
+  it("classifies reference and hzdb as optional MCP servers blocked in unattended runs", () => {
+    expect(buildIwsdkOptionalMcpServerPolicy()).toEqual([
+      {
+        serverName: "iwsdk-reference",
+        packageName: "@iwsdk/reference",
+        posture: "blocked_unattended",
+        sourceRecordIds: ["src-iwsdk-ai-docs-2026", "src-iwsdk-npm-metadata-2026-05-04"],
+        allowedOnlyAfter: ["operator_approval_for_model_and_corpus_downloads", "cache_location_documented"],
+        blockedActions: ["npx iwsdk reference warmup"],
+      },
+      {
+        serverName: "hzdb",
+        packageName: "@meta-quest/hzdb",
+        posture: "blocked",
+        sourceRecordIds: ["src-iwsdk-ai-docs-2026", "src-iwsdk-npm-metadata-2026-05-04"],
+        allowedOnlyAfter: ["legal_review_for_unlicensed_metadata", "procurement_approval"],
+        blockedActions: ["install @meta-quest/hzdb"],
+      },
     ]);
   });
 

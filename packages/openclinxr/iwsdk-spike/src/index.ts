@@ -67,11 +67,49 @@ export type IwsdkSpikeMetricReadiness = {
 
 export type IwsdkAgentMode = "agent" | "oversight" | "collaborate";
 export type IwsdkAiTool = "codex" | "claude" | "cursor" | "copilot";
+export type IwsdkPlaywrightBrowserPosture = "headless_fixed_viewport" | "visible_resizable";
+export type IwsdkDevUiPosture = "off" | "on";
+export type IwsdkNormalBrowserPosture = "opens_independently" | "playwright_browser";
+
+export type IwsdkAiModeProfile = {
+  mode: IwsdkAgentMode;
+  playwrightBrowser: IwsdkPlaywrightBrowserPosture;
+  devUi: IwsdkDevUiPosture;
+  normalBrowser: IwsdkNormalBrowserPosture;
+  openclinxrUse: string;
+};
+
+export type IwsdkMcpToolCategory = "session" | "transforms" | "input" | "browser" | "scene" | "ecs";
+
+export type IwsdkMcpToolCoverage = {
+  category: IwsdkMcpToolCategory;
+  representativeTools: string[];
+  evidenceUse: string;
+};
+
+export type IwsdkMcpToolInventoryRequirement = {
+  expectedToolCount: 32;
+  sourceRecordIds: string[];
+  requiredCategories: IwsdkMcpToolCategory[];
+  minimalSmokeSubset: string[];
+  readinessBlockersWhenMissing: string[];
+};
+
+export type IwsdkOptionalMcpServerPolicy = {
+  serverName: string;
+  packageName: string;
+  posture: Extract<IwsdkSpikePackagePosture, "blocked" | "blocked_unattended">;
+  sourceRecordIds: string[];
+  allowedOnlyAfter: string[];
+  blockedActions: string[];
+};
 
 export type IwsdkAgentVerificationRunbook = {
   mode: IwsdkAgentMode;
+  modeProfile: IwsdkAiModeProfile;
   aiTool: IwsdkAiTool;
   adapterConfigTarget: string;
+  adapterSyncCommand: "iwsdk adapter sync";
   steps: Array<{
     id: string;
     toolOrCommand: string;
@@ -408,6 +446,109 @@ export function buildIwsdkPreInstallPackagePolicy(): IwsdkPreInstallPackagePolic
   };
 }
 
+export function buildIwsdkAiModeProfiles(): IwsdkAiModeProfile[] {
+  return [
+    {
+      mode: "agent",
+      playwrightBrowser: "headless_fixed_viewport",
+      devUi: "off",
+      normalBrowser: "opens_independently",
+      openclinxrUse: "Default unattended Codex smoke for screenshots, console logs, scene hierarchy, and controller-input regression.",
+    },
+    {
+      mode: "oversight",
+      playwrightBrowser: "visible_resizable",
+      devUi: "off",
+      normalBrowser: "playwright_browser",
+      openclinxrUse: "Human-observed debug run when visual framing, text readability, or XR entry behavior needs review.",
+    },
+    {
+      mode: "collaborate",
+      playwrightBrowser: "visible_resizable",
+      devUi: "on",
+      normalBrowser: "playwright_browser",
+      openclinxrUse: "Hands-on pairing session for controller, hand, or spatial UI tuning after the sidecar shell is stable.",
+    },
+  ];
+}
+
+export function buildIwsdkMcpToolCoverage(): IwsdkMcpToolCoverage[] {
+  return [
+    {
+      category: "session",
+      representativeTools: ["xr_get_session_status", "xr_accept_session"],
+      evidenceUse: "XR entry readiness and session state before screenshots or controller actions.",
+    },
+    {
+      category: "browser",
+      representativeTools: ["browser_screenshot", "browser_get_console_logs"],
+      evidenceUse: "Nonblank canvas and warning/error capture for unattended sidecar smoke.",
+    },
+    {
+      category: "scene",
+      representativeTools: ["scene_get_hierarchy"],
+      evidenceUse: "Named station object presence without relying only on visual screenshots.",
+    },
+    {
+      category: "input",
+      representativeTools: ["xr_select"],
+      evidenceUse: "Controller-triggered learner trace actions in the emulated runtime.",
+    },
+    {
+      category: "transforms",
+      representativeTools: ["xr_set_headset_transform", "xr_set_controller_transform"],
+      evidenceUse: "Repeatable headset/controller positioning for station framing checks.",
+    },
+    {
+      category: "ecs",
+      representativeTools: ["ecs_pause", "ecs_step", "ecs_query_entities"],
+      evidenceUse: "Deterministic inspection of runtime entity state during scenario transitions.",
+    },
+  ];
+}
+
+export function buildIwsdkMcpToolInventoryRequirement(): IwsdkMcpToolInventoryRequirement {
+  return {
+    expectedToolCount: 32,
+    sourceRecordIds: ["src-iwsdk-ai-docs-2026"],
+    requiredCategories: ["session", "transforms", "input", "browser", "scene", "ecs"],
+    minimalSmokeSubset: [
+      "xr_get_session_status",
+      "xr_accept_session",
+      "browser_screenshot",
+      "scene_get_hierarchy",
+      "xr_select",
+      "browser_get_console_logs",
+    ],
+    readinessBlockersWhenMissing: [
+      "mcp_tool_inventory_count_not_recorded",
+      "mcp_required_category_missing",
+      "mcp_smoke_subset_not_validated",
+    ],
+  };
+}
+
+export function buildIwsdkOptionalMcpServerPolicy(): IwsdkOptionalMcpServerPolicy[] {
+  return [
+    {
+      serverName: "iwsdk-reference",
+      packageName: "@iwsdk/reference",
+      posture: "blocked_unattended",
+      sourceRecordIds: ["src-iwsdk-ai-docs-2026", "src-iwsdk-npm-metadata-2026-05-04"],
+      allowedOnlyAfter: ["operator_approval_for_model_and_corpus_downloads", "cache_location_documented"],
+      blockedActions: ["npx iwsdk reference warmup"],
+    },
+    {
+      serverName: "hzdb",
+      packageName: "@meta-quest/hzdb",
+      posture: "blocked",
+      sourceRecordIds: ["src-iwsdk-ai-docs-2026", "src-iwsdk-npm-metadata-2026-05-04"],
+      allowedOnlyAfter: ["legal_review_for_unlicensed_metadata", "procurement_approval"],
+      blockedActions: ["install @meta-quest/hzdb"],
+    },
+  ];
+}
+
 export function evaluateIwsdkPreInstallPackageSelection(
   selectedPackages: IwsdkPackageSelection[],
   policy: IwsdkPreInstallPackagePolicy = buildIwsdkPreInstallPackagePolicy(),
@@ -453,10 +594,17 @@ export function buildIwsdkAgentVerificationRunbook(options: {
   aiTool: IwsdkAiTool;
   mode: IwsdkAgentMode;
 }): IwsdkAgentVerificationRunbook {
+  const modeProfile = buildIwsdkAiModeProfiles().find((profile) => profile.mode === options.mode);
+  if (!modeProfile) {
+    throw new Error(`Unsupported IWSDK agent mode: ${options.mode}`);
+  }
+
   return {
     mode: options.mode,
+    modeProfile,
     aiTool: options.aiTool,
     adapterConfigTarget: adapterConfigTargetFor(options.aiTool),
+    adapterSyncCommand: "iwsdk adapter sync",
     steps: [
       {
         id: "runtime-status",

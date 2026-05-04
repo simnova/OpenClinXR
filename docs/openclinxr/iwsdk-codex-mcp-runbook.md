@@ -25,6 +25,8 @@ Current state: contract only. Do not create a no-install `apps/ui-xr-iwsdk-spike
 
 `packages/openclinxr/iwsdk-spike` exposes `buildIwsdkCodexMcpAdapterTemplate()` as the source of truth for the local adapter template.
 
+The package-level runbook also records `adapterSyncCommand = "iwsdk adapter sync"`. Run that only after the sidecar app and exact packages are approved, then keep the resulting local MCP config reversible.
+
 Target:
 
 ```text
@@ -43,6 +45,8 @@ Keep this adapter local and reversible. Do not commit `.codex/config.toml` chang
 
 ## Verification Order
 
+Default to IWSDK `agent` mode for unattended Codex checks: headless fixed viewport, DevUI off, and a separate normal browser for manual development. Use `oversight` mode only when Patrick or a developer needs to watch the Playwright browser directly. Use `collaborate` mode only for hands-on controller, hand, or spatial UI tuning after the sidecar shell is stable.
+
 Run IWSDK MCP checks in this order:
 
 1. `iwsdk dev status`
@@ -55,17 +59,21 @@ Run IWSDK MCP checks in this order:
 
 Evidence to record:
 
+- Adapter sync command and target config file.
 - Resolved runtime URL.
 - Managed browser readiness.
+- Confirmation that the managed Playwright browser is separate from the normal browser when using `agent` mode.
 - Nonblank screenshot.
 - Scene hierarchy including named station objects.
 - One controller select mapped to a station trace action.
 - Empty warning/error console logs, or explicit blockers.
+- 32-tool inventory with session, transforms, input, browser, scene, and ECS category coverage before claiming IWSDK agent-tooling readiness.
 
 ## Still Blocked
 
 - `npx iwsdk reference warmup`
 - Installing `@meta-quest/hzdb`
+- Treating optional `iwsdk-reference` or `hzdb` MCP servers as normal unattended dependencies
 - Adopting `@iwsdk/vite-plugin-gltf-optimizer` in production builds
 - Claiming Quest frame pacing from MCP emulation alone
 
