@@ -13,6 +13,7 @@ import {
   buildIwsdkSidecarReadinessContract,
   buildIwsdkSpikeMetricThresholds,
   buildIwsdkSpikePlan,
+  buildIwsdkViteAiDevConfigContract,
   evaluateIwsdkWorkspacePosture,
   evaluateIwsdkAgentToolingEvidence,
   evaluateIwsdkManagedBrowserEvidence,
@@ -633,6 +634,43 @@ describe("IWSDK spike plan", () => {
       "npx iwsdk reference warmup",
       "install @meta-quest/hzdb",
       "adopt @iwsdk/vite-plugin-gltf-optimizer in production builds",
+    ]);
+  });
+
+  it("defines the future IWSDK Vite AI config contract for Codex and Quest 3 emulation", () => {
+    const contract = buildIwsdkViteAiDevConfigContract();
+
+    expect(contract.status).toBe("phase_2_after_sidecar_shell");
+    expect(contract.sourceRecordIds).toEqual(["src-iwsdk-ai-docs-2026"]);
+    expect(contract.packageName).toBe("@iwsdk/vite-plugin-dev");
+    expect(contract.requiredOptions).toEqual({
+      emulatorDevice: "metaQuest3",
+      aiMode: "agent",
+      aiTools: ["codex"],
+      screenshotSize: { width: 500, height: 500 },
+      verbose: true,
+    });
+    expect(contract.viteConfigSnippet).toContain("iwsdkDev({");
+    expect(contract.viteConfigSnippet).toContain("emulator: { device: 'metaQuest3' }");
+    expect(contract.viteConfigSnippet).toContain("ai: { mode: 'agent', tools: ['codex'], screenshotSize: { width: 500, height: 500 } }");
+    expect(contract.requiredEvidence).toEqual([
+      "vite_config_uses_iwsdk_dev_plugin",
+      "ai_tools_includes_codex",
+      "agent_mode_selected_for_unattended_runs",
+      "quest3_emulator_selected",
+      "screenshot_size_bounded",
+      "adapter_sync_generates_codex_config",
+      "runtime_status_records_browser_command_ready",
+    ]);
+    expect(contract.blockedUntil).toEqual([
+      "apps/ui-xr-iwsdk-spike_exists_with_exact_iwsdk_versions",
+      "phase_1_runtime_shell_metrics_pass",
+      "operator_accepts_iwsdk_install_scope",
+      "license_review_accepts_transitive_dependency_posture",
+    ]);
+    expect(contract.doNotRunUnattended).toEqual([
+      "npx iwsdk reference warmup",
+      "install @meta-quest/hzdb",
     ]);
   });
 

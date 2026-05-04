@@ -31,6 +31,21 @@ Use `pnpm iwsdk:evidence:validate` to validate the latest committed `docs/opencl
 
 The package-level runbook also records `adapterSyncCommand = "iwsdk adapter sync"`. Run that only after the sidecar app and exact packages are approved, then keep the resulting local MCP config reversible.
 
+## Future Vite AI Config
+
+`packages/openclinxr/iwsdk-spike` also exposes `buildIwsdkViteAiDevConfigContract()` as the source of truth for the future sidecar's Vite dev-plugin posture. This remains advisory until phase 2, after the install-backed sidecar exists and the phase 1 runtime shell metrics pass.
+
+Required future options:
+
+- `@iwsdk/vite-plugin-dev`
+- `emulator: { device: 'metaQuest3' }`
+- `ai: { mode: 'agent', tools: ['codex'], screenshotSize: { width: 500, height: 500 } }`
+- `verbose: true`
+
+The config contract requires evidence that the Vite config uses `iwsdkDev`, that Codex MCP config generation is explicitly enabled, that unattended runs use agent mode, that the Quest 3 emulator is selected, that screenshot size is bounded, that adapter sync generates Codex config, and that runtime status records browser command readiness.
+
+Do not add this plugin to the committed workspace until `apps/ui-xr-iwsdk-spike` exists with exact IWSDK versions, the phase 1 runtime shell metrics pass, the install scope is accepted, and transitive license posture is accepted.
+
 Target:
 
 ```text

@@ -5,6 +5,7 @@ import fg from "fast-glob";
 import {
   buildIwsdkPreInstallPackagePolicy,
   buildIwsdkSidecarReadinessContract,
+  buildIwsdkViteAiDevConfigContract,
   evaluateIwsdkAgentToolingEvidence,
   evaluateIwsdkPreInstallPackageSelection,
   evaluateIwsdkSpikeMetrics,
@@ -13,6 +14,7 @@ import {
   type IwsdkPreInstallPackageSelectionResult,
   type IwsdkSidecarReadinessContract,
   type IwsdkSpikeMetricReadiness,
+  type IwsdkViteAiDevConfigContract,
 } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
 
 type CliOptions = {
@@ -29,6 +31,7 @@ export type IwsdkEvidenceContractReport = {
     defaultFirstSliceReady: boolean;
     result: IwsdkPreInstallPackageSelectionResult;
   };
+  viteAiDevConfig: IwsdkViteAiDevConfigContract;
   agentTooling: IwsdkAgentToolingEvidenceReadiness;
   productionRuntime: IwsdkSpikeMetricReadiness;
   verdict: {
@@ -122,6 +125,7 @@ export function buildIwsdkEvidenceContractReport(input: {
       defaultFirstSliceReady: preinstallResult.readyToInstallInSidecar,
       result: preinstallResult,
     },
+    viteAiDevConfig: buildIwsdkViteAiDevConfigContract(),
     agentTooling,
     productionRuntime,
     verdict: {
@@ -145,6 +149,7 @@ export function validateIwsdkEvidenceContractReport(value: unknown): IwsdkEviden
   requireLiteral(readAt(value, ["status"]), "contract_only", "/status", errors);
   requireObject(readAt(value, ["sidecar"]), "/sidecar", errors);
   requireObject(readAt(value, ["preinstall"]), "/preinstall", errors);
+  requireObject(readAt(value, ["viteAiDevConfig"]), "/viteAiDevConfig", errors);
   requireObject(readAt(value, ["agentTooling"]), "/agentTooling", errors);
   requireObject(readAt(value, ["productionRuntime"]), "/productionRuntime", errors);
   requireObject(readAt(value, ["verdict"]), "/verdict", errors);
@@ -162,6 +167,22 @@ export function validateIwsdkEvidenceContractReport(value: unknown): IwsdkEviden
   requireBoolean(readAt(value, ["preinstall", "result", "readyToInstallInSidecar"]), "/preinstall/result/readyToInstallInSidecar", errors);
   requireStringArray(readAt(value, ["preinstall", "result", "blockers"]), "/preinstall/result/blockers", errors);
   requireStringArray(readAt(value, ["preinstall", "result", "reviewWarnings"]), "/preinstall/result/reviewWarnings", errors);
+
+  requireLiteral(readAt(value, ["viteAiDevConfig", "status"]), "phase_2_after_sidecar_shell", "/viteAiDevConfig/status", errors);
+  requireStringArray(readAt(value, ["viteAiDevConfig", "sourceRecordIds"]), "/viteAiDevConfig/sourceRecordIds", errors);
+  requireLiteral(readAt(value, ["viteAiDevConfig", "packageName"]), "@iwsdk/vite-plugin-dev", "/viteAiDevConfig/packageName", errors);
+  requireObject(readAt(value, ["viteAiDevConfig", "requiredOptions"]), "/viteAiDevConfig/requiredOptions", errors);
+  requireLiteral(readAt(value, ["viteAiDevConfig", "requiredOptions", "emulatorDevice"]), "metaQuest3", "/viteAiDevConfig/requiredOptions/emulatorDevice", errors);
+  requireLiteral(readAt(value, ["viteAiDevConfig", "requiredOptions", "aiMode"]), "agent", "/viteAiDevConfig/requiredOptions/aiMode", errors);
+  requireStringArray(readAt(value, ["viteAiDevConfig", "requiredOptions", "aiTools"]), "/viteAiDevConfig/requiredOptions/aiTools", errors);
+  requireObject(readAt(value, ["viteAiDevConfig", "requiredOptions", "screenshotSize"]), "/viteAiDevConfig/requiredOptions/screenshotSize", errors);
+  requireNumber(readAt(value, ["viteAiDevConfig", "requiredOptions", "screenshotSize", "width"]), "/viteAiDevConfig/requiredOptions/screenshotSize/width", errors);
+  requireNumber(readAt(value, ["viteAiDevConfig", "requiredOptions", "screenshotSize", "height"]), "/viteAiDevConfig/requiredOptions/screenshotSize/height", errors);
+  requireBoolean(readAt(value, ["viteAiDevConfig", "requiredOptions", "verbose"]), "/viteAiDevConfig/requiredOptions/verbose", errors);
+  requireString(readAt(value, ["viteAiDevConfig", "viteConfigSnippet"]), "/viteAiDevConfig/viteConfigSnippet", errors);
+  requireStringArray(readAt(value, ["viteAiDevConfig", "requiredEvidence"]), "/viteAiDevConfig/requiredEvidence", errors);
+  requireStringArray(readAt(value, ["viteAiDevConfig", "blockedUntil"]), "/viteAiDevConfig/blockedUntil", errors);
+  requireStringArray(readAt(value, ["viteAiDevConfig", "doNotRunUnattended"]), "/viteAiDevConfig/doNotRunUnattended", errors);
 
   requireBoolean(readAt(value, ["agentTooling", "readyForAgentTooling"]), "/agentTooling/readyForAgentTooling", errors);
   requireStringArray(readAt(value, ["agentTooling", "blockers"]), "/agentTooling/blockers", errors);
@@ -246,6 +267,12 @@ function requireString(value: unknown, pathName: string, errors: string[]): void
 function requireBoolean(value: unknown, pathName: string, errors: string[]): void {
   if (typeof value !== "boolean") {
     errors.push(`${pathName} must be boolean`);
+  }
+}
+
+function requireNumber(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    errors.push(`${pathName} must be finite number`);
   }
 }
 

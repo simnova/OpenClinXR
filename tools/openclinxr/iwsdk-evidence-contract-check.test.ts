@@ -29,6 +29,20 @@ describe("IWSDK evidence contract checker", () => {
       "@iwsdk/starter-assets",
       "@meta-quest/hzdb",
     ]));
+    expect(report.viteAiDevConfig).toEqual(expect.objectContaining({
+      packageName: "@iwsdk/vite-plugin-dev",
+      requiredOptions: {
+        emulatorDevice: "metaQuest3",
+        aiMode: "agent",
+        aiTools: ["codex"],
+        screenshotSize: { width: 500, height: 500 },
+        verbose: true,
+      },
+      blockedUntil: expect.arrayContaining([
+        "apps/ui-xr-iwsdk-spike_exists_with_exact_iwsdk_versions",
+        "phase_1_runtime_shell_metrics_pass",
+      ]),
+    }));
     expect(report.agentTooling.readyForAgentTooling).toBe(false);
     expect(report.productionRuntime.readyForProductionRuntime).toBe(false);
     expect(report.verdict).toEqual({

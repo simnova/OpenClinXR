@@ -55,6 +55,8 @@ The same planning package now exposes `buildIwsdkAiModeProfiles()`, `buildIwsdkM
 
 `evaluateIwsdkAgentToolingEvidence()` is the aggregate readiness check for the future sidecar MCP lane. It blocks readiness if adapter sync is missing, the tool inventory is not 32, observed tool names are absent or drift from the expected inventory, required MCP categories or minimal smoke tools are absent, managed-browser evidence fails, or optional `iwsdk-reference`/`hzdb` actions appear in the run.
 
+`buildIwsdkViteAiDevConfigContract()` records the future sidecar Vite plugin posture without installing IWSDK. The phase 2 target is `@iwsdk/vite-plugin-dev` with `emulator: { device: 'metaQuest3' }`, `ai: { mode: 'agent', tools: ['codex'], screenshotSize: { width: 500, height: 500 } }`, and `verbose: true`. That config stays blocked until the install-backed `apps/ui-xr-iwsdk-spike` exists with exact IWSDK versions, the phase 1 runtime shell metrics pass, operator install-scope approval is recorded, and license review accepts the transitive dependency posture.
+
 `pnpm iwsdk:agent-tooling:evidence -- --input path/to/evidence.json --output docs/openclinxr/iwsdk-agent-tooling-evidence-YYYY-MM-DD.json` scores that aggregate evidence from a captured JSON file without installing IWSDK or changing MCP config.
 
 `pnpm iwsdk:sidecar:metrics -- --input path/to/metrics.json --output docs/openclinxr/iwsdk-sidecar-metrics-YYYY-MM-DD.json` scores committed sidecar and production-runtime budgets from a captured metrics JSON file, including install footprint, dev runtime size, bundle delta, console errors, foreground Quest preflight readiness, Quest FPS, p95 frame time, and controller-select latency.

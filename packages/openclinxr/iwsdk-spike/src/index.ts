@@ -229,6 +229,23 @@ export type IwsdkCodexMcpAdapterTemplate = {
   blockedActions: string[];
 };
 
+export type IwsdkViteAiDevConfigContract = {
+  status: "phase_2_after_sidecar_shell";
+  sourceRecordIds: string[];
+  packageName: "@iwsdk/vite-plugin-dev";
+  requiredOptions: {
+    emulatorDevice: "metaQuest3";
+    aiMode: "agent";
+    aiTools: ["codex"];
+    screenshotSize: { width: 500; height: 500 };
+    verbose: true;
+  };
+  viteConfigSnippet: string;
+  requiredEvidence: string[];
+  blockedUntil: string[];
+  doNotRunUnattended: string[];
+};
+
 export type IwsdkCommittedSpikePhase = {
   id: string;
   goal: string;
@@ -1225,6 +1242,54 @@ export function buildIwsdkCodexMcpAdapterTemplate(): IwsdkCodexMcpAdapterTemplat
     ],
     validationCommandOrder: runbook.steps.map((step) => step.toolOrCommand),
     blockedActions: [...runbook.doNotRunUnattended],
+  };
+}
+
+export function buildIwsdkViteAiDevConfigContract(): IwsdkViteAiDevConfigContract {
+  return {
+    status: "phase_2_after_sidecar_shell",
+    sourceRecordIds: ["src-iwsdk-ai-docs-2026"],
+    packageName: "@iwsdk/vite-plugin-dev",
+    requiredOptions: {
+      emulatorDevice: "metaQuest3",
+      aiMode: "agent",
+      aiTools: ["codex"],
+      screenshotSize: { width: 500, height: 500 },
+      verbose: true,
+    },
+    viteConfigSnippet: [
+      "import { defineConfig } from 'vite';",
+      "import { iwsdkDev } from '" + "@iwsdk/vite-plugin-dev" + "';",
+      "",
+      "export default defineConfig({",
+      "  plugins: [",
+      "    iwsdkDev({",
+      "      emulator: { device: 'metaQuest3' },",
+      "      ai: { mode: 'agent', tools: ['codex'], screenshotSize: { width: 500, height: 500 } },",
+      "      verbose: true,",
+      "    }),",
+      "  ],",
+      "});",
+    ].join("\n"),
+    requiredEvidence: [
+      "vite_config_uses_iwsdk_dev_plugin",
+      "ai_tools_includes_codex",
+      "agent_mode_selected_for_unattended_runs",
+      "quest3_emulator_selected",
+      "screenshot_size_bounded",
+      "adapter_sync_generates_codex_config",
+      "runtime_status_records_browser_command_ready",
+    ],
+    blockedUntil: [
+      "apps/ui-xr-iwsdk-spike_exists_with_exact_iwsdk_versions",
+      "phase_1_runtime_shell_metrics_pass",
+      "operator_accepts_iwsdk_install_scope",
+      "license_review_accepts_transitive_dependency_posture",
+    ],
+    doNotRunUnattended: [
+      "npx iwsdk reference warmup",
+      "install @meta-quest/hzdb",
+    ],
   };
 }
 

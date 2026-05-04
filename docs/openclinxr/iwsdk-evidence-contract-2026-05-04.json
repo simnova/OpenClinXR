@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T08:26:26.255Z",
+  "generatedAt": "2026-05-04T08:51:17.406Z",
   "status": "contract_only",
   "sidecar": {
     "sidecarAppRoot": "apps/ui-xr-iwsdk-spike/",
@@ -60,6 +60,45 @@
       "blockers": [],
       "reviewWarnings": []
     }
+  },
+  "viteAiDevConfig": {
+    "status": "phase_2_after_sidecar_shell",
+    "sourceRecordIds": [
+      "src-iwsdk-ai-docs-2026"
+    ],
+    "packageName": "@iwsdk/vite-plugin-dev",
+    "requiredOptions": {
+      "emulatorDevice": "metaQuest3",
+      "aiMode": "agent",
+      "aiTools": [
+        "codex"
+      ],
+      "screenshotSize": {
+        "width": 500,
+        "height": 500
+      },
+      "verbose": true
+    },
+    "viteConfigSnippet": "import { defineConfig } from 'vite';\nimport { iwsdkDev } from '@iwsdk/vite-plugin-dev';\n\nexport default defineConfig({\n  plugins: [\n    iwsdkDev({\n      emulator: { device: 'metaQuest3' },\n      ai: { mode: 'agent', tools: ['codex'], screenshotSize: { width: 500, height: 500 } },\n      verbose: true,\n    }),\n  ],\n});",
+    "requiredEvidence": [
+      "vite_config_uses_iwsdk_dev_plugin",
+      "ai_tools_includes_codex",
+      "agent_mode_selected_for_unattended_runs",
+      "quest3_emulator_selected",
+      "screenshot_size_bounded",
+      "adapter_sync_generates_codex_config",
+      "runtime_status_records_browser_command_ready"
+    ],
+    "blockedUntil": [
+      "apps/ui-xr-iwsdk-spike_exists_with_exact_iwsdk_versions",
+      "phase_1_runtime_shell_metrics_pass",
+      "operator_accepts_iwsdk_install_scope",
+      "license_review_accepts_transitive_dependency_posture"
+    ],
+    "doNotRunUnattended": [
+      "npx iwsdk reference warmup",
+      "install @meta-quest/hzdb"
+    ]
   },
   "agentTooling": {
     "readyForAgentTooling": false,
