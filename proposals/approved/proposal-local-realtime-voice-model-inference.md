@@ -1,18 +1,20 @@
 # Proposal: Local Realtime Voice Model Inference
 
-Status: Proposed on 2026-05-04. Awaiting Patrick/legal/security approval before downloading additional voice model weights or installing Moshi/Qwen runtime packages.
+Status: Approved by Patrick on 2026-05-04 19:16:05 EDT.
 
-## Decision Needed
+Approval note: Patrick approved the constrained developer-only spike and refined the recommendation to use `kyutai/moshiko-mlx-q4` as the primary full-duplex Moshi MLX q4 candidate, with `mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit` as the outbound TTS fallback. All original constraints remain: isolated venv and cache outside the repo, no production use, no committed weights, no cloud, no paid APIs, and kill/acceptance criteria still apply.
 
-Approve, reject, or defer a local-only realtime voice inference spike that evaluates Moshi MLX and Qwen3-TTS MLX behind the existing `apps/api-python-backend` FastAPI sidecar and Bun/Hono gateway posture.
+## Decision Record
+
+Approved a local-only realtime voice inference spike that evaluates Moshi MLX and Qwen3-TTS MLX behind the existing `apps/api-python-backend` FastAPI sidecar and Bun/Hono gateway posture.
 
 This proposal is separate from the already approved VibeVoice file-generation spike. It is specifically for low-latency, bidirectional or near-bidirectional voice inference evidence.
 
 ## Recommendation
 
-Approve a constrained two-candidate spike, but keep it developer-only and evidence-gated.
+Approve a constrained developer-only spike.
 
-Use Moshi MLX q4 as the primary full-duplex dialog candidate because Moshi is explicitly designed as a speech-text, full-duplex spoken dialogue framework. Use Qwen3-TTS 0.6B MLX 4-bit as the outbound TTS fallback because its license posture is cleaner and its published materials emphasize low-latency streaming TTS, while acknowledging that it is not a standalone full-duplex dialog system.
+Use `kyutai/moshiko-mlx-q4` as the primary full-duplex dialog candidate because Moshi is explicitly designed as a speech-text, full-duplex spoken dialogue framework. Use `mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit` as the outbound TTS fallback because its Apache-2.0 posture is cleaner and its published materials emphasize low-latency streaming TTS, while acknowledging that it is not a standalone full-duplex dialog system.
 
 Do not add either model runtime to default repo scripts, production manifests, Quest claims, summative assessment flows, or `pnpm verify`.
 
@@ -20,10 +22,10 @@ Do not add either model runtime to default repo scripts, production manifests, Q
 
 | Item | Proposed value | Posture |
 | --- | --- | --- |
-| Primary full-duplex candidate | `kyutai/moshiko-mlx-q4` or `kyutai/moshika-mlx-q4` | Local research spike only |
-| Primary TTS fallback | `mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit` | Local research spike only |
-| Runtime packages | `moshi_mlx`, `mlx-audio`, `huggingface_hub`, minimal audio dependencies | Isolated venv only |
-| Install root | `/Users/patrick/.cache/openclinxr/realtime-voice` | Outside repo |
+| Primary candidate | `kyutai/moshiko-mlx-q4` | Local research only |
+| TTS fallback | `mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit` | Local research only |
+| Runtime packages | `moshi_mlx`, `mlx-audio`, `huggingface_hub` | Isolated venv only |
+| Install root | `~/.cache/openclinxr/realtime-voice` | Outside repo |
 | HF cache | `/Users/patrick/.cache/openclinxr/huggingface` | Outside repo |
 | Python | 3.12 isolated venvs | No committed venv |
 | Cloud calls | None | Disallowed |
