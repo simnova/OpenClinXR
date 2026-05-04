@@ -770,7 +770,7 @@ describe("IWSDK spike plan", () => {
           command: "pnpm dlx @iwsdk/create@0.3.1",
         },
       ],
-      lockfilePackageNames: ["@meta-quest/hzdb"],
+      lockfilePackageNames: ["@meta-quest/hzdb", "@img/sharp-libvips-linux-x64"],
       packageManagerControls: {
         workspacePostureInVerify: false,
         auditScriptPresent: false,
@@ -786,6 +786,7 @@ describe("IWSDK spike plan", () => {
         "@iwsdk/vite-plugin-uikitml:not_allowed_in_first_slice",
         "@iwsdk/reference:blocked_package",
         "blocked_package_in_lockfile:@meta-quest/hzdb",
+        "blocked_transitive_package_in_lockfile:@img/sharp-libvips-linux-x64",
         "missing_package_manager_control_pin_three_override",
         "missing_package_manager_control_record_pnpm_audit",
         "missing_package_manager_control_record_license_policy_report",

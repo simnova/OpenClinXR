@@ -51,7 +51,7 @@ describe("IWSDK workspace posture checker", () => {
       sidecarDependencies: {
         "@iwsdk/reference": "0.3.1",
       },
-      lockfileText: "/@meta-quest/hzdb@1.1.0:\n",
+      lockfileText: "/@meta-quest/hzdb@1.1.0:\n/@img/sharp-libvips-linux-x64@1.0.4:\n",
     });
     await mkdir(path.join(workspaceRoot, "apps/ui-xr/src"), { recursive: true });
     await writeFile(
@@ -76,6 +76,7 @@ describe("IWSDK workspace posture checker", () => {
         "blocked_script_action:package.json:scripts.iwsdk:reference:warmup:iwsdk_reference_warmup",
         "@iwsdk/reference:blocked_package",
         "blocked_package_in_lockfile:@meta-quest/hzdb",
+        "blocked_transitive_package_in_lockfile:@img/sharp-libvips-linux-x64",
         "missing_package_manager_control_pin_three_override",
         "missing_package_manager_control_record_pnpm_audit",
         "missing_package_manager_control_record_license_policy_report",

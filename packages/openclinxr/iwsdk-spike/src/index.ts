@@ -912,6 +912,8 @@ export function evaluateIwsdkWorkspacePosture(
   for (const packageName of input.lockfilePackageNames) {
     if (policy.blockedPackages.includes(packageName)) {
       blockers.push(`blocked_package_in_lockfile:${packageName}`);
+    } else if (transitivePackageIsBlocked(packageName, policy.blockedTransitivePackages)) {
+      blockers.push(`blocked_transitive_package_in_lockfile:${packageName}`);
     }
   }
 

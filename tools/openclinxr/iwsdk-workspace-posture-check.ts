@@ -201,9 +201,13 @@ async function scanLockfileBlockedPackages(workspaceRoot: string): Promise<strin
   }
 
   const lockfileText = await readFile(lockfilePath, "utf8");
-  return buildIwsdkPreInstallPackagePolicy().blockedPackages.filter((packageName) =>
-    lockfileContainsPackage(lockfileText, packageName)
-  );
+  const policy = buildIwsdkPreInstallPackagePolicy();
+  const blockedPackages = policy.blockedPackages.filter((packageName) => lockfileContainsPackage(lockfileText, packageName));
+  const blockedTransitivePackages = [...lockfileText.matchAll(/\/(@img\/sharp-libvips-[^@\s:]+)@/g)]
+    .map((match) => match[1])
+    .filter((packageName): packageName is string => Boolean(packageName));
+
+  return [...new Set([...blockedPackages, ...blockedTransitivePackages])];
 }
 
 function buildPackageManagerControls(rootPackage: PackageJson): IwsdkWorkspacePackageManagerControls {
