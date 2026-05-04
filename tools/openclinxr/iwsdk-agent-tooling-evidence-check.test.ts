@@ -46,6 +46,9 @@ describe("IWSDK agent-tooling evidence checker", () => {
     expect(report.result.readyForAgentTooling).toBe(false);
     expect(report.result.blockers).toEqual(expect.arrayContaining([
       "adapter_sync_not_recorded",
+      "mcp_runtime_not_registered",
+      "scene_hierarchy_required_objects_not_confirmed",
+      "ecs_runtime_not_queryable",
       "mcp_tool_inventory_count_not_32",
       "mcp_required_category_missing_ecs",
       "mcp_required_category_missing_select_trigger",
@@ -117,6 +120,9 @@ function readyEvidence(): IwsdkAgentToolingEvidenceReport["evidence"] {
       managedDevUiVisible: false,
       normalDevUiVisible: true,
     },
+    mcpRuntimeRegistered: true,
+    sceneHierarchyContainsRequiredObjects: true,
+    ecsRuntimeQueryable: true,
     optionalServerActions: [],
   };
 }

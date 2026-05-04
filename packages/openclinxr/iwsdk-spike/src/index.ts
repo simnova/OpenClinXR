@@ -196,6 +196,9 @@ export type IwsdkAgentToolingEvidence = {
   validatedSmokeTools: string[];
   observedToolNames?: string[];
   managedBrowserEvidence?: IwsdkManagedBrowserEvidence;
+  mcpRuntimeRegistered?: boolean;
+  sceneHierarchyContainsRequiredObjects?: boolean;
+  ecsRuntimeQueryable?: boolean;
   optionalServerActions?: string[];
 };
 
@@ -1057,6 +1060,15 @@ export function evaluateIwsdkAgentToolingEvidence(
         `managed_browser:${blocker}`
       ),
     );
+  }
+  if (evidence.mcpRuntimeRegistered !== true) {
+    blockers.push("mcp_runtime_not_registered");
+  }
+  if (evidence.sceneHierarchyContainsRequiredObjects !== true) {
+    blockers.push("scene_hierarchy_required_objects_not_confirmed");
+  }
+  if (evidence.ecsRuntimeQueryable !== true) {
+    blockers.push("ecs_runtime_not_queryable");
   }
 
   const blockedOptionalActions = buildIwsdkOptionalMcpServerPolicy().flatMap((policy) => policy.blockedActions);

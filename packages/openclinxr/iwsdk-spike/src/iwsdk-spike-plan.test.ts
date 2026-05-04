@@ -441,11 +441,14 @@ describe("IWSDK spike plan", () => {
       readyForAgentTooling: false,
       blockers: [
         "adapter_sync_not_recorded",
+        "ecs_runtime_not_queryable",
         "managed_browser:missing_agent_fixed_screenshot_size",
         "mcp_required_category_missing_ecs",
+        "mcp_runtime_not_registered",
         "mcp_smoke_tool_not_validated_browser_get_console_logs",
         "mcp_tool_inventory_count_not_32",
         "mcp_tool_names_not_recorded",
+        "scene_hierarchy_required_objects_not_confirmed",
       ],
     });
   });
@@ -486,6 +489,9 @@ describe("IWSDK spike plan", () => {
         managedDevUiVisible: false,
         normalDevUiVisible: true,
       },
+      mcpRuntimeRegistered: true,
+      sceneHierarchyContainsRequiredObjects: true,
+      ecsRuntimeQueryable: true,
       optionalServerActions: ["npx iwsdk reference warmup", "install @meta-quest/hzdb"],
     })).toEqual({
       readyForAgentTooling: false,
@@ -534,6 +540,9 @@ describe("IWSDK spike plan", () => {
         managedDevUiVisible: false,
         normalDevUiVisible: true,
       },
+      mcpRuntimeRegistered: true,
+      sceneHierarchyContainsRequiredObjects: true,
+      ecsRuntimeQueryable: true,
       optionalServerActions: [],
     })).toEqual({
       readyForAgentTooling: false,
@@ -580,10 +589,60 @@ describe("IWSDK spike plan", () => {
         managedDevUiVisible: false,
         normalDevUiVisible: true,
       },
+      mcpRuntimeRegistered: true,
+      sceneHierarchyContainsRequiredObjects: true,
+      ecsRuntimeQueryable: true,
       optionalServerActions: [],
     })).toEqual({
       readyForAgentTooling: true,
       blockers: [],
+    });
+  });
+
+  it("requires MCPRuntime, scene, and ECS hooks before treating tool inventory as meaningful", () => {
+    expect(evaluateIwsdkAgentToolingEvidence({
+      adapterSyncRecorded: true,
+      toolCount: 32,
+      coveredCategories: [
+        "session",
+        "transforms",
+        "input_mode",
+        "select_trigger",
+        "gamepad",
+        "device_state",
+        "browser",
+        "scene",
+        "ecs",
+      ],
+      validatedSmokeTools: [
+        "xr_get_session_status",
+        "xr_accept_session",
+        "browser_screenshot",
+        "scene_get_hierarchy",
+        "xr_select",
+        "browser_get_console_logs",
+      ],
+      observedToolNames: buildIwsdkMcpToolInventory().allToolNames,
+      managedBrowserEvidence: {
+        mode: "agent",
+        runtimeUrl: "http://127.0.0.1:5181",
+        managedBrowserReady: true,
+        managedSessionId: "managed-session",
+        normalBrowserOpened: true,
+        normalSessionId: "normal-session",
+        screenshotWidth: 500,
+        screenshotHeight: 500,
+        managedDevUiVisible: false,
+        normalDevUiVisible: true,
+      },
+      optionalServerActions: [],
+    })).toEqual({
+      readyForAgentTooling: false,
+      blockers: [
+        "ecs_runtime_not_queryable",
+        "mcp_runtime_not_registered",
+        "scene_hierarchy_required_objects_not_confirmed",
+      ],
     });
   });
 
