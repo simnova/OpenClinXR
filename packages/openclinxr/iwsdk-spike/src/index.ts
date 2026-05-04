@@ -216,6 +216,27 @@ export type IwsdkOptionalMcpServerPolicy = {
   blockedActions: string[];
 };
 
+export type IwsdkPackageMetadataDriftPolicy = {
+  packageName: string;
+  docsVersion: string;
+  npmLatestVersion: string;
+  sourceRecordIds: string[];
+  impact: string;
+  blockedActions: string[];
+  requiredResolutionEvidence: string[];
+};
+
+export type IwsdkPackageMetadataDriftEvidence = {
+  packageName: string;
+  docsVersion?: string;
+  npmLatestVersion?: string;
+};
+
+export type IwsdkPackageMetadataDriftReadiness = {
+  readyForUnattendedUse: boolean;
+  blockers: string[];
+};
+
 export type IwsdkAgentVerificationRunbook = {
   mode: IwsdkAgentMode;
   modeProfile: IwsdkAiModeProfile;
@@ -1127,6 +1148,48 @@ export function buildIwsdkOptionalMcpServerPolicy(): IwsdkOptionalMcpServerPolic
       blockedActions: ["install @meta-quest/hzdb"],
     },
   ];
+}
+
+export function buildIwsdkPackageMetadataDriftPolicies(): IwsdkPackageMetadataDriftPolicy[] {
+  return [
+    {
+      packageName: "@iwsdk/reference",
+      docsVersion: "0.3.1",
+      npmLatestVersion: "0.3.2",
+      sourceRecordIds: ["src-iwsdk-ai-docs-2026", "src-iwsdk-npm-metadata-2026-05-04"],
+      impact: "Do not run reference warmup until the exact package version, docs version, model/corpus payload, and cache path are revalidated together.",
+      blockedActions: ["npx iwsdk reference warmup"],
+      requiredResolutionEvidence: [
+        "docs_and_npm_versions_match_or_exact_pin_is_approved",
+        "model_and_corpus_download_size_recorded",
+        "cache_location_recorded",
+        "operator_approval_for_model_and_corpus_downloads",
+      ],
+    },
+  ];
+}
+
+export function evaluateIwsdkPackageMetadataDriftEvidence(
+  evidence: IwsdkPackageMetadataDriftEvidence,
+): IwsdkPackageMetadataDriftReadiness {
+  const blockers: string[] = [];
+
+  if (!evidence.docsVersion) {
+    blockers.push(`missing_docs_version:${evidence.packageName}`);
+  }
+  if (!evidence.npmLatestVersion) {
+    blockers.push(`missing_npm_latest_version:${evidence.packageName}`);
+  }
+  if (evidence.docsVersion && evidence.npmLatestVersion && evidence.docsVersion !== evidence.npmLatestVersion) {
+    blockers.push(
+      `package_metadata_drift:${evidence.packageName}:docs_${evidence.docsVersion}_npm_${evidence.npmLatestVersion}`,
+    );
+  }
+
+  return {
+    readyForUnattendedUse: blockers.length === 0,
+    blockers,
+  };
 }
 
 export function evaluateIwsdkPreInstallPackageSelection(

@@ -20,6 +20,7 @@ Use `pnpm iwsdk:evidence:validate` to validate the latest committed `docs/opencl
 - `pnpm iwsdk:verify` passes, including its default `pnpm iwsdk:preinstall` JSON preflight.
 - `evaluateIwsdkPreInstallPackageSelection()` reports no blockers for the proposed IWSDK sidecar dependency list before any `pnpm add` changes the workspace lockfile.
 - `pnpm iwsdk:preinstall -- --proposal path/to/proposal.json` records a ready JSON verdict for the exact package proposal, including required package-manager controls.
+- The `metadataDrift` section in the latest evidence snapshot has no blockers before any `@iwsdk/reference` warmup; current evidence records docs `v0.3.1` versus npm latest `0.3.2`.
 - `apps/ui-xr-iwsdk-spike` exists and is intentionally outside production runtime paths.
 - IWSDK dependencies are exact-versioned in the sidecar app.
 - `@iwsdk/reference`, `@meta-quest/hzdb`, and production adoption of `@iwsdk/vite-plugin-gltf-optimizer` remain blocked unless the policy is deliberately changed.

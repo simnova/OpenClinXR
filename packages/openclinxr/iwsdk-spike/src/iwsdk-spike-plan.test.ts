@@ -10,6 +10,7 @@ import {
   buildIwsdkMcpToolInventoryRequirement,
   buildIwsdkMcpToolCoverage,
   buildIwsdkOptionalMcpServerPolicy,
+  buildIwsdkPackageMetadataDriftPolicies,
   buildIwsdkPreInstallPackagePolicy,
   buildIwsdkSidecarReadinessContract,
   buildIwsdkSpikeMetricThresholds,
@@ -19,6 +20,7 @@ import {
   evaluateIwsdkWorkspacePosture,
   evaluateIwsdkAgentToolingEvidence,
   evaluateIwsdkManagedBrowserEvidence,
+  evaluateIwsdkPackageMetadataDriftEvidence,
   evaluateIwsdkPreInstallPackageSelection,
   evaluateIwsdkSpikeMetrics,
   evaluateIwsdkSpikeReadiness,
@@ -667,6 +669,49 @@ describe("IWSDK spike plan", () => {
         blockedActions: ["install @meta-quest/hzdb"],
       },
     ]);
+  });
+
+  it("records the @iwsdk/reference docs-vs-npm metadata drift before any reference warmup", () => {
+    const policies = buildIwsdkPackageMetadataDriftPolicies();
+
+    expect(policies).toEqual([
+      {
+        packageName: "@iwsdk/reference",
+        docsVersion: "0.3.1",
+        npmLatestVersion: "0.3.2",
+        sourceRecordIds: ["src-iwsdk-ai-docs-2026", "src-iwsdk-npm-metadata-2026-05-04"],
+        impact: "Do not run reference warmup until the exact package version, docs version, model/corpus payload, and cache path are revalidated together.",
+        blockedActions: ["npx iwsdk reference warmup"],
+        requiredResolutionEvidence: [
+          "docs_and_npm_versions_match_or_exact_pin_is_approved",
+          "model_and_corpus_download_size_recorded",
+          "cache_location_recorded",
+          "operator_approval_for_model_and_corpus_downloads",
+        ],
+      },
+    ]);
+  });
+
+  it("blocks unattended reference warmup when package metadata versions drift", () => {
+    expect(evaluateIwsdkPackageMetadataDriftEvidence({
+      packageName: "@iwsdk/reference",
+      docsVersion: "0.3.1",
+      npmLatestVersion: "0.3.2",
+    })).toEqual({
+      readyForUnattendedUse: false,
+      blockers: ["package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2"],
+    });
+  });
+
+  it("accepts package metadata only when docs and npm versions align", () => {
+    expect(evaluateIwsdkPackageMetadataDriftEvidence({
+      packageName: "@iwsdk/reference",
+      docsVersion: "0.3.2",
+      npmLatestVersion: "0.3.2",
+    })).toEqual({
+      readyForUnattendedUse: true,
+      blockers: [],
+    });
   });
 
   it("builds a Codex MCP adapter template that stays package-managed and reversible", () => {

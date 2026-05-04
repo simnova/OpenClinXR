@@ -173,7 +173,7 @@
   },
   "iwsdk_evidence_contract": {
     "file": "docs/openclinxr/iwsdk-evidence-contract-2026-05-04.json",
-    "generated_at": "2026-05-04T10:43:39.829Z",
+    "generated_at": "2026-05-04T10:50:22.585Z",
     "status": "contract_only",
     "ready_for_install_backed_sidecar": false,
     "ready_for_agent_tooling": false,
@@ -202,6 +202,7 @@
       "agent_tooling:missing_managed_browser_evidence",
       "agent_tooling:scene_hierarchy_required_objects_not_confirmed",
       "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
+      "metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
       "production_runtime:canvas_nonblank_not_confirmed",
       "production_runtime:missing_app_js_bundle_kb",
       "production_runtime:missing_avg_fps",

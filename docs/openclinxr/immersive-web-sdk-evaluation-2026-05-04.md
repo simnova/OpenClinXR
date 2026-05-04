@@ -103,7 +103,7 @@ Exact MCP tool inventory expected from the future sidecar runtime:
 
 Optional MCP servers remain separately controlled:
 
-- `iwsdk-reference` / `@iwsdk/reference`: blocked in unattended runs because warmup can download a pinned model and reference corpus.
+- `iwsdk-reference` / `@iwsdk/reference`: blocked in unattended runs because warmup can download a pinned model and reference corpus. The docs source showed IWSDK `v0.3.1`, while the npm metadata query showed `@iwsdk/reference` latest `0.3.2` with `@huggingface/transformers`, `@modelcontextprotocol/sdk`, and `tar`; revalidate exact package/docs alignment, payload size, and cache location before any warmup.
 - `hzdb` / `@meta-quest/hzdb`: blocked until legal/procurement review, because package metadata and terms need explicit acceptance.
 
 Committed sidecar spike budget:

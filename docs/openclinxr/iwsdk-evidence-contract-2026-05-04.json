@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T10:43:39.829Z",
+  "generatedAt": "2026-05-04T10:50:22.585Z",
   "status": "contract_only",
   "sidecar": {
     "sidecarAppRoot": "apps/ui-xr-iwsdk-spike/",
@@ -148,6 +148,35 @@
       ]
     }
   },
+  "metadataDrift": {
+    "policies": [
+      {
+        "packageName": "@iwsdk/reference",
+        "docsVersion": "0.3.1",
+        "npmLatestVersion": "0.3.2",
+        "sourceRecordIds": [
+          "src-iwsdk-ai-docs-2026",
+          "src-iwsdk-npm-metadata-2026-05-04"
+        ],
+        "impact": "Do not run reference warmup until the exact package version, docs version, model/corpus payload, and cache path are revalidated together.",
+        "blockedActions": [
+          "npx iwsdk reference warmup"
+        ],
+        "requiredResolutionEvidence": [
+          "docs_and_npm_versions_match_or_exact_pin_is_approved",
+          "model_and_corpus_download_size_recorded",
+          "cache_location_recorded",
+          "operator_approval_for_model_and_corpus_downloads"
+        ]
+      }
+    ],
+    "result": {
+      "readyForUnattendedUse": false,
+      "blockers": [
+        "package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2"
+      ]
+    }
+  },
   "agentTooling": {
     "readyForAgentTooling": false,
     "blockers": [
@@ -224,6 +253,7 @@
       "agent_tooling:missing_managed_browser_evidence",
       "agent_tooling:scene_hierarchy_required_objects_not_confirmed",
       "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
+      "metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
       "production_runtime:canvas_nonblank_not_confirmed",
       "production_runtime:missing_app_js_bundle_kb",
       "production_runtime:missing_avg_fps",

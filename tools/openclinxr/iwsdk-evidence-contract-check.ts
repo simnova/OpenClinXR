@@ -6,17 +6,21 @@ import {
   buildIwsdkCoreRequiredTransitivePackageNames,
   buildIwsdkCoreTransitivePackageLicenseEvidence,
   buildIwsdkCompatibilityContract,
+  buildIwsdkPackageMetadataDriftPolicies,
   buildIwsdkPreInstallPackagePolicy,
   buildIwsdkSidecarReadinessContract,
   buildIwsdkViteAiDevConfigContract,
   evaluateIwsdkAgentToolingEvidence,
   evaluateIwsdkCompatibilityEvidence,
+  evaluateIwsdkPackageMetadataDriftEvidence,
   evaluateIwsdkPreInstallPackageSelection,
   evaluateIwsdkSpikeMetrics,
   type IwsdkAgentToolingEvidenceReadiness,
   type IwsdkCompatibilityContract,
   type IwsdkCompatibilityEvidence,
   type IwsdkCompatibilityReadiness,
+  type IwsdkPackageMetadataDriftPolicy,
+  type IwsdkPackageMetadataDriftReadiness,
   type IwsdkPreInstallPackagePolicy,
   type IwsdkPreInstallPackageSelectionResult,
   type IwsdkSidecarReadinessContract,
@@ -43,6 +47,10 @@ export type IwsdkEvidenceContractReport = {
     contract: IwsdkCompatibilityContract;
     currentKnownEvidence: IwsdkCompatibilityEvidence;
     result: IwsdkCompatibilityReadiness;
+  };
+  metadataDrift: {
+    policies: IwsdkPackageMetadataDriftPolicy[];
+    result: IwsdkPackageMetadataDriftReadiness;
   };
   agentTooling: IwsdkAgentToolingEvidenceReadiness;
   productionRuntime: IwsdkSpikeMetricReadiness;
@@ -136,6 +144,12 @@ export function buildIwsdkEvidenceContractReport(input: {
     currentKnownCompatibilityEvidence,
     compatibilityContract,
   );
+  const metadataDriftPolicies = buildIwsdkPackageMetadataDriftPolicies();
+  const metadataDrift = evaluateIwsdkPackageMetadataDriftEvidence({
+    packageName: "@iwsdk/reference",
+    docsVersion: "0.3.1",
+    npmLatestVersion: "0.3.2",
+  });
   const productionRuntime = evaluateIwsdkSpikeMetrics({});
   const sidecarBlockers = sidecar.createAppOnlyAfter.map((blocker) => `sidecar:${blocker}`);
   const blockers = unique([
@@ -143,6 +157,7 @@ export function buildIwsdkEvidenceContractReport(input: {
     ...preinstallResult.blockers.map((blocker) => `preinstall:${blocker}`),
     ...preinstallResult.reviewWarnings.map((blocker) => `preinstall_review:${blocker}`),
     ...compatibility.blockers.map((blocker) => `compatibility:${blocker}`),
+    ...metadataDrift.blockers.map((blocker) => `metadata_drift:${blocker}`),
     ...agentTooling.blockers.map((blocker) => `agent_tooling:${blocker}`),
     ...productionRuntime.blockers.map((blocker) => `production_runtime:${blocker}`),
   ]);
@@ -161,6 +176,10 @@ export function buildIwsdkEvidenceContractReport(input: {
       contract: compatibilityContract,
       currentKnownEvidence: currentKnownCompatibilityEvidence,
       result: compatibility,
+    },
+    metadataDrift: {
+      policies: metadataDriftPolicies,
+      result: metadataDrift,
     },
     agentTooling,
     productionRuntime,
@@ -187,6 +206,7 @@ export function validateIwsdkEvidenceContractReport(value: unknown): IwsdkEviden
   requireObject(readAt(value, ["preinstall"]), "/preinstall", errors);
   requireObject(readAt(value, ["viteAiDevConfig"]), "/viteAiDevConfig", errors);
   requireObject(readAt(value, ["compatibility"]), "/compatibility", errors);
+  requireObject(readAt(value, ["metadataDrift"]), "/metadataDrift", errors);
   requireObject(readAt(value, ["agentTooling"]), "/agentTooling", errors);
   requireObject(readAt(value, ["productionRuntime"]), "/productionRuntime", errors);
   requireObject(readAt(value, ["verdict"]), "/verdict", errors);
@@ -238,6 +258,22 @@ export function validateIwsdkEvidenceContractReport(value: unknown): IwsdkEviden
   requireObject(readAt(value, ["compatibility", "result"]), "/compatibility/result", errors);
   requireBoolean(readAt(value, ["compatibility", "result", "readyForPhase2AgentDevtools"]), "/compatibility/result/readyForPhase2AgentDevtools", errors);
   requireStringArray(readAt(value, ["compatibility", "result", "blockers"]), "/compatibility/result/blockers", errors);
+
+  requireArray(readAt(value, ["metadataDrift", "policies"]), "/metadataDrift/policies", errors);
+  for (const [index, policy] of arrayEntries(readAt(value, ["metadataDrift", "policies"]))) {
+    const pathPrefix = `/metadataDrift/policies/${index}`;
+    requireObject(policy, pathPrefix, errors);
+    requireString(readAt(policy, ["packageName"]), `${pathPrefix}/packageName`, errors);
+    requireString(readAt(policy, ["docsVersion"]), `${pathPrefix}/docsVersion`, errors);
+    requireString(readAt(policy, ["npmLatestVersion"]), `${pathPrefix}/npmLatestVersion`, errors);
+    requireStringArray(readAt(policy, ["sourceRecordIds"]), `${pathPrefix}/sourceRecordIds`, errors);
+    requireString(readAt(policy, ["impact"]), `${pathPrefix}/impact`, errors);
+    requireStringArray(readAt(policy, ["blockedActions"]), `${pathPrefix}/blockedActions`, errors);
+    requireStringArray(readAt(policy, ["requiredResolutionEvidence"]), `${pathPrefix}/requiredResolutionEvidence`, errors);
+  }
+  requireObject(readAt(value, ["metadataDrift", "result"]), "/metadataDrift/result", errors);
+  requireBoolean(readAt(value, ["metadataDrift", "result", "readyForUnattendedUse"]), "/metadataDrift/result/readyForUnattendedUse", errors);
+  requireStringArray(readAt(value, ["metadataDrift", "result", "blockers"]), "/metadataDrift/result/blockers", errors);
 
   requireBoolean(readAt(value, ["agentTooling", "readyForAgentTooling"]), "/agentTooling/readyForAgentTooling", errors);
   requireStringArray(readAt(value, ["agentTooling", "blockers"]), "/agentTooling/blockers", errors);
@@ -342,6 +378,16 @@ function requireStringArray(value: unknown, pathName: string, errors: string[]):
       errors.push(`${pathName}/${index} must be non-empty string`);
     }
   }
+}
+
+function requireArray(value: unknown, pathName: string, errors: string[]): void {
+  if (!Array.isArray(value)) {
+    errors.push(`${pathName} must be array`);
+  }
+}
+
+function arrayEntries(value: unknown): Array<[number, unknown]> {
+  return Array.isArray(value) ? [...value.entries()] : [];
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

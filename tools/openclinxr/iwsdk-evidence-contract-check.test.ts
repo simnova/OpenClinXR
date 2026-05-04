@@ -62,6 +62,20 @@ describe("IWSDK evidence contract checker", () => {
         blockers: ["vite_plugin_peer_range_does_not_accept_openclinxr_vite_major"],
       },
     });
+    expect(report.metadataDrift).toEqual({
+      policies: [
+        expect.objectContaining({
+          packageName: "@iwsdk/reference",
+          docsVersion: "0.3.1",
+          npmLatestVersion: "0.3.2",
+          blockedActions: ["npx iwsdk reference warmup"],
+        }),
+      ],
+      result: {
+        readyForUnattendedUse: false,
+        blockers: ["package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2"],
+      },
+    });
     expect(report.agentTooling.readyForAgentTooling).toBe(false);
     expect(report.productionRuntime.readyForProductionRuntime).toBe(false);
     expect(report.verdict).toEqual({
@@ -72,6 +86,7 @@ describe("IWSDK evidence contract checker", () => {
         "sidecar:operator_accepts_iwsdk_install_scope",
         "sidecar:exact_iwsdk_versions_selected",
         "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
+        "metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
         "agent_tooling:adapter_sync_not_recorded",
         "agent_tooling:mcp_tool_inventory_count_not_32",
         "production_runtime:missing_foreground_quest_preflight_ready",
@@ -102,6 +117,7 @@ describe("IWSDK evidence contract checker", () => {
       expect(report.verdict.blockers).toEqual(expect.arrayContaining([
         "sidecar:operator_accepts_iwsdk_install_scope",
         "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
+        "metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
         "agent_tooling:missing_managed_browser_evidence",
         "production_runtime:missing_foreground_quest_preflight_ready",
         "production_runtime:missing_controller_select_latency_ms",
@@ -115,6 +131,19 @@ describe("IWSDK evidence contract checker", () => {
     });
 
     expect(validateIwsdkEvidenceContractReport(report)).toEqual({ ok: true });
+    expect(validateIwsdkEvidenceContractReport({
+      ...report,
+      metadataDrift: {
+        ...report.metadataDrift,
+        result: {
+          ...report.metadataDrift.result,
+          blockers: "package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
+        },
+      },
+    })).toEqual({
+      ok: false,
+      errors: ["/metadataDrift/result/blockers must be array"],
+    });
     expect(validateIwsdkEvidenceContractReport({
       ...report,
       compatibility: {

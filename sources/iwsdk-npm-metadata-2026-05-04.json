@@ -13,7 +13,7 @@
     "As queried on 2026-05-04, @iwsdk/vite-plugin-dev latest is 0.3.1, MIT licensed, depends on Playwright, iwer, @iwer/devui, @iwer/sem, sharp, ws, and @modelcontextprotocol/sdk, and peers Vite ^7.0.0.",
     "As queried on 2026-05-04, @iwsdk/vite-plugin-gltf-optimizer latest is 0.3.1, MIT licensed, depends on @gltf-transform packages, draco3dgltf, sharp, glob, and fs-extra, and peers Vite ^7.0.0.",
     "As queried on 2026-05-04, @iwsdk/vite-plugin-uikitml and @iwsdk/vite-plugin-metaspatial latest are 0.3.1, MIT licensed, and peer Vite ^7.0.0.",
-    "As queried on 2026-05-04, @iwsdk/reference latest is 0.3.2, MIT licensed, and depends on @huggingface/transformers and @modelcontextprotocol/sdk.",
+    "As queried on 2026-05-04, @iwsdk/reference latest is 0.3.2, MIT licensed, and depends on @huggingface/transformers, @modelcontextprotocol/sdk, and tar.",
     "As queried on 2026-05-04, @img/sharp-libvips-darwin-arm64 latest is 1.2.4 and reports license LGPL-3.0-or-later.",
     "As queried on 2026-05-04, @meta-quest/hzdb latest is 1.1.0 and reports license UNLICENSED."
   ],
