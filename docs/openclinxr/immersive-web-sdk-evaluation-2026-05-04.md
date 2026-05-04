@@ -146,7 +146,7 @@ If the team decides to make the experiment visible in the monorepo, use `apps/ui
 
 1. `phase-0-policy`: install only `@iwsdk/core` and `@iwsdk/xr-input`; verify pinned package specs, license policy, sidecar lockfile importer dependency parity, and the existing architecture boundary test. Keep `@iwsdk/reference`, `@meta-quest/hzdb`, `@iwsdk/create`, and `@iwsdk/vite-plugin-gltf-optimizer` blocked.
 2. `phase-1-runtime-shell`: rebuild the minimal ED bay shell with IWSDK core/input and compare nonblank canvas, bundle-size delta versus `apps/ui-xr`, controller-select trace events, and desktop fallback behavior.
-3. `phase-2-agent-devtools`: add `@iwsdk/vite-plugin-dev` only after the shell is stable; measure Vite 8 compatibility, Node 22 runtime path, MCP scene hierarchy, MCP controller select, and console log capture. Do not run `@iwsdk/reference` warmup unattended.
+3. `phase-2-agent-devtools`: add `@iwsdk/vite-plugin-dev` only after the shell is stable; measure Vite 8 compatibility, Node 22 runtime path, `scene_get_hierarchy`, `xr_select`, and `browser_get_console_logs`. Do not run `@iwsdk/reference` warmup unattended.
 4. `phase-3-quest-device-proof`: use physical Quest 3 evidence before any production adoption decision, including foreground frame pacing, controller-select latency, headset text readability, and thermal/comfort notes.
 
 Azure B1/App Service should remain the orchestration/API target. IWSDK dev tooling, Playwright, MCP runtime support, reference warmups, and asset optimization experiments belong on the local M4-class workstation or a non-production spike environment, not the production App Service deployment path.

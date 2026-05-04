@@ -533,9 +533,9 @@ export function buildIwsdkCommittedSpikeSequence(): IwsdkCommittedSpikeSequence 
         requiredMetrics: [
           "vite_8_peer_compatibility",
           "node_22_runtime_path",
-          "mcp_scene_hierarchy",
-          "mcp_controller_select",
-          "console_log_capture",
+          "scene_get_hierarchy",
+          "xr_select",
+          "browser_get_console_logs",
         ],
         exitCriteria: [
           "Agent mode can capture a nonblank screenshot and scene hierarchy without attaching the physical headset.",

@@ -543,6 +543,13 @@ describe("IWSDK spike plan", () => {
       "controller_select_trace_event",
     ]));
     expect(agentDevtoolsPhase?.blockedPackages).toEqual(["@iwsdk/reference", "@meta-quest/hzdb"]);
+    expect(agentDevtoolsPhase?.requiredMetrics).toEqual([
+      "vite_8_peer_compatibility",
+      "node_22_runtime_path",
+      "scene_get_hierarchy",
+      "xr_select",
+      "browser_get_console_logs",
+    ]);
     expect(questDevicePhase?.requiredMetrics).toEqual(expect.arrayContaining([
       "foreground_frame_pacing",
       "quest3_controller_select_latency",
