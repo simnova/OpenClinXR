@@ -67,7 +67,7 @@
     {
       "evidence_id": "local_model_quality_benchmark",
       "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-04.json",
-      "generated_at": "2026-05-04T20:01:58.587Z",
+      "generated_at": "2026-05-04T20:40:28.835Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -460,7 +460,7 @@
   },
   "local_model_quality_benchmark": {
     "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-04.json",
-    "generated_at": "2026-05-04T20:01:58.587Z",
+    "generated_at": "2026-05-04T20:40:28.835Z",
     "status": "blocked",
     "structured_output": {
       "requiredKeys": [
@@ -487,8 +487,13 @@
     },
     "actor_policy": {
       "provider": "deterministic-mock-model-gateway",
-      "passed": true,
-      "blockers": [],
+      "evidenceSource": "deterministic_mock_only",
+      "realLocalModelObserved": false,
+      "mockProbesPassed": true,
+      "passed": false,
+      "blockers": [
+        "real_local_model_actor_policy_benchmark_missing"
+      ],
       "probes": [
         {
           "id": "visible_fact_grounding",
@@ -534,6 +539,7 @@
         "structured_output:reasoning_markup_emitted",
         "structured_output:safety_flags_not_guardrail_labels",
         "structured_output:schema_grammar_not_enforced",
+        "actor_policy:real_local_model_actor_policy_benchmark_missing",
         "target_hardware:target_hardware_not_m4_profile"
       ],
       "caveats": [
@@ -783,7 +789,6 @@
         "asset_production_multi_actor_quest_budget_observed",
         "asset_production_readiness_report_present",
         "asset_production_source_smokes_passed",
-        "local_model_quality_actor_policy_benchmark_passed",
         "local_model_quality_report_present",
         "local_model_quality_required_keys_present",
         "local_model_ready_to_benchmark",
@@ -927,7 +932,6 @@
       "evidence_id": "evidence-leadership-0009-002",
       "ready_to_resolve": false,
       "satisfied_conditions": [
-        "local_model_quality_actor_policy_benchmark_passed",
         "local_model_quality_report_present",
         "local_model_quality_required_keys_present",
         "local_model_ready_to_benchmark",
@@ -935,13 +939,14 @@
         "local_provider_mock_benchmarks_passed"
       ],
       "blockers": [
+        "local_model_quality:actor_policy:real_local_model_actor_policy_benchmark_missing",
         "local_model_quality:structured_output:reasoning_markup_emitted",
         "local_model_quality:structured_output:safety_flags_not_guardrail_labels",
         "local_model_quality:structured_output:schema_grammar_not_enforced",
         "local_model_quality:target_hardware:target_hardware_not_m4_profile"
       ],
       "blocker_summary": {
-        "total_blockers": 4,
+        "total_blockers": 5,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -949,6 +954,7 @@
             "title": "Local model structured-output and actor-policy evidence",
             "owner": "local-ai-inference-engineer",
             "blockers": [
+              "local_model_quality:actor_policy:real_local_model_actor_policy_benchmark_missing",
               "local_model_quality:structured_output:reasoning_markup_emitted",
               "local_model_quality:structured_output:safety_flags_not_guardrail_labels",
               "local_model_quality:structured_output:schema_grammar_not_enforced",

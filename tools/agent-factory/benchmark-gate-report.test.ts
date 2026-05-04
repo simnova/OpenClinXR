@@ -305,15 +305,18 @@ describe("benchmark gate report", () => {
         "local_model_quality:structured_output:reasoning_markup_emitted",
         "local_model_quality:structured_output:safety_flags_not_guardrail_labels",
         "local_model_quality:structured_output:schema_grammar_not_enforced",
+        "local_model_quality:actor_policy:real_local_model_actor_policy_benchmark_missing",
         "local_model_quality:target_hardware:target_hardware_not_m4_profile",
       ]),
       satisfied_conditions: expect.arrayContaining([
-        "local_model_quality_actor_policy_benchmark_passed",
         "local_model_quality_report_present",
         "local_model_quality_required_keys_present",
         "local_model_runtime_benchmark_passed",
       ]),
     }));
+    expect(gatesById.get("evidence-leadership-0009-002")?.satisfied_conditions).not.toEqual(expect.arrayContaining([
+      "local_model_quality_actor_policy_benchmark_passed",
+    ]));
     expect(gatesById.get("evidence-leadership-0009-003")).toEqual(expect.objectContaining({
       ready_to_resolve: false,
       blockers: expect.arrayContaining([
@@ -434,8 +437,8 @@ describe("benchmark gate report", () => {
             blockers: ["schema_grammar_not_enforced"],
           },
           actorPolicy: {
-            passed: true,
-            blockers: [],
+            passed: false,
+            blockers: ["real_local_model_actor_policy_benchmark_missing"],
           },
           targetHardware: {
             passed: false,
@@ -445,6 +448,7 @@ describe("benchmark gate report", () => {
             passed: false,
             blockers: [
               "structured_output:schema_grammar_not_enforced",
+              "actor_policy:real_local_model_actor_policy_benchmark_missing",
               "target_hardware:target_hardware_not_m4_profile",
             ],
             caveats: [],
@@ -457,10 +461,13 @@ describe("benchmark gate report", () => {
 
     expect(qualityGate?.satisfied_conditions).toEqual(expect.arrayContaining([
       "local_model_quality_report_present",
-      "local_model_quality_actor_policy_benchmark_passed",
       "local_model_quality_required_keys_present",
     ]));
+    expect(qualityGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
+      "local_model_quality_actor_policy_benchmark_passed",
+    ]));
     expect(qualityGate?.blockers).toEqual(expect.arrayContaining([
+      "local_model_quality:actor_policy:real_local_model_actor_policy_benchmark_missing",
       "local_model_quality:structured_output:schema_grammar_not_enforced",
       "local_model_quality:target_hardware:target_hardware_not_m4_profile",
     ]));

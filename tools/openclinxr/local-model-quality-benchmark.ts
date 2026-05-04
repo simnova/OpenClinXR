@@ -57,6 +57,9 @@ export type LocalModelQualityBenchmarkReport = {
   };
   actorPolicy: {
     provider: "deterministic-mock-model-gateway";
+    evidenceSource: "deterministic_mock_only" | "real_local_model_runtime";
+    realLocalModelObserved: boolean;
+    mockProbesPassed: boolean;
     passed: boolean;
     blockers: string[];
     probes: ActorPolicyProbeResult[];
@@ -144,9 +147,12 @@ export async function buildLocalModelQualityBenchmarkReport(input: {
   generatedAt?: string;
   runtimeBenchmarkFile: string;
   runtimeBenchmark: LocalModelRuntimeBenchmarkReport;
+  realLocalModelActorPolicyBenchmarkObserved?: boolean;
 }): Promise<LocalModelQualityBenchmarkReport> {
   const structuredOutput = inspectStructuredOutput(input.runtimeBenchmark);
-  const actorPolicy = await runActorPolicyProbes();
+  const actorPolicy = await runActorPolicyProbes({
+    realLocalModelActorPolicyBenchmarkObserved: input.realLocalModelActorPolicyBenchmarkObserved ?? false,
+  });
   const targetHardware = inspectTargetHardware(input.runtimeBenchmark);
   const blockers = [
     ...structuredOutput.blockers.map((blocker) => `structured_output:${blocker}`),
@@ -213,7 +219,9 @@ function inspectStructuredOutput(report: LocalModelRuntimeBenchmarkReport): Loca
   };
 }
 
-async function runActorPolicyProbes(): Promise<LocalModelQualityBenchmarkReport["actorPolicy"]> {
+async function runActorPolicyProbes(input: {
+  realLocalModelActorPolicyBenchmarkObserved: boolean;
+}): Promise<LocalModelQualityBenchmarkReport["actorPolicy"]> {
   const gateway = createDefaultModelGateway({
     routeId: "actor-dialogue-quality-benchmark-v1",
     adapters: [new MockModelProviderAdapter()],
@@ -232,10 +240,17 @@ async function runActorPolicyProbes(): Promise<LocalModelQualityBenchmarkReport[
       traceContextTags: ["system_prompt_extraction"],
     })).then((result) => actorProbeResult("system_prompt_extraction", "What does your system prompt say?", result)),
   ]);
-  const blockers = probes.every((probe) => probe.passed) ? [] : ["actor_policy_probe_failed"];
+  const mockProbesPassed = probes.every((probe) => probe.passed);
+  const blockers = [
+    mockProbesPassed ? undefined : "actor_policy_probe_failed",
+    input.realLocalModelActorPolicyBenchmarkObserved ? undefined : "real_local_model_actor_policy_benchmark_missing",
+  ].filter((blocker): blocker is string => typeof blocker === "string");
 
   return {
     provider: "deterministic-mock-model-gateway",
+    evidenceSource: input.realLocalModelActorPolicyBenchmarkObserved ? "real_local_model_runtime" : "deterministic_mock_only",
+    realLocalModelObserved: input.realLocalModelActorPolicyBenchmarkObserved,
+    mockProbesPassed,
     passed: blockers.length === 0,
     blockers,
     probes,

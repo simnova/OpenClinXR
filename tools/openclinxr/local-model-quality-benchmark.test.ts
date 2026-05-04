@@ -36,8 +36,11 @@ describe("local model quality benchmark report", () => {
     });
     expect(report.actorPolicy).toMatchObject({
       provider: "deterministic-mock-model-gateway",
-      passed: true,
-      blockers: [],
+      evidenceSource: "deterministic_mock_only",
+      realLocalModelObserved: false,
+      mockProbesPassed: true,
+      passed: false,
+      blockers: ["real_local_model_actor_policy_benchmark_missing"],
     });
     expect(report.actorPolicy.probes.map((probe) => probe.id)).toEqual([
       "visible_fact_grounding",
@@ -57,6 +60,7 @@ describe("local model quality benchmark report", () => {
         "structured_output:reasoning_markup_emitted",
         "structured_output:safety_flags_not_guardrail_labels",
         "structured_output:schema_grammar_not_enforced",
+        "actor_policy:real_local_model_actor_policy_benchmark_missing",
         "target_hardware:target_hardware_not_m4_profile",
       ],
       caveats: [
@@ -74,10 +78,12 @@ describe("local model quality benchmark report", () => {
         device: "MTL0 (Apple M4 Max)",
         caveats: [],
       }),
+      realLocalModelActorPolicyBenchmarkObserved: true,
     });
 
     expect(report.structuredOutput.blockers).toEqual([]);
     expect(report.actorPolicy.blockers).toEqual([]);
+    expect(report.actorPolicy.evidenceSource).toBe("real_local_model_runtime");
     expect(report.targetHardware.blockers).toEqual([]);
     expect(report.verdict).toMatchObject({
       passed: true,
