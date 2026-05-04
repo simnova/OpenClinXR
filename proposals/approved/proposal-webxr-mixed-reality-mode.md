@@ -1,6 +1,6 @@
 # Proposal: WebXR Mixed Reality Mode
 
-Status: Proposed; requires Patrick approval before Codex adds or starts an `immersive-ar` passthrough session path.
+Status: Approved by Patrick on 2026-05-04 14:16:18 EDT as a parallel sidecar track; Full VR remains the primary path while MR evolves as an alternative view.
 
 ## Decision Needed
 
@@ -12,7 +12,7 @@ This decision matters because the current implementation intentionally enters `n
 
 Keep full VR as the primary examinee modality for the medical station because the product goal includes realistic, controlled clinical environments with patient, nurse, spouse, equipment, noise, interruptions, and environmental stressors.
 
-Approve a constrained sidecar MR spike only for evidence gathering and future-mode design. The spike should not replace the full-VR station. It should answer:
+Proceed with a constrained sidecar MR spike only for evidence gathering and future-mode design. The spike should not replace the full-VR station. It should answer:
 
 - Does Quest Browser on this specific Quest 3 expose `navigator.xr.isSessionSupported("immersive-ar")`?
 - Can a transparent Three.js render path show OpenClinXR actors, panels, and equipment over passthrough without a black skybox/floor?

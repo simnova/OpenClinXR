@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-04T18:13:48.812Z",
-  "url": "http://localhost:5173/?questSmoke=canonical-xr-entry-20260504",
+  "generatedAt": "2026-05-04T18:08:04.190Z",
+  "url": "http://localhost:5173/?questSmoke=enter-vr-retry-20260504",
   "target": "station",
   "adb": {
     "version": "Android Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as /opt/homebrew/bin/adb\nRunning on Darwin 25.4.0 (arm64)",
@@ -9,7 +9,7 @@
   },
   "browser": {
     "title": "OpenClinXR Station Runtime",
-    "url": "http://localhost:5173/?questSmoke=canonical-xr-entry-20260504",
+    "url": "http://localhost:5173/?questSmoke=enter-vr-retry-20260504",
     "userAgent": "Mozilla/5.0 (X11; Linux x86_64; Quest 3) AppleWebKit/537.36 (KHTML, like Gecko) OculusBrowser/146.0.0.19.27.942135376 Chrome/146.0.7680.177 VR Safari/537.36",
     "devicePixelRatio": 1,
     "visibilityState": "visible",
@@ -29,7 +29,7 @@
         },
         {
           "phase": "controls_ready",
-          "atMs": 0.6
+          "atMs": 0.5
         },
         {
           "phase": "station_scene_start",
@@ -37,15 +37,15 @@
         },
         {
           "phase": "station_render_loop_started",
-          "atMs": 25.4
+          "atMs": 23.3
         },
         {
           "phase": "station_scene_ready",
-          "atMs": 25.4
+          "atMs": 23.4
         },
         {
           "phase": "clock_started",
-          "atMs": 25.5
+          "atMs": 23.5
         }
       ]
     },
@@ -56,8 +56,8 @@
       "p95FrameMs": 14,
       "maxFrameMs": 14,
       "approxFps": 72,
-      "framesObserved": 618,
-      "latestFrameAtMs": 8797.4,
+      "framesObserved": 620,
+      "latestFrameAtMs": 8811.6,
       "sampleWindowSize": 180
     },
     "inputEvidence": {
@@ -72,16 +72,8 @@
       }
     },
     "traceLatencyEvidence": null,
-    "xrEntryEvidence": {
-      "sessionMode": "immersive-vr",
-      "attempts": 0,
-      "lastStatus": "not_requested",
-      "lastRequestedAtMs": null,
-      "lastUpdatedAtMs": 165,
-      "lastError": null
-    },
     "manualPerformanceDraft": {
-      "generatedAt": "2026-05-04T18:13:48.074Z",
+      "generatedAt": "2026-05-04T18:08:03.433Z",
       "runContext": {
         "performedBy": "",
         "durationMinutes": 0.13,
@@ -151,7 +143,7 @@
     "xrStatusAfter": "Full VR ready",
     "immersiveSessionStarted": false,
     "manualPerformanceDraft": {
-      "generatedAt": "2026-05-04T18:13:48.074Z",
+      "generatedAt": "2026-05-04T18:08:03.433Z",
       "runContext": {
         "performedBy": "",
         "durationMinutes": 0.13,
@@ -203,14 +195,6 @@
         "batteryDropPercent": null
       }
     },
-    "xrEntryEvidence": {
-      "sessionMode": "immersive-vr",
-      "attempts": 0,
-      "lastStatus": "not_requested",
-      "lastRequestedAtMs": null,
-      "lastUpdatedAtMs": 165,
-      "lastError": null
-    },
     "inputEvidence": {
       "handModelCount": 0,
       "handModelStatus": "pending_immersive_session",
@@ -222,7 +206,7 @@
         "z": 0
       }
     },
-    "elapsedWallMs": 8042.3,
+    "elapsedWallMs": 8045.4,
     "clickedEnterVr": true
   },
   "interaction": {
@@ -237,16 +221,16 @@
       "lastTraceTag": "urgent_escalation",
       "lastSelectLatencyMs": 0.3,
       "source": "dom_click_trace_button",
-      "measuredAtMs": 8940.2,
+      "measuredAtMs": 8941.1,
       "productionControllerLatencySubstitute": false
     }
   },
   "frameSample": {
-    "framesObserved": 698,
+    "framesObserved": 699,
     "framesObservedDuringProbe": 63,
     "sampleCount": 180,
     "timedOut": false,
-    "elapsedWallMs": 865.3,
+    "elapsedWallMs": 867,
     "latestFrameAgeMs": 3.8,
     "avgFrameMs": 13.89,
     "p95FrameMs": 14,
@@ -259,7 +243,6 @@
     "interactionAdvanced": true,
     "frameSampleComplete": true,
     "blockers": [
-      "quest_immersive_entry_activation_not_received",
       "quest_immersive_session_not_started"
     ]
   }

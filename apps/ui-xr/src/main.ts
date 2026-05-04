@@ -90,6 +90,15 @@ type OpenClinXrBootEvidence = {
 
 type OpenClinXrTraceLatencyEvidence = ManualPerformanceTraceLatencyEvidence;
 
+type OpenClinXrXrEntryEvidence = {
+  sessionMode: "immersive-vr";
+  attempts: number;
+  lastStatus: "not_requested" | "requesting" | "started" | "ended" | "failed";
+  lastRequestedAtMs: number | null;
+  lastUpdatedAtMs: number;
+  lastError: string | null;
+};
+
 type StationSceneRuntime = {
   startImmersiveSession(): Promise<void>;
 };
@@ -107,6 +116,7 @@ declare global {
     __openClinXrInputEvidence?: OpenClinXrInputEvidence;
     __openClinXrBootEvidence?: OpenClinXrBootEvidence;
     __openClinXrTraceLatencyEvidence?: OpenClinXrTraceLatencyEvidence;
+    __openClinXrXrEntryEvidence?: OpenClinXrXrEntryEvidence;
   }
 }
 
@@ -144,6 +154,29 @@ function formatUnknownError(error: unknown): string {
   }
   return String(error);
 }
+
+function recordXrEntryEvidence(status: OpenClinXrXrEntryEvidence["lastStatus"], error?: unknown): void {
+  const current = window.__openClinXrXrEntryEvidence ?? {
+    sessionMode: "immersive-vr",
+    attempts: 0,
+    lastStatus: "not_requested",
+    lastRequestedAtMs: null,
+    lastUpdatedAtMs: Number(performance.now().toFixed(2)),
+    lastError: null,
+  };
+  const now = Number(performance.now().toFixed(2));
+  const requesting = status === "requesting";
+  window.__openClinXrXrEntryEvidence = {
+    sessionMode: "immersive-vr",
+    attempts: current.attempts + (requesting ? 1 : 0),
+    lastStatus: status,
+    lastRequestedAtMs: requesting ? now : current.lastRequestedAtMs,
+    lastUpdatedAtMs: now,
+    lastError: error === undefined ? null : formatUnknownError(error),
+  };
+}
+
+recordXrEntryEvidence("not_requested");
 
 let state: XrRuntimeState = createInitialRuntimeState();
 const configuredApiBaseUrl = typeof import.meta.env.VITE_OPENCLINXR_API_BASE_URL === "string" ? import.meta.env.VITE_OPENCLINXR_API_BASE_URL : "";
@@ -484,11 +517,13 @@ function createStationScene(): StationSceneRuntime {
       const navigatorWithXr = navigator as NavigatorWithXr;
       if (!navigatorWithXr.xr) {
         xrStatus.textContent = "WebXR unavailable";
+        recordXrEntryEvidence("failed", "navigator.xr unavailable");
         return;
       }
 
       enterXrButton.disabled = true;
       xrStatus.textContent = "Entering Full VR";
+      recordXrEntryEvidence("requesting");
       try {
         const session = await navigatorWithXr.xr.requestSession("immersive-vr", {
           optionalFeatures: ["local-floor", "bounded-floor", "hand-tracking"],
@@ -500,6 +535,7 @@ function createStationScene(): StationSceneRuntime {
           enterXrButton.disabled = false;
           enterXrButton.textContent = "Enter Full VR";
           xrStatus.textContent = "Full VR ready";
+          recordXrEntryEvidence("ended");
         }, { once: true });
         await renderer.xr.setSession(session as Parameters<typeof renderer.xr.setSession>[0]);
         installHandModelsOnce();
@@ -507,11 +543,13 @@ function createStationScene(): StationSceneRuntime {
         enterXrButton.disabled = false;
         enterXrButton.textContent = "Exit Full VR";
         xrStatus.textContent = "In Full VR";
-      } catch {
+        recordXrEntryEvidence("started");
+      } catch (error) {
         activeXrSession = undefined;
         enterXrButton.disabled = false;
         enterXrButton.textContent = "Enter Full VR";
         xrStatus.textContent = "WebXR entry blocked";
+        recordXrEntryEvidence("failed", error);
       }
     },
   };

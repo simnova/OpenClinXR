@@ -4,8 +4,8 @@
     {
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
-      "generated_at": "2026-05-04T15:16:15.305Z",
-      "age_hours": 2,
+      "generated_at": "2026-05-04T18:13:48.812Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -14,7 +14,7 @@
       "evidence_id": "local_runtime_probe",
       "file": "docs/openclinxr/local-runtime-probe-2026-05-04.json",
       "generated_at": "2026-05-04T15:16:18.712Z",
-      "age_hours": 2,
+      "age_hours": 3,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -32,7 +32,7 @@
       "evidence_id": "blender_asset_bake_smoke",
       "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T05:06:10.560Z",
-      "age_hours": 12,
+      "age_hours": 13,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -59,7 +59,7 @@
       "evidence_id": "local_voice_runtime_benchmark",
       "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T15:01:12Z",
-      "age_hours": 2,
+      "age_hours": 3,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -76,12 +76,12 @@
   ],
   "quest_smoke": {
     "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
-    "generated_at": "2026-05-04T15:16:15.305Z",
+    "generated_at": "2026-05-04T18:13:48.812Z",
     "shell_loaded": true,
     "interaction_advanced": true,
     "frame_sample_complete": true,
-    "ready_for_foreground_quest_claim": true,
-    "classification": "foreground_ready",
+    "ready_for_foreground_quest_claim": false,
+    "classification": "blocked",
     "satisfied_conditions": [
       "quest_cdp_generated_at_valid",
       "quest_cdp_adb_device_recorded",
@@ -94,7 +94,10 @@
       "quest_latest_frame_fresh",
       "quest_frames_advanced_during_probe"
     ],
-    "blockers": []
+    "blockers": [
+      "quest_immersive_entry_activation_not_received",
+      "quest_immersive_session_not_started"
+    ]
   },
   "local_runtime_probe": {
     "file": "docs/openclinxr/local-runtime-probe-2026-05-04.json",
@@ -369,7 +372,7 @@
   },
   "iwsdk_evidence_contract": {
     "file": "docs/openclinxr/iwsdk-evidence-contract-2026-05-04.json",
-    "generated_at": "2026-05-04T17:56:55.867Z",
+    "generated_at": "2026-05-04T18:24:59.015Z",
     "status": "phase_1_install_backed_sidecar",
     "ready_for_install_backed_sidecar": true,
     "ready_for_agent_tooling": false,
@@ -509,10 +512,12 @@
         "quest_usb_ready"
       ],
       "blockers": [
+        "quest_immersive_entry_activation_not_received",
+        "quest_immersive_session_not_started",
         "quest_manual_performance:missing_quest_manual_performance_report"
       ],
       "blocker_summary": {
-        "total_blockers": 1,
+        "total_blockers": 3,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -520,6 +525,8 @@
             "title": "Foreground Quest frame pacing evidence",
             "owner": "xr-systems-architect",
             "blockers": [
+              "quest_immersive_entry_activation_not_received",
+              "quest_immersive_session_not_started",
               "quest_manual_performance:missing_quest_manual_performance_report"
             ],
             "next_step": "Use the approved proposals/approved/proposal-quest-foreground-performance-capture.md scope, then capture the foreground in-headset manual report for comfort, readability, immersive-session, and sustained-frame observations that CDP cannot honestly attest alone."
@@ -546,10 +553,12 @@
         "quest_usb_ready"
       ],
       "blockers": [
+        "quest_immersive_entry_activation_not_received",
+        "quest_immersive_session_not_started",
         "quest_manual_performance:missing_quest_manual_performance_report"
       ],
       "blocker_summary": {
-        "total_blockers": 1,
+        "total_blockers": 3,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -557,6 +566,8 @@
             "title": "Foreground Quest frame pacing evidence",
             "owner": "xr-systems-architect",
             "blockers": [
+              "quest_immersive_entry_activation_not_received",
+              "quest_immersive_session_not_started",
               "quest_manual_performance:missing_quest_manual_performance_report"
             ],
             "next_step": "Use the approved proposals/approved/proposal-quest-foreground-performance-capture.md scope, then capture the foreground in-headset manual report for comfort, readability, immersive-session, and sustained-frame observations that CDP cannot honestly attest alone."
@@ -678,7 +689,7 @@
               "iwsdk:tool_selection:iwsdk_mcp_future_blocked_until_sidecar",
               "iwsdk:tool_selection:manual_quest_foreground_required_for_production_readiness"
             ],
-            "next_step": "Review proposal-iwsdk-phase2-devtools.md before adding Phase 2 packages; keep IWSDK isolated to the Phase 1 sidecar until bundle budgets, adapter-sync evidence, and foreground Quest performance proof pass."
+            "next_step": "Use the approved proposals/approved/proposal-iwsdk-phase2-devtools.md scope when sidecar devtools are useful; keep IWSDK isolated to the sidecar and record adapter-sync, MCP inventory, bundle, and Quest evidence before production adoption."
           }
         ],
         "ungrouped_blockers": []

@@ -754,6 +754,25 @@ export function buildIwsdkOperatorApprovalContract(): IwsdkOperatorApprovalContr
         ],
       },
       {
+        id: "iwsdk-phase2-devtools-approval",
+        approvedScope: [
+          "sidecar_only_vite_plugin_dev_install",
+          "local_adapter_sync_and_mcp_inventory_evidence",
+          "explicit_approved_phase2_devtools_posture_gate",
+        ],
+        npmResolution: {
+          resolvedPackage: "@iwsdk/vite-plugin-dev",
+          resolvedVersion: "0.3.1",
+          license: "MIT",
+        },
+        remainingGates: [
+          "install_only_inside_apps_ui_xr_iwsdk_spike",
+          "run_workspace_posture_with_approved_phase2_devtools",
+          "record_adapter_sync_rollback_path",
+          "keep_production_apps_ui_xr_free_of_iwsdk_dependencies",
+        ],
+      },
+      {
         id: "iwsdk-hzdb-legal-procurement-approval",
         approvedScope: [
           "package_terms_and_npm_metadata_posture",
@@ -778,6 +797,7 @@ export function buildIwsdkOperatorApprovalContract(): IwsdkOperatorApprovalContr
       "floating npx iwsdk reference warmup",
       "workspace manifest install of @meta-quest/hzdb outside approved sidecar",
       "committed @meta-quest/hzdb lockfile state before sidecar approval",
+      "workspace manifest install of @iwsdk/vite-plugin-dev outside apps/ui-xr-iwsdk-spike",
       "production runtime adoption of optional IWSDK MCP servers",
     ],
   };

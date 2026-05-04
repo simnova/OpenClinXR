@@ -92,7 +92,11 @@ describe("benchmark gate report", () => {
         expect.objectContaining({
           group_id: "quest_foreground_frame_pacing",
           owner: "xr-systems-architect",
-          blockers: ["quest_manual_performance:missing_quest_manual_performance_report"],
+          blockers: expect.arrayContaining([
+            "quest_immersive_entry_activation_not_received",
+            "quest_immersive_session_not_started",
+            "quest_manual_performance:missing_quest_manual_performance_report",
+          ]),
         }),
       ]),
     );
@@ -227,7 +231,11 @@ describe("benchmark gate report", () => {
 
     expect(gatesById.get("evidence-leadership-0008-001")).toEqual(expect.objectContaining({
       ready_to_resolve: false,
-      blockers: ["quest_manual_performance:missing_quest_manual_performance_report"],
+      blockers: expect.arrayContaining([
+        "quest_immersive_entry_activation_not_received",
+        "quest_immersive_session_not_started",
+        "quest_manual_performance:missing_quest_manual_performance_report",
+      ]),
       satisfied_conditions: expect.arrayContaining([
         "quest_cdp_frame_sample_complete",
         "quest_page_visible",

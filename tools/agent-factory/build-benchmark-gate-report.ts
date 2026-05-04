@@ -1031,7 +1031,7 @@ const blockerGroups = [
     owner: "xr-systems-architect",
     matches: (blocker: string) =>
       blocker === "missing_iwsdk_evidence_contract_report" || blocker.startsWith("iwsdk:"),
-    nextStep: "Review proposal-iwsdk-phase2-devtools.md before adding Phase 2 packages; keep IWSDK isolated to the Phase 1 sidecar until bundle budgets, adapter-sync evidence, and foreground Quest performance proof pass.",
+    nextStep: "Use the approved proposals/approved/proposal-iwsdk-phase2-devtools.md scope when sidecar devtools are useful; keep IWSDK isolated to the sidecar and record adapter-sync, MCP inventory, bundle, and Quest evidence before production adoption.",
   },
 ] as const;
 

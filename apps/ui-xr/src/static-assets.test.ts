@@ -29,6 +29,9 @@ describe("static browser assets", () => {
     expect(mainSource).toContain('"hand-tracking"');
     expect(mainSource).toContain("renderer.xr.enabled = true");
     expect(mainSource).toContain("renderer.setAnimationLoop");
+    expect(mainSource).toContain("__openClinXrXrEntryEvidence");
+    expect(mainSource).toContain("recordXrEntryEvidence");
+    expect(mainSource).toContain("lastError");
   });
 
   it("does not resize the renderer while an immersive headset session is presenting", () => {

@@ -13,6 +13,7 @@ import {
 type CliOptions = {
   proposalPath?: string;
   outputPath?: string;
+  phase2DevtoolsApproved: boolean;
 };
 
 export type IwsdkPreInstallProposal = {
@@ -37,7 +38,10 @@ async function main(): Promise<void> {
   const proposal = options.proposalPath
     ? await readProposalFile(options.proposalPath)
     : defaultIwsdkFirstSlicePreInstallProposal();
-  const report = buildIwsdkPreInstallProposalReport({ proposal });
+  const report = buildIwsdkPreInstallProposalReport({
+    proposal,
+    phase2DevtoolsApproved: options.phase2DevtoolsApproved,
+  });
   const payload = `${JSON.stringify(report, null, 2)}\n`;
 
   if (options.outputPath) {
@@ -75,10 +79,12 @@ export function buildIwsdkPreInstallProposalReport(input: {
   generatedAt?: string;
   proposal: IwsdkPreInstallProposal;
   policy?: IwsdkPreInstallPackagePolicy;
+  phase2DevtoolsApproved?: boolean;
 }): IwsdkPreInstallProposalReport {
   const policy = input.policy ?? buildIwsdkPreInstallPackagePolicy();
-  const selectionResult = evaluateIwsdkPreInstallPackageSelection(input.proposal.selectedPackages, policy);
-  const missingPackageManagerControls = policy.requiredPackageManagerControls.filter(
+  const effectivePolicy = input.phase2DevtoolsApproved ? phase2DevtoolsPolicy(policy) : policy;
+  const selectionResult = evaluateIwsdkPreInstallPackageSelection(input.proposal.selectedPackages, effectivePolicy);
+  const missingPackageManagerControls = effectivePolicy.requiredPackageManagerControls.filter(
     (control) => !input.proposal.packageManagerControls.includes(control),
   );
   const blockers = [
@@ -88,7 +94,7 @@ export function buildIwsdkPreInstallProposalReport(input: {
 
   return {
     generatedAt: input.generatedAt ?? new Date().toISOString(),
-    policy,
+    policy: effectivePolicy,
     proposal: input.proposal,
     verdict: {
       readyToInstallInSidecar: blockers.length === 0 && selectionResult.reviewWarnings.length === 0,
@@ -101,7 +107,7 @@ export function buildIwsdkPreInstallProposalReport(input: {
 
 function parseArgs(args: string[]): CliOptions {
   const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
-  const options: CliOptions = {};
+  const options: CliOptions = { phase2DevtoolsApproved: false };
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
@@ -115,10 +121,24 @@ function parseArgs(args: string[]): CliOptions {
       index += 1;
       continue;
     }
+    if (arg === "--approved-phase2-devtools") {
+      options.phase2DevtoolsApproved = true;
+      continue;
+    }
     throw new Error(`Unknown argument: ${arg ?? ""}`);
   }
 
   return options;
+}
+
+function phase2DevtoolsPolicy(policy: IwsdkPreInstallPackagePolicy): IwsdkPreInstallPackagePolicy {
+  return {
+    ...policy,
+    allowedFirstSlicePackages: [...new Set([...policy.allowedFirstSlicePackages, "@iwsdk/vite-plugin-dev"])],
+    reviewRequiredPackages: policy.reviewRequiredPackages.filter((packageName) =>
+      packageName !== "@iwsdk/vite-plugin-dev"
+    ),
+  };
 }
 
 function requireValue(args: string[], index: number, flag: string): string {

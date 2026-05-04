@@ -289,22 +289,36 @@ pnpm xr:quest:smoke -- --url http://localhost:5173/ --output docs/openclinxr/que
 
 This requires the local XR app server to already be running. It sets `adb reverse`, exposes Quest Browser CDP on port `9222`, launches Quest Browser, reloads the station page, checks the canvas/WebXR shell, clicks two trace controls, reads app-side frame telemetry from `window.__openClinXrFrameStats`, and records explicit blockers for hidden/inactive pages or incomplete frame sampling.
 
+If Quest Browser is already open in the headset but `adb shell am start` leaves CDP attached to a stale tab, rerun with the explicit single-tab reuse mode:
+
+```bash
+pnpm xr:quest:smoke -- --url http://localhost:5173/?questSmoke=foreground-YYYYMMDD --reuse-open-page --output docs/openclinxr/quest-cdp-smoke-foreground-YYYY-MM-DD.json
+```
+
+`--reuse-open-page` only reuses one ordinary HTTP page when no requested smoke page is already exposed through CDP. It deliberately refuses to guess when multiple reusable pages are open, so close extra Quest Browser windows or launch normally in that case.
+
+To attempt a remote Full VR entry probe, add `--enter-vr`:
+
+```bash
+pnpm xr:quest:smoke -- --url http://localhost:5173/?questSmoke=enter-vr-YYYYMMDD --reuse-open-page --enter-vr --frame-sample-count 60 --frame-timeout-ms 8000 --output docs/openclinxr/quest-cdp-smoke-enter-vr-YYYY-MM-DD.json
+```
+
+The `--enter-vr` report includes app-side `window.__openClinXrXrEntryEvidence` and separates remote activation misses from app-level WebXR failures. If `quest_immersive_entry_activation_not_received` appears, the CDP input did not reach the page's `Enter Full VR` handler and a human headset/controller click is still required before making immersive-session claims.
+
 Validate the latest committed machine-readable report without re-running ADB or touching the headset:
 
 ```bash
 pnpm xr:quest:smoke:validate -- --output .agent-factory/quest-cdp-smoke-check.json
 ```
 
-The current 2026-05-04 report classifies as `shell_interaction_only_hidden_page`: shell delivery and trace controls passed, but foreground frame pacing remains blocked by the hidden Quest Browser page state, stale frame telemetry, and zero frames observed during the CDP sampling window. A refreshed local runtime probe after the headset was woken records `mWakefulness=Awake` and `questForegroundPreflight.status=ready`, so the remaining blocker is not USB authorization or wakefulness; it is reliable foreground frame evidence from the headset.
+The 2026-05-04 foreground CDP reports now show the awake Quest Browser page as visible and frame-sampling cleanly in flat preview, but remote Full VR entry remains an activation blocker when CDP input does not reach the page handler. The latest `--enter-vr` activation report records `quest_immersive_entry_activation_not_received` plus `quest_immersive_session_not_started`; this is an automation-input limitation until a human controller/headset click confirms the immersive session.
 
 Latest automated probe detail:
 
-- `docs/openclinxr/quest-cdp-smoke-2026-05-04.json` loaded the station shell in Quest Browser
-  `146.0.0.19.27.942135376` and advanced trace controls from `Trace 0/10` to `Trace 2/10`.
-- The canvas was nonblank (`755x1128`, `dataUrlLength` `91990`) and `navigator.xr` reported `WebXR ready`.
-- The rerun used the local Vite dev server on `5173`, ADB reverse, and Quest Browser CDP after a non-persistent ADB wake command.
-- App-side frame telemetry was present, but only recorded the first rendered frame. CDP reported `document.visibilityState` as `hidden` and `document.hidden` as `true`.
-- Treat frame-pacing evidence as blocked by `quest_page_hidden_or_inactive` and `quest_cdp_frame_sample_incomplete` until a foreground in-headset manual run or a better Quest Browser automation path proves sustained frames.
+- `docs/openclinxr/quest-cdp-smoke-xr-entry-activation-2026-05-04.json` loaded the station shell in Quest Browser `146.0.0.19.27.942135376`, advanced trace controls from `Trace 0/10` to `Trace 2/10`, observed the page as visible, and sampled 62 fresh frames.
+- The flat-preview frame sample reported about 72 FPS with `p95FrameMs` around 14 ms, but this is not a worn-headset comfort pass and does not include controller latency.
+- The app-side XR entry evidence stayed at `attempts: 0` after CDP mouse/touch input, so `docs/openclinxr/quest-cdp-smoke-xr-entry-activation-check-2026-05-04.json` remains `blocked` by `quest_immersive_entry_activation_not_received` and `quest_immersive_session_not_started`.
+- Treat CDP Full VR entry as supporting automation evidence only; the manual in-headset report must capture a real controller/headset activation of `Enter Full VR`.
 
 Manual foreground performance evidence:
 

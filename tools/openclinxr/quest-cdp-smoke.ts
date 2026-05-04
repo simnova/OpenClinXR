@@ -18,6 +18,8 @@ export type CliOptions = {
   frameSampleCount: number;
   frameTimeoutMs: number;
   skipLaunch: boolean;
+  reuseOpenPage: boolean;
+  enterVr: boolean;
   inputPath?: string;
   inputPattern: string;
 };
@@ -57,6 +59,7 @@ export type QuestSmokeReport = {
     reverseList: string;
   };
   browser: Record<string, unknown>;
+  immersive?: Record<string, unknown>;
   interaction: Record<string, unknown>;
   frameSample: Record<string, unknown>;
   verdict: {
@@ -88,6 +91,7 @@ export type QuestSmokeReportInput = {
   deviceLine: string;
   reverseList: string;
   browser: unknown;
+  immersive?: unknown;
   interaction: unknown;
   frameSample: unknown;
 };
@@ -134,6 +138,7 @@ async function main(): Promise<void> {
     await delay(750);
     await client.reload();
     await delay(750);
+    const immersive = options.enterVr ? await enterImmersiveVr(client) : undefined;
     const browser = await client.evaluate(browserSnapshotExpression());
     const interaction = await client.evaluate(interactionExpression());
     const frameSample = await client.evaluate(frameSampleExpression(options.frameSampleCount, options.frameTimeoutMs), options.frameTimeoutMs + 3000);
@@ -143,6 +148,7 @@ async function main(): Promise<void> {
       deviceLine,
       reverseList,
       browser,
+      immersive,
       interaction,
       frameSample,
     });
@@ -170,6 +176,8 @@ export function parseArgs(args: string[]): CliOptions {
     frameSampleCount: 90,
     frameTimeoutMs: 4000,
     skipLaunch: false,
+    reuseOpenPage: false,
+    enterVr: false,
     inputPattern: "docs/openclinxr/quest-cdp-smoke-[0-9]*.json",
   };
 
@@ -233,6 +241,14 @@ export function parseArgs(args: string[]): CliOptions {
       options.skipLaunch = true;
       continue;
     }
+    if (arg === "--reuse-open-page") {
+      options.reuseOpenPage = true;
+      continue;
+    }
+    if (arg === "--enter-vr") {
+      options.enterVr = true;
+      continue;
+    }
     throw new Error(`Unknown argument: ${arg ?? ""}`);
   }
 
@@ -276,7 +292,7 @@ async function waitForQuestPage(options: CliOptions): Promise<CdpPage> {
   for (let attempt = 0; attempt < 20; attempt += 1) {
     const response = await fetch(`http://127.0.0.1:${options.cdpPort}/json`);
     const pages = await response.json() as CdpPage[];
-    const page = selectQuestPage(pages, options.url);
+    const page = selectQuestPage(pages, options.url, { reuseOpenPage: options.reuseOpenPage });
     if (page) {
       return page;
     }
@@ -291,6 +307,33 @@ async function closeStaleQuestPages(options: CliOptions, keepPageId: string): Pr
   await Promise.all(staleQuestSmokePageIds(pages, options.url, keepPageId).map(async (pageId) => {
     await fetch(`http://127.0.0.1:${options.cdpPort}/json/close/${encodeURIComponent(pageId)}`);
   }));
+}
+
+async function enterImmersiveVr(client: CdpClient): Promise<Record<string, unknown>> {
+  const buttonRect = asRecord(await client.evaluate(enterVrButtonRectExpression()));
+  const x = buttonRect.x;
+  const y = buttonRect.y;
+  const canClick = buttonRect.buttonFound === true
+    && buttonRect.disabled !== true
+    && typeof x === "number"
+    && typeof y === "number";
+  if (!canClick) {
+    return {
+      ...buttonRect,
+      clickedEnterVr: false,
+      immersiveSessionStarted: false,
+      xrStatusAfter: buttonRect.xrStatusBefore ?? null,
+      failureReason: buttonRect.failureReason ?? "enter_vr_button_not_clickable",
+    };
+  }
+
+  await client.dispatchMouseClick(x, y);
+  const completion = asRecord(await client.evaluate(enterVrCompletionExpression(8000), 10_000));
+  return {
+    ...buttonRect,
+    ...completion,
+    clickedEnterVr: true,
+  };
 }
 
 async function latestQuestSmokeReportPath(pattern: string): Promise<string | undefined> {
@@ -314,9 +357,19 @@ export function pageMatchesRequestedUrl(actual: string, requested: string): bool
   }
 }
 
-export function selectQuestPage(pages: CdpPage[], requested: string): CdpPage | undefined {
+export function selectQuestPage(
+  pages: CdpPage[],
+  requested: string,
+  options: { reuseOpenPage?: boolean } = {},
+): CdpPage | undefined {
   const eligiblePages = pages.filter((candidate) => isQuestSmokePageCandidate(candidate, requested));
-  return eligiblePages.find((candidate) => candidate.url === requested) ?? eligiblePages[0];
+  const requestedPage = eligiblePages.find((candidate) => candidate.url === requested) ?? eligiblePages[0];
+  if (requestedPage || !options.reuseOpenPage) {
+    return requestedPage;
+  }
+
+  const reusablePages = pages.filter(isReusableOpenHttpPage);
+  return reusablePages.length === 1 ? reusablePages[0] : undefined;
 }
 
 export function staleQuestSmokePageIds(pages: CdpPage[], requested: string, keepPageId: string): string[] {
@@ -327,6 +380,18 @@ export function staleQuestSmokePageIds(pages: CdpPage[], requested: string, keep
 
 function isQuestSmokePageCandidate(candidate: CdpPage, requested: string): boolean {
   return candidate.type === "page" && pageMatchesRequestedUrl(candidate.url, requested) && !!candidate.webSocketDebuggerUrl;
+}
+
+function isReusableOpenHttpPage(candidate: CdpPage): boolean {
+  if (candidate.type !== "page" || !candidate.webSocketDebuggerUrl) {
+    return false;
+  }
+  try {
+    const url = new URL(candidate.url);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
 }
 
 export function browserSnapshotExpression(): string {
@@ -350,6 +415,8 @@ export function browserSnapshotExpression(): string {
       frameStats: window.__openClinXrFrameStats ?? null,
       inputEvidence: window.__openClinXrInputEvidence ?? null,
       traceLatencyEvidence: window.__openClinXrTraceLatencyEvidence ?? null,
+      xrEntryEvidence: window.__openClinXrXrEntryEvidence ?? null,
+      manualPerformanceDraft: window.__openClinXrManualPerformanceDraft ?? null,
       canvas: canvas ? {
         width: canvas.width,
         height: canvas.height,
@@ -357,6 +424,68 @@ export function browserSnapshotExpression(): string {
         clientHeight: canvas.clientHeight,
         dataUrlLength: canvas.toDataURL("image/png").length,
       } : null,
+    };
+  })()`;
+}
+
+export function enterVrButtonRectExpression(): string {
+  return String.raw`(() => {
+    const button = document.querySelector("#enter-xr-button");
+    const xrStatus = document.querySelector("#xr-status")?.textContent ?? null;
+    if (!(button instanceof HTMLButtonElement)) {
+      return {
+        buttonFound: false,
+        disabled: true,
+        xrStatusBefore: xrStatus,
+        failureReason: "enter_vr_button_missing",
+      };
+    }
+    const rect = button.getBoundingClientRect();
+    return {
+      buttonFound: true,
+      disabled: button.disabled,
+      text: button.textContent?.trim() ?? "",
+      xrStatusBefore: xrStatus,
+      x: Math.round(rect.left + rect.width / 2),
+      y: Math.round(rect.top + rect.height / 2),
+    };
+  })()`;
+}
+
+export function enterVrCompletionExpression(timeoutMs: number): string {
+  return String.raw`(async () => {
+    const started = performance.now();
+    const readStatus = () => document.querySelector("#xr-status")?.textContent ?? null;
+    const readManualPerformanceDraft = () => window.__openClinXrManualPerformanceDraft ?? null;
+    const readXrEntryEvidence = () => window.__openClinXrXrEntryEvidence ?? null;
+    let xrStatusAfter = readStatus();
+    let manualPerformanceDraft = readManualPerformanceDraft();
+    let xrEntryEvidence = readXrEntryEvidence();
+    let immersiveSessionStarted = manualPerformanceDraft?.station?.immersiveSessionStarted === true
+      || xrEntryEvidence?.lastStatus === "started";
+    while (performance.now() - started < ${timeoutMs}) {
+      xrStatusAfter = readStatus();
+      manualPerformanceDraft = readManualPerformanceDraft();
+      xrEntryEvidence = readXrEntryEvidence();
+      immersiveSessionStarted = manualPerformanceDraft?.station?.immersiveSessionStarted === true
+        || xrEntryEvidence?.lastStatus === "started";
+      if ((xrStatusAfter === "In Full VR" && immersiveSessionStarted) || xrStatusAfter === "WebXR entry blocked") {
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    manualPerformanceDraft = readManualPerformanceDraft();
+    xrEntryEvidence = readXrEntryEvidence();
+    immersiveSessionStarted = xrStatusAfter === "In Full VR"
+      || manualPerformanceDraft?.station?.immersiveSessionStarted === true
+      || xrEntryEvidence?.lastStatus === "started";
+    return {
+      xrStatusAfter,
+      immersiveSessionStarted,
+      manualPerformanceDraft,
+      xrEntryEvidence,
+      inputEvidence: window.__openClinXrInputEvidence ?? null,
+      elapsedWallMs: Number((performance.now() - started).toFixed(2)),
     };
   })()`;
 }
@@ -404,9 +533,8 @@ export function frameSampleExpression(frameSampleCount: number, frameTimeoutMs: 
     while (performance.now() - started < ${frameTimeoutMs}) {
       latestStats = readStats();
       const framesObserved = latestStats?.framesObserved ?? 0;
-      const sampleCount = latestStats?.sampleCount ?? 0;
       const framesObservedDuringProbe = framesObserved - initialFrames;
-      if (sampleCount >= ${frameSampleCount} || framesObservedDuringProbe >= ${frameSampleCount}) {
+      if (framesObservedDuringProbe >= ${frameSampleCount}) {
         break;
       }
       await new Promise((resolve) => setTimeout(resolve, 50));
@@ -420,7 +548,7 @@ export function frameSampleExpression(frameSampleCount: number, frameTimeoutMs: 
     const latestFrameAgeMs = typeof latestStats?.latestFrameAtMs === "number"
       ? Number((performance.now() - latestStats.latestFrameAtMs).toFixed(2))
       : null;
-    timedOut = sampleCount < ${frameSampleCount} && framesObservedDuringProbe < ${frameSampleCount};
+    timedOut = framesObservedDuringProbe < ${frameSampleCount};
 
     return {
       framesObserved,
@@ -440,6 +568,7 @@ export function frameSampleExpression(frameSampleCount: number, frameTimeoutMs: 
 
 export function buildReport(input: QuestSmokeReportInput): QuestSmokeReport {
   const browser = asRecord(input.browser);
+  const immersive = asRecord(input.immersive);
   const interaction = asRecord(input.interaction);
   const frameSample = asRecord(input.frameSample);
   const shellLoaded = browser.title === expectedQuestSmokeTitle(input.options.target)
@@ -451,8 +580,24 @@ export function buildReport(input: QuestSmokeReportInput): QuestSmokeReport {
     && interaction.clickedUrgent === true;
   const pageVisible = browser.hidden === false && browser.visibilityState === "visible";
   const frameSampleComplete = pageVisible && frameSample.timedOut === false && typeof frameSample.avgFrameMs === "number";
+  const manualDraft = asRecord(browser.manualPerformanceDraft);
+  const manualDraftStation = asRecord(manualDraft.station);
+  const immersiveXrEntryEvidence = asRecord(immersive.xrEntryEvidence);
+  const browserXrEntryEvidence = asRecord(browser.xrEntryEvidence);
+  const xrEntryAttempts = immersiveXrEntryEvidence.attempts ?? browserXrEntryEvidence.attempts;
+  const xrEntryActivationReceived = !input.options.enterVr
+    || immersive.immersiveSessionStarted === true
+    || browser.xrStatus === "In Full VR"
+    || manualDraftStation.immersiveSessionStarted === true
+    || (typeof xrEntryAttempts === "number" && xrEntryAttempts > 0);
+  const immersiveSessionStarted = !input.options.enterVr
+    || immersive.immersiveSessionStarted === true
+    || browser.xrStatus === "In Full VR"
+    || manualDraftStation.immersiveSessionStarted === true;
   const blockers = [
     shellLoaded ? undefined : "quest_shell_not_loaded",
+    xrEntryActivationReceived ? undefined : "quest_immersive_entry_activation_not_received",
+    immersiveSessionStarted ? undefined : "quest_immersive_session_not_started",
     interactionAdvanced ? undefined : "quest_trace_interaction_not_advanced",
     pageVisible ? undefined : "quest_page_hidden_or_inactive",
     frameSampleComplete ? undefined : "quest_cdp_frame_sample_incomplete",
@@ -468,6 +613,7 @@ export function buildReport(input: QuestSmokeReportInput): QuestSmokeReport {
       reverseList: input.reverseList,
     },
     browser,
+    ...(input.immersive === undefined ? {} : { immersive }),
     interaction,
     frameSample,
     verdict: {
@@ -673,6 +819,23 @@ class CdpClient {
 
   async bringToFront(): Promise<void> {
     await this.send("Page.bringToFront");
+  }
+
+  async dispatchMouseClick(x: number, y: number): Promise<void> {
+    await this.send("Input.dispatchMouseEvent", {
+      type: "mousePressed",
+      x,
+      y,
+      button: "left",
+      clickCount: 1,
+    });
+    await this.send("Input.dispatchMouseEvent", {
+      type: "mouseReleased",
+      x,
+      y,
+      button: "left",
+      clickCount: 1,
+    });
   }
 
   async navigate(url: string): Promise<void> {

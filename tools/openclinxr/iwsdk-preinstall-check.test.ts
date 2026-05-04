@@ -100,6 +100,33 @@ describe("IWSDK preinstall checker", () => {
     });
   });
 
+  it("allows the committed Phase 2 devtools proposal fixture with explicit approval", async () => {
+    const fixturePath = path.resolve("docs/openclinxr/iwsdk-phase2-devtools-preinstall-proposal.json");
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwsdk-phase2-preinstall-"));
+    const output = path.join(tempDir, "phase2-devtools-preinstall-report.json");
+
+    await execFileAsync(
+      path.resolve("node_modules/.bin/tsx"),
+      [
+        "tools/openclinxr/iwsdk-preinstall-check.ts",
+        "--proposal",
+        fixturePath,
+        "--approved-phase2-devtools",
+        "--output",
+        output,
+      ],
+      { encoding: "utf8", timeout: 15000 },
+    );
+
+    const report = JSON.parse(await readFile(output, "utf8")) as IwsdkPreInstallProposalReport;
+    expect(report.verdict).toEqual({
+      readyToInstallInSidecar: true,
+      blockers: [],
+      reviewWarnings: [],
+      missingPackageManagerControls: [],
+    });
+  });
+
   it("blocks package proposals with missing controls, blocked packages, and blocked license paths", () => {
     const report = buildIwsdkPreInstallProposalReport({
       generatedAt: "2026-05-04T00:00:00.000Z",

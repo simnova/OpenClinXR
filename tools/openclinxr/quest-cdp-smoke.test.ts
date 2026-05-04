@@ -4,6 +4,8 @@ import {
   buildQuestSmokeEvidenceCheck,
   buildReport,
   type CdpPage,
+  enterVrCompletionExpression,
+  enterVrButtonRectExpression,
   frameSampleExpression,
   interactionExpression,
   pageMatchesRequestedUrl,
@@ -21,6 +23,8 @@ describe("Quest CDP smoke probe", () => {
       frameSampleCount: 90,
       frameTimeoutMs: 4000,
       skipLaunch: false,
+      reuseOpenPage: false,
+      enterVr: false,
       mode: "run",
       inputPattern: "docs/openclinxr/quest-cdp-smoke-[0-9]*.json",
     });
@@ -39,6 +43,8 @@ describe("Quest CDP smoke probe", () => {
       "--frame-timeout-ms",
       "900",
       "--skip-launch",
+      "--reuse-open-page",
+      "--enter-vr",
     ])).toMatchObject({
       mode: "run",
       url: "http://localhost:5174/quest?smoke=1",
@@ -49,6 +55,8 @@ describe("Quest CDP smoke probe", () => {
       frameSampleCount: 12,
       frameTimeoutMs: 900,
       skipLaunch: true,
+      reuseOpenPage: true,
+      enterVr: true,
     });
 
     expect(parseArgs([
@@ -126,21 +134,69 @@ describe("Quest CDP smoke probe", () => {
     expect(staleQuestSmokePageIds(pages, "http://localhost:5183/?questSmoke=fresh", "exact")).toEqual(["old"]);
   });
 
+  it("reuses exactly one open HTTP page only when explicitly requested", () => {
+    const pages = [
+      { id: "ui", title: "Browser UI", type: "other", url: "chrome://panel-app-nav/" },
+      {
+        id: "stale-sidecar",
+        title: "OpenClinXR IWSDK Spike",
+        type: "page",
+        url: "http://localhost:5183/?questSmoke=old",
+        webSocketDebuggerUrl: "ws://stale-sidecar",
+      },
+    ] satisfies CdpPage[];
+
+    expect(selectQuestPage(pages, "http://localhost:5173/?questSmoke=fresh")).toBeUndefined();
+    expect(selectQuestPage(pages, "http://localhost:5173/?questSmoke=fresh", { reuseOpenPage: true })?.id)
+      .toBe("stale-sidecar");
+  });
+
+  it("does not guess between multiple reusable open pages", () => {
+    const pages = [
+      {
+        id: "station",
+        title: "OpenClinXR Station Runtime",
+        type: "page",
+        url: "http://localhost:5173/?questSmoke=old",
+        webSocketDebuggerUrl: "ws://station",
+      },
+      {
+        id: "sidecar",
+        title: "OpenClinXR IWSDK Spike",
+        type: "page",
+        url: "http://localhost:5183/?questSmoke=old",
+        webSocketDebuggerUrl: "ws://sidecar",
+      },
+    ] satisfies CdpPage[];
+
+    expect(selectQuestPage(pages, "http://localhost:5173/?questSmoke=fresh", { reuseOpenPage: true })?.id)
+      .toBe("station");
+    expect(selectQuestPage(pages, "http://localhost:5174/?questSmoke=fresh", { reuseOpenPage: true }))
+      .toBeUndefined();
+  });
+
   it("generates browser, interaction, and frame-sampling expressions with station targets", () => {
     expect(browserSnapshotExpression()).toContain("window.__openClinXrFrameStats");
     expect(browserSnapshotExpression()).toContain("window.__openClinXrInputEvidence");
     expect(browserSnapshotExpression()).toContain("window.__openClinXrBootEvidence");
     expect(browserSnapshotExpression()).toContain("window.__openClinXrTraceLatencyEvidence");
     expect(browserSnapshotExpression()).toContain("window.__openClinXrIwsdkSidecarEvidence");
+    expect(browserSnapshotExpression()).toContain("window.__openClinXrXrEntryEvidence");
     expect(browserSnapshotExpression()).toContain("ED Chest Pain");
     expect(interactionExpression()).toContain("ecg request");
     expect(interactionExpression()).toContain("urgent escalation");
     expect(interactionExpression()).toContain("Trace Actions");
     expect(interactionExpression()).toContain("traceLatencyEvidence");
-    expect(frameSampleExpression(12, 900)).toContain("sampleCount >= 12");
+    expect(frameSampleExpression(12, 900)).not.toContain("sampleCount >= 12");
+    expect(frameSampleExpression(12, 900)).toContain("framesObservedDuringProbe >= 12");
     expect(frameSampleExpression(12, 900)).toContain("performance.now() - started < 900");
     expect(frameSampleExpression(12, 900)).toContain("window.__openClinXrFrameStats");
     expect(frameSampleExpression(12, 900)).toContain("window.__openClinXrIwsdkSidecarEvidence");
+    expect(enterVrButtonRectExpression()).toContain("enter-xr-button");
+    expect(enterVrCompletionExpression(3000)).toContain("xr-status");
+    expect(enterVrCompletionExpression(3000)).toContain("window.__openClinXrManualPerformanceDraft");
+    expect(enterVrCompletionExpression(3000)).toContain("window.__openClinXrXrEntryEvidence");
+    expect(enterVrCompletionExpression(3000)).toContain('xrStatusAfter === "In Full VR" && immersiveSessionStarted');
   });
 
   it("builds a passing report when shell, interaction, visibility, and frame sample are healthy", () => {
@@ -216,6 +272,96 @@ describe("Quest CDP smoke probe", () => {
       blockers: [],
     });
     expect(report.target).toBe("iwsdk-sidecar");
+  });
+
+  it("adds an immersive session blocker only when the smoke explicitly asks to enter VR", () => {
+    const report = buildReport({
+      options: parseArgs(["--enter-vr"]),
+      adbVersion: "Android Debug Bridge version 1.0.41",
+      deviceLine: "1234 device product:quest3",
+      reverseList: "1234 tcp:5173 tcp:5173",
+      browser: {
+        title: "OpenClinXR Station Runtime",
+        bodyHasEdChestPain: true,
+        hasViteOverlay: false,
+        hidden: false,
+        visibilityState: "visible",
+        xrStatus: "WebXR entry blocked",
+        canvas: { dataUrlLength: 4096 },
+      },
+      interaction: {
+        afterTrace: "Trace 2/10",
+        clickedEcg: true,
+        clickedUrgent: true,
+      },
+      frameSample: {
+        timedOut: false,
+        avgFrameMs: 13.5,
+      },
+      immersive: {
+        clickedEnterVr: true,
+        immersiveSessionStarted: false,
+        xrStatusAfter: "WebXR entry blocked",
+        xrEntryEvidence: {
+          attempts: 1,
+          lastStatus: "failed",
+          lastError: "NotAllowedError: simulated",
+        },
+      },
+    });
+
+    expect(report.immersive).toMatchObject({
+      clickedEnterVr: true,
+      immersiveSessionStarted: false,
+    });
+    expect(report.verdict.blockers).toContain("quest_immersive_session_not_started");
+  });
+
+  it("separates remote activation misses from app-level immersive request failures", () => {
+    const report = buildReport({
+      options: parseArgs(["--enter-vr"]),
+      adbVersion: "Android Debug Bridge version 1.0.41",
+      deviceLine: "1234 device product:quest3",
+      reverseList: "1234 tcp:5173 tcp:5173",
+      browser: {
+        title: "OpenClinXR Station Runtime",
+        bodyHasEdChestPain: true,
+        hasViteOverlay: false,
+        hidden: false,
+        visibilityState: "visible",
+        xrStatus: "Full VR ready",
+        canvas: { dataUrlLength: 4096 },
+        xrEntryEvidence: {
+          attempts: 0,
+          lastStatus: "not_requested",
+          lastError: null,
+        },
+      },
+      interaction: {
+        afterTrace: "Trace 2/10",
+        clickedEcg: true,
+        clickedUrgent: true,
+      },
+      frameSample: {
+        timedOut: false,
+        avgFrameMs: 13.5,
+      },
+      immersive: {
+        clickedEnterVr: true,
+        immersiveSessionStarted: false,
+        xrStatusAfter: "Full VR ready",
+        xrEntryEvidence: {
+          attempts: 0,
+          lastStatus: "not_requested",
+          lastError: null,
+        },
+      },
+    });
+
+    expect(report.verdict.blockers).toEqual(expect.arrayContaining([
+      "quest_immersive_entry_activation_not_received",
+      "quest_immersive_session_not_started",
+    ]));
   });
 
   it("classifies a foreground-ready Quest smoke report for leadership evidence", () => {

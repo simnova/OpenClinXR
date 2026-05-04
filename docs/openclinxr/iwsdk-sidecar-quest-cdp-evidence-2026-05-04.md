@@ -22,7 +22,7 @@ This evidence improves confidence that the sidecar can render and interact on Qu
 - Page state: visible, not hidden, focused.
 - WebXR status: `Full VR ready`.
 - Immersive entry path: a Quest Browser `Enter Full VR` button now calls `navigator.xr.requestSession("immersive-vr")`; after entry, the status strip reports `In Full VR` and the control changes to `Exit Full VR`.
-- Experience mode: current Phase 1 is full VR, not passthrough mixed reality. Runtime evidence records `phaseLabel: "Phase 1 Full VR"` and `mixedRealityPassthroughImplemented: false`; `proposal-webxr-mixed-reality-mode.md` gates any future `immersive-ar` path.
+- Experience mode: current Phase 1 is full VR, not passthrough mixed reality. Runtime evidence records `phaseLabel: "Phase 1 Full VR"` and `mixedRealityPassthroughImplemented: false`; [proposal-webxr-mixed-reality-mode.md](../../proposals/approved/proposal-webxr-mixed-reality-mode.md) is now approved as a parallel MR sidecar track, with separate evidence required for any future `immersive-ar` path.
 - Input posture: primitive WebXR hand models are installed lazily after immersive session acceptance, and the scene records `handModelStatus` plus experimental keyboard/thumbstick dolly locomotion evidence.
 - Boot evidence: Quest CDP records startup through `station_scene_ready` and `clock_started`; this confirms station creation is no longer the failing boundary.
 - Flat preview fallback: Quest Browser CDP did not advance `renderer.setAnimationLoop`/`requestAnimationFrame` in non-immersive flat-page mode, so the apps now include a timer-backed flat preview fallback. Immersive VR should still rely on the WebXR animation loop.

@@ -1,6 +1,6 @@
 # Proposal: IWSDK Phase 2 Devtools
 
-Status: Proposed for later; do not approve until Phase 1 metrics, Quest foreground evidence, Vite peer posture, and Phase 2 transitive license posture are reviewed.
+Status: Approved by Patrick on 2026-05-04 14:19:29 EDT for sidecar-only use when useful; this does not authorize production adoption, cloud/API usage, reference warmup, `@meta-quest/hzdb` installs, or optimizer packages.
 
 ## Decision Needed
 
@@ -8,11 +8,11 @@ Approve a second IWSDK sidecar slice that evaluates agent-oriented devtools, ada
 
 ## Recommendation
 
-Do not install Phase 2 packages yet. First review the Phase 1 sidecar bundle-size blockers, the new foreground-ready sidecar Quest CDP smoke evidence, the remaining average-FPS/controller-latency/manual Quest report gaps, and the Vite 8 peer mismatch.
+Use Phase 2 packages deliberately in the sidecar when they materially improve local XR development or evidence capture. Keep Phase 1 bundle-size blockers, Quest manual-report gaps, and the Vite 8 peer mismatch visible as engineering risks, but Patrick's approval allows the sidecar-only devtools spike to proceed when Codex sees fit.
 
-When those are reviewed, approve a narrow Phase 2 sidecar-only spike for `@iwsdk/vite-plugin-dev@0.3.1` and adapter/MCP evidence. Keep `@iwsdk/reference@0.3.2`, `@meta-quest/hzdb@1.1.0`, Meta Spatial, UIKitML, and GLTF optimizer packages as separately gated sub-slices.
+Proceed with a narrow Phase 2 sidecar-only spike for `@iwsdk/vite-plugin-dev@0.3.1` and adapter/MCP evidence when useful. Keep `@iwsdk/reference@0.3.2`, `@meta-quest/hzdb@1.1.0`, Meta Spatial, UIKitML, and GLTF optimizer packages as separately gated sub-slices.
 
-The workspace posture checker now treats this as a distinct approval dimension: Phase 1 sidecar approval is represented by `--approved-sidecar`, while Phase 2 devtools would require `--approved-phase2-devtools`. This prevents `@iwsdk/vite-plugin-dev` from being accepted under the earlier Phase 1 install approval.
+The workspace posture checker treats this as a distinct approval dimension: Phase 1 sidecar approval is represented by `--approved-sidecar`, while Phase 2 devtools require `--approved-phase2-devtools`. This prevents `@iwsdk/vite-plugin-dev` from being accepted under the earlier Phase 1 install approval.
 
 ## Proposed Phase 2 Package/Action Scope
 
@@ -41,7 +41,7 @@ The workspace posture checker now treats this as a distinct approval dimension: 
 
 ## Approval Wording
 
-Approve this proposal only after reviewing Phase 1 sidecar metrics and Quest foreground evidence. Approval would allow Codex to install `@iwsdk/vite-plugin-dev@0.3.1` in `apps/ui-xr-iwsdk-spike`, run local adapter/MCP evidence, and commit reports. It would not authorize production adoption, default verification changes, `@iwsdk/reference`, `@meta-quest/hzdb`, optimizer packages, or cloud/API usage unless separately stated.
+Patrick approved this proposal on 2026-05-04 14:19:29 EDT. Approval allows Codex to install `@iwsdk/vite-plugin-dev@0.3.1` in `apps/ui-xr-iwsdk-spike`, run local adapter/MCP evidence, and commit reports when useful. It does not authorize production adoption, default verification changes, `@iwsdk/reference`, `@meta-quest/hzdb`, optimizer packages, or cloud/API usage unless separately stated.
 
 ## Acceptance Criteria
 

@@ -14,10 +14,7 @@ describe("IWSDK operator steering blockers", () => {
 
   it("links non-simple open blockers to proposal files", async () => {
     const operatorSteeringText = await readFile("operator-steering-needed-questions.md", "utf8");
-    const proposalFiles = [
-      "proposal-iwsdk-phase2-devtools.md",
-      "proposal-webxr-mixed-reality-mode.md",
-    ];
+    const proposalFiles: string[] = [];
 
     for (const proposalFile of proposalFiles) {
       expect(operatorSteeringText).toContain(`[${proposalFile}](${proposalFile})`);
@@ -38,6 +35,8 @@ describe("IWSDK operator steering blockers", () => {
       "proposals/approved/proposal-local-model-benchmark.md",
       "proposals/approved/proposal-local-voice-runtime.md",
       "proposals/approved/proposal-quest-foreground-performance-capture.md",
+      "proposals/approved/proposal-webxr-mixed-reality-mode.md",
+      "proposals/approved/proposal-iwsdk-phase2-devtools.md",
     ];
 
     for (const proposalFile of approvedProposalFiles) {
@@ -56,6 +55,12 @@ describe("IWSDK operator steering blockers", () => {
     );
     expect(await readFile("proposals/approved/proposal-quest-foreground-performance-capture.md", "utf8")).toContain(
       "Status: Approved by Patrick on 2026-05-04 11:49:38 EDT",
+    );
+    expect(await readFile("proposals/approved/proposal-webxr-mixed-reality-mode.md", "utf8")).toContain(
+      "Status: Approved by Patrick on 2026-05-04 14:16:18 EDT",
+    );
+    expect(await readFile("proposals/approved/proposal-iwsdk-phase2-devtools.md", "utf8")).toContain(
+      "Status: Approved by Patrick on 2026-05-04 14:19:29 EDT",
     );
   });
 });

@@ -55,7 +55,7 @@ The same planning package now exposes `buildIwsdkAiModeProfiles()`, `buildIwsdkM
 
 `evaluateIwsdkAgentToolingEvidence()` is the aggregate readiness check for the future sidecar MCP lane. It blocks readiness if adapter sync is missing, the tool inventory is not 32, observed tool names are absent or drift from the expected inventory, required MCP categories or minimal smoke tools are absent, managed-browser evidence fails, or optional `iwsdk-reference`/`hzdb` actions appear in the run.
 
-`buildIwsdkViteAiDevConfigContract()` records the future Phase 2 Vite plugin posture. The target remains `@iwsdk/vite-plugin-dev` with `emulator: { device: 'metaQuest3' }`, `ai: { mode: 'agent', tools: ['codex'], screenshotSize: { width: 500, height: 500 } }`, and `verbose: true`. That config stays blocked until Phase 1 runtime shell metrics pass and license review accepts the Phase 2 transitive dependency posture.
+`buildIwsdkViteAiDevConfigContract()` records the Phase 2 Vite plugin posture. The target remains `@iwsdk/vite-plugin-dev` with `emulator: { device: 'metaQuest3' }`, `ai: { mode: 'agent', tools: ['codex'], screenshotSize: { width: 500, height: 500 } }`, and `verbose: true`. Patrick approved sidecar-only Phase 2 devtools use on 2026-05-04; production adoption and default verification changes remain separate decisions.
 
 `pnpm iwsdk:agent-tooling:evidence -- --input path/to/evidence.json --output docs/openclinxr/iwsdk-agent-tooling-evidence-YYYY-MM-DD.json` scores that aggregate evidence from a captured JSON file without installing IWSDK or changing MCP config.
 
@@ -65,7 +65,7 @@ The same planning package now exposes `buildIwsdkAiModeProfiles()`, `buildIwsdkM
 
 `pnpm iwsdk:sidecar:metrics -- --input path/to/metrics.json --output docs/openclinxr/iwsdk-sidecar-metrics-YYYY-MM-DD.json` scores committed sidecar and production-runtime budgets from a captured metrics JSON file, including install footprint, dev runtime size, bundle delta, console errors, foreground Quest preflight readiness, Quest FPS, p95 frame time, and controller-select latency.
 
-`pnpm iwsdk:workspace:posture -- --approved-sidecar` scans the committed workspace for IWSDK package dependencies, npm alias specifiers that target IWSDK packages, IWSDK references in root package-manager controls and workspace catalogs, source imports, blocked script actions, IWSDK lockfile package residue, blocked lockfile packages, quoted pnpm lockfile package keys, sharp/libvips-style blocked transitive lockfile packages, sidecar lockfile importer parity, sidecar lockfile dependency parity, sidecar approval state, and root package-manager controls. The planning package `packages/openclinxr/iwsdk-spike/` may hold advisory policy and tests, but executable `@iwsdk/*` imports or dependencies are allowed only in `apps/ui-xr-iwsdk-spike/` after Patrick's 2026-05-04 approval. Phase 2 devtools are intentionally separate: `@iwsdk/vite-plugin-dev` must still fail under `--approved-sidecar` alone and can only become posture-acceptable under a future explicit `--approved-phase2-devtools` gate with sidecar lockfile parity.
+`pnpm iwsdk:workspace:posture -- --approved-sidecar` scans the committed workspace for IWSDK package dependencies, npm alias specifiers that target IWSDK packages, IWSDK references in root package-manager controls and workspace catalogs, source imports, blocked script actions, IWSDK lockfile package residue, blocked lockfile packages, quoted pnpm lockfile package keys, sharp/libvips-style blocked transitive lockfile packages, sidecar lockfile importer parity, sidecar lockfile dependency parity, sidecar approval state, and root package-manager controls. The planning package `packages/openclinxr/iwsdk-spike/` may hold advisory policy and tests, but executable `@iwsdk/*` imports or dependencies are allowed only in `apps/ui-xr-iwsdk-spike/` after Patrick's 2026-05-04 approval. Phase 2 devtools are intentionally separate: `@iwsdk/vite-plugin-dev` must still fail under `--approved-sidecar` alone and can only become posture-acceptable under `--approved-phase2-devtools` with sidecar lockfile parity.
 
 `pnpm iwsdk:evidence` prints the current Phase 1 sidecar evidence report. It exits nonzero by design while IWSDK/Vite plugin compatibility, reference metadata drift, agent tooling, bundle budget, and physical Quest foreground evidence remain blocked.
 
@@ -149,20 +149,20 @@ Create an isolated package or worktree spike before touching the production XR s
 The executable policy is intentionally stricter than the prose recommendation:
 
 - First-slice packages: exact-versioned `@iwsdk/core` and `@iwsdk/xr-input`.
-- Review-required packages: `@iwsdk/glxf`, `@iwsdk/locomotor`, `@iwsdk/vite-plugin-dev`, `@iwsdk/vite-plugin-gltf-optimizer`, `@iwsdk/vite-plugin-uikitml`, and `@iwsdk/vite-plugin-metaspatial`; these are not ready for unattended first-slice install even when exact-versioned.
+- Review-required packages: `@iwsdk/glxf`, `@iwsdk/locomotor`, `@iwsdk/vite-plugin-gltf-optimizer`, `@iwsdk/vite-plugin-uikitml`, and `@iwsdk/vite-plugin-metaspatial`; `@iwsdk/vite-plugin-dev` is approved for the Phase 2 sidecar lane only when the explicit `--approved-phase2-devtools` gate is used.
 - Blocked first-slice packages: `@iwsdk/create`, `@iwsdk/reference`, `@iwsdk/starter-assets`, and `@meta-quest/hzdb`; Patrick's 2026-05-04 approvals resolve human review for reference warmup scope and `hzdb` legal/procurement, not install-backed sidecar or production adoption.
 - Blocked transitive package path: any `sharp-libvips` variant, including `@img/sharp-libvips-darwin-arm64`.
 - Blocked license expressions: `AGPL`, `GPL`, `LGPL`, `UNLICENSED`, and `Unknown`, matched case-insensitively without collapsing `LGPL` into `GPL`.
 - Required package-manager controls: exact version pins, a Three.js pnpm override, recorded `pnpm audit`, and a recorded license-policy report.
 - Workspace posture controls are intentionally concrete: placeholder scripts such as `echo pnpm audit` or `true` do not satisfy the audit/license controls, and launcher aliases such as `pnpm create @iwsdk@...` remain blocked in unattended runs.
 
-Run `pnpm iwsdk:preinstall` to print the default first-slice JSON report, or pass `--proposal path/to/proposal.json` to score a concrete dependency proposal before package manifests or the workspace lockfile change. The opt-in `pnpm iwsdk:verify` lane also runs the default preinstall report, so policy drift is caught before source and architecture checks complete. This means a runnable sidecar is not just a folder-creation task.
+Run `pnpm iwsdk:preinstall` to print the default first-slice JSON report, or pass `--proposal path/to/proposal.json` to score a concrete dependency proposal before package manifests or the workspace lockfile change. Use `--approved-phase2-devtools` only for the approved `@iwsdk/vite-plugin-dev` sidecar proposal; the flag does not permit reference, hzdb, optimizer, or production packages. The opt-in `pnpm iwsdk:verify` lane also runs the default preinstall report, so policy drift is caught before source and architecture checks complete. This means a runnable sidecar is not just a folder-creation task.
 
 ## Decision For Now
 
 Use IWSDK as a spike candidate, not a committed runtime dependency.
 
-The sidecar path is now install-backed Phase 1. `apps/ui-xr-iwsdk-spike` renders the ED chest pain station shell, links `@iwsdk/core@0.3.1` and `@iwsdk/xr-input@0.3.1`, exposes IWSDK export counts in browser evidence, preserves the parity scene names, and records `ecg_request` through the trace controls. The first metrics report is intentionally blocking: `iwsdk-vendor` is `2404.55 kB`, the bundle delta versus `apps/ui-xr` is `1974.38 kB`, and foreground Quest performance metrics are still missing.
+The sidecar path is now install-backed Phase 1. `apps/ui-xr-iwsdk-spike` renders the ED chest pain station shell, links `@iwsdk/core@0.3.1` and `@iwsdk/xr-input@0.3.1`, exposes IWSDK export counts in browser evidence, preserves the parity scene names, and records `ecg_request` through the trace controls. The first metrics report is intentionally blocking: `iwsdk-vendor` is `2404.55 kB`, the bundle delta versus `apps/ui-xr` is `1974.38 kB`, and foreground Quest performance metrics are still missing. Patrick approved [proposal-iwsdk-phase2-devtools.md](../../proposals/approved/proposal-iwsdk-phase2-devtools.md) on 2026-05-04 for sidecar-only devtools work when useful.
 
 MADR 0028 captures this as an accepted spike decision. The production `apps/ui-xr` shell now contributes baseline MCP targets without adding IWSDK dependencies: `buildIwsdkStationMcpSmokePlan()` defines the ED chest pain agent-mode smoke order, required named scene objects, and the first controller-select trace target. The sidecar preserves those semantic scene names for parity.
 
@@ -172,7 +172,7 @@ If the team decides to make the experiment visible in the monorepo, use `apps/ui
 
 1. `phase-0-policy`: install only `@iwsdk/core` and `@iwsdk/xr-input`; verify pinned package specs, license policy, sidecar lockfile importer dependency parity, and the existing architecture boundary test. Keep `@iwsdk/reference`, `@meta-quest/hzdb`, `@iwsdk/create`, and `@iwsdk/vite-plugin-gltf-optimizer` blocked.
 2. `phase-1-runtime-shell`: rebuild the minimal ED bay shell with IWSDK core/input and compare nonblank canvas, bundle-size delta versus `apps/ui-xr`, controller-select trace events, and desktop fallback behavior.
-3. `phase-2-agent-devtools`: add `@iwsdk/vite-plugin-dev` only after the shell is stable; measure Vite 8 compatibility, Node 22 runtime path, `scene_get_hierarchy`, `xr_select`, and `browser_get_console_logs`. Do not run `@iwsdk/reference` warmup unattended.
+3. `phase-2-agent-devtools`: add `@iwsdk/vite-plugin-dev` in the sidecar when useful under the explicit `--approved-phase2-devtools` gate; measure Vite 8 compatibility, Node 22 runtime path, `scene_get_hierarchy`, `xr_select`, and `browser_get_console_logs`. Do not run `@iwsdk/reference` warmup unattended.
 4. `phase-3-quest-device-proof`: use physical Quest 3 evidence before any production adoption decision, including foreground frame pacing, controller-select latency, headset text readability, and thermal/comfort notes.
 
 Azure B1/App Service should remain the orchestration/API target. IWSDK dev tooling, Playwright, MCP runtime support, reference warmups, and asset optimization experiments belong on the local M4-class workstation or a non-production spike environment, not the production App Service deployment path.
@@ -185,7 +185,7 @@ Most promising first packages:
 - `@iwsdk/vite-plugin-uikitml` for spatial UI/EHR panel experiments, only after Vite compatibility, accessibility, and in-headset text-readability checks.
 - `@iwsdk/vite-plugin-metaspatial` for optional Meta Spatial Editor authoring workflow experiments, only after asset provenance and build-pipeline review.
 - `@iwsdk/vite-plugin-gltf-optimizer` for asset optimization, only after Vite 8 peer compatibility and the sharp/libvips license path are resolved.
-- `@iwsdk/vite-plugin-dev` for local MCP-driven XR debugging, kept outside required verification at first.
+- `@iwsdk/vite-plugin-dev` for local MCP-driven XR debugging, approved for sidecar-only use and kept outside production/default verification at first.
 - `@iwsdk/core` only if the ECS/runtime model proves valuable enough to justify adopting its dependency graph.
 
 Avoid for now:

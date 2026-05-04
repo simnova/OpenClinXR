@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-04T18:13:53.559Z",
-  "inputFile": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
+  "generatedAt": "2026-05-04T18:07:24.146Z",
+  "inputFile": "docs/openclinxr/quest-cdp-smoke-enter-vr-2026-05-04.json",
   "readyForForegroundQuestClaim": false,
   "classification": "blocked",
   "satisfiedConditions": [
@@ -16,7 +16,6 @@
     "quest_frames_advanced_during_probe"
   ],
   "blockers": [
-    "quest_immersive_entry_activation_not_received",
     "quest_immersive_session_not_started"
   ]
 }
