@@ -3,7 +3,7 @@ import { ApolloProvider } from "@apollo/client/react";
 import { buildScenarioGovernanceCopy, safeUserFacingClaimLanguage, scoreUseCopy, validationStageCopy } from "@openclinxr/domain/claim-language";
 import { adminPublicationGates, adminWorkbenchRoutes } from "@openclinxr/ui-route-admin";
 import { adminWorkbenchCapabilityTags, openClinXrAdminTheme } from "@openclinxr/ui-shared";
-import { Alert, Button, Card, ConfigProvider, Layout, Space, Spin, Steps, Tag, Typography } from "antd";
+import { Alert, Button, Card, ConfigProvider, Input, Layout, Space, Spin, Steps, Tag, Typography } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { BrowserRouter, Link, MemoryRouter, Route, Routes, useParams, useSearchParams } from "react-router";
 import {
@@ -12,6 +12,7 @@ import {
   type AdminScenario,
   type AdminScenarioDetail,
   type AdminControlPlaneClient,
+  type AdminReviewPacketReplay,
   type AdminStationRunQueueSnapshot,
   type BlueprintScenarioReadiness,
   type ExamBlueprint,
@@ -21,6 +22,7 @@ import {
 } from "./api-client.js";
 
 const { Content, Sider } = Layout;
+const { TextArea } = Input;
 
 type AdminAppProps = {
   router?: "browser" | "memory";
@@ -90,7 +92,7 @@ export function AdminApp({ router = "memory", initialPath = "/", controlPlaneCli
                 <Route path="/" element={<WorkbenchOverview />} />
                 <Route path="/scenarios" element={<ScenarioBankWorkbench controlPlaneClient={client} />} />
                 <Route path="/scenarios/:scenarioId" element={<ScenarioDetailWorkbench controlPlaneClient={client} />} />
-                <Route path="/reviews" element={<WorkbenchPanel routeId="review-packet-replay" />} />
+                <Route path="/reviews" element={<ReviewReplayWorkbench controlPlaneClient={client} />} />
                 <Route path="/exam-forms" element={<SeedBlueprintWorkbench controlPlaneClient={client} />} />
               </Routes>
             </Content>
@@ -140,13 +142,260 @@ function WorkbenchOverview(): React.ReactElement {
   );
 }
 
-function WorkbenchPanel({ routeId }: { routeId: string }): React.ReactElement {
+type ReviewReplayWorkbenchState =
+  | { status: "idle" }
+  | { status: "loading"; stationRunId: string }
+  | { status: "error"; stationRunId: string; message: string }
+  | { status: "ready"; stationRunId: string; replay: AdminReviewPacketReplay };
+
+function ReviewReplayWorkbench({ controlPlaneClient }: { controlPlaneClient: AdminControlPlaneClient }): React.ReactElement {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const stationRunIdParam = searchParams.get("stationRunId") ?? "";
+  const [stationRunIdInput, setStationRunIdInput] = useState(stationRunIdParam);
+  const [state, setState] = useState<ReviewReplayWorkbenchState>(stationRunIdParam ? { status: "loading", stationRunId: stationRunIdParam } : { status: "idle" });
+  const [reviewerId, setReviewerId] = useState("faculty_001");
+  const [comments, setComments] = useState("");
+  const [urgentRecognitionScore, setUrgentRecognitionScore] = useState("2");
+  const [teamCommunicationScore, setTeamCommunicationScore] = useState("1");
+  const [saveState, setSaveState] = useState<
+    | { status: "idle" }
+    | { status: "saving" }
+    | { status: "saved" }
+    | { status: "error"; message: string }
+  >({ status: "idle" });
+
+  useEffect(() => {
+    const stationRunId = stationRunIdParam.trim();
+    setStationRunIdInput(stationRunIdParam);
+    setSaveState({ status: "idle" });
+    if (!stationRunId) {
+      setState({ status: "idle" });
+      return;
+    }
+
+    let active = true;
+    setState({ status: "loading", stationRunId });
+    controlPlaneClient.getReviewPacketReplay({ stationRunId })
+      .then((replay) => {
+        if (!active) {
+          return;
+        }
+        setState({ status: "ready", stationRunId, replay });
+        setReviewerId(replay.reviewPacket?.facultyScoreDraft.reviewerId ?? "faculty_001");
+        setComments(replay.reviewPacket?.facultyScoreDraft.comments ?? "");
+      })
+      .catch((error: unknown) => {
+        if (active) {
+          setState({ status: "error", stationRunId, message: error instanceof Error ? error.message : "Unknown review replay error" });
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [controlPlaneClient, stationRunIdParam]);
+
+  const loadReplay = () => {
+    const stationRunId = stationRunIdInput.trim();
+    if (stationRunId) {
+      setSearchParams({ stationRunId });
+    }
+  };
+
+  const saveDraft = async () => {
+    if (state.status !== "ready" || !state.replay.reviewPacket) {
+      return;
+    }
+
+    setSaveState({ status: "saving" });
+    try {
+      const savedPacket = await controlPlaneClient.saveFacultyScoreDraft({
+        stationRunId: state.stationRunId,
+        reviewerId,
+        comments,
+        rubricScores: {
+          urgent_recognition: clampedScoreFromInput(urgentRecognitionScore),
+          communication_team_family: clampedScoreFromInput(teamCommunicationScore),
+        },
+      });
+      setState((currentState) => {
+        if (currentState.status !== "ready" || !currentState.replay.reviewPacket) {
+          return currentState;
+        }
+        return {
+          ...currentState,
+          replay: {
+            ...currentState.replay,
+            reviewPacket: {
+              ...currentState.replay.reviewPacket,
+              ...savedPacket,
+              timeline: currentState.replay.reviewPacket.timeline,
+              patientNote: currentState.replay.reviewPacket.patientNote,
+            },
+          },
+        };
+      });
+      setSaveState({ status: "saved" });
+    } catch (error) {
+      setSaveState({ status: "error", message: error instanceof Error ? error.message : "Unknown faculty score draft error" });
+    }
+  };
+
+  const packet = state.status === "ready" ? state.replay.reviewPacket : null;
+
   return (
-    <Card title={routeId}>
-      <Typography.Paragraph>
-        This route is reserved for the generated GraphQL operation document and an Apollo-backed workbench module.
-      </Typography.Paragraph>
-    </Card>
+    <section className="review-replay-workbench" aria-labelledby="review-replay-title" aria-label="Review packet replay workbench">
+      <div className="workbench-title-row">
+        <div>
+          <Typography.Text className="eyebrow">Generated ReviewPacketReplay</Typography.Text>
+          <Typography.Title id="review-replay-title" level={3}>
+            Review Replay
+          </Typography.Title>
+        </div>
+        <Space wrap>
+          <Input
+            aria-label="Station run ID"
+            className="station-run-input"
+            id="review-replay-station-run-id"
+            name="stationRunId"
+            value={stationRunIdInput}
+            onChange={(event) => setStationRunIdInput(event.target.value)}
+            onPressEnter={loadReplay}
+          />
+          <Button type="primary" onClick={loadReplay} disabled={stationRunIdInput.trim().length === 0}>
+            Load replay
+          </Button>
+        </Space>
+      </div>
+
+      {state.status === "idle" ? (
+        <Alert type="info" title="Station run required" description="Enter a station run ID to replay trace evidence and record a faculty draft." showIcon />
+      ) : null}
+      {state.status === "loading" ? <Spin /> : null}
+      {state.status === "error" ? (
+        <Alert type="error" title="Review replay unavailable" description={state.message} showIcon />
+      ) : null}
+
+      {state.status === "ready" && !packet ? (
+        <Alert type="warning" title="Review packet not found" description={state.stationRunId} showIcon />
+      ) : null}
+
+      {packet ? (
+        <>
+          <div className="readiness-strip review-replay-strip" aria-label="Review replay trace summary">
+            <ReadinessMetric label={packet.scenarioId} detail={packet.stationRunId} />
+            <ReadinessMetric label={`${packet.observedTraceTags.length} observed tags`} detail={`${packet.missingRequiredTraceTags.length} missing required`} />
+            <ReadinessMetric label={`${packet.traceQuality.eventCount} trace events`} detail={`${packet.traceQuality.modelGeneratedEventCount} model generated`} />
+            <ReadinessMetric label={`${packet.traceQuality.unsafeEventCount} unsafe events`} detail={`${packet.traceQuality.blockedGuardrailCount} blocked guardrails`} />
+          </div>
+
+          {saveState.status === "saved" ? (
+            <Alert type="success" title="Faculty draft saved" description={`${packet.facultyScoreDraft.reviewerId} draft updated`} showIcon />
+          ) : null}
+          {saveState.status === "error" ? (
+            <Alert type="error" title="Faculty draft failed" description={saveState.message} showIcon />
+          ) : null}
+
+          <div className="review-replay-grid">
+            <section className="workbench-panel" aria-label="Required trace tag coverage">
+              <Typography.Title level={4}>Trace Coverage</Typography.Title>
+              <Typography.Text strong>Observed</Typography.Text>
+              <div className="tag-row">
+                {packet.observedTraceTags.map((tag) => (
+                  <Tag key={tag} color="green">{tag}</Tag>
+                ))}
+              </div>
+              <Typography.Text strong>Missing</Typography.Text>
+              <div className="tag-row">
+                {packet.missingRequiredTraceTags.length === 0 ? <Tag color="green">none</Tag> : packet.missingRequiredTraceTags.map((tag) => (
+                  <Tag key={tag} color="gold">{tag}</Tag>
+                ))}
+              </div>
+            </section>
+
+            <section className="workbench-panel" aria-label="Review replay timeline">
+              <Typography.Title level={4}>Timeline</Typography.Title>
+              <ol className="compact-list replay-timeline-list">
+                {packet.timeline.map((entry) => (
+                  <li key={`${entry.sequence}:${entry.eventType}`}>
+                    <Typography.Text>{entry.summary}</Typography.Text>
+                    <Typography.Text type="secondary">{`${entry.atSecond}s / ${entry.eventType}${entry.tag ? ` / ${entry.tag}` : ""}`}</Typography.Text>
+                  </li>
+                ))}
+              </ol>
+            </section>
+
+            <section className="workbench-panel" aria-label="Patient note">
+              <Typography.Title level={4}>Patient Note</Typography.Title>
+              {packet.patientNote ? (
+                <>
+                  <Typography.Text type="secondary">{`${packet.patientNote.submittedAtSecond}s`}</Typography.Text>
+                  <Typography.Paragraph>{packet.patientNote.text}</Typography.Paragraph>
+                </>
+              ) : (
+                <Typography.Paragraph className="empty-panel-note">No patient note submitted.</Typography.Paragraph>
+              )}
+            </section>
+
+            <section className="workbench-panel faculty-score-panel" aria-label="Faculty score draft">
+              <Typography.Title level={4}>Faculty Draft</Typography.Title>
+              <label className="field-label">
+                <Typography.Text strong>Faculty reviewer ID</Typography.Text>
+                <Input
+                  aria-label="Faculty reviewer ID"
+                  id="faculty-reviewer-id"
+                  name="facultyReviewerId"
+                  value={reviewerId}
+                  onChange={(event) => setReviewerId(event.target.value)}
+                />
+              </label>
+              <label className="field-label">
+                <Typography.Text strong>Faculty draft comments</Typography.Text>
+                <TextArea
+                  aria-label="Faculty draft comments"
+                  id="faculty-draft-comments"
+                  name="facultyDraftComments"
+                  rows={4}
+                  value={comments}
+                  onChange={(event) => setComments(event.target.value)}
+                />
+              </label>
+              <div className="score-input-grid">
+                <label className="field-label">
+                  <Typography.Text strong>Urgent recognition score</Typography.Text>
+                  <Input
+                    aria-label="Urgent recognition score"
+                    id="urgent-recognition-score"
+                    name="urgentRecognitionScore"
+                    type="number"
+                    min={0}
+                    max={2}
+                    value={urgentRecognitionScore}
+                    onChange={(event) => setUrgentRecognitionScore(event.target.value)}
+                  />
+                </label>
+                <label className="field-label">
+                  <Typography.Text strong>Team communication score</Typography.Text>
+                  <Input
+                    aria-label="Team communication score"
+                    id="team-communication-score"
+                    name="teamCommunicationScore"
+                    type="number"
+                    min={0}
+                    max={2}
+                    value={teamCommunicationScore}
+                    onChange={(event) => setTeamCommunicationScore(event.target.value)}
+                  />
+                </label>
+              </div>
+              <Button type="primary" loading={saveState.status === "saving"} onClick={() => void saveDraft()}>
+                Save faculty draft
+              </Button>
+            </section>
+          </div>
+        </>
+      ) : null}
+    </section>
   );
 }
 
@@ -783,6 +1032,14 @@ function formatScenarioGovernanceNotice(scenario: AdminScenario): string {
 
 function uniqueValues(values: string[]): string[] {
   return [...new Set(values)];
+}
+
+function clampedScoreFromInput(value: string): number {
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed)) {
+    return 0;
+  }
+  return Math.min(2, Math.max(0, parsed));
 }
 
 function capabilityTagColor(tag: string): string {

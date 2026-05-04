@@ -3,6 +3,7 @@ import type { ScenarioAssetReadiness } from "@openclinxr/asset-registry";
 import type { BlueprintScenarioReadiness, ExamBlueprint, ExamStationRunQueue, ExamTimingPlan } from "@openclinxr/exam-assembly";
 import {
   CreateStationRunQueueSnapshotDocument,
+  ReviewPacketReplayDocument,
   SaveFacultyScoreDraftDocument,
   ScenarioBankDocument,
   ScenarioDetailDocument,
@@ -10,6 +11,8 @@ import {
   SubmitScenarioReviewDocument,
   type CreateStationRunQueueSnapshotMutation,
   type CreateStationRunQueueSnapshotMutationVariables,
+  type ReviewPacketReplayQuery,
+  type ReviewPacketReplayQueryVariables,
   type SaveFacultyScoreDraftMutation,
   type SaveFacultyScoreDraftMutationVariables,
   type ScenarioBankQuery,
@@ -48,6 +51,7 @@ export type AdminControlPlaneClient = {
   getStep2CsSeedStationRunQueue(): Promise<ExamStationRunQueue>;
   listScenarios(input?: ListScenariosInput): Promise<AdminScenario[]>;
   getScenarioDetail(input: GetScenarioDetailInput): Promise<AdminScenarioDetail>;
+  getReviewPacketReplay(input: GetReviewPacketReplayInput): Promise<AdminReviewPacketReplay>;
   submitScenarioReview(input: SubmitScenarioReviewInput): Promise<AdminScenarioReviewResult>;
   saveFacultyScoreDraft(input: SaveFacultyScoreDraftInput): Promise<AdminReviewPacket>;
   listStep2CsSeedStationRunQueueSnapshots(): Promise<AdminStationRunQueueSnapshot[]>;
@@ -64,6 +68,10 @@ export type GetScenarioDetailInput = {
   version: number;
 };
 
+export type GetReviewPacketReplayInput = {
+  stationRunId: string;
+};
+
 export type CreateStationRunQueueSnapshotInput = {
   snapshotId?: string;
   createdAt?: string;
@@ -75,6 +83,7 @@ export type SaveFacultyScoreDraftInput = SaveFacultyScoreDraftMutationVariables[
 
 export type AdminScenario = ScenarioBankQuery["scenarios"][number];
 export type AdminScenarioDetail = ScenarioDetailQuery;
+export type AdminReviewPacketReplay = ReviewPacketReplayQuery;
 export type AdminScenarioReviewResult = SubmitScenarioReviewMutation["submitScenarioReview"];
 export type AdminReviewPacket = SaveFacultyScoreDraftMutation["saveFacultyScoreDraft"];
 export type AdminStationRunQueueSnapshot = StationRunQueueSnapshotsQuery["stationRunQueueSnapshots"][number];
@@ -85,6 +94,7 @@ const stationRunQueueSnapshotsDocument = print(StationRunQueueSnapshotsDocument)
 const createStationRunQueueSnapshotDocument = print(CreateStationRunQueueSnapshotDocument);
 const scenarioBankDocument = print(ScenarioBankDocument);
 const scenarioDetailDocument = print(ScenarioDetailDocument);
+const reviewPacketReplayDocument = print(ReviewPacketReplayDocument);
 const submitScenarioReviewDocument = print(SubmitScenarioReviewDocument);
 const saveFacultyScoreDraftDocument = print(SaveFacultyScoreDraftDocument);
 
@@ -147,6 +157,30 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
         baseUrl,
         "ScenarioDetail",
         scenarioDetailDocument,
+        variables,
+      );
+    },
+    getReviewPacketReplay: async (input) => {
+      const variables: ReviewPacketReplayQueryVariables = {
+        stationRunId: input.stationRunId,
+      };
+      if (apolloClient) {
+        const { data } = await apolloClient.query<ReviewPacketReplayQuery, ReviewPacketReplayQueryVariables>({
+          query: ReviewPacketReplayDocument,
+          variables,
+          fetchPolicy: "network-only",
+        });
+        if (!data) {
+          throw new Error("OpenClinXR admin GraphQL request failed: ReviewPacketReplay missing_data");
+        }
+        return data;
+      }
+
+      return graphql<ReviewPacketReplayQuery>(
+        fetcher,
+        baseUrl,
+        "ReviewPacketReplay",
+        reviewPacketReplayDocument,
         variables,
       );
     },

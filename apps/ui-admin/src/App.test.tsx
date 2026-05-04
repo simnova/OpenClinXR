@@ -17,6 +17,11 @@ describe("AdminApp", () => {
       removeListener: vi.fn(),
       dispatchEvent: vi.fn(),
     }));
+    vi.stubGlobal("ResizeObserver", class {
+      observe = vi.fn();
+      unobserve = vi.fn();
+      disconnect = vi.fn();
+    });
   });
 
   afterEach(() => {
@@ -122,6 +127,45 @@ describe("AdminApp", () => {
       comments: "Clinical reviewer approval recorded from the local admin workbench.",
       evidenceRefs: ["evidence:peds_asthma_parent_anxiety_v1:clinical:local-admin"],
     });
+  });
+
+  it("renders review replay and saves a faculty score draft", async () => {
+    const client = fakeControlPlaneClient();
+    const getReviewPacketReplay = vi.fn(client.getReviewPacketReplay);
+    const saveFacultyScoreDraft = vi.fn(client.saveFacultyScoreDraft);
+    client.getReviewPacketReplay = getReviewPacketReplay;
+    client.saveFacultyScoreDraft = saveFacultyScoreDraft;
+
+    render(<AdminApp initialPath="/reviews?stationRunId=run_ed_chest_pain_priority_v1_learner_001" controlPlaneClient={client} />);
+
+    expect(await screen.findByRole("heading", { name: "Review Replay" })).toBeInTheDocument();
+    expect(getReviewPacketReplay).toHaveBeenCalledWith({ stationRunId: "run_ed_chest_pain_priority_v1_learner_001" });
+    expect(screen.getByText("ed_chest_pain_priority_v1")).toBeInTheDocument();
+    expect(screen.getByText("team_communication")).toBeInTheDocument();
+    expect(screen.getByText("Learner requested an ECG.")).toBeInTheDocument();
+    expect(screen.getByText("Chest pain requires urgent ECG escalation.")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Faculty reviewer ID"), { target: { value: "faculty_009" } });
+    fireEvent.change(screen.getByLabelText("Faculty draft comments"), { target: { value: "Escalation captured; teamwork evidence is still weak." } });
+    fireEvent.change(screen.getByLabelText("Urgent recognition score"), { target: { value: "22" } });
+    fireEvent.change(screen.getByLabelText("Team communication score"), { target: { value: "-1" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save faculty draft" }));
+
+    expect(await screen.findByText("Faculty draft saved")).toBeInTheDocument();
+    expect(saveFacultyScoreDraft).toHaveBeenCalledWith({
+      stationRunId: "run_ed_chest_pain_priority_v1_learner_001",
+      reviewerId: "faculty_009",
+      comments: "Escalation captured; teamwork evidence is still weak.",
+      rubricScores: {
+        urgent_recognition: 2,
+        communication_team_family: 0,
+      },
+    });
+
+    const replayWorkbench = screen.getByLabelText("Review packet replay workbench");
+    expect(findUnsafeClaimLanguage(replayWorkbench.textContent ?? "")).toEqual([]);
+    expect(replayWorkbench.textContent).not.toContain("Father died of myocardial infarction");
+    expect(replayWorkbench.textContent).not.toContain("hiddenFacts");
   });
 
   it("renders existing station run queue review snapshots", async () => {
@@ -389,6 +433,57 @@ function fakeControlPlaneClient(): AdminControlPlaneClient {
         { actorId: "patient_maya_johnson_v1", role: "patient", displayName: "Maya Johnson", demeanor: "short sentences" },
       ],
       assetNeeds: [],
+    }),
+    getReviewPacketReplay: async (input) => ({
+      reviewPacket: {
+        stationRunId: input.stationRunId,
+        scenarioId: "ed_chest_pain_priority_v1",
+        observedTraceTags: ["ecg_request", "urgent_escalation"],
+        missingRequiredTraceTags: ["team_communication"],
+        lateTraceTags: [],
+        unsafeEvents: [],
+        timeline: [
+          {
+            sequence: 2,
+            atSecond: 83,
+            eventType: "learner.utterance",
+            source: "learner",
+            actorId: "patient_robert_hayes_v1",
+            tag: "ecg_request",
+            summary: "Learner requested an ECG.",
+          },
+        ],
+        traceQuality: {
+          eventCount: 4,
+          modelGeneratedEventCount: 1,
+          modelFailedEventCount: 0,
+          voiceAudioEventCount: 0,
+          blockedGuardrailCount: 0,
+          unsafeEventCount: 0,
+          missingRequiredTraceTagCount: 1,
+          hasPatientNote: true,
+          hasModelProvenance: true,
+        },
+        patientNote: {
+          submittedAtSecond: 960,
+          text: "Chest pain requires urgent ECG escalation.",
+        },
+        facultyScoreDraft: {
+          reviewerId: "faculty_001",
+          status: "draft",
+          comments: "Needs team communication evidence.",
+        },
+      },
+      traceEvents: [
+        {
+          sequence: 2,
+          eventType: "learner.utterance",
+          atSecond: 83,
+          source: "learner",
+          actorId: "patient_robert_hayes_v1",
+          tag: "ecg_request",
+        },
+      ],
     }),
     saveFacultyScoreDraft: async (input) => ({
       stationRunId: String(input.stationRunId),

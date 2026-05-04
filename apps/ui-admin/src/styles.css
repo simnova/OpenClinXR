@@ -77,7 +77,8 @@ a {
 
 .seed-workbench,
 .scenario-bank-workbench,
-.scenario-detail-workbench {
+.scenario-detail-workbench,
+.review-replay-workbench {
   max-width: 1180px;
 }
 
@@ -222,6 +223,38 @@ a {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.review-replay-strip {
+  grid-template-columns: repeat(4, minmax(170px, 1fr));
+}
+
+.review-replay-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 0.9fr 1.1fr 1fr 1fr;
+  margin-top: 14px;
+}
+
+.station-run-input {
+  min-width: 300px;
+}
+
+.field-label,
+.faculty-score-panel {
+  display: grid;
+  gap: 8px;
+}
+
+.score-input-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.replay-timeline-list li {
+  border-top: 1px solid #edf2f1;
+  padding-top: 8px;
+}
+
 .tag-row {
   display: flex;
   flex-wrap: wrap;
@@ -262,9 +295,16 @@ a {
 
   .readiness-strip,
   .scenario-bank-strip,
+  .review-replay-strip,
   .workbench-panels,
-  .scenario-detail-grid {
+  .scenario-detail-grid,
+  .review-replay-grid,
+  .score-input-grid {
     grid-template-columns: 1fr;
+  }
+
+  .station-run-input {
+    min-width: 0;
   }
 
   .scenario-row-main,

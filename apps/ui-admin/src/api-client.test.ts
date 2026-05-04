@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { print } from "graphql";
 import {
   CreateStationRunQueueSnapshotDocument,
+  ReviewPacketReplayDocument,
   SaveFacultyScoreDraftDocument,
   ScenarioBankDocument,
   ScenarioDetailDocument,
@@ -23,6 +24,7 @@ describe("admin control-plane API client", () => {
     const scenarioDetailDocument = print(ScenarioDetailDocument);
     const submitScenarioReviewDocument = print(SubmitScenarioReviewDocument);
     const saveFacultyScoreDraftDocument = print(SaveFacultyScoreDraftDocument);
+    const reviewPacketReplayDocument = print(ReviewPacketReplayDocument);
     const requests: RecordedRequest[] = [];
     const queueSnapshot = {
       snapshotId: "queue_snapshot_ui_001",
@@ -161,6 +163,59 @@ describe("admin control-plane API client", () => {
             },
           },
         },
+        "/admin/graphql#ReviewPacketReplay": {
+          data: {
+            reviewPacket: {
+              stationRunId: "run_ed_chest_pain_priority_v1_learner_001",
+              scenarioId: "ed_chest_pain_priority_v1",
+              observedTraceTags: ["ecg_request", "urgent_escalation"],
+              missingRequiredTraceTags: ["team_communication"],
+              lateTraceTags: [],
+              unsafeEvents: [],
+              timeline: [
+                {
+                  sequence: 2,
+                  atSecond: 83,
+                  eventType: "learner.utterance",
+                  source: "learner",
+                  actorId: "patient_robert_hayes_v1",
+                  tag: "ecg_request",
+                  summary: "Learner requested an ECG.",
+                },
+              ],
+              traceQuality: {
+                eventCount: 4,
+                modelGeneratedEventCount: 1,
+                modelFailedEventCount: 0,
+                voiceAudioEventCount: 0,
+                blockedGuardrailCount: 0,
+                unsafeEventCount: 0,
+                missingRequiredTraceTagCount: 1,
+                hasPatientNote: true,
+                hasModelProvenance: true,
+              },
+              patientNote: {
+                submittedAtSecond: 960,
+                text: "Chest pain requires urgent ECG escalation.",
+              },
+              facultyScoreDraft: {
+                reviewerId: "faculty_001",
+                status: "draft",
+                comments: "Needs team communication evidence.",
+              },
+            },
+            traceEvents: [
+              {
+                sequence: 2,
+                eventType: "learner.utterance",
+                atSecond: 83,
+                source: "learner",
+                actorId: "patient_robert_hayes_v1",
+                tag: "ecg_request",
+              },
+            ],
+          },
+        },
         "/scenario-bank/assets/readiness": [{ scenarioId: "ed_chest_pain_priority_v1", devReady: true, productionReady: false }],
       }),
     });
@@ -212,6 +267,23 @@ describe("admin control-plane API client", () => {
         reviewerId: "faculty_002",
         comments: "ECG escalation was captured.",
       }),
+    }));
+    await expect(client.getReviewPacketReplay({
+      stationRunId: "run_ed_chest_pain_priority_v1_learner_001",
+    })).resolves.toEqual(expect.objectContaining({
+      reviewPacket: expect.objectContaining({
+        stationRunId: "run_ed_chest_pain_priority_v1_learner_001",
+        missingRequiredTraceTags: ["team_communication"],
+        facultyScoreDraft: expect.objectContaining({
+          comments: "Needs team communication evidence.",
+        }),
+      }),
+      traceEvents: [
+        expect.objectContaining({
+          eventType: "learner.utterance",
+          tag: "ecg_request",
+        }),
+      ],
     }));
     await expect(client.listStep2CsSeedStationRunQueueSnapshots()).resolves.toEqual([queueSnapshot]);
     await expect(client.createStep2CsSeedStationRunQueueSnapshot({
@@ -283,6 +355,17 @@ describe("admin control-plane API client", () => {
                 urgent_recognition: 2,
               },
             },
+          },
+        }),
+      },
+      {
+        url: "http://localhost:8787/admin/graphql",
+        method: "POST",
+        body: expect.objectContaining({
+          operationName: "ReviewPacketReplay",
+          query: reviewPacketReplayDocument,
+          variables: {
+            stationRunId: "run_ed_chest_pain_priority_v1_learner_001",
           },
         }),
       },
@@ -384,6 +467,33 @@ describe("admin control-plane API client", () => {
         comments: "ECG escalation was captured.",
       },
     };
+    const reviewPacketReplay = {
+      reviewPacket: {
+        ...reviewPacket,
+        timeline: [
+          {
+            sequence: 2,
+            atSecond: 83,
+            eventType: "learner.utterance",
+            source: "learner",
+            actorId: "patient_robert_hayes_v1",
+            tag: "ecg_request",
+            summary: "Learner requested an ECG.",
+          },
+        ],
+        patientNote: null,
+      },
+      traceEvents: [
+        {
+          sequence: 2,
+          eventType: "learner.utterance",
+          atSecond: 83,
+          source: "learner",
+          actorId: "patient_robert_hayes_v1",
+          tag: "ecg_request",
+        },
+      ],
+    };
     const apolloClient = {
       query: vi.fn(async ({ query }) => {
         if (query === ScenarioDetailDocument) {
@@ -403,6 +513,9 @@ describe("admin control-plane API client", () => {
         }
         if (query === ScenarioBankDocument) {
           return { data: { scenarios: [scenario] } };
+        }
+        if (query === ReviewPacketReplayDocument) {
+          return { data: reviewPacketReplay };
         }
         return { data: { stationRunQueueSnapshots: [queueSnapshot] } };
       }),
@@ -445,6 +558,9 @@ describe("admin control-plane API client", () => {
         urgent_recognition: 2,
       },
     })).resolves.toEqual(reviewPacket);
+    await expect(client.getReviewPacketReplay({
+      stationRunId: "run_ed_chest_pain_priority_v1_learner_001",
+    })).resolves.toEqual(reviewPacketReplay);
     await expect(client.listStep2CsSeedStationRunQueueSnapshots()).resolves.toEqual([queueSnapshot]);
     await expect(client.createStep2CsSeedStationRunQueueSnapshot({
       createdAt: "2026-05-04T02:30:00.000Z",
@@ -462,6 +578,13 @@ describe("admin control-plane API client", () => {
       variables: {
         scenarioId: "ed_chest_pain_priority_v1",
         version: 1,
+      },
+      fetchPolicy: "network-only",
+    });
+    expect(apolloClient.query).toHaveBeenCalledWith({
+      query: ReviewPacketReplayDocument,
+      variables: {
+        stationRunId: "run_ed_chest_pain_priority_v1_learner_001",
       },
       fetchPolicy: "network-only",
     });
