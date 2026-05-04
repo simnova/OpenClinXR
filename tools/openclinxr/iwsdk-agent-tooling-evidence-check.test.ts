@@ -47,6 +47,7 @@ describe("IWSDK agent-tooling evidence checker", () => {
       "adapter_sync_not_recorded",
       "mcp_tool_inventory_count_not_32",
       "mcp_required_category_missing_ecs",
+      "mcp_required_category_missing_select_trigger",
       "mcp_smoke_tool_not_validated_xr_select",
       "missing_managed_browser_evidence",
       "optional_mcp_server_action_blocked:npx iwsdk reference warmup",
@@ -83,7 +84,17 @@ function readyEvidence(): IwsdkAgentToolingEvidenceReport["evidence"] {
   return {
     adapterSyncRecorded: true,
     toolCount: 32,
-    coveredCategories: ["session", "transforms", "input", "browser", "scene", "ecs"],
+    coveredCategories: [
+      "session",
+      "transforms",
+      "input_mode",
+      "select_trigger",
+      "gamepad",
+      "device_state",
+      "browser",
+      "scene",
+      "ecs",
+    ],
     validatedSmokeTools: [
       "xr_get_session_status",
       "xr_accept_session",

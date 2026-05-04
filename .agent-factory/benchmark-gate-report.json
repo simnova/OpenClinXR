@@ -172,7 +172,7 @@
   },
   "iwsdk_evidence_contract": {
     "file": "docs/openclinxr/iwsdk-evidence-contract-2026-05-04.json",
-    "generated_at": "2026-05-04T07:40:15.400Z",
+    "generated_at": "2026-05-04T08:14:24.485Z",
     "status": "contract_only",
     "ready_for_install_backed_sidecar": false,
     "ready_for_agent_tooling": false,
@@ -180,9 +180,12 @@
     "blockers": [
       "agent_tooling:adapter_sync_not_recorded",
       "agent_tooling:mcp_required_category_missing_browser",
+      "agent_tooling:mcp_required_category_missing_device_state",
       "agent_tooling:mcp_required_category_missing_ecs",
-      "agent_tooling:mcp_required_category_missing_input",
+      "agent_tooling:mcp_required_category_missing_gamepad",
+      "agent_tooling:mcp_required_category_missing_input_mode",
       "agent_tooling:mcp_required_category_missing_scene",
+      "agent_tooling:mcp_required_category_missing_select_trigger",
       "agent_tooling:mcp_required_category_missing_session",
       "agent_tooling:mcp_required_category_missing_transforms",
       "agent_tooling:mcp_smoke_tool_not_validated_browser_get_console_logs",

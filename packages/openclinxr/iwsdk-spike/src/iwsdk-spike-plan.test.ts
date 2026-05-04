@@ -169,14 +169,29 @@ describe("IWSDK spike plan", () => {
         evidenceUse: "Named station object presence without relying only on visual screenshots.",
       },
       {
-        category: "input",
-        representativeTools: ["xr_select"],
-        evidenceUse: "Controller-triggered learner trace actions in the emulated runtime.",
-      },
-      {
         category: "transforms",
         representativeTools: ["xr_set_transform", "xr_look_at"],
         evidenceUse: "Repeatable headset/controller positioning for station framing checks.",
+      },
+      {
+        category: "input_mode",
+        representativeTools: ["xr_set_input_mode", "xr_set_connected"],
+        evidenceUse: "Controller/hand tracking mode and device connectivity checks for repeatable station setup.",
+      },
+      {
+        category: "select_trigger",
+        representativeTools: ["xr_select", "xr_set_select_value"],
+        evidenceUse: "Controller-triggered learner trace actions and grab/release interaction checks.",
+      },
+      {
+        category: "gamepad",
+        representativeTools: ["xr_get_gamepad_state", "xr_set_gamepad_state"],
+        evidenceUse: "Thumbstick/button regression evidence for high-pressure station controls.",
+      },
+      {
+        category: "device_state",
+        representativeTools: ["xr_get_device_state", "xr_set_device_state"],
+        evidenceUse: "Whole-device reset and headset/controller state snapshots for deterministic smoke setup.",
       },
       {
         category: "ecs",
@@ -190,7 +205,17 @@ describe("IWSDK spike plan", () => {
     expect(buildIwsdkMcpToolInventoryRequirement()).toEqual({
       expectedToolCount: 32,
       sourceRecordIds: ["src-iwsdk-ai-docs-2026"],
-      requiredCategories: ["session", "transforms", "input", "browser", "scene", "ecs"],
+      requiredCategories: [
+        "session",
+        "transforms",
+        "input_mode",
+        "select_trigger",
+        "gamepad",
+        "device_state",
+        "browser",
+        "scene",
+        "ecs",
+      ],
       minimalSmokeSubset: [
         "xr_get_session_status",
         "xr_accept_session",
@@ -320,7 +345,16 @@ describe("IWSDK spike plan", () => {
     expect(evaluateIwsdkAgentToolingEvidence({
       adapterSyncRecorded: false,
       toolCount: 31,
-      coveredCategories: ["session", "transforms", "input", "browser", "scene"],
+      coveredCategories: [
+        "session",
+        "transforms",
+        "input_mode",
+        "select_trigger",
+        "gamepad",
+        "device_state",
+        "browser",
+        "scene",
+      ],
       validatedSmokeTools: [
         "xr_get_session_status",
         "xr_accept_session",
@@ -355,7 +389,17 @@ describe("IWSDK spike plan", () => {
     expect(evaluateIwsdkAgentToolingEvidence({
       adapterSyncRecorded: true,
       toolCount: 32,
-      coveredCategories: ["session", "transforms", "input", "browser", "scene", "ecs"],
+      coveredCategories: [
+        "session",
+        "transforms",
+        "input_mode",
+        "select_trigger",
+        "gamepad",
+        "device_state",
+        "browser",
+        "scene",
+        "ecs",
+      ],
       validatedSmokeTools: [
         "xr_get_session_status",
         "xr_accept_session",
@@ -390,7 +434,17 @@ describe("IWSDK spike plan", () => {
     expect(evaluateIwsdkAgentToolingEvidence({
       adapterSyncRecorded: true,
       toolCount: 32,
-      coveredCategories: ["session", "transforms", "input", "browser", "scene", "ecs"],
+      coveredCategories: [
+        "session",
+        "transforms",
+        "input_mode",
+        "select_trigger",
+        "gamepad",
+        "device_state",
+        "browser",
+        "scene",
+        "ecs",
+      ],
       validatedSmokeTools: [
         "xr_get_session_status",
         "xr_accept_session",

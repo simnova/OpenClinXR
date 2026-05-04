@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T07:40:15.400Z",
+  "generatedAt": "2026-05-04T08:14:24.485Z",
   "status": "contract_only",
   "sidecar": {
     "sidecarAppRoot": "apps/ui-xr-iwsdk-spike/",
@@ -66,9 +66,12 @@
     "blockers": [
       "adapter_sync_not_recorded",
       "mcp_required_category_missing_browser",
+      "mcp_required_category_missing_device_state",
       "mcp_required_category_missing_ecs",
-      "mcp_required_category_missing_input",
+      "mcp_required_category_missing_gamepad",
+      "mcp_required_category_missing_input_mode",
       "mcp_required_category_missing_scene",
+      "mcp_required_category_missing_select_trigger",
       "mcp_required_category_missing_session",
       "mcp_required_category_missing_transforms",
       "mcp_smoke_tool_not_validated_browser_get_console_logs",
@@ -103,9 +106,12 @@
     "blockers": [
       "agent_tooling:adapter_sync_not_recorded",
       "agent_tooling:mcp_required_category_missing_browser",
+      "agent_tooling:mcp_required_category_missing_device_state",
       "agent_tooling:mcp_required_category_missing_ecs",
-      "agent_tooling:mcp_required_category_missing_input",
+      "agent_tooling:mcp_required_category_missing_gamepad",
+      "agent_tooling:mcp_required_category_missing_input_mode",
       "agent_tooling:mcp_required_category_missing_scene",
+      "agent_tooling:mcp_required_category_missing_select_trigger",
       "agent_tooling:mcp_required_category_missing_session",
       "agent_tooling:mcp_required_category_missing_transforms",
       "agent_tooling:mcp_smoke_tool_not_validated_browser_get_console_logs",

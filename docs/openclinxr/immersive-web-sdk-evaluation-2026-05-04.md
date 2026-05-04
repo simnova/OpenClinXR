@@ -49,7 +49,7 @@ Interpretation: IWSDK dev tooling appears technically viable enough for a commit
 
 The same planning package now exposes `buildIwsdkAiModeProfiles()` and `buildIwsdkMcpToolCoverage()` so agent runs can pick an explicit verification posture:
 
-`buildIwsdkMcpToolInventoryRequirement()` preserves the source-backed claim that IWSDK exposes 32 MCP tools. OpenClinXR should not claim IWSDK agent-tooling readiness until a sidecar run records the 32-tool inventory, shows coverage for session, transforms, input, browser, scene, and ECS categories, and validates the minimal smoke subset.
+`buildIwsdkMcpToolInventoryRequirement()` preserves the source-backed claim that IWSDK exposes 32 MCP tools across nine categories. OpenClinXR should not claim IWSDK agent-tooling readiness until a sidecar run records the 32-tool inventory, shows coverage for session, transforms, input mode, select/trigger, gamepad, device state, browser, scene, and ECS categories, and validates the minimal smoke subset.
 
 `buildIwsdkManagedBrowserEvidenceContract()` and `evaluateIwsdkManagedBrowserEvidence()` now make browser-mode evidence executable. Agent mode must prove the managed Playwright browser is ready and separate from the normal browser session, with fixed screenshot dimensions and the expected DevUI posture. Oversight and collaborate modes must prove the visible Playwright session is the browser under evaluation and that a normal browser was not automatically opened.
 
@@ -78,8 +78,11 @@ IWSDK MCP evidence should be categorized rather than treated as one generic pass
 | Session | `xr_get_session_status`, `xr_accept_session` | XR entry readiness and session state before screenshots or controller actions. |
 | Browser | `browser_screenshot`, `browser_get_console_logs` | Nonblank canvas and warning/error capture for unattended sidecar smoke. |
 | Scene | `scene_get_hierarchy` | Named station object presence without relying only on visual screenshots. |
-| Input | `xr_select` | Controller-triggered learner trace actions in the emulated runtime. |
 | Transforms | `xr_set_transform`, `xr_look_at` | Repeatable headset/controller positioning for station framing checks. |
+| Input mode | `xr_set_input_mode`, `xr_set_connected` | Controller/hand tracking mode and device connectivity checks for repeatable station setup. |
+| Select/trigger | `xr_select`, `xr_set_select_value` | Controller-triggered learner trace actions and grab/release interaction checks. |
+| Gamepad | `xr_get_gamepad_state`, `xr_set_gamepad_state` | Thumbstick/button regression evidence for high-pressure station controls. |
+| Device state | `xr_get_device_state`, `xr_set_device_state` | Whole-device reset and headset/controller state snapshots for deterministic smoke setup. |
 | ECS | `ecs_pause`, `ecs_step`, `ecs_query_entity` | Deterministic inspection of runtime entity state during scenario transitions. |
 
 Optional MCP servers remain separately controlled:

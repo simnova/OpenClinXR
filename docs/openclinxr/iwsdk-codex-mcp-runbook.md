@@ -71,7 +71,7 @@ Evidence to record:
 - Scene hierarchy including named station objects.
 - One controller select mapped to a station trace action.
 - Empty warning/error console logs, or explicit blockers.
-- 32-tool inventory with session, transforms, input, browser, scene, and ECS category coverage before claiming IWSDK agent-tooling readiness.
+- 32-tool inventory with session, transforms, input mode, select/trigger, gamepad, device state, browser, scene, and ECS category coverage before claiming IWSDK agent-tooling readiness.
 
 `packages/openclinxr/iwsdk-spike` exposes `evaluateIwsdkAgentToolingEvidence()` as the aggregate readiness check for this section. Treat IWSDK agent-tooling readiness as blocked unless that evaluator accepts adapter sync evidence, the 32-tool inventory, all required MCP categories, the minimal MCP smoke subset, managed-browser evidence, and the optional MCP server action list.
 
