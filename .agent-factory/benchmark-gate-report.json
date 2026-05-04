@@ -170,6 +170,43 @@
       "missing_quest_manual_performance_report"
     ]
   },
+  "iwsdk_evidence_contract": {
+    "file": "docs/openclinxr/iwsdk-evidence-contract-2026-05-04.json",
+    "generated_at": "2026-05-04T06:56:57.869Z",
+    "status": "contract_only",
+    "ready_for_install_backed_sidecar": false,
+    "ready_for_agent_tooling": false,
+    "ready_for_production_runtime": false,
+    "blockers": [
+      "agent_tooling:adapter_sync_not_recorded",
+      "agent_tooling:mcp_required_category_missing_browser",
+      "agent_tooling:mcp_required_category_missing_ecs",
+      "agent_tooling:mcp_required_category_missing_input",
+      "agent_tooling:mcp_required_category_missing_scene",
+      "agent_tooling:mcp_required_category_missing_session",
+      "agent_tooling:mcp_required_category_missing_transforms",
+      "agent_tooling:mcp_smoke_tool_not_validated_browser_get_console_logs",
+      "agent_tooling:mcp_smoke_tool_not_validated_browser_screenshot",
+      "agent_tooling:mcp_smoke_tool_not_validated_scene_get_hierarchy",
+      "agent_tooling:mcp_smoke_tool_not_validated_xr_accept_session",
+      "agent_tooling:mcp_smoke_tool_not_validated_xr_get_session_status",
+      "agent_tooling:mcp_smoke_tool_not_validated_xr_select",
+      "agent_tooling:mcp_tool_inventory_count_not_32",
+      "agent_tooling:missing_managed_browser_evidence",
+      "production_runtime:missing_app_js_bundle_kb",
+      "production_runtime:missing_avg_fps",
+      "production_runtime:missing_bundle_delta_vs_ui_xr_kb",
+      "production_runtime:missing_console_error_count",
+      "production_runtime:missing_controller_select_latency_ms",
+      "production_runtime:missing_injected_dev_runtime_kb",
+      "production_runtime:missing_installed_node_modules_mb",
+      "production_runtime:missing_p95_frame_ms",
+      "sidecar:exact_iwsdk_versions_selected",
+      "sidecar:license_review_accepts_transitive_dependency_posture",
+      "sidecar:operator_accepts_iwsdk_install_scope",
+      "sidecar:pnpm_iwsdk_verify_passes"
+    ]
+  },
   "evidence_gates": [
     {
       "evidence_id": "evidence-leadership-0007-002",

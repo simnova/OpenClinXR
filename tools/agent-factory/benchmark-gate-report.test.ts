@@ -11,6 +11,15 @@ type BlockerGroup = {
 };
 
 type BenchmarkGateReport = {
+  iwsdk_evidence_contract?: {
+    file: string;
+    generated_at: string;
+    status: string;
+    ready_for_install_backed_sidecar: boolean;
+    ready_for_agent_tooling: boolean;
+    ready_for_production_runtime: boolean;
+    blockers: string[];
+  };
   evidence_gates: Array<{
     evidence_id: string;
     ready_to_resolve?: boolean;
@@ -157,6 +166,46 @@ describe("benchmark gate report", () => {
         blockers: expect.arrayContaining(["quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready"]),
       }),
     ]));
+  });
+
+  it("surfaces IWSDK evidence contract status without changing leadership gate semantics", () => {
+    const report = buildBenchmarkGateReport({
+      iwsdkEvidenceContract: {
+        file: "docs/openclinxr/iwsdk-evidence-contract-2026-05-04.json",
+        value: {
+          generatedAt: "2026-05-04T00:00:00.000Z",
+          status: "contract_only",
+          verdict: {
+            readyForInstallBackedSidecar: false,
+            readyForAgentTooling: false,
+            readyForProductionRuntime: false,
+            blockers: [
+              "sidecar:operator_accepts_iwsdk_install_scope",
+              "agent_tooling:adapter_sync_not_recorded",
+            ],
+          },
+        },
+      },
+    });
+
+    expect(report.iwsdk_evidence_contract).toEqual({
+      file: "docs/openclinxr/iwsdk-evidence-contract-2026-05-04.json",
+      generated_at: "2026-05-04T00:00:00.000Z",
+      status: "contract_only",
+      ready_for_install_backed_sidecar: false,
+      ready_for_agent_tooling: false,
+      ready_for_production_runtime: false,
+      blockers: [
+        "sidecar:operator_accepts_iwsdk_install_scope",
+        "agent_tooling:adapter_sync_not_recorded",
+      ],
+    });
+    expect(report.evidence_gates.map((gate) => gate.evidence_id).sort()).toEqual([
+      "evidence-leadership-0007-002",
+      "evidence-leadership-0008-001",
+      "evidence-leadership-0008-002",
+      "evidence-leadership-0008-003",
+    ]);
   });
 
   it("derives Quest manual performance checks from raw foreground headset reports", () => {

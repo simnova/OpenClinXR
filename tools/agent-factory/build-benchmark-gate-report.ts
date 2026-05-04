@@ -112,6 +112,17 @@ type LocalProviderBenchmarkReport = {
   };
 };
 
+type IwsdkEvidenceContractReport = {
+  generatedAt: string;
+  status: string;
+  verdict: {
+    readyForInstallBackedSidecar: boolean;
+    readyForAgentTooling: boolean;
+    readyForProductionRuntime: boolean;
+    blockers: string[];
+  };
+};
+
 type EvidenceGateReport = {
   generated_by: string;
   quest_smoke?: {
@@ -161,6 +172,15 @@ type EvidenceGateReport = {
     satisfied_conditions: string[];
     blockers: string[];
   };
+  iwsdk_evidence_contract?: {
+    file: string;
+    generated_at: string;
+    status: string;
+    ready_for_install_backed_sidecar: boolean;
+    ready_for_agent_tooling: boolean;
+    ready_for_production_runtime: boolean;
+    blockers: string[];
+  };
   evidence_gates: Array<{
     evidence_id: string;
     ready_to_resolve: boolean;
@@ -195,6 +215,7 @@ export type BenchmarkGateReportInput = {
   localProviderBenchmark?: EvidenceFile<LocalProviderBenchmarkReport>;
   questManualPerformance?: EvidenceFile<QuestManualPerformanceCheck>;
   questManualPerformanceReport?: EvidenceFile<QuestManualPerformanceReport>;
+  iwsdkEvidenceContract?: EvidenceFile<IwsdkEvidenceContractReport>;
 };
 
 async function main(): Promise<void> {
@@ -203,6 +224,7 @@ async function main(): Promise<void> {
   const gltfPipelineSmoke = await latestJson<GltfPipelineSmokeReport>("docs/openclinxr/gltf-pipeline-smoke-*.json");
   const blenderAssetBakeSmoke = await latestJson<BlenderAssetBakeSmokeReport>("docs/openclinxr/blender-asset-bake-smoke-*.json");
   const localProviderBenchmark = await latestJson<LocalProviderBenchmarkReport>("docs/openclinxr/local-provider-benchmark-*.json");
+  const iwsdkEvidenceContract = await latestJson<IwsdkEvidenceContractReport>("docs/openclinxr/iwsdk-evidence-contract-*.json");
   const questManualPerformanceReport = await latestQuestManualPerformanceReportJson();
   const questManualPerformance = questManualPerformanceReport
     ? manualPerformanceReportToCheck(questManualPerformanceReport)
@@ -213,6 +235,7 @@ async function main(): Promise<void> {
     gltfPipelineSmoke,
     blenderAssetBakeSmoke,
     localProviderBenchmark,
+    iwsdkEvidenceContract,
     questManualPerformance,
     questManualPerformanceReport,
   });
@@ -241,7 +264,7 @@ async function fileJson<TValue>(file: string): Promise<{ file: string; value: TV
 }
 
 export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): EvidenceGateReport {
-  const { questSmoke, localRuntime, gltfPipelineSmoke, blenderAssetBakeSmoke, localProviderBenchmark } = input;
+  const { questSmoke, localRuntime, gltfPipelineSmoke, blenderAssetBakeSmoke, localProviderBenchmark, iwsdkEvidenceContract } = input;
   const questManualPerformance = input.questManualPerformanceReport
     ? manualPerformanceReportToCheck(input.questManualPerformanceReport)
     : input.questManualPerformance;
@@ -355,6 +378,17 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): Evide
         ready_to_claim_frame_pacing: questManualPerformance.value.readyToClaimFramePacing,
         satisfied_conditions: [...questManualPerformance.value.satisfiedConditions],
         blockers: [...questManualPerformance.value.blockers],
+      },
+    } : {}),
+    ...(iwsdkEvidenceContract ? {
+      iwsdk_evidence_contract: {
+        file: iwsdkEvidenceContract.file,
+        generated_at: iwsdkEvidenceContract.value.generatedAt,
+        status: iwsdkEvidenceContract.value.status,
+        ready_for_install_backed_sidecar: iwsdkEvidenceContract.value.verdict.readyForInstallBackedSidecar,
+        ready_for_agent_tooling: iwsdkEvidenceContract.value.verdict.readyForAgentTooling,
+        ready_for_production_runtime: iwsdkEvidenceContract.value.verdict.readyForProductionRuntime,
+        blockers: [...iwsdkEvidenceContract.value.verdict.blockers],
       },
     } : {}),
     evidence_gates: [
