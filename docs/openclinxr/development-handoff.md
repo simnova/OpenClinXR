@@ -343,6 +343,7 @@ Scenario-bank governance milestone has also started:
 - Shared scenario schemas now allow the expanded actor roles needed by the case bank: consultant, interpreter, medical assistant, and respiratory therapist, in addition to patient, family, nurse, physician, and system.
 - `evaluateScenarioBankMaturity` reports status counts, validation-stage counts, activation-eligible scenarios, blocked draft scenarios, setting diversity across all 12 environments, actor-role coverage, safety-critical trace tags, hidden-fact policy coverage, and the gap from the 12-station Step 2 CS-style target.
 - The default API scenario endpoint now returns a learner-safe projection with actor hidden facts redacted.
+- `packages/openclinxr/domain` now exports safe claim-language constants and an unsafe-claim scanner for user-facing assessment copy, blocking exam-equivalence, licensure/credentialing, diagnostic-performance, high-stakes score-use, and unsupported validation claims before UI/API surfaces adopt them.
 
 Actor-response safety milestone has also started:
 
