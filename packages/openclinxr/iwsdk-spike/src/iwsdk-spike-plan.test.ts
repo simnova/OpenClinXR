@@ -1,3 +1,6 @@
+import { readdirSync, readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   buildIwsdkAiModeProfiles,
@@ -15,6 +18,7 @@ import {
   buildIwsdkSidecarReadinessContract,
   buildIwsdkSpikeMetricThresholds,
   buildIwsdkSpikePlan,
+  buildIwsdkSourceRecordIdContract,
   buildIwsdkViteAiDevConfigContract,
   evaluateIwsdkCompatibilityEvidence,
   evaluateIwsdkWorkspacePosture,
@@ -28,6 +32,20 @@ import {
 } from "./index.js";
 
 describe("IWSDK spike plan", () => {
+  it("requires every IWSDK contract source ID to resolve to a committed source record", () => {
+    const contract = buildIwsdkSourceRecordIdContract();
+    const sourceRecords = readSourceRecords();
+
+    expect(contract.sourceRecordIds).toEqual([
+      "src-iwsdk-ai-docs-2026",
+      "src-iwsdk-local-spike-2026-05-04",
+      "src-iwsdk-npm-metadata-2026-05-04",
+      "src-meta-iwsdk-github-2026",
+      "src-openclinxr-iwsdk-spike-plan-2026-05-04",
+    ]);
+    expect(contract.sourceRecordIds.filter((sourceId) => !sourceRecords.has(sourceId))).toEqual([]);
+  });
+
   it("keeps Meta IWSDK as an isolated spike with source-backed package guidance", () => {
     const plan = buildIwsdkSpikePlan();
 
@@ -1394,3 +1412,20 @@ describe("IWSDK spike plan", () => {
     });
   });
 });
+
+function readSourceRecords(): Set<string> {
+  const testDir = path.dirname(fileURLToPath(import.meta.url));
+  const sourcesDir = path.resolve(testDir, "../../../../sources");
+
+  return new Set(
+    readdirSync(sourcesDir)
+      .filter((fileName) => fileName.endsWith(".json"))
+      .map((fileName) => {
+        const sourceRecord = JSON.parse(readFileSync(path.join(sourcesDir, fileName), "utf8")) as {
+          source_id?: string;
+        };
+        return sourceRecord.source_id ?? "";
+      })
+      .filter(Boolean),
+  );
+}

@@ -2,6 +2,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { describe, expect, it } from "vitest";
+import { buildIwsdkSourceRecordIdContract } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
 import { checkSourceLedger } from "./check-source-ledger.js";
 
 const schemaPath = join(process.cwd(), "schemas/source-record.schema.json");
@@ -71,6 +72,29 @@ describe("source ledger checker", () => {
         });
       },
     );
+  });
+
+  it("reports required source IDs that are missing from the provided ledger files", async () => {
+    await withTempSourceRecord(validSourceRecord({ source_id: "src-present" }), async (file) => {
+      const result = await checkSourceLedger({
+        files: [file],
+        schemaPath,
+        requiredSourceIds: ["src-present", "src-missing"],
+      });
+
+      expect(result).toEqual({
+        checkedCount: 1,
+        failures: ["missing required source record src-missing"],
+      });
+    });
+  });
+
+  it("resolves every IWSDK planning source ID through the committed source ledger", async () => {
+    await expect(checkSourceLedger({
+      requiredSourceIds: buildIwsdkSourceRecordIdContract().sourceRecordIds,
+    })).resolves.toMatchObject({
+      failures: [],
+    });
   });
 });
 

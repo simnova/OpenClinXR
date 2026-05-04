@@ -18,6 +18,10 @@ export type IwsdkSpikePlan = {
   requiredEvidence: string[];
 };
 
+export type IwsdkSourceRecordIdContract = {
+  sourceRecordIds: string[];
+};
+
 export type IwsdkSpikeGateStatus = "ready" | "blocked" | "not_configured";
 
 export type IwsdkSpikeGateEvidence = {
@@ -472,6 +476,21 @@ const iwsdkCoreTransitivePackageLicenses: Record<(typeof iwsdkCoreRequiredTransi
   three: "MIT",
   "three-mesh-bvh": "MIT",
 };
+
+export function buildIwsdkSourceRecordIdContract(): IwsdkSourceRecordIdContract {
+  return {
+    sourceRecordIds: unique([
+      ...sourceRecordIds,
+      ...buildIwsdkMcpToolInventory().sourceRecordIds,
+      ...buildIwsdkMcpToolInventoryRequirement().sourceRecordIds,
+      ...buildIwsdkManagedBrowserEvidenceContract().sourceRecordIds,
+      ...buildIwsdkOptionalMcpServerPolicy().flatMap((policy) => policy.sourceRecordIds),
+      ...buildIwsdkPackageMetadataDriftPolicies().flatMap((policy) => policy.sourceRecordIds),
+      ...buildIwsdkViteAiDevConfigContract().sourceRecordIds,
+      ...buildIwsdkCompatibilityContract().sourceRecordIds,
+    ]),
+  };
+}
 
 export function buildIwsdkSpikePlan(): IwsdkSpikePlan {
   return {
