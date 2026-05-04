@@ -76,6 +76,27 @@ type BlenderAssetBakeSmokeReport = {
   };
 };
 
+type AssetProductionReadinessBenchmarkReport = {
+  generatedAt: string;
+  status: string;
+  sourceEvidence: {
+    gltfPipelineSmokePassed: boolean;
+    blenderBakeSmokePassed: boolean;
+    placeholderBakeOnly: boolean;
+    blockers: string[];
+  };
+  productionProofs: Record<string, { observed: boolean; blockers: string[] }>;
+  runtimeBudget: {
+    multiActorBudgetObserved: boolean;
+    blockers: string[];
+  };
+  verdict: {
+    passed: boolean;
+    blockers: string[];
+    caveats: string[];
+  };
+};
+
 type LocalProviderBenchmarkReport = {
   generatedAt: string;
   mockModel: {
@@ -237,6 +258,15 @@ type EvidenceGateReport = {
     passed: boolean;
     blockers: string[];
   };
+  asset_production_readiness_benchmark?: {
+    file: string;
+    generated_at: string;
+    status: string;
+    source_evidence: AssetProductionReadinessBenchmarkReport["sourceEvidence"];
+    production_proofs: AssetProductionReadinessBenchmarkReport["productionProofs"];
+    runtime_budget: AssetProductionReadinessBenchmarkReport["runtimeBudget"];
+    verdict: AssetProductionReadinessBenchmarkReport["verdict"];
+  };
   local_provider_benchmark?: {
     file: string;
     generated_at: string;
@@ -344,6 +374,7 @@ export type BenchmarkGateReportInput = {
   localRuntime?: EvidenceFile<LocalRuntimeProbeReport>;
   gltfPipelineSmoke?: EvidenceFile<GltfPipelineSmokeReport>;
   blenderAssetBakeSmoke?: EvidenceFile<BlenderAssetBakeSmokeReport>;
+  assetProductionReadinessBenchmark?: EvidenceFile<AssetProductionReadinessBenchmarkReport>;
   localProviderBenchmark?: EvidenceFile<LocalProviderBenchmarkReport>;
   localModelRuntimeBenchmark?: EvidenceFile<LocalModelRuntimeBenchmarkReport>;
   localModelQualityBenchmark?: EvidenceFile<LocalModelQualityBenchmarkReport>;
@@ -370,6 +401,7 @@ async function main(): Promise<void> {
   const localRuntime = await latestJson<LocalRuntimeProbeReport>("docs/openclinxr/local-runtime-probe-*.json");
   const gltfPipelineSmoke = await latestJson<GltfPipelineSmokeReport>("docs/openclinxr/gltf-pipeline-smoke-*.json");
   const blenderAssetBakeSmoke = await latestJson<BlenderAssetBakeSmokeReport>("docs/openclinxr/blender-asset-bake-smoke-*.json");
+  const assetProductionReadinessBenchmark = await latestJson<AssetProductionReadinessBenchmarkReport>("docs/openclinxr/asset-production-readiness-benchmark-*.json");
   const localProviderBenchmark = await latestJson<LocalProviderBenchmarkReport>("docs/openclinxr/local-provider-benchmark-*.json");
   const localModelRuntimeBenchmark = await latestJson<LocalModelRuntimeBenchmarkReport>("docs/openclinxr/local-model-runtime-benchmark-*.json");
   const localModelQualityBenchmark = await latestJson<LocalModelQualityBenchmarkReport>("docs/openclinxr/local-model-quality-benchmark-*.json");
@@ -385,6 +417,7 @@ async function main(): Promise<void> {
     localRuntime,
     gltfPipelineSmoke,
     blenderAssetBakeSmoke,
+    assetProductionReadinessBenchmark,
     localProviderBenchmark,
     localModelRuntimeBenchmark,
     localModelQualityBenchmark,
@@ -427,6 +460,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localRuntime,
     gltfPipelineSmoke,
     blenderAssetBakeSmoke,
+    assetProductionReadinessBenchmark,
     localProviderBenchmark,
     localModelRuntimeBenchmark,
     localModelQualityBenchmark,
@@ -445,6 +479,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localRuntime,
     gltfPipelineSmoke,
     blenderAssetBakeSmoke,
+    assetProductionReadinessBenchmark,
     localProviderBenchmark,
     localModelRuntimeBenchmark,
     localModelQualityBenchmark,
@@ -518,8 +553,13 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     ]),
   ];
   const assetProductionEvidenceBlockers = [
-    ...assetProductionBlockers(gltfPipelineSmoke, blenderAssetBakeSmoke),
-    ...assetEvidenceFreshnessBlockers,
+    ...assetProductionBlockers(gltfPipelineSmoke, blenderAssetBakeSmoke, assetProductionReadinessBenchmark),
+    ...freshnessBlockers(evidenceFreshness, [
+      "local_runtime_probe",
+      "gltf_pipeline_smoke",
+      "blender_asset_bake_smoke",
+      "asset_production_readiness_benchmark",
+    ]),
   ];
   const iwsdkEvidenceBlockers = iwsdkEvidenceContractBlockers(iwsdkEvidenceContract?.value);
   const combinedBlockers = unique([
@@ -539,6 +579,10 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localRuntime?.value.gates.assetPipeline.status === "ready" ? "asset_pipeline_runtime_ready" : undefined,
     gltfPipelineSmoke?.value.verdict.passed ? "asset_pipeline_gltf_pipeline_smoke_passed" : undefined,
     blenderAssetBakeSmoke?.value.verdict.passed ? "asset_pipeline_blender_bake_smoke_passed" : undefined,
+    assetProductionReadinessBenchmark ? "asset_production_readiness_report_present" : undefined,
+    assetProductionReadinessBenchmark?.value.sourceEvidence.gltfPipelineSmokePassed && assetProductionReadinessBenchmark.value.sourceEvidence.blenderBakeSmokePassed ? "asset_production_source_smokes_passed" : undefined,
+    assetProductionReadinessBenchmark?.value.runtimeBudget.multiActorBudgetObserved ? "asset_production_multi_actor_quest_budget_observed" : undefined,
+    assetProductionReadinessBenchmark?.value.verdict.passed ? "asset_production_readiness_benchmark_passed" : undefined,
     localProviderBenchmark?.value.verdict.deterministicMocksPassed ? "local_provider_mock_benchmarks_passed" : undefined,
     localRuntime?.value.gates.localModel.status === "ready" ? "local_model_runtime_ready" : undefined,
     localRuntime?.value.gates.localVoice.status === "ready" ? "local_voice_runtime_ready" : undefined,
@@ -573,7 +617,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     condition.startsWith("local_voice_") || condition === "local_provider_mock_benchmarks_passed"
   );
   const assetSatisfiedConditions = combinedSatisfiedConditions.filter((condition) =>
-    condition.startsWith("asset_pipeline_")
+    condition.startsWith("asset_pipeline_") || condition.startsWith("asset_production_")
   );
   const iwsdkSatisfiedConditions = iwsdkEvidenceContract
     ? [
@@ -626,6 +670,17 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         output: blenderAssetBakeSmoke.value.output,
         passed: blenderAssetBakeSmoke.value.verdict.passed,
         blockers: [...blenderAssetBakeSmoke.value.verdict.blockers],
+      },
+    } : {}),
+    ...(assetProductionReadinessBenchmark ? {
+      asset_production_readiness_benchmark: {
+        file: assetProductionReadinessBenchmark.file,
+        generated_at: assetProductionReadinessBenchmark.value.generatedAt,
+        status: assetProductionReadinessBenchmark.value.status,
+        source_evidence: assetProductionReadinessBenchmark.value.sourceEvidence,
+        production_proofs: assetProductionReadinessBenchmark.value.productionProofs,
+        runtime_budget: assetProductionReadinessBenchmark.value.runtimeBudget,
+        verdict: assetProductionReadinessBenchmark.value.verdict,
       },
     } : {}),
     ...(localProviderBenchmark ? {
@@ -726,6 +781,7 @@ function buildEvidenceFreshnessReport(
     localRuntime?: EvidenceFile<LocalRuntimeProbeReport>;
     gltfPipelineSmoke?: EvidenceFile<GltfPipelineSmokeReport>;
     blenderAssetBakeSmoke?: EvidenceFile<BlenderAssetBakeSmokeReport>;
+    assetProductionReadinessBenchmark?: EvidenceFile<AssetProductionReadinessBenchmarkReport>;
     localProviderBenchmark?: EvidenceFile<LocalProviderBenchmarkReport>;
     localModelRuntimeBenchmark?: EvidenceFile<LocalModelRuntimeBenchmarkReport>;
     localModelQualityBenchmark?: EvidenceFile<LocalModelQualityBenchmarkReport>;
@@ -743,6 +799,7 @@ function buildEvidenceFreshnessReport(
     evidenceFreshnessEntry("local_runtime_probe", evidence.localRuntime, now, maxAgeHours),
     evidenceFreshnessEntry("gltf_pipeline_smoke", evidence.gltfPipelineSmoke, now, maxAgeHours),
     evidenceFreshnessEntry("blender_asset_bake_smoke", evidence.blenderAssetBakeSmoke, now, maxAgeHours),
+    evidenceFreshnessEntry("asset_production_readiness_benchmark", evidence.assetProductionReadinessBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_provider_benchmark", evidence.localProviderBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_model_runtime_benchmark", evidence.localModelRuntimeBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_model_quality_benchmark", evidence.localModelQualityBenchmark, now, maxAgeHours),
@@ -1120,7 +1177,12 @@ function localVoiceLiveDialogBlockers(
 function assetProductionBlockers(
   gltfPipelineSmoke: EvidenceFile<GltfPipelineSmokeReport> | undefined,
   blenderAssetBakeSmoke: EvidenceFile<BlenderAssetBakeSmokeReport> | undefined,
+  assetProductionReadinessBenchmark: EvidenceFile<AssetProductionReadinessBenchmarkReport> | undefined,
 ): string[] {
+  if (assetProductionReadinessBenchmark) {
+    return unique(assetProductionReadinessBenchmark.value.verdict.blockers.map((blocker) => `asset_production:${blocker}`));
+  }
+
   const blockers: string[] = [];
   if (!gltfPipelineSmoke?.value.verdict.passed) {
     blockers.push("asset_production:missing_gltf_conversion_smoke");

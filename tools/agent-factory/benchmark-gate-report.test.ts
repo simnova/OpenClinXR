@@ -313,13 +313,16 @@ describe("benchmark gate report", () => {
     expect(gatesById.get("evidence-leadership-0009-005")).toEqual(expect.objectContaining({
       ready_to_resolve: false,
       blockers: expect.arrayContaining([
-        "asset_production:placeholder_bake_only",
-        "asset_production:missing_generated_human_rigging_report",
-        "asset_production:missing_lod_texture_collider_budget_report",
+        "asset_production:source:placeholder_bake_only",
+        "asset_production:generation:generated_human_rigging_missing",
+        "asset_production:optimization:lod_texture_collider_budget_missing",
+        "asset_production:runtime:multi_actor_quest_budget_missing",
       ]),
       satisfied_conditions: expect.arrayContaining([
         "asset_pipeline_blender_bake_smoke_passed",
         "asset_pipeline_gltf_pipeline_smoke_passed",
+        "asset_production_readiness_report_present",
+        "asset_production_source_smokes_passed",
       ]),
     }));
   });
@@ -572,6 +575,137 @@ describe("benchmark gate report", () => {
       "local_voice_live_dialog:missing_streaming_webxr_playback_benchmark",
       "local_voice_live_dialog:missing_disclosure_retention_misuse_controls",
     ]));
+  });
+
+  it("uses asset production readiness evidence to replace generic placeholder asset blockers", () => {
+    const buildReport = buildBenchmarkGateReport as (
+      input: Parameters<typeof buildBenchmarkGateReport>[0] & {
+        assetProductionReadinessBenchmark?: {
+          file: string;
+          value: {
+            generatedAt: string;
+            status: string;
+            sourceEvidence: {
+              gltfPipelineSmokePassed: boolean;
+              blenderBakeSmokePassed: boolean;
+              placeholderBakeOnly: boolean;
+              blockers: string[];
+            };
+            productionProofs: Record<string, { observed: boolean; blockers: string[] }>;
+            runtimeBudget: {
+              multiActorBudgetObserved: boolean;
+              blockers: string[];
+            };
+            verdict: {
+              passed: boolean;
+              blockers: string[];
+              caveats: string[];
+            };
+          };
+        };
+      },
+      options: { now: Date; maxEvidenceAgeHours: number },
+    ) => BenchmarkGateReport;
+    const report = buildReport({
+      localRuntime: {
+        file: "docs/openclinxr/local-runtime-probe-2026-05-04.json",
+        value: {
+          generatedAt: "2026-05-04T20:00:00.000Z",
+          gates: {
+            questUsb: { status: "ready", blockers: [] },
+            questForegroundPreflight: { status: "ready", blockers: [] },
+            localModel: { status: "ready", blockers: [] },
+            localVoice: { status: "ready", blockers: [] },
+            assetPipeline: { status: "ready", blockers: [] },
+          },
+        },
+      },
+      gltfPipelineSmoke: {
+        file: "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
+        value: {
+          generatedAt: "2026-05-04T20:00:00.000Z",
+          tool: { command: "gltf-pipeline", package: "gltf-pipeline", version: "4.3.1", license: "Apache-2.0" },
+          output: { glbBytes: 848, magic: "glTF", version: 2, declaredLength: 848, elapsedMs: 1 },
+          verdict: { passed: true, blockers: [] },
+        },
+      },
+      blenderAssetBakeSmoke: {
+        file: "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
+        value: {
+          generatedAt: "2026-05-04T20:00:00.000Z",
+          tool: { command: "blender", package: "Blender", version: "Blender 5.1.1", license: "GPL-3.0-or-later-tooling" },
+          input: {
+            fixture: "low_poly_clinical_humanoid",
+            externalAssetsUsed: false,
+            sourceLicensePosture: "repo_generated_placeholder",
+            expectedObjectCount: 7,
+          },
+          output: { glbBytes: 27284, magic: "glTF", version: 2, declaredLength: 27284, elapsedMs: 1 },
+          verdict: { passed: true, blockers: [] },
+        },
+      },
+      assetProductionReadinessBenchmark: {
+        file: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-04.json",
+        value: {
+          generatedAt: "2026-05-04T20:30:00.000Z",
+          status: "blocked",
+          sourceEvidence: {
+            gltfPipelineSmokePassed: true,
+            blenderBakeSmokePassed: true,
+            placeholderBakeOnly: true,
+            blockers: ["placeholder_bake_only"],
+          },
+          productionProofs: {
+            generatedHumanRigging: { observed: false, blockers: ["generated_human_rigging_missing"] },
+            skinClothingProvenance: { observed: false, blockers: ["skin_clothing_provenance_missing"] },
+            medicalEquipmentLibrary: { observed: false, blockers: ["medical_equipment_library_missing"] },
+            animationRetargeting: { observed: false, blockers: ["animation_retargeting_missing"] },
+            lodTextureColliderBudget: { observed: false, blockers: ["lod_texture_collider_budget_missing"] },
+            multiActorQuestBudget: { observed: false, blockers: ["multi_actor_quest_budget_missing"] },
+          },
+          runtimeBudget: {
+            multiActorBudgetObserved: false,
+            blockers: ["multi_actor_quest_budget_missing"],
+          },
+          verdict: {
+            passed: false,
+            blockers: [
+              "source:placeholder_bake_only",
+              "generation:generated_human_rigging_missing",
+              "generation:skin_clothing_provenance_missing",
+              "generation:medical_equipment_library_missing",
+              "generation:animation_retargeting_missing",
+              "optimization:lod_texture_collider_budget_missing",
+              "runtime:multi_actor_quest_budget_missing",
+            ],
+            caveats: [],
+          },
+        },
+      },
+    }, { now: new Date("2026-05-04T20:35:00.000Z"), maxEvidenceAgeHours: 24 });
+
+    const assetGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-005");
+
+    expect(assetGate?.satisfied_conditions).toEqual(expect.arrayContaining([
+      "asset_pipeline_blender_bake_smoke_passed",
+      "asset_pipeline_gltf_pipeline_smoke_passed",
+      "asset_production_readiness_report_present",
+      "asset_production_source_smokes_passed",
+    ]));
+    expect(assetGate?.blockers).toEqual(expect.arrayContaining([
+      "asset_production:source:placeholder_bake_only",
+      "asset_production:generation:generated_human_rigging_missing",
+      "asset_production:generation:medical_equipment_library_missing",
+      "asset_production:optimization:lod_texture_collider_budget_missing",
+      "asset_production:runtime:multi_actor_quest_budget_missing",
+    ]));
+    expect(assetGate?.blockers).not.toEqual(expect.arrayContaining([
+      "asset_production:missing_generated_human_rigging_report",
+      "asset_production:missing_lod_texture_collider_budget_report",
+      "asset_production:missing_multi_actor_quest_budget_report",
+      "asset_production:placeholder_bake_only",
+    ]));
+    expect(assetGate?.blockers.some((blocker) => blocker.startsWith("asset_production:proof:"))).toBe(false);
   });
 
   it("summarizes missing Blender asset evidence as an asset-pipeline group", () => {

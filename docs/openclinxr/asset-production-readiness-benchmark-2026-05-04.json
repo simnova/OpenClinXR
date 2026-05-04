@@ -1,0 +1,122 @@
+{
+  "generatedAt": "2026-05-04T20:16:29.062Z",
+  "status": "blocked",
+  "policy": {
+    "cloudApisUsed": false,
+    "paidApisUsed": false,
+    "externalAssetsUsed": false,
+    "productionUseAllowed": false,
+    "copyleftRuntimeAllowed": false
+  },
+  "input": {
+    "gltfPipelineSmokeFile": "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
+    "blenderAssetBakeSmokeFile": "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
+    "gltfGeneratedAt": "2026-05-03T22:35:14.615Z",
+    "blenderGeneratedAt": "2026-05-04T05:06:10.560Z"
+  },
+  "sourceEvidence": {
+    "gltfPipelineSmokePassed": true,
+    "blenderBakeSmokePassed": true,
+    "blenderSourceLicensePosture": "repo_generated_placeholder",
+    "placeholderBakeOnly": true,
+    "blockers": [
+      "placeholder_bake_only"
+    ]
+  },
+  "productionProofs": {
+    "generatedHumanRigging": {
+      "observed": false,
+      "requiredEvidence": [
+        "neutral generated human GLB",
+        "canonical skeleton binding",
+        "skin-weight or rigging report"
+      ],
+      "blockers": [
+        "generated_human_rigging_missing"
+      ]
+    },
+    "skinClothingProvenance": {
+      "observed": false,
+      "requiredEvidence": [
+        "skin/texture provenance",
+        "clothing mesh provenance",
+        "runtime-safe material report"
+      ],
+      "blockers": [
+        "skin_clothing_provenance_missing"
+      ]
+    },
+    "medicalEquipmentLibrary": {
+      "observed": false,
+      "requiredEvidence": [
+        "equipment GLB library",
+        "clinical equipment metadata",
+        "license provenance"
+      ],
+      "blockers": [
+        "medical_equipment_library_missing"
+      ]
+    },
+    "animationRetargeting": {
+      "observed": false,
+      "requiredEvidence": [
+        "canonical skeleton clips",
+        "viseme or facial target mapping",
+        "retargeting QA report"
+      ],
+      "blockers": [
+        "animation_retargeting_missing"
+      ]
+    },
+    "lodTextureColliderBudget": {
+      "observed": false,
+      "requiredEvidence": [
+        "LOD tiers",
+        "KTX2 or texture budget report",
+        "collider simplification report"
+      ],
+      "blockers": [
+        "lod_texture_collider_budget_missing"
+      ]
+    },
+    "multiActorQuestBudget": {
+      "observed": false,
+      "requiredEvidence": [
+        "multi-actor station budget",
+        "Quest frame budget",
+        "draw-call and texture-memory budget"
+      ],
+      "blockers": [
+        "multi_actor_quest_budget_missing"
+      ]
+    }
+  },
+  "runtimeBudget": {
+    "singlePlaceholderGlbBytes": 27284,
+    "targetStationBundleMb": 80,
+    "maxVisibleTriangles": 180000,
+    "maxDrawCalls": 120,
+    "maxTextureMemoryMb": 512,
+    "multiActorBudgetObserved": false,
+    "blockers": [
+      "multi_actor_quest_budget_missing"
+    ]
+  },
+  "verdict": {
+    "passed": false,
+    "readyForProductionAssets": false,
+    "blockers": [
+      "source:placeholder_bake_only",
+      "generation:generated_human_rigging_missing",
+      "generation:skin_clothing_provenance_missing",
+      "generation:medical_equipment_library_missing",
+      "generation:animation_retargeting_missing",
+      "optimization:lod_texture_collider_budget_missing",
+      "runtime:multi_actor_quest_budget_missing"
+    ],
+    "caveats": [
+      "This report evaluates production-readiness evidence from local smoke outputs only; it does not generate new third-party assets.",
+      "Placeholder GLB smoke proves the authoring tool chain can emit a GLB, not that generated clinical characters or environments are production-ready."
+    ]
+  }
+}

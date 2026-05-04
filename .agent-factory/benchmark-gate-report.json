@@ -5,7 +5,7 @@
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T18:13:48.812Z",
-      "age_hours": 1,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -14,7 +14,7 @@
       "evidence_id": "local_runtime_probe",
       "file": "docs/openclinxr/local-runtime-probe-2026-05-04.json",
       "generated_at": "2026-05-04T15:16:18.712Z",
-      "age_hours": 4,
+      "age_hours": 5,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -33,6 +33,15 @@
       "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T05:06:10.560Z",
       "age_hours": 15,
+      "max_age_hours": 24,
+      "status": "fresh",
+      "blockers": []
+    },
+    {
+      "evidence_id": "asset_production_readiness_benchmark",
+      "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-04.json",
+      "generated_at": "2026-05-04T20:16:29.062Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -190,6 +199,116 @@
     },
     "passed": true,
     "blockers": []
+  },
+  "asset_production_readiness_benchmark": {
+    "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-04.json",
+    "generated_at": "2026-05-04T20:16:29.062Z",
+    "status": "blocked",
+    "source_evidence": {
+      "gltfPipelineSmokePassed": true,
+      "blenderBakeSmokePassed": true,
+      "blenderSourceLicensePosture": "repo_generated_placeholder",
+      "placeholderBakeOnly": true,
+      "blockers": [
+        "placeholder_bake_only"
+      ]
+    },
+    "production_proofs": {
+      "generatedHumanRigging": {
+        "observed": false,
+        "requiredEvidence": [
+          "neutral generated human GLB",
+          "canonical skeleton binding",
+          "skin-weight or rigging report"
+        ],
+        "blockers": [
+          "generated_human_rigging_missing"
+        ]
+      },
+      "skinClothingProvenance": {
+        "observed": false,
+        "requiredEvidence": [
+          "skin/texture provenance",
+          "clothing mesh provenance",
+          "runtime-safe material report"
+        ],
+        "blockers": [
+          "skin_clothing_provenance_missing"
+        ]
+      },
+      "medicalEquipmentLibrary": {
+        "observed": false,
+        "requiredEvidence": [
+          "equipment GLB library",
+          "clinical equipment metadata",
+          "license provenance"
+        ],
+        "blockers": [
+          "medical_equipment_library_missing"
+        ]
+      },
+      "animationRetargeting": {
+        "observed": false,
+        "requiredEvidence": [
+          "canonical skeleton clips",
+          "viseme or facial target mapping",
+          "retargeting QA report"
+        ],
+        "blockers": [
+          "animation_retargeting_missing"
+        ]
+      },
+      "lodTextureColliderBudget": {
+        "observed": false,
+        "requiredEvidence": [
+          "LOD tiers",
+          "KTX2 or texture budget report",
+          "collider simplification report"
+        ],
+        "blockers": [
+          "lod_texture_collider_budget_missing"
+        ]
+      },
+      "multiActorQuestBudget": {
+        "observed": false,
+        "requiredEvidence": [
+          "multi-actor station budget",
+          "Quest frame budget",
+          "draw-call and texture-memory budget"
+        ],
+        "blockers": [
+          "multi_actor_quest_budget_missing"
+        ]
+      }
+    },
+    "runtime_budget": {
+      "singlePlaceholderGlbBytes": 27284,
+      "targetStationBundleMb": 80,
+      "maxVisibleTriangles": 180000,
+      "maxDrawCalls": 120,
+      "maxTextureMemoryMb": 512,
+      "multiActorBudgetObserved": false,
+      "blockers": [
+        "multi_actor_quest_budget_missing"
+      ]
+    },
+    "verdict": {
+      "passed": false,
+      "readyForProductionAssets": false,
+      "blockers": [
+        "source:placeholder_bake_only",
+        "generation:generated_human_rigging_missing",
+        "generation:skin_clothing_provenance_missing",
+        "generation:medical_equipment_library_missing",
+        "generation:animation_retargeting_missing",
+        "optimization:lod_texture_collider_budget_missing",
+        "runtime:multi_actor_quest_budget_missing"
+      ],
+      "caveats": [
+        "This report evaluates production-readiness evidence from local smoke outputs only; it does not generate new third-party assets.",
+        "Placeholder GLB smoke proves the authoring tool chain can emit a GLB, not that generated clinical characters or environments are production-ready."
+      ]
+    }
   },
   "local_provider_benchmark": {
     "file": "docs/openclinxr/local-provider-benchmark-2026-05-04.json",
@@ -645,6 +764,8 @@
         "asset_pipeline_blender_bake_smoke_passed",
         "asset_pipeline_gltf_pipeline_smoke_passed",
         "asset_pipeline_runtime_ready",
+        "asset_production_readiness_report_present",
+        "asset_production_source_smokes_passed",
         "local_model_quality_actor_policy_benchmark_passed",
         "local_model_quality_report_present",
         "local_model_quality_required_keys_present",
@@ -772,7 +893,9 @@
       "satisfied_conditions": [
         "asset_pipeline_blender_bake_smoke_passed",
         "asset_pipeline_gltf_pipeline_smoke_passed",
-        "asset_pipeline_runtime_ready"
+        "asset_pipeline_runtime_ready",
+        "asset_production_readiness_report_present",
+        "asset_production_source_smokes_passed"
       ],
       "blockers": [],
       "blocker_summary": {
@@ -947,16 +1070,21 @@
       "satisfied_conditions": [
         "asset_pipeline_blender_bake_smoke_passed",
         "asset_pipeline_gltf_pipeline_smoke_passed",
-        "asset_pipeline_runtime_ready"
+        "asset_pipeline_runtime_ready",
+        "asset_production_readiness_report_present",
+        "asset_production_source_smokes_passed"
       ],
       "blockers": [
-        "asset_production:missing_generated_human_rigging_report",
-        "asset_production:missing_lod_texture_collider_budget_report",
-        "asset_production:missing_multi_actor_quest_budget_report",
-        "asset_production:placeholder_bake_only"
+        "asset_production:generation:animation_retargeting_missing",
+        "asset_production:generation:generated_human_rigging_missing",
+        "asset_production:generation:medical_equipment_library_missing",
+        "asset_production:generation:skin_clothing_provenance_missing",
+        "asset_production:optimization:lod_texture_collider_budget_missing",
+        "asset_production:runtime:multi_actor_quest_budget_missing",
+        "asset_production:source:placeholder_bake_only"
       ],
       "blocker_summary": {
-        "total_blockers": 4,
+        "total_blockers": 7,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -964,10 +1092,13 @@
             "title": "Production asset generation readiness",
             "owner": "asset-pipeline-lead",
             "blockers": [
-              "asset_production:missing_generated_human_rigging_report",
-              "asset_production:missing_lod_texture_collider_budget_report",
-              "asset_production:missing_multi_actor_quest_budget_report",
-              "asset_production:placeholder_bake_only"
+              "asset_production:generation:animation_retargeting_missing",
+              "asset_production:generation:generated_human_rigging_missing",
+              "asset_production:generation:medical_equipment_library_missing",
+              "asset_production:generation:skin_clothing_provenance_missing",
+              "asset_production:optimization:lod_texture_collider_budget_missing",
+              "asset_production:runtime:multi_actor_quest_budget_missing",
+              "asset_production:source:placeholder_bake_only"
             ],
             "next_step": "Add generated human, skin, clothing, rigging, animation, equipment, optimization, collider, and multi-actor Quest budget reports before claiming production asset readiness."
           }

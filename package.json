@@ -54,6 +54,7 @@
     "local:voice:live-dialog": "tsx tools/openclinxr/local-voice-live-dialog-benchmark.ts",
     "asset:gltf:smoke": "tsx tools/openclinxr/gltf-pipeline-smoke.ts",
     "asset:blender:bake": "tsx tools/openclinxr/blender-asset-bake-smoke.ts",
+    "asset:production:readiness": "tsx tools/openclinxr/asset-production-readiness-benchmark.ts",
     "xr:quest:smoke": "tsx tools/openclinxr/quest-cdp-smoke.ts",
     "xr:quest:smoke:validate": "tsx tools/openclinxr/quest-cdp-smoke.ts --validate-latest",
     "xr:quest:manual:check": "tsx tools/openclinxr/check-quest-manual-performance.ts",
