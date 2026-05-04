@@ -1,0 +1,23 @@
+{
+  "source_id": "src-sharp-license-2026-05-04",
+  "title": "sharp Repository and Native libvips Package License Metadata",
+  "url": "https://github.com/lovell/sharp",
+  "source_type": "vendor",
+  "citation": "lovell/sharp GitHub repository license metadata plus local pnpm view metadata for sharp and @img/sharp-libvips-darwin-arm64, accessed 2026-05-04.",
+  "accessed_at": "2026-05-04",
+  "permitted_uses": [
+    "Dependency-governance evidence for deciding whether IWSDK devtools or GLTF optimization paths that depend on sharp are acceptable in the OpenClinXR sidecar."
+  ],
+  "claims_supported": [
+    "The lovell/sharp GitHub repository reports Apache-2.0 license metadata.",
+    "Local pnpm metadata on 2026-05-04 reports sharp latest 0.34.5 with license Apache-2.0.",
+    "Local pnpm metadata on 2026-05-04 reports @img/sharp-libvips-darwin-arm64 latest 1.2.4 with license LGPL-3.0-or-later.",
+    "The OpenClinXR license blocker is the optional native @img/sharp-libvips-* dependency path, not sharp's direct package license."
+  ],
+  "claims_not_supported": [
+    "That every transitive package in every sharp-consuming tool is acceptable under OpenClinXR policy.",
+    "That native libvips binary-package LGPL terms are approved for OpenClinXR local, CI, or production use.",
+    "That IWSDK devtools or optimizer packages may be installed before the pending native libvips exception is approved, rejected, or deferred."
+  ],
+  "confidence": 0.92
+}

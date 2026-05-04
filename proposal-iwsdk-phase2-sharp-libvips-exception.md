@@ -14,7 +14,7 @@ Patrick approved [Proposal: IWSDK Phase 2 Devtools](proposals/approved/proposal-
 pnpm iwsdk:preinstall -- --proposal docs/openclinxr/iwsdk-phase2-devtools-preinstall-proposal.json --approved-phase2-devtools --output docs/openclinxr/iwsdk-phase2-devtools-preinstall-report-2026-05-04.json
 ```
 
-The actual install then pulled `sharp@0.33.5`, which is Apache-2.0 itself. Its optional native dependency set includes `@img/sharp-libvips-*` packages, and `@img/sharp-libvips-darwin-arm64@1.0.4` reports `LGPL-3.0-or-later`. The workspace posture and license gates blocked that native binary-package path:
+The actual install then pulled `sharp@0.33.5`, which is Apache-2.0 itself. Codex later double-checked the current public sharp repository license metadata and `sharp@0.34.5` npm metadata on 2026-05-04; both still report Apache-2.0. The blocker is narrower: sharp's optional native dependency set includes `@img/sharp-libvips-*` packages, and both `@img/sharp-libvips-darwin-arm64@1.0.4` and the current `1.2.4` metadata report `LGPL-3.0-or-later`. The workspace posture and license gates blocked that native binary-package path:
 
 - `docs/openclinxr/iwsdk-phase2-devtools-workspace-posture-2026-05-04.json`
 - `pnpm security:licenses` failed on `@img/sharp-libvips-darwin-arm64@1.0.4`
@@ -62,4 +62,5 @@ If Patrick approves the exception, Codex should:
 - Preinstall report: `docs/openclinxr/iwsdk-phase2-devtools-preinstall-report-2026-05-04.json`
 - Failed transient workspace posture report: `docs/openclinxr/iwsdk-phase2-devtools-workspace-posture-2026-05-04.json`
 - Approved parent proposal: `proposals/approved/proposal-iwsdk-phase2-devtools.md`
+- Sharp license source record: `sources/sharp-license-2026-05-04.json`
 - Local npm metadata check: `sharp@0.33.5` and `sharp@0.34.5` report `Apache-2.0`; `@img/sharp-libvips-darwin-arm64@1.0.4` and `@img/sharp-libvips-darwin-arm64@1.2.4` report `LGPL-3.0-or-later`.
