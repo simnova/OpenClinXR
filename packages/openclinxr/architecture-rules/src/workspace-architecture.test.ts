@@ -412,8 +412,28 @@ describe("workspace architecture rules", () => {
     expect([...manifestViolations, ...lockfileViolations.map((dependency) => `pnpm-lock.yaml:${dependency}`)]).toEqual([]);
   });
 
-  it("keeps the IWSDK sidecar app absent until a real install-backed spike is approved", () => {
-    expect(existsSync(join(workspaceRoot, "apps/ui-xr-iwsdk-spike"))).toBe(false);
+  it("keeps the approved IWSDK sidecar limited to Phase 1 packages", () => {
+    const sidecarManifestPath = join(workspaceRoot, "apps/ui-xr-iwsdk-spike/package.json");
+    expect(existsSync(sidecarManifestPath)).toBe(true);
+
+    const manifest = JSON.parse(readFileSync(sidecarManifestPath, "utf8")) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+    expect(manifest.dependencies).toMatchObject({
+      "@iwsdk/core": "0.3.1",
+      "@iwsdk/xr-input": "0.3.1",
+      "three": "0.184.0",
+    });
+    expect(manifest.devDependencies).toMatchObject({
+      "@types/three": "0.184.0",
+      "typescript": "6.0.3",
+      "vite": "8.0.10",
+      "vitest": "4.1.5",
+    });
+    expect(Object.keys({ ...manifest.dependencies, ...manifest.devDependencies }).filter((dependency) =>
+      dependency.startsWith("@iwsdk/") && !["@iwsdk/core", "@iwsdk/xr-input"].includes(dependency)
+    )).toEqual([]);
   });
 
   it("keeps a future IWSDK sidecar from importing production ui-xr app internals", async () => {

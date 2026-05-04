@@ -1,5 +1,7 @@
 # Proposal: IWSDK Sidecar Install
 
+Status: Approved by Patrick on 2026-05-04 and implemented as `apps/ui-xr-iwsdk-spike` Phase 1.
+
 ## Decision Needed
 
 Approve Codex to create and install a runnable `apps/ui-xr-iwsdk-spike` sidecar as an isolated WebXR experiment. Approval would allow a committed package manifest and lockfile changes for the packages below, but not production adoption in `apps/ui-xr` or shared runtime packages.

@@ -1,0 +1,26 @@
+{
+  "name": "@openclinxr/ui-xr-iwsdk-spike",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "dev:portless": "vite --host 127.0.0.1 --port ${PORT:-5183} --strictPort",
+    "build": "vite build",
+    "typecheck": "tsgo --noEmit -p tsconfig.json",
+    "test": "vitest run --root ."
+  },
+  "dependencies": {
+    "@iwsdk/core": "0.3.1",
+    "@iwsdk/xr-input": "0.3.1",
+    "@openclinxr/iwsdk-spike": "workspace:*",
+    "@openclinxr/scenario-fixtures": "workspace:*",
+    "three": "0.184.0"
+  },
+  "devDependencies": {
+    "@types/three": "0.184.0",
+    "typescript": "6.0.3",
+    "vite": "8.0.10",
+    "vitest": "4.1.5"
+  }
+}

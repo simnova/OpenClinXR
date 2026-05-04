@@ -142,16 +142,12 @@ describe("IWSDK spike plan", () => {
 
     expect(blockers).toEqual([
       expect.objectContaining({
-        id: "iwsdk-install-backed-sidecar-approval",
-        operatorQuestionText: "IWSDK install-backed sidecar approval",
-        blockedAction: "apps/ui-xr-iwsdk-spike",
-      }),
-      expect.objectContaining({
         id: "iwsdk-quest-foreground-frame-pacing",
         operatorQuestionText: "Quest foreground performance capture",
         blockedAction: "foreground Quest frame pacing",
       }),
     ]);
+    expect(blockers.map((blocker) => blocker.id)).not.toContain("iwsdk-install-backed-sidecar-approval");
     expect(blockers.map((blocker) => blocker.id)).not.toContain("iwsdk-reference-warmup-download-approval");
     expect(blockers.map((blocker) => blocker.id)).not.toContain("iwsdk-hzdb-legal-procurement-approval");
   });
@@ -272,7 +268,7 @@ describe("IWSDK spike plan", () => {
           "emulated_controller_select_advances_trace",
         ],
         cannotSupportClaims: expect.arrayContaining(["physical_quest_comfort", "foreground_quest_frame_pacing"]),
-        blockedUntil: expect.arrayContaining(["apps/ui-xr-iwsdk-spike_exists_with_exact_iwsdk_versions"]),
+        blockedUntil: expect.arrayContaining(["phase_1_runtime_shell_metrics_pass"]),
       }),
       expect.objectContaining({
         toolId: "manual_quest_foreground",
@@ -955,10 +951,8 @@ describe("IWSDK spike plan", () => {
       "runtime_status_records_browser_command_ready",
     ]);
     expect(contract.blockedUntil).toEqual([
-      "apps/ui-xr-iwsdk-spike_exists_with_exact_iwsdk_versions",
       "phase_1_runtime_shell_metrics_pass",
-      "operator_accepts_iwsdk_install_scope",
-      "license_review_accepts_transitive_dependency_posture",
+      "license_review_accepts_phase_2_transitive_dependency_posture",
     ]);
     expect(contract.doNotRunUnattended).toEqual([
       "npx iwsdk reference warmup",
@@ -1059,20 +1053,21 @@ describe("IWSDK spike plan", () => {
     ]));
   });
 
-  it("keeps the IWSDK sidecar as a non-runnable contract until install evidence exists", () => {
+  it("records the approved Phase 1 IWSDK sidecar as runnable but not production-ready", () => {
     expect(buildIwsdkSidecarReadinessContract()).toEqual({
       sidecarAppRoot: "apps/ui-xr-iwsdk-spike/",
-      currentState: "contract_only",
-      runnable: false,
-      createAppOnlyAfter: [
-        "operator_accepts_iwsdk_install_scope",
-        "exact_iwsdk_versions_selected",
-        "license_review_accepts_transitive_dependency_posture",
-        "pnpm_iwsdk_verify_passes",
+      currentState: "phase_1_approved_install_backed",
+      runnable: true,
+      approvedProposal: "proposal-iwsdk-sidecar-install.md",
+      approvedPackages: [
+        "@iwsdk/core@0.3.1",
+        "@iwsdk/xr-input@0.3.1",
+        "three@0.184.0",
       ],
-      misleadingScaffoldRisks: [
-        "A no-install sidecar app can look like runtime progress while proving no IWSDK behavior.",
-        "A scaffold without exact IWSDK dependencies cannot measure Vite peer compatibility, install footprint, MCP runtime behavior, or Quest 3 frame pacing.",
+      remainingProductionBlockers: [
+        "phase_1_runtime_shell_metrics_pass",
+        "phase_2_agent_devtools_not_installed",
+        "manual_quest_foreground_frame_pacing",
       ],
     });
   });

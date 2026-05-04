@@ -404,20 +404,20 @@ describe("IWSDK workspace posture checker", () => {
     expect(rootPackage.scripts["iwsdk:workspace:posture"]).toBe(
       "tsx tools/openclinxr/iwsdk-workspace-posture-check.ts",
     );
-    expect(rootPackage.scripts["iwsdk:verify"]).toContain("pnpm iwsdk:workspace:posture");
+    expect(rootPackage.scripts["iwsdk:verify"]).toContain("pnpm iwsdk:workspace:posture -- --approved-sidecar");
 
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwsdk-workspace-posture-"));
     const outputPath = path.join(tempDir, "report.json");
     const { stdout } = await execFileAsync(
       path.resolve("node_modules/.bin/tsx"),
-      ["tools/openclinxr/iwsdk-workspace-posture-check.ts", "--output", outputPath],
+      ["tools/openclinxr/iwsdk-workspace-posture-check.ts", "--approved-sidecar", "--output", outputPath],
       { encoding: "utf8", timeout: 15000 },
     );
     const report = JSON.parse(await readFile(outputPath, "utf8")) as IwsdkWorkspacePostureReport;
 
     expect(stdout).toContain(`Wrote ${outputPath}`);
     expect(report.result.ready).toBe(true);
-    expect(report.result.sidecarStatus).toBe("absent_contract_only");
+    expect(report.result.sidecarStatus).toBe("present_approved");
   });
 });
 

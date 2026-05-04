@@ -1,17 +1,17 @@
 # IWSDK Codex MCP Runbook
 
 Date: 2026-05-04
-Status: Advisory, do not execute until an isolated IWSDK sidecar app is approved
+Status: Phase 1 sidecar installed; MCP/devtool phase remains advisory
 
 ## Purpose
 
-This runbook defines how Codex should evaluate Meta Immersive Web SDK MCP tooling after, and only after, a committed sidecar app exists at `apps/ui-xr-iwsdk-spike` with exact package versions and accepted license posture.
+This runbook defines how Codex should evaluate Meta Immersive Web SDK tooling now that a committed Phase 1 sidecar exists at `apps/ui-xr-iwsdk-spike` with exact package versions and accepted license posture.
 
 This runbook does not install IWSDK, does not modify `.codex/config.toml`, does not warm the IWSDK reference corpus, and does not replace physical Quest 3 validation.
 
-Current state: contract only. Do not create a no-install `apps/ui-xr-iwsdk-spike` scaffold, because that would look like runtime progress while proving no IWSDK behavior.
+Current state: `apps/ui-xr-iwsdk-spike` is a runnable Phase 1 sidecar using `@iwsdk/core@0.3.1`, `@iwsdk/xr-input@0.3.1`, and `three@0.184.0`. It is not production-ready: the recorded Phase 1 metrics show the IWSDK vendor bundle and bundle delta are over budget, and physical Quest foreground metrics are still missing.
 
-Use `pnpm iwsdk:evidence` to print the current no-install evidence contract report. A nonzero exit is expected while the sidecar is contract-only; the JSON blockers are the evidence to carry into leadership review.
+Use `pnpm iwsdk:evidence` to print the current sidecar evidence contract report. A nonzero exit is expected while agent tooling, bundle budget, reference metadata, and Quest foreground blockers remain unresolved; the JSON blockers are the evidence to carry into leadership review.
 
 Use `pnpm iwsdk:evidence:validate` to validate the latest committed `docs/openclinxr/iwsdk-evidence-contract-*.json` snapshot's structure without treating current readiness blockers as command failures. This check is now part of `pnpm iwsdk:verify`, alongside the contract tests that bind UI-XR parity and operator-steering blockers. The snapshot also carries the preinstall package policy and the Vite/Node/Rolldown compatibility gate so leadership can see which packages are allowed, review-required, or blocked without running the TypeScript package.
 

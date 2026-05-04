@@ -384,10 +384,11 @@ export type IwsdkCommittedSpikeSequence = {
 
 export type IwsdkSidecarReadinessContract = {
   sidecarAppRoot: "apps/ui-xr-iwsdk-spike/";
-  currentState: "contract_only";
-  runnable: false;
-  createAppOnlyAfter: string[];
-  misleadingScaffoldRisks: string[];
+  currentState: "phase_1_approved_install_backed";
+  runnable: true;
+  approvedProposal: "proposal-iwsdk-sidecar-install.md";
+  approvedPackages: string[];
+  remainingProductionBlockers: string[];
 };
 
 export type IwsdkPreInstallPackagePolicy = {
@@ -714,12 +715,6 @@ export function buildIwsdkSpikeMetricThresholds(): IwsdkSpikeMetricThresholds {
 export function buildIwsdkOperatorSteeringBlockers(): IwsdkOperatorSteeringBlocker[] {
   return [
     {
-      id: "iwsdk-install-backed-sidecar-approval",
-      operatorQuestionText: "IWSDK install-backed sidecar approval",
-      blockedAction: "apps/ui-xr-iwsdk-spike",
-      whyHumanApprovalIsRequired: "Creating the sidecar would add executable IWSDK packages and lockfile state to the workspace.",
-    },
-    {
       id: "iwsdk-quest-foreground-frame-pacing",
       operatorQuestionText: "Quest foreground performance capture",
       blockedAction: "foreground Quest frame pacing",
@@ -985,17 +980,18 @@ export function buildIwsdkCommittedSpikeSequence(): IwsdkCommittedSpikeSequence 
 export function buildIwsdkSidecarReadinessContract(): IwsdkSidecarReadinessContract {
   return {
     sidecarAppRoot: "apps/ui-xr-iwsdk-spike/",
-    currentState: "contract_only",
-    runnable: false,
-    createAppOnlyAfter: [
-      "operator_accepts_iwsdk_install_scope",
-      "exact_iwsdk_versions_selected",
-      "license_review_accepts_transitive_dependency_posture",
-      "pnpm_iwsdk_verify_passes",
+    currentState: "phase_1_approved_install_backed",
+    runnable: true,
+    approvedProposal: "proposal-iwsdk-sidecar-install.md",
+    approvedPackages: [
+      "@iwsdk/core@0.3.1",
+      "@iwsdk/xr-input@0.3.1",
+      "three@0.184.0",
     ],
-    misleadingScaffoldRisks: [
-      "A no-install sidecar app can look like runtime progress while proving no IWSDK behavior.",
-      "A scaffold without exact IWSDK dependencies cannot measure Vite peer compatibility, install footprint, MCP runtime behavior, or Quest 3 frame pacing.",
+    remainingProductionBlockers: [
+      "phase_1_runtime_shell_metrics_pass",
+      "phase_2_agent_devtools_not_installed",
+      "manual_quest_foreground_frame_pacing",
     ],
   };
 }
@@ -1138,9 +1134,7 @@ export function buildIwsdkVerificationToolSelectionContract(): IwsdkVerification
         "in_headset_text_readability",
       ],
       blockedUntil: [
-        "apps/ui-xr-iwsdk-spike_absent",
-        "apps/ui-xr-iwsdk-spike_exists_with_exact_iwsdk_versions",
-        "operator_accepts_iwsdk_install_scope",
+        "phase_1_runtime_shell_metrics_pass",
         "iwsdk_adapter_sync_recorded",
         "mcp_tool_inventory_and_managed_browser_evidence_pass",
       ],
@@ -1882,10 +1876,8 @@ export function buildIwsdkViteAiDevConfigContract(): IwsdkViteAiDevConfigContrac
       "runtime_status_records_browser_command_ready",
     ],
     blockedUntil: [
-      "apps/ui-xr-iwsdk-spike_exists_with_exact_iwsdk_versions",
       "phase_1_runtime_shell_metrics_pass",
-      "operator_accepts_iwsdk_install_scope",
-      "license_review_accepts_transitive_dependency_posture",
+      "license_review_accepts_phase_2_transitive_dependency_posture",
     ],
     doNotRunUnattended: [
       "npx iwsdk reference warmup",

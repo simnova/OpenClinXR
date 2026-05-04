@@ -1,0 +1,36 @@
+{
+  "installedNodeModulesMb": 24,
+  "injectedDevRuntimeKb": 0,
+  "appJsBundleKb": 2404.55,
+  "bundleDeltaVsUiXrKb": 1974.38,
+  "baselineAppBundleSource": "apps/ui-xr/dist/assets/index-Tk57pDQZ.js + apps/ui-xr/dist/assets/three-vendor-DNRJwxp9.js",
+  "smokePlanHash": "runtime-state:iwsdk-station-mcp-smoke-plan:v1",
+  "canvasNonblank": true,
+  "requiredSceneObjectNames": [
+    "openclinxr.ed-chest-pain.station-root",
+    "openclinxr.ed-chest-pain.ambient-light",
+    "openclinxr.ed-chest-pain.key-light",
+    "openclinxr.ed-chest-pain.floor",
+    "openclinxr.ed-chest-pain.bed",
+    "openclinxr.ed-chest-pain.monitor",
+    "openclinxr.ed-chest-pain.patient-robert-hayes",
+    "openclinxr.ed-chest-pain.nurse-maria-alvarez",
+    "openclinxr.ed-chest-pain.spouse-anna-hayes",
+    "openclinxr.ed-chest-pain.wall-clock"
+  ],
+  "observedSceneObjectNames": [
+    "openclinxr.ed-chest-pain.station-root",
+    "openclinxr.ed-chest-pain.ambient-light",
+    "openclinxr.ed-chest-pain.key-light",
+    "openclinxr.ed-chest-pain.floor",
+    "openclinxr.ed-chest-pain.bed",
+    "openclinxr.ed-chest-pain.monitor",
+    "openclinxr.ed-chest-pain.patient-robert-hayes",
+    "openclinxr.ed-chest-pain.nurse-maria-alvarez",
+    "openclinxr.ed-chest-pain.spouse-anna-hayes",
+    "openclinxr.ed-chest-pain.wall-clock"
+  ],
+  "controllerSelectTraceTag": "ecg_request",
+  "observedTraceActionTags": ["ecg_request"],
+  "consoleErrorCount": 0
+}

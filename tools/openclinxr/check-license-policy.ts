@@ -23,6 +23,8 @@ type LicenseFinding = {
   name: string;
   versions: string[];
   paths: string[];
+  reportedLicense?: string;
+  overrideReason?: string;
 };
 
 type LicensePolicyReport = {
@@ -30,6 +32,8 @@ type LicensePolicyReport = {
   allowedLicenses: string[];
   reviewLicenses: string[];
   blockedLicensePatterns: string[];
+  licenseOverrides: LicenseOverride[];
+  licenseOverridesApplied: LicenseFinding[];
   packageCount: number;
   blockedFindings: LicenseFinding[];
   reviewFindings: LicenseFinding[];
@@ -38,6 +42,15 @@ type LicensePolicyReport = {
     blockerCount: number;
     reviewCount: number;
   };
+};
+
+type LicenseOverride = {
+  name: string;
+  versions: string[];
+  reportedLicense: string;
+  effectiveLicense: string;
+  reason: string;
+  evidence: string[];
 };
 
 const allowedLicenses = new Set([
@@ -66,6 +79,42 @@ const blockedLicensePatterns = [
   "PROPRIETARY",
   "UNKNOWN",
   "UNLICENSED",
+];
+
+const licenseOverrides: LicenseOverride[] = [
+  {
+    name: "@pmndrs/handle",
+    versions: ["6.6.29"],
+    reportedLicense: "Unknown",
+    effectiveLicense: "MIT",
+    reason: "pnpm reports Unknown because package.json uses SEE LICENSE IN LICENSE; the installed LICENSE and upstream pmndrs/xr LICENSE are MIT text.",
+    evidence: [
+      "node_modules/.pnpm/@pmndrs+handle@6.6.29_@types+react@19.2.14_react@19.2.5/node_modules/@pmndrs/handle/LICENSE",
+      "https://github.com/pmndrs/xr/blob/main/LICENSE",
+    ],
+  },
+  {
+    name: "@pmndrs/pointer-events",
+    versions: ["6.6.29"],
+    reportedLicense: "Unknown",
+    effectiveLicense: "MIT",
+    reason: "pnpm reports Unknown because package.json uses SEE LICENSE IN LICENSE; the installed LICENSE and upstream pmndrs/xr LICENSE are MIT text.",
+    evidence: [
+      "node_modules/.pnpm/@pmndrs+pointer-events@6.6.29/node_modules/@pmndrs/pointer-events/LICENSE",
+      "https://github.com/pmndrs/xr/blob/main/LICENSE",
+    ],
+  },
+  {
+    name: "@pmndrs/uikit",
+    versions: ["1.0.64"],
+    reportedLicense: "Unknown",
+    effectiveLicense: "MIT",
+    reason: "pnpm reports Unknown because package.json uses SEE LICENSE IN LICENSE; the installed LICENSE and upstream pmndrs/uikit LICENSE are MIT text.",
+    evidence: [
+      "node_modules/.pnpm/@pmndrs+uikit@1.0.64_three@0.184.0/node_modules/@pmndrs/uikit/LICENSE",
+      "https://github.com/pmndrs/uikit/blob/main/LICENSE",
+    ],
+  },
 ];
 
 async function main(): Promise<void> {
@@ -121,18 +170,25 @@ async function buildReport(): Promise<LicensePolicyReport> {
   const inventory = JSON.parse(stdout) as Record<string, PnpmLicensePackage[]>;
   const blockedFindings: LicenseFinding[] = [];
   const reviewFindings: LicenseFinding[] = [];
+  const licenseOverridesApplied: LicenseFinding[] = [];
   let packageCount = 0;
 
   for (const [rawLicense, packages] of Object.entries(inventory)) {
-    const license = normalizeLicense(rawLicense);
+    const reportedLicense = normalizeLicense(rawLicense);
     for (const dependency of packages) {
       packageCount += 1;
+      const override = findLicenseOverride(reportedLicense, dependency);
+      const license = override?.effectiveLicense ?? reportedLicense;
       const finding = {
         license,
         name: dependency.name,
         versions: dependency.versions,
         paths: dependency.paths ?? [],
+        ...(override ? { reportedLicense, overrideReason: override.reason } : {}),
       };
+      if (override) {
+        licenseOverridesApplied.push(finding);
+      }
       if (isBlockedLicense(license)) {
         blockedFindings.push(finding);
       } else if (reviewLicenses.has(license) || !allowedLicenses.has(license)) {
@@ -146,6 +202,8 @@ async function buildReport(): Promise<LicensePolicyReport> {
     allowedLicenses: [...allowedLicenses].sort(),
     reviewLicenses: [...reviewLicenses].sort(),
     blockedLicensePatterns,
+    licenseOverrides,
+    licenseOverridesApplied: licenseOverridesApplied.sort(sortFinding),
     packageCount,
     blockedFindings: blockedFindings.sort(sortFinding),
     reviewFindings: reviewFindings.sort(sortFinding),
@@ -164,6 +222,18 @@ function normalizeLicense(license: string): string {
 function isBlockedLicense(license: string): boolean {
   const upper = license.toUpperCase();
   return blockedLicensePatterns.some((pattern) => upper.includes(pattern));
+}
+
+function findLicenseOverride(reportedLicense: string, dependency: PnpmLicensePackage): LicenseOverride | undefined {
+  return licenseOverrides.find((override) =>
+    override.name === dependency.name
+    && override.reportedLicense === reportedLicense
+    && arrayEquals(override.versions, dependency.versions)
+  );
+}
+
+function arrayEquals(left: readonly string[], right: readonly string[]): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
 }
 
 function sortFinding(left: LicenseFinding, right: LicenseFinding): number {

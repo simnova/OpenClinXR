@@ -13,13 +13,14 @@ import {
 const execFileAsync = promisify(execFile);
 
 describe("IWSDK evidence contract checker", () => {
-  it("builds a blocked no-install evidence report for the current contract-only sidecar state", () => {
+  it("builds a blocked evidence report for the approved Phase 1 sidecar state", () => {
     const report = buildIwsdkEvidenceContractReport({
       generatedAt: "2026-05-04T00:00:00.000Z",
     });
 
-    expect(report.status).toBe("contract_only");
-    expect(report.sidecar.currentState).toBe("contract_only");
+    expect(report.status).toBe("phase_1_install_backed_sidecar");
+    expect(report.sidecar.currentState).toBe("phase_1_approved_install_backed");
+    expect(report.sidecar.runnable).toBe(true);
     expect(report.preinstall.policy.reviewRequiredPackages).toEqual(expect.arrayContaining([
       "@iwsdk/vite-plugin-uikitml",
       "@iwsdk/vite-plugin-metaspatial",
@@ -39,7 +40,6 @@ describe("IWSDK evidence contract checker", () => {
         verbose: true,
       },
       blockedUntil: expect.arrayContaining([
-        "apps/ui-xr-iwsdk-spike_exists_with_exact_iwsdk_versions",
         "phase_1_runtime_shell_metrics_pass",
       ]),
     }));
@@ -126,25 +126,20 @@ describe("IWSDK evidence contract checker", () => {
     }));
     expect(report.operatorSteeringBlockers).toEqual(expect.arrayContaining([
       expect.objectContaining({
-        id: "iwsdk-install-backed-sidecar-approval",
-        blockedAction: "apps/ui-xr-iwsdk-spike",
-      }),
-      expect.objectContaining({
         id: "iwsdk-quest-foreground-frame-pacing",
         blockedAction: "foreground Quest frame pacing",
       }),
     ]));
+    expect(report.operatorSteeringBlockers.map((blocker) => blocker.id)).not.toContain("iwsdk-install-backed-sidecar-approval");
     expect(report.operatorSteeringBlockers.map((blocker) => blocker.id)).not.toContain("iwsdk-reference-warmup-download-approval");
     expect(report.operatorSteeringBlockers.map((blocker) => blocker.id)).not.toContain("iwsdk-hzdb-legal-procurement-approval");
     expect(report.agentTooling.readyForAgentTooling).toBe(false);
     expect(report.productionRuntime.readyForProductionRuntime).toBe(false);
     expect(report.verdict).toEqual({
-      readyForInstallBackedSidecar: false,
+      readyForInstallBackedSidecar: true,
       readyForAgentTooling: false,
       readyForProductionRuntime: false,
       blockers: expect.arrayContaining([
-        "sidecar:operator_accepts_iwsdk_install_scope",
-        "sidecar:exact_iwsdk_versions_selected",
         "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
         "metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
         "agent_tooling:adapter_sync_not_recorded",
@@ -157,7 +152,7 @@ describe("IWSDK evidence contract checker", () => {
     });
   });
 
-  it("exposes a CLI that prints the blocked report without installing IWSDK packages", async () => {
+  it("exposes a CLI that prints the blocked report while Phase 1 sidecar is not production-ready", async () => {
     const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
       scripts: Record<string, string>;
     };
@@ -175,9 +170,9 @@ describe("IWSDK evidence contract checker", () => {
       const report = JSON.parse(failedRun.stdout) as IwsdkEvidenceContractReport;
 
       expect(failedRun.code).toBe(1);
+      expect(report.verdict.readyForInstallBackedSidecar).toBe(true);
       expect(report.verdict.readyForProductionRuntime).toBe(false);
       expect(report.verdict.blockers).toEqual(expect.arrayContaining([
-        "sidecar:operator_accepts_iwsdk_install_scope",
         "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
         "metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
         "agent_tooling:missing_managed_browser_evidence",
@@ -233,7 +228,7 @@ describe("IWSDK evidence contract checker", () => {
       ...report,
       verdict: {
         ...report.verdict,
-        blockers: "sidecar:operator_accepts_iwsdk_install_scope",
+        blockers: "agent_tooling:phase_1_runtime_shell_metrics_pass",
       },
     })).toEqual({
       ok: false,

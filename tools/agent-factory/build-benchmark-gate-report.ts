@@ -751,8 +751,12 @@ function iwsdkEvidenceContractBlockers(report: IwsdkEvidenceContractReport | und
 }
 
 function buildIwsdkLeadershipPosture(report: IwsdkEvidenceContractReport): IwsdkLeadershipPosture {
+  const statement = report.verdict.readyForInstallBackedSidecar
+    ? "IWSDK Phase 1 is now an install-backed sidecar with exact core/input packages, but OpenClinXR still has no production runtime claim, no reference warmup, no MCP/devtool readiness, and no Quest foreground readiness until bundle, agent-tooling, and headset gates pass."
+    : "IWSDK is MIT-licensed and architecturally relevant for Three/WebXR/AI-MCP inspection, but OpenClinXR remains contract-only: no @iwsdk packages installed, no reference warmup, no production runtime claim, and no Quest readiness claim until the local sidecar and manual foreground gates pass.";
+
   return {
-    statement: "IWSDK is MIT-licensed and architecturally relevant for Three/WebXR/AI-MCP inspection, but OpenClinXR remains contract-only: no @iwsdk packages installed, no reference warmup, no production runtime claim, and no Quest readiness claim until the local sidecar and manual foreground gates pass.",
+    statement,
     sub_verdicts: iwsdkLeadershipSubVerdicts.map((subVerdict) => {
       const blockers = unique(report.verdict.blockers.filter(subVerdict.matches));
       return {
@@ -835,21 +839,21 @@ const blockerGroups = [
     title: "Foreground Quest frame pacing evidence",
     owner: "xr-systems-architect",
     matches: (blocker: string) => blocker.startsWith("quest_") || blocker.startsWith("quest_manual_performance:"),
-    nextStep: "Capture a foreground in-headset manual performance report and keep CDP hidden-page blockers until that report passes.",
+    nextStep: "Review proposal-quest-foreground-performance-capture.md, then capture a foreground in-headset manual performance report and keep CDP hidden-page blockers until that report passes.",
   },
   {
     groupId: "local_model_runtime",
     title: "Local model runtime benchmark",
     owner: "local-ai-inference-engineer",
     matches: (blocker: string) => blocker.startsWith("local_model:") || blocker.startsWith("local_model_benchmark:"),
-    nextStep: "Install or point to one approved local model runtime if missing; otherwise approve one model ID/download, set runtime and model environment variables, then rerun the benchmark.",
+    nextStep: "Review proposal-local-model-benchmark.md, approve one model ID/download, set runtime and model environment variables privately, then rerun the benchmark.",
   },
   {
     groupId: "local_voice_runtime",
     title: "Local voice runtime benchmark",
     owner: "voice-speech-engineer",
     matches: (blocker: string) => blocker.startsWith("local_voice:") || blocker.startsWith("local_voice_benchmark:"),
-    nextStep: "Complete voice install approval plus safety/license review, configure one local voice runtime and voice ID, then record first-audio latency evidence.",
+    nextStep: "Review proposal-local-voice-runtime.md, complete voice install approval plus safety/license review, configure one local voice runtime and voice ID privately, then record first-audio latency evidence.",
   },
   {
     groupId: "asset_pipeline_blender",
@@ -867,7 +871,7 @@ const blockerGroups = [
     owner: "xr-systems-architect",
     matches: (blocker: string) =>
       blocker === "missing_iwsdk_evidence_contract_report" || blocker.startsWith("iwsdk:"),
-    nextStep: "Keep IWSDK contract-only until the operator approves the sidecar install scope, exact versions, license posture, adapter-sync evidence, and foreground Quest performance proof.",
+    nextStep: "Review proposal-iwsdk-phase2-devtools.md before adding Phase 2 packages; keep IWSDK isolated to the Phase 1 sidecar until bundle budgets, adapter-sync evidence, and foreground Quest performance proof pass.",
   },
 ] as const;
 

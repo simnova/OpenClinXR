@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="OpenClinXR IWSDK spike">
+  <rect width="48" height="48" rx="8" fill="#0d1715"/>
+  <path d="M10 28h7l3-10 7 18 4-12h7" fill="none" stroke="#8ee0bc" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="24" cy="24" r="18" fill="none" stroke="#edf7f2" stroke-width="2"/>
+</svg>

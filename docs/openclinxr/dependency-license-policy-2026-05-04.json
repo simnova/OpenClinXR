@@ -1,0 +1,216 @@
+{
+  "generatedAt": "2026-05-04T14:32:24.972Z",
+  "allowedLicenses": [
+    "(MIT OR CC0-1.0)",
+    "0BSD",
+    "Apache-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "BlueOak-1.0.0",
+    "CC0-1.0",
+    "ISC",
+    "MIT"
+  ],
+  "reviewLicenses": [
+    "MPL-2.0"
+  ],
+  "blockedLicensePatterns": [
+    "AGPL",
+    "GPL",
+    "LGPL",
+    "SSPL",
+    "NON-COMMERCIAL",
+    "NONCOMMERCIAL",
+    "PROPRIETARY",
+    "UNKNOWN",
+    "UNLICENSED"
+  ],
+  "licenseOverrides": [
+    {
+      "name": "@pmndrs/handle",
+      "versions": [
+        "6.6.29"
+      ],
+      "reportedLicense": "Unknown",
+      "effectiveLicense": "MIT",
+      "reason": "pnpm reports Unknown because package.json uses SEE LICENSE IN LICENSE; the installed LICENSE and upstream pmndrs/xr LICENSE are MIT text.",
+      "evidence": [
+        "node_modules/.pnpm/@pmndrs+handle@6.6.29_@types+react@19.2.14_react@19.2.5/node_modules/@pmndrs/handle/LICENSE",
+        "https://github.com/pmndrs/xr/blob/main/LICENSE"
+      ]
+    },
+    {
+      "name": "@pmndrs/pointer-events",
+      "versions": [
+        "6.6.29"
+      ],
+      "reportedLicense": "Unknown",
+      "effectiveLicense": "MIT",
+      "reason": "pnpm reports Unknown because package.json uses SEE LICENSE IN LICENSE; the installed LICENSE and upstream pmndrs/xr LICENSE are MIT text.",
+      "evidence": [
+        "node_modules/.pnpm/@pmndrs+pointer-events@6.6.29/node_modules/@pmndrs/pointer-events/LICENSE",
+        "https://github.com/pmndrs/xr/blob/main/LICENSE"
+      ]
+    },
+    {
+      "name": "@pmndrs/uikit",
+      "versions": [
+        "1.0.64"
+      ],
+      "reportedLicense": "Unknown",
+      "effectiveLicense": "MIT",
+      "reason": "pnpm reports Unknown because package.json uses SEE LICENSE IN LICENSE; the installed LICENSE and upstream pmndrs/uikit LICENSE are MIT text.",
+      "evidence": [
+        "node_modules/.pnpm/@pmndrs+uikit@1.0.64_three@0.184.0/node_modules/@pmndrs/uikit/LICENSE",
+        "https://github.com/pmndrs/uikit/blob/main/LICENSE"
+      ]
+    }
+  ],
+  "licenseOverridesApplied": [
+    {
+      "license": "MIT",
+      "name": "@pmndrs/handle",
+      "versions": [
+        "6.6.29"
+      ],
+      "paths": [
+        "/Users/patrick/Documents/New project 2/node_modules/.pnpm/@pmndrs+handle@6.6.29_@types+react@19.2.14_react@19.2.5/node_modules/@pmndrs/handle"
+      ],
+      "reportedLicense": "Unknown",
+      "overrideReason": "pnpm reports Unknown because package.json uses SEE LICENSE IN LICENSE; the installed LICENSE and upstream pmndrs/xr LICENSE are MIT text."
+    },
+    {
+      "license": "MIT",
+      "name": "@pmndrs/pointer-events",
+      "versions": [
+        "6.6.29"
+      ],
+      "paths": [
+        "/Users/patrick/Documents/New project 2/node_modules/.pnpm/@pmndrs+pointer-events@6.6.29/node_modules/@pmndrs/pointer-events"
+      ],
+      "reportedLicense": "Unknown",
+      "overrideReason": "pnpm reports Unknown because package.json uses SEE LICENSE IN LICENSE; the installed LICENSE and upstream pmndrs/xr LICENSE are MIT text."
+    },
+    {
+      "license": "MIT",
+      "name": "@pmndrs/uikit",
+      "versions": [
+        "1.0.64"
+      ],
+      "paths": [
+        "/Users/patrick/Documents/New project 2/node_modules/.pnpm/@pmndrs+uikit@1.0.64_three@0.184.0/node_modules/@pmndrs/uikit"
+      ],
+      "reportedLicense": "Unknown",
+      "overrideReason": "pnpm reports Unknown because package.json uses SEE LICENSE IN LICENSE; the installed LICENSE and upstream pmndrs/uikit LICENSE are MIT text."
+    }
+  ],
+  "packageCount": 692,
+  "blockedFindings": [],
+  "reviewFindings": [
+    {
+      "license": "(MIT AND Zlib)",
+      "name": "pako",
+      "versions": [
+        "2.1.0"
+      ],
+      "paths": [
+        "/Users/patrick/Documents/New project 2/node_modules/.pnpm/pako@2.1.0/node_modules/pako"
+      ]
+    },
+    {
+      "license": "(MIT OR Apache-2.0)",
+      "name": "remedial",
+      "versions": [
+        "1.0.8"
+      ],
+      "paths": [
+        "/Users/patrick/Documents/New project 2/node_modules/.pnpm/remedial@1.0.8/node_modules/remedial"
+      ]
+    },
+    {
+      "license": "(MPL-2.0 OR Apache-2.0)",
+      "name": "dompurify",
+      "versions": [
+        "3.4.2"
+      ],
+      "paths": [
+        "/Users/patrick/Documents/New project 2/node_modules/.pnpm/dompurify@3.4.2/node_modules/dompurify"
+      ]
+    },
+    {
+      "license": "CC-BY-4.0",
+      "name": "caniuse-lite",
+      "versions": [
+        "1.0.30001791"
+      ],
+      "paths": [
+        "/Users/patrick/Documents/New project 2/node_modules/.pnpm/caniuse-lite@1.0.30001791/node_modules/caniuse-lite"
+      ]
+    },
+    {
+      "license": "MIT-0",
+      "name": "@csstools/color-helpers",
+      "versions": [
+        "6.0.2"
+      ],
+      "paths": [
+        "/Users/patrick/Documents/New project 2/node_modules/.pnpm/@csstools+color-helpers@6.0.2/node_modules/@csstools/color-helpers"
+      ]
+    },
+    {
+      "license": "MIT-0",
+      "name": "@csstools/css-syntax-patches-for-csstree",
+      "versions": [
+        "1.1.3"
+      ],
+      "paths": [
+        "/Users/patrick/Documents/New project 2/node_modules/.pnpm/@csstools+css-syntax-patches-for-csstree@1.1.3_css-tree@3.2.1/node_modules/@csstools/css-syntax-patches-for-csstree"
+      ]
+    },
+    {
+      "license": "MPL-2.0",
+      "name": "lightningcss",
+      "versions": [
+        "1.32.0"
+      ],
+      "paths": [
+        "/Users/patrick/Documents/New project 2/node_modules/.pnpm/lightningcss@1.32.0/node_modules/lightningcss"
+      ]
+    },
+    {
+      "license": "MPL-2.0",
+      "name": "lightningcss-darwin-arm64",
+      "versions": [
+        "1.32.0"
+      ],
+      "paths": [
+        "/Users/patrick/Documents/New project 2/node_modules/.pnpm/lightningcss-darwin-arm64@1.32.0/node_modules/lightningcss-darwin-arm64"
+      ]
+    },
+    {
+      "license": "Python-2.0",
+      "name": "argparse",
+      "versions": [
+        "2.0.1"
+      ],
+      "paths": [
+        "/Users/patrick/Documents/New project 2/node_modules/.pnpm/argparse@2.0.1/node_modules/argparse"
+      ]
+    },
+    {
+      "license": "SIL OPEN FONT LICENSE Version 1.1 OR OFL",
+      "name": "@pmndrs/msdfonts",
+      "versions": [
+        "1.0.64"
+      ],
+      "paths": [
+        "/Users/patrick/Documents/New project 2/node_modules/.pnpm/@pmndrs+msdfonts@1.0.64/node_modules/@pmndrs/msdfonts"
+      ]
+    }
+  ],
+  "verdict": {
+    "passed": true,
+    "blockerCount": 0,
+    "reviewCount": 10
+  }
+}

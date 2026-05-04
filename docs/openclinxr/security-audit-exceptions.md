@@ -1,7 +1,7 @@
 # Security Audit Exceptions
 
-Date: 2026-05-03
-Status: No active exceptions
+Date: 2026-05-04
+Status: No active security audit exceptions; active version-pinned license inventory normalizations are recorded below.
 
 ## Policy
 
@@ -27,13 +27,23 @@ OpenClinXR runs:
 pnpm security:licenses
 ```
 
-The gate reads `pnpm licenses list --json`, fails on AGPL/GPL/LGPL/SSPL/non-commercial/proprietary/unknown/unlicensed dependency records, and reports review-only licenses separately. The latest local report is:
+The gate reads `pnpm licenses list --json`, fails on AGPL/GPL/LGPL/SSPL/non-commercial/proprietary/unknown/unlicensed dependency records, applies only version-pinned license-file normalizations recorded in this file, and reports review-only licenses separately. The latest local report is:
 
-- `docs/openclinxr/dependency-license-policy-2026-05-03.json`
+- `docs/openclinxr/dependency-license-policy-2026-05-04.json`
 
 ## Active Exceptions
 
 None.
+
+## Active License Inventory Normalizations
+
+These are not copyleft, vulnerability, or audit-ignore exceptions. They normalize package records where `pnpm licenses list --json` reports `Unknown` because `package.json` says `SEE LICENSE IN LICENSE`, while the installed package contains MIT license text and the upstream repository records the same MIT license text.
+
+| Package | Version | Reported by pnpm | Effective license | Evidence | Removal condition |
+| --- | ---: | --- | --- | --- | --- |
+| `@pmndrs/handle` | `6.6.29` | `Unknown` | MIT | Installed `LICENSE`; [pmndrs/xr LICENSE](https://github.com/pmndrs/xr/blob/main/LICENSE) | Remove when pnpm reports MIT or package metadata uses a standard SPDX license. |
+| `@pmndrs/pointer-events` | `6.6.29` | `Unknown` | MIT | Installed `LICENSE`; [pmndrs/xr LICENSE](https://github.com/pmndrs/xr/blob/main/LICENSE) | Remove when pnpm reports MIT or package metadata uses a standard SPDX license. |
+| `@pmndrs/uikit` | `1.0.64` | `Unknown` | MIT | Installed `LICENSE`; [pmndrs/uikit LICENSE](https://github.com/pmndrs/uikit/blob/main/LICENSE) | Remove when pnpm reports MIT or package metadata uses a standard SPDX license. |
 
 ## Dependency Pinning Gate
 
