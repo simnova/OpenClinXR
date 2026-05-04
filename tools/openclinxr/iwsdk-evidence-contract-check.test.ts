@@ -76,6 +76,21 @@ describe("IWSDK evidence contract checker", () => {
         blockers: ["package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2"],
       },
     });
+    expect(report.uiXrParity).toEqual(expect.objectContaining({
+      source: "apps/ui-xr/src/runtime-state.ts",
+      smokePlanHash: "runtime-state:iwsdk-station-mcp-smoke-plan:v1",
+      controllerSelectTraceTag: "ecg_request",
+    }));
+    expect(report.operatorSteeringBlockers).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: "iwsdk-install-backed-sidecar-approval",
+        blockedAction: "apps/ui-xr-iwsdk-spike",
+      }),
+      expect.objectContaining({
+        id: "iwsdk-reference-warmup-download-approval",
+        blockedAction: "npx iwsdk reference warmup",
+      }),
+    ]));
     expect(report.agentTooling.readyForAgentTooling).toBe(false);
     expect(report.productionRuntime.readyForProductionRuntime).toBe(false);
     expect(report.verdict).toEqual({
@@ -193,5 +208,15 @@ describe("IWSDK evidence contract checker", () => {
     );
 
     expect(stdout).toContain(`Validated ${reportPath}`);
+  });
+
+  it("keeps the committed IWSDK evidence snapshot aligned with the current builders", async () => {
+    const latestSnapshot = JSON.parse(
+      await readFile("docs/openclinxr/iwsdk-evidence-contract-2026-05-04.json", "utf8"),
+    ) as IwsdkEvidenceContractReport;
+
+    expect(latestSnapshot).toEqual(buildIwsdkEvidenceContractReport({
+      generatedAt: latestSnapshot.generatedAt,
+    }));
   });
 });

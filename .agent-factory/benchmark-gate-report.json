@@ -186,7 +186,7 @@
   },
   "iwsdk_evidence_contract": {
     "file": "docs/openclinxr/iwsdk-evidence-contract-2026-05-04.json",
-    "generated_at": "2026-05-04T10:50:22.585Z",
+    "generated_at": "2026-05-04T13:02:45.356Z",
     "status": "contract_only",
     "ready_for_install_backed_sidecar": false,
     "ready_for_agent_tooling": false,

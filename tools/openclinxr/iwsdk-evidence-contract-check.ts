@@ -6,9 +6,11 @@ import {
   buildIwsdkCoreRequiredTransitivePackageNames,
   buildIwsdkCoreTransitivePackageLicenseEvidence,
   buildIwsdkCompatibilityContract,
+  buildIwsdkOperatorSteeringBlockers,
   buildIwsdkPackageMetadataDriftPolicies,
   buildIwsdkPreInstallPackagePolicy,
   buildIwsdkSidecarReadinessContract,
+  buildIwsdkUiXrStationParityContract,
   buildIwsdkViteAiDevConfigContract,
   evaluateIwsdkAgentToolingEvidence,
   evaluateIwsdkCompatibilityEvidence,
@@ -19,12 +21,14 @@ import {
   type IwsdkCompatibilityContract,
   type IwsdkCompatibilityEvidence,
   type IwsdkCompatibilityReadiness,
+  type IwsdkOperatorSteeringBlocker,
   type IwsdkPackageMetadataDriftPolicy,
   type IwsdkPackageMetadataDriftReadiness,
   type IwsdkPreInstallPackagePolicy,
   type IwsdkPreInstallPackageSelectionResult,
   type IwsdkSidecarReadinessContract,
   type IwsdkSpikeMetricReadiness,
+  type IwsdkUiXrStationParityContract,
   type IwsdkViteAiDevConfigContract,
 } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
 
@@ -52,6 +56,8 @@ export type IwsdkEvidenceContractReport = {
     policies: IwsdkPackageMetadataDriftPolicy[];
     result: IwsdkPackageMetadataDriftReadiness;
   };
+  uiXrParity: IwsdkUiXrStationParityContract;
+  operatorSteeringBlockers: IwsdkOperatorSteeringBlocker[];
   agentTooling: IwsdkAgentToolingEvidenceReadiness;
   productionRuntime: IwsdkSpikeMetricReadiness;
   verdict: {
@@ -181,6 +187,8 @@ export function buildIwsdkEvidenceContractReport(input: {
       policies: metadataDriftPolicies,
       result: metadataDrift,
     },
+    uiXrParity: buildIwsdkUiXrStationParityContract(),
+    operatorSteeringBlockers: buildIwsdkOperatorSteeringBlockers(),
     agentTooling,
     productionRuntime,
     verdict: {
@@ -207,6 +215,8 @@ export function validateIwsdkEvidenceContractReport(value: unknown): IwsdkEviden
   requireObject(readAt(value, ["viteAiDevConfig"]), "/viteAiDevConfig", errors);
   requireObject(readAt(value, ["compatibility"]), "/compatibility", errors);
   requireObject(readAt(value, ["metadataDrift"]), "/metadataDrift", errors);
+  requireObject(readAt(value, ["uiXrParity"]), "/uiXrParity", errors);
+  requireArray(readAt(value, ["operatorSteeringBlockers"]), "/operatorSteeringBlockers", errors);
   requireObject(readAt(value, ["agentTooling"]), "/agentTooling", errors);
   requireObject(readAt(value, ["productionRuntime"]), "/productionRuntime", errors);
   requireObject(readAt(value, ["verdict"]), "/verdict", errors);
@@ -274,6 +284,22 @@ export function validateIwsdkEvidenceContractReport(value: unknown): IwsdkEviden
   requireObject(readAt(value, ["metadataDrift", "result"]), "/metadataDrift/result", errors);
   requireBoolean(readAt(value, ["metadataDrift", "result", "readyForUnattendedUse"]), "/metadataDrift/result/readyForUnattendedUse", errors);
   requireStringArray(readAt(value, ["metadataDrift", "result", "blockers"]), "/metadataDrift/result/blockers", errors);
+
+  requireLiteral(readAt(value, ["uiXrParity", "source"]), "apps/ui-xr/src/runtime-state.ts", "/uiXrParity/source", errors);
+  requireString(readAt(value, ["uiXrParity", "baselineAppBundleSource"]), "/uiXrParity/baselineAppBundleSource", errors);
+  requireString(readAt(value, ["uiXrParity", "smokePlanHash"]), "/uiXrParity/smokePlanHash", errors);
+  requireStringArray(readAt(value, ["uiXrParity", "mcpToolOrder"]), "/uiXrParity/mcpToolOrder", errors);
+  requireStringArray(readAt(value, ["uiXrParity", "requiredSceneObjectNames"]), "/uiXrParity/requiredSceneObjectNames", errors);
+  requireString(readAt(value, ["uiXrParity", "controllerSelectTraceTag"]), "/uiXrParity/controllerSelectTraceTag", errors);
+
+  for (const [index, blocker] of arrayEntries(readAt(value, ["operatorSteeringBlockers"]))) {
+    const pathPrefix = `/operatorSteeringBlockers/${index}`;
+    requireObject(blocker, pathPrefix, errors);
+    requireString(readAt(blocker, ["id"]), `${pathPrefix}/id`, errors);
+    requireString(readAt(blocker, ["operatorQuestionText"]), `${pathPrefix}/operatorQuestionText`, errors);
+    requireString(readAt(blocker, ["blockedAction"]), `${pathPrefix}/blockedAction`, errors);
+    requireString(readAt(blocker, ["whyHumanApprovalIsRequired"]), `${pathPrefix}/whyHumanApprovalIsRequired`, errors);
+  }
 
   requireBoolean(readAt(value, ["agentTooling", "readyForAgentTooling"]), "/agentTooling/readyForAgentTooling", errors);
   requireStringArray(readAt(value, ["agentTooling", "blockers"]), "/agentTooling/blockers", errors);
