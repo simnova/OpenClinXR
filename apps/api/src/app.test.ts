@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createInMemoryTelemetryRecorder, openClinXrSpanNames, telemetryAttributeNames } from "@openclinxr/telemetry";
-import { createApiApp } from "./index.js";
+import { createApiApp, type ApiStationRunQueueSnapshot } from "./index.js";
 
 async function json(response: Response): Promise<unknown> {
   return response.json() as Promise<unknown>;
@@ -287,15 +287,7 @@ describe("OpenClinXR API shell", () => {
 
   it("publishes persistence snapshots for exam forms, trace events, and review packets", async () => {
     const savedExamFormIds: string[] = [];
-    const savedQueueSnapshots: Array<{
-      snapshotId: string;
-      reviewerId?: string;
-      queue: {
-        canStartLearnerExam: boolean;
-        summary: { activationReady: number; draftBlocked: number };
-        stationQueue: Array<{ stationOrder: number; scenarioId: string | null; status: string }>;
-      };
-    }> = [];
+    const savedQueueSnapshots: ApiStationRunQueueSnapshot[] = [];
     const traceSnapshotSizes: number[] = [];
     const savedReviewStationRunIds: string[] = [];
     const app = createApiApp(undefined, {
@@ -305,6 +297,7 @@ describe("OpenClinXR API shell", () => {
       saveStationRunQueueSnapshot: async (snapshot) => {
         savedQueueSnapshots.push(snapshot);
       },
+      listStationRunQueueSnapshots: async () => savedQueueSnapshots,
       saveTraceEvents: async (_stationRunId, events) => {
         traceSnapshotSizes.push(events.length);
       },
@@ -337,6 +330,9 @@ describe("OpenClinXR API shell", () => {
         stationQueue: Array<{ stationOrder: number; scenarioId: string | null; status: string }>;
       };
     };
+    const queueSnapshotsResponse = await app.request("/exam-blueprints/step2cs-seed/station-run-queue/snapshots");
+    expect(queueSnapshotsResponse.status).toBe(200);
+    const queueSnapshots = await json(queueSnapshotsResponse) as Array<{ snapshotId: string }>;
 
     const start = await app.request("/sessions", {
       method: "POST",
@@ -376,6 +372,7 @@ describe("OpenClinXR API shell", () => {
         queue: expect.objectContaining({ canStartLearnerExam: false }),
       }),
     ]);
+    expect(queueSnapshots).toEqual([expect.objectContaining({ snapshotId: "queue_snapshot_api_001" })]);
     expect(traceSnapshotSizes).toEqual([2, 3, 4]);
     expect(savedReviewStationRunIds).toEqual([started.stationRunId]);
   });

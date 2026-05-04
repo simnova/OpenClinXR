@@ -12,6 +12,7 @@ export type AdminControlPlaneClient = {
   getStep2CsSeedBlueprintReadiness(): Promise<BlueprintScenarioReadiness>;
   getStep2CsSeedTimingPlan(): Promise<ExamTimingPlan>;
   getStep2CsSeedStationRunQueue(): Promise<ExamStationRunQueue>;
+  listStep2CsSeedStationRunQueueSnapshots(): Promise<AdminStationRunQueueSnapshot[]>;
   createStep2CsSeedStationRunQueueSnapshot(input: CreateStationRunQueueSnapshotInput): Promise<AdminStationRunQueueSnapshot>;
   getScenarioBankAssetReadiness(): Promise<ScenarioAssetReadiness[]>;
 };
@@ -40,6 +41,7 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
     getStep2CsSeedBlueprintReadiness: () => get(fetcher, baseUrl, routeById("step2cs-seed-exam-blueprint-readiness").path),
     getStep2CsSeedTimingPlan: () => get(fetcher, baseUrl, routeById("step2cs-seed-exam-timing-plan").path),
     getStep2CsSeedStationRunQueue: () => get(fetcher, baseUrl, routeById("step2cs-seed-station-run-queue").path),
+    listStep2CsSeedStationRunQueueSnapshots: () => get(fetcher, baseUrl, routeById("list-step2cs-seed-station-run-queue-snapshots").path),
     createStep2CsSeedStationRunQueueSnapshot: (input) => post(fetcher, baseUrl, routeById("create-step2cs-seed-station-run-queue-snapshot").path, input),
     getScenarioBankAssetReadiness: () => get(fetcher, baseUrl, routeById("scenario-bank-asset-readiness").path),
   };

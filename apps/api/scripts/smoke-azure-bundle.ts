@@ -94,4 +94,14 @@ if (
   throw new Error(`Azure bundle smoke received unexpected station run queue snapshot payload: ${JSON.stringify(snapshot)}`);
 }
 
+const snapshotsResponse = await startup.fetch(new Request("http://localhost/exam-blueprints/step2cs-seed/station-run-queue/snapshots"));
+if (snapshotsResponse.status !== 200) {
+  throw new Error(`Azure bundle smoke expected station run queue snapshot list to return 200, got ${snapshotsResponse.status}`);
+}
+
+const snapshots = await snapshotsResponse.json() as unknown[];
+if (!Array.isArray(snapshots)) {
+  throw new Error(`Azure bundle smoke received non-array station run queue snapshot list: ${JSON.stringify(snapshots)}`);
+}
+
 console.log("Azure bundle smoke passed");

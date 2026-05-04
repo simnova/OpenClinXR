@@ -313,5 +313,8 @@ describe("MongoDB memory repositories", () => {
         summary: { activationReady: 1, draftBlocked: 11 },
       },
     });
+    await expect(sink.listStationRunQueueSnapshots("blueprint_openclinxr_step2cs_style_seed_v1")).resolves.toEqual(
+      expect.arrayContaining([expect.objectContaining({ snapshotId: "queue_snapshot_sink_001" })]),
+    );
   });
 });

@@ -200,6 +200,10 @@ export class MongoApiPersistenceSink {
     await this.stationRunQueueSnapshots.save(snapshot);
   }
 
+  async listStationRunQueueSnapshots(blueprintId: string): Promise<ExamStationRunQueueSnapshot[]> {
+    return this.stationRunQueueSnapshots.listByBlueprint(blueprintId);
+  }
+
   async saveTraceEvents(_stationRunId: string, events: TraceEvent[]): Promise<void> {
     await this.traces.upsertMany(events);
   }

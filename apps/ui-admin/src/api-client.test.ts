@@ -23,6 +23,7 @@ describe("admin control-plane API client", () => {
     await client.getStep2CsSeedBlueprintReadiness();
     await client.getStep2CsSeedTimingPlan();
     await client.getStep2CsSeedStationRunQueue();
+    await client.listStep2CsSeedStationRunQueueSnapshots();
     await client.createStep2CsSeedStationRunQueueSnapshot({
       snapshotId: "queue_snapshot_ui_001",
       reviewerId: "psychometrician_001",
@@ -35,6 +36,7 @@ describe("admin control-plane API client", () => {
       { url: "http://localhost:8787/exam-blueprints/step2cs-seed/readiness", method: "GET" },
       { url: "http://localhost:8787/exam-blueprints/step2cs-seed/timing-plan", method: "GET" },
       { url: "http://localhost:8787/exam-blueprints/step2cs-seed/station-run-queue", method: "GET" },
+      { url: "http://localhost:8787/exam-blueprints/step2cs-seed/station-run-queue/snapshots", method: "GET" },
       {
         url: "http://localhost:8787/exam-blueprints/step2cs-seed/station-run-queue/snapshots",
         method: "POST",

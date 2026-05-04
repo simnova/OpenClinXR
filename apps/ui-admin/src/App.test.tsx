@@ -146,6 +146,7 @@ function fakeControlPlaneClient(): AdminControlPlaneClient {
       ...(input.reviewerId ? { reviewerId: input.reviewerId } : {}),
       queue: await fakeControlPlaneClient().getStep2CsSeedStationRunQueue(),
     }),
+    listStep2CsSeedStationRunQueueSnapshots: async () => [],
     getScenarioBankAssetReadiness: async () =>
       Array.from({ length: 12 }, (_, index) => ({
         scenarioId: index === 4 ? "clinic_abdominal_pain_interpreter_v1" : `scenario_${index + 1}`,

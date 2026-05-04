@@ -36,6 +36,7 @@ export type ApiStationRunQueueSnapshot = {
 export type ApiPersistenceSink = {
   saveExamForm?: (form: ExamForm) => Promise<void> | void;
   saveStationRunQueueSnapshot?: (snapshot: ApiStationRunQueueSnapshot) => Promise<void> | void;
+  listStationRunQueueSnapshots?: (blueprintId: string) => Promise<ApiStationRunQueueSnapshot[]> | ApiStationRunQueueSnapshot[];
   saveTraceEvents?: (stationRunId: string, events: RuntimeTraceEvents) => Promise<void> | void;
   saveReviewPacket?: (stationRunId: string, packet: RuntimeReviewPacket) => Promise<void> | void;
 };
@@ -123,6 +124,11 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   app.get(routeById("step2cs-seed-station-run-queue").path, (context) =>
     context.json(createExamStationRunQueue(createStep2CsStyleSeedBlueprint(), scenarioBank)),
   );
+
+  app.get(routeById("list-step2cs-seed-station-run-queue-snapshots").path, async (context) => {
+    const blueprintId = createStep2CsStyleSeedBlueprint().blueprintId;
+    return context.json(await Promise.resolve(persistence.listStationRunQueueSnapshots?.(blueprintId) ?? []));
+  });
 
   app.post(routeById("create-step2cs-seed-station-run-queue-snapshot").path, async (context) => {
     const body = (await context.req.json().catch(() => ({}))) as {

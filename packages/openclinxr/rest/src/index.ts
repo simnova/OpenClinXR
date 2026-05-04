@@ -32,6 +32,7 @@ export const openClinXrRestRoutes = Object.freeze([
   route("step2cs-seed-exam-blueprint-readiness", "GET", "/exam-blueprints/step2cs-seed/readiness", "control-plane"),
   route("step2cs-seed-exam-timing-plan", "GET", "/exam-blueprints/step2cs-seed/timing-plan", "control-plane"),
   route("step2cs-seed-station-run-queue", "GET", "/exam-blueprints/step2cs-seed/station-run-queue", "control-plane"),
+  route("list-step2cs-seed-station-run-queue-snapshots", "GET", "/exam-blueprints/step2cs-seed/station-run-queue/snapshots", "control-plane"),
   route("create-step2cs-seed-station-run-queue-snapshot", "POST", "/exam-blueprints/step2cs-seed/station-run-queue/snapshots", "control-plane"),
   route("create-exam-form", "POST", "/exam-forms", "control-plane"),
   route("exam-form-version-drift", "POST", "/exam-forms/version-drift", "control-plane"),

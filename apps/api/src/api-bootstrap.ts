@@ -159,6 +159,7 @@ function createNoopPersistenceSink(): ApiPersistenceSink {
   return {
     saveExamForm: (_form: ExamForm) => undefined,
     saveStationRunQueueSnapshot: () => undefined,
+    listStationRunQueueSnapshots: () => [],
     saveTraceEvents: () => undefined,
     saveReviewPacket: () => undefined,
   };

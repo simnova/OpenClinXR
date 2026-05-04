@@ -294,13 +294,13 @@ Started on 2026-05-03:
 - `packages/openclinxr/exam-assembly` now exposes the full 12-station Step 2 CS-style seed blueprint and a readiness report that blocks the eleven unreviewed draft stations from runnable form assembly.
 - `packages/openclinxr/exam-assembly` now derives deterministic doorway, encounter, note, and break-checkpoint timing windows from blueprint timing.
 - `packages/openclinxr/exam-assembly` now derives a deterministic station-run queue for the 12-station seed form, preserving timing and order while keeping draft stations blocked from learner launch.
-- `apps/api` now serves `/exam-blueprints/step2cs-seed`, `/exam-blueprints/step2cs-seed/readiness`, `/exam-blueprints/step2cs-seed/timing-plan`, `/exam-blueprints/step2cs-seed/station-run-queue`, and `POST /exam-blueprints/step2cs-seed/station-run-queue/snapshots` for admin planning and reviewer snapshot surfaces.
+- `apps/api` now serves `/exam-blueprints/step2cs-seed`, `/exam-blueprints/step2cs-seed/readiness`, `/exam-blueprints/step2cs-seed/timing-plan`, `/exam-blueprints/step2cs-seed/station-run-queue`, `GET /exam-blueprints/step2cs-seed/station-run-queue/snapshots`, and `POST /exam-blueprints/step2cs-seed/station-run-queue/snapshots` for admin planning and reviewer snapshot surfaces.
 - `packages/openclinxr/data-mongodb` now persists station-run queue snapshots with reviewer provenance, launch-gating status, timing, and station blockers for later approval and drift review.
 - `apps/ui-admin` now lets the exam-forms workbench create a seed station-run queue review snapshot and shows the saved snapshot ID without unlocking draft stations.
 - `packages/openclinxr/architecture-rules` now enforces that UI REST route-catalog use stays behind app-local API clients, API persistence remains injection-based, and UI apps do not depend on Mongo persistence source packages.
 - `packages/openclinxr/graphql` now includes a `createStationRunQueueSnapshot` mutation contract and generated admin operation document for GraphQL Code Generator/Apollo adoption.
 - `packages/openclinxr/data-sources-mongoose-models` now includes a Mongoose 9 station-run queue snapshot model and repository with reviewer provenance, blueprint/scenario indexes, and newest-first blueprint listing.
-- The Azure bundle smoke now verifies the seed timing-plan, station-run-queue, and station-run-queue snapshot endpoints in the bundled API, not only `/health`.
+- The Azure bundle smoke now verifies the seed timing-plan, station-run-queue, station-run-queue snapshot creation, and station-run-queue snapshot listing endpoints in the bundled API, not only `/health`.
 - `pnpm bench:mock` now prints trace quality, review signals, and an adversarial probe report.
 - `packages/openclinxr/agent-loop` executable roster now aligns with the richer physician charter bench.
 - `packages/openclinxr/asset-registry` now creates generic placeholder manifests from scenario `assetNeeds`, making all 12 seed-bank cases dev-ready for asset readiness checks while still blocking production release.
