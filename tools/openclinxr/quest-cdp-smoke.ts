@@ -24,7 +24,7 @@ export type CliOptions = {
 
 export type QuestSmokeTarget = "station" | "iwsdk-sidecar";
 
-type CdpPage = {
+export type CdpPage = {
   id: string;
   title: string;
   type: string;
@@ -125,6 +125,7 @@ async function main(): Promise<void> {
 
   const reverseList = await adb(["reverse", "--list"]);
   const page = await waitForQuestPage(options);
+  await closeStaleQuestPages(options, page.id);
   const client = await CdpClient.connect(page.webSocketDebuggerUrl);
   try {
     await client.bringToFront();
@@ -275,13 +276,21 @@ async function waitForQuestPage(options: CliOptions): Promise<CdpPage> {
   for (let attempt = 0; attempt < 20; attempt += 1) {
     const response = await fetch(`http://127.0.0.1:${options.cdpPort}/json`);
     const pages = await response.json() as CdpPage[];
-    const page = pages.find((candidate) => candidate.type === "page" && pageMatchesRequestedUrl(candidate.url, options.url) && candidate.webSocketDebuggerUrl);
+    const page = selectQuestPage(pages, options.url);
     if (page) {
       return page;
     }
     await delay(250);
   }
   throw new Error(`Quest Browser page ${options.url} was not exposed through CDP port ${options.cdpPort}`);
+}
+
+async function closeStaleQuestPages(options: CliOptions, keepPageId: string): Promise<void> {
+  const response = await fetch(`http://127.0.0.1:${options.cdpPort}/json`);
+  const pages = await response.json() as CdpPage[];
+  await Promise.all(staleQuestSmokePageIds(pages, options.url, keepPageId).map(async (pageId) => {
+    await fetch(`http://127.0.0.1:${options.cdpPort}/json/close/${encodeURIComponent(pageId)}`);
+  }));
 }
 
 async function latestQuestSmokeReportPath(pattern: string): Promise<string | undefined> {
@@ -303,6 +312,21 @@ export function pageMatchesRequestedUrl(actual: string, requested: string): bool
   } catch {
     return false;
   }
+}
+
+export function selectQuestPage(pages: CdpPage[], requested: string): CdpPage | undefined {
+  const eligiblePages = pages.filter((candidate) => isQuestSmokePageCandidate(candidate, requested));
+  return eligiblePages.find((candidate) => candidate.url === requested) ?? eligiblePages[0];
+}
+
+export function staleQuestSmokePageIds(pages: CdpPage[], requested: string, keepPageId: string): string[] {
+  return pages
+    .filter((candidate) => candidate.id !== keepPageId && isQuestSmokePageCandidate(candidate, requested))
+    .map((candidate) => candidate.id);
+}
+
+function isQuestSmokePageCandidate(candidate: CdpPage, requested: string): boolean {
+  return candidate.type === "page" && pageMatchesRequestedUrl(candidate.url, requested) && !!candidate.webSocketDebuggerUrl;
 }
 
 export function browserSnapshotExpression(): string {

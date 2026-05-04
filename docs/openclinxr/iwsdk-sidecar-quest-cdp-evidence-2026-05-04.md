@@ -16,7 +16,7 @@ This evidence improves confidence that the sidecar can render and interact on Qu
 ## Observed Result
 
 - Quest device: `Quest_3` over USB-C with ADB authorization.
-- URL: `http://localhost:5183/?questSmoke=thirty-fps-fallback-hand-locomotion-20260504`.
+- URL: `http://localhost:5183/?questSmoke=stale-close-check-20260504`.
 - Browser title: `OpenClinXR IWSDK Spike`.
 - User agent: Quest Browser `146.0.0.19.27`.
 - Page state: visible, not hidden, focused.
@@ -26,9 +26,10 @@ This evidence improves confidence that the sidecar can render and interact on Qu
 - Input posture: primitive WebXR hand models are installed lazily after immersive session acceptance, and the scene records `handModelStatus` plus experimental keyboard/thumbstick dolly locomotion evidence.
 - Boot evidence: Quest CDP records startup through `station_scene_ready` and `clock_started`; this confirms station creation is no longer the failing boundary.
 - Flat preview fallback: Quest Browser CDP did not advance `renderer.setAnimationLoop`/`requestAnimationFrame` in non-immersive flat-page mode, so the apps now include a timer-backed flat preview fallback. Immersive VR should still rely on the WebXR animation loop.
-- Canvas: nonblank, `880 x 924`, PNG data URL length `135830`.
+- Stale page hygiene: the CDP harness now prefers the exact requested URL and closes stale same-path smoke tabs before sampling; the latest run left one `localhost:5183` page target.
+- Canvas: nonblank, `880 x 924`, PNG data URL length `135974`.
 - Trace interaction: `Trace 0/10` to `Trace 2/10`.
-- CDP frame sample: `120` samples, `15.2` approximate FPS, p95 frame time `66.1 ms`, max frame time `66.2 ms`.
+- CDP frame sample: `120` samples, `15.3` approximate FPS, p95 frame time `66.1 ms`, max frame time `66.3 ms`.
 - Evidence classification: `foreground_ready`.
 
 ## Remaining Production Blockers

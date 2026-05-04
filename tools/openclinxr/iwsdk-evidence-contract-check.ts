@@ -177,7 +177,7 @@ export function buildIwsdkEvidenceContractReport(input: {
     controllerSelectTraceTag: "ecg_request",
     observedTraceActionTags: ["ecg_request"],
     foregroundQuestPreflightReady: true,
-    avgFps: 15.2,
+    avgFps: 15.3,
     p95FrameMs: 66.1,
     consoleErrorCount: 0,
   };

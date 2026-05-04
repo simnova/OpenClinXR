@@ -3,10 +3,13 @@ import {
   browserSnapshotExpression,
   buildQuestSmokeEvidenceCheck,
   buildReport,
+  type CdpPage,
   frameSampleExpression,
   interactionExpression,
   pageMatchesRequestedUrl,
   parseArgs,
+  selectQuestPage,
+  staleQuestSmokePageIds,
 } from "./quest-cdp-smoke.js";
 
 describe("Quest CDP smoke probe", () => {
@@ -91,6 +94,36 @@ describe("Quest CDP smoke probe", () => {
     expect(pageMatchesRequestedUrl("http://localhost:5173/station?questSmoke=1", "http://localhost:5173/station")).toBe(true);
     expect(pageMatchesRequestedUrl("http://localhost:5173/other", "http://localhost:5173/station")).toBe(false);
     expect(pageMatchesRequestedUrl("not a url", "http://localhost:5173/station")).toBe(false);
+  });
+
+  it("prefers the exact Quest page and identifies stale same-path smoke pages", () => {
+    const pages = [
+      { id: "ui", title: "Browser UI", type: "other", url: "chrome://panel-app-nav/" },
+      {
+        id: "old",
+        title: "OpenClinXR IWSDK Spike",
+        type: "page",
+        url: "http://localhost:5183/?questSmoke=old",
+        webSocketDebuggerUrl: "ws://old",
+      },
+      {
+        id: "exact",
+        title: "OpenClinXR IWSDK Spike",
+        type: "page",
+        url: "http://localhost:5183/?questSmoke=fresh",
+        webSocketDebuggerUrl: "ws://fresh",
+      },
+      {
+        id: "other",
+        title: "OpenClinXR Station Runtime",
+        type: "page",
+        url: "http://localhost:5173/?questSmoke=fresh",
+        webSocketDebuggerUrl: "ws://other",
+      },
+    ] satisfies CdpPage[];
+
+    expect(selectQuestPage(pages, "http://localhost:5183/?questSmoke=fresh")?.id).toBe("exact");
+    expect(staleQuestSmokePageIds(pages, "http://localhost:5183/?questSmoke=fresh", "exact")).toEqual(["old"]);
   });
 
   it("generates browser, interaction, and frame-sampling expressions with station targets", () => {

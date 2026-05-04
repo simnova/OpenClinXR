@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-05-04T17:00:47Z",
+  "generatedAt": "2026-05-04T17:06:41Z",
   "source": "Quest Browser Chrome DevTools Protocol read after timer-backed flat preview fallback reload",
   "target": "apps/ui-xr-iwsdk-spike",
-  "url": "http://localhost:5183/?questSmoke=thirty-fps-fallback-hand-locomotion-20260504",
+  "url": "http://localhost:5183/?questSmoke=stale-close-check-20260504",
   "xrStatus": "WebXR ready",
   "enterButtonText": "Enter VR",
   "visibilityState": "visible",

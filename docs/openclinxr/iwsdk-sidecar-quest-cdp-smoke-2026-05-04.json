@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-04T17:00:43.352Z",
-  "url": "http://localhost:5183/?questSmoke=thirty-fps-fallback-hand-locomotion-20260504",
+  "generatedAt": "2026-05-04T17:06:41.152Z",
+  "url": "http://localhost:5183/?questSmoke=stale-close-check-20260504",
   "target": "iwsdk-sidecar",
   "adb": {
     "version": "Android Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as /opt/homebrew/bin/adb\nRunning on Darwin 25.4.0 (arm64)",
@@ -9,7 +9,7 @@
   },
   "browser": {
     "title": "OpenClinXR IWSDK Spike",
-    "url": "http://localhost:5183/?questSmoke=thirty-fps-fallback-hand-locomotion-20260504",
+    "url": "http://localhost:5183/?questSmoke=stale-close-check-20260504",
     "userAgent": "Mozilla/5.0 (X11; Linux x86_64; Quest 3) AppleWebKit/537.36 (KHTML, like Gecko) OculusBrowser/146.0.0.19.27.942135376 Chrome/146.0.7680.177 VR Safari/537.36",
     "devicePixelRatio": 1,
     "visibilityState": "visible",
@@ -25,39 +25,39 @@
       "events": [
         {
           "phase": "controls_start",
-          "atMs": 0.4
+          "atMs": 0.5
         },
         {
           "phase": "controls_ready",
-          "atMs": 0.6
+          "atMs": 0.7
         },
         {
           "phase": "station_scene_start",
-          "atMs": 1.2
+          "atMs": 0.9
         },
         {
           "phase": "station_render_loop_started",
-          "atMs": 20.4
+          "atMs": 21.2
         },
         {
           "phase": "station_scene_ready",
-          "atMs": 20.4
+          "atMs": 21.3
         },
         {
           "phase": "clock_started",
-          "atMs": 20.5
+          "atMs": 21.3
         }
       ]
     },
     "frameStats": {
-      "sampleCount": 7,
-      "avgFrameMs": 61.29,
-      "p95FrameMs": 66.1,
-      "maxFrameMs": 66.1,
-      "approxFps": 16.3,
-      "framesObserved": 8,
-      "latestFrameAtMs": 711.3,
-      "sampleWindowSize": 7
+      "sampleCount": 8,
+      "avgFrameMs": 57.72,
+      "p95FrameMs": 66,
+      "maxFrameMs": 66,
+      "approxFps": 17.3,
+      "framesObserved": 9,
+      "latestFrameAtMs": 749,
+      "sampleWindowSize": 8
     },
     "inputEvidence": {
       "handModelCount": 0,
@@ -75,7 +75,7 @@
       "height": 924,
       "clientWidth": 880,
       "clientHeight": 924,
-      "dataUrlLength": 135830
+      "dataUrlLength": 135974
     }
   },
   "interaction": {
@@ -89,15 +89,15 @@
   },
   "frameSample": {
     "framesObserved": 121,
-    "framesObservedDuringProbe": 109,
+    "framesObservedDuringProbe": 108,
     "sampleCount": 120,
     "timedOut": false,
-    "elapsedWallMs": 7222.8,
-    "latestFrameAgeMs": 32.1,
-    "avgFrameMs": 65.72,
+    "elapsedWallMs": 7122.8,
+    "latestFrameAgeMs": 17.8,
+    "avgFrameMs": 65.17,
     "p95FrameMs": 66.1,
-    "maxFrameMs": 66.2,
-    "approxFps": 15.2
+    "maxFrameMs": 66.3,
+    "approxFps": 15.3
   },
   "verdict": {
     "shellLoaded": true,

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T17:02:07.399Z",
+  "generatedAt": "2026-05-04T17:07:28.591Z",
   "inputFile": "docs/openclinxr/iwsdk-sidecar-phase1-metrics-input-2026-05-04.json",
   "metrics": {
     "installedNodeModulesMb": 24,
@@ -38,7 +38,7 @@
       "ecg_request"
     ],
     "foregroundQuestPreflightReady": true,
-    "avgFps": 15.2,
+    "avgFps": 15.3,
     "p95FrameMs": 66.1,
     "consoleErrorCount": 0
   },
