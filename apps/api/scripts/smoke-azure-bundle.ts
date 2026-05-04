@@ -1,7 +1,7 @@
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { fileURLToPath } from "node:url";
-import { adminGraphqlDocuments } from "@openclinxr/graphql/documents";
+import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql/documents";
 
 type ApiBundle = {
   createOpenClinXrApiStartup: () => {
@@ -13,8 +13,8 @@ type ApiBundle = {
 
 const appDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const bundleUrl = pathToFileURL(path.join(appDir, "deploy/dist/index.js")).href;
-const createStationRunQueueSnapshotDocument = documentSourceByOperationName("CreateStationRunQueueSnapshot");
-const stationRunQueueSnapshotsDocument = documentSourceByOperationName("StationRunQueueSnapshots");
+const createStationRunQueueSnapshotDocument = adminGraphqlDocumentByOperationName("CreateStationRunQueueSnapshot").source;
+const stationRunQueueSnapshotsDocument = adminGraphqlDocumentByOperationName("StationRunQueueSnapshots").source;
 const bundle = await import(bundleUrl) as ApiBundle;
 const startup = bundle.createOpenClinXrApiStartup().startUp();
 const response = await startup.fetch(new Request("http://localhost/health"));
@@ -215,12 +215,3 @@ if (
 }
 
 console.log("Azure bundle smoke passed");
-
-function documentSourceByOperationName(operationName: string): string {
-  const document = adminGraphqlDocuments.find((candidate) => candidate.operationName === operationName);
-  if (!document) {
-    throw new Error(`Azure bundle smoke expected generated GraphQL document ${operationName} to exist`);
-  }
-
-  return document.source;
-}

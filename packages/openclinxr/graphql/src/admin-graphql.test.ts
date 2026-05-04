@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { GraphQLObjectType, parse, validate } from "graphql";
-import { adminGraphqlDocuments, buildAdminGraphqlSchema, createGraphqlCodegenPlan, openClinXrAdminSchemaSdl } from "./index.js";
+import { adminGraphqlDocumentByOperationName, adminGraphqlDocuments, buildAdminGraphqlSchema, createGraphqlCodegenPlan, openClinXrAdminSchemaSdl } from "./index.js";
 
 describe("OpenClinXR admin GraphQL contract", () => {
   it("builds a schema with admin workbench query and mutation roots", () => {
@@ -74,6 +74,17 @@ describe("OpenClinXR admin GraphQL contract", () => {
       expect(validate(schema, parse(document.source)), document.operationName).toEqual([]);
     }
     expect(JSON.stringify(adminGraphqlDocuments)).not.toContain("hiddenFacts");
+  });
+
+  it("looks up generated operation documents by operation name", () => {
+    expect(adminGraphqlDocumentByOperationName("StationRunQueueSnapshots")).toMatchObject({
+      routeId: "station-run-queue-snapshots",
+      operationName: "StationRunQueueSnapshots",
+      source: expect.stringContaining("stationRunQueueSnapshots"),
+    });
+    expect(() => adminGraphqlDocumentByOperationName("MissingOperation")).toThrow(
+      "OpenClinXR admin GraphQL document missing: MissingOperation",
+    );
   });
 
   it("keeps bundled schema and operation strings in sync with source GraphQL files", () => {

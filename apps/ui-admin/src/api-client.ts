@@ -1,6 +1,6 @@
 import type { ScenarioAssetReadiness } from "@openclinxr/asset-registry";
 import type { BlueprintScenarioReadiness, ExamBlueprint, ExamStationRunQueue, ExamTimingPlan } from "@openclinxr/exam-assembly";
-import { adminGraphqlDocuments } from "@openclinxr/graphql/documents";
+import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql/documents";
 import { routeById } from "@openclinxr/rest";
 
 export type AdminControlPlaneClientOptions = {
@@ -33,8 +33,8 @@ export type AdminStationRunQueueSnapshot = {
 
 export const defaultAdminApiBaseUrl = import.meta.env.VITE_OPENCLINXR_API_BASE_URL ?? "";
 
-const stationRunQueueSnapshotsDocument = documentSourceByOperationName("StationRunQueueSnapshots");
-const createStationRunQueueSnapshotDocument = documentSourceByOperationName("CreateStationRunQueueSnapshot");
+const stationRunQueueSnapshotsDocument = adminGraphqlDocumentByOperationName("StationRunQueueSnapshots").source;
+const createStationRunQueueSnapshotDocument = adminGraphqlDocumentByOperationName("CreateStationRunQueueSnapshot").source;
 
 export function createAdminControlPlaneClient(options: AdminControlPlaneClientOptions = {}): AdminControlPlaneClient {
   const baseUrl = normalizeBaseUrl(options.baseUrl ?? defaultAdminApiBaseUrl);
@@ -116,15 +116,6 @@ async function graphql<TData>(
 
 function normalizeBaseUrl(baseUrl: string): string {
   return baseUrl.replace(/\/$/, "");
-}
-
-function documentSourceByOperationName(operationName: string): string {
-  const document = adminGraphqlDocuments.find((candidate) => candidate.operationName === operationName);
-  if (!document) {
-    throw new Error(`OpenClinXR admin GraphQL document missing: ${operationName}`);
-  }
-
-  return document.source;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

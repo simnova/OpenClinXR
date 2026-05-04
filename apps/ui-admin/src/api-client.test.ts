@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { adminGraphqlDocuments } from "@openclinxr/graphql/documents";
+import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql/documents";
 import { createAdminControlPlaneClient } from "./api-client.js";
 
 describe("admin control-plane API client", () => {
   it("reads readiness through stable REST routes and queue snapshots through GraphQL", async () => {
-    const listSnapshotsDocument = documentByOperationName("StationRunQueueSnapshots");
-    const createSnapshotDocument = documentByOperationName("CreateStationRunQueueSnapshot");
+    const listSnapshotsDocument = adminGraphqlDocumentByOperationName("StationRunQueueSnapshots");
+    const createSnapshotDocument = adminGraphqlDocumentByOperationName("CreateStationRunQueueSnapshot");
     const requests: RecordedRequest[] = [];
     const queueSnapshot = {
       snapshotId: "queue_snapshot_ui_001",
@@ -105,12 +105,6 @@ describe("admin control-plane API client", () => {
     );
   });
 });
-
-function documentByOperationName(operationName: string) {
-  const document = adminGraphqlDocuments.find((candidate) => candidate.operationName === operationName);
-  expect(document, `Expected generated GraphQL document ${operationName} to exist`).toBeDefined();
-  return document!;
-}
 
 type RecordedRequest = {
   url: string;

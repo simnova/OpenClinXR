@@ -1,5 +1,5 @@
 import { buildSchema, graphql, type ExecutionResult, type GraphQLSchema } from "graphql";
-export { adminGraphqlDocuments, type AdminGraphqlDocument } from "./documents.js";
+export { adminGraphqlDocumentByOperationName, adminGraphqlDocuments, type AdminGraphqlDocument } from "./documents.js";
 export { openClinXrAdminSchemaSdl } from "./schema.js";
 import { openClinXrAdminSchemaSdl } from "./schema.js";
 
