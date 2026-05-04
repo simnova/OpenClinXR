@@ -117,6 +117,7 @@ export type ManualPerformanceDraftInput = {
   foregroundPageConfirmed: boolean;
   traceInteractionPassed: boolean;
   frameStats: ManualPerformanceFrameStats;
+  controllerSelectLatencyMs?: number | null;
   consoleErrors?: string[];
   immersiveSessionStarted?: boolean;
 };
@@ -388,7 +389,10 @@ export function buildManualPerformanceDraft(input: ManualPerformanceDraftInput):
       immersiveSessionStarted: input.immersiveSessionStarted ?? false,
       consoleErrors: input.consoleErrors ?? [],
     },
-    performance: manualPerformanceMetricsFromFrameStats(input.frameStats),
+    performance: {
+      ...manualPerformanceMetricsFromFrameStats(input.frameStats),
+      controllerSelectLatencyMs: input.controllerSelectLatencyMs ?? null,
+    },
     comfort: {
       motionComfort: "not_run",
       heatConcern: null,

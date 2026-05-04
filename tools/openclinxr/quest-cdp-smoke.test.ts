@@ -130,11 +130,13 @@ describe("Quest CDP smoke probe", () => {
     expect(browserSnapshotExpression()).toContain("window.__openClinXrFrameStats");
     expect(browserSnapshotExpression()).toContain("window.__openClinXrInputEvidence");
     expect(browserSnapshotExpression()).toContain("window.__openClinXrBootEvidence");
+    expect(browserSnapshotExpression()).toContain("window.__openClinXrTraceLatencyEvidence");
     expect(browserSnapshotExpression()).toContain("window.__openClinXrIwsdkSidecarEvidence");
     expect(browserSnapshotExpression()).toContain("ED Chest Pain");
     expect(interactionExpression()).toContain("ecg request");
     expect(interactionExpression()).toContain("urgent escalation");
     expect(interactionExpression()).toContain("Trace Actions");
+    expect(interactionExpression()).toContain("traceLatencyEvidence");
     expect(frameSampleExpression(12, 900)).toContain("sampleCount >= 12");
     expect(frameSampleExpression(12, 900)).toContain("performance.now() - started < 900");
     expect(frameSampleExpression(12, 900)).toContain("window.__openClinXrFrameStats");

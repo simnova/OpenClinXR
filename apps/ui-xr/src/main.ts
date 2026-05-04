@@ -92,6 +92,13 @@ type OpenClinXrBootEvidence = {
   }>;
 };
 
+type OpenClinXrTraceLatencyEvidence = {
+  lastTraceTag: string | null;
+  lastSelectLatencyMs: number | null;
+  source: "dom_click_trace_button";
+  measuredAtMs: number | null;
+};
+
 type StationSceneRuntime = {
   startImmersiveSession(): Promise<void>;
 };
@@ -103,6 +110,7 @@ declare global {
     __openClinXrExperienceModeEvidence?: XrExperienceModeEvidence;
     __openClinXrInputEvidence?: OpenClinXrInputEvidence;
     __openClinXrBootEvidence?: OpenClinXrBootEvidence;
+    __openClinXrTraceLatencyEvidence?: OpenClinXrTraceLatencyEvidence;
   }
 }
 
@@ -146,6 +154,7 @@ const configuredApiBaseUrl = typeof import.meta.env.VITE_OPENCLINXR_API_BASE_URL
 const stationApi = configuredApiBaseUrl ? createStationApiClient({ baseUrl: configuredApiBaseUrl }) : undefined;
 let remoteStationRunId: string | undefined;
 let immersiveSessionActive = false;
+let lastTraceSelectLatencyMs: number | null = null;
 
 app.innerHTML = `
   <main class="station-shell">
@@ -204,14 +213,26 @@ function renderControls(): void {
     button.textContent = tag.replaceAll("_", " ");
     button.className = state.completedTraceTags.includes(tag) ? "trace-button complete" : "trace-button";
     button.addEventListener("click", () => {
+      const traceSelectStartedAtMs = performance.now();
       state = completeTraceAction(state, tag);
       dialogueLine.textContent = dialogueFor(tag);
       renderControls();
       updateReadiness();
+      recordTraceSelectLatency(traceSelectStartedAtMs, tag);
       void recordRemoteTraceAction(tag);
     });
     traceActions.append(button);
   }
+}
+
+function recordTraceSelectLatency(startedAtMs: number, tag: string): void {
+  lastTraceSelectLatencyMs = Number((performance.now() - startedAtMs).toFixed(2));
+  window.__openClinXrTraceLatencyEvidence = {
+    lastTraceTag: tag,
+    lastSelectLatencyMs: lastTraceSelectLatencyMs,
+    source: "dom_click_trace_button",
+    measuredAtMs: Number(performance.now().toFixed(2)),
+  };
 }
 
 async function initializeRemoteTraceSession(client: StationApiClient | undefined): Promise<void> {
@@ -698,6 +719,7 @@ function recordFrame(now: number): void {
     foregroundPageConfirmed: document.visibilityState === "visible",
     traceInteractionPassed: state.completedTraceTags.length > 0,
     frameStats: window.__openClinXrFrameStats,
+    controllerSelectLatencyMs: lastTraceSelectLatencyMs,
     immersiveSessionStarted: immersiveSessionActive,
   });
 }

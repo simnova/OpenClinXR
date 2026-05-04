@@ -349,6 +349,7 @@ export function browserSnapshotExpression(): string {
       iwsdkEvidence: window.__openClinXrIwsdkSidecarEvidence ?? null,
       frameStats: window.__openClinXrFrameStats ?? null,
       inputEvidence: window.__openClinXrInputEvidence ?? null,
+      traceLatencyEvidence: window.__openClinXrTraceLatencyEvidence ?? null,
       canvas: canvas ? {
         width: canvas.width,
         height: canvas.height,
@@ -386,6 +387,7 @@ export function interactionExpression(): string {
       clickedUrgent,
       hasViteOverlay: !!document.querySelector("vite-error-overlay"),
       dialogue: document.body.textContent.match(/Mock Dialogue\s+([^]+?)Trace Actions/)?.[1]?.trim() ?? null,
+      traceLatencyEvidence: window.__openClinXrTraceLatencyEvidence ?? null,
     };
   })()`;
 }

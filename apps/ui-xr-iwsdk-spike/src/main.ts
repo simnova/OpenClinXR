@@ -77,6 +77,13 @@ type OpenClinXrBootEvidence = {
   }>;
 };
 
+type OpenClinXrTraceLatencyEvidence = {
+  lastTraceTag: string | null;
+  lastSelectLatencyMs: number | null;
+  source: "dom_click_trace_button";
+  measuredAtMs: number | null;
+};
+
 type StationSceneRuntime = {
   startImmersiveSession(): Promise<void>;
 };
@@ -92,6 +99,7 @@ declare global {
     __openClinXrIwsdkSidecarTraceTags?: string[];
     __openClinXrInputEvidence?: OpenClinXrInputEvidence;
     __openClinXrBootEvidence?: OpenClinXrBootEvidence;
+    __openClinXrTraceLatencyEvidence?: OpenClinXrTraceLatencyEvidence;
   }
 }
 
@@ -133,6 +141,7 @@ function formatUnknownError(error: unknown): string {
 let state: IwsdkSidecarRuntimeState = createIwsdkSidecarRuntimeState();
 let iwsdkCoreExportCount = 0;
 let iwsdkXrInputExportCount = 0;
+let lastTraceSelectLatencyMs: number | null = null;
 
 app.innerHTML = `
   <main class="spike-shell">
@@ -231,14 +240,26 @@ function renderControls(): void {
     button.textContent = tag.replaceAll("_", " ");
     button.className = state.completedTraceTags.includes(tag) ? "trace-button complete" : "trace-button";
     button.addEventListener("click", () => {
+      const traceSelectStartedAtMs = performance.now();
       state = completeIwsdkSidecarTraceAction(state, tag);
       window.__openClinXrIwsdkSidecarTraceTags = [...state.completedTraceTags];
       dialogueLine.textContent = dialogueFor(tag);
       renderControls();
       updateReadiness();
+      recordTraceSelectLatency(traceSelectStartedAtMs, tag);
     });
     traceActions.append(button);
   }
+}
+
+function recordTraceSelectLatency(startedAtMs: number, tag: string): void {
+  lastTraceSelectLatencyMs = Number((performance.now() - startedAtMs).toFixed(2));
+  window.__openClinXrTraceLatencyEvidence = {
+    lastTraceTag: tag,
+    lastSelectLatencyMs: lastTraceSelectLatencyMs,
+    source: "dom_click_trace_button",
+    measuredAtMs: Number(performance.now().toFixed(2)),
+  };
 }
 
 function updateReadiness(): void {

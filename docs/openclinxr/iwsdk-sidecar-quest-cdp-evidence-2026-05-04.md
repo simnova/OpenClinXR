@@ -16,7 +16,7 @@ This evidence improves confidence that the sidecar can render and interact on Qu
 ## Observed Result
 
 - Quest device: `Quest_3` over USB-C with ADB authorization.
-- URL: `http://localhost:5183/?questSmoke=lazy-iwsdk-hydration-20260504`.
+- URL: `http://localhost:5183/?questSmoke=trace-latency-proxy-20260504`.
 - Browser title: `OpenClinXR IWSDK Spike`.
 - User agent: Quest Browser `146.0.0.19.27`.
 - Page state: visible, not hidden, focused.
@@ -31,7 +31,8 @@ This evidence improves confidence that the sidecar can render and interact on Qu
 - Deferred evidence hydration: browser snapshot starts with package export counts at `0/0`, and the CDP frame-sample result confirms hydration to `586/31`.
 - Canvas: nonblank, `880 x 924`, PNG data URL length `136082`.
 - Trace interaction: `Trace 0/10` to `Trace 2/10`.
-- CDP frame sample: `120` samples, `15.4` approximate FPS, p95 frame time `66.1 ms`, max frame time `69.6 ms`.
+- DOM trace-select latency proxy: the CDP-triggered trace button path recorded `0.2 ms` for the final `urgent_escalation` DOM click. This proves the evidence plumbing works, but it is not a real headset controller latency measurement and must not clear the production `controllerSelectLatencyMs` gate.
+- CDP frame sample: `120` samples, `15.5` approximate FPS, p95 frame time `66.2 ms`, max frame time `96.9 ms`.
 - Evidence classification: `foreground_ready`.
 
 ## Remaining Production Blockers

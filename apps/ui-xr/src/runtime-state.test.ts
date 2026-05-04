@@ -194,6 +194,7 @@ describe("XR runtime state", () => {
       elapsedSecond: 92,
       foregroundPageConfirmed: true,
       traceInteractionPassed: true,
+      controllerSelectLatencyMs: 87.5,
       frameStats: {
         sampleCount: 3,
         avgFrameMs: 16.7,
@@ -232,7 +233,7 @@ describe("XR runtime state", () => {
         avgFps: 59.9,
         p95FrameMs: 18,
         minimumObservedFps: 45.5,
-        controllerSelectLatencyMs: null,
+        controllerSelectLatencyMs: 87.5,
       },
       comfort: {
         motionComfort: "not_run",
