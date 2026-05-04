@@ -280,6 +280,7 @@ Validation:
 - `pnpm iwsdk:preinstall`
 - `pnpm iwsdk:browser:evidence -- --input path/to/iwsdk-browser-evidence.json`
 - `pnpm iwsdk:compatibility:evidence -- --input path/to/iwsdk-compatibility-evidence.json`
+- `pnpm iwsdk:metadata-drift:evidence -- --input path/to/iwsdk-metadata-drift-evidence.json`
 - `pnpm iwsdk:evidence`
 - `pnpm iwsdk:verify`
 - `pnpm --filter @openclinxr/iwsdk-spike test`

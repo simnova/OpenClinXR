@@ -39,6 +39,7 @@
     "iwsdk:workspace:posture": "tsx tools/openclinxr/iwsdk-workspace-posture-check.ts",
     "iwsdk:browser:evidence": "tsx tools/openclinxr/iwsdk-managed-browser-evidence-check.ts",
     "iwsdk:compatibility:evidence": "tsx tools/openclinxr/iwsdk-compatibility-evidence-check.ts",
+    "iwsdk:metadata-drift:evidence": "tsx tools/openclinxr/iwsdk-metadata-drift-evidence-check.ts",
     "iwsdk:agent-tooling:evidence": "tsx tools/openclinxr/iwsdk-agent-tooling-evidence-check.ts",
     "iwsdk:sidecar:metrics": "tsx tools/openclinxr/iwsdk-sidecar-metrics-check.ts",
     "iwsdk:evidence": "tsx tools/openclinxr/iwsdk-evidence-contract-check.ts",
