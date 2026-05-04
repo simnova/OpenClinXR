@@ -133,11 +133,13 @@ export function createDefaultVoiceGateway(options: VoiceGatewayOptions): VoiceGa
   return new VoiceGateway(options);
 }
 
-export function createRealtimeVoiceGatewayPosture(input: {
+export type RealtimeVoiceGatewayPostureInput = {
   bunAvailable: boolean;
   pythonBackendDependenciesInstalled: boolean;
   pythonInferenceRuntimeInstalled: boolean;
-}): RealtimeVoiceGatewayPosture {
+};
+
+export function createRealtimeVoiceGatewayPosture(input: RealtimeVoiceGatewayPostureInput): RealtimeVoiceGatewayPosture {
   return {
     policy: {
       cloudApisUsed: false,

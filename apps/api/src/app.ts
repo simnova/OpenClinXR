@@ -36,7 +36,7 @@ import {
   type TelemetryRecorder,
   type TelemetrySpanRecord,
 } from "@openclinxr/telemetry";
-import { createRealtimeVoiceGatewayPosture } from "@openclinxr/voice-gateway";
+import { createRealtimeVoiceGatewayPosture, type RealtimeVoiceGatewayPostureInput } from "@openclinxr/voice-gateway";
 import { Hono } from "hono";
 import { createOpenClinXrApiProtocolPosture } from "./protocol-support.js";
 
@@ -76,12 +76,14 @@ export type ApiPersistenceSink = {
 export type ApiAppOptions = {
   telemetry?: TelemetryRecorder;
   assetGenerationFacade?: AssetGenerationCapabilityFacade;
+  realtimeVoiceGatewayPosture?: RealtimeVoiceGatewayPostureInput;
 };
 
 export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRuntime(), persistence: ApiPersistenceSink = {}, options: ApiAppOptions = {}): Hono {
   const app = new Hono();
   const telemetry = options.telemetry ?? createNoopTelemetryRecorder();
   const assetGenerationFacade = options.assetGenerationFacade ?? new AssetGenerationCapabilityFacade();
+  const realtimeVoiceGatewayPosture = options.realtimeVoiceGatewayPosture ?? createDefaultRealtimeVoiceGatewayPostureInput();
   const adminScenarioOverrides = new Map<string, AdminGraphqlScenario>();
 
   app.use("*", async (context, next) => {
@@ -117,11 +119,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   app.get(routeById("runtime-protocols").path, (context) => context.json(createOpenClinXrApiProtocolPosture()));
 
   app.get(routeById("realtime-voice-posture").path, (context) =>
-    context.json(createRealtimeVoiceGatewayPosture({
-      bunAvailable: false,
-      pythonBackendDependenciesInstalled: false,
-      pythonInferenceRuntimeInstalled: false,
-    })));
+    context.json(createRealtimeVoiceGatewayPosture(realtimeVoiceGatewayPosture)));
 
   app.get(routeById("admin-graphql-schema").path, (context) =>
     new Response(openClinXrAdminSchemaSdl, {
@@ -411,6 +409,14 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   });
 
   return app;
+}
+
+function createDefaultRealtimeVoiceGatewayPostureInput(): RealtimeVoiceGatewayPostureInput {
+  return {
+    bunAvailable: false,
+    pythonBackendDependenciesInstalled: false,
+    pythonInferenceRuntimeInstalled: false,
+  };
 }
 
 function createAdminGraphqlRoot(

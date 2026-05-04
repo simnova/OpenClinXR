@@ -93,6 +93,24 @@ describe("OpenClinXR API startup", () => {
     });
   });
 
+  it("threads Bun runtime posture into the Bun plus Hono server facade", async () => {
+    const startup = createOpenClinXrApiStartup({
+      realtimeVoiceGatewayPosture: {
+        bunAvailable: true,
+        pythonBackendDependenciesInstalled: false,
+        pythonInferenceRuntimeInstalled: false,
+      },
+    }).startUp();
+    const config = createBunServerConfig(startup, { port: 4322 });
+
+    const response = await config.fetch(new Request("http://localhost/voice/realtime/posture"));
+    const posture = await response.json() as { gatewayRuntime: { blockers: string[] } };
+
+    expect(response.status).toBe(200);
+    expect(posture.gatewayRuntime.blockers).not.toContain("bun_not_installed");
+    expect(posture.gatewayRuntime.blockers).toContain("http3_webtransport_not_verified");
+  });
+
   it("persists station run queue review snapshots in the default single-user startup", async () => {
     const startup = createOpenClinXrApiStartup().startUp();
 

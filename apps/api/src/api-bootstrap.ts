@@ -2,6 +2,7 @@ import type { ExamForm } from "@openclinxr/exam-assembly";
 import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import { createDefaultScenarioRuntime, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createNoopTelemetryRecorder, type TelemetryRecorder } from "@openclinxr/telemetry";
+import type { RealtimeVoiceGatewayPostureInput } from "@openclinxr/voice-gateway";
 import { createApiApp, type ApiPersistenceSink, type ApiScenarioReviewDecisionRecord, type ApiStationRunQueueSnapshot } from "./app.js";
 import { createOpenClinXrApiProtocolPosture, type OpenClinXrApiProtocolSupport } from "./protocol-support.js";
 
@@ -31,6 +32,7 @@ type ApiStartupContext = {
   persistence: ApiPersistenceSink;
   telemetry: TelemetryRecorder;
   assetGenerationFacade: AssetGenerationCapabilityFacade;
+  realtimeVoiceGatewayPosture: RealtimeVoiceGatewayPostureInput;
 };
 
 type ApiApplicationServices = {
@@ -64,6 +66,7 @@ export type OpenClinXrApiStartupOptions = {
   persistence?: ApiPersistenceSink;
   telemetry?: TelemetryRecorder;
   assetGenerationFacade?: AssetGenerationCapabilityFacade;
+  realtimeVoiceGatewayPosture?: RealtimeVoiceGatewayPostureInput;
 };
 
 class ApiInfrastructureRegistry {
@@ -134,6 +137,7 @@ export function createOpenClinXrApiStartup(options: OpenClinXrApiStartupOptions 
   const runtime = options.runtime ?? createDefaultScenarioRuntime();
   const telemetry = options.telemetry ?? createNoopTelemetryRecorder();
   const assetGenerationFacade = options.assetGenerationFacade ?? new AssetGenerationCapabilityFacade();
+  const realtimeVoiceGatewayPosture = options.realtimeVoiceGatewayPosture ?? createDefaultRealtimeVoiceGatewayPostureInput();
 
   return new OpenClinXrApiStartupBuilder()
     .initializeInfrastructureServices((serviceRegistry) => {
@@ -143,7 +147,7 @@ export function createOpenClinXrApiStartup(options: OpenClinXrApiStartupOptions 
         .registerInfrastructureService("telemetry", telemetry)
         .registerInfrastructureService("assetGenerationFacade", assetGenerationFacade);
     })
-    .setContext(defaultContextFactory)
+    .setContext((registry) => defaultContextFactory(registry, realtimeVoiceGatewayPosture))
     .initializeApplicationServices(defaultApplicationServicesFactory)
     .registerAzureFunctionHttpHandler("graphql-contract", {
       route: "admin/graphql/{*segments}",
@@ -172,12 +176,16 @@ export function createBunServerConfig(startup: StartedOpenClinXrApi = createOpen
   };
 }
 
-function defaultContextFactory(serviceRegistry: ApiInfrastructureRegistry): ApiStartupContext {
+function defaultContextFactory(
+  serviceRegistry: ApiInfrastructureRegistry,
+  realtimeVoiceGatewayPosture: RealtimeVoiceGatewayPostureInput = createDefaultRealtimeVoiceGatewayPostureInput(),
+): ApiStartupContext {
   return {
     runtime: serviceRegistry.getInfrastructureService("scenarioRuntime"),
     persistence: serviceRegistry.getInfrastructureService("apiPersistence"),
     telemetry: serviceRegistry.getInfrastructureService("telemetry"),
     assetGenerationFacade: serviceRegistry.getInfrastructureService("assetGenerationFacade"),
+    realtimeVoiceGatewayPosture,
   };
 }
 
@@ -185,9 +193,18 @@ function defaultApplicationServicesFactory(context: ApiStartupContext): ApiAppli
   const app = createApiApp(context.runtime, context.persistence, {
     telemetry: context.telemetry,
     assetGenerationFacade: context.assetGenerationFacade,
+    realtimeVoiceGatewayPosture: context.realtimeVoiceGatewayPosture,
   });
   return {
     fetch: (request) => app.fetch(request),
+  };
+}
+
+function createDefaultRealtimeVoiceGatewayPostureInput(): RealtimeVoiceGatewayPostureInput {
+  return {
+    bunAvailable: false,
+    pythonBackendDependenciesInstalled: false,
+    pythonInferenceRuntimeInstalled: false,
   };
 }
 

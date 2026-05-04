@@ -108,6 +108,36 @@ describe("OpenClinXR API shell", () => {
     });
   });
 
+  it("lets the Bun server boundary clear only the Bun runtime blocker", async () => {
+    const app = createApiApp(undefined, {}, {
+      realtimeVoiceGatewayPosture: {
+        bunAvailable: true,
+        pythonBackendDependenciesInstalled: false,
+        pythonInferenceRuntimeInstalled: false,
+      },
+    });
+    const response = await app.request("/voice/realtime/posture");
+    const posture = await json(response) as {
+      gatewayRuntime: { blockers: string[] };
+      transports: { webTransport: { status: string; blockers: string[] } };
+      backends: { pythonFastApi: { blockers: string[] } };
+    };
+
+    expect(response.status).toBe(200);
+    expect(posture.gatewayRuntime.blockers).not.toContain("bun_not_installed");
+    expect(posture.gatewayRuntime.blockers).toContain("http3_webtransport_not_verified");
+    expect(posture.transports.webTransport.status).toBe("blocked_pending_runtime_support");
+    expect(posture.transports.webTransport.blockers).toEqual(expect.arrayContaining([
+      "quest_godot_webtransport_client_not_implemented",
+      "bun_http3_webtransport_not_verified",
+      "azure_http3_gateway_path_not_verified",
+    ]));
+    expect(posture.backends.pythonFastApi.blockers).toEqual(expect.arrayContaining([
+      "fastapi_uvicorn_websockets_not_installed",
+      "mlx_moshi_or_qwen3_tts_not_installed",
+    ]));
+  });
+
   it("serves the ED chest pain scenario fixture", async () => {
     const app = createApiApp();
     const response = await app.request("/scenarios/ed-chest-pain");
