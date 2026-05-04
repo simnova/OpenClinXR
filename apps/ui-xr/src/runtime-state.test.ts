@@ -7,6 +7,7 @@ import {
   buildIwsdkStationMcpSmokePlan,
   evaluateIwsdkStationMcpSmokeEvidence,
   formatStationClock,
+  iwsdkStationMcpSmokePlanHash,
   iwsdkStationMcpSmokeToolOrder,
   iwsdkStationSceneObjectNames,
   iwsdkStationSceneObjects,
@@ -85,6 +86,7 @@ describe("XR runtime state", () => {
 
     expect(plan).toMatchObject({
       mode: "agent",
+      smokePlanHash: iwsdkStationMcpSmokePlanHash,
       scenarioId: edChestPainScenario.scenarioId,
       scenarioVersion: edChestPainScenario.version,
       scenarioTitle: edChestPainScenario.title,

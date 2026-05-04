@@ -77,6 +77,15 @@ export type IwsdkSpikeMetricReadiness = {
   blockers: string[];
 };
 
+export type IwsdkUiXrStationParityContract = {
+  source: "apps/ui-xr/src/runtime-state.ts";
+  baselineAppBundleSource: string;
+  smokePlanHash: string;
+  mcpToolOrder: IwsdkMcpToolName[];
+  requiredSceneObjectNames: string[];
+  controllerSelectTraceTag: string;
+};
+
 export type IwsdkAgentMode = "agent" | "oversight" | "collaborate";
 export type IwsdkAiTool = "codex" | "claude" | "cursor" | "copilot";
 export type IwsdkPlaywrightBrowserPosture = "headless_fixed_viewport" | "visible_resizable";
@@ -599,6 +608,35 @@ export function buildIwsdkSpikeMetricThresholds(): IwsdkSpikeMetricThresholds {
     p95FrameMsMax: 25,
     controllerSelectLatencyMsMax: 150,
     consoleErrorCountMax: 0,
+  };
+}
+
+export function buildIwsdkUiXrStationParityContract(): IwsdkUiXrStationParityContract {
+  return {
+    source: "apps/ui-xr/src/runtime-state.ts",
+    baselineAppBundleSource: "apps/ui-xr/dist/assets/index-*.js",
+    smokePlanHash: "runtime-state:iwsdk-station-mcp-smoke-plan:v1",
+    mcpToolOrder: [
+      "xr_get_session_status",
+      "xr_accept_session",
+      "browser_screenshot",
+      "scene_get_hierarchy",
+      "xr_select",
+      "browser_get_console_logs",
+    ],
+    requiredSceneObjectNames: [
+      "openclinxr.ed-chest-pain.station-root",
+      "openclinxr.ed-chest-pain.ambient-light",
+      "openclinxr.ed-chest-pain.key-light",
+      "openclinxr.ed-chest-pain.floor",
+      "openclinxr.ed-chest-pain.bed",
+      "openclinxr.ed-chest-pain.monitor",
+      "openclinxr.ed-chest-pain.patient-robert-hayes",
+      "openclinxr.ed-chest-pain.nurse-maria-alvarez",
+      "openclinxr.ed-chest-pain.spouse-anna-hayes",
+      "openclinxr.ed-chest-pain.wall-clock",
+    ],
+    controllerSelectTraceTag: "ecg_request",
   };
 }
 

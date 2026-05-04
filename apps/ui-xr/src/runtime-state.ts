@@ -39,6 +39,7 @@ export type IwsdkStationMcpSmokeStep = {
 
 export type IwsdkStationMcpSmokePlan = {
   mode: "agent";
+  smokePlanHash: string;
   scenarioId: string;
   scenarioVersion: number;
   scenarioTitle: string;
@@ -99,6 +100,8 @@ export const iwsdkStationSceneObjects = {
 
 export const iwsdkStationSceneObjectNames = Object.values(iwsdkStationSceneObjects);
 
+export const iwsdkStationMcpSmokePlanHash = "runtime-state:iwsdk-station-mcp-smoke-plan:v1";
+
 export const iwsdkStationMcpSmokeToolOrder: IwsdkStationMcpSmokeTool[] = [
   "xr_get_session_status",
   "xr_accept_session",
@@ -152,6 +155,7 @@ export function buildIwsdkStationMcpSmokePlan(state: XrRuntimeState = createInit
 
   return {
     mode: "agent",
+    smokePlanHash: iwsdkStationMcpSmokePlanHash,
     scenarioId: state.scenarioId,
     scenarioVersion: edChestPainScenario.version,
     scenarioTitle: state.title,

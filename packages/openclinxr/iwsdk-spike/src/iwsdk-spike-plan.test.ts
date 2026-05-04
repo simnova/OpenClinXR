@@ -19,6 +19,7 @@ import {
   buildIwsdkSpikeMetricThresholds,
   buildIwsdkSpikePlan,
   buildIwsdkSourceRecordIdContract,
+  buildIwsdkUiXrStationParityContract,
   buildIwsdkViteAiDevConfigContract,
   evaluateIwsdkCompatibilityEvidence,
   evaluateIwsdkWorkspacePosture,
@@ -1321,6 +1322,35 @@ describe("IWSDK spike plan", () => {
       p95FrameMsMax: 25,
       controllerSelectLatencyMsMax: 150,
       consoleErrorCountMax: 0,
+    });
+  });
+
+  it("defines the UI-XR station parity contract that sidecar metrics must cite", () => {
+    expect(buildIwsdkUiXrStationParityContract()).toEqual({
+      source: "apps/ui-xr/src/runtime-state.ts",
+      baselineAppBundleSource: "apps/ui-xr/dist/assets/index-*.js",
+      smokePlanHash: "runtime-state:iwsdk-station-mcp-smoke-plan:v1",
+      mcpToolOrder: [
+        "xr_get_session_status",
+        "xr_accept_session",
+        "browser_screenshot",
+        "scene_get_hierarchy",
+        "xr_select",
+        "browser_get_console_logs",
+      ],
+      requiredSceneObjectNames: [
+        "openclinxr.ed-chest-pain.station-root",
+        "openclinxr.ed-chest-pain.ambient-light",
+        "openclinxr.ed-chest-pain.key-light",
+        "openclinxr.ed-chest-pain.floor",
+        "openclinxr.ed-chest-pain.bed",
+        "openclinxr.ed-chest-pain.monitor",
+        "openclinxr.ed-chest-pain.patient-robert-hayes",
+        "openclinxr.ed-chest-pain.nurse-maria-alvarez",
+        "openclinxr.ed-chest-pain.spouse-anna-hayes",
+        "openclinxr.ed-chest-pain.wall-clock",
+      ],
+      controllerSelectTraceTag: "ecg_request",
     });
   });
 
