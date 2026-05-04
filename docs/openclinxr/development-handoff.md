@@ -315,6 +315,7 @@ Exam assembly milestone has also started:
 - `apps/ui-admin` has a typed control-plane client method and exam-forms workbench action for creating seed station-run queue review snapshots through the stable REST route.
 - `packages/openclinxr/architecture-rules` enforces the current boundary decision that UI apps call REST through app-local API clients, API persistence remains injected instead of importing concrete Mongo packages, and UI apps do not depend on Mongo persistence source packages.
 - `packages/openclinxr/graphql` includes a `createStationRunQueueSnapshot` mutation contract and generated operation document so future Apollo/GraphQL Code Generator work can adopt the same review-snapshot shape.
+- `packages/openclinxr/data-sources-mongoose-models` includes a Mongoose 9 station-run queue snapshot model and repository with reviewer provenance, blueprint/scenario indexes, and newest-first blueprint listing.
 
 Agent-loop orchestration milestone has also started:
 
