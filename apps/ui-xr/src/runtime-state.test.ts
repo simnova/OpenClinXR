@@ -17,6 +17,7 @@ import {
   stationTraceActionTags,
   summarizeFrameDeltas,
   summarizeTraceReadiness,
+  xrExperienceModeEvidence,
 } from "./runtime-state.js";
 
 describe("XR runtime state", () => {
@@ -38,6 +39,16 @@ describe("XR runtime state", () => {
 
   it("exposes every required ED trace tag for headset trace controls", () => {
     expect(stationTraceActionTags).toEqual(edChestPainScenario.requiredTraceTags);
+  });
+
+  it("states that the current headset runtime is full VR, not mixed reality passthrough", () => {
+    expect(xrExperienceModeEvidence).toEqual({
+      phaseLabel: "Phase 1 VR",
+      requestedSessionMode: "immersive-vr",
+      mixedRealityPassthroughImplemented: false,
+      handTrackingPosture: "optional_feature_requested_no_articulated_hand_mesh",
+      locomotionPosture: "physical_room_scale_only",
+    });
   });
 
   it("plans remote actor turns without embedding hidden scenario facts", () => {
@@ -170,6 +181,7 @@ describe("XR runtime state", () => {
       avgFps: 45.5,
       p95FrameMs: 33,
       minimumObservedFps: 25,
+      controllerSelectLatencyMs: null,
       source: "window.__openClinXrFrameStats",
       framesObserved: 4,
       sampleWindowSize: 3,
@@ -220,6 +232,7 @@ describe("XR runtime state", () => {
         avgFps: 59.9,
         p95FrameMs: 18,
         minimumObservedFps: 45.5,
+        controllerSelectLatencyMs: null,
       },
       comfort: {
         motionComfort: "not_run",

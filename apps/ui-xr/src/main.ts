@@ -1,17 +1,25 @@
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
 import {
   BoxGeometry,
+  BufferGeometry,
+  CanvasTexture,
   CapsuleGeometry,
   Color,
   CylinderGeometry,
   DirectionalLight,
+  DoubleSide,
   Group,
   HemisphereLight,
+  Line,
+  LineBasicMaterial,
   Mesh,
+  MeshBasicMaterial,
   MeshStandardMaterial,
   PerspectiveCamera,
+  PlaneGeometry,
   Scene,
   SphereGeometry,
+  Vector3,
   WebGLRenderer,
 } from "three";
 import {
@@ -28,7 +36,9 @@ import {
   summarizeFrameDeltas,
   summarizeTraceReadiness,
   type ManualPerformanceDraft,
+  type XrExperienceModeEvidence,
   type XrRuntimeState,
+  xrExperienceModeEvidence,
 } from "./runtime-state.js";
 import { createStationApiClient, type StationApiClient } from "./api-client.js";
 import "./styles.css";
@@ -36,7 +46,16 @@ import "./styles.css";
 type NavigatorWithXr = Navigator & {
   xr?: {
     isSessionSupported(mode: "immersive-vr"): Promise<boolean>;
+    requestSession(
+      mode: "immersive-vr",
+      options?: { optionalFeatures?: string[] },
+    ): Promise<XrSession>;
   };
+};
+
+type XrSession = {
+  addEventListener(type: "end", listener: () => void, options?: { once?: boolean }): void;
+  end(): Promise<void>;
 };
 
 type OpenClinXrFrameStats = ReturnType<typeof summarizeFrameDeltas> & {
@@ -45,10 +64,15 @@ type OpenClinXrFrameStats = ReturnType<typeof summarizeFrameDeltas> & {
   sampleWindowSize: number;
 };
 
+type StationSceneRuntime = {
+  startImmersiveSession(): Promise<void>;
+};
+
 declare global {
   interface Window {
     __openClinXrFrameStats?: OpenClinXrFrameStats;
     __openClinXrManualPerformanceDraft?: ManualPerformanceDraft;
+    __openClinXrExperienceModeEvidence?: XrExperienceModeEvidence;
   }
 }
 
@@ -69,6 +93,7 @@ let state: XrRuntimeState = createInitialRuntimeState();
 const configuredApiBaseUrl = typeof import.meta.env.VITE_OPENCLINXR_API_BASE_URL === "string" ? import.meta.env.VITE_OPENCLINXR_API_BASE_URL : "";
 const stationApi = configuredApiBaseUrl ? createStationApiClient({ baseUrl: configuredApiBaseUrl }) : undefined;
 let remoteStationRunId: string | undefined;
+let immersiveSessionActive = false;
 
 app.innerHTML = `
   <main class="station-shell">
@@ -77,6 +102,7 @@ app.innerHTML = `
       <div class="status-strip">
         <span id="xr-status">WebXR checking</span>
         <span id="trace-summary">Trace 0/${edChestPainScenario.requiredTraceTags.length}</span>
+        <button id="enter-xr-button" class="xr-entry-button" type="button" disabled>Enter VR</button>
       </div>
     </section>
     <aside class="runtime-panel" aria-label="Station controls and clinical context">
@@ -115,6 +141,8 @@ const traceSummary = requireElement<HTMLElement>("#trace-summary");
 const traceActions = requireElement<HTMLElement>("#trace-actions");
 const xrStatus = requireElement<HTMLElement>("#xr-status");
 const dialogueLine = requireElement<HTMLElement>("#dialogue-line");
+const enterXrButton = requireElement<HTMLButtonElement>("#enter-xr-button");
+window.__openClinXrExperienceModeEvidence = xrExperienceModeEvidence;
 
 function renderControls(): void {
   traceActions.innerHTML = "";
@@ -217,20 +245,25 @@ async function updateXrStatus(): Promise<void> {
   const navigatorWithXr = navigator as NavigatorWithXr;
   if (!navigatorWithXr.xr) {
     xrStatus.textContent = "WebXR unavailable";
+    enterXrButton.disabled = true;
     return;
   }
   try {
     const supported = await navigatorWithXr.xr.isSessionSupported("immersive-vr");
     xrStatus.textContent = supported ? "WebXR ready" : "WebXR unavailable";
+    enterXrButton.disabled = !supported;
   } catch {
     xrStatus.textContent = "WebXR check blocked";
+    enterXrButton.disabled = true;
   }
 }
 
-function createStationScene(): void {
+function createStationScene(): StationSceneRuntime {
   const renderer = new WebGLRenderer({ canvas, antialias: true });
+  renderer.xr.enabled = true;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setClearColor(0x101820);
+  let activeXrSession: XrSession | undefined;
 
   const scene = new Scene();
   scene.name = iwsdkStationSceneObjects.stationRoot;
@@ -285,6 +318,8 @@ function createStationScene(): void {
   clockMesh.rotation.x = Math.PI / 2;
   clockMesh.position.set(0.9, 2.2, -1.2);
   scene.add(clockMesh);
+  scene.add(createClinicalPanel());
+  addControllerRays(renderer, scene);
 
   function resize(): void {
     const width = canvas.clientWidth;
@@ -301,10 +336,96 @@ function createStationScene(): void {
     patient.rotation.y = Math.sin(now / 1200) * 0.08;
     nurse.rotation.y = Math.sin(now / 900) * 0.12;
     renderer.render(scene, camera);
-    requestAnimationFrame(animate);
   }
 
-  animate();
+  renderer.setAnimationLoop(animate);
+
+  return {
+    async startImmersiveSession(): Promise<void> {
+      if (activeXrSession) {
+        await activeXrSession.end();
+        return;
+      }
+
+      const navigatorWithXr = navigator as NavigatorWithXr;
+      if (!navigatorWithXr.xr) {
+        xrStatus.textContent = "WebXR unavailable";
+        return;
+      }
+
+      enterXrButton.disabled = true;
+      xrStatus.textContent = "Entering VR";
+      try {
+        const session = await navigatorWithXr.xr.requestSession("immersive-vr", {
+          optionalFeatures: ["local-floor", "bounded-floor", "hand-tracking"],
+        });
+        activeXrSession = session;
+        session.addEventListener("end", () => {
+          activeXrSession = undefined;
+          immersiveSessionActive = false;
+          enterXrButton.disabled = false;
+          enterXrButton.textContent = "Enter VR";
+          xrStatus.textContent = "WebXR ready";
+        }, { once: true });
+        await renderer.xr.setSession(session as Parameters<typeof renderer.xr.setSession>[0]);
+        immersiveSessionActive = true;
+        enterXrButton.disabled = false;
+        enterXrButton.textContent = "Exit VR";
+        xrStatus.textContent = "In VR";
+      } catch {
+        activeXrSession = undefined;
+        enterXrButton.disabled = false;
+        enterXrButton.textContent = "Enter VR";
+        xrStatus.textContent = "WebXR entry blocked";
+      }
+    },
+  };
+}
+
+function createClinicalPanel(): Mesh {
+  const panelCanvas = document.createElement("canvas");
+  panelCanvas.width = 1024;
+  panelCanvas.height = 512;
+  const context = panelCanvas.getContext("2d");
+  if (!context) {
+    throw new Error("Unable to create clinical panel canvas context");
+  }
+  context.fillStyle = "#fff8e5";
+  context.fillRect(0, 0, panelCanvas.width, panelCanvas.height);
+  context.fillStyle = "#172332";
+  context.font = "700 54px Arial";
+  context.fillText("Simulated EHR", 48, 78);
+  context.font = "36px Arial";
+  const lines = [
+    "Chief concern: crushing substernal pressure",
+    "Vitals: BP 152/92  HR 104  RR 20  SpO2 96%",
+    "Interruption: nurse repeats vitals at minute seven",
+    "Priority: obtain ECG and escalate urgently",
+  ];
+  lines.forEach((line, index) => context.fillText(line, 48, 150 + index * 70));
+  const texture = new CanvasTexture(panelCanvas);
+  const panel = new Mesh(
+    new PlaneGeometry(2.15, 1.08),
+    new MeshBasicMaterial({ map: texture, side: DoubleSide }),
+  );
+  panel.name = "openclinxr.ed-chest-pain.in-vr-clinical-panel";
+  panel.position.set(-1.55, 1.55, -1.05);
+  panel.rotation.y = 0.42;
+  return panel;
+}
+
+function addControllerRays(renderer: WebGLRenderer, scene: Scene): void {
+  for (let index = 0; index < 2; index += 1) {
+    const controller = renderer.xr.getController(index);
+    controller.name = `openclinxr.ed-chest-pain.controller-${index + 1}`;
+    const ray = new Line(
+      new BufferGeometry().setFromPoints([new Vector3(0, 0, 0), new Vector3(0, 0, -3)]),
+      new LineBasicMaterial({ color: 0xd9c493 }),
+    );
+    ray.name = `openclinxr.ed-chest-pain.controller-ray-${index + 1}`;
+    controller.add(ray);
+    scene.add(controller);
+  }
 }
 
 function actorMesh(color: number): Group {
@@ -345,6 +466,7 @@ function recordFrame(now: number): void {
     foregroundPageConfirmed: document.visibilityState === "visible",
     traceInteractionPassed: state.completedTraceTags.length > 0,
     frameStats: window.__openClinXrFrameStats,
+    immersiveSessionStarted: immersiveSessionActive,
   });
 }
 
@@ -360,5 +482,8 @@ renderControls();
 updateReadiness();
 void initializeRemoteTraceSession(stationApi);
 void updateXrStatus();
-createStationScene();
+const stationScene = createStationScene();
+enterXrButton.addEventListener("click", () => {
+  void stationScene.startImmersiveSession();
+});
 tick();

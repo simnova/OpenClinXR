@@ -1,0 +1,68 @@
+{
+  "generatedAt": "2026-05-04T15:59:45.914Z",
+  "url": "http://localhost:5183/?questSmoke=iwsdk-sidecar-20260504-front",
+  "target": "iwsdk-sidecar",
+  "adb": {
+    "version": "Android Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as /opt/homebrew/bin/adb\nRunning on Darwin 25.4.0 (arm64)",
+    "deviceLine": "2G0YC5ZGB5000J         device usb:0-1 product:eureka model:Quest_3 device:eureka transport_id:1",
+    "reverseList": "UsbFfs tcp:5173 tcp:5173\nUsbFfs tcp:5183 tcp:5183"
+  },
+  "browser": {
+    "title": "OpenClinXR IWSDK Spike",
+    "url": "http://localhost:5183/?questSmoke=iwsdk-sidecar-20260504-front",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64; Quest 3) AppleWebKit/537.36 (KHTML, like Gecko) OculusBrowser/146.0.0.19.27.942135376 Chrome/146.0.7680.177 VR Safari/537.36",
+    "devicePixelRatio": 1,
+    "visibilityState": "visible",
+    "hidden": false,
+    "hasFocus": true,
+    "bodyHasEdChestPain": true,
+    "hasViteOverlay": false,
+    "hasNavigatorXr": true,
+    "xrStatus": "WebXR ready",
+    "trace": "Trace 0/10",
+    "frameStats": {
+      "sampleCount": 34,
+      "avgFrameMs": 14.1,
+      "p95FrameMs": 20.4,
+      "maxFrameMs": 32.9,
+      "approxFps": 70.9,
+      "framesObserved": 35,
+      "latestFrameAtMs": 754.7,
+      "sampleWindowSize": 34
+    },
+    "canvas": {
+      "width": 880,
+      "height": 924,
+      "clientWidth": 880,
+      "clientHeight": 924,
+      "dataUrlLength": 26062
+    }
+  },
+  "interaction": {
+    "beforeTrace": "Trace 0/10",
+    "afterTrace": "Trace 2/10",
+    "traceActionsAdvancedBy": 2,
+    "clickedEcg": true,
+    "clickedUrgent": true,
+    "hasViteOverlay": false,
+    "dialogue": "Spouse: Please tell me what you are worried about."
+  },
+  "frameSample": {
+    "framesObserved": 124,
+    "framesObservedDuringProbe": 73,
+    "sampleCount": 123,
+    "timedOut": false,
+    "elapsedWallMs": 1012.2,
+    "latestFrameAgeMs": 5.7,
+    "avgFrameMs": 13.95,
+    "p95FrameMs": 14.3,
+    "maxFrameMs": 32.9,
+    "approxFps": 71.7
+  },
+  "verdict": {
+    "shellLoaded": true,
+    "interactionAdvanced": true,
+    "frameSampleComplete": true,
+    "blockers": []
+  }
+}

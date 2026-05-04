@@ -1,0 +1,49 @@
+{
+  "generatedAt": "2026-05-04T16:31:30Z",
+  "source": "Quest Browser Chrome DevTools Protocol read after local sidecar reload",
+  "target": "apps/ui-xr-iwsdk-spike",
+  "url": "http://localhost:5183/?questSmoke=in-vr-panel-rays-20260504",
+  "xrStatus": "WebXR ready",
+  "enterButtonText": "Enter VR",
+  "visibilityState": "hidden",
+  "notes": [
+    "This read did not start an immersive session because WebXR session entry requires a physical user gesture in the headset.",
+    "The live sidecar now exposes the Phase 1 VR posture fields after reload.",
+    "This evidence confirms mode labeling only; it does not prove in-headset readability, comfort, foreground frame pacing, passthrough support, or controller latency."
+  ],
+  "evidence": {
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "sidecar": "apps/ui-xr-iwsdk-spike",
+    "iwsdkCoreExportCount": 586,
+    "iwsdkXrInputExportCount": 31,
+    "phaseLabel": "Phase 1 VR",
+    "requestedSessionMode": "immersive-vr",
+    "mixedRealityPassthroughImplemented": false,
+    "handTrackingPosture": "optional_feature_requested_no_articulated_hand_mesh",
+    "locomotionPosture": "physical_room_scale_only",
+    "requiredSceneObjectNames": [
+      "openclinxr.ed-chest-pain.station-root",
+      "openclinxr.ed-chest-pain.ambient-light",
+      "openclinxr.ed-chest-pain.key-light",
+      "openclinxr.ed-chest-pain.floor",
+      "openclinxr.ed-chest-pain.bed",
+      "openclinxr.ed-chest-pain.monitor",
+      "openclinxr.ed-chest-pain.patient-robert-hayes",
+      "openclinxr.ed-chest-pain.nurse-maria-alvarez",
+      "openclinxr.ed-chest-pain.spouse-anna-hayes",
+      "openclinxr.ed-chest-pain.wall-clock"
+    ],
+    "traceActionTags": [
+      "history_opqrst",
+      "risk_factor_question",
+      "associated_symptom_question",
+      "vitals_review",
+      "ecg_request",
+      "urgent_escalation",
+      "team_communication",
+      "family_communication",
+      "empathy_statement",
+      "patient_note_submitted"
+    ]
+  }
+}

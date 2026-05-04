@@ -991,7 +991,7 @@ const blockerGroups = [
     title: "Foreground Quest frame pacing evidence",
     owner: "xr-systems-architect",
     matches: (blocker: string) => blocker.startsWith("quest_") || blocker.startsWith("quest_manual_performance:"),
-    nextStep: "Review proposal-quest-foreground-performance-capture.md, then capture the foreground in-headset manual report for comfort, readability, immersive-session, and sustained-frame observations that CDP cannot honestly attest alone.",
+    nextStep: "Use the approved proposals/approved/proposal-quest-foreground-performance-capture.md scope, then capture the foreground in-headset manual report for comfort, readability, immersive-session, and sustained-frame observations that CDP cannot honestly attest alone.",
   },
   {
     groupId: "local_model_runtime",

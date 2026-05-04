@@ -110,6 +110,7 @@ describe("benchmark gate report", () => {
         value: {
           generatedAt: "2026-05-04T00:00:00.000Z",
           url: "http://localhost:5173/",
+          target: "station",
           adb: {
             version: "Android Debug Bridge version 1.0.41",
             deviceLine: "1234 device product:quest3",
@@ -421,6 +422,7 @@ describe("benchmark gate report", () => {
         value: {
           generatedAt: "2026-05-04T00:00:00.000Z",
           url: "http://localhost:5173/",
+          target: "station",
           adb: {
             version: "Android Debug Bridge version 1.0.41",
             deviceLine: "1234 device product:quest3",
@@ -468,6 +470,7 @@ describe("benchmark gate report", () => {
             avgFps: 72,
             p95FrameMs: 25,
             minimumObservedFps: 60,
+            controllerSelectLatencyMs: 140,
           },
           comfort: {
             motionComfort: "comfortable",
@@ -510,6 +513,7 @@ describe("benchmark gate report", () => {
       "rolling_frame_window_120_or_more",
       "average_fps_72_or_higher",
       "p95_frame_ms_25_or_lower",
+      "controller_select_latency_150ms_or_lower",
     ]));
     expect(questGate?.blockers).not.toContain("quest_manual_performance:missing_quest_manual_performance_report");
   });
@@ -521,6 +525,7 @@ describe("benchmark gate report", () => {
         value: {
           generatedAt: "2026-05-04T00:00:00.000Z",
           url: "http://localhost:5173/",
+          target: "station",
           adb: {
             version: "Android Debug Bridge version 1.0.41",
             deviceLine: "1234 device product:quest3",

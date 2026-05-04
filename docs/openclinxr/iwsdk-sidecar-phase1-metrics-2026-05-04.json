@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-05-04T14:13:38.442Z",
+  "generatedAt": "2026-05-04T16:28:49.384Z",
   "inputFile": "docs/openclinxr/iwsdk-sidecar-phase1-metrics-input-2026-05-04.json",
   "metrics": {
     "installedNodeModulesMb": 24,
     "injectedDevRuntimeKb": 0,
-    "appJsBundleKb": 2404.55,
-    "bundleDeltaVsUiXrKb": 1974.38,
-    "baselineAppBundleSource": "apps/ui-xr/dist/assets/index-Tk57pDQZ.js + apps/ui-xr/dist/assets/three-vendor-DNRJwxp9.js",
+    "appJsBundleKb": 2404.61,
+    "bundleDeltaVsUiXrKb": 1972.14,
+    "baselineAppBundleSource": "apps/ui-xr/dist/assets/index-CiEe1RD_.js + apps/ui-xr/dist/assets/three-vendor-BNtJvDEP.js",
     "smokePlanHash": "runtime-state:iwsdk-station-mcp-smoke-plan:v1",
     "canvasNonblank": true,
     "requiredSceneObjectNames": [
@@ -37,6 +37,9 @@
     "observedTraceActionTags": [
       "ecg_request"
     ],
+    "foregroundQuestPreflightReady": true,
+    "avgFps": 71.7,
+    "p95FrameMs": 14.3,
     "consoleErrorCount": 0
   },
   "result": {
@@ -45,9 +48,7 @@
     "blockers": [
       "app_js_bundle_kb_over_budget",
       "bundle_delta_vs_ui_xr_kb_over_budget",
-      "missing_foreground_quest_preflight_ready",
-      "missing_avg_fps",
-      "missing_p95_frame_ms",
+      "avg_fps_below_floor",
       "missing_controller_select_latency_ms"
     ]
   }

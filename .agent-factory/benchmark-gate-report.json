@@ -5,7 +5,7 @@
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T15:16:15.305Z",
-      "age_hours": 0,
+      "age_hours": 1,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -14,7 +14,7 @@
       "evidence_id": "local_runtime_probe",
       "file": "docs/openclinxr/local-runtime-probe-2026-05-04.json",
       "generated_at": "2026-05-04T15:16:18.712Z",
-      "age_hours": 0,
+      "age_hours": 1,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -32,7 +32,7 @@
       "evidence_id": "blender_asset_bake_smoke",
       "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T05:06:10.560Z",
-      "age_hours": 10,
+      "age_hours": 11,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -41,7 +41,7 @@
       "evidence_id": "local_provider_benchmark",
       "file": "docs/openclinxr/local-provider-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T14:53:24.787Z",
-      "age_hours": 0,
+      "age_hours": 1,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -50,7 +50,7 @@
       "evidence_id": "local_model_runtime_benchmark",
       "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T14:57:50Z",
-      "age_hours": 0,
+      "age_hours": 1,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -59,7 +59,7 @@
       "evidence_id": "local_voice_runtime_benchmark",
       "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T15:01:12Z",
-      "age_hours": 0,
+      "age_hours": 1,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -369,7 +369,7 @@
   },
   "iwsdk_evidence_contract": {
     "file": "docs/openclinxr/iwsdk-evidence-contract-2026-05-04.json",
-    "generated_at": "2026-05-04T14:43:44.426Z",
+    "generated_at": "2026-05-04T16:28:54.587Z",
     "status": "phase_1_install_backed_sidecar",
     "ready_for_install_backed_sidecar": true,
     "ready_for_agent_tooling": false,
@@ -400,11 +400,9 @@
       "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
       "metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
       "production_runtime:app_js_bundle_kb_over_budget",
+      "production_runtime:avg_fps_below_floor",
       "production_runtime:bundle_delta_vs_ui_xr_kb_over_budget",
-      "production_runtime:missing_avg_fps",
       "production_runtime:missing_controller_select_latency_ms",
-      "production_runtime:missing_foreground_quest_preflight_ready",
-      "production_runtime:missing_p95_frame_ms",
       "tool_selection:iwsdk_mcp_future_blocked_until_sidecar",
       "tool_selection:manual_quest_foreground_required_for_production_readiness"
     ],
@@ -463,10 +461,8 @@
           "area": "quest_manual",
           "status": "blocked",
           "blockers": [
-            "production_runtime:missing_avg_fps",
-            "production_runtime:missing_controller_select_latency_ms",
-            "production_runtime:missing_foreground_quest_preflight_ready",
-            "production_runtime:missing_p95_frame_ms"
+            "production_runtime:avg_fps_below_floor",
+            "production_runtime:missing_controller_select_latency_ms"
           ]
         },
         {
@@ -524,7 +520,7 @@
             "blockers": [
               "quest_manual_performance:missing_quest_manual_performance_report"
             ],
-            "next_step": "Review proposal-quest-foreground-performance-capture.md, then capture the foreground in-headset manual report for comfort, readability, immersive-session, and sustained-frame observations that CDP cannot honestly attest alone."
+            "next_step": "Use the approved proposals/approved/proposal-quest-foreground-performance-capture.md scope, then capture the foreground in-headset manual report for comfort, readability, immersive-session, and sustained-frame observations that CDP cannot honestly attest alone."
           }
         ],
         "ungrouped_blockers": []
@@ -561,7 +557,7 @@
             "blockers": [
               "quest_manual_performance:missing_quest_manual_performance_report"
             ],
-            "next_step": "Review proposal-quest-foreground-performance-capture.md, then capture the foreground in-headset manual report for comfort, readability, immersive-session, and sustained-frame observations that CDP cannot honestly attest alone."
+            "next_step": "Use the approved proposals/approved/proposal-quest-foreground-performance-capture.md scope, then capture the foreground in-headset manual report for comfort, readability, immersive-session, and sustained-frame observations that CDP cannot honestly attest alone."
           }
         ],
         "ungrouped_blockers": []
@@ -632,16 +628,14 @@
         "iwsdk:compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
         "iwsdk:metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
         "iwsdk:production_runtime:app_js_bundle_kb_over_budget",
+        "iwsdk:production_runtime:avg_fps_below_floor",
         "iwsdk:production_runtime:bundle_delta_vs_ui_xr_kb_over_budget",
-        "iwsdk:production_runtime:missing_avg_fps",
         "iwsdk:production_runtime:missing_controller_select_latency_ms",
-        "iwsdk:production_runtime:missing_foreground_quest_preflight_ready",
-        "iwsdk:production_runtime:missing_p95_frame_ms",
         "iwsdk:tool_selection:iwsdk_mcp_future_blocked_until_sidecar",
         "iwsdk:tool_selection:manual_quest_foreground_required_for_production_readiness"
       ],
       "blocker_summary": {
-        "total_blockers": 32,
+        "total_blockers": 30,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -674,11 +668,9 @@
               "iwsdk:compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
               "iwsdk:metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
               "iwsdk:production_runtime:app_js_bundle_kb_over_budget",
+              "iwsdk:production_runtime:avg_fps_below_floor",
               "iwsdk:production_runtime:bundle_delta_vs_ui_xr_kb_over_budget",
-              "iwsdk:production_runtime:missing_avg_fps",
               "iwsdk:production_runtime:missing_controller_select_latency_ms",
-              "iwsdk:production_runtime:missing_foreground_quest_preflight_ready",
-              "iwsdk:production_runtime:missing_p95_frame_ms",
               "iwsdk:tool_selection:iwsdk_mcp_future_blocked_until_sidecar",
               "iwsdk:tool_selection:manual_quest_foreground_required_for_production_readiness"
             ],

@@ -11,6 +11,7 @@ const execFileAsync = promisify(execFile);
 export type CliOptions = {
   mode: "run" | "validate";
   url: string;
+  target: QuestSmokeTarget;
   appPort: number;
   cdpPort: number;
   outputPath?: string;
@@ -20,6 +21,8 @@ export type CliOptions = {
   inputPath?: string;
   inputPattern: string;
 };
+
+export type QuestSmokeTarget = "station" | "iwsdk-sidecar";
 
 type CdpPage = {
   id: string;
@@ -47,6 +50,7 @@ type CdpResult = {
 export type QuestSmokeReport = {
   generatedAt: string;
   url: string;
+  target: QuestSmokeTarget;
   adb: {
     version: string;
     deviceLine: string;
@@ -123,6 +127,8 @@ async function main(): Promise<void> {
   const page = await waitForQuestPage(options);
   const client = await CdpClient.connect(page.webSocketDebuggerUrl);
   try {
+    await client.bringToFront();
+    await delay(250);
     await client.reload();
     await delay(750);
     const browser = await client.evaluate(browserSnapshotExpression());
@@ -155,6 +161,7 @@ export function parseArgs(args: string[]): CliOptions {
   const options: CliOptions = {
     mode: "run",
     url: "http://localhost:5173/",
+    target: "station",
     appPort: 5173,
     cdpPort: 9222,
     frameSampleCount: 90,
@@ -171,6 +178,11 @@ export function parseArgs(args: string[]): CliOptions {
     if (arg === "--url") {
       options.url = requireValue(normalizedArgs, index, arg);
       options.appPort = Number(new URL(options.url).port || "80");
+      index += 1;
+      continue;
+    }
+    if (arg === "--target") {
+      options.target = parseTarget(requireValue(normalizedArgs, index, arg));
       index += 1;
       continue;
     }
@@ -235,6 +247,13 @@ export function parseArgs(args: string[]): CliOptions {
   }
 
   return options;
+}
+
+function parseTarget(value: string): QuestSmokeTarget {
+  if (value === "station" || value === "iwsdk-sidecar") {
+    return value;
+  }
+  throw new Error("--target must be one of: station, iwsdk-sidecar");
 }
 
 function requireValue(args: string[], index: number, flag: string): string {
@@ -325,9 +344,15 @@ export function interactionExpression(): string {
     const clickedUrgent = clickByText("urgent escalation");
     await new Promise((resolve) => setTimeout(resolve, 100));
     const afterTrace = document.body.textContent.match(/Trace\s+\d+\/\d+/)?.[0] ?? null;
+    const parseTraceCount = (traceText) => Number(traceText?.match(/Trace\s+(\d+)\/\d+/)?.[1] ?? Number.NaN);
+    const beforeTraceCount = parseTraceCount(beforeTrace);
+    const afterTraceCount = parseTraceCount(afterTrace);
     return {
       beforeTrace,
       afterTrace,
+      traceActionsAdvancedBy: Number.isFinite(beforeTraceCount) && Number.isFinite(afterTraceCount)
+        ? afterTraceCount - beforeTraceCount
+        : null,
       clickedEcg,
       clickedUrgent,
       hasViteOverlay: !!document.querySelector("vite-error-overlay"),
@@ -385,11 +410,13 @@ export function buildReport(input: QuestSmokeReportInput): QuestSmokeReport {
   const browser = asRecord(input.browser);
   const interaction = asRecord(input.interaction);
   const frameSample = asRecord(input.frameSample);
-  const shellLoaded = browser.title === "OpenClinXR Station Runtime"
+  const shellLoaded = browser.title === expectedQuestSmokeTitle(input.options.target)
     && browser.bodyHasEdChestPain === true
     && browser.hasViteOverlay === false
     && asRecord(browser.canvas).dataUrlLength !== undefined;
-  const interactionAdvanced = interaction.afterTrace === "Trace 2/10" && interaction.clickedEcg === true && interaction.clickedUrgent === true;
+  const interactionAdvanced = traceInteractionAdvanced(interaction)
+    && interaction.clickedEcg === true
+    && interaction.clickedUrgent === true;
   const pageVisible = browser.hidden === false && browser.visibilityState === "visible";
   const frameSampleComplete = pageVisible && frameSample.timedOut === false && typeof frameSample.avgFrameMs === "number";
   const blockers = [
@@ -402,6 +429,7 @@ export function buildReport(input: QuestSmokeReportInput): QuestSmokeReport {
   return {
     generatedAt: new Date().toISOString(),
     url: input.options.url,
+    target: input.options.target,
     adb: {
       version: input.adbVersion,
       deviceLine: input.deviceLine,
@@ -417,6 +445,32 @@ export function buildReport(input: QuestSmokeReportInput): QuestSmokeReport {
       blockers,
     },
   };
+}
+
+function expectedQuestSmokeTitle(target: QuestSmokeTarget): string {
+  return target === "iwsdk-sidecar" ? "OpenClinXR IWSDK Spike" : "OpenClinXR Station Runtime";
+}
+
+function traceInteractionAdvanced(interaction: Record<string, unknown>): boolean {
+  if (typeof interaction.traceActionsAdvancedBy === "number") {
+    return interaction.traceActionsAdvancedBy >= 2;
+  }
+  if (typeof interaction.beforeTrace === "string" && typeof interaction.afterTrace === "string") {
+    const before = traceCount(interaction.beforeTrace);
+    const after = traceCount(interaction.afterTrace);
+    if (before !== undefined && after !== undefined) {
+      return after - before >= 2;
+    }
+  }
+  return typeof interaction.afterTrace === "string" && /^Trace\s+2\/\d+$/.test(interaction.afterTrace);
+}
+
+function traceCount(traceText: string): number | undefined {
+  const match = traceText.match(/Trace\s+(\d+)\/\d+/);
+  if (!match?.[1]) {
+    return undefined;
+  }
+  return Number.parseInt(match[1], 10);
 }
 
 export function buildQuestSmokeEvidenceCheck(inputFile: string | undefined, report: QuestSmokeReport | undefined): QuestSmokeEvidenceCheck {
@@ -583,6 +637,10 @@ class CdpClient {
   async reload(): Promise<void> {
     await this.send("Page.enable");
     await this.send("Page.reload", { ignoreCache: true });
+  }
+
+  async bringToFront(): Promise<void> {
+    await this.send("Page.bringToFront");
   }
 
   private send(method: string, params: Record<string, unknown> = {}, timeoutMs = 5000): Promise<CdpResult> {

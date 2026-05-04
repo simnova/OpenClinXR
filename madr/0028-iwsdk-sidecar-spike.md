@@ -41,7 +41,8 @@ Negative:
 - Current production shell names scene objects in `apps/ui-xr/src/main.ts`; a future sidecar must preserve those semantic names or document the migration.
 - Patrick approved `@iwsdk/reference` warmup scope and `@meta-quest/hzdb` legal/procurement posture on 2026-05-04, but do not run floating `npx iwsdk reference warmup`, install `@meta-quest/hzdb`, or add IWSDK packages outside the approved sidecar path in unattended mode.
 - Patrick approved [proposal-iwsdk-sidecar-install.md](../proposals/approved/proposal-iwsdk-sidecar-install.md) on 2026-05-04; `apps/ui-xr-iwsdk-spike` now exists as a runnable Phase 1 sidecar with exact `@iwsdk/core@0.3.1`, `@iwsdk/xr-input@0.3.1`, and `three@0.184.0`.
-- Phase 1 browser parity passed, but the sidecar remains blocked from production adoption by bundle budget and foreground Quest metrics in `docs/openclinxr/iwsdk-sidecar-phase1-metrics-2026-05-04.json`.
+- Phase 1 browser and Quest CDP parity passed, but the sidecar remains blocked from production adoption by bundle budget, average FPS, controller-select latency evidence, and the human headset observation report in `docs/openclinxr/iwsdk-sidecar-phase1-metrics-2026-05-04.json`.
+- Phase 1 uses full immersive VR (`immersive-vr`), not passthrough MR. Any future `immersive-ar` path is gated by `proposal-webxr-mixed-reality-mode.md`.
 
 ## Sources
 

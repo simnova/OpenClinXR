@@ -8,7 +8,7 @@ Approve a second IWSDK sidecar slice that evaluates agent-oriented devtools, ada
 
 ## Recommendation
 
-Do not install Phase 2 packages yet. First review the Phase 1 sidecar bundle-size blockers, the new foreground-ready CDP smoke evidence, the remaining manual Quest report gap, and the Vite 8 peer mismatch.
+Do not install Phase 2 packages yet. First review the Phase 1 sidecar bundle-size blockers, the new foreground-ready sidecar Quest CDP smoke evidence, the remaining average-FPS/controller-latency/manual Quest report gaps, and the Vite 8 peer mismatch.
 
 When those are reviewed, approve a narrow Phase 2 sidecar-only spike for `@iwsdk/vite-plugin-dev@0.3.1` and adapter/MCP evidence. Keep `@iwsdk/reference@0.3.2`, `@meta-quest/hzdb@1.1.0`, Meta Spatial, UIKitML, and GLTF optimizer packages as separately gated sub-slices.
 

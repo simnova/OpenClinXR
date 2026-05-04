@@ -37,6 +37,7 @@ describe("Quest manual performance checker", () => {
         avgFps: 72,
         p95FrameMs: 25,
         minimumObservedFps: 60,
+        controllerSelectLatencyMs: 150,
       },
       comfort: {
         motionComfort: "comfortable",
@@ -71,6 +72,7 @@ describe("Quest manual performance checker", () => {
       "rolling_frame_window_120_or_more",
       "average_fps_72_or_higher",
       "p95_frame_ms_25_or_lower",
+      "controller_select_latency_150ms_or_lower",
     ]));
   });
 
@@ -103,6 +105,7 @@ describe("Quest manual performance checker", () => {
         avgFps: null,
         p95FrameMs: null,
         minimumObservedFps: null,
+        controllerSelectLatencyMs: null,
       },
       comfort: {
         motionComfort: "not_run",
@@ -137,6 +140,7 @@ describe("Quest manual performance checker", () => {
       "average_fps_below_72_or_missing",
       "minimum_fps_below_60_or_missing",
       "p95_frame_ms_above_25_or_missing",
+      "controller_select_latency_ms_above_150_or_missing",
       "motion_comfort_not_confirmed",
       "heat_concern_not_cleared",
       "battery_drop_not_recorded",
@@ -151,6 +155,7 @@ describe("Quest manual performance checker", () => {
       "Record a rolling frame window with at least 120 samples.",
       "Record average FPS at or above 72.",
       "Record p95 frame time at or below 25 ms.",
+      "Record controller-select latency at or below 150 ms.",
       "Confirm motion comfort is comfortable.",
       "Clear heat concern as false after the run.",
       "Record battery drop percent.",
@@ -186,6 +191,7 @@ describe("Quest manual performance checker", () => {
         avgFps: 180,
         p95FrameMs: -1,
         minimumObservedFps: 190,
+        controllerSelectLatencyMs: -1,
       },
       comfort: {
         motionComfort: "comfortable",
@@ -216,6 +222,7 @@ describe("Quest manual performance checker", () => {
       "minimum_fps_unrealistic_or_non_finite",
       "minimum_fps_above_average_fps",
       "p95_frame_ms_not_positive_finite",
+      "controller_select_latency_ms_not_positive_finite",
       "battery_drop_not_finite_range_0_to_100",
     ]));
     expect(check.satisfiedConditions).not.toEqual(expect.arrayContaining([

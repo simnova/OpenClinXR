@@ -23,7 +23,8 @@
     "sampleWindowSize": 0,
     "avgFps": null,
     "p95FrameMs": null,
-    "minimumObservedFps": null
+    "minimumObservedFps": null,
+    "controllerSelectLatencyMs": null
   },
   "comfort": {
     "motionComfort": "not_run",

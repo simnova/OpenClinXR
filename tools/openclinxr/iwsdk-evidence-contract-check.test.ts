@@ -146,8 +146,8 @@ describe("IWSDK evidence contract checker", () => {
         "agent_tooling:mcp_tool_inventory_count_not_32",
         "tool_selection:iwsdk_mcp_future_blocked_until_sidecar",
         "tool_selection:manual_quest_foreground_required_for_production_readiness",
-        "production_runtime:missing_foreground_quest_preflight_ready",
-        "production_runtime:missing_avg_fps",
+        "production_runtime:avg_fps_below_floor",
+        "production_runtime:missing_controller_select_latency_ms",
       ]),
     });
   });
@@ -176,7 +176,7 @@ describe("IWSDK evidence contract checker", () => {
         "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
         "metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
         "agent_tooling:missing_managed_browser_evidence",
-        "production_runtime:missing_foreground_quest_preflight_ready",
+        "production_runtime:avg_fps_below_floor",
         "production_runtime:missing_controller_select_latency_ms",
       ]));
     }

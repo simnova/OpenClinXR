@@ -15,8 +15,8 @@ describe("IWSDK operator steering blockers", () => {
   it("links non-simple open blockers to proposal files", async () => {
     const operatorSteeringText = await readFile("operator-steering-needed-questions.md", "utf8");
     const proposalFiles = [
-      "proposal-quest-foreground-performance-capture.md",
       "proposal-iwsdk-phase2-devtools.md",
+      "proposal-webxr-mixed-reality-mode.md",
     ];
 
     for (const proposalFile of proposalFiles) {
@@ -37,6 +37,7 @@ describe("IWSDK operator steering blockers", () => {
       "proposals/approved/proposal-iwsdk-sidecar-install.md",
       "proposals/approved/proposal-local-model-benchmark.md",
       "proposals/approved/proposal-local-voice-runtime.md",
+      "proposals/approved/proposal-quest-foreground-performance-capture.md",
     ];
 
     for (const proposalFile of approvedProposalFiles) {
@@ -52,6 +53,9 @@ describe("IWSDK operator steering blockers", () => {
     );
     expect(await readFile("proposals/approved/proposal-local-voice-runtime.md", "utf8")).toContain(
       "Status: Approved by Patrick on 2026-05-04 10:40:15 EDT",
+    );
+    expect(await readFile("proposals/approved/proposal-quest-foreground-performance-capture.md", "utf8")).toContain(
+      "Status: Approved by Patrick on 2026-05-04 11:49:38 EDT",
     );
   });
 });

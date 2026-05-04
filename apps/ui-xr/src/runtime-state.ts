@@ -78,6 +78,7 @@ export type ManualPerformanceMetrics = {
   avgFps: number | null;
   p95FrameMs: number | null;
   minimumObservedFps: number | null;
+  controllerSelectLatencyMs: number | null;
   source: "window.__openClinXrFrameStats";
   framesObserved: number;
   sampleWindowSize: number;
@@ -120,7 +121,23 @@ export type ManualPerformanceDraftInput = {
   immersiveSessionStarted?: boolean;
 };
 
+export type XrExperienceModeEvidence = {
+  phaseLabel: "Phase 1 VR";
+  requestedSessionMode: "immersive-vr";
+  mixedRealityPassthroughImplemented: false;
+  handTrackingPosture: "optional_feature_requested_no_articulated_hand_mesh";
+  locomotionPosture: "physical_room_scale_only";
+};
+
 export const stationTraceActionTags = [...edChestPainScenario.requiredTraceTags];
+
+export const xrExperienceModeEvidence: XrExperienceModeEvidence = {
+  phaseLabel: "Phase 1 VR",
+  requestedSessionMode: "immersive-vr",
+  mixedRealityPassthroughImplemented: false,
+  handTrackingPosture: "optional_feature_requested_no_articulated_hand_mesh",
+  locomotionPosture: "physical_room_scale_only",
+};
 
 export const iwsdkStationSceneObjects = {
   stationRoot: "openclinxr.ed-chest-pain.station-root",
@@ -344,6 +361,7 @@ export function manualPerformanceMetricsFromFrameStats(stats: ManualPerformanceF
     avgFps: stats.approxFps,
     p95FrameMs: stats.p95FrameMs,
     minimumObservedFps: stats.maxFrameMs ? roundMetric(1000 / stats.maxFrameMs, 1) : null,
+    controllerSelectLatencyMs: null,
     source: "window.__openClinXrFrameStats",
     framesObserved: stats.framesObserved,
     sampleWindowSize: stats.sampleWindowSize,

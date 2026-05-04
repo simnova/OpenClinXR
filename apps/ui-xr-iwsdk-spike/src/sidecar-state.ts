@@ -20,8 +20,21 @@ export type IwsdkSidecarRuntimeEvidence = {
   sidecar: "apps/ui-xr-iwsdk-spike";
   iwsdkCoreExportCount: number;
   iwsdkXrInputExportCount: number;
+  phaseLabel: "Phase 1 VR";
+  requestedSessionMode: "immersive-vr";
+  mixedRealityPassthroughImplemented: false;
+  handTrackingPosture: "optional_feature_requested_no_articulated_hand_mesh";
+  locomotionPosture: "physical_room_scale_only";
   requiredSceneObjectNames: string[];
   traceActionTags: string[];
+};
+
+export type IwsdkSidecarFrameDeltaSummary = {
+  sampleCount: number;
+  avgFrameMs: number | null;
+  p95FrameMs: number | null;
+  maxFrameMs: number | null;
+  approxFps: number | null;
 };
 
 const parityContract = buildIwsdkUiXrStationParityContract();
@@ -70,6 +83,29 @@ export function formatIwsdkSidecarClock(totalSeconds: number): string {
   return `${minutes}:${seconds}`;
 }
 
+export function summarizeIwsdkSidecarFrameDeltas(frameDeltasMs: number[]): IwsdkSidecarFrameDeltaSummary {
+  if (frameDeltasMs.length === 0) {
+    return {
+      sampleCount: 0,
+      avgFrameMs: null,
+      p95FrameMs: null,
+      maxFrameMs: null,
+      approxFps: null,
+    };
+  }
+
+  const sorted = [...frameDeltasMs].sort((left, right) => left - right);
+  const avgFrameMs = sorted.reduce((sum, value) => sum + value, 0) / sorted.length;
+  const p95Index = Math.min(sorted.length - 1, Math.ceil(sorted.length * 0.95) - 1);
+  return {
+    sampleCount: sorted.length,
+    avgFrameMs: roundMetric(avgFrameMs),
+    p95FrameMs: roundMetric(sorted[p95Index] ?? avgFrameMs),
+    maxFrameMs: roundMetric(sorted.at(-1) ?? avgFrameMs),
+    approxFps: roundMetric(1000 / avgFrameMs, 1),
+  };
+}
+
 export function buildIwsdkSidecarRuntimeEvidence(input: {
   iwsdkCoreExportCount: number;
   iwsdkXrInputExportCount: number;
@@ -79,7 +115,17 @@ export function buildIwsdkSidecarRuntimeEvidence(input: {
     sidecar: "apps/ui-xr-iwsdk-spike",
     iwsdkCoreExportCount: input.iwsdkCoreExportCount,
     iwsdkXrInputExportCount: input.iwsdkXrInputExportCount,
+    phaseLabel: "Phase 1 VR",
+    requestedSessionMode: "immersive-vr",
+    mixedRealityPassthroughImplemented: false,
+    handTrackingPosture: "optional_feature_requested_no_articulated_hand_mesh",
+    locomotionPosture: "physical_room_scale_only",
     requiredSceneObjectNames: [...iwsdkSidecarSceneObjectNames],
     traceActionTags: [...iwsdkSidecarTraceActionTags],
   };
+}
+
+function roundMetric(value: number, digits = 2): number {
+  const factor = 10 ** digits;
+  return Math.round(value * factor) / factor;
 }

@@ -176,6 +176,9 @@ export function buildIwsdkEvidenceContractReport(input: {
     observedSceneObjectNames: buildIwsdkUiXrStationParityContract().requiredSceneObjectNames,
     controllerSelectTraceTag: "ecg_request",
     observedTraceActionTags: ["ecg_request"],
+    foregroundQuestPreflightReady: true,
+    avgFps: 71.7,
+    p95FrameMs: 14.3,
     consoleErrorCount: 0,
   };
   const productionRuntime = evaluateIwsdkSpikeMetrics(currentKnownSidecarMetrics);

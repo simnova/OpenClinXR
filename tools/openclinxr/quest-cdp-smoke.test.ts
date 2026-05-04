@@ -25,6 +25,8 @@ describe("Quest CDP smoke probe", () => {
     expect(parseArgs([
       "--url",
       "http://localhost:5174/quest?smoke=1",
+      "--target",
+      "iwsdk-sidecar",
       "--cdp-port",
       "9333",
       "--output",
@@ -37,6 +39,7 @@ describe("Quest CDP smoke probe", () => {
     ])).toMatchObject({
       mode: "run",
       url: "http://localhost:5174/quest?smoke=1",
+      target: "iwsdk-sidecar",
       appPort: 5174,
       cdpPort: 9333,
       outputPath: "docs/openclinxr/quest-smoke.json",
@@ -76,6 +79,7 @@ describe("Quest CDP smoke probe", () => {
   it("rejects unknown, missing, and non-positive CLI values", () => {
     expect(() => parseArgs(["--surprise"])).toThrow("Unknown argument");
     expect(() => parseArgs(["--url"])).toThrow("--url requires a value");
+    expect(() => parseArgs(["--target", "unknown"])).toThrow("--target must be one of");
     expect(() => parseArgs(["--app-port", "0"])).toThrow("--app-port must be a positive number");
     expect(() => parseArgs(["--cdp-port", "0"])).toThrow("--cdp-port must be a positive number");
     expect(() => parseArgs(["--frame-sample-count", "0"])).toThrow("--frame-sample-count must be a positive number");
@@ -131,6 +135,48 @@ describe("Quest CDP smoke probe", () => {
       frameSampleComplete: true,
       blockers: [],
     });
+    expect(report.target).toBe("station");
+  });
+
+  it("builds a passing sidecar report with the IWSDK shell title and sidecar trace denominator", () => {
+    const report = buildReport({
+      options: parseArgs([
+        "--url",
+        "http://localhost:5183/?questSmoke=1",
+        "--target",
+        "iwsdk-sidecar",
+      ]),
+      adbVersion: "Android Debug Bridge version 1.0.41",
+      deviceLine: "1234 device product:quest3",
+      reverseList: "1234 tcp:5183 tcp:5183",
+      browser: {
+        title: "OpenClinXR IWSDK Spike",
+        bodyHasEdChestPain: true,
+        hasViteOverlay: false,
+        hidden: false,
+        visibilityState: "visible",
+        canvas: { dataUrlLength: 4096 },
+      },
+      interaction: {
+        beforeTrace: "Trace 0/6",
+        afterTrace: "Trace 2/6",
+        traceActionsAdvancedBy: 2,
+        clickedEcg: true,
+        clickedUrgent: true,
+      },
+      frameSample: {
+        timedOut: false,
+        avgFrameMs: 13.5,
+      },
+    });
+
+    expect(report.verdict).toEqual({
+      shellLoaded: true,
+      interactionAdvanced: true,
+      frameSampleComplete: true,
+      blockers: [],
+    });
+    expect(report.target).toBe("iwsdk-sidecar");
   });
 
   it("classifies a foreground-ready Quest smoke report for leadership evidence", () => {

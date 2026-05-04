@@ -17,6 +17,29 @@ describe("static browser assets", () => {
     expect(mainSource).toContain('} from "three"');
   });
 
+  it("exposes an explicit immersive VR entry path for Quest Browser", () => {
+    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
+
+    expect(runtimeStateSource).toContain("Phase 1 VR");
+    expect(mainSource).toContain("__openClinXrExperienceModeEvidence");
+    expect(mainSource).toContain("Enter VR");
+    expect(mainSource).toContain('requestSession("immersive-vr"');
+    expect(mainSource).not.toContain('requestSession("immersive-ar"');
+    expect(mainSource).toContain('"hand-tracking"');
+    expect(mainSource).toContain("renderer.xr.enabled = true");
+    expect(mainSource).toContain("renderer.setAnimationLoop");
+  });
+
+  it("renders clinical text and controller affordances inside the immersive scene", () => {
+    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+
+    expect(mainSource).toContain("CanvasTexture");
+    expect(mainSource).toContain("openclinxr.ed-chest-pain.in-vr-clinical-panel");
+    expect(mainSource).toContain("renderer.xr.getController");
+    expect(mainSource).toContain("openclinxr.ed-chest-pain.controller-ray");
+  });
+
   it("names station scene objects for future IWSDK scene hierarchy checks", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
 

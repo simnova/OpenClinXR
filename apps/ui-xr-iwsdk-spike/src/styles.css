@@ -55,6 +55,22 @@ button {
   font-size: 14px;
 }
 
+.xr-entry-button {
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 1px solid #8bd8bf;
+  border-radius: 6px;
+  background: #e7fff4;
+  color: #10211d;
+  font-weight: 700;
+}
+
+.xr-entry-button:disabled {
+  border-color: #42645a;
+  background: #233a34;
+  color: #8aa89e;
+}
+
 .spike-panel {
   display: flex;
   flex-direction: column;

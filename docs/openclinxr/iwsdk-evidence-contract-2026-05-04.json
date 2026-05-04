@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T14:43:44.426Z",
+  "generatedAt": "2026-05-04T16:28:54.587Z",
   "status": "phase_1_install_backed_sidecar",
   "sidecar": {
     "sidecarAppRoot": "apps/ui-xr-iwsdk-spike/",
@@ -464,9 +464,7 @@
     "blockers": [
       "app_js_bundle_kb_over_budget",
       "bundle_delta_vs_ui_xr_kb_over_budget",
-      "missing_foreground_quest_preflight_ready",
-      "missing_avg_fps",
-      "missing_p95_frame_ms",
+      "avg_fps_below_floor",
       "missing_controller_select_latency_ms"
     ]
   },
@@ -500,11 +498,9 @@
       "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
       "metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
       "production_runtime:app_js_bundle_kb_over_budget",
+      "production_runtime:avg_fps_below_floor",
       "production_runtime:bundle_delta_vs_ui_xr_kb_over_budget",
-      "production_runtime:missing_avg_fps",
       "production_runtime:missing_controller_select_latency_ms",
-      "production_runtime:missing_foreground_quest_preflight_ready",
-      "production_runtime:missing_p95_frame_ms",
       "tool_selection:iwsdk_mcp_future_blocked_until_sidecar",
       "tool_selection:manual_quest_foreground_required_for_production_readiness"
     ]

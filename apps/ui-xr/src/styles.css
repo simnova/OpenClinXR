@@ -55,6 +55,22 @@ button {
   font-size: 14px;
 }
 
+.xr-entry-button {
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 1px solid #d9c493;
+  border-radius: 6px;
+  background: #fff7df;
+  color: #172332;
+  font-weight: 700;
+}
+
+.xr-entry-button:disabled {
+  border-color: #4f5f6e;
+  background: #253141;
+  color: #9ca9b5;
+}
+
 .runtime-panel {
   display: flex;
   flex-direction: column;
@@ -194,4 +210,3 @@ dd {
     grid-template-columns: 1fr;
   }
 }
-

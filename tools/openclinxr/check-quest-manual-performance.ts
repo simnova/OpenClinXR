@@ -34,6 +34,7 @@ export type QuestManualPerformanceReport = {
     avgFps?: number | null;
     p95FrameMs?: number | null;
     minimumObservedFps?: number | null;
+    controllerSelectLatencyMs?: number | null;
   };
   comfort?: {
     motionComfort?: "comfortable" | "mild_discomfort" | "uncomfortable" | "not_run";
@@ -128,6 +129,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
   const avgFps = report.performance?.avgFps ?? null;
   const p95FrameMs = report.performance?.p95FrameMs ?? null;
   const minimumObservedFps = report.performance?.minimumObservedFps ?? null;
+  const controllerSelectLatencyMs = report.performance?.controllerSelectLatencyMs ?? null;
   const framesObservedValid = isNonNegativeInteger(framesObserved);
   const sampleWindowSizeValid = isNonNegativeInteger(sampleWindowSize);
   const sampleWindowWithinObservedFrames = framesObservedValid
@@ -142,6 +144,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
     ? minimumObservedFps <= avgFps
     : true;
   const p95FrameMsValid = isPositiveFiniteNumber(p95FrameMs);
+  const controllerSelectLatencyMsValid = isPositiveFiniteNumber(controllerSelectLatencyMs);
   const batteryDropPercentValid = isPercentInRange(batteryDropPercent);
   const blockers = [
     isValidIsoDate(report.generatedAt) ? undefined : "generated_at_invalid_or_missing",
@@ -169,6 +172,10 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
     minimumObservedFps === null || (minimumObservedFpsPlausible && minimumObservedFps < 60) ? "minimum_fps_below_60_or_missing" : undefined,
     typeof p95FrameMs === "number" && !p95FrameMsValid ? "p95_frame_ms_not_positive_finite" : undefined,
     p95FrameMs === null || (p95FrameMsValid && p95FrameMs > 25) ? "p95_frame_ms_above_25_or_missing" : undefined,
+    typeof controllerSelectLatencyMs === "number" && !controllerSelectLatencyMsValid ? "controller_select_latency_ms_not_positive_finite" : undefined,
+    controllerSelectLatencyMs === null || (controllerSelectLatencyMsValid && controllerSelectLatencyMs > 150)
+      ? "controller_select_latency_ms_above_150_or_missing"
+      : undefined,
     report.comfort?.motionComfort === "comfortable" ? undefined : "motion_comfort_not_confirmed",
     report.comfort?.heatConcern === false ? undefined : "heat_concern_not_cleared",
     typeof batteryDropPercent === "number" && !batteryDropPercentValid ? "battery_drop_not_finite_range_0_to_100" : undefined,
@@ -194,6 +201,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
       avgFpsPlausible && avgFps >= 72 ? "average_fps_72_or_higher" : undefined,
       minimumObservedFpsPlausible && minimumFpsAtOrBelowAverage && minimumObservedFps >= 60 ? "minimum_fps_60_or_higher" : undefined,
       p95FrameMsValid && p95FrameMs <= 25 ? "p95_frame_ms_25_or_lower" : undefined,
+      controllerSelectLatencyMsValid && controllerSelectLatencyMs <= 150 ? "controller_select_latency_150ms_or_lower" : undefined,
       batteryDropPercentValid && batteryDropPercent <= 20 ? "battery_drop_recorded_under_20" : undefined,
     ].filter((condition): condition is string => typeof condition === "string"),
     blockers,
@@ -253,6 +261,10 @@ function questManualNextStepForBlocker(blocker: string): string {
       return "Record p95 frame time as a positive finite number.";
     case "p95_frame_ms_above_25_or_missing":
       return "Record p95 frame time at or below 25 ms.";
+    case "controller_select_latency_ms_not_positive_finite":
+      return "Record controller-select latency as a positive finite number.";
+    case "controller_select_latency_ms_above_150_or_missing":
+      return "Record controller-select latency at or below 150 ms.";
     case "motion_comfort_not_confirmed":
       return "Confirm motion comfort is comfortable.";
     case "heat_concern_not_cleared":

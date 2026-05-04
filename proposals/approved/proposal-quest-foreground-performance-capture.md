@@ -1,6 +1,12 @@
 # Proposal: Quest Foreground Performance Capture
 
-Status: Proposed; awaiting operator coordination. Automated CDP foreground smoke evidence was refreshed on 2026-05-04, but the manual in-headset report remains required.
+Status: Approved by Patrick on 2026-05-04 11:49:38 EDT. Automated CDP foreground smoke evidence was refreshed on 2026-05-04, but the manual in-headset report remains required.
+
+## Approval Record
+
+- Approved by Patrick in the Codex thread on 2026-05-04 11:49:38 EDT.
+- Scope approved: coordinate a local Quest 3 foreground performance capture, guide the operator through the existing manual template, validate the completed report, and commit the resulting evidence.
+- Scope still excluded: cloud services, paid APIs, production readiness claims, and bypassing validation thresholds.
 
 ## Decision Needed
 
@@ -28,6 +34,8 @@ The non-simple part is the evidence capture itself: it requires a human wearing 
 - `docs/openclinxr/local-runtime-probe-2026-05-04.json` confirms the Quest 3 is USB-authorized and awake.
 - `docs/openclinxr/quest-cdp-smoke-2026-05-04.json` confirms the XR shell loads in Quest Browser, WebXR is available, the page is visible/focused through CDP, trace interaction advances, and CDP frame sampling completes.
 - `docs/openclinxr/quest-cdp-smoke-check-2026-05-04.json` classifies the CDP smoke as `foreground_ready`.
+- `docs/openclinxr/iwsdk-sidecar-quest-cdp-smoke-2026-05-04.json` confirms the approved IWSDK sidecar also loads in Quest Browser, reports WebXR ready, remains visible/focused through CDP, advances trace interaction, and completes CDP frame sampling.
+- `docs/openclinxr/iwsdk-sidecar-quest-cdp-smoke-check-2026-05-04.json` classifies the sidecar CDP smoke as `foreground_ready`.
 - The manual report is still required because CDP cannot honestly attest comfort, text readability while worn, human-visible immersive-session behavior, thermal feel, battery observation, or operator-perceived controller latency.
 
 ## Pros
