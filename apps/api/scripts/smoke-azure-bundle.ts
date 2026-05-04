@@ -104,4 +104,157 @@ if (!Array.isArray(snapshots)) {
   throw new Error(`Azure bundle smoke received non-array station run queue snapshot list: ${JSON.stringify(snapshots)}`);
 }
 
+const graphqlCreateResponse = await startup.fetch(new Request("http://localhost/admin/graphql", {
+  method: "POST",
+  headers: { "content-type": "application/json" },
+  body: JSON.stringify({
+    query: `
+      mutation CreateStationRunQueueSnapshot($input: CreateStationRunQueueSnapshotInput!) {
+        createStationRunQueueSnapshot(input: $input) {
+          snapshotId
+          reviewerId
+          queue {
+            blueprintId
+            totalStationTimeSeconds
+            breakCheckpoints {
+              afterStationOrder
+              atSecond
+            }
+            stationQueue {
+              stationOrder
+              timing {
+                doorway {
+                  durationSeconds
+                }
+                encounter {
+                  durationSeconds
+                }
+                note {
+                  durationSeconds
+                }
+              }
+            }
+            summary {
+              activationReady
+              draftBlocked
+            }
+          }
+        }
+      }
+    `,
+    operationName: "CreateStationRunQueueSnapshot",
+    variables: {
+      input: {
+        snapshotId: "queue_snapshot_azure_graphql_001",
+        createdAt: "2026-05-03T20:00:00.000Z",
+        reviewerId: "azure_graphql_smoke",
+      },
+    },
+  }),
+}));
+
+if (graphqlCreateResponse.status !== 200) {
+  throw new Error(`Azure bundle smoke expected GraphQL snapshot create to return 200, got ${graphqlCreateResponse.status}`);
+}
+
+const graphqlCreate = await graphqlCreateResponse.json() as {
+  errors?: unknown[];
+  data?: {
+    createStationRunQueueSnapshot?: {
+      snapshotId?: string;
+      reviewerId?: string;
+      queue?: {
+        blueprintId?: string;
+        totalStationTimeSeconds?: number;
+        breakCheckpoints?: unknown[];
+        stationQueue?: Array<{
+          stationOrder?: number;
+          timing?: {
+            doorway?: { durationSeconds?: number };
+            encounter?: { durationSeconds?: number };
+            note?: { durationSeconds?: number };
+          };
+        }>;
+        summary?: {
+          activationReady?: number;
+          draftBlocked?: number;
+        };
+      };
+    };
+  };
+};
+
+const createdGraphqlSnapshot = graphqlCreate.data?.createStationRunQueueSnapshot;
+if (
+  graphqlCreate.errors
+  || createdGraphqlSnapshot?.snapshotId !== "queue_snapshot_azure_graphql_001"
+  || createdGraphqlSnapshot.reviewerId !== "azure_graphql_smoke"
+  || createdGraphqlSnapshot.queue?.blueprintId !== "blueprint_openclinxr_step2cs_style_seed_v1"
+  || createdGraphqlSnapshot.queue.totalStationTimeSeconds !== 18720
+  || createdGraphqlSnapshot.queue.breakCheckpoints?.length !== 3
+  || createdGraphqlSnapshot.queue.stationQueue?.length !== 12
+  || createdGraphqlSnapshot.queue.stationQueue[0]?.timing?.doorway?.durationSeconds !== 60
+  || createdGraphqlSnapshot.queue.stationQueue[0]?.timing?.encounter?.durationSeconds !== 900
+  || createdGraphqlSnapshot.queue.stationQueue[0]?.timing?.note?.durationSeconds !== 600
+  || createdGraphqlSnapshot.queue.summary?.activationReady !== 1
+  || createdGraphqlSnapshot.queue.summary.draftBlocked !== 11
+) {
+  throw new Error(`Azure bundle smoke received unexpected GraphQL snapshot create payload: ${JSON.stringify(graphqlCreate)}`);
+}
+
+const graphqlListResponse = await startup.fetch(new Request("http://localhost/admin/graphql", {
+  method: "POST",
+  headers: { "content-type": "application/json" },
+  body: JSON.stringify({
+    query: `
+      query StationRunQueueSnapshots($blueprintId: ID!) {
+        stationRunQueueSnapshots(blueprintId: $blueprintId) {
+          snapshotId
+          reviewerId
+          queue {
+            totalStationTimeSeconds
+            stationQueue {
+              stationOrder
+            }
+          }
+        }
+      }
+    `,
+    operationName: "StationRunQueueSnapshots",
+    variables: { blueprintId: "blueprint_openclinxr_step2cs_style_seed_v1" },
+  }),
+}));
+
+if (graphqlListResponse.status !== 200) {
+  throw new Error(`Azure bundle smoke expected GraphQL snapshot list to return 200, got ${graphqlListResponse.status}`);
+}
+
+const graphqlList = await graphqlListResponse.json() as {
+  errors?: unknown[];
+  data?: {
+    stationRunQueueSnapshots?: Array<{
+      snapshotId?: string;
+      reviewerId?: string;
+      queue?: {
+        totalStationTimeSeconds?: number;
+        stationQueue?: unknown[];
+      };
+    }>;
+  };
+};
+
+const listedGraphqlSnapshot = graphqlList.data?.stationRunQueueSnapshots?.find(
+  (snapshot) => snapshot.snapshotId === "queue_snapshot_azure_graphql_001",
+);
+
+if (
+  graphqlList.errors
+  || !listedGraphqlSnapshot
+  || listedGraphqlSnapshot.reviewerId !== "azure_graphql_smoke"
+  || listedGraphqlSnapshot.queue?.totalStationTimeSeconds !== 18720
+  || listedGraphqlSnapshot.queue.stationQueue?.length !== 12
+) {
+  throw new Error(`Azure bundle smoke received unexpected GraphQL snapshot list payload: ${JSON.stringify(graphqlList)}`);
+}
+
 console.log("Azure bundle smoke passed");
