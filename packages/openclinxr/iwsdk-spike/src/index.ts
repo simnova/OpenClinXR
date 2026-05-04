@@ -464,6 +464,7 @@ export type IwsdkWorkspacePostureInput = {
   sidecarAppExists: boolean;
   sidecarInstallApproved: boolean;
   phase2DevtoolsApproved?: boolean;
+  sharpLibvipsExceptionApproved?: boolean;
   sidecarLockfileImporterPresent?: boolean;
   sidecarLockfilePackageNames?: string[];
   dependencies: IwsdkWorkspaceDependency[];
@@ -1738,6 +1739,14 @@ export function evaluateIwsdkWorkspacePosture(
   }
 
   const sidecarDependencies = iwsdkDependencies.filter((dependency) => dependency.manifestPath.startsWith(sidecarRoot));
+  blockers.push(
+    ...sidecarDependencies
+      .filter((dependency) => (iwsdkPackageNameFromSpecifier(dependency.version) ?? dependency.name) === phase2DevtoolsPackageName)
+      .filter((dependency) => dependency.field !== "devDependencies")
+      .map((dependency) =>
+        `phase2_devtools_must_be_sidecar_dev_dependency:${dependency.manifestPath}:${dependency.field}.${dependency.name}`
+      ),
+  );
   if (!input.phase2DevtoolsApproved) {
     blockers.push(
       ...sidecarDependencies
@@ -1777,9 +1786,9 @@ export function evaluateIwsdkWorkspacePosture(
   blockers.push(...sidecarSelection.blockers);
 
   for (const packageName of input.lockfilePackageNames) {
-    if (policy.blockedPackages.includes(packageName)) {
+    if (workspacePolicy.blockedPackages.includes(packageName)) {
       blockers.push(`blocked_package_in_lockfile:${packageName}`);
-    } else if (transitivePackageIsBlocked(packageName, policy.blockedTransitivePackages)) {
+    } else if (transitivePackageIsBlocked(packageName, workspacePolicy.blockedTransitivePackages)) {
       blockers.push(`blocked_transitive_package_in_lockfile:${packageName}`);
     } else if (!input.sidecarAppExists && isIwsdkWorkspacePackage(packageName)) {
       blockers.push(`iwsdk_package_in_lockfile_without_sidecar_app:${packageName}`);
@@ -1813,11 +1822,22 @@ function workspacePosturePolicyFor(
     return policy;
   }
 
-  return {
+  const phase2Policy = {
     ...policy,
     allowedFirstSlicePackages: [...new Set([...policy.allowedFirstSlicePackages, phase2DevtoolsPackageName])],
     reviewRequiredPackages: policy.reviewRequiredPackages.filter((packageName) =>
       packageName !== phase2DevtoolsPackageName
+    ),
+  };
+
+  if (!input.sharpLibvipsExceptionApproved) {
+    return phase2Policy;
+  }
+
+  return {
+    ...phase2Policy,
+    blockedTransitivePackages: phase2Policy.blockedTransitivePackages.filter((packageName) =>
+      !packageName.includes("sharp-libvips")
     ),
   };
 }

@@ -20,6 +20,7 @@ type CliOptions = {
   outputPath?: string;
   sidecarInstallApproved: boolean;
   phase2DevtoolsApproved: boolean;
+  sharpLibvipsExceptionApproved: boolean;
 };
 
 type PackageJson = {
@@ -36,6 +37,7 @@ export type IwsdkWorkspacePostureReport = {
   workspaceRoot: string;
   sidecarInstallApproved: boolean;
   phase2DevtoolsApproved: boolean;
+  sharpLibvipsExceptionApproved: boolean;
   detected: {
     sidecarAppExists: boolean;
     sidecarLockfileImporterPresent: boolean;
@@ -64,6 +66,7 @@ async function main(): Promise<void> {
     workspaceRoot: options.workspaceRoot ?? findWorkspaceRoot(process.cwd()),
     sidecarInstallApproved: options.sidecarInstallApproved,
     phase2DevtoolsApproved: options.phase2DevtoolsApproved,
+    sharpLibvipsExceptionApproved: options.sharpLibvipsExceptionApproved,
   });
   const payload = `${JSON.stringify(report, null, 2)}\n`;
 
@@ -85,11 +88,13 @@ export async function buildIwsdkWorkspacePostureReport(input: {
   workspaceRoot: string;
   sidecarInstallApproved?: boolean;
   phase2DevtoolsApproved?: boolean;
+  sharpLibvipsExceptionApproved?: boolean;
 }): Promise<IwsdkWorkspacePostureReport> {
   const workspaceRoot = path.resolve(input.workspaceRoot);
   const rootPackage = await readPackageJson(path.join(workspaceRoot, "package.json"));
   const sidecarInstallApproved = input.sidecarInstallApproved ?? false;
   const phase2DevtoolsApproved = input.phase2DevtoolsApproved ?? false;
+  const sharpLibvipsExceptionApproved = input.sharpLibvipsExceptionApproved ?? false;
   const sidecarAppExists = existsSync(path.join(workspaceRoot, "apps/ui-xr-iwsdk-spike"));
   const dependencies = await scanPackageDependencies(workspaceRoot);
   const sourceReferences = await scanSourceReferences(workspaceRoot);
@@ -104,6 +109,7 @@ export async function buildIwsdkWorkspacePostureReport(input: {
     sidecarAppExists,
     sidecarInstallApproved,
     phase2DevtoolsApproved,
+    sharpLibvipsExceptionApproved,
     sidecarLockfileImporterPresent,
     dependencies,
     sourceReferences,
@@ -120,6 +126,7 @@ export async function buildIwsdkWorkspacePostureReport(input: {
     workspaceRoot,
     sidecarInstallApproved,
     phase2DevtoolsApproved,
+    sharpLibvipsExceptionApproved,
     detected: {
       sidecarAppExists,
       sidecarLockfileImporterPresent,
@@ -138,7 +145,11 @@ export async function buildIwsdkWorkspacePostureReport(input: {
 
 function parseArgs(args: string[]): CliOptions {
   const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
-  const options: CliOptions = { sidecarInstallApproved: false, phase2DevtoolsApproved: false };
+  const options: CliOptions = {
+    sidecarInstallApproved: false,
+    phase2DevtoolsApproved: false,
+    sharpLibvipsExceptionApproved: false,
+  };
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
@@ -158,6 +169,10 @@ function parseArgs(args: string[]): CliOptions {
     }
     if (arg === "--approved-phase2-devtools") {
       options.phase2DevtoolsApproved = true;
+      continue;
+    }
+    if (arg === "--approved-sharp-libvips-exception") {
+      options.sharpLibvipsExceptionApproved = true;
       continue;
     }
     throw new Error(`Unknown argument: ${arg ?? ""}`);

@@ -342,11 +342,13 @@ describe("IWSDK workspace posture checker", () => {
     });
   });
 
-  it("allows Phase 2 IWSDK devtools only with separate approval and sidecar lockfile parity", async () => {
+  it("keeps Phase 2 IWSDK devtools blocked until the sharp libvips exception is separately approved", async () => {
     const workspaceRoot = await createWorkspaceFixture({
       sidecarDependencies: {
         "@iwsdk/core": "0.3.1",
         "@iwsdk/xr-input": "0.3.1",
+      },
+      sidecarDevDependencies: {
         "@iwsdk/vite-plugin-dev": "0.3.1",
       },
       rootPackage: postureReadyRootPackage(),
@@ -364,11 +366,68 @@ describe("IWSDK workspace posture checker", () => {
       sidecarInstallApproved: true,
       phase2DevtoolsApproved: true,
       result: {
+        ready: false,
+        blockers: ["blocked_transitive_package_in_lockfile:@img/sharp-libvips-linux-x64"],
+        reviewWarnings: [],
+      },
+    });
+  });
+
+  it("allows Phase 2 IWSDK devtools only as a sidecar devDependency with both approvals and lockfile parity", async () => {
+    const workspaceRoot = await createWorkspaceFixture({
+      sidecarDependencies: {
+        "@iwsdk/core": "0.3.1",
+        "@iwsdk/xr-input": "0.3.1",
+      },
+      sidecarDevDependencies: {
+        "@iwsdk/vite-plugin-dev": "0.3.1",
+      },
+      rootPackage: postureReadyRootPackage(),
+      lockfileText: buildPhase2DevtoolsLockfile(),
+    });
+
+    const report = await buildIwsdkWorkspacePostureReport({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      workspaceRoot,
+      sidecarInstallApproved: true,
+      phase2DevtoolsApproved: true,
+      sharpLibvipsExceptionApproved: true,
+    });
+
+    expect(report).toMatchObject({
+      sidecarInstallApproved: true,
+      phase2DevtoolsApproved: true,
+      sharpLibvipsExceptionApproved: true,
+      result: {
         ready: true,
         blockers: [],
         reviewWarnings: [],
       },
     });
+  });
+
+  it("rejects Phase 2 IWSDK devtools when it is installed as a runtime dependency", async () => {
+    const workspaceRoot = await createWorkspaceFixture({
+      sidecarDependencies: {
+        "@iwsdk/core": "0.3.1",
+        "@iwsdk/xr-input": "0.3.1",
+        "@iwsdk/vite-plugin-dev": "0.3.1",
+      },
+      rootPackage: postureReadyRootPackage(),
+      lockfileText: buildPhase2DevtoolsLockfile(),
+    });
+
+    const report = await buildIwsdkWorkspacePostureReport({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      workspaceRoot,
+      sidecarInstallApproved: true,
+      phase2DevtoolsApproved: true,
+      sharpLibvipsExceptionApproved: true,
+    });
+
+    expect(report.result.blockers).toContain(
+      "phase2_devtools_must_be_sidecar_dev_dependency:apps/ui-xr-iwsdk-spike/package.json:dependencies.@iwsdk/vite-plugin-dev",
+    );
   });
 
   it("does not accept placeholder audit and license scripts as sidecar controls", async () => {
@@ -485,6 +544,7 @@ async function createWorkspaceFixture(input: {
   rootPackage: Record<string, unknown>;
   productionDependencies?: Record<string, string>;
   sidecarDependencies?: Record<string, string>;
+  sidecarDevDependencies?: Record<string, string>;
   lockfileText?: string;
   workspaceYamlText?: string;
   writeSidecarLockfileImporter?: boolean;
@@ -513,6 +573,7 @@ async function createWorkspaceFixture(input: {
     await writeJson(path.join(workspaceRoot, "apps/ui-xr-iwsdk-spike/package.json"), {
       name: "@openclinxr/ui-xr-iwsdk-spike",
       dependencies: input.sidecarDependencies,
+      ...(input.sidecarDevDependencies ? { devDependencies: input.sidecarDevDependencies } : {}),
     });
   }
 
@@ -558,6 +619,17 @@ function buildPhase2DevtoolsLockfile(): string {
     "      '@iwsdk/vite-plugin-dev':",
     "        specifier: 0.3.1",
     "        version: 0.3.1(vite@8.0.10)",
+    "",
+    "packages:",
+    "",
+    "  '@iwsdk/vite-plugin-dev@0.3.1':",
+    "    resolution: {integrity: sha512-test}",
+    "",
+    "  'sharp@0.33.5':",
+    "    resolution: {integrity: sha512-test}",
+    "",
+    "  '@img/sharp-libvips-linux-x64@1.0.4':",
+    "    resolution: {integrity: sha512-test}",
     "",
   ].join("\n");
 }
