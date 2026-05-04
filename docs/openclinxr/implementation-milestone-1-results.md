@@ -333,6 +333,7 @@ Started on 2026-05-03:
 - `turbo.json` defines package-level `typecheck`, `test`, `build`, and `dev` tasks.
 - Root `typecheck` keeps the repository-wide `tsgo --noEmit` check, then delegates package checks through `pnpm packages:typecheck`.
 - Root `test` keeps the root tool tests, then delegates package tests through `pnpm packages:test`.
+- Affected-package local slices can use `pnpm packages:typecheck:affected`, `pnpm packages:test:affected`, and `pnpm packages:build:affected` before the full verification gate.
 - Root-only agent-factory, source-ledger, audit, and license checks stay explicit root commands instead of hidden Turbo root tasks.
 - Turbo package scripts set `TURBO_TELEMETRY_DISABLED=1` and `DO_NOT_TRACK=1`.
 - Remote caching remains disabled unless the team explicitly enables it later.
@@ -342,5 +343,6 @@ Local evidence:
 
 - `pnpm packages:typecheck` passed through Turbo.
 - `pnpm packages:test` passed through Turbo.
+- `pnpm packages:typecheck:affected --dry-run=json` was validated with telemetry disabled; on the current long-running branch it plans 27 package tasks because most packages differ from `main`.
 - `pnpm --filter @openclinxr/architecture-rules test` passed with 15 architecture tests.
 - `pnpm verify` passed after the Turbo orchestration and guardrail slices.

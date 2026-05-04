@@ -13,3 +13,5 @@ Use workflow skills as local agent aids, not as hidden runtime dependencies. A s
 | Storybook MCP Addon | `src-storybook-10-3-2026` | Maintained Storybook stories become agent-inspectable component artifacts. | Optional until installed deliberately; use alongside tests, not instead of tests. |
 
 The executable source of truth is `recommendWorkflowSkillsForWorkOrder` in `packages/openclinxr/agent-loop`.
+
+Changed-package work should prefer the `packages:*:affected` scripts for local package verification, then finish with the full `pnpm verify` gate before a clean commit.

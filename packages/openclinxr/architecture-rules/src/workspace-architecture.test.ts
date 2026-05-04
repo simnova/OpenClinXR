@@ -12,15 +12,26 @@ describe("workspace architecture rules", () => {
     const rootPackage = JSON.parse(readFileSync(join(workspaceRoot, "package.json"), "utf8")) as {
       scripts?: Record<string, string>;
     };
+    const packageScriptNames = [
+      "packages:typecheck",
+      "packages:test",
+      "packages:build",
+      "packages:typecheck:affected",
+      "packages:test:affected",
+      "packages:build:affected",
+    ];
 
     expect(rootPackage.scripts?.["packages:typecheck"]).toContain("turbo run typecheck");
     expect(rootPackage.scripts?.["packages:test"]).toContain("turbo run test");
-    expect(rootPackage.scripts?.["packages:typecheck"]).toContain("TURBO_TELEMETRY_DISABLED=1");
-    expect(rootPackage.scripts?.["packages:test"]).toContain("TURBO_TELEMETRY_DISABLED=1");
-    expect(rootPackage.scripts?.["packages:build"]).toContain("TURBO_TELEMETRY_DISABLED=1");
-    expect(rootPackage.scripts?.["packages:typecheck"]).toContain("DO_NOT_TRACK=1");
-    expect(rootPackage.scripts?.["packages:test"]).toContain("DO_NOT_TRACK=1");
-    expect(rootPackage.scripts?.["packages:build"]).toContain("DO_NOT_TRACK=1");
+    expect(rootPackage.scripts?.["packages:build"]).toContain("turbo run build");
+    expect(rootPackage.scripts?.["packages:typecheck:affected"]).toContain("turbo run typecheck --affected");
+    expect(rootPackage.scripts?.["packages:test:affected"]).toContain("turbo run test --affected");
+    expect(rootPackage.scripts?.["packages:build:affected"]).toContain("turbo run build --affected");
+    for (const scriptName of packageScriptNames) {
+      expect(rootPackage.scripts?.[scriptName]).toContain("TURBO_TELEMETRY_DISABLED=1");
+      expect(rootPackage.scripts?.[scriptName]).toContain("DO_NOT_TRACK=1");
+      expect(rootPackage.scripts?.[scriptName]).not.toMatch(/\bturbo\s+(?!run\b)(?:build|test|typecheck|dev)\b/);
+    }
     expect(rootPackage.scripts?.typecheck).toContain("pnpm packages:typecheck");
     expect(rootPackage.scripts?.test).toContain("pnpm packages:test");
     expect(rootPackage.scripts?.typecheck).not.toContain("pnpm -r");
