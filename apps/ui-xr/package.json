@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
+    "dev:portless": "vite --host 127.0.0.1 --port ${PORT:-5173} --strictPort",
     "build": "vite build",
     "typecheck": "tsgo --noEmit -p tsconfig.json",
     "test": "vitest run --root ."

@@ -1,5 +1,19 @@
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
-import * as THREE from "three";
+import {
+  BoxGeometry,
+  CapsuleGeometry,
+  Color,
+  CylinderGeometry,
+  DirectionalLight,
+  Group,
+  HemisphereLight,
+  Mesh,
+  MeshStandardMaterial,
+  PerspectiveCamera,
+  Scene,
+  SphereGeometry,
+  WebGLRenderer,
+} from "three";
 import {
   actorIdForTraceTag,
   actorResponseTextFromApiResult,
@@ -238,33 +252,33 @@ async function updateXrStatus(): Promise<void> {
 }
 
 function createStationScene(): void {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  const renderer = new WebGLRenderer({ canvas, antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setClearColor(0x101820);
 
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x101820);
+  const scene = new Scene();
+  scene.background = new Color(0x101820);
 
-  const camera = new THREE.PerspectiveCamera(52, 1, 0.1, 100);
+  const camera = new PerspectiveCamera(52, 1, 0.1, 100);
   camera.position.set(0, 1.7, 5.2);
   camera.lookAt(0, 1.1, 0);
 
-  const ambient = new THREE.HemisphereLight(0xf4f0dc, 0x223042, 2.2);
+  const ambient = new HemisphereLight(0xf4f0dc, 0x223042, 2.2);
   scene.add(ambient);
 
-  const key = new THREE.DirectionalLight(0xffffff, 2.5);
+  const key = new DirectionalLight(0xffffff, 2.5);
   key.position.set(3, 5, 4);
   scene.add(key);
 
-  const floor = new THREE.Mesh(new THREE.BoxGeometry(7, 0.08, 5), new THREE.MeshStandardMaterial({ color: 0x55606b, roughness: 0.8 }));
+  const floor = new Mesh(new BoxGeometry(7, 0.08, 5), new MeshStandardMaterial({ color: 0x55606b, roughness: 0.8 }));
   floor.position.y = -0.04;
   scene.add(floor);
 
-  const bed = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.35, 1.05), new THREE.MeshStandardMaterial({ color: 0xd9dde3, roughness: 0.65 }));
+  const bed = new Mesh(new BoxGeometry(2.4, 0.35, 1.05), new MeshStandardMaterial({ color: 0xd9dde3, roughness: 0.65 }));
   bed.position.set(-0.4, 0.55, 0);
   scene.add(bed);
 
-  const monitor = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.55, 0.08), new THREE.MeshStandardMaterial({ color: 0x203040, emissive: 0x0b3d2e }));
+  const monitor = new Mesh(new BoxGeometry(0.8, 0.55, 0.08), new MeshStandardMaterial({ color: 0x203040, emissive: 0x0b3d2e }));
   monitor.position.set(1.7, 1.45, -0.65);
   scene.add(monitor);
 
@@ -281,7 +295,7 @@ function createStationScene(): void {
   spouse.position.set(-2.0, 0.95, 0.7);
   scene.add(spouse);
 
-  const clockMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.05, 48), new THREE.MeshStandardMaterial({ color: 0xf3e8c9 }));
+  const clockMesh = new Mesh(new CylinderGeometry(0.25, 0.25, 0.05, 48), new MeshStandardMaterial({ color: 0xf3e8c9 }));
   clockMesh.rotation.x = Math.PI / 2;
   clockMesh.position.set(0.9, 2.2, -1.2);
   scene.add(clockMesh);
@@ -307,11 +321,11 @@ function createStationScene(): void {
   animate();
 }
 
-function actorMesh(color: number): THREE.Group {
-  const group = new THREE.Group();
-  const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.22, 0.7, 8, 16), new THREE.MeshStandardMaterial({ color, roughness: 0.7 }));
+function actorMesh(color: number): Group {
+  const group = new Group();
+  const body = new Mesh(new CapsuleGeometry(0.22, 0.7, 8, 16), new MeshStandardMaterial({ color, roughness: 0.7 }));
   body.position.y = 0.55;
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 24, 16), new THREE.MeshStandardMaterial({ color: 0xcaa889, roughness: 0.75 }));
+  const head = new Mesh(new SphereGeometry(0.2, 24, 16), new MeshStandardMaterial({ color: 0xcaa889, roughness: 0.75 }));
   head.position.y = 1.15;
   group.add(body, head);
   return group;

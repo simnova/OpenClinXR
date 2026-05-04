@@ -3,7 +3,7 @@
   "title": "Vercel Labs Portless GitHub Repository",
   "url": "https://github.com/vercel-labs/portless",
   "source_type": "vendor",
-  "citation": "Vercel Labs. portless GitHub repository README, accessed 2026-05-03; npm package metadata and local help output queried for portless 0.12.0 on 2026-05-04.",
+  "citation": "Vercel Labs. portless GitHub repository README, accessed 2026-05-03; npm package metadata, local help output, and an OpenClinXR unprivileged proxy smoke queried for portless 0.12.0 on 2026-05-04.",
   "accessed_at": "2026-05-04",
   "permitted_uses": [
     "Local developer-experience planning for stable named local URLs, parallel worktree dev servers, Vite/React Router ports, and Quest/LAN smoke-test routing."
@@ -16,13 +16,15 @@
     "The README states linked git worktrees get branch-name subdomains so parallel worktrees receive distinct URLs.",
     "Portless has an optional LAN mode that advertises services as .local names for same-network device access.",
     "As queried on 2026-05-04, portless 0.12.0 is Apache-2.0 licensed.",
-    "Local package-managed help output confirms first real proxy use may run on port 443, auto-elevate with sudo, generate and trust a local CA, and sync /etc/hosts entries."
+    "Local package-managed help output confirms first real proxy use may run on port 443, auto-elevate with sudo, generate and trust a local CA, and sync /etc/hosts entries.",
+    "After operator trust setup, an unprivileged local proxy on port 1355 served the XR app at https://ui-xr.localhost:1355 for Chrome DevTools MCP smoke testing."
   ],
   "claims_not_supported": [
-    "That Portless is installed or trusted on this machine.",
+    "That Portless is installed as a repository or global dependency.",
     "That Portless should replace adb reverse for Quest 3 USB-C smoke testing without a dedicated headset spike.",
-    "That first-run certificate trust or privileged port binding should be performed unattended.",
+    "That privileged port 443 proxy startup or certificate trust should be performed unattended.",
+    "That Portless works cleanly through every pnpm-filtered script path on this machine; a child process path exposed Node 21.7.1 while the repo shell uses Node 22.19.0.",
     "That Portless solves API, CORS, WebXR performance, or Azure deployment behavior by itself."
   ],
-  "confidence": 0.86
+  "confidence": 0.88
 }
