@@ -2,11 +2,12 @@ import { execFile } from "node:child_process";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
+import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
 
-type CliOptions = {
+export type CliOptions = {
   url: string;
   appPort: number;
   cdpPort: number;
@@ -39,7 +40,7 @@ type CdpResult = {
   };
 };
 
-type QuestSmokeReport = {
+export type QuestSmokeReport = {
   generatedAt: string;
   url: string;
   adb: {
@@ -56,6 +57,16 @@ type QuestSmokeReport = {
     frameSampleComplete: boolean;
     blockers: string[];
   };
+};
+
+export type QuestSmokeReportInput = {
+  options: CliOptions;
+  adbVersion: string;
+  deviceLine: string;
+  reverseList: string;
+  browser: unknown;
+  interaction: unknown;
+  frameSample: unknown;
 };
 
 async function main(): Promise<void> {
@@ -105,7 +116,7 @@ async function main(): Promise<void> {
   }
 }
 
-function parseArgs(args: string[]): CliOptions {
+export function parseArgs(args: string[]): CliOptions {
   const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
   const options: CliOptions = {
     url: "http://localhost:5173/",
@@ -162,6 +173,12 @@ function parseArgs(args: string[]): CliOptions {
   if (!Number.isFinite(options.cdpPort) || options.cdpPort <= 0) {
     throw new Error("--cdp-port must be a positive number");
   }
+  if (!Number.isFinite(options.frameSampleCount) || options.frameSampleCount <= 0) {
+    throw new Error("--frame-sample-count must be a positive number");
+  }
+  if (!Number.isFinite(options.frameTimeoutMs) || options.frameTimeoutMs <= 0) {
+    throw new Error("--frame-timeout-ms must be a positive number");
+  }
 
   return options;
 }
@@ -192,7 +209,7 @@ async function waitForQuestPage(options: CliOptions): Promise<CdpPage> {
   throw new Error(`Quest Browser page ${options.url} was not exposed through CDP port ${options.cdpPort}`);
 }
 
-function pageMatchesRequestedUrl(actual: string, requested: string): boolean {
+export function pageMatchesRequestedUrl(actual: string, requested: string): boolean {
   if (actual === requested) {
     return true;
   }
@@ -205,7 +222,7 @@ function pageMatchesRequestedUrl(actual: string, requested: string): boolean {
   }
 }
 
-function browserSnapshotExpression(): string {
+export function browserSnapshotExpression(): string {
   return String.raw`(() => {
     const canvas = document.querySelector("canvas");
     return {
@@ -233,7 +250,7 @@ function browserSnapshotExpression(): string {
   })()`;
 }
 
-function interactionExpression(): string {
+export function interactionExpression(): string {
   return String.raw`(async () => {
     const clickByText = (label) => {
       const button = [...document.querySelectorAll("button")].find((candidate) => candidate.textContent?.trim() === label);
@@ -257,7 +274,7 @@ function interactionExpression(): string {
   })()`;
 }
 
-function frameSampleExpression(frameSampleCount: number, frameTimeoutMs: number): string {
+export function frameSampleExpression(frameSampleCount: number, frameTimeoutMs: number): string {
   return String.raw`(async () => {
     const started = performance.now();
     const readStats = () => window.__openClinXrFrameStats ?? null;
@@ -302,15 +319,7 @@ function frameSampleExpression(frameSampleCount: number, frameTimeoutMs: number)
   })()`;
 }
 
-function buildReport(input: {
-  options: CliOptions;
-  adbVersion: string;
-  deviceLine: string;
-  reverseList: string;
-  browser: unknown;
-  interaction: unknown;
-  frameSample: unknown;
-}): QuestSmokeReport {
+export function buildReport(input: QuestSmokeReportInput): QuestSmokeReport {
   const browser = asRecord(input.browser);
   const interaction = asRecord(input.interaction);
   const frameSample = asRecord(input.frameSample);
@@ -428,4 +437,6 @@ class CdpClient {
   }
 }
 
-await main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await main();
+}
