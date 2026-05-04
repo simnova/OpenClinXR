@@ -1,4 +1,5 @@
 import type { ExamForm } from "@openclinxr/exam-assembly";
+import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import { createDefaultScenarioRuntime, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createNoopTelemetryRecorder, type TelemetryRecorder } from "@openclinxr/telemetry";
 import { createApiApp, type ApiPersistenceSink, type ApiScenarioReviewDecisionRecord, type ApiStationRunQueueSnapshot } from "./app.js";
@@ -19,6 +20,7 @@ type ApiInfrastructureServices = {
   scenarioRuntime: ScenarioRuntime;
   apiPersistence: ApiPersistenceSink;
   telemetry: TelemetryRecorder;
+  assetGenerationFacade: AssetGenerationCapabilityFacade;
 };
 
 type ApiInfrastructureServiceId = keyof ApiInfrastructureServices;
@@ -27,6 +29,7 @@ type ApiStartupContext = {
   runtime: ScenarioRuntime;
   persistence: ApiPersistenceSink;
   telemetry: TelemetryRecorder;
+  assetGenerationFacade: AssetGenerationCapabilityFacade;
 };
 
 type ApiApplicationServices = {
@@ -48,6 +51,7 @@ export type OpenClinXrApiStartupOptions = {
   runtime?: ScenarioRuntime;
   persistence?: ApiPersistenceSink;
   telemetry?: TelemetryRecorder;
+  assetGenerationFacade?: AssetGenerationCapabilityFacade;
 };
 
 class ApiInfrastructureRegistry {
@@ -113,13 +117,15 @@ export function createOpenClinXrApiStartup(options: OpenClinXrApiStartupOptions 
   const persistence = options.persistence ?? createSingleUserMemoryPersistenceSink();
   const runtime = options.runtime ?? createDefaultScenarioRuntime();
   const telemetry = options.telemetry ?? createNoopTelemetryRecorder();
+  const assetGenerationFacade = options.assetGenerationFacade ?? new AssetGenerationCapabilityFacade();
 
   return new OpenClinXrApiStartupBuilder()
     .initializeInfrastructureServices((serviceRegistry) => {
       serviceRegistry
         .registerInfrastructureService("scenarioRuntime", runtime)
         .registerInfrastructureService("apiPersistence", persistence)
-        .registerInfrastructureService("telemetry", telemetry);
+        .registerInfrastructureService("telemetry", telemetry)
+        .registerInfrastructureService("assetGenerationFacade", assetGenerationFacade);
     })
     .setContext(defaultContextFactory)
     .initializeApplicationServices(defaultApplicationServicesFactory)
@@ -145,11 +151,15 @@ function defaultContextFactory(serviceRegistry: ApiInfrastructureRegistry): ApiS
     runtime: serviceRegistry.getInfrastructureService("scenarioRuntime"),
     persistence: serviceRegistry.getInfrastructureService("apiPersistence"),
     telemetry: serviceRegistry.getInfrastructureService("telemetry"),
+    assetGenerationFacade: serviceRegistry.getInfrastructureService("assetGenerationFacade"),
   };
 }
 
 function defaultApplicationServicesFactory(context: ApiStartupContext): ApiApplicationServices {
-  const app = createApiApp(context.runtime, context.persistence, { telemetry: context.telemetry });
+  const app = createApiApp(context.runtime, context.persistence, {
+    telemetry: context.telemetry,
+    assetGenerationFacade: context.assetGenerationFacade,
+  });
   return {
     fetch: (request) => app.fetch(request),
   };

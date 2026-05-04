@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
 import { createOpenClinXrApiStartup, createNodeServerConfig } from "./index.js";
 
@@ -6,7 +7,7 @@ describe("OpenClinXR API startup", () => {
   it("starts through a CellixJS-inspired fluent bootstrap with Azure-compatible handler metadata", async () => {
     const startup = createOpenClinXrApiStartup().startUp();
 
-    expect(startup.infrastructureServiceIds).toEqual(["scenarioRuntime", "apiPersistence", "telemetry"]);
+    expect(startup.infrastructureServiceIds).toEqual(["scenarioRuntime", "apiPersistence", "telemetry", "assetGenerationFacade"]);
     expect(startup.handlerSpecs).toEqual([
       {
         name: "graphql-contract",
@@ -118,6 +119,50 @@ describe("OpenClinXR API startup", () => {
           },
         },
       },
+    });
+  });
+
+  it("submits and reads deterministic internal character-generation jobs through startup fetch", async () => {
+    const startup = createOpenClinXrApiStartup({
+      assetGenerationFacade: new AssetGenerationCapabilityFacade({
+        idFactory: () => "asset-job-startup-0001",
+        now: () => "2026-05-04T00:00:00.000Z",
+      }),
+    }).startUp();
+
+    const submitResponse = await startup.fetch(new Request("http://localhost/internal/capabilities/character-generation/jobs", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        profile: "local-development",
+        payload: { prompt: "paramedic character" },
+      }),
+    }));
+
+    expect(submitResponse.status).toBe(201);
+    await expect(submitResponse.json()).resolves.toMatchObject({
+      id: "asset-job-startup-0001",
+      status: "succeeded",
+      request: {
+        capabilityId: "character-generation",
+        profile: "local-development",
+        payload: { prompt: "paramedic character" },
+      },
+      provenance: {
+        spendCents: 0,
+        externalNetworkUsed: false,
+      },
+    });
+
+    const readResponse = await startup.fetch(
+      new Request("http://localhost/internal/capabilities/character-generation/jobs/asset-job-startup-0001"),
+    );
+
+    expect(readResponse.status).toBe(200);
+    await expect(readResponse.json()).resolves.toMatchObject({
+      id: "asset-job-startup-0001",
+      request: { capabilityId: "character-generation" },
+      provenance: { spendCents: 0, externalNetworkUsed: false },
     });
   });
 });
