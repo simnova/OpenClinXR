@@ -100,14 +100,22 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
       return context.json({ errors: [{ message: "query_required" }] }, 400);
     }
 
+    const graphqlOperationName = typeof body.operationName === "string" && body.operationName.length > 0 ? body.operationName : "anonymous";
+    const graphqlStarted = performance.now();
     const result = await executeAdminGraphql(
       {
         query: body.query,
         ...(isRecord(body.variables) ? { variables: body.variables } : {}),
-        ...(typeof body.operationName === "string" ? { operationName: body.operationName } : {}),
+        ...(graphqlOperationName !== "anonymous" ? { operationName: graphqlOperationName } : {}),
       },
       createAdminGraphqlRoot(persistence),
     );
+    await recordGraphqlOperationSpan(telemetry, {
+      operationName: graphqlOperationName,
+      statusCode: 200,
+      durationMs: Number((performance.now() - graphqlStarted).toFixed(2)),
+      hasErrors: Boolean(result.errors?.length),
+    });
 
     return context.json(result);
   });
@@ -368,6 +376,26 @@ async function recordApiRouteSpan(
   };
 
   await Promise.resolve(telemetry.recordSpan(span)).catch(() => undefined);
+}
+
+async function recordGraphqlOperationSpan(
+  telemetry: TelemetryRecorder,
+  input: {
+    operationName: string;
+    statusCode: number;
+    durationMs: number;
+    hasErrors: boolean;
+  },
+): Promise<void> {
+  await Promise.resolve(telemetry.recordSpan({
+    name: openClinXrSpanNames.graphqlOperation,
+    attributes: telemetryRouteAttributes({
+      graphqlOperationName: input.operationName,
+    }),
+    durationMs: input.durationMs,
+    statusCode: input.statusCode,
+    ...(input.hasErrors ? { errorType: "graphql_errors" } : {}),
+  })).catch(() => undefined);
 }
 
 async function persistTraceSnapshot(runtime: ScenarioRuntime, persistence: ApiPersistenceSink, stationRunId: string): Promise<void> {

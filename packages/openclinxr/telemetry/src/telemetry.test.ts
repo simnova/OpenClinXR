@@ -31,6 +31,7 @@ describe("OpenClinXR telemetry contract", () => {
       routeId: "actor-dialogue-offline-v1",
       requestPolicyId: "actor-dialogue-offline-v1",
       deviceProfile: "quest3",
+      graphqlOperationName: "StationRunQueueSnapshots",
     })).toEqual({
       "openclinxr.scenario_id": "ed_chest_pain_priority_v1",
       "openclinxr.scenario_version": 1,
@@ -40,6 +41,7 @@ describe("OpenClinXR telemetry contract", () => {
       "openclinxr.route_id": "actor-dialogue-offline-v1",
       "openclinxr.request_policy_id": "actor-dialogue-offline-v1",
       "openclinxr.device_profile": "quest3",
+      "openclinxr.graphql.operation_name": "StationRunQueueSnapshots",
     });
   });
 
@@ -59,6 +61,7 @@ describe("OpenClinXR telemetry contract", () => {
     expect(Object.keys(telemetryAttributeNames).sort()).toEqual([
       "actorId",
       "deviceProfile",
+      "graphqlOperationName",
       "guardrailStatus",
       "providerId",
       "requestPolicyId",

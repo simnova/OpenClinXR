@@ -17,6 +17,7 @@ export const telemetryAttributeNames = {
   requestPolicyId: "openclinxr.request_policy_id",
   deviceProfile: "openclinxr.device_profile",
   guardrailStatus: "openclinxr.guardrail_status",
+  graphqlOperationName: "openclinxr.graphql.operation_name",
 } as const;
 
 export type TelemetryAttributeInput = Partial<Record<keyof typeof telemetryAttributeNames, string | number | boolean>> & {

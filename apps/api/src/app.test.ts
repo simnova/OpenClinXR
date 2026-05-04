@@ -96,13 +96,14 @@ describe("OpenClinXR API shell", () => {
   });
 
   it("executes admin GraphQL station run queue snapshot operations", async () => {
+    const telemetry = createInMemoryTelemetryRecorder();
     const savedQueueSnapshots: ApiStationRunQueueSnapshot[] = [];
     const app = createApiApp(undefined, {
       saveStationRunQueueSnapshot: async (snapshot) => {
         savedQueueSnapshots.push(snapshot);
       },
       listStationRunQueueSnapshots: async (blueprintId) => savedQueueSnapshots.filter((snapshot) => snapshot.queue.blueprintId === blueprintId),
-    });
+    }, { telemetry });
 
     const createResponse = await app.request("/admin/graphql", {
       method: "POST",
@@ -123,6 +124,7 @@ describe("OpenClinXR API shell", () => {
             }
           }
         `,
+        operationName: "CreateStationRunQueueSnapshot",
         variables: {
           input: {
             snapshotId: "queue_snapshot_graphql_001",
@@ -168,6 +170,7 @@ describe("OpenClinXR API shell", () => {
             }
           }
         `,
+        operationName: "StationRunQueueSnapshots",
         variables: { blueprintId: "blueprint_openclinxr_step2cs_style_seed_v1" },
       }),
     });
@@ -189,6 +192,33 @@ describe("OpenClinXR API shell", () => {
         ],
       },
     });
+    expect(telemetry.spans()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: openClinXrSpanNames.apiRoute,
+          attributes: expect.objectContaining({
+            [telemetryAttributeNames.routeId]: "admin-graphql-execute",
+          }),
+          statusCode: 200,
+        }),
+        expect.objectContaining({
+          name: openClinXrSpanNames.graphqlOperation,
+          attributes: expect.objectContaining({
+            [telemetryAttributeNames.graphqlOperationName]: "CreateStationRunQueueSnapshot",
+          }),
+          statusCode: 200,
+        }),
+        expect.objectContaining({
+          name: openClinXrSpanNames.graphqlOperation,
+          attributes: expect.objectContaining({
+            [telemetryAttributeNames.graphqlOperationName]: "StationRunQueueSnapshots",
+          }),
+          statusCode: 200,
+        }),
+      ]),
+    );
+    expect(JSON.stringify(telemetry.spans())).not.toContain("mutation CreateStationRunQueueSnapshot");
+    expect(JSON.stringify(telemetry.spans())).not.toContain("query StationRunQueueSnapshots");
   });
 
   it("serves ED chest pain asset readiness from the shared runtime", async () => {
