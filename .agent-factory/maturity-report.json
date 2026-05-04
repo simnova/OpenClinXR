@@ -275,15 +275,14 @@
       "confidence": 0.94,
       "weighted_score": 4.779,
       "composite_score": 4.778,
-      "open_selected_evidence_debt_count": 4,
+      "open_selected_evidence_debt_count": 3,
       "open_selected_decision_debt_count": 0,
       "open_selected_risk_count": 3,
       "open_selected_high_or_critical_risk_count": 0,
       "open_selected_evidence_debt_ids": [
         "evidence-leadership-0008-001",
         "evidence-leadership-0008-002",
-        "evidence-leadership-0008-003",
-        "evidence-leadership-0008-004"
+        "evidence-leadership-0008-003"
       ],
       "open_selected_decision_debt_ids": [],
       "open_selected_risk_ids": [

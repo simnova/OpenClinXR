@@ -592,7 +592,7 @@
       "scored_by": "senior-leadership-panel",
       "severity": "medium",
       "owner": "asset-pipeline-lead",
-      "summary": "Asset work may be underestimated because GLB conversion passed while Blender-backed generation and optimization remain unproven.",
+      "summary": "Asset work may be underestimated because placeholder Blender baking passed while production avatar quality, rigging, LODs, texture atlasing, colliders, and headset frame pacing remain unproven.",
       "status": "open"
     }
   ],
@@ -918,7 +918,7 @@
       "scored_by": "senior-leadership-panel",
       "severity": "medium",
       "owner": "asset-pipeline-lead",
-      "summary": "Asset work may be underestimated because GLB conversion passed while Blender-backed generation and optimization remain unproven.",
+      "summary": "Asset work may be underestimated because placeholder Blender baking passed while production avatar quality, rigging, LODs, texture atlasing, colliders, and headset frame pacing remain unproven.",
       "status": "open"
     }
   ]

@@ -243,7 +243,7 @@ All equipment must include:
 
 ## Optimization Bake
 
-Use a deterministic build script around Blender and a permissive GLB conversion/optimization CLI. The current pinned local CLI is `gltf-pipeline` 4.3.1 (Apache-2.0). Treat `gltf-transform` as an optional external workstation tool until its current CLI dependency path satisfies the copyleft policy.
+Use a deterministic build script around Blender and a permissive GLB conversion/optimization CLI. The current pinned local CLI is `gltf-pipeline` 4.3.1 (Apache-2.0). Blender 5.1.1 is installed locally as GPL-licensed workstation tooling, and `pnpm asset:blender:bake` now proves a headless placeholder clinical humanoid GLB bake can run without external assets. Treat `gltf-transform` as an optional external workstation tool until its current CLI dependency path satisfies the copyleft policy.
 
 Suggested build phases:
 

@@ -47,6 +47,33 @@ type GltfPipelineSmokeReport = {
   };
 };
 
+type BlenderAssetBakeSmokeReport = {
+  generatedAt: string;
+  tool: {
+    command: string;
+    package: string;
+    version: string;
+    license: string;
+  };
+  input: {
+    fixture: string;
+    externalAssetsUsed: boolean;
+    sourceLicensePosture: string;
+    expectedObjectCount: number;
+  };
+  output: {
+    glbBytes: number;
+    magic: string;
+    version: number | null;
+    declaredLength: number | null;
+    elapsedMs: number;
+  };
+  verdict: {
+    passed: boolean;
+    blockers: string[];
+  };
+};
+
 type LocalProviderBenchmarkReport = {
   generatedAt: string;
   mockModel: {
@@ -110,6 +137,15 @@ type EvidenceGateReport = {
     passed: boolean;
     blockers: string[];
   };
+  blender_asset_bake_smoke?: {
+    file: string;
+    generated_at: string;
+    tool: BlenderAssetBakeSmokeReport["tool"];
+    input: BlenderAssetBakeSmokeReport["input"];
+    output: BlenderAssetBakeSmokeReport["output"];
+    passed: boolean;
+    blockers: string[];
+  };
   local_provider_benchmark?: {
     file: string;
     generated_at: string;
@@ -157,6 +193,7 @@ export type BenchmarkGateReportInput = {
   questSmoke?: EvidenceFile<QuestSmokeReport>;
   localRuntime?: EvidenceFile<LocalRuntimeProbeReport>;
   gltfPipelineSmoke?: EvidenceFile<GltfPipelineSmokeReport>;
+  blenderAssetBakeSmoke?: EvidenceFile<BlenderAssetBakeSmokeReport>;
   localProviderBenchmark?: EvidenceFile<LocalProviderBenchmarkReport>;
   questManualPerformance?: EvidenceFile<QuestManualPerformanceCheck>;
 };
@@ -165,12 +202,14 @@ async function main(): Promise<void> {
   const questSmoke = await latestJson<QuestSmokeReport>("docs/openclinxr/quest-cdp-smoke-*.json");
   const localRuntime = await latestJson<LocalRuntimeProbeReport>("docs/openclinxr/local-runtime-probe-*.json");
   const gltfPipelineSmoke = await latestJson<GltfPipelineSmokeReport>("docs/openclinxr/gltf-pipeline-smoke-*.json");
+  const blenderAssetBakeSmoke = await latestJson<BlenderAssetBakeSmokeReport>("docs/openclinxr/blender-asset-bake-smoke-*.json");
   const localProviderBenchmark = await latestJson<LocalProviderBenchmarkReport>("docs/openclinxr/local-provider-benchmark-*.json");
   const questManualPerformance = await fileJson<QuestManualPerformanceCheck>(".agent-factory/quest-manual-performance-report.json");
   const report = buildBenchmarkGateReport({
     questSmoke,
     localRuntime,
     gltfPipelineSmoke,
+    blenderAssetBakeSmoke,
     localProviderBenchmark,
     questManualPerformance,
   });
@@ -196,12 +235,13 @@ async function fileJson<TValue>(file: string): Promise<{ file: string; value: TV
 }
 
 export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): EvidenceGateReport {
-  const { questSmoke, localRuntime, gltfPipelineSmoke, localProviderBenchmark, questManualPerformance } = input;
+  const { questSmoke, localRuntime, gltfPipelineSmoke, blenderAssetBakeSmoke, localProviderBenchmark, questManualPerformance } = input;
   const blockers = [
     ...questBlockers(questSmoke?.value),
     ...questManualPerformanceBlockers(questManualPerformance?.value),
     ...localRuntimeBlockers(localRuntime?.value),
     ...gltfPipelineSmokeBlockers(gltfPipelineSmoke?.value),
+    ...blenderAssetBakeSmokeBlockers(blenderAssetBakeSmoke?.value),
     ...localProviderBenchmarkBlockers(localProviderBenchmark?.value),
   ];
   const satisfiedConditions = [
@@ -212,6 +252,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): Evide
     localRuntime?.value.gates.questUsb.status === "ready" ? "quest_usb_ready" : undefined,
     localRuntime?.value.gates.assetPipeline.status === "ready" ? "asset_pipeline_runtime_ready" : undefined,
     gltfPipelineSmoke?.value.verdict.passed ? "asset_pipeline_gltf_pipeline_smoke_passed" : undefined,
+    blenderAssetBakeSmoke?.value.verdict.passed ? "asset_pipeline_blender_bake_smoke_passed" : undefined,
     localProviderBenchmark?.value.verdict.deterministicMocksPassed ? "local_provider_mock_benchmarks_passed" : undefined,
     localRuntime?.value.gates.localModel.status === "ready" ? "local_model_runtime_ready" : undefined,
     localRuntime?.value.gates.localVoice.status === "ready" ? "local_voice_runtime_ready" : undefined,
@@ -246,6 +287,17 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): Evide
         output: gltfPipelineSmoke.value.output,
         passed: gltfPipelineSmoke.value.verdict.passed,
         blockers: [...gltfPipelineSmoke.value.verdict.blockers],
+      },
+    } : {}),
+    ...(blenderAssetBakeSmoke ? {
+      blender_asset_bake_smoke: {
+        file: blenderAssetBakeSmoke.file,
+        generated_at: blenderAssetBakeSmoke.value.generatedAt,
+        tool: blenderAssetBakeSmoke.value.tool,
+        input: blenderAssetBakeSmoke.value.input,
+        output: blenderAssetBakeSmoke.value.output,
+        passed: blenderAssetBakeSmoke.value.verdict.passed,
+        blockers: [...blenderAssetBakeSmoke.value.verdict.blockers],
       },
     } : {}),
     ...(localProviderBenchmark ? {
@@ -360,6 +412,16 @@ function gltfPipelineSmokeBlockers(report: GltfPipelineSmokeReport | undefined):
   return unique(report.verdict.blockers.map((blocker) => `gltf_pipeline_smoke:${blocker}`));
 }
 
+function blenderAssetBakeSmokeBlockers(report: BlenderAssetBakeSmokeReport | undefined): string[] {
+  if (!report) {
+    return ["missing_blender_asset_bake_smoke_report"];
+  }
+  if (report.verdict.passed) {
+    return [];
+  }
+  return unique(report.verdict.blockers.map((blocker) => `blender_asset_bake_smoke:${blocker}`));
+}
+
 function localProviderBenchmarkBlockers(report: LocalProviderBenchmarkReport | undefined): string[] {
   if (!report) {
     return ["missing_local_provider_benchmark_report"];
@@ -405,7 +467,10 @@ const blockerGroups = [
     groupId: "asset_pipeline_blender",
     title: "Blender-backed asset bake",
     owner: "asset-pipeline-lead",
-    matches: (blocker: string) => blocker.startsWith("asset_pipeline:"),
+    matches: (blocker: string) =>
+      blocker.startsWith("asset_pipeline:")
+      || blocker === "missing_blender_asset_bake_smoke_report"
+      || blocker.startsWith("blender_asset_bake_smoke:"),
     nextStep: "Install Blender locally and run the small humanoid asset bake before treating the asset pipeline as ready.",
   },
 ] as const;

@@ -13,7 +13,7 @@
   },
   "local_runtime_probe": {
     "file": "docs/openclinxr/local-runtime-probe-2026-05-04.json",
-    "generated_at": "2026-05-04T04:53:19.623Z",
+    "generated_at": "2026-05-04T05:06:29.963Z",
     "gates": {
       "questUsb": {
         "status": "ready",
@@ -32,10 +32,8 @@
         ]
       },
       "assetPipeline": {
-        "status": "not_configured",
-        "blockers": [
-          "missing_blender"
-        ]
+        "status": "ready",
+        "blockers": []
       }
     }
   },
@@ -54,6 +52,31 @@
       "version": 2,
       "declaredLength": 848,
       "elapsedMs": 543.75
+    },
+    "passed": true,
+    "blockers": []
+  },
+  "blender_asset_bake_smoke": {
+    "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
+    "generated_at": "2026-05-04T05:06:10.560Z",
+    "tool": {
+      "command": "blender",
+      "package": "Blender",
+      "version": "Blender 5.1.1",
+      "license": "GPL-3.0-or-later-tooling"
+    },
+    "input": {
+      "fixture": "low_poly_clinical_humanoid",
+      "externalAssetsUsed": false,
+      "sourceLicensePosture": "repo_generated_placeholder",
+      "expectedObjectCount": 7
+    },
+    "output": {
+      "glbBytes": 27284,
+      "magic": "glTF",
+      "version": 2,
+      "declaredLength": 27284,
+      "elapsedMs": 5610.77
     },
     "passed": true,
     "blockers": []
@@ -147,7 +170,9 @@
         "quest_shell_loaded",
         "quest_trace_interaction_advanced",
         "quest_usb_ready",
+        "asset_pipeline_runtime_ready",
         "asset_pipeline_gltf_pipeline_smoke_passed",
+        "asset_pipeline_blender_bake_smoke_passed",
         "local_provider_mock_benchmarks_passed"
       ],
       "blockers": [
@@ -155,7 +180,6 @@
         "quest_page_hidden_or_inactive",
         "quest_sustained_frame_sample_not_complete",
         "quest_manual_performance:missing_quest_manual_performance_report",
-        "asset_pipeline:missing_blender",
         "local_model:no_ollama_llama_cpp_or_mlx_runtime_detected",
         "local_voice:no_vibevoice_runtime_detected",
         "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_ID_not_set",
@@ -166,8 +190,8 @@
         "local_voice_benchmark:no_vibevoice_runtime_detected"
       ],
       "blocker_summary": {
-        "total_blockers": 13,
-        "distinct_problem_count": 4,
+        "total_blockers": 12,
+        "distinct_problem_count": 3,
         "groups": [
           {
             "group_id": "quest_foreground_frame_pacing",
@@ -204,15 +228,6 @@
               "local_voice_benchmark:no_vibevoice_runtime_detected"
             ],
             "next_step": "Complete voice safety and license review, configure one local voice runtime and voice ID, then record first-audio latency evidence."
-          },
-          {
-            "group_id": "asset_pipeline_blender",
-            "title": "Blender-backed asset bake",
-            "owner": "asset-pipeline-lead",
-            "blockers": [
-              "asset_pipeline:missing_blender"
-            ],
-            "next_step": "Install Blender locally and run the small humanoid asset bake before treating the asset pipeline as ready."
           }
         ],
         "ungrouped_blockers": []

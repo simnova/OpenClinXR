@@ -22,13 +22,13 @@
   "critical_risks": [
     { "id": "risk-leadership-0008-001", "severity": "medium", "summary": "Stakeholders may confuse shell and interaction evidence with immersive Quest performance readiness.", "owner": "xr-systems-architect", "status": "open" },
     { "id": "risk-leadership-0008-002", "severity": "medium", "summary": "Local AI and voice paths may be prematurely enabled before latency, safety, license, and thermal evidence exists.", "owner": "local-ai-inference-engineer", "status": "open" },
-    { "id": "risk-leadership-0008-003", "severity": "medium", "summary": "Asset work may be underestimated because GLB conversion passed while Blender-backed generation and optimization remain unproven.", "owner": "asset-pipeline-lead", "status": "open" }
+    { "id": "risk-leadership-0008-003", "severity": "medium", "summary": "Asset work may be underestimated because placeholder Blender baking passed while production avatar quality, rigging, LODs, texture atlasing, colliders, and headset frame pacing remain unproven.", "owner": "asset-pipeline-lead", "status": "open" }
   ],
   "evidence_debt": [
     { "id": "evidence-leadership-0008-001", "summary": "Capture and validate a foreground in-headset Quest manual performance report before claiming frame pacing or comfort readiness.", "owner": "xr-systems-architect", "status": "open" },
     { "id": "evidence-leadership-0008-002", "summary": "Install and benchmark one explicit local model runtime and model ID on target Apple Silicon hardware before enabling local dialogue.", "owner": "local-ai-inference-engineer", "status": "open" },
     { "id": "evidence-leadership-0008-003", "summary": "Install and benchmark a local voice runtime only after safety and misuse review, then record first-audio latency and transcript/synthesis evidence.", "owner": "voice-speech-engineer", "status": "open" },
-    { "id": "evidence-leadership-0008-004", "summary": "Install Blender and run a small asset bake report before calling the 3D asset pipeline ready.", "owner": "asset-pipeline-lead", "status": "open" }
+    { "id": "evidence-leadership-0008-004", "summary": "Install Blender and run a small asset bake report before calling the 3D asset pipeline ready.", "owner": "asset-pipeline-lead", "status": "resolved" }
   ],
   "decision_debt": [],
   "confidence": 0.94,

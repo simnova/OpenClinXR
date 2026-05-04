@@ -26,7 +26,14 @@ describe("benchmark gate report", () => {
     const gate = report.evidence_gates.find((candidate) => candidate.evidence_id === "evidence-leadership-0007-002");
 
     expect(gate?.blockers).toEqual(expect.arrayContaining(["local_model:no_ollama_llama_cpp_or_mlx_runtime_detected"]));
-    expect(gate?.blocker_summary?.groups).toEqual(
+    const groups = gate?.blocker_summary?.groups ?? [];
+
+    expect(groups.map((group) => group.group_id).sort()).toEqual([
+      "local_model_runtime",
+      "local_voice_runtime",
+      "quest_foreground_frame_pacing",
+    ]);
+    expect(groups).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           group_id: "local_model_runtime",
@@ -52,14 +59,35 @@ describe("benchmark gate report", () => {
             "quest_manual_performance:missing_quest_manual_performance_report",
           ]),
         }),
-        expect.objectContaining({
-          group_id: "asset_pipeline_blender",
-          owner: "asset-pipeline-lead",
-          blockers: ["asset_pipeline:missing_blender"],
-        }),
       ]),
     );
-    expect(gate?.blocker_summary?.groups.every((group) => group.next_step.length > 0)).toBe(true);
+    expect(groups.every((group) => group.next_step.length > 0)).toBe(true);
+  });
+
+  it("summarizes missing Blender asset evidence as an asset-pipeline group", () => {
+    const report = buildBenchmarkGateReport({
+      localRuntime: {
+        file: "runtime.json",
+        value: {
+          generatedAt: "2026-05-04T00:00:00.000Z",
+          gates: {
+            questUsb: { status: "ready", blockers: [] },
+            localModel: { status: "ready", blockers: [] },
+            localVoice: { status: "ready", blockers: [] },
+            assetPipeline: { status: "blocked", blockers: ["missing_blender"] },
+          },
+        },
+      },
+    });
+    const groups = report.evidence_gates[0]?.blocker_summary.groups ?? [];
+
+    expect(groups).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        group_id: "asset_pipeline_blender",
+        owner: "asset-pipeline-lead",
+        blockers: expect.arrayContaining(["asset_pipeline:missing_blender", "missing_blender_asset_bake_smoke_report"]),
+      }),
+    ]));
   });
 
   it("marks the leadership evidence gate ready when all fixture evidence is satisfied", () => {
@@ -107,6 +135,21 @@ describe("benchmark gate report", () => {
           verdict: { passed: true, blockers: [] },
         },
       },
+      blenderAssetBakeSmoke: {
+        file: "blender.json",
+        value: {
+          generatedAt: "2026-05-04T00:00:00.000Z",
+          tool: { command: "blender", package: "Blender", version: "Blender 5.1.1", license: "GPL-3.0-or-later-tooling" },
+          input: {
+            fixture: "low_poly_clinical_humanoid",
+            externalAssetsUsed: false,
+            sourceLicensePosture: "repo_generated_placeholder",
+            expectedObjectCount: 7,
+          },
+          output: { glbBytes: 4096, magic: "glTF", version: 2, declaredLength: 4096, elapsedMs: 2500 },
+          verdict: { passed: true, blockers: [] },
+        },
+      },
       localProviderBenchmark: {
         file: "provider.json",
         value: {
@@ -132,6 +175,7 @@ describe("benchmark gate report", () => {
       "quest_shell_loaded",
       "quest_manual_frame_pacing_ready",
       "asset_pipeline_gltf_pipeline_smoke_passed",
+      "asset_pipeline_blender_bake_smoke_passed",
       "local_model_ready_to_benchmark",
       "local_voice_ready_to_benchmark",
     ]));

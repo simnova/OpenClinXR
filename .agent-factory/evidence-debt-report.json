@@ -2,11 +2,11 @@
   "generated_by": "tools/agent-factory/find-evidence-debt.ts",
   "scorecard_count": 13,
   "debt_count": 25,
-  "open_count": 23,
-  "closed_count": 2,
+  "open_count": 22,
+  "closed_count": 3,
   "status_counts": {
-    "open": 23,
-    "resolved": 2
+    "open": 22,
+    "resolved": 3
   },
   "open_by_iteration": {
     "iteration-0001": 3,
@@ -16,10 +16,9 @@
     "iteration-0005": 1,
     "iteration-0006": 1,
     "iteration-0007": 1,
-    "iteration-0008": 4
+    "iteration-0008": 3
   },
   "open_by_owner": {
-    "asset-pipeline-lead": 1,
     "chief-medical-officer": 1,
     "clinical-safety-critic": 1,
     "cto": 2,
@@ -35,17 +34,6 @@
     "xr-systems-architect": 2
   },
   "priority_open_debt": [
-    {
-      "id": "evidence-leadership-0008-004",
-      "file": "iterations/iteration-0008/06-leadership-scorecard.json",
-      "iteration_id": "iteration-0008",
-      "iteration_number": 8,
-      "plan_type": "leadership-review",
-      "scored_by": "senior-leadership-panel",
-      "owner": "asset-pipeline-lead",
-      "summary": "Install Blender and run a small asset bake report before calling the 3D asset pipeline ready.",
-      "status": "open"
-    },
     {
       "id": "evidence-leadership-0008-002",
       "file": "iterations/iteration-0008/06-leadership-scorecard.json",
@@ -531,17 +519,6 @@
       "owner": "voice-speech-engineer",
       "summary": "Install and benchmark a local voice runtime only after safety and misuse review, then record first-audio latency and transcript/synthesis evidence.",
       "status": "open"
-    },
-    {
-      "id": "evidence-leadership-0008-004",
-      "file": "iterations/iteration-0008/06-leadership-scorecard.json",
-      "iteration_id": "iteration-0008",
-      "iteration_number": 8,
-      "plan_type": "leadership-review",
-      "scored_by": "senior-leadership-panel",
-      "owner": "asset-pipeline-lead",
-      "summary": "Install Blender and run a small asset bake report before calling the 3D asset pipeline ready.",
-      "status": "open"
     }
   ],
   "all_debt": [
@@ -818,7 +795,7 @@
       "scored_by": "senior-leadership-panel",
       "owner": "asset-pipeline-lead",
       "summary": "Install Blender and run a small asset bake report before calling the 3D asset pipeline ready.",
-      "status": "open"
+      "status": "resolved"
     }
   ]
 }

@@ -5004,18 +5004,6 @@
       ]
     },
     {
-      "id": "evidence-leadership-0008-004",
-      "actionType": "close_evidence_debt",
-      "owner": "asset-pipeline-lead",
-      "summary": "Install Blender and run a small asset bake report before calling the 3D asset pipeline ready.",
-      "dimensions": [
-        "technical_feasibility",
-        "cost_performance_efficiency",
-        "open_source_sustainability",
-        "architecture_coherence"
-      ]
-    },
-    {
       "id": "risk-leadership-0008-001",
       "actionType": "mitigate_critical_risk",
       "owner": "xr-systems-architect",
@@ -5040,7 +5028,7 @@
       "id": "risk-leadership-0008-003",
       "actionType": "mitigate_critical_risk",
       "owner": "asset-pipeline-lead",
-      "summary": "Asset work may be underestimated because GLB conversion passed while Blender-backed generation and optimization remain unproven.",
+      "summary": "Asset work may be underestimated because placeholder Blender baking passed while production avatar quality, rigging, LODs, texture atlasing, colliders, and headset frame pacing remain unproven.",
       "dimensions": [
         "technical_feasibility",
         "cost_performance_efficiency",

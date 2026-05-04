@@ -36,7 +36,7 @@ Important note: this is not the M4 Pro mentioned by the user. Treat these result
 | ffmpeg | 8.1 | Good for local audio and media processing |
 | Android Platform Tools | Installed on 2026-05-03 | `adb` is available for Quest 3 USB-C WebXR smoke testing |
 | Bun | Not installed | Bun/Hono production path needs install gate or Node adapter during development |
-| Blender | Not installed | Asset pipeline needs install gate before 3D generation/optimization |
+| Blender | 5.1.1 installed through Homebrew cask on 2026-05-04 | Headless placeholder asset bake passed; keep as workstation tooling, not bundled runtime |
 | gltf-pipeline | 4.3.1 installed as a pinned pnpm dev dependency | Apache-2.0 local GLB conversion/optimization CLI available through pnpm |
 | gltf-transform | Not installed | Keep as optional external workstation tool until its current CLI dependency path is cleared by license review |
 | ImageMagick | Not installed | Texture pipeline needs install gate or alternative |
@@ -107,7 +107,38 @@ Result:
 | Declared length | Matches file length |
 | Verdict | Passed |
 
-This proves the local permissive GLB conversion path is executable. It does not replace Blender, mesh decimation, texture compression, headset frame pacing, or visual QA.
+This proves the local permissive GLB conversion path is executable. It does not replace mesh decimation, texture compression, headset frame pacing, or visual QA.
+
+## Blender Asset Bake Smoke
+
+Run time: 2026-05-04 01:06 EDT
+
+Command:
+
+```bash
+pnpm asset:blender:bake -- --output docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json
+```
+
+Machine-readable evidence:
+
+- `docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json`
+
+Result:
+
+| Check | Result |
+| --- | --- |
+| Tool | Blender 5.1.1 |
+| License posture | GPL tooling only; not bundled into app deployments |
+| Input | Generated low-poly clinical humanoid placeholder |
+| External assets | None |
+| Output | 27,284-byte GLB |
+| GLB magic | `glTF` |
+| GLB version | 2 |
+| Declared length | Matches file length |
+| Elapsed bake | 5.61s |
+| Verdict | Passed |
+
+This clears the local asset-pipeline install/bake evidence gate for placeholder generation. It does not prove production-quality avatars, rigging, cloth, texture atlasing, LOD generation, or Quest headset frame pacing.
 
 ## Local Provider Benchmark Contract
 
@@ -234,15 +265,15 @@ Local strengths:
 Local gaps:
 
 - Bun must be installed or the first implementation must use a Node Hono adapter locally.
-- Blender must be installed before asset pipeline generation/bake spikes. `gltf-pipeline` is now available as the pinned pnpm CLI for permissive local GLB conversion/optimization checks.
+- Blender is installed and has passed the placeholder asset bake smoke. `gltf-pipeline` is available as the pinned pnpm CLI for permissive local GLB conversion/optimization checks.
 - llama.cpp, Ollama, MLX LM, and VibeVoice are not installed.
 - Quest 3 USB debugging was authorized, `adb reverse tcp:5173 tcp:5173` succeeded, and Quest Browser loaded both a static local smoke page and the OpenClinXR XR station shell.
 - No immersive WebXR runtime benchmark has been run yet; the current evidence is browser-shell rendering and interaction only.
 
 Recommended local-only next spikes:
 
-1. Install Bun and verify Hono WebSocket local server.
-2. Install Blender and run the next asset bake smoke against a small placeholder GLB; keep `gltf-transform` as an optional external workstation tool until its CLI dependency path satisfies the copyleft policy.
+1. Install Bun and verify Hono WebSocket local server if Bun remains a desired local networking path.
+2. Extend the Blender bake from placeholder GLB validation into mesh decimation, texture atlas, LOD, and collider evidence; keep `gltf-transform` as an optional external workstation tool until its CLI dependency path satisfies the copyleft policy.
 3. Install MLX LM or llama.cpp and benchmark Qwen3-4B/Qwen3-8B or DeepSeek-R1-Distill-Qwen-7B quantized model.
 4. Install VibeVoice-Realtime-0.5B only after reviewing model terms and disk/runtime requirements.
 5. Add a measured Quest 3 10-minute performance and comfort smoke for the real station shell with DevTools screencasting disabled.
