@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { AdminApp } from "./App.js";
 import type { AdminControlPlaneClient } from "./api-client.js";
@@ -53,9 +53,35 @@ describe("AdminApp", () => {
     expect(screen.getAllByText("clinic_abdominal_pain_interpreter_v1").length).toBeGreaterThan(0);
   });
 
+  it("renders existing station run queue review snapshots", async () => {
+    const client = fakeControlPlaneClient();
+    client.listStep2CsSeedStationRunQueueSnapshots = async () => [
+      await client.createStep2CsSeedStationRunQueueSnapshot({
+        snapshotId: "queue_snapshot_existing_001",
+        createdAt: "2026-05-03T17:00:00.000Z",
+        reviewerId: "psychometrician_001",
+      }),
+    ];
+
+    render(<AdminApp initialPath="/exam-forms" controlPlaneClient={client} />);
+
+    const snapshotHistory = await screen.findByLabelText("Queue review snapshot history");
+    expect(within(snapshotHistory).getByRole("heading", { name: "Review Snapshots" })).toBeInTheDocument();
+    expect(within(snapshotHistory).getByText("queue_snapshot_existing_001")).toBeInTheDocument();
+    expect(within(snapshotHistory).getByText("psychometrician_001")).toBeInTheDocument();
+    expect(within(snapshotHistory).getByText("1 activation-ready / 11 blocked")).toBeInTheDocument();
+  });
+
   it("creates a review snapshot from the station run queue", async () => {
     const client = fakeControlPlaneClient();
-    const createSnapshot = vi.fn(client.createStep2CsSeedStationRunQueueSnapshot);
+    const savedSnapshots = new Array<Awaited<ReturnType<typeof client.createStep2CsSeedStationRunQueueSnapshot>>>();
+    const listSnapshots = vi.fn(async () => savedSnapshots);
+    const createSnapshot = vi.fn(async (input: Parameters<typeof client.createStep2CsSeedStationRunQueueSnapshot>[0]) => {
+      const snapshot = await fakeControlPlaneClient().createStep2CsSeedStationRunQueueSnapshot(input);
+      savedSnapshots.push(snapshot);
+      return snapshot;
+    });
+    client.listStep2CsSeedStationRunQueueSnapshots = listSnapshots;
     client.createStep2CsSeedStationRunQueueSnapshot = createSnapshot;
 
     render(<AdminApp initialPath="/exam-forms" controlPlaneClient={client} />);
@@ -64,7 +90,8 @@ describe("AdminApp", () => {
 
     expect(createSnapshot).toHaveBeenCalledWith(expect.objectContaining({ reviewerId: "admin_seed_reviewer" }));
     expect(await screen.findByText("Review snapshot saved")).toBeInTheDocument();
-    expect(screen.getByText("queue_snapshot_test_001")).toBeInTheDocument();
+    expect(await within(screen.getByLabelText("Queue review snapshot history")).findByText("queue_snapshot_test_001")).toBeInTheDocument();
+    expect(listSnapshots).toHaveBeenCalledTimes(2);
   });
 });
 

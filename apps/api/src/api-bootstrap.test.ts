@@ -41,4 +41,33 @@ describe("OpenClinXR API startup", () => {
       model: { providerId: "mock-model", status: "ready" },
     });
   });
+
+  it("persists station run queue review snapshots in the default single-user startup", async () => {
+    const startup = createOpenClinXrApiStartup().startUp();
+
+    const createResponse = await startup.fetch(
+      new Request("http://localhost/exam-blueprints/step2cs-seed/station-run-queue/snapshots", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          snapshotId: "queue_snapshot_startup_001",
+          createdAt: "2026-05-03T18:00:00.000Z",
+          reviewerId: "admin_seed_reviewer",
+        }),
+      }),
+    );
+
+    expect(createResponse.status).toBe(201);
+
+    const listResponse = await startup.fetch(new Request("http://localhost/exam-blueprints/step2cs-seed/station-run-queue/snapshots"));
+    expect(listResponse.status).toBe(200);
+    await expect(listResponse.json()).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          snapshotId: "queue_snapshot_startup_001",
+          reviewerId: "admin_seed_reviewer",
+        }),
+      ]),
+    );
+  });
 });

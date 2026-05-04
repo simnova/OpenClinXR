@@ -1,7 +1,7 @@
 import type { ExamForm } from "@openclinxr/exam-assembly";
 import { createDefaultScenarioRuntime, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createNoopTelemetryRecorder, type TelemetryRecorder } from "@openclinxr/telemetry";
-import { createApiApp, type ApiPersistenceSink } from "./app.js";
+import { createApiApp, type ApiPersistenceSink, type ApiStationRunQueueSnapshot } from "./app.js";
 
 export type AzureFunctionHttpMethod = "GET" | "POST" | "PATCH" | "PUT" | "DELETE" | "OPTIONS" | "HEAD";
 
@@ -110,7 +110,7 @@ export class OpenClinXrApiStartupBuilder {
 }
 
 export function createOpenClinXrApiStartup(options: OpenClinXrApiStartupOptions = {}): OpenClinXrApiStartupBuilder {
-  const persistence = options.persistence ?? createNoopPersistenceSink();
+  const persistence = options.persistence ?? createSingleUserMemoryPersistenceSink();
   const runtime = options.runtime ?? createDefaultScenarioRuntime();
   const telemetry = options.telemetry ?? createNoopTelemetryRecorder();
 
@@ -155,11 +155,21 @@ function defaultApplicationServicesFactory(context: ApiStartupContext): ApiAppli
   };
 }
 
-function createNoopPersistenceSink(): ApiPersistenceSink {
+function createSingleUserMemoryPersistenceSink(): ApiPersistenceSink {
+  const examForms = new Map<string, ExamForm>();
+  const stationRunQueueSnapshots = new Map<string, ApiStationRunQueueSnapshot>();
+
   return {
-    saveExamForm: (_form: ExamForm) => undefined,
-    saveStationRunQueueSnapshot: () => undefined,
-    listStationRunQueueSnapshots: () => [],
+    saveExamForm: (form) => {
+      examForms.set(form.examFormId, form);
+    },
+    saveStationRunQueueSnapshot: (snapshot) => {
+      stationRunQueueSnapshots.set(snapshot.snapshotId, snapshot);
+    },
+    listStationRunQueueSnapshots: (blueprintId) =>
+      Array.from(stationRunQueueSnapshots.values())
+        .filter((snapshot) => snapshot.queue.blueprintId === blueprintId)
+        .sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt)),
     saveTraceEvents: () => undefined,
     saveReviewPacket: () => undefined,
   };

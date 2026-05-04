@@ -7,7 +7,7 @@ import { adminWorkbenchCapabilityTags, openClinXrAdminTheme } from "@openclinxr/
 import { Alert, Button, Card, ConfigProvider, Layout, Space, Spin, Steps, Tag, Typography } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { BrowserRouter, Link, MemoryRouter, Route, Routes } from "react-router";
-import { createAdminControlPlaneClient, type AdminControlPlaneClient } from "./api-client.js";
+import { createAdminControlPlaneClient, type AdminControlPlaneClient, type AdminStationRunQueueSnapshot } from "./api-client.js";
 
 const { Content, Sider } = Layout;
 
@@ -133,6 +133,7 @@ type SeedBlueprintWorkbenchState =
     readiness: BlueprintScenarioReadiness;
     timingPlan: ExamTimingPlan;
     stationRunQueue: ExamStationRunQueue;
+    queueSnapshots: AdminStationRunQueueSnapshot[];
     assetReadiness: ScenarioAssetReadiness[];
   };
 
@@ -153,11 +154,12 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
       controlPlaneClient.getStep2CsSeedBlueprintReadiness(),
       controlPlaneClient.getStep2CsSeedTimingPlan(),
       controlPlaneClient.getStep2CsSeedStationRunQueue(),
+      controlPlaneClient.listStep2CsSeedStationRunQueueSnapshots(),
       controlPlaneClient.getScenarioBankAssetReadiness(),
     ])
-      .then(([blueprint, readiness, timingPlan, stationRunQueue, assetReadiness]) => {
+      .then(([blueprint, readiness, timingPlan, stationRunQueue, queueSnapshots, assetReadiness]) => {
         if (active) {
-          setState({ status: "ready", blueprint, readiness, timingPlan, stationRunQueue, assetReadiness });
+          setState({ status: "ready", blueprint, readiness, timingPlan, stationRunQueue, queueSnapshots, assetReadiness });
         }
       })
       .catch((error: unknown) => {
@@ -203,6 +205,8 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
         reviewerId: "admin_seed_reviewer",
         createdAt: new Date().toISOString(),
       });
+      const queueSnapshots = await controlPlaneClient.listStep2CsSeedStationRunQueueSnapshots();
+      setState((currentState) => currentState.status === "ready" ? { ...currentState, queueSnapshots } : currentState);
       setSnapshotState({ status: "saved", snapshotId: snapshot.snapshotId });
     } catch (error) {
       setSnapshotState({ status: "error", message: error instanceof Error ? error.message : "Unknown snapshot error" });
@@ -261,6 +265,29 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
               </li>
             ))}
           </ol>
+        </section>
+
+        <section className="workbench-panel" aria-label="Queue review snapshot history">
+          <Typography.Title level={4}>Review Snapshots</Typography.Title>
+          <Typography.Text>{`${state.queueSnapshots.length} saved reviewer snapshot${state.queueSnapshots.length === 1 ? "" : "s"}`}</Typography.Text>
+          {state.queueSnapshots.length === 0 ? (
+            <Typography.Paragraph className="empty-panel-note">No review snapshots yet.</Typography.Paragraph>
+          ) : (
+            <ol className="queue-snapshot-list">
+              {state.queueSnapshots.map((snapshot) => (
+                <li key={snapshot.snapshotId}>
+                  <div className="station-queue-row">
+                    <Typography.Text strong>{snapshot.snapshotId}</Typography.Text>
+                    <Tag color={snapshot.queue.canStartLearnerExam ? "green" : "gold"}>
+                      {snapshot.queue.canStartLearnerExam ? "launch ready" : "blocked"}
+                    </Tag>
+                  </div>
+                  <Typography.Text>{snapshot.reviewerId ?? "unassigned reviewer"}</Typography.Text>
+                  <Typography.Text type="secondary">{formatSnapshotQueueSummary(snapshot)}</Typography.Text>
+                </li>
+              ))}
+            </ol>
+          )}
         </section>
 
         <section className="workbench-panel" aria-labelledby="timing-title">
@@ -330,6 +357,13 @@ function formatDuration(totalSeconds: number): string {
 
 function formatMinutes(seconds: number): string {
   return `${Math.round(seconds / 60)}m`;
+}
+
+function formatSnapshotQueueSummary(snapshot: AdminStationRunQueueSnapshot): string {
+  const blocked =
+    snapshot.queue.summary.draftBlocked + snapshot.queue.summary.governanceBlocked + snapshot.queue.summary.missingScenario;
+
+  return `${snapshot.queue.summary.activationReady} activation-ready / ${blocked} blocked`;
 }
 
 function capabilityTagColor(tag: string): string {

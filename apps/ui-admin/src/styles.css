@@ -128,6 +128,7 @@ a {
 
 .station-window-list,
 .station-queue-list,
+.queue-snapshot-list,
 .blocked-scenario-list,
 .asset-readiness-list {
   display: grid;
@@ -139,6 +140,7 @@ a {
 
 .station-window-list li,
 .station-queue-list li,
+.queue-snapshot-list li,
 .blocked-scenario-list li,
 .asset-readiness-list li {
   align-items: center;
@@ -162,6 +164,10 @@ a {
   display: grid;
   gap: 8px;
   grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.empty-panel-note {
+  margin: 14px 0 0;
 }
 
 @media (max-width: 760px) {
