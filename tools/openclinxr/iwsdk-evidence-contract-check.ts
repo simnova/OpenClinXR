@@ -167,9 +167,9 @@ export function buildIwsdkEvidenceContractReport(input: {
   const currentKnownSidecarMetrics: IwsdkSpikeMetrics = {
     installedNodeModulesMb: 24,
     injectedDevRuntimeKb: 0,
-    appJsBundleKb: 2511.15,
-    bundleDeltaVsUiXrKb: 1895.82,
-    baselineAppBundleSource: "apps/ui-xr-iwsdk-spike/dist/assets/*.js total minus apps/ui-xr/dist/assets/index--3PpZ4i5.js + apps/ui-xr/dist/assets/three-vendor-Csg9FCqN.js",
+    appJsBundleKb: 2511.19,
+    bundleDeltaVsUiXrKb: 1895.52,
+    baselineAppBundleSource: "apps/ui-xr-iwsdk-spike/dist/assets/*.js total minus apps/ui-xr/dist/assets/index-DWeRkXUD.js + apps/ui-xr/dist/assets/three-vendor-Csg9FCqN.js",
     smokePlanHash: "runtime-state:iwsdk-station-mcp-smoke-plan:v1",
     canvasNonblank: true,
     requiredSceneObjectNames: buildIwsdkUiXrStationParityContract().requiredSceneObjectNames,

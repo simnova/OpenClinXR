@@ -26,6 +26,7 @@ The human report must still confirm:
 - Immersive session behavior was observed in-headset.
 - EHR and station text were readable at the intended headset distance.
 - Controller selection felt responsive and trace interaction was visible.
+- Full VR mode, hand/input visibility, locomotion behavior, and the DOM trace-latency proxy were copied from `window.__openClinXrManualPerformanceDraft` as supporting context.
 - At least 10 minutes of observation completed.
 - At least 600 frames were observed, with a rolling sample window of at least 120 frames.
 - Comfort, heat, and battery observations were recorded.

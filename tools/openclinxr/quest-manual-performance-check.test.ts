@@ -30,6 +30,18 @@ describe("Quest manual performance checker", () => {
         immersiveSessionStarted: true,
         consoleErrors: [],
       },
+      experience: {
+        phaseLabel: "Phase 1 Full VR",
+        requestedSessionMode: "immersive-vr",
+        mixedRealityPassthroughImplemented: false,
+      },
+      traceLatencyProxy: {
+        source: "dom_click_trace_button",
+        lastTraceTag: "ecg_request",
+        lastSelectLatencyMs: 12,
+        measuredAtMs: 1234,
+        productionControllerLatencySubstitute: false,
+      },
       performance: {
         source: "window.__openClinXrFrameStats",
         framesObserved: 600,
@@ -73,6 +85,8 @@ describe("Quest manual performance checker", () => {
       "average_fps_72_or_higher",
       "p95_frame_ms_25_or_lower",
       "controller_select_latency_150ms_or_lower",
+      "experience_mode_full_vr_recorded",
+      "trace_latency_proxy_recorded_as_supporting_evidence",
     ]));
   });
 

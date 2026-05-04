@@ -16,7 +16,7 @@ This evidence improves confidence that the sidecar can render and interact on Qu
 ## Observed Result
 
 - Quest device: `Quest_3` over USB-C with ADB authorization.
-- URL: `http://localhost:5183/?questSmoke=full-vr-label-20260504`.
+- URL: `http://localhost:5183/?questSmoke=manual-supporting-evidence-20260504`.
 - Browser title: `OpenClinXR IWSDK Spike`.
 - User agent: Quest Browser `146.0.0.19.27`.
 - Page state: visible, not hidden, focused.
@@ -27,12 +27,12 @@ This evidence improves confidence that the sidecar can render and interact on Qu
 - Boot evidence: Quest CDP records startup through `station_scene_ready` and `clock_started`; this confirms station creation is no longer the failing boundary.
 - Flat preview fallback: Quest Browser CDP did not advance `renderer.setAnimationLoop`/`requestAnimationFrame` in non-immersive flat-page mode, so the apps now include a timer-backed flat preview fallback. Immersive VR should still rely on the WebXR animation loop.
 - Stale page hygiene: the CDP harness now prefers the exact requested URL and closes stale same-path smoke tabs before sampling; the latest run left one `localhost:5183` page target.
-- IWSDK bundle posture: the build now keeps `iwsdk-vendor` out of the initial modulepreload list. Initial modulepreloaded JS is about `23.19 KB`; the deferred `iwsdk-vendor` chunk remains about `2404.88 KB`.
+- IWSDK bundle posture: the build now keeps `iwsdk-vendor` out of the initial modulepreload list. Initial modulepreloaded JS is about `23.23 KB`; the deferred `iwsdk-vendor` chunk remains about `2404.88 KB`.
 - Deferred evidence hydration: browser snapshot starts with package export counts at `0/0`, and the CDP frame-sample result confirms hydration to `586/31`.
 - Canvas: nonblank, `880 x 924`, PNG data URL length `136082`.
 - Trace interaction: `Trace 0/10` to `Trace 2/10`.
-- DOM trace-select latency proxy: the CDP-triggered trace button path recorded `0.8 ms` for the final `urgent_escalation` DOM click. This proves the evidence plumbing works, but it is not a real headset controller latency measurement and must not clear the production `controllerSelectLatencyMs` gate.
-- CDP frame sample: `120` samples, `15.4` approximate FPS, p95 frame time `66.1 ms`, max frame time `68.8 ms`.
+- DOM trace-select latency proxy: the CDP-triggered trace button path recorded `0.4 ms` for the final `urgent_escalation` DOM click and explicitly marks `productionControllerLatencySubstitute: false`. This proves the evidence plumbing works, but it is not a real headset controller latency measurement and must not clear the production `controllerSelectLatencyMs` gate.
+- CDP frame sample: `120` samples, `15.4` approximate FPS, p95 frame time `66.1 ms`, max frame time `72.5 ms`.
 - Evidence classification: `foreground_ready`.
 
 ## Remaining Production Blockers

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T17:28:35.488Z",
+  "generatedAt": "2026-05-04T17:35:42.987Z",
   "status": "phase_1_install_backed_sidecar",
   "sidecar": {
     "sidecarAppRoot": "apps/ui-xr-iwsdk-spike/",

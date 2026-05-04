@@ -17,6 +17,31 @@
     "immersiveSessionStarted": false,
     "consoleErrors": []
   },
+  "experience": {
+    "phaseLabel": "Phase 1 Full VR",
+    "requestedSessionMode": "immersive-vr",
+    "mixedRealityPassthroughImplemented": false,
+    "handTrackingPosture": "optional_feature_with_primitive_hand_model",
+    "locomotionPosture": "experimental_keyboard_and_thumbstick_dolly"
+  },
+  "input": {
+    "handModelCount": 0,
+    "handModelStatus": "pending_immersive_session",
+    "handInputsObserved": 0,
+    "locomotionMode": "experimental_keyboard_and_thumbstick_dolly",
+    "lastLocomotionAtMs": null,
+    "rigPosition": {
+      "x": 0,
+      "z": 0
+    }
+  },
+  "traceLatencyProxy": {
+    "lastTraceTag": null,
+    "lastSelectLatencyMs": null,
+    "source": "dom_click_trace_button",
+    "measuredAtMs": null,
+    "productionControllerLatencySubstitute": false
+  },
   "performance": {
     "source": "window.__openClinXrFrameStats",
     "framesObserved": 0,

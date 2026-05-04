@@ -37,6 +37,8 @@ import {
   summarizeFrameDeltas,
   summarizeTraceReadiness,
   type ManualPerformanceDraft,
+  type ManualPerformanceInputEvidence,
+  type ManualPerformanceTraceLatencyEvidence,
   type XrExperienceModeEvidence,
   type XrRuntimeState,
   xrExperienceModeEvidence,
@@ -74,14 +76,7 @@ type OpenClinXrFrameStats = ReturnType<typeof summarizeFrameDeltas> & {
   sampleWindowSize: number;
 };
 
-type OpenClinXrInputEvidence = {
-  handModelCount: number;
-  handModelStatus: "pending_immersive_session" | "installed" | "failed";
-  handInputsObserved: number;
-  locomotionMode: "experimental_keyboard_and_thumbstick_dolly";
-  lastLocomotionAtMs: number | null;
-  rigPosition: { x: number; z: number };
-};
+type OpenClinXrInputEvidence = ManualPerformanceInputEvidence;
 
 type OpenClinXrBootEvidence = {
   app: "ui-xr";
@@ -92,12 +87,7 @@ type OpenClinXrBootEvidence = {
   }>;
 };
 
-type OpenClinXrTraceLatencyEvidence = {
-  lastTraceTag: string | null;
-  lastSelectLatencyMs: number | null;
-  source: "dom_click_trace_button";
-  measuredAtMs: number | null;
-};
+type OpenClinXrTraceLatencyEvidence = ManualPerformanceTraceLatencyEvidence;
 
 type StationSceneRuntime = {
   startImmersiveSession(): Promise<void>;
@@ -232,6 +222,7 @@ function recordTraceSelectLatency(startedAtMs: number, tag: string): void {
     lastSelectLatencyMs: lastTraceSelectLatencyMs,
     source: "dom_click_trace_button",
     measuredAtMs: Number(performance.now().toFixed(2)),
+    productionControllerLatencySubstitute: false,
   };
 }
 
@@ -720,6 +711,9 @@ function recordFrame(now: number): void {
     traceInteractionPassed: state.completedTraceTags.length > 0,
     frameStats: window.__openClinXrFrameStats,
     controllerSelectLatencyMs: lastTraceSelectLatencyMs,
+    experienceModeEvidence: window.__openClinXrExperienceModeEvidence ?? xrExperienceModeEvidence,
+    inputEvidence: window.__openClinXrInputEvidence ?? null,
+    traceLatencyEvidence: window.__openClinXrTraceLatencyEvidence ?? null,
     immersiveSessionStarted: immersiveSessionActive,
   });
 }

@@ -84,6 +84,23 @@ export type ManualPerformanceMetrics = {
   sampleWindowSize: number;
 };
 
+export type ManualPerformanceInputEvidence = {
+  handModelCount: number;
+  handModelStatus: "pending_immersive_session" | "installed" | "failed";
+  handInputsObserved: number;
+  locomotionMode: "experimental_keyboard_and_thumbstick_dolly";
+  lastLocomotionAtMs: number | null;
+  rigPosition: { x: number; z: number };
+};
+
+export type ManualPerformanceTraceLatencyEvidence = {
+  lastTraceTag: string | null;
+  lastSelectLatencyMs: number | null;
+  source: "dom_click_trace_button";
+  measuredAtMs: number | null;
+  productionControllerLatencySubstitute: false;
+};
+
 export type ManualPerformanceDraft = {
   generatedAt: string;
   runContext: {
@@ -103,6 +120,9 @@ export type ManualPerformanceDraft = {
     immersiveSessionStarted: boolean;
     consoleErrors: string[];
   };
+  experience: XrExperienceModeEvidence;
+  input: ManualPerformanceInputEvidence | null;
+  traceLatencyProxy: ManualPerformanceTraceLatencyEvidence | null;
   performance: ManualPerformanceMetrics;
   comfort: {
     motionComfort: "comfortable" | "mild_discomfort" | "uncomfortable" | "not_run";
@@ -118,6 +138,9 @@ export type ManualPerformanceDraftInput = {
   traceInteractionPassed: boolean;
   frameStats: ManualPerformanceFrameStats;
   controllerSelectLatencyMs?: number | null;
+  experienceModeEvidence?: XrExperienceModeEvidence;
+  inputEvidence?: ManualPerformanceInputEvidence | null;
+  traceLatencyEvidence?: ManualPerformanceTraceLatencyEvidence | null;
   consoleErrors?: string[];
   immersiveSessionStarted?: boolean;
 };
@@ -389,6 +412,9 @@ export function buildManualPerformanceDraft(input: ManualPerformanceDraftInput):
       immersiveSessionStarted: input.immersiveSessionStarted ?? false,
       consoleErrors: input.consoleErrors ?? [],
     },
+    experience: input.experienceModeEvidence ?? xrExperienceModeEvidence,
+    input: input.inputEvidence ?? null,
+    traceLatencyProxy: input.traceLatencyEvidence ?? null,
     performance: {
       ...manualPerformanceMetricsFromFrameStats(input.frameStats),
       controllerSelectLatencyMs: input.controllerSelectLatencyMs ?? null,

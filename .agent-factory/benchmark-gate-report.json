@@ -23,7 +23,7 @@
       "evidence_id": "gltf_pipeline_smoke",
       "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
       "generated_at": "2026-05-03T22:35:14.615Z",
-      "age_hours": 18,
+      "age_hours": 19,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -369,7 +369,7 @@
   },
   "iwsdk_evidence_contract": {
     "file": "docs/openclinxr/iwsdk-evidence-contract-2026-05-04.json",
-    "generated_at": "2026-05-04T17:28:35.488Z",
+    "generated_at": "2026-05-04T17:35:42.987Z",
     "status": "phase_1_install_backed_sidecar",
     "ready_for_install_backed_sidecar": true,
     "ready_for_agent_tooling": false,

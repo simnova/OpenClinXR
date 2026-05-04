@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-04T17:25:13.616Z",
-  "url": "http://localhost:5183/?questSmoke=full-vr-label-20260504",
+  "generatedAt": "2026-05-04T17:33:28.569Z",
+  "url": "http://localhost:5183/?questSmoke=manual-supporting-evidence-20260504",
   "target": "iwsdk-sidecar",
   "adb": {
     "version": "Android Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as /opt/homebrew/bin/adb\nRunning on Darwin 25.4.0 (arm64)",
@@ -9,7 +9,7 @@
   },
   "browser": {
     "title": "OpenClinXR IWSDK Spike",
-    "url": "http://localhost:5183/?questSmoke=full-vr-label-20260504",
+    "url": "http://localhost:5183/?questSmoke=manual-supporting-evidence-20260504",
     "userAgent": "Mozilla/5.0 (X11; Linux x86_64; Quest 3) AppleWebKit/537.36 (KHTML, like Gecko) OculusBrowser/146.0.0.19.27.942135376 Chrome/146.0.7680.177 VR Safari/537.36",
     "devicePixelRatio": 1,
     "visibilityState": "visible",
@@ -25,27 +25,27 @@
       "events": [
         {
           "phase": "controls_start",
-          "atMs": 0.4
-        },
-        {
-          "phase": "controls_ready",
           "atMs": 0.6
         },
         {
+          "phase": "controls_ready",
+          "atMs": 0.8
+        },
+        {
           "phase": "station_scene_start",
-          "atMs": 1
+          "atMs": 1.2
         },
         {
           "phase": "station_render_loop_started",
-          "atMs": 18.9
+          "atMs": 18.4
         },
         {
           "phase": "station_scene_ready",
-          "atMs": 18.9
+          "atMs": 18.4
         },
         {
           "phase": "clock_started",
-          "atMs": 19
+          "atMs": 18.5
         }
       ]
     },
@@ -86,12 +86,12 @@
     },
     "frameStats": {
       "sampleCount": 9,
-      "avgFrameMs": 58.66,
-      "p95FrameMs": 66,
-      "maxFrameMs": 66,
+      "avgFrameMs": 58.7,
+      "p95FrameMs": 66.3,
+      "maxFrameMs": 66.3,
       "approxFps": 17,
       "framesObserved": 10,
-      "latestFrameAtMs": 742.4,
+      "latestFrameAtMs": 733.8,
       "sampleWindowSize": 9
     },
     "inputEvidence": {
@@ -111,7 +111,7 @@
       "height": 924,
       "clientWidth": 880,
       "clientHeight": 924,
-      "dataUrlLength": 135958
+      "dataUrlLength": 135994
     }
   },
   "interaction": {
@@ -124,9 +124,10 @@
     "dialogue": "Spouse: Please tell me what you are worried about.",
     "traceLatencyEvidence": {
       "lastTraceTag": "urgent_escalation",
-      "lastSelectLatencyMs": 0.8,
+      "lastSelectLatencyMs": 0.4,
       "source": "dom_click_trace_button",
-      "measuredAtMs": 888.7
+      "measuredAtMs": 887.9,
+      "productionControllerLatencySubstitute": false
     }
   },
   "frameSample": {
@@ -134,11 +135,11 @@
     "framesObservedDuringProbe": 107,
     "sampleCount": 120,
     "timedOut": false,
-    "elapsedWallMs": 7031.5,
-    "latestFrameAgeMs": 21.8,
+    "elapsedWallMs": 7026.6,
+    "latestFrameAgeMs": 24.9,
     "avgFrameMs": 64.9,
     "p95FrameMs": 66.1,
-    "maxFrameMs": 68.8,
+    "maxFrameMs": 72.5,
     "approxFps": 15.4,
     "iwsdkEvidence": {
       "scenarioId": "ed_chest_pain_priority_v1",

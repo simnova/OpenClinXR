@@ -82,6 +82,7 @@ type OpenClinXrTraceLatencyEvidence = {
   lastSelectLatencyMs: number | null;
   source: "dom_click_trace_button";
   measuredAtMs: number | null;
+  productionControllerLatencySubstitute: false;
 };
 
 type StationSceneRuntime = {
@@ -259,6 +260,7 @@ function recordTraceSelectLatency(startedAtMs: number, tag: string): void {
     lastSelectLatencyMs: lastTraceSelectLatencyMs,
     source: "dom_click_trace_button",
     measuredAtMs: Number(performance.now().toFixed(2)),
+    productionControllerLatencySubstitute: false,
   };
 }
 

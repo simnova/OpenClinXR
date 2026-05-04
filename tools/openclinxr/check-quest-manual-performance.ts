@@ -27,6 +27,29 @@ export type QuestManualPerformanceReport = {
     immersiveSessionStarted?: boolean;
     consoleErrors?: string[];
   };
+  experience?: {
+    phaseLabel?: string;
+    requestedSessionMode?: string;
+    mixedRealityPassthroughImplemented?: boolean;
+  };
+  input?: {
+    handModelCount?: number;
+    handModelStatus?: string;
+    handInputsObserved?: number;
+    locomotionMode?: string;
+    lastLocomotionAtMs?: number | null;
+    rigPosition?: {
+      x?: number;
+      z?: number;
+    };
+  } | null;
+  traceLatencyProxy?: {
+    lastTraceTag?: string | null;
+    lastSelectLatencyMs?: number | null;
+    source?: string;
+    measuredAtMs?: number | null;
+    productionControllerLatencySubstitute?: boolean;
+  } | null;
   performance?: {
     source?: string;
     framesObserved?: number | null;
@@ -130,6 +153,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
   const p95FrameMs = report.performance?.p95FrameMs ?? null;
   const minimumObservedFps = report.performance?.minimumObservedFps ?? null;
   const controllerSelectLatencyMs = report.performance?.controllerSelectLatencyMs ?? null;
+  const traceLatencyProxy = report.traceLatencyProxy ?? null;
   const framesObservedValid = isNonNegativeInteger(framesObserved);
   const sampleWindowSizeValid = isNonNegativeInteger(sampleWindowSize);
   const sampleWindowWithinObservedFrames = framesObservedValid
@@ -202,6 +226,8 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
       minimumObservedFpsPlausible && minimumFpsAtOrBelowAverage && minimumObservedFps >= 60 ? "minimum_fps_60_or_higher" : undefined,
       p95FrameMsValid && p95FrameMs <= 25 ? "p95_frame_ms_25_or_lower" : undefined,
       controllerSelectLatencyMsValid && controllerSelectLatencyMs <= 150 ? "controller_select_latency_150ms_or_lower" : undefined,
+      isFullVrExperienceEvidence(report.experience) ? "experience_mode_full_vr_recorded" : undefined,
+      isSupportingTraceLatencyProxy(traceLatencyProxy) ? "trace_latency_proxy_recorded_as_supporting_evidence" : undefined,
       batteryDropPercentValid && batteryDropPercent <= 20 ? "battery_drop_recorded_under_20" : undefined,
     ].filter((condition): condition is string => typeof condition === "string"),
     blockers,
@@ -303,6 +329,18 @@ function isPositiveFiniteNumber(value: number | null): value is number {
 
 function isPercentInRange(value: number | null): value is number {
   return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100;
+}
+
+function isFullVrExperienceEvidence(value: QuestManualPerformanceReport["experience"]): boolean {
+  return value?.phaseLabel === "Phase 1 Full VR"
+    && value.requestedSessionMode === "immersive-vr"
+    && value.mixedRealityPassthroughImplemented === false;
+}
+
+function isSupportingTraceLatencyProxy(value: QuestManualPerformanceReport["traceLatencyProxy"]): boolean {
+  return value?.source === "dom_click_trace_button"
+    && value.productionControllerLatencySubstitute === false
+    && isPositiveFiniteNumber(value.lastSelectLatencyMs ?? null);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
