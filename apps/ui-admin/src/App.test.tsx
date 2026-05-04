@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
-import { findUnsafeClaimLanguage } from "@openclinxr/domain";
+import { findUnsafeClaimLanguage } from "@openclinxr/domain/claim-language";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { AdminApp } from "./App.js";
 import type { AdminControlPlaneClient } from "./api-client.js";

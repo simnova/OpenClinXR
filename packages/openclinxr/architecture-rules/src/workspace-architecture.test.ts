@@ -116,6 +116,13 @@ describe("workspace architecture rules", () => {
     expect(violations).toEqual([]);
   });
 
+  it("keeps UI app domain imports on the claim-language subpath", () => {
+    const violations = filesWithContentMatching("apps", /@openclinxr\/domain(?!\/claim-language\b)/)
+      .filter((filePath) => /^apps\/ui-[^/]+\/src\//.test(filePath));
+
+    expect(violations).toEqual([]);
+  });
+
   it("keeps UI REST route catalog usage behind app-local API clients", () => {
     const violations = filesWithContentMatching("apps", /@openclinxr\/rest/)
       .filter((filePath) => /^apps\/ui-[^/]+\/src\//.test(filePath))
