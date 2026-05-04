@@ -48,6 +48,23 @@ describe("workspace architecture rules", () => {
     expect(violations).toEqual([]);
   });
 
+  it("keeps the API deploy bundle on the smoke-tested tsdown path with a Rolldown fallback", () => {
+    const apiPackage = JSON.parse(readFileSync(join(workspaceRoot, "apps/api/package.json"), "utf8")) as {
+      scripts?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+    const tsdownConfig = readFileSync(join(workspaceRoot, "apps/api/tsdown.config.ts"), "utf8");
+
+    expect(apiPackage.scripts?.build).toBe("pnpm run package:azure");
+    expect(apiPackage.scripts?.["build:azure"]).toContain("tsdown -c tsdown.config.ts");
+    expect(apiPackage.scripts?.["build:azure:rolldown"]).toContain("rolldown -c rolldown.config.ts");
+    expect(apiPackage.scripts?.["smoke:azure"]).toContain("pnpm run package:azure");
+    expect(apiPackage.devDependencies?.tsdown).toMatch(/^\d+\.\d+\.\d+/);
+    expect(tsdownConfig).toContain("onlyBundle");
+    expect(tsdownConfig).toContain("neverBundle: [\"@azure/functions-core\"]");
+    expect(tsdownConfig).toContain("alwaysBundle: [/^@openclinxr\\//, \"hono\", \"graphql\"]");
+  });
+
   it("keeps project-specific packages under packages/openclinxr", () => {
     const violations = sourceFilesUnder("packages").filter(
       (filePath) => !filePath.startsWith("packages/openclinxr/") && !filePath.startsWith("packages/cellix/"),

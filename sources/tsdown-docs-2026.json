@@ -1,0 +1,27 @@
+{
+  "source_id": "src-tsdown-docs-2026",
+  "title": "tsdown Official Documentation and Local API Bundle Spike",
+  "url": "https://tsdown.dev/",
+  "source_type": "vendor",
+  "citation": "VoidZero Inc. and contributors. tsdown official documentation, accessed 2026-05-04; npm metadata and OpenClinXR local bundle spike executed with tsdown 0.21.10 on 2026-05-04.",
+  "accessed_at": "2026-05-04",
+  "permitted_uses": [
+    "OpenClinXR TypeScript library and Node/Azure Functions deploy-bundle planning where local smoke tests verify output compatibility."
+  ],
+  "claims_supported": [
+    "The official documentation identifies tsdown as a Rolldown-powered library bundler.",
+    "The official documentation states tsdown supports TypeScript and JavaScript, declaration generation, multiple output formats, assets, tree shaking, minification, sourcemaps, and Node/browser/neutral platform targets.",
+    "The official dependency documentation states package dependencies are external by default and can be controlled with deps.neverBundle, deps.alwaysBundle, deps.onlyBundle, and deps.skipNodeModulesBundle.",
+    "The official CLI documentation documents --minify, --treeshake, --platform, --target, --sourcemap, --workspace, --filter, --report, and --fail-on-warn options.",
+    "The official docs report tsdown 0.21.10 and MIT licensing as of 2026-05-04.",
+    "A local OpenClinXR API spike showed tsdown 0.21.10 can produce a smoke-tested Azure deploy entry at deploy/dist/index.js with a 538.86 kB JavaScript bundle and 1.97 MB sourcemap when application dependencies are explicitly bundled.",
+    "A local pnpm dlx spike exposed a transient Node/runtime issue for tsdown under the dlx path, while in-repo package-managed execution under Node 22.19.0 passed the Azure smoke script."
+  ],
+  "claims_not_supported": [
+    "That tsdown should replace Vite/Rolldown browser app builds.",
+    "That tsdown should replace all package builds before package-level type/declaration needs are evaluated.",
+    "That every Azure Functions production deployment path is verified; the evidence is a local import-and-fetch smoke of the deploy artifact.",
+    "That pnpm dlx tsdown is reliable on this machine without a Node/runtime workaround; package-managed repo execution is the supported path."
+  ],
+  "confidence": 0.88
+}

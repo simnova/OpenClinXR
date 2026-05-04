@@ -159,6 +159,7 @@ Changes from this pass:
 | Backend | Bun, Hono | MIT | Use WebSocket first; spike WebTransport |
 | Package manager | pnpm | MIT | Preferred over npm for workspace security posture and deterministic dependency management |
 | Monorepo orchestration | TurboRepo | MPL-2.0 | Good fit once CI caching/affected builds matter; verify deployment implications |
+| API deploy bundling | tsdown | MIT | Use for smoke-tested Azure Functions Node bundles with explicit dependency allowlists; keep Vite/Rolldown browser builds separate |
 | Lint/format | Biome | MIT/Apache-2.0 | Candidate single-command style and lint gate |
 | Dependency hygiene | Knip, E18E | ISC/MIT mix; verify exact package licenses | Detect unused exports/dependencies and flag ecosystem modernization opportunities |
 | Observability | OpenTelemetry | Apache-2.0 | Common traces/metrics for API, GraphQL, model/voice gateways, Mongo, and XR performance events |

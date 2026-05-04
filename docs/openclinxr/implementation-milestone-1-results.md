@@ -301,6 +301,7 @@ Started on 2026-05-03:
 - `packages/openclinxr/graphql` now includes generated `createStationRunQueueSnapshot` and `stationRunQueueSnapshots` admin operation documents, exported through `@openclinxr/graphql/documents` for the admin client, Azure smoke, and later GraphQL Code Generator/Apollo adoption.
 - `packages/openclinxr/data-sources-mongoose-models` now includes a Mongoose 9 station-run queue snapshot model and repository with reviewer provenance, blueprint/scenario indexes, and newest-first blueprint listing.
 - The Azure bundle smoke now verifies the seed timing-plan, station-run-queue, REST snapshot creation/listing, and generated-document GraphQL snapshot creation/listing paths in the bundled API, not only `/health`.
+- The API Azure deploy build now uses `tsdown` with explicit bundled dependency controls, reducing the deploy JavaScript bundle from 1,355.35 kB in the prior Rolldown path to 538.86 kB while preserving the same smoke coverage. The prior Rolldown build remains as `build:azure:rolldown`.
 - `pnpm bench:mock` now prints trace quality, review signals, and an adversarial probe report.
 - `packages/openclinxr/agent-loop` executable roster now aligns with the richer physician charter bench.
 - `packages/openclinxr/asset-registry` now creates generic placeholder manifests from scenario `assetNeeds`, making all 12 seed-bank cases dev-ready for asset readiness checks while still blocking production release.
