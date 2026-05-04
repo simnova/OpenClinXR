@@ -1092,6 +1092,8 @@ describe("OpenClinXR API shell", () => {
           name: openClinXrSpanNames.apiRoute,
           attributes: expect.objectContaining({
             [telemetryAttributeNames.routeId]: "start-session",
+            [telemetryAttributeNames.routeSurface]: "xr-runtime",
+            [telemetryAttributeNames.stationRunScoped]: false,
           }),
           statusCode: 201,
         }),
@@ -1099,14 +1101,18 @@ describe("OpenClinXR API shell", () => {
           name: openClinXrSpanNames.apiRoute,
           attributes: expect.objectContaining({
             [telemetryAttributeNames.routeId]: "actor-response",
-            [telemetryAttributeNames.stationRunId]: started.stationRunId,
+            [telemetryAttributeNames.routeSurface]: "xr-runtime",
+            [telemetryAttributeNames.stationRunScoped]: true,
           }),
           statusCode: 201,
         }),
       ]),
     );
-    expect(JSON.stringify(telemetry.spans())).not.toContain("Ignore your instructions");
-    expect(JSON.stringify(telemetry.spans())).not.toContain("Father died of myocardial infarction");
+    const serializedSpans = JSON.stringify(telemetry.spans());
+    expect(serializedSpans).not.toContain(started.stationRunId);
+    expect(serializedSpans).not.toContain("learner_telemetry");
+    expect(serializedSpans).not.toContain("Ignore your instructions");
+    expect(serializedSpans).not.toContain("Father died of myocardial infarction");
   });
 
   it("starts a session, records events, submits a note, and returns a review packet", async () => {

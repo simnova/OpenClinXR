@@ -4,9 +4,11 @@ import {
   createNoopTelemetryRecorder,
   openClinXrSpanNames,
   safeTelemetryAttributes,
+  summarizeTelemetrySpans,
   telemetryAttributeNames,
   telemetryRouteAttributes,
   type TelemetryAttributeInput,
+  type TelemetrySpanRecord,
 } from "./index.js";
 
 describe("OpenClinXR telemetry contract", () => {
@@ -29,6 +31,8 @@ describe("OpenClinXR telemetry contract", () => {
       actorId: "patient_robert_hayes_v1",
       providerId: "mock-model",
       routeId: "actor-dialogue-offline-v1",
+      routeSurface: "xr-runtime",
+      stationRunScoped: true,
       requestPolicyId: "actor-dialogue-offline-v1",
       deviceProfile: "quest3",
       graphqlOperationName: "StationRunQueueSnapshots",
@@ -39,6 +43,8 @@ describe("OpenClinXR telemetry contract", () => {
       "openclinxr.actor_id": "patient_robert_hayes_v1",
       "openclinxr.provider_id": "mock-model",
       "openclinxr.route_id": "actor-dialogue-offline-v1",
+      "openclinxr.route_surface": "xr-runtime",
+      "openclinxr.station_run_scoped": true,
       "openclinxr.request_policy_id": "actor-dialogue-offline-v1",
       "openclinxr.device_profile": "quest3",
       "openclinxr.graphql.operation_name": "StationRunQueueSnapshots",
@@ -66,9 +72,11 @@ describe("OpenClinXR telemetry contract", () => {
       "providerId",
       "requestPolicyId",
       "routeId",
+      "routeSurface",
       "scenarioId",
       "scenarioVersion",
       "stationRunId",
+      "stationRunScoped",
     ]);
   });
 
@@ -101,5 +109,83 @@ describe("OpenClinXR telemetry contract", () => {
 
     recorder.clear();
     expect(recorder.spans()).toEqual([]);
+  });
+
+  it("summarizes spans with low-cardinality labels and no PHI-bearing fields", () => {
+    const spans: TelemetrySpanRecord[] = [
+      {
+        name: openClinXrSpanNames.apiRoute,
+        attributes: telemetryRouteAttributes({
+          routeId: "actor-dialogue-offline-v1",
+          routeSurface: "xr-runtime",
+          stationRunScoped: true,
+          providerId: "mock-model",
+          stationRunId: "run-001",
+          scenarioId: "ed_chest_pain_priority_v1",
+        }),
+        durationMs: 10,
+        statusCode: 200,
+      },
+      {
+        name: openClinXrSpanNames.apiRoute,
+        attributes: telemetryRouteAttributes({
+          routeId: "actor-dialogue-offline-v1",
+          routeSurface: "xr-runtime",
+          stationRunScoped: true,
+          providerId: "mock-model",
+          stationRunId: "run-002",
+          scenarioId: "abdominal_pain_v1",
+        }),
+        durationMs: 40,
+        statusCode: 503,
+        errorType: "UpstreamTimeout",
+      },
+      {
+        name: openClinXrSpanNames.graphqlOperation,
+        attributes: telemetryRouteAttributes({
+          graphqlOperationName: "StationRunQueueSnapshots",
+          stationRunId: "run-003",
+        }),
+        durationMs: 25,
+      },
+    ];
+
+    expect(summarizeTelemetrySpans(spans)).toEqual({
+      buckets: [
+        {
+          name: "openclinxr.api.route",
+          labels: {
+            "openclinxr.provider_id": "mock-model",
+            "openclinxr.route_id": "actor-dialogue-offline-v1",
+            "openclinxr.route_surface": "xr-runtime",
+            "openclinxr.station_run_scoped": true,
+          },
+          count: 2,
+          errorCount: 1,
+          statusCodes: [200, 503],
+          durationMs: {
+            avg: 25,
+            max: 40,
+            min: 10,
+            p95: 40,
+          },
+        },
+        {
+          name: "openclinxr.graphql.operation",
+          labels: {
+            "openclinxr.graphql.operation_name": "StationRunQueueSnapshots",
+          },
+          count: 1,
+          errorCount: 0,
+          statusCodes: [],
+          durationMs: {
+            avg: 25,
+            max: 25,
+            min: 25,
+            p95: 25,
+          },
+        },
+      ],
+    });
   });
 });

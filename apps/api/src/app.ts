@@ -570,7 +570,10 @@ async function recordApiRouteSpan(
     name: openClinXrSpanNames.apiRoute,
     attributes: telemetryRouteAttributes({
       routeId: routeMatch?.route.id ?? "unmatched",
-      ...(routeMatch?.params.stationRunId ? { stationRunId: routeMatch.params.stationRunId } : {}),
+      ...(routeMatch ? {
+        routeSurface: routeMatch.route.surface,
+        stationRunScoped: routeMatch.route.stationRunScoped,
+      } : {}),
     }),
     durationMs: input.durationMs,
     statusCode: input.statusCode,
