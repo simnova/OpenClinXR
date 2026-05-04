@@ -95,6 +95,37 @@ export type IwsdkMcpToolInventoryRequirement = {
   readinessBlockersWhenMissing: string[];
 };
 
+export type IwsdkManagedBrowserModeEvidence = {
+  mode: IwsdkAgentMode;
+  managedBrowser: string;
+  normalBrowser: string;
+  requiredEvidence: string[];
+};
+
+export type IwsdkManagedBrowserEvidenceContract = {
+  sourceRecordIds: string[];
+  requiredModeEvidence: IwsdkManagedBrowserModeEvidence[];
+  readinessBlockersWhenMissing: string[];
+};
+
+export type IwsdkManagedBrowserEvidence = {
+  mode: IwsdkAgentMode;
+  runtimeUrl?: string;
+  managedBrowserReady?: boolean;
+  managedSessionId?: string;
+  normalBrowserOpened?: boolean;
+  normalSessionId?: string;
+  screenshotWidth?: number;
+  screenshotHeight?: number;
+  managedDevUiVisible?: boolean;
+  normalDevUiVisible?: boolean;
+};
+
+export type IwsdkManagedBrowserEvidenceReadiness = {
+  ready: boolean;
+  blockers: string[];
+};
+
 export type IwsdkOptionalMcpServerPolicy = {
   serverName: string;
   packageName: string;
@@ -528,6 +559,93 @@ export function buildIwsdkMcpToolInventoryRequirement(): IwsdkMcpToolInventoryRe
   };
 }
 
+export function buildIwsdkManagedBrowserEvidenceContract(): IwsdkManagedBrowserEvidenceContract {
+  return {
+    sourceRecordIds: ["src-iwsdk-ai-docs-2026"],
+    requiredModeEvidence: [
+      {
+        mode: "agent",
+        managedBrowser: "headless Playwright browser with fixed screenshot viewport",
+        normalBrowser: "opens independently with its own XR session",
+        requiredEvidence: [
+          "runtime_url",
+          "managed_browser_ready",
+          "managed_session_id",
+          "normal_browser_opened",
+          "normal_session_id",
+          "session_ids_differ",
+          "fixed_screenshot_size",
+          "managed_devui_off",
+          "normal_devui_on",
+        ],
+      },
+      {
+        mode: "oversight",
+        managedBrowser: "visible resizable Playwright browser",
+        normalBrowser: "suppressed by default",
+        requiredEvidence: [
+          "runtime_url",
+          "managed_browser_ready",
+          "managed_session_id",
+          "normal_browser_not_opened",
+          "managed_devui_off",
+        ],
+      },
+      {
+        mode: "collaborate",
+        managedBrowser: "visible resizable Playwright browser with DevUI",
+        normalBrowser: "suppressed by default",
+        requiredEvidence: [
+          "runtime_url",
+          "managed_browser_ready",
+          "managed_session_id",
+          "normal_browser_not_opened",
+          "managed_devui_on",
+        ],
+      },
+    ],
+    readinessBlockersWhenMissing: [
+      "managed_browser_readiness_not_recorded",
+      "normal_browser_independence_not_recorded_for_agent_mode",
+      "devui_posture_not_recorded",
+      "screenshot_size_not_recorded_for_agent_mode",
+    ],
+  };
+}
+
+export function evaluateIwsdkManagedBrowserEvidence(
+  evidence: IwsdkManagedBrowserEvidence,
+): IwsdkManagedBrowserEvidenceReadiness {
+  const blockers: string[] = [];
+
+  if (!evidence.runtimeUrl) {
+    blockers.push("missing_runtime_url");
+  }
+  if (evidence.managedBrowserReady !== true) {
+    blockers.push("managed_browser_not_ready");
+  }
+  if (!evidence.managedSessionId) {
+    blockers.push("missing_managed_browser_session_id");
+  }
+
+  switch (evidence.mode) {
+    case "agent":
+      appendAgentModeBrowserBlockers(evidence, blockers);
+      break;
+    case "oversight":
+      appendOversightModeBrowserBlockers(evidence, blockers);
+      break;
+    case "collaborate":
+      appendCollaborateModeBrowserBlockers(evidence, blockers);
+      break;
+  }
+
+  return {
+    ready: blockers.length === 0,
+    blockers,
+  };
+}
+
 export function buildIwsdkOptionalMcpServerPolicy(): IwsdkOptionalMcpServerPolicy[] {
   return [
     {
@@ -681,6 +799,44 @@ function adapterConfigTargetFor(aiTool: IwsdkAiTool): string {
       return ".cursor/mcp.json";
     case "copilot":
       return ".vscode/mcp.json";
+  }
+}
+
+function appendAgentModeBrowserBlockers(evidence: IwsdkManagedBrowserEvidence, blockers: string[]): void {
+  if (evidence.normalBrowserOpened !== true) {
+    blockers.push("normal_browser_not_opened_independently");
+  }
+  if (!evidence.normalSessionId) {
+    blockers.push("missing_normal_browser_session_id");
+  } else if (evidence.managedSessionId && evidence.normalSessionId === evidence.managedSessionId) {
+    blockers.push("normal_browser_session_not_independent");
+  }
+  if (!Number.isFinite(evidence.screenshotWidth) || !Number.isFinite(evidence.screenshotHeight)) {
+    blockers.push("missing_agent_fixed_screenshot_size");
+  }
+  if (evidence.managedDevUiVisible !== false) {
+    blockers.push("managed_devui_should_be_off");
+  }
+  if (evidence.normalDevUiVisible !== true) {
+    blockers.push("normal_devui_should_be_on");
+  }
+}
+
+function appendOversightModeBrowserBlockers(evidence: IwsdkManagedBrowserEvidence, blockers: string[]): void {
+  if (evidence.normalBrowserOpened === true) {
+    blockers.push("normal_browser_should_not_open_automatically");
+  }
+  if (evidence.managedDevUiVisible !== false) {
+    blockers.push("managed_devui_should_be_off");
+  }
+}
+
+function appendCollaborateModeBrowserBlockers(evidence: IwsdkManagedBrowserEvidence, blockers: string[]): void {
+  if (evidence.normalBrowserOpened === true) {
+    blockers.push("normal_browser_should_not_open_automatically");
+  }
+  if (evidence.managedDevUiVisible !== true) {
+    blockers.push("managed_devui_should_be_on");
   }
 }
 

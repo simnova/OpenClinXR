@@ -4,6 +4,7 @@ import {
   buildIwsdkAgentVerificationRunbook,
   buildIwsdkCodexMcpAdapterTemplate,
   buildIwsdkCommittedSpikeSequence,
+  buildIwsdkManagedBrowserEvidenceContract,
   buildIwsdkMcpToolInventoryRequirement,
   buildIwsdkMcpToolCoverage,
   buildIwsdkOptionalMcpServerPolicy,
@@ -11,6 +12,7 @@ import {
   buildIwsdkSidecarReadinessContract,
   buildIwsdkSpikeMetricThresholds,
   buildIwsdkSpikePlan,
+  evaluateIwsdkManagedBrowserEvidence,
   evaluateIwsdkPreInstallPackageSelection,
   evaluateIwsdkSpikeMetrics,
   evaluateIwsdkSpikeReadiness,
@@ -174,6 +176,115 @@ describe("IWSDK spike plan", () => {
         "mcp_tool_inventory_count_not_recorded",
         "mcp_required_category_missing",
         "mcp_smoke_subset_not_validated",
+      ],
+    });
+  });
+
+  it("defines managed-browser evidence separately from normal-browser evidence", () => {
+    expect(buildIwsdkManagedBrowserEvidenceContract()).toEqual({
+      sourceRecordIds: ["src-iwsdk-ai-docs-2026"],
+      requiredModeEvidence: [
+        {
+          mode: "agent",
+          managedBrowser: "headless Playwright browser with fixed screenshot viewport",
+          normalBrowser: "opens independently with its own XR session",
+          requiredEvidence: [
+            "runtime_url",
+            "managed_browser_ready",
+            "managed_session_id",
+            "normal_browser_opened",
+            "normal_session_id",
+            "session_ids_differ",
+            "fixed_screenshot_size",
+            "managed_devui_off",
+            "normal_devui_on",
+          ],
+        },
+        {
+          mode: "oversight",
+          managedBrowser: "visible resizable Playwright browser",
+          normalBrowser: "suppressed by default",
+          requiredEvidence: [
+            "runtime_url",
+            "managed_browser_ready",
+            "managed_session_id",
+            "normal_browser_not_opened",
+            "managed_devui_off",
+          ],
+        },
+        {
+          mode: "collaborate",
+          managedBrowser: "visible resizable Playwright browser with DevUI",
+          normalBrowser: "suppressed by default",
+          requiredEvidence: [
+            "runtime_url",
+            "managed_browser_ready",
+            "managed_session_id",
+            "normal_browser_not_opened",
+            "managed_devui_on",
+          ],
+        },
+      ],
+      readinessBlockersWhenMissing: [
+        "managed_browser_readiness_not_recorded",
+        "normal_browser_independence_not_recorded_for_agent_mode",
+        "devui_posture_not_recorded",
+        "screenshot_size_not_recorded_for_agent_mode",
+      ],
+    });
+  });
+
+  it("requires agent-mode evidence to prove managed and normal browser sessions are independent", () => {
+    expect(evaluateIwsdkManagedBrowserEvidence({
+      mode: "agent",
+      runtimeUrl: "http://127.0.0.1:5181",
+      managedBrowserReady: true,
+      managedSessionId: "managed-session",
+      normalBrowserOpened: true,
+      normalSessionId: "normal-session",
+      screenshotWidth: 500,
+      screenshotHeight: 500,
+      managedDevUiVisible: false,
+      normalDevUiVisible: true,
+    })).toEqual({
+      ready: true,
+      blockers: [],
+    });
+  });
+
+  it("reports concrete blockers when IWSDK browser evidence is incomplete or contradicts the selected mode", () => {
+    expect(evaluateIwsdkManagedBrowserEvidence({
+      mode: "agent",
+      managedBrowserReady: false,
+      managedSessionId: "same-session",
+      normalBrowserOpened: true,
+      normalSessionId: "same-session",
+      managedDevUiVisible: true,
+      normalDevUiVisible: false,
+    })).toEqual({
+      ready: false,
+      blockers: [
+        "missing_runtime_url",
+        "managed_browser_not_ready",
+        "normal_browser_session_not_independent",
+        "missing_agent_fixed_screenshot_size",
+        "managed_devui_should_be_off",
+        "normal_devui_should_be_on",
+      ],
+    });
+
+    expect(evaluateIwsdkManagedBrowserEvidence({
+      mode: "collaborate",
+      runtimeUrl: "http://127.0.0.1:5181",
+      managedBrowserReady: true,
+      managedSessionId: "managed-session",
+      normalBrowserOpened: true,
+      managedDevUiVisible: false,
+    })).toEqual({
+      ready: false,
+      blockers: [
+        "normal_browser_should_not_open_automatically",
+        "managed_devui_should_be_on",
       ],
     });
   });

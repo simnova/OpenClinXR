@@ -69,6 +69,16 @@ Evidence to record:
 - Empty warning/error console logs, or explicit blockers.
 - 32-tool inventory with session, transforms, input, browser, scene, and ECS category coverage before claiming IWSDK agent-tooling readiness.
 
+## Managed Browser Evidence Contract
+
+`packages/openclinxr/iwsdk-spike` exposes `buildIwsdkManagedBrowserEvidenceContract()` and `evaluateIwsdkManagedBrowserEvidence()` so browser-mode claims are scored separately from generic MCP readiness.
+
+For `agent` mode, a ready report must record the runtime URL, managed-browser readiness, managed session id, normal browser opened state, normal session id, different managed/normal session ids, fixed screenshot size, managed DevUI off, and normal-browser DevUI on. This preserves the source-backed distinction that unattended agent work happens in a managed headless Playwright browser while manual development can continue in a separate normal browser XR session.
+
+For `oversight` mode, a ready report must record a visible Playwright managed session with DevUI off and no automatic normal browser. For `collaborate` mode, a ready report must record a visible Playwright managed session with DevUI on and no automatic normal browser.
+
+Browser evidence blockers use explicit names such as `managed_browser_not_ready`, `normal_browser_session_not_independent`, `missing_agent_fixed_screenshot_size`, `managed_devui_should_be_off`, and `managed_devui_should_be_on`.
+
 ## Still Blocked
 
 - `npx iwsdk reference warmup`
