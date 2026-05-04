@@ -653,6 +653,20 @@ describe("IWSDK spike plan", () => {
     });
   });
 
+  it("uses a single local sidecar blocker when Phase 2 devtools are not installed", () => {
+    expect(evaluateIwsdkAgentToolingEvidence({
+      phase2DevtoolsConfiguredInSidecar: false,
+      adapterSyncRecorded: false,
+      toolCount: 0,
+      coveredCategories: [],
+      validatedSmokeTools: [],
+      optionalServerActions: [],
+    })).toEqual({
+      readyForAgentTooling: false,
+      blockers: ["phase2_devtools_not_installed_in_sidecar"],
+    });
+  });
+
   it("keeps optional reference and hzdb server actions as blockers inside aggregate agent-tooling evidence", () => {
     expect(evaluateIwsdkAgentToolingEvidence({
       adapterSyncRecorded: true,

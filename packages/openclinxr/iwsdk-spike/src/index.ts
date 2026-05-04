@@ -255,6 +255,7 @@ export type IwsdkManagedBrowserEvidenceReadiness = {
 };
 
 export type IwsdkAgentToolingEvidence = {
+  phase2DevtoolsConfiguredInSidecar?: boolean;
   adapterSyncRecorded?: boolean;
   toolCount?: number;
   coveredCategories: IwsdkMcpToolCategory[];
@@ -1456,6 +1457,13 @@ export function evaluateIwsdkManagedBrowserEvidence(
 export function evaluateIwsdkAgentToolingEvidence(
   evidence: IwsdkAgentToolingEvidence,
 ): IwsdkAgentToolingEvidenceReadiness {
+  if (evidence.phase2DevtoolsConfiguredInSidecar === false) {
+    return {
+      readyForAgentTooling: false,
+      blockers: ["phase2_devtools_not_installed_in_sidecar"],
+    };
+  }
+
   const inventoryRequirement = buildIwsdkMcpToolInventoryRequirement();
   const blockers: string[] = [];
 

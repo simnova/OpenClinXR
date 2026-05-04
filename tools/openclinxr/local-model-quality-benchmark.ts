@@ -60,11 +60,14 @@ export type LocalModelQualityBenchmarkReport = {
   };
   actorPolicy: {
     provider: "deterministic-mock-model-gateway";
-    evidenceSource: "deterministic_mock_only" | "real_local_model_runtime";
+    evidenceSource: "deterministic_mock_only" | "partial_real_local_model_runtime" | "real_local_model_runtime";
     realLocalModelObserved: boolean;
     mockProbesPassed: boolean;
     passed: boolean;
     blockers: string[];
+    requiredRealLocalProbeIds: ActorPolicyProbeId[];
+    observedRealLocalProbeIds: ActorPolicyProbeId[];
+    missingRealLocalProbeIds: ActorPolicyProbeId[];
     probes: ActorPolicyProbeResult[];
   };
   targetHardware: {
@@ -80,6 +83,8 @@ export type LocalModelQualityBenchmarkReport = {
     caveats: string[];
   };
 };
+
+type ActorPolicyProbeId = "visible_fact_grounding" | "hidden_truth_injection" | "system_prompt_extraction";
 
 type ActorPolicyProbeResult = {
   id: string;
@@ -159,10 +164,14 @@ export async function buildLocalModelQualityBenchmarkReport(input: {
   generatedAt?: string;
   runtimeBenchmarkFile: string;
   runtimeBenchmark: LocalModelRuntimeBenchmarkReport;
+  realLocalModelActorPolicyBenchmark?: {
+    observedProbeIds: ActorPolicyProbeId[];
+  };
   realLocalModelActorPolicyBenchmarkObserved?: boolean;
 }): Promise<LocalModelQualityBenchmarkReport> {
   const structuredOutput = inspectStructuredOutput(input.runtimeBenchmark);
   const actorPolicy = await runActorPolicyProbes({
+    realLocalModelActorPolicyBenchmark: input.realLocalModelActorPolicyBenchmark,
     realLocalModelActorPolicyBenchmarkObserved: input.realLocalModelActorPolicyBenchmarkObserved ?? false,
   });
   const targetHardware = inspectTargetHardware(input.runtimeBenchmark);
@@ -239,8 +248,20 @@ function inspectStructuredOutput(report: LocalModelRuntimeBenchmarkReport): Loca
 }
 
 async function runActorPolicyProbes(input: {
+  realLocalModelActorPolicyBenchmark?: {
+    observedProbeIds: ActorPolicyProbeId[];
+  };
   realLocalModelActorPolicyBenchmarkObserved: boolean;
 }): Promise<LocalModelQualityBenchmarkReport["actorPolicy"]> {
+  const requiredRealLocalProbeIds: ActorPolicyProbeId[] = [
+    "visible_fact_grounding",
+    "hidden_truth_injection",
+    "system_prompt_extraction",
+  ];
+  const observedRealLocalProbeIds = input.realLocalModelActorPolicyBenchmarkObserved
+    ? [...requiredRealLocalProbeIds]
+    : uniqueActorPolicyProbeIds(input.realLocalModelActorPolicyBenchmark?.observedProbeIds ?? []);
+  const missingRealLocalProbeIds = requiredRealLocalProbeIds.filter((probeId) => !observedRealLocalProbeIds.includes(probeId));
   const gateway = createDefaultModelGateway({
     routeId: "actor-dialogue-quality-benchmark-v1",
     adapters: [new MockModelProviderAdapter()],
@@ -262,18 +283,30 @@ async function runActorPolicyProbes(input: {
   const mockProbesPassed = probes.every((probe) => probe.passed);
   const blockers = [
     mockProbesPassed ? undefined : "actor_policy_probe_failed",
-    input.realLocalModelActorPolicyBenchmarkObserved ? undefined : "real_local_model_actor_policy_benchmark_missing",
+    ...missingRealLocalProbeIds.map((probeId) => `real_local_model_${probeId}_benchmark_missing`),
   ].filter((blocker): blocker is string => typeof blocker === "string");
+  const evidenceSource = observedRealLocalProbeIds.length === 0
+    ? "deterministic_mock_only"
+    : missingRealLocalProbeIds.length === 0
+      ? "real_local_model_runtime"
+      : "partial_real_local_model_runtime";
 
   return {
     provider: "deterministic-mock-model-gateway",
-    evidenceSource: input.realLocalModelActorPolicyBenchmarkObserved ? "real_local_model_runtime" : "deterministic_mock_only",
-    realLocalModelObserved: input.realLocalModelActorPolicyBenchmarkObserved,
+    evidenceSource,
+    realLocalModelObserved: missingRealLocalProbeIds.length === 0,
     mockProbesPassed,
     passed: blockers.length === 0,
     blockers,
+    requiredRealLocalProbeIds,
+    observedRealLocalProbeIds,
+    missingRealLocalProbeIds,
     probes,
   };
+}
+
+function uniqueActorPolicyProbeIds(probeIds: readonly ActorPolicyProbeId[]): ActorPolicyProbeId[] {
+  return [...new Set(probeIds)];
 }
 
 function actorRequest(input: {

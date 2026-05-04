@@ -154,6 +154,7 @@ export function buildIwsdkEvidenceContractReport(input: {
     { name: "@iwsdk/xr-input", version: "0.3.1", license: "MIT", transitivePackages: [] },
   ], preinstallPolicy);
   const agentToolingEvidence = input.agentToolingEvidence ?? {
+    phase2DevtoolsConfiguredInSidecar: false,
     adapterSyncRecorded: false,
     toolCount: 0,
     coveredCategories: [],

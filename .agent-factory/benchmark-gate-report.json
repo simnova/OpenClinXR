@@ -5,7 +5,7 @@
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T18:13:48.812Z",
-      "age_hours": 2,
+      "age_hours": 3,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -14,7 +14,7 @@
       "evidence_id": "local_runtime_probe",
       "file": "docs/openclinxr/local-runtime-probe-2026-05-04.json",
       "generated_at": "2026-05-04T15:16:18.712Z",
-      "age_hours": 5,
+      "age_hours": 6,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -67,7 +67,7 @@
     {
       "evidence_id": "local_model_quality_benchmark",
       "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-04.json",
-      "generated_at": "2026-05-04T20:51:52.057Z",
+      "generated_at": "2026-05-04T21:16:55.867Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -484,7 +484,7 @@
   },
   "local_model_quality_benchmark": {
     "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-04.json",
-    "generated_at": "2026-05-04T20:51:52.057Z",
+    "generated_at": "2026-05-04T21:16:55.867Z",
     "status": "blocked",
     "structured_output": {
       "requiredKeys": [
@@ -538,7 +538,20 @@
       "mockProbesPassed": true,
       "passed": false,
       "blockers": [
-        "real_local_model_actor_policy_benchmark_missing"
+        "real_local_model_visible_fact_grounding_benchmark_missing",
+        "real_local_model_hidden_truth_injection_benchmark_missing",
+        "real_local_model_system_prompt_extraction_benchmark_missing"
+      ],
+      "requiredRealLocalProbeIds": [
+        "visible_fact_grounding",
+        "hidden_truth_injection",
+        "system_prompt_extraction"
+      ],
+      "observedRealLocalProbeIds": [],
+      "missingRealLocalProbeIds": [
+        "visible_fact_grounding",
+        "hidden_truth_injection",
+        "system_prompt_extraction"
       ],
       "probes": [
         {
@@ -585,7 +598,9 @@
         "structured_output:reasoning_markup_emitted",
         "structured_output:safety_flags_not_guardrail_labels",
         "structured_output:schema_grammar_not_enforced",
-        "actor_policy:real_local_model_actor_policy_benchmark_missing",
+        "actor_policy:real_local_model_visible_fact_grounding_benchmark_missing",
+        "actor_policy:real_local_model_hidden_truth_injection_benchmark_missing",
+        "actor_policy:real_local_model_system_prompt_extraction_benchmark_missing",
         "target_hardware:target_hardware_not_m4_profile"
       ],
       "caveats": [
@@ -727,28 +742,7 @@
     "ready_for_agent_tooling": false,
     "ready_for_production_runtime": false,
     "blockers": [
-      "agent_tooling:adapter_sync_not_recorded",
-      "agent_tooling:ecs_runtime_not_queryable",
-      "agent_tooling:mcp_required_category_missing_browser",
-      "agent_tooling:mcp_required_category_missing_device_state",
-      "agent_tooling:mcp_required_category_missing_ecs",
-      "agent_tooling:mcp_required_category_missing_gamepad",
-      "agent_tooling:mcp_required_category_missing_input_mode",
-      "agent_tooling:mcp_required_category_missing_scene",
-      "agent_tooling:mcp_required_category_missing_select_trigger",
-      "agent_tooling:mcp_required_category_missing_session",
-      "agent_tooling:mcp_required_category_missing_transforms",
-      "agent_tooling:mcp_runtime_not_registered",
-      "agent_tooling:mcp_smoke_tool_not_validated_browser_get_console_logs",
-      "agent_tooling:mcp_smoke_tool_not_validated_browser_screenshot",
-      "agent_tooling:mcp_smoke_tool_not_validated_scene_get_hierarchy",
-      "agent_tooling:mcp_smoke_tool_not_validated_xr_accept_session",
-      "agent_tooling:mcp_smoke_tool_not_validated_xr_get_session_status",
-      "agent_tooling:mcp_smoke_tool_not_validated_xr_select",
-      "agent_tooling:mcp_tool_inventory_count_not_32",
-      "agent_tooling:mcp_tool_names_not_recorded",
-      "agent_tooling:missing_managed_browser_evidence",
-      "agent_tooling:scene_hierarchy_required_objects_not_confirmed",
+      "agent_tooling:phase2_devtools_not_installed_in_sidecar",
       "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
       "metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
       "production_runtime:app_js_bundle_kb_over_budget",
@@ -786,28 +780,7 @@
           "area": "ai_mcp_tooling",
           "status": "blocked",
           "blockers": [
-            "agent_tooling:adapter_sync_not_recorded",
-            "agent_tooling:ecs_runtime_not_queryable",
-            "agent_tooling:mcp_required_category_missing_browser",
-            "agent_tooling:mcp_required_category_missing_device_state",
-            "agent_tooling:mcp_required_category_missing_ecs",
-            "agent_tooling:mcp_required_category_missing_gamepad",
-            "agent_tooling:mcp_required_category_missing_input_mode",
-            "agent_tooling:mcp_required_category_missing_scene",
-            "agent_tooling:mcp_required_category_missing_select_trigger",
-            "agent_tooling:mcp_required_category_missing_session",
-            "agent_tooling:mcp_required_category_missing_transforms",
-            "agent_tooling:mcp_runtime_not_registered",
-            "agent_tooling:mcp_smoke_tool_not_validated_browser_get_console_logs",
-            "agent_tooling:mcp_smoke_tool_not_validated_browser_screenshot",
-            "agent_tooling:mcp_smoke_tool_not_validated_scene_get_hierarchy",
-            "agent_tooling:mcp_smoke_tool_not_validated_xr_accept_session",
-            "agent_tooling:mcp_smoke_tool_not_validated_xr_get_session_status",
-            "agent_tooling:mcp_smoke_tool_not_validated_xr_select",
-            "agent_tooling:mcp_tool_inventory_count_not_32",
-            "agent_tooling:mcp_tool_names_not_recorded",
-            "agent_tooling:missing_managed_browser_evidence",
-            "agent_tooling:scene_hierarchy_required_objects_not_confirmed"
+            "agent_tooling:phase2_devtools_not_installed_in_sidecar"
           ]
         },
         {
@@ -995,14 +968,16 @@
         "local_provider_mock_benchmarks_passed"
       ],
       "blockers": [
-        "local_model_quality:actor_policy:real_local_model_actor_policy_benchmark_missing",
+        "local_model_quality:actor_policy:real_local_model_hidden_truth_injection_benchmark_missing",
+        "local_model_quality:actor_policy:real_local_model_system_prompt_extraction_benchmark_missing",
+        "local_model_quality:actor_policy:real_local_model_visible_fact_grounding_benchmark_missing",
         "local_model_quality:structured_output:reasoning_markup_emitted",
         "local_model_quality:structured_output:safety_flags_not_guardrail_labels",
         "local_model_quality:structured_output:schema_grammar_not_enforced",
         "local_model_quality:target_hardware:target_hardware_not_m4_profile"
       ],
       "blocker_summary": {
-        "total_blockers": 5,
+        "total_blockers": 7,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -1010,7 +985,9 @@
             "title": "Local model structured-output and actor-policy evidence",
             "owner": "local-ai-inference-engineer",
             "blockers": [
-              "local_model_quality:actor_policy:real_local_model_actor_policy_benchmark_missing",
+              "local_model_quality:actor_policy:real_local_model_hidden_truth_injection_benchmark_missing",
+              "local_model_quality:actor_policy:real_local_model_system_prompt_extraction_benchmark_missing",
+              "local_model_quality:actor_policy:real_local_model_visible_fact_grounding_benchmark_missing",
               "local_model_quality:structured_output:reasoning_markup_emitted",
               "local_model_quality:structured_output:safety_flags_not_guardrail_labels",
               "local_model_quality:structured_output:schema_grammar_not_enforced",
@@ -1067,28 +1044,7 @@
         "iwsdk_install_backed_sidecar_ready"
       ],
       "blockers": [
-        "iwsdk:agent_tooling:adapter_sync_not_recorded",
-        "iwsdk:agent_tooling:ecs_runtime_not_queryable",
-        "iwsdk:agent_tooling:mcp_required_category_missing_browser",
-        "iwsdk:agent_tooling:mcp_required_category_missing_device_state",
-        "iwsdk:agent_tooling:mcp_required_category_missing_ecs",
-        "iwsdk:agent_tooling:mcp_required_category_missing_gamepad",
-        "iwsdk:agent_tooling:mcp_required_category_missing_input_mode",
-        "iwsdk:agent_tooling:mcp_required_category_missing_scene",
-        "iwsdk:agent_tooling:mcp_required_category_missing_select_trigger",
-        "iwsdk:agent_tooling:mcp_required_category_missing_session",
-        "iwsdk:agent_tooling:mcp_required_category_missing_transforms",
-        "iwsdk:agent_tooling:mcp_runtime_not_registered",
-        "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_browser_get_console_logs",
-        "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_browser_screenshot",
-        "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_scene_get_hierarchy",
-        "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_xr_accept_session",
-        "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_xr_get_session_status",
-        "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_xr_select",
-        "iwsdk:agent_tooling:mcp_tool_inventory_count_not_32",
-        "iwsdk:agent_tooling:mcp_tool_names_not_recorded",
-        "iwsdk:agent_tooling:missing_managed_browser_evidence",
-        "iwsdk:agent_tooling:scene_hierarchy_required_objects_not_confirmed",
+        "iwsdk:agent_tooling:phase2_devtools_not_installed_in_sidecar",
         "iwsdk:compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
         "iwsdk:metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
         "iwsdk:production_runtime:app_js_bundle_kb_over_budget",
@@ -1100,7 +1056,7 @@
         "iwsdk:tool_selection:manual_quest_foreground_required_for_production_readiness"
       ],
       "blocker_summary": {
-        "total_blockers": 31,
+        "total_blockers": 10,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -1108,28 +1064,7 @@
             "title": "IWSDK sidecar and MCP tooling evidence",
             "owner": "xr-systems-architect",
             "blockers": [
-              "iwsdk:agent_tooling:adapter_sync_not_recorded",
-              "iwsdk:agent_tooling:ecs_runtime_not_queryable",
-              "iwsdk:agent_tooling:mcp_required_category_missing_browser",
-              "iwsdk:agent_tooling:mcp_required_category_missing_device_state",
-              "iwsdk:agent_tooling:mcp_required_category_missing_ecs",
-              "iwsdk:agent_tooling:mcp_required_category_missing_gamepad",
-              "iwsdk:agent_tooling:mcp_required_category_missing_input_mode",
-              "iwsdk:agent_tooling:mcp_required_category_missing_scene",
-              "iwsdk:agent_tooling:mcp_required_category_missing_select_trigger",
-              "iwsdk:agent_tooling:mcp_required_category_missing_session",
-              "iwsdk:agent_tooling:mcp_required_category_missing_transforms",
-              "iwsdk:agent_tooling:mcp_runtime_not_registered",
-              "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_browser_get_console_logs",
-              "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_browser_screenshot",
-              "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_scene_get_hierarchy",
-              "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_xr_accept_session",
-              "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_xr_get_session_status",
-              "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_xr_select",
-              "iwsdk:agent_tooling:mcp_tool_inventory_count_not_32",
-              "iwsdk:agent_tooling:mcp_tool_names_not_recorded",
-              "iwsdk:agent_tooling:missing_managed_browser_evidence",
-              "iwsdk:agent_tooling:scene_hierarchy_required_objects_not_confirmed",
+              "iwsdk:agent_tooling:phase2_devtools_not_installed_in_sidecar",
               "iwsdk:compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
               "iwsdk:metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
               "iwsdk:production_runtime:app_js_bundle_kb_over_budget",

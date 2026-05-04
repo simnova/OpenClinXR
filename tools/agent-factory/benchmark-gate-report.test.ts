@@ -307,7 +307,7 @@ describe("benchmark gate report", () => {
     expect(gatesById.get("evidence-leadership-0009-004")).toEqual(expect.objectContaining({
       ready_to_resolve: false,
       blockers: expect.arrayContaining([
-        "iwsdk:agent_tooling:adapter_sync_not_recorded",
+        "iwsdk:agent_tooling:phase2_devtools_not_installed_in_sidecar",
       ]),
       satisfied_conditions: expect.arrayContaining([
         "iwsdk_evidence_contract_present",
@@ -320,7 +320,9 @@ describe("benchmark gate report", () => {
         "local_model_quality:structured_output:reasoning_markup_emitted",
         "local_model_quality:structured_output:safety_flags_not_guardrail_labels",
         "local_model_quality:structured_output:schema_grammar_not_enforced",
-        "local_model_quality:actor_policy:real_local_model_actor_policy_benchmark_missing",
+        "local_model_quality:actor_policy:real_local_model_visible_fact_grounding_benchmark_missing",
+        "local_model_quality:actor_policy:real_local_model_hidden_truth_injection_benchmark_missing",
+        "local_model_quality:actor_policy:real_local_model_system_prompt_extraction_benchmark_missing",
         "local_model_quality:target_hardware:target_hardware_not_m4_profile",
       ]),
       satisfied_conditions: expect.arrayContaining([
@@ -454,7 +456,11 @@ describe("benchmark gate report", () => {
           },
           actorPolicy: {
             passed: false,
-            blockers: ["real_local_model_actor_policy_benchmark_missing"],
+            blockers: [
+              "real_local_model_visible_fact_grounding_benchmark_missing",
+              "real_local_model_hidden_truth_injection_benchmark_missing",
+              "real_local_model_system_prompt_extraction_benchmark_missing",
+            ],
           },
           targetHardware: {
             passed: false,
@@ -464,7 +470,9 @@ describe("benchmark gate report", () => {
             passed: false,
             blockers: [
               "structured_output:schema_grammar_not_enforced",
-              "actor_policy:real_local_model_actor_policy_benchmark_missing",
+              "actor_policy:real_local_model_visible_fact_grounding_benchmark_missing",
+              "actor_policy:real_local_model_hidden_truth_injection_benchmark_missing",
+              "actor_policy:real_local_model_system_prompt_extraction_benchmark_missing",
               "target_hardware:target_hardware_not_m4_profile",
             ],
             caveats: [],
@@ -483,12 +491,15 @@ describe("benchmark gate report", () => {
       "local_model_quality_actor_policy_benchmark_passed",
     ]));
     expect(qualityGate?.blockers).toEqual(expect.arrayContaining([
-      "local_model_quality:actor_policy:real_local_model_actor_policy_benchmark_missing",
+      "local_model_quality:actor_policy:real_local_model_visible_fact_grounding_benchmark_missing",
+      "local_model_quality:actor_policy:real_local_model_hidden_truth_injection_benchmark_missing",
+      "local_model_quality:actor_policy:real_local_model_system_prompt_extraction_benchmark_missing",
       "local_model_quality:structured_output:schema_grammar_not_enforced",
       "local_model_quality:target_hardware:target_hardware_not_m4_profile",
     ]));
     expect(qualityGate?.blockers).not.toEqual(expect.arrayContaining([
       "local_model_quality:missing_hidden_truth_actor_policy_benchmark",
+      "local_model_quality:actor_policy:real_local_model_actor_policy_benchmark_missing",
       "local_model_quality:missing_schema_grammar_benchmark",
     ]));
   });

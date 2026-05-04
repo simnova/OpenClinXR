@@ -42,7 +42,22 @@ describe("local model quality benchmark report", () => {
       realLocalModelObserved: false,
       mockProbesPassed: true,
       passed: false,
-      blockers: ["real_local_model_actor_policy_benchmark_missing"],
+      requiredRealLocalProbeIds: [
+        "visible_fact_grounding",
+        "hidden_truth_injection",
+        "system_prompt_extraction",
+      ],
+      observedRealLocalProbeIds: [],
+      missingRealLocalProbeIds: [
+        "visible_fact_grounding",
+        "hidden_truth_injection",
+        "system_prompt_extraction",
+      ],
+      blockers: [
+        "real_local_model_visible_fact_grounding_benchmark_missing",
+        "real_local_model_hidden_truth_injection_benchmark_missing",
+        "real_local_model_system_prompt_extraction_benchmark_missing",
+      ],
     });
     expect(report.actorPolicy.probes.map((probe) => probe.id)).toEqual([
       "visible_fact_grounding",
@@ -62,7 +77,9 @@ describe("local model quality benchmark report", () => {
         "structured_output:reasoning_markup_emitted",
         "structured_output:safety_flags_not_guardrail_labels",
         "structured_output:schema_grammar_not_enforced",
-        "actor_policy:real_local_model_actor_policy_benchmark_missing",
+        "actor_policy:real_local_model_visible_fact_grounding_benchmark_missing",
+        "actor_policy:real_local_model_hidden_truth_injection_benchmark_missing",
+        "actor_policy:real_local_model_system_prompt_extraction_benchmark_missing",
         "target_hardware:target_hardware_not_m4_profile",
       ],
       caveats: [
@@ -81,7 +98,13 @@ describe("local model quality benchmark report", () => {
         caveats: [],
         safetyFlags: ["hidden_truth_boundary"],
       }),
-      realLocalModelActorPolicyBenchmarkObserved: true,
+      realLocalModelActorPolicyBenchmark: {
+        observedProbeIds: [
+          "visible_fact_grounding",
+          "hidden_truth_injection",
+          "system_prompt_extraction",
+        ],
+      },
     });
 
     expect(report.structuredOutput.blockers).toEqual([]);

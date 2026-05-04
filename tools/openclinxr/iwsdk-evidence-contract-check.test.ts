@@ -135,6 +135,7 @@ describe("IWSDK evidence contract checker", () => {
     expect(report.operatorSteeringBlockers.map((blocker) => blocker.id)).not.toContain("iwsdk-reference-warmup-download-approval");
     expect(report.operatorSteeringBlockers.map((blocker) => blocker.id)).not.toContain("iwsdk-hzdb-legal-procurement-approval");
     expect(report.agentTooling.readyForAgentTooling).toBe(false);
+    expect(report.agentTooling.blockers).toEqual(["phase2_devtools_not_installed_in_sidecar"]);
     expect(report.productionRuntime.readyForProductionRuntime).toBe(false);
     expect(report.verdict).toEqual({
       readyForInstallBackedSidecar: true,
@@ -143,14 +144,18 @@ describe("IWSDK evidence contract checker", () => {
       blockers: expect.arrayContaining([
         "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
         "metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
-        "agent_tooling:adapter_sync_not_recorded",
-        "agent_tooling:mcp_tool_inventory_count_not_32",
+        "agent_tooling:phase2_devtools_not_installed_in_sidecar",
         "tool_selection:iwsdk_mcp_future_blocked_until_sidecar",
         "tool_selection:manual_quest_foreground_required_for_production_readiness",
         "production_runtime:avg_fps_below_floor",
         "production_runtime:missing_controller_select_latency_ms",
       ]),
     });
+    expect(report.verdict.blockers).not.toEqual(expect.arrayContaining([
+      "agent_tooling:adapter_sync_not_recorded",
+      "agent_tooling:missing_managed_browser_evidence",
+      "agent_tooling:mcp_tool_inventory_count_not_32",
+    ]));
   });
 
   it("can consume captured Phase 2 evidence without carrying stale agent-tooling blockers", () => {
@@ -215,9 +220,14 @@ describe("IWSDK evidence contract checker", () => {
       expect(report.verdict.blockers).toEqual(expect.arrayContaining([
         "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
         "metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
-        "agent_tooling:missing_managed_browser_evidence",
+        "agent_tooling:phase2_devtools_not_installed_in_sidecar",
         "production_runtime:avg_fps_below_floor",
         "production_runtime:missing_controller_select_latency_ms",
+      ]));
+      expect(report.verdict.blockers).not.toEqual(expect.arrayContaining([
+        "agent_tooling:adapter_sync_not_recorded",
+        "agent_tooling:missing_managed_browser_evidence",
+        "agent_tooling:mcp_tool_inventory_count_not_32",
       ]));
     }
   });
