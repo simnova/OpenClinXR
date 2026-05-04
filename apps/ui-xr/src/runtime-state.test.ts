@@ -4,6 +4,7 @@ import {
   completeTraceAction,
   createInitialRuntimeState,
   actorResponseTextFromApiResult,
+  buildManualPerformanceDraft,
   buildIwsdkStationMcpSmokePlan,
   evaluateIwsdkStationMcpSmokeEvidence,
   formatStationClock,
@@ -172,6 +173,59 @@ describe("XR runtime state", () => {
       source: "window.__openClinXrFrameStats",
       framesObserved: 4,
       sampleWindowSize: 3,
+    });
+  });
+
+  it("builds a Quest manual performance draft with explicit human-completion placeholders", () => {
+    const draft = buildManualPerformanceDraft({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      elapsedSecond: 92,
+      foregroundPageConfirmed: true,
+      traceInteractionPassed: true,
+      frameStats: {
+        sampleCount: 3,
+        avgFrameMs: 16.7,
+        p95FrameMs: 18,
+        maxFrameMs: 22,
+        approxFps: 59.9,
+        framesObserved: 4,
+        sampleWindowSize: 3,
+        latestFrameAtMs: 1234.56,
+      },
+    });
+
+    expect(draft).toEqual({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      runContext: {
+        performedBy: "",
+        durationMinutes: 1.53,
+        notes: "Complete this during a foreground in-headset Quest Browser run.",
+      },
+      setup: {
+        foregroundPageConfirmed: true,
+        devtoolsScreencastDisabled: false,
+        extraBrowserWindowsClosed: false,
+      },
+      station: {
+        shellLoaded: true,
+        traceInteractionPassed: true,
+        textReadable: true,
+        immersiveSessionStarted: false,
+        consoleErrors: [],
+      },
+      performance: {
+        source: "window.__openClinXrFrameStats",
+        framesObserved: 4,
+        sampleWindowSize: 3,
+        avgFps: 59.9,
+        p95FrameMs: 18,
+        minimumObservedFps: 45.5,
+      },
+      comfort: {
+        motionComfort: "not_run",
+        heatConcern: null,
+        batteryDropPercent: null,
+      },
     });
   });
 });

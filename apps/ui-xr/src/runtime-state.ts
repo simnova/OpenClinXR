@@ -83,6 +83,43 @@ export type ManualPerformanceMetrics = {
   sampleWindowSize: number;
 };
 
+export type ManualPerformanceDraft = {
+  generatedAt: string;
+  runContext: {
+    performedBy: string;
+    durationMinutes: number;
+    notes: string;
+  };
+  setup: {
+    foregroundPageConfirmed: boolean;
+    devtoolsScreencastDisabled: boolean;
+    extraBrowserWindowsClosed: boolean;
+  };
+  station: {
+    shellLoaded: true;
+    traceInteractionPassed: boolean;
+    textReadable: true;
+    immersiveSessionStarted: boolean;
+    consoleErrors: string[];
+  };
+  performance: ManualPerformanceMetrics;
+  comfort: {
+    motionComfort: "comfortable" | "mild_discomfort" | "uncomfortable" | "not_run";
+    heatConcern: boolean | null;
+    batteryDropPercent: number | null;
+  };
+};
+
+export type ManualPerformanceDraftInput = {
+  generatedAt: string;
+  elapsedSecond: number;
+  foregroundPageConfirmed: boolean;
+  traceInteractionPassed: boolean;
+  frameStats: ManualPerformanceFrameStats;
+  consoleErrors?: string[];
+  immersiveSessionStarted?: boolean;
+};
+
 export const stationTraceActionTags = [...edChestPainScenario.requiredTraceTags];
 
 export const iwsdkStationSceneObjects = {
@@ -310,6 +347,35 @@ export function manualPerformanceMetricsFromFrameStats(stats: ManualPerformanceF
     source: "window.__openClinXrFrameStats",
     framesObserved: stats.framesObserved,
     sampleWindowSize: stats.sampleWindowSize,
+  };
+}
+
+export function buildManualPerformanceDraft(input: ManualPerformanceDraftInput): ManualPerformanceDraft {
+  return {
+    generatedAt: input.generatedAt,
+    runContext: {
+      performedBy: "",
+      durationMinutes: Number((input.elapsedSecond / 60).toFixed(2)),
+      notes: "Complete this during a foreground in-headset Quest Browser run.",
+    },
+    setup: {
+      foregroundPageConfirmed: input.foregroundPageConfirmed,
+      devtoolsScreencastDisabled: false,
+      extraBrowserWindowsClosed: false,
+    },
+    station: {
+      shellLoaded: true,
+      traceInteractionPassed: input.traceInteractionPassed,
+      textReadable: true,
+      immersiveSessionStarted: input.immersiveSessionStarted ?? false,
+      consoleErrors: input.consoleErrors ?? [],
+    },
+    performance: manualPerformanceMetricsFromFrameStats(input.frameStats),
+    comfort: {
+      motionComfort: "not_run",
+      heatConcern: null,
+      batteryDropPercent: null,
+    },
   };
 }
 

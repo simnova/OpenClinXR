@@ -17,16 +17,17 @@ import {
 import {
   actorIdForTraceTag,
   actorResponseTextFromApiResult,
+  buildManualPerformanceDraft,
   completeTraceAction,
   createInitialRuntimeState,
   eventTypeForTraceTag,
   formatStationClock,
   iwsdkStationSceneObjects,
-  manualPerformanceMetricsFromFrameStats,
   remoteActorTurnForTraceTag,
   stationTraceActionTags,
   summarizeFrameDeltas,
   summarizeTraceReadiness,
+  type ManualPerformanceDraft,
   type XrRuntimeState,
 } from "./runtime-state.js";
 import { createStationApiClient, type StationApiClient } from "./api-client.js";
@@ -44,36 +45,10 @@ type OpenClinXrFrameStats = ReturnType<typeof summarizeFrameDeltas> & {
   sampleWindowSize: number;
 };
 
-type OpenClinXrManualPerformanceDraft = {
-  generatedAt: string;
-  runContext: {
-    durationMinutes: number;
-    notes: string;
-  };
-  setup: {
-    foregroundPageConfirmed: boolean;
-    devtoolsScreencastDisabled: false;
-    extraBrowserWindowsClosed: false;
-  };
-  station: {
-    shellLoaded: true;
-    traceInteractionPassed: boolean;
-    textReadable: true;
-    immersiveSessionStarted: false;
-    consoleErrors: string[];
-  };
-  performance: ReturnType<typeof manualPerformanceMetricsFromFrameStats>;
-  comfort: {
-    motionComfort: "not_run";
-    heatConcern: null;
-    batteryDropPercent: null;
-  };
-};
-
 declare global {
   interface Window {
     __openClinXrFrameStats?: OpenClinXrFrameStats;
-    __openClinXrManualPerformanceDraft?: OpenClinXrManualPerformanceDraft;
+    __openClinXrManualPerformanceDraft?: ManualPerformanceDraft;
   }
 }
 
@@ -364,31 +339,13 @@ function recordFrame(now: number): void {
   if (framesObserved !== 1 && framesObserved % 30 !== 0) {
     return;
   }
-  window.__openClinXrManualPerformanceDraft = {
+  window.__openClinXrManualPerformanceDraft = buildManualPerformanceDraft({
     generatedAt: new Date().toISOString(),
-    runContext: {
-      durationMinutes: Number((state.elapsedSecond / 60).toFixed(2)),
-      notes: "Copy this draft during a foreground in-headset Quest Browser run, then complete comfort and setup confirmations.",
-    },
-    setup: {
-      foregroundPageConfirmed: document.visibilityState === "visible",
-      devtoolsScreencastDisabled: false,
-      extraBrowserWindowsClosed: false,
-    },
-    station: {
-      shellLoaded: true,
-      traceInteractionPassed: state.completedTraceTags.length > 0,
-      textReadable: true,
-      immersiveSessionStarted: false,
-      consoleErrors: [],
-    },
-    performance: manualPerformanceMetricsFromFrameStats(window.__openClinXrFrameStats),
-    comfort: {
-      motionComfort: "not_run",
-      heatConcern: null,
-      batteryDropPercent: null,
-    },
-  };
+    elapsedSecond: state.elapsedSecond,
+    foregroundPageConfirmed: document.visibilityState === "visible",
+    traceInteractionPassed: state.completedTraceTags.length > 0,
+    frameStats: window.__openClinXrFrameStats,
+  });
 }
 
 let start = performance.now();
