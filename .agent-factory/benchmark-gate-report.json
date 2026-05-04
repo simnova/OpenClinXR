@@ -625,6 +625,74 @@
       }
     },
     {
+      "evidence_id": "evidence-leadership-0009-002",
+      "ready_to_resolve": false,
+      "satisfied_conditions": [
+        "local_model_ready_to_benchmark",
+        "local_model_runtime_benchmark_passed",
+        "local_provider_mock_benchmarks_passed"
+      ],
+      "blockers": [
+        "local_model_quality:missing_hidden_truth_actor_policy_benchmark",
+        "local_model_quality:missing_schema_grammar_benchmark",
+        "local_model_quality:structured_output_caveats_present",
+        "local_model_quality:target_hardware_not_m4_profile"
+      ],
+      "blocker_summary": {
+        "total_blockers": 4,
+        "distinct_problem_count": 1,
+        "groups": [
+          {
+            "group_id": "local_model_quality",
+            "title": "Local model structured-output and actor-policy evidence",
+            "owner": "local-ai-inference-engineer",
+            "blockers": [
+              "local_model_quality:missing_hidden_truth_actor_policy_benchmark",
+              "local_model_quality:missing_schema_grammar_benchmark",
+              "local_model_quality:structured_output_caveats_present",
+              "local_model_quality:target_hardware_not_m4_profile"
+            ],
+            "next_step": "Add schema/grammar, hidden-truth, actor-policy, and target M4 hardware benchmark evidence before enabling local dialogue in station runtime."
+          }
+        ],
+        "ungrouped_blockers": []
+      }
+    },
+    {
+      "evidence_id": "evidence-leadership-0009-003",
+      "ready_to_resolve": false,
+      "satisfied_conditions": [
+        "local_provider_mock_benchmarks_passed",
+        "local_voice_first_audio_benchmark_passed",
+        "local_voice_ready_to_benchmark"
+      ],
+      "blockers": [
+        "local_voice_live_dialog:file_generation_only",
+        "local_voice_live_dialog:missing_disclosure_retention_misuse_controls",
+        "local_voice_live_dialog:missing_streaming_webxr_playback_benchmark",
+        "local_voice_live_dialog:real_time_factor_above_1"
+      ],
+      "blocker_summary": {
+        "total_blockers": 4,
+        "distinct_problem_count": 1,
+        "groups": [
+          {
+            "group_id": "local_voice_live_dialog",
+            "title": "Local voice live-dialog evidence",
+            "owner": "voice-speech-engineer",
+            "blockers": [
+              "local_voice_live_dialog:file_generation_only",
+              "local_voice_live_dialog:missing_disclosure_retention_misuse_controls",
+              "local_voice_live_dialog:missing_streaming_webxr_playback_benchmark",
+              "local_voice_live_dialog:real_time_factor_above_1"
+            ],
+            "next_step": "Prove streaming WebXR playback, first audible playback latency, real-time factor, disclosure, retention, and misuse controls before enabling live local voice."
+          }
+        ],
+        "ungrouped_blockers": []
+      }
+    },
+    {
       "evidence_id": "evidence-leadership-0009-004",
       "ready_to_resolve": false,
       "satisfied_conditions": [
@@ -706,6 +774,40 @@
               "iwsdk:tool_selection:manual_quest_foreground_required_for_production_readiness"
             ],
             "next_step": "Use the approved proposals/approved/proposal-iwsdk-phase2-devtools.md scope when sidecar devtools are useful; keep IWSDK isolated to the sidecar and record adapter-sync, MCP inventory, bundle, and Quest evidence before production adoption."
+          }
+        ],
+        "ungrouped_blockers": []
+      }
+    },
+    {
+      "evidence_id": "evidence-leadership-0009-005",
+      "ready_to_resolve": false,
+      "satisfied_conditions": [
+        "asset_pipeline_blender_bake_smoke_passed",
+        "asset_pipeline_gltf_pipeline_smoke_passed",
+        "asset_pipeline_runtime_ready"
+      ],
+      "blockers": [
+        "asset_production:missing_generated_human_rigging_report",
+        "asset_production:missing_lod_texture_collider_budget_report",
+        "asset_production:missing_multi_actor_quest_budget_report",
+        "asset_production:placeholder_bake_only"
+      ],
+      "blocker_summary": {
+        "total_blockers": 4,
+        "distinct_problem_count": 1,
+        "groups": [
+          {
+            "group_id": "asset_production_readiness",
+            "title": "Production asset generation readiness",
+            "owner": "asset-pipeline-lead",
+            "blockers": [
+              "asset_production:missing_generated_human_rigging_report",
+              "asset_production:missing_lod_texture_collider_budget_report",
+              "asset_production:missing_multi_actor_quest_budget_report",
+              "asset_production:placeholder_bake_only"
+            ],
+            "next_step": "Add generated human, skin, clothing, rigging, animation, equipment, optimization, collider, and multi-actor Quest budget reports before claiming production asset readiness."
           }
         ],
         "ungrouped_blockers": []

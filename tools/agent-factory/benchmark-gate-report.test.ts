@@ -228,7 +228,10 @@ describe("benchmark gate report", () => {
       "evidence-leadership-0008-002",
       "evidence-leadership-0008-003",
       "evidence-leadership-0008-004",
+      "evidence-leadership-0009-002",
+      "evidence-leadership-0009-003",
       "evidence-leadership-0009-004",
+      "evidence-leadership-0009-005",
     ]);
 
     expect(gatesById.get("evidence-leadership-0008-001")).toEqual(expect.objectContaining({
@@ -276,6 +279,40 @@ describe("benchmark gate report", () => {
       satisfied_conditions: expect.arrayContaining([
         "iwsdk_evidence_contract_present",
         "iwsdk_install_backed_sidecar_ready",
+      ]),
+    }));
+    expect(gatesById.get("evidence-leadership-0009-002")).toEqual(expect.objectContaining({
+      ready_to_resolve: false,
+      blockers: expect.arrayContaining([
+        "local_model_quality:structured_output_caveats_present",
+        "local_model_quality:target_hardware_not_m4_profile",
+        "local_model_quality:missing_hidden_truth_actor_policy_benchmark",
+      ]),
+      satisfied_conditions: expect.arrayContaining([
+        "local_model_runtime_benchmark_passed",
+      ]),
+    }));
+    expect(gatesById.get("evidence-leadership-0009-003")).toEqual(expect.objectContaining({
+      ready_to_resolve: false,
+      blockers: expect.arrayContaining([
+        "local_voice_live_dialog:file_generation_only",
+        "local_voice_live_dialog:missing_streaming_webxr_playback_benchmark",
+        "local_voice_live_dialog:real_time_factor_above_1",
+      ]),
+      satisfied_conditions: expect.arrayContaining([
+        "local_voice_first_audio_benchmark_passed",
+      ]),
+    }));
+    expect(gatesById.get("evidence-leadership-0009-005")).toEqual(expect.objectContaining({
+      ready_to_resolve: false,
+      blockers: expect.arrayContaining([
+        "asset_production:placeholder_bake_only",
+        "asset_production:missing_generated_human_rigging_report",
+        "asset_production:missing_lod_texture_collider_budget_report",
+      ]),
+      satisfied_conditions: expect.arrayContaining([
+        "asset_pipeline_blender_bake_smoke_passed",
+        "asset_pipeline_gltf_pipeline_smoke_passed",
       ]),
     }));
   });

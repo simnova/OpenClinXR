@@ -423,6 +423,18 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     ...blenderAssetBakeSmokeBlockers(blenderAssetBakeSmoke?.value),
     ...assetEvidenceFreshnessBlockers,
   ];
+  const localModelQualityEvidenceBlockers = [
+    ...localModelQualityBlockers(localModelRuntimeBenchmark),
+    ...localModelEvidenceFreshnessBlockers,
+  ];
+  const localVoiceLiveDialogEvidenceBlockers = [
+    ...localVoiceLiveDialogBlockers(localVoiceRuntimeBenchmark),
+    ...localVoiceEvidenceFreshnessBlockers,
+  ];
+  const assetProductionEvidenceBlockers = [
+    ...assetProductionBlockers(gltfPipelineSmoke, blenderAssetBakeSmoke),
+    ...assetEvidenceFreshnessBlockers,
+  ];
   const iwsdkEvidenceBlockers = iwsdkEvidenceContractBlockers(iwsdkEvidenceContract?.value);
   const combinedBlockers = unique([
     ...questEvidenceBlockers,
@@ -575,7 +587,10 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
       buildEvidenceGate("evidence-leadership-0008-002", localModelSatisfiedConditions, unique(localModelEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0008-003", localVoiceSatisfiedConditions, unique(localVoiceEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0008-004", assetSatisfiedConditions, unique(assetEvidenceBlockers)),
+      buildEvidenceGate("evidence-leadership-0009-002", localModelSatisfiedConditions, unique(localModelQualityEvidenceBlockers)),
+      buildEvidenceGate("evidence-leadership-0009-003", localVoiceSatisfiedConditions, unique(localVoiceLiveDialogEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0009-004", iwsdkSatisfiedConditions, unique(iwsdkEvidenceBlockers)),
+      buildEvidenceGate("evidence-leadership-0009-005", assetSatisfiedConditions, unique(assetProductionEvidenceBlockers)),
     ],
   };
 }
@@ -876,6 +891,28 @@ function localModelRuntimeBenchmarkBlockers(
   return unique(benchmark.value.verdict.blockers.map((blocker) => `local_model_runtime_benchmark:${blocker}`));
 }
 
+function localModelQualityBlockers(benchmark: EvidenceFile<LocalModelRuntimeBenchmarkReport> | undefined): string[] {
+  if (!benchmark) {
+    return ["missing_local_model_runtime_benchmark_report"];
+  }
+
+  const blockers: string[] = [];
+  if (!benchmark.value.verdict.passed) {
+    blockers.push(...benchmark.value.verdict.blockers.map((blocker) => `local_model_quality:${blocker}`));
+  }
+  if (benchmark.value.verdict.caveats.length > 0) {
+    blockers.push("local_model_quality:structured_output_caveats_present");
+  }
+  if (!runtimeDeviceLooksLikeTargetM4(benchmark.value.runtime.device)) {
+    blockers.push("local_model_quality:target_hardware_not_m4_profile");
+  }
+  blockers.push(
+    "local_model_quality:missing_hidden_truth_actor_policy_benchmark",
+    "local_model_quality:missing_schema_grammar_benchmark",
+  );
+  return unique(blockers);
+}
+
 function localVoiceRuntimeBenchmarkBlockers(
   runtimeReport: LocalRuntimeProbeReport | undefined,
   benchmark: EvidenceFile<LocalVoiceRuntimeBenchmarkReport> | undefined,
@@ -890,6 +927,61 @@ function localVoiceRuntimeBenchmarkBlockers(
     return [];
   }
   return unique(benchmark.value.verdict.blockers.map((blocker) => `local_voice_runtime_benchmark:${blocker}`));
+}
+
+function localVoiceLiveDialogBlockers(benchmark: EvidenceFile<LocalVoiceRuntimeBenchmarkReport> | undefined): string[] {
+  if (!benchmark) {
+    return ["missing_local_voice_runtime_benchmark_report"];
+  }
+
+  const blockers: string[] = [];
+  if (!benchmark.value.verdict.passed) {
+    blockers.push(...benchmark.value.verdict.blockers.map((blocker) => `local_voice_live_dialog:${blocker}`));
+  }
+  if (benchmark.value.verdict.caveats.some((caveat) => caveat.toLowerCase().includes("file-based"))) {
+    blockers.push("local_voice_live_dialog:file_generation_only");
+  }
+  if (numberMetric(benchmark.value.metrics.realTimeFactor) > 1) {
+    blockers.push("local_voice_live_dialog:real_time_factor_above_1");
+  }
+  blockers.push(
+    "local_voice_live_dialog:missing_streaming_webxr_playback_benchmark",
+    "local_voice_live_dialog:missing_disclosure_retention_misuse_controls",
+  );
+  return unique(blockers);
+}
+
+function assetProductionBlockers(
+  gltfPipelineSmoke: EvidenceFile<GltfPipelineSmokeReport> | undefined,
+  blenderAssetBakeSmoke: EvidenceFile<BlenderAssetBakeSmokeReport> | undefined,
+): string[] {
+  const blockers: string[] = [];
+  if (!gltfPipelineSmoke?.value.verdict.passed) {
+    blockers.push("asset_production:missing_gltf_conversion_smoke");
+  }
+  if (!blenderAssetBakeSmoke?.value.verdict.passed) {
+    blockers.push("asset_production:missing_blender_placeholder_bake");
+  }
+  if (
+    blenderAssetBakeSmoke?.value.input.fixture.includes("low_poly")
+    || blenderAssetBakeSmoke?.value.input.sourceLicensePosture === "repo_generated_placeholder"
+  ) {
+    blockers.push("asset_production:placeholder_bake_only");
+  }
+  blockers.push(
+    "asset_production:missing_generated_human_rigging_report",
+    "asset_production:missing_lod_texture_collider_budget_report",
+    "asset_production:missing_multi_actor_quest_budget_report",
+  );
+  return unique(blockers);
+}
+
+function runtimeDeviceLooksLikeTargetM4(device: unknown): boolean {
+  return typeof device === "string" && /\bM4\b/.test(device);
+}
+
+function numberMetric(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : Number.POSITIVE_INFINITY;
 }
 
 function iwsdkEvidenceContractBlockers(report: IwsdkEvidenceContractReport | undefined): string[] {
@@ -1020,6 +1112,20 @@ const blockerGroups = [
     nextStep: "Follow the approved proposals/approved/proposal-local-voice-runtime.md scope, configure one local voice runtime and voice ID privately, then record first-audio latency evidence.",
   },
   {
+    groupId: "local_model_quality",
+    title: "Local model structured-output and actor-policy evidence",
+    owner: "local-ai-inference-engineer",
+    matches: (blocker: string) => blocker.startsWith("local_model_quality:"),
+    nextStep: "Add schema/grammar, hidden-truth, actor-policy, and target M4 hardware benchmark evidence before enabling local dialogue in station runtime.",
+  },
+  {
+    groupId: "local_voice_live_dialog",
+    title: "Local voice live-dialog evidence",
+    owner: "voice-speech-engineer",
+    matches: (blocker: string) => blocker.startsWith("local_voice_live_dialog:"),
+    nextStep: "Prove streaming WebXR playback, first audible playback latency, real-time factor, disclosure, retention, and misuse controls before enabling live local voice.",
+  },
+  {
     groupId: "asset_pipeline_blender",
     title: "Blender-backed asset bake",
     owner: "asset-pipeline-lead",
@@ -1028,6 +1134,13 @@ const blockerGroups = [
       || blocker === "missing_blender_asset_bake_smoke_report"
       || blocker.startsWith("blender_asset_bake_smoke:"),
     nextStep: "Install Blender locally and run the small humanoid asset bake before treating the asset pipeline as ready.",
+  },
+  {
+    groupId: "asset_production_readiness",
+    title: "Production asset generation readiness",
+    owner: "asset-pipeline-lead",
+    matches: (blocker: string) => blocker.startsWith("asset_production:"),
+    nextStep: "Add generated human, skin, clothing, rigging, animation, equipment, optimization, collider, and multi-actor Quest budget reports before claiming production asset readiness.",
   },
   {
     groupId: "iwsdk_sidecar_tooling",
