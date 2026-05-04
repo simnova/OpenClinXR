@@ -20,6 +20,15 @@ describe("IWSDK evidence contract checker", () => {
 
     expect(report.status).toBe("contract_only");
     expect(report.sidecar.currentState).toBe("contract_only");
+    expect(report.preinstall.policy.reviewRequiredPackages).toEqual(expect.arrayContaining([
+      "@iwsdk/vite-plugin-uikitml",
+      "@iwsdk/vite-plugin-metaspatial",
+    ]));
+    expect(report.preinstall.policy.blockedPackages).toEqual(expect.arrayContaining([
+      "@iwsdk/create",
+      "@iwsdk/starter-assets",
+      "@meta-quest/hzdb",
+    ]));
     expect(report.agentTooling.readyForAgentTooling).toBe(false);
     expect(report.productionRuntime.readyForProductionRuntime).toBe(false);
     expect(report.verdict).toEqual({

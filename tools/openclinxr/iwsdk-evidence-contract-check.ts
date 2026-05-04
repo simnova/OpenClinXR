@@ -9,6 +9,7 @@ import {
   evaluateIwsdkPreInstallPackageSelection,
   evaluateIwsdkSpikeMetrics,
   type IwsdkAgentToolingEvidenceReadiness,
+  type IwsdkPreInstallPackagePolicy,
   type IwsdkPreInstallPackageSelectionResult,
   type IwsdkSidecarReadinessContract,
   type IwsdkSpikeMetricReadiness,
@@ -24,6 +25,7 @@ export type IwsdkEvidenceContractReport = {
   status: "contract_only";
   sidecar: IwsdkSidecarReadinessContract;
   preinstall: {
+    policy: IwsdkPreInstallPackagePolicy;
     defaultFirstSliceReady: boolean;
     result: IwsdkPreInstallPackageSelectionResult;
   };
@@ -89,10 +91,11 @@ export function buildIwsdkEvidenceContractReport(input: {
   generatedAt?: string;
 } = {}): IwsdkEvidenceContractReport {
   const sidecar = buildIwsdkSidecarReadinessContract();
+  const preinstallPolicy = buildIwsdkPreInstallPackagePolicy();
   const preinstallResult = evaluateIwsdkPreInstallPackageSelection([
     { name: "@iwsdk/core", version: "0.3.1", license: "MIT", transitivePackages: ["three"] },
     { name: "@iwsdk/xr-input", version: "0.3.1", license: "MIT", transitivePackages: [] },
-  ], buildIwsdkPreInstallPackagePolicy());
+  ], preinstallPolicy);
   const agentTooling = evaluateIwsdkAgentToolingEvidence({
     adapterSyncRecorded: false,
     toolCount: 0,
@@ -115,6 +118,7 @@ export function buildIwsdkEvidenceContractReport(input: {
     status: "contract_only",
     sidecar,
     preinstall: {
+      policy: preinstallPolicy,
       defaultFirstSliceReady: preinstallResult.readyToInstallInSidecar,
       result: preinstallResult,
     },
@@ -145,6 +149,14 @@ export function validateIwsdkEvidenceContractReport(value: unknown): IwsdkEviden
   requireObject(readAt(value, ["productionRuntime"]), "/productionRuntime", errors);
   requireObject(readAt(value, ["verdict"]), "/verdict", errors);
 
+  requireObject(readAt(value, ["preinstall", "policy"]), "/preinstall/policy", errors);
+  requireBoolean(readAt(value, ["preinstall", "policy", "exactVersionRequired"]), "/preinstall/policy/exactVersionRequired", errors);
+  requireStringArray(readAt(value, ["preinstall", "policy", "allowedFirstSlicePackages"]), "/preinstall/policy/allowedFirstSlicePackages", errors);
+  requireStringArray(readAt(value, ["preinstall", "policy", "reviewRequiredPackages"]), "/preinstall/policy/reviewRequiredPackages", errors);
+  requireStringArray(readAt(value, ["preinstall", "policy", "blockedPackages"]), "/preinstall/policy/blockedPackages", errors);
+  requireStringArray(readAt(value, ["preinstall", "policy", "blockedTransitivePackages"]), "/preinstall/policy/blockedTransitivePackages", errors);
+  requireStringArray(readAt(value, ["preinstall", "policy", "blockedLicenseExpressions"]), "/preinstall/policy/blockedLicenseExpressions", errors);
+  requireStringArray(readAt(value, ["preinstall", "policy", "requiredPackageManagerControls"]), "/preinstall/policy/requiredPackageManagerControls", errors);
   requireBoolean(readAt(value, ["preinstall", "defaultFirstSliceReady"]), "/preinstall/defaultFirstSliceReady", errors);
   requireObject(readAt(value, ["preinstall", "result"]), "/preinstall/result", errors);
   requireBoolean(readAt(value, ["preinstall", "result", "readyToInstallInSidecar"]), "/preinstall/result/readyToInstallInSidecar", errors);
