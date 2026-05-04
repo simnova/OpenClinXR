@@ -126,6 +126,8 @@ type StationRunQueue {
   blueprintId: ID!
   canStartLearnerExam: Boolean!
   stationQueue: [StationRunQueueItem!]!
+  breakCheckpoints: [ExamBreakCheckpoint!]!
+  totalStationTimeSeconds: Int!
   summary: StationRunQueueSummary!
 }
 
@@ -137,6 +139,27 @@ type StationRunQueueItem {
   scenarioVersion: Int
   status: String!
   blockers: [String!]!
+  timing: ExamStationTimingWindow!
+}
+
+type ExamStationTimingWindow {
+  stationOrder: Int!
+  slotId: ID!
+  label: String!
+  doorway: ExamTimingWindow!
+  encounter: ExamTimingWindow!
+  note: ExamTimingWindow!
+}
+
+type ExamTimingWindow {
+  startsAtSecond: Int!
+  endsAtSecond: Int!
+  durationSeconds: Int!
+}
+
+type ExamBreakCheckpoint {
+  afterStationOrder: Int!
+  atSecond: Int!
 }
 
 type StationRunQueueSummary {

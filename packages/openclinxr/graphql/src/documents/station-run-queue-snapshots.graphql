@@ -6,6 +6,11 @@ query StationRunQueueSnapshots($blueprintId: ID!) {
     queue {
       blueprintId
       canStartLearnerExam
+      breakCheckpoints {
+        afterStationOrder
+        atSecond
+      }
+      totalStationTimeSeconds
       summary {
         activationReady
         draftBlocked
@@ -20,6 +25,26 @@ query StationRunQueueSnapshots($blueprintId: ID!) {
         scenarioVersion
         status
         blockers
+        timing {
+          stationOrder
+          slotId
+          label
+          doorway {
+            startsAtSecond
+            endsAtSecond
+            durationSeconds
+          }
+          encounter {
+            startsAtSecond
+            endsAtSecond
+            durationSeconds
+          }
+          note {
+            startsAtSecond
+            endsAtSecond
+            durationSeconds
+          }
+        }
       }
     }
   }

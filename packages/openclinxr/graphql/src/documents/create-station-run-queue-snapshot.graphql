@@ -6,6 +6,11 @@ mutation CreateStationRunQueueSnapshot($input: CreateStationRunQueueSnapshotInpu
     queue {
       blueprintId
       canStartLearnerExam
+      breakCheckpoints {
+        afterStationOrder
+        atSecond
+      }
+      totalStationTimeSeconds
       summary {
         activationReady
         draftBlocked
@@ -20,6 +25,26 @@ mutation CreateStationRunQueueSnapshot($input: CreateStationRunQueueSnapshotInpu
         scenarioVersion
         status
         blockers
+        timing {
+          stationOrder
+          slotId
+          label
+          doorway {
+            startsAtSecond
+            endsAtSecond
+            durationSeconds
+          }
+          encounter {
+            startsAtSecond
+            endsAtSecond
+            durationSeconds
+          }
+          note {
+            startsAtSecond
+            endsAtSecond
+            durationSeconds
+          }
+        }
       }
     }
   }

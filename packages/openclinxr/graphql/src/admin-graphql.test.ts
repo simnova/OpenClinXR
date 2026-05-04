@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { parse, validate } from "graphql";
+import { GraphQLObjectType, parse, validate } from "graphql";
 import { adminGraphqlDocuments, buildAdminGraphqlSchema, createGraphqlCodegenPlan, openClinXrAdminSchemaSdl } from "./index.js";
 
 describe("OpenClinXR admin GraphQL contract", () => {
@@ -27,7 +27,13 @@ describe("OpenClinXR admin GraphQL contract", () => {
     expect(schema.getType("TraceEvent")).toBeDefined();
     expect(schema.getType("AssetReadiness")).toBeDefined();
     expect(schema.getType("StationRunQueueSnapshot")).toBeDefined();
-    expect(schema.getType("StationRunQueueItem")).toBeDefined();
+    const queueType = schema.getType("StationRunQueue");
+    const queueItemType = schema.getType("StationRunQueueItem");
+    expect(queueType).toBeInstanceOf(GraphQLObjectType);
+    expect(queueItemType).toBeInstanceOf(GraphQLObjectType);
+    expect((queueType as GraphQLObjectType).getFields()).toHaveProperty("breakCheckpoints");
+    expect((queueType as GraphQLObjectType).getFields()).toHaveProperty("totalStationTimeSeconds");
+    expect((queueItemType as GraphQLObjectType).getFields()).toHaveProperty("timing");
     expect(openClinXrAdminSchemaSdl).toContain("syntheticCaseDisclosure");
     expect(openClinXrAdminSchemaSdl).toContain("voiceAudioEventCount");
   });

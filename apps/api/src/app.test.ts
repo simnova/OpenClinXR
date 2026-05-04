@@ -116,6 +116,11 @@ describe("OpenClinXR API shell", () => {
               reviewerId
               queue {
                 blueprintId
+                totalStationTimeSeconds
+                breakCheckpoints {
+                  afterStationOrder
+                  atSecond
+                }
                 summary {
                   activationReady
                   draftBlocked
@@ -141,11 +146,17 @@ describe("OpenClinXR API shell", () => {
         createStationRunQueueSnapshot: {
           snapshotId: "queue_snapshot_graphql_001",
           reviewerId: "admin_seed_reviewer",
-          queue: {
-            blueprintId: "blueprint_openclinxr_step2cs_style_seed_v1",
-            summary: {
-              activationReady: 1,
-              draftBlocked: 11,
+            queue: {
+              blueprintId: "blueprint_openclinxr_step2cs_style_seed_v1",
+              totalStationTimeSeconds: 18720,
+              breakCheckpoints: [
+                { afterStationOrder: 3, atSecond: 4680 },
+                { afterStationOrder: 6, atSecond: 9360 },
+                { afterStationOrder: 9, atSecond: 14040 },
+              ],
+              summary: {
+                activationReady: 1,
+                draftBlocked: 11,
             },
           },
         },
@@ -162,6 +173,25 @@ describe("OpenClinXR API shell", () => {
               snapshotId
               reviewerId
               queue {
+                totalStationTimeSeconds
+                breakCheckpoints {
+                  afterStationOrder
+                  atSecond
+                }
+                stationQueue {
+                  stationOrder
+                  timing {
+                    doorway {
+                      durationSeconds
+                    }
+                    encounter {
+                      durationSeconds
+                    }
+                    note {
+                      durationSeconds
+                    }
+                  }
+                }
                 summary {
                   activationReady
                   draftBlocked
@@ -183,6 +213,110 @@ describe("OpenClinXR API shell", () => {
             snapshotId: "queue_snapshot_graphql_001",
             reviewerId: "admin_seed_reviewer",
             queue: {
+              totalStationTimeSeconds: 18720,
+              breakCheckpoints: [
+                { afterStationOrder: 3, atSecond: 4680 },
+                { afterStationOrder: 6, atSecond: 9360 },
+                { afterStationOrder: 9, atSecond: 14040 },
+              ],
+              stationQueue: [
+                {
+                  stationOrder: 1,
+                  timing: {
+                    doorway: { durationSeconds: 60 },
+                    encounter: { durationSeconds: 900 },
+                    note: { durationSeconds: 600 },
+                  },
+                },
+                {
+                  stationOrder: 2,
+                  timing: {
+                    doorway: { durationSeconds: 60 },
+                    encounter: { durationSeconds: 900 },
+                    note: { durationSeconds: 600 },
+                  },
+                },
+                {
+                  stationOrder: 3,
+                  timing: {
+                    doorway: { durationSeconds: 60 },
+                    encounter: { durationSeconds: 900 },
+                    note: { durationSeconds: 600 },
+                  },
+                },
+                {
+                  stationOrder: 4,
+                  timing: {
+                    doorway: { durationSeconds: 60 },
+                    encounter: { durationSeconds: 900 },
+                    note: { durationSeconds: 600 },
+                  },
+                },
+                {
+                  stationOrder: 5,
+                  timing: {
+                    doorway: { durationSeconds: 60 },
+                    encounter: { durationSeconds: 900 },
+                    note: { durationSeconds: 600 },
+                  },
+                },
+                {
+                  stationOrder: 6,
+                  timing: {
+                    doorway: { durationSeconds: 60 },
+                    encounter: { durationSeconds: 900 },
+                    note: { durationSeconds: 600 },
+                  },
+                },
+                {
+                  stationOrder: 7,
+                  timing: {
+                    doorway: { durationSeconds: 60 },
+                    encounter: { durationSeconds: 900 },
+                    note: { durationSeconds: 600 },
+                  },
+                },
+                {
+                  stationOrder: 8,
+                  timing: {
+                    doorway: { durationSeconds: 60 },
+                    encounter: { durationSeconds: 900 },
+                    note: { durationSeconds: 600 },
+                  },
+                },
+                {
+                  stationOrder: 9,
+                  timing: {
+                    doorway: { durationSeconds: 60 },
+                    encounter: { durationSeconds: 900 },
+                    note: { durationSeconds: 600 },
+                  },
+                },
+                {
+                  stationOrder: 10,
+                  timing: {
+                    doorway: { durationSeconds: 60 },
+                    encounter: { durationSeconds: 900 },
+                    note: { durationSeconds: 600 },
+                  },
+                },
+                {
+                  stationOrder: 11,
+                  timing: {
+                    doorway: { durationSeconds: 60 },
+                    encounter: { durationSeconds: 900 },
+                    note: { durationSeconds: 600 },
+                  },
+                },
+                {
+                  stationOrder: 12,
+                  timing: {
+                    doorway: { durationSeconds: 60 },
+                    encounter: { durationSeconds: 900 },
+                    note: { durationSeconds: 600 },
+                  },
+                },
+              ],
               summary: {
                 activationReady: 1,
                 draftBlocked: 11,

@@ -27,9 +27,7 @@ export type AdminStationRunQueueSnapshot = {
   snapshotId: string;
   createdAt: string;
   reviewerId?: string;
-  queue: Pick<ExamStationRunQueue, "blueprintId" | "canStartLearnerExam" | "summary"> & {
-    stationQueue: Array<Pick<ExamStationRunQueue["stationQueue"][number], "stationOrder" | "slotId" | "label" | "scenarioId" | "scenarioVersion" | "status" | "blockers">>;
-  };
+  queue: ExamStationRunQueue;
 };
 
 export const defaultAdminApiBaseUrl = import.meta.env.VITE_OPENCLINXR_API_BASE_URL ?? "";
@@ -119,6 +117,11 @@ const queueSnapshotSelection = `
   queue {
     blueprintId
     canStartLearnerExam
+    breakCheckpoints {
+      afterStationOrder
+      atSecond
+    }
+    totalStationTimeSeconds
     summary {
       activationReady
       draftBlocked
@@ -133,6 +136,26 @@ const queueSnapshotSelection = `
       scenarioVersion
       status
       blockers
+      timing {
+        stationOrder
+        slotId
+        label
+        doorway {
+          startsAtSecond
+          endsAtSecond
+          durationSeconds
+        }
+        encounter {
+          startsAtSecond
+          endsAtSecond
+          durationSeconds
+        }
+        note {
+          startsAtSecond
+          endsAtSecond
+          durationSeconds
+        }
+      }
     }
   }
 `;
