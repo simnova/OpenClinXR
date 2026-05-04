@@ -4,8 +4,8 @@
     {
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
-      "generated_at": "2026-05-04T05:32:46.441Z",
-      "age_hours": 8,
+      "generated_at": "2026-05-04T13:40:40.572Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -13,8 +13,8 @@
     {
       "evidence_id": "local_runtime_probe",
       "file": "docs/openclinxr/local-runtime-probe-2026-05-04.json",
-      "generated_at": "2026-05-04T06:36:03.273Z",
-      "age_hours": 7,
+      "generated_at": "2026-05-04T13:40:31.455Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -58,7 +58,7 @@
   ],
   "quest_smoke": {
     "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
-    "generated_at": "2026-05-04T05:32:46.441Z",
+    "generated_at": "2026-05-04T13:40:40.572Z",
     "shell_loaded": true,
     "interaction_advanced": true,
     "frame_sample_complete": false,
@@ -82,17 +82,15 @@
   },
   "local_runtime_probe": {
     "file": "docs/openclinxr/local-runtime-probe-2026-05-04.json",
-    "generated_at": "2026-05-04T06:36:03.273Z",
+    "generated_at": "2026-05-04T13:40:31.455Z",
     "gates": {
       "questUsb": {
         "status": "ready",
         "blockers": []
       },
       "questForegroundPreflight": {
-        "status": "blocked",
-        "blockers": [
-          "quest_3_asleep_or_not_foreground_ready"
-        ]
+        "status": "ready",
+        "blockers": []
       },
       "localModel": {
         "status": "blocked",
@@ -397,6 +395,7 @@
         "quest_cdp_adb_device_recorded",
         "quest_cdp_generated_at_valid",
         "quest_cdp_user_agent_recorded",
+        "quest_foreground_preflight_ready",
         "quest_frame_stats_present",
         "quest_shell_loaded",
         "quest_trace_interaction_advanced",
@@ -412,7 +411,6 @@
         "local_voice_benchmark:no_vibevoice_runtime_detected",
         "quest_cdp_frame_sample_incomplete",
         "quest_cdp_frame_sample_timed_out",
-        "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
         "quest_latest_frame_stale_over_1000ms",
         "quest_manual_performance:missing_quest_manual_performance_report",
         "quest_no_frames_observed_during_probe",
@@ -420,7 +418,7 @@
         "quest_sustained_frame_sample_not_complete"
       ],
       "blocker_summary": {
-        "total_blockers": 15,
+        "total_blockers": 14,
         "distinct_problem_count": 3,
         "groups": [
           {
@@ -430,7 +428,6 @@
             "blockers": [
               "quest_cdp_frame_sample_incomplete",
               "quest_cdp_frame_sample_timed_out",
-              "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
               "quest_latest_frame_stale_over_1000ms",
               "quest_manual_performance:missing_quest_manual_performance_report",
               "quest_no_frames_observed_during_probe",
@@ -473,6 +470,7 @@
         "quest_cdp_adb_device_recorded",
         "quest_cdp_generated_at_valid",
         "quest_cdp_user_agent_recorded",
+        "quest_foreground_preflight_ready",
         "quest_frame_stats_present",
         "quest_shell_loaded",
         "quest_trace_interaction_advanced",
@@ -481,7 +479,6 @@
       "blockers": [
         "quest_cdp_frame_sample_incomplete",
         "quest_cdp_frame_sample_timed_out",
-        "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
         "quest_latest_frame_stale_over_1000ms",
         "quest_manual_performance:missing_quest_manual_performance_report",
         "quest_no_frames_observed_during_probe",
@@ -489,7 +486,7 @@
         "quest_sustained_frame_sample_not_complete"
       ],
       "blocker_summary": {
-        "total_blockers": 8,
+        "total_blockers": 7,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -499,7 +496,6 @@
             "blockers": [
               "quest_cdp_frame_sample_incomplete",
               "quest_cdp_frame_sample_timed_out",
-              "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
               "quest_latest_frame_stale_over_1000ms",
               "quest_manual_performance:missing_quest_manual_performance_report",
               "quest_no_frames_observed_during_probe",

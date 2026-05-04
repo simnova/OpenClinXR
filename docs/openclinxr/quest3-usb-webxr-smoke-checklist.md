@@ -17,7 +17,7 @@ Observed on 2026-05-03:
 - `adb devices -l` initially detected the headset as `unauthorized` with serial `2G0YC5ZGB5000J`.
 - After the in-headset authorization prompt was accepted, `adb devices -l` reported the Quest 3 as `device`.
 - `adb reverse tcp:5173 tcp:5173` succeeded, so the headset can use `localhost:5173` for a local Vite dev server once the XR app exists.
-- The 2026-05-04 `pnpm local:runtime:probe` artifact now records Quest wakefulness. USB remained ready, but `questForegroundPreflight` was blocked by `quest_3_asleep_or_not_foreground_ready` because ADB reported `mWakefulness=Asleep`.
+- The refreshed 2026-05-04 `pnpm local:runtime:probe` artifact records Quest wakefulness. USB remained ready, and after the headset was woken `questForegroundPreflight` reported `ready` with ADB `mWakefulness=Awake`.
 
 Device fingerprint captured:
 
@@ -295,14 +295,14 @@ Validate the latest committed machine-readable report without re-running ADB or 
 pnpm xr:quest:smoke:validate -- --output .agent-factory/quest-cdp-smoke-check.json
 ```
 
-The current 2026-05-04 report classifies as `shell_interaction_only_hidden_page`: shell delivery and trace controls passed, but foreground frame pacing remains blocked by the hidden Quest Browser page state, stale frame telemetry, and zero frames observed during the CDP sampling window.
+The current 2026-05-04 report classifies as `shell_interaction_only_hidden_page`: shell delivery and trace controls passed, but foreground frame pacing remains blocked by the hidden Quest Browser page state, stale frame telemetry, and zero frames observed during the CDP sampling window. A refreshed local runtime probe after the headset was woken records `mWakefulness=Awake` and `questForegroundPreflight.status=ready`, so the remaining blocker is not USB authorization or wakefulness; it is reliable foreground frame evidence from the headset.
 
 Latest automated probe detail:
 
 - `docs/openclinxr/quest-cdp-smoke-2026-05-04.json` loaded the station shell in Quest Browser
   `146.0.0.19.27.942135376` and advanced trace controls from `Trace 0/10` to `Trace 2/10`.
-- The canvas was nonblank (`860x902`, `dataUrlLength` `100382`) and `navigator.xr` reported `WebXR ready`.
-- The run required clearing a stale local server on `5173`; Vite was then started with the explicit Node `22.19.0` binary to avoid the local pnpm child-process path issue that can surface Node `21.7.1`.
+- The canvas was nonblank (`755x1128`, `dataUrlLength` `91990`) and `navigator.xr` reported `WebXR ready`.
+- The rerun used the local Vite dev server on `5173`, ADB reverse, and Quest Browser CDP after a non-persistent ADB wake command.
 - App-side frame telemetry was present, but only recorded the first rendered frame. CDP reported `document.visibilityState` as `hidden` and `document.hidden` as `true`.
 - Treat frame-pacing evidence as blocked by `quest_page_hidden_or_inactive` and `quest_cdp_frame_sample_incomplete` until a foreground in-headset manual run or a better Quest Browser automation path proves sustained frames.
 
