@@ -81,17 +81,36 @@ describe("IWSDK sidecar runtime state", () => {
     expect(source).not.toContain("@openclinxr/ui-xr");
   });
 
-  it("exposes an explicit immersive VR entry path for Quest Browser", () => {
+  it("exposes separate immersive VR and gated Mixed Reality entry paths for Quest Browser", () => {
     const source = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
     const stateSource = readFileSync(new URL("./sidecar-state.ts", import.meta.url), "utf8");
 
     expect(stateSource).toContain("Phase 1 Full VR");
     expect(source).toContain("Enter Full VR");
+    expect(source).toContain("Enter Mixed Reality");
+    expect(source).toContain("hasApprovedMixedRealityOperatorGate");
+    expect(source).toContain("buildMixedRealitySupportState");
     expect(source).toContain('requestSession("immersive-vr"');
-    expect(source).not.toContain('requestSession("immersive-ar"');
+    expect(source).toContain('requestSession("immersive-ar"');
     expect(source).toContain('"hand-tracking"');
     expect(source).toContain("renderer.xr.enabled = true");
     expect(source).toContain("renderer.setAnimationLoop");
+  });
+
+  it("uses a transparent rendering policy only while presenting Mixed Reality", () => {
+    const source = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+
+    expect(source).toContain("new WebGLRenderer({ canvas, antialias: true, alpha: true })");
+    expect(source).toContain("applyPresentationPolicy");
+    expect(source).toContain("scene.background = null");
+    expect(source).toContain("renderer.setClearAlpha(0)");
+    expect(source).toContain("floor.visible = mode !== \"mixed-reality\"");
+    expect(source.indexOf("applyPresentationPolicy(\"full-vr\")")).toBeLessThan(
+      source.indexOf('requestSession("immersive-vr"'),
+    );
+    expect(source.indexOf("applyPresentationPolicy(\"mixed-reality\")")).toBeLessThan(
+      source.indexOf('requestSession("immersive-ar"'),
+    );
   });
 
   it("does not resize the renderer while an immersive headset session is presenting", () => {

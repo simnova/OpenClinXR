@@ -34,17 +34,26 @@ import {
   type IwsdkSidecarRuntimeEvidence,
   type IwsdkSidecarRuntimeState,
 } from "./sidecar-state.js";
+import {
+  buildMixedRealitySupportState,
+  hasApprovedMixedRealityOperatorGate,
+  mixedRealityOptionalFeatures,
+  type MixedRealitySupportState,
+} from "./mixed-reality-state.js";
 import "./styles.css";
 
 type NavigatorWithXr = Navigator & {
   xr?: {
-    isSessionSupported(mode: "immersive-vr"): Promise<boolean>;
+    isSessionSupported(mode: XrSessionMode): Promise<boolean>;
     requestSession(
-      mode: "immersive-vr",
+      mode: XrSessionMode,
       options?: { optionalFeatures?: string[] },
     ): Promise<XrSession>;
   };
 };
+
+type XrSessionMode = "immersive-vr" | "immersive-ar";
+type PresentationMode = "full-vr" | "mixed-reality";
 
 type XrSession = {
   inputSources?: Iterable<XrInputSourceWithGamepad>;
@@ -53,11 +62,11 @@ type XrSession = {
 };
 
 type XrInputSourceWithGamepad = {
-  handedness?: "left" | "right" | "none" | string;
-  hand?: unknown;
+  handedness?: "left" | "right" | "none" | string | undefined;
+  hand?: unknown | undefined;
   gamepad?: {
     axes?: readonly number[];
-  };
+  } | undefined;
 };
 
 type OpenClinXrInputEvidence = {
@@ -87,7 +96,8 @@ type OpenClinXrTraceLatencyEvidence = {
 };
 
 type StationSceneRuntime = {
-  startImmersiveSession(): Promise<void>;
+  startFullVrSession(): Promise<void>;
+  startMixedRealitySession(): Promise<void>;
 };
 
 type ReadableVrTextPanel = {
@@ -107,6 +117,7 @@ declare global {
     __openClinXrInputEvidence?: OpenClinXrInputEvidence;
     __openClinXrBootEvidence?: OpenClinXrBootEvidence;
     __openClinXrTraceLatencyEvidence?: OpenClinXrTraceLatencyEvidence;
+    __openClinXrMixedRealitySupport?: MixedRealitySupportState;
   }
 }
 
@@ -150,6 +161,12 @@ let iwsdkCoreExportCount = 0;
 let iwsdkXrInputExportCount = 0;
 let lastTraceSelectLatencyMs: number | null = null;
 let immersiveSessionActive = false;
+let activePresentationMode: PresentationMode | null = null;
+const mixedRealityOperatorApproved = hasApprovedMixedRealityOperatorGate(window.location.search);
+let mixedRealitySupport = buildMixedRealitySupportState({
+  operatorApproved: mixedRealityOperatorApproved,
+  webXrAvailable: false,
+});
 const initialDialogueText = "Robert Hayes: The pressure is heavy and I feel sweaty.";
 
 app.innerHTML = `
@@ -157,10 +174,16 @@ app.innerHTML = `
     <section class="spike-stage" aria-label="IWSDK emergency department station scene">
       <canvas id="iwsdk-sidecar-canvas" aria-label="IWSDK ED chest pain bay preview"></canvas>
       <div class="status-strip">
-        <span id="xr-status">WebXR checking</span>
+        <div class="status-lane full-vr-lane" aria-label="Full VR status">
+          <span id="xr-status">Full VR checking</span>
+          <button id="enter-xr-button" class="xr-entry-button" type="button" disabled>Enter Full VR</button>
+        </div>
+        <div class="status-lane mixed-reality-lane" aria-label="Mixed Reality status">
+          <span id="mr-status">Mixed Reality checking</span>
+          <button id="enter-mr-button" class="xr-entry-button mr-entry-button" type="button" disabled>Enter Mixed Reality</button>
+        </div>
         <span id="iwsdk-status">IWSDK evidence pending</span>
         <span id="trace-summary">Trace 0/${state.requiredTraceTags.length}</span>
-        <button id="enter-xr-button" class="xr-entry-button" type="button" disabled>Enter Full VR</button>
       </div>
     </section>
     <aside class="spike-panel" aria-label="IWSDK sidecar controls and evidence">
@@ -198,17 +221,20 @@ const clock = requireElement<HTMLElement>("#station-clock");
 const traceSummary = requireElement<HTMLElement>("#trace-summary");
 const traceActions = requireElement<HTMLElement>("#trace-actions");
 const xrStatus = requireElement<HTMLElement>("#xr-status");
+const mrStatus = requireElement<HTMLElement>("#mr-status");
 const iwsdkStatus = requireElement<HTMLElement>("#iwsdk-status");
 const coreExportCount = requireElement<HTMLElement>("#core-export-count");
 const inputExportCount = requireElement<HTMLElement>("#input-export-count");
 const dialogueLine = requireElement<HTMLElement>("#dialogue-line");
 const enterXrButton = requireElement<HTMLButtonElement>("#enter-xr-button");
+const enterMrButton = requireElement<HTMLButtonElement>("#enter-mr-button");
 
 window.__openClinXrIwsdkSidecarEvidence = buildIwsdkSidecarRuntimeEvidence({
   iwsdkCoreExportCount,
   iwsdkXrInputExportCount,
 });
 window.__openClinXrIwsdkSidecarTraceTags = [];
+window.__openClinXrMixedRealitySupport = mixedRealitySupport;
 scheduleIwsdkEvidenceHydration();
 
 function scheduleIwsdkEvidenceHydration(): void {
@@ -294,6 +320,10 @@ async function updateXrStatus(): Promise<void> {
   if (!navigatorWithXr.xr) {
     xrStatus.textContent = "WebXR unavailable";
     enterXrButton.disabled = true;
+    setMixedRealitySupport(buildMixedRealitySupportState({
+      operatorApproved: mixedRealityOperatorApproved,
+      webXrAvailable: false,
+    }));
     return;
   }
   try {
@@ -304,14 +334,44 @@ async function updateXrStatus(): Promise<void> {
     xrStatus.textContent = "WebXR check blocked";
     enterXrButton.disabled = true;
   }
+
+  if (!mixedRealityOperatorApproved) {
+    setMixedRealitySupport(buildMixedRealitySupportState({
+      operatorApproved: false,
+      webXrAvailable: true,
+    }));
+    return;
+  }
+
+  try {
+    setMixedRealitySupport(buildMixedRealitySupportState({
+      operatorApproved: true,
+      webXrAvailable: true,
+      immersiveArSupported: await navigatorWithXr.xr.isSessionSupported("immersive-ar"),
+    }));
+  } catch {
+    setMixedRealitySupport(buildMixedRealitySupportState({
+      operatorApproved: true,
+      webXrAvailable: true,
+      checkBlocked: true,
+    }));
+  }
+}
+
+function setMixedRealitySupport(next: MixedRealitySupportState): void {
+  mixedRealitySupport = next;
+  window.__openClinXrMixedRealitySupport = next;
+  mrStatus.textContent = next.label;
+  enterMrButton.disabled = !next.offerable || immersiveSessionActive;
 }
 
 function createStationScene(): StationSceneRuntime {
   recordBootPhase("station_scene_start");
-  const renderer = new WebGLRenderer({ canvas, antialias: true });
+  const renderer = new WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.xr.enabled = true;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setClearColor(0x0d1715);
+  renderer.setClearAlpha(1);
   let activeXrSession: XrSession | undefined;
   let lastLocomotionAtMs: number | null = null;
   let lastAnimateAtMs = performance.now();
@@ -410,6 +470,7 @@ function createStationScene(): StationSceneRuntime {
   const keyboardLocomotion = createKeyboardLocomotion();
   let handModelStatus: OpenClinXrInputEvidence["handModelStatus"] = "pending_immersive_session";
   let handModelsInstalled = false;
+  applyPresentationPolicy("full-vr");
 
   function resize(): void {
     if (renderer.xr.isPresenting) {
@@ -452,7 +513,7 @@ function createStationScene(): StationSceneRuntime {
   recordBootPhase("station_render_loop_started");
 
   return {
-    async startImmersiveSession(): Promise<void> {
+    async startFullVrSession(): Promise<void> {
       if (activeXrSession) {
         await activeXrSession.end();
         return;
@@ -465,7 +526,9 @@ function createStationScene(): StationSceneRuntime {
       }
 
       enterXrButton.disabled = true;
+      enterMrButton.disabled = true;
       xrStatus.textContent = "Entering Full VR";
+      applyPresentationPolicy("full-vr");
       try {
         const session = await navigatorWithXr.xr.requestSession("immersive-vr", {
           optionalFeatures: ["local-floor", "bounded-floor", "hand-tracking"],
@@ -474,25 +537,100 @@ function createStationScene(): StationSceneRuntime {
         session.addEventListener("end", () => {
           activeXrSession = undefined;
           immersiveSessionActive = false;
+          activePresentationMode = null;
           enterXrButton.disabled = false;
           enterXrButton.textContent = "Enter Full VR";
           xrStatus.textContent = "Full VR ready";
+          applyPresentationPolicy("full-vr");
+          setMixedRealitySupport(mixedRealitySupport);
         }, { once: true });
         await renderer.xr.setSession(session as Parameters<typeof renderer.xr.setSession>[0]);
         installHandModelsOnce();
         immersiveSessionActive = true;
+        activePresentationMode = "full-vr";
         enterXrButton.disabled = false;
         enterXrButton.textContent = "Exit Full VR";
         xrStatus.textContent = "In Full VR";
       } catch {
         activeXrSession = undefined;
         immersiveSessionActive = false;
+        activePresentationMode = null;
         enterXrButton.disabled = false;
         enterXrButton.textContent = "Enter Full VR";
         xrStatus.textContent = "WebXR entry blocked";
+        applyPresentationPolicy("full-vr");
+        setMixedRealitySupport(mixedRealitySupport);
+      }
+    },
+    async startMixedRealitySession(): Promise<void> {
+      if (activeXrSession) {
+        await activeXrSession.end();
+        return;
+      }
+
+      const navigatorWithXr = navigator as NavigatorWithXr;
+      if (!navigatorWithXr.xr) {
+        setMixedRealitySupport(buildMixedRealitySupportState({
+          operatorApproved: mixedRealityOperatorApproved,
+          webXrAvailable: false,
+        }));
+        return;
+      }
+      if (!mixedRealitySupport.offerable) {
+        setMixedRealitySupport(mixedRealitySupport);
+        return;
+      }
+
+      enterXrButton.disabled = true;
+      enterMrButton.disabled = true;
+      mrStatus.textContent = "Entering Mixed Reality";
+      applyPresentationPolicy("mixed-reality");
+      try {
+        const session = await navigatorWithXr.xr.requestSession("immersive-ar", {
+          optionalFeatures: [...mixedRealityOptionalFeatures],
+        });
+        activeXrSession = session;
+        session.addEventListener("end", () => {
+          activeXrSession = undefined;
+          immersiveSessionActive = false;
+          activePresentationMode = null;
+          enterXrButton.disabled = false;
+          enterMrButton.textContent = "Enter Mixed Reality";
+          applyPresentationPolicy("full-vr");
+          setMixedRealitySupport(mixedRealitySupport);
+        }, { once: true });
+        await renderer.xr.setSession(session as Parameters<typeof renderer.xr.setSession>[0]);
+        installHandModelsOnce();
+        immersiveSessionActive = true;
+        activePresentationMode = "mixed-reality";
+        enterMrButton.disabled = false;
+        enterMrButton.textContent = "Exit Mixed Reality";
+        mrStatus.textContent = "In Mixed Reality";
+      } catch {
+        activeXrSession = undefined;
+        immersiveSessionActive = false;
+        activePresentationMode = null;
+        enterXrButton.disabled = false;
+        enterMrButton.textContent = "Enter Mixed Reality";
+        mrStatus.textContent = "Mixed Reality entry blocked";
+        applyPresentationPolicy("full-vr");
+        setMixedRealitySupport(mixedRealitySupport);
       }
     },
   };
+
+  function applyPresentationPolicy(mode: PresentationMode): void {
+    if (mode === "mixed-reality") {
+      scene.background = null;
+      renderer.setClearColor(0x000000, 0);
+      renderer.setClearAlpha(0);
+    } else {
+      scene.background = new Color(0x0d1715);
+      renderer.setClearColor(0x0d1715, 1);
+      renderer.setClearAlpha(1);
+    }
+    floor.visible = mode !== "mixed-reality";
+  }
 
   function fallbackAnimationLoop(): void {
     const now = performance.now();
@@ -521,7 +659,7 @@ function createStationScene(): StationSceneRuntime {
       dialogueText,
       summary.observedCount,
       summary.missingCount,
-      immersiveSessionActive ? "in-full-vr" : "preview",
+      activePresentationMode ?? "preview",
       inputEvidence.handModelStatus,
       inputEvidence.handInputsObserved,
       inputEvidence.lastLocomotionAtMs,
@@ -537,7 +675,9 @@ function createStationScene(): StationSceneRuntime {
       `Trace ${summary.observedCount}/${state.requiredTraceTags.length}; missing ${summary.missingCount}`,
     ]);
     inputPanel.update([
-      immersiveSessionActive ? "Session: In Full VR" : "Session: Desktop preview",
+      activePresentationMode === "mixed-reality"
+        ? "Session: In Mixed Reality"
+        : immersiveSessionActive ? "Session: In Full VR" : "Session: Desktop preview",
       `Hands: ${inputEvidence.handModelStatus}; observed ${inputEvidence.handInputsObserved}`,
       `Movement: x ${inputEvidence.rigPosition.x}, z ${inputEvidence.rigPosition.z}`,
     ]);
@@ -843,7 +983,14 @@ enterXrButton.addEventListener("click", () => {
     xrStatus.textContent = "Station boot blocked";
     return;
   }
-  void stationScene.startImmersiveSession();
+  void stationScene.startFullVrSession();
+});
+enterMrButton.addEventListener("click", () => {
+  if (!stationScene) {
+    mrStatus.textContent = "Station boot blocked";
+    return;
+  }
+  void stationScene.startMixedRealitySession();
 });
 tick();
 recordBootPhase("clock_started");
