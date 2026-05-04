@@ -1,0 +1,49 @@
+{
+  "selectedPackages": [
+    {
+      "name": "@iwsdk/core",
+      "version": "0.3.1",
+      "license": "MIT",
+      "transitivePackages": [
+        "@babylonjs/havok",
+        "@iwsdk/glxf",
+        "@iwsdk/locomotor",
+        "@iwsdk/xr-input",
+        "@pmndrs/handle",
+        "@pmndrs/pointer-events",
+        "@pmndrs/uikit",
+        "@pmndrs/uikitml",
+        "@preact/signals-core",
+        "elics",
+        "three",
+        "three-mesh-bvh"
+      ],
+      "transitivePackageLicenses": {
+        "@babylonjs/havok": "Apache-2.0",
+        "@iwsdk/glxf": "MIT",
+        "@iwsdk/locomotor": "MIT",
+        "@iwsdk/xr-input": "MIT",
+        "@pmndrs/handle": "MIT",
+        "@pmndrs/pointer-events": "MIT",
+        "@pmndrs/uikit": "MIT",
+        "@pmndrs/uikitml": "MIT",
+        "@preact/signals-core": "MIT",
+        "elics": "MIT",
+        "three": "MIT",
+        "three-mesh-bvh": "MIT"
+      }
+    },
+    {
+      "name": "@iwsdk/xr-input",
+      "version": "0.3.1",
+      "license": "MIT",
+      "transitivePackages": []
+    }
+  ],
+  "packageManagerControls": [
+    "pin_exact_versions",
+    "pin_three_override",
+    "record_pnpm_audit",
+    "record_license_policy_report"
+  ]
+}

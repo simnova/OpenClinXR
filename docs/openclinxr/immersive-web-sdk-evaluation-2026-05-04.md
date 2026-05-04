@@ -71,6 +71,8 @@ The same planning package now exposes `buildIwsdkAiModeProfiles()`, `buildIwsdkM
 
 `pnpm iwsdk:evidence:validate` validates the latest committed evidence-contract JSON shape without requiring the blockers to be resolved. The opt-in `pnpm iwsdk:verify` lane runs that shape check so future edits cannot silently drift the advisory evidence consumed by the benchmark report. The current compatibility section records OpenClinXR Vite major `8`, IWSDK plugin peer range `^7.0.0`, Node major `22`, the Node 22 runtime path used in the scratch evidence, and the Rolldown native-binding load assumption; phase 2 remains blocked while the peer range does not accept Vite 8.
 
+`docs/openclinxr/iwsdk-first-slice-preinstall-proposal.json` is the committed no-install proposal fixture for the first allowed sidecar slice. It can be scored with `pnpm iwsdk:preinstall -- --proposal docs/openclinxr/iwsdk-first-slice-preinstall-proposal.json` before any lockfile or app scaffold changes.
+
 `pnpm agent:sources` now also requires every source ID emitted by `packages/openclinxr/iwsdk-spike` to resolve to a committed `sources/*.json` record.
 
 | IWSDK AI mode | Browser posture | DevUI | OpenClinXR use |

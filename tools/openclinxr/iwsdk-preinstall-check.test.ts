@@ -51,6 +51,31 @@ describe("IWSDK preinstall checker", () => {
     });
   });
 
+  it("keeps a committed first-slice proposal fixture in sync with the default no-install report", async () => {
+    const fixturePath = path.resolve("docs/openclinxr/iwsdk-first-slice-preinstall-proposal.json");
+    const fixture = JSON.parse(await readFile(fixturePath, "utf8"));
+    const output = path.join(
+      await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwsdk-fixture-report-")),
+      "report.json",
+    );
+
+    expect(fixture).toEqual(defaultIwsdkFirstSlicePreInstallProposal());
+
+    await execFileAsync(
+      path.resolve("node_modules/.bin/tsx"),
+      ["tools/openclinxr/iwsdk-preinstall-check.ts", "--proposal", fixturePath, "--output", output],
+      { encoding: "utf8", timeout: 15000 },
+    );
+
+    const report = JSON.parse(await readFile(output, "utf8")) as IwsdkPreInstallProposalReport;
+    expect(report.proposal).toEqual(fixture);
+    expect(report.verdict).toMatchObject({
+      readyToInstallInSidecar: true,
+      blockers: [],
+      reviewWarnings: [],
+    });
+  });
+
   it("blocks package proposals with missing controls, blocked packages, and blocked license paths", () => {
     const report = buildIwsdkPreInstallProposalReport({
       generatedAt: "2026-05-04T00:00:00.000Z",
@@ -79,6 +104,10 @@ describe("IWSDK preinstall checker", () => {
       scripts: Record<string, string>;
     };
     expect(rootPackage.scripts["iwsdk:preinstall"]).toBe("tsx tools/openclinxr/iwsdk-preinstall-check.ts");
+    expect(rootPackage.scripts["iwsdk:preinstall:fixture"]).toBe(
+      "tsx tools/openclinxr/iwsdk-preinstall-check.ts --proposal docs/openclinxr/iwsdk-first-slice-preinstall-proposal.json",
+    );
+    expect(rootPackage.scripts["iwsdk:verify"]).toContain("pnpm iwsdk:preinstall:fixture");
 
     const dir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwsdk-proposal-"));
     const proposalPath = path.join(dir, "proposal.json");
