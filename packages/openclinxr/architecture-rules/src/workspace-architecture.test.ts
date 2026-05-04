@@ -1,11 +1,36 @@
+import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join, relative, sep } from "node:path";
+import { dirname, join, relative, sep } from "node:path";
 import { projectFiles } from "archunit";
 import { describe, expect, it } from "vitest";
 
 const archTsconfig = "../../../tsconfig.archunit.json";
+const workspaceRoot = findWorkspaceRoot();
 
 describe("workspace architecture rules", () => {
+  it("keeps root package quality gates delegated through Turborepo package tasks", () => {
+    const rootPackage = JSON.parse(readFileSync(join(workspaceRoot, "package.json"), "utf8")) as {
+      scripts?: Record<string, string>;
+    };
+
+    expect(rootPackage.scripts?.["packages:typecheck"]).toContain("turbo run typecheck");
+    expect(rootPackage.scripts?.["packages:test"]).toContain("turbo run test");
+    expect(rootPackage.scripts?.typecheck).toContain("pnpm packages:typecheck");
+    expect(rootPackage.scripts?.test).toContain("pnpm packages:test");
+    expect(rootPackage.scripts?.typecheck).not.toContain("pnpm -r");
+    expect(rootPackage.scripts?.test).not.toContain("pnpm -r");
+  });
+
+  it("keeps Turborepo cache artifacts out of tracked workspace files", () => {
+    const trackedFiles = execFileSync("git", ["ls-files"], { cwd: workspaceRoot, encoding: "utf8" })
+      .split("\n")
+      .filter(Boolean);
+    const violations = trackedFiles
+      .filter((filePath) => filePath.includes("/.turbo/") || filePath.startsWith(".turbo/"));
+
+    expect(violations).toEqual([]);
+  });
+
   it("keeps project-specific packages under packages/openclinxr", () => {
     const violations = sourceFilesUnder("packages").filter(
       (filePath) => !filePath.startsWith("packages/openclinxr/") && !filePath.startsWith("packages/cellix/"),
@@ -112,6 +137,8 @@ describe("workspace architecture rules", () => {
 });
 
 function workspacePackageDirs(root: string): string[] {
+  root = join(workspaceRoot, root);
+
   if (!existsSync(root)) {
     return [];
   }
@@ -123,28 +150,46 @@ function workspacePackageDirs(root: string): string[] {
 }
 
 function sourceFilesUnder(root: string): string[] {
+  root = join(workspaceRoot, root);
+
   if (!existsSync(root)) {
     return [];
   }
 
   return walk(root)
-    .map((filePath) => relative(process.cwd(), filePath).split(sep).join("/"))
+    .map((filePath) => relative(workspaceRoot, filePath).split(sep).join("/"))
     .filter((filePath) => /\/src\/.*\.tsx?$/.test(filePath));
 }
 
 function filesWithContentMatching(root: string, pattern: RegExp): string[] {
-  return sourceFilesUnder(root).filter((filePath) => pattern.test(readFileSync(filePath, "utf8")));
+  return sourceFilesUnder(root).filter((filePath) => pattern.test(readFileSync(join(workspaceRoot, filePath), "utf8")));
 }
 
 function walk(root: string): string[] {
   return readdirSync(root, { withFileTypes: true }).flatMap((entry) => {
     const childPath = join(root, entry.name);
     if (entry.isDirectory()) {
-      if (entry.name === "dist" || entry.name === "node_modules") {
+      if (entry.name === "dist" || entry.name === "node_modules" || entry.name === ".git") {
         return [];
       }
       return walk(childPath);
     }
     return entry.isFile() ? [childPath] : [];
   });
+}
+
+function findWorkspaceRoot(): string {
+  let candidate = process.cwd();
+
+  while (true) {
+    if (existsSync(join(candidate, "pnpm-workspace.yaml"))) {
+      return candidate;
+    }
+
+    const parent = dirname(candidate);
+    if (parent === candidate) {
+      throw new Error("Could not find workspace root containing pnpm-workspace.yaml");
+    }
+    candidate = parent;
+  }
 }
