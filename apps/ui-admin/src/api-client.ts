@@ -1,15 +1,21 @@
+import type { ApolloClient } from "@apollo/client";
 import type { ScenarioAssetReadiness } from "@openclinxr/asset-registry";
 import type { BlueprintScenarioReadiness, ExamBlueprint, ExamStationRunQueue, ExamTimingPlan } from "@openclinxr/exam-assembly";
 import {
   CreateStationRunQueueSnapshotDocument,
   StationRunQueueSnapshotsDocument,
   type CreateStationRunQueueSnapshotMutation,
+  type CreateStationRunQueueSnapshotMutationVariables,
   type StationRunQueueSnapshotsQuery,
+  type StationRunQueueSnapshotsQueryVariables,
 } from "@openclinxr/graphql/client";
 import { routeById } from "@openclinxr/rest";
 import { print } from "graphql";
 
+export type AdminApolloGraphqlClient = Pick<ApolloClient, "mutate" | "query">;
+
 export type AdminControlPlaneClientOptions = {
+  apolloClient?: AdminApolloGraphqlClient;
   baseUrl?: string;
   fetch?: typeof fetch;
 };
@@ -40,6 +46,7 @@ const createStationRunQueueSnapshotDocument = print(CreateStationRunQueueSnapsho
 export function createAdminControlPlaneClient(options: AdminControlPlaneClientOptions = {}): AdminControlPlaneClient {
   const baseUrl = normalizeBaseUrl(options.baseUrl ?? defaultAdminApiBaseUrl);
   const fetcher = options.fetch ?? fetch;
+  const apolloClient = options.apolloClient;
 
   return {
     getStep2CsSeedBlueprint: () => get(fetcher, baseUrl, routeById("step2cs-seed-exam-blueprint").path),
@@ -47,6 +54,18 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
     getStep2CsSeedTimingPlan: () => get(fetcher, baseUrl, routeById("step2cs-seed-exam-timing-plan").path),
     getStep2CsSeedStationRunQueue: () => get(fetcher, baseUrl, routeById("step2cs-seed-station-run-queue").path),
     listStep2CsSeedStationRunQueueSnapshots: async () => {
+      if (apolloClient) {
+        const { data } = await apolloClient.query<StationRunQueueSnapshotsQuery, StationRunQueueSnapshotsQueryVariables>({
+          query: StationRunQueueSnapshotsDocument,
+          variables: { blueprintId: "blueprint_openclinxr_step2cs_style_seed_v1" },
+          fetchPolicy: "network-only",
+        });
+        if (!data) {
+          throw new Error("OpenClinXR admin GraphQL request failed: StationRunQueueSnapshots missing_data");
+        }
+        return data.stationRunQueueSnapshots;
+      }
+
       const data = await graphql<StationRunQueueSnapshotsQuery>(
         fetcher,
         baseUrl,
@@ -57,6 +76,17 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
       return data.stationRunQueueSnapshots;
     },
     createStep2CsSeedStationRunQueueSnapshot: async (input) => {
+      if (apolloClient) {
+        const { data } = await apolloClient.mutate<CreateStationRunQueueSnapshotMutation, CreateStationRunQueueSnapshotMutationVariables>({
+          mutation: CreateStationRunQueueSnapshotDocument,
+          variables: { input },
+        });
+        if (!data) {
+          throw new Error("OpenClinXR admin GraphQL request failed: CreateStationRunQueueSnapshot missing_data");
+        }
+        return data.createStationRunQueueSnapshot;
+      }
+
       const data = await graphql<CreateStationRunQueueSnapshotMutation>(
         fetcher,
         baseUrl,

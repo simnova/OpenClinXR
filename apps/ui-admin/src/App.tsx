@@ -23,7 +23,7 @@ export const adminApolloClient = new ApolloClient({
 });
 
 export function AdminApp({ router = "memory", initialPath = "/", controlPlaneClient }: AdminAppProps): React.ReactElement {
-  const client = useMemo(() => controlPlaneClient ?? createAdminControlPlaneClient(), [controlPlaneClient]);
+  const client = useMemo(() => controlPlaneClient ?? createAdminControlPlaneClient({ apolloClient: adminApolloClient }), [controlPlaneClient]);
 
   return (
     <ConfigProvider theme={openClinXrAdminTheme}>

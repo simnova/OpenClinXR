@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { print } from "graphql";
 import { CreateStationRunQueueSnapshotDocument, StationRunQueueSnapshotsDocument } from "@openclinxr/graphql/client";
-import { createAdminControlPlaneClient } from "./api-client.js";
+import { createAdminControlPlaneClient, type AdminApolloGraphqlClient } from "./api-client.js";
 
 describe("admin control-plane API client", () => {
   it("reads readiness through stable REST routes and queue snapshots through GraphQL", async () => {
@@ -89,6 +89,47 @@ describe("admin control-plane API client", () => {
       reviewerId: "psychometrician_001",
       createdAt: "2026-05-03T17:00:00.000Z",
     })).rejects.toThrow("OpenClinXR admin GraphQL request failed: CreateStationRunQueueSnapshot reviewer_not_authorized");
+  });
+
+  it("uses Apollo Client for generated queue snapshot operations when provided", async () => {
+    const queueSnapshot = {
+      snapshotId: "queue_snapshot_apollo_001",
+      createdAt: "2026-05-04T02:30:00.000Z",
+      reviewerId: null,
+      queue: { canStartLearnerExam: false, stationQueue: [], summary: { activationReady: 1, draftBlocked: 11 } },
+    };
+    const apolloClient = {
+      query: vi.fn(async () => ({ data: { stationRunQueueSnapshots: [queueSnapshot] } })),
+      mutate: vi.fn(async () => ({ data: { createStationRunQueueSnapshot: queueSnapshot } })),
+    } as unknown as AdminApolloGraphqlClient;
+    const fetcher = vi.fn<typeof fetch>();
+    const client = createAdminControlPlaneClient({
+      apolloClient,
+      baseUrl: "http://localhost:8787",
+      fetch: fetcher,
+    });
+
+    await expect(client.listStep2CsSeedStationRunQueueSnapshots()).resolves.toEqual([queueSnapshot]);
+    await expect(client.createStep2CsSeedStationRunQueueSnapshot({
+      createdAt: "2026-05-04T02:30:00.000Z",
+    })).resolves.toEqual(queueSnapshot);
+
+    expect(apolloClient.query).toHaveBeenCalledWith({
+      query: StationRunQueueSnapshotsDocument,
+      variables: {
+        blueprintId: "blueprint_openclinxr_step2cs_style_seed_v1",
+      },
+      fetchPolicy: "network-only",
+    });
+    expect(apolloClient.mutate).toHaveBeenCalledWith({
+      mutation: CreateStationRunQueueSnapshotDocument,
+      variables: {
+        input: {
+          createdAt: "2026-05-04T02:30:00.000Z",
+        },
+      },
+    });
+    expect(fetcher).not.toHaveBeenCalled();
   });
 
   it("throws an actionable error when a control-plane request fails", async () => {
