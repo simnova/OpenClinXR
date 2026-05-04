@@ -1,6 +1,7 @@
 import { globFiles, readJson, writeJson, type Scorecard } from "./lib.js";
+import { pathToFileURL } from "node:url";
 
-type RiskRecord = {
+export type RiskRecord = {
   id: string;
   file: string;
   iteration_id: string;
@@ -13,7 +14,7 @@ type RiskRecord = {
   status: string;
 };
 
-type RiskReport = {
+export type RiskReport = {
   generated_by: string;
   scorecard_count: number;
   risk_count: number;
@@ -69,7 +70,7 @@ async function main(): Promise<void> {
   process.exitCode = 1;
 }
 
-function buildRiskReport(scorecardCount: number, allRisks: RiskRecord[]): RiskReport {
+export function buildRiskReport(scorecardCount: number, allRisks: RiskRecord[]): RiskReport {
   const sortedRisks = [...allRisks].sort(compareRisks);
   const openRisks = sortedRisks.filter((risk) => risk.status === "open");
   const openHighOrCriticalRisks = openRisks.filter((risk) => risk.severity === "high" || risk.severity === "critical");
@@ -123,4 +124,6 @@ function severityRank(severity: string): number {
   return ranks.get(severity) ?? 0;
 }
 
-await main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await main();
+}

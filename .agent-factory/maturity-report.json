@@ -19,6 +19,20 @@
       "open_selected_decision_debt_count": 1,
       "open_selected_risk_count": 2,
       "open_selected_high_or_critical_risk_count": 2,
+      "open_selected_evidence_debt_ids": [
+        "evidence-adv-0001"
+      ],
+      "open_selected_decision_debt_ids": [
+        "decision-adv-0001"
+      ],
+      "open_selected_risk_ids": [
+        "risk-adv-0001",
+        "risk-adv-0002"
+      ],
+      "open_selected_high_or_critical_risk_ids": [
+        "risk-adv-0001",
+        "risk-adv-0002"
+      ],
       "dimensions_below_quality_bar": [
         "clinical_validity",
         "psychometric_defensibility",
@@ -47,6 +61,20 @@
       "open_selected_decision_debt_count": 1,
       "open_selected_risk_count": 2,
       "open_selected_high_or_critical_risk_count": 2,
+      "open_selected_evidence_debt_ids": [
+        "evidence-leadership-0001"
+      ],
+      "open_selected_decision_debt_ids": [
+        "decision-leadership-0001"
+      ],
+      "open_selected_risk_ids": [
+        "risk-leadership-0001",
+        "risk-leadership-0002"
+      ],
+      "open_selected_high_or_critical_risk_ids": [
+        "risk-leadership-0001",
+        "risk-leadership-0002"
+      ],
       "dimensions_below_quality_bar": [
         "clinical_validity",
         "psychometric_defensibility"
@@ -75,6 +103,22 @@
       "open_selected_decision_debt_count": 2,
       "open_selected_risk_count": 2,
       "open_selected_high_or_critical_risk_count": 2,
+      "open_selected_evidence_debt_ids": [
+        "evidence-leadership-0003-001",
+        "evidence-leadership-0003-002"
+      ],
+      "open_selected_decision_debt_ids": [
+        "decision-leadership-0003-001",
+        "decision-leadership-0003-002"
+      ],
+      "open_selected_risk_ids": [
+        "risk-leadership-0003-001",
+        "risk-leadership-0003-002"
+      ],
+      "open_selected_high_or_critical_risk_ids": [
+        "risk-leadership-0003-001",
+        "risk-leadership-0003-002"
+      ],
       "dimensions_below_quality_bar": [
         "psychometric_defensibility"
       ],
@@ -101,6 +145,19 @@
       "open_selected_decision_debt_count": 1,
       "open_selected_risk_count": 1,
       "open_selected_high_or_critical_risk_count": 1,
+      "open_selected_evidence_debt_ids": [
+        "evidence-leadership-0004-001",
+        "evidence-leadership-0004-002"
+      ],
+      "open_selected_decision_debt_ids": [
+        "decision-leadership-0004-001"
+      ],
+      "open_selected_risk_ids": [
+        "risk-leadership-0004-001"
+      ],
+      "open_selected_high_or_critical_risk_ids": [
+        "risk-leadership-0004-001"
+      ],
       "dimensions_below_quality_bar": [
         "psychometric_defensibility"
       ],
@@ -127,6 +184,16 @@
       "open_selected_decision_debt_count": 1,
       "open_selected_risk_count": 1,
       "open_selected_high_or_critical_risk_count": 0,
+      "open_selected_evidence_debt_ids": [
+        "evidence-leadership-0005-001"
+      ],
+      "open_selected_decision_debt_ids": [
+        "decision-leadership-0005-001"
+      ],
+      "open_selected_risk_ids": [
+        "risk-leadership-0005-001"
+      ],
+      "open_selected_high_or_critical_risk_ids": [],
       "dimensions_below_quality_bar": [],
       "blockers": [
         "open_selected_evidence_debt",
@@ -149,6 +216,17 @@
       "open_selected_decision_debt_count": 1,
       "open_selected_risk_count": 2,
       "open_selected_high_or_critical_risk_count": 0,
+      "open_selected_evidence_debt_ids": [
+        "evidence-leadership-0006-002"
+      ],
+      "open_selected_decision_debt_ids": [
+        "decision-leadership-0006-001"
+      ],
+      "open_selected_risk_ids": [
+        "risk-leadership-0006-001",
+        "risk-leadership-0006-002"
+      ],
+      "open_selected_high_or_critical_risk_ids": [],
       "dimensions_below_quality_bar": [],
       "blockers": [
         "open_selected_evidence_debt",
@@ -171,6 +249,15 @@
       "open_selected_decision_debt_count": 0,
       "open_selected_risk_count": 2,
       "open_selected_high_or_critical_risk_count": 0,
+      "open_selected_evidence_debt_ids": [
+        "evidence-leadership-0007-002"
+      ],
+      "open_selected_decision_debt_ids": [],
+      "open_selected_risk_ids": [
+        "risk-leadership-0007-001",
+        "risk-leadership-0007-002"
+      ],
+      "open_selected_high_or_critical_risk_ids": [],
       "dimensions_below_quality_bar": [],
       "blockers": [
         "open_selected_evidence_debt"
@@ -192,6 +279,19 @@
       "open_selected_decision_debt_count": 0,
       "open_selected_risk_count": 3,
       "open_selected_high_or_critical_risk_count": 0,
+      "open_selected_evidence_debt_ids": [
+        "evidence-leadership-0008-001",
+        "evidence-leadership-0008-002",
+        "evidence-leadership-0008-003",
+        "evidence-leadership-0008-004"
+      ],
+      "open_selected_decision_debt_ids": [],
+      "open_selected_risk_ids": [
+        "risk-leadership-0008-001",
+        "risk-leadership-0008-002",
+        "risk-leadership-0008-003"
+      ],
+      "open_selected_high_or_critical_risk_ids": [],
       "dimensions_below_quality_bar": [],
       "blockers": [
         "open_selected_evidence_debt"

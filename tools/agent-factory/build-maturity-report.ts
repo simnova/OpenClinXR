@@ -7,8 +7,14 @@ import {
   type ScoreDimension,
   type Scorecard,
 } from "./lib.js";
+import { pathToFileURL } from "node:url";
 
-type IterationMaturity = {
+export type ScorecardFile = {
+  file: string;
+  scorecard: Scorecard;
+};
+
+export type IterationMaturity = {
   iteration_id: string;
   iteration_number: number;
   selected_scorecard_file: string;
@@ -23,12 +29,16 @@ type IterationMaturity = {
   open_selected_decision_debt_count: number;
   open_selected_risk_count: number;
   open_selected_high_or_critical_risk_count: number;
+  open_selected_evidence_debt_ids: string[];
+  open_selected_decision_debt_ids: string[];
+  open_selected_risk_ids: string[];
+  open_selected_high_or_critical_risk_ids: string[];
   dimensions_below_quality_bar: ScoreDimension[];
   blockers: string[];
   leadership_quality_bar_ready: boolean;
 };
 
-type MaturityReport = {
+export type MaturityReport = {
   generated_by: string;
   iteration_count: number;
   latest_iteration_id?: string;
@@ -59,11 +69,32 @@ const qualityBar = {
 } as const;
 
 async function main(): Promise<void> {
+  const scorecardRecords = await loadScorecardFiles();
+  const report = buildMaturityReport(scorecardRecords);
+
+  await writeJson(".agent-factory/maturity-report.json", report);
+
+  console.log(`Wrote .agent-factory/maturity-report.json for ${report.iterations.length} iteration${report.iterations.length === 1 ? "" : "s"}.`);
+  if (report.latest_iteration_id) {
+    console.log(`Latest ${report.latest_iteration_id}: weighted_score=${report.latest_weighted_score?.toFixed(3)}`);
+  }
+}
+
+async function loadScorecardFiles(): Promise<ScorecardFile[]> {
   const scorecardFiles = await globFiles("iterations/**/*scorecard.json");
-  const scorecardsByIteration = new Map<string, Array<{ file: string; scorecard: Scorecard }>>();
+  const scorecardRecords: ScorecardFile[] = [];
 
   for (const file of scorecardFiles.sort()) {
-    const scorecard = await readJson<Scorecard>(file);
+    scorecardRecords.push({ file, scorecard: await readJson<Scorecard>(file) });
+  }
+
+  return scorecardRecords;
+}
+
+export function buildMaturityReport(scorecardRecords: ScorecardFile[]): MaturityReport {
+  const scorecardsByIteration = new Map<string, Array<{ file: string; scorecard: Scorecard }>>();
+
+  for (const { file, scorecard } of scorecardRecords) {
     scorecardsByIteration.set(scorecard.iteration_id, [
       ...(scorecardsByIteration.get(scorecard.iteration_id) ?? []),
       { file, scorecard },
@@ -81,13 +112,7 @@ async function main(): Promise<void> {
     current.composite_delta_from_previous = roundScore(current.composite_score - previous.composite_score);
   }
 
-  const report = buildReport(iterations);
-  await writeJson(".agent-factory/maturity-report.json", report);
-
-  console.log(`Wrote .agent-factory/maturity-report.json for ${iterations.length} iteration${iterations.length === 1 ? "" : "s"}.`);
-  if (report.latest_iteration_id) {
-    console.log(`Latest ${report.latest_iteration_id}: weighted_score=${report.latest_weighted_score?.toFixed(3)}`);
-  }
+  return buildReport(iterations);
 }
 
 function buildIterationMaturity(
@@ -100,6 +125,10 @@ function buildIterationMaturity(
   const composite = compositeScore(scorecard);
   const dimensionsBelowQualityBar = dimensionsBelowBar(scorecard);
   const blockers = qualityBlockers(scorecard, weighted, dimensionsBelowQualityBar);
+  const openEvidenceDebt = scorecard.evidence_debt.filter((debt) => debt.status === "open");
+  const openDecisionDebt = scorecard.decision_debt.filter((debt) => debt.status === "open");
+  const openRisks = scorecard.critical_risks.filter((risk) => risk.status === "open");
+  const openHighOrCriticalRisks = openRisks.filter((risk) => risk.severity === "high" || risk.severity === "critical");
 
   return {
     iteration_id: iterationId,
@@ -110,12 +139,14 @@ function buildIterationMaturity(
     confidence: scorecard.confidence,
     weighted_score: weighted,
     composite_score: composite,
-    open_selected_evidence_debt_count: scorecard.evidence_debt.filter((debt) => debt.status === "open").length,
-    open_selected_decision_debt_count: scorecard.decision_debt.filter((debt) => debt.status === "open").length,
-    open_selected_risk_count: scorecard.critical_risks.filter((risk) => risk.status === "open").length,
-    open_selected_high_or_critical_risk_count: scorecard.critical_risks.filter((risk) =>
-      risk.status === "open" && (risk.severity === "high" || risk.severity === "critical")
-    ).length,
+    open_selected_evidence_debt_count: openEvidenceDebt.length,
+    open_selected_decision_debt_count: openDecisionDebt.length,
+    open_selected_risk_count: openRisks.length,
+    open_selected_high_or_critical_risk_count: openHighOrCriticalRisks.length,
+    open_selected_evidence_debt_ids: openEvidenceDebt.map((debt) => debt.id).sort(),
+    open_selected_decision_debt_ids: openDecisionDebt.map((debt) => debt.id).sort(),
+    open_selected_risk_ids: openRisks.map((risk) => risk.id).sort(),
+    open_selected_high_or_critical_risk_ids: openHighOrCriticalRisks.map((risk) => risk.id).sort(),
     dimensions_below_quality_bar: dimensionsBelowQualityBar,
     blockers,
     leadership_quality_bar_ready: blockers.length === 0,
@@ -201,4 +232,6 @@ function roundScore(value: number): number {
   return Number(value.toFixed(3));
 }
 
-await main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await main();
+}

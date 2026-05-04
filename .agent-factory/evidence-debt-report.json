@@ -34,6 +34,261 @@
     "voice-speech-engineer": 2,
     "xr-systems-architect": 2
   },
+  "priority_open_debt": [
+    {
+      "id": "evidence-leadership-0008-004",
+      "file": "iterations/iteration-0008/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0008",
+      "iteration_number": 8,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "asset-pipeline-lead",
+      "summary": "Install Blender and run a small asset bake report before calling the 3D asset pipeline ready.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0008-002",
+      "file": "iterations/iteration-0008/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0008",
+      "iteration_number": 8,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "local-ai-inference-engineer",
+      "summary": "Install and benchmark one explicit local model runtime and model ID on target Apple Silicon hardware before enabling local dialogue.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0008-003",
+      "file": "iterations/iteration-0008/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0008",
+      "iteration_number": 8,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "voice-speech-engineer",
+      "summary": "Install and benchmark a local voice runtime only after safety and misuse review, then record first-audio latency and transcript/synthesis evidence.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0008-001",
+      "file": "iterations/iteration-0008/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0008",
+      "iteration_number": 8,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "xr-systems-architect",
+      "summary": "Capture and validate a foreground in-headset Quest manual performance report before claiming frame pacing or comfort readiness.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0007-002",
+      "file": "iterations/iteration-0007/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0007",
+      "iteration_number": 7,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "xr-systems-architect",
+      "summary": "Run Quest 3 and target Apple Silicon model/voice benchmarks before enabling immersive or local AI claims.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0006-002",
+      "file": "iterations/iteration-0006/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0006",
+      "iteration_number": 6,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "local-ai-inference-engineer",
+      "summary": "Benchmark a small local Qwen GGUF or MLX model on the target Apple Silicon hardware before enabling local dialogue.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0005-001",
+      "file": "iterations/iteration-0005/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0005",
+      "iteration_number": 5,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "test-automation-lead",
+      "summary": "Validate dependency install and package workspace behavior on a clean checkout.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0004-001",
+      "file": "iterations/iteration-0004/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0004",
+      "iteration_number": 4,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "local-ai-inference-engineer",
+      "summary": "Install and benchmark MLX or llama.cpp with a small Qwen/DeepSeek model on target hardware.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0004-002",
+      "file": "iterations/iteration-0004/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0004",
+      "iteration_number": 4,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "voice-speech-engineer",
+      "summary": "Install and benchmark VibeVoice-Realtime only after safety and license review.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0003-002",
+      "file": "iterations/iteration-0003/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0003",
+      "iteration_number": 3,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "chief-medical-officer",
+      "summary": "Run clinician/psychometrician review of the 12 seed cases before labeling them pilot-ready.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0003-001",
+      "file": "iterations/iteration-0003/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0003",
+      "iteration_number": 3,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "cto",
+      "summary": "Complete Quest 3, provider, ASR/TTS, and asset-pipeline benchmarks before implementation dependency lock.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-core-0003-002",
+      "file": "iterations/iteration-0003/02-core-scorecard.json",
+      "iteration_id": "iteration-0003",
+      "iteration_number": 3,
+      "plan_type": "core-plan",
+      "scored_by": "core-team-rubric-steward",
+      "owner": "open-source-governance-lead",
+      "summary": "Verify `@react-three/xr` license file and Quest browser behavior before runtime dependency lock.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-adv-0003-001",
+      "file": "iterations/iteration-0003/04-adversarial-scorecard.json",
+      "iteration_id": "iteration-0003",
+      "iteration_number": 3,
+      "plan_type": "adversarial-counterplan",
+      "scored_by": "adversarial-red-team",
+      "owner": "platform-devops-lead",
+      "summary": "Run an end-to-end Quest 3 station smoke with optimized placeholder assets and WebSocket control events.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-core-0003-001",
+      "file": "iterations/iteration-0003/02-core-scorecard.json",
+      "iteration_id": "iteration-0003",
+      "iteration_number": 3,
+      "plan_type": "core-plan",
+      "scored_by": "core-team-rubric-steward",
+      "owner": "solution-architect",
+      "summary": "Benchmark ASR/TTS/model latency and style adherence on the selected provider path.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-adv-0002",
+      "file": "iterations/iteration-0002/04-adversarial-scorecard.json",
+      "iteration_id": "iteration-0002",
+      "iteration_number": 2,
+      "plan_type": "adversarial-counterplan",
+      "scored_by": "rubric-steward",
+      "owner": "clinical-safety-critic",
+      "summary": "Run adversarial prompt tests against candidate LLM actor policies using hidden-truth leakage, bias, unsafe advice, and derailment probes.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-leadership-0001",
+      "file": "iterations/iteration-0002/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0002",
+      "iteration_number": 2,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "cto",
+      "summary": "Complete technology spikes for ASR, TTS, LLM, XR runtime, and CellixJS before final implementation dependency choices.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-core-0004",
+      "file": "iterations/iteration-0002/02-core-scorecard.json",
+      "iteration_id": "iteration-0002",
+      "iteration_number": 2,
+      "plan_type": "core-plan",
+      "scored_by": "rubric-steward",
+      "owner": "platform-devops-lead",
+      "summary": "Measure current Quest/WebXR, ASR, TTS, avatar, and frontier LLM latency for a realistic multi-actor station.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-adv-0003",
+      "file": "iterations/iteration-0002/04-adversarial-scorecard.json",
+      "iteration_id": "iteration-0002",
+      "iteration_number": 2,
+      "plan_type": "adversarial-counterplan",
+      "scored_by": "rubric-steward",
+      "owner": "psychometric-overclaim-critic",
+      "summary": "Create a station trace-quality metric and validate it on deterministic synthetic runs before LLM runs.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-core-0005",
+      "file": "iterations/iteration-0002/02-core-scorecard.json",
+      "iteration_id": "iteration-0002",
+      "iteration_number": 2,
+      "plan_type": "core-plan",
+      "scored_by": "rubric-steward",
+      "owner": "psychometrics-lead",
+      "summary": "Draft validation-study plan before any summative or high-stakes score-use claim.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-core-0003",
+      "file": "iterations/iteration-0002/02-core-scorecard.json",
+      "iteration_id": "iteration-0002",
+      "iteration_number": 2,
+      "plan_type": "core-plan",
+      "scored_by": "rubric-steward",
+      "owner": "source-librarian",
+      "summary": "The supplied IEEE document link could not be fully resolved into a source record and needs manual library access or alternate citation discovery.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-adv-0001",
+      "file": "iterations/iteration-0001/04-adversarial-scorecard.json",
+      "iteration_id": "iteration-0001",
+      "iteration_number": 1,
+      "plan_type": "adversarial-counterplan",
+      "scored_by": "rubric-steward",
+      "owner": "source-librarian",
+      "summary": "Verify current regulatory, education, market, and headset claims before leadership packet externalization.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-core-0001",
+      "file": "iterations/iteration-0001/02-core-scorecard.json",
+      "iteration_id": "iteration-0001",
+      "iteration_number": 1,
+      "plan_type": "core-plan",
+      "scored_by": "rubric-steward",
+      "owner": "source-librarian",
+      "summary": "Verify current WebXR/OpenXR/headset browser capability before external architecture claims.",
+      "status": "open"
+    },
+    {
+      "id": "evidence-core-0002",
+      "file": "iterations/iteration-0001/02-core-scorecard.json",
+      "iteration_id": "iteration-0001",
+      "iteration_number": 1,
+      "plan_type": "core-plan",
+      "scored_by": "rubric-steward",
+      "owner": "source-librarian",
+      "summary": "Verify education, assessment, and regulatory facts cited by the business-plan artifacts.",
+      "status": "open"
+    }
+  ],
   "open_debt": [
     {
       "id": "evidence-adv-0001",

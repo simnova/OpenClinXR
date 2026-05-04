@@ -1,6 +1,7 @@
 import { globFiles, readJson, writeJson, type Scorecard } from "./lib.js";
+import { pathToFileURL } from "node:url";
 
-type EvidenceDebtRecord = {
+export type EvidenceDebtRecord = {
   id: string;
   file: string;
   iteration_id: string;
@@ -12,7 +13,7 @@ type EvidenceDebtRecord = {
   status: string;
 };
 
-type EvidenceDebtReport = {
+export type EvidenceDebtReport = {
   generated_by: string;
   scorecard_count: number;
   debt_count: number;
@@ -21,6 +22,7 @@ type EvidenceDebtReport = {
   status_counts: Record<string, number>;
   open_by_iteration: Record<string, number>;
   open_by_owner: Record<string, number>;
+  priority_open_debt: EvidenceDebtRecord[];
   open_debt: EvidenceDebtRecord[];
   all_debt: EvidenceDebtRecord[];
 };
@@ -49,7 +51,7 @@ async function main(): Promise<void> {
   const report = buildEvidenceDebtReport(files.length, allDebt);
   await writeJson(".agent-factory/evidence-debt-report.json", report);
 
-  const openDebt = report.open_debt;
+  const openDebt = report.priority_open_debt;
   if (openDebt.length === 0) {
     console.log("No open evidence debt found in scorecards.");
     console.log("Wrote .agent-factory/evidence-debt-report.json");
@@ -63,9 +65,10 @@ async function main(): Promise<void> {
   console.log("Wrote .agent-factory/evidence-debt-report.json");
 }
 
-function buildEvidenceDebtReport(scorecardCount: number, allDebt: EvidenceDebtRecord[]): EvidenceDebtReport {
+export function buildEvidenceDebtReport(scorecardCount: number, allDebt: EvidenceDebtRecord[]): EvidenceDebtReport {
   const sortedDebt = [...allDebt].sort(compareDebt);
   const openDebt = sortedDebt.filter((debt) => debt.status === "open");
+  const priorityOpenDebt = [...openDebt].sort(comparePriorityDebt);
 
   return {
     generated_by: "tools/agent-factory/find-evidence-debt.ts",
@@ -76,6 +79,7 @@ function buildEvidenceDebtReport(scorecardCount: number, allDebt: EvidenceDebtRe
     status_counts: countBy(sortedDebt, (debt) => debt.status),
     open_by_iteration: countBy(openDebt, (debt) => debt.iteration_id),
     open_by_owner: countBy(openDebt, (debt) => debt.owner),
+    priority_open_debt: priorityOpenDebt,
     open_debt: openDebt,
     all_debt: sortedDebt,
   };
@@ -84,6 +88,14 @@ function buildEvidenceDebtReport(scorecardCount: number, allDebt: EvidenceDebtRe
 function compareDebt(left: EvidenceDebtRecord, right: EvidenceDebtRecord): number {
   return left.iteration_number - right.iteration_number
     || left.iteration_id.localeCompare(right.iteration_id)
+    || left.plan_type.localeCompare(right.plan_type)
+    || left.id.localeCompare(right.id);
+}
+
+function comparePriorityDebt(left: EvidenceDebtRecord, right: EvidenceDebtRecord): number {
+  return right.iteration_number - left.iteration_number
+    || right.iteration_id.localeCompare(left.iteration_id)
+    || left.owner.localeCompare(right.owner)
     || left.plan_type.localeCompare(right.plan_type)
     || left.id.localeCompare(right.id);
 }
@@ -102,4 +114,6 @@ function iterationNumber(iterationId: string): number {
   return match ? Number(match[1]) : Number.MAX_SAFE_INTEGER;
 }
 
-await main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await main();
+}
