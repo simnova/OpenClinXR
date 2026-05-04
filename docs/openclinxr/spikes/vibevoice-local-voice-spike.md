@@ -56,9 +56,10 @@ VibeVoice must not be used for:
 
 1. `vibevoice` or an approved wrapper is visible to `pnpm local:runtime:probe`.
 2. `OPENCLINXR_LOCAL_VOICE_RUNTIME` and `OPENCLINXR_LOCAL_VOICE_ID` are set in an untracked local env file.
-3. `pnpm local:provider:benchmark -- --env-file .env.openclinxr.local --output docs/openclinxr/local-provider-benchmark-YYYY-MM-DD.json` records readiness without cloud calls.
-4. A separate first-audio benchmark records first audible latency, total synthesis time, prompt text, generated duration, memory/CPU/GPU posture, thermal notes, and a transcript/synthesis evidence sample.
-5. The result remains labeled `disabled` or `dev_only` until legal, clinical simulation QA, and safety reviewers approve a narrow pilot use.
+3. `OPENCLINXR_LOCAL_VOICE_INSTALL_APPROVED=true` and `OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED=true` are set only after the operator-approved install path and safety/license checklist are recorded.
+4. `pnpm local:provider:benchmark -- --env-file .env.openclinxr.local --output docs/openclinxr/local-provider-benchmark-YYYY-MM-DD.json` records readiness without cloud calls.
+5. A separate first-audio benchmark records first audible latency, total synthesis time, prompt text, generated duration, memory/CPU/GPU posture, thermal notes, and a transcript/synthesis evidence sample.
+6. The result remains labeled `disabled` or `dev_only` until legal, clinical simulation QA, and safety reviewers approve a narrow pilot use.
 
 ## Current Decision
 
@@ -69,7 +70,8 @@ Keep VibeVoice disabled. The next permitted action is not installation; it is op
 - `vibevoice` is not available on PATH.
 - `OPENCLINXR_LOCAL_VOICE_RUNTIME` is unset.
 - `OPENCLINXR_LOCAL_VOICE_ID` is unset.
+- `OPENCLINXR_LOCAL_VOICE_INSTALL_APPROVED` is unset.
+- `OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED` is unset.
 - No install/uninstall commands have been captured.
 - No first-audio benchmark exists.
 - No legal, safety, or clinical simulation QA signoff exists.
-

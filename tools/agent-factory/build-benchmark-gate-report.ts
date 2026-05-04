@@ -592,7 +592,7 @@ const blockerGroups = [
     title: "Local voice runtime benchmark",
     owner: "voice-speech-engineer",
     matches: (blocker: string) => blocker.startsWith("local_voice:") || blocker.startsWith("local_voice_benchmark:"),
-    nextStep: "Complete voice safety and license review, configure one local voice runtime and voice ID, then record first-audio latency evidence.",
+    nextStep: "Complete voice install approval plus safety/license review, configure one local voice runtime and voice ID, then record first-audio latency evidence.",
   },
   {
     groupId: "asset_pipeline_blender",

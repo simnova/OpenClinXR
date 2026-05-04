@@ -16,6 +16,7 @@ describe("local provider benchmark report", () => {
         OPENCLINXR_LOCAL_MODEL_DOWNLOAD_APPROVED: "true",
         OPENCLINXR_LOCAL_VOICE_RUNTIME: "vibevoice",
         OPENCLINXR_LOCAL_VOICE_ID: "microsoft/VibeVoice-Realtime-0.5B",
+        OPENCLINXR_LOCAL_VOICE_INSTALL_APPROVED: "true",
         OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED: "true",
       },
       mockModel: passedBenchmark("model"),
@@ -42,6 +43,7 @@ describe("local provider benchmark report", () => {
         configuredRuntime: "vibevoice",
         configuredVoice: "microsoft/VibeVoice-Realtime-0.5B",
         sourceRecordIds: "src-vibevoice-github-2026",
+        installApproved: true,
         safetyReviewApproved: true,
         executionAttempted: false,
       },
@@ -104,12 +106,14 @@ describe("local provider benchmark report", () => {
     ]);
     expect(report.localVoice.blockers).toEqual([
       "local_voice_source_record_not_found",
+      "OPENCLINXR_LOCAL_VOICE_INSTALL_APPROVED_not_true",
       "OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED_not_true",
     ]);
     expect(report.verdict.blockers).toEqual([
       "local_model:local_model_source_record_not_found",
       "local_model:OPENCLINXR_LOCAL_MODEL_DOWNLOAD_APPROVED_not_true",
       "local_voice:local_voice_source_record_not_found",
+      "local_voice:OPENCLINXR_LOCAL_VOICE_INSTALL_APPROVED_not_true",
       "local_voice:OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED_not_true",
     ]);
   });
@@ -125,6 +129,7 @@ describe("local provider env parsing", () => {
           "OPENCLINXR_LOCAL_MODEL_DOWNLOAD_APPROVED=true",
           'OPENCLINXR_LOCAL_VOICE_RUNTIME="vibevoice"',
           "OPENCLINXR_LOCAL_VOICE_ID=microsoft/VibeVoice-Realtime-0.5B",
+          "OPENCLINXR_LOCAL_VOICE_INSTALL_APPROVED=true",
           "OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED=true",
           "GROK_API_KEY=must-not-load",
           "",
@@ -136,6 +141,7 @@ describe("local provider env parsing", () => {
       OPENCLINXR_LOCAL_MODEL_DOWNLOAD_APPROVED: "true",
       OPENCLINXR_LOCAL_VOICE_RUNTIME: "vibevoice",
       OPENCLINXR_LOCAL_VOICE_ID: "microsoft/VibeVoice-Realtime-0.5B",
+      OPENCLINXR_LOCAL_VOICE_INSTALL_APPROVED: "true",
       OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED: "true",
     });
   });

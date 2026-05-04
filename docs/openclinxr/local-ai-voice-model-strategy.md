@@ -72,7 +72,7 @@ But it is not production-ready by assumption:
 
 Recommendation: build `VoiceProviderAdapter` support for VibeVoice, but keep it disabled by default until local benchmark, voice-safety review, license review, and disclosure UX pass.
 
-Current intake: `docs/openclinxr/spikes/vibevoice-local-voice-spike.md` records the safe spike boundary. VibeVoice remains disabled, uninstalled, and blocked on operator-approved model/voice ID, license/safety review, install/uninstall commands, and first-audio benchmark evidence.
+Current intake: `docs/openclinxr/spikes/vibevoice-local-voice-spike.md` records the safe spike boundary. VibeVoice remains disabled, uninstalled, and blocked on operator-approved model/voice ID, explicit install approval, license/safety review, install/uninstall commands, and first-audio benchmark evidence.
 
 ### Voice Fallback Ladder
 
@@ -135,8 +135,8 @@ First executable status:
 - Deterministic mock voice benchmark passed with transcript and audio-chunk evidence.
 - Local model benchmark remains `not_configured` because `llama.cpp` is installed but `OPENCLINXR_LOCAL_MODEL_RUNTIME` / `OPENCLINXR_LOCAL_MODEL_ID` are unset and no model weights have been selected, downloaded, licensed, or benchmarked.
 - Local model candidate intake now accepts only source-backed first candidates: `Qwen/Qwen3-4B-GGUF` (`src-qwen3-4b-gguf-2026`) and `deepseek-ai/DeepSeek-R1-Distill-Qwen-7B` (`src-deepseek-r1-distill-qwen-2025`). Even those remain blocked until `OPENCLINXR_LOCAL_MODEL_DOWNLOAD_APPROVED=true`.
-- Local voice benchmark remains `not_configured` because no VibeVoice runtime is detected, `OPENCLINXR_LOCAL_VOICE_RUNTIME` / `OPENCLINXR_LOCAL_VOICE_ID` are unset, and the VibeVoice intake keeps runtime installation blocked until operator-approved safety/license review.
-- Local voice candidate intake now accepts only `microsoft/VibeVoice-Realtime-0.5B` (`src-vibevoice-github-2026`) and keeps it blocked until `OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED=true`.
+- Local voice benchmark remains `not_configured` because no VibeVoice runtime is detected, `OPENCLINXR_LOCAL_VOICE_RUNTIME` / `OPENCLINXR_LOCAL_VOICE_ID` are unset, and the VibeVoice intake keeps runtime installation blocked until operator-approved install and safety/license review.
+- Local voice candidate intake now accepts only `microsoft/VibeVoice-Realtime-0.5B` (`src-vibevoice-github-2026`) and keeps it blocked until both `OPENCLINXR_LOCAL_VOICE_INSTALL_APPROVED=true` and `OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED=true`.
 - The script explicitly records `cloudCallsAllowed: false`, `modelDownloadsAllowed: false`, and `localRuntimeExecutionAllowed: false`.
 
 Metrics:

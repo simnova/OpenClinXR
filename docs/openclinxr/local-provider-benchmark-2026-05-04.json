@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T06:23:37.087Z",
+  "generatedAt": "2026-05-04T08:37:30.181Z",
   "policy": {
     "cloudCallsAllowed": false,
     "modelDownloadsAllowed": false,
@@ -58,6 +58,7 @@
       "configuredRuntime": null,
       "configuredVoice": null,
       "sourceRecordIds": null,
+      "installApproved": false,
       "safetyReviewApproved": false,
       "executionAttempted": false
     }

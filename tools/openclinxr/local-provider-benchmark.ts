@@ -50,6 +50,7 @@ const localProviderEnvKeys = [
   "OPENCLINXR_LOCAL_MODEL_DOWNLOAD_APPROVED",
   "OPENCLINXR_LOCAL_VOICE_RUNTIME",
   "OPENCLINXR_LOCAL_VOICE_ID",
+  "OPENCLINXR_LOCAL_VOICE_INSTALL_APPROVED",
   "OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED",
 ] as const;
 type LocalProviderEnvKey = (typeof localProviderEnvKeys)[number];
@@ -294,12 +295,14 @@ function inspectLocalVoiceBenchmarkReadiness(availableCommands: readonly string[
   const configuredRuntime = env.OPENCLINXR_LOCAL_VOICE_RUNTIME ?? "";
   const configuredVoice = env.OPENCLINXR_LOCAL_VOICE_ID ?? "";
   const candidate = localVoiceCandidates.find((voiceCandidate) => voiceCandidate.id === configuredVoice);
+  const installApproved = env.OPENCLINXR_LOCAL_VOICE_INSTALL_APPROVED === "true";
   const safetyReviewApproved = env.OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED === "true";
   const blockers = [
     availableVoiceCommands.length > 0 ? undefined : "no_vibevoice_runtime_detected",
     configuredRuntime ? undefined : "OPENCLINXR_LOCAL_VOICE_RUNTIME_not_set",
     configuredVoice ? undefined : "OPENCLINXR_LOCAL_VOICE_ID_not_set",
     configuredVoice && !candidate ? "local_voice_source_record_not_found" : undefined,
+    configuredVoice && !installApproved ? "OPENCLINXR_LOCAL_VOICE_INSTALL_APPROVED_not_true" : undefined,
     configuredVoice && !safetyReviewApproved ? "OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED_not_true" : undefined,
   ].filter((blocker): blocker is string => typeof blocker === "string");
 
@@ -312,6 +315,7 @@ function inspectLocalVoiceBenchmarkReadiness(availableCommands: readonly string[
       configuredRuntime: configuredRuntime || null,
       configuredVoice: configuredVoice || null,
       sourceRecordIds: candidate?.sourceRecordIds.join(",") ?? null,
+      installApproved,
       safetyReviewApproved,
       executionAttempted: false,
     },
