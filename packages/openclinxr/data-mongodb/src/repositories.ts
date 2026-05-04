@@ -1,6 +1,13 @@
 import type { ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
-import type { ExamForm } from "@openclinxr/exam-assembly";
+import type { ExamForm, ExamStationRunQueue } from "@openclinxr/exam-assembly";
 import type { Collection, Db } from "mongodb";
+
+export type ExamStationRunQueueSnapshot = {
+  snapshotId: string;
+  createdAt: string;
+  reviewerId?: string;
+  queue: ExamStationRunQueue;
+};
 
 export class MongoScenarioRepository {
   private readonly collection: Collection<Scenario>;
@@ -130,6 +137,36 @@ export class MongoExamFormRepository {
 
   async listByBlueprint(blueprintId: string): Promise<ExamForm[]> {
     return this.collection.find({ blueprintId }, { projection: { _id: 0 } }).sort({ examFormId: 1 }).toArray();
+  }
+}
+
+export class MongoStationRunQueueRepository {
+  private readonly collection: Collection<ExamStationRunQueueSnapshot>;
+
+  constructor(db: Db) {
+    this.collection = db.collection<ExamStationRunQueueSnapshot>("station_run_queue_snapshots");
+  }
+
+  async ensureIndexes(): Promise<void> {
+    await this.collection.createIndex({ snapshotId: 1 }, { unique: true });
+    await this.collection.createIndex({ "queue.blueprintId": 1, createdAt: -1 });
+    await this.collection.createIndex({ "queue.stationQueue.scenarioId": 1 });
+  }
+
+  async save(snapshot: ExamStationRunQueueSnapshot): Promise<void> {
+    await this.collection.updateOne(
+      { snapshotId: snapshot.snapshotId },
+      { $set: snapshot },
+      { upsert: true },
+    );
+  }
+
+  async findById(snapshotId: string): Promise<ExamStationRunQueueSnapshot | null> {
+    return this.collection.findOne({ snapshotId }, { projection: { _id: 0 } });
+  }
+
+  async listByBlueprint(blueprintId: string): Promise<ExamStationRunQueueSnapshot[]> {
+    return this.collection.find({ "queue.blueprintId": blueprintId }, { projection: { _id: 0 } }).sort({ createdAt: -1, snapshotId: 1 }).toArray();
   }
 }
 

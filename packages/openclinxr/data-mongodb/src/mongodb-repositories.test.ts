@@ -1,11 +1,17 @@
 import type { ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
-import { assembleExamForm, createDefaultClinicalSkillsBlueprint } from "@openclinxr/exam-assembly";
+import {
+  assembleExamForm,
+  createDefaultClinicalSkillsBlueprint,
+  createExamStationRunQueue,
+  createStep2CsStyleSeedBlueprint,
+} from "@openclinxr/exam-assembly";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   createMongoMemoryTestContext,
   MongoExamFormRepository,
   createMongoApiPersistenceSink,
   MongoScenarioRepository,
+  MongoStationRunQueueRepository,
   MongoTraceRepository,
   MongoReviewPacketRepository,
   type MongoMemoryTestContext,
@@ -106,6 +112,35 @@ const reviewPacket: ReviewPacket = {
   },
 };
 
+const seedQueueScenarios: Scenario[] = Array.from({ length: 12 }, (_, index) => {
+  const stationOrder = index + 1;
+  const scenarioId = stationOrder === 9
+    ? "clinic_abdominal_pain_interpreter_v1"
+    : `seed_station_${String(stationOrder).padStart(2, "0")}_v1`;
+
+  return {
+    ...scenario,
+    scenarioId,
+    version: 1,
+    title: stationOrder === 9 ? "Clinic abdominal pain with interpreter" : `Seed station ${stationOrder}`,
+    status: stationOrder === 1 ? "approved" : "draft",
+    review: stationOrder === 1
+      ? scenario.review
+      : {
+        clinical: "draft",
+        psychometric: "draft",
+        legal: "draft",
+        simulationQa: "draft",
+      },
+    requiredTraceTags: [`station_${stationOrder}_trace`],
+    governance: {
+      ...scenario.governance,
+      safetyCriticalTraceTags: [`station_${stationOrder}_safety_trace`],
+      validationStage: stationOrder === 1 ? "stage_1_expert_reviewed" : "stage_0_synthetic_draft",
+    },
+  };
+});
+
 describe("MongoDB memory repositories", () => {
   let context: MongoMemoryTestContext;
 
@@ -199,6 +234,51 @@ describe("MongoDB memory repositories", () => {
       ],
     });
     await expect(repository.listByBlueprint("blueprint_openclinxr_clinical_skills_pilot_v1")).resolves.toHaveLength(1);
+  });
+
+  it("stores station run queue snapshots for reviewer launch gating", async () => {
+    const repository = new MongoStationRunQueueRepository(context.db);
+    await repository.ensureIndexes();
+    const blueprint = createStep2CsStyleSeedBlueprint(seedQueueScenarios);
+    const queue = createExamStationRunQueue(blueprint, seedQueueScenarios);
+
+    await repository.save({
+      snapshotId: "queue_snapshot_seed_001",
+      createdAt: "2026-05-03T16:00:00.000Z",
+      reviewerId: "psychometrician_001",
+      queue,
+    });
+
+    await expect(repository.findById("queue_snapshot_seed_001")).resolves.toMatchObject({
+      snapshotId: "queue_snapshot_seed_001",
+      reviewerId: "psychometrician_001",
+      queue: {
+        blueprintId: "blueprint_openclinxr_step2cs_style_seed_v1",
+        canStartLearnerExam: false,
+        summary: {
+          activationReady: 1,
+          draftBlocked: 11,
+          governanceBlocked: 0,
+          missingScenario: 0,
+        },
+        stationQueue: expect.arrayContaining([
+          expect.objectContaining({
+            stationOrder: 9,
+            scenarioId: "clinic_abdominal_pain_interpreter_v1",
+            status: "draft_blocked",
+            blockers: ["scenario_not_approved"],
+          }),
+        ]),
+      },
+    });
+    await expect(repository.listByBlueprint("blueprint_openclinxr_step2cs_style_seed_v1")).resolves.toEqual([
+      expect.objectContaining({
+        snapshotId: "queue_snapshot_seed_001",
+        queue: expect.objectContaining({
+          totalStationTimeSeconds: 18720,
+        }),
+      }),
+    ]);
   });
 
   it("persists API snapshots through a Mongo-backed sink", async () => {

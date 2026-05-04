@@ -295,6 +295,7 @@ Started on 2026-05-03:
 - `packages/openclinxr/exam-assembly` now derives deterministic doorway, encounter, note, and break-checkpoint timing windows from blueprint timing.
 - `packages/openclinxr/exam-assembly` now derives a deterministic station-run queue for the 12-station seed form, preserving timing and order while keeping draft stations blocked from learner launch.
 - `apps/api` now serves `/exam-blueprints/step2cs-seed`, `/exam-blueprints/step2cs-seed/readiness`, `/exam-blueprints/step2cs-seed/timing-plan`, and `/exam-blueprints/step2cs-seed/station-run-queue` for admin planning surfaces.
+- `packages/openclinxr/data-mongodb` now persists station-run queue snapshots with reviewer provenance, launch-gating status, timing, and station blockers for later approval and drift review.
 - The Azure bundle smoke now verifies the seed timing-plan and station-run-queue endpoints in the bundled API, not only `/health`.
 - `pnpm bench:mock` now prints trace quality, review signals, and an adversarial probe report.
 - `packages/openclinxr/agent-loop` executable roster now aligns with the richer physician charter bench.
