@@ -554,6 +554,7 @@ describe("benchmark gate report", () => {
           readyToClaimFramePacing: true,
           satisfiedConditions: ["average_fps_72_or_higher"],
           blockers: [],
+          nextSteps: [],
         },
       },
       localRuntime: {

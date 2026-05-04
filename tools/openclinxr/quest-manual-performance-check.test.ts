@@ -122,6 +122,7 @@ describe("Quest manual performance checker", () => {
     const check = JSON.parse(await readFile(output, "utf8")) as {
       readyToClaimFramePacing: boolean;
       blockers: string[];
+      nextSteps: string[];
     };
 
     expect(check.readyToClaimFramePacing).toBe(false);
@@ -139,6 +140,20 @@ describe("Quest manual performance checker", () => {
       "motion_comfort_not_confirmed",
       "heat_concern_not_cleared",
       "battery_drop_not_recorded",
+    ]));
+    expect(check.nextSteps).toEqual(expect.arrayContaining([
+      "Record a strict ISO generatedAt timestamp from the foreground headset capture.",
+      "Record the operator identity in runContext.performedBy.",
+      "Observe for at least 10 minutes in the foreground headset session.",
+      "Confirm the immersive session starts in-headset.",
+      "Use window.__openClinXrFrameStats as the performance source.",
+      "Observe at least 600 frames before claiming frame pacing.",
+      "Record a rolling frame window with at least 120 samples.",
+      "Record average FPS at or above 72.",
+      "Record p95 frame time at or below 25 ms.",
+      "Confirm motion comfort is comfortable.",
+      "Clear heat concern as false after the run.",
+      "Record battery drop percent.",
     ]));
   });
 

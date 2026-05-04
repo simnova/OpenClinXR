@@ -1,9 +1,12 @@
 {
-  "generatedAt": "2026-05-04T05:33:53.981Z",
+  "generatedAt": "2026-05-04T15:37:29.215Z",
   "inputFile": null,
   "readyToClaimFramePacing": false,
   "satisfiedConditions": [],
   "blockers": [
     "missing_quest_manual_performance_report"
+  ],
+  "nextSteps": [
+    "Create a dated Quest manual performance report from docs/openclinxr/quest-manual-performance-template.json."
   ]
 }

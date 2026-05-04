@@ -48,6 +48,7 @@ export type QuestManualPerformanceCheck = {
   readyToClaimFramePacing: boolean;
   satisfiedConditions: string[];
   blockers: string[];
+  nextSteps: string[];
 };
 
 async function main(): Promise<void> {
@@ -111,6 +112,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
       readyToClaimFramePacing: false,
       satisfiedConditions: [],
       blockers: ["missing_quest_manual_performance_report"],
+      nextSteps: ["Create a dated Quest manual performance report from docs/openclinxr/quest-manual-performance-template.json."],
     };
   }
 
@@ -195,7 +197,75 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
       batteryDropPercentValid && batteryDropPercent <= 20 ? "battery_drop_recorded_under_20" : undefined,
     ].filter((condition): condition is string => typeof condition === "string"),
     blockers,
+    nextSteps: blockers.map(questManualNextStepForBlocker),
   };
+}
+
+function questManualNextStepForBlocker(blocker: string): string {
+  switch (blocker) {
+    case "generated_at_invalid_or_missing":
+      return "Record a strict ISO generatedAt timestamp from the foreground headset capture.";
+    case "performed_by_missing":
+      return "Record the operator identity in runContext.performedBy.";
+    case "foreground_page_not_confirmed":
+      return "Confirm the page is foreground-visible in the headset.";
+    case "devtools_screencast_not_disabled":
+      return "Disable DevTools screencast while observing headset performance.";
+    case "extra_browser_windows_not_closed":
+      return "Close extra Quest Browser windows before the run.";
+    case "duration_under_10_minutes":
+      return "Observe for at least 10 minutes in the foreground headset session.";
+    case "station_shell_not_loaded":
+      return "Confirm the station shell loads in Quest Browser.";
+    case "trace_interaction_not_confirmed":
+      return "Confirm a trace interaction advances in the headset.";
+    case "text_readability_not_confirmed":
+      return "Confirm in-headset EHR and station text readability.";
+    case "immersive_session_not_confirmed":
+      return "Confirm the immersive session starts in-headset.";
+    case "console_errors_not_string_array":
+      return "Record consoleErrors as an array of strings.";
+    case "console_errors_present":
+      return "Resolve or explicitly triage console errors before readiness.";
+    case "performance_source_not_openclinxr_frame_stats":
+      return "Use window.__openClinXrFrameStats as the performance source.";
+    case "frames_observed_not_non_negative_integer":
+      return "Record framesObserved as a non-negative integer.";
+    case "frame_sample_under_600_or_missing":
+      return "Observe at least 600 frames before claiming frame pacing.";
+    case "rolling_frame_window_not_non_negative_integer":
+      return "Record sampleWindowSize as a non-negative integer.";
+    case "rolling_frame_window_exceeds_frames_observed":
+      return "Keep the rolling frame window at or below framesObserved.";
+    case "rolling_frame_window_under_120_or_missing":
+      return "Record a rolling frame window with at least 120 samples.";
+    case "average_fps_unrealistic_or_non_finite":
+      return "Record a finite average FPS between 0 and 144.";
+    case "average_fps_below_72_or_missing":
+      return "Record average FPS at or above 72.";
+    case "minimum_fps_unrealistic_or_non_finite":
+      return "Record a finite minimum observed FPS between 0 and 144.";
+    case "minimum_fps_above_average_fps":
+      return "Ensure minimum observed FPS is not above average FPS.";
+    case "minimum_fps_below_60_or_missing":
+      return "Record minimum observed FPS at or above 60.";
+    case "p95_frame_ms_not_positive_finite":
+      return "Record p95 frame time as a positive finite number.";
+    case "p95_frame_ms_above_25_or_missing":
+      return "Record p95 frame time at or below 25 ms.";
+    case "motion_comfort_not_confirmed":
+      return "Confirm motion comfort is comfortable.";
+    case "heat_concern_not_cleared":
+      return "Clear heat concern as false after the run.";
+    case "battery_drop_not_finite_range_0_to_100":
+      return "Record battery drop as a finite percent from 0 to 100.";
+    case "battery_drop_not_recorded":
+      return "Record battery drop percent.";
+    case "battery_drop_above_20":
+      return "Investigate or rerun if battery drop exceeds 20 percent.";
+    default:
+      return `Resolve Quest manual blocker: ${blocker}.`;
+  }
 }
 
 function isValidIsoDate(value: string | undefined): boolean {
