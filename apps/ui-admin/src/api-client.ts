@@ -3,9 +3,13 @@ import type { ScenarioAssetReadiness } from "@openclinxr/asset-registry";
 import type { BlueprintScenarioReadiness, ExamBlueprint, ExamStationRunQueue, ExamTimingPlan } from "@openclinxr/exam-assembly";
 import {
   CreateStationRunQueueSnapshotDocument,
+  ScenarioBankDocument,
   StationRunQueueSnapshotsDocument,
   type CreateStationRunQueueSnapshotMutation,
   type CreateStationRunQueueSnapshotMutationVariables,
+  type ScenarioBankQuery,
+  type ScenarioBankQueryVariables,
+  type ScenarioStatus,
   type StationRunQueueSnapshotsQuery,
   type StationRunQueueSnapshotsQueryVariables,
 } from "@openclinxr/graphql/client";
@@ -33,9 +37,14 @@ export type AdminControlPlaneClient = {
   getStep2CsSeedBlueprintReadiness(): Promise<BlueprintScenarioReadiness>;
   getStep2CsSeedTimingPlan(): Promise<ExamTimingPlan>;
   getStep2CsSeedStationRunQueue(): Promise<ExamStationRunQueue>;
+  listScenarios(input?: ListScenariosInput): Promise<AdminScenario[]>;
   listStep2CsSeedStationRunQueueSnapshots(): Promise<AdminStationRunQueueSnapshot[]>;
   createStep2CsSeedStationRunQueueSnapshot(input: CreateStationRunQueueSnapshotInput): Promise<AdminStationRunQueueSnapshot>;
   getScenarioBankAssetReadiness(): Promise<ScenarioAssetReadiness[]>;
+};
+
+export type ListScenariosInput = {
+  status?: ScenarioStatus;
 };
 
 export type CreateStationRunQueueSnapshotInput = {
@@ -44,12 +53,18 @@ export type CreateStationRunQueueSnapshotInput = {
   reviewerId?: string;
 };
 
+export type AdminScenario = ScenarioBankQuery["scenarios"][number];
 export type AdminStationRunQueueSnapshot = StationRunQueueSnapshotsQuery["stationRunQueueSnapshots"][number];
 
 export const defaultAdminApiBaseUrl = import.meta.env.VITE_OPENCLINXR_API_BASE_URL ?? "";
 
 const stationRunQueueSnapshotsDocument = print(StationRunQueueSnapshotsDocument);
 const createStationRunQueueSnapshotDocument = print(CreateStationRunQueueSnapshotDocument);
+const scenarioBankDocument = print(ScenarioBankDocument);
+
+export function buildAdminGraphqlEndpoint(baseUrl: string = defaultAdminApiBaseUrl): string {
+  return `${normalizeBaseUrl(baseUrl)}${routeById("admin-graphql-execute").path}`;
+}
 
 export function createAdminControlPlaneClient(options: AdminControlPlaneClientOptions = {}): AdminControlPlaneClient {
   const baseUrl = normalizeBaseUrl(options.baseUrl ?? defaultAdminApiBaseUrl);
@@ -61,6 +76,29 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
     getStep2CsSeedBlueprintReadiness: () => get(fetcher, baseUrl, routeById("step2cs-seed-exam-blueprint-readiness").path),
     getStep2CsSeedTimingPlan: () => get(fetcher, baseUrl, routeById("step2cs-seed-exam-timing-plan").path),
     getStep2CsSeedStationRunQueue: () => get(fetcher, baseUrl, routeById("step2cs-seed-station-run-queue").path),
+    listScenarios: async (input = {}) => {
+      const variables: ScenarioBankQueryVariables = input.status ? { status: input.status } : {};
+      if (apolloClient) {
+        const { data } = await apolloClient.query<ScenarioBankQuery, ScenarioBankQueryVariables>({
+          query: ScenarioBankDocument,
+          variables,
+          fetchPolicy: "network-only",
+        });
+        if (!data) {
+          throw new Error("OpenClinXR admin GraphQL request failed: ScenarioBank missing_data");
+        }
+        return data.scenarios;
+      }
+
+      const data = await graphql<ScenarioBankQuery>(
+        fetcher,
+        baseUrl,
+        "ScenarioBank",
+        scenarioBankDocument,
+        variables,
+      );
+      return data.scenarios;
+    },
     listStep2CsSeedStationRunQueueSnapshots: async () => {
       if (apolloClient) {
         const { data } = await apolloClient.query<StationRunQueueSnapshotsQuery, StationRunQueueSnapshotsQueryVariables>({
@@ -128,7 +166,7 @@ async function graphql<TData>(
   query: string,
   variables: Record<string, unknown>,
 ): Promise<TData> {
-  const url = `${baseUrl}${routeById("admin-graphql-execute").path}`;
+  const url = buildAdminGraphqlEndpoint(baseUrl);
   const response = await fetcher(url, {
     method: "POST",
     headers: { "content-type": "application/json" },

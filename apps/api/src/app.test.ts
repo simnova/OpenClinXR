@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
 import type { ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createInMemoryTelemetryRecorder, openClinXrSpanNames, telemetryAttributeNames } from "@openclinxr/telemetry";
 import { createApiApp, type ApiStationRunQueueSnapshot } from "./index.js";
@@ -393,6 +394,66 @@ describe("OpenClinXR API shell", () => {
     );
     expect(JSON.stringify(telemetry.spans())).not.toContain("mutation CreateStationRunQueueSnapshot");
     expect(JSON.stringify(telemetry.spans())).not.toContain("query StationRunQueueSnapshots");
+  });
+
+  it("executes the generated ScenarioBank operation with status filtering and redacted actor facts", async () => {
+    const app = createApiApp();
+    const scenarioBankDocument = adminGraphqlDocumentByOperationName("ScenarioBank");
+    const response = await app.request("/admin/graphql", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        query: scenarioBankDocument.source,
+        operationName: "ScenarioBank",
+        variables: { status: "APPROVED" },
+      }),
+    });
+
+    const body = await json(response) as {
+      data?: {
+        scenarios: Array<{
+          scenarioId: string;
+          title: string;
+          status: string;
+          clinicalObjectives: string[];
+          requiredTraceTags: string[];
+          review: { clinical: string; psychometric: string; legal: string; simulationQa: string };
+          governance: { scoreUseLabel: string; syntheticCaseDisclosure: string; validationStage: string; requiredReviewerRoles: string[]; sourceIds: string[] };
+          actors: Array<{ actorId: string; role: string; displayName: string; demeanor: string | null; hiddenFacts?: string[] }>;
+          assetNeeds: Array<{ assetId: string; assetType: string; licenseStatus: string }>;
+        }>;
+      };
+      errors?: Array<{ message: string }>;
+    };
+
+    expect(response.status).toBe(200);
+    expect(body.errors).toBeUndefined();
+    expect(body.data?.scenarios).toHaveLength(1);
+    expect(body.data?.scenarios[0]).toEqual(expect.objectContaining({
+      scenarioId: "ed_chest_pain_priority_v1",
+      title: "ED Chest Pain With Nurse Interruption And Family Pressure",
+      status: "APPROVED",
+      review: {
+        clinical: "approved",
+        psychometric: "approved",
+        legal: "approved",
+        simulationQa: "approved",
+      },
+      governance: expect.objectContaining({
+        scoreUseLabel: "formative_local_only",
+        syntheticCaseDisclosure: expect.stringContaining("not a validated summative assessment"),
+        validationStage: "stage_1_expert_reviewed",
+        requiredReviewerRoles: ["clinician", "psychometrician", "legal", "simulation_qa"],
+      }),
+    }));
+    expect(body.data?.scenarios[0]?.actors.map((actor) => actor.displayName)).toEqual([
+      "Robert Hayes",
+      "Anna Hayes",
+      "Maria Alvarez",
+    ]);
+    expect(body.data?.scenarios[0]?.assetNeeds.map((asset) => asset.assetId)).toContain("ed_exam_bay_environment");
+    expect(JSON.stringify(body)).not.toContain("Father died of myocardial infarction");
+    expect(JSON.stringify(body)).not.toContain("hiddenFacts");
   });
 
   it("serves ED chest pain asset readiness from the shared runtime", async () => {

@@ -4,9 +4,15 @@ export { openClinXrAdminSchemaSdl } from "./schema.js";
 import { openClinXrAdminSchemaSdl } from "./schema.js";
 import type {
   MutationCreateStationRunQueueSnapshotArgs,
+  QueryScenarioArgs,
+  QueryScenariosArgs,
   QueryStationRunQueueSnapshotsArgs,
+  Scenario,
   StationRunQueueSnapshot,
 } from "./generated/resolvers.generated.js";
+export { ScenarioStatus as AdminGraphqlScenarioStatus } from "./generated/resolvers.generated.js";
+
+export type AdminGraphqlScenario = Scenario;
 
 export type GraphqlCodegenPlan = {
   tool: "graphql-code-generator";
@@ -28,6 +34,12 @@ export type AdminGraphqlExecutionInput = {
 };
 
 export type AdminGraphqlRootValue = {
+  scenario?: (
+    args: QueryScenarioArgs,
+  ) => Promise<AdminGraphqlScenario | null | undefined> | AdminGraphqlScenario | null | undefined;
+  scenarios?: (
+    args: QueryScenariosArgs,
+  ) => Promise<AdminGraphqlScenario[]> | AdminGraphqlScenario[];
   stationRunQueueSnapshots?: (
     args: QueryStationRunQueueSnapshotsArgs,
   ) => Promise<StationRunQueueSnapshot[]> | StationRunQueueSnapshot[];

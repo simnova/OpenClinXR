@@ -11,10 +11,12 @@ import {
   type ExamStationRunQueue,
 } from "@openclinxr/exam-assembly";
 import {
+  AdminGraphqlScenarioStatus,
   adminGraphqlDocuments,
   createGraphqlCodegenPlan,
   executeAdminGraphql,
   openClinXrAdminSchemaSdl,
+  type AdminGraphqlScenario,
   type AdminGraphqlRootValue,
 } from "@openclinxr/graphql";
 import { matchOpenClinXrRestRoute, routeById } from "@openclinxr/rest";
@@ -340,7 +342,14 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
 }
 
 function createAdminGraphqlRoot(persistence: ApiPersistenceSink): AdminGraphqlRootValue {
+  const adminScenarios = scenarioBank.map(toAdminGraphqlScenario);
+
   return {
+    scenario: ({ scenarioId, version }) =>
+      adminScenarios.find((scenario) =>
+        scenario.scenarioId === scenarioId && (version === undefined || scenario.version === version)
+      ),
+    scenarios: ({ status }) => adminScenarios.filter((scenario) => status === undefined || scenario.status === status),
     stationRunQueueSnapshots: async ({ blueprintId }) => Promise.resolve(persistence.listStationRunQueueSnapshots?.(blueprintId) ?? []),
     createStationRunQueueSnapshot: async ({ input }) => {
       const snapshot = createSeedStationRunQueueSnapshot(input);
@@ -348,6 +357,34 @@ function createAdminGraphqlRoot(persistence: ApiPersistenceSink): AdminGraphqlRo
       return snapshot;
     },
   };
+}
+
+function toAdminGraphqlScenario(scenario: (typeof scenarioBank)[number]): AdminGraphqlScenario {
+  return {
+    scenarioId: scenario.scenarioId,
+    version: scenario.version,
+    title: scenario.title,
+    status: toAdminGraphqlScenarioStatus(scenario.status),
+    clinicalObjectives: scenario.clinicalObjectives,
+    actors: scenario.actors.map(({ hiddenFacts: _hiddenFacts, ...actor }) => actor),
+    requiredTraceTags: scenario.requiredTraceTags,
+    review: scenario.review,
+    governance: scenario.governance,
+    equipment: scenario.equipment ?? [],
+    assetNeeds: scenario.assetNeeds ?? [],
+    ...(scenario.environment === undefined ? {} : { environment: scenario.environment }),
+  };
+}
+
+function toAdminGraphqlScenarioStatus(status: (typeof scenarioBank)[number]["status"]): AdminGraphqlScenario["status"] {
+  switch (status) {
+    case "approved":
+      return AdminGraphqlScenarioStatus.Approved;
+    case "retired":
+      return AdminGraphqlScenarioStatus.Archived;
+    case "draft":
+      return AdminGraphqlScenarioStatus.Draft;
+  }
 }
 
 function createSeedStationRunQueueSnapshot(input: { snapshotId?: unknown; createdAt?: unknown; reviewerId?: unknown }): ApiStationRunQueueSnapshot {

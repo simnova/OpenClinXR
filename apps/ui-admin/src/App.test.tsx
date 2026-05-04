@@ -59,6 +59,27 @@ describe("AdminApp", () => {
     expect(findUnsafeClaimLanguage(governanceNotice.textContent ?? "")).toEqual([]);
   });
 
+  it("renders the generated ScenarioBank operation on the scenarios route", async () => {
+    render(<AdminApp initialPath="/scenarios" controlPlaneClient={fakeControlPlaneClient()} />);
+
+    expect((await screen.findAllByText("1 approved")).length).toBeGreaterThan(0);
+    expect(screen.getByRole("heading", { name: "Scenario Bank" })).toBeInTheDocument();
+    expect(screen.getAllByText("1 draft").length).toBeGreaterThan(0);
+    expect(screen.getByText("ED Chest Pain With Nurse Interruption And Family Pressure")).toBeInTheDocument();
+    expect(screen.getByText("Pediatric Asthma With Parent Anxiety")).toBeInTheDocument();
+    expect(screen.getByText("Robert Hayes")).toBeInTheDocument();
+    expect(screen.getByText("Anna Hayes")).toBeInTheDocument();
+    expect(screen.getByText("Maria Alvarez")).toBeInTheDocument();
+    expect(screen.getByText("clinician")).toBeInTheDocument();
+    expect(screen.getAllByText("psychometrician").length).toBeGreaterThan(0);
+
+    const scenarioBank = screen.getByLabelText("Scenario bank governance");
+    expect(findUnsafeClaimLanguage(scenarioBank.textContent ?? "")).toEqual([]);
+    expect(scenarioBank.textContent).not.toContain("Father died of myocardial infarction");
+    expect(scenarioBank.textContent).not.toContain("hiddenFacts");
+    expect(scenarioBank.textContent).not.toContain("__typename");
+  });
+
   it("renders existing station run queue review snapshots", async () => {
     const client = fakeControlPlaneClient();
     client.listStep2CsSeedStationRunQueueSnapshots = async () => [
@@ -173,6 +194,52 @@ function fakeControlPlaneClient(): AdminControlPlaneClient {
       totalStationTimeSeconds: 18720,
       summary: { activationReady: 1, draftBlocked: 11, governanceBlocked: 0, missingScenario: 0 },
     }),
+    listScenarios: async () => [
+      {
+        scenarioId: "ed_chest_pain_priority_v1",
+        version: 1,
+        title: "ED Chest Pain With Nurse Interruption And Family Pressure",
+        status: "APPROVED",
+        clinicalObjectives: ["Elicit focused chest pain history and risk factors"],
+        requiredTraceTags: ["ecg_request", "urgent_escalation", "team_communication"],
+        review: { __typename: "ScenarioReviewState", clinical: "approved", psychometric: "approved", legal: "approved", simulationQa: "approved" },
+        governance: {
+          scoreUseLabel: "formative_local_only",
+          syntheticCaseDisclosure: "Synthetic local training scenario; not a validated summative assessment.",
+          validationStage: "stage_1_expert_reviewed",
+          requiredReviewerRoles: ["clinician", "psychometrician", "legal", "simulation_qa"],
+          sourceIds: ["src-step2cs-public-archive"],
+        },
+        actors: [
+          { actorId: "patient_robert_hayes_v1", role: "patient", displayName: "Robert Hayes", demeanor: "anxious" },
+          { actorId: "spouse_anna_hayes_v1", role: "family", displayName: "Anna Hayes", demeanor: "worried" },
+          { actorId: "nurse_maria_alvarez_v1", role: "nurse", displayName: "Maria Alvarez", demeanor: "direct" },
+        ],
+        assetNeeds: [
+          { assetId: "ed_exam_bay_environment", assetType: "environment", licenseStatus: "placeholder-approved" },
+        ],
+      },
+      {
+        scenarioId: "peds_asthma_parent_anxiety_v1",
+        version: 1,
+        title: "Pediatric Asthma With Parent Anxiety",
+        status: "DRAFT",
+        clinicalObjectives: ["Assess pediatric respiratory distress"],
+        requiredTraceTags: ["oxygen_request", "urgent_escalation"],
+        review: { clinical: "draft", psychometric: "draft", legal: "draft", simulationQa: "draft" },
+        governance: {
+          scoreUseLabel: "formative_local_only",
+          syntheticCaseDisclosure: "Synthetic pediatric communication and urgent-care training draft; not validated for summative assessment.",
+          validationStage: "stage_0_synthetic_draft",
+          requiredReviewerRoles: ["pediatrician", "psychometrician", "legal", "simulation_qa"],
+          sourceIds: ["src-openclinxr-sample-case-bank-v1"],
+        },
+        actors: [
+          { actorId: "patient_maya_johnson_v1", role: "patient", displayName: "Maya Johnson", demeanor: "short sentences" },
+        ],
+        assetNeeds: [],
+      },
+    ],
     createStep2CsSeedStationRunQueueSnapshot: async (input) => ({
       snapshotId: input.snapshotId ?? "queue_snapshot_test_001",
       createdAt: input.createdAt ?? "2026-05-03T17:00:00.000Z",

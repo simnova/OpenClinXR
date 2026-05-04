@@ -3,15 +3,18 @@ import { defineConfig } from "vitest/config";
 
 const localApiTarget = "http://localhost:3000";
 
-export const openClinXrApiProxy = Object.freeze({
-  "/health": localApiProxyTarget(),
-  "/providers": localApiProxyTarget(),
-  "/admin": localApiProxyTarget(),
-  "/scenarios": localApiProxyTarget(),
-  "/scenario-bank": localApiProxyTarget(),
-  "/exam-blueprints": localApiProxyTarget(),
-  "/sessions": localApiProxyTarget(),
-});
+export function createOpenClinXrApiProxy(apiTarget = process.env.OPENCLINXR_API_PROXY_TARGET ?? localApiTarget) {
+  return Object.freeze({
+    "/health": localApiProxyTarget(apiTarget),
+    "/providers": localApiProxyTarget(apiTarget),
+    "/admin": localApiProxyTarget(apiTarget),
+    "/scenario-bank": localApiProxyTarget(apiTarget),
+    "/exam-blueprints": localApiProxyTarget(apiTarget),
+    "/sessions": localApiProxyTarget(apiTarget),
+  });
+}
+
+export const openClinXrApiProxy = createOpenClinXrApiProxy();
 
 export const openClinXrAdminBuildOutput = Object.freeze({
   codeSplitting: {
@@ -55,9 +58,9 @@ export default defineConfig({
   },
 });
 
-function localApiProxyTarget() {
+function localApiProxyTarget(apiTarget: string) {
   return {
-    target: localApiTarget,
+    target: apiTarget,
     changeOrigin: true,
   };
 }

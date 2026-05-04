@@ -1,6 +1,6 @@
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
-import { buildScenarioGovernanceCopy } from "@openclinxr/domain/claim-language";
+import { buildScenarioGovernanceCopy, safeUserFacingClaimLanguage, scoreUseCopy, validationStageCopy } from "@openclinxr/domain/claim-language";
 import { adminPublicationGates, adminWorkbenchRoutes } from "@openclinxr/ui-route-admin";
 import { adminWorkbenchCapabilityTags, openClinXrAdminTheme } from "@openclinxr/ui-shared";
 import { Alert, Button, Card, ConfigProvider, Layout, Space, Spin, Steps, Tag, Typography } from "antd";
@@ -8,6 +8,8 @@ import { useEffect, useMemo, useState } from "react";
 import { BrowserRouter, Link, MemoryRouter, Route, Routes } from "react-router";
 import {
   createAdminControlPlaneClient,
+  buildAdminGraphqlEndpoint,
+  type AdminScenario,
   type AdminControlPlaneClient,
   type AdminStationRunQueueSnapshot,
   type BlueprintScenarioReadiness,
@@ -27,7 +29,7 @@ type AdminAppProps = {
 
 export const adminApolloClient = new ApolloClient({
   cache: new InMemoryCache(),
-  link: new HttpLink({ uri: "/admin/graphql" }),
+  link: new HttpLink({ uri: buildAdminGraphqlEndpoint("") }),
 });
 
 const seedExamGovernanceCopy = buildScenarioGovernanceCopy({
@@ -85,7 +87,7 @@ export function AdminApp({ router = "memory", initialPath = "/", controlPlaneCli
 
               <Routes>
                 <Route path="/" element={<WorkbenchOverview />} />
-                <Route path="/scenarios" element={<WorkbenchPanel routeId="scenario-bank" />} />
+                <Route path="/scenarios" element={<ScenarioBankWorkbench controlPlaneClient={client} />} />
                 <Route path="/reviews" element={<WorkbenchPanel routeId="review-packet-replay" />} />
                 <Route path="/exam-forms" element={<SeedBlueprintWorkbench controlPlaneClient={client} />} />
               </Routes>
@@ -143,6 +145,138 @@ function WorkbenchPanel({ routeId }: { routeId: string }): React.ReactElement {
         This route is reserved for the generated GraphQL operation document and an Apollo-backed workbench module.
       </Typography.Paragraph>
     </Card>
+  );
+}
+
+type ScenarioBankWorkbenchState =
+  | { status: "loading" }
+  | { status: "error"; message: string }
+  | { status: "ready"; scenarios: AdminScenario[] };
+
+function ScenarioBankWorkbench({ controlPlaneClient }: { controlPlaneClient: AdminControlPlaneClient }): React.ReactElement {
+  const [state, setState] = useState<ScenarioBankWorkbenchState>({ status: "loading" });
+
+  useEffect(() => {
+    let active = true;
+
+    controlPlaneClient.listScenarios()
+      .then((scenarios) => {
+        if (active) {
+          setState({ status: "ready", scenarios });
+        }
+      })
+      .catch((error: unknown) => {
+        if (active) {
+          setState({ status: "error", message: error instanceof Error ? error.message : "Unknown ScenarioBank error" });
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [controlPlaneClient]);
+
+  if (state.status === "loading") {
+    return (
+      <section className="scenario-bank-workbench" aria-labelledby="scenario-bank-title">
+        <Typography.Title id="scenario-bank-title" level={3}>
+          Scenario Bank
+        </Typography.Title>
+        <Spin />
+      </section>
+    );
+  }
+
+  if (state.status === "error") {
+    return (
+      <section className="scenario-bank-workbench" aria-labelledby="scenario-bank-title">
+        <Typography.Title id="scenario-bank-title" level={3}>
+          Scenario Bank
+        </Typography.Title>
+        <Alert type="error" title="Scenario bank unavailable" description={state.message} showIcon />
+      </section>
+    );
+  }
+
+  const approvedCount = state.scenarios.filter((scenario) => scenario.status === "APPROVED").length;
+  const draftCount = state.scenarios.filter((scenario) => scenario.status === "DRAFT").length;
+  const readyForReviewCount = state.scenarios.filter((scenario) => scenario.status === "READY_FOR_REVIEW").length;
+
+  return (
+    <section className="scenario-bank-workbench" aria-labelledby="scenario-bank-title" aria-label="Scenario bank governance">
+      <div className="workbench-title-row">
+        <div>
+          <Typography.Text className="eyebrow">Generated ScenarioBank</Typography.Text>
+          <Typography.Title id="scenario-bank-title" level={3}>
+            Scenario Bank
+          </Typography.Title>
+        </div>
+        <Space wrap>
+          <Tag color="green">{`${approvedCount} approved`}</Tag>
+          <Tag color="gold">{`${draftCount} draft`}</Tag>
+          <Tag color="blue">{`${readyForReviewCount} ready for review`}</Tag>
+        </Space>
+      </div>
+
+      <div className="readiness-strip scenario-bank-strip" aria-label="Scenario bank status summary">
+        <ReadinessMetric label={`${state.scenarios.length} scenarios`} detail={`${uniqueValues(state.scenarios.flatMap((scenario) => scenario.governance.requiredReviewerRoles)).length} reviewer roles`} />
+        <ReadinessMetric label={`${approvedCount} approved`} detail={`${draftCount + readyForReviewCount} awaiting gates`} />
+        <ReadinessMetric label={`${uniqueValues(state.scenarios.flatMap((scenario) => scenario.actors.map((actor) => actor.role))).length} actor roles`} detail={`${state.scenarios.reduce((total, scenario) => total + scenario.actors.length, 0)} virtual actors`} />
+        <ReadinessMetric label={`${state.scenarios.reduce((total, scenario) => total + scenario.assetNeeds.length, 0)} asset needs`} detail="placeholder license posture" />
+      </div>
+
+      <div className="scenario-list">
+        {state.scenarios.map((scenario) => (
+          <article className="scenario-row" key={`${scenario.scenarioId}:${scenario.version}`}>
+            <div className="scenario-row-main">
+              <div>
+                <Typography.Title level={4}>{scenario.title}</Typography.Title>
+                <Typography.Text type="secondary">{`${scenario.scenarioId} v${scenario.version}`}</Typography.Text>
+              </div>
+              <Tag color={scenarioStatusColor(scenario.status)}>{scenario.status.toLowerCase().replaceAll("_", " ")}</Tag>
+            </div>
+
+            <div className="scenario-row-grid">
+              <section aria-label={`${scenario.title} review gates`}>
+                <Typography.Text strong>Review gates</Typography.Text>
+                <div className="tag-row">
+                  {scenarioReviewGateEntries(scenario).map(([gate, stateName]) => (
+                    <Tag key={gate} color={reviewGateColor(stateName)}>{`${gate}: ${stateName}`}</Tag>
+                  ))}
+                </div>
+              </section>
+
+              <section aria-label={`${scenario.title} actors`}>
+                <Typography.Text strong>Actors</Typography.Text>
+                <ol className="compact-list">
+                  {scenario.actors.map((actor) => (
+                    <li key={actor.actorId}>
+                      <Typography.Text>{actor.displayName}</Typography.Text>
+                      <Typography.Text type="secondary">{actor.role}</Typography.Text>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+
+              <section aria-label={`${scenario.title} governance`}>
+                <Typography.Text strong>Governance</Typography.Text>
+                <div className="tag-row">
+                  {scenario.governance.requiredReviewerRoles.map((role) => (
+                    <Tag key={role}>{role}</Tag>
+                  ))}
+                </div>
+                <Typography.Text type="secondary">{formatScenarioGovernanceNotice(scenario)}</Typography.Text>
+              </section>
+
+              <section aria-label={`${scenario.title} trace tags and assets`}>
+                <Typography.Text strong>{`${scenario.requiredTraceTags.length} trace tags`}</Typography.Text>
+                <Typography.Text type="secondary">{`${scenario.assetNeeds.length} asset needs`}</Typography.Text>
+              </section>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -394,6 +528,42 @@ function formatSnapshotQueueSummary(snapshot: AdminStationRunQueueSnapshot): str
     snapshot.queue.summary.draftBlocked + snapshot.queue.summary.governanceBlocked + snapshot.queue.summary.missingScenario;
 
   return `${snapshot.queue.summary.activationReady} activation-ready / ${blocked} blocked`;
+}
+
+function scenarioStatusColor(status: AdminScenario["status"]): string {
+  switch (status) {
+    case "APPROVED":
+      return "green";
+    case "READY_FOR_REVIEW":
+      return "blue";
+    case "DRAFT":
+      return "gold";
+    case "ARCHIVED":
+      return "default";
+  }
+}
+
+function reviewGateColor(stateName: string): string {
+  return stateName === "approved" ? "green" : stateName === "in_review" ? "blue" : "gold";
+}
+
+function scenarioReviewGateEntries(scenario: AdminScenario): Array<[string, string]> {
+  return Object.entries(scenario.review).filter(([gate, stateName]) =>
+    gate !== "__typename" && typeof stateName === "string"
+  ) as Array<[string, string]>;
+}
+
+function formatScenarioGovernanceNotice(scenario: AdminScenario): string {
+  const scoreUseNotice = scoreUseCopy[scenario.governance.scoreUseLabel as keyof typeof scoreUseCopy]
+    ?? safeUserFacingClaimLanguage.formativeAssessment;
+  const validationNotice = validationStageCopy[scenario.governance.validationStage as keyof typeof validationStageCopy]
+    ?? safeUserFacingClaimLanguage.humanReview;
+
+  return `${scoreUseNotice} ${validationNotice} ${safeUserFacingClaimLanguage.syntheticScenario}`;
+}
+
+function uniqueValues(values: string[]): string[] {
+  return [...new Set(values)];
 }
 
 function capabilityTagColor(tag: string): string {

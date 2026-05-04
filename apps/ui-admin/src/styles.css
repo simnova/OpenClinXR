@@ -75,7 +75,8 @@ a {
   max-width: 1120px;
 }
 
-.seed-workbench {
+.seed-workbench,
+.scenario-bank-workbench {
   max-width: 1180px;
 }
 
@@ -170,6 +171,69 @@ a {
   margin: 14px 0 0;
 }
 
+.scenario-bank-strip {
+  grid-template-columns: repeat(4, minmax(170px, 1fr));
+}
+
+.scenario-list {
+  display: grid;
+  gap: 12px;
+}
+
+.scenario-row {
+  background: #ffffff;
+  border: 1px solid #dbe3e1;
+  border-radius: 6px;
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+}
+
+.scenario-row-main {
+  align-items: start;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.scenario-row-main h4 {
+  font-size: 17px;
+  margin: 0 0 4px;
+}
+
+.scenario-row-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1.1fr 0.9fr 1.2fr 0.7fr;
+}
+
+.scenario-row-grid section {
+  border-top: 1px solid #edf2f1;
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding-top: 10px;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.compact-list {
+  display: grid;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.compact-list li {
+  display: grid;
+  gap: 2px;
+}
+
 @media (max-width: 760px) {
   .admin-shell {
     display: block;
@@ -190,7 +254,13 @@ a {
   }
 
   .readiness-strip,
+  .scenario-bank-strip,
   .workbench-panels {
+    grid-template-columns: 1fr;
+  }
+
+  .scenario-row-main,
+  .scenario-row-grid {
     grid-template-columns: 1fr;
   }
 }
