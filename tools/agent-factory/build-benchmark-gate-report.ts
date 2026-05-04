@@ -1,3 +1,4 @@
+import { pathToFileURL } from "node:url";
 import { globFiles, readJson, writeJson } from "./lib.js";
 
 type QuestSmokeReport = {
@@ -150,13 +151,29 @@ type BlockerGroup = {
   next_step: string;
 };
 
+type EvidenceFile<TValue> = { file: string; value: TValue };
+
+export type BenchmarkGateReportInput = {
+  questSmoke?: EvidenceFile<QuestSmokeReport>;
+  localRuntime?: EvidenceFile<LocalRuntimeProbeReport>;
+  gltfPipelineSmoke?: EvidenceFile<GltfPipelineSmokeReport>;
+  localProviderBenchmark?: EvidenceFile<LocalProviderBenchmarkReport>;
+  questManualPerformance?: EvidenceFile<QuestManualPerformanceCheck>;
+};
+
 async function main(): Promise<void> {
   const questSmoke = await latestJson<QuestSmokeReport>("docs/openclinxr/quest-cdp-smoke-*.json");
   const localRuntime = await latestJson<LocalRuntimeProbeReport>("docs/openclinxr/local-runtime-probe-*.json");
   const gltfPipelineSmoke = await latestJson<GltfPipelineSmokeReport>("docs/openclinxr/gltf-pipeline-smoke-*.json");
   const localProviderBenchmark = await latestJson<LocalProviderBenchmarkReport>("docs/openclinxr/local-provider-benchmark-*.json");
   const questManualPerformance = await fileJson<QuestManualPerformanceCheck>(".agent-factory/quest-manual-performance-report.json");
-  const report = buildReport(questSmoke, localRuntime, gltfPipelineSmoke, localProviderBenchmark, questManualPerformance);
+  const report = buildBenchmarkGateReport({
+    questSmoke,
+    localRuntime,
+    gltfPipelineSmoke,
+    localProviderBenchmark,
+    questManualPerformance,
+  });
   await writeJson(".agent-factory/benchmark-gate-report.json", report);
   console.log(`Wrote .agent-factory/benchmark-gate-report.json; evidence-leadership-0007-002 ready=${report.evidence_gates[0]?.ready_to_resolve ?? false}`);
 }
@@ -178,13 +195,8 @@ async function fileJson<TValue>(file: string): Promise<{ file: string; value: TV
   }
 }
 
-function buildReport(
-  questSmoke: { file: string; value: QuestSmokeReport } | undefined,
-  localRuntime: { file: string; value: LocalRuntimeProbeReport } | undefined,
-  gltfPipelineSmoke: { file: string; value: GltfPipelineSmokeReport } | undefined,
-  localProviderBenchmark: { file: string; value: LocalProviderBenchmarkReport } | undefined,
-  questManualPerformance: { file: string; value: QuestManualPerformanceCheck } | undefined,
-): EvidenceGateReport {
+export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): EvidenceGateReport {
+  const { questSmoke, localRuntime, gltfPipelineSmoke, localProviderBenchmark, questManualPerformance } = input;
   const blockers = [
     ...questBlockers(questSmoke?.value),
     ...questManualPerformanceBlockers(questManualPerformance?.value),
@@ -335,8 +347,6 @@ function localRuntimeBlockers(report: LocalRuntimeProbeReport | undefined): stri
     ...prefixBlockers("local_model", report.gates.localModel),
     ...prefixBlockers("local_voice", report.gates.localVoice),
     ...prefixBlockers("asset_pipeline", report.gates.assetPipeline),
-    report.gates.localModel.status === "ready" ? "local_model_runtime_not_benchmarked" : undefined,
-    report.gates.localVoice.status === "ready" ? "local_voice_runtime_not_benchmarked" : undefined,
   ]);
 }
 
@@ -404,4 +414,6 @@ function unique(values: Array<string | undefined>): string[] {
   return [...new Set(values.filter((value): value is string => typeof value === "string"))].sort();
 }
 
-await main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await main();
+}

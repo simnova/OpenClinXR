@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
+import { buildBenchmarkGateReport } from "./build-benchmark-gate-report.js";
 
 type BlockerGroup = {
   group_id: string;
@@ -59,5 +60,80 @@ describe("benchmark gate report", () => {
       ]),
     );
     expect(gate?.blocker_summary?.groups.every((group) => group.next_step.length > 0)).toBe(true);
+  });
+
+  it("marks the leadership evidence gate ready when all fixture evidence is satisfied", () => {
+    const report = buildBenchmarkGateReport({
+      questSmoke: {
+        file: "quest.json",
+        value: {
+          generatedAt: "2026-05-04T00:00:00.000Z",
+          verdict: {
+            shellLoaded: true,
+            interactionAdvanced: true,
+            frameSampleComplete: true,
+            blockers: [],
+          },
+        },
+      },
+      questManualPerformance: {
+        file: "quest-manual.json",
+        value: {
+          generatedAt: "2026-05-04T00:00:00.000Z",
+          inputFile: "manual-input.json",
+          readyToClaimFramePacing: true,
+          satisfiedConditions: ["average_fps_72_or_higher"],
+          blockers: [],
+        },
+      },
+      localRuntime: {
+        file: "runtime.json",
+        value: {
+          generatedAt: "2026-05-04T00:00:00.000Z",
+          gates: {
+            questUsb: { status: "ready", blockers: [] },
+            localModel: { status: "ready", blockers: [] },
+            localVoice: { status: "ready", blockers: [] },
+            assetPipeline: { status: "ready", blockers: [] },
+          },
+        },
+      },
+      gltfPipelineSmoke: {
+        file: "gltf.json",
+        value: {
+          generatedAt: "2026-05-04T00:00:00.000Z",
+          tool: { command: "gltf-pipeline", package: "gltf-pipeline", version: "4.3.1", license: "Apache-2.0" },
+          output: { glbBytes: 1024, magic: "glTF", version: 2, declaredLength: 1024, elapsedMs: 10 },
+          verdict: { passed: true, blockers: [] },
+        },
+      },
+      localProviderBenchmark: {
+        file: "provider.json",
+        value: {
+          generatedAt: "2026-05-04T00:00:00.000Z",
+          mockModel: { status: "passed", latencyMs: 1, blockers: [], metrics: {} },
+          mockVoice: { status: "passed", latencyMs: 1, blockers: [], metrics: {} },
+          localModel: { status: "passed", blockers: [], metrics: {} },
+          localVoice: { status: "passed", blockers: [], metrics: {} },
+          verdict: {
+            deterministicMocksPassed: true,
+            localModelReadyToBenchmark: true,
+            localVoiceReadyToBenchmark: true,
+            blockers: [],
+          },
+        },
+      },
+    });
+    const gate = report.evidence_gates[0];
+
+    expect(gate?.ready_to_resolve).toBe(true);
+    expect(gate?.blockers).toEqual([]);
+    expect(gate?.satisfied_conditions).toEqual(expect.arrayContaining([
+      "quest_shell_loaded",
+      "quest_manual_frame_pacing_ready",
+      "asset_pipeline_gltf_pipeline_smoke_passed",
+      "local_model_ready_to_benchmark",
+      "local_voice_ready_to_benchmark",
+    ]));
   });
 });
