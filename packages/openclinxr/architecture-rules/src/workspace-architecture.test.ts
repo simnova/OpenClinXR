@@ -9,6 +9,35 @@ import { describe, expect, it } from "vitest";
 const archTsconfig = "../../../tsconfig.archunit.json";
 const workspaceRoot = findWorkspaceRoot();
 const dependencyFields = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"] as const;
+const paidCloudProviderDependencies = [
+  "@ai-sdk/anthropic",
+  "@ai-sdk/google",
+  "@ai-sdk/groq",
+  "@ai-sdk/openai",
+  "@ai-sdk/xai",
+  "@anthropic-ai/sdk",
+  "@aws-sdk/client-bedrock-runtime",
+  "@azure/openai",
+  "@google/generative-ai",
+  "@mistralai/mistralai",
+  "cohere-ai",
+  "groq-sdk",
+  "mistralai",
+  "openai",
+  "xai-sdk",
+] as const;
+const paidCloudProviderEnvKeys = [
+  "ANTHROPIC_API_KEY",
+  "AWS_BEDROCK_API_KEY",
+  "AZURE_OPENAI_API_KEY",
+  "COHERE_API_KEY",
+  "GOOGLE_API_KEY",
+  "GROK_API_KEY",
+  "GROQ_API_KEY",
+  "MISTRAL_API_KEY",
+  "OPENAI_API_KEY",
+  "XAI_API_KEY",
+] as const;
 
 type DependencyField = typeof dependencyFields[number];
 
@@ -26,6 +55,12 @@ type SourceImportReference = {
 type MongoMemoryServerBoundaryInput = {
   manifestDependencies: WorkspaceDependencyReference[];
   sourceReferences: SourceImportReference[];
+};
+
+type PaidProviderBoundaryInput = {
+  manifestDependencies: WorkspaceDependencyReference[];
+  sourceReferences: SourceImportReference[];
+  envKeyReferences: Array<{ filePath: string; envKey: string }>;
 };
 
 describe("workspace architecture rules", () => {
@@ -249,6 +284,40 @@ describe("workspace architecture rules", () => {
     expect(violations).toEqual([]);
   });
 
+  it("reports paid cloud provider SDKs and credentials when they leak into default runtime paths", () => {
+    const violations = findPaidProviderBoundaryViolations({
+      manifestDependencies: [
+        {
+          manifestPath: "packages/openclinxr/model-gateway/package.json",
+          field: "dependencies",
+          dependency: "openai",
+        },
+      ],
+      sourceReferences: [
+        {
+          filePath: "packages/openclinxr/model-gateway/src/openai-adapter.ts",
+          specifier: "openai",
+        },
+      ],
+      envKeyReferences: [
+        {
+          filePath: "apps/api/src/cloud-adapter.ts",
+          envKey: "OPENAI_API_KEY",
+        },
+      ],
+    });
+
+    expect(violations).toEqual([
+      "env:apps/api/src/cloud-adapter.ts:OPENAI_API_KEY",
+      "manifest:packages/openclinxr/model-gateway/package.json:dependencies.openai",
+      "source:packages/openclinxr/model-gateway/src/openai-adapter.ts:openai",
+    ]);
+  });
+
+  it("keeps paid cloud model and voice SDKs out of default local runtime manifests and source", () => {
+    expect(findPaidProviderBoundaryViolations(scanPaidProviderBoundary())).toEqual([]);
+  });
+
   it("keeps shared UI packages free of circular imports", async () => {
     const violations = await projectFiles(archTsconfig)
       .inFolder("packages/openclinxr/ui-*/src/**")
@@ -400,6 +469,26 @@ function scanMongoMemoryServerBoundary(): MongoMemoryServerBoundaryInput {
   };
 }
 
+function scanPaidProviderBoundary(): PaidProviderBoundaryInput {
+  const runtimeSourceFiles = runtimePolicySourceFiles();
+
+  return {
+    manifestDependencies: workspacePackageDependencyReferences([...paidCloudProviderDependencies]),
+    sourceReferences: paidCloudProviderDependencies.flatMap((dependency) => sourceImportReferences(dependency, runtimeSourceFiles)),
+    envKeyReferences: findEnvKeyReferences(runtimeSourceFiles, [...paidCloudProviderEnvKeys]),
+  };
+}
+
+function findPaidProviderBoundaryViolations(input: PaidProviderBoundaryInput): string[] {
+  return [
+    ...input.envKeyReferences.map(({ filePath, envKey }) => `env:${filePath}:${envKey}`),
+    ...input.manifestDependencies.map(({ manifestPath, field, dependency }) =>
+      `manifest:${manifestPath}:${field}.${dependency}`
+    ),
+    ...input.sourceReferences.map(({ filePath, specifier }) => `source:${filePath}:${specifier}`),
+  ].sort();
+}
+
 function findMongoMemoryServerBoundaryViolations(input: MongoMemoryServerBoundaryInput): string[] {
   return [
     ...input.manifestDependencies
@@ -426,18 +515,44 @@ function isAllowedMongoMemoryServerSource(filePath: string): boolean {
   ].some((pattern) => pattern.test(filePath));
 }
 
-function sourceImportReferences(specifier: string): SourceImportReference[] {
+function sourceImportReferences(specifier: string, files = [...sourceFilesUnder("apps"), ...sourceFilesUnder("packages")]): SourceImportReference[] {
   const importPattern = new RegExp(
     `(?:from\\s+["'](${escapeRegExp(specifier)}(?:/[^"']*)?)["']|import\\s*\\(\\s*["'](${escapeRegExp(specifier)}(?:/[^"']*)?)["']\\s*\\))`,
     "g",
   );
 
-  return [...sourceFilesUnder("apps"), ...sourceFilesUnder("packages")].flatMap((filePath) => {
+  return files.flatMap((filePath) => {
     const sourceText = readFileSync(join(workspaceRoot, filePath), "utf8");
     return [...sourceText.matchAll(importPattern)].map((match) => ({
       filePath,
       specifier: match[1] ?? match[2] ?? specifier,
     }));
+  });
+}
+
+function runtimePolicySourceFiles(): string[] {
+  return [...typescriptFilesUnder("apps"), ...typescriptFilesUnder("packages"), ...typescriptFilesUnder("tools")]
+    .filter((filePath) => !/\.test\.tsx?$/.test(filePath))
+    .filter((filePath) => !filePath.includes("/generated/"));
+}
+
+function typescriptFilesUnder(root: string): string[] {
+  const absoluteRoot = join(workspaceRoot, root);
+  if (!existsSync(absoluteRoot)) {
+    return [];
+  }
+
+  return walk(absoluteRoot)
+    .map((filePath) => relative(workspaceRoot, filePath).split(sep).join("/"))
+    .filter((filePath) => /\.tsx?$/.test(filePath));
+}
+
+function findEnvKeyReferences(files: string[], envKeys: string[]): Array<{ filePath: string; envKey: string }> {
+  return files.flatMap((filePath) => {
+    const sourceText = readFileSync(join(workspaceRoot, filePath), "utf8");
+    return envKeys
+      .filter((envKey) => new RegExp(`\\b${escapeRegExp(envKey)}\\b`).test(sourceText))
+      .map((envKey) => ({ filePath, envKey }));
   });
 }
 
