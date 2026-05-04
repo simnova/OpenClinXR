@@ -2,7 +2,7 @@
 
 ## Durable Lessons
 
-- No durable lessons recorded yet.
+- Actor, equipment, clothing, skin, rigging, and environment assets should be reviewed from browser screenshots/videos with explicit notes on clinical scene fidelity, scale, provenance, and missing equipment before calling a scenario visually production-ready.
 
 ## Active Risks
 
@@ -19,4 +19,4 @@
 - Track asset-provenance across iterations.
 - Track quest-asset-budgets across iterations.
 - Track blender-pipeline across iterations.
-
+- Track visual-evidence across iterations.

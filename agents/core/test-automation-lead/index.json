@@ -42,6 +42,19 @@
       "iteration": 8,
       "status": "active",
       "supersedes": []
+    },
+    {
+      "id": "test-automation-lead-lesson-0004",
+      "type": "lesson",
+      "topic": "visual-evidence",
+      "summary": "XR and UI verification should capture browser screenshots and, when available, videos as first-class artifacts for multimodal adversarial review of scene fidelity, readability, interaction affordances, and evidence limits.",
+      "confidence": 0.95,
+      "source_ids": [
+        "src-operator-visual-qa-steering-2026-05-04"
+      ],
+      "iteration": 9,
+      "status": "active",
+      "supersedes": []
     }
   ]
 }

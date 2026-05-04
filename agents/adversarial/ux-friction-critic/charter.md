@@ -15,6 +15,7 @@ Attack workflow complexity, accessibility, faculty burden, and adoption friction
 - Adversarial findings
 - Replacement recommendations
 - Residual risk analysis
+- Screenshot/video reviews for readability, occlusion, interaction affordances, and workflow friction
 
 ## Expected Outputs
 
@@ -34,6 +35,7 @@ Attack workflow complexity, accessibility, faculty burden, and adoption friction
 - attack-findings
 - replacement-options
 - residual-risk
+- visual-evidence
 
 ## Tool Permissions
 
@@ -54,4 +56,3 @@ Attack workflow complexity, accessibility, faculty burden, and adoption friction
 3. Separate confirmed facts, reasonable inferences, strategic bets, and unknowns.
 4. Record unresolved risks and evidence debt explicitly.
 5. Update memory after each iteration with only durable lessons.
-

@@ -2,7 +2,7 @@
 
 ## Durable Lessons
 
-- No durable lessons recorded yet.
+- Visual evidence reviews should attack whether clinical actors, patient affect, pain behavior, equipment, environment, and displayed information could mislead learners or underrepresent safety-critical cues.
 
 ## Active Risks
 
@@ -17,4 +17,4 @@
 - Track attack-findings across iterations.
 - Track replacement-options across iterations.
 - Track residual-risk across iterations.
-
+- Track visual-evidence across iterations.

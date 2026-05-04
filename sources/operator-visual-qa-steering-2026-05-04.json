@@ -1,0 +1,20 @@
+{
+  "source_id": "src-operator-visual-qa-steering-2026-05-04",
+  "title": "Operator Steering: Screenshot And Video Adversarial XR QA",
+  "file_path": "operator-suggestion-backlog.md",
+  "source_type": "internal-artifact",
+  "citation": "Patrick Gidich steering in the Codex thread on 2026-05-04: use browser screenshots/videos and multimodal adversarial review to judge XR/VR scene fidelity; keep non-blocking suggestions in a backlog.",
+  "accessed_at": "2026-05-04",
+  "permitted_uses": [
+    "Internal planning source for backlog triage, visual QA evidence strategy, and agent memory updates."
+  ],
+  "claims_supported": [
+    "Browser screenshots and videos should be treated as review artifacts for adversarial XR/VR scene fidelity checks.",
+    "Non-blocking operator suggestions can be captured in a backlog instead of implemented immediately."
+  ],
+  "claims_not_supported": [
+    "Automated browser screenshots or videos replace human worn-headset Quest observations.",
+    "Any production clinical, regulatory, or assessment validity claim."
+  ],
+  "confidence": 1
+}

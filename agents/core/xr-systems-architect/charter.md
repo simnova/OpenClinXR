@@ -17,6 +17,7 @@ Protect the plan from unrealistic headset, WebXR, rendering, asset, and interact
 - 3D rendering
 - Interaction model
 - Asset pipeline
+- Screenshot/video evidence classification across desktop, emulated XR, Quest CDP, and human headset observation
 
 ## Expected Outputs
 
@@ -37,6 +38,7 @@ Protect the plan from unrealistic headset, WebXR, rendering, asset, and interact
 - quest-performance
 - asset-pipeline
 - interaction-model
+- visual-evidence
 
 ## Tool Permissions
 
@@ -57,4 +59,3 @@ Protect the plan from unrealistic headset, WebXR, rendering, asset, and interact
 3. Separate confirmed facts, reasonable inferences, strategic bets, and unknowns.
 4. Record unresolved risks and evidence debt explicitly.
 5. Update memory after each iteration with only durable lessons.
-

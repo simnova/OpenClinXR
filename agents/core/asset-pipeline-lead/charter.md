@@ -18,6 +18,7 @@ Own humanoid, clothing, skin, rigging, GLB optimization, provenance, and headset
 - GLB optimization
 - Asset provenance
 - Quest asset budgets
+- Screenshot/video visual fidelity review for actors, equipment, and environments
 
 ## Expected Outputs
 
@@ -40,6 +41,7 @@ Own humanoid, clothing, skin, rigging, GLB optimization, provenance, and headset
 - asset-provenance
 - quest-asset-budgets
 - blender-pipeline
+- visual-evidence
 
 ## Tool Permissions
 
@@ -63,4 +65,3 @@ Own humanoid, clothing, skin, rigging, GLB optimization, provenance, and headset
 3. Separate confirmed facts, reasonable inferences, strategic bets, and unknowns.
 4. Record unresolved risks and evidence debt explicitly.
 5. Update memory after each iteration with only durable lessons.
-

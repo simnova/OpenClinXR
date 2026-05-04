@@ -72,6 +72,19 @@
       "iteration": 8,
       "status": "active",
       "supersedes": []
+    },
+    {
+      "id": "xr-systems-architect-lesson-0006",
+      "type": "lesson",
+      "topic": "visual-evidence",
+      "summary": "Screenshot and video artifacts can accelerate XR scene critique, but each artifact must be labeled as desktop, emulated XR, Quest CDP, or human worn-headset evidence so automated visual review does not replace physical headset comfort, performance, or readability proof.",
+      "confidence": 0.95,
+      "source_ids": [
+        "src-operator-visual-qa-steering-2026-05-04"
+      ],
+      "iteration": 9,
+      "status": "active",
+      "supersedes": []
     }
   ]
 }

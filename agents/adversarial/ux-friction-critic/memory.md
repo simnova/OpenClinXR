@@ -2,7 +2,7 @@
 
 ## Durable Lessons
 
-- No durable lessons recorded yet.
+- Screenshot and video review should attack text readability, occlusion, scale, affordance discoverability, navigation friction, and whether the visible scene matches the intended learner workflow.
 
 ## Active Risks
 
@@ -17,4 +17,4 @@
 - Track attack-findings across iterations.
 - Track replacement-options across iterations.
 - Track residual-risk across iterations.
-
+- Track visual-evidence across iterations.

@@ -17,6 +17,7 @@ Make the implementation plan test-first across domain, adapters, admin UI, XR sm
 - Storybook tests
 - Serenity acceptance tests
 - XR smoke tests
+- Browser screenshot/video evidence contracts
 - CI gates
 
 ## Expected Outputs
@@ -41,6 +42,7 @@ Make the implementation plan test-first across domain, adapters, admin UI, XR sm
 - serenity
 - playwright
 - xr-smoke
+- visual-evidence
 
 ## Tool Permissions
 
@@ -62,4 +64,3 @@ Make the implementation plan test-first across domain, adapters, admin UI, XR sm
 3. Separate confirmed facts, reasonable inferences, strategic bets, and unknowns.
 4. Record unresolved risks and evidence debt explicitly.
 5. Update memory after each iteration with only durable lessons.
-

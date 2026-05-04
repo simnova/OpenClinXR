@@ -15,6 +15,19 @@
       "iteration": 0,
       "status": "active",
       "supersedes": []
+    },
+    {
+      "id": "asset-pipeline-lead-lesson-0002",
+      "type": "lesson",
+      "topic": "visual-evidence",
+      "summary": "Screenshot and video evidence for XR scenarios should be reviewed for clinical scene fidelity, actor/equipment realism, scale, provenance cues, missing critical equipment, and headset budget implications before any asset lane is called production-ready.",
+      "confidence": 0.94,
+      "source_ids": [
+        "src-operator-visual-qa-steering-2026-05-04"
+      ],
+      "iteration": 9,
+      "status": "active",
+      "supersedes": []
     }
   ]
 }

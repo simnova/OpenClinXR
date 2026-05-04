@@ -28,3 +28,4 @@ This file is for true operator blockers only: decisions, confirmations, credenti
 - Ask before destructive git/file operations, paid/cloud/API usage, production credentials, or changes that alter machine-level trust/security state.
 - Prefer local deterministic spikes, repo-managed dependencies, and verified commits before requesting steering.
 - Simple physical-state actions such as waking the Quest, closing extra Quest Browser windows, or reconnecting USB-C do not need proposal files; non-trivial installs, downloads, runtime enablement, security/trust changes, or production-readiness evidence captures do.
+- Capture non-blocking operator suggestions in `operator-suggestion-backlog.md`; do not treat backlog items as approval, blockers, or immediate scope unless they are promoted through a verified slice or explicit proposal.

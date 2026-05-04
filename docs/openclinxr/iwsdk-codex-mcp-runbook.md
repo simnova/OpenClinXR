@@ -77,6 +77,8 @@ Use the tool ladder this way:
 - Future IWSDK MCP evidence can prove emulated XR session readiness, scene hierarchy parity, controller-select trace behavior, screenshots, console logs, and ECS inspection only after the approved sidecar exists and the MCP evidence gates pass.
 - Manual foreground Quest evidence remains required before any production-readiness claim about frame pacing, controller latency, comfort, thermal behavior, or readable in-headset text.
 
+Treat screenshots and videos as adversarial review artifacts, not decorative proof. Every capture used for XR/UI evidence should record whether it came from desktop browser, Quest CDP, IWSDK/IWER emulation, or a human worn-headset session; the route/runtime URL; viewport or headset context; scenario ID; XR mode; camera pose when available; capture command or tool; and artifact path. The Test Automation Lead owns the capture contract, UX Friction Critic attacks readability/occlusion/affordances, Clinical Safety Critic attacks misleading or missing clinical cues, XR Systems Architect classifies the evidence limits, and Asset Pipeline Lead attacks actor, equipment, clothing, skin, rigging, scale, and environment fidelity. Automated browser, MCP, or IWER screenshots cannot replace the manual Quest foreground report.
+
 Default to IWSDK `agent` mode for unattended Codex checks: headless fixed viewport, DevUI off, and a separate normal browser for manual development. Use `oversight` mode only when Patrick or a developer needs to watch the Playwright browser directly. Use `collaborate` mode only for hands-on controller, hand, or spatial UI tuning after the sidecar shell is stable.
 
 The current production `apps/ui-xr` shell is the baseline station for future sidecar parity checks. It now exposes a source-controlled smoke plan through `buildIwsdkStationMcpSmokePlan()` in `apps/ui-xr/src/runtime-state.ts`. The first plan targets the ED chest pain station, requires named Three.js scene objects for patient, nurse, spouse, monitor, bed, floor, lights, and wall clock, and uses `ecg_request` as the first controller-select trace action.
@@ -102,6 +104,7 @@ Evidence to record:
 - One controller select mapped to the plan's station trace action, initially `ecg_request`.
 - Empty warning/error console logs, or explicit blockers.
 - 32-tool inventory with exact observed tool names and session, transforms, input mode, select/trigger, gamepad, device state, browser, scene, and ECS category coverage before claiming IWSDK agent-tooling readiness.
+- Adversarial visual QA notes for each screenshot/video artifact, including clinical scene fidelity, actor/equipment realism, UI readability, interaction affordances, occlusion, scale, and explicit evidence limits.
 
 `packages/openclinxr/iwsdk-spike` exposes `evaluateIwsdkAgentToolingEvidence()` as the aggregate readiness check for this section. Treat IWSDK agent-tooling readiness as blocked unless that evaluator accepts adapter sync evidence, the 32-tool inventory, observed tool names matching `buildIwsdkMcpToolInventory().allToolNames`, all required MCP categories, the minimal MCP smoke subset, managed-browser evidence, and the optional MCP server action list.
 

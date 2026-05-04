@@ -15,6 +15,19 @@
       "iteration": 0,
       "status": "active",
       "supersedes": []
+    },
+    {
+      "id": "clinical-safety-critic-lesson-0002",
+      "type": "lesson",
+      "topic": "visual-evidence",
+      "summary": "XR screenshot and video review should attack whether actors, patient affect, pain behavior, clinical equipment, environmental details, and displayed information could mislead learners or omit safety-critical cues.",
+      "confidence": 0.95,
+      "source_ids": [
+        "src-operator-visual-qa-steering-2026-05-04"
+      ],
+      "iteration": 9,
+      "status": "active",
+      "supersedes": []
     }
   ]
 }

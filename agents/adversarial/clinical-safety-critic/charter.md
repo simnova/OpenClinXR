@@ -15,6 +15,7 @@ Attack unsafe clinical assumptions, misleading feedback, and oversight gaps and 
 - Adversarial findings
 - Replacement recommendations
 - Residual risk analysis
+- Screenshot/video clinical fidelity attacks for actors, equipment, patient affect, and safety-critical visual cues
 
 ## Expected Outputs
 
@@ -34,6 +35,7 @@ Attack unsafe clinical assumptions, misleading feedback, and oversight gaps and 
 - attack-findings
 - replacement-options
 - residual-risk
+- visual-evidence
 
 ## Tool Permissions
 
@@ -54,4 +56,3 @@ Attack unsafe clinical assumptions, misleading feedback, and oversight gaps and 
 3. Separate confirmed facts, reasonable inferences, strategic bets, and unknowns.
 4. Record unresolved risks and evidence debt explicitly.
 5. Update memory after each iteration with only durable lessons.
-
