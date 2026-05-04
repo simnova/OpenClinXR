@@ -88,7 +88,7 @@ export async function buildIwsdkWorkspacePostureReport(input: {
   const scriptReferences = await scanPackageScripts(workspaceRoot);
   const lockfilePackageNames = await scanLockfileBlockedPackages(workspaceRoot);
   const sidecarLockfileImporterPresent = await scanSidecarLockfileImporter(workspaceRoot);
-  const packageManagerReferences = scanPackageManagerReferences(rootPackage);
+  const packageManagerReferences = await scanPackageManagerReferences(workspaceRoot, rootPackage);
   const packageManagerControls = buildPackageManagerControls(rootPackage);
   const result = evaluateIwsdkWorkspacePosture({
     sidecarAppExists,
@@ -231,16 +231,21 @@ async function scanSidecarLockfileImporter(workspaceRoot: string): Promise<boole
   return /(?:^|\n) {2}apps\/ui-xr-iwsdk-spike:\s*(?:\n|$)/.test(lockfileText);
 }
 
-function scanPackageManagerReferences(rootPackage: PackageJson): IwsdkWorkspacePackageManagerReference[] {
+async function scanPackageManagerReferences(
+  workspaceRoot: string,
+  rootPackage: PackageJson,
+): Promise<IwsdkWorkspacePackageManagerReference[]> {
   const references: IwsdkWorkspacePackageManagerReference[] = [];
-  collectPackageManagerReferences(rootPackage.pnpm, "pnpm", references);
-  collectPackageManagerReferences(rootPackage.catalog, "catalog", references);
-  collectPackageManagerReferences(rootPackage.catalogs, "catalogs", references);
+  collectPackageManagerReferences(rootPackage.pnpm, "package.json", "pnpm", references);
+  collectPackageManagerReferences(rootPackage.catalog, "package.json", "catalog", references);
+  collectPackageManagerReferences(rootPackage.catalogs, "package.json", "catalogs", references);
+  references.push(...await scanWorkspacePackageManagerReferences(workspaceRoot));
   return references;
 }
 
 function collectPackageManagerReferences(
   value: unknown,
+  manifestPath: string,
   location: string,
   references: IwsdkWorkspacePackageManagerReference[],
 ): void {
@@ -254,14 +259,74 @@ function collectPackageManagerReferences(
     const packageName = iwsdkPackageNameFromReferenceText(key) ?? iwsdkPackageNameFromReferenceText(childSpecifier);
     if (packageName) {
       references.push({
-        manifestPath: "package.json",
+        manifestPath,
         location: childLocation,
         packageName,
         specifier: childSpecifier,
       });
     }
-    collectPackageManagerReferences(childValue, childLocation, references);
+    collectPackageManagerReferences(childValue, manifestPath, childLocation, references);
   }
+}
+
+async function scanWorkspacePackageManagerReferences(
+  workspaceRoot: string,
+): Promise<IwsdkWorkspacePackageManagerReference[]> {
+  const workspaceFilePath = path.join(workspaceRoot, "pnpm-workspace.yaml");
+  if (!existsSync(workspaceFilePath)) {
+    return [];
+  }
+
+  return scanYamlLikePackageManagerReferences(await readFile(workspaceFilePath, "utf8"), "pnpm-workspace.yaml");
+}
+
+function scanYamlLikePackageManagerReferences(
+  sourceText: string,
+  manifestPath: string,
+): IwsdkWorkspacePackageManagerReference[] {
+  const references: IwsdkWorkspacePackageManagerReference[] = [];
+  const stack: Array<{ indent: number; path: string[] }> = [];
+
+  for (const line of sourceText.split(/\r?\n/)) {
+    if (!line.trim() || line.trimStart().startsWith("#") || line.trimStart().startsWith("-")) {
+      continue;
+    }
+
+    const match = line.match(/^(\s*)([^:#][^:]*):(?:\s*(.*))?$/);
+    if (!match) {
+      continue;
+    }
+
+    const indent = match[1]?.length ?? 0;
+    const key = stripYamlQuotes((match[2] ?? "").trim());
+    const value = stripYamlQuotes((match[3] ?? "").trim());
+    while (stack.length > 0 && stack[stack.length - 1]!.indent >= indent) {
+      stack.pop();
+    }
+
+    const pathSegments = [...(stack.at(-1)?.path ?? []), key];
+    const packageName = iwsdkPackageNameFromReferenceText(key) ?? iwsdkPackageNameFromReferenceText(value);
+    if (packageName) {
+      references.push({
+        manifestPath,
+        location: pathSegments.join("."),
+        packageName,
+        specifier: value,
+      });
+    }
+    if (!value) {
+      stack.push({ indent, path: pathSegments });
+    }
+  }
+
+  return references;
+}
+
+function stripYamlQuotes(value: string): string {
+  if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+    return value.slice(1, -1);
+  }
+  return value;
 }
 
 function buildPackageManagerControls(rootPackage: PackageJson): IwsdkWorkspacePackageManagerControls {

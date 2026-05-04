@@ -144,6 +144,36 @@ describe("IWSDK workspace posture checker", () => {
     ]);
   });
 
+  it("blocks IWSDK references in pnpm workspace catalogs", async () => {
+    const workspaceRoot = await createWorkspaceFixture({
+      rootPackage: postureReadyRootPackage(),
+      workspaceYamlText: [
+        "packages:",
+        "  - \"apps/*\"",
+        "catalog:",
+        "  local-iwsdk-core: npm:@iwsdk/core@0.3.1",
+        "",
+      ].join("\n"),
+    });
+
+    const report = await buildIwsdkWorkspacePostureReport({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      workspaceRoot,
+    });
+
+    expect(report.detected.packageManagerReferences).toEqual([
+      {
+        manifestPath: "pnpm-workspace.yaml",
+        location: "catalog.local-iwsdk-core",
+        packageName: "@iwsdk/core",
+        specifier: "npm:@iwsdk/core@0.3.1",
+      },
+    ]);
+    expect(report.result.blockers).toEqual([
+      "iwsdk_package_manager_reference_not_allowed:pnpm-workspace.yaml:catalog.local-iwsdk-core:@iwsdk/core",
+    ]);
+  });
+
   it("reports production leakage, blocked packages, and missing controls from workspace files", async () => {
     const workspaceRoot = await createWorkspaceFixture({
       rootPackage: {
@@ -222,10 +252,15 @@ async function createWorkspaceFixture(input: {
   productionDependencies?: Record<string, string>;
   sidecarDependencies?: Record<string, string>;
   lockfileText?: string;
+  workspaceYamlText?: string;
   writeSidecarLockfileImporter?: boolean;
 }): Promise<string> {
   const workspaceRoot = await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwsdk-posture-fixture-"));
-  await writeFile(path.join(workspaceRoot, "pnpm-workspace.yaml"), "packages:\n  - \"apps/*\"\n", "utf8");
+  await writeFile(
+    path.join(workspaceRoot, "pnpm-workspace.yaml"),
+    input.workspaceYamlText ?? "packages:\n  - \"apps/*\"\n",
+    "utf8",
+  );
   await writeJson(path.join(workspaceRoot, "package.json"), input.rootPackage);
   await writeFile(
     path.join(workspaceRoot, "pnpm-lock.yaml"),
