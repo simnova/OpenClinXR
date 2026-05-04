@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import fg from "fast-glob";
 
 type CliOptions = {
@@ -7,7 +8,7 @@ type CliOptions = {
   outputPath: string;
 };
 
-type QuestManualPerformanceReport = {
+export type QuestManualPerformanceReport = {
   generatedAt?: string;
   runContext?: {
     durationMinutes?: number;
@@ -37,7 +38,7 @@ type QuestManualPerformanceReport = {
   };
 };
 
-type QuestManualPerformanceCheck = {
+export type QuestManualPerformanceCheck = {
   generatedAt: string;
   inputFile: string | null;
   readyToClaimFramePacing: boolean;
@@ -49,7 +50,7 @@ async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
   const inputPath = options.inputPath ?? await latestManualReportPath();
   const report = inputPath ? await readJson<QuestManualPerformanceReport>(inputPath) : undefined;
-  const check = buildCheck(inputPath, report);
+  const check = buildQuestManualPerformanceCheck(inputPath, report);
   await mkdir(path.dirname(options.outputPath), { recursive: true });
   await writeFile(options.outputPath, `${JSON.stringify(check, null, 2)}\n`, "utf8");
   console.log(`Wrote ${options.outputPath}; readyToClaimFramePacing=${check.readyToClaimFramePacing}`);
@@ -98,7 +99,7 @@ async function readJson<TValue>(filePath: string): Promise<TValue> {
   return JSON.parse(await readFile(filePath, "utf8")) as TValue;
 }
 
-function buildCheck(inputFile: string | undefined, report: QuestManualPerformanceReport | undefined): QuestManualPerformanceCheck {
+export function buildQuestManualPerformanceCheck(inputFile: string | undefined, report: QuestManualPerformanceReport | undefined): QuestManualPerformanceCheck {
   if (!report) {
     return {
       generatedAt: new Date().toISOString(),
@@ -145,4 +146,6 @@ function buildCheck(inputFile: string | undefined, report: QuestManualPerformanc
   };
 }
 
-await main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await main();
+}

@@ -1,4 +1,9 @@
 import { pathToFileURL } from "node:url";
+import {
+  buildQuestManualPerformanceCheck,
+  type QuestManualPerformanceCheck,
+  type QuestManualPerformanceReport,
+} from "../openclinxr/check-quest-manual-performance.js";
 import { globFiles, readJson, writeJson } from "./lib.js";
 
 type QuestSmokeReport = {
@@ -106,14 +111,6 @@ type LocalProviderBenchmarkReport = {
   };
 };
 
-type QuestManualPerformanceCheck = {
-  generatedAt: string;
-  inputFile: string | null;
-  readyToClaimFramePacing: boolean;
-  satisfiedConditions: string[];
-  blockers: string[];
-};
-
 type EvidenceGateReport = {
   generated_by: string;
   quest_smoke?: {
@@ -196,6 +193,7 @@ export type BenchmarkGateReportInput = {
   blenderAssetBakeSmoke?: EvidenceFile<BlenderAssetBakeSmokeReport>;
   localProviderBenchmark?: EvidenceFile<LocalProviderBenchmarkReport>;
   questManualPerformance?: EvidenceFile<QuestManualPerformanceCheck>;
+  questManualPerformanceReport?: EvidenceFile<QuestManualPerformanceReport>;
 };
 
 async function main(): Promise<void> {
@@ -204,7 +202,10 @@ async function main(): Promise<void> {
   const gltfPipelineSmoke = await latestJson<GltfPipelineSmokeReport>("docs/openclinxr/gltf-pipeline-smoke-*.json");
   const blenderAssetBakeSmoke = await latestJson<BlenderAssetBakeSmokeReport>("docs/openclinxr/blender-asset-bake-smoke-*.json");
   const localProviderBenchmark = await latestJson<LocalProviderBenchmarkReport>("docs/openclinxr/local-provider-benchmark-*.json");
-  const questManualPerformance = await fileJson<QuestManualPerformanceCheck>(".agent-factory/quest-manual-performance-report.json");
+  const questManualPerformanceReport = await latestQuestManualPerformanceReportJson();
+  const questManualPerformance = questManualPerformanceReport
+    ? manualPerformanceReportToCheck(questManualPerformanceReport)
+    : await fileJson<QuestManualPerformanceCheck>(".agent-factory/quest-manual-performance-report.json");
   const report = buildBenchmarkGateReport({
     questSmoke,
     localRuntime,
@@ -212,6 +213,7 @@ async function main(): Promise<void> {
     blenderAssetBakeSmoke,
     localProviderBenchmark,
     questManualPerformance,
+    questManualPerformanceReport,
   });
   await writeJson(".agent-factory/benchmark-gate-report.json", report);
   const readySummary = report.evidence_gates
@@ -238,7 +240,10 @@ async function fileJson<TValue>(file: string): Promise<{ file: string; value: TV
 }
 
 export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): EvidenceGateReport {
-  const { questSmoke, localRuntime, gltfPipelineSmoke, blenderAssetBakeSmoke, localProviderBenchmark, questManualPerformance } = input;
+  const { questSmoke, localRuntime, gltfPipelineSmoke, blenderAssetBakeSmoke, localProviderBenchmark } = input;
+  const questManualPerformance = input.questManualPerformanceReport
+    ? manualPerformanceReportToCheck(input.questManualPerformanceReport)
+    : input.questManualPerformance;
   const questEvidenceBlockers = [
     ...questBlockers(questSmoke?.value),
     ...questManualPerformanceBlockers(questManualPerformance?.value),
@@ -355,6 +360,26 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): Evide
       buildEvidenceGate("evidence-leadership-0008-002", localModelSatisfiedConditions, unique(localModelEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0008-003", localVoiceSatisfiedConditions, unique(localVoiceEvidenceBlockers)),
     ],
+  };
+}
+
+async function latestQuestManualPerformanceReportJson(): Promise<EvidenceFile<QuestManualPerformanceReport> | undefined> {
+  const files = (await globFiles("docs/openclinxr/quest-manual-performance-*.json"))
+    .filter((file) => !file.endsWith("quest-manual-performance-template.json"))
+    .sort();
+  const file = files.at(-1);
+  if (!file) {
+    return undefined;
+  }
+  return { file, value: await readJson<QuestManualPerformanceReport>(file) };
+}
+
+function manualPerformanceReportToCheck(
+  report: EvidenceFile<QuestManualPerformanceReport>,
+): EvidenceFile<QuestManualPerformanceCheck> {
+  return {
+    file: report.file,
+    value: buildQuestManualPerformanceCheck(report.file, report.value),
   };
 }
 

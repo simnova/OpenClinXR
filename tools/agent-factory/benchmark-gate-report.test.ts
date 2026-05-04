@@ -126,6 +126,72 @@ describe("benchmark gate report", () => {
     ]));
   });
 
+  it("derives Quest manual performance checks from raw foreground headset reports", () => {
+    const report = buildBenchmarkGateReport({
+      questSmoke: {
+        file: "quest.json",
+        value: {
+          generatedAt: "2026-05-04T00:00:00.000Z",
+          verdict: {
+            shellLoaded: true,
+            interactionAdvanced: true,
+            frameSampleComplete: false,
+            blockers: ["quest_cdp_frame_sample_incomplete"],
+          },
+        },
+      },
+      questManualPerformanceReport: {
+        file: "docs/openclinxr/quest-manual-performance-2026-05-04.json",
+        value: {
+          generatedAt: "2026-05-04T00:00:00.000Z",
+          runContext: { durationMinutes: 10 },
+          setup: {
+            foregroundPageConfirmed: true,
+            devtoolsScreencastDisabled: true,
+            extraBrowserWindowsClosed: true,
+          },
+          station: {
+            shellLoaded: true,
+            traceInteractionPassed: true,
+            textReadable: true,
+            consoleErrors: [],
+          },
+          performance: {
+            avgFps: 72,
+            p95FrameMs: 25,
+            minimumObservedFps: 60,
+          },
+          comfort: {
+            motionComfort: "comfortable",
+            heatConcern: false,
+          },
+        },
+      },
+      localRuntime: {
+        file: "runtime.json",
+        value: {
+          generatedAt: "2026-05-04T00:00:00.000Z",
+          gates: {
+            questUsb: { status: "ready", blockers: [] },
+            localModel: { status: "ready", blockers: [] },
+            localVoice: { status: "ready", blockers: [] },
+            assetPipeline: { status: "ready", blockers: [] },
+          },
+        },
+      },
+    });
+    const questGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0008-001");
+
+    expect(report.quest_manual_performance?.file).toBe("docs/openclinxr/quest-manual-performance-2026-05-04.json");
+    expect(report.quest_manual_performance?.input_file).toBe("docs/openclinxr/quest-manual-performance-2026-05-04.json");
+    expect(questGate?.satisfied_conditions).toEqual(expect.arrayContaining([
+      "quest_manual_frame_pacing_ready",
+      "average_fps_72_or_higher",
+      "p95_frame_ms_25_or_lower",
+    ]));
+    expect(questGate?.blockers).not.toContain("quest_manual_performance:missing_quest_manual_performance_report");
+  });
+
   it("marks the leadership evidence gate ready when all fixture evidence is satisfied", () => {
     const report = buildBenchmarkGateReport({
       questSmoke: {
