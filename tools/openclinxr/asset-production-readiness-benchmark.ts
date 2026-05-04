@@ -316,7 +316,11 @@ function buildProofLanes(
       "LOD tiers",
       "KTX2 or texture budget report",
       "collider simplification report",
-    ], "lod_texture_collider_budget_missing"),
+    ], [
+      "lod_tiers_missing",
+      "texture_compression_budget_missing",
+      "collider_simplification_report_missing",
+    ]),
     multiActorQuestBudget: proofLane(overrides.multiActorQuestBudget ?? stationBudgetEvidence.observed, [
       "multi-actor station budget",
       "Quest frame budget",
@@ -325,11 +329,11 @@ function buildProofLanes(
   };
 }
 
-function proofLane(observed: boolean, requiredEvidence: string[], blocker: string): ProofLaneReport {
+function proofLane(observed: boolean, requiredEvidence: string[], blocker: string | string[]): ProofLaneReport {
   return {
     observed,
     requiredEvidence,
-    blockers: observed ? [] : [blocker],
+    blockers: observed ? [] : Array.isArray(blocker) ? blocker : [blocker],
   };
 }
 

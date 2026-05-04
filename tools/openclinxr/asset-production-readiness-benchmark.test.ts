@@ -54,7 +54,9 @@ describe("asset production readiness report", () => {
         "generation:skin_clothing_provenance_missing",
         "generation:medical_equipment_library_missing",
         "generation:animation_retargeting_missing",
-        "optimization:lod_texture_collider_budget_missing",
+        "optimization:lod_tiers_missing",
+        "optimization:texture_compression_budget_missing",
+        "optimization:collider_simplification_report_missing",
       ],
       caveats: [
         "This report evaluates production-readiness evidence from local smoke outputs only; it does not generate new third-party assets.",
@@ -127,8 +129,32 @@ describe("asset production readiness report", () => {
     expect(report.verdict.blockers).toEqual(expect.arrayContaining([
       "source:placeholder_bake_only",
       "generation:generated_human_rigging_missing",
-      "optimization:lod_texture_collider_budget_missing",
+      "optimization:lod_tiers_missing",
+      "optimization:texture_compression_budget_missing",
+      "optimization:collider_simplification_report_missing",
     ]));
+  });
+
+  it("splits missing optimization evidence into LOD, texture, and collider blockers", () => {
+    const report = buildAssetProductionReadinessReport({
+      generatedAt: "2026-05-04T20:30:00.000Z",
+      gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
+      blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
+      gltfPipelineSmoke: gltfSmoke({ passed: true }),
+      blenderAssetBakeSmoke: blenderSmoke({ passed: true, sourceLicensePosture: "repo_generated_placeholder" }),
+    });
+
+    expect(report.productionProofs.lodTextureColliderBudget.blockers).toEqual([
+      "lod_tiers_missing",
+      "texture_compression_budget_missing",
+      "collider_simplification_report_missing",
+    ]);
+    expect(report.verdict.blockers).toEqual(expect.arrayContaining([
+      "optimization:lod_tiers_missing",
+      "optimization:texture_compression_budget_missing",
+      "optimization:collider_simplification_report_missing",
+    ]));
+    expect(report.verdict.blockers).not.toContain("optimization:lod_texture_collider_budget_missing");
   });
 });
 

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T20:30:31.328Z",
+  "generatedAt": "2026-05-04T20:36:33.933Z",
   "status": "blocked",
   "policy": {
     "cloudApisUsed": false,
@@ -76,7 +76,9 @@
         "collider simplification report"
       ],
       "blockers": [
-        "lod_texture_collider_budget_missing"
+        "lod_tiers_missing",
+        "texture_compression_budget_missing",
+        "collider_simplification_report_missing"
       ]
     },
     "multiActorQuestBudget": {
@@ -124,7 +126,9 @@
       "generation:skin_clothing_provenance_missing",
       "generation:medical_equipment_library_missing",
       "generation:animation_retargeting_missing",
-      "optimization:lod_texture_collider_budget_missing"
+      "optimization:lod_tiers_missing",
+      "optimization:texture_compression_budget_missing",
+      "optimization:collider_simplification_report_missing"
     ],
     "caveats": [
       "This report evaluates production-readiness evidence from local smoke outputs only; it does not generate new third-party assets.",

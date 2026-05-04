@@ -333,7 +333,9 @@ describe("benchmark gate report", () => {
       blockers: expect.arrayContaining([
         "asset_production:source:placeholder_bake_only",
         "asset_production:generation:generated_human_rigging_missing",
-        "asset_production:optimization:lod_texture_collider_budget_missing",
+        "asset_production:optimization:lod_tiers_missing",
+        "asset_production:optimization:texture_compression_budget_missing",
+        "asset_production:optimization:collider_simplification_report_missing",
       ]),
       satisfied_conditions: expect.arrayContaining([
         "asset_pipeline_blender_bake_smoke_passed",
@@ -694,7 +696,14 @@ describe("benchmark gate report", () => {
             skinClothingProvenance: { observed: false, blockers: ["skin_clothing_provenance_missing"] },
             medicalEquipmentLibrary: { observed: false, blockers: ["medical_equipment_library_missing"] },
             animationRetargeting: { observed: false, blockers: ["animation_retargeting_missing"] },
-            lodTextureColliderBudget: { observed: false, blockers: ["lod_texture_collider_budget_missing"] },
+            lodTextureColliderBudget: {
+              observed: false,
+              blockers: [
+                "lod_tiers_missing",
+                "texture_compression_budget_missing",
+                "collider_simplification_report_missing",
+              ],
+            },
             multiActorQuestBudget: { observed: false, blockers: ["multi_actor_quest_budget_missing"] },
           },
           stationBudgetEvidence: {
@@ -725,7 +734,9 @@ describe("benchmark gate report", () => {
               "generation:skin_clothing_provenance_missing",
               "generation:medical_equipment_library_missing",
               "generation:animation_retargeting_missing",
-              "optimization:lod_texture_collider_budget_missing",
+              "optimization:lod_tiers_missing",
+              "optimization:texture_compression_budget_missing",
+              "optimization:collider_simplification_report_missing",
               "runtime:multi_actor_quest_budget_missing",
             ],
             caveats: [],
@@ -746,7 +757,9 @@ describe("benchmark gate report", () => {
       "asset_production:source:placeholder_bake_only",
       "asset_production:generation:generated_human_rigging_missing",
       "asset_production:generation:medical_equipment_library_missing",
-      "asset_production:optimization:lod_texture_collider_budget_missing",
+      "asset_production:optimization:lod_tiers_missing",
+      "asset_production:optimization:texture_compression_budget_missing",
+      "asset_production:optimization:collider_simplification_report_missing",
       "asset_production:runtime:multi_actor_quest_budget_missing",
     ]));
     expect(assetGate?.blockers).not.toEqual(expect.arrayContaining([

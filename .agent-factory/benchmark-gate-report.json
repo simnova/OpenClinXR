@@ -23,7 +23,7 @@
       "evidence_id": "gltf_pipeline_smoke",
       "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
       "generated_at": "2026-05-03T22:35:14.615Z",
-      "age_hours": 21,
+      "age_hours": 22,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -40,7 +40,7 @@
     {
       "evidence_id": "asset_production_readiness_benchmark",
       "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-04.json",
-      "generated_at": "2026-05-04T20:30:31.328Z",
+      "generated_at": "2026-05-04T20:36:33.933Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -95,7 +95,7 @@
       "evidence_id": "quest_manual_performance",
       "file": ".agent-factory/quest-manual-performance-report.json",
       "generated_at": "2026-05-04T15:37:29.215Z",
-      "age_hours": 4,
+      "age_hours": 5,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -202,7 +202,7 @@
   },
   "asset_production_readiness_benchmark": {
     "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-04.json",
-    "generated_at": "2026-05-04T20:30:31.328Z",
+    "generated_at": "2026-05-04T20:36:33.933Z",
     "status": "blocked",
     "source_evidence": {
       "gltfPipelineSmokePassed": true,
@@ -266,7 +266,9 @@
           "collider simplification report"
         ],
         "blockers": [
-          "lod_texture_collider_budget_missing"
+          "lod_tiers_missing",
+          "texture_compression_budget_missing",
+          "collider_simplification_report_missing"
         ]
       },
       "multiActorQuestBudget": {
@@ -314,7 +316,9 @@
         "generation:skin_clothing_provenance_missing",
         "generation:medical_equipment_library_missing",
         "generation:animation_retargeting_missing",
-        "optimization:lod_texture_collider_budget_missing"
+        "optimization:lod_tiers_missing",
+        "optimization:texture_compression_budget_missing",
+        "optimization:collider_simplification_report_missing"
       ],
       "caveats": [
         "This report evaluates production-readiness evidence from local smoke outputs only; it does not generate new third-party assets.",
@@ -1094,11 +1098,13 @@
         "asset_production:generation:generated_human_rigging_missing",
         "asset_production:generation:medical_equipment_library_missing",
         "asset_production:generation:skin_clothing_provenance_missing",
-        "asset_production:optimization:lod_texture_collider_budget_missing",
+        "asset_production:optimization:collider_simplification_report_missing",
+        "asset_production:optimization:lod_tiers_missing",
+        "asset_production:optimization:texture_compression_budget_missing",
         "asset_production:source:placeholder_bake_only"
       ],
       "blocker_summary": {
-        "total_blockers": 6,
+        "total_blockers": 8,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -1110,7 +1116,9 @@
               "asset_production:generation:generated_human_rigging_missing",
               "asset_production:generation:medical_equipment_library_missing",
               "asset_production:generation:skin_clothing_provenance_missing",
-              "asset_production:optimization:lod_texture_collider_budget_missing",
+              "asset_production:optimization:collider_simplification_report_missing",
+              "asset_production:optimization:lod_tiers_missing",
+              "asset_production:optimization:texture_compression_budget_missing",
               "asset_production:source:placeholder_bake_only"
             ],
             "next_step": "Add generated human, skin, clothing, rigging, animation, equipment, LOD, texture, and collider reports before claiming production asset readiness."
