@@ -13,6 +13,8 @@ Current state: contract only. Do not create a no-install `apps/ui-xr-iwsdk-spike
 
 Use `pnpm iwsdk:evidence` to print the current no-install evidence contract report. A nonzero exit is expected while the sidecar is contract-only; the JSON blockers are the evidence to carry into leadership review.
 
+Use `pnpm iwsdk:evidence:validate` to validate the latest committed `docs/openclinxr/iwsdk-evidence-contract-*.json` snapshot's structure without treating current readiness blockers as command failures. This check is now part of `pnpm iwsdk:verify`.
+
 ## Preconditions
 
 - `pnpm iwsdk:verify` passes, including its default `pnpm iwsdk:preinstall` JSON preflight.

@@ -1,10 +1,12 @@
 import { execFile } from "node:child_process";
-import { readFile } from "node:fs/promises";
+import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
 import {
   buildIwsdkEvidenceContractReport,
+  validateIwsdkEvidenceContractReport,
   type IwsdkEvidenceContractReport,
 } from "./iwsdk-evidence-contract-check.js";
 
@@ -59,5 +61,49 @@ describe("IWSDK evidence contract checker", () => {
         "production_runtime:missing_controller_select_latency_ms",
       ]));
     }
+  });
+
+  it("validates the generated evidence contract shape independently from readiness blockers", () => {
+    const report = buildIwsdkEvidenceContractReport({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+    });
+
+    expect(validateIwsdkEvidenceContractReport(report)).toEqual({ ok: true });
+    expect(validateIwsdkEvidenceContractReport({
+      ...report,
+      verdict: {
+        ...report.verdict,
+        blockers: "sidecar:operator_accepts_iwsdk_install_scope",
+      },
+    })).toEqual({
+      ok: false,
+      errors: ["/verdict/blockers must be array"],
+    });
+  });
+
+  it("exposes a latest-file validation CLI for committed IWSDK evidence snapshots", async () => {
+    const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+    expect(rootPackage.scripts["iwsdk:evidence:validate"]).toBe(
+      "tsx tools/openclinxr/iwsdk-evidence-contract-check.ts --validate-latest",
+    );
+    expect(rootPackage.scripts["iwsdk:verify"]).toContain("pnpm iwsdk:evidence:validate");
+
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwsdk-evidence-"));
+    const reportPath = path.join(tempDir, "iwsdk-evidence-contract-2026-05-04.json");
+    await writeFile(
+      reportPath,
+      `${JSON.stringify(buildIwsdkEvidenceContractReport({ generatedAt: "2026-05-04T00:00:00.000Z" }), null, 2)}\n`,
+      "utf8",
+    );
+
+    const { stdout } = await execFileAsync(
+      path.resolve("node_modules/.bin/tsx"),
+      ["tools/openclinxr/iwsdk-evidence-contract-check.ts", "--validate-latest", path.join(tempDir, "*.json")],
+      { encoding: "utf8", timeout: 15000 },
+    );
+
+    expect(stdout).toContain(`Validated ${reportPath}`);
   });
 });
