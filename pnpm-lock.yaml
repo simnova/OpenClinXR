@@ -225,6 +225,9 @@ importers:
 
   packages/openclinxr/architecture-rules:
     dependencies:
+      '@openclinxr/domain':
+        specifier: workspace:*
+        version: link:../domain
       archunit:
         specifier: 2.3.0
         version: 2.3.0

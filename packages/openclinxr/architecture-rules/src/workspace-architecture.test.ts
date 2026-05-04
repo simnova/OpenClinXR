@@ -1,7 +1,9 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, relative, sep } from "node:path";
+import { findUnsafeClaimLanguage } from "@openclinxr/domain";
 import { projectFiles } from "archunit";
+import ts from "typescript";
 import { describe, expect, it } from "vitest";
 
 const archTsconfig = "../../../tsconfig.archunit.json";
@@ -191,6 +193,26 @@ describe("workspace architecture rules", () => {
 
     expect(violations).toEqual([]);
   }, 20_000);
+
+  it("keeps production UI source free of unsafe user-facing assessment claims", () => {
+    const productionUiSource = [
+      ...sourceFilesUnder("apps").filter((filePath) => /^apps\/ui-[^/]+\/src\//.test(filePath)),
+      ...sourceFilesUnder("packages/openclinxr").filter((filePath) => /^packages\/openclinxr\/ui-[^/]+\/src\//.test(filePath)),
+    ]
+      .filter((filePath) => !filePath.includes(".test."))
+      .filter((filePath) => filePath.endsWith(".tsx") || /^packages\/openclinxr\/ui-route-[^/]+\/src\/index\.ts$/.test(filePath));
+    const violations = productionUiSource.flatMap((filePath) =>
+      userFacingTextFragments(filePath).flatMap((fragment) =>
+        findUnsafeClaimLanguage(fragment).map((finding) => ({
+          filePath,
+          ruleId: finding.ruleId,
+          match: finding.match,
+        })),
+      ),
+    );
+
+    expect(violations).toEqual([]);
+  });
 });
 
 function workspacePackageDirs(root: string): string[] {
@@ -227,6 +249,28 @@ function packageManifestFiles(): string[] {
     .map((filePath) => relative(workspaceRoot, filePath).split(sep).join("/"))
     .filter((filePath) => filePath.endsWith("package.json"))
     .filter((filePath) => !filePath.includes("/node_modules/") && !filePath.includes("/dist/"));
+}
+
+function userFacingTextFragments(filePath: string): string[] {
+  const sourceText = readFileSync(join(workspaceRoot, filePath), "utf8");
+  const sourceFile = ts.createSourceFile(filePath, sourceText, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const fragments: string[] = [];
+
+  function visit(node: ts.Node): void {
+    if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
+      fragments.push(node.text);
+    } else if (ts.isJsxText(node)) {
+      const text = node.getText(sourceFile).trim();
+      if (text.length > 0) {
+        fragments.push(text);
+      }
+    }
+
+    ts.forEachChild(node, visit);
+  }
+
+  visit(sourceFile);
+  return fragments;
 }
 
 function walk(root: string): string[] {

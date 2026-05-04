@@ -8,6 +8,7 @@
     "test": "vitest run --root ."
   },
   "dependencies": {
+    "@openclinxr/domain": "workspace:*",
     "archunit": "2.3.0"
   },
   "devDependencies": {
