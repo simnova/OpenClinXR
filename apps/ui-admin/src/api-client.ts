@@ -131,7 +131,7 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
           consentAccepted: true,
         },
       );
-      const stationRunId = session.stationRunId;
+      const stationRunId = requireStringField(session, "stationRunId", `POST ${baseUrl}${routeById("start-session").path}`);
       await post(fetcher, baseUrl, buildSessionRoutePath("start-encounter", stationRunId), { atSecond: 60 });
       await post(fetcher, baseUrl, buildSessionRoutePath("append-trace-event", stationRunId), {
         eventType: "learner.action",
@@ -375,4 +375,12 @@ function normalizeBaseUrl(baseUrl: string): string {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function requireStringField(value: unknown, fieldName: string, context: string): string {
+  if (isRecord(value) && typeof value[fieldName] === "string" && value[fieldName].trim().length > 0) {
+    return value[fieldName];
+  }
+
+  throw new Error(`OpenClinXR admin API request failed: ${context} missing ${fieldName}`);
 }

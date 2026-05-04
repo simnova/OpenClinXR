@@ -456,6 +456,30 @@ describe("admin control-plane API client", () => {
     })).rejects.toThrow("OpenClinXR admin GraphQL request failed: CreateStationRunQueueSnapshot reviewer_not_authorized");
   });
 
+  it("stops local review replay seed creation when the session response is malformed", async () => {
+    const requests: RecordedRequest[] = [];
+    const client = createAdminControlPlaneClient({
+      baseUrl: "http://localhost:8787",
+      fetch: recordingFetch(requests, {
+        "/sessions": { scenarioId: "ed_chest_pain_priority_v1", phase: "doorway" },
+      }),
+    });
+
+    await expect(client.createLocalReviewReplaySeed()).rejects.toThrow(
+      "OpenClinXR admin API request failed: POST http://localhost:8787/sessions missing stationRunId",
+    );
+    expect(requests).toEqual([
+      {
+        url: "http://localhost:8787/sessions",
+        method: "POST",
+        body: {
+          learnerId: "admin_review_seed",
+          consentAccepted: true,
+        },
+      },
+    ]);
+  });
+
   it("uses Apollo Client for generated queue snapshot operations when provided", async () => {
     const queueSnapshot = {
       snapshotId: "queue_snapshot_apollo_001",
