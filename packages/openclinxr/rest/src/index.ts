@@ -22,6 +22,7 @@ export type OpenClinXrRestRouteMatch = {
 export const openClinXrRestRoutes = Object.freeze([
   route("health", "GET", "/health", "control-plane"),
   route("providers-health", "GET", "/providers/health", "control-plane"),
+  route("runtime-protocols", "GET", "/runtime/protocols", "control-plane"),
   route("admin-graphql-schema", "GET", "/admin/graphql/schema", "admin-graphql"),
   route("admin-graphql-codegen-plan", "GET", "/admin/graphql/codegen-plan", "admin-graphql"),
   route("admin-graphql-documents", "GET", "/admin/graphql/documents", "admin-graphql"),

@@ -254,6 +254,28 @@ type LocalVoiceLiveDialogBenchmarkReport = {
   };
 };
 
+type RealtimeVoiceTransportSpikeReport = {
+  generatedAt: string;
+  status: string;
+  harness: {
+    roundTripLatencyMs: number;
+    latencyBudget: {
+      targetMs: number;
+      passed: boolean;
+    };
+  };
+  pythonBackendVerifier: {
+    status: string;
+    blockers: string[];
+  };
+  verdict: {
+    transportContractPassed: boolean;
+    readyForLiveDialog: false;
+    blockers: string[];
+    caveats: string[];
+  };
+};
+
 type IwsdkEvidenceContractReport = {
   generatedAt: string;
   status: string;
@@ -377,6 +399,15 @@ type EvidenceGateReport = {
     safety_controls: LocalVoiceLiveDialogBenchmarkReport["safetyControls"];
     verdict: LocalVoiceLiveDialogBenchmarkReport["verdict"];
   };
+  realtime_voice_transport_spike?: {
+    file: string;
+    generated_at: string;
+    status: string;
+    round_trip_latency_ms: number;
+    latency_budget: RealtimeVoiceTransportSpikeReport["harness"]["latencyBudget"];
+    python_backend_verifier: RealtimeVoiceTransportSpikeReport["pythonBackendVerifier"];
+    verdict: RealtimeVoiceTransportSpikeReport["verdict"];
+  };
   quest_manual_performance?: {
     file: string;
     generated_at: string;
@@ -445,6 +476,7 @@ export type BenchmarkGateReportInput = {
   localModelQualityBenchmark?: EvidenceFile<LocalModelQualityBenchmarkReport>;
   localVoiceRuntimeBenchmark?: EvidenceFile<LocalVoiceRuntimeBenchmarkReport>;
   localVoiceLiveDialogBenchmark?: EvidenceFile<LocalVoiceLiveDialogBenchmarkReport>;
+  realtimeVoiceTransportSpike?: EvidenceFile<RealtimeVoiceTransportSpikeReport>;
   questManualPerformance?: EvidenceFile<QuestManualPerformanceCheck>;
   questManualPerformanceReport?: EvidenceFile<QuestManualPerformanceReport>;
   iwsdkEvidenceContract?: EvidenceFile<IwsdkEvidenceContractReport>;
@@ -473,6 +505,7 @@ async function main(): Promise<void> {
   const localModelQualityBenchmark = await latestJson<LocalModelQualityBenchmarkReport>("docs/openclinxr/local-model-quality-benchmark-*.json");
   const localVoiceRuntimeBenchmark = await latestJson<LocalVoiceRuntimeBenchmarkReport>("docs/openclinxr/local-voice-runtime-benchmark-*.json");
   const localVoiceLiveDialogBenchmark = await latestJson<LocalVoiceLiveDialogBenchmarkReport>("docs/openclinxr/local-voice-live-dialog-benchmark-*.json");
+  const realtimeVoiceTransportSpike = await latestJson<RealtimeVoiceTransportSpikeReport>("docs/openclinxr/realtime-voice-transport-spike-*.json");
   const iwsdkEvidenceContract = await latestJson<IwsdkEvidenceContractReport>("docs/openclinxr/iwsdk-evidence-contract-*.json");
   const questManualPerformanceReport = await latestQuestManualPerformanceReportJson();
   const questManualPerformance = questManualPerformanceReport
@@ -490,6 +523,7 @@ async function main(): Promise<void> {
     localModelQualityBenchmark,
     localVoiceRuntimeBenchmark,
     localVoiceLiveDialogBenchmark,
+    realtimeVoiceTransportSpike,
     iwsdkEvidenceContract,
     questManualPerformance,
     questManualPerformanceReport,
@@ -534,6 +568,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localModelQualityBenchmark,
     localVoiceRuntimeBenchmark,
     localVoiceLiveDialogBenchmark,
+    realtimeVoiceTransportSpike,
     iwsdkEvidenceContract,
   } = input;
   const questSmokeEvidenceCheck = questSmoke
@@ -554,6 +589,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localModelQualityBenchmark,
     localVoiceRuntimeBenchmark,
     localVoiceLiveDialogBenchmark,
+    realtimeVoiceTransportSpike,
     questManualPerformance,
   }, options);
   const localModelRuntimeBenchmarkIsRequired = requiresLocalModelRuntimeBenchmark(localRuntime?.value);
@@ -614,11 +650,13 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
   ];
   const localVoiceLiveDialogEvidenceBlockers = [
     ...localVoiceLiveDialogBlockers(localVoiceRuntimeBenchmark, localVoiceLiveDialogBenchmark),
+    ...realtimeVoiceTransportSpikeBlockers(realtimeVoiceTransportSpike),
     ...freshnessBlockers(evidenceFreshness, [
       "local_runtime_probe",
       "local_provider_benchmark",
       "local_voice_runtime_benchmark",
       "local_voice_live_dialog_benchmark",
+      "realtime_voice_transport_spike",
     ]),
   ];
   const assetProductionEvidenceBlockers = [
@@ -680,6 +718,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localVoiceLiveDialogBenchmark?.value.webxrPlayback.observed ? "local_voice_live_dialog_webxr_playback_observed" : undefined,
     localVoiceLiveDialogBenchmark && localVoiceLiveDialogBenchmark.value.safetyControls.blockers.length === 0 ? "local_voice_live_dialog_safety_controls_observed" : undefined,
     localVoiceLiveDialogBenchmark?.value.verdict.passed ? "local_voice_live_dialog_benchmark_passed" : undefined,
+    realtimeVoiceTransportSpike?.value.verdict.transportContractPassed ? "local_voice_realtime_transport_spike_passed" : undefined,
   ]);
   const questSatisfiedConditions = combinedSatisfiedConditions.filter((condition) =>
     condition.startsWith("quest_") || (questManualPerformance?.value.satisfiedConditions ?? []).includes(condition)
@@ -835,6 +874,17 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         verdict: localVoiceLiveDialogBenchmark.value.verdict,
       },
     } : {}),
+    ...(realtimeVoiceTransportSpike ? {
+      realtime_voice_transport_spike: {
+        file: realtimeVoiceTransportSpike.file,
+        generated_at: realtimeVoiceTransportSpike.value.generatedAt,
+        status: realtimeVoiceTransportSpike.value.status,
+        round_trip_latency_ms: realtimeVoiceTransportSpike.value.harness.roundTripLatencyMs,
+        latency_budget: realtimeVoiceTransportSpike.value.harness.latencyBudget,
+        python_backend_verifier: realtimeVoiceTransportSpike.value.pythonBackendVerifier,
+        verdict: realtimeVoiceTransportSpike.value.verdict,
+      },
+    } : {}),
     ...(questManualPerformance ? {
       quest_manual_performance: {
         file: questManualPerformance.file,
@@ -884,6 +934,7 @@ function buildEvidenceFreshnessReport(
     localModelQualityBenchmark?: EvidenceFile<LocalModelQualityBenchmarkReport>;
     localVoiceRuntimeBenchmark?: EvidenceFile<LocalVoiceRuntimeBenchmarkReport>;
     localVoiceLiveDialogBenchmark?: EvidenceFile<LocalVoiceLiveDialogBenchmarkReport>;
+    realtimeVoiceTransportSpike?: EvidenceFile<RealtimeVoiceTransportSpikeReport>;
     questManualPerformance?: EvidenceFile<QuestManualPerformanceCheck>;
   },
   options: BenchmarkGateReportOptions,
@@ -903,6 +954,7 @@ function buildEvidenceFreshnessReport(
     evidenceFreshnessEntry("local_model_quality_benchmark", evidence.localModelQualityBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_voice_runtime_benchmark", evidence.localVoiceRuntimeBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_voice_live_dialog_benchmark", evidence.localVoiceLiveDialogBenchmark, now, maxAgeHours),
+    evidenceFreshnessEntry("realtime_voice_transport_spike", evidence.realtimeVoiceTransportSpike, now, maxAgeHours),
     evidenceFreshnessEntry("quest_manual_performance", evidence.questManualPerformance, now, maxAgeHours),
   ];
 }
@@ -1272,6 +1324,22 @@ function localVoiceLiveDialogBlockers(
     "local_voice_live_dialog:missing_disclosure_retention_misuse_controls",
   );
   return unique(blockers);
+}
+
+function realtimeVoiceTransportSpikeBlockers(
+  realtimeVoiceTransportSpike: EvidenceFile<RealtimeVoiceTransportSpikeReport> | undefined,
+): string[] {
+  if (!realtimeVoiceTransportSpike) {
+    return [];
+  }
+  if (realtimeVoiceTransportSpike.value.verdict.transportContractPassed) {
+    return [];
+  }
+  return unique([
+    "local_voice_live_dialog:realtime_transport_spike:transport_contract_failed",
+    ...realtimeVoiceTransportSpike.value.pythonBackendVerifier.blockers
+      .map((blocker) => `local_voice_live_dialog:realtime_transport_spike:python_backend:${blocker}`),
+  ]);
 }
 
 function assetProductionBlockers(

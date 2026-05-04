@@ -8,6 +8,8 @@
   },
   "scripts": {
     "dev": "tsx src/server.ts",
+    "dev:node": "tsx src/server.ts",
+    "dev:bun": "bun src/bun-server.ts",
     "build": "pnpm run package:azure",
     "build:azure": "tsdown -c tsdown.config.ts",
     "build:azure:rolldown": "rolldown -c rolldown.config.ts",

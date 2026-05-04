@@ -3,6 +3,7 @@ import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway"
 import { createDefaultScenarioRuntime, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createNoopTelemetryRecorder, type TelemetryRecorder } from "@openclinxr/telemetry";
 import { createApiApp, type ApiPersistenceSink, type ApiScenarioReviewDecisionRecord, type ApiStationRunQueueSnapshot } from "./app.js";
+import { createOpenClinXrApiProtocolPosture, type OpenClinXrApiProtocolSupport } from "./protocol-support.js";
 
 export type AzureFunctionHttpMethod = "GET" | "POST" | "PATCH" | "PUT" | "DELETE" | "OPTIONS" | "HEAD";
 
@@ -40,11 +41,22 @@ export type StartedOpenClinXrApi = {
   fetch: (request: Request) => Response | Promise<Response>;
   handlerSpecs: AzureFunctionHttpHandlerSpec[];
   infrastructureServiceIds: ApiInfrastructureServiceId[];
+  primaryRuntimeTarget: "bun-hono";
+  localFallbackRuntimeTarget: "node-hono";
+  protocolSupport: OpenClinXrApiProtocolSupport[];
 };
 
 export type NodeServerConfig = {
   fetch: (request: Request) => Response | Promise<Response>;
   port: number;
+};
+
+export type BunServerConfig = {
+  runtime: "bun-hono";
+  fetch: (request: Request) => Response | Promise<Response>;
+  port: number;
+  websocketPath: "/voice/realtime/ws";
+  protocolSupport: OpenClinXrApiProtocolSupport[];
 };
 
 export type OpenClinXrApiStartupOptions = {
@@ -104,11 +116,15 @@ export class OpenClinXrApiStartupBuilder {
   startUp(): StartedOpenClinXrApi {
     const context = this.contextFactory(this.infrastructureRegistry);
     const applicationServices = this.applicationServicesFactory(context);
+    const protocolPosture = createOpenClinXrApiProtocolPosture();
 
     return {
       fetch: applicationServices.fetch,
       handlerSpecs: [...this.handlerSpecs],
       infrastructureServiceIds: this.infrastructureRegistry.ids(),
+      primaryRuntimeTarget: protocolPosture.primaryRuntimeTarget,
+      localFallbackRuntimeTarget: protocolPosture.localFallbackRuntimeTarget,
+      protocolSupport: protocolPosture.protocols,
     };
   }
 }
@@ -143,6 +159,16 @@ export function createNodeServerConfig(startup: StartedOpenClinXrApi = createOpe
   return {
     fetch: startup.fetch,
     port: options.port ?? Number(process.env.PORT ?? 3000),
+  };
+}
+
+export function createBunServerConfig(startup: StartedOpenClinXrApi = createOpenClinXrApiStartup().startUp(), options: { port?: number } = {}): BunServerConfig {
+  return {
+    runtime: "bun-hono",
+    fetch: startup.fetch,
+    port: options.port ?? Number(process.env.PORT ?? 3000),
+    websocketPath: "/voice/realtime/ws",
+    protocolSupport: startup.protocolSupport,
   };
 }
 

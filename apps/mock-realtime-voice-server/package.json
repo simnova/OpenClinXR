@@ -1,0 +1,23 @@
+{
+  "name": "@openclinxr/mock-realtime-voice-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "dev": "tsx src/server.ts",
+    "typecheck": "tsgo --noEmit -p tsconfig.json",
+    "test": "vitest run --root ."
+  },
+  "dependencies": {
+    "hono": "4.12.16",
+    "ws": "8.20.0"
+  },
+  "devDependencies": {
+    "@types/ws": "8.18.1",
+    "typescript": "6.0.3",
+    "vitest": "4.1.5"
+  }
+}

@@ -6,6 +6,7 @@ describe("OpenClinXR REST route contract", () => {
     expect(openClinXrRestRouteIds).toEqual([
       "health",
       "providers-health",
+      "runtime-protocols",
       "admin-graphql-schema",
       "admin-graphql-codegen-plan",
       "admin-graphql-documents",
@@ -42,6 +43,11 @@ describe("OpenClinXR REST route contract", () => {
     expect(routeById("scenario-bank-asset-readiness")).toMatchObject({
       method: "GET",
       path: "/scenario-bank/assets/readiness",
+      surface: "control-plane",
+    });
+    expect(routeById("runtime-protocols")).toMatchObject({
+      method: "GET",
+      path: "/runtime/protocols",
       surface: "control-plane",
     });
     expect(routeById("admin-graphql-execute")).toMatchObject({

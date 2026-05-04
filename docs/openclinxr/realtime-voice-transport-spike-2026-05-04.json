@@ -1,0 +1,146 @@
+{
+  "generatedAt": "2026-05-04T21:42:23.396Z",
+  "status": "transport_spike_passed",
+  "policy": {
+    "cloudApisUsed": false,
+    "paidApisUsed": false,
+    "modelDownloadsPerformed": false,
+    "productionUseAllowed": false
+  },
+  "architecture": {
+    "questClient": {
+      "target": "quest3-godot",
+      "transport": "websocket-binary-frames",
+      "codecContract": "opus-frame-contract",
+      "note": "Godot client work remains source-planned; this harness sends opaque Opus-like binary chunks and does not prove Quest audio capture or playback."
+    },
+    "gateway": {
+      "target": "apps/api bun+hono",
+      "verifiedLocalFallback": "apps/mock-realtime-voice-server node+hono+ws",
+      "websocketPath": "/voice/realtime/ws"
+    },
+    "pythonBackend": {
+      "appPath": "apps/api-python-backend",
+      "target": "fastapi-uvicorn-websocket",
+      "websocketPath": "/voice/realtime/ws"
+    },
+    "inferenceCandidates": [
+      {
+        "id": "moshi-mlx",
+        "fit": "best architectural fit for future full-duplex speech dialogue on Apple Silicon, benchmark-gated",
+        "executionObserved": false
+      },
+      {
+        "id": "qwen3-tts",
+        "fit": "strong future streaming TTS candidate, but not standalone full-duplex dialogue",
+        "executionObserved": false
+      }
+    ]
+  },
+  "apiProtocolPosture": {
+    "primaryRuntimeTarget": "bun-hono",
+    "localFallbackRuntimeTarget": "node-hono",
+    "azureRuntimeTarget": "azure-functions-node",
+    "protocols": [
+      {
+        "protocolId": "http-rest",
+        "status": "ready",
+        "runtimeTarget": "bun-hono",
+        "path": "/",
+        "blockers": [],
+        "notes": "Hono fetch handlers are runtime-portable and remain the main public API surface."
+      },
+      {
+        "protocolId": "admin-graphql",
+        "status": "ready",
+        "runtimeTarget": "bun-hono",
+        "path": "/admin/graphql",
+        "blockers": [],
+        "notes": "Apollo-style GraphQL contracts run through the same Hono application boundary."
+      },
+      {
+        "protocolId": "websocket",
+        "status": "ready",
+        "runtimeTarget": "bun-hono",
+        "path": "/voice/realtime/ws",
+        "blockers": [],
+        "notes": "Realtime audio starts WebSocket-first; Node/Hono remains the local fallback until Bun is installed here."
+      },
+      {
+        "protocolId": "webtransport",
+        "status": "blocked",
+        "runtimeTarget": "bun-hono",
+        "path": "/voice/realtime/webtransport",
+        "blockers": [
+          "bun_http3_webtransport_not_verified",
+          "quest_webtransport_path_not_verified"
+        ],
+        "notes": "Keep WebTransport behind evidence until Bun HTTP/3 and Quest browser/client support are measured end to end."
+      },
+      {
+        "protocolId": "quic",
+        "status": "planned",
+        "runtimeTarget": "bun-hono",
+        "blockers": [
+          "quic_gateway_not_implemented",
+          "azure_quic_ingress_not_verified"
+        ],
+        "notes": "QUIC is a target transport lane for latency-sensitive audio once the gateway path is concrete."
+      },
+      {
+        "protocolId": "web3-signaling",
+        "status": "planned",
+        "runtimeTarget": "bun-hono",
+        "blockers": [
+          "web3_identity_and_signaling_protocol_not_selected"
+        ],
+        "notes": "Web3 support is limited to future identity/signaling contracts and is not part of the clinical voice path yet."
+      }
+    ]
+  },
+  "pythonBackendVerifier": {
+    "status": "passed",
+    "command": "python3 apps/api-python-backend/scripts/verify_backend.py",
+    "stdout": "verify_backend: ok",
+    "blockers": []
+  },
+  "harness": {
+    "controlFramesSent": 2,
+    "binaryAudioChunksSent": 2,
+    "transcriptEventsReceived": 2,
+    "binaryAudioChunksReceived": 2,
+    "backendProtocol": "python-fastapi-compatible-websocket",
+    "codec": "opus",
+    "roundTripLatencyMs": 13.35,
+    "latencyBudget": {
+      "targetMs": 250,
+      "passed": true
+    },
+    "receivedEventTypes": [
+      "backend.ready",
+      "voice.started",
+      "transcript.partial",
+      "transcript.final",
+      "audio.chunk",
+      "audio.chunk",
+      "voice.stopped"
+    ]
+  },
+  "verdict": {
+    "transportContractPassed": true,
+    "readyForLiveDialog": false,
+    "blockers": [
+      "quest_godot_client_not_executed",
+      "native_opus_codec_not_integrated_in_godot",
+      "bun_runtime_not_installed_on_this_machine",
+      "fastapi_backend_not_runtime_executed",
+      "real_moshi_or_qwen3_inference_not_observed",
+      "quest_microphone_and_playback_latency_not_measured",
+      "clinical_voice_safety_controls_not_exercised_with_real_model"
+    ],
+    "caveats": [
+      "The measured harness uses a Python-compatible local fixture behind a Node/Hono/WebSocket fallback; it validates streaming shape and latency plumbing only.",
+      "The committed FastAPI backend is source-verified with stdlib checks, but FastAPI/Uvicorn/MLX/Moshi/Qwen dependencies are not installed or executed by this spike."
+    ]
+  }
+}

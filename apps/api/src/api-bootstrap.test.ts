@@ -1,13 +1,37 @@
 import { describe, expect, it } from "vitest";
 import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
-import { createOpenClinXrApiStartup, createNodeServerConfig } from "./index.js";
+import { createBunServerConfig, createOpenClinXrApiStartup, createNodeServerConfig } from "./index.js";
 
 describe("OpenClinXR API startup", () => {
   it("starts through a CellixJS-inspired fluent bootstrap with Azure-compatible handler metadata", async () => {
     const startup = createOpenClinXrApiStartup().startUp();
 
     expect(startup.infrastructureServiceIds).toEqual(["scenarioRuntime", "apiPersistence", "telemetry", "assetGenerationFacade"]);
+    expect(startup.primaryRuntimeTarget).toBe("bun-hono");
+    expect(startup.protocolSupport).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        protocolId: "websocket",
+        status: "ready",
+        runtimeTarget: "bun-hono",
+        path: "/voice/realtime/ws",
+      }),
+      expect.objectContaining({
+        protocolId: "webtransport",
+        status: "blocked",
+        blockers: expect.arrayContaining(["bun_http3_webtransport_not_verified"]),
+      }),
+      expect.objectContaining({
+        protocolId: "quic",
+        status: "planned",
+        blockers: expect.arrayContaining(["quic_gateway_not_implemented"]),
+      }),
+      expect.objectContaining({
+        protocolId: "web3-signaling",
+        status: "planned",
+        blockers: expect.arrayContaining(["web3_identity_and_signaling_protocol_not_selected"]),
+      }),
+    ]));
     expect(startup.handlerSpecs).toEqual([
       {
         name: "graphql-contract",
@@ -41,6 +65,31 @@ describe("OpenClinXR API startup", () => {
     const response = await config.fetch(new Request("http://localhost/providers/health"));
     await expect(response.json()).resolves.toMatchObject({
       model: { providerId: "mock-model", status: "ready" },
+    });
+  });
+
+  it("creates a Bun plus Hono server config from the same startup path without requiring Bun during tests", async () => {
+    const startup = createOpenClinXrApiStartup().startUp();
+    const config = createBunServerConfig(startup, { port: 4322 });
+
+    expect(config.runtime).toBe("bun-hono");
+    expect(config.port).toBe(4322);
+    expect(config.websocketPath).toBe("/voice/realtime/ws");
+    expect(config.protocolSupport.map((protocol) => protocol.protocolId)).toEqual([
+      "http-rest",
+      "admin-graphql",
+      "websocket",
+      "webtransport",
+      "quic",
+      "web3-signaling",
+    ]);
+    const response = await config.fetch(new Request("http://localhost/runtime/protocols"));
+    await expect(response.json()).resolves.toMatchObject({
+      primaryRuntimeTarget: "bun-hono",
+      localFallbackRuntimeTarget: "node-hono",
+      protocols: expect.arrayContaining([
+        expect.objectContaining({ protocolId: "websocket", status: "ready" }),
+      ]),
     });
   });
 

@@ -37,6 +37,7 @@ import {
   type TelemetrySpanRecord,
 } from "@openclinxr/telemetry";
 import { Hono } from "hono";
+import { createOpenClinXrApiProtocolPosture } from "./protocol-support.js";
 
 type RuntimeTraceEvents = ReturnType<ScenarioRuntime["traceEvents"]>;
 type RuntimeReviewPacket = ReturnType<ScenarioRuntime["reviewPacket"]>;
@@ -111,6 +112,8 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   );
 
   app.get(routeById("providers-health").path, async (context) => context.json(await runtime.providerHealth()));
+
+  app.get(routeById("runtime-protocols").path, (context) => context.json(createOpenClinXrApiProtocolPosture()));
 
   app.get(routeById("admin-graphql-schema").path, (context) =>
     new Response(openClinXrAdminSchemaSdl, {

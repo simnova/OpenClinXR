@@ -37,6 +37,40 @@ describe("OpenClinXR API shell", () => {
     expect(await json(response)).toEqual(expectedProviderHealth);
   });
 
+  it("reports API runtime protocol posture with Bun/Hono as the primary target", async () => {
+    const app = createApiApp();
+    const response = await app.request("/runtime/protocols");
+
+    expect(response.status).toBe(200);
+    expect(await json(response)).toMatchObject({
+      primaryRuntimeTarget: "bun-hono",
+      localFallbackRuntimeTarget: "node-hono",
+      protocols: expect.arrayContaining([
+        expect.objectContaining({
+          protocolId: "websocket",
+          status: "ready",
+          runtimeTarget: "bun-hono",
+          path: "/voice/realtime/ws",
+        }),
+        expect.objectContaining({
+          protocolId: "webtransport",
+          status: "blocked",
+          blockers: expect.arrayContaining(["bun_http3_webtransport_not_verified"]),
+        }),
+        expect.objectContaining({
+          protocolId: "quic",
+          status: "planned",
+          blockers: expect.arrayContaining(["quic_gateway_not_implemented"]),
+        }),
+        expect.objectContaining({
+          protocolId: "web3-signaling",
+          status: "planned",
+          blockers: expect.arrayContaining(["web3_identity_and_signaling_protocol_not_selected"]),
+        }),
+      ]),
+    });
+  });
+
   it("serves the ED chest pain scenario fixture", async () => {
     const app = createApiApp();
     const response = await app.request("/scenarios/ed-chest-pain");

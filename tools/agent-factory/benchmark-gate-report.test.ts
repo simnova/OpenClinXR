@@ -95,6 +95,22 @@ type BenchmarkGateReport = {
       blockers: string[];
     };
   };
+  realtime_voice_transport_spike?: {
+    round_trip_latency_ms: number;
+    latency_budget: {
+      targetMs: number;
+      passed: boolean;
+    };
+    python_backend_verifier: {
+      status: string;
+      blockers: string[];
+    };
+    verdict: {
+      transportContractPassed: boolean;
+      readyForLiveDialog: false;
+      blockers: string[];
+    };
+  };
   evidence_gates: Array<{
     evidence_id: string;
     ready_to_resolve?: boolean;
@@ -549,6 +565,30 @@ describe("benchmark gate report", () => {
             };
           };
         };
+        realtimeVoiceTransportSpike?: {
+          file: string;
+          value: {
+            generatedAt: string;
+            status: string;
+            harness: {
+              roundTripLatencyMs: number;
+              latencyBudget: {
+                targetMs: number;
+                passed: boolean;
+              };
+            };
+            pythonBackendVerifier: {
+              status: string;
+              blockers: string[];
+            };
+            verdict: {
+              transportContractPassed: boolean;
+              readyForLiveDialog: false;
+              blockers: string[];
+              caveats: string[];
+            };
+          };
+        };
       },
       options: { now: Date; maxEvidenceAgeHours: number },
     ) => BenchmarkGateReport;
@@ -632,6 +672,30 @@ describe("benchmark gate report", () => {
           },
         },
       },
+      realtimeVoiceTransportSpike: {
+        file: "docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json",
+        value: {
+          generatedAt: "2026-05-04T20:16:00.000Z",
+          status: "transport_spike_passed",
+          harness: {
+            roundTripLatencyMs: 42,
+            latencyBudget: {
+              targetMs: 250,
+              passed: true,
+            },
+          },
+          pythonBackendVerifier: {
+            status: "passed",
+            blockers: [],
+          },
+          verdict: {
+            transportContractPassed: true,
+            readyForLiveDialog: false,
+            blockers: ["real_moshi_or_qwen3_inference_not_observed"],
+            caveats: [],
+          },
+        },
+      },
     }, { now: new Date("2026-05-04T20:20:00.000Z"), maxEvidenceAgeHours: 24 });
 
     const liveDialogGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-003");
@@ -640,6 +704,7 @@ describe("benchmark gate report", () => {
       "local_voice_live_dialog_report_present",
       "local_voice_live_dialog_mock_stream_passed",
       "local_voice_live_dialog_safety_controls_observed",
+      "local_voice_realtime_transport_spike_passed",
     ]));
     expect(liveDialogGate?.blockers).toEqual(expect.arrayContaining([
       "local_voice_live_dialog:runtime_stream:real_local_voice_stream_benchmark_missing",
@@ -653,7 +718,23 @@ describe("benchmark gate report", () => {
     expect(liveDialogGate?.blockers).not.toEqual(expect.arrayContaining([
       "local_voice_live_dialog:missing_streaming_webxr_playback_benchmark",
       "local_voice_live_dialog:missing_disclosure_retention_misuse_controls",
+      "local_voice_live_dialog:realtime_transport_spike:transport_contract_failed",
     ]));
+    expect(report.realtime_voice_transport_spike).toMatchObject({
+      round_trip_latency_ms: 42,
+      latency_budget: {
+        targetMs: 250,
+        passed: true,
+      },
+      python_backend_verifier: {
+        status: "passed",
+        blockers: [],
+      },
+      verdict: {
+        transportContractPassed: true,
+        readyForLiveDialog: false,
+      },
+    });
   });
 
   it("uses asset production readiness evidence to replace generic placeholder asset blockers", () => {

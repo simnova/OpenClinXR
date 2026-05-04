@@ -23,7 +23,7 @@
       "evidence_id": "gltf_pipeline_smoke",
       "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
       "generated_at": "2026-05-03T22:35:14.615Z",
-      "age_hours": 22,
+      "age_hours": 23,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -101,10 +101,19 @@
       "blockers": []
     },
     {
+      "evidence_id": "realtime_voice_transport_spike",
+      "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json",
+      "generated_at": "2026-05-04T21:42:23.396Z",
+      "age_hours": 0,
+      "max_age_hours": 24,
+      "status": "fresh",
+      "blockers": []
+    },
+    {
       "evidence_id": "quest_manual_performance",
       "file": ".agent-factory/quest-manual-performance-report.json",
       "generated_at": "2026-05-04T15:37:29.215Z",
-      "age_hours": 5,
+      "age_hours": 6,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -897,6 +906,39 @@
       ]
     }
   },
+  "realtime_voice_transport_spike": {
+    "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json",
+    "generated_at": "2026-05-04T21:42:23.396Z",
+    "status": "transport_spike_passed",
+    "round_trip_latency_ms": 13.35,
+    "latency_budget": {
+      "targetMs": 250,
+      "passed": true
+    },
+    "python_backend_verifier": {
+      "status": "passed",
+      "command": "python3 apps/api-python-backend/scripts/verify_backend.py",
+      "stdout": "verify_backend: ok",
+      "blockers": []
+    },
+    "verdict": {
+      "transportContractPassed": true,
+      "readyForLiveDialog": false,
+      "blockers": [
+        "quest_godot_client_not_executed",
+        "native_opus_codec_not_integrated_in_godot",
+        "bun_runtime_not_installed_on_this_machine",
+        "fastapi_backend_not_runtime_executed",
+        "real_moshi_or_qwen3_inference_not_observed",
+        "quest_microphone_and_playback_latency_not_measured",
+        "clinical_voice_safety_controls_not_exercised_with_real_model"
+      ],
+      "caveats": [
+        "The measured harness uses a Python-compatible local fixture behind a Node/Hono/WebSocket fallback; it validates streaming shape and latency plumbing only.",
+        "The committed FastAPI backend is source-verified with stdlib checks, but FastAPI/Uvicorn/MLX/Moshi/Qwen dependencies are not installed or executed by this spike."
+      ]
+    }
+  },
   "quest_manual_performance": {
     "file": ".agent-factory/quest-manual-performance-report.json",
     "generated_at": "2026-05-04T15:37:29.215Z",
@@ -1002,6 +1044,7 @@
         "local_voice_live_dialog_report_present",
         "local_voice_live_dialog_safety_controls_observed",
         "local_voice_ready_to_benchmark",
+        "local_voice_realtime_transport_spike_passed",
         "quest_cdp_adb_device_recorded",
         "quest_cdp_frame_sample_complete",
         "quest_cdp_generated_at_valid",
@@ -1102,7 +1145,8 @@
       "satisfied_conditions": [
         "local_provider_mock_benchmarks_passed",
         "local_voice_first_audio_benchmark_passed",
-        "local_voice_ready_to_benchmark"
+        "local_voice_ready_to_benchmark",
+        "local_voice_realtime_transport_spike_passed"
       ],
       "blockers": [],
       "blocker_summary": {
@@ -1183,7 +1227,8 @@
         "local_voice_live_dialog_mock_stream_passed",
         "local_voice_live_dialog_report_present",
         "local_voice_live_dialog_safety_controls_observed",
-        "local_voice_ready_to_benchmark"
+        "local_voice_ready_to_benchmark",
+        "local_voice_realtime_transport_spike_passed"
       ],
       "blockers": [
         "local_voice_live_dialog:runtime:real_time_factor_above_1",
