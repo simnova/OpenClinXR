@@ -121,6 +121,29 @@ type LocalModelRuntimeBenchmarkReport = {
   };
 };
 
+type LocalModelQualityBenchmarkReport = {
+  generatedAt: string;
+  status: string;
+  structuredOutput: {
+    requiredKeysPresent: boolean;
+    schemaGrammarEnforced: boolean;
+    blockers: string[];
+  };
+  actorPolicy: {
+    passed: boolean;
+    blockers: string[];
+  };
+  targetHardware: {
+    passed: boolean;
+    blockers: string[];
+  };
+  verdict: {
+    passed: boolean;
+    blockers: string[];
+    caveats: string[];
+  };
+};
+
 type LocalVoiceRuntimeBenchmarkReport = {
   generatedAt: string;
   status: string;
@@ -208,6 +231,15 @@ type EvidenceGateReport = {
     output: LocalModelRuntimeBenchmarkReport["output"];
     verdict: LocalModelRuntimeBenchmarkReport["verdict"];
   };
+  local_model_quality_benchmark?: {
+    file: string;
+    generated_at: string;
+    status: string;
+    structured_output: LocalModelQualityBenchmarkReport["structuredOutput"];
+    actor_policy: LocalModelQualityBenchmarkReport["actorPolicy"];
+    target_hardware: LocalModelQualityBenchmarkReport["targetHardware"];
+    verdict: LocalModelQualityBenchmarkReport["verdict"];
+  };
   local_voice_runtime_benchmark?: {
     file: string;
     generated_at: string;
@@ -280,6 +312,7 @@ export type BenchmarkGateReportInput = {
   blenderAssetBakeSmoke?: EvidenceFile<BlenderAssetBakeSmokeReport>;
   localProviderBenchmark?: EvidenceFile<LocalProviderBenchmarkReport>;
   localModelRuntimeBenchmark?: EvidenceFile<LocalModelRuntimeBenchmarkReport>;
+  localModelQualityBenchmark?: EvidenceFile<LocalModelQualityBenchmarkReport>;
   localVoiceRuntimeBenchmark?: EvidenceFile<LocalVoiceRuntimeBenchmarkReport>;
   questManualPerformance?: EvidenceFile<QuestManualPerformanceCheck>;
   questManualPerformanceReport?: EvidenceFile<QuestManualPerformanceReport>;
@@ -304,6 +337,7 @@ async function main(): Promise<void> {
   const blenderAssetBakeSmoke = await latestJson<BlenderAssetBakeSmokeReport>("docs/openclinxr/blender-asset-bake-smoke-*.json");
   const localProviderBenchmark = await latestJson<LocalProviderBenchmarkReport>("docs/openclinxr/local-provider-benchmark-*.json");
   const localModelRuntimeBenchmark = await latestJson<LocalModelRuntimeBenchmarkReport>("docs/openclinxr/local-model-runtime-benchmark-*.json");
+  const localModelQualityBenchmark = await latestJson<LocalModelQualityBenchmarkReport>("docs/openclinxr/local-model-quality-benchmark-*.json");
   const localVoiceRuntimeBenchmark = await latestJson<LocalVoiceRuntimeBenchmarkReport>("docs/openclinxr/local-voice-runtime-benchmark-*.json");
   const iwsdkEvidenceContract = await latestJson<IwsdkEvidenceContractReport>("docs/openclinxr/iwsdk-evidence-contract-*.json");
   const questManualPerformanceReport = await latestQuestManualPerformanceReportJson();
@@ -317,6 +351,7 @@ async function main(): Promise<void> {
     blenderAssetBakeSmoke,
     localProviderBenchmark,
     localModelRuntimeBenchmark,
+    localModelQualityBenchmark,
     localVoiceRuntimeBenchmark,
     iwsdkEvidenceContract,
     questManualPerformance,
@@ -357,6 +392,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     blenderAssetBakeSmoke,
     localProviderBenchmark,
     localModelRuntimeBenchmark,
+    localModelQualityBenchmark,
     localVoiceRuntimeBenchmark,
     iwsdkEvidenceContract,
   } = input;
@@ -373,6 +409,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     blenderAssetBakeSmoke,
     localProviderBenchmark,
     localModelRuntimeBenchmark,
+    localModelQualityBenchmark,
     localVoiceRuntimeBenchmark,
     questManualPerformance,
   }, options);
@@ -424,8 +461,13 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     ...assetEvidenceFreshnessBlockers,
   ];
   const localModelQualityEvidenceBlockers = [
-    ...localModelQualityBlockers(localModelRuntimeBenchmark),
-    ...localModelEvidenceFreshnessBlockers,
+    ...localModelQualityBlockers(localModelRuntimeBenchmark, localModelQualityBenchmark),
+    ...freshnessBlockers(evidenceFreshness, [
+      "local_runtime_probe",
+      "local_provider_benchmark",
+      "local_model_runtime_benchmark",
+      "local_model_quality_benchmark",
+    ]),
   ];
   const localVoiceLiveDialogEvidenceBlockers = [
     ...localVoiceLiveDialogBlockers(localVoiceRuntimeBenchmark),
@@ -459,12 +501,20 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localProviderBenchmark?.value.verdict.localModelReadyToBenchmark ? "local_model_ready_to_benchmark" : undefined,
     localProviderBenchmark?.value.verdict.localVoiceReadyToBenchmark ? "local_voice_ready_to_benchmark" : undefined,
     localModelRuntimeBenchmark?.value.verdict.passed ? "local_model_runtime_benchmark_passed" : undefined,
+    localModelQualityBenchmark ? "local_model_quality_report_present" : undefined,
+    localModelQualityBenchmark?.value.structuredOutput.requiredKeysPresent ? "local_model_quality_required_keys_present" : undefined,
+    localModelQualityBenchmark?.value.actorPolicy.passed ? "local_model_quality_actor_policy_benchmark_passed" : undefined,
+    localModelQualityBenchmark?.value.targetHardware.passed ? "local_model_quality_target_hardware_passed" : undefined,
+    localModelQualityBenchmark?.value.verdict.passed ? "local_model_quality_benchmark_passed" : undefined,
     localVoiceRuntimeBenchmark?.value.verdict.passed ? "local_voice_first_audio_benchmark_passed" : undefined,
   ]);
   const questSatisfiedConditions = combinedSatisfiedConditions.filter((condition) =>
     condition.startsWith("quest_") || (questManualPerformance?.value.satisfiedConditions ?? []).includes(condition)
   );
   const localModelSatisfiedConditions = combinedSatisfiedConditions.filter((condition) =>
+    (condition.startsWith("local_model_") && !condition.startsWith("local_model_quality_")) || condition === "local_provider_mock_benchmarks_passed"
+  );
+  const localModelQualitySatisfiedConditions = combinedSatisfiedConditions.filter((condition) =>
     condition.startsWith("local_model_") || condition === "local_provider_mock_benchmarks_passed"
   );
   const localVoiceSatisfiedConditions = combinedSatisfiedConditions.filter((condition) =>
@@ -548,6 +598,17 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         verdict: localModelRuntimeBenchmark.value.verdict,
       },
     } : {}),
+    ...(localModelQualityBenchmark ? {
+      local_model_quality_benchmark: {
+        file: localModelQualityBenchmark.file,
+        generated_at: localModelQualityBenchmark.value.generatedAt,
+        status: localModelQualityBenchmark.value.status,
+        structured_output: localModelQualityBenchmark.value.structuredOutput,
+        actor_policy: localModelQualityBenchmark.value.actorPolicy,
+        target_hardware: localModelQualityBenchmark.value.targetHardware,
+        verdict: localModelQualityBenchmark.value.verdict,
+      },
+    } : {}),
     ...(localVoiceRuntimeBenchmark ? {
       local_voice_runtime_benchmark: {
         file: localVoiceRuntimeBenchmark.file,
@@ -587,7 +648,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
       buildEvidenceGate("evidence-leadership-0008-002", localModelSatisfiedConditions, unique(localModelEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0008-003", localVoiceSatisfiedConditions, unique(localVoiceEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0008-004", assetSatisfiedConditions, unique(assetEvidenceBlockers)),
-      buildEvidenceGate("evidence-leadership-0009-002", localModelSatisfiedConditions, unique(localModelQualityEvidenceBlockers)),
+      buildEvidenceGate("evidence-leadership-0009-002", localModelQualitySatisfiedConditions, unique(localModelQualityEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0009-003", localVoiceSatisfiedConditions, unique(localVoiceLiveDialogEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0009-004", iwsdkSatisfiedConditions, unique(iwsdkEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0009-005", assetSatisfiedConditions, unique(assetProductionEvidenceBlockers)),
@@ -603,6 +664,7 @@ function buildEvidenceFreshnessReport(
     blenderAssetBakeSmoke?: EvidenceFile<BlenderAssetBakeSmokeReport>;
     localProviderBenchmark?: EvidenceFile<LocalProviderBenchmarkReport>;
     localModelRuntimeBenchmark?: EvidenceFile<LocalModelRuntimeBenchmarkReport>;
+    localModelQualityBenchmark?: EvidenceFile<LocalModelQualityBenchmarkReport>;
     localVoiceRuntimeBenchmark?: EvidenceFile<LocalVoiceRuntimeBenchmarkReport>;
     questManualPerformance?: EvidenceFile<QuestManualPerformanceCheck>;
   },
@@ -618,6 +680,7 @@ function buildEvidenceFreshnessReport(
     evidenceFreshnessEntry("blender_asset_bake_smoke", evidence.blenderAssetBakeSmoke, now, maxAgeHours),
     evidenceFreshnessEntry("local_provider_benchmark", evidence.localProviderBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_model_runtime_benchmark", evidence.localModelRuntimeBenchmark, now, maxAgeHours),
+    evidenceFreshnessEntry("local_model_quality_benchmark", evidence.localModelQualityBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_voice_runtime_benchmark", evidence.localVoiceRuntimeBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("quest_manual_performance", evidence.questManualPerformance, now, maxAgeHours),
   ];
@@ -891,9 +954,30 @@ function localModelRuntimeBenchmarkBlockers(
   return unique(benchmark.value.verdict.blockers.map((blocker) => `local_model_runtime_benchmark:${blocker}`));
 }
 
-function localModelQualityBlockers(benchmark: EvidenceFile<LocalModelRuntimeBenchmarkReport> | undefined): string[] {
+function localModelQualityBlockers(
+  benchmark: EvidenceFile<LocalModelRuntimeBenchmarkReport> | undefined,
+  qualityBenchmark: EvidenceFile<LocalModelQualityBenchmarkReport> | undefined,
+): string[] {
   if (!benchmark) {
     return ["missing_local_model_runtime_benchmark_report"];
+  }
+
+  if (qualityBenchmark) {
+    return unique([
+      ...qualityBenchmark.value.verdict.blockers.map((blocker) => `local_model_quality:${blocker}`),
+      ...(qualityBenchmark.value.actorPolicy.passed
+        ? []
+        : (qualityBenchmark.value.actorPolicy.blockers.length > 0 ? qualityBenchmark.value.actorPolicy.blockers : ["actor_policy_probe_failed"])
+          .map((blocker) => `local_model_quality:actor_policy:${blocker}`)),
+      ...(qualityBenchmark.value.structuredOutput.schemaGrammarEnforced
+        ? []
+        : qualityBenchmark.value.structuredOutput.blockers
+          .filter((blocker) => blocker === "schema_grammar_not_enforced")
+          .map((blocker) => `local_model_quality:structured_output:${blocker}`)),
+      ...(qualityBenchmark.value.targetHardware.passed
+        ? []
+        : qualityBenchmark.value.targetHardware.blockers.map((blocker) => `local_model_quality:target_hardware:${blocker}`)),
+    ]);
   }
 
   const blockers: string[] = [];

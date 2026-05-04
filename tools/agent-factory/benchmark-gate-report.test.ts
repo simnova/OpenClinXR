@@ -284,11 +284,15 @@ describe("benchmark gate report", () => {
     expect(gatesById.get("evidence-leadership-0009-002")).toEqual(expect.objectContaining({
       ready_to_resolve: false,
       blockers: expect.arrayContaining([
-        "local_model_quality:structured_output_caveats_present",
-        "local_model_quality:target_hardware_not_m4_profile",
-        "local_model_quality:missing_hidden_truth_actor_policy_benchmark",
+        "local_model_quality:structured_output:reasoning_markup_emitted",
+        "local_model_quality:structured_output:safety_flags_not_guardrail_labels",
+        "local_model_quality:structured_output:schema_grammar_not_enforced",
+        "local_model_quality:target_hardware:target_hardware_not_m4_profile",
       ]),
       satisfied_conditions: expect.arrayContaining([
+        "local_model_quality_actor_policy_benchmark_passed",
+        "local_model_quality_report_present",
+        "local_model_quality_required_keys_present",
         "local_model_runtime_benchmark_passed",
       ]),
     }));
@@ -315,6 +319,129 @@ describe("benchmark gate report", () => {
         "asset_pipeline_gltf_pipeline_smoke_passed",
       ]),
     }));
+  });
+
+  it("uses local model quality evidence to replace generic actor-policy blockers with precise findings", () => {
+    const buildReport = buildBenchmarkGateReport as (
+      input: Parameters<typeof buildBenchmarkGateReport>[0] & {
+        localModelQualityBenchmark?: {
+          file: string;
+          value: {
+            generatedAt: string;
+            status: string;
+            structuredOutput: {
+              requiredKeysPresent: boolean;
+              schemaGrammarEnforced: boolean;
+              blockers: string[];
+            };
+            actorPolicy: {
+              passed: boolean;
+              blockers: string[];
+            };
+            targetHardware: {
+              passed: boolean;
+              blockers: string[];
+            };
+            verdict: {
+              passed: boolean;
+              blockers: string[];
+              caveats: string[];
+            };
+          };
+        };
+      },
+      options: { now: Date; maxEvidenceAgeHours: number },
+    ) => BenchmarkGateReport;
+    const report = buildReport({
+      localRuntime: {
+        file: "docs/openclinxr/local-runtime-probe-2026-05-04.json",
+        value: {
+          generatedAt: "2026-05-04T20:00:00.000Z",
+          gates: {
+            questUsb: { status: "ready", blockers: [] },
+            questForegroundPreflight: { status: "ready", blockers: [] },
+            localModel: { status: "ready", blockers: [] },
+            localVoice: { status: "ready", blockers: [] },
+            assetPipeline: { status: "ready", blockers: [] },
+          },
+        },
+      },
+      localProviderBenchmark: {
+        file: "docs/openclinxr/local-provider-benchmark-2026-05-04.json",
+        value: {
+          generatedAt: "2026-05-04T20:00:00.000Z",
+          mockModel: { status: "passed", latencyMs: 1, blockers: [], metrics: {} },
+          mockVoice: { status: "passed", latencyMs: 1, blockers: [], metrics: {} },
+          localModel: { status: "passed", blockers: [], metrics: {} },
+          localVoice: { status: "passed", blockers: [], metrics: {} },
+          verdict: {
+            deterministicMocksPassed: true,
+            localModelReadyToBenchmark: true,
+            localVoiceReadyToBenchmark: true,
+            blockers: [],
+          },
+        },
+      },
+      localModelRuntimeBenchmark: {
+        file: "docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json",
+        value: {
+          generatedAt: "2026-05-04T20:00:00.000Z",
+          status: "passed_with_caveats",
+          runtime: { device: "MTL0 (Apple M1 Max)" },
+          metrics: {},
+          output: {},
+          verdict: {
+            passed: true,
+            blockers: [],
+            caveats: ["Structured output caveat retained from the runtime smoke."],
+          },
+        },
+      },
+      localModelQualityBenchmark: {
+        file: "docs/openclinxr/local-model-quality-benchmark-2026-05-04.json",
+        value: {
+          generatedAt: "2026-05-04T20:00:00.000Z",
+          status: "blocked",
+          structuredOutput: {
+            requiredKeysPresent: true,
+            schemaGrammarEnforced: false,
+            blockers: ["schema_grammar_not_enforced"],
+          },
+          actorPolicy: {
+            passed: true,
+            blockers: [],
+          },
+          targetHardware: {
+            passed: false,
+            blockers: ["target_hardware_not_m4_profile"],
+          },
+          verdict: {
+            passed: false,
+            blockers: [
+              "structured_output:schema_grammar_not_enforced",
+              "target_hardware:target_hardware_not_m4_profile",
+            ],
+            caveats: [],
+          },
+        },
+      },
+    }, { now: new Date("2026-05-04T20:05:00.000Z"), maxEvidenceAgeHours: 24 });
+
+    const qualityGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-002");
+
+    expect(qualityGate?.satisfied_conditions).toEqual(expect.arrayContaining([
+      "local_model_quality_report_present",
+      "local_model_quality_actor_policy_benchmark_passed",
+      "local_model_quality_required_keys_present",
+    ]));
+    expect(qualityGate?.blockers).toEqual(expect.arrayContaining([
+      "local_model_quality:structured_output:schema_grammar_not_enforced",
+      "local_model_quality:target_hardware:target_hardware_not_m4_profile",
+    ]));
+    expect(qualityGate?.blockers).not.toEqual(expect.arrayContaining([
+      "local_model_quality:missing_hidden_truth_actor_policy_benchmark",
+      "local_model_quality:missing_schema_grammar_benchmark",
+    ]));
   });
 
   it("summarizes missing Blender asset evidence as an asset-pipeline group", () => {
