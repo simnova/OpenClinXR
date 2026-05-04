@@ -25,6 +25,7 @@ type LocalRuntimeProbeReport = {
   generatedAt: string;
   gates: {
     questUsb: GateStatus;
+    questForegroundPreflight?: GateStatus;
     localModel: GateStatus;
     localVoice: GateStatus;
     assetPipeline: GateStatus;
@@ -248,6 +249,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): Evide
     ...questBlockers(questSmoke?.value),
     ...questManualPerformanceBlockers(questManualPerformance?.value),
     ...questUsbBlockers(localRuntime?.value),
+    ...questForegroundPreflightBlockers(localRuntime?.value),
   ];
   const localModelEvidenceBlockers = [
     ...localModelRuntimeBlockers(localRuntime?.value),
@@ -274,6 +276,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): Evide
     questManualPerformance?.value.readyToClaimFramePacing ? "quest_manual_frame_pacing_ready" : undefined,
     ...(questManualPerformance?.value.satisfiedConditions ?? []),
     localRuntime?.value.gates.questUsb.status === "ready" ? "quest_usb_ready" : undefined,
+    localRuntime?.value.gates.questForegroundPreflight?.status === "ready" ? "quest_foreground_preflight_ready" : undefined,
     localRuntime?.value.gates.assetPipeline.status === "ready" ? "asset_pipeline_runtime_ready" : undefined,
     gltfPipelineSmoke?.value.verdict.passed ? "asset_pipeline_gltf_pipeline_smoke_passed" : undefined,
     blenderAssetBakeSmoke?.value.verdict.passed ? "asset_pipeline_blender_bake_smoke_passed" : undefined,
@@ -456,6 +459,13 @@ function questUsbBlockers(report: LocalRuntimeProbeReport | undefined): string[]
   return unique(prefixBlockers("quest_usb", report.gates.questUsb));
 }
 
+function questForegroundPreflightBlockers(report: LocalRuntimeProbeReport | undefined): string[] {
+  if (!report) {
+    return ["missing_local_runtime_probe_report"];
+  }
+  return unique(prefixBlockers("quest_foreground_preflight", report.gates.questForegroundPreflight ?? blockedGate("quest_foreground_preflight_not_recorded")));
+}
+
 function localModelRuntimeBlockers(report: LocalRuntimeProbeReport | undefined): string[] {
   if (!report) {
     return ["missing_local_runtime_probe_report"];
@@ -522,6 +532,10 @@ function prefixBlockers(prefix: string, gate: GateStatus): Array<string | undefi
     return [];
   }
   return gate.blockers.map((blocker) => `${prefix}:${blocker}`);
+}
+
+function blockedGate(blocker: string): GateStatus {
+  return { status: "blocked", blockers: [blocker] };
 }
 
 const blockerGroups = [

@@ -108,6 +108,7 @@ describe("benchmark gate report", () => {
           generatedAt: "2026-05-04T00:00:00.000Z",
           gates: {
             questUsb: { status: "ready", blockers: [] },
+            questForegroundPreflight: { status: "ready", blockers: [] },
             localModel: { status: "ready", blockers: [] },
             localVoice: { status: "ready", blockers: [] },
             assetPipeline: { status: "blocked", blockers: ["missing_blender"] },
@@ -122,6 +123,38 @@ describe("benchmark gate report", () => {
         group_id: "asset_pipeline_blender",
         owner: "asset-pipeline-lead",
         blockers: expect.arrayContaining(["asset_pipeline:missing_blender", "missing_blender_asset_bake_smoke_report"]),
+      }),
+    ]));
+  });
+
+  it("includes Quest foreground preflight blockers in Quest leadership evidence", () => {
+    const report = buildBenchmarkGateReport({
+      localRuntime: {
+        file: "runtime.json",
+        value: {
+          generatedAt: "2026-05-04T00:00:00.000Z",
+          gates: {
+            questUsb: { status: "ready", blockers: [] },
+            questForegroundPreflight: {
+              status: "blocked",
+              blockers: ["quest_3_asleep_or_not_foreground_ready"],
+            },
+            localModel: { status: "ready", blockers: [] },
+            localVoice: { status: "ready", blockers: [] },
+            assetPipeline: { status: "ready", blockers: [] },
+          },
+        },
+      },
+    });
+    const questGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0008-001");
+
+    expect(questGate?.blockers).toEqual(expect.arrayContaining([
+      "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
+    ]));
+    expect(questGate?.blocker_summary.groups).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        group_id: "quest_foreground_frame_pacing",
+        blockers: expect.arrayContaining(["quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready"]),
       }),
     ]));
   });
@@ -173,6 +206,7 @@ describe("benchmark gate report", () => {
           generatedAt: "2026-05-04T00:00:00.000Z",
           gates: {
             questUsb: { status: "ready", blockers: [] },
+            questForegroundPreflight: { status: "ready", blockers: [] },
             localModel: { status: "ready", blockers: [] },
             localVoice: { status: "ready", blockers: [] },
             assetPipeline: { status: "ready", blockers: [] },
@@ -222,6 +256,7 @@ describe("benchmark gate report", () => {
           generatedAt: "2026-05-04T00:00:00.000Z",
           gates: {
             questUsb: { status: "ready", blockers: [] },
+            questForegroundPreflight: { status: "ready", blockers: [] },
             localModel: { status: "ready", blockers: [] },
             localVoice: { status: "ready", blockers: [] },
             assetPipeline: { status: "ready", blockers: [] },

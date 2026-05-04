@@ -13,11 +13,17 @@
   },
   "local_runtime_probe": {
     "file": "docs/openclinxr/local-runtime-probe-2026-05-04.json",
-    "generated_at": "2026-05-04T05:22:05.030Z",
+    "generated_at": "2026-05-04T06:36:03.273Z",
     "gates": {
       "questUsb": {
         "status": "ready",
         "blockers": []
+      },
+      "questForegroundPreflight": {
+        "status": "blocked",
+        "blockers": [
+          "quest_3_asleep_or_not_foreground_ready"
+        ]
       },
       "localModel": {
         "status": "blocked",
@@ -186,12 +192,13 @@
         "local_voice_benchmark:OPENCLINXR_LOCAL_VOICE_RUNTIME_not_set",
         "local_voice_benchmark:no_vibevoice_runtime_detected",
         "quest_cdp_frame_sample_incomplete",
+        "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
         "quest_manual_performance:missing_quest_manual_performance_report",
         "quest_page_hidden_or_inactive",
         "quest_sustained_frame_sample_not_complete"
       ],
       "blocker_summary": {
-        "total_blockers": 11,
+        "total_blockers": 12,
         "distinct_problem_count": 3,
         "groups": [
           {
@@ -200,6 +207,7 @@
             "owner": "xr-systems-architect",
             "blockers": [
               "quest_cdp_frame_sample_incomplete",
+              "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
               "quest_manual_performance:missing_quest_manual_performance_report",
               "quest_page_hidden_or_inactive",
               "quest_sustained_frame_sample_not_complete"
@@ -243,12 +251,13 @@
       ],
       "blockers": [
         "quest_cdp_frame_sample_incomplete",
+        "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
         "quest_manual_performance:missing_quest_manual_performance_report",
         "quest_page_hidden_or_inactive",
         "quest_sustained_frame_sample_not_complete"
       ],
       "blocker_summary": {
-        "total_blockers": 4,
+        "total_blockers": 5,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -257,6 +266,7 @@
             "owner": "xr-systems-architect",
             "blockers": [
               "quest_cdp_frame_sample_incomplete",
+              "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
               "quest_manual_performance:missing_quest_manual_performance_report",
               "quest_page_hidden_or_inactive",
               "quest_sustained_frame_sample_not_complete"

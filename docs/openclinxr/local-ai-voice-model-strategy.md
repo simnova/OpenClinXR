@@ -24,7 +24,7 @@ Default development mode:
 
 The machine used for this spike reports Apple M1 Max with 64 GB RAM. The user mentioned Apple M4 Pro as a target. Treat M4 Pro/M4 Max support as a target profile, not proven by this machine.
 
-The 2026-05-04 probe records Node 22.19.0, pnpm 10.33.0, Python 3.11.4, ffmpeg 8.1, adb, Homebrew 5.1.8, Blender 5.1.1, `llama.cpp` 9010, and the pinned pnpm `gltf-pipeline` CLI as available. Quest USB is ready.
+The 2026-05-04 probe records Node 22.19.0, pnpm 10.33.0, Python 3.11.4, ffmpeg 8.1, adb, Homebrew 5.1.8, Blender 5.1.1, `llama.cpp` 9010, and the pinned pnpm `gltf-pipeline` CLI as available. Quest USB is ready, but the new Quest foreground preflight is blocked while ADB reports `mWakefulness=Asleep`.
 
 The same probe still records Bun, Portless, Ollama, MLX LM, and VibeVoice as missing from PATH. Local model execution remains blocked on an explicit model ID, model-card/license record, model download approval, and a measured benchmark. Local voice execution remains a planned spike, not a completed benchmark. Blender-backed placeholder asset baking now has a passing local smoke report, but production avatar generation still needs rigging, LOD, texture, collider, and headset-performance evidence.
 

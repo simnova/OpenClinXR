@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T05:22:05.030Z",
+  "generatedAt": "2026-05-04T06:36:03.273Z",
   "system": {
     "macosVersion": "26.4.1",
     "macosBuild": "25E253",
@@ -13,7 +13,7 @@
       "filesystem": "/dev/disk3s1s1",
       "oneKBlocks": 3902665360,
       "used": 12257544,
-      "available": 2654997844,
+      "available": 2653914984,
       "capacity": "1%",
       "mountedOn": "/"
     }
@@ -137,12 +137,22 @@
     }
   ],
   "adb": {
-    "devices": "List of devices attached\n2G0YC5ZGB5000J         device usb:0-1 product:eureka model:Quest_3 device:eureka transport_id:1"
+    "devices": "List of devices attached\n2G0YC5ZGB5000J         device usb:0-1 product:eureka model:Quest_3 device:eureka transport_id:1",
+    "reverseList": "UsbFfs tcp:5173 tcp:5173",
+    "power": {
+      "wakefulness": "Asleep"
+    }
   },
   "gates": {
     "questUsb": {
       "status": "ready",
       "blockers": []
+    },
+    "questForegroundPreflight": {
+      "status": "blocked",
+      "blockers": [
+        "quest_3_asleep_or_not_foreground_ready"
+      ]
     },
     "localModel": {
       "status": "blocked",

@@ -45,9 +45,13 @@ export type LocalRuntimeProbeReport = {
   adb: {
     devices: string;
     reverseList?: string;
+    power?: {
+      wakefulness: string | null;
+    };
   };
   gates: {
     questUsb: GateStatus;
+    questForegroundPreflight: GateStatus;
     localModel: GateStatus;
     localVoice: GateStatus;
     assetPipeline: GateStatus;
@@ -84,12 +88,14 @@ async function main(): Promise<void> {
   const modules = await probePythonModules(commands);
   const adbDevices = await runOptional("adb", ["devices", "-l"]);
   const adbReverse = await runOptional("adb", ["reverse", "--list"]);
+  const adbPower = await runOptional("adb", ["shell", "dumpsys", "power"]);
   const report = buildLocalRuntimeProbeReport({
     system: await probeSystem(),
     commands,
     pythonModules: modules,
     adbDevices,
     adbReverse,
+    adbPower,
   });
 
   if (options.outputPath) {
@@ -203,10 +209,12 @@ export function buildLocalRuntimeProbeReport(input: {
   pythonModules: PythonModuleProbe[];
   adbDevices: string;
   adbReverse: string;
+  adbPower: string;
 }): LocalRuntimeProbeReport {
   const hasCommand = (command: string) => input.commands.some((probe) => probe.command === command && probe.status === "available");
   const hasModule = (module: string) => input.pythonModules.some((probe) => probe.module === module && probe.status === "available");
   const adbHasQuestDevice = /\sdevice\s/.test(input.adbDevices) && /Quest_3|eureka/.test(input.adbDevices);
+  const questWakefulness = parseQuestWakefulness(input.adbPower);
   const localModelRuntimeAvailable = hasCommand("ollama") || hasCommand("llama-cli") || hasCommand("llama-server") || hasCommand("mlx_lm") || hasModule("mlx");
   const localVoiceRuntimeAvailable = hasCommand("vibevoice");
   const hasGltfOptimizationCli = hasCommand("gltf-transform") || hasCommand("gltf-pipeline");
@@ -224,14 +232,26 @@ export function buildLocalRuntimeProbeReport(input: {
     adb: {
       devices: input.adbDevices,
       reverseList: input.adbReverse || undefined,
+      power: input.adbPower ? { wakefulness: questWakefulness } : undefined,
     },
     gates: {
       questUsb: adbHasQuestDevice ? readyGate() : blockedGate("quest_3_not_authorized_or_not_connected"),
+      questForegroundPreflight: questForegroundPreflightGate(adbHasQuestDevice, questWakefulness),
       localModel: localModelRuntimeAvailable ? blockedGate("model_weights_not_selected_or_benchmarked") : notConfiguredGate("no_ollama_llama_cpp_or_mlx_runtime_detected"),
       localVoice: localVoiceRuntimeAvailable ? blockedGate("voice_model_not_selected_or_benchmarked") : notConfiguredGate("no_vibevoice_runtime_detected"),
       assetPipeline: assetPipelineBlockers.length === 0 ? readyGate() : notConfiguredGate(...assetPipelineBlockers),
     },
   };
+}
+
+function questForegroundPreflightGate(adbHasQuestDevice: boolean, wakefulness: string | null): GateStatus {
+  if (!adbHasQuestDevice) {
+    return blockedGate("quest_3_not_authorized_or_not_connected");
+  }
+  if (!wakefulness) {
+    return blockedGate("quest_power_state_not_available");
+  }
+  return wakefulness === "Awake" ? readyGate() : blockedGate("quest_3_asleep_or_not_foreground_ready");
 }
 
 function readyGate(): GateStatus {
@@ -278,6 +298,10 @@ function parseDisk(value: string): Record<string, unknown> | null {
     capacity,
     mountedOn,
   };
+}
+
+function parseQuestWakefulness(value: string): string | null {
+  return value.match(/mWakefulness=([A-Za-z_]+)/)?.[1] ?? null;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

@@ -42,9 +42,11 @@ describe("local runtime probe gates", () => {
       pythonModules: [],
       adbDevices: "2G0YC5ZGB5000J device usb:0-1 product:eureka model:Quest_3 device:eureka",
       adbReverse: "tcp:5173 tcp:5173",
+      adbPower: "mWakefulness=Awake\nmWakefulnessChanging=false",
     });
 
     expect(report.gates.questUsb).toEqual({ status: "ready", blockers: [] });
+    expect(report.gates.questForegroundPreflight).toEqual({ status: "ready", blockers: [] });
     expect(report.gates.assetPipeline).toEqual({ status: "ready", blockers: [] });
     expect(report.gates.localModel).toEqual({
       status: "blocked",
@@ -64,6 +66,7 @@ describe("local runtime probe gates", () => {
       pythonModules: [{ module: "mlx", status: "missing" }],
       adbDevices: "List of devices attached\n",
       adbReverse: "",
+      adbPower: "",
     });
 
     expect(report.gates.questUsb).toEqual({
@@ -81,6 +84,24 @@ describe("local runtime probe gates", () => {
     expect(report.gates.assetPipeline).toEqual({
       status: "not_configured",
       blockers: ["missing_blender"],
+    });
+  });
+
+  it("keeps foreground Quest performance blocked when the headset is asleep", () => {
+    const report = buildLocalRuntimeProbeReport({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      system: {},
+      commands: [availableCommand("adb"), availableCommand("gltf-pipeline"), availableCommand("blender")],
+      pythonModules: [],
+      adbDevices: "2G0YC5ZGB5000J device usb:0-1 product:eureka model:Quest_3 device:eureka",
+      adbReverse: "tcp:5173 tcp:5173",
+      adbPower: "mWakefulness=Asleep\nmWakefulnessChanging=false",
+    });
+
+    expect(report.gates.questUsb).toEqual({ status: "ready", blockers: [] });
+    expect(report.gates.questForegroundPreflight).toEqual({
+      status: "blocked",
+      blockers: ["quest_3_asleep_or_not_foreground_ready"],
     });
   });
 });

@@ -17,6 +17,7 @@ Observed on 2026-05-03:
 - `adb devices -l` initially detected the headset as `unauthorized` with serial `2G0YC5ZGB5000J`.
 - After the in-headset authorization prompt was accepted, `adb devices -l` reported the Quest 3 as `device`.
 - `adb reverse tcp:5173 tcp:5173` succeeded, so the headset can use `localhost:5173` for a local Vite dev server once the XR app exists.
+- The 2026-05-04 `pnpm local:runtime:probe` artifact now records Quest wakefulness. USB remained ready, but `questForegroundPreflight` was blocked by `quest_3_asleep_or_not_foreground_ready` because ADB reported `mWakefulness=Asleep`.
 
 Device fingerprint captured:
 
@@ -223,6 +224,14 @@ List of devices attached
 ```
 
 If the device is `unauthorized`, accept the prompt in the headset. If the prompt does not appear, disconnect and reconnect the cable while the headset is awake.
+
+4. Check the foreground preflight before collecting performance evidence:
+
+```bash
+pnpm local:runtime:probe -- --output docs/openclinxr/local-runtime-probe-YYYY-MM-DD.json
+```
+
+Expected: `questForegroundPreflight.status` is `ready`. If the blocker is `quest_3_asleep_or_not_foreground_ready`, put on or wake the headset before attempting foreground frame pacing.
 
 Optional direct ADB reverse path:
 
