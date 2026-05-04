@@ -158,6 +158,17 @@ describe("workspace architecture rules", () => {
     expect(violations).toEqual([]);
   }, 20_000);
 
+  it("keeps the XR headset runtime on scenario fixture subpaths instead of the barrel", async () => {
+    const violations = await projectFiles(archTsconfig)
+      .inFolder("apps/ui-xr/src/**")
+      .shouldNot()
+      .dependOnFiles()
+      .inPath("packages/openclinxr/scenario-fixtures/src/index.ts")
+      .check();
+
+    expect(violations).toEqual([]);
+  }, 20_000);
+
   it("keeps UI app source from depending on Mongo persistence source files", async () => {
     const violations = await projectFiles(archTsconfig)
       .inFolder("apps/ui-*/src/**")

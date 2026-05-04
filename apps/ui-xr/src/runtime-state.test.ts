@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
+import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
 import {
   completeTraceAction,
   createInitialRuntimeState,

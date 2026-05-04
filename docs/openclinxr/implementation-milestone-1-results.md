@@ -307,12 +307,15 @@ Started on 2026-05-03:
 - `packages/openclinxr/asset-registry` now creates generic placeholder manifests from scenario `assetNeeds`, making all 12 seed-bank cases dev-ready for asset readiness checks while still blocking production release.
 - `apps/api` now serves `/scenario-bank/assets/readiness` so admin surfaces can inspect dev readiness, production blockers, and aggregate Quest budget blockers across all 12 seed-bank scenarios.
 - Portless has been added to the source ledger as an optional local parallel-worktree dev-server routing candidate; it is not installed or required yet because first-run trust and privileged proxy setup should be performed interactively. A 2026-05-04 package-managed help spike confirmed version `0.12.0` under Apache-2.0 and reinforced that the proxy should not be started unattended.
+- The XR station runtime now imports the active ED fixture through the `@openclinxr/scenario-fixtures/ed-chest-pain` subpath instead of the package barrel. The focused build transformed 10 modules and produced an 11.72 kB app chunk plus a 512.59 kB `three-vendor` chunk, down from the prior 34.86 kB app chunk after Three.js splitting.
 
 Local evidence:
 
 - `pnpm verify` passed after each code slice.
+- `pnpm --filter @openclinxr/ui-xr typecheck`, `test`, and `build` passed after the fixture-subpath optimization.
+- Chrome DevTools MCP over `https://ui-xr.localhost:1355` showed the XR page loading with a live `1000x946` backing canvas, no warning/error/issue console messages, and only the `ed-chest-pain.ts` fixture subpath in the dev network request list.
 - `pnpm bench:mock` passed with `eventCount` 18, no missing required trace tags, `modelFailedEventCount` 0, and adversarial `overallScore` 1.
-- `pnpm --filter @openclinxr/ui-xr build` passed; Vite reported the existing large bundle warning from Three.js.
+- Earlier `pnpm --filter @openclinxr/ui-xr build` evidence exposed the large Three.js bundle warning that prompted the later vendor-chunk split.
 - In-app browser smoke loaded `http://localhost:5173/`, rendered the station shell, advanced `Trace 1/10` after `Ecg Request`, and showed no warning/error logs.
 - Quest 3 smoke loaded `OpenClinXR Station Runtime`, rendered a nonblank `860x774` canvas, advanced to `Trace 2/10`, and reported no Vite/framework overlay. The CDP immersive support probe was inconclusive because `navigator.xr.isSessionSupported("immersive-vr")` did not resolve before timeout.
 

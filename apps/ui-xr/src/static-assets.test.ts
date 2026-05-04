@@ -17,6 +17,15 @@ describe("static browser assets", () => {
     expect(mainSource).toContain('} from "three"');
   });
 
+  it("loads only the active scenario fixture subpath in the headset app", () => {
+    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
+    const headsetSources = `${mainSource}\n${runtimeStateSource}`;
+
+    expect(headsetSources).not.toContain('from "@openclinxr/scenario-fixtures"');
+    expect(headsetSources).toContain('from "@openclinxr/scenario-fixtures/ed-chest-pain"');
+  });
+
   it("keeps the Portless dev script aligned to the injected app port", () => {
     const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as {
       scripts?: Record<string, string>;

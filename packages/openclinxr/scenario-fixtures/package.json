@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./ed-chest-pain": "./src/ed-chest-pain.ts"
   },
   "scripts": {
     "typecheck": "tsgo --noEmit -p tsconfig.json",

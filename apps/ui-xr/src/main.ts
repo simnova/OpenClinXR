@@ -1,4 +1,4 @@
-import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
+import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
 import {
   BoxGeometry,
   CapsuleGeometry,
