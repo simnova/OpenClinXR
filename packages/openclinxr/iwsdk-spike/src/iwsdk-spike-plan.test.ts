@@ -12,6 +12,7 @@ import {
   buildIwsdkSidecarReadinessContract,
   buildIwsdkSpikeMetricThresholds,
   buildIwsdkSpikePlan,
+  evaluateIwsdkAgentToolingEvidence,
   evaluateIwsdkManagedBrowserEvidence,
   evaluateIwsdkPreInstallPackageSelection,
   evaluateIwsdkSpikeMetrics,
@@ -286,6 +287,108 @@ describe("IWSDK spike plan", () => {
         "normal_browser_should_not_open_automatically",
         "managed_devui_should_be_on",
       ],
+    });
+  });
+
+  it("blocks aggregate IWSDK agent-tooling readiness until adapter, tool inventory, smoke tools, and browser evidence pass", () => {
+    expect(evaluateIwsdkAgentToolingEvidence({
+      adapterSyncRecorded: false,
+      toolCount: 31,
+      coveredCategories: ["session", "transforms", "input", "browser", "scene"],
+      validatedSmokeTools: [
+        "xr_get_session_status",
+        "xr_accept_session",
+        "browser_screenshot",
+        "scene_get_hierarchy",
+        "xr_select",
+      ],
+      managedBrowserEvidence: {
+        mode: "agent",
+        runtimeUrl: "http://127.0.0.1:5181",
+        managedBrowserReady: true,
+        managedSessionId: "managed-session",
+        normalBrowserOpened: true,
+        normalSessionId: "normal-session",
+        managedDevUiVisible: false,
+        normalDevUiVisible: true,
+      },
+      optionalServerActions: [],
+    })).toEqual({
+      readyForAgentTooling: false,
+      blockers: [
+        "adapter_sync_not_recorded",
+        "managed_browser:missing_agent_fixed_screenshot_size",
+        "mcp_required_category_missing_ecs",
+        "mcp_smoke_tool_not_validated_browser_get_console_logs",
+        "mcp_tool_inventory_count_not_32",
+      ],
+    });
+  });
+
+  it("keeps optional reference and hzdb server actions as blockers inside aggregate agent-tooling evidence", () => {
+    expect(evaluateIwsdkAgentToolingEvidence({
+      adapterSyncRecorded: true,
+      toolCount: 32,
+      coveredCategories: ["session", "transforms", "input", "browser", "scene", "ecs"],
+      validatedSmokeTools: [
+        "xr_get_session_status",
+        "xr_accept_session",
+        "browser_screenshot",
+        "scene_get_hierarchy",
+        "xr_select",
+        "browser_get_console_logs",
+      ],
+      managedBrowserEvidence: {
+        mode: "agent",
+        runtimeUrl: "http://127.0.0.1:5181",
+        managedBrowserReady: true,
+        managedSessionId: "managed-session",
+        normalBrowserOpened: true,
+        normalSessionId: "normal-session",
+        screenshotWidth: 500,
+        screenshotHeight: 500,
+        managedDevUiVisible: false,
+        normalDevUiVisible: true,
+      },
+      optionalServerActions: ["npx iwsdk reference warmup", "install @meta-quest/hzdb"],
+    })).toEqual({
+      readyForAgentTooling: false,
+      blockers: [
+        "optional_mcp_server_action_blocked:install @meta-quest/hzdb",
+        "optional_mcp_server_action_blocked:npx iwsdk reference warmup",
+      ],
+    });
+  });
+
+  it("marks aggregate IWSDK agent-tooling evidence ready only when all contract slices pass", () => {
+    expect(evaluateIwsdkAgentToolingEvidence({
+      adapterSyncRecorded: true,
+      toolCount: 32,
+      coveredCategories: ["session", "transforms", "input", "browser", "scene", "ecs"],
+      validatedSmokeTools: [
+        "xr_get_session_status",
+        "xr_accept_session",
+        "browser_screenshot",
+        "scene_get_hierarchy",
+        "xr_select",
+        "browser_get_console_logs",
+      ],
+      managedBrowserEvidence: {
+        mode: "agent",
+        runtimeUrl: "http://127.0.0.1:5181",
+        managedBrowserReady: true,
+        managedSessionId: "managed-session",
+        normalBrowserOpened: true,
+        normalSessionId: "normal-session",
+        screenshotWidth: 500,
+        screenshotHeight: 500,
+        managedDevUiVisible: false,
+        normalDevUiVisible: true,
+      },
+      optionalServerActions: [],
+    })).toEqual({
+      readyForAgentTooling: true,
+      blockers: [],
     });
   });
 

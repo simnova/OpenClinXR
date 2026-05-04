@@ -53,6 +53,8 @@ The same planning package now exposes `buildIwsdkAiModeProfiles()` and `buildIws
 
 `buildIwsdkManagedBrowserEvidenceContract()` and `evaluateIwsdkManagedBrowserEvidence()` now make browser-mode evidence executable. Agent mode must prove the managed Playwright browser is ready and separate from the normal browser session, with fixed screenshot dimensions and the expected DevUI posture. Oversight and collaborate modes must prove the visible Playwright session is the browser under evaluation and that a normal browser was not automatically opened.
 
+`evaluateIwsdkAgentToolingEvidence()` is the aggregate readiness check for the future sidecar MCP lane. It blocks readiness if adapter sync is missing, the tool inventory is not 32, required MCP categories or minimal smoke tools are absent, managed-browser evidence fails, or optional `iwsdk-reference`/`hzdb` actions appear in the run.
+
 | IWSDK AI mode | Browser posture | DevUI | OpenClinXR use |
 | --- | --- | --- | --- |
 | `agent` | Headless fixed viewport with the normal browser open independently | Off | Default unattended Codex smoke for screenshots, console logs, scene hierarchy, and controller-input regression. |
