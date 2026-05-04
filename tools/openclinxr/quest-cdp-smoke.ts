@@ -160,7 +160,7 @@ export function parseArgs(args: string[]): CliOptions {
     frameSampleCount: 90,
     frameTimeoutMs: 4000,
     skipLaunch: false,
-    inputPattern: "docs/openclinxr/quest-cdp-smoke-*.json",
+    inputPattern: "docs/openclinxr/quest-cdp-smoke-[0-9]*.json",
   };
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {

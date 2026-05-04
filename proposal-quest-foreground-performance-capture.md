@@ -1,6 +1,6 @@
 # Proposal: Quest Foreground Performance Capture
 
-Status: Proposed; awaiting operator coordination.
+Status: Proposed; awaiting operator coordination. Automated CDP foreground smoke evidence was refreshed on 2026-05-04, but the manual in-headset report remains required.
 
 ## Decision Needed
 
@@ -22,6 +22,13 @@ The non-simple part is the evidence capture itself: it requires a human wearing 
 | Validation command | `pnpm xr:quest:manual:check -- --input docs/openclinxr/quest-manual-performance-YYYY-MM-DD.json` | Local deterministic check |
 | Benchmark rollup | `pnpm agent:benchmarks` | Regenerates leadership evidence |
 | Cloud calls | None | Disallowed |
+
+## Current Automated Evidence
+
+- `docs/openclinxr/local-runtime-probe-2026-05-04.json` confirms the Quest 3 is USB-authorized and awake.
+- `docs/openclinxr/quest-cdp-smoke-2026-05-04.json` confirms the XR shell loads in Quest Browser, WebXR is available, the page is visible/focused through CDP, trace interaction advances, and CDP frame sampling completes.
+- `docs/openclinxr/quest-cdp-smoke-check-2026-05-04.json` classifies the CDP smoke as `foreground_ready`.
+- The manual report is still required because CDP cannot honestly attest comfort, text readability while worn, human-visible immersive-session behavior, thermal feel, battery observation, or operator-perceived controller latency.
 
 ## Pros
 

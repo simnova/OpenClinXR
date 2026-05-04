@@ -4,8 +4,8 @@
     {
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
-      "generated_at": "2026-05-04T13:40:40.572Z",
-      "age_hours": 1,
+      "generated_at": "2026-05-04T15:16:15.305Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -13,7 +13,7 @@
     {
       "evidence_id": "local_runtime_probe",
       "file": "docs/openclinxr/local-runtime-probe-2026-05-04.json",
-      "generated_at": "2026-05-04T14:52:24.531Z",
+      "generated_at": "2026-05-04T15:16:18.712Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -76,41 +76,37 @@
   ],
   "quest_smoke": {
     "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
-    "generated_at": "2026-05-04T13:40:40.572Z",
+    "generated_at": "2026-05-04T15:16:15.305Z",
     "shell_loaded": true,
     "interaction_advanced": true,
-    "frame_sample_complete": false,
-    "ready_for_foreground_quest_claim": false,
-    "classification": "shell_interaction_only_hidden_page",
+    "frame_sample_complete": true,
+    "ready_for_foreground_quest_claim": true,
+    "classification": "foreground_ready",
     "satisfied_conditions": [
       "quest_cdp_generated_at_valid",
       "quest_cdp_adb_device_recorded",
       "quest_cdp_user_agent_recorded",
       "quest_shell_loaded",
       "quest_trace_interaction_advanced",
-      "quest_frame_stats_present"
+      "quest_page_visible",
+      "quest_cdp_frame_sample_complete",
+      "quest_frame_stats_present",
+      "quest_latest_frame_fresh",
+      "quest_frames_advanced_during_probe"
     ],
-    "blockers": [
-      "quest_cdp_frame_sample_incomplete",
-      "quest_cdp_frame_sample_timed_out",
-      "quest_latest_frame_stale_over_1000ms",
-      "quest_no_frames_observed_during_probe",
-      "quest_page_hidden_or_inactive"
-    ]
+    "blockers": []
   },
   "local_runtime_probe": {
     "file": "docs/openclinxr/local-runtime-probe-2026-05-04.json",
-    "generated_at": "2026-05-04T14:52:24.531Z",
+    "generated_at": "2026-05-04T15:16:18.712Z",
     "gates": {
       "questUsb": {
         "status": "ready",
         "blockers": []
       },
       "questForegroundPreflight": {
-        "status": "blocked",
-        "blockers": [
-          "quest_3_asleep_or_not_foreground_ready"
-        ]
+        "status": "ready",
+        "blockers": []
       },
       "localModel": {
         "status": "blocked",
@@ -502,25 +498,23 @@
         "local_voice_first_audio_benchmark_passed",
         "local_voice_ready_to_benchmark",
         "quest_cdp_adb_device_recorded",
+        "quest_cdp_frame_sample_complete",
         "quest_cdp_generated_at_valid",
         "quest_cdp_user_agent_recorded",
+        "quest_foreground_preflight_ready",
         "quest_frame_stats_present",
+        "quest_frames_advanced_during_probe",
+        "quest_latest_frame_fresh",
+        "quest_page_visible",
         "quest_shell_loaded",
         "quest_trace_interaction_advanced",
         "quest_usb_ready"
       ],
       "blockers": [
-        "quest_cdp_frame_sample_incomplete",
-        "quest_cdp_frame_sample_timed_out",
-        "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
-        "quest_latest_frame_stale_over_1000ms",
-        "quest_manual_performance:missing_quest_manual_performance_report",
-        "quest_no_frames_observed_during_probe",
-        "quest_page_hidden_or_inactive",
-        "quest_sustained_frame_sample_not_complete"
+        "quest_manual_performance:missing_quest_manual_performance_report"
       ],
       "blocker_summary": {
-        "total_blockers": 8,
+        "total_blockers": 1,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -528,16 +522,9 @@
             "title": "Foreground Quest frame pacing evidence",
             "owner": "xr-systems-architect",
             "blockers": [
-              "quest_cdp_frame_sample_incomplete",
-              "quest_cdp_frame_sample_timed_out",
-              "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
-              "quest_latest_frame_stale_over_1000ms",
-              "quest_manual_performance:missing_quest_manual_performance_report",
-              "quest_no_frames_observed_during_probe",
-              "quest_page_hidden_or_inactive",
-              "quest_sustained_frame_sample_not_complete"
+              "quest_manual_performance:missing_quest_manual_performance_report"
             ],
-            "next_step": "Review proposal-quest-foreground-performance-capture.md, then capture a foreground in-headset manual performance report and keep CDP hidden-page blockers until that report passes."
+            "next_step": "Review proposal-quest-foreground-performance-capture.md, then capture the foreground in-headset manual report for comfort, readability, immersive-session, and sustained-frame observations that CDP cannot honestly attest alone."
           }
         ],
         "ungrouped_blockers": []
@@ -548,25 +535,23 @@
       "ready_to_resolve": false,
       "satisfied_conditions": [
         "quest_cdp_adb_device_recorded",
+        "quest_cdp_frame_sample_complete",
         "quest_cdp_generated_at_valid",
         "quest_cdp_user_agent_recorded",
+        "quest_foreground_preflight_ready",
         "quest_frame_stats_present",
+        "quest_frames_advanced_during_probe",
+        "quest_latest_frame_fresh",
+        "quest_page_visible",
         "quest_shell_loaded",
         "quest_trace_interaction_advanced",
         "quest_usb_ready"
       ],
       "blockers": [
-        "quest_cdp_frame_sample_incomplete",
-        "quest_cdp_frame_sample_timed_out",
-        "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
-        "quest_latest_frame_stale_over_1000ms",
-        "quest_manual_performance:missing_quest_manual_performance_report",
-        "quest_no_frames_observed_during_probe",
-        "quest_page_hidden_or_inactive",
-        "quest_sustained_frame_sample_not_complete"
+        "quest_manual_performance:missing_quest_manual_performance_report"
       ],
       "blocker_summary": {
-        "total_blockers": 8,
+        "total_blockers": 1,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -574,16 +559,9 @@
             "title": "Foreground Quest frame pacing evidence",
             "owner": "xr-systems-architect",
             "blockers": [
-              "quest_cdp_frame_sample_incomplete",
-              "quest_cdp_frame_sample_timed_out",
-              "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
-              "quest_latest_frame_stale_over_1000ms",
-              "quest_manual_performance:missing_quest_manual_performance_report",
-              "quest_no_frames_observed_during_probe",
-              "quest_page_hidden_or_inactive",
-              "quest_sustained_frame_sample_not_complete"
+              "quest_manual_performance:missing_quest_manual_performance_report"
             ],
-            "next_step": "Review proposal-quest-foreground-performance-capture.md, then capture a foreground in-headset manual performance report and keep CDP hidden-page blockers until that report passes."
+            "next_step": "Review proposal-quest-foreground-performance-capture.md, then capture the foreground in-headset manual report for comfort, readability, immersive-session, and sustained-frame observations that CDP cannot honestly attest alone."
           }
         ],
         "ungrouped_blockers": []

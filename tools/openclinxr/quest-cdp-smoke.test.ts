@@ -19,7 +19,7 @@ describe("Quest CDP smoke probe", () => {
       frameTimeoutMs: 4000,
       skipLaunch: false,
       mode: "run",
-      inputPattern: "docs/openclinxr/quest-cdp-smoke-*.json",
+      inputPattern: "docs/openclinxr/quest-cdp-smoke-[0-9]*.json",
     });
 
     expect(parseArgs([
@@ -63,7 +63,7 @@ describe("Quest CDP smoke probe", () => {
       ".agent-factory/quest-cdp-smoke-check.json",
     ])).toMatchObject({
       mode: "validate",
-      inputPattern: "docs/openclinxr/quest-cdp-smoke-*.json",
+      inputPattern: "docs/openclinxr/quest-cdp-smoke-[0-9]*.json",
       outputPath: ".agent-factory/quest-cdp-smoke-check.json",
     });
 

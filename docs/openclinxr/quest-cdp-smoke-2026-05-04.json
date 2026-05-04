@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-04T13:40:40.572Z",
-  "url": "http://localhost:5173/?questSmoke=20260504-awake",
+  "generatedAt": "2026-05-04T15:16:15.305Z",
+  "url": "http://localhost:5173/",
   "adb": {
     "version": "Android Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as /opt/homebrew/bin/adb\nRunning on Darwin 25.4.0 (arm64)",
     "deviceLine": "2G0YC5ZGB5000J         device usb:0-1 product:eureka model:Quest_3 device:eureka transport_id:1",
@@ -10,9 +10,9 @@
     "title": "OpenClinXR Station Runtime",
     "url": "http://localhost:5173/",
     "userAgent": "Mozilla/5.0 (X11; Linux x86_64; Quest 3) AppleWebKit/537.36 (KHTML, like Gecko) OculusBrowser/146.0.0.19.27.942135376 Chrome/146.0.7680.177 VR Safari/537.36",
-    "devicePixelRatio": 1.25,
-    "visibilityState": "hidden",
-    "hidden": true,
+    "devicePixelRatio": 1,
+    "visibilityState": "visible",
+    "hidden": false,
     "hasFocus": true,
     "bodyHasEdChestPain": true,
     "hasViteOverlay": false,
@@ -20,21 +20,21 @@
     "xrStatus": "WebXR ready",
     "trace": "Trace 0/10",
     "frameStats": {
-      "sampleCount": 0,
-      "avgFrameMs": null,
-      "p95FrameMs": null,
-      "maxFrameMs": null,
-      "approxFps": null,
-      "framesObserved": 1,
-      "latestFrameAtMs": 243.8,
-      "sampleWindowSize": 0
+      "sampleCount": 42,
+      "avgFrameMs": 14.18,
+      "p95FrameMs": 17.4,
+      "maxFrameMs": 37,
+      "approxFps": 70.5,
+      "framesObserved": 43,
+      "latestFrameAtMs": 754.5,
+      "sampleWindowSize": 42
     },
     "canvas": {
-      "width": 755,
-      "height": 1128,
-      "clientWidth": 604,
-      "clientHeight": 903,
-      "dataUrlLength": 91990
+      "width": 860,
+      "height": 902,
+      "clientWidth": 860,
+      "clientHeight": 902,
+      "dataUrlLength": 25070
     }
   },
   "interaction": {
@@ -46,24 +46,21 @@
     "dialogue": "Spouse: Are you saying this could be his heart?"
   },
   "frameSample": {
-    "framesObserved": 1,
-    "framesObservedDuringProbe": 0,
-    "sampleCount": 0,
-    "timedOut": true,
-    "elapsedWallMs": 6980.9,
-    "latestFrameAgeMs": 8670.6,
-    "avgFrameMs": null,
-    "p95FrameMs": null,
-    "maxFrameMs": null,
-    "approxFps": null
+    "framesObserved": 124,
+    "framesObservedDuringProbe": 66,
+    "sampleCount": 123,
+    "timedOut": false,
+    "elapsedWallMs": 911.2,
+    "latestFrameAgeMs": 5.6,
+    "avgFrameMs": 14.05,
+    "p95FrameMs": 14.8,
+    "maxFrameMs": 37,
+    "approxFps": 71.2
   },
   "verdict": {
     "shellLoaded": true,
     "interactionAdvanced": true,
-    "frameSampleComplete": false,
-    "blockers": [
-      "quest_page_hidden_or_inactive",
-      "quest_cdp_frame_sample_incomplete"
-    ]
+    "frameSampleComplete": true,
+    "blockers": []
   }
 }

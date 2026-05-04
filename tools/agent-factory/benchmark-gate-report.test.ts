@@ -1,6 +1,8 @@
-import { readFile } from "node:fs/promises";
+import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { buildBenchmarkGateReport } from "./build-benchmark-gate-report.js";
+import { buildBenchmarkGateReport, latestJson } from "./build-benchmark-gate-report.js";
 
 type BlockerGroup = {
   group_id: string;
@@ -56,6 +58,24 @@ type BenchmarkGateReport = {
 };
 
 describe("benchmark gate report", () => {
+  it("selects raw Quest CDP smoke evidence without derived check reports", async () => {
+    const tempDir = await mkdtemp(path.join(tmpdir(), "openclinxr-quest-smoke-latest-"));
+    const rawPath = path.join(tempDir, "quest-cdp-smoke-2026-05-04.json");
+    const derivedCheckPath = path.join(tempDir, "quest-cdp-smoke-check-2026-05-04.json");
+    await writeFile(rawPath, `${JSON.stringify({ kind: "raw" })}\n`, "utf8");
+    await writeFile(derivedCheckPath, `${JSON.stringify({ kind: "check" })}\n`, "utf8");
+
+    const selected = await latestJson<{ kind: string }>(
+      `${tempDir}/quest-cdp-smoke-*.json`,
+      (filePath) => path.basename(filePath).startsWith("quest-cdp-smoke-2026-"),
+    );
+
+    expect(selected).toEqual({
+      file: rawPath,
+      value: { kind: "raw" },
+    });
+  });
+
   it("keeps resolved local benchmark evidence out of leadership remediation groups", async () => {
     const report = JSON.parse(await readFile(".agent-factory/benchmark-gate-report.json", "utf8")) as BenchmarkGateReport;
     const gate = report.evidence_gates.find((candidate) => candidate.evidence_id === "evidence-leadership-0007-002");
@@ -72,10 +92,7 @@ describe("benchmark gate report", () => {
         expect.objectContaining({
           group_id: "quest_foreground_frame_pacing",
           owner: "xr-systems-architect",
-          blockers: expect.arrayContaining([
-            "quest_page_hidden_or_inactive",
-            "quest_manual_performance:missing_quest_manual_performance_report",
-          ]),
+          blockers: ["quest_manual_performance:missing_quest_manual_performance_report"],
         }),
       ]),
     );
@@ -209,9 +226,11 @@ describe("benchmark gate report", () => {
 
     expect(gatesById.get("evidence-leadership-0008-001")).toEqual(expect.objectContaining({
       ready_to_resolve: false,
-      blockers: expect.arrayContaining([
-        "quest_cdp_frame_sample_incomplete",
-        "quest_manual_performance:missing_quest_manual_performance_report",
+      blockers: ["quest_manual_performance:missing_quest_manual_performance_report"],
+      satisfied_conditions: expect.arrayContaining([
+        "quest_cdp_frame_sample_complete",
+        "quest_page_visible",
+        "quest_foreground_preflight_ready",
       ]),
     }));
     expect(gatesById.get("evidence-leadership-0008-002")).toEqual(expect.objectContaining({

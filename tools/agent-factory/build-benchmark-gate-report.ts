@@ -1,3 +1,4 @@
+import path from "node:path";
 import { pathToFileURL } from "node:url";
 import {
   buildQuestManualPerformanceCheck,
@@ -294,7 +295,10 @@ const defaultMaxEvidenceAgeHours = 24;
 const hourMs = 60 * 60 * 1000;
 
 async function main(): Promise<void> {
-  const questSmoke = await latestJson<QuestSmokeReport>("docs/openclinxr/quest-cdp-smoke-*.json");
+  const questSmoke = await latestJson<QuestSmokeReport>(
+    "docs/openclinxr/quest-cdp-smoke-*.json",
+    (file) => path.basename(file).startsWith("quest-cdp-smoke-202"),
+  );
   const localRuntime = await latestJson<LocalRuntimeProbeReport>("docs/openclinxr/local-runtime-probe-*.json");
   const gltfPipelineSmoke = await latestJson<GltfPipelineSmokeReport>("docs/openclinxr/gltf-pipeline-smoke-*.json");
   const blenderAssetBakeSmoke = await latestJson<BlenderAssetBakeSmokeReport>("docs/openclinxr/blender-asset-bake-smoke-*.json");
@@ -325,8 +329,11 @@ async function main(): Promise<void> {
   console.log(`Wrote .agent-factory/benchmark-gate-report.json; gates ${readySummary}`);
 }
 
-async function latestJson<TValue>(pattern: string): Promise<{ file: string; value: TValue } | undefined> {
-  const files = (await globFiles(pattern)).sort();
+export async function latestJson<TValue>(
+  pattern: string,
+  acceptFile: (file: string) => boolean = () => true,
+): Promise<{ file: string; value: TValue } | undefined> {
+  const files = (await globFiles(pattern)).filter(acceptFile).sort();
   const file = files.at(-1);
   if (!file) {
     return undefined;
@@ -984,7 +991,7 @@ const blockerGroups = [
     title: "Foreground Quest frame pacing evidence",
     owner: "xr-systems-architect",
     matches: (blocker: string) => blocker.startsWith("quest_") || blocker.startsWith("quest_manual_performance:"),
-    nextStep: "Review proposal-quest-foreground-performance-capture.md, then capture a foreground in-headset manual performance report and keep CDP hidden-page blockers until that report passes.",
+    nextStep: "Review proposal-quest-foreground-performance-capture.md, then capture the foreground in-headset manual report for comfort, readability, immersive-session, and sustained-frame observations that CDP cannot honestly attest alone.",
   },
   {
     groupId: "local_model_runtime",
