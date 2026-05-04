@@ -113,6 +113,29 @@ export type IwsdkSidecarReadinessContract = {
   misleadingScaffoldRisks: string[];
 };
 
+export type IwsdkPreInstallPackagePolicy = {
+  exactVersionRequired: true;
+  allowedFirstSlicePackages: string[];
+  reviewRequiredPackages: string[];
+  blockedPackages: string[];
+  blockedTransitivePackages: string[];
+  blockedLicenseExpressions: string[];
+  requiredPackageManagerControls: string[];
+};
+
+export type IwsdkPackageSelection = {
+  name: string;
+  version: string;
+  license: string;
+  transitivePackages: string[];
+};
+
+export type IwsdkPreInstallPackageSelectionResult = {
+  readyToInstallInSidecar: boolean;
+  blockers: string[];
+  reviewWarnings: string[];
+};
+
 const sourceRecordIds = [
   "src-meta-iwsdk-github-2026",
   "src-iwsdk-ai-docs-2026",
@@ -373,6 +396,59 @@ export function buildIwsdkSidecarReadinessContract(): IwsdkSidecarReadinessContr
   };
 }
 
+export function buildIwsdkPreInstallPackagePolicy(): IwsdkPreInstallPackagePolicy {
+  return {
+    exactVersionRequired: true,
+    allowedFirstSlicePackages: ["@iwsdk/core", "@iwsdk/xr-input"],
+    reviewRequiredPackages: ["@iwsdk/locomotor", "@iwsdk/vite-plugin-dev", "@iwsdk/vite-plugin-gltf-optimizer"],
+    blockedPackages: ["@iwsdk/reference", "@meta-quest/hzdb"],
+    blockedTransitivePackages: ["@img/sharp-libvips-darwin-arm64"],
+    blockedLicenseExpressions: ["AGPL", "GPL", "LGPL", "UNLICENSED", "Unknown"],
+    requiredPackageManagerControls: ["pin_exact_versions", "pin_three_override", "record_pnpm_audit", "record_license_policy_report"],
+  };
+}
+
+export function evaluateIwsdkPreInstallPackageSelection(
+  selectedPackages: IwsdkPackageSelection[],
+  policy: IwsdkPreInstallPackagePolicy = buildIwsdkPreInstallPackagePolicy(),
+): IwsdkPreInstallPackageSelectionResult {
+  const blockers: string[] = [];
+  const reviewWarnings: string[] = [];
+
+  for (const selectedPackage of selectedPackages) {
+    if (policy.exactVersionRequired && !isExactVersion(selectedPackage.version)) {
+      blockers.push(`${selectedPackage.name}:version_not_exact`);
+    }
+
+    if (policy.blockedPackages.includes(selectedPackage.name)) {
+      blockers.push(`${selectedPackage.name}:blocked_package`);
+    }
+
+    if (policy.reviewRequiredPackages.includes(selectedPackage.name)) {
+      reviewWarnings.push(`${selectedPackage.name}:review_required_package`);
+    }
+
+    const blockedLicense = policy.blockedLicenseExpressions.find((licenseExpression) =>
+      selectedPackage.license.includes(licenseExpression)
+    );
+    if (blockedLicense) {
+      blockers.push(`${selectedPackage.name}:blocked_license_${blockedLicense}`);
+    }
+
+    for (const transitivePackage of selectedPackage.transitivePackages) {
+      if (policy.blockedTransitivePackages.includes(transitivePackage)) {
+        blockers.push(`${selectedPackage.name}:blocked_transitive_${transitivePackage}`);
+      }
+    }
+  }
+
+  return {
+    readyToInstallInSidecar: blockers.length === 0,
+    blockers,
+    reviewWarnings,
+  };
+}
+
 export function buildIwsdkAgentVerificationRunbook(options: {
   aiTool: IwsdkAiTool;
   mode: IwsdkAgentMode;
@@ -482,4 +558,8 @@ function missingOrUnderMin(
     return missingBlocker;
   }
   return value < minimum ? underBudgetBlocker : undefined;
+}
+
+function isExactVersion(version: string): boolean {
+  return /^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/.test(version);
 }

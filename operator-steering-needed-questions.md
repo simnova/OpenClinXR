@@ -6,6 +6,7 @@ This file is for true operator blockers only: decisions, confirmations, credenti
 
 - Local model benchmark approval: `llama.cpp` 9010 is installed and visible as `llama-cli` / `llama-server`, but no model weights have been downloaded or executed. To resolve the local-model evidence debt, Patrick needs to approve one explicit first model ID, its license/model-card posture, and the download size/source before Codex runs a real local model benchmark.
 - Local voice runtime approval: VibeVoice remains uninstalled and disabled. The intake note exists at `docs/openclinxr/spikes/vibevoice-local-voice-spike.md`; to resolve the local-voice evidence debt, Patrick needs to approve the safety/license posture, install path, voice/model ID, and first-audio benchmark scope before Codex installs or runs a real voice runtime.
+- IWSDK install-backed sidecar approval: `packages/openclinxr/iwsdk-spike` now has a pre-install package policy, but Codex should not create or install a runnable `apps/ui-xr-iwsdk-spike` sidecar until Patrick approves the exact package list/versions, Three.js override posture, license posture for review-only and blocked transitive packages, and whether review-required IWSDK packages may be included.
 
 ## Recently Resolved
 

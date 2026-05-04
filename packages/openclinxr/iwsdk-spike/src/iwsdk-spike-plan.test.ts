@@ -3,9 +3,11 @@ import {
   buildIwsdkAgentVerificationRunbook,
   buildIwsdkCodexMcpAdapterTemplate,
   buildIwsdkCommittedSpikeSequence,
+  buildIwsdkPreInstallPackagePolicy,
   buildIwsdkSidecarReadinessContract,
   buildIwsdkSpikeMetricThresholds,
   buildIwsdkSpikePlan,
+  evaluateIwsdkPreInstallPackageSelection,
   evaluateIwsdkSpikeMetrics,
   evaluateIwsdkSpikeReadiness,
   type IwsdkSpikeGateEvidence,
@@ -158,6 +160,55 @@ describe("IWSDK spike plan", () => {
       misleadingScaffoldRisks: [
         "A no-install sidecar app can look like runtime progress while proving no IWSDK behavior.",
         "A scaffold without exact IWSDK dependencies cannot measure Vite peer compatibility, install footprint, MCP runtime behavior, or Quest 3 frame pacing.",
+      ],
+    });
+  });
+
+  it("defines pre-install package policy for the first IWSDK sidecar dependency proposal", () => {
+    expect(buildIwsdkPreInstallPackagePolicy()).toEqual({
+      exactVersionRequired: true,
+      allowedFirstSlicePackages: ["@iwsdk/core", "@iwsdk/xr-input"],
+      reviewRequiredPackages: ["@iwsdk/locomotor", "@iwsdk/vite-plugin-dev", "@iwsdk/vite-plugin-gltf-optimizer"],
+      blockedPackages: ["@iwsdk/reference", "@meta-quest/hzdb"],
+      blockedTransitivePackages: ["@img/sharp-libvips-darwin-arm64"],
+      blockedLicenseExpressions: ["AGPL", "GPL", "LGPL", "UNLICENSED", "Unknown"],
+      requiredPackageManagerControls: ["pin_exact_versions", "pin_three_override", "record_pnpm_audit", "record_license_policy_report"],
+    });
+  });
+
+  it("accepts a pinned first-slice IWSDK package selection before installation", () => {
+    expect(evaluateIwsdkPreInstallPackageSelection([
+      { name: "@iwsdk/core", version: "0.3.1", license: "MIT", transitivePackages: ["three"] },
+      { name: "@iwsdk/xr-input", version: "0.3.1", license: "MIT", transitivePackages: [] },
+    ])).toEqual({
+      readyToInstallInSidecar: true,
+      blockers: [],
+      reviewWarnings: [],
+    });
+  });
+
+  it("blocks unpinned, blocked, and license-sensitive IWSDK package selections before installation", () => {
+    expect(evaluateIwsdkPreInstallPackageSelection([
+      { name: "@iwsdk/core", version: "^0.3.1", license: "MIT", transitivePackages: [] },
+      { name: "@iwsdk/reference", version: "0.3.2", license: "MIT", transitivePackages: ["@huggingface/transformers"] },
+      { name: "@meta-quest/hzdb", version: "1.1.0", license: "UNLICENSED", transitivePackages: [] },
+      {
+        name: "@iwsdk/vite-plugin-gltf-optimizer",
+        version: "0.3.1",
+        license: "MIT",
+        transitivePackages: ["@img/sharp-libvips-darwin-arm64"],
+      },
+    ])).toEqual({
+      readyToInstallInSidecar: false,
+      blockers: [
+        "@iwsdk/core:version_not_exact",
+        "@iwsdk/reference:blocked_package",
+        "@meta-quest/hzdb:blocked_package",
+        "@meta-quest/hzdb:blocked_license_UNLICENSED",
+        "@iwsdk/vite-plugin-gltf-optimizer:blocked_transitive_@img/sharp-libvips-darwin-arm64",
+      ],
+      reviewWarnings: [
+        "@iwsdk/vite-plugin-gltf-optimizer:review_required_package",
       ],
     });
   });

@@ -70,12 +70,25 @@ Create an isolated package or worktree spike before touching the production XR s
 
 1. Use `packages/openclinxr/iwsdk-spike` as the source-backed planning contract for package posture, adoption gates, and the agent verification runbook. It intentionally has no `@iwsdk/*` runtime dependency.
 2. Add a project-specific spike app, for example `apps/ui-xr-iwsdk-spike`, only if the team wants a committed experiment; otherwise use an ignored scratch worktree.
-3. Install exact versions of `@iwsdk/core`, `@iwsdk/xr-input`, `@iwsdk/locomotor`, and possibly `@iwsdk/vite-plugin-dev`.
+3. Before any install, run the proposed dependency list through `buildIwsdkPreInstallPackagePolicy()` and `evaluateIwsdkPreInstallPackageSelection()` from `packages/openclinxr/iwsdk-spike`. The first install-backed slice should allow only exact-versioned `@iwsdk/core` and `@iwsdk/xr-input`.
 4. Use pnpm overrides to keep Three.js aligned with the repo's selected version.
 5. Validate Vite 8 behavior before accepting any plugin into the main workspace.
 6. Build a minimal ED bay scene that mirrors the current `apps/ui-xr` smoke: one patient, one nurse interruption, one EHR panel, trace action buttons, and a live canvas.
 7. Compare build size, dev network requests, frame telemetry, console logs, and Quest 3 smoke behavior against the existing `apps/ui-xr` baseline.
 8. Try the MCP runtime in agent mode only after local install and trust/network implications are explicit. For Codex, the docs point adapter generation at `.codex/config.toml`; use `docs/openclinxr/iwsdk-codex-mcp-runbook.md` and the package-level `buildIwsdkCodexMcpAdapterTemplate()` output. Start runtime verification with `iwsdk dev status`, then `xr_get_session_status`, then XR entry/screenshot/scene checks. Do not run `@iwsdk/reference` warmup unattended because it downloads model/reference assets.
+
+## Pre-Install Package Policy
+
+The executable policy is intentionally stricter than the prose recommendation:
+
+- First-slice packages: exact-versioned `@iwsdk/core` and `@iwsdk/xr-input`.
+- Review-required packages: `@iwsdk/locomotor`, `@iwsdk/vite-plugin-dev`, and `@iwsdk/vite-plugin-gltf-optimizer`.
+- Blocked packages: `@iwsdk/reference` and `@meta-quest/hzdb`.
+- Blocked transitive package: `@img/sharp-libvips-darwin-arm64`.
+- Blocked license expressions: `AGPL`, `GPL`, `LGPL`, `UNLICENSED`, and `Unknown`.
+- Required package-manager controls: exact version pins, a Three.js pnpm override, recorded `pnpm audit`, and a recorded license-policy report.
+
+This means a runnable sidecar is not just a folder-creation task. The package proposal itself must be scored before the workspace lockfile changes.
 
 ## Decision For Now
 
