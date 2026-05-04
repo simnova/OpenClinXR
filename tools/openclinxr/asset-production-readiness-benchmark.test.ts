@@ -36,6 +36,17 @@ describe("asset production readiness report", () => {
       lodTextureColliderBudget: { observed: false },
       multiActorQuestBudget: { observed: true },
     });
+    expect(report.optimizationEvidence).toEqual({
+      lodTiersObserved: false,
+      textureCompressionBudgetObserved: false,
+      colliderSimplificationObserved: false,
+      placeholderOnly: true,
+      blockers: [
+        "lod_tiers_missing",
+        "texture_compression_budget_missing",
+        "collider_simplification_report_missing",
+      ],
+    });
     expect(report.runtimeBudget).toEqual({
       singlePlaceholderGlbBytes: 27284,
       targetStationBundleMb: 80,
@@ -77,9 +88,9 @@ describe("asset production readiness report", () => {
         skinClothingProvenance: true,
         medicalEquipmentLibrary: true,
         animationRetargeting: true,
-        lodTextureColliderBudget: true,
         multiActorQuestBudget: true,
       },
+      optimizationEvidence: completeOptimizationEvidence(),
     });
 
     expect(Object.values(report.productionProofs).every((proof) => proof.observed)).toBe(true);
@@ -149,6 +160,11 @@ describe("asset production readiness report", () => {
       "texture_compression_budget_missing",
       "collider_simplification_report_missing",
     ]);
+    expect(report.optimizationEvidence.blockers).toEqual([
+      "lod_tiers_missing",
+      "texture_compression_budget_missing",
+      "collider_simplification_report_missing",
+    ]);
     expect(report.verdict.blockers).toEqual(expect.arrayContaining([
       "optimization:lod_tiers_missing",
       "optimization:texture_compression_budget_missing",
@@ -180,6 +196,16 @@ function gltfSmoke(input: {
       passed: input.passed,
       blockers: input.passed ? [] : ["glb_output_invalid"],
     },
+  };
+}
+
+function completeOptimizationEvidence() {
+  return {
+    lodTiersObserved: true,
+    textureCompressionBudgetObserved: true,
+    colliderSimplificationObserved: true,
+    placeholderOnly: false,
+    blockers: [],
   };
 }
 

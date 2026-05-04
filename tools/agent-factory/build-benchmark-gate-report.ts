@@ -86,6 +86,13 @@ type AssetProductionReadinessBenchmarkReport = {
     blockers: string[];
   };
   productionProofs: Record<string, { observed: boolean; blockers: string[] }>;
+  optimizationEvidence?: {
+    lodTiersObserved: boolean;
+    textureCompressionBudgetObserved: boolean;
+    colliderSimplificationObserved: boolean;
+    placeholderOnly: boolean;
+    blockers: string[];
+  };
   stationBudgetEvidence?: {
     scenarioId: string;
     source: string;
@@ -276,6 +283,7 @@ type EvidenceGateReport = {
     status: string;
     source_evidence: AssetProductionReadinessBenchmarkReport["sourceEvidence"];
     production_proofs: AssetProductionReadinessBenchmarkReport["productionProofs"];
+    optimization_evidence: AssetProductionReadinessBenchmarkReport["optimizationEvidence"];
     station_budget_evidence?: AssetProductionReadinessBenchmarkReport["stationBudgetEvidence"];
     runtime_budget: AssetProductionReadinessBenchmarkReport["runtimeBudget"];
     verdict: AssetProductionReadinessBenchmarkReport["verdict"];
@@ -595,6 +603,9 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     blenderAssetBakeSmoke?.value.verdict.passed ? "asset_pipeline_blender_bake_smoke_passed" : undefined,
     assetProductionReadinessBenchmark ? "asset_production_readiness_report_present" : undefined,
     assetProductionReadinessBenchmark?.value.sourceEvidence.gltfPipelineSmokePassed && assetProductionReadinessBenchmark.value.sourceEvidence.blenderBakeSmokePassed ? "asset_production_source_smokes_passed" : undefined,
+    assetProductionReadinessBenchmark?.value.optimizationEvidence?.lodTiersObserved ? "asset_production_lod_tiers_observed" : undefined,
+    assetProductionReadinessBenchmark?.value.optimizationEvidence?.textureCompressionBudgetObserved ? "asset_production_texture_compression_budget_observed" : undefined,
+    assetProductionReadinessBenchmark?.value.optimizationEvidence?.colliderSimplificationObserved ? "asset_production_collider_simplification_observed" : undefined,
     assetProductionReadinessBenchmark?.value.runtimeBudget.multiActorBudgetObserved ? "asset_production_multi_actor_quest_budget_observed" : undefined,
     assetProductionReadinessBenchmark?.value.verdict.passed ? "asset_production_readiness_benchmark_passed" : undefined,
     localProviderBenchmark?.value.verdict.deterministicMocksPassed ? "local_provider_mock_benchmarks_passed" : undefined,
@@ -694,6 +705,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         status: assetProductionReadinessBenchmark.value.status,
         source_evidence: assetProductionReadinessBenchmark.value.sourceEvidence,
         production_proofs: assetProductionReadinessBenchmark.value.productionProofs,
+        optimization_evidence: assetProductionReadinessBenchmark.value.optimizationEvidence,
         ...(assetProductionReadinessBenchmark.value.stationBudgetEvidence ? {
           station_budget_evidence: assetProductionReadinessBenchmark.value.stationBudgetEvidence,
         } : {}),

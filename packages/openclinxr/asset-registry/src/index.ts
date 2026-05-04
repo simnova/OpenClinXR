@@ -70,6 +70,13 @@ export type AssetPipelineStage = {
   notes: string;
 };
 
+export type AssetOptimizationEvidence = {
+  lodTiers?: string[];
+  textureCompressionFormat?: string;
+  textureBudgetReportId?: string;
+  colliderSimplificationReportId?: string;
+};
+
 export type AssetManifest = {
   assetId: string;
   scenarioId: string;
@@ -83,6 +90,7 @@ export type AssetManifest = {
     sourceRefs: string[];
     licenseStatus: AssetLicenseStatus;
   };
+  optimizationEvidence?: AssetOptimizationEvidence;
   geometryBudget: {
     maxTriangles: number;
     maxTextureMegabytes: number;
@@ -124,6 +132,14 @@ export type ScenarioAssetBudget = {
   totalTriangles: number;
   totalTextureMegabytes: number;
   totalDrawCalls: number;
+  blockers: string[];
+};
+
+export type ScenarioOptimizationEvidence = {
+  lodTiersObserved: boolean;
+  textureCompressionBudgetObserved: boolean;
+  colliderSimplificationObserved: boolean;
+  placeholderOnly: boolean;
   blockers: string[];
 };
 
@@ -424,6 +440,31 @@ export function evaluateScenarioAssetBudget(manifests: readonly AssetManifest[])
   return {
     ...quest3StationBudget,
     ...totals,
+    blockers,
+  };
+}
+
+export function evaluateScenarioOptimizationEvidence(manifests: readonly AssetManifest[]): ScenarioOptimizationEvidence {
+  const lodTiersObserved = manifests.length > 0
+    && manifests.every((manifest) => (manifest.optimizationEvidence?.lodTiers?.length ?? 0) >= 2);
+  const textureCompressionBudgetObserved = manifests.length > 0
+    && manifests.every((manifest) => Boolean(
+      manifest.optimizationEvidence?.textureCompressionFormat
+      && manifest.optimizationEvidence.textureBudgetReportId,
+    ));
+  const colliderSimplificationObserved = manifests.length > 0
+    && manifests.every((manifest) => Boolean(manifest.optimizationEvidence?.colliderSimplificationReportId));
+  const blockers = [
+    lodTiersObserved ? undefined : "lod_tiers_missing",
+    textureCompressionBudgetObserved ? undefined : "texture_compression_budget_missing",
+    colliderSimplificationObserved ? undefined : "collider_simplification_report_missing",
+  ].filter((blocker): blocker is string => typeof blocker === "string");
+
+  return {
+    lodTiersObserved,
+    textureCompressionBudgetObserved,
+    colliderSimplificationObserved,
+    placeholderOnly: manifests.length > 0 && manifests.every(isPlaceholderAsset),
     blockers,
   };
 }

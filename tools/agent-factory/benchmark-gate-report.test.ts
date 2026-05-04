@@ -47,6 +47,13 @@ type BenchmarkGateReport = {
     blockers: string[];
   }>;
   asset_production_readiness_benchmark?: {
+    optimization_evidence?: {
+      lodTiersObserved: boolean;
+      textureCompressionBudgetObserved: boolean;
+      colliderSimplificationObserved: boolean;
+      placeholderOnly: boolean;
+      blockers: string[];
+    };
     station_budget_evidence?: {
       scenarioId: string;
       source: string;
@@ -629,6 +636,13 @@ describe("benchmark gate report", () => {
               blockers: string[];
             };
             productionProofs: Record<string, { observed: boolean; blockers: string[] }>;
+            optimizationEvidence: {
+              lodTiersObserved: boolean;
+              textureCompressionBudgetObserved: boolean;
+              colliderSimplificationObserved: boolean;
+              placeholderOnly: boolean;
+              blockers: string[];
+            };
             stationBudgetEvidence: {
               scenarioId: string;
               source: string;
@@ -723,6 +737,17 @@ describe("benchmark gate report", () => {
             },
             multiActorQuestBudget: { observed: false, blockers: ["multi_actor_quest_budget_missing"] },
           },
+          optimizationEvidence: {
+            lodTiersObserved: false,
+            textureCompressionBudgetObserved: false,
+            colliderSimplificationObserved: false,
+            placeholderOnly: true,
+            blockers: [
+              "lod_tiers_missing",
+              "texture_compression_budget_missing",
+              "collider_simplification_report_missing",
+            ],
+          },
           stationBudgetEvidence: {
             scenarioId: "ed_chest_pain_priority_v1",
             source: "@openclinxr/asset-registry:createEdChestPainPlaceholderManifests",
@@ -770,6 +795,11 @@ describe("benchmark gate report", () => {
       "asset_production_readiness_report_present",
       "asset_production_source_smokes_passed",
     ]));
+    expect(assetGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
+      "asset_production_lod_tiers_observed",
+      "asset_production_texture_compression_budget_observed",
+      "asset_production_collider_simplification_observed",
+    ]));
     expect(assetGate?.blockers).toEqual(expect.arrayContaining([
       "asset_production:source:placeholder_bake_only",
       "asset_production:generation:generated_human_rigging_missing",
@@ -801,6 +831,17 @@ describe("benchmark gate report", () => {
         totalDrawCalls: 28,
         blockers: [],
       },
+    });
+    expect(report.asset_production_readiness_benchmark?.optimization_evidence).toEqual({
+      lodTiersObserved: false,
+      textureCompressionBudgetObserved: false,
+      colliderSimplificationObserved: false,
+      placeholderOnly: true,
+      blockers: [
+        "lod_tiers_missing",
+        "texture_compression_budget_missing",
+        "collider_simplification_report_missing",
+      ],
     });
   });
 

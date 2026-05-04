@@ -6,6 +6,7 @@ import {
   evaluateAssetManifest,
   evaluateAssetPipelineTool,
   evaluateAssetPipelineToolMatrix,
+  evaluateScenarioOptimizationEvidence,
   InMemoryAssetRegistry,
   recommendedAssetPipelineTools,
   selectAssetPipelineToolsForLane,
@@ -157,6 +158,22 @@ describe("asset registry", () => {
       totalTextureMegabytes: 104,
       totalDrawCalls: 36,
       blockers: ["station_triangle_budget_exceeded"],
+    });
+  });
+
+  it("derives scenario optimization evidence from manifest-level slots", () => {
+    const placeholderEvidence = evaluateScenarioOptimizationEvidence(createEdChestPainPlaceholderManifests());
+
+    expect(placeholderEvidence).toEqual({
+      lodTiersObserved: false,
+      textureCompressionBudgetObserved: false,
+      colliderSimplificationObserved: false,
+      placeholderOnly: true,
+      blockers: [
+        "lod_tiers_missing",
+        "texture_compression_budget_missing",
+        "collider_simplification_report_missing",
+      ],
     });
   });
 

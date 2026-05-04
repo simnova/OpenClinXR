@@ -3,7 +3,9 @@ import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 import {
   createEdChestPainPlaceholderManifests,
   evaluateScenarioAssetBudget,
+  evaluateScenarioOptimizationEvidence,
   type ScenarioAssetBudget,
+  type ScenarioOptimizationEvidence,
 } from "../../packages/openclinxr/asset-registry/src/index.js";
 
 type CliOptions = {
@@ -111,6 +113,7 @@ export type AssetProductionReadinessReport = {
   };
   productionProofs: Record<ProofLaneId, ProofLaneReport>;
   stationBudgetEvidence: StationBudgetEvidence;
+  optimizationEvidence: ScenarioOptimizationEvidence;
   runtimeBudget: {
     singlePlaceholderGlbBytes: number;
     targetStationBundleMb: 80;
@@ -203,9 +206,11 @@ export function buildAssetProductionReadinessReport(input: {
   blenderAssetBakeSmoke: BlenderAssetBakeSmokeReport;
   proofOverrides?: Partial<ProofLanes>;
   stationBudgetEvidence?: StationBudgetEvidence;
+  optimizationEvidence?: ScenarioOptimizationEvidence;
 }): AssetProductionReadinessReport {
   const stationBudgetEvidence = input.stationBudgetEvidence ?? buildEdChestPainStationBudgetEvidence();
-  const proofs = buildProofLanes(input.proofOverrides ?? {}, stationBudgetEvidence);
+  const optimizationEvidence = input.optimizationEvidence ?? buildEdChestPainOptimizationEvidence();
+  const proofs = buildProofLanes(input.proofOverrides ?? {}, stationBudgetEvidence, optimizationEvidence);
   const sourceEvidence = inspectSourceEvidence(input.gltfPipelineSmoke, input.blenderAssetBakeSmoke);
   const runtimeBudget = inspectRuntimeBudget(input.blenderAssetBakeSmoke, stationBudgetEvidence.observed);
   const blockers = [
@@ -238,6 +243,7 @@ export function buildAssetProductionReadinessReport(input: {
     sourceEvidence,
     productionProofs: proofs,
     stationBudgetEvidence,
+    optimizationEvidence,
     runtimeBudget,
     verdict: {
       passed,
@@ -266,6 +272,10 @@ function buildEdChestPainStationBudgetEvidence(): StationBudgetEvidence {
   };
 }
 
+function buildEdChestPainOptimizationEvidence(): ScenarioOptimizationEvidence {
+  return evaluateScenarioOptimizationEvidence(createEdChestPainPlaceholderManifests());
+}
+
 function inspectSourceEvidence(
   gltfSmoke: GltfPipelineSmokeReport,
   blenderSmoke: BlenderAssetBakeSmokeReport,
@@ -290,6 +300,7 @@ function inspectSourceEvidence(
 function buildProofLanes(
   overrides: Partial<ProofLanes>,
   stationBudgetEvidence: StationBudgetEvidence,
+  optimizationEvidence: ScenarioOptimizationEvidence,
 ): Record<ProofLaneId, ProofLaneReport> {
   return {
     generatedHumanRigging: proofLane(overrides.generatedHumanRigging ?? false, [
@@ -312,15 +323,11 @@ function buildProofLanes(
       "viseme or facial target mapping",
       "retargeting QA report",
     ], "animation_retargeting_missing"),
-    lodTextureColliderBudget: proofLane(overrides.lodTextureColliderBudget ?? false, [
+    lodTextureColliderBudget: proofLane(optimizationEvidence.blockers.length === 0, [
       "LOD tiers",
       "KTX2 or texture budget report",
       "collider simplification report",
-    ], [
-      "lod_tiers_missing",
-      "texture_compression_budget_missing",
-      "collider_simplification_report_missing",
-    ]),
+    ], optimizationEvidence.blockers),
     multiActorQuestBudget: proofLane(overrides.multiActorQuestBudget ?? stationBudgetEvidence.observed, [
       "multi-actor station budget",
       "Quest frame budget",

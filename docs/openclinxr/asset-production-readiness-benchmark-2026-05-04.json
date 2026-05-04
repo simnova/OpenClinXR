@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T20:36:33.933Z",
+  "generatedAt": "2026-05-04T21:01:39.565Z",
   "status": "blocked",
   "policy": {
     "cloudApisUsed": false,
@@ -107,6 +107,17 @@
     "placeholderOnly": true,
     "observed": true,
     "blockers": []
+  },
+  "optimizationEvidence": {
+    "lodTiersObserved": false,
+    "textureCompressionBudgetObserved": false,
+    "colliderSimplificationObserved": false,
+    "placeholderOnly": true,
+    "blockers": [
+      "lod_tiers_missing",
+      "texture_compression_budget_missing",
+      "collider_simplification_report_missing"
+    ]
   },
   "runtimeBudget": {
     "singlePlaceholderGlbBytes": 27284,

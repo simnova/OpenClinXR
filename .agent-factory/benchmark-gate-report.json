@@ -40,7 +40,7 @@
     {
       "evidence_id": "asset_production_readiness_benchmark",
       "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-04.json",
-      "generated_at": "2026-05-04T20:36:33.933Z",
+      "generated_at": "2026-05-04T21:01:39.565Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -59,7 +59,7 @@
       "evidence_id": "local_model_runtime_benchmark",
       "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T14:57:50Z",
-      "age_hours": 5,
+      "age_hours": 6,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -77,7 +77,7 @@
       "evidence_id": "local_voice_runtime_benchmark",
       "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T15:01:12Z",
-      "age_hours": 5,
+      "age_hours": 6,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -202,7 +202,7 @@
   },
   "asset_production_readiness_benchmark": {
     "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-04.json",
-    "generated_at": "2026-05-04T20:36:33.933Z",
+    "generated_at": "2026-05-04T21:01:39.565Z",
     "status": "blocked",
     "source_evidence": {
       "gltfPipelineSmokePassed": true,
@@ -280,6 +280,17 @@
         ],
         "blockers": []
       }
+    },
+    "optimization_evidence": {
+      "lodTiersObserved": false,
+      "textureCompressionBudgetObserved": false,
+      "colliderSimplificationObserved": false,
+      "placeholderOnly": true,
+      "blockers": [
+        "lod_tiers_missing",
+        "texture_compression_budget_missing",
+        "collider_simplification_report_missing"
+      ]
     },
     "station_budget_evidence": {
       "scenarioId": "ed_chest_pain_priority_v1",
