@@ -99,6 +99,31 @@ describe("AdminApp", () => {
     expect(scenarioDetail.textContent).not.toContain("__typename");
   });
 
+  it("records a local scenario review decision from the detail route", async () => {
+    const client = fakeControlPlaneClient();
+    const submitScenarioReview = vi.fn(client.submitScenarioReview);
+    client.submitScenarioReview = submitScenarioReview;
+
+    render(<AdminApp initialPath="/scenarios/peds_asthma_parent_anxiety_v1?version=1" controlPlaneClient={client} />);
+
+    expect(await screen.findByRole("heading", { name: "Pediatric Asthma With Parent Anxiety" })).toBeInTheDocument();
+    expect(screen.getByText("clinical: draft")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Record clinical approval" }));
+
+    expect(await screen.findByText("Review decision recorded")).toBeInTheDocument();
+    expect(screen.getByText("clinical: approved")).toBeInTheDocument();
+    expect(submitScenarioReview).toHaveBeenCalledWith({
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      version: 1,
+      reviewerRole: "clinical",
+      reviewerId: "admin_clinical_reviewer",
+      decision: "APPROVED",
+      comments: "Clinical reviewer approval recorded from the local admin workbench.",
+      evidenceRefs: ["evidence:peds_asthma_parent_anxiety_v1:clinical:local-admin"],
+    });
+  });
+
   it("renders existing station run queue review snapshots", async () => {
     const client = fakeControlPlaneClient();
     client.listStep2CsSeedStationRunQueueSnapshots = async () => [
@@ -259,48 +284,111 @@ function fakeControlPlaneClient(): AdminControlPlaneClient {
         assetNeeds: [],
       },
     ],
-    getScenarioDetail: async () => ({
-      scenario: {
-        scenarioId: "ed_chest_pain_priority_v1",
-        version: 1,
-        title: "ED Chest Pain With Nurse Interruption And Family Pressure",
-        status: "APPROVED",
-        clinicalObjectives: ["Elicit focused chest pain history and risk factors"],
-        requiredTraceTags: ["ecg_request", "urgent_escalation", "team_communication"],
-        review: { __typename: "ScenarioReviewState", clinical: "approved", psychometric: "approved", legal: "approved", simulationQa: "approved" },
-        governance: {
-          scoreUseLabel: "formative_local_only",
-          syntheticCaseDisclosure: "Synthetic local training scenario; not a validated summative assessment.",
-          validationStage: "stage_1_expert_reviewed",
-          requiredReviewerRoles: ["clinician", "psychometrician", "legal", "simulation_qa"],
-          sourceIds: ["src-step2cs-public-archive"],
+    getScenarioDetail: async (input) => input.scenarioId === "peds_asthma_parent_anxiety_v1"
+      ? {
+        scenario: {
+          scenarioId: "peds_asthma_parent_anxiety_v1",
+          version: 1,
+          title: "Pediatric Asthma With Parent Anxiety",
+          status: "DRAFT",
+          clinicalObjectives: ["Assess pediatric respiratory distress"],
+          requiredTraceTags: ["oxygen_request", "urgent_escalation"],
+          review: { clinical: "draft", psychometric: "draft", legal: "draft", simulationQa: "draft" },
+          governance: {
+            scoreUseLabel: "formative_local_only",
+            syntheticCaseDisclosure: "Synthetic pediatric communication and urgent-care training draft; not validated for summative assessment.",
+            validationStage: "stage_0_synthetic_draft",
+            requiredReviewerRoles: ["pediatrician", "psychometrician", "legal", "simulation_qa"],
+            sourceIds: ["src-openclinxr-sample-case-bank-v1"],
+          },
+          environment: {
+            environmentId: "pediatric_urgent_care_bay_v1",
+            name: "Pediatric urgent care bay",
+            description: "Pediatric urgent care bay with parent seating and oxygen equipment.",
+          },
+          equipment: ["pulse oximeter", "nebulizer mask"],
+          actors: [
+            { actorId: "patient_maya_johnson_v1", role: "patient", displayName: "Maya Johnson", demeanor: "short sentences" },
+          ],
+          assetNeeds: [],
         },
-        environment: {
-          environmentId: "ed_exam_bay_v1",
-          name: "Emergency department exam bay",
-          description: "Busy ED exam bay with monitor alarms, family pressure, and nurse interruptions.",
+        assetReadiness: {
+          scenarioId: "peds_asthma_parent_anxiety_v1",
+          devReady: true,
+          productionReady: false,
+          missingRequiredAssetIds: [],
+          blockedAssets: [],
+          productionBlockedAssets: [],
         },
-        equipment: ["12-lead ECG machine", "bedside monitor"],
-        actors: [
-          { actorId: "patient_robert_hayes_v1", role: "patient", displayName: "Robert Hayes", demeanor: "anxious" },
-          { actorId: "spouse_anna_hayes_v1", role: "family", displayName: "Anna Hayes", demeanor: "worried" },
-          { actorId: "nurse_maria_alvarez_v1", role: "nurse", displayName: "Maria Alvarez", demeanor: "direct" },
-        ],
-        assetNeeds: [
-          { assetId: "ed_exam_bay_environment", assetType: "environment", description: "ED bay", licenseStatus: "placeholder-approved" },
-          { assetId: "patient_robert_hayes_character", assetType: "character", description: "Chest pain patient", licenseStatus: "placeholder-approved" },
-        ],
+      }
+      : {
+        scenario: {
+          scenarioId: "ed_chest_pain_priority_v1",
+          version: 1,
+          title: "ED Chest Pain With Nurse Interruption And Family Pressure",
+          status: "APPROVED",
+          clinicalObjectives: ["Elicit focused chest pain history and risk factors"],
+          requiredTraceTags: ["ecg_request", "urgent_escalation", "team_communication"],
+          review: { __typename: "ScenarioReviewState", clinical: "approved", psychometric: "approved", legal: "approved", simulationQa: "approved" },
+          governance: {
+            scoreUseLabel: "formative_local_only",
+            syntheticCaseDisclosure: "Synthetic local training scenario; not a validated summative assessment.",
+            validationStage: "stage_1_expert_reviewed",
+            requiredReviewerRoles: ["clinician", "psychometrician", "legal", "simulation_qa"],
+            sourceIds: ["src-step2cs-public-archive"],
+          },
+          environment: {
+            environmentId: "ed_exam_bay_v1",
+            name: "Emergency department exam bay",
+            description: "Busy ED exam bay with monitor alarms, family pressure, and nurse interruptions.",
+          },
+          equipment: ["12-lead ECG machine", "bedside monitor"],
+          actors: [
+            { actorId: "patient_robert_hayes_v1", role: "patient", displayName: "Robert Hayes", demeanor: "anxious" },
+            { actorId: "spouse_anna_hayes_v1", role: "family", displayName: "Anna Hayes", demeanor: "worried" },
+            { actorId: "nurse_maria_alvarez_v1", role: "nurse", displayName: "Maria Alvarez", demeanor: "direct" },
+          ],
+          assetNeeds: [
+            { assetId: "ed_exam_bay_environment", assetType: "environment", description: "ED bay", licenseStatus: "placeholder-approved" },
+            { assetId: "patient_robert_hayes_character", assetType: "character", description: "Chest pain patient", licenseStatus: "placeholder-approved" },
+          ],
+        },
+        assetReadiness: {
+          scenarioId: "ed_chest_pain_priority_v1",
+          devReady: true,
+          productionReady: false,
+          missingRequiredAssetIds: [],
+          blockedAssets: [],
+          productionBlockedAssets: [
+            { assetId: "patient_robert_hayes_character", blockers: ["placeholder_asset_not_clinical_release_ready"] },
+          ],
+        },
       },
-      assetReadiness: {
-        scenarioId: "ed_chest_pain_priority_v1",
-        devReady: true,
-        productionReady: false,
-        missingRequiredAssetIds: [],
-        blockedAssets: [],
-        productionBlockedAssets: [
-          { assetId: "patient_robert_hayes_character", blockers: ["placeholder_asset_not_clinical_release_ready"] },
-        ],
+    submitScenarioReview: async (input) => ({
+      scenarioId: String(input.scenarioId),
+      version: input.version,
+      title: "Pediatric Asthma With Parent Anxiety",
+      status: "READY_FOR_REVIEW",
+      clinicalObjectives: ["Assess pediatric respiratory distress"],
+      requiredTraceTags: ["oxygen_request", "urgent_escalation"],
+      review: { clinical: "approved", psychometric: "draft", legal: "draft", simulationQa: "draft" },
+      governance: {
+        scoreUseLabel: "formative_local_only",
+        syntheticCaseDisclosure: "Synthetic pediatric communication and urgent-care training draft; not validated for summative assessment.",
+        validationStage: "stage_0_synthetic_draft",
+        requiredReviewerRoles: ["pediatrician", "psychometrician", "legal", "simulation_qa"],
+        sourceIds: ["src-openclinxr-sample-case-bank-v1"],
       },
+      environment: {
+        environmentId: "pediatric_urgent_care_bay_v1",
+        name: "Pediatric urgent care bay",
+        description: "Pediatric urgent care bay with parent seating and oxygen equipment.",
+      },
+      equipment: ["pulse oximeter", "nebulizer mask"],
+      actors: [
+        { actorId: "patient_maya_johnson_v1", role: "patient", displayName: "Maya Johnson", demeanor: "short sentences" },
+      ],
+      assetNeeds: [],
     }),
     createStep2CsSeedStationRunQueueSnapshot: async (input) => ({
       snapshotId: input.snapshotId ?? "queue_snapshot_test_001",

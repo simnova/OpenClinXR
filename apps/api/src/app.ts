@@ -11,6 +11,7 @@ import {
   type ExamStationRunQueue,
 } from "@openclinxr/exam-assembly";
 import {
+  AdminGraphqlReviewDecision,
   AdminGraphqlScenarioStatus,
   adminGraphqlDocuments,
   createGraphqlCodegenPlan,
@@ -56,6 +57,7 @@ export type ApiAppOptions = {
 export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRuntime(), persistence: ApiPersistenceSink = {}, options: ApiAppOptions = {}): Hono {
   const app = new Hono();
   const telemetry = options.telemetry ?? createNoopTelemetryRecorder();
+  const adminScenarioOverrides = new Map<string, AdminGraphqlScenario>();
 
   app.use("*", async (context, next) => {
     const started = performance.now();
@@ -122,7 +124,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
         ...(isRecord(body.variables) ? { variables: body.variables } : {}),
         ...(graphqlOperationName !== "anonymous" ? { operationName: graphqlOperationName } : {}),
       },
-      createAdminGraphqlRoot(persistence),
+      createAdminGraphqlRoot(persistence, adminScenarioOverrides),
     );
     await recordGraphqlOperationSpan(telemetry, {
       operationName: graphqlOperationName,
@@ -341,8 +343,10 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   return app;
 }
 
-function createAdminGraphqlRoot(persistence: ApiPersistenceSink): AdminGraphqlRootValue {
-  const adminScenarios = scenarioBank.map(toAdminGraphqlScenario);
+function createAdminGraphqlRoot(persistence: ApiPersistenceSink, scenarioOverrides: Map<string, AdminGraphqlScenario>): AdminGraphqlRootValue {
+  const adminScenarios = scenarioBank.map((scenario) =>
+    scenarioOverrides.get(scenarioVersionKey(scenario.scenarioId, scenario.version)) ?? toAdminGraphqlScenario(scenario)
+  );
 
   return {
     assetReadiness: ({ scenarioId, version }) => findSeedBankAssetReadiness(String(scenarioId), version),
@@ -351,6 +355,28 @@ function createAdminGraphqlRoot(persistence: ApiPersistenceSink): AdminGraphqlRo
         scenario.scenarioId === scenarioId && (version === undefined || scenario.version === version)
       ),
     scenarios: ({ status }) => adminScenarios.filter((scenario) => status === undefined || scenario.status === status),
+    submitScenarioReview: ({ input }) => {
+      const scenario = adminScenarios.find((candidate) => candidate.scenarioId === input.scenarioId && candidate.version === input.version);
+      if (!scenario) {
+        throw new Error(`Scenario not found: ${input.scenarioId} v${input.version}`);
+      }
+
+      const reviewGate = parseScenarioReviewGate(input.reviewerRole);
+      validateScenarioReviewDecisionInput(input);
+
+      const nextReview = {
+        ...scenario.review,
+        [reviewGate]: input.decision === AdminGraphqlReviewDecision.Approved ? "approved" : "changes_requested",
+      };
+      const nextScenario = {
+        ...scenario,
+        review: nextReview,
+        status: scenarioStatusForReview(nextReview),
+      };
+      scenarioOverrides.set(scenarioVersionKey(nextScenario.scenarioId, nextScenario.version), nextScenario);
+
+      return nextScenario;
+    },
     stationRunQueueSnapshots: async ({ blueprintId }) => Promise.resolve(persistence.listStationRunQueueSnapshots?.(blueprintId) ?? []),
     createStationRunQueueSnapshot: async ({ input }) => {
       const snapshot = createSeedStationRunQueueSnapshot(input);
@@ -369,10 +395,10 @@ function toAdminGraphqlScenario(scenario: (typeof scenarioBank)[number]): AdminG
     clinicalObjectives: scenario.clinicalObjectives,
     actors: scenario.actors.map(({ hiddenFacts: _hiddenFacts, ...actor }) => actor),
     requiredTraceTags: scenario.requiredTraceTags,
-    review: scenario.review,
+    review: { ...scenario.review },
     governance: scenario.governance,
-    equipment: scenario.equipment ?? [],
-    assetNeeds: scenario.assetNeeds ?? [],
+    equipment: [...(scenario.equipment ?? [])],
+    assetNeeds: [...(scenario.assetNeeds ?? [])],
     ...(scenario.environment === undefined ? {} : { environment: scenario.environment }),
   };
 }
@@ -386,6 +412,44 @@ function toAdminGraphqlScenarioStatus(status: (typeof scenarioBank)[number]["sta
     case "draft":
       return AdminGraphqlScenarioStatus.Draft;
   }
+}
+
+function scenarioVersionKey(scenarioId: string, version: number): string {
+  return `${scenarioId}:${version}`;
+}
+
+function parseScenarioReviewGate(reviewerRole: string): keyof AdminGraphqlScenario["review"] {
+  if (reviewerRole === "clinical" || reviewerRole === "psychometric" || reviewerRole === "legal" || reviewerRole === "simulationQa") {
+    return reviewerRole;
+  }
+
+  throw new Error(`Unsupported scenario review gate: ${reviewerRole}`);
+}
+
+function validateScenarioReviewDecisionInput(input: {
+  reviewerId: string | number;
+  comments: string;
+  evidenceRefs: Array<string>;
+}): void {
+  if (String(input.reviewerId).trim().length === 0) {
+    throw new Error("Scenario review decision requires reviewerId.");
+  }
+  if (input.comments.trim().length === 0) {
+    throw new Error("Scenario review decision requires comments.");
+  }
+  if (input.evidenceRefs.length === 0 || input.evidenceRefs.some((evidenceRef) => evidenceRef.trim().length === 0)) {
+    throw new Error("Scenario review decision requires evidenceRefs.");
+  }
+}
+
+function scenarioStatusForReview(review: AdminGraphqlScenario["review"]): AdminGraphqlScenario["status"] {
+  if (Object.values(review).every((state) => state === "approved")) {
+    return AdminGraphqlScenarioStatus.Approved;
+  }
+  if (Object.values(review).some((state) => state === "changes_requested")) {
+    return AdminGraphqlScenarioStatus.Draft;
+  }
+  return AdminGraphqlScenarioStatus.ReadyForReview;
 }
 
 function createSeedStationRunQueueSnapshot(input: { snapshotId?: unknown; createdAt?: unknown; reviewerId?: unknown }): ApiStationRunQueueSnapshot {

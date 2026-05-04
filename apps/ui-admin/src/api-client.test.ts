@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { print } from "graphql";
-import { CreateStationRunQueueSnapshotDocument, ScenarioBankDocument, ScenarioDetailDocument, StationRunQueueSnapshotsDocument } from "@openclinxr/graphql/client";
+import { CreateStationRunQueueSnapshotDocument, ScenarioBankDocument, ScenarioDetailDocument, StationRunQueueSnapshotsDocument, SubmitScenarioReviewDocument } from "@openclinxr/graphql/client";
 import { buildAdminGraphqlEndpoint, createAdminControlPlaneClient, type AdminApolloGraphqlClient } from "./api-client.js";
 
 describe("admin control-plane API client", () => {
@@ -14,6 +14,7 @@ describe("admin control-plane API client", () => {
     const createSnapshotDocument = print(CreateStationRunQueueSnapshotDocument);
     const scenarioBankDocument = print(ScenarioBankDocument);
     const scenarioDetailDocument = print(ScenarioDetailDocument);
+    const submitScenarioReviewDocument = print(SubmitScenarioReviewDocument);
     const requests: RecordedRequest[] = [];
     const queueSnapshot = {
       snapshotId: "queue_snapshot_ui_001",
@@ -100,6 +101,30 @@ describe("admin control-plane API client", () => {
         },
         "/admin/graphql#StationRunQueueSnapshots": { data: { stationRunQueueSnapshots: [queueSnapshot] } },
         "/admin/graphql#CreateStationRunQueueSnapshot": { data: { createStationRunQueueSnapshot: queueSnapshot } },
+        "/admin/graphql#SubmitScenarioReview": {
+          data: {
+            submitScenarioReview: {
+              scenarioId: "peds_asthma_parent_anxiety_v1",
+              version: 1,
+              title: "Pediatric Asthma With Parent Anxiety",
+              status: "READY_FOR_REVIEW",
+              clinicalObjectives: ["Assess pediatric respiratory distress"],
+              requiredTraceTags: ["oxygen_request"],
+              review: { clinical: "approved", psychometric: "draft", legal: "draft", simulationQa: "draft" },
+              governance: {
+                scoreUseLabel: "formative_local_only",
+                syntheticCaseDisclosure: "Synthetic local training scenario.",
+                validationStage: "stage_0_synthetic_draft",
+                requiredReviewerRoles: ["pediatrician", "psychometrician", "legal", "simulation_qa"],
+                sourceIds: ["src-openclinxr-sample-case-bank-v1"],
+              },
+              environment: null,
+              equipment: [],
+              actors: [],
+              assetNeeds: [],
+            },
+          },
+        },
         "/scenario-bank/assets/readiness": [{ scenarioId: "ed_chest_pain_priority_v1", devReady: true, productionReady: false }],
       }),
     });
@@ -125,6 +150,19 @@ describe("admin control-plane API client", () => {
         productionReady: false,
       }),
     });
+    await expect(client.submitScenarioReview({
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      version: 1,
+      reviewerRole: "clinical",
+      reviewerId: "pediatrician_001",
+      decision: "APPROVED",
+      comments: "Clinical review complete.",
+      evidenceRefs: ["evidence:peds:clinical:2026-05-04"],
+    })).resolves.toEqual(expect.objectContaining({
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      status: "READY_FOR_REVIEW",
+      review: expect.objectContaining({ clinical: "approved" }),
+    }));
     await expect(client.listStep2CsSeedStationRunQueueSnapshots()).resolves.toEqual([queueSnapshot]);
     await expect(client.createStep2CsSeedStationRunQueueSnapshot({
       snapshotId: "queue_snapshot_ui_001",
@@ -158,6 +196,25 @@ describe("admin control-plane API client", () => {
           variables: {
             scenarioId: "ed_chest_pain_priority_v1",
             version: 1,
+          },
+        }),
+      },
+      {
+        url: "http://localhost:8787/admin/graphql",
+        method: "POST",
+        body: expect.objectContaining({
+          operationName: "SubmitScenarioReview",
+          query: submitScenarioReviewDocument,
+          variables: {
+            input: {
+              scenarioId: "peds_asthma_parent_anxiety_v1",
+              version: 1,
+              reviewerRole: "clinical",
+              reviewerId: "pediatrician_001",
+              decision: "APPROVED",
+              comments: "Clinical review complete.",
+              evidenceRefs: ["evidence:peds:clinical:2026-05-04"],
+            },
           },
         }),
       },
@@ -231,6 +288,8 @@ describe("admin control-plane API client", () => {
         sourceIds: ["src-step2cs-public-archive"],
       },
       actors: [],
+      environment: null,
+      equipment: [],
       assetNeeds: [],
     };
     const apolloClient = {
@@ -255,7 +314,12 @@ describe("admin control-plane API client", () => {
         }
         return { data: { stationRunQueueSnapshots: [queueSnapshot] } };
       }),
-      mutate: vi.fn(async () => ({ data: { createStationRunQueueSnapshot: queueSnapshot } })),
+      mutate: vi.fn(async ({ mutation }) => {
+        if (mutation === SubmitScenarioReviewDocument) {
+          return { data: { submitScenarioReview: scenario } };
+        }
+        return { data: { createStationRunQueueSnapshot: queueSnapshot } };
+      }),
     } as unknown as AdminApolloGraphqlClient;
     const fetcher = vi.fn<typeof fetch>();
     const client = createAdminControlPlaneClient({
@@ -269,6 +333,15 @@ describe("admin control-plane API client", () => {
       scenario,
       assetReadiness: expect.objectContaining({ devReady: true }),
     });
+    await expect(client.submitScenarioReview({
+      scenarioId: "ed_chest_pain_priority_v1",
+      version: 1,
+      reviewerRole: "clinical",
+      reviewerId: "clinician_001",
+      decision: "APPROVED",
+      comments: "Approved.",
+      evidenceRefs: ["evidence:clinical:2026-05-04"],
+    })).resolves.toEqual(scenario);
     await expect(client.listStep2CsSeedStationRunQueueSnapshots()).resolves.toEqual([queueSnapshot]);
     await expect(client.createStep2CsSeedStationRunQueueSnapshot({
       createdAt: "2026-05-04T02:30:00.000Z",
@@ -295,6 +368,20 @@ describe("admin control-plane API client", () => {
         blueprintId: "blueprint_openclinxr_step2cs_style_seed_v1",
       },
       fetchPolicy: "network-only",
+    });
+    expect(apolloClient.mutate).toHaveBeenCalledWith({
+      mutation: SubmitScenarioReviewDocument,
+      variables: {
+        input: {
+          scenarioId: "ed_chest_pain_priority_v1",
+          version: 1,
+          reviewerRole: "clinical",
+          reviewerId: "clinician_001",
+          decision: "APPROVED",
+          comments: "Approved.",
+          evidenceRefs: ["evidence:clinical:2026-05-04"],
+        },
+      },
     });
     expect(apolloClient.mutate).toHaveBeenCalledWith({
       mutation: CreateStationRunQueueSnapshotDocument,

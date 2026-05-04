@@ -5,6 +5,7 @@ import { openClinXrAdminSchemaSdl } from "./schema.js";
 import type {
   AssetReadiness,
   MutationCreateStationRunQueueSnapshotArgs,
+  MutationSubmitScenarioReviewArgs,
   QueryAssetReadinessArgs,
   QueryScenarioArgs,
   QueryScenariosArgs,
@@ -12,7 +13,10 @@ import type {
   Scenario,
   StationRunQueueSnapshot,
 } from "./generated/resolvers.generated.js";
-export { ScenarioStatus as AdminGraphqlScenarioStatus } from "./generated/resolvers.generated.js";
+export {
+  ReviewDecision as AdminGraphqlReviewDecision,
+  ScenarioStatus as AdminGraphqlScenarioStatus,
+} from "./generated/resolvers.generated.js";
 
 export type AdminGraphqlScenario = Scenario;
 
@@ -51,6 +55,9 @@ export type AdminGraphqlRootValue = {
   createStationRunQueueSnapshot?: (
     args: MutationCreateStationRunQueueSnapshotArgs,
   ) => Promise<StationRunQueueSnapshot> | StationRunQueueSnapshot;
+  submitScenarioReview?: (
+    args: MutationSubmitScenarioReviewArgs,
+  ) => Promise<AdminGraphqlScenario> | AdminGraphqlScenario;
 };
 
 export function buildAdminGraphqlSchema(): GraphQLSchema {

@@ -295,6 +295,12 @@ function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: A
   const [searchParams] = useSearchParams();
   const version = Number.parseInt(searchParams.get("version") ?? "1", 10);
   const [state, setState] = useState<ScenarioDetailWorkbenchState>({ status: "loading" });
+  const [reviewDecisionState, setReviewDecisionState] = useState<
+    | { status: "idle" }
+    | { status: "saving" }
+    | { status: "saved"; reviewerRole: string }
+    | { status: "error"; message: string }
+  >({ status: "idle" });
 
   useEffect(() => {
     let active = true;
@@ -354,6 +360,29 @@ function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: A
     );
   }
 
+  const recordClinicalApproval = async () => {
+    setReviewDecisionState({ status: "saving" });
+    try {
+      const nextScenario = await controlPlaneClient.submitScenarioReview({
+        scenarioId: scenario.scenarioId,
+        version: scenario.version,
+        reviewerRole: "clinical",
+        reviewerId: "admin_clinical_reviewer",
+        decision: "APPROVED",
+        comments: "Clinical reviewer approval recorded from the local admin workbench.",
+        evidenceRefs: [`evidence:${scenario.scenarioId}:clinical:local-admin`],
+      });
+      setState((currentState) =>
+        currentState.status === "ready"
+          ? { ...currentState, detail: { ...currentState.detail, scenario: nextScenario } }
+          : currentState
+      );
+      setReviewDecisionState({ status: "saved", reviewerRole: "clinical" });
+    } catch (error) {
+      setReviewDecisionState({ status: "error", message: error instanceof Error ? error.message : "Unknown review decision error" });
+    }
+  };
+
   return (
     <section className="scenario-detail-workbench" aria-labelledby="scenario-detail-title" aria-label="Scenario detail governance">
       <div className="workbench-title-row">
@@ -366,6 +395,9 @@ function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: A
           <Typography.Text type="secondary">{`${scenario.scenarioId} v${scenario.version}`}</Typography.Text>
         </div>
         <Space wrap>
+          <Button loading={reviewDecisionState.status === "saving"} onClick={() => void recordClinicalApproval()}>
+            Record clinical approval
+          </Button>
           <Tag color={scenarioStatusColor(scenario.status)}>{scenario.status.toLowerCase().replaceAll("_", " ")}</Tag>
           <Tag color={assetReadiness.devReady ? "green" : "red"}>Dev-ready assets</Tag>
           <Tag color={assetReadiness.productionReady ? "green" : "gold"}>
@@ -380,6 +412,13 @@ function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: A
         description={formatScenarioGovernanceNotice(scenario)}
         showIcon
       />
+
+      {reviewDecisionState.status === "saved" ? (
+        <Alert type="success" title="Review decision recorded" description={`${reviewDecisionState.reviewerRole} gate updated`} showIcon />
+      ) : null}
+      {reviewDecisionState.status === "error" ? (
+        <Alert type="error" title="Review decision failed" description={reviewDecisionState.message} showIcon />
+      ) : null}
 
       <div className="readiness-strip scenario-bank-strip" aria-label="Scenario detail summary">
         <ReadinessMetric label={`${scenario.clinicalObjectives.length} objectives`} detail={`${scenario.requiredTraceTags.length} required trace tags`} />

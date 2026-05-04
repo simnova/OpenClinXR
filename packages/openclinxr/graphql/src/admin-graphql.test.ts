@@ -76,6 +76,7 @@ describe("OpenClinXR admin GraphQL contract", () => {
       "ExamFormWorkbench",
       "AssembleExamForm",
       "CreateStationRunQueueSnapshot",
+      "SubmitScenarioReview",
       "StationRunQueueSnapshots",
     ]);
 
@@ -106,6 +107,7 @@ describe("OpenClinXR admin GraphQL contract", () => {
       ["exam-form-workbench", "./documents/exam-form-workbench.graphql"],
       ["exam-form-assembly", "./documents/assemble-exam-form.graphql"],
       ["station-run-queue-snapshot", "./documents/create-station-run-queue-snapshot.graphql"],
+      ["scenario-review-decision", "./documents/submit-scenario-review.graphql"],
       ["station-run-queue-snapshots", "./documents/station-run-queue-snapshots.graphql"],
     ]);
 

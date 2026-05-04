@@ -6,6 +6,7 @@ import {
   ScenarioBankDocument,
   ScenarioDetailDocument,
   StationRunQueueSnapshotsDocument,
+  SubmitScenarioReviewDocument,
   type CreateStationRunQueueSnapshotMutation,
   type CreateStationRunQueueSnapshotMutationVariables,
   type ScenarioBankQuery,
@@ -15,6 +16,8 @@ import {
   type ScenarioStatus,
   type StationRunQueueSnapshotsQuery,
   type StationRunQueueSnapshotsQueryVariables,
+  type SubmitScenarioReviewMutation,
+  type SubmitScenarioReviewMutationVariables,
 } from "@openclinxr/graphql/client";
 import { routeById } from "@openclinxr/rest";
 import { print } from "graphql";
@@ -42,6 +45,7 @@ export type AdminControlPlaneClient = {
   getStep2CsSeedStationRunQueue(): Promise<ExamStationRunQueue>;
   listScenarios(input?: ListScenariosInput): Promise<AdminScenario[]>;
   getScenarioDetail(input: GetScenarioDetailInput): Promise<AdminScenarioDetail>;
+  submitScenarioReview(input: SubmitScenarioReviewInput): Promise<AdminScenarioReviewResult>;
   listStep2CsSeedStationRunQueueSnapshots(): Promise<AdminStationRunQueueSnapshot[]>;
   createStep2CsSeedStationRunQueueSnapshot(input: CreateStationRunQueueSnapshotInput): Promise<AdminStationRunQueueSnapshot>;
   getScenarioBankAssetReadiness(): Promise<ScenarioAssetReadiness[]>;
@@ -62,8 +66,11 @@ export type CreateStationRunQueueSnapshotInput = {
   reviewerId?: string;
 };
 
+export type SubmitScenarioReviewInput = SubmitScenarioReviewMutationVariables["input"];
+
 export type AdminScenario = ScenarioBankQuery["scenarios"][number];
 export type AdminScenarioDetail = ScenarioDetailQuery;
+export type AdminScenarioReviewResult = SubmitScenarioReviewMutation["submitScenarioReview"];
 export type AdminStationRunQueueSnapshot = StationRunQueueSnapshotsQuery["stationRunQueueSnapshots"][number];
 
 export const defaultAdminApiBaseUrl = import.meta.env.VITE_OPENCLINXR_API_BASE_URL ?? "";
@@ -72,6 +79,7 @@ const stationRunQueueSnapshotsDocument = print(StationRunQueueSnapshotsDocument)
 const createStationRunQueueSnapshotDocument = print(CreateStationRunQueueSnapshotDocument);
 const scenarioBankDocument = print(ScenarioBankDocument);
 const scenarioDetailDocument = print(ScenarioDetailDocument);
+const submitScenarioReviewDocument = print(SubmitScenarioReviewDocument);
 
 export function buildAdminGraphqlEndpoint(baseUrl: string = defaultAdminApiBaseUrl): string {
   return `${normalizeBaseUrl(baseUrl)}${routeById("admin-graphql-execute").path}`;
@@ -134,6 +142,27 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
         scenarioDetailDocument,
         variables,
       );
+    },
+    submitScenarioReview: async (input) => {
+      if (apolloClient) {
+        const { data } = await apolloClient.mutate<SubmitScenarioReviewMutation, SubmitScenarioReviewMutationVariables>({
+          mutation: SubmitScenarioReviewDocument,
+          variables: { input },
+        });
+        if (!data) {
+          throw new Error("OpenClinXR admin GraphQL request failed: SubmitScenarioReview missing_data");
+        }
+        return data.submitScenarioReview;
+      }
+
+      const data = await graphql<SubmitScenarioReviewMutation>(
+        fetcher,
+        baseUrl,
+        "SubmitScenarioReview",
+        submitScenarioReviewDocument,
+        { input },
+      );
+      return data.submitScenarioReview;
     },
     listStep2CsSeedStationRunQueueSnapshots: async () => {
       if (apolloClient) {

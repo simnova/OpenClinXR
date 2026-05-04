@@ -1,0 +1,41 @@
+mutation SubmitScenarioReview($input: ScenarioReviewDecisionInput!) {
+  submitScenarioReview(input: $input) {
+    scenarioId
+    version
+    title
+    status
+    clinicalObjectives
+    requiredTraceTags
+    review {
+      clinical
+      psychometric
+      legal
+      simulationQa
+    }
+    governance {
+      scoreUseLabel
+      syntheticCaseDisclosure
+      validationStage
+      requiredReviewerRoles
+      sourceIds
+    }
+    environment {
+      environmentId
+      name
+      description
+    }
+    equipment
+    actors {
+      actorId
+      role
+      displayName
+      demeanor
+    }
+    assetNeeds {
+      assetId
+      assetType
+      description
+      licenseStatus
+    }
+  }
+}

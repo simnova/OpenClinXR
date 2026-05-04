@@ -81,6 +81,7 @@ describe("OpenClinXR API shell", () => {
       "exam-form-workbench",
       "exam-form-assembly",
       "station-run-queue-snapshot",
+      "scenario-review-decision",
       "station-run-queue-snapshots",
     ]);
     expect(documents.map((document) => document.operationName)).toEqual([
@@ -90,11 +91,13 @@ describe("OpenClinXR API shell", () => {
       "ExamFormWorkbench",
       "AssembleExamForm",
       "CreateStationRunQueueSnapshot",
+      "SubmitScenarioReview",
       "StationRunQueueSnapshots",
     ]);
     expect(documents[0]?.source).toContain("query ScenarioBank");
     expect(documents.find((document) => document.routeId === "scenario-detail")?.source).toContain("query ScenarioDetail");
     expect(documents.find((document) => document.routeId === "station-run-queue-snapshot")?.source).toContain("createStationRunQueueSnapshot");
+    expect(documents.find((document) => document.routeId === "scenario-review-decision")?.source).toContain("submitScenarioReview");
     expect(documents.at(-1)?.source).toContain("stationRunQueueSnapshots");
     expect(JSON.stringify(documents)).not.toContain("hiddenFacts");
   });
@@ -520,6 +523,75 @@ describe("OpenClinXR API shell", () => {
     );
     expect(JSON.stringify(body)).not.toContain("Father died of myocardial infarction");
     expect(JSON.stringify(body)).not.toContain("hiddenFacts");
+  });
+
+  it("executes generated scenario review decisions and reflects them in later ScenarioDetail queries", async () => {
+    const app = createApiApp();
+    const submitScenarioReviewDocument = adminGraphqlDocumentByOperationName("SubmitScenarioReview");
+    const scenarioDetailDocument = adminGraphqlDocumentByOperationName("ScenarioDetail");
+
+    const reviewResponse = await app.request("/admin/graphql", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        query: submitScenarioReviewDocument.source,
+        operationName: "SubmitScenarioReview",
+        variables: {
+          input: {
+            scenarioId: "peds_asthma_parent_anxiety_v1",
+            version: 1,
+            reviewerRole: "clinical",
+            reviewerId: "pediatrician_001",
+            decision: "APPROVED",
+            comments: "Clinical objectives are plausible for local formative review.",
+            evidenceRefs: ["evidence:peds:clinical:2026-05-04"],
+          },
+        },
+      }),
+    });
+
+    const reviewed = await json(reviewResponse) as {
+      data?: {
+        submitScenarioReview: {
+          scenarioId: string;
+          status: string;
+          review: { clinical: string; psychometric: string; legal: string; simulationQa: string };
+          actors: Array<{ hiddenFacts?: string[] }>;
+        };
+      };
+      errors?: Array<{ message: string }>;
+    };
+
+    expect(reviewResponse.status).toBe(200);
+    expect(reviewed.errors).toBeUndefined();
+    expect(reviewed.data?.submitScenarioReview).toMatchObject({
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      status: "READY_FOR_REVIEW",
+      review: {
+        clinical: "approved",
+        psychometric: "draft",
+        legal: "draft",
+        simulationQa: "draft",
+      },
+    });
+    expect(JSON.stringify(reviewed)).not.toContain("hiddenFacts");
+
+    const detailResponse = await app.request("/admin/graphql", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        query: scenarioDetailDocument.source,
+        operationName: "ScenarioDetail",
+        variables: { scenarioId: "peds_asthma_parent_anxiety_v1", version: 1 },
+      }),
+    });
+    const detail = await json(detailResponse) as { data?: { scenario: { status: string; review: { clinical: string } } | null } };
+
+    expect(detailResponse.status).toBe(200);
+    expect(detail.data?.scenario).toMatchObject({
+      status: "READY_FOR_REVIEW",
+      review: { clinical: "approved" },
+    });
   });
 
   it("serves ED chest pain asset readiness from the shared runtime", async () => {
