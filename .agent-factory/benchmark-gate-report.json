@@ -13,16 +13,16 @@
   },
   "local_runtime_probe": {
     "file": "docs/openclinxr/local-runtime-probe-2026-05-04.json",
-    "generated_at": "2026-05-04T05:06:29.963Z",
+    "generated_at": "2026-05-04T05:22:05.030Z",
     "gates": {
       "questUsb": {
         "status": "ready",
         "blockers": []
       },
       "localModel": {
-        "status": "not_configured",
+        "status": "blocked",
         "blockers": [
-          "no_ollama_llama_cpp_or_mlx_runtime_detected"
+          "model_weights_not_selected_or_benchmarked"
         ]
       },
       "localVoice": {
@@ -83,7 +83,7 @@
   },
   "local_provider_benchmark": {
     "file": "docs/openclinxr/local-provider-benchmark-2026-05-04.json",
-    "generated_at": "2026-05-04T04:53:14.501Z",
+    "generated_at": "2026-05-04T05:20:29.102Z",
     "mock_model": {
       "status": "passed",
       "latencyMs": 0.03,
@@ -112,12 +112,11 @@
       "status": "not_configured",
       "latencyMs": null,
       "blockers": [
-        "no_ollama_llama_cpp_or_mlx_runtime_detected",
         "OPENCLINXR_LOCAL_MODEL_RUNTIME_not_set",
         "OPENCLINXR_LOCAL_MODEL_ID_not_set"
       ],
       "metrics": {
-        "availableRuntimeCommands": null,
+        "availableRuntimeCommands": "llama-cli,llama-server",
         "configuredRuntime": null,
         "configuredModel": null,
         "executionAttempted": false
@@ -143,7 +142,6 @@
       "localModelReadyToBenchmark": false,
       "localVoiceReadyToBenchmark": false,
       "blockers": [
-        "local_model:no_ollama_llama_cpp_or_mlx_runtime_detected",
         "local_model:OPENCLINXR_LOCAL_MODEL_RUNTIME_not_set",
         "local_model:OPENCLINXR_LOCAL_MODEL_ID_not_set",
         "local_voice:no_vibevoice_runtime_detected",
@@ -180,17 +178,16 @@
         "quest_page_hidden_or_inactive",
         "quest_sustained_frame_sample_not_complete",
         "quest_manual_performance:missing_quest_manual_performance_report",
-        "local_model:no_ollama_llama_cpp_or_mlx_runtime_detected",
+        "local_model:model_weights_not_selected_or_benchmarked",
         "local_voice:no_vibevoice_runtime_detected",
         "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_ID_not_set",
         "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_RUNTIME_not_set",
-        "local_model_benchmark:no_ollama_llama_cpp_or_mlx_runtime_detected",
         "local_voice_benchmark:OPENCLINXR_LOCAL_VOICE_ID_not_set",
         "local_voice_benchmark:OPENCLINXR_LOCAL_VOICE_RUNTIME_not_set",
         "local_voice_benchmark:no_vibevoice_runtime_detected"
       ],
       "blocker_summary": {
-        "total_blockers": 12,
+        "total_blockers": 11,
         "distinct_problem_count": 3,
         "groups": [
           {
@@ -210,12 +207,11 @@
             "title": "Local model runtime benchmark",
             "owner": "local-ai-inference-engineer",
             "blockers": [
-              "local_model:no_ollama_llama_cpp_or_mlx_runtime_detected",
+              "local_model:model_weights_not_selected_or_benchmarked",
               "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_ID_not_set",
-              "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_RUNTIME_not_set",
-              "local_model_benchmark:no_ollama_llama_cpp_or_mlx_runtime_detected"
+              "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_RUNTIME_not_set"
             ],
-            "next_step": "Install or point to one approved local model runtime, set the runtime and model environment variables, then rerun the benchmark."
+            "next_step": "Install or point to one approved local model runtime if missing; otherwise approve one model ID/download, set runtime and model environment variables, then rerun the benchmark."
           },
           {
             "group_id": "local_voice_runtime",

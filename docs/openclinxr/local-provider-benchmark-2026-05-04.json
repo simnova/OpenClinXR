@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T04:53:14.501Z",
+  "generatedAt": "2026-05-04T05:20:29.102Z",
   "policy": {
     "cloudCallsAllowed": false,
     "modelDownloadsAllowed": false,
@@ -33,12 +33,11 @@
     "status": "not_configured",
     "latencyMs": null,
     "blockers": [
-      "no_ollama_llama_cpp_or_mlx_runtime_detected",
       "OPENCLINXR_LOCAL_MODEL_RUNTIME_not_set",
       "OPENCLINXR_LOCAL_MODEL_ID_not_set"
     ],
     "metrics": {
-      "availableRuntimeCommands": null,
+      "availableRuntimeCommands": "llama-cli,llama-server",
       "configuredRuntime": null,
       "configuredModel": null,
       "executionAttempted": false
@@ -64,7 +63,6 @@
     "localModelReadyToBenchmark": false,
     "localVoiceReadyToBenchmark": false,
     "blockers": [
-      "local_model:no_ollama_llama_cpp_or_mlx_runtime_detected",
       "local_model:OPENCLINXR_LOCAL_MODEL_RUNTIME_not_set",
       "local_model:OPENCLINXR_LOCAL_MODEL_ID_not_set",
       "local_voice:no_vibevoice_runtime_detected",

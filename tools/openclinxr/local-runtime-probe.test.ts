@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   buildLocalRuntimeProbeReport,
+  LOCAL_RUNTIME_COMMAND_TIMEOUT_MS,
   localRuntimeCommandNames,
+  selectCommandVersionOutput,
   type CommandProbe,
   type PythonModuleProbe,
 } from "./local-runtime-probe.js";
@@ -9,6 +11,21 @@ import {
 describe("local runtime probe gates", () => {
   it("tracks workstation package and parallel-agent helper commands", () => {
     expect(localRuntimeCommandNames).toEqual(expect.arrayContaining(["brew", "portless"]));
+  });
+
+  it("allows enough time for first-launch local model runtime probes", () => {
+    expect(LOCAL_RUNTIME_COMMAND_TIMEOUT_MS).toBeGreaterThanOrEqual(60_000);
+  });
+
+  it("extracts llama.cpp version lines from noisy Metal backend startup logs", () => {
+    const output = [
+      "load_backend: loaded BLAS backend",
+      "ggml_metal_library_init: using embedded metal library",
+      "version: 9010 (d05fe1d7d)",
+      "built with AppleClang 21.0.0.21000099 for Darwin arm64",
+    ].join("\n");
+
+    expect(selectCommandVersionOutput(output, /^version:/)).toBe("version: 9010 (d05fe1d7d)");
   });
 
   it("marks Quest USB and asset pipeline ready while keeping configured runtimes blocked until benchmarked", () => {

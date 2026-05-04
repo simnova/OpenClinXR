@@ -41,7 +41,7 @@ Important note: this is not the M4 Pro mentioned by the user. Treat these result
 | gltf-transform | Not installed | Keep as optional external workstation tool until its current CLI dependency path is cleared by license review |
 | ImageMagick | Not installed | Texture pipeline needs install gate or alternative |
 | Ollama | Not installed | Local LLM convenience runtime unavailable until installed |
-| llama.cpp binaries | Not installed | Local GGUF inference needs install/build gate |
+| llama.cpp binaries | 9010 installed through Homebrew on 2026-05-04 | Local GGUF runtime and server are available; no model weights selected or benchmarked |
 | MLX LM | Not installed | Apple Silicon MLX inference needs install gate |
 | Whisper binaries | Not installed | Local STT needs install/build gate |
 
@@ -75,11 +75,43 @@ Gate results:
 | Gate | Status | Blockers |
 | --- | --- | --- |
 | Quest USB | Ready | None |
-| Local model | Not configured | `no_ollama_llama_cpp_or_mlx_runtime_detected` |
+| Local model | Blocked | `model_weights_not_selected_or_benchmarked` |
 | Local voice | Not configured | `no_vibevoice_runtime_detected` |
-| Asset pipeline | Not configured | `missing_blender` |
+| Asset pipeline | Ready | None |
 
 The probe intentionally does not download models, install runtimes, or call cloud APIs. It is suitable for repeating before a local-model or local-voice benchmark so the team can separate "runtime not installed" from "runtime installed but model not benchmarked."
+
+## llama.cpp Runtime Install Smoke
+
+Run time: 2026-05-04 01:22 EDT
+
+Commands:
+
+```bash
+brew install llama.cpp
+llama-cli --version
+llama-server --version
+pnpm local:runtime:probe -- --output docs/openclinxr/local-runtime-probe-2026-05-04.json
+```
+
+Machine-readable evidence:
+
+- `docs/openclinxr/local-runtime-probe-2026-05-04.json`
+
+Result:
+
+| Check | Result |
+| --- | --- |
+| Formula | `llama.cpp` 9010 |
+| License posture | MIT runtime tooling |
+| CLI | `llama-cli` at `/opt/homebrew/bin/llama-cli` |
+| Server | `llama-server` at `/opt/homebrew/bin/llama-server` |
+| Version line | `version: 9010 (d05fe1d7d)` |
+| Metal backend | Initializes on Apple M1 Max; first launch took about 39s while backend libraries warmed |
+| Model weights | None downloaded |
+| Local model gate | Blocked on model-weight selection and benchmark |
+
+This clears the "local model runtime binary is missing" blocker. It does not resolve the local model evidence debt because no model ID, model card, license record, downloaded weight path, prompt policy benchmark, latency metric, thermal observation, or clinical-safety review exists yet.
 
 ## GLB Pipeline Smoke
 
@@ -160,7 +192,7 @@ Result:
 | --- | --- | --- |
 | Mock model | Passed | Deterministic actor response, token counts, zero cost |
 | Mock voice | Passed | Two transcript events, one audio chunk, viseme cue, zero cost |
-| Local model | Not configured | No Ollama/llama.cpp/MLX runtime detected; local model env vars unset |
+| Local model | Not configured | `llama.cpp` is available, but local model runtime/model ID env vars are unset and execution is disabled by policy |
 | Local voice | Not configured | No VibeVoice runtime detected; local voice env vars unset |
 
 The benchmark contract intentionally avoids cloud calls, model downloads, and local runtime execution. It is ready to become a real local-provider benchmark once runtimes and model IDs are configured explicitly.
@@ -266,7 +298,7 @@ Local gaps:
 
 - Bun must be installed or the first implementation must use a Node Hono adapter locally.
 - Blender is installed and has passed the placeholder asset bake smoke. `gltf-pipeline` is available as the pinned pnpm CLI for permissive local GLB conversion/optimization checks.
-- llama.cpp, Ollama, MLX LM, and VibeVoice are not installed.
+- llama.cpp is installed and visible as `llama-cli`/`llama-server`; Ollama, MLX LM, and VibeVoice are not installed.
 - Quest 3 USB debugging was authorized, `adb reverse tcp:5173 tcp:5173` succeeded, and Quest Browser loaded both a static local smoke page and the OpenClinXR XR station shell.
 - No immersive WebXR runtime benchmark has been run yet; the current evidence is browser-shell rendering and interaction only.
 
@@ -274,7 +306,7 @@ Recommended local-only next spikes:
 
 1. Install Bun and verify Hono WebSocket local server if Bun remains a desired local networking path.
 2. Extend the Blender bake from placeholder GLB validation into mesh decimation, texture atlas, LOD, and collider evidence; keep `gltf-transform` as an optional external workstation tool until its CLI dependency path satisfies the copyleft policy.
-3. Install MLX LM or llama.cpp and benchmark Qwen3-4B/Qwen3-8B or DeepSeek-R1-Distill-Qwen-7B quantized model.
+3. Select and approve one small local model download for the installed `llama.cpp` runtime, then benchmark Qwen3-4B/Qwen3-8B or DeepSeek-R1-Distill-Qwen-7B quantized model.
 4. Install VibeVoice-Realtime-0.5B only after reviewing model terms and disk/runtime requirements.
 5. Add a measured Quest 3 10-minute performance and comfort smoke for the real station shell with DevTools screencasting disabled.
 

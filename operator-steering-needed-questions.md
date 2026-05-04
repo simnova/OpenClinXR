@@ -4,10 +4,12 @@ This file is for true operator blockers only: decisions, confirmations, credenti
 
 ## Open Blockers
 
-- None at the moment. Current work can continue locally with repo tests, local builds, source-ledger updates, and non-paid package-managed spikes.
+- Local model benchmark approval: `llama.cpp` 9010 is installed and visible as `llama-cli` / `llama-server`, but no model weights have been downloaded or executed. To resolve the local-model evidence debt, Patrick needs to approve one explicit first model ID, its license/model-card posture, and the download size/source before Codex runs a real local model benchmark.
+- Local voice runtime approval: VibeVoice remains uninstalled and disabled. To resolve the local-voice evidence debt, Patrick needs to approve the safety/license intake, install path, voice/model ID, and first-audio benchmark scope before Codex installs or runs a real voice runtime.
 
 ## Recently Resolved
 
+- Blender local asset bake: Blender 5.1.1 was installed through Homebrew cask and `pnpm asset:blender:bake` produced `docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json`, so the placeholder asset-bake blocker is resolved.
 - Portless local trust: Patrick ran `portless trust`, so Codex can use Portless for local developer/browser routing experiments when useful. Codex verified an unprivileged local proxy on port `1355`; do not add Portless to mandatory repo scripts, start privileged/default-port proxy setup, or start LAN/Tailscale/public sharing without explicit steering.
 
 ## Standing Rules

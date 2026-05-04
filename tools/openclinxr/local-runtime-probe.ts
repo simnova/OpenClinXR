@@ -6,6 +6,8 @@ import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
 
+export const LOCAL_RUNTIME_COMMAND_TIMEOUT_MS = 60_000;
+
 type CliOptions = {
   outputPath?: string;
 };
@@ -22,6 +24,7 @@ type CommandSpec = {
   command: string;
   args: readonly string[];
   firstLineOnly?: boolean;
+  versionLinePattern?: RegExp;
 };
 
 export type PythonModuleProbe = {
@@ -62,8 +65,8 @@ const commandSpecs: CommandSpec[] = [
   { command: "ffmpeg", args: ["-version"], firstLineOnly: true },
   { command: "adb", args: ["version"], firstLineOnly: true },
   { command: "ollama", args: ["--version"] },
-  { command: "llama-cli", args: ["--version"] },
-  { command: "llama-server", args: ["--version"] },
+  { command: "llama-cli", args: ["--version"], versionLinePattern: /^version:/ },
+  { command: "llama-server", args: ["--version"], versionLinePattern: /^version:/ },
   { command: "mlx_lm", args: ["--help"], firstLineOnly: true },
   { command: "vibevoice", args: ["--help"], firstLineOnly: true },
   { command: "gltf-transform", args: ["--version"] },
@@ -160,8 +163,19 @@ async function probeCommand(spec: CommandSpec): Promise<CommandProbe> {
     command: spec.command,
     status: "available",
     path: commandPath,
-    version: spec.firstLineOnly ? version.split("\n")[0] : version,
+    version: selectCommandVersionOutput(version, spec.versionLinePattern, spec.firstLineOnly),
   };
+}
+
+export function selectCommandVersionOutput(output: string, versionLinePattern?: RegExp, firstLineOnly = false): string {
+  if (versionLinePattern) {
+    const versionLine = output.split("\n").find((line) => versionLinePattern.test(line.trim()));
+    if (versionLine) {
+      return versionLine.trim();
+    }
+  }
+
+  return firstLineOnly ? output.split("\n")[0]?.trim() ?? "" : output;
 }
 
 async function probePythonModules(commands: CommandProbe[]): Promise<PythonModuleProbe[]> {
@@ -236,7 +250,7 @@ async function runOptional(command: string, args: string[]): Promise<string> {
   try {
     const { stdout, stderr } = await execFileAsync(command, args, {
       encoding: "utf8",
-      timeout: 5000,
+      timeout: LOCAL_RUNTIME_COMMAND_TIMEOUT_MS,
     });
     return `${stdout}${stderr}`.trim();
   } catch {

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T05:06:29.963Z",
+  "generatedAt": "2026-05-04T05:22:05.030Z",
   "system": {
     "macosVersion": "26.4.1",
     "macosBuild": "25E253",
@@ -13,7 +13,7 @@
       "filesystem": "/dev/disk3s1s1",
       "oneKBlocks": 3902665360,
       "used": 12257544,
-      "available": 2655054168,
+      "available": 2654997844,
       "capacity": "1%",
       "mountedOn": "/"
     }
@@ -75,11 +75,15 @@
     },
     {
       "command": "llama-cli",
-      "status": "missing"
+      "status": "available",
+      "path": "/opt/homebrew/bin/llama-cli",
+      "version": "version: 9010 (d05fe1d7d)"
     },
     {
       "command": "llama-server",
-      "status": "missing"
+      "status": "available",
+      "path": "/opt/homebrew/bin/llama-server",
+      "version": "version: 9010 (d05fe1d7d)"
     },
     {
       "command": "mlx_lm",
@@ -97,7 +101,7 @@
       "command": "gltf-pipeline",
       "status": "available",
       "path": "/Users/patrick/Documents/New project 2/node_modules/.bin/gltf-pipeline",
-      "version": ""
+      "version": "4.3.1"
     },
     {
       "command": "blender",
@@ -141,9 +145,9 @@
       "blockers": []
     },
     "localModel": {
-      "status": "not_configured",
+      "status": "blocked",
       "blockers": [
-        "no_ollama_llama_cpp_or_mlx_runtime_detected"
+        "model_weights_not_selected_or_benchmarked"
       ]
     },
     "localVoice": {

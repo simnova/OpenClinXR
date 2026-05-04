@@ -25,7 +25,7 @@ describe("benchmark gate report", () => {
     const report = JSON.parse(await readFile(".agent-factory/benchmark-gate-report.json", "utf8")) as BenchmarkGateReport;
     const gate = report.evidence_gates.find((candidate) => candidate.evidence_id === "evidence-leadership-0007-002");
 
-    expect(gate?.blockers).toEqual(expect.arrayContaining(["local_model:no_ollama_llama_cpp_or_mlx_runtime_detected"]));
+    expect(gate?.blockers).toEqual(expect.arrayContaining(["local_model:model_weights_not_selected_or_benchmarked"]));
     const groups = gate?.blocker_summary?.groups ?? [];
 
     expect(groups.map((group) => group.group_id).sort()).toEqual([
@@ -39,7 +39,7 @@ describe("benchmark gate report", () => {
           group_id: "local_model_runtime",
           owner: "local-ai-inference-engineer",
           blockers: expect.arrayContaining([
-            "local_model:no_ollama_llama_cpp_or_mlx_runtime_detected",
+            "local_model:model_weights_not_selected_or_benchmarked",
             "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_ID_not_set",
           ]),
         }),

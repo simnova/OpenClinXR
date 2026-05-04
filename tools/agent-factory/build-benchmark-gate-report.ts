@@ -454,7 +454,7 @@ const blockerGroups = [
     title: "Local model runtime benchmark",
     owner: "local-ai-inference-engineer",
     matches: (blocker: string) => blocker.startsWith("local_model:") || blocker.startsWith("local_model_benchmark:"),
-    nextStep: "Install or point to one approved local model runtime, set the runtime and model environment variables, then rerun the benchmark.",
+    nextStep: "Install or point to one approved local model runtime if missing; otherwise approve one model ID/download, set runtime and model environment variables, then rerun the benchmark.",
   },
   {
     groupId: "local_voice_runtime",

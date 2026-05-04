@@ -1,0 +1,22 @@
+{
+  "source_id": "src-llama-cpp-homebrew-2026",
+  "title": "Homebrew Formula: llama.cpp",
+  "url": "https://formulae.brew.sh/formula/llama.cpp",
+  "source_type": "vendor",
+  "citation": "Homebrew Formulae. llama.cpp. Accessed 2026-05-04.",
+  "accessed_at": "2026-05-04",
+  "permitted_uses": [
+    "Local Apple Silicon runtime install planning for the OpenClinXR offline model benchmark path."
+  ],
+  "claims_supported": [
+    "Homebrew provides a `brew install llama.cpp` formula.",
+    "The formula reports MIT license metadata.",
+    "The formula provides Apple Silicon bottle support for current macOS releases."
+  ],
+  "claims_not_supported": [
+    "That any particular GGUF model is downloaded, licensed, or benchmarked.",
+    "That local inference satisfies clinical simulation latency, quality, or safety requirements.",
+    "That Homebrew-installed llama.cpp should be bundled into an Azure Functions or browser deployment."
+  ],
+  "confidence": 0.9
+}

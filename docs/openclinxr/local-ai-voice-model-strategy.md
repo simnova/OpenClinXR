@@ -24,9 +24,9 @@ Default development mode:
 
 The machine used for this spike reports Apple M1 Max with 64 GB RAM. The user mentioned Apple M4 Pro as a target. Treat M4 Pro/M4 Max support as a target profile, not proven by this machine.
 
-The 2026-05-04 probe records Node 22.19.0, pnpm 10.33.0, Python 3.11.4, ffmpeg 8.1, adb, Homebrew 5.1.8, Blender 5.1.1, and the pinned pnpm `gltf-pipeline` CLI as available. Quest USB is ready.
+The 2026-05-04 probe records Node 22.19.0, pnpm 10.33.0, Python 3.11.4, ffmpeg 8.1, adb, Homebrew 5.1.8, Blender 5.1.1, `llama.cpp` 9010, and the pinned pnpm `gltf-pipeline` CLI as available. Quest USB is ready.
 
-The same probe still records Bun, Portless, Ollama, llama.cpp binaries, MLX LM, and VibeVoice as missing from PATH. Local model execution and local voice execution remain planned spikes, not completed benchmarks. Blender-backed placeholder asset baking now has a passing local smoke report, but production avatar generation still needs rigging, LOD, texture, collider, and headset-performance evidence.
+The same probe still records Bun, Portless, Ollama, MLX LM, and VibeVoice as missing from PATH. Local model execution remains blocked on an explicit model ID, model-card/license record, model download approval, and a measured benchmark. Local voice execution remains a planned spike, not a completed benchmark. Blender-backed placeholder asset baking now has a passing local smoke report, but production avatar generation still needs rigging, LOD, texture, collider, and headset-performance evidence.
 
 ## Recommended Local Reasoning Stack
 
@@ -35,7 +35,7 @@ The same probe still records Bun, Portless, Ollama, llama.cpp binaries, MLX LM, 
 | Runtime | Role | Recommendation |
 | --- | --- | --- |
 | MLX LM | Apple Silicon optimized Python runtime | Preferred first Apple Silicon reasoning spike |
-| llama.cpp | GGUF runtime with Metal support | Preferred portable runtime and local server spike |
+| llama.cpp | GGUF runtime with Metal support | Installed through Homebrew as the first portable runtime; blocked on model selection/benchmark |
 | Ollama | Convenience wrapper over local models | Useful developer convenience, not core abstraction |
 | Transformers/PyTorch MPS | Baseline compatibility | Avoid as first path unless MLX/llama.cpp fails |
 
@@ -131,7 +131,7 @@ First executable status:
 - `pnpm local:provider:benchmark -- --output docs/openclinxr/local-provider-benchmark-2026-05-04.json`
 - Deterministic mock model benchmark passed with zero cost.
 - Deterministic mock voice benchmark passed with transcript and audio-chunk evidence.
-- Local model benchmark remains `not_configured` because no Ollama, llama.cpp, or MLX LM runtime is detected and `OPENCLINXR_LOCAL_MODEL_RUNTIME` / `OPENCLINXR_LOCAL_MODEL_ID` are unset.
+- Local model benchmark remains `not_configured` because `llama.cpp` is installed but `OPENCLINXR_LOCAL_MODEL_RUNTIME` / `OPENCLINXR_LOCAL_MODEL_ID` are unset and no model weights have been selected, downloaded, licensed, or benchmarked.
 - Local voice benchmark remains `not_configured` because no VibeVoice runtime is detected and `OPENCLINXR_LOCAL_VOICE_RUNTIME` / `OPENCLINXR_LOCAL_VOICE_ID` are unset.
 - The script explicitly records `cloudCallsAllowed: false`, `modelDownloadsAllowed: false`, and `localRuntimeExecutionAllowed: false`.
 
