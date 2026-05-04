@@ -55,6 +55,8 @@ The same planning package now exposes `buildIwsdkAiModeProfiles()` and `buildIws
 
 `evaluateIwsdkAgentToolingEvidence()` is the aggregate readiness check for the future sidecar MCP lane. It blocks readiness if adapter sync is missing, the tool inventory is not 32, required MCP categories or minimal smoke tools are absent, managed-browser evidence fails, or optional `iwsdk-reference`/`hzdb` actions appear in the run.
 
+`pnpm iwsdk:agent-tooling:evidence -- --input path/to/evidence.json --output docs/openclinxr/iwsdk-agent-tooling-evidence-YYYY-MM-DD.json` scores that aggregate evidence from a captured JSON file without installing IWSDK or changing MCP config.
+
 `pnpm iwsdk:evidence` prints the current no-install evidence report. In the current contract-only state it exits nonzero by design, with JSON blockers for sidecar approval, agent tooling, and production runtime evidence.
 
 `pnpm iwsdk:evidence:validate` validates the latest committed evidence-contract JSON shape without requiring the blockers to be resolved. The opt-in `pnpm iwsdk:verify` lane runs that shape check so future edits cannot silently drift the advisory evidence consumed by the benchmark report.

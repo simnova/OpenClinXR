@@ -75,6 +75,14 @@ Evidence to record:
 
 `packages/openclinxr/iwsdk-spike` exposes `evaluateIwsdkAgentToolingEvidence()` as the aggregate readiness check for this section. Treat IWSDK agent-tooling readiness as blocked unless that evaluator accepts adapter sync evidence, the 32-tool inventory, all required MCP categories, the minimal MCP smoke subset, managed-browser evidence, and the optional MCP server action list.
 
+Score a future captured aggregate MCP evidence JSON file with:
+
+```bash
+pnpm iwsdk:agent-tooling:evidence -- --input path/to/iwsdk-agent-tooling-evidence.json --output docs/openclinxr/iwsdk-agent-tooling-evidence-YYYY-MM-DD.json
+```
+
+The checker exits nonzero until the aggregate evidence is ready, but it does not install IWSDK, modify MCP config, or touch the sidecar app.
+
 ## Managed Browser Evidence Contract
 
 `packages/openclinxr/iwsdk-spike` exposes `buildIwsdkManagedBrowserEvidenceContract()` and `evaluateIwsdkManagedBrowserEvidence()` so browser-mode claims are scored separately from generic MCP readiness.
