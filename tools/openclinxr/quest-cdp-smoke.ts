@@ -66,9 +66,16 @@ export type QuestSmokeReport = {
     shellLoaded: boolean;
     interactionAdvanced: boolean;
     frameSampleComplete: boolean;
+    immersiveEntryOutcome: QuestImmersiveEntryOutcome;
     blockers: string[];
   };
 };
+
+export type QuestImmersiveEntryOutcome =
+  | "not_requested"
+  | "activation_missed"
+  | "app_request_failed"
+  | "session_started";
 
 export type QuestSmokeEvidenceClassification =
   | "missing"
@@ -81,6 +88,7 @@ export type QuestSmokeEvidenceCheck = {
   inputFile: string | null;
   readyForForegroundQuestClaim: boolean;
   classification: QuestSmokeEvidenceClassification;
+  immersiveEntryOutcome: QuestImmersiveEntryOutcome;
   satisfiedConditions: string[];
   blockers: string[];
 };
@@ -584,16 +592,16 @@ export function buildReport(input: QuestSmokeReportInput): QuestSmokeReport {
   const manualDraftStation = asRecord(manualDraft.station);
   const immersiveXrEntryEvidence = asRecord(immersive.xrEntryEvidence);
   const browserXrEntryEvidence = asRecord(browser.xrEntryEvidence);
-  const xrEntryAttempts = immersiveXrEntryEvidence.attempts ?? browserXrEntryEvidence.attempts;
-  const xrEntryActivationReceived = !input.options.enterVr
-    || immersive.immersiveSessionStarted === true
-    || browser.xrStatus === "In Full VR"
-    || manualDraftStation.immersiveSessionStarted === true
-    || (typeof xrEntryAttempts === "number" && xrEntryAttempts > 0);
-  const immersiveSessionStarted = !input.options.enterVr
-    || immersive.immersiveSessionStarted === true
-    || browser.xrStatus === "In Full VR"
-    || manualDraftStation.immersiveSessionStarted === true;
+  const immersiveEntryOutcome = classifyImmersiveEntryOutcome(
+    input.options.enterVr,
+    browser,
+    immersive,
+    manualDraftStation,
+    immersiveXrEntryEvidence,
+    browserXrEntryEvidence,
+  );
+  const xrEntryActivationReceived = immersiveEntryOutcome !== "activation_missed";
+  const immersiveSessionStarted = immersiveEntryOutcome === "not_requested" || immersiveEntryOutcome === "session_started";
   const blockers = [
     shellLoaded ? undefined : "quest_shell_not_loaded",
     xrEntryActivationReceived ? undefined : "quest_immersive_entry_activation_not_received",
@@ -620,6 +628,7 @@ export function buildReport(input: QuestSmokeReportInput): QuestSmokeReport {
       shellLoaded,
       interactionAdvanced,
       frameSampleComplete,
+      immersiveEntryOutcome,
       blockers,
     },
   };
@@ -658,6 +667,7 @@ export function buildQuestSmokeEvidenceCheck(inputFile: string | undefined, repo
       inputFile: null,
       readyForForegroundQuestClaim: false,
       classification: "missing",
+      immersiveEntryOutcome: "not_requested",
       satisfiedConditions: [],
       blockers: ["missing_quest_cdp_smoke_report"],
     };
@@ -676,10 +686,14 @@ export function buildQuestSmokeEvidenceCheck(inputFile: string | undefined, repo
     && Number.isFinite(framesObservedDuringProbe)
     && framesObservedDuringProbe > 0;
   const rawBlockers = Array.isArray(verdict?.blockers) ? verdict.blockers.filter((blocker): blocker is string => typeof blocker === "string") : [];
+  const immersiveEntryOutcome = inferImmersiveEntryOutcomeFromReport(report, rawBlockers);
+  const effectiveRawBlockers = immersiveEntryOutcome === "not_requested"
+    ? rawBlockers.filter((blocker) => blocker !== "quest_immersive_entry_activation_not_received" && blocker !== "quest_immersive_session_not_started")
+    : rawBlockers;
   const readyForForegroundQuestClaim = verdict?.shellLoaded === true
     && verdict.interactionAdvanced === true
     && verdict.frameSampleComplete === true
-    && rawBlockers.length === 0
+    && effectiveRawBlockers.length === 0
     && pageVisible
     && latestFrameFresh
     && framesAdvancedDuringProbe;
@@ -695,7 +709,10 @@ export function buildQuestSmokeEvidenceCheck(inputFile: string | undefined, repo
     frameSample.timedOut === true ? "quest_cdp_frame_sample_timed_out" : undefined,
     framesAdvancedDuringProbe ? undefined : "quest_no_frames_observed_during_probe",
     latestFrameFresh ? undefined : "quest_latest_frame_stale_over_1000ms",
-    ...rawBlockers,
+    immersiveEntryOutcome === "activation_missed" ? "quest_immersive_entry_activation_not_received" : undefined,
+    immersiveEntryOutcome === "app_request_failed" ? "quest_immersive_app_request_failed" : undefined,
+    immersiveEntryOutcome === "session_started" || immersiveEntryOutcome === "not_requested" ? undefined : "quest_immersive_session_not_started",
+    ...effectiveRawBlockers,
   ]);
 
   return {
@@ -703,6 +720,7 @@ export function buildQuestSmokeEvidenceCheck(inputFile: string | undefined, repo
     inputFile: inputFile ?? null,
     readyForForegroundQuestClaim,
     classification: classifyQuestSmokeEvidence(verdict, blockers),
+    immersiveEntryOutcome,
     satisfiedConditions: [
       isValidIsoDate(report.generatedAt) ? "quest_cdp_generated_at_valid" : undefined,
       typeof adb.deviceLine === "string" && adb.deviceLine.trim().length > 0 ? "quest_cdp_adb_device_recorded" : undefined,
@@ -714,9 +732,69 @@ export function buildQuestSmokeEvidenceCheck(inputFile: string | undefined, repo
       frameStatsPresent ? "quest_frame_stats_present" : undefined,
       latestFrameFresh ? "quest_latest_frame_fresh" : undefined,
       framesAdvancedDuringProbe ? "quest_frames_advanced_during_probe" : undefined,
+      immersiveEntryOutcome === "not_requested" ? "quest_immersive_entry_not_requested" : undefined,
+      immersiveEntryOutcome === "session_started" ? "quest_immersive_session_started" : undefined,
+      immersiveEntryOutcome === "app_request_failed" ? "quest_immersive_activation_reached_app" : undefined,
     ].filter((condition): condition is string => typeof condition === "string"),
     blockers,
   };
+}
+
+function inferImmersiveEntryOutcomeFromReport(
+  report: QuestSmokeReport,
+  rawBlockers: string[],
+): QuestImmersiveEntryOutcome {
+  if (report.verdict?.immersiveEntryOutcome) {
+    return report.verdict.immersiveEntryOutcome;
+  }
+  if (!report.immersive) {
+    return "not_requested";
+  }
+
+  if (rawBlockers.includes("quest_immersive_entry_activation_not_received")) {
+    return "activation_missed";
+  }
+  if (rawBlockers.includes("quest_immersive_session_not_started")) {
+    return "app_request_failed";
+  }
+
+  const browser = asRecord(report.browser);
+  const immersive = asRecord(report.immersive);
+  if (immersive.immersiveSessionStarted === true || browser.xrStatus === "In Full VR") {
+    return "session_started";
+  }
+  return "not_requested";
+}
+
+function classifyImmersiveEntryOutcome(
+  enterVrRequested: boolean,
+  browser: Record<string, unknown>,
+  immersive: Record<string, unknown>,
+  manualDraftStation: Record<string, unknown>,
+  immersiveXrEntryEvidence: Record<string, unknown>,
+  browserXrEntryEvidence: Record<string, unknown>,
+): QuestImmersiveEntryOutcome {
+  if (!enterVrRequested) {
+    return "not_requested";
+  }
+
+  const immersiveSessionStarted = immersive.immersiveSessionStarted === true
+    || browser.xrStatus === "In Full VR"
+    || manualDraftStation.immersiveSessionStarted === true
+    || immersiveXrEntryEvidence.lastStatus === "started"
+    || browserXrEntryEvidence.lastStatus === "started";
+  if (immersiveSessionStarted) {
+    return "session_started";
+  }
+
+  const attempts = immersiveXrEntryEvidence.attempts ?? browserXrEntryEvidence.attempts;
+  const appSawEntryAttempt = (typeof attempts === "number" && attempts > 0)
+    || (typeof immersiveXrEntryEvidence.lastStatus === "string"
+      && immersiveXrEntryEvidence.lastStatus !== "not_requested")
+    || (typeof browserXrEntryEvidence.lastStatus === "string"
+      && browserXrEntryEvidence.lastStatus !== "not_requested");
+
+  return appSawEntryAttempt ? "app_request_failed" : "activation_missed";
 }
 
 function classifyQuestSmokeEvidence(

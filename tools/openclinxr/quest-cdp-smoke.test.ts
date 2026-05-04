@@ -228,6 +228,7 @@ describe("Quest CDP smoke probe", () => {
       shellLoaded: true,
       interactionAdvanced: true,
       frameSampleComplete: true,
+      immersiveEntryOutcome: "not_requested",
       blockers: [],
     });
     expect(report.target).toBe("station");
@@ -269,6 +270,7 @@ describe("Quest CDP smoke probe", () => {
       shellLoaded: true,
       interactionAdvanced: true,
       frameSampleComplete: true,
+      immersiveEntryOutcome: "not_requested",
       blockers: [],
     });
     expect(report.target).toBe("iwsdk-sidecar");
@@ -314,6 +316,7 @@ describe("Quest CDP smoke probe", () => {
       clickedEnterVr: true,
       immersiveSessionStarted: false,
     });
+    expect(report.verdict.immersiveEntryOutcome).toBe("app_request_failed");
     expect(report.verdict.blockers).toContain("quest_immersive_session_not_started");
   });
 
@@ -358,10 +361,51 @@ describe("Quest CDP smoke probe", () => {
       },
     });
 
+    expect(report.verdict.immersiveEntryOutcome).toBe("activation_missed");
     expect(report.verdict.blockers).toEqual(expect.arrayContaining([
       "quest_immersive_entry_activation_not_received",
       "quest_immersive_session_not_started",
     ]));
+  });
+
+  it("marks immersive entry as session_started when Full VR entry succeeds", () => {
+    const report = buildReport({
+      options: parseArgs(["--enter-vr"]),
+      adbVersion: "Android Debug Bridge version 1.0.41",
+      deviceLine: "1234 device product:quest3",
+      reverseList: "1234 tcp:5173 tcp:5173",
+      browser: {
+        title: "OpenClinXR Station Runtime",
+        bodyHasEdChestPain: true,
+        hasViteOverlay: false,
+        hidden: false,
+        visibilityState: "visible",
+        xrStatus: "In Full VR",
+        canvas: { dataUrlLength: 4096 },
+      },
+      interaction: {
+        afterTrace: "Trace 2/10",
+        clickedEcg: true,
+        clickedUrgent: true,
+      },
+      frameSample: {
+        timedOut: false,
+        avgFrameMs: 13.5,
+      },
+      immersive: {
+        clickedEnterVr: true,
+        immersiveSessionStarted: true,
+        xrStatusAfter: "In Full VR",
+        xrEntryEvidence: {
+          attempts: 1,
+          lastStatus: "started",
+          lastError: null,
+        },
+      },
+    });
+
+    expect(report.verdict.immersiveEntryOutcome).toBe("session_started");
+    expect(report.verdict.blockers).not.toContain("quest_immersive_session_not_started");
   });
 
   it("classifies a foreground-ready Quest smoke report for leadership evidence", () => {
@@ -402,6 +446,7 @@ describe("Quest CDP smoke probe", () => {
       inputFile: "quest.json",
       readyForForegroundQuestClaim: true,
       classification: "foreground_ready",
+      immersiveEntryOutcome: "not_requested",
       blockers: [],
       satisfiedConditions: expect.arrayContaining([
         "quest_shell_loaded",
@@ -412,6 +457,91 @@ describe("Quest CDP smoke probe", () => {
         "quest_frames_advanced_during_probe",
       ]),
     }));
+  });
+
+  it("propagates immersive-entry outcome into evidence checks", () => {
+    const report = buildReport({
+      options: parseArgs(["--enter-vr"]),
+      adbVersion: "Android Debug Bridge version 1.0.41",
+      deviceLine: "1234 device product:quest3",
+      reverseList: "1234 tcp:5173 tcp:5173",
+      browser: {
+        title: "OpenClinXR Station Runtime",
+        userAgent: "Mozilla/5.0 (X11; Linux x86_64; Quest 3) OculusBrowser/146.0.0",
+        bodyHasEdChestPain: true,
+        hasViteOverlay: false,
+        hidden: false,
+        visibilityState: "visible",
+        xrStatus: "WebXR entry blocked",
+        canvas: { dataUrlLength: 4096 },
+        frameStats: { framesObserved: 120 },
+      },
+      interaction: {
+        afterTrace: "Trace 2/10",
+        clickedEcg: true,
+        clickedUrgent: true,
+      },
+      frameSample: {
+        timedOut: false,
+        avgFrameMs: 13.5,
+        latestFrameAgeMs: 25,
+        framesObservedDuringProbe: 120,
+      },
+      immersive: {
+        clickedEnterVr: true,
+        immersiveSessionStarted: false,
+        xrStatusAfter: "WebXR entry blocked",
+        xrEntryEvidence: {
+          attempts: 1,
+          lastStatus: "failed",
+          lastError: "NotAllowedError: simulated",
+        },
+      },
+    });
+
+    const check = buildQuestSmokeEvidenceCheck("quest-vr.json", report);
+    expect(check.immersiveEntryOutcome).toBe("app_request_failed");
+    expect(check.blockers).toContain("quest_immersive_app_request_failed");
+    expect(check.blockers).toContain("quest_immersive_session_not_started");
+  });
+
+  it("keeps legacy non-immersive reports compatible when they lack an immersive-entry verdict", () => {
+    const report = {
+      ...buildReport({
+        options: parseArgs(["--url", "http://localhost:5173/?questSmoke=1"]),
+        adbVersion: "Android Debug Bridge version 1.0.41",
+        deviceLine: "1234 device product:quest3",
+        reverseList: "1234 tcp:5173 tcp:5173",
+        browser: {
+          title: "OpenClinXR Station Runtime",
+          userAgent: "Mozilla/5.0 (X11; Linux x86_64; Quest 3) OculusBrowser/146.0.0",
+          bodyHasEdChestPain: true,
+          hasViteOverlay: false,
+          hidden: false,
+          visibilityState: "visible",
+          canvas: { dataUrlLength: 4096 },
+          frameStats: { framesObserved: 120 },
+        },
+        interaction: {
+          afterTrace: "Trace 2/10",
+          clickedEcg: true,
+          clickedUrgent: true,
+        },
+        frameSample: {
+          timedOut: false,
+          avgFrameMs: 13.5,
+          latestFrameAgeMs: 25,
+          framesObservedDuringProbe: 120,
+        },
+      }),
+    };
+    delete (report.verdict as Partial<typeof report.verdict>).immersiveEntryOutcome;
+
+    const check = buildQuestSmokeEvidenceCheck("legacy-quest.json", report);
+
+    expect(check.immersiveEntryOutcome).toBe("not_requested");
+    expect(check.blockers).not.toContain("quest_immersive_session_not_started");
+    expect(check.readyForForegroundQuestClaim).toBe(true);
   });
 
   it("keeps Quest readiness blockers explicit when probe evidence is incomplete", () => {
@@ -443,6 +573,7 @@ describe("Quest CDP smoke probe", () => {
       shellLoaded: false,
       interactionAdvanced: false,
       frameSampleComplete: false,
+      immersiveEntryOutcome: "not_requested",
       blockers: [
         "quest_shell_not_loaded",
         "quest_trace_interaction_not_advanced",
@@ -488,6 +619,7 @@ describe("Quest CDP smoke probe", () => {
 
     expect(check.readyForForegroundQuestClaim).toBe(false);
     expect(check.classification).toBe("shell_interaction_only_hidden_page");
+    expect(check.immersiveEntryOutcome).toBe("not_requested");
     expect(check.blockers).toEqual(expect.arrayContaining([
       "quest_page_hidden_or_inactive",
       "quest_cdp_frame_sample_incomplete",
@@ -508,6 +640,7 @@ describe("Quest CDP smoke probe", () => {
       inputFile: null,
       readyForForegroundQuestClaim: false,
       classification: "missing",
+      immersiveEntryOutcome: "not_requested",
       satisfiedConditions: [],
       blockers: ["missing_quest_cdp_smoke_report"],
     }));
