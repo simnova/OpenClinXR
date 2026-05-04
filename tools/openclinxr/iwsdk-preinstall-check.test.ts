@@ -76,6 +76,30 @@ describe("IWSDK preinstall checker", () => {
     });
   });
 
+  it("keeps the committed Phase 2 devtools proposal fixture blocked until explicit approval", async () => {
+    const fixturePath = path.resolve("docs/openclinxr/iwsdk-phase2-devtools-preinstall-proposal.json");
+    const fixture = JSON.parse(await readFile(fixturePath, "utf8"));
+    const report = buildIwsdkPreInstallProposalReport({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      proposal: fixture,
+    });
+
+    expect(report.proposal.selectedPackages).toEqual([
+      {
+        name: "@iwsdk/vite-plugin-dev",
+        version: "0.3.1",
+        license: "MIT",
+        transitivePackages: [],
+      },
+    ]);
+    expect(report.verdict).toEqual({
+      readyToInstallInSidecar: false,
+      blockers: ["@iwsdk/vite-plugin-dev:not_allowed_in_first_slice"],
+      reviewWarnings: ["@iwsdk/vite-plugin-dev:review_required_package"],
+      missingPackageManagerControls: [],
+    });
+  });
+
   it("blocks package proposals with missing controls, blocked packages, and blocked license paths", () => {
     const report = buildIwsdkPreInstallProposalReport({
       generatedAt: "2026-05-04T00:00:00.000Z",

@@ -462,6 +462,7 @@ export type IwsdkWorkspacePackageManagerControls = {
 export type IwsdkWorkspacePostureInput = {
   sidecarAppExists: boolean;
   sidecarInstallApproved: boolean;
+  phase2DevtoolsApproved?: boolean;
   sidecarLockfileImporterPresent?: boolean;
   sidecarLockfilePackageNames?: string[];
   dependencies: IwsdkWorkspaceDependency[];
@@ -1650,6 +1651,7 @@ export function evaluateIwsdkWorkspacePosture(
   input: IwsdkWorkspacePostureInput,
   policy: IwsdkPreInstallPackagePolicy = buildIwsdkPreInstallPackagePolicy(),
 ): IwsdkWorkspacePostureReadiness {
+  const workspacePolicy = workspacePosturePolicyFor(input, policy);
   const sidecarRoot = buildIwsdkSidecarReadinessContract().sidecarAppRoot;
   const executableIwsdkAllowedRoots = [sidecarRoot];
   const iwsdkDependencies = input.dependencies.filter((dependency) => dependencyReferencesIwsdkPackage(dependency));
@@ -1703,6 +1705,15 @@ export function evaluateIwsdkWorkspacePosture(
   }
 
   const sidecarDependencies = iwsdkDependencies.filter((dependency) => dependency.manifestPath.startsWith(sidecarRoot));
+  if (!input.phase2DevtoolsApproved) {
+    blockers.push(
+      ...sidecarDependencies
+        .filter((dependency) => (iwsdkPackageNameFromSpecifier(dependency.version) ?? dependency.name) === phase2DevtoolsPackageName)
+        .map((dependency) =>
+          `phase2_devtools_package_present_without_operator_approval:${dependency.manifestPath}:${dependency.field}.${dependency.name}`
+        ),
+    );
+  }
   if (input.sidecarAppExists && input.sidecarInstallApproved && sidecarDependencies.length > 0
     && input.sidecarLockfileImporterPresent !== true) {
     blockers.push("missing_iwsdk_sidecar_lockfile_importer");
@@ -1711,7 +1722,7 @@ export function evaluateIwsdkWorkspacePosture(
     const sidecarLockfilePackageNames = input.sidecarLockfilePackageNames ?? [];
     const lockfileParityDependencies = sidecarDependencies.filter((dependency) => {
       const expectedPackageName = iwsdkPackageNameFromSpecifier(dependency.version) ?? dependency.name;
-      return policy.allowedFirstSlicePackages.includes(expectedPackageName) && isExactVersion(dependency.version);
+      return workspacePolicy.allowedFirstSlicePackages.includes(expectedPackageName) && isExactVersion(dependency.version);
     });
     for (const dependency of lockfileParityDependencies) {
       const expectedPackageName = iwsdkPackageNameFromSpecifier(dependency.version) ?? dependency.name;
@@ -1728,7 +1739,7 @@ export function evaluateIwsdkWorkspacePosture(
       license: "MIT",
       transitivePackages: [],
     })),
-    { ...policy, requiredTransitivePackagesByPackageName: {} },
+    { ...workspacePolicy, requiredTransitivePackagesByPackageName: {} },
   );
   blockers.push(...sidecarSelection.blockers);
 
@@ -1756,6 +1767,25 @@ export function evaluateIwsdkWorkspacePosture(
     sidecarStatus: sidecarStatusFor(input),
     blockers: uniqueBlockers,
     reviewWarnings,
+  };
+}
+
+const phase2DevtoolsPackageName = "@iwsdk/vite-plugin-dev";
+
+function workspacePosturePolicyFor(
+  input: IwsdkWorkspacePostureInput,
+  policy: IwsdkPreInstallPackagePolicy,
+): IwsdkPreInstallPackagePolicy {
+  if (!input.phase2DevtoolsApproved) {
+    return policy;
+  }
+
+  return {
+    ...policy,
+    allowedFirstSlicePackages: [...new Set([...policy.allowedFirstSlicePackages, phase2DevtoolsPackageName])],
+    reviewRequiredPackages: policy.reviewRequiredPackages.filter((packageName) =>
+      packageName !== phase2DevtoolsPackageName
+    ),
   };
 }
 

@@ -1,6 +1,6 @@
 # Proposal: IWSDK Phase 2 Devtools
 
-Status: Proposed for later; do not approve until Phase 1 metrics and Quest foreground evidence are reviewed.
+Status: Proposed for later; do not approve until Phase 1 metrics, Quest foreground evidence, Vite peer posture, and Phase 2 transitive license posture are reviewed.
 
 ## Decision Needed
 
@@ -8,9 +8,11 @@ Approve a second IWSDK sidecar slice that evaluates agent-oriented devtools, ada
 
 ## Recommendation
 
-Do not install Phase 2 packages yet. First resolve the Phase 1 sidecar bundle-size blockers and foreground Quest evidence gap.
+Do not install Phase 2 packages yet. First review the Phase 1 sidecar bundle-size blockers, the new foreground-ready CDP smoke evidence, the remaining manual Quest report gap, and the Vite 8 peer mismatch.
 
 When those are reviewed, approve a narrow Phase 2 sidecar-only spike for `@iwsdk/vite-plugin-dev@0.3.1` and adapter/MCP evidence. Keep `@iwsdk/reference@0.3.2`, `@meta-quest/hzdb@1.1.0`, Meta Spatial, UIKitML, and GLTF optimizer packages as separately gated sub-slices.
+
+The workspace posture checker now treats this as a distinct approval dimension: Phase 1 sidecar approval is represented by `--approved-sidecar`, while Phase 2 devtools would require `--approved-phase2-devtools`. This prevents `@iwsdk/vite-plugin-dev` from being accepted under the earlier Phase 1 install approval.
 
 ## Proposed Phase 2 Package/Action Scope
 
@@ -45,6 +47,7 @@ Approve this proposal only after reviewing Phase 1 sidecar metrics and Quest for
 
 - Phase 1 sidecar metric blockers are reviewed and either resolved or explicitly accepted for a devtool-only spike.
 - Vite 8 peer mismatch posture is documented before install.
+- Workspace posture fails under `--approved-sidecar` alone when `@iwsdk/vite-plugin-dev` is present, and only allows the package under a separate `--approved-phase2-devtools` gate with sidecar lockfile parity.
 - `pnpm iwsdk:verify`, sidecar tests, sidecar build, architecture rules, and workspace posture checks pass.
 - Adapter sync records generated config target, rollback path, and no machine-level trust changes.
 - MCP evidence records exact observed tool names, category coverage, minimal smoke sequence, nonblank screenshot, known scene names, trace advancement, and console logs.
@@ -54,6 +57,7 @@ Approve this proposal only after reviewing Phase 1 sidecar metrics and Quest for
 
 - `proposals/approved/proposal-iwsdk-sidecar-install.md`
 - `docs/openclinxr/iwsdk-sidecar-phase1-metrics-2026-05-04.json`
+- `docs/openclinxr/iwsdk-phase2-devtools-preinstall-proposal.json`
 - `docs/openclinxr/iwsdk-codex-mcp-runbook.md`
 - `docs/openclinxr/immersive-web-sdk-evaluation-2026-05-04.md`
 - `packages/openclinxr/iwsdk-spike`

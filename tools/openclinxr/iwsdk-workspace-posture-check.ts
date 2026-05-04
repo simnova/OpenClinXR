@@ -19,6 +19,7 @@ type CliOptions = {
   workspaceRoot?: string;
   outputPath?: string;
   sidecarInstallApproved: boolean;
+  phase2DevtoolsApproved: boolean;
 };
 
 type PackageJson = {
@@ -34,6 +35,7 @@ export type IwsdkWorkspacePostureReport = {
   generatedAt: string;
   workspaceRoot: string;
   sidecarInstallApproved: boolean;
+  phase2DevtoolsApproved: boolean;
   detected: {
     sidecarAppExists: boolean;
     sidecarLockfileImporterPresent: boolean;
@@ -61,6 +63,7 @@ async function main(): Promise<void> {
   const report = await buildIwsdkWorkspacePostureReport({
     workspaceRoot: options.workspaceRoot ?? findWorkspaceRoot(process.cwd()),
     sidecarInstallApproved: options.sidecarInstallApproved,
+    phase2DevtoolsApproved: options.phase2DevtoolsApproved,
   });
   const payload = `${JSON.stringify(report, null, 2)}\n`;
 
@@ -81,10 +84,12 @@ export async function buildIwsdkWorkspacePostureReport(input: {
   generatedAt?: string;
   workspaceRoot: string;
   sidecarInstallApproved?: boolean;
+  phase2DevtoolsApproved?: boolean;
 }): Promise<IwsdkWorkspacePostureReport> {
   const workspaceRoot = path.resolve(input.workspaceRoot);
   const rootPackage = await readPackageJson(path.join(workspaceRoot, "package.json"));
   const sidecarInstallApproved = input.sidecarInstallApproved ?? false;
+  const phase2DevtoolsApproved = input.phase2DevtoolsApproved ?? false;
   const sidecarAppExists = existsSync(path.join(workspaceRoot, "apps/ui-xr-iwsdk-spike"));
   const dependencies = await scanPackageDependencies(workspaceRoot);
   const sourceReferences = await scanSourceReferences(workspaceRoot);
@@ -98,6 +103,7 @@ export async function buildIwsdkWorkspacePostureReport(input: {
   const result = evaluateIwsdkWorkspacePosture({
     sidecarAppExists,
     sidecarInstallApproved,
+    phase2DevtoolsApproved,
     sidecarLockfileImporterPresent,
     dependencies,
     sourceReferences,
@@ -113,6 +119,7 @@ export async function buildIwsdkWorkspacePostureReport(input: {
     generatedAt: input.generatedAt ?? new Date().toISOString(),
     workspaceRoot,
     sidecarInstallApproved,
+    phase2DevtoolsApproved,
     detected: {
       sidecarAppExists,
       sidecarLockfileImporterPresent,
@@ -131,7 +138,7 @@ export async function buildIwsdkWorkspacePostureReport(input: {
 
 function parseArgs(args: string[]): CliOptions {
   const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
-  const options: CliOptions = { sidecarInstallApproved: false };
+  const options: CliOptions = { sidecarInstallApproved: false, phase2DevtoolsApproved: false };
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
@@ -147,6 +154,10 @@ function parseArgs(args: string[]): CliOptions {
     }
     if (arg === "--approved-sidecar") {
       options.sidecarInstallApproved = true;
+      continue;
+    }
+    if (arg === "--approved-phase2-devtools") {
+      options.phase2DevtoolsApproved = true;
       continue;
     }
     throw new Error(`Unknown argument: ${arg ?? ""}`);

@@ -311,6 +311,66 @@ describe("IWSDK workspace posture checker", () => {
     ]);
   });
 
+  it("keeps Phase 2 IWSDK devtools blocked under Phase 1 sidecar approval", async () => {
+    const workspaceRoot = await createWorkspaceFixture({
+      sidecarDependencies: {
+        "@iwsdk/core": "0.3.1",
+        "@iwsdk/xr-input": "0.3.1",
+        "@iwsdk/vite-plugin-dev": "0.3.1",
+      },
+      rootPackage: postureReadyRootPackage(),
+      lockfileText: buildPhase2DevtoolsLockfile(),
+    });
+
+    const report = await buildIwsdkWorkspacePostureReport({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      workspaceRoot,
+      sidecarInstallApproved: true,
+    });
+
+    expect(report).toMatchObject({
+      sidecarInstallApproved: true,
+      phase2DevtoolsApproved: false,
+      result: {
+        ready: false,
+        blockers: expect.arrayContaining([
+          "phase2_devtools_package_present_without_operator_approval:apps/ui-xr-iwsdk-spike/package.json:dependencies.@iwsdk/vite-plugin-dev",
+          "@iwsdk/vite-plugin-dev:not_allowed_in_first_slice",
+        ]),
+        reviewWarnings: ["@iwsdk/vite-plugin-dev:review_required_package"],
+      },
+    });
+  });
+
+  it("allows Phase 2 IWSDK devtools only with separate approval and sidecar lockfile parity", async () => {
+    const workspaceRoot = await createWorkspaceFixture({
+      sidecarDependencies: {
+        "@iwsdk/core": "0.3.1",
+        "@iwsdk/xr-input": "0.3.1",
+        "@iwsdk/vite-plugin-dev": "0.3.1",
+      },
+      rootPackage: postureReadyRootPackage(),
+      lockfileText: buildPhase2DevtoolsLockfile(),
+    });
+
+    const report = await buildIwsdkWorkspacePostureReport({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      workspaceRoot,
+      sidecarInstallApproved: true,
+      phase2DevtoolsApproved: true,
+    });
+
+    expect(report).toMatchObject({
+      sidecarInstallApproved: true,
+      phase2DevtoolsApproved: true,
+      result: {
+        ready: true,
+        blockers: [],
+        reviewWarnings: [],
+      },
+    });
+  });
+
   it("does not accept placeholder audit and license scripts as sidecar controls", async () => {
     const workspaceRoot = await createWorkspaceFixture({
       sidecarDependencies: {
@@ -477,6 +537,27 @@ function buildFixtureLockfile(writeSidecarLockfileImporter = false): string {
     "      '@iwsdk/xr-input':",
     "        specifier: 0.3.1",
     "        version: 0.3.1(three@0.184.0)",
+    "",
+  ].join("\n");
+}
+
+function buildPhase2DevtoolsLockfile(): string {
+  return [
+    "lockfileVersion: '9.0'",
+    "",
+    "importers:",
+    "",
+    "  apps/ui-xr-iwsdk-spike:",
+    "    dependencies:",
+    "      '@iwsdk/core':",
+    "        specifier: 0.3.1",
+    "        version: 0.3.1(three@0.184.0)",
+    "      '@iwsdk/xr-input':",
+    "        specifier: 0.3.1",
+    "        version: 0.3.1(three@0.184.0)",
+    "      '@iwsdk/vite-plugin-dev':",
+    "        specifier: 0.3.1",
+    "        version: 0.3.1(vite@8.0.10)",
     "",
   ].join("\n");
 }
