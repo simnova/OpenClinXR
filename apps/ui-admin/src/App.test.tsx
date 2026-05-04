@@ -42,6 +42,10 @@ describe("AdminApp", () => {
     expect(screen.getByText("Breaks after stations 3, 6, 9")).toBeInTheDocument();
     expect(screen.getByText("12 dev-ready scenes")).toBeInTheDocument();
     expect(screen.getByText("0 production-ready scenes")).toBeInTheDocument();
+    expect(screen.getByText("Learner launch blocked")).toBeInTheDocument();
+    expect(screen.getByText("11 draft-blocked stations")).toBeInTheDocument();
+    expect(screen.getByText("Station 9")).toBeInTheDocument();
+    expect(screen.getAllByText("draft_blocked").length).toBe(11);
     expect(screen.getAllByText("clinic_abdominal_pain_interpreter_v1").length).toBeGreaterThan(0);
   });
 });
@@ -89,6 +93,34 @@ function fakeControlPlaneClient(): AdminControlPlaneClient {
         { afterStationOrder: 9, atSecond: 14040 },
       ],
       totalStationTimeSeconds: 18720,
+    }),
+    getStep2CsSeedStationRunQueue: async () => ({
+      blueprintId: "blueprint_openclinxr_step2cs_style_seed_v1",
+      canStartLearnerExam: false,
+      stationQueue: Array.from({ length: 12 }, (_, index) => ({
+        stationOrder: index + 1,
+        slotId: `station_${index + 1}`,
+        label: `Station ${index + 1}`,
+        scenarioId: index === 8 ? "clinic_abdominal_pain_interpreter_v1" : index === 0 ? "ed_chest_pain_priority_v1" : `draft_scenario_${index + 1}`,
+        scenarioVersion: 1,
+        status: index === 0 ? "activation_ready" : "draft_blocked",
+        blockers: index === 0 ? [] : ["scenario_not_approved"],
+        timing: {
+          stationOrder: index + 1,
+          slotId: `station_${index + 1}`,
+          label: `Station ${index + 1}`,
+          doorway: { startsAtSecond: index * 1560, endsAtSecond: index * 1560 + 60, durationSeconds: 60 },
+          encounter: { startsAtSecond: index * 1560 + 60, endsAtSecond: index * 1560 + 960, durationSeconds: 900 },
+          note: { startsAtSecond: index * 1560 + 960, endsAtSecond: (index + 1) * 1560, durationSeconds: 600 },
+        },
+      })),
+      breakCheckpoints: [
+        { afterStationOrder: 3, atSecond: 4680 },
+        { afterStationOrder: 6, atSecond: 9360 },
+        { afterStationOrder: 9, atSecond: 14040 },
+      ],
+      totalStationTimeSeconds: 18720,
+      summary: { activationReady: 1, draftBlocked: 11, governanceBlocked: 0, missingScenario: 0 },
     }),
     getScenarioBankAssetReadiness: async () =>
       Array.from({ length: 12 }, (_, index) => ({

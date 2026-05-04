@@ -10,6 +10,7 @@ describe("admin control-plane API client", () => {
         "/exam-blueprints/step2cs-seed": { stationSlots: new Array(12).fill(null), timing: { breakAfterStationOrders: [3, 6, 9] } },
         "/exam-blueprints/step2cs-seed/readiness": { canAssembleReadyForm: false, blockedScenarioIds: new Array(11).fill(null) },
         "/exam-blueprints/step2cs-seed/timing-plan": { stationWindows: new Array(12).fill(null), totalStationTimeSeconds: 18720 },
+        "/exam-blueprints/step2cs-seed/station-run-queue": { canStartLearnerExam: false, stationQueue: new Array(12).fill(null) },
         "/scenario-bank/assets/readiness": [{ scenarioId: "ed_chest_pain_priority_v1", devReady: true, productionReady: false }],
       }),
     });
@@ -17,12 +18,14 @@ describe("admin control-plane API client", () => {
     await client.getStep2CsSeedBlueprint();
     await client.getStep2CsSeedBlueprintReadiness();
     await client.getStep2CsSeedTimingPlan();
+    await client.getStep2CsSeedStationRunQueue();
     await client.getScenarioBankAssetReadiness();
 
     expect(requests).toEqual([
       { url: "http://localhost:8787/exam-blueprints/step2cs-seed", method: "GET" },
       { url: "http://localhost:8787/exam-blueprints/step2cs-seed/readiness", method: "GET" },
       { url: "http://localhost:8787/exam-blueprints/step2cs-seed/timing-plan", method: "GET" },
+      { url: "http://localhost:8787/exam-blueprints/step2cs-seed/station-run-queue", method: "GET" },
       { url: "http://localhost:8787/scenario-bank/assets/readiness", method: "GET" },
     ]);
   });

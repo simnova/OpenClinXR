@@ -1,5 +1,5 @@
 import type { ScenarioAssetReadiness } from "@openclinxr/asset-registry";
-import type { BlueprintScenarioReadiness, ExamBlueprint, ExamTimingPlan } from "@openclinxr/exam-assembly";
+import type { BlueprintScenarioReadiness, ExamBlueprint, ExamStationRunQueue, ExamTimingPlan } from "@openclinxr/exam-assembly";
 import { routeById } from "@openclinxr/rest";
 
 export type AdminControlPlaneClientOptions = {
@@ -11,6 +11,7 @@ export type AdminControlPlaneClient = {
   getStep2CsSeedBlueprint(): Promise<ExamBlueprint>;
   getStep2CsSeedBlueprintReadiness(): Promise<BlueprintScenarioReadiness>;
   getStep2CsSeedTimingPlan(): Promise<ExamTimingPlan>;
+  getStep2CsSeedStationRunQueue(): Promise<ExamStationRunQueue>;
   getScenarioBankAssetReadiness(): Promise<ScenarioAssetReadiness[]>;
 };
 
@@ -24,6 +25,7 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
     getStep2CsSeedBlueprint: () => get(fetcher, baseUrl, routeById("step2cs-seed-exam-blueprint").path),
     getStep2CsSeedBlueprintReadiness: () => get(fetcher, baseUrl, routeById("step2cs-seed-exam-blueprint-readiness").path),
     getStep2CsSeedTimingPlan: () => get(fetcher, baseUrl, routeById("step2cs-seed-exam-timing-plan").path),
+    getStep2CsSeedStationRunQueue: () => get(fetcher, baseUrl, routeById("step2cs-seed-station-run-queue").path),
     getScenarioBankAssetReadiness: () => get(fetcher, baseUrl, routeById("scenario-bank-asset-readiness").path),
   };
 }

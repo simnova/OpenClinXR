@@ -1,7 +1,7 @@
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
 import type { ScenarioAssetReadiness } from "@openclinxr/asset-registry";
-import type { BlueprintScenarioReadiness, ExamBlueprint, ExamTimingPlan } from "@openclinxr/exam-assembly";
+import type { BlueprintScenarioReadiness, ExamBlueprint, ExamStationRunQueue, ExamTimingPlan } from "@openclinxr/exam-assembly";
 import { adminPublicationGates, adminWorkbenchRoutes } from "@openclinxr/ui-route-admin";
 import { adminWorkbenchCapabilityTags, openClinXrAdminTheme } from "@openclinxr/ui-shared";
 import { Alert, Card, ConfigProvider, Layout, Space, Spin, Steps, Tag, Typography } from "antd";
@@ -132,6 +132,7 @@ type SeedBlueprintWorkbenchState =
     blueprint: ExamBlueprint;
     readiness: BlueprintScenarioReadiness;
     timingPlan: ExamTimingPlan;
+    stationRunQueue: ExamStationRunQueue;
     assetReadiness: ScenarioAssetReadiness[];
   };
 
@@ -145,11 +146,12 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
       controlPlaneClient.getStep2CsSeedBlueprint(),
       controlPlaneClient.getStep2CsSeedBlueprintReadiness(),
       controlPlaneClient.getStep2CsSeedTimingPlan(),
+      controlPlaneClient.getStep2CsSeedStationRunQueue(),
       controlPlaneClient.getScenarioBankAssetReadiness(),
     ])
-      .then(([blueprint, readiness, timingPlan, assetReadiness]) => {
+      .then(([blueprint, readiness, timingPlan, stationRunQueue, assetReadiness]) => {
         if (active) {
-          setState({ status: "ready", blueprint, readiness, timingPlan, assetReadiness });
+          setState({ status: "ready", blueprint, readiness, timingPlan, stationRunQueue, assetReadiness });
         }
       })
       .catch((error: unknown) => {
@@ -209,9 +211,32 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
         <ReadinessMetric label={`${state.readiness.blockedScenarioIds.length} blocked drafts`} detail={firstBlockedScenario?.reason ?? "none"} />
         <ReadinessMetric label={`${formatDuration(state.timingPlan.totalStationTimeSeconds)} total`} detail={`${state.timingPlan.breakCheckpoints.length} scheduled breaks`} />
         <ReadinessMetric label={`${devReadyScenes} dev-ready scenes`} detail={`${productionReadyScenes} production-ready scenes`} />
+        <ReadinessMetric
+          label={state.stationRunQueue.canStartLearnerExam ? "Learner launch ready" : "Learner launch blocked"}
+          detail={`${state.stationRunQueue.summary.draftBlocked} draft-blocked stations`}
+        />
       </div>
 
       <div className="workbench-panels">
+        <section className="workbench-panel station-queue-panel" aria-labelledby="station-queue-title">
+          <Typography.Title id="station-queue-title" level={4}>
+            Station Run Queue
+          </Typography.Title>
+          <Typography.Text>{`${state.stationRunQueue.summary.activationReady} activation-ready station, ${state.stationRunQueue.summary.draftBlocked} draft-blocked stations`}</Typography.Text>
+          <ol className="station-queue-list">
+            {state.stationRunQueue.stationQueue.map((station) => (
+              <li key={station.slotId}>
+                <div className="station-queue-row">
+                  <Typography.Text strong>{`Station ${station.stationOrder}`}</Typography.Text>
+                  <Tag color={station.status === "activation_ready" ? "green" : "gold"}>{station.status}</Tag>
+                </div>
+                <Typography.Text>{station.scenarioId ?? "missing scenario"}</Typography.Text>
+                {station.blockers.length > 0 ? <Typography.Text type="secondary">{station.blockers.join(", ")}</Typography.Text> : null}
+              </li>
+            ))}
+          </ol>
+        </section>
+
         <section className="workbench-panel" aria-labelledby="timing-title">
           <Typography.Title id="timing-title" level={4}>
             Timing
