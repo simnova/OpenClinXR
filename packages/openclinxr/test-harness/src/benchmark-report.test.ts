@@ -90,9 +90,10 @@ describe("mock benchmark report", () => {
         },
         benchmarkAttributes: {
           "openclinxr.scenario_id": "ed_chest_pain_priority_v1",
-          "openclinxr.station_run_id": "run_ed_chest_pain_priority_v1_learner_001",
           "openclinxr.provider_id": "mock-model",
           "openclinxr.route_id": "actor-dialogue-offline-v1",
+          "openclinxr.route_surface": "xr-runtime",
+          "openclinxr.station_run_scoped": true,
         },
       },
       adversarialReport: {
@@ -104,5 +105,6 @@ describe("mock benchmark report", () => {
         ],
       },
     });
+    expect(JSON.stringify(report.telemetryPlan.benchmarkAttributes)).not.toContain("run_ed_chest_pain_priority_v1_learner_001");
   });
 });

@@ -49,9 +49,10 @@ export function buildMockBenchmarkReport(result: SimulationResult, elapsedMs: nu
       spanNames: openClinXrSpanNames,
       benchmarkAttributes: telemetryRouteAttributes({
         scenarioId: "ed_chest_pain_priority_v1",
-        stationRunId: result.stationRunId,
         providerId: result.providerHealth.model.providerId,
         routeId: "actor-dialogue-offline-v1",
+        routeSurface: "xr-runtime",
+        stationRunScoped: true,
       }),
     },
     adversarialReport: buildAdversarialProbeReport(result, {
