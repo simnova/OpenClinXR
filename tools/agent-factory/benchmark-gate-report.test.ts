@@ -79,6 +79,22 @@ type BenchmarkGateReport = {
       };
     };
   };
+  asset_capability_job_evidence?: {
+    summary: {
+      allCapabilitiesObserved: boolean;
+      allJobsSucceeded: boolean;
+      allManifestsObserved: boolean;
+      allLicenseProvenanceObserved: boolean;
+      zeroSpendObserved: boolean;
+      noExternalNetworkObserved: boolean;
+      blockers: string[];
+    };
+    verdict: {
+      passed: boolean;
+      readyForProductionAssets: false;
+      blockers: string[];
+    };
+  };
   evidence_gates: Array<{
     evidence_id: string;
     ready_to_resolve?: boolean;
@@ -697,6 +713,36 @@ describe("benchmark gate report", () => {
             };
           };
         };
+        assetCapabilityJobEvidence?: {
+          file: string;
+          value: {
+            generatedAt: string;
+            status: string;
+            policy: {
+              cloudApisUsed: false;
+              paidApisUsed: false;
+              externalNetworkAllowed: false;
+              spendLimitCents: 0;
+              productionArtifactClaimed: false;
+            };
+            summary: {
+              allCapabilitiesObserved: boolean;
+              allJobsSucceeded: boolean;
+              allManifestsObserved: boolean;
+              allLicenseProvenanceObserved: boolean;
+              zeroSpendObserved: boolean;
+              noExternalNetworkObserved: boolean;
+              blockers: string[];
+            };
+            jobs: Array<{ capabilityId: string; passed: boolean; blockers: string[] }>;
+            verdict: {
+              passed: boolean;
+              readyForProductionAssets: false;
+              blockers: string[];
+              caveats: string[];
+            };
+          };
+        };
       },
       options: { now: Date; maxEvidenceAgeHours: number },
     ) => BenchmarkGateReport;
@@ -825,6 +871,42 @@ describe("benchmark gate report", () => {
           },
         },
       },
+      assetCapabilityJobEvidence: {
+        file: "docs/openclinxr/asset-capability-job-evidence-2026-05-04.json",
+        value: {
+          generatedAt: "2026-05-04T20:25:00.000Z",
+          status: "passed",
+          policy: {
+            cloudApisUsed: false,
+            paidApisUsed: false,
+            externalNetworkAllowed: false,
+            spendLimitCents: 0,
+            productionArtifactClaimed: false,
+          },
+          summary: {
+            allCapabilitiesObserved: true,
+            allJobsSucceeded: true,
+            allManifestsObserved: true,
+            allLicenseProvenanceObserved: true,
+            zeroSpendObserved: true,
+            noExternalNetworkObserved: true,
+            blockers: [],
+          },
+          jobs: [
+            { capabilityId: "character-generation", passed: true, blockers: [] },
+            { capabilityId: "medical-equipment-generation", passed: true, blockers: [] },
+            { capabilityId: "voice-asset-generation", passed: true, blockers: [] },
+            { capabilityId: "animation-generation", passed: true, blockers: [] },
+            { capabilityId: "asset-bake", passed: true, blockers: [] },
+          ],
+          verdict: {
+            passed: true,
+            readyForProductionAssets: false,
+            blockers: [],
+            caveats: ["Deterministic control-plane evidence only."],
+          },
+        },
+      },
     }, { now: new Date("2026-05-04T20:35:00.000Z"), maxEvidenceAgeHours: 24 });
 
     const assetGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-005");
@@ -832,6 +914,7 @@ describe("benchmark gate report", () => {
     expect(assetGate?.satisfied_conditions).toEqual(expect.arrayContaining([
       "asset_pipeline_blender_bake_smoke_passed",
       "asset_pipeline_gltf_pipeline_smoke_passed",
+      "asset_production_capability_job_contract_observed",
       "asset_production_readiness_report_present",
       "asset_production_source_smokes_passed",
     ]));
@@ -856,12 +939,28 @@ describe("benchmark gate report", () => {
       "asset_production:runtime:multi_actor_quest_budget_missing",
     ]));
     expect(assetGate?.blockers).not.toEqual(expect.arrayContaining([
+      "asset_production:missing_asset_capability_job_evidence_report",
+      "asset_production:asset_capability_job_contract_failed",
       "asset_production:missing_generated_human_rigging_report",
       "asset_production:missing_lod_texture_collider_budget_report",
       "asset_production:missing_multi_actor_quest_budget_report",
       "asset_production:placeholder_bake_only",
     ]));
     expect(assetGate?.blockers.some((blocker) => blocker.startsWith("asset_production:proof:"))).toBe(false);
+    expect(report.asset_capability_job_evidence?.summary).toMatchObject({
+      allCapabilitiesObserved: true,
+      allJobsSucceeded: true,
+      allManifestsObserved: true,
+      allLicenseProvenanceObserved: true,
+      zeroSpendObserved: true,
+      noExternalNetworkObserved: true,
+      blockers: [],
+    });
+    expect(report.asset_capability_job_evidence?.verdict).toMatchObject({
+      passed: true,
+      readyForProductionAssets: false,
+      blockers: [],
+    });
     expect(report.asset_production_readiness_benchmark?.station_budget_evidence).toEqual({
       scenarioId: "ed_chest_pain_priority_v1",
       source: "@openclinxr/asset-registry:createEdChestPainPlaceholderManifests",

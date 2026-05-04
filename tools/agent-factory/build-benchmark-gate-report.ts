@@ -120,6 +120,31 @@ type AssetProductionReadinessBenchmarkReport = {
   };
 };
 
+type AssetCapabilityJobEvidenceReport = {
+  generatedAt: string;
+  status: string;
+  summary: {
+    allCapabilitiesObserved: boolean;
+    allJobsSucceeded: boolean;
+    allManifestsObserved: boolean;
+    allLicenseProvenanceObserved: boolean;
+    zeroSpendObserved: boolean;
+    noExternalNetworkObserved: boolean;
+    blockers: string[];
+  };
+  jobs: Array<{
+    capabilityId: string;
+    passed: boolean;
+    blockers: string[];
+  }>;
+  verdict: {
+    passed: boolean;
+    readyForProductionAssets: false;
+    blockers: string[];
+    caveats: string[];
+  };
+};
+
 type LocalProviderBenchmarkReport = {
   generatedAt: string;
   mockModel: {
@@ -297,6 +322,14 @@ type EvidenceGateReport = {
     runtime_budget: AssetProductionReadinessBenchmarkReport["runtimeBudget"];
     verdict: AssetProductionReadinessBenchmarkReport["verdict"];
   };
+  asset_capability_job_evidence?: {
+    file: string;
+    generated_at: string;
+    status: string;
+    summary: AssetCapabilityJobEvidenceReport["summary"];
+    jobs: AssetCapabilityJobEvidenceReport["jobs"];
+    verdict: AssetCapabilityJobEvidenceReport["verdict"];
+  };
   local_provider_benchmark?: {
     file: string;
     generated_at: string;
@@ -405,6 +438,7 @@ export type BenchmarkGateReportInput = {
   localRuntime?: EvidenceFile<LocalRuntimeProbeReport>;
   gltfPipelineSmoke?: EvidenceFile<GltfPipelineSmokeReport>;
   blenderAssetBakeSmoke?: EvidenceFile<BlenderAssetBakeSmokeReport>;
+  assetCapabilityJobEvidence?: EvidenceFile<AssetCapabilityJobEvidenceReport>;
   assetProductionReadinessBenchmark?: EvidenceFile<AssetProductionReadinessBenchmarkReport>;
   localProviderBenchmark?: EvidenceFile<LocalProviderBenchmarkReport>;
   localModelRuntimeBenchmark?: EvidenceFile<LocalModelRuntimeBenchmarkReport>;
@@ -432,6 +466,7 @@ async function main(): Promise<void> {
   const localRuntime = await latestJson<LocalRuntimeProbeReport>("docs/openclinxr/local-runtime-probe-*.json");
   const gltfPipelineSmoke = await latestJson<GltfPipelineSmokeReport>("docs/openclinxr/gltf-pipeline-smoke-*.json");
   const blenderAssetBakeSmoke = await latestJson<BlenderAssetBakeSmokeReport>("docs/openclinxr/blender-asset-bake-smoke-*.json");
+  const assetCapabilityJobEvidence = await latestJson<AssetCapabilityJobEvidenceReport>("docs/openclinxr/asset-capability-job-evidence-*.json");
   const assetProductionReadinessBenchmark = await latestJson<AssetProductionReadinessBenchmarkReport>("docs/openclinxr/asset-production-readiness-benchmark-*.json");
   const localProviderBenchmark = await latestJson<LocalProviderBenchmarkReport>("docs/openclinxr/local-provider-benchmark-*.json");
   const localModelRuntimeBenchmark = await latestJson<LocalModelRuntimeBenchmarkReport>("docs/openclinxr/local-model-runtime-benchmark-*.json");
@@ -448,6 +483,7 @@ async function main(): Promise<void> {
     localRuntime,
     gltfPipelineSmoke,
     blenderAssetBakeSmoke,
+    assetCapabilityJobEvidence,
     assetProductionReadinessBenchmark,
     localProviderBenchmark,
     localModelRuntimeBenchmark,
@@ -491,6 +527,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localRuntime,
     gltfPipelineSmoke,
     blenderAssetBakeSmoke,
+    assetCapabilityJobEvidence,
     assetProductionReadinessBenchmark,
     localProviderBenchmark,
     localModelRuntimeBenchmark,
@@ -510,6 +547,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localRuntime,
     gltfPipelineSmoke,
     blenderAssetBakeSmoke,
+    assetCapabilityJobEvidence,
     assetProductionReadinessBenchmark,
     localProviderBenchmark,
     localModelRuntimeBenchmark,
@@ -584,11 +622,13 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     ]),
   ];
   const assetProductionEvidenceBlockers = [
+    ...assetCapabilityJobEvidenceBlockers(assetCapabilityJobEvidence),
     ...assetProductionBlockers(gltfPipelineSmoke, blenderAssetBakeSmoke, assetProductionReadinessBenchmark),
     ...freshnessBlockers(evidenceFreshness, [
       "local_runtime_probe",
       "gltf_pipeline_smoke",
       "blender_asset_bake_smoke",
+      "asset_capability_job_evidence",
       "asset_production_readiness_benchmark",
     ]),
   ];
@@ -610,6 +650,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localRuntime?.value.gates.assetPipeline.status === "ready" ? "asset_pipeline_runtime_ready" : undefined,
     gltfPipelineSmoke?.value.verdict.passed ? "asset_pipeline_gltf_pipeline_smoke_passed" : undefined,
     blenderAssetBakeSmoke?.value.verdict.passed ? "asset_pipeline_blender_bake_smoke_passed" : undefined,
+    assetCapabilityJobEvidence?.value.verdict.passed ? "asset_production_capability_job_contract_observed" : undefined,
     assetProductionReadinessBenchmark ? "asset_production_readiness_report_present" : undefined,
     assetProductionReadinessBenchmark?.value.sourceEvidence.gltfPipelineSmokePassed && assetProductionReadinessBenchmark.value.sourceEvidence.blenderBakeSmokePassed ? "asset_production_source_smokes_passed" : undefined,
     assetProductionReadinessBenchmark?.value.generationEvidence?.generatedHumanRiggingObserved ? "asset_production_generated_human_rigging_observed" : undefined,
@@ -727,6 +768,16 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         verdict: assetProductionReadinessBenchmark.value.verdict,
       },
     } : {}),
+    ...(assetCapabilityJobEvidence ? {
+      asset_capability_job_evidence: {
+        file: assetCapabilityJobEvidence.file,
+        generated_at: assetCapabilityJobEvidence.value.generatedAt,
+        status: assetCapabilityJobEvidence.value.status,
+        summary: assetCapabilityJobEvidence.value.summary,
+        jobs: assetCapabilityJobEvidence.value.jobs,
+        verdict: assetCapabilityJobEvidence.value.verdict,
+      },
+    } : {}),
     ...(localProviderBenchmark ? {
       local_provider_benchmark: {
         file: localProviderBenchmark.file,
@@ -826,6 +877,7 @@ function buildEvidenceFreshnessReport(
     localRuntime?: EvidenceFile<LocalRuntimeProbeReport>;
     gltfPipelineSmoke?: EvidenceFile<GltfPipelineSmokeReport>;
     blenderAssetBakeSmoke?: EvidenceFile<BlenderAssetBakeSmokeReport>;
+    assetCapabilityJobEvidence?: EvidenceFile<AssetCapabilityJobEvidenceReport>;
     assetProductionReadinessBenchmark?: EvidenceFile<AssetProductionReadinessBenchmarkReport>;
     localProviderBenchmark?: EvidenceFile<LocalProviderBenchmarkReport>;
     localModelRuntimeBenchmark?: EvidenceFile<LocalModelRuntimeBenchmarkReport>;
@@ -844,6 +896,7 @@ function buildEvidenceFreshnessReport(
     evidenceFreshnessEntry("local_runtime_probe", evidence.localRuntime, now, maxAgeHours),
     evidenceFreshnessEntry("gltf_pipeline_smoke", evidence.gltfPipelineSmoke, now, maxAgeHours),
     evidenceFreshnessEntry("blender_asset_bake_smoke", evidence.blenderAssetBakeSmoke, now, maxAgeHours),
+    evidenceFreshnessEntry("asset_capability_job_evidence", evidence.assetCapabilityJobEvidence, now, maxAgeHours),
     evidenceFreshnessEntry("asset_production_readiness_benchmark", evidence.assetProductionReadinessBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_provider_benchmark", evidence.localProviderBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_model_runtime_benchmark", evidence.localModelRuntimeBenchmark, now, maxAgeHours),
@@ -1249,6 +1302,24 @@ function assetProductionBlockers(
     "asset_production:missing_multi_actor_quest_budget_report",
   );
   return unique(blockers);
+}
+
+function assetCapabilityJobEvidenceBlockers(
+  assetCapabilityJobEvidence: EvidenceFile<AssetCapabilityJobEvidenceReport> | undefined,
+): string[] {
+  if (!assetCapabilityJobEvidence) {
+    return ["asset_production:missing_asset_capability_job_evidence_report"];
+  }
+  if (assetCapabilityJobEvidence.value.verdict.passed) {
+    return [];
+  }
+  return unique([
+    "asset_production:asset_capability_job_contract_failed",
+    ...assetCapabilityJobEvidence.value.summary.blockers.map((blocker) => `asset_production:asset_capability_summary:${blocker}`),
+    ...assetCapabilityJobEvidence.value.verdict.blockers.map((blocker) => `asset_production:asset_capability_verdict:${blocker}`),
+    ...assetCapabilityJobEvidence.value.jobs
+      .flatMap((job) => job.blockers.map((blocker) => `asset_production:asset_capability_job:${job.capabilityId}:${blocker}`)),
+  ]);
 }
 
 function runtimeDeviceLooksLikeTargetM4(device: unknown): boolean {

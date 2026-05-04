@@ -38,6 +38,15 @@
       "blockers": []
     },
     {
+      "evidence_id": "asset_capability_job_evidence",
+      "file": "docs/openclinxr/asset-capability-job-evidence-2026-05-04.json",
+      "generated_at": "2026-05-04T21:21:14.173Z",
+      "age_hours": 0,
+      "max_age_hours": 24,
+      "status": "fresh",
+      "blockers": []
+    },
+    {
       "evidence_id": "asset_production_readiness_benchmark",
       "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T21:11:11.999Z",
@@ -347,6 +356,170 @@
       "caveats": [
         "This report evaluates production-readiness evidence from local smoke outputs only; it does not generate new third-party assets.",
         "Placeholder GLB smoke proves the authoring tool chain can emit a GLB, not that generated clinical characters or environments are production-ready."
+      ]
+    }
+  },
+  "asset_capability_job_evidence": {
+    "file": "docs/openclinxr/asset-capability-job-evidence-2026-05-04.json",
+    "generated_at": "2026-05-04T21:21:14.173Z",
+    "status": "passed",
+    "summary": {
+      "requiredCapabilityIds": [
+        "character-generation",
+        "medical-equipment-generation",
+        "voice-asset-generation",
+        "animation-generation",
+        "asset-bake"
+      ],
+      "observedCapabilityIds": [
+        "character-generation",
+        "medical-equipment-generation",
+        "voice-asset-generation",
+        "animation-generation",
+        "asset-bake"
+      ],
+      "allCapabilitiesObserved": true,
+      "allJobsSucceeded": true,
+      "allManifestsObserved": true,
+      "allLicenseProvenanceObserved": true,
+      "zeroSpendObserved": true,
+      "noExternalNetworkObserved": true,
+      "blockers": []
+    },
+    "jobs": [
+      {
+        "capabilityId": "character-generation",
+        "jobId": "asset-capability-job-001",
+        "status": "succeeded",
+        "worker": {
+          "providerId": "deterministic-character-generation",
+          "providerKind": "deterministic-mock",
+          "implementationLanguage": "typescript",
+          "transport": "in-process"
+        },
+        "artifactKinds": [
+          "manifest",
+          "source"
+        ],
+        "artifactPaths": [
+          ".openclinxr/asset-generation/asset-capability-job-001/character-generation-manifest.json",
+          ".openclinxr/asset-generation/asset-capability-job-001/character-generation-source.asset.json"
+        ],
+        "manifestObserved": true,
+        "licenseProvenanceObserved": true,
+        "zeroSpendObserved": true,
+        "noExternalNetworkObserved": true,
+        "passed": true,
+        "blockers": []
+      },
+      {
+        "capabilityId": "medical-equipment-generation",
+        "jobId": "asset-capability-job-002",
+        "status": "succeeded",
+        "worker": {
+          "providerId": "deterministic-medical-equipment-generation",
+          "providerKind": "deterministic-mock",
+          "implementationLanguage": "typescript",
+          "transport": "in-process"
+        },
+        "artifactKinds": [
+          "manifest",
+          "source"
+        ],
+        "artifactPaths": [
+          ".openclinxr/asset-generation/asset-capability-job-002/medical-equipment-generation-manifest.json",
+          ".openclinxr/asset-generation/asset-capability-job-002/medical-equipment-generation-source.asset.json"
+        ],
+        "manifestObserved": true,
+        "licenseProvenanceObserved": true,
+        "zeroSpendObserved": true,
+        "noExternalNetworkObserved": true,
+        "passed": true,
+        "blockers": []
+      },
+      {
+        "capabilityId": "voice-asset-generation",
+        "jobId": "asset-capability-job-003",
+        "status": "succeeded",
+        "worker": {
+          "providerId": "deterministic-voice-asset-generation",
+          "providerKind": "deterministic-mock",
+          "implementationLanguage": "typescript",
+          "transport": "in-process"
+        },
+        "artifactKinds": [
+          "manifest",
+          "source"
+        ],
+        "artifactPaths": [
+          ".openclinxr/asset-generation/asset-capability-job-003/voice-asset-generation-manifest.json",
+          ".openclinxr/asset-generation/asset-capability-job-003/voice-asset-generation-source.asset.json"
+        ],
+        "manifestObserved": true,
+        "licenseProvenanceObserved": true,
+        "zeroSpendObserved": true,
+        "noExternalNetworkObserved": true,
+        "passed": true,
+        "blockers": []
+      },
+      {
+        "capabilityId": "animation-generation",
+        "jobId": "asset-capability-job-004",
+        "status": "succeeded",
+        "worker": {
+          "providerId": "deterministic-animation-generation",
+          "providerKind": "deterministic-mock",
+          "implementationLanguage": "typescript",
+          "transport": "in-process"
+        },
+        "artifactKinds": [
+          "manifest",
+          "source"
+        ],
+        "artifactPaths": [
+          ".openclinxr/asset-generation/asset-capability-job-004/animation-generation-manifest.json",
+          ".openclinxr/asset-generation/asset-capability-job-004/animation-generation-source.asset.json"
+        ],
+        "manifestObserved": true,
+        "licenseProvenanceObserved": true,
+        "zeroSpendObserved": true,
+        "noExternalNetworkObserved": true,
+        "passed": true,
+        "blockers": []
+      },
+      {
+        "capabilityId": "asset-bake",
+        "jobId": "asset-capability-job-005",
+        "status": "succeeded",
+        "worker": {
+          "providerId": "deterministic-asset-bake",
+          "providerKind": "deterministic-mock",
+          "implementationLanguage": "typescript",
+          "transport": "in-process"
+        },
+        "artifactKinds": [
+          "manifest",
+          "source"
+        ],
+        "artifactPaths": [
+          ".openclinxr/asset-generation/asset-capability-job-005/asset-bake-manifest.json",
+          ".openclinxr/asset-generation/asset-capability-job-005/asset-bake-source.asset.json"
+        ],
+        "manifestObserved": true,
+        "licenseProvenanceObserved": true,
+        "zeroSpendObserved": true,
+        "noExternalNetworkObserved": true,
+        "passed": true,
+        "blockers": []
+      }
+    ],
+    "verdict": {
+      "passed": true,
+      "readyForProductionAssets": false,
+      "blockers": [],
+      "caveats": [
+        "Deterministic asset capability jobs prove routing, policy, provenance, and artifact-manifest contracts only; they are not production clinical assets.",
+        "No cloud APIs, paid APIs, external network calls, or production artifact claims are made by this report."
       ]
     }
   },
@@ -815,6 +988,7 @@
         "asset_pipeline_blender_bake_smoke_passed",
         "asset_pipeline_gltf_pipeline_smoke_passed",
         "asset_pipeline_runtime_ready",
+        "asset_production_capability_job_contract_observed",
         "asset_production_multi_actor_quest_budget_observed",
         "asset_production_readiness_report_present",
         "asset_production_source_smokes_passed",
@@ -945,6 +1119,7 @@
         "asset_pipeline_blender_bake_smoke_passed",
         "asset_pipeline_gltf_pipeline_smoke_passed",
         "asset_pipeline_runtime_ready",
+        "asset_production_capability_job_contract_observed",
         "asset_production_multi_actor_quest_budget_observed",
         "asset_production_readiness_report_present",
         "asset_production_source_smokes_passed"
@@ -1088,6 +1263,7 @@
         "asset_pipeline_blender_bake_smoke_passed",
         "asset_pipeline_gltf_pipeline_smoke_passed",
         "asset_pipeline_runtime_ready",
+        "asset_production_capability_job_contract_observed",
         "asset_production_multi_actor_quest_budget_observed",
         "asset_production_readiness_report_present",
         "asset_production_source_smokes_passed"
