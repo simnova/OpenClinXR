@@ -278,10 +278,10 @@ importers:
       mongodb:
         specifier: 7.2.0
         version: 7.2.0
+    devDependencies:
       mongodb-memory-server:
         specifier: 11.1.0
         version: 11.1.0
-    devDependencies:
       typescript:
         specifier: 6.0.3
         version: 6.0.3

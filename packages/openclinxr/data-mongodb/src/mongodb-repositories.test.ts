@@ -7,15 +7,14 @@ import {
 } from "@openclinxr/exam-assembly";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
-  createMongoMemoryTestContext,
   MongoExamFormRepository,
   createMongoApiPersistenceSink,
   MongoScenarioRepository,
   MongoStationRunQueueRepository,
   MongoTraceRepository,
   MongoReviewPacketRepository,
-  type MongoMemoryTestContext,
 } from "./index.js";
+import { createMongoMemoryTestContext, type MongoMemoryTestContext } from "./mongo-memory-context.js";
 
 const scenario: Scenario = {
   scenarioId: "ed_chest_pain_priority_v1",

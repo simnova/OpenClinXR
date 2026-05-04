@@ -8,6 +8,25 @@ import { describe, expect, it } from "vitest";
 
 const archTsconfig = "../../../tsconfig.archunit.json";
 const workspaceRoot = findWorkspaceRoot();
+const dependencyFields = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"] as const;
+
+type DependencyField = typeof dependencyFields[number];
+
+type WorkspaceDependencyReference = {
+  manifestPath: string;
+  field: DependencyField;
+  dependency: string;
+};
+
+type SourceImportReference = {
+  filePath: string;
+  specifier: string;
+};
+
+type MongoMemoryServerBoundaryInput = {
+  manifestDependencies: WorkspaceDependencyReference[];
+  sourceReferences: SourceImportReference[];
+};
 
 describe("workspace architecture rules", () => {
   it("keeps root package quality gates delegated through Turborepo package tasks", () => {
@@ -175,6 +194,54 @@ describe("workspace architecture rules", () => {
     expect(violations).toEqual([]);
   });
 
+  it("reports mongodb-memory-server when it leaks outside dev-only data package test infrastructure", () => {
+    const violations = findMongoMemoryServerBoundaryViolations({
+      manifestDependencies: [
+        {
+          manifestPath: "apps/api/package.json",
+          field: "dependencies",
+          dependency: "mongodb-memory-server",
+        },
+        {
+          manifestPath: "packages/openclinxr/data-mongodb/package.json",
+          field: "dependencies",
+          dependency: "mongodb-memory-server",
+        },
+        {
+          manifestPath: "packages/openclinxr/data-mongodb/package.json",
+          field: "devDependencies",
+          dependency: "mongodb-memory-server",
+        },
+      ],
+      sourceReferences: [
+        {
+          filePath: "apps/api/src/app.ts",
+          specifier: "mongodb-memory-server",
+        },
+        {
+          filePath: "packages/openclinxr/data-mongodb/src/mongo-memory-context.ts",
+          specifier: "mongodb-memory-server",
+        },
+      ],
+    });
+
+    expect(violations).toEqual([
+      "manifest:apps/api/package.json:dependencies.mongodb-memory-server",
+      "manifest:packages/openclinxr/data-mongodb/package.json:dependencies.mongodb-memory-server",
+      "source:apps/api/src/app.ts:mongodb-memory-server",
+    ]);
+  });
+
+  it("keeps mongodb-memory-server confined to dev-only data package test infrastructure", () => {
+    expect(findMongoMemoryServerBoundaryViolations(scanMongoMemoryServerBoundary())).toEqual([]);
+  });
+
+  it("keeps the data-mongodb public barrel free of Mongo memory test helpers", () => {
+    const publicBarrel = readFileSync(join(workspaceRoot, "packages/openclinxr/data-mongodb/src/index.ts"), "utf8");
+
+    expect(publicBarrel).not.toContain("mongo-memory-context");
+  });
+
   it("keeps the agent-loop orchestration package independent from app and station runtime code", () => {
     const forbiddenImports = /@openclinxr\/(?:scenario-runtime|data-|data-sources-|model-gateway|voice-gateway|trace-ledger)|apps\//;
     const violations = filesWithContentMatching("packages/openclinxr/agent-loop", forbiddenImports);
@@ -308,18 +375,74 @@ function packageManifestFiles(): string[] {
     .filter((filePath) => !filePath.includes("/node_modules/") && !filePath.includes("/dist/"));
 }
 
-function workspacePackageDependencyFindings(blockedDependencies: string[]): string[] {
-  const dependencyFields = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"] as const;
-
+function workspacePackageDependencyReferences(dependencies: string[]): WorkspaceDependencyReference[] {
   return packageManifestFiles().flatMap((filePath) => {
     const packageJson = JSON.parse(readFileSync(join(workspaceRoot, filePath), "utf8")) as Record<string, Record<string, string>>;
 
     return dependencyFields.flatMap((field) =>
-      blockedDependencies
+      dependencies
         .filter((dependency) => packageJson[field]?.[dependency])
-        .map((dependency) => `${filePath}:${field}.${dependency}`),
+        .map((dependency) => ({ manifestPath: filePath, field, dependency })),
     );
   });
+}
+
+function workspacePackageDependencyFindings(blockedDependencies: string[]): string[] {
+  return workspacePackageDependencyReferences(blockedDependencies).map(({ manifestPath, field, dependency }) =>
+    `${manifestPath}:${field}.${dependency}`
+  );
+}
+
+function scanMongoMemoryServerBoundary(): MongoMemoryServerBoundaryInput {
+  return {
+    manifestDependencies: workspacePackageDependencyReferences(["mongodb-memory-server"]),
+    sourceReferences: sourceImportReferences("mongodb-memory-server"),
+  };
+}
+
+function findMongoMemoryServerBoundaryViolations(input: MongoMemoryServerBoundaryInput): string[] {
+  return [
+    ...input.manifestDependencies
+      .filter(({ dependency }) => dependency === "mongodb-memory-server")
+      .filter(({ manifestPath, field }) =>
+        field !== "devDependencies"
+        || ![
+          "packages/openclinxr/data-mongodb/package.json",
+          "packages/openclinxr/data-sources-mongoose-models/package.json",
+        ].includes(manifestPath)
+      )
+      .map(({ manifestPath, field, dependency }) => `manifest:${manifestPath}:${field}.${dependency}`),
+    ...input.sourceReferences
+      .filter(({ specifier }) => specifier === "mongodb-memory-server" || specifier.startsWith("mongodb-memory-server/"))
+      .filter(({ filePath }) => !isAllowedMongoMemoryServerSource(filePath))
+      .map(({ filePath, specifier }) => `source:${filePath}:${specifier}`),
+  ].sort();
+}
+
+function isAllowedMongoMemoryServerSource(filePath: string): boolean {
+  return [
+    /^packages\/openclinxr\/data-mongodb\/src\/(?:.*\.test\.ts|mongo-memory-context\.ts)$/,
+    /^packages\/openclinxr\/data-sources-mongoose-models\/src\/(?:.*\.test\.ts|mongoose-memory-context\.ts)$/,
+  ].some((pattern) => pattern.test(filePath));
+}
+
+function sourceImportReferences(specifier: string): SourceImportReference[] {
+  const importPattern = new RegExp(
+    `(?:from\\s+["'](${escapeRegExp(specifier)}(?:/[^"']*)?)["']|import\\s*\\(\\s*["'](${escapeRegExp(specifier)}(?:/[^"']*)?)["']\\s*\\))`,
+    "g",
+  );
+
+  return [...sourceFilesUnder("apps"), ...sourceFilesUnder("packages")].flatMap((filePath) => {
+    const sourceText = readFileSync(join(workspaceRoot, filePath), "utf8");
+    return [...sourceText.matchAll(importPattern)].map((match) => ({
+      filePath,
+      specifier: match[1] ?? match[2] ?? specifier,
+    }));
+  });
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function lockfileContainsDependency(lockfileText: string, dependency: string): boolean {
