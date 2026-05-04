@@ -2,7 +2,7 @@
   "generated_by": "tools/agent-factory/build-benchmark-gate-report.ts",
   "quest_smoke": {
     "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
-    "generated_at": "2026-05-04T03:59:14.664Z",
+    "generated_at": "2026-05-04T05:32:46.441Z",
     "shell_loaded": true,
     "interaction_advanced": true,
     "frame_sample_complete": false,
@@ -152,7 +152,7 @@
   },
   "quest_manual_performance": {
     "file": ".agent-factory/quest-manual-performance-report.json",
-    "generated_at": "2026-05-03T22:57:26.207Z",
+    "generated_at": "2026-05-04T05:33:53.981Z",
     "input_file": null,
     "ready_to_claim_frame_pacing": false,
     "satisfied_conditions": [],

@@ -216,6 +216,16 @@ Current result:
 - The check records `missing_quest_manual_performance_report`.
 - A passing report requires a foreground page, DevTools screencasting disabled, extra browser windows closed, a 10-minute run, readable text, trace interaction, no console errors, average FPS at or above 72, p95 frame time at or below 25 ms, minimum observed FPS at or above 60, comfortable motion, and no heat concern.
 
+Fresh 2026-05-04 Quest CDP rerun:
+
+- `docs/openclinxr/quest-cdp-smoke-2026-05-04.json`
+- Shell loaded: true.
+- Trace interaction advanced: true.
+- CDP visibility: `document.hidden` remained true.
+- Frame sample: incomplete, with one observed frame and zero frames observed during the probe.
+
+Interpretation: the Quest USB/CDP path can validate page delivery and basic interaction, but it still cannot replace the foreground in-headset manual performance report.
+
 ## Lightweight Throughput Smokes
 
 These are local-only Node checks. They do not use cloud services and do not download model weights.
