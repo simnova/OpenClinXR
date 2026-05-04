@@ -10,7 +10,7 @@ Use workflow skills as local agent aids, not as hidden runtime dependencies. A s
 | [Turborepo Skill](https://github.com/vercel/turborepo/blob/main/skills/turborepo/SKILL.md) | `src-turborepo-skill-2026` | Package task orchestration, affected-package CI, cache behavior, or monorepo build graph work. | Keep task logic package-local, root scripts delegated through `turbo run`, telemetry disabled in scripts, and remote cache opt-in. |
 | [Ant Design CLI Skill](https://github.com/ant-design/ant-design-cli/blob/main/skills/antd/SKILL.md) | `src-ant-design-cli-skill-2026` | Ant Design 6 component props, demos, semantic class names, design tokens, linting, or doctor checks. | Prefer package-managed execution and query exact-version APIs with JSON output before writing components. |
 | ArchUnitTS | `src-archunit-ts-github-2026` | Import boundaries, cycle checks, package naming, or architecture decision enforcement. | Keep rules narrow, package-local, and part of `pnpm verify`. |
-| Storybook MCP Addon | `src-storybook-10-3-2026` | Maintained Storybook stories become agent-inspectable component artifacts. | Optional until installed deliberately; use alongside tests, not instead of tests. |
+| Storybook MCP Addon | `src-storybook-addon-mcp-2026` | Maintained Storybook stories become agent-inspectable component artifacts. | Optional until installed deliberately; use alongside tests, not instead of tests. |
 
 The executable source of truth is `recommendWorkflowSkillsForWorkOrder` in `packages/openclinxr/agent-loop`.
 

@@ -181,5 +181,6 @@ On the M4 Max development mode:
 - `src-ant-design-cli-skill-2026`
 - `src-turborepo-skill-2026`
 - `src-storybook-10-3-2026`
+- `src-storybook-addon-mcp-2026`
 - `src-serenity-js-screenplay-2026`
 - `src-mdn-webxr-performance-2026`

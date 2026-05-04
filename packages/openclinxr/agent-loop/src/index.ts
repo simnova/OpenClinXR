@@ -644,6 +644,8 @@ export function recommendWorkflowSkillsForWorkOrder(
     recommendations.push({
       id: "storybook-mcp",
       name: "Storybook MCP Addon",
+      sourceUrl: "https://storybook.js.org/docs/ai/mcp/overview",
+      sourceRecordId: "src-storybook-addon-mcp-2026",
       useWhen: "Use when Storybook stories become maintained admin/XR component artifacts for local agent inspection.",
       guardrails: [
         "Keep optional until Storybook and addon packages are installed deliberately.",

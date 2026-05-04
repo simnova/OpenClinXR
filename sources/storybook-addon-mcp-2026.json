@@ -1,0 +1,23 @@
+{
+  "source_id": "src-storybook-addon-mcp-2026",
+  "title": "Storybook MCP Addon Documentation And Package Metadata",
+  "url": "https://storybook.js.org/docs/ai/mcp/overview",
+  "source_type": "vendor",
+  "citation": "Storybook MCP documentation and npm package metadata for @storybook/addon-mcp, accessed 2026-05-04.",
+  "accessed_at": "2026-05-04",
+  "permitted_uses": [
+    "Agent workflow planning for exposing local Storybook component stories through an MCP server."
+  ],
+  "claims_supported": [
+    "Storybook documentation describes installing and registering the MCP addon with the Storybook CLI.",
+    "Storybook documentation says a running Storybook dev server exposes an MCP endpoint at /mcp on the Storybook port.",
+    "As queried on 2026-05-04, @storybook/addon-mcp 0.6.0 is MIT licensed.",
+    "As queried on 2026-05-04, @storybook/addon-mcp 0.6.0 declares peer support for Storybook 9.1.16 and 10.x prerelease/range variants."
+  ],
+  "claims_not_supported": [
+    "That Storybook or @storybook/addon-mcp is installed in the OpenClinXR workspace.",
+    "That the MCP server should be exposed beyond local development without authentication and threat-model review.",
+    "That Storybook MCP can replace repository tests, accessibility checks, or Quest/WebXR runtime validation."
+  ],
+  "confidence": 0.82
+}

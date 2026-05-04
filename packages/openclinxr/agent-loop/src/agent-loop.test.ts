@@ -337,7 +337,10 @@ describe("agent-loop synthesis planning", () => {
     });
 
     expect(storybookSkills).toEqual(expect.arrayContaining([
-      expect.objectContaining({ id: "storybook-mcp" }),
+      expect.objectContaining({
+        id: "storybook-mcp",
+        sourceRecordId: "src-storybook-addon-mcp-2026",
+      }),
     ]));
   });
 
