@@ -20,7 +20,7 @@ export type IwsdkSidecarRuntimeEvidence = {
   sidecar: "apps/ui-xr-iwsdk-spike";
   iwsdkCoreExportCount: number;
   iwsdkXrInputExportCount: number;
-  phaseLabel: "Phase 1 VR";
+  phaseLabel: "Phase 1 Full VR";
   requestedSessionMode: "immersive-vr";
   mixedRealityPassthroughImplemented: false;
   handTrackingPosture: "optional_feature_with_primitive_hand_model";
@@ -115,7 +115,7 @@ export function buildIwsdkSidecarRuntimeEvidence(input: {
     sidecar: "apps/ui-xr-iwsdk-spike",
     iwsdkCoreExportCount: input.iwsdkCoreExportCount,
     iwsdkXrInputExportCount: input.iwsdkXrInputExportCount,
-    phaseLabel: "Phase 1 VR",
+    phaseLabel: "Phase 1 Full VR",
     requestedSessionMode: "immersive-vr",
     mixedRealityPassthroughImplemented: false,
     handTrackingPosture: "optional_feature_with_primitive_hand_model",

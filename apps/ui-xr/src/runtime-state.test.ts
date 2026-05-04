@@ -43,7 +43,7 @@ describe("XR runtime state", () => {
 
   it("states that the current headset runtime is full VR, not mixed reality passthrough", () => {
     expect(xrExperienceModeEvidence).toEqual({
-      phaseLabel: "Phase 1 VR",
+      phaseLabel: "Phase 1 Full VR",
       requestedSessionMode: "immersive-vr",
       mixedRealityPassthroughImplemented: false,
       handTrackingPosture: "optional_feature_with_primitive_hand_model",

@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-04T17:20:28.594Z",
-  "url": "http://localhost:5183/?questSmoke=trace-latency-proxy-20260504",
+  "generatedAt": "2026-05-04T17:25:13.616Z",
+  "url": "http://localhost:5183/?questSmoke=full-vr-label-20260504",
   "target": "iwsdk-sidecar",
   "adb": {
     "version": "Android Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as /opt/homebrew/bin/adb\nRunning on Darwin 25.4.0 (arm64)",
@@ -9,7 +9,7 @@
   },
   "browser": {
     "title": "OpenClinXR IWSDK Spike",
-    "url": "http://localhost:5183/?questSmoke=trace-latency-proxy-20260504",
+    "url": "http://localhost:5183/?questSmoke=full-vr-label-20260504",
     "userAgent": "Mozilla/5.0 (X11; Linux x86_64; Quest 3) AppleWebKit/537.36 (KHTML, like Gecko) OculusBrowser/146.0.0.19.27.942135376 Chrome/146.0.7680.177 VR Safari/537.36",
     "devicePixelRatio": 1,
     "visibilityState": "visible",
@@ -18,34 +18,34 @@
     "bodyHasEdChestPain": true,
     "hasViteOverlay": false,
     "hasNavigatorXr": true,
-    "xrStatus": "WebXR ready",
+    "xrStatus": "Full VR ready",
     "trace": "Trace 0/10",
     "bootEvidence": {
       "app": "ui-xr-iwsdk-spike",
       "events": [
         {
           "phase": "controls_start",
-          "atMs": 0.9
+          "atMs": 0.4
         },
         {
           "phase": "controls_ready",
-          "atMs": 1.4
+          "atMs": 0.6
         },
         {
           "phase": "station_scene_start",
-          "atMs": 1.9
+          "atMs": 1
         },
         {
           "phase": "station_render_loop_started",
-          "atMs": 33.6
+          "atMs": 18.9
         },
         {
           "phase": "station_scene_ready",
-          "atMs": 33.7
+          "atMs": 18.9
         },
         {
           "phase": "clock_started",
-          "atMs": 33.7
+          "atMs": 19
         }
       ]
     },
@@ -54,7 +54,7 @@
       "sidecar": "apps/ui-xr-iwsdk-spike",
       "iwsdkCoreExportCount": 0,
       "iwsdkXrInputExportCount": 0,
-      "phaseLabel": "Phase 1 VR",
+      "phaseLabel": "Phase 1 Full VR",
       "requestedSessionMode": "immersive-vr",
       "mixedRealityPassthroughImplemented": false,
       "handTrackingPosture": "optional_feature_with_primitive_hand_model",
@@ -85,14 +85,14 @@
       ]
     },
     "frameStats": {
-      "sampleCount": 8,
-      "avgFrameMs": 57.78,
-      "p95FrameMs": 66.2,
-      "maxFrameMs": 66.2,
-      "approxFps": 17.3,
-      "framesObserved": 9,
-      "latestFrameAtMs": 699.8,
-      "sampleWindowSize": 8
+      "sampleCount": 9,
+      "avgFrameMs": 58.66,
+      "p95FrameMs": 66,
+      "maxFrameMs": 66,
+      "approxFps": 17,
+      "framesObserved": 10,
+      "latestFrameAtMs": 742.4,
+      "sampleWindowSize": 9
     },
     "inputEvidence": {
       "handModelCount": 0,
@@ -111,7 +111,7 @@
       "height": 924,
       "clientWidth": 880,
       "clientHeight": 924,
-      "dataUrlLength": 135918
+      "dataUrlLength": 135958
     }
   },
   "interaction": {
@@ -124,28 +124,28 @@
     "dialogue": "Spouse: Please tell me what you are worried about.",
     "traceLatencyEvidence": {
       "lastTraceTag": "urgent_escalation",
-      "lastSelectLatencyMs": 0.2,
+      "lastSelectLatencyMs": 0.8,
       "source": "dom_click_trace_button",
-      "measuredAtMs": 901.4
+      "measuredAtMs": 888.7
     }
   },
   "frameSample": {
     "framesObserved": 121,
-    "framesObservedDuringProbe": 108,
+    "framesObservedDuringProbe": 107,
     "sampleCount": 120,
     "timedOut": false,
-    "elapsedWallMs": 6975.5,
-    "latestFrameAgeMs": 28.7,
-    "avgFrameMs": 64.35,
-    "p95FrameMs": 66.2,
-    "maxFrameMs": 96.9,
-    "approxFps": 15.5,
+    "elapsedWallMs": 7031.5,
+    "latestFrameAgeMs": 21.8,
+    "avgFrameMs": 64.9,
+    "p95FrameMs": 66.1,
+    "maxFrameMs": 68.8,
+    "approxFps": 15.4,
     "iwsdkEvidence": {
       "scenarioId": "ed_chest_pain_priority_v1",
       "sidecar": "apps/ui-xr-iwsdk-spike",
       "iwsdkCoreExportCount": 586,
       "iwsdkXrInputExportCount": 31,
-      "phaseLabel": "Phase 1 VR",
+      "phaseLabel": "Phase 1 Full VR",
       "requestedSessionMode": "immersive-vr",
       "mixedRealityPassthroughImplemented": false,
       "handTrackingPosture": "optional_feature_with_primitive_hand_model",

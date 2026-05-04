@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-05-04T17:21:19.538Z",
+  "generatedAt": "2026-05-04T17:28:10.067Z",
   "inputFile": "docs/openclinxr/iwsdk-sidecar-phase1-metrics-input-2026-05-04.json",
   "metrics": {
     "installedNodeModulesMb": 24,
     "injectedDevRuntimeKb": 0,
-    "appJsBundleKb": 2510.85,
-    "bundleDeltaVsUiXrKb": 1895.91,
-    "baselineAppBundleSource": "apps/ui-xr-iwsdk-spike/dist/assets/*.js total minus apps/ui-xr/dist/assets/index-kJ4ZKRqb.js + apps/ui-xr/dist/assets/three-vendor-Csg9FCqN.js",
-    "initialModulepreloadedJsKb": 22.89,
+    "appJsBundleKb": 2511.15,
+    "bundleDeltaVsUiXrKb": 1895.82,
+    "baselineAppBundleSource": "apps/ui-xr-iwsdk-spike/dist/assets/*.js total minus apps/ui-xr/dist/assets/index--3PpZ4i5.js + apps/ui-xr/dist/assets/three-vendor-Csg9FCqN.js",
+    "initialModulepreloadedJsKb": 23.19,
     "lazyIwsdkVendorChunkKb": 2404.88,
     "smokePlanHash": "runtime-state:iwsdk-station-mcp-smoke-plan:v1",
     "canvasNonblank": true,
@@ -40,8 +40,8 @@
       "ecg_request"
     ],
     "foregroundQuestPreflightReady": true,
-    "avgFps": 15.5,
-    "p95FrameMs": 66.2,
+    "avgFps": 15.4,
+    "p95FrameMs": 66.1,
     "consoleErrorCount": 0
   },
   "result": {

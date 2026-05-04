@@ -163,7 +163,7 @@ app.innerHTML = `
       <div class="status-strip">
         <span id="xr-status">WebXR checking</span>
         <span id="trace-summary">Trace 0/${edChestPainScenario.requiredTraceTags.length}</span>
-        <button id="enter-xr-button" class="xr-entry-button" type="button" disabled>Enter VR</button>
+        <button id="enter-xr-button" class="xr-entry-button" type="button" disabled>Enter Full VR</button>
       </div>
     </section>
     <aside class="runtime-panel" aria-label="Station controls and clinical context">
@@ -323,7 +323,7 @@ async function updateXrStatus(): Promise<void> {
   }
   try {
     const supported = await navigatorWithXr.xr.isSessionSupported("immersive-vr");
-    xrStatus.textContent = supported ? "WebXR ready" : "WebXR unavailable";
+    xrStatus.textContent = supported ? "Full VR ready" : "WebXR unavailable";
     enterXrButton.disabled = !supported;
   } catch {
     xrStatus.textContent = "WebXR check blocked";
@@ -457,7 +457,7 @@ function createStationScene(): StationSceneRuntime {
       }
 
       enterXrButton.disabled = true;
-      xrStatus.textContent = "Entering VR";
+      xrStatus.textContent = "Entering Full VR";
       try {
         const session = await navigatorWithXr.xr.requestSession("immersive-vr", {
           optionalFeatures: ["local-floor", "bounded-floor", "hand-tracking"],
@@ -467,19 +467,19 @@ function createStationScene(): StationSceneRuntime {
           activeXrSession = undefined;
           immersiveSessionActive = false;
           enterXrButton.disabled = false;
-          enterXrButton.textContent = "Enter VR";
-          xrStatus.textContent = "WebXR ready";
+          enterXrButton.textContent = "Enter Full VR";
+          xrStatus.textContent = "Full VR ready";
         }, { once: true });
         await renderer.xr.setSession(session as Parameters<typeof renderer.xr.setSession>[0]);
         installHandModelsOnce();
         immersiveSessionActive = true;
         enterXrButton.disabled = false;
-        enterXrButton.textContent = "Exit VR";
-        xrStatus.textContent = "In VR";
+        enterXrButton.textContent = "Exit Full VR";
+        xrStatus.textContent = "In Full VR";
       } catch {
         activeXrSession = undefined;
         enterXrButton.disabled = false;
-        enterXrButton.textContent = "Enter VR";
+        enterXrButton.textContent = "Enter Full VR";
         xrStatus.textContent = "WebXR entry blocked";
       }
     },

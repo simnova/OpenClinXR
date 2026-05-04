@@ -257,7 +257,7 @@ Sidecar rules:
 
 - `apps/ui-xr-iwsdk-spike` now exists after Patrick approved install scope, exact versions, and transitive license posture on 2026-05-04.
 - The first install-backed slice evaluates exact-versioned `@iwsdk/core@0.3.1` and `@iwsdk/xr-input@0.3.1` only.
-- Both `apps/ui-xr` and `apps/ui-xr-iwsdk-spike` must expose an explicit Quest Browser `Enter VR` control that starts `navigator.xr.requestSession("immersive-vr")`; WebXR feature detection alone is not an immersive session.
+- Both `apps/ui-xr` and `apps/ui-xr-iwsdk-spike` must expose an explicit Quest Browser `Enter Full VR` control that starts `navigator.xr.requestSession("immersive-vr")`; WebXR feature detection alone is not an immersive session.
 - Treat that Phase 1 path as full immersive VR, not passthrough mixed reality. Runtime evidence must record `requestedSessionMode: "immersive-vr"` and `mixedRealityPassthroughImplemented: false` until [proposal-webxr-mixed-reality-mode.md](../../proposal-webxr-mixed-reality-mode.md) is explicitly approved and validated.
 - Keep `@iwsdk/reference`, `@iwsdk/starter-assets`, `@iwsdk/create`, and `@meta-quest/hzdb` out of the first install-backed slice. Patrick approved the reference warmup download scope and `@meta-quest/hzdb` legal/procurement posture on 2026-05-04, but the packages remain sidecar-gated.
 - Do not run floating `npx iwsdk reference warmup`; the package-managed candidate is `pnpm dlx @iwsdk/reference@0.3.2 iwsdk-reference warmup`, and it still needs CLI help, cache location, and download-size evidence before execution.

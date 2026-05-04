@@ -85,8 +85,8 @@ describe("IWSDK sidecar runtime state", () => {
     const source = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
     const stateSource = readFileSync(new URL("./sidecar-state.ts", import.meta.url), "utf8");
 
-    expect(stateSource).toContain("Phase 1 VR");
-    expect(source).toContain("Enter VR");
+    expect(stateSource).toContain("Phase 1 Full VR");
+    expect(source).toContain("Enter Full VR");
     expect(source).toContain('requestSession("immersive-vr"');
     expect(source).not.toContain('requestSession("immersive-ar"');
     expect(source).toContain('"hand-tracking"');

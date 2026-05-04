@@ -21,9 +21,9 @@ describe("static browser assets", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
     const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
 
-    expect(runtimeStateSource).toContain("Phase 1 VR");
+    expect(runtimeStateSource).toContain("Phase 1 Full VR");
     expect(mainSource).toContain("__openClinXrExperienceModeEvidence");
-    expect(mainSource).toContain("Enter VR");
+    expect(mainSource).toContain("Enter Full VR");
     expect(mainSource).toContain('requestSession("immersive-vr"');
     expect(mainSource).not.toContain('requestSession("immersive-ar"');
     expect(mainSource).toContain('"hand-tracking"');

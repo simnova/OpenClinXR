@@ -123,7 +123,7 @@ export type ManualPerformanceDraftInput = {
 };
 
 export type XrExperienceModeEvidence = {
-  phaseLabel: "Phase 1 VR";
+  phaseLabel: "Phase 1 Full VR";
   requestedSessionMode: "immersive-vr";
   mixedRealityPassthroughImplemented: false;
   handTrackingPosture: "optional_feature_with_primitive_hand_model";
@@ -133,7 +133,7 @@ export type XrExperienceModeEvidence = {
 export const stationTraceActionTags = [...edChestPainScenario.requiredTraceTags];
 
 export const xrExperienceModeEvidence: XrExperienceModeEvidence = {
-  phaseLabel: "Phase 1 VR",
+  phaseLabel: "Phase 1 Full VR",
   requestedSessionMode: "immersive-vr",
   mixedRealityPassthroughImplemented: false,
   handTrackingPosture: "optional_feature_with_primitive_hand_model",
