@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, relative, sep } from "node:path";
+import { buildOpenClinXrCapabilityRoutingMatrix, evaluateCapabilityRoutingMatrix } from "@openclinxr/capability-gateway";
 import { findUnsafeClaimLanguage } from "@openclinxr/domain";
 import { projectFiles } from "archunit";
 import ts from "typescript";
@@ -127,6 +128,41 @@ describe("workspace architecture rules", () => {
     expect(implementationPlan).toContain("@iwsdk/reference");
     expect(implementationPlan).toContain("@meta-quest/hzdb");
     expect(implementationPlan).toContain("apps/ui-xr");
+  });
+
+  it("keeps Python and native executable capability workers behind the main API facade", () => {
+    const matrix = buildOpenClinXrCapabilityRoutingMatrix();
+    const readiness = evaluateCapabilityRoutingMatrix(matrix);
+    const executableBindings = matrix.bindings.filter((binding) => binding.executableDependencies.length > 0);
+    const productionAssetPipelineBindings = matrix.bindings.filter((binding) =>
+      binding.profile === "production" && binding.plane === "asset-pipeline"
+    );
+    const productionInteractiveBindings = matrix.bindings.filter((binding) =>
+      binding.profile === "production" && binding.plane === "interactive-runtime"
+    );
+
+    expect(readiness.blockers).toEqual([]);
+    expect(executableBindings.length).toBeGreaterThan(0);
+    expect(executableBindings.every((binding) => binding.networkExposure !== "direct-public")).toBe(true);
+    expect(executableBindings.every((binding) =>
+      ["main-api-tunnel", "internal-sidecar-http", "local-executable-worker"].includes(binding.transport)
+    )).toBe(true);
+    expect(productionAssetPipelineBindings.map((binding) => binding.capabilityId)).toEqual([
+      "character-generation",
+      "voice-asset-generation",
+      "medical-equipment-generation",
+      "animation-generation",
+      "asset-bake",
+    ]);
+    expect(productionAssetPipelineBindings.every((binding) =>
+      binding.facadePackage === "@openclinxr/capability-gateway"
+    )).toBe(true);
+    expect(productionInteractiveBindings.map((binding) => binding.facadePackage)).toEqual([
+      "@openclinxr/model-gateway",
+      "@openclinxr/model-gateway",
+      "@openclinxr/voice-gateway",
+      "@openclinxr/voice-gateway",
+    ]);
   });
 
   it("keeps Turborepo cache artifacts out of tracked workspace files", () => {

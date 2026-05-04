@@ -81,6 +81,7 @@ Penpot is the preferred design collaboration tool. OpenPencil is a promising MIT
 - Mongoose as the team-familiar ODM candidate for mature admin-facing schemas, while low-level trace replay can keep thin repository contracts for ordered append/upsert performance.
 - Object storage/CDN for optimized assets.
 - Worker queue for asset-processing jobs, never synchronous heavy processing on B1.
+- A capability facade that preserves one main external API while allowing internal Python and native executable workers for production asset generation when needed.
 
 ### Monorepo And Developer Tooling
 
@@ -103,6 +104,8 @@ Provider adapter interface:
 - Cloud frontier model adapter for scenario generation, review assistance, and actor dialogue.
 - xAI Grok adapters for production voice experiments, especially `grok-voice-think-fast-1.0` and xAI streaming STT/TTS APIs if privacy and procurement reviews pass.
 - Local LLM adapter for M4 Max development using llama.cpp, Ollama, or MLX-compatible tooling.
+
+Keep this interactive model/voice routing separate from the asset generation pipeline. Python-backed production workers are allowed for batch generation of characters, prerecorded voice assets, medical equipment, animations, textures, and optimized GLB/KTX2 outputs, but they should sit behind `@openclinxr/capability-gateway` and the main API tunnel rather than changing the live dialogue/voice gateway contract.
 
 LLM/voice outputs must remain traceable:
 

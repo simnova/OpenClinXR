@@ -291,6 +291,18 @@ Acceptance:
 - Local runtime adapters report "not configured" without failing app startup.
 - Benchmark CLI can run mock latency tests without model downloads.
 
+#### Capability Facade And Python/Executable Boundary
+
+TypeScript remains the primary application runtime, but the system should explicitly support Python and native executable workers for the asset generation pipeline in both non-production and production. This is separate from the interactive model/voice provider swap problem.
+
+Use `@openclinxr/capability-gateway` as the design contract for these capabilities:
+
+- Interactive runtime plane: model dialogue, scenario generation, speech recognition, and live voice synthesis route through `@openclinxr/model-gateway` and `@openclinxr/voice-gateway`. Local development can use deterministic mocks, local production can opt into local runtimes such as VibeVoice after benchmark/safety gates, and production can use approved provider adapters such as Grok voice without station runtime code changes.
+- Asset pipeline plane: character generation, prerecorded voice asset generation, medical equipment generation, animation generation, and asset baking may use Python, Blender, ffmpeg, and other native executables in local development, local production, and production. These jobs must be asynchronous, manifest-producing, license/provenance gated, resource-limited, and routed through the main API facade or an internal sidecar tunnel.
+- Persistence plane: local development may use `mongodb-memory-server`, local production may use a local MongoDB instance, and production may use Microsoft DocumentDB or another Mongo-compatible managed service behind repository contracts.
+
+Default external network posture should remain one main API endpoint. Python or executable workers can exist in production, but they should not become direct public endpoints unless a future security decision explicitly accepts that extra surface area. The preferred production shape is main API ingress, internal worker/service routing, and versioned output artifacts.
+
 ### Phase 9: Asset Registry And Pipeline
 
 Implement manifest validation and registry:

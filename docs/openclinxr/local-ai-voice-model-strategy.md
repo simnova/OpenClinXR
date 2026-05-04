@@ -88,6 +88,8 @@ Current intake: `docs/openclinxr/spikes/vibevoice-local-voice-spike.md` records 
 
 Local reasoning and voice should use the same provider boundary as cloud providers.
 
+This section covers live interactive model and voice swaps only. It is intentionally separate from the asset-generation pipeline, where Python and native executables may be valid in production for batch generation of characters, prerecorded voice assets, medical equipment, animations, textures, and optimized scene outputs behind `@openclinxr/capability-gateway`.
+
 ```ts
 export interface LocalModelRuntime {
   readonly runtimeId: "mock" | "mlx-lm" | "llama-cpp" | "ollama";
