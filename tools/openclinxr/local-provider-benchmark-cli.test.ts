@@ -13,13 +13,15 @@ describe("local provider benchmark CLI", () => {
     const envFile = path.join(dir, "local.env");
     await writeFile(
       envFile,
-      [
-        "OPENCLINXR_LOCAL_MODEL_RUNTIME=ollama",
-        "OPENCLINXR_LOCAL_MODEL_ID=qwen-local-smoke",
-        "OPENCLINXR_LOCAL_VOICE_RUNTIME=vibevoice",
-        "OPENCLINXR_LOCAL_VOICE_ID=vibevoice-local-smoke",
-        "",
-      ].join("\n"),
+        [
+          "OPENCLINXR_LOCAL_MODEL_RUNTIME=ollama",
+          "OPENCLINXR_LOCAL_MODEL_ID=Qwen/Qwen3-4B-GGUF",
+          "OPENCLINXR_LOCAL_MODEL_DOWNLOAD_APPROVED=true",
+          "OPENCLINXR_LOCAL_VOICE_RUNTIME=vibevoice",
+          "OPENCLINXR_LOCAL_VOICE_ID=microsoft/VibeVoice-Realtime-0.5B",
+          "OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED=true",
+          "",
+        ].join("\n"),
       "utf8",
     );
 
@@ -33,8 +35,10 @@ describe("local provider benchmark CLI", () => {
           ...process.env,
           OPENCLINXR_LOCAL_MODEL_RUNTIME: "",
           OPENCLINXR_LOCAL_MODEL_ID: "",
+          OPENCLINXR_LOCAL_MODEL_DOWNLOAD_APPROVED: "",
           OPENCLINXR_LOCAL_VOICE_RUNTIME: "",
           OPENCLINXR_LOCAL_VOICE_ID: "",
+          OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED: "",
         },
       },
     );
@@ -46,8 +50,12 @@ describe("local provider benchmark CLI", () => {
 
     expect(report.policy.localRuntimeExecutionAllowed).toBe(false);
     expect(report.localModel.metrics.configuredRuntime).toBe("ollama");
-    expect(report.localModel.metrics.configuredModel).toBe("qwen-local-smoke");
+    expect(report.localModel.metrics.configuredModel).toBe("Qwen/Qwen3-4B-GGUF");
+    expect(report.localModel.metrics.sourceRecordIds).toBe("src-qwen3-4b-gguf-2026");
+    expect(report.localModel.metrics.downloadApproved).toBe(true);
     expect(report.localVoice.metrics.configuredRuntime).toBe("vibevoice");
-    expect(report.localVoice.metrics.configuredVoice).toBe("vibevoice-local-smoke");
+    expect(report.localVoice.metrics.configuredVoice).toBe("microsoft/VibeVoice-Realtime-0.5B");
+    expect(report.localVoice.metrics.sourceRecordIds).toBe("src-vibevoice-github-2026");
+    expect(report.localVoice.metrics.safetyReviewApproved).toBe(true);
   });
 });

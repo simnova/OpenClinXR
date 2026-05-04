@@ -47,11 +47,29 @@ const localVoiceCommandSet = new Set<string>(localVoiceCommands);
 const localProviderEnvKeys = [
   "OPENCLINXR_LOCAL_MODEL_RUNTIME",
   "OPENCLINXR_LOCAL_MODEL_ID",
+  "OPENCLINXR_LOCAL_MODEL_DOWNLOAD_APPROVED",
   "OPENCLINXR_LOCAL_VOICE_RUNTIME",
   "OPENCLINXR_LOCAL_VOICE_ID",
+  "OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED",
 ] as const;
 type LocalProviderEnvKey = (typeof localProviderEnvKeys)[number];
 const localProviderEnvKeySet = new Set<string>(localProviderEnvKeys);
+const localModelCandidates = [
+  {
+    id: "Qwen/Qwen3-4B-GGUF",
+    sourceRecordIds: ["src-qwen3-4b-gguf-2026"],
+  },
+  {
+    id: "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+    sourceRecordIds: ["src-deepseek-r1-distill-qwen-2025"],
+  },
+] as const;
+const localVoiceCandidates = [
+  {
+    id: "microsoft/VibeVoice-Realtime-0.5B",
+    sourceRecordIds: ["src-vibevoice-github-2026"],
+  },
+] as const;
 
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
@@ -246,10 +264,14 @@ function inspectLocalModelBenchmarkReadiness(availableCommands: readonly string[
   const availableModelCommands = availableCommands.filter((command) => localModelCommandSet.has(command));
   const configuredRuntime = env.OPENCLINXR_LOCAL_MODEL_RUNTIME ?? "";
   const configuredModel = env.OPENCLINXR_LOCAL_MODEL_ID ?? "";
+  const candidate = localModelCandidates.find((modelCandidate) => modelCandidate.id === configuredModel);
+  const downloadApproved = env.OPENCLINXR_LOCAL_MODEL_DOWNLOAD_APPROVED === "true";
   const blockers = [
     availableModelCommands.length > 0 ? undefined : "no_ollama_llama_cpp_or_mlx_runtime_detected",
     configuredRuntime ? undefined : "OPENCLINXR_LOCAL_MODEL_RUNTIME_not_set",
     configuredModel ? undefined : "OPENCLINXR_LOCAL_MODEL_ID_not_set",
+    configuredModel && !candidate ? "local_model_source_record_not_found" : undefined,
+    configuredModel && !downloadApproved ? "OPENCLINXR_LOCAL_MODEL_DOWNLOAD_APPROVED_not_true" : undefined,
   ].filter((blocker): blocker is string => typeof blocker === "string");
 
   return {
@@ -260,6 +282,8 @@ function inspectLocalModelBenchmarkReadiness(availableCommands: readonly string[
       availableRuntimeCommands: availableModelCommands.join(",") || null,
       configuredRuntime: configuredRuntime || null,
       configuredModel: configuredModel || null,
+      sourceRecordIds: candidate?.sourceRecordIds.join(",") ?? null,
+      downloadApproved,
       executionAttempted: false,
     },
   };
@@ -269,10 +293,14 @@ function inspectLocalVoiceBenchmarkReadiness(availableCommands: readonly string[
   const availableVoiceCommands = availableCommands.filter((command) => localVoiceCommandSet.has(command));
   const configuredRuntime = env.OPENCLINXR_LOCAL_VOICE_RUNTIME ?? "";
   const configuredVoice = env.OPENCLINXR_LOCAL_VOICE_ID ?? "";
+  const candidate = localVoiceCandidates.find((voiceCandidate) => voiceCandidate.id === configuredVoice);
+  const safetyReviewApproved = env.OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED === "true";
   const blockers = [
     availableVoiceCommands.length > 0 ? undefined : "no_vibevoice_runtime_detected",
     configuredRuntime ? undefined : "OPENCLINXR_LOCAL_VOICE_RUNTIME_not_set",
     configuredVoice ? undefined : "OPENCLINXR_LOCAL_VOICE_ID_not_set",
+    configuredVoice && !candidate ? "local_voice_source_record_not_found" : undefined,
+    configuredVoice && !safetyReviewApproved ? "OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED_not_true" : undefined,
   ].filter((blocker): blocker is string => typeof blocker === "string");
 
   return {
@@ -283,6 +311,8 @@ function inspectLocalVoiceBenchmarkReadiness(availableCommands: readonly string[
       availableRuntimeCommands: availableVoiceCommands.join(",") || null,
       configuredRuntime: configuredRuntime || null,
       configuredVoice: configuredVoice || null,
+      sourceRecordIds: candidate?.sourceRecordIds.join(",") ?? null,
+      safetyReviewApproved,
       executionAttempted: false,
     },
   };

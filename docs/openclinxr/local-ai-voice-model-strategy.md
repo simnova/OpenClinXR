@@ -134,7 +134,9 @@ First executable status:
 - Deterministic mock model benchmark passed with zero cost.
 - Deterministic mock voice benchmark passed with transcript and audio-chunk evidence.
 - Local model benchmark remains `not_configured` because `llama.cpp` is installed but `OPENCLINXR_LOCAL_MODEL_RUNTIME` / `OPENCLINXR_LOCAL_MODEL_ID` are unset and no model weights have been selected, downloaded, licensed, or benchmarked.
+- Local model candidate intake now accepts only source-backed first candidates: `Qwen/Qwen3-4B-GGUF` (`src-qwen3-4b-gguf-2026`) and `deepseek-ai/DeepSeek-R1-Distill-Qwen-7B` (`src-deepseek-r1-distill-qwen-2025`). Even those remain blocked until `OPENCLINXR_LOCAL_MODEL_DOWNLOAD_APPROVED=true`.
 - Local voice benchmark remains `not_configured` because no VibeVoice runtime is detected, `OPENCLINXR_LOCAL_VOICE_RUNTIME` / `OPENCLINXR_LOCAL_VOICE_ID` are unset, and the VibeVoice intake keeps runtime installation blocked until operator-approved safety/license review.
+- Local voice candidate intake now accepts only `microsoft/VibeVoice-Realtime-0.5B` (`src-vibevoice-github-2026`) and keeps it blocked until `OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED=true`.
 - The script explicitly records `cloudCallsAllowed: false`, `modelDownloadsAllowed: false`, and `localRuntimeExecutionAllowed: false`.
 
 Metrics:

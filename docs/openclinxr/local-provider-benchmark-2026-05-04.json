@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T05:20:29.102Z",
+  "generatedAt": "2026-05-04T06:23:37.087Z",
   "policy": {
     "cloudCallsAllowed": false,
     "modelDownloadsAllowed": false,
@@ -7,7 +7,7 @@
   },
   "mockModel": {
     "status": "passed",
-    "latencyMs": 0.03,
+    "latencyMs": 0.01,
     "blockers": [],
     "metrics": {
       "promptTokens": 22,
@@ -19,7 +19,7 @@
   },
   "mockVoice": {
     "status": "passed",
-    "latencyMs": 0.01,
+    "latencyMs": 0,
     "blockers": [],
     "metrics": {
       "transcriptEvents": 2,
@@ -40,6 +40,8 @@
       "availableRuntimeCommands": "llama-cli,llama-server",
       "configuredRuntime": null,
       "configuredModel": null,
+      "sourceRecordIds": null,
+      "downloadApproved": false,
       "executionAttempted": false
     }
   },
@@ -55,6 +57,8 @@
       "availableRuntimeCommands": null,
       "configuredRuntime": null,
       "configuredVoice": null,
+      "sourceRecordIds": null,
+      "safetyReviewApproved": false,
       "executionAttempted": false
     }
   },

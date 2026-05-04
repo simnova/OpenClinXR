@@ -12,9 +12,11 @@ describe("local provider benchmark report", () => {
       availableCommands: ["ollama", "vibevoice"],
       env: {
         OPENCLINXR_LOCAL_MODEL_RUNTIME: "ollama",
-        OPENCLINXR_LOCAL_MODEL_ID: "qwen-local-smoke",
+        OPENCLINXR_LOCAL_MODEL_ID: "Qwen/Qwen3-4B-GGUF",
+        OPENCLINXR_LOCAL_MODEL_DOWNLOAD_APPROVED: "true",
         OPENCLINXR_LOCAL_VOICE_RUNTIME: "vibevoice",
-        OPENCLINXR_LOCAL_VOICE_ID: "vibevoice-local-smoke",
+        OPENCLINXR_LOCAL_VOICE_ID: "microsoft/VibeVoice-Realtime-0.5B",
+        OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED: "true",
       },
       mockModel: passedBenchmark("model"),
       mockVoice: passedBenchmark("voice"),
@@ -26,7 +28,9 @@ describe("local provider benchmark report", () => {
       metrics: {
         availableRuntimeCommands: "ollama",
         configuredRuntime: "ollama",
-        configuredModel: "qwen-local-smoke",
+        configuredModel: "Qwen/Qwen3-4B-GGUF",
+        sourceRecordIds: "src-qwen3-4b-gguf-2026",
+        downloadApproved: true,
         executionAttempted: false,
       },
     });
@@ -36,7 +40,9 @@ describe("local provider benchmark report", () => {
       metrics: {
         availableRuntimeCommands: "vibevoice",
         configuredRuntime: "vibevoice",
-        configuredVoice: "vibevoice-local-smoke",
+        configuredVoice: "microsoft/VibeVoice-Realtime-0.5B",
+        sourceRecordIds: "src-vibevoice-github-2026",
+        safetyReviewApproved: true,
         executionAttempted: false,
       },
     });
@@ -77,6 +83,36 @@ describe("local provider benchmark report", () => {
       "local_voice:OPENCLINXR_LOCAL_VOICE_ID_not_set",
     ]);
   });
+
+  it("blocks local model and voice candidates without source records or operator approvals", () => {
+    const report = buildLocalProviderBenchmarkReport({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      availableCommands: ["llama-cli", "vibevoice"],
+      env: {
+        OPENCLINXR_LOCAL_MODEL_RUNTIME: "llama-cli",
+        OPENCLINXR_LOCAL_MODEL_ID: "unknown/model-without-source-record",
+        OPENCLINXR_LOCAL_VOICE_RUNTIME: "vibevoice",
+        OPENCLINXR_LOCAL_VOICE_ID: "unknown/voice-without-source-record",
+      },
+      mockModel: passedBenchmark("model"),
+      mockVoice: passedBenchmark("voice"),
+    });
+
+    expect(report.localModel.blockers).toEqual([
+      "local_model_source_record_not_found",
+      "OPENCLINXR_LOCAL_MODEL_DOWNLOAD_APPROVED_not_true",
+    ]);
+    expect(report.localVoice.blockers).toEqual([
+      "local_voice_source_record_not_found",
+      "OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED_not_true",
+    ]);
+    expect(report.verdict.blockers).toEqual([
+      "local_model:local_model_source_record_not_found",
+      "local_model:OPENCLINXR_LOCAL_MODEL_DOWNLOAD_APPROVED_not_true",
+      "local_voice:local_voice_source_record_not_found",
+      "local_voice:OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED_not_true",
+    ]);
+  });
 });
 
 describe("local provider env parsing", () => {
@@ -85,18 +121,22 @@ describe("local provider env parsing", () => {
       parseLocalProviderEnvFileContent(
         [
           "OPENCLINXR_LOCAL_MODEL_RUNTIME=ollama",
-          "export OPENCLINXR_LOCAL_MODEL_ID='qwen-local-smoke'",
+          "export OPENCLINXR_LOCAL_MODEL_ID='Qwen/Qwen3-4B-GGUF'",
+          "OPENCLINXR_LOCAL_MODEL_DOWNLOAD_APPROVED=true",
           'OPENCLINXR_LOCAL_VOICE_RUNTIME="vibevoice"',
-          "OPENCLINXR_LOCAL_VOICE_ID=vibevoice-local-smoke",
+          "OPENCLINXR_LOCAL_VOICE_ID=microsoft/VibeVoice-Realtime-0.5B",
+          "OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED=true",
           "GROK_API_KEY=must-not-load",
           "",
         ].join("\n"),
       ),
     ).toEqual({
       OPENCLINXR_LOCAL_MODEL_RUNTIME: "ollama",
-      OPENCLINXR_LOCAL_MODEL_ID: "qwen-local-smoke",
+      OPENCLINXR_LOCAL_MODEL_ID: "Qwen/Qwen3-4B-GGUF",
+      OPENCLINXR_LOCAL_MODEL_DOWNLOAD_APPROVED: "true",
       OPENCLINXR_LOCAL_VOICE_RUNTIME: "vibevoice",
-      OPENCLINXR_LOCAL_VOICE_ID: "vibevoice-local-smoke",
+      OPENCLINXR_LOCAL_VOICE_ID: "microsoft/VibeVoice-Realtime-0.5B",
+      OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED: "true",
     });
   });
 });
