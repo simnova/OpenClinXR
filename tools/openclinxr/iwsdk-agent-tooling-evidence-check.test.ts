@@ -8,6 +8,7 @@ import {
   buildIwsdkAgentToolingEvidenceReport,
   type IwsdkAgentToolingEvidenceReport,
 } from "./iwsdk-agent-tooling-evidence-check.js";
+import { buildIwsdkMcpToolInventory } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -103,6 +104,7 @@ function readyEvidence(): IwsdkAgentToolingEvidenceReport["evidence"] {
       "xr_select",
       "browser_get_console_logs",
     ],
+    observedToolNames: buildIwsdkMcpToolInventory().allToolNames,
     managedBrowserEvidence: {
       mode: "agent",
       runtimeUrl: "http://127.0.0.1:5181",

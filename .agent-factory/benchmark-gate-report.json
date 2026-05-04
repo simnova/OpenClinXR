@@ -172,7 +172,7 @@
   },
   "iwsdk_evidence_contract": {
     "file": "docs/openclinxr/iwsdk-evidence-contract-2026-05-04.json",
-    "generated_at": "2026-05-04T08:14:24.485Z",
+    "generated_at": "2026-05-04T08:26:26.255Z",
     "status": "contract_only",
     "ready_for_install_backed_sidecar": false,
     "ready_for_agent_tooling": false,
@@ -195,6 +195,7 @@
       "agent_tooling:mcp_smoke_tool_not_validated_xr_get_session_status",
       "agent_tooling:mcp_smoke_tool_not_validated_xr_select",
       "agent_tooling:mcp_tool_inventory_count_not_32",
+      "agent_tooling:mcp_tool_names_not_recorded",
       "agent_tooling:missing_managed_browser_evidence",
       "production_runtime:missing_app_js_bundle_kb",
       "production_runtime:missing_avg_fps",

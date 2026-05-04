@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T08:14:24.485Z",
+  "generatedAt": "2026-05-04T08:26:26.255Z",
   "status": "contract_only",
   "sidecar": {
     "sidecarAppRoot": "apps/ui-xr-iwsdk-spike/",
@@ -81,6 +81,7 @@
       "mcp_smoke_tool_not_validated_xr_get_session_status",
       "mcp_smoke_tool_not_validated_xr_select",
       "mcp_tool_inventory_count_not_32",
+      "mcp_tool_names_not_recorded",
       "missing_managed_browser_evidence"
     ]
   },
@@ -121,6 +122,7 @@
       "agent_tooling:mcp_smoke_tool_not_validated_xr_get_session_status",
       "agent_tooling:mcp_smoke_tool_not_validated_xr_select",
       "agent_tooling:mcp_tool_inventory_count_not_32",
+      "agent_tooling:mcp_tool_names_not_recorded",
       "agent_tooling:missing_managed_browser_evidence",
       "production_runtime:missing_app_js_bundle_kb",
       "production_runtime:missing_avg_fps",

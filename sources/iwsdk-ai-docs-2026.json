@@ -11,6 +11,8 @@
   "claims_supported": [
     "As accessed on 2026-05-04, the documentation showed IWSDK documentation version v0.3.1.",
     "The documentation says IWSDK exposes 32 MCP tools for AI-assisted WebXR development, including screenshots, controller input, scene inspection, and ECS debugging.",
+    "The MCP Tools Reference lists the 32 runtime tools across nine categories: session, transform control, input mode, select/trigger, gamepad, device state, browser, scene inspection, and ECS debugging.",
+    "The listed MCP tool names include xr_get_session_status, xr_accept_session, xr_end_session, xr_get_transform, xr_set_transform, xr_look_at, xr_animate_to, xr_set_input_mode, xr_set_connected, xr_get_select_value, xr_set_select_value, xr_select, xr_get_gamepad_state, xr_set_gamepad_state, xr_get_device_state, xr_set_device_state, browser_screenshot, browser_get_console_logs, browser_reload_page, scene_get_hierarchy, scene_get_object_transform, ecs_pause, ecs_resume, ecs_step, ecs_query_entity, ecs_find_entities, ecs_list_systems, ecs_list_components, ecs_toggle_system, ecs_set_component, ecs_snapshot, and ecs_diff.",
     "The documentation describes a managed Playwright browser, an iwsdk mcp stdio server, and Vite development integration coordinated by iwsdk dev up.",
     "The documentation says iwsdk adapter sync writes workspace-based MCP config files so AI tools can discover the runtime MCP server.",
     "The documentation describes three development modes: Agent, Oversight, and Collaborate.",

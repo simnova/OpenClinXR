@@ -47,13 +47,13 @@ Interpretation: IWSDK dev tooling appears technically viable enough for a commit
 
 `packages/openclinxr/iwsdk-spike` now exposes `buildIwsdkSpikeMetricThresholds()` and `evaluateIwsdkSpikeMetrics()` so a committed sidecar spike can be scored with stable pass/fail bars instead of prose-only judgment.
 
-The same planning package now exposes `buildIwsdkAiModeProfiles()` and `buildIwsdkMcpToolCoverage()` so agent runs can pick an explicit verification posture:
+The same planning package now exposes `buildIwsdkAiModeProfiles()`, `buildIwsdkMcpToolCoverage()`, and `buildIwsdkMcpToolInventory()` so agent runs can pick an explicit verification posture and compare captured MCP runtime output against the exact source-backed tool list:
 
-`buildIwsdkMcpToolInventoryRequirement()` preserves the source-backed claim that IWSDK exposes 32 MCP tools across nine categories. OpenClinXR should not claim IWSDK agent-tooling readiness until a sidecar run records the 32-tool inventory, shows coverage for session, transforms, input mode, select/trigger, gamepad, device state, browser, scene, and ECS categories, and validates the minimal smoke subset.
+`buildIwsdkMcpToolInventoryRequirement()` preserves the source-backed claim that IWSDK exposes 32 MCP tools across nine categories. OpenClinXR should not claim IWSDK agent-tooling readiness until a sidecar run records the 32-tool inventory, records the observed tool names, shows coverage for session, transforms, input mode, select/trigger, gamepad, device state, browser, scene, and ECS categories, and validates the minimal smoke subset.
 
 `buildIwsdkManagedBrowserEvidenceContract()` and `evaluateIwsdkManagedBrowserEvidence()` now make browser-mode evidence executable. Agent mode must prove the managed Playwright browser is ready and separate from the normal browser session, with fixed screenshot dimensions and the expected DevUI posture. Oversight and collaborate modes must prove the visible Playwright session is the browser under evaluation and that a normal browser was not automatically opened.
 
-`evaluateIwsdkAgentToolingEvidence()` is the aggregate readiness check for the future sidecar MCP lane. It blocks readiness if adapter sync is missing, the tool inventory is not 32, required MCP categories or minimal smoke tools are absent, managed-browser evidence fails, or optional `iwsdk-reference`/`hzdb` actions appear in the run.
+`evaluateIwsdkAgentToolingEvidence()` is the aggregate readiness check for the future sidecar MCP lane. It blocks readiness if adapter sync is missing, the tool inventory is not 32, observed tool names are absent or drift from the expected inventory, required MCP categories or minimal smoke tools are absent, managed-browser evidence fails, or optional `iwsdk-reference`/`hzdb` actions appear in the run.
 
 `pnpm iwsdk:agent-tooling:evidence -- --input path/to/evidence.json --output docs/openclinxr/iwsdk-agent-tooling-evidence-YYYY-MM-DD.json` scores that aggregate evidence from a captured JSON file without installing IWSDK or changing MCP config.
 
@@ -84,6 +84,20 @@ IWSDK MCP evidence should be categorized rather than treated as one generic pass
 | Gamepad | `xr_get_gamepad_state`, `xr_set_gamepad_state` | Thumbstick/button regression evidence for high-pressure station controls. |
 | Device state | `xr_get_device_state`, `xr_set_device_state` | Whole-device reset and headset/controller state snapshots for deterministic smoke setup. |
 | ECS | `ecs_pause`, `ecs_step`, `ecs_query_entity` | Deterministic inspection of runtime entity state during scenario transitions. |
+
+Exact MCP tool inventory expected from the future sidecar runtime:
+
+| MCP category | Expected tool names |
+| --- | --- |
+| Session | `xr_get_session_status`, `xr_accept_session`, `xr_end_session` |
+| Transforms | `xr_get_transform`, `xr_set_transform`, `xr_look_at`, `xr_animate_to` |
+| Input mode | `xr_set_input_mode`, `xr_set_connected` |
+| Select/trigger | `xr_get_select_value`, `xr_set_select_value`, `xr_select` |
+| Gamepad | `xr_get_gamepad_state`, `xr_set_gamepad_state` |
+| Device state | `xr_get_device_state`, `xr_set_device_state` |
+| Browser | `browser_screenshot`, `browser_get_console_logs`, `browser_reload_page` |
+| Scene | `scene_get_hierarchy`, `scene_get_object_transform` |
+| ECS | `ecs_pause`, `ecs_resume`, `ecs_step`, `ecs_query_entity`, `ecs_find_entities`, `ecs_list_systems`, `ecs_list_components`, `ecs_toggle_system`, `ecs_set_component`, `ecs_snapshot`, `ecs_diff` |
 
 Optional MCP servers remain separately controlled:
 

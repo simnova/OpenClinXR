@@ -97,9 +97,55 @@ export type IwsdkMcpToolCoverage = {
   evidenceUse: string;
 };
 
+export type IwsdkMcpToolName =
+  | "xr_get_session_status"
+  | "xr_accept_session"
+  | "xr_end_session"
+  | "xr_get_transform"
+  | "xr_set_transform"
+  | "xr_look_at"
+  | "xr_animate_to"
+  | "xr_set_input_mode"
+  | "xr_set_connected"
+  | "xr_get_select_value"
+  | "xr_set_select_value"
+  | "xr_select"
+  | "xr_get_gamepad_state"
+  | "xr_set_gamepad_state"
+  | "xr_get_device_state"
+  | "xr_set_device_state"
+  | "browser_screenshot"
+  | "browser_get_console_logs"
+  | "browser_reload_page"
+  | "scene_get_hierarchy"
+  | "scene_get_object_transform"
+  | "ecs_pause"
+  | "ecs_resume"
+  | "ecs_step"
+  | "ecs_query_entity"
+  | "ecs_find_entities"
+  | "ecs_list_systems"
+  | "ecs_list_components"
+  | "ecs_toggle_system"
+  | "ecs_set_component"
+  | "ecs_snapshot"
+  | "ecs_diff";
+
+export type IwsdkMcpToolInventoryCategory = {
+  category: IwsdkMcpToolCategory;
+  tools: IwsdkMcpToolName[];
+};
+
+export type IwsdkMcpToolInventory = {
+  sourceRecordIds: string[];
+  categories: IwsdkMcpToolInventoryCategory[];
+  allToolNames: IwsdkMcpToolName[];
+};
+
 export type IwsdkMcpToolInventoryRequirement = {
   expectedToolCount: 32;
   sourceRecordIds: string[];
+  expectedToolNames: IwsdkMcpToolName[];
   requiredCategories: IwsdkMcpToolCategory[];
   minimalSmokeSubset: string[];
   readinessBlockersWhenMissing: string[];
@@ -141,6 +187,7 @@ export type IwsdkAgentToolingEvidence = {
   toolCount?: number;
   coveredCategories: IwsdkMcpToolCategory[];
   validatedSmokeTools: string[];
+  observedToolNames?: string[];
   managedBrowserEvidence?: IwsdkManagedBrowserEvidence;
   optionalServerActions?: string[];
 };
@@ -675,10 +722,70 @@ export function buildIwsdkMcpToolCoverage(): IwsdkMcpToolCoverage[] {
   ];
 }
 
+export function buildIwsdkMcpToolInventory(): IwsdkMcpToolInventory {
+  const categories: IwsdkMcpToolInventoryCategory[] = [
+    {
+      category: "session",
+      tools: ["xr_get_session_status", "xr_accept_session", "xr_end_session"],
+    },
+    {
+      category: "transforms",
+      tools: ["xr_get_transform", "xr_set_transform", "xr_look_at", "xr_animate_to"],
+    },
+    {
+      category: "input_mode",
+      tools: ["xr_set_input_mode", "xr_set_connected"],
+    },
+    {
+      category: "select_trigger",
+      tools: ["xr_get_select_value", "xr_set_select_value", "xr_select"],
+    },
+    {
+      category: "gamepad",
+      tools: ["xr_get_gamepad_state", "xr_set_gamepad_state"],
+    },
+    {
+      category: "device_state",
+      tools: ["xr_get_device_state", "xr_set_device_state"],
+    },
+    {
+      category: "browser",
+      tools: ["browser_screenshot", "browser_get_console_logs", "browser_reload_page"],
+    },
+    {
+      category: "scene",
+      tools: ["scene_get_hierarchy", "scene_get_object_transform"],
+    },
+    {
+      category: "ecs",
+      tools: [
+        "ecs_pause",
+        "ecs_resume",
+        "ecs_step",
+        "ecs_query_entity",
+        "ecs_find_entities",
+        "ecs_list_systems",
+        "ecs_list_components",
+        "ecs_toggle_system",
+        "ecs_set_component",
+        "ecs_snapshot",
+        "ecs_diff",
+      ],
+    },
+  ];
+
+  return {
+    sourceRecordIds: ["src-iwsdk-ai-docs-2026"],
+    categories,
+    allToolNames: categories.flatMap((category) => category.tools),
+  };
+}
+
 export function buildIwsdkMcpToolInventoryRequirement(): IwsdkMcpToolInventoryRequirement {
   return {
     expectedToolCount: 32,
     sourceRecordIds: ["src-iwsdk-ai-docs-2026"],
+    expectedToolNames: buildIwsdkMcpToolInventory().allToolNames,
     requiredCategories: [
       "session",
       "transforms",
@@ -700,6 +807,9 @@ export function buildIwsdkMcpToolInventoryRequirement(): IwsdkMcpToolInventoryRe
     ],
     readinessBlockersWhenMissing: [
       "mcp_tool_inventory_count_not_recorded",
+      "mcp_tool_names_not_recorded",
+      "mcp_expected_tool_missing",
+      "mcp_unknown_tool_present",
       "mcp_required_category_missing",
       "mcp_smoke_subset_not_validated",
     ],
@@ -804,6 +914,23 @@ export function evaluateIwsdkAgentToolingEvidence(
   }
   if (evidence.toolCount !== inventoryRequirement.expectedToolCount) {
     blockers.push("mcp_tool_inventory_count_not_32");
+  }
+
+  const expectedToolNames = buildIwsdkMcpToolInventory().allToolNames;
+  if (!evidence.observedToolNames?.length) {
+    blockers.push("mcp_tool_names_not_recorded");
+  } else {
+    for (const expectedToolName of expectedToolNames) {
+      if (!evidence.observedToolNames.includes(expectedToolName)) {
+        blockers.push(`mcp_tool_missing_${expectedToolName}`);
+      }
+    }
+
+    for (const observedToolName of evidence.observedToolNames) {
+      if (!expectedToolNames.includes(observedToolName as IwsdkMcpToolName)) {
+        blockers.push(`mcp_tool_unknown_${observedToolName}`);
+      }
+    }
   }
 
   for (const category of inventoryRequirement.requiredCategories) {

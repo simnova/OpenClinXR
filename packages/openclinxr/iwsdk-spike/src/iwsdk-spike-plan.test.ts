@@ -5,6 +5,7 @@ import {
   buildIwsdkCodexMcpAdapterTemplate,
   buildIwsdkCommittedSpikeSequence,
   buildIwsdkManagedBrowserEvidenceContract,
+  buildIwsdkMcpToolInventory,
   buildIwsdkMcpToolInventoryRequirement,
   buildIwsdkMcpToolCoverage,
   buildIwsdkOptionalMcpServerPolicy,
@@ -201,10 +202,69 @@ describe("IWSDK spike plan", () => {
     ]);
   });
 
+  it("records the exact IWSDK MCP tool inventory by category", () => {
+    const inventory = buildIwsdkMcpToolInventory();
+
+    expect(inventory.sourceRecordIds).toEqual(["src-iwsdk-ai-docs-2026"]);
+    expect(inventory.categories).toEqual([
+      {
+        category: "session",
+        tools: ["xr_get_session_status", "xr_accept_session", "xr_end_session"],
+      },
+      {
+        category: "transforms",
+        tools: ["xr_get_transform", "xr_set_transform", "xr_look_at", "xr_animate_to"],
+      },
+      {
+        category: "input_mode",
+        tools: ["xr_set_input_mode", "xr_set_connected"],
+      },
+      {
+        category: "select_trigger",
+        tools: ["xr_get_select_value", "xr_set_select_value", "xr_select"],
+      },
+      {
+        category: "gamepad",
+        tools: ["xr_get_gamepad_state", "xr_set_gamepad_state"],
+      },
+      {
+        category: "device_state",
+        tools: ["xr_get_device_state", "xr_set_device_state"],
+      },
+      {
+        category: "browser",
+        tools: ["browser_screenshot", "browser_get_console_logs", "browser_reload_page"],
+      },
+      {
+        category: "scene",
+        tools: ["scene_get_hierarchy", "scene_get_object_transform"],
+      },
+      {
+        category: "ecs",
+        tools: [
+          "ecs_pause",
+          "ecs_resume",
+          "ecs_step",
+          "ecs_query_entity",
+          "ecs_find_entities",
+          "ecs_list_systems",
+          "ecs_list_components",
+          "ecs_toggle_system",
+          "ecs_set_component",
+          "ecs_snapshot",
+          "ecs_diff",
+        ],
+      },
+    ]);
+    expect(inventory.allToolNames).toHaveLength(32);
+    expect(new Set(inventory.allToolNames).size).toBe(32);
+  });
+
   it("requires the IWSDK 32-tool MCP inventory before agent tooling readiness is claimed", () => {
     expect(buildIwsdkMcpToolInventoryRequirement()).toEqual({
       expectedToolCount: 32,
       sourceRecordIds: ["src-iwsdk-ai-docs-2026"],
+      expectedToolNames: buildIwsdkMcpToolInventory().allToolNames,
       requiredCategories: [
         "session",
         "transforms",
@@ -226,6 +286,9 @@ describe("IWSDK spike plan", () => {
       ],
       readinessBlockersWhenMissing: [
         "mcp_tool_inventory_count_not_recorded",
+        "mcp_tool_names_not_recorded",
+        "mcp_expected_tool_missing",
+        "mcp_unknown_tool_present",
         "mcp_required_category_missing",
         "mcp_smoke_subset_not_validated",
       ],
@@ -381,6 +444,7 @@ describe("IWSDK spike plan", () => {
         "mcp_required_category_missing_ecs",
         "mcp_smoke_tool_not_validated_browser_get_console_logs",
         "mcp_tool_inventory_count_not_32",
+        "mcp_tool_names_not_recorded",
       ],
     });
   });
@@ -408,6 +472,7 @@ describe("IWSDK spike plan", () => {
         "xr_select",
         "browser_get_console_logs",
       ],
+      observedToolNames: buildIwsdkMcpToolInventory().allToolNames,
       managedBrowserEvidence: {
         mode: "agent",
         runtimeUrl: "http://127.0.0.1:5181",
@@ -426,6 +491,54 @@ describe("IWSDK spike plan", () => {
       blockers: [
         "optional_mcp_server_action_blocked:install @meta-quest/hzdb",
         "optional_mcp_server_action_blocked:npx iwsdk reference warmup",
+      ],
+    });
+  });
+
+  it("requires captured IWSDK MCP tool names instead of trusting only the 32-tool count", () => {
+    const observedToolNames = buildIwsdkMcpToolInventory().allToolNames.filter((tool) => tool !== "ecs_diff");
+
+    expect(evaluateIwsdkAgentToolingEvidence({
+      adapterSyncRecorded: true,
+      toolCount: 32,
+      coveredCategories: [
+        "session",
+        "transforms",
+        "input_mode",
+        "select_trigger",
+        "gamepad",
+        "device_state",
+        "browser",
+        "scene",
+        "ecs",
+      ],
+      validatedSmokeTools: [
+        "xr_get_session_status",
+        "xr_accept_session",
+        "browser_screenshot",
+        "scene_get_hierarchy",
+        "xr_select",
+        "browser_get_console_logs",
+      ],
+      observedToolNames: [...observedToolNames, "xr_unexpected_future_tool"],
+      managedBrowserEvidence: {
+        mode: "agent",
+        runtimeUrl: "http://127.0.0.1:5181",
+        managedBrowserReady: true,
+        managedSessionId: "managed-session",
+        normalBrowserOpened: true,
+        normalSessionId: "normal-session",
+        screenshotWidth: 500,
+        screenshotHeight: 500,
+        managedDevUiVisible: false,
+        normalDevUiVisible: true,
+      },
+      optionalServerActions: [],
+    })).toEqual({
+      readyForAgentTooling: false,
+      blockers: [
+        "mcp_tool_missing_ecs_diff",
+        "mcp_tool_unknown_xr_unexpected_future_tool",
       ],
     });
   });
@@ -453,6 +566,7 @@ describe("IWSDK spike plan", () => {
         "xr_select",
         "browser_get_console_logs",
       ],
+      observedToolNames: buildIwsdkMcpToolInventory().allToolNames,
       managedBrowserEvidence: {
         mode: "agent",
         runtimeUrl: "http://127.0.0.1:5181",
