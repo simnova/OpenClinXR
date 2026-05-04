@@ -79,5 +79,12 @@ describe("scenario bank maturity", () => {
       ],
       missingRequiredActorRoles: [],
     });
+    expect(report.traceabilityCoverage).toEqual({
+      completeScenarioIds: scenarioBank.map((scenario) => scenario.scenarioId),
+      incompleteScenarioIds: [],
+      requiredTraceTagsCoveredByRubric: true,
+      eventTagsWithinRequiredTraceTags: true,
+      safetyCriticalTagsWithinRequiredTraceTags: true,
+    });
   });
 });

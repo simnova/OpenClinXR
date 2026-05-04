@@ -933,6 +933,13 @@ export type ScenarioBankMaturityReport = {
     requiredActorRoles: string[];
     missingRequiredActorRoles: string[];
   };
+  traceabilityCoverage: {
+    completeScenarioIds: string[];
+    incompleteScenarioIds: Array<{ scenarioId: string; blockers: string[] }>;
+    requiredTraceTagsCoveredByRubric: boolean;
+    eventTagsWithinRequiredTraceTags: boolean;
+    safetyCriticalTagsWithinRequiredTraceTags: boolean;
+  };
 };
 
 const targetStep2CsStyleStationCount = 12;
@@ -954,6 +961,9 @@ export function evaluateScenarioBankMaturity(scenarios: readonly Scenario[]): Sc
   const actorRoleCoverage = uniqueSorted(scenarios.flatMap((scenario) => scenario.actors.map((actor) => actor.role)));
   const incompleteScenarioIds = scenarios
     .map((scenario) => ({ scenarioId: scenario.scenarioId, blockers: scenarioFixtureCompletenessBlockers(scenario) }))
+    .filter((result) => result.blockers.length > 0);
+  const traceabilityGaps = scenarios
+    .map((scenario) => ({ scenarioId: scenario.scenarioId, blockers: scenarioTraceabilityBlockers(scenario) }))
     .filter((result) => result.blockers.length > 0);
 
   for (const scenario of scenarios) {
@@ -993,6 +1003,21 @@ export function evaluateScenarioBankMaturity(scenarios: readonly Scenario[]): Sc
       requiredActorRoles: [...requiredCaseBankActorRoles],
       missingRequiredActorRoles: requiredCaseBankActorRoles.filter((role) => !actorRoleCoverage.includes(role)),
     },
+    traceabilityCoverage: {
+      completeScenarioIds: scenarios
+        .filter((scenario) => !traceabilityGaps.some((result) => result.scenarioId === scenario.scenarioId))
+        .map((scenario) => scenario.scenarioId),
+      incompleteScenarioIds: traceabilityGaps,
+      requiredTraceTagsCoveredByRubric: traceabilityGaps.every((gap) =>
+        gap.blockers.every((blocker) => !blocker.startsWith("required_trace_tag_missing_from_rubric:"))
+      ),
+      eventTagsWithinRequiredTraceTags: traceabilityGaps.every((gap) =>
+        gap.blockers.every((blocker) => !blocker.startsWith("event_schedule_tag_not_required:"))
+      ),
+      safetyCriticalTagsWithinRequiredTraceTags: traceabilityGaps.every((gap) =>
+        gap.blockers.every((blocker) => !blocker.startsWith("safety_critical_tag_not_required:"))
+      ),
+    },
   };
 }
 
@@ -1027,6 +1052,25 @@ function scenarioFixtureCompletenessBlockers(scenario: Scenario): string[] {
   ];
 
   return blockers.filter((blocker): blocker is string => typeof blocker === "string");
+}
+
+function scenarioTraceabilityBlockers(scenario: Scenario): string[] {
+  const requiredTraceTags = new Set(scenario.requiredTraceTags);
+  const rubricTraceTags = new Set(scenario.reviewRubric.flatMap((rubricItem) => rubricItem.requiredTraceTags));
+  const eventTraceTags = new Set(scenario.eventSchedule.map((scheduledEvent) => scheduledEvent.tag));
+  const safetyCriticalTraceTags = new Set(scenario.governance.safetyCriticalTraceTags);
+
+  return [
+    ...[...requiredTraceTags]
+      .filter((tag) => !rubricTraceTags.has(tag))
+      .map((tag) => `required_trace_tag_missing_from_rubric:${tag}`),
+    ...[...eventTraceTags]
+      .filter((tag) => !requiredTraceTags.has(tag))
+      .map((tag) => `event_schedule_tag_not_required:${tag}`),
+    ...[...safetyCriticalTraceTags]
+      .filter((tag) => !requiredTraceTags.has(tag))
+      .map((tag) => `safety_critical_tag_not_required:${tag}`),
+  ].sort();
 }
 
 function countBy<T extends string>(knownValues: readonly T[], values: readonly T[]): Record<T, number> {
