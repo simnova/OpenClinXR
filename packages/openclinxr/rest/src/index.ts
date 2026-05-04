@@ -23,6 +23,7 @@ export const openClinXrRestRoutes = Object.freeze([
   route("admin-graphql-schema", "GET", "/admin/graphql/schema", "admin-graphql"),
   route("admin-graphql-codegen-plan", "GET", "/admin/graphql/codegen-plan", "admin-graphql"),
   route("admin-graphql-documents", "GET", "/admin/graphql/documents", "admin-graphql"),
+  route("admin-graphql-execute", "POST", "/admin/graphql", "admin-graphql"),
   route("learner-scenario", "GET", "/scenarios/ed-chest-pain", "control-plane"),
   route("scenario-bank-asset-readiness", "GET", "/scenario-bank/assets/readiness", "control-plane"),
   route("scenario-asset-readiness", "GET", "/scenarios/ed-chest-pain/assets/readiness", "control-plane"),

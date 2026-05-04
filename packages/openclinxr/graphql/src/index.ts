@@ -1,4 +1,4 @@
-import { buildSchema, type GraphQLSchema } from "graphql";
+import { buildSchema, graphql, type ExecutionResult, type GraphQLSchema } from "graphql";
 export { adminGraphqlDocuments, type AdminGraphqlDocument } from "./documents.js";
 export { openClinXrAdminSchemaSdl } from "./schema.js";
 import { openClinXrAdminSchemaSdl } from "./schema.js";
@@ -13,8 +13,24 @@ export type GraphqlCodegenPlan = {
   }>;
 };
 
+export type AdminGraphqlExecutionInput = {
+  query: string;
+  variables?: Record<string, unknown>;
+  operationName?: string;
+};
+
 export function buildAdminGraphqlSchema(): GraphQLSchema {
   return buildSchema(openClinXrAdminSchemaSdl);
+}
+
+export function executeAdminGraphql(input: AdminGraphqlExecutionInput, rootValue: unknown): Promise<ExecutionResult> {
+  return graphql({
+    schema: buildAdminGraphqlSchema(),
+    source: input.query,
+    rootValue,
+    variableValues: input.variables,
+    operationName: input.operationName,
+  });
 }
 
 export function createGraphqlCodegenPlan(): GraphqlCodegenPlan {

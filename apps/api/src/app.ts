@@ -10,7 +10,7 @@ import {
   type ExamForm,
   type ExamStationRunQueue,
 } from "@openclinxr/exam-assembly";
-import { adminGraphqlDocuments, createGraphqlCodegenPlan, openClinXrAdminSchemaSdl } from "@openclinxr/graphql";
+import { adminGraphqlDocuments, createGraphqlCodegenPlan, executeAdminGraphql, openClinXrAdminSchemaSdl } from "@openclinxr/graphql";
 import { matchOpenClinXrRestRoute, routeById } from "@openclinxr/rest";
 import { createDefaultScenarioRuntime, type PublicationTargetUse, type ReviewerEvidence, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createLearnerScenarioView, edChestPainScenario, scenarioBank } from "@openclinxr/scenario-fixtures";
@@ -89,6 +89,29 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
 
   app.get(routeById("admin-graphql-documents").path, (context) => context.json(adminGraphqlDocuments));
 
+  app.post(routeById("admin-graphql-execute").path, async (context) => {
+    const body = (await context.req.json().catch(() => ({}))) as {
+      query?: unknown;
+      variables?: unknown;
+      operationName?: unknown;
+    };
+
+    if (typeof body.query !== "string" || body.query.length === 0) {
+      return context.json({ errors: [{ message: "query_required" }] }, 400);
+    }
+
+    const result = await executeAdminGraphql(
+      {
+        query: body.query,
+        ...(isRecord(body.variables) ? { variables: body.variables } : {}),
+        ...(typeof body.operationName === "string" ? { operationName: body.operationName } : {}),
+      },
+      createAdminGraphqlRoot(persistence),
+    );
+
+    return context.json(result);
+  });
+
   app.get(routeById("learner-scenario").path, (context) => context.json(createLearnerScenarioView(edChestPainScenario)));
 
   app.get(routeById("scenario-bank-asset-readiness").path, (context) => context.json(createSeedBankAssetReadiness()));
@@ -136,12 +159,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
       createdAt?: unknown;
       reviewerId?: unknown;
     };
-    const snapshot: ApiStationRunQueueSnapshot = {
-      snapshotId: typeof body.snapshotId === "string" && body.snapshotId.length > 0 ? body.snapshotId : `queue_snapshot_${Date.now()}`,
-      createdAt: typeof body.createdAt === "string" && body.createdAt.length > 0 ? body.createdAt : new Date().toISOString(),
-      ...(typeof body.reviewerId === "string" && body.reviewerId.length > 0 ? { reviewerId: body.reviewerId } : {}),
-      queue: createExamStationRunQueue(createStep2CsStyleSeedBlueprint(), scenarioBank),
-    };
+    const snapshot = createSeedStationRunQueueSnapshot(body);
 
     await persistence.saveStationRunQueueSnapshot?.(snapshot);
     return context.json(snapshot, 201);
@@ -299,6 +317,32 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   });
 
   return app;
+}
+
+function createAdminGraphqlRoot(persistence: ApiPersistenceSink): Record<string, unknown> {
+  return {
+    stationRunQueueSnapshots: async ({ blueprintId }: { blueprintId?: unknown }) => {
+      if (typeof blueprintId !== "string" || blueprintId.length === 0) {
+        return [];
+      }
+
+      return Promise.resolve(persistence.listStationRunQueueSnapshots?.(blueprintId) ?? []);
+    },
+    createStationRunQueueSnapshot: async ({ input }: { input?: Record<string, unknown> }) => {
+      const snapshot = createSeedStationRunQueueSnapshot(isRecord(input) ? input : {});
+      await persistence.saveStationRunQueueSnapshot?.(snapshot);
+      return snapshot;
+    },
+  };
+}
+
+function createSeedStationRunQueueSnapshot(input: { snapshotId?: unknown; createdAt?: unknown; reviewerId?: unknown }): ApiStationRunQueueSnapshot {
+  return {
+    snapshotId: typeof input.snapshotId === "string" && input.snapshotId.length > 0 ? input.snapshotId : `queue_snapshot_${Date.now()}`,
+    createdAt: typeof input.createdAt === "string" && input.createdAt.length > 0 ? input.createdAt : new Date().toISOString(),
+    ...(typeof input.reviewerId === "string" && input.reviewerId.length > 0 ? { reviewerId: input.reviewerId } : {}),
+    queue: createExamStationRunQueue(createStep2CsStyleSeedBlueprint(), scenarioBank),
+  };
 }
 
 async function recordApiRouteSpan(

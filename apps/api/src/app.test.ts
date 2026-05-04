@@ -95,6 +95,102 @@ describe("OpenClinXR API shell", () => {
     expect(JSON.stringify(documents)).not.toContain("hiddenFacts");
   });
 
+  it("executes admin GraphQL station run queue snapshot operations", async () => {
+    const savedQueueSnapshots: ApiStationRunQueueSnapshot[] = [];
+    const app = createApiApp(undefined, {
+      saveStationRunQueueSnapshot: async (snapshot) => {
+        savedQueueSnapshots.push(snapshot);
+      },
+      listStationRunQueueSnapshots: async (blueprintId) => savedQueueSnapshots.filter((snapshot) => snapshot.queue.blueprintId === blueprintId),
+    });
+
+    const createResponse = await app.request("/admin/graphql", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        query: `
+          mutation CreateStationRunQueueSnapshot($input: CreateStationRunQueueSnapshotInput!) {
+            createStationRunQueueSnapshot(input: $input) {
+              snapshotId
+              reviewerId
+              queue {
+                blueprintId
+                summary {
+                  activationReady
+                  draftBlocked
+                }
+              }
+            }
+          }
+        `,
+        variables: {
+          input: {
+            snapshotId: "queue_snapshot_graphql_001",
+            createdAt: "2026-05-03T19:00:00.000Z",
+            reviewerId: "admin_seed_reviewer",
+          },
+        },
+      }),
+    });
+
+    expect(createResponse.status).toBe(200);
+    await expect(json(createResponse)).resolves.toEqual({
+      data: {
+        createStationRunQueueSnapshot: {
+          snapshotId: "queue_snapshot_graphql_001",
+          reviewerId: "admin_seed_reviewer",
+          queue: {
+            blueprintId: "blueprint_openclinxr_step2cs_style_seed_v1",
+            summary: {
+              activationReady: 1,
+              draftBlocked: 11,
+            },
+          },
+        },
+      },
+    });
+
+    const listResponse = await app.request("/admin/graphql", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        query: `
+          query StationRunQueueSnapshots($blueprintId: ID!) {
+            stationRunQueueSnapshots(blueprintId: $blueprintId) {
+              snapshotId
+              reviewerId
+              queue {
+                summary {
+                  activationReady
+                  draftBlocked
+                }
+              }
+            }
+          }
+        `,
+        variables: { blueprintId: "blueprint_openclinxr_step2cs_style_seed_v1" },
+      }),
+    });
+
+    expect(listResponse.status).toBe(200);
+    await expect(json(listResponse)).resolves.toEqual({
+      data: {
+        stationRunQueueSnapshots: [
+          {
+            snapshotId: "queue_snapshot_graphql_001",
+            reviewerId: "admin_seed_reviewer",
+            queue: {
+              summary: {
+                activationReady: 1,
+                draftBlocked: 11,
+              },
+            },
+          },
+        ],
+      },
+    });
+  });
+
   it("serves ED chest pain asset readiness from the shared runtime", async () => {
     const app = createApiApp();
     const response = await app.request("/scenarios/ed-chest-pain/assets/readiness");
