@@ -42,9 +42,15 @@ describe("IWSDK sidecar metrics checker", () => {
     });
 
     expect(report.result).toEqual({
-      readyForCommittedSpike: true,
+      readyForCommittedSpike: false,
       readyForProductionRuntime: false,
       blockers: [
+        "missing_baseline_app_bundle_source",
+        "missing_smoke_plan_hash",
+        "canvas_nonblank_not_confirmed",
+        "missing_required_scene_object_names",
+        "missing_observed_scene_object_names",
+        "missing_controller_select_trace_tag",
         "missing_foreground_quest_preflight_ready",
         "missing_avg_fps",
         "missing_p95_frame_ms",
@@ -85,6 +91,21 @@ function readyMetrics(): IwsdkSidecarMetricsReport["metrics"] {
     injectedDevRuntimeKb: 1116.3,
     appJsBundleKb: 504.47,
     bundleDeltaVsUiXrKb: 24,
+    baselineAppBundleSource: "apps/ui-xr/dist/assets/index-BIObl4Qc.js",
+    smokePlanHash: "runtime-state:iwsdk-station-mcp-smoke-plan:v1",
+    canvasNonblank: true,
+    requiredSceneObjectNames: [
+      "openclinxr.ed-chest-pain.bed",
+      "openclinxr.ed-chest-pain.monitor",
+      "openclinxr.ed-chest-pain.patient-robert-hayes",
+    ],
+    observedSceneObjectNames: [
+      "openclinxr.ed-chest-pain.bed",
+      "openclinxr.ed-chest-pain.monitor",
+      "openclinxr.ed-chest-pain.patient-robert-hayes",
+    ],
+    controllerSelectTraceTag: "ecg_request",
+    observedTraceActionTags: ["ecg_request"],
     avgFps: 72,
     p95FrameMs: 24,
     controllerSelectLatencyMs: 140,

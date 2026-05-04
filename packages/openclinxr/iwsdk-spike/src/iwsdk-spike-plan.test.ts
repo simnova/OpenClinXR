@@ -1142,12 +1142,44 @@ describe("IWSDK spike plan", () => {
     });
   });
 
+  it("keeps sidecar spike readiness blocked when semantic parity evidence is missing", () => {
+    expect(evaluateIwsdkSpikeMetrics({
+      installedNodeModulesMb: 287,
+      injectedDevRuntimeKb: 1116.3,
+      appJsBundleKb: 504.47,
+      bundleDeltaVsUiXrKb: 24,
+      consoleErrorCount: 0,
+    })).toEqual({
+      readyForCommittedSpike: false,
+      readyForProductionRuntime: false,
+      blockers: [
+        "missing_baseline_app_bundle_source",
+        "missing_smoke_plan_hash",
+        "canvas_nonblank_not_confirmed",
+        "missing_required_scene_object_names",
+        "missing_observed_scene_object_names",
+        "missing_controller_select_trace_tag",
+        "missing_foreground_quest_preflight_ready",
+        "missing_avg_fps",
+        "missing_p95_frame_ms",
+        "missing_controller_select_latency_ms",
+      ],
+    });
+  });
+
   it("separates sidecar spike readiness from production readiness when Quest evidence is missing", () => {
     expect(evaluateIwsdkSpikeMetrics({
       installedNodeModulesMb: 287,
       injectedDevRuntimeKb: 1116.3,
       appJsBundleKb: 504.47,
       bundleDeltaVsUiXrKb: 24,
+      baselineAppBundleSource: "apps/ui-xr/dist/assets/index-BIObl4Qc.js",
+      smokePlanHash: "runtime-state:iwsdk-station-mcp-smoke-plan:v1",
+      canvasNonblank: true,
+      requiredSceneObjectNames: ["openclinxr.ed-chest-pain.bed", "openclinxr.ed-chest-pain.monitor"],
+      observedSceneObjectNames: ["openclinxr.ed-chest-pain.bed", "openclinxr.ed-chest-pain.monitor"],
+      controllerSelectTraceTag: "ecg_request",
+      observedTraceActionTags: ["ecg_request"],
       consoleErrorCount: 0,
     })).toEqual({
       readyForCommittedSpike: true,
@@ -1172,6 +1204,13 @@ describe("IWSDK spike plan", () => {
       controllerSelectLatencyMs: 220,
       consoleErrorCount: 1,
       foregroundQuestPreflightReady: false,
+      baselineAppBundleSource: "apps/ui-xr/dist/assets/index-BIObl4Qc.js",
+      smokePlanHash: "runtime-state:iwsdk-station-mcp-smoke-plan:v1",
+      canvasNonblank: true,
+      requiredSceneObjectNames: ["bed", "monitor"],
+      observedSceneObjectNames: ["bed"],
+      controllerSelectTraceTag: "ecg_request",
+      observedTraceActionTags: ["urgent_escalation"],
     })).toEqual({
       readyForCommittedSpike: false,
       readyForProductionRuntime: false,
@@ -1181,6 +1220,8 @@ describe("IWSDK spike plan", () => {
         "app_js_bundle_kb_over_budget",
         "bundle_delta_vs_ui_xr_kb_over_budget",
         "console_errors_present",
+        "missing_scene_object:monitor",
+        "controller_select_trace_tag_not_observed:ecg_request",
         "foreground_quest_preflight_not_ready",
         "avg_fps_below_floor",
         "p95_frame_ms_over_budget",

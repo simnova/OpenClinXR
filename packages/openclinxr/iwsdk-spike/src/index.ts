@@ -53,6 +53,13 @@ export type IwsdkSpikeMetrics = {
   injectedDevRuntimeKb?: number;
   appJsBundleKb?: number;
   bundleDeltaVsUiXrKb?: number;
+  baselineAppBundleSource?: string;
+  smokePlanHash?: string;
+  canvasNonblank?: boolean;
+  requiredSceneObjectNames?: string[];
+  observedSceneObjectNames?: string[];
+  controllerSelectTraceTag?: string;
+  observedTraceActionTags?: string[];
   avgFps?: number;
   p95FrameMs?: number;
   controllerSelectLatencyMs?: number;
@@ -564,6 +571,7 @@ export function evaluateIwsdkSpikeMetrics(
       "missing_console_error_count",
       "console_errors_present",
     ),
+    ...sidecarSemanticParityBlockers(metrics),
   ].filter((blocker): blocker is string => Boolean(blocker));
   const productionBlockers = [
     foregroundQuestPreflightBlocker(metrics.foregroundQuestPreflightReady),
@@ -582,6 +590,42 @@ export function evaluateIwsdkSpikeMetrics(
     readyForProductionRuntime: committedBlockers.length === 0 && productionBlockers.length === 0,
     blockers: [...committedBlockers, ...productionBlockers],
   };
+}
+
+function sidecarSemanticParityBlockers(metrics: IwsdkSpikeMetrics): string[] {
+  const blockers: string[] = [];
+
+  if (!metrics.baselineAppBundleSource) {
+    blockers.push("missing_baseline_app_bundle_source");
+  }
+  if (!metrics.smokePlanHash) {
+    blockers.push("missing_smoke_plan_hash");
+  }
+  if (metrics.canvasNonblank !== true) {
+    blockers.push("canvas_nonblank_not_confirmed");
+  }
+
+  const requiredSceneObjectNames = metrics.requiredSceneObjectNames ?? [];
+  const observedSceneObjectNames = new Set(metrics.observedSceneObjectNames ?? []);
+  if (requiredSceneObjectNames.length === 0) {
+    blockers.push("missing_required_scene_object_names");
+  }
+  if (!metrics.observedSceneObjectNames?.length) {
+    blockers.push("missing_observed_scene_object_names");
+  }
+  for (const objectName of requiredSceneObjectNames) {
+    if (!observedSceneObjectNames.has(objectName)) {
+      blockers.push(`missing_scene_object:${objectName}`);
+    }
+  }
+
+  if (!metrics.controllerSelectTraceTag) {
+    blockers.push("missing_controller_select_trace_tag");
+  } else if (!metrics.observedTraceActionTags?.includes(metrics.controllerSelectTraceTag)) {
+    blockers.push(`controller_select_trace_tag_not_observed:${metrics.controllerSelectTraceTag}`);
+  }
+
+  return blockers;
 }
 
 export function buildIwsdkCommittedSpikeSequence(): IwsdkCommittedSpikeSequence {
