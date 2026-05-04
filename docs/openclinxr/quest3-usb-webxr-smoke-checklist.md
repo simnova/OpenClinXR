@@ -304,7 +304,7 @@ Manual foreground performance evidence:
 pnpm xr:quest:manual:check -- --input docs/openclinxr/quest-manual-performance-YYYY-MM-DD.json
 ```
 
-Use `docs/openclinxr/quest-manual-performance-template.json` to capture the run. During a foreground headset session, Quest Browser DevTools can copy `window.__openClinXrManualPerformanceDraft` as a starting point; complete the setup and comfort confirmations before validating the report. Until a completed report exists, the benchmark gate records `quest_manual_performance:missing_quest_manual_performance_report`.
+Use `docs/openclinxr/quest-manual-performance-template.json` to capture the run. During a foreground headset session, Quest Browser DevTools can copy `window.__openClinXrManualPerformanceDraft` as a starting point; complete the operator, setup, immersive-session, frame-sample, battery, and comfort confirmations before validating the report. Until a completed report exists, the benchmark gate records `quest_manual_performance:missing_quest_manual_performance_report`.
 
 `pnpm agent:benchmarks` can now derive the Quest manual performance check directly from the newest completed `docs/openclinxr/quest-manual-performance-*.json` file, so a validated headset report feeds the leadership benchmark gates without needing a separate hand-copied `.agent-factory` check artifact first.
 

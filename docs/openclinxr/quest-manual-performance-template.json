@@ -18,7 +18,7 @@
     "consoleErrors": []
   },
   "performance": {
-    "source": "window.__openClinXrManualPerformanceDraft.performance",
+    "source": "window.__openClinXrFrameStats",
     "framesObserved": 0,
     "sampleWindowSize": 0,
     "avgFps": null,

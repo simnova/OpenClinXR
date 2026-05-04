@@ -226,7 +226,10 @@ describe("benchmark gate report", () => {
         file: "docs/openclinxr/quest-manual-performance-2026-05-04.json",
         value: {
           generatedAt: "2026-05-04T00:00:00.000Z",
-          runContext: { durationMinutes: 10 },
+          runContext: {
+            performedBy: "xr-systems-architect",
+            durationMinutes: 10,
+          },
           setup: {
             foregroundPageConfirmed: true,
             devtoolsScreencastDisabled: true,
@@ -236,9 +239,13 @@ describe("benchmark gate report", () => {
             shellLoaded: true,
             traceInteractionPassed: true,
             textReadable: true,
+            immersiveSessionStarted: true,
             consoleErrors: [],
           },
           performance: {
+            source: "window.__openClinXrFrameStats",
+            framesObserved: 600,
+            sampleWindowSize: 120,
             avgFps: 72,
             p95FrameMs: 25,
             minimumObservedFps: 60,
@@ -246,6 +253,7 @@ describe("benchmark gate report", () => {
           comfort: {
             motionComfort: "comfortable",
             heatConcern: false,
+            batteryDropPercent: 2,
           },
         },
       },
@@ -269,6 +277,10 @@ describe("benchmark gate report", () => {
     expect(report.quest_manual_performance?.input_file).toBe("docs/openclinxr/quest-manual-performance-2026-05-04.json");
     expect(questGate?.satisfied_conditions).toEqual(expect.arrayContaining([
       "quest_manual_frame_pacing_ready",
+      "performed_by_recorded",
+      "immersive_session_started",
+      "frame_sample_600_or_more",
+      "rolling_frame_window_120_or_more",
       "average_fps_72_or_higher",
       "p95_frame_ms_25_or_lower",
     ]));

@@ -214,7 +214,7 @@ Current result:
 
 - No foreground manual performance report has been captured yet.
 - The check records `missing_quest_manual_performance_report`.
-- A passing report requires a foreground page, DevTools screencasting disabled, extra browser windows closed, a 10-minute run, readable text, trace interaction, no console errors, average FPS at or above 72, p95 frame time at or below 25 ms, minimum observed FPS at or above 60, comfortable motion, and no heat concern.
+- A passing report requires a strict ISO timestamp, operator identity, a foreground page, DevTools screencasting disabled, extra browser windows closed, immersive session confirmation, a 10-minute run, readable text, trace interaction, no console errors, at least 600 observed frames, at least 120 rolling frame samples from `window.__openClinXrFrameStats`, average FPS at or above 72, p95 frame time at or below 25 ms, minimum observed FPS at or above 60, comfortable motion, no heat concern, and a recorded battery drop not above 20%.
 
 Fresh 2026-05-04 Quest CDP rerun:
 
