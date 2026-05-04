@@ -1,0 +1,161 @@
+{
+  "generatedAt": "2026-05-04T18:39:06.550Z",
+  "workspaceRoot": "/Users/patrick/Documents/New project 2",
+  "sidecarInstallApproved": true,
+  "phase2DevtoolsApproved": true,
+  "detected": {
+    "sidecarAppExists": true,
+    "sidecarLockfileImporterPresent": true,
+    "sidecarLockfilePackageNames": [
+      "@iwsdk/core",
+      "@iwsdk/xr-input",
+      "@iwsdk/vite-plugin-dev"
+    ],
+    "dependencies": [
+      {
+        "manifestPath": "apps/ui-xr-iwsdk-spike/package.json",
+        "field": "dependencies",
+        "name": "@iwsdk/core",
+        "version": "0.3.1"
+      },
+      {
+        "manifestPath": "apps/ui-xr-iwsdk-spike/package.json",
+        "field": "dependencies",
+        "name": "@iwsdk/xr-input",
+        "version": "0.3.1"
+      },
+      {
+        "manifestPath": "apps/ui-xr-iwsdk-spike/package.json",
+        "field": "devDependencies",
+        "name": "@iwsdk/vite-plugin-dev",
+        "version": "0.3.1"
+      }
+    ],
+    "sourceReferences": [
+      {
+        "filePath": "apps/ui-xr-iwsdk-spike/src/main.ts",
+        "packageName": "@iwsdk/core"
+      },
+      {
+        "filePath": "apps/ui-xr-iwsdk-spike/src/main.ts",
+        "packageName": "@iwsdk/xr-input"
+      },
+      {
+        "filePath": "apps/ui-xr-iwsdk-spike/src/sidecar-state.test.ts",
+        "packageName": "@iwsdk/core"
+      },
+      {
+        "filePath": "apps/ui-xr-iwsdk-spike/src/sidecar-state.test.ts",
+        "packageName": "@iwsdk/xr-input"
+      },
+      {
+        "filePath": "apps/ui-xr-iwsdk-spike/vite.config.ts",
+        "packageName": "@iwsdk/vite-plugin-dev"
+      },
+      {
+        "filePath": "apps/ui-xr-iwsdk-spike/vite.config.ts",
+        "packageName": "@iwsdk/vite-plugin-dev"
+      }
+    ],
+    "sidecarProductionUiCouplings": [],
+    "scriptReferences": [
+      {
+        "manifestPath": "package.json",
+        "scriptName": "iwsdk:verify",
+        "command": "pnpm --filter @openclinxr/iwsdk-spike typecheck && pnpm --filter @openclinxr/iwsdk-spike test && pnpm iwsdk:contract:tests && pnpm iwsdk:preinstall && pnpm iwsdk:preinstall:fixture && pnpm iwsdk:workspace:posture -- --approved-sidecar && pnpm iwsdk:evidence:validate && pnpm --filter @openclinxr/architecture-rules typecheck && pnpm --filter @openclinxr/architecture-rules test && pnpm agent:sources"
+      },
+      {
+        "manifestPath": "package.json",
+        "scriptName": "iwsdk:contract:tests",
+        "command": "vitest run tools/openclinxr/iwsdk-operator-steering-blockers.test.ts tools/openclinxr/iwsdk-ui-xr-parity.test.ts"
+      },
+      {
+        "manifestPath": "package.json",
+        "scriptName": "iwsdk:preinstall",
+        "command": "tsx tools/openclinxr/iwsdk-preinstall-check.ts"
+      },
+      {
+        "manifestPath": "package.json",
+        "scriptName": "iwsdk:preinstall:fixture",
+        "command": "tsx tools/openclinxr/iwsdk-preinstall-check.ts --proposal docs/openclinxr/iwsdk-first-slice-preinstall-proposal.json"
+      },
+      {
+        "manifestPath": "package.json",
+        "scriptName": "iwsdk:workspace:posture",
+        "command": "tsx tools/openclinxr/iwsdk-workspace-posture-check.ts"
+      },
+      {
+        "manifestPath": "package.json",
+        "scriptName": "iwsdk:browser:evidence",
+        "command": "tsx tools/openclinxr/iwsdk-managed-browser-evidence-check.ts"
+      },
+      {
+        "manifestPath": "package.json",
+        "scriptName": "iwsdk:compatibility:evidence",
+        "command": "tsx tools/openclinxr/iwsdk-compatibility-evidence-check.ts"
+      },
+      {
+        "manifestPath": "package.json",
+        "scriptName": "iwsdk:metadata-drift:evidence",
+        "command": "tsx tools/openclinxr/iwsdk-metadata-drift-evidence-check.ts"
+      },
+      {
+        "manifestPath": "package.json",
+        "scriptName": "iwsdk:agent-tooling:evidence",
+        "command": "tsx tools/openclinxr/iwsdk-agent-tooling-evidence-check.ts"
+      },
+      {
+        "manifestPath": "package.json",
+        "scriptName": "iwsdk:sidecar:metrics",
+        "command": "tsx tools/openclinxr/iwsdk-sidecar-metrics-check.ts"
+      },
+      {
+        "manifestPath": "package.json",
+        "scriptName": "iwsdk:evidence",
+        "command": "tsx tools/openclinxr/iwsdk-evidence-contract-check.ts"
+      },
+      {
+        "manifestPath": "package.json",
+        "scriptName": "iwsdk:evidence:validate",
+        "command": "tsx tools/openclinxr/iwsdk-evidence-contract-check.ts --validate-latest"
+      }
+    ],
+    "lockfilePackageNames": [
+      "@iwsdk/core",
+      "@iwsdk/glxf",
+      "@iwsdk/locomotor",
+      "@iwsdk/vite-plugin-dev",
+      "@iwsdk/xr-input",
+      "@img/sharp-libvips-darwin-arm64",
+      "@img/sharp-libvips-darwin-x64",
+      "@img/sharp-libvips-linux-arm64",
+      "@img/sharp-libvips-linux-arm",
+      "@img/sharp-libvips-linux-s390x",
+      "@img/sharp-libvips-linux-x64",
+      "@img/sharp-libvips-linuxmusl-arm64",
+      "@img/sharp-libvips-linuxmusl-x64"
+    ],
+    "packageManagerReferences": [],
+    "packageManagerControls": {
+      "workspacePostureInVerify": true,
+      "threeOverrideExact": true,
+      "auditScriptPresent": true,
+      "licenseScriptPresent": true
+    }
+  },
+  "result": {
+    "ready": false,
+    "sidecarStatus": "present_approved",
+    "blockers": [
+      "blocked_transitive_package_in_lockfile:@img/sharp-libvips-darwin-arm64",
+      "blocked_transitive_package_in_lockfile:@img/sharp-libvips-darwin-x64",
+      "blocked_transitive_package_in_lockfile:@img/sharp-libvips-linux-arm64",
+      "blocked_transitive_package_in_lockfile:@img/sharp-libvips-linux-arm",
+      "blocked_transitive_package_in_lockfile:@img/sharp-libvips-linux-s390x",
+      "blocked_transitive_package_in_lockfile:@img/sharp-libvips-linux-x64",
+      "blocked_transitive_package_in_lockfile:@img/sharp-libvips-linuxmusl-arm64",
+      "blocked_transitive_package_in_lockfile:@img/sharp-libvips-linuxmusl-x64"
+    ],
+    "reviewWarnings": []
+  }
+}

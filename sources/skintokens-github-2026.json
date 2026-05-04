@@ -1,0 +1,23 @@
+{
+  "source_id": "src-skintokens-github-2026",
+  "title": "VAST-AI-Research/SkinTokens GitHub Repository",
+  "url": "https://github.com/VAST-AI-Research/SkinTokens",
+  "source_type": "vendor",
+  "citation": "VAST-AI-Research. SkinTokens GitHub repository. Accessed 2026-05-04.",
+  "accessed_at": "2026-05-04",
+  "permitted_uses": [
+    "Technology evaluation for offline rigging and skin-weight generation in the OpenClinXR asset pipeline."
+  ],
+  "claims_supported": [
+    "SkinTokens/TokenRig is presented as a learned compact representation and unified autoregressive rigging framework.",
+    "The repository describes generating a skeleton hierarchy and skin weights from an input 3D mesh.",
+    "The repository lists an MIT license.",
+    "The repository documents Python 3.11, CUDA 12.1, flash-attn, and an NVIDIA GPU with at least 14 GB memory as local inference prerequisites."
+  ],
+  "claims_not_supported": [
+    "That SkinTokens is suitable for live Quest 3 runtime use.",
+    "That SkinTokens can run on the target Apple Silicon laptop without separate CUDA-capable infrastructure.",
+    "That SkinTokens output is production-ready without rig QA, retargeting, deformation tests, license/provenance checks, and Quest performance validation."
+  ],
+  "confidence": 0.88
+}

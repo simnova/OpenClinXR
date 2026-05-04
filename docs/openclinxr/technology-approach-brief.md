@@ -141,6 +141,7 @@ Changes from this pass:
 - Treat MakeHuman/MPFB code as authoring-only because source is AGPL/GPL, while CC0 assets remain attractive.
 - Promote Anny as the preferred permissive human-generation baseline.
 - Promote Mesh2Motion as a permissive rigging/animation aid.
+- Add SkinTokens/TokenRig as an offline auto-rigging research candidate, not a Quest/runtime dependency.
 - Treat NVIDIA ACE/Audio2Face as a commercial adapter, not open-source baseline.
 
 ## Recommended Dependency Table
@@ -152,9 +153,10 @@ Changes from this pass:
 | Clothes | MakeClothes / MakeHuman assets | MIT plugin, CC0 assets where verified | Keep per-asset license metadata |
 | Skin/textures | Authored Blender/PBR, CC0 texture libraries, optional StableGen isolated | StableGen GPL-3.0 | Avoid runtime/distribution; use only if counsel approves |
 | Auto-rig/animation | Mesh2Motion | MIT code, CC0 exported animation content claimed | QA every rig and retarget |
+| Learned rig/skin weights | SkinTokens/TokenRig | MIT code; model/data provenance requires review | CUDA/NVIDIA-GPU offline candidate only; not feasible as Apple Silicon or Quest runtime default |
 | Face/lip sync | Baked visemes, optional NVIDIA ACE/Audio2Face | Commercial/proprietary terms | Adapter only; no hard dependency |
 | WebXR | Three.js, R3F, @react-three/xr | Mostly MIT-compatible; verify @react-three/xr license file | Device-test Quest 3 early |
-| WebXR spike candidate | Meta Immersive Web SDK | MIT for reviewed IWSDK packages; block optional `@meta-quest/hzdb` pending legal review because npm reports `UNLICENSED`; review optimizer paths that pull `sharp`/libvips | Promising for AI/MCP XR debugging, XR input, locomotion, spatial UI, and GLTF optimization; verify Vite 8, license gate, and Quest 3 behavior first |
+| WebXR spike candidate | Meta Immersive Web SDK | MIT for reviewed IWSDK packages; optional `@meta-quest/hzdb` now has operator legal/procurement approval but remains sidecar-gated; review IWSDK devtool/optimizer paths where Apache-2.0 `sharp` pulls native `@img/sharp-libvips-*` packages reporting LGPL | Promising for AI/MCP XR debugging, XR input, locomotion, spatial UI, and GLTF optimization; verify Vite 8, license gate, and Quest 3 behavior first |
 | Admin UI | Ant Design 6, Pro Components, React Router | MIT | Use Ant Design Pro layout conventions and route-based workbench modules |
 | Graph editor | @xyflow/react | MIT | Scenario graph, state machine, review workflows |
 | Admin query layer | Apollo GraphQL | MIT | Add after REST/domain contracts stabilize; best fit for trace/review/schema-rich admin screens |
@@ -191,6 +193,7 @@ Changes from this pass:
 - `src-makehuman-makeclothes-github-2026`
 - `src-stablegen-github-2026`
 - `src-mesh2motion-2026`
+- `src-skintokens-github-2026`
 - `src-nvidia-ace-audio2face-2026`
 - `src-xai-grok-voice-think-fast-2026`
 - `src-xai-voice-api-docs-2026`

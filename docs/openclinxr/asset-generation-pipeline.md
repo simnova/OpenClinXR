@@ -176,6 +176,7 @@ Baseline:
 Permissive tools:
 
 - Mesh2Motion for browser-based rigging/animation export where it passes QA.
+- SkinTokens/TokenRig as an offline research candidate for learned skeleton and skin-weight generation. Its documented local prerequisites are Python 3.11, CUDA, flash-attn, and an NVIDIA GPU with at least 14 GB memory, so it belongs in a GPU-backed asset worker or separate research environment, not the M4/Quest runtime path.
 - Blender Rigify for authoring when output licensing is clean.
 
 Commercial adapters:
@@ -354,6 +355,7 @@ It should not define production infrastructure. Production should rely on pre-ba
 - `src-makehuman-makeclothes-github-2026`
 - `src-stablegen-github-2026`
 - `src-mesh2motion-2026`
+- `src-skintokens-github-2026`
 - `src-nvidia-ace-audio2face-2026`
 - `src-mdn-webxr-performance-2026`
 - `src-npm-stack-metadata-2026-05-03`
