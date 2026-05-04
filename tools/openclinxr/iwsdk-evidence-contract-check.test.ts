@@ -9,6 +9,7 @@ import {
   validateIwsdkEvidenceContractReport,
   type IwsdkEvidenceContractReport,
 } from "./iwsdk-evidence-contract-check.js";
+import { buildIwsdkMcpToolInventory, type IwsdkAgentToolingEvidence } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -152,6 +153,45 @@ describe("IWSDK evidence contract checker", () => {
     });
   });
 
+  it("can consume captured Phase 2 evidence without carrying stale agent-tooling blockers", () => {
+    const report = buildIwsdkEvidenceContractReport({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      agentToolingEvidence: readyAgentToolingEvidence(),
+      compatibilityEvidence: {
+        openclinxrViteMajor: 8,
+        iwsdkVitePluginPeerRange: "^7.0.0 || ^8.0.0",
+        nodeMajor: 22,
+        nodeRuntimePath: "/Users/patrick/.nvm/versions/node/v22.19.0/bin/node",
+        rolldownNativeBindingLoaded: true,
+      },
+      metadataDriftEvidence: {
+        packageName: "@iwsdk/reference",
+        docsVersion: "0.3.2",
+        npmLatestVersion: "0.3.2",
+      },
+    });
+
+    expect(report.agentTooling.readyForAgentTooling).toBe(true);
+    expect(report.compatibility.result.readyForPhase2AgentDevtools).toBe(true);
+    expect(report.metadataDrift.result.readyForUnattendedUse).toBe(true);
+    expect(report.verdict.readyForAgentTooling).toBe(true);
+    expect(report.verdict.readyForProductionRuntime).toBe(false);
+    expect(report.verdict.blockers).toEqual(expect.arrayContaining([
+      "tool_selection:manual_quest_foreground_required_for_production_readiness",
+      "production_runtime:avg_fps_below_floor",
+      "production_runtime:p95_frame_ms_over_budget",
+      "production_runtime:missing_controller_select_latency_ms",
+    ]));
+    expect(report.verdict.blockers).not.toEqual(expect.arrayContaining([
+      "agent_tooling:adapter_sync_not_recorded",
+      "agent_tooling:mcp_tool_inventory_count_not_32",
+      "agent_tooling:missing_managed_browser_evidence",
+      "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
+      "metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
+      "tool_selection:iwsdk_mcp_future_blocked_until_sidecar",
+    ]));
+  });
+
   it("exposes a CLI that prints the blocked report while Phase 1 sidecar is not production-ready", async () => {
     const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
       scripts: Record<string, string>;
@@ -272,3 +312,46 @@ describe("IWSDK evidence contract checker", () => {
     }));
   });
 });
+
+function readyAgentToolingEvidence(): IwsdkAgentToolingEvidence {
+  return {
+    adapterSyncRecorded: true,
+    toolCount: 32,
+    coveredCategories: [
+      "session",
+      "transforms",
+      "input_mode",
+      "select_trigger",
+      "gamepad",
+      "device_state",
+      "browser",
+      "scene",
+      "ecs",
+    ],
+    validatedSmokeTools: [
+      "xr_get_session_status",
+      "xr_accept_session",
+      "browser_screenshot",
+      "scene_get_hierarchy",
+      "xr_select",
+      "browser_get_console_logs",
+    ],
+    observedToolNames: buildIwsdkMcpToolInventory().allToolNames,
+    managedBrowserEvidence: {
+      mode: "agent",
+      runtimeUrl: "http://127.0.0.1:5181",
+      managedBrowserReady: true,
+      managedSessionId: "managed-session",
+      normalBrowserOpened: true,
+      normalSessionId: "normal-session",
+      screenshotWidth: 500,
+      screenshotHeight: 500,
+      managedDevUiVisible: false,
+      normalDevUiVisible: true,
+    },
+    mcpRuntimeRegistered: true,
+    sceneHierarchyContainsRequiredObjects: true,
+    ecsRuntimeQueryable: true,
+    optionalServerActions: [],
+  };
+}

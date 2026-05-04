@@ -19,12 +19,14 @@ import {
   evaluateIwsdkPackageMetadataDriftEvidence,
   evaluateIwsdkPreInstallPackageSelection,
   evaluateIwsdkSpikeMetrics,
+  type IwsdkAgentToolingEvidence,
   type IwsdkAgentToolingEvidenceReadiness,
   type IwsdkCompatibilityContract,
   type IwsdkCompatibilityEvidence,
   type IwsdkCompatibilityReadiness,
   type IwsdkOperatorApprovalContract,
   type IwsdkOperatorSteeringBlocker,
+  type IwsdkPackageMetadataDriftEvidence,
   type IwsdkPackageMetadataDriftPolicy,
   type IwsdkPackageMetadataDriftReadiness,
   type IwsdkPreInstallPackagePolicy,
@@ -125,6 +127,10 @@ async function validateLatestReportFile(pattern: string): Promise<void> {
 
 export function buildIwsdkEvidenceContractReport(input: {
   generatedAt?: string;
+  agentToolingEvidence?: IwsdkAgentToolingEvidence;
+  compatibilityEvidence?: IwsdkCompatibilityEvidence;
+  metadataDriftEvidence?: IwsdkPackageMetadataDriftEvidence;
+  sidecarMetrics?: IwsdkSpikeMetrics;
 } = {}): IwsdkEvidenceContractReport {
   const sidecar = buildIwsdkSidecarReadinessContract();
   const preinstallPolicy = buildIwsdkPreInstallPackagePolicy();
@@ -138,15 +144,16 @@ export function buildIwsdkEvidenceContractReport(input: {
     },
     { name: "@iwsdk/xr-input", version: "0.3.1", license: "MIT", transitivePackages: [] },
   ], preinstallPolicy);
-  const agentTooling = evaluateIwsdkAgentToolingEvidence({
+  const agentToolingEvidence = input.agentToolingEvidence ?? {
     adapterSyncRecorded: false,
     toolCount: 0,
     coveredCategories: [],
     validatedSmokeTools: [],
     optionalServerActions: [],
-  });
+  };
+  const agentTooling = evaluateIwsdkAgentToolingEvidence(agentToolingEvidence);
   const compatibilityContract = buildIwsdkCompatibilityContract();
-  const currentKnownCompatibilityEvidence: IwsdkCompatibilityEvidence = {
+  const currentKnownCompatibilityEvidence: IwsdkCompatibilityEvidence = input.compatibilityEvidence ?? {
     openclinxrViteMajor: 8,
     iwsdkVitePluginPeerRange: "^7.0.0",
     nodeMajor: 22,
@@ -158,13 +165,13 @@ export function buildIwsdkEvidenceContractReport(input: {
     compatibilityContract,
   );
   const metadataDriftPolicies = buildIwsdkPackageMetadataDriftPolicies();
-  const metadataDrift = evaluateIwsdkPackageMetadataDriftEvidence({
+  const metadataDrift = evaluateIwsdkPackageMetadataDriftEvidence(input.metadataDriftEvidence ?? {
     packageName: "@iwsdk/reference",
     docsVersion: "0.3.1",
     npmLatestVersion: "0.3.2",
   });
   const toolSelection = buildIwsdkVerificationToolSelectionContract();
-  const currentKnownSidecarMetrics: IwsdkSpikeMetrics = {
+  const currentKnownSidecarMetrics: IwsdkSpikeMetrics = input.sidecarMetrics ?? {
     installedNodeModulesMb: 24,
     injectedDevRuntimeKb: 0,
     appJsBundleKb: 2511.19,
@@ -183,6 +190,14 @@ export function buildIwsdkEvidenceContractReport(input: {
   };
   const productionRuntime = evaluateIwsdkSpikeMetrics(currentKnownSidecarMetrics);
   const sidecarBlockers: string[] = [];
+  const installBackedSidecarReady = sidecar.runnable && preinstallResult.readyToInstallInSidecar;
+  const phase2McpReady = installBackedSidecarReady
+    && compatibility.readyForPhase2AgentDevtools
+    && agentTooling.readyForAgentTooling;
+  const toolSelectionBlockers = selectUnresolvedToolSelectionBlockers(toolSelection.blockers, {
+    phase2McpReady,
+    productionRuntimeReady: productionRuntime.readyForProductionRuntime,
+  });
   const blockers = unique([
     ...sidecarBlockers,
     ...preinstallResult.blockers.map((blocker) => `preinstall:${blocker}`),
@@ -190,7 +205,7 @@ export function buildIwsdkEvidenceContractReport(input: {
     ...compatibility.blockers.map((blocker) => `compatibility:${blocker}`),
     ...metadataDrift.blockers.map((blocker) => `metadata_drift:${blocker}`),
     ...agentTooling.blockers.map((blocker) => `agent_tooling:${blocker}`),
-    ...toolSelection.blockers,
+    ...toolSelectionBlockers,
     ...productionRuntime.blockers.map((blocker) => `production_runtime:${blocker}`),
   ]);
 
@@ -220,12 +235,30 @@ export function buildIwsdkEvidenceContractReport(input: {
     agentTooling,
     productionRuntime,
     verdict: {
-      readyForInstallBackedSidecar: sidecar.runnable && preinstallResult.readyToInstallInSidecar,
-      readyForAgentTooling: agentTooling.readyForAgentTooling,
+      readyForInstallBackedSidecar: installBackedSidecarReady,
+      readyForAgentTooling: phase2McpReady,
       readyForProductionRuntime: productionRuntime.readyForProductionRuntime,
       blockers,
     },
   };
+}
+
+function selectUnresolvedToolSelectionBlockers(
+  blockers: string[],
+  readiness: {
+    phase2McpReady: boolean;
+    productionRuntimeReady: boolean;
+  },
+): string[] {
+  return blockers.filter((blocker) => {
+    if (blocker === "tool_selection:iwsdk_mcp_future_blocked_until_sidecar") {
+      return !readiness.phase2McpReady;
+    }
+    if (blocker === "tool_selection:manual_quest_foreground_required_for_production_readiness") {
+      return !readiness.productionRuntimeReady;
+    }
+    return true;
+  });
 }
 
 export function validateIwsdkEvidenceContractReport(value: unknown): IwsdkEvidenceContractValidationResult {
