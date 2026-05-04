@@ -229,6 +229,17 @@ describe("workspace architecture rules", () => {
     expect(existsSync(join(workspaceRoot, "apps/ui-xr-iwsdk-spike"))).toBe(false);
   });
 
+  it("keeps IWSDK lockfile packages absent while the sidecar app is absent", () => {
+    if (existsSync(join(workspaceRoot, "apps/ui-xr-iwsdk-spike"))) {
+      return;
+    }
+
+    const lockfileText = readFileSync(join(workspaceRoot, "pnpm-lock.yaml"), "utf8");
+    const lockfileViolations = findIwsdkLockfilePackages(lockfileText).map((dependency) => `pnpm-lock.yaml:${dependency}`);
+
+    expect(lockfileViolations).toEqual([]);
+  });
+
   it("keeps UI app source from depending on Mongo persistence source files", async () => {
     const violations = await projectFiles(archTsconfig)
       .inFolder("apps/ui-*/src/**")
@@ -314,6 +325,12 @@ function workspacePackageDependencyFindings(blockedDependencies: string[]): stri
 function lockfileContainsDependency(lockfileText: string, dependency: string): boolean {
   const escapedDependency = dependency.replaceAll("/", "\\/").replaceAll("@", "\\@");
   return new RegExp(`(?:^|\\n)\\s*(?:${escapedDependency}:|/${escapedDependency}@)`).test(lockfileText);
+}
+
+function findIwsdkLockfilePackages(lockfileText: string): string[] {
+  return [...new Set([...lockfileText.matchAll(/(?:^|\n)\s*\/?(@iwsdk\/[^@\s:]+|@meta-quest\/hzdb)@/g)]
+    .map((match) => match[1])
+    .filter((dependency): dependency is string => Boolean(dependency)))];
 }
 
 function userFacingTextFragments(filePath: string): string[] {
