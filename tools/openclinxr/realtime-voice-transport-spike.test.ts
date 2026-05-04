@@ -116,4 +116,47 @@ describe("realtime voice transport spike report", () => {
     expect(report.verdict.caveats.join("\n")).toContain("FastAPI runtime smoke passed");
     expect(report.verdict.readyForLiveDialog).toBe(false);
   });
+
+  it("blocks the transport contract when supplied FastAPI runtime smoke is blocked", async () => {
+    const report = await buildRealtimeVoiceTransportSpikeReport({
+      generatedAt: "2026-05-04T22:45:00.000Z",
+      targetLatencyMs: 250,
+      bunAvailable: true,
+      apiPythonBackendRuntimeSmoke: {
+        status: "blocked",
+        health: { ok: true, latencyMs: 38 },
+        websocket: {
+          connected: false,
+          controlAckObserved: false,
+          audioMetadataObserved: false,
+          transcriptDeltaObserved: false,
+          binaryEchoObserved: false,
+          latencyMs: null,
+        },
+        verdict: {
+          passed: false,
+          blockers: ["server_not_started"],
+        },
+      },
+    });
+
+    expect(report.status).toBe("blocked");
+    expect(report.pythonBackendRuntimeSmoke).toEqual({
+      status: "blocked",
+      blockers: [
+        "server_not_started",
+        "runtime_smoke_websocket_not_connected",
+        "runtime_smoke_control_ack_missing",
+        "runtime_smoke_audio_metadata_missing",
+        "runtime_smoke_transcript_delta_missing",
+        "runtime_smoke_binary_echo_missing",
+      ],
+      healthOk: true,
+      websocketConnected: false,
+      websocketLatencyMs: null,
+    });
+    expect(report.verdict.transportContractPassed).toBe(false);
+    expect(report.verdict.blockers).toContain("fastapi_backend_not_runtime_executed");
+    expect(report.verdict.blockers).not.toContain("bun_runtime_not_installed_on_this_machine");
+  });
 });

@@ -161,7 +161,8 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
   const pythonBackendRuntimeSmoke = input.apiPythonBackendRuntimeSmoke
     ? summarizePythonBackendRuntimeSmoke(input.apiPythonBackendRuntimeSmoke)
     : undefined;
-  const transportContractPassed = pythonBackendVerifier.status === "passed" && harness.latencyBudget.passed;
+  const suppliedRuntimeSmokePassed = pythonBackendRuntimeSmoke ? pythonBackendRuntimeSmoke.status === "passed" : true;
+  const transportContractPassed = pythonBackendVerifier.status === "passed" && harness.latencyBudget.passed && suppliedRuntimeSmokePassed;
   const blockers = [
     "quest_godot_client_not_executed",
     "native_opus_codec_not_integrated_in_godot",
