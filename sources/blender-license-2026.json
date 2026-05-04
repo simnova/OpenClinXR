@@ -1,0 +1,21 @@
+{
+  "source_id": "src-blender-license-2026",
+  "title": "Blender License",
+  "url": "https://www.blender.org/about/license/",
+  "source_type": "vendor",
+  "citation": "Blender Foundation. Blender License. Accessed 2026-05-04.",
+  "accessed_at": "2026-05-04",
+  "permitted_uses": [
+    "Technology evaluation for external asset-authoring executables in the OpenClinXR asset generation pipeline."
+  ],
+  "claims_supported": [
+    "Blender is released under the GNU General Public License.",
+    "The Blender manual states that the GPL applies to the Blender application and not to artwork created with it."
+  ],
+  "claims_not_supported": [
+    "That Blender can be embedded in an OpenClinXR production runtime without additional distribution review.",
+    "That every Blender add-on or script has the same license posture as Blender itself.",
+    "That OpenClinXR may redistribute Blender binaries without legal and packaging review."
+  ],
+  "confidence": 0.9
+}

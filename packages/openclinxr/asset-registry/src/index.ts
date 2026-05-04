@@ -8,6 +8,60 @@ export type AssetGenerationMethod = "procedural_placeholder" | "makehuman2" | "a
 
 export type AssetLicenseStatus = "approved" | "permissive_review_required" | "copyleft_blocked" | "unknown";
 
+export type AssetPipelineLane =
+  | "human_base_mesh"
+  | "skin_texture"
+  | "clothing"
+  | "rigging"
+  | "animation"
+  | "face_lip_sync"
+  | "environment_equipment"
+  | "optimization";
+
+export type AssetToolRuntimePlacement =
+  | "local_or_ci_authoring"
+  | "offline_gpu_authoring"
+  | "external_commercial_adapter"
+  | "production_runtime";
+
+export type AssetToolLicensePolicy =
+  | "production_allowed"
+  | "authoring_output_allowed"
+  | "sidecar_review_required"
+  | "blocked_without_exception";
+
+export type AssetPipelineTool = {
+  toolId: string;
+  displayName: string;
+  lanes: AssetPipelineLane[];
+  sourceRefs: string[];
+  licenseSummary: string;
+  licensePolicy: AssetToolLicensePolicy;
+  runtimePlacement: AssetToolRuntimePlacement;
+  preferredForInitialBuild: boolean;
+  hardRequirements: string[];
+  approvalBlockers: string[];
+  requiredOutputEvidence: string[];
+  prohibitedUses: string[];
+};
+
+export type AssetPipelineToolReadiness = {
+  toolId: string;
+  authoringAllowedNow: boolean;
+  productionRuntimeAllowed: boolean;
+  sidecarCandidate: boolean;
+  blockers: string[];
+  warnings: string[];
+};
+
+export type AssetPipelineToolMatrixReadiness = {
+  authoringReadyToolIds: string[];
+  sidecarCandidateToolIds: string[];
+  blockedToolIds: string[];
+  productionRuntimeToolIds: string[];
+  policyBlockers: string[];
+};
+
 export type AssetPipelineStageName = "requested" | "source_reviewed" | "mesh_generated" | "rigged" | "optimized" | "qa_ready";
 
 export type AssetPipelineStage = {
@@ -84,6 +138,166 @@ const quest3StationBudget = {
   maxTextureMegabytes: 512,
   maxDrawCalls: 120,
 };
+
+export const recommendedAssetPipelineTools: AssetPipelineTool[] = [
+  {
+    toolId: "anny",
+    displayName: "Anny",
+    lanes: ["human_base_mesh"],
+    sourceRefs: ["src-anny-github-2026"],
+    licenseSummary: "Apache-2.0 code with CC0 adapted assets noted in the technology brief.",
+    licensePolicy: "authoring_output_allowed",
+    runtimePlacement: "local_or_ci_authoring",
+    preferredForInitialBuild: true,
+    hardRequirements: ["per_asset_provenance", "body_diversity_review", "quest_lod_export"],
+    approvalBlockers: [],
+    requiredOutputEvidence: ["source_license_record", "mesh_topology_report", "quest_budget_report"],
+    prohibitedUses: ["live_quest_runtime_generation", "unreviewed_identity_replica_generation"],
+  },
+  {
+    toolId: "blender",
+    displayName: "Blender",
+    lanes: ["human_base_mesh", "clothing", "environment_equipment", "optimization"],
+    sourceRefs: ["src-blender-license-2026"],
+    licenseSummary: "GPL-licensed executable acceptable as an external authoring tool; do not embed Blender source or scripts into production runtime without review.",
+    licensePolicy: "authoring_output_allowed",
+    runtimePlacement: "local_or_ci_authoring",
+    preferredForInitialBuild: true,
+    hardRequirements: ["headless_bake_script", "deterministic_export_settings", "asset_license_manifest"],
+    approvalBlockers: [],
+    requiredOutputEvidence: ["blender_bake_report", "gltf_validation_report", "quest_budget_report"],
+    prohibitedUses: ["production_runtime_dependency", "bundled_binary_without_distribution_review"],
+  },
+  {
+    toolId: "makehuman_outputs",
+    displayName: "MakeHuman / MPFB Outputs",
+    lanes: ["human_base_mesh", "clothing"],
+    sourceRefs: ["src-makehuman-community-license-2026", "src-makehuman-makeclothes-github-2026"],
+    licenseSummary: "Application/source packages are AGPL/GPL in places, while core assets are documented as CC0; use reviewed outputs only.",
+    licensePolicy: "authoring_output_allowed",
+    runtimePlacement: "local_or_ci_authoring",
+    preferredForInitialBuild: false,
+    hardRequirements: ["asset_output_license_record", "no_makehuman_source_embedding", "human_review_for_clinical_realism"],
+    approvalBlockers: [],
+    requiredOutputEvidence: ["asset_license_manifest", "mesh_topology_report", "quest_budget_report"],
+    prohibitedUses: ["shipping_makehuman_source", "production_runtime_dependency", "unreviewed_community_assets"],
+  },
+  {
+    toolId: "mesh2motion",
+    displayName: "Mesh2Motion",
+    lanes: ["rigging", "animation"],
+    sourceRefs: ["src-mesh2motion-2026"],
+    licenseSummary: "MIT code with exported animation-content claims that still require output QA.",
+    licensePolicy: "authoring_output_allowed",
+    runtimePlacement: "local_or_ci_authoring",
+    preferredForInitialBuild: true,
+    hardRequirements: ["rig_deformation_qa", "animation_retarget_report", "quest_lod_export"],
+    approvalBlockers: [],
+    requiredOutputEvidence: ["rig_validation_report", "motion_retarget_report", "quest_animation_budget_report"],
+    prohibitedUses: ["live_quest_runtime_rigging", "unreviewed_patient_motion_library_release"],
+  },
+  {
+    toolId: "skintokens_tokenrig",
+    displayName: "SkinTokens / TokenRig",
+    lanes: ["rigging"],
+    sourceRefs: ["src-skintokens-github-2026"],
+    licenseSummary: "MIT code, but local inference path documents Python 3.11, CUDA, flash-attn, and NVIDIA GPU memory requirements; model/data provenance still requires review.",
+    licensePolicy: "sidecar_review_required",
+    runtimePlacement: "offline_gpu_authoring",
+    preferredForInitialBuild: false,
+    hardRequirements: ["cuda_gpu_worker_or_external_gpu_box", "model_data_provenance_review", "rig_deformation_qa"],
+    approvalBlockers: ["not_apple_silicon_default", "cuda_gpu_required", "model_data_provenance_review_required"],
+    requiredOutputEvidence: ["skeleton_hierarchy_report", "skin_weight_quality_report", "retargeting_qa_report"],
+    prohibitedUses: ["quest_runtime_dependency", "default_m4_local_pipeline", "production_adoption_without_model_provenance_review"],
+  },
+  {
+    toolId: "stablegen",
+    displayName: "StableGen",
+    lanes: ["skin_texture"],
+    sourceRefs: ["src-stablegen-github-2026"],
+    licenseSummary: "GPL-3.0 source path; treat as blocked unless counsel approves an isolated authoring exception.",
+    licensePolicy: "blocked_without_exception",
+    runtimePlacement: "offline_gpu_authoring",
+    preferredForInitialBuild: false,
+    hardRequirements: ["legal_exception", "isolated_authoring_environment", "texture_provenance_manifest"],
+    approvalBlockers: ["gpl3_source_path", "legal_exception_required"],
+    requiredOutputEvidence: ["texture_provenance_manifest", "derivative_asset_review", "clinical_skin_tone_bias_review"],
+    prohibitedUses: ["production_runtime_dependency", "default_local_pipeline", "committed_generated_texture_without_license_review"],
+  },
+  {
+    toolId: "audio2face_adapter",
+    displayName: "NVIDIA ACE / Audio2Face Adapter",
+    lanes: ["face_lip_sync", "animation"],
+    sourceRefs: ["src-nvidia-ace-audio2face-2026"],
+    licenseSummary: "Commercial/proprietary adapter candidate, not an open-source baseline.",
+    licensePolicy: "sidecar_review_required",
+    runtimePlacement: "external_commercial_adapter",
+    preferredForInitialBuild: false,
+    hardRequirements: ["commercial_terms_review", "deployment_cost_review", "voice_face_safety_review"],
+    approvalBlockers: ["commercial_terms_review_required", "cloud_or_gpu_dependency_review_required"],
+    requiredOutputEvidence: ["latency_report", "lip_sync_quality_report", "data_processing_review"],
+    prohibitedUses: ["unapproved_cloud_runtime", "default_local_development_dependency"],
+  },
+];
+
+export function evaluateAssetPipelineTool(tool: AssetPipelineTool): AssetPipelineToolReadiness {
+  const blockers = [...tool.approvalBlockers];
+  const warnings: string[] = [];
+
+  if (tool.sourceRefs.length === 0) {
+    blockers.push("missing_source_refs");
+  }
+  if (tool.licensePolicy === "blocked_without_exception") {
+    blockers.push("license_exception_required");
+  }
+  if (tool.runtimePlacement === "production_runtime" && tool.licensePolicy !== "production_allowed") {
+    blockers.push("production_runtime_license_policy_not_allowed");
+  }
+  if (tool.runtimePlacement !== "production_runtime") {
+    warnings.push("not_a_production_runtime_dependency");
+  }
+  if (!tool.preferredForInitialBuild) {
+    warnings.push("not_preferred_for_initial_build");
+  }
+
+  return {
+    toolId: tool.toolId,
+    authoringAllowedNow: blockers.length === 0
+      && (tool.licensePolicy === "production_allowed" || tool.licensePolicy === "authoring_output_allowed"),
+    productionRuntimeAllowed: blockers.length === 0
+      && tool.runtimePlacement === "production_runtime"
+      && tool.licensePolicy === "production_allowed",
+    sidecarCandidate: tool.licensePolicy === "sidecar_review_required",
+    blockers,
+    warnings,
+  };
+}
+
+export function evaluateAssetPipelineToolMatrix(tools: readonly AssetPipelineTool[] = recommendedAssetPipelineTools): AssetPipelineToolMatrixReadiness {
+  const readiness = tools.map((tool) => evaluateAssetPipelineTool(tool));
+  const authoringReadyToolIds = readiness.filter((tool) => tool.authoringAllowedNow).map((tool) => tool.toolId);
+  const sidecarCandidateToolIds = readiness.filter((tool) => tool.sidecarCandidate).map((tool) => tool.toolId);
+  const blockedToolIds = readiness.filter((tool) => tool.blockers.length > 0 && !tool.sidecarCandidate).map((tool) => tool.toolId);
+  const productionRuntimeToolIds = readiness.filter((tool) => tool.productionRuntimeAllowed).map((tool) => tool.toolId);
+  const policyBlockers = readiness.flatMap((tool) => tool.blockers.map((blocker) => `${tool.toolId}:${blocker}`));
+
+  return {
+    authoringReadyToolIds,
+    sidecarCandidateToolIds,
+    blockedToolIds,
+    productionRuntimeToolIds,
+    policyBlockers,
+  };
+}
+
+export function selectAssetPipelineToolsForLane(
+  lane: AssetPipelineLane,
+  tools: readonly AssetPipelineTool[] = recommendedAssetPipelineTools,
+): AssetPipelineTool[] {
+  return tools
+    .filter((tool) => tool.lanes.includes(lane))
+    .sort((left, right) => Number(right.preferredForInitialBuild) - Number(left.preferredForInitialBuild));
+}
 
 export function evaluateAssetManifest(manifest: AssetManifest): AssetReadiness {
   const blockers: string[] = [];

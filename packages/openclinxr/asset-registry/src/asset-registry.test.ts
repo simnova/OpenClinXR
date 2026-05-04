@@ -1,6 +1,16 @@
 import { edChestPainScenario, scenarioBank } from "@openclinxr/scenario-fixtures";
 import { describe, expect, it } from "vitest";
-import { createEdChestPainPlaceholderManifests, createScenarioPlaceholderManifests, evaluateAssetManifest, InMemoryAssetRegistry, type AssetManifest } from "./index.js";
+import {
+  createEdChestPainPlaceholderManifests,
+  createScenarioPlaceholderManifests,
+  evaluateAssetManifest,
+  evaluateAssetPipelineTool,
+  evaluateAssetPipelineToolMatrix,
+  InMemoryAssetRegistry,
+  recommendedAssetPipelineTools,
+  selectAssetPipelineToolsForLane,
+  type AssetManifest,
+} from "./index.js";
 
 function requireManifest(manifests: AssetManifest[], index: number): AssetManifest {
   const manifest = manifests[index];
@@ -166,6 +176,63 @@ describe("asset registry", () => {
       expect(readiness.blockedAssets).toEqual([]);
       expect(readiness.productionBlockedAssets).toHaveLength(scenario.assetNeeds?.length ?? 0);
       expect(readiness.stationBudget.blockers).toEqual([]);
+    }
+  });
+
+  it("keeps SkinTokens as an offline rigging sidecar candidate rather than a Quest runtime dependency", () => {
+    const riggingTools = selectAssetPipelineToolsForLane("rigging");
+    expect(riggingTools.map((tool) => tool.toolId)).toEqual(["mesh2motion", "skintokens_tokenrig"]);
+
+    const skinTokens = riggingTools.find((tool) => tool.toolId === "skintokens_tokenrig");
+    expect(skinTokens).toBeDefined();
+    if (!skinTokens) {
+      throw new Error("Missing SkinTokens tool contract.");
+    }
+
+    const readiness = evaluateAssetPipelineTool(skinTokens);
+    expect(readiness).toEqual({
+      toolId: "skintokens_tokenrig",
+      authoringAllowedNow: false,
+      productionRuntimeAllowed: false,
+      sidecarCandidate: true,
+      blockers: ["not_apple_silicon_default", "cuda_gpu_required", "model_data_provenance_review_required"],
+      warnings: ["not_a_production_runtime_dependency", "not_preferred_for_initial_build"],
+    });
+    expect(skinTokens.prohibitedUses).toContain("quest_runtime_dependency");
+    expect(skinTokens.requiredOutputEvidence).toContain("skin_weight_quality_report");
+  });
+
+  it("marks Blender and Mesh2Motion as authoring tools while keeping production runtime empty", () => {
+    const matrix = evaluateAssetPipelineToolMatrix();
+
+    expect(matrix.authoringReadyToolIds).toEqual([
+      "anny",
+      "blender",
+      "makehuman_outputs",
+      "mesh2motion",
+    ]);
+    expect(matrix.productionRuntimeToolIds).toEqual([]);
+    expect(matrix.sidecarCandidateToolIds).toEqual(["skintokens_tokenrig", "audio2face_adapter"]);
+    expect(matrix.blockedToolIds).toEqual(["stablegen"]);
+    expect(matrix.policyBlockers).toEqual([
+      "skintokens_tokenrig:not_apple_silicon_default",
+      "skintokens_tokenrig:cuda_gpu_required",
+      "skintokens_tokenrig:model_data_provenance_review_required",
+      "stablegen:gpl3_source_path",
+      "stablegen:legal_exception_required",
+      "stablegen:license_exception_required",
+      "audio2face_adapter:commercial_terms_review_required",
+      "audio2face_adapter:cloud_or_gpu_dependency_review_required",
+    ]);
+  });
+
+  it("requires every recommended pipeline tool to cite source records and explicit evidence outputs", () => {
+    expect(recommendedAssetPipelineTools).toHaveLength(7);
+
+    for (const tool of recommendedAssetPipelineTools) {
+      expect(tool.sourceRefs.length, tool.toolId).toBeGreaterThan(0);
+      expect(tool.requiredOutputEvidence.length, tool.toolId).toBeGreaterThan(0);
+      expect(tool.prohibitedUses.length, tool.toolId).toBeGreaterThan(0);
     }
   });
 });

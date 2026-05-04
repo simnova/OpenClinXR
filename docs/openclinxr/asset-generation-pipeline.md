@@ -53,6 +53,7 @@ First implementation status:
 - ED chest pain placeholder manifests now cover the patient character, nurse character, and ED exam bay environment.
 - The generic placeholder-manifest factory can materialize dev-ready, production-blocked manifests from every seed-bank scenario `assetNeeds` entry, allowing all 12 stations to be checked against Quest budgets before real asset generation.
 - These placeholders are runtime scaffolding only; they are not production clinical realism assets.
+- The registry now includes a machine-checkable authoring tool matrix for Anny, Blender, MakeHuman outputs, Mesh2Motion, SkinTokens/TokenRig, StableGen, and Audio2Face. The matrix keeps authoring-time tools out of the production runtime, marks SkinTokens as a reviewed GPU sidecar candidate, and blocks StableGen until an explicit license exception exists.
 
 ```json
 {
@@ -178,6 +179,11 @@ Permissive tools:
 - Mesh2Motion for browser-based rigging/animation export where it passes QA.
 - SkinTokens/TokenRig as an offline research candidate for learned skeleton and skin-weight generation. Its documented local prerequisites are Python 3.11, CUDA, flash-attn, and an NVIDIA GPU with at least 14 GB memory, so it belongs in a GPU-backed asset worker or separate research environment, not the M4/Quest runtime path.
 - Blender Rigify for authoring when output licensing is clean.
+
+Machine-readable guard:
+
+- `recommendedAssetPipelineTools` in `packages/openclinxr/asset-registry` records license posture, runtime placement, approval blockers, required output evidence, and prohibited uses for rigging and related asset tools.
+- `evaluateAssetPipelineToolMatrix()` currently authorizes Anny, Blender, MakeHuman outputs, and Mesh2Motion for reviewed authoring output; keeps SkinTokens/TokenRig and Audio2Face as sidecar candidates; blocks StableGen without a legal exception; and allows no asset-generation tool as a production runtime dependency.
 
 Commercial adapters:
 
@@ -353,6 +359,7 @@ It should not define production infrastructure. Production should rely on pre-ba
 - `src-anny-github-2026`
 - `src-makehuman-community-license-2026`
 - `src-makehuman-makeclothes-github-2026`
+- `src-blender-license-2026`
 - `src-stablegen-github-2026`
 - `src-mesh2motion-2026`
 - `src-skintokens-github-2026`
