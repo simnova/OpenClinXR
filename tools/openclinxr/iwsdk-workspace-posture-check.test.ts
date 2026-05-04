@@ -523,13 +523,22 @@ describe("IWSDK workspace posture checker", () => {
     expect(rootPackage.scripts["iwsdk:workspace:posture"]).toBe(
       "tsx tools/openclinxr/iwsdk-workspace-posture-check.ts",
     );
-    expect(rootPackage.scripts["iwsdk:verify"]).toContain("pnpm iwsdk:workspace:posture -- --approved-sidecar");
+    expect(rootPackage.scripts["iwsdk:verify"]).toContain(
+      "pnpm iwsdk:workspace:posture -- --approved-sidecar --approved-phase2-devtools --approved-sharp-libvips-exception",
+    );
 
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwsdk-workspace-posture-"));
     const outputPath = path.join(tempDir, "report.json");
     const { stdout } = await execFileAsync(
       path.resolve("node_modules/.bin/tsx"),
-      ["tools/openclinxr/iwsdk-workspace-posture-check.ts", "--approved-sidecar", "--output", outputPath],
+      [
+        "tools/openclinxr/iwsdk-workspace-posture-check.ts",
+        "--approved-sidecar",
+        "--approved-phase2-devtools",
+        "--approved-sharp-libvips-exception",
+        "--output",
+        outputPath,
+      ],
       { encoding: "utf8", timeout: 15000 },
     );
     const report = JSON.parse(await readFile(outputPath, "utf8")) as IwsdkWorkspacePostureReport;

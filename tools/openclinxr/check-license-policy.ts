@@ -1,6 +1,7 @@
 import { execFile } from "node:child_process";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
@@ -44,6 +45,14 @@ type LicensePolicyReport = {
   };
 };
 
+type LicensePolicyContext = {
+  iwsdkSharpLibvipsExceptionAllowed?: boolean;
+};
+
+type PackageJsonDependencyFields = {
+  devDependencies?: Record<string, string>;
+};
+
 type LicenseOverride = {
   name: string;
   versions: string[];
@@ -56,6 +65,7 @@ type LicenseOverride = {
 const allowedLicenses = new Set([
   "0BSD",
   "Apache-2.0",
+  "APPROVED-SIDECAR-EXCEPTION",
   "BSD-2-Clause",
   "BSD-3-Clause",
   "BlueOak-1.0.0",
@@ -115,6 +125,17 @@ const licenseOverrides: LicenseOverride[] = [
       "https://github.com/pmndrs/uikit/blob/main/LICENSE",
     ],
   },
+  {
+    name: "@img/sharp-libvips-*",
+    versions: ["1.0.4", "1.0.5"],
+    reportedLicense: "LGPL-3.0-or-later",
+    effectiveLicense: "APPROVED-SIDECAR-EXCEPTION",
+    reason: "Patrick Gidich approved an IWSDK Phase 2 sidecar-only devDependency exception on 2026-05-04 for @img/sharp-libvips-* packages pulled by exact sharp@0.33.5 through @iwsdk/vite-plugin-dev@0.3.1. The exception is never for production use and must stay scoped to apps/ui-xr-iwsdk-spike.",
+    evidence: [
+      "proposals/approved/proposal-iwsdk-phase2-sharp-libvips-exception.md",
+      "apps/ui-xr-iwsdk-spike/package.json",
+    ],
+  },
 ];
 
 async function main(): Promise<void> {
@@ -168,6 +189,14 @@ async function buildReport(): Promise<LicensePolicyReport> {
     maxBuffer: 20 * 1024 * 1024,
   });
   const inventory = JSON.parse(stdout) as Record<string, PnpmLicensePackage[]>;
+  return buildLicensePolicyReportFromInventory(inventory, new Date(), await buildLicensePolicyContext(process.cwd()));
+}
+
+export function buildLicensePolicyReportFromInventory(
+  inventory: Record<string, PnpmLicensePackage[]>,
+  now = new Date(),
+  context: LicensePolicyContext = {},
+): LicensePolicyReport {
   const blockedFindings: LicenseFinding[] = [];
   const reviewFindings: LicenseFinding[] = [];
   const licenseOverridesApplied: LicenseFinding[] = [];
@@ -177,7 +206,7 @@ async function buildReport(): Promise<LicensePolicyReport> {
     const reportedLicense = normalizeLicense(rawLicense);
     for (const dependency of packages) {
       packageCount += 1;
-      const override = findLicenseOverride(reportedLicense, dependency);
+      const override = findLicenseOverride(reportedLicense, dependency, context);
       const license = override?.effectiveLicense ?? reportedLicense;
       const finding = {
         license,
@@ -198,7 +227,7 @@ async function buildReport(): Promise<LicensePolicyReport> {
   }
 
   return {
-    generatedAt: new Date().toISOString(),
+    generatedAt: now.toISOString(),
     allowedLicenses: [...allowedLicenses].sort(),
     reviewLicenses: [...reviewLicenses].sort(),
     blockedLicensePatterns,
@@ -224,12 +253,57 @@ function isBlockedLicense(license: string): boolean {
   return blockedLicensePatterns.some((pattern) => upper.includes(pattern));
 }
 
-function findLicenseOverride(reportedLicense: string, dependency: PnpmLicensePackage): LicenseOverride | undefined {
+async function buildLicensePolicyContext(workspaceRoot: string): Promise<LicensePolicyContext> {
+  const sidecarPackageJson = await readJsonFile(path.join(workspaceRoot, "apps/ui-xr-iwsdk-spike/package.json"));
+  const sidecarDevtoolVersion = sidecarPackageJson?.devDependencies?.["@iwsdk/vite-plugin-dev"];
+
+  return {
+    iwsdkSharpLibvipsExceptionAllowed: sidecarDevtoolVersion === "0.3.1",
+  };
+}
+
+async function readJsonFile(filePath: string): Promise<PackageJsonDependencyFields | undefined> {
+  try {
+    return JSON.parse(await readFile(filePath, "utf8")) as PackageJsonDependencyFields;
+  } catch {
+    return undefined;
+  }
+}
+
+function findLicenseOverride(
+  reportedLicense: string,
+  dependency: PnpmLicensePackage,
+  context: LicensePolicyContext,
+): LicenseOverride | undefined {
+  const approvedIwsdkSharpLibvipsException = findApprovedIwsdkSharpLibvipsException(reportedLicense, dependency, context);
+  if (approvedIwsdkSharpLibvipsException) {
+    return approvedIwsdkSharpLibvipsException;
+  }
+
   return licenseOverrides.find((override) =>
     override.name === dependency.name
     && override.reportedLicense === reportedLicense
     && arrayEquals(override.versions, dependency.versions)
   );
+}
+
+function findApprovedIwsdkSharpLibvipsException(
+  reportedLicense: string,
+  dependency: PnpmLicensePackage,
+  context: LicensePolicyContext,
+): LicenseOverride | undefined {
+  if (context.iwsdkSharpLibvipsExceptionAllowed !== true) {
+    return undefined;
+  }
+  if (!dependency.name.startsWith("@img/sharp-libvips-")) {
+    return undefined;
+  }
+  if (reportedLicense !== "LGPL-3.0-or-later" || !dependency.versions.every((version) => version === "1.0.4" || version === "1.0.5")) {
+    return undefined;
+  }
+
+  const template = licenseOverrides.find((override) => override.name === "@img/sharp-libvips-*");
+  return template ? { ...template, name: dependency.name } : undefined;
 }
 
 function arrayEquals(left: readonly string[], right: readonly string[]): boolean {
@@ -240,4 +314,6 @@ function sortFinding(left: LicenseFinding, right: LicenseFinding): number {
   return `${left.license}:${left.name}`.localeCompare(`${right.license}:${right.name}`);
 }
 
-await main();
+if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
+  await main();
+}

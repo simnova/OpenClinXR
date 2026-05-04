@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-03T22:35:14.615Z",
+  "generatedAt": "2026-05-04T23:49:36.820Z",
   "tool": {
     "command": "gltf-pipeline",
     "package": "gltf-pipeline",
@@ -17,7 +17,7 @@
     "magic": "glTF",
     "version": 2,
     "declaredLength": 848,
-    "elapsedMs": 543.75
+    "elapsedMs": 744.42
   },
   "verdict": {
     "passed": true,

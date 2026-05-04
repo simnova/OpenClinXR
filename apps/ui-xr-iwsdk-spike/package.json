@@ -18,6 +18,7 @@
     "three": "0.184.0"
   },
   "devDependencies": {
+    "@iwsdk/vite-plugin-dev": "0.3.1",
     "@types/three": "0.184.0",
     "typescript": "6.0.3",
     "vite": "8.0.10",

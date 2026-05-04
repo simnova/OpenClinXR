@@ -5,7 +5,7 @@
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T18:13:48.812Z",
-      "age_hours": 4,
+      "age_hours": 5,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -14,7 +14,7 @@
       "evidence_id": "local_runtime_probe",
       "file": "docs/openclinxr/local-runtime-probe-2026-05-04.json",
       "generated_at": "2026-05-04T15:16:18.712Z",
-      "age_hours": 7,
+      "age_hours": 8,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -22,8 +22,8 @@
     {
       "evidence_id": "gltf_pipeline_smoke",
       "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
-      "generated_at": "2026-05-03T22:35:14.615Z",
-      "age_hours": 24,
+      "generated_at": "2026-05-04T23:49:36.820Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -41,7 +41,7 @@
       "evidence_id": "asset_capability_job_evidence",
       "file": "docs/openclinxr/asset-capability-job-evidence-2026-05-04.json",
       "generated_at": "2026-05-04T21:21:14.173Z",
-      "age_hours": 1,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -50,7 +50,7 @@
       "evidence_id": "asset_production_readiness_benchmark",
       "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T21:11:11.999Z",
-      "age_hours": 1,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -77,7 +77,7 @@
       "evidence_id": "local_model_quality_benchmark",
       "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T21:16:55.867Z",
-      "age_hours": 1,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -95,7 +95,7 @@
       "evidence_id": "local_voice_live_dialog_benchmark",
       "file": "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T20:47:52.004Z",
-      "age_hours": 2,
+      "age_hours": 3,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -113,7 +113,7 @@
       "evidence_id": "api_python_backend_runtime_smoke",
       "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T22:34:45.884Z",
-      "age_hours": 0,
+      "age_hours": 1,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -122,7 +122,7 @@
       "evidence_id": "quest_manual_performance",
       "file": ".agent-factory/quest-manual-performance-report.json",
       "generated_at": "2026-05-04T15:37:29.215Z",
-      "age_hours": 7,
+      "age_hours": 8,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -185,7 +185,7 @@
   },
   "gltf_pipeline_smoke": {
     "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
-    "generated_at": "2026-05-03T22:35:14.615Z",
+    "generated_at": "2026-05-04T23:49:36.820Z",
     "tool": {
       "command": "gltf-pipeline",
       "package": "gltf-pipeline",
@@ -197,7 +197,7 @@
       "magic": "glTF",
       "version": 2,
       "declaredLength": 848,
-      "elapsedMs": 543.75
+      "elapsedMs": 744.42
     },
     "passed": true,
     "blockers": []
