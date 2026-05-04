@@ -2,6 +2,11 @@ import { buildSchema, graphql, type ExecutionResult, type GraphQLSchema } from "
 export { adminGraphqlDocumentByOperationName, adminGraphqlDocuments, type AdminGraphqlDocument } from "./documents.js";
 export { openClinXrAdminSchemaSdl } from "./schema.js";
 import { openClinXrAdminSchemaSdl } from "./schema.js";
+import type {
+  MutationCreateStationRunQueueSnapshotArgs,
+  QueryStationRunQueueSnapshotsArgs,
+  StationRunQueueSnapshot,
+} from "./generated/resolvers.generated.js";
 
 export type GraphqlCodegenPlan = {
   tool: "graphql-code-generator";
@@ -22,11 +27,20 @@ export type AdminGraphqlExecutionInput = {
   operationName?: string;
 };
 
+export type AdminGraphqlRootValue = {
+  stationRunQueueSnapshots?: (
+    args: QueryStationRunQueueSnapshotsArgs,
+  ) => Promise<StationRunQueueSnapshot[]> | StationRunQueueSnapshot[];
+  createStationRunQueueSnapshot?: (
+    args: MutationCreateStationRunQueueSnapshotArgs,
+  ) => Promise<StationRunQueueSnapshot> | StationRunQueueSnapshot;
+};
+
 export function buildAdminGraphqlSchema(): GraphQLSchema {
   return buildSchema(openClinXrAdminSchemaSdl);
 }
 
-export function executeAdminGraphql(input: AdminGraphqlExecutionInput, rootValue: unknown): Promise<ExecutionResult> {
+export function executeAdminGraphql(input: AdminGraphqlExecutionInput, rootValue: AdminGraphqlRootValue): Promise<ExecutionResult> {
   return graphql({
     schema: buildAdminGraphqlSchema(),
     source: input.query,

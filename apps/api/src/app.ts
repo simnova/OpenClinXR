@@ -10,7 +10,13 @@ import {
   type ExamForm,
   type ExamStationRunQueue,
 } from "@openclinxr/exam-assembly";
-import { adminGraphqlDocuments, createGraphqlCodegenPlan, executeAdminGraphql, openClinXrAdminSchemaSdl } from "@openclinxr/graphql";
+import {
+  adminGraphqlDocuments,
+  createGraphqlCodegenPlan,
+  executeAdminGraphql,
+  openClinXrAdminSchemaSdl,
+  type AdminGraphqlRootValue,
+} from "@openclinxr/graphql";
 import { matchOpenClinXrRestRoute, routeById } from "@openclinxr/rest";
 import { createDefaultScenarioRuntime, type PublicationTargetUse, type ReviewerEvidence, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createLearnerScenarioView, edChestPainScenario, scenarioBank } from "@openclinxr/scenario-fixtures";
@@ -333,17 +339,11 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   return app;
 }
 
-function createAdminGraphqlRoot(persistence: ApiPersistenceSink): Record<string, unknown> {
+function createAdminGraphqlRoot(persistence: ApiPersistenceSink): AdminGraphqlRootValue {
   return {
-    stationRunQueueSnapshots: async ({ blueprintId }: { blueprintId?: unknown }) => {
-      if (typeof blueprintId !== "string" || blueprintId.length === 0) {
-        return [];
-      }
-
-      return Promise.resolve(persistence.listStationRunQueueSnapshots?.(blueprintId) ?? []);
-    },
-    createStationRunQueueSnapshot: async ({ input }: { input?: Record<string, unknown> }) => {
-      const snapshot = createSeedStationRunQueueSnapshot(isRecord(input) ? input : {});
+    stationRunQueueSnapshots: async ({ blueprintId }) => Promise.resolve(persistence.listStationRunQueueSnapshots?.(blueprintId) ?? []),
+    createStationRunQueueSnapshot: async ({ input }) => {
+      const snapshot = createSeedStationRunQueueSnapshot(input);
       await persistence.saveStationRunQueueSnapshot?.(snapshot);
       return snapshot;
     },
