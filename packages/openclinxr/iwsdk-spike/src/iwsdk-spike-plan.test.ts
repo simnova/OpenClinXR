@@ -4,6 +4,7 @@ import {
   buildIwsdkAgentVerificationRunbook,
   buildIwsdkCodexMcpAdapterTemplate,
   buildIwsdkCommittedSpikeSequence,
+  buildIwsdkCompatibilityContract,
   buildIwsdkManagedBrowserEvidenceContract,
   buildIwsdkMcpToolInventory,
   buildIwsdkMcpToolInventoryRequirement,
@@ -14,6 +15,7 @@ import {
   buildIwsdkSpikeMetricThresholds,
   buildIwsdkSpikePlan,
   buildIwsdkViteAiDevConfigContract,
+  evaluateIwsdkCompatibilityEvidence,
   evaluateIwsdkWorkspacePosture,
   evaluateIwsdkAgentToolingEvidence,
   evaluateIwsdkManagedBrowserEvidence,
@@ -731,6 +733,64 @@ describe("IWSDK spike plan", () => {
       "npx iwsdk reference warmup",
       "install @meta-quest/hzdb",
     ]);
+  });
+
+  it("defines an executable IWSDK Vite/Node/Rolldown compatibility contract", () => {
+    const contract = buildIwsdkCompatibilityContract();
+
+    expect(contract).toEqual({
+      sourceRecordIds: ["src-iwsdk-npm-metadata-2026-05-04", "src-iwsdk-local-spike-2026-05-04"],
+      packageName: "@iwsdk/vite-plugin-dev",
+      packageVersion: "0.3.1",
+      requiredNodeMajor: 22,
+      openclinxrViteMajor: 8,
+      iwsdkVitePluginPeerRange: "^7.0.0",
+      requiredEvidence: [
+        "vite_plugin_peer_range_accepts_openclinxr_vite_major",
+        "node_runtime_major_22",
+        "node_runtime_path_recorded",
+        "rolldown_native_binding_load_recorded",
+      ],
+    });
+  });
+
+  it("blocks IWSDK phase 2 agent tooling when the Vite peer range does not cover OpenClinXR's Vite major", () => {
+    expect(evaluateIwsdkCompatibilityEvidence({
+      openclinxrViteMajor: 8,
+      iwsdkVitePluginPeerRange: "^7.0.0",
+      nodeMajor: 22,
+      nodeRuntimePath: "/Users/patrick/.nvm/versions/node/v22.19.0/bin/node",
+      rolldownNativeBindingLoaded: true,
+    })).toEqual({
+      readyForPhase2AgentDevtools: false,
+      blockers: ["vite_plugin_peer_range_does_not_accept_openclinxr_vite_major"],
+    });
+  });
+
+  it("accepts IWSDK phase 2 compatibility evidence only when all runtime gates are proven", () => {
+    expect(evaluateIwsdkCompatibilityEvidence({
+      openclinxrViteMajor: 8,
+      iwsdkVitePluginPeerRange: "^7.0.0 || ^8.0.0",
+      nodeMajor: 22,
+      nodeRuntimePath: "/Users/patrick/.nvm/versions/node/v22.19.0/bin/node",
+      rolldownNativeBindingLoaded: true,
+    })).toEqual({
+      readyForPhase2AgentDevtools: true,
+      blockers: [],
+    });
+  });
+
+  it("reports missing compatibility evidence as separate remediation blockers", () => {
+    expect(evaluateIwsdkCompatibilityEvidence({})).toEqual({
+      readyForPhase2AgentDevtools: false,
+      blockers: [
+        "missing_openclinxr_vite_major",
+        "missing_iwsdk_vite_plugin_peer_range",
+        "missing_node_major",
+        "missing_node_runtime_path",
+        "rolldown_native_binding_not_loaded",
+      ],
+    });
   });
 
   it("defines a contained committed sidecar spike sequence before production adoption", () => {

@@ -5,13 +5,18 @@ import fg from "fast-glob";
 import {
   buildIwsdkCoreRequiredTransitivePackageNames,
   buildIwsdkCoreTransitivePackageLicenseEvidence,
+  buildIwsdkCompatibilityContract,
   buildIwsdkPreInstallPackagePolicy,
   buildIwsdkSidecarReadinessContract,
   buildIwsdkViteAiDevConfigContract,
   evaluateIwsdkAgentToolingEvidence,
+  evaluateIwsdkCompatibilityEvidence,
   evaluateIwsdkPreInstallPackageSelection,
   evaluateIwsdkSpikeMetrics,
   type IwsdkAgentToolingEvidenceReadiness,
+  type IwsdkCompatibilityContract,
+  type IwsdkCompatibilityEvidence,
+  type IwsdkCompatibilityReadiness,
   type IwsdkPreInstallPackagePolicy,
   type IwsdkPreInstallPackageSelectionResult,
   type IwsdkSidecarReadinessContract,
@@ -34,6 +39,11 @@ export type IwsdkEvidenceContractReport = {
     result: IwsdkPreInstallPackageSelectionResult;
   };
   viteAiDevConfig: IwsdkViteAiDevConfigContract;
+  compatibility: {
+    contract: IwsdkCompatibilityContract;
+    currentKnownEvidence: IwsdkCompatibilityEvidence;
+    result: IwsdkCompatibilityReadiness;
+  };
   agentTooling: IwsdkAgentToolingEvidenceReadiness;
   productionRuntime: IwsdkSpikeMetricReadiness;
   verdict: {
@@ -114,12 +124,25 @@ export function buildIwsdkEvidenceContractReport(input: {
     validatedSmokeTools: [],
     optionalServerActions: [],
   });
+  const compatibilityContract = buildIwsdkCompatibilityContract();
+  const currentKnownCompatibilityEvidence: IwsdkCompatibilityEvidence = {
+    openclinxrViteMajor: 8,
+    iwsdkVitePluginPeerRange: "^7.0.0",
+    nodeMajor: 22,
+    nodeRuntimePath: "/Users/patrick/.nvm/versions/node/v22.19.0/bin/node",
+    rolldownNativeBindingLoaded: true,
+  };
+  const compatibility = evaluateIwsdkCompatibilityEvidence(
+    currentKnownCompatibilityEvidence,
+    compatibilityContract,
+  );
   const productionRuntime = evaluateIwsdkSpikeMetrics({});
   const sidecarBlockers = sidecar.createAppOnlyAfter.map((blocker) => `sidecar:${blocker}`);
   const blockers = unique([
     ...sidecarBlockers,
     ...preinstallResult.blockers.map((blocker) => `preinstall:${blocker}`),
     ...preinstallResult.reviewWarnings.map((blocker) => `preinstall_review:${blocker}`),
+    ...compatibility.blockers.map((blocker) => `compatibility:${blocker}`),
     ...agentTooling.blockers.map((blocker) => `agent_tooling:${blocker}`),
     ...productionRuntime.blockers.map((blocker) => `production_runtime:${blocker}`),
   ]);
@@ -134,6 +157,11 @@ export function buildIwsdkEvidenceContractReport(input: {
       result: preinstallResult,
     },
     viteAiDevConfig: buildIwsdkViteAiDevConfigContract(),
+    compatibility: {
+      contract: compatibilityContract,
+      currentKnownEvidence: currentKnownCompatibilityEvidence,
+      result: compatibility,
+    },
     agentTooling,
     productionRuntime,
     verdict: {
@@ -158,6 +186,7 @@ export function validateIwsdkEvidenceContractReport(value: unknown): IwsdkEviden
   requireObject(readAt(value, ["sidecar"]), "/sidecar", errors);
   requireObject(readAt(value, ["preinstall"]), "/preinstall", errors);
   requireObject(readAt(value, ["viteAiDevConfig"]), "/viteAiDevConfig", errors);
+  requireObject(readAt(value, ["compatibility"]), "/compatibility", errors);
   requireObject(readAt(value, ["agentTooling"]), "/agentTooling", errors);
   requireObject(readAt(value, ["productionRuntime"]), "/productionRuntime", errors);
   requireObject(readAt(value, ["verdict"]), "/verdict", errors);
@@ -191,6 +220,24 @@ export function validateIwsdkEvidenceContractReport(value: unknown): IwsdkEviden
   requireStringArray(readAt(value, ["viteAiDevConfig", "requiredEvidence"]), "/viteAiDevConfig/requiredEvidence", errors);
   requireStringArray(readAt(value, ["viteAiDevConfig", "blockedUntil"]), "/viteAiDevConfig/blockedUntil", errors);
   requireStringArray(readAt(value, ["viteAiDevConfig", "doNotRunUnattended"]), "/viteAiDevConfig/doNotRunUnattended", errors);
+
+  requireObject(readAt(value, ["compatibility", "contract"]), "/compatibility/contract", errors);
+  requireStringArray(readAt(value, ["compatibility", "contract", "sourceRecordIds"]), "/compatibility/contract/sourceRecordIds", errors);
+  requireLiteral(readAt(value, ["compatibility", "contract", "packageName"]), "@iwsdk/vite-plugin-dev", "/compatibility/contract/packageName", errors);
+  requireLiteral(readAt(value, ["compatibility", "contract", "packageVersion"]), "0.3.1", "/compatibility/contract/packageVersion", errors);
+  requireNumber(readAt(value, ["compatibility", "contract", "requiredNodeMajor"]), "/compatibility/contract/requiredNodeMajor", errors);
+  requireNumber(readAt(value, ["compatibility", "contract", "openclinxrViteMajor"]), "/compatibility/contract/openclinxrViteMajor", errors);
+  requireString(readAt(value, ["compatibility", "contract", "iwsdkVitePluginPeerRange"]), "/compatibility/contract/iwsdkVitePluginPeerRange", errors);
+  requireStringArray(readAt(value, ["compatibility", "contract", "requiredEvidence"]), "/compatibility/contract/requiredEvidence", errors);
+  requireObject(readAt(value, ["compatibility", "currentKnownEvidence"]), "/compatibility/currentKnownEvidence", errors);
+  requireNumber(readAt(value, ["compatibility", "currentKnownEvidence", "openclinxrViteMajor"]), "/compatibility/currentKnownEvidence/openclinxrViteMajor", errors);
+  requireString(readAt(value, ["compatibility", "currentKnownEvidence", "iwsdkVitePluginPeerRange"]), "/compatibility/currentKnownEvidence/iwsdkVitePluginPeerRange", errors);
+  requireNumber(readAt(value, ["compatibility", "currentKnownEvidence", "nodeMajor"]), "/compatibility/currentKnownEvidence/nodeMajor", errors);
+  requireString(readAt(value, ["compatibility", "currentKnownEvidence", "nodeRuntimePath"]), "/compatibility/currentKnownEvidence/nodeRuntimePath", errors);
+  requireBoolean(readAt(value, ["compatibility", "currentKnownEvidence", "rolldownNativeBindingLoaded"]), "/compatibility/currentKnownEvidence/rolldownNativeBindingLoaded", errors);
+  requireObject(readAt(value, ["compatibility", "result"]), "/compatibility/result", errors);
+  requireBoolean(readAt(value, ["compatibility", "result", "readyForPhase2AgentDevtools"]), "/compatibility/result/readyForPhase2AgentDevtools", errors);
+  requireStringArray(readAt(value, ["compatibility", "result", "blockers"]), "/compatibility/result/blockers", errors);
 
   requireBoolean(readAt(value, ["agentTooling", "readyForAgentTooling"]), "/agentTooling/readyForAgentTooling", errors);
   requireStringArray(readAt(value, ["agentTooling", "blockers"]), "/agentTooling/blockers", errors);

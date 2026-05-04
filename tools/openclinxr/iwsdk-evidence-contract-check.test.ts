@@ -43,6 +43,25 @@ describe("IWSDK evidence contract checker", () => {
         "phase_1_runtime_shell_metrics_pass",
       ]),
     }));
+    expect(report.compatibility).toEqual({
+      contract: expect.objectContaining({
+        packageName: "@iwsdk/vite-plugin-dev",
+        packageVersion: "0.3.1",
+        openclinxrViteMajor: 8,
+        iwsdkVitePluginPeerRange: "^7.0.0",
+      }),
+      currentKnownEvidence: {
+        openclinxrViteMajor: 8,
+        iwsdkVitePluginPeerRange: "^7.0.0",
+        nodeMajor: 22,
+        nodeRuntimePath: "/Users/patrick/.nvm/versions/node/v22.19.0/bin/node",
+        rolldownNativeBindingLoaded: true,
+      },
+      result: {
+        readyForPhase2AgentDevtools: false,
+        blockers: ["vite_plugin_peer_range_does_not_accept_openclinxr_vite_major"],
+      },
+    });
     expect(report.agentTooling.readyForAgentTooling).toBe(false);
     expect(report.productionRuntime.readyForProductionRuntime).toBe(false);
     expect(report.verdict).toEqual({
@@ -52,6 +71,7 @@ describe("IWSDK evidence contract checker", () => {
       blockers: expect.arrayContaining([
         "sidecar:operator_accepts_iwsdk_install_scope",
         "sidecar:exact_iwsdk_versions_selected",
+        "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
         "agent_tooling:adapter_sync_not_recorded",
         "agent_tooling:mcp_tool_inventory_count_not_32",
         "production_runtime:missing_foreground_quest_preflight_ready",
@@ -81,6 +101,7 @@ describe("IWSDK evidence contract checker", () => {
       expect(report.verdict.readyForProductionRuntime).toBe(false);
       expect(report.verdict.blockers).toEqual(expect.arrayContaining([
         "sidecar:operator_accepts_iwsdk_install_scope",
+        "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
         "agent_tooling:missing_managed_browser_evidence",
         "production_runtime:missing_foreground_quest_preflight_ready",
         "production_runtime:missing_controller_select_latency_ms",
@@ -94,6 +115,19 @@ describe("IWSDK evidence contract checker", () => {
     });
 
     expect(validateIwsdkEvidenceContractReport(report)).toEqual({ ok: true });
+    expect(validateIwsdkEvidenceContractReport({
+      ...report,
+      compatibility: {
+        ...report.compatibility,
+        result: {
+          ...report.compatibility.result,
+          blockers: "vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
+        },
+      },
+    })).toEqual({
+      ok: false,
+      errors: ["/compatibility/result/blockers must be array"],
+    });
     expect(validateIwsdkEvidenceContractReport({
       ...report,
       verdict: {

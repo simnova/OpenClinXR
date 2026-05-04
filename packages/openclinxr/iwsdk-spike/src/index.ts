@@ -256,6 +256,29 @@ export type IwsdkViteAiDevConfigContract = {
   doNotRunUnattended: string[];
 };
 
+export type IwsdkCompatibilityContract = {
+  sourceRecordIds: string[];
+  packageName: "@iwsdk/vite-plugin-dev";
+  packageVersion: "0.3.1";
+  requiredNodeMajor: 22;
+  openclinxrViteMajor: 8;
+  iwsdkVitePluginPeerRange: "^7.0.0";
+  requiredEvidence: string[];
+};
+
+export type IwsdkCompatibilityEvidence = {
+  openclinxrViteMajor?: number;
+  iwsdkVitePluginPeerRange?: string;
+  nodeMajor?: number;
+  nodeRuntimePath?: string;
+  rolldownNativeBindingLoaded?: boolean;
+};
+
+export type IwsdkCompatibilityReadiness = {
+  readyForPhase2AgentDevtools: boolean;
+  blockers: string[];
+};
+
 export type IwsdkCommittedSpikePhase = {
   id: string;
   goal: string;
@@ -1418,6 +1441,60 @@ export function buildIwsdkViteAiDevConfigContract(): IwsdkViteAiDevConfigContrac
   };
 }
 
+export function buildIwsdkCompatibilityContract(): IwsdkCompatibilityContract {
+  return {
+    sourceRecordIds: ["src-iwsdk-npm-metadata-2026-05-04", "src-iwsdk-local-spike-2026-05-04"],
+    packageName: "@iwsdk/vite-plugin-dev",
+    packageVersion: "0.3.1",
+    requiredNodeMajor: 22,
+    openclinxrViteMajor: 8,
+    iwsdkVitePluginPeerRange: "^7.0.0",
+    requiredEvidence: [
+      "vite_plugin_peer_range_accepts_openclinxr_vite_major",
+      "node_runtime_major_22",
+      "node_runtime_path_recorded",
+      "rolldown_native_binding_load_recorded",
+    ],
+  };
+}
+
+export function evaluateIwsdkCompatibilityEvidence(
+  evidence: IwsdkCompatibilityEvidence,
+  contract: IwsdkCompatibilityContract = buildIwsdkCompatibilityContract(),
+): IwsdkCompatibilityReadiness {
+  const blockers: string[] = [];
+
+  if (typeof evidence.openclinxrViteMajor !== "number") {
+    blockers.push("missing_openclinxr_vite_major");
+  }
+  if (!evidence.iwsdkVitePluginPeerRange) {
+    blockers.push("missing_iwsdk_vite_plugin_peer_range");
+  }
+  if (
+    typeof evidence.openclinxrViteMajor === "number"
+    && evidence.iwsdkVitePluginPeerRange
+    && !peerRangeAcceptsMajor(evidence.iwsdkVitePluginPeerRange, evidence.openclinxrViteMajor)
+  ) {
+    blockers.push("vite_plugin_peer_range_does_not_accept_openclinxr_vite_major");
+  }
+  if (typeof evidence.nodeMajor !== "number") {
+    blockers.push("missing_node_major");
+  } else if (evidence.nodeMajor !== contract.requiredNodeMajor) {
+    blockers.push("node_runtime_major_not_22");
+  }
+  if (!evidence.nodeRuntimePath) {
+    blockers.push("missing_node_runtime_path");
+  }
+  if (evidence.rolldownNativeBindingLoaded !== true) {
+    blockers.push("rolldown_native_binding_not_loaded");
+  }
+
+  return {
+    readyForPhase2AgentDevtools: blockers.length === 0,
+    blockers,
+  };
+}
+
 function adapterConfigTargetFor(aiTool: IwsdkAiTool): string {
   switch (aiTool) {
     case "codex":
@@ -1429,6 +1506,31 @@ function adapterConfigTargetFor(aiTool: IwsdkAiTool): string {
     case "copilot":
       return ".vscode/mcp.json";
   }
+}
+
+function peerRangeAcceptsMajor(range: string, major: number): boolean {
+  return range.split("||").map((part) => part.trim()).some((part) => peerRangePartAcceptsMajor(part, major));
+}
+
+function peerRangePartAcceptsMajor(rangePart: string, major: number): boolean {
+  const caretMajor = rangePart.match(/^\^(\d+)\./)?.[1];
+  if (caretMajor) {
+    return Number(caretMajor) === major;
+  }
+
+  const exactMajor = rangePart.match(/^(\d+)\./)?.[1];
+  if (exactMajor) {
+    return Number(exactMajor) === major;
+  }
+
+  const boundedMajorRange = rangePart.match(/>=\s*(\d+)\.[^<]*<\s*(\d+)\./);
+  if (boundedMajorRange) {
+    const minMajor = Number(boundedMajorRange[1]);
+    const maxMajor = Number(boundedMajorRange[2]);
+    return major >= minMajor && major < maxMajor;
+  }
+
+  return false;
 }
 
 function appendWorkspacePackageManagerControlBlockers(

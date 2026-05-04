@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T10:38:24.375Z",
+  "generatedAt": "2026-05-04T10:43:39.829Z",
   "status": "contract_only",
   "sidecar": {
     "sidecarAppRoot": "apps/ui-xr-iwsdk-spike/",
@@ -116,6 +116,38 @@
       "install @meta-quest/hzdb"
     ]
   },
+  "compatibility": {
+    "contract": {
+      "sourceRecordIds": [
+        "src-iwsdk-npm-metadata-2026-05-04",
+        "src-iwsdk-local-spike-2026-05-04"
+      ],
+      "packageName": "@iwsdk/vite-plugin-dev",
+      "packageVersion": "0.3.1",
+      "requiredNodeMajor": 22,
+      "openclinxrViteMajor": 8,
+      "iwsdkVitePluginPeerRange": "^7.0.0",
+      "requiredEvidence": [
+        "vite_plugin_peer_range_accepts_openclinxr_vite_major",
+        "node_runtime_major_22",
+        "node_runtime_path_recorded",
+        "rolldown_native_binding_load_recorded"
+      ]
+    },
+    "currentKnownEvidence": {
+      "openclinxrViteMajor": 8,
+      "iwsdkVitePluginPeerRange": "^7.0.0",
+      "nodeMajor": 22,
+      "nodeRuntimePath": "/Users/patrick/.nvm/versions/node/v22.19.0/bin/node",
+      "rolldownNativeBindingLoaded": true
+    },
+    "result": {
+      "readyForPhase2AgentDevtools": false,
+      "blockers": [
+        "vite_plugin_peer_range_does_not_accept_openclinxr_vite_major"
+      ]
+    }
+  },
   "agentTooling": {
     "readyForAgentTooling": false,
     "blockers": [
@@ -191,6 +223,7 @@
       "agent_tooling:mcp_tool_names_not_recorded",
       "agent_tooling:missing_managed_browser_evidence",
       "agent_tooling:scene_hierarchy_required_objects_not_confirmed",
+      "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
       "production_runtime:canvas_nonblank_not_confirmed",
       "production_runtime:missing_app_js_bundle_kb",
       "production_runtime:missing_avg_fps",
