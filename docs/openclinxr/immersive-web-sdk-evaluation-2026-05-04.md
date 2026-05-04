@@ -111,8 +111,8 @@ Exact MCP tool inventory expected from the future sidecar runtime:
 
 Optional MCP servers remain separately controlled:
 
-- `iwsdk-reference` / `@iwsdk/reference`: blocked in unattended runs because warmup can download a pinned model and reference corpus. The docs source showed IWSDK `v0.3.1`, while the npm metadata query showed `@iwsdk/reference` latest `0.3.2` with `@huggingface/transformers`, `@modelcontextprotocol/sdk`, and `tar`; revalidate exact package/docs alignment, payload size, and cache location before any warmup.
-- `hzdb` / `@meta-quest/hzdb`: blocked until legal/procurement review, because package metadata and terms need explicit acceptance.
+- `iwsdk-reference` / `@iwsdk/reference`: Patrick approved local warmup scope on 2026-05-04, but unattended/default verification still blocks warmup until the exact PNPM path is validated. The unscoped `iwsdk` package was not found in npm; the package-managed candidate is `pnpm dlx @iwsdk/reference@0.3.2 iwsdk-reference warmup`. Record CLI help, payload size, cache location, and offline cleanup before running it.
+- `hzdb` / `@meta-quest/hzdb`: Patrick approved legal/procurement posture on 2026-05-04 for package terms, npm metadata, Quest device-management scope, and asset-library lookup behavior. It remains sidecar-gated and must not enter production manifests or lockfile state before install-backed sidecar approval.
 
 Committed sidecar spike budget:
 
@@ -142,7 +142,7 @@ Create an isolated package or worktree spike before touching the production XR s
 5. Validate Vite 8 behavior before accepting any plugin into the main workspace.
 6. Build a minimal ED bay scene that mirrors the current `apps/ui-xr` smoke: one patient, one nurse interruption, one EHR panel, trace action buttons, and a live canvas.
 7. Compare build size, dev network requests, frame telemetry, console logs, and Quest 3 smoke behavior against the existing `apps/ui-xr` baseline.
-8. Try the MCP runtime in agent mode only after local install and trust/network implications are explicit. For Codex, the docs point adapter generation at `.codex/config.toml`; use `docs/openclinxr/iwsdk-codex-mcp-runbook.md` and the package-level `buildIwsdkCodexMcpAdapterTemplate()` output. Start runtime verification with `iwsdk dev status`, then `xr_get_session_status`, then XR entry/screenshot/scene checks. Do not run `@iwsdk/reference` warmup unattended because it downloads model/reference assets.
+8. Try the MCP runtime in agent mode only after local install and trust/network implications are explicit. For Codex, the docs point adapter generation at `.codex/config.toml`; use `docs/openclinxr/iwsdk-codex-mcp-runbook.md` and the package-level `buildIwsdkCodexMcpAdapterTemplate()` output. Start runtime verification with `iwsdk dev status`, then `xr_get_session_status`, then XR entry/screenshot/scene checks. Do not use floating `npx iwsdk reference warmup`; use the exact PNPM candidate only after CLI help, cache location, and download size are recorded.
 
 ## Pre-Install Package Policy
 
@@ -150,7 +150,7 @@ The executable policy is intentionally stricter than the prose recommendation:
 
 - First-slice packages: exact-versioned `@iwsdk/core` and `@iwsdk/xr-input`.
 - Review-required packages: `@iwsdk/glxf`, `@iwsdk/locomotor`, `@iwsdk/vite-plugin-dev`, `@iwsdk/vite-plugin-gltf-optimizer`, `@iwsdk/vite-plugin-uikitml`, and `@iwsdk/vite-plugin-metaspatial`; these are not ready for unattended first-slice install even when exact-versioned.
-- Blocked packages: `@iwsdk/create`, `@iwsdk/reference`, `@iwsdk/starter-assets`, and `@meta-quest/hzdb`.
+- Blocked first-slice packages: `@iwsdk/create`, `@iwsdk/reference`, `@iwsdk/starter-assets`, and `@meta-quest/hzdb`; Patrick's 2026-05-04 approvals resolve human review for reference warmup scope and `hzdb` legal/procurement, not install-backed sidecar or production adoption.
 - Blocked transitive package path: any `sharp-libvips` variant, including `@img/sharp-libvips-darwin-arm64`.
 - Blocked license expressions: `AGPL`, `GPL`, `LGPL`, `UNLICENSED`, and `Unknown`, matched case-insensitively without collapsing `LGPL` into `GPL`.
 - Required package-manager controls: exact version pins, a Three.js pnpm override, recorded `pnpm audit`, and a recorded license-policy report.

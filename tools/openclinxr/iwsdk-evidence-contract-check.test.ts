@@ -106,16 +106,36 @@ describe("IWSDK evidence contract checker", () => {
         }),
       ]),
     }));
+    expect(report.operatorApprovals).toEqual(expect.objectContaining({
+      status: "operator_approved_with_sidecar_gates",
+      approvedAt: "2026-05-04",
+      approvals: expect.arrayContaining([
+        expect.objectContaining({
+          id: "iwsdk-reference-warmup-download-approval",
+          pnpmEquivalentCandidate: "pnpm dlx @iwsdk/reference@0.3.2 iwsdk-reference warmup",
+        }),
+        expect.objectContaining({
+          id: "iwsdk-hzdb-legal-procurement-approval",
+          npmResolution: expect.objectContaining({
+            resolvedPackage: "@meta-quest/hzdb",
+            resolvedVersion: "1.1.0",
+            license: "UNLICENSED",
+          }),
+        }),
+      ]),
+    }));
     expect(report.operatorSteeringBlockers).toEqual(expect.arrayContaining([
       expect.objectContaining({
         id: "iwsdk-install-backed-sidecar-approval",
         blockedAction: "apps/ui-xr-iwsdk-spike",
       }),
       expect.objectContaining({
-        id: "iwsdk-reference-warmup-download-approval",
-        blockedAction: "npx iwsdk reference warmup",
+        id: "iwsdk-quest-foreground-frame-pacing",
+        blockedAction: "foreground Quest frame pacing",
       }),
     ]));
+    expect(report.operatorSteeringBlockers.map((blocker) => blocker.id)).not.toContain("iwsdk-reference-warmup-download-approval");
+    expect(report.operatorSteeringBlockers.map((blocker) => blocker.id)).not.toContain("iwsdk-hzdb-legal-procurement-approval");
     expect(report.agentTooling.readyForAgentTooling).toBe(false);
     expect(report.productionRuntime.readyForProductionRuntime).toBe(false);
     expect(report.verdict).toEqual({

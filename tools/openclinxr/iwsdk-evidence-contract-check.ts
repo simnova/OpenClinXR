@@ -6,6 +6,7 @@ import {
   buildIwsdkCoreRequiredTransitivePackageNames,
   buildIwsdkCoreTransitivePackageLicenseEvidence,
   buildIwsdkCompatibilityContract,
+  buildIwsdkOperatorApprovalContract,
   buildIwsdkOperatorSteeringBlockers,
   buildIwsdkPackageMetadataDriftPolicies,
   buildIwsdkPreInstallPackagePolicy,
@@ -22,6 +23,7 @@ import {
   type IwsdkCompatibilityContract,
   type IwsdkCompatibilityEvidence,
   type IwsdkCompatibilityReadiness,
+  type IwsdkOperatorApprovalContract,
   type IwsdkOperatorSteeringBlocker,
   type IwsdkPackageMetadataDriftPolicy,
   type IwsdkPackageMetadataDriftReadiness,
@@ -60,6 +62,7 @@ export type IwsdkEvidenceContractReport = {
   };
   uiXrParity: IwsdkUiXrStationParityContract;
   toolSelection: IwsdkVerificationToolSelectionContract;
+  operatorApprovals: IwsdkOperatorApprovalContract;
   operatorSteeringBlockers: IwsdkOperatorSteeringBlocker[];
   agentTooling: IwsdkAgentToolingEvidenceReadiness;
   productionRuntime: IwsdkSpikeMetricReadiness;
@@ -194,6 +197,7 @@ export function buildIwsdkEvidenceContractReport(input: {
     },
     uiXrParity: buildIwsdkUiXrStationParityContract(),
     toolSelection,
+    operatorApprovals: buildIwsdkOperatorApprovalContract(),
     operatorSteeringBlockers: buildIwsdkOperatorSteeringBlockers(),
     agentTooling,
     productionRuntime,
@@ -223,6 +227,7 @@ export function validateIwsdkEvidenceContractReport(value: unknown): IwsdkEviden
   requireObject(readAt(value, ["metadataDrift"]), "/metadataDrift", errors);
   requireObject(readAt(value, ["uiXrParity"]), "/uiXrParity", errors);
   requireObject(readAt(value, ["toolSelection"]), "/toolSelection", errors);
+  requireObject(readAt(value, ["operatorApprovals"]), "/operatorApprovals", errors);
   requireArray(readAt(value, ["operatorSteeringBlockers"]), "/operatorSteeringBlockers", errors);
   requireObject(readAt(value, ["agentTooling"]), "/agentTooling", errors);
   requireObject(readAt(value, ["productionRuntime"]), "/productionRuntime", errors);
@@ -323,6 +328,22 @@ export function validateIwsdkEvidenceContractReport(value: unknown): IwsdkEviden
     requireString(readAt(step, ["promotionGate"]), `${pathPrefix}/promotionGate`, errors);
   }
   requireStringArray(readAt(value, ["toolSelection", "blockers"]), "/toolSelection/blockers", errors);
+
+  requireLiteral(readAt(value, ["operatorApprovals", "status"]), "operator_approved_with_sidecar_gates", "/operatorApprovals/status", errors);
+  requireString(readAt(value, ["operatorApprovals", "approvedAt"]), "/operatorApprovals/approvedAt", errors);
+  requireArray(readAt(value, ["operatorApprovals", "approvals"]), "/operatorApprovals/approvals", errors);
+  for (const [index, approval] of arrayEntries(readAt(value, ["operatorApprovals", "approvals"]))) {
+    const pathPrefix = `/operatorApprovals/approvals/${index}`;
+    requireObject(approval, pathPrefix, errors);
+    requireString(readAt(approval, ["id"]), `${pathPrefix}/id`, errors);
+    requireStringArray(readAt(approval, ["approvedScope"]), `${pathPrefix}/approvedScope`, errors);
+    requireObject(readAt(approval, ["npmResolution"]), `${pathPrefix}/npmResolution`, errors);
+    requireString(readAt(approval, ["npmResolution", "resolvedPackage"]), `${pathPrefix}/npmResolution/resolvedPackage`, errors);
+    requireString(readAt(approval, ["npmResolution", "resolvedVersion"]), `${pathPrefix}/npmResolution/resolvedVersion`, errors);
+    requireString(readAt(approval, ["npmResolution", "license"]), `${pathPrefix}/npmResolution/license`, errors);
+    requireStringArray(readAt(approval, ["remainingGates"]), `${pathPrefix}/remainingGates`, errors);
+  }
+  requireStringArray(readAt(value, ["operatorApprovals", "stillBlockedActions"]), "/operatorApprovals/stillBlockedActions", errors);
 
   for (const [index, blocker] of arrayEntries(readAt(value, ["operatorSteeringBlockers"]))) {
     const pathPrefix = `/operatorSteeringBlockers/${index}`;

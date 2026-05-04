@@ -353,7 +353,7 @@ describe("IWSDK workspace posture checker", () => {
       rootPackage: {
         scripts: {
           "iwsdk:verify": "pnpm --filter @openclinxr/iwsdk-spike test",
-          "iwsdk:reference:warmup": "npx iwsdk reference warmup",
+          "iwsdk:reference:warmup": "pnpm dlx @iwsdk/reference@0.3.2 iwsdk-reference warmup",
         },
       },
       productionDependencies: {

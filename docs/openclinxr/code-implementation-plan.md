@@ -257,8 +257,8 @@ Sidecar rules:
 
 - Create `apps/ui-xr-iwsdk-spike` only after operator approval for install scope, exact versions, and transitive license posture.
 - First install-backed slice may evaluate exact-versioned `@iwsdk/core` and `@iwsdk/xr-input` only.
-- Keep `@iwsdk/reference`, `@iwsdk/starter-assets`, `@iwsdk/create`, and `@meta-quest/hzdb` blocked until their download, asset, legal, and procurement questions are resolved.
-- Do not run `npx iwsdk reference warmup` unattended because it can download a model and reference corpus.
+- Keep `@iwsdk/reference`, `@iwsdk/starter-assets`, `@iwsdk/create`, and `@meta-quest/hzdb` out of the first install-backed slice. Patrick approved the reference warmup download scope and `@meta-quest/hzdb` legal/procurement posture on 2026-05-04, but the packages remain sidecar-gated.
+- Do not run floating `npx iwsdk reference warmup`; the package-managed candidate is `pnpm dlx @iwsdk/reference@0.3.2 iwsdk-reference warmup`, and it still needs CLI help, cache location, and download-size evidence before execution.
 - Reject AGPL, GPL, LGPL, UNLICENSED, Unknown, and unreviewed sharp/libvips-style transitive license paths unless leadership records an explicit exception.
 - Run `pnpm iwsdk:verify` before and after any sidecar package or lockfile change.
 - Treat IWSDK MCP screenshots, controller emulation, scene inspection, and ECS debugging as local development accelerators, not substitutes for physical Quest 3 USB-C smoke, foreground frame pacing, controller latency, comfort, or in-headset text-readability evidence.

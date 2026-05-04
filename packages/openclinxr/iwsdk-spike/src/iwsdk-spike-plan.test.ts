@@ -13,6 +13,7 @@ import {
   buildIwsdkMcpToolInventoryRequirement,
   buildIwsdkMcpToolCoverage,
   buildIwsdkOptionalMcpServerPolicy,
+  buildIwsdkOperatorApprovalContract,
   buildIwsdkOperatorSteeringBlockers,
   buildIwsdkPackageMetadataDriftPolicies,
   buildIwsdkPreInstallPackagePolicy,
@@ -101,12 +102,12 @@ describe("IWSDK spike plan", () => {
       expect.objectContaining({
         name: "@iwsdk/reference",
         posture: "blocked_unattended",
-        gates: expect.arrayContaining(["operator_approval_for_model_and_corpus_downloads"]),
+        gates: expect.arrayContaining(["validate_iwsdk_reference_cli_help_before_warmup"]),
       }),
       expect.objectContaining({
         name: "@meta-quest/hzdb",
-        posture: "blocked",
-        gates: expect.arrayContaining(["legal_review_for_unlicensed_metadata"]),
+        posture: "blocked_unattended",
+        gates: expect.arrayContaining(["approved_iwsdk_sidecar_exists"]),
       }),
     ]));
   });
@@ -137,21 +138,13 @@ describe("IWSDK spike plan", () => {
   });
 
   it("declares IWSDK blockers that require operator steering before unattended execution", () => {
-    expect(buildIwsdkOperatorSteeringBlockers()).toEqual([
+    const blockers = buildIwsdkOperatorSteeringBlockers();
+
+    expect(blockers).toEqual([
       expect.objectContaining({
         id: "iwsdk-install-backed-sidecar-approval",
         operatorQuestionText: "IWSDK install-backed sidecar approval",
         blockedAction: "apps/ui-xr-iwsdk-spike",
-      }),
-      expect.objectContaining({
-        id: "iwsdk-reference-warmup-download-approval",
-        operatorQuestionText: "IWSDK reference corpus/model warmup approval",
-        blockedAction: "npx iwsdk reference warmup",
-      }),
-      expect.objectContaining({
-        id: "iwsdk-hzdb-legal-procurement-approval",
-        operatorQuestionText: "Meta Quest hzdb legal/procurement approval",
-        blockedAction: "@meta-quest/hzdb",
       }),
       expect.objectContaining({
         id: "iwsdk-quest-foreground-frame-pacing",
@@ -159,6 +152,67 @@ describe("IWSDK spike plan", () => {
         blockedAction: "foreground Quest frame pacing",
       }),
     ]);
+    expect(blockers.map((blocker) => blocker.id)).not.toContain("iwsdk-reference-warmup-download-approval");
+    expect(blockers.map((blocker) => blocker.id)).not.toContain("iwsdk-hzdb-legal-procurement-approval");
+  });
+
+  it("records Patrick's IWSDK reference warmup and hzdb approvals without permitting production installs", () => {
+    expect(buildIwsdkOperatorApprovalContract()).toEqual({
+      status: "operator_approved_with_sidecar_gates",
+      approvedAt: "2026-05-04",
+      approvals: [
+        {
+          id: "iwsdk-reference-warmup-download-approval",
+          approvedScope: [
+            "local_reference_model_and_corpus_warmup",
+            "package_managed_pnpm_equivalent_to_npx",
+            "no_paid_cloud_or_third_party_api_usage",
+          ],
+          npmResolution: {
+            requestedPackage: "iwsdk",
+            requestedPackageFound: false,
+            resolvedPackage: "@iwsdk/reference",
+            resolvedVersion: "0.3.2",
+            resolvedBin: "iwsdk-reference",
+            license: "MIT",
+            dependencies: ["@huggingface/transformers", "@modelcontextprotocol/sdk", "tar"],
+          },
+          pnpmEquivalentCandidate: "pnpm dlx @iwsdk/reference@0.3.2 iwsdk-reference warmup",
+          remainingGates: [
+            "validate_iwsdk_reference_cli_help_before_warmup",
+            "record_model_and_corpus_download_size",
+            "record_cache_location",
+            "keep_reference_assets_out_of_git",
+          ],
+        },
+        {
+          id: "iwsdk-hzdb-legal-procurement-approval",
+          approvedScope: [
+            "package_terms_and_npm_metadata_posture",
+            "quest_device_management_scope",
+            "asset_library_lookup_behavior",
+          ],
+          npmResolution: {
+            resolvedPackage: "@meta-quest/hzdb",
+            resolvedVersion: "1.1.0",
+            resolvedBin: "hzdb",
+            license: "UNLICENSED",
+          },
+          remainingGates: [
+            "install_only_inside_approved_iwsdk_sidecar",
+            "do_not_add_to_production_manifests",
+            "record_runtime_device_management_behavior",
+            "record_any_asset_library_lookup_network_behavior",
+          ],
+        },
+      ],
+      stillBlockedActions: [
+        "floating npx iwsdk reference warmup",
+        "workspace manifest install of @meta-quest/hzdb outside approved sidecar",
+        "committed @meta-quest/hzdb lockfile state before sidecar approval",
+        "production runtime adoption of optional IWSDK MCP servers",
+      ],
+    });
   });
 
   it("keeps agent verification ordered around session status before XR interaction", () => {
@@ -782,16 +836,22 @@ describe("IWSDK spike plan", () => {
         serverName: "iwsdk-reference",
         packageName: "@iwsdk/reference",
         posture: "blocked_unattended",
+        approvalStatus: "operator_approved_download_scope",
         sourceRecordIds: ["src-iwsdk-ai-docs-2026", "src-iwsdk-npm-metadata-2026-05-04"],
-        allowedOnlyAfter: ["operator_approval_for_model_and_corpus_downloads", "cache_location_documented"],
+        allowedOnlyAfter: [
+          "validate_iwsdk_reference_cli_help_before_warmup",
+          "cache_location_documented",
+          "model_and_corpus_download_size_recorded",
+        ],
         blockedActions: ["npx iwsdk reference warmup"],
       },
       {
         serverName: "hzdb",
         packageName: "@meta-quest/hzdb",
-        posture: "blocked",
+        posture: "blocked_unattended",
+        approvalStatus: "legal_procurement_approved_sidecar_gated",
         sourceRecordIds: ["src-iwsdk-ai-docs-2026", "src-iwsdk-npm-metadata-2026-05-04"],
-        allowedOnlyAfter: ["legal_review_for_unlicensed_metadata", "procurement_approval"],
+        allowedOnlyAfter: ["approved_iwsdk_sidecar_exists", "runtime_device_management_behavior_recorded"],
         blockedActions: ["install @meta-quest/hzdb"],
       },
     ]);
@@ -1383,7 +1443,7 @@ describe("IWSDK spike plan", () => {
         {
           manifestPath: "package.json",
           scriptName: "iwsdk:reference:warmup",
-          command: "npx iwsdk reference warmup",
+          command: "pnpm dlx @iwsdk/reference@0.3.2 iwsdk-reference warmup",
         },
         {
           manifestPath: "apps/ui-xr/package.json",

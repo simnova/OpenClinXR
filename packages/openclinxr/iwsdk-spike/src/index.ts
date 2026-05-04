@@ -276,6 +276,7 @@ export type IwsdkOptionalMcpServerPolicy = {
   serverName: string;
   packageName: string;
   posture: Extract<IwsdkSpikePackagePosture, "blocked" | "blocked_unattended">;
+  approvalStatus: "operator_approved_download_scope" | "legal_procurement_approved_sidecar_gated";
   sourceRecordIds: string[];
   allowedOnlyAfter: string[];
   blockedActions: string[];
@@ -487,6 +488,31 @@ export type IwsdkOperatorSteeringBlocker = {
   whyHumanApprovalIsRequired: string;
 };
 
+export type IwsdkOperatorApprovalNpmResolution = {
+  requestedPackage?: string;
+  requestedPackageFound?: boolean;
+  resolvedPackage: string;
+  resolvedVersion: string;
+  resolvedBin?: string;
+  license: string;
+  dependencies?: string[];
+};
+
+export type IwsdkOperatorApproval = {
+  id: string;
+  approvedScope: string[];
+  npmResolution: IwsdkOperatorApprovalNpmResolution;
+  pnpmEquivalentCandidate?: string;
+  remainingGates: string[];
+};
+
+export type IwsdkOperatorApprovalContract = {
+  status: "operator_approved_with_sidecar_gates";
+  approvedAt: "2026-05-04";
+  approvals: IwsdkOperatorApproval[];
+  stillBlockedActions: string[];
+};
+
 const sourceRecordIds = [
   "src-meta-iwsdk-github-2026",
   "src-iwsdk-ai-docs-2026",
@@ -633,8 +659,12 @@ export function buildIwsdkSpikePlan(): IwsdkSpikePlan {
       {
         name: "@iwsdk/reference",
         posture: "blocked_unattended",
-        intendedUse: "Optional local IWSDK reference lookup after an operator approves model and reference-corpus downloads.",
-        gates: ["operator_approval_for_model_and_corpus_downloads", "cache_location_documented"],
+        intendedUse: "Optional local IWSDK reference lookup after the approved PNPM-equivalent command path, download size, and cache location are validated.",
+        gates: [
+          "validate_iwsdk_reference_cli_help_before_warmup",
+          "cache_location_documented",
+          "model_and_corpus_download_size_recorded",
+        ],
       },
       {
         name: "@iwsdk/starter-assets",
@@ -644,9 +674,13 @@ export function buildIwsdkSpikePlan(): IwsdkSpikePlan {
       },
       {
         name: "@meta-quest/hzdb",
-        posture: "blocked",
-        intendedUse: "Do not use until legal/procurement approves the package terms and npm metadata posture.",
-        gates: ["legal_review_for_unlicensed_metadata", "procurement_approval"],
+        posture: "blocked_unattended",
+        intendedUse: "Legal/procurement scope is approved, but use only inside an approved IWSDK sidecar after runtime device-management and asset lookup behavior are recorded.",
+        gates: [
+          "approved_iwsdk_sidecar_exists",
+          "runtime_device_management_behavior_recorded",
+          "asset_library_lookup_network_behavior_recorded",
+        ],
       },
     ],
     requiredEvidence: productionRuntimeGateKeys.map((key) => gateBlockerNames[key]),
@@ -686,24 +720,71 @@ export function buildIwsdkOperatorSteeringBlockers(): IwsdkOperatorSteeringBlock
       whyHumanApprovalIsRequired: "Creating the sidecar would add executable IWSDK packages and lockfile state to the workspace.",
     },
     {
-      id: "iwsdk-reference-warmup-download-approval",
-      operatorQuestionText: "IWSDK reference corpus/model warmup approval",
-      blockedAction: "npx iwsdk reference warmup",
-      whyHumanApprovalIsRequired: "Reference warmup can download a model and reference corpus into local cache state.",
-    },
-    {
-      id: "iwsdk-hzdb-legal-procurement-approval",
-      operatorQuestionText: "Meta Quest hzdb legal/procurement approval",
-      blockedAction: "@meta-quest/hzdb",
-      whyHumanApprovalIsRequired: "The optional Quest device-management package requires terms and metadata review before use.",
-    },
-    {
       id: "iwsdk-quest-foreground-frame-pacing",
       operatorQuestionText: "Quest foreground performance capture",
       blockedAction: "foreground Quest frame pacing",
       whyHumanApprovalIsRequired: "MCP emulation cannot prove physical headset frame pacing, comfort, or readable in-headset text.",
     },
   ];
+}
+
+export function buildIwsdkOperatorApprovalContract(): IwsdkOperatorApprovalContract {
+  return {
+    status: "operator_approved_with_sidecar_gates",
+    approvedAt: "2026-05-04",
+    approvals: [
+      {
+        id: "iwsdk-reference-warmup-download-approval",
+        approvedScope: [
+          "local_reference_model_and_corpus_warmup",
+          "package_managed_pnpm_equivalent_to_npx",
+          "no_paid_cloud_or_third_party_api_usage",
+        ],
+        npmResolution: {
+          requestedPackage: "iwsdk",
+          requestedPackageFound: false,
+          resolvedPackage: "@iwsdk/reference",
+          resolvedVersion: "0.3.2",
+          resolvedBin: "iwsdk-reference",
+          license: "MIT",
+          dependencies: ["@huggingface/transformers", "@modelcontextprotocol/sdk", "tar"],
+        },
+        pnpmEquivalentCandidate: "pnpm dlx @iwsdk/reference@0.3.2 iwsdk-reference warmup",
+        remainingGates: [
+          "validate_iwsdk_reference_cli_help_before_warmup",
+          "record_model_and_corpus_download_size",
+          "record_cache_location",
+          "keep_reference_assets_out_of_git",
+        ],
+      },
+      {
+        id: "iwsdk-hzdb-legal-procurement-approval",
+        approvedScope: [
+          "package_terms_and_npm_metadata_posture",
+          "quest_device_management_scope",
+          "asset_library_lookup_behavior",
+        ],
+        npmResolution: {
+          resolvedPackage: "@meta-quest/hzdb",
+          resolvedVersion: "1.1.0",
+          resolvedBin: "hzdb",
+          license: "UNLICENSED",
+        },
+        remainingGates: [
+          "install_only_inside_approved_iwsdk_sidecar",
+          "do_not_add_to_production_manifests",
+          "record_runtime_device_management_behavior",
+          "record_any_asset_library_lookup_network_behavior",
+        ],
+      },
+    ],
+    stillBlockedActions: [
+      "floating npx iwsdk reference warmup",
+      "workspace manifest install of @meta-quest/hzdb outside approved sidecar",
+      "committed @meta-quest/hzdb lockfile state before sidecar approval",
+      "production runtime adoption of optional IWSDK MCP servers",
+    ],
+  };
 }
 
 export function buildIwsdkUiXrStationParityContract(): IwsdkUiXrStationParityContract {
@@ -1433,16 +1514,22 @@ export function buildIwsdkOptionalMcpServerPolicy(): IwsdkOptionalMcpServerPolic
       serverName: "iwsdk-reference",
       packageName: "@iwsdk/reference",
       posture: "blocked_unattended",
+      approvalStatus: "operator_approved_download_scope",
       sourceRecordIds: ["src-iwsdk-ai-docs-2026", "src-iwsdk-npm-metadata-2026-05-04"],
-      allowedOnlyAfter: ["operator_approval_for_model_and_corpus_downloads", "cache_location_documented"],
+      allowedOnlyAfter: [
+        "validate_iwsdk_reference_cli_help_before_warmup",
+        "cache_location_documented",
+        "model_and_corpus_download_size_recorded",
+      ],
       blockedActions: ["npx iwsdk reference warmup"],
     },
     {
       serverName: "hzdb",
       packageName: "@meta-quest/hzdb",
-      posture: "blocked",
+      posture: "blocked_unattended",
+      approvalStatus: "legal_procurement_approved_sidecar_gated",
       sourceRecordIds: ["src-iwsdk-ai-docs-2026", "src-iwsdk-npm-metadata-2026-05-04"],
-      allowedOnlyAfter: ["legal_review_for_unlicensed_metadata", "procurement_approval"],
+      allowedOnlyAfter: ["approved_iwsdk_sidecar_exists", "runtime_device_management_behavior_recorded"],
       blockedActions: ["install @meta-quest/hzdb"],
     },
   ];
@@ -1942,7 +2029,7 @@ function blockedWorkspaceScriptActions(scriptReferences: IwsdkWorkspaceScriptRef
   const blockedActions = [
     {
       id: "iwsdk_reference_warmup",
-      pattern: /\biwsdk\s+reference\s+warmup\b/,
+      pattern: /(?:\biwsdk\s+reference\s+warmup\b|\biwsdk-reference\s+warmup\b|@iwsdk\/reference(?:@|\b).*\biwsdk-reference\s+warmup\b)/,
     },
     {
       id: "iwsdk_create",

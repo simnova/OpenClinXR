@@ -39,7 +39,8 @@ Negative:
 - First controller-select trace target: `ecg_request`.
 - Required named objects live in `apps/ui-xr/src/runtime-state.ts`.
 - Current production shell names scene objects in `apps/ui-xr/src/main.ts`; a future sidecar must preserve those semantic names or document the migration.
-- Do not run `@iwsdk/reference` warmup, install `@meta-quest/hzdb`, or add IWSDK packages outside the approved sidecar path in unattended mode.
+- Patrick approved `@iwsdk/reference` warmup scope and `@meta-quest/hzdb` legal/procurement posture on 2026-05-04, but do not run floating `npx iwsdk reference warmup`, install `@meta-quest/hzdb`, or add IWSDK packages outside the approved sidecar path in unattended mode.
+- Use [proposal-iwsdk-sidecar-install.md](../proposal-iwsdk-sidecar-install.md) as the decision artifact before creating a runnable `apps/ui-xr-iwsdk-spike` sidecar.
 
 ## Sources
 

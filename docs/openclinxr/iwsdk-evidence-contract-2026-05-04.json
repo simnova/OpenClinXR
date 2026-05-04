@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T13:37:41.062Z",
+  "generatedAt": "2026-05-04T13:57:26.618Z",
   "status": "contract_only",
   "sidecar": {
     "sidecarAppRoot": "apps/ui-xr-iwsdk-spike/",
@@ -366,24 +366,72 @@
       "tool_selection:manual_quest_foreground_required_for_production_readiness"
     ]
   },
+  "operatorApprovals": {
+    "status": "operator_approved_with_sidecar_gates",
+    "approvedAt": "2026-05-04",
+    "approvals": [
+      {
+        "id": "iwsdk-reference-warmup-download-approval",
+        "approvedScope": [
+          "local_reference_model_and_corpus_warmup",
+          "package_managed_pnpm_equivalent_to_npx",
+          "no_paid_cloud_or_third_party_api_usage"
+        ],
+        "npmResolution": {
+          "requestedPackage": "iwsdk",
+          "requestedPackageFound": false,
+          "resolvedPackage": "@iwsdk/reference",
+          "resolvedVersion": "0.3.2",
+          "resolvedBin": "iwsdk-reference",
+          "license": "MIT",
+          "dependencies": [
+            "@huggingface/transformers",
+            "@modelcontextprotocol/sdk",
+            "tar"
+          ]
+        },
+        "pnpmEquivalentCandidate": "pnpm dlx @iwsdk/reference@0.3.2 iwsdk-reference warmup",
+        "remainingGates": [
+          "validate_iwsdk_reference_cli_help_before_warmup",
+          "record_model_and_corpus_download_size",
+          "record_cache_location",
+          "keep_reference_assets_out_of_git"
+        ]
+      },
+      {
+        "id": "iwsdk-hzdb-legal-procurement-approval",
+        "approvedScope": [
+          "package_terms_and_npm_metadata_posture",
+          "quest_device_management_scope",
+          "asset_library_lookup_behavior"
+        ],
+        "npmResolution": {
+          "resolvedPackage": "@meta-quest/hzdb",
+          "resolvedVersion": "1.1.0",
+          "resolvedBin": "hzdb",
+          "license": "UNLICENSED"
+        },
+        "remainingGates": [
+          "install_only_inside_approved_iwsdk_sidecar",
+          "do_not_add_to_production_manifests",
+          "record_runtime_device_management_behavior",
+          "record_any_asset_library_lookup_network_behavior"
+        ]
+      }
+    ],
+    "stillBlockedActions": [
+      "floating npx iwsdk reference warmup",
+      "workspace manifest install of @meta-quest/hzdb outside approved sidecar",
+      "committed @meta-quest/hzdb lockfile state before sidecar approval",
+      "production runtime adoption of optional IWSDK MCP servers"
+    ]
+  },
   "operatorSteeringBlockers": [
     {
       "id": "iwsdk-install-backed-sidecar-approval",
       "operatorQuestionText": "IWSDK install-backed sidecar approval",
       "blockedAction": "apps/ui-xr-iwsdk-spike",
       "whyHumanApprovalIsRequired": "Creating the sidecar would add executable IWSDK packages and lockfile state to the workspace."
-    },
-    {
-      "id": "iwsdk-reference-warmup-download-approval",
-      "operatorQuestionText": "IWSDK reference corpus/model warmup approval",
-      "blockedAction": "npx iwsdk reference warmup",
-      "whyHumanApprovalIsRequired": "Reference warmup can download a model and reference corpus into local cache state."
-    },
-    {
-      "id": "iwsdk-hzdb-legal-procurement-approval",
-      "operatorQuestionText": "Meta Quest hzdb legal/procurement approval",
-      "blockedAction": "@meta-quest/hzdb",
-      "whyHumanApprovalIsRequired": "The optional Quest device-management package requires terms and metadata review before use."
     },
     {
       "id": "iwsdk-quest-foreground-frame-pacing",
