@@ -4,7 +4,7 @@ import type { ScenarioAssetReadiness } from "@openclinxr/asset-registry";
 import type { BlueprintScenarioReadiness, ExamBlueprint, ExamStationRunQueue, ExamTimingPlan } from "@openclinxr/exam-assembly";
 import { adminPublicationGates, adminWorkbenchRoutes } from "@openclinxr/ui-route-admin";
 import { adminWorkbenchCapabilityTags, openClinXrAdminTheme } from "@openclinxr/ui-shared";
-import { Alert, Card, ConfigProvider, Layout, Space, Spin, Steps, Tag, Typography } from "antd";
+import { Alert, Button, Card, ConfigProvider, Layout, Space, Spin, Steps, Tag, Typography } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { BrowserRouter, Link, MemoryRouter, Route, Routes } from "react-router";
 import { createAdminControlPlaneClient, type AdminControlPlaneClient } from "./api-client.js";
@@ -138,6 +138,12 @@ type SeedBlueprintWorkbenchState =
 
 function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: AdminControlPlaneClient }): React.ReactElement {
   const [state, setState] = useState<SeedBlueprintWorkbenchState>({ status: "loading" });
+  const [snapshotState, setSnapshotState] = useState<
+    | { status: "idle" }
+    | { status: "saving" }
+    | { status: "saved"; snapshotId: string }
+    | { status: "error"; message: string }
+  >({ status: "idle" });
 
   useEffect(() => {
     let active = true;
@@ -190,6 +196,18 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
   const productionReadyScenes = state.assetReadiness.filter((readiness) => readiness.productionReady).length;
   const devReadyScenes = state.assetReadiness.filter((readiness) => readiness.devReady).length;
   const firstBlockedScenario = state.readiness.blockedScenarioIds[0];
+  const createSnapshot = async () => {
+    setSnapshotState({ status: "saving" });
+    try {
+      const snapshot = await controlPlaneClient.createStep2CsSeedStationRunQueueSnapshot({
+        reviewerId: "admin_seed_reviewer",
+        createdAt: new Date().toISOString(),
+      });
+      setSnapshotState({ status: "saved", snapshotId: snapshot.snapshotId });
+    } catch (error) {
+      setSnapshotState({ status: "error", message: error instanceof Error ? error.message : "Unknown snapshot error" });
+    }
+  };
 
   return (
     <section className="seed-workbench" aria-labelledby="seed-exam-readiness-title">
@@ -200,9 +218,14 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
             Seed Exam Readiness
           </Typography.Title>
         </div>
-        <Tag color={state.readiness.canAssembleReadyForm ? "green" : "gold"}>
-          {state.readiness.canAssembleReadyForm ? "Assembly ready" : "Review blocked"}
-        </Tag>
+        <Space wrap>
+          <Button type="primary" loading={snapshotState.status === "saving"} onClick={() => void createSnapshot()}>
+            Create review snapshot
+          </Button>
+          <Tag color={state.readiness.canAssembleReadyForm ? "green" : "gold"}>
+            {state.readiness.canAssembleReadyForm ? "Assembly ready" : "Review blocked"}
+          </Tag>
+        </Space>
       </div>
 
       <div className="readiness-strip" aria-label="Seed exam readiness summary">
@@ -216,6 +239,9 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
           detail={`${state.stationRunQueue.summary.draftBlocked} draft-blocked stations`}
         />
       </div>
+
+      {snapshotState.status === "saved" ? <Alert type="success" title="Review snapshot saved" description={snapshotState.snapshotId} showIcon /> : null}
+      {snapshotState.status === "error" ? <Alert type="error" title="Review snapshot failed" description={snapshotState.message} showIcon /> : null}
 
       <div className="workbench-panels">
         <section className="workbench-panel station-queue-panel" aria-labelledby="station-queue-title">

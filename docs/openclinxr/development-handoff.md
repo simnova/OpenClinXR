@@ -312,7 +312,7 @@ Exam assembly milestone has also started:
 - `apps/api` exposes version-drift comparison for a submitted exam form against current scenario versions.
 - `packages/openclinxr/data-mongodb` persists exam forms with locked scenario refs for later drift review.
 - `packages/openclinxr/data-mongodb` persists station-run queue snapshots with reviewer provenance, timing, launch-gating status, and per-station blockers so admin approval can reference the exact queue that was reviewed.
-- `apps/ui-admin` has a typed control-plane client method for creating seed station-run queue review snapshots through the stable REST route.
+- `apps/ui-admin` has a typed control-plane client method and exam-forms workbench action for creating seed station-run queue review snapshots through the stable REST route.
 
 Agent-loop orchestration milestone has also started:
 

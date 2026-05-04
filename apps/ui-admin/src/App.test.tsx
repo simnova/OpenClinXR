@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom/vitest";
-import { render, screen } from "@testing-library/react";
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { AdminApp } from "./App.js";
 import type { AdminControlPlaneClient } from "./api-client.js";
 
@@ -16,6 +16,10 @@ describe("AdminApp", () => {
       removeListener: vi.fn(),
       dispatchEvent: vi.fn(),
     }));
+  });
+
+  afterEach(() => {
+    cleanup();
   });
 
   it("renders the scenario governance workbench routes and GraphQL contract status", () => {
@@ -47,6 +51,20 @@ describe("AdminApp", () => {
     expect(screen.getByText("Station 9")).toBeInTheDocument();
     expect(screen.getAllByText("draft_blocked").length).toBe(11);
     expect(screen.getAllByText("clinic_abdominal_pain_interpreter_v1").length).toBeGreaterThan(0);
+  });
+
+  it("creates a review snapshot from the station run queue", async () => {
+    const client = fakeControlPlaneClient();
+    const createSnapshot = vi.fn(client.createStep2CsSeedStationRunQueueSnapshot);
+    client.createStep2CsSeedStationRunQueueSnapshot = createSnapshot;
+
+    render(<AdminApp initialPath="/exam-forms" controlPlaneClient={client} />);
+
+    fireEvent.click(await screen.findByRole("button", { name: "Create review snapshot" }));
+
+    expect(createSnapshot).toHaveBeenCalledWith(expect.objectContaining({ reviewerId: "admin_seed_reviewer" }));
+    expect(await screen.findByText("Review snapshot saved")).toBeInTheDocument();
+    expect(screen.getByText("queue_snapshot_test_001")).toBeInTheDocument();
   });
 });
 
