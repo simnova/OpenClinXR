@@ -68,6 +68,15 @@ Keep this adapter local and reversible. Do not commit `.codex/config.toml` chang
 
 ## Verification Order
 
+`packages/openclinxr/iwsdk-spike` exposes `buildIwsdkVerificationToolSelectionContract()` as the source of truth for which verification tool can support which XR claim.
+
+Use the tool ladder this way:
+
+- Browser Use, Playwright, or Chrome DevTools MCP against a local desktop/mobile browser can prove desktop fallback, nonblank WebGL canvas, trace controls, and clean console behavior. It cannot prove Quest shell delivery, foreground frame pacing, controller latency, comfort, or in-headset readability.
+- Quest CDP through USB-C, ADB reverse, and Quest Browser remote inspection can prove Quest Browser shell delivery, WebXR feature detection, and basic trace-control interaction. It cannot prove foreground frame pacing when the CDP report is hidden or inactive.
+- Future IWSDK MCP evidence can prove emulated XR session readiness, scene hierarchy parity, controller-select trace behavior, screenshots, console logs, and ECS inspection only after the approved sidecar exists and the MCP evidence gates pass.
+- Manual foreground Quest evidence remains required before any production-readiness claim about frame pacing, controller latency, comfort, thermal behavior, or readable in-headset text.
+
 Default to IWSDK `agent` mode for unattended Codex checks: headless fixed viewport, DevUI off, and a separate normal browser for manual development. Use `oversight` mode only when Patrick or a developer needs to watch the Playwright browser directly. Use `collaborate` mode only for hands-on controller, hand, or spatial UI tuning after the sidecar shell is stable.
 
 The current production `apps/ui-xr` shell is the baseline station for future sidecar parity checks. It now exposes a source-controlled smoke plan through `buildIwsdkStationMcpSmokePlan()` in `apps/ui-xr/src/runtime-state.ts`. The first plan targets the ED chest pain station, requires named Three.js scene objects for patient, nurse, spouse, monitor, bed, floor, lights, and wall clock, and uses `ecg_request` as the first controller-select trace action.

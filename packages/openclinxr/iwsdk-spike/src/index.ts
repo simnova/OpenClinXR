@@ -92,6 +92,58 @@ export type IwsdkPlaywrightBrowserPosture = "headless_fixed_viewport" | "visible
 export type IwsdkDevUiPosture = "off" | "on";
 export type IwsdkNormalBrowserPosture = "opens_independently" | "playwright_browser";
 
+export type IwsdkVerificationToolId =
+  | "browser_use_playwright"
+  | "quest_cdp"
+  | "iwsdk_mcp_future"
+  | "manual_quest_foreground";
+
+export type IwsdkVerificationToolPosture =
+  | "default_local"
+  | "device_cdp"
+  | "approved_sidecar_only"
+  | "manual_physical_device";
+
+export type IwsdkVerificationClaim =
+  | "desktop_fallback_rendered"
+  | "webgl_canvas_nonblank"
+  | "trace_controls_advance"
+  | "quest_browser_shell_loaded"
+  | "quest_webxr_feature_detected"
+  | "quest_trace_controls_advance"
+  | "emulated_xr_session_ready"
+  | "mcp_scene_hierarchy_matches_station_contract"
+  | "emulated_controller_select_advances_trace"
+  | "foreground_quest_frame_pacing"
+  | "controller_latency_on_headset"
+  | "physical_quest_comfort"
+  | "in_headset_text_readability";
+
+export type IwsdkVerificationToolContract = {
+  toolId: IwsdkVerificationToolId;
+  posture: IwsdkVerificationToolPosture;
+  sourceRecordIds: string[];
+  useWhen: string;
+  requiredEvidence: string[];
+  canSupportClaims: IwsdkVerificationClaim[];
+  cannotSupportClaims: IwsdkVerificationClaim[];
+  blockedUntil: string[];
+};
+
+export type IwsdkVerificationEvidenceStep = {
+  order: number;
+  toolId: IwsdkVerificationToolId;
+  promotionGate: string;
+};
+
+export type IwsdkVerificationToolSelectionContract = {
+  status: "contract_only";
+  sourceRecordIds: string[];
+  toolContracts: IwsdkVerificationToolContract[];
+  evidenceLadder: IwsdkVerificationEvidenceStep[];
+  blockers: string[];
+};
+
 export type IwsdkAiModeProfile = {
   mode: IwsdkAgentMode;
   playwrightBrowser: IwsdkPlaywrightBrowserPosture;
@@ -510,6 +562,7 @@ export function buildIwsdkSourceRecordIdContract(): IwsdkSourceRecordIdContract 
       ...buildIwsdkPackageMetadataDriftPolicies().flatMap((policy) => policy.sourceRecordIds),
       ...buildIwsdkViteAiDevConfigContract().sourceRecordIds,
       ...buildIwsdkCompatibilityContract().sourceRecordIds,
+      ...buildIwsdkVerificationToolSelectionContract().sourceRecordIds,
     ]),
   };
 }
@@ -920,6 +973,152 @@ export function buildIwsdkAiModeProfiles(): IwsdkAiModeProfile[] {
       openclinxrUse: "Hands-on pairing session for controller, hand, or spatial UI tuning after the sidecar shell is stable.",
     },
   ];
+}
+
+export function buildIwsdkVerificationToolSelectionContract(): IwsdkVerificationToolSelectionContract {
+  const toolContracts: IwsdkVerificationToolContract[] = [
+    {
+      toolId: "browser_use_playwright",
+      posture: "default_local",
+      sourceRecordIds: ["src-local-hardware-spike-2026-05-03"],
+      useWhen: "Use Browser Use, Playwright, or Chrome DevTools MCP against local desktop/mobile browser surfaces before headset work.",
+      requiredEvidence: [
+        "page_loads_without_error_overlay",
+        "webgl_canvas_nonblank",
+        "trace_control_interaction_advances_state",
+        "console_has_no_warning_or_error_messages",
+      ],
+      canSupportClaims: ["desktop_fallback_rendered", "webgl_canvas_nonblank", "trace_controls_advance"],
+      cannotSupportClaims: [
+        "quest_browser_shell_loaded",
+        "quest_webxr_feature_detected",
+        "foreground_quest_frame_pacing",
+        "controller_latency_on_headset",
+        "physical_quest_comfort",
+        "in_headset_text_readability",
+      ],
+      blockedUntil: [],
+    },
+    {
+      toolId: "quest_cdp",
+      posture: "device_cdp",
+      sourceRecordIds: [
+        "src-chrome-android-remote-debugging-2026",
+        "src-cognitive3d-webxr-quest-dev-setup-2026",
+        "src-local-hardware-spike-2026-05-03",
+      ],
+      useWhen: "Use ADB reverse plus Quest Browser CDP for USB-C shell delivery, WebXR feature detection, and basic trace interaction evidence.",
+      requiredEvidence: [
+        "adb_device_authorized",
+        "adb_reverse_active",
+        "quest_browser_cdp_target_detected",
+        "canvas_nonblank",
+        "webxr_feature_detection_recorded",
+        "trace_controls_advance",
+        "visibility_state_recorded",
+      ],
+      canSupportClaims: ["quest_browser_shell_loaded", "quest_webxr_feature_detected", "quest_trace_controls_advance"],
+      cannotSupportClaims: [
+        "foreground_quest_frame_pacing",
+        "controller_latency_on_headset",
+        "physical_quest_comfort",
+        "in_headset_text_readability",
+      ],
+      blockedUntil: [],
+    },
+    {
+      toolId: "iwsdk_mcp_future",
+      posture: "approved_sidecar_only",
+      sourceRecordIds: [
+        "src-iwsdk-ai-docs-2026",
+        "src-iwsdk-local-spike-2026-05-04",
+        "src-openclinxr-iwsdk-spike-plan-2026-05-04",
+      ],
+      useWhen: "Use only after an install-backed sidecar is approved to inspect emulated XR state, scene hierarchy, controller actions, screenshots, and ECS behavior.",
+      requiredEvidence: [
+        "operator_approved_install_backed_sidecar",
+        "iwsdk_adapter_sync_recorded",
+        "expected_32_mcp_tools_observed",
+        "managed_browser_evidence_scored",
+        "scene_hierarchy_contains_named_station_objects",
+        "xr_select_advances_known_trace_action",
+        "browser_console_logs_recorded",
+      ],
+      canSupportClaims: [
+        "emulated_xr_session_ready",
+        "mcp_scene_hierarchy_matches_station_contract",
+        "emulated_controller_select_advances_trace",
+      ],
+      cannotSupportClaims: [
+        "quest_browser_shell_loaded",
+        "foreground_quest_frame_pacing",
+        "controller_latency_on_headset",
+        "physical_quest_comfort",
+        "in_headset_text_readability",
+      ],
+      blockedUntil: [
+        "apps/ui-xr-iwsdk-spike_absent",
+        "apps/ui-xr-iwsdk-spike_exists_with_exact_iwsdk_versions",
+        "operator_accepts_iwsdk_install_scope",
+        "iwsdk_adapter_sync_recorded",
+        "mcp_tool_inventory_and_managed_browser_evidence_pass",
+      ],
+    },
+    {
+      toolId: "manual_quest_foreground",
+      posture: "manual_physical_device",
+      sourceRecordIds: ["src-local-hardware-spike-2026-05-03"],
+      useWhen: "Use for physical headset production-readiness claims after the Quest is awake, worn, and the station page is foregrounded.",
+      requiredEvidence: [
+        "quest_foreground_preflight_ready",
+        "manual_avg_fps_recorded",
+        "manual_p95_frame_ms_recorded",
+        "controller_select_latency_recorded",
+        "comfort_or_thermal_notes_recorded",
+        "in_headset_text_readability_recorded",
+      ],
+      canSupportClaims: [
+        "foreground_quest_frame_pacing",
+        "controller_latency_on_headset",
+        "physical_quest_comfort",
+        "in_headset_text_readability",
+      ],
+      cannotSupportClaims: [],
+      blockedUntil: ["quest_foreground_preflight_ready", "manual_quest_performance_report_passes"],
+    },
+  ];
+
+  return {
+    status: "contract_only",
+    sourceRecordIds: unique(toolContracts.flatMap((tool) => tool.sourceRecordIds)),
+    toolContracts,
+    evidenceLadder: toolContracts.map((tool, index) => ({
+      order: index + 1,
+      toolId: tool.toolId,
+      promotionGate: buildIwsdkVerificationPromotionGate(tool.toolId),
+    })),
+    blockers: [
+      "tool_selection:iwsdk_mcp_future_blocked_until_sidecar",
+      "tool_selection:manual_quest_foreground_required_for_production_readiness",
+    ],
+  };
+}
+
+export function selectIwsdkVerificationToolsForClaim(claim: IwsdkVerificationClaim): IwsdkVerificationToolContract[] {
+  return buildIwsdkVerificationToolSelectionContract().toolContracts.filter((tool) => tool.canSupportClaims.includes(claim));
+}
+
+function buildIwsdkVerificationPromotionGate(toolId: IwsdkVerificationToolId): string {
+  switch (toolId) {
+    case "browser_use_playwright":
+      return "Promote to Quest CDP only after desktop fallback, nonblank canvas, trace controls, and console checks pass.";
+    case "quest_cdp":
+      return "Promote to IWSDK MCP or manual Quest evidence only after shell delivery and trace interaction are classified precisely.";
+    case "iwsdk_mcp_future":
+      return "Promote to production-readiness discussion only after sidecar approval, MCP inventory, scene, and controller evidence pass.";
+    case "manual_quest_foreground":
+      return "Required before claiming Quest frame pacing, controller latency, comfort, or in-headset readability readiness.";
+  }
 }
 
 export function buildIwsdkMcpToolCoverage(): IwsdkMcpToolCoverage[] {

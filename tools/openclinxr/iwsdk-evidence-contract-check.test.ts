@@ -81,6 +81,31 @@ describe("IWSDK evidence contract checker", () => {
       smokePlanHash: "runtime-state:iwsdk-station-mcp-smoke-plan:v1",
       controllerSelectTraceTag: "ecg_request",
     }));
+    expect(report.toolSelection).toEqual(expect.objectContaining({
+      status: "contract_only",
+      blockers: [
+        "tool_selection:iwsdk_mcp_future_blocked_until_sidecar",
+        "tool_selection:manual_quest_foreground_required_for_production_readiness",
+      ],
+      toolContracts: expect.arrayContaining([
+        expect.objectContaining({
+          toolId: "browser_use_playwright",
+          cannotSupportClaims: expect.arrayContaining(["foreground_quest_frame_pacing"]),
+        }),
+        expect.objectContaining({
+          toolId: "quest_cdp",
+          canSupportClaims: expect.arrayContaining(["quest_browser_shell_loaded"]),
+        }),
+        expect.objectContaining({
+          toolId: "iwsdk_mcp_future",
+          blockedUntil: expect.arrayContaining(["iwsdk_adapter_sync_recorded"]),
+        }),
+        expect.objectContaining({
+          toolId: "manual_quest_foreground",
+          canSupportClaims: expect.arrayContaining(["foreground_quest_frame_pacing"]),
+        }),
+      ]),
+    }));
     expect(report.operatorSteeringBlockers).toEqual(expect.arrayContaining([
       expect.objectContaining({
         id: "iwsdk-install-backed-sidecar-approval",
@@ -104,6 +129,8 @@ describe("IWSDK evidence contract checker", () => {
         "metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
         "agent_tooling:adapter_sync_not_recorded",
         "agent_tooling:mcp_tool_inventory_count_not_32",
+        "tool_selection:iwsdk_mcp_future_blocked_until_sidecar",
+        "tool_selection:manual_quest_foreground_required_for_production_readiness",
         "production_runtime:missing_foreground_quest_preflight_ready",
         "production_runtime:missing_avg_fps",
       ]),
@@ -171,6 +198,16 @@ describe("IWSDK evidence contract checker", () => {
     })).toEqual({
       ok: false,
       errors: ["/compatibility/result/blockers must be array"],
+    });
+    expect(validateIwsdkEvidenceContractReport({
+      ...report,
+      toolSelection: {
+        ...report.toolSelection,
+        blockers: "tool_selection:iwsdk_mcp_future_blocked_until_sidecar",
+      },
+    })).toEqual({
+      ok: false,
+      errors: ["/toolSelection/blockers must be array"],
     });
     expect(validateIwsdkEvidenceContractReport({
       ...report,

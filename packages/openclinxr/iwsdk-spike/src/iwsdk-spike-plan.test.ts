@@ -20,8 +20,10 @@ import {
   buildIwsdkSpikeMetricThresholds,
   buildIwsdkSpikePlan,
   buildIwsdkSourceRecordIdContract,
+  buildIwsdkVerificationToolSelectionContract,
   buildIwsdkUiXrStationParityContract,
   buildIwsdkViteAiDevConfigContract,
+  selectIwsdkVerificationToolsForClaim,
   evaluateIwsdkCompatibilityEvidence,
   evaluateIwsdkWorkspacePosture,
   evaluateIwsdkAgentToolingEvidence,
@@ -39,9 +41,12 @@ describe("IWSDK spike plan", () => {
     const sourceRecords = readSourceRecords();
 
     expect(contract.sourceRecordIds).toEqual([
+      "src-chrome-android-remote-debugging-2026",
+      "src-cognitive3d-webxr-quest-dev-setup-2026",
       "src-iwsdk-ai-docs-2026",
       "src-iwsdk-local-spike-2026-05-04",
       "src-iwsdk-npm-metadata-2026-05-04",
+      "src-local-hardware-spike-2026-05-03",
       "src-meta-iwsdk-github-2026",
       "src-openclinxr-iwsdk-spike-plan-2026-05-04",
     ]);
@@ -173,6 +178,82 @@ describe("IWSDK spike plan", () => {
       "npx iwsdk reference warmup",
       "install @meta-quest/hzdb",
       "adopt @iwsdk/vite-plugin-gltf-optimizer in production builds",
+    ]);
+  });
+
+  it("defines a no-install XR verification tool-selection contract for browser, Quest CDP, and IWSDK MCP evidence", () => {
+    const contract = buildIwsdkVerificationToolSelectionContract();
+
+    expect(contract.status).toBe("contract_only");
+    expect(contract.toolContracts).toEqual([
+      expect.objectContaining({
+        toolId: "browser_use_playwright",
+        posture: "default_local",
+        sourceRecordIds: ["src-local-hardware-spike-2026-05-03"],
+        canSupportClaims: ["desktop_fallback_rendered", "webgl_canvas_nonblank", "trace_controls_advance"],
+        cannotSupportClaims: expect.arrayContaining(["foreground_quest_frame_pacing", "controller_latency_on_headset"]),
+      }),
+      expect.objectContaining({
+        toolId: "quest_cdp",
+        posture: "device_cdp",
+        sourceRecordIds: [
+          "src-chrome-android-remote-debugging-2026",
+          "src-cognitive3d-webxr-quest-dev-setup-2026",
+          "src-local-hardware-spike-2026-05-03",
+        ],
+        canSupportClaims: ["quest_browser_shell_loaded", "quest_webxr_feature_detected", "quest_trace_controls_advance"],
+        cannotSupportClaims: expect.arrayContaining(["foreground_quest_frame_pacing"]),
+      }),
+      expect.objectContaining({
+        toolId: "iwsdk_mcp_future",
+        posture: "approved_sidecar_only",
+        sourceRecordIds: [
+          "src-iwsdk-ai-docs-2026",
+          "src-iwsdk-local-spike-2026-05-04",
+          "src-openclinxr-iwsdk-spike-plan-2026-05-04",
+        ],
+        canSupportClaims: [
+          "emulated_xr_session_ready",
+          "mcp_scene_hierarchy_matches_station_contract",
+          "emulated_controller_select_advances_trace",
+        ],
+        cannotSupportClaims: expect.arrayContaining(["physical_quest_comfort", "foreground_quest_frame_pacing"]),
+        blockedUntil: expect.arrayContaining(["apps/ui-xr-iwsdk-spike_exists_with_exact_iwsdk_versions"]),
+      }),
+      expect.objectContaining({
+        toolId: "manual_quest_foreground",
+        posture: "manual_physical_device",
+        sourceRecordIds: ["src-local-hardware-spike-2026-05-03"],
+        canSupportClaims: [
+          "foreground_quest_frame_pacing",
+          "controller_latency_on_headset",
+          "physical_quest_comfort",
+          "in_headset_text_readability",
+        ],
+        cannotSupportClaims: [],
+      }),
+    ]);
+    expect(contract.evidenceLadder.map((step) => step.toolId)).toEqual([
+      "browser_use_playwright",
+      "quest_cdp",
+      "iwsdk_mcp_future",
+      "manual_quest_foreground",
+    ]);
+    expect(contract.blockers).toEqual([
+      "tool_selection:iwsdk_mcp_future_blocked_until_sidecar",
+      "tool_selection:manual_quest_foreground_required_for_production_readiness",
+    ]);
+  });
+
+  it("does not allow browser automation or IWSDK MCP emulation to satisfy foreground Quest claims", () => {
+    expect(selectIwsdkVerificationToolsForClaim("foreground_quest_frame_pacing").map((tool) => tool.toolId)).toEqual([
+      "manual_quest_foreground",
+    ]);
+    expect(selectIwsdkVerificationToolsForClaim("quest_browser_shell_loaded").map((tool) => tool.toolId)).toEqual([
+      "quest_cdp",
+    ]);
+    expect(selectIwsdkVerificationToolsForClaim("mcp_scene_hierarchy_matches_station_contract").map((tool) => tool.toolId)).toEqual([
+      "iwsdk_mcp_future",
     ]);
   });
 

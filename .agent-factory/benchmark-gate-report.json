@@ -5,7 +5,7 @@
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T05:32:46.441Z",
-      "age_hours": 7,
+      "age_hours": 8,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -14,7 +14,7 @@
       "evidence_id": "local_runtime_probe",
       "file": "docs/openclinxr/local-runtime-probe-2026-05-04.json",
       "generated_at": "2026-05-04T06:36:03.273Z",
-      "age_hours": 6,
+      "age_hours": 7,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -23,7 +23,7 @@
       "evidence_id": "gltf_pipeline_smoke",
       "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
       "generated_at": "2026-05-03T22:35:14.615Z",
-      "age_hours": 14,
+      "age_hours": 15,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -41,7 +41,7 @@
       "evidence_id": "local_provider_benchmark",
       "file": "docs/openclinxr/local-provider-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T08:37:30.181Z",
-      "age_hours": 4,
+      "age_hours": 5,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -50,7 +50,7 @@
       "evidence_id": "quest_manual_performance",
       "file": ".agent-factory/quest-manual-performance-report.json",
       "generated_at": "2026-05-04T05:33:53.981Z",
-      "age_hours": 7,
+      "age_hours": 8,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -242,7 +242,7 @@
   },
   "iwsdk_evidence_contract": {
     "file": "docs/openclinxr/iwsdk-evidence-contract-2026-05-04.json",
-    "generated_at": "2026-05-04T13:02:45.356Z",
+    "generated_at": "2026-05-04T13:37:41.062Z",
     "status": "contract_only",
     "ready_for_install_backed_sidecar": false,
     "ready_for_agent_tooling": false,
@@ -290,7 +290,9 @@
       "sidecar:exact_iwsdk_versions_selected",
       "sidecar:license_review_accepts_transitive_dependency_posture",
       "sidecar:operator_accepts_iwsdk_install_scope",
-      "sidecar:pnpm_iwsdk_verify_passes"
+      "sidecar:pnpm_iwsdk_verify_passes",
+      "tool_selection:iwsdk_mcp_future_blocked_until_sidecar",
+      "tool_selection:manual_quest_foreground_required_for_production_readiness"
     ],
     "leadership_posture": {
       "statement": "IWSDK is MIT-licensed and architecturally relevant for Three/WebXR/AI-MCP inspection, but OpenClinXR remains contract-only: no @iwsdk packages installed, no reference warmup, no production runtime claim, and no Quest readiness claim until the local sidecar and manual foreground gates pass.",
@@ -621,10 +623,12 @@
         "iwsdk:sidecar:exact_iwsdk_versions_selected",
         "iwsdk:sidecar:license_review_accepts_transitive_dependency_posture",
         "iwsdk:sidecar:operator_accepts_iwsdk_install_scope",
-        "iwsdk:sidecar:pnpm_iwsdk_verify_passes"
+        "iwsdk:sidecar:pnpm_iwsdk_verify_passes",
+        "iwsdk:tool_selection:iwsdk_mcp_future_blocked_until_sidecar",
+        "iwsdk:tool_selection:manual_quest_foreground_required_for_production_readiness"
       ],
       "blocker_summary": {
-        "total_blockers": 43,
+        "total_blockers": 45,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -674,7 +678,9 @@
               "iwsdk:sidecar:exact_iwsdk_versions_selected",
               "iwsdk:sidecar:license_review_accepts_transitive_dependency_posture",
               "iwsdk:sidecar:operator_accepts_iwsdk_install_scope",
-              "iwsdk:sidecar:pnpm_iwsdk_verify_passes"
+              "iwsdk:sidecar:pnpm_iwsdk_verify_passes",
+              "iwsdk:tool_selection:iwsdk_mcp_future_blocked_until_sidecar",
+              "iwsdk:tool_selection:manual_quest_foreground_required_for_production_readiness"
             ],
             "next_step": "Keep IWSDK contract-only until the operator approves the sidecar install scope, exact versions, license posture, adapter-sync evidence, and foreground Quest performance proof."
           }

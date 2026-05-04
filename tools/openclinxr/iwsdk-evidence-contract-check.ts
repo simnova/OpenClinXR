@@ -11,6 +11,7 @@ import {
   buildIwsdkPreInstallPackagePolicy,
   buildIwsdkSidecarReadinessContract,
   buildIwsdkUiXrStationParityContract,
+  buildIwsdkVerificationToolSelectionContract,
   buildIwsdkViteAiDevConfigContract,
   evaluateIwsdkAgentToolingEvidence,
   evaluateIwsdkCompatibilityEvidence,
@@ -29,6 +30,7 @@ import {
   type IwsdkSidecarReadinessContract,
   type IwsdkSpikeMetricReadiness,
   type IwsdkUiXrStationParityContract,
+  type IwsdkVerificationToolSelectionContract,
   type IwsdkViteAiDevConfigContract,
 } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
 
@@ -57,6 +59,7 @@ export type IwsdkEvidenceContractReport = {
     result: IwsdkPackageMetadataDriftReadiness;
   };
   uiXrParity: IwsdkUiXrStationParityContract;
+  toolSelection: IwsdkVerificationToolSelectionContract;
   operatorSteeringBlockers: IwsdkOperatorSteeringBlocker[];
   agentTooling: IwsdkAgentToolingEvidenceReadiness;
   productionRuntime: IwsdkSpikeMetricReadiness;
@@ -156,6 +159,7 @@ export function buildIwsdkEvidenceContractReport(input: {
     docsVersion: "0.3.1",
     npmLatestVersion: "0.3.2",
   });
+  const toolSelection = buildIwsdkVerificationToolSelectionContract();
   const productionRuntime = evaluateIwsdkSpikeMetrics({});
   const sidecarBlockers = sidecar.createAppOnlyAfter.map((blocker) => `sidecar:${blocker}`);
   const blockers = unique([
@@ -165,6 +169,7 @@ export function buildIwsdkEvidenceContractReport(input: {
     ...compatibility.blockers.map((blocker) => `compatibility:${blocker}`),
     ...metadataDrift.blockers.map((blocker) => `metadata_drift:${blocker}`),
     ...agentTooling.blockers.map((blocker) => `agent_tooling:${blocker}`),
+    ...toolSelection.blockers,
     ...productionRuntime.blockers.map((blocker) => `production_runtime:${blocker}`),
   ]);
 
@@ -188,6 +193,7 @@ export function buildIwsdkEvidenceContractReport(input: {
       result: metadataDrift,
     },
     uiXrParity: buildIwsdkUiXrStationParityContract(),
+    toolSelection,
     operatorSteeringBlockers: buildIwsdkOperatorSteeringBlockers(),
     agentTooling,
     productionRuntime,
@@ -216,6 +222,7 @@ export function validateIwsdkEvidenceContractReport(value: unknown): IwsdkEviden
   requireObject(readAt(value, ["compatibility"]), "/compatibility", errors);
   requireObject(readAt(value, ["metadataDrift"]), "/metadataDrift", errors);
   requireObject(readAt(value, ["uiXrParity"]), "/uiXrParity", errors);
+  requireObject(readAt(value, ["toolSelection"]), "/toolSelection", errors);
   requireArray(readAt(value, ["operatorSteeringBlockers"]), "/operatorSteeringBlockers", errors);
   requireObject(readAt(value, ["agentTooling"]), "/agentTooling", errors);
   requireObject(readAt(value, ["productionRuntime"]), "/productionRuntime", errors);
@@ -291,6 +298,31 @@ export function validateIwsdkEvidenceContractReport(value: unknown): IwsdkEviden
   requireStringArray(readAt(value, ["uiXrParity", "mcpToolOrder"]), "/uiXrParity/mcpToolOrder", errors);
   requireStringArray(readAt(value, ["uiXrParity", "requiredSceneObjectNames"]), "/uiXrParity/requiredSceneObjectNames", errors);
   requireString(readAt(value, ["uiXrParity", "controllerSelectTraceTag"]), "/uiXrParity/controllerSelectTraceTag", errors);
+
+  requireLiteral(readAt(value, ["toolSelection", "status"]), "contract_only", "/toolSelection/status", errors);
+  requireStringArray(readAt(value, ["toolSelection", "sourceRecordIds"]), "/toolSelection/sourceRecordIds", errors);
+  requireArray(readAt(value, ["toolSelection", "toolContracts"]), "/toolSelection/toolContracts", errors);
+  for (const [index, contract] of arrayEntries(readAt(value, ["toolSelection", "toolContracts"]))) {
+    const pathPrefix = `/toolSelection/toolContracts/${index}`;
+    requireObject(contract, pathPrefix, errors);
+    requireString(readAt(contract, ["toolId"]), `${pathPrefix}/toolId`, errors);
+    requireString(readAt(contract, ["posture"]), `${pathPrefix}/posture`, errors);
+    requireStringArray(readAt(contract, ["sourceRecordIds"]), `${pathPrefix}/sourceRecordIds`, errors);
+    requireString(readAt(contract, ["useWhen"]), `${pathPrefix}/useWhen`, errors);
+    requireStringArray(readAt(contract, ["requiredEvidence"]), `${pathPrefix}/requiredEvidence`, errors);
+    requireStringArray(readAt(contract, ["canSupportClaims"]), `${pathPrefix}/canSupportClaims`, errors);
+    requireStringArray(readAt(contract, ["cannotSupportClaims"]), `${pathPrefix}/cannotSupportClaims`, errors);
+    requireStringArray(readAt(contract, ["blockedUntil"]), `${pathPrefix}/blockedUntil`, errors);
+  }
+  requireArray(readAt(value, ["toolSelection", "evidenceLadder"]), "/toolSelection/evidenceLadder", errors);
+  for (const [index, step] of arrayEntries(readAt(value, ["toolSelection", "evidenceLadder"]))) {
+    const pathPrefix = `/toolSelection/evidenceLadder/${index}`;
+    requireObject(step, pathPrefix, errors);
+    requireNumber(readAt(step, ["order"]), `${pathPrefix}/order`, errors);
+    requireString(readAt(step, ["toolId"]), `${pathPrefix}/toolId`, errors);
+    requireString(readAt(step, ["promotionGate"]), `${pathPrefix}/promotionGate`, errors);
+  }
+  requireStringArray(readAt(value, ["toolSelection", "blockers"]), "/toolSelection/blockers", errors);
 
   for (const [index, blocker] of arrayEntries(readAt(value, ["operatorSteeringBlockers"]))) {
     const pathPrefix = `/operatorSteeringBlockers/${index}`;
