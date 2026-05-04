@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { openClinXrAdminBuildOutput, openClinXrApiProxy } from "./vite.config.js";
 
@@ -20,5 +21,13 @@ describe("ui-admin Vite local API proxy", () => {
         { name: "vendor", priority: 10 },
       ],
     });
+  });
+
+  it("keeps the Portless dev script aligned to an injected or admin fallback app port", () => {
+    const packageJson = JSON.parse(readFileSync("package.json", "utf8")) as {
+      scripts?: Record<string, string>;
+    };
+
+    expect(packageJson.scripts?.["dev:portless"]).toBe("vite --host 127.0.0.1 --port ${PORT:-5174} --strictPort");
   });
 });
