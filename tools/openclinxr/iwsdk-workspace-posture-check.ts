@@ -9,6 +9,7 @@ import {
   type IwsdkWorkspaceDependencyField,
   type IwsdkWorkspacePackageManagerControls,
   type IwsdkWorkspacePostureReadiness,
+  type IwsdkWorkspaceScriptReference,
   type IwsdkWorkspaceSourceReference,
 } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
 
@@ -33,6 +34,7 @@ export type IwsdkWorkspacePostureReport = {
     sidecarAppExists: boolean;
     dependencies: IwsdkWorkspaceDependency[];
     sourceReferences: IwsdkWorkspaceSourceReference[];
+    scriptReferences: IwsdkWorkspaceScriptReference[];
     lockfilePackageNames: string[];
     packageManagerControls: IwsdkWorkspacePackageManagerControls;
   };
@@ -78,6 +80,7 @@ export async function buildIwsdkWorkspacePostureReport(input: {
   const sidecarAppExists = existsSync(path.join(workspaceRoot, "apps/ui-xr-iwsdk-spike"));
   const dependencies = await scanPackageDependencies(workspaceRoot);
   const sourceReferences = await scanSourceReferences(workspaceRoot);
+  const scriptReferences = await scanPackageScripts(workspaceRoot);
   const lockfilePackageNames = await scanLockfileBlockedPackages(workspaceRoot);
   const packageManagerControls = buildPackageManagerControls(rootPackage);
   const result = evaluateIwsdkWorkspacePosture({
@@ -85,6 +88,7 @@ export async function buildIwsdkWorkspacePostureReport(input: {
     sidecarInstallApproved,
     dependencies,
     sourceReferences,
+    scriptReferences,
     lockfilePackageNames,
     packageManagerControls,
   });
@@ -97,6 +101,7 @@ export async function buildIwsdkWorkspacePostureReport(input: {
       sidecarAppExists,
       dependencies,
       sourceReferences,
+      scriptReferences,
       lockfilePackageNames,
       packageManagerControls,
     },
@@ -153,7 +158,8 @@ async function scanSourceReferences(workspaceRoot: string): Promise<IwsdkWorkspa
   const sourceRoots = ["apps", "packages"].map((root) => path.join(workspaceRoot, root)).filter((root) => existsSync(root));
   const sourceFiles = (await Promise.all(sourceRoots.map((root) => walk(root, isSourceFile)))).flat();
   const references: IwsdkWorkspaceSourceReference[] = [];
-  const importPattern = /(?:from\s*["']|import\s*\(\s*["']|require\s*\(\s*["'])(@iwsdk\/[^"']+|@meta-quest\/hzdb)/g;
+  const importPattern =
+    /(?:from\s*["']|import\s*["']|import\s*\(\s*["']|require\s*\(\s*["'])(@iwsdk\/[^"']+|@meta-quest\/hzdb)/g;
 
   for (const sourceFile of sourceFiles) {
     const sourceText = await readFile(sourceFile, "utf8");
@@ -169,6 +175,23 @@ async function scanSourceReferences(workspaceRoot: string): Promise<IwsdkWorkspa
   }
 
   return references;
+}
+
+async function scanPackageScripts(workspaceRoot: string): Promise<IwsdkWorkspaceScriptReference[]> {
+  const manifestPaths = await walk(workspaceRoot, (filePath) => path.basename(filePath) === "package.json");
+  const scriptReferences: IwsdkWorkspaceScriptReference[] = [];
+
+  for (const manifestPath of manifestPaths) {
+    const packageJson = await readPackageJson(manifestPath);
+    const relativeManifestPath = toPosixRelative(workspaceRoot, manifestPath);
+    for (const [scriptName, command] of Object.entries(packageJson.scripts ?? {})) {
+      if (/(?:iwsdk|@meta-quest\/hzdb)/.test(command)) {
+        scriptReferences.push({ manifestPath: relativeManifestPath, scriptName, command });
+      }
+    }
+  }
+
+  return scriptReferences;
 }
 
 async function scanLockfileBlockedPackages(workspaceRoot: string): Promise<string[]> {

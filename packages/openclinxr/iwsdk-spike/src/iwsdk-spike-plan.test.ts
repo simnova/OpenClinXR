@@ -621,6 +621,7 @@ describe("IWSDK spike plan", () => {
       sidecarInstallApproved: false,
       dependencies: [],
       sourceReferences: [],
+      scriptReferences: [],
       lockfilePackageNames: [],
       packageManagerControls: {
         workspacePostureInVerify: true,
@@ -653,6 +654,7 @@ describe("IWSDK spike plan", () => {
           packageName: "@iwsdk/xr-input",
         },
       ],
+      scriptReferences: [],
       lockfilePackageNames: [],
       packageManagerControls: {
         workspacePostureInVerify: true,
@@ -683,6 +685,7 @@ describe("IWSDK spike plan", () => {
         },
       ],
       sourceReferences: [],
+      scriptReferences: [],
       lockfilePackageNames: [],
       packageManagerControls: {
         workspacePostureInVerify: true,
@@ -714,6 +717,7 @@ describe("IWSDK spike plan", () => {
         },
       ],
       sourceReferences: [],
+      scriptReferences: [],
       lockfilePackageNames: [],
       packageManagerControls: {
         workspacePostureInVerify: true,
@@ -754,6 +758,18 @@ describe("IWSDK spike plan", () => {
         },
       ],
       sourceReferences: [],
+      scriptReferences: [
+        {
+          manifestPath: "package.json",
+          scriptName: "iwsdk:reference:warmup",
+          command: "npx iwsdk reference warmup",
+        },
+        {
+          manifestPath: "apps/ui-xr/package.json",
+          scriptName: "iwsdk:create",
+          command: "pnpm dlx @iwsdk/create@0.3.1",
+        },
+      ],
       lockfilePackageNames: ["@meta-quest/hzdb"],
       packageManagerControls: {
         workspacePostureInVerify: false,
@@ -764,6 +780,8 @@ describe("IWSDK spike plan", () => {
       ready: false,
       sidecarStatus: "present_approved",
       blockers: [
+        "blocked_script_action:package.json:scripts.iwsdk:reference:warmup:iwsdk_reference_warmup",
+        "blocked_script_action:apps/ui-xr/package.json:scripts.iwsdk:create:iwsdk_create",
         "@iwsdk/core:version_not_exact",
         "@iwsdk/vite-plugin-uikitml:not_allowed_in_first_slice",
         "@iwsdk/reference:blocked_package",

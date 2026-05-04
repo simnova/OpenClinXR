@@ -237,6 +237,12 @@ export type IwsdkWorkspaceSourceReference = {
   packageName: string;
 };
 
+export type IwsdkWorkspaceScriptReference = {
+  manifestPath: string;
+  scriptName: string;
+  command: string;
+};
+
 export type IwsdkWorkspacePackageManagerControls = {
   workspacePostureInVerify: boolean;
   threeOverrideExact?: boolean;
@@ -249,6 +255,7 @@ export type IwsdkWorkspacePostureInput = {
   sidecarInstallApproved: boolean;
   dependencies: IwsdkWorkspaceDependency[];
   sourceReferences: IwsdkWorkspaceSourceReference[];
+  scriptReferences: IwsdkWorkspaceScriptReference[];
   lockfilePackageNames: string[];
   packageManagerControls: IwsdkWorkspacePackageManagerControls;
 };
@@ -884,6 +891,7 @@ export function evaluateIwsdkWorkspacePosture(
       .filter((reference) => !pathStartsWithAllowedRoot(reference.filePath, allowedRoots))
       .map((reference) => `source_import_outside_iwsdk_sidecar:${reference.filePath}:${reference.packageName}`),
   );
+  blockers.push(...blockedWorkspaceScriptActions(input.scriptReferences));
 
   if (input.sidecarAppExists && !input.sidecarInstallApproved) {
     blockers.push("sidecar_app_present_without_operator_approval");
@@ -1046,6 +1054,39 @@ function pathStartsWithAllowedRoot(filePath: string, allowedRoots: string[]): bo
 
 function isIwsdkWorkspacePackage(packageName: string): boolean {
   return packageName.startsWith("@iwsdk/") || packageName === "@meta-quest/hzdb";
+}
+
+function blockedWorkspaceScriptActions(scriptReferences: IwsdkWorkspaceScriptReference[]): string[] {
+  const blockedActions = [
+    {
+      id: "iwsdk_reference_warmup",
+      pattern: /\biwsdk\s+reference\s+warmup\b/,
+    },
+    {
+      id: "iwsdk_create",
+      pattern: /(?:\biwsdk\s+create\b|@iwsdk\/create\b)/,
+    },
+    {
+      id: "iwsdk_starter_assets",
+      pattern: /@iwsdk\/starter-assets\b/,
+    },
+    {
+      id: "meta_quest_hzdb",
+      pattern: /@meta-quest\/hzdb\b/,
+    },
+    {
+      id: "iwsdk_gltf_optimizer",
+      pattern: /@iwsdk\/vite-plugin-gltf-optimizer\b/,
+    },
+  ];
+
+  return scriptReferences.flatMap((scriptReference) =>
+    blockedActions
+      .filter((action) => action.pattern.test(scriptReference.command))
+      .map((action) =>
+        `blocked_script_action:${scriptReference.manifestPath}:scripts.${scriptReference.scriptName}:${action.id}`
+      )
+  );
 }
 
 function appendAgentModeBrowserBlockers(evidence: IwsdkManagedBrowserEvidence, blockers: string[]): void {

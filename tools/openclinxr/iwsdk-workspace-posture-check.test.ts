@@ -42,6 +42,7 @@ describe("IWSDK workspace posture checker", () => {
       rootPackage: {
         scripts: {
           "iwsdk:verify": "pnpm --filter @openclinxr/iwsdk-spike test",
+          "iwsdk:reference:warmup": "npx iwsdk reference warmup",
         },
       },
       productionDependencies: {
@@ -55,7 +56,7 @@ describe("IWSDK workspace posture checker", () => {
     await mkdir(path.join(workspaceRoot, "apps/ui-xr/src"), { recursive: true });
     await writeFile(
       path.join(workspaceRoot, "apps/ui-xr/src/runtime.tsx"),
-      "import('@iwsdk/xr-input');\n",
+      "import '@iwsdk/xr-input';\nexport { controller } from '@iwsdk/core';\n",
       "utf8",
     );
 
@@ -71,6 +72,8 @@ describe("IWSDK workspace posture checker", () => {
       blockers: [
         "dependency_outside_iwsdk_sidecar:apps/ui-xr/package.json:dependencies.@iwsdk/core",
         "source_import_outside_iwsdk_sidecar:apps/ui-xr/src/runtime.tsx:@iwsdk/xr-input",
+        "source_import_outside_iwsdk_sidecar:apps/ui-xr/src/runtime.tsx:@iwsdk/core",
+        "blocked_script_action:package.json:scripts.iwsdk:reference:warmup:iwsdk_reference_warmup",
         "@iwsdk/reference:blocked_package",
         "blocked_package_in_lockfile:@meta-quest/hzdb",
         "missing_package_manager_control_pin_three_override",
