@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T20:09:47.014Z",
+  "generatedAt": "2026-05-04T20:47:52.004Z",
   "status": "blocked",
   "policy": {
     "cloudApisUsed": false,
@@ -32,6 +32,15 @@
       "real_time_factor_above_1"
     ]
   },
+  "runtimeStream": {
+    "realLocalVoiceStreamObserved": false,
+    "evidenceSource": "not_captured",
+    "firstAudiblePlaybackLatencyMs": null,
+    "transcriptRoundTripObserved": false,
+    "blockers": [
+      "real_local_voice_stream_benchmark_missing"
+    ]
+  },
   "webxrPlayback": {
     "observed": false,
     "evidenceSource": "not_captured",
@@ -50,6 +59,7 @@
     "passed": false,
     "readyForLiveDialog": false,
     "blockers": [
+      "runtime_stream:real_local_voice_stream_benchmark_missing",
       "runtime:runtime_file_generation_only",
       "runtime:real_time_factor_above_1",
       "webxr_playback:webxr_playback_not_observed"

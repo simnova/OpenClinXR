@@ -85,7 +85,7 @@
     {
       "evidence_id": "local_voice_live_dialog_benchmark",
       "file": "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-04.json",
-      "generated_at": "2026-05-04T20:09:47.014Z",
+      "generated_at": "2026-05-04T20:47:52.004Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -605,7 +605,7 @@
   },
   "local_voice_live_dialog_benchmark": {
     "file": "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-04.json",
-    "generated_at": "2026-05-04T20:09:47.014Z",
+    "generated_at": "2026-05-04T20:47:52.004Z",
     "status": "blocked",
     "mock_stream": {
       "provider": "deterministic-mock-voice-gateway",
@@ -623,6 +623,15 @@
       "blockers": [
         "runtime_file_generation_only",
         "real_time_factor_above_1"
+      ]
+    },
+    "runtime_stream": {
+      "realLocalVoiceStreamObserved": false,
+      "evidenceSource": "not_captured",
+      "firstAudiblePlaybackLatencyMs": null,
+      "transcriptRoundTripObserved": false,
+      "blockers": [
+        "real_local_voice_stream_benchmark_missing"
       ]
     },
     "webxr_playback": {
@@ -643,6 +652,7 @@
       "passed": false,
       "readyForLiveDialog": false,
       "blockers": [
+        "runtime_stream:real_local_voice_stream_benchmark_missing",
         "runtime:runtime_file_generation_only",
         "runtime:real_time_factor_above_1",
         "webxr_playback:webxr_playback_not_observed"
@@ -980,10 +990,11 @@
       "blockers": [
         "local_voice_live_dialog:runtime:real_time_factor_above_1",
         "local_voice_live_dialog:runtime:runtime_file_generation_only",
+        "local_voice_live_dialog:runtime_stream:real_local_voice_stream_benchmark_missing",
         "local_voice_live_dialog:webxr_playback:webxr_playback_not_observed"
       ],
       "blocker_summary": {
-        "total_blockers": 3,
+        "total_blockers": 4,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -993,6 +1004,7 @@
             "blockers": [
               "local_voice_live_dialog:runtime:real_time_factor_above_1",
               "local_voice_live_dialog:runtime:runtime_file_generation_only",
+              "local_voice_live_dialog:runtime_stream:real_local_voice_stream_benchmark_missing",
               "local_voice_live_dialog:webxr_playback:webxr_playback_not_observed"
             ],
             "next_step": "Prove streaming WebXR playback, first audible playback latency, real-time factor, disclosure, retention, and misuse controls before enabling live local voice."

@@ -196,6 +196,10 @@ type LocalVoiceLiveDialogBenchmarkReport = {
   runtimeFit: {
     blockers: string[];
   };
+  runtimeStream?: {
+    realLocalVoiceStreamObserved: boolean;
+    blockers: string[];
+  };
   webxrPlayback: {
     observed: boolean;
     blockers: string[];
@@ -318,6 +322,7 @@ type EvidenceGateReport = {
     status: string;
     mock_stream: LocalVoiceLiveDialogBenchmarkReport["mockStream"];
     runtime_fit: LocalVoiceLiveDialogBenchmarkReport["runtimeFit"];
+    runtime_stream: LocalVoiceLiveDialogBenchmarkReport["runtimeStream"];
     webxr_playback: LocalVoiceLiveDialogBenchmarkReport["webxrPlayback"];
     safety_controls: LocalVoiceLiveDialogBenchmarkReport["safetyControls"];
     verdict: LocalVoiceLiveDialogBenchmarkReport["verdict"];
@@ -606,6 +611,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localVoiceRuntimeBenchmark?.value.verdict.passed ? "local_voice_first_audio_benchmark_passed" : undefined,
     localVoiceLiveDialogBenchmark ? "local_voice_live_dialog_report_present" : undefined,
     localVoiceLiveDialogBenchmark?.value.mockStream.passed ? "local_voice_live_dialog_mock_stream_passed" : undefined,
+    localVoiceLiveDialogBenchmark?.value.runtimeStream?.realLocalVoiceStreamObserved ? "local_voice_live_dialog_runtime_stream_observed" : undefined,
     localVoiceLiveDialogBenchmark?.value.webxrPlayback.observed ? "local_voice_live_dialog_webxr_playback_observed" : undefined,
     localVoiceLiveDialogBenchmark && localVoiceLiveDialogBenchmark.value.safetyControls.blockers.length === 0 ? "local_voice_live_dialog_safety_controls_observed" : undefined,
     localVoiceLiveDialogBenchmark?.value.verdict.passed ? "local_voice_live_dialog_benchmark_passed" : undefined,
@@ -746,6 +752,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         status: localVoiceLiveDialogBenchmark.value.status,
         mock_stream: localVoiceLiveDialogBenchmark.value.mockStream,
         runtime_fit: localVoiceLiveDialogBenchmark.value.runtimeFit,
+        runtime_stream: localVoiceLiveDialogBenchmark.value.runtimeStream,
         webxr_playback: localVoiceLiveDialogBenchmark.value.webxrPlayback,
         safety_controls: localVoiceLiveDialogBenchmark.value.safetyControls,
         verdict: localVoiceLiveDialogBenchmark.value.verdict,
@@ -1157,12 +1164,14 @@ function localVoiceLiveDialogBlockers(
   }
 
   if (liveDialogBenchmark) {
+    const runtimeStreamBlockers = liveDialogBenchmark.value.runtimeStream?.blockers ?? ["real_local_voice_stream_benchmark_missing"];
     return unique([
       ...liveDialogBenchmark.value.verdict.blockers.map((blocker) => `local_voice_live_dialog:${blocker}`),
       ...(liveDialogBenchmark.value.mockStream.passed
         ? []
         : (liveDialogBenchmark.value.mockStream.blockers.length > 0 ? liveDialogBenchmark.value.mockStream.blockers : ["mock_stream_probe_failed"])
           .map((blocker) => `local_voice_live_dialog:mock_stream:${blocker}`)),
+      ...runtimeStreamBlockers.map((blocker) => `local_voice_live_dialog:runtime_stream:${blocker}`),
       ...liveDialogBenchmark.value.runtimeFit.blockers.map((blocker) => `local_voice_live_dialog:runtime:${blocker}`),
       ...liveDialogBenchmark.value.webxrPlayback.blockers.map((blocker) => `local_voice_live_dialog:webxr_playback:${blocker}`),
       ...liveDialogBenchmark.value.safetyControls.blockers.map((blocker) => `local_voice_live_dialog:safety_controls:${blocker}`),

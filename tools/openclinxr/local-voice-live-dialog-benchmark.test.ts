@@ -36,6 +36,13 @@ describe("local voice live-dialog benchmark report", () => {
       realTimeCapable: false,
       blockers: ["runtime_file_generation_only", "real_time_factor_above_1"],
     });
+    expect(report.runtimeStream).toEqual({
+      realLocalVoiceStreamObserved: false,
+      evidenceSource: "not_captured",
+      firstAudiblePlaybackLatencyMs: null,
+      transcriptRoundTripObserved: false,
+      blockers: ["real_local_voice_stream_benchmark_missing"],
+    });
     expect(report.webxrPlayback).toEqual({
       observed: false,
       evidenceSource: "not_captured",
@@ -52,6 +59,7 @@ describe("local voice live-dialog benchmark report", () => {
       passed: false,
       readyForLiveDialog: false,
       blockers: [
+        "runtime_stream:real_local_voice_stream_benchmark_missing",
         "runtime:runtime_file_generation_only",
         "runtime:real_time_factor_above_1",
         "webxr_playback:webxr_playback_not_observed",
@@ -68,6 +76,9 @@ describe("local voice live-dialog benchmark report", () => {
       generatedAt: "2026-05-04T20:15:00.000Z",
       runtimeBenchmarkFile: "docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json",
       webxrPlaybackObserved: true,
+      realLocalVoiceStreamObserved: true,
+      firstAudiblePlaybackLatencyMs: 450,
+      transcriptRoundTripObserved: true,
       runtimeBenchmark: localVoiceRuntimeBenchmark({
         caveats: [],
         realTimeFactor: 0.7,
@@ -75,6 +86,13 @@ describe("local voice live-dialog benchmark report", () => {
     });
 
     expect(report.runtimeFit.blockers).toEqual([]);
+    expect(report.runtimeStream).toEqual({
+      realLocalVoiceStreamObserved: true,
+      evidenceSource: "local_voice_runtime_stream",
+      firstAudiblePlaybackLatencyMs: 450,
+      transcriptRoundTripObserved: true,
+      blockers: [],
+    });
     expect(report.webxrPlayback.blockers).toEqual([]);
     expect(report.safetyControls.blockers).toEqual([]);
     expect(report.verdict).toMatchObject({

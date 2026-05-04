@@ -10,6 +10,9 @@ type CliOptions = {
   runtimeReportPath?: string;
   outputPath?: string;
   webxrPlaybackObserved?: boolean;
+  realLocalVoiceStreamObserved?: boolean;
+  firstAudiblePlaybackLatencyMs?: number;
+  transcriptRoundTripObserved?: boolean;
 };
 
 export type LocalVoiceRuntimeBenchmarkReport = {
@@ -64,6 +67,13 @@ export type LocalVoiceLiveDialogBenchmarkReport = {
     realTimeCapable: boolean;
     blockers: string[];
   };
+  runtimeStream: {
+    realLocalVoiceStreamObserved: boolean;
+    evidenceSource: "not_captured" | "local_voice_runtime_stream";
+    firstAudiblePlaybackLatencyMs: number | null;
+    transcriptRoundTripObserved: boolean;
+    blockers: string[];
+  };
   webxrPlayback: {
     observed: boolean;
     evidenceSource: "not_captured" | "operator_or_cdp_capture";
@@ -95,6 +105,9 @@ async function main(): Promise<void> {
     runtimeBenchmarkFile: runtimeReportPath,
     runtimeBenchmark: await readJson<LocalVoiceRuntimeBenchmarkReport>(runtimeReportPath),
     webxrPlaybackObserved: options.webxrPlaybackObserved,
+    realLocalVoiceStreamObserved: options.realLocalVoiceStreamObserved,
+    firstAudiblePlaybackLatencyMs: options.firstAudiblePlaybackLatencyMs,
+    transcriptRoundTripObserved: options.transcriptRoundTripObserved,
   });
 
   if (options.outputPath) {
@@ -126,6 +139,19 @@ function parseArgs(args: string[]): CliOptions {
       options.webxrPlaybackObserved = true;
       continue;
     }
+    if (arg === "--real-local-voice-stream-observed") {
+      options.realLocalVoiceStreamObserved = true;
+      continue;
+    }
+    if (arg === "--first-audible-playback-latency-ms") {
+      options.firstAudiblePlaybackLatencyMs = numberValue(requireValue(normalizedArgs, index, arg), arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--transcript-round-trip-observed") {
+      options.transcriptRoundTripObserved = true;
+      continue;
+    }
     throw new Error(`Unknown argument: ${arg ?? ""}`);
   }
 
@@ -150,13 +176,22 @@ export async function buildLocalVoiceLiveDialogBenchmarkReport(input: {
   runtimeBenchmarkFile: string;
   runtimeBenchmark: LocalVoiceRuntimeBenchmarkReport;
   webxrPlaybackObserved?: boolean;
+  realLocalVoiceStreamObserved?: boolean;
+  firstAudiblePlaybackLatencyMs?: number;
+  transcriptRoundTripObserved?: boolean;
 }): Promise<LocalVoiceLiveDialogBenchmarkReport> {
   const mockStream = await runMockStreamProbe();
   const runtimeFit = inspectRuntimeFit(input.runtimeBenchmark);
+  const runtimeStream = inspectRuntimeStream({
+    realLocalVoiceStreamObserved: input.realLocalVoiceStreamObserved ?? false,
+    firstAudiblePlaybackLatencyMs: input.firstAudiblePlaybackLatencyMs,
+    transcriptRoundTripObserved: input.transcriptRoundTripObserved ?? false,
+  });
   const webxrPlayback = inspectWebxrPlayback(input.webxrPlaybackObserved ?? false);
   const safetyControls = inspectSafetyControls(input.runtimeBenchmark);
   const blockers = [
     ...mockStream.blockers.map((blocker) => `mock_stream:${blocker}`),
+    ...runtimeStream.blockers.map((blocker) => `runtime_stream:${blocker}`),
     ...runtimeFit.blockers.map((blocker) => `runtime:${blocker}`),
     ...webxrPlayback.blockers.map((blocker) => `webxr_playback:${blocker}`),
     ...safetyControls.blockers.map((blocker) => `safety_controls:${blocker}`),
@@ -181,6 +216,7 @@ export async function buildLocalVoiceLiveDialogBenchmarkReport(input: {
     },
     mockStream,
     runtimeFit,
+    runtimeStream,
     webxrPlayback,
     safetyControls,
     verdict: {
@@ -253,6 +289,29 @@ function inspectRuntimeFit(report: LocalVoiceRuntimeBenchmarkReport): LocalVoice
   };
 }
 
+function inspectRuntimeStream(input: {
+  realLocalVoiceStreamObserved: boolean;
+  firstAudiblePlaybackLatencyMs?: number;
+  transcriptRoundTripObserved: boolean;
+}): LocalVoiceLiveDialogBenchmarkReport["runtimeStream"] {
+  const firstAudiblePlaybackLatencyMs = typeof input.firstAudiblePlaybackLatencyMs === "number" && Number.isFinite(input.firstAudiblePlaybackLatencyMs)
+    ? input.firstAudiblePlaybackLatencyMs
+    : null;
+  const blockers = [
+    input.realLocalVoiceStreamObserved ? undefined : "real_local_voice_stream_benchmark_missing",
+    input.realLocalVoiceStreamObserved && firstAudiblePlaybackLatencyMs === null ? "first_audible_playback_latency_missing" : undefined,
+    input.realLocalVoiceStreamObserved && !input.transcriptRoundTripObserved ? "transcript_round_trip_not_observed" : undefined,
+  ].filter((blocker): blocker is string => typeof blocker === "string");
+
+  return {
+    realLocalVoiceStreamObserved: input.realLocalVoiceStreamObserved,
+    evidenceSource: input.realLocalVoiceStreamObserved ? "local_voice_runtime_stream" : "not_captured",
+    firstAudiblePlaybackLatencyMs,
+    transcriptRoundTripObserved: input.transcriptRoundTripObserved,
+    blockers,
+  };
+}
+
 function inspectWebxrPlayback(observed: boolean): LocalVoiceLiveDialogBenchmarkReport["webxrPlayback"] {
   return {
     observed,
@@ -280,6 +339,14 @@ function inspectSafetyControls(report: LocalVoiceRuntimeBenchmarkReport): LocalV
 
 function numberMetric(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function numberValue(value: string, flag: string): number {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    throw new Error(`${flag} requires a finite number`);
+  }
+  return parsed;
 }
 
 function stringValue(value: unknown): string | null {

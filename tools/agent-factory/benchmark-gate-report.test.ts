@@ -320,6 +320,7 @@ describe("benchmark gate report", () => {
     expect(gatesById.get("evidence-leadership-0009-003")).toEqual(expect.objectContaining({
       ready_to_resolve: false,
       blockers: expect.arrayContaining([
+        "local_voice_live_dialog:runtime_stream:real_local_voice_stream_benchmark_missing",
         "local_voice_live_dialog:runtime:runtime_file_generation_only",
         "local_voice_live_dialog:runtime:real_time_factor_above_1",
         "local_voice_live_dialog:webxr_playback:webxr_playback_not_observed",
@@ -566,6 +567,10 @@ describe("benchmark gate report", () => {
           runtimeFit: {
             blockers: ["runtime_file_generation_only", "real_time_factor_above_1"],
           },
+          runtimeStream: {
+            realLocalVoiceStreamObserved: false,
+            blockers: ["real_local_voice_stream_benchmark_missing"],
+          },
           webxrPlayback: {
             observed: false,
             blockers: ["webxr_playback_not_observed"],
@@ -576,6 +581,7 @@ describe("benchmark gate report", () => {
           verdict: {
             passed: false,
             blockers: [
+              "runtime_stream:real_local_voice_stream_benchmark_missing",
               "runtime:runtime_file_generation_only",
               "runtime:real_time_factor_above_1",
               "webxr_playback:webxr_playback_not_observed",
@@ -594,9 +600,13 @@ describe("benchmark gate report", () => {
       "local_voice_live_dialog_safety_controls_observed",
     ]));
     expect(liveDialogGate?.blockers).toEqual(expect.arrayContaining([
+      "local_voice_live_dialog:runtime_stream:real_local_voice_stream_benchmark_missing",
       "local_voice_live_dialog:runtime:runtime_file_generation_only",
       "local_voice_live_dialog:runtime:real_time_factor_above_1",
       "local_voice_live_dialog:webxr_playback:webxr_playback_not_observed",
+    ]));
+    expect(liveDialogGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
+      "local_voice_live_dialog_runtime_stream_observed",
     ]));
     expect(liveDialogGate?.blockers).not.toEqual(expect.arrayContaining([
       "local_voice_live_dialog:missing_streaming_webxr_playback_benchmark",
