@@ -282,10 +282,12 @@ This requires the local XR app server to already be running. It sets `adb revers
 
 Latest automated probe detail:
 
-- Quest Browser loaded the station shell and advanced trace controls.
-- App-side frame telemetry was present, but only recorded the first rendered frame.
-- CDP reported `document.visibilityState` as `hidden` and `document.hidden` as `true`.
-- Treat frame-pacing evidence as blocked until a foreground in-headset manual run or a better Quest Browser automation path proves sustained frames.
+- `docs/openclinxr/quest-cdp-smoke-2026-05-04.json` loaded the station shell in Quest Browser
+  `146.0.0.19.27.942135376` and advanced trace controls from `Trace 0/10` to `Trace 2/10`.
+- The canvas was nonblank (`860x902`, `dataUrlLength` `100382`) and `navigator.xr` reported `WebXR ready`.
+- The run required clearing a stale local server on `5173`; Vite was then started with the explicit Node `22.19.0` binary to avoid the local pnpm child-process path issue that can surface Node `21.7.1`.
+- App-side frame telemetry was present, but only recorded the first rendered frame. CDP reported `document.visibilityState` as `hidden` and `document.hidden` as `true`.
+- Treat frame-pacing evidence as blocked by `quest_page_hidden_or_inactive` and `quest_cdp_frame_sample_incomplete` until a foreground in-headset manual run or a better Quest Browser automation path proves sustained frames.
 
 Manual foreground performance evidence:
 

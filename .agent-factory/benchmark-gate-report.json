@@ -1,8 +1,8 @@
 {
   "generated_by": "tools/agent-factory/build-benchmark-gate-report.ts",
   "quest_smoke": {
-    "file": "docs/openclinxr/quest-cdp-smoke-2026-05-03.json",
-    "generated_at": "2026-05-03T22:47:16.190Z",
+    "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
+    "generated_at": "2026-05-04T03:59:14.664Z",
     "shell_loaded": true,
     "interaction_advanced": true,
     "frame_sample_complete": false,
