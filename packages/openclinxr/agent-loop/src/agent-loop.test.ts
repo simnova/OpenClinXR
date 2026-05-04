@@ -304,8 +304,14 @@ describe("agent-loop synthesis planning", () => {
     expect(graphQlAdminSkills.find((skill) => skill.id === "apollo-graphql-skills")?.guardrails.join(" ")).toContain(
       "not a runtime dependency",
     );
+    expect(graphQlAdminSkills.find((skill) => skill.id === "apollo-graphql-skills")?.sourceRecordId).toBe(
+      "src-apollo-graphql-skills-2026",
+    );
     expect(graphQlAdminSkills.find((skill) => skill.id === "ant-design-cli-skill")?.guardrails.join(" ")).toContain(
       "exact-version APIs",
+    );
+    expect(graphQlAdminSkills.find((skill) => skill.id === "ant-design-cli-skill")?.sourceRecordId).toBe(
+      "src-ant-design-cli-skill-2026",
     );
 
     const monorepoSkills = recommendWorkflowSkillsForWorkOrder({
@@ -318,6 +324,7 @@ describe("agent-loop synthesis planning", () => {
     expect(monorepoSkills).toEqual([
       expect.objectContaining({
         id: "turborepo-skill",
+        sourceRecordId: "src-turborepo-skill-2026",
         guardrails: expect.arrayContaining([expect.stringContaining("telemetry disabled")]),
       }),
     ]);

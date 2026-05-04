@@ -194,10 +194,13 @@ Changes from this pass:
 - `src-openpencil-2026`
 - `src-npm-stack-metadata-2026-05-03`
 - `src-graphql-codegen-docs-2026`
+- `src-apollo-graphql-skills-2026`
 - `src-knip-e18e-tooling-2026`
 - `src-opentelemetry-js-semantics-2026`
+- `src-turborepo-skill-2026`
 - `src-storybook-10-3-2026`
 - `src-serenity-js-screenplay-2026`
+- `src-ant-design-cli-skill-2026`
 - `src-azure-app-service-plan-docs-2026`
 - `src-llama-cpp-github-2026`
 - `src-local-bodonhelyi-medical-communication-pdf-2025`

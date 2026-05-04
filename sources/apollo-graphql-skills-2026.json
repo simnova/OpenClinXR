@@ -1,0 +1,23 @@
+{
+  "source_id": "src-apollo-graphql-skills-2026",
+  "title": "Apollo GraphQL Agent Skills Repository",
+  "url": "https://github.com/apollographql/skills",
+  "source_type": "vendor",
+  "citation": "Apollo GraphQL Agent Skills GitHub repository README, accessed 2026-05-04.",
+  "accessed_at": "2026-05-04",
+  "permitted_uses": [
+    "Agent workflow guidance for Apollo GraphQL schema, operation, client, server, Rover, and MCP review tasks."
+  ],
+  "claims_supported": [
+    "The repository presents Apollo GraphQL Agent Skills for AI coding agents working with Apollo GraphQL tools and technologies.",
+    "The README describes installation through the Skills CLI and optional Claude Code plugin or GitHub CLI workflows.",
+    "The README lists skills for Apollo Client, Apollo Server, GraphQL schema design, GraphQL operations, Rover, and Apollo MCP Server.",
+    "The README states the repository is MIT licensed and says the code is experimental and for reference purposes only."
+  ],
+  "claims_not_supported": [
+    "That Apollo skills should be installed as runtime product dependencies.",
+    "That Apollo-specific guidance replaces selected package versions, repository tests, generated schema artifacts, or OpenClinXR architecture decisions.",
+    "That skills tracking main branch are stable enough for regulated or high-stakes workflow claims without pinning and verification."
+  ],
+  "confidence": 0.84
+}

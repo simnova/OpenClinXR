@@ -1,0 +1,23 @@
+{
+  "source_id": "src-turborepo-skill-2026",
+  "title": "Turborepo Agent Skill",
+  "url": "https://github.com/vercel/turborepo/blob/main/skills/turborepo/SKILL.md",
+  "source_type": "vendor",
+  "citation": "Vercel Turborepo skill SKILL.md, accessed 2026-05-04.",
+  "accessed_at": "2026-05-04",
+  "permitted_uses": [
+    "Agent workflow guidance for Turborepo package-task orchestration, caching, affected-package execution, and monorepo boundary design."
+  ],
+  "claims_supported": [
+    "The skill describes Turborepo as a JavaScript/TypeScript monorepo build system that caches task outputs and runs tasks in parallel based on the dependency graph.",
+    "The skill says package tasks should live in package-level package.json files, root package.json scripts should delegate through turbo run, and root task logic should be avoided except rare cases.",
+    "The skill recommends writing turbo run, not shorthand turbo commands, in package.json scripts and CI workflows.",
+    "The skill describes --affected as the primary way to run changed packages plus dependents."
+  ],
+  "claims_not_supported": [
+    "That remote caching should be enabled by default for OpenClinXR.",
+    "That every root verification task can or should be moved under Turborepo.",
+    "That Turborepo boundary rules replace ArchUnitTS rules for OpenClinXR architecture enforcement."
+  ],
+  "confidence": 0.86
+}

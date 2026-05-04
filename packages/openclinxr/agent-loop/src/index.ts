@@ -207,6 +207,7 @@ export type AgentWorkflowSkillRecommendation = {
   id: AgentWorkflowSkillId;
   name: string;
   sourceUrl?: string;
+  sourceRecordId?: string;
   useWhen: string;
   guardrails: string[];
 };
@@ -602,6 +603,7 @@ export function recommendWorkflowSkillsForWorkOrder(
       id: "apollo-graphql-skills",
       name: "Apollo GraphQL Skills",
       sourceUrl: "https://github.com/apollographql/skills",
+      sourceRecordId: "src-apollo-graphql-skills-2026",
       useWhen: "Use for GraphQL schema, operation, Apollo Client, Rover, and GraphQL MCP review.",
       guardrails: [
         "Treat as advisory workflow guidance, not a runtime dependency.",
@@ -615,6 +617,7 @@ export function recommendWorkflowSkillsForWorkOrder(
       id: "turborepo-skill",
       name: "Turborepo Skill",
       sourceUrl: "https://github.com/vercel/turborepo/blob/main/skills/turborepo/SKILL.md",
+      sourceRecordId: "src-turborepo-skill-2026",
       useWhen: "Use for package task orchestration, cache behavior, affected-package execution, and CI build graph design.",
       guardrails: [
         "Keep task logic package-local and root scripts delegated through turbo run.",
@@ -628,6 +631,7 @@ export function recommendWorkflowSkillsForWorkOrder(
       id: "ant-design-cli-skill",
       name: "Ant Design CLI Skill",
       sourceUrl: "https://github.com/ant-design/ant-design-cli/blob/main/skills/antd/SKILL.md",
+      sourceRecordId: "src-ant-design-cli-skill-2026",
       useWhen: "Use for Ant Design 6 component props, demos, semantic class names, tokens, linting, and doctor checks.",
       guardrails: [
         "Prefer package-managed execution over an untracked global install.",
@@ -653,6 +657,7 @@ export function recommendWorkflowSkillsForWorkOrder(
       id: "archunitts",
       name: "ArchUnitTS",
       sourceUrl: "https://github.com/LukasNiessen/ArchUnitTS",
+      sourceRecordId: "src-archunit-ts-github-2026",
       useWhen: "Use to turn architecture decisions into executable package, import, and dependency-boundary checks.",
       guardrails: [
         "Prefer narrow rules with clear ownership and low false-positive risk.",

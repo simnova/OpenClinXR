@@ -175,8 +175,11 @@ On the M4 Max development mode:
 - `src-openpencil-2026`
 - `src-npm-stack-metadata-2026-05-03`
 - `src-graphql-codegen-docs-2026`
+- `src-apollo-graphql-skills-2026`
 - `src-knip-e18e-tooling-2026`
 - `src-ant-design-pro-v6-release-2026`
+- `src-ant-design-cli-skill-2026`
+- `src-turborepo-skill-2026`
 - `src-storybook-10-3-2026`
 - `src-serenity-js-screenplay-2026`
 - `src-mdn-webxr-performance-2026`

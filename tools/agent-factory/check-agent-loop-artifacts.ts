@@ -45,6 +45,8 @@ type DispatchPacket = {
 type WorkflowSkillRecommendation = {
   id: string;
   name: string;
+  sourceUrl?: string;
+  sourceRecordId?: string;
   useWhen: string;
   guardrails: string[];
 };
@@ -90,11 +92,12 @@ const validDimensions = new Set(Object.keys(scoreWeights) as ScoreDimension[]);
 
 async function main(): Promise<void> {
   const files = await globFiles("iterations/**/09-agent-loop-plan.json");
+  const sourceRecordIds = await loadSourceRecordIds();
   const failures: Failure[] = [];
 
   for (const file of files.sort()) {
     try {
-      validateArtifact(file, await readJson<unknown>(file), failures);
+      validateArtifact(file, await readJson<unknown>(file), failures, sourceRecordIds);
       await validateFreshGeneration(file, failures);
     } catch (error) {
       failures.push({
@@ -115,6 +118,18 @@ async function main(): Promise<void> {
   console.log(`Checked ${files.length} generated agent loop artifact${files.length === 1 ? "" : "s"}.`);
 }
 
+async function loadSourceRecordIds(): Promise<Set<string>> {
+  const sourceFiles = await globFiles(["agents/**/sources/*.json", "sources/**/*.json"]);
+  const ids = new Set<string>();
+  for (const sourceFile of sourceFiles) {
+    const record = await readJson<{ source_id?: unknown }>(sourceFile);
+    if (typeof record.source_id === "string") {
+      ids.add(record.source_id);
+    }
+  }
+  return ids;
+}
+
 async function validateFreshGeneration(file: string, failures: Failure[]): Promise<void> {
   const iterationDir = path.dirname(file);
   const expected = canonicalAgentLoopArtifact(await buildAgentLoopArtifact({
@@ -131,7 +146,7 @@ async function validateFreshGeneration(file: string, failures: Failure[]): Promi
   }
 }
 
-function validateArtifact(file: string, value: unknown, failures: Failure[]): void {
+function validateArtifact(file: string, value: unknown, failures: Failure[], sourceRecordIds: Set<string>): void {
   if (!isAgentLoopArtifact(value)) {
     failures.push({ file, message: "agent loop artifact is missing required top-level fields" });
     return;
@@ -225,6 +240,12 @@ function validateArtifact(file: string, value: unknown, failures: Failure[]): vo
       if (skill.name.length === 0 || skill.useWhen.length === 0 || skill.guardrails.length === 0) {
         failures.push({ file, message: `dispatch packet ${packet.workOrderId} skill ${skill.id} must include name, useWhen, and guardrails` });
       }
+      if (skill.sourceUrl && !skill.sourceRecordId) {
+        failures.push({ file, message: `dispatch packet ${packet.workOrderId} skill ${skill.id} with sourceUrl must include sourceRecordId` });
+      }
+      if (skill.sourceRecordId && !sourceRecordIds.has(skill.sourceRecordId)) {
+        failures.push({ file, message: `dispatch packet ${packet.workOrderId} skill ${skill.id} references missing source record ${skill.sourceRecordId}` });
+      }
     }
   }
 
@@ -313,6 +334,8 @@ function isWorkflowSkillRecommendation(value: unknown): value is WorkflowSkillRe
   return isRecord(value)
     && typeof value.id === "string"
     && typeof value.name === "string"
+    && (value.sourceUrl === undefined || typeof value.sourceUrl === "string")
+    && (value.sourceRecordId === undefined || typeof value.sourceRecordId === "string")
     && typeof value.useWhen === "string"
     && isStringArray(value.guardrails);
 }

@@ -5164,6 +5164,7 @@
           "id": "archunitts",
           "name": "ArchUnitTS",
           "sourceUrl": "https://github.com/LukasNiessen/ArchUnitTS",
+          "sourceRecordId": "src-archunit-ts-github-2026",
           "useWhen": "Use to turn architecture decisions into executable package, import, and dependency-boundary checks.",
           "guardrails": [
             "Prefer narrow rules with clear ownership and low false-positive risk.",
