@@ -52,6 +52,11 @@ type SourceImportReference = {
   specifier: string;
 };
 
+type SourceTextReference = {
+  filePath: string;
+  sourceText: string;
+};
+
 type MongoMemoryServerBoundaryInput = {
   manifestDependencies: WorkspaceDependencyReference[];
   sourceReferences: SourceImportReference[];
@@ -221,6 +226,26 @@ describe("workspace architecture rules", () => {
     const violations = filesWithContentMatching("packages/openclinxr/telemetry", forbiddenImports);
 
     expect(violations).toEqual([]);
+  });
+
+  it("reports API route telemetry attributes that include station-run identity", () => {
+    const violations = findApiRouteTelemetryIdentityViolations([
+      {
+        filePath: "apps/api/src/app.ts",
+        sourceText: `
+          telemetryRouteAttributes({
+            routeId: "actor-response",
+            stationRunId: routeMatch.params.stationRunId,
+          });
+        `,
+      },
+    ]);
+
+    expect(violations).toEqual(["apps/api/src/app.ts:telemetryRouteAttributes.stationRunId"]);
+  });
+
+  it("keeps API route telemetry low-cardinality and free of station-run identity", () => {
+    expect(findApiRouteTelemetryIdentityViolations(apiSourceFiles())).toEqual([]);
   });
 
   it("keeps Mongoose data sources out of station runtime and trace-ledger dependencies", () => {
@@ -465,6 +490,49 @@ function sourceFilesUnder(root: string): string[] {
 
 function filesWithContentMatching(root: string, pattern: RegExp): string[] {
   return sourceFilesUnder(root).filter((filePath) => pattern.test(readFileSync(join(workspaceRoot, filePath), "utf8")));
+}
+
+function apiSourceFiles(): SourceTextReference[] {
+  return sourceFilesUnder("apps/api/src").map((filePath) => ({
+    filePath,
+    sourceText: readFileSync(join(workspaceRoot, filePath), "utf8"),
+  }));
+}
+
+function findApiRouteTelemetryIdentityViolations(files: SourceTextReference[]): string[] {
+  return files.flatMap(({ filePath, sourceText }) => {
+    const sourceFile = ts.createSourceFile(filePath, sourceText, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+    const violations: string[] = [];
+
+    function visit(node: ts.Node): void {
+      if (isTelemetryRouteAttributesCall(node) && callIncludesStationRunIdAttribute(node)) {
+        violations.push(`${filePath}:telemetryRouteAttributes.stationRunId`);
+      }
+      ts.forEachChild(node, visit);
+    }
+
+    visit(sourceFile);
+    return violations;
+  }).sort();
+}
+
+function isTelemetryRouteAttributesCall(node: ts.Node): node is ts.CallExpression {
+  return ts.isCallExpression(node)
+    && ts.isIdentifier(node.expression)
+    && node.expression.text === "telemetryRouteAttributes";
+}
+
+function callIncludesStationRunIdAttribute(node: ts.CallExpression): boolean {
+  const firstArgument = node.arguments[0];
+  if (!firstArgument || !ts.isObjectLiteralExpression(firstArgument)) {
+    return false;
+  }
+
+  return firstArgument.properties.some((property) =>
+    ts.isPropertyAssignment(property)
+    && ts.isIdentifier(property.name)
+    && property.name.text === "stationRunId"
+  );
 }
 
 function packageManifestFiles(): string[] {
