@@ -75,7 +75,7 @@ Create an isolated package or worktree spike before touching the production XR s
 5. Validate Vite 8 behavior before accepting any plugin into the main workspace.
 6. Build a minimal ED bay scene that mirrors the current `apps/ui-xr` smoke: one patient, one nurse interruption, one EHR panel, trace action buttons, and a live canvas.
 7. Compare build size, dev network requests, frame telemetry, console logs, and Quest 3 smoke behavior against the existing `apps/ui-xr` baseline.
-8. Try the MCP runtime in agent mode only after local install and trust/network implications are explicit. For Codex, the docs point adapter generation at `.codex/config.toml`; start runtime verification with `iwsdk dev status`, then `xr_get_session_status`, then XR entry/screenshot/scene checks. Do not run `@iwsdk/reference` warmup unattended because it downloads model/reference assets.
+8. Try the MCP runtime in agent mode only after local install and trust/network implications are explicit. For Codex, the docs point adapter generation at `.codex/config.toml`; use `docs/openclinxr/iwsdk-codex-mcp-runbook.md` and the package-level `buildIwsdkCodexMcpAdapterTemplate()` output. Start runtime verification with `iwsdk dev status`, then `xr_get_session_status`, then XR entry/screenshot/scene checks. Do not run `@iwsdk/reference` warmup unattended because it downloads model/reference assets.
 
 ## Decision For Now
 

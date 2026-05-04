@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildIwsdkAgentVerificationRunbook,
+  buildIwsdkCodexMcpAdapterTemplate,
   buildIwsdkCommittedSpikeSequence,
   buildIwsdkSpikeMetricThresholds,
   buildIwsdkSpikePlan,
@@ -79,6 +80,35 @@ describe("IWSDK spike plan", () => {
       "browser_screenshot",
     ]);
     expect(runbook.doNotRunUnattended).toEqual([
+      "npx iwsdk reference warmup",
+      "install @meta-quest/hzdb",
+      "adopt @iwsdk/vite-plugin-gltf-optimizer in production builds",
+    ]);
+  });
+
+  it("builds a Codex MCP adapter template that stays package-managed and reversible", () => {
+    const template = buildIwsdkCodexMcpAdapterTemplate();
+
+    expect(template.target).toBe(".codex/config.toml");
+    expect(template.serverName).toBe("iwsdk-runtime");
+    expect(template.tomlSnippet).toContain("[mcp_servers.iwsdk-runtime]");
+    expect(template.tomlSnippet).toContain('command = "pnpm"');
+    expect(template.tomlSnippet).toContain('args = ["exec", "iwsdk", "mcp", "stdio"]');
+    expect(template.validationCommandOrder).toEqual([
+      "iwsdk dev status",
+      "xr_get_session_status",
+      "xr_accept_session",
+      "browser_screenshot",
+      "scene_get_hierarchy",
+      "xr_select",
+      "browser_get_console_logs",
+    ]);
+    expect(template.prerequisites).toEqual([
+      "Use only after apps/ui-xr-iwsdk-spike exists with exact IWSDK package versions installed.",
+      "Run pnpm iwsdk:verify before adding the adapter to local Codex config.",
+      "Keep the adapter local and reversible; do not commit .codex/config.toml changes.",
+    ]);
+    expect(template.blockedActions).toEqual([
       "npx iwsdk reference warmup",
       "install @meta-quest/hzdb",
       "adopt @iwsdk/vite-plugin-gltf-optimizer in production builds",

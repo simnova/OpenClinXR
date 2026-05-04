@@ -15,7 +15,8 @@
     "The package records blocked or unattended-only posture for @meta-quest/hzdb and @iwsdk/reference.",
     "The package records a Codex-oriented verification runbook that checks iwsdk dev status, then xr_get_session_status, then XR entry, screenshot, scene hierarchy, controller select, and console logs.",
     "The package records machine-readable sidecar and production readiness thresholds for installed footprint, injected IWSDK dev runtime size, JS bundle size, bundle delta versus apps/ui-xr, console errors, Quest 3 FPS, p95 frame time, and controller-select latency.",
-    "The root workspace exposes pnpm iwsdk:verify as an explicit opt-in policy lane for IWSDK spike planning checks without adding IWSDK installation assumptions to the default pnpm verify gate."
+    "The root workspace exposes pnpm iwsdk:verify as an explicit opt-in policy lane for IWSDK spike planning checks without adding IWSDK installation assumptions to the default pnpm verify gate.",
+    "The package exposes a Codex MCP adapter template and docs/openclinxr/iwsdk-codex-mcp-runbook.md records the local-only setup and verification order."
   ],
   "claims_not_supported": [
     "That IWSDK has been installed as a production or spike app dependency in the main workspace.",

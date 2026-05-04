@@ -80,6 +80,15 @@ export type IwsdkAgentVerificationRunbook = {
   doNotRunUnattended: string[];
 };
 
+export type IwsdkCodexMcpAdapterTemplate = {
+  target: ".codex/config.toml";
+  serverName: "iwsdk-runtime";
+  tomlSnippet: string;
+  prerequisites: string[];
+  validationCommandOrder: string[];
+  blockedActions: string[];
+};
+
 export type IwsdkCommittedSpikePhase = {
   id: string;
   goal: string;
@@ -388,6 +397,27 @@ export function buildIwsdkAgentVerificationRunbook(options: {
       "install @meta-quest/hzdb",
       "adopt @iwsdk/vite-plugin-gltf-optimizer in production builds",
     ],
+  };
+}
+
+export function buildIwsdkCodexMcpAdapterTemplate(): IwsdkCodexMcpAdapterTemplate {
+  const runbook = buildIwsdkAgentVerificationRunbook({ aiTool: "codex", mode: "agent" });
+
+  return {
+    target: ".codex/config.toml",
+    serverName: "iwsdk-runtime",
+    tomlSnippet: [
+      "[mcp_servers.iwsdk-runtime]",
+      'command = "pnpm"',
+      'args = ["exec", "iwsdk", "mcp", "stdio"]',
+    ].join("\n"),
+    prerequisites: [
+      "Use only after apps/ui-xr-iwsdk-spike exists with exact IWSDK package versions installed.",
+      "Run pnpm iwsdk:verify before adding the adapter to local Codex config.",
+      "Keep the adapter local and reversible; do not commit .codex/config.toml changes.",
+    ],
+    validationCommandOrder: runbook.steps.map((step) => step.toolOrCommand),
+    blockedActions: [...runbook.doNotRunUnattended],
   };
 }
 
