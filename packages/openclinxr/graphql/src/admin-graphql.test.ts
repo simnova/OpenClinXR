@@ -16,6 +16,7 @@ describe("OpenClinXR admin GraphQL contract", () => {
     expect(query?.getFields()).toHaveProperty("traceEvents");
     expect(mutation?.getFields()).toHaveProperty("assembleExamForm");
     expect(mutation?.getFields()).toHaveProperty("submitScenarioReview");
+    expect(mutation?.getFields()).toHaveProperty("saveFacultyScoreDraft");
     expect(mutation?.getFields()).toHaveProperty("createStationRunQueueSnapshot");
   });
 
@@ -77,6 +78,7 @@ describe("OpenClinXR admin GraphQL contract", () => {
       "AssembleExamForm",
       "CreateStationRunQueueSnapshot",
       "SubmitScenarioReview",
+      "SaveFacultyScoreDraft",
       "StationRunQueueSnapshots",
     ]);
 
@@ -108,6 +110,7 @@ describe("OpenClinXR admin GraphQL contract", () => {
       ["exam-form-assembly", "./documents/assemble-exam-form.graphql"],
       ["station-run-queue-snapshot", "./documents/create-station-run-queue-snapshot.graphql"],
       ["scenario-review-decision", "./documents/submit-scenario-review.graphql"],
+      ["faculty-score-draft", "./documents/save-faculty-score-draft.graphql"],
       ["station-run-queue-snapshots", "./documents/station-run-queue-snapshots.graphql"],
     ]);
 

@@ -95,6 +95,12 @@ export type ScenarioPublicationReadinessInput = {
   reviewerEvidence: ReviewerEvidence[];
 };
 
+export type SaveFacultyScoreDraftInput = {
+  reviewerId: string;
+  comments: string;
+  rubricScores: Record<string, unknown>;
+};
+
 export type SubmitNoteResult = {
   phase: StationRun["phase"];
   note: StationRun["note"];
@@ -103,6 +109,7 @@ export type SubmitNoteResult = {
 type SessionRecord = {
   run: StationRun;
   nextSequence: number;
+  facultyScoreDraft?: ReviewPacket["facultyScoreDraft"];
 };
 
 export type ScenarioRuntimeOptions = {
@@ -338,12 +345,44 @@ export class ScenarioRuntime {
       requiredTraceTags: this.options.scenario.requiredTraceTags,
       traceEvents: this.options.ledger.replay(stationRunId),
       ...(session.run.note ? { patientNote: session.run.note } : {}),
-      facultyScoreDraft: {
+      facultyScoreDraft: session.facultyScoreDraft ?? {
         reviewerId: "faculty_001",
         status: "draft",
         comments: "Generated from local in-memory scenario runtime.",
       },
     });
+  }
+
+  saveFacultyScoreDraft(stationRunId: string, input: SaveFacultyScoreDraftInput): ReviewPacket {
+    const session = this.requireSession(stationRunId);
+    const reviewerId = input.reviewerId.trim();
+    const comments = input.comments.trim();
+    if (reviewerId.length === 0) {
+      throw new Error("Faculty score draft requires reviewerId");
+    }
+    if (comments.length === 0) {
+      throw new Error("Faculty score draft requires comments");
+    }
+
+    session.facultyScoreDraft = {
+      reviewerId,
+      status: "draft",
+      comments,
+    };
+    this.options.ledger.append(traceEvent({
+      stationRunId,
+      sequence: session.nextSequence,
+      eventType: "faculty.score_draft.saved",
+      atSecond: session.run.note?.submittedAtSecond ?? 0,
+      source: "faculty",
+      payload: {
+        reviewerId,
+        rubricScoreCount: Object.keys(input.rubricScores).length,
+      },
+    }));
+    session.nextSequence += 1;
+
+    return this.reviewPacket(stationRunId);
   }
 
   traceEvents(stationRunId: string): TraceEvent[] {

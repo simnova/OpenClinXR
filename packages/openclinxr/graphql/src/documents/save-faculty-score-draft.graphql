@@ -1,0 +1,26 @@
+mutation SaveFacultyScoreDraft($input: FacultyScoreDraftInput!) {
+  saveFacultyScoreDraft(input: $input) {
+    stationRunId
+    scenarioId
+    observedTraceTags
+    missingRequiredTraceTags
+    lateTraceTags
+    unsafeEvents
+    traceQuality {
+      eventCount
+      modelGeneratedEventCount
+      modelFailedEventCount
+      voiceAudioEventCount
+      blockedGuardrailCount
+      unsafeEventCount
+      missingRequiredTraceTagCount
+      hasPatientNote
+      hasModelProvenance
+    }
+    facultyScoreDraft {
+      reviewerId
+      status
+      comments
+    }
+  }
+}

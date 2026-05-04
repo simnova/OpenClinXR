@@ -22,6 +22,7 @@ const documentOrder = [
   "assemble-exam-form.graphql",
   "create-station-run-queue-snapshot.graphql",
   "submit-scenario-review.graphql",
+  "save-faculty-score-draft.graphql",
   "station-run-queue-snapshots.graphql",
 ] as const;
 
@@ -29,6 +30,7 @@ const routeIdsByFileName = new Map<string, string>([
   ["assemble-exam-form.graphql", "exam-form-assembly"],
   ["create-station-run-queue-snapshot.graphql", "station-run-queue-snapshot"],
   ["submit-scenario-review.graphql", "scenario-review-decision"],
+  ["save-faculty-score-draft.graphql", "faculty-score-draft"],
   ["station-run-queue-snapshots.graphql", "station-run-queue-snapshots"],
 ]);
 

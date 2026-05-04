@@ -207,7 +207,7 @@ export type ReviewPacket = {
   stationRunId: Scalars['ID']['output'];
   timeline: Array<TraceTimelineEntry>;
   traceQuality: ReviewTraceQuality;
-  unsafeEvents: Array<TraceEvent>;
+  unsafeEvents: Array<Scalars['String']['output']>;
 };
 
 export type ReviewTraceQuality = {
@@ -608,7 +608,7 @@ export type ReviewPacketResolvers<ContextType = any, ParentType extends Resolver
   stationRunId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   timeline?: Resolver<Array<ResolversTypes['TraceTimelineEntry']>, ParentType, ContextType>;
   traceQuality?: Resolver<ResolversTypes['ReviewTraceQuality'], ParentType, ContextType>;
-  unsafeEvents?: Resolver<Array<ResolversTypes['TraceEvent']>, ParentType, ContextType>;
+  unsafeEvents?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
 };
 
 export type ReviewTraceQualityResolvers<ContextType = any, ParentType extends ResolversParentTypes['ReviewTraceQuality'] = ResolversParentTypes['ReviewTraceQuality']> = {

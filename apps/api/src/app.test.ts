@@ -82,6 +82,7 @@ describe("OpenClinXR API shell", () => {
       "exam-form-assembly",
       "station-run-queue-snapshot",
       "scenario-review-decision",
+      "faculty-score-draft",
       "station-run-queue-snapshots",
     ]);
     expect(documents.map((document) => document.operationName)).toEqual([
@@ -92,12 +93,14 @@ describe("OpenClinXR API shell", () => {
       "AssembleExamForm",
       "CreateStationRunQueueSnapshot",
       "SubmitScenarioReview",
+      "SaveFacultyScoreDraft",
       "StationRunQueueSnapshots",
     ]);
     expect(documents[0]?.source).toContain("query ScenarioBank");
     expect(documents.find((document) => document.routeId === "scenario-detail")?.source).toContain("query ScenarioDetail");
     expect(documents.find((document) => document.routeId === "station-run-queue-snapshot")?.source).toContain("createStationRunQueueSnapshot");
     expect(documents.find((document) => document.routeId === "scenario-review-decision")?.source).toContain("submitScenarioReview");
+    expect(documents.find((document) => document.routeId === "faculty-score-draft")?.source).toContain("saveFacultyScoreDraft");
     expect(documents.at(-1)?.source).toContain("stationRunQueueSnapshots");
     expect(JSON.stringify(documents)).not.toContain("hiddenFacts");
   });
@@ -629,6 +632,96 @@ describe("OpenClinXR API shell", () => {
       status: "READY_FOR_REVIEW",
       review: { clinical: "approved" },
     });
+  });
+
+  it("executes faculty score draft saves through the admin GraphQL mutation", async () => {
+    const app = createApiApp();
+    const sessionResponse = await app.request("/sessions", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ learnerId: "learner_001", consentAccepted: true }),
+    });
+    const session = await json(sessionResponse) as { stationRunId: string };
+    const mutation = adminGraphqlDocumentByOperationName("SaveFacultyScoreDraft");
+
+    const response = await app.request("/admin/graphql", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        query: mutation.source,
+        operationName: "SaveFacultyScoreDraft",
+        variables: {
+          input: {
+            stationRunId: session.stationRunId,
+            reviewerId: "faculty_002",
+            comments: "ECG escalation was captured; team communication still needs review.",
+            rubricScores: {
+              urgent_recognition: 2,
+              communication_team_family: 1,
+            },
+          },
+        },
+      }),
+    });
+    const body = await json(response) as {
+      data?: {
+        saveFacultyScoreDraft: {
+          stationRunId: string;
+          facultyScoreDraft: { reviewerId: string; status: string; comments: string };
+        };
+      };
+      errors?: Array<{ message: string }>;
+    };
+
+    expect(response.status).toBe(200);
+    expect(body.errors).toBeUndefined();
+    expect(body.data?.saveFacultyScoreDraft).toMatchObject({
+      stationRunId: session.stationRunId,
+      facultyScoreDraft: {
+        reviewerId: "faculty_002",
+        status: "draft",
+        comments: "ECG escalation was captured; team communication still needs review.",
+      },
+    });
+
+    const reviewPacketReplayDocument = adminGraphqlDocumentByOperationName("ReviewPacketReplay");
+    const replayResponse = await app.request("/admin/graphql", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        query: reviewPacketReplayDocument.source,
+        operationName: "ReviewPacketReplay",
+        variables: { stationRunId: session.stationRunId },
+      }),
+    });
+    const replay = await json(replayResponse) as {
+      data?: {
+        reviewPacket: {
+          stationRunId: string;
+          facultyScoreDraft: { reviewerId: string; comments: string };
+        } | null;
+        traceEvents: Array<{ eventType: string; source: string }>;
+      };
+      errors?: Array<{ message: string }>;
+    };
+
+    expect(replayResponse.status).toBe(200);
+    expect(replay.errors).toBeUndefined();
+    expect(replay.data?.reviewPacket).toMatchObject({
+      stationRunId: session.stationRunId,
+      facultyScoreDraft: {
+        reviewerId: "faculty_002",
+        comments: "ECG escalation was captured; team communication still needs review.",
+      },
+    });
+    expect(replay.data?.traceEvents).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          eventType: "faculty.score_draft.saved",
+          source: "faculty",
+        }),
+      ]),
+    );
   });
 
   it("serves ED chest pain asset readiness from the shared runtime", async () => {

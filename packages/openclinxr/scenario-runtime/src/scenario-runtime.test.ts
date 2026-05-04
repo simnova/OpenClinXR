@@ -101,6 +101,28 @@ describe("scenario runtime", () => {
     ]);
   });
 
+  it("saves faculty score draft comments into subsequent review packets", async () => {
+    const runtime = createDefaultScenarioRuntime();
+    const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });
+
+    const packet = runtime.saveFacultyScoreDraft(session.stationRunId, {
+      reviewerId: "faculty_002",
+      comments: "ECG escalation was captured; team communication still needs review.",
+      rubricScores: {
+        urgent_recognition: 2,
+        communication_team_family: 1,
+      },
+    });
+
+    expect(packet.facultyScoreDraft).toEqual({
+      reviewerId: "faculty_002",
+      status: "draft",
+      comments: "ECG escalation was captured; team communication still needs review.",
+    });
+    expect(runtime.reviewPacket(session.stationRunId).facultyScoreDraft).toEqual(packet.facultyScoreDraft);
+    expect(JSON.stringify(runtime.traceEvents(session.stationRunId))).not.toContain("urgent_recognition");
+  });
+
   it("generates actor responses with model provenance recorded in the trace", async () => {
     const runtime = createDefaultScenarioRuntime();
     const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });

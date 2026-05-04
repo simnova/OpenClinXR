@@ -137,7 +137,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
         ...(isRecord(body.variables) ? { variables: body.variables } : {}),
         ...(graphqlOperationName !== "anonymous" ? { operationName: graphqlOperationName } : {}),
       },
-      createAdminGraphqlRoot(persistence, adminScenarioOverrides),
+      createAdminGraphqlRoot(runtime, persistence, adminScenarioOverrides),
     );
     await recordGraphqlOperationSpan(telemetry, {
       operationName: graphqlOperationName,
@@ -356,7 +356,11 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   return app;
 }
 
-function createAdminGraphqlRoot(persistence: ApiPersistenceSink, scenarioOverrides: Map<string, AdminGraphqlScenario>): AdminGraphqlRootValue {
+function createAdminGraphqlRoot(
+  runtime: ScenarioRuntime,
+  persistence: ApiPersistenceSink,
+  scenarioOverrides: Map<string, AdminGraphqlScenario>,
+): AdminGraphqlRootValue {
   return {
     assetReadiness: ({ scenarioId, version }) => findSeedBankAssetReadiness(String(scenarioId), version),
     scenario: async ({ scenarioId, version }) =>
@@ -365,6 +369,8 @@ function createAdminGraphqlRoot(persistence: ApiPersistenceSink, scenarioOverrid
       ),
     scenarios: async ({ status }) =>
       (await listAdminGraphqlScenarios(persistence, scenarioOverrides)).filter((scenario) => status === undefined || scenario.status === status),
+    reviewPacket: ({ stationRunId }) => runtime.reviewPacket(String(stationRunId)),
+    traceEvents: ({ stationRunId }) => runtime.traceEvents(String(stationRunId)),
     submitScenarioReview: async ({ input }) => {
       const adminScenarios = await listAdminGraphqlScenarios(persistence, scenarioOverrides);
       const scenario = adminScenarios.find((candidate) => candidate.scenarioId === input.scenarioId && candidate.version === input.version);
@@ -388,6 +394,12 @@ function createAdminGraphqlRoot(persistence: ApiPersistenceSink, scenarioOverrid
       await persistence.saveStationRunQueueSnapshot?.(snapshot);
       return snapshot;
     },
+    saveFacultyScoreDraft: ({ input }) =>
+      runtime.saveFacultyScoreDraft(String(input.stationRunId), {
+        reviewerId: String(input.reviewerId),
+        comments: input.comments,
+        rubricScores: isRecord(input.rubricScores) ? input.rubricScores : {},
+      }),
   };
 }
 

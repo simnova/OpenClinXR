@@ -5,13 +5,18 @@ import { openClinXrAdminSchemaSdl } from "./schema.js";
 import type {
   AssetReadiness,
   MutationCreateStationRunQueueSnapshotArgs,
+  MutationSaveFacultyScoreDraftArgs,
   MutationSubmitScenarioReviewArgs,
   QueryAssetReadinessArgs,
+  QueryReviewPacketArgs,
   QueryScenarioArgs,
   QueryScenariosArgs,
   QueryStationRunQueueSnapshotsArgs,
+  QueryTraceEventsArgs,
+  ReviewPacket,
   Scenario,
   StationRunQueueSnapshot,
+  TraceEvent,
 } from "./generated/resolvers.generated.js";
 export {
   ReviewDecision as AdminGraphqlReviewDecision,
@@ -52,12 +57,21 @@ export type AdminGraphqlRootValue = {
   stationRunQueueSnapshots?: (
     args: QueryStationRunQueueSnapshotsArgs,
   ) => Promise<StationRunQueueSnapshot[]> | StationRunQueueSnapshot[];
+  reviewPacket?: (
+    args: QueryReviewPacketArgs,
+  ) => Promise<ReviewPacket | null | undefined> | ReviewPacket | null | undefined;
+  traceEvents?: (
+    args: QueryTraceEventsArgs,
+  ) => Promise<TraceEvent[]> | TraceEvent[];
   createStationRunQueueSnapshot?: (
     args: MutationCreateStationRunQueueSnapshotArgs,
   ) => Promise<StationRunQueueSnapshot> | StationRunQueueSnapshot;
   submitScenarioReview?: (
     args: MutationSubmitScenarioReviewArgs,
   ) => Promise<AdminGraphqlScenario> | AdminGraphqlScenario;
+  saveFacultyScoreDraft?: (
+    args: MutationSaveFacultyScoreDraftArgs,
+  ) => Promise<ReviewPacket> | ReviewPacket;
 };
 
 export function buildAdminGraphqlSchema(): GraphQLSchema {

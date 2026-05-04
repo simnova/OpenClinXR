@@ -3,12 +3,15 @@ import type { ScenarioAssetReadiness } from "@openclinxr/asset-registry";
 import type { BlueprintScenarioReadiness, ExamBlueprint, ExamStationRunQueue, ExamTimingPlan } from "@openclinxr/exam-assembly";
 import {
   CreateStationRunQueueSnapshotDocument,
+  SaveFacultyScoreDraftDocument,
   ScenarioBankDocument,
   ScenarioDetailDocument,
   StationRunQueueSnapshotsDocument,
   SubmitScenarioReviewDocument,
   type CreateStationRunQueueSnapshotMutation,
   type CreateStationRunQueueSnapshotMutationVariables,
+  type SaveFacultyScoreDraftMutation,
+  type SaveFacultyScoreDraftMutationVariables,
   type ScenarioBankQuery,
   type ScenarioBankQueryVariables,
   type ScenarioDetailQuery,
@@ -46,6 +49,7 @@ export type AdminControlPlaneClient = {
   listScenarios(input?: ListScenariosInput): Promise<AdminScenario[]>;
   getScenarioDetail(input: GetScenarioDetailInput): Promise<AdminScenarioDetail>;
   submitScenarioReview(input: SubmitScenarioReviewInput): Promise<AdminScenarioReviewResult>;
+  saveFacultyScoreDraft(input: SaveFacultyScoreDraftInput): Promise<AdminReviewPacket>;
   listStep2CsSeedStationRunQueueSnapshots(): Promise<AdminStationRunQueueSnapshot[]>;
   createStep2CsSeedStationRunQueueSnapshot(input: CreateStationRunQueueSnapshotInput): Promise<AdminStationRunQueueSnapshot>;
   getScenarioBankAssetReadiness(): Promise<ScenarioAssetReadiness[]>;
@@ -67,10 +71,12 @@ export type CreateStationRunQueueSnapshotInput = {
 };
 
 export type SubmitScenarioReviewInput = SubmitScenarioReviewMutationVariables["input"];
+export type SaveFacultyScoreDraftInput = SaveFacultyScoreDraftMutationVariables["input"];
 
 export type AdminScenario = ScenarioBankQuery["scenarios"][number];
 export type AdminScenarioDetail = ScenarioDetailQuery;
 export type AdminScenarioReviewResult = SubmitScenarioReviewMutation["submitScenarioReview"];
+export type AdminReviewPacket = SaveFacultyScoreDraftMutation["saveFacultyScoreDraft"];
 export type AdminStationRunQueueSnapshot = StationRunQueueSnapshotsQuery["stationRunQueueSnapshots"][number];
 
 export const defaultAdminApiBaseUrl = import.meta.env.VITE_OPENCLINXR_API_BASE_URL ?? "";
@@ -80,6 +86,7 @@ const createStationRunQueueSnapshotDocument = print(CreateStationRunQueueSnapsho
 const scenarioBankDocument = print(ScenarioBankDocument);
 const scenarioDetailDocument = print(ScenarioDetailDocument);
 const submitScenarioReviewDocument = print(SubmitScenarioReviewDocument);
+const saveFacultyScoreDraftDocument = print(SaveFacultyScoreDraftDocument);
 
 export function buildAdminGraphqlEndpoint(baseUrl: string = defaultAdminApiBaseUrl): string {
   return `${normalizeBaseUrl(baseUrl)}${routeById("admin-graphql-execute").path}`;
@@ -163,6 +170,27 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
         { input },
       );
       return data.submitScenarioReview;
+    },
+    saveFacultyScoreDraft: async (input) => {
+      if (apolloClient) {
+        const { data } = await apolloClient.mutate<SaveFacultyScoreDraftMutation, SaveFacultyScoreDraftMutationVariables>({
+          mutation: SaveFacultyScoreDraftDocument,
+          variables: { input },
+        });
+        if (!data) {
+          throw new Error("OpenClinXR admin GraphQL request failed: SaveFacultyScoreDraft missing_data");
+        }
+        return data.saveFacultyScoreDraft;
+      }
+
+      const data = await graphql<SaveFacultyScoreDraftMutation>(
+        fetcher,
+        baseUrl,
+        "SaveFacultyScoreDraft",
+        saveFacultyScoreDraftDocument,
+        { input },
+      );
+      return data.saveFacultyScoreDraft;
     },
     listStep2CsSeedStationRunQueueSnapshots: async () => {
       if (apolloClient) {

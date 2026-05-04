@@ -176,7 +176,7 @@ type ReviewPacket {
   observedTraceTags: [String!]!
   missingRequiredTraceTags: [String!]!
   lateTraceTags: [String!]!
-  unsafeEvents: [TraceEvent!]!
+  unsafeEvents: [String!]!
   timeline: [TraceTimelineEntry!]!
   traceQuality: ReviewTraceQuality!
   patientNote: PatientNote
