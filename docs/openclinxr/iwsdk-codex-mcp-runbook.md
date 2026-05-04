@@ -9,6 +9,8 @@ This runbook defines how Codex should evaluate Meta Immersive Web SDK MCP toolin
 
 This runbook does not install IWSDK, does not modify `.codex/config.toml`, does not warm the IWSDK reference corpus, and does not replace physical Quest 3 validation.
 
+Current state: contract only. Do not create a no-install `apps/ui-xr-iwsdk-spike` scaffold, because that would look like runtime progress while proving no IWSDK behavior.
+
 ## Preconditions
 
 - `pnpm iwsdk:verify` passes.

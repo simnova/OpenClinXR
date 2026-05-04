@@ -81,6 +81,8 @@ Create an isolated package or worktree spike before touching the production XR s
 
 Use IWSDK as a spike candidate, not a committed runtime dependency.
 
+The sidecar path is contract-only today. Do not create a no-install `apps/ui-xr-iwsdk-spike` app, because that would not measure IWSDK package compatibility, MCP runtime behavior, install footprint, bundle impact, or physical Quest 3 performance. Create the runnable sidecar only after the install scope, exact package versions, and license posture are accepted.
+
 ## Committed Sidecar Sequence
 
 If the team decides to make the experiment visible in the monorepo, use `apps/ui-xr-iwsdk-spike/` and keep `apps/ui-xr/`, `apps/api/`, and `packages/openclinxr/scenario-runtime/` blocked from IWSDK dependencies until the spike exits. The sequence should be:

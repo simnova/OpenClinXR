@@ -222,6 +222,10 @@ describe("workspace architecture rules", () => {
     expect([...manifestViolations, ...lockfileViolations.map((dependency) => `pnpm-lock.yaml:${dependency}`)]).toEqual([]);
   });
 
+  it("keeps the IWSDK sidecar app absent until a real install-backed spike is approved", () => {
+    expect(existsSync(join(workspaceRoot, "apps/ui-xr-iwsdk-spike"))).toBe(false);
+  });
+
   it("keeps UI app source from depending on Mongo persistence source files", async () => {
     const violations = await projectFiles(archTsconfig)
       .inFolder("apps/ui-*/src/**")

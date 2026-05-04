@@ -105,6 +105,14 @@ export type IwsdkCommittedSpikeSequence = {
   phases: IwsdkCommittedSpikePhase[];
 };
 
+export type IwsdkSidecarReadinessContract = {
+  sidecarAppRoot: "apps/ui-xr-iwsdk-spike/";
+  currentState: "contract_only";
+  runnable: false;
+  createAppOnlyAfter: string[];
+  misleadingScaffoldRisks: string[];
+};
+
 const sourceRecordIds = [
   "src-meta-iwsdk-github-2026",
   "src-iwsdk-ai-docs-2026",
@@ -343,6 +351,24 @@ export function buildIwsdkCommittedSpikeSequence(): IwsdkCommittedSpikeSequence 
           "A clinician-style station can be completed without controller, text, or comfort regressions.",
         ],
       },
+    ],
+  };
+}
+
+export function buildIwsdkSidecarReadinessContract(): IwsdkSidecarReadinessContract {
+  return {
+    sidecarAppRoot: "apps/ui-xr-iwsdk-spike/",
+    currentState: "contract_only",
+    runnable: false,
+    createAppOnlyAfter: [
+      "operator_accepts_iwsdk_install_scope",
+      "exact_iwsdk_versions_selected",
+      "license_review_accepts_transitive_dependency_posture",
+      "pnpm_iwsdk_verify_passes",
+    ],
+    misleadingScaffoldRisks: [
+      "A no-install sidecar app can look like runtime progress while proving no IWSDK behavior.",
+      "A scaffold without exact IWSDK dependencies cannot measure Vite peer compatibility, install footprint, MCP runtime behavior, or Quest 3 frame pacing.",
     ],
   };
 }

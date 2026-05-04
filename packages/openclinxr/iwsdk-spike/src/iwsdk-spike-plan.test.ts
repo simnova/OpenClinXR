@@ -3,6 +3,7 @@ import {
   buildIwsdkAgentVerificationRunbook,
   buildIwsdkCodexMcpAdapterTemplate,
   buildIwsdkCommittedSpikeSequence,
+  buildIwsdkSidecarReadinessContract,
   buildIwsdkSpikeMetricThresholds,
   buildIwsdkSpikePlan,
   evaluateIwsdkSpikeMetrics,
@@ -141,6 +142,24 @@ describe("IWSDK spike plan", () => {
       "quest3_controller_select_latency",
       "headset_text_readability",
     ]));
+  });
+
+  it("keeps the IWSDK sidecar as a non-runnable contract until install evidence exists", () => {
+    expect(buildIwsdkSidecarReadinessContract()).toEqual({
+      sidecarAppRoot: "apps/ui-xr-iwsdk-spike/",
+      currentState: "contract_only",
+      runnable: false,
+      createAppOnlyAfter: [
+        "operator_accepts_iwsdk_install_scope",
+        "exact_iwsdk_versions_selected",
+        "license_review_accepts_transitive_dependency_posture",
+        "pnpm_iwsdk_verify_passes",
+      ],
+      misleadingScaffoldRisks: [
+        "A no-install sidecar app can look like runtime progress while proving no IWSDK behavior.",
+        "A scaffold without exact IWSDK dependencies cannot measure Vite peer compatibility, install footprint, MCP runtime behavior, or Quest 3 frame pacing.",
+      ],
+    });
   });
 
   it("defines machine-readable metric thresholds for a committed IWSDK spike", () => {
