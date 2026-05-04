@@ -148,7 +148,7 @@ async function scanPackageDependencies(workspaceRoot: string): Promise<IwsdkWork
     const relativeManifestPath = toPosixRelative(workspaceRoot, manifestPath);
     for (const field of dependencyFields) {
       for (const [name, version] of Object.entries(packageJson[field] ?? {})) {
-        if (isIwsdkPackageName(name)) {
+        if (isIwsdkPackageName(name) || isIwsdkPackageSpecifier(version)) {
           dependencies.push({ manifestPath: relativeManifestPath, field, name, version });
         }
       }
@@ -274,6 +274,10 @@ function isSourceFile(filePath: string): boolean {
 
 function isIwsdkPackageName(packageName: string): boolean {
   return packageName.startsWith("@iwsdk/") || packageName === "@meta-quest/hzdb";
+}
+
+function isIwsdkPackageSpecifier(specifier: string): boolean {
+  return /^npm:(@iwsdk\/[^@]+|@meta-quest\/hzdb)@/.test(specifier);
 }
 
 function lockfileContainsPackage(lockfileText: string, packageName: string): boolean {

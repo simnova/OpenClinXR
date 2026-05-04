@@ -76,6 +76,33 @@ describe("IWSDK workspace posture checker", () => {
     });
   });
 
+  it("blocks IWSDK npm alias specifiers that would bypass package-name scanning", async () => {
+    const workspaceRoot = await createWorkspaceFixture({
+      rootPackage: postureReadyRootPackage(),
+      productionDependencies: {
+        "local-iwsdk-core": "npm:@iwsdk/core@0.3.1",
+      },
+    });
+
+    const report = await buildIwsdkWorkspacePostureReport({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      workspaceRoot,
+    });
+
+    expect(report.detected.dependencies).toEqual([
+      {
+        manifestPath: "apps/ui-xr/package.json",
+        field: "dependencies",
+        name: "local-iwsdk-core",
+        version: "npm:@iwsdk/core@0.3.1",
+      },
+    ]);
+    expect(report.result.blockers).toEqual([
+      "dependency_outside_iwsdk_sidecar:apps/ui-xr/package.json:dependencies.local-iwsdk-core",
+      "iwsdk_alias_specifier_not_allowed:apps/ui-xr/package.json:dependencies.local-iwsdk-core:@iwsdk/core",
+    ]);
+  });
+
   it("reports production leakage, blocked packages, and missing controls from workspace files", async () => {
     const workspaceRoot = await createWorkspaceFixture({
       rootPackage: {

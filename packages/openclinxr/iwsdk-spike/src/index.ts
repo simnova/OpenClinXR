@@ -876,7 +876,7 @@ export function evaluateIwsdkWorkspacePosture(
   const plan = buildIwsdkSpikePlan();
   const sidecarRoot = buildIwsdkSidecarReadinessContract().sidecarAppRoot;
   const allowedRoots = plan.workspaceScope.allowedRoots;
-  const iwsdkDependencies = input.dependencies.filter((dependency) => isIwsdkWorkspacePackage(dependency.name));
+  const iwsdkDependencies = input.dependencies.filter((dependency) => dependencyReferencesIwsdkPackage(dependency));
   const iwsdkSourceReferences = input.sourceReferences.filter((reference) =>
     isIwsdkWorkspacePackage(reference.packageName)
   );
@@ -893,6 +893,19 @@ export function evaluateIwsdkWorkspacePosture(
     ...iwsdkSourceReferences
       .filter((reference) => !pathStartsWithAllowedRoot(reference.filePath, allowedRoots))
       .map((reference) => `source_import_outside_iwsdk_sidecar:${reference.filePath}:${reference.packageName}`),
+  );
+  blockers.push(
+    ...iwsdkDependencies
+      .map((dependency) => ({
+        dependency,
+        aliasTarget: iwsdkPackageNameFromSpecifier(dependency.version),
+      }))
+      .filter((reference): reference is { dependency: IwsdkWorkspaceDependency; aliasTarget: string } =>
+        Boolean(reference.aliasTarget)
+      )
+      .map(({ dependency, aliasTarget }) =>
+        `iwsdk_alias_specifier_not_allowed:${dependency.manifestPath}:${dependency.field}.${dependency.name}:${aliasTarget}`
+      ),
   );
   blockers.push(...blockedWorkspaceScriptActions(input.scriptReferences));
 
@@ -911,7 +924,7 @@ export function evaluateIwsdkWorkspacePosture(
 
   const sidecarSelection = evaluateIwsdkPreInstallPackageSelection(
     sidecarDependencies.map((dependency) => ({
-      name: dependency.name,
+      name: iwsdkPackageNameFromSpecifier(dependency.version) ?? dependency.name,
       version: dependency.version,
       license: "MIT",
       transitivePackages: [],
@@ -1067,6 +1080,15 @@ function pathStartsWithAllowedRoot(filePath: string, allowedRoots: string[]): bo
 
 function isIwsdkWorkspacePackage(packageName: string): boolean {
   return packageName.startsWith("@iwsdk/") || packageName === "@meta-quest/hzdb";
+}
+
+function dependencyReferencesIwsdkPackage(dependency: IwsdkWorkspaceDependency): boolean {
+  return isIwsdkWorkspacePackage(dependency.name) || iwsdkPackageNameFromSpecifier(dependency.version) !== undefined;
+}
+
+function iwsdkPackageNameFromSpecifier(specifier: string): string | undefined {
+  const match = specifier.match(/^npm:(@iwsdk\/[^@]+|@meta-quest\/hzdb)@/);
+  return match?.[1];
 }
 
 function blockedWorkspaceScriptActions(scriptReferences: IwsdkWorkspaceScriptReference[]): string[] {
