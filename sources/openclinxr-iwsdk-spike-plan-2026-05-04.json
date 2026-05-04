@@ -18,6 +18,7 @@
     "The package records an aggregate IWSDK agent-tooling evidence evaluator that requires adapter sync, 32-tool MCP inventory, required MCP category coverage, the minimal smoke subset, managed-browser evidence, and absence of blocked optional MCP server actions.",
     "The root workspace exposes pnpm iwsdk:browser:evidence as a JSON scoring command for future IWSDK managed-browser evidence files.",
     "The root workspace exposes pnpm iwsdk:agent-tooling:evidence as a JSON scoring command for future aggregate IWSDK MCP evidence files.",
+    "The root workspace exposes pnpm iwsdk:sidecar:metrics as a JSON scoring command for future install footprint, bundle, console, and Quest performance metrics files.",
     "The root workspace exposes pnpm iwsdk:evidence as a no-install JSON report for current IWSDK contract-only evidence debt.",
     "The root workspace exposes pnpm iwsdk:evidence:validate as a no-install structure check for the latest committed IWSDK evidence-contract JSON snapshot.",
     "docs/openclinxr/iwsdk-evidence-contract-2026-05-04.json records the current IWSDK contract-only evidence report and preinstall package policy without installing IWSDK packages, changing MCP config, or requiring headset state.",

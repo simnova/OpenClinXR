@@ -83,6 +83,14 @@ pnpm iwsdk:agent-tooling:evidence -- --input path/to/iwsdk-agent-tooling-evidenc
 
 The checker exits nonzero until the aggregate evidence is ready, but it does not install IWSDK, modify MCP config, or touch the sidecar app.
 
+Score a future committed sidecar metrics JSON file with:
+
+```bash
+pnpm iwsdk:sidecar:metrics -- --input path/to/iwsdk-sidecar-metrics.json --output docs/openclinxr/iwsdk-sidecar-metrics-YYYY-MM-DD.json
+```
+
+This checker uses the same budgets as `packages/openclinxr/iwsdk-spike`: installed footprint, injected dev runtime, app bundle, bundle delta, console errors, foreground Quest FPS, p95 frame time, and controller-select latency.
+
 ## Managed Browser Evidence Contract
 
 `packages/openclinxr/iwsdk-spike` exposes `buildIwsdkManagedBrowserEvidenceContract()` and `evaluateIwsdkManagedBrowserEvidence()` so browser-mode claims are scored separately from generic MCP readiness.

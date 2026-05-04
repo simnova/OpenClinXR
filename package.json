@@ -38,6 +38,7 @@
     "iwsdk:preinstall": "tsx tools/openclinxr/iwsdk-preinstall-check.ts",
     "iwsdk:browser:evidence": "tsx tools/openclinxr/iwsdk-managed-browser-evidence-check.ts",
     "iwsdk:agent-tooling:evidence": "tsx tools/openclinxr/iwsdk-agent-tooling-evidence-check.ts",
+    "iwsdk:sidecar:metrics": "tsx tools/openclinxr/iwsdk-sidecar-metrics-check.ts",
     "iwsdk:evidence": "tsx tools/openclinxr/iwsdk-evidence-contract-check.ts",
     "iwsdk:evidence:validate": "tsx tools/openclinxr/iwsdk-evidence-contract-check.ts --validate-latest",
     "bench:mock": "pnpm --filter @openclinxr/test-harness bench:mock",
