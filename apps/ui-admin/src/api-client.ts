@@ -14,6 +14,14 @@ import { print } from "graphql";
 
 export type AdminApolloGraphqlClient = Pick<ApolloClient, "mutate" | "query">;
 
+export type {
+  BlueprintScenarioReadiness,
+  ExamBlueprint,
+  ExamStationRunQueue,
+  ExamTimingPlan,
+  ScenarioAssetReadiness,
+};
+
 export type AdminControlPlaneClientOptions = {
   apolloClient?: AdminApolloGraphqlClient;
   baseUrl?: string;

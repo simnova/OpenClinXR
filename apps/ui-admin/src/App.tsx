@@ -1,14 +1,21 @@
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
-import type { ScenarioAssetReadiness } from "@openclinxr/asset-registry";
 import { buildScenarioGovernanceCopy } from "@openclinxr/domain";
-import type { BlueprintScenarioReadiness, ExamBlueprint, ExamStationRunQueue, ExamTimingPlan } from "@openclinxr/exam-assembly";
 import { adminPublicationGates, adminWorkbenchRoutes } from "@openclinxr/ui-route-admin";
 import { adminWorkbenchCapabilityTags, openClinXrAdminTheme } from "@openclinxr/ui-shared";
 import { Alert, Button, Card, ConfigProvider, Layout, Space, Spin, Steps, Tag, Typography } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { BrowserRouter, Link, MemoryRouter, Route, Routes } from "react-router";
-import { createAdminControlPlaneClient, type AdminControlPlaneClient, type AdminStationRunQueueSnapshot } from "./api-client.js";
+import {
+  createAdminControlPlaneClient,
+  type AdminControlPlaneClient,
+  type AdminStationRunQueueSnapshot,
+  type BlueprintScenarioReadiness,
+  type ExamBlueprint,
+  type ExamStationRunQueue,
+  type ExamTimingPlan,
+  type ScenarioAssetReadiness,
+} from "./api-client.js";
 
 const { Content, Sider } = Layout;
 

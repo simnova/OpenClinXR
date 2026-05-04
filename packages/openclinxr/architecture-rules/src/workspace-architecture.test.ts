@@ -107,6 +107,15 @@ describe("workspace architecture rules", () => {
     expect(violations).toEqual([]);
   });
 
+  it("keeps UI app domain-contract imports behind app-local API clients", () => {
+    const forbiddenImports = /@openclinxr\/(?:asset-registry|exam-assembly|model-gateway|voice-gateway|scenario-runtime|trace-ledger|data-|data-sources-)/;
+    const violations = filesWithContentMatching("apps", forbiddenImports)
+      .filter((filePath) => /^apps\/ui-[^/]+\/src\//.test(filePath))
+      .filter((filePath) => !/\/api-client(?:\.test)?\.ts$/.test(filePath));
+
+    expect(violations).toEqual([]);
+  });
+
   it("keeps UI REST route catalog usage behind app-local API clients", () => {
     const violations = filesWithContentMatching("apps", /@openclinxr\/rest/)
       .filter((filePath) => /^apps\/ui-[^/]+\/src\//.test(filePath))
