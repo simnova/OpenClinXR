@@ -63,5 +63,21 @@ describe("scenario bank maturity", () => {
     expect(report.safetyCriticalTraceTags).toEqual(
       expect.arrayContaining(["ecg_request", "oxygen_request", "suicide_safety_plan", "teach_back"]),
     );
+    expect(report.fixtureCompleteness).toEqual({
+      completeScenarioIds: scenarioBank.map((scenario) => scenario.scenarioId),
+      incompleteScenarioIds: [],
+      requiredActorRoles: [
+        "consultant",
+        "family",
+        "interpreter",
+        "medical_assistant",
+        "nurse",
+        "patient",
+        "physician",
+        "respiratory_therapist",
+        "system",
+      ],
+      missingRequiredActorRoles: [],
+    });
   });
 });

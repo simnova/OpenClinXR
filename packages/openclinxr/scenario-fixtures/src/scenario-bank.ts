@@ -927,13 +927,34 @@ export type ScenarioBankMaturityReport = {
     redactsAll: boolean;
     requiresTriggerForAll: boolean;
   };
+  fixtureCompleteness: {
+    completeScenarioIds: string[];
+    incompleteScenarioIds: Array<{ scenarioId: string; blockers: string[] }>;
+    requiredActorRoles: string[];
+    missingRequiredActorRoles: string[];
+  };
 };
 
 const targetStep2CsStyleStationCount = 12;
+const requiredCaseBankActorRoles = [
+  "consultant",
+  "family",
+  "interpreter",
+  "medical_assistant",
+  "nurse",
+  "patient",
+  "physician",
+  "respiratory_therapist",
+  "system",
+] as const;
 
 export function evaluateScenarioBankMaturity(scenarios: readonly Scenario[]): ScenarioBankMaturityReport {
   const activationEligibleScenarioIds: string[] = [];
   const blockedScenarioIds: ScenarioBankMaturityReport["blockedScenarioIds"] = [];
+  const actorRoleCoverage = uniqueSorted(scenarios.flatMap((scenario) => scenario.actors.map((actor) => actor.role)));
+  const incompleteScenarioIds = scenarios
+    .map((scenario) => ({ scenarioId: scenario.scenarioId, blockers: scenarioFixtureCompletenessBlockers(scenario) }))
+    .filter((result) => result.blockers.length > 0);
 
   for (const scenario of scenarios) {
     if (isActivationEligible(scenario)) {
@@ -958,11 +979,19 @@ export function evaluateScenarioBankMaturity(scenarios: readonly Scenario[]): Sc
     activationEligibleScenarioIds,
     blockedScenarioIds,
     clinicalSettings: uniqueSorted(scenarios.map((scenario) => scenario.environment?.environmentId).filter((value): value is string => Boolean(value))),
-    actorRoleCoverage: uniqueSorted(scenarios.flatMap((scenario) => scenario.actors.map((actor) => actor.role))),
+    actorRoleCoverage,
     safetyCriticalTraceTags: uniqueSorted(scenarios.flatMap((scenario) => scenario.governance.safetyCriticalTraceTags)),
     hiddenFactPolicy: {
       redactsAll: scenarios.every((scenario) => scenario.governance.hiddenFactPolicy.learnerView === "redact_hidden_facts"),
       requiresTriggerForAll: scenarios.every((scenario) => scenario.governance.hiddenFactPolicy.disclosureRequiresTrigger),
+    },
+    fixtureCompleteness: {
+      completeScenarioIds: scenarios
+        .filter((scenario) => !incompleteScenarioIds.some((result) => result.scenarioId === scenario.scenarioId))
+        .map((scenario) => scenario.scenarioId),
+      incompleteScenarioIds,
+      requiredActorRoles: [...requiredCaseBankActorRoles],
+      missingRequiredActorRoles: requiredCaseBankActorRoles.filter((role) => !actorRoleCoverage.includes(role)),
     },
   };
 }
@@ -979,6 +1008,25 @@ function isActivationEligible(scenario: Scenario): boolean {
     && Object.values(scenario.review).every((state) => state === "approved")
     && scenario.governance.validationStage !== "stage_0_synthetic_draft"
     && scenario.governance.scoreUseLabel !== "validated_summative";
+}
+
+function scenarioFixtureCompletenessBlockers(scenario: Scenario): string[] {
+  const assetNeeds = scenario.assetNeeds ?? [];
+  const assetTypes = new Set(assetNeeds.map((assetNeed) => assetNeed.assetType));
+  const actorRoles = new Set(scenario.actors.map((actor) => actor.role));
+  const blockers = [
+    scenario.actors.length >= 2 ? undefined : "actors_under_2",
+    actorRoles.has("patient") ? undefined : "missing_patient_actor",
+    scenario.eventSchedule.length > 0 ? undefined : "missing_event_schedule",
+    scenario.reviewRubric.length >= 4 ? undefined : "review_rubric_under_4",
+    assetTypes.has("character") ? undefined : "missing_character_asset",
+    assetTypes.has("environment") ? undefined : "missing_environment_asset",
+    scenario.governance.sourceIds.length > 0 ? undefined : "missing_governance_source",
+    scenario.governance.requiredReviewerRoles.length >= 4 ? undefined : "missing_review_governance_roles",
+    scenario.governance.safetyCriticalTraceTags.length > 0 ? undefined : "missing_safety_critical_trace_tags",
+  ];
+
+  return blockers.filter((blocker): blocker is string => typeof blocker === "string");
 }
 
 function countBy<T extends string>(knownValues: readonly T[], values: readonly T[]): Record<T, number> {
