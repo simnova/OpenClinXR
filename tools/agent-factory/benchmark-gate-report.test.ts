@@ -111,6 +111,21 @@ type BenchmarkGateReport = {
       blockers: string[];
     };
   };
+  api_python_backend_runtime_smoke?: {
+    status: string;
+    health: {
+      ok: boolean;
+    };
+    websocket: {
+      connected: boolean;
+      binaryEchoObserved: boolean;
+    };
+    verdict: {
+      passed: boolean;
+      readyForLiveDialog: false;
+      blockers: string[];
+    };
+  };
   evidence_gates: Array<{
     evidence_id: string;
     ready_to_resolve?: boolean;
@@ -696,6 +711,61 @@ describe("benchmark gate report", () => {
           },
         },
       },
+      apiPythonBackendRuntimeSmoke: {
+        file: "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-04.json",
+        value: {
+          generatedAt: "2026-05-04T20:17:00.000Z",
+          status: "passed",
+          policy: {
+            cloudApisUsed: false,
+            paidApisUsed: false,
+            modelDownloadsUsed: false,
+            committedGeneratedAudio: false,
+            productionUseAllowed: false,
+          },
+          python: {
+            executable: ".openclinxr-local/api-python-backend-venv/bin/python",
+            version: "Python 3.11.4",
+            dependencies: {
+              fastapi: "available",
+              uvicorn: "available",
+              websockets: "available",
+            },
+            missingPackages: [],
+          },
+          server: {
+            attempted: true,
+            command: ["python", "-m", "uvicorn"],
+            port: 8765,
+            stdout: [],
+            stderr: [],
+          },
+          health: {
+            attempted: true,
+            ok: true,
+            statusCode: 200,
+            latencyMs: 10,
+            body: { status: "ok" },
+          },
+          websocket: {
+            attempted: true,
+            connected: true,
+            jsonMessages: 5,
+            binaryMessages: 1,
+            controlAckObserved: true,
+            audioMetadataObserved: true,
+            transcriptDeltaObserved: true,
+            binaryEchoObserved: true,
+            latencyMs: 8,
+          },
+          verdict: {
+            passed: true,
+            readyForLiveDialog: false,
+            blockers: [],
+            caveats: [],
+          },
+        },
+      },
     }, { now: new Date("2026-05-04T20:20:00.000Z"), maxEvidenceAgeHours: 24 });
 
     const liveDialogGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-003");
@@ -705,6 +775,7 @@ describe("benchmark gate report", () => {
       "local_voice_live_dialog_mock_stream_passed",
       "local_voice_live_dialog_safety_controls_observed",
       "local_voice_realtime_transport_spike_passed",
+      "local_voice_python_backend_runtime_smoke_passed",
     ]));
     expect(liveDialogGate?.blockers).toEqual(expect.arrayContaining([
       "local_voice_live_dialog:runtime_stream:real_local_voice_stream_benchmark_missing",
@@ -732,6 +803,18 @@ describe("benchmark gate report", () => {
       },
       verdict: {
         transportContractPassed: true,
+        readyForLiveDialog: false,
+      },
+    });
+    expect(report.api_python_backend_runtime_smoke).toMatchObject({
+      status: "passed",
+      health: { ok: true },
+      websocket: {
+        connected: true,
+        binaryEchoObserved: true,
+      },
+      verdict: {
+        passed: true,
         readyForLiveDialog: false,
       },
     });

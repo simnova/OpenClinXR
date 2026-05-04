@@ -86,6 +86,8 @@ This lane is useful because it separates transport evidence from model evidence:
 - Moshi MLX and Qwen3-TTS remain future local inference candidates.
 - The Godot sidecar proves source shape only; it does not prove Quest microphone capture, native Opus encode/decode, playback, or headset latency.
 
+Follow-up runtime evidence: `docs/openclinxr/api-python-backend-runtime-smoke-2026-05-04.json` proves the FastAPI backend can run in an ignored local venv and satisfy health plus JSON/binary WebSocket frame handling. This clears the backend execution smoke, but live dialog remains blocked on real local inference, audio codec, Quest capture/playback, and safety controls.
+
 ### Voice Fallback Ladder
 
 | Layer | Default | Local experimental | Gate |
@@ -152,6 +154,7 @@ First executable status:
 - Local voice candidate intake accepts only `microsoft/VibeVoice-Realtime-0.5B` (`src-vibevoice-github-2026`).
 - `docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json` records the first approved local VibeVoice file-generation benchmark; it passes as a file-output smoke but is too slow for live Quest dialog and does not prove streaming playback latency.
 - `docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json` records the first bidirectional realtime voice transport spike. It passes the local transport contract but keeps live dialog blocked because no real local voice/model stream, Quest microphone capture, Opus codec path, or headset playback latency was observed.
+- `docs/openclinxr/api-python-backend-runtime-smoke-2026-05-04.json` records the first real FastAPI backend runtime smoke in an ignored local venv. It passes health and WebSocket JSON/binary frame handling but does not execute a voice model or Quest audio path.
 - The script explicitly records `cloudCallsAllowed: false`, `modelDownloadsAllowed: false`, and `localRuntimeExecutionAllowed: false`.
 
 Metrics:

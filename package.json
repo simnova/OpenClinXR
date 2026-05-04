@@ -53,6 +53,7 @@
     "local:model:quality": "tsx tools/openclinxr/local-model-quality-benchmark.ts",
     "local:voice:live-dialog": "tsx tools/openclinxr/local-voice-live-dialog-benchmark.ts",
     "local:voice:realtime-spike": "tsx tools/openclinxr/realtime-voice-transport-spike.ts",
+    "local:voice:python-backend-smoke": "tsx tools/openclinxr/api-python-backend-runtime-smoke.ts",
     "asset:gltf:smoke": "tsx tools/openclinxr/gltf-pipeline-smoke.ts",
     "asset:blender:bake": "tsx tools/openclinxr/blender-asset-bake-smoke.ts",
     "asset:capability:evidence": "tsx tools/openclinxr/asset-capability-job-evidence.ts",

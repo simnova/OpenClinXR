@@ -10,6 +10,7 @@ import {
   type QuestSmokeEvidenceCheck,
   type QuestSmokeReport,
 } from "../openclinxr/quest-cdp-smoke.js";
+import type { ApiPythonBackendRuntimeSmokeReport } from "../openclinxr/api-python-backend-runtime-smoke.js";
 import { globFiles, readJson, writeJson } from "./lib.js";
 
 type GateStatus = {
@@ -408,6 +409,15 @@ type EvidenceGateReport = {
     python_backend_verifier: RealtimeVoiceTransportSpikeReport["pythonBackendVerifier"];
     verdict: RealtimeVoiceTransportSpikeReport["verdict"];
   };
+  api_python_backend_runtime_smoke?: {
+    file: string;
+    generated_at: string;
+    status: string;
+    python: ApiPythonBackendRuntimeSmokeReport["python"];
+    health: ApiPythonBackendRuntimeSmokeReport["health"];
+    websocket: ApiPythonBackendRuntimeSmokeReport["websocket"];
+    verdict: ApiPythonBackendRuntimeSmokeReport["verdict"];
+  };
   quest_manual_performance?: {
     file: string;
     generated_at: string;
@@ -477,6 +487,7 @@ export type BenchmarkGateReportInput = {
   localVoiceRuntimeBenchmark?: EvidenceFile<LocalVoiceRuntimeBenchmarkReport>;
   localVoiceLiveDialogBenchmark?: EvidenceFile<LocalVoiceLiveDialogBenchmarkReport>;
   realtimeVoiceTransportSpike?: EvidenceFile<RealtimeVoiceTransportSpikeReport>;
+  apiPythonBackendRuntimeSmoke?: EvidenceFile<ApiPythonBackendRuntimeSmokeReport>;
   questManualPerformance?: EvidenceFile<QuestManualPerformanceCheck>;
   questManualPerformanceReport?: EvidenceFile<QuestManualPerformanceReport>;
   iwsdkEvidenceContract?: EvidenceFile<IwsdkEvidenceContractReport>;
@@ -506,6 +517,7 @@ async function main(): Promise<void> {
   const localVoiceRuntimeBenchmark = await latestJson<LocalVoiceRuntimeBenchmarkReport>("docs/openclinxr/local-voice-runtime-benchmark-*.json");
   const localVoiceLiveDialogBenchmark = await latestJson<LocalVoiceLiveDialogBenchmarkReport>("docs/openclinxr/local-voice-live-dialog-benchmark-*.json");
   const realtimeVoiceTransportSpike = await latestJson<RealtimeVoiceTransportSpikeReport>("docs/openclinxr/realtime-voice-transport-spike-*.json");
+  const apiPythonBackendRuntimeSmoke = await latestJson<ApiPythonBackendRuntimeSmokeReport>("docs/openclinxr/api-python-backend-runtime-smoke-*.json");
   const iwsdkEvidenceContract = await latestJson<IwsdkEvidenceContractReport>("docs/openclinxr/iwsdk-evidence-contract-*.json");
   const questManualPerformanceReport = await latestQuestManualPerformanceReportJson();
   const questManualPerformance = questManualPerformanceReport
@@ -524,6 +536,7 @@ async function main(): Promise<void> {
     localVoiceRuntimeBenchmark,
     localVoiceLiveDialogBenchmark,
     realtimeVoiceTransportSpike,
+    apiPythonBackendRuntimeSmoke,
     iwsdkEvidenceContract,
     questManualPerformance,
     questManualPerformanceReport,
@@ -569,6 +582,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localVoiceRuntimeBenchmark,
     localVoiceLiveDialogBenchmark,
     realtimeVoiceTransportSpike,
+    apiPythonBackendRuntimeSmoke,
     iwsdkEvidenceContract,
   } = input;
   const questSmokeEvidenceCheck = questSmoke
@@ -590,6 +604,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localVoiceRuntimeBenchmark,
     localVoiceLiveDialogBenchmark,
     realtimeVoiceTransportSpike,
+    apiPythonBackendRuntimeSmoke,
     questManualPerformance,
   }, options);
   const localModelRuntimeBenchmarkIsRequired = requiresLocalModelRuntimeBenchmark(localRuntime?.value);
@@ -651,12 +666,14 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
   const localVoiceLiveDialogEvidenceBlockers = [
     ...localVoiceLiveDialogBlockers(localVoiceRuntimeBenchmark, localVoiceLiveDialogBenchmark),
     ...realtimeVoiceTransportSpikeBlockers(realtimeVoiceTransportSpike),
+    ...apiPythonBackendRuntimeSmokeBlockers(apiPythonBackendRuntimeSmoke),
     ...freshnessBlockers(evidenceFreshness, [
       "local_runtime_probe",
       "local_provider_benchmark",
       "local_voice_runtime_benchmark",
       "local_voice_live_dialog_benchmark",
       "realtime_voice_transport_spike",
+      ...(apiPythonBackendRuntimeSmoke ? ["api_python_backend_runtime_smoke"] : []),
     ]),
   ];
   const assetProductionEvidenceBlockers = [
@@ -719,6 +736,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localVoiceLiveDialogBenchmark && localVoiceLiveDialogBenchmark.value.safetyControls.blockers.length === 0 ? "local_voice_live_dialog_safety_controls_observed" : undefined,
     localVoiceLiveDialogBenchmark?.value.verdict.passed ? "local_voice_live_dialog_benchmark_passed" : undefined,
     realtimeVoiceTransportSpike?.value.verdict.transportContractPassed ? "local_voice_realtime_transport_spike_passed" : undefined,
+    apiPythonBackendRuntimeSmoke?.value.verdict.passed ? "local_voice_python_backend_runtime_smoke_passed" : undefined,
   ]);
   const questSatisfiedConditions = combinedSatisfiedConditions.filter((condition) =>
     condition.startsWith("quest_") || (questManualPerformance?.value.satisfiedConditions ?? []).includes(condition)
@@ -885,6 +903,17 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         verdict: realtimeVoiceTransportSpike.value.verdict,
       },
     } : {}),
+    ...(apiPythonBackendRuntimeSmoke ? {
+      api_python_backend_runtime_smoke: {
+        file: apiPythonBackendRuntimeSmoke.file,
+        generated_at: apiPythonBackendRuntimeSmoke.value.generatedAt,
+        status: apiPythonBackendRuntimeSmoke.value.status,
+        python: apiPythonBackendRuntimeSmoke.value.python,
+        health: apiPythonBackendRuntimeSmoke.value.health,
+        websocket: apiPythonBackendRuntimeSmoke.value.websocket,
+        verdict: apiPythonBackendRuntimeSmoke.value.verdict,
+      },
+    } : {}),
     ...(questManualPerformance ? {
       quest_manual_performance: {
         file: questManualPerformance.file,
@@ -935,6 +964,7 @@ function buildEvidenceFreshnessReport(
     localVoiceRuntimeBenchmark?: EvidenceFile<LocalVoiceRuntimeBenchmarkReport>;
     localVoiceLiveDialogBenchmark?: EvidenceFile<LocalVoiceLiveDialogBenchmarkReport>;
     realtimeVoiceTransportSpike?: EvidenceFile<RealtimeVoiceTransportSpikeReport>;
+    apiPythonBackendRuntimeSmoke?: EvidenceFile<ApiPythonBackendRuntimeSmokeReport>;
     questManualPerformance?: EvidenceFile<QuestManualPerformanceCheck>;
   },
   options: BenchmarkGateReportOptions,
@@ -955,6 +985,7 @@ function buildEvidenceFreshnessReport(
     evidenceFreshnessEntry("local_voice_runtime_benchmark", evidence.localVoiceRuntimeBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_voice_live_dialog_benchmark", evidence.localVoiceLiveDialogBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("realtime_voice_transport_spike", evidence.realtimeVoiceTransportSpike, now, maxAgeHours),
+    evidenceFreshnessEntry("api_python_backend_runtime_smoke", evidence.apiPythonBackendRuntimeSmoke, now, maxAgeHours),
     evidenceFreshnessEntry("quest_manual_performance", evidence.questManualPerformance, now, maxAgeHours),
   ];
 }
@@ -1340,6 +1371,16 @@ function realtimeVoiceTransportSpikeBlockers(
     ...realtimeVoiceTransportSpike.value.pythonBackendVerifier.blockers
       .map((blocker) => `local_voice_live_dialog:realtime_transport_spike:python_backend:${blocker}`),
   ]);
+}
+
+function apiPythonBackendRuntimeSmokeBlockers(
+  apiPythonBackendRuntimeSmoke: EvidenceFile<ApiPythonBackendRuntimeSmokeReport> | undefined,
+): string[] {
+  if (!apiPythonBackendRuntimeSmoke || apiPythonBackendRuntimeSmoke.value.verdict.passed) {
+    return [];
+  }
+  return unique(apiPythonBackendRuntimeSmoke.value.verdict.blockers
+    .map((blocker) => `local_voice_live_dialog:api_python_backend_runtime_smoke:${blocker}`));
 }
 
 function assetProductionBlockers(
