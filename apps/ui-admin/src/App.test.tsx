@@ -168,6 +168,27 @@ describe("AdminApp", () => {
     expect(replayWorkbench.textContent).not.toContain("hiddenFacts");
   });
 
+  it("creates a local seed replay from the review route", async () => {
+    const client = fakeControlPlaneClient();
+    const createLocalReviewReplaySeed = vi.fn(client.createLocalReviewReplaySeed);
+    const getReviewPacketReplay = vi.fn(client.getReviewPacketReplay);
+    client.createLocalReviewReplaySeed = createLocalReviewReplaySeed;
+    client.getReviewPacketReplay = getReviewPacketReplay;
+
+    render(<AdminApp initialPath="/reviews" controlPlaneClient={client} />);
+
+    expect(await screen.findByText("Station run required")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Create seed replay" }));
+
+    expect(await screen.findByText("ed_chest_pain_priority_v1")).toBeInTheDocument();
+    expect(createLocalReviewReplaySeed).toHaveBeenCalledWith();
+    expect(getReviewPacketReplay).toHaveBeenCalledWith({
+      stationRunId: "run_ed_chest_pain_priority_v1_admin_review_seed",
+    });
+    expect(screen.getByLabelText("Station run ID")).toHaveValue("run_ed_chest_pain_priority_v1_admin_review_seed");
+  });
+
   it("renders existing station run queue review snapshots", async () => {
     const client = fakeControlPlaneClient();
     client.listStep2CsSeedStationRunQueueSnapshots = async () => [
@@ -281,6 +302,9 @@ function fakeControlPlaneClient(): AdminControlPlaneClient {
       ],
       totalStationTimeSeconds: 18720,
       summary: { activationReady: 1, draftBlocked: 11, governanceBlocked: 0, missingScenario: 0 },
+    }),
+    createLocalReviewReplaySeed: async () => ({
+      stationRunId: "run_ed_chest_pain_priority_v1_admin_review_seed",
     }),
     listScenarios: async () => [
       {

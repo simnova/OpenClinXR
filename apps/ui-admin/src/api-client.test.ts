@@ -39,6 +39,10 @@ describe("admin control-plane API client", () => {
         "/exam-blueprints/step2cs-seed/readiness": { canAssembleReadyForm: false, blockedScenarioIds: new Array(11).fill(null) },
         "/exam-blueprints/step2cs-seed/timing-plan": { stationWindows: new Array(12).fill(null), totalStationTimeSeconds: 18720 },
         "/exam-blueprints/step2cs-seed/station-run-queue": { canStartLearnerExam: false, stationQueue: new Array(12).fill(null) },
+        "/sessions": { stationRunId: "run_ed_chest_pain_priority_v1_admin_review_seed", scenarioId: "ed_chest_pain_priority_v1", phase: "doorway" },
+        "/sessions/run_ed_chest_pain_priority_v1_admin_review_seed/start-encounter": { stationRunId: "run_ed_chest_pain_priority_v1_admin_review_seed", phase: "encounter" },
+        "/sessions/run_ed_chest_pain_priority_v1_admin_review_seed/events": { stationRunId: "run_ed_chest_pain_priority_v1_admin_review_seed", eventType: "learner.action" },
+        "/sessions/run_ed_chest_pain_priority_v1_admin_review_seed/note": { phase: "review" },
         "/admin/graphql#ScenarioBank": {
           data: {
             scenarios: [
@@ -224,6 +228,9 @@ describe("admin control-plane API client", () => {
     await client.getStep2CsSeedBlueprintReadiness();
     await client.getStep2CsSeedTimingPlan();
     await client.getStep2CsSeedStationRunQueue();
+    await expect(client.createLocalReviewReplaySeed({ learnerId: "admin_review_seed" })).resolves.toEqual({
+      stationRunId: "run_ed_chest_pain_priority_v1_admin_review_seed",
+    });
     await expect(client.listScenarios({ status: "APPROVED" })).resolves.toEqual([
       expect.objectContaining({
         scenarioId: "ed_chest_pain_priority_v1",
@@ -298,6 +305,39 @@ describe("admin control-plane API client", () => {
       { url: "http://localhost:8787/exam-blueprints/step2cs-seed/readiness", method: "GET" },
       { url: "http://localhost:8787/exam-blueprints/step2cs-seed/timing-plan", method: "GET" },
       { url: "http://localhost:8787/exam-blueprints/step2cs-seed/station-run-queue", method: "GET" },
+      {
+        url: "http://localhost:8787/sessions",
+        method: "POST",
+        body: {
+          learnerId: "admin_review_seed",
+          consentAccepted: true,
+        },
+      },
+      {
+        url: "http://localhost:8787/sessions/run_ed_chest_pain_priority_v1_admin_review_seed/start-encounter",
+        method: "POST",
+        body: {
+          atSecond: 60,
+        },
+      },
+      {
+        url: "http://localhost:8787/sessions/run_ed_chest_pain_priority_v1_admin_review_seed/events",
+        method: "POST",
+        body: {
+          eventType: "learner.action",
+          atSecond: 83,
+          tag: "ecg_request",
+          actorId: "patient_robert_hayes_v1",
+        },
+      },
+      {
+        url: "http://localhost:8787/sessions/run_ed_chest_pain_priority_v1_admin_review_seed/note",
+        method: "POST",
+        body: {
+          atSecond: 960,
+          text: "Chest pain requires urgent ECG escalation and team communication follow-up.",
+        },
+      },
       {
         url: "http://localhost:8787/admin/graphql",
         method: "POST",

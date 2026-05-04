@@ -25,7 +25,7 @@ import {
   type SubmitScenarioReviewMutation,
   type SubmitScenarioReviewMutationVariables,
 } from "@openclinxr/graphql/client";
-import { routeById } from "@openclinxr/rest";
+import { buildSessionRoutePath, routeById } from "@openclinxr/rest";
 import { print } from "graphql";
 
 export type AdminApolloGraphqlClient = Pick<ApolloClient, "mutate" | "query">;
@@ -49,6 +49,7 @@ export type AdminControlPlaneClient = {
   getStep2CsSeedBlueprintReadiness(): Promise<BlueprintScenarioReadiness>;
   getStep2CsSeedTimingPlan(): Promise<ExamTimingPlan>;
   getStep2CsSeedStationRunQueue(): Promise<ExamStationRunQueue>;
+  createLocalReviewReplaySeed(input?: CreateLocalReviewReplaySeedInput): Promise<CreateLocalReviewReplaySeedResult>;
   listScenarios(input?: ListScenariosInput): Promise<AdminScenario[]>;
   getScenarioDetail(input: GetScenarioDetailInput): Promise<AdminScenarioDetail>;
   getReviewPacketReplay(input: GetReviewPacketReplayInput): Promise<AdminReviewPacketReplay>;
@@ -69,6 +70,14 @@ export type GetScenarioDetailInput = {
 };
 
 export type GetReviewPacketReplayInput = {
+  stationRunId: string;
+};
+
+export type CreateLocalReviewReplaySeedInput = {
+  learnerId?: string;
+};
+
+export type CreateLocalReviewReplaySeedResult = {
   stationRunId: string;
 };
 
@@ -112,6 +121,31 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
     getStep2CsSeedBlueprintReadiness: () => get(fetcher, baseUrl, routeById("step2cs-seed-exam-blueprint-readiness").path),
     getStep2CsSeedTimingPlan: () => get(fetcher, baseUrl, routeById("step2cs-seed-exam-timing-plan").path),
     getStep2CsSeedStationRunQueue: () => get(fetcher, baseUrl, routeById("step2cs-seed-station-run-queue").path),
+    createLocalReviewReplaySeed: async (input = {}) => {
+      const session = await post<CreateLocalReviewReplaySeedResult>(
+        fetcher,
+        baseUrl,
+        routeById("start-session").path,
+        {
+          learnerId: input.learnerId ?? "admin_review_seed",
+          consentAccepted: true,
+        },
+      );
+      const stationRunId = session.stationRunId;
+      await post(fetcher, baseUrl, buildSessionRoutePath("start-encounter", stationRunId), { atSecond: 60 });
+      await post(fetcher, baseUrl, buildSessionRoutePath("append-trace-event", stationRunId), {
+        eventType: "learner.action",
+        atSecond: 83,
+        tag: "ecg_request",
+        actorId: "patient_robert_hayes_v1",
+      });
+      await post(fetcher, baseUrl, buildSessionRoutePath("submit-note", stationRunId), {
+        atSecond: 960,
+        text: "Chest pain requires urgent ECG escalation and team communication follow-up.",
+      });
+
+      return { stationRunId };
+    },
     listScenarios: async (input = {}) => {
       const variables: ScenarioBankQueryVariables = input.status ? { status: input.status } : {};
       if (apolloClient) {
@@ -281,6 +315,23 @@ async function get<TResponse>(fetcher: typeof fetch, baseUrl: string, path: stri
     const errorBody = await response.json().catch(() => ({}));
     const errorCode = isRecord(errorBody) && typeof errorBody.error === "string" ? errorBody.error : "unknown_error";
     throw new Error(`OpenClinXR admin API request failed: GET ${url} ${response.status} ${errorCode}`);
+  }
+
+  return response.json() as Promise<TResponse>;
+}
+
+async function post<TResponse = unknown>(fetcher: typeof fetch, baseUrl: string, path: string, body: Record<string, unknown>): Promise<TResponse> {
+  const url = `${baseUrl}${path}`;
+  const response = await fetcher(url, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => ({}));
+    const errorCode = isRecord(errorBody) && typeof errorBody.error === "string" ? errorBody.error : "unknown_error";
+    throw new Error(`OpenClinXR admin API request failed: POST ${url} ${response.status} ${errorCode}`);
   }
 
   return response.json() as Promise<TResponse>;

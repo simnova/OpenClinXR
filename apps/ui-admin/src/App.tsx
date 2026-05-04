@@ -163,6 +163,11 @@ function ReviewReplayWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
     | { status: "saved" }
     | { status: "error"; message: string }
   >({ status: "idle" });
+  const [seedState, setSeedState] = useState<
+    | { status: "idle" }
+    | { status: "creating" }
+    | { status: "error"; message: string }
+  >({ status: "idle" });
 
   useEffect(() => {
     const stationRunId = stationRunIdParam.trim();
@@ -199,6 +204,17 @@ function ReviewReplayWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
     const stationRunId = stationRunIdInput.trim();
     if (stationRunId) {
       setSearchParams({ stationRunId });
+    }
+  };
+
+  const createSeedReplay = async () => {
+    setSeedState({ status: "creating" });
+    try {
+      const seed = await controlPlaneClient.createLocalReviewReplaySeed();
+      setSeedState({ status: "idle" });
+      setSearchParams({ stationRunId: seed.stationRunId });
+    } catch (error) {
+      setSeedState({ status: "error", message: error instanceof Error ? error.message : "Unknown seed replay error" });
     }
   };
 
@@ -265,9 +281,15 @@ function ReviewReplayWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
           <Button type="primary" onClick={loadReplay} disabled={stationRunIdInput.trim().length === 0}>
             Load replay
           </Button>
+          <Button loading={seedState.status === "creating"} onClick={() => void createSeedReplay()}>
+            Create seed replay
+          </Button>
         </Space>
       </div>
 
+      {seedState.status === "error" ? (
+        <Alert type="error" title="Seed replay failed" description={seedState.message} showIcon />
+      ) : null}
       {state.status === "idle" ? (
         <Alert type="info" title="Station run required" description="Enter a station run ID to replay trace evidence and record a faculty draft." showIcon />
       ) : null}
