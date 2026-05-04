@@ -13,6 +13,7 @@
     "@apollo/client": "4.1.9",
     "@openclinxr/asset-registry": "workspace:*",
     "@openclinxr/exam-assembly": "workspace:*",
+    "@openclinxr/graphql": "workspace:*",
     "@openclinxr/rest": "workspace:*",
     "@openclinxr/ui-route-admin": "workspace:*",
     "@openclinxr/ui-shared": "workspace:*",

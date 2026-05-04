@@ -1,5 +1,6 @@
 import type { ScenarioAssetReadiness } from "@openclinxr/asset-registry";
 import type { BlueprintScenarioReadiness, ExamBlueprint, ExamStationRunQueue, ExamTimingPlan } from "@openclinxr/exam-assembly";
+import { adminGraphqlDocuments } from "@openclinxr/graphql/documents";
 import { routeById } from "@openclinxr/rest";
 
 export type AdminControlPlaneClientOptions = {
@@ -32,6 +33,9 @@ export type AdminStationRunQueueSnapshot = {
 
 export const defaultAdminApiBaseUrl = import.meta.env.VITE_OPENCLINXR_API_BASE_URL ?? "";
 
+const stationRunQueueSnapshotsDocument = documentSourceByOperationName("StationRunQueueSnapshots");
+const createStationRunQueueSnapshotDocument = documentSourceByOperationName("CreateStationRunQueueSnapshot");
+
 export function createAdminControlPlaneClient(options: AdminControlPlaneClientOptions = {}): AdminControlPlaneClient {
   const baseUrl = normalizeBaseUrl(options.baseUrl ?? defaultAdminApiBaseUrl);
   const fetcher = options.fetch ?? fetch;
@@ -46,7 +50,7 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
         fetcher,
         baseUrl,
         "StationRunQueueSnapshots",
-        stationRunQueueSnapshotsQuery,
+        stationRunQueueSnapshotsDocument,
         { blueprintId: "blueprint_openclinxr_step2cs_style_seed_v1" },
       );
       return data.stationRunQueueSnapshots;
@@ -56,7 +60,7 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
         fetcher,
         baseUrl,
         "CreateStationRunQueueSnapshot",
-        createStationRunQueueSnapshotMutation,
+        createStationRunQueueSnapshotDocument,
         { input },
       );
       return data.createStationRunQueueSnapshot;
@@ -110,74 +114,17 @@ async function graphql<TData>(
   return body.data;
 }
 
-const queueSnapshotSelection = `
-  snapshotId
-  createdAt
-  reviewerId
-  queue {
-    blueprintId
-    canStartLearnerExam
-    breakCheckpoints {
-      afterStationOrder
-      atSecond
-    }
-    totalStationTimeSeconds
-    summary {
-      activationReady
-      draftBlocked
-      governanceBlocked
-      missingScenario
-    }
-    stationQueue {
-      stationOrder
-      slotId
-      label
-      scenarioId
-      scenarioVersion
-      status
-      blockers
-      timing {
-        stationOrder
-        slotId
-        label
-        doorway {
-          startsAtSecond
-          endsAtSecond
-          durationSeconds
-        }
-        encounter {
-          startsAtSecond
-          endsAtSecond
-          durationSeconds
-        }
-        note {
-          startsAtSecond
-          endsAtSecond
-          durationSeconds
-        }
-      }
-    }
-  }
-`;
-
-const stationRunQueueSnapshotsQuery = `
-  query StationRunQueueSnapshots($blueprintId: ID!) {
-    stationRunQueueSnapshots(blueprintId: $blueprintId) {
-      ${queueSnapshotSelection}
-    }
-  }
-`;
-
-const createStationRunQueueSnapshotMutation = `
-  mutation CreateStationRunQueueSnapshot($input: CreateStationRunQueueSnapshotInput!) {
-    createStationRunQueueSnapshot(input: $input) {
-      ${queueSnapshotSelection}
-    }
-  }
-`;
-
 function normalizeBaseUrl(baseUrl: string): string {
   return baseUrl.replace(/\/$/, "");
+}
+
+function documentSourceByOperationName(operationName: string): string {
+  const document = adminGraphqlDocuments.find((candidate) => candidate.operationName === operationName);
+  if (!document) {
+    throw new Error(`OpenClinXR admin GraphQL document missing: ${operationName}`);
+  }
+
+  return document.source;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

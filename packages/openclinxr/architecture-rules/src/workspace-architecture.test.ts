@@ -54,6 +54,13 @@ describe("workspace architecture rules", () => {
     expect(violations).toEqual([]);
   });
 
+  it("keeps UI app GraphQL imports on generated documents instead of the executable server surface", () => {
+    const violations = filesWithContentMatching("apps", /@openclinxr\/graphql(?!\/documents)/)
+      .filter((filePath) => /^apps\/ui-[^/]+\/src\//.test(filePath));
+
+    expect(violations).toEqual([]);
+  });
+
   it("keeps the API app persistence-injected instead of importing concrete Mongo packages", () => {
     const forbiddenImports = /@openclinxr\/(?:data-mongodb|data-sources-mongoose-models)/;
     const violations = filesWithContentMatching("apps/api/src", forbiddenImports);

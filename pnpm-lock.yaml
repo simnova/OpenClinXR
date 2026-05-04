@@ -103,6 +103,9 @@ importers:
       '@openclinxr/exam-assembly':
         specifier: workspace:*
         version: link:../../packages/openclinxr/exam-assembly
+      '@openclinxr/graphql':
+        specifier: workspace:*
+        version: link:../../packages/openclinxr/graphql
       '@openclinxr/rest':
         specifier: workspace:*
         version: link:../../packages/openclinxr/rest
