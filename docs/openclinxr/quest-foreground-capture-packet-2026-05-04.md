@@ -24,12 +24,14 @@ The human report must still confirm:
 - DevTools screencast was disabled while observing performance.
 - Extra Quest Browser windows were closed.
 - Immersive session behavior was observed in-headset.
-- EHR and station text were readable at the intended headset distance.
+- EHR, dialogue, and input-evidence canvas panels were readable at the intended headset distance.
 - Controller selection felt responsive and trace interaction was visible.
-- Full VR mode, hand/input visibility, locomotion behavior, and the DOM trace-latency proxy were copied from `window.__openClinXrManualPerformanceDraft` as supporting context.
+- Full VR mode, controller grip/ray visibility, hand/input visibility, locomotion behavior, and the DOM trace-latency proxy were copied from `window.__openClinXrManualPerformanceDraft` as supporting context.
 - At least 10 minutes of observation completed.
 - At least 600 frames were observed, with a rolling sample window of at least 120 frames.
 - Comfort, heat, and battery observations were recorded.
+
+Automated supporting evidence: `docs/openclinxr/quest-cdp-smoke-vr-text-input-panels-2026-05-04.json`, `docs/openclinxr/quest-cdp-smoke-vr-resize-guard-2026-05-04.json`, and their check files show the production station page visible in Quest Browser, `Full VR ready`, trace advancement, fresh frames, and no CDP blockers after the in-VR text/input panel revision. The resize-guard smoke was captured after the app stopped calling `renderer.setSize` while a Full VR session is presenting. This supports station-shell readiness only; it does not clear the human worn-headset performance gate.
 
 ## Validation Commands
 

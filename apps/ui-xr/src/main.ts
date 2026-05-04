@@ -22,6 +22,7 @@ import {
   Vector3,
   WebGLRenderer,
 } from "three";
+import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
 import { XRHandModelFactory } from "three/addons/webxr/XRHandModelFactory.js";
 import {
   actorIdForTraceTag,
@@ -93,6 +94,11 @@ type StationSceneRuntime = {
   startImmersiveSession(): Promise<void>;
 };
 
+type ReadableVrTextPanel = {
+  mesh: Mesh;
+  update(lines: readonly string[]): void;
+};
+
 declare global {
   interface Window {
     __openClinXrFrameStats?: OpenClinXrFrameStats;
@@ -145,6 +151,7 @@ const stationApi = configuredApiBaseUrl ? createStationApiClient({ baseUrl: conf
 let remoteStationRunId: string | undefined;
 let immersiveSessionActive = false;
 let lastTraceSelectLatencyMs: number | null = null;
+const initialDialogueText = "Robert Hayes: It feels heavy, like someone is sitting on my chest.";
 
 app.innerHTML = `
   <main class="station-shell">
@@ -176,7 +183,7 @@ app.innerHTML = `
       </section>
       <section class="dialogue-panel" aria-label="Mock dialogue">
         <h2>Mock Dialogue</h2>
-        <p id="dialogue-line">Robert Hayes: It feels heavy, like someone is sitting on my chest.</p>
+        <p id="dialogue-line">${initialDialogueText}</p>
       </section>
       <section class="trace-panel" aria-label="Trace controls">
         <h2>Trace Actions</h2>
@@ -392,13 +399,45 @@ function createStationScene(): StationSceneRuntime {
   clockMesh.rotation.x = Math.PI / 2;
   clockMesh.position.set(0.9, 2.2, -1.2);
   scene.add(clockMesh);
-  scene.add(createClinicalPanel());
-  addControllerRays(renderer, scene);
+  const clinicalPanel = createClinicalPanel();
+  scene.add(clinicalPanel.mesh);
+  const dialoguePanel = createReadableVrTextPanel({
+    name: iwsdkStationSceneObjects.dialoguePanel,
+    title: "Live Dialogue",
+    lines: [initialDialogueText, `Trace 0/${state.requiredTraceTags.length}`],
+    widthMeters: 1.85,
+    heightMeters: 0.95,
+    background: "#fff8e5",
+    accent: "#286b54",
+  });
+  dialoguePanel.mesh.position.set(1.28, 1.28, -1.08);
+  dialoguePanel.mesh.rotation.y = -0.28;
+  scene.add(dialoguePanel.mesh);
+  const inputPanel = createReadableVrTextPanel({
+    name: iwsdkStationSceneObjects.inputPanel,
+    title: "Input Evidence",
+    lines: [
+      "Session: Full VR not entered",
+      "Hands: pending optional hand-tracking",
+      "Movement: thumbstick and keyboard dolly",
+    ],
+    widthMeters: 1.65,
+    heightMeters: 0.72,
+    background: "#eef4ff",
+    accent: "#5a6f9f",
+  });
+  inputPanel.mesh.position.set(0.15, 0.78, -1.2);
+  scene.add(inputPanel.mesh);
+  let lastPanelSignature = "";
+  addControllerAffordances(renderer, scene);
   const keyboardLocomotion = createKeyboardLocomotion();
   let handModelStatus: OpenClinXrInputEvidence["handModelStatus"] = "pending_immersive_session";
   let handModelsInstalled = false;
 
   function resize(): void {
+    if (renderer.xr.isPresenting) {
+      return;
+    }
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
     renderer.setSize(width, height, false);
@@ -424,6 +463,7 @@ function createStationScene(): StationSceneRuntime {
     });
     lastLocomotionAtMs = inputEvidence.lastLocomotionAtMs;
     window.__openClinXrInputEvidence = inputEvidence;
+    updateVrPanels(inputEvidence);
     recordFrame(now);
     patient.rotation.y = Math.sin(now / 1200) * 0.08;
     nurse.rotation.y = Math.sin(now / 900) * 0.12;
@@ -495,41 +535,134 @@ function createStationScene(): StationSceneRuntime {
       handModelStatus = "failed";
     }
   }
+
+  function updateVrPanels(inputEvidence: OpenClinXrInputEvidence): void {
+    const summary = summarizeTraceReadiness(state);
+    const dialogueText = dialogueLine.textContent ?? initialDialogueText;
+    const panelSignature = [
+      dialogueText,
+      summary.observedCount,
+      summary.missingCount,
+      immersiveSessionActive ? "in-full-vr" : "preview",
+      inputEvidence.handModelStatus,
+      inputEvidence.handInputsObserved,
+      inputEvidence.lastLocomotionAtMs,
+      inputEvidence.rigPosition.x,
+      inputEvidence.rigPosition.z,
+    ].join("|");
+    if (panelSignature === lastPanelSignature) {
+      return;
+    }
+    lastPanelSignature = panelSignature;
+    dialoguePanel.update([
+      dialogueText,
+      `Trace ${summary.observedCount}/${state.requiredTraceTags.length}; missing ${summary.missingCount}`,
+    ]);
+    inputPanel.update([
+      immersiveSessionActive ? "Session: In Full VR" : "Session: Desktop preview",
+      `Hands: ${inputEvidence.handModelStatus}; observed ${inputEvidence.handInputsObserved}`,
+      `Movement: x ${inputEvidence.rigPosition.x}, z ${inputEvidence.rigPosition.z}`,
+    ]);
+  }
 }
 
-function createClinicalPanel(): Mesh {
-  const panelCanvas = document.createElement("canvas");
-  panelCanvas.width = 1024;
-  panelCanvas.height = 512;
-  const context = panelCanvas.getContext("2d");
-  if (!context) {
-    throw new Error("Unable to create clinical panel canvas context");
-  }
-  context.fillStyle = "#fff8e5";
-  context.fillRect(0, 0, panelCanvas.width, panelCanvas.height);
-  context.fillStyle = "#172332";
-  context.font = "700 54px Arial";
-  context.fillText("Simulated EHR", 48, 78);
-  context.font = "36px Arial";
-  const lines = [
-    "Chief concern: crushing substernal pressure",
-    "Vitals: BP 152/92  HR 104  RR 20  SpO2 96%",
-    "Interruption: nurse repeats vitals at minute seven",
-    "Priority: obtain ECG and escalate urgently",
-  ];
-  lines.forEach((line, index) => context.fillText(line, 48, 150 + index * 70));
-  const texture = new CanvasTexture(panelCanvas);
-  const panel = new Mesh(
-    new PlaneGeometry(2.15, 1.08),
-    new MeshBasicMaterial({ map: texture, side: DoubleSide }),
-  );
-  panel.name = "openclinxr.ed-chest-pain.in-vr-clinical-panel";
-  panel.position.set(-1.55, 1.55, -1.05);
-  panel.rotation.y = 0.42;
+function createClinicalPanel(): ReadableVrTextPanel {
+  const panel = createReadableVrTextPanel({
+    name: iwsdkStationSceneObjects.clinicalPanel,
+    title: "Simulated EHR",
+    lines: [
+      "Chief concern: crushing substernal pressure",
+      "Vitals: BP 152/92  HR 104  RR 20  SpO2 96%",
+      "Interruption: nurse repeats vitals at minute seven",
+      "Priority: obtain ECG and escalate urgently",
+    ],
+    widthMeters: 2.3,
+    heightMeters: 1.15,
+    background: "#fff8e5",
+    accent: "#7d4f28",
+  });
+  panel.mesh.position.set(-1.32, 1.55, -1.08);
+  panel.mesh.rotation.y = 0.34;
   return panel;
 }
 
-function addControllerRays(renderer: WebGLRenderer, scene: Scene): void {
+function createReadableVrTextPanel(options: {
+  name: string;
+  title: string;
+  lines: readonly string[];
+  widthMeters: number;
+  heightMeters: number;
+  background: string;
+  accent: string;
+}): ReadableVrTextPanel {
+  const panelCanvas = document.createElement("canvas");
+  panelCanvas.width = 1280;
+  panelCanvas.height = 640;
+  const context = panelCanvas.getContext("2d");
+  if (!context) {
+    throw new Error("Unable to create VR text panel canvas context");
+  }
+  const panelContext = context;
+  const texture = new CanvasTexture(panelCanvas);
+  const panel = new Mesh(
+    new PlaneGeometry(options.widthMeters, options.heightMeters),
+    new MeshBasicMaterial({ map: texture, side: DoubleSide }),
+  );
+  panel.name = options.name;
+
+  function update(lines: readonly string[]): void {
+    panelContext.fillStyle = options.background;
+    panelContext.fillRect(0, 0, panelCanvas.width, panelCanvas.height);
+    panelContext.fillStyle = options.accent;
+    panelContext.fillRect(0, 0, 22, panelCanvas.height);
+    panelContext.fillStyle = "#172332";
+    panelContext.font = "700 62px Arial";
+    panelContext.fillText(options.title, 58, 92);
+    panelContext.font = "38px Arial";
+    let y = 162;
+    for (const line of lines) {
+      y = drawWrappedText(panelContext, line, 58, y, panelCanvas.width - 116, 50) + 14;
+    }
+    texture.needsUpdate = true;
+  }
+
+  update(options.lines);
+  return { mesh: panel, update };
+}
+
+function drawWrappedText(
+  context: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  lineHeight: number,
+): number {
+  const words = text.split(" ");
+  let line = "";
+  let currentY = y;
+  for (const word of words) {
+    const testLine = line ? `${line} ${word}` : word;
+    if (context.measureText(testLine).width > maxWidth && line) {
+      context.fillText(line, x, currentY);
+      line = word;
+      currentY += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  if (line) {
+    context.fillText(line, x, currentY);
+  }
+  return currentY + lineHeight;
+}
+
+function addControllerAffordances(renderer: WebGLRenderer, scene: Scene): void {
+  const controllerModelFactory = new XRControllerModelFactory();
+  const gripNames = [
+    iwsdkStationSceneObjects.controllerGripLeft,
+    iwsdkStationSceneObjects.controllerGripRight,
+  ];
   for (let index = 0; index < 2; index += 1) {
     const controller = renderer.xr.getController(index);
     controller.name = `openclinxr.ed-chest-pain.controller-${index + 1}`;
@@ -540,6 +673,10 @@ function addControllerRays(renderer: WebGLRenderer, scene: Scene): void {
     ray.name = `openclinxr.ed-chest-pain.controller-ray-${index + 1}`;
     controller.add(ray);
     scene.add(controller);
+    const controllerGrip = renderer.xr.getControllerGrip(index);
+    controllerGrip.name = gripNames[index] ?? `openclinxr.ed-chest-pain.controller-grip-${index + 1}`;
+    controllerGrip.add(controllerModelFactory.createControllerModel(controllerGrip));
+    scene.add(controllerGrip);
   }
 }
 

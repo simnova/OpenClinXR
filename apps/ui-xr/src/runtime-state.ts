@@ -174,6 +174,11 @@ export const iwsdkStationSceneObjects = {
   nurseMariaAlvarez: "openclinxr.ed-chest-pain.nurse-maria-alvarez",
   spouseAnnaHayes: "openclinxr.ed-chest-pain.spouse-anna-hayes",
   wallClock: "openclinxr.ed-chest-pain.wall-clock",
+  clinicalPanel: "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+  dialoguePanel: "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+  inputPanel: "openclinxr.ed-chest-pain.in-vr-input-panel",
+  controllerGripLeft: "openclinxr.ed-chest-pain.controller-grip-left",
+  controllerGripRight: "openclinxr.ed-chest-pain.controller-grip-right",
 } as const;
 
 export const iwsdkStationSceneObjectNames = Object.values(iwsdkStationSceneObjects);

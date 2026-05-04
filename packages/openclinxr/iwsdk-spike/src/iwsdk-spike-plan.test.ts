@@ -1511,6 +1511,11 @@ describe("IWSDK spike plan", () => {
         "openclinxr.ed-chest-pain.nurse-maria-alvarez",
         "openclinxr.ed-chest-pain.spouse-anna-hayes",
         "openclinxr.ed-chest-pain.wall-clock",
+        "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+        "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+        "openclinxr.ed-chest-pain.in-vr-input-panel",
+        "openclinxr.ed-chest-pain.controller-grip-left",
+        "openclinxr.ed-chest-pain.controller-grip-right",
       ],
       controllerSelectTraceTag: "ecg_request",
     });

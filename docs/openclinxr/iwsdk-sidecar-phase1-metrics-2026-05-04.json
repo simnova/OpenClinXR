@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-05-04T17:35:42.923Z",
+  "generatedAt": "2026-05-04T17:56:55.832Z",
   "inputFile": "docs/openclinxr/iwsdk-sidecar-phase1-metrics-input-2026-05-04.json",
   "metrics": {
     "installedNodeModulesMb": 24,
     "injectedDevRuntimeKb": 0,
-    "appJsBundleKb": 2511.19,
-    "bundleDeltaVsUiXrKb": 1895.52,
-    "baselineAppBundleSource": "apps/ui-xr-iwsdk-spike/dist/assets/*.js total minus apps/ui-xr/dist/assets/index-DWeRkXUD.js + apps/ui-xr/dist/assets/three-vendor-Csg9FCqN.js",
-    "initialModulepreloadedJsKb": 23.23,
+    "appJsBundleKb": 2521.65,
+    "bundleDeltaVsUiXrKb": 1895.55,
+    "baselineAppBundleSource": "apps/ui-xr-iwsdk-spike/dist/assets/*.js total minus apps/ui-xr/dist/assets/index-D2UAcKLL.js + apps/ui-xr/dist/assets/three-vendor-B6JKuD26.js",
+    "initialModulepreloadedJsKb": 33.69,
     "lazyIwsdkVendorChunkKb": 2404.88,
     "smokePlanHash": "runtime-state:iwsdk-station-mcp-smoke-plan:v1",
     "canvasNonblank": true,
@@ -21,7 +21,12 @@
       "openclinxr.ed-chest-pain.patient-robert-hayes",
       "openclinxr.ed-chest-pain.nurse-maria-alvarez",
       "openclinxr.ed-chest-pain.spouse-anna-hayes",
-      "openclinxr.ed-chest-pain.wall-clock"
+      "openclinxr.ed-chest-pain.wall-clock",
+      "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+      "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+      "openclinxr.ed-chest-pain.in-vr-input-panel",
+      "openclinxr.ed-chest-pain.controller-grip-left",
+      "openclinxr.ed-chest-pain.controller-grip-right"
     ],
     "observedSceneObjectNames": [
       "openclinxr.ed-chest-pain.station-root",
@@ -33,7 +38,12 @@
       "openclinxr.ed-chest-pain.patient-robert-hayes",
       "openclinxr.ed-chest-pain.nurse-maria-alvarez",
       "openclinxr.ed-chest-pain.spouse-anna-hayes",
-      "openclinxr.ed-chest-pain.wall-clock"
+      "openclinxr.ed-chest-pain.wall-clock",
+      "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+      "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+      "openclinxr.ed-chest-pain.in-vr-input-panel",
+      "openclinxr.ed-chest-pain.controller-grip-left",
+      "openclinxr.ed-chest-pain.controller-grip-right"
     ],
     "controllerSelectTraceTag": "ecg_request",
     "observedTraceActionTags": [

@@ -31,13 +31,27 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("renderer.setAnimationLoop");
   });
 
+  it("does not resize the renderer while an immersive headset session is presenting", () => {
+    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+
+    expect(mainSource).toContain("renderer.xr.isPresenting");
+    expect(mainSource.indexOf("renderer.xr.isPresenting")).toBeLessThan(mainSource.indexOf("renderer.setSize(width, height, false)"));
+  });
+
   it("renders clinical text and controller affordances inside the immersive scene", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
 
     expect(mainSource).toContain("CanvasTexture");
-    expect(mainSource).toContain("openclinxr.ed-chest-pain.in-vr-clinical-panel");
+    expect(mainSource).toContain("createReadableVrTextPanel");
+    expect(mainSource).toContain("iwsdkStationSceneObjects.clinicalPanel");
+    expect(mainSource).toContain("iwsdkStationSceneObjects.dialoguePanel");
+    expect(mainSource).toContain("iwsdkStationSceneObjects.inputPanel");
     expect(mainSource).toContain("renderer.xr.getController");
+    expect(mainSource).toContain("XRControllerModelFactory");
+    expect(mainSource).toContain("renderer.xr.getControllerGrip");
     expect(mainSource).toContain("openclinxr.ed-chest-pain.controller-ray");
+    expect(mainSource).toContain("iwsdkStationSceneObjects.controllerGripLeft");
+    expect(mainSource).toContain("iwsdkStationSceneObjects.controllerGripRight");
   });
 
   it("adds primitive hand models and experimental locomotion affordances", () => {

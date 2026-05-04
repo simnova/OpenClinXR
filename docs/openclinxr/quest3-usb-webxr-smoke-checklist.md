@@ -316,6 +316,8 @@ Use `docs/openclinxr/quest-manual-performance-template.json` to capture the run.
 
 `pnpm agent:benchmarks` can now derive the Quest manual performance check directly from the newest completed `docs/openclinxr/quest-manual-performance-*.json` file, so a validated headset report feeds the leadership benchmark gates without needing a separate hand-copied `.agent-factory` check artifact first.
 
+The 2026-05-04 production station CDP smokes in `docs/openclinxr/quest-cdp-smoke-vr-text-input-panels-2026-05-04.json` and `docs/openclinxr/quest-cdp-smoke-vr-resize-guard-2026-05-04.json` validate that Quest Browser could foreground `apps/ui-xr`, report `Full VR ready`, advance `ecg_request` and `urgent_escalation`, and record fresh frame/input evidence after the in-VR text/input panel revision. The later resize-guard smoke was captured after suppressing Three.js `setSize` calls while `renderer.xr.isPresenting`, preventing live headset warning spam during an active Full VR session. These automated smokes are useful but still do not replace the worn-headset manual report for controller latency, hand visibility, comfort, heat, or battery claims.
+
 Manual in-headset run still needs to capture:
 
 - Quest Browser version.
@@ -323,11 +325,12 @@ Manual in-headset run still needs to capture:
 - WebXR support result.
 - Whether immersive VR session starts.
 - Initial scene nonblank.
-- Doorway instructions readable.
+- In-VR EHR, dialogue, and input-evidence canvas panels readable.
 - Encounter timer readable.
 - Mock actor dialogue readable.
 - Simulated EHR/note panel readable.
-- Controller ray or hand interaction basic success.
+- Controller ray/grip affordances visible, with optional hand-model visibility recorded when hand tracking is active.
+- Thumbstick or keyboard locomotion changes the rig position without leaving the bounded bay.
 - Console errors.
 - Frame comfort observations.
 - Heat/battery observations after 10 minutes.

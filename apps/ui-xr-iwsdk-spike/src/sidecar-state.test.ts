@@ -94,13 +94,27 @@ describe("IWSDK sidecar runtime state", () => {
     expect(source).toContain("renderer.setAnimationLoop");
   });
 
+  it("does not resize the renderer while an immersive headset session is presenting", () => {
+    const source = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+
+    expect(source).toContain("renderer.xr.isPresenting");
+    expect(source.indexOf("renderer.xr.isPresenting")).toBeLessThan(source.indexOf("renderer.setSize(width, height, false)"));
+  });
+
   it("renders clinical text and controller affordances inside the immersive scene", () => {
     const source = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
 
     expect(source).toContain("CanvasTexture");
+    expect(source).toContain("createReadableVrTextPanel");
     expect(source).toContain("openclinxr.ed-chest-pain.in-vr-clinical-panel");
+    expect(source).toContain("openclinxr.ed-chest-pain.in-vr-dialogue-panel");
+    expect(source).toContain("openclinxr.ed-chest-pain.in-vr-input-panel");
     expect(source).toContain("renderer.xr.getController");
+    expect(source).toContain("XRControllerModelFactory");
+    expect(source).toContain("renderer.xr.getControllerGrip");
     expect(source).toContain("openclinxr.ed-chest-pain.controller-ray");
+    expect(source).toContain("openclinxr.ed-chest-pain.controller-grip-left");
+    expect(source).toContain("openclinxr.ed-chest-pain.controller-grip-right");
   });
 
   it("adds primitive hand models and experimental locomotion affordances", () => {

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T17:35:42.987Z",
+  "generatedAt": "2026-05-04T17:56:55.867Z",
   "status": "phase_1_install_backed_sidecar",
   "sidecar": {
     "sidecarAppRoot": "apps/ui-xr-iwsdk-spike/",
@@ -198,7 +198,12 @@
       "openclinxr.ed-chest-pain.patient-robert-hayes",
       "openclinxr.ed-chest-pain.nurse-maria-alvarez",
       "openclinxr.ed-chest-pain.spouse-anna-hayes",
-      "openclinxr.ed-chest-pain.wall-clock"
+      "openclinxr.ed-chest-pain.wall-clock",
+      "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+      "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+      "openclinxr.ed-chest-pain.in-vr-input-panel",
+      "openclinxr.ed-chest-pain.controller-grip-left",
+      "openclinxr.ed-chest-pain.controller-grip-right"
     ],
     "controllerSelectTraceTag": "ecg_request"
   },
