@@ -40,4 +40,27 @@ if (timingPlan.stationWindows?.length !== 12 || timingPlan.breakCheckpoints?.len
   throw new Error(`Azure bundle smoke received unexpected timing plan payload: ${JSON.stringify(timingPlan)}`);
 }
 
+const queueResponse = await startup.fetch(new Request("http://localhost/exam-blueprints/step2cs-seed/station-run-queue"));
+if (queueResponse.status !== 200) {
+  throw new Error(`Azure bundle smoke expected station run queue to return 200, got ${queueResponse.status}`);
+}
+
+const stationRunQueue = await queueResponse.json() as {
+  canStartLearnerExam?: boolean;
+  stationQueue?: unknown[];
+  summary?: {
+    activationReady?: number;
+    draftBlocked?: number;
+  };
+};
+
+if (
+  stationRunQueue.canStartLearnerExam !== false
+  || stationRunQueue.stationQueue?.length !== 12
+  || stationRunQueue.summary?.activationReady !== 1
+  || stationRunQueue.summary?.draftBlocked !== 11
+) {
+  throw new Error(`Azure bundle smoke received unexpected station run queue payload: ${JSON.stringify(stationRunQueue)}`);
+}
+
 console.log("Azure bundle smoke passed");

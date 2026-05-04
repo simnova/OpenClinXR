@@ -1,0 +1,26 @@
+{
+  "source_id": "src-portless-github-2026",
+  "title": "Vercel Labs Portless GitHub Repository",
+  "url": "https://github.com/vercel-labs/portless",
+  "source_type": "vendor",
+  "citation": "Vercel Labs. portless GitHub repository README. Accessed 2026-05-03.",
+  "accessed_at": "2026-05-03",
+  "permitted_uses": [
+    "Local developer-experience planning for stable named local URLs, parallel worktree dev servers, Vite/React Router ports, and Quest/LAN smoke-test routing."
+  ],
+  "claims_supported": [
+    "Portless replaces raw local port numbers with stable named .localhost URLs.",
+    "Portless assigns random child-process ports and exposes them through the PORT environment variable.",
+    "The README states Portless can auto-inject --port and, when needed, --host flags for frameworks including Vite and React Router.",
+    "Portless discovers monorepo workspace packages from pnpm-workspace.yaml or package workspaces.",
+    "The README states linked git worktrees get branch-name subdomains so parallel worktrees receive distinct URLs.",
+    "Portless has an optional LAN mode that advertises services as .local names for same-network device access."
+  ],
+  "claims_not_supported": [
+    "That Portless is installed or trusted on this machine.",
+    "That Portless should replace adb reverse for Quest 3 USB-C smoke testing without a dedicated headset spike.",
+    "That first-run certificate trust or privileged port binding should be performed unattended.",
+    "That Portless solves API, CORS, WebXR performance, or Azure deployment behavior by itself."
+  ],
+  "confidence": 0.86
+}

@@ -2,6 +2,7 @@ import { createScenarioPlaceholderManifests, InMemoryAssetRegistry } from "@open
 import {
   assembleExamForm,
   createDefaultClinicalSkillsBlueprint,
+  createExamStationRunQueue,
   createExamTimingPlan,
   createStep2CsStyleSeedBlueprint,
   evaluateBlueprintScenarioReadiness,
@@ -108,6 +109,10 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
 
   app.get(routeById("step2cs-seed-exam-timing-plan").path, (context) =>
     context.json(createExamTimingPlan(createStep2CsStyleSeedBlueprint())),
+  );
+
+  app.get(routeById("step2cs-seed-station-run-queue").path, (context) =>
+    context.json(createExamStationRunQueue(createStep2CsStyleSeedBlueprint(), scenarioBank)),
   );
 
   app.post(routeById("create-exam-form").path, async (context) => {

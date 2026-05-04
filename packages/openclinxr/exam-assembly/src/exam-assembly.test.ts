@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   assembleExamForm,
   createDefaultClinicalSkillsBlueprint,
+  createExamStationRunQueue,
   createExamTimingPlan,
   createStep2CsStyleSeedBlueprint,
   evaluateBlueprintScenarioReadiness,
@@ -143,5 +144,42 @@ describe("exam assembly", () => {
       { afterStationOrder: 9, atSecond: 14040 },
     ]);
     expect(plan.totalStationTimeSeconds).toBe(18720);
+  });
+
+  it("creates a sequenced seed station run queue without unlocking draft stations", () => {
+    const queue = createExamStationRunQueue(createStep2CsStyleSeedBlueprint(), scenarioBank);
+
+    expect(queue.canStartLearnerExam).toBe(false);
+    expect(queue.stationQueue).toHaveLength(12);
+    expect(queue.summary).toEqual({
+      activationReady: 1,
+      draftBlocked: 11,
+      governanceBlocked: 0,
+      missingScenario: 0,
+    });
+    expect(queue.stationQueue[0]).toMatchObject({
+      stationOrder: 1,
+      scenarioId: "ed_chest_pain_priority_v1",
+      scenarioVersion: 1,
+      status: "activation_ready",
+      blockers: [],
+      timing: {
+        note: { endsAtSecond: 1560 },
+      },
+    });
+    expect(queue.stationQueue[8]).toMatchObject({
+      stationOrder: 9,
+      scenarioId: "clinic_abdominal_pain_interpreter_v1",
+      status: "draft_blocked",
+      blockers: ["scenario_not_approved"],
+      timing: {
+        doorway: { startsAtSecond: 12480 },
+      },
+    });
+    expect(queue.breakCheckpoints).toEqual([
+      { afterStationOrder: 3, atSecond: 4680 },
+      { afterStationOrder: 6, atSecond: 9360 },
+      { afterStationOrder: 9, atSecond: 14040 },
+    ]);
   });
 });

@@ -108,6 +108,33 @@ export type ExamTimingPlan = {
   totalStationTimeSeconds: number;
 };
 
+export type ExamStationRunQueueStatus = "activation_ready" | "draft_blocked" | "governance_blocked" | "missing_scenario";
+
+export type ExamStationRunQueueItem = {
+  stationOrder: number;
+  slotId: string;
+  label: string;
+  scenarioId: string | null;
+  scenarioVersion: number | null;
+  status: ExamStationRunQueueStatus;
+  blockers: string[];
+  timing: ExamStationTimingWindow;
+};
+
+export type ExamStationRunQueue = {
+  blueprintId: string;
+  canStartLearnerExam: boolean;
+  stationQueue: ExamStationRunQueueItem[];
+  breakCheckpoints: ExamTimingPlan["breakCheckpoints"];
+  totalStationTimeSeconds: number;
+  summary: {
+    activationReady: number;
+    draftBlocked: number;
+    governanceBlocked: number;
+    missingScenario: number;
+  };
+};
+
 const step2CsStyleTiming: ExamBlueprintTiming = {
   doorwaySeconds: 60,
   encounterSeconds: 900,
@@ -216,6 +243,47 @@ export function createExamTimingPlan(blueprint: ExamBlueprint): ExamTimingPlan {
   };
 }
 
+export function createExamStationRunQueue(blueprint: ExamBlueprint, scenarios: readonly Scenario[]): ExamStationRunQueue {
+  const timingPlan = createExamTimingPlan(blueprint);
+  const scenarioBySlotOrder = new Map(scenarios.map((scenario, index) => [index + 1, scenario]));
+  const stationQueue = timingPlan.stationWindows.map((timing): ExamStationRunQueueItem => {
+    const scenario = scenarioBySlotOrder.get(timing.stationOrder);
+    if (!scenario) {
+      return {
+        stationOrder: timing.stationOrder,
+        slotId: timing.slotId,
+        label: timing.label,
+        scenarioId: null,
+        scenarioVersion: null,
+        status: "missing_scenario",
+        blockers: ["scenario_missing"],
+        timing,
+      };
+    }
+
+    const status = stationRunQueueStatus(scenario);
+    return {
+      stationOrder: timing.stationOrder,
+      slotId: timing.slotId,
+      label: timing.label,
+      scenarioId: scenario.scenarioId,
+      scenarioVersion: scenario.version,
+      status,
+      blockers: stationRunQueueBlockers(scenario, status),
+      timing,
+    };
+  });
+
+  return {
+    blueprintId: blueprint.blueprintId,
+    canStartLearnerExam: stationQueue.every((station) => station.status === "activation_ready"),
+    stationQueue,
+    breakCheckpoints: timingPlan.breakCheckpoints,
+    totalStationTimeSeconds: timingPlan.totalStationTimeSeconds,
+    summary: stationRunQueueSummary(stationQueue),
+  };
+}
+
 export function assembleExamForm(input: AssembleExamFormInput): ExamForm {
   for (const scenario of input.scenarios) {
     if (scenario.status !== "approved") {
@@ -315,6 +383,49 @@ function isActivationEligible(scenario: Scenario): boolean {
     && Object.values(scenario.review).every((state) => state === "approved")
     && scenario.governance.validationStage !== "stage_0_synthetic_draft"
     && scenario.governance.scoreUseLabel !== "validated_summative";
+}
+
+function stationRunQueueStatus(scenario: Scenario): ExamStationRunQueueStatus {
+  if (isActivationEligible(scenario)) {
+    return "activation_ready";
+  }
+  if (scenario.status !== "approved") {
+    return "draft_blocked";
+  }
+  return "governance_blocked";
+}
+
+function stationRunQueueBlockers(scenario: Scenario, status: ExamStationRunQueueStatus): string[] {
+  if (status === "activation_ready") {
+    return [];
+  }
+  if (status === "draft_blocked") {
+    return ["scenario_not_approved"];
+  }
+
+  const blockers: string[] = [];
+  for (const [reviewRole, reviewStatus] of Object.entries(scenario.review)) {
+    if (reviewStatus !== "approved") {
+      blockers.push(`${reviewRole}_review_${reviewStatus}`);
+    }
+  }
+  if (scenario.governance.validationStage === "stage_0_synthetic_draft") {
+    blockers.push("synthetic_draft_validation_stage");
+  }
+  if (scenario.governance.scoreUseLabel === "validated_summative") {
+    blockers.push("summative_score_use_not_allowed_for_seed_queue");
+  }
+
+  return blockers.length > 0 ? blockers : ["governance_not_ready"];
+}
+
+function stationRunQueueSummary(stationQueue: readonly ExamStationRunQueueItem[]): ExamStationRunQueue["summary"] {
+  return {
+    activationReady: stationQueue.filter((station) => station.status === "activation_ready").length,
+    draftBlocked: stationQueue.filter((station) => station.status === "draft_blocked").length,
+    governanceBlocked: stationQueue.filter((station) => station.status === "governance_blocked").length,
+    missingScenario: stationQueue.filter((station) => station.status === "missing_scenario").length,
+  };
 }
 
 function stationDurationSeconds(timing: ExamBlueprintTiming): number {

@@ -17,6 +17,7 @@ describe("OpenClinXR REST route contract", () => {
       "step2cs-seed-exam-blueprint",
       "step2cs-seed-exam-blueprint-readiness",
       "step2cs-seed-exam-timing-plan",
+      "step2cs-seed-station-run-queue",
       "create-exam-form",
       "exam-form-version-drift",
       "start-session",
@@ -46,6 +47,11 @@ describe("OpenClinXR REST route contract", () => {
     expect(routeById("step2cs-seed-exam-timing-plan")).toMatchObject({
       method: "GET",
       path: "/exam-blueprints/step2cs-seed/timing-plan",
+      surface: "control-plane",
+    });
+    expect(routeById("step2cs-seed-station-run-queue")).toMatchObject({
+      method: "GET",
+      path: "/exam-blueprints/step2cs-seed/station-run-queue",
       surface: "control-plane",
     });
     expect(openClinXrRestRoutes.every((route) => route.path.startsWith("/"))).toBe(true);

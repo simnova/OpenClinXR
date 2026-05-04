@@ -231,6 +231,7 @@ Use these preferences when making new implementation decisions unless a runtime 
 - Prefer Biome, Knip, and E18E for lint/format, unused dependency/export detection, and ecosystem-health review after scoped baselines are tuned.
 - Prefer OpenTelemetry for performance analysis and trace/metric naming across API, GraphQL, MongoDB, model/voice gateways, and XR runtime events.
 - Prefer a CellixJS-inspired fluent API bootstrap for `apps/api`: register infrastructure services, set request/application context, initialize application services, register Azure Function-compatible GraphQL/REST handlers, then start up. Keep the OpenClinXR variant Hono/Azure Functions-compatible and local-testable.
+- Consider Portless as an optional local developer-experience layer for parallel worktrees and named local URLs. Keep it opt-in until the team chooses to install and trust it interactively: its README says it can discover pnpm workspaces, assign free child ports, inject Vite/React Router `--port`/`--host` flags, and prefix linked-worktree URLs with the branch name. Do not replace Quest 3 `adb reverse tcp:5173 tcp:5173` evidence with Portless LAN mode until a headset spike verifies that path.
 
 Current tooling note: `knip` and `@e18e/cli` are installed as pnpm-managed root dev dependencies. `pnpm hygiene:knip` is report-only for now. `pnpm hygiene:e18e:help` verifies the E18E CLI entrypoint. `pnpm hygiene:e18e:analyze` is intentionally outside the main `verify` gate because a whole-repo spike on 2026-05-03 did not return promptly and needs a scoped baseline before becoming blocking.
 
@@ -302,11 +303,12 @@ Exam assembly milestone has also started:
 - It now reports station-count fit, required environment coverage, safety-critical trace-tag coverage, and assembly issues.
 - It now creates a Step 2 CS-style 12-station seed blueprint with 60-second doorway reading, 15-minute encounters, 10-minute notes, and breaks after stations 3, 6, and 9.
 - It now derives deterministic station timing windows and break checkpoints from blueprint timing, giving XR/admin runtime a pure sequence plan before station execution is wired.
+- It now creates a deterministic station-run queue for the 12-station seed form, preserving station order and timing while marking only the reviewed ED chest pain scenario activation-ready and keeping the eleven synthetic drafts blocked.
 - It can evaluate seed-blueprint scenario readiness separately from exam-form lock, so the full sequence is visible while the eleven unreviewed draft stations remain blocked from runnable form assembly.
 - It can detect scenario version drift after a form has locked station references.
 - It rejects unapproved scenarios before exam-form lock, preserving the human review gates from the scenario fixture.
 - `apps/api` exposes the default blueprint and a local exam-form assembly endpoint for the first ED chest pain pilot form.
-- `apps/api` exposes the 12-station seed blueprint, governance readiness blockers, deterministic timing plan, and seed-bank asset readiness through `/exam-blueprints/step2cs-seed`, `/exam-blueprints/step2cs-seed/readiness`, `/exam-blueprints/step2cs-seed/timing-plan`, and `/scenario-bank/assets/readiness`.
+- `apps/api` exposes the 12-station seed blueprint, governance readiness blockers, deterministic timing plan, station-run queue, and seed-bank asset readiness through `/exam-blueprints/step2cs-seed`, `/exam-blueprints/step2cs-seed/readiness`, `/exam-blueprints/step2cs-seed/timing-plan`, `/exam-blueprints/step2cs-seed/station-run-queue`, and `/scenario-bank/assets/readiness`.
 - `apps/api` exposes version-drift comparison for a submitted exam form against current scenario versions.
 - `packages/openclinxr/data-mongodb` persists exam forms with locked scenario refs for later drift review.
 

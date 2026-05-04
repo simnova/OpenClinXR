@@ -293,12 +293,14 @@ Started on 2026-05-03:
 - `packages/openclinxr/data-mongodb` now persists exam forms with locked scenario versions.
 - `packages/openclinxr/exam-assembly` now exposes the full 12-station Step 2 CS-style seed blueprint and a readiness report that blocks the eleven unreviewed draft stations from runnable form assembly.
 - `packages/openclinxr/exam-assembly` now derives deterministic doorway, encounter, note, and break-checkpoint timing windows from blueprint timing.
-- `apps/api` now serves `/exam-blueprints/step2cs-seed`, `/exam-blueprints/step2cs-seed/readiness`, and `/exam-blueprints/step2cs-seed/timing-plan` for admin planning surfaces.
-- The Azure bundle smoke now verifies the seed timing-plan endpoint in the bundled API, not only `/health`.
+- `packages/openclinxr/exam-assembly` now derives a deterministic station-run queue for the 12-station seed form, preserving timing and order while keeping draft stations blocked from learner launch.
+- `apps/api` now serves `/exam-blueprints/step2cs-seed`, `/exam-blueprints/step2cs-seed/readiness`, `/exam-blueprints/step2cs-seed/timing-plan`, and `/exam-blueprints/step2cs-seed/station-run-queue` for admin planning surfaces.
+- The Azure bundle smoke now verifies the seed timing-plan and station-run-queue endpoints in the bundled API, not only `/health`.
 - `pnpm bench:mock` now prints trace quality, review signals, and an adversarial probe report.
 - `packages/openclinxr/agent-loop` executable roster now aligns with the richer physician charter bench.
 - `packages/openclinxr/asset-registry` now creates generic placeholder manifests from scenario `assetNeeds`, making all 12 seed-bank cases dev-ready for asset readiness checks while still blocking production release.
 - `apps/api` now serves `/scenario-bank/assets/readiness` so admin surfaces can inspect dev readiness, production blockers, and aggregate Quest budget blockers across all 12 seed-bank scenarios.
+- Portless has been added to the source ledger as an optional local parallel-worktree dev-server routing candidate; it is not installed or required yet because first-run trust and privileged proxy setup should be performed interactively.
 
 Local evidence:
 
