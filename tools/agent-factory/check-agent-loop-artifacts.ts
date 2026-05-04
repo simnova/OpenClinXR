@@ -39,6 +39,14 @@ type DispatchPacket = {
   dependsOnStages: string[];
   retrievedMemoryEntries: MemoryEntry[];
   nextActions: NextAction[];
+  recommendedWorkflowSkills: WorkflowSkillRecommendation[];
+};
+
+type WorkflowSkillRecommendation = {
+  id: string;
+  name: string;
+  useWhen: string;
+  guardrails: string[];
 };
 
 type AgentLoopArtifact = {
@@ -212,6 +220,12 @@ function validateArtifact(file: string, value: unknown, failures: Failure[]): vo
         failures.push({ file, message: `dispatch packet ${packet.workOrderId} references unknown next action ${action.id}` });
       }
     }
+    requireUnique(file, `dispatch packet ${packet.workOrderId} recommendedWorkflowSkills[].id`, packet.recommendedWorkflowSkills.map((skill) => skill.id), failures);
+    for (const skill of packet.recommendedWorkflowSkills) {
+      if (skill.name.length === 0 || skill.useWhen.length === 0 || skill.guardrails.length === 0) {
+        failures.push({ file, message: `dispatch packet ${packet.workOrderId} skill ${skill.id} must include name, useWhen, and guardrails` });
+      }
+    }
   }
 
   if (value.memoryRetrieval) {
@@ -290,7 +304,17 @@ function isDispatchPacket(value: unknown): value is DispatchPacket {
     && Array.isArray(value.retrievedMemoryEntries)
     && value.retrievedMemoryEntries.every(isMemoryEntry)
     && Array.isArray(value.nextActions)
-    && value.nextActions.every(isNextAction);
+    && value.nextActions.every(isNextAction)
+    && Array.isArray(value.recommendedWorkflowSkills)
+    && value.recommendedWorkflowSkills.every(isWorkflowSkillRecommendation);
+}
+
+function isWorkflowSkillRecommendation(value: unknown): value is WorkflowSkillRecommendation {
+  return isRecord(value)
+    && typeof value.id === "string"
+    && typeof value.name === "string"
+    && typeof value.useWhen === "string"
+    && isStringArray(value.guardrails);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

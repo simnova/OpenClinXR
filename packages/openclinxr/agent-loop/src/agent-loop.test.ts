@@ -445,6 +445,9 @@ describe("agent-loop synthesis planning", () => {
       nextActions: expect.arrayContaining([
         expect.objectContaining({ actionType: "close_evidence_debt" }),
       ]),
+      recommendedWorkflowSkills: expect.arrayContaining([
+        expect.objectContaining({ id: "archunitts" }),
+      ]),
     });
     expect(packets.find((packet) => packet.stage === "legal_governance_review")).toMatchObject({
       retrievedMemoryEntries: expect.arrayContaining([

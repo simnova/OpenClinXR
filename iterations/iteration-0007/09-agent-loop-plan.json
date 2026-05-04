@@ -5158,6 +5158,18 @@
             "technical_feasibility"
           ]
         }
+      ],
+      "recommendedWorkflowSkills": [
+        {
+          "id": "archunitts",
+          "name": "ArchUnitTS",
+          "sourceUrl": "https://github.com/LukasNiessen/ArchUnitTS",
+          "useWhen": "Use to turn architecture decisions into executable package, import, and dependency-boundary checks.",
+          "guardrails": [
+            "Prefer narrow rules with clear ownership and low false-positive risk.",
+            "Keep rules in package-local tests so pnpm verify and Turbo package tasks enforce them."
+          ]
+        }
       ]
     },
     {
@@ -5204,7 +5216,8 @@
           "supersedes": []
         }
       ],
-      "nextActions": []
+      "nextActions": [],
+      "recommendedWorkflowSkills": []
     },
     {
       "workOrderId": "iteration-0007-leadership-preflight",
@@ -5292,7 +5305,8 @@
             "technical_feasibility"
           ]
         }
-      ]
+      ],
+      "recommendedWorkflowSkills": []
     }
   ],
   "memoryRetrieval": {

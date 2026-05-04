@@ -173,6 +173,7 @@ export type AgentDispatchPacket = {
   dependsOnStages: WorkOrderStage[];
   retrievedMemoryEntries: AgentMemoryEntry[];
   nextActions: NextAction[];
+  recommendedWorkflowSkills: AgentWorkflowSkillRecommendation[];
 };
 
 export type BackgroundAgentTaskType =
@@ -518,6 +519,7 @@ export function createAgentDispatchPackets(plan: AgentLoopPlan, options: { memor
       dependsOnStages: order.dependsOnStages,
       retrievedMemoryEntries: [...memory.values()].sort(compareMemoryEntries).slice(0, memoryLimit),
       nextActions,
+      recommendedWorkflowSkills: recommendWorkflowSkillsForWorkOrder(order),
     };
   });
 }
@@ -608,7 +610,7 @@ export function recommendWorkflowSkillsForWorkOrder(
     });
   }
 
-  if (matchesAny(text, ["turbo", "turborepo", "monorepo", "package task", "package-task", "cache", "affected", "ci"])) {
+  if (matchesAny(text, ["turbo", "turborepo", "monorepo", "package task", "package-task", "cache", "affected", "ci pipeline", "continuous integration"])) {
     recommendations.push({
       id: "turborepo-skill",
       name: "Turborepo Skill",
@@ -621,7 +623,7 @@ export function recommendWorkflowSkillsForWorkOrder(
     });
   }
 
-  if (matchesAny(text, ["ant design", "antd", "admin ui", "component", "table", "form", "token", "design system"])) {
+  if (matchesAny(text, ["ant design", "antd", "admin ui", "component props", "table", "form", "design token", "design system", "semantic class"])) {
     recommendations.push({
       id: "ant-design-cli-skill",
       name: "Ant Design CLI Skill",
@@ -646,7 +648,7 @@ export function recommendWorkflowSkillsForWorkOrder(
     });
   }
 
-  if (order.dimensions.includes("architecture_coherence") || matchesAny(text, ["architecture", "boundary", "import", "cycle", "archunit"])) {
+  if (order.dimensions.includes("architecture_coherence") || matchesAny(text, ["architecture", "boundary", "boundaries", "import", "cycle", "archunit"])) {
     recommendations.push({
       id: "archunitts",
       name: "ArchUnitTS",
