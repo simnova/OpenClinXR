@@ -95,13 +95,19 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
       variables?: unknown;
       operationName?: unknown;
     };
+    const graphqlOperationName = typeof body.operationName === "string" && body.operationName.length > 0 ? body.operationName : "anonymous";
+    const graphqlStarted = performance.now();
 
     if (typeof body.query !== "string" || body.query.length === 0) {
+      await recordGraphqlOperationSpan(telemetry, {
+        operationName: graphqlOperationName,
+        statusCode: 400,
+        durationMs: Number((performance.now() - graphqlStarted).toFixed(2)),
+        hasErrors: true,
+      });
       return context.json({ errors: [{ message: "query_required" }] }, 400);
     }
 
-    const graphqlOperationName = typeof body.operationName === "string" && body.operationName.length > 0 ? body.operationName : "anonymous";
-    const graphqlStarted = performance.now();
     const result = await executeAdminGraphql(
       {
         query: body.query,

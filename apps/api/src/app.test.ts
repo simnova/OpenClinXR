@@ -95,6 +95,46 @@ describe("OpenClinXR API shell", () => {
     expect(JSON.stringify(documents)).not.toContain("hiddenFacts");
   });
 
+  it("records sanitized admin GraphQL telemetry for malformed requests", async () => {
+    const telemetry = createInMemoryTelemetryRecorder();
+    const app = createApiApp(undefined, {}, { telemetry });
+    const response = await app.request("/admin/graphql", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        operationName: "CreateStationRunQueueSnapshot",
+        variables: {
+          input: {
+            snapshotId: "queue_snapshot_should_not_leak",
+          },
+        },
+      }),
+    });
+
+    expect(response.status).toBe(400);
+    await expect(json(response)).resolves.toEqual({ errors: [{ message: "query_required" }] });
+    expect(telemetry.spans()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: openClinXrSpanNames.apiRoute,
+          attributes: expect.objectContaining({
+            [telemetryAttributeNames.routeId]: "admin-graphql-execute",
+          }),
+          statusCode: 400,
+        }),
+        expect.objectContaining({
+          name: openClinXrSpanNames.graphqlOperation,
+          attributes: expect.objectContaining({
+            [telemetryAttributeNames.graphqlOperationName]: "CreateStationRunQueueSnapshot",
+          }),
+          statusCode: 400,
+          errorType: "graphql_errors",
+        }),
+      ]),
+    );
+    expect(JSON.stringify(telemetry.spans())).not.toContain("queue_snapshot_should_not_leak");
+  });
+
   it("executes admin GraphQL station run queue snapshot operations", async () => {
     const telemetry = createInMemoryTelemetryRecorder();
     const savedQueueSnapshots: ApiStationRunQueueSnapshot[] = [];
