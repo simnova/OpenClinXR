@@ -274,6 +274,7 @@ Optional isolated spike:
 
 Validation:
 
+- `pnpm iwsdk:verify`
 - `pnpm --filter @openclinxr/iwsdk-spike test`
 - `pnpm --filter @openclinxr/iwsdk-spike typecheck`
 - `pnpm --filter @openclinxr/architecture-rules test`

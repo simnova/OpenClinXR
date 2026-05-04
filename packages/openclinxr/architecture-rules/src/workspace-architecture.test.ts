@@ -40,6 +40,19 @@ describe("workspace architecture rules", () => {
     expect(rootPackage.scripts?.test).not.toContain("pnpm -r");
   });
 
+  it("exposes IWSDK spike verification as an explicit opt-in lane outside the default verify gate", () => {
+    const rootPackage = JSON.parse(readFileSync(join(workspaceRoot, "package.json"), "utf8")) as {
+      scripts?: Record<string, string>;
+    };
+
+    expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm --filter @openclinxr/iwsdk-spike typecheck");
+    expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm --filter @openclinxr/iwsdk-spike test");
+    expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm --filter @openclinxr/architecture-rules typecheck");
+    expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm --filter @openclinxr/architecture-rules test");
+    expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm agent:sources");
+    expect(rootPackage.scripts?.verify).not.toContain("iwsdk:verify");
+  });
+
   it("keeps Turborepo cache artifacts out of tracked workspace files", () => {
     const trackedFiles = execFileSync("git", ["ls-files"], { cwd: workspaceRoot, encoding: "utf8" })
       .split("\n")
