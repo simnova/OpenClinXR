@@ -279,6 +279,7 @@ Validation:
 
 - `pnpm iwsdk:preinstall`
 - `pnpm iwsdk:browser:evidence -- --input path/to/iwsdk-browser-evidence.json`
+- `pnpm iwsdk:evidence`
 - `pnpm iwsdk:verify`
 - `pnpm --filter @openclinxr/iwsdk-spike test`
 - `pnpm --filter @openclinxr/iwsdk-spike typecheck`

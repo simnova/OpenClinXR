@@ -55,6 +55,8 @@ The same planning package now exposes `buildIwsdkAiModeProfiles()` and `buildIws
 
 `evaluateIwsdkAgentToolingEvidence()` is the aggregate readiness check for the future sidecar MCP lane. It blocks readiness if adapter sync is missing, the tool inventory is not 32, required MCP categories or minimal smoke tools are absent, managed-browser evidence fails, or optional `iwsdk-reference`/`hzdb` actions appear in the run.
 
+`pnpm iwsdk:evidence` prints the current no-install evidence report. In the current contract-only state it exits nonzero by design, with JSON blockers for sidecar approval, agent tooling, and production runtime evidence.
+
 | IWSDK AI mode | Browser posture | DevUI | OpenClinXR use |
 | --- | --- | --- | --- |
 | `agent` | Headless fixed viewport with the normal browser open independently | Off | Default unattended Codex smoke for screenshots, console logs, scene hierarchy, and controller-input regression. |

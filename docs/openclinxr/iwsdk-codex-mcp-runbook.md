@@ -11,6 +11,8 @@ This runbook does not install IWSDK, does not modify `.codex/config.toml`, does 
 
 Current state: contract only. Do not create a no-install `apps/ui-xr-iwsdk-spike` scaffold, because that would look like runtime progress while proving no IWSDK behavior.
 
+Use `pnpm iwsdk:evidence` to print the current no-install evidence contract report. A nonzero exit is expected while the sidecar is contract-only; the JSON blockers are the evidence to carry into leadership review.
+
 ## Preconditions
 
 - `pnpm iwsdk:verify` passes, including its default `pnpm iwsdk:preinstall` JSON preflight.
