@@ -19,7 +19,8 @@
     "The package exposes a Codex MCP adapter template and docs/openclinxr/iwsdk-codex-mcp-runbook.md records the local-only setup and verification order.",
     "The package records the future apps/ui-xr-iwsdk-spike app as contract-only and non-runnable until operator install-scope approval, exact IWSDK versions, accepted transitive license posture, and the IWSDK policy lane are in place.",
     "The package exposes a pre-install package policy and evaluator that accepts exact-versioned first-slice @iwsdk/core and @iwsdk/xr-input proposals while flagging unpinned versions, blocked packages, blocked license expressions, and blocked transitive packages before workspace package manifests or lockfiles change.",
-    "The root workspace exposes pnpm iwsdk:preinstall as a JSON preflight report command that can score the default first-slice proposal or a proposal JSON file without installing IWSDK dependencies."
+    "The root workspace exposes pnpm iwsdk:preinstall as a JSON preflight report command that can score the default first-slice proposal or a proposal JSON file without installing IWSDK dependencies.",
+    "The root workspace runs the default pnpm iwsdk:preinstall report inside pnpm iwsdk:verify, and architecture tests enforce that the opt-in IWSDK lane continues to include the preinstall gate while staying outside the default pnpm verify script."
   ],
   "claims_not_supported": [
     "That IWSDK has been installed as a production or spike app dependency in the main workspace.",

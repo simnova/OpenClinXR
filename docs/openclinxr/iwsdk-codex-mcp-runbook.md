@@ -13,7 +13,7 @@ Current state: contract only. Do not create a no-install `apps/ui-xr-iwsdk-spike
 
 ## Preconditions
 
-- `pnpm iwsdk:verify` passes.
+- `pnpm iwsdk:verify` passes, including its default `pnpm iwsdk:preinstall` JSON preflight.
 - `evaluateIwsdkPreInstallPackageSelection()` reports no blockers for the proposed IWSDK sidecar dependency list before any `pnpm add` changes the workspace lockfile.
 - `pnpm iwsdk:preinstall -- --proposal path/to/proposal.json` records a ready JSON verdict for the exact package proposal, including required package-manager controls.
 - `apps/ui-xr-iwsdk-spike` exists and is intentionally outside production runtime paths.
