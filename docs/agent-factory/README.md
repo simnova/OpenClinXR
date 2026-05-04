@@ -46,6 +46,10 @@ pnpm agent:verify
 `pnpm agent:risks` prints open critical risks and writes `.agent-factory/risk-report.json` with open-risk rollups by severity, iteration, and owner.
 `pnpm agent:maturity` writes `.agent-factory/maturity-report.json` with selected scorecards, weighted deltas, blockers, and leadership quality-bar readiness.
 
+## Background Agent Models
+
+Use `docs/agent-factory/model-assignment-policy.md` and the `packages/openclinxr/agent-loop` recommendation helpers when assigning background agents. `gpt-5.4-mini` is for bounded scouting, `gpt-5.4` is for ordinary execution and specialist review, and `gpt-5.5` with extra-high reasoning is reserved for adversarial or leadership synthesis.
+
 ## Quality Bar
 
 The plan is not mature until it has:

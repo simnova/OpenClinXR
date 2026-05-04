@@ -6,6 +6,8 @@ import {
   defaultAgentLoopRoster,
   evaluateMaturityDelta,
   normalizeLegacyScorecard,
+  recommendAgentModelForWorkOrder,
+  recommendBackgroundAgentModel,
   serializeAgentLoopPlan,
   type AgentMemoryEntry,
   type IterationScorecard,
@@ -247,6 +249,42 @@ describe("agent-loop synthesis planning", () => {
     expect(plan.workOrders.find((order) => order.stage === "leadership_preflight")?.assignedAgentIds).toEqual(
       expect.arrayContaining(["cto", "chief-medical-officer", "chief-psychometrician", "general-counsel"]),
     );
+  });
+
+  it("recommends appropriately sized models for background agent work", () => {
+    const plan = createAgentLoopPlan({
+      iterationId: "iteration-0008",
+      candidatePlanTitle: "Model-aware dispatch",
+      scorecard: scorecard(),
+      memoryEntries: [],
+      leadershipThreshold: 4,
+    });
+
+    expect(recommendBackgroundAgentModel({ taskType: "bounded_scout" })).toMatchObject({
+      model: "gpt-5.4-mini",
+      reasoningEffort: "low",
+      policyTier: "fast_bounded",
+    });
+    expect(recommendBackgroundAgentModel({ taskType: "leadership_synthesis" })).toMatchObject({
+      model: "gpt-5.5",
+      reasoningEffort: "xhigh",
+      policyTier: "frontier_thinking",
+    });
+    expect(recommendAgentModelForWorkOrder(plan.workOrders.find((order) => order.stage === "core_revision")!)).toMatchObject({
+      model: "gpt-5.4",
+      reasoningEffort: "medium",
+      policyTier: "standard_execution",
+    });
+    expect(recommendAgentModelForWorkOrder(plan.workOrders.find((order) => order.stage === "physician_specialty_review")!)).toMatchObject({
+      model: "gpt-5.4",
+      reasoningEffort: "high",
+      policyTier: "expert_review",
+    });
+    expect(recommendAgentModelForWorkOrder(plan.workOrders.find((order) => order.stage === "adversarial_counterplan")!)).toMatchObject({
+      model: "gpt-5.5",
+      reasoningEffort: "xhigh",
+      policyTier: "frontier_thinking",
+    });
   });
 
   it("keeps specialist-owned blocker actions tied to scored dimensions after the plan clears low score thresholds", () => {

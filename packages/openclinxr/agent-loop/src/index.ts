@@ -175,6 +175,30 @@ export type AgentDispatchPacket = {
   nextActions: NextAction[];
 };
 
+export type BackgroundAgentTaskType =
+  | "bounded_scout"
+  | "implementation_worker"
+  | "specialist_review"
+  | "adversarial_review"
+  | "leadership_preflight"
+  | "leadership_synthesis";
+
+export type BackgroundAgentModelName = "gpt-5.4-mini" | "gpt-5.4" | "gpt-5.5";
+export type BackgroundAgentReasoningEffort = "low" | "medium" | "high" | "xhigh";
+export type BackgroundAgentPolicyTier = "fast_bounded" | "standard_execution" | "expert_review" | "frontier_thinking";
+
+export type BackgroundAgentModelRecommendation = {
+  taskType: BackgroundAgentTaskType;
+  model: BackgroundAgentModelName;
+  reasoningEffort: BackgroundAgentReasoningEffort;
+  policyTier: BackgroundAgentPolicyTier;
+  rationale: string;
+};
+
+export type RecommendBackgroundAgentModelInput = {
+  taskType: BackgroundAgentTaskType;
+};
+
 export type CreateAgentLoopPlanInput = {
   iterationId: string;
   candidatePlanTitle: string;
@@ -481,6 +505,68 @@ export function createAgentDispatchPackets(plan: AgentLoopPlan, options: { memor
       nextActions,
     };
   });
+}
+
+export function recommendBackgroundAgentModel(input: RecommendBackgroundAgentModelInput): BackgroundAgentModelRecommendation {
+  switch (input.taskType) {
+    case "bounded_scout":
+      return {
+        taskType: input.taskType,
+        model: "gpt-5.4-mini",
+        reasoningEffort: "low",
+        policyTier: "fast_bounded",
+        rationale: "Use for read-only scouting, narrow gap checks, and quick sidecar review while the main thread keeps the critical path.",
+      };
+    case "implementation_worker":
+      return {
+        taskType: input.taskType,
+        model: "gpt-5.4",
+        reasoningEffort: "medium",
+        policyTier: "standard_execution",
+        rationale: "Use for bounded code or documentation slices with clear ownership and ordinary integration risk.",
+      };
+    case "specialist_review":
+      return {
+        taskType: input.taskType,
+        model: "gpt-5.4",
+        reasoningEffort: "high",
+        policyTier: "expert_review",
+        rationale: "Use for clinical, legal, psychometric, security, or architecture review that needs more depth but not full frontier synthesis.",
+      };
+    case "leadership_preflight":
+      return {
+        taskType: input.taskType,
+        model: "gpt-5.5",
+        reasoningEffort: "high",
+        policyTier: "frontier_thinking",
+        rationale: "Use for cross-domain blocker triage before senior leadership approval is appropriate.",
+      };
+    case "adversarial_review":
+    case "leadership_synthesis":
+      return {
+        taskType: input.taskType,
+        model: "gpt-5.5",
+        reasoningEffort: "xhigh",
+        policyTier: "frontier_thinking",
+        rationale: "Reserve GPT-5.5 extra-high reasoning for adversarial or leadership synthesis where the work is primarily hard thinking across tradeoffs.",
+      };
+  }
+}
+
+export function recommendAgentModelForWorkOrder(order: Pick<AgentWorkOrder, "stage">): BackgroundAgentModelRecommendation {
+  switch (order.stage) {
+    case "core_revision":
+      return recommendBackgroundAgentModel({ taskType: "implementation_worker" });
+    case "physician_specialty_review":
+    case "legal_governance_review":
+      return recommendBackgroundAgentModel({ taskType: "specialist_review" });
+    case "adversarial_counterplan":
+      return recommendBackgroundAgentModel({ taskType: "adversarial_review" });
+    case "leadership_preflight":
+      return recommendBackgroundAgentModel({ taskType: "leadership_preflight" });
+    case "leadership_review":
+      return recommendBackgroundAgentModel({ taskType: "leadership_synthesis" });
+  }
 }
 
 export function normalizeLegacyScorecard(scorecard: LegacyScorecard): IterationScorecard {
