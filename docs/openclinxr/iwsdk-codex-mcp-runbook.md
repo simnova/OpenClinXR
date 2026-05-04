@@ -73,6 +73,14 @@ Evidence to record:
 
 `packages/openclinxr/iwsdk-spike` exposes `buildIwsdkManagedBrowserEvidenceContract()` and `evaluateIwsdkManagedBrowserEvidence()` so browser-mode claims are scored separately from generic MCP readiness.
 
+Score a captured evidence JSON file with:
+
+```bash
+pnpm iwsdk:browser:evidence -- --input path/to/iwsdk-browser-evidence.json --output docs/openclinxr/iwsdk-browser-evidence-YYYY-MM-DD.json
+```
+
+The checker exits nonzero when the selected mode's browser evidence is incomplete or contradictory, and prints explicit blockers in JSON.
+
 For `agent` mode, a ready report must record the runtime URL, managed-browser readiness, managed session id, normal browser opened state, normal session id, different managed/normal session ids, fixed screenshot size, managed DevUI off, and normal-browser DevUI on. This preserves the source-backed distinction that unattended agent work happens in a managed headless Playwright browser while manual development can continue in a separate normal browser XR session.
 
 For `oversight` mode, a ready report must record a visible Playwright managed session with DevUI off and no automatic normal browser. For `collaborate` mode, a ready report must record a visible Playwright managed session with DevUI on and no automatic normal browser.
