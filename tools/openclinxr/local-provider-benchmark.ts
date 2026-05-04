@@ -2,6 +2,7 @@ import { execFile } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { performance } from "node:perf_hooks";
+import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
@@ -11,16 +12,16 @@ type CliOptions = {
   envFilePath?: string;
 };
 
-type BenchmarkStatus = "passed" | "not_configured" | "blocked";
+export type BenchmarkStatus = "passed" | "not_configured" | "blocked";
 
-type BenchmarkResult = {
+export type BenchmarkResult = {
   status: BenchmarkStatus;
   latencyMs: number | null;
   blockers: string[];
   metrics: Record<string, number | string | boolean | null>;
 };
 
-type LocalProviderBenchmarkReport = {
+export type LocalProviderBenchmarkReport = {
   generatedAt: string;
   policy: {
     cloudCallsAllowed: false;
@@ -41,12 +42,16 @@ type LocalProviderBenchmarkReport = {
 
 const localModelCommands = ["ollama", "llama-cli", "llama-server", "mlx_lm"] as const;
 const localVoiceCommands = ["vibevoice"] as const;
-const localProviderEnvKeys = new Set([
+const localModelCommandSet = new Set<string>(localModelCommands);
+const localVoiceCommandSet = new Set<string>(localVoiceCommands);
+const localProviderEnvKeys = [
   "OPENCLINXR_LOCAL_MODEL_RUNTIME",
   "OPENCLINXR_LOCAL_MODEL_ID",
   "OPENCLINXR_LOCAL_VOICE_RUNTIME",
   "OPENCLINXR_LOCAL_VOICE_ID",
-]);
+] as const;
+type LocalProviderEnvKey = (typeof localProviderEnvKeys)[number];
+const localProviderEnvKeySet = new Set<string>(localProviderEnvKeys);
 
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
@@ -100,6 +105,14 @@ function requireValue(args: string[], index: number, flag: string): string {
 
 async function loadEnvFile(filePath: string): Promise<void> {
   const content = await readFile(filePath, "utf8");
+  const values = parseLocalProviderEnvFileContent(content);
+  for (const [key, value] of Object.entries(values)) {
+    process.env[key] = value;
+  }
+}
+
+export function parseLocalProviderEnvFileContent(content: string): Partial<Record<LocalProviderEnvKey, string>> {
+  const values: Partial<Record<LocalProviderEnvKey, string>> = {};
   for (const line of content.split(/\r?\n/)) {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith("#")) {
@@ -111,11 +124,12 @@ async function loadEnvFile(filePath: string): Promise<void> {
       continue;
     }
     const key = assignment.slice(0, separator).trim();
-    if (!localProviderEnvKeys.has(key)) {
+    if (!localProviderEnvKeySet.has(key)) {
       continue;
     }
-    process.env[key] = unquoteEnvValue(assignment.slice(separator + 1).trim());
+    values[key as LocalProviderEnvKey] = unquoteEnvValue(assignment.slice(separator + 1).trim());
   }
+  return values;
 }
 
 function unquoteEnvValue(value: string): string {
@@ -126,12 +140,32 @@ function unquoteEnvValue(value: string): string {
 }
 
 async function buildReport(): Promise<LocalProviderBenchmarkReport> {
-  const [mockModel, mockVoice, localModel, localVoice] = await Promise.all([
+  const [mockModel, mockVoice, availableModelCommands, availableVoiceCommands] = await Promise.all([
     runMockModelBenchmark(),
     runMockVoiceBenchmark(),
-    inspectLocalModelBenchmarkReadiness(),
-    inspectLocalVoiceBenchmarkReadiness(),
+    availableCommandsMatching(localModelCommands),
+    availableCommandsMatching(localVoiceCommands),
   ]);
+  return buildLocalProviderBenchmarkReport({
+    mockModel,
+    mockVoice,
+    availableCommands: [...availableModelCommands, ...availableVoiceCommands],
+    env: process.env,
+  });
+}
+
+export function buildLocalProviderBenchmarkReport(input: {
+  generatedAt?: string;
+  availableCommands: readonly string[];
+  env?: Record<string, string | undefined>;
+  mockModel: BenchmarkResult;
+  mockVoice: BenchmarkResult;
+}): LocalProviderBenchmarkReport {
+  const mockModel = input.mockModel;
+  const mockVoice = input.mockVoice;
+  const env = input.env ?? {};
+  const localModel = inspectLocalModelBenchmarkReadiness(input.availableCommands, env);
+  const localVoice = inspectLocalVoiceBenchmarkReadiness(input.availableCommands, env);
   const deterministicMocksPassed = mockModel.status === "passed" && mockVoice.status === "passed";
   const localModelReadyToBenchmark = localModel.status === "passed";
   const localVoiceReadyToBenchmark = localVoice.status === "passed";
@@ -143,7 +177,7 @@ async function buildReport(): Promise<LocalProviderBenchmarkReport> {
   ];
 
   return {
-    generatedAt: new Date().toISOString(),
+    generatedAt: input.generatedAt ?? new Date().toISOString(),
     policy: {
       cloudCallsAllowed: false,
       modelDownloadsAllowed: false,
@@ -208,12 +242,12 @@ async function runMockVoiceBenchmark(): Promise<BenchmarkResult> {
   };
 }
 
-async function inspectLocalModelBenchmarkReadiness(): Promise<BenchmarkResult> {
-  const availableCommands = await availableCommandsMatching(localModelCommands);
-  const configuredRuntime = process.env.OPENCLINXR_LOCAL_MODEL_RUNTIME ?? "";
-  const configuredModel = process.env.OPENCLINXR_LOCAL_MODEL_ID ?? "";
+function inspectLocalModelBenchmarkReadiness(availableCommands: readonly string[], env: Record<string, string | undefined>): BenchmarkResult {
+  const availableModelCommands = availableCommands.filter((command) => localModelCommandSet.has(command));
+  const configuredRuntime = env.OPENCLINXR_LOCAL_MODEL_RUNTIME ?? "";
+  const configuredModel = env.OPENCLINXR_LOCAL_MODEL_ID ?? "";
   const blockers = [
-    availableCommands.length > 0 ? undefined : "no_ollama_llama_cpp_or_mlx_runtime_detected",
+    availableModelCommands.length > 0 ? undefined : "no_ollama_llama_cpp_or_mlx_runtime_detected",
     configuredRuntime ? undefined : "OPENCLINXR_LOCAL_MODEL_RUNTIME_not_set",
     configuredModel ? undefined : "OPENCLINXR_LOCAL_MODEL_ID_not_set",
   ].filter((blocker): blocker is string => typeof blocker === "string");
@@ -223,7 +257,7 @@ async function inspectLocalModelBenchmarkReadiness(): Promise<BenchmarkResult> {
     latencyMs: null,
     blockers,
     metrics: {
-      availableRuntimeCommands: availableCommands.join(",") || null,
+      availableRuntimeCommands: availableModelCommands.join(",") || null,
       configuredRuntime: configuredRuntime || null,
       configuredModel: configuredModel || null,
       executionAttempted: false,
@@ -231,12 +265,12 @@ async function inspectLocalModelBenchmarkReadiness(): Promise<BenchmarkResult> {
   };
 }
 
-async function inspectLocalVoiceBenchmarkReadiness(): Promise<BenchmarkResult> {
-  const availableCommands = await availableCommandsMatching(localVoiceCommands);
-  const configuredRuntime = process.env.OPENCLINXR_LOCAL_VOICE_RUNTIME ?? "";
-  const configuredVoice = process.env.OPENCLINXR_LOCAL_VOICE_ID ?? "";
+function inspectLocalVoiceBenchmarkReadiness(availableCommands: readonly string[], env: Record<string, string | undefined>): BenchmarkResult {
+  const availableVoiceCommands = availableCommands.filter((command) => localVoiceCommandSet.has(command));
+  const configuredRuntime = env.OPENCLINXR_LOCAL_VOICE_RUNTIME ?? "";
+  const configuredVoice = env.OPENCLINXR_LOCAL_VOICE_ID ?? "";
   const blockers = [
-    availableCommands.length > 0 ? undefined : "no_vibevoice_runtime_detected",
+    availableVoiceCommands.length > 0 ? undefined : "no_vibevoice_runtime_detected",
     configuredRuntime ? undefined : "OPENCLINXR_LOCAL_VOICE_RUNTIME_not_set",
     configuredVoice ? undefined : "OPENCLINXR_LOCAL_VOICE_ID_not_set",
   ].filter((blocker): blocker is string => typeof blocker === "string");
@@ -246,7 +280,7 @@ async function inspectLocalVoiceBenchmarkReadiness(): Promise<BenchmarkResult> {
     latencyMs: null,
     blockers,
     metrics: {
-      availableRuntimeCommands: availableCommands.join(",") || null,
+      availableRuntimeCommands: availableVoiceCommands.join(",") || null,
       configuredRuntime: configuredRuntime || null,
       configuredVoice: configuredVoice || null,
       executionAttempted: false,
@@ -275,4 +309,6 @@ function elapsedMs(started: number): number {
   return Number((performance.now() - started).toFixed(2));
 }
 
-await main();
+if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
+  await main();
+}
