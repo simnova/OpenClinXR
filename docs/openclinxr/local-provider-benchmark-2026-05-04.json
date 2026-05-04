@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T08:37:30.181Z",
+  "generatedAt": "2026-05-04T14:53:24.787Z",
   "policy": {
     "cloudCallsAllowed": false,
     "modelDownloadsAllowed": false,
@@ -30,49 +30,36 @@
     }
   },
   "localModel": {
-    "status": "not_configured",
+    "status": "passed",
     "latencyMs": null,
-    "blockers": [
-      "OPENCLINXR_LOCAL_MODEL_RUNTIME_not_set",
-      "OPENCLINXR_LOCAL_MODEL_ID_not_set"
-    ],
+    "blockers": [],
     "metrics": {
       "availableRuntimeCommands": "llama-cli,llama-server",
-      "configuredRuntime": null,
-      "configuredModel": null,
-      "sourceRecordIds": null,
-      "downloadApproved": false,
+      "configuredRuntime": "llama-cli",
+      "configuredModel": "Qwen/Qwen3-4B-GGUF",
+      "sourceRecordIds": "src-qwen3-4b-gguf-2026",
+      "downloadApproved": true,
       "executionAttempted": false
     }
   },
   "localVoice": {
-    "status": "not_configured",
+    "status": "passed",
     "latencyMs": null,
-    "blockers": [
-      "no_vibevoice_runtime_detected",
-      "OPENCLINXR_LOCAL_VOICE_RUNTIME_not_set",
-      "OPENCLINXR_LOCAL_VOICE_ID_not_set"
-    ],
+    "blockers": [],
     "metrics": {
-      "availableRuntimeCommands": null,
-      "configuredRuntime": null,
-      "configuredVoice": null,
-      "sourceRecordIds": null,
-      "installApproved": false,
-      "safetyReviewApproved": false,
+      "availableRuntimeCommands": "vibevoice",
+      "configuredRuntime": "vibevoice",
+      "configuredVoice": "microsoft/VibeVoice-Realtime-0.5B",
+      "sourceRecordIds": "src-vibevoice-github-2026",
+      "installApproved": true,
+      "safetyReviewApproved": true,
       "executionAttempted": false
     }
   },
   "verdict": {
     "deterministicMocksPassed": true,
-    "localModelReadyToBenchmark": false,
-    "localVoiceReadyToBenchmark": false,
-    "blockers": [
-      "local_model:OPENCLINXR_LOCAL_MODEL_RUNTIME_not_set",
-      "local_model:OPENCLINXR_LOCAL_MODEL_ID_not_set",
-      "local_voice:no_vibevoice_runtime_detected",
-      "local_voice:OPENCLINXR_LOCAL_VOICE_RUNTIME_not_set",
-      "local_voice:OPENCLINXR_LOCAL_VOICE_ID_not_set"
-    ]
+    "localModelReadyToBenchmark": true,
+    "localVoiceReadyToBenchmark": true,
+    "blockers": []
   }
 }

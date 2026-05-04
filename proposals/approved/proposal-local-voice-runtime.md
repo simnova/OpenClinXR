@@ -1,6 +1,6 @@
 # Proposal: Local Voice Runtime
 
-Status: Approved by Patrick on 2026-05-04 10:40:15 EDT; execution in progress as a local-only disabled research spike.
+Status: Approved by Patrick on 2026-05-04 10:40:15 EDT; first local-only disabled file-generation benchmark completed and recorded in `docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json`.
 
 ## Decision Needed
 

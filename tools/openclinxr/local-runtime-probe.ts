@@ -1,5 +1,7 @@
 import { execFile } from "node:child_process";
-import { mkdir, writeFile } from "node:fs/promises";
+import { constants as fsConstants } from "node:fs";
+import { access, mkdir, writeFile } from "node:fs/promises";
+import { homedir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
@@ -159,18 +161,41 @@ async function probeSystem(): Promise<Record<string, unknown>> {
 }
 
 async function probeCommand(spec: CommandSpec): Promise<CommandProbe> {
-  const commandPath = await runOptional("/usr/bin/which", [spec.command]);
+  const commandPath = await resolveProbeCommandPath(spec.command);
   if (!commandPath) {
     return { command: spec.command, status: "missing" };
   }
 
-  const version = await runOptional(spec.command, [...spec.args]);
+  const version = await runOptional(commandPath, [...spec.args]);
   return {
     command: spec.command,
     status: "available",
     path: commandPath,
     version: selectCommandVersionOutput(version, spec.versionLinePattern, spec.firstLineOnly),
   };
+}
+
+async function resolveProbeCommandPath(command: string): Promise<string> {
+  const commandPath = await runOptional("/usr/bin/which", [command]);
+  if (commandPath) {
+    return commandPath;
+  }
+
+  const userLocalPath = buildUserLocalCommandCandidatePath(homedir(), command);
+  return (await isExecutableFile(userLocalPath)) ? userLocalPath : "";
+}
+
+export function buildUserLocalCommandCandidatePath(homeDirectory: string, command: string): string {
+  return path.join(homeDirectory, ".local/bin", command);
+}
+
+async function isExecutableFile(filePath: string): Promise<boolean> {
+  try {
+    await access(filePath, fsConstants.X_OK);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function selectCommandVersionOutput(output: string, versionLinePattern?: RegExp, firstLineOnly = false): string {

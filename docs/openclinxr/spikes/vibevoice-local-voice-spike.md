@@ -84,10 +84,9 @@ Patrick approved [proposal-local-voice-runtime.md](../../../proposals/approved/p
 
 ## Open Blockers
 
-- `vibevoice` local wrapper availability is pending installation.
-- `OPENCLINXR_LOCAL_VOICE_RUNTIME` is pending private env setup.
-- `OPENCLINXR_LOCAL_VOICE_ID` is pending private env setup.
-- `OPENCLINXR_LOCAL_VOICE_INSTALL_APPROVED` is pending private env setup.
-- `OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED` is pending private env setup.
-- First-audio benchmark is pending.
+- `vibevoice` local wrapper availability is resolved by `/Users/patrick/.local/bin/vibevoice`.
+- Private local env setup is resolved in ignored `.env.openclinxr.local`.
+- First-audio file generation is recorded in `docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json`.
+- Live streaming first-audible playback latency remains unproven.
+- WebXR playback, Quest headset latency, and turn-taking integration remain unproven.
 - No legal, safety, or clinical simulation QA signoff exists.

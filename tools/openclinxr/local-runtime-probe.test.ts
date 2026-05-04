@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildLocalRuntimeProbeReport,
   LOCAL_RUNTIME_COMMAND_TIMEOUT_MS,
+  buildUserLocalCommandCandidatePath,
   localRuntimeCommandNames,
   selectCommandVersionOutput,
   type CommandProbe,
@@ -26,6 +27,10 @@ describe("local runtime probe gates", () => {
     ].join("\n");
 
     expect(selectCommandVersionOutput(output, /^version:/)).toBe("version: 9010 (d05fe1d7d)");
+  });
+
+  it("knows the approved user-local wrapper fallback path", () => {
+    expect(buildUserLocalCommandCandidatePath("/Users/patrick", "vibevoice")).toBe("/Users/patrick/.local/bin/vibevoice");
   });
 
   it("marks Quest USB and asset pipeline ready while keeping configured runtimes blocked until benchmarked", () => {

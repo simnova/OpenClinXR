@@ -13,7 +13,7 @@
     {
       "evidence_id": "local_runtime_probe",
       "file": "docs/openclinxr/local-runtime-probe-2026-05-04.json",
-      "generated_at": "2026-05-04T14:37:38.493Z",
+      "generated_at": "2026-05-04T14:52:24.531Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -32,7 +32,7 @@
       "evidence_id": "blender_asset_bake_smoke",
       "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T05:06:10.560Z",
-      "age_hours": 9,
+      "age_hours": 10,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -40,8 +40,26 @@
     {
       "evidence_id": "local_provider_benchmark",
       "file": "docs/openclinxr/local-provider-benchmark-2026-05-04.json",
-      "generated_at": "2026-05-04T08:37:30.181Z",
-      "age_hours": 6,
+      "generated_at": "2026-05-04T14:53:24.787Z",
+      "age_hours": 0,
+      "max_age_hours": 24,
+      "status": "fresh",
+      "blockers": []
+    },
+    {
+      "evidence_id": "local_model_runtime_benchmark",
+      "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json",
+      "generated_at": "2026-05-04T14:57:50Z",
+      "age_hours": 0,
+      "max_age_hours": 24,
+      "status": "fresh",
+      "blockers": []
+    },
+    {
+      "evidence_id": "local_voice_runtime_benchmark",
+      "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json",
+      "generated_at": "2026-05-04T15:01:12Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -82,7 +100,7 @@
   },
   "local_runtime_probe": {
     "file": "docs/openclinxr/local-runtime-probe-2026-05-04.json",
-    "generated_at": "2026-05-04T14:37:38.493Z",
+    "generated_at": "2026-05-04T14:52:24.531Z",
     "gates": {
       "questUsb": {
         "status": "ready",
@@ -101,9 +119,9 @@
         ]
       },
       "localVoice": {
-        "status": "not_configured",
+        "status": "blocked",
         "blockers": [
-          "no_vibevoice_runtime_detected"
+          "voice_model_not_selected_or_benchmarked"
         ]
       },
       "assetPipeline": {
@@ -158,7 +176,7 @@
   },
   "local_provider_benchmark": {
     "file": "docs/openclinxr/local-provider-benchmark-2026-05-04.json",
-    "generated_at": "2026-05-04T08:37:30.181Z",
+    "generated_at": "2026-05-04T14:53:24.787Z",
     "mock_model": {
       "status": "passed",
       "latencyMs": 0.01,
@@ -184,49 +202,162 @@
       }
     },
     "local_model": {
-      "status": "not_configured",
+      "status": "passed",
       "latencyMs": null,
-      "blockers": [
-        "OPENCLINXR_LOCAL_MODEL_RUNTIME_not_set",
-        "OPENCLINXR_LOCAL_MODEL_ID_not_set"
-      ],
+      "blockers": [],
       "metrics": {
         "availableRuntimeCommands": "llama-cli,llama-server",
-        "configuredRuntime": null,
-        "configuredModel": null,
-        "sourceRecordIds": null,
-        "downloadApproved": false,
+        "configuredRuntime": "llama-cli",
+        "configuredModel": "Qwen/Qwen3-4B-GGUF",
+        "sourceRecordIds": "src-qwen3-4b-gguf-2026",
+        "downloadApproved": true,
         "executionAttempted": false
       }
     },
     "local_voice": {
-      "status": "not_configured",
+      "status": "passed",
       "latencyMs": null,
-      "blockers": [
-        "no_vibevoice_runtime_detected",
-        "OPENCLINXR_LOCAL_VOICE_RUNTIME_not_set",
-        "OPENCLINXR_LOCAL_VOICE_ID_not_set"
-      ],
+      "blockers": [],
       "metrics": {
-        "availableRuntimeCommands": null,
-        "configuredRuntime": null,
-        "configuredVoice": null,
-        "sourceRecordIds": null,
-        "installApproved": false,
-        "safetyReviewApproved": false,
+        "availableRuntimeCommands": "vibevoice",
+        "configuredRuntime": "vibevoice",
+        "configuredVoice": "microsoft/VibeVoice-Realtime-0.5B",
+        "sourceRecordIds": "src-vibevoice-github-2026",
+        "installApproved": true,
+        "safetyReviewApproved": true,
         "executionAttempted": false
       }
     },
     "verdict": {
       "deterministicMocksPassed": true,
-      "localModelReadyToBenchmark": false,
-      "localVoiceReadyToBenchmark": false,
-      "blockers": [
-        "local_model:OPENCLINXR_LOCAL_MODEL_RUNTIME_not_set",
-        "local_model:OPENCLINXR_LOCAL_MODEL_ID_not_set",
-        "local_voice:no_vibevoice_runtime_detected",
-        "local_voice:OPENCLINXR_LOCAL_VOICE_RUNTIME_not_set",
-        "local_voice:OPENCLINXR_LOCAL_VOICE_ID_not_set"
+      "localModelReadyToBenchmark": true,
+      "localVoiceReadyToBenchmark": true,
+      "blockers": []
+    }
+  },
+  "local_model_runtime_benchmark": {
+    "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json",
+    "generated_at": "2026-05-04T14:57:50Z",
+    "status": "passed_with_caveats",
+    "runtime": {
+      "command": "llama-completion",
+      "fallbackCommandUsed": "llama-cli",
+      "backend": "llama.cpp b9010-d05fe1d7d",
+      "modelId": "Qwen/Qwen3-4B-GGUF",
+      "modelFile": "Qwen3-4B-Q4_K_M.gguf",
+      "modelCacheLabel": "Qwen/Qwen3-4B-GGUF:Q4_K_M",
+      "sourceRecordIds": [
+        "src-qwen3-4b-gguf-2026",
+        "src-qwen-local-docs-2026",
+        "src-llama-cpp-homebrew-2026"
+      ],
+      "device": "MTL0 (Apple M1 Max)",
+      "ctxSize": 2048,
+      "predictTokensRequested": 128,
+      "temperature": 0,
+      "topP": 1
+    },
+    "metrics": {
+      "loadTimeMs": 558.84,
+      "promptEvalTimeMs": 177.23,
+      "promptEvalTokens": 124,
+      "promptEvalTokensPerSecond": 699.66,
+      "evalTimeMs": 1345.59,
+      "generatedRuns": 85,
+      "generationTokensPerSecond": 63.17,
+      "totalRuntimeMs": 1543.52,
+      "wallClockMs": 3670,
+      "approxTimeToFirstGeneratedTokenMs": 751.9,
+      "maxResidentSetBytes": 2925461504,
+      "peakMemoryFootprintBytes": 369838768,
+      "metalModelBufferMiB": 2375.91,
+      "metalKvBufferMiB": 288,
+      "metalComputeBufferMiB": 301.75
+    },
+    "output": {
+      "parsedJson": {
+        "candidate": "Qwen/Qwen3-4B-GGUF",
+        "triage_priority": "high",
+        "rationale": "Symptoms indicate possible acute myocardial infarction; ECG and emergent cardiac evaluation are critical for diagnosis and intervention",
+        "safety_flags": [
+          "hypotension",
+          "anxiety",
+          "chest pain",
+          "diaphoresis",
+          "nausea"
+        ]
+      },
+      "structuredOutputCaveats": [
+        "The model emitted a leading <think> marker before the JSON object even with reasoning disabled.",
+        "The JSON object was parsable, but safety_flags were clinical features rather than the requested guardrail labels.",
+        "A prior llama.cpp --json-schema attempt failed in the grammar sampler, so this pass used a prompt-only JSON constraint."
+      ],
+      "rawLogPath": "/Users/patrick/.cache/openclinxr/benchmarks/qwen3-4b-llama-completion-json2-2026-05-04.log",
+      "rawLogSha256": "6f6914ad679b4bee0a62bc9d7c77ad72d1825cb0db67d0037f9c71299a349fba",
+      "grammarFailureExcerptPath": "/Users/patrick/.cache/openclinxr/benchmarks/qwen3-4b-llama-cli-grammar-failure-2026-05-04.log"
+    },
+    "verdict": {
+      "passed": true,
+      "blockers": [],
+      "caveats": [
+        "Good enough for a local adapter latency smoke; not good enough for clinical actor quality or validated scoring.",
+        "Structured-output enforcement needs a follow-up grammar/schema spike before any autonomous planning or scoring dependency.",
+        "Hardware result is for this Apple M1 Max machine, not the target M4 Pro or M4 Max claim."
+      ]
+    }
+  },
+  "local_voice_runtime_benchmark": {
+    "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json",
+    "generated_at": "2026-05-04T15:01:12Z",
+    "status": "passed_with_caveats",
+    "runtime": {
+      "command": "/Users/patrick/.local/bin/vibevoice realtime-file",
+      "repository": "https://github.com/microsoft/VibeVoice.git",
+      "repositoryHead": "e73d1e17c3754f046352014856a922f8208fb5d3",
+      "modelId": "microsoft/VibeVoice-Realtime-0.5B",
+      "sourceRecordIds": [
+        "src-vibevoice-github-2026"
+      ],
+      "device": "mps",
+      "torchVersion": "2.11.0",
+      "transformersVersion": "4.51.3",
+      "pythonVenv": "/Users/patrick/.cache/openclinxr/vibevoice/.venv",
+      "huggingFaceCache": "/Users/patrick/.cache/openclinxr/huggingface",
+      "voicePreset": "Carter",
+      "voicePresetPath": "/Users/patrick/.cache/openclinxr/vibevoice/VibeVoice/demo/voices/streaming_model/en-Carter_man.pt"
+    },
+    "audio": {
+      "outputPath": "/Users/patrick/.cache/openclinxr/vibevoice/outputs/openclinxr-first-audio_generated.wav",
+      "sha256": "3796410a61b952be048430a5a16f2a21f7b5b9a73bb6380b2e8283ddd8334ac7",
+      "codec": "pcm_s16le",
+      "sampleRateHz": 24000,
+      "channels": 1,
+      "durationMs": 3466.667,
+      "sizeBytes": 166444,
+      "bitRate": 384101
+    },
+    "metrics": {
+      "wallClockMs": 118920,
+      "modelGenerationMs": 18170,
+      "audioDurationMs": 3466.667,
+      "realTimeFactor": 5.24,
+      "approxFirstSpeechTokenLatencyMs": 9000,
+      "prefillingTextTokens": 10,
+      "generatedSpeechTokens": 30,
+      "totalTokens": 356,
+      "maxResidentSetBytes": 6952583168,
+      "peakMemoryFootprintBytes": 9178091624,
+      "openclinxrCacheDiskFootprintGiB": 3.6,
+      "vibevoiceModelCacheFootprintGiB": 1.9
+    },
+    "verdict": {
+      "passed": true,
+      "blockers": [],
+      "caveats": [
+        "This measured file-based local generation, not WebXR playback or a live streaming websocket turn.",
+        "Approximate first speech-token latency came from the progress log; true first audible playback latency still needs an interactive streaming capture.",
+        "Real-time factor was 5.24x on this Apple M1 Max, so current local VibeVoice is not yet Quest-ready for live dialog.",
+        "Generated audio remains local-only and uncommitted because production, disclosure, retention, and clinical simulation QA are not approved."
       ]
     }
   },
@@ -365,7 +496,11 @@
         "asset_pipeline_blender_bake_smoke_passed",
         "asset_pipeline_gltf_pipeline_smoke_passed",
         "asset_pipeline_runtime_ready",
+        "local_model_ready_to_benchmark",
+        "local_model_runtime_benchmark_passed",
         "local_provider_mock_benchmarks_passed",
+        "local_voice_first_audio_benchmark_passed",
+        "local_voice_ready_to_benchmark",
         "quest_cdp_adb_device_recorded",
         "quest_cdp_generated_at_valid",
         "quest_cdp_user_agent_recorded",
@@ -375,13 +510,6 @@
         "quest_usb_ready"
       ],
       "blockers": [
-        "local_model:model_weights_not_selected_or_benchmarked",
-        "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_ID_not_set",
-        "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_RUNTIME_not_set",
-        "local_voice:no_vibevoice_runtime_detected",
-        "local_voice_benchmark:OPENCLINXR_LOCAL_VOICE_ID_not_set",
-        "local_voice_benchmark:OPENCLINXR_LOCAL_VOICE_RUNTIME_not_set",
-        "local_voice_benchmark:no_vibevoice_runtime_detected",
         "quest_cdp_frame_sample_incomplete",
         "quest_cdp_frame_sample_timed_out",
         "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
@@ -392,8 +520,8 @@
         "quest_sustained_frame_sample_not_complete"
       ],
       "blocker_summary": {
-        "total_blockers": 15,
-        "distinct_problem_count": 3,
+        "total_blockers": 8,
+        "distinct_problem_count": 1,
         "groups": [
           {
             "group_id": "quest_foreground_frame_pacing",
@@ -410,29 +538,6 @@
               "quest_sustained_frame_sample_not_complete"
             ],
             "next_step": "Review proposal-quest-foreground-performance-capture.md, then capture a foreground in-headset manual performance report and keep CDP hidden-page blockers until that report passes."
-          },
-          {
-            "group_id": "local_model_runtime",
-            "title": "Local model runtime benchmark",
-            "owner": "local-ai-inference-engineer",
-            "blockers": [
-              "local_model:model_weights_not_selected_or_benchmarked",
-              "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_ID_not_set",
-              "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_RUNTIME_not_set"
-            ],
-            "next_step": "Follow the approved proposals/approved/proposal-local-model-benchmark.md scope, set runtime and model environment variables privately, then rerun the local model benchmark."
-          },
-          {
-            "group_id": "local_voice_runtime",
-            "title": "Local voice runtime benchmark",
-            "owner": "voice-speech-engineer",
-            "blockers": [
-              "local_voice:no_vibevoice_runtime_detected",
-              "local_voice_benchmark:OPENCLINXR_LOCAL_VOICE_ID_not_set",
-              "local_voice_benchmark:OPENCLINXR_LOCAL_VOICE_RUNTIME_not_set",
-              "local_voice_benchmark:no_vibevoice_runtime_detected"
-            ],
-            "next_step": "Follow the approved proposals/approved/proposal-local-voice-runtime.md scope, configure one local voice runtime and voice ID privately, then record first-audio latency evidence."
           }
         ],
         "ungrouped_blockers": []
@@ -486,63 +591,33 @@
     },
     {
       "evidence_id": "evidence-leadership-0008-002",
-      "ready_to_resolve": false,
+      "ready_to_resolve": true,
       "satisfied_conditions": [
+        "local_model_ready_to_benchmark",
+        "local_model_runtime_benchmark_passed",
         "local_provider_mock_benchmarks_passed"
       ],
-      "blockers": [
-        "local_model:model_weights_not_selected_or_benchmarked",
-        "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_ID_not_set",
-        "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_RUNTIME_not_set"
-      ],
+      "blockers": [],
       "blocker_summary": {
-        "total_blockers": 3,
-        "distinct_problem_count": 1,
-        "groups": [
-          {
-            "group_id": "local_model_runtime",
-            "title": "Local model runtime benchmark",
-            "owner": "local-ai-inference-engineer",
-            "blockers": [
-              "local_model:model_weights_not_selected_or_benchmarked",
-              "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_ID_not_set",
-              "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_RUNTIME_not_set"
-            ],
-            "next_step": "Follow the approved proposals/approved/proposal-local-model-benchmark.md scope, set runtime and model environment variables privately, then rerun the local model benchmark."
-          }
-        ],
+        "total_blockers": 0,
+        "distinct_problem_count": 0,
+        "groups": [],
         "ungrouped_blockers": []
       }
     },
     {
       "evidence_id": "evidence-leadership-0008-003",
-      "ready_to_resolve": false,
+      "ready_to_resolve": true,
       "satisfied_conditions": [
-        "local_provider_mock_benchmarks_passed"
+        "local_provider_mock_benchmarks_passed",
+        "local_voice_first_audio_benchmark_passed",
+        "local_voice_ready_to_benchmark"
       ],
-      "blockers": [
-        "local_voice:no_vibevoice_runtime_detected",
-        "local_voice_benchmark:OPENCLINXR_LOCAL_VOICE_ID_not_set",
-        "local_voice_benchmark:OPENCLINXR_LOCAL_VOICE_RUNTIME_not_set",
-        "local_voice_benchmark:no_vibevoice_runtime_detected"
-      ],
+      "blockers": [],
       "blocker_summary": {
-        "total_blockers": 4,
-        "distinct_problem_count": 1,
-        "groups": [
-          {
-            "group_id": "local_voice_runtime",
-            "title": "Local voice runtime benchmark",
-            "owner": "voice-speech-engineer",
-            "blockers": [
-              "local_voice:no_vibevoice_runtime_detected",
-              "local_voice_benchmark:OPENCLINXR_LOCAL_VOICE_ID_not_set",
-              "local_voice_benchmark:OPENCLINXR_LOCAL_VOICE_RUNTIME_not_set",
-              "local_voice_benchmark:no_vibevoice_runtime_detected"
-            ],
-            "next_step": "Follow the approved proposals/approved/proposal-local-voice-runtime.md scope, configure one local voice runtime and voice ID privately, then record first-audio latency evidence."
-          }
-        ],
+        "total_blockers": 0,
+        "distinct_problem_count": 0,
+        "groups": [],
         "ungrouped_blockers": []
       }
     },

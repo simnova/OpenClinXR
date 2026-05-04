@@ -56,36 +56,19 @@ type BenchmarkGateReport = {
 };
 
 describe("benchmark gate report", () => {
-  it("summarizes duplicate raw blockers into leadership remediation groups", async () => {
+  it("keeps resolved local benchmark evidence out of leadership remediation groups", async () => {
     const report = JSON.parse(await readFile(".agent-factory/benchmark-gate-report.json", "utf8")) as BenchmarkGateReport;
     const gate = report.evidence_gates.find((candidate) => candidate.evidence_id === "evidence-leadership-0007-002");
 
-    expect(gate?.blockers).toEqual(expect.arrayContaining(["local_model:model_weights_not_selected_or_benchmarked"]));
+    expect(gate?.blockers).not.toEqual(expect.arrayContaining(["local_model:model_weights_not_selected_or_benchmarked"]));
+    expect(gate?.blockers).not.toEqual(expect.arrayContaining(["local_voice:voice_model_not_selected_or_benchmarked"]));
     const groups = gate?.blocker_summary?.groups ?? [];
 
     expect(groups.map((group) => group.group_id).sort()).toEqual([
-      "local_model_runtime",
-      "local_voice_runtime",
       "quest_foreground_frame_pacing",
     ]);
     expect(groups).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({
-          group_id: "local_model_runtime",
-          owner: "local-ai-inference-engineer",
-          blockers: expect.arrayContaining([
-            "local_model:model_weights_not_selected_or_benchmarked",
-            "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_ID_not_set",
-          ]),
-        }),
-        expect.objectContaining({
-          group_id: "local_voice_runtime",
-          owner: "voice-speech-engineer",
-          blockers: expect.arrayContaining([
-            "local_voice:no_vibevoice_runtime_detected",
-            "local_voice_benchmark:OPENCLINXR_LOCAL_VOICE_ID_not_set",
-          ]),
-        }),
         expect.objectContaining({
           group_id: "quest_foreground_frame_pacing",
           owner: "xr-systems-architect",
@@ -232,17 +215,19 @@ describe("benchmark gate report", () => {
       ]),
     }));
     expect(gatesById.get("evidence-leadership-0008-002")).toEqual(expect.objectContaining({
-      ready_to_resolve: false,
-      blockers: expect.arrayContaining([
-        "local_model:model_weights_not_selected_or_benchmarked",
-        "local_model_benchmark:OPENCLINXR_LOCAL_MODEL_ID_not_set",
+      ready_to_resolve: true,
+      blockers: [],
+      satisfied_conditions: expect.arrayContaining([
+        "local_model_ready_to_benchmark",
+        "local_model_runtime_benchmark_passed",
       ]),
     }));
     expect(gatesById.get("evidence-leadership-0008-003")).toEqual(expect.objectContaining({
-      ready_to_resolve: false,
-      blockers: expect.arrayContaining([
-        "local_voice:no_vibevoice_runtime_detected",
-        "local_voice_benchmark:OPENCLINXR_LOCAL_VOICE_ID_not_set",
+      ready_to_resolve: true,
+      blockers: [],
+      satisfied_conditions: expect.arrayContaining([
+        "local_voice_ready_to_benchmark",
+        "local_voice_first_audio_benchmark_passed",
       ]),
     }));
   });

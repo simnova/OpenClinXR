@@ -1,5 +1,7 @@
 import { execFile } from "node:child_process";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { constants as fsConstants } from "node:fs";
+import { access, mkdir, readFile, writeFile } from "node:fs/promises";
+import { homedir } from "node:os";
 import path from "node:path";
 import { performance } from "node:perf_hooks";
 import { pathToFileURL } from "node:url";
@@ -323,8 +325,31 @@ function inspectLocalVoiceBenchmarkReadiness(availableCommands: readonly string[
 }
 
 async function availableCommandsMatching(commands: readonly string[]): Promise<string[]> {
-  const probes = await Promise.all(commands.map(async (command) => ({ command, path: await runOptional("/usr/bin/which", [command]) })));
+  const probes = await Promise.all(commands.map(async (command) => ({ command, path: await resolveCommandPath(command) })));
   return probes.filter((probe) => probe.path).map((probe) => probe.command);
+}
+
+async function resolveCommandPath(command: string): Promise<string> {
+  const commandPath = await runOptional("/usr/bin/which", [command]);
+  if (commandPath) {
+    return commandPath;
+  }
+
+  const userLocalPath = buildUserLocalCommandCandidatePath(homedir(), command);
+  return (await isExecutableFile(userLocalPath)) ? userLocalPath : "";
+}
+
+export function buildUserLocalCommandCandidatePath(homeDirectory: string, command: string): string {
+  return path.join(homeDirectory, ".local/bin", command);
+}
+
+async function isExecutableFile(filePath: string): Promise<boolean> {
+  try {
+    await access(filePath, fsConstants.X_OK);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function runOptional(command: string, args: string[]): Promise<string> {

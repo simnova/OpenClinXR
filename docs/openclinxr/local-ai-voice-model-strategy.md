@@ -130,13 +130,13 @@ The benchmark harness should run without cloud services:
 
 First executable status:
 
-- `pnpm local:provider:benchmark -- --output docs/openclinxr/local-provider-benchmark-2026-05-04.json`
+- `pnpm local:provider:benchmark -- --env-file .env.openclinxr.local --output docs/openclinxr/local-provider-benchmark-2026-05-04.json`
 - Deterministic mock model benchmark passed with zero cost.
 - Deterministic mock voice benchmark passed with transcript and audio-chunk evidence.
-- Local model benchmark remains `not_configured` because `llama.cpp` is installed but `OPENCLINXR_LOCAL_MODEL_RUNTIME` / `OPENCLINXR_LOCAL_MODEL_ID` are unset and no model weights have been selected, downloaded, licensed, or benchmarked.
-- Local model candidate intake now accepts only source-backed first candidates: `Qwen/Qwen3-4B-GGUF` (`src-qwen3-4b-gguf-2026`) and `deepseek-ai/DeepSeek-R1-Distill-Qwen-7B` (`src-deepseek-r1-distill-qwen-2025`). Even those remain blocked until `OPENCLINXR_LOCAL_MODEL_DOWNLOAD_APPROVED=true`.
-- Local voice benchmark remains `not_configured` because no VibeVoice runtime is detected, `OPENCLINXR_LOCAL_VOICE_RUNTIME` / `OPENCLINXR_LOCAL_VOICE_ID` are unset, and the VibeVoice intake keeps runtime installation blocked until operator-approved install and safety/license review.
-- Local voice candidate intake now accepts only `microsoft/VibeVoice-Realtime-0.5B` (`src-vibevoice-github-2026`) and keeps it blocked until both `OPENCLINXR_LOCAL_VOICE_INSTALL_APPROVED=true` and `OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED=true`.
+- Local model candidate intake accepts only source-backed first candidates: `Qwen/Qwen3-4B-GGUF` (`src-qwen3-4b-gguf-2026`) and `deepseek-ai/DeepSeek-R1-Distill-Qwen-7B` (`src-deepseek-r1-distill-qwen-2025`).
+- `docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json` records the first approved real local Qwen GGUF benchmark through `llama.cpp`; it passes as a latency smoke but has structured-output caveats.
+- Local voice candidate intake accepts only `microsoft/VibeVoice-Realtime-0.5B` (`src-vibevoice-github-2026`).
+- `docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json` records the first approved local VibeVoice file-generation benchmark; it passes as a file-output smoke but is too slow for live Quest dialog and does not prove streaming playback latency.
 - The script explicitly records `cloudCallsAllowed: false`, `modelDownloadsAllowed: false`, and `localRuntimeExecutionAllowed: false`.
 
 Metrics:

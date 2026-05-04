@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T14:37:38.493Z",
+  "generatedAt": "2026-05-04T14:52:24.531Z",
   "system": {
     "macosVersion": "26.4.1",
     "macosBuild": "25E253",
@@ -13,7 +13,7 @@
       "filesystem": "/dev/disk3s1s1",
       "oneKBlocks": 3902665360,
       "used": 12257544,
-      "available": 2653542368,
+      "available": 2648890552,
       "capacity": "1%",
       "mountedOn": "/"
     }
@@ -91,7 +91,9 @@
     },
     {
       "command": "vibevoice",
-      "status": "missing"
+      "status": "available",
+      "path": "/Users/patrick/.local/bin/vibevoice",
+      "version": "vibevoice local wrapper for OpenClinXR approved VibeVoice-Realtime spike"
     },
     {
       "command": "gltf-transform",
@@ -161,9 +163,9 @@
       ]
     },
     "localVoice": {
-      "status": "not_configured",
+      "status": "blocked",
       "blockers": [
-        "no_vibevoice_runtime_detected"
+        "voice_model_not_selected_or_benchmarked"
       ]
     },
     "assetPipeline": {

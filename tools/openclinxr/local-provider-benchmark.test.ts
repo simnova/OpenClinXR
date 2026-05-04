@@ -1,11 +1,16 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildUserLocalCommandCandidatePath,
   buildLocalProviderBenchmarkReport,
   parseLocalProviderEnvFileContent,
   type BenchmarkResult,
 } from "./local-provider-benchmark.js";
 
 describe("local provider benchmark report", () => {
+  it("uses the same approved user-local wrapper fallback convention as the runtime probe", () => {
+    expect(buildUserLocalCommandCandidatePath("/Users/patrick", "vibevoice")).toBe("/Users/patrick/.local/bin/vibevoice");
+  });
+
   it("marks configured local model and voice runtimes as ready to benchmark without executing them", () => {
     const report = buildLocalProviderBenchmarkReport({
       generatedAt: "2026-05-04T00:00:00.000Z",

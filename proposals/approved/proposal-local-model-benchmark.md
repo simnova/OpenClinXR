@@ -1,6 +1,6 @@
 # Proposal: Local Model Benchmark
 
-Status: Approved by Patrick on 2026-05-04 10:40:15 EDT; execution in progress as a local-only benchmark.
+Status: Approved by Patrick on 2026-05-04 10:40:15 EDT; first local-only benchmark completed and recorded in `docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json`.
 
 ## Decision Needed
 

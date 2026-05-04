@@ -1,0 +1,86 @@
+{
+  "generatedAt": "2026-05-04T14:57:50Z",
+  "status": "passed_with_caveats",
+  "policy": {
+    "cloudApisUsed": false,
+    "paidApisUsed": false,
+    "modelDownloadApproved": true,
+    "productionUseAllowed": false
+  },
+  "runtime": {
+    "command": "llama-completion",
+    "fallbackCommandUsed": "llama-cli",
+    "backend": "llama.cpp b9010-d05fe1d7d",
+    "modelId": "Qwen/Qwen3-4B-GGUF",
+    "modelFile": "Qwen3-4B-Q4_K_M.gguf",
+    "modelCacheLabel": "Qwen/Qwen3-4B-GGUF:Q4_K_M",
+    "sourceRecordIds": [
+      "src-qwen3-4b-gguf-2026",
+      "src-qwen-local-docs-2026",
+      "src-llama-cpp-homebrew-2026"
+    ],
+    "device": "MTL0 (Apple M1 Max)",
+    "ctxSize": 2048,
+    "predictTokensRequested": 128,
+    "temperature": 0,
+    "topP": 1
+  },
+  "prompt": {
+    "purpose": "OpenClinXR local-model smoke for ED chest-pain triage reasoning and structured-output behavior.",
+    "scenario": "54-year-old adult with crushing substernal chest pressure, diaphoresis, nausea, hypotension, and anxious spouse.",
+    "requiredKeys": [
+      "candidate",
+      "triage_priority",
+      "rationale",
+      "safety_flags"
+    ]
+  },
+  "output": {
+    "parsedJson": {
+      "candidate": "Qwen/Qwen3-4B-GGUF",
+      "triage_priority": "high",
+      "rationale": "Symptoms indicate possible acute myocardial infarction; ECG and emergent cardiac evaluation are critical for diagnosis and intervention",
+      "safety_flags": [
+        "hypotension",
+        "anxiety",
+        "chest pain",
+        "diaphoresis",
+        "nausea"
+      ]
+    },
+    "structuredOutputCaveats": [
+      "The model emitted a leading <think> marker before the JSON object even with reasoning disabled.",
+      "The JSON object was parsable, but safety_flags were clinical features rather than the requested guardrail labels.",
+      "A prior llama.cpp --json-schema attempt failed in the grammar sampler, so this pass used a prompt-only JSON constraint."
+    ],
+    "rawLogPath": "/Users/patrick/.cache/openclinxr/benchmarks/qwen3-4b-llama-completion-json2-2026-05-04.log",
+    "rawLogSha256": "6f6914ad679b4bee0a62bc9d7c77ad72d1825cb0db67d0037f9c71299a349fba",
+    "grammarFailureExcerptPath": "/Users/patrick/.cache/openclinxr/benchmarks/qwen3-4b-llama-cli-grammar-failure-2026-05-04.log"
+  },
+  "metrics": {
+    "loadTimeMs": 558.84,
+    "promptEvalTimeMs": 177.23,
+    "promptEvalTokens": 124,
+    "promptEvalTokensPerSecond": 699.66,
+    "evalTimeMs": 1345.59,
+    "generatedRuns": 85,
+    "generationTokensPerSecond": 63.17,
+    "totalRuntimeMs": 1543.52,
+    "wallClockMs": 3670,
+    "approxTimeToFirstGeneratedTokenMs": 751.9,
+    "maxResidentSetBytes": 2925461504,
+    "peakMemoryFootprintBytes": 369838768,
+    "metalModelBufferMiB": 2375.91,
+    "metalKvBufferMiB": 288,
+    "metalComputeBufferMiB": 301.75
+  },
+  "verdict": {
+    "passed": true,
+    "blockers": [],
+    "caveats": [
+      "Good enough for a local adapter latency smoke; not good enough for clinical actor quality or validated scoring.",
+      "Structured-output enforcement needs a follow-up grammar/schema spike before any autonomous planning or scoring dependency.",
+      "Hardware result is for this Apple M1 Max machine, not the target M4 Pro or M4 Max claim."
+    ]
+  }
+}
