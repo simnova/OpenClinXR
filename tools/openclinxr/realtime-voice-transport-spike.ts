@@ -7,12 +7,33 @@ import {
   startRealtimeVoiceGatewayServer,
 } from "../../apps/mock-realtime-voice-server/src/index.js";
 import { createOpenClinXrApiProtocolPosture, type OpenClinXrApiProtocolPosture } from "../../apps/api/src/index.js";
-import { writeJson } from "../agent-factory/lib.js";
+import { readJson, writeJson } from "../agent-factory/lib.js";
 
 const execFileAsync = promisify(execFile);
 
 type CliOptions = {
   outputPath?: string;
+  apiPythonBackendRuntimeSmokePath?: string;
+};
+
+type ApiPythonBackendRuntimeSmokeEvidence = {
+  status: string;
+  health: {
+    ok: boolean;
+    latencyMs: number | null;
+  };
+  websocket: {
+    connected: boolean;
+    controlAckObserved: boolean;
+    audioMetadataObserved: boolean;
+    transcriptDeltaObserved: boolean;
+    binaryEchoObserved: boolean;
+    latencyMs: number | null;
+  };
+  verdict: {
+    passed: boolean;
+    blockers: string[];
+  };
 };
 
 export type RealtimeVoiceTransportSpikeReport = {
@@ -54,6 +75,13 @@ export type RealtimeVoiceTransportSpikeReport = {
     stdout: string;
     blockers: string[];
   };
+  pythonBackendRuntimeSmoke?: {
+    status: "passed" | "blocked";
+    blockers: string[];
+    healthOk: boolean;
+    websocketConnected: boolean;
+    websocketLatencyMs: number | null;
+  };
   harness: Awaited<ReturnType<typeof runRealtimeVoiceProxyHarness>>;
   verdict: {
     transportContractPassed: boolean;
@@ -65,7 +93,10 @@ export type RealtimeVoiceTransportSpikeReport = {
 
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
-  const report = await buildRealtimeVoiceTransportSpikeReport();
+  const apiPythonBackendRuntimeSmoke = options.apiPythonBackendRuntimeSmokePath
+    ? await readJson<ApiPythonBackendRuntimeSmokeEvidence>(options.apiPythonBackendRuntimeSmokePath)
+    : undefined;
+  const report = await buildRealtimeVoiceTransportSpikeReport({ apiPythonBackendRuntimeSmoke });
 
   if (options.outputPath) {
     await writeJson(options.outputPath, report);
@@ -87,6 +118,11 @@ function parseArgs(args: string[]): CliOptions {
       index += 1;
       continue;
     }
+    if (arg === "--api-python-backend-runtime-smoke") {
+      options.apiPythonBackendRuntimeSmokePath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
     throw new Error(`Unknown argument: ${arg ?? ""}`);
   }
 
@@ -105,6 +141,7 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
   generatedAt?: string;
   targetLatencyMs?: number;
   bunAvailable?: boolean;
+  apiPythonBackendRuntimeSmoke?: ApiPythonBackendRuntimeSmokeEvidence;
 } = {}): Promise<RealtimeVoiceTransportSpikeReport> {
   const generatedAt = input.generatedAt ?? new Date().toISOString();
   const targetLatencyMs = input.targetLatencyMs ?? 250;
@@ -113,12 +150,15 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
     verifyPythonBackendSource(),
     runHarness(targetLatencyMs),
   ]);
+  const pythonBackendRuntimeSmoke = input.apiPythonBackendRuntimeSmoke
+    ? summarizePythonBackendRuntimeSmoke(input.apiPythonBackendRuntimeSmoke)
+    : undefined;
   const transportContractPassed = pythonBackendVerifier.status === "passed" && harness.latencyBudget.passed;
   const blockers = [
     "quest_godot_client_not_executed",
     "native_opus_codec_not_integrated_in_godot",
     bunAvailable ? undefined : "bun_runtime_not_installed_on_this_machine",
-    "fastapi_backend_not_runtime_executed",
+    pythonBackendRuntimeSmoke?.status === "passed" ? undefined : "fastapi_backend_not_runtime_executed",
     "real_moshi_or_qwen3_inference_not_observed",
     "quest_microphone_and_playback_latency_not_measured",
     "clinical_voice_safety_controls_not_exercised_with_real_model",
@@ -165,6 +205,7 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
     },
     apiProtocolPosture: createOpenClinXrApiProtocolPosture(),
     pythonBackendVerifier,
+    ...(pythonBackendRuntimeSmoke ? { pythonBackendRuntimeSmoke } : {}),
     harness,
     verdict: {
       transportContractPassed,
@@ -172,9 +213,33 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
       blockers,
       caveats: [
         "The measured harness uses a Python-compatible local fixture behind a Node/Hono/WebSocket fallback; it validates streaming shape and latency plumbing only.",
-        "The committed FastAPI backend is source-verified with stdlib checks, but FastAPI/Uvicorn/MLX/Moshi/Qwen dependencies are not installed or executed by this spike.",
+        pythonBackendRuntimeSmoke?.status === "passed"
+          ? "FastAPI runtime smoke passed for health and WebSocket frame handling, but MLX/Moshi/Qwen inference is still not installed or executed by this spike."
+          : "The committed FastAPI backend is source-verified with stdlib checks, but FastAPI/Uvicorn/MLX/Moshi/Qwen dependencies are not installed or executed by this spike.",
       ],
     },
+  };
+}
+
+function summarizePythonBackendRuntimeSmoke(
+  report: ApiPythonBackendRuntimeSmokeEvidence,
+): RealtimeVoiceTransportSpikeReport["pythonBackendRuntimeSmoke"] {
+  const blockers = [
+    ...report.verdict.blockers,
+    report.health.ok ? undefined : "runtime_smoke_health_not_ok",
+    report.websocket.connected ? undefined : "runtime_smoke_websocket_not_connected",
+    report.websocket.controlAckObserved ? undefined : "runtime_smoke_control_ack_missing",
+    report.websocket.audioMetadataObserved ? undefined : "runtime_smoke_audio_metadata_missing",
+    report.websocket.transcriptDeltaObserved ? undefined : "runtime_smoke_transcript_delta_missing",
+    report.websocket.binaryEchoObserved ? undefined : "runtime_smoke_binary_echo_missing",
+  ].filter((blocker): blocker is string => typeof blocker === "string");
+
+  return {
+    status: report.verdict.passed && blockers.length === 0 ? "passed" : "blocked",
+    blockers,
+    healthOk: report.health.ok,
+    websocketConnected: report.websocket.connected,
+    websocketLatencyMs: report.websocket.latencyMs,
   };
 }
 

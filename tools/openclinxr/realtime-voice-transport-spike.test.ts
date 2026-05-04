@@ -65,4 +65,44 @@ describe("realtime voice transport spike report", () => {
       ],
     });
   });
+
+  it("uses a passed FastAPI runtime smoke to retire the stale backend-not-executed blocker only", async () => {
+    const report = await buildRealtimeVoiceTransportSpikeReport({
+      generatedAt: "2026-05-04T22:30:00.000Z",
+      targetLatencyMs: 250,
+      bunAvailable: false,
+      apiPythonBackendRuntimeSmoke: {
+        status: "passed",
+        health: { ok: true, latencyMs: 40 },
+        websocket: {
+          connected: true,
+          controlAckObserved: true,
+          audioMetadataObserved: true,
+          transcriptDeltaObserved: true,
+          binaryEchoObserved: true,
+          latencyMs: 12,
+        },
+        verdict: {
+          passed: true,
+          blockers: [],
+        },
+      },
+    });
+
+    expect(report.pythonBackendRuntimeSmoke).toEqual({
+      status: "passed",
+      blockers: [],
+      healthOk: true,
+      websocketConnected: true,
+      websocketLatencyMs: 12,
+    });
+    expect(report.verdict.blockers).not.toContain("fastapi_backend_not_runtime_executed");
+    expect(report.verdict.blockers).toEqual(expect.arrayContaining([
+      "real_moshi_or_qwen3_inference_not_observed",
+      "quest_microphone_and_playback_latency_not_measured",
+      "clinical_voice_safety_controls_not_exercised_with_real_model",
+    ]));
+    expect(report.verdict.caveats.join("\n")).toContain("FastAPI runtime smoke passed");
+    expect(report.verdict.readyForLiveDialog).toBe(false);
+  });
 });

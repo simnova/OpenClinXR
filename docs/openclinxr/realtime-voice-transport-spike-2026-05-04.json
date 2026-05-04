@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T21:42:23.396Z",
+  "generatedAt": "2026-05-04T22:13:31.430Z",
   "status": "transport_spike_passed",
   "policy": {
     "cloudApisUsed": false,
@@ -104,6 +104,13 @@
     "stdout": "verify_backend: ok",
     "blockers": []
   },
+  "pythonBackendRuntimeSmoke": {
+    "status": "passed",
+    "blockers": [],
+    "healthOk": true,
+    "websocketConnected": true,
+    "websocketLatencyMs": 9
+  },
   "harness": {
     "controlFramesSent": 2,
     "binaryAudioChunksSent": 2,
@@ -111,7 +118,7 @@
     "binaryAudioChunksReceived": 2,
     "backendProtocol": "python-fastapi-compatible-websocket",
     "codec": "opus",
-    "roundTripLatencyMs": 13.35,
+    "roundTripLatencyMs": 10.86,
     "latencyBudget": {
       "targetMs": 250,
       "passed": true
@@ -133,14 +140,13 @@
       "quest_godot_client_not_executed",
       "native_opus_codec_not_integrated_in_godot",
       "bun_runtime_not_installed_on_this_machine",
-      "fastapi_backend_not_runtime_executed",
       "real_moshi_or_qwen3_inference_not_observed",
       "quest_microphone_and_playback_latency_not_measured",
       "clinical_voice_safety_controls_not_exercised_with_real_model"
     ],
     "caveats": [
       "The measured harness uses a Python-compatible local fixture behind a Node/Hono/WebSocket fallback; it validates streaming shape and latency plumbing only.",
-      "The committed FastAPI backend is source-verified with stdlib checks, but FastAPI/Uvicorn/MLX/Moshi/Qwen dependencies are not installed or executed by this spike."
+      "FastAPI runtime smoke passed for health and WebSocket frame handling, but MLX/Moshi/Qwen inference is still not installed or executed by this spike."
     ]
   }
 }

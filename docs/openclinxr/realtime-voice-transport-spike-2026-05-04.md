@@ -13,6 +13,7 @@ Use WebSocket-first for the immediate Quest 3 voice path, with `/apps/api` treat
 - `apps/mock-realtime-voice-server` provides the verified Node/Hono/WebSocket fallback harness.
 - `apps/api-python-backend` provides a FastAPI/Uvicorn source skeleton with stdlib-only verification.
 - `docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json` records a no-cloud bidirectional streaming harness run.
+- `docs/openclinxr/api-python-backend-runtime-smoke-2026-05-04.json` is now linked into the realtime report, retiring the stale FastAPI-not-executed blocker while preserving model, Quest audio, Opus, and safety blockers.
 
 ## Sequence
 
@@ -87,6 +88,5 @@ func _play_received_audio_packet(_packet: PackedByteArray) -> void:
 - Execute a real Quest/Godot client with microphone capture and playback.
 - Add or select a native Opus encode/decode path for Quest/Godot, or switch this lane to WebRTC if that proves simpler.
 - Install Bun locally and benchmark `/apps/api` Bun/Hono WebSocket behavior.
-- Install FastAPI/Uvicorn dependencies and run `apps/api-python-backend` directly.
 - Install and benchmark Moshi MLX or Qwen3-TTS on the target Apple Silicon machine.
 - Add synthetic voice disclosure, retention, misuse, and clinical-safety controls to the real model stream.
