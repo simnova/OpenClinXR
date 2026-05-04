@@ -10,9 +10,11 @@ import {
   MongoExamFormRepository,
   createMongoApiPersistenceSink,
   MongoScenarioRepository,
+  MongoScenarioReviewDecisionRepository,
   MongoStationRunQueueRepository,
   MongoTraceRepository,
   MongoReviewPacketRepository,
+  type ScenarioReviewDecisionRecord,
 } from "./index.js";
 import { createMongoMemoryTestContext, type MongoMemoryTestContext } from "./mongo-memory-context.js";
 
@@ -109,6 +111,17 @@ const reviewPacket: ReviewPacket = {
     status: "draft",
     comments: "Ready for faculty scoring.",
   },
+};
+
+const scenarioReviewDecision: ScenarioReviewDecisionRecord = {
+  scenarioId: "peds_asthma_parent_anxiety_v1",
+  version: 1,
+  reviewerRole: "clinical",
+  reviewerId: "pediatrician_001",
+  decision: "approved",
+  comments: "Clinical review complete.",
+  evidenceRefs: ["evidence:peds:clinical:2026-05-04"],
+  reviewedAt: "2026-05-04T10:00:00.000Z",
 };
 
 const seedQueueScenarios: Scenario[] = Array.from({ length: 12 }, (_, index) => {
@@ -211,6 +224,31 @@ describe("MongoDB memory repositories", () => {
     await expect(repository.listByScenario("ed_chest_pain_priority_v1")).resolves.toHaveLength(1);
   });
 
+  it("stores scenario review decisions in replay order for API startup reconstruction", async () => {
+    const repository = new MongoScenarioReviewDecisionRepository(context.db);
+    await repository.ensureIndexes();
+
+    await repository.save({
+      ...scenarioReviewDecision,
+      reviewerRole: "legal",
+      reviewerId: "legal_001",
+      reviewedAt: "2026-05-04T11:00:00.000Z",
+    });
+    await repository.save(scenarioReviewDecision);
+
+    await expect(repository.list()).resolves.toEqual([
+      expect.objectContaining({
+        scenarioId: "peds_asthma_parent_anxiety_v1",
+        reviewerRole: "clinical",
+        evidenceRefs: ["evidence:peds:clinical:2026-05-04"],
+      }),
+      expect.objectContaining({
+        reviewerRole: "legal",
+        reviewerId: "legal_001",
+      }),
+    ]);
+  });
+
   it("stores exam forms with locked scenario versions for drift review", async () => {
     const repository = new MongoExamFormRepository(context.db);
     await repository.ensureIndexes();
@@ -293,6 +331,7 @@ describe("MongoDB memory repositories", () => {
     await sink.saveTraceEvents("run_sink", [trace(0, "station_started", "run_sink"), trace(1, "ecg_request", "run_sink")]);
     await sink.saveTraceEvents("run_sink", [trace(0, "station_started", "run_sink"), trace(1, "ecg_request", "run_sink"), trace(2, "team_communication", "run_sink")]);
     await sink.saveReviewPacket("run_sink", { ...reviewPacket, stationRunId: "run_sink" });
+    await sink.saveScenarioReviewDecision(scenarioReviewDecision);
     await sink.saveStationRunQueueSnapshot({
       snapshotId: "queue_snapshot_sink_001",
       createdAt: "2026-05-03T16:45:00.000Z",
@@ -306,6 +345,14 @@ describe("MongoDB memory repositories", () => {
     await expect(new MongoReviewPacketRepository(context.db).findByStationRunId("run_sink")).resolves.toMatchObject({
       stationRunId: "run_sink",
     });
+    await expect(new MongoScenarioReviewDecisionRepository(context.db).list()).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          scenarioId: "peds_asthma_parent_anxiety_v1",
+          reviewerRole: "clinical",
+        }),
+      ]),
+    );
     await expect(new MongoStationRunQueueRepository(context.db).findById("queue_snapshot_sink_001")).resolves.toMatchObject({
       snapshotId: "queue_snapshot_sink_001",
       queue: {
@@ -314,6 +361,14 @@ describe("MongoDB memory repositories", () => {
     });
     await expect(sink.listStationRunQueueSnapshots("blueprint_openclinxr_step2cs_style_seed_v1")).resolves.toEqual(
       expect.arrayContaining([expect.objectContaining({ snapshotId: "queue_snapshot_sink_001" })]),
+    );
+    await expect(sink.listScenarioReviewDecisions()).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          reviewerId: "pediatrician_001",
+          evidenceRefs: ["evidence:peds:clinical:2026-05-04"],
+        }),
+      ]),
     );
   });
 });

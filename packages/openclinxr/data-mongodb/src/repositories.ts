@@ -9,6 +9,17 @@ export type ExamStationRunQueueSnapshot = {
   queue: ExamStationRunQueue;
 };
 
+export type ScenarioReviewDecisionRecord = {
+  scenarioId: string;
+  version: number;
+  reviewerRole: "clinical" | "psychometric" | "legal" | "simulationQa";
+  reviewerId: string;
+  decision: "approved" | "changes_requested";
+  comments: string;
+  evidenceRefs: string[];
+  reviewedAt: string;
+};
+
 export class MongoScenarioRepository {
   private readonly collection: Collection<Scenario>;
 
@@ -111,6 +122,40 @@ export class MongoReviewPacketRepository {
   }
 }
 
+export class MongoScenarioReviewDecisionRepository {
+  private readonly collection: Collection<ScenarioReviewDecisionRecord>;
+
+  constructor(db: Db) {
+    this.collection = db.collection<ScenarioReviewDecisionRecord>("scenario_review_decisions");
+  }
+
+  async ensureIndexes(): Promise<void> {
+    await this.collection.createIndex({ scenarioId: 1, version: 1, reviewerRole: 1, reviewedAt: 1 }, { unique: true });
+    await this.collection.createIndex({ scenarioId: 1, version: 1, reviewedAt: 1 });
+  }
+
+  async save(record: ScenarioReviewDecisionRecord): Promise<void> {
+    const storedRecord = {
+      ...record,
+      evidenceRefs: [...record.evidenceRefs],
+    };
+    await this.collection.updateOne(
+      {
+        scenarioId: storedRecord.scenarioId,
+        version: storedRecord.version,
+        reviewerRole: storedRecord.reviewerRole,
+        reviewedAt: storedRecord.reviewedAt,
+      },
+      { $set: storedRecord },
+      { upsert: true },
+    );
+  }
+
+  async list(): Promise<ScenarioReviewDecisionRecord[]> {
+    return this.collection.find({}, { projection: { _id: 0 } }).sort({ reviewedAt: 1, scenarioId: 1, reviewerRole: 1 }).toArray();
+  }
+}
+
 export class MongoExamFormRepository {
   private readonly collection: Collection<ExamForm>;
 
@@ -175,12 +220,14 @@ export class MongoApiPersistenceSink {
   private readonly stationRunQueueSnapshots: MongoStationRunQueueRepository;
   private readonly traces: MongoTraceRepository;
   private readonly reviewPackets: MongoReviewPacketRepository;
+  private readonly scenarioReviewDecisions: MongoScenarioReviewDecisionRepository;
 
   constructor(db: Db) {
     this.examForms = new MongoExamFormRepository(db);
     this.stationRunQueueSnapshots = new MongoStationRunQueueRepository(db);
     this.traces = new MongoTraceRepository(db);
     this.reviewPackets = new MongoReviewPacketRepository(db);
+    this.scenarioReviewDecisions = new MongoScenarioReviewDecisionRepository(db);
   }
 
   async ensureIndexes(): Promise<void> {
@@ -189,6 +236,7 @@ export class MongoApiPersistenceSink {
       this.stationRunQueueSnapshots.ensureIndexes(),
       this.traces.ensureIndexes(),
       this.reviewPackets.ensureIndexes(),
+      this.scenarioReviewDecisions.ensureIndexes(),
     ]);
   }
 
@@ -210,6 +258,14 @@ export class MongoApiPersistenceSink {
 
   async saveReviewPacket(_stationRunId: string, packet: ReviewPacket): Promise<void> {
     await this.reviewPackets.save(packet);
+  }
+
+  async saveScenarioReviewDecision(record: ScenarioReviewDecisionRecord): Promise<void> {
+    await this.scenarioReviewDecisions.save(record);
+  }
+
+  async listScenarioReviewDecisions(): Promise<ScenarioReviewDecisionRecord[]> {
+    return this.scenarioReviewDecisions.list();
   }
 }
 
