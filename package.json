@@ -35,6 +35,7 @@
     "security:licenses": "tsx tools/openclinxr/check-license-policy.ts",
     "verify": "pnpm agent:verify && pnpm typecheck && pnpm test && pnpm security:audit && pnpm security:licenses",
     "iwsdk:verify": "pnpm --filter @openclinxr/iwsdk-spike typecheck && pnpm --filter @openclinxr/iwsdk-spike test && pnpm --filter @openclinxr/architecture-rules typecheck && pnpm --filter @openclinxr/architecture-rules test && pnpm agent:sources",
+    "iwsdk:preinstall": "tsx tools/openclinxr/iwsdk-preinstall-check.ts",
     "bench:mock": "pnpm --filter @openclinxr/test-harness bench:mock",
     "local:runtime:probe": "tsx tools/openclinxr/local-runtime-probe.ts",
     "local:provider:benchmark": "tsx tools/openclinxr/local-provider-benchmark.ts",

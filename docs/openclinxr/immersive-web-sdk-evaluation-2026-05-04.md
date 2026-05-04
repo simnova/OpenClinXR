@@ -88,7 +88,7 @@ The executable policy is intentionally stricter than the prose recommendation:
 - Blocked license expressions: `AGPL`, `GPL`, `LGPL`, `UNLICENSED`, and `Unknown`.
 - Required package-manager controls: exact version pins, a Three.js pnpm override, recorded `pnpm audit`, and a recorded license-policy report.
 
-This means a runnable sidecar is not just a folder-creation task. The package proposal itself must be scored before the workspace lockfile changes.
+Run `pnpm iwsdk:preinstall` to print the default first-slice JSON report, or pass `--proposal path/to/proposal.json` to score a concrete dependency proposal before package manifests or the workspace lockfile change. This means a runnable sidecar is not just a folder-creation task.
 
 ## Decision For Now
 

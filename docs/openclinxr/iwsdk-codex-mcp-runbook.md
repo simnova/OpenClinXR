@@ -15,6 +15,7 @@ Current state: contract only. Do not create a no-install `apps/ui-xr-iwsdk-spike
 
 - `pnpm iwsdk:verify` passes.
 - `evaluateIwsdkPreInstallPackageSelection()` reports no blockers for the proposed IWSDK sidecar dependency list before any `pnpm add` changes the workspace lockfile.
+- `pnpm iwsdk:preinstall -- --proposal path/to/proposal.json` records a ready JSON verdict for the exact package proposal, including required package-manager controls.
 - `apps/ui-xr-iwsdk-spike` exists and is intentionally outside production runtime paths.
 - IWSDK dependencies are exact-versioned in the sidecar app.
 - `@iwsdk/reference`, `@meta-quest/hzdb`, and production adoption of `@iwsdk/vite-plugin-gltf-optimizer` remain blocked unless the policy is deliberately changed.
