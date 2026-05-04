@@ -702,6 +702,7 @@ describe("IWSDK spike plan", () => {
     expect(evaluateIwsdkWorkspacePosture({
       sidecarAppExists: true,
       sidecarInstallApproved: true,
+      sidecarLockfileImporterPresent: true,
       dependencies: [
         {
           manifestPath: "apps/ui-xr-iwsdk-spike/package.json",
@@ -737,6 +738,7 @@ describe("IWSDK spike plan", () => {
     expect(evaluateIwsdkWorkspacePosture({
       sidecarAppExists: true,
       sidecarInstallApproved: true,
+      sidecarLockfileImporterPresent: true,
       dependencies: [
         {
           manifestPath: "apps/ui-xr-iwsdk-spike/package.json",

@@ -18,6 +18,7 @@ describe("IWSDK workspace posture checker", () => {
         "@iwsdk/core": "0.3.1",
         "@iwsdk/xr-input": "0.3.1",
       },
+      writeSidecarLockfileImporter: true,
       rootPackage: postureReadyRootPackage(),
     });
 
@@ -37,6 +38,44 @@ describe("IWSDK workspace posture checker", () => {
     });
   });
 
+  it("blocks sidecar IWSDK dependencies when the lockfile lacks the sidecar importer", async () => {
+    const workspaceRoot = await createWorkspaceFixture({
+      sidecarDependencies: {
+        "@iwsdk/core": "0.3.1",
+        "@iwsdk/xr-input": "0.3.1",
+      },
+      rootPackage: postureReadyRootPackage(),
+    });
+
+    const report = await buildIwsdkWorkspacePostureReport({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      workspaceRoot,
+      sidecarInstallApproved: true,
+    });
+
+    expect(report.result).toMatchObject({
+      ready: false,
+      blockers: ["missing_iwsdk_sidecar_lockfile_importer"],
+    });
+  });
+
+  it("blocks stale IWSDK sidecar lockfile importers when the sidecar app is absent", async () => {
+    const workspaceRoot = await createWorkspaceFixture({
+      rootPackage: postureReadyRootPackage(),
+      writeSidecarLockfileImporter: true,
+    });
+
+    const report = await buildIwsdkWorkspacePostureReport({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      workspaceRoot,
+    });
+
+    expect(report.result).toMatchObject({
+      ready: false,
+      blockers: ["iwsdk_sidecar_lockfile_importer_without_sidecar_app"],
+    });
+  });
+
   it("reports production leakage, blocked packages, and missing controls from workspace files", async () => {
     const workspaceRoot = await createWorkspaceFixture({
       rootPackage: {
@@ -51,7 +90,7 @@ describe("IWSDK workspace posture checker", () => {
       sidecarDependencies: {
         "@iwsdk/reference": "0.3.1",
       },
-      lockfileText: "/@meta-quest/hzdb@1.1.0:\n/@img/sharp-libvips-linux-x64@1.0.4:\n",
+      lockfileText: "importers:\n\n  apps/ui-xr-iwsdk-spike:\n/@meta-quest/hzdb@1.1.0:\n/@img/sharp-libvips-linux-x64@1.0.4:\n",
     });
     await mkdir(path.join(workspaceRoot, "apps/ui-xr/src"), { recursive: true });
     await writeFile(
@@ -115,11 +154,16 @@ async function createWorkspaceFixture(input: {
   productionDependencies?: Record<string, string>;
   sidecarDependencies?: Record<string, string>;
   lockfileText?: string;
+  writeSidecarLockfileImporter?: boolean;
 }): Promise<string> {
   const workspaceRoot = await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwsdk-posture-fixture-"));
   await writeFile(path.join(workspaceRoot, "pnpm-workspace.yaml"), "packages:\n  - \"apps/*\"\n", "utf8");
   await writeJson(path.join(workspaceRoot, "package.json"), input.rootPackage);
-  await writeFile(path.join(workspaceRoot, "pnpm-lock.yaml"), input.lockfileText ?? "lockfileVersion: '9.0'\n", "utf8");
+  await writeFile(
+    path.join(workspaceRoot, "pnpm-lock.yaml"),
+    input.lockfileText ?? buildFixtureLockfile(input.writeSidecarLockfileImporter),
+    "utf8",
+  );
 
   if (input.productionDependencies) {
     await writeJson(path.join(workspaceRoot, "apps/ui-xr/package.json"), {
@@ -136,6 +180,28 @@ async function createWorkspaceFixture(input: {
   }
 
   return workspaceRoot;
+}
+
+function buildFixtureLockfile(writeSidecarLockfileImporter = false): string {
+  if (!writeSidecarLockfileImporter) {
+    return "lockfileVersion: '9.0'\n";
+  }
+
+  return [
+    "lockfileVersion: '9.0'",
+    "",
+    "importers:",
+    "",
+    "  apps/ui-xr-iwsdk-spike:",
+    "    dependencies:",
+    "      '@iwsdk/core':",
+    "        specifier: 0.3.1",
+    "        version: 0.3.1(three@0.184.0)",
+    "      '@iwsdk/xr-input':",
+    "        specifier: 0.3.1",
+    "        version: 0.3.1(three@0.184.0)",
+    "",
+  ].join("\n");
 }
 
 function postureReadyRootPackage(): Record<string, unknown> {

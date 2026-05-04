@@ -254,6 +254,7 @@ export type IwsdkWorkspacePackageManagerControls = {
 export type IwsdkWorkspacePostureInput = {
   sidecarAppExists: boolean;
   sidecarInstallApproved: boolean;
+  sidecarLockfileImporterPresent?: boolean;
   dependencies: IwsdkWorkspaceDependency[];
   sourceReferences: IwsdkWorkspaceSourceReference[];
   scriptReferences: IwsdkWorkspaceScriptReference[];
@@ -898,8 +899,16 @@ export function evaluateIwsdkWorkspacePosture(
   if (input.sidecarAppExists && !input.sidecarInstallApproved) {
     blockers.push("sidecar_app_present_without_operator_approval");
   }
+  if (!input.sidecarAppExists && input.sidecarLockfileImporterPresent === true) {
+    blockers.push("iwsdk_sidecar_lockfile_importer_without_sidecar_app");
+  }
 
   const sidecarDependencies = iwsdkDependencies.filter((dependency) => dependency.manifestPath.startsWith(sidecarRoot));
+  if (input.sidecarAppExists && input.sidecarInstallApproved && sidecarDependencies.length > 0
+    && input.sidecarLockfileImporterPresent !== true) {
+    blockers.push("missing_iwsdk_sidecar_lockfile_importer");
+  }
+
   const sidecarSelection = evaluateIwsdkPreInstallPackageSelection(
     sidecarDependencies.map((dependency) => ({
       name: dependency.name,

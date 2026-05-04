@@ -32,6 +32,7 @@ export type IwsdkWorkspacePostureReport = {
   sidecarInstallApproved: boolean;
   detected: {
     sidecarAppExists: boolean;
+    sidecarLockfileImporterPresent: boolean;
     dependencies: IwsdkWorkspaceDependency[];
     sourceReferences: IwsdkWorkspaceSourceReference[];
     scriptReferences: IwsdkWorkspaceScriptReference[];
@@ -82,10 +83,12 @@ export async function buildIwsdkWorkspacePostureReport(input: {
   const sourceReferences = await scanSourceReferences(workspaceRoot);
   const scriptReferences = await scanPackageScripts(workspaceRoot);
   const lockfilePackageNames = await scanLockfileBlockedPackages(workspaceRoot);
+  const sidecarLockfileImporterPresent = await scanSidecarLockfileImporter(workspaceRoot);
   const packageManagerControls = buildPackageManagerControls(rootPackage);
   const result = evaluateIwsdkWorkspacePosture({
     sidecarAppExists,
     sidecarInstallApproved,
+    sidecarLockfileImporterPresent,
     dependencies,
     sourceReferences,
     scriptReferences,
@@ -99,6 +102,7 @@ export async function buildIwsdkWorkspacePostureReport(input: {
     sidecarInstallApproved,
     detected: {
       sidecarAppExists,
+      sidecarLockfileImporterPresent,
       dependencies,
       sourceReferences,
       scriptReferences,
@@ -208,6 +212,16 @@ async function scanLockfileBlockedPackages(workspaceRoot: string): Promise<strin
     .filter((packageName): packageName is string => Boolean(packageName));
 
   return [...new Set([...blockedPackages, ...blockedTransitivePackages])];
+}
+
+async function scanSidecarLockfileImporter(workspaceRoot: string): Promise<boolean> {
+  const lockfilePath = path.join(workspaceRoot, "pnpm-lock.yaml");
+  if (!existsSync(lockfilePath)) {
+    return false;
+  }
+
+  const lockfileText = await readFile(lockfilePath, "utf8");
+  return /(?:^|\n) {2}apps\/ui-xr-iwsdk-spike:\s*(?:\n|$)/.test(lockfileText);
 }
 
 function buildPackageManagerControls(rootPackage: PackageJson): IwsdkWorkspacePackageManagerControls {

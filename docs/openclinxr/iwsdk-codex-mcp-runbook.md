@@ -103,7 +103,7 @@ When the operator has approved the install-backed sidecar scope, rerun it as:
 pnpm iwsdk:workspace:posture -- --approved-sidecar
 ```
 
-The checker exits nonzero if IWSDK dependencies or imports leak outside `apps/ui-xr-iwsdk-spike/`, if package scripts attempt blocked actions such as `iwsdk reference warmup` or `@iwsdk/create`, if blocked packages or sharp/libvips-style blocked transitive packages appear in the lockfile, if the sidecar exists without explicit approval, or if required audit/license/Three override controls are missing once the sidecar is approved.
+The checker exits nonzero if IWSDK dependencies or imports leak outside `apps/ui-xr-iwsdk-spike/`, if package scripts attempt blocked actions such as `iwsdk reference warmup` or `@iwsdk/create`, if blocked packages or sharp/libvips-style blocked transitive packages appear in the lockfile, if the sidecar manifest and `pnpm-lock.yaml` importer are out of sync, if the sidecar exists without explicit approval, or if required audit/license/Three override controls are missing once the sidecar is approved.
 
 ## Managed Browser Evidence Contract
 
