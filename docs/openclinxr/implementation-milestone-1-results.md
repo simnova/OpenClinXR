@@ -324,3 +324,23 @@ Local evidence:
 - `pnpm --filter @openclinxr/scenario-fixtures test` passed.
 - `pnpm --filter @openclinxr/model-gateway test` passed.
 - `pnpm --filter @openclinxr/api test` passed.
+
+## Milestone 11 Progress: Monorepo Orchestration Guardrails
+
+Started on 2026-05-03:
+
+- `turbo@2.9.8` is now installed as a pinned root dev dependency.
+- `turbo.json` defines package-level `typecheck`, `test`, `build`, and `dev` tasks.
+- Root `typecheck` keeps the repository-wide `tsgo --noEmit` check, then delegates package checks through `pnpm packages:typecheck`.
+- Root `test` keeps the root tool tests, then delegates package tests through `pnpm packages:test`.
+- Root-only agent-factory, source-ledger, audit, and license checks stay explicit root commands instead of hidden Turbo root tasks.
+- Turbo package scripts set `TURBO_TELEMETRY_DISABLED=1` and `DO_NOT_TRACK=1`.
+- Remote caching remains disabled unless the team explicitly enables it later.
+- `packages/openclinxr/architecture-rules` now resolves filesystem checks from the workspace root, enforces Turbo package-task delegation, enforces telemetry opt-out variables on Turbo scripts, and checks that `.turbo` cache artifacts are not tracked.
+
+Local evidence:
+
+- `pnpm packages:typecheck` passed through Turbo.
+- `pnpm packages:test` passed through Turbo.
+- `pnpm --filter @openclinxr/architecture-rules test` passed with 15 architecture tests.
+- `pnpm verify` passed after the Turbo orchestration and guardrail slices.
