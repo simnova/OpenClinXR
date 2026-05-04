@@ -95,6 +95,8 @@ describe("Quest CDP smoke probe", () => {
 
   it("generates browser, interaction, and frame-sampling expressions with station targets", () => {
     expect(browserSnapshotExpression()).toContain("window.__openClinXrFrameStats");
+    expect(browserSnapshotExpression()).toContain("window.__openClinXrInputEvidence");
+    expect(browserSnapshotExpression()).toContain("window.__openClinXrBootEvidence");
     expect(browserSnapshotExpression()).toContain("ED Chest Pain");
     expect(interactionExpression()).toContain("ecg request");
     expect(interactionExpression()).toContain("urgent escalation");

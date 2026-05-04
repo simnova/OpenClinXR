@@ -167,9 +167,9 @@ export function buildIwsdkEvidenceContractReport(input: {
   const currentKnownSidecarMetrics: IwsdkSpikeMetrics = {
     installedNodeModulesMb: 24,
     injectedDevRuntimeKb: 0,
-    appJsBundleKb: 2404.55,
-    bundleDeltaVsUiXrKb: 1974.38,
-    baselineAppBundleSource: "apps/ui-xr/dist/assets/index-Tk57pDQZ.js + apps/ui-xr/dist/assets/three-vendor-DNRJwxp9.js",
+    appJsBundleKb: 2509.9,
+    bundleDeltaVsUiXrKb: 1894.96,
+    baselineAppBundleSource: "apps/ui-xr-iwsdk-spike/dist/assets/*.js total minus apps/ui-xr/dist/assets/index-kJ4ZKRqb.js + apps/ui-xr/dist/assets/three-vendor-Csg9FCqN.js",
     smokePlanHash: "runtime-state:iwsdk-station-mcp-smoke-plan:v1",
     canvasNonblank: true,
     requiredSceneObjectNames: buildIwsdkUiXrStationParityContract().requiredSceneObjectNames,
@@ -177,8 +177,8 @@ export function buildIwsdkEvidenceContractReport(input: {
     controllerSelectTraceTag: "ecg_request",
     observedTraceActionTags: ["ecg_request"],
     foregroundQuestPreflightReady: true,
-    avgFps: 71.7,
-    p95FrameMs: 14.3,
+    avgFps: 15.2,
+    p95FrameMs: 66.1,
     consoleErrorCount: 0,
   };
   const productionRuntime = evaluateIwsdkSpikeMetrics(currentKnownSidecarMetrics);

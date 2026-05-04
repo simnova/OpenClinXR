@@ -1,9 +1,9 @@
 {
   "installedNodeModulesMb": 24,
   "injectedDevRuntimeKb": 0,
-  "appJsBundleKb": 2404.61,
-  "bundleDeltaVsUiXrKb": 1972.14,
-  "baselineAppBundleSource": "apps/ui-xr/dist/assets/index-CiEe1RD_.js + apps/ui-xr/dist/assets/three-vendor-BNtJvDEP.js",
+  "appJsBundleKb": 2509.9,
+  "bundleDeltaVsUiXrKb": 1894.96,
+  "baselineAppBundleSource": "apps/ui-xr-iwsdk-spike/dist/assets/*.js total minus apps/ui-xr/dist/assets/index-kJ4ZKRqb.js + apps/ui-xr/dist/assets/three-vendor-Csg9FCqN.js",
   "smokePlanHash": "runtime-state:iwsdk-station-mcp-smoke-plan:v1",
   "canvasNonblank": true,
   "requiredSceneObjectNames": [
@@ -33,7 +33,7 @@
   "controllerSelectTraceTag": "ecg_request",
   "observedTraceActionTags": ["ecg_request"],
   "foregroundQuestPreflightReady": true,
-  "avgFps": 71.7,
-  "p95FrameMs": 14.3,
+  "avgFps": 15.2,
+  "p95FrameMs": 66.1,
   "consoleErrorCount": 0
 }

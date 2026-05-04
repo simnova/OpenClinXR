@@ -129,6 +129,8 @@ async function main(): Promise<void> {
   try {
     await client.bringToFront();
     await delay(250);
+    await client.navigate(options.url);
+    await delay(750);
     await client.reload();
     await delay(750);
     const browser = await client.evaluate(browserSnapshotExpression());
@@ -319,7 +321,9 @@ export function browserSnapshotExpression(): string {
       hasNavigatorXr: !!navigator.xr,
       xrStatus: document.querySelector("#xr-status")?.textContent ?? null,
       trace: document.body.textContent.match(/Trace\s+\d+\/\d+/)?.[0] ?? null,
+      bootEvidence: window.__openClinXrBootEvidence ?? null,
       frameStats: window.__openClinXrFrameStats ?? null,
+      inputEvidence: window.__openClinXrInputEvidence ?? null,
       canvas: canvas ? {
         width: canvas.width,
         height: canvas.height,
@@ -641,6 +645,11 @@ class CdpClient {
 
   async bringToFront(): Promise<void> {
     await this.send("Page.bringToFront");
+  }
+
+  async navigate(url: string): Promise<void> {
+    await this.send("Page.enable");
+    await this.send("Page.navigate", { url });
   }
 
   private send(method: string, params: Record<string, unknown> = {}, timeoutMs = 5000): Promise<CdpResult> {

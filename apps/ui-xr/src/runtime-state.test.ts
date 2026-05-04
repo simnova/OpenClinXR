@@ -46,8 +46,8 @@ describe("XR runtime state", () => {
       phaseLabel: "Phase 1 VR",
       requestedSessionMode: "immersive-vr",
       mixedRealityPassthroughImplemented: false,
-      handTrackingPosture: "optional_feature_requested_no_articulated_hand_mesh",
-      locomotionPosture: "physical_room_scale_only",
+      handTrackingPosture: "optional_feature_with_primitive_hand_model",
+      locomotionPosture: "experimental_keyboard_and_thumbstick_dolly",
     });
   });
 

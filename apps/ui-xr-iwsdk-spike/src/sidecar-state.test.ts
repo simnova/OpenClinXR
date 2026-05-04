@@ -48,6 +48,8 @@ describe("IWSDK sidecar runtime state", () => {
       requiredSceneObjectNames: iwsdkSidecarSceneObjectNames,
       requestedSessionMode: "immersive-vr",
       mixedRealityPassthroughImplemented: false,
+      handTrackingPosture: "optional_feature_with_primitive_hand_model",
+      locomotionPosture: "experimental_keyboard_and_thumbstick_dolly",
     }));
   });
 
@@ -98,5 +100,20 @@ describe("IWSDK sidecar runtime state", () => {
     expect(source).toContain("openclinxr.ed-chest-pain.in-vr-clinical-panel");
     expect(source).toContain("renderer.xr.getController");
     expect(source).toContain("openclinxr.ed-chest-pain.controller-ray");
+  });
+
+  it("adds primitive hand models and experimental locomotion affordances", () => {
+    const source = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+
+    expect(source).toContain("XRHandModelFactory");
+    expect(source).toContain("renderer.xr.getHand");
+    expect(source).toContain("openclinxr.ed-chest-pain.hand-model");
+    expect(source).toContain("installHandModelsOnce");
+    expect(source).toContain("handModelStatus");
+    expect(source).toContain("__openClinXrBootEvidence");
+    expect(source).toContain("applyLocomotion");
+    expect(source).toContain("readXrGamepadLocomotion");
+    expect(source).toContain("fallbackAnimationLoop");
+    expect(source).toContain("__openClinXrInputEvidence");
   });
 });

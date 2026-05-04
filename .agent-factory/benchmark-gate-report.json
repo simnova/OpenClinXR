@@ -23,7 +23,7 @@
       "evidence_id": "gltf_pipeline_smoke",
       "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
       "generated_at": "2026-05-03T22:35:14.615Z",
-      "age_hours": 17,
+      "age_hours": 18,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -41,7 +41,7 @@
       "evidence_id": "local_provider_benchmark",
       "file": "docs/openclinxr/local-provider-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T14:53:24.787Z",
-      "age_hours": 1,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -50,7 +50,7 @@
       "evidence_id": "local_model_runtime_benchmark",
       "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T14:57:50Z",
-      "age_hours": 1,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -59,7 +59,7 @@
       "evidence_id": "local_voice_runtime_benchmark",
       "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T15:01:12Z",
-      "age_hours": 1,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -68,7 +68,7 @@
       "evidence_id": "quest_manual_performance",
       "file": ".agent-factory/quest-manual-performance-report.json",
       "generated_at": "2026-05-04T15:37:29.215Z",
-      "age_hours": 0,
+      "age_hours": 1,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -369,7 +369,7 @@
   },
   "iwsdk_evidence_contract": {
     "file": "docs/openclinxr/iwsdk-evidence-contract-2026-05-04.json",
-    "generated_at": "2026-05-04T16:28:54.587Z",
+    "generated_at": "2026-05-04T17:02:07.450Z",
     "status": "phase_1_install_backed_sidecar",
     "ready_for_install_backed_sidecar": true,
     "ready_for_agent_tooling": false,
@@ -403,6 +403,7 @@
       "production_runtime:avg_fps_below_floor",
       "production_runtime:bundle_delta_vs_ui_xr_kb_over_budget",
       "production_runtime:missing_controller_select_latency_ms",
+      "production_runtime:p95_frame_ms_over_budget",
       "tool_selection:iwsdk_mcp_future_blocked_until_sidecar",
       "tool_selection:manual_quest_foreground_required_for_production_readiness"
     ],
@@ -462,7 +463,8 @@
           "status": "blocked",
           "blockers": [
             "production_runtime:avg_fps_below_floor",
-            "production_runtime:missing_controller_select_latency_ms"
+            "production_runtime:missing_controller_select_latency_ms",
+            "production_runtime:p95_frame_ms_over_budget"
           ]
         },
         {
@@ -631,11 +633,12 @@
         "iwsdk:production_runtime:avg_fps_below_floor",
         "iwsdk:production_runtime:bundle_delta_vs_ui_xr_kb_over_budget",
         "iwsdk:production_runtime:missing_controller_select_latency_ms",
+        "iwsdk:production_runtime:p95_frame_ms_over_budget",
         "iwsdk:tool_selection:iwsdk_mcp_future_blocked_until_sidecar",
         "iwsdk:tool_selection:manual_quest_foreground_required_for_production_readiness"
       ],
       "blocker_summary": {
-        "total_blockers": 30,
+        "total_blockers": 31,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -671,6 +674,7 @@
               "iwsdk:production_runtime:avg_fps_below_floor",
               "iwsdk:production_runtime:bundle_delta_vs_ui_xr_kb_over_budget",
               "iwsdk:production_runtime:missing_controller_select_latency_ms",
+              "iwsdk:production_runtime:p95_frame_ms_over_budget",
               "iwsdk:tool_selection:iwsdk_mcp_future_blocked_until_sidecar",
               "iwsdk:tool_selection:manual_quest_foreground_required_for_production_readiness"
             ],

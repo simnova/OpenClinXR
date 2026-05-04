@@ -16,16 +16,19 @@ This evidence improves confidence that the sidecar can render and interact on Qu
 ## Observed Result
 
 - Quest device: `Quest_3` over USB-C with ADB authorization.
-- URL: `http://localhost:5183/?questSmoke=iwsdk-sidecar-20260504-front`.
+- URL: `http://localhost:5183/?questSmoke=thirty-fps-fallback-hand-locomotion-20260504`.
 - Browser title: `OpenClinXR IWSDK Spike`.
 - User agent: Quest Browser `146.0.0.19.27`.
 - Page state: visible, not hidden, focused.
 - WebXR status: `WebXR ready`.
 - Immersive entry path: a Quest Browser `Enter VR` button now calls `navigator.xr.requestSession("immersive-vr")`; after entry, the status strip reports `In VR` and the control changes to `Exit VR`.
 - Experience mode: current Phase 1 is full VR, not passthrough mixed reality. Runtime evidence records `mixedRealityPassthroughImplemented: false`; `proposal-webxr-mixed-reality-mode.md` gates any future `immersive-ar` path.
-- Canvas: nonblank, `880 x 924`, PNG data URL length `26062`.
+- Input posture: primitive WebXR hand models are installed lazily after immersive session acceptance, and the scene records `handModelStatus` plus experimental keyboard/thumbstick dolly locomotion evidence.
+- Boot evidence: Quest CDP records startup through `station_scene_ready` and `clock_started`; this confirms station creation is no longer the failing boundary.
+- Flat preview fallback: Quest Browser CDP did not advance `renderer.setAnimationLoop`/`requestAnimationFrame` in non-immersive flat-page mode, so the apps now include a timer-backed flat preview fallback. Immersive VR should still rely on the WebXR animation loop.
+- Canvas: nonblank, `880 x 924`, PNG data URL length `135830`.
 - Trace interaction: `Trace 0/10` to `Trace 2/10`.
-- CDP frame sample: `123` samples, `71.7` approximate FPS, p95 frame time `14.3 ms`, max frame time `32.9 ms`.
+- CDP frame sample: `120` samples, `15.2` approximate FPS, p95 frame time `66.1 ms`, max frame time `66.2 ms`.
 - Evidence classification: `foreground_ready`.
 
 ## Remaining Production Blockers
@@ -35,6 +38,7 @@ This evidence improves confidence that the sidecar can render and interact on Qu
 - `app_js_bundle_kb_over_budget`
 - `bundle_delta_vs_ui_xr_kb_over_budget`
 - `avg_fps_below_floor`
+- `p95_frame_ms_over_budget`
 - `missing_controller_select_latency_ms`
 
-The sidecar should remain a spike candidate until bundle weight is reduced, foreground average FPS meets the Quest target, real controller-select latency is captured, and the human headset observation report passes.
+The sidecar should remain a spike candidate until bundle weight is reduced, foreground average FPS meets the Quest target, real controller-select latency and hand/locomotion comfort are captured, and the human headset observation report passes.

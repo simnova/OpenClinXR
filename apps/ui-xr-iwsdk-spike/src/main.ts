@@ -23,6 +23,7 @@ import {
   Vector3,
   WebGLRenderer,
 } from "three";
+import { XRHandModelFactory } from "three/addons/webxr/XRHandModelFactory.js";
 import {
   buildIwsdkSidecarRuntimeEvidence,
   completeIwsdkSidecarTraceAction,
@@ -47,8 +48,35 @@ type NavigatorWithXr = Navigator & {
 };
 
 type XrSession = {
+  inputSources?: Iterable<XrInputSourceWithGamepad>;
   addEventListener(type: "end", listener: () => void, options?: { once?: boolean }): void;
   end(): Promise<void>;
+};
+
+type XrInputSourceWithGamepad = {
+  handedness?: "left" | "right" | "none" | string;
+  hand?: unknown;
+  gamepad?: {
+    axes?: readonly number[];
+  };
+};
+
+type OpenClinXrInputEvidence = {
+  handModelCount: number;
+  handModelStatus: "pending_immersive_session" | "installed" | "failed";
+  handInputsObserved: number;
+  locomotionMode: "experimental_keyboard_and_thumbstick_dolly";
+  lastLocomotionAtMs: number | null;
+  rigPosition: { x: number; z: number };
+};
+
+type OpenClinXrBootEvidence = {
+  app: "ui-xr-iwsdk-spike";
+  events: Array<{
+    phase: string;
+    atMs: number;
+    error?: string;
+  }>;
 };
 
 type StationSceneRuntime = {
@@ -64,6 +92,8 @@ declare global {
     };
     __openClinXrIwsdkSidecarEvidence?: IwsdkSidecarRuntimeEvidence;
     __openClinXrIwsdkSidecarTraceTags?: string[];
+    __openClinXrInputEvidence?: OpenClinXrInputEvidence;
+    __openClinXrBootEvidence?: OpenClinXrBootEvidence;
   }
 }
 
@@ -78,6 +108,28 @@ function requireElement<TElement extends Element>(selector: string): TElement {
     throw new Error(`Missing IWSDK sidecar element: ${selector}`);
   }
   return element;
+}
+
+const bootStartedAtMs = performance.now();
+
+function recordBootPhase(phase: string, error?: unknown): void {
+  const current: OpenClinXrBootEvidence = window.__openClinXrBootEvidence ?? { app: "ui-xr-iwsdk-spike", events: [] };
+  const nextEvent = {
+    phase,
+    atMs: Number((performance.now() - bootStartedAtMs).toFixed(2)),
+    ...(error === undefined ? {} : { error: formatUnknownError(error) }),
+  };
+  window.__openClinXrBootEvidence = {
+    ...current,
+    events: [...current.events, nextEvent].slice(-30),
+  };
+}
+
+function formatUnknownError(error: unknown): string {
+  if (error instanceof Error) {
+    return `${error.name}: ${error.message}`;
+  }
+  return String(error);
 }
 
 let state: IwsdkSidecarRuntimeState = createIwsdkSidecarRuntimeState();
@@ -195,19 +247,29 @@ async function updateXrStatus(): Promise<void> {
 }
 
 function createStationScene(): StationSceneRuntime {
+  recordBootPhase("station_scene_start");
   const renderer = new WebGLRenderer({ canvas, antialias: true });
   renderer.xr.enabled = true;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setClearColor(0x0d1715);
   let activeXrSession: XrSession | undefined;
+  let lastLocomotionAtMs: number | null = null;
+  let lastAnimateAtMs = performance.now();
+  let lastRenderLoopAtMs = 0;
+  const flatPreviewFallbackFrameMs = 1000 / 30;
 
   const scene = new Scene();
   scene.name = iwsdkSidecarSceneObjectNames[0] ?? "openclinxr.iwsdk.station-root";
   scene.background = new Color(0x0d1715);
 
+  const locomotionRig = new Group();
+  locomotionRig.name = "openclinxr.ed-chest-pain.locomotion-rig";
+  scene.add(locomotionRig);
+
   const camera = new PerspectiveCamera(52, 1, 0.1, 100);
   camera.position.set(0, 1.7, 5.2);
   camera.lookAt(0, 1.1, 0);
+  locomotionRig.add(camera);
 
   const ambient = new HemisphereLight(0xf0fff5, 0x17322c, 2.1);
   ambient.name = "openclinxr.ed-chest-pain.ambient-light";
@@ -256,6 +318,9 @@ function createStationScene(): StationSceneRuntime {
   scene.add(clockMesh);
   scene.add(createClinicalPanel());
   addControllerRays(renderer, scene);
+  const keyboardLocomotion = createKeyboardLocomotion();
+  let handModelStatus: OpenClinXrInputEvidence["handModelStatus"] = "pending_immersive_session";
+  let handModelsInstalled = false;
 
   function resize(): void {
     const width = canvas.clientWidth;
@@ -265,9 +330,24 @@ function createStationScene(): StationSceneRuntime {
     camera.updateProjectionMatrix();
   }
 
-  function animate(): void {
-    const now = performance.now();
+  function animate(timestamp?: number): void {
+    const now = typeof timestamp === "number" ? timestamp : performance.now();
+    lastRenderLoopAtMs = now;
+    const deltaSeconds = Math.min((now - lastAnimateAtMs) / 1000, 0.05);
+    lastAnimateAtMs = now;
     recordFrame(now);
+    const inputEvidence = applyLocomotion({
+      deltaSeconds,
+      keyboardLocomotion,
+      locomotionRig,
+      now,
+      session: activeXrSession,
+      lastLocomotionAtMs,
+      handModelCount: handModelsInstalled ? 2 : 0,
+      handModelStatus,
+    });
+    lastLocomotionAtMs = inputEvidence.lastLocomotionAtMs;
+    window.__openClinXrInputEvidence = inputEvidence;
     resize();
     patient.rotation.y = Math.sin(now / 1200) * 0.08;
     nurse.rotation.y = Math.sin(now / 900) * 0.12;
@@ -275,6 +355,8 @@ function createStationScene(): StationSceneRuntime {
   }
 
   renderer.setAnimationLoop(animate);
+  window.setInterval(fallbackAnimationLoop, flatPreviewFallbackFrameMs);
+  recordBootPhase("station_render_loop_started");
 
   return {
     async startImmersiveSession(): Promise<void> {
@@ -303,6 +385,7 @@ function createStationScene(): StationSceneRuntime {
           xrStatus.textContent = "WebXR ready";
         }, { once: true });
         await renderer.xr.setSession(session as Parameters<typeof renderer.xr.setSession>[0]);
+        installHandModelsOnce();
         enterXrButton.disabled = false;
         enterXrButton.textContent = "Exit VR";
         xrStatus.textContent = "In VR";
@@ -314,6 +397,26 @@ function createStationScene(): StationSceneRuntime {
       }
     },
   };
+
+  function fallbackAnimationLoop(): void {
+    const now = performance.now();
+    if (now - lastRenderLoopAtMs > flatPreviewFallbackFrameMs) {
+      animate(now);
+    }
+  }
+
+  function installHandModelsOnce(): void {
+    if (handModelsInstalled || handModelStatus === "failed") {
+      return;
+    }
+    try {
+      addHandModels(renderer, scene);
+      handModelsInstalled = true;
+      handModelStatus = "installed";
+    } catch {
+      handModelStatus = "failed";
+    }
+  }
 }
 
 function createClinicalPanel(): Mesh {
@@ -362,6 +465,135 @@ function addControllerRays(renderer: WebGLRenderer, scene: Scene): void {
   }
 }
 
+function addHandModels(renderer: WebGLRenderer, scene: Scene): void {
+  const handModelFactory = new XRHandModelFactory();
+  for (let index = 0; index < 2; index += 1) {
+    const hand = renderer.xr.getHand(index);
+    hand.name = `openclinxr.ed-chest-pain.hand-${index + 1}`;
+    const handModel = handModelFactory.createHandModel(hand, "boxes");
+    handModel.name = `openclinxr.ed-chest-pain.hand-model-${index + 1}`;
+    hand.add(handModel);
+    scene.add(hand);
+  }
+}
+
+type KeyboardLocomotionState = {
+  forward: number;
+  strafe: number;
+  turn: number;
+};
+
+function createKeyboardLocomotion(): KeyboardLocomotionState {
+  const state = { forward: 0, strafe: 0, turn: 0 };
+  const pressedKeys = new Set<string>();
+
+  const update = (event: KeyboardEvent, pressed: boolean): void => {
+    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+      return;
+    }
+    if (pressed) {
+      pressedKeys.add(event.code);
+    } else {
+      pressedKeys.delete(event.code);
+    }
+    state.forward = (pressedKeys.has("KeyW") || pressedKeys.has("ArrowUp") ? 1 : 0)
+      + (pressedKeys.has("KeyS") || pressedKeys.has("ArrowDown") ? -1 : 0);
+    state.strafe = (pressedKeys.has("KeyD") || pressedKeys.has("ArrowRight") ? 1 : 0)
+      + (pressedKeys.has("KeyA") || pressedKeys.has("ArrowLeft") ? -1 : 0);
+    state.turn = (pressedKeys.has("KeyE") ? -1 : 0) + (pressedKeys.has("KeyQ") ? 1 : 0);
+  };
+
+  window.addEventListener("keydown", (event) => update(event, true));
+  window.addEventListener("keyup", (event) => update(event, false));
+  return state;
+}
+
+function applyLocomotion(input: {
+  deltaSeconds: number;
+  keyboardLocomotion: KeyboardLocomotionState;
+  locomotionRig: Group;
+  now: number;
+  session: XrSession | undefined;
+  lastLocomotionAtMs: number | null;
+  handModelCount: number;
+  handModelStatus: OpenClinXrInputEvidence["handModelStatus"];
+}): OpenClinXrInputEvidence {
+  const xrLocomotion = readXrGamepadLocomotion(input.session);
+  const forward = clampUnit(input.keyboardLocomotion.forward + xrLocomotion.forward);
+  const strafe = clampUnit(input.keyboardLocomotion.strafe + xrLocomotion.strafe);
+  const turn = clampUnit(input.keyboardLocomotion.turn + xrLocomotion.turn);
+  const moved = Math.abs(forward) > 0 || Math.abs(strafe) > 0 || Math.abs(turn) > 0;
+  const speedMetersPerSecond = 1.35;
+
+  input.locomotionRig.rotation.y += turn * input.deltaSeconds * 1.8;
+  const yaw = input.locomotionRig.rotation.y;
+  const forwardVector = new Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
+  const rightVector = new Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
+  input.locomotionRig.position
+    .addScaledVector(forwardVector, forward * speedMetersPerSecond * input.deltaSeconds)
+    .addScaledVector(rightVector, strafe * speedMetersPerSecond * input.deltaSeconds);
+  input.locomotionRig.position.x = clamp(input.locomotionRig.position.x, -2.75, 2.75);
+  input.locomotionRig.position.z = clamp(input.locomotionRig.position.z, -2.25, 2.25);
+
+  return {
+    handModelCount: input.handModelCount,
+    handModelStatus: input.handModelStatus,
+    handInputsObserved: xrLocomotion.handInputsObserved,
+    locomotionMode: "experimental_keyboard_and_thumbstick_dolly",
+    lastLocomotionAtMs: moved ? Number(input.now.toFixed(2)) : input.lastLocomotionAtMs,
+    rigPosition: {
+      x: Number(input.locomotionRig.position.x.toFixed(3)),
+      z: Number(input.locomotionRig.position.z.toFixed(3)),
+    },
+  };
+}
+
+function readXrGamepadLocomotion(session: XrSession | undefined): {
+  forward: number;
+  strafe: number;
+  turn: number;
+  handInputsObserved: number;
+} {
+  let forward = 0;
+  let strafe = 0;
+  let turn = 0;
+  let handInputsObserved = 0;
+
+  for (const source of session?.inputSources ?? []) {
+    if (source.hand) {
+      handInputsObserved += 1;
+    }
+    const axes = source.gamepad?.axes ?? [];
+    const xAxis = deadzone(axes[2] ?? axes[0] ?? 0);
+    const yAxis = deadzone(axes[3] ?? axes[1] ?? 0);
+    if (source.handedness === "right") {
+      turn += xAxis;
+      continue;
+    }
+    strafe += xAxis;
+    forward += -yAxis;
+  }
+
+  return {
+    forward: clampUnit(forward),
+    strafe: clampUnit(strafe),
+    turn: clampUnit(turn),
+    handInputsObserved,
+  };
+}
+
+function deadzone(value: number): number {
+  return Math.abs(value) < 0.18 ? 0 : clampUnit(value);
+}
+
+function clampUnit(value: number): number {
+  return clamp(value, -1, 1);
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
 function actorMesh(color: number): Group {
   const group = new Group();
   const body = new Mesh(new CapsuleGeometry(0.22, 0.7, 8, 16), new MeshStandardMaterial({ color, roughness: 0.7 }));
@@ -400,11 +632,25 @@ function tick(): void {
   requestAnimationFrame(tick);
 }
 
+recordBootPhase("controls_start");
 renderControls();
 updateReadiness();
+recordBootPhase("controls_ready");
 void updateXrStatus();
-const stationScene = createStationScene();
+let stationScene: StationSceneRuntime | undefined;
+try {
+  stationScene = createStationScene();
+  recordBootPhase("station_scene_ready");
+} catch (error) {
+  recordBootPhase("station_scene_failed", error);
+  xrStatus.textContent = "Station boot blocked";
+}
 enterXrButton.addEventListener("click", () => {
+  if (!stationScene) {
+    xrStatus.textContent = "Station boot blocked";
+    return;
+  }
   void stationScene.startImmersiveSession();
 });
 tick();
+recordBootPhase("clock_started");
