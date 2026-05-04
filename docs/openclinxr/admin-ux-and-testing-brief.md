@@ -42,7 +42,7 @@ Use:
 - React Router for nested administrative routes, deep links, loader/action boundaries where useful, and role-specific workbench navigation.
 - Ant Design 6 components.
 - Ant Design Pro v6 layout conventions. Runtime use of `@ant-design/pro-components` should stay behind a compatibility gate until the AntD 6-compatible v3 line resolves cleanly in the selected Vite/Vitest/NodeNext toolchain. On 2026-05-03 npm metadata showed the old `latest` tag at `2.8.10` with AntD 4/5 peers, while the v3 prerelease line was available at `3.1.12-0` with `antd: ^6.0.0`; a local import spike found package-resolution issues in the current toolchain.
-- The [Ant Design CLI skill](https://github.com/ant-design/ant-design-cli/blob/main/skills/antd/SKILL.md) is a good optional guardrail for admin UI work: query exact-version component APIs, demos, semantic class names, and tokens before authoring forms/tables/layouts, use structured JSON output, and run AntD lint/doctor checks after substantial component changes. Keep installation deliberate and package-managed where possible; no global `antd` CLI is assumed.
+- The [Ant Design CLI skill](https://github.com/ant-design/ant-design-cli/blob/main/skills/antd/SKILL.md) is a good optional guardrail for admin UI work: query exact-version component APIs, demos, semantic class names, and tokens before authoring forms/tables/layouts, use structured JSON output, and run AntD doctor checks after substantial component changes. Keep installation deliberate and package-managed where possible; no global `antd` CLI is assumed. A 2026-05-04 local spike found `doctor` and exact-version `info` useful, but `lint` failed under `pnpm dlx` with an `ERR_REQUIRE_ESM` in the transient parser dependency path, so AntD CLI lint should stay out of blocking verification for now.
 - Tailwind CSS v4 is acceptable for admin layout utilities when it reduces local CSS surface area, while Ant Design tokens should remain the source of truth for component theming.
 - `@xyflow/react` for scenario graph and state-machine editing.
 - Apollo GraphQL as the admin query layer for review/governance workbench flows once the operation contract is stable enough to justify GraphQL over REST.
@@ -179,6 +179,7 @@ On the M4 Max development mode:
 - `src-knip-e18e-tooling-2026`
 - `src-ant-design-pro-v6-release-2026`
 - `src-ant-design-cli-skill-2026`
+- `src-ant-design-cli-local-spike-2026-05-04`
 - `src-turborepo-skill-2026`
 - `src-storybook-10-3-2026`
 - `src-storybook-addon-mcp-2026`

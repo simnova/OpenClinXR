@@ -1,0 +1,24 @@
+{
+  "source_id": "src-ant-design-cli-local-spike-2026-05-04",
+  "title": "Ant Design CLI local package-managed spike",
+  "url": "docs/openclinxr/ant-design-cli-local-spike-2026-05-04.md",
+  "source_type": "internal-artifact",
+  "citation": "Local package-managed Ant Design CLI spike, run with pnpm dlx on 2026-05-04.",
+  "accessed_at": "2026-05-04",
+  "permitted_uses": [
+    "Local developer-tooling guidance for whether Ant Design CLI should become an advisory or blocking OpenClinXR admin UI check."
+  ],
+  "claims_supported": [
+    "@ant-design/cli 6.3.7 is available as an MIT-licensed package.",
+    "The package-managed CLI can inspect the admin app environment and detect antd 6.3.7, React 19.2.5, Vite 8.0.10, TypeScript 6.0.3, and pnpm 10.33.0.",
+    "The package-managed CLI doctor command reports no failures for apps/ui-admin and one SSR-only warning about @ant-design/cssinjs.",
+    "The package-managed CLI can return structured exact-version Button component metadata for Ant Design 6.3.7.",
+    "The package-managed CLI lint command is not yet suitable as a blocking gate because it failed locally with ERR_REQUIRE_ESM in a transient oxc-parser dependency path."
+  ],
+  "claims_not_supported": [
+    "That Ant Design CLI lint is stable enough to add to pnpm verify.",
+    "That @ant-design/cli should be installed globally.",
+    "That Ant Design CLI output replaces Vitest, typecheck, accessibility checks, visual review, or browser verification."
+  ],
+  "confidence": 0.86
+}

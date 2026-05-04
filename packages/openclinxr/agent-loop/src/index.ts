@@ -632,10 +632,11 @@ export function recommendWorkflowSkillsForWorkOrder(
       name: "Ant Design CLI Skill",
       sourceUrl: "https://github.com/ant-design/ant-design-cli/blob/main/skills/antd/SKILL.md",
       sourceRecordId: "src-ant-design-cli-skill-2026",
-      useWhen: "Use for Ant Design 6 component props, demos, semantic class names, tokens, linting, and doctor checks.",
+      useWhen: "Use for Ant Design 6 component props, demos, semantic class names, tokens, and doctor checks.",
       guardrails: [
         "Prefer package-managed execution over an untracked global install.",
         "Query exact-version APIs with JSON output before writing or changing Ant Design components.",
+        "Keep AntD CLI lint advisory until the local ERR_REQUIRE_ESM failure is resolved.",
       ],
     });
   }

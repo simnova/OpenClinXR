@@ -310,6 +310,9 @@ describe("agent-loop synthesis planning", () => {
     expect(graphQlAdminSkills.find((skill) => skill.id === "ant-design-cli-skill")?.guardrails.join(" ")).toContain(
       "exact-version APIs",
     );
+    expect(graphQlAdminSkills.find((skill) => skill.id === "ant-design-cli-skill")?.guardrails.join(" ")).toContain(
+      "ERR_REQUIRE_ESM",
+    );
     expect(graphQlAdminSkills.find((skill) => skill.id === "ant-design-cli-skill")?.sourceRecordId).toBe(
       "src-ant-design-cli-skill-2026",
     );
