@@ -694,6 +694,10 @@ describe("benchmark gate report", () => {
           status: "transport_spike_passed",
           harness: {
             roundTripLatencyMs: 42,
+            audioMetadataFramesSent: 2,
+            audioChunkMetadataReceived: 2,
+            frameLatencySamplesMs: [11, 13],
+            audioChunkIndexesReceived: [0, 1],
             latencyBudget: {
               targetMs: 250,
               passed: true,
@@ -793,6 +797,10 @@ describe("benchmark gate report", () => {
     ]));
     expect(report.realtime_voice_transport_spike).toMatchObject({
       round_trip_latency_ms: 42,
+      audio_metadata_frames_sent: 2,
+      audio_chunk_metadata_received: 2,
+      frame_latency_samples_ms: [11, 13],
+      audio_chunk_indexes_received: [0, 1],
       latency_budget: {
         targetMs: 250,
         passed: true,

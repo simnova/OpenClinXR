@@ -260,6 +260,10 @@ type RealtimeVoiceTransportSpikeReport = {
   status: string;
   harness: {
     roundTripLatencyMs: number;
+    audioMetadataFramesSent?: number;
+    audioChunkMetadataReceived?: number;
+    frameLatencySamplesMs?: number[];
+    audioChunkIndexesReceived?: number[];
     latencyBudget: {
       targetMs: number;
       passed: boolean;
@@ -405,6 +409,10 @@ type EvidenceGateReport = {
     generated_at: string;
     status: string;
     round_trip_latency_ms: number;
+    audio_metadata_frames_sent?: number;
+    audio_chunk_metadata_received?: number;
+    frame_latency_samples_ms?: number[];
+    audio_chunk_indexes_received?: number[];
     latency_budget: RealtimeVoiceTransportSpikeReport["harness"]["latencyBudget"];
     python_backend_verifier: RealtimeVoiceTransportSpikeReport["pythonBackendVerifier"];
     verdict: RealtimeVoiceTransportSpikeReport["verdict"];
@@ -898,6 +906,10 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         generated_at: realtimeVoiceTransportSpike.value.generatedAt,
         status: realtimeVoiceTransportSpike.value.status,
         round_trip_latency_ms: realtimeVoiceTransportSpike.value.harness.roundTripLatencyMs,
+        audio_metadata_frames_sent: realtimeVoiceTransportSpike.value.harness.audioMetadataFramesSent,
+        audio_chunk_metadata_received: realtimeVoiceTransportSpike.value.harness.audioChunkMetadataReceived,
+        frame_latency_samples_ms: realtimeVoiceTransportSpike.value.harness.frameLatencySamplesMs,
+        audio_chunk_indexes_received: realtimeVoiceTransportSpike.value.harness.audioChunkIndexesReceived,
         latency_budget: realtimeVoiceTransportSpike.value.harness.latencyBudget,
         python_backend_verifier: realtimeVoiceTransportSpike.value.pythonBackendVerifier,
         verdict: realtimeVoiceTransportSpike.value.verdict,
