@@ -56,6 +56,8 @@ const commandSpecs: CommandSpec[] = [
   { command: "pnpm", args: ["--version"] },
   { command: "npm", args: ["--version"] },
   { command: "bun", args: ["--version"] },
+  { command: "brew", args: ["--version"], firstLineOnly: true },
+  { command: "portless", args: ["--version"] },
   { command: "python3", args: ["--version"] },
   { command: "ffmpeg", args: ["-version"], firstLineOnly: true },
   { command: "adb", args: ["version"], firstLineOnly: true },
@@ -68,6 +70,8 @@ const commandSpecs: CommandSpec[] = [
   { command: "gltf-pipeline", args: ["--version"] },
   { command: "blender", args: ["--version"], firstLineOnly: true },
 ] as const;
+
+export const localRuntimeCommandNames = commandSpecs.map((spec) => spec.command);
 
 const pythonModules = ["torch", "transformers", "numpy", "scipy", "mlx", "soundfile"] as const;
 

@@ -1,11 +1,16 @@
 import { describe, expect, it } from "vitest";
 import {
   buildLocalRuntimeProbeReport,
+  localRuntimeCommandNames,
   type CommandProbe,
   type PythonModuleProbe,
 } from "./local-runtime-probe.js";
 
 describe("local runtime probe gates", () => {
+  it("tracks workstation package and parallel-agent helper commands", () => {
+    expect(localRuntimeCommandNames).toEqual(expect.arrayContaining(["brew", "portless"]));
+  });
+
   it("marks Quest USB and asset pipeline ready while keeping configured runtimes blocked until benchmarked", () => {
     const report = buildLocalRuntimeProbeReport({
       generatedAt: "2026-05-04T00:00:00.000Z",

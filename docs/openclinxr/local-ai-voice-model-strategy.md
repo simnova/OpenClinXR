@@ -24,7 +24,9 @@ Default development mode:
 
 The machine used for this spike reports Apple M1 Max with 64 GB RAM. The user mentioned Apple M4 Pro as a target. Treat M4 Pro/M4 Max support as a target profile, not proven by this machine.
 
-The current machine lacks Bun, Blender, Ollama, llama.cpp binaries, Whisper binaries, and MLX LM. The pinned pnpm `gltf-pipeline` CLI is now available for permissive GLB conversion/optimization checks, but local model execution remains a planned spike, not a completed benchmark.
+The 2026-05-04 probe records Node 22.19.0, pnpm 10.33.0, Python 3.11.4, ffmpeg 8.1, adb, Homebrew 5.1.8, and the pinned pnpm `gltf-pipeline` CLI as available. Quest USB is ready.
+
+The same probe still records Bun, Portless, Blender, Ollama, llama.cpp binaries, MLX LM, and VibeVoice as missing from PATH. Local model execution, local voice execution, and Blender-backed asset baking remain planned spikes, not completed benchmarks.
 
 ## Recommended Local Reasoning Stack
 
@@ -126,7 +128,7 @@ The benchmark harness should run without cloud services:
 
 First executable status:
 
-- `pnpm local:provider:benchmark -- --output docs/openclinxr/local-provider-benchmark-2026-05-03.json`
+- `pnpm local:provider:benchmark -- --output docs/openclinxr/local-provider-benchmark-2026-05-04.json`
 - Deterministic mock model benchmark passed with zero cost.
 - Deterministic mock voice benchmark passed with transcript and audio-chunk evidence.
 - Local model benchmark remains `not_configured` because no Ollama, llama.cpp, or MLX LM runtime is detected and `OPENCLINXR_LOCAL_MODEL_RUNTIME` / `OPENCLINXR_LOCAL_MODEL_ID` are unset.

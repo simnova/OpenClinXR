@@ -12,8 +12,8 @@
     ]
   },
   "local_runtime_probe": {
-    "file": "docs/openclinxr/local-runtime-probe-2026-05-03.json",
-    "generated_at": "2026-05-03T22:31:38.263Z",
+    "file": "docs/openclinxr/local-runtime-probe-2026-05-04.json",
+    "generated_at": "2026-05-04T04:53:19.623Z",
     "gates": {
       "questUsb": {
         "status": "ready",
@@ -59,11 +59,11 @@
     "blockers": []
   },
   "local_provider_benchmark": {
-    "file": "docs/openclinxr/local-provider-benchmark-2026-05-03.json",
-    "generated_at": "2026-05-03T22:51:03.064Z",
+    "file": "docs/openclinxr/local-provider-benchmark-2026-05-04.json",
+    "generated_at": "2026-05-04T04:53:14.501Z",
     "mock_model": {
       "status": "passed",
-      "latencyMs": 0.02,
+      "latencyMs": 0.03,
       "blockers": [],
       "metrics": {
         "promptTokens": 22,
@@ -75,7 +75,7 @@
     },
     "mock_voice": {
       "status": "passed",
-      "latencyMs": 0,
+      "latencyMs": 0.01,
       "blockers": [],
       "metrics": {
         "transcriptEvents": 2,
