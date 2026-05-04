@@ -20,6 +20,7 @@ Use `pnpm iwsdk:evidence:validate` to validate the latest committed `docs/opencl
 - `pnpm iwsdk:verify` passes, including its default `pnpm iwsdk:preinstall` JSON preflight.
 - `evaluateIwsdkPreInstallPackageSelection()` reports no blockers for the proposed IWSDK sidecar dependency list before any `pnpm add` changes the workspace lockfile.
 - `pnpm iwsdk:preinstall -- --proposal path/to/proposal.json` records a ready JSON verdict for the exact package proposal, including required package-manager controls.
+- `pnpm iwsdk:compatibility:evidence -- --input path/to/evidence.json --output docs/openclinxr/iwsdk-compatibility-evidence-YYYY-MM-DD.json` records a ready verdict for the exact Vite/Node/Rolldown evidence captured from the sidecar workspace.
 - The `metadataDrift` section in the latest evidence snapshot has no blockers before any `@iwsdk/reference` warmup; current evidence records docs `v0.3.1` versus npm latest `0.3.2`.
 - `apps/ui-xr-iwsdk-spike` exists and is intentionally outside production runtime paths.
 - IWSDK dependencies are exact-versioned in the sidecar app.
@@ -100,6 +101,14 @@ pnpm iwsdk:agent-tooling:evidence -- --input path/to/iwsdk-agent-tooling-evidenc
 ```
 
 The checker exits nonzero until the aggregate evidence is ready, but it does not install IWSDK, modify MCP config, or touch the sidecar app.
+
+Score future phase-2 compatibility evidence with:
+
+```bash
+pnpm iwsdk:compatibility:evidence -- --input path/to/iwsdk-compatibility-evidence.json --output docs/openclinxr/iwsdk-compatibility-evidence-YYYY-MM-DD.json
+```
+
+The checker exits nonzero until OpenClinXR's Vite major is accepted by the IWSDK Vite plugin peer range, the Node 22 runtime path is recorded, and the Rolldown native binding load is recorded.
 
 Score a future committed sidecar metrics JSON file with:
 
