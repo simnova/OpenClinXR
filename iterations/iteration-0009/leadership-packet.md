@@ -10,7 +10,7 @@ iterations/iteration-0009/06-leadership-scorecard.json
   confidence: 0.79
   critical_risks: 5
   evidence_debt: 5
-  decision_debt: 1
+  decision_debt: 0
 ```
 
 
@@ -235,6 +235,10 @@ Iteration 0009 is an amber maturity step from evidence capture to implementation
 - IWSDK Phase 2 tooling and primary-runtime adoption.
 - Clinical, legal, and psychometric validation for anything beyond formative deterministic prototypes.
 - Stale-packet cleanup for older leadership packets as evidence evolves.
+
+## Governance Decision
+
+Benchmark gates should not change the meaning of an existing scorecard evidence ID. If later evidence introduces a new capability area, the gate keeps the old ID for the original debt and emits a new ID for the new capability.
 
 ## Go-Forward Rule
 

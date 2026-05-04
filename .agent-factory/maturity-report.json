@@ -309,7 +309,7 @@
       "weighted_score": 4.619,
       "composite_score": 4.616,
       "open_selected_evidence_debt_count": 5,
-      "open_selected_decision_debt_count": 1,
+      "open_selected_decision_debt_count": 0,
       "open_selected_risk_count": 5,
       "open_selected_high_or_critical_risk_count": 0,
       "open_selected_evidence_debt_ids": [
@@ -319,9 +319,7 @@
         "evidence-leadership-0009-004",
         "evidence-leadership-0009-005"
       ],
-      "open_selected_decision_debt_ids": [
-        "decision-leadership-0009-001"
-      ],
+      "open_selected_decision_debt_ids": [],
       "open_selected_risk_ids": [
         "risk-leadership-0009-001",
         "risk-leadership-0009-002",
@@ -332,8 +330,7 @@
       "open_selected_high_or_critical_risk_ids": [],
       "dimensions_below_quality_bar": [],
       "blockers": [
-        "open_selected_evidence_debt",
-        "open_selected_decision_debt"
+        "open_selected_evidence_debt"
       ],
       "leadership_quality_bar_ready": false,
       "weighted_delta_from_previous": -0.16,

@@ -4898,8 +4898,7 @@
     "confidence": 0.79,
     "readyForLeadershipReview": false,
     "blockers": [
-      "open_evidence_debt",
-      "open_decision_debt"
+      "open_evidence_debt"
     ],
     "lowDimensions": [],
     "previousWeightedScore": 4.779,
@@ -5027,16 +5026,6 @@
       ]
     },
     {
-      "id": "decision-leadership-0009-001",
-      "actionType": "resolve_decision_debt",
-      "owner": "rubric-steward",
-      "summary": "Decide whether benchmark gate IDs should follow the original debt item or the current capability area when evidence evolves across iterations.",
-      "dimensions": [
-        "evidence_discipline",
-        "implementation_readiness"
-      ]
-    },
-    {
       "id": "risk-leadership-0009-001",
       "actionType": "mitigate_critical_risk",
       "owner": "local-ai-inference-engineer",
@@ -5093,8 +5082,7 @@
   "leadershipGate": {
     "ready": false,
     "blockers": [
-      "open_evidence_debt",
-      "open_decision_debt"
+      "open_evidence_debt"
     ]
   },
   "dispatchPackets": [
@@ -5237,16 +5225,6 @@
         }
       ],
       "nextActions": [
-        {
-          "id": "decision-leadership-0009-001",
-          "actionType": "resolve_decision_debt",
-          "owner": "rubric-steward",
-          "summary": "Decide whether benchmark gate IDs should follow the original debt item or the current capability area when evidence evolves across iterations.",
-          "dimensions": [
-            "evidence_discipline",
-            "implementation_readiness"
-          ]
-        },
         {
           "id": "risk-leadership-0009-005",
           "actionType": "mitigate_critical_risk",
@@ -5395,16 +5373,6 @@
         }
       ],
       "nextActions": [
-        {
-          "id": "decision-leadership-0009-001",
-          "actionType": "resolve_decision_debt",
-          "owner": "rubric-steward",
-          "summary": "Decide whether benchmark gate IDs should follow the original debt item or the current capability area when evidence evolves across iterations.",
-          "dimensions": [
-            "evidence_discipline",
-            "implementation_readiness"
-          ]
-        },
         {
           "id": "risk-leadership-0009-005",
           "actionType": "mitigate_critical_risk",

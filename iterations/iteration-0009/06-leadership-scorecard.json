@@ -36,7 +36,7 @@
     { "id": "evidence-leadership-0009-007", "summary": "Benchmark-gate evidence IDs now split Blender/asset-bake readiness from IWSDK sidecar readiness instead of reusing the iteration 0008 Blender debt ID.", "owner": "rubric-steward", "status": "resolved" }
   ],
   "decision_debt": [
-    { "id": "decision-leadership-0009-001", "summary": "Decide whether benchmark gate IDs should follow the original debt item or the current capability area when evidence evolves across iterations.", "owner": "rubric-steward", "status": "open" }
+    { "id": "decision-leadership-0009-001", "summary": "Benchmark gates preserve original debt IDs for the original debt item and add new IDs when a new capability area such as IWSDK evolves from later evidence.", "owner": "rubric-steward", "status": "resolved" }
   ],
   "confidence": 0.79,
   "summary": "Iteration 0009 is amber: implementation readiness improves through API asset-job routing, architecture enforcement, and local evidence capture, but headset validation, live voice/dialogue, production assets, and evidence-ledger integrity remain blocking."

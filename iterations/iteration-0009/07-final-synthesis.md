@@ -22,6 +22,10 @@ Iteration 0009 is an amber maturity step from evidence capture to implementation
 - Clinical, legal, and psychometric validation for anything beyond formative deterministic prototypes.
 - Stale-packet cleanup for older leadership packets as evidence evolves.
 
+## Governance Decision
+
+Benchmark gates should not change the meaning of an existing scorecard evidence ID. If later evidence introduces a new capability area, the gate keeps the old ID for the original debt and emits a new ID for the new capability.
+
 ## Go-Forward Rule
 
 Continue narrow verified implementation slices. Every slice should either close an evidence gate, enforce an architecture decision, keep evidence-ledger mappings current, or add a facade/test that makes future local/native/provider swaps safer.
