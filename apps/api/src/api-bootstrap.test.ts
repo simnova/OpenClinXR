@@ -12,9 +12,10 @@ describe("OpenClinXR API startup", () => {
     expect(startup.protocolSupport).toEqual(expect.arrayContaining([
       expect.objectContaining({
         protocolId: "websocket",
-        status: "ready",
+        status: "contract_ready",
         runtimeTarget: "bun-hono",
         path: "/voice/realtime/ws",
+        blockers: expect.arrayContaining(["api_bun_websocket_upgrade_not_implemented"]),
       }),
       expect.objectContaining({
         protocolId: "webtransport",
@@ -88,7 +89,11 @@ describe("OpenClinXR API startup", () => {
       primaryRuntimeTarget: "bun-hono",
       localFallbackRuntimeTarget: "node-hono",
       protocols: expect.arrayContaining([
-        expect.objectContaining({ protocolId: "websocket", status: "ready" }),
+        expect.objectContaining({
+          protocolId: "websocket",
+          status: "contract_ready",
+          blockers: expect.arrayContaining(["api_bun_websocket_upgrade_not_implemented"]),
+        }),
       ]),
     });
   });

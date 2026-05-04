@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T22:35:00.512Z",
+  "generatedAt": "2026-05-04T22:52:50.932Z",
   "status": "transport_spike_passed",
   "policy": {
     "cloudApisUsed": false,
@@ -60,11 +60,13 @@
       },
       {
         "protocolId": "websocket",
-        "status": "ready",
+        "status": "contract_ready",
         "runtimeTarget": "bun-hono",
         "path": "/voice/realtime/ws",
-        "blockers": [],
-        "notes": "Realtime audio starts WebSocket-first; Node/Hono remains the local fallback until Bun is installed here."
+        "blockers": [
+          "api_bun_websocket_upgrade_not_implemented"
+        ],
+        "notes": "Realtime audio is WebSocket-first, but the verified bidirectional media path is still the mock gateway fallback until apps/api owns a Bun WebSocket upgrade handler."
       },
       {
         "protocolId": "webtransport",
@@ -133,10 +135,10 @@
     "binaryAudioChunksReceived": 2,
     "backendProtocol": "python-fastapi-compatible-websocket",
     "codec": "opus",
-    "roundTripLatencyMs": 12,
+    "roundTripLatencyMs": 9.5,
     "frameLatencySamplesMs": [
-      6.38,
-      6.31
+      4.32,
+      4.24
     ],
     "audioChunkIndexesReceived": [
       0,

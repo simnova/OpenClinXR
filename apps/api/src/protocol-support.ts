@@ -8,7 +8,7 @@ export type OpenClinXrRealtimeProtocolId =
   | "quic"
   | "web3-signaling";
 
-export type OpenClinXrApiProtocolStatus = "ready" | "planned" | "blocked";
+export type OpenClinXrApiProtocolStatus = "ready" | "contract_ready" | "planned" | "blocked";
 
 export type OpenClinXrApiProtocolSupport = {
   protocolId: OpenClinXrRealtimeProtocolId;
@@ -66,11 +66,11 @@ export function createOpenClinXrApiProtocolPosture(input: {
       },
       {
         protocolId: "websocket",
-        status: "ready",
+        status: "contract_ready",
         runtimeTarget: "bun-hono",
         path: "/voice/realtime/ws",
-        blockers: [],
-        notes: "Realtime audio starts WebSocket-first; Node/Hono remains the local fallback until Bun is installed here.",
+        blockers: ["api_bun_websocket_upgrade_not_implemented"],
+        notes: "Realtime audio is WebSocket-first, but the verified bidirectional media path is still the mock gateway fallback until apps/api owns a Bun WebSocket upgrade handler.",
       },
       {
         protocolId: "webtransport",

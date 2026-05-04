@@ -31,7 +31,11 @@ describe("realtime voice transport spike report", () => {
       },
     });
     expect(report.apiProtocolPosture.protocols).toEqual(expect.arrayContaining([
-      expect.objectContaining({ protocolId: "websocket", status: "ready" }),
+      expect.objectContaining({
+        protocolId: "websocket",
+        status: "contract_ready",
+        blockers: expect.arrayContaining(["api_bun_websocket_upgrade_not_implemented"]),
+      }),
       expect.objectContaining({ protocolId: "webtransport", status: "blocked" }),
       expect.objectContaining({ protocolId: "quic", status: "planned" }),
       expect.objectContaining({ protocolId: "web3-signaling", status: "planned" }),
