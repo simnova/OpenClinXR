@@ -144,6 +144,7 @@ describe("workspace architecture rules", () => {
     expect(readiness.blockers).toEqual([]);
     expect(executableBindings.length).toBeGreaterThan(0);
     expect(executableBindings.every((binding) => binding.networkExposure !== "direct-public")).toBe(true);
+    expect(executableBindings.every((binding) => binding.endpointPath?.startsWith("/internal/capabilities/"))).toBe(true);
     expect(executableBindings.every((binding) =>
       ["main-api-tunnel", "internal-sidecar-http", "local-executable-worker"].includes(binding.transport)
     )).toBe(true);
@@ -254,6 +255,35 @@ describe("workspace architecture rules", () => {
       .filter((filePath) => !/\/api-client(?:\.test)?\.ts$/.test(filePath));
 
     expect(violations).toEqual([]);
+  });
+
+  it("allows API source to import capability-gateway while keeping UI apps from importing it", () => {
+    const apiImportReferences = sourceImportReferences("@openclinxr/capability-gateway", sourceFilesUnder("apps/api"))
+      .filter(({ filePath }) => filePath.startsWith("apps/api/src/"));
+    const uiViolations = sourceImportReferences("@openclinxr/capability-gateway", sourceFilesUnder("apps"))
+      .filter(({ filePath }) => /^apps\/ui-[^/]+\/src\//.test(filePath))
+      .map(({ filePath, specifier }) => `${filePath}:${specifier}`);
+
+    expect(apiImportReferences.length).toBeGreaterThan(0);
+    expect(uiViolations).toEqual([]);
+  });
+
+  it("keeps internal capability endpoint paths out of UI app source files", () => {
+    const violations = filesWithContentMatching("apps", /\/internal\/capabilities\//)
+      .filter((filePath) => /^apps\/ui-[^/]+\/src\//.test(filePath));
+
+    expect(violations).toEqual([]);
+  });
+
+  it("keeps internal capability job route ids present in the REST route catalog", () => {
+    const restRouteCatalog = readFileSync(join(workspaceRoot, "packages/openclinxr/rest/src/index.ts"), "utf8");
+
+    expect(restRouteCatalog).toContain(
+      'route("submit-internal-capability-job", "POST", "/internal/capabilities/:capabilityId/jobs", "control-plane")',
+    );
+    expect(restRouteCatalog).toContain(
+      'route("read-internal-capability-job", "GET", "/internal/capabilities/:capabilityId/jobs/:jobId", "control-plane")',
+    );
   });
 
   it("keeps UI app GraphQL imports on generated document subpaths instead of the executable server surface", () => {
