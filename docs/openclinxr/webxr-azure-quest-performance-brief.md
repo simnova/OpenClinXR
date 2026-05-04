@@ -220,6 +220,7 @@ Automated:
 - Storybook tests for admin components.
 - Serenity/JS tests for scenario authoring, review, publish, exam start, station complete, faculty review.
 - Playwright browser tests for non-XR fallback and WebGL smoke checks.
+- Optional Immersive Web SDK MCP/emulation spike for controller input simulation, scene graph inspection, ECS state inspection, and local agent-driven XR screenshots. Keep it advisory until Vite 8 compatibility and install/runtime behavior are measured.
 - Synthetic performance checks for asset bundle size, triangle counts, draw calls, and texture sizes.
 
 Manual/device:
@@ -267,6 +268,9 @@ Scale path:
 - `src-azure-app-service-plan-docs-2026`
 - `src-mdn-webtransport-2026`
 - `src-mdn-webxr-performance-2026`
+- `src-meta-iwsdk-github-2026`
+- `src-iwsdk-ai-docs-2026`
+- `src-iwsdk-npm-metadata-2026-05-04`
 - `src-opentelemetry-js-semantics-2026`
 - `src-xai-voice-api-docs-2026`
 - `src-llama-cpp-github-2026`

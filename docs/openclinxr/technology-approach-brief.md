@@ -45,6 +45,7 @@ Tooling with GPL/AGPL can be evaluated only as isolated internal authoring infra
 - React 19 + TypeScript.
 - Three.js + React Three Fiber.
 - `@react-three/xr` for WebXR interaction surfaces.
+- Evaluate Meta Immersive Web SDK as a spike candidate for XR input, locomotion, spatial UI, build-time GLTF optimization, and AI/MCP-assisted XR debugging. Do not adopt it as the default runtime until Vite 8 compatibility, Quest 3 frame behavior, package weight, and dependency-governance fit are measured.
 - glTF/GLB as the runtime 3D delivery format.
 - KTX2/Basis Universal texture compression.
 - Meshopt compression for geometry and animation.
@@ -150,6 +151,7 @@ Changes from this pass:
 | Auto-rig/animation | Mesh2Motion | MIT code, CC0 exported animation content claimed | QA every rig and retarget |
 | Face/lip sync | Baked visemes, optional NVIDIA ACE/Audio2Face | Commercial/proprietary terms | Adapter only; no hard dependency |
 | WebXR | Three.js, R3F, @react-three/xr | Mostly MIT-compatible; verify @react-three/xr license file | Device-test Quest 3 early |
+| WebXR spike candidate | Meta Immersive Web SDK | MIT for reviewed IWSDK packages; block optional `@meta-quest/hzdb` pending legal review because npm reports `UNLICENSED`; review optimizer paths that pull `sharp`/libvips | Promising for AI/MCP XR debugging, XR input, locomotion, spatial UI, and GLTF optimization; verify Vite 8, license gate, and Quest 3 behavior first |
 | Admin UI | Ant Design 6, Pro Components, React Router | MIT | Use Ant Design Pro layout conventions and route-based workbench modules |
 | Graph editor | @xyflow/react | MIT | Scenario graph, state machine, review workflows |
 | Admin query layer | Apollo GraphQL | MIT | Add after REST/domain contracts stabilize; best fit for trace/review/schema-rich admin screens |
@@ -191,6 +193,9 @@ Changes from this pass:
 - `src-xai-voice-api-docs-2026`
 - `src-mdn-webtransport-2026`
 - `src-mdn-webxr-performance-2026`
+- `src-meta-iwsdk-github-2026`
+- `src-iwsdk-ai-docs-2026`
+- `src-iwsdk-npm-metadata-2026-05-04`
 - `src-penpot-github-2026`
 - `src-openpencil-2026`
 - `src-npm-stack-metadata-2026-05-03`

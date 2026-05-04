@@ -1,0 +1,25 @@
+{
+  "source_id": "src-iwsdk-ai-docs-2026",
+  "title": "Immersive Web SDK AI-Native Development Documentation",
+  "url": "https://iwsdk.dev/ai/",
+  "source_type": "vendor",
+  "citation": "Immersive Web SDK AI-Native Development documentation, accessed 2026-05-04.",
+  "accessed_at": "2026-05-04",
+  "permitted_uses": [
+    "Planning optional local XR agent tooling for screenshots, controller input simulation, scene inspection, ECS debugging, and Quest-oriented development workflow experiments."
+  ],
+  "claims_supported": [
+    "The documentation says IWSDK exposes 32 MCP tools for AI-assisted WebXR development, including screenshots, controller input, scene inspection, and ECS debugging.",
+    "The documentation describes a managed Playwright browser, an iwsdk mcp stdio server, and Vite development integration coordinated by iwsdk dev up.",
+    "The documentation describes three development modes: Agent, Oversight, and Collaborate.",
+    "The documentation states the normal browser can run independently while the agent works in the background.",
+    "The documentation says optional @iwsdk/reference warmup downloads a pinned model and reference corpus, and optional @meta-quest/hzdb can add Meta Quest device management, asset search, and IWSDK documentation lookup."
+  ],
+  "claims_not_supported": [
+    "That the MCP tools are available to Codex in this workspace without installing IWSDK packages and adapter configuration.",
+    "That @iwsdk/reference warmup is free of network/model-download or storage implications.",
+    "That @meta-quest/hzdb has an acceptable distribution license for OpenClinXR.",
+    "That IWSDK MCP emulation replaces physical Quest 3 smoke tests for frame pacing, comfort, or controller behavior."
+  ],
+  "confidence": 0.84
+}

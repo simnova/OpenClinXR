@@ -345,6 +345,25 @@ describe("agent-loop synthesis planning", () => {
         sourceRecordId: "src-storybook-addon-mcp-2026",
       }),
     ]));
+
+    const xrSkills = recommendWorkflowSkillsForWorkOrder({
+      stage: "core_revision",
+      goal: "Spike WebXR controller input and scene graph debugging for the Quest 3 station runtime.",
+      dimensions: ["ux_workflow_fit"],
+      memoryTopics: ["iwsdk", "xr input", "ecs debugging"],
+    });
+
+    expect(xrSkills).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: "meta-iwsdk-mcp",
+        sourceRecordId: "src-iwsdk-ai-docs-2026",
+        guardrails: expect.arrayContaining([
+          expect.stringContaining("Vite 8 compatibility"),
+          expect.stringContaining("@meta-quest/hzdb"),
+          expect.stringContaining("reference warmup"),
+        ]),
+      }),
+    ]));
   });
 
   it("keeps specialist-owned blocker actions tied to scored dimensions after the plan clears low score thresholds", () => {

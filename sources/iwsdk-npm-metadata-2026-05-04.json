@@ -1,0 +1,28 @@
+{
+  "source_id": "src-iwsdk-npm-metadata-2026-05-04",
+  "title": "Immersive Web SDK npm Package Metadata",
+  "url": "https://www.npmjs.com/search?q=%40iwsdk",
+  "source_type": "vendor",
+  "citation": "Local pnpm view queries for @iwsdk/core, @iwsdk/vite-plugin-dev, @iwsdk/xr-input, @iwsdk/vite-plugin-gltf-optimizer, @iwsdk/vite-plugin-uikitml, @iwsdk/locomotor, @iwsdk/glxf, @iwsdk/vite-plugin-metaspatial, @iwsdk/reference, @meta-quest/hzdb, and @img/sharp-libvips-darwin-arm64, run 2026-05-04.",
+  "accessed_at": "2026-05-04",
+  "permitted_uses": [
+    "Dependency-risk evaluation before any OpenClinXR IWSDK spike or package installation."
+  ],
+  "claims_supported": [
+    "As queried on 2026-05-04, @iwsdk/core latest is 0.3.1, MIT licensed, and depends on Three.js, @iwsdk/glxf, @iwsdk/xr-input, @iwsdk/locomotor, @pmndrs/uikit, @pmndrs/uikitml, @babylonjs/havok, three-mesh-bvh, and related runtime libraries.",
+    "As queried on 2026-05-04, @iwsdk/vite-plugin-dev latest is 0.3.1, MIT licensed, depends on Playwright, iwer, @iwer/devui, @iwer/sem, sharp, ws, and @modelcontextprotocol/sdk, and peers Vite ^7.0.0.",
+    "As queried on 2026-05-04, @iwsdk/vite-plugin-gltf-optimizer latest is 0.3.1, MIT licensed, depends on @gltf-transform packages, draco3dgltf, sharp, glob, and fs-extra, and peers Vite ^7.0.0.",
+    "As queried on 2026-05-04, @iwsdk/vite-plugin-uikitml and @iwsdk/vite-plugin-metaspatial latest are 0.3.1, MIT licensed, and peer Vite ^7.0.0.",
+    "As queried on 2026-05-04, @iwsdk/reference latest is 0.3.2, MIT licensed, and depends on @huggingface/transformers and @modelcontextprotocol/sdk.",
+    "As queried on 2026-05-04, @img/sharp-libvips-darwin-arm64 latest is 1.2.4 and reports license LGPL-3.0-or-later.",
+    "As queried on 2026-05-04, @meta-quest/hzdb latest is 1.1.0 and reports license UNLICENSED."
+  ],
+  "claims_not_supported": [
+    "That IWSDK peer ranges have been validated with this repo's Vite 8.0.10 setup.",
+    "That @iwsdk/core's Three.js wildcard dependency will preserve OpenClinXR's current exact dependency posture without overrides or package-manager controls.",
+    "That Playwright/sharp/model-reference downloads are acceptable in unattended local verification or CI.",
+    "That IWSDK optimizer or dev-tool dependency paths using sharp will pass the OpenClinXR license gate without further review or replacement.",
+    "That @meta-quest/hzdb may be used in OpenClinXR without legal/procurement approval."
+  ],
+  "confidence": 0.88
+}

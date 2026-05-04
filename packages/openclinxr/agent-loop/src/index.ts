@@ -200,6 +200,7 @@ export type AgentWorkflowSkillId =
   | "ant-design-cli-skill"
   | "apollo-graphql-skills"
   | "archunitts"
+  | "meta-iwsdk-mcp"
   | "storybook-mcp"
   | "turborepo-skill";
 
@@ -651,6 +652,21 @@ export function recommendWorkflowSkillsForWorkOrder(
       guardrails: [
         "Keep optional until Storybook and addon packages are installed deliberately.",
         "Use alongside component tests rather than as a replacement for repository verification.",
+      ],
+    });
+  }
+
+  if (matchesAny(text, ["iwsdk", "immersive web sdk", "webxr", "xr input", "controller input", "scene graph", "spatial ui", "locomotion", "ecs debugging"])) {
+    recommendations.push({
+      id: "meta-iwsdk-mcp",
+      name: "Meta Immersive Web SDK MCP Tooling",
+      sourceUrl: "https://iwsdk.dev/ai/",
+      sourceRecordId: "src-iwsdk-ai-docs-2026",
+      useWhen: "Use for optional WebXR scene inspection, controller input simulation, ECS debugging, XR screenshots, and IWSDK spike planning.",
+      guardrails: [
+        "Keep advisory until an isolated spike validates Vite 8 compatibility, install size, and Quest 3 behavior.",
+        "Do not use optional @meta-quest/hzdb without legal review because npm metadata reports UNLICENSED.",
+        "Do not run reference warmup or model/corpus downloads unattended.",
       ],
     });
   }

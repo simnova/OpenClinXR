@@ -1,0 +1,24 @@
+{
+  "source_id": "src-meta-iwsdk-github-2026",
+  "title": "Meta Immersive Web SDK GitHub Repository",
+  "url": "https://github.com/facebook/immersive-web-sdk",
+  "source_type": "vendor",
+  "citation": "Meta Platforms. facebook/immersive-web-sdk GitHub repository README and license metadata, accessed 2026-05-04.",
+  "accessed_at": "2026-05-04",
+  "permitted_uses": [
+    "Technology evaluation for OpenClinXR WebXR runtime architecture, Quest 3 development workflow, spatial UI, interaction, locomotion, and asset-optimization spikes."
+  ],
+  "claims_supported": [
+    "The repository describes Immersive Web SDK as a Three.js-powered WebXR framework with ECS, interactions, locomotion, spatial UI, physics, scene understanding, and desktop mouse-and-keyboard emulation.",
+    "The repository lists packages including @iwsdk/core, @iwsdk/glxf, @iwsdk/locomotor, @iwsdk/xr-input, @iwsdk/vite-plugin-dev, @iwsdk/vite-plugin-gltf-optimizer, @iwsdk/vite-plugin-uikitml, and @iwsdk/vite-plugin-metaspatial.",
+    "The repository README states IWSDK is licensed under MIT.",
+    "The repository documents npm create @iwsdk@latest for new projects and npm install @iwsdk/core three for existing projects."
+  ],
+  "claims_not_supported": [
+    "That IWSDK has been installed or adopted by the OpenClinXR workspace.",
+    "That IWSDK is production-proven for high-stakes clinical simulation assessment.",
+    "That IWSDK should replace the existing minimal Three.js headset shell before a local spike measures bundle, Vite compatibility, and Quest 3 behavior.",
+    "That all optional Meta ecosystem packages or asset services have OpenClinXR-compatible license and procurement posture."
+  ],
+  "confidence": 0.86
+}
