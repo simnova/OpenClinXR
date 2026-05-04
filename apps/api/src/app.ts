@@ -737,6 +737,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function isAssetGenerationCapabilityId(value: string): value is AssetGenerationCapabilityId {
   return value === "character-generation"
     || value === "medical-equipment-generation"
+    || value === "voice-asset-generation"
+    || value === "animation-generation"
     || value === "asset-bake";
 }
 

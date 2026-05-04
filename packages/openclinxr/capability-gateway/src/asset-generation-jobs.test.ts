@@ -8,6 +8,43 @@ import {
 } from "./index.js";
 
 describe("asset-generation job facade", () => {
+  it.each([
+    "character-generation",
+    "medical-equipment-generation",
+    "voice-asset-generation",
+    "animation-generation",
+    "asset-bake",
+  ] as const)("submits deterministic no-spend jobs for %s", async (capabilityId) => {
+    const facade = new AssetGenerationCapabilityFacade({
+      idFactory: () => `job-${capabilityId}`,
+      now: fixedClock([
+        "2026-01-01T00:00:00.000Z",
+        "2026-01-01T00:00:01.000Z",
+        "2026-01-01T00:00:02.000Z",
+      ]),
+    });
+
+    const record = await facade.submit({
+      profile: "local-development",
+      capabilityId,
+      payload: {
+        requestId: `req-${capabilityId}`,
+      },
+    });
+
+    expect(record.status).toBe("succeeded");
+    expect(record.request.capabilityId).toBe(capabilityId);
+    expect(record.manifest).toMatchObject({
+      schemaVersion: "asset-generation-manifest.v1",
+      capabilityId,
+    });
+    expect(record.provenance).toMatchObject({
+      spendCents: 0,
+      externalNetworkUsed: false,
+    });
+    expect(record.history.map((event) => event.status)).toEqual(["queued", "running", "succeeded"]);
+  });
+
   it("stores a full deterministic no-spend job lifecycle in memory", async () => {
     let sequence = 0;
     const facade = new AssetGenerationCapabilityFacade({

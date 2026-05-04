@@ -1293,6 +1293,46 @@ describe("OpenClinXR API shell", () => {
     });
   });
 
+  it.each([
+    "medical-equipment-generation",
+    "voice-asset-generation",
+    "animation-generation",
+    "asset-bake",
+  ] as const)("accepts internal asset-generation jobs for %s", async (capabilityId) => {
+    const app = createApiApp(undefined, {}, {
+      assetGenerationFacade: new AssetGenerationCapabilityFacade({
+        idFactory: () => `asset-job-${capabilityId}`,
+        now: () => "2026-05-04T12:00:00.000Z",
+      }),
+    });
+
+    const submitResponse = await app.request(`/internal/capabilities/${capabilityId}/jobs`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        profile: "local-development",
+        payload: { prompt: `${capabilityId}-prompt` },
+      }),
+    });
+    expect(submitResponse.status).toBe(201);
+    await expect(json(submitResponse)).resolves.toMatchObject({
+      id: `asset-job-${capabilityId}`,
+      status: "succeeded",
+      request: { capabilityId },
+      provenance: { spendCents: 0, externalNetworkUsed: false },
+    });
+
+    const readResponse = await app.request(
+      `/internal/capabilities/${capabilityId}/jobs/asset-job-${capabilityId}`,
+    );
+    expect(readResponse.status).toBe(200);
+    await expect(json(readResponse)).resolves.toMatchObject({
+      id: `asset-job-${capabilityId}`,
+      request: { capabilityId },
+      provenance: { spendCents: 0, externalNetworkUsed: false },
+    });
+  });
+
   it("rejects unsupported internal asset-generation capability ids", async () => {
     const app = createApiApp();
 

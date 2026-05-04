@@ -203,16 +203,13 @@ Routed now (zero-spend deterministic):
 
 - `character-generation`
 - `medical-equipment-generation`
-- `asset-bake`
-
-Planned in the capability matrix, but not yet routed through this endpoint implementation:
-
 - `voice-asset-generation`
 - `animation-generation`
+- `asset-bake`
 
 Operational boundary:
 
-- Python/native workers stay behind the main API tunnel/facade and separate from interactive provider swaps.
+- The default route behavior remains deterministic/zero-spend, and Python/native workers stay behind the main API tunnel/facade and separate from interactive provider swaps.
 
 ## Local Hardware Updates
 

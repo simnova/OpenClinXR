@@ -8,6 +8,8 @@ import type {
 export type AssetGenerationCapabilityId =
   | "character-generation"
   | "medical-equipment-generation"
+  | "voice-asset-generation"
+  | "animation-generation"
   | "asset-bake";
 
 export type AssetGenerationJobStatus = "queued" | "running" | "succeeded" | "failed" | "canceled";
@@ -193,6 +195,8 @@ export class AssetGenerationCapabilityFacade {
     this.adapters = options.adapters ?? [
       createDeterministicAssetGenerationAdapter("character-generation"),
       createDeterministicAssetGenerationAdapter("medical-equipment-generation"),
+      createDeterministicAssetGenerationAdapter("voice-asset-generation"),
+      createDeterministicAssetGenerationAdapter("animation-generation"),
       createDeterministicAssetGenerationAdapter("asset-bake"),
     ];
     this.store = options.store ?? new InMemoryAssetGenerationJobStore();

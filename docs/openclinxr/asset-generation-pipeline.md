@@ -50,16 +50,13 @@ Current zero-spend deterministic capabilities routed through this endpoint imple
 
 - `character-generation`
 - `medical-equipment-generation`
-- `asset-bake`
-
-Capabilities still listed in the matrix but not yet routed through this endpoint implementation:
-
 - `voice-asset-generation`
 - `animation-generation`
+- `asset-bake`
 
 Worker placement rule:
 
-- Python/native workers remain behind the main API tunnel/facade and stay separate from interactive provider swaps.
+- The default contract stays deterministic and zero-spend, and Python/native workers remain behind the main API tunnel/facade and stay separate from interactive provider swaps.
 
 ## Asset Manifest
 
