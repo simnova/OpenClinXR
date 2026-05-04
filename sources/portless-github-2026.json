@@ -3,8 +3,8 @@
   "title": "Vercel Labs Portless GitHub Repository",
   "url": "https://github.com/vercel-labs/portless",
   "source_type": "vendor",
-  "citation": "Vercel Labs. portless GitHub repository README. Accessed 2026-05-03.",
-  "accessed_at": "2026-05-03",
+  "citation": "Vercel Labs. portless GitHub repository README, accessed 2026-05-03; npm package metadata and local help output queried for portless 0.12.0 on 2026-05-04.",
+  "accessed_at": "2026-05-04",
   "permitted_uses": [
     "Local developer-experience planning for stable named local URLs, parallel worktree dev servers, Vite/React Router ports, and Quest/LAN smoke-test routing."
   ],
@@ -14,7 +14,9 @@
     "The README states Portless can auto-inject --port and, when needed, --host flags for frameworks including Vite and React Router.",
     "Portless discovers monorepo workspace packages from pnpm-workspace.yaml or package workspaces.",
     "The README states linked git worktrees get branch-name subdomains so parallel worktrees receive distinct URLs.",
-    "Portless has an optional LAN mode that advertises services as .local names for same-network device access."
+    "Portless has an optional LAN mode that advertises services as .local names for same-network device access.",
+    "As queried on 2026-05-04, portless 0.12.0 is Apache-2.0 licensed.",
+    "Local package-managed help output confirms first real proxy use may run on port 443, auto-elevate with sudo, generate and trust a local CA, and sync /etc/hosts entries."
   ],
   "claims_not_supported": [
     "That Portless is installed or trusted on this machine.",

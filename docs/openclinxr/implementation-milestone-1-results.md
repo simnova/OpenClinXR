@@ -305,7 +305,7 @@ Started on 2026-05-03:
 - `packages/openclinxr/agent-loop` executable roster now aligns with the richer physician charter bench.
 - `packages/openclinxr/asset-registry` now creates generic placeholder manifests from scenario `assetNeeds`, making all 12 seed-bank cases dev-ready for asset readiness checks while still blocking production release.
 - `apps/api` now serves `/scenario-bank/assets/readiness` so admin surfaces can inspect dev readiness, production blockers, and aggregate Quest budget blockers across all 12 seed-bank scenarios.
-- Portless has been added to the source ledger as an optional local parallel-worktree dev-server routing candidate; it is not installed or required yet because first-run trust and privileged proxy setup should be performed interactively.
+- Portless has been added to the source ledger as an optional local parallel-worktree dev-server routing candidate; it is not installed or required yet because first-run trust and privileged proxy setup should be performed interactively. A 2026-05-04 package-managed help spike confirmed version `0.12.0` under Apache-2.0 and reinforced that the proxy should not be started unattended.
 
 Local evidence:
 
