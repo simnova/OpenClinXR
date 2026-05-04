@@ -1,5 +1,7 @@
 import type { ProviderHealth } from "@openclinxr/shared-schemas";
 
+export * from "./asset-generation-jobs.js";
+
 export type RuntimeProfile = "local-development" | "local-production" | "production";
 
 export type CapabilityId =
