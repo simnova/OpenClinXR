@@ -42,15 +42,17 @@ Use:
 - React Router for nested administrative routes, deep links, loader/action boundaries where useful, and role-specific workbench navigation.
 - Ant Design 6 components.
 - Ant Design Pro v6 layout conventions. Runtime use of `@ant-design/pro-components` should stay behind a compatibility gate until the AntD 6-compatible v3 line resolves cleanly in the selected Vite/Vitest/NodeNext toolchain. On 2026-05-03 npm metadata showed the old `latest` tag at `2.8.10` with AntD 4/5 peers, while the v3 prerelease line was available at `3.1.12-0` with `antd: ^6.0.0`; a local import spike found package-resolution issues in the current toolchain.
+- The [Ant Design CLI skill](https://github.com/ant-design/ant-design-cli/blob/main/skills/antd/SKILL.md) is a good optional guardrail for admin UI work: query exact-version component APIs, demos, semantic class names, and tokens before authoring forms/tables/layouts, use structured JSON output, and run AntD lint/doctor checks after substantial component changes. Keep installation deliberate and package-managed where possible.
 - Tailwind CSS v4 is acceptable for admin layout utilities when it reduces local CSS surface area, while Ant Design tokens should remain the source of truth for component theming.
 - `@xyflow/react` for scenario graph and state-machine editing.
 - Apollo GraphQL as the likely admin query layer once core REST/domain contracts and Mongo repositories stabilize.
 - GraphQL Code Generator for typed route/workbench queries, mutations, subscriptions, fragments, and resolver contracts.
+- [Apollo GraphQL Skills](https://github.com/apollographql/skills) can be installed deliberately for agent-assisted schema, operation, and client review, but should not replace generated-document drift checks, Apollo Client compatibility tests, or the choice to avoid Apollo-version-specific generated hooks until verified.
 - Zod or JSON Schema-driven forms where feasible.
 - Storybook 10.3 for component states and visual review.
 - `@storybook/addon-mcp` should be considered once Storybook stories become a maintained admin workbench artifact, because it can expose component/story context to local agents that help write and test stories. Keep it optional until Storybook and `@storybook/addon-vitest` are installed deliberately.
 
-Development-team familiarity should bias implementation choices toward pnpm, Mongoose, Apollo GraphQL, GraphQL Code Generator, TurboRepo, Biome, React Router, Knip, and E18E for non-XR surfaces and developer tooling. The examinee runtime can stay thinner and more performance-oriented, especially where Quest 3 frame stability is more important than admin developer ergonomics.
+Development-team familiarity should bias implementation choices toward pnpm, Mongoose, Apollo GraphQL, GraphQL Code Generator, TurboRepo, Biome, React Router, Knip, and E18E for non-XR surfaces and developer tooling. When TurboRepo becomes active, use package-local task scripts, root-level `turbo run` delegation, changed-package `--affected` workflows, and uncached persistent dev tasks. The examinee runtime can stay thinner and more performance-oriented, especially where Quest 3 frame stability is more important than admin developer ergonomics.
 
 Recommended shell:
 
