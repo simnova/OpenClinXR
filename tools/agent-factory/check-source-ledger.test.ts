@@ -31,6 +31,18 @@ describe("source ledger checker", () => {
     });
   });
 
+  it("reports malformed source JSON with the offending file path and continues checking", async () => {
+    await withTempSourceFiles(["{ \"source_id\": ", JSON.stringify(validSourceRecord())], async ([malformedFile, validFile]) => {
+      const result = await checkSourceLedger({ files: [malformedFile, validFile], schemaPath });
+
+      expect(result.checkedCount).toBe(2);
+      expect(result.failures).toEqual([
+        expect.stringContaining(malformedFile),
+      ]);
+      expect(result.failures[0]).toContain("could not read source record");
+    });
+  });
+
   it("blocks restricted source types from supporting overclaim phrases", async () => {
     await withTempSourceRecord(
       validSourceRecord({
@@ -79,12 +91,16 @@ function validSourceRecord(overrides: Record<string, unknown> = {}): Record<stri
 }
 
 async function withTempSourceRecord(record: Record<string, unknown>, callback: (file: string) => Promise<void>): Promise<void> {
+  await withTempSourceFiles([JSON.stringify(record, null, 2)], async ([file]) => callback(file));
+}
+
+async function withTempSourceFiles(contents: string[], callback: (files: string[]) => Promise<void>): Promise<void> {
   const root = await mkdtemp(join(tmpdir(), "openclinxr-source-ledger-"));
-  const file = join(root, "source.json");
+  const files = contents.map((_, index) => join(root, `source-${index + 1}.json`));
 
   try {
-    await writeFile(file, `${JSON.stringify(record, null, 2)}\n`, "utf8");
-    await callback(file);
+    await Promise.all(contents.map((content, index) => writeFile(files[index], `${content}\n`, "utf8")));
+    await callback(files);
   } finally {
     await rm(root, { recursive: true, force: true });
   }

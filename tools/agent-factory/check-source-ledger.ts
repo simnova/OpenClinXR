@@ -28,7 +28,13 @@ export async function checkSourceLedger(input: SourceLedgerCheckInput = {}): Pro
   const failures: string[] = [];
 
   for (const file of files) {
-    const record = await readJson<SourceLedgerRecord>(file);
+    let record: SourceLedgerRecord;
+    try {
+      record = await readJson<SourceLedgerRecord>(file);
+    } catch (error) {
+      failures.push(`${file}: could not read source record: ${error instanceof Error ? error.message : String(error)}`);
+      continue;
+    }
 
     if (!validate(record)) {
       failures.push(`${file}: ${ajv.errorsText(validate.errors, { separator: "; " })}`);
