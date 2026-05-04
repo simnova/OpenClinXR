@@ -149,7 +149,7 @@ describe("MongoDB memory repositories", () => {
   }, 120_000);
 
   afterAll(async () => {
-    await context.close();
+    await context?.close();
   });
 
   it("stores and retrieves versioned scenarios", async () => {

@@ -56,7 +56,7 @@ describe("Station run queue snapshot Mongoose repository", () => {
   }, 120_000);
 
   afterAll(async () => {
-    await context.close();
+    await context?.close();
   });
 
   it("upserts reviewer queue snapshots and lists them by blueprint newest first", async () => {

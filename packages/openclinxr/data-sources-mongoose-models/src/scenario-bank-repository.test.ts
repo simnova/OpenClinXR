@@ -37,7 +37,7 @@ describe("Scenario bank Mongoose repository", () => {
   }, 120_000);
 
   afterAll(async () => {
-    await context.close();
+    await context?.close();
   });
 
   it("promotes scenarios only after clinical, psychometric, legal, and simulation QA approvals", async () => {

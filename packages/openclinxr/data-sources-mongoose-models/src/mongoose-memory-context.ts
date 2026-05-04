@@ -1,6 +1,15 @@
 import { Mongoose } from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 
+export const mongoMemoryServerTestOptions = {
+  binary: {
+    version: "7.0.24",
+  },
+  instance: {
+    launchTimeout: 60_000,
+  },
+};
+
 export type MongooseMemoryTestContext = {
   server: MongoMemoryServer;
   mongoose: Mongoose;
@@ -8,11 +17,7 @@ export type MongooseMemoryTestContext = {
 };
 
 export async function createMongooseMemoryTestContext(): Promise<MongooseMemoryTestContext> {
-  const server = await MongoMemoryServer.create({
-    binary: {
-      version: "7.0.24",
-    },
-  });
+  const server = await MongoMemoryServer.create(mongoMemoryServerTestOptions);
   const mongoose = new Mongoose();
   await mongoose.connect(server.getUri());
 
