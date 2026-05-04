@@ -116,6 +116,10 @@ type BenchmarkGateReport = {
     health: {
       ok: boolean;
     };
+    capabilities?: {
+      ok: boolean;
+      modes: Array<{ id: string; status: string }>;
+    };
     websocket: {
       connected: boolean;
       binaryEchoObserved: boolean;
@@ -751,6 +755,18 @@ describe("benchmark gate report", () => {
             latencyMs: 10,
             body: { status: "ok" },
           },
+          capabilities: {
+            attempted: true,
+            ok: true,
+            statusCode: 200,
+            latencyMs: 11,
+            modes: [
+              { id: "transport-echo", status: "ready", blockers: [] },
+              { id: "moshi-mlx", status: "proposal_required", blockers: ["proposal_local_realtime_voice_model_inference_pending"] },
+              { id: "qwen3-tts-mlx", status: "proposal_required", blockers: ["proposal_local_realtime_voice_model_inference_pending"] },
+            ],
+            body: { defaultMode: "transport-echo" },
+          },
           websocket: {
             attempted: true,
             connected: true,
@@ -817,6 +833,14 @@ describe("benchmark gate report", () => {
     expect(report.api_python_backend_runtime_smoke).toMatchObject({
       status: "passed",
       health: { ok: true },
+      capabilities: {
+        ok: true,
+        modes: [
+          { id: "transport-echo", status: "ready" },
+          { id: "moshi-mlx", status: "proposal_required" },
+          { id: "qwen3-tts-mlx", status: "proposal_required" },
+        ],
+      },
       websocket: {
         connected: true,
         binaryEchoObserved: true,

@@ -423,6 +423,7 @@ type EvidenceGateReport = {
     status: string;
     python: ApiPythonBackendRuntimeSmokeReport["python"];
     health: ApiPythonBackendRuntimeSmokeReport["health"];
+    capabilities: ApiPythonBackendRuntimeSmokeReport["capabilities"];
     websocket: ApiPythonBackendRuntimeSmokeReport["websocket"];
     verdict: ApiPythonBackendRuntimeSmokeReport["verdict"];
   };
@@ -922,6 +923,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         status: apiPythonBackendRuntimeSmoke.value.status,
         python: apiPythonBackendRuntimeSmoke.value.python,
         health: apiPythonBackendRuntimeSmoke.value.health,
+        capabilities: apiPythonBackendRuntimeSmoke.value.capabilities,
         websocket: apiPythonBackendRuntimeSmoke.value.websocket,
         verdict: apiPythonBackendRuntimeSmoke.value.verdict,
       },

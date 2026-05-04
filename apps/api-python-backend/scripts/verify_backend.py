@@ -96,6 +96,8 @@ def assert_source_contract() -> None:
     routes = decorator_paths(tree)
     if ("get", "/health") not in routes:
         fail("missing GET /health route")
+    if ("get", "/capabilities") not in routes:
+        fail("missing GET /capabilities route")
     if ("websocket", "/voice/realtime/ws") not in routes:
         fail("missing websocket /voice/realtime/ws route")
 
@@ -106,6 +108,10 @@ def assert_source_contract() -> None:
         "\"websocket.receive\"",
         "bytes",
         "text",
+        "proposal_required",
+        "transport-echo",
+        "moshi-mlx",
+        "qwen3-tts-mlx",
     )
     for snippet in expected_snippets:
         if snippet not in source:

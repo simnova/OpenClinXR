@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T22:23:06.830Z",
+  "generatedAt": "2026-05-04T22:35:00.512Z",
   "status": "transport_spike_passed",
   "policy": {
     "cloudApisUsed": false,
@@ -133,10 +133,10 @@
     "binaryAudioChunksReceived": 2,
     "backendProtocol": "python-fastapi-compatible-websocket",
     "codec": "opus",
-    "roundTripLatencyMs": 11.13,
+    "roundTripLatencyMs": 12,
     "frameLatencySamplesMs": [
-      6.5,
-      6.42
+      6.38,
+      6.31
     ],
     "audioChunkIndexesReceived": [
       0,

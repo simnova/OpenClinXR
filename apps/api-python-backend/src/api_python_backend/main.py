@@ -17,6 +17,56 @@ async def health() -> dict[str, str]:
     return {"status": "ok", "service": "api-python-backend"}
 
 
+@app.get("/capabilities")
+async def capabilities() -> dict[str, Any]:
+    return {
+        "service": "api-python-backend",
+        "defaultMode": "transport-echo",
+        "routes": {
+            "health": "/health",
+            "capabilities": "/capabilities",
+            "realtimeWebSocket": "/voice/realtime/ws",
+        },
+        "modes": [
+            {
+                "id": "transport-echo",
+                "status": "ready",
+                "cloudApisUsed": False,
+                "paidApisUsed": False,
+                "modelDownloadsUsed": False,
+                "description": "Local WebSocket control and binary-frame echo for gateway integration tests.",
+                "blockers": [],
+            },
+            {
+                "id": "moshi-mlx",
+                "status": "proposal_required",
+                "cloudApisUsed": False,
+                "paidApisUsed": False,
+                "modelDownloadsUsed": False,
+                "description": "Future local full-duplex voice candidate gated by operator approval and model install evidence.",
+                "blockers": [
+                    "proposal_local_realtime_voice_model_inference_pending",
+                    "model_weights_not_installed",
+                    "mlx_runtime_not_installed",
+                ],
+            },
+            {
+                "id": "qwen3-tts-mlx",
+                "status": "proposal_required",
+                "cloudApisUsed": False,
+                "paidApisUsed": False,
+                "modelDownloadsUsed": False,
+                "description": "Future local streaming TTS fallback gated by operator approval and model install evidence.",
+                "blockers": [
+                    "proposal_local_realtime_voice_model_inference_pending",
+                    "model_weights_not_installed",
+                    "mlx_runtime_not_installed",
+                ],
+            },
+        ],
+    }
+
+
 @app.websocket("/voice/realtime/ws")
 async def voice_realtime_ws(websocket: WebSocket) -> None:
     await websocket.accept()

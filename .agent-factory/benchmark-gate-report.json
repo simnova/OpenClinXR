@@ -23,7 +23,7 @@
       "evidence_id": "gltf_pipeline_smoke",
       "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
       "generated_at": "2026-05-03T22:35:14.615Z",
-      "age_hours": 23,
+      "age_hours": 24,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -103,7 +103,7 @@
     {
       "evidence_id": "realtime_voice_transport_spike",
       "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json",
-      "generated_at": "2026-05-04T22:23:06.830Z",
+      "generated_at": "2026-05-04T22:35:00.512Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -112,7 +112,7 @@
     {
       "evidence_id": "api_python_backend_runtime_smoke",
       "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-04.json",
-      "generated_at": "2026-05-04T22:03:52.343Z",
+      "generated_at": "2026-05-04T22:34:45.884Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -122,7 +122,7 @@
       "evidence_id": "quest_manual_performance",
       "file": ".agent-factory/quest-manual-performance-report.json",
       "generated_at": "2026-05-04T15:37:29.215Z",
-      "age_hours": 6,
+      "age_hours": 7,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -917,14 +917,14 @@
   },
   "realtime_voice_transport_spike": {
     "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json",
-    "generated_at": "2026-05-04T22:23:06.830Z",
+    "generated_at": "2026-05-04T22:35:00.512Z",
     "status": "transport_spike_passed",
-    "round_trip_latency_ms": 11.13,
+    "round_trip_latency_ms": 12,
     "audio_metadata_frames_sent": 2,
     "audio_chunk_metadata_received": 2,
     "frame_latency_samples_ms": [
-      6.5,
-      6.42
+      6.38,
+      6.31
     ],
     "audio_chunk_indexes_received": [
       0,
@@ -959,7 +959,7 @@
   },
   "api_python_backend_runtime_smoke": {
     "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-04.json",
-    "generated_at": "2026-05-04T22:03:52.343Z",
+    "generated_at": "2026-05-04T22:34:45.884Z",
     "status": "passed",
     "python": {
       "executable": ".openclinxr-local/api-python-backend-venv/bin/python",
@@ -975,10 +975,87 @@
       "attempted": true,
       "ok": true,
       "statusCode": 200,
-      "latencyMs": 1370,
+      "latencyMs": 543,
       "body": {
         "status": "ok",
         "service": "api-python-backend"
+      }
+    },
+    "capabilities": {
+      "attempted": true,
+      "ok": true,
+      "statusCode": 200,
+      "latencyMs": 5,
+      "modes": [
+        {
+          "id": "transport-echo",
+          "status": "ready",
+          "blockers": []
+        },
+        {
+          "id": "moshi-mlx",
+          "status": "proposal_required",
+          "blockers": [
+            "proposal_local_realtime_voice_model_inference_pending",
+            "model_weights_not_installed",
+            "mlx_runtime_not_installed"
+          ]
+        },
+        {
+          "id": "qwen3-tts-mlx",
+          "status": "proposal_required",
+          "blockers": [
+            "proposal_local_realtime_voice_model_inference_pending",
+            "model_weights_not_installed",
+            "mlx_runtime_not_installed"
+          ]
+        }
+      ],
+      "body": {
+        "service": "api-python-backend",
+        "defaultMode": "transport-echo",
+        "routes": {
+          "health": "/health",
+          "capabilities": "/capabilities",
+          "realtimeWebSocket": "/voice/realtime/ws"
+        },
+        "modes": [
+          {
+            "id": "transport-echo",
+            "status": "ready",
+            "cloudApisUsed": false,
+            "paidApisUsed": false,
+            "modelDownloadsUsed": false,
+            "description": "Local WebSocket control and binary-frame echo for gateway integration tests.",
+            "blockers": []
+          },
+          {
+            "id": "moshi-mlx",
+            "status": "proposal_required",
+            "cloudApisUsed": false,
+            "paidApisUsed": false,
+            "modelDownloadsUsed": false,
+            "description": "Future local full-duplex voice candidate gated by operator approval and model install evidence.",
+            "blockers": [
+              "proposal_local_realtime_voice_model_inference_pending",
+              "model_weights_not_installed",
+              "mlx_runtime_not_installed"
+            ]
+          },
+          {
+            "id": "qwen3-tts-mlx",
+            "status": "proposal_required",
+            "cloudApisUsed": false,
+            "paidApisUsed": false,
+            "modelDownloadsUsed": false,
+            "description": "Future local streaming TTS fallback gated by operator approval and model install evidence.",
+            "blockers": [
+              "proposal_local_realtime_voice_model_inference_pending",
+              "model_weights_not_installed",
+              "mlx_runtime_not_installed"
+            ]
+          }
+        ]
       }
     },
     "websocket": {

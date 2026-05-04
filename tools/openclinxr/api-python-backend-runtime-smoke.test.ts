@@ -22,6 +22,18 @@ const baseInput = {
     latencyMs: 25,
     body: { status: "ok", service: "api-python-backend" },
   },
+  capabilities: {
+    attempted: true,
+    ok: true,
+    statusCode: 200,
+    latencyMs: 26,
+    modes: [
+      { id: "transport-echo", status: "ready", blockers: [] },
+      { id: "moshi-mlx", status: "proposal_required", blockers: ["proposal_local_realtime_voice_model_inference_pending"] },
+      { id: "qwen3-tts-mlx", status: "proposal_required", blockers: ["proposal_local_realtime_voice_model_inference_pending"] },
+    ],
+    body: { defaultMode: "transport-echo" },
+  },
   websocket: {
     attempted: true,
     connected: true,
@@ -44,6 +56,14 @@ describe("API Python backend runtime smoke report", () => {
       passed: true,
       readyForLiveDialog: false,
       blockers: [],
+    });
+    expect(report.capabilities).toMatchObject({
+      ok: true,
+      modes: [
+        { id: "transport-echo", status: "ready" },
+        { id: "moshi-mlx", status: "proposal_required" },
+        { id: "qwen3-tts-mlx", status: "proposal_required" },
+      ],
     });
     expect(report.policy).toMatchObject({
       cloudApisUsed: false,
@@ -69,6 +89,14 @@ describe("API Python backend runtime smoke report", () => {
         latencyMs: null,
         body: null,
       },
+      capabilities: {
+        attempted: false,
+        ok: false,
+        statusCode: null,
+        latencyMs: null,
+        modes: [],
+        body: null,
+      },
       websocket: {
         attempted: false,
         connected: false,
@@ -89,6 +117,7 @@ describe("API Python backend runtime smoke report", () => {
       "python_dependency_missing:uvicorn",
       "server_not_started",
       "health_check_failed",
+      "capabilities_check_failed",
       "websocket_not_connected",
     ]));
   });

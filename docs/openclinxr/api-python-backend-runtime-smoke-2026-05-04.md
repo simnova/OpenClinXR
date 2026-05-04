@@ -12,6 +12,8 @@ Observed evidence:
 - Python: 3.11.4.
 - FastAPI, Uvicorn, and WebSockets imports were available in the local venv.
 - `GET /health` returned `{ "status": "ok", "service": "api-python-backend" }`.
+- `GET /capabilities` returned `transport-echo` as ready, with `moshi-mlx` and
+  `qwen3-tts-mlx` still marked `proposal_required`.
 - `WS /voice/realtime/ws` accepted the connection.
 - JSON control acknowledgements were observed.
 - Binary audio-like packets were echoed.

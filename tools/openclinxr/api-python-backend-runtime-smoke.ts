@@ -35,6 +35,18 @@ export type ApiPythonBackendRuntimeSmokeReport = {
     latencyMs: number | null;
     body: unknown;
   };
+  capabilities: {
+    attempted: boolean;
+    ok: boolean;
+    statusCode: number | null;
+    latencyMs: number | null;
+    modes: Array<{
+      id: string;
+      status: string;
+      blockers: string[];
+    }>;
+    body: unknown;
+  };
   websocket: {
     attempted: boolean;
     connected: boolean;
@@ -72,6 +84,7 @@ type RuntimeSmokeObservation = {
   stdout: string[];
   stderr: string[];
   health: ApiPythonBackendRuntimeSmokeReport["health"];
+  capabilities: ApiPythonBackendRuntimeSmokeReport["capabilities"];
   websocket: ApiPythonBackendRuntimeSmokeReport["websocket"];
 };
 
@@ -151,6 +164,7 @@ export async function runApiPythonBackendRuntimeSmoke(options: CliOptions): Prom
       stdout: [],
       stderr: [],
       health: emptyHealth(false),
+      capabilities: emptyCapabilities(false),
       websocket: emptyWebSocket(false),
     });
   }
@@ -166,6 +180,9 @@ export async function runApiPythonBackendRuntimeSmoke(options: CliOptions): Prom
 
   try {
     const health = await waitForHealth(options.port, options.timeoutMs);
+    const capabilities = health.ok
+      ? await fetchCapabilities(options.port, options.timeoutMs)
+      : emptyCapabilities(false);
     const websocket = health.ok
       ? await runWebSocketProbe(options.port, options.timeoutMs)
       : emptyWebSocket(false);
@@ -180,6 +197,7 @@ export async function runApiPythonBackendRuntimeSmoke(options: CliOptions): Prom
       stdout,
       stderr,
       health,
+      capabilities,
       websocket,
     });
   } finally {
@@ -197,6 +215,7 @@ export function buildApiPythonBackendRuntimeSmokeReport(
     ...missingPackages.map((packageName) => `python_dependency_missing:${packageName}`),
     ...(input.serverAttempted ? [] : ["server_not_started"]),
     ...(input.health.attempted && input.health.ok ? [] : ["health_check_failed"]),
+    ...(input.capabilities.attempted && input.capabilities.ok ? [] : ["capabilities_check_failed"]),
     ...(input.websocket.attempted && input.websocket.connected ? [] : ["websocket_not_connected"]),
     ...(input.websocket.controlAckObserved ? [] : ["websocket_control_ack_missing"]),
     ...(input.websocket.audioMetadataObserved ? [] : ["websocket_audio_metadata_missing"]),
@@ -229,6 +248,7 @@ export function buildApiPythonBackendRuntimeSmokeReport(
       stderr: input.stderr.slice(-20),
     },
     health: input.health,
+    capabilities: input.capabilities,
     websocket: input.websocket,
     verdict: {
       passed,
@@ -314,6 +334,67 @@ function isHealthOk(body: unknown): boolean {
     && body !== null
     && (body as { status?: unknown }).status === "ok"
     && (body as { service?: unknown }).service === "api-python-backend";
+}
+
+async function fetchCapabilities(
+  port: number,
+  timeoutMs: number,
+): Promise<ApiPythonBackendRuntimeSmokeReport["capabilities"]> {
+  const startedAt = performance.now();
+  try {
+    const response = await fetch(`http://127.0.0.1:${port}/capabilities`, {
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    const body = await response.json();
+    const modes = extractCapabilityModes(body);
+    return {
+      attempted: true,
+      ok: response.ok && isCapabilitiesOk(body, modes),
+      statusCode: response.status,
+      latencyMs: Math.round(performance.now() - startedAt),
+      modes,
+      body,
+    };
+  } catch {
+    return {
+      attempted: true,
+      ok: false,
+      statusCode: null,
+      latencyMs: Math.round(performance.now() - startedAt),
+      modes: [],
+      body: null,
+    };
+  }
+}
+
+function extractCapabilityModes(body: unknown): ApiPythonBackendRuntimeSmokeReport["capabilities"]["modes"] {
+  if (typeof body !== "object" || body === null || !Array.isArray((body as { modes?: unknown }).modes)) {
+    return [];
+  }
+  return (body as { modes: unknown[] }).modes
+    .filter((mode): mode is Record<string, unknown> => typeof mode === "object" && mode !== null)
+    .map((mode) => ({
+      id: typeof mode.id === "string" ? mode.id : "unknown",
+      status: typeof mode.status === "string" ? mode.status : "unknown",
+      blockers: Array.isArray(mode.blockers)
+        ? mode.blockers.filter((blocker): blocker is string => typeof blocker === "string")
+        : [],
+    }));
+}
+
+function isCapabilitiesOk(
+  body: unknown,
+  modes: ApiPythonBackendRuntimeSmokeReport["capabilities"]["modes"],
+): boolean {
+  if (typeof body !== "object" || body === null) {
+    return false;
+  }
+  const defaultMode = (body as { defaultMode?: unknown }).defaultMode;
+  const modeById = new Map(modes.map((mode) => [mode.id, mode]));
+  return defaultMode === "transport-echo"
+    && modeById.get("transport-echo")?.status === "ready"
+    && modeById.get("moshi-mlx")?.status === "proposal_required"
+    && modeById.get("qwen3-tts-mlx")?.status === "proposal_required";
 }
 
 async function runWebSocketProbe(
@@ -412,6 +493,17 @@ function emptyHealth(attempted: boolean): ApiPythonBackendRuntimeSmokeReport["he
     ok: false,
     statusCode: null,
     latencyMs: null,
+    body: null,
+  };
+}
+
+function emptyCapabilities(attempted: boolean): ApiPythonBackendRuntimeSmokeReport["capabilities"] {
+  return {
+    attempted,
+    ok: false,
+    statusCode: null,
+    latencyMs: null,
+    modes: [],
     body: null,
   };
 }
