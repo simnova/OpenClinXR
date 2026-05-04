@@ -116,6 +116,19 @@ describe("workspace architecture rules", () => {
     expect(rootPackage.scripts?.verify).not.toContain("iwsdk:verify");
   });
 
+  it("keeps the implementation plan explicit about the IWSDK sidecar policy", () => {
+    const implementationPlan = readFileSync(join(workspaceRoot, "docs/openclinxr/code-implementation-plan.md"), "utf8");
+
+    expect(implementationPlan).toContain("IWSDK Sidecar Policy");
+    expect(implementationPlan).toContain("apps/ui-xr-iwsdk-spike");
+    expect(implementationPlan).toContain("pnpm iwsdk:verify");
+    expect(implementationPlan).toContain("@iwsdk/core");
+    expect(implementationPlan).toContain("@iwsdk/xr-input");
+    expect(implementationPlan).toContain("@iwsdk/reference");
+    expect(implementationPlan).toContain("@meta-quest/hzdb");
+    expect(implementationPlan).toContain("apps/ui-xr");
+  });
+
   it("keeps Turborepo cache artifacts out of tracked workspace files", () => {
     const trackedFiles = execFileSync("git", ["ls-files"], { cwd: workspaceRoot, encoding: "utf8" })
       .split("\n")

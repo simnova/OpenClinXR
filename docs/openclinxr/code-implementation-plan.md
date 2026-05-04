@@ -249,6 +249,20 @@ Implement Vite WebXR app:
 - Trace event controls.
 - Mock dialogue display.
 
+#### IWSDK Sidecar Policy
+
+Meta Immersive Web SDK is a sidecar spike candidate, not a production XR dependency. Keep the production `apps/ui-xr` shell dependency-free from `@iwsdk/*` until a real install-backed `apps/ui-xr-iwsdk-spike` proves compatibility, license posture, bundle impact, MCP behavior, and foreground Quest 3 performance.
+
+Sidecar rules:
+
+- Create `apps/ui-xr-iwsdk-spike` only after operator approval for install scope, exact versions, and transitive license posture.
+- First install-backed slice may evaluate exact-versioned `@iwsdk/core` and `@iwsdk/xr-input` only.
+- Keep `@iwsdk/reference`, `@iwsdk/starter-assets`, `@iwsdk/create`, and `@meta-quest/hzdb` blocked until their download, asset, legal, and procurement questions are resolved.
+- Do not run `npx iwsdk reference warmup` unattended because it can download a model and reference corpus.
+- Reject AGPL, GPL, LGPL, UNLICENSED, Unknown, and unreviewed sharp/libvips-style transitive license paths unless leadership records an explicit exception.
+- Run `pnpm iwsdk:verify` before and after any sidecar package or lockfile change.
+- Treat IWSDK MCP screenshots, controller emulation, scene inspection, and ECS debugging as local development accelerators, not substitutes for physical Quest 3 USB-C smoke, foreground frame pacing, controller latency, comfort, or in-headset text-readability evidence.
+
 Acceptance:
 
 - Desktop fallback loads in Playwright.
@@ -338,3 +352,8 @@ The task-by-task plan lives at:
 - `src-deepseek-r1-distill-qwen-2025`
 - `src-kimi-k2-thinking-2026`
 - `src-internal-openclinxr-architecture-bundle`
+- `src-meta-iwsdk-github-2026`
+- `src-iwsdk-ai-docs-2026`
+- `src-iwsdk-npm-metadata-2026-05-04`
+- `src-iwsdk-local-spike-2026-05-04`
+- `src-openclinxr-iwsdk-spike-plan-2026-05-04`
