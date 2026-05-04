@@ -6,6 +6,7 @@ import {
   SaveFacultyScoreDraftDocument,
   ScenarioBankDocument,
   ScenarioDetailDocument,
+  ScenarioReviewDecisionsDocument,
   StationRunQueueSnapshotsDocument,
   SubmitScenarioReviewDocument,
 } from "@openclinxr/graphql/client";
@@ -22,6 +23,7 @@ describe("admin control-plane API client", () => {
     const createSnapshotDocument = print(CreateStationRunQueueSnapshotDocument);
     const scenarioBankDocument = print(ScenarioBankDocument);
     const scenarioDetailDocument = print(ScenarioDetailDocument);
+    const scenarioReviewDecisionsDocument = print(ScenarioReviewDecisionsDocument);
     const submitScenarioReviewDocument = print(SubmitScenarioReviewDocument);
     const saveFacultyScoreDraftDocument = print(SaveFacultyScoreDraftDocument);
     const reviewPacketReplayDocument = print(ReviewPacketReplayDocument);
@@ -137,6 +139,22 @@ describe("admin control-plane API client", () => {
               actors: [],
               assetNeeds: [],
             },
+          },
+        },
+        "/admin/graphql#ScenarioReviewDecisions": {
+          data: {
+            scenarioReviewDecisions: [
+              {
+                scenarioId: "peds_asthma_parent_anxiety_v1",
+                version: 1,
+                reviewerRole: "clinical",
+                reviewerId: "pediatrician_001",
+                decision: "approved",
+                comments: "Clinical review complete.",
+                evidenceRefs: ["evidence:peds:clinical:2026-05-04"],
+                reviewedAt: "2026-05-04T09:00:00.000Z",
+              },
+            ],
           },
         },
         "/admin/graphql#SaveFacultyScoreDraft": {
@@ -261,6 +279,17 @@ describe("admin control-plane API client", () => {
       status: "READY_FOR_REVIEW",
       review: expect.objectContaining({ clinical: "approved" }),
     }));
+    await expect(client.listScenarioReviewDecisions({
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      version: 1,
+    })).resolves.toEqual([
+      expect.objectContaining({
+        scenarioId: "peds_asthma_parent_anxiety_v1",
+        reviewerRole: "clinical",
+        reviewerId: "pediatrician_001",
+        evidenceRefs: ["evidence:peds:clinical:2026-05-04"],
+      }),
+    ]);
     await expect(client.saveFacultyScoreDraft({
       stationRunId: "run_ed_chest_pain_priority_v1_learner_001",
       reviewerId: "faculty_002",
@@ -377,6 +406,18 @@ describe("admin control-plane API client", () => {
               comments: "Clinical review complete.",
               evidenceRefs: ["evidence:peds:clinical:2026-05-04"],
             },
+          },
+        }),
+      },
+      {
+        url: "http://localhost:8787/admin/graphql",
+        method: "POST",
+        body: expect.objectContaining({
+          operationName: "ScenarioReviewDecisions",
+          query: scenarioReviewDecisionsDocument,
+          variables: {
+            scenarioId: "peds_asthma_parent_anxiety_v1",
+            version: 1,
           },
         }),
       },
@@ -558,6 +599,18 @@ describe("admin control-plane API client", () => {
         },
       ],
     };
+    const reviewDecisions = [
+      {
+        scenarioId: "ed_chest_pain_priority_v1",
+        version: 1,
+        reviewerRole: "clinical",
+        reviewerId: "clinician_001",
+        decision: "approved",
+        comments: "Approved.",
+        evidenceRefs: ["evidence:clinical:2026-05-04"],
+        reviewedAt: "2026-05-04T09:00:00.000Z",
+      },
+    ];
     const apolloClient = {
       query: vi.fn(async ({ query }) => {
         if (query === ScenarioDetailDocument) {
@@ -580,6 +633,9 @@ describe("admin control-plane API client", () => {
         }
         if (query === ReviewPacketReplayDocument) {
           return { data: reviewPacketReplay };
+        }
+        if (query === ScenarioReviewDecisionsDocument) {
+          return { data: { scenarioReviewDecisions: reviewDecisions } };
         }
         return { data: { stationRunQueueSnapshots: [queueSnapshot] } };
       }),
@@ -614,6 +670,10 @@ describe("admin control-plane API client", () => {
       comments: "Approved.",
       evidenceRefs: ["evidence:clinical:2026-05-04"],
     })).resolves.toEqual(scenario);
+    await expect(client.listScenarioReviewDecisions({
+      scenarioId: "ed_chest_pain_priority_v1",
+      version: 1,
+    })).resolves.toEqual(reviewDecisions);
     await expect(client.saveFacultyScoreDraft({
       stationRunId: "run_ed_chest_pain_priority_v1_learner_001",
       reviewerId: "faculty_002",

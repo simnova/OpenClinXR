@@ -82,6 +82,7 @@ describe("OpenClinXR API shell", () => {
       "exam-form-assembly",
       "station-run-queue-snapshot",
       "scenario-review-decision",
+      "scenario-review-decisions",
       "faculty-score-draft",
       "station-run-queue-snapshots",
     ]);
@@ -93,6 +94,7 @@ describe("OpenClinXR API shell", () => {
       "AssembleExamForm",
       "CreateStationRunQueueSnapshot",
       "SubmitScenarioReview",
+      "ScenarioReviewDecisions",
       "SaveFacultyScoreDraft",
       "StationRunQueueSnapshots",
     ]);
@@ -100,6 +102,7 @@ describe("OpenClinXR API shell", () => {
     expect(documents.find((document) => document.routeId === "scenario-detail")?.source).toContain("query ScenarioDetail");
     expect(documents.find((document) => document.routeId === "station-run-queue-snapshot")?.source).toContain("createStationRunQueueSnapshot");
     expect(documents.find((document) => document.routeId === "scenario-review-decision")?.source).toContain("submitScenarioReview");
+    expect(documents.find((document) => document.routeId === "scenario-review-decisions")?.source).toContain("scenarioReviewDecisions");
     expect(documents.find((document) => document.routeId === "faculty-score-draft")?.source).toContain("saveFacultyScoreDraft");
     expect(documents.at(-1)?.source).toContain("stationRunQueueSnapshots");
     expect(JSON.stringify(documents)).not.toContain("hiddenFacts");
@@ -538,6 +541,7 @@ describe("OpenClinXR API shell", () => {
     };
     const app = createApiApp(undefined, persistence);
     const submitScenarioReviewDocument = adminGraphqlDocumentByOperationName("SubmitScenarioReview");
+    const scenarioReviewDecisionsDocument = adminGraphqlDocumentByOperationName("ScenarioReviewDecisions");
     const scenarioDetailDocument = adminGraphqlDocumentByOperationName("ScenarioDetail");
 
     const reviewResponse = await app.request("/admin/graphql", {
@@ -597,6 +601,35 @@ describe("OpenClinXR API shell", () => {
       }),
     ]);
     expect(Date.parse(scenarioReviewDecisions[0]?.reviewedAt ?? "")).not.toBeNaN();
+
+    const decisionsResponse = await app.request("/admin/graphql", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        query: scenarioReviewDecisionsDocument.source,
+        operationName: "ScenarioReviewDecisions",
+        variables: { scenarioId: "peds_asthma_parent_anxiety_v1", version: 1 },
+      }),
+    });
+    const decisions = await json(decisionsResponse) as {
+      data?: { scenarioReviewDecisions: ApiScenarioReviewDecisionRecord[] };
+      errors?: Array<{ message: string }>;
+    };
+
+    expect(decisionsResponse.status).toBe(200);
+    expect(decisions.errors).toBeUndefined();
+    expect(decisions.data?.scenarioReviewDecisions).toEqual([
+      expect.objectContaining({
+        scenarioId: "peds_asthma_parent_anxiety_v1",
+        version: 1,
+        reviewerRole: "clinical",
+        reviewerId: "pediatrician_001",
+        decision: "approved",
+        comments: "Clinical objectives are plausible for local formative review.",
+        evidenceRefs: ["evidence:peds:clinical:2026-05-04"],
+      }),
+    ]);
+    expect(JSON.stringify(decisions)).not.toContain("hiddenFacts");
 
     const detailResponse = await app.request("/admin/graphql", {
       method: "POST",

@@ -1,0 +1,12 @@
+query ScenarioReviewDecisions($scenarioId: ID!, $version: Int!) {
+  scenarioReviewDecisions(scenarioId: $scenarioId, version: $version) {
+    scenarioId
+    version
+    reviewerRole
+    reviewerId
+    decision
+    comments
+    evidenceRefs
+    reviewedAt
+  }
+}

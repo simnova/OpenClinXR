@@ -7,6 +7,7 @@ import {
   SaveFacultyScoreDraftDocument,
   ScenarioBankDocument,
   ScenarioDetailDocument,
+  ScenarioReviewDecisionsDocument,
   StationRunQueueSnapshotsDocument,
   SubmitScenarioReviewDocument,
   type CreateStationRunQueueSnapshotMutation,
@@ -19,6 +20,8 @@ import {
   type ScenarioBankQueryVariables,
   type ScenarioDetailQuery,
   type ScenarioDetailQueryVariables,
+  type ScenarioReviewDecisionsQuery,
+  type ScenarioReviewDecisionsQueryVariables,
   type ScenarioStatus,
   type StationRunQueueSnapshotsQuery,
   type StationRunQueueSnapshotsQueryVariables,
@@ -52,6 +55,7 @@ export type AdminControlPlaneClient = {
   createLocalReviewReplaySeed(input?: CreateLocalReviewReplaySeedInput): Promise<CreateLocalReviewReplaySeedResult>;
   listScenarios(input?: ListScenariosInput): Promise<AdminScenario[]>;
   getScenarioDetail(input: GetScenarioDetailInput): Promise<AdminScenarioDetail>;
+  listScenarioReviewDecisions(input: ListScenarioReviewDecisionsInput): Promise<AdminScenarioReviewDecision[]>;
   getReviewPacketReplay(input: GetReviewPacketReplayInput): Promise<AdminReviewPacketReplay>;
   submitScenarioReview(input: SubmitScenarioReviewInput): Promise<AdminScenarioReviewResult>;
   saveFacultyScoreDraft(input: SaveFacultyScoreDraftInput): Promise<AdminReviewPacket>;
@@ -65,6 +69,11 @@ export type ListScenariosInput = {
 };
 
 export type GetScenarioDetailInput = {
+  scenarioId: string;
+  version: number;
+};
+
+export type ListScenarioReviewDecisionsInput = {
   scenarioId: string;
   version: number;
 };
@@ -92,6 +101,7 @@ export type SaveFacultyScoreDraftInput = SaveFacultyScoreDraftMutationVariables[
 
 export type AdminScenario = ScenarioBankQuery["scenarios"][number];
 export type AdminScenarioDetail = ScenarioDetailQuery;
+export type AdminScenarioReviewDecision = ScenarioReviewDecisionsQuery["scenarioReviewDecisions"][number];
 export type AdminReviewPacketReplay = ReviewPacketReplayQuery;
 export type AdminScenarioReviewResult = SubmitScenarioReviewMutation["submitScenarioReview"];
 export type AdminReviewPacket = SaveFacultyScoreDraftMutation["saveFacultyScoreDraft"];
@@ -103,6 +113,7 @@ const stationRunQueueSnapshotsDocument = print(StationRunQueueSnapshotsDocument)
 const createStationRunQueueSnapshotDocument = print(CreateStationRunQueueSnapshotDocument);
 const scenarioBankDocument = print(ScenarioBankDocument);
 const scenarioDetailDocument = print(ScenarioDetailDocument);
+const scenarioReviewDecisionsDocument = print(ScenarioReviewDecisionsDocument);
 const reviewPacketReplayDocument = print(ReviewPacketReplayDocument);
 const submitScenarioReviewDocument = print(SubmitScenarioReviewDocument);
 const saveFacultyScoreDraftDocument = print(SaveFacultyScoreDraftDocument);
@@ -193,6 +204,32 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
         scenarioDetailDocument,
         variables,
       );
+    },
+    listScenarioReviewDecisions: async (input) => {
+      const variables: ScenarioReviewDecisionsQueryVariables = {
+        scenarioId: input.scenarioId,
+        version: input.version,
+      };
+      if (apolloClient) {
+        const { data } = await apolloClient.query<ScenarioReviewDecisionsQuery, ScenarioReviewDecisionsQueryVariables>({
+          query: ScenarioReviewDecisionsDocument,
+          variables,
+          fetchPolicy: "network-only",
+        });
+        if (!data) {
+          throw new Error("OpenClinXR admin GraphQL request failed: ScenarioReviewDecisions missing_data");
+        }
+        return data.scenarioReviewDecisions;
+      }
+
+      const data = await graphql<ScenarioReviewDecisionsQuery>(
+        fetcher,
+        baseUrl,
+        "ScenarioReviewDecisions",
+        scenarioReviewDecisionsDocument,
+        variables,
+      );
+      return data.scenarioReviewDecisions;
     },
     getReviewPacketReplay: async (input) => {
       const variables: ReviewPacketReplayQueryVariables = {

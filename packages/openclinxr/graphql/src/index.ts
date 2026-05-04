@@ -10,11 +10,13 @@ import type {
   QueryAssetReadinessArgs,
   QueryReviewPacketArgs,
   QueryScenarioArgs,
+  QueryScenarioReviewDecisionsArgs,
   QueryScenariosArgs,
   QueryStationRunQueueSnapshotsArgs,
   QueryTraceEventsArgs,
   ReviewPacket,
   Scenario,
+  ScenarioReviewDecisionRecord,
   StationRunQueueSnapshot,
   TraceEvent,
 } from "./generated/resolvers.generated.js";
@@ -54,6 +56,9 @@ export type AdminGraphqlRootValue = {
   scenarios?: (
     args: QueryScenariosArgs,
   ) => Promise<AdminGraphqlScenario[]> | AdminGraphqlScenario[];
+  scenarioReviewDecisions?: (
+    args: QueryScenarioReviewDecisionsArgs,
+  ) => Promise<ScenarioReviewDecisionRecord[]> | ScenarioReviewDecisionRecord[];
   stationRunQueueSnapshots?: (
     args: QueryStationRunQueueSnapshotsArgs,
   ) => Promise<StationRunQueueSnapshot[]> | StationRunQueueSnapshot[];

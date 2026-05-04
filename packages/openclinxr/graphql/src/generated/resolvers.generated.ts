@@ -149,6 +149,7 @@ export type Query = {
   examForm?: Maybe<ExamForm>;
   reviewPacket?: Maybe<ReviewPacket>;
   scenario?: Maybe<Scenario>;
+  scenarioReviewDecisions: Array<ScenarioReviewDecisionRecord>;
   scenarios: Array<Scenario>;
   stationRunQueueSnapshots: Array<StationRunQueueSnapshot>;
   traceEvents: Array<TraceEvent>;
@@ -174,6 +175,12 @@ export type QueryReviewPacketArgs = {
 export type QueryScenarioArgs = {
   scenarioId: Scalars['ID']['input'];
   version?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryScenarioReviewDecisionsArgs = {
+  scenarioId: Scalars['ID']['input'];
+  version: Scalars['Int']['input'];
 };
 
 
@@ -266,6 +273,18 @@ export type ScenarioReviewDecisionInput = {
   reviewerRole: Scalars['String']['input'];
   scenarioId: Scalars['ID']['input'];
   version: Scalars['Int']['input'];
+};
+
+export type ScenarioReviewDecisionRecord = {
+  __typename?: 'ScenarioReviewDecisionRecord';
+  comments: Scalars['String']['output'];
+  decision: Scalars['String']['output'];
+  evidenceRefs: Array<Scalars['String']['output']>;
+  reviewedAt: Scalars['String']['output'];
+  reviewerId: Scalars['ID']['output'];
+  reviewerRole: Scalars['String']['output'];
+  scenarioId: Scalars['ID']['output'];
+  version: Scalars['Int']['output'];
 };
 
 export type ScenarioReviewState = {
@@ -453,6 +472,7 @@ export type ResolversTypes = {
   ScenarioEnvironment: ResolverTypeWrapper<ScenarioEnvironment>;
   ScenarioGovernance: ResolverTypeWrapper<ScenarioGovernance>;
   ScenarioReviewDecisionInput: ScenarioReviewDecisionInput;
+  ScenarioReviewDecisionRecord: ResolverTypeWrapper<ScenarioReviewDecisionRecord>;
   ScenarioReviewState: ResolverTypeWrapper<ScenarioReviewState>;
   ScenarioStatus: ScenarioStatus;
   StationRef: ResolverTypeWrapper<StationRef>;
@@ -493,6 +513,7 @@ export type ResolversParentTypes = {
   ScenarioEnvironment: ScenarioEnvironment;
   ScenarioGovernance: ScenarioGovernance;
   ScenarioReviewDecisionInput: ScenarioReviewDecisionInput;
+  ScenarioReviewDecisionRecord: ScenarioReviewDecisionRecord;
   ScenarioReviewState: ScenarioReviewState;
   StationRef: StationRef;
   StationRunQueue: StationRunQueue;
@@ -593,6 +614,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   examForm?: Resolver<Maybe<ResolversTypes['ExamForm']>, ParentType, ContextType, RequireFields<QueryExamFormArgs, 'examFormId'>>;
   reviewPacket?: Resolver<Maybe<ResolversTypes['ReviewPacket']>, ParentType, ContextType, RequireFields<QueryReviewPacketArgs, 'stationRunId'>>;
   scenario?: Resolver<Maybe<ResolversTypes['Scenario']>, ParentType, ContextType, RequireFields<QueryScenarioArgs, 'scenarioId'>>;
+  scenarioReviewDecisions?: Resolver<Array<ResolversTypes['ScenarioReviewDecisionRecord']>, ParentType, ContextType, RequireFields<QueryScenarioReviewDecisionsArgs, 'scenarioId' | 'version'>>;
   scenarios?: Resolver<Array<ResolversTypes['Scenario']>, ParentType, ContextType, Partial<QueryScenariosArgs>>;
   stationRunQueueSnapshots?: Resolver<Array<ResolversTypes['StationRunQueueSnapshot']>, ParentType, ContextType, RequireFields<QueryStationRunQueueSnapshotsArgs, 'blueprintId'>>;
   traceEvents?: Resolver<Array<ResolversTypes['TraceEvent']>, ParentType, ContextType, RequireFields<QueryTraceEventsArgs, 'stationRunId'>>;
@@ -653,6 +675,17 @@ export type ScenarioGovernanceResolvers<ContextType = any, ParentType extends Re
   syntheticCaseDisclosure?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   validationLimitations?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   validationStage?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+};
+
+export type ScenarioReviewDecisionRecordResolvers<ContextType = any, ParentType extends ResolversParentTypes['ScenarioReviewDecisionRecord'] = ResolversParentTypes['ScenarioReviewDecisionRecord']> = {
+  comments?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  decision?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  evidenceRefs?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  reviewedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  reviewerId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  reviewerRole?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  scenarioId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
 };
 
 export type ScenarioReviewStateResolvers<ContextType = any, ParentType extends ResolversParentTypes['ScenarioReviewState'] = ResolversParentTypes['ScenarioReviewState']> = {
@@ -745,6 +778,7 @@ export type Resolvers<ContextType = any> = {
   Scenario?: ScenarioResolvers<ContextType>;
   ScenarioEnvironment?: ScenarioEnvironmentResolvers<ContextType>;
   ScenarioGovernance?: ScenarioGovernanceResolvers<ContextType>;
+  ScenarioReviewDecisionRecord?: ScenarioReviewDecisionRecordResolvers<ContextType>;
   ScenarioReviewState?: ScenarioReviewStateResolvers<ContextType>;
   StationRef?: StationRefResolvers<ContextType>;
   StationRunQueue?: StationRunQueueResolvers<ContextType>;

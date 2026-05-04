@@ -24,6 +24,7 @@ describe("Mongo-backed API persistence sink", () => {
     await sink.ensureIndexes();
 
     const submitScenarioReviewDocument = adminGraphqlDocumentByOperationName("SubmitScenarioReview");
+    const scenarioReviewDecisionsDocument = adminGraphqlDocumentByOperationName("ScenarioReviewDecisions");
     const scenarioDetailDocument = adminGraphqlDocumentByOperationName("ScenarioDetail");
     const app = createApiApp(undefined, sink);
     const reviewResponse = await app.request("/admin/graphql", {
@@ -93,5 +94,40 @@ describe("Mongo-backed API persistence sink", () => {
       },
     });
     expect(JSON.stringify(restartedDetail)).not.toContain("hiddenFacts");
+
+    const restartedDecisionsResponse = await restartedApp.request("/admin/graphql", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        query: scenarioReviewDecisionsDocument.source,
+        operationName: "ScenarioReviewDecisions",
+        variables: { scenarioId: "peds_asthma_parent_anxiety_v1", version: 1 },
+      }),
+    });
+    const restartedDecisions = await json(restartedDecisionsResponse) as {
+      data?: {
+        scenarioReviewDecisions: Array<{
+          scenarioId: string;
+          reviewerRole: string;
+          reviewerId: string;
+          decision: string;
+          evidenceRefs: string[];
+        }>;
+      };
+      errors?: Array<{ message: string }>;
+    };
+
+    expect(restartedDecisionsResponse.status).toBe(200);
+    expect(restartedDecisions.errors).toBeUndefined();
+    expect(restartedDecisions.data?.scenarioReviewDecisions).toEqual([
+      expect.objectContaining({
+        scenarioId: "peds_asthma_parent_anxiety_v1",
+        reviewerRole: "clinical",
+        reviewerId: "pediatrician_001",
+        decision: "approved",
+        evidenceRefs: ["evidence:peds:clinical:mongo-restart"],
+      }),
+    ]);
+    expect(JSON.stringify(restartedDecisions)).not.toContain("hiddenFacts");
   });
 });

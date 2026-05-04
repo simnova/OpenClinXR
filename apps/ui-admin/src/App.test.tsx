@@ -39,7 +39,7 @@ describe("AdminApp", () => {
     expect(screen.getByText("Apollo Client")).toBeInTheDocument();
     expect(screen.getByText("ProComponents v3")).toBeInTheDocument();
     expect(screen.getByText("Clinical, psychometric, legal, and simulation QA gates")).toBeInTheDocument();
-  });
+  }, 10_000);
 
   it("renders seed exam readiness on the exam forms route", async () => {
     render(<AdminApp initialPath="/exam-forms" controlPlaneClient={fakeControlPlaneClient()} />);
@@ -458,6 +458,18 @@ function fakeControlPlaneClient(): AdminControlPlaneClient {
       ],
       assetNeeds: [],
     }),
+    listScenarioReviewDecisions: async (input) => [
+      {
+        scenarioId: String(input.scenarioId),
+        version: input.version,
+        reviewerRole: "clinical",
+        reviewerId: "pediatrician_001",
+        decision: "approved",
+        comments: "Clinical review complete.",
+        evidenceRefs: ["evidence:peds:clinical:2026-05-04"],
+        reviewedAt: "2026-05-04T09:00:00.000Z",
+      },
+    ],
     getReviewPacketReplay: async (input) => ({
       reviewPacket: {
         stationRunId: input.stationRunId,

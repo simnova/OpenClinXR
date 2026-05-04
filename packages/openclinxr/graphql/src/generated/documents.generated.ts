@@ -40,6 +40,11 @@ export const adminGraphqlDocuments = [
     "source": "mutation SubmitScenarioReview($input: ScenarioReviewDecisionInput!) {\n  submitScenarioReview(input: $input) {\n    scenarioId\n    version\n    title\n    status\n    clinicalObjectives\n    requiredTraceTags\n    review {\n      clinical\n      psychometric\n      legal\n      simulationQa\n    }\n    governance {\n      scoreUseLabel\n      syntheticCaseDisclosure\n      validationStage\n      requiredReviewerRoles\n      sourceIds\n    }\n    environment {\n      environmentId\n      name\n      description\n    }\n    equipment\n    actors {\n      actorId\n      role\n      displayName\n      demeanor\n    }\n    assetNeeds {\n      assetId\n      assetType\n      description\n      licenseStatus\n    }\n  }\n}\n"
   },
   {
+    "routeId": "scenario-review-decisions",
+    "operationName": "ScenarioReviewDecisions",
+    "source": "query ScenarioReviewDecisions($scenarioId: ID!, $version: Int!) {\n  scenarioReviewDecisions(scenarioId: $scenarioId, version: $version) {\n    scenarioId\n    version\n    reviewerRole\n    reviewerId\n    decision\n    comments\n    evidenceRefs\n    reviewedAt\n  }\n}\n"
+  },
+  {
     "routeId": "faculty-score-draft",
     "operationName": "SaveFacultyScoreDraft",
     "source": "mutation SaveFacultyScoreDraft($input: FacultyScoreDraftInput!) {\n  saveFacultyScoreDraft(input: $input) {\n    stationRunId\n    scenarioId\n    observedTraceTags\n    missingRequiredTraceTags\n    lateTraceTags\n    unsafeEvents\n    traceQuality {\n      eventCount\n      modelGeneratedEventCount\n      modelFailedEventCount\n      voiceAudioEventCount\n      blockedGuardrailCount\n      unsafeEventCount\n      missingRequiredTraceTagCount\n      hasPatientNote\n      hasModelProvenance\n    }\n    facultyScoreDraft {\n      reviewerId\n      status\n      comments\n    }\n  }\n}\n"

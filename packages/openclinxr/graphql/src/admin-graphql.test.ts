@@ -12,6 +12,7 @@ describe("OpenClinXR admin GraphQL contract", () => {
     expect(query?.getFields()).toHaveProperty("scenario");
     expect(query?.getFields()).toHaveProperty("examForm");
     expect(query?.getFields()).toHaveProperty("stationRunQueueSnapshots");
+    expect(query?.getFields()).toHaveProperty("scenarioReviewDecisions");
     expect(query?.getFields()).toHaveProperty("reviewPacket");
     expect(query?.getFields()).toHaveProperty("traceEvents");
     expect(mutation?.getFields()).toHaveProperty("assembleExamForm");
@@ -28,6 +29,7 @@ describe("OpenClinXR admin GraphQL contract", () => {
     expect(schema.getType("TraceEvent")).toBeDefined();
     expect(schema.getType("AssetReadiness")).toBeDefined();
     expect(schema.getType("StationRunQueueSnapshot")).toBeDefined();
+    expect(schema.getType("ScenarioReviewDecisionRecord")).toBeDefined();
     const queueType = schema.getType("StationRunQueue");
     const queueItemType = schema.getType("StationRunQueueItem");
     expect(queueType).toBeInstanceOf(GraphQLObjectType);
@@ -78,6 +80,7 @@ describe("OpenClinXR admin GraphQL contract", () => {
       "AssembleExamForm",
       "CreateStationRunQueueSnapshot",
       "SubmitScenarioReview",
+      "ScenarioReviewDecisions",
       "SaveFacultyScoreDraft",
       "StationRunQueueSnapshots",
     ]);
@@ -110,6 +113,7 @@ describe("OpenClinXR admin GraphQL contract", () => {
       ["exam-form-assembly", "./documents/assemble-exam-form.graphql"],
       ["station-run-queue-snapshot", "./documents/create-station-run-queue-snapshot.graphql"],
       ["scenario-review-decision", "./documents/submit-scenario-review.graphql"],
+      ["scenario-review-decisions", "./documents/scenario-review-decisions.graphql"],
       ["faculty-score-draft", "./documents/save-faculty-score-draft.graphql"],
       ["station-run-queue-snapshots", "./documents/station-run-queue-snapshots.graphql"],
     ]);

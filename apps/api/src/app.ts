@@ -371,6 +371,9 @@ function createAdminGraphqlRoot(
       ),
     scenarios: async ({ status }) =>
       (await listAdminGraphqlScenarios(persistence, scenarioOverrides)).filter((scenario) => status === undefined || scenario.status === status),
+    scenarioReviewDecisions: async ({ scenarioId, version }) =>
+      (await listScenarioReviewDecisionRecords(persistence))
+        .filter((decision) => decision.scenarioId === String(scenarioId) && decision.version === version),
     reviewPacket: ({ stationRunId }) => runtime.reviewPacket(String(stationRunId)),
     traceEvents: ({ stationRunId }) => runtime.traceEvents(String(stationRunId)),
     submitScenarioReview: async ({ input }) => {
@@ -414,7 +417,7 @@ async function listAdminGraphqlScenarios(
   persistence: ApiPersistenceSink,
   scenarioOverrides: Map<string, AdminGraphqlScenario>,
 ): Promise<AdminGraphqlScenario[]> {
-  const reviewDecisions = await Promise.resolve(persistence.listScenarioReviewDecisions?.() ?? []);
+  const reviewDecisions = await listScenarioReviewDecisionRecords(persistence);
 
   return scenarioBank.map((scenario) => {
     const scenarioKey = scenarioVersionKey(scenario.scenarioId, scenario.version);
@@ -425,6 +428,13 @@ async function listAdminGraphqlScenarios(
       .sort(compareScenarioReviewDecisions)
       .reduce(applyScenarioReviewDecision, baseScenario);
   });
+}
+
+async function listScenarioReviewDecisionRecords(
+  persistence: ApiPersistenceSink,
+): Promise<ApiScenarioReviewDecisionRecord[]> {
+  const reviewDecisions = await Promise.resolve(persistence.listScenarioReviewDecisions?.() ?? []);
+  return [...reviewDecisions].sort(compareScenarioReviewDecisions);
 }
 
 function toAdminGraphqlScenario(scenario: (typeof scenarioBank)[number]): AdminGraphqlScenario {

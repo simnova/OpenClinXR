@@ -15,6 +15,7 @@ enum ReviewDecision {
 type Query {
   scenario(scenarioId: ID!, version: Int): Scenario
   scenarios(status: ScenarioStatus): [Scenario!]!
+  scenarioReviewDecisions(scenarioId: ID!, version: Int!): [ScenarioReviewDecisionRecord!]!
   examForm(examFormId: ID!): ExamForm
   stationRunQueueSnapshots(blueprintId: ID!): [StationRunQueueSnapshot!]!
   reviewPacket(stationRunId: ID!): ReviewPacket
@@ -56,6 +57,17 @@ type ScenarioReviewState {
   psychometric: String!
   legal: String!
   simulationQa: String!
+}
+
+type ScenarioReviewDecisionRecord {
+  scenarioId: ID!
+  version: Int!
+  reviewerRole: String!
+  reviewerId: ID!
+  decision: String!
+  comments: String!
+  evidenceRefs: [String!]!
+  reviewedAt: String!
 }
 
 type ScenarioGovernance {
