@@ -192,6 +192,28 @@ The next implementation plan should not start until these docs are reviewed:
 - Do not claim Quest readiness until the Quest 3 USB-C smoke checklist records a pass or a precise blocker.
 - Do not approve a scenario without clinical, psychometric, legal, and simulation QA review states.
 
+## Internal Asset Job Endpoint (Current Contract)
+
+Internal asset-generation jobs now route through the main API facade:
+
+- `POST /internal/capabilities/:capabilityId/jobs`
+- `GET /internal/capabilities/:capabilityId/jobs/:jobId`
+
+Routed now (zero-spend deterministic):
+
+- `character-generation`
+- `medical-equipment-generation`
+- `asset-bake`
+
+Planned in the capability matrix, but not yet routed through this endpoint implementation:
+
+- `voice-asset-generation`
+- `animation-generation`
+
+Operational boundary:
+
+- Python/native workers stay behind the main API tunnel/facade and separate from interactive provider swaps.
+
 ## Local Hardware Updates
 
 - Android Platform Tools were installed locally on 2026-05-03.
@@ -204,6 +226,7 @@ The next implementation plan should not start until these docs are reviewed:
 - `docs/openclinxr/spikes/vibevoice-local-voice-spike.md` records the VibeVoice safety/license intake. Patrick approved the local-only VibeVoice runtime proposal, Codex installed the wrapper at `/Users/patrick/.local/bin/vibevoice`, and `docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json` records first-audio file generation. Live streaming and WebXR playback remain blocked.
 - `pnpm local:runtime:probe` produced `docs/openclinxr/local-runtime-probe-2026-05-04.json`: Quest USB is ready and the latest headset wakefulness sample is awake; Homebrew, Node 22, pnpm 10, Python 3.11, ffmpeg, adb, Blender, `llama.cpp`, `vibevoice`, and the pinned Apache-2.0 `gltf-pipeline` CLI are visible on this machine.
 - `pnpm xr:quest:smoke` produced multiple 2026-05-04 foreground Quest reports. The latest activation-focused run `docs/openclinxr/quest-cdp-smoke-xr-entry-activation-2026-05-04.json` shows Quest Browser awake, visible, focused, frame-sampling in flat preview at about 72 FPS, and trace interactions advancing. It remains blocked for immersive-session claims because CDP mouse/touch input did not reach the app's `Enter Full VR` handler: the report records `quest_immersive_entry_activation_not_received`, `quest_immersive_session_not_started`, and app-side `window.__openClinXrXrEntryEvidence.attempts = 0`. This is not a substitute for the manual worn-headset comfort/readability report.
+- Quest CDP smoke report verdicts now include `verdict.immersiveEntryOutcome`, and evidence checks include `immersiveEntryOutcome` with `not_requested`, `activation_missed`, `app_request_failed`, or `session_started`. `activation_missed` means the CDP click did not reach the app-side WebXR entry handler and still does not satisfy human headset/controller activation or manual foreground Quest readiness.
 - `pnpm local:provider:benchmark -- --env-file .env.openclinxr.local` produced `docs/openclinxr/local-provider-benchmark-2026-05-04.json`: deterministic mock model/voice benchmarks pass and the approved local model/voice runtime IDs are ready to benchmark without cloud calls.
 - `docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json` records a real local `Qwen/Qwen3-4B-GGUF` run through `llama.cpp` on Apple M1 Max Metal: about 63.17 generated tokens/sec, about 3.67 s wall-clock, and parsable JSON with caveats around `<think>` output and schema enforcement.
 - `docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json` records local VibeVoice-Realtime file generation on MPS: 3.47 s audio, 18.17 s generation time, RTF 5.24x, about 118.92 s full cold-run wall-clock, and no committed audio. This is not yet a WebXR/live-streaming latency pass.

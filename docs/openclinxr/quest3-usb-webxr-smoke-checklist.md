@@ -3,6 +3,19 @@
 Date: 2026-05-03
 Status: local device smoke guidance
 
+## Immersive Entry Outcome Classification
+
+Quest CDP smoke reports now include `verdict.immersiveEntryOutcome`, and evidence checks include `immersiveEntryOutcome` with:
+
+- `not_requested`
+- `activation_missed`
+- `app_request_failed`
+- `session_started`
+
+Interpretation note:
+
+- `activation_missed` means CDP click automation did not reach the app-side WebXR entry handler. It still requires human headset/controller activation and does not satisfy manual foreground Quest readiness.
+
 ## Decision
 
 Use the attached Quest 3 over USB-C as the first real WebXR device smoke gate. This is sufficient for early OpenClinXR headset validation, provided it is treated as a manual smoke test rather than full certification.

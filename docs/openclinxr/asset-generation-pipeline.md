@@ -39,6 +39,28 @@ flowchart LR
   Registry --> Runtime
 ```
 
+## Internal Job Facade
+
+Internal asset-generation jobs are exposed through the main API facade:
+
+- `POST /internal/capabilities/:capabilityId/jobs`
+- `GET /internal/capabilities/:capabilityId/jobs/:jobId`
+
+Current zero-spend deterministic capabilities routed through this endpoint implementation:
+
+- `character-generation`
+- `medical-equipment-generation`
+- `asset-bake`
+
+Capabilities still listed in the matrix but not yet routed through this endpoint implementation:
+
+- `voice-asset-generation`
+- `animation-generation`
+
+Worker placement rule:
+
+- Python/native workers remain behind the main API tunnel/facade and stay separate from interactive provider swaps.
+
 ## Asset Manifest
 
 Every station should produce an `asset_manifest` before any modeling work starts.
