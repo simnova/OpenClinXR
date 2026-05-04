@@ -213,12 +213,15 @@ async function scanLockfileBlockedPackages(workspaceRoot: string): Promise<strin
 
   const lockfileText = await readFile(lockfilePath, "utf8");
   const policy = buildIwsdkPreInstallPackagePolicy();
+  const iwsdkPackages = [...lockfileText.matchAll(/(?:^|\n)\s*\/?(@iwsdk\/[^@\s:]+|@meta-quest\/hzdb)@/g)]
+    .map((match) => match[1])
+    .filter((packageName): packageName is string => Boolean(packageName));
   const blockedPackages = policy.blockedPackages.filter((packageName) => lockfileContainsPackage(lockfileText, packageName));
   const blockedTransitivePackages = [...lockfileText.matchAll(/\/(@img\/sharp-libvips-[^@\s:]+)@/g)]
     .map((match) => match[1])
     .filter((packageName): packageName is string => Boolean(packageName));
 
-  return [...new Set([...blockedPackages, ...blockedTransitivePackages])];
+  return [...new Set([...iwsdkPackages, ...blockedPackages, ...blockedTransitivePackages])];
 }
 
 async function scanSidecarLockfileImporter(workspaceRoot: string): Promise<boolean> {

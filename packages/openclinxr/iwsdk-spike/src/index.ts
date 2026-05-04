@@ -947,6 +947,9 @@ export function evaluateIwsdkWorkspacePosture(
   blockers.push(...sidecarSelection.blockers);
 
   for (const packageName of input.lockfilePackageNames) {
+    if (!input.sidecarAppExists && isIwsdkWorkspacePackage(packageName)) {
+      blockers.push(`iwsdk_package_in_lockfile_without_sidecar_app:${packageName}`);
+    }
     if (policy.blockedPackages.includes(packageName)) {
       blockers.push(`blocked_package_in_lockfile:${packageName}`);
     } else if (transitivePackageIsBlocked(packageName, policy.blockedTransitivePackages)) {

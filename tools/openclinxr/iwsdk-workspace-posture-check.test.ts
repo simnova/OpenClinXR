@@ -174,6 +174,24 @@ describe("IWSDK workspace posture checker", () => {
     ]);
   });
 
+  it("blocks stale allowed IWSDK packages in the lockfile when the sidecar app is absent", async () => {
+    const workspaceRoot = await createWorkspaceFixture({
+      rootPackage: postureReadyRootPackage(),
+      lockfileText: "/@iwsdk/core@0.3.1:\n/@iwsdk/xr-input@0.3.1:\n",
+    });
+
+    const report = await buildIwsdkWorkspacePostureReport({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      workspaceRoot,
+    });
+
+    expect(report.detected.lockfilePackageNames).toEqual(["@iwsdk/core", "@iwsdk/xr-input"]);
+    expect(report.result.blockers).toEqual([
+      "iwsdk_package_in_lockfile_without_sidecar_app:@iwsdk/core",
+      "iwsdk_package_in_lockfile_without_sidecar_app:@iwsdk/xr-input",
+    ]);
+  });
+
   it("reports production leakage, blocked packages, and missing controls from workspace files", async () => {
     const workspaceRoot = await createWorkspaceFixture({
       rootPackage: {
