@@ -46,6 +46,21 @@ describe("workspace architecture rules", () => {
     expect(violations).toEqual([]);
   });
 
+  it("keeps UI REST route catalog usage behind app-local API clients", () => {
+    const violations = filesWithContentMatching("apps", /@openclinxr\/rest/)
+      .filter((filePath) => /^apps\/ui-[^/]+\/src\//.test(filePath))
+      .filter((filePath) => !/\/api-client(?:\.test)?\.ts$/.test(filePath));
+
+    expect(violations).toEqual([]);
+  });
+
+  it("keeps the API app persistence-injected instead of importing concrete Mongo packages", () => {
+    const forbiddenImports = /@openclinxr\/(?:data-mongodb|data-sources-mongoose-models)/;
+    const violations = filesWithContentMatching("apps/api/src", forbiddenImports);
+
+    expect(violations).toEqual([]);
+  });
+
   it("keeps telemetry contracts independent from application and runtime packages", () => {
     const forbiddenImports = /@openclinxr\//;
     const violations = filesWithContentMatching("packages/openclinxr/telemetry", forbiddenImports);
@@ -72,6 +87,17 @@ describe("workspace architecture rules", () => {
       .inFolder("packages/openclinxr/ui-*/src/**")
       .should()
       .haveNoCycles()
+      .check();
+
+    expect(violations).toEqual([]);
+  }, 20_000);
+
+  it("keeps UI app source from depending on Mongo persistence source files", async () => {
+    const violations = await projectFiles(archTsconfig)
+      .inFolder("apps/ui-*/src/**")
+      .shouldNot()
+      .dependOnFiles()
+      .inFolder("packages/openclinxr/data-*/src/**")
       .check();
 
     expect(violations).toEqual([]);

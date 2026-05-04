@@ -313,6 +313,7 @@ Exam assembly milestone has also started:
 - `packages/openclinxr/data-mongodb` persists exam forms with locked scenario refs for later drift review.
 - `packages/openclinxr/data-mongodb` persists station-run queue snapshots with reviewer provenance, timing, launch-gating status, and per-station blockers so admin approval can reference the exact queue that was reviewed.
 - `apps/ui-admin` has a typed control-plane client method and exam-forms workbench action for creating seed station-run queue review snapshots through the stable REST route.
+- `packages/openclinxr/architecture-rules` enforces the current boundary decision that UI apps call REST through app-local API clients, API persistence remains injected instead of importing concrete Mongo packages, and UI apps do not depend on Mongo persistence source packages.
 
 Agent-loop orchestration milestone has also started:
 
