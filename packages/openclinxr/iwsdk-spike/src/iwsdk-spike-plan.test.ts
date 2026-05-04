@@ -175,12 +175,12 @@ describe("IWSDK spike plan", () => {
       },
       {
         category: "transforms",
-        representativeTools: ["xr_set_headset_transform", "xr_set_controller_transform"],
+        representativeTools: ["xr_set_transform", "xr_look_at"],
         evidenceUse: "Repeatable headset/controller positioning for station framing checks.",
       },
       {
         category: "ecs",
-        representativeTools: ["ecs_pause", "ecs_step", "ecs_query_entities"],
+        representativeTools: ["ecs_pause", "ecs_step", "ecs_query_entity"],
         evidenceUse: "Deterministic inspection of runtime entity state during scenario transitions.",
       },
     ]);

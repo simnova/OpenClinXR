@@ -79,8 +79,8 @@ IWSDK MCP evidence should be categorized rather than treated as one generic pass
 | Browser | `browser_screenshot`, `browser_get_console_logs` | Nonblank canvas and warning/error capture for unattended sidecar smoke. |
 | Scene | `scene_get_hierarchy` | Named station object presence without relying only on visual screenshots. |
 | Input | `xr_select` | Controller-triggered learner trace actions in the emulated runtime. |
-| Transforms | `xr_set_headset_transform`, `xr_set_controller_transform` | Repeatable headset/controller positioning for station framing checks. |
-| ECS | `ecs_pause`, `ecs_step`, `ecs_query_entities` | Deterministic inspection of runtime entity state during scenario transitions. |
+| Transforms | `xr_set_transform`, `xr_look_at` | Repeatable headset/controller positioning for station framing checks. |
+| ECS | `ecs_pause`, `ecs_step`, `ecs_query_entity` | Deterministic inspection of runtime entity state during scenario transitions. |
 
 Optional MCP servers remain separately controlled:
 
