@@ -123,6 +123,15 @@ type IwsdkEvidenceContractReport = {
   };
 };
 
+type IwsdkLeadershipPosture = {
+  statement: string;
+  sub_verdicts: Array<{
+    area: string;
+    status: "ready" | "blocked";
+    blockers: string[];
+  }>;
+};
+
 type EvidenceGateReport = {
   generated_by: string;
   quest_smoke?: {
@@ -180,6 +189,7 @@ type EvidenceGateReport = {
     ready_for_agent_tooling: boolean;
     ready_for_production_runtime: boolean;
     blockers: string[];
+    leadership_posture: IwsdkLeadershipPosture;
   };
   evidence_gates: Array<{
     evidence_id: string;
@@ -397,7 +407,8 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput): Evide
         ready_for_install_backed_sidecar: iwsdkEvidenceContract.value.verdict.readyForInstallBackedSidecar,
         ready_for_agent_tooling: iwsdkEvidenceContract.value.verdict.readyForAgentTooling,
         ready_for_production_runtime: iwsdkEvidenceContract.value.verdict.readyForProductionRuntime,
-        blockers: [...iwsdkEvidenceContract.value.verdict.blockers],
+        blockers: unique(iwsdkEvidenceContract.value.verdict.blockers),
+        leadership_posture: buildIwsdkLeadershipPosture(iwsdkEvidenceContract.value),
       },
     } : {}),
     evidence_gates: [
@@ -583,6 +594,67 @@ function iwsdkEvidenceContractBlockers(report: IwsdkEvidenceContractReport | und
     return [];
   }
   return unique(report.verdict.blockers.map((blocker) => `iwsdk:${blocker}`));
+}
+
+function buildIwsdkLeadershipPosture(report: IwsdkEvidenceContractReport): IwsdkLeadershipPosture {
+  return {
+    statement: "IWSDK is MIT-licensed and architecturally relevant for Three/WebXR/AI-MCP inspection, but OpenClinXR remains contract-only: no @iwsdk packages installed, no reference warmup, no production runtime claim, and no Quest readiness claim until the local sidecar and manual foreground gates pass.",
+    sub_verdicts: iwsdkLeadershipSubVerdicts.map((subVerdict) => {
+      const blockers = unique(report.verdict.blockers.filter(subVerdict.matches));
+      return {
+        area: subVerdict.area,
+        status: blockers.length === 0 ? "ready" : "blocked",
+        blockers,
+      };
+    }),
+  };
+}
+
+const iwsdkLeadershipSubVerdicts = [
+  {
+    area: "license_posture",
+    matches: (blocker: string) => blocker.includes("license"),
+  },
+  {
+    area: "runtime_fit",
+    matches: (blocker: string) =>
+      blocker === "sidecar:exact_iwsdk_versions_selected"
+      || blocker.startsWith("preinstall:")
+      || blocker.startsWith("preinstall_review:")
+      || (blocker.startsWith("production_runtime:") && !iwsdkQuestManualBlocker(blocker)),
+  },
+  {
+    area: "vite_fit",
+    matches: (blocker: string) => blocker.startsWith("compatibility:"),
+  },
+  {
+    area: "ai_mcp_tooling",
+    matches: (blocker: string) => blocker.startsWith("agent_tooling:"),
+  },
+  {
+    area: "quest_manual",
+    matches: iwsdkQuestManualBlocker,
+  },
+  {
+    area: "local_only",
+    matches: (blocker: string) =>
+      blocker === "sidecar:operator_accepts_iwsdk_install_scope"
+      || blocker === "sidecar:pnpm_iwsdk_verify_passes",
+  },
+  {
+    area: "reference_downloads",
+    matches: (blocker: string) => blocker.startsWith("metadata_drift:") || blocker.includes("@iwsdk/reference"),
+  },
+] as const;
+
+function iwsdkQuestManualBlocker(blocker: string): boolean {
+  return blocker.startsWith("production_runtime:")
+    && (
+      blocker.includes("foreground_quest")
+      || blocker.includes("avg_fps")
+      || blocker.includes("p95_frame_ms")
+      || blocker.includes("controller_select_latency")
+    );
 }
 
 function prefixBlockers(prefix: string, gate: GateStatus): Array<string | undefined> {

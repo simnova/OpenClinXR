@@ -19,6 +19,14 @@ type BenchmarkGateReport = {
     ready_for_agent_tooling: boolean;
     ready_for_production_runtime: boolean;
     blockers: string[];
+    leadership_posture: {
+      statement: string;
+      sub_verdicts: Array<{
+        area: string;
+        status: string;
+        blockers: string[];
+      }>;
+    };
   };
   evidence_gates: Array<{
     evidence_id: string;
@@ -182,7 +190,12 @@ describe("benchmark gate report", () => {
             readyForProductionRuntime: false,
             blockers: [
               "sidecar:operator_accepts_iwsdk_install_scope",
+              "sidecar:exact_iwsdk_versions_selected",
+              "sidecar:license_review_accepts_transitive_dependency_posture",
+              "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
               "agent_tooling:adapter_sync_not_recorded",
+              "production_runtime:missing_foreground_quest_preflight_ready",
+              "metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
             ],
           },
         },
@@ -197,28 +210,73 @@ describe("benchmark gate report", () => {
       ready_for_agent_tooling: false,
       ready_for_production_runtime: false,
       blockers: [
-        "sidecar:operator_accepts_iwsdk_install_scope",
         "agent_tooling:adapter_sync_not_recorded",
+        "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
+        "metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
+        "production_runtime:missing_foreground_quest_preflight_ready",
+        "sidecar:exact_iwsdk_versions_selected",
+        "sidecar:license_review_accepts_transitive_dependency_posture",
+        "sidecar:operator_accepts_iwsdk_install_scope",
       ],
+      leadership_posture: {
+        statement: "IWSDK is MIT-licensed and architecturally relevant for Three/WebXR/AI-MCP inspection, but OpenClinXR remains contract-only: no @iwsdk packages installed, no reference warmup, no production runtime claim, and no Quest readiness claim until the local sidecar and manual foreground gates pass.",
+        sub_verdicts: [
+          {
+            area: "license_posture",
+            status: "blocked",
+            blockers: ["sidecar:license_review_accepts_transitive_dependency_posture"],
+          },
+          {
+            area: "runtime_fit",
+            status: "blocked",
+            blockers: ["sidecar:exact_iwsdk_versions_selected"],
+          },
+          {
+            area: "vite_fit",
+            status: "blocked",
+            blockers: ["compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major"],
+          },
+          {
+            area: "ai_mcp_tooling",
+            status: "blocked",
+            blockers: ["agent_tooling:adapter_sync_not_recorded"],
+          },
+          {
+            area: "quest_manual",
+            status: "blocked",
+            blockers: ["production_runtime:missing_foreground_quest_preflight_ready"],
+          },
+          {
+            area: "local_only",
+            status: "blocked",
+            blockers: ["sidecar:operator_accepts_iwsdk_install_scope"],
+          },
+          {
+            area: "reference_downloads",
+            status: "blocked",
+            blockers: ["metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2"],
+          },
+        ],
+      },
     });
     const iwsdkGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0008-004");
 
     expect(iwsdkGate).toEqual(expect.objectContaining({
       ready_to_resolve: false,
       satisfied_conditions: ["iwsdk_evidence_contract_present"],
-      blockers: [
+      blockers: expect.arrayContaining([
         "iwsdk:agent_tooling:adapter_sync_not_recorded",
         "iwsdk:sidecar:operator_accepts_iwsdk_install_scope",
-      ],
+      ]),
     }));
     expect(iwsdkGate?.blocker_summary?.groups).toEqual(expect.arrayContaining([
       expect.objectContaining({
         group_id: "iwsdk_sidecar_tooling",
         owner: "xr-systems-architect",
-        blockers: [
+        blockers: expect.arrayContaining([
           "iwsdk:agent_tooling:adapter_sync_not_recorded",
           "iwsdk:sidecar:operator_accepts_iwsdk_install_scope",
-        ],
+        ]),
       }),
     ]));
   });
