@@ -1,0 +1,29 @@
+{
+  "source_id": "src-iwsdk-local-spike-2026-05-04",
+  "title": "OpenClinXR Local Immersive Web SDK Scratch Spike",
+  "file_path": "/tmp/openclinxr-iwsdk-spike-NyGyoa",
+  "source_type": "internal-artifact",
+  "citation": "OpenClinXR local scratch spike in /tmp/openclinxr-iwsdk-spike-NyGyoa, run 2026-05-04 with exact IWSDK 0.3.1, Vite 8.0.10, Three 0.184.0, explicit Node 22.19.0, and no main-workspace package changes.",
+  "accessed_at": "2026-05-04",
+  "permitted_uses": [
+    "Internal development planning for whether Meta Immersive Web SDK should remain a spike candidate, what compatibility blockers exist, and how to structure a future committed spike."
+  ],
+  "claims_supported": [
+    "A scratch pnpm install of @iwsdk/core, @iwsdk/xr-input, @iwsdk/locomotor, @iwsdk/vite-plugin-dev, Vite 8.0.10, and Three 0.184.0 succeeded with --ignore-scripts, but reported an unmet peer because @iwsdk/vite-plugin-dev 0.3.1 peers Vite ^7.0.0.",
+    "The scratch package needed @types/three for strict TypeScript checks and an explicit @rolldown/binding-darwin-arm64 dependency before Vite 8 build would run in the scratch install.",
+    "Running Vite through the default pnpm script exposed Node 21.7.1 and failed; running the Vite binary through /Users/patrick/.nvm/versions/node/v22.19.0/bin/node succeeded.",
+    "The minimal scratch build succeeded with Vite 8.0.10 and @iwsdk/vite-plugin-dev loaded, producing one 504.47 kB JavaScript chunk and a Vite chunk-size warning.",
+    "The scratch dev server loaded in Chrome DevTools at http://127.0.0.1:5181, fetched /@iwer-injection-runtime, exposed navigator.xr and window.IWER_DEVICE, and had no warning/error console messages except favicon.ico 404.",
+    "The IWSDK dev plugin reported a development runtime injection size of 1116.3 KB for the Meta Quest 3 emulator configuration.",
+    "The scratch node_modules footprint was about 287 MB and pnpm audit --audit-level=high reported no known vulnerabilities.",
+    "The scratch license list included LGPL-3.0-or-later for @img/sharp-libvips-darwin-arm64 1.0.4 and Unknown licenses for @pmndrs/handle, @pmndrs/pointer-events, and @pmndrs/uikit."
+  ],
+  "claims_not_supported": [
+    "That IWSDK is ready to become an OpenClinXR production runtime dependency.",
+    "That IWSDK has been tested on the physical Quest 3 headset.",
+    "That the scratch install is acceptable for pnpm verify, CI, or the main workspace lockfile.",
+    "That the Vite ^7 peer mismatch, sharp/libvips LGPL path, Unknown pmndrs license metadata, or Node 21 child process exposure are resolved.",
+    "That @iwsdk/reference warmup, Playwright browser download behavior, AI MCP server operation, or @meta-quest/hzdb behavior were tested."
+  ],
+  "confidence": 0.87
+}

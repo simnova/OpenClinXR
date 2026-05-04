@@ -24,6 +24,25 @@ Meta's Immersive Web SDK is a strong candidate for an OpenClinXR WebXR developme
 - Legal/procurement: the optional `@meta-quest/hzdb` package reports `UNLICENSED` in npm metadata. Treat it as blocked until legal/procurement approves its terms.
 - Validation scope: IWSDK emulation and MCP tools can improve local iteration, but they do not replace Quest 3 device smoke tests, foreground frame-pacing evidence, thermal/comfort checks, or headset text-readability checks.
 
+## Local Scratch Spike
+
+Codex ran a scratch spike outside the repository at `/tmp/openclinxr-iwsdk-spike-NyGyoa` with exact IWSDK `0.3.1`, Vite `8.0.10`, Three `0.184.0`, and explicit Node `22.19.0`. No main workspace package files or lockfiles were changed.
+
+Results:
+
+- `pnpm install --ignore-scripts` succeeded, but reported the expected `@iwsdk/vite-plugin-dev` peer mismatch with Vite 8.
+- The minimal strict TypeScript app needed `@types/three`.
+- The scratch Vite 8 install did not have the needed Rolldown native binding until `@rolldown/binding-darwin-arm64@1.0.0-rc.17` was added explicitly.
+- Running Vite through the default pnpm script exposed Node `21.7.1`; running the Vite binary through `/Users/patrick/.nvm/versions/node/v22.19.0/bin/node` succeeded.
+- `tsc --noEmit` passed.
+- `vite build` passed with the IWSDK dev plugin loaded, producing one `504.47 kB` JavaScript chunk and the expected chunk-size warning.
+- The scratch dev server loaded in Chrome DevTools at `http://127.0.0.1:5181`, fetched `/@iwer-injection-runtime`, exposed `navigator.xr` and `window.IWER_DEVICE`, and showed no warning/error console messages except a missing favicon.
+- IWSDK reported a development runtime injection size of `1116.3 KB`.
+- The scratch install occupied about `287 MB` in `node_modules`; `pnpm audit --audit-level=high` reported no known vulnerabilities.
+- The license list included `LGPL-3.0-or-later` for `@img/sharp-libvips-darwin-arm64@1.0.4` and `Unknown` metadata for `@pmndrs/handle`, `@pmndrs/pointer-events`, and `@pmndrs/uikit`.
+
+Interpretation: IWSDK dev tooling appears technically viable enough for a committed spike, but it is too heavy and too license-sensitive to add to the main runtime path casually.
+
 ## Recommended Spike
 
 Create an isolated package or worktree spike before touching the production XR shell:
@@ -58,3 +77,4 @@ Avoid for now:
 - `src-meta-iwsdk-github-2026`
 - `src-iwsdk-ai-docs-2026`
 - `src-iwsdk-npm-metadata-2026-05-04`
+- `src-iwsdk-local-spike-2026-05-04`
