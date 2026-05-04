@@ -145,7 +145,12 @@ export type ManualPerformanceDraftInput = {
   immersiveSessionStarted?: boolean;
 };
 
-export type XrExperienceModeEvidence = {
+export type XrExperienceModeId = "full_vr" | "mixed_reality_passthrough";
+
+export type XrExperienceModeEvidence = FullVrExperienceModeEvidence | MixedRealityExperienceModeEvidence;
+
+export type FullVrExperienceModeEvidence = {
+  modeId: "full_vr";
   phaseLabel: "Phase 1 Full VR";
   requestedSessionMode: "immersive-vr";
   mixedRealityPassthroughImplemented: false;
@@ -153,15 +158,97 @@ export type XrExperienceModeEvidence = {
   locomotionPosture: "experimental_keyboard_and_thumbstick_dolly";
 };
 
+export type MixedRealityExperienceModeEvidence = {
+  modeId: "mixed_reality_passthrough";
+  phaseLabel: "Phase 1 Mixed Reality";
+  requestedSessionMode: "immersive-ar";
+  mixedRealityPassthroughImplemented: true;
+  handTrackingPosture: "optional_feature_with_primitive_hand_model";
+  locomotionPosture: "room_scale_with_optional_thumbstick_dolly";
+};
+
+export type XrExperienceModeContract = {
+  modeId: XrExperienceModeId;
+  phaseLabel: XrExperienceModeEvidence["phaseLabel"];
+  requestedSessionMode: XrExperienceModeEvidence["requestedSessionMode"];
+  entryButtonLabel: "Enter Full VR" | "Enter Mixed Reality";
+  sharesScenarioTraceContract: true;
+  evidenceLane: "full_vr_manual_report" | "mixed_reality_manual_report";
+  privacySafetyReviewRequired: boolean;
+  requiredEvidence: string[];
+  prohibitedClaimsUntilReady: string[];
+};
+
+export type XrExperienceModeReadinessEvidence = {
+  modeId: XrExperienceModeId;
+  requestedSessionMode: "immersive-vr" | "immersive-ar";
+  manualReportModeId?: XrExperienceModeId;
+  passthroughObserved?: boolean;
+  privacySafetyReviewed?: boolean;
+  sharesScenarioTraceContract?: boolean;
+};
+
+export type XrExperienceModeReadiness = {
+  ready: boolean;
+  blockers: string[];
+};
+
 export const stationTraceActionTags = [...edChestPainScenario.requiredTraceTags];
 
-export const xrExperienceModeEvidence: XrExperienceModeEvidence = {
+export const xrExperienceModeEvidence: FullVrExperienceModeEvidence = {
+  modeId: "full_vr",
   phaseLabel: "Phase 1 Full VR",
   requestedSessionMode: "immersive-vr",
   mixedRealityPassthroughImplemented: false,
   handTrackingPosture: "optional_feature_with_primitive_hand_model",
   locomotionPosture: "experimental_keyboard_and_thumbstick_dolly",
 };
+
+export const xrExperienceModeContracts: XrExperienceModeContract[] = [
+  {
+    modeId: "full_vr",
+    phaseLabel: "Phase 1 Full VR",
+    requestedSessionMode: "immersive-vr",
+    entryButtonLabel: "Enter Full VR",
+    sharesScenarioTraceContract: true,
+    evidenceLane: "full_vr_manual_report",
+    privacySafetyReviewRequired: false,
+    requiredEvidence: [
+      "immersive_vr_session_started",
+      "foreground_quest_manual_report",
+      "controller_or_hand_input_observed",
+      "in_scene_text_readability_confirmed",
+      "comfort_and_frame_pacing_reported",
+    ],
+    prohibitedClaimsUntilReady: [
+      "production_quest_readiness",
+      "controller_latency_readiness",
+      "clinical_text_readability_readiness",
+    ],
+  },
+  {
+    modeId: "mixed_reality_passthrough",
+    phaseLabel: "Phase 1 Mixed Reality",
+    requestedSessionMode: "immersive-ar",
+    entryButtonLabel: "Enter Mixed Reality",
+    sharesScenarioTraceContract: true,
+    evidenceLane: "mixed_reality_manual_report",
+    privacySafetyReviewRequired: true,
+    requiredEvidence: [
+      "immersive_ar_session_started",
+      "passthrough_visibility_observed",
+      "foreground_quest_mr_manual_report",
+      "privacy_safety_review_completed",
+      "room_boundary_and_occlusion_comfort_reported",
+    ],
+    prohibitedClaimsUntilReady: [
+      "replacement_for_full_vr",
+      "production_quest_readiness",
+      "passthrough_privacy_readiness",
+      "clinical_room_safety_readiness",
+    ],
+  },
+];
 
 export const iwsdkStationSceneObjects = {
   stationRoot: "openclinxr.ed-chest-pain.station-root",
@@ -284,6 +371,30 @@ export function buildIwsdkStationMcpSmokePlan(state: XrRuntimeState = createInit
       "iwsdk_agent_tooling_evidence_records_32_tool_inventory",
       "physical_quest3_foreground_frame_pacing_still_required_for_production",
     ],
+  };
+}
+
+export function findXrExperienceModeContract(modeId: XrExperienceModeId): XrExperienceModeContract {
+  const contract = xrExperienceModeContracts.find((candidate) => candidate.modeId === modeId);
+  if (!contract) {
+    throw new Error(`Unknown XR experience mode: ${modeId}`);
+  }
+  return contract;
+}
+
+export function evaluateXrExperienceModeReadiness(evidence: XrExperienceModeReadinessEvidence): XrExperienceModeReadiness {
+  const contract = findXrExperienceModeContract(evidence.modeId);
+  const blockers = [
+    evidence.requestedSessionMode === contract.requestedSessionMode ? undefined : "requested_session_mode_mismatch",
+    evidence.manualReportModeId === contract.modeId ? undefined : `missing_${contract.evidenceLane}`,
+    evidence.sharesScenarioTraceContract === true ? undefined : "missing_shared_scenario_trace_contract",
+    evidence.modeId === "mixed_reality_passthrough" && evidence.passthroughObserved !== true ? "missing_passthrough_observation" : undefined,
+    contract.privacySafetyReviewRequired && evidence.privacySafetyReviewed !== true ? "missing_privacy_safety_review" : undefined,
+  ].filter((blocker): blocker is string => Boolean(blocker));
+
+  return {
+    ready: blockers.length === 0,
+    blockers,
   };
 }
 

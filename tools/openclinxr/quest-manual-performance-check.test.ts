@@ -31,6 +31,7 @@ describe("Quest manual performance checker", () => {
         consoleErrors: [],
       },
       experience: {
+        modeId: "full_vr",
         phaseLabel: "Phase 1 Full VR",
         requestedSessionMode: "immersive-vr",
         mixedRealityPassthroughImplemented: false,
@@ -148,6 +149,7 @@ describe("Quest manual performance checker", () => {
       "performed_by_missing",
       "duration_under_10_minutes",
       "immersive_session_not_confirmed",
+      "experience_mode_full_vr_not_recorded",
       "performance_source_not_openclinxr_frame_stats",
       "frame_sample_under_600_or_missing",
       "rolling_frame_window_under_120_or_missing",
@@ -164,6 +166,7 @@ describe("Quest manual performance checker", () => {
       "Record the operator identity in runContext.performedBy.",
       "Observe for at least 10 minutes in the foreground headset session.",
       "Confirm the immersive session starts in-headset.",
+      "Record experience.modeId full_vr, requestedSessionMode immersive-vr, and mixedRealityPassthroughImplemented false for this Full VR manual report.",
       "Use window.__openClinXrFrameStats as the performance source.",
       "Observe at least 600 frames before claiming frame pacing.",
       "Record a rolling frame window with at least 120 samples.",

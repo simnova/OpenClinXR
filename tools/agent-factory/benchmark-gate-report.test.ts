@@ -471,6 +471,12 @@ describe("benchmark gate report", () => {
             immersiveSessionStarted: true,
             consoleErrors: [],
           },
+          experience: {
+            modeId: "full_vr",
+            phaseLabel: "Phase 1 Full VR",
+            requestedSessionMode: "immersive-vr",
+            mixedRealityPassthroughImplemented: false,
+          },
           performance: {
             source: "window.__openClinXrFrameStats",
             framesObserved: 600,

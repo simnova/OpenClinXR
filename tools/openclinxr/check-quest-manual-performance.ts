@@ -28,6 +28,7 @@ export type QuestManualPerformanceReport = {
     consoleErrors?: string[];
   };
   experience?: {
+    modeId?: string;
     phaseLabel?: string;
     requestedSessionMode?: string;
     mixedRealityPassthroughImplemented?: boolean;
@@ -181,6 +182,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
     report.station?.traceInteractionPassed === true ? undefined : "trace_interaction_not_confirmed",
     report.station?.textReadable === true ? undefined : "text_readability_not_confirmed",
     report.station?.immersiveSessionStarted === true ? undefined : "immersive_session_not_confirmed",
+    isFullVrExperienceEvidence(report.experience) ? undefined : "experience_mode_full_vr_not_recorded",
     consoleErrorsAreStringArray ? undefined : "console_errors_not_string_array",
     consoleErrors.length === 0 ? undefined : "console_errors_present",
     report.performance?.source === "window.__openClinXrFrameStats" ? undefined : "performance_source_not_openclinxr_frame_stats",
@@ -260,6 +262,8 @@ function questManualNextStepForBlocker(blocker: string): string {
       return "Confirm in-headset EHR and station text readability.";
     case "immersive_session_not_confirmed":
       return "Confirm the immersive session starts in-headset.";
+    case "experience_mode_full_vr_not_recorded":
+      return "Record experience.modeId full_vr, requestedSessionMode immersive-vr, and mixedRealityPassthroughImplemented false for this Full VR manual report.";
     case "console_errors_not_string_array":
       return "Record consoleErrors as an array of strings.";
     case "console_errors_present":
@@ -337,7 +341,8 @@ function isPercentInRange(value: number | null): value is number {
 }
 
 function isFullVrExperienceEvidence(value: QuestManualPerformanceReport["experience"]): boolean {
-  return value?.phaseLabel === "Phase 1 Full VR"
+  return value?.modeId === "full_vr"
+    && value.phaseLabel === "Phase 1 Full VR"
     && value.requestedSessionMode === "immersive-vr"
     && value.mixedRealityPassthroughImplemented === false;
 }

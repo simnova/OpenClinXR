@@ -7,6 +7,8 @@ import {
   buildManualPerformanceDraft,
   buildIwsdkStationMcpSmokePlan,
   evaluateIwsdkStationMcpSmokeEvidence,
+  evaluateXrExperienceModeReadiness,
+  findXrExperienceModeContract,
   formatStationClock,
   iwsdkStationMcpSmokePlanHash,
   iwsdkStationMcpSmokeToolOrder,
@@ -18,6 +20,7 @@ import {
   summarizeFrameDeltas,
   summarizeTraceReadiness,
   xrExperienceModeEvidence,
+  xrExperienceModeContracts,
 } from "./runtime-state.js";
 
 describe("XR runtime state", () => {
@@ -43,11 +46,70 @@ describe("XR runtime state", () => {
 
   it("states that the current headset runtime is full VR, not mixed reality passthrough", () => {
     expect(xrExperienceModeEvidence).toEqual({
+      modeId: "full_vr",
       phaseLabel: "Phase 1 Full VR",
       requestedSessionMode: "immersive-vr",
       mixedRealityPassthroughImplemented: false,
       handTrackingPosture: "optional_feature_with_primitive_hand_model",
       locomotionPosture: "experimental_keyboard_and_thumbstick_dolly",
+    });
+  });
+
+  it("keeps mixed reality as a separate approved lane with its own evidence contract", () => {
+    expect(xrExperienceModeContracts.map((contract) => contract.modeId)).toEqual([
+      "full_vr",
+      "mixed_reality_passthrough",
+    ]);
+
+    expect(findXrExperienceModeContract("mixed_reality_passthrough")).toEqual({
+      modeId: "mixed_reality_passthrough",
+      phaseLabel: "Phase 1 Mixed Reality",
+      requestedSessionMode: "immersive-ar",
+      entryButtonLabel: "Enter Mixed Reality",
+      sharesScenarioTraceContract: true,
+      evidenceLane: "mixed_reality_manual_report",
+      privacySafetyReviewRequired: true,
+      requiredEvidence: [
+        "immersive_ar_session_started",
+        "passthrough_visibility_observed",
+        "foreground_quest_mr_manual_report",
+        "privacy_safety_review_completed",
+        "room_boundary_and_occlusion_comfort_reported",
+      ],
+      prohibitedClaimsUntilReady: [
+        "replacement_for_full_vr",
+        "production_quest_readiness",
+        "passthrough_privacy_readiness",
+        "clinical_room_safety_readiness",
+      ],
+    });
+  });
+
+  it("scores Full VR and mixed reality readiness independently", () => {
+    expect(evaluateXrExperienceModeReadiness({
+      modeId: "full_vr",
+      requestedSessionMode: "immersive-vr",
+      manualReportModeId: "full_vr",
+      sharesScenarioTraceContract: true,
+    })).toEqual({
+      ready: true,
+      blockers: [],
+    });
+
+    expect(evaluateXrExperienceModeReadiness({
+      modeId: "mixed_reality_passthrough",
+      requestedSessionMode: "immersive-ar",
+      manualReportModeId: "full_vr",
+      passthroughObserved: false,
+      privacySafetyReviewed: false,
+      sharesScenarioTraceContract: true,
+    })).toEqual({
+      ready: false,
+      blockers: [
+        "missing_mixed_reality_manual_report",
+        "missing_passthrough_observation",
+        "missing_privacy_safety_review",
+      ],
     });
   });
 
@@ -247,6 +309,7 @@ describe("XR runtime state", () => {
         consoleErrors: [],
       },
       experience: {
+        modeId: "full_vr",
         phaseLabel: "Phase 1 Full VR",
         requestedSessionMode: "immersive-vr",
         mixedRealityPassthroughImplemented: false,
