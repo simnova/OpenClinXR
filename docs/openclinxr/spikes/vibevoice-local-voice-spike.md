@@ -1,11 +1,11 @@
 # VibeVoice Local Voice Spike
 
 Date: 2026-05-04
-Status: Intake complete; runtime disabled
+Status: Operator approved local install/benchmark; execution in progress; runtime remains disabled for production
 
 ## Purpose
 
-This note records the safe first step for evaluating VibeVoice as an optional local voice research path for OpenClinXR. It does not install VibeVoice, download model weights, synthesize audio, record speech, or wire a voice runtime into the app.
+This note records the safe first step for evaluating VibeVoice as an optional local voice research path for OpenClinXR. It does not wire a voice runtime into the app, does not enable learner assessment use, and does not permit cloud-backed calls, paid APIs, real-patient voice cloning, or committed model weights/audio.
 
 ## Source Posture
 
@@ -63,15 +63,31 @@ VibeVoice must not be used for:
 
 ## Current Decision
 
-Keep VibeVoice disabled. The next permitted action is not installation; it is operator approval of the candidate model/voice ID and safety/license checklist.
+Patrick approved [proposal-local-voice-runtime.md](../../../proposals/approved/proposal-local-voice-runtime.md) on 2026-05-04 10:40:15 EDT. Codex may install and benchmark the local `microsoft/VibeVoice-Realtime-0.5B` spike using only the approved local cache paths and private env file. VibeVoice remains disabled for production and learner assessment.
+
+## Approved Install Record
+
+| Item | Approved value |
+| --- | --- |
+| Repository source | `https://github.com/microsoft/VibeVoice.git` |
+| Repository HEAD checked before install | `e73d1e17c3754f046352014856a922f8208fb5d3` |
+| Model ID | `microsoft/VibeVoice-Realtime-0.5B` |
+| Model card license | MIT |
+| Expected primary model file | `model.safetensors`, linked size `2,035,332,888` bytes |
+| Install root | `/Users/patrick/.cache/openclinxr/vibevoice` |
+| Repository clone | `/Users/patrick/.cache/openclinxr/vibevoice/VibeVoice` |
+| Python venv | `/Users/patrick/.cache/openclinxr/vibevoice/.venv` |
+| Wrapper command | `/Users/patrick/.local/bin/vibevoice` |
+| Hugging Face cache | `/Users/patrick/.cache/openclinxr/huggingface` |
+| Uninstall command | `rm -rf /Users/patrick/.cache/openclinxr/vibevoice /Users/patrick/.cache/openclinxr/huggingface/models--microsoft--VibeVoice-Realtime-0.5B /Users/patrick/.local/bin/vibevoice` |
+| Private env file | `.env.openclinxr.local`, ignored by git |
 
 ## Open Blockers
 
-- `vibevoice` is not available on PATH.
-- `OPENCLINXR_LOCAL_VOICE_RUNTIME` is unset.
-- `OPENCLINXR_LOCAL_VOICE_ID` is unset.
-- `OPENCLINXR_LOCAL_VOICE_INSTALL_APPROVED` is unset.
-- `OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED` is unset.
-- No install/uninstall commands have been captured.
-- No first-audio benchmark exists.
+- `vibevoice` local wrapper availability is pending installation.
+- `OPENCLINXR_LOCAL_VOICE_RUNTIME` is pending private env setup.
+- `OPENCLINXR_LOCAL_VOICE_ID` is pending private env setup.
+- `OPENCLINXR_LOCAL_VOICE_INSTALL_APPROVED` is pending private env setup.
+- `OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED` is pending private env setup.
+- First-audio benchmark is pending.
 - No legal, safety, or clinical simulation QA signoff exists.

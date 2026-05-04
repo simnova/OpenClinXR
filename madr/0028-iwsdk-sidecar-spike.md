@@ -40,7 +40,7 @@ Negative:
 - Required named objects live in `apps/ui-xr/src/runtime-state.ts`.
 - Current production shell names scene objects in `apps/ui-xr/src/main.ts`; a future sidecar must preserve those semantic names or document the migration.
 - Patrick approved `@iwsdk/reference` warmup scope and `@meta-quest/hzdb` legal/procurement posture on 2026-05-04, but do not run floating `npx iwsdk reference warmup`, install `@meta-quest/hzdb`, or add IWSDK packages outside the approved sidecar path in unattended mode.
-- Patrick approved [proposal-iwsdk-sidecar-install.md](../proposal-iwsdk-sidecar-install.md) on 2026-05-04; `apps/ui-xr-iwsdk-spike` now exists as a runnable Phase 1 sidecar with exact `@iwsdk/core@0.3.1`, `@iwsdk/xr-input@0.3.1`, and `three@0.184.0`.
+- Patrick approved [proposal-iwsdk-sidecar-install.md](../proposals/approved/proposal-iwsdk-sidecar-install.md) on 2026-05-04; `apps/ui-xr-iwsdk-spike` now exists as a runnable Phase 1 sidecar with exact `@iwsdk/core@0.3.1`, `@iwsdk/xr-input@0.3.1`, and `three@0.184.0`.
 - Phase 1 browser parity passed, but the sidecar remains blocked from production adoption by bundle budget and foreground Quest metrics in `docs/openclinxr/iwsdk-sidecar-phase1-metrics-2026-05-04.json`.
 
 ## Sources

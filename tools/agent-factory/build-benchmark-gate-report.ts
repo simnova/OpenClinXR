@@ -846,14 +846,14 @@ const blockerGroups = [
     title: "Local model runtime benchmark",
     owner: "local-ai-inference-engineer",
     matches: (blocker: string) => blocker.startsWith("local_model:") || blocker.startsWith("local_model_benchmark:"),
-    nextStep: "Review proposal-local-model-benchmark.md, approve one model ID/download, set runtime and model environment variables privately, then rerun the benchmark.",
+    nextStep: "Follow the approved proposals/approved/proposal-local-model-benchmark.md scope, set runtime and model environment variables privately, then rerun the local model benchmark.",
   },
   {
     groupId: "local_voice_runtime",
     title: "Local voice runtime benchmark",
     owner: "voice-speech-engineer",
     matches: (blocker: string) => blocker.startsWith("local_voice:") || blocker.startsWith("local_voice_benchmark:"),
-    nextStep: "Review proposal-local-voice-runtime.md, complete voice install approval plus safety/license review, configure one local voice runtime and voice ID privately, then record first-audio latency evidence.",
+    nextStep: "Follow the approved proposals/approved/proposal-local-voice-runtime.md scope, configure one local voice runtime and voice ID privately, then record first-audio latency evidence.",
   },
   {
     groupId: "asset_pipeline_blender",

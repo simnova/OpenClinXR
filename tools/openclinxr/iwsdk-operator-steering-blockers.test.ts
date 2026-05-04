@@ -15,8 +15,6 @@ describe("IWSDK operator steering blockers", () => {
   it("links non-simple open blockers to proposal files", async () => {
     const operatorSteeringText = await readFile("operator-steering-needed-questions.md", "utf8");
     const proposalFiles = [
-      "proposal-local-model-benchmark.md",
-      "proposal-local-voice-runtime.md",
       "proposal-quest-foreground-performance-capture.md",
       "proposal-iwsdk-phase2-devtools.md",
     ];
@@ -31,5 +29,29 @@ describe("IWSDK operator steering blockers", () => {
       expect(proposalText).toContain("## Cons");
     }
     expect(operatorSteeringText).toContain("Simple physical-state actions");
+  });
+
+  it("moves approved proposal records under proposals/approved with approval timestamps", async () => {
+    const operatorSteeringText = await readFile("operator-steering-needed-questions.md", "utf8");
+    const approvedProposalFiles = [
+      "proposals/approved/proposal-iwsdk-sidecar-install.md",
+      "proposals/approved/proposal-local-model-benchmark.md",
+      "proposals/approved/proposal-local-voice-runtime.md",
+    ];
+
+    for (const proposalFile of approvedProposalFiles) {
+      expect(operatorSteeringText).toContain(`](${proposalFile})`);
+      const proposalText = await readFile(proposalFile, "utf8");
+      expect(proposalText).toContain("# Proposal:");
+      expect(proposalText).toContain("Status: Approved by Patrick");
+      expect(proposalText).toContain("2026-05-04");
+    }
+
+    expect(await readFile("proposals/approved/proposal-local-model-benchmark.md", "utf8")).toContain(
+      "Status: Approved by Patrick on 2026-05-04 10:40:15 EDT",
+    );
+    expect(await readFile("proposals/approved/proposal-local-voice-runtime.md", "utf8")).toContain(
+      "Status: Approved by Patrick on 2026-05-04 10:40:15 EDT",
+    );
   });
 });

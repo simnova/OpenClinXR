@@ -52,7 +52,7 @@ Approve this proposal only after reviewing Phase 1 sidecar metrics and Quest for
 
 ## Sources
 
-- `proposal-iwsdk-sidecar-install.md`
+- `proposals/approved/proposal-iwsdk-sidecar-install.md`
 - `docs/openclinxr/iwsdk-sidecar-phase1-metrics-2026-05-04.json`
 - `docs/openclinxr/iwsdk-codex-mcp-runbook.md`
 - `docs/openclinxr/immersive-web-sdk-evaluation-2026-05-04.md`

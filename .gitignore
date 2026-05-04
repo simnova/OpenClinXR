@@ -1,5 +1,7 @@
 node_modules/
 .DS_Store
+.env.openclinxr.local
+.openclinxr-local/
 apps/*/dist/
 apps/*/deploy/
 packages/*/dist/

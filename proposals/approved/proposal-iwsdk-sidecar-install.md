@@ -1,6 +1,6 @@
 # Proposal: IWSDK Sidecar Install
 
-Status: Approved by Patrick on 2026-05-04 and implemented as `apps/ui-xr-iwsdk-spike` Phase 1.
+Status: Approved by Patrick on 2026-05-04; approved proposal record moved to `proposals/approved/` on 2026-05-04 10:40:15 EDT and implemented as `apps/ui-xr-iwsdk-spike` Phase 1.
 
 ## Decision Needed
 

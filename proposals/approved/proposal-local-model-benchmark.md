@@ -1,6 +1,6 @@
 # Proposal: Local Model Benchmark
 
-Status: Proposed; awaiting operator approval.
+Status: Approved by Patrick on 2026-05-04 10:40:15 EDT; execution in progress as a local-only benchmark.
 
 ## Decision Needed
 
@@ -23,6 +23,20 @@ Use the smaller Qwen GGUF path first because `llama.cpp` is already installed lo
 | Default app dependency | None | Disallowed |
 | Env file | `.env.openclinxr.local` or explicit shell exports | Private; do not commit |
 | Evidence output | `docs/openclinxr/local-provider-benchmark-YYYY-MM-DD.json` and a future real local-model benchmark report | Commit evidence only, not weights |
+
+## Approved Local Execution Plan
+
+| Item | Approved value |
+| --- | --- |
+| Runtime | `llama.cpp` via `llama-cli` |
+| Model repo | `Qwen/Qwen3-4B-GGUF` |
+| Model repo SHA checked before download | `bc640142c66e1fdd12af0bd68f40445458f3869b` |
+| Quantized file | `Qwen3-4B-Q4_K_M.gguf` |
+| Model card license | Apache-2.0 |
+| Expected model file size | `2,497,280,256` bytes |
+| Download/cache path | llama.cpp Hugging Face cache under the user's local cache |
+| Private env file | `.env.openclinxr.local`, ignored by git |
+| Uninstall/cache cleanup | Use `llama-cli --cache-list` to locate the cached model, then remove only the `Qwen/Qwen3-4B-GGUF` cache entry. |
 
 ## Pros
 

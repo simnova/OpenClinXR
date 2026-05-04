@@ -1058,7 +1058,7 @@ describe("IWSDK spike plan", () => {
       sidecarAppRoot: "apps/ui-xr-iwsdk-spike/",
       currentState: "phase_1_approved_install_backed",
       runnable: true,
-      approvedProposal: "proposal-iwsdk-sidecar-install.md",
+      approvedProposal: "proposals/approved/proposal-iwsdk-sidecar-install.md",
       approvedPackages: [
         "@iwsdk/core@0.3.1",
         "@iwsdk/xr-input@0.3.1",
