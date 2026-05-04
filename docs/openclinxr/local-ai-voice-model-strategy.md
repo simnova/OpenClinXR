@@ -26,7 +26,7 @@ The machine used for this spike reports Apple M1 Max with 64 GB RAM. The user me
 
 The refreshed 2026-05-04 probe records Node 22.19.0, pnpm 10.33.0, Python 3.11.4, ffmpeg 8.1, adb, Homebrew 5.1.8, Blender 5.1.1, `llama.cpp` 9010, and the pinned pnpm `gltf-pipeline` CLI as available. Quest USB and foreground preflight are ready after the headset wake rerun, but Quest frame pacing still needs a manual foreground headset performance report because CDP sampling continues to classify the browser page as hidden.
 
-The same probe still records Bun, Portless, Ollama, MLX LM, and VibeVoice as missing from PATH. Local model execution remains blocked on an explicit model ID, model-card/license record, model download approval, and a measured benchmark. Local voice execution remains a planned spike, not a completed benchmark. Blender-backed placeholder asset baking now has a passing local smoke report, but production avatar generation still needs rigging, LOD, texture, collider, and headset-performance evidence.
+The same probe still records Bun, Portless, Ollama, and MLX LM as missing from PATH. Since this strategy was first written, Codex has recorded approved local-model and local-voice benchmark evidence: `docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json` for Qwen3-4B through `llama.cpp`, and `docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json` for VibeVoice-Realtime-0.5B file generation. Those clear basic local execution smoke gates, but not live clinical dialogue. Blender-backed placeholder asset baking now has a passing local smoke report, but production avatar generation still needs rigging, LOD, texture, collider, and headset-performance evidence.
 
 ## Recommended Local Reasoning Stack
 
@@ -72,7 +72,19 @@ But it is not production-ready by assumption:
 
 Recommendation: build `VoiceProviderAdapter` support for VibeVoice, but keep it disabled by default until local benchmark, voice-safety review, license review, and disclosure UX pass.
 
-Current intake: `docs/openclinxr/spikes/vibevoice-local-voice-spike.md` records the safe spike boundary. VibeVoice remains disabled, uninstalled, and blocked on operator-approved model/voice ID, explicit install approval, license/safety review, install/uninstall commands, and first-audio benchmark evidence.
+Current intake: `docs/openclinxr/spikes/vibevoice-local-voice-spike.md` records the safe spike boundary. Patrick approved the local voice runtime proposal on 2026-05-04, Codex installed the local wrapper outside committed source, and `docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json` recorded first local file-generation evidence. VibeVoice remains disabled for learner-facing station runtime and blocked on true streaming latency, Quest/WebXR playback, safety/disclosure/retention controls, and real-time multi-actor turn-taking evidence.
+
+### Realtime Voice Transport Position
+
+`docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json` records a no-cloud bidirectional WebSocket transport harness through the Hono gateway shape and a Python-compatible backend fixture. `apps/api-python-backend` defines the FastAPI backend surface for future MLX/Moshi or Qwen3-TTS inference, and `apps/ui-quest-voice-godot` defines a source-level Quest/Godot `WebSocketPeer` client contract.
+
+This lane is useful because it separates transport evidence from model evidence:
+
+- WebSocket-first is the immediate path.
+- Bun/Hono remains the intended primary API target, with Node/Hono as local fallback until Bun is installed here.
+- WebTransport, QUIC, and Web3 signaling stay protocol-posture entries, not runtime claims.
+- Moshi MLX and Qwen3-TTS remain future local inference candidates.
+- The Godot sidecar proves source shape only; it does not prove Quest microphone capture, native Opus encode/decode, playback, or headset latency.
 
 ### Voice Fallback Ladder
 
@@ -139,6 +151,7 @@ First executable status:
 - `docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json` records the first approved real local Qwen GGUF benchmark through `llama.cpp`; it passes as a latency smoke but has structured-output caveats.
 - Local voice candidate intake accepts only `microsoft/VibeVoice-Realtime-0.5B` (`src-vibevoice-github-2026`).
 - `docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json` records the first approved local VibeVoice file-generation benchmark; it passes as a file-output smoke but is too slow for live Quest dialog and does not prove streaming playback latency.
+- `docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json` records the first bidirectional realtime voice transport spike. It passes the local transport contract but keeps live dialog blocked because no real local voice/model stream, Quest microphone capture, Opus codec path, or headset playback latency was observed.
 - The script explicitly records `cloudCallsAllowed: false`, `modelDownloadsAllowed: false`, and `localRuntimeExecutionAllowed: false`.
 
 Metrics:
