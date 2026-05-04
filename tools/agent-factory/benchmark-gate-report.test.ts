@@ -213,7 +213,7 @@ describe("benchmark gate report", () => {
     expect(report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0008-002")?.blockers).toEqual(
       expect.arrayContaining(["local_runtime_probe:evidence_stale_over_24h", "local_provider_benchmark:evidence_stale_over_24h"]),
     );
-    expect(report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0008-004")?.blockers).toEqual([
+    expect(report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-004")?.blockers).toEqual([
       "iwsdk:sidecar:operator_accepts_iwsdk_install_scope",
     ]);
   });
@@ -228,6 +228,7 @@ describe("benchmark gate report", () => {
       "evidence-leadership-0008-002",
       "evidence-leadership-0008-003",
       "evidence-leadership-0008-004",
+      "evidence-leadership-0009-004",
     ]);
 
     expect(gatesById.get("evidence-leadership-0008-001")).toEqual(expect.objectContaining({
@@ -257,6 +258,24 @@ describe("benchmark gate report", () => {
       satisfied_conditions: expect.arrayContaining([
         "local_voice_ready_to_benchmark",
         "local_voice_first_audio_benchmark_passed",
+      ]),
+    }));
+    expect(gatesById.get("evidence-leadership-0008-004")).toEqual(expect.objectContaining({
+      ready_to_resolve: true,
+      blockers: [],
+      satisfied_conditions: expect.arrayContaining([
+        "asset_pipeline_blender_bake_smoke_passed",
+        "asset_pipeline_gltf_pipeline_smoke_passed",
+      ]),
+    }));
+    expect(gatesById.get("evidence-leadership-0009-004")).toEqual(expect.objectContaining({
+      ready_to_resolve: false,
+      blockers: expect.arrayContaining([
+        "iwsdk:agent_tooling:adapter_sync_not_recorded",
+      ]),
+      satisfied_conditions: expect.arrayContaining([
+        "iwsdk_evidence_contract_present",
+        "iwsdk_install_backed_sidecar_ready",
       ]),
     }));
   });
@@ -402,8 +421,13 @@ describe("benchmark gate report", () => {
         ],
       },
     });
-    const iwsdkGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0008-004");
+    const blenderGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0008-004");
+    const iwsdkGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-004");
 
+    expect(blenderGate).toEqual(expect.objectContaining({
+      evidence_id: "evidence-leadership-0008-004",
+      blockers: expect.arrayContaining(["missing_local_runtime_probe_report", "missing_gltf_pipeline_smoke_report", "missing_blender_asset_bake_smoke_report"]),
+    }));
     expect(iwsdkGate).toEqual(expect.objectContaining({
       ready_to_resolve: false,
       satisfied_conditions: ["iwsdk_evidence_contract_present"],

@@ -20,8 +20,8 @@ Iteration 0009 is an amber maturity step from evidence capture to implementation
 - Production-grade generated humans, equipment, rigging, animation, and headset budgets.
 - IWSDK Phase 2 tooling and primary-runtime adoption.
 - Clinical, legal, and psychometric validation for anything beyond formative deterministic prototypes.
-- Evidence-ledger ID reconciliation between scorecards and benchmark gates.
+- Stale-packet cleanup for older leadership packets as evidence evolves.
 
 ## Go-Forward Rule
 
-Continue narrow verified implementation slices. Every slice should either close an evidence gate, enforce an architecture decision, reconcile evidence-ledger drift, or add a facade/test that makes future local/native/provider swaps safer.
+Continue narrow verified implementation slices. Every slice should either close an evidence gate, enforce an architecture decision, keep evidence-ledger mappings current, or add a facade/test that makes future local/native/provider swaps safer.

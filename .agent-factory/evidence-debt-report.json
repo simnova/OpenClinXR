@@ -1,12 +1,12 @@
 {
   "generated_by": "tools/agent-factory/find-evidence-debt.ts",
   "scorecard_count": 14,
-  "debt_count": 31,
+  "debt_count": 32,
   "open_count": 27,
-  "closed_count": 4,
+  "closed_count": 5,
   "status_counts": {
     "open": 27,
-    "resolved": 4
+    "resolved": 5
   },
   "open_by_iteration": {
     "iteration-0001": 3,
@@ -67,7 +67,7 @@
       "plan_type": "leadership-review",
       "scored_by": "senior-leadership-panel",
       "owner": "platform-architect",
-      "summary": "Align IWSDK benchmark-gate IDs with scorecard debt and record Phase 2 devtools, MCP inventory, Vite peer-range, reference metadata, bundle, and Quest evidence before runtime adoption.",
+      "summary": "Record IWSDK Phase 2 devtools, MCP inventory, Vite peer-range, reference metadata, bundle, and Quest evidence before runtime adoption.",
       "status": "open"
     },
     {
@@ -619,7 +619,7 @@
       "plan_type": "leadership-review",
       "scored_by": "senior-leadership-panel",
       "owner": "platform-architect",
-      "summary": "Align IWSDK benchmark-gate IDs with scorecard debt and record Phase 2 devtools, MCP inventory, Vite peer-range, reference metadata, bundle, and Quest evidence before runtime adoption.",
+      "summary": "Record IWSDK Phase 2 devtools, MCP inventory, Vite peer-range, reference metadata, bundle, and Quest evidence before runtime adoption.",
       "status": "open"
     },
     {
@@ -951,7 +951,7 @@
       "plan_type": "leadership-review",
       "scored_by": "senior-leadership-panel",
       "owner": "platform-architect",
-      "summary": "Align IWSDK benchmark-gate IDs with scorecard debt and record Phase 2 devtools, MCP inventory, Vite peer-range, reference metadata, bundle, and Quest evidence before runtime adoption.",
+      "summary": "Record IWSDK Phase 2 devtools, MCP inventory, Vite peer-range, reference metadata, bundle, and Quest evidence before runtime adoption.",
       "status": "open"
     },
     {
@@ -974,6 +974,17 @@
       "scored_by": "senior-leadership-panel",
       "owner": "senior-leadership-panel",
       "summary": "Prior local model, local voice, and Blender placeholder-bake installation smokes were captured without cloud spend and are sufficient to retire the narrower installation-only blockers.",
+      "status": "resolved"
+    },
+    {
+      "id": "evidence-leadership-0009-007",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "owner": "rubric-steward",
+      "summary": "Benchmark-gate evidence IDs now split Blender/asset-bake readiness from IWSDK sidecar readiness instead of reusing the iteration 0008 Blender debt ID.",
       "status": "resolved"
     }
   ]

@@ -234,11 +234,11 @@ Iteration 0009 is an amber maturity step from evidence capture to implementation
 - Production-grade generated humans, equipment, rigging, animation, and headset budgets.
 - IWSDK Phase 2 tooling and primary-runtime adoption.
 - Clinical, legal, and psychometric validation for anything beyond formative deterministic prototypes.
-- Evidence-ledger ID reconciliation between scorecards and benchmark gates.
+- Stale-packet cleanup for older leadership packets as evidence evolves.
 
 ## Go-Forward Rule
 
-Continue narrow verified implementation slices. Every slice should either close an evidence gate, enforce an architecture decision, reconcile evidence-ledger drift, or add a facade/test that makes future local/native/provider swaps safer.
+Continue narrow verified implementation slices. Every slice should either close an evidence gate, enforce an architecture decision, keep evidence-ledger mappings current, or add a facade/test that makes future local/native/provider swaps safer.
 
 
 
@@ -254,7 +254,7 @@ Continue narrow verified implementation slices. Every slice should either close 
 - Voice And Speech Engineer: local file generation is not the same as live, interruptible, WebXR-played clinical dialogue.
 - Asset Pipeline Lead: asset-job routing is a boundary; production asset readiness requires per-artifact generation and headset-budget evidence.
 - Open Source Governance Lead: IWSDK can remain useful as an isolated learning lane while package, peer-range, metadata, and bundle blockers stay unresolved.
-- Rubric Steward: evidence gate IDs need lifecycle discipline so benchmark reports do not silently repurpose old scorecard debt; ID drift is a leadership-risk issue, not a paperwork issue.
+- Rubric Steward: evidence gate IDs need lifecycle discipline so benchmark reports do not silently repurpose old scorecard debt; ID drift is a leadership-risk issue, not a paperwork issue. Iteration 9 split the old Blender asset-bake gate from the new IWSDK sidecar gate.
 - Senior Leadership Panel: the strongest current plan is not feature expansion; it is evidence closure plus boundary enforcement.
 
 ## Open Risks

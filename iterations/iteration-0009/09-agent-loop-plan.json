@@ -4898,7 +4898,6 @@
     "confidence": 0.79,
     "readyForLeadershipReview": false,
     "blockers": [
-      "open_high_or_critical_risk",
       "open_evidence_debt",
       "open_decision_debt"
     ],
@@ -5009,7 +5008,7 @@
       "id": "evidence-leadership-0009-004",
       "actionType": "close_evidence_debt",
       "owner": "platform-architect",
-      "summary": "Align IWSDK benchmark-gate IDs with scorecard debt and record Phase 2 devtools, MCP inventory, Vite peer-range, reference metadata, bundle, and Quest evidence before runtime adoption.",
+      "summary": "Record IWSDK Phase 2 devtools, MCP inventory, Vite peer-range, reference metadata, bundle, and Quest evidence before runtime adoption.",
       "dimensions": [
         "technical_feasibility",
         "cost_performance_efficiency"
@@ -5084,7 +5083,7 @@
       "id": "risk-leadership-0009-005",
       "actionType": "mitigate_critical_risk",
       "owner": "rubric-steward",
-      "summary": "Evidence ledger ID drift may cause leadership to believe a blocker was closed or reopened for the wrong reason.",
+      "summary": "Evidence ledger or stale packet drift may cause leadership to believe a blocker was closed or reopened for the wrong reason.",
       "dimensions": [
         "evidence_discipline",
         "implementation_readiness"
@@ -5094,7 +5093,6 @@
   "leadershipGate": {
     "ready": false,
     "blockers": [
-      "open_high_or_critical_risk",
       "open_evidence_debt",
       "open_decision_debt"
     ]
@@ -5253,7 +5251,7 @@
           "id": "risk-leadership-0009-005",
           "actionType": "mitigate_critical_risk",
           "owner": "rubric-steward",
-          "summary": "Evidence ledger ID drift may cause leadership to believe a blocker was closed or reopened for the wrong reason.",
+          "summary": "Evidence ledger or stale packet drift may cause leadership to believe a blocker was closed or reopened for the wrong reason.",
           "dimensions": [
             "evidence_discipline",
             "implementation_readiness"
@@ -5411,7 +5409,7 @@
           "id": "risk-leadership-0009-005",
           "actionType": "mitigate_critical_risk",
           "owner": "rubric-steward",
-          "summary": "Evidence ledger ID drift may cause leadership to believe a blocker was closed or reopened for the wrong reason.",
+          "summary": "Evidence ledger or stale packet drift may cause leadership to believe a blocker was closed or reopened for the wrong reason.",
           "dimensions": [
             "evidence_discipline",
             "implementation_readiness"

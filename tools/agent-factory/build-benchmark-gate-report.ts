@@ -458,6 +458,9 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
   const localVoiceSatisfiedConditions = combinedSatisfiedConditions.filter((condition) =>
     condition.startsWith("local_voice_") || condition === "local_provider_mock_benchmarks_passed"
   );
+  const assetSatisfiedConditions = combinedSatisfiedConditions.filter((condition) =>
+    condition.startsWith("asset_pipeline_")
+  );
   const iwsdkSatisfiedConditions = iwsdkEvidenceContract
     ? [
       "iwsdk_evidence_contract_present",
@@ -571,7 +574,8 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
       buildEvidenceGate("evidence-leadership-0008-001", questSatisfiedConditions, unique(questEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0008-002", localModelSatisfiedConditions, unique(localModelEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0008-003", localVoiceSatisfiedConditions, unique(localVoiceEvidenceBlockers)),
-      buildEvidenceGate("evidence-leadership-0008-004", iwsdkSatisfiedConditions, unique(iwsdkEvidenceBlockers)),
+      buildEvidenceGate("evidence-leadership-0008-004", assetSatisfiedConditions, unique(assetEvidenceBlockers)),
+      buildEvidenceGate("evidence-leadership-0009-004", iwsdkSatisfiedConditions, unique(iwsdkEvidenceBlockers)),
     ],
   };
 }

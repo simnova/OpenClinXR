@@ -4,13 +4,13 @@
   "risk_count": 32,
   "open_count": 32,
   "open_critical_count": 0,
-  "open_high_or_critical_count": 20,
+  "open_high_or_critical_count": 19,
   "status_counts": {
     "open": 32
   },
   "open_by_severity": {
-    "high": 20,
-    "medium": 12
+    "high": 19,
+    "medium": 13
   },
   "open_by_iteration": {
     "iteration-0001": 5,
@@ -270,18 +270,6 @@
       "severity": "high",
       "owner": "local-ai-inference-engineer",
       "summary": "Local model and voice quality may be insufficient for realistic clinical actor behavior.",
-      "status": "open"
-    },
-    {
-      "id": "risk-leadership-0009-005",
-      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
-      "iteration_id": "iteration-0009",
-      "iteration_number": 9,
-      "plan_type": "leadership-review",
-      "scored_by": "senior-leadership-panel",
-      "severity": "high",
-      "owner": "rubric-steward",
-      "summary": "Evidence ledger ID drift may cause leadership to believe a blocker was closed or reopened for the wrong reason.",
       "status": "open"
     }
   ],
@@ -611,18 +599,6 @@
       "status": "open"
     },
     {
-      "id": "risk-leadership-0009-005",
-      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
-      "iteration_id": "iteration-0009",
-      "iteration_number": 9,
-      "plan_type": "leadership-review",
-      "scored_by": "senior-leadership-panel",
-      "severity": "high",
-      "owner": "rubric-steward",
-      "summary": "Evidence ledger ID drift may cause leadership to believe a blocker was closed or reopened for the wrong reason.",
-      "status": "open"
-    },
-    {
       "id": "risk-leadership-0009-001",
       "file": "iterations/iteration-0009/06-leadership-scorecard.json",
       "iteration_id": "iteration-0009",
@@ -668,6 +644,18 @@
       "severity": "medium",
       "owner": "platform-architect",
       "summary": "IWSDK sidecar momentum may pull incompatible or oversized packages into the primary XR runtime before MCP, bundle, peer-range, and Quest evidence clears.",
+      "status": "open"
+    },
+    {
+      "id": "risk-leadership-0009-005",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "severity": "medium",
+      "owner": "rubric-steward",
+      "summary": "Evidence ledger or stale packet drift may cause leadership to believe a blocker was closed or reopened for the wrong reason.",
       "status": "open"
     }
   ],
@@ -997,18 +985,6 @@
       "status": "open"
     },
     {
-      "id": "risk-leadership-0009-005",
-      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
-      "iteration_id": "iteration-0009",
-      "iteration_number": 9,
-      "plan_type": "leadership-review",
-      "scored_by": "senior-leadership-panel",
-      "severity": "high",
-      "owner": "rubric-steward",
-      "summary": "Evidence ledger ID drift may cause leadership to believe a blocker was closed or reopened for the wrong reason.",
-      "status": "open"
-    },
-    {
       "id": "risk-leadership-0009-001",
       "file": "iterations/iteration-0009/06-leadership-scorecard.json",
       "iteration_id": "iteration-0009",
@@ -1054,6 +1030,18 @@
       "severity": "medium",
       "owner": "platform-architect",
       "summary": "IWSDK sidecar momentum may pull incompatible or oversized packages into the primary XR runtime before MCP, bundle, peer-range, and Quest evidence clears.",
+      "status": "open"
+    },
+    {
+      "id": "risk-leadership-0009-005",
+      "file": "iterations/iteration-0009/06-leadership-scorecard.json",
+      "iteration_id": "iteration-0009",
+      "iteration_number": 9,
+      "plan_type": "leadership-review",
+      "scored_by": "senior-leadership-panel",
+      "severity": "medium",
+      "owner": "rubric-steward",
+      "summary": "Evidence ledger or stale packet drift may cause leadership to believe a blocker was closed or reopened for the wrong reason.",
       "status": "open"
     }
   ]

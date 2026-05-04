@@ -311,7 +311,7 @@
       "open_selected_evidence_debt_count": 5,
       "open_selected_decision_debt_count": 1,
       "open_selected_risk_count": 5,
-      "open_selected_high_or_critical_risk_count": 1,
+      "open_selected_high_or_critical_risk_count": 0,
       "open_selected_evidence_debt_ids": [
         "evidence-leadership-0009-001",
         "evidence-leadership-0009-002",
@@ -329,14 +329,11 @@
         "risk-leadership-0009-004",
         "risk-leadership-0009-005"
       ],
-      "open_selected_high_or_critical_risk_ids": [
-        "risk-leadership-0009-005"
-      ],
+      "open_selected_high_or_critical_risk_ids": [],
       "dimensions_below_quality_bar": [],
       "blockers": [
         "open_selected_evidence_debt",
-        "open_selected_decision_debt",
-        "open_selected_high_or_critical_risk"
+        "open_selected_decision_debt"
       ],
       "leadership_quality_bar_ready": false,
       "weighted_delta_from_previous": -0.16,

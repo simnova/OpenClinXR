@@ -8,7 +8,7 @@
 - Voice And Speech Engineer: local file generation is not the same as live, interruptible, WebXR-played clinical dialogue.
 - Asset Pipeline Lead: asset-job routing is a boundary; production asset readiness requires per-artifact generation and headset-budget evidence.
 - Open Source Governance Lead: IWSDK can remain useful as an isolated learning lane while package, peer-range, metadata, and bundle blockers stay unresolved.
-- Rubric Steward: evidence gate IDs need lifecycle discipline so benchmark reports do not silently repurpose old scorecard debt; ID drift is a leadership-risk issue, not a paperwork issue.
+- Rubric Steward: evidence gate IDs need lifecycle discipline so benchmark reports do not silently repurpose old scorecard debt; ID drift is a leadership-risk issue, not a paperwork issue. Iteration 9 split the old Blender asset-bake gate from the new IWSDK sidecar gate.
 - Senior Leadership Panel: the strongest current plan is not feature expansion; it is evidence closure plus boundary enforcement.
 
 ## Open Risks
