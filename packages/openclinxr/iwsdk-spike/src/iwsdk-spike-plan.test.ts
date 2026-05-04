@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   buildIwsdkAgentVerificationRunbook,
   buildIwsdkCommittedSpikeSequence,
+  buildIwsdkSpikeMetricThresholds,
   buildIwsdkSpikePlan,
+  evaluateIwsdkSpikeMetrics,
   evaluateIwsdkSpikeReadiness,
   type IwsdkSpikeGateEvidence,
 } from "./index.js";
@@ -109,5 +111,62 @@ describe("IWSDK spike plan", () => {
       "quest3_controller_select_latency",
       "headset_text_readability",
     ]));
+  });
+
+  it("defines machine-readable metric thresholds for a committed IWSDK spike", () => {
+    expect(buildIwsdkSpikeMetricThresholds()).toEqual({
+      installedNodeModulesMbMax: 300,
+      injectedDevRuntimeKbMax: 1200,
+      appJsBundleKbMax: 550,
+      bundleDeltaVsUiXrKbMax: 100,
+      avgFpsMin: 72,
+      p95FrameMsMax: 25,
+      controllerSelectLatencyMsMax: 150,
+      consoleErrorCountMax: 0,
+    });
+  });
+
+  it("separates sidecar spike readiness from production readiness when Quest evidence is missing", () => {
+    expect(evaluateIwsdkSpikeMetrics({
+      installedNodeModulesMb: 287,
+      injectedDevRuntimeKb: 1116.3,
+      appJsBundleKb: 504.47,
+      bundleDeltaVsUiXrKb: 24,
+      consoleErrorCount: 0,
+    })).toEqual({
+      readyForCommittedSpike: true,
+      readyForProductionRuntime: false,
+      blockers: [
+        "missing_avg_fps",
+        "missing_p95_frame_ms",
+        "missing_controller_select_latency_ms",
+      ],
+    });
+  });
+
+  it("reports concrete metric blockers when a spike exceeds budget", () => {
+    expect(evaluateIwsdkSpikeMetrics({
+      installedNodeModulesMb: 315,
+      injectedDevRuntimeKb: 1250,
+      appJsBundleKb: 610,
+      bundleDeltaVsUiXrKb: 140,
+      avgFps: 65,
+      p95FrameMs: 31,
+      controllerSelectLatencyMs: 220,
+      consoleErrorCount: 1,
+    })).toEqual({
+      readyForCommittedSpike: false,
+      readyForProductionRuntime: false,
+      blockers: [
+        "installed_node_modules_mb_over_budget",
+        "injected_dev_runtime_kb_over_budget",
+        "app_js_bundle_kb_over_budget",
+        "bundle_delta_vs_ui_xr_kb_over_budget",
+        "console_errors_present",
+        "avg_fps_below_floor",
+        "p95_frame_ms_over_budget",
+        "controller_select_latency_ms_over_budget",
+      ],
+    });
   });
 });

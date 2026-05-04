@@ -13,7 +13,8 @@
     "The package restricts IWSDK experimentation to apps/ui-xr-iwsdk-spike/ and packages/openclinxr/iwsdk-spike/ while keeping production XR roots blocked.",
     "The package records source-backed candidate packages, including @iwsdk/core, @iwsdk/xr-input, @iwsdk/locomotor, @iwsdk/vite-plugin-dev, and @iwsdk/vite-plugin-gltf-optimizer.",
     "The package records blocked or unattended-only posture for @meta-quest/hzdb and @iwsdk/reference.",
-    "The package records a Codex-oriented verification runbook that checks iwsdk dev status, then xr_get_session_status, then XR entry, screenshot, scene hierarchy, controller select, and console logs."
+    "The package records a Codex-oriented verification runbook that checks iwsdk dev status, then xr_get_session_status, then XR entry, screenshot, scene hierarchy, controller select, and console logs.",
+    "The package records machine-readable sidecar and production readiness thresholds for installed footprint, injected IWSDK dev runtime size, JS bundle size, bundle delta versus apps/ui-xr, console errors, Quest 3 FPS, p95 frame time, and controller-select latency."
   ],
   "claims_not_supported": [
     "That IWSDK has been installed as a production or spike app dependency in the main workspace.",

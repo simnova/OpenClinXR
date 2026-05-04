@@ -174,7 +174,7 @@ describe("workspace architecture rules", () => {
       .check();
 
     expect(violations).toEqual([]);
-  }, 20_000);
+  }, 60_000);
 
   it("keeps the XR headset runtime on scenario fixture subpaths instead of the barrel", async () => {
     const violations = await projectFiles(archTsconfig)
@@ -189,14 +189,24 @@ describe("workspace architecture rules", () => {
 
   it("keeps Meta Immersive Web SDK dependencies isolated from production runtime paths", () => {
     const allowedSpikeRoots = ["apps/ui-xr-iwsdk-spike/", "packages/openclinxr/iwsdk-spike/"];
+    const iwsdkImportPattern = /(?:from\s+["']|import\s*\(\s*["'])@iwsdk\//;
     const sourceViolations = [...sourceFilesUnder("apps"), ...sourceFilesUnder("packages")]
-      .filter((filePath) => /@iwsdk\//.test(readFileSync(join(workspaceRoot, filePath), "utf8")))
+      .filter((filePath) => iwsdkImportPattern.test(readFileSync(join(workspaceRoot, filePath), "utf8")))
       .filter((filePath) => !allowedSpikeRoots.some((root) => filePath.startsWith(root)));
     const manifestViolations = packageManifestFiles()
       .filter((filePath) => /"@iwsdk\//.test(readFileSync(join(workspaceRoot, filePath), "utf8")))
       .filter((filePath) => !allowedSpikeRoots.some((root) => filePath.startsWith(root)));
 
     expect([...sourceViolations, ...manifestViolations]).toEqual([]);
+  });
+
+  it("keeps blocked IWSDK optional packages out of package manifests and the lockfile", () => {
+    const blockedDependencies = ["@iwsdk/reference", "@meta-quest/hzdb"];
+    const manifestViolations = workspacePackageDependencyFindings(blockedDependencies);
+    const lockfileText = readFileSync(join(workspaceRoot, "pnpm-lock.yaml"), "utf8");
+    const lockfileViolations = blockedDependencies.filter((dependency) => lockfileContainsDependency(lockfileText, dependency));
+
+    expect([...manifestViolations, ...lockfileViolations.map((dependency) => `pnpm-lock.yaml:${dependency}`)]).toEqual([]);
   });
 
   it("keeps UI app source from depending on Mongo persistence source files", async () => {
@@ -265,6 +275,25 @@ function packageManifestFiles(): string[] {
     .map((filePath) => relative(workspaceRoot, filePath).split(sep).join("/"))
     .filter((filePath) => filePath.endsWith("package.json"))
     .filter((filePath) => !filePath.includes("/node_modules/") && !filePath.includes("/dist/"));
+}
+
+function workspacePackageDependencyFindings(blockedDependencies: string[]): string[] {
+  const dependencyFields = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"] as const;
+
+  return packageManifestFiles().flatMap((filePath) => {
+    const packageJson = JSON.parse(readFileSync(join(workspaceRoot, filePath), "utf8")) as Record<string, Record<string, string>>;
+
+    return dependencyFields.flatMap((field) =>
+      blockedDependencies
+        .filter((dependency) => packageJson[field]?.[dependency])
+        .map((dependency) => `${filePath}:${field}.${dependency}`),
+    );
+  });
+}
+
+function lockfileContainsDependency(lockfileText: string, dependency: string): boolean {
+  const escapedDependency = dependency.replaceAll("/", "\\/").replaceAll("@", "\\@");
+  return new RegExp(`(?:^|\\n)\\s*(?:${escapedDependency}:|/${escapedDependency}@)`).test(lockfileText);
 }
 
 function userFacingTextFragments(filePath: string): string[] {

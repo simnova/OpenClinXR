@@ -43,6 +43,27 @@ Results:
 
 Interpretation: IWSDK dev tooling appears technically viable enough for a committed spike, but it is too heavy and too license-sensitive to add to the main runtime path casually.
 
+## Machine-Readable Budgets
+
+`packages/openclinxr/iwsdk-spike` now exposes `buildIwsdkSpikeMetricThresholds()` and `evaluateIwsdkSpikeMetrics()` so a committed sidecar spike can be scored with stable pass/fail bars instead of prose-only judgment.
+
+Committed sidecar spike budget:
+
+- `installedNodeModulesMbMax`: 300 MB.
+- `injectedDevRuntimeKbMax`: 1200 KB.
+- `appJsBundleKbMax`: 550 KB.
+- `bundleDeltaVsUiXrKbMax`: 100 KB.
+- `consoleErrorCountMax`: 0.
+
+Production-runtime adoption budget:
+
+- All committed sidecar metrics must pass.
+- `avgFpsMin`: 72 FPS on the foreground Quest 3 run.
+- `p95FrameMsMax`: 25 ms on the foreground Quest 3 run.
+- `controllerSelectLatencyMsMax`: 150 ms for a station trace action.
+
+The scratch spike fits the committed sidecar ceilings using the recorded `287 MB`, `1116.3 KB`, and `504.47 kB` measurements, but production readiness remains blocked because the physical Quest 3 foreground frame-pacing and controller-latency metrics have not passed.
+
 ## Recommended Spike
 
 Create an isolated package or worktree spike before touching the production XR shell:

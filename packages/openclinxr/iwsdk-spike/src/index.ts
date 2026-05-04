@@ -37,6 +37,34 @@ export type IwsdkSpikeReadiness = {
   blockers: string[];
 };
 
+export type IwsdkSpikeMetricThresholds = {
+  installedNodeModulesMbMax: number;
+  injectedDevRuntimeKbMax: number;
+  appJsBundleKbMax: number;
+  bundleDeltaVsUiXrKbMax: number;
+  avgFpsMin: number;
+  p95FrameMsMax: number;
+  controllerSelectLatencyMsMax: number;
+  consoleErrorCountMax: number;
+};
+
+export type IwsdkSpikeMetrics = {
+  installedNodeModulesMb?: number;
+  injectedDevRuntimeKb?: number;
+  appJsBundleKb?: number;
+  bundleDeltaVsUiXrKb?: number;
+  avgFps?: number;
+  p95FrameMs?: number;
+  controllerSelectLatencyMs?: number;
+  consoleErrorCount?: number;
+};
+
+export type IwsdkSpikeMetricReadiness = {
+  readyForCommittedSpike: boolean;
+  readyForProductionRuntime: boolean;
+  blockers: string[];
+};
+
 export type IwsdkAgentMode = "agent" | "oversight" | "collaborate";
 export type IwsdkAiTool = "codex" | "claude" | "cursor" | "copilot";
 
@@ -166,6 +194,73 @@ export function evaluateIwsdkSpikeReadiness(evidence: IwsdkSpikeGateEvidence): I
     readyForCommittedSpike: committedSpikeBlockers.length === 0,
     readyForProductionRuntime: blockers.length === 0,
     blockers,
+  };
+}
+
+export function buildIwsdkSpikeMetricThresholds(): IwsdkSpikeMetricThresholds {
+  return {
+    installedNodeModulesMbMax: 300,
+    injectedDevRuntimeKbMax: 1200,
+    appJsBundleKbMax: 550,
+    bundleDeltaVsUiXrKbMax: 100,
+    avgFpsMin: 72,
+    p95FrameMsMax: 25,
+    controllerSelectLatencyMsMax: 150,
+    consoleErrorCountMax: 0,
+  };
+}
+
+export function evaluateIwsdkSpikeMetrics(
+  metrics: IwsdkSpikeMetrics,
+  thresholds: IwsdkSpikeMetricThresholds = buildIwsdkSpikeMetricThresholds(),
+): IwsdkSpikeMetricReadiness {
+  const committedBlockers = [
+    missingOrOverMax(
+      metrics.installedNodeModulesMb,
+      thresholds.installedNodeModulesMbMax,
+      "missing_installed_node_modules_mb",
+      "installed_node_modules_mb_over_budget",
+    ),
+    missingOrOverMax(
+      metrics.injectedDevRuntimeKb,
+      thresholds.injectedDevRuntimeKbMax,
+      "missing_injected_dev_runtime_kb",
+      "injected_dev_runtime_kb_over_budget",
+    ),
+    missingOrOverMax(
+      metrics.appJsBundleKb,
+      thresholds.appJsBundleKbMax,
+      "missing_app_js_bundle_kb",
+      "app_js_bundle_kb_over_budget",
+    ),
+    missingOrOverMax(
+      metrics.bundleDeltaVsUiXrKb,
+      thresholds.bundleDeltaVsUiXrKbMax,
+      "missing_bundle_delta_vs_ui_xr_kb",
+      "bundle_delta_vs_ui_xr_kb_over_budget",
+    ),
+    missingOrOverMax(
+      metrics.consoleErrorCount,
+      thresholds.consoleErrorCountMax,
+      "missing_console_error_count",
+      "console_errors_present",
+    ),
+  ].filter((blocker): blocker is string => Boolean(blocker));
+  const productionBlockers = [
+    missingOrUnderMin(metrics.avgFps, thresholds.avgFpsMin, "missing_avg_fps", "avg_fps_below_floor"),
+    missingOrOverMax(metrics.p95FrameMs, thresholds.p95FrameMsMax, "missing_p95_frame_ms", "p95_frame_ms_over_budget"),
+    missingOrOverMax(
+      metrics.controllerSelectLatencyMs,
+      thresholds.controllerSelectLatencyMsMax,
+      "missing_controller_select_latency_ms",
+      "controller_select_latency_ms_over_budget",
+    ),
+  ].filter((blocker): blocker is string => Boolean(blocker));
+
+  return {
+    readyForCommittedSpike: committedBlockers.length === 0,
+    readyForProductionRuntime: committedBlockers.length === 0 && productionBlockers.length === 0,
+    blockers: [...committedBlockers, ...productionBlockers],
   };
 }
 
@@ -307,4 +402,28 @@ function adapterConfigTargetFor(aiTool: IwsdkAiTool): string {
     case "copilot":
       return ".vscode/mcp.json";
   }
+}
+
+function missingOrOverMax(
+  value: number | undefined,
+  maximum: number,
+  missingBlocker: string,
+  overBudgetBlocker: string,
+): string | undefined {
+  if (value === undefined) {
+    return missingBlocker;
+  }
+  return value > maximum ? overBudgetBlocker : undefined;
+}
+
+function missingOrUnderMin(
+  value: number | undefined,
+  minimum: number,
+  missingBlocker: string,
+  underBudgetBlocker: string,
+): string | undefined {
+  if (value === undefined) {
+    return missingBlocker;
+  }
+  return value < minimum ? underBudgetBlocker : undefined;
 }
