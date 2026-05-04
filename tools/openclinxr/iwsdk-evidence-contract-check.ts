@@ -3,6 +3,8 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import fg from "fast-glob";
 import {
+  buildIwsdkCoreRequiredTransitivePackageNames,
+  buildIwsdkCoreTransitivePackageLicenseEvidence,
   buildIwsdkPreInstallPackagePolicy,
   buildIwsdkSidecarReadinessContract,
   buildIwsdkViteAiDevConfigContract,
@@ -96,7 +98,13 @@ export function buildIwsdkEvidenceContractReport(input: {
   const sidecar = buildIwsdkSidecarReadinessContract();
   const preinstallPolicy = buildIwsdkPreInstallPackagePolicy();
   const preinstallResult = evaluateIwsdkPreInstallPackageSelection([
-    { name: "@iwsdk/core", version: "0.3.1", license: "MIT", transitivePackages: ["three"] },
+    {
+      name: "@iwsdk/core",
+      version: "0.3.1",
+      license: "MIT",
+      transitivePackages: buildIwsdkCoreRequiredTransitivePackageNames(),
+      transitivePackageLicenses: buildIwsdkCoreTransitivePackageLicenseEvidence(),
+    },
     { name: "@iwsdk/xr-input", version: "0.3.1", license: "MIT", transitivePackages: [] },
   ], preinstallPolicy);
   const agentTooling = evaluateIwsdkAgentToolingEvidence({

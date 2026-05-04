@@ -2,6 +2,8 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import {
+  buildIwsdkCoreRequiredTransitivePackageNames,
+  buildIwsdkCoreTransitivePackageLicenseEvidence,
   buildIwsdkPreInstallPackagePolicy,
   evaluateIwsdkPreInstallPackageSelection,
   type IwsdkPackageSelection,
@@ -56,7 +58,13 @@ export function defaultIwsdkFirstSlicePreInstallProposal(
 ): IwsdkPreInstallProposal {
   return {
     selectedPackages: [
-      { name: "@iwsdk/core", version: "0.3.1", license: "MIT", transitivePackages: ["three"] },
+      {
+        name: "@iwsdk/core",
+        version: "0.3.1",
+        license: "MIT",
+        transitivePackages: buildIwsdkCoreRequiredTransitivePackageNames(),
+        transitivePackageLicenses: buildIwsdkCoreTransitivePackageLicenseEvidence(),
+      },
       { name: "@iwsdk/xr-input", version: "0.3.1", license: "MIT", transitivePackages: [] },
     ],
     packageManagerControls: [...policy.requiredPackageManagerControls],

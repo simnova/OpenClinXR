@@ -9,7 +9,7 @@
     "Dependency-risk evaluation before any OpenClinXR IWSDK spike or package installation."
   ],
   "claims_supported": [
-    "As queried on 2026-05-04, @iwsdk/core latest is 0.3.1, MIT licensed, and depends on Three.js, @iwsdk/glxf, @iwsdk/xr-input, @iwsdk/locomotor, @pmndrs/uikit, @pmndrs/uikitml, @babylonjs/havok, three-mesh-bvh, and related runtime libraries.",
+    "As queried on 2026-05-04, @iwsdk/core latest is 0.3.1, MIT licensed, peers no package directly in npm metadata, and reports direct dependencies on @babylonjs/havok, @iwsdk/glxf, @iwsdk/locomotor, @iwsdk/xr-input, @pmndrs/handle, @pmndrs/pointer-events, @pmndrs/uikit, @pmndrs/uikitml, @preact/signals-core, elics, three, and three-mesh-bvh.",
     "As queried on 2026-05-04, @iwsdk/vite-plugin-dev latest is 0.3.1, MIT licensed, depends on Playwright, iwer, @iwer/devui, @iwer/sem, sharp, ws, and @modelcontextprotocol/sdk, and peers Vite ^7.0.0.",
     "As queried on 2026-05-04, @iwsdk/vite-plugin-gltf-optimizer latest is 0.3.1, MIT licensed, depends on @gltf-transform packages, draco3dgltf, sharp, glob, and fs-extra, and peers Vite ^7.0.0.",
     "As queried on 2026-05-04, @iwsdk/vite-plugin-uikitml and @iwsdk/vite-plugin-metaspatial latest are 0.3.1, MIT licensed, and peer Vite ^7.0.0.",

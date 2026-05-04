@@ -278,6 +278,7 @@ export type IwsdkPreInstallPackagePolicy = {
   blockedTransitivePackages: string[];
   blockedLicenseExpressions: string[];
   requiredPackageManagerControls: string[];
+  requiredTransitivePackagesByPackageName: Record<string, string[]>;
 };
 
 export type IwsdkPackageSelection = {
@@ -285,6 +286,7 @@ export type IwsdkPackageSelection = {
   version: string;
   license: string;
   transitivePackages: string[];
+  transitivePackageLicenses?: Record<string, string>;
 };
 
 export type IwsdkPreInstallPackageSelectionResult = {
@@ -386,6 +388,36 @@ const productionRuntimeGateKeys: Array<keyof IwsdkSpikeGateEvidence> = [
   "quest3PhysicalSmoke",
   "foregroundFramePacing",
 ];
+
+const iwsdkCoreRequiredTransitivePackages = [
+  "@babylonjs/havok",
+  "@iwsdk/glxf",
+  "@iwsdk/locomotor",
+  "@iwsdk/xr-input",
+  "@pmndrs/handle",
+  "@pmndrs/pointer-events",
+  "@pmndrs/uikit",
+  "@pmndrs/uikitml",
+  "@preact/signals-core",
+  "elics",
+  "three",
+  "three-mesh-bvh",
+] as const;
+
+const iwsdkCoreTransitivePackageLicenses: Record<(typeof iwsdkCoreRequiredTransitivePackages)[number], string> = {
+  "@babylonjs/havok": "Apache-2.0",
+  "@iwsdk/glxf": "MIT",
+  "@iwsdk/locomotor": "MIT",
+  "@iwsdk/xr-input": "MIT",
+  "@pmndrs/handle": "MIT",
+  "@pmndrs/pointer-events": "MIT",
+  "@pmndrs/uikit": "MIT",
+  "@pmndrs/uikitml": "MIT",
+  "@preact/signals-core": "MIT",
+  elics: "MIT",
+  three: "MIT",
+  "three-mesh-bvh": "MIT",
+};
 
 export function buildIwsdkSpikePlan(): IwsdkSpikePlan {
   return {
@@ -660,7 +692,18 @@ export function buildIwsdkPreInstallPackagePolicy(): IwsdkPreInstallPackagePolic
     blockedTransitivePackages: ["@img/sharp-libvips-darwin-arm64"],
     blockedLicenseExpressions: ["AGPL", "GPL", "LGPL", "UNLICENSED", "Unknown"],
     requiredPackageManagerControls: ["pin_exact_versions", "pin_three_override", "record_pnpm_audit", "record_license_policy_report"],
+    requiredTransitivePackagesByPackageName: {
+      "@iwsdk/core": buildIwsdkCoreRequiredTransitivePackageNames(),
+    },
   };
+}
+
+export function buildIwsdkCoreRequiredTransitivePackageNames(): string[] {
+  return [...iwsdkCoreRequiredTransitivePackages];
+}
+
+export function buildIwsdkCoreTransitivePackageLicenseEvidence(): Record<string, string> {
+  return { ...iwsdkCoreTransitivePackageLicenses };
 }
 
 export function buildIwsdkAiModeProfiles(): IwsdkAiModeProfile[] {
@@ -1015,6 +1058,7 @@ export function evaluateIwsdkPreInstallPackageSelection(
   const reviewWarnings: string[] = [];
 
   for (const selectedPackage of selectedPackages) {
+    const blockerCountBeforePackageChecks = blockers.length;
     if (policy.exactVersionRequired && !isExactVersion(selectedPackage.version)) {
       blockers.push(`${selectedPackage.name}:version_not_exact`);
     }
@@ -1045,6 +1089,31 @@ export function evaluateIwsdkPreInstallPackageSelection(
     for (const transitivePackage of selectedPackage.transitivePackages) {
       if (transitivePackageIsBlocked(transitivePackage, policy.blockedTransitivePackages)) {
         blockers.push(`${selectedPackage.name}:blocked_transitive_${transitivePackage}`);
+      }
+    }
+
+    if (blockers.length === blockerCountBeforePackageChecks) {
+      const requiredTransitivePackages = policy.requiredTransitivePackagesByPackageName[selectedPackage.name] ?? [];
+      for (const requiredTransitivePackage of requiredTransitivePackages) {
+        if (!selectedPackage.transitivePackages.includes(requiredTransitivePackage)) {
+          blockers.push(`${selectedPackage.name}:missing_required_transitive_${requiredTransitivePackage}`);
+        }
+      }
+
+      for (const transitivePackage of requiredTransitivePackages.filter((packageName) =>
+        selectedPackage.transitivePackages.includes(packageName)
+      )) {
+        const transitiveLicense = selectedPackage.transitivePackageLicenses?.[transitivePackage];
+        if (!transitiveLicense) {
+          blockers.push(`${selectedPackage.name}:missing_transitive_license_${transitivePackage}`);
+          continue;
+        }
+        const blockedTransitiveLicense = policy.blockedLicenseExpressions.find((licenseExpression) =>
+          licenseExpressionMatches(transitiveLicense, licenseExpression)
+        );
+        if (blockedTransitiveLicense) {
+          blockers.push(`${selectedPackage.name}:blocked_transitive_license_${transitivePackage}_${blockedTransitiveLicense}`);
+        }
       }
     }
   }
@@ -1133,7 +1202,7 @@ export function evaluateIwsdkWorkspacePosture(
       license: "MIT",
       transitivePackages: [],
     })),
-    policy,
+    { ...policy, requiredTransitivePackagesByPackageName: {} },
   );
   blockers.push(...sidecarSelection.blockers);
 

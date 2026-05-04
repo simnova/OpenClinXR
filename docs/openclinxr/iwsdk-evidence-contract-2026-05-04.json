@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-04T08:51:17.406Z",
+  "generatedAt": "2026-05-04T10:32:28.330Z",
   "status": "contract_only",
   "sidecar": {
     "sidecarAppRoot": "apps/ui-xr-iwsdk-spike/",
@@ -52,7 +52,23 @@
         "pin_three_override",
         "record_pnpm_audit",
         "record_license_policy_report"
-      ]
+      ],
+      "requiredTransitivePackagesByPackageName": {
+        "@iwsdk/core": [
+          "@babylonjs/havok",
+          "@iwsdk/glxf",
+          "@iwsdk/locomotor",
+          "@iwsdk/xr-input",
+          "@pmndrs/handle",
+          "@pmndrs/pointer-events",
+          "@pmndrs/uikit",
+          "@pmndrs/uikitml",
+          "@preact/signals-core",
+          "elics",
+          "three",
+          "three-mesh-bvh"
+        ]
+      }
     },
     "defaultFirstSliceReady": true,
     "result": {

@@ -743,16 +743,88 @@ describe("IWSDK spike plan", () => {
       blockedTransitivePackages: ["@img/sharp-libvips-darwin-arm64"],
       blockedLicenseExpressions: ["AGPL", "GPL", "LGPL", "UNLICENSED", "Unknown"],
       requiredPackageManagerControls: ["pin_exact_versions", "pin_three_override", "record_pnpm_audit", "record_license_policy_report"],
+      requiredTransitivePackagesByPackageName: {
+        "@iwsdk/core": [
+          "@babylonjs/havok",
+          "@iwsdk/glxf",
+          "@iwsdk/locomotor",
+          "@iwsdk/xr-input",
+          "@pmndrs/handle",
+          "@pmndrs/pointer-events",
+          "@pmndrs/uikit",
+          "@pmndrs/uikitml",
+          "@preact/signals-core",
+          "elics",
+          "three",
+          "three-mesh-bvh",
+        ],
+      },
     });
   });
 
   it("accepts a pinned first-slice IWSDK package selection before installation", () => {
     expect(evaluateIwsdkPreInstallPackageSelection([
-      { name: "@iwsdk/core", version: "0.3.1", license: "MIT", transitivePackages: ["three"] },
+      {
+        name: "@iwsdk/core",
+        version: "0.3.1",
+        license: "MIT",
+        transitivePackages: [
+          "@babylonjs/havok",
+          "@iwsdk/glxf",
+          "@iwsdk/locomotor",
+          "@iwsdk/xr-input",
+          "@pmndrs/handle",
+          "@pmndrs/pointer-events",
+          "@pmndrs/uikit",
+          "@pmndrs/uikitml",
+          "@preact/signals-core",
+          "elics",
+          "three",
+          "three-mesh-bvh",
+        ],
+        transitivePackageLicenses: {
+          "@babylonjs/havok": "Apache-2.0",
+          "@iwsdk/glxf": "MIT",
+          "@iwsdk/locomotor": "MIT",
+          "@iwsdk/xr-input": "MIT",
+          "@pmndrs/handle": "MIT",
+          "@pmndrs/pointer-events": "MIT",
+          "@pmndrs/uikit": "MIT",
+          "@pmndrs/uikitml": "MIT",
+          "@preact/signals-core": "MIT",
+          elics: "MIT",
+          three: "MIT",
+          "three-mesh-bvh": "MIT",
+        },
+      },
       { name: "@iwsdk/xr-input", version: "0.3.1", license: "MIT", transitivePackages: [] },
     ])).toEqual({
       readyToInstallInSidecar: true,
       blockers: [],
+      reviewWarnings: [],
+    });
+  });
+
+  it("blocks a first-slice IWSDK package selection when core transitive package evidence is incomplete", () => {
+    expect(evaluateIwsdkPreInstallPackageSelection([
+      { name: "@iwsdk/core", version: "0.3.1", license: "MIT", transitivePackages: ["three"] },
+      { name: "@iwsdk/xr-input", version: "0.3.1", license: "MIT", transitivePackages: [] },
+    ])).toEqual({
+      readyToInstallInSidecar: false,
+      blockers: [
+        "@iwsdk/core:missing_required_transitive_@babylonjs/havok",
+        "@iwsdk/core:missing_required_transitive_@iwsdk/glxf",
+        "@iwsdk/core:missing_required_transitive_@iwsdk/locomotor",
+        "@iwsdk/core:missing_required_transitive_@iwsdk/xr-input",
+        "@iwsdk/core:missing_required_transitive_@pmndrs/handle",
+        "@iwsdk/core:missing_required_transitive_@pmndrs/pointer-events",
+        "@iwsdk/core:missing_required_transitive_@pmndrs/uikit",
+        "@iwsdk/core:missing_required_transitive_@pmndrs/uikitml",
+        "@iwsdk/core:missing_required_transitive_@preact/signals-core",
+        "@iwsdk/core:missing_required_transitive_elics",
+        "@iwsdk/core:missing_required_transitive_three-mesh-bvh",
+        "@iwsdk/core:missing_transitive_license_three",
+      ],
       reviewWarnings: [],
     });
   });

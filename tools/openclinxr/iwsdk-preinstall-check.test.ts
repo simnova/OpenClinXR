@@ -18,6 +18,7 @@ describe("IWSDK preinstall checker", () => {
       generatedAt: "2026-05-04T00:00:00.000Z",
       proposal: defaultIwsdkFirstSlicePreInstallProposal(),
     });
+    const coreSelection = report.proposal.selectedPackages.find((selectedPackage) => selectedPackage.name === "@iwsdk/core");
 
     expect(report.verdict).toEqual({
       readyToInstallInSidecar: true,
@@ -26,6 +27,28 @@ describe("IWSDK preinstall checker", () => {
       missingPackageManagerControls: [],
     });
     expect(report.policy.allowedFirstSlicePackages).toEqual(["@iwsdk/core", "@iwsdk/xr-input"]);
+    expect(coreSelection?.transitivePackages).toEqual([
+      "@babylonjs/havok",
+      "@iwsdk/glxf",
+      "@iwsdk/locomotor",
+      "@iwsdk/xr-input",
+      "@pmndrs/handle",
+      "@pmndrs/pointer-events",
+      "@pmndrs/uikit",
+      "@pmndrs/uikitml",
+      "@preact/signals-core",
+      "elics",
+      "three",
+      "three-mesh-bvh",
+    ]);
+    expect(coreSelection?.transitivePackageLicenses).toMatchObject({
+      "@babylonjs/havok": "Apache-2.0",
+      "@iwsdk/glxf": "MIT",
+      "@iwsdk/locomotor": "MIT",
+      "@iwsdk/xr-input": "MIT",
+      "@pmndrs/uikit": "MIT",
+      three: "MIT",
+    });
   });
 
   it("blocks package proposals with missing controls, blocked packages, and blocked license paths", () => {
