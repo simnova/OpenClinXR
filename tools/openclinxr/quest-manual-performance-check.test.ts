@@ -46,7 +46,7 @@ describe("Quest manual performance checker", () => {
         rigPosition: { x: 0.4, z: -0.2 },
       },
       traceLatencyProxy: {
-        source: "dom_click_trace_button",
+        source: "xr_controller_select",
         lastTraceTag: "ecg_request",
         lastSelectLatencyMs: 12,
         measuredAtMs: 1234,

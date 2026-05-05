@@ -308,7 +308,7 @@ function buildAdversarialFindings(input: {
     primitiveHandModelObserved && handTrackingObserved ? "hand_tracking_observed_without_realistic_hand_meshes" : undefined,
     locomotionModeDeclared && locomotionEventMissing ? "locomotion_mode_declared_without_locomotion_event" : undefined,
     immersiveWithNoFrameStats ? "immersive_session_started_but_frame_stats_empty" : undefined,
-    input.traceLatencyProxy?.source === "dom_click_trace_button" && input.traceLatencyProxy.lastSelectLatencyMs === null
+    isKnownTraceLatencySource(input.traceLatencyProxy?.source) && input.traceLatencyProxy.lastSelectLatencyMs === null
       ? "trace_latency_proxy_not_measured"
       : undefined,
     input.heatConcern === undefined || input.heatConcern === null ? "heat_observation_not_recorded" : undefined,
@@ -476,9 +476,13 @@ function isFullVrExperienceEvidence(value: QuestManualPerformanceReport["experie
 }
 
 function isSupportingTraceLatencyProxy(value: QuestManualPerformanceReport["traceLatencyProxy"]): boolean {
-  return value?.source === "dom_click_trace_button"
+  return isKnownTraceLatencySource(value?.source)
     && value.productionControllerLatencySubstitute === false
     && isPositiveFiniteNumber(value.lastSelectLatencyMs ?? null);
+}
+
+function isKnownTraceLatencySource(value: string | undefined): boolean {
+  return value === "dom_click_trace_button" || value === "xr_controller_select";
 }
 
 function unique(values: string[]): string[] {
