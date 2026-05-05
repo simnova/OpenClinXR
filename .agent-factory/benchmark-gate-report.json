@@ -132,9 +132,18 @@
       "blockers": []
     },
     {
+      "evidence_id": "api_bun_python_proxy_runtime_smoke",
+      "file": "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
+      "generated_at": "2026-05-05T18:21:30.330Z",
+      "age_hours": 2,
+      "max_age_hours": 24,
+      "status": "fresh",
+      "blockers": []
+    },
+    {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-05T20:36:40.510Z",
+      "generated_at": "2026-05-05T20:44:56.154Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -1225,9 +1234,71 @@
       ]
     }
   },
+  "api_bun_python_proxy_runtime_smoke": {
+    "file": "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
+    "generated_at": "2026-05-05T18:21:30.330Z",
+    "status": "passed",
+    "python": {
+      "executable": "/Users/patrick/.cache/openclinxr/realtime-voice/api-python-backend-venv/bin/python",
+      "version": "Python 3.11.4"
+    },
+    "bun": {
+      "executable": "/Users/patrick/.bun/bin/bun",
+      "version": "1.3.13",
+      "revision": "1.3.13+bf2e2cecf"
+    },
+    "runtime": {
+      "apiTarget": "apps/api bun+hono",
+      "pythonBackendTarget": "apps/api-python-backend fastapi",
+      "websocketPath": "/voice/realtime/ws",
+      "backendProtocol": "python-fastapi-compatible-websocket"
+    },
+    "python_backend": {
+      "health_ok": true
+    },
+    "bun_gateway": {
+      "health_ok": true,
+      "backend_url_configured": true
+    },
+    "websocket": {
+      "connected": true,
+      "backend_protocol_observed": true,
+      "latency_fields_observed": true,
+      "binary_echo_observed": true,
+      "binary_messages": 1,
+      "event_types_observed": [
+        "gateway.ready",
+        "backend.ready",
+        "voice.started",
+        "audio.chunk",
+        "transcript.partial",
+        "transcript.final",
+        "voice.stopped"
+      ],
+      "error_messages": []
+    },
+    "verdict": {
+      "smoke_passed": true,
+      "ready_for_live_dialog": false,
+      "blockers": [
+        "real_model_inference_not_observed",
+        "quest_browser_audio_capture_not_observed",
+        "quest_playback_not_observed",
+        "opus_codec_not_verified",
+        "clinical_voice_safety_not_exercised",
+        "production_ingress_not_verified",
+        "low_latency_claim_not_supported_by_local_smoke"
+      ],
+      "caveats": [
+        "This smoke proves only the local Bun-to-FastAPI WebSocket proxy path.",
+        "The binary frame is opaque Opus-like data; no codec, speech recognition, model inference, or speech synthesis is exercised.",
+        "HTTP/3, WebTransport, QUIC, Web3, cloud relays, paid APIs, and Quest media are out of scope."
+      ]
+    }
+  },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-05T20:36:40.510Z",
+    "generated_at": "2026-05-05T20:44:56.154Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -1431,6 +1502,7 @@
         "local_model_ready_to_benchmark",
         "local_model_runtime_benchmark_passed",
         "local_provider_mock_benchmarks_passed",
+        "local_voice_bun_python_proxy_runtime_smoke_passed",
         "local_voice_bun_websocket_runtime_smoke_passed",
         "local_voice_first_audio_benchmark_passed",
         "local_voice_live_dialog_mock_stream_passed",
@@ -1668,6 +1740,7 @@
       "ready_to_resolve": false,
       "satisfied_conditions": [
         "local_provider_mock_benchmarks_passed",
+        "local_voice_bun_python_proxy_runtime_smoke_passed",
         "local_voice_bun_websocket_runtime_smoke_passed",
         "local_voice_first_audio_benchmark_passed",
         "local_voice_python_backend_runtime_smoke_passed",
@@ -1770,6 +1843,7 @@
       "ready_to_resolve": false,
       "satisfied_conditions": [
         "local_provider_mock_benchmarks_passed",
+        "local_voice_bun_python_proxy_runtime_smoke_passed",
         "local_voice_bun_websocket_runtime_smoke_passed",
         "local_voice_first_audio_benchmark_passed",
         "local_voice_live_dialog_mock_stream_passed",

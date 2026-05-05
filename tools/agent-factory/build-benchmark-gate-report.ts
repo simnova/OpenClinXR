@@ -16,6 +16,7 @@ import {
   type QuestSmokeReport,
 } from "../openclinxr/quest-cdp-smoke.js";
 import type { ApiBunWebSocketRuntimeSmokeReport } from "../openclinxr/api-bun-websocket-runtime-smoke.js";
+import type { ApiBunPythonProxyRuntimeSmokeReport } from "../openclinxr/api-bun-python-proxy-runtime-smoke.js";
 import type { ApiPythonBackendRuntimeSmokeReport } from "../openclinxr/api-python-backend-runtime-smoke.js";
 import {
   buildVisualQaEvidenceReport,
@@ -494,6 +495,36 @@ type EvidenceGateReport = {
       caveats: string[];
     };
   };
+  api_bun_python_proxy_runtime_smoke?: {
+    file: string;
+    generated_at: string;
+    status: string;
+    python: ApiBunPythonProxyRuntimeSmokeReport["python"];
+    bun: ApiBunPythonProxyRuntimeSmokeReport["bun"];
+    runtime: ApiBunPythonProxyRuntimeSmokeReport["runtime"];
+    python_backend: {
+      health_ok: boolean;
+    };
+    bun_gateway: {
+      health_ok: boolean;
+      backend_url_configured: boolean;
+    };
+    websocket: {
+      connected: boolean;
+      backend_protocol_observed: boolean;
+      latency_fields_observed: boolean;
+      binary_echo_observed: boolean;
+      binary_messages: number;
+      event_types_observed: string[];
+      error_messages: string[];
+    };
+    verdict: {
+      smoke_passed: boolean;
+      ready_for_live_dialog: false;
+      blockers: string[];
+      caveats: string[];
+    };
+  };
   quest_manual_performance?: {
     file: string;
     generated_at: string;
@@ -602,6 +633,7 @@ export type BenchmarkGateReportInput = {
   realtimeVoiceTransportSpike?: EvidenceFile<RealtimeVoiceTransportSpikeReport>;
   apiPythonBackendRuntimeSmoke?: EvidenceFile<ApiPythonBackendRuntimeSmokeReport>;
   apiBunWebSocketRuntimeSmoke?: EvidenceFile<ApiBunWebSocketRuntimeSmokeReport>;
+  apiBunPythonProxyRuntimeSmoke?: EvidenceFile<ApiBunPythonProxyRuntimeSmokeReport>;
   questManualPerformance?: EvidenceFile<QuestManualPerformanceCheck>;
   questManualPerformanceReport?: EvidenceFile<QuestManualPerformancePayload>;
   questMixedRealityManual?: EvidenceFile<QuestMixedRealityManualCheck>;
@@ -636,6 +668,7 @@ async function main(): Promise<void> {
   const realtimeVoiceTransportSpike = await latestJson<RealtimeVoiceTransportSpikeReport>("docs/openclinxr/realtime-voice-transport-spike-*.json");
   const apiPythonBackendRuntimeSmoke = await latestJson<ApiPythonBackendRuntimeSmokeReport>("docs/openclinxr/api-python-backend-runtime-smoke-*.json");
   const apiBunWebSocketRuntimeSmoke = await latestJson<ApiBunWebSocketRuntimeSmokeReport>("docs/openclinxr/api-bun-websocket-runtime-smoke-*.json");
+  const apiBunPythonProxyRuntimeSmoke = await latestJson<ApiBunPythonProxyRuntimeSmokeReport>("docs/openclinxr/api-bun-python-proxy-runtime-smoke-*.json");
   const visualQaEvidence = await latestVisualQaEvidenceJson();
   const iwsdkEvidenceContract = await latestJson<IwsdkEvidenceContractReport>("docs/openclinxr/iwsdk-evidence-contract-*.json");
   const questManualPerformanceReport = await latestQuestManualPerformanceReportJson();
@@ -661,6 +694,7 @@ async function main(): Promise<void> {
     realtimeVoiceTransportSpike,
     apiPythonBackendRuntimeSmoke,
     apiBunWebSocketRuntimeSmoke,
+    apiBunPythonProxyRuntimeSmoke,
     visualQaEvidence,
     iwsdkEvidenceContract,
     questManualPerformance,
@@ -711,6 +745,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     realtimeVoiceTransportSpike,
     apiPythonBackendRuntimeSmoke,
     apiBunWebSocketRuntimeSmoke,
+    apiBunPythonProxyRuntimeSmoke,
     visualQaEvidence,
     iwsdkEvidenceContract,
   } = input;
@@ -741,6 +776,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     realtimeVoiceTransportSpike,
     apiPythonBackendRuntimeSmoke,
     apiBunWebSocketRuntimeSmoke,
+    apiBunPythonProxyRuntimeSmoke,
     questManualPerformance,
     questMixedRealityManual,
   }, options);
@@ -805,6 +841,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     ...realtimeVoiceTransportSpikeBlockers(realtimeVoiceTransportSpike),
     ...apiPythonBackendRuntimeSmokeBlockers(apiPythonBackendRuntimeSmoke),
     ...apiBunWebSocketRuntimeSmokeBlockers(apiBunWebSocketRuntimeSmoke),
+    ...apiBunPythonProxyRuntimeSmokeBlockers(apiBunPythonProxyRuntimeSmoke),
     ...freshnessBlockers(evidenceFreshness, [
       "local_runtime_probe",
       "local_provider_benchmark",
@@ -813,6 +850,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
       "realtime_voice_transport_spike",
       ...(apiPythonBackendRuntimeSmoke ? ["api_python_backend_runtime_smoke"] : []),
       "api_bun_websocket_runtime_smoke",
+      "api_bun_python_proxy_runtime_smoke",
     ]),
   ];
   const assetProductionEvidenceBlockers = [
@@ -880,6 +918,9 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
       : undefined,
     apiBunWebSocketRuntimeSmokePassed(apiBunWebSocketRuntimeSmoke)
       ? "local_voice_bun_websocket_runtime_smoke_passed"
+      : undefined,
+    apiBunPythonProxyRuntimeSmokePassed(apiBunPythonProxyRuntimeSmoke)
+      ? "local_voice_bun_python_proxy_runtime_smoke_passed"
       : undefined,
   ]);
   const questSatisfiedConditions = combinedSatisfiedConditions.filter((condition) =>
@@ -1114,6 +1155,38 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         },
       },
     } : {}),
+    ...(apiBunPythonProxyRuntimeSmoke ? {
+      api_bun_python_proxy_runtime_smoke: {
+        file: apiBunPythonProxyRuntimeSmoke.file,
+        generated_at: apiBunPythonProxyRuntimeSmoke.value.generatedAt,
+        status: apiBunPythonProxyRuntimeSmoke.value.status,
+        python: apiBunPythonProxyRuntimeSmoke.value.python,
+        bun: apiBunPythonProxyRuntimeSmoke.value.bun,
+        runtime: apiBunPythonProxyRuntimeSmoke.value.runtime,
+        python_backend: {
+          health_ok: apiBunPythonProxyRuntimeSmoke.value.pythonBackend.healthOk,
+        },
+        bun_gateway: {
+          health_ok: apiBunPythonProxyRuntimeSmoke.value.bunGateway.healthOk,
+          backend_url_configured: apiBunPythonProxyRuntimeSmoke.value.bunGateway.backendUrlConfigured,
+        },
+        websocket: {
+          connected: apiBunPythonProxyRuntimeSmoke.value.websocket.connected,
+          backend_protocol_observed: apiBunPythonProxyRuntimeSmoke.value.websocket.backendProtocolObserved,
+          latency_fields_observed: apiBunPythonProxyRuntimeSmoke.value.websocket.latencyFieldsObserved,
+          binary_echo_observed: apiBunPythonProxyRuntimeSmoke.value.websocket.binaryEchoObserved,
+          binary_messages: apiBunPythonProxyRuntimeSmoke.value.websocket.binaryMessages,
+          event_types_observed: apiBunPythonProxyRuntimeSmoke.value.websocket.eventTypesObserved,
+          error_messages: apiBunPythonProxyRuntimeSmoke.value.websocket.errorMessages,
+        },
+        verdict: {
+          smoke_passed: apiBunPythonProxyRuntimeSmoke.value.verdict.smokePassed,
+          ready_for_live_dialog: apiBunPythonProxyRuntimeSmoke.value.verdict.readyForLiveDialog,
+          blockers: apiBunPythonProxyRuntimeSmoke.value.verdict.blockers,
+          caveats: apiBunPythonProxyRuntimeSmoke.value.verdict.caveats,
+        },
+      },
+    } : {}),
     ...(questManualPerformance ? {
       quest_manual_performance: {
         file: questManualPerformance.file,
@@ -1209,6 +1282,7 @@ function buildEvidenceFreshnessReport(
     realtimeVoiceTransportSpike?: EvidenceFile<RealtimeVoiceTransportSpikeReport>;
     apiPythonBackendRuntimeSmoke?: EvidenceFile<ApiPythonBackendRuntimeSmokeReport>;
     apiBunWebSocketRuntimeSmoke?: EvidenceFile<ApiBunWebSocketRuntimeSmokeReport>;
+    apiBunPythonProxyRuntimeSmoke?: EvidenceFile<ApiBunPythonProxyRuntimeSmokeReport>;
     questManualPerformance?: EvidenceFile<QuestManualPerformanceCheck>;
     questMixedRealityManual?: EvidenceFile<QuestMixedRealityManualCheck>;
   },
@@ -1232,6 +1306,7 @@ function buildEvidenceFreshnessReport(
     evidenceFreshnessEntry("realtime_voice_transport_spike", evidence.realtimeVoiceTransportSpike, now, maxAgeHours),
     evidenceFreshnessEntry("api_python_backend_runtime_smoke", evidence.apiPythonBackendRuntimeSmoke, now, maxAgeHours),
     evidenceFreshnessEntry("api_bun_websocket_runtime_smoke", evidence.apiBunWebSocketRuntimeSmoke, now, maxAgeHours),
+    evidenceFreshnessEntry("api_bun_python_proxy_runtime_smoke", evidence.apiBunPythonProxyRuntimeSmoke, now, maxAgeHours),
     evidenceFreshnessEntry("quest_manual_performance", evidence.questManualPerformance, now, maxAgeHours),
     ...(evidence.questMixedRealityManual
       ? [evidenceFreshnessEntry("quest_mixed_reality_manual", evidence.questMixedRealityManual, now, maxAgeHours)]
@@ -1824,6 +1899,43 @@ function apiBunWebSocketRuntimeSmokeEvidenceBlockers(
     report.runtime.h3.enabled === false && report.runtime.h3.h3TrueEnabled === false
       ? undefined
       : "http3_enabled_outside_approved_scope",
+    ...report.runtimeEvidenceBlockers,
+  ]);
+}
+
+function apiBunPythonProxyRuntimeSmokeBlockers(
+  apiBunPythonProxyRuntimeSmoke: EvidenceFile<ApiBunPythonProxyRuntimeSmokeReport> | undefined,
+): string[] {
+  return apiBunPythonProxyRuntimeSmokeEvidenceBlockers(apiBunPythonProxyRuntimeSmoke)
+    .map((blocker) => `local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:${blocker}`);
+}
+
+function apiBunPythonProxyRuntimeSmokePassed(
+  apiBunPythonProxyRuntimeSmoke: EvidenceFile<ApiBunPythonProxyRuntimeSmokeReport> | undefined,
+): boolean {
+  return apiBunPythonProxyRuntimeSmokeEvidenceBlockers(apiBunPythonProxyRuntimeSmoke).length === 0;
+}
+
+function apiBunPythonProxyRuntimeSmokeEvidenceBlockers(
+  apiBunPythonProxyRuntimeSmoke: EvidenceFile<ApiBunPythonProxyRuntimeSmokeReport> | undefined,
+): string[] {
+  if (!apiBunPythonProxyRuntimeSmoke) {
+    return ["missing_api_bun_python_proxy_runtime_smoke_report"];
+  }
+
+  const report = apiBunPythonProxyRuntimeSmoke.value;
+  return unique([
+    report.status === "passed" ? undefined : "api_bun_python_proxy_runtime_smoke_not_passed",
+    report.verdict.smokePassed ? undefined : "smoke_verdict_not_passed",
+    report.bun.executable && report.bun.version ? undefined : "bun_runtime_not_available",
+    report.pythonBackend.attempted && report.pythonBackend.healthOk ? undefined : "python_backend_health_check_failed",
+    report.bunGateway.attempted && report.bunGateway.healthOk ? undefined : "bun_gateway_health_check_failed",
+    report.bunGateway.backendUrlConfigured ? undefined : "python_backend_url_not_configured",
+    report.websocket.attempted && report.websocket.connected ? undefined : "websocket_not_connected",
+    report.websocket.backendProtocolObserved ? undefined : "backend_protocol_not_observed",
+    report.websocket.latencyFieldsObserved ? undefined : "latency_fields_not_observed",
+    report.websocket.binaryEchoObserved ? undefined : "binary_echo_not_observed",
+    report.websocket.errorMessages.length === 0 ? undefined : "websocket_errors_observed",
     ...report.runtimeEvidenceBlockers,
   ]);
 }

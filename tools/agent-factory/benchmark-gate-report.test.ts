@@ -215,6 +215,32 @@ type BenchmarkGateReport = {
       blockers: string[];
     };
   };
+  api_bun_python_proxy_runtime_smoke?: {
+    file: string;
+    generated_at: string;
+    status: string;
+    python_backend: {
+      health_ok: boolean;
+    };
+    bun_gateway: {
+      health_ok: boolean;
+      backend_url_configured: boolean;
+    };
+    websocket: {
+      connected: boolean;
+      backend_protocol_observed: boolean;
+      latency_fields_observed: boolean;
+      binary_echo_observed: boolean;
+      binary_messages: number;
+      event_types_observed: string[];
+      error_messages: string[];
+    };
+    verdict: {
+      smoke_passed: boolean;
+      ready_for_live_dialog: false;
+      blockers: string[];
+    };
+  };
   evidence_gates: Array<{
     evidence_id: string;
     ready_to_resolve?: boolean;
@@ -343,6 +369,91 @@ function passedApiBunWebSocketRuntimeSmoke(): Parameters<typeof buildBenchmarkGa
         caveats: [
           "This smoke proves local Bun server WebSocket upgrade and bidirectional frame handling only.",
         ],
+      },
+    },
+  };
+}
+
+function passedApiBunPythonProxyRuntimeSmoke(): Parameters<typeof buildBenchmarkGateReport>[0]["apiBunPythonProxyRuntimeSmoke"] {
+  return {
+    file: "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
+    value: {
+      generatedAt: "2026-05-05T18:21:30.330Z",
+      status: "passed",
+      policy: {
+        cloudApisUsed: false,
+        paidApisUsed: false,
+        modelDownloadsUsed: false,
+        http3Enabled: false,
+        webTransportUsed: false,
+        quicUsed: false,
+        web3Used: false,
+        questHardwareClaimed: false,
+        productionUseAllowed: false,
+        lowLatencyClaimed: false,
+      },
+      python: {
+        executable: "/Users/patrick/.cache/openclinxr/realtime-voice/api-python-backend-venv/bin/python",
+        version: "Python 3.11.4",
+      },
+      bun: {
+        executable: "/Users/patrick/.bun/bin/bun",
+        version: "1.3.13",
+        revision: "1.3.13+bf2e2cecf",
+      },
+      runtime: {
+        apiTarget: "apps/api bun+hono",
+        pythonBackendTarget: "apps/api-python-backend fastapi",
+        websocketPath: "/voice/realtime/ws",
+        backendProtocol: "python-fastapi-compatible-websocket",
+      },
+      pythonBackend: {
+        attempted: true,
+        port: 8767,
+        healthOk: true,
+        stdout: [],
+        stderr: [],
+      },
+      bunGateway: {
+        attempted: true,
+        port: 4327,
+        healthOk: true,
+        backendUrlConfigured: true,
+        stdout: ["OpenClinXR Bun/Hono API listening on http://localhost:4327/"],
+        stderr: [],
+      },
+      websocket: {
+        attempted: true,
+        connected: true,
+        eventTypesObserved: [
+          "gateway.ready",
+          "backend.ready",
+          "voice.started",
+          "audio.chunk",
+          "transcript.partial",
+          "transcript.final",
+          "voice.stopped",
+        ],
+        binaryMessages: 1,
+        backendProtocolObserved: true,
+        latencyFieldsObserved: true,
+        binaryEchoObserved: true,
+        errorMessages: [],
+      },
+      runtimeEvidenceBlockers: [],
+      verdict: {
+        smokePassed: true,
+        readyForLiveDialog: false,
+        blockers: [
+          "real_model_inference_not_observed",
+          "quest_browser_audio_capture_not_observed",
+          "quest_playback_not_observed",
+          "opus_codec_not_verified",
+          "clinical_voice_safety_not_exercised",
+          "production_ingress_not_verified",
+          "low_latency_claim_not_supported_by_local_smoke",
+        ],
+        caveats: ["This smoke proves only the local Bun-to-FastAPI WebSocket proxy path."],
       },
     },
   };
@@ -1365,6 +1476,7 @@ describe("benchmark gate report", () => {
         },
       },
       apiBunWebSocketRuntimeSmoke: passedApiBunWebSocketRuntimeSmoke(),
+      apiBunPythonProxyRuntimeSmoke: passedApiBunPythonProxyRuntimeSmoke(),
     }, { now: new Date("2026-05-04T20:20:00.000Z"), maxEvidenceAgeHours: 24 });
 
     const liveDialogGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-003");
@@ -1376,6 +1488,7 @@ describe("benchmark gate report", () => {
       "local_voice_realtime_transport_contract_observed",
       "local_voice_python_backend_runtime_smoke_passed",
       "local_voice_bun_websocket_runtime_smoke_passed",
+      "local_voice_bun_python_proxy_runtime_smoke_passed",
     ]));
     expect(liveDialogGate?.blockers).toEqual(expect.arrayContaining([
       "local_voice_live_dialog:runtime_stream:real_local_voice_stream_benchmark_missing",
@@ -1393,6 +1506,8 @@ describe("benchmark gate report", () => {
       "local_voice_live_dialog:realtime_transport_spike:transport_contract_failed",
       "local_voice_live_dialog:api_bun_websocket_runtime_smoke:low_latency_claim_not_supported_by_local_smoke",
       "local_voice_live_dialog:api_bun_websocket_runtime_smoke:quest_browser_audio_capture_not_observed",
+      "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:low_latency_claim_not_supported_by_local_smoke",
+      "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:real_model_inference_not_observed",
     ]));
     expect(report.realtime_voice_transport_spike).toMatchObject({
       round_trip_latency_ms: 42,
@@ -1480,10 +1595,49 @@ describe("benchmark gate report", () => {
         ready_for_live_dialog: false,
       },
     });
+    expect(report.api_bun_python_proxy_runtime_smoke).toMatchObject({
+      file: "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
+      generated_at: "2026-05-05T18:21:30.330Z",
+      status: "passed",
+      python_backend: {
+        health_ok: true,
+      },
+      bun_gateway: {
+        health_ok: true,
+        backend_url_configured: true,
+      },
+      websocket: {
+        connected: true,
+        backend_protocol_observed: true,
+        latency_fields_observed: true,
+        binary_echo_observed: true,
+        binary_messages: 1,
+        event_types_observed: [
+          "gateway.ready",
+          "backend.ready",
+          "voice.started",
+          "audio.chunk",
+          "transcript.partial",
+          "transcript.final",
+          "voice.stopped",
+        ],
+        error_messages: [],
+      },
+      verdict: {
+        smoke_passed: true,
+        ready_for_live_dialog: false,
+      },
+    });
     expect(report.evidence_freshness).toEqual(expect.arrayContaining([
       expect.objectContaining({
         evidence_id: "api_bun_websocket_runtime_smoke",
         file: "docs/openclinxr/api-bun-websocket-runtime-smoke-2026-05-05.json",
+        status: "fresh",
+        blockers: [],
+      }),
+      expect.objectContaining({
+        evidence_id: "api_bun_python_proxy_runtime_smoke",
+        file: "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
         status: "fresh",
         blockers: [],
       }),
@@ -1504,12 +1658,19 @@ describe("benchmark gate report", () => {
         status: "missing",
         blockers: ["api_bun_websocket_runtime_smoke:evidence_missing"],
       }),
+      expect.objectContaining({
+        evidence_id: "api_bun_python_proxy_runtime_smoke",
+        status: "missing",
+        blockers: ["api_bun_python_proxy_runtime_smoke:evidence_missing"],
+      }),
     ]));
     expect(liveDialogGate?.blockers).toEqual(expect.arrayContaining([
       "local_voice_live_dialog:api_bun_websocket_runtime_smoke:missing_api_bun_websocket_runtime_smoke_report",
+      "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:missing_api_bun_python_proxy_runtime_smoke_report",
     ]));
     expect(liveDialogGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
       "local_voice_bun_websocket_runtime_smoke_passed",
+      "local_voice_bun_python_proxy_runtime_smoke_passed",
     ]));
   });
 
