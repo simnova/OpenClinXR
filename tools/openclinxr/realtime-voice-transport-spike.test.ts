@@ -116,6 +116,11 @@ describe("realtime voice transport spike report", () => {
           transcriptDeltaObserved: true,
           binaryEchoObserved: true,
           latencyMs: 12,
+          protocol: {
+            backendProtocolObserved: true,
+            latencyFieldsObserved: true,
+            canonicalProtocolObserved: true,
+          },
         },
         verdict: {
           passed: true,
@@ -130,6 +135,11 @@ describe("realtime voice transport spike report", () => {
       healthOk: true,
       websocketConnected: true,
       websocketLatencyMs: 12,
+      protocolObserved: {
+        backendProtocolObserved: true,
+        latencyFieldsObserved: true,
+        canonicalProtocolObserved: true,
+      },
     });
     expect(report.verdict.blockers).not.toContain("fastapi_backend_not_runtime_executed");
     expect(report.verdict.blockers).toEqual(expect.arrayContaining([
@@ -140,6 +150,54 @@ describe("realtime voice transport spike report", () => {
     expect(report.verdict.caveats.join("\n")).toContain("FastAPI runtime smoke passed");
     expect(report.verdict.readyForLiveDialog).toBe(false);
     expect(report.questClientSourceContract.blockers).not.toContain("godot_runtime_not_installed_on_this_machine");
+  });
+
+  it("keeps FastAPI runtime smoke blocked when websocket protocol evidence is stale", async () => {
+    const report = await buildRealtimeVoiceTransportSpikeReport({
+      generatedAt: "2026-05-04T22:40:00.000Z",
+      targetLatencyMs: 250,
+      bunAvailable: true,
+      apiPythonBackendRuntimeSmoke: {
+        status: "passed",
+        health: { ok: true, latencyMs: 40 },
+        websocket: {
+          connected: true,
+          controlAckObserved: true,
+          audioMetadataObserved: true,
+          transcriptDeltaObserved: true,
+          binaryEchoObserved: true,
+          latencyMs: 12,
+          protocol: {
+            backendProtocolObserved: false,
+            latencyFieldsObserved: false,
+            canonicalProtocolObserved: false,
+          },
+        },
+        verdict: {
+          passed: true,
+          blockers: [],
+        },
+      },
+    });
+
+    expect(report.pythonBackendRuntimeSmoke).toEqual({
+      status: "blocked",
+      blockers: [
+        "runtime_smoke_backend_protocol_missing",
+        "runtime_smoke_latency_fields_missing",
+        "runtime_smoke_canonical_protocol_missing",
+      ],
+      healthOk: true,
+      websocketConnected: true,
+      websocketLatencyMs: 12,
+      protocolObserved: {
+        backendProtocolObserved: false,
+        latencyFieldsObserved: false,
+        canonicalProtocolObserved: false,
+      },
+    });
+    expect(report.verdict.transportContractPassed).toBe(false);
+    expect(report.verdict.blockers).toContain("fastapi_backend_not_runtime_executed");
   });
 
   it("blocks the transport contract when supplied FastAPI runtime smoke is blocked", async () => {
@@ -175,10 +233,18 @@ describe("realtime voice transport spike report", () => {
         "runtime_smoke_audio_metadata_missing",
         "runtime_smoke_transcript_delta_missing",
         "runtime_smoke_binary_echo_missing",
+        "runtime_smoke_backend_protocol_missing",
+        "runtime_smoke_latency_fields_missing",
+        "runtime_smoke_canonical_protocol_missing",
       ],
       healthOk: true,
       websocketConnected: false,
       websocketLatencyMs: null,
+      protocolObserved: {
+        backendProtocolObserved: false,
+        latencyFieldsObserved: false,
+        canonicalProtocolObserved: false,
+      },
     });
     expect(report.verdict.transportContractPassed).toBe(false);
     expect(report.verdict.blockers).toContain("fastapi_backend_not_runtime_executed");

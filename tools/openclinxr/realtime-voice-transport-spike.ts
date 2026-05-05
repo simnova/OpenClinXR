@@ -32,6 +32,11 @@ type ApiPythonBackendRuntimeSmokeEvidence = {
     transcriptDeltaObserved: boolean;
     binaryEchoObserved: boolean;
     latencyMs: number | null;
+    protocol?: {
+      backendProtocolObserved?: boolean;
+      latencyFieldsObserved?: boolean;
+      canonicalProtocolObserved?: boolean;
+    };
   };
   verdict: {
     passed: boolean;
@@ -105,6 +110,11 @@ export type RealtimeVoiceTransportSpikeReport = {
     healthOk: boolean;
     websocketConnected: boolean;
     websocketLatencyMs: number | null;
+    protocolObserved: {
+      backendProtocolObserved: boolean;
+      latencyFieldsObserved: boolean;
+      canonicalProtocolObserved: boolean;
+    };
   };
   questClientSourceContract: QuestClientSourceContractEvidence;
   harness: Awaited<ReturnType<typeof runRealtimeVoiceProxyHarness>>;
@@ -332,6 +342,11 @@ function readWorkspaceText(relativePath: string): string {
 function summarizePythonBackendRuntimeSmoke(
   report: ApiPythonBackendRuntimeSmokeEvidence,
 ): RealtimeVoiceTransportSpikeReport["pythonBackendRuntimeSmoke"] {
+  const protocolObserved = {
+    backendProtocolObserved: report.websocket.protocol?.backendProtocolObserved === true,
+    latencyFieldsObserved: report.websocket.protocol?.latencyFieldsObserved === true,
+    canonicalProtocolObserved: report.websocket.protocol?.canonicalProtocolObserved === true,
+  };
   const blockers = [
     ...report.verdict.blockers,
     report.health.ok ? undefined : "runtime_smoke_health_not_ok",
@@ -340,6 +355,9 @@ function summarizePythonBackendRuntimeSmoke(
     report.websocket.audioMetadataObserved ? undefined : "runtime_smoke_audio_metadata_missing",
     report.websocket.transcriptDeltaObserved ? undefined : "runtime_smoke_transcript_delta_missing",
     report.websocket.binaryEchoObserved ? undefined : "runtime_smoke_binary_echo_missing",
+    protocolObserved.backendProtocolObserved ? undefined : "runtime_smoke_backend_protocol_missing",
+    protocolObserved.latencyFieldsObserved ? undefined : "runtime_smoke_latency_fields_missing",
+    protocolObserved.canonicalProtocolObserved ? undefined : "runtime_smoke_canonical_protocol_missing",
   ].filter((blocker): blocker is string => typeof blocker === "string");
 
   return {
@@ -348,6 +366,7 @@ function summarizePythonBackendRuntimeSmoke(
     healthOk: report.health.ok,
     websocketConnected: report.websocket.connected,
     websocketLatencyMs: report.websocket.latencyMs,
+    protocolObserved,
   };
 }
 
