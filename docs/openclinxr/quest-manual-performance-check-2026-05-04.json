@@ -1,0 +1,39 @@
+{
+  "generatedAt": "2026-05-05T00:39:49.929Z",
+  "inputFile": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
+  "readyToClaimFramePacing": false,
+  "satisfiedConditions": [
+    "generated_at_valid",
+    "performed_by_recorded",
+    "foreground_page_confirmed",
+    "extra_browser_windows_closed",
+    "immersive_session_started",
+    "performance_source_openclinxr_frame_stats",
+    "experience_mode_full_vr_recorded",
+    "battery_drop_recorded_under_20"
+  ],
+  "blockers": [
+    "devtools_screencast_not_disabled",
+    "duration_under_10_minutes",
+    "trace_interaction_not_confirmed",
+    "frame_sample_under_600_or_missing",
+    "rolling_frame_window_under_120_or_missing",
+    "average_fps_below_72_or_missing",
+    "minimum_fps_below_60_or_missing",
+    "p95_frame_ms_above_25_or_missing",
+    "controller_select_latency_ms_above_150_or_missing",
+    "heat_concern_not_cleared"
+  ],
+  "nextSteps": [
+    "Disable DevTools screencast while observing headset performance.",
+    "Observe for at least 10 minutes in the foreground headset session.",
+    "Confirm a trace interaction advances in the headset.",
+    "Observe at least 600 frames before claiming frame pacing.",
+    "Record a rolling frame window with at least 120 samples.",
+    "Record average FPS at or above 72.",
+    "Record minimum observed FPS at or above 60.",
+    "Record p95 frame time at or below 25 ms.",
+    "Record controller-select latency at or below 150 ms.",
+    "Clear heat concern as false after the run."
+  ]
+}

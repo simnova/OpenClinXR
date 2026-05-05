@@ -2,6 +2,7 @@ node_modules/
 .DS_Store
 .env.openclinxr.local
 .openclinxr-local/
+apps/*/.codex/
 .venv/
 __pycache__/
 *.pyc

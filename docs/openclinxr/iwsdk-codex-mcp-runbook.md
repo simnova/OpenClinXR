@@ -9,7 +9,14 @@ This runbook defines how Codex should evaluate Meta Immersive Web SDK tooling no
 
 This runbook does not install IWSDK, does not modify `.codex/config.toml`, does not warm the IWSDK reference corpus, and does not replace physical Quest 3 validation.
 
-Current state: `apps/ui-xr-iwsdk-spike` is a runnable Phase 1 sidecar using `@iwsdk/core@0.3.1`, `@iwsdk/xr-input@0.3.1`, and `three@0.184.0`. It is not production-ready: the recorded Phase 1 metrics show the IWSDK vendor bundle and bundle delta are over budget, and physical Quest foreground metrics are still missing.
+Current state: `apps/ui-xr-iwsdk-spike` is a runnable sidecar using `@iwsdk/core@0.3.1`, `@iwsdk/xr-input@0.3.1`, `three@0.184.0`, and the approved sidecar-only `@iwsdk/vite-plugin-dev@0.3.1` devDependency. The dev plugin is configured as serve-only with `injectOnBuild: false`; the 2026-05-04 IWER evidence run found no dev-runtime strings in production `dist` output. It is not production-ready: the IWSDK vendor bundle remains over budget, Vite 8 is still outside the plugin's declared Vite 7 peer range, scene hierarchy/ECS tools are not yet wired to an IWSDK framework runtime, and physical Quest foreground metrics are still missing.
+
+Latest IWER managed-browser evidence:
+
+- `docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json`
+- `docs/openclinxr/screenshots/iwer-sidecar-agent-browser-2026-05-04.png`
+
+This is desktop/IWER emulation evidence only. It does not replace Quest foreground frame pacing, controller latency, thermals, comfort, passthrough, or in-headset readability observations.
 
 Use `pnpm iwsdk:evidence` to print the current sidecar evidence contract report. A nonzero exit is expected while agent tooling, bundle budget, reference metadata, and Quest foreground blockers remain unresolved; the JSON blockers are the evidence to carry into leadership review.
 

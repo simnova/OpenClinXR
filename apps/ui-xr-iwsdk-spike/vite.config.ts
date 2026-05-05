@@ -1,4 +1,23 @@
+import { iwsdkDev, type DevPluginOptions } from "@iwsdk/vite-plugin-dev";
 import { defineConfig } from "vitest/config";
+
+export const openClinXrIwsdkSpikeDevPluginOptions = Object.freeze({
+  emulator: {
+    device: "metaQuest3",
+    activation: "localhost",
+    injectOnBuild: false,
+    userAgentException: /OculusBrowser/,
+  },
+  ai: {
+    mode: "agent",
+    tools: ["codex"],
+    screenshotSize: {
+      width: 500,
+      height: 500,
+    },
+  },
+  verbose: true,
+} satisfies DevPluginOptions);
 
 export const openClinXrIwsdkSpikeBuildOutput = Object.freeze({
   codeSplitting: {
@@ -28,7 +47,13 @@ export function resolveOpenClinXrIwsdkSpikeModulePreloads(_url: string, deps: st
   return deps.filter((dep) => !dep.includes("iwsdk-vendor"));
 }
 
+export function createOpenClinXrIwsdkSpikePlugins() {
+  const devPlugin = iwsdkDev(openClinXrIwsdkSpikeDevPluginOptions);
+  return [{ ...devPlugin, apply: "serve" as const }];
+}
+
 export default defineConfig({
+  plugins: createOpenClinXrIwsdkSpikePlugins(),
   build: {
     chunkSizeWarningLimit: openClinXrIwsdkSpikeChunkSizeWarningLimitKb,
     modulePreload: {

@@ -46,16 +46,18 @@ This file captures useful operator steering that should shape future work but do
 
 ### SUG-2026-05-04-003: IWER Sidecar Evidence Automation
 
-- Status: `converted-to-proposal`
+- Status: `promoted-to-slice`
 - Captured at: 2026-05-04 19:53 EDT
 - Operator steering: IWER looks worth a gated sidecar spike as a complement to CDP and human Quest confirmation for immersive session and controller/input evidence.
 - Proposal: `proposals/approved/proposal-iwer-sidecar-emulation-spike.md` approved by Patrick on 2026-05-04 20:13:53 EDT.
+- Evidence captured: `docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json` and `docs/openclinxr/screenshots/iwer-sidecar-agent-browser-2026-05-04.png`.
 - Primary owners: `xr-systems-architect`, `test-automation-lead`, `platform-devops-lead`, `ux-friction-critic`
 - Review when: extending `apps/ui-xr-iwsdk-spike`, adding IWER evidence contracts, or addressing the WebXR activation automation gap.
 - Acceptance shape:
   - Prefer no new package installation if IWER is already present through the approved IWSDK Phase 2 devtools sidecar.
   - Keep IWER evidence labeled as emulation evidence, not physical Quest proof.
   - Record package versions, licenses, commands, artifact size, session-entry reliability, controller/hand input support, and rollback path before claiming usefulness.
+- Current posture: first local evidence slice captured. IWER remains emulation-only and does not replace physical Quest foreground evidence.
 
 ### SUG-2026-05-04-004: PNPM Audit Security Monitoring
 

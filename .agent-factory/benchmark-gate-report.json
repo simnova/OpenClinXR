@@ -113,16 +113,16 @@
       "evidence_id": "api_python_backend_runtime_smoke",
       "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T22:34:45.884Z",
-      "age_hours": 1,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
     },
     {
       "evidence_id": "quest_manual_performance",
-      "file": ".agent-factory/quest-manual-performance-report.json",
-      "generated_at": "2026-05-04T15:37:29.215Z",
-      "age_hours": 8,
+      "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
+      "generated_at": "2026-05-05T00:42:42.594Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -1091,13 +1091,31 @@
     }
   },
   "quest_manual_performance": {
-    "file": ".agent-factory/quest-manual-performance-report.json",
-    "generated_at": "2026-05-04T15:37:29.215Z",
-    "input_file": null,
+    "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
+    "generated_at": "2026-05-05T00:42:42.594Z",
+    "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "ready_to_claim_frame_pacing": false,
-    "satisfied_conditions": [],
+    "satisfied_conditions": [
+      "generated_at_valid",
+      "performed_by_recorded",
+      "foreground_page_confirmed",
+      "extra_browser_windows_closed",
+      "immersive_session_started",
+      "performance_source_openclinxr_frame_stats",
+      "experience_mode_full_vr_recorded",
+      "battery_drop_recorded_under_20"
+    ],
     "blockers": [
-      "missing_quest_manual_performance_report"
+      "devtools_screencast_not_disabled",
+      "duration_under_10_minutes",
+      "trace_interaction_not_confirmed",
+      "frame_sample_under_600_or_missing",
+      "rolling_frame_window_under_120_or_missing",
+      "average_fps_below_72_or_missing",
+      "minimum_fps_below_60_or_missing",
+      "p95_frame_ms_above_25_or_missing",
+      "controller_select_latency_ms_above_150_or_missing",
+      "heat_concern_not_cleared"
     ]
   },
   "iwsdk_evidence_contract": {
@@ -1185,6 +1203,12 @@
         "asset_production_multi_actor_quest_budget_observed",
         "asset_production_readiness_report_present",
         "asset_production_source_smokes_passed",
+        "battery_drop_recorded_under_20",
+        "experience_mode_full_vr_recorded",
+        "extra_browser_windows_closed",
+        "foreground_page_confirmed",
+        "generated_at_valid",
+        "immersive_session_started",
         "local_model_quality_report_present",
         "local_model_quality_required_keys_present",
         "local_model_ready_to_benchmark",
@@ -1197,6 +1221,8 @@
         "local_voice_python_backend_runtime_smoke_passed",
         "local_voice_ready_to_benchmark",
         "local_voice_realtime_transport_contract_observed",
+        "performance_source_openclinxr_frame_stats",
+        "performed_by_recorded",
         "quest_cdp_adb_device_recorded",
         "quest_cdp_frame_sample_complete",
         "quest_cdp_generated_at_valid",
@@ -1213,10 +1239,19 @@
       "blockers": [
         "quest_immersive_entry_activation_not_received",
         "quest_immersive_session_not_started",
-        "quest_manual_performance:missing_quest_manual_performance_report"
+        "quest_manual_performance:average_fps_below_72_or_missing",
+        "quest_manual_performance:controller_select_latency_ms_above_150_or_missing",
+        "quest_manual_performance:devtools_screencast_not_disabled",
+        "quest_manual_performance:duration_under_10_minutes",
+        "quest_manual_performance:frame_sample_under_600_or_missing",
+        "quest_manual_performance:heat_concern_not_cleared",
+        "quest_manual_performance:minimum_fps_below_60_or_missing",
+        "quest_manual_performance:p95_frame_ms_above_25_or_missing",
+        "quest_manual_performance:rolling_frame_window_under_120_or_missing",
+        "quest_manual_performance:trace_interaction_not_confirmed"
       ],
       "blocker_summary": {
-        "total_blockers": 3,
+        "total_blockers": 12,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -1226,7 +1261,16 @@
             "blockers": [
               "quest_immersive_entry_activation_not_received",
               "quest_immersive_session_not_started",
-              "quest_manual_performance:missing_quest_manual_performance_report"
+              "quest_manual_performance:average_fps_below_72_or_missing",
+              "quest_manual_performance:controller_select_latency_ms_above_150_or_missing",
+              "quest_manual_performance:devtools_screencast_not_disabled",
+              "quest_manual_performance:duration_under_10_minutes",
+              "quest_manual_performance:frame_sample_under_600_or_missing",
+              "quest_manual_performance:heat_concern_not_cleared",
+              "quest_manual_performance:minimum_fps_below_60_or_missing",
+              "quest_manual_performance:p95_frame_ms_above_25_or_missing",
+              "quest_manual_performance:rolling_frame_window_under_120_or_missing",
+              "quest_manual_performance:trace_interaction_not_confirmed"
             ],
             "next_step": "Use the approved proposals/approved/proposal-quest-foreground-performance-capture.md scope, then capture the foreground in-headset manual report for comfort, readability, immersive-session, and sustained-frame observations that CDP cannot honestly attest alone."
           }
@@ -1238,6 +1282,14 @@
       "evidence_id": "evidence-leadership-0008-001",
       "ready_to_resolve": false,
       "satisfied_conditions": [
+        "battery_drop_recorded_under_20",
+        "experience_mode_full_vr_recorded",
+        "extra_browser_windows_closed",
+        "foreground_page_confirmed",
+        "generated_at_valid",
+        "immersive_session_started",
+        "performance_source_openclinxr_frame_stats",
+        "performed_by_recorded",
         "quest_cdp_adb_device_recorded",
         "quest_cdp_frame_sample_complete",
         "quest_cdp_generated_at_valid",
@@ -1254,10 +1306,19 @@
       "blockers": [
         "quest_immersive_entry_activation_not_received",
         "quest_immersive_session_not_started",
-        "quest_manual_performance:missing_quest_manual_performance_report"
+        "quest_manual_performance:average_fps_below_72_or_missing",
+        "quest_manual_performance:controller_select_latency_ms_above_150_or_missing",
+        "quest_manual_performance:devtools_screencast_not_disabled",
+        "quest_manual_performance:duration_under_10_minutes",
+        "quest_manual_performance:frame_sample_under_600_or_missing",
+        "quest_manual_performance:heat_concern_not_cleared",
+        "quest_manual_performance:minimum_fps_below_60_or_missing",
+        "quest_manual_performance:p95_frame_ms_above_25_or_missing",
+        "quest_manual_performance:rolling_frame_window_under_120_or_missing",
+        "quest_manual_performance:trace_interaction_not_confirmed"
       ],
       "blocker_summary": {
-        "total_blockers": 3,
+        "total_blockers": 12,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -1267,7 +1328,16 @@
             "blockers": [
               "quest_immersive_entry_activation_not_received",
               "quest_immersive_session_not_started",
-              "quest_manual_performance:missing_quest_manual_performance_report"
+              "quest_manual_performance:average_fps_below_72_or_missing",
+              "quest_manual_performance:controller_select_latency_ms_above_150_or_missing",
+              "quest_manual_performance:devtools_screencast_not_disabled",
+              "quest_manual_performance:duration_under_10_minutes",
+              "quest_manual_performance:frame_sample_under_600_or_missing",
+              "quest_manual_performance:heat_concern_not_cleared",
+              "quest_manual_performance:minimum_fps_below_60_or_missing",
+              "quest_manual_performance:p95_frame_ms_above_25_or_missing",
+              "quest_manual_performance:rolling_frame_window_under_120_or_missing",
+              "quest_manual_performance:trace_interaction_not_confirmed"
             ],
             "next_step": "Use the approved proposals/approved/proposal-quest-foreground-performance-capture.md scope, then capture the foreground in-headset manual report for comfort, readability, immersive-session, and sustained-frame observations that CDP cannot honestly attest alone."
           }

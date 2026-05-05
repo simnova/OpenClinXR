@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  createOpenClinXrIwsdkSpikePlugins,
+  openClinXrIwsdkSpikeDevPluginOptions,
   resolveOpenClinXrIwsdkSpikeModulePreloads,
   openClinXrIwsdkSpikeBuildOutput,
 } from "./vite.config.js";
@@ -21,5 +23,28 @@ describe("IWSDK sidecar Vite config", () => {
       name: "iwsdk-vendor",
       priority: 30,
     }));
+  });
+
+  it("enables approved IWER Quest 3 agent-mode emulation only in the sidecar Vite app", () => {
+    expect(openClinXrIwsdkSpikeDevPluginOptions).toMatchObject({
+      emulator: {
+        device: "metaQuest3",
+        activation: "localhost",
+        injectOnBuild: false,
+      },
+      ai: {
+        mode: "agent",
+        tools: ["codex"],
+        screenshotSize: {
+          width: 500,
+          height: 500,
+        },
+      },
+      verbose: true,
+    });
+    expect(openClinXrIwsdkSpikeDevPluginOptions.emulator?.userAgentException).toBeInstanceOf(RegExp);
+    const plugins = createOpenClinXrIwsdkSpikePlugins();
+    expect(plugins.some((plugin) => plugin.name.includes("iwsdk"))).toBe(true);
+    expect(plugins.every((plugin) => plugin.apply === "serve")).toBe(true);
   });
 });

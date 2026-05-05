@@ -1105,13 +1105,20 @@ function wholeHours(value: number): number {
 
 async function latestQuestManualPerformanceReportJson(): Promise<EvidenceFile<QuestManualPerformanceReport> | undefined> {
   const files = (await globFiles("docs/openclinxr/quest-manual-performance-*.json"))
-    .filter((file) => !file.endsWith("quest-manual-performance-template.json"))
+    .filter(isQuestManualPerformanceRawReportPath)
     .sort();
   const file = files.at(-1);
   if (!file) {
     return undefined;
   }
   return { file, value: await readJson<QuestManualPerformanceReport>(file) };
+}
+
+export function isQuestManualPerformanceRawReportPath(file: string): boolean {
+  const baseName = path.basename(file);
+  return baseName.startsWith("quest-manual-performance-")
+    && !baseName.startsWith("quest-manual-performance-check-")
+    && baseName !== "quest-manual-performance-template.json";
 }
 
 function manualPerformanceReportToCheck(

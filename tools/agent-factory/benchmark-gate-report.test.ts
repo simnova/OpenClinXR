@@ -2,7 +2,11 @@ import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { buildBenchmarkGateReport, latestJson } from "./build-benchmark-gate-report.js";
+import {
+  buildBenchmarkGateReport,
+  isQuestManualPerformanceRawReportPath,
+  latestJson,
+} from "./build-benchmark-gate-report.js";
 
 type BlockerGroup = {
   group_id: string;
@@ -160,6 +164,24 @@ describe("benchmark gate report", () => {
     });
   });
 
+  it("selects raw Quest manual performance evidence without derived check reports", async () => {
+    const tempDir = await mkdtemp(path.join(tmpdir(), "openclinxr-quest-manual-latest-"));
+    const rawPath = path.join(tempDir, "quest-manual-performance-2026-05-04.json");
+    const derivedCheckPath = path.join(tempDir, "quest-manual-performance-check-2026-05-04.json");
+    await writeFile(rawPath, `${JSON.stringify({ kind: "raw" })}\n`, "utf8");
+    await writeFile(derivedCheckPath, `${JSON.stringify({ kind: "check" })}\n`, "utf8");
+
+    const selected = await latestJson<{ kind: string }>(
+      `${tempDir}/quest-manual-performance-*.json`,
+      isQuestManualPerformanceRawReportPath,
+    );
+
+    expect(selected).toEqual({
+      file: rawPath,
+      value: { kind: "raw" },
+    });
+  });
+
   it("keeps resolved local benchmark evidence out of leadership remediation groups", async () => {
     const report = JSON.parse(await readFile(".agent-factory/benchmark-gate-report.json", "utf8")) as BenchmarkGateReport;
     const gate = report.evidence_gates.find((candidate) => candidate.evidence_id === "evidence-leadership-0007-002");
@@ -179,7 +201,9 @@ describe("benchmark gate report", () => {
           blockers: expect.arrayContaining([
             "quest_immersive_entry_activation_not_received",
             "quest_immersive_session_not_started",
-            "quest_manual_performance:missing_quest_manual_performance_report",
+            "quest_manual_performance:duration_under_10_minutes",
+            "quest_manual_performance:frame_sample_under_600_or_missing",
+            "quest_manual_performance:controller_select_latency_ms_above_150_or_missing",
           ]),
         }),
       ]),
@@ -323,9 +347,13 @@ describe("benchmark gate report", () => {
       blockers: expect.arrayContaining([
         "quest_immersive_entry_activation_not_received",
         "quest_immersive_session_not_started",
-        "quest_manual_performance:missing_quest_manual_performance_report",
+        "quest_manual_performance:duration_under_10_minutes",
+        "quest_manual_performance:frame_sample_under_600_or_missing",
+        "quest_manual_performance:controller_select_latency_ms_above_150_or_missing",
       ]),
       satisfied_conditions: expect.arrayContaining([
+        "performed_by_recorded",
+        "immersive_session_started",
         "quest_cdp_frame_sample_complete",
         "quest_page_visible",
         "quest_foreground_preflight_ready",
