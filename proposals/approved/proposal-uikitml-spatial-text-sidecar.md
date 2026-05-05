@@ -1,13 +1,22 @@
 # Proposal: UIKitML Spatial Text Sidecar
 
-**Status:** Proposed  
-**Decision needed:** Approve, reject, or defer  
+**Status:** Approved  
+**Approved by:** Patrick Gidich on 2026-05-05  
+**Decision:** Approved with clarifications  
 **Requested by:** Codex, after read-only UIKitML package and integration assessment on 2026-05-05  
 **Scope:** `apps/ui-xr-iwsdk-spike` only
 
+## Approval Clarifications
+
+- Vite 8 compatibility with `@iwsdk/vite-plugin-uikitml@0.3.1` must be explicitly verified and documented before any code or lockfile changes are committed.
+- `@pmndrs/uikit` license must be reviewed and recorded before install.
+- This remains a text readability comparison spike only; broader spatial UI adoption requires a separate proposal.
+- Codex may install the proposed packages in `apps/ui-xr-iwsdk-spike` only, add minimal `.uikitml` source files for text panel testing, run local build/tests/desktop-IWER visual evidence, and commit only after verification passes and clarifications are addressed.
+- Codex must not add UIKitML dependencies to `apps/ui-xr` or shared production packages, commit generated UI blobs without reviewed source and provenance, ignore Vite 8 peer mismatch, or claim Quest text readiness from sidecar/IWER evidence alone.
+
 ## Decision Needed
 
-Approve a constrained sidecar-only spike to evaluate UIKitML for readable spatial text panels in the IWSDK sidecar.
+Approved: run a constrained sidecar-only spike to evaluate UIKitML for readable spatial text panels in the IWSDK sidecar.
 
 This approval would allow Codex to install the package set below in `apps/ui-xr-iwsdk-spike`, add reviewed `.uikitml` source files, compile local dev assets, and collect desktop/IWER/Quest readability evidence. It would not authorize production adoption, runtime changes in `apps/ui-xr`, or unreviewed generated UI blobs.
 
@@ -28,7 +37,15 @@ UIKitML is a plausible replacement for the current duplicated canvas-texture tex
 | `three` | `0.184.0` | MIT | Already sidecar-approved and installed |
 | `vite` | `8.0.10` | MIT | Existing repo Vite version; creates peer mismatch risk with the plugin |
 
-No package install is authorized by this proposal until Patrick approves it.
+Package install is authorized only within `apps/ui-xr-iwsdk-spike` and only after the Vite 8 and license clarifications are addressed.
+
+## License And Compatibility Precheck
+
+- `npm view @iwsdk/vite-plugin-uikitml@0.3.1 peerDependencies dependencies license --json` on 2026-05-05 reported license `MIT`, dependency `@pmndrs/uikitml: ^0.1.12`, and Vite peer range `^7.0.0`; this confirms the Vite 8 mismatch must be explicitly tested.
+- `npm view vite version` reported `8.0.10` and `npm view @iwsdk/vite-plugin-uikitml version` reported `0.3.1` on 2026-05-05.
+- `npm pack @pmndrs/uikit@1.0.66` was inspected in `/tmp/openclinxr-npm-inspect` on 2026-05-05.
+- `@pmndrs/uikit@1.0.66` metadata reports `SEE LICENSE IN LICENSE`; the tarball `LICENSE` contains MIT-style permission terms with copyright attribution to Bela Bohlender and Coconut Capital.
+- The implementation must record the exact install outcome, peer warnings, lockfile diff, Vite 8 build result, and any generated artifact provenance before commit.
 
 ## Explicit Scope
 
