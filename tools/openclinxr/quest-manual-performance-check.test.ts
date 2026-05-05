@@ -23,6 +23,7 @@ function completedQuestManualReport(): QuestManualPerformanceReport {
     station: {
       shellLoaded: true,
       traceInteractionPassed: true,
+      traceInteractionAttempt: "runtime_event_observed",
       textReadable: true,
       immersiveSessionStarted: true,
       consoleErrors: [],
@@ -36,8 +37,10 @@ function completedQuestManualReport(): QuestManualPerformanceReport {
     input: {
       handModelCount: 2,
       handModelStatus: "active",
+      handRepresentationKind: "mesh",
       handInputsObserved: 2,
       locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
+      locomotionAttempt: "runtime_event_observed",
       activeLocomotionSource: "xr_hand_gesture",
       xrHandGestureState: {
         armed: true,
@@ -894,6 +897,84 @@ describe("Quest manual performance checker", () => {
       "locomotion_attempted_without_runtime_event",
       "locomotion_mode_declared_without_locomotion_event",
       "immersive_session_started_but_frame_stats_empty",
+    ]));
+  });
+
+  it("flags raw human reports that are missing structured attempt and representation fields", () => {
+    const report: QuestManualPerformanceReport = {
+      generatedAt: "2026-05-04T20:36:00.000Z",
+      runContext: {
+        performedBy: "Patrick Gidich",
+        durationMinutes: 2,
+        notes: "Everything seemed to be ok. Virtual hands were just a series of boxes (not realistic representations). I was using hand tracking, not controllers.",
+      },
+      setup: {
+        foregroundPageConfirmed: true,
+        devtoolsScreencastDisabled: false,
+        extraBrowserWindowsClosed: true,
+      },
+      station: {
+        shellLoaded: true,
+        traceInteractionPassed: false,
+        textReadable: true,
+        immersiveSessionStarted: true,
+        consoleErrors: [],
+      },
+      experience: {
+        modeId: "full_vr",
+        phaseLabel: "Phase 1 Full VR",
+        requestedSessionMode: "immersive-vr",
+        mixedRealityPassthroughImplemented: false,
+        handTrackingPosture: "optional_feature_with_primitive_hand_model",
+        locomotionPosture: "experimental_keyboard_and_thumbstick_dolly",
+      },
+      input: {
+        handModelCount: 2,
+        handModelStatus: "active",
+        handInputsObserved: 2,
+        locomotionMode: "thumbstick",
+        lastLocomotionAtMs: null,
+        rigPosition: { x: 0, z: 0 },
+      },
+      traceLatencyProxy: {
+        source: "dom_click_trace_button",
+        lastTraceTag: null,
+        lastSelectLatencyMs: null,
+        measuredAtMs: null,
+        productionControllerLatencySubstitute: false,
+      },
+      performance: {
+        source: "window.__openClinXrFrameStats",
+        framesObserved: 0,
+        sampleWindowSize: 0,
+        avgFps: null,
+        p95FrameMs: null,
+        minimumObservedFps: null,
+        controllerSelectLatencyMs: null,
+      },
+      comfort: {
+        motionComfort: "good",
+        heatConcern: null,
+        batteryDropPercent: 0,
+      },
+    };
+
+    const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-raw-operator.json", report);
+
+    expect(check.evidencePosture).toBe("early_worn_headset_full_vr_observation");
+    expect(check.readyToClaimFramePacing).toBe(false);
+    expect(check.adversarialFindings).toEqual(expect.arrayContaining([
+      "trace_interaction_attempt_status_missing",
+      "hand_representation_kind_missing",
+      "hand_tracking_uses_primitive_box_model",
+      "locomotion_attempt_status_missing",
+      "locomotion_mode_declared_without_locomotion_event",
+      "raw_manual_report_without_copied_ui_payload",
+    ]));
+    expect(check.nextSteps).toEqual(expect.arrayContaining([
+      "Record station.traceInteractionAttempt so failed trace attempts distinguish not-attempted from attempted-without-runtime-event.",
+      "Record input.handRepresentationKind so hand-tracking quality is auditable without relying on prose notes.",
+      "Record input.locomotionAttempt so failed locomotion attempts distinguish not-attempted from attempted-without-runtime-event.",
     ]));
   });
 

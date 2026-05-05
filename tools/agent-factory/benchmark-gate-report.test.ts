@@ -240,6 +240,7 @@ const completedQuestManualPerformanceReport: QuestManualPerformanceReport = {
   station: {
     shellLoaded: true,
     traceInteractionPassed: true,
+    traceInteractionAttempt: "runtime_event_observed",
     textReadable: true,
     immersiveSessionStarted: true,
     consoleErrors: [],
@@ -253,8 +254,10 @@ const completedQuestManualPerformanceReport: QuestManualPerformanceReport = {
   input: {
     handModelCount: 2,
     handModelStatus: "active",
+    handRepresentationKind: "mesh",
     handInputsObserved: 2,
     locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
+    locomotionAttempt: "runtime_event_observed",
     activeLocomotionSource: "xr_gamepad",
     lastLocomotionAtMs: 60_000,
     rigPosition: { x: 0.4, z: -0.2 },

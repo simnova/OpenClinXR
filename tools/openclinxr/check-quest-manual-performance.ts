@@ -552,10 +552,11 @@ function buildAdversarialFindings(input: {
   const traceAttempt = input.report.station?.traceInteractionAttempt;
   const locomotionAttempt = input.report.input?.locomotionAttempt;
   const handRepresentationKind = input.report.input?.handRepresentationKind;
+  const headsetInputObserved = hasObservedHeadsetInput(input.report.input);
   const primitiveHandModelObserved = handRepresentationKind === "primitive_boxes"
     || /primitive|box/i.test(handTrackingPosture)
     || /series of boxes|not realistic/i.test(notes);
-  const handTrackingObserved = (input.report.input?.handInputsObserved ?? 0) > 0
+  const handTrackingObserved = headsetInputObserved
     && /hand tracking/i.test(notes);
   const locomotionModeDeclared = typeof input.report.input?.locomotionMode === "string"
     && input.report.input.locomotionMode.trim().length > 0;
@@ -574,9 +575,14 @@ function buildAdversarialFindings(input: {
 
   return [
     input.report.setup?.devtoolsScreencastDisabled === false ? "devtools_screencast_enabled_during_run" : undefined,
+    input.report.station?.traceInteractionPassed !== true && traceAttempt === undefined
+      ? "trace_interaction_attempt_status_missing"
+      : undefined,
     isAttemptedTraceWithoutRuntimeEvent(traceAttempt) ? "trace_interaction_attempted_without_runtime_event" : undefined,
+    headsetInputObserved && handRepresentationKind === undefined ? "hand_representation_kind_missing" : undefined,
     primitiveHandModelObserved ? "hand_tracking_uses_primitive_box_model" : undefined,
     primitiveHandModelObserved && handTrackingObserved ? "hand_tracking_observed_without_realistic_hand_meshes" : undefined,
+    locomotionModeDeclared && locomotionAttempt === undefined ? "locomotion_attempt_status_missing" : undefined,
     isAttemptedLocomotionWithoutRuntimeEvent(locomotionAttempt) ? "locomotion_attempted_without_runtime_event" : undefined,
     locomotionAttempt === "runtime_event_observed" && !hasObservedLocomotion(input.report.input)
       ? "locomotion_runtime_event_without_threshold_evidence"
@@ -619,11 +625,17 @@ function questManualNextStepForAdversarialFinding(finding: string): string {
       return "Preserve harvestSummary with the copied payload so CDP harvest readiness remains auditable.";
     case "devtools_screencast_enabled_during_run":
       return "Rerun with DevTools screencast disabled so headset frame timing is less distorted.";
+    case "trace_interaction_attempt_status_missing":
+      return "Record station.traceInteractionAttempt so failed trace attempts distinguish not-attempted from attempted-without-runtime-event.";
     case "trace_interaction_attempted_without_runtime_event":
       return "Retry the in-headset trace action and preserve the resulting xr_controller_select or xr_hand_select runtime event.";
+    case "hand_representation_kind_missing":
+      return "Record input.handRepresentationKind so hand-tracking quality is auditable without relying on prose notes.";
     case "hand_tracking_uses_primitive_box_model":
     case "hand_tracking_observed_without_realistic_hand_meshes":
       return "Replace primitive box hands with an articulated hand model or document why controller-only affordances are acceptable for this station.";
+    case "locomotion_attempt_status_missing":
+      return "Record input.locomotionAttempt so failed locomotion attempts distinguish not-attempted from attempted-without-runtime-event.";
     case "locomotion_mode_declared_without_locomotion_event":
     case "locomotion_attempted_without_runtime_event":
       return "Retry thumbstick, hand-gesture, or room-scale locomotion and preserve the runtime locomotion event plus rig delta.";
