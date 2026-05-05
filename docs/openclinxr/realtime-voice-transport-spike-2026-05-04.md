@@ -4,18 +4,19 @@ Date: 2026-05-04
 
 ## Recommendation
 
-Use WebSocket-first for the immediate Quest 3 voice path, with `/apps/api` treated as the Bun + Hono primary API target and Node/Hono as the local fallback until Bun is installed and benchmarked on this machine. Keep WebTransport and direct QUIC as protocol slots, not production claims, until the runtime and headset path are measured end to end.
+Use WebSocket-first for the immediate Quest 3 voice path, with `/apps/api` treated as the Bun + Hono primary API target and Node/Hono as the local fallback for non-Bun development tasks. Bun 1.3.13 is now locally smoke-verified for `/voice/realtime/ws`; keep WebTransport and direct QUIC as protocol slots, not production claims, until the runtime and headset path are measured end to end.
 
 ## Implemented Local Evidence
 
 - `apps/api` exposes protocol posture at `GET /runtime/protocols`.
 - `apps/api` also exposes realtime voice gateway posture at `GET /voice/realtime/posture`, using the shared `@openclinxr/voice-gateway` contract while keeping runtime availability conservative.
-- `apps/api/src/bun-server.ts` is the Bun + Hono entrypoint; `pnpm --filter @openclinxr/api dev:bun` is available when Bun is installed.
+- `apps/api/src/bun-server.ts` is the Bun + Hono entrypoint. `pnpm --filter @openclinxr/api dev:bun` runs the local Bun server, and `pnpm local:voice:bun-websocket-smoke` resolves the user-local Bun install before running evidence.
+- `apps/api` now supports an opt-in Python backend proxy boundary when `OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL` is set. With no backend URL, the deterministic local Bun smoke stays on the internal echo path.
 - `apps/mock-realtime-voice-server` provides the verified Node/Hono/WebSocket fallback harness.
 - `apps/api-python-backend` provides a FastAPI/Uvicorn source skeleton with stdlib-only verification.
 - `docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json` records a no-cloud bidirectional streaming harness run.
 - `docs/openclinxr/api-python-backend-runtime-smoke-2026-05-05.json` is now linked into the realtime report, retiring the stale FastAPI-not-executed blocker with canonical protocol and latency-field proof while preserving model, Quest audio, Opus, and safety blockers.
-- The report now records protocol evidence separately: WebSocket local harness observed; Bun/Hono runtime, WebTransport, direct QUIC, and Web3 signaling remain unobserved and evidence-gated.
+- The report now records protocol evidence separately: WebSocket local harness observed, Bun/Hono runtime smoke observed, and WebTransport, direct QUIC, and Web3 signaling remain unobserved and evidence-gated.
 - The Godot Quest client source contract is observed in `apps/ui-quest-voice-godot`: dependency-free Godot sidecar, `WebSocketPeer`, `voice.audio_metadata`, and opaque binary packets. Godot runtime execution on this machine and Quest microphone/playback evidence are still unobserved.
 - Godot and the local gateway contract send `voice.audio_metadata` before binary chunks so chunk indexes and per-frame latency samples can be measured before native Opus and real model integration.
 
@@ -99,7 +100,8 @@ func _play_received_audio_packet(_packet: PackedByteArray) -> void:
 - Install or attach a Godot runtime for source-level sidecar execution.
 - Execute a real Quest/Godot client with microphone capture and playback.
 - Add or select a native Opus encode/decode path for Quest/Godot, or switch this lane to WebRTC if that proves simpler.
-- Install Bun locally and benchmark `/apps/api` Bun/Hono WebSocket behavior.
+- Keep the Bun/Hono WebSocket smoke current after proxy, codec, or backend changes.
+- Run the opt-in Bun-to-FastAPI proxy path against a live local `apps/api-python-backend` process before claiming gateway-to-backend runtime readiness.
 - Approve or reject the QUIC/Web3 protocol posture proposal before adding direct QUIC, WebTransport polyfill/gateway, or Web3 identity/signaling dependencies.
 - Install and benchmark Moshi MLX or Qwen3-TTS on the target Apple Silicon machine.
 - Add synthetic voice disclosure, retention, misuse, and clinical-safety controls to the real model stream.
