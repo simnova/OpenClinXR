@@ -23,7 +23,7 @@
     "phaseLabel": "Phase 1 Full VR",
     "requestedSessionMode": "immersive-vr",
     "mixedRealityPassthroughImplemented": false,
-    "handTrackingPosture": "optional_feature_with_primitive_hand_model",
+    "handTrackingPosture": "optional_feature_with_local_mesh_hand_model_and_primitive_fallback",
     "locomotionPosture": "room_scale_keyboard_thumbstick_and_hand_gesture_dolly"
   },
   "input": {

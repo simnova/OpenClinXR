@@ -16,7 +16,7 @@
       "evidence_id": "local_runtime_probe",
       "file": "docs/openclinxr/local-runtime-probe-2026-05-05.json",
       "generated_at": "2026-05-05T16:48:27.241Z",
-      "age_hours": 3,
+      "age_hours": 4,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -25,7 +25,7 @@
       "evidence_id": "gltf_pipeline_smoke",
       "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
       "generated_at": "2026-05-04T23:49:36.820Z",
-      "age_hours": 20,
+      "age_hours": 21,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -34,7 +34,7 @@
       "evidence_id": "blender_asset_bake_smoke",
       "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T11:02:14.867Z",
-      "age_hours": 9,
+      "age_hours": 10,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -52,7 +52,7 @@
       "evidence_id": "asset_production_readiness_benchmark",
       "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T21:11:11.999Z",
-      "age_hours": 23,
+      "age_hours": 24,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -61,7 +61,7 @@
       "evidence_id": "local_provider_benchmark",
       "file": "docs/openclinxr/local-provider-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T19:05:08.997Z",
-      "age_hours": 1,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -88,7 +88,7 @@
       "evidence_id": "local_voice_runtime_benchmark",
       "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-05.json",
       "generated_at": "2026-05-04T15:01:12Z",
-      "age_hours": 29,
+      "age_hours": 30,
       "max_age_hours": 24,
       "status": "stale",
       "blockers": [
@@ -99,7 +99,7 @@
       "evidence_id": "local_voice_live_dialog_benchmark",
       "file": "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T20:47:52.004Z",
-      "age_hours": 23,
+      "age_hours": 24,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -126,7 +126,7 @@
       "evidence_id": "api_bun_websocket_runtime_smoke",
       "file": "docs/openclinxr/api-bun-websocket-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T16:45:35.909Z",
-      "age_hours": 3,
+      "age_hours": 4,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -143,7 +143,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-05T20:44:56.154Z",
+      "generated_at": "2026-05-05T21:12:28.335Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -1298,7 +1298,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-05T20:44:56.154Z",
+    "generated_at": "2026-05-05T21:12:28.335Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -1319,6 +1319,9 @@
       "devtools_screencast_not_disabled",
       "duration_under_10_minutes",
       "trace_interaction_not_confirmed",
+      "hand_tracking_posture_not_current_mesh_or_fallback",
+      "locomotion_posture_not_current_room_scale_contract",
+      "hand_model_status_invalid",
       "locomotion_not_observed",
       "frame_sample_under_600_or_missing",
       "immersive_frame_count_zero_or_missing",
@@ -1352,6 +1355,9 @@
       "Disable DevTools screencast while observing headset performance.",
       "Observe for at least 10 minutes in the foreground headset session.",
       "Confirm a trace interaction advances in the headset.",
+      "Record experience.handTrackingPosture as optional_feature_with_local_mesh_hand_model_and_primitive_fallback so the report reflects the local mesh hand path and primitive fallback.",
+      "Record experience.locomotionPosture as room_scale_keyboard_thumbstick_and_hand_gesture_dolly so the report reflects the current locomotion evidence contract.",
+      "Use a supported input.handModelStatus value: pending_immersive_session, installed, or failed.",
       "Observe thumbstick, hand-gesture, or room-scale locomotion and record lastLocomotionAtMs.",
       "Observe at least 600 frames before claiming frame pacing.",
       "Copy the in-app Quest Evidence payload after entering Full VR and confirm performance.immersiveFramesObserved is greater than zero.",
@@ -1545,10 +1551,13 @@
         "quest_manual_performance:devtools_screencast_not_disabled",
         "quest_manual_performance:duration_under_10_minutes",
         "quest_manual_performance:frame_sample_under_600_or_missing",
+        "quest_manual_performance:hand_model_status_invalid",
+        "quest_manual_performance:hand_tracking_posture_not_current_mesh_or_fallback",
         "quest_manual_performance:heat_concern_not_cleared",
         "quest_manual_performance:immersive_frame_count_zero_or_missing",
         "quest_manual_performance:immersive_frame_sample_under_600_or_missing",
         "quest_manual_performance:locomotion_not_observed",
+        "quest_manual_performance:locomotion_posture_not_current_room_scale_contract",
         "quest_manual_performance:minimum_fps_below_60_or_missing",
         "quest_manual_performance:p95_frame_ms_above_25_or_missing",
         "quest_manual_performance:rolling_frame_window_under_120_or_missing",
@@ -1557,7 +1566,7 @@
         "quest_text_panel_metadata_missing"
       ],
       "blocker_summary": {
-        "total_blockers": 25,
+        "total_blockers": 28,
         "distinct_problem_count": 3,
         "groups": [
           {
@@ -1589,10 +1598,13 @@
               "quest_manual_performance:devtools_screencast_not_disabled",
               "quest_manual_performance:duration_under_10_minutes",
               "quest_manual_performance:frame_sample_under_600_or_missing",
+              "quest_manual_performance:hand_model_status_invalid",
+              "quest_manual_performance:hand_tracking_posture_not_current_mesh_or_fallback",
               "quest_manual_performance:heat_concern_not_cleared",
               "quest_manual_performance:immersive_frame_count_zero_or_missing",
               "quest_manual_performance:immersive_frame_sample_under_600_or_missing",
               "quest_manual_performance:locomotion_not_observed",
+              "quest_manual_performance:locomotion_posture_not_current_room_scale_contract",
               "quest_manual_performance:minimum_fps_below_60_or_missing",
               "quest_manual_performance:p95_frame_ms_above_25_or_missing",
               "quest_manual_performance:rolling_frame_window_under_120_or_missing",
@@ -1659,10 +1671,13 @@
         "quest_manual_performance:devtools_screencast_not_disabled",
         "quest_manual_performance:duration_under_10_minutes",
         "quest_manual_performance:frame_sample_under_600_or_missing",
+        "quest_manual_performance:hand_model_status_invalid",
+        "quest_manual_performance:hand_tracking_posture_not_current_mesh_or_fallback",
         "quest_manual_performance:heat_concern_not_cleared",
         "quest_manual_performance:immersive_frame_count_zero_or_missing",
         "quest_manual_performance:immersive_frame_sample_under_600_or_missing",
         "quest_manual_performance:locomotion_not_observed",
+        "quest_manual_performance:locomotion_posture_not_current_room_scale_contract",
         "quest_manual_performance:minimum_fps_below_60_or_missing",
         "quest_manual_performance:p95_frame_ms_above_25_or_missing",
         "quest_manual_performance:rolling_frame_window_under_120_or_missing",
@@ -1671,7 +1686,7 @@
         "quest_text_panel_metadata_missing"
       ],
       "blocker_summary": {
-        "total_blockers": 24,
+        "total_blockers": 27,
         "distinct_problem_count": 2,
         "groups": [
           {
@@ -1702,10 +1717,13 @@
               "quest_manual_performance:devtools_screencast_not_disabled",
               "quest_manual_performance:duration_under_10_minutes",
               "quest_manual_performance:frame_sample_under_600_or_missing",
+              "quest_manual_performance:hand_model_status_invalid",
+              "quest_manual_performance:hand_tracking_posture_not_current_mesh_or_fallback",
               "quest_manual_performance:heat_concern_not_cleared",
               "quest_manual_performance:immersive_frame_count_zero_or_missing",
               "quest_manual_performance:immersive_frame_sample_under_600_or_missing",
               "quest_manual_performance:locomotion_not_observed",
+              "quest_manual_performance:locomotion_posture_not_current_room_scale_contract",
               "quest_manual_performance:minimum_fps_below_60_or_missing",
               "quest_manual_performance:p95_frame_ms_above_25_or_missing",
               "quest_manual_performance:rolling_frame_window_under_120_or_missing",

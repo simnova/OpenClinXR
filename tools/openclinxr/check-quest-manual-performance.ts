@@ -25,6 +25,10 @@ type QuestLocomotionAttempt =
   | "runtime_event_observed";
 
 type QuestHandRepresentationKind = "primitive_boxes" | "primitive_spheres" | "mesh" | "controller_only" | "not_visible" | "unknown";
+type QuestHandModelStatus = "pending_immersive_session" | "installed" | "failed";
+
+const expectedFullVrHandTrackingPosture = "optional_feature_with_local_mesh_hand_model_and_primitive_fallback";
+const expectedFullVrLocomotionPosture = "room_scale_keyboard_thumbstick_and_hand_gesture_dolly";
 
 const validQuestTraceInteractionAttempts = new Set<string>([
   "not_attempted",
@@ -51,6 +55,12 @@ const validQuestHandRepresentationKinds = new Set<string>([
   "controller_only",
   "not_visible",
   "unknown",
+]);
+
+const validQuestHandModelStatuses = new Set<string>([
+  "pending_immersive_session",
+  "installed",
+  "failed",
 ]);
 
 export type QuestManualPerformanceReport = {
@@ -83,7 +93,7 @@ export type QuestManualPerformanceReport = {
   };
   input?: {
     handModelCount?: number;
-    handModelStatus?: string;
+    handModelStatus?: QuestHandModelStatus;
     handRepresentationKind?: QuestHandRepresentationKind;
     handInputsObserved?: number;
     locomotionMode?: string;
@@ -328,6 +338,10 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
     || validQuestLocomotionAttempts.has(report.input.locomotionAttempt);
   const handRepresentationKindValid = report.input?.handRepresentationKind === undefined
     || validQuestHandRepresentationKinds.has(report.input.handRepresentationKind);
+  const handModelStatusValid = report.input?.handModelStatus === undefined
+    || validQuestHandModelStatuses.has(report.input.handModelStatus);
+  const currentFullVrHandTrackingPosture = report.experience?.handTrackingPosture === expectedFullVrHandTrackingPosture;
+  const currentFullVrLocomotionPosture = report.experience?.locomotionPosture === expectedFullVrLocomotionPosture;
   const headsetInputObserved = hasObservedHeadsetInput(report.input);
   const locomotionObserved = hasObservedLocomotion(report.input);
   const framesObservedValid = isNonNegativeInteger(framesObserved);
@@ -379,6 +393,9 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
     report.station?.immersiveSessionStarted === true ? undefined : "immersive_session_not_confirmed",
     traceInteractionAttemptValid ? undefined : "trace_interaction_attempt_invalid",
     isFullVrExperienceEvidence(report.experience) ? undefined : "experience_mode_full_vr_not_recorded",
+    currentFullVrHandTrackingPosture ? undefined : "hand_tracking_posture_not_current_mesh_or_fallback",
+    currentFullVrLocomotionPosture ? undefined : "locomotion_posture_not_current_room_scale_contract",
+    handModelStatusValid ? undefined : "hand_model_status_invalid",
     handRepresentationKindValid ? undefined : "hand_representation_kind_invalid",
     locomotionAttemptValid ? undefined : "locomotion_attempt_invalid",
     headsetInputObserved ? undefined : "hand_or_controller_input_not_observed",
@@ -487,6 +504,8 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
         : undefined,
       controllerSelectLatencyMatchesTrace ? "controller_select_latency_matches_trace_proxy" : undefined,
       isFullVrExperienceEvidence(report.experience) ? "experience_mode_full_vr_recorded" : undefined,
+      currentFullVrHandTrackingPosture ? "hand_tracking_posture_current_mesh_or_fallback" : undefined,
+      currentFullVrLocomotionPosture ? "locomotion_posture_current_room_scale_contract" : undefined,
       headsetInputObserved ? "hand_or_controller_input_observed" : undefined,
       locomotionObserved ? "locomotion_observed" : undefined,
       isSupportingTraceLatencyProxy(traceLatencyProxy) ? "trace_latency_proxy_recorded_as_supporting_evidence" : undefined,
@@ -620,7 +639,7 @@ function buildAdversarialFindings(input: {
   const primitiveHandRepresentationObserved = handRepresentationKind === "primitive_boxes"
     || handRepresentationKind === "primitive_spheres";
   const primitiveHandModelObserved = primitiveHandRepresentationObserved
-    || /primitive|box/i.test(handTrackingPosture)
+    || handTrackingPosture === "optional_feature_with_primitive_hand_model"
     || /series of boxes|not realistic/i.test(notes);
   const handTrackingObserved = headsetInputObserved
     && /hand tracking/i.test(notes);
@@ -790,6 +809,12 @@ function questManualNextStepForBlocker(blocker: string): string {
       return "Use a supported station.traceInteractionAttempt value from the Quest manual evidence template.";
     case "experience_mode_full_vr_not_recorded":
       return "Record experience.modeId full_vr, requestedSessionMode immersive-vr, and mixedRealityPassthroughImplemented false for this Full VR manual report.";
+    case "hand_tracking_posture_not_current_mesh_or_fallback":
+      return `Record experience.handTrackingPosture as ${expectedFullVrHandTrackingPosture} so the report reflects the local mesh hand path and primitive fallback.`;
+    case "locomotion_posture_not_current_room_scale_contract":
+      return `Record experience.locomotionPosture as ${expectedFullVrLocomotionPosture} so the report reflects the current locomotion evidence contract.`;
+    case "hand_model_status_invalid":
+      return "Use a supported input.handModelStatus value: pending_immersive_session, installed, or failed.";
     case "hand_representation_kind_invalid":
       return "Use a supported input.handRepresentationKind value from the Quest manual evidence template.";
     case "locomotion_attempt_invalid":

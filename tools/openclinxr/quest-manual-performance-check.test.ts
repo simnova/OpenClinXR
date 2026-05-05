@@ -33,10 +33,12 @@ function completedQuestManualReport(): QuestManualPerformanceReport {
       phaseLabel: "Phase 1 Full VR",
       requestedSessionMode: "immersive-vr",
       mixedRealityPassthroughImplemented: false,
+      handTrackingPosture: "optional_feature_with_local_mesh_hand_model_and_primitive_fallback",
+      locomotionPosture: "room_scale_keyboard_thumbstick_and_hand_gesture_dolly",
     },
     input: {
       handModelCount: 2,
-      handModelStatus: "active",
+      handModelStatus: "installed",
       handRepresentationKind: "mesh",
       handInputsObserved: 2,
       locomotionMode: "room_scale_keyboard_thumbstick_and_hand_gesture_dolly",
@@ -151,12 +153,16 @@ describe("Quest manual performance checker", () => {
         phaseLabel: "Phase 1 Full VR",
         requestedSessionMode: "immersive-vr",
         mixedRealityPassthroughImplemented: false,
+        handTrackingPosture: "optional_feature_with_local_mesh_hand_model_and_primitive_fallback",
+        locomotionPosture: "room_scale_keyboard_thumbstick_and_hand_gesture_dolly",
       },
       input: {
         handModelCount: 2,
-        handModelStatus: "active",
+        handModelStatus: "installed",
+        handRepresentationKind: "mesh",
         handInputsObserved: 2,
         locomotionMode: "xr_hand_gesture",
+        locomotionAttempt: "runtime_event_observed",
         activeLocomotionSource: "xr_hand_gesture",
         xrHandGestureState: {
           armed: true,
@@ -768,10 +774,12 @@ describe("Quest manual performance checker", () => {
         phaseLabel: "Phase 1 Full VR",
         requestedSessionMode: "immersive-vr",
         mixedRealityPassthroughImplemented: false,
+        handTrackingPosture: "optional_feature_with_local_mesh_hand_model_and_primitive_fallback",
+        locomotionPosture: "room_scale_keyboard_thumbstick_and_hand_gesture_dolly",
       },
       input: {
         handModelCount: 2,
-        handModelStatus: "active",
+        handModelStatus: "installed",
         handInputsObserved: 2,
         locomotionMode: "room_scale_keyboard_thumbstick_and_hand_gesture_dolly",
         activeLocomotionSource: "none",
@@ -914,7 +922,7 @@ describe("Quest manual performance checker", () => {
       },
       input: {
         handModelCount: 2,
-        handModelStatus: "active",
+        handModelStatus: "active" as never,
         handRepresentationKind: "primitive_boxes",
         handInputsObserved: 2,
         locomotionMode: "thumbstick",
@@ -1059,7 +1067,7 @@ describe("Quest manual performance checker", () => {
       },
       input: {
         handModelCount: 2,
-        handModelStatus: "active",
+        handModelStatus: "active" as never,
         handInputsObserved: 2,
         locomotionMode: "thumbstick",
         lastLocomotionAtMs: null,
@@ -1112,6 +1120,7 @@ describe("Quest manual performance checker", () => {
     const unsafeStation = report.station as unknown as Record<string, string>;
     const unsafeInput = report.input as unknown as Record<string, string>;
     unsafeStation.traceInteractionAttempt = "clicked_the_button";
+    unsafeInput.handModelStatus = "active";
     unsafeInput.handRepresentationKind = "primitive_box";
     unsafeInput.locomotionAttempt = "thumbstick_attempted";
 
@@ -1120,11 +1129,13 @@ describe("Quest manual performance checker", () => {
     expect(check.readyToClaimFramePacing).toBe(false);
     expect(check.blockers).toEqual(expect.arrayContaining([
       "trace_interaction_attempt_invalid",
+      "hand_model_status_invalid",
       "hand_representation_kind_invalid",
       "locomotion_attempt_invalid",
     ]));
     expect(check.nextSteps).toEqual(expect.arrayContaining([
       "Use a supported station.traceInteractionAttempt value from the Quest manual evidence template.",
+      "Use a supported input.handModelStatus value: pending_immersive_session, installed, or failed.",
       "Use a supported input.handRepresentationKind value from the Quest manual evidence template.",
       "Use a supported input.locomotionAttempt value from the Quest manual evidence template.",
     ]));
@@ -1149,6 +1160,9 @@ describe("Quest manual performance checker", () => {
     expect(check.readyToClaimFramePacing).toBe(false);
     expect(check.blockers).not.toEqual(expect.arrayContaining([
       "hand_representation_kind_invalid",
+    ]));
+    expect(check.blockers).toEqual(expect.arrayContaining([
+      "hand_tracking_posture_not_current_mesh_or_fallback",
     ]));
     expect(check.adversarialFindings).toEqual(expect.arrayContaining([
       "hand_tracking_observed_without_realistic_hand_meshes",
