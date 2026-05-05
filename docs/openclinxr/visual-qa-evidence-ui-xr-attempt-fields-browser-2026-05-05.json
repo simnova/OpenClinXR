@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "openclinxr.visual-qa-evidence.v1",
+  "capture": {
+    "source": "desktop_browser",
+    "artifactType": "screenshot",
+    "artifact": "docs/openclinxr/screenshots/ui-xr-attempt-fields-browser-2026-05-05.png",
+    "mimeType": "image/png",
+    "dimensions": {
+      "width": 2880,
+      "height": 1800
+    },
+    "runtimeUrl": "http://localhost:5173/",
+    "route": "/",
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "xrMode": "desktop_browser_flat_preview_not_immersive",
+    "cameraPose": "Desktop Chrome DevTools viewport after structured trace, hand-representation, and locomotion-attempt fields were added to the in-app Quest Evidence payload.",
+    "captureCommand": "Chrome DevTools MCP selected http://localhost:5173/, reloaded the page, waited for Quest Evidence, verified zero console errors/warnings, then captured a viewport screenshot."
+  },
+  "adversarialReview": {
+    "reviewers": [
+      "test-automation-lead",
+      "ux-friction-critic",
+      "clinical-safety-critic",
+      "xr-systems-architect",
+      "asset-pipeline-lead"
+    ],
+    "checks": {
+      "clinical_scene_fidelity": {
+        "status": "concern",
+        "notes": [
+          "The screenshot verifies evidence payload visibility, not clinical bay realism; actors, equipment, and scenario environment remain placeholder-quality in this flat preview."
+        ]
+      },
+      "actor_equipment_realism": {
+        "status": "concern",
+        "notes": [
+          "The new evidence fields explicitly call out primitive or missing hand representation, but the visual scene still lacks production actors, mesh hands, clothing, skin, rigging, and detailed medical devices."
+        ]
+      },
+      "ui_readability": {
+        "status": "pass",
+        "notes": [
+          "The Quest Evidence JSON is visible in the operator panel and includes traceInteractionAttempt, handRepresentationKind, and locomotionAttempt fields for structured follow-up."
+        ]
+      },
+      "interaction_affordances": {
+        "status": "concern",
+        "notes": [
+          "The desktop capture shows the Copy Evidence path and structured payload, but it does not prove headset select latency, hand-pinch firing, or locomotion on physical Quest hardware."
+        ]
+      },
+      "occlusion_scale": {
+        "status": "pass",
+        "notes": [
+          "The operator panel remains readable at the desktop viewport, with no obvious overlap between the evidence fields, trace controls, or runtime posture panel."
+        ]
+      },
+      "evidence_limits": {
+        "status": "pass",
+        "notes": [
+          "This artifact is desktop Chrome DevTools visual evidence only; it is not physical Quest proof, not immersive WebXR proof, not in-headset readability proof, not hand-tracking quality proof, and not production runtime readiness."
+        ]
+      }
+    }
+  },
+  "claimBoundaries": {
+    "notEvidenceFor": [
+      "physical_quest_foreground_frame_pacing",
+      "quest_controller_latency",
+      "quest_hand_tracking_quality",
+      "in_headset_text_readability",
+      "thermal_or_battery_behavior",
+      "production_runtime_readiness"
+    ],
+    "allowedClaims": [
+      "adversarial_visual_iteration_artifact",
+      "desktop_manual_evidence_attempt_fields_rendered",
+      "desktop_manual_evidence_payload_readability_reviewed"
+    ]
+  }
+}
