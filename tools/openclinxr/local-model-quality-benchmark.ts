@@ -351,6 +351,10 @@ function actorRequest(input: {
     hiddenFacts: ["Pain began while walking upstairs.", "Recent cocaine use is hidden until rapport and safety questions are asked."],
     retrievedMemoryIds: ["scenario:ed_chest_pain_priority:v1", "actor:patient_robert_hayes_v1"],
     traceContextTags: input.traceContextTags,
+    clinicalState: {
+      completedTraceTags: [],
+      openOrders: [],
+    },
     policy: {
       requestPolicyId: "actor-dialogue-quality-benchmark-v1",
       promptTemplateId: "mock-actor-response-v1",

@@ -19,10 +19,12 @@ import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import {
   buildActorModelContext,
   createMultiActorClinicalSession,
+  recordClinicalAction as recordSessionClinicalAction,
   routeActorInteraction,
   type ActorModelContext,
   type InteractionRoutingReason,
   type MultiActorClinicalSession,
+  type RecordClinicalActionInput,
   type RouteActorInteractionInput,
 } from "@openclinxr/session-state";
 import type { ProviderHealth, ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
@@ -91,6 +93,8 @@ export type GenerateActorResponseInput = {
   atSecond: number;
   traceContextTags?: string[];
 };
+
+export type RecordRuntimeClinicalActionInput = RecordClinicalActionInput;
 
 export type RouteRuntimeActorInteractionInput = RouteActorInteractionInput;
 
@@ -212,6 +216,27 @@ export class ScenarioRuntime {
     return event;
   }
 
+  recordClinicalAction(stationRunId: string, input: RecordRuntimeClinicalActionInput): TraceEvent {
+    const session = this.requireSession(stationRunId);
+    session.multiActorSession = recordSessionClinicalAction(session.multiActorSession, input);
+    const actorContext = buildActorModelContext(session.multiActorSession, input.actorId);
+
+    return this.appendTrace(session, {
+      eventType: "clinical.action.recorded",
+      atSecond: input.atSecond,
+      source: "session-state",
+      actorId: input.actorId,
+      tag: input.traceTag,
+      payload: {
+        actionType: input.actionType,
+        label: input.label,
+        completedTraceTags: actorContext.clinicalState.completedTraceTags,
+        openOrderCount: actorContext.clinicalState.openOrders.length,
+        findingCount: session.multiActorSession.clinicalState.findings.length,
+      },
+    });
+  }
+
   routeActorInteractionTurn(
     stationRunId: string,
     input: RouteRuntimeActorInteractionInput,
@@ -277,6 +302,10 @@ export class ScenarioRuntime {
         hiddenFacts: [],
         retrievedMemoryIds: actorContext.retrievedMemoryIds,
         traceContextTags,
+        clinicalState: {
+          completedTraceTags: [...actorContext.clinicalState.completedTraceTags],
+          openOrders: actorContext.clinicalState.openOrders.map((order) => ({ ...order })),
+        },
         policy: actorResponsePolicy,
       });
     } catch {

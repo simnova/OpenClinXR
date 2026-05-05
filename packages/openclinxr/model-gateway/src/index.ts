@@ -8,6 +8,20 @@ export type ModelRequestPolicy = {
   safetyPolicyVersion: string;
 };
 
+export type ActorResponseClinicalOrderContext = {
+  orderId: string;
+  traceTag: string;
+  label: string;
+  actorId: string;
+  atSecond: number;
+  status: "requested" | "completed" | "cancelled";
+};
+
+export type ActorResponseClinicalStateContext = {
+  completedTraceTags: string[];
+  openOrders: ActorResponseClinicalOrderContext[];
+};
+
 export type ActorResponseRequest = {
   stationRunId: string;
   scenarioId: string;
@@ -21,6 +35,7 @@ export type ActorResponseRequest = {
   hiddenFacts: string[];
   retrievedMemoryIds: string[];
   traceContextTags: string[];
+  clinicalState: ActorResponseClinicalStateContext;
   policy: ModelRequestPolicy;
 };
 

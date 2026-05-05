@@ -279,6 +279,57 @@ describe("scenario runtime", () => {
     expect(JSON.stringify(runtime.traceEvents(session.stationRunId))).not.toContain("Father died of myocardial infarction");
   });
 
+  it("feeds session-state clinical actions into actor model context without private memory leakage", async () => {
+    const provider = new CapturingModelProviderAdapter();
+    const runtime = createRuntimeWithModelProvider(provider);
+    const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });
+    runtime.startEncounter(session.stationRunId, { atSecond: 60 });
+
+    const clinicalEvent = runtime.recordClinicalAction(session.stationRunId, {
+      atSecond: 185,
+      actorId: "nurse_maria_alvarez_v1",
+      traceTag: "ecg_request",
+      actionType: "order_requested",
+      label: "Obtain 12-lead ECG",
+    });
+    await runtime.generateActorResponse(session.stationRunId, {
+      actorId: "nurse_maria_alvarez_v1",
+      learnerUtterance: "What orders are open right now?",
+      atSecond: 190,
+      traceContextTags: ["team_communication"],
+    });
+
+    expect(clinicalEvent).toMatchObject({
+      sequence: 3,
+      eventType: "clinical.action.recorded",
+      source: "session-state",
+      actorId: "nurse_maria_alvarez_v1",
+      tag: "ecg_request",
+      payload: {
+        actionType: "order_requested",
+        label: "Obtain 12-lead ECG",
+        completedTraceTags: ["ecg_request"],
+        openOrderCount: 1,
+        findingCount: 0,
+      },
+    });
+    expect(provider.requests[0]?.clinicalState).toEqual({
+      completedTraceTags: ["ecg_request"],
+      openOrders: [
+        {
+          orderId: "order_1_ecg_request",
+          traceTag: "ecg_request",
+          label: "Obtain 12-lead ECG",
+          actorId: "nurse_maria_alvarez_v1",
+          atSecond: 185,
+          status: "requested",
+        },
+      ],
+    });
+    expect(provider.requests[0]?.hiddenFacts).toEqual([]);
+    expect(JSON.stringify(provider.requests[0])).not.toContain("Repeat blood pressure is falling");
+  });
+
   it("records blocked actor responses without revealing hidden facts", async () => {
     const runtime = createDefaultScenarioRuntime();
     const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });

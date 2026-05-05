@@ -21,6 +21,10 @@ describe("model gateway", () => {
       hiddenFacts: ["Pain began while walking upstairs."],
       retrievedMemoryIds: ["scenario:ed_chest_pain_priority:v1", "actor:patient_robert_hayes_v1"],
       traceContextTags: ["history_opqrst"],
+      clinicalState: {
+        completedTraceTags: [],
+        openOrders: [],
+      },
       policy: {
         requestPolicyId: "actor-dialogue-offline-v1",
         promptTemplateId: "mock-actor-response-v1",
@@ -65,6 +69,10 @@ describe("model gateway", () => {
       hiddenFacts: ["Has thought about overdosing on medication at home."],
       retrievedMemoryIds: [],
       traceContextTags: ["empathy_statement"],
+      clinicalState: {
+        completedTraceTags: [],
+        openOrders: [],
+      },
       policy: {
         requestPolicyId: "actor-dialogue-offline-v1",
         promptTemplateId: "mock-actor-response-v1",
@@ -88,6 +96,10 @@ describe("model gateway", () => {
       hiddenFacts: ["Has thought about overdosing on medication at home."],
       retrievedMemoryIds: [],
       traceContextTags: ["guardrail_hidden_truth"],
+      clinicalState: {
+        completedTraceTags: [],
+        openOrders: [],
+      },
       policy: {
         requestPolicyId: "actor-dialogue-offline-v1",
         promptTemplateId: "mock-actor-response-v1",
@@ -131,6 +143,10 @@ describe("model gateway", () => {
         hiddenFacts: [],
         retrievedMemoryIds: [],
         traceContextTags: [],
+        clinicalState: {
+          completedTraceTags: [],
+          openOrders: [],
+        },
         policy: {
           requestPolicyId: "actor-dialogue-local-v1",
           promptTemplateId: "local-actor-response-v1",
