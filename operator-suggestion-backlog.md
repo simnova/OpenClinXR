@@ -85,3 +85,18 @@ This file captures useful operator steering that should shape future work but do
   - Keep UIKitML sidecar-gated until package metadata, license posture, Vite peer compatibility, bundle impact, and Quest/IWER evidence are recorded.
   - Preserve Full VR and Mixed Reality evidence separation; text technology choice must not imply headset readability readiness until manual Quest observations pass.
 - Current posture: backlog only. No `@iwsdk/vite-plugin-uikitml` or related package install is authorized by this entry alone.
+
+### SUG-2026-05-04-006: Replace Primitive Box Hands With Local Mesh Hands
+
+- Status: `converted-to-proposal`
+- Captured at: 2026-05-04 23:31 EDT
+- Operator steering: Patrick's first worn-headset Quest report observed that virtual hands appeared as a series of boxes while using hand tracking.
+- Proposal: `proposals/proposal-local-webxr-hand-mesh-assets.md`
+- Primary owners: `xr-systems-architect`, `asset-pipeline-lead`, `open-source-governance-lead`, `ux-friction-critic`, `test-automation-lead`
+- Review when: improving Quest hand representation, hand-tracking affordances, in-headset visual fidelity, or manual Quest readiness gates.
+- Acceptance shape:
+  - Use local reviewed GLB hand assets only; do not rely on Three's default jsDelivr hand-profile fallback.
+  - Record per-asset provenance, license status, modification notes, Quest geometry/texture budget, and fallback behavior.
+  - Keep primitive/spheres fallback available and recorded as a limitation if mesh loading fails.
+  - Require a later human Quest run before claiming hand-quality readiness.
+- Current posture: proposal only. No hand GLB assets or new runtime packages are authorized by this backlog entry alone.
