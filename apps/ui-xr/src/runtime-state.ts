@@ -226,6 +226,7 @@ export type XrHandSelectStateEvidence = {
 export type ManualPerformanceInputEvidenceInput = {
   handModelCount: number;
   handModelStatus: ManualPerformanceInputEvidence["handModelStatus"];
+  activeHandRepresentationKind?: HandRepresentationKind;
   handInputsObserved: number;
   keyboardVector: LocomotionVectorEvidence;
   xrVector: LocomotionVectorEvidence;
@@ -447,7 +448,7 @@ export type FullVrExperienceModeEvidence = {
   phaseLabel: "Phase 1 Full VR";
   requestedSessionMode: "immersive-vr";
   mixedRealityPassthroughImplemented: false;
-  handTrackingPosture: "optional_feature_with_primitive_hand_model";
+  handTrackingPosture: "optional_feature_with_local_mesh_hand_model_and_primitive_fallback";
   locomotionPosture: "room_scale_keyboard_thumbstick_and_hand_gesture_dolly";
 };
 
@@ -456,7 +457,7 @@ export type MixedRealityExperienceModeEvidence = {
   phaseLabel: "Phase 1 Mixed Reality";
   requestedSessionMode: "immersive-ar";
   mixedRealityPassthroughImplemented: true;
-  handTrackingPosture: "optional_feature_with_primitive_hand_model";
+  handTrackingPosture: "optional_feature_with_local_mesh_hand_model_and_primitive_fallback";
   locomotionPosture: "room_scale_with_optional_thumbstick_dolly";
 };
 
@@ -493,10 +494,13 @@ export const xrExperienceModeEvidence: FullVrExperienceModeEvidence = {
   phaseLabel: "Phase 1 Full VR",
   requestedSessionMode: "immersive-vr",
   mixedRealityPassthroughImplemented: false,
-  handTrackingPosture: "optional_feature_with_primitive_hand_model",
+  handTrackingPosture: "optional_feature_with_local_mesh_hand_model_and_primitive_fallback",
   locomotionPosture: "room_scale_keyboard_thumbstick_and_hand_gesture_dolly",
 };
 
+export const localHandMeshPath = "/xr-hands/generic-hand/" as const;
+export const meshHandModelProfile = "mesh" as const;
+export const meshHandRepresentationKind = "mesh" as const satisfies HandRepresentationKind;
 export const primitiveHandModelProfile = "spheres" as const;
 export const primitiveHandRepresentationKind = "primitive_spheres" as const satisfies HandRepresentationKind;
 
@@ -972,6 +976,13 @@ export function buildManualPerformanceInputEvidence(
     xrHandGestureActive,
     xrRoomScalePresent: roomScalePose !== undefined,
   });
+  const handRepresentationInput = {
+    handModelCount: input.handModelCount,
+    handModelStatus: input.handModelStatus,
+    ...(input.activeHandRepresentationKind ? { activeHandRepresentationKind: input.activeHandRepresentationKind } : {}),
+    handInputsObserved: input.handInputsObserved,
+    inputSourceKinds,
+  };
   const inputObserved = keyboardActive
     || xrActive
     || xrHandGestureActive
@@ -981,12 +992,7 @@ export function buildManualPerformanceInputEvidence(
   return {
     handModelCount: input.handModelCount,
     handModelStatus: input.handModelStatus,
-    handRepresentationKind: handRepresentationKindFor({
-      handModelCount: input.handModelCount,
-      handModelStatus: input.handModelStatus,
-      handInputsObserved: input.handInputsObserved,
-      inputSourceKinds,
-    }),
+    handRepresentationKind: handRepresentationKindFor(handRepresentationInput),
     handInputsObserved: input.handInputsObserved,
     locomotionMode: "room_scale_keyboard_thumbstick_and_hand_gesture_dolly",
     locomotionAttempt: locomotionAttemptFor({
@@ -1019,9 +1025,13 @@ export function buildManualPerformanceInputEvidence(
 function handRepresentationKindFor(input: {
   handModelCount: number;
   handModelStatus: ManualPerformanceInputEvidence["handModelStatus"];
+  activeHandRepresentationKind?: HandRepresentationKind;
   handInputsObserved: number;
   inputSourceKinds: RuntimeInputSourceKind[];
 }): HandRepresentationKind {
+  if (input.handModelStatus === "installed" && input.handModelCount > 0 && input.activeHandRepresentationKind) {
+    return input.activeHandRepresentationKind;
+  }
   if (input.handModelStatus === "installed" && input.handModelCount > 0 && input.handInputsObserved > 0) {
     return primitiveHandRepresentationKind;
   }

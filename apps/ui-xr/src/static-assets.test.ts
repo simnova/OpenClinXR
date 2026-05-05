@@ -72,15 +72,24 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("inputPanel.mesh.rotation.y = 0");
   });
 
-  it("adds primitive hand models and experimental locomotion affordances", () => {
+  it("adds local mesh hand models with primitive fallback and experimental locomotion affordances", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
     const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
 
     expect(mainSource).toContain("XRHandModelFactory");
     expect(mainSource).toContain("renderer.xr.getHand");
+    expect(mainSource).toContain("GLTFLoader");
+    expect(mainSource).toContain("localHandMeshPath");
+    expect(mainSource).toContain("handModelFactory.setPath(localHandMeshPath)");
+    expect(mainSource).toContain("meshHandModelProfile");
+    expect(mainSource).toContain("createHandModel(hand, meshHandModelProfile)");
     expect(mainSource).toContain("primitiveHandModelProfile");
-    expect(mainSource).toContain('createHandModel(hand, primitiveHandModelProfile)');
+    expect(mainSource).toContain("createHandModel(hand, primitiveHandModelProfile)");
+    expect(mainSource).toContain("activeHandRepresentationKind");
+    expect(mainSource).toContain("meshHandRepresentationKind");
     expect(mainSource).not.toContain('createHandModel(hand, "boxes")');
+    expect(mainSource).not.toContain("cdn.jsdelivr.net");
+    expect(mainSource).not.toContain("@webxr-input-profiles/assets");
     expect(mainSource).toContain("openclinxr.ed-chest-pain.hand-model");
     expect(mainSource).toContain("installHandModelsOnce");
     expect(mainSource).toContain("handModelStatus");
@@ -94,6 +103,9 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("Movement: room-scale walking, thumbstick, keyboard, or armed hand gesture");
     expect(runtimeStateSource).toContain("xr_room_scale");
     expect(runtimeStateSource).toContain("room_scale_keyboard_thumbstick_and_hand_gesture_dolly");
+    expect(runtimeStateSource).toContain('localHandMeshPath = "/xr-hands/generic-hand/"');
+    expect(runtimeStateSource).toContain('meshHandModelProfile = "mesh"');
+    expect(runtimeStateSource).toContain('meshHandRepresentationKind = "mesh"');
     expect(mainSource).toContain("handGestureDwellMs");
     expect(mainSource).toContain("other_locomotion_source_active");
     expect(mainSource).toContain("Gesture: armed");
@@ -112,6 +124,10 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("immersiveFramesObserved");
     expect(mainSource).toContain("previewFramesObserved");
     expect(mainSource).toContain("__openClinXrInputEvidence");
+    expect(existsSync(new URL("../public/xr-hands/generic-hand/left.glb", import.meta.url))).toBe(true);
+    expect(existsSync(new URL("../public/xr-hands/generic-hand/right.glb", import.meta.url))).toBe(true);
+    expect(existsSync(new URL("../public/xr-hands/generic-hand/LICENSE.md", import.meta.url))).toBe(true);
+    expect(existsSync(new URL("../public/xr-hands/generic-hand/PROVENANCE.md", import.meta.url))).toBe(true);
   });
 
   it("exposes a local manual-performance evidence export panel", () => {

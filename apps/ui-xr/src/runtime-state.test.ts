@@ -24,6 +24,9 @@ import {
   isImmersiveFrameEvidenceActive,
   primitiveHandModelProfile,
   primitiveHandRepresentationKind,
+  meshHandModelProfile,
+  meshHandRepresentationKind,
+  localHandMeshPath,
   remoteActorTurnForTraceTag,
   manualPerformanceMetricsFromFrameStats,
   parseBrowserVersionHints,
@@ -155,7 +158,7 @@ describe("XR runtime state", () => {
       phaseLabel: "Phase 1 Full VR",
       requestedSessionMode: "immersive-vr",
       mixedRealityPassthroughImplemented: false,
-      handTrackingPosture: "optional_feature_with_primitive_hand_model",
+      handTrackingPosture: "optional_feature_with_local_mesh_hand_model_and_primitive_fallback",
       locomotionPosture: "room_scale_keyboard_thumbstick_and_hand_gesture_dolly",
     });
   });
@@ -376,10 +379,14 @@ describe("XR runtime state", () => {
   it("builds richer manual input evidence and distinguishes deliberate hand-gesture locomotion", () => {
     expect(primitiveHandModelProfile).toBe("spheres");
     expect(primitiveHandRepresentationKind).toBe("primitive_spheres");
+    expect(meshHandModelProfile).toBe("mesh");
+    expect(meshHandRepresentationKind).toBe("mesh");
+    expect(localHandMeshPath).toBe("/xr-hands/generic-hand/");
 
     expect(buildManualPerformanceInputEvidence({
       handModelCount: 2,
       handModelStatus: "installed",
+      activeHandRepresentationKind: "mesh",
       handInputsObserved: 2,
       keyboardVector: { forward: 1, strafe: 0, turn: 0 },
       xrVector: { forward: 0, strafe: 0.5, turn: 0 },
@@ -405,7 +412,7 @@ describe("XR runtime state", () => {
     })).toEqual({
       handModelCount: 2,
       handModelStatus: "installed",
-      handRepresentationKind: "primitive_spheres",
+      handRepresentationKind: "mesh",
       handInputsObserved: 2,
       locomotionMode: "room_scale_keyboard_thumbstick_and_hand_gesture_dolly",
       locomotionAttempt: "runtime_event_observed",
@@ -524,6 +531,30 @@ describe("XR runtime state", () => {
         blockedReason: "arming_dwell",
       }),
     });
+  });
+
+  it("keeps primitive spheres as the explicit fallback while mesh hands are loading or failed", () => {
+    const baseInput = {
+      handModelCount: 2,
+      handModelStatus: "installed" as const,
+      handInputsObserved: 2,
+      keyboardVector: { forward: 0, strafe: 0, turn: 0 },
+      xrVector: { forward: 0, strafe: 0, turn: 0 },
+      xrInputSources: [
+        { handedness: "left", hasHand: true, hasGamepad: false, axisCount: 0 },
+        { handedness: "right", hasHand: true, hasGamepad: false, axisCount: 0 },
+      ],
+      now: 123,
+      previousLastInputObservedAtMs: null,
+      previousLastLocomotionAtMs: null,
+      rigPosition: { x: 0, z: 0 },
+    };
+
+    expect(buildManualPerformanceInputEvidence(baseInput).handRepresentationKind).toBe("primitive_spheres");
+    expect(buildManualPerformanceInputEvidence({
+      ...baseInput,
+      activeHandRepresentationKind: "primitive_spheres",
+    }).handRepresentationKind).toBe("primitive_spheres");
   });
 
   it("does not stamp locomotion when an active source produces no rig movement delta", () => {
@@ -710,7 +741,7 @@ describe("XR runtime state", () => {
         phaseLabel: "Phase 1 Full VR",
         requestedSessionMode: "immersive-vr",
         mixedRealityPassthroughImplemented: false,
-        handTrackingPosture: "optional_feature_with_primitive_hand_model",
+        handTrackingPosture: "optional_feature_with_local_mesh_hand_model_and_primitive_fallback",
         locomotionPosture: "room_scale_keyboard_thumbstick_and_hand_gesture_dolly",
       },
       input: {

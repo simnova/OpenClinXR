@@ -22,6 +22,7 @@ import {
   Vector3,
   WebGLRenderer,
 } from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
 import { XRHandModelFactory } from "three/addons/webxr/XRHandModelFactory.js";
 import {
@@ -41,7 +42,11 @@ import {
   formatStationClock,
   iwsdkStationSceneObjects,
   isImmersiveFrameEvidenceActive,
+  localHandMeshPath,
+  meshHandModelProfile,
+  meshHandRepresentationKind,
   primitiveHandModelProfile,
+  primitiveHandRepresentationKind,
   remoteActorTurnForTraceTag,
   stationTraceActionTags,
   summarizeTraceReadiness,
@@ -690,6 +695,7 @@ function createStationScene(): StationSceneRuntime {
   const keyboardLocomotion = createKeyboardLocomotion();
   let handModelStatus: OpenClinXrInputEvidence["handModelStatus"] = "pending_immersive_session";
   let handModelsInstalled = false;
+  let activeHandRepresentationKind: OpenClinXrInputEvidence["handRepresentationKind"] = primitiveHandRepresentationKind;
   let lastInputObservedAtMs: number | null = null;
   const handGestureLocomotionState = createXrHandGestureLocomotionState();
   const handSelectState = createXrHandSelectState();
@@ -734,6 +740,7 @@ function createStationScene(): StationSceneRuntime {
       lastLocomotionAtMs,
       handModelCount: handModelsInstalled ? 2 : 0,
       handModelStatus,
+      activeHandRepresentationKind,
       handGestureLocomotionState,
       previousRoomScalePose,
       roomScalePose,
@@ -835,10 +842,15 @@ function createStationScene(): StationSceneRuntime {
       return;
     }
     try {
-      addHandModels(renderer, scene);
+      addHandModels(renderer, scene, {
+        onMeshReady: () => {
+          activeHandRepresentationKind = meshHandRepresentationKind;
+        },
+      });
       handModelsInstalled = true;
       handModelStatus = "installed";
     } catch {
+      activeHandRepresentationKind = primitiveHandRepresentationKind;
       handModelStatus = "failed";
     }
   }
@@ -1055,8 +1067,22 @@ function addControllerAffordances(
   }
 }
 
-function addHandModels(renderer: WebGLRenderer, scene: Scene): void {
-  const handModelFactory = new XRHandModelFactory();
+function addHandModels(renderer: WebGLRenderer, scene: Scene, input: {
+  onMeshReady: () => void;
+}): void {
+  let loadedMeshCount = 0;
+  const primitiveFallbacks: Mesh[] = [];
+  const meshLoader = new GLTFLoader().setPath(localHandMeshPath);
+  const handModelFactory = new XRHandModelFactory(meshLoader, () => {
+    loadedMeshCount += 1;
+    if (loadedMeshCount >= 2) {
+      for (const fallback of primitiveFallbacks) {
+        fallback.visible = false;
+      }
+      input.onMeshReady();
+    }
+  });
+  handModelFactory.setPath(localHandMeshPath);
   for (let index = 0; index < 2; index += 1) {
     const hand = renderer.xr.getHand(index);
     hand.name = `openclinxr.ed-chest-pain.hand-${index + 1}`;
@@ -1066,9 +1092,12 @@ function addHandModels(renderer: WebGLRenderer, scene: Scene): void {
         hand.userData.openClinXrHandedness = data.handedness;
       }
     });
-    const handModel = handModelFactory.createHandModel(hand, primitiveHandModelProfile);
-    handModel.name = `openclinxr.ed-chest-pain.hand-model-${index + 1}`;
-    hand.add(handModel);
+    const meshHandModel = handModelFactory.createHandModel(hand, meshHandModelProfile);
+    meshHandModel.name = `openclinxr.ed-chest-pain.hand-model-mesh-${index + 1}`;
+    const primitiveFallback = handModelFactory.createHandModel(hand, primitiveHandModelProfile);
+    primitiveFallback.name = `openclinxr.ed-chest-pain.hand-model-primitive-fallback-${index + 1}`;
+    primitiveFallbacks.push(primitiveFallback as Mesh);
+    hand.add(meshHandModel, primitiveFallback);
     scene.add(hand);
   }
 }
@@ -1179,6 +1208,7 @@ function applyLocomotion(input: {
   lastLocomotionAtMs: number | null;
   handModelCount: number;
   handModelStatus: OpenClinXrInputEvidence["handModelStatus"];
+  activeHandRepresentationKind?: OpenClinXrInputEvidence["handRepresentationKind"];
   handGestureLocomotionState: XrHandGestureLocomotionState;
   previousRoomScalePose: RigPoseEvidence | null;
   roomScalePose: RigPoseEvidence | null;
@@ -1228,6 +1258,7 @@ function applyLocomotion(input: {
   return buildManualPerformanceInputEvidence({
     handModelCount: input.handModelCount,
     handModelStatus: input.handModelStatus,
+    ...(input.activeHandRepresentationKind ? { activeHandRepresentationKind: input.activeHandRepresentationKind } : {}),
     handInputsObserved: Math.max(xrLocomotion.handInputsObserved, xrHandGestureLocomotion.handInputsObserved),
     keyboardVector,
     xrVector,
