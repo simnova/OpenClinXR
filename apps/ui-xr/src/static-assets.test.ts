@@ -91,6 +91,8 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("localHandMeshPath");
     expect(mainSource).toContain("meshLoadingManager.onError");
     expect(mainSource).toContain("onMeshLoadError");
+    expect(mainSource).toContain("handAssetLoadErrors");
+    expect(mainSource).toContain('recordBootPhase("hand_mesh_asset_load_failed"');
     expect(mainSource).toContain("handModelFactory.setPath(localHandMeshPath)");
     expect(mainSource).toContain("meshHandModelProfile");
     expect(mainSource).toContain("createHandModel(hand, meshHandModelProfile)");

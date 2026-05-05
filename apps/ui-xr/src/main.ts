@@ -697,6 +697,7 @@ function createStationScene(): StationSceneRuntime {
   let handModelStatus: OpenClinXrInputEvidence["handModelStatus"] = "pending_immersive_session";
   let handModelsInstalled = false;
   let activeHandRepresentationKind: OpenClinXrInputEvidence["handRepresentationKind"] = primitiveHandRepresentationKind;
+  let handAssetLoadErrors: string[] = [];
   let lastInputObservedAtMs: number | null = null;
   const handGestureLocomotionState = createXrHandGestureLocomotionState();
   const handSelectState = createXrHandSelectState();
@@ -742,6 +743,7 @@ function createStationScene(): StationSceneRuntime {
       handModelCount: handModelsInstalled ? 2 : 0,
       handModelStatus,
       activeHandRepresentationKind,
+      handAssetLoadErrors,
       handGestureLocomotionState,
       previousRoomScalePose,
       roomScalePose,
@@ -847,9 +849,11 @@ function createStationScene(): StationSceneRuntime {
         onMeshReady: () => {
           activeHandRepresentationKind = meshHandRepresentationKind;
         },
-        onMeshLoadError: () => {
+        onMeshLoadError: (url) => {
           activeHandRepresentationKind = primitiveHandRepresentationKind;
           handModelStatus = "failed";
+          handAssetLoadErrors = [...new Set([...handAssetLoadErrors, url])];
+          recordBootPhase("hand_mesh_asset_load_failed", url);
         },
       });
       handModelsInstalled = true;
@@ -857,6 +861,7 @@ function createStationScene(): StationSceneRuntime {
     } catch {
       activeHandRepresentationKind = primitiveHandRepresentationKind;
       handModelStatus = "failed";
+      handAssetLoadErrors = [...new Set([...handAssetLoadErrors, localHandMeshPath])];
     }
   }
 
@@ -1217,6 +1222,7 @@ function applyLocomotion(input: {
   handModelCount: number;
   handModelStatus: OpenClinXrInputEvidence["handModelStatus"];
   activeHandRepresentationKind?: OpenClinXrInputEvidence["handRepresentationKind"];
+  handAssetLoadErrors?: string[];
   handGestureLocomotionState: XrHandGestureLocomotionState;
   previousRoomScalePose: RigPoseEvidence | null;
   roomScalePose: RigPoseEvidence | null;
@@ -1267,6 +1273,7 @@ function applyLocomotion(input: {
     handModelCount: input.handModelCount,
     handModelStatus: input.handModelStatus,
     ...(input.activeHandRepresentationKind ? { activeHandRepresentationKind: input.activeHandRepresentationKind } : {}),
+    ...(input.handAssetLoadErrors && input.handAssetLoadErrors.length > 0 ? { handAssetLoadErrors: input.handAssetLoadErrors } : {}),
     handInputsObserved: Math.max(xrLocomotion.handInputsObserved, xrHandGestureLocomotion.handInputsObserved),
     keyboardVector,
     xrVector,

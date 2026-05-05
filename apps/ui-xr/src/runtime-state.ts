@@ -154,6 +154,7 @@ export type ManualPerformanceInputEvidence = {
   handModelCount: number;
   handModelStatus: "pending_immersive_session" | "installed" | "failed";
   handRepresentationKind?: HandRepresentationKind;
+  handAssetLoadErrors?: string[];
   handInputsObserved: number;
   locomotionMode: "room_scale_keyboard_thumbstick_and_hand_gesture_dolly";
   locomotionAttempt?: LocomotionAttempt;
@@ -227,6 +228,7 @@ export type ManualPerformanceInputEvidenceInput = {
   handModelCount: number;
   handModelStatus: ManualPerformanceInputEvidence["handModelStatus"];
   activeHandRepresentationKind?: HandRepresentationKind;
+  handAssetLoadErrors?: string[];
   handInputsObserved: number;
   keyboardVector: LocomotionVectorEvidence;
   xrVector: LocomotionVectorEvidence;
@@ -993,6 +995,9 @@ export function buildManualPerformanceInputEvidence(
     handModelCount: input.handModelCount,
     handModelStatus: input.handModelStatus,
     handRepresentationKind: handRepresentationKindFor(handRepresentationInput),
+    ...(input.handAssetLoadErrors && input.handAssetLoadErrors.length > 0
+      ? { handAssetLoadErrors: [...input.handAssetLoadErrors] }
+      : {}),
     handInputsObserved: input.handInputsObserved,
     locomotionMode: "room_scale_keyboard_thumbstick_and_hand_gesture_dolly",
     locomotionAttempt: locomotionAttemptFor({
