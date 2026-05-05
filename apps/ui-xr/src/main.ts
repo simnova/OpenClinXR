@@ -120,6 +120,12 @@ type OpenClinXrBootEvidence = {
 
 type OpenClinXrTraceLatencyEvidence = ManualPerformanceTraceLatencyEvidence;
 
+type XrHeadsetSelectSource = Extract<OpenClinXrTraceLatencyEvidence["source"], "xr_controller_select" | "xr_hand_select">;
+
+type XrSelectControllerEvent = {
+  data?: XrInputSourceWithGamepad;
+};
+
 type OpenClinXrXrEntryEvidence = {
   sessionMode: "immersive-vr";
   attempts: number;
@@ -374,7 +380,7 @@ function completeTraceActionFromInput(tag: string, source: OpenClinXrTraceLatenc
 
 function completeNextTraceActionFromXrSelect(
   isFullVrPresenting: () => boolean,
-  source: Extract<OpenClinXrTraceLatencyEvidence["source"], "xr_controller_select" | "xr_hand_select"> = "xr_controller_select",
+  source: XrHeadsetSelectSource = "xr_controller_select",
 ): boolean {
   const tag = isFullVrPresenting()
     ? state.requiredTraceTags.find((candidate) => !state.completedTraceTags.includes(candidate))
@@ -384,6 +390,10 @@ function completeNextTraceActionFromXrSelect(
   }
   completeTraceActionFromInput(tag, source);
   return true;
+}
+
+function classifyXrSelectSource(event: XrSelectControllerEvent): XrHeadsetSelectSource {
+  return event.data?.hand ? "xr_hand_select" : "xr_controller_select";
 }
 
 async function initializeRemoteTraceSession(client: StationApiClient | undefined): Promise<void> {
@@ -665,10 +675,10 @@ function createStationScene(): StationSceneRuntime {
   inputPanel.mesh.rotation.y = 0;
   scene.add(inputPanel.mesh);
   let lastPanelSignature = "";
-  addControllerAffordances(renderer, scene, () => {
+  addControllerAffordances(renderer, scene, (event) => {
     completeNextTraceActionFromXrSelect(
       () => Boolean(activeXrSession && renderer.xr.isPresenting),
-      "xr_controller_select",
+      classifyXrSelectSource(event),
     );
   });
   const keyboardLocomotion = createKeyboardLocomotion();
@@ -992,7 +1002,11 @@ function drawWrappedText(
   return currentY + lineHeight;
 }
 
-function addControllerAffordances(renderer: WebGLRenderer, scene: Scene, onSelect: () => void): void {
+function addControllerAffordances(
+  renderer: WebGLRenderer,
+  scene: Scene,
+  onSelect: (event: XrSelectControllerEvent) => void,
+): void {
   const controllerModelFactory = new XRControllerModelFactory();
   const gripNames = [
     iwsdkStationSceneObjects.controllerGripLeft,
@@ -1001,7 +1015,7 @@ function addControllerAffordances(renderer: WebGLRenderer, scene: Scene, onSelec
   for (let index = 0; index < 2; index += 1) {
     const controller = renderer.xr.getController(index);
     controller.name = `openclinxr.ed-chest-pain.controller-${index + 1}`;
-    (controller as unknown as { addEventListener(type: "select", listener: () => void): void })
+    (controller as unknown as { addEventListener(type: "select", listener: (event: XrSelectControllerEvent) => void): void })
       .addEventListener("select", onSelect);
     const ray = new Line(
       new BufferGeometry().setFromPoints([new Vector3(0, 0, 0), new Vector3(0, 0, -3)]),
