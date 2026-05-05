@@ -272,6 +272,36 @@
       }
     }
   ],
+  "sessionEntryEvidence": {
+    "mode": "immersive-vr",
+    "requestedBy": "iwer_accept_session",
+    "beforeStatus": {
+      "isRuntimeInstalled": true,
+      "sessionOffered": false,
+      "sessionActive": false,
+      "sessionMode": null,
+      "visibilityState": "visible"
+    },
+    "attempt": {
+      "ok": false,
+      "elapsedMs": 13,
+      "blocker": "no_session_has_been_offered"
+    },
+    "appEvidence": {
+      "attempts": 0,
+      "lastStatus": "not_requested",
+      "lastOutcome": "not_requested",
+      "lastMode": "immersive-vr"
+    },
+    "afterStatus": {
+      "isRuntimeInstalled": true,
+      "sessionOffered": false,
+      "sessionActive": false,
+      "sessionMode": null,
+      "visibilityState": "visible"
+    },
+    "outcome": "no_activation"
+  },
   "productionBuildOutputInspection": {
     "buildCommand": "pnpm --filter @openclinxr/ui-xr-iwsdk-spike build",
     "buildExitCode": 0,

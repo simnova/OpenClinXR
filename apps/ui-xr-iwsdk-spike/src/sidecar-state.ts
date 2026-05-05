@@ -29,6 +29,36 @@ export type IwsdkSidecarRuntimeEvidence = {
   traceActionTags: string[];
 };
 
+export type IwsdkSidecarXrSessionMode = "immersive-vr" | "immersive-ar";
+
+export type IwsdkSidecarXrEntryStatus =
+  | "not_requested"
+  | "unsupported"
+  | "requesting"
+  | "started"
+  | "ended"
+  | "failed";
+
+export type IwsdkSidecarXrEntryOutcome =
+  | "not_requested"
+  | "unsupported"
+  | "request_in_flight"
+  | "session_started"
+  | "session_ended"
+  | "activation_required"
+  | "request_failed";
+
+export type IwsdkSidecarXrEntryEvidence = {
+  sessionMode: IwsdkSidecarXrSessionMode;
+  autoAttemptEnabled: boolean;
+  attempts: number;
+  lastStatus: IwsdkSidecarXrEntryStatus;
+  lastOutcome: IwsdkSidecarXrEntryOutcome;
+  lastRequestedAtMs: number | null;
+  lastUpdatedAtMs: number;
+  lastError: string | null;
+};
+
 export type IwsdkSidecarFrameDeltaSummary = {
   sampleCount: number;
   avgFrameMs: number | null;
@@ -138,6 +168,44 @@ export function buildIwsdkSidecarRuntimeEvidence(input: {
   };
 }
 
+export function buildIwsdkSidecarXrEntryEvidence(input: {
+  sessionMode: IwsdkSidecarXrSessionMode;
+  nowMs: number;
+  autoAttemptEnabled: boolean;
+}): IwsdkSidecarXrEntryEvidence {
+  return {
+    sessionMode: input.sessionMode,
+    autoAttemptEnabled: input.autoAttemptEnabled,
+    attempts: 0,
+    lastStatus: "not_requested",
+    lastOutcome: "not_requested",
+    lastRequestedAtMs: null,
+    lastUpdatedAtMs: input.nowMs,
+    lastError: null,
+  };
+}
+
+export function recordIwsdkSidecarXrEntryEvidence(
+  current: IwsdkSidecarXrEntryEvidence,
+  status: IwsdkSidecarXrEntryStatus,
+  input: {
+    nowMs: number;
+    error?: unknown;
+  },
+): IwsdkSidecarXrEntryEvidence {
+  const requesting = status === "requesting";
+  const lastError = input.error === undefined ? null : formatUnknownError(input.error);
+  return {
+    ...current,
+    attempts: current.attempts + (requesting ? 1 : 0),
+    lastStatus: status,
+    lastOutcome: classifyIwsdkSidecarXrEntryOutcome(status, lastError),
+    lastRequestedAtMs: requesting ? input.nowMs : current.lastRequestedAtMs,
+    lastUpdatedAtMs: input.nowMs,
+    lastError,
+  };
+}
+
 export function buildIwsdkSidecarLocalMetricsEvidence(input: IwsdkSidecarLocalMetricsEvidenceInput): IwsdkSpikeMetrics {
   const frameSummary = summarizeIwsdkSidecarFrameDeltas(input.frameDeltasMs);
   const metrics: IwsdkSpikeMetrics = {
@@ -163,6 +231,44 @@ export function buildIwsdkSidecarLocalMetricsEvidence(input: IwsdkSidecarLocalMe
   }
 
   return metrics;
+}
+
+function classifyIwsdkSidecarXrEntryOutcome(
+  status: IwsdkSidecarXrEntryStatus,
+  error: string | null,
+): IwsdkSidecarXrEntryOutcome {
+  if (status === "not_requested") {
+    return "not_requested";
+  }
+  if (status === "unsupported") {
+    return "unsupported";
+  }
+  if (status === "requesting") {
+    return "request_in_flight";
+  }
+  if (status === "started") {
+    return "session_started";
+  }
+  if (status === "ended") {
+    return "session_ended";
+  }
+  const normalizedError = error?.toLowerCase() ?? "";
+  if (
+    normalizedError.includes("activation")
+    || normalizedError.includes("user gesture")
+    || normalizedError.includes("notallowederror")
+    || normalizedError.includes("securityerror")
+  ) {
+    return "activation_required";
+  }
+  return "request_failed";
+}
+
+function formatUnknownError(error: unknown): string {
+  if (error instanceof Error) {
+    return `${error.name}: ${error.message}`;
+  }
+  return String(error);
 }
 
 function roundMetric(value: number, digits = 2): number {

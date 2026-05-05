@@ -26,7 +26,11 @@ type IwerEvidencePackage = {
 type IwerEvidenceProbe = {
   id?: string;
   method?: string;
+  elapsedMs?: number;
   ok?: boolean;
+  blocker?: string;
+  interpretation?: string;
+  resultSummary?: Record<string, unknown>;
   artifact?: string;
   mimeType?: string;
   bytes?: number;
@@ -34,6 +38,37 @@ type IwerEvidenceProbe = {
     width?: number;
     height?: number;
   };
+};
+
+type IwerSessionStatusEvidence = {
+  isRuntimeInstalled?: boolean;
+  sessionOffered?: boolean;
+  sessionActive?: boolean;
+  sessionMode?: string | null;
+  visibilityState?: string;
+};
+
+type IwerSessionEntryEvidence = {
+  mode?: "immersive-vr";
+  requestedBy?: "iwer_accept_session" | "dom_enter_full_vr_button";
+  beforeStatus?: IwerSessionStatusEvidence;
+  attempt?: {
+    ok?: boolean;
+    elapsedMs?: number;
+    blocker?: string;
+    errorName?: string;
+    errorMessage?: string;
+  };
+  appEvidence?: {
+    attempts?: number;
+    lastStatus?: "not_requested" | "unsupported" | "requesting" | "started" | "ended" | "failed";
+    lastOutcome?: "not_requested" | "unsupported" | "request_in_flight" | "session_started" | "session_ended" | "activation_required" | "request_failed";
+    lastMode?: "immersive-vr";
+    lastErrorName?: string;
+    lastErrorMessage?: string;
+  };
+  afterStatus?: IwerSessionStatusEvidence;
+  outcome?: "unsupported" | "no_activation" | "session_started" | "request_failed";
 };
 
 export type IwerSidecarEmulationEvidence = {
@@ -75,6 +110,7 @@ export type IwerSidecarEmulationEvidence = {
     toolNames?: string[];
   };
   rawWebSocketProbes?: IwerEvidenceProbe[];
+  sessionEntryEvidence?: IwerSessionEntryEvidence;
   productionBuildOutputInspection?: {
     buildExitCode?: number;
     distIndexHtmlContainsDevRuntimeInjection?: boolean;
@@ -248,6 +284,7 @@ export function evaluateIwerSidecarEmulationEvidence(
     isAllowedRelativeArtifactPath(screenshotProbe?.artifact, "docs/openclinxr/screenshots/")
       ? undefined
       : "screenshot_artifact_not_under_docs_openclinxr_screenshots",
+    ...iwerSessionEntryBlockers(evidence.sessionEntryEvidence),
     evidence.productionBuildOutputInspection?.buildExitCode === 0 ? undefined : "production_build_not_successful",
     evidence.productionBuildOutputInspection?.distIndexHtmlContainsDevRuntimeInjection === false
       ? undefined
@@ -314,6 +351,70 @@ function buildIwerVisualQaEvidence(
     ],
     allowedClaims: ["adversarial_visual_iteration_artifact"],
   };
+}
+
+function iwerSessionEntryBlockers(entry: IwerSessionEntryEvidence | undefined): string[] {
+  if (!entry) {
+    return ["session_entry_evidence_missing"];
+  }
+
+  return [
+    entry.mode === "immersive-vr" ? undefined : "session_entry_mode_not_immersive_vr",
+    entry.requestedBy === "iwer_accept_session" || entry.requestedBy === "dom_enter_full_vr_button"
+      ? undefined
+      : "session_entry_requested_by_invalid_or_missing",
+    entry.attempt ? undefined : "session_entry_attempt_missing",
+    isIwerSessionEntryOutcome(entry.outcome) ? undefined : "session_entry_outcome_invalid_or_missing",
+    ...iwerSessionEntryOutcomeBlockers(entry),
+  ].filter((blocker): blocker is string => typeof blocker === "string");
+}
+
+function iwerSessionEntryOutcomeBlockers(entry: IwerSessionEntryEvidence): string[] {
+  if (entry.outcome === "no_activation") {
+    return [
+      entry.attempt?.ok === false ? undefined : "session_entry_no_activation_attempt_not_failed",
+      entry.attempt?.blocker === "no_session_has_been_offered"
+        ? undefined
+        : "session_entry_no_activation_without_session_not_offered_blocker",
+      entry.beforeStatus?.sessionOffered === false || entry.afterStatus?.sessionOffered === false
+        ? undefined
+        : "session_entry_no_activation_without_unoffered_status",
+    ].filter((blocker): blocker is string => typeof blocker === "string");
+  }
+
+  if (entry.outcome === "session_started") {
+    return [
+      entry.attempt?.ok === true ? undefined : "session_entry_session_started_without_successful_attempt",
+      entry.afterStatus?.sessionActive === true ? undefined : "session_entry_session_started_without_active_after_status",
+      entry.appEvidence?.lastStatus === "started" ? undefined : "session_entry_session_started_without_app_started",
+      (entry.appEvidence?.attempts ?? 0) > 0 ? undefined : "session_entry_session_started_without_app_attempt",
+    ].filter((blocker): blocker is string => typeof blocker === "string");
+  }
+
+  if (entry.outcome === "request_failed") {
+    return [
+      entry.attempt?.ok === false ? undefined : "session_entry_request_failed_attempt_not_failed",
+      (entry.appEvidence?.attempts ?? 0) > 0 ? undefined : "session_entry_request_failed_without_app_attempt",
+      entry.appEvidence?.lastStatus === "failed" ? undefined : "session_entry_request_failed_without_app_failed",
+      entry.attempt?.errorName || entry.attempt?.errorMessage || entry.appEvidence?.lastErrorName || entry.appEvidence?.lastErrorMessage
+        ? undefined
+        : "session_entry_request_failed_without_error_metadata",
+    ].filter((blocker): blocker is string => typeof blocker === "string");
+  }
+
+  if (entry.outcome === "unsupported") {
+    return [
+      entry.appEvidence?.lastStatus === "unsupported" || entry.attempt?.blocker === "webxr_unsupported"
+        ? undefined
+        : "session_entry_unsupported_without_support_evidence",
+    ].filter((blocker): blocker is string => typeof blocker === "string");
+  }
+
+  return [];
+}
+
+function isIwerSessionEntryOutcome(value: string | undefined): value is NonNullable<IwerSessionEntryEvidence["outcome"]> {
+  return value === "unsupported" || value === "no_activation" || value === "session_started" || value === "request_failed";
 }
 
 function packageHas(evidence: IwerSidecarEmulationEvidence, name: string, version: string): boolean {

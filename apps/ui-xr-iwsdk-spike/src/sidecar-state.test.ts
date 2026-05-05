@@ -3,9 +3,11 @@ import { describe, expect, it } from "vitest";
 import { buildIwsdkUiXrStationParityContract } from "@openclinxr/iwsdk-spike";
 import {
   buildIwsdkSidecarLocalMetricsEvidence,
+  buildIwsdkSidecarXrEntryEvidence,
   buildIwsdkSidecarRuntimeEvidence,
   completeIwsdkSidecarTraceAction,
   createIwsdkSidecarRuntimeState,
+  recordIwsdkSidecarXrEntryEvidence,
   formatIwsdkSidecarClock,
   iwsdkSidecarControllerSelectTraceTag,
   iwsdkSidecarSceneObjectNames,
@@ -102,6 +104,41 @@ describe("IWSDK sidecar runtime state", () => {
     });
   });
 
+  it("classifies sidecar XR entry attempts without overclaiming IWER or user-activation outcomes", () => {
+    const initial = buildIwsdkSidecarXrEntryEvidence({
+      nowMs: 10,
+      sessionMode: "immersive-vr",
+      autoAttemptEnabled: true,
+    });
+    const requesting = recordIwsdkSidecarXrEntryEvidence(initial, "requesting", { nowMs: 20 });
+    const activationBlocked = recordIwsdkSidecarXrEntryEvidence(requesting, "failed", {
+      nowMs: 30,
+      error: new DOMException("requestSession requires user activation", "NotAllowedError"),
+    });
+    const unsupported = recordIwsdkSidecarXrEntryEvidence(initial, "unsupported", { nowMs: 40 });
+    const started = recordIwsdkSidecarXrEntryEvidence(requesting, "started", { nowMs: 50 });
+
+    expect(initial).toEqual({
+      sessionMode: "immersive-vr",
+      autoAttemptEnabled: true,
+      attempts: 0,
+      lastStatus: "not_requested",
+      lastOutcome: "not_requested",
+      lastRequestedAtMs: null,
+      lastUpdatedAtMs: 10,
+      lastError: null,
+    });
+    expect(requesting.attempts).toBe(1);
+    expect(activationBlocked).toEqual(expect.objectContaining({
+      attempts: 1,
+      lastStatus: "failed",
+      lastOutcome: "activation_required",
+      lastError: "NotAllowedError: requestSession requires user activation",
+    }));
+    expect(unsupported.lastOutcome).toBe("unsupported");
+    expect(started.lastOutcome).toBe("session_started");
+  });
+
   it("uses the approved IWSDK Phase 1 packages in the browser entrypoint", () => {
     const source = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
 
@@ -126,6 +163,16 @@ describe("IWSDK sidecar runtime state", () => {
     expect(source).toContain('"hand-tracking"');
     expect(source).toContain("renderer.xr.enabled = true");
     expect(source).toContain("renderer.setAnimationLoop");
+  });
+
+  it("exposes a query-gated IWER XR entry evidence probe without running it by default", () => {
+    const source = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+
+    expect(source).toContain("__openClinXrIwerSessionEntryEvidence");
+    expect(source).toContain("iwerAutoEnterVr=true");
+    expect(source).toContain("recordIwerSessionEntryEvidence");
+    expect(source).toContain("hasIwerAutoEnterVrProbe");
+    expect(source).toContain("void stationScene.startFullVrSession({ entrySource: \"iwer_auto_entry_probe\" })");
   });
 
   it("uses a transparent rendering policy only while presenting Mixed Reality", () => {

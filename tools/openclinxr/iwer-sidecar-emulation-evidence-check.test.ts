@@ -108,6 +108,29 @@ describe("IWER sidecar emulation evidence checker", () => {
     ]));
   });
 
+  it("rejects contradictory IWER session-entry claims", () => {
+    const evidence = readyEvidence();
+    evidence.sessionEntryEvidence = {
+      mode: "immersive-vr",
+      requestedBy: "iwer_accept_session",
+      attempt: { ok: true, elapsedMs: 20 },
+      appEvidence: { attempts: 1, lastStatus: "failed", lastOutcome: "request_failed", lastErrorName: "NotAllowedError" },
+      afterStatus: { sessionActive: false, sessionOffered: false, sessionMode: null, visibilityState: "visible" },
+      outcome: "session_started",
+    };
+
+    const report = buildIwerSidecarEmulationEvidenceReport({
+      generatedAt: "2026-05-05T00:00:00.000Z",
+      evidence,
+    });
+
+    expect(report.result.readyForEmulationEvidence).toBe(false);
+    expect(report.result.blockers).toEqual(expect.arrayContaining([
+      "session_entry_session_started_without_active_after_status",
+      "session_entry_session_started_without_app_started",
+    ]));
+  });
+
   it("exposes a CLI for scoring captured evidence JSON", async () => {
     const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
       scripts: Record<string, string>;
@@ -186,6 +209,7 @@ function readyEvidence(): IwerSidecarEmulationEvidenceReport["evidence"] {
     },
     rawWebSocketProbes: [
       { id: "status", method: "get_session_status", ok: true },
+      { id: "accept", method: "accept_session", ok: false, blocker: "no_session_has_been_offered" },
       {
         id: "screenshot",
         method: "screenshot",
@@ -196,6 +220,36 @@ function readyEvidence(): IwerSidecarEmulationEvidenceReport["evidence"] {
         dimensions: { width: 500, height: 500 },
       },
     ],
+    sessionEntryEvidence: {
+      mode: "immersive-vr",
+      requestedBy: "iwer_accept_session",
+      beforeStatus: {
+        isRuntimeInstalled: true,
+        sessionOffered: false,
+        sessionActive: false,
+        sessionMode: null,
+        visibilityState: "visible",
+      },
+      attempt: {
+        ok: false,
+        elapsedMs: 13,
+        blocker: "no_session_has_been_offered",
+      },
+      appEvidence: {
+        attempts: 0,
+        lastStatus: "not_requested",
+        lastOutcome: "not_requested",
+        lastMode: "immersive-vr",
+      },
+      afterStatus: {
+        isRuntimeInstalled: true,
+        sessionOffered: false,
+        sessionActive: false,
+        sessionMode: null,
+        visibilityState: "visible",
+      },
+      outcome: "no_activation",
+    },
     productionBuildOutputInspection: {
       buildExitCode: 0,
       distIndexHtmlContainsDevRuntimeInjection: false,

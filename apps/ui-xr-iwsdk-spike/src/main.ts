@@ -24,15 +24,19 @@ import {
 import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
 import { XRHandModelFactory } from "three/addons/webxr/XRHandModelFactory.js";
 import {
+  buildIwsdkSidecarXrEntryEvidence,
   buildIwsdkSidecarRuntimeEvidence,
   completeIwsdkSidecarTraceAction,
   createIwsdkSidecarRuntimeState,
   formatIwsdkSidecarClock,
   iwsdkSidecarSceneObjectNames,
+  recordIwsdkSidecarXrEntryEvidence,
   summarizeIwsdkSidecarReadiness,
   summarizeIwsdkSidecarFrameDeltas,
   type IwsdkSidecarRuntimeEvidence,
   type IwsdkSidecarRuntimeState,
+  type IwsdkSidecarXrEntryEvidence,
+  type IwsdkSidecarXrEntryStatus,
 } from "./sidecar-state.js";
 import {
   buildMixedRealitySupportState,
@@ -95,8 +99,12 @@ type OpenClinXrTraceLatencyEvidence = {
   productionControllerLatencySubstitute: false;
 };
 
+type FullVrSessionStartInput = {
+  entrySource?: "operator_button" | "iwer_auto_entry_probe";
+};
+
 type StationSceneRuntime = {
-  startFullVrSession(): Promise<void>;
+  startFullVrSession(input?: FullVrSessionStartInput): Promise<void>;
   startMixedRealitySession(): Promise<void>;
 };
 
@@ -118,6 +126,7 @@ declare global {
     __openClinXrBootEvidence?: OpenClinXrBootEvidence;
     __openClinXrTraceLatencyEvidence?: OpenClinXrTraceLatencyEvidence;
     __openClinXrMixedRealitySupport?: MixedRealitySupportState;
+    __openClinXrIwerSessionEntryEvidence?: IwsdkSidecarXrEntryEvidence;
   }
 }
 
@@ -135,6 +144,7 @@ function requireElement<TElement extends Element>(selector: string): TElement {
 }
 
 const bootStartedAtMs = performance.now();
+const iwerAutoEnterVrQueryFlag = "iwerAutoEnterVr=true";
 
 function recordBootPhase(phase: string, error?: unknown): void {
   const current: OpenClinXrBootEvidence = window.__openClinXrBootEvidence ?? { app: "ui-xr-iwsdk-spike", events: [] };
@@ -156,6 +166,10 @@ function formatUnknownError(error: unknown): string {
   return String(error);
 }
 
+function hasIwerAutoEnterVrProbe(search: string): boolean {
+  return search.includes(iwerAutoEnterVrQueryFlag) || new URLSearchParams(search).get("iwerAutoEnterVr") === "true";
+}
+
 let state: IwsdkSidecarRuntimeState = createIwsdkSidecarRuntimeState();
 let iwsdkCoreExportCount = 0;
 let iwsdkXrInputExportCount = 0;
@@ -163,6 +177,7 @@ let lastTraceSelectLatencyMs: number | null = null;
 let immersiveSessionActive = false;
 let activePresentationMode: PresentationMode | null = null;
 const mixedRealityOperatorApproved = hasApprovedMixedRealityOperatorGate(window.location.search);
+const iwerAutoEnterVrProbeEnabled = hasIwerAutoEnterVrProbe(window.location.search);
 let mixedRealitySupport = buildMixedRealitySupportState({
   operatorApproved: mixedRealityOperatorApproved,
   webXrAvailable: false,
@@ -233,9 +248,26 @@ window.__openClinXrIwsdkSidecarEvidence = buildIwsdkSidecarRuntimeEvidence({
   iwsdkCoreExportCount,
   iwsdkXrInputExportCount,
 });
+window.__openClinXrIwerSessionEntryEvidence = buildIwsdkSidecarXrEntryEvidence({
+  sessionMode: "immersive-vr",
+  autoAttemptEnabled: iwerAutoEnterVrProbeEnabled,
+  nowMs: Number(performance.now().toFixed(2)),
+});
 window.__openClinXrIwsdkSidecarTraceTags = [];
 window.__openClinXrMixedRealitySupport = mixedRealitySupport;
 scheduleIwsdkEvidenceHydration();
+
+function recordIwerSessionEntryEvidence(status: IwsdkSidecarXrEntryStatus, error?: unknown): void {
+  const current = window.__openClinXrIwerSessionEntryEvidence ?? buildIwsdkSidecarXrEntryEvidence({
+    sessionMode: "immersive-vr",
+    autoAttemptEnabled: iwerAutoEnterVrProbeEnabled,
+    nowMs: Number(performance.now().toFixed(2)),
+  });
+  window.__openClinXrIwerSessionEntryEvidence = recordIwsdkSidecarXrEntryEvidence(current, status, {
+    nowMs: Number(performance.now().toFixed(2)),
+    error,
+  });
+}
 
 function scheduleIwsdkEvidenceHydration(): void {
   window.setTimeout(() => {
@@ -320,6 +352,7 @@ async function updateXrStatus(): Promise<void> {
   if (!navigatorWithXr.xr) {
     xrStatus.textContent = "WebXR unavailable";
     enterXrButton.disabled = true;
+    recordIwerSessionEntryEvidence("unsupported", "navigator.xr unavailable");
     setMixedRealitySupport(buildMixedRealitySupportState({
       operatorApproved: mixedRealityOperatorApproved,
       webXrAvailable: false,
@@ -330,9 +363,13 @@ async function updateXrStatus(): Promise<void> {
     const supported = await navigatorWithXr.xr.isSessionSupported("immersive-vr");
     xrStatus.textContent = supported ? "Full VR ready" : "WebXR unavailable";
     enterXrButton.disabled = !supported;
+    if (!supported) {
+      recordIwerSessionEntryEvidence("unsupported", "immersive-vr unsupported");
+    }
   } catch {
     xrStatus.textContent = "WebXR check blocked";
     enterXrButton.disabled = true;
+    recordIwerSessionEntryEvidence("unsupported", "immersive-vr support check blocked");
   }
 
   if (!mixedRealityOperatorApproved) {
@@ -513,15 +550,17 @@ function createStationScene(): StationSceneRuntime {
   recordBootPhase("station_render_loop_started");
 
   return {
-    async startFullVrSession(): Promise<void> {
+    async startFullVrSession(input: FullVrSessionStartInput = { entrySource: "operator_button" }): Promise<void> {
       if (activeXrSession) {
         await activeXrSession.end();
         return;
       }
+      recordBootPhase(`full_vr_entry_${input.entrySource ?? "operator_button"}`);
 
       const navigatorWithXr = navigator as NavigatorWithXr;
       if (!navigatorWithXr.xr) {
         xrStatus.textContent = "WebXR unavailable";
+        recordIwerSessionEntryEvidence("unsupported", "navigator.xr unavailable");
         return;
       }
 
@@ -529,6 +568,7 @@ function createStationScene(): StationSceneRuntime {
       enterMrButton.disabled = true;
       xrStatus.textContent = "Entering Full VR";
       applyPresentationPolicy("full-vr");
+      recordIwerSessionEntryEvidence("requesting");
       try {
         const session = await navigatorWithXr.xr.requestSession("immersive-vr", {
           optionalFeatures: ["local-floor", "bounded-floor", "hand-tracking"],
@@ -543,6 +583,7 @@ function createStationScene(): StationSceneRuntime {
           xrStatus.textContent = "Full VR ready";
           applyPresentationPolicy("full-vr");
           setMixedRealitySupport(mixedRealitySupport);
+          recordIwerSessionEntryEvidence("ended");
         }, { once: true });
         await renderer.xr.setSession(session as Parameters<typeof renderer.xr.setSession>[0]);
         installHandModelsOnce();
@@ -551,7 +592,8 @@ function createStationScene(): StationSceneRuntime {
         enterXrButton.disabled = false;
         enterXrButton.textContent = "Exit Full VR";
         xrStatus.textContent = "In Full VR";
-      } catch {
+        recordIwerSessionEntryEvidence("started");
+      } catch (error) {
         activeXrSession = undefined;
         immersiveSessionActive = false;
         activePresentationMode = null;
@@ -560,6 +602,7 @@ function createStationScene(): StationSceneRuntime {
         xrStatus.textContent = "WebXR entry blocked";
         applyPresentationPolicy("full-vr");
         setMixedRealitySupport(mixedRealitySupport);
+        recordIwerSessionEntryEvidence("failed", error);
       }
     },
     async startMixedRealitySession(): Promise<void> {
@@ -974,6 +1017,13 @@ let stationScene: StationSceneRuntime | undefined;
 try {
   stationScene = createStationScene();
   recordBootPhase("station_scene_ready");
+  if (hasIwerAutoEnterVrProbe(window.location.search)) {
+    window.setTimeout(() => {
+      if (stationScene) {
+        void stationScene.startFullVrSession({ entrySource: "iwer_auto_entry_probe" });
+      }
+    }, 250);
+  }
 } catch (error) {
   recordBootPhase("station_scene_failed", error);
   xrStatus.textContent = "Station boot blocked";
