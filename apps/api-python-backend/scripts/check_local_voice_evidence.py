@@ -141,6 +141,7 @@ def collect(cache_dir: pathlib.Path) -> dict[str, Any]:
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
+    normalized_argv = argv[1:] if argv[:1] == ["--"] else argv
     parser = JsonArgumentParser(description=__doc__)
     parser.add_argument(
         "--cache-dir",
@@ -148,12 +149,21 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         default=default_cache_dir(),
         help="Local cache directory to inspect.",
     )
-    return parser.parse_args(argv)
+    parser.add_argument(
+        "--output",
+        type=pathlib.Path,
+        help="Optional JSON output file for committed local evidence.",
+    )
+    return parser.parse_args(normalized_argv)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(sys.argv[1:] if argv is None else argv)
-    json_dump(collect(args.cache_dir))
+    payload = collect(args.cache_dir)
+    if args.output is not None:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    json_dump(payload)
     return 0
 
 

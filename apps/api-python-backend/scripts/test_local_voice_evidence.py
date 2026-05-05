@@ -102,6 +102,28 @@ class LocalVoiceEvidenceTests(unittest.TestCase):
             payload["support_directories"][0]["reason"],
         )
 
+    def test_check_can_write_machine_readable_evidence_to_file(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = pathlib.Path(temp)
+            cache = temp_path / "missing"
+            output = temp_path / "evidence" / "local-voice-cache.json"
+
+            payload = run_json(CHECK, "--cache-dir", str(cache), "--output", str(output))
+            written = json.loads(output.read_text(encoding="utf-8"))
+
+        self.assertEqual("local_voice_evidence_check", payload["kind"])
+        self.assertEqual(payload, written)
+        self.assertFalse(written["cache_exists"])
+
+    def test_check_accepts_pnpm_forwarded_separator(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            cache = pathlib.Path(temp) / "missing"
+
+            payload = run_json(CHECK, "--", "--cache-dir", str(cache))
+
+        self.assertEqual("local_voice_evidence_check", payload["kind"])
+        self.assertEqual(str(cache), payload["cache_dir"])
+
     def test_check_rejects_unapproved_model_evidence_for_readiness(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             temp_path = pathlib.Path(temp)
