@@ -1683,6 +1683,7 @@ describe("benchmark gate report", () => {
 
     expect(report.quest_manual_performance?.file).toBe("docs/openclinxr/quest-manual-performance-2026-05-04.json");
     expect(report.quest_manual_performance?.input_file).toBe("docs/openclinxr/quest-manual-performance-2026-05-04.json");
+    expect(report.quest_manual_performance?.adversarial_findings).toEqual([]);
     expect(report.quest_smoke).toEqual(expect.objectContaining({
       classification: "blocked",
       ready_for_foreground_quest_claim: false,
@@ -1744,6 +1745,7 @@ describe("benchmark gate report", () => {
           readyToClaimFramePacing: true,
           satisfiedConditions: ["average_fps_72_or_higher"],
           blockers: [],
+          adversarialFindings: [],
           nextSteps: [],
         },
       },

@@ -121,7 +121,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-05T01:29:25.857Z",
+      "generated_at": "2026-05-05T01:35:50.588Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -1099,7 +1099,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-05T01:29:25.857Z",
+    "generated_at": "2026-05-05T01:35:50.588Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "ready_to_claim_frame_pacing": false,
     "satisfied_conditions": [
@@ -1108,6 +1108,7 @@
       "foreground_page_confirmed",
       "extra_browser_windows_closed",
       "immersive_session_started",
+      "text_readability_confirmed",
       "performance_source_openclinxr_frame_stats",
       "experience_mode_full_vr_recorded",
       "hand_or_controller_input_observed",
@@ -1125,6 +1126,16 @@
       "p95_frame_ms_above_25_or_missing",
       "controller_select_latency_ms_above_150_or_missing",
       "heat_concern_not_cleared"
+    ],
+    "adversarial_findings": [
+      "devtools_screencast_enabled_during_run",
+      "hand_tracking_uses_primitive_box_model",
+      "hand_tracking_observed_without_realistic_hand_meshes",
+      "locomotion_mode_declared_without_locomotion_event",
+      "immersive_session_started_but_frame_stats_empty",
+      "trace_latency_proxy_not_measured",
+      "heat_observation_not_recorded",
+      "short_run_under_reliability_window"
     ]
   },
   "iwsdk_evidence_contract": {
@@ -1244,7 +1255,8 @@
         "quest_page_visible",
         "quest_shell_loaded",
         "quest_trace_interaction_advanced",
-        "quest_usb_ready"
+        "quest_usb_ready",
+        "text_readability_confirmed"
       ],
       "blockers": [
         "quest_frame_quality_evidence_missing",
@@ -1320,7 +1332,8 @@
         "quest_page_visible",
         "quest_shell_loaded",
         "quest_trace_interaction_advanced",
-        "quest_usb_ready"
+        "quest_usb_ready",
+        "text_readability_confirmed"
       ],
       "blockers": [
         "quest_frame_quality_evidence_missing",

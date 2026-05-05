@@ -450,6 +450,7 @@ type EvidenceGateReport = {
     ready_to_claim_frame_pacing: boolean;
     satisfied_conditions: string[];
     blockers: string[];
+    adversarial_findings: string[];
   };
   iwsdk_evidence_contract?: {
     file: string;
@@ -962,6 +963,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         ready_to_claim_frame_pacing: questManualPerformance.value.readyToClaimFramePacing,
         satisfied_conditions: [...questManualPerformance.value.satisfiedConditions],
         blockers: [...questManualPerformance.value.blockers],
+        adversarial_findings: [...questManualPerformance.value.adversarialFindings],
       },
     } : {}),
     ...(iwsdkEvidenceContract ? {

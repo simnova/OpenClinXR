@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
+import { buildQuestManualPerformanceCheck, type QuestManualPerformanceReport } from "./check-quest-manual-performance.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -180,6 +181,94 @@ describe("Quest manual performance checker", () => {
     expect(check.nextSteps).toEqual(expect.arrayContaining([
       "Observe at least one foreground headset hand or controller interaction.",
       "Observe thumbstick or room-scale locomotion and record lastLocomotionAtMs.",
+    ]));
+  });
+
+  it("records adversarial evidence-quality findings from a short worn-headset hand-tracking run", () => {
+    const report: QuestManualPerformanceReport = {
+      generatedAt: "2026-05-04T20:36:00.000Z",
+      runContext: {
+        performedBy: "Patrick Gidich",
+        durationMinutes: 2,
+        notes: "Virtual hands were just a series of boxes, not realistic representations. Patrick was using hand tracking, not controllers.",
+      },
+      setup: {
+        foregroundPageConfirmed: true,
+        devtoolsScreencastDisabled: false,
+        extraBrowserWindowsClosed: true,
+      },
+      station: {
+        shellLoaded: true,
+        traceInteractionPassed: false,
+        textReadable: true,
+        immersiveSessionStarted: true,
+        consoleErrors: [],
+      },
+      experience: {
+        modeId: "full_vr",
+        phaseLabel: "Phase 1 Full VR",
+        requestedSessionMode: "immersive-vr",
+        mixedRealityPassthroughImplemented: false,
+        handTrackingPosture: "optional_feature_with_primitive_hand_model",
+        locomotionPosture: "experimental_keyboard_and_thumbstick_dolly",
+      },
+      input: {
+        handModelCount: 2,
+        handModelStatus: "active",
+        handInputsObserved: 2,
+        locomotionMode: "thumbstick",
+        lastLocomotionAtMs: null,
+        rigPosition: { x: 0, z: 0 },
+      },
+      traceLatencyProxy: {
+        source: "dom_click_trace_button",
+        lastTraceTag: null,
+        lastSelectLatencyMs: null,
+        measuredAtMs: null,
+        productionControllerLatencySubstitute: false,
+      },
+      performance: {
+        source: "window.__openClinXrFrameStats",
+        framesObserved: 0,
+        sampleWindowSize: 0,
+        avgFps: null,
+        p95FrameMs: null,
+        minimumObservedFps: null,
+        controllerSelectLatencyMs: null,
+      },
+      comfort: {
+        motionComfort: "comfortable",
+        heatConcern: null,
+        batteryDropPercent: 0,
+      },
+    };
+
+    const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-2026-05-04.json", report);
+
+    expect(check.readyToClaimFramePacing).toBe(false);
+    expect(check.satisfiedConditions).toEqual(expect.arrayContaining([
+      "immersive_session_started",
+      "text_readability_confirmed",
+      "hand_or_controller_input_observed",
+    ]));
+    expect(check.blockers).toEqual(expect.arrayContaining([
+      "trace_interaction_not_confirmed",
+      "locomotion_not_observed",
+      "frame_sample_under_600_or_missing",
+    ]));
+    expect(check.adversarialFindings).toEqual([
+      "devtools_screencast_enabled_during_run",
+      "hand_tracking_uses_primitive_box_model",
+      "hand_tracking_observed_without_realistic_hand_meshes",
+      "locomotion_mode_declared_without_locomotion_event",
+      "immersive_session_started_but_frame_stats_empty",
+      "trace_latency_proxy_not_measured",
+      "heat_observation_not_recorded",
+      "short_run_under_reliability_window",
+    ]);
+    expect(check.nextSteps).toEqual(expect.arrayContaining([
+      "Replace primitive box hands with an articulated hand model or document why controller-only affordances are acceptable for this station.",
+      "Keep the headset foreground for a longer run and verify window.__openClinXrFrameStats increments while immersive mode is active.",
     ]));
   });
 

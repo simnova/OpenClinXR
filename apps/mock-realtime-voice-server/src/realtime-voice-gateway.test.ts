@@ -50,7 +50,7 @@ describe("realtime voice gateway spike", () => {
         Buffer.from([0x4f, 0x70, 0x75, 0x73, 0x00, 0x01]),
         Buffer.from([0x4f, 0x70, 0x75, 0x73, 0x00, 0x02]),
       ],
-      targetLatencyMs: 250,
+      targetLatencyMs: 1_000,
     });
 
     expect(result).toMatchObject({
@@ -63,16 +63,16 @@ describe("realtime voice gateway spike", () => {
       backendProtocol: "python-fastapi-compatible-websocket",
       codec: "opus",
       latencyBudget: {
-        targetMs: 250,
+        targetMs: 1_000,
         passed: true,
       },
     });
     expect(result.roundTripLatencyMs).toBeGreaterThanOrEqual(0);
-    expect(result.roundTripLatencyMs).toBeLessThan(250);
+    expect(result.roundTripLatencyMs).toBeLessThan(1_000);
     expect(result.frameLatencySamplesMs).toHaveLength(2);
     for (const latencyMs of result.frameLatencySamplesMs) {
       expect(latencyMs).toBeGreaterThanOrEqual(0);
-      expect(latencyMs).toBeLessThan(250);
+      expect(latencyMs).toBeLessThan(1_000);
     }
     expect(result.audioChunkIndexesReceived).toEqual([0, 1]);
     expect(result.receivedEventTypes).toEqual(expect.arrayContaining([

@@ -32,6 +32,8 @@ export type QuestManualPerformanceReport = {
     phaseLabel?: string;
     requestedSessionMode?: string;
     mixedRealityPassthroughImplemented?: boolean;
+    handTrackingPosture?: string;
+    locomotionPosture?: string;
   };
   input?: {
     handModelCount?: number;
@@ -62,7 +64,7 @@ export type QuestManualPerformanceReport = {
   };
   comfort?: {
     motionComfort?: "comfortable" | "mild_discomfort" | "uncomfortable" | "not_run";
-    heatConcern?: boolean;
+    heatConcern?: boolean | null;
     batteryDropPercent?: number | null;
   };
 };
@@ -73,6 +75,7 @@ export type QuestManualPerformanceCheck = {
   readyToClaimFramePacing: boolean;
   satisfiedConditions: string[];
   blockers: string[];
+  adversarialFindings: string[];
   nextSteps: string[];
 };
 
@@ -137,6 +140,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
       readyToClaimFramePacing: false,
       satisfiedConditions: [],
       blockers: ["missing_quest_manual_performance_report"],
+      adversarialFindings: [],
       nextSteps: ["Create a dated Quest manual performance report from docs/openclinxr/quest-manual-performance-template.json."],
     };
   }
@@ -215,6 +219,14 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
     batteryDropPercent === null ? "battery_drop_not_recorded" : undefined,
     batteryDropPercentValid && batteryDropPercent > 20 ? "battery_drop_above_20" : undefined,
   ].filter((blocker): blocker is string => typeof blocker === "string");
+  const adversarialFindings = buildAdversarialFindings({
+    report,
+    durationMinutes,
+    framesObserved,
+    framesObservedValid,
+    heatConcern: report.comfort?.heatConcern,
+    traceLatencyProxy,
+  });
 
   return {
     generatedAt: new Date().toISOString(),
@@ -228,6 +240,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
       report.setup?.extraBrowserWindowsClosed === true ? "extra_browser_windows_closed" : undefined,
       durationMinutes >= 10 ? "duration_10_minutes_or_more" : undefined,
       report.station?.immersiveSessionStarted === true ? "immersive_session_started" : undefined,
+      report.station?.textReadable === true ? "text_readability_confirmed" : undefined,
       report.performance?.source === "window.__openClinXrFrameStats" ? "performance_source_openclinxr_frame_stats" : undefined,
       framesObservedValid && framesObserved >= 600 ? "frame_sample_600_or_more" : undefined,
       sampleWindowWithinObservedFrames && sampleWindowSize >= 120 ? "rolling_frame_window_120_or_more" : undefined,
@@ -242,8 +255,69 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
       batteryDropPercentValid && batteryDropPercent <= 20 ? "battery_drop_recorded_under_20" : undefined,
     ].filter((condition): condition is string => typeof condition === "string"),
     blockers,
-    nextSteps: blockers.map(questManualNextStepForBlocker),
+    adversarialFindings,
+    nextSteps: unique([
+      ...blockers.map(questManualNextStepForBlocker),
+      ...adversarialFindings.map(questManualNextStepForAdversarialFinding),
+    ]),
   };
+}
+
+function buildAdversarialFindings(input: {
+  report: QuestManualPerformanceReport;
+  durationMinutes: number;
+  framesObserved: number | null;
+  framesObservedValid: boolean;
+  heatConcern: boolean | null | undefined;
+  traceLatencyProxy: QuestManualPerformanceReport["traceLatencyProxy"];
+}): string[] {
+  const notes = input.report.runContext?.notes ?? "";
+  const handTrackingPosture = input.report.experience?.handTrackingPosture ?? "";
+  const primitiveHandModelObserved = /primitive|box/i.test(handTrackingPosture)
+    || /series of boxes|not realistic/i.test(notes);
+  const handTrackingObserved = (input.report.input?.handInputsObserved ?? 0) > 0
+    && /hand tracking/i.test(notes);
+  const locomotionModeDeclared = typeof input.report.input?.locomotionMode === "string"
+    && input.report.input.locomotionMode.trim().length > 0;
+  const locomotionEventMissing = typeof input.report.input?.lastLocomotionAtMs !== "number";
+  const immersiveWithNoFrameStats = input.report.station?.immersiveSessionStarted === true
+    && input.framesObservedValid
+    && input.framesObserved === 0;
+
+  return [
+    input.report.setup?.devtoolsScreencastDisabled === false ? "devtools_screencast_enabled_during_run" : undefined,
+    primitiveHandModelObserved ? "hand_tracking_uses_primitive_box_model" : undefined,
+    primitiveHandModelObserved && handTrackingObserved ? "hand_tracking_observed_without_realistic_hand_meshes" : undefined,
+    locomotionModeDeclared && locomotionEventMissing ? "locomotion_mode_declared_without_locomotion_event" : undefined,
+    immersiveWithNoFrameStats ? "immersive_session_started_but_frame_stats_empty" : undefined,
+    input.traceLatencyProxy?.source === "dom_click_trace_button" && input.traceLatencyProxy.lastSelectLatencyMs === null
+      ? "trace_latency_proxy_not_measured"
+      : undefined,
+    input.heatConcern === undefined || input.heatConcern === null ? "heat_observation_not_recorded" : undefined,
+    input.durationMinutes < 10 ? "short_run_under_reliability_window" : undefined,
+  ].filter((finding): finding is string => typeof finding === "string");
+}
+
+function questManualNextStepForAdversarialFinding(finding: string): string {
+  switch (finding) {
+    case "devtools_screencast_enabled_during_run":
+      return "Rerun with DevTools screencast disabled so headset frame timing is less distorted.";
+    case "hand_tracking_uses_primitive_box_model":
+    case "hand_tracking_observed_without_realistic_hand_meshes":
+      return "Replace primitive box hands with an articulated hand model or document why controller-only affordances are acceptable for this station.";
+    case "locomotion_mode_declared_without_locomotion_event":
+      return "Record an actual locomotion event timestamp after thumbstick or room-scale movement.";
+    case "immersive_session_started_but_frame_stats_empty":
+      return "Keep the headset foreground for a longer run and verify window.__openClinXrFrameStats increments while immersive mode is active.";
+    case "trace_latency_proxy_not_measured":
+      return "Capture a trace interaction or leave the proxy section explicitly unmeasured with a note.";
+    case "heat_observation_not_recorded":
+      return "Record heatConcern as false or true after the worn-headset run.";
+    case "short_run_under_reliability_window":
+      return "Repeat the run for at least 10 minutes before using it as readiness evidence.";
+    default:
+      return `Resolve Quest manual evidence-quality finding: ${finding}.`;
+  }
 }
 
 function questManualNextStepForBlocker(blocker: string): string {
@@ -375,6 +449,10 @@ function isSupportingTraceLatencyProxy(value: QuestManualPerformanceReport["trac
   return value?.source === "dom_click_trace_button"
     && value.productionControllerLatencySubstitute === false
     && isPositiveFiniteNumber(value.lastSelectLatencyMs ?? null);
+}
+
+function unique(values: string[]): string[] {
+  return Array.from(new Set(values));
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
