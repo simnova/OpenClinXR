@@ -38,6 +38,7 @@ Create a TypeScript monorepo influenced by CellixJS DDD patterns:
 - `packages/openclinxr/data-mongodb`
 - `packages/openclinxr/data-sources-mongoose-models`
 - `packages/openclinxr/scenario-runtime`
+- `packages/openclinxr/session-state`
 - `packages/openclinxr/model-gateway`
 - `packages/openclinxr/voice-gateway`
 - `packages/openclinxr/trace-ledger`
@@ -92,10 +93,12 @@ Implement:
 - Station transition.
 - Trace event append.
 - Mock actor responses.
+- Multi-actor session-state context from `@openclinxr/session-state`.
 
 Acceptance:
 
 - Learner can complete one station with trace events and a patient note.
+- Actor model requests use promoted session-state context without exposing hidden facts.
 
 ### Phase 4: LLM Actor Gateway
 
@@ -138,6 +141,7 @@ Acceptance:
 5. Communication-style adherence without repetitive or exaggerated behavior.
 6. MongoDB schema and index performance for trace replay.
 7. CellixJS fit for DDD/monorepo/runtime patterns.
+8. WebSocket session-state delta shape using `docs/openclinxr/session-state-websocket-message-design.md`.
 
 ## First Acceptance Test Scenario
 

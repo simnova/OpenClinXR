@@ -52,6 +52,7 @@ packages/
     shared-schemas/
     domain/
     scenario-fixtures/
+    session-state/
     scenario-runtime/
     trace-ledger/
     review-workflow/
@@ -88,6 +89,7 @@ Workspace naming should follow the development team's Turborepo convention:
 - Mongoose model layer: `packages/openclinxr/data-sources-mongoose-models`.
 - Local dependency simulators: `apps/mock-<<server-type>>-server`.
 - Architecture enforcement: `packages/openclinxr/architecture-rules` with ArchUnitTS tests that turn naming and dependency-direction decisions into executable checks.
+- Multi-actor runtime state: `packages/openclinxr/session-state` owns the production-shaped actor/session state contract promoted from the server-side multi-actor spike. The historical `packages/openclinxr/multi-actor-state-spike` remains evidence-only and superseded for production imports.
 
 ## Dependency Posture
 
@@ -185,6 +187,25 @@ Acceptance:
 - Fixture validates against schemas.
 - Fixture can start a station run.
 - Fixture can produce review packet from synthetic trace.
+
+### Phase 3A: Multi-Actor Session State
+
+Implement and keep current:
+
+- `packages/openclinxr/session-state`.
+- Actor runtime state.
+- Per-actor visible/private memory boundaries.
+- Text and final voice-transcript interaction provenance.
+- Clinical action state for trace tags, orders, and findings.
+- Spatial actor transform state.
+- Evidence boundaries for realtime sync, persistence, Quest readiness, LLM quality, and clinical validity.
+
+Acceptance:
+
+- `pnpm --filter @openclinxr/session-state test` passes.
+- `pnpm --filter @openclinxr/session-state typecheck` passes.
+- Production packages do not import `@openclinxr/multi-actor-state-spike`.
+- `@openclinxr/session-state` has no Redis, Redka, MongoDB, Colyseus, bitECS, or WebSocket runtime dependency.
 
 ### Phase 4: Trace Ledger
 
