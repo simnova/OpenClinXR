@@ -321,6 +321,8 @@ export function parseArgs(args: string[]): CliOptions {
       }
       options.mode = "manual-evidence";
       options.enterVr = false;
+      options.skipLaunch = true;
+      options.reuseOpenPage = true;
       continue;
     }
     if (arg === "--frame-sample-count") {

@@ -164,6 +164,13 @@ describe("Quest CDP smoke probe", () => {
       manualEvidenceMinImmersiveFrames: 600,
       manualEvidenceMinSampleWindowSize: 120,
     });
+
+    expect(parseArgs(["--harvest-manual-evidence"])).toMatchObject({
+      mode: "manual-evidence",
+      skipLaunch: true,
+      reuseOpenPage: true,
+      enterVr: false,
+    });
   });
 
   it("rejects unknown, missing, and non-positive CLI values", () => {
