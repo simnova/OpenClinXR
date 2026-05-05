@@ -49,6 +49,9 @@ type CdpResult = {
   };
 };
 
+const questCdpPageListFetchTimeoutMs = 1500;
+const questCdpDiagnosticCommandTimeoutMs = 2500;
+
 export type QuestSmokeReport = {
   generatedAt: string;
   url: string;
@@ -132,6 +135,14 @@ export type QuestSmokeCdpUnavailableInput = {
   reverseList: string;
   failureStage: "quest_cdp_page_list_unavailable" | "quest_cdp_websocket_unavailable";
   error: unknown;
+  diagnostics?: QuestSmokeCdpDiagnostics;
+};
+
+export type QuestSmokeCdpDiagnostics = {
+  browserPid: string | null;
+  devtoolsSocketLines: string;
+  browserPackageLine: string;
+  browserUidState: string;
 };
 
 async function main(): Promise<void> {
@@ -170,6 +181,7 @@ async function main(): Promise<void> {
   try {
     page = await waitForQuestPage(options);
   } catch (error) {
+    const diagnostics = await collectQuestCdpDiagnostics();
     await emitQuestSmokeReport(buildCdpUnavailableReport({
       options,
       adbVersion,
@@ -177,6 +189,7 @@ async function main(): Promise<void> {
       reverseList,
       failureStage: "quest_cdp_page_list_unavailable",
       error,
+      diagnostics,
     }), options.outputPath);
     return;
   }
@@ -185,6 +198,7 @@ async function main(): Promise<void> {
   try {
     client = await CdpClient.connect(page.webSocketDebuggerUrl);
   } catch (error) {
+    const diagnostics = await collectQuestCdpDiagnostics();
     await emitQuestSmokeReport(buildCdpUnavailableReport({
       options,
       adbVersion,
@@ -192,6 +206,7 @@ async function main(): Promise<void> {
       reverseList,
       failureStage: "quest_cdp_websocket_unavailable",
       error,
+      diagnostics,
     }), options.outputPath);
     return;
   }
@@ -346,17 +361,63 @@ async function adb(args: string[]): Promise<string> {
   return `${stdout}${stderr}`.trim();
 }
 
+async function collectQuestCdpDiagnostics(): Promise<QuestSmokeCdpDiagnostics> {
+  const [browserPid, devtoolsSocketLines, browserPackageLine] = await Promise.all([
+    adbShellOrEmpty("pidof com.oculus.browser || true"),
+    adbShellOrEmpty("cat /proc/net/unix | grep -i devtools | head -20 || true"),
+    adbShellOrEmpty("cmd package list packages -U com.oculus.browser || true"),
+  ]);
+  const browserUid = browserPackageLine.match(/uid:(\d+)/)?.[1];
+  const browserUidState = browserUid
+    ? await adbShellOrEmpty(`cmd activity get-uid-state ${browserUid} || true`)
+    : "uid_unavailable";
+  return {
+    browserPid: browserPid.trim() || null,
+    devtoolsSocketLines: devtoolsSocketLines.trim(),
+    browserPackageLine: browserPackageLine.trim(),
+    browserUidState: browserUidState.trim(),
+  };
+}
+
+async function adbShellOrEmpty(command: string): Promise<string> {
+  try {
+    const { stdout, stderr } = await execFileAsync("adb", ["shell", command], {
+      encoding: "utf8",
+      maxBuffer: 64 * 1024,
+      timeout: questCdpDiagnosticCommandTimeoutMs,
+    });
+    return `${stdout}${stderr}`.trim();
+  } catch (error) {
+    return `diagnostic_failed: ${formatUnknownError(error)}`;
+  }
+}
+
 async function waitForQuestPage(options: CliOptions): Promise<CdpPage> {
+  let lastError: unknown;
   for (let attempt = 0; attempt < 20; attempt += 1) {
-    const response = await fetch(`http://127.0.0.1:${options.cdpPort}/json`);
-    const pages = await response.json() as CdpPage[];
+    let pages: CdpPage[];
+    try {
+      pages = await fetchQuestCdpPages(options.cdpPort);
+    } catch (error) {
+      lastError = error;
+      await delay(250);
+      continue;
+    }
     const page = selectQuestPage(pages, options.url, { reuseOpenPage: options.reuseOpenPage });
     if (page) {
       return page;
     }
     await delay(250);
   }
-  throw new Error(`Quest Browser page ${options.url} was not exposed through CDP port ${options.cdpPort}`);
+  const causeSuffix = lastError ? ` Last CDP fetch error: ${formatUnknownError(lastError)}` : "";
+  throw new Error(`Quest Browser page ${options.url} was not exposed through CDP port ${options.cdpPort}.${causeSuffix}`);
+}
+
+export async function fetchQuestCdpPages(cdpPort: number): Promise<CdpPage[]> {
+  const response = await fetch(`http://127.0.0.1:${cdpPort}/json`, {
+    signal: AbortSignal.timeout(questCdpPageListFetchTimeoutMs),
+  });
+  return await response.json() as CdpPage[];
 }
 
 async function closeStaleQuestPages(options: CliOptions, keepPageId: string): Promise<void> {
@@ -738,6 +799,7 @@ export function buildCdpUnavailableReport(input: QuestSmokeCdpUnavailableInput):
       cdpUnavailable: true,
       failureStage: input.failureStage,
       error: formatUnknownError(input.error),
+      ...(input.diagnostics ? { diagnostics: input.diagnostics } : {}),
     },
     interaction: {
       skipped: true,

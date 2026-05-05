@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   browserSnapshotExpression,
   buildQuestSmokeEvidenceCheck,
@@ -7,6 +7,7 @@ import {
   type CdpPage,
   enterVrCompletionExpression,
   enterVrButtonRectExpression,
+  fetchQuestCdpPages,
   frameSampleExpression,
   interactionExpression,
   pageMatchesRequestedUrl,
@@ -226,6 +227,32 @@ describe("Quest CDP smoke probe", () => {
       .toBe("station");
     expect(selectQuestPage(pages, "http://localhost:5174/?questSmoke=fresh", { reuseOpenPage: true }))
       .toBeUndefined();
+  });
+
+  it("bounds Quest CDP page-list fetches so empty sockets cannot hang the smoke", async () => {
+    const originalFetch = globalThis.fetch;
+    const pageList = [
+      {
+        id: "station",
+        title: "OpenClinXR Station Runtime",
+        type: "page",
+        url: "http://localhost:5173/",
+        webSocketDebuggerUrl: "ws://station",
+      },
+    ];
+    const fetchMock = vi.fn().mockResolvedValue({
+      json: async () => pageList,
+    });
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
+    try {
+      await expect(fetchQuestCdpPages(9222)).resolves.toEqual(pageList);
+      expect(fetchMock).toHaveBeenCalledWith(
+        "http://127.0.0.1:9222/json",
+        expect.objectContaining({ signal: expect.any(AbortSignal) }),
+      );
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
   });
 
   it("generates browser, interaction, and frame-sampling expressions with station targets", () => {
@@ -940,12 +967,24 @@ describe("Quest CDP smoke probe", () => {
       reverseList: "1234 tcp:5173 tcp:5173",
       failureStage: "quest_cdp_page_list_unavailable",
       error: fetchError,
+      diagnostics: {
+        browserPid: "13041",
+        devtoolsSocketLines: "",
+        browserPackageLine: "package:com.oculus.browser uid:10107",
+        browserUidState: "20 (NONEXISTENT)",
+      },
     });
 
     expect(report.browser).toMatchObject({
       cdpUnavailable: true,
       failureStage: "quest_cdp_page_list_unavailable",
       error: "TypeError: fetch failed; cause=Error: other side closed (UND_ERR_SOCKET)",
+      diagnostics: {
+        browserPid: "13041",
+        devtoolsSocketLines: "",
+        browserPackageLine: "package:com.oculus.browser uid:10107",
+        browserUidState: "20 (NONEXISTENT)",
+      },
     });
     expect(report.verdict).toEqual({
       shellLoaded: false,

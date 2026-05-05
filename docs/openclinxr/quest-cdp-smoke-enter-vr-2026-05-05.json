@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T11:48:54.598Z",
+  "generatedAt": "2026-05-05T12:05:06.049Z",
   "url": "http://localhost:5173/?questSmoke=enter-vr-20260505",
   "target": "station",
   "adb": {
@@ -10,7 +10,13 @@
   "browser": {
     "cdpUnavailable": true,
     "failureStage": "quest_cdp_page_list_unavailable",
-    "error": "TypeError: fetch failed; cause=SocketError: other side closed (UND_ERR_SOCKET)"
+    "error": "Error: Quest Browser page http://localhost:5173/?questSmoke=enter-vr-20260505 was not exposed through CDP port 9222. Last CDP fetch error: TypeError: fetch failed; cause=SocketError: other side closed (UND_ERR_SOCKET)",
+    "diagnostics": {
+      "browserPid": "22402",
+      "devtoolsSocketLines": "",
+      "browserPackageLine": "package:com.oculus.browser uid:10107",
+      "browserUidState": "19 (CACHED_EMPTY)"
+    }
   },
   "interaction": {
     "skipped": true,
