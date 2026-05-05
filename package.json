@@ -63,6 +63,7 @@
     "local:runtime:probe": "tsx tools/openclinxr/local-runtime-probe.ts",
     "local:provider:benchmark": "tsx tools/openclinxr/local-provider-benchmark.ts",
     "local:model:runtime": "tsx tools/openclinxr/local-model-runtime-benchmark.ts",
+    "local:model:actor-policy": "tsx tools/openclinxr/local-model-actor-policy-benchmark.ts",
     "local:model:quality": "tsx tools/openclinxr/local-model-quality-benchmark.ts",
     "local:voice:runtime": "tsx tools/openclinxr/local-voice-runtime-benchmark.ts",
     "local:voice:live-dialog": "tsx tools/openclinxr/local-voice-live-dialog-benchmark.ts",

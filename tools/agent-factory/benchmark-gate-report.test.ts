@@ -1185,9 +1185,7 @@ describe("benchmark gate report", () => {
     expect(gatesById.get("evidence-leadership-0009-002")).toEqual(expect.objectContaining({
       ready_to_resolve: false,
       blockers: expect.arrayContaining([
-        "local_model_quality:actor_policy:real_local_model_visible_fact_grounding_benchmark_missing",
-        "local_model_quality:actor_policy:real_local_model_hidden_truth_injection_benchmark_missing",
-        "local_model_quality:actor_policy:real_local_model_system_prompt_extraction_benchmark_missing",
+        "local_model_quality:actor_policy:real_local_model_visible_fact_grounding_probe_failed",
         "local_model_quality:target_hardware:target_hardware_not_m4_profile",
       ]),
       satisfied_conditions: expect.arrayContaining([
