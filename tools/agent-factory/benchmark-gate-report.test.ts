@@ -6,10 +6,12 @@ import {
   buildBenchmarkGateReport,
   isQuestManualPerformanceRawReportPath,
   isQuestMixedRealityManualRawReportPath,
+  latestVisualQaEvidenceJson,
   latestJson,
 } from "./build-benchmark-gate-report.js";
 import type { QuestManualPerformanceReport } from "../openclinxr/check-quest-manual-performance.js";
 import type { QuestMixedRealityManualReport } from "../openclinxr/check-quest-mixed-reality-manual.js";
+import type { VisualQaEvidence } from "../openclinxr/visual-qa-evidence-check.js";
 
 type BlockerGroup = {
   group_id: string;
@@ -34,6 +36,22 @@ type BenchmarkGateReport = {
     ready_to_claim_full_vr_readiness: false;
     satisfied_conditions: string[];
     blockers: string[];
+    not_evidence_for: string[];
+  };
+  visual_qa_evidence?: {
+    file: string;
+    ready_for_adversarial_visual_qa: boolean;
+    ready_for_production_runtime: false;
+    ready_for_physical_quest_claim: false;
+    capture: {
+      source?: string;
+      artifact_type?: string;
+      artifact?: string;
+      scenario_id?: string;
+      xr_mode?: string;
+    };
+    blockers: string[];
+    allowed_claims: string[];
     not_evidence_for: string[];
   };
   iwsdk_evidence_contract?: {
@@ -374,6 +392,50 @@ const completedQuestMixedRealityManualReport: QuestMixedRealityManualReport = {
   ],
 };
 
+const completedVisualQaEvidence: VisualQaEvidence = {
+  schemaVersion: "openclinxr.visual-qa-evidence.v1",
+  capture: {
+    source: "iwer_emulation",
+    artifactType: "screenshot",
+    artifact: "docs/openclinxr/screenshots/iwer-sidecar-agent-browser-2026-05-04.png",
+    mimeType: "image/png",
+    dimensions: { width: 500, height: 500 },
+    runtimeUrl: "http://127.0.0.1:5183/",
+    route: "/",
+    scenarioId: "ed_chest_pain_priority_v1",
+    xrMode: "desktop_managed_browser_not_immersive_session",
+    captureCommand: "pnpm iwsdk:iwer:evidence",
+  },
+  adversarialReview: {
+    reviewers: [
+      "test-automation-lead",
+      "ux-friction-critic",
+      "clinical-safety-critic",
+      "xr-systems-architect",
+      "asset-pipeline-lead",
+    ],
+    checks: {
+      clinical_scene_fidelity: { status: "concern", notes: ["Clinical fidelity remains placeholder-level."] },
+      actor_equipment_realism: { status: "concern", notes: ["Actors and equipment are not production-realistic."] },
+      ui_readability: { status: "pass", notes: ["The artifact is usable for adversarial iteration notes."] },
+      interaction_affordances: { status: "concern", notes: ["Controller and hand input still require separate evidence."] },
+      occlusion_scale: { status: "concern", notes: ["Scale and occlusion need XR scene inspection and Quest confirmation."] },
+      evidence_limits: { status: "pass", notes: ["This is IWER evidence, not physical Quest or production proof."] },
+    },
+  },
+  claimBoundaries: {
+    notEvidenceFor: [
+      "physical_quest_foreground_frame_pacing",
+      "quest_controller_latency",
+      "quest_hand_tracking_quality",
+      "in_headset_text_readability",
+      "thermal_or_battery_behavior",
+      "production_runtime_readiness",
+    ],
+    allowedClaims: ["adversarial_visual_iteration_artifact"],
+  },
+};
+
 describe("benchmark gate report", () => {
   it("selects raw Quest CDP smoke evidence without derived check reports", async () => {
     const tempDir = await mkdtemp(path.join(tmpdir(), "openclinxr-quest-smoke-latest-"));
@@ -428,6 +490,21 @@ describe("benchmark gate report", () => {
     expect(selected).toEqual({
       file: rawPath,
       value: { kind: "raw" },
+    });
+  });
+
+  it("selects visual QA evidence by embedded capture date instead of descriptor name", async () => {
+    const tempDir = await mkdtemp(path.join(tmpdir(), "openclinxr-visual-qa-latest-"));
+    const olderAlphabeticalPath = path.join(tempDir, "visual-qa-evidence-ui-xr-fresh-frame-evidence-2026-05-04.json");
+    const newerPath = path.join(tempDir, "visual-qa-evidence-iwer-auto-entry-wide-panel-depth-2026-05-05.json");
+    await writeFile(olderAlphabeticalPath, `${JSON.stringify({ capture: { scenarioId: "older-ui" } })}\n`, "utf8");
+    await writeFile(newerPath, `${JSON.stringify({ capture: { scenarioId: "newer-iwer" } })}\n`, "utf8");
+
+    const selected = await latestVisualQaEvidenceJson(`${tempDir}/visual-qa-evidence-*.json`);
+
+    expect(selected).toEqual({
+      file: newerPath,
+      value: { capture: { scenarioId: "newer-iwer" } },
     });
   });
 
@@ -1950,6 +2027,45 @@ describe("benchmark gate report", () => {
       "missing_quest_manual_performance_check",
     ]));
     expect(questGate?.ready_to_resolve).toBe(false);
+  });
+
+  it("surfaces visual QA evidence as adversarial support without satisfying production or physical Quest claims", () => {
+    const report = buildBenchmarkGateReport({
+      visualQaEvidence: {
+        file: "docs/openclinxr/visual-qa-evidence-2026-05-04.json",
+        value: completedVisualQaEvidence,
+      },
+    });
+    const questGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0008-001");
+
+    expect(report.visual_qa_evidence).toEqual({
+      file: "docs/openclinxr/visual-qa-evidence-2026-05-04.json",
+      ready_for_adversarial_visual_qa: true,
+      ready_for_production_runtime: false,
+      ready_for_physical_quest_claim: false,
+      capture: {
+        source: "iwer_emulation",
+        artifact_type: "screenshot",
+        artifact: "docs/openclinxr/screenshots/iwer-sidecar-agent-browser-2026-05-04.png",
+        scenario_id: "ed_chest_pain_priority_v1",
+        xr_mode: "desktop_managed_browser_not_immersive_session",
+      },
+      blockers: [],
+      allowed_claims: ["adversarial_visual_iteration_artifact"],
+      not_evidence_for: [
+        "physical_quest_foreground_frame_pacing",
+        "quest_controller_latency",
+        "quest_hand_tracking_quality",
+        "in_headset_text_readability",
+        "thermal_or_battery_behavior",
+        "production_runtime_readiness",
+      ],
+    });
+    expect(questGate?.ready_to_resolve).toBe(false);
+    expect(questGate?.satisfied_conditions).not.toContain("adversarial_visual_iteration_artifact");
+    expect(questGate?.blockers).toEqual(expect.arrayContaining([
+      "missing_quest_manual_performance_check",
+    ]));
   });
 
   it("keeps copied UI payload summary blockers in Quest manual benchmark gates", () => {

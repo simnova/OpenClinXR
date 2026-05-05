@@ -16,6 +16,11 @@ import {
   type QuestSmokeReport,
 } from "../openclinxr/quest-cdp-smoke.js";
 import type { ApiPythonBackendRuntimeSmokeReport } from "../openclinxr/api-python-backend-runtime-smoke.js";
+import {
+  buildVisualQaEvidenceReport,
+  type VisualQaEvidence,
+  type VisualQaEvidenceReport,
+} from "../openclinxr/visual-qa-evidence-check.js";
 import { globFiles, readJson, writeJson } from "./lib.js";
 
 type GateStatus = {
@@ -469,6 +474,22 @@ type EvidenceGateReport = {
     not_evidence_for: string[];
     next_steps: string[];
   };
+  visual_qa_evidence?: {
+    file: string;
+    ready_for_adversarial_visual_qa: boolean;
+    ready_for_production_runtime: false;
+    ready_for_physical_quest_claim: false;
+    capture: {
+      source?: string;
+      artifact_type?: string;
+      artifact?: string;
+      scenario_id?: string;
+      xr_mode?: string;
+    };
+    blockers: string[];
+    allowed_claims: string[];
+    not_evidence_for: string[];
+  };
   iwsdk_evidence_contract?: {
     file: string;
     generated_at: string;
@@ -535,6 +556,7 @@ export type BenchmarkGateReportInput = {
   questManualPerformanceReport?: EvidenceFile<QuestManualPerformancePayload>;
   questMixedRealityManual?: EvidenceFile<QuestMixedRealityManualCheck>;
   questMixedRealityManualReport?: EvidenceFile<QuestMixedRealityManualReport>;
+  visualQaEvidence?: EvidenceFile<VisualQaEvidence>;
   iwsdkEvidenceContract?: EvidenceFile<IwsdkEvidenceContractReport>;
 };
 
@@ -563,6 +585,7 @@ async function main(): Promise<void> {
   const localVoiceLiveDialogBenchmark = await latestJson<LocalVoiceLiveDialogBenchmarkReport>("docs/openclinxr/local-voice-live-dialog-benchmark-*.json");
   const realtimeVoiceTransportSpike = await latestJson<RealtimeVoiceTransportSpikeReport>("docs/openclinxr/realtime-voice-transport-spike-*.json");
   const apiPythonBackendRuntimeSmoke = await latestJson<ApiPythonBackendRuntimeSmokeReport>("docs/openclinxr/api-python-backend-runtime-smoke-*.json");
+  const visualQaEvidence = await latestVisualQaEvidenceJson();
   const iwsdkEvidenceContract = await latestJson<IwsdkEvidenceContractReport>("docs/openclinxr/iwsdk-evidence-contract-*.json");
   const questManualPerformanceReport = await latestQuestManualPerformanceReportJson();
   const questManualPerformance = questManualPerformanceReport
@@ -586,6 +609,7 @@ async function main(): Promise<void> {
     localVoiceLiveDialogBenchmark,
     realtimeVoiceTransportSpike,
     apiPythonBackendRuntimeSmoke,
+    visualQaEvidence,
     iwsdkEvidenceContract,
     questManualPerformance,
     questManualPerformanceReport,
@@ -634,6 +658,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localVoiceLiveDialogBenchmark,
     realtimeVoiceTransportSpike,
     apiPythonBackendRuntimeSmoke,
+    visualQaEvidence,
     iwsdkEvidenceContract,
   } = input;
   const questSmokeEvidenceCheck = questSmoke
@@ -645,6 +670,9 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
   const questMixedRealityManual = input.questMixedRealityManualReport
     ? mixedRealityManualReportToCheck(input.questMixedRealityManualReport)
     : input.questMixedRealityManual;
+  const visualQaEvidenceReport = visualQaEvidence
+    ? visualQaEvidenceToReport(visualQaEvidence)
+    : undefined;
   const evidenceFreshness = buildEvidenceFreshnessReport({
     questSmoke,
     localRuntime,
@@ -1009,6 +1037,24 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         next_steps: [...questMixedRealityManual.value.nextSteps],
       },
     } : {}),
+    ...(visualQaEvidenceReport ? {
+      visual_qa_evidence: {
+        file: visualQaEvidenceReport.file,
+        ready_for_adversarial_visual_qa: visualQaEvidenceReport.value.result.readyForAdversarialVisualQa,
+        ready_for_production_runtime: visualQaEvidenceReport.value.result.readyForProductionRuntime,
+        ready_for_physical_quest_claim: visualQaEvidenceReport.value.result.readyForPhysicalQuestClaim,
+        capture: {
+          source: visualQaEvidenceReport.value.evidence.capture?.source,
+          artifact_type: visualQaEvidenceReport.value.evidence.capture?.artifactType,
+          artifact: visualQaEvidenceReport.value.evidence.capture?.artifact,
+          scenario_id: visualQaEvidenceReport.value.evidence.capture?.scenarioId,
+          xr_mode: visualQaEvidenceReport.value.evidence.capture?.xrMode,
+        },
+        blockers: [...visualQaEvidenceReport.value.result.blockers],
+        allowed_claims: [...(visualQaEvidenceReport.value.evidence.claimBoundaries?.allowedClaims ?? [])],
+        not_evidence_for: [...(visualQaEvidenceReport.value.evidence.claimBoundaries?.notEvidenceFor ?? [])],
+      },
+    } : {}),
     ...(iwsdkEvidenceContract ? {
       iwsdk_evidence_contract: {
         file: iwsdkEvidenceContract.file,
@@ -1188,6 +1234,39 @@ export function isQuestMixedRealityManualRawReportPath(file: string): boolean {
     && baseName !== "quest-mixed-reality-manual-template.json";
 }
 
+export function isVisualQaEvidenceRawReportPath(file: string): boolean {
+  const baseName = path.basename(file);
+  return baseName.startsWith("visual-qa-evidence-")
+    && !baseName.startsWith("visual-qa-evidence-check-")
+    && !baseName.startsWith("visual-qa-evidence-report-");
+}
+
+export async function latestVisualQaEvidenceJson(
+  pattern = "docs/openclinxr/visual-qa-evidence-*.json",
+): Promise<EvidenceFile<VisualQaEvidence> | undefined> {
+  const files = (await globFiles(pattern))
+    .filter(isVisualQaEvidenceRawReportPath)
+    .sort(compareVisualQaEvidenceFiles);
+  const file = files.at(-1);
+  if (!file) {
+    return undefined;
+  }
+  return { file, value: await readJson<VisualQaEvidence>(file) };
+}
+
+function compareVisualQaEvidenceFiles(left: string, right: string): number {
+  const leftDate = visualQaEvidenceDateKey(left);
+  const rightDate = visualQaEvidenceDateKey(right);
+  if (leftDate !== rightDate) {
+    return leftDate.localeCompare(rightDate);
+  }
+  return left.localeCompare(right);
+}
+
+function visualQaEvidenceDateKey(file: string): string {
+  return path.basename(file).match(/(\d{4}-\d{2}-\d{2})(?=\.json$)/)?.[1] ?? "";
+}
+
 function manualPerformanceReportToCheck(
   report: EvidenceFile<QuestManualPerformancePayload>,
 ): EvidenceFile<QuestManualPerformanceCheck> {
@@ -1203,6 +1282,18 @@ function mixedRealityManualReportToCheck(
   return {
     file: report.file,
     value: buildQuestMixedRealityManualCheck(report.file, report.value),
+  };
+}
+
+function visualQaEvidenceToReport(
+  evidence: EvidenceFile<VisualQaEvidence>,
+): EvidenceFile<VisualQaEvidenceReport> {
+  return {
+    file: evidence.file,
+    value: buildVisualQaEvidenceReport({
+      inputFile: evidence.file,
+      evidence: evidence.value,
+    }),
   };
 }
 
