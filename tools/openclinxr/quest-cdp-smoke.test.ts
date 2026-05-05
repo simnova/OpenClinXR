@@ -448,6 +448,8 @@ describe("Quest CDP smoke probe", () => {
       frameSample: {
         timedOut: false,
         avgFrameMs: 13.5,
+        previewFramesObserved: 12,
+        immersiveFramesObserved: 90,
       },
       immersive: {
         clickedEnterVr: true,
@@ -463,6 +465,60 @@ describe("Quest CDP smoke probe", () => {
 
     expect(report.verdict.immersiveEntryOutcome).toBe("session_started");
     expect(report.verdict.blockers).not.toContain("quest_immersive_session_not_started");
+    expect(report.verdict.blockers).not.toContain("quest_cdp_immersive_frame_lane_not_observed");
+  });
+
+  it("blocks entered-VR smokes when frame sampling never observes immersive frames", () => {
+    const report = buildReport({
+      options: parseArgs(["--enter-vr"]),
+      adbVersion: "Android Debug Bridge version 1.0.41",
+      deviceLine: "1234 device product:quest3",
+      reverseList: "1234 tcp:5173 tcp:5173",
+      browser: {
+        title: "OpenClinXR Station Runtime",
+        bodyHasEdChestPain: true,
+        hasViteOverlay: false,
+        hidden: false,
+        visibilityState: "visible",
+        xrStatus: "In Full VR",
+        canvas: { dataUrlLength: 4096 },
+      },
+      interaction: {
+        afterTrace: "Trace 2/10",
+        clickedEcg: true,
+        clickedUrgent: true,
+      },
+      frameSample: {
+        timedOut: false,
+        avgFrameMs: 13.5,
+        previewFramesObserved: 120,
+        immersiveFramesObserved: 0,
+      },
+      immersive: {
+        clickedEnterVr: true,
+        immersiveSessionStarted: true,
+        xrStatusAfter: "In Full VR",
+        xrEntryEvidence: {
+          attempts: 1,
+          lastStatus: "started",
+          lastError: null,
+        },
+      },
+    });
+
+    expect(report.verdict).toMatchObject({
+      frameSampleComplete: false,
+      immersiveEntryOutcome: "session_started",
+      blockers: expect.arrayContaining([
+        "quest_cdp_frame_sample_incomplete",
+        "quest_cdp_immersive_frame_lane_not_observed",
+      ]),
+    });
+
+    const check = buildQuestSmokeEvidenceCheck("quest-enter-vr-zero-immersive-frames.json", report);
+    expect(check.blockers).toContain("quest_cdp_immersive_frame_lane_not_observed");
+    expect(check.readinessMatrix?.framePacingSample.blockers)
+      .toContain("quest_cdp_immersive_frame_lane_not_observed");
   });
 
   it("classifies a foreground-ready Quest smoke report for leadership evidence", () => {

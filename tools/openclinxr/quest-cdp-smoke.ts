@@ -619,7 +619,6 @@ export function buildReport(input: QuestSmokeReportInput): QuestSmokeReport {
     && interaction.clickedEcg === true
     && interaction.clickedUrgent === true;
   const pageVisible = browser.hidden === false && browser.visibilityState === "visible";
-  const frameSampleComplete = pageVisible && frameSample.timedOut === false && typeof frameSample.avgFrameMs === "number";
   const manualDraft = asRecord(browser.manualPerformanceDraft);
   const manualDraftStation = asRecord(manualDraft.station);
   const immersiveXrEntryEvidence = asRecord(immersive.xrEntryEvidence);
@@ -634,6 +633,14 @@ export function buildReport(input: QuestSmokeReportInput): QuestSmokeReport {
   );
   const xrEntryActivationReceived = immersiveEntryOutcome !== "activation_missed";
   const immersiveSessionStarted = immersiveEntryOutcome === "not_requested" || immersiveEntryOutcome === "session_started";
+  const immersiveFrameLaneObserved = immersiveEntryOutcome !== "session_started"
+    || (typeof frameSample.immersiveFramesObserved === "number"
+      && Number.isFinite(frameSample.immersiveFramesObserved)
+      && frameSample.immersiveFramesObserved > 0);
+  const frameSampleComplete = pageVisible
+    && frameSample.timedOut === false
+    && typeof frameSample.avgFrameMs === "number"
+    && immersiveFrameLaneObserved;
   const blockers = [
     shellLoaded ? undefined : "quest_shell_not_loaded",
     xrEntryActivationReceived ? undefined : "quest_immersive_entry_activation_not_received",
@@ -641,6 +648,7 @@ export function buildReport(input: QuestSmokeReportInput): QuestSmokeReport {
     interactionAdvanced ? undefined : "quest_trace_interaction_not_advanced",
     pageVisible ? undefined : "quest_page_hidden_or_inactive",
     frameSampleComplete ? undefined : "quest_cdp_frame_sample_incomplete",
+    immersiveFrameLaneObserved ? undefined : "quest_cdp_immersive_frame_lane_not_observed",
   ].filter((item): item is string => typeof item === "string");
 
   return {
@@ -862,6 +870,7 @@ function buildQuestSmokeReadinessMatrix(input: {
         "quest_no_frames_observed_during_probe",
         "quest_latest_frame_stale_over_1000ms",
         "quest_frame_quality_evidence_missing",
+        "quest_cdp_immersive_frame_lane_not_observed",
       ],
     }),
     stationRuntimeEvidence: input.stationRuntimeEvidenceRequired
