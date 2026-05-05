@@ -5,7 +5,7 @@
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T18:13:48.812Z",
-      "age_hours": 7,
+      "age_hours": 8,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -23,7 +23,7 @@
       "evidence_id": "gltf_pipeline_smoke",
       "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
       "generated_at": "2026-05-04T23:49:36.820Z",
-      "age_hours": 1,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -32,7 +32,7 @@
       "evidence_id": "blender_asset_bake_smoke",
       "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T05:06:10.560Z",
-      "age_hours": 20,
+      "age_hours": 21,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -50,7 +50,7 @@
       "evidence_id": "asset_production_readiness_benchmark",
       "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T21:11:11.999Z",
-      "age_hours": 4,
+      "age_hours": 5,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -59,7 +59,7 @@
       "evidence_id": "local_provider_benchmark",
       "file": "docs/openclinxr/local-provider-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T14:53:24.787Z",
-      "age_hours": 10,
+      "age_hours": 11,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -68,7 +68,7 @@
       "evidence_id": "local_model_runtime_benchmark",
       "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T14:57:50Z",
-      "age_hours": 10,
+      "age_hours": 11,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -86,7 +86,7 @@
       "evidence_id": "local_voice_runtime_benchmark",
       "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T15:01:12Z",
-      "age_hours": 10,
+      "age_hours": 11,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -95,7 +95,7 @@
       "evidence_id": "local_voice_live_dialog_benchmark",
       "file": "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T20:47:52.004Z",
-      "age_hours": 4,
+      "age_hours": 5,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -113,7 +113,7 @@
       "evidence_id": "api_python_backend_runtime_smoke",
       "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-04.json",
       "generated_at": "2026-05-05T01:02:37.265Z",
-      "age_hours": 0,
+      "age_hours": 1,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -121,7 +121,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-05T01:35:50.588Z",
+      "generated_at": "2026-05-05T02:14:17.057Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -1099,7 +1099,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-05T01:35:50.588Z",
+    "generated_at": "2026-05-05T02:14:17.057Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "ready_to_claim_frame_pacing": false,
     "satisfied_conditions": [
@@ -1112,6 +1112,7 @@
       "performance_source_openclinxr_frame_stats",
       "experience_mode_full_vr_recorded",
       "hand_or_controller_input_observed",
+      "motion_comfort_confirmed",
       "battery_drop_recorded_under_20"
     ],
     "blockers": [
@@ -1120,6 +1121,7 @@
       "trace_interaction_not_confirmed",
       "locomotion_not_observed",
       "frame_sample_under_600_or_missing",
+      "immersive_frame_count_zero_or_missing",
       "rolling_frame_window_under_120_or_missing",
       "average_fps_below_72_or_missing",
       "minimum_fps_below_60_or_missing",
@@ -1242,6 +1244,7 @@
         "local_voice_python_backend_runtime_smoke_passed",
         "local_voice_ready_to_benchmark",
         "local_voice_realtime_transport_contract_observed",
+        "motion_comfort_confirmed",
         "performance_source_openclinxr_frame_stats",
         "performed_by_recorded",
         "quest_cdp_adb_device_recorded",
@@ -1269,6 +1272,7 @@
         "quest_manual_performance:duration_under_10_minutes",
         "quest_manual_performance:frame_sample_under_600_or_missing",
         "quest_manual_performance:heat_concern_not_cleared",
+        "quest_manual_performance:immersive_frame_count_zero_or_missing",
         "quest_manual_performance:locomotion_not_observed",
         "quest_manual_performance:minimum_fps_below_60_or_missing",
         "quest_manual_performance:p95_frame_ms_above_25_or_missing",
@@ -1277,7 +1281,7 @@
         "quest_text_panel_metadata_missing"
       ],
       "blocker_summary": {
-        "total_blockers": 16,
+        "total_blockers": 17,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -1295,6 +1299,7 @@
               "quest_manual_performance:duration_under_10_minutes",
               "quest_manual_performance:frame_sample_under_600_or_missing",
               "quest_manual_performance:heat_concern_not_cleared",
+              "quest_manual_performance:immersive_frame_count_zero_or_missing",
               "quest_manual_performance:locomotion_not_observed",
               "quest_manual_performance:minimum_fps_below_60_or_missing",
               "quest_manual_performance:p95_frame_ms_above_25_or_missing",
@@ -1319,6 +1324,7 @@
         "generated_at_valid",
         "hand_or_controller_input_observed",
         "immersive_session_started",
+        "motion_comfort_confirmed",
         "performance_source_openclinxr_frame_stats",
         "performed_by_recorded",
         "quest_cdp_adb_device_recorded",
@@ -1346,6 +1352,7 @@
         "quest_manual_performance:duration_under_10_minutes",
         "quest_manual_performance:frame_sample_under_600_or_missing",
         "quest_manual_performance:heat_concern_not_cleared",
+        "quest_manual_performance:immersive_frame_count_zero_or_missing",
         "quest_manual_performance:locomotion_not_observed",
         "quest_manual_performance:minimum_fps_below_60_or_missing",
         "quest_manual_performance:p95_frame_ms_above_25_or_missing",
@@ -1354,7 +1361,7 @@
         "quest_text_panel_metadata_missing"
       ],
       "blocker_summary": {
-        "total_blockers": 16,
+        "total_blockers": 17,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -1372,6 +1379,7 @@
               "quest_manual_performance:duration_under_10_minutes",
               "quest_manual_performance:frame_sample_under_600_or_missing",
               "quest_manual_performance:heat_concern_not_cleared",
+              "quest_manual_performance:immersive_frame_count_zero_or_missing",
               "quest_manual_performance:locomotion_not_observed",
               "quest_manual_performance:minimum_fps_below_60_or_missing",
               "quest_manual_performance:p95_frame_ms_above_25_or_missing",
