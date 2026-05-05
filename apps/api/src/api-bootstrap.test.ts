@@ -149,6 +149,55 @@ describe("OpenClinXR API startup", () => {
     expect(sentFrames.at(-1)).toEqual(new Uint8Array([0x4f, 0x70, 0x75, 0x73]));
   });
 
+  it("can proxy Bun realtime voice frames to a configured Python backend websocket", () => {
+    const startup = createOpenClinXrApiStartup().startUp();
+    const backendSockets: FakeBackendWebSocket[] = [];
+    const config = createBunServerConfig(startup, {
+      port: 4322,
+      pythonBackendWebSocketUrl: "ws://127.0.0.1:8765/voice/realtime/ws",
+      backendWebSocketFactory: (url: string) => {
+        const socket = new FakeBackendWebSocket(url);
+        backendSockets.push(socket);
+        return socket;
+      },
+    });
+    const sentFrames: unknown[] = [];
+    const clientSocket = {
+      send(frame: string | Uint8Array) {
+        sentFrames.push(frame);
+      },
+    };
+    const buffer = new Uint8Array([0xff, 0x4f, 0x70, 0x75, 0x73, 0xee]).buffer;
+
+    config.websocket.open(clientSocket);
+    expect(backendSockets).toHaveLength(1);
+    expect(JSON.parse(sentFrames[0] as string)).toMatchObject({
+      type: "gateway.ready",
+      protocol: "bun-native-python-backend-proxy",
+      backendUrlConfigured: true,
+    });
+
+    config.websocket.message(clientSocket, JSON.stringify({ type: "voice.start", sessionId: "run-001" }));
+    config.websocket.message(clientSocket, new DataView(buffer, 1, 4));
+    expect(backendSockets[0]?.sentFrames).toEqual([]);
+
+    backendSockets[0]?.emitOpen();
+    expect(backendSockets[0]?.sentFrames).toEqual([
+      JSON.stringify({ type: "voice.start", sessionId: "run-001" }),
+      new Uint8Array([0x4f, 0x70, 0x75, 0x73]),
+    ]);
+
+    backendSockets[0]?.emitMessage(JSON.stringify({ type: "backend.ready" }));
+    backendSockets[0]?.emitMessage(new Uint8Array([0x61, 0x75]));
+    expect(sentFrames.slice(1)).toEqual([
+      JSON.stringify({ type: "backend.ready" }),
+      new Uint8Array([0x61, 0x75]),
+    ]);
+
+    config.websocket.close(clientSocket);
+    expect(backendSockets[0]?.closed).toBe(true);
+  });
+
   it("threads Bun runtime posture into the Bun plus Hono server facade", async () => {
     const startup = createOpenClinXrApiStartup({
       realtimeVoiceGatewayPosture: {
@@ -289,3 +338,40 @@ describe("OpenClinXR API startup", () => {
     });
   });
 });
+
+class FakeBackendWebSocket {
+  readonly sentFrames: Array<string | Uint8Array> = [];
+  readonly listeners = new Map<string, Array<(event: { data?: unknown; message?: string }) => void>>();
+  readyState = 0;
+  closed = false;
+
+  constructor(readonly url: string) {}
+
+  send(frame: string | Uint8Array): void {
+    this.sentFrames.push(frame);
+  }
+
+  close(): void {
+    this.closed = true;
+    this.readyState = 3;
+  }
+
+  addEventListener(type: string, listener: (event: { data?: unknown; message?: string }) => void): void {
+    this.listeners.set(type, [...(this.listeners.get(type) ?? []), listener]);
+  }
+
+  emitOpen(): void {
+    this.readyState = 1;
+    this.emit("open", {});
+  }
+
+  emitMessage(data: string | Uint8Array): void {
+    this.emit("message", { data });
+  }
+
+  private emit(type: string, event: { data?: unknown; message?: string }): void {
+    for (const listener of this.listeners.get(type) ?? []) {
+      listener(event);
+    }
+  }
+}

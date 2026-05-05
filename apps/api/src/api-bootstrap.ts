@@ -67,14 +67,32 @@ export type BunRealtimeVoiceWebSocket = {
   data?: {
     audioChunks: number;
     audioBytes: number;
+    proxyMode: "local_echo" | "python_backend_proxy";
+    backendSocket?: BunRealtimeVoiceBackendWebSocket;
+    queuedBackendFrames: Array<string | Uint8Array>;
   };
   send(frame: string | Uint8Array): void | number | Promise<void | number>;
 };
+
+export type BunRealtimeVoiceBackendWebSocket = {
+  readyState?: number;
+  send(frame: string | Uint8Array): void | number | Promise<void | number>;
+  close(): void;
+  addEventListener(type: "open" | "message" | "close" | "error", listener: (event: { data?: unknown; message?: string; error?: unknown }) => void): void;
+};
+
+export type BunRealtimeVoiceBackendWebSocketFactory = (url: string) => BunRealtimeVoiceBackendWebSocket;
 
 export type BunRealtimeVoiceWebSocketHandler = {
   open(socket: BunRealtimeVoiceWebSocket): void;
   message(socket: BunRealtimeVoiceWebSocket, message: string | ArrayBuffer | ArrayBufferView): void;
   close(socket: BunRealtimeVoiceWebSocket): void;
+};
+
+export type BunServerConfigOptions = {
+  port?: number;
+  pythonBackendWebSocketUrl?: string;
+  backendWebSocketFactory?: BunRealtimeVoiceBackendWebSocketFactory;
 };
 
 export type OpenClinXrApiStartupOptions = {
@@ -182,14 +200,19 @@ export function createNodeServerConfig(startup: StartedOpenClinXrApi = createOpe
   };
 }
 
-export function createBunServerConfig(startup: StartedOpenClinXrApi = createOpenClinXrApiStartup().startUp(), options: { port?: number } = {}): BunServerConfig {
+export function createBunServerConfig(startup: StartedOpenClinXrApi = createOpenClinXrApiStartup().startUp(), options: BunServerConfigOptions = {}): BunServerConfig {
+  const websocketOptions = {
+    ...(options.pythonBackendWebSocketUrl ? { pythonBackendWebSocketUrl: options.pythonBackendWebSocketUrl } : {}),
+    ...(options.backendWebSocketFactory ? { backendWebSocketFactory: options.backendWebSocketFactory } : {}),
+  };
+
   return {
     runtime: "bun-hono",
     fetch: startup.fetch,
     port: options.port ?? Number(process.env.PORT ?? 3000),
     websocketPath: "/voice/realtime/ws",
     canUpgradeWebSocketRequest: isRealtimeVoiceWebSocketUpgradeRequest,
-    websocket: createBunRealtimeVoiceWebSocketHandler(),
+    websocket: createBunRealtimeVoiceWebSocketHandler(websocketOptions),
     protocolSupport: startup.protocolSupport,
   };
 }
@@ -199,24 +222,48 @@ function isRealtimeVoiceWebSocketUpgradeRequest(request: Request): boolean {
   return url.pathname === "/voice/realtime/ws" && request.headers.get("upgrade")?.toLowerCase() === "websocket";
 }
 
-function createBunRealtimeVoiceWebSocketHandler(): BunRealtimeVoiceWebSocketHandler {
+function createBunRealtimeVoiceWebSocketHandler(options: {
+  pythonBackendWebSocketUrl?: string;
+  backendWebSocketFactory?: BunRealtimeVoiceBackendWebSocketFactory;
+} = {}): BunRealtimeVoiceWebSocketHandler {
   return {
     open(socket) {
-      socket.data = { audioChunks: 0, audioBytes: 0 };
+      socket.data = {
+        audioChunks: 0,
+        audioBytes: 0,
+        proxyMode: options.pythonBackendWebSocketUrl ? "python_backend_proxy" : "local_echo",
+        queuedBackendFrames: [],
+      };
       sendBunWebSocketJson(socket, {
         type: "gateway.ready",
-        protocol: "bun-native-json-control-and-binary-audio-echo",
+        protocol: options.pythonBackendWebSocketUrl
+          ? "bun-native-python-backend-proxy"
+          : "bun-native-json-control-and-binary-audio-echo",
+        backendUrlConfigured: Boolean(options.pythonBackendWebSocketUrl),
         readyForLiveDialog: false,
       });
+      if (options.pythonBackendWebSocketUrl) {
+        connectPythonVoiceBackend(socket, options.pythonBackendWebSocketUrl, options.backendWebSocketFactory);
+      }
     },
     message(socket, message) {
+      if (socket.data?.proxyMode === "python_backend_proxy") {
+        forwardRealtimeVoiceFrameToBackend(socket, message);
+        return;
+      }
+
       if (typeof message === "string") {
         acknowledgeRealtimeVoiceControlFrame(socket, message);
         return;
       }
 
       const chunk = toUint8Array(message);
-      const data = socket.data ?? { audioChunks: 0, audioBytes: 0 };
+      const data = socket.data ?? {
+        audioChunks: 0,
+        audioBytes: 0,
+        proxyMode: "local_echo" as const,
+        queuedBackendFrames: [],
+      };
       data.audioChunks += 1;
       data.audioBytes += chunk.byteLength;
       socket.data = data;
@@ -236,9 +283,102 @@ function createBunRealtimeVoiceWebSocketHandler(): BunRealtimeVoiceWebSocketHand
       socket.send(chunk);
     },
     close(socket) {
+      socket.data?.backendSocket?.close();
       delete socket.data;
     },
   };
+}
+
+function connectPythonVoiceBackend(
+  socket: BunRealtimeVoiceWebSocket,
+  backendUrl: string,
+  backendWebSocketFactory: BunRealtimeVoiceBackendWebSocketFactory | undefined,
+): void {
+  const factory = backendWebSocketFactory ?? defaultBunRealtimeVoiceBackendWebSocketFactory();
+  if (!factory) {
+    sendBunWebSocketJson(socket, {
+      type: "backend.error",
+      reason: "backend_websocket_client_unavailable",
+    });
+    return;
+  }
+
+  try {
+    const backendSocket = factory(backendUrl);
+    if (!socket.data) {
+      backendSocket.close();
+      return;
+    }
+    socket.data.backendSocket = backendSocket;
+    backendSocket.addEventListener("open", () => flushQueuedBackendFrames(socket));
+    backendSocket.addEventListener("message", (event) => {
+      const frame = backendEventDataToFrame(event.data);
+      if (frame) {
+        socket.send(frame);
+      }
+    });
+    backendSocket.addEventListener("close", () => {
+      sendBunWebSocketJson(socket, { type: "backend.closed" });
+    });
+    backendSocket.addEventListener("error", (event) => {
+      sendBunWebSocketJson(socket, {
+        type: "backend.error",
+        reason: "backend_websocket_error",
+        message: event.message ?? (event.error instanceof Error ? event.error.message : "unknown"),
+      });
+    });
+  } catch (error) {
+    sendBunWebSocketJson(socket, {
+      type: "backend.error",
+      reason: "backend_websocket_connect_failed",
+      message: error instanceof Error ? error.message : "unknown",
+    });
+  }
+}
+
+function forwardRealtimeVoiceFrameToBackend(
+  socket: BunRealtimeVoiceWebSocket,
+  message: string | ArrayBuffer | ArrayBufferView,
+): void {
+  const frame = typeof message === "string" ? message : toUint8Array(message);
+  const data = socket.data;
+  if (!data?.backendSocket) {
+    sendBunWebSocketJson(socket, {
+      type: "backend.error",
+      reason: "backend_websocket_not_connected",
+    });
+    return;
+  }
+  if (data.backendSocket.readyState === 1) {
+    data.backendSocket.send(frame);
+    return;
+  }
+  data.queuedBackendFrames.push(frame);
+}
+
+function flushQueuedBackendFrames(socket: BunRealtimeVoiceWebSocket): void {
+  const data = socket.data;
+  if (!data?.backendSocket || data.backendSocket.readyState !== 1) {
+    return;
+  }
+  for (const frame of data.queuedBackendFrames.splice(0)) {
+    data.backendSocket.send(frame);
+  }
+}
+
+function backendEventDataToFrame(data: unknown): string | Uint8Array | null {
+  if (typeof data === "string") {
+    return data;
+  }
+  if (data instanceof ArrayBuffer || ArrayBuffer.isView(data)) {
+    return toUint8Array(data);
+  }
+  return null;
+}
+
+function defaultBunRealtimeVoiceBackendWebSocketFactory(): BunRealtimeVoiceBackendWebSocketFactory | undefined {
+  const WebSocketCtor = (globalThis as { WebSocket?: new(url: string) => unknown }).WebSocket;
+  return WebSocketCtor ? (url) => new WebSocketCtor(url) as BunRealtimeVoiceBackendWebSocket : undefined;
 }
 
 function acknowledgeRealtimeVoiceControlFrame(socket: BunRealtimeVoiceWebSocket, payload: string): void {

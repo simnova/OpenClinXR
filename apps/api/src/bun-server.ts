@@ -24,8 +24,10 @@ const startup = createOpenClinXrApiStartup({
     pythonInferenceRuntimeInstalled: false,
   },
 }).startUp();
+const pythonBackendWebSocketUrl = process.env.OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL;
 const config = createBunServerConfig(startup, {
   port: Number(process.env.PORT ?? 3000),
+  ...(pythonBackendWebSocketUrl ? { pythonBackendWebSocketUrl } : {}),
 });
 const server = bun.serve({
   port: config.port,
