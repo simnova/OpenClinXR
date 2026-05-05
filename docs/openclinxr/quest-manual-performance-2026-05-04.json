@@ -30,6 +30,16 @@
     "handModelStatus": "active",
     "handInputsObserved": 2,
     "locomotionMode": "thumbstick",
+    "activeLocomotionSource": "none",
+    "xrHandGestureState": {
+      "armed": false,
+      "dwellMs": 0,
+      "leftPinch": false,
+      "rightPinch": false,
+      "gestureDeadzoneMeters": 0.045,
+      "turnCooldownMs": 450,
+      "blockedReason": "not_pinching"
+    },
     "lastLocomotionAtMs": null,
     "rigPosition": {
       "x": 0,

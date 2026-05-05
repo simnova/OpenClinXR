@@ -313,6 +313,16 @@ describe("Quest manual performance checker", () => {
         handModelStatus: "active",
         handInputsObserved: 2,
         locomotionMode: "thumbstick",
+        activeLocomotionSource: "none",
+        xrHandGestureState: {
+          armed: false,
+          dwellMs: 0,
+          leftPinch: false,
+          rightPinch: false,
+          gestureDeadzoneMeters: 0.045,
+          turnCooldownMs: 450,
+          blockedReason: "not_pinching",
+        },
         lastLocomotionAtMs: null,
         rigPosition: { x: 0, z: 0 },
       },
@@ -369,6 +379,35 @@ describe("Quest manual performance checker", () => {
     expect(check.nextSteps).toEqual(expect.arrayContaining([
       "Replace primitive box hands with an articulated hand model or document why controller-only affordances are acceptable for this station.",
       "Keep the headset foreground for a longer run and verify window.__openClinXrFrameStats increments while immersive mode is active.",
+    ]));
+  });
+
+  it("keeps the tracked Patrick Quest evidence below readiness while preserving useful observations", async () => {
+    const evidencePath = "docs/openclinxr/quest-manual-performance-2026-05-04.json";
+    const report = JSON.parse(await readFile(evidencePath, "utf8")) as QuestManualPerformanceReport;
+
+    const check = buildQuestManualPerformanceCheck(evidencePath, report);
+
+    expect(report.runContext?.performedBy).toBe("Patrick Gidich");
+    expect(report.input?.activeLocomotionSource).toBe("none");
+    expect(report.input?.xrHandGestureState?.armed).toBe(false);
+    expect(check.readyToClaimFramePacing).toBe(false);
+    expect(check.satisfiedConditions).toEqual(expect.arrayContaining([
+      "immersive_session_started",
+      "text_readability_confirmed",
+      "hand_or_controller_input_observed",
+    ]));
+    expect(check.blockers).toEqual(expect.arrayContaining([
+      "duration_under_10_minutes",
+      "trace_interaction_not_confirmed",
+      "locomotion_not_observed",
+      "frame_sample_under_600_or_missing",
+      "immersive_frame_count_zero_or_missing",
+    ]));
+    expect(check.adversarialFindings).toEqual(expect.arrayContaining([
+      "hand_tracking_observed_without_realistic_hand_meshes",
+      "locomotion_mode_declared_without_locomotion_event",
+      "immersive_session_started_but_frame_stats_empty",
     ]));
   });
 
