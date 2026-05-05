@@ -37,6 +37,7 @@ import {
   completeTraceAction,
   createInitialRuntimeState,
   eventTypeForTraceTag,
+  formatManualEvidenceCopyStatus,
   formatStationClock,
   iwsdkStationSceneObjects,
   isImmersiveFrameEvidenceActive,
@@ -45,6 +46,7 @@ import {
   stationTraceActionTags,
   summarizeTraceReadiness,
   type LocomotionVectorEvidence,
+  type ManualEvidenceCopyDisposition,
   type ManualPerformanceCaptureSummary,
   type ManualPerformanceDraft,
   type ManualPerformanceFrameStats,
@@ -325,20 +327,24 @@ const copyEvidenceButton = requireElement<HTMLButtonElement>("#copy-evidence-but
 const copyEvidenceStatus = requireElement<HTMLElement>("#copy-evidence-status");
 const manualEvidenceJson = requireElement<HTMLTextAreaElement>("#manual-evidence-json");
 window.__openClinXrExperienceModeEvidence = xrExperienceModeEvidence;
+let evidenceCopyDisposition: ManualEvidenceCopyDisposition = "not_copied";
 
 copyEvidenceButton.addEventListener("click", () => {
   const payload = updateManualEvidencePanel();
   if (navigator.clipboard) {
     void navigator.clipboard.writeText(payload)
       .then(() => {
-        copyEvidenceStatus.textContent = "Copied";
+        evidenceCopyDisposition = "copied";
+        updateManualEvidencePanel();
       })
       .catch(() => {
-        copyEvidenceStatus.textContent = "Copy blocked";
+        evidenceCopyDisposition = "copy_blocked";
+        updateManualEvidencePanel();
       });
     return;
   }
-  copyEvidenceStatus.textContent = "Clipboard unavailable";
+  evidenceCopyDisposition = "clipboard_unavailable";
+  updateManualEvidencePanel();
 });
 
 function renderControls(): void {
@@ -1732,6 +1738,7 @@ function updateManualEvidencePanel(): string {
     summary.manualValidationReady ? "manual validation ready" : "draft only",
     summary.blockers.length === 0 ? "no blockers" : `${summary.blockers.length} blockers`,
   ].join(" | ");
+  copyEvidenceStatus.textContent = formatManualEvidenceCopyStatus(summary, evidenceCopyDisposition);
   const manualPerformanceDraft = window.__openClinXrManualPerformanceDraft ?? null;
   const payload = JSON.stringify({
     manualPerformanceDraft,

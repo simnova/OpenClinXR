@@ -407,6 +407,12 @@ export type ManualPerformanceCaptureSummary = {
   blockers: string[];
 };
 
+export type ManualEvidenceCopyDisposition =
+  | "not_copied"
+  | "copied"
+  | "copy_blocked"
+  | "clipboard_unavailable";
+
 export type ManualPerformanceCaptureSummaryInput = {
   draft?: ManualPerformanceDraft | null | undefined;
   frameStats?: ManualPerformanceFrameStats | null | undefined;
@@ -1411,6 +1417,24 @@ export function buildManualPerformanceCaptureSummary(
     satisfiedConditions: preview.satisfiedConditions,
     blockers,
   };
+}
+
+export function formatManualEvidenceCopyStatus(
+  summary: ManualPerformanceCaptureSummary,
+  disposition: ManualEvidenceCopyDisposition,
+): string {
+  const dispositionLabel: Record<ManualEvidenceCopyDisposition, string> = {
+    not_copied: "Not copied",
+    copied: "Copied",
+    copy_blocked: "Copy blocked",
+    clipboard_unavailable: "Clipboard unavailable",
+  };
+  const readiness = summary.manualValidationReady ? "ready" : "draft";
+  const blockerCount = summary.blockers.length;
+  const blockerText = blockerCount === 0
+    ? "no blockers"
+    : `${blockerCount} ${blockerCount === 1 ? "blocker" : "blockers"}`;
+  return `${dispositionLabel[disposition]}: ${readiness}; ${blockerText}`;
 }
 
 function nullableRoundedMetric(value: number | null): number | null {

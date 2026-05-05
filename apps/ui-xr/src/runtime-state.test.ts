@@ -15,6 +15,7 @@ import {
   evaluateIwsdkStationMcpSmokeEvidence,
   evaluateXrExperienceModeReadiness,
   findXrExperienceModeContract,
+  formatManualEvidenceCopyStatus,
   formatStationClock,
   iwsdkStationMcpSmokePlanHash,
   iwsdkStationMcpSmokeToolOrder,
@@ -863,6 +864,26 @@ describe("XR runtime state", () => {
       manualValidationReady: false,
       blockers: ["missing_manual_performance_draft", "missing_frame_stats"],
     });
+  });
+
+  it("labels copied Quest evidence as ready or draft with blocker counts", () => {
+    const missingSummary = buildManualPerformanceCaptureSummary({
+      draft: undefined,
+      frameStats: undefined,
+      now: 1300,
+    });
+
+    expect(formatManualEvidenceCopyStatus(missingSummary, "not_copied")).toBe("Not copied: draft; 2 blockers");
+    expect(formatManualEvidenceCopyStatus({
+      ...missingSummary,
+      manualValidationReady: true,
+      blockers: [],
+    }, "copied")).toBe("Copied: ready; no blockers");
+    expect(formatManualEvidenceCopyStatus({
+      ...missingSummary,
+      blockers: ["frame_stats_stale_or_unsampled"],
+    }, "copy_blocked")).toBe("Copy blocked: draft; 1 blocker");
+    expect(formatManualEvidenceCopyStatus(missingSummary, "clipboard_unavailable")).toBe("Clipboard unavailable: draft; 2 blockers");
   });
 
   it("reports manual validation readiness for a complete ten-minute capture preview", () => {

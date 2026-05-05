@@ -135,6 +135,9 @@ describe("static browser assets", () => {
     expect(runtimeStateSource).toContain("browser_reported_metadata_not_device_firmware_proof");
     expect(runtimeStateSource).toContain("manualValidationReady");
     expect(runtimeStateSource).toContain("frame_stats_stale_or_unsampled");
+    expect(runtimeStateSource).toContain("formatManualEvidenceCopyStatus");
+    expect(runtimeStateSource).toContain("Clipboard unavailable");
+    expect(mainSource).toContain("evidenceCopyDisposition");
     expect(mainSource).toContain("navigator.clipboard.writeText");
   });
 
