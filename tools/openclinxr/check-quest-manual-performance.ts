@@ -58,6 +58,9 @@ export type QuestManualPerformanceReport = {
     source?: string;
     framesObserved?: number | null;
     sampleWindowSize?: number | null;
+    firstFrameAtMs?: number | null;
+    previewFramesObserved?: number | null;
+    immersiveFramesObserved?: number | null;
     avgFps?: number | null;
     p95FrameMs?: number | null;
     minimumObservedFps?: number | null;
@@ -154,6 +157,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
   const performedBy = report.runContext?.performedBy ?? "";
   const framesObserved = report.performance?.framesObserved ?? null;
   const sampleWindowSize = report.performance?.sampleWindowSize ?? null;
+  const immersiveFramesObserved = report.performance?.immersiveFramesObserved ?? null;
   const batteryDropPercent = report.comfort?.batteryDropPercent ?? null;
   const avgFps = report.performance?.avgFps ?? null;
   const p95FrameMs = report.performance?.p95FrameMs ?? null;
@@ -164,6 +168,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
   const locomotionObserved = hasObservedLocomotion(report.input);
   const framesObservedValid = isNonNegativeInteger(framesObserved);
   const sampleWindowSizeValid = isNonNegativeInteger(sampleWindowSize);
+  const immersiveFramesObservedValid = isNonNegativeInteger(immersiveFramesObserved);
   const sampleWindowWithinObservedFrames = framesObservedValid
     && sampleWindowSizeValid
     && sampleWindowSize <= framesObserved;
@@ -198,6 +203,13 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
     report.performance?.source === "window.__openClinXrFrameStats" ? undefined : "performance_source_not_openclinxr_frame_stats",
     typeof framesObserved === "number" && !framesObservedValid ? "frames_observed_not_non_negative_integer" : undefined,
     framesObserved === null || (framesObservedValid && framesObserved < 600) ? "frame_sample_under_600_or_missing" : undefined,
+    typeof immersiveFramesObserved === "number" && !immersiveFramesObservedValid
+      ? "immersive_frames_observed_not_non_negative_integer"
+      : undefined,
+    report.station?.immersiveSessionStarted === true
+    && (immersiveFramesObserved === null || (immersiveFramesObservedValid && immersiveFramesObserved <= 0))
+      ? "immersive_frame_count_zero_or_missing"
+      : undefined,
     typeof sampleWindowSize === "number" && !sampleWindowSizeValid ? "rolling_frame_window_not_non_negative_integer" : undefined,
     sampleWindowSizeValid && framesObservedValid && sampleWindowSize > framesObserved ? "rolling_frame_window_exceeds_frames_observed" : undefined,
     sampleWindowSize === null || (sampleWindowSizeValid && sampleWindowSize < 120) ? "rolling_frame_window_under_120_or_missing" : undefined,
@@ -245,6 +257,9 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
       report.station?.textReadable === true ? "text_readability_confirmed" : undefined,
       report.performance?.source === "window.__openClinXrFrameStats" ? "performance_source_openclinxr_frame_stats" : undefined,
       framesObservedValid && framesObserved >= 600 ? "frame_sample_600_or_more" : undefined,
+      report.station?.immersiveSessionStarted === true && immersiveFramesObservedValid && immersiveFramesObserved > 0
+        ? "immersive_frame_count_recorded"
+        : undefined,
       sampleWindowWithinObservedFrames && sampleWindowSize >= 120 ? "rolling_frame_window_120_or_more" : undefined,
       avgFpsPlausible && avgFps >= 72 ? "average_fps_72_or_higher" : undefined,
       minimumObservedFpsPlausible && minimumFpsAtOrBelowAverage && minimumObservedFps >= 60 ? "minimum_fps_60_or_higher" : undefined,
@@ -361,6 +376,10 @@ function questManualNextStepForBlocker(blocker: string): string {
       return "Record framesObserved as a non-negative integer.";
     case "frame_sample_under_600_or_missing":
       return "Observe at least 600 frames before claiming frame pacing.";
+    case "immersive_frames_observed_not_non_negative_integer":
+      return "Record immersiveFramesObserved as a non-negative integer.";
+    case "immersive_frame_count_zero_or_missing":
+      return "Copy the in-app Quest Evidence payload after entering Full VR and confirm performance.immersiveFramesObserved is greater than zero.";
     case "rolling_frame_window_not_non_negative_integer":
       return "Record sampleWindowSize as a non-negative integer.";
     case "rolling_frame_window_exceeds_frames_observed":

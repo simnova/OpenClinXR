@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T02:04:31.972Z",
+  "generatedAt": "2026-05-05T02:11:56.742Z",
   "inputFile": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
   "readyToClaimFramePacing": false,
   "satisfiedConditions": [
@@ -21,6 +21,7 @@
     "trace_interaction_not_confirmed",
     "locomotion_not_observed",
     "frame_sample_under_600_or_missing",
+    "immersive_frame_count_zero_or_missing",
     "rolling_frame_window_under_120_or_missing",
     "average_fps_below_72_or_missing",
     "minimum_fps_below_60_or_missing",
@@ -44,6 +45,7 @@
     "Confirm a trace interaction advances in the headset.",
     "Observe thumbstick, hand-gesture, or room-scale locomotion and record lastLocomotionAtMs.",
     "Observe at least 600 frames before claiming frame pacing.",
+    "Copy the in-app Quest Evidence payload after entering Full VR and confirm performance.immersiveFramesObserved is greater than zero.",
     "Record a rolling frame window with at least 120 samples.",
     "Record average FPS at or above 72.",
     "Record minimum observed FPS at or above 60.",

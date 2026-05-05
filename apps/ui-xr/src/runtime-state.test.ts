@@ -385,7 +385,10 @@ describe("XR runtime state", () => {
       maxFrameMs: 40,
       approxFps: 45.5,
       framesObserved: 4,
+      firstFrameAtMs: 1000,
       sampleWindowSize: 3,
+      previewFramesObserved: 1,
+      immersiveFramesObserved: 3,
       latestFrameAtMs: 1234.56,
     })).toEqual({
       avgFps: 45.5,
@@ -395,6 +398,9 @@ describe("XR runtime state", () => {
       source: "window.__openClinXrFrameStats",
       framesObserved: 4,
       sampleWindowSize: 3,
+      firstFrameAtMs: 1000,
+      previewFramesObserved: 1,
+      immersiveFramesObserved: 3,
     });
   });
 
@@ -478,6 +484,9 @@ describe("XR runtime state", () => {
         source: "window.__openClinXrFrameStats",
         framesObserved: 4,
         sampleWindowSize: 3,
+        firstFrameAtMs: null,
+        previewFramesObserved: 0,
+        immersiveFramesObserved: 0,
         avgFps: 59.9,
         p95FrameMs: 18,
         minimumObservedFps: 45.5,

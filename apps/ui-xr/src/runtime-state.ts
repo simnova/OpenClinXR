@@ -93,6 +93,9 @@ export type ManualPerformanceMetrics = {
   source: "window.__openClinXrFrameStats";
   framesObserved: number;
   sampleWindowSize: number;
+  firstFrameAtMs?: number | null;
+  previewFramesObserved?: number;
+  immersiveFramesObserved?: number;
 };
 
 export type ManualPerformanceInputEvidence = {
@@ -720,6 +723,9 @@ export function manualPerformanceMetricsFromFrameStats(stats: ManualPerformanceF
     source: "window.__openClinXrFrameStats",
     framesObserved: stats.framesObserved,
     sampleWindowSize: stats.sampleWindowSize,
+    firstFrameAtMs: stats.firstFrameAtMs ?? null,
+    previewFramesObserved: stats.previewFramesObserved ?? 0,
+    immersiveFramesObserved: stats.immersiveFramesObserved ?? 0,
   };
 }
 
