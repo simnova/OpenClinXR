@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   buildQuestMixedRealityManualCheck,
@@ -70,6 +71,46 @@ function completedMixedRealityReport(): QuestMixedRealityManualReport {
 }
 
 describe("Quest Mixed Reality manual checker", () => {
+  it("keeps the committed template as a valid blocked-state artifact, not readiness evidence", () => {
+    const template = JSON.parse(
+      readFileSync("docs/openclinxr/quest-mixed-reality-manual-template.json", "utf8"),
+    ) as QuestMixedRealityManualReport;
+    const check = buildQuestMixedRealityManualCheck(
+      "docs/openclinxr/quest-mixed-reality-manual-template.json",
+      template,
+    );
+
+    expect(check.readyToClaimMixedRealityReadiness).toBe(false);
+    expect(check.readyToClaimFullVrReadiness).toBe(false);
+    expect(check.blockers).toEqual(expect.arrayContaining([
+      "generated_at_invalid_or_missing",
+      "performed_by_missing",
+      "duration_under_10_minutes",
+      "navigator_xr_missing",
+      "immersive_ar_not_supported",
+      "mixed_reality_session_not_started",
+      "clinical_text_not_readable",
+      "frame_sample_under_600_or_missing",
+      "motion_comfort_not_confirmed",
+    ]));
+    expect(check.notEvidenceFor).toEqual(expect.arrayContaining([
+      "replacement_for_full_vr",
+      "production_quest_readiness",
+      "passthrough_privacy_readiness",
+      "clinical_room_safety_readiness",
+    ]));
+  });
+
+  it("keeps the MR blocked-template check inside the IWSDK verification lane", () => {
+    const rootPackage = JSON.parse(readFileSync("package.json", "utf8")) as {
+      scripts?: Record<string, string>;
+    };
+
+    expect(rootPackage.scripts?.["iwsdk:verify"]).toContain(
+      "pnpm xr:quest:mr:check -- --input docs/openclinxr/quest-mixed-reality-manual-template.json --output .agent-factory/quest-mixed-reality-manual-template-check.json",
+    );
+  });
+
   it("accepts a completed mixed reality passthrough report without replacing Full VR evidence", () => {
     const check = buildQuestMixedRealityManualCheck("quest-mr.json", completedMixedRealityReport());
 
