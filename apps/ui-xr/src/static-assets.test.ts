@@ -1,5 +1,13 @@
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+
+const genericHandAssetHashes = {
+  "left.glb": "bc67783144944ea1cda54d9247885825ea5fb9d4651469fe7d00be517a5c2b87",
+  "right.glb": "291790c14f7f88a7f9bd35330c47392ed8e8d395ae6728f4bb7089f1bc1f2b96",
+  "profile.json": "749bb0624eb032d1e726e87dad398e6729020f35d62d2e9b431d4202e4c656fc",
+  "LICENSE.md": "0ef0c87e8ffdd0681f332dc3b39f284dee2166d1f853fabc3853884fe81a6f30",
+} as const;
 
 describe("static browser assets", () => {
   it("declares a local favicon to keep headset browser smoke logs clean", () => {
@@ -131,6 +139,18 @@ describe("static browser assets", () => {
     expect(existsSync(new URL("../public/xr-hands/generic-hand/right.glb", import.meta.url))).toBe(true);
     expect(existsSync(new URL("../public/xr-hands/generic-hand/LICENSE.md", import.meta.url))).toBe(true);
     expect(existsSync(new URL("../public/xr-hands/generic-hand/PROVENANCE.md", import.meta.url))).toBe(true);
+  });
+
+  it("keeps local hand mesh asset hashes aligned with reviewed provenance", () => {
+    const provenance = readFileSync(new URL("../public/xr-hands/generic-hand/PROVENANCE.md", import.meta.url), "utf8");
+
+    for (const [fileName, expectedHash] of Object.entries(genericHandAssetHashes)) {
+      const asset = readFileSync(new URL(`../public/xr-hands/generic-hand/${fileName}`, import.meta.url));
+      const actualHash = createHash("sha256").update(asset).digest("hex");
+
+      expect(actualHash).toBe(expectedHash);
+      expect(provenance).toContain(`generic-hand/${fileName}\` | \`${expectedHash}\``);
+    }
   });
 
   it("exposes a local manual-performance evidence export panel", () => {
