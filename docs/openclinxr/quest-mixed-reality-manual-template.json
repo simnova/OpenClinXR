@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "openclinxr.quest-mixed-reality-manual.v1",
+  "generatedAt": "YYYY-MM-DDTHH:mm:ss.sssZ",
+  "runContext": {
+    "performedBy": "",
+    "durationMinutes": 0,
+    "notes": "Complete this during a foreground in-headset Quest Browser Mixed Reality run."
+  },
+  "experience": {
+    "modeId": "mixed_reality_passthrough",
+    "requestedSessionMode": "immersive-ar",
+    "entryGate": "mr=approved",
+    "mixedRealityPassthroughImplemented": true
+  },
+  "webXr": {
+    "navigatorXrPresent": false,
+    "immersiveArSupported": null,
+    "immersiveArSupportCheckedAtMs": null,
+    "supportError": null
+  },
+  "entry": {
+    "operatorApproved": false,
+    "physicalUserGestureUsed": false,
+    "sessionStarted": false,
+    "lastOutcome": "not_requested",
+    "lastError": null
+  },
+  "passthrough": {
+    "observed": false,
+    "transparentBackgroundObserved": false,
+    "blackSkyboxOrFloorAbsent": false,
+    "realRoomRecorded": false
+  },
+  "readability": {
+    "clinicalTextReadable": false,
+    "panelsReadable": [],
+    "occlusionIssues": []
+  },
+  "privacySafety": {
+    "reviewCompleted": false,
+    "roomScanOrRecordingAvoided": true,
+    "bystandersOrPhiVisible": false,
+    "boundaryComfort": "not_run"
+  },
+  "performance": {
+    "source": "window.__openClinXrFrameStats",
+    "framesObserved": 0,
+    "immersiveFramesObserved": 0,
+    "avgFps": null,
+    "p95FrameMs": null
+  },
+  "comfort": {
+    "motionComfort": "not_run",
+    "heatConcern": null,
+    "batteryDropPercent": null
+  },
+  "notEvidenceFor": [
+    "replacement_for_full_vr",
+    "production_quest_readiness",
+    "passthrough_privacy_readiness",
+    "clinical_room_safety_readiness"
+  ]
+}

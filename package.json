@@ -69,6 +69,7 @@
     "xr:quest:smoke": "tsx tools/openclinxr/quest-cdp-smoke.ts",
     "xr:quest:smoke:validate": "tsx tools/openclinxr/quest-cdp-smoke.ts --validate-latest",
     "xr:quest:manual:check": "tsx tools/openclinxr/check-quest-manual-performance.ts",
+    "xr:quest:mr:check": "tsx tools/openclinxr/check-quest-mixed-reality-manual.ts",
     "hygiene:knip": "knip --no-progress --reporter compact --no-exit-code",
     "hygiene:e18e:help": "e18e-cli analyze --help",
     "hygiene:e18e:analyze": "e18e-cli analyze --log-level error"
