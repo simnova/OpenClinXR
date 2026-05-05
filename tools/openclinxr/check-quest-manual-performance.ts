@@ -55,6 +55,25 @@ export type QuestManualPerformanceReport = {
       x?: number;
       z?: number;
     };
+    locomotionDelta?: {
+      from?: {
+        x?: number;
+        z?: number;
+        yawRadians?: number;
+      };
+      to?: {
+        x?: number;
+        z?: number;
+        yawRadians?: number;
+      };
+      delta?: {
+        x?: number;
+        z?: number;
+        yawRadians?: number;
+      };
+      distanceMeters?: number;
+      turnRadians?: number;
+    };
   } | null;
   traceLatencyProxy?: {
     lastTraceTag?: string | null;
@@ -126,6 +145,7 @@ export type QuestManualPerformanceCopiedPayload = {
 };
 
 export type QuestManualPerformancePayload = QuestManualPerformanceReport | QuestManualPerformanceCopiedPayload;
+type QuestManualLocomotionDelta = NonNullable<NonNullable<QuestManualPerformanceReport["input"]>["locomotionDelta"]>;
 
 export type QuestManualPerformanceCheck = {
   generatedAt: string;
@@ -452,6 +472,9 @@ function buildAdversarialFindings(input: {
   const locomotionModeDeclared = typeof input.report.input?.locomotionMode === "string"
     && input.report.input.locomotionMode.trim().length > 0;
   const locomotionEventMissing = typeof input.report.input?.lastLocomotionAtMs !== "number";
+  const locomotionSourceDeclared = typeof input.report.input?.activeLocomotionSource === "string"
+    && input.report.input.activeLocomotionSource !== "none";
+  const locomotionDeltaMissing = !hasMeasurableLocomotionDelta(input.report.input?.locomotionDelta);
   const handGestureTimestampWithoutActiveSource = typeof input.report.input?.lastLocomotionAtMs === "number"
     && input.report.input?.xrHandGestureState !== undefined
     && input.report.input.activeLocomotionSource !== "xr_hand_gesture"
@@ -466,6 +489,7 @@ function buildAdversarialFindings(input: {
     primitiveHandModelObserved ? "hand_tracking_uses_primitive_box_model" : undefined,
     primitiveHandModelObserved && handTrackingObserved ? "hand_tracking_observed_without_realistic_hand_meshes" : undefined,
     locomotionModeDeclared && locomotionEventMissing ? "locomotion_mode_declared_without_locomotion_event" : undefined,
+    locomotionSourceDeclared && !locomotionEventMissing && locomotionDeltaMissing ? "locomotion_source_without_rig_delta" : undefined,
     handGestureTimestampWithoutActiveSource ? "hand_gesture_locomotion_timestamp_without_active_source" : undefined,
     immersiveWithNoFrameStats ? "immersive_session_started_but_frame_stats_empty" : undefined,
     traceLatencyProxy
@@ -489,6 +513,8 @@ function questManualNextStepForAdversarialFinding(finding: string): string {
       return "Replace primitive box hands with an articulated hand model or document why controller-only affordances are acceptable for this station.";
     case "locomotion_mode_declared_without_locomotion_event":
       return "Record an actual locomotion event timestamp after thumbstick, hand-gesture, or room-scale movement.";
+    case "locomotion_source_without_rig_delta":
+      return "Record locomotionDelta from the same accepted rig movement event as the active locomotion source.";
     case "hand_gesture_locomotion_timestamp_without_active_source":
       return "Re-copy the Quest evidence after deliberate hand-gesture locomotion is armed and active, or clear the locomotion timestamp.";
     case "immersive_session_started_but_frame_stats_empty":
@@ -667,11 +693,23 @@ function hasObservedHeadsetInput(value: QuestManualPerformanceReport["input"]): 
 function hasObservedLocomotion(value: QuestManualPerformanceReport["input"]): boolean {
   const hasLocomotionSource = typeof value?.activeLocomotionSource === "string"
     && value.activeLocomotionSource !== "none";
+  const hasLocomotionDelta = hasMeasurableLocomotionDelta(value?.locomotionDelta);
 
   return typeof value?.lastLocomotionAtMs === "number"
     && Number.isFinite(value.lastLocomotionAtMs)
     && value.lastLocomotionAtMs >= 0
-    && hasLocomotionSource;
+    && hasLocomotionSource
+    && hasLocomotionDelta;
+}
+
+function hasMeasurableLocomotionDelta(value: QuestManualLocomotionDelta | undefined): boolean {
+  if (!value) {
+    return false;
+  }
+  const distanceMeters = value.distanceMeters;
+  const turnRadians = value.turnRadians;
+  return (typeof distanceMeters === "number" && Number.isFinite(distanceMeters) && distanceMeters > 0)
+    || (typeof turnRadians === "number" && Number.isFinite(turnRadians) && turnRadians > 0);
 }
 
 function isFullVrExperienceEvidence(value: QuestManualPerformanceReport["experience"]): boolean {

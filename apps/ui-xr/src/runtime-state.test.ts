@@ -392,7 +392,9 @@ describe("XR runtime state", () => {
       now: 456.789,
       previousLastInputObservedAtMs: 111.11,
       previousLastLocomotionAtMs: null,
+      previousRigPose: { x: 0.1, z: -0.1, yawRadians: 0.2 },
       rigPosition: { x: 0.2, z: -0.3 },
+      rigYawRadians: 0.24,
     })).toEqual({
       handModelCount: 2,
       handModelStatus: "installed",
@@ -420,6 +422,13 @@ describe("XR runtime state", () => {
         { handedness: "right", hasHand: true, hasGamepad: false, axisCount: 0 },
       ],
       rigPosition: { x: 0.2, z: -0.3 },
+      locomotionDelta: {
+        from: { x: 0.1, z: -0.1, yawRadians: 0.2 },
+        to: { x: 0.2, z: -0.3, yawRadians: 0.24 },
+        delta: { x: 0.1, z: -0.2, yawRadians: 0.04 },
+        distanceMeters: 0.224,
+        turnRadians: 0.04,
+      },
     });
 
     expect(buildManualPerformanceInputEvidence({
@@ -444,13 +453,22 @@ describe("XR runtime state", () => {
       now: 567.891,
       previousLastInputObservedAtMs: 111.11,
       previousLastLocomotionAtMs: null,
+      previousRigPose: { x: 0, z: 0, yawRadians: 0 },
       rigPosition: { x: 0.08, z: -0.12 },
+      rigYawRadians: 0.15,
     })).toMatchObject({
       lastInputObservedAtMs: 567.89,
       lastLocomotionAtMs: 567.89,
       activeLocomotionSource: "xr_hand_gesture",
       inputSourceKinds: ["xr_hand", "xr_hand_gesture"],
       xrHandGestureVector: { forward: 0.4, strafe: -0.2, turn: 0.15 },
+      locomotionDelta: {
+        from: { x: 0, z: 0, yawRadians: 0 },
+        to: { x: 0.08, z: -0.12, yawRadians: 0.15 },
+        delta: { x: 0.08, z: -0.12, yawRadians: 0.15 },
+        distanceMeters: 0.144,
+        turnRadians: 0.15,
+      },
       xrHandGestureState: expect.objectContaining({
         armed: true,
         dwellMs: 520,
@@ -482,7 +500,9 @@ describe("XR runtime state", () => {
       now: 789.123,
       previousLastInputObservedAtMs: 111.11,
       previousLastLocomotionAtMs: 222.22,
+      previousRigPose: { x: 0, z: 0, yawRadians: 0 },
       rigPosition: { x: 0, z: 0 },
+      rigYawRadians: 0,
     })).toMatchObject({
       lastInputObservedAtMs: 789.12,
       lastLocomotionAtMs: 222.22,
@@ -495,6 +515,32 @@ describe("XR runtime state", () => {
         blockedReason: "arming_dwell",
       }),
     });
+  });
+
+  it("does not stamp locomotion when an active source produces no rig movement delta", () => {
+    const evidence = buildManualPerformanceInputEvidence({
+      handModelCount: 2,
+      handModelStatus: "installed",
+      handInputsObserved: 2,
+      keyboardVector: { forward: 1, strafe: 0, turn: 0 },
+      xrVector: { forward: 0, strafe: 0, turn: 0 },
+      xrHandGestureVector: { forward: 0, strafe: 0, turn: 0 },
+      xrInputSources: [],
+      now: 999.123,
+      previousLastInputObservedAtMs: 111.11,
+      previousLastLocomotionAtMs: 222.22,
+      previousRigPose: { x: 0, z: 0, yawRadians: 0 },
+      rigPosition: { x: 0, z: 0 },
+      rigYawRadians: 0,
+    });
+
+    expect(evidence).toMatchObject({
+      activeLocomotionSource: "keyboard",
+      lastInputObservedAtMs: 999.12,
+      lastLocomotionAtMs: 222.22,
+      rigPosition: { x: 0, z: 0 },
+    });
+    expect(evidence).not.toHaveProperty("locomotionDelta");
   });
 
   it("builds metadata evidence for in-VR text panels without claiming headset readability", () => {
@@ -562,6 +608,13 @@ describe("XR runtime state", () => {
         locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
         lastLocomotionAtMs: 1234.56,
         rigPosition: { x: 0.1, z: -0.2 },
+        locomotionDelta: {
+          from: { x: 0, z: 0, yawRadians: 0 },
+          to: { x: 0.1, z: -0.2, yawRadians: 0 },
+          delta: { x: 0.1, z: -0.2, yawRadians: 0 },
+          distanceMeters: 0.224,
+          turnRadians: 0,
+        },
       },
       traceLatencyEvidence: {
         lastTraceTag: "ecg_request",
@@ -616,6 +669,13 @@ describe("XR runtime state", () => {
         locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
         lastLocomotionAtMs: 1234.56,
         rigPosition: { x: 0.1, z: -0.2 },
+        locomotionDelta: {
+          from: { x: 0, z: 0, yawRadians: 0 },
+          to: { x: 0.1, z: -0.2, yawRadians: 0 },
+          delta: { x: 0.1, z: -0.2, yawRadians: 0 },
+          distanceMeters: 0.224,
+          turnRadians: 0,
+        },
       },
       traceLatencyProxy: {
         lastTraceTag: "ecg_request",
@@ -698,6 +758,8 @@ describe("XR runtime state", () => {
       activeLocomotionSource: "none",
       inputSourceKinds: ["xr_hand"],
       lastLocomotionAtMs: null,
+      locomotionDistanceMeters: null,
+      locomotionTurnRadians: null,
       traceLatencySource: "xr_controller_select",
       lastTraceTag: "ecg_request",
       lastTraceLatencyMs: 24,
@@ -782,6 +844,13 @@ describe("XR runtime state", () => {
         activeLocomotionSource: "xr_gamepad",
         inputSourceKinds: ["xr_gamepad", "xr_hand"],
         rigPosition: { x: 0.25, z: -0.3 },
+        locomotionDelta: {
+          from: { x: 0, z: 0, yawRadians: 0 },
+          to: { x: 0.25, z: -0.3, yawRadians: 0 },
+          delta: { x: 0.25, z: -0.3, yawRadians: 0 },
+          distanceMeters: 0.391,
+          turnRadians: 0,
+        },
       },
     });
     const completeDraft = {

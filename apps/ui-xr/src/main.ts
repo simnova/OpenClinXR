@@ -49,6 +49,7 @@ import {
   type ManualPerformanceInputEvidence,
   type ManualPerformanceReproducibilityEvidence,
   type ManualPerformanceTraceLatencyEvidence,
+  type RigPoseEvidence,
   type ReadableVrTextPanelEvidence,
   type ReadableVrTextPanelEvidenceSet,
   type XrInputSourceEvidence,
@@ -761,6 +762,8 @@ function createStationScene(): StationSceneRuntime {
       inputEvidence.xrHandGestureState?.blockedReason ?? "none",
       inputEvidence.rigPosition.x,
       inputEvidence.rigPosition.z,
+      inputEvidence.locomotionDelta?.distanceMeters ?? 0,
+      inputEvidence.locomotionDelta?.turnRadians ?? 0,
     ].join("|");
     if (panelSignature === lastPanelSignature) {
       return;
@@ -776,7 +779,7 @@ function createStationScene(): StationSceneRuntime {
       inputEvidence.xrHandGestureState?.armed
         ? `Gesture: armed; dwell ${inputEvidence.xrHandGestureState.dwellMs}ms`
         : `Gesture: ${inputEvidence.xrHandGestureState?.blockedReason ?? "not armed"}`,
-      `Movement: ${inputEvidence.activeLocomotionSource ?? "none"}; x ${inputEvidence.rigPosition.x}, z ${inputEvidence.rigPosition.z}`,
+      `Movement: ${inputEvidence.activeLocomotionSource ?? "none"}; d ${inputEvidence.locomotionDelta?.distanceMeters ?? 0}m; turn ${inputEvidence.locomotionDelta?.turnRadians ?? 0}rad`,
     ]);
   }
 }
@@ -1046,6 +1049,11 @@ function applyLocomotion(input: {
   const strafe = clampUnit(keyboardVector.strafe + xrVector.strafe + xrHandGestureVector.strafe);
   const turn = clampUnit(keyboardVector.turn + xrVector.turn + xrHandGestureVector.turn);
   const speedMetersPerSecond = 1.35;
+  const previousRigPose: RigPoseEvidence = {
+    x: Number(input.locomotionRig.position.x.toFixed(3)),
+    z: Number(input.locomotionRig.position.z.toFixed(3)),
+    yawRadians: Number(input.locomotionRig.rotation.y.toFixed(3)),
+  };
 
   input.locomotionRig.rotation.y += turn * input.deltaSeconds * 1.8;
   const yaw = input.locomotionRig.rotation.y;
@@ -1069,10 +1077,12 @@ function applyLocomotion(input: {
     now: input.now,
     previousLastInputObservedAtMs: input.lastInputObservedAtMs,
     previousLastLocomotionAtMs: input.lastLocomotionAtMs,
+    previousRigPose,
     rigPosition: {
       x: Number(input.locomotionRig.position.x.toFixed(3)),
       z: Number(input.locomotionRig.position.z.toFixed(3)),
     },
+    rigYawRadians: Number(input.locomotionRig.rotation.y.toFixed(3)),
   });
 }
 
@@ -1398,6 +1408,8 @@ function updateManualEvidencePanel(): string {
   evidenceLocomotion.textContent = [
     summary.activeLocomotionSource ?? "none",
     summary.lastLocomotionAtMs === null ? "no movement timestamp" : `moved ${summary.lastLocomotionAtMs}ms`,
+    summary.locomotionDistanceMeters === null ? "no distance delta" : `d ${summary.locomotionDistanceMeters}m`,
+    summary.locomotionTurnRadians === null ? "no turn delta" : `turn ${summary.locomotionTurnRadians}rad`,
   ].join(" | ");
   evidenceTrace.textContent = [
     summary.traceLatencySource ?? "no trace source",

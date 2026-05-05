@@ -49,6 +49,13 @@ function completedQuestManualReport(): QuestManualPerformanceReport {
       },
       lastLocomotionAtMs: 60_000,
       rigPosition: { x: 0.4, z: -0.2 },
+      locomotionDelta: {
+        from: { x: 0, z: 0, yawRadians: 0 },
+        to: { x: 0.4, z: -0.2, yawRadians: 0.15 },
+        delta: { x: 0.4, z: -0.2, yawRadians: 0.15 },
+        distanceMeters: 0.447,
+        turnRadians: 0.15,
+      },
     },
     traceLatencyProxy: {
       source: "xr_controller_select",
@@ -158,6 +165,13 @@ describe("Quest manual performance checker", () => {
         },
         lastLocomotionAtMs: 60_000,
         rigPosition: { x: 0.4, z: -0.2 },
+        locomotionDelta: {
+          from: { x: 0, z: 0, yawRadians: 0 },
+          to: { x: 0.4, z: -0.2, yawRadians: 0.15 },
+          delta: { x: 0.4, z: -0.2, yawRadians: 0.15 },
+          distanceMeters: 0.447,
+          turnRadians: 0.15,
+        },
       },
       traceLatencyProxy: {
         source: "xr_controller_select",
@@ -637,6 +651,29 @@ describe("Quest manual performance checker", () => {
     expect(check.satisfiedConditions).not.toEqual(expect.arrayContaining(["locomotion_observed"]));
     expect(check.adversarialFindings).toEqual(expect.arrayContaining([
       "hand_gesture_locomotion_timestamp_without_active_source",
+    ]));
+  });
+
+  it("requires locomotion claims to include a measurable rig delta", () => {
+    const report = completedQuestManualReport();
+    report.input = {
+      ...report.input,
+      activeLocomotionSource: "xr_hand_gesture",
+      lastLocomotionAtMs: 60_000,
+      rigPosition: { x: 0.4, z: -0.2 },
+    };
+    delete report.input.locomotionDelta;
+
+    const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance.json", report);
+
+    expect(check.readyToClaimFramePacing).toBe(false);
+    expect(check.blockers).toEqual(expect.arrayContaining(["locomotion_not_observed"]));
+    expect(check.satisfiedConditions).not.toEqual(expect.arrayContaining(["locomotion_observed"]));
+    expect(check.adversarialFindings).toEqual(expect.arrayContaining([
+      "locomotion_source_without_rig_delta",
+    ]));
+    expect(check.nextSteps).toEqual(expect.arrayContaining([
+      "Record locomotionDelta from the same accepted rig movement event as the active locomotion source.",
     ]));
   });
 

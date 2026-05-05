@@ -114,6 +114,7 @@ export type ManualPerformanceInputEvidence = {
   xrHandGestureState?: XrHandGestureStateEvidence;
   xrInputSources?: XrInputSourceEvidence[];
   rigPosition: { x: number; z: number };
+  locomotionDelta?: LocomotionDeltaEvidence;
 };
 
 export type RuntimeInputSourceKind = "keyboard" | "xr_gamepad" | "xr_hand" | "xr_hand_gesture";
@@ -122,6 +123,20 @@ export type LocomotionVectorEvidence = {
   forward: number;
   strafe: number;
   turn: number;
+};
+
+export type RigPoseEvidence = {
+  x: number;
+  z: number;
+  yawRadians: number;
+};
+
+export type LocomotionDeltaEvidence = {
+  from: RigPoseEvidence;
+  to: RigPoseEvidence;
+  delta: RigPoseEvidence;
+  distanceMeters: number;
+  turnRadians: number;
 };
 
 export type XrInputSourceEvidence = {
@@ -153,7 +168,9 @@ export type ManualPerformanceInputEvidenceInput = {
   now: number;
   previousLastInputObservedAtMs: number | null;
   previousLastLocomotionAtMs: number | null;
+  previousRigPose?: RigPoseEvidence | null;
   rigPosition: { x: number; z: number };
+  rigYawRadians?: number;
 };
 
 export type RuntimeFrameStatsInput = {
@@ -298,6 +315,8 @@ export type ManualPerformanceCaptureSummary = {
   activeLocomotionSource: ManualPerformanceInputEvidence["activeLocomotionSource"] | null;
   inputSourceKinds: RuntimeInputSourceKind[];
   lastLocomotionAtMs: number | null;
+  locomotionDistanceMeters: number | null;
+  locomotionTurnRadians: number | null;
   traceLatencySource: ManualPerformanceTraceLatencyEvidence["source"] | null;
   lastTraceTag: string | null;
   lastTraceLatencyMs: number | null;
@@ -745,6 +764,17 @@ export function buildManualPerformanceInputEvidence(
     xrHandPresent: input.handInputsObserved > 0 || input.xrInputSources.some((source) => source.hasHand),
     xrHandGestureActive,
   });
+  const rigPose = normalizeRigPose({
+    x: input.rigPosition.x,
+    z: input.rigPosition.z,
+    yawRadians: input.rigYawRadians ?? 0,
+  });
+  const locomotionDelta = input.previousRigPose
+    ? buildLocomotionDeltaEvidence(input.previousRigPose, rigPose)
+    : undefined;
+  const locomotionSourceActive = keyboardActive || xrActive || xrHandGestureActive;
+  const locomotionObserved = locomotionSourceActive
+    && (locomotionDelta === undefined || hasMeasurableLocomotionDelta(locomotionDelta));
 
   return {
     handModelCount: input.handModelCount,
@@ -752,7 +782,7 @@ export function buildManualPerformanceInputEvidence(
     handInputsObserved: input.handInputsObserved,
     locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
     lastInputObservedAtMs: inputObserved ? roundMetric(input.now) : input.previousLastInputObservedAtMs,
-    lastLocomotionAtMs: keyboardActive || xrActive || xrHandGestureActive
+    lastLocomotionAtMs: locomotionObserved
       ? roundMetric(input.now)
       : input.previousLastLocomotionAtMs,
     activeLocomotionSource,
@@ -764,10 +794,41 @@ export function buildManualPerformanceInputEvidence(
     ...(xrHandGestureState ? { xrHandGestureState } : {}),
     xrInputSources: input.xrInputSources.map((source) => ({ ...source })),
     rigPosition: {
-      x: roundMetric(input.rigPosition.x, 3),
-      z: roundMetric(input.rigPosition.z, 3),
+      x: rigPose.x,
+      z: rigPose.z,
     },
+    ...(locomotionObserved && locomotionDelta ? { locomotionDelta } : {}),
   };
+}
+
+function normalizeRigPose(pose: RigPoseEvidence): RigPoseEvidence {
+  return {
+    x: roundMetric(pose.x, 3),
+    z: roundMetric(pose.z, 3),
+    yawRadians: roundMetric(pose.yawRadians, 3),
+  };
+}
+
+function buildLocomotionDeltaEvidence(fromInput: RigPoseEvidence, toInput: RigPoseEvidence): LocomotionDeltaEvidence {
+  const from = normalizeRigPose(fromInput);
+  const to = normalizeRigPose(toInput);
+  const delta = normalizeRigPose({
+    x: to.x - from.x,
+    z: to.z - from.z,
+    yawRadians: to.yawRadians - from.yawRadians,
+  });
+
+  return {
+    from,
+    to,
+    delta,
+    distanceMeters: roundMetric(Math.hypot(delta.x, delta.z), 3),
+    turnRadians: roundMetric(Math.abs(delta.yawRadians), 3),
+  };
+}
+
+function hasMeasurableLocomotionDelta(delta: LocomotionDeltaEvidence): boolean {
+  return delta.distanceMeters > 0 || delta.turnRadians > 0;
 }
 
 function normalizeXrHandGestureState(state: XrHandGestureStateEvidence): XrHandGestureStateEvidence {
@@ -993,6 +1054,8 @@ export function buildManualPerformanceCaptureSummary(
     activeLocomotionSource: inputEvidence?.activeLocomotionSource ?? null,
     inputSourceKinds: [...(inputEvidence?.inputSourceKinds ?? [])],
     lastLocomotionAtMs: inputEvidence?.lastLocomotionAtMs ?? null,
+    locomotionDistanceMeters: inputEvidence?.locomotionDelta?.distanceMeters ?? null,
+    locomotionTurnRadians: inputEvidence?.locomotionDelta?.turnRadians ?? null,
     traceLatencySource: input.draft?.traceLatencyProxy?.source ?? null,
     lastTraceTag: input.draft?.traceLatencyProxy?.lastTraceTag ?? null,
     lastTraceLatencyMs: input.draft?.traceLatencyProxy?.lastSelectLatencyMs ?? null,
@@ -1205,11 +1268,15 @@ function hasObservedHeadsetInput(value: ManualPerformanceDraft["input"]): boolea
 function hasObservedLocomotion(value: ManualPerformanceDraft["input"]): boolean {
   const hasLocomotionSource = typeof value?.activeLocomotionSource === "string"
     && value.activeLocomotionSource !== "none";
+  const hasLocomotionDelta = value?.locomotionDelta
+    ? hasMeasurableLocomotionDelta(value.locomotionDelta)
+    : false;
 
   return typeof value?.lastLocomotionAtMs === "number"
     && Number.isFinite(value.lastLocomotionAtMs)
     && value.lastLocomotionAtMs >= 0
-    && hasLocomotionSource;
+    && hasLocomotionSource
+    && hasLocomotionDelta;
 }
 
 function isFullVrExperienceEvidence(value: XrExperienceModeEvidence): boolean {

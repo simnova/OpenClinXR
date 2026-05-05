@@ -229,6 +229,13 @@ const completedQuestManualPerformanceReport: QuestManualPerformanceReport = {
     activeLocomotionSource: "xr_gamepad",
     lastLocomotionAtMs: 60_000,
     rigPosition: { x: 0.4, z: -0.2 },
+    locomotionDelta: {
+      from: { x: 0, z: 0, yawRadians: 0 },
+      to: { x: 0.4, z: -0.2, yawRadians: 0.15 },
+      delta: { x: 0.4, z: -0.2, yawRadians: 0.15 },
+      distanceMeters: 0.447,
+      turnRadians: 0.15,
+    },
   },
   traceLatencyProxy: {
     source: "xr_controller_select",
