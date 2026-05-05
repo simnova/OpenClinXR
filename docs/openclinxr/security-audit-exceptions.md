@@ -9,6 +9,18 @@ OpenClinXR runs `pnpm audit --audit-level=high` as part of `pnpm verify`. Produc
 
 `pnpm security:audit-policy` validates that the hard audit scripts remain in the default verification path and that any future high or critical audit exception is recorded in a machine-checkable form before it is allowed to coexist with audit evidence.
 
+To preserve a point-in-time audit evidence artifact, run:
+
+```bash
+pnpm audit --json > docs/openclinxr/security-audit-YYYY-MM-DD.json
+pnpm security:audit-policy -- --audit-json docs/openclinxr/security-audit-YYYY-MM-DD.json --output docs/openclinxr/security-audit-policy-YYYY-MM-DD.json
+```
+
+The latest local audit evidence is:
+
+- `docs/openclinxr/security-audit-2026-05-05.json`
+- `docs/openclinxr/security-audit-policy-2026-05-05.json`
+
 Exceptions are allowed only when all of the following are recorded here:
 
 - Advisory ID or GHSA.

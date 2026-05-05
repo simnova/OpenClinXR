@@ -67,6 +67,13 @@ type AuditFinding = {
 
 export type SecurityAuditPolicyReport = {
   generatedAt: string;
+  auditEvidence: {
+    supplied: boolean;
+    sourcePath?: string;
+    totalFindingCount: number;
+    blockingFindingCount: number;
+    blockingSeverityThreshold: "high";
+  };
   activeExceptions: SecurityAuditException[];
   scriptFindings: ScriptFinding[];
   exceptionFindings: ExceptionFinding[];
@@ -110,6 +117,7 @@ async function main(): Promise<void> {
     rootPackageJson,
     exceptionsMarkdown,
     auditJson,
+    auditJsonSourcePath: options.auditJsonPath,
     now: new Date(),
   });
 
@@ -142,6 +150,7 @@ export function buildSecurityAuditPolicyReport(input: {
   rootPackageJson: PackageJson;
   exceptionsMarkdown: string;
   auditJson?: PnpmAuditJson;
+  auditJsonSourcePath?: string;
   now?: Date;
 }): SecurityAuditPolicyReport {
   const scriptFindings = evaluateScripts(input.rootPackageJson.scripts ?? {});
@@ -150,12 +159,20 @@ export function buildSecurityAuditPolicyReport(input: {
     ...exceptionParse.findings,
     ...exceptionParse.exceptions.flatMap(validateException),
   ];
-  const unresolvedAuditFindings = auditFindings(input.auditJson ?? {})
-    .filter((finding) => isBlockingSeverity(finding.severity))
+  const allAuditFindings = auditFindings(input.auditJson ?? {});
+  const blockingAuditFindings = allAuditFindings.filter((finding) => isBlockingSeverity(finding.severity));
+  const unresolvedAuditFindings = blockingAuditFindings
     .filter((finding) => !hasMatchingException(finding, exceptionParse.exceptions));
 
   return {
     generatedAt: (input.now ?? new Date()).toISOString(),
+    auditEvidence: {
+      supplied: input.auditJson !== undefined,
+      sourcePath: input.auditJsonSourcePath,
+      totalFindingCount: allAuditFindings.length,
+      blockingFindingCount: blockingAuditFindings.length,
+      blockingSeverityThreshold: "high",
+    },
     activeExceptions: exceptionParse.exceptions,
     scriptFindings,
     exceptionFindings,

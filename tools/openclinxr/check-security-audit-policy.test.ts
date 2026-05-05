@@ -24,12 +24,42 @@ describe("security audit policy", () => {
     const report = buildSecurityAuditPolicyReport({
       rootPackageJson: basePackageJson,
       exceptionsMarkdown: baseExceptionsMarkdown,
+      now: new Date("2026-05-05T00:00:00.000Z"),
     });
 
+    expect(report.auditEvidence).toEqual({
+      supplied: false,
+      sourcePath: undefined,
+      totalFindingCount: 0,
+      blockingFindingCount: 0,
+      blockingSeverityThreshold: "high",
+    });
     expect(report.verdict.passed).toBe(true);
     expect(report.scriptFindings).toEqual([]);
     expect(report.exceptionFindings).toEqual([]);
     expect(report.unresolvedAuditFindings).toEqual([]);
+  });
+
+  it("distinguishes a supplied clean pnpm audit JSON artifact from a missing audit artifact", () => {
+    const report = buildSecurityAuditPolicyReport({
+      rootPackageJson: basePackageJson,
+      exceptionsMarkdown: baseExceptionsMarkdown,
+      auditJsonSourcePath: "docs/openclinxr/security-audit-2026-05-05.json",
+      auditJson: {
+        advisories: {},
+        vulnerabilities: {},
+      },
+      now: new Date("2026-05-05T00:00:00.000Z"),
+    });
+
+    expect(report.auditEvidence).toEqual({
+      supplied: true,
+      sourcePath: "docs/openclinxr/security-audit-2026-05-05.json",
+      totalFindingCount: 0,
+      blockingFindingCount: 0,
+      blockingSeverityThreshold: "high",
+    });
+    expect(report.verdict.passed).toBe(true);
   });
 
   it("rejects weakened audit scripts that make pnpm audit non-blocking", () => {
@@ -71,6 +101,13 @@ describe("security audit policy", () => {
     });
 
     expect(report.verdict.passed).toBe(false);
+    expect(report.auditEvidence).toEqual({
+      supplied: true,
+      sourcePath: undefined,
+      totalFindingCount: 1,
+      blockingFindingCount: 1,
+      blockingSeverityThreshold: "high",
+    });
     expect(report.unresolvedAuditFindings).toEqual([
       expect.objectContaining({
         advisory: "GHSA-test-1234",

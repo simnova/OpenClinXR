@@ -1,0 +1,20 @@
+{
+  "generatedAt": "2026-05-05T15:53:51.988Z",
+  "auditEvidence": {
+    "supplied": true,
+    "sourcePath": "docs/openclinxr/security-audit-2026-05-05.json",
+    "totalFindingCount": 0,
+    "blockingFindingCount": 0,
+    "blockingSeverityThreshold": "high"
+  },
+  "activeExceptions": [],
+  "scriptFindings": [],
+  "exceptionFindings": [],
+  "unresolvedAuditFindings": [],
+  "verdict": {
+    "passed": true,
+    "scriptFindingCount": 0,
+    "exceptionFindingCount": 0,
+    "unresolvedAuditFindingCount": 0
+  }
+}
