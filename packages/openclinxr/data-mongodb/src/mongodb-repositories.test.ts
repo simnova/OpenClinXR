@@ -1,4 +1,8 @@
 import type { ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
+import type {
+  DurableConversationTurnRecord,
+  DurableEmotionalStateTimelineRecord,
+} from "@openclinxr/session-state";
 import {
   assembleExamForm,
   createDefaultClinicalSkillsBlueprint,
@@ -14,6 +18,10 @@ import {
   MongoStationRunQueueRepository,
   MongoTraceRepository,
   MongoReviewPacketRepository,
+  MongoDurableConversationTurnRepository,
+  MongoDurableEmotionalStateTimelineRepository,
+  createMongoDurableMultiActorSessionStore,
+  durableActorTurnPersistenceScope,
   type ScenarioReviewDecisionRecord,
 } from "./index.js";
 import { createMongoMemoryTestContext, type MongoMemoryTestContext } from "./mongo-memory-context.js";
@@ -122,6 +130,45 @@ const scenarioReviewDecision: ScenarioReviewDecisionRecord = {
   comments: "Clinical review complete.",
   evidenceRefs: ["evidence:peds:clinical:2026-05-04"],
   reviewedAt: "2026-05-04T10:00:00.000Z",
+};
+
+const nurseConversationTurn: DurableConversationTurnRecord = {
+  turnId: "turn_002_nurse_maria_alvarez_v1_180",
+  stationRunId: "station_run_durable_actor_turn_001",
+  actorId: "nurse_maria_alvarez_v1",
+  atSecond: 180,
+  sourceKind: "text",
+  text: "Nurse, please repeat the blood pressure and start a 12-lead ECG.",
+  traceContextTags: ["vitals_review", "ecg_request"],
+  emotionalState: "focused",
+  routingReason: "addressed_role_keyword",
+  rawAudioStored: false,
+  provenanceRefs: ["trace:station_run_durable_actor_turn_001:180"],
+  durableStore: "database_source_of_truth",
+};
+
+const spouseConversationTurn: DurableConversationTurnRecord = {
+  turnId: "turn_001_spouse_anna_hayes_v1_120",
+  stationRunId: "station_run_durable_actor_turn_001",
+  actorId: "spouse_anna_hayes_v1",
+  atSecond: 120,
+  sourceKind: "voice_transcript",
+  text: "Anna, what happened right before he came in?",
+  traceContextTags: ["history_onset", "family_collateral"],
+  emotionalState: "anxious",
+  routingReason: "addressed_actor_name",
+  rawAudioStored: false,
+  provenanceRefs: ["trace:voice_stream_station_001:segment_0008_final"],
+  durableStore: "database_source_of_truth",
+};
+
+const spouseEmotionalState: DurableEmotionalStateTimelineRecord = {
+  stationRunId: "station_run_durable_actor_turn_001",
+  actorId: "spouse_anna_hayes_v1",
+  atSecond: 120,
+  emotionalState: "anxious",
+  sourceTurnId: "turn_001_spouse_anna_hayes_v1_120",
+  durableStore: "database_source_of_truth",
 };
 
 const seedQueueScenarios: Scenario[] = Array.from({ length: 12 }, (_, index) => {
@@ -370,5 +417,111 @@ describe("MongoDB memory repositories", () => {
         }),
       ]),
     );
+  });
+
+  it("stores durable conversation turns in replay order without persisting raw voice audio", async () => {
+    const repository = new MongoDurableConversationTurnRepository(context.db);
+    await repository.ensureIndexes();
+
+    await repository.save(nurseConversationTurn);
+    await repository.save(spouseConversationTurn);
+    await repository.save({
+      ...spouseConversationTurn,
+      text: "Anna, did the pain start before dinner or after dinner?",
+      provenanceRefs: [
+        ...spouseConversationTurn.provenanceRefs,
+        "trace:voice_stream_station_001:segment_0008_corrected",
+      ],
+    });
+
+    await expect(repository.listByStationRunId("station_run_durable_actor_turn_001")).resolves.toEqual([
+      {
+        ...spouseConversationTurn,
+        text: "Anna, did the pain start before dinner or after dinner?",
+        provenanceRefs: [
+          "trace:voice_stream_station_001:segment_0008_final",
+          "trace:voice_stream_station_001:segment_0008_corrected",
+        ],
+      },
+      nurseConversationTurn,
+    ]);
+  });
+
+  it("stores durable emotional-state timeline records in actor replay order with idempotent upsert", async () => {
+    const repository = new MongoDurableEmotionalStateTimelineRepository(context.db);
+    await repository.ensureIndexes();
+
+    await repository.save({
+      ...spouseEmotionalState,
+      sourceTurnId: "turn_002_spouse_anna_hayes_v1_300",
+      atSecond: 300,
+      emotionalState: "reassured",
+    });
+    await repository.save(spouseEmotionalState);
+    await repository.save({
+      ...spouseEmotionalState,
+      emotionalState: "very anxious",
+    });
+    await repository.save({
+      stationRunId: spouseEmotionalState.stationRunId,
+      actorId: "nurse_maria_alvarez_v1",
+      atSecond: 180,
+      emotionalState: "focused",
+      sourceTurnId: "turn_002_nurse_maria_alvarez_v1_180",
+      durableStore: "database_source_of_truth",
+    });
+
+    await expect(repository.listByStationRunIdAndActorId(
+      "station_run_durable_actor_turn_001",
+      "spouse_anna_hayes_v1",
+    )).resolves.toEqual([
+      {
+        ...spouseEmotionalState,
+        emotionalState: "very anxious",
+      },
+      {
+        ...spouseEmotionalState,
+        sourceTurnId: "turn_002_spouse_anna_hayes_v1_300",
+        atSecond: 300,
+        emotionalState: "reassured",
+      },
+    ]);
+  });
+
+  it("creates a Mongo durable multi-actor session store with database-only actor-turn scope", async () => {
+    const store = createMongoDurableMultiActorSessionStore(context.db);
+    await store.ensureIndexes();
+
+    await store.saveConversationTurn({
+      ...spouseConversationTurn,
+      stationRunId: "station_run_durable_actor_turn_store_001",
+    });
+    await store.saveEmotionalStateTimeline({
+      ...spouseEmotionalState,
+      stationRunId: "station_run_durable_actor_turn_store_001",
+    });
+
+    await expect(store.listConversationTurns("station_run_durable_actor_turn_store_001")).resolves.toEqual([
+      {
+        ...spouseConversationTurn,
+        stationRunId: "station_run_durable_actor_turn_store_001",
+      },
+    ]);
+    await expect(store.listEmotionalStateTimeline(
+      "station_run_durable_actor_turn_store_001",
+      "spouse_anna_hayes_v1",
+    )).resolves.toEqual([
+      {
+        ...spouseEmotionalState,
+        stationRunId: "station_run_durable_actor_turn_store_001",
+      },
+    ]);
+    expect(durableActorTurnPersistenceScope).toMatchObject({
+      approvedProposal: "proposals/approved/proposal-durable-actor-turn-persistence-promotion.md",
+      actorTurnScope: "conversation_turns_and_emotional_state_timeline_only",
+      clinicalActionsIncluded: false,
+      redisRedkaIncluded: false,
+      databaseOnly: true,
+    });
   });
 });

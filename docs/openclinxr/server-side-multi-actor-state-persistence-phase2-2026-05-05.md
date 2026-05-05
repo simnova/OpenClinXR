@@ -2,13 +2,15 @@
 
 **Date:** 2026-05-05  
 **Proposal:** `proposals/approved/proposal-server-side-multi-actor-state-context-persistence-phase2.md`  
-**Status:** Contract promoted into `@openclinxr/session-state`; production persistence remains future work
+**Status:** Contract promoted into `@openclinxr/session-state`; MongoDB actor-turn repositories added for constrained local durable replay; API/runtime wiring remains future work
 
 ## Scope
 
 This note records the Phase 2 persistence-boundary slice for multi-actor clinical session state. It promotes the approved durable-versus-realtime contract into the production-shaped `packages/openclinxr/session-state` package without adding MongoDB, Redis, Redka, Colyseus, `@colyseus/schema`, bitECS, WebTransport, QUIC, Web3, or cloud dependencies.
 
 The implementation is still an architecture spike boundary. It is not a production persistence layer, not Redis/Redka runtime evidence, not clinical record-retention policy, and not a realtime synchronization implementation.
+
+The durable actor-turn promotion approved on 2026-05-05 narrows "actor turn" to conversational turns and emotional-state timeline records. Clinical actions such as orders, findings, checklist updates, rubric progress, and case status are still future durable clinical-event work even though they remain part of the broader durable database responsibility boundary.
 
 ## Implemented Contract
 
@@ -26,6 +28,15 @@ The implementation is still an architecture spike boundary. It is not a producti
 - `evaluateMultiActorPersistencePhase2Strategy`
 
 The in-memory stores are proof adapters for deterministic tests only. They prove the boundary and cloning behavior without making cache state authoritative.
+
+`@openclinxr/data-mongodb` now adds constrained MongoDB-backed repositories for:
+
+- Durable conversation turn replay by station run.
+- Durable emotional-state timeline replay by station run and actor.
+- Idempotent upsert behavior for both durable record types.
+- `rawAudioStored: false` preservation and transcript provenance references for voice-transcript turns.
+
+These repositories are package-local and use `mongodb-memory-server` tests. They are not wired into `apps/api`, REST, GraphQL, WebSocket routes, or runtime session synchronization.
 
 ## Responsibility Boundary
 
@@ -61,12 +72,12 @@ This proves the intended separation:
 
 ## Follow-Up Direction
 
-The next implementation slice should add database-backed durable actor turns before any Redis/Redka runtime adoption:
+The database-backed durable actor-turn slice now lives in `packages/openclinxr/data-mongodb`. Remaining follow-up work should stay sequenced after that durable replay path:
 
-1. Add MongoDB memory-server tests for conversation turns and emotional-state timelines.
-2. Add thin repositories in `packages/openclinxr/data-mongodb`.
-3. Extend the injected API persistence sink with durable multi-actor methods.
-4. Keep Redis/Redka as a later adapter after durable replay exists.
+1. Consider a later API persistence-sink extension for durable multi-actor methods only after repository evidence is stable.
+2. Add durable clinical-event repositories for clinical actions, orders, findings, checklist updates, and rubric/case progress in a separate approved slice.
+3. Keep Redis/Redka as a later adapter after durable replay exists.
+4. Keep WebSocket session-state sync separate from durable database repositories.
 
 Do not add Redis/Redka dependencies before there is a durable replay path to protect clinical/audit state from cache loss.
 

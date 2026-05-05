@@ -364,6 +364,9 @@ importers:
       '@openclinxr/exam-assembly':
         specifier: workspace:*
         version: link:../exam-assembly
+      '@openclinxr/session-state':
+        specifier: workspace:*
+        version: link:../session-state
       '@openclinxr/shared-schemas':
         specifier: workspace:*
         version: link:../shared-schemas

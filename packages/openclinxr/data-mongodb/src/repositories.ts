@@ -1,5 +1,9 @@
 import type { ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
 import type { ExamForm, ExamStationRunQueue } from "@openclinxr/exam-assembly";
+import type {
+  DurableConversationTurnRecord,
+  DurableEmotionalStateTimelineRecord,
+} from "@openclinxr/session-state";
 import type { Collection, Db } from "mongodb";
 
 export type ExamStationRunQueueSnapshot = {
@@ -19,6 +23,120 @@ export type ScenarioReviewDecisionRecord = {
   evidenceRefs: string[];
   reviewedAt: string;
 };
+
+export const durableActorTurnPersistenceScope = {
+  approvedProposal: "proposals/approved/proposal-durable-actor-turn-persistence-promotion.md",
+  actorTurnScope: "conversation_turns_and_emotional_state_timeline_only",
+  clinicalActionsIncluded: false,
+  redisRedkaIncluded: false,
+  databaseOnly: true,
+  notEvidenceFor: [
+    "api_runtime_wiring",
+    "redis_redka_cache_layer",
+    "realtime_synchronization",
+    "clinical_record_retention_policy",
+  ],
+} as const;
+
+export class MongoDurableConversationTurnRepository {
+  private readonly collection: Collection<DurableConversationTurnRecord>;
+
+  constructor(db: Db) {
+    this.collection = db.collection<DurableConversationTurnRecord>("durable_conversation_turns");
+  }
+
+  async ensureIndexes(): Promise<void> {
+    await this.collection.createIndex({ stationRunId: 1, turnId: 1 }, { unique: true });
+    await this.collection.createIndex({ stationRunId: 1, atSecond: 1, turnId: 1 });
+    await this.collection.createIndex({ stationRunId: 1, actorId: 1, atSecond: 1 });
+  }
+
+  async save(record: DurableConversationTurnRecord): Promise<void> {
+    const storedRecord = cloneConversationTurnForMongo(record);
+    await this.collection.updateOne(
+      { stationRunId: storedRecord.stationRunId, turnId: storedRecord.turnId },
+      { $set: storedRecord },
+      { upsert: true },
+    );
+  }
+
+  async listByStationRunId(stationRunId: string): Promise<DurableConversationTurnRecord[]> {
+    return this.collection.find({ stationRunId }, { projection: { _id: 0 } })
+      .sort({ atSecond: 1, turnId: 1 })
+      .toArray();
+  }
+}
+
+export class MongoDurableEmotionalStateTimelineRepository {
+  private readonly collection: Collection<DurableEmotionalStateTimelineRecord>;
+
+  constructor(db: Db) {
+    this.collection = db.collection<DurableEmotionalStateTimelineRecord>("durable_emotional_state_timeline");
+  }
+
+  async ensureIndexes(): Promise<void> {
+    await this.collection.createIndex({ stationRunId: 1, actorId: 1, sourceTurnId: 1 }, { unique: true });
+    await this.collection.createIndex({ stationRunId: 1, actorId: 1, atSecond: 1, sourceTurnId: 1 });
+  }
+
+  async save(record: DurableEmotionalStateTimelineRecord): Promise<void> {
+    const storedRecord = { ...record };
+    await this.collection.updateOne(
+      {
+        stationRunId: storedRecord.stationRunId,
+        actorId: storedRecord.actorId,
+        sourceTurnId: storedRecord.sourceTurnId,
+      },
+      { $set: storedRecord },
+      { upsert: true },
+    );
+  }
+
+  async listByStationRunIdAndActorId(
+    stationRunId: string,
+    actorId: string,
+  ): Promise<DurableEmotionalStateTimelineRecord[]> {
+    return this.collection.find({ stationRunId, actorId }, { projection: { _id: 0 } })
+      .sort({ atSecond: 1, sourceTurnId: 1 })
+      .toArray();
+  }
+}
+
+export class MongoDurableMultiActorSessionStore {
+  private readonly conversationTurns: MongoDurableConversationTurnRepository;
+  private readonly emotionalStateTimeline: MongoDurableEmotionalStateTimelineRepository;
+
+  constructor(db: Db) {
+    this.conversationTurns = new MongoDurableConversationTurnRepository(db);
+    this.emotionalStateTimeline = new MongoDurableEmotionalStateTimelineRepository(db);
+  }
+
+  async ensureIndexes(): Promise<void> {
+    await Promise.all([
+      this.conversationTurns.ensureIndexes(),
+      this.emotionalStateTimeline.ensureIndexes(),
+    ]);
+  }
+
+  async saveConversationTurn(record: DurableConversationTurnRecord): Promise<void> {
+    await this.conversationTurns.save(record);
+  }
+
+  async listConversationTurns(stationRunId: string): Promise<DurableConversationTurnRecord[]> {
+    return this.conversationTurns.listByStationRunId(stationRunId);
+  }
+
+  async saveEmotionalStateTimeline(record: DurableEmotionalStateTimelineRecord): Promise<void> {
+    await this.emotionalStateTimeline.save(record);
+  }
+
+  async listEmotionalStateTimeline(
+    stationRunId: string,
+    actorId: string,
+  ): Promise<DurableEmotionalStateTimelineRecord[]> {
+    return this.emotionalStateTimeline.listByStationRunIdAndActorId(stationRunId, actorId);
+  }
+}
 
 export class MongoScenarioRepository {
   private readonly collection: Collection<Scenario>;
@@ -271,4 +389,17 @@ export class MongoApiPersistenceSink {
 
 export function createMongoApiPersistenceSink(db: Db): MongoApiPersistenceSink {
   return new MongoApiPersistenceSink(db);
+}
+
+export function createMongoDurableMultiActorSessionStore(db: Db): MongoDurableMultiActorSessionStore {
+  return new MongoDurableMultiActorSessionStore(db);
+}
+
+function cloneConversationTurnForMongo(record: DurableConversationTurnRecord): DurableConversationTurnRecord {
+  return {
+    ...record,
+    rawAudioStored: false,
+    traceContextTags: [...record.traceContextTags],
+    provenanceRefs: [...record.provenanceRefs],
+  };
 }

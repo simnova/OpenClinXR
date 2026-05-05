@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@openclinxr/exam-assembly": "workspace:*",
+    "@openclinxr/session-state": "workspace:*",
     "@openclinxr/shared-schemas": "workspace:*",
     "mongodb": "7.2.0"
   },

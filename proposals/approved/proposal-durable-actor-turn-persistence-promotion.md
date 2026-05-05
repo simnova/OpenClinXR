@@ -1,16 +1,23 @@
 # Proposal: Durable Actor Turn Persistence Promotion
 
-**Status:** Proposed  
-**Decision needed:** Approve or defer  
+**Status:** Approved  
+**Approved by:** Patrick Gidich on 2026-05-05  
+**Decision:** Approved with clarifications for a constrained database-only implementation slice  
 **Requested by:** Codex  
 **Date:** 2026-05-05  
 **Scope:** Promote the approved Phase 2 durable actor-turn persistence contract into MongoDB-backed repository code
 
-## Decision Needed
+## Decision
 
 Approve a constrained implementation slice that adds MongoDB-backed durable repositories for multi-actor conversation turns and actor emotional-state timeline records.
 
-This would move beyond the current contract/test-double evidence in `@openclinxr/session-state` and into production-shaped persistence package code, so it needs explicit approval before implementation.
+This moves beyond the current contract/test-double evidence in `@openclinxr/session-state` and into production-shaped persistence package code, while remaining database-only and package-local.
+
+## Approval Clarifications
+
+- “Actor turn” is scoped to conversational turns and emotional-state timeline records only for this slice. Clinical actions such as orders, findings, checklist updates, and rubric progress remain future durable clinical-event work.
+- Redis/Redka must not be introduced here. A later slice may add a read-model/cache layer after durable database replay is established.
+- The implementation must follow `packages/openclinxr/data-mongodb` repository and test patterns, using `mongodb-memory-server` for local tests.
 
 ## Recommendation
 
@@ -31,6 +38,7 @@ The approved Phase 2 persistence contract now states that durable clinical/audit
 
 - `packages/openclinxr/data-mongodb/src/repositories.ts`
 - `packages/openclinxr/data-mongodb/src/mongodb-repositories.test.ts`
+- `packages/openclinxr/data-mongodb/package.json`
 - `docs/openclinxr/server-side-multi-actor-state-persistence-phase2-2026-05-05.md`
 
 ## Out Of Scope
