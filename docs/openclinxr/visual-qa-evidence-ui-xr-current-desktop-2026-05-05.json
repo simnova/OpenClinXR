@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "openclinxr.visual-qa-evidence.v1",
+  "capture": {
+    "source": "desktop_browser",
+    "artifactType": "screenshot",
+    "artifact": "docs/openclinxr/screenshots/ui-xr-desktop-visual-qa-current-2026-05-05.png",
+    "mimeType": "image/png",
+    "dimensions": {
+      "width": 2880,
+      "height": 1800
+    },
+    "runtimeUrl": "http://localhost:5173/",
+    "route": "/",
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "xrMode": "desktop_preview_not_immersive_session",
+    "cameraPose": "default desktop preview camera",
+    "captureCommand": "Chrome DevTools MCP take_screenshot"
+  },
+  "adversarialReview": {
+    "reviewers": [
+      "test-automation-lead",
+      "ux-friction-critic",
+      "clinical-safety-critic",
+      "xr-systems-architect",
+      "asset-pipeline-lead"
+    ],
+    "checks": {
+      "clinical_scene_fidelity": {
+        "status": "concern",
+        "notes": [
+          "The ED-bay intent, simulated EHR, live dialogue, and time-boxed trace controls are visible, but the scene still reads as a training scaffold rather than a realistic emergency department bay.",
+          "The patient is upright as a capsule placeholder rather than visibly distressed on the bed with exam posture, gowning, monitoring leads, pain behavior, and team positioning."
+        ]
+      },
+      "actor_equipment_realism": {
+        "status": "concern",
+        "notes": [
+          "Patient, nurse, and spouse remain capsule-and-head placeholders without faces, hands, clothing, skin detail, rigging, gaze, gesture, or pain response.",
+          "Equipment is sparse and abstract; the scene needs monitor detail, ECG/lead setup, oxygen/IV affordances, bedside furniture, room surfaces, and asset provenance before it can support high-stakes realism claims."
+        ]
+      },
+      "ui_readability": {
+        "status": "concern",
+        "notes": [
+          "The right-side administrative panel is readable on desktop, and the in-scene Simulated EHR and Live Dialogue panels are mostly legible.",
+          "The in-scene Input Evidence panel is too small in this capture for reliable adversarial review, and desktop readability is not evidence of in-headset readability."
+        ]
+      },
+      "interaction_affordances": {
+        "status": "concern",
+        "notes": [
+          "Trace buttons are visible in the desktop panel, but WebXR is unavailable in this capture and no controller, hand-select, locomotion, or immersive entry interaction is proven.",
+          "The page evidence reports preview frames only and no hand input, which matches a desktop preview posture rather than Quest runtime behavior."
+        ]
+      },
+      "occlusion_scale": {
+        "status": "concern",
+        "notes": [
+          "The overall spatial layout is understandable, but actor scale, bed placement, wall clock position, and panel depth need headset and IWER visual checks to confirm comfort and occlusion.",
+          "The foreground bed blocks the lower scene, while the side panel consumes substantial viewport space; this is acceptable for desktop review but not proof of XR framing."
+        ]
+      },
+      "evidence_limits": {
+        "status": "pass",
+        "notes": [
+          "This artifact is useful for adversarial visual iteration only.",
+          "It does not prove Quest foreground performance, immersive session entry, hand-tracking quality, controller latency, text readability in headset, thermal behavior, or production runtime readiness."
+        ]
+      }
+    }
+  },
+  "claimBoundaries": {
+    "notEvidenceFor": [
+      "physical_quest_foreground_frame_pacing",
+      "quest_controller_latency",
+      "quest_hand_tracking_quality",
+      "in_headset_text_readability",
+      "thermal_or_battery_behavior",
+      "production_runtime_readiness"
+    ],
+    "allowedClaims": [
+      "adversarial_visual_iteration_artifact",
+      "desktop_preview_layout_observation"
+    ]
+  }
+}
