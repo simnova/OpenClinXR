@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T17:45:18.941Z",
+  "generatedAt": "2026-05-05T18:28:23.574Z",
   "status": "transport_spike_passed",
   "policy": {
     "cloudApisUsed": false,
@@ -157,6 +157,27 @@
     "transcriptDeltaObserved": true,
     "binaryEchoObserved": true
   },
+  "apiBunPythonProxyRuntimeSmoke": {
+    "status": "passed",
+    "blockers": [],
+    "pythonBackendHealthOk": true,
+    "bunGatewayHealthOk": true,
+    "backendUrlConfigured": true,
+    "websocketConnected": true,
+    "backendReadyObserved": true,
+    "backendProtocolObserved": true,
+    "latencyFieldsObserved": true,
+    "binaryEchoObserved": true,
+    "eventTypesObserved": [
+      "gateway.ready",
+      "backend.ready",
+      "voice.started",
+      "audio.chunk",
+      "transcript.partial",
+      "transcript.final",
+      "voice.stopped"
+    ]
+  },
   "questClientSourceContract": {
     "status": "source_contract_observed",
     "appPath": "apps/ui-quest-voice-godot",
@@ -199,10 +220,10 @@
     "binaryAudioChunksReceived": 2,
     "backendProtocol": "python-fastapi-compatible-websocket",
     "codec": "opus",
-    "roundTripLatencyMs": 29.45,
+    "roundTripLatencyMs": 28.47,
     "frameLatencySamplesMs": [
-      16.7,
-      16.63
+      9.05,
+      8.96
     ],
     "audioChunkIndexesReceived": [
       0,
@@ -234,7 +255,8 @@
     ],
     "caveats": [
       "The measured harness uses a Python-compatible local fixture behind a Node/Hono/WebSocket fallback; it validates streaming shape and latency plumbing only.",
-      "FastAPI runtime smoke passed for health and WebSocket frame handling, but MLX/Moshi/Qwen inference is still not installed or executed by this spike."
+      "FastAPI runtime smoke passed for health and WebSocket frame handling, but MLX/Moshi/Qwen inference is still not installed or executed by this spike.",
+      "Bun/Hono to FastAPI runtime proxy smoke passed for control frames, opaque binary audio frames, backend-ready events, canonical protocol events, and latency-field plumbing."
     ]
   }
 }

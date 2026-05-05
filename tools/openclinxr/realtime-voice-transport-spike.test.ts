@@ -88,6 +88,7 @@ describe("realtime voice transport spike report", () => {
         "quest_godot_client_not_executed",
         "native_opus_codec_not_integrated_in_godot",
         "bun_runtime_not_installed_on_this_machine",
+        "bun_to_fastapi_proxy_runtime_not_verified",
         "fastapi_backend_not_runtime_executed",
         "real_moshi_or_qwen3_inference_not_observed",
         "quest_microphone_and_playback_latency_not_measured",
@@ -96,6 +97,7 @@ describe("realtime voice transport spike report", () => {
       caveats: [
         "The measured harness uses a Python-compatible local fixture behind a Node/Hono/WebSocket fallback; it validates streaming shape and latency plumbing only.",
         "The committed FastAPI backend is source-verified with stdlib checks, but FastAPI/Uvicorn/MLX/Moshi/Qwen dependencies are not installed or executed by this spike.",
+        "Bun/Hono to FastAPI runtime proxy evidence is still required before claiming the target gateway-to-backend transport path.",
       ],
     });
   });
@@ -143,6 +145,7 @@ describe("realtime voice transport spike report", () => {
     });
     expect(report.verdict.blockers).not.toContain("fastapi_backend_not_runtime_executed");
     expect(report.verdict.blockers).toEqual(expect.arrayContaining([
+      "bun_to_fastapi_proxy_runtime_not_verified",
       "real_moshi_or_qwen3_inference_not_observed",
       "quest_microphone_and_playback_latency_not_measured",
       "clinical_voice_safety_controls_not_exercised_with_real_model",
@@ -193,6 +196,7 @@ describe("realtime voice transport spike report", () => {
     ]));
     expect(report.verdict.blockers).not.toContain("bun_runtime_not_installed_on_this_machine");
     expect(report.verdict.blockers).toEqual(expect.arrayContaining([
+      "bun_to_fastapi_proxy_runtime_not_verified",
       "fastapi_backend_not_runtime_executed",
       "real_moshi_or_qwen3_inference_not_observed",
       "quest_microphone_and_playback_latency_not_measured",
@@ -233,6 +237,88 @@ describe("realtime voice transport spike report", () => {
     });
     expect(report.protocolEvidence.bunHonoRuntimeObserved).toBe(false);
     expect(report.verdict.blockers).toContain("bun_runtime_not_installed_on_this_machine");
+  });
+
+  it("uses passed Bun-to-FastAPI proxy evidence to retire gateway and backend runtime blockers", async () => {
+    const report = await buildRealtimeVoiceTransportSpikeReport({
+      generatedAt: "2026-05-05T18:30:00.000Z",
+      targetLatencyMs: 250,
+      bunAvailable: false,
+      godotAvailable: false,
+      apiBunPythonProxyRuntimeSmoke: {
+        status: "passed",
+        runtimeEvidenceBlockers: [],
+        pythonBackend: {
+          healthOk: true,
+        },
+        bunGateway: {
+          healthOk: true,
+          backendUrlConfigured: true,
+        },
+        websocket: {
+          connected: true,
+          eventTypesObserved: [
+            "gateway.ready",
+            "backend.ready",
+            "voice.started",
+            "audio.chunk",
+            "transcript.partial",
+            "transcript.final",
+            "voice.stopped",
+          ],
+          backendProtocolObserved: true,
+          latencyFieldsObserved: true,
+          binaryEchoObserved: true,
+        },
+        verdict: {
+          smokePassed: true,
+          blockers: [
+            "real_model_inference_not_observed",
+            "quest_browser_audio_capture_not_observed",
+          ],
+        },
+      },
+    });
+
+    expect(report.apiBunPythonProxyRuntimeSmoke).toEqual({
+      status: "passed",
+      blockers: [],
+      pythonBackendHealthOk: true,
+      bunGatewayHealthOk: true,
+      backendUrlConfigured: true,
+      websocketConnected: true,
+      backendReadyObserved: true,
+      backendProtocolObserved: true,
+      latencyFieldsObserved: true,
+      binaryEchoObserved: true,
+      eventTypesObserved: [
+        "gateway.ready",
+        "backend.ready",
+        "voice.started",
+        "audio.chunk",
+        "transcript.partial",
+        "transcript.final",
+        "voice.stopped",
+      ],
+    });
+    expect(report.protocolEvidence.bunHonoRuntimeObserved).toBe(true);
+    expect(report.apiProtocolPosture.protocols).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        protocolId: "websocket",
+        status: "ready",
+        blockers: [],
+      }),
+    ]));
+    expect(report.verdict.blockers).not.toContain("bun_runtime_not_installed_on_this_machine");
+    expect(report.verdict.blockers).not.toContain("bun_to_fastapi_proxy_runtime_not_verified");
+    expect(report.verdict.blockers).not.toContain("fastapi_backend_not_runtime_executed");
+    expect(report.verdict.blockers).toEqual(expect.arrayContaining([
+      "real_moshi_or_qwen3_inference_not_observed",
+      "quest_microphone_and_playback_latency_not_measured",
+      "clinical_voice_safety_controls_not_exercised_with_real_model",
+    ]));
+    expect(report.verdict.caveats.join("\n")).toContain("Bun/Hono to FastAPI runtime proxy smoke passed");
+    expect(report.verdict.readyForLiveDialog).toBe(false);
   });
 
   it("keeps FastAPI runtime smoke blocked when websocket protocol evidence is stale", async () => {
@@ -281,6 +367,7 @@ describe("realtime voice transport spike report", () => {
     });
     expect(report.verdict.transportContractPassed).toBe(false);
     expect(report.verdict.blockers).toContain("fastapi_backend_not_runtime_executed");
+    expect(report.verdict.blockers).toContain("bun_to_fastapi_proxy_runtime_not_verified");
   });
 
   it("blocks the transport contract when supplied FastAPI runtime smoke is blocked", async () => {
@@ -332,5 +419,6 @@ describe("realtime voice transport spike report", () => {
     expect(report.verdict.transportContractPassed).toBe(false);
     expect(report.verdict.blockers).toContain("fastapi_backend_not_runtime_executed");
     expect(report.verdict.blockers).not.toContain("bun_runtime_not_installed_on_this_machine");
+    expect(report.verdict.blockers).toContain("bun_to_fastapi_proxy_runtime_not_verified");
   });
 });

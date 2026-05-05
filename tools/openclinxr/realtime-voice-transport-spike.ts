@@ -18,6 +18,7 @@ type CliOptions = {
   outputPath?: string;
   apiPythonBackendRuntimeSmokePath?: string;
   apiBunWebSocketRuntimeSmokePath?: string;
+  apiBunPythonProxyRuntimeSmokePath?: string;
 };
 
 type ApiBunWebSocketRuntimeSmokeEvidence = {
@@ -56,6 +57,29 @@ type ApiPythonBackendRuntimeSmokeEvidence = {
   };
   verdict: {
     passed: boolean;
+    blockers: string[];
+  };
+};
+
+type ApiBunPythonProxyRuntimeSmokeEvidence = {
+  status: string;
+  runtimeEvidenceBlockers: string[];
+  pythonBackend: {
+    healthOk: boolean;
+  };
+  bunGateway: {
+    healthOk: boolean;
+    backendUrlConfigured: boolean;
+  };
+  websocket: {
+    connected: boolean;
+    eventTypesObserved: string[];
+    backendProtocolObserved: boolean;
+    latencyFieldsObserved: boolean;
+    binaryEchoObserved: boolean;
+  };
+  verdict: {
+    smokePassed: boolean;
     blockers: string[];
   };
 };
@@ -141,6 +165,19 @@ export type RealtimeVoiceTransportSpikeReport = {
     transcriptDeltaObserved: boolean;
     binaryEchoObserved: boolean;
   };
+  apiBunPythonProxyRuntimeSmoke?: {
+    status: "passed" | "blocked";
+    blockers: string[];
+    pythonBackendHealthOk: boolean;
+    bunGatewayHealthOk: boolean;
+    backendUrlConfigured: boolean;
+    websocketConnected: boolean;
+    backendReadyObserved: boolean;
+    backendProtocolObserved: boolean;
+    latencyFieldsObserved: boolean;
+    binaryEchoObserved: boolean;
+    eventTypesObserved: string[];
+  };
   questClientSourceContract: QuestClientSourceContractEvidence;
   harness: Awaited<ReturnType<typeof runRealtimeVoiceProxyHarness>>;
   verdict: {
@@ -159,7 +196,14 @@ async function main(): Promise<void> {
   const apiBunWebSocketRuntimeSmoke = options.apiBunWebSocketRuntimeSmokePath
     ? await readJson<ApiBunWebSocketRuntimeSmokeEvidence>(options.apiBunWebSocketRuntimeSmokePath)
     : undefined;
-  const report = await buildRealtimeVoiceTransportSpikeReport({ apiPythonBackendRuntimeSmoke, apiBunWebSocketRuntimeSmoke });
+  const apiBunPythonProxyRuntimeSmoke = options.apiBunPythonProxyRuntimeSmokePath
+    ? await readJson<ApiBunPythonProxyRuntimeSmokeEvidence>(options.apiBunPythonProxyRuntimeSmokePath)
+    : undefined;
+  const report = await buildRealtimeVoiceTransportSpikeReport({
+    apiPythonBackendRuntimeSmoke,
+    apiBunWebSocketRuntimeSmoke,
+    apiBunPythonProxyRuntimeSmoke,
+  });
 
   if (options.outputPath) {
     await writeJson(options.outputPath, report);
@@ -191,6 +235,11 @@ function parseArgs(args: string[]): CliOptions {
       index += 1;
       continue;
     }
+    if (arg === "--api-bun-python-proxy-runtime-smoke") {
+      options.apiBunPythonProxyRuntimeSmokePath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
     throw new Error(`Unknown argument: ${arg ?? ""}`);
   }
 
@@ -212,6 +261,7 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
   godotAvailable?: boolean;
   apiPythonBackendRuntimeSmoke?: ApiPythonBackendRuntimeSmokeEvidence;
   apiBunWebSocketRuntimeSmoke?: ApiBunWebSocketRuntimeSmokeEvidence;
+  apiBunPythonProxyRuntimeSmoke?: ApiBunPythonProxyRuntimeSmokeEvidence;
 } = {}): Promise<RealtimeVoiceTransportSpikeReport> {
   const generatedAt = input.generatedAt ?? new Date().toISOString();
   const targetLatencyMs = input.targetLatencyMs ?? 250;
@@ -228,15 +278,25 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
   const apiBunWebSocketRuntimeSmoke = input.apiBunWebSocketRuntimeSmoke
     ? summarizeApiBunWebSocketRuntimeSmoke(input.apiBunWebSocketRuntimeSmoke)
     : undefined;
+  const apiBunPythonProxyRuntimeSmoke = input.apiBunPythonProxyRuntimeSmoke
+    ? summarizeApiBunPythonProxyRuntimeSmoke(input.apiBunPythonProxyRuntimeSmoke)
+    : undefined;
   const suppliedRuntimeSmokePassed = pythonBackendRuntimeSmoke ? pythonBackendRuntimeSmoke.status === "passed" : true;
   const suppliedBunRuntimeSmokePassed = apiBunWebSocketRuntimeSmoke ? apiBunWebSocketRuntimeSmoke.status === "passed" : false;
-  const bunRuntimeObserved = bunAvailable || suppliedBunRuntimeSmokePassed;
-  const transportContractPassed = pythonBackendVerifier.status === "passed" && harness.latencyBudget.passed && suppliedRuntimeSmokePassed;
+  const suppliedBunPythonProxySmokePassed = apiBunPythonProxyRuntimeSmoke ? apiBunPythonProxyRuntimeSmoke.status === "passed" : false;
+  const bunRuntimeObserved = bunAvailable || suppliedBunRuntimeSmokePassed || suppliedBunPythonProxySmokePassed;
+  const backendRuntimeObserved = pythonBackendRuntimeSmoke?.status === "passed" || suppliedBunPythonProxySmokePassed;
+  const suppliedBunPythonProxySmokeHealthy = apiBunPythonProxyRuntimeSmoke ? suppliedBunPythonProxySmokePassed : true;
+  const transportContractPassed = pythonBackendVerifier.status === "passed"
+    && harness.latencyBudget.passed
+    && suppliedRuntimeSmokePassed
+    && suppliedBunPythonProxySmokeHealthy;
   const blockers = [
     "quest_godot_client_not_executed",
     "native_opus_codec_not_integrated_in_godot",
     bunRuntimeObserved ? undefined : "bun_runtime_not_installed_on_this_machine",
-    pythonBackendRuntimeSmoke?.status === "passed" ? undefined : "fastapi_backend_not_runtime_executed",
+    suppliedBunPythonProxySmokePassed ? undefined : "bun_to_fastapi_proxy_runtime_not_verified",
+    backendRuntimeObserved ? undefined : "fastapi_backend_not_runtime_executed",
     "real_moshi_or_qwen3_inference_not_observed",
     "quest_microphone_and_playback_latency_not_measured",
     "clinical_voice_safety_controls_not_exercised_with_real_model",
@@ -298,6 +358,7 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
     pythonBackendVerifier,
     ...(pythonBackendRuntimeSmoke ? { pythonBackendRuntimeSmoke } : {}),
     ...(apiBunWebSocketRuntimeSmoke ? { apiBunWebSocketRuntimeSmoke } : {}),
+    ...(apiBunPythonProxyRuntimeSmoke ? { apiBunPythonProxyRuntimeSmoke } : {}),
     questClientSourceContract,
     harness,
     verdict: {
@@ -309,6 +370,9 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
         pythonBackendRuntimeSmoke?.status === "passed"
           ? "FastAPI runtime smoke passed for health and WebSocket frame handling, but MLX/Moshi/Qwen inference is still not installed or executed by this spike."
           : "The committed FastAPI backend is source-verified with stdlib checks, but FastAPI/Uvicorn/MLX/Moshi/Qwen dependencies are not installed or executed by this spike.",
+        apiBunPythonProxyRuntimeSmoke?.status === "passed"
+          ? "Bun/Hono to FastAPI runtime proxy smoke passed for control frames, opaque binary audio frames, backend-ready events, canonical protocol events, and latency-field plumbing."
+          : "Bun/Hono to FastAPI runtime proxy evidence is still required before claiming the target gateway-to-backend transport path.",
       ],
     },
   };
@@ -432,6 +496,37 @@ function summarizeApiBunWebSocketRuntimeSmoke(
     audioMetadataObserved: report.websocket.audioMetadataObserved,
     transcriptDeltaObserved: report.websocket.transcriptDeltaObserved,
     binaryEchoObserved: report.websocket.binaryEchoObserved,
+  };
+}
+
+function summarizeApiBunPythonProxyRuntimeSmoke(
+  report: ApiBunPythonProxyRuntimeSmokeEvidence,
+): RealtimeVoiceTransportSpikeReport["apiBunPythonProxyRuntimeSmoke"] {
+  const backendReadyObserved = report.websocket.eventTypesObserved.includes("backend.ready");
+  const blockers = [
+    ...report.runtimeEvidenceBlockers,
+    report.pythonBackend.healthOk ? undefined : "proxy_smoke_python_backend_health_not_ok",
+    report.bunGateway.healthOk ? undefined : "proxy_smoke_bun_gateway_health_not_ok",
+    report.bunGateway.backendUrlConfigured ? undefined : "proxy_smoke_backend_url_not_configured",
+    report.websocket.connected ? undefined : "proxy_smoke_websocket_not_connected",
+    backendReadyObserved ? undefined : "proxy_smoke_backend_ready_missing",
+    report.websocket.backendProtocolObserved ? undefined : "proxy_smoke_backend_protocol_missing",
+    report.websocket.latencyFieldsObserved ? undefined : "proxy_smoke_latency_fields_missing",
+    report.websocket.binaryEchoObserved ? undefined : "proxy_smoke_binary_echo_missing",
+  ].filter((blocker): blocker is string => typeof blocker === "string");
+
+  return {
+    status: report.status === "passed" && report.verdict.smokePassed && blockers.length === 0 ? "passed" : "blocked",
+    blockers,
+    pythonBackendHealthOk: report.pythonBackend.healthOk,
+    bunGatewayHealthOk: report.bunGateway.healthOk,
+    backendUrlConfigured: report.bunGateway.backendUrlConfigured,
+    websocketConnected: report.websocket.connected,
+    backendReadyObserved,
+    backendProtocolObserved: report.websocket.backendProtocolObserved,
+    latencyFieldsObserved: report.websocket.latencyFieldsObserved,
+    binaryEchoObserved: report.websocket.binaryEchoObserved,
+    eventTypesObserved: report.websocket.eventTypesObserved,
   };
 }
 
