@@ -26,7 +26,7 @@ The machine used for this spike reports Apple M1 Max with 64 GB RAM. The user me
 
 The refreshed 2026-05-04 probe records Node 22.19.0, pnpm 10.33.0, Python 3.11.4, ffmpeg 8.1, adb, Homebrew 5.1.8, Blender 5.1.1, `llama.cpp` 9010, and the pinned pnpm `gltf-pipeline` CLI as available. Quest USB and foreground preflight are ready after the headset wake rerun, but Quest frame pacing still needs a manual foreground headset performance report because CDP sampling continues to classify the browser page as hidden.
 
-The same probe still records Bun, Portless, Ollama, and MLX LM as missing from PATH. Since this strategy was first written, Codex has recorded approved local-model and local-voice benchmark evidence: `docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json` for Qwen3-4B through `llama.cpp`, and `docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json` for VibeVoice-Realtime-0.5B file generation. Those clear basic local execution smoke gates, but not live clinical dialogue. Blender-backed placeholder asset baking now has a passing local smoke report, but production avatar generation still needs rigging, LOD, texture, collider, and headset-performance evidence.
+The refreshed 2026-05-05 probe records Bun 1.3.13 and Portless 0.12.0 as available, while Ollama and MLX LM remain missing from PATH. Since this strategy was first written, Codex has recorded approved local-model and local-voice benchmark evidence: `docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json` for Qwen3-4B through `llama.cpp`, and `docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json` for VibeVoice-Realtime-0.5B file generation. Those clear basic local execution smoke gates, but not live clinical dialogue. Blender-backed placeholder asset baking now has a passing local smoke report, but production avatar generation still needs rigging, LOD, texture, collider, and headset-performance evidence.
 
 ## Recommended Local Reasoning Stack
 
@@ -81,7 +81,7 @@ Current intake: `docs/openclinxr/spikes/vibevoice-local-voice-spike.md` records 
 This lane is useful because it separates transport evidence from model evidence:
 
 - WebSocket-first is the immediate path.
-- Bun/Hono remains the intended primary API target, with Node/Hono as local fallback until Bun is installed here.
+- Bun/Hono is now locally smoke-verified for the `/voice/realtime/ws` WebSocket lane; Node/Hono remains the local fallback for non-Bun development tasks.
 - WebTransport, QUIC, and Web3 signaling stay protocol-posture entries, not runtime claims.
 - Moshi MLX and Qwen3-TTS remain future local inference candidates.
 - The Godot sidecar proves source shape only; it does not prove Quest microphone capture, native Opus encode/decode, playback, or headset latency.

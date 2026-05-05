@@ -75,7 +75,7 @@ This file captures useful operator steering that should shape future work but do
 
 ### SUG-2026-05-04-005: Evaluate UIKitML For In-XR Text Content
 
-- Status: `converted-to-proposal`
+- Status: `approved-and-implemented-first-slice`
 - Captured at: 2026-05-04 20:04 EDT
 - Operator steering: Consider UIKitML for text content in the application, as a stronger candidate than the earlier HTML-in-canvas direction.
 - Proposal: `proposals/proposal-uikitml-spatial-text-sidecar.md`
@@ -92,7 +92,7 @@ This file captures useful operator steering that should shape future work but do
 - Status: `converted-to-proposal`
 - Captured at: 2026-05-04 23:31 EDT
 - Operator steering: Patrick's worn-headset Quest reports observed primitive hand rendering: earlier hands were absent, and the latest manually entered immersive session showed two visible box-style hands that were readable as hands but non-realistic.
-- Proposal: `proposals/proposal-local-webxr-hand-mesh-assets.md`
+- Proposal: `proposals/approved/proposal-local-webxr-hand-mesh-assets.md`
 - Primary owners: `xr-systems-architect`, `asset-pipeline-lead`, `open-source-governance-lead`, `ux-friction-critic`, `test-automation-lead`
 - Review when: improving Quest hand representation, hand-tracking affordances, in-headset visual fidelity, or manual Quest readiness gates.
 - Acceptance shape:
@@ -100,4 +100,4 @@ This file captures useful operator steering that should shape future work but do
   - Record per-asset provenance, license status, modification notes, Quest geometry/texture budget, and fallback behavior.
   - Keep primitive/spheres fallback available and recorded as a limitation if mesh loading fails.
   - Require a later human Quest run before claiming hand-quality readiness, but wait until instrumentation and hand-asset improvements are ready so the run can collect trace, frame, locomotion, latency, and visual-fidelity evidence in one pass.
-- Current posture: proposal only. No hand GLB assets or new runtime packages are authorized by this backlog entry alone; primitive non-realistic hands are a known fidelity limitation, not a current operator blocker. `apps/ui-xr` now surfaces the active hand representation in the in-scene Input Evidence panel and copied evidence payload, so future Quest reports can distinguish `primitive_spheres`, `mesh`, `not_visible`, and fallback behavior without treating clipboard success as readiness.
+- Current posture: first slice implemented. `apps/ui-xr` uses reviewed local `@webxr-input-profiles/assets@1.0.20` generic-hand GLBs from `apps/ui-xr/public/xr-hands/generic-hand/`, records MIT provenance beside the copied assets, calls Three's mesh profile through a local path, preserves primitive-sphere fallback, and surfaces async GLB load failures as fallback evidence. Quest hand-quality and frame-pacing claims still require a fresh worn-headset run with active `handRepresentationKind: "mesh"` and valid frame stats.
