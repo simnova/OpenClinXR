@@ -14,7 +14,7 @@
       "evidence_id": "local_runtime_probe",
       "file": "docs/openclinxr/local-runtime-probe-2026-05-04.json",
       "generated_at": "2026-05-04T15:16:18.712Z",
-      "age_hours": 8,
+      "age_hours": 9,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -41,7 +41,7 @@
       "evidence_id": "asset_capability_job_evidence",
       "file": "docs/openclinxr/asset-capability-job-evidence-2026-05-04.json",
       "generated_at": "2026-05-04T21:21:14.173Z",
-      "age_hours": 2,
+      "age_hours": 3,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -77,7 +77,7 @@
       "evidence_id": "local_model_quality_benchmark",
       "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T21:16:55.867Z",
-      "age_hours": 2,
+      "age_hours": 3,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []

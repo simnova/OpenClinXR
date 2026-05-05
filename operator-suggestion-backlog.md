@@ -59,7 +59,7 @@ This file captures useful operator steering that should shape future work but do
 
 ### SUG-2026-05-04-004: PNPM Audit Security Monitoring
 
-- Status: `accepted-for-review`
+- Status: `promoted-to-slice`
 - Captured at: 2026-05-04 19:53 EDT
 - Operator steering: Leverage PNPM audit to keep abreast of security issues in packages.
 - Primary owners: `open-source-governance-lead`, `security-privacy-lead`, `supply-chain-dependency-attacker`, `workspace-steward`
@@ -69,7 +69,7 @@ This file captures useful operator steering that should shape future work but do
   - Preserve `pnpm audit --audit-level=high` in the default verification path unless a future proposal changes the gate.
   - Record any audit exceptions, overrides, or accepted risks in a markdown evidence file with package name, advisory, severity, affected version, fixed version, rationale, owner, and review date.
   - Pair audit results with license-policy checks so security and licensing posture are both visible before committing dependency changes.
-- Current posture: partially implemented through existing root scripts; backlog item remains open for periodic monitoring, exception documentation, and CI/reporting polish.
+- Current posture: promoted into the security audit policy slice. `pnpm security:audit-policy` now validates that the hard audit scripts remain in the default verification path and that future high or critical audit exceptions are recorded with owner/review metadata.
 
 ### SUG-2026-05-04-005: Evaluate UIKitML For In-XR Text Content
 

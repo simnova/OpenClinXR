@@ -117,6 +117,22 @@ describe("workspace architecture rules", () => {
     expect(rootPackage.scripts?.verify).not.toContain("iwsdk:verify");
   });
 
+  it("keeps pnpm audit and license governance in the default verification gate", () => {
+    const rootPackage = JSON.parse(readFileSync(join(workspaceRoot, "package.json"), "utf8")) as {
+      scripts?: Record<string, string>;
+    };
+
+    expect(rootPackage.scripts?.["security:audit"]).toBe("pnpm audit --audit-level=high");
+    expect(rootPackage.scripts?.["security:audit:prod"]).toBe("pnpm audit --prod --audit-level=high");
+    expect(rootPackage.scripts?.["security:audit:dev"]).toBe("pnpm audit --dev --audit-level=high");
+    expect(rootPackage.scripts?.["security:audit-policy"]).toBe(
+      "tsx tools/openclinxr/check-security-audit-policy.ts",
+    );
+    expect(rootPackage.scripts?.["security:licenses"]).toBe("tsx tools/openclinxr/check-license-policy.ts");
+    expect(rootPackage.scripts?.verify).toContain("pnpm security:audit && pnpm security:audit-policy && pnpm security:licenses");
+    expect(rootPackage.scripts?.["security:audit"]).not.toMatch(/\becho\b|\|\|\s*true|--ignore|--audit-level\s*=\s*moderate/);
+  });
+
   it("keeps the implementation plan explicit about the IWSDK sidecar policy", () => {
     const implementationPlan = readFileSync(join(workspaceRoot, "docs/openclinxr/code-implementation-plan.md"), "utf8");
 

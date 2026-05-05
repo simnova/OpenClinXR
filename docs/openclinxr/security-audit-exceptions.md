@@ -7,6 +7,8 @@ Status: No active security audit exceptions; active version-pinned license inven
 
 OpenClinXR runs `pnpm audit --audit-level=high` as part of `pnpm verify`. Production-only and dev-only checks are available through `pnpm security:audit:prod` and `pnpm security:audit:dev`.
 
+`pnpm security:audit-policy` validates that the hard audit scripts remain in the default verification path and that any future high or critical audit exception is recorded in a machine-checkable form before it is allowed to coexist with audit evidence.
+
 Exceptions are allowed only when all of the following are recorded here:
 
 - Advisory ID or GHSA.
@@ -16,6 +18,11 @@ Exceptions are allowed only when all of the following are recorded here:
 - Owner.
 - Review-by date.
 - Planned removal condition.
+
+If any active exception is needed, replace `None.` under Active Exceptions with this table shape:
+
+| Advisory | Package | Severity | Affected | Fixed | Rationale | Owner | Review-by | Removal condition |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
 
 Any package-manager override or pnpm audit ignore must link back to an exception entry in this file.
 
