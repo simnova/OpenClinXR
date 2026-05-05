@@ -237,6 +237,13 @@ describe("IWSDK sidecar runtime state", () => {
     expect(source).not.toContain("@openclinxr/ui-xr");
   });
 
+  it("labels primitive IWER hand evidence instead of implying mesh hand readiness", () => {
+    const source = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+
+    expect(source).toContain("handRepresentationKind");
+    expect(source).toContain('"primitive_spheres"');
+  });
+
   it("exposes separate immersive VR and gated Mixed Reality entry paths for Quest Browser", () => {
     const source = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
     const stateSource = readFileSync(new URL("./sidecar-state.ts", import.meta.url), "utf8");

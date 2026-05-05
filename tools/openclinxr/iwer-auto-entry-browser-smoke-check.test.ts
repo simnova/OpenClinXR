@@ -132,6 +132,47 @@ describe("IWER auto-entry browser smoke checker", () => {
     expect(report.result.warnings).not.toContain("text_panel_evidence_missing");
   });
 
+  it("rejects stale hand-model status vocabulary in IWER input evidence", () => {
+    const evidence = readyEvidence({ richAppRuntimeEvidence: true });
+    evidence.inputEvidence!.handModelStatus = "active";
+
+    const report = buildIwerAutoEntryBrowserSmokeReport({
+      generatedAt: "2026-05-05T02:45:00.000Z",
+      evidence,
+    });
+
+    expect(report.result.readyForAutoEntryEvidence).toBe(false);
+    expect(report.result.blockers).toContain("hand_model_status_invalid");
+  });
+
+  it("warns when XR hand evidence omits the primitive/mesh representation kind", () => {
+    const evidence = readyEvidence({ richAppRuntimeEvidence: true });
+    delete evidence.inputEvidence!.handRepresentationKind;
+
+    const report = buildIwerAutoEntryBrowserSmokeReport({
+      generatedAt: "2026-05-05T02:45:00.000Z",
+      evidence,
+    });
+
+    expect(report.result.readyForAutoEntryEvidence).toBe(true);
+    expect(report.result.warnings).toContain("hand_representation_kind_missing_for_xr_hand");
+  });
+
+  it("warns without claiming Quest hand readiness when an IWER hand model failed", () => {
+    const evidence = readyEvidence({ richAppRuntimeEvidence: true });
+    evidence.inputEvidence!.handModelStatus = "failed";
+    evidence.inputEvidence!.handRepresentationKind = "primitive_spheres";
+
+    const report = buildIwerAutoEntryBrowserSmokeReport({
+      generatedAt: "2026-05-05T02:45:00.000Z",
+      evidence,
+    });
+
+    expect(report.result.readyForAutoEntryEvidence).toBe(true);
+    expect(report.result.readyForPhysicalQuestClaim).toBe(false);
+    expect(report.result.warnings).toContain("hand_model_status_failed");
+  });
+
   it("warns when query-gated wide visual evidence omits sidecar-only boundaries", () => {
     const evidence = readyEvidence();
     evidence.evidenceViewEvidence = {
@@ -240,6 +281,7 @@ function readyEvidence(input: {
     inputEvidence: {
       handModelCount: 2,
       handModelStatus: "installed",
+      handRepresentationKind: "primitive_spheres",
       handInputsObserved: 0,
       locomotionMode: "experimental_keyboard_and_thumbstick_dolly",
       lastLocomotionAtMs: null,

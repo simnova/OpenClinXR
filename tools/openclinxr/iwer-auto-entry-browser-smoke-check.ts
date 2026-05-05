@@ -75,6 +75,7 @@ export type IwerAutoEntryBrowserSmokeEvidence = {
   inputEvidence?: {
     handModelCount?: number;
     handModelStatus?: string;
+    handRepresentationKind?: string;
     handInputsObserved?: number;
     locomotionMode?: string;
     lastLocomotionAtMs?: number | null;
@@ -202,6 +203,15 @@ const requiredEvidenceViewNotEvidenceFor = [
   "in_headset_text_readability",
   "production_runtime_readiness",
 ];
+const validHandModelStatuses = new Set(["pending_immersive_session", "installed", "failed"]);
+const validHandRepresentationKinds = new Set([
+  "primitive_boxes",
+  "primitive_spheres",
+  "mesh",
+  "controller_only",
+  "not_visible",
+  "unknown",
+]);
 
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
@@ -274,6 +284,10 @@ export function evaluateIwerAutoEntryBrowserSmokeEvidence(
     ...sessionEntryBlockers(evidence.sessionEntryEvidence),
     ...frameStatsBlockers(evidence.frameStats),
     evidence.inputEvidence?.handModelCount === 2 ? undefined : "hand_model_count_not_two",
+    validHandModelStatus(evidence.inputEvidence?.handModelStatus) ? undefined : "hand_model_status_invalid",
+    validOptionalHandRepresentationKind(evidence.inputEvidence?.handRepresentationKind)
+      ? undefined
+      : "hand_representation_kind_invalid",
     typeof evidence.inputEvidence?.locomotionMode === "string"
       && evidence.inputEvidence.locomotionMode.length > 0
       ? undefined
@@ -371,6 +385,10 @@ function evidenceWarnings(evidence: IwerAutoEntryBrowserSmokeEvidence): string[]
     evidence.inputEvidence?.handModelStatus === "installed" && (evidence.inputEvidence.handInputsObserved ?? 0) === 0
       ? "hand_models_installed_but_no_hand_inputs_observed"
       : undefined,
+    evidence.inputEvidence?.handModelStatus === "failed" ? "hand_model_status_failed" : undefined,
+    requiresHandRepresentationKind(evidence.inputEvidence) && !evidence.inputEvidence?.handRepresentationKind
+      ? "hand_representation_kind_missing_for_xr_hand"
+      : undefined,
     evidence.inputEvidence?.lastLocomotionAtMs === null ? "locomotion_not_observed" : undefined,
     ...frameLaneParityWarnings(evidence),
     ...evidenceViewWarnings(evidence.evidenceViewEvidence),
@@ -450,6 +468,7 @@ function hasRichInputEvidence(input: IwerAutoEntryBrowserSmokeEvidence["inputEvi
     && input.activeLocomotionSource.length > 0
     && validNonNegativeNumber(input.inputSourceCount)
     && Array.isArray(input.inputSourceKinds)
+    && validHandRepresentationKind(input.handRepresentationKind)
     && hasLocomotionVectorEvidence(input.keyboardVector)
     && hasLocomotionVectorEvidence(input.xrVector)
     && Array.isArray(input.xrInputSources);
@@ -459,6 +478,22 @@ function hasLocomotionVectorEvidence(vector: NonNullable<IwerAutoEntryBrowserSmo
   return validFiniteNumber(vector?.forward)
     && validFiniteNumber(vector?.strafe)
     && validFiniteNumber(vector?.turn);
+}
+
+function validHandModelStatus(status: string | undefined): boolean {
+  return typeof status === "string" && validHandModelStatuses.has(status);
+}
+
+function validHandRepresentationKind(kind: string | undefined): boolean {
+  return typeof kind === "string" && validHandRepresentationKinds.has(kind);
+}
+
+function validOptionalHandRepresentationKind(kind: string | undefined): boolean {
+  return kind === undefined || validHandRepresentationKind(kind);
+}
+
+function requiresHandRepresentationKind(input: IwerAutoEntryBrowserSmokeEvidence["inputEvidence"]): boolean {
+  return (input?.inputSourceKinds ?? []).includes("xr_hand") || (input?.handModelCount ?? 0) > 0;
 }
 
 function hasRigPositionEvidence(

@@ -67,6 +67,7 @@
   "inputEvidence": {
     "handModelCount": 2,
     "handModelStatus": "installed",
+    "handRepresentationKind": "primitive_spheres",
     "handInputsObserved": 0,
     "locomotionMode": "experimental_keyboard_and_thumbstick_dolly",
     "lastLocomotionAtMs": null,

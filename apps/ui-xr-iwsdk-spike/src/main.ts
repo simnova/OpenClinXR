@@ -100,6 +100,7 @@ type XrInputSourceEvidence = {
 type OpenClinXrInputEvidence = {
   handModelCount: number;
   handModelStatus: "pending_immersive_session" | "installed" | "failed";
+  handRepresentationKind: "primitive_spheres";
   handInputsObserved: number;
   locomotionMode: "experimental_keyboard_and_thumbstick_dolly";
   lastLocomotionAtMs: number | null;
@@ -865,6 +866,7 @@ function createStationScene(): StationSceneRuntime {
       activePresentationMode ?? "preview",
       inputEvidence.handModelStatus,
       inputEvidence.handInputsObserved,
+      inputEvidence.handRepresentationKind,
       inputEvidence.lastLocomotionAtMs,
       inputEvidence.activeLocomotionSource,
       inputEvidence.rigPosition.x,
@@ -882,7 +884,7 @@ function createStationScene(): StationSceneRuntime {
       activePresentationMode === "mixed-reality"
         ? "Session: In Mixed Reality"
         : immersiveSessionActive ? "Session: In Full VR" : "Session: Desktop preview",
-      `Hands: ${inputEvidence.handModelStatus}; observed ${inputEvidence.handInputsObserved}`,
+      `Hands: ${inputEvidence.handModelStatus}; ${inputEvidence.handRepresentationKind}; observed ${inputEvidence.handInputsObserved}`,
       `Movement: ${inputEvidence.activeLocomotionSource}; x ${inputEvidence.rigPosition.x}, z ${inputEvidence.rigPosition.z}`,
     ]);
   }
@@ -1173,6 +1175,7 @@ function applyLocomotion(input: {
   return {
     handModelCount: input.handModelCount,
     handModelStatus: input.handModelStatus,
+    handRepresentationKind: "primitive_spheres",
     handInputsObserved: xrLocomotion.handInputsObserved,
     locomotionMode: "experimental_keyboard_and_thumbstick_dolly",
     lastLocomotionAtMs: moved ? Number(input.now.toFixed(2)) : input.lastLocomotionAtMs,
