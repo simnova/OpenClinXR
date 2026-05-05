@@ -29,6 +29,8 @@ describe("IWER auto-entry browser smoke checker", () => {
         "console_warning_observed",
         "hand_models_installed_but_no_hand_inputs_observed",
         "locomotion_not_observed",
+        "input_evidence_shape_incomplete",
+        "text_panel_evidence_missing",
       ],
     });
     expect(report.evidence.classification?.notEvidenceFor).toEqual(expect.arrayContaining([
@@ -74,7 +76,24 @@ describe("IWER auto-entry browser smoke checker", () => {
 
     expect(report.result.readyForAutoEntryEvidence).toBe(true);
     expect(report.result.readyForPhysicalQuestClaim).toBe(false);
+    expect(report.result.warnings).toEqual(expect.arrayContaining([
+      "input_evidence_shape_incomplete",
+      "text_panel_evidence_missing",
+    ]));
     expect(report.evidence.sessionEntryEvidence?.outcome).toBe("session_started");
+  });
+
+  it("clears optional app-side evidence warnings when rich input and text-panel metadata are present", () => {
+    const report = buildIwerAutoEntryBrowserSmokeReport({
+      generatedAt: "2026-05-05T02:45:00.000Z",
+      evidence: readyEvidence({ richAppRuntimeEvidence: true }),
+    });
+
+    expect(report.result.readyForAutoEntryEvidence).toBe(true);
+    expect(report.result.readyForProductionRuntime).toBe(false);
+    expect(report.result.readyForPhysicalQuestClaim).toBe(false);
+    expect(report.result.warnings).not.toContain("input_evidence_shape_incomplete");
+    expect(report.result.warnings).not.toContain("text_panel_evidence_missing");
   });
 
   it("exposes a CLI for scoring captured auto-entry evidence JSON", async () => {
@@ -106,7 +125,9 @@ describe("IWER auto-entry browser smoke checker", () => {
   });
 });
 
-function readyEvidence(): IwerAutoEntryBrowserSmokeEvidence {
+function readyEvidence(input: {
+  richAppRuntimeEvidence?: boolean;
+} = {}): IwerAutoEntryBrowserSmokeEvidence {
   return {
     schemaVersion: "openclinxr.iwer-auto-entry-browser-smoke.v1",
     classification: {
@@ -160,8 +181,76 @@ function readyEvidence(): IwerAutoEntryBrowserSmokeEvidence {
       handInputsObserved: 0,
       locomotionMode: "experimental_keyboard_and_thumbstick_dolly",
       lastLocomotionAtMs: null,
+      ...(input.richAppRuntimeEvidence ? {
+        activeLocomotionSource: "none",
+        inputSourceCount: 2,
+        inputSourceKinds: ["xr_gamepad", "xr_hand"],
+        keyboardVector: { forward: 0, strafe: 0, turn: 0 },
+        xrVector: { forward: 0, strafe: 0, turn: 0 },
+        xrInputSources: [
+          { handedness: "left", hasHand: true, hasGamepad: true, axisCount: 4 },
+          { handedness: "right", hasHand: true, hasGamepad: true, axisCount: 4 },
+        ],
+      } : {}),
       rigPosition: { x: 0, z: 0 },
     },
+    ...(input.richAppRuntimeEvidence ? {
+      textPanelEvidence: {
+        source: "window.__openClinXrTextPanelEvidence",
+        panelCount: 3,
+        panels: [
+          {
+            name: "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+            title: "Simulated EHR",
+            source: "canvas_texture_metadata",
+            canvasPixels: { width: 1280, height: 640 },
+            worldMeters: { width: 2.3, height: 1.15 },
+            lineCount: 4,
+            previewLines: [
+              "Chief concern: crushing substernal pressure",
+              "Vitals: BP 152/92  HR 104  RR 20  SpO2 96%",
+              "Actors: patient, nurse, spouse",
+              "Priority: obtain ECG and escalate urgently",
+            ],
+            contentHash: "78ed3c0f",
+            lastUpdatedAtMs: 1234.56,
+            readabilityClaim: "metadata_only_requires_foreground_headset_confirmation",
+          },
+          {
+            name: "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+            title: "Live Dialogue",
+            source: "canvas_texture_metadata",
+            canvasPixels: { width: 1280, height: 640 },
+            worldMeters: { width: 1.85, height: 0.95 },
+            lineCount: 2,
+            previewLines: [
+              "Robert Hayes: The pressure is heavy and I feel sweaty.",
+              "Trace 0/10; missing 10",
+            ],
+            contentHash: "5fd1ed1a",
+            lastUpdatedAtMs: 1234.56,
+            readabilityClaim: "metadata_only_requires_foreground_headset_confirmation",
+          },
+          {
+            name: "openclinxr.ed-chest-pain.in-vr-input-panel",
+            title: "Input Evidence",
+            source: "canvas_texture_metadata",
+            canvasPixels: { width: 1280, height: 640 },
+            worldMeters: { width: 1.65, height: 0.72 },
+            lineCount: 3,
+            previewLines: [
+              "Session: In Full VR",
+              "Hands: installed; observed 0",
+              "Movement: none; x 0, z 0",
+            ],
+            contentHash: "f3eec083",
+            lastUpdatedAtMs: 1234.56,
+            readabilityClaim: "metadata_only_requires_foreground_headset_confirmation",
+          },
+        ],
+        limitations: ["metadata_only_requires_foreground_headset_confirmation"],
+      },
+    } : {}),
     bootEvidence: {
       app: "ui-xr-iwsdk-spike",
       events: [

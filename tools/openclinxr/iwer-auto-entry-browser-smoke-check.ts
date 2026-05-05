@@ -73,10 +73,52 @@ export type IwerAutoEntryBrowserSmokeEvidence = {
     handInputsObserved?: number;
     locomotionMode?: string;
     lastLocomotionAtMs?: number | null;
+    activeLocomotionSource?: string;
+    inputSourceCount?: number;
+    inputSourceKinds?: string[];
+    keyboardVector?: {
+      forward?: number;
+      strafe?: number;
+      turn?: number;
+    };
+    xrVector?: {
+      forward?: number;
+      strafe?: number;
+      turn?: number;
+    };
+    xrInputSources?: Array<{
+      handedness?: string;
+      hasHand?: boolean;
+      hasGamepad?: boolean;
+      axisCount?: number;
+    }>;
     rigPosition?: {
       x?: number;
       z?: number;
     };
+  };
+  textPanelEvidence?: {
+    source?: "window.__openClinXrTextPanelEvidence";
+    panelCount?: number;
+    panels?: Array<{
+      name?: string;
+      title?: string;
+      source?: "canvas_texture_metadata";
+      canvasPixels?: {
+        width?: number;
+        height?: number;
+      };
+      worldMeters?: {
+        width?: number;
+        height?: number;
+      };
+      lineCount?: number;
+      previewLines?: string[];
+      contentHash?: string;
+      lastUpdatedAtMs?: number;
+      readabilityClaim?: "metadata_only_requires_foreground_headset_confirmation";
+    }>;
+    limitations?: string[];
   };
   bootEvidence?: {
     app?: string;
@@ -307,13 +349,80 @@ function evidenceWarnings(evidence: IwerAutoEntryBrowserSmokeEvidence): string[]
       ? "hand_models_installed_but_no_hand_inputs_observed"
       : undefined,
     evidence.inputEvidence?.lastLocomotionAtMs === null ? "locomotion_not_observed" : undefined,
+    hasRichInputEvidence(evidence.inputEvidence) ? undefined : "input_evidence_shape_incomplete",
+    textPanelEvidenceWarning(evidence.textPanelEvidence),
   ].filter((warning): warning is string => typeof warning === "string");
 
   return [...new Set(warnings)];
 }
 
+function hasRichInputEvidence(input: IwerAutoEntryBrowserSmokeEvidence["inputEvidence"]): boolean {
+  if (!input) {
+    return false;
+  }
+  return typeof input.activeLocomotionSource === "string"
+    && input.activeLocomotionSource.length > 0
+    && validNonNegativeNumber(input.inputSourceCount)
+    && Array.isArray(input.inputSourceKinds)
+    && hasLocomotionVectorEvidence(input.keyboardVector)
+    && hasLocomotionVectorEvidence(input.xrVector)
+    && Array.isArray(input.xrInputSources);
+}
+
+function hasLocomotionVectorEvidence(vector: NonNullable<IwerAutoEntryBrowserSmokeEvidence["inputEvidence"]>["keyboardVector"]): boolean {
+  return validFiniteNumber(vector?.forward)
+    && validFiniteNumber(vector?.strafe)
+    && validFiniteNumber(vector?.turn);
+}
+
+function textPanelEvidenceWarning(
+  textPanelEvidence: IwerAutoEntryBrowserSmokeEvidence["textPanelEvidence"],
+): string | undefined {
+  if (!textPanelEvidence) {
+    return "text_panel_evidence_missing";
+  }
+  return hasCompleteTextPanelEvidence(textPanelEvidence) ? undefined : "text_panel_evidence_incomplete";
+}
+
+function hasCompleteTextPanelEvidence(
+  textPanelEvidence: NonNullable<IwerAutoEntryBrowserSmokeEvidence["textPanelEvidence"]>,
+): boolean {
+  const panels = textPanelEvidence.panels ?? [];
+  return textPanelEvidence.source === "window.__openClinXrTextPanelEvidence"
+    && typeof textPanelEvidence.panelCount === "number"
+    && textPanelEvidence.panelCount >= 3
+    && panels.length >= textPanelEvidence.panelCount
+    && textPanelEvidence.limitations?.includes("metadata_only_requires_foreground_headset_confirmation") === true
+    && panels.every((panel) => (
+      typeof panel.name === "string"
+      && panel.name.length > 0
+      && typeof panel.title === "string"
+      && panel.title.length > 0
+      && panel.source === "canvas_texture_metadata"
+      && validPositiveNumber(panel.canvasPixels?.width)
+      && validPositiveNumber(panel.canvasPixels?.height)
+      && validPositiveNumber(panel.worldMeters?.width)
+      && validPositiveNumber(panel.worldMeters?.height)
+      && validPositiveNumber(panel.lineCount)
+      && Array.isArray(panel.previewLines)
+      && panel.previewLines.length > 0
+      && typeof panel.contentHash === "string"
+      && panel.contentHash.length > 0
+      && validNonNegativeNumber(panel.lastUpdatedAtMs)
+      && panel.readabilityClaim === "metadata_only_requires_foreground_headset_confirmation"
+    ));
+}
+
 function validPositiveNumber(value: number | undefined): boolean {
   return typeof value === "number" && Number.isFinite(value) && value > 0;
+}
+
+function validNonNegativeNumber(value: number | undefined): boolean {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0;
+}
+
+function validFiniteNumber(value: number | undefined): boolean {
+  return typeof value === "number" && Number.isFinite(value);
 }
 
 function isValidPort(port: number | undefined): boolean {
