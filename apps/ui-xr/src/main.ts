@@ -638,7 +638,7 @@ function createStationScene(): StationSceneRuntime {
     background: "#fff8e5",
     accent: "#286b54",
   });
-  dialoguePanel.mesh.position.set(1.28, 1.28, -1.08);
+  dialoguePanel.mesh.position.set(0.85, 2.58, -1.42);
   dialoguePanel.mesh.rotation.y = -0.28;
   scene.add(dialoguePanel.mesh);
   const inputPanel = createReadableVrTextPanel({
@@ -654,7 +654,8 @@ function createStationScene(): StationSceneRuntime {
     background: "#eef4ff",
     accent: "#5a6f9f",
   });
-  inputPanel.mesh.position.set(0.15, 0.78, -1.2);
+  inputPanel.mesh.position.set(0.05, 2.02, -1.48);
+  inputPanel.mesh.rotation.y = 0;
   scene.add(inputPanel.mesh);
   let lastPanelSignature = "";
   addControllerAffordances(renderer, scene, () => completeNextTraceActionFromXrSelect(() => Boolean(activeXrSession && renderer.xr.isPresenting)));
@@ -847,7 +848,7 @@ function createClinicalPanel(): ReadableVrTextPanel {
     background: "#fff8e5",
     accent: "#7d4f28",
   });
-  panel.mesh.position.set(-1.32, 1.55, -1.08);
+  panel.mesh.position.set(-1.55, 2.62, -1.42);
   panel.mesh.rotation.y = 0.34;
   return panel;
 }

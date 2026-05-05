@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "openclinxr.visual-qa-evidence.v1",
+  "capture": {
+    "source": "desktop_browser",
+    "artifactType": "screenshot",
+    "artifact": "docs/openclinxr/screenshots/ui-xr-text-panels-raised-2026-05-05.png",
+    "mimeType": "image/png",
+    "dimensions": {
+      "width": 2880,
+      "height": 1800
+    },
+    "runtimeUrl": "http://localhost:5173/",
+    "route": "/",
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "xrMode": "desktop_browser_flat_preview_not_immersive",
+    "cameraPose": "Desktop browser viewport capture after raising in-scene EHR, dialogue, and input-evidence panels for clearer visual QA",
+    "captureCommand": "Chrome DevTools MCP evaluate_script reload; wait_for Trace Actions; take_screenshot fullPage"
+  },
+  "adversarialReview": {
+    "reviewers": [
+      "test-automation-lead",
+      "ux-friction-critic",
+      "clinical-safety-critic",
+      "xr-systems-architect",
+      "asset-pipeline-lead"
+    ],
+    "checks": {
+      "clinical_scene_fidelity": {
+        "status": "concern",
+        "notes": [
+          "The station still reads as a coarse runtime preview with primitive actors and sparse ED equipment; raised wall-style text panels improve reviewability but do not create a realistic high-pressure clinical environment."
+        ]
+      },
+      "actor_equipment_realism": {
+        "status": "concern",
+        "notes": [
+          "Actors remain capsule/head placeholders with no clothing, hand meshes, facial expression, pain response, rigging, or realistic medical equipment density."
+        ]
+      },
+      "ui_readability": {
+        "status": "pass",
+        "notes": [
+          "The Simulated EHR and Live Dialogue in-scene panels are more readable after being raised and shifted away from the bed plane; the desktop side panel remains readable and internally scrollable."
+        ]
+      },
+      "interaction_affordances": {
+        "status": "concern",
+        "notes": [
+          "Trace buttons and Full VR entry remain visible in desktop preview, but the screenshot still cannot prove headset entry, controller select, hand tracking, locomotion, or latency."
+        ]
+      },
+      "occlusion_scale": {
+        "status": "concern",
+        "notes": [
+          "Occlusion is reduced for EHR/dialogue text, but the in-scene Input Evidence panel still overlaps the primitive central actor from this camera pose; spatial UI placement and UIKitML/IWSDK text remain future work."
+        ]
+      },
+      "evidence_limits": {
+        "status": "pass",
+        "notes": [
+          "This is desktop Chrome DevTools visual iteration evidence only; it is not physical Quest proof, not immersive WebXR proof, not in-headset readability proof, and not production runtime readiness."
+        ]
+      }
+    }
+  },
+  "claimBoundaries": {
+    "notEvidenceFor": [
+      "physical_quest_foreground_frame_pacing",
+      "quest_controller_latency",
+      "quest_hand_tracking_quality",
+      "in_headset_text_readability",
+      "thermal_or_battery_behavior",
+      "production_runtime_readiness"
+    ],
+    "allowedClaims": [
+      "adversarial_visual_iteration_artifact",
+      "desktop_in_scene_text_panels_raised",
+      "desktop_ehr_and_dialogue_panel_readability_improved"
+    ]
+  }
+}

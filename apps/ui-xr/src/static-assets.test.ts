@@ -62,6 +62,15 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("iwsdkStationSceneObjects.controllerGripRight");
   });
 
+  it("raises in-scene text panels for clearer desktop visual QA", () => {
+    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+
+    expect(mainSource).toContain("panel.mesh.position.set(-1.55, 2.62, -1.42)");
+    expect(mainSource).toContain("dialoguePanel.mesh.position.set(0.85, 2.58, -1.42)");
+    expect(mainSource).toContain("inputPanel.mesh.position.set(0.05, 2.02, -1.48)");
+    expect(mainSource).toContain("inputPanel.mesh.rotation.y = 0");
+  });
+
   it("adds primitive hand models and experimental locomotion affordances", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
 
