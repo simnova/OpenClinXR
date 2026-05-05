@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   browserSnapshotExpression,
   buildQuestSmokeEvidenceCheck,
+  buildCdpUnavailableReport,
   buildReport,
   type CdpPage,
   enterVrCompletionExpression,
@@ -924,5 +925,50 @@ describe("Quest CDP smoke probe", () => {
       satisfiedConditions: [],
       blockers: ["missing_quest_cdp_smoke_report"],
     }));
+  });
+
+  it("records a blocked report when Quest Browser CDP never exposes pages", () => {
+    const fetchError = new TypeError("fetch failed");
+    (fetchError as TypeError & { cause: Error & { code: string } }).cause = Object.assign(
+      new Error("other side closed"),
+      { code: "UND_ERR_SOCKET" },
+    );
+    const report = buildCdpUnavailableReport({
+      options: parseArgs(["--enter-vr"]),
+      adbVersion: "Android Debug Bridge version 1.0.41",
+      deviceLine: "1234 device product:quest3",
+      reverseList: "1234 tcp:5173 tcp:5173",
+      failureStage: "quest_cdp_page_list_unavailable",
+      error: fetchError,
+    });
+
+    expect(report.browser).toMatchObject({
+      cdpUnavailable: true,
+      failureStage: "quest_cdp_page_list_unavailable",
+      error: "TypeError: fetch failed; cause=Error: other side closed (UND_ERR_SOCKET)",
+    });
+    expect(report.verdict).toEqual({
+      shellLoaded: false,
+      interactionAdvanced: false,
+      frameSampleComplete: false,
+      immersiveEntryOutcome: "activation_missed",
+      blockers: [
+        "quest_cdp_page_list_unavailable",
+        "quest_shell_not_loaded",
+        "quest_trace_interaction_not_advanced",
+        "quest_page_hidden_or_inactive",
+        "quest_cdp_frame_sample_incomplete",
+        "quest_immersive_entry_activation_not_received",
+        "quest_immersive_session_not_started",
+      ],
+    });
+
+    const check = buildQuestSmokeEvidenceCheck("quest-cdp-unavailable.json", report);
+    expect(check.classification).toBe("blocked");
+    expect(check.blockers).toEqual(expect.arrayContaining([
+      "quest_cdp_page_list_unavailable",
+      "quest_cdp_user_agent_missing",
+      "quest_shell_not_loaded",
+    ]));
   });
 });

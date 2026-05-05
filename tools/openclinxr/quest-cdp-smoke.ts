@@ -125,6 +125,15 @@ export type QuestSmokeReportInput = {
   frameSample: unknown;
 };
 
+export type QuestSmokeCdpUnavailableInput = {
+  options: CliOptions;
+  adbVersion: string;
+  deviceLine: string;
+  reverseList: string;
+  failureStage: "quest_cdp_page_list_unavailable" | "quest_cdp_websocket_unavailable";
+  error: unknown;
+};
+
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
   if (options.mode === "validate") {
@@ -157,9 +166,35 @@ async function main(): Promise<void> {
   }
 
   const reverseList = await adb(["reverse", "--list"]);
-  const page = await waitForQuestPage(options);
+  let page: CdpPage;
+  try {
+    page = await waitForQuestPage(options);
+  } catch (error) {
+    await emitQuestSmokeReport(buildCdpUnavailableReport({
+      options,
+      adbVersion,
+      deviceLine,
+      reverseList,
+      failureStage: "quest_cdp_page_list_unavailable",
+      error,
+    }), options.outputPath);
+    return;
+  }
   await closeStaleQuestPages(options, page.id);
-  const client = await CdpClient.connect(page.webSocketDebuggerUrl);
+  let client: CdpClient;
+  try {
+    client = await CdpClient.connect(page.webSocketDebuggerUrl);
+  } catch (error) {
+    await emitQuestSmokeReport(buildCdpUnavailableReport({
+      options,
+      adbVersion,
+      deviceLine,
+      reverseList,
+      failureStage: "quest_cdp_websocket_unavailable",
+      error,
+    }), options.outputPath);
+    return;
+  }
   try {
     await client.bringToFront();
     await delay(250);
@@ -182,13 +217,7 @@ async function main(): Promise<void> {
       frameSample,
     });
 
-    if (options.outputPath) {
-      await mkdir(path.dirname(options.outputPath), { recursive: true });
-      await writeFile(options.outputPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
-      console.log(`Wrote ${options.outputPath}`);
-    } else {
-      console.log(JSON.stringify(report, null, 2));
-    }
+    await emitQuestSmokeReport(report, options.outputPath);
   } finally {
     client.close();
   }
@@ -371,6 +400,16 @@ async function latestQuestSmokeReportPath(pattern: string): Promise<string | und
 
 async function readJson<TValue>(filePath: string): Promise<TValue> {
   return JSON.parse(await readFile(filePath, "utf8")) as TValue;
+}
+
+async function emitQuestSmokeReport(report: QuestSmokeReport, outputPath: string | undefined): Promise<void> {
+  if (outputPath) {
+    await mkdir(path.dirname(outputPath), { recursive: true });
+    await writeFile(outputPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+    console.log(`Wrote ${outputPath}`);
+    return;
+  }
+  console.log(JSON.stringify(report, null, 2));
 }
 
 export function pageMatchesRequestedUrl(actual: string, requested: string): boolean {
@@ -668,6 +707,51 @@ export function buildReport(input: QuestSmokeReportInput): QuestSmokeReport {
       shellLoaded,
       interactionAdvanced,
       frameSampleComplete,
+      immersiveEntryOutcome,
+      blockers,
+    },
+  };
+}
+
+export function buildCdpUnavailableReport(input: QuestSmokeCdpUnavailableInput): QuestSmokeReport {
+  const immersiveEntryOutcome: QuestImmersiveEntryOutcome = input.options.enterVr ? "activation_missed" : "not_requested";
+  const blockers = [
+    input.failureStage,
+    "quest_shell_not_loaded",
+    "quest_trace_interaction_not_advanced",
+    "quest_page_hidden_or_inactive",
+    "quest_cdp_frame_sample_incomplete",
+    ...(input.options.enterVr
+      ? ["quest_immersive_entry_activation_not_received", "quest_immersive_session_not_started"]
+      : []),
+  ];
+  return {
+    generatedAt: new Date().toISOString(),
+    url: input.options.url,
+    target: input.options.target,
+    adb: {
+      version: input.adbVersion,
+      deviceLine: input.deviceLine,
+      reverseList: input.reverseList,
+    },
+    browser: {
+      cdpUnavailable: true,
+      failureStage: input.failureStage,
+      error: formatUnknownError(input.error),
+    },
+    interaction: {
+      skipped: true,
+      reason: "cdp_unavailable",
+    },
+    frameSample: {
+      skipped: true,
+      timedOut: true,
+      reason: "cdp_unavailable",
+    },
+    verdict: {
+      shellLoaded: false,
+      interactionAdvanced: false,
+      frameSampleComplete: false,
       immersiveEntryOutcome,
       blockers,
     },
@@ -1027,6 +1111,23 @@ function asRecord(value: unknown): Record<string, unknown> {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function formatUnknownError(error: unknown): string {
+  if (error instanceof Error) {
+    const baseMessage = `${error.name}: ${error.message}`;
+    const cause = (error as Error & { cause?: unknown }).cause;
+    if (cause instanceof Error) {
+      const code = (cause as Error & { code?: unknown }).code;
+      const codeSuffix = typeof code === "string" && code.trim().length > 0 ? ` (${code})` : "";
+      return `${baseMessage}; cause=${cause.name}: ${cause.message}${codeSuffix}`;
+    }
+    if (cause !== undefined) {
+      return `${baseMessage}; cause=${String(cause)}`;
+    }
+    return baseMessage;
+  }
+  return String(error);
 }
 
 function isValidIsoDate(value: string | undefined): boolean {
