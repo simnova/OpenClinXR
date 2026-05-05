@@ -21,6 +21,8 @@ import {
   iwsdkStationSceneObjectNames,
   iwsdkStationSceneObjects,
   isImmersiveFrameEvidenceActive,
+  primitiveHandModelProfile,
+  primitiveHandRepresentationKind,
   remoteActorTurnForTraceTag,
   manualPerformanceMetricsFromFrameStats,
   parseBrowserVersionHints,
@@ -371,6 +373,9 @@ describe("XR runtime state", () => {
   });
 
   it("builds richer manual input evidence and distinguishes deliberate hand-gesture locomotion", () => {
+    expect(primitiveHandModelProfile).toBe("spheres");
+    expect(primitiveHandRepresentationKind).toBe("primitive_spheres");
+
     expect(buildManualPerformanceInputEvidence({
       handModelCount: 2,
       handModelStatus: "installed",
@@ -399,7 +404,7 @@ describe("XR runtime state", () => {
     })).toEqual({
       handModelCount: 2,
       handModelStatus: "installed",
-      handRepresentationKind: "primitive_boxes",
+      handRepresentationKind: "primitive_spheres",
       handInputsObserved: 2,
       locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
       locomotionAttempt: "runtime_event_observed",
@@ -670,7 +675,7 @@ describe("XR runtime state", () => {
       input: {
         handModelCount: 2,
         handModelStatus: "installed",
-        handRepresentationKind: "primitive_boxes",
+        handRepresentationKind: "primitive_spheres",
         handInputsObserved: 2,
         locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
         locomotionAttempt: "runtime_event_observed",
@@ -762,7 +767,7 @@ describe("XR runtime state", () => {
       visibilityState: "visible",
       qualitySource: "webxr_animation_loop",
       handInputsObserved: 2,
-      handRepresentationKind: "primitive_boxes",
+      handRepresentationKind: "primitive_spheres",
       activeLocomotionSource: "none",
       inputSourceKinds: ["xr_hand"],
       lastLocomotionAtMs: null,
@@ -995,7 +1000,7 @@ describe("XR runtime state", () => {
         visibilityState: "visible",
         qualitySource: "webxr_animation_loop",
         handInputsObserved: 2,
-        handRepresentationKind: "primitive_boxes",
+        handRepresentationKind: "primitive_spheres",
         activeLocomotionSource: "none",
         inputSourceKinds: ["xr_hand"],
         lastLocomotionAtMs: null,

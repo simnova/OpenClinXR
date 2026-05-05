@@ -133,7 +133,13 @@ export type ManualPerformanceMetrics = {
   immersiveFramesObserved?: number;
 };
 
-export type HandRepresentationKind = "primitive_boxes" | "mesh" | "controller_only" | "not_visible" | "unknown";
+export type HandRepresentationKind =
+  | "primitive_boxes"
+  | "primitive_spheres"
+  | "mesh"
+  | "controller_only"
+  | "not_visible"
+  | "unknown";
 
 export type LocomotionAttempt =
   | "not_attempted"
@@ -475,6 +481,9 @@ export const xrExperienceModeEvidence: FullVrExperienceModeEvidence = {
   handTrackingPosture: "optional_feature_with_primitive_hand_model",
   locomotionPosture: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
 };
+
+export const primitiveHandModelProfile = "spheres" as const;
+export const primitiveHandRepresentationKind = "primitive_spheres" as const satisfies HandRepresentationKind;
 
 export const xrExperienceModeContracts: XrExperienceModeContract[] = [
   {
@@ -987,7 +996,7 @@ function handRepresentationKindFor(input: {
   inputSourceKinds: RuntimeInputSourceKind[];
 }): HandRepresentationKind {
   if (input.handModelStatus === "installed" && input.handModelCount > 0 && input.handInputsObserved > 0) {
-    return "primitive_boxes";
+    return primitiveHandRepresentationKind;
   }
   if (input.inputSourceKinds.includes("xr_gamepad") && !input.inputSourceKinds.includes("xr_hand")) {
     return "controller_only";
@@ -1268,7 +1277,7 @@ function enrichManualPerformanceInputEvidence(
 
 function handRepresentationKindFromEvidence(evidence: ManualPerformanceInputEvidence): HandRepresentationKind {
   if (evidence.handModelStatus === "installed" && evidence.handModelCount > 0 && evidence.handInputsObserved > 0) {
-    return "primitive_boxes";
+    return primitiveHandRepresentationKind;
   }
   if (evidence.inputSourceKinds?.includes("xr_gamepad") === true && evidence.inputSourceKinds.includes("xr_hand") !== true) {
     return "controller_only";

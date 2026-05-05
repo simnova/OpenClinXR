@@ -77,6 +77,9 @@ describe("static browser assets", () => {
 
     expect(mainSource).toContain("XRHandModelFactory");
     expect(mainSource).toContain("renderer.xr.getHand");
+    expect(mainSource).toContain("primitiveHandModelProfile");
+    expect(mainSource).toContain('createHandModel(hand, primitiveHandModelProfile)');
+    expect(mainSource).not.toContain('createHandModel(hand, "boxes")');
     expect(mainSource).toContain("openclinxr.ed-chest-pain.hand-model");
     expect(mainSource).toContain("installHandModelsOnce");
     expect(mainSource).toContain("handModelStatus");

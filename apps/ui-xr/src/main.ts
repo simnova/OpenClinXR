@@ -40,6 +40,7 @@ import {
   formatStationClock,
   iwsdkStationSceneObjects,
   isImmersiveFrameEvidenceActive,
+  primitiveHandModelProfile,
   remoteActorTurnForTraceTag,
   stationTraceActionTags,
   summarizeTraceReadiness,
@@ -1018,7 +1019,7 @@ function addHandModels(renderer: WebGLRenderer, scene: Scene): void {
         hand.userData.openClinXrHandedness = data.handedness;
       }
     });
-    const handModel = handModelFactory.createHandModel(hand, "boxes");
+    const handModel = handModelFactory.createHandModel(hand, primitiveHandModelProfile);
     handModel.name = `openclinxr.ed-chest-pain.hand-model-${index + 1}`;
     hand.add(handModel);
     scene.add(hand);

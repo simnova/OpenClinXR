@@ -12,7 +12,9 @@ import {
   evaluateIwsdkSidecarIwerInputProbeEvidence,
   recordIwsdkSidecarXrEntryEvidence,
   formatIwsdkSidecarClock,
+  iwsdkSidecarHandRepresentationKind,
   iwsdkSidecarControllerSelectTraceTag,
+  iwsdkSidecarPrimitiveHandModelProfile,
   iwsdkSidecarSceneObjectNames,
   iwsdkSidecarSmokePlanHash,
   summarizeIwsdkSidecarFrameDeltas,
@@ -314,8 +316,13 @@ describe("IWSDK sidecar runtime state", () => {
   it("adds primitive hand models and experimental locomotion affordances", () => {
     const source = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
 
+    expect(iwsdkSidecarPrimitiveHandModelProfile).toBe("spheres");
+    expect(iwsdkSidecarHandRepresentationKind).toBe("primitive_spheres");
     expect(source).toContain("XRHandModelFactory");
     expect(source).toContain("renderer.xr.getHand");
+    expect(source).toContain("iwsdkSidecarPrimitiveHandModelProfile");
+    expect(source).toContain("createHandModel(hand, iwsdkSidecarPrimitiveHandModelProfile)");
+    expect(source).not.toContain('createHandModel(hand, "boxes")');
     expect(source).toContain("openclinxr.ed-chest-pain.hand-model");
     expect(source).toContain("installHandModelsOnce");
     expect(source).toContain("handModelStatus");

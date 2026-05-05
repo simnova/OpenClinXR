@@ -67,6 +67,9 @@ export type IwsdkSidecarFrameDeltaSummary = {
   approxFps: number | null;
 };
 
+export const iwsdkSidecarPrimitiveHandModelProfile = "spheres" as const;
+export const iwsdkSidecarHandRepresentationKind = "primitive_spheres" as const;
+
 export type IwsdkSidecarFrameQualitySource = "webxr_animation_loop" | "flat_preview_fallback";
 
 export type IwsdkSidecarFrameStats = IwsdkSidecarFrameDeltaSummary & {

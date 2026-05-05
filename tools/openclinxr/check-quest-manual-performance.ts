@@ -24,7 +24,7 @@ type QuestLocomotionAttempt =
   | "mixed_attempted_no_runtime_event"
   | "runtime_event_observed";
 
-type QuestHandRepresentationKind = "primitive_boxes" | "mesh" | "controller_only" | "not_visible" | "unknown";
+type QuestHandRepresentationKind = "primitive_boxes" | "primitive_spheres" | "mesh" | "controller_only" | "not_visible" | "unknown";
 
 const validQuestTraceInteractionAttempts = new Set<string>([
   "not_attempted",
@@ -46,6 +46,7 @@ const validQuestLocomotionAttempts = new Set<string>([
 
 const validQuestHandRepresentationKinds = new Set<string>([
   "primitive_boxes",
+  "primitive_spheres",
   "mesh",
   "controller_only",
   "not_visible",
@@ -610,7 +611,9 @@ function buildAdversarialFindings(input: {
   const locomotionAttempt = input.report.input?.locomotionAttempt;
   const handRepresentationKind = input.report.input?.handRepresentationKind;
   const headsetInputObserved = hasObservedHeadsetInput(input.report.input);
-  const primitiveHandModelObserved = handRepresentationKind === "primitive_boxes"
+  const primitiveHandRepresentationObserved = handRepresentationKind === "primitive_boxes"
+    || handRepresentationKind === "primitive_spheres";
+  const primitiveHandModelObserved = primitiveHandRepresentationObserved
     || /primitive|box/i.test(handTrackingPosture)
     || /series of boxes|not realistic/i.test(notes);
   const handTrackingObserved = headsetInputObserved
@@ -624,7 +627,7 @@ function buildAdversarialFindings(input: {
   const traceRuntimeEventEvidenceMissing = traceAttempt === "runtime_event_observed"
     && !hasRuntimeTraceEvidence(input.report);
   const handRepresentationKindMismatch = handRepresentationKind === "mesh" && primitiveHandModelObserved
-    || handRepresentationKind === "primitive_boxes" && !headsetInputObserved;
+    || primitiveHandRepresentationObserved && !headsetInputObserved;
   const handGestureTimestampWithoutActiveSource = typeof input.report.input?.lastLocomotionAtMs === "number"
     && input.report.input?.xrHandGestureState !== undefined
     && input.report.input.activeLocomotionSource !== "xr_hand_gesture"

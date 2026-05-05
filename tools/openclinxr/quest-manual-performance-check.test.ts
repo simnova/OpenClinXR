@@ -1017,6 +1017,35 @@ describe("Quest manual performance checker", () => {
     ]));
   });
 
+  it("accepts primitive sphere hands as primitive non-mesh evidence", () => {
+    const report = completedQuestManualReport();
+    report.runContext = {
+      ...report.runContext,
+      durationMinutes: 2,
+      notes: "Operator used hand tracking with primitive sphere hands as a no-new-asset visual improvement.",
+    };
+    report.experience = {
+      ...report.experience,
+      handTrackingPosture: "optional_feature_with_primitive_hand_model",
+    };
+    const unsafeInput = report.input as unknown as Record<string, string>;
+    unsafeInput.handRepresentationKind = "primitive_spheres";
+
+    const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-primitive-spheres.json", report);
+
+    expect(check.readyToClaimFramePacing).toBe(false);
+    expect(check.blockers).not.toEqual(expect.arrayContaining([
+      "hand_representation_kind_invalid",
+    ]));
+    expect(check.adversarialFindings).toEqual(expect.arrayContaining([
+      "hand_tracking_observed_without_realistic_hand_meshes",
+    ]));
+    expect(check.satisfiedConditions).not.toEqual(expect.arrayContaining([
+      "hand_representation_mesh_observed",
+      "realistic_hand_meshes_observed",
+    ]));
+  });
+
   it("surfaces contradictory structured Quest manual evidence claims", () => {
     const report = completedQuestManualReport();
     report.runContext = {

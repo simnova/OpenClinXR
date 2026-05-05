@@ -30,6 +30,14 @@
     "handModelCount": 0,
     "handModelStatus": "pending_immersive_session",
     "handRepresentationKind": "not_visible",
+    "handRepresentationKindAllowedValues": [
+      "primitive_boxes",
+      "primitive_spheres",
+      "mesh",
+      "controller_only",
+      "not_visible",
+      "unknown"
+    ],
     "handInputsObserved": 0,
     "locomotionMode": "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
     "locomotionAttempt": "not_attempted",

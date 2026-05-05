@@ -30,6 +30,7 @@ import {
   completeIwsdkSidecarTraceAction,
   createIwsdkSidecarRuntimeState,
   formatIwsdkSidecarClock,
+  iwsdkSidecarPrimitiveHandModelProfile,
   iwsdkSidecarSceneObjectNames,
   recordIwsdkSidecarXrEntryEvidence,
   summarizeIwsdkSidecarReadiness,
@@ -1059,7 +1060,7 @@ function addHandModels(renderer: WebGLRenderer, scene: Scene): void {
   for (let index = 0; index < 2; index += 1) {
     const hand = renderer.xr.getHand(index);
     hand.name = `openclinxr.ed-chest-pain.hand-${index + 1}`;
-    const handModel = handModelFactory.createHandModel(hand, "boxes");
+    const handModel = handModelFactory.createHandModel(hand, iwsdkSidecarPrimitiveHandModelProfile);
     handModel.name = `openclinxr.ed-chest-pain.hand-model-${index + 1}`;
     hand.add(handModel);
     scene.add(hand);
