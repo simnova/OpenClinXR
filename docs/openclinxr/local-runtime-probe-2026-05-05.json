@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T15:48:34.044Z",
+  "generatedAt": "2026-05-05T16:48:27.241Z",
   "system": {
     "macosVersion": "26.4.1",
     "macosBuild": "25E253",
@@ -13,7 +13,7 @@
       "filesystem": "/dev/disk3s1s1",
       "oneKBlocks": 3902665360,
       "used": 12257544,
-      "available": 2641352840,
+      "available": 2643922104,
       "capacity": "1%",
       "mountedOn": "/"
     }
@@ -39,7 +39,9 @@
     },
     {
       "command": "bun",
-      "status": "missing"
+      "status": "available",
+      "path": "/Users/patrick/.bun/bin/bun",
+      "version": "1.3.13"
     },
     {
       "command": "brew",
@@ -159,10 +161,8 @@
       ]
     },
     "apiBunRuntime": {
-      "status": "not_configured",
-      "blockers": [
-        "bun_runtime_not_installed_on_this_machine"
-      ]
+      "status": "ready",
+      "blockers": []
     },
     "localModel": {
       "status": "blocked",

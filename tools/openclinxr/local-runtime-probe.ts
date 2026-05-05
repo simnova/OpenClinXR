@@ -1,6 +1,6 @@
 import { execFile } from "node:child_process";
 import { constants as fsConstants } from "node:fs";
-import { access, mkdir, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -12,6 +12,7 @@ export const LOCAL_RUNTIME_COMMAND_TIMEOUT_MS = 60_000;
 
 type CliOptions = {
   outputPath?: string;
+  apiBunWebSocketRuntimeSmokePath?: string;
 };
 
 export type CommandProbe = {
@@ -61,6 +62,17 @@ export type LocalRuntimeProbeReport = {
   };
 };
 
+type ApiBunWebSocketRuntimeSmokeEvidence = {
+  status?: string;
+  runtimeEvidenceBlockers?: string[];
+  runtime?: {
+    h3?: {
+      enabled?: boolean;
+      h3TrueEnabled?: boolean;
+    };
+  };
+};
+
 const commandSpecs: CommandSpec[] = [
   { command: "node", args: ["--version"] },
   { command: "pnpm", args: ["--version"] },
@@ -92,6 +104,9 @@ async function main(): Promise<void> {
   const adbDevices = await runOptional("adb", ["devices", "-l"]);
   const adbReverse = await runOptional("adb", ["reverse", "--list"]);
   const adbPower = await runOptional("adb", ["shell", "dumpsys", "power"]);
+  const apiBunWebSocketRuntimeSmoke = options.apiBunWebSocketRuntimeSmokePath
+    ? await readOptionalJson<ApiBunWebSocketRuntimeSmokeEvidence>(options.apiBunWebSocketRuntimeSmokePath)
+    : undefined;
   const report = buildLocalRuntimeProbeReport({
     system: await probeSystem(),
     commands,
@@ -99,6 +114,7 @@ async function main(): Promise<void> {
     adbDevices,
     adbReverse,
     adbPower,
+    apiBunWebSocketRuntimeSmoke,
   });
 
   if (options.outputPath) {
@@ -118,6 +134,11 @@ function parseArgs(args: string[]): CliOptions {
     const arg = normalizedArgs[index];
     if (arg === "--output") {
       options.outputPath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--api-bun-websocket-runtime-smoke") {
+      options.apiBunWebSocketRuntimeSmokePath = requireValue(normalizedArgs, index, arg);
       index += 1;
       continue;
     }
@@ -198,6 +219,7 @@ export function buildUserLocalCommandCandidatePaths(homeDirectory: string, comma
   return [
     buildUserLocalCommandCandidatePath(homeDirectory, command),
     path.join(homeDirectory, "Library/pnpm", command),
+    path.join(homeDirectory, ".bun/bin", command),
   ];
 }
 
@@ -247,10 +269,15 @@ export function buildLocalRuntimeProbeReport(input: {
   adbDevices: string;
   adbReverse: string;
   adbPower: string;
+  apiBunWebSocketRuntimeSmoke?: ApiBunWebSocketRuntimeSmokeEvidence;
 }): LocalRuntimeProbeReport {
   const hasCommand = (command: string) => input.commands.some((probe) => probe.command === command && probe.status === "available");
   const hasModule = (module: string) => input.pythonModules.some((probe) => probe.module === module && probe.status === "available");
   const bunRuntimeAvailable = hasCommand("bun");
+  const bunWebSocketRuntimeSmokePassed = input.apiBunWebSocketRuntimeSmoke?.status === "passed"
+    && input.apiBunWebSocketRuntimeSmoke.runtimeEvidenceBlockers?.length === 0
+    && input.apiBunWebSocketRuntimeSmoke.runtime?.h3?.enabled === false
+    && input.apiBunWebSocketRuntimeSmoke.runtime.h3.h3TrueEnabled === false;
   const adbHasQuestDevice = /\sdevice\s/.test(input.adbDevices) && /Quest_3|eureka/.test(input.adbDevices);
   const questWakefulness = parseQuestWakefulness(input.adbPower);
   const localModelRuntimeAvailable = hasCommand("ollama") || hasCommand("llama-cli") || hasCommand("llama-server") || hasCommand("mlx_lm") || hasModule("mlx");
@@ -275,9 +302,11 @@ export function buildLocalRuntimeProbeReport(input: {
     gates: {
       questUsb: adbHasQuestDevice ? readyGate() : blockedGate("quest_3_not_authorized_or_not_connected"),
       questForegroundPreflight: questForegroundPreflightGate(adbHasQuestDevice, questWakefulness),
-      apiBunRuntime: bunRuntimeAvailable
-        ? blockedGate("api_bun_websocket_runtime_not_benchmarked")
-        : notConfiguredGate("bun_runtime_not_installed_on_this_machine"),
+      apiBunRuntime: bunWebSocketRuntimeSmokePassed
+        ? readyGate()
+        : bunRuntimeAvailable
+          ? blockedGate("api_bun_websocket_runtime_not_benchmarked")
+          : notConfiguredGate("bun_runtime_not_installed_on_this_machine"),
       localModel: localModelRuntimeAvailable ? blockedGate("model_weights_not_selected_or_benchmarked") : notConfiguredGate("no_ollama_llama_cpp_or_mlx_runtime_detected"),
       localVoice: localVoiceRuntimeAvailable ? blockedGate("voice_model_not_selected_or_benchmarked") : notConfiguredGate("no_vibevoice_runtime_detected"),
       assetPipeline: assetPipelineBlockers.length === 0 ? readyGate() : notConfiguredGate(...assetPipelineBlockers),
@@ -305,6 +334,14 @@ function notConfiguredGate(...blockers: string[]): GateStatus {
 
 function blockedGate(blocker: string): GateStatus {
   return { status: "blocked", blockers: [blocker] };
+}
+
+async function readOptionalJson<TValue>(filePath: string): Promise<TValue | undefined> {
+  try {
+    return JSON.parse(await readFile(filePath, "utf8")) as TValue;
+  } catch {
+    return undefined;
+  }
 }
 
 async function runOptional(command: string, args: string[]): Promise<string> {

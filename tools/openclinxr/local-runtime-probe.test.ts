@@ -35,7 +35,9 @@ describe("local runtime probe gates", () => {
     expect(buildUserLocalCommandCandidatePaths("/Users/patrick", "portless")).toEqual([
       "/Users/patrick/.local/bin/portless",
       "/Users/patrick/Library/pnpm/portless",
+      "/Users/patrick/.bun/bin/portless",
     ]);
+    expect(buildUserLocalCommandCandidatePaths("/Users/patrick", "bun")).toContain("/Users/patrick/.bun/bin/bun");
   });
 
   it("marks Quest USB and asset pipeline ready while keeping configured runtimes blocked until benchmarked", () => {
@@ -120,6 +122,30 @@ describe("local runtime probe gates", () => {
       status: "blocked",
       blockers: ["api_bun_websocket_runtime_not_benchmarked"],
     });
+  });
+
+  it("marks Bun API runtime ready when local websocket smoke evidence has passed", () => {
+    const report = buildLocalRuntimeProbeReport({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      system: {},
+      commands: [availableCommand("bun"), availableCommand("gltf-pipeline"), availableCommand("blender")],
+      pythonModules: [],
+      adbDevices: "List of devices attached\n",
+      adbReverse: "",
+      adbPower: "",
+      apiBunWebSocketRuntimeSmoke: {
+        status: "passed",
+        runtimeEvidenceBlockers: [],
+        runtime: {
+          h3: {
+            enabled: false,
+            h3TrueEnabled: false,
+          },
+        },
+      },
+    });
+
+    expect(report.gates.apiBunRuntime).toEqual({ status: "ready", blockers: [] });
   });
 
   it("keeps foreground Quest performance blocked when the headset is asleep", () => {

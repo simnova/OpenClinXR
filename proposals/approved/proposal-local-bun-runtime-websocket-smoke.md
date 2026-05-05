@@ -1,13 +1,23 @@
 # Proposal: Local Bun Runtime WebSocket Smoke
 
-**Status:** Proposed  
-**Decision needed:** Approve, reject, or defer  
+**Status:** Approved  
+**Approved by:** Patrick Gidich on 2026-05-05 12:37 EDT  
+**Decision:** Approved with clarifications  
 **Requested by:** Codex, after local runtime probe found `bun` missing on 2026-05-05  
 **Scope:** local workstation runtime only; `apps/api` Bun + Hono WebSocket evidence lane
 
+## Approval Clarifications
+
+- HTTP/3 (`Bun.serve({ h3: true })`) and WebTransport remain out of scope for this smoke.
+- Any future HTTP/3 proposal must include a dedicated review of Quest 3 / Quest Browser compatibility.
+- Record the exact Bun version and whether `h3: true` was enabled, even when unused.
+- Clearly distinguish pre-VR trace interaction from in-VR trace interaction in evidence.
+- Codex may install or use the local Bun runtime on this workstation only, add and run focused WebSocket smoke tests against `apps/api`, and commit smoke code plus evidence after verification passes.
+- Codex must not enable or test HTTP/3, add WebTransport/QUIC/Web3/cloud dependencies, or claim Quest hardware, production, or low-latency behavior from this smoke.
+
 ## Decision Needed
 
-Approve a constrained local-only Bun runtime setup so Codex can run and measure the `apps/api` Bun + Hono WebSocket lane without cloud services, paid APIs, model downloads, production deployment changes, or new WebTransport/QUIC/Web3 dependencies.
+Approved: run a constrained local-only Bun runtime setup so Codex can measure the `apps/api` Bun + Hono WebSocket lane without cloud services, paid APIs, model downloads, production deployment changes, HTTP/3, WebTransport, QUIC, or Web3 dependencies.
 
 ## Recommendation
 
