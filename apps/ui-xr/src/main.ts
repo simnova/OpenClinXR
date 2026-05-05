@@ -855,6 +855,7 @@ function createStationScene(): StationSceneRuntime {
       summary.missingCount,
       immersiveSessionActive ? "in-full-vr" : "preview",
       inputEvidence.handModelStatus,
+      inputEvidence.handRepresentationKind ?? "unknown",
       inputEvidence.handInputsObserved,
       inputEvidence.lastLocomotionAtMs,
       inputEvidence.activeLocomotionSource,
@@ -881,7 +882,7 @@ function createStationScene(): StationSceneRuntime {
     ]);
     inputPanel.update([
       immersiveSessionActive ? "Session: In Full VR" : "Session: Desktop preview",
-      `Hands: ${inputEvidence.handModelStatus}; observed ${inputEvidence.handInputsObserved}`,
+      `Hands: ${inputEvidence.handModelStatus}; observed ${inputEvidence.handInputsObserved}; rep ${inputEvidence.handRepresentationKind ?? "unknown"}`,
       inputEvidence.xrHandGestureState?.armed
         ? `Gesture: armed; dwell ${inputEvidence.xrHandGestureState.dwellMs}ms`
         : `Gesture: ${inputEvidence.xrHandGestureState?.blockedReason ?? "not armed"}`,

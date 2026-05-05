@@ -7,7 +7,7 @@
 
 ## Decision Needed
 
-Approve a constrained implementation slice to replace the current primitive `XRHandModelFactory.createHandModel(hand, "boxes")` runtime posture with reviewed local mesh hand assets.
+Approve a constrained implementation slice to replace the current primitive `XRHandModelFactory.createHandModel(hand, primitiveHandModelProfile)` runtime posture, currently `primitiveHandModelProfile = "spheres"`, with reviewed local mesh hand assets.
 
 The implementation must not fetch hand models from a CDN at runtime. Three's `XRHandMeshModel` defaults to `https://cdn.jsdelivr.net/npm/@webxr-input-profiles/assets@1.0/dist/profiles/generic-hand/` when no path is supplied, so the approved path must explicitly point to local, repo-tracked or repo-addressable assets.
 
@@ -17,7 +17,7 @@ Approve only after the asset source/license record is completed.
 
 Use the existing `three@0.184.0` dependency and Three's built-in `XRHandModelFactory` mesh profile. Add no new runtime npm package for the first slice. Provide local `left.glb` and `right.glb` assets under a reviewed static asset path such as `apps/ui-xr/public/xr-hands/generic-hand/`, and configure the factory with `handModelFactory.setPath("/xr-hands/generic-hand/")` before `createHandModel(hand, "mesh")`.
 
-If local GLBs cannot be licensed and budgeted cleanly, defer realistic mesh hands and use the current primitive boxes or a lower-risk `spheres` fallback while documenting the limitation in Quest evidence.
+If local GLBs cannot be licensed and budgeted cleanly, defer realistic mesh hands and keep the current primitive `spheres` fallback while documenting the limitation in Quest evidence.
 
 ## Proposed Package And Asset Set
 
@@ -50,6 +50,7 @@ If local GLBs cannot be licensed and budgeted cleanly, defer realistic mesh hand
 - Do not add `@webxr-input-profiles/assets` to production manifests without a separate dependency and license review.
 - Do not claim Quest hand-quality readiness until a human foreground Quest run verifies the mesh hands, hand tracking, no console asset-load errors, and frame pacing.
 - Keep a primitive fallback for asset-load failure and record that fallback in manual evidence.
+- Surface the active representation (`primitive_spheres`, `mesh`, `not_visible`, or fallback) in the in-scene evidence panel and copied Quest evidence payload so headset observations and JSON stay aligned.
 
 ## Acceptance Criteria
 
@@ -61,8 +62,8 @@ If local GLBs cannot be licensed and budgeted cleanly, defer realistic mesh hand
 
 ## Sources
 
-- Local Three `XRHandModelFactory` source: `apps/ui-xr/node_modules/three/examples/jsm/webxr/XRHandModelFactory.js`
-- Local Three `XRHandMeshModel` source and default remote path: `apps/ui-xr/node_modules/three/examples/jsm/webxr/XRHandMeshModel.js`
+- Local Three `XRHandModelFactory` source: `node_modules/.pnpm/three@0.184.0/node_modules/three/examples/jsm/webxr/XRHandModelFactory.js`
+- Local Three `XRHandMeshModel` source and default remote path: `node_modules/.pnpm/three@0.184.0/node_modules/three/examples/jsm/webxr/XRHandMeshModel.js`
 - Current runtime primitive hand model call: `apps/ui-xr/src/main.ts`
 - Asset registry gates: `packages/openclinxr/asset-registry/src/index.ts`
 - Asset pipeline QA gates: `docs/openclinxr/asset-generation-pipeline.md`
