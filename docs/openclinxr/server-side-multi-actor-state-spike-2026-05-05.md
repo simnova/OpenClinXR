@@ -24,6 +24,7 @@ It validates a no-new-runtime-dependency model for:
 - Per-actor context building for future model prompts without leaking one actor's private memory into another actor's context.
 - Structured clinical state for required trace tags, completed trace tags, orders, and findings.
 - Spatial actor transforms with interaction state, position, rotation, and last update time.
+- Typed interaction-turn provenance for text and final voice-transcript inputs, including stream id, transcript segment id, provider id, trace tags, and evidence references.
 - Explicit evidence boundaries so the spike is not mistaken for Quest sync, LLM quality, production runtime, or clinical validity proof.
 
 ## State Model
@@ -59,11 +60,13 @@ Observed package metadata was checked on 2026-05-05 with local `pnpm view` comma
 
 bitECS remains blocked by project license posture until the license inconsistency is resolved or explicitly accepted. The relevant upstream issue is: https://github.com/NateTheGreatt/bitECS/issues/212
 
-## Voice Integration Posture
+## Voice Turn Posture
 
-Voice is not merged into this first server-state slice. That is intentional.
+Voice runtime is not merged into server state. That is intentional.
 
-The state contract should accept future voice turn metadata, such as stream id, transcript segment id, actor id, routing decision, latency envelope, and synthesis provider provenance. The current realtime voice spike already separates local Moshi/Qwen candidates, the Python backend, and Bun/Hono WebSocket transport evidence. The next implementation proposal can join these by adding typed interaction events rather than embedding voice runtime concerns directly into actor state.
+The spike now accepts final voice-transcript metadata as an interaction source, then routes the final transcript through the same actor-name and role-keyword logic as text. The interaction log stores stream id, transcript segment id, final transcript text, provider id, trace tags, and provenance refs. It records `rawAudioStored: false` so the state model stores references and traceability, not raw audio blobs.
+
+This keeps voice transport and inference concerns outside actor state. The current realtime voice spike separately tracks local Moshi/Qwen candidates, the Python backend, and Bun/Hono WebSocket transport evidence. A future production proposal can connect those systems through typed interaction events without embedding transport runtime details directly into actor memory.
 
 ## Follow-Up Proposal Shape
 
@@ -81,7 +84,7 @@ A production-oriented follow-up should decide:
 | --- | ---: | --- |
 | Promote baseline into production-shaped package | 0.5-1 day | Mostly move/rename plus ArchUnitTS boundaries and API exports |
 | Add WebSocket session-state messages to `apps/api` | 1-2 days | Keep WebSocket primary; no HTTP/3/WebTransport scope |
-| Add voice turn references to state events | 1-2 days | Depends on realtime voice backend evidence maturity |
+| Connect voice turn references to runtime events | 1-2 days | Depends on realtime voice backend evidence maturity |
 | Evaluate `@colyseus/schema` with custom state | 0.5-1 day | Sidecar only until need is proven |
 | Colyseus sidecar room prototype | 1-2 days | Useful if rooms/presence/matchmaking become requirements |
 
@@ -94,5 +97,4 @@ pnpm --filter @openclinxr/multi-actor-state-spike test
 pnpm --filter @openclinxr/multi-actor-state-spike typecheck
 ```
 
-Both commands passed during the first implementation run on 2026-05-05.
-
+Both commands passed during the first implementation run on 2026-05-05 and again after the voice-transcript provenance slice.

@@ -48,6 +48,38 @@ export type ClinicalOrderState = {
   status: "requested" | "completed" | "cancelled";
 };
 
+export type TextInteractionSource = {
+  kind: "text";
+  provenanceRefs?: string[];
+};
+
+export type VoiceTranscriptInteractionSource = {
+  kind: "voice_transcript";
+  streamId: string;
+  transcriptSegmentId: string;
+  finalTranscriptText: string;
+  provider: string;
+  provenanceRefs: string[];
+  rawAudioStored: false;
+};
+
+export type InteractionTurnSource = TextInteractionSource | VoiceTranscriptInteractionSource;
+
+export type RouteActorInteractionSourceInput =
+  | TextInteractionSource
+  | (Omit<VoiceTranscriptInteractionSource, "rawAudioStored"> & {
+      rawAudioStored?: false;
+    });
+
+export type InteractionLogEntry = {
+  atSecond: number;
+  learnerUtterance: string;
+  routedActorId: string;
+  routingReason: InteractionRoutingReason;
+  traceContextTags: string[];
+  source?: InteractionTurnSource;
+};
+
 export type MultiActorClinicalSession = {
   stationRunId: string;
   scenarioId: string;
@@ -68,13 +100,7 @@ export type MultiActorClinicalSession = {
     actorTransforms: Record<string, ActorTransformState>;
     objectTransforms: Record<string, ActorTransformState>;
   };
-  interactionLog: Array<{
-    atSecond: number;
-    learnerUtterance: string;
-    routedActorId: string;
-    routingReason: InteractionRoutingReason;
-    traceContextTags: string[];
-  }>;
+  interactionLog: InteractionLogEntry[];
   evidence: {
     architecture: "custom-domain-state-baseline";
     dependencyPosture: "no_new_runtime_dependencies";
@@ -103,6 +129,7 @@ export type RouteActorInteractionInput = {
   atSecond: number;
   learnerUtterance: string;
   traceContextTags?: string[];
+  source?: RouteActorInteractionSourceInput;
 };
 
 export type RouteActorInteractionResult = {
@@ -240,13 +267,13 @@ export function routeActorInteraction(
       },
       interactionLog: [
         ...session.interactionLog,
-        {
+        withOptionalSource({
           atSecond: input.atSecond,
           learnerUtterance: input.learnerUtterance,
           routedActorId: decision.actor.actorId,
           routingReason: decision.reason,
           traceContextTags: [...(input.traceContextTags ?? [])],
-        },
+        }, input.source),
       ],
     },
   };
@@ -481,6 +508,34 @@ function decideActorRoute(
     throw new Error("Cannot route interaction without actors");
   }
   return { actor: fallback, reason: "fallback_first_actor" };
+}
+
+function withOptionalSource(
+  entry: Omit<InteractionLogEntry, "source">,
+  source: RouteActorInteractionSourceInput | undefined,
+): InteractionLogEntry {
+  if (!source) {
+    return entry;
+  }
+
+  if (source.kind === "voice_transcript") {
+    return {
+      ...entry,
+      source: {
+        ...source,
+        provenanceRefs: [...source.provenanceRefs],
+        rawAudioStored: false,
+      },
+    };
+  }
+
+  return {
+    ...entry,
+    source: {
+      ...source,
+      provenanceRefs: [...(source.provenanceRefs ?? [])],
+    },
+  };
 }
 
 function requireActor(session: MultiActorClinicalSession, actorId: string): ActorRuntimeState {

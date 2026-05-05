@@ -55,6 +55,69 @@ describe("multi-actor clinical state spike", () => {
     expect(patientContext.privateMemory.factsForServerModelOnly.join(" ")).not.toContain("Repeat blood pressure");
   });
 
+  it("routes final voice transcripts with provenance refs while preserving actor memory boundaries", () => {
+    const session = createMultiActorClinicalSession({
+      scenario: edChestPainScenario,
+      stationRunId: "station_run_multi_actor_voice_001",
+    });
+
+    const routed = routeActorInteraction(session, {
+      atSecond: 142,
+      learnerUtterance: "Anna, can you tell me exactly when his pain started?",
+      traceContextTags: ["history_onset", "family_collateral"],
+      source: {
+        kind: "voice_transcript",
+        streamId: "voice_stream_station_001",
+        transcriptSegmentId: "segment_0007_final",
+        finalTranscriptText: "Anna, can you tell me exactly when his pain started?",
+        provider: "local_fastapi_transport_echo",
+        provenanceRefs: [
+          "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
+          "trace:voice_stream_station_001:segment_0007_final",
+        ],
+      },
+    });
+    const familyContext = buildActorModelContext(routed.updatedSession, routed.routedActorId);
+    const patientContext = buildActorModelContext(routed.updatedSession, "patient_robert_hayes_v1");
+
+    expect(routed.routedActorId).toBe("spouse_anna_hayes_v1");
+    expect(routed.routingReason).toBe("addressed_actor_name");
+    expect(familyContext.conversationTurn).toBe(1);
+    expect(patientContext.conversationTurn).toBe(0);
+    expect(familyContext.privateMemory.factRefs).toEqual(["fact:spouse_anna_hayes_v1:0"]);
+    expect(familyContext.privateMemory.factsForServerModelOnly.join(" ")).toContain(
+      "skipped blood pressure medication",
+    );
+    expect(patientContext.privateMemory.factsForServerModelOnly.join(" ")).not.toContain(
+      "skipped blood pressure medication",
+    );
+    expect(routed.updatedSession.interactionLog.at(-1)).toEqual({
+      atSecond: 142,
+      learnerUtterance: "Anna, can you tell me exactly when his pain started?",
+      routedActorId: "spouse_anna_hayes_v1",
+      routingReason: "addressed_actor_name",
+      traceContextTags: ["history_onset", "family_collateral"],
+      source: {
+        kind: "voice_transcript",
+        streamId: "voice_stream_station_001",
+        transcriptSegmentId: "segment_0007_final",
+        finalTranscriptText: "Anna, can you tell me exactly when his pain started?",
+        provider: "local_fastapi_transport_echo",
+        provenanceRefs: [
+          "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
+          "trace:voice_stream_station_001:segment_0007_final",
+        ],
+        rawAudioStored: false,
+      },
+    });
+    expect(routed.updatedSession.evidence.notEvidenceFor).toEqual(expect.arrayContaining([
+      "production_realtime_state_sync",
+      "llm_actor_quality",
+      "quest_spatial_sync",
+      "clinical_assessment_validity",
+    ]));
+  });
+
   it("tracks clinical actions and spatial transforms without claiming production sync", () => {
     let session = createMultiActorClinicalSession({
       scenario: edChestPainScenario,
