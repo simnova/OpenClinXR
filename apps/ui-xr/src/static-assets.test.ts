@@ -110,6 +110,8 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("evidence-trace");
     expect(mainSource).toContain("evidence-validation");
     expect(mainSource).toContain("updateManualEvidencePanel");
+    expect(mainSource).toContain("hand rep");
+    expect(mainSource).toContain("attempt");
     expect(mainSource).toContain("frameStatsFresh");
     expect(mainSource).toContain("window.setInterval(updateManualEvidencePanel, 1000)");
     expect(mainSource).toContain("manualPerformanceDraft");

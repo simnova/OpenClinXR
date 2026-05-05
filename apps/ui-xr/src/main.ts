@@ -1656,16 +1656,19 @@ function updateManualEvidencePanel(): string {
   ].join(" | ");
   evidenceInput.textContent = [
     `${summary.handInputsObserved ?? 0} hand inputs`,
+    `hand rep ${summary.handRepresentationKind ?? "unknown"}`,
     summary.inputSourceKinds.length > 0 ? summary.inputSourceKinds.join(", ") : "no source",
   ].join(" | ");
   evidenceLocomotion.textContent = [
     summary.activeLocomotionSource ?? "none",
+    `attempt ${summary.locomotionAttempt ?? "unknown"}`,
     summary.lastLocomotionAtMs === null ? "no movement timestamp" : `moved ${summary.lastLocomotionAtMs}ms`,
     summary.locomotionDistanceMeters === null ? "no distance delta" : `d ${summary.locomotionDistanceMeters}m`,
     summary.locomotionTurnRadians === null ? "no turn delta" : `turn ${summary.locomotionTurnRadians}rad`,
   ].join(" | ");
   evidenceTrace.textContent = [
     summary.traceLatencySource ?? "no trace source",
+    `attempt ${summary.traceInteractionAttempt ?? "unknown"}`,
     summary.lastTraceTag ?? "no tag",
     summary.lastTraceLatencyMs === null ? "no latency" : `${summary.lastTraceLatencyMs}ms`,
   ].join(" | ");

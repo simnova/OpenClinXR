@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "openclinxr.visual-qa-evidence.v1",
+  "capture": {
+    "source": "desktop_browser",
+    "artifactType": "screenshot",
+    "artifact": "docs/openclinxr/screenshots/ui-xr-visible-attempt-summary-browser-2026-05-05.png",
+    "mimeType": "image/png",
+    "dimensions": {
+      "width": 2880,
+      "height": 1800
+    },
+    "runtimeUrl": "http://localhost:5173/",
+    "route": "/",
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "xrMode": "desktop_browser_flat_preview_not_immersive",
+    "cameraPose": "Desktop Chrome DevTools viewport after adding visible Quest Evidence row summaries for hand representation, locomotion attempt, and trace attempt.",
+    "captureCommand": "Chrome DevTools MCP reloaded http://localhost:5173/, waited for visible hand rep and attempt text, verified zero console errors/warnings, then captured a viewport screenshot."
+  },
+  "adversarialReview": {
+    "reviewers": [
+      "test-automation-lead",
+      "ux-friction-critic",
+      "clinical-safety-critic",
+      "xr-systems-architect",
+      "asset-pipeline-lead"
+    ],
+    "checks": {
+      "clinical_scene_fidelity": {
+        "status": "concern",
+        "notes": [
+          "This slice improves operator evidence visibility only; the ED bay, patient, staff, family, and equipment remain placeholder-quality in the desktop preview."
+        ]
+      },
+      "actor_equipment_realism": {
+        "status": "concern",
+        "notes": [
+          "The visible evidence now names missing or primitive hand representation, but no actor mesh, clothing, skin, rigging, or device realism improvement is proven here."
+        ]
+      },
+      "ui_readability": {
+        "status": "pass",
+        "notes": [
+          "The operator-facing Quest Evidence rows visibly summarize hand representation, locomotion attempt, and trace attempt without requiring JSON scrolling."
+        ]
+      },
+      "interaction_affordances": {
+        "status": "concern",
+        "notes": [
+          "The capture proves desktop UI visibility of attempt summaries, not physical headset input, locomotion comfort, or headset select latency."
+        ]
+      },
+      "occlusion_scale": {
+        "status": "pass",
+        "notes": [
+          "The added summary text fits inside the operator panel rows at the desktop viewport and does not overlap adjacent controls or clinical context panels."
+        ]
+      },
+      "evidence_limits": {
+        "status": "pass",
+        "notes": [
+          "This is desktop Chrome DevTools evidence only; it is not physical Quest proof, not immersive WebXR proof, not in-headset readability proof, not hand-tracking quality proof, and not production runtime readiness."
+        ]
+      }
+    }
+  },
+  "claimBoundaries": {
+    "notEvidenceFor": [
+      "physical_quest_foreground_frame_pacing",
+      "quest_controller_latency",
+      "quest_hand_tracking_quality",
+      "in_headset_text_readability",
+      "thermal_or_battery_behavior",
+      "production_runtime_readiness"
+    ],
+    "allowedClaims": [
+      "adversarial_visual_iteration_artifact",
+      "desktop_manual_evidence_attempt_summary_rendered",
+      "desktop_operator_panel_attempt_summary_reviewed"
+    ]
+  }
+}

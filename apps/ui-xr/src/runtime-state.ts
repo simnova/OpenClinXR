@@ -379,12 +379,15 @@ export type ManualPerformanceCaptureSummary = {
   visibilityState: string | null;
   qualitySource: ManualPerformanceFrameStats["qualitySource"] | null;
   handInputsObserved: number | null;
+  handRepresentationKind: ManualPerformanceInputEvidence["handRepresentationKind"] | null;
   activeLocomotionSource: ManualPerformanceInputEvidence["activeLocomotionSource"] | null;
   inputSourceKinds: RuntimeInputSourceKind[];
   lastLocomotionAtMs: number | null;
+  locomotionAttempt: ManualPerformanceInputEvidence["locomotionAttempt"] | null;
   locomotionDistanceMeters: number | null;
   locomotionTurnRadians: number | null;
   traceLatencySource: ManualPerformanceTraceLatencyEvidence["source"] | null;
+  traceInteractionAttempt: TraceInteractionAttempt | null;
   lastTraceTag: string | null;
   lastTraceLatencyMs: number | null;
   draftAvailable: boolean;
@@ -1351,12 +1354,15 @@ export function buildManualPerformanceCaptureSummary(
     visibilityState: frameStats?.visibilityState ?? null,
     qualitySource: frameStats?.qualitySource ?? null,
     handInputsObserved: inputEvidence?.handInputsObserved ?? null,
+    handRepresentationKind: inputEvidence?.handRepresentationKind ?? null,
     activeLocomotionSource: inputEvidence?.activeLocomotionSource ?? null,
     inputSourceKinds: [...(inputEvidence?.inputSourceKinds ?? [])],
     lastLocomotionAtMs: inputEvidence?.lastLocomotionAtMs ?? null,
+    locomotionAttempt: inputEvidence?.locomotionAttempt ?? null,
     locomotionDistanceMeters: inputEvidence?.locomotionDelta?.distanceMeters ?? null,
     locomotionTurnRadians: inputEvidence?.locomotionDelta?.turnRadians ?? null,
     traceLatencySource: input.draft?.traceLatencyProxy?.source ?? null,
+    traceInteractionAttempt: input.draft?.station.traceInteractionAttempt ?? null,
     lastTraceTag: input.draft?.traceLatencyProxy?.lastTraceTag ?? null,
     lastTraceLatencyMs: input.draft?.traceLatencyProxy?.lastSelectLatencyMs ?? null,
     draftAvailable: Boolean(input.draft && frameStats),
