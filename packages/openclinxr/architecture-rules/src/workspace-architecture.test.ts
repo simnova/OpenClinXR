@@ -39,6 +39,10 @@ const paidCloudProviderEnvKeys = [
   "OPENAI_API_KEY",
   "XAI_API_KEY",
 ] as const;
+const apiConcretePersistenceDependencies = [
+  "@openclinxr/data-mongodb",
+  "@openclinxr/data-sources-mongoose-models",
+] as const;
 
 type DependencyField = typeof dependencyFields[number];
 
@@ -465,6 +469,35 @@ describe("workspace architecture rules", () => {
     expect(violations).toEqual([]);
   });
 
+  it("reports concrete Mongo package declarations in the API app manifest", () => {
+    const violations = findApiConcretePersistenceManifestViolations([
+      {
+        manifestPath: "apps/api/package.json",
+        field: "dependencies",
+        dependency: "@openclinxr/data-mongodb",
+      },
+      {
+        manifestPath: "apps/api/package.json",
+        field: "devDependencies",
+        dependency: "@openclinxr/data-sources-mongoose-models",
+      },
+      {
+        manifestPath: "packages/openclinxr/data-mongodb/package.json",
+        field: "dependencies",
+        dependency: "@openclinxr/data-sources-mongoose-models",
+      },
+    ]);
+
+    expect(violations).toEqual([
+      "manifest:apps/api/package.json:dependencies.@openclinxr/data-mongodb",
+      "manifest:apps/api/package.json:devDependencies.@openclinxr/data-sources-mongoose-models",
+    ]);
+  });
+
+  it("keeps the API app manifest free of concrete Mongo persistence packages", () => {
+    expect(findApiConcretePersistenceManifestViolations()).toEqual([]);
+  });
+
   it("keeps telemetry contracts independent from application and runtime packages", () => {
     const forbiddenImports = /@openclinxr\//;
     const violations = filesWithContentMatching("packages/openclinxr/telemetry", forbiddenImports);
@@ -854,6 +887,18 @@ function scanMongoMemoryServerBoundary(): MongoMemoryServerBoundaryInput {
     manifestDependencies: workspacePackageDependencyReferences(["mongodb-memory-server"]),
     sourceReferences: sourceImportReferences("mongodb-memory-server"),
   };
+}
+
+function findApiConcretePersistenceManifestViolations(
+  manifestDependencies = workspacePackageDependencyReferences([...apiConcretePersistenceDependencies]),
+): string[] {
+  return manifestDependencies
+    .filter(({ manifestPath, dependency }) =>
+      manifestPath === "apps/api/package.json"
+      && (apiConcretePersistenceDependencies as readonly string[]).includes(dependency)
+    )
+    .map(({ manifestPath, field, dependency }) => `manifest:${manifestPath}:${field}.${dependency}`)
+    .sort();
 }
 
 function scanPaidProviderBoundary(): PaidProviderBoundaryInput {
