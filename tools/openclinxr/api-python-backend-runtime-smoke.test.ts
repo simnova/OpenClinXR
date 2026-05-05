@@ -29,8 +29,8 @@ const baseInput = {
     latencyMs: 26,
     modes: [
       { id: "transport-echo", status: "ready", blockers: [] },
-      { id: "moshi-mlx", status: "proposal_required", blockers: ["proposal_local_realtime_voice_model_inference_pending"] },
-      { id: "qwen3-tts-mlx", status: "proposal_required", blockers: ["proposal_local_realtime_voice_model_inference_pending"] },
+      { id: "moshi-mlx", status: "approved_runtime_missing", blockers: ["model_weights_not_installed", "mlx_runtime_not_installed", "real_inference_not_observed"] },
+      { id: "qwen3-tts-mlx", status: "approved_runtime_missing", blockers: ["model_weights_not_installed", "mlx_runtime_not_installed", "real_inference_not_observed"] },
     ],
     body: { defaultMode: "transport-echo" },
   },
@@ -61,8 +61,8 @@ describe("API Python backend runtime smoke report", () => {
       ok: true,
       modes: [
         { id: "transport-echo", status: "ready" },
-        { id: "moshi-mlx", status: "proposal_required" },
-        { id: "qwen3-tts-mlx", status: "proposal_required" },
+        { id: "moshi-mlx", status: "approved_runtime_missing" },
+        { id: "qwen3-tts-mlx", status: "approved_runtime_missing" },
       ],
     });
     expect(report.policy).toMatchObject({

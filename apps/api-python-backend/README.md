@@ -13,8 +13,9 @@ JSON control acknowledgements, transcript/audio metadata, and echoes binary audi
 chunks back to the caller.
 
 `GET /capabilities` reports `transport-echo` as the only ready mode. Moshi MLX
-and Qwen3-TTS MLX remain `proposal_required` until operator approval, model
-weights, and local MLX runtime evidence exist.
+and Qwen3-TTS MLX are approved developer-only candidates, but remain
+`approved_runtime_missing` until model weights, local MLX runtime, and real
+inference evidence exist.
 
 The MLX, Moshi, and Qwen stacks are intentionally notes-only in this spike; no
 optional packages are installed by the verifier or package scripts.

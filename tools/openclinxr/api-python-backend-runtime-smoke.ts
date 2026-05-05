@@ -393,8 +393,8 @@ function isCapabilitiesOk(
   const modeById = new Map(modes.map((mode) => [mode.id, mode]));
   return defaultMode === "transport-echo"
     && modeById.get("transport-echo")?.status === "ready"
-    && modeById.get("moshi-mlx")?.status === "proposal_required"
-    && modeById.get("qwen3-tts-mlx")?.status === "proposal_required";
+    && modeById.get("moshi-mlx")?.status === "approved_runtime_missing"
+    && modeById.get("qwen3-tts-mlx")?.status === "approved_runtime_missing";
 }
 
 async function runWebSocketProbe(

@@ -809,8 +809,8 @@ describe("benchmark gate report", () => {
             latencyMs: 11,
             modes: [
               { id: "transport-echo", status: "ready", blockers: [] },
-              { id: "moshi-mlx", status: "proposal_required", blockers: ["proposal_local_realtime_voice_model_inference_pending"] },
-              { id: "qwen3-tts-mlx", status: "proposal_required", blockers: ["proposal_local_realtime_voice_model_inference_pending"] },
+              { id: "moshi-mlx", status: "approved_runtime_missing", blockers: ["model_weights_not_installed", "mlx_runtime_not_installed", "real_inference_not_observed"] },
+              { id: "qwen3-tts-mlx", status: "approved_runtime_missing", blockers: ["model_weights_not_installed", "mlx_runtime_not_installed", "real_inference_not_observed"] },
             ],
             body: { defaultMode: "transport-echo" },
           },
@@ -892,8 +892,8 @@ describe("benchmark gate report", () => {
         ok: true,
         modes: [
           { id: "transport-echo", status: "ready" },
-          { id: "moshi-mlx", status: "proposal_required" },
-          { id: "qwen3-tts-mlx", status: "proposal_required" },
+          { id: "moshi-mlx", status: "approved_runtime_missing" },
+          { id: "qwen3-tts-mlx", status: "approved_runtime_missing" },
         ],
       },
       websocket: {
@@ -1757,7 +1757,7 @@ describe("benchmark gate report", () => {
           },
         },
       },
-    });
+    }, { now: new Date("2026-05-04T20:20:00.000Z"), maxEvidenceAgeHours: 24 });
     const gate = report.evidence_gates[0];
 
     expect(gate?.ready_to_resolve).toBe(true);

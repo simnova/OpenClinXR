@@ -68,7 +68,7 @@
       "evidence_id": "local_model_runtime_benchmark",
       "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T14:57:50Z",
-      "age_hours": 9,
+      "age_hours": 10,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -86,7 +86,7 @@
       "evidence_id": "local_voice_runtime_benchmark",
       "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T15:01:12Z",
-      "age_hours": 9,
+      "age_hours": 10,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -103,8 +103,8 @@
     {
       "evidence_id": "realtime_voice_transport_spike",
       "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json",
-      "generated_at": "2026-05-04T22:52:50.932Z",
-      "age_hours": 2,
+      "generated_at": "2026-05-05T01:03:06.651Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -112,8 +112,8 @@
     {
       "evidence_id": "api_python_backend_runtime_smoke",
       "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-04.json",
-      "generated_at": "2026-05-04T22:34:45.884Z",
-      "age_hours": 2,
+      "generated_at": "2026-05-05T01:02:37.265Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -121,7 +121,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-05T00:57:41.331Z",
+      "generated_at": "2026-05-05T01:04:15.897Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -917,14 +917,14 @@
   },
   "realtime_voice_transport_spike": {
     "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json",
-    "generated_at": "2026-05-04T22:52:50.932Z",
+    "generated_at": "2026-05-05T01:03:06.651Z",
     "status": "transport_spike_passed",
-    "round_trip_latency_ms": 9.5,
+    "round_trip_latency_ms": 10.23,
     "audio_metadata_frames_sent": 2,
     "audio_chunk_metadata_received": 2,
     "frame_latency_samples_ms": [
-      4.32,
-      4.24
+      4.23,
+      4.16
     ],
     "audio_chunk_indexes_received": [
       0,
@@ -970,7 +970,7 @@
   },
   "api_python_backend_runtime_smoke": {
     "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-04.json",
-    "generated_at": "2026-05-04T22:34:45.884Z",
+    "generated_at": "2026-05-05T01:02:37.265Z",
     "status": "passed",
     "python": {
       "executable": ".openclinxr-local/api-python-backend-venv/bin/python",
@@ -986,7 +986,7 @@
       "attempted": true,
       "ok": true,
       "statusCode": 200,
-      "latencyMs": 543,
+      "latencyMs": 542,
       "body": {
         "status": "ok",
         "service": "api-python-backend"
@@ -996,7 +996,7 @@
       "attempted": true,
       "ok": true,
       "statusCode": 200,
-      "latencyMs": 5,
+      "latencyMs": 4,
       "modes": [
         {
           "id": "transport-echo",
@@ -1005,20 +1005,20 @@
         },
         {
           "id": "moshi-mlx",
-          "status": "proposal_required",
+          "status": "approved_runtime_missing",
           "blockers": [
-            "proposal_local_realtime_voice_model_inference_pending",
             "model_weights_not_installed",
-            "mlx_runtime_not_installed"
+            "mlx_runtime_not_installed",
+            "real_inference_not_observed"
           ]
         },
         {
           "id": "qwen3-tts-mlx",
-          "status": "proposal_required",
+          "status": "approved_runtime_missing",
           "blockers": [
-            "proposal_local_realtime_voice_model_inference_pending",
             "model_weights_not_installed",
-            "mlx_runtime_not_installed"
+            "mlx_runtime_not_installed",
+            "real_inference_not_observed"
           ]
         }
       ],
@@ -1042,28 +1042,32 @@
           },
           {
             "id": "moshi-mlx",
-            "status": "proposal_required",
+            "status": "approved_runtime_missing",
             "cloudApisUsed": false,
             "paidApisUsed": false,
             "modelDownloadsUsed": false,
-            "description": "Future local full-duplex voice candidate gated by operator approval and model install evidence.",
+            "approvedProposal": "proposals/approved/proposal-local-realtime-voice-model-inference.md",
+            "modelId": "kyutai/moshiko-mlx-q4",
+            "description": "Approved local full-duplex voice candidate, still blocked until model weights, MLX runtime, and real inference evidence exist.",
             "blockers": [
-              "proposal_local_realtime_voice_model_inference_pending",
               "model_weights_not_installed",
-              "mlx_runtime_not_installed"
+              "mlx_runtime_not_installed",
+              "real_inference_not_observed"
             ]
           },
           {
             "id": "qwen3-tts-mlx",
-            "status": "proposal_required",
+            "status": "approved_runtime_missing",
             "cloudApisUsed": false,
             "paidApisUsed": false,
             "modelDownloadsUsed": false,
-            "description": "Future local streaming TTS fallback gated by operator approval and model install evidence.",
+            "approvedProposal": "proposals/approved/proposal-local-realtime-voice-model-inference.md",
+            "modelId": "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+            "description": "Approved local streaming TTS fallback, still blocked until model weights, MLX runtime, and real inference evidence exist.",
             "blockers": [
-              "proposal_local_realtime_voice_model_inference_pending",
               "model_weights_not_installed",
-              "mlx_runtime_not_installed"
+              "mlx_runtime_not_installed",
+              "real_inference_not_observed"
             ]
           }
         ]
@@ -1078,7 +1082,7 @@
       "audioMetadataObserved": true,
       "transcriptDeltaObserved": true,
       "binaryEchoObserved": true,
-      "latencyMs": 9
+      "latencyMs": 17
     },
     "verdict": {
       "passed": true,
@@ -1092,7 +1096,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-05T00:57:41.331Z",
+    "generated_at": "2026-05-05T01:04:15.897Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "ready_to_claim_frame_pacing": false,
     "satisfied_conditions": [
