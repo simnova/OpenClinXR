@@ -77,6 +77,7 @@ const allowedLicenses = new Set([
 
 const reviewLicenses = new Set([
   "MPL-2.0",
+  "SIL OPEN FONT LICENSE Version 1.1 OR OFL",
 ]);
 
 const blockedLicensePatterns = [
@@ -122,6 +123,18 @@ const licenseOverrides: LicenseOverride[] = [
     reason: "pnpm reports Unknown because package.json uses SEE LICENSE IN LICENSE; the installed LICENSE and upstream pmndrs/uikit LICENSE are MIT text.",
     evidence: [
       "node_modules/.pnpm/@pmndrs+uikit@1.0.64_three@0.184.0/node_modules/@pmndrs/uikit/LICENSE",
+      "https://github.com/pmndrs/uikit/blob/main/LICENSE",
+    ],
+  },
+  {
+    name: "@pmndrs/uikit",
+    versions: ["1.0.66"],
+    reportedLicense: "Unknown",
+    effectiveLicense: "MIT",
+    reason: "pnpm reports Unknown because package.json uses SEE LICENSE IN LICENSE; the installed LICENSE and upstream pmndrs/uikit LICENSE are MIT text. This version is sidecar-only for the approved UIKitML readability spike.",
+    evidence: [
+      "node_modules/.pnpm/@pmndrs+uikit@1.0.66_three@0.184.0/node_modules/@pmndrs/uikit/LICENSE",
+      "docs/openclinxr/uikitml-spatial-text-sidecar-2026-05-05.md",
       "https://github.com/pmndrs/uikit/blob/main/LICENSE",
     ],
   },

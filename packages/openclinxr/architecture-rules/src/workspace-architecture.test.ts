@@ -676,7 +676,7 @@ describe("workspace architecture rules", () => {
     expect([...manifestViolations, ...lockfileViolations.map((dependency) => `pnpm-lock.yaml:${dependency}`)]).toEqual([]);
   });
 
-  it("keeps the approved IWSDK sidecar limited to approved runtime packages and Phase 2 devtools", () => {
+  it("keeps the approved IWSDK sidecar limited to approved runtime packages and approved sidecar devtools", () => {
     const sidecarManifestPath = join(workspaceRoot, "apps/ui-xr-iwsdk-spike/package.json");
     expect(existsSync(sidecarManifestPath)).toBe(true);
 
@@ -691,6 +691,7 @@ describe("workspace architecture rules", () => {
     });
     expect(manifest.devDependencies).toMatchObject({
       "@iwsdk/vite-plugin-dev": "0.3.1",
+      "@iwsdk/vite-plugin-uikitml": "0.3.1",
       "@types/three": "0.184.0",
       "typescript": "6.0.3",
       "vite": "8.0.10",
@@ -699,7 +700,7 @@ describe("workspace architecture rules", () => {
     expect(manifest.dependencies?.["@iwsdk/vite-plugin-dev"]).toBeUndefined();
     expect(Object.keys({ ...manifest.dependencies, ...manifest.devDependencies }).filter((dependency) =>
       dependency.startsWith("@iwsdk/")
-      && !["@iwsdk/core", "@iwsdk/xr-input", "@iwsdk/vite-plugin-dev"].includes(dependency)
+      && !["@iwsdk/core", "@iwsdk/xr-input", "@iwsdk/vite-plugin-dev", "@iwsdk/vite-plugin-uikitml"].includes(dependency)
     )).toEqual([]);
   });
 

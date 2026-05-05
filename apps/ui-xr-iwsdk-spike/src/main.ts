@@ -47,6 +47,12 @@ import {
   mixedRealityOptionalFeatures,
   type MixedRealitySupportState,
 } from "./mixed-reality-state.js";
+import {
+  buildUikitmlSpatialTextEvidence,
+  createUikitmlSpatialTextPanel,
+  type UikitmlSpatialTextEvidence,
+  type UikitmlSpatialTextRuntimePanel,
+} from "./uikitml-spatial-text.js";
 import "./styles.css";
 
 type NavigatorWithXr = Navigator & {
@@ -185,6 +191,7 @@ declare global {
     __openClinXrMixedRealitySupport?: MixedRealitySupportState;
     __openClinXrIwerSessionEntryEvidence?: IwsdkSidecarXrEntryEvidence;
     __openClinXrIwerEvidenceViewEvidence?: IwerEvidenceViewEvidence;
+    __openClinXrUikitmlSpatialTextEvidence?: UikitmlSpatialTextEvidence;
   }
 }
 
@@ -325,6 +332,10 @@ window.__openClinXrIwerEvidenceViewEvidence = buildIwerEvidenceViewEvidence({
   mode: iwerEvidenceViewMode,
   controllerAffordancesRendered: iwerEvidenceViewMode !== "wide_iwer_capture",
   rigPosition: { x: 0, z: 0 },
+});
+window.__openClinXrUikitmlSpatialTextEvidence = buildUikitmlSpatialTextEvidence({
+  status: "source_registered",
+  renderMode: "compile_only",
 });
 scheduleIwsdkEvidenceHydration();
 
@@ -508,6 +519,7 @@ function createStationScene(): StationSceneRuntime {
   let lastAnimateAtMs = performance.now();
   let lastRenderLoopAtMs = 0;
   const flatPreviewFallbackFrameMs = 1000 / 30;
+  let uikitmlSpatialTextPanel: UikitmlSpatialTextRuntimePanel | null = null;
 
   const scene = new Scene();
   scene.name = iwsdkSidecarSceneObjectNames[0] ?? "openclinxr.iwsdk.station-root";
@@ -599,6 +611,7 @@ function createStationScene(): StationSceneRuntime {
   });
   inputPanel.mesh.position.set(0.15, 0.78, -1.2);
   scene.add(inputPanel.mesh);
+  void installUikitmlSpatialTextPanel();
   let lastPanelSignature = "";
   applyEvidenceCaptureLayout({
     enabled: iwerEvidenceViewMode === "wide_iwer_capture",
@@ -642,6 +655,7 @@ function createStationScene(): StationSceneRuntime {
   function renderStationFrame(now: number, qualitySource: IwsdkSidecarFrameQualitySource): void {
     lastRenderLoopAtMs = now;
     const deltaSeconds = Math.min((now - lastAnimateAtMs) / 1000, 0.05);
+    const deltaMs = deltaSeconds * 1000;
     lastAnimateAtMs = now;
     recordFrame(now, {
       qualitySource,
@@ -666,6 +680,7 @@ function createStationScene(): StationSceneRuntime {
       rigPosition: inputEvidence.rigPosition,
     });
     updateVrPanels(inputEvidence);
+    uikitmlSpatialTextPanel?.update(deltaMs);
     resize();
     patient.rotation.y = Math.sin(now / 1200) * 0.08;
     nurse.rotation.y = Math.sin(now / 900) * 0.12;
@@ -819,6 +834,24 @@ function createStationScene(): StationSceneRuntime {
       handModelStatus = "installed";
     } catch {
       handModelStatus = "failed";
+    }
+  }
+
+  async function installUikitmlSpatialTextPanel(): Promise<void> {
+    recordBootPhase("uikitml_spatial_text_load_start");
+    try {
+      const panel = await createUikitmlSpatialTextPanel();
+      uikitmlSpatialTextPanel = panel;
+      scene.add(panel.group);
+      window.__openClinXrUikitmlSpatialTextEvidence = panel.evidence;
+      recordBootPhase("uikitml_spatial_text_loaded");
+    } catch (error) {
+      window.__openClinXrUikitmlSpatialTextEvidence = buildUikitmlSpatialTextEvidence({
+        status: "blocked",
+        renderMode: "blocked",
+        error,
+      });
+      recordBootPhase("uikitml_spatial_text_blocked", error);
     }
   }
 

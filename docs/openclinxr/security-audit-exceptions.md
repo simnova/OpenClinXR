@@ -48,7 +48,7 @@ pnpm security:licenses
 
 The gate reads `pnpm licenses list --json`, fails on AGPL/GPL/LGPL/SSPL/non-commercial/proprietary/unknown/unlicensed dependency records, applies only version-pinned license-file normalizations recorded in this file, and reports review-only licenses separately. The latest local report is:
 
-- `docs/openclinxr/dependency-license-policy-2026-05-04.json`
+- `docs/openclinxr/dependency-license-policy-2026-05-05.json`
 
 ## Active Exceptions
 
@@ -69,6 +69,15 @@ These are not copyleft, vulnerability, or audit-ignore exceptions. They normaliz
 | `@pmndrs/handle` | `6.6.29` | `Unknown` | MIT | Installed `LICENSE`; [pmndrs/xr LICENSE](https://github.com/pmndrs/xr/blob/main/LICENSE) | Remove when pnpm reports MIT or package metadata uses a standard SPDX license. |
 | `@pmndrs/pointer-events` | `6.6.29` | `Unknown` | MIT | Installed `LICENSE`; [pmndrs/xr LICENSE](https://github.com/pmndrs/xr/blob/main/LICENSE) | Remove when pnpm reports MIT or package metadata uses a standard SPDX license. |
 | `@pmndrs/uikit` | `1.0.64` | `Unknown` | MIT | Installed `LICENSE`; [pmndrs/uikit LICENSE](https://github.com/pmndrs/uikit/blob/main/LICENSE) | Remove when pnpm reports MIT or package metadata uses a standard SPDX license. |
+| `@pmndrs/uikit` | `1.0.66` | `Unknown` | MIT | Installed `LICENSE`; [UIKitML sidecar evidence](uikitml-spatial-text-sidecar-2026-05-05.md); [pmndrs/uikit LICENSE](https://github.com/pmndrs/uikit/blob/main/LICENSE) | Remove when pnpm reports MIT, package metadata uses a standard SPDX license, or the UIKitML sidecar spike is removed. |
+
+## Active Review-Only License Findings
+
+These are not blockers and are not audit exceptions. They remain visible because they carry terms that are acceptable for local sidecar evaluation but should be revisited before production packaging.
+
+| Package | Version | Reported by pnpm | Evidence | Removal condition |
+| --- | ---: | --- | --- | --- |
+| `@pmndrs/msdfonts` | `1.0.66` | `SIL OPEN FONT LICENSE Version 1.1 OR OFL` | Installed `LICENSE`; [UIKitML sidecar evidence](uikitml-spatial-text-sidecar-2026-05-05.md) records Roboto under Apache-2.0 and listed Google Fonts under SIL OFL 1.1. | Remove when UIKitML sidecar spike is removed, or replace with a narrower reviewed font subset before production spatial UI adoption. |
 
 ## Dependency Pinning Gate
 

@@ -1492,6 +1492,7 @@ describe("IWSDK spike plan", () => {
       blockers: [
         "blocked_script_action:package.json:scripts.iwsdk:reference:warmup:iwsdk_reference_warmup",
         "blocked_script_action:apps/ui-xr/package.json:scripts.iwsdk:create:iwsdk_create",
+        "uikitml_spatial_text_package_present_without_operator_approval:apps/ui-xr-iwsdk-spike/package.json:devDependencies.@iwsdk/vite-plugin-uikitml",
         "@iwsdk/core:version_not_exact",
         "@iwsdk/vite-plugin-uikitml:not_allowed_in_first_slice",
         "@iwsdk/reference:blocked_package",

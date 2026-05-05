@@ -45,4 +45,39 @@ describe("dependency license policy", () => {
       }),
     ]);
   });
+
+  it("normalizes the reviewed UIKitML sidecar uikit license-file metadata", () => {
+    const report = buildLicensePolicyReportFromInventory({
+      Unknown: [
+        {
+          name: "@pmndrs/uikit",
+          versions: ["1.0.66"],
+          paths: ["node_modules/.pnpm/@pmndrs+uikit@1.0.66_three@0.184.0/node_modules/@pmndrs/uikit"],
+        },
+      ],
+      "SIL OPEN FONT LICENSE Version 1.1 OR OFL": [
+        {
+          name: "@pmndrs/msdfonts",
+          versions: ["1.0.66"],
+          paths: ["node_modules/.pnpm/@pmndrs+msdfonts@1.0.66/node_modules/@pmndrs/msdfonts"],
+        },
+      ],
+    }, new Date("2026-05-05T17:20:00.000Z"));
+
+    expect(report.blockedFindings).toEqual([]);
+    expect(report.licenseOverridesApplied).toEqual([
+      expect.objectContaining({
+        name: "@pmndrs/uikit",
+        versions: ["1.0.66"],
+        reportedLicense: "Unknown",
+        license: "MIT",
+      }),
+    ]);
+    expect(report.reviewFindings).toEqual([
+      expect.objectContaining({
+        name: "@pmndrs/msdfonts",
+        license: "SIL OPEN FONT LICENSE Version 1.1 OR OFL",
+      }),
+    ]);
+  });
 });

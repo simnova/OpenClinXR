@@ -464,6 +464,7 @@ export type IwsdkWorkspacePostureInput = {
   sidecarAppExists: boolean;
   sidecarInstallApproved: boolean;
   phase2DevtoolsApproved?: boolean;
+  uikitmlSpatialTextApproved?: boolean;
   sharpLibvipsExceptionApproved?: boolean;
   sidecarLockfileImporterPresent?: boolean;
   sidecarLockfilePackageNames?: string[];
@@ -1741,6 +1742,14 @@ export function evaluateIwsdkWorkspacePosture(
   const sidecarDependencies = iwsdkDependencies.filter((dependency) => dependency.manifestPath.startsWith(sidecarRoot));
   blockers.push(
     ...sidecarDependencies
+      .filter((dependency) => (iwsdkPackageNameFromSpecifier(dependency.version) ?? dependency.name) === uikitmlSpatialTextPackageName)
+      .filter((dependency) => dependency.field !== "devDependencies")
+      .map((dependency) =>
+        `uikitml_spatial_text_must_be_sidecar_dev_dependency:${dependency.manifestPath}:${dependency.field}.${dependency.name}`
+      ),
+  );
+  blockers.push(
+    ...sidecarDependencies
       .filter((dependency) => (iwsdkPackageNameFromSpecifier(dependency.version) ?? dependency.name) === phase2DevtoolsPackageName)
       .filter((dependency) => dependency.field !== "devDependencies")
       .map((dependency) =>
@@ -1753,6 +1762,15 @@ export function evaluateIwsdkWorkspacePosture(
         .filter((dependency) => (iwsdkPackageNameFromSpecifier(dependency.version) ?? dependency.name) === phase2DevtoolsPackageName)
         .map((dependency) =>
           `phase2_devtools_package_present_without_operator_approval:${dependency.manifestPath}:${dependency.field}.${dependency.name}`
+        ),
+    );
+  }
+  if (!input.uikitmlSpatialTextApproved) {
+    blockers.push(
+      ...sidecarDependencies
+        .filter((dependency) => (iwsdkPackageNameFromSpecifier(dependency.version) ?? dependency.name) === uikitmlSpatialTextPackageName)
+        .map((dependency) =>
+          `uikitml_spatial_text_package_present_without_operator_approval:${dependency.manifestPath}:${dependency.field}.${dependency.name}`
         ),
     );
   }
@@ -1813,19 +1831,23 @@ export function evaluateIwsdkWorkspacePosture(
 }
 
 const phase2DevtoolsPackageName = "@iwsdk/vite-plugin-dev";
+const uikitmlSpatialTextPackageName = "@iwsdk/vite-plugin-uikitml";
 
 function workspacePosturePolicyFor(
   input: IwsdkWorkspacePostureInput,
   policy: IwsdkPreInstallPackagePolicy,
 ): IwsdkPreInstallPackagePolicy {
+  const uikitmlPolicy = input.uikitmlSpatialTextApproved
+    ? approvedUikitmlSpatialTextPolicy(policy)
+    : policy;
   if (!input.phase2DevtoolsApproved) {
-    return policy;
+    return uikitmlPolicy;
   }
 
   const phase2Policy = {
-    ...policy,
-    allowedFirstSlicePackages: [...new Set([...policy.allowedFirstSlicePackages, phase2DevtoolsPackageName])],
-    reviewRequiredPackages: policy.reviewRequiredPackages.filter((packageName) =>
+    ...uikitmlPolicy,
+    allowedFirstSlicePackages: [...new Set([...uikitmlPolicy.allowedFirstSlicePackages, phase2DevtoolsPackageName])],
+    reviewRequiredPackages: uikitmlPolicy.reviewRequiredPackages.filter((packageName) =>
       packageName !== phase2DevtoolsPackageName
     ),
   };
@@ -1838,6 +1860,16 @@ function workspacePosturePolicyFor(
     ...phase2Policy,
     blockedTransitivePackages: phase2Policy.blockedTransitivePackages.filter((packageName) =>
       !packageName.includes("sharp-libvips")
+    ),
+  };
+}
+
+function approvedUikitmlSpatialTextPolicy(policy: IwsdkPreInstallPackagePolicy): IwsdkPreInstallPackagePolicy {
+  return {
+    ...policy,
+    allowedFirstSlicePackages: [...new Set([...policy.allowedFirstSlicePackages, uikitmlSpatialTextPackageName])],
+    reviewRequiredPackages: policy.reviewRequiredPackages.filter((packageName) =>
+      packageName !== uikitmlSpatialTextPackageName
     ),
   };
 }

@@ -1,0 +1,221 @@
+{
+  "element": {
+    "sourceTag": "container",
+    "type": "custom",
+    "children": [
+      {
+        "sourceTag": "text",
+        "type": "custom",
+        "children": [
+          "UIKitML readability comparison"
+        ],
+        "properties": {
+          "class": "eyebrow"
+        },
+        "dataUid": "uid-2"
+      },
+      {
+        "sourceTag": "text",
+        "type": "custom",
+        "children": [
+          "Simulated EHR: ED Chest Pain"
+        ],
+        "properties": {
+          "class": "title"
+        },
+        "dataUid": "uid-3"
+      },
+      {
+        "sourceTag": "text",
+        "type": "custom",
+        "children": [
+          "Crushing substernal pressure with diaphoresis."
+        ],
+        "properties": {
+          "class": "body"
+        },
+        "dataUid": "uid-4"
+      },
+      {
+        "sourceTag": "text",
+        "type": "custom",
+        "children": [
+          "BP 152/92, HR 104, RR 20, SpO2 96%."
+        ],
+        "properties": {
+          "class": "body"
+        },
+        "dataUid": "uid-5"
+      },
+      {
+        "sourceTag": "text",
+        "type": "custom",
+        "children": [
+          "Evidence scope: sidecar text readability only. Not Quest text readiness."
+        ],
+        "properties": {
+          "class": "warning"
+        },
+        "dataUid": "uid-6"
+      }
+    ],
+    "properties": {
+      "id": "openclinxr-uikitml-readability-panel",
+      "class": "panel"
+    },
+    "dataUid": "uid-1"
+  },
+  "classes": {
+    "panel": {
+      "content": {
+        "backgroundColor": "#f8fbff",
+        "borderRadius": 14,
+        "padding": "30px",
+        "flexDirection": "column",
+        "gap": "14px",
+        "width": "1600px",
+        "height": "620px"
+      }
+    },
+    "eyebrow": {
+      "content": {
+        "color": "#286b54",
+        "fontSize": "54px",
+        "fontWeight": "700"
+      }
+    },
+    "title": {
+      "content": {
+        "color": "#10211d",
+        "fontSize": "88px",
+        "fontWeight": "800"
+      }
+    },
+    "body": {
+      "content": {
+        "color": "#1f3d36",
+        "fontSize": "62px",
+        "lineHeight": "1.25"
+      }
+    },
+    "warning": {
+      "content": {
+        "color": "#7d4f28",
+        "fontSize": "58px",
+        "fontWeight": "700"
+      }
+    }
+  },
+  "ranges": {
+    "panel": {
+      "start": {
+        "line": 1,
+        "column": 2
+      },
+      "end": {
+        "line": 1,
+        "column": 8
+      }
+    },
+    "eyebrow": {
+      "start": {
+        "line": 11,
+        "column": 2
+      },
+      "end": {
+        "line": 11,
+        "column": 10
+      }
+    },
+    "title": {
+      "start": {
+        "line": 17,
+        "column": 2
+      },
+      "end": {
+        "line": 17,
+        "column": 8
+      }
+    },
+    "body": {
+      "start": {
+        "line": 23,
+        "column": 2
+      },
+      "end": {
+        "line": 23,
+        "column": 7
+      }
+    },
+    "warning": {
+      "start": {
+        "line": 29,
+        "column": 2
+      },
+      "end": {
+        "line": 29,
+        "column": 10
+      }
+    },
+    "uid-1": {
+      "start": {
+        "line": 36,
+        "column": 0
+      },
+      "end": {
+        "line": 42,
+        "column": 12
+      }
+    },
+    "uid-2": {
+      "start": {
+        "line": 37,
+        "column": 2
+      },
+      "end": {
+        "line": 37,
+        "column": 61
+      }
+    },
+    "uid-3": {
+      "start": {
+        "line": 38,
+        "column": 2
+      },
+      "end": {
+        "line": 38,
+        "column": 57
+      }
+    },
+    "uid-4": {
+      "start": {
+        "line": 39,
+        "column": 2
+      },
+      "end": {
+        "line": 39,
+        "column": 74
+      }
+    },
+    "uid-5": {
+      "start": {
+        "line": 40,
+        "column": 2
+      },
+      "end": {
+        "line": 40,
+        "column": 63
+      }
+    },
+    "uid-6": {
+      "start": {
+        "line": 41,
+        "column": 2
+      },
+      "end": {
+        "line": 41,
+        "column": 103
+      }
+    }
+  }
+}

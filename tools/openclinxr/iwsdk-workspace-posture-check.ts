@@ -20,6 +20,7 @@ type CliOptions = {
   outputPath?: string;
   sidecarInstallApproved: boolean;
   phase2DevtoolsApproved: boolean;
+  uikitmlSpatialTextApproved: boolean;
   sharpLibvipsExceptionApproved: boolean;
 };
 
@@ -37,6 +38,7 @@ export type IwsdkWorkspacePostureReport = {
   workspaceRoot: string;
   sidecarInstallApproved: boolean;
   phase2DevtoolsApproved: boolean;
+  uikitmlSpatialTextApproved: boolean;
   sharpLibvipsExceptionApproved: boolean;
   detected: {
     sidecarAppExists: boolean;
@@ -66,6 +68,7 @@ async function main(): Promise<void> {
     workspaceRoot: options.workspaceRoot ?? findWorkspaceRoot(process.cwd()),
     sidecarInstallApproved: options.sidecarInstallApproved,
     phase2DevtoolsApproved: options.phase2DevtoolsApproved,
+    uikitmlSpatialTextApproved: options.uikitmlSpatialTextApproved,
     sharpLibvipsExceptionApproved: options.sharpLibvipsExceptionApproved,
   });
   const payload = `${JSON.stringify(report, null, 2)}\n`;
@@ -88,12 +91,14 @@ export async function buildIwsdkWorkspacePostureReport(input: {
   workspaceRoot: string;
   sidecarInstallApproved?: boolean;
   phase2DevtoolsApproved?: boolean;
+  uikitmlSpatialTextApproved?: boolean;
   sharpLibvipsExceptionApproved?: boolean;
 }): Promise<IwsdkWorkspacePostureReport> {
   const workspaceRoot = path.resolve(input.workspaceRoot);
   const rootPackage = await readPackageJson(path.join(workspaceRoot, "package.json"));
   const sidecarInstallApproved = input.sidecarInstallApproved ?? false;
   const phase2DevtoolsApproved = input.phase2DevtoolsApproved ?? false;
+  const uikitmlSpatialTextApproved = input.uikitmlSpatialTextApproved ?? false;
   const sharpLibvipsExceptionApproved = input.sharpLibvipsExceptionApproved ?? false;
   const sidecarAppExists = existsSync(path.join(workspaceRoot, "apps/ui-xr-iwsdk-spike"));
   const dependencies = await scanPackageDependencies(workspaceRoot);
@@ -109,6 +114,7 @@ export async function buildIwsdkWorkspacePostureReport(input: {
     sidecarAppExists,
     sidecarInstallApproved,
     phase2DevtoolsApproved,
+    uikitmlSpatialTextApproved,
     sharpLibvipsExceptionApproved,
     sidecarLockfileImporterPresent,
     dependencies,
@@ -126,6 +132,7 @@ export async function buildIwsdkWorkspacePostureReport(input: {
     workspaceRoot,
     sidecarInstallApproved,
     phase2DevtoolsApproved,
+    uikitmlSpatialTextApproved,
     sharpLibvipsExceptionApproved,
     detected: {
       sidecarAppExists,
@@ -148,6 +155,7 @@ function parseArgs(args: string[]): CliOptions {
   const options: CliOptions = {
     sidecarInstallApproved: false,
     phase2DevtoolsApproved: false,
+    uikitmlSpatialTextApproved: false,
     sharpLibvipsExceptionApproved: false,
   };
 
@@ -169,6 +177,10 @@ function parseArgs(args: string[]): CliOptions {
     }
     if (arg === "--approved-phase2-devtools") {
       options.phase2DevtoolsApproved = true;
+      continue;
+    }
+    if (arg === "--approved-uikitml-spatial-text") {
+      options.uikitmlSpatialTextApproved = true;
       continue;
     }
     if (arg === "--approved-sharp-libvips-exception") {

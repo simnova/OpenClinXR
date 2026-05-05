@@ -1,0 +1,43 @@
+<style>
+  .panel {
+    background-color: #f8fbff;
+    border-radius: 14px;
+    padding: 30px;
+    flex-direction: column;
+    gap: 14px;
+    width: 1600px;
+    height: 620px;
+  }
+
+  .eyebrow {
+    color: #286b54;
+    font-size: 54px;
+    font-weight: 700;
+  }
+
+  .title {
+    color: #10211d;
+    font-size: 88px;
+    font-weight: 800;
+  }
+
+  .body {
+    color: #1f3d36;
+    font-size: 62px;
+    line-height: 1.25;
+  }
+
+  .warning {
+    color: #7d4f28;
+    font-size: 58px;
+    font-weight: 700;
+  }
+</style>
+
+<Container id="openclinxr-uikitml-readability-panel" class="panel">
+  <Text class="eyebrow">UIKitML readability comparison</Text>
+  <Text class="title">Simulated EHR: ED Chest Pain</Text>
+  <Text class="body">Crushing substernal pressure with diaphoresis.</Text>
+  <Text class="body">BP 152/92, HR 104, RR 20, SpO2 96%.</Text>
+  <Text class="warning">Evidence scope: sidecar text readability only. Not Quest text readiness.</Text>
+</Container>

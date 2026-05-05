@@ -536,6 +536,7 @@ describe("IWSDK workspace posture checker", () => {
         "--approved-sidecar",
         "--approved-phase2-devtools",
         "--approved-sharp-libvips-exception",
+        "--approved-uikitml-spatial-text",
         "--output",
         outputPath,
       ],

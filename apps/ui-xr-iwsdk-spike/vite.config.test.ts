@@ -4,6 +4,8 @@ import {
   openClinXrIwsdkSpikeDevPluginOptions,
   resolveOpenClinXrIwsdkSpikeModulePreloads,
   openClinXrIwsdkSpikeBuildOutput,
+  openClinXrIwsdkSpikeUIKitmlOutputDir,
+  openClinXrIwsdkSpikeUIKitmlSourceDir,
 } from "./vite.config.js";
 
 describe("IWSDK sidecar Vite config", () => {
@@ -45,6 +47,14 @@ describe("IWSDK sidecar Vite config", () => {
     expect(openClinXrIwsdkSpikeDevPluginOptions.emulator?.userAgentException).toBeInstanceOf(RegExp);
     const plugins = createOpenClinXrIwsdkSpikePlugins();
     expect(plugins.some((plugin) => plugin.name.includes("iwsdk"))).toBe(true);
-    expect(plugins.every((plugin) => plugin.apply === "serve")).toBe(true);
+    expect(plugins.some((plugin) => plugin.name === "compile-uikitml")).toBe(true);
+    expect(plugins.filter((plugin) => plugin.name.includes("iwsdk")).every((plugin) => plugin.apply === "serve")).toBe(
+      true,
+    );
+  });
+
+  it("compiles UIKitML text sources with absolute paths for portless/worktree safety", () => {
+    expect(openClinXrIwsdkSpikeUIKitmlSourceDir).toContain("apps/ui-xr-iwsdk-spike/ui");
+    expect(openClinXrIwsdkSpikeUIKitmlOutputDir).toContain("apps/ui-xr-iwsdk-spike/public/uikitml");
   });
 });
