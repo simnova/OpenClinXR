@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "openclinxr.visual-qa-evidence.v1",
+  "capture": {
+    "source": "desktop_browser",
+    "artifactType": "screenshot",
+    "artifact": "docs/openclinxr/screenshots/ui-xr-post-quest-report-browser-2026-05-05.png",
+    "mimeType": "image/png",
+    "dimensions": {
+      "width": 2880,
+      "height": 1800
+    },
+    "runtimeUrl": "http://localhost:5173/?visualQa=panel-depth-clock-final-20260505",
+    "route": "/",
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "xrMode": "desktop_browser_flat_preview_not_immersive",
+    "cameraPose": "Desktop browser viewport after the first worn-headset report, showing the ED bay, spatial EHR/dialogue/input panels, status strip, and admin-side trace controls.",
+    "captureCommand": "Chrome DevTools MCP take_screenshot for the selected localhost page."
+  },
+  "adversarialReview": {
+    "reviewers": [
+      "test-automation-lead",
+      "ux-friction-critic",
+      "clinical-safety-critic",
+      "xr-systems-architect",
+      "asset-pipeline-lead"
+    ],
+    "checks": {
+      "clinical_scene_fidelity": {
+        "status": "concern",
+        "notes": [
+          "The scene communicates an emergency department station at a blocking level, but it still lacks dense ED context such as leads, IV supplies, bedside carts, wall gases, telemetry detail, and time-pressure cues."
+        ]
+      },
+      "actor_equipment_realism": {
+        "status": "concern",
+        "notes": [
+          "The patient, nurse, and spouse remain capsule/head placeholders with no realistic faces, clothing, hand meshes, posture detail, pain expression, or procedural animation; this matches the operator's report that hand visuals are primitive."
+        ]
+      },
+      "ui_readability": {
+        "status": "pass",
+        "notes": [
+          "The Simulated EHR, Live Dialogue, and Input Evidence spatial panels are visible in the desktop capture; the Input Evidence panel no longer collides with the actor silhouettes or wall clock from this camera pose."
+        ]
+      },
+      "interaction_affordances": {
+        "status": "concern",
+        "notes": [
+          "Trace buttons, the status strip, and the Full VR affordance are visible in desktop browser mode, but the screenshot does not prove deliberate hand-select trace advancement, hand-gesture locomotion, controller latency, or in-headset copy/export behavior."
+        ]
+      },
+      "occlusion_scale": {
+        "status": "concern",
+        "notes": [
+          "Text panels are separated from the main actors, but the spatial composition is still tuned for evidence capture rather than a final natural ED layout; actor scale and panel distance must be challenged again in a worn-headset run."
+        ]
+      },
+      "evidence_limits": {
+        "status": "pass",
+        "notes": [
+          "This is desktop Chrome DevTools visual iteration evidence only; it is not physical Quest proof, not immersive WebXR proof, not in-headset readability proof, not hand-tracking quality proof, and not production runtime readiness."
+        ]
+      }
+    }
+  },
+  "claimBoundaries": {
+    "notEvidenceFor": [
+      "physical_quest_foreground_frame_pacing",
+      "quest_controller_latency",
+      "quest_hand_tracking_quality",
+      "in_headset_text_readability",
+      "thermal_or_battery_behavior",
+      "production_runtime_readiness"
+    ],
+    "allowedClaims": [
+      "adversarial_visual_iteration_artifact",
+      "desktop_spatial_text_panel_visibility_reviewed",
+      "desktop_placeholder_actor_realism_gap_recorded"
+    ]
+  }
+}
