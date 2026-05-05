@@ -98,6 +98,8 @@ export type RecordRuntimeClinicalActionInput = RecordClinicalActionInput;
 
 export type RouteRuntimeActorInteractionInput = RouteActorInteractionInput;
 
+export type GenerateRoutedActorResponseInput = RouteRuntimeActorInteractionInput;
+
 export type RouteRuntimeActorInteractionResult = {
   routedActorId: string;
   routingReason: InteractionRoutingReason;
@@ -111,6 +113,12 @@ export type GenerateActorResponseResult = {
   response: ActorResponseResult;
   learnerEvent: TraceEvent;
   actorResponseEvent: TraceEvent;
+};
+
+export type GenerateRoutedActorResponseResult = GenerateActorResponseResult & {
+  routedActorId: string;
+  routingReason: InteractionRoutingReason;
+  routeEvent: TraceEvent;
 };
 
 export type ScenarioPublicationReadinessInput = {
@@ -134,6 +142,15 @@ type SessionRecord = {
   multiActorSession: MultiActorClinicalSession;
   nextSequence: number;
   facultyScoreDraft?: ReviewPacket["facultyScoreDraft"];
+};
+
+type GenerateActorResponseFromContextInput = {
+  actorId: string;
+  learnerUtterance: string;
+  atSecond: number;
+  traceContextTags?: string[];
+  actorContext: ActorModelContext;
+  conversationTurn: number;
 };
 
 export type ScenarioRuntimeOptions = {
@@ -267,80 +284,33 @@ export class ScenarioRuntime {
 
   async generateActorResponse(stationRunId: string, input: GenerateActorResponseInput): Promise<GenerateActorResponseResult> {
     const session = this.requireSession(stationRunId);
-    const actor = this.options.scenario.actors.find((candidate) => candidate.actorId === input.actorId);
-    if (!actor) {
-      throw new Error(`Actor not found: ${input.actorId}`);
-    }
     const actorContext = buildActorModelContext(session.multiActorSession, input.actorId);
-
-    const traceContextTags = [...(input.traceContextTags ?? [])];
-    const primaryTag = traceContextTags[0];
-    const learnerEvent = this.appendTrace(session, {
-      eventType: "learner.utterance",
-      atSecond: input.atSecond,
-      source: "learner",
-      actorId: input.actorId,
-      ...(primaryTag ? { tag: primaryTag } : {}),
-      payload: {
-        text: input.learnerUtterance,
-        traceContextTags,
-      },
+    return this.generateActorResponseFromContext(session, {
+      ...input,
+      actorContext,
+      conversationTurn: this.actorResponseTurnCount(stationRunId, input.actorId) + 1,
     });
-    const conversationTurn = this.actorResponseTurnCount(stationRunId, input.actorId) + 1;
-    let response: ActorResponseResult;
-    try {
-      response = await this.options.modelGateway.generateActorResponse({
-        stationRunId,
-        scenarioId: this.options.scenario.scenarioId,
-        scenarioVersion: this.options.scenario.version,
-        actorId: actor.actorId,
-        actorDisplayName: actor.displayName,
-        actorRole: actor.role,
-        conversationTurn,
-        learnerUtterance: input.learnerUtterance,
-        visibleFacts: actorContext.visibleMemory.facts,
-        hiddenFacts: [],
-        retrievedMemoryIds: actorContext.retrievedMemoryIds,
-        traceContextTags,
-        clinicalState: {
-          completedTraceTags: [...actorContext.clinicalState.completedTraceTags],
-          openOrders: actorContext.clinicalState.openOrders.map((order) => ({ ...order })),
-        },
-        policy: actorResponsePolicy,
-      });
-    } catch {
-      this.appendTrace(session, {
-        eventType: "actor.response.failed",
-        atSecond: input.atSecond,
-        source: "model-gateway",
-        actorId: input.actorId,
-        ...(primaryTag ? { tag: primaryTag } : {}),
-        payload: {
-          errorCode: "model_provider_error",
-          traceContextTags,
-        },
-      });
-      throw new Error("Actor response generation failed");
-    }
-    const actorResponseEvent = this.appendTrace(session, {
-      eventType: "actor.response.generated",
-      atSecond: input.atSecond,
-      source: "model-gateway",
-      actorId: input.actorId,
-      ...(primaryTag ? { tag: primaryTag } : {}),
-      payload: {
-        text: response.text,
-        responseKind: response.responseKind,
-        traceTags: response.traceTags,
-        provenance: response.provenance,
-      },
-    });
+  }
 
+  async generateRoutedActorResponse(
+    stationRunId: string,
+    input: GenerateRoutedActorResponseInput,
+  ): Promise<GenerateRoutedActorResponseResult> {
+    const routed = this.routeActorInteractionTurn(stationRunId, input);
+    const session = this.requireSession(stationRunId);
+    const generated = await this.generateActorResponseFromContext(session, {
+      actorId: routed.routedActorId,
+      learnerUtterance: input.learnerUtterance,
+      atSecond: input.atSecond,
+      ...(input.traceContextTags ? { traceContextTags: input.traceContextTags } : {}),
+      actorContext: routed.actorContext,
+      conversationTurn: routed.actorContext.conversationTurn,
+    });
     return {
-      conversationTurn,
-      response,
-      learnerEvent,
-      actorResponseEvent,
+      ...generated,
+      routedActorId: routed.routedActorId,
+      routingReason: routed.routingReason,
+      routeEvent: routed.interactionEvent,
     };
   }
 
@@ -532,6 +502,85 @@ export class ScenarioRuntime {
     return this.options.ledger.replay(stationRunId).filter((event) =>
       (event.eventType === "actor.response.generated" || event.eventType === "actor.response.failed") && event.actorId === actorId
     ).length;
+  }
+
+  private async generateActorResponseFromContext(
+    session: SessionRecord,
+    input: GenerateActorResponseFromContextInput,
+  ): Promise<GenerateActorResponseResult> {
+    const actor = this.options.scenario.actors.find((candidate) => candidate.actorId === input.actorId);
+    if (!actor) {
+      throw new Error(`Actor not found: ${input.actorId}`);
+    }
+
+    const traceContextTags = [...(input.traceContextTags ?? [])];
+    const primaryTag = traceContextTags[0];
+    const learnerEvent = this.appendTrace(session, {
+      eventType: "learner.utterance",
+      atSecond: input.atSecond,
+      source: "learner",
+      actorId: input.actorId,
+      ...(primaryTag ? { tag: primaryTag } : {}),
+      payload: {
+        text: input.learnerUtterance,
+        traceContextTags,
+      },
+    });
+    let response: ActorResponseResult;
+    try {
+      response = await this.options.modelGateway.generateActorResponse({
+        stationRunId: session.run.stationRunId,
+        scenarioId: this.options.scenario.scenarioId,
+        scenarioVersion: this.options.scenario.version,
+        actorId: actor.actorId,
+        actorDisplayName: actor.displayName,
+        actorRole: actor.role,
+        conversationTurn: input.conversationTurn,
+        learnerUtterance: input.learnerUtterance,
+        visibleFacts: input.actorContext.visibleMemory.facts,
+        hiddenFacts: [],
+        retrievedMemoryIds: input.actorContext.retrievedMemoryIds,
+        traceContextTags,
+        clinicalState: {
+          completedTraceTags: [...input.actorContext.clinicalState.completedTraceTags],
+          openOrders: input.actorContext.clinicalState.openOrders.map((order) => ({ ...order })),
+        },
+        policy: actorResponsePolicy,
+      });
+    } catch {
+      this.appendTrace(session, {
+        eventType: "actor.response.failed",
+        atSecond: input.atSecond,
+        source: "model-gateway",
+        actorId: input.actorId,
+        ...(primaryTag ? { tag: primaryTag } : {}),
+        payload: {
+          errorCode: "model_provider_error",
+          traceContextTags,
+        },
+      });
+      throw new Error("Actor response generation failed");
+    }
+    const actorResponseEvent = this.appendTrace(session, {
+      eventType: "actor.response.generated",
+      atSecond: input.atSecond,
+      source: "model-gateway",
+      actorId: input.actorId,
+      ...(primaryTag ? { tag: primaryTag } : {}),
+      payload: {
+        text: response.text,
+        responseKind: response.responseKind,
+        traceTags: response.traceTags,
+        provenance: response.provenance,
+      },
+    });
+
+    return {
+      conversationTurn: input.conversationTurn,
+      response,
+      learnerEvent,
+      actorResponseEvent,
+    };
   }
 }
 

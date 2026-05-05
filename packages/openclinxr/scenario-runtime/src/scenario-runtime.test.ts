@@ -330,6 +330,50 @@ describe("scenario runtime", () => {
     expect(JSON.stringify(provider.requests[0])).not.toContain("Repeat blood pressure is falling");
   });
 
+  it("routes and generates actor responses through promoted session-state context", async () => {
+    const provider = new CapturingModelProviderAdapter();
+    const runtime = createRuntimeWithModelProvider(provider);
+    const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });
+    runtime.startEncounter(session.stationRunId, { atSecond: 60 });
+
+    const generated = await runtime.generateRoutedActorResponse(session.stationRunId, {
+      atSecond: 150,
+      learnerUtterance: "Nurse, can you repeat the blood pressure for me?",
+      traceContextTags: ["vitals_review", "team_communication"],
+    });
+
+    expect(generated.routedActorId).toBe("nurse_maria_alvarez_v1");
+    expect(generated.routingReason).toBe("addressed_role_keyword");
+    expect(generated.routeEvent).toMatchObject({
+      sequence: 3,
+      eventType: "actor.interaction.routed",
+      source: "session-state",
+      actorId: "nurse_maria_alvarez_v1",
+      tag: "vitals_review",
+    });
+    expect(generated.conversationTurn).toBe(1);
+    expect(generated.response.text).toContain("Maria Alvarez");
+    expect(provider.requests[0]).toMatchObject({
+      actorId: "nurse_maria_alvarez_v1",
+      actorDisplayName: "Maria Alvarez",
+      actorRole: "nurse",
+      conversationTurn: 1,
+      learnerUtterance: "Nurse, can you repeat the blood pressure for me?",
+      visibleFacts: ["Demeanor: focused, direct, escalating concern as vitals change"],
+      hiddenFacts: [],
+      traceContextTags: ["vitals_review", "team_communication"],
+    });
+    expect(JSON.stringify(provider.requests[0])).not.toContain("Repeat blood pressure is falling");
+    expect(runtime.traceEvents(session.stationRunId).map((trace) => trace.eventType)).toEqual([
+      "station.started",
+      "consent.accepted",
+      "encounter.started",
+      "actor.interaction.routed",
+      "learner.utterance",
+      "actor.response.generated",
+    ]);
+  });
+
   it("records blocked actor responses without revealing hidden facts", async () => {
     const runtime = createDefaultScenarioRuntime();
     const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });
