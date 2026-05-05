@@ -1,0 +1,46 @@
+{
+  "generatedAt": "2026-05-05T14:28:42.000Z",
+  "source": "chrome_devtools_mcp",
+  "target": {
+    "url": "http://localhost:5173/?visualQa=capture-readiness-panel-20260505",
+    "app": "@openclinxr/ui-xr",
+    "mode": "desktop_browser_visual_qa"
+  },
+  "artifacts": {
+    "screenshot": "docs/openclinxr/screenshots/ui-xr-capture-readiness-panel-2026-05-05.png"
+  },
+  "observations": [
+    {
+      "area": "in_scene_input_panel_metadata",
+      "finding": "The canvas-text metadata for the in-scene Input Evidence panel now includes a capture status line: Capture: 19 blockers; vr 0; window 180.",
+      "posture": "supports_desktop_visual_qa_only"
+    },
+    {
+      "area": "operator_feedback",
+      "finding": "The desktop Quest Evidence panel remains readable and still shows the separate Frames, Loop, Input, Movement, Trace, and Validation rows.",
+      "posture": "supports_desktop_visual_qa_only"
+    }
+  ],
+  "adversarialNotes": [
+    "This is not Quest 3 physical readiness evidence; it only proves that the browser runtime publishes the capture readiness text into canvas-text metadata.",
+    "Desktop preview still reports vr 0 and immersiveSessionStarted false, so it cannot validate the in-headset placement, scale, readability, or comfort of the new capture line.",
+    "The in-scene text panel now has six lines in a 1.65m by 0.72m panel, so the next worn-headset visual QA pass should check for crowding or clipping."
+  ],
+  "capturedState": {
+    "inputPanelPreviewLines": [
+      "Session: Desktop preview",
+      "Hands: pending_immersive_session; observed 0",
+      "Gesture: not_pinching",
+      "Trace hand select: blocked; dwell 0ms; trace_unavailable",
+      "Movement: none; d 0m; turn 0rad",
+      "Capture: 19 blockers; vr 0; window 180"
+    ],
+    "captureSummary": {
+      "manualValidationReady": false,
+      "blockerCount": 19,
+      "immersiveFramesObserved": 0,
+      "sampleWindowSize": 180,
+      "frameStatsFresh": true
+    }
+  }
+}

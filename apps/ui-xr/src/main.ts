@@ -841,6 +841,8 @@ function createStationScene(): StationSceneRuntime {
     const summary = summarizeTraceReadiness(state);
     const dialogueText = dialogueLine.textContent ?? initialDialogueText;
     const handGestureSourceActive = inputEvidence.inputSourceKinds?.includes("xr_hand_gesture") === true;
+    const captureSummary = window.__openClinXrManualPerformanceCaptureSummary ?? null;
+    const captureReadinessStatus = formatCaptureReadinessStatus(captureSummary);
     const panelSignature = [
       dialogueText,
       summary.observedCount,
@@ -861,6 +863,7 @@ function createStationScene(): StationSceneRuntime {
       inputEvidence.rigPosition.z,
       inputEvidence.locomotionDelta?.distanceMeters ?? 0,
       inputEvidence.locomotionDelta?.turnRadians ?? 0,
+      captureReadinessStatus,
     ].join("|");
     if (panelSignature === lastPanelSignature) {
       return;
@@ -878,6 +881,7 @@ function createStationScene(): StationSceneRuntime {
         : `Gesture: ${inputEvidence.xrHandGestureState?.blockedReason ?? "not armed"}`,
       `Trace hand select: ${formatHandSelectStatus(inputEvidence.xrHandSelectState)}`,
       `Movement: ${inputEvidence.activeLocomotionSource ?? "none"}; d ${inputEvidence.locomotionDelta?.distanceMeters ?? 0}m; turn ${inputEvidence.locomotionDelta?.turnRadians ?? 0}rad`,
+      `Capture: ${captureReadinessStatus}`,
     ]);
   }
 }
@@ -889,6 +893,14 @@ function formatHandSelectStatus(state: XrHandSelectStateEvidence | undefined): s
   const reason = state.blockedReason ? `; ${state.blockedReason}` : "";
   const fired = state.firedCount > 0 ? `; fired ${state.firedCount}` : "";
   return `${state.status}; dwell ${state.dwellMs}ms${fired}${reason}`;
+}
+
+function formatCaptureReadinessStatus(summary: ManualPerformanceCaptureSummary | null): string {
+  if (!summary) {
+    return "pending capture";
+  }
+  const status = summary.manualValidationReady ? "ready" : `${summary.blockers.length} blockers`;
+  return `${status}; vr ${summary.immersiveFramesObserved ?? 0}; window ${summary.sampleWindowSize ?? 0}`;
 }
 
 function createClinicalPanel(): ReadableVrTextPanel {

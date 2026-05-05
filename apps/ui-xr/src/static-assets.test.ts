@@ -101,6 +101,8 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("xr_hand_select");
     expect(mainSource).toContain("classifyXrSelectSource");
     expect(mainSource).toContain("event.data");
+    expect(mainSource).toContain("formatCaptureReadinessStatus");
+    expect(mainSource).toContain("Capture:");
     expect(mainSource).toContain("createXrHandSelectState");
     expect(mainSource).toContain("maybeCompleteTraceActionFromHandSelect");
     expect(mainSource).toContain("xr_hand_gesture");
