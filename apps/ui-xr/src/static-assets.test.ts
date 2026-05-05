@@ -80,7 +80,10 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("__openClinXrManualPerformanceCaptureSummary");
     expect(mainSource).toContain("manual-evidence-json");
     expect(mainSource).toContain("copy-evidence-button");
+    expect(mainSource).toContain("evidence-validation");
     expect(mainSource).toContain("updateManualEvidencePanel");
+    expect(mainSource).toContain("manualPerformanceDraft");
+    expect(runtimeStateSource).toContain("manualValidationReady");
     expect(mainSource).toContain("navigator.clipboard.writeText");
   });
 

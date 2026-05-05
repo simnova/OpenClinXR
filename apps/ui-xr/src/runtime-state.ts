@@ -224,7 +224,9 @@ export type ManualPerformanceCaptureSummary = {
   activeLocomotionSource: ManualPerformanceInputEvidence["activeLocomotionSource"] | null;
   inputSourceKinds: RuntimeInputSourceKind[];
   lastLocomotionAtMs: number | null;
-  exportReady: boolean;
+  draftAvailable: boolean;
+  manualValidationReady: boolean;
+  satisfiedConditions: string[];
   blockers: string[];
 };
 
@@ -785,11 +787,8 @@ export function buildManualPerformanceDraft(input: ManualPerformanceDraftInput):
 export function buildManualPerformanceCaptureSummary(
   input: ManualPerformanceCaptureSummaryInput,
 ): ManualPerformanceCaptureSummary {
-  const blockers = [
-    input.draft ? undefined : "missing_manual_performance_draft",
-    input.frameStats ? undefined : "missing_frame_stats",
-  ].filter((blocker): blocker is string => blocker !== undefined);
   const frameStats = input.frameStats ?? null;
+  const preview = previewManualPerformanceValidation(input.draft ?? null, frameStats);
   const inputEvidence = input.draft?.input ?? null;
 
   return {
@@ -804,9 +803,159 @@ export function buildManualPerformanceCaptureSummary(
     activeLocomotionSource: inputEvidence?.activeLocomotionSource ?? null,
     inputSourceKinds: [...(inputEvidence?.inputSourceKinds ?? [])],
     lastLocomotionAtMs: inputEvidence?.lastLocomotionAtMs ?? null,
-    exportReady: blockers.length === 0,
-    blockers,
+    draftAvailable: Boolean(input.draft && frameStats),
+    manualValidationReady: preview.blockers.length === 0,
+    satisfiedConditions: preview.satisfiedConditions,
+    blockers: preview.blockers,
   };
+}
+
+function previewManualPerformanceValidation(
+  draft: ManualPerformanceDraft | null,
+  frameStats: ManualPerformanceFrameStats | null,
+): {
+  satisfiedConditions: string[];
+  blockers: string[];
+} {
+  if (!draft || !frameStats) {
+    return {
+      satisfiedConditions: [],
+      blockers: [
+        draft ? undefined : "missing_manual_performance_draft",
+        frameStats ? undefined : "missing_frame_stats",
+      ].filter((blocker): blocker is string => typeof blocker === "string"),
+    };
+  }
+
+  const inputEvidence = draft.input;
+  const framesObserved = draft.performance.framesObserved;
+  const sampleWindowSize = draft.performance.sampleWindowSize;
+  const avgFps = draft.performance.avgFps;
+  const p95FrameMs = draft.performance.p95FrameMs;
+  const minimumObservedFps = draft.performance.minimumObservedFps;
+  const controllerSelectLatencyMs = draft.performance.controllerSelectLatencyMs;
+  const batteryDropPercent = draft.comfort.batteryDropPercent;
+  const framesObservedValid = isNonNegativeInteger(framesObserved);
+  const sampleWindowSizeValid = isNonNegativeInteger(sampleWindowSize);
+  const sampleWindowWithinObservedFrames = framesObservedValid
+    && sampleWindowSizeValid
+    && sampleWindowSize <= framesObserved;
+  const avgFpsPlausible = isPlausibleFps(avgFps);
+  const minimumObservedFpsPlausible = isPlausibleFps(minimumObservedFps);
+  const minimumFpsAtOrBelowAverage = typeof minimumObservedFps === "number"
+    && typeof avgFps === "number"
+    && Number.isFinite(minimumObservedFps)
+    && Number.isFinite(avgFps)
+    ? minimumObservedFps <= avgFps
+    : true;
+  const p95FrameMsValid = isPositiveFiniteNumber(p95FrameMs);
+  const controllerSelectLatencyMsValid = isPositiveFiniteNumber(controllerSelectLatencyMs);
+  const batteryDropPercentValid = isPercentInRange(batteryDropPercent);
+
+  const blockers = [
+    isValidIsoDate(draft.generatedAt) ? undefined : "generated_at_invalid_or_missing",
+    draft.runContext.performedBy.trim().length > 0 ? undefined : "performed_by_missing",
+    draft.setup.foregroundPageConfirmed ? undefined : "foreground_page_not_confirmed",
+    draft.setup.devtoolsScreencastDisabled ? undefined : "devtools_screencast_not_disabled",
+    draft.setup.extraBrowserWindowsClosed ? undefined : "extra_browser_windows_not_closed",
+    draft.runContext.durationMinutes >= 10 ? undefined : "duration_under_10_minutes",
+    draft.station.shellLoaded ? undefined : "station_shell_not_loaded",
+    draft.station.traceInteractionPassed ? undefined : "trace_interaction_not_confirmed",
+    draft.station.textReadable ? undefined : "text_readability_not_confirmed",
+    draft.station.immersiveSessionStarted ? undefined : "immersive_session_not_confirmed",
+    isFullVrExperienceEvidence(draft.experience) ? undefined : "experience_mode_full_vr_not_recorded",
+    hasObservedHeadsetInput(inputEvidence) ? undefined : "hand_or_controller_input_not_observed",
+    hasObservedLocomotion(inputEvidence) ? undefined : "locomotion_not_observed",
+    draft.station.consoleErrors.length === 0 ? undefined : "console_errors_present",
+    draft.performance.source === "window.__openClinXrFrameStats" ? undefined : "performance_source_not_openclinxr_frame_stats",
+    framesObservedValid && framesObserved >= 600 ? undefined : "frame_sample_under_600_or_missing",
+    sampleWindowWithinObservedFrames && sampleWindowSize >= 120 ? undefined : "rolling_frame_window_under_120_or_missing",
+    avgFpsPlausible && avgFps >= 72 ? undefined : "average_fps_below_72_or_missing",
+    minimumObservedFpsPlausible && minimumFpsAtOrBelowAverage && minimumObservedFps >= 60
+      ? undefined
+      : "minimum_fps_below_60_or_missing",
+    p95FrameMsValid && p95FrameMs <= 25 ? undefined : "p95_frame_ms_above_25_or_missing",
+    controllerSelectLatencyMsValid && controllerSelectLatencyMs <= 150
+      ? undefined
+      : "controller_select_latency_ms_above_150_or_missing",
+    draft.comfort.motionComfort === "comfortable" ? undefined : "motion_comfort_not_confirmed",
+    draft.comfort.heatConcern === false ? undefined : "heat_concern_not_cleared",
+    batteryDropPercentValid ? undefined : "battery_drop_not_recorded",
+    batteryDropPercentValid && batteryDropPercent > 20 ? "battery_drop_above_20" : undefined,
+  ].filter((blocker): blocker is string => typeof blocker === "string");
+
+  const satisfiedConditions = [
+    isValidIsoDate(draft.generatedAt) ? "generated_at_valid" : undefined,
+    draft.runContext.performedBy.trim().length > 0 ? "performed_by_recorded" : undefined,
+    draft.setup.foregroundPageConfirmed ? "foreground_page_confirmed" : undefined,
+    draft.setup.devtoolsScreencastDisabled ? "devtools_screencast_disabled" : undefined,
+    draft.setup.extraBrowserWindowsClosed ? "extra_browser_windows_closed" : undefined,
+    draft.runContext.durationMinutes >= 10 ? "duration_10_minutes_or_more" : undefined,
+    draft.station.shellLoaded ? "station_shell_loaded" : undefined,
+    draft.station.traceInteractionPassed ? "trace_interaction_confirmed" : undefined,
+    draft.station.textReadable ? "text_readability_confirmed" : undefined,
+    draft.station.immersiveSessionStarted ? "immersive_session_started" : undefined,
+    isFullVrExperienceEvidence(draft.experience) ? "experience_mode_full_vr_recorded" : undefined,
+    hasObservedHeadsetInput(inputEvidence) ? "hand_or_controller_input_observed" : undefined,
+    hasObservedLocomotion(inputEvidence) ? "locomotion_observed" : undefined,
+    draft.station.consoleErrors.length === 0 ? "console_errors_empty" : undefined,
+    draft.performance.source === "window.__openClinXrFrameStats" ? "performance_source_openclinxr_frame_stats" : undefined,
+    framesObservedValid && framesObserved >= 600 ? "frame_sample_600_or_more" : undefined,
+    sampleWindowWithinObservedFrames && sampleWindowSize >= 120 ? "rolling_frame_window_120_or_more" : undefined,
+    avgFpsPlausible && avgFps >= 72 ? "average_fps_72_or_higher" : undefined,
+    minimumObservedFpsPlausible && minimumFpsAtOrBelowAverage && minimumObservedFps >= 60
+      ? "minimum_fps_60_or_higher"
+      : undefined,
+    p95FrameMsValid && p95FrameMs <= 25 ? "p95_frame_ms_25_or_lower" : undefined,
+    controllerSelectLatencyMsValid && controllerSelectLatencyMs <= 150
+      ? "controller_select_latency_150ms_or_lower"
+      : undefined,
+    draft.comfort.motionComfort === "comfortable" ? "motion_comfort_confirmed" : undefined,
+    draft.comfort.heatConcern === false ? "heat_concern_cleared" : undefined,
+    batteryDropPercentValid && batteryDropPercent <= 20 ? "battery_drop_recorded_under_20" : undefined,
+  ].filter((condition): condition is string => typeof condition === "string");
+
+  return { satisfiedConditions, blockers };
+}
+
+function isValidIsoDate(value: string): boolean {
+  const parsed = new Date(value);
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString() === value;
+}
+
+function isNonNegativeInteger(value: number | null): value is number {
+  return typeof value === "number" && Number.isFinite(value) && Number.isInteger(value) && value >= 0;
+}
+
+function isPlausibleFps(value: number | null): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 144;
+}
+
+function isPositiveFiniteNumber(value: number | null): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value > 0;
+}
+
+function isPercentInRange(value: number | null): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100;
+}
+
+function hasObservedHeadsetInput(value: ManualPerformanceDraft["input"]): boolean {
+  return (value?.handInputsObserved ?? 0) > 0
+    || value?.inputSourceKinds?.some((kind) => kind === "xr_gamepad" || kind === "xr_hand") === true
+    || (value?.inputSourceCount ?? 0) > 0;
+}
+
+function hasObservedLocomotion(value: ManualPerformanceDraft["input"]): boolean {
+  return typeof value?.lastLocomotionAtMs === "number"
+    && Number.isFinite(value.lastLocomotionAtMs)
+    && value.lastLocomotionAtMs >= 0;
+}
+
+function isFullVrExperienceEvidence(value: XrExperienceModeEvidence): boolean {
+  return value.modeId === "full_vr"
+    && value.phaseLabel === "Phase 1 Full VR"
+    && value.requestedSessionMode === "immersive-vr"
+    && value.mixedRealityPassthroughImplemented === false;
 }
 
 function patientTurn(traceTag: string, learnerUtterance: string): RemoteActorTurnPlan {

@@ -236,9 +236,10 @@ app.innerHTML = `
           <div><dt>Loop</dt><dd id="evidence-loop">pending</dd></div>
           <div><dt>Input</dt><dd id="evidence-input">pending</dd></div>
           <div><dt>Movement</dt><dd id="evidence-locomotion">pending</dd></div>
+          <div><dt>Validation</dt><dd id="evidence-validation">pending</dd></div>
         </dl>
         <div class="evidence-actions">
-          <button id="copy-evidence-button" class="trace-button" type="button">Copy Draft</button>
+          <button id="copy-evidence-button" class="trace-button" type="button">Copy Evidence</button>
           <span id="copy-evidence-status" aria-live="polite">Not copied</span>
         </div>
         <textarea id="manual-evidence-json" class="manual-evidence-json" readonly spellcheck="false" aria-label="Manual performance JSON"></textarea>
@@ -258,6 +259,7 @@ const evidenceFrames = requireElement<HTMLElement>("#evidence-frames");
 const evidenceLoop = requireElement<HTMLElement>("#evidence-loop");
 const evidenceInput = requireElement<HTMLElement>("#evidence-input");
 const evidenceLocomotion = requireElement<HTMLElement>("#evidence-locomotion");
+const evidenceValidation = requireElement<HTMLElement>("#evidence-validation");
 const copyEvidenceButton = requireElement<HTMLButtonElement>("#copy-evidence-button");
 const copyEvidenceStatus = requireElement<HTMLElement>("#copy-evidence-status");
 const manualEvidenceJson = requireElement<HTMLTextAreaElement>("#manual-evidence-json");
@@ -1024,7 +1026,15 @@ function updateManualEvidencePanel(): string {
     summary.activeLocomotionSource ?? "none",
     summary.lastLocomotionAtMs === null ? "no movement timestamp" : `moved ${summary.lastLocomotionAtMs}ms`,
   ].join(" | ");
-  const payload = JSON.stringify(window.__openClinXrManualPerformanceDraft ?? {}, null, 2);
+  evidenceValidation.textContent = [
+    summary.manualValidationReady ? "manual validation ready" : "draft only",
+    summary.blockers.length === 0 ? "no blockers" : `${summary.blockers.length} blockers`,
+  ].join(" | ");
+  const manualPerformanceDraft = window.__openClinXrManualPerformanceDraft ?? null;
+  const payload = JSON.stringify({
+    manualPerformanceDraft,
+    captureSummary: summary,
+  }, null, 2);
   manualEvidenceJson.value = payload;
   return payload;
 }

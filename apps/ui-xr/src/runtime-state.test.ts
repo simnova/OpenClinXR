@@ -460,9 +460,9 @@ describe("XR runtime state", () => {
     });
   });
 
-  it("summarizes the live manual performance capture for operator export", () => {
+  it("summarizes the live manual performance capture as an ingest draft with validation blockers", () => {
     const frameStats = buildRuntimeFrameStats({
-      frameDeltasMs: [11, 12, 13],
+      frameDeltasMs: [11, 12, 18],
       framesObserved: 4,
       latestFrameAtMs: 1234.56,
       qualitySource: "webxr_animation_loop",
@@ -501,15 +501,98 @@ describe("XR runtime state", () => {
       activeLocomotionSource: "none",
       inputSourceKinds: ["xr_hand"],
       lastLocomotionAtMs: null,
-      exportReady: true,
-      blockers: [],
+      draftAvailable: true,
+      manualValidationReady: false,
+      satisfiedConditions: [
+        "generated_at_valid",
+        "foreground_page_confirmed",
+        "station_shell_loaded",
+        "text_readability_confirmed",
+        "immersive_session_started",
+        "experience_mode_full_vr_recorded",
+        "hand_or_controller_input_observed",
+        "console_errors_empty",
+        "performance_source_openclinxr_frame_stats",
+        "average_fps_72_or_higher",
+        "p95_frame_ms_25_or_lower",
+      ],
+      blockers: [
+        "performed_by_missing",
+        "devtools_screencast_not_disabled",
+        "extra_browser_windows_not_closed",
+        "duration_under_10_minutes",
+        "trace_interaction_not_confirmed",
+        "locomotion_not_observed",
+        "frame_sample_under_600_or_missing",
+        "rolling_frame_window_under_120_or_missing",
+        "minimum_fps_below_60_or_missing",
+        "controller_select_latency_ms_above_150_or_missing",
+        "motion_comfort_not_confirmed",
+        "heat_concern_not_cleared",
+        "battery_drop_not_recorded",
+      ],
     });
     expect(buildManualPerformanceCaptureSummary({
       draft: undefined,
       frameStats: undefined,
     })).toMatchObject({
-      exportReady: false,
+      draftAvailable: false,
+      manualValidationReady: false,
       blockers: ["missing_manual_performance_draft", "missing_frame_stats"],
+    });
+  });
+
+  it("reports manual validation readiness for a complete ten-minute capture preview", () => {
+    const frameStats = buildRuntimeFrameStats({
+      frameDeltasMs: Array.from({ length: 180 }, () => 13),
+      framesObserved: 1200,
+      latestFrameAtMs: 600_000,
+      qualitySource: "webxr_animation_loop",
+      isPresenting: true,
+      visibilityState: "visible",
+    });
+    const draft = buildManualPerformanceDraft({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      elapsedSecond: 600,
+      foregroundPageConfirmed: true,
+      traceInteractionPassed: true,
+      frameStats,
+      controllerSelectLatencyMs: 87.5,
+      immersiveSessionStarted: true,
+      inputEvidence: {
+        handModelCount: 2,
+        handModelStatus: "installed",
+        handInputsObserved: 2,
+        locomotionMode: "experimental_keyboard_and_thumbstick_dolly",
+        lastInputObservedAtMs: 1234.56,
+        lastLocomotionAtMs: 1240,
+        activeLocomotionSource: "xr_gamepad",
+        inputSourceKinds: ["xr_gamepad", "xr_hand"],
+        rigPosition: { x: 0.25, z: -0.3 },
+      },
+    });
+    const completeDraft = {
+      ...draft,
+      runContext: {
+        ...draft.runContext,
+        performedBy: "Patrick Gidich",
+      },
+      setup: {
+        ...draft.setup,
+        devtoolsScreencastDisabled: true,
+        extraBrowserWindowsClosed: true,
+      },
+      comfort: {
+        motionComfort: "comfortable" as const,
+        heatConcern: false,
+        batteryDropPercent: 4,
+      },
+    };
+
+    expect(buildManualPerformanceCaptureSummary({ draft: completeDraft, frameStats })).toMatchObject({
+      draftAvailable: true,
+      manualValidationReady: true,
+      blockers: [],
     });
   });
 });
