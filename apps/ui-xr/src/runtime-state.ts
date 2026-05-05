@@ -1404,6 +1404,7 @@ function previewManualPerformanceValidation(
       blockers: [
         draft ? undefined : "missing_manual_performance_draft",
         frameStats ? undefined : "missing_frame_stats",
+        draft && hasEmptyImmersiveFrameStats(draft) ? "immersive_session_started_but_frame_stats_empty" : undefined,
       ].filter((blocker): blocker is string => typeof blocker === "string"),
     };
   }
@@ -1480,6 +1481,7 @@ function previewManualPerformanceValidation(
     hasObservedLocomotion(inputEvidence) ? undefined : "locomotion_not_observed",
     draft.station.consoleErrors.length === 0 ? undefined : "console_errors_present",
     draft.performance.source === "window.__openClinXrFrameStats" ? undefined : "performance_source_not_openclinxr_frame_stats",
+    hasEmptyImmersiveFrameStats(draft) ? "immersive_session_started_but_frame_stats_empty" : undefined,
     framesObservedValid && framesObserved >= 600 ? undefined : "frame_sample_under_600_or_missing",
     draft.station.immersiveSessionStarted && immersiveFrameSampleReady ? undefined : "immersive_frame_sample_under_600_or_missing",
     sampleWindowSizeValid && immersiveFramesObservedValid && sampleWindowSize > immersiveFramesObserved
@@ -1551,6 +1553,20 @@ function previewManualPerformanceValidation(
   ].filter((condition): condition is string => typeof condition === "string");
 
   return { satisfiedConditions, blockers };
+}
+
+function hasEmptyImmersiveFrameStats(draft: ManualPerformanceDraft): boolean {
+  const immersiveFramesObserved = draft.performance.immersiveFramesObserved ?? null;
+
+  return draft.station.immersiveSessionStarted
+    && isNonNegativeInteger(draft.performance.framesObserved)
+    && draft.performance.framesObserved === 0
+    && isNonNegativeInteger(draft.performance.sampleWindowSize)
+    && draft.performance.sampleWindowSize === 0
+    && (
+      immersiveFramesObserved === null
+      || (isNonNegativeInteger(immersiveFramesObserved) && immersiveFramesObserved === 0)
+    );
 }
 
 function isValidIsoDate(value: string): boolean {

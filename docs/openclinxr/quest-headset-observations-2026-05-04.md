@@ -10,6 +10,16 @@ Patrick tested the `apps/ui-xr-iwsdk-spike` scene on Quest 3 and reported:
 - Hands were not visible in the prior headset pass; primitive hand rendering had not yet been installed.
 - Locomotion was limited to physical room-scale walking in the prior headset pass.
 
+Patrick's latest manual Quest report adds:
+
+- The immersive Full VR session was manually started from the headset.
+- Text was readable in the immersive session.
+- Two primitive box-style hands were visible through hand tracking, but they were non-realistic.
+- `traceInteractionPassed` was `false`.
+- `framesObserved` and `sampleWindowSize` were both `0`.
+- No locomotion event was observed.
+- Short-session comfort was good.
+
 ## Actions Taken
 
 - Added explicit `Enter Full VR` controls to both `apps/ui-xr` and `apps/ui-xr-iwsdk-spike`.
@@ -26,11 +36,11 @@ Patrick tested the `apps/ui-xr-iwsdk-spike` scene on Quest 3 and reported:
 ## Remaining Gaps
 
 - Mixed-reality/passthrough mode is approved for a parallel sidecar track, but is not implemented or validated yet.
-- Primitive hands need a fresh human headset pass; articulated/skinned hand meshes remain future work.
-- Experimental thumbstick locomotion needs a fresh human headset pass for comfort, nausea risk, bounds, and input policy.
+- Primitive hands have now been observed as non-realistic; articulated/skinned hand meshes remain future work.
+- Experimental thumbstick locomotion has not produced a manual headset locomotion event yet; defer the next human headset validation until instrumentation improvements are ready.
 - Real headset select latency is not yet measured in the manual performance report; the automated DOM-click proxy is supporting evidence only, and the new `xr_controller_select` or `xr_hand_select` Trace row still needs a physical Quest confirmation.
-- The updated in-scene text/controller-ray build needs a fresh physical Quest retest after the operator clicks `Enter Full VR`.
+- The updated in-scene text path was readable after manual Full VR entry; the remaining worn-headset rerun should target trace, frame, locomotion, latency, and hand-fidelity evidence.
 
 ## Current Posture
 
-Treat the headset experience as a full-VR exam-room prototype, not a finished XR/MR experience. Do not claim production Quest readiness until the human headset report confirms in-scene text readability, real controller/hand affordances, locomotion policy, comfort, thermal behavior, and headset select latency.
+Treat the headset experience as a full-VR exam-room prototype, not a finished XR/MR experience. The latest manual report clears the basic "can enter Full VR and read text" concern for the current prototype, while preserving blockers on realistic hands, trace interaction, frame telemetry, locomotion evidence, thermal behavior, and headset select latency. Do not request another worn-headset run until instrumentation improvements are ready to make that pass more valuable.

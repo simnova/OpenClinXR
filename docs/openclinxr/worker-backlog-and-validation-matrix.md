@@ -258,6 +258,7 @@ Validation:
 - WebGL canvas is nonblank.
 - Browser screenshot evidence is captured with route, viewport, scenario ID, XR mode, camera pose if available, and artifact path.
 - Adversarial visual review records whether the ED room, actors, equipment, simulated EHR/note surfaces, text, controls, scale, occlusion, and clinical safety cues match the intended scenario.
+- Latest manual Quest visual posture: Full VR was manually entered, text was readable, primitive box-style hands were visible but non-realistic, comfort was good, trace interaction did not pass, `framesObserved` and `sampleWindowSize` were 0, and no locomotion event was observed; defer the next worn-headset validation until instrumentation improvements can capture frame, trace, locomotion, and latency evidence.
 - Core UI text does not overlap at desktop and mobile widths.
 - XR feature detection does not throw when WebXR is unavailable.
 - Quest 3 USB-C smoke loads the local Vite app through Quest Browser port forwarding after `adb devices -l` reports the headset as `device`.
@@ -271,7 +272,7 @@ Optional isolated spike:
 
 - `packages/openclinxr/iwsdk-spike` now contains the source-backed planning contract for Meta Immersive Web SDK package posture, adoption gates, and Codex-oriented agent verification. It is intentionally dependency-free.
 - `apps/ui-xr-iwsdk-spike` now evaluates Meta Immersive Web SDK Phase 1 for controller input, scene parity, package weight, and browser smoke evidence.
-- IWER/MCP/browser screenshots and videos can support adversarial visual QA, but their evidence must be labeled as emulation or managed-browser evidence and cannot replace physical Quest foreground observations.
+- IWER/MCP/browser screenshots and videos can support adversarial visual QA, but their evidence must be labeled as emulation or managed-browser evidence and cannot replace physical Quest foreground observations. Patrick's latest manual Quest report is the current human observation baseline, not a production readiness pass.
 - Phase 2 IWSDK devtools are now approved for sidecar-only use when useful; keep `@iwsdk/reference`, `@meta-quest/hzdb`, optimizer packages, and production adoption gated separately.
 - Before any install-backed sidecar change, run the proposed dependencies through the planning package's pre-install policy. The first slice allows only exact-versioned `@iwsdk/core` and `@iwsdk/xr-input`; `@iwsdk/vite-plugin-dev` requires the explicit `--approved-phase2-devtools` gate; `@iwsdk/locomotor` and `@iwsdk/vite-plugin-gltf-optimizer` still require extra review and are not unattended-ready; `@iwsdk/reference`, production use of `@meta-quest/hzdb`, blocked copyleft/unknown license expressions, and any native `@img/sharp-libvips-*` transitive variant remain blockers.
 - IWSDK agent-tooling readiness now requires more than a smoke sequence: record `iwsdk adapter sync`, the 32-tool MCP inventory, exact observed tool names, category coverage for session/transforms/input mode/select trigger/gamepad/device state/browser/scene/ECS, scored browser-mode evidence from `pnpm iwsdk:browser:evidence`, and optional MCP server policy for `iwsdk-reference` and `hzdb`; use `evaluateIwsdkAgentToolingEvidence()` as the aggregate gate before claiming the sidecar agent lane is ready.

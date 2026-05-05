@@ -31,7 +31,7 @@ This file captures useful operator steering that should shape future work but do
   - Store evidence metadata with viewport/device, route, scenario ID, camera pose, XR mode, capture command, and artifact path.
   - Require adversarial notes on clinical scene fidelity, actor/equipment realism, UI readability, interaction affordances, locomotion/comfort cues, occlusion, scale, and missing critical equipment.
   - Keep human worn-headset observations separate from automated browser or emulation evidence.
-- Current posture: evidence checker slices are implemented. `pnpm visual:qa:evidence:validate` scores `docs/openclinxr/visual-qa-evidence-2026-05-04.json`, which wraps the captured IWER screenshot as adversarial visual iteration evidence only, and the latest Chrome DevTools desktop evidence `docs/openclinxr/visual-qa-evidence-ui-xr-attempt-fields-browser-2026-05-05.json` confirms the structured Quest attempt fields render without claiming physical Quest readiness. This does not authorize new package installs, video tooling, or physical Quest readiness claims.
+- Current posture: evidence checker slices are implemented. `pnpm visual:qa:evidence:validate` scores `docs/openclinxr/visual-qa-evidence-2026-05-04.json`, which wraps the captured IWER screenshot as adversarial visual iteration evidence only, and the latest Chrome DevTools desktop evidence `docs/openclinxr/visual-qa-evidence-ui-xr-attempt-fields-browser-2026-05-05.json` confirms the structured Quest attempt fields render without claiming physical Quest readiness. Patrick's latest manual Quest report is now the human observation source for Full VR entry, readable text, primitive non-realistic hands, good comfort, and telemetry gaps; do not request another worn-headset visual QA pass until instrumentation improvements are ready to validate frames, trace interaction, locomotion, and latency. This does not authorize new package installs, video tooling, or physical Quest readiness claims.
 
 ### SUG-2026-05-04-002: Steering Suggestions Are Backlog By Default
 
@@ -71,7 +71,7 @@ This file captures useful operator steering that should shape future work but do
   - Preserve `pnpm audit --audit-level=high` in the default verification path unless a future proposal changes the gate.
   - Record any audit exceptions, overrides, or accepted risks in a markdown evidence file with package name, advisory, severity, affected version, fixed version, rationale, owner, and review date.
   - Pair audit results with license-policy checks so security and licensing posture are both visible before committing dependency changes.
-- Current posture: promoted into the security audit policy slice. `pnpm security:audit-policy` now validates that the hard audit scripts remain in the default verification path and that future high or critical audit exceptions are recorded with owner/review metadata.
+- Current posture: promoted into the security audit policy slice. `pnpm security:audit-policy` now validates that the hard audit scripts remain in the default verification path and that future high or critical audit exceptions are recorded with owner/review metadata. The latest Quest manual report does not change PNPM audit posture.
 
 ### SUG-2026-05-04-005: Evaluate UIKitML For In-XR Text Content
 
@@ -84,14 +84,14 @@ This file captures useful operator steering that should shape future work but do
 - Acceptance shape:
   - Compare UIKitML against HTML-in-canvas for text readability, styling control, input affordances, accessibility, Quest performance, bundle size, and integration with IWSDK sidecar tooling.
   - Keep UIKitML sidecar-gated until package metadata, license posture, Vite peer compatibility, bundle impact, and Quest/IWER evidence are recorded.
-  - Preserve Full VR and Mixed Reality evidence separation; text technology choice must not imply headset readability readiness until manual Quest observations pass.
-- Current posture: proposal only. No `@iwsdk/vite-plugin-uikitml` or related package install is authorized unless Patrick approves the proposal.
+  - Preserve Full VR and Mixed Reality evidence separation; Patrick's latest manual Quest report confirms the current in-scene text was readable in Full VR, so UIKitML should be evaluated as a richer spatial text option rather than as an active readability blocker.
+- Current posture: proposal only. No `@iwsdk/vite-plugin-uikitml` or related package install is authorized unless Patrick approves the proposal; it is not blocking the current operator posture.
 
 ### SUG-2026-05-04-006: Replace Primitive Box Hands With Local Mesh Hands
 
 - Status: `converted-to-proposal`
 - Captured at: 2026-05-04 23:31 EDT
-- Operator steering: Patrick's first worn-headset Quest report observed that virtual hands appeared as a series of boxes while using hand tracking.
+- Operator steering: Patrick's worn-headset Quest reports observed primitive hand rendering: earlier hands were absent, and the latest manually entered immersive session showed two visible box-style hands that were readable as hands but non-realistic.
 - Proposal: `proposals/proposal-local-webxr-hand-mesh-assets.md`
 - Primary owners: `xr-systems-architect`, `asset-pipeline-lead`, `open-source-governance-lead`, `ux-friction-critic`, `test-automation-lead`
 - Review when: improving Quest hand representation, hand-tracking affordances, in-headset visual fidelity, or manual Quest readiness gates.
@@ -99,5 +99,5 @@ This file captures useful operator steering that should shape future work but do
   - Use local reviewed GLB hand assets only; do not rely on Three's default jsDelivr hand-profile fallback.
   - Record per-asset provenance, license status, modification notes, Quest geometry/texture budget, and fallback behavior.
   - Keep primitive/spheres fallback available and recorded as a limitation if mesh loading fails.
-  - Require a later human Quest run before claiming hand-quality readiness.
-- Current posture: proposal only. No hand GLB assets or new runtime packages are authorized by this backlog entry alone.
+  - Require a later human Quest run before claiming hand-quality readiness, but wait until instrumentation and hand-asset improvements are ready so the run can collect trace, frame, locomotion, latency, and visual-fidelity evidence in one pass.
+- Current posture: proposal only. No hand GLB assets or new runtime packages are authorized by this backlog entry alone; primitive non-realistic hands are a known fidelity limitation, not a current operator blocker.

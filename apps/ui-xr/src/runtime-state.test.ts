@@ -906,6 +906,47 @@ describe("XR runtime state", () => {
     });
   });
 
+  it("flags an immersive session whose copied payload still has empty frame stats", () => {
+    const frameStats = buildRuntimeFrameStats({
+      frameDeltasMs: [],
+      framesObserved: 0,
+      latestFrameAtMs: 1234,
+      qualitySource: "webxr_animation_loop",
+      isPresenting: true,
+      visibilityState: "visible",
+    });
+    const draft = buildManualPerformanceDraft({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      elapsedSecond: 120,
+      foregroundPageConfirmed: true,
+      traceInteractionPassed: false,
+      frameStats,
+      immersiveSessionStarted: true,
+      inputEvidence: {
+        handModelCount: 2,
+        handModelStatus: "installed",
+        handInputsObserved: 2,
+        locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
+        lastInputObservedAtMs: 1234,
+        lastLocomotionAtMs: null,
+        activeLocomotionSource: "none",
+        inputSourceKinds: ["xr_hand"],
+        rigPosition: { x: 0, z: 0 },
+      },
+    });
+
+    expect(buildManualPerformanceCaptureSummary({ draft, frameStats, now: 1250 })).toMatchObject({
+      draftAvailable: true,
+      framesObserved: 0,
+      immersiveFramesObserved: 0,
+      manualValidationReady: false,
+      blockers: expect.arrayContaining([
+        "immersive_session_started_but_frame_stats_empty",
+        "frame_sample_under_600_or_missing",
+      ]),
+    });
+  });
+
   it("accepts deliberate hand-select trace latency for a hand-tracking-only capture preview", () => {
     const frameStats = buildRuntimeFrameStats({
       frameDeltasMs: Array.from({ length: 180 }, () => 13),

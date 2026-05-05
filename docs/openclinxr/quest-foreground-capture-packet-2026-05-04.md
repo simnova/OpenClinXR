@@ -23,27 +23,27 @@ Patrick provided the first worn-headset report at `docs/openclinxr/quest-manual-
 Confirmed:
 
 - Foreground station shell loaded in Quest Browser.
-- Full VR immersive session started.
+- Full VR immersive session was manually started.
 - Text was readable.
-- Hand tracking produced two visible primitive box-hand models.
+- Hand tracking produced two visible primitive box-hand models; they were non-realistic.
 - Short-session comfort was good.
 
 Still blocked:
 
 - Run duration was 2 minutes, below the 10-minute reliability window.
 - DevTools screencast was still enabled, so performance timing is not clean.
-- Trace interaction did not pass from the in-headset interaction path.
+- Trace interaction did not pass from the in-headset interaction path (`traceInteractionPassed: false`).
 - No locomotion event was recorded even though thumbstick locomotion was declared.
-- `window.__openClinXrFrameStats` reported 0 total frames and 0 immersive frames.
+- `window.__openClinXrFrameStats` reported 0 total frames and 0 immersive frames; the rolling `sampleWindowSize` was 0.
 - Controller or hand-select latency was not measured.
 - Heat observation was not cleared.
 - The hand representation is intentionally primitive until a local reviewed hand-mesh asset path is approved.
 
 The validator output is `docs/openclinxr/quest-manual-performance-check-2026-05-04.json`.
 
-## Human Report Still Required
+## Later Human Report Still Required
 
-Create a dated report after a human operator completes the next worn-headset pass. Either:
+There is no current operator blocker except a later worn-headset re-run after instrumentation improvements are ready. Create a dated report after a human operator completes that pass. Either:
 
 - start from `docs/openclinxr/quest-manual-performance-template.json`, or
 - save the full copied in-app Quest Evidence payload containing `manualPerformanceDraft` and `captureSummary`.
