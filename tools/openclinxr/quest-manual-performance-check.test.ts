@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
@@ -67,7 +67,7 @@ function completedQuestManualReport(): QuestManualPerformanceReport {
       avgFps: 72,
       p95FrameMs: 25,
       minimumObservedFps: 60,
-      controllerSelectLatencyMs: 150,
+      controllerSelectLatencyMs: 12,
     },
     comfort: {
       motionComfort: "good",
@@ -140,7 +140,7 @@ describe("Quest manual performance checker", () => {
         avgFps: 72,
         p95FrameMs: 25,
         minimumObservedFps: 60,
-        controllerSelectLatencyMs: 150,
+        controllerSelectLatencyMs: 12,
       },
       comfort: {
         motionComfort: "good",
@@ -204,7 +204,10 @@ describe("Quest manual performance checker", () => {
       "immersive_frame_count_recorded",
       "controller_select_latency_150ms_or_lower",
     ]));
-    expect(check.blockers).toEqual(["frame_stats_stale_or_unsampled"]);
+    expect(check.blockers).toEqual([
+      "copied_payload_summary_not_ready",
+      "frame_stats_stale_or_unsampled",
+    ]);
     expect(check.adversarialFindings).toEqual(["copied_ui_manual_performance_payload"]);
     expect(check.nextSteps).toEqual(expect.arrayContaining([
       "Keep the headset foreground and copy the evidence only while frameStatsFresh is true.",
@@ -242,6 +245,126 @@ describe("Quest manual performance checker", () => {
     expect(check.readyToClaimFramePacing).toBe(true);
     expect(check.blockers).toEqual([]);
     expect(check.adversarialFindings).toEqual(["copied_ui_manual_performance_payload"]);
+  });
+
+  it("requires copied in-app payloads to include a fresh capture summary", () => {
+    const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-copy.json", {
+      manualPerformanceDraft: completedQuestManualReport(),
+    });
+
+    expect(check.readyToClaimFramePacing).toBe(false);
+    expect(check.blockers).toEqual(expect.arrayContaining([
+      "copied_payload_capture_summary_missing",
+      "frame_stats_stale_or_unsampled",
+    ]));
+    expect(check.nextSteps).toEqual(expect.arrayContaining([
+      "Copy the full in-app Quest Evidence JSON payload, including captureSummary.",
+      "Keep the headset foreground and copy the evidence only while frameStatsFresh is true.",
+    ]));
+  });
+
+  it("ignores generated check artifacts when locating the latest manual report", async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-quest-manual-latest-"));
+    const docsDir = path.join(dir, "docs/openclinxr");
+    const reportPath = path.join(docsDir, "quest-manual-performance-2026-05-04.json");
+    const generatedCheckPath = path.join(docsDir, "quest-manual-performance-check-2099-01-01.json");
+    const output = path.join(dir, ".agent-factory/quest-manual-performance-report.json");
+    await mkdir(docsDir, { recursive: true });
+    await writeFile(reportPath, JSON.stringify(completedQuestManualReport(), null, 2), "utf8");
+    await writeFile(generatedCheckPath, JSON.stringify({
+      generatedAt: "2099-01-01T00:00:00.000Z",
+      readyToClaimFramePacing: false,
+      blockers: ["generated_check_artifact_should_not_be_used_as_input"],
+    }, null, 2), "utf8");
+
+    await execFileAsync(path.resolve("node_modules/.bin/tsx"), [
+      path.resolve("tools/openclinxr/check-quest-manual-performance.ts"),
+      "--output",
+      output,
+    ], { cwd: dir, encoding: "utf8", timeout: 15000 });
+
+    const check = JSON.parse(await readFile(output, "utf8")) as {
+      inputFile: string | null;
+      readyToClaimFramePacing: boolean;
+      blockers: string[];
+    };
+
+    expect(check.inputFile).toBe("docs/openclinxr/quest-manual-performance-2026-05-04.json");
+    expect(check.readyToClaimFramePacing).toBe(true);
+    expect(check.blockers).toEqual([]);
+  });
+
+  it("does not clear readiness from mostly preview-frame samples", () => {
+    const report = completedQuestManualReport();
+    report.performance = {
+      ...report.performance,
+      framesObserved: 600,
+      previewFramesObserved: 599,
+      immersiveFramesObserved: 1,
+      sampleWindowSize: 120,
+    };
+
+    const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance.json", report);
+
+    expect(check.readyToClaimFramePacing).toBe(false);
+    expect(check.blockers).toEqual(expect.arrayContaining([
+      "immersive_frame_sample_under_600_or_missing",
+      "rolling_frame_window_exceeds_immersive_frames_observed",
+    ]));
+    expect(check.satisfiedConditions).not.toEqual(expect.arrayContaining([
+      "immersive_frame_sample_600_or_more",
+      "rolling_frame_window_120_or_more",
+    ]));
+  });
+
+  it("requires controller latency to come from the xr_controller_select trace path", () => {
+    const report = completedQuestManualReport();
+    report.traceLatencyProxy = {
+      source: "dom_click_trace_button",
+      lastTraceTag: "ecg_request",
+      lastSelectLatencyMs: 12,
+      measuredAtMs: 1234,
+      productionControllerLatencySubstitute: false,
+    };
+    report.performance = {
+      ...report.performance,
+      controllerSelectLatencyMs: 12,
+    };
+
+    const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance.json", report);
+
+    expect(check.readyToClaimFramePacing).toBe(false);
+    expect(check.blockers).toEqual(expect.arrayContaining([
+      "controller_select_trace_source_not_xr_controller_select",
+    ]));
+    expect(check.satisfiedConditions).not.toEqual(expect.arrayContaining([
+      "xr_controller_select_trace_latency_recorded",
+    ]));
+  });
+
+  it("requires controller latency to match the trace latency payload", () => {
+    const report = completedQuestManualReport();
+    report.traceLatencyProxy = {
+      source: "xr_controller_select",
+      lastTraceTag: "ecg_request",
+      lastSelectLatencyMs: 12,
+      measuredAtMs: 1234,
+      productionControllerLatencySubstitute: false,
+    };
+    report.performance = {
+      ...report.performance,
+      controllerSelectLatencyMs: 80,
+    };
+
+    const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance.json", report);
+
+    expect(check.readyToClaimFramePacing).toBe(false);
+    expect(check.blockers).toEqual(expect.arrayContaining([
+      "controller_select_latency_mismatch",
+    ]));
+    expect(check.nextSteps).toEqual(expect.arrayContaining([
+      "Copy controller-select latency from the same xr_controller_select trace event used for the Trace row.",
+    ]));
   });
 
   it("requires foreground headset input and locomotion observations before clearing readiness", async () => {

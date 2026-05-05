@@ -230,6 +230,13 @@ const completedQuestManualPerformanceReport: QuestManualPerformanceReport = {
     lastLocomotionAtMs: 60_000,
     rigPosition: { x: 0.4, z: -0.2 },
   },
+  traceLatencyProxy: {
+    source: "xr_controller_select",
+    lastTraceTag: "ecg_request",
+    lastSelectLatencyMs: 140,
+    measuredAtMs: 1234,
+    productionControllerLatencySubstitute: false,
+  },
   performance: {
     source: "window.__openClinXrFrameStats",
     framesObserved: 600,
@@ -1786,7 +1793,11 @@ describe("benchmark gate report", () => {
     });
     const questGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0008-001");
 
-    expect(report.quest_manual_performance?.blockers).toEqual(["frame_stats_stale_or_unsampled"]);
+    expect(report.quest_manual_performance?.blockers).toEqual([
+      "copied_payload_summary_not_ready",
+      "frame_stats_stale_or_unsampled",
+    ]);
+    expect(questGate?.blockers).toContain("quest_manual_performance:copied_payload_summary_not_ready");
     expect(questGate?.blockers).toContain("quest_manual_performance:frame_stats_stale_or_unsampled");
   });
 

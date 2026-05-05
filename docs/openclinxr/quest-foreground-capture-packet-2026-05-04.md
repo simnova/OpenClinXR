@@ -59,12 +59,12 @@ The human report must still confirm:
 - EHR, dialogue, and input-evidence canvas panels were readable at the intended headset distance.
 - Controller or deliberate hand selection advanced the Trace row in Full VR.
 - Full VR mode, controller grip/ray visibility, hand/input visibility, locomotion behavior, and the trace latency fields were copied from the in-app Quest Evidence payload.
-- `traceLatencyProxy.source` is `xr_controller_select` when a headset controller or deliberate hand-select path is used; `dom_click_trace_button` is supporting desktop-style evidence only.
+- `traceLatencyProxy.source` is `xr_controller_select` when a headset controller or deliberate hand-select path is used; `traceLatencyProxy.lastTraceTag`, `traceLatencyProxy.lastSelectLatencyMs`, `traceLatencyProxy.measuredAtMs`, and `performance.controllerSelectLatencyMs` must describe the same trace event. `dom_click_trace_button` is supporting desktop-style evidence only.
 - Locomotion changed the rig position or produced an accepted locomotion event. For hand-only runs, `input.activeLocomotionSource` should be `xr_hand_gesture` or `mixed`, and `input.xrHandGestureState.armed` should be true at the accepted gesture moment.
 - At least 10 minutes of observation completed.
-- At least 600 frames were observed, with a rolling sample window of at least 120 frames.
-- `performance.immersiveFramesObserved` increased above 0 after Full VR entry.
-- The in-app Quest Evidence Frames row showed fresh frame stats at copy time; copied payloads should have `captureSummary.frameStatsFresh: true`.
+- At least 600 immersive Full VR frames were observed, with a rolling sample window of at least 120 frames backed by immersive frames rather than preview-only frames.
+- `performance.immersiveFramesObserved` increased to at least 600 after Full VR entry.
+- The in-app Quest Evidence Frames row showed fresh frame stats at copy time; copied payloads must include `captureSummary` with `captureSummary.frameStatsFresh: true`.
 - Comfort, heat, and battery observations were recorded.
 
 Automated supporting evidence: `docs/openclinxr/quest-cdp-smoke-vr-text-input-panels-2026-05-04.json`, `docs/openclinxr/quest-cdp-smoke-vr-resize-guard-2026-05-04.json`, and their check files show the production station page visible in Quest Browser, `Full VR ready`, trace advancement, fresh frames, and no CDP blockers after the in-VR text/input panel revision. The resize-guard smoke was captured after the app stopped calling `renderer.setSize` while a Full VR session is presenting. This supports station-shell readiness only; it does not clear the human worn-headset performance gate.
@@ -84,7 +84,7 @@ During the run:
 - Read the EHR, dialogue, and input-evidence panels from normal headset distance.
 - Trigger at least one station Trace action using headset input, then verify the Trace row changes.
 - Move intentionally using the active locomotion path and verify Movement changes from `none`.
-- Watch the Frames row until total frames, `vr` frames, and sample window are nonzero and the loop freshness label is `fresh`.
+- Watch the Frames row until total frames and `vr` frames are at least 600, the sample window is at least 120, and the loop freshness label is `fresh`.
 - Record comfort, heat, and battery after the run rather than at startup.
 
 After the run:

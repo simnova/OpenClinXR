@@ -149,6 +149,7 @@ function requireValue(args: string[], index: number, flag: string): string {
 async function latestManualReportPath(): Promise<string | undefined> {
   const files = (await fg("docs/openclinxr/quest-manual-performance-*.json", { onlyFiles: true }))
     .filter((file) => !file.endsWith("quest-manual-performance-template.json"))
+    .filter((file) => !path.basename(file).startsWith("quest-manual-performance-check-"))
     .sort();
   return files.at(-1);
 }
@@ -191,14 +192,29 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
   const minimumObservedFps = report.performance?.minimumObservedFps ?? null;
   const controllerSelectLatencyMs = report.performance?.controllerSelectLatencyMs ?? null;
   const traceLatencyProxy = report.traceLatencyProxy ?? null;
+  const traceLastSelectLatencyMs = traceLatencyProxy?.lastSelectLatencyMs ?? null;
+  const traceMeasuredAtMs = traceLatencyProxy?.measuredAtMs ?? null;
+  const traceLastTraceTag = traceLatencyProxy?.lastTraceTag ?? null;
+  const traceSourceXrControllerSelect = traceLatencyProxy?.source === "xr_controller_select";
+  const traceLastTraceTagRecorded = typeof traceLastTraceTag === "string"
+    && traceLastTraceTag.trim().length > 0;
+  const traceSelectLatencyMsValid = isPositiveFiniteNumber(traceLastSelectLatencyMs);
+  const traceMeasuredAtMsValid = isNonNegativeFiniteNumber(traceMeasuredAtMs);
   const headsetInputObserved = hasObservedHeadsetInput(report.input);
   const locomotionObserved = hasObservedLocomotion(report.input);
   const framesObservedValid = isNonNegativeInteger(framesObserved);
   const sampleWindowSizeValid = isNonNegativeInteger(sampleWindowSize);
   const immersiveFramesObservedValid = isNonNegativeInteger(immersiveFramesObserved);
+  const immersiveFrameSampleReady = immersiveFramesObservedValid && immersiveFramesObserved >= 600;
   const sampleWindowWithinObservedFrames = framesObservedValid
     && sampleWindowSizeValid
     && sampleWindowSize <= framesObserved;
+  const sampleWindowWithinImmersiveFrames = immersiveFramesObservedValid
+    && sampleWindowSizeValid
+    && sampleWindowSize <= immersiveFramesObserved;
+  const rollingFrameWindowReady = sampleWindowWithinObservedFrames
+    && sampleWindowWithinImmersiveFrames
+    && sampleWindowSize >= 120;
   const avgFpsPlausible = isPlausibleFps(avgFps);
   const minimumObservedFpsPlausible = isPlausibleFps(minimumObservedFps);
   const minimumFpsAtOrBelowAverage = typeof minimumObservedFps === "number"
@@ -209,6 +225,16 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
     : true;
   const p95FrameMsValid = isPositiveFiniteNumber(p95FrameMs);
   const controllerSelectLatencyMsValid = isPositiveFiniteNumber(controllerSelectLatencyMs);
+  const controllerSelectLatencyMatchesTrace = controllerSelectLatencyMsValid && traceSelectLatencyMsValid
+    ? Math.abs(controllerSelectLatencyMs - traceLastSelectLatencyMs) <= 1
+    : false;
+  const controllerSelectLatencyReady = controllerSelectLatencyMsValid
+    && controllerSelectLatencyMs <= 150
+    && traceSourceXrControllerSelect
+    && traceLastTraceTagRecorded
+    && traceSelectLatencyMsValid
+    && traceMeasuredAtMsValid
+    && controllerSelectLatencyMatchesTrace;
   const batteryDropPercentValid = isPercentInRange(batteryDropPercent);
   const motionComfortConfirmed = isMotionComfortConfirmed(report.comfort?.motionComfort);
   const blockers = unique([
@@ -237,8 +263,15 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
     && (immersiveFramesObserved === null || (immersiveFramesObservedValid && immersiveFramesObserved <= 0))
       ? "immersive_frame_count_zero_or_missing"
       : undefined,
+    report.station?.immersiveSessionStarted === true
+    && (immersiveFramesObserved === null || (immersiveFramesObservedValid && immersiveFramesObserved < 600))
+      ? "immersive_frame_sample_under_600_or_missing"
+      : undefined,
     typeof sampleWindowSize === "number" && !sampleWindowSizeValid ? "rolling_frame_window_not_non_negative_integer" : undefined,
     sampleWindowSizeValid && framesObservedValid && sampleWindowSize > framesObserved ? "rolling_frame_window_exceeds_frames_observed" : undefined,
+    sampleWindowSizeValid && immersiveFramesObservedValid && sampleWindowSize > immersiveFramesObserved
+      ? "rolling_frame_window_exceeds_immersive_frames_observed"
+      : undefined,
     sampleWindowSize === null || (sampleWindowSizeValid && sampleWindowSize < 120) ? "rolling_frame_window_under_120_or_missing" : undefined,
     typeof avgFps === "number" && !avgFpsPlausible ? "average_fps_unrealistic_or_non_finite" : undefined,
     avgFps === null || (avgFpsPlausible && avgFps < 72) ? "average_fps_below_72_or_missing" : undefined,
@@ -250,6 +283,13 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
     typeof controllerSelectLatencyMs === "number" && !controllerSelectLatencyMsValid ? "controller_select_latency_ms_not_positive_finite" : undefined,
     controllerSelectLatencyMs === null || (controllerSelectLatencyMsValid && controllerSelectLatencyMs > 150)
       ? "controller_select_latency_ms_above_150_or_missing"
+      : undefined,
+    traceSourceXrControllerSelect ? undefined : "controller_select_trace_source_not_xr_controller_select",
+    traceLastTraceTagRecorded ? undefined : "controller_select_trace_tag_missing",
+    traceSelectLatencyMsValid ? undefined : "controller_select_trace_latency_missing",
+    traceMeasuredAtMsValid ? undefined : "controller_select_trace_measured_at_missing",
+    controllerSelectLatencyMsValid && traceSelectLatencyMsValid && !controllerSelectLatencyMatchesTrace
+      ? "controller_select_latency_mismatch"
       : undefined,
     traceLatencyProxy?.productionControllerLatencySubstitute === true
       ? "trace_latency_proxy_marked_as_production_substitute"
@@ -291,11 +331,19 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
       report.station?.immersiveSessionStarted === true && immersiveFramesObservedValid && immersiveFramesObserved > 0
         ? "immersive_frame_count_recorded"
         : undefined,
-      sampleWindowWithinObservedFrames && sampleWindowSize >= 120 ? "rolling_frame_window_120_or_more" : undefined,
+      immersiveFrameSampleReady ? "immersive_frame_sample_600_or_more" : undefined,
+      rollingFrameWindowReady ? "rolling_frame_window_120_or_more" : undefined,
       avgFpsPlausible && avgFps >= 72 ? "average_fps_72_or_higher" : undefined,
       minimumObservedFpsPlausible && minimumFpsAtOrBelowAverage && minimumObservedFps >= 60 ? "minimum_fps_60_or_higher" : undefined,
       p95FrameMsValid && p95FrameMs <= 25 ? "p95_frame_ms_25_or_lower" : undefined,
-      controllerSelectLatencyMsValid && controllerSelectLatencyMs <= 150 ? "controller_select_latency_150ms_or_lower" : undefined,
+      controllerSelectLatencyReady ? "controller_select_latency_150ms_or_lower" : undefined,
+      traceSourceXrControllerSelect
+      && traceLastTraceTagRecorded
+      && traceSelectLatencyMsValid
+      && traceMeasuredAtMsValid
+        ? "xr_controller_select_trace_latency_recorded"
+        : undefined,
+      controllerSelectLatencyMatchesTrace ? "controller_select_latency_matches_trace_proxy" : undefined,
       isFullVrExperienceEvidence(report.experience) ? "experience_mode_full_vr_recorded" : undefined,
       headsetInputObserved ? "hand_or_controller_input_observed" : undefined,
       locomotionObserved ? "locomotion_observed" : undefined,
@@ -333,13 +381,10 @@ function normalizeQuestManualPerformancePayload(payload: QuestManualPerformanceP
     : [];
   const blockers = unique([
     report ? undefined : "copied_payload_missing_manual_performance_draft",
-    captureSummary?.manualValidationReady === false && summaryBlockers.length === 0
-      ? "copied_payload_summary_not_ready"
-      : undefined,
-    captureSummary?.draftAvailable === false && summaryBlockers.length === 0
-      ? "copied_payload_summary_missing_draft_or_frame_stats"
-      : undefined,
-    captureSummary?.frameStatsFresh === false ? "frame_stats_stale_or_unsampled" : undefined,
+    captureSummary ? undefined : "copied_payload_capture_summary_missing",
+    captureSummary && captureSummary.manualValidationReady !== true ? "copied_payload_summary_not_ready" : undefined,
+    captureSummary && captureSummary.draftAvailable !== true ? "copied_payload_summary_missing_draft_or_frame_stats" : undefined,
+    captureSummary?.frameStatsFresh === true ? undefined : "frame_stats_stale_or_unsampled",
     ...summaryBlockers,
   ].filter((blocker): blocker is string => typeof blocker === "string"));
 
@@ -465,10 +510,14 @@ function questManualNextStepForBlocker(blocker: string): string {
       return "Record immersiveFramesObserved as a non-negative integer.";
     case "immersive_frame_count_zero_or_missing":
       return "Copy the in-app Quest Evidence payload after entering Full VR and confirm performance.immersiveFramesObserved is greater than zero.";
+    case "immersive_frame_sample_under_600_or_missing":
+      return "Observe at least 600 immersive Full VR frames before claiming headset frame pacing.";
     case "rolling_frame_window_not_non_negative_integer":
       return "Record sampleWindowSize as a non-negative integer.";
     case "rolling_frame_window_exceeds_frames_observed":
       return "Keep the rolling frame window at or below framesObserved.";
+    case "rolling_frame_window_exceeds_immersive_frames_observed":
+      return "Copy the evidence after the rolling frame window is fully backed by immersive Full VR frames.";
     case "rolling_frame_window_under_120_or_missing":
       return "Record a rolling frame window with at least 120 samples.";
     case "average_fps_unrealistic_or_non_finite":
@@ -489,6 +538,16 @@ function questManualNextStepForBlocker(blocker: string): string {
       return "Record controller-select latency as a positive finite number.";
     case "controller_select_latency_ms_above_150_or_missing":
       return "Record controller-select latency at or below 150 ms.";
+    case "controller_select_trace_source_not_xr_controller_select":
+      return "Record controller latency from the xr_controller_select headset trace path, not a DOM click or desktop proxy.";
+    case "controller_select_trace_tag_missing":
+      return "Record the trace tag triggered by the headset controller or deliberate hand-select event.";
+    case "controller_select_trace_latency_missing":
+      return "Record positive lastSelectLatencyMs from the xr_controller_select trace event.";
+    case "controller_select_trace_measured_at_missing":
+      return "Record measuredAtMs for the xr_controller_select trace event.";
+    case "controller_select_latency_mismatch":
+      return "Copy controller-select latency from the same xr_controller_select trace event used for the Trace row.";
     case "trace_latency_proxy_marked_as_production_substitute":
       return "Record a real headset controller-select latency measurement; DOM trace-click latency is supporting evidence only.";
     case "motion_comfort_not_confirmed":
@@ -503,6 +562,8 @@ function questManualNextStepForBlocker(blocker: string): string {
       return "Investigate or rerun if battery drop exceeds 20 percent.";
     case "copied_payload_missing_manual_performance_draft":
       return "Copy the full in-app Quest Evidence JSON payload, including manualPerformanceDraft.";
+    case "copied_payload_capture_summary_missing":
+      return "Copy the full in-app Quest Evidence JSON payload, including captureSummary.";
     case "copied_payload_summary_not_ready":
       return "Resolve the copied captureSummary blockers before using the payload as readiness evidence.";
     case "copied_payload_summary_missing_draft_or_frame_stats":
@@ -533,6 +594,10 @@ function isPlausibleFps(value: number | null): value is number {
 
 function isPositiveFiniteNumber(value: number | null): value is number {
   return typeof value === "number" && Number.isFinite(value) && value > 0;
+}
+
+function isNonNegativeFiniteNumber(value: number | null): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0;
 }
 
 function isPercentInRange(value: number | null): value is number {
