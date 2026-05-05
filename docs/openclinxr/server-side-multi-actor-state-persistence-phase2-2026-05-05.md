@@ -19,6 +19,7 @@ The durable actor-turn promotion approved on 2026-05-05 narrows "actor turn" to 
 - `DurableConversationTurnRecord`
 - `DurableEmotionalStateTimelineRecord`
 - `DurableMultiActorSessionStore`
+- `AsyncDurableMultiActorSessionStore`
 - `RealtimeSessionCacheSnapshot`
 - `RealtimeSessionCache`
 - `PersistenceSpikeStores`
@@ -27,7 +28,7 @@ The durable actor-turn promotion approved on 2026-05-05 narrows "actor turn" to 
 - `rehydrateRealtimeCacheFromDurableState`
 - `evaluateMultiActorPersistencePhase2Strategy`
 
-The in-memory stores are proof adapters for deterministic tests only. They prove the boundary and cloning behavior without making cache state authoritative.
+`DurableMultiActorSessionStore` remains the synchronous in-memory proof adapter shape used by deterministic package tests. `AsyncDurableMultiActorSessionStore` is the production-shaped durable port for database-backed adapters, so MongoDB can conform to an explicit async contract without wiring into the API runtime.
 
 `@openclinxr/data-mongodb` now adds constrained MongoDB-backed repositories for:
 
@@ -35,6 +36,7 @@ The in-memory stores are proof adapters for deterministic tests only. They prove
 - Durable emotional-state timeline replay by station run and actor.
 - Idempotent upsert behavior for both durable record types.
 - `rawAudioStored: false` preservation and transcript provenance references for voice-transcript turns.
+- Explicit conformance to `AsyncDurableMultiActorSessionStore`.
 
 These repositories are package-local and use `mongodb-memory-server` tests. They are not wired into `apps/api`, REST, GraphQL, WebSocket routes, or runtime session synchronization.
 
@@ -83,14 +85,15 @@ Do not add Redis/Redka dependencies before there is a durable replay path to pro
 
 ## Verification
 
-Focused verification for this slice:
+Focused verification for the current durable boundary:
 
 ```bash
 pnpm --filter @openclinxr/session-state test
 pnpm --filter @openclinxr/session-state typecheck
-pnpm --filter @openclinxr/multi-actor-state-spike test
-pnpm --filter @openclinxr/multi-actor-state-spike typecheck
+pnpm --filter @openclinxr/data-mongodb test
+pnpm --filter @openclinxr/data-mongodb typecheck
 pnpm --filter @openclinxr/architecture-rules test
 pnpm --filter @openclinxr/architecture-rules typecheck
-pnpm agent:sources
+pnpm security:audit-policy
+pnpm security:licenses
 ```

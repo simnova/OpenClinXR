@@ -210,6 +210,17 @@ export type DurableMultiActorSessionStore = {
   listEmotionalStateTimeline(stationRunId: string, actorId: string): DurableEmotionalStateTimelineRecord[];
 };
 
+export type AsyncDurableMultiActorSessionStore = {
+  ensureIndexes?: () => Promise<void>;
+  saveConversationTurn(record: DurableConversationTurnRecord): Promise<void>;
+  listConversationTurns(stationRunId: string): Promise<DurableConversationTurnRecord[]>;
+  saveEmotionalStateTimeline(record: DurableEmotionalStateTimelineRecord): Promise<void>;
+  listEmotionalStateTimeline(
+    stationRunId: string,
+    actorId: string,
+  ): Promise<DurableEmotionalStateTimelineRecord[]>;
+};
+
 export type RealtimeSessionCache = {
   write(snapshot: RealtimeSessionCacheSnapshot): void;
   read(stationRunId: string): RealtimeSessionCacheSnapshot | null;

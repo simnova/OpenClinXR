@@ -1,5 +1,6 @@
 import type { ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
 import type {
+  AsyncDurableMultiActorSessionStore,
   DurableConversationTurnRecord,
   DurableEmotionalStateTimelineRecord,
 } from "@openclinxr/session-state";
@@ -489,8 +490,8 @@ describe("MongoDB memory repositories", () => {
   });
 
   it("creates a Mongo durable multi-actor session store with database-only actor-turn scope", async () => {
-    const store = createMongoDurableMultiActorSessionStore(context.db);
-    await store.ensureIndexes();
+    const store: AsyncDurableMultiActorSessionStore = createMongoDurableMultiActorSessionStore(context.db);
+    await store.ensureIndexes?.();
 
     await store.saveConversationTurn({
       ...spouseConversationTurn,

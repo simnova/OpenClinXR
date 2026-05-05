@@ -1,6 +1,7 @@
 import type { ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
 import type { ExamForm, ExamStationRunQueue } from "@openclinxr/exam-assembly";
 import type {
+  AsyncDurableMultiActorSessionStore,
   DurableConversationTurnRecord,
   DurableEmotionalStateTimelineRecord,
 } from "@openclinxr/session-state";
@@ -102,7 +103,7 @@ export class MongoDurableEmotionalStateTimelineRepository {
   }
 }
 
-export class MongoDurableMultiActorSessionStore {
+export class MongoDurableMultiActorSessionStore implements AsyncDurableMultiActorSessionStore {
   private readonly conversationTurns: MongoDurableConversationTurnRepository;
   private readonly emotionalStateTimeline: MongoDurableEmotionalStateTimelineRepository;
 
