@@ -125,6 +125,18 @@ export type IwerAutoEntryBrowserSmokeEvidence = {
     }>;
     limitations?: string[];
   };
+  evidenceViewEvidence?: {
+    source?: "window.__openClinXrIwerEvidenceViewEvidence";
+    mode?: "default" | "wide_iwer_capture";
+    queryFlag?: "iwerEvidenceView=wide";
+    purpose?: "query_gated_visual_evidence_capture_layout";
+    controllerAffordancesRendered?: boolean;
+    rigPosition?: {
+      x?: number;
+      z?: number;
+    };
+    notEvidenceFor?: string[];
+  };
   bootEvidence?: {
     app?: string;
     events?: Array<{
@@ -183,6 +195,12 @@ const requiredBlockers = [
   "physical_quest_foreground_metrics_still_required",
   "hand_tracking_visuals_remain_primitive",
   "hand_locomotion_not_observed",
+];
+
+const requiredEvidenceViewNotEvidenceFor = [
+  "physical_quest_view_framing",
+  "in_headset_text_readability",
+  "production_runtime_readiness",
 ];
 
 async function main(): Promise<void> {
@@ -355,6 +373,7 @@ function evidenceWarnings(evidence: IwerAutoEntryBrowserSmokeEvidence): string[]
       : undefined,
     evidence.inputEvidence?.lastLocomotionAtMs === null ? "locomotion_not_observed" : undefined,
     ...frameLaneParityWarnings(evidence),
+    ...evidenceViewWarnings(evidence.evidenceViewEvidence),
     hasRichInputEvidence(evidence.inputEvidence) ? undefined : "input_evidence_shape_incomplete",
     textPanelEvidenceWarning(evidence.textPanelEvidence),
   ].filter((warning): warning is string => typeof warning === "string");
@@ -386,6 +405,43 @@ function hasFrameLaneSplit(frameStats: IwerAutoEntryBrowserSmokeEvidence["frameS
     && validNonNegativeNumber(frameStats?.immersiveFramesObserved);
 }
 
+function evidenceViewWarnings(
+  evidenceViewEvidence: IwerAutoEntryBrowserSmokeEvidence["evidenceViewEvidence"],
+): string[] {
+  if (!evidenceViewEvidence) {
+    return ["iwer_evidence_view_metadata_missing"];
+  }
+
+  if (evidenceViewEvidence.mode !== "wide_iwer_capture") {
+    return [];
+  }
+
+  const notEvidenceFor = evidenceViewEvidence.notEvidenceFor ?? [];
+  return [
+    "iwer_wide_capture_evidence_not_physical_quest_framing",
+    evidenceViewEvidence.source === "window.__openClinXrIwerEvidenceViewEvidence"
+      ? undefined
+      : "iwer_evidence_view_source_invalid",
+    evidenceViewEvidence.queryFlag === "iwerEvidenceView=wide"
+      ? undefined
+      : "iwer_evidence_view_query_flag_invalid",
+    evidenceViewEvidence.purpose === "query_gated_visual_evidence_capture_layout"
+      ? undefined
+      : "iwer_evidence_view_purpose_invalid",
+    evidenceViewEvidence.controllerAffordancesRendered === false
+      ? undefined
+      : "iwer_wide_capture_controller_affordances_not_suppressed",
+    hasRigPositionEvidence(evidenceViewEvidence.rigPosition)
+      ? undefined
+      : "iwer_evidence_view_rig_position_missing",
+    ...requiredEvidenceViewNotEvidenceFor.map((claim) => (
+      notEvidenceFor.includes(claim)
+        ? undefined
+        : `iwer_evidence_view_missing_not_evidence_for:${claim}`
+    )),
+  ].filter((warning): warning is string => typeof warning === "string");
+}
+
 function hasRichInputEvidence(input: IwerAutoEntryBrowserSmokeEvidence["inputEvidence"]): boolean {
   if (!input) {
     return false;
@@ -403,6 +459,12 @@ function hasLocomotionVectorEvidence(vector: NonNullable<IwerAutoEntryBrowserSmo
   return validFiniteNumber(vector?.forward)
     && validFiniteNumber(vector?.strafe)
     && validFiniteNumber(vector?.turn);
+}
+
+function hasRigPositionEvidence(
+  rigPosition: NonNullable<IwerAutoEntryBrowserSmokeEvidence["evidenceViewEvidence"]>["rigPosition"],
+): boolean {
+  return validFiniteNumber(rigPosition?.x) && validFiniteNumber(rigPosition?.z);
 }
 
 function textPanelEvidenceWarning(

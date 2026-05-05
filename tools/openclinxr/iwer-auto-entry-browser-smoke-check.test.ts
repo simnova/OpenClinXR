@@ -30,6 +30,7 @@ describe("IWER auto-entry browser smoke checker", () => {
         "hand_models_installed_but_no_hand_inputs_observed",
         "locomotion_not_observed",
         "iwer_frame_lane_split_missing",
+        "iwer_wide_capture_evidence_not_physical_quest_framing",
         "input_evidence_shape_incomplete",
         "text_panel_evidence_missing",
       ],
@@ -131,6 +132,32 @@ describe("IWER auto-entry browser smoke checker", () => {
     expect(report.result.warnings).not.toContain("text_panel_evidence_missing");
   });
 
+  it("warns when query-gated wide visual evidence omits sidecar-only boundaries", () => {
+    const evidence = readyEvidence();
+    evidence.evidenceViewEvidence = {
+      source: "window.__openClinXrIwerEvidenceViewEvidence",
+      mode: "wide_iwer_capture",
+      queryFlag: "iwerEvidenceView=wide",
+      purpose: "query_gated_visual_evidence_capture_layout",
+      controllerAffordancesRendered: true,
+      rigPosition: { x: 0, z: 1.35 },
+      notEvidenceFor: ["production_runtime_readiness"],
+    };
+
+    const report = buildIwerAutoEntryBrowserSmokeReport({
+      generatedAt: "2026-05-05T02:45:00.000Z",
+      evidence,
+    });
+
+    expect(report.result.readyForAutoEntryEvidence).toBe(true);
+    expect(report.result.warnings).toEqual(expect.arrayContaining([
+      "iwer_wide_capture_evidence_not_physical_quest_framing",
+      "iwer_wide_capture_controller_affordances_not_suppressed",
+      "iwer_evidence_view_missing_not_evidence_for:physical_quest_view_framing",
+      "iwer_evidence_view_missing_not_evidence_for:in_headset_text_readability",
+    ]));
+  });
+
   it("exposes a CLI for scoring captured auto-entry evidence JSON", async () => {
     const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
       scripts: Record<string, string>;
@@ -228,6 +255,19 @@ function readyEvidence(input: {
         ],
       } : {}),
       rigPosition: { x: 0, z: 0 },
+    },
+    evidenceViewEvidence: {
+      source: "window.__openClinXrIwerEvidenceViewEvidence",
+      mode: "wide_iwer_capture",
+      queryFlag: "iwerEvidenceView=wide",
+      purpose: "query_gated_visual_evidence_capture_layout",
+      controllerAffordancesRendered: false,
+      rigPosition: { x: 0, z: 1.35 },
+      notEvidenceFor: [
+        "physical_quest_view_framing",
+        "in_headset_text_readability",
+        "production_runtime_readiness",
+      ],
     },
     ...(input.richAppRuntimeEvidence ? {
       textPanelEvidence: {
