@@ -14,7 +14,7 @@ Use WebSocket-first for the immediate Quest 3 voice path, with `/apps/api` treat
 - `apps/mock-realtime-voice-server` provides the verified Node/Hono/WebSocket fallback harness.
 - `apps/api-python-backend` provides a FastAPI/Uvicorn source skeleton with stdlib-only verification.
 - `docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json` records a no-cloud bidirectional streaming harness run.
-- `docs/openclinxr/api-python-backend-runtime-smoke-2026-05-04.json` is now linked into the realtime report, retiring the stale FastAPI-not-executed blocker while preserving model, Quest audio, Opus, and safety blockers.
+- `docs/openclinxr/api-python-backend-runtime-smoke-2026-05-05.json` is now linked into the realtime report, retiring the stale FastAPI-not-executed blocker with canonical protocol and latency-field proof while preserving model, Quest audio, Opus, and safety blockers.
 - The report now records protocol evidence separately: WebSocket local harness observed; Bun/Hono runtime, WebTransport, direct QUIC, and Web3 signaling remain unobserved and evidence-gated.
 - The Godot Quest client source contract is observed in `apps/ui-quest-voice-godot`: dependency-free Godot sidecar, `WebSocketPeer`, `voice.audio_metadata`, and opaque binary packets. Godot runtime execution on this machine and Quest microphone/playback evidence are still unobserved.
 - Godot and the local gateway contract send `voice.audio_metadata` before binary chunks so chunk indexes and per-frame latency samples can be measured before native Opus and real model integration.
