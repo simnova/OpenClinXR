@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T16:45:35.909Z",
+  "generatedAt": "2026-05-05T23:27:29.751Z",
   "status": "passed",
   "policy": {
     "cloudApisUsed": false,
@@ -46,7 +46,7 @@
     "attempted": true,
     "ok": true,
     "statusCode": 200,
-    "latencyMs": 336,
+    "latencyMs": 579,
     "body": {
       "ok": true,
       "service": "openclinxr-api",
@@ -93,16 +93,18 @@
     "attempted": true,
     "connected": true,
     "reconnectObserved": true,
-    "openLatencyMs": 4,
-    "firstReadyLatencyMs": 5,
-    "controlAckLatencyMs": 5,
-    "firstBinaryEchoLatencyMs": 5,
-    "jsonMessages": 21,
+    "openLatencyMs": 7,
+    "firstReadyLatencyMs": 9,
+    "controlAckLatencyMs": 10,
+    "firstBinaryEchoLatencyMs": 10,
+    "jsonMessages": 23,
     "binaryMessages": 9,
     "eventTypesObserved": [
       "gateway.ready",
       "control.ack",
       "transcript.metadata",
+      "error",
+      "error",
       "audio.metadata",
       "transcript.delta",
       "audio.metadata",
@@ -134,20 +136,42 @@
     "transcriptDeltaObserved": true,
     "binaryEchoObserved": true,
     "serverErrors": [],
+    "protocolContract": {
+      "gatewayReadyLocalEchoObserved": true,
+      "gatewayReadyLiveDialogDisabledObserved": true,
+      "canonicalVoiceStartAckObserved": true,
+      "sanitizedControlPayloadObserved": true,
+      "localClientObservationOnly": true
+    },
+    "protocolBoundary": {
+      "malformedJsonFramesSent": 1,
+      "malformedJsonControlRejected": true,
+      "unsupportedControlFrameTypesSent": [
+        "voice.unsupported_local_smoke_probe"
+      ],
+      "unsupportedControlRejected": true,
+      "errorReasonsObserved": [
+        "invalid_json_control_frame",
+        "unsupported_control_type"
+      ],
+      "localClientObservationOnly": true
+    },
     "backpressure": {
       "burstFrameCount": 8,
       "burstBytes": 2048,
-      "maxBufferedAmount": 0,
+      "maxBufferedAmount": 2245,
       "bufferedAmountSamples": [
         0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
+        197,
+        453,
+        709,
+        965,
+        1221,
+        1477,
+        1733,
+        1989,
+        2245,
+        2245,
         0,
         0,
         0,
@@ -200,6 +224,7 @@
     ],
     "caveats": [
       "This smoke proves local Bun server WebSocket upgrade and bidirectional frame handling only.",
+      "Protocol-boundary rejection checks are synthetic local client observations; they do not prove Quest, production ingress, or clinical media safety.",
       "Backpressure is measured from the local WebSocket client's bufferedAmount field when available; it is not Quest network or headset media evidence.",
       "HTTP/3, WebTransport, QUIC, Web3, cloud relays, model inference, and Quest in-VR media are out of scope for this report."
     ]

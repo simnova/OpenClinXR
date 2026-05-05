@@ -60,6 +60,21 @@ export type ApiBunWebSocketRuntimeEvidence = {
   transcriptDeltaObserved: boolean;
   binaryEchoObserved: boolean;
   serverErrors: string[];
+  protocolContract: {
+    gatewayReadyLocalEchoObserved: boolean;
+    gatewayReadyLiveDialogDisabledObserved: boolean;
+    canonicalVoiceStartAckObserved: boolean;
+    sanitizedControlPayloadObserved: boolean;
+    localClientObservationOnly: true;
+  };
+  protocolBoundary: {
+    malformedJsonFramesSent: number;
+    malformedJsonControlRejected: boolean;
+    unsupportedControlFrameTypesSent: string[];
+    unsupportedControlRejected: boolean;
+    errorReasonsObserved: string[];
+    localClientObservationOnly: true;
+  };
   backpressure: {
     burstFrameCount: number;
     burstBytes: number;
@@ -284,6 +299,12 @@ export function buildApiBunWebSocketRuntimeSmokeReport(
     input.websocket.audioMetadataObserved ? undefined : "websocket_audio_metadata_missing",
     input.websocket.transcriptDeltaObserved ? undefined : "websocket_transcript_delta_missing",
     input.websocket.binaryEchoObserved ? undefined : "websocket_binary_echo_missing",
+    input.websocket.protocolContract.gatewayReadyLocalEchoObserved ? undefined : "websocket_gateway_ready_contract_missing",
+    input.websocket.protocolContract.gatewayReadyLiveDialogDisabledObserved ? undefined : "websocket_live_dialog_disabled_posture_missing",
+    input.websocket.protocolContract.canonicalVoiceStartAckObserved ? undefined : "websocket_canonical_voice_start_ack_missing",
+    input.websocket.protocolContract.sanitizedControlPayloadObserved ? undefined : "websocket_control_payload_sanitization_missing",
+    input.websocket.protocolBoundary.malformedJsonControlRejected ? undefined : "websocket_malformed_json_not_rejected",
+    input.websocket.protocolBoundary.unsupportedControlRejected ? undefined : "websocket_unsupported_control_not_rejected",
     input.websocket.serverErrors.length === 0 ? undefined : "server_errors_observed",
     input.h3.enabled === false && input.h3.h3TrueEnabled === false ? undefined : "http3_enabled_outside_approved_scope",
   ].filter((blocker): blocker is string => typeof blocker === "string");
@@ -345,6 +366,7 @@ export function buildApiBunWebSocketRuntimeSmokeReport(
       ],
       caveats: [
         "This smoke proves local Bun server WebSocket upgrade and bidirectional frame handling only.",
+        "Protocol-boundary rejection checks are synthetic local client observations; they do not prove Quest, production ingress, or clinical media safety.",
         "Backpressure is measured from the local WebSocket client's bufferedAmount field when available; it is not Quest network or headset media evidence.",
         "HTTP/3, WebTransport, QUIC, Web3, cloud relays, model inference, and Quest in-VR media are out of scope for this report.",
       ],
@@ -522,7 +544,13 @@ async function runWebSocketExchange(input: {
 
       if (input.sendControl) {
         state.controlFrameTypesSent.push("voice.start");
-        websocket.send(JSON.stringify({ type: "voice.start", sessionId: "local-bun-smoke" }));
+        websocket.send(JSON.stringify({
+          type: "voice.start",
+          sessionId: "local-bun-smoke",
+          metadata: { probe: "sanitization" },
+          chunkPlan: [1, 2],
+        }));
+        sendProtocolBoundaryProbeFrames(websocket, state);
         sendBinaryFrame(websocket, state, new Uint8Array([1, 1, 2, 3, 5, 8]));
         for (let index = 0; index < input.burstFrames; index += 1) {
           sendBinaryFrame(websocket, state, makeSyntheticFrame(input.burstFrameBytes, index));
@@ -541,9 +569,18 @@ async function runWebSocketExchange(input: {
         if (type === "gateway.ready" && state.firstReadyLatencyMs === null) {
           state.firstReadyLatencyMs = elapsed(startedAt);
         }
-        if (type === "control.ack" && state.controlAckLatencyMs === null) {
-          state.controlAckObserved = true;
-          state.controlAckLatencyMs = elapsed(startedAt);
+        if (type === "gateway.ready" && isRecord(parsed)) {
+          recordGatewayReadyContract(state, parsed);
+        }
+        if (type === "control.ack" && isRecord(parsed)) {
+          recordControlAckContract(state, parsed);
+          if (state.protocolContract.canonicalVoiceStartAckObserved && state.controlAckLatencyMs === null) {
+            state.controlAckObserved = true;
+            state.controlAckLatencyMs = elapsed(startedAt);
+          }
+        }
+        if (type === "error" && isRecord(parsed)) {
+          recordProtocolBoundaryError(state, parsed);
         }
         state.audioMetadataObserved ||= type === "audio.metadata";
         state.transcriptDeltaObserved ||= type === "transcript.delta";
@@ -597,7 +634,59 @@ function exchangeComplete(state: ApiBunWebSocketRuntimeEvidence): boolean {
     && state.controlAckObserved
     && state.audioMetadataObserved
     && state.transcriptDeltaObserved
-    && state.binaryEchoObserved;
+    && state.binaryEchoObserved
+    && state.protocolContract.gatewayReadyLocalEchoObserved
+    && state.protocolContract.gatewayReadyLiveDialogDisabledObserved
+    && state.protocolContract.canonicalVoiceStartAckObserved
+    && state.protocolContract.sanitizedControlPayloadObserved
+    && state.protocolBoundary.malformedJsonControlRejected
+    && state.protocolBoundary.unsupportedControlRejected;
+}
+
+function recordGatewayReadyContract(
+  state: ApiBunWebSocketRuntimeEvidence,
+  payload: Record<string, unknown>,
+): void {
+  state.protocolContract.gatewayReadyLocalEchoObserved ||= payload.protocol === "bun-native-json-control-and-binary-audio-echo";
+  state.protocolContract.gatewayReadyLiveDialogDisabledObserved ||= payload.readyForLiveDialog === false;
+}
+
+function recordControlAckContract(
+  state: ApiBunWebSocketRuntimeEvidence,
+  payload: Record<string, unknown>,
+): void {
+  state.protocolContract.canonicalVoiceStartAckObserved ||= payload.controlType === "voice.start";
+  if (!isRecord(payload.received)) {
+    return;
+  }
+  state.protocolContract.sanitizedControlPayloadObserved ||= payload.received.metadata === "object[1]"
+    && payload.received.chunkPlan === "list[2]";
+}
+
+function sendProtocolBoundaryProbeFrames(websocket: WebSocketLike, state: ApiBunWebSocketRuntimeEvidence): void {
+  const unsupportedControlType = "voice.unsupported_local_smoke_probe";
+  try {
+    websocket.send("{not-json");
+    state.protocolBoundary.malformedJsonFramesSent += 1;
+    websocket.send(JSON.stringify({ type: unsupportedControlType, sessionId: "local-bun-smoke" }));
+    state.protocolBoundary.unsupportedControlFrameTypesSent.push(unsupportedControlType);
+  } catch {
+    state.backpressure.droppedOrErroredMessages += 1;
+  }
+}
+
+function recordProtocolBoundaryError(
+  state: ApiBunWebSocketRuntimeEvidence,
+  payload: Record<string, unknown>,
+): void {
+  const reason = typeof payload.reason === "string" ? payload.reason : "unknown_error";
+  state.protocolBoundary.errorReasonsObserved.push(reason);
+  if (reason === "invalid_json_control_frame" || reason === "invalid JSON control frame") {
+    state.protocolBoundary.malformedJsonControlRejected = true;
+  }
+  if (reason === "unsupported_control_type") {
+    state.protocolBoundary.unsupportedControlRejected = true;
+  }
 }
 
 function closeSocket(websocket: WebSocketLike): void {
@@ -648,6 +737,21 @@ function emptyWebSocket(attempted: boolean, burstFrameCount: number, burstBytes:
     transcriptDeltaObserved: false,
     binaryEchoObserved: false,
     serverErrors: [],
+    protocolContract: {
+      gatewayReadyLocalEchoObserved: false,
+      gatewayReadyLiveDialogDisabledObserved: false,
+      canonicalVoiceStartAckObserved: false,
+      sanitizedControlPayloadObserved: false,
+      localClientObservationOnly: true,
+    },
+    protocolBoundary: {
+      malformedJsonFramesSent: 0,
+      malformedJsonControlRejected: false,
+      unsupportedControlFrameTypesSent: [],
+      unsupportedControlRejected: false,
+      errorReasonsObserved: [],
+      localClientObservationOnly: true,
+    },
     backpressure: {
       burstFrameCount,
       burstBytes,

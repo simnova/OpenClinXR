@@ -53,6 +53,21 @@ const baseObservation = {
     transcriptDeltaObserved: true,
     binaryEchoObserved: true,
     serverErrors: [],
+    protocolContract: {
+      gatewayReadyLocalEchoObserved: true,
+      gatewayReadyLiveDialogDisabledObserved: true,
+      canonicalVoiceStartAckObserved: true,
+      sanitizedControlPayloadObserved: true,
+      localClientObservationOnly: true,
+    },
+    protocolBoundary: {
+      malformedJsonFramesSent: 1,
+      malformedJsonControlRejected: true,
+      unsupportedControlFrameTypesSent: ["voice.unsupported_local_smoke_probe"],
+      unsupportedControlRejected: true,
+      errorReasonsObserved: ["invalid_json_control_frame", "unsupported_control_type"],
+      localClientObservationOnly: true,
+    },
     backpressure: {
       burstFrameCount: 8,
       burstBytes: 2048,
@@ -113,6 +128,21 @@ describe("API Bun WebSocket runtime smoke report", () => {
       },
     });
     expect(report.runtimeEvidenceBlockers).toEqual([]);
+    expect(report.websocket.protocolContract).toEqual({
+      gatewayReadyLocalEchoObserved: true,
+      gatewayReadyLiveDialogDisabledObserved: true,
+      canonicalVoiceStartAckObserved: true,
+      sanitizedControlPayloadObserved: true,
+      localClientObservationOnly: true,
+    });
+    expect(report.websocket.protocolBoundary).toEqual({
+      malformedJsonFramesSent: 1,
+      malformedJsonControlRejected: true,
+      unsupportedControlFrameTypesSent: ["voice.unsupported_local_smoke_probe"],
+      unsupportedControlRejected: true,
+      errorReasonsObserved: ["invalid_json_control_frame", "unsupported_control_type"],
+      localClientObservationOnly: true,
+    });
     expect(report.websocket.backpressure.localClientObservationOnly).toBe(true);
     expect(report.verdict).toEqual({
       smokePassed: true,
@@ -129,6 +159,7 @@ describe("API Bun WebSocket runtime smoke report", () => {
       ],
       caveats: [
         "This smoke proves local Bun server WebSocket upgrade and bidirectional frame handling only.",
+        "Protocol-boundary rejection checks are synthetic local client observations; they do not prove Quest, production ingress, or clinical media safety.",
         "Backpressure is measured from the local WebSocket client's bufferedAmount field when available; it is not Quest network or headset media evidence.",
         "HTTP/3, WebTransport, QUIC, Web3, cloud relays, model inference, and Quest in-VR media are out of scope for this report.",
       ],
@@ -156,6 +187,18 @@ describe("API Bun WebSocket runtime smoke report", () => {
         audioMetadataObserved: false,
         transcriptDeltaObserved: false,
         binaryEchoObserved: false,
+        protocolContract: {
+          ...baseObservation.websocket.protocolContract,
+          gatewayReadyLocalEchoObserved: false,
+          gatewayReadyLiveDialogDisabledObserved: false,
+          canonicalVoiceStartAckObserved: false,
+          sanitizedControlPayloadObserved: false,
+        },
+        protocolBoundary: {
+          ...baseObservation.websocket.protocolBoundary,
+          malformedJsonControlRejected: false,
+          unsupportedControlRejected: false,
+        },
       },
     });
 
@@ -170,6 +213,12 @@ describe("API Bun WebSocket runtime smoke report", () => {
       "websocket_audio_metadata_missing",
       "websocket_transcript_delta_missing",
       "websocket_binary_echo_missing",
+      "websocket_gateway_ready_contract_missing",
+      "websocket_live_dialog_disabled_posture_missing",
+      "websocket_canonical_voice_start_ack_missing",
+      "websocket_control_payload_sanitization_missing",
+      "websocket_malformed_json_not_rejected",
+      "websocket_unsupported_control_not_rejected",
     ]));
     expect(report.verdict.smokePassed).toBe(false);
     expect(report.verdict.readyForLiveDialog).toBe(false);

@@ -2,7 +2,7 @@ import type { ExamForm } from "@openclinxr/exam-assembly";
 import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import { createDefaultScenarioRuntime, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createNoopTelemetryRecorder, type TelemetryRecorder } from "@openclinxr/telemetry";
-import type { RealtimeVoiceGatewayPostureInput } from "@openclinxr/voice-gateway";
+import { realtimeVoiceProtocol, type RealtimeVoiceGatewayPostureInput } from "@openclinxr/voice-gateway";
 import { createApiApp, type ApiPersistenceSink, type ApiScenarioReviewDecisionRecord, type ApiStationRunQueueSnapshot } from "./app.js";
 import { createOpenClinXrApiProtocolPosture, type OpenClinXrApiProtocolSupport } from "./protocol-support.js";
 
@@ -389,25 +389,50 @@ function acknowledgeRealtimeVoiceControlFrame(socket: BunRealtimeVoiceWebSocket,
   } catch (error) {
     sendBunWebSocketJson(socket, {
       type: "error",
-      reason: "invalid JSON control frame",
+      reason: "invalid_json_control_frame",
       detail: error instanceof Error ? error.message : "unknown",
     });
     return;
   }
 
   const controlType = typeof control.type === "string" ? control.type : "control";
+  if (!isSupportedRealtimeVoiceControlType(controlType)) {
+    sendBunWebSocketJson(socket, {
+      type: "error",
+      reason: "unsupported_control_type",
+      controlType,
+      supportedControlTypes: supportedRealtimeVoiceControlTypes(),
+    });
+    return;
+  }
+
   sendBunWebSocketJson(socket, {
     type: "control.ack",
     controlType,
     received: sanitizeBunRealtimeVoiceControlFrame(control),
   });
-  if (controlType === "voice.start" || controlType === "start" || controlType === "commit" || controlType === "flush") {
+  if (controlType === realtimeVoiceProtocol.clientControlFrames.start || controlType === "start" || controlType === "commit" || controlType === "flush") {
     sendBunWebSocketJson(socket, {
       type: "transcript.metadata",
       status: "ready",
       controlType,
     });
   }
+}
+
+function isSupportedRealtimeVoiceControlType(controlType: string): boolean {
+  return supportedRealtimeVoiceControlTypes().includes(controlType);
+}
+
+function supportedRealtimeVoiceControlTypes(): string[] {
+  return [
+    realtimeVoiceProtocol.clientControlFrames.start,
+    realtimeVoiceProtocol.clientControlFrames.stop,
+    realtimeVoiceProtocol.clientControlFrames.audioMetadata,
+    "start",
+    "commit",
+    "flush",
+  ];
 }
 
 function sanitizeBunRealtimeVoiceControlFrame(control: Record<string, unknown>): Record<string, unknown> {

@@ -131,6 +131,72 @@ describe("OpenClinXR API startup", () => {
     expect(sentFrames.at(-1)).toBeInstanceOf(Uint8Array);
   });
 
+  it("rejects malformed and unsupported Bun realtime voice control frames without acknowledging them", () => {
+    const startup = createOpenClinXrApiStartup().startUp();
+    const config = createBunServerConfig(startup, { port: 4322 });
+    const sentFrames: unknown[] = [];
+    const fakeSocket = {
+      send(frame: string | Uint8Array) {
+        sentFrames.push(frame);
+      },
+    };
+
+    config.websocket.open(fakeSocket);
+    config.websocket.message(fakeSocket, "{not-json");
+    config.websocket.message(fakeSocket, JSON.stringify({ type: "voice.unsupported_local_smoke_probe", sessionId: "run-001" }));
+
+    const jsonFrames = sentFrames
+      .filter((frame): frame is string => typeof frame === "string")
+      .map((frame) => JSON.parse(frame) as { type: string; reason?: string; controlType?: string });
+
+    expect(jsonFrames).toEqual([
+      expect.objectContaining({ type: "gateway.ready" }),
+      expect.objectContaining({
+        type: "error",
+        reason: "invalid_json_control_frame",
+      }),
+      expect.objectContaining({
+        type: "error",
+        reason: "unsupported_control_type",
+        controlType: "voice.unsupported_local_smoke_probe",
+      }),
+    ]);
+    expect(jsonFrames).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: "control.ack" }),
+    ]));
+  });
+
+  it("summarizes nested Bun realtime voice control metadata before acknowledging it", () => {
+    const startup = createOpenClinXrApiStartup().startUp();
+    const config = createBunServerConfig(startup, { port: 4322 });
+    const sentFrames: unknown[] = [];
+    const fakeSocket = {
+      send(frame: string | Uint8Array) {
+        sentFrames.push(frame);
+      },
+    };
+
+    config.websocket.open(fakeSocket);
+    config.websocket.message(fakeSocket, JSON.stringify({
+      type: "voice.start",
+      sessionId: "run-001",
+      metadata: { actorId: "patient-001" },
+      chunkPlan: [1, 2],
+    }));
+
+    const acknowledgement = sentFrames
+      .filter((frame): frame is string => typeof frame === "string")
+      .map((frame) => JSON.parse(frame) as { type: string; received?: Record<string, unknown> })
+      .find((frame) => frame.type === "control.ack");
+
+    expect(acknowledgement?.received).toMatchObject({
+      type: "voice.start",
+      sessionId: "run-001",
+      metadata: "object[1]",
+      chunkPlan: "list[2]",
+    });
+  });
+
   it("preserves byte offsets when Bun delivers realtime audio as an ArrayBuffer view", () => {
     const startup = createOpenClinXrApiStartup().startUp();
     const config = createBunServerConfig(startup, { port: 4322 });

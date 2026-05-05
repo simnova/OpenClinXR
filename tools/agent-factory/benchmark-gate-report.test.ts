@@ -362,6 +362,21 @@ function passedApiBunWebSocketRuntimeSmoke(): Parameters<typeof buildBenchmarkGa
         transcriptDeltaObserved: true,
         binaryEchoObserved: true,
         serverErrors: [],
+        protocolContract: {
+          gatewayReadyLocalEchoObserved: true,
+          gatewayReadyLiveDialogDisabledObserved: true,
+          canonicalVoiceStartAckObserved: true,
+          sanitizedControlPayloadObserved: true,
+          localClientObservationOnly: true,
+        },
+        protocolBoundary: {
+          malformedJsonFramesSent: 1,
+          malformedJsonControlRejected: true,
+          unsupportedControlFrameTypesSent: ["voice.unsupported_local_smoke_probe"],
+          unsupportedControlRejected: true,
+          errorReasonsObserved: ["invalid_json_control_frame", "unsupported_control_type"],
+          localClientObservationOnly: true,
+        },
         backpressure: {
           burstFrameCount: 8,
           burstBytes: 2048,
