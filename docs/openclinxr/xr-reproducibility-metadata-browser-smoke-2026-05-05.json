@@ -1,0 +1,64 @@
+{
+  "generatedAt": "2026-05-05T04:04:23.056Z",
+  "source": "chrome_devtools_mcp",
+  "page": {
+    "url": "http://localhost:5173/",
+    "title": "OpenClinXR Station Runtime",
+    "snapshot": "docs/openclinxr/screenshots/ui-xr-reproducibility-metadata-snapshot-2026-05-05.txt"
+  },
+  "runtimeEvidence": {
+    "manualPerformanceDraftPresent": true,
+    "captureSummaryPresent": true,
+    "reproducibilityPresent": true,
+    "captureSummaryReady": false,
+    "captureSummaryBlockerCount": 19
+  },
+  "reproducibility": {
+    "source": "browser_runtime",
+    "url": "http://localhost:5173/",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",
+    "browserVersionHints": {
+      "oculusBrowser": null,
+      "chrome": "147.0.0.0"
+    },
+    "app": {
+      "packageName": "@openclinxr/ui-xr",
+      "version": "0.1.0",
+      "gitCommit": "4df9f5c96064",
+      "buildTime": "2026-05-05T03:58:31.765Z",
+      "mode": "development"
+    },
+    "webXr": {
+      "navigatorXrPresent": true,
+      "immersiveVrSupported": false,
+      "immersiveVrSupportCheckedAtMs": 228.6,
+      "immersiveArSupported": false,
+      "immersiveArSupportCheckedAtMs": 228.7,
+      "supportError": null
+    },
+    "display": {
+      "viewportWidth": 955,
+      "viewportHeight": 835,
+      "screenWidth": 2056,
+      "screenHeight": 1329,
+      "devicePixelRatio": 2,
+      "visibilityState": "visible"
+    },
+    "limitations": [
+      "browser_reported_metadata_not_device_firmware_proof",
+      "display_refresh_rate_inferred_from_frame_cadence"
+    ]
+  },
+  "console": {
+    "warnErrorIssueCount": 0
+  },
+  "verdict": {
+    "passed": true,
+    "readyForQuestReadinessClaim": false,
+    "notes": [
+      "Desktop browser smoke proves payload shape only; Quest worn-headset evidence remains required.",
+      "WebXR immersive support is false in this desktop browser, as expected for this local proof.",
+      "Reproducibility metadata is audit-only and does not replace Horizon OS, Android build, USB power, thermal, or battery observations."
+    ]
+  }
+}
