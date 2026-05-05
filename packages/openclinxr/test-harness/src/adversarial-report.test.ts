@@ -4,8 +4,10 @@ import { buildAdversarialProbeReport } from "./adversarial-report.js";
 
 const result: SimulationResult = {
   stationRunId: "run_ed_chest_pain_priority_v1_learner_001",
-  eventCount: 18,
-  actorResponseCount: 2,
+  eventCount: 20,
+  actorResponseCount: 3,
+  routedActorResponseCount: 1,
+  clinicalActionEventCount: 1,
   voiceAudioEventCount: 1,
   reviewPacket: {
     stationRunId: "run_ed_chest_pain_priority_v1_learner_001",
@@ -35,8 +37,8 @@ const result: SimulationResult = {
       },
     ],
     traceQuality: {
-      eventCount: 18,
-      modelGeneratedEventCount: 2,
+      eventCount: 20,
+      modelGeneratedEventCount: 3,
       modelFailedEventCount: 0,
       voiceAudioEventCount: 1,
       blockedGuardrailCount: 1,

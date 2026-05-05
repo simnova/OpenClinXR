@@ -9,6 +9,8 @@ export type MockBenchmarkReport = {
   stationRunId: string;
   eventCount: number;
   actorResponseCount: number;
+  routedActorResponseCount: number;
+  clinicalActionEventCount: number;
   voiceAudioEventCount: number;
   missingRequiredTraceTags: string[];
   traceQuality: SimulationResult["reviewPacket"]["traceQuality"];
@@ -37,6 +39,8 @@ export function buildMockBenchmarkReport(result: SimulationResult, elapsedMs: nu
     stationRunId: result.stationRunId,
     eventCount: result.eventCount,
     actorResponseCount: result.actorResponseCount,
+    routedActorResponseCount: result.routedActorResponseCount,
+    clinicalActionEventCount: result.clinicalActionEventCount,
     voiceAudioEventCount: result.voiceAudioEventCount,
     missingRequiredTraceTags: result.reviewPacket.missingRequiredTraceTags,
     traceQuality: result.reviewPacket.traceQuality,
