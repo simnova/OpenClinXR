@@ -178,6 +178,79 @@ describe("scenario runtime", () => {
     ]);
   });
 
+  it("routes learner interaction turns through promoted multi-actor session state", async () => {
+    const runtime = createDefaultScenarioRuntime();
+    const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });
+    runtime.startEncounter(session.stationRunId, { atSecond: 60 });
+
+    const routed = runtime.routeActorInteractionTurn(session.stationRunId, {
+      atSecond: 120,
+      learnerUtterance: "Nurse, can you repeat the blood pressure and get an ECG?",
+      traceContextTags: ["vitals_review", "ecg_request"],
+    });
+
+    expect(routed.routedActorId).toBe("nurse_maria_alvarez_v1");
+    expect(routed.routingReason).toBe("addressed_role_keyword");
+    expect(routed.conversationTurn).toBe(1);
+    expect(routed.actorContext.actorId).toBe("nurse_maria_alvarez_v1");
+    expect(routed.actorContext.conversationTurn).toBe(1);
+    expect(routed.actorContext.privateMemory.factsForServerModelOnly).toContain(
+      "Repeat blood pressure is falling and patient looks worse at minute seven",
+    );
+    expect(routed.actorContext.privateMemory.factsForServerModelOnly.join(" ")).not.toContain(
+      "Father died of myocardial infarction",
+    );
+    expect(routed.interactionEvent).toMatchObject({
+      sequence: 3,
+      eventType: "actor.interaction.routed",
+      source: "session-state",
+      actorId: "nurse_maria_alvarez_v1",
+      tag: "vitals_review",
+      payload: {
+        learnerUtterance: "Nurse, can you repeat the blood pressure and get an ECG?",
+        routingReason: "addressed_role_keyword",
+        traceContextTags: ["vitals_review", "ecg_request"],
+        sourceKind: "text",
+      },
+    });
+    expect(runtime.traceEvents(session.stationRunId).map((trace) => trace.eventType)).toEqual([
+      "station.started",
+      "consent.accepted",
+      "encounter.started",
+      "actor.interaction.routed",
+    ]);
+  });
+
+  it("routes final voice transcripts without storing raw audio in runtime trace payloads", async () => {
+    const runtime = createDefaultScenarioRuntime();
+    const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });
+
+    const routed = runtime.routeActorInteractionTurn(session.stationRunId, {
+      atSecond: 142,
+      learnerUtterance: "Anna, can you tell me exactly when his pain started?",
+      traceContextTags: ["history_onset", "family_collateral"],
+      source: {
+        kind: "voice_transcript",
+        streamId: "voice_stream_station_001",
+        transcriptSegmentId: "segment_0007_final",
+        finalTranscriptText: "Anna, can you tell me exactly when his pain started?",
+        provider: "local_fastapi_transport_echo",
+        provenanceRefs: ["trace:voice_stream_station_001:segment_0007_final"],
+      },
+    });
+
+    expect(routed.routedActorId).toBe("spouse_anna_hayes_v1");
+    expect(routed.interactionEvent.payload).toMatchObject({
+      learnerUtterance: "Anna, can you tell me exactly when his pain started?",
+      routingReason: "addressed_actor_name",
+      sourceKind: "voice_transcript",
+      transcriptSegmentId: "segment_0007_final",
+      rawAudioStored: false,
+      provenanceRefs: ["trace:voice_stream_station_001:segment_0007_final"],
+    });
+    expect(JSON.stringify(routed.interactionEvent.payload)).not.toMatch(/rawAudio(?:Bytes|Base64|Blob)|audioData/);
+  });
+
   it("keeps hidden facts out of actor model requests", async () => {
     const provider = new CapturingModelProviderAdapter();
     const runtime = createRuntimeWithModelProvider(provider);

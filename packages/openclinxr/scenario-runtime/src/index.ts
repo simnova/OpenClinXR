@@ -19,7 +19,11 @@ import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import {
   buildActorModelContext,
   createMultiActorClinicalSession,
+  routeActorInteraction,
+  type ActorModelContext,
+  type InteractionRoutingReason,
   type MultiActorClinicalSession,
+  type RouteActorInteractionInput,
 } from "@openclinxr/session-state";
 import type { ProviderHealth, ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
 import { InMemoryTraceLedger } from "@openclinxr/trace-ledger";
@@ -86,6 +90,16 @@ export type GenerateActorResponseInput = {
   learnerUtterance: string;
   atSecond: number;
   traceContextTags?: string[];
+};
+
+export type RouteRuntimeActorInteractionInput = RouteActorInteractionInput;
+
+export type RouteRuntimeActorInteractionResult = {
+  routedActorId: string;
+  routingReason: InteractionRoutingReason;
+  conversationTurn: number;
+  actorContext: ActorModelContext;
+  interactionEvent: TraceEvent;
 };
 
 export type GenerateActorResponseResult = {
@@ -196,6 +210,34 @@ export class ScenarioRuntime {
     this.options.ledger.append(event);
     session.nextSequence += 1;
     return event;
+  }
+
+  routeActorInteractionTurn(
+    stationRunId: string,
+    input: RouteRuntimeActorInteractionInput,
+  ): RouteRuntimeActorInteractionResult {
+    const session = this.requireSession(stationRunId);
+    const routed = routeActorInteraction(session.multiActorSession, input);
+    session.multiActorSession = routed.updatedSession;
+
+    const actorContext = buildActorModelContext(session.multiActorSession, routed.routedActorId);
+    const primaryTag = input.traceContextTags?.[0];
+    const interactionEvent = this.appendTrace(session, {
+      eventType: "actor.interaction.routed",
+      atSecond: input.atSecond,
+      source: "session-state",
+      actorId: routed.routedActorId,
+      ...(primaryTag ? { tag: primaryTag } : {}),
+      payload: actorInteractionRoutePayload(input, routed.routingReason),
+    });
+
+    return {
+      routedActorId: routed.routedActorId,
+      routingReason: routed.routingReason,
+      conversationTurn: actorContext.conversationTurn,
+      actorContext,
+      interactionEvent,
+    };
   }
 
   async generateActorResponse(stationRunId: string, input: GenerateActorResponseInput): Promise<GenerateActorResponseResult> {
@@ -538,4 +580,34 @@ function requireProviderHealth(health: ProviderHealth[], providerId: string): Pr
     throw new Error(`Missing provider health for ${providerId}`);
   }
   return provider;
+}
+
+function actorInteractionRoutePayload(
+  input: RouteRuntimeActorInteractionInput,
+  routingReason: RouteRuntimeActorInteractionResult["routingReason"],
+): Record<string, unknown> {
+  const traceContextTags = [...(input.traceContextTags ?? [])];
+  const base = {
+    learnerUtterance: input.learnerUtterance,
+    routingReason,
+    traceContextTags,
+  };
+
+  if (input.source?.kind === "voice_transcript") {
+    return {
+      ...base,
+      sourceKind: "voice_transcript",
+      streamId: input.source.streamId,
+      transcriptSegmentId: input.source.transcriptSegmentId,
+      provider: input.source.provider,
+      provenanceRefs: [...input.source.provenanceRefs],
+      rawAudioStored: false,
+    };
+  }
+
+  return {
+    ...base,
+    sourceKind: "text",
+    provenanceRefs: [...(input.source?.provenanceRefs ?? [])],
+  };
 }
