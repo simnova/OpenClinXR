@@ -250,6 +250,7 @@ app.innerHTML = `
           <div><dt>Loop</dt><dd id="evidence-loop">pending</dd></div>
           <div><dt>Input</dt><dd id="evidence-input">pending</dd></div>
           <div><dt>Movement</dt><dd id="evidence-locomotion">pending</dd></div>
+          <div><dt>Trace</dt><dd id="evidence-trace">pending</dd></div>
           <div><dt>Validation</dt><dd id="evidence-validation">pending</dd></div>
         </dl>
         <div class="evidence-actions">
@@ -273,6 +274,7 @@ const evidenceFrames = requireElement<HTMLElement>("#evidence-frames");
 const evidenceLoop = requireElement<HTMLElement>("#evidence-loop");
 const evidenceInput = requireElement<HTMLElement>("#evidence-input");
 const evidenceLocomotion = requireElement<HTMLElement>("#evidence-locomotion");
+const evidenceTrace = requireElement<HTMLElement>("#evidence-trace");
 const evidenceValidation = requireElement<HTMLElement>("#evidence-validation");
 const copyEvidenceButton = requireElement<HTMLButtonElement>("#copy-evidence-button");
 const copyEvidenceStatus = requireElement<HTMLElement>("#copy-evidence-status");
@@ -1161,6 +1163,11 @@ function updateManualEvidencePanel(): string {
   evidenceLocomotion.textContent = [
     summary.activeLocomotionSource ?? "none",
     summary.lastLocomotionAtMs === null ? "no movement timestamp" : `moved ${summary.lastLocomotionAtMs}ms`,
+  ].join(" | ");
+  evidenceTrace.textContent = [
+    summary.traceLatencySource ?? "no trace source",
+    summary.lastTraceTag ?? "no tag",
+    summary.lastTraceLatencyMs === null ? "no latency" : `${summary.lastTraceLatencyMs}ms`,
   ].join(" | ");
   evidenceValidation.textContent = [
     summary.manualValidationReady ? "manual validation ready" : "draft only",

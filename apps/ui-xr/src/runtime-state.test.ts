@@ -516,6 +516,13 @@ describe("XR runtime state", () => {
       traceInteractionPassed: false,
       frameStats,
       immersiveSessionStarted: true,
+      traceLatencyEvidence: {
+        lastTraceTag: "ecg_request",
+        lastSelectLatencyMs: 24,
+        source: "xr_controller_select",
+        measuredAtMs: 1300,
+        productionControllerLatencySubstitute: false,
+      },
       inputEvidence: {
         handModelCount: 2,
         handModelStatus: "installed",
@@ -544,6 +551,9 @@ describe("XR runtime state", () => {
       activeLocomotionSource: "none",
       inputSourceKinds: ["xr_hand"],
       lastLocomotionAtMs: null,
+      traceLatencySource: "xr_controller_select",
+      lastTraceTag: "ecg_request",
+      lastTraceLatencyMs: 24,
       draftAvailable: true,
       manualValidationReady: false,
       satisfiedConditions: [

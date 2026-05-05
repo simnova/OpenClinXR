@@ -238,6 +238,9 @@ export type ManualPerformanceCaptureSummary = {
   activeLocomotionSource: ManualPerformanceInputEvidence["activeLocomotionSource"] | null;
   inputSourceKinds: RuntimeInputSourceKind[];
   lastLocomotionAtMs: number | null;
+  traceLatencySource: ManualPerformanceTraceLatencyEvidence["source"] | null;
+  lastTraceTag: string | null;
+  lastTraceLatencyMs: number | null;
   draftAvailable: boolean;
   manualValidationReady: boolean;
   satisfiedConditions: string[];
@@ -852,6 +855,9 @@ export function buildManualPerformanceCaptureSummary(
     activeLocomotionSource: inputEvidence?.activeLocomotionSource ?? null,
     inputSourceKinds: [...(inputEvidence?.inputSourceKinds ?? [])],
     lastLocomotionAtMs: inputEvidence?.lastLocomotionAtMs ?? null,
+    traceLatencySource: input.draft?.traceLatencyProxy?.source ?? null,
+    lastTraceTag: input.draft?.traceLatencyProxy?.lastTraceTag ?? null,
+    lastTraceLatencyMs: input.draft?.traceLatencyProxy?.lastSelectLatencyMs ?? null,
     draftAvailable: Boolean(input.draft && frameStats),
     manualValidationReady: preview.blockers.length === 0,
     satisfiedConditions: preview.satisfiedConditions,
