@@ -1,13 +1,21 @@
 import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { execFile } from "node:child_process";
+import { existsSync } from "node:fs";
+import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { promisify } from "node:util";
 import { writeJson } from "../agent-factory/lib.js";
 
 type CliOptions = {
   parseLogPath?: string;
   outputPath?: string;
   grammarFailureExcerptPath?: string;
+  executeApprovedLocalRun: boolean;
+  modelFilePath?: string;
+  llamaExecutable?: string;
+  rawLogPath?: string;
+  timeoutMs: number;
 };
 
 export type LocalModelRuntimeBenchmarkReport = {
@@ -17,8 +25,8 @@ export type LocalModelRuntimeBenchmarkReport = {
     cloudApisUsed: false;
     paidApisUsed: false;
     modelDownloadApproved: true;
-    localRuntimeExecutionApproved: false;
-    localRuntimeExecutionAttemptedByThisTool: false;
+    localRuntimeExecutionApproved: boolean;
+    localRuntimeExecutionAttemptedByThisTool: boolean;
     productionUseAllowed: false;
     downloadAttemptedByThisTool: false;
     networkAccessObservedByThisTool: false;
@@ -57,6 +65,8 @@ export type LocalModelRuntimeBenchmarkReport = {
   };
 };
 
+const execFileAsync = promisify(execFile);
+
 export type ParsedLlamaRuntimeLog = {
   generatedAt: string | null;
   runtime: {
@@ -90,17 +100,32 @@ const allowedGuardrailLabels = new Set([
 
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
-  if (!options.parseLogPath) {
-    throw new Error("Missing --parse-log. This tool harvests existing local logs only and does not execute model inference.");
-  }
+  let report: LocalModelRuntimeBenchmarkReport;
 
-  const logContent = await readFile(options.parseLogPath, "utf8");
-  const report = await buildLocalModelRuntimeBenchmarkReportFromLog({
-    logPath: options.parseLogPath,
-    logContent,
-    logSha256: sha256(logContent),
-    grammarFailureExcerptPath: options.grammarFailureExcerptPath,
-  });
+  if (options.executeApprovedLocalRun) {
+    if (!options.modelFilePath || !options.llamaExecutable || !options.rawLogPath) {
+      throw new Error("--execute-approved-local-run requires --model-file, --llama-executable, and --raw-log.");
+    }
+    report = await runApprovedLocalModelBenchmark({
+      modelFilePath: options.modelFilePath,
+      llamaExecutable: options.llamaExecutable,
+      rawLogPath: options.rawLogPath,
+      grammarFailureExcerptPath: options.grammarFailureExcerptPath,
+      timeoutMs: options.timeoutMs,
+    });
+  } else {
+    if (!options.parseLogPath) {
+      throw new Error("Missing --parse-log. Use --execute-approved-local-run only for the approved local Qwen/llama.cpp benchmark path.");
+    }
+
+    const logContent = await readFile(options.parseLogPath, "utf8");
+    report = await buildLocalModelRuntimeBenchmarkReportFromLog({
+      logPath: options.parseLogPath,
+      logContent,
+      logSha256: sha256(logContent),
+      grammarFailureExcerptPath: options.grammarFailureExcerptPath,
+    });
+  }
 
   if (options.outputPath) {
     await writeJson(options.outputPath, report);
@@ -113,10 +138,17 @@ async function main(): Promise<void> {
 
 function parseArgs(args: string[]): CliOptions {
   const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
-  const options: CliOptions = {};
+  const options: CliOptions = {
+    executeApprovedLocalRun: false,
+    timeoutMs: 60_000,
+  };
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
+    if (arg === "--execute-approved-local-run") {
+      options.executeApprovedLocalRun = true;
+      continue;
+    }
     if (arg === "--parse-log") {
       options.parseLogPath = requireValue(normalizedArgs, index, arg);
       index += 1;
@@ -129,6 +161,26 @@ function parseArgs(args: string[]): CliOptions {
     }
     if (arg === "--grammar-failure-excerpt") {
       options.grammarFailureExcerptPath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--model-file") {
+      options.modelFilePath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--llama-executable") {
+      options.llamaExecutable = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--raw-log") {
+      options.rawLogPath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--timeout-ms") {
+      options.timeoutMs = parseIntegerValue(requireValue(normalizedArgs, index, arg), arg);
       index += 1;
       continue;
     }
@@ -146,12 +198,135 @@ function requireValue(args: string[], index: number, flag: string): string {
   return value;
 }
 
+function parseIntegerValue(value: string, flag: string): number {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    throw new Error(`${flag} must be a positive integer.`);
+  }
+  return parsed;
+}
+
+export async function runApprovedLocalModelBenchmark(input: {
+  modelFilePath: string;
+  llamaExecutable: string;
+  rawLogPath: string;
+  grammarFailureExcerptPath?: string;
+  timeoutMs?: number;
+}): Promise<LocalModelRuntimeBenchmarkReport> {
+  if (!existsSync(input.modelFilePath)) {
+    throw new Error(`Model file does not exist: ${input.modelFilePath}`);
+  }
+  if (!input.modelFilePath.endsWith("Qwen3-4B-Q4_K_M.gguf")) {
+    throw new Error("Only the approved Qwen3-4B-Q4_K_M.gguf benchmark file is allowed by this runner.");
+  }
+  if (!existsSync(input.llamaExecutable)) {
+    throw new Error(`llama executable does not exist: ${input.llamaExecutable}`);
+  }
+
+  const startedAt = new Date().toISOString();
+  const args = buildApprovedLlamaArgs(input.modelFilePath);
+  let stdout = "";
+  let stderr = "";
+  let exitStatus = 0;
+
+  try {
+    const result = await execFileAsync(input.llamaExecutable, args, {
+      encoding: "utf8",
+      timeout: input.timeoutMs ?? 60_000,
+      maxBuffer: 10 * 1024 * 1024,
+      env: {
+        ...process.env,
+        LLAMA_ARG_HF_OFFLINE: "1",
+      },
+    });
+    stdout = result.stdout;
+    stderr = result.stderr;
+  } catch (error) {
+    if (isExecError(error)) {
+      stdout = typeof error.stdout === "string" ? error.stdout : "";
+      stderr = typeof error.stderr === "string" ? error.stderr : "";
+      exitStatus = typeof error.code === "number" ? error.code : 1;
+    } else {
+      throw error;
+    }
+  }
+
+  const endedAt = new Date().toISOString();
+  const rawLog = [
+    `started_at_utc=${startedAt}`,
+    stdout.trimEnd(),
+    stderr.trimEnd(),
+    `ended_at_utc=${endedAt}`,
+    `exit_status=${exitStatus}`,
+    "",
+  ].filter((line) => line.length > 0).join("\n");
+  await writeFile(input.rawLogPath, rawLog, "utf8");
+
+  return buildLocalModelRuntimeBenchmarkReportFromLog({
+    generatedAt: endedAt,
+    logPath: input.rawLogPath,
+    logContent: rawLog,
+    logSha256: sha256(rawLog),
+    grammarFailureExcerptPath: input.grammarFailureExcerptPath,
+    localRuntimeExecutionApproved: true,
+    localRuntimeExecutionAttemptedByThisTool: true,
+  });
+}
+
+function buildApprovedLlamaArgs(modelFilePath: string): string[] {
+  return [
+    "--offline",
+    "--model",
+    modelFilePath,
+    "--ctx-size",
+    "2048",
+    "--predict",
+    "256",
+    "--temp",
+    "0",
+    "--top-p",
+    "1",
+    "--single-turn",
+    "--no-warmup",
+    "--json-schema",
+    JSON.stringify({
+      type: "object",
+      additionalProperties: false,
+      required: requiredStructuredKeys,
+      properties: {
+        candidate: { const: "Qwen/Qwen3-4B-GGUF" },
+        triage_priority: { enum: ["high", "medium", "low"] },
+        rationale: { type: "string", maxLength: 280 },
+        safety_flags: {
+          type: "array",
+          minItems: 1,
+          maxItems: 3,
+          items: { enum: [...allowedGuardrailLabels] },
+        },
+      },
+    }),
+    "--prompt",
+    [
+      "Return one JSON object only for this local OpenClinXR smoke.",
+      'Set candidate to "Qwen/Qwen3-4B-GGUF".',
+      'Set triage_priority to "high".',
+      "Use safety_flags only from the provided schema; prefer needs_human_review.",
+      "Scenario: 54-year-old adult with crushing substernal chest pressure, diaphoresis, nausea, hypotension, and anxious spouse.",
+    ].join(" "),
+  ];
+}
+
+function isExecError(error: unknown): error is { code?: unknown; stdout?: unknown; stderr?: unknown } {
+  return typeof error === "object" && error !== null && ("stdout" in error || "stderr" in error || "code" in error);
+}
+
 export function parseLlamaRuntimeLog(content: string): ParsedLlamaRuntimeLog {
   const generatedText = extractGeneratedText(content);
-  const jsonCandidate = extractBalancedJsonCandidate(generatedText);
+  const generatedTextJsonCandidate = extractBalancedJsonCandidate(generatedText);
+  const jsonCandidate = generatedTextJsonCandidate ?? extractBalancedJsonCandidate(content);
   const parsedJson = parseJsonCandidate(jsonCandidate);
   const structuredOutputCaveats = classifyStructuredOutputCaveats({
-    generatedText,
+    generatedText: generatedTextJsonCandidate ? generatedText : content,
     parsedJson,
     jsonCandidate,
   });
@@ -198,6 +373,8 @@ export async function buildLocalModelRuntimeBenchmarkReportFromLog(input: {
   logContent: string;
   logSha256?: string;
   grammarFailureExcerptPath?: string;
+  localRuntimeExecutionApproved?: boolean;
+  localRuntimeExecutionAttemptedByThisTool?: boolean;
 }): Promise<LocalModelRuntimeBenchmarkReport> {
   const parsed = parseLlamaRuntimeLog(input.logContent);
   const blockers = [...parsed.blockers];
@@ -210,8 +387,8 @@ export async function buildLocalModelRuntimeBenchmarkReportFromLog(input: {
       cloudApisUsed: false,
       paidApisUsed: false,
       modelDownloadApproved: true,
-      localRuntimeExecutionApproved: false,
-      localRuntimeExecutionAttemptedByThisTool: false,
+      localRuntimeExecutionApproved: input.localRuntimeExecutionApproved ?? false,
+      localRuntimeExecutionAttemptedByThisTool: input.localRuntimeExecutionAttemptedByThisTool ?? false,
       productionUseAllowed: false,
       downloadAttemptedByThisTool: false,
       networkAccessObservedByThisTool: false,
@@ -254,7 +431,9 @@ export async function buildLocalModelRuntimeBenchmarkReportFromLog(input: {
         "Good enough for a local adapter latency smoke; not good enough for clinical actor quality or validated scoring.",
         "Structured-output enforcement needs a follow-up grammar/schema spike before any autonomous planning or scoring dependency.",
         "Hardware result is for this Apple M1 Max machine, not the target M4 Pro or M4 Max claim.",
-        "This report was harvested from an existing local log; this repo-managed tool did not execute model inference.",
+        input.localRuntimeExecutionAttemptedByThisTool
+          ? "This report was produced by the repo-managed local execution mode after explicit operator approval."
+          : "This report was harvested from an existing local log; this repo-managed tool did not execute model inference.",
       ],
     },
   };

@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-05-04T14:57:50Z",
+  "generatedAt": "2026-05-05T20:20:19.936Z",
   "status": "passed_with_caveats",
   "policy": {
     "cloudApisUsed": false,
     "paidApisUsed": false,
     "modelDownloadApproved": true,
-    "localRuntimeExecutionApproved": false,
-    "localRuntimeExecutionAttemptedByThisTool": false,
+    "localRuntimeExecutionApproved": true,
+    "localRuntimeExecutionAttemptedByThisTool": true,
     "productionUseAllowed": false,
     "downloadAttemptedByThisTool": false,
     "networkAccessObservedByThisTool": false
@@ -25,7 +25,7 @@
     ],
     "device": "MTL0 (Apple M1 Max)",
     "ctxSize": 2048,
-    "predictTokensRequested": 128,
+    "predictTokensRequested": 256,
     "temperature": 0,
     "topP": 1
   },
@@ -43,37 +43,30 @@
     "parsedJson": {
       "candidate": "Qwen/Qwen3-4B-GGUF",
       "triage_priority": "high",
-      "rationale": "Symptoms indicate possible acute myocardial infarction; ECG and emergent cardiac evaluation are critical for diagnosis and intervention",
+      "rationale": "The patient presents with symptoms consistent with a cardiac emergency, including chest pressure, diaphoresis, nausea, and hypotension. These are classic signs of myocardial infarction, which requires immediate medical attention. The presence of an anxious spouse may indicate the",
       "safety_flags": [
-        "hypotension",
-        "anxiety",
-        "chest pain",
-        "diaphoresis",
-        "nausea"
+        "needs_human_review"
       ]
     },
     "structuredOutputCaveats": [
-      "The model emitted a leading <think> marker before the JSON object even with reasoning disabled.",
-      "The JSON object was parsable, but safety_flags were clinical features rather than the requested guardrail labels.",
       "The JSON object was extracted from surrounding model text instead of being the whole response."
     ],
-    "rawLogPath": "/Users/patrick/.cache/openclinxr/benchmarks/qwen3-4b-llama-completion-json2-2026-05-04.log",
-    "rawLogSha256": "6f6914ad679b4bee0a62bc9d7c77ad72d1825cb0db67d0037f9c71299a349fba",
-    "grammarFailureExcerptPath": "/Users/patrick/.cache/openclinxr/benchmarks/qwen3-4b-llama-cli-grammar-failure-2026-05-04.log"
+    "rawLogPath": "/Users/patrick/.cache/openclinxr/benchmarks/qwen3-4b-llama-completion-offline-2026-05-05.log",
+    "rawLogSha256": "aadf0503ae32aa3f26d99415808ff9cf37271db82aacf6510c3c45ce0b666670"
   },
   "metrics": {
-    "loadTimeMs": 558.84,
-    "promptEvalTimeMs": 177.23,
-    "promptEvalTokens": 124,
-    "promptEvalTokensPerSecond": 699.66,
-    "evalTimeMs": 1345.59,
-    "generatedRuns": 85,
-    "generationTokensPerSecond": 63.17,
-    "totalRuntimeMs": 1543.52,
-    "wallClockMs": 3670,
-    "approxTimeToFirstGeneratedTokenMs": 751.9,
-    "maxResidentSetBytes": 2925461504,
-    "peakMemoryFootprintBytes": 369838768,
+    "loadTimeMs": 275.42,
+    "promptEvalTimeMs": 273.82,
+    "promptEvalTokens": 89,
+    "promptEvalTokensPerSecond": 325.03,
+    "evalTimeMs": 2311.18,
+    "generatedRuns": 105,
+    "generationTokensPerSecond": 45.43,
+    "totalRuntimeMs": 2795.56,
+    "wallClockMs": null,
+    "approxTimeToFirstGeneratedTokenMs": 571.25,
+    "maxResidentSetBytes": null,
+    "peakMemoryFootprintBytes": null,
     "metalModelBufferMiB": 2375.91,
     "metalKvBufferMiB": 288,
     "metalComputeBufferMiB": 301.75
@@ -85,7 +78,7 @@
       "Good enough for a local adapter latency smoke; not good enough for clinical actor quality or validated scoring.",
       "Structured-output enforcement needs a follow-up grammar/schema spike before any autonomous planning or scoring dependency.",
       "Hardware result is for this Apple M1 Max machine, not the target M4 Pro or M4 Max claim.",
-      "This report was harvested from an existing local log; this repo-managed tool did not execute model inference."
+      "This report was produced by the repo-managed local execution mode after explicit operator approval."
     ]
   }
 }

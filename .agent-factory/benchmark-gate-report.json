@@ -5,7 +5,7 @@
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T18:13:48.812Z",
-      "age_hours": 25,
+      "age_hours": 26,
       "max_age_hours": 24,
       "status": "stale",
       "blockers": [
@@ -43,7 +43,7 @@
       "evidence_id": "asset_capability_job_evidence",
       "file": "docs/openclinxr/asset-capability-job-evidence-2026-05-04.json",
       "generated_at": "2026-05-04T21:21:14.173Z",
-      "age_hours": 22,
+      "age_hours": 23,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -52,7 +52,7 @@
       "evidence_id": "asset_production_readiness_benchmark",
       "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T21:11:11.999Z",
-      "age_hours": 22,
+      "age_hours": 23,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -61,7 +61,7 @@
       "evidence_id": "local_provider_benchmark",
       "file": "docs/openclinxr/local-provider-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T19:05:08.997Z",
-      "age_hours": 0,
+      "age_hours": 1,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -69,19 +69,17 @@
     {
       "evidence_id": "local_model_runtime_benchmark",
       "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-05.json",
-      "generated_at": "2026-05-04T14:57:50Z",
-      "age_hours": 29,
+      "generated_at": "2026-05-05T20:20:19.936Z",
+      "age_hours": 0,
       "max_age_hours": 24,
-      "status": "stale",
-      "blockers": [
-        "local_model_runtime_benchmark:evidence_stale_over_24h"
-      ]
+      "status": "fresh",
+      "blockers": []
     },
     {
       "evidence_id": "local_model_quality_benchmark",
       "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T21:16:55.867Z",
-      "age_hours": 22,
+      "age_hours": 23,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -119,7 +117,7 @@
       "evidence_id": "api_python_backend_runtime_smoke",
       "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T15:21:12.576Z",
-      "age_hours": 4,
+      "age_hours": 5,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -127,7 +125,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-05T20:04:47.962Z",
+      "generated_at": "2026-05-05T20:24:01.073Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -621,7 +619,7 @@
   },
   "local_model_runtime_benchmark": {
     "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-05.json",
-    "generated_at": "2026-05-04T14:57:50Z",
+    "generated_at": "2026-05-05T20:20:19.936Z",
     "status": "passed_with_caveats",
     "runtime": {
       "command": "llama-completion",
@@ -637,23 +635,23 @@
       ],
       "device": "MTL0 (Apple M1 Max)",
       "ctxSize": 2048,
-      "predictTokensRequested": 128,
+      "predictTokensRequested": 256,
       "temperature": 0,
       "topP": 1
     },
     "metrics": {
-      "loadTimeMs": 558.84,
-      "promptEvalTimeMs": 177.23,
-      "promptEvalTokens": 124,
-      "promptEvalTokensPerSecond": 699.66,
-      "evalTimeMs": 1345.59,
-      "generatedRuns": 85,
-      "generationTokensPerSecond": 63.17,
-      "totalRuntimeMs": 1543.52,
-      "wallClockMs": 3670,
-      "approxTimeToFirstGeneratedTokenMs": 751.9,
-      "maxResidentSetBytes": 2925461504,
-      "peakMemoryFootprintBytes": 369838768,
+      "loadTimeMs": 275.42,
+      "promptEvalTimeMs": 273.82,
+      "promptEvalTokens": 89,
+      "promptEvalTokensPerSecond": 325.03,
+      "evalTimeMs": 2311.18,
+      "generatedRuns": 105,
+      "generationTokensPerSecond": 45.43,
+      "totalRuntimeMs": 2795.56,
+      "wallClockMs": null,
+      "approxTimeToFirstGeneratedTokenMs": 571.25,
+      "maxResidentSetBytes": null,
+      "peakMemoryFootprintBytes": null,
       "metalModelBufferMiB": 2375.91,
       "metalKvBufferMiB": 288,
       "metalComputeBufferMiB": 301.75
@@ -662,23 +660,16 @@
       "parsedJson": {
         "candidate": "Qwen/Qwen3-4B-GGUF",
         "triage_priority": "high",
-        "rationale": "Symptoms indicate possible acute myocardial infarction; ECG and emergent cardiac evaluation are critical for diagnosis and intervention",
+        "rationale": "The patient presents with symptoms consistent with a cardiac emergency, including chest pressure, diaphoresis, nausea, and hypotension. These are classic signs of myocardial infarction, which requires immediate medical attention. The presence of an anxious spouse may indicate the",
         "safety_flags": [
-          "hypotension",
-          "anxiety",
-          "chest pain",
-          "diaphoresis",
-          "nausea"
+          "needs_human_review"
         ]
       },
       "structuredOutputCaveats": [
-        "The model emitted a leading <think> marker before the JSON object even with reasoning disabled.",
-        "The JSON object was parsable, but safety_flags were clinical features rather than the requested guardrail labels.",
         "The JSON object was extracted from surrounding model text instead of being the whole response."
       ],
-      "rawLogPath": "/Users/patrick/.cache/openclinxr/benchmarks/qwen3-4b-llama-completion-json2-2026-05-04.log",
-      "rawLogSha256": "6f6914ad679b4bee0a62bc9d7c77ad72d1825cb0db67d0037f9c71299a349fba",
-      "grammarFailureExcerptPath": "/Users/patrick/.cache/openclinxr/benchmarks/qwen3-4b-llama-cli-grammar-failure-2026-05-04.log"
+      "rawLogPath": "/Users/patrick/.cache/openclinxr/benchmarks/qwen3-4b-llama-completion-offline-2026-05-05.log",
+      "rawLogSha256": "aadf0503ae32aa3f26d99415808ff9cf37271db82aacf6510c3c45ce0b666670"
     },
     "verdict": {
       "passed": true,
@@ -687,7 +678,7 @@
         "Good enough for a local adapter latency smoke; not good enough for clinical actor quality or validated scoring.",
         "Structured-output enforcement needs a follow-up grammar/schema spike before any autonomous planning or scoring dependency.",
         "Hardware result is for this Apple M1 Max machine, not the target M4 Pro or M4 Max claim.",
-        "This report was harvested from an existing local log; this repo-managed tool did not execute model inference."
+        "This report was produced by the repo-managed local execution mode after explicit operator approval."
       ]
     }
   },
@@ -1136,7 +1127,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-05T20:04:47.962Z",
+    "generated_at": "2026-05-05T20:24:01.073Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -1366,7 +1357,6 @@
         "text_readability_confirmed"
       ],
       "blockers": [
-        "local_model_runtime_benchmark:evidence_stale_over_24h",
         "local_voice_runtime_benchmark:evidence_stale_over_24h",
         "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
         "quest_frame_quality_evidence_missing",
@@ -1394,15 +1384,14 @@
         "quest_text_panel_metadata_missing"
       ],
       "blocker_summary": {
-        "total_blockers": 26,
-        "distinct_problem_count": 4,
+        "total_blockers": 25,
+        "distinct_problem_count": 3,
         "groups": [
           {
             "group_id": "benchmark_evidence_freshness",
             "title": "Benchmark evidence freshness",
             "owner": "qa-evidence-lead",
             "blockers": [
-              "local_model_runtime_benchmark:evidence_stale_over_24h",
               "local_voice_runtime_benchmark:evidence_stale_over_24h",
               "quest_smoke:evidence_stale_over_24h"
             ],
@@ -1439,15 +1428,6 @@
               "quest_text_panel_metadata_missing"
             ],
             "next_step": "Use the approved proposals/approved/proposal-quest-foreground-performance-capture.md scope, then capture the foreground in-headset manual report for comfort, readability, immersive-session, and sustained-frame observations that CDP cannot honestly attest alone."
-          },
-          {
-            "group_id": "local_model_runtime",
-            "title": "Local model runtime benchmark",
-            "owner": "local-ai-inference-engineer",
-            "blockers": [
-              "local_model_runtime_benchmark:evidence_stale_over_24h"
-            ],
-            "next_step": "Follow the approved proposals/approved/proposal-local-model-benchmark.md scope, set runtime and model environment variables privately, then rerun the local model benchmark."
           },
           {
             "group_id": "local_voice_runtime",
@@ -1568,38 +1548,17 @@
     },
     {
       "evidence_id": "evidence-leadership-0008-002",
-      "ready_to_resolve": false,
+      "ready_to_resolve": true,
       "satisfied_conditions": [
         "local_model_ready_to_benchmark",
         "local_model_runtime_benchmark_passed",
         "local_provider_mock_benchmarks_passed"
       ],
-      "blockers": [
-        "local_model_runtime_benchmark:evidence_stale_over_24h"
-      ],
+      "blockers": [],
       "blocker_summary": {
-        "total_blockers": 1,
-        "distinct_problem_count": 2,
-        "groups": [
-          {
-            "group_id": "benchmark_evidence_freshness",
-            "title": "Benchmark evidence freshness",
-            "owner": "qa-evidence-lead",
-            "blockers": [
-              "local_model_runtime_benchmark:evidence_stale_over_24h"
-            ],
-            "next_step": "Regenerate the stale local evidence files before using the benchmark gate as leadership-ready proof."
-          },
-          {
-            "group_id": "local_model_runtime",
-            "title": "Local model runtime benchmark",
-            "owner": "local-ai-inference-engineer",
-            "blockers": [
-              "local_model_runtime_benchmark:evidence_stale_over_24h"
-            ],
-            "next_step": "Follow the approved proposals/approved/proposal-local-model-benchmark.md scope, set runtime and model environment variables privately, then rerun the local model benchmark."
-          }
-        ],
+        "total_blockers": 0,
+        "distinct_problem_count": 0,
+        "groups": [],
         "ungrouped_blockers": []
       }
     },
@@ -1679,31 +1638,12 @@
         "local_model_quality:structured_output:reasoning_markup_emitted",
         "local_model_quality:structured_output:safety_flags_not_guardrail_labels",
         "local_model_quality:structured_output:schema_grammar_not_enforced",
-        "local_model_quality:target_hardware:target_hardware_not_m4_profile",
-        "local_model_runtime_benchmark:evidence_stale_over_24h"
+        "local_model_quality:target_hardware:target_hardware_not_m4_profile"
       ],
       "blocker_summary": {
-        "total_blockers": 8,
-        "distinct_problem_count": 3,
+        "total_blockers": 7,
+        "distinct_problem_count": 1,
         "groups": [
-          {
-            "group_id": "benchmark_evidence_freshness",
-            "title": "Benchmark evidence freshness",
-            "owner": "qa-evidence-lead",
-            "blockers": [
-              "local_model_runtime_benchmark:evidence_stale_over_24h"
-            ],
-            "next_step": "Regenerate the stale local evidence files before using the benchmark gate as leadership-ready proof."
-          },
-          {
-            "group_id": "local_model_runtime",
-            "title": "Local model runtime benchmark",
-            "owner": "local-ai-inference-engineer",
-            "blockers": [
-              "local_model_runtime_benchmark:evidence_stale_over_24h"
-            ],
-            "next_step": "Follow the approved proposals/approved/proposal-local-model-benchmark.md scope, set runtime and model environment variables privately, then rerun the local model benchmark."
-          },
           {
             "group_id": "local_model_quality",
             "title": "Local model structured-output and actor-policy evidence",

@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { chmod, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
@@ -102,6 +102,38 @@ describe("local model runtime benchmark parser", () => {
     expect(extractBalancedJsonCandidate("noise {\"a\":{\"b\":2}} [end of text] trailing")).toBe("{\"a\":{\"b\":2}}");
     expect(extractBalancedJsonCandidate("no json here")).toBeNull();
   });
+
+  it("parses stdout-first JSON when llama metrics arrive on stderr later in the raw log", () => {
+    const parsed = parseLlamaRuntimeLog([
+      "started_at_utc=2026-05-05T20:18:10.317Z",
+      "user",
+      "Return one JSON object only.",
+      "assistant",
+      "{",
+      '  "candidate": "Qwen/Qwen3-4B-GGUF",',
+      '  "triage_priority": "high",',
+      '  "rationale": "possible acute coronary syndrome",',
+      '  "safety_flags": ["needs_human_review"]',
+      "}",
+      " [end of text]",
+      "generate: n_ctx = 2048, n_batch = 2048, n_predict = 256, n_keep = 0",
+      "common_perf_print:        load time =     288.25 ms",
+      "common_perf_print: prompt eval time =     286.20 ms /    89 tokens (    3.22 ms per token,   310.97 tokens per second)",
+      "common_perf_print:        eval time =    2478.26 ms /   105 runs   (   23.60 ms per token,    42.37 tokens per second)",
+      "common_perf_print:       total time =    3043.16 ms /   194 tokens",
+      "ended_at_utc=2026-05-05T20:18:17.554Z",
+      "exit_status=0",
+    ].join("\n"));
+
+    expect(parsed.output.parsedJson).toEqual({
+      candidate: "Qwen/Qwen3-4B-GGUF",
+      triage_priority: "high",
+      rationale: "possible acute coronary syndrome",
+      safety_flags: ["needs_human_review"],
+    });
+    expect(parsed.blockers).toEqual([]);
+    expect(parsed.runtime.predictTokensRequested).toBe(256);
+  });
 });
 
 describe("local model runtime benchmark CLI", () => {
@@ -149,6 +181,86 @@ describe("local model runtime benchmark CLI", () => {
     expect(report.output.rawLogPath).toBe(logPath);
     expect(report.output.rawLogSha256).toMatch(/^[a-f0-9]{64}$/);
     expect(report.verdict.passed).toBe(true);
+  });
+
+  it("runs an explicitly approved local llama command and writes raw log plus report", async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-local-model-runtime-exec-"));
+    const modelPath = path.join(dir, "Qwen3-4B-Q4_K_M.gguf");
+    const fakeLlamaPath = path.join(dir, "fake-llama.mjs");
+    const rawLogPath = path.join(dir, "runtime.log");
+    const outputPath = path.join(dir, "report.json");
+    await writeFile(modelPath, "fake local model bytes");
+    await writeFile(
+      fakeLlamaPath,
+      [
+        "#!/usr/bin/env node",
+        "console.log('version: fake-llama-benchmark');",
+        "console.log('llama_context: n_ctx         = 2048');",
+        "console.log('sampler params: top_p = 1.000, temp = 0.000');",
+        "console.log('generate: n_ctx = 2048, n_batch = 2048, n_predict = 128, n_keep = 0');",
+        "console.log('<think>');",
+        "console.log('{\"candidate\":\"Qwen/Qwen3-4B-GGUF\",\"triage_priority\":\"high\",\"safety_flags\":[\"hypotension\"]} [end of text]');",
+        "console.log('common_perf_print:        load time =     10.00 ms');",
+        "console.log('common_perf_print: prompt eval time =     20.00 ms /   10 tokens (    2.00 ms per token,   500.00 tokens per second)');",
+        "console.log('common_perf_print:        eval time =    30.00 ms /    3 runs   (   10.00 ms per token,    100.00 tokens per second)');",
+        "console.log('common_perf_print:       total time =    60.00 ms /   13 tokens');",
+      ].join("\n"),
+      "utf8",
+    );
+    await chmod(fakeLlamaPath, 0o755);
+
+    await execFileAsync(
+      path.resolve("node_modules/.bin/tsx"),
+      [
+        "tools/openclinxr/local-model-runtime-benchmark.ts",
+        "--execute-approved-local-run",
+        "--model-file",
+        modelPath,
+        "--llama-executable",
+        fakeLlamaPath,
+        "--raw-log",
+        rawLogPath,
+        "--output",
+        outputPath,
+      ],
+      {
+        encoding: "utf8",
+        timeout: 15000,
+      },
+    );
+
+    const [rawLog, reportText] = await Promise.all([
+      readFile(rawLogPath, "utf8"),
+      readFile(outputPath, "utf8"),
+    ]);
+    const report = JSON.parse(reportText) as {
+      policy: {
+        cloudApisUsed: boolean;
+        localRuntimeExecutionApproved: boolean;
+        localRuntimeExecutionAttemptedByThisTool: boolean;
+      };
+      output: {
+        rawLogPath: string;
+      };
+      runtime: {
+        backend: string;
+      };
+      verdict: {
+        passed: boolean;
+        caveats: string[];
+      };
+    };
+
+    expect(rawLog).toContain("started_at_utc=");
+    expect(rawLog).toContain("ended_at_utc=");
+    expect(rawLog).toContain("exit_status=0");
+    expect(report.policy.cloudApisUsed).toBe(false);
+    expect(report.policy.localRuntimeExecutionApproved).toBe(true);
+    expect(report.policy.localRuntimeExecutionAttemptedByThisTool).toBe(true);
+    expect(report.output.rawLogPath).toBe(rawLogPath);
+    expect(report.runtime.backend).toBe("llama.cpp fake-llama-benchmark");
+    expect(report.verdict.passed).toBe(true);
+    expect(report.verdict.caveats).toContain("This report was produced by the repo-managed local execution mode after explicit operator approval.");
   });
 });
 
