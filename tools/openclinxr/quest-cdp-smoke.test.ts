@@ -14,6 +14,58 @@ import {
   staleQuestSmokePageIds,
 } from "./quest-cdp-smoke.js";
 
+function healthyBrowserRuntimeEvidence(): Record<string, unknown> {
+  return {
+    textPanelEvidence: {
+      panelCount: 3,
+      panels: [
+        {
+          name: "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          lineCount: 4,
+          readabilityClaim: "metadata_only_requires_foreground_headset_confirmation",
+        },
+        {
+          name: "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          lineCount: 2,
+          readabilityClaim: "metadata_only_requires_foreground_headset_confirmation",
+        },
+        {
+          name: "openclinxr.ed-chest-pain.in-vr-input-panel",
+          lineCount: 3,
+          readabilityClaim: "metadata_only_requires_foreground_headset_confirmation",
+        },
+      ],
+    },
+    inputEvidence: {
+      activeLocomotionSource: "none",
+      inputSourceCount: 2,
+      inputSourceKinds: ["xr_hand"],
+      keyboardVector: { forward: 0, strafe: 0, turn: 0 },
+      xrVector: { forward: 0, strafe: 0, turn: 0 },
+    },
+    frameStats: {
+      framesObserved: 120,
+      qualitySource: "webxr_animation_loop",
+      renderLoopMode: "webxr_animation_loop_with_preview_fallback",
+      latestFrameDeltaMs: 16.7,
+      longFrameRatio: 0.02,
+    },
+  };
+}
+
+function healthyFrameSampleRuntimeEvidence(): Record<string, unknown> {
+  return {
+    timedOut: false,
+    avgFrameMs: 13.5,
+    latestFrameAgeMs: 25,
+    framesObservedDuringProbe: 120,
+    qualitySource: "webxr_animation_loop",
+    renderLoopMode: "webxr_animation_loop_with_preview_fallback",
+    latestFrameDeltaMs: 16.7,
+    longFrameRatio: 0.02,
+  };
+}
+
 describe("Quest CDP smoke probe", () => {
   it("parses default and explicit CLI options", () => {
     expect(parseArgs([])).toMatchObject({
@@ -182,6 +234,7 @@ describe("Quest CDP smoke probe", () => {
     expect(browserSnapshotExpression()).toContain("window.__openClinXrTraceLatencyEvidence");
     expect(browserSnapshotExpression()).toContain("window.__openClinXrIwsdkSidecarEvidence");
     expect(browserSnapshotExpression()).toContain("window.__openClinXrXrEntryEvidence");
+    expect(browserSnapshotExpression()).toContain("window.__openClinXrTextPanelEvidence");
     expect(browserSnapshotExpression()).toContain("ED Chest Pain");
     expect(interactionExpression()).toContain("ecg request");
     expect(interactionExpression()).toContain("urgent escalation");
@@ -192,6 +245,8 @@ describe("Quest CDP smoke probe", () => {
     expect(frameSampleExpression(12, 900)).toContain("performance.now() - started < 900");
     expect(frameSampleExpression(12, 900)).toContain("window.__openClinXrFrameStats");
     expect(frameSampleExpression(12, 900)).toContain("window.__openClinXrIwsdkSidecarEvidence");
+    expect(frameSampleExpression(12, 900)).toContain("qualitySource");
+    expect(frameSampleExpression(12, 900)).toContain("longFrameRatio");
     expect(enterVrButtonRectExpression()).toContain("enter-xr-button");
     expect(enterVrCompletionExpression(3000)).toContain("xr-status");
     expect(enterVrCompletionExpression(3000)).toContain("window.__openClinXrManualPerformanceDraft");
@@ -422,19 +477,14 @@ describe("Quest CDP smoke probe", () => {
         hidden: false,
         visibilityState: "visible",
         canvas: { dataUrlLength: 4096 },
-        frameStats: { framesObserved: 120 },
+        ...healthyBrowserRuntimeEvidence(),
       },
       interaction: {
         afterTrace: "Trace 2/10",
         clickedEcg: true,
         clickedUrgent: true,
       },
-      frameSample: {
-        timedOut: false,
-        avgFrameMs: 13.5,
-        latestFrameAgeMs: 25,
-        framesObservedDuringProbe: 120,
-      },
+      frameSample: healthyFrameSampleRuntimeEvidence(),
     });
 
     const check = buildQuestSmokeEvidenceCheck("quest.json", {
@@ -453,6 +503,9 @@ describe("Quest CDP smoke probe", () => {
         "quest_trace_interaction_advanced",
         "quest_page_visible",
         "quest_cdp_frame_sample_complete",
+        "quest_text_panel_metadata_present",
+        "quest_input_evidence_shape_present",
+        "quest_frame_quality_evidence_present",
         "quest_latest_frame_fresh",
         "quest_frames_advanced_during_probe",
       ]),
@@ -474,19 +527,14 @@ describe("Quest CDP smoke probe", () => {
         visibilityState: "visible",
         xrStatus: "WebXR entry blocked",
         canvas: { dataUrlLength: 4096 },
-        frameStats: { framesObserved: 120 },
+        ...healthyBrowserRuntimeEvidence(),
       },
       interaction: {
         afterTrace: "Trace 2/10",
         clickedEcg: true,
         clickedUrgent: true,
       },
-      frameSample: {
-        timedOut: false,
-        avgFrameMs: 13.5,
-        latestFrameAgeMs: 25,
-        framesObservedDuringProbe: 120,
-      },
+      frameSample: healthyFrameSampleRuntimeEvidence(),
       immersive: {
         clickedEnterVr: true,
         immersiveSessionStarted: false,
@@ -520,19 +568,14 @@ describe("Quest CDP smoke probe", () => {
           hidden: false,
           visibilityState: "visible",
           canvas: { dataUrlLength: 4096 },
-          frameStats: { framesObserved: 120 },
+          ...healthyBrowserRuntimeEvidence(),
         },
         interaction: {
           afterTrace: "Trace 2/10",
           clickedEcg: true,
           clickedUrgent: true,
         },
-        frameSample: {
-          timedOut: false,
-          avgFrameMs: 13.5,
-          latestFrameAgeMs: 25,
-          framesObservedDuringProbe: 120,
-        },
+        frameSample: healthyFrameSampleRuntimeEvidence(),
       }),
     };
     delete (report.verdict as Partial<typeof report.verdict>).immersiveEntryOutcome;
@@ -542,6 +585,45 @@ describe("Quest CDP smoke probe", () => {
     expect(check.immersiveEntryOutcome).toBe("not_requested");
     expect(check.blockers).not.toContain("quest_immersive_session_not_started");
     expect(check.readyForForegroundQuestClaim).toBe(true);
+  });
+
+  it("blocks foreground claims when runtime text, input, or frame-quality evidence is absent", () => {
+    const report = buildReport({
+      options: parseArgs(["--url", "http://localhost:5173/?questSmoke=1"]),
+      adbVersion: "Android Debug Bridge version 1.0.41",
+      deviceLine: "1234 device product:quest3",
+      reverseList: "1234 tcp:5173 tcp:5173",
+      browser: {
+        title: "OpenClinXR Station Runtime",
+        userAgent: "Mozilla/5.0 (X11; Linux x86_64; Quest 3) OculusBrowser/146.0.0",
+        bodyHasEdChestPain: true,
+        hasViteOverlay: false,
+        hidden: false,
+        visibilityState: "visible",
+        canvas: { dataUrlLength: 4096 },
+        frameStats: { framesObserved: 120 },
+      },
+      interaction: {
+        afterTrace: "Trace 2/10",
+        clickedEcg: true,
+        clickedUrgent: true,
+      },
+      frameSample: {
+        timedOut: false,
+        avgFrameMs: 13.5,
+        latestFrameAgeMs: 25,
+        framesObservedDuringProbe: 120,
+      },
+    });
+
+    const check = buildQuestSmokeEvidenceCheck("quest-runtime-gap.json", report);
+
+    expect(check.readyForForegroundQuestClaim).toBe(false);
+    expect(check.blockers).toEqual(expect.arrayContaining([
+      "quest_text_panel_metadata_missing",
+      "quest_input_evidence_shape_missing",
+      "quest_frame_quality_evidence_missing",
+    ]));
   });
 
   it("keeps Quest readiness blockers explicit when probe evidence is incomplete", () => {

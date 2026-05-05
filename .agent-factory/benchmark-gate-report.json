@@ -5,7 +5,7 @@
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T18:13:48.812Z",
-      "age_hours": 6,
+      "age_hours": 7,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -14,7 +14,7 @@
       "evidence_id": "local_runtime_probe",
       "file": "docs/openclinxr/local-runtime-probe-2026-05-04.json",
       "generated_at": "2026-05-04T15:16:18.712Z",
-      "age_hours": 9,
+      "age_hours": 10,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -32,7 +32,7 @@
       "evidence_id": "blender_asset_bake_smoke",
       "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T05:06:10.560Z",
-      "age_hours": 19,
+      "age_hours": 20,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -50,7 +50,7 @@
       "evidence_id": "asset_production_readiness_benchmark",
       "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T21:11:11.999Z",
-      "age_hours": 3,
+      "age_hours": 4,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -77,7 +77,7 @@
       "evidence_id": "local_model_quality_benchmark",
       "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T21:16:55.867Z",
-      "age_hours": 3,
+      "age_hours": 4,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -121,7 +121,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-05T01:04:15.897Z",
+      "generated_at": "2026-05-05T01:17:38.727Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -149,8 +149,11 @@
       "quest_frames_advanced_during_probe"
     ],
     "blockers": [
+      "quest_frame_quality_evidence_missing",
       "quest_immersive_entry_activation_not_received",
-      "quest_immersive_session_not_started"
+      "quest_immersive_session_not_started",
+      "quest_input_evidence_shape_missing",
+      "quest_text_panel_metadata_missing"
     ]
   },
   "local_runtime_probe": {
@@ -1096,7 +1099,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-05T01:04:15.897Z",
+    "generated_at": "2026-05-05T01:17:38.727Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "ready_to_claim_frame_pacing": false,
     "satisfied_conditions": [
@@ -1244,8 +1247,10 @@
         "quest_usb_ready"
       ],
       "blockers": [
+        "quest_frame_quality_evidence_missing",
         "quest_immersive_entry_activation_not_received",
         "quest_immersive_session_not_started",
+        "quest_input_evidence_shape_missing",
         "quest_manual_performance:average_fps_below_72_or_missing",
         "quest_manual_performance:controller_select_latency_ms_above_150_or_missing",
         "quest_manual_performance:devtools_screencast_not_disabled",
@@ -1256,10 +1261,11 @@
         "quest_manual_performance:minimum_fps_below_60_or_missing",
         "quest_manual_performance:p95_frame_ms_above_25_or_missing",
         "quest_manual_performance:rolling_frame_window_under_120_or_missing",
-        "quest_manual_performance:trace_interaction_not_confirmed"
+        "quest_manual_performance:trace_interaction_not_confirmed",
+        "quest_text_panel_metadata_missing"
       ],
       "blocker_summary": {
-        "total_blockers": 13,
+        "total_blockers": 16,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -1267,8 +1273,10 @@
             "title": "Foreground Quest frame pacing evidence",
             "owner": "xr-systems-architect",
             "blockers": [
+              "quest_frame_quality_evidence_missing",
               "quest_immersive_entry_activation_not_received",
               "quest_immersive_session_not_started",
+              "quest_input_evidence_shape_missing",
               "quest_manual_performance:average_fps_below_72_or_missing",
               "quest_manual_performance:controller_select_latency_ms_above_150_or_missing",
               "quest_manual_performance:devtools_screencast_not_disabled",
@@ -1279,7 +1287,8 @@
               "quest_manual_performance:minimum_fps_below_60_or_missing",
               "quest_manual_performance:p95_frame_ms_above_25_or_missing",
               "quest_manual_performance:rolling_frame_window_under_120_or_missing",
-              "quest_manual_performance:trace_interaction_not_confirmed"
+              "quest_manual_performance:trace_interaction_not_confirmed",
+              "quest_text_panel_metadata_missing"
             ],
             "next_step": "Use the approved proposals/approved/proposal-quest-foreground-performance-capture.md scope, then capture the foreground in-headset manual report for comfort, readability, immersive-session, and sustained-frame observations that CDP cannot honestly attest alone."
           }
@@ -1314,8 +1323,10 @@
         "quest_usb_ready"
       ],
       "blockers": [
+        "quest_frame_quality_evidence_missing",
         "quest_immersive_entry_activation_not_received",
         "quest_immersive_session_not_started",
+        "quest_input_evidence_shape_missing",
         "quest_manual_performance:average_fps_below_72_or_missing",
         "quest_manual_performance:controller_select_latency_ms_above_150_or_missing",
         "quest_manual_performance:devtools_screencast_not_disabled",
@@ -1326,10 +1337,11 @@
         "quest_manual_performance:minimum_fps_below_60_or_missing",
         "quest_manual_performance:p95_frame_ms_above_25_or_missing",
         "quest_manual_performance:rolling_frame_window_under_120_or_missing",
-        "quest_manual_performance:trace_interaction_not_confirmed"
+        "quest_manual_performance:trace_interaction_not_confirmed",
+        "quest_text_panel_metadata_missing"
       ],
       "blocker_summary": {
-        "total_blockers": 13,
+        "total_blockers": 16,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -1337,8 +1349,10 @@
             "title": "Foreground Quest frame pacing evidence",
             "owner": "xr-systems-architect",
             "blockers": [
+              "quest_frame_quality_evidence_missing",
               "quest_immersive_entry_activation_not_received",
               "quest_immersive_session_not_started",
+              "quest_input_evidence_shape_missing",
               "quest_manual_performance:average_fps_below_72_or_missing",
               "quest_manual_performance:controller_select_latency_ms_above_150_or_missing",
               "quest_manual_performance:devtools_screencast_not_disabled",
@@ -1349,7 +1363,8 @@
               "quest_manual_performance:minimum_fps_below_60_or_missing",
               "quest_manual_performance:p95_frame_ms_above_25_or_missing",
               "quest_manual_performance:rolling_frame_window_under_120_or_missing",
-              "quest_manual_performance:trace_interaction_not_confirmed"
+              "quest_manual_performance:trace_interaction_not_confirmed",
+              "quest_text_panel_metadata_missing"
             ],
             "next_step": "Use the approved proposals/approved/proposal-quest-foreground-performance-capture.md scope, then capture the foreground in-headset manual report for comfort, readability, immersive-session, and sustained-frame observations that CDP cannot honestly attest alone."
           }

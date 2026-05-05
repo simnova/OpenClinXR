@@ -145,6 +145,57 @@ type BenchmarkGateReport = {
   }>;
 };
 
+function healthyQuestRuntimeEvidence(): Record<string, unknown> {
+  return {
+    textPanelEvidence: {
+      panelCount: 3,
+      panels: [
+        {
+          name: "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          lineCount: 4,
+          readabilityClaim: "metadata_only_requires_foreground_headset_confirmation",
+        },
+        {
+          name: "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          lineCount: 2,
+          readabilityClaim: "metadata_only_requires_foreground_headset_confirmation",
+        },
+        {
+          name: "openclinxr.ed-chest-pain.in-vr-input-panel",
+          lineCount: 3,
+          readabilityClaim: "metadata_only_requires_foreground_headset_confirmation",
+        },
+      ],
+    },
+    inputEvidence: {
+      activeLocomotionSource: "none",
+      inputSourceCount: 2,
+      inputSourceKinds: ["xr_hand"],
+      keyboardVector: { forward: 0, strafe: 0, turn: 0 },
+      xrVector: { forward: 0, strafe: 0, turn: 0 },
+    },
+    frameStats: {
+      framesObserved: 120,
+      qualitySource: "webxr_animation_loop",
+      renderLoopMode: "webxr_animation_loop_with_preview_fallback",
+      latestFrameDeltaMs: 16.7,
+      longFrameRatio: 0.02,
+    },
+  };
+}
+
+function healthyQuestFrameSampleEvidence(): Record<string, unknown> {
+  return {
+    timedOut: false,
+    latestFrameAgeMs: 16,
+    framesObservedDuringProbe: 120,
+    qualitySource: "webxr_animation_loop",
+    renderLoopMode: "webxr_animation_loop_with_preview_fallback",
+    latestFrameDeltaMs: 16.7,
+    longFrameRatio: 0.02,
+  };
+}
+
 describe("benchmark gate report", () => {
   it("selects raw Quest CDP smoke evidence without derived check reports", async () => {
     const tempDir = await mkdtemp(path.join(tmpdir(), "openclinxr-quest-smoke-latest-"));
@@ -232,14 +283,10 @@ describe("benchmark gate report", () => {
             userAgent: "Mozilla/5.0 Quest 3",
             hidden: false,
             visibilityState: "visible",
-            frameStats: { framesObserved: 120 },
+            ...healthyQuestRuntimeEvidence(),
           },
           interaction: {},
-          frameSample: {
-            timedOut: false,
-            latestFrameAgeMs: 16,
-            framesObservedDuringProbe: 120,
-          },
+          frameSample: healthyQuestFrameSampleEvidence(),
           verdict: {
             shellLoaded: true,
             interactionAdvanced: true,
@@ -1676,14 +1723,10 @@ describe("benchmark gate report", () => {
             userAgent: "Mozilla/5.0 Quest 3",
             hidden: false,
             visibilityState: "visible",
-            frameStats: { framesObserved: 120 },
+            ...healthyQuestRuntimeEvidence(),
           },
           interaction: {},
-          frameSample: {
-            timedOut: false,
-            latestFrameAgeMs: 16,
-            framesObservedDuringProbe: 120,
-          },
+          frameSample: healthyQuestFrameSampleEvidence(),
           verdict: {
             shellLoaded: true,
             interactionAdvanced: true,

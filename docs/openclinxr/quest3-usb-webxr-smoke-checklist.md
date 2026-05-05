@@ -300,7 +300,7 @@ Automated shell and interaction probe:
 pnpm xr:quest:smoke -- --url http://localhost:5173/ --output docs/openclinxr/quest-cdp-smoke-YYYY-MM-DD.json
 ```
 
-This requires the local XR app server to already be running. It sets `adb reverse`, exposes Quest Browser CDP on port `9222`, launches Quest Browser, reloads the station page, checks the canvas/WebXR shell, clicks two trace controls, reads app-side frame telemetry from `window.__openClinXrFrameStats`, and records explicit blockers for hidden/inactive pages or incomplete frame sampling.
+This requires the local XR app server to already be running. It sets `adb reverse`, exposes Quest Browser CDP on port `9222`, launches Quest Browser, reloads the station page, checks the canvas/WebXR shell, clicks two trace controls, reads app-side frame telemetry from `window.__openClinXrFrameStats`, and records explicit blockers for hidden/inactive pages or incomplete frame sampling. Station foreground-ready checks also require three runtime evidence channels: `window.__openClinXrTextPanelEvidence` canvas metadata for the in-VR text panels, shaped `window.__openClinXrInputEvidence` locomotion/input-source data, and frame-quality fields that identify whether the sample came from the WebXR animation loop or the flat-preview fallback.
 
 If Quest Browser is already open in the headset but `adb shell am start` leaves CDP attached to a stale tab, rerun with the explicit single-tab reuse mode:
 
@@ -324,7 +324,7 @@ Validate the latest committed machine-readable report without re-running ADB or 
 pnpm xr:quest:smoke:validate -- --output .agent-factory/quest-cdp-smoke-check.json
 ```
 
-The 2026-05-04 foreground CDP reports now show the awake Quest Browser page as visible and frame-sampling cleanly in flat preview, but remote Full VR entry remains an activation blocker when CDP input does not reach the page handler. The latest `--enter-vr` activation report records `quest_immersive_entry_activation_not_received` plus `quest_immersive_session_not_started`; this is an automation-input limitation until a human controller/headset click confirms the immersive session.
+The 2026-05-04 foreground CDP reports now show the awake Quest Browser page as visible and frame-sampling cleanly in flat preview, but remote Full VR entry remains an activation blocker when CDP input does not reach the page handler. Newer station reports must include `quest_text_panel_metadata_present`, `quest_input_evidence_shape_present`, and `quest_frame_quality_evidence_present` before they can be classified as foreground-ready automation evidence. The latest `--enter-vr` activation report records `quest_immersive_entry_activation_not_received` plus `quest_immersive_session_not_started`; this is an automation-input limitation until a human controller/headset click confirms the immersive session.
 
 Latest automated probe detail:
 

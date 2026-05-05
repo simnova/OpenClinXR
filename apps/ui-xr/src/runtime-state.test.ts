@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
 import {
   completeTraceAction,
+  buildManualPerformanceInputEvidence,
+  buildReadableVrTextPanelEvidence,
+  buildRuntimeFrameStats,
   createInitialRuntimeState,
   actorResponseTextFromApiResult,
   buildManualPerformanceDraft,
@@ -232,6 +235,114 @@ describe("XR runtime state", () => {
       maxFrameMs: 33,
       approxFps: 45.5,
     });
+  });
+
+  it("builds frame-quality evidence with render-loop posture and long-frame ratios", () => {
+    expect(buildRuntimeFrameStats({
+      frameDeltasMs: [16, 20, 40],
+      framesObserved: 4,
+      latestFrameAtMs: 1111.126,
+      qualitySource: "webxr_animation_loop",
+      isPresenting: true,
+      visibilityState: "visible",
+    })).toEqual({
+      sampleCount: 3,
+      avgFrameMs: 25.33,
+      p95FrameMs: 40,
+      maxFrameMs: 40,
+      approxFps: 39.5,
+      framesObserved: 4,
+      latestFrameAtMs: 1111.13,
+      sampleWindowSize: 3,
+      latestFrameDeltaMs: 40,
+      sampleWindowMs: 76,
+      longFrameCountOver33Ms: 1,
+      longFrameRatio: 0.33,
+      qualitySource: "webxr_animation_loop",
+      renderLoopMode: "webxr_animation_loop_with_preview_fallback",
+      isPresenting: true,
+      visibilityState: "visible",
+    });
+  });
+
+  it("builds richer manual input evidence without treating hand tracking as locomotion", () => {
+    expect(buildManualPerformanceInputEvidence({
+      handModelCount: 2,
+      handModelStatus: "installed",
+      handInputsObserved: 2,
+      keyboardVector: { forward: 1, strafe: 0, turn: 0 },
+      xrVector: { forward: 0, strafe: 0.5, turn: 0 },
+      xrInputSources: [
+        { handedness: "left", hasHand: true, hasGamepad: true, axisCount: 4 },
+        { handedness: "right", hasHand: true, hasGamepad: false, axisCount: 0 },
+      ],
+      now: 456.789,
+      previousLastInputObservedAtMs: 111.11,
+      previousLastLocomotionAtMs: null,
+      rigPosition: { x: 0.2, z: -0.3 },
+    })).toEqual({
+      handModelCount: 2,
+      handModelStatus: "installed",
+      handInputsObserved: 2,
+      locomotionMode: "experimental_keyboard_and_thumbstick_dolly",
+      lastInputObservedAtMs: 456.79,
+      lastLocomotionAtMs: 456.79,
+      activeLocomotionSource: "mixed",
+      inputSourceCount: 2,
+      inputSourceKinds: ["keyboard", "xr_gamepad", "xr_hand"],
+      keyboardVector: { forward: 1, strafe: 0, turn: 0 },
+      xrVector: { forward: 0, strafe: 0.5, turn: 0 },
+      xrInputSources: [
+        { handedness: "left", hasHand: true, hasGamepad: true, axisCount: 4 },
+        { handedness: "right", hasHand: true, hasGamepad: false, axisCount: 0 },
+      ],
+      rigPosition: { x: 0.2, z: -0.3 },
+    });
+
+    expect(buildManualPerformanceInputEvidence({
+      handModelCount: 2,
+      handModelStatus: "installed",
+      handInputsObserved: 2,
+      keyboardVector: { forward: 0, strafe: 0, turn: 0 },
+      xrVector: { forward: 0, strafe: 0, turn: 0 },
+      xrInputSources: [
+        { handedness: "left", hasHand: true, hasGamepad: false, axisCount: 0 },
+        { handedness: "right", hasHand: true, hasGamepad: false, axisCount: 0 },
+      ],
+      now: 789.123,
+      previousLastInputObservedAtMs: 111.11,
+      previousLastLocomotionAtMs: 222.22,
+      rigPosition: { x: 0, z: 0 },
+    })).toMatchObject({
+      lastInputObservedAtMs: 789.12,
+      lastLocomotionAtMs: 222.22,
+      activeLocomotionSource: "none",
+      inputSourceKinds: ["xr_hand"],
+    });
+  });
+
+  it("builds metadata evidence for in-VR text panels without claiming headset readability", () => {
+    const evidence = buildReadableVrTextPanelEvidence({
+      name: "openclinxr.ed-chest-pain.in-vr-input-panel",
+      title: "Input Evidence",
+      lines: ["Session: In Full VR", "Hands: installed; observed 2"],
+      canvasPixels: { width: 1280, height: 640 },
+      worldMeters: { width: 1.65, height: 0.72 },
+      updatedAtMs: 123.456,
+    });
+
+    expect(evidence).toMatchObject({
+      name: "openclinxr.ed-chest-pain.in-vr-input-panel",
+      title: "Input Evidence",
+      source: "canvas_texture_metadata",
+      canvasPixels: { width: 1280, height: 640 },
+      worldMeters: { width: 1.65, height: 0.72 },
+      lineCount: 2,
+      previewLines: ["Session: In Full VR", "Hands: installed; observed 2"],
+      lastUpdatedAtMs: 123.46,
+      readabilityClaim: "metadata_only_requires_foreground_headset_confirmation",
+    });
+    expect(evidence.contentHash).toMatch(/^[0-9a-f]{8}$/);
   });
 
   it("derives manual Quest performance metrics from rolling frame stats", () => {

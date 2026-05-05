@@ -27,7 +27,10 @@ import { XRHandModelFactory } from "three/addons/webxr/XRHandModelFactory.js";
 import {
   actorIdForTraceTag,
   actorResponseTextFromApiResult,
+  buildManualPerformanceInputEvidence,
   buildManualPerformanceDraft,
+  buildReadableVrTextPanelEvidence,
+  buildRuntimeFrameStats,
   completeTraceAction,
   createInitialRuntimeState,
   eventTypeForTraceTag,
@@ -35,11 +38,15 @@ import {
   iwsdkStationSceneObjects,
   remoteActorTurnForTraceTag,
   stationTraceActionTags,
-  summarizeFrameDeltas,
   summarizeTraceReadiness,
+  type LocomotionVectorEvidence,
   type ManualPerformanceDraft,
+  type ManualPerformanceFrameStats,
   type ManualPerformanceInputEvidence,
   type ManualPerformanceTraceLatencyEvidence,
+  type ReadableVrTextPanelEvidence,
+  type ReadableVrTextPanelEvidenceSet,
+  type XrInputSourceEvidence,
   type XrExperienceModeEvidence,
   type XrRuntimeState,
   xrExperienceModeEvidence,
@@ -71,11 +78,7 @@ type XrInputSourceWithGamepad = {
   };
 };
 
-type OpenClinXrFrameStats = ReturnType<typeof summarizeFrameDeltas> & {
-  framesObserved: number;
-  latestFrameAtMs: number | null;
-  sampleWindowSize: number;
-};
+type OpenClinXrFrameStats = ManualPerformanceFrameStats;
 
 type OpenClinXrInputEvidence = ManualPerformanceInputEvidence;
 
@@ -117,6 +120,7 @@ declare global {
     __openClinXrBootEvidence?: OpenClinXrBootEvidence;
     __openClinXrTraceLatencyEvidence?: OpenClinXrTraceLatencyEvidence;
     __openClinXrXrEntryEvidence?: OpenClinXrXrEntryEvidence;
+    __openClinXrTextPanelEvidence?: ReadableVrTextPanelEvidenceSet;
   }
 }
 
@@ -466,6 +470,7 @@ function createStationScene(): StationSceneRuntime {
   const keyboardLocomotion = createKeyboardLocomotion();
   let handModelStatus: OpenClinXrInputEvidence["handModelStatus"] = "pending_immersive_session";
   let handModelsInstalled = false;
+  let lastInputObservedAtMs: number | null = null;
 
   function resize(): void {
     if (renderer.xr.isPresenting) {
@@ -479,6 +484,13 @@ function createStationScene(): StationSceneRuntime {
   }
 
   function animate(timestamp?: number): void {
+    renderSceneFrame(timestamp, "webxr_animation_loop");
+  }
+
+  function renderSceneFrame(
+    timestamp?: number,
+    qualitySource: NonNullable<OpenClinXrFrameStats["qualitySource"]> = "webxr_animation_loop",
+  ): void {
     const now = typeof timestamp === "number" ? timestamp : performance.now();
     lastRenderLoopAtMs = now;
     const deltaSeconds = Math.min((now - lastAnimateAtMs) / 1000, 0.05);
@@ -490,14 +502,20 @@ function createStationScene(): StationSceneRuntime {
       locomotionRig,
       now,
       session: activeXrSession,
+      lastInputObservedAtMs,
       lastLocomotionAtMs,
       handModelCount: handModelsInstalled ? 2 : 0,
       handModelStatus,
     });
+    lastInputObservedAtMs = inputEvidence.lastInputObservedAtMs ?? lastInputObservedAtMs;
     lastLocomotionAtMs = inputEvidence.lastLocomotionAtMs;
     window.__openClinXrInputEvidence = inputEvidence;
     updateVrPanels(inputEvidence);
-    recordFrame(now);
+    recordFrame(now, {
+      qualitySource,
+      isPresenting: renderer.xr.isPresenting,
+      visibilityState: document.visibilityState,
+    });
     patient.rotation.y = Math.sin(now / 1200) * 0.08;
     nurse.rotation.y = Math.sin(now / 900) * 0.12;
     renderer.render(scene, camera);
@@ -557,7 +575,7 @@ function createStationScene(): StationSceneRuntime {
   function fallbackAnimationLoop(): void {
     const now = performance.now();
     if (now - lastRenderLoopAtMs > flatPreviewFallbackFrameMs) {
-      animate(now);
+      renderSceneFrame(now, "flat_preview_fallback");
     }
   }
 
@@ -585,6 +603,7 @@ function createStationScene(): StationSceneRuntime {
       inputEvidence.handModelStatus,
       inputEvidence.handInputsObserved,
       inputEvidence.lastLocomotionAtMs,
+      inputEvidence.activeLocomotionSource,
       inputEvidence.rigPosition.x,
       inputEvidence.rigPosition.z,
     ].join("|");
@@ -599,7 +618,7 @@ function createStationScene(): StationSceneRuntime {
     inputPanel.update([
       immersiveSessionActive ? "Session: In Full VR" : "Session: Desktop preview",
       `Hands: ${inputEvidence.handModelStatus}; observed ${inputEvidence.handInputsObserved}`,
-      `Movement: x ${inputEvidence.rigPosition.x}, z ${inputEvidence.rigPosition.z}`,
+      `Movement: ${inputEvidence.activeLocomotionSource ?? "none"}; x ${inputEvidence.rigPosition.x}, z ${inputEvidence.rigPosition.z}`,
     ]);
   }
 }
@@ -622,6 +641,18 @@ function createClinicalPanel(): ReadableVrTextPanel {
   panel.mesh.position.set(-1.32, 1.55, -1.08);
   panel.mesh.rotation.y = 0.34;
   return panel;
+}
+
+const readableVrTextPanelEvidence = new Map<string, ReadableVrTextPanelEvidence>();
+
+function publishReadableVrTextPanelEvidence(evidence: ReadableVrTextPanelEvidence): void {
+  readableVrTextPanelEvidence.set(evidence.name, evidence);
+  window.__openClinXrTextPanelEvidence = {
+    source: "window.__openClinXrTextPanelEvidence",
+    panelCount: readableVrTextPanelEvidence.size,
+    panels: [...readableVrTextPanelEvidence.values()].sort((left, right) => left.name.localeCompare(right.name)),
+    limitations: ["metadata_only_requires_foreground_headset_confirmation"],
+  };
 }
 
 function createReadableVrTextPanel(options: {
@@ -662,6 +693,14 @@ function createReadableVrTextPanel(options: {
       y = drawWrappedText(panelContext, line, 58, y, panelCanvas.width - 116, 50) + 14;
     }
     texture.needsUpdate = true;
+    publishReadableVrTextPanelEvidence(buildReadableVrTextPanelEvidence({
+      name: options.name,
+      title: options.title,
+      lines,
+      canvasPixels: { width: panelCanvas.width, height: panelCanvas.height },
+      worldMeters: { width: options.widthMeters, height: options.heightMeters },
+      updatedAtMs: performance.now(),
+    }));
   }
 
   update(options.lines);
@@ -767,15 +806,25 @@ function applyLocomotion(input: {
   locomotionRig: Group;
   now: number;
   session: XrSession | undefined;
+  lastInputObservedAtMs: number | null;
   lastLocomotionAtMs: number | null;
   handModelCount: number;
   handModelStatus: OpenClinXrInputEvidence["handModelStatus"];
 }): OpenClinXrInputEvidence {
   const xrLocomotion = readXrGamepadLocomotion(input.session);
-  const forward = clampUnit(input.keyboardLocomotion.forward + xrLocomotion.forward);
-  const strafe = clampUnit(input.keyboardLocomotion.strafe + xrLocomotion.strafe);
-  const turn = clampUnit(input.keyboardLocomotion.turn + xrLocomotion.turn);
-  const moved = Math.abs(forward) > 0 || Math.abs(strafe) > 0 || Math.abs(turn) > 0;
+  const keyboardVector: LocomotionVectorEvidence = {
+    forward: clampUnit(input.keyboardLocomotion.forward),
+    strafe: clampUnit(input.keyboardLocomotion.strafe),
+    turn: clampUnit(input.keyboardLocomotion.turn),
+  };
+  const xrVector: LocomotionVectorEvidence = {
+    forward: xrLocomotion.forward,
+    strafe: xrLocomotion.strafe,
+    turn: xrLocomotion.turn,
+  };
+  const forward = clampUnit(keyboardVector.forward + xrVector.forward);
+  const strafe = clampUnit(keyboardVector.strafe + xrVector.strafe);
+  const turn = clampUnit(keyboardVector.turn + xrVector.turn);
   const speedMetersPerSecond = 1.35;
 
   input.locomotionRig.rotation.y += turn * input.deltaSeconds * 1.8;
@@ -788,17 +837,21 @@ function applyLocomotion(input: {
   input.locomotionRig.position.x = clamp(input.locomotionRig.position.x, -2.75, 2.75);
   input.locomotionRig.position.z = clamp(input.locomotionRig.position.z, -2.25, 2.25);
 
-  return {
+  return buildManualPerformanceInputEvidence({
     handModelCount: input.handModelCount,
     handModelStatus: input.handModelStatus,
     handInputsObserved: xrLocomotion.handInputsObserved,
-    locomotionMode: "experimental_keyboard_and_thumbstick_dolly",
-    lastLocomotionAtMs: moved ? Number(input.now.toFixed(2)) : input.lastLocomotionAtMs,
+    keyboardVector,
+    xrVector,
+    xrInputSources: xrLocomotion.inputSources,
+    now: input.now,
+    previousLastInputObservedAtMs: input.lastInputObservedAtMs,
+    previousLastLocomotionAtMs: input.lastLocomotionAtMs,
     rigPosition: {
       x: Number(input.locomotionRig.position.x.toFixed(3)),
       z: Number(input.locomotionRig.position.z.toFixed(3)),
     },
-  };
+  });
 }
 
 function readXrGamepadLocomotion(session: XrSession | undefined): {
@@ -806,17 +859,25 @@ function readXrGamepadLocomotion(session: XrSession | undefined): {
   strafe: number;
   turn: number;
   handInputsObserved: number;
+  inputSources: XrInputSourceEvidence[];
 } {
   let forward = 0;
   let strafe = 0;
   let turn = 0;
   let handInputsObserved = 0;
+  const inputSources: XrInputSourceEvidence[] = [];
 
   for (const source of session?.inputSources ?? []) {
     if (source.hand) {
       handInputsObserved += 1;
     }
     const axes = source.gamepad?.axes ?? [];
+    inputSources.push({
+      handedness: source.handedness ?? "unknown",
+      hasHand: Boolean(source.hand),
+      hasGamepad: Boolean(source.gamepad),
+      axisCount: axes.length,
+    });
     const xAxis = deadzone(axes[2] ?? axes[0] ?? 0);
     const yAxis = deadzone(axes[3] ?? axes[1] ?? 0);
     if (source.handedness === "right") {
@@ -832,6 +893,7 @@ function readXrGamepadLocomotion(session: XrSession | undefined): {
     strafe: clampUnit(strafe),
     turn: clampUnit(turn),
     handInputsObserved,
+    inputSources,
   };
 }
 
@@ -861,7 +923,11 @@ const frameDeltasMs: number[] = [];
 let framesObserved = 0;
 let lastFrameAtMs: number | undefined;
 
-function recordFrame(now: number): void {
+function recordFrame(now: number, evidence: {
+  qualitySource: NonNullable<OpenClinXrFrameStats["qualitySource"]>;
+  isPresenting: boolean;
+  visibilityState: string;
+}): void {
   if (lastFrameAtMs !== undefined) {
     frameDeltasMs.push(now - lastFrameAtMs);
     if (frameDeltasMs.length > 180) {
@@ -870,12 +936,14 @@ function recordFrame(now: number): void {
   }
   lastFrameAtMs = now;
   framesObserved += 1;
-  window.__openClinXrFrameStats = {
-    ...summarizeFrameDeltas(frameDeltasMs),
+  window.__openClinXrFrameStats = buildRuntimeFrameStats({
+    frameDeltasMs,
     framesObserved,
-    latestFrameAtMs: Number(now.toFixed(2)),
-    sampleWindowSize: frameDeltasMs.length,
-  };
+    latestFrameAtMs: now,
+    qualitySource: evidence.qualitySource,
+    isPresenting: evidence.isPresenting,
+    visibilityState: evidence.visibilityState,
+  });
   if (framesObserved !== 1 && framesObserved % 30 !== 0) {
     return;
   }

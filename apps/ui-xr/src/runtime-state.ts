@@ -72,6 +72,14 @@ export type ManualPerformanceFrameStats = FrameDeltaSummary & {
   framesObserved: number;
   latestFrameAtMs: number | null;
   sampleWindowSize: number;
+  latestFrameDeltaMs?: number | null;
+  sampleWindowMs?: number | null;
+  longFrameCountOver33Ms?: number;
+  longFrameRatio?: number | null;
+  qualitySource?: "webxr_animation_loop" | "flat_preview_fallback";
+  renderLoopMode?: "webxr_animation_loop_with_preview_fallback";
+  isPresenting?: boolean;
+  visibilityState?: string;
 };
 
 export type ManualPerformanceMetrics = {
@@ -89,8 +97,81 @@ export type ManualPerformanceInputEvidence = {
   handModelStatus: "pending_immersive_session" | "installed" | "failed";
   handInputsObserved: number;
   locomotionMode: "experimental_keyboard_and_thumbstick_dolly";
+  lastInputObservedAtMs?: number | null;
   lastLocomotionAtMs: number | null;
+  activeLocomotionSource?: "none" | "keyboard" | "xr_gamepad" | "mixed";
+  inputSourceCount?: number;
+  inputSourceKinds?: RuntimeInputSourceKind[];
+  keyboardVector?: LocomotionVectorEvidence;
+  xrVector?: LocomotionVectorEvidence;
+  xrInputSources?: XrInputSourceEvidence[];
   rigPosition: { x: number; z: number };
+};
+
+export type RuntimeInputSourceKind = "keyboard" | "xr_gamepad" | "xr_hand";
+
+export type LocomotionVectorEvidence = {
+  forward: number;
+  strafe: number;
+  turn: number;
+};
+
+export type XrInputSourceEvidence = {
+  handedness: string;
+  hasHand: boolean;
+  hasGamepad: boolean;
+  axisCount: number;
+};
+
+export type ManualPerformanceInputEvidenceInput = {
+  handModelCount: number;
+  handModelStatus: ManualPerformanceInputEvidence["handModelStatus"];
+  handInputsObserved: number;
+  keyboardVector: LocomotionVectorEvidence;
+  xrVector: LocomotionVectorEvidence;
+  xrInputSources: XrInputSourceEvidence[];
+  now: number;
+  previousLastInputObservedAtMs: number | null;
+  previousLastLocomotionAtMs: number | null;
+  rigPosition: { x: number; z: number };
+};
+
+export type RuntimeFrameStatsInput = {
+  frameDeltasMs: number[];
+  framesObserved: number;
+  latestFrameAtMs: number;
+  qualitySource: "webxr_animation_loop" | "flat_preview_fallback";
+  isPresenting: boolean;
+  visibilityState: string;
+};
+
+export type ReadableVrTextPanelEvidence = {
+  name: string;
+  title: string;
+  source: "canvas_texture_metadata";
+  canvasPixels: { width: number; height: number };
+  worldMeters: { width: number; height: number };
+  lineCount: number;
+  previewLines: string[];
+  contentHash: string;
+  lastUpdatedAtMs: number;
+  readabilityClaim: "metadata_only_requires_foreground_headset_confirmation";
+};
+
+export type ReadableVrTextPanelEvidenceInput = {
+  name: string;
+  title: string;
+  lines: readonly string[];
+  canvasPixels: { width: number; height: number };
+  worldMeters: { width: number; height: number };
+  updatedAtMs: number;
+};
+
+export type ReadableVrTextPanelEvidenceSet = {
+  source: "window.__openClinXrTextPanelEvidence";
+  panelCount: number;
+  panels: ReadableVrTextPanelEvidence[];
+  limitations: ["metadata_only_requires_foreground_headset_confirmation"];
 };
 
 export type ManualPerformanceTraceLatencyEvidence = {
@@ -496,6 +577,90 @@ export function summarizeFrameDeltas(frameDeltasMs: number[]): FrameDeltaSummary
   };
 }
 
+export function buildRuntimeFrameStats(input: RuntimeFrameStatsInput): ManualPerformanceFrameStats {
+  const summary = summarizeFrameDeltas(input.frameDeltasMs);
+  const sampleWindowMs = input.frameDeltasMs.length > 0
+    ? roundMetric(input.frameDeltasMs.reduce((sum, value) => sum + value, 0))
+    : null;
+  const longFrameCountOver33Ms = input.frameDeltasMs.filter((delta) => delta > 33).length;
+
+  return {
+    ...summary,
+    framesObserved: input.framesObserved,
+    latestFrameAtMs: roundMetric(input.latestFrameAtMs),
+    sampleWindowSize: input.frameDeltasMs.length,
+    latestFrameDeltaMs: input.frameDeltasMs.length > 0 ? roundMetric(input.frameDeltasMs.at(-1) ?? 0) : null,
+    sampleWindowMs,
+    longFrameCountOver33Ms,
+    longFrameRatio: input.frameDeltasMs.length > 0 ? roundMetric(longFrameCountOver33Ms / input.frameDeltasMs.length) : null,
+    qualitySource: input.qualitySource,
+    renderLoopMode: "webxr_animation_loop_with_preview_fallback",
+    isPresenting: input.isPresenting,
+    visibilityState: input.visibilityState,
+  };
+}
+
+export function buildManualPerformanceInputEvidence(
+  input: ManualPerformanceInputEvidenceInput,
+): ManualPerformanceInputEvidence {
+  const keyboardVector = roundedVector(input.keyboardVector);
+  const xrVector = roundedVector(input.xrVector);
+  const keyboardActive = isLocomotionVectorActive(keyboardVector);
+  const xrActive = isLocomotionVectorActive(xrVector);
+  const inputObserved = keyboardActive
+    || xrActive
+    || input.handInputsObserved > 0
+    || input.xrInputSources.length > 0;
+  const activeLocomotionSource = activeLocomotionSourceFor(keyboardActive, xrActive);
+  const inputSourceKinds = runtimeInputSourceKinds({
+    keyboardActive,
+    xrGamepadPresent: xrActive || input.xrInputSources.some((source) => source.hasGamepad),
+    xrHandPresent: input.handInputsObserved > 0 || input.xrInputSources.some((source) => source.hasHand),
+  });
+
+  return {
+    handModelCount: input.handModelCount,
+    handModelStatus: input.handModelStatus,
+    handInputsObserved: input.handInputsObserved,
+    locomotionMode: "experimental_keyboard_and_thumbstick_dolly",
+    lastInputObservedAtMs: inputObserved ? roundMetric(input.now) : input.previousLastInputObservedAtMs,
+    lastLocomotionAtMs: keyboardActive || xrActive ? roundMetric(input.now) : input.previousLastLocomotionAtMs,
+    activeLocomotionSource,
+    inputSourceCount: input.xrInputSources.length,
+    inputSourceKinds,
+    keyboardVector,
+    xrVector,
+    xrInputSources: input.xrInputSources.map((source) => ({ ...source })),
+    rigPosition: {
+      x: roundMetric(input.rigPosition.x, 3),
+      z: roundMetric(input.rigPosition.z, 3),
+    },
+  };
+}
+
+export function buildReadableVrTextPanelEvidence(
+  input: ReadableVrTextPanelEvidenceInput,
+): ReadableVrTextPanelEvidence {
+  const normalizedLines = input.lines.map((line) => line.trim());
+  const content = [input.title, ...normalizedLines].join("\n");
+
+  return {
+    name: input.name,
+    title: input.title,
+    source: "canvas_texture_metadata",
+    canvasPixels: { ...input.canvasPixels },
+    worldMeters: {
+      width: roundMetric(input.worldMeters.width, 3),
+      height: roundMetric(input.worldMeters.height, 3),
+    },
+    lineCount: normalizedLines.length,
+    previewLines: normalizedLines.map((line) => truncateEvidenceLine(line)),
+    contentHash: hashEvidenceContent(content),
+    lastUpdatedAtMs: roundMetric(input.updatedAtMs),
+    readabilityClaim: "metadata_only_requires_foreground_headset_confirmation",
+  };
+}
+
 export function manualPerformanceMetricsFromFrameStats(stats: ManualPerformanceFrameStats): ManualPerformanceMetrics {
   return {
     avgFps: stats.approxFps,
@@ -506,6 +671,59 @@ export function manualPerformanceMetricsFromFrameStats(stats: ManualPerformanceF
     framesObserved: stats.framesObserved,
     sampleWindowSize: stats.sampleWindowSize,
   };
+}
+
+function roundedVector(vector: LocomotionVectorEvidence): LocomotionVectorEvidence {
+  return {
+    forward: roundMetric(vector.forward, 3),
+    strafe: roundMetric(vector.strafe, 3),
+    turn: roundMetric(vector.turn, 3),
+  };
+}
+
+function isLocomotionVectorActive(vector: LocomotionVectorEvidence): boolean {
+  return Math.abs(vector.forward) > 0 || Math.abs(vector.strafe) > 0 || Math.abs(vector.turn) > 0;
+}
+
+function activeLocomotionSourceFor(
+  keyboardActive: boolean,
+  xrActive: boolean,
+): NonNullable<ManualPerformanceInputEvidence["activeLocomotionSource"]> {
+  if (keyboardActive && xrActive) {
+    return "mixed";
+  }
+  if (keyboardActive) {
+    return "keyboard";
+  }
+  if (xrActive) {
+    return "xr_gamepad";
+  }
+  return "none";
+}
+
+function runtimeInputSourceKinds(input: {
+  keyboardActive: boolean;
+  xrGamepadPresent: boolean;
+  xrHandPresent: boolean;
+}): RuntimeInputSourceKind[] {
+  return [
+    input.keyboardActive ? "keyboard" : undefined,
+    input.xrGamepadPresent ? "xr_gamepad" : undefined,
+    input.xrHandPresent ? "xr_hand" : undefined,
+  ].filter((kind): kind is RuntimeInputSourceKind => kind !== undefined);
+}
+
+function truncateEvidenceLine(line: string): string {
+  return line.length <= 140 ? line : `${line.slice(0, 137)}...`;
+}
+
+function hashEvidenceContent(content: string): string {
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < content.length; index += 1) {
+    hash ^= content.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0");
 }
 
 export function buildManualPerformanceDraft(input: ManualPerformanceDraftInput): ManualPerformanceDraft {

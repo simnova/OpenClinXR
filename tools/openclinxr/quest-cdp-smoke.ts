@@ -422,6 +422,7 @@ export function browserSnapshotExpression(): string {
       iwsdkEvidence: window.__openClinXrIwsdkSidecarEvidence ?? null,
       frameStats: window.__openClinXrFrameStats ?? null,
       inputEvidence: window.__openClinXrInputEvidence ?? null,
+      textPanelEvidence: window.__openClinXrTextPanelEvidence ?? null,
       traceLatencyEvidence: window.__openClinXrTraceLatencyEvidence ?? null,
       xrEntryEvidence: window.__openClinXrXrEntryEvidence ?? null,
       manualPerformanceDraft: window.__openClinXrManualPerformanceDraft ?? null,
@@ -569,6 +570,14 @@ export function frameSampleExpression(frameSampleCount: number, frameTimeoutMs: 
       p95FrameMs: latestStats?.p95FrameMs ?? null,
       maxFrameMs: latestStats?.maxFrameMs ?? null,
       approxFps: latestStats?.approxFps ?? null,
+      latestFrameDeltaMs: latestStats?.latestFrameDeltaMs ?? null,
+      sampleWindowMs: latestStats?.sampleWindowMs ?? null,
+      longFrameCountOver33Ms: latestStats?.longFrameCountOver33Ms ?? null,
+      longFrameRatio: latestStats?.longFrameRatio ?? null,
+      qualitySource: latestStats?.qualitySource ?? null,
+      renderLoopMode: latestStats?.renderLoopMode ?? null,
+      isPresenting: latestStats?.isPresenting ?? null,
+      visibilityState: latestStats?.visibilityState ?? null,
       iwsdkEvidence: window.__openClinXrIwsdkSidecarEvidence ?? null,
     };
   })()`;
@@ -679,6 +688,10 @@ export function buildQuestSmokeEvidenceCheck(inputFile: string | undefined, repo
   const verdict = report.verdict;
   const pageVisible = browser.hidden === false && browser.visibilityState === "visible";
   const frameStatsPresent = typeof browser.frameStats === "object" && browser.frameStats !== null;
+  const stationRuntimeEvidenceRequired = report.target === "station";
+  const textPanelMetadataPresent = hasTextPanelMetadataEvidence(browser.textPanelEvidence);
+  const inputEvidenceShapePresent = hasInputEvidenceShape(browser.inputEvidence);
+  const frameQualityEvidencePresent = hasFrameQualityEvidence(frameSample) || hasFrameQualityEvidence(browser.frameStats);
   const latestFrameAgeMs = frameSample.latestFrameAgeMs;
   const latestFrameFresh = typeof latestFrameAgeMs === "number" && Number.isFinite(latestFrameAgeMs) && latestFrameAgeMs <= 1000;
   const framesObservedDuringProbe = frameSample.framesObservedDuringProbe;
@@ -696,7 +709,10 @@ export function buildQuestSmokeEvidenceCheck(inputFile: string | undefined, repo
     && effectiveRawBlockers.length === 0
     && pageVisible
     && latestFrameFresh
-    && framesAdvancedDuringProbe;
+    && framesAdvancedDuringProbe
+    && (!stationRuntimeEvidenceRequired || textPanelMetadataPresent)
+    && (!stationRuntimeEvidenceRequired || inputEvidenceShapePresent)
+    && (!stationRuntimeEvidenceRequired || frameQualityEvidencePresent);
   const blockers = unique([
     isValidIsoDate(report.generatedAt) ? undefined : "quest_cdp_generated_at_invalid_or_missing",
     typeof adb.deviceLine === "string" && adb.deviceLine.trim().length > 0 ? undefined : "quest_cdp_adb_device_line_missing",
@@ -706,6 +722,9 @@ export function buildQuestSmokeEvidenceCheck(inputFile: string | undefined, repo
     pageVisible ? undefined : "quest_page_hidden_or_inactive",
     verdict?.frameSampleComplete === true ? undefined : "quest_cdp_frame_sample_incomplete",
     frameStatsPresent ? undefined : "quest_frame_stats_missing",
+    !stationRuntimeEvidenceRequired || textPanelMetadataPresent ? undefined : "quest_text_panel_metadata_missing",
+    !stationRuntimeEvidenceRequired || inputEvidenceShapePresent ? undefined : "quest_input_evidence_shape_missing",
+    !stationRuntimeEvidenceRequired || frameQualityEvidencePresent ? undefined : "quest_frame_quality_evidence_missing",
     frameSample.timedOut === true ? "quest_cdp_frame_sample_timed_out" : undefined,
     framesAdvancedDuringProbe ? undefined : "quest_no_frames_observed_during_probe",
     latestFrameFresh ? undefined : "quest_latest_frame_stale_over_1000ms",
@@ -730,6 +749,9 @@ export function buildQuestSmokeEvidenceCheck(inputFile: string | undefined, repo
       pageVisible ? "quest_page_visible" : undefined,
       verdict?.frameSampleComplete === true ? "quest_cdp_frame_sample_complete" : undefined,
       frameStatsPresent ? "quest_frame_stats_present" : undefined,
+      stationRuntimeEvidenceRequired && textPanelMetadataPresent ? "quest_text_panel_metadata_present" : undefined,
+      stationRuntimeEvidenceRequired && inputEvidenceShapePresent ? "quest_input_evidence_shape_present" : undefined,
+      stationRuntimeEvidenceRequired && frameQualityEvidencePresent ? "quest_frame_quality_evidence_present" : undefined,
       latestFrameFresh ? "quest_latest_frame_fresh" : undefined,
       framesAdvancedDuringProbe ? "quest_frames_advanced_during_probe" : undefined,
       immersiveEntryOutcome === "not_requested" ? "quest_immersive_entry_not_requested" : undefined,
@@ -738,6 +760,38 @@ export function buildQuestSmokeEvidenceCheck(inputFile: string | undefined, repo
     ].filter((condition): condition is string => typeof condition === "string"),
     blockers,
   };
+}
+
+function hasTextPanelMetadataEvidence(value: unknown): boolean {
+  const evidence = asRecord(value);
+  const panels = Array.isArray(evidence.panels) ? evidence.panels.map(asRecord) : [];
+  const panelCount = typeof evidence.panelCount === "number" ? evidence.panelCount : panels.length;
+
+  return panelCount >= 3
+    && panels.length >= 3
+    && panels.every((panel) => typeof panel.name === "string"
+      && typeof panel.lineCount === "number"
+      && panel.lineCount > 0
+      && panel.readabilityClaim === "metadata_only_requires_foreground_headset_confirmation");
+}
+
+function hasInputEvidenceShape(value: unknown): boolean {
+  const evidence = asRecord(value);
+  return typeof evidence.activeLocomotionSource === "string"
+    && typeof evidence.inputSourceCount === "number"
+    && Array.isArray(evidence.inputSourceKinds)
+    && isRecord(evidence.keyboardVector)
+    && isRecord(evidence.xrVector);
+}
+
+function hasFrameQualityEvidence(value: unknown): boolean {
+  const evidence = asRecord(value);
+  const latestFrameDeltaKnown = typeof evidence.latestFrameDeltaMs === "number" || evidence.latestFrameDeltaMs === null;
+  const longFrameRatioKnown = typeof evidence.longFrameRatio === "number" || evidence.longFrameRatio === null;
+  return typeof evidence.qualitySource === "string"
+    && typeof evidence.renderLoopMode === "string"
+    && latestFrameDeltaKnown
+    && longFrameRatioKnown;
 }
 
 function inferImmersiveEntryOutcomeFromReport(
@@ -817,6 +871,10 @@ function classifyQuestSmokeEvidence(
 
 function asRecord(value: unknown): Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function isValidIsoDate(value: string | undefined): boolean {
