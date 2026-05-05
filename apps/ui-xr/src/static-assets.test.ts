@@ -72,7 +72,11 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("applyLocomotion");
     expect(mainSource).toContain("readXrGamepadLocomotion");
     expect(mainSource).toContain("readXrHandGestureLocomotion");
+    expect(mainSource).toContain("handGestureDwellMs");
+    expect(mainSource).toContain("other_locomotion_source_active");
+    expect(mainSource).toContain("Gesture: armed");
     expect(mainSource).toContain("xr_hand_gesture");
+    expect(mainSource).toContain("xrHandGestureState");
     expect(mainSource).toContain("fallbackAnimationLoop");
     expect(mainSource).toContain("immersiveFramesObserved");
     expect(mainSource).toContain("previewFramesObserved");

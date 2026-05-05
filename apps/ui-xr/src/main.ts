@@ -49,6 +49,7 @@ import {
   type ReadableVrTextPanelEvidence,
   type ReadableVrTextPanelEvidenceSet,
   type XrInputSourceEvidence,
+  type XrHandGestureStateEvidence,
   type XrExperienceModeEvidence,
   type XrRuntimeState,
   xrExperienceModeEvidence,
@@ -529,7 +530,7 @@ function createStationScene(): StationSceneRuntime {
     lines: [
       "Session: Full VR not entered",
       "Hands: pending optional hand-tracking",
-      "Movement: thumbstick and keyboard dolly",
+      "Movement: thumbstick, keyboard, or armed hand gesture",
     ],
     widthMeters: 1.65,
     heightMeters: 0.72,
@@ -544,6 +545,7 @@ function createStationScene(): StationSceneRuntime {
   let handModelStatus: OpenClinXrInputEvidence["handModelStatus"] = "pending_immersive_session";
   let handModelsInstalled = false;
   let lastInputObservedAtMs: number | null = null;
+  const handGestureLocomotionState = createXrHandGestureLocomotionState();
 
   function resize(): void {
     if (renderer.xr.isPresenting) {
@@ -580,6 +582,7 @@ function createStationScene(): StationSceneRuntime {
       lastLocomotionAtMs,
       handModelCount: handModelsInstalled ? 2 : 0,
       handModelStatus,
+      handGestureLocomotionState,
     });
     lastInputObservedAtMs = inputEvidence.lastInputObservedAtMs ?? lastInputObservedAtMs;
     lastLocomotionAtMs = inputEvidence.lastLocomotionAtMs;
@@ -680,6 +683,9 @@ function createStationScene(): StationSceneRuntime {
       inputEvidence.lastLocomotionAtMs,
       inputEvidence.activeLocomotionSource,
       handGestureSourceActive ? "hand-gesture-active" : "hand-gesture-inactive",
+      inputEvidence.xrHandGestureState?.armed ? "gesture-armed" : "gesture-not-armed",
+      inputEvidence.xrHandGestureState?.dwellMs ?? 0,
+      inputEvidence.xrHandGestureState?.blockedReason ?? "none",
       inputEvidence.rigPosition.x,
       inputEvidence.rigPosition.z,
     ].join("|");
@@ -694,6 +700,9 @@ function createStationScene(): StationSceneRuntime {
     inputPanel.update([
       immersiveSessionActive ? "Session: In Full VR" : "Session: Desktop preview",
       `Hands: ${inputEvidence.handModelStatus}; observed ${inputEvidence.handInputsObserved}`,
+      inputEvidence.xrHandGestureState?.armed
+        ? `Gesture: armed; dwell ${inputEvidence.xrHandGestureState.dwellMs}ms`
+        : `Gesture: ${inputEvidence.xrHandGestureState?.blockedReason ?? "not armed"}`,
       `Movement: ${inputEvidence.activeLocomotionSource ?? "none"}; x ${inputEvidence.rigPosition.x}, z ${inputEvidence.rigPosition.z}`,
     ]);
   }
@@ -859,6 +868,28 @@ type KeyboardLocomotionState = {
   turn: number;
 };
 
+type XrHandGestureLocomotionState = {
+  hands: Record<"left" | "right", XrHandGestureHandState>;
+  lastTurnAtMs: number | null;
+};
+
+type XrHandGestureHandState = {
+  pinchingSinceMs: number | null;
+  neutralOffsetX: number;
+  neutralOffsetZ: number;
+  armed: boolean;
+};
+
+type XrHandGestureLocomotionResult = LocomotionVectorEvidence & {
+  handInputsObserved: number;
+  state: XrHandGestureStateEvidence;
+};
+
+const handGestureDwellMs = 450;
+const handGestureDeadzoneMeters = 0.045;
+const handGestureTurnDeadzoneMeters = 0.055;
+const handGestureTurnCooldownMs = 450;
+
 function createKeyboardLocomotion(): KeyboardLocomotionState {
   const state = { forward: 0, strafe: 0, turn: 0 };
   const pressedKeys = new Set<string>();
@@ -884,6 +915,25 @@ function createKeyboardLocomotion(): KeyboardLocomotionState {
   return state;
 }
 
+function createXrHandGestureLocomotionState(): XrHandGestureLocomotionState {
+  return {
+    hands: {
+      left: createXrHandGestureHandState(),
+      right: createXrHandGestureHandState(),
+    },
+    lastTurnAtMs: null,
+  };
+}
+
+function createXrHandGestureHandState(): XrHandGestureHandState {
+  return {
+    pinchingSinceMs: null,
+    neutralOffsetX: 0,
+    neutralOffsetZ: 0,
+    armed: false,
+  };
+}
+
 function applyLocomotion(input: {
   deltaSeconds: number;
   keyboardLocomotion: KeyboardLocomotionState;
@@ -895,9 +945,9 @@ function applyLocomotion(input: {
   lastLocomotionAtMs: number | null;
   handModelCount: number;
   handModelStatus: OpenClinXrInputEvidence["handModelStatus"];
+  handGestureLocomotionState: XrHandGestureLocomotionState;
 }): OpenClinXrInputEvidence {
   const xrLocomotion = readXrGamepadLocomotion(input.session);
-  const xrHandGestureLocomotion = readXrHandGestureLocomotion(input.renderer);
   const keyboardVector: LocomotionVectorEvidence = {
     forward: clampUnit(input.keyboardLocomotion.forward),
     strafe: clampUnit(input.keyboardLocomotion.strafe),
@@ -908,6 +958,12 @@ function applyLocomotion(input: {
     strafe: xrLocomotion.strafe,
     turn: xrLocomotion.turn,
   };
+  const xrHandGestureLocomotion = readXrHandGestureLocomotion({
+    renderer: input.renderer,
+    gestureState: input.handGestureLocomotionState,
+    now: input.now,
+    otherLocomotionSourceActive: isLocomotionVectorActive(keyboardVector) || isLocomotionVectorActive(xrVector),
+  });
   const xrHandGestureVector: LocomotionVectorEvidence = {
     forward: xrHandGestureLocomotion.forward,
     strafe: xrHandGestureLocomotion.strafe,
@@ -935,6 +991,7 @@ function applyLocomotion(input: {
     keyboardVector,
     xrVector,
     xrHandGestureVector,
+    xrHandGestureState: xrHandGestureLocomotion.state,
     xrInputSources: xrLocomotion.inputSources,
     now: input.now,
     previousLastInputObservedAtMs: input.lastInputObservedAtMs,
@@ -946,26 +1003,48 @@ function applyLocomotion(input: {
   });
 }
 
-function readXrHandGestureLocomotion(renderer: WebGLRenderer): {
-  forward: number;
-  strafe: number;
-  turn: number;
-  handInputsObserved: number;
-} {
+function readXrHandGestureLocomotion(input: {
+  renderer: WebGLRenderer;
+  gestureState: XrHandGestureLocomotionState;
+  now: number;
+  otherLocomotionSourceActive: boolean;
+}): XrHandGestureLocomotionResult {
   let forward = 0;
   let strafe = 0;
   let turn = 0;
   let handInputsObserved = 0;
+  let leftPinch = false;
+  let rightPinch = false;
+  let dwellMs = 0;
+  let armed = false;
+  let blockedReason: XrHandGestureStateEvidence["blockedReason"] = "not_pinching";
 
   for (let index = 0; index < 2; index += 1) {
-    const hand = renderer.xr.getHand(index) as XrHandGroup;
+    const hand = input.renderer.xr.getHand(index) as XrHandGroup;
     if (isTrackedHandVisible(hand)) {
       handInputsObserved += 1;
     }
-    const gesture = readHandGestureVector(hand, index);
+    const handedness = handednessForHand(hand, index);
+    if (hand.inputState?.pinching === true) {
+      if (handedness === "right") {
+        rightPinch = true;
+      } else {
+        leftPinch = true;
+      }
+    }
+    const gesture = readHandGestureVector({
+      hand,
+      index,
+      now: input.now,
+      gestureState: input.gestureState,
+      otherLocomotionSourceActive: input.otherLocomotionSourceActive,
+    });
     forward += gesture.forward;
     strafe += gesture.strafe;
     turn += gesture.turn;
+    dwellMs = Math.max(dwellMs, gesture.dwellMs);
+    armed = armed || gesture.armed;
+    blockedReason = gesture.blockedReason ?? blockedReason;
   }
 
   return {
@@ -973,36 +1052,110 @@ function readXrHandGestureLocomotion(renderer: WebGLRenderer): {
     strafe: clampUnit(strafe),
     turn: clampUnit(turn),
     handInputsObserved,
+    state: {
+      armed,
+      dwellMs,
+      leftPinch,
+      rightPinch,
+      gestureDeadzoneMeters: handGestureDeadzoneMeters,
+      turnCooldownMs: handGestureTurnCooldownMs,
+      ...(armed ? {} : { blockedReason }),
+    },
   };
 }
 
-function readHandGestureVector(hand: XrHandGroup, index: number): LocomotionVectorEvidence {
-  if (hand.inputState?.pinching !== true) {
-    return { forward: 0, strafe: 0, turn: 0 };
+function readHandGestureVector(input: {
+  hand: XrHandGroup;
+  index: number;
+  now: number;
+  gestureState: XrHandGestureLocomotionState;
+  otherLocomotionSourceActive: boolean;
+}): LocomotionVectorEvidence & {
+  armed: boolean;
+  dwellMs: number;
+  blockedReason?: XrHandGestureStateEvidence["blockedReason"];
+} {
+  const handedness = handednessForHand(input.hand, input.index);
+  const state = input.gestureState.hands[handedness];
+  if (input.hand.inputState?.pinching !== true) {
+    resetHandGestureHandState(state);
+    return { forward: 0, strafe: 0, turn: 0, armed: false, dwellMs: 0, blockedReason: "not_pinching" };
   }
-  const wrist = hand.joints?.wrist;
-  const indexTip = hand.joints?.["index-finger-tip"];
+
+  const wrist = input.hand.joints?.wrist;
+  const indexTip = input.hand.joints?.["index-finger-tip"];
   if (!wrist?.visible || !indexTip?.visible) {
-    return { forward: 0, strafe: 0, turn: 0 };
+    resetHandGestureHandState(state);
+    return { forward: 0, strafe: 0, turn: 0, armed: false, dwellMs: 0, blockedReason: "missing_joints" };
+  }
+  if (input.otherLocomotionSourceActive) {
+    resetHandGestureHandState(state);
+    return {
+      forward: 0,
+      strafe: 0,
+      turn: 0,
+      armed: false,
+      dwellMs: 0,
+      blockedReason: "other_locomotion_source_active",
+    };
   }
 
   const offsetX = indexTip.position.x - wrist.position.x;
   const offsetZ = indexTip.position.z - wrist.position.z;
-  const handedness = hand.userData.openClinXrHandedness ?? (index === 0 ? "left" : "right");
+  if (state.pinchingSinceMs === null) {
+    state.pinchingSinceMs = input.now;
+    state.neutralOffsetX = offsetX;
+    state.neutralOffsetZ = offsetZ;
+    state.armed = false;
+  }
+
+  const dwellMs = Math.max(0, input.now - state.pinchingSinceMs);
+  if (dwellMs < handGestureDwellMs) {
+    return { forward: 0, strafe: 0, turn: 0, armed: false, dwellMs, blockedReason: "arming_dwell" };
+  }
+  state.armed = true;
+  const relativeOffsetX = offsetX - state.neutralOffsetX;
+  const relativeOffsetZ = offsetZ - state.neutralOffsetZ;
 
   if (handedness === "right") {
+    const turn = gestureAxis(relativeOffsetX, handGestureTurnDeadzoneMeters, 4);
+    if (turn === 0) {
+      return { forward: 0, strafe: 0, turn: 0, armed: true, dwellMs };
+    }
+    if (
+      input.gestureState.lastTurnAtMs !== null
+      && input.now - input.gestureState.lastTurnAtMs < handGestureTurnCooldownMs
+    ) {
+      return { forward: 0, strafe: 0, turn: 0, armed: true, dwellMs };
+    }
+    input.gestureState.lastTurnAtMs = input.now;
     return {
       forward: 0,
       strafe: 0,
-      turn: gestureAxis(offsetX, 0.035, 4),
+      turn,
+      armed: true,
+      dwellMs,
     };
   }
 
   return {
-    forward: gestureAxis(-offsetZ, 0.04, 5),
-    strafe: gestureAxis(offsetX, 0.04, 5),
+    forward: gestureAxis(-relativeOffsetZ, handGestureDeadzoneMeters, 5),
+    strafe: gestureAxis(relativeOffsetX, handGestureDeadzoneMeters, 5),
     turn: 0,
+    armed: true,
+    dwellMs,
   };
+}
+
+function resetHandGestureHandState(state: XrHandGestureHandState): void {
+  state.pinchingSinceMs = null;
+  state.neutralOffsetX = 0;
+  state.neutralOffsetZ = 0;
+  state.armed = false;
+}
+
+function handednessForHand(hand: XrHandGroup, index: number): "left" | "right" {
+  return hand.userData.openClinXrHandedness === "right" || index === 1 ? "right" : "left";
 }
 
 function isTrackedHandVisible(hand: XrHandGroup): boolean {
@@ -1054,6 +1207,10 @@ function readXrGamepadLocomotion(session: XrSession | undefined): {
 
 function deadzone(value: number): number {
   return Math.abs(value) < 0.18 ? 0 : clampUnit(value);
+}
+
+function isLocomotionVectorActive(vector: LocomotionVectorEvidence): boolean {
+  return Math.abs(vector.forward) > 0 || Math.abs(vector.strafe) > 0 || Math.abs(vector.turn) > 0;
 }
 
 function gestureAxis(value: number, deadzoneMeters: number, sensitivity: number): number {

@@ -42,6 +42,15 @@ describe("Quest manual performance checker", () => {
         handModelStatus: "active",
         handInputsObserved: 2,
         locomotionMode: "xr_hand_gesture",
+        activeLocomotionSource: "xr_hand_gesture",
+        xrHandGestureState: {
+          armed: true,
+          dwellMs: 520,
+          leftPinch: true,
+          rightPinch: false,
+          gestureDeadzoneMeters: 0.045,
+          turnCooldownMs: 450,
+        },
         lastLocomotionAtMs: 60_000,
         rigPosition: { x: 0.4, z: -0.2 },
       },
@@ -189,6 +198,85 @@ describe("Quest manual performance checker", () => {
     expect(check.nextSteps).toEqual(expect.arrayContaining([
       "Observe at least one foreground headset hand or controller interaction.",
       "Observe thumbstick, hand-gesture, or room-scale locomotion and record lastLocomotionAtMs.",
+    ]));
+  });
+
+  it("does not treat a locomotion timestamp as hand-gesture movement without an active source", () => {
+    const report: QuestManualPerformanceReport = {
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      runContext: {
+        performedBy: "xr-systems-architect",
+        durationMinutes: 10,
+      },
+      setup: {
+        foregroundPageConfirmed: true,
+        devtoolsScreencastDisabled: true,
+        extraBrowserWindowsClosed: true,
+      },
+      station: {
+        shellLoaded: true,
+        traceInteractionPassed: true,
+        textReadable: true,
+        immersiveSessionStarted: true,
+        consoleErrors: [],
+      },
+      experience: {
+        modeId: "full_vr",
+        phaseLabel: "Phase 1 Full VR",
+        requestedSessionMode: "immersive-vr",
+        mixedRealityPassthroughImplemented: false,
+      },
+      input: {
+        handModelCount: 2,
+        handModelStatus: "active",
+        handInputsObserved: 2,
+        locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
+        activeLocomotionSource: "none",
+        lastLocomotionAtMs: 60_000,
+        xrHandGestureState: {
+          armed: false,
+          dwellMs: 180,
+          leftPinch: true,
+          rightPinch: false,
+          gestureDeadzoneMeters: 0.045,
+          turnCooldownMs: 450,
+          blockedReason: "arming_dwell",
+        },
+        rigPosition: { x: 0, z: 0 },
+      },
+      traceLatencyProxy: {
+        source: "xr_controller_select",
+        lastTraceTag: "ecg_request",
+        lastSelectLatencyMs: 12,
+        measuredAtMs: 1234,
+        productionControllerLatencySubstitute: false,
+      },
+      performance: {
+        source: "window.__openClinXrFrameStats",
+        framesObserved: 600,
+        sampleWindowSize: 120,
+        firstFrameAtMs: 1000,
+        previewFramesObserved: 0,
+        immersiveFramesObserved: 600,
+        avgFps: 72,
+        p95FrameMs: 25,
+        minimumObservedFps: 60,
+        controllerSelectLatencyMs: 150,
+      },
+      comfort: {
+        motionComfort: "good",
+        heatConcern: false,
+        batteryDropPercent: 2,
+      },
+    };
+
+    const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance.json", report);
+
+    expect(check.readyToClaimFramePacing).toBe(false);
+    expect(check.blockers).toEqual(expect.arrayContaining(["locomotion_not_observed"]));
+    expect(check.satisfiedConditions).not.toEqual(expect.arrayContaining(["locomotion_observed"]));
+    expect(check.adversarialFindings).toEqual(expect.arrayContaining([
+      "hand_gesture_locomotion_timestamp_without_active_source",
     ]));
   });
 

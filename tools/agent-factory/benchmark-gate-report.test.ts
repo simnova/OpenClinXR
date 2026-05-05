@@ -1646,6 +1646,7 @@ describe("benchmark gate report", () => {
             handModelStatus: "active",
             handInputsObserved: 2,
             locomotionMode: "thumbstick",
+            activeLocomotionSource: "xr_gamepad",
             lastLocomotionAtMs: 60_000,
             rigPosition: { x: 0.4, z: -0.2 },
           },

@@ -55,7 +55,7 @@ describe("XR runtime state", () => {
       requestedSessionMode: "immersive-vr",
       mixedRealityPassthroughImplemented: false,
       handTrackingPosture: "optional_feature_with_primitive_hand_model",
-      locomotionPosture: "experimental_keyboard_and_thumbstick_dolly",
+      locomotionPosture: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
     });
   });
 
@@ -279,6 +279,15 @@ describe("XR runtime state", () => {
       handInputsObserved: 2,
       keyboardVector: { forward: 1, strafe: 0, turn: 0 },
       xrVector: { forward: 0, strafe: 0.5, turn: 0 },
+      xrHandGestureState: {
+        armed: false,
+        dwellMs: 0,
+        leftPinch: false,
+        rightPinch: false,
+        gestureDeadzoneMeters: 0.045,
+        turnCooldownMs: 450,
+        blockedReason: "not_pinching",
+      },
       xrInputSources: [
         { handedness: "left", hasHand: true, hasGamepad: true, axisCount: 4 },
         { handedness: "right", hasHand: true, hasGamepad: false, axisCount: 0 },
@@ -291,7 +300,7 @@ describe("XR runtime state", () => {
       handModelCount: 2,
       handModelStatus: "installed",
       handInputsObserved: 2,
-      locomotionMode: "experimental_keyboard_and_thumbstick_dolly",
+      locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
       lastInputObservedAtMs: 456.79,
       lastLocomotionAtMs: 456.79,
       activeLocomotionSource: "mixed",
@@ -300,6 +309,15 @@ describe("XR runtime state", () => {
       keyboardVector: { forward: 1, strafe: 0, turn: 0 },
       xrVector: { forward: 0, strafe: 0.5, turn: 0 },
       xrHandGestureVector: { forward: 0, strafe: 0, turn: 0 },
+      xrHandGestureState: {
+        armed: false,
+        dwellMs: 0,
+        leftPinch: false,
+        rightPinch: false,
+        gestureDeadzoneMeters: 0.045,
+        turnCooldownMs: 450,
+        blockedReason: "not_pinching",
+      },
       xrInputSources: [
         { handedness: "left", hasHand: true, hasGamepad: true, axisCount: 4 },
         { handedness: "right", hasHand: true, hasGamepad: false, axisCount: 0 },
@@ -314,6 +332,14 @@ describe("XR runtime state", () => {
       keyboardVector: { forward: 0, strafe: 0, turn: 0 },
       xrVector: { forward: 0, strafe: 0, turn: 0 },
       xrHandGestureVector: { forward: 0.4, strafe: -0.2, turn: 0.15 },
+      xrHandGestureState: {
+        armed: true,
+        dwellMs: 520,
+        leftPinch: true,
+        rightPinch: true,
+        gestureDeadzoneMeters: 0.045,
+        turnCooldownMs: 450,
+      },
       xrInputSources: [
         { handedness: "left", hasHand: true, hasGamepad: false, axisCount: 0 },
         { handedness: "right", hasHand: true, hasGamepad: false, axisCount: 0 },
@@ -328,6 +354,12 @@ describe("XR runtime state", () => {
       activeLocomotionSource: "xr_hand_gesture",
       inputSourceKinds: ["xr_hand", "xr_hand_gesture"],
       xrHandGestureVector: { forward: 0.4, strafe: -0.2, turn: 0.15 },
+      xrHandGestureState: expect.objectContaining({
+        armed: true,
+        dwellMs: 520,
+        leftPinch: true,
+        rightPinch: true,
+      }),
     });
 
     expect(buildManualPerformanceInputEvidence({
@@ -336,7 +368,16 @@ describe("XR runtime state", () => {
       handInputsObserved: 2,
       keyboardVector: { forward: 0, strafe: 0, turn: 0 },
       xrVector: { forward: 0, strafe: 0, turn: 0 },
-      xrHandGestureVector: { forward: 0, strafe: 0, turn: 0 },
+      xrHandGestureVector: { forward: 0.5, strafe: 0, turn: 0 },
+      xrHandGestureState: {
+        armed: false,
+        dwellMs: 180,
+        leftPinch: true,
+        rightPinch: false,
+        gestureDeadzoneMeters: 0.045,
+        turnCooldownMs: 450,
+        blockedReason: "arming_dwell",
+      },
       xrInputSources: [
         { handedness: "left", hasHand: true, hasGamepad: false, axisCount: 0 },
         { handedness: "right", hasHand: true, hasGamepad: false, axisCount: 0 },
@@ -350,6 +391,12 @@ describe("XR runtime state", () => {
       lastLocomotionAtMs: 222.22,
       activeLocomotionSource: "none",
       inputSourceKinds: ["xr_hand"],
+      xrHandGestureVector: { forward: 0, strafe: 0, turn: 0 },
+      xrHandGestureState: expect.objectContaining({
+        armed: false,
+        dwellMs: 180,
+        blockedReason: "arming_dwell",
+      }),
     });
   });
 
@@ -415,7 +462,7 @@ describe("XR runtime state", () => {
         handModelCount: 2,
         handModelStatus: "installed",
         handInputsObserved: 2,
-        locomotionMode: "experimental_keyboard_and_thumbstick_dolly",
+        locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
         lastLocomotionAtMs: 1234.56,
         rigPosition: { x: 0.1, z: -0.2 },
       },
@@ -463,13 +510,13 @@ describe("XR runtime state", () => {
         requestedSessionMode: "immersive-vr",
         mixedRealityPassthroughImplemented: false,
         handTrackingPosture: "optional_feature_with_primitive_hand_model",
-        locomotionPosture: "experimental_keyboard_and_thumbstick_dolly",
+        locomotionPosture: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
       },
       input: {
         handModelCount: 2,
         handModelStatus: "installed",
         handInputsObserved: 2,
-        locomotionMode: "experimental_keyboard_and_thumbstick_dolly",
+        locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
         lastLocomotionAtMs: 1234.56,
         rigPosition: { x: 0.1, z: -0.2 },
       },
@@ -527,7 +574,7 @@ describe("XR runtime state", () => {
         handModelCount: 2,
         handModelStatus: "installed",
         handInputsObserved: 2,
-        locomotionMode: "experimental_keyboard_and_thumbstick_dolly",
+        locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
         lastInputObservedAtMs: 1234.56,
         lastLocomotionAtMs: null,
         activeLocomotionSource: "none",
@@ -616,7 +663,7 @@ describe("XR runtime state", () => {
         handModelCount: 2,
         handModelStatus: "installed",
         handInputsObserved: 2,
-        locomotionMode: "experimental_keyboard_and_thumbstick_dolly",
+        locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
         lastInputObservedAtMs: 1234.56,
         lastLocomotionAtMs: 1240,
         activeLocomotionSource: "xr_gamepad",

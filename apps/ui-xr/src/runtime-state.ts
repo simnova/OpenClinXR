@@ -102,7 +102,7 @@ export type ManualPerformanceInputEvidence = {
   handModelCount: number;
   handModelStatus: "pending_immersive_session" | "installed" | "failed";
   handInputsObserved: number;
-  locomotionMode: "experimental_keyboard_and_thumbstick_dolly";
+  locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly";
   lastInputObservedAtMs?: number | null;
   lastLocomotionAtMs: number | null;
   activeLocomotionSource?: "none" | "keyboard" | "xr_gamepad" | "xr_hand_gesture" | "mixed";
@@ -111,6 +111,7 @@ export type ManualPerformanceInputEvidence = {
   keyboardVector?: LocomotionVectorEvidence;
   xrVector?: LocomotionVectorEvidence;
   xrHandGestureVector?: LocomotionVectorEvidence;
+  xrHandGestureState?: XrHandGestureStateEvidence;
   xrInputSources?: XrInputSourceEvidence[];
   rigPosition: { x: number; z: number };
 };
@@ -130,6 +131,16 @@ export type XrInputSourceEvidence = {
   axisCount: number;
 };
 
+export type XrHandGestureStateEvidence = {
+  armed: boolean;
+  dwellMs: number;
+  leftPinch: boolean;
+  rightPinch: boolean;
+  gestureDeadzoneMeters: number;
+  turnCooldownMs: number;
+  blockedReason?: "not_pinching" | "arming_dwell" | "missing_joints" | "other_locomotion_source_active";
+};
+
 export type ManualPerformanceInputEvidenceInput = {
   handModelCount: number;
   handModelStatus: ManualPerformanceInputEvidence["handModelStatus"];
@@ -137,6 +148,7 @@ export type ManualPerformanceInputEvidenceInput = {
   keyboardVector: LocomotionVectorEvidence;
   xrVector: LocomotionVectorEvidence;
   xrHandGestureVector?: LocomotionVectorEvidence;
+  xrHandGestureState?: XrHandGestureStateEvidence;
   xrInputSources: XrInputSourceEvidence[];
   now: number;
   previousLastInputObservedAtMs: number | null;
@@ -276,7 +288,7 @@ export type FullVrExperienceModeEvidence = {
   requestedSessionMode: "immersive-vr";
   mixedRealityPassthroughImplemented: false;
   handTrackingPosture: "optional_feature_with_primitive_hand_model";
-  locomotionPosture: "experimental_keyboard_and_thumbstick_dolly";
+  locomotionPosture: "experimental_keyboard_thumbstick_and_hand_gesture_dolly";
 };
 
 export type MixedRealityExperienceModeEvidence = {
@@ -322,7 +334,7 @@ export const xrExperienceModeEvidence: FullVrExperienceModeEvidence = {
   requestedSessionMode: "immersive-vr",
   mixedRealityPassthroughImplemented: false,
   handTrackingPosture: "optional_feature_with_primitive_hand_model",
-  locomotionPosture: "experimental_keyboard_and_thumbstick_dolly",
+  locomotionPosture: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
 };
 
 export const xrExperienceModeContracts: XrExperienceModeContract[] = [
@@ -650,7 +662,12 @@ export function buildManualPerformanceInputEvidence(
 ): ManualPerformanceInputEvidence {
   const keyboardVector = roundedVector(input.keyboardVector);
   const xrVector = roundedVector(input.xrVector);
-  const xrHandGestureVector = roundedVector(input.xrHandGestureVector ?? emptyLocomotionVector);
+  const xrHandGestureState = input.xrHandGestureState
+    ? normalizeXrHandGestureState(input.xrHandGestureState)
+    : undefined;
+  const xrHandGestureVector = roundedVector(
+    xrHandGestureState?.armed === true ? input.xrHandGestureVector ?? emptyLocomotionVector : emptyLocomotionVector,
+  );
   const keyboardActive = isLocomotionVectorActive(keyboardVector);
   const xrActive = isLocomotionVectorActive(xrVector);
   const xrHandGestureActive = isLocomotionVectorActive(xrHandGestureVector);
@@ -675,7 +692,7 @@ export function buildManualPerformanceInputEvidence(
     handModelCount: input.handModelCount,
     handModelStatus: input.handModelStatus,
     handInputsObserved: input.handInputsObserved,
-    locomotionMode: "experimental_keyboard_and_thumbstick_dolly",
+    locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
     lastInputObservedAtMs: inputObserved ? roundMetric(input.now) : input.previousLastInputObservedAtMs,
     lastLocomotionAtMs: keyboardActive || xrActive || xrHandGestureActive
       ? roundMetric(input.now)
@@ -686,11 +703,24 @@ export function buildManualPerformanceInputEvidence(
     keyboardVector,
     xrVector,
     xrHandGestureVector,
+    ...(xrHandGestureState ? { xrHandGestureState } : {}),
     xrInputSources: input.xrInputSources.map((source) => ({ ...source })),
     rigPosition: {
       x: roundMetric(input.rigPosition.x, 3),
       z: roundMetric(input.rigPosition.z, 3),
     },
+  };
+}
+
+function normalizeXrHandGestureState(state: XrHandGestureStateEvidence): XrHandGestureStateEvidence {
+  return {
+    armed: state.armed,
+    dwellMs: roundMetric(Math.max(0, state.dwellMs)),
+    leftPinch: state.leftPinch,
+    rightPinch: state.rightPinch,
+    gestureDeadzoneMeters: roundMetric(state.gestureDeadzoneMeters, 3),
+    turnCooldownMs: Math.max(0, Math.round(state.turnCooldownMs)),
+    ...(state.blockedReason ? { blockedReason: state.blockedReason } : {}),
   };
 }
 

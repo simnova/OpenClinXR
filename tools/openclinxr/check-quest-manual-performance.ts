@@ -41,6 +41,15 @@ export type QuestManualPerformanceReport = {
     handInputsObserved?: number;
     locomotionMode?: string;
     activeLocomotionSource?: "none" | "keyboard" | "xr_gamepad" | "xr_hand_gesture" | "mixed";
+    xrHandGestureState?: {
+      armed?: boolean;
+      dwellMs?: number;
+      leftPinch?: boolean;
+      rightPinch?: boolean;
+      gestureDeadzoneMeters?: number;
+      turnCooldownMs?: number;
+      blockedReason?: string;
+    };
     lastLocomotionAtMs?: number | null;
     rigPosition?: {
       x?: number;
@@ -298,6 +307,10 @@ function buildAdversarialFindings(input: {
   const locomotionModeDeclared = typeof input.report.input?.locomotionMode === "string"
     && input.report.input.locomotionMode.trim().length > 0;
   const locomotionEventMissing = typeof input.report.input?.lastLocomotionAtMs !== "number";
+  const handGestureTimestampWithoutActiveSource = typeof input.report.input?.lastLocomotionAtMs === "number"
+    && input.report.input?.xrHandGestureState !== undefined
+    && input.report.input.activeLocomotionSource !== "xr_hand_gesture"
+    && input.report.input.activeLocomotionSource !== "mixed";
   const immersiveWithNoFrameStats = input.report.station?.immersiveSessionStarted === true
     && input.framesObservedValid
     && input.framesObserved === 0;
@@ -308,6 +321,7 @@ function buildAdversarialFindings(input: {
     primitiveHandModelObserved ? "hand_tracking_uses_primitive_box_model" : undefined,
     primitiveHandModelObserved && handTrackingObserved ? "hand_tracking_observed_without_realistic_hand_meshes" : undefined,
     locomotionModeDeclared && locomotionEventMissing ? "locomotion_mode_declared_without_locomotion_event" : undefined,
+    handGestureTimestampWithoutActiveSource ? "hand_gesture_locomotion_timestamp_without_active_source" : undefined,
     immersiveWithNoFrameStats ? "immersive_session_started_but_frame_stats_empty" : undefined,
     traceLatencyProxy
     && isKnownTraceLatencySource(traceLatencyProxy.source)
@@ -328,6 +342,8 @@ function questManualNextStepForAdversarialFinding(finding: string): string {
       return "Replace primitive box hands with an articulated hand model or document why controller-only affordances are acceptable for this station.";
     case "locomotion_mode_declared_without_locomotion_event":
       return "Record an actual locomotion event timestamp after thumbstick, hand-gesture, or room-scale movement.";
+    case "hand_gesture_locomotion_timestamp_without_active_source":
+      return "Re-copy the Quest evidence after deliberate hand-gesture locomotion is armed and active, or clear the locomotion timestamp.";
     case "immersive_session_started_but_frame_stats_empty":
       return "Keep the headset foreground for a longer run and verify window.__openClinXrFrameStats increments while immersive mode is active.";
     case "trace_latency_proxy_not_measured":
@@ -462,13 +478,11 @@ function hasObservedHeadsetInput(value: QuestManualPerformanceReport["input"]): 
 function hasObservedLocomotion(value: QuestManualPerformanceReport["input"]): boolean {
   const hasLocomotionSource = typeof value?.activeLocomotionSource === "string"
     && value.activeLocomotionSource !== "none";
-  const hasLocomotionMode = typeof value?.locomotionMode === "string"
-    && value.locomotionMode.trim().length > 0;
 
   return typeof value?.lastLocomotionAtMs === "number"
     && Number.isFinite(value.lastLocomotionAtMs)
     && value.lastLocomotionAtMs >= 0
-    && (hasLocomotionSource || hasLocomotionMode);
+    && hasLocomotionSource;
 }
 
 function isFullVrExperienceEvidence(value: QuestManualPerformanceReport["experience"]): boolean {
