@@ -21,13 +21,14 @@ Patrick tested the `apps/ui-xr-iwsdk-spike` scene on Quest 3 and reported:
 - Added machine-readable runtime posture that marks the current mode as `Phase 1 Full VR`, requested session mode `immersive-vr`, and `mixedRealityPassthroughImplemented: false`.
 - Added and later approved [proposal-webxr-mixed-reality-mode.md](../../proposals/approved/proposal-webxr-mixed-reality-mode.md) so passthrough/MR is handled as an explicit parallel sidecar track instead of silently conflating it with full VR.
 - Added a DOM trace-select latency proxy in both XR shells and the Quest CDP smoke harness so automated runs can prove trace latency evidence is wired without pretending to measure physical controller latency.
+- Added an in-Full-VR `select` path that advances the next missing trace action from controller trigger or hand-select input and records the Trace row as `xr_controller_select`.
 
 ## Remaining Gaps
 
 - Mixed-reality/passthrough mode is approved for a parallel sidecar track, but is not implemented or validated yet.
 - Primitive hands need a fresh human headset pass; articulated/skinned hand meshes remain future work.
 - Experimental thumbstick locomotion needs a fresh human headset pass for comfort, nausea risk, bounds, and input policy.
-- Real headset controller-select latency is not yet measured in the manual performance report; the automated DOM-click proxy is supporting evidence only.
+- Real headset controller-select latency is not yet measured in the manual performance report; the automated DOM-click proxy is supporting evidence only, and the new `xr_controller_select` Trace row still needs a physical Quest confirmation.
 - The updated in-scene text/controller-ray build needs a fresh physical Quest retest after the operator clicks `Enter Full VR`.
 
 ## Current Posture
