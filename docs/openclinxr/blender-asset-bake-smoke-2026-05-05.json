@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-05-05T11:02:14.867Z",
+  "tool": {
+    "command": "blender",
+    "package": "Blender",
+    "version": "Blender 5.1.1",
+    "license": "GPL-3.0-or-later-tooling"
+  },
+  "input": {
+    "fixture": "low_poly_clinical_humanoid",
+    "externalAssetsUsed": false,
+    "sourceLicensePosture": "repo_generated_placeholder",
+    "expectedObjectCount": 7
+  },
+  "output": {
+    "glbBytes": 27284,
+    "magic": "glTF",
+    "version": 2,
+    "declaredLength": 27284,
+    "elapsedMs": 1591.37
+  },
+  "verdict": {
+    "passed": true,
+    "blockers": []
+  }
+}

@@ -30,9 +30,9 @@
     },
     {
       "evidence_id": "blender_asset_bake_smoke",
-      "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
-      "generated_at": "2026-05-04T05:06:10.560Z",
-      "age_hours": 23,
+      "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-05.json",
+      "generated_at": "2026-05-05T11:02:14.867Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -208,8 +208,8 @@
     "blockers": []
   },
   "blender_asset_bake_smoke": {
-    "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
-    "generated_at": "2026-05-04T05:06:10.560Z",
+    "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-05.json",
+    "generated_at": "2026-05-05T11:02:14.867Z",
     "tool": {
       "command": "blender",
       "package": "Blender",
@@ -227,7 +227,7 @@
       "magic": "glTF",
       "version": 2,
       "declaredLength": 27284,
-      "elapsedMs": 5610.77
+      "elapsedMs": 1591.37
     },
     "passed": true,
     "blockers": []
