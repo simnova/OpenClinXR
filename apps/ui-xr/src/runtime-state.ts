@@ -1029,7 +1029,11 @@ function handRepresentationKindFor(input: {
   handInputsObserved: number;
   inputSourceKinds: RuntimeInputSourceKind[];
 }): HandRepresentationKind {
-  if (input.handModelStatus === "installed" && input.handModelCount > 0 && input.activeHandRepresentationKind) {
+  if (
+    (input.handModelStatus === "installed" || input.handModelStatus === "failed")
+    && input.handModelCount > 0
+    && input.activeHandRepresentationKind
+  ) {
     return input.activeHandRepresentationKind;
   }
   if (input.handModelStatus === "installed" && input.handModelCount > 0 && input.handInputsObserved > 0) {

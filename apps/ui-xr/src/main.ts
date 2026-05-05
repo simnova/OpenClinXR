@@ -12,6 +12,7 @@ import {
   HemisphereLight,
   Line,
   LineBasicMaterial,
+  LoadingManager,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
@@ -846,6 +847,10 @@ function createStationScene(): StationSceneRuntime {
         onMeshReady: () => {
           activeHandRepresentationKind = meshHandRepresentationKind;
         },
+        onMeshLoadError: () => {
+          activeHandRepresentationKind = primitiveHandRepresentationKind;
+          handModelStatus = "failed";
+        },
       });
       handModelsInstalled = true;
       handModelStatus = "installed";
@@ -1069,10 +1074,13 @@ function addControllerAffordances(
 
 function addHandModels(renderer: WebGLRenderer, scene: Scene, input: {
   onMeshReady: () => void;
+  onMeshLoadError: (url: string) => void;
 }): void {
   let loadedMeshCount = 0;
   const primitiveFallbacks: Mesh[] = [];
-  const meshLoader = new GLTFLoader().setPath(localHandMeshPath);
+  const meshLoadingManager = new LoadingManager();
+  meshLoadingManager.onError = (url) => input.onMeshLoadError(url);
+  const meshLoader = new GLTFLoader(meshLoadingManager).setPath(localHandMeshPath);
   const handModelFactory = new XRHandModelFactory(meshLoader, () => {
     loadedMeshCount += 1;
     if (loadedMeshCount >= 2) {

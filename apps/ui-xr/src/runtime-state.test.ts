@@ -555,6 +555,11 @@ describe("XR runtime state", () => {
       ...baseInput,
       activeHandRepresentationKind: "primitive_spheres",
     }).handRepresentationKind).toBe("primitive_spheres");
+    expect(buildManualPerformanceInputEvidence({
+      ...baseInput,
+      handModelStatus: "failed",
+      activeHandRepresentationKind: "primitive_spheres",
+    }).handRepresentationKind).toBe("primitive_spheres");
   });
 
   it("does not stamp locomotion when an active source produces no rig movement delta", () => {

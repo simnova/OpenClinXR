@@ -79,7 +79,10 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("XRHandModelFactory");
     expect(mainSource).toContain("renderer.xr.getHand");
     expect(mainSource).toContain("GLTFLoader");
+    expect(mainSource).toContain("LoadingManager");
     expect(mainSource).toContain("localHandMeshPath");
+    expect(mainSource).toContain("meshLoadingManager.onError");
+    expect(mainSource).toContain("onMeshLoadError");
     expect(mainSource).toContain("handModelFactory.setPath(localHandMeshPath)");
     expect(mainSource).toContain("meshHandModelProfile");
     expect(mainSource).toContain("createHandModel(hand, meshHandModelProfile)");
