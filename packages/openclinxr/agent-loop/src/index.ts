@@ -200,6 +200,7 @@ export type AgentWorkflowSkillId =
   | "ant-design-cli-skill"
   | "apollo-graphql-skills"
   | "archunitts"
+  | "blender-mcp"
   | "meta-iwsdk-mcp"
   | "storybook-mcp"
   | "turborepo-skill";
@@ -653,6 +654,37 @@ export function recommendWorkflowSkillsForWorkOrder(
       guardrails: [
         "Keep optional until Storybook and addon packages are installed deliberately.",
         "Use alongside component tests rather than as a replacement for repository verification.",
+      ],
+    });
+  }
+
+  if (matchesAny(text, [
+    "asset pipeline",
+    "asset generation",
+    "blender",
+    "rigging",
+    "animation",
+    "medical equipment",
+    "mesh",
+    "material",
+    "scene fidelity",
+    "avatar",
+  ])) {
+    recommendations.push({
+      id: "blender-mcp",
+      name: "Blender MCP Candidate",
+      sourceUrl: "https://www.blender.org/lab/mcp-server/",
+      sourceRecordId: "src-blender-mcp-operator-reference-2026",
+      sourceRecordIds: [
+        "src-blender-license-2026",
+        "src-blender-mcp-operator-reference-2026",
+      ],
+      useWhen: "Use for optional local Blender scene, mesh, rigging, material, generated-equipment, and screenshot automation assessment.",
+      guardrails: [
+        "Do not install or configure Blender MCP without an explicit proposal and local-only security review.",
+        "Keep GPL Blender executable posture separate from generated artwork and review every add-on/server license independently.",
+        "Treat MCP evidence as local-only developer automation until production or CI usage is explicitly approved.",
+        "Keep the existing Blender CLI bake and asset-production readiness checks as the baseline until MCP adds measurable value.",
       ],
     });
   }

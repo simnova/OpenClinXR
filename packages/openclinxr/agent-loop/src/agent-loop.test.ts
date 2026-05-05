@@ -373,6 +373,30 @@ describe("agent-loop synthesis planning", () => {
         ]),
       }),
     ]));
+
+    const assetAutomationSkills = recommendWorkflowSkillsForWorkOrder({
+      stage: "core_revision",
+      goal: "Evaluate Blender MCP automation for generated medical equipment, rigging, and scene fidelity QA.",
+      dimensions: ["implementation_readiness"],
+      memoryTopics: ["asset pipeline", "blender", "rigging", "medical equipment"],
+    });
+
+    expect(assetAutomationSkills).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: "blender-mcp",
+        sourceRecordId: "src-blender-mcp-operator-reference-2026",
+        sourceRecordIds: expect.arrayContaining([
+          "src-blender-license-2026",
+          "src-blender-mcp-operator-reference-2026",
+        ]),
+        guardrails: expect.arrayContaining([
+          expect.stringContaining("Do not install"),
+          expect.stringContaining("GPL"),
+          expect.stringContaining("local-only"),
+          expect.stringContaining("existing Blender CLI"),
+        ]),
+      }),
+    ]));
   });
 
   it("keeps specialist-owned blocker actions tied to scored dimensions after the plan clears low score thresholds", () => {

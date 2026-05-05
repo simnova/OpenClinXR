@@ -104,7 +104,7 @@ This file captures useful operator steering that should shape future work but do
 
 ### SUG-2026-05-05-001: Evaluate Blender MCP For Asset Pipeline Automation
 
-- Status: `captured`
+- Status: `accepted-for-review`
 - Captured at: 2026-05-05 16:03 EDT
 - Operator steering: Blender MCP exists and may assist the solution design for generated clinical actors, equipment, rigging, scene setup, asset inspection, and repeatable Blender automation.
 - Reference: https://www.blender.org/lab/mcp-server/
@@ -115,3 +115,4 @@ This file captures useful operator steering that should shape future work but do
   - Treat Blender MCP as an optional local developer automation lane unless a later proposal approves production or CI usage.
   - Evaluate whether it can produce structured evidence for scene contents, mesh/material provenance, equipment presence, rigging/animation readiness, polycount/texture budgets, and screenshots/videos for adversarial visual QA.
   - Keep existing non-MCP Blender CLI smoke tests as the baseline until MCP evidence proves added value.
+- Current posture: recorded as an optional agent-loop workflow recommendation for asset-pipeline work only. No Blender MCP package/server install, MCP configuration, production use, CI use, or remote-access posture has been approved.

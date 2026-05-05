@@ -1,0 +1,23 @@
+{
+  "source_id": "src-blender-mcp-operator-reference-2026",
+  "title": "Operator Reference To Blender Lab MCP Server",
+  "url": "https://www.blender.org/lab/mcp-server/",
+  "file_path": "operator-suggestion-backlog.md",
+  "source_type": "internal-artifact",
+  "citation": "Patrick Gidich suggested Blender Lab MCP Server as a candidate OpenClinXR asset-pipeline automation aid on 2026-05-05; recorded in operator-suggestion-backlog.md.",
+  "accessed_at": "2026-05-05",
+  "permitted_uses": [
+    "Planning future local-only Blender MCP evaluation for generated clinical actors, rigging, medical equipment, scene inspection, and adversarial visual QA automation."
+  ],
+  "claims_supported": [
+    "The operator identified the Blender Lab MCP Server URL as a candidate technology to evaluate.",
+    "The candidate is relevant to asset pipeline automation, generated-equipment workflows, rigging checks, and Blender scene inspection planning."
+  ],
+  "claims_not_supported": [
+    "That Codex installed, configured, or successfully ran Blender MCP.",
+    "That Blender MCP package version, license, security posture, transport behavior, or local compatibility has been verified.",
+    "That Blender MCP is approved for production, CI, remote access, or default verification.",
+    "That Blender MCP can replace existing Blender CLI smoke tests or asset-production readiness gates."
+  ],
+  "confidence": 0.7
+}
