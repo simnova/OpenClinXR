@@ -625,7 +625,7 @@ function createStationScene(): StationSceneRuntime {
   const clockMesh = new Mesh(new CylinderGeometry(0.25, 0.25, 0.05, 48), new MeshStandardMaterial({ color: 0xf3e8c9 }));
   clockMesh.name = iwsdkStationSceneObjects.wallClock;
   clockMesh.rotation.x = Math.PI / 2;
-  clockMesh.position.set(0.9, 2.2, -1.2);
+  clockMesh.position.set(0.9, 3.35, -1.2);
   scene.add(clockMesh);
   const clinicalPanel = createClinicalPanel();
   scene.add(clinicalPanel.mesh);
@@ -654,7 +654,7 @@ function createStationScene(): StationSceneRuntime {
     background: "#eef4ff",
     accent: "#5a6f9f",
   });
-  inputPanel.mesh.position.set(0.05, 2.02, -1.48);
+  inputPanel.mesh.position.set(0.45, 1.72, -1.08);
   inputPanel.mesh.rotation.y = 0;
   scene.add(inputPanel.mesh);
   let lastPanelSignature = "";

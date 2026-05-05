@@ -1150,22 +1150,22 @@
     ]
   },
   "visual_qa_evidence": {
-    "file": "docs/openclinxr/visual-qa-evidence-ui-xr-text-panels-raised-2026-05-05.json",
+    "file": "docs/openclinxr/visual-qa-evidence-ui-xr-z-panel-depth-clock-final-2026-05-05.json",
     "ready_for_adversarial_visual_qa": true,
     "ready_for_production_runtime": false,
     "ready_for_physical_quest_claim": false,
     "capture": {
       "source": "desktop_browser",
       "artifact_type": "screenshot",
-      "artifact": "docs/openclinxr/screenshots/ui-xr-text-panels-raised-2026-05-05.png",
+      "artifact": "docs/openclinxr/screenshots/ui-xr-panel-depth-clock-final-2026-05-05.png",
       "scenario_id": "ed_chest_pain_priority_v1",
       "xr_mode": "desktop_browser_flat_preview_not_immersive"
     },
     "blockers": [],
     "allowed_claims": [
       "adversarial_visual_iteration_artifact",
-      "desktop_in_scene_text_panels_raised",
-      "desktop_ehr_and_dialogue_panel_readability_improved"
+      "desktop_in_scene_input_panel_depth_adjusted",
+      "desktop_wall_clock_no_longer_occludes_text_panels"
     ],
     "not_evidence_for": [
       "physical_quest_foreground_frame_pacing",
