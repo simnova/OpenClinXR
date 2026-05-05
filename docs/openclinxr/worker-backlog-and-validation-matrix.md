@@ -130,6 +130,34 @@ Done when:
 
 - Test harness can load the fixture without file-system guessing.
 
+## Worker 4A: Session State Steward
+
+Owned paths:
+
+- `packages/openclinxr/session-state`
+- `packages/openclinxr/architecture-rules`
+
+Tasks:
+
+- Maintain the promoted multi-actor actor/session state contract.
+- Preserve per-actor visible/private memory boundaries.
+- Record text and final voice-transcript interaction provenance without raw audio.
+- Track clinical trace tags, orders, findings, and spatial actor transforms.
+- Keep WebSocket session-state messages design-only until implementation is explicitly scoped.
+- Keep the superseded `multi-actor-state-spike` package out of production imports.
+
+Validation:
+
+- `pnpm --filter @openclinxr/session-state test`
+- `pnpm --filter @openclinxr/session-state typecheck`
+- `pnpm --filter @openclinxr/architecture-rules test`
+
+Done when:
+
+- Scenario runtime consumes `@openclinxr/session-state` for actor model context.
+- `@openclinxr/session-state` has no Redis, Redka, MongoDB, Colyseus, bitECS, or WebSocket runtime dependency.
+- The spike package remains evidence-only and superseded for production-shaped contracts.
+
 ## Worker 5: Trace And Review Steward
 
 Owned paths:
