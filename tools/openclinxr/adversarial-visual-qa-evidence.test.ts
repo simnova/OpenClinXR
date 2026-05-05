@@ -47,6 +47,26 @@ describe("adversarial visual QA evidence evaluator", () => {
     }
   });
 
+  it("accepts a video artifact as adversarial visual QA support only", () => {
+    const evidence = readyEvidence({
+      artifactType: "video",
+      artifact: "docs/openclinxr/videos/adversarial-visual-qa-fixture-2026-05-05.mp4",
+      mimeType: "video/mp4",
+      bytes: 2270,
+      dimensions: undefined,
+      captureCommand: "browser-devtools video capture fixture",
+    });
+
+    const result = evaluateAdversarialVisualQaEvidence(evidence);
+
+    expect(result).toEqual({
+      readyForAdversarialVisualQaSupport: true,
+      readyForProductionRuntime: false,
+      readyForPhysicalQuestClaim: false,
+      blockers: [],
+    });
+  });
+
   it("rejects missing and nonexistent artifacts", () => {
     const evidence = readyEvidence();
     evidence.media![0]!.artifact = "docs/openclinxr/screenshots/not-captured.png";
@@ -91,6 +111,28 @@ describe("adversarial visual QA evidence evaluator", () => {
     expect(evaluateAdversarialVisualQaEvidence(videoEvidence).blockers).toContain(
       "media[0].artifact_not_under_allowed_media_dir",
     );
+  });
+
+  it("rejects video metadata when mime type or bytes do not match the local artifact", () => {
+    const evidence = readyEvidence({
+      artifactType: "video",
+      artifact: "docs/openclinxr/videos/adversarial-visual-qa-fixture-2026-05-05.mp4",
+      mimeType: "image/png",
+      bytes: 1,
+      dimensions: undefined,
+    });
+
+    const result = evaluateAdversarialVisualQaEvidence(evidence);
+
+    expect(result.readyForAdversarialVisualQaSupport).toBe(false);
+    expect(result.blockers).toEqual(expect.arrayContaining([
+      "media[0].mime_type_invalid_for_artifact_type",
+      "media[0].artifact_bytes_do_not_match_file_size",
+    ]));
+    expect(result.blockers).not.toEqual(expect.arrayContaining([
+      "media[0].artifact_width_invalid_or_missing",
+      "media[0].artifact_height_invalid_or_missing",
+    ]));
   });
 
   it("rejects automated sources that try to claim physical Quest readiness", () => {
