@@ -512,6 +512,123 @@ describe("Quest CDP smoke probe", () => {
     }));
   });
 
+  it("separates Quest smoke readiness into device, shell, immersive, frame, and station lanes", () => {
+    const report = buildReport({
+      options: parseArgs(["--url", "http://localhost:5173/?questSmoke=1"]),
+      adbVersion: "Android Debug Bridge version 1.0.41",
+      deviceLine: "1234 device product:quest3",
+      reverseList: "1234 tcp:5173 tcp:5173",
+      browser: {
+        title: "OpenClinXR Station Runtime",
+        userAgent: "Mozilla/5.0 (X11; Linux x86_64; Quest 3) OculusBrowser/146.0.0",
+        bodyHasEdChestPain: true,
+        hasViteOverlay: false,
+        hidden: false,
+        visibilityState: "visible",
+        canvas: { dataUrlLength: 4096 },
+        ...healthyBrowserRuntimeEvidence(),
+      },
+      interaction: {
+        afterTrace: "Trace 2/10",
+        clickedEcg: true,
+        clickedUrgent: true,
+      },
+      frameSample: healthyFrameSampleRuntimeEvidence(),
+    });
+
+    const check = buildQuestSmokeEvidenceCheck("quest-ready.json", report);
+
+    expect(check.readinessMatrix).toEqual({
+      foregroundDevice: {
+        status: "ready",
+        satisfiedConditions: [
+          "quest_cdp_adb_device_recorded",
+          "quest_cdp_adb_quest_device_recorded",
+          "quest_cdp_user_agent_recorded",
+          "quest_cdp_browser_quest_user_agent_recorded",
+          "quest_page_visible",
+        ],
+        blockers: [],
+      },
+      shellInteraction: {
+        status: "ready",
+        satisfiedConditions: [
+          "quest_shell_loaded",
+          "quest_trace_interaction_advanced",
+        ],
+        blockers: [],
+      },
+      immersiveEntry: {
+        status: "not_requested",
+        outcome: "not_requested",
+        satisfiedConditions: ["quest_immersive_entry_not_requested"],
+        blockers: [],
+      },
+      framePacingSample: {
+        status: "ready",
+        satisfiedConditions: [
+          "quest_cdp_frame_sample_complete",
+          "quest_latest_frame_fresh",
+          "quest_frames_advanced_during_probe",
+          "quest_frame_quality_evidence_present",
+        ],
+        blockers: [],
+      },
+      stationRuntimeEvidence: {
+        status: "ready",
+        satisfiedConditions: [
+          "quest_text_panel_metadata_present",
+          "quest_input_evidence_shape_present",
+          "quest_frame_quality_evidence_present",
+        ],
+        blockers: [],
+      },
+    });
+  });
+
+  it("blocks foreground-ready classification when ADB and browser identity are not Quest-specific", () => {
+    const report = buildReport({
+      options: parseArgs(["--url", "http://localhost:5173/?questSmoke=1"]),
+      adbVersion: "Android Debug Bridge version 1.0.41",
+      deviceLine: "1234 device product:generic model:Pixel",
+      reverseList: "1234 tcp:5173 tcp:5173",
+      browser: {
+        title: "OpenClinXR Station Runtime",
+        userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Chrome/147.0.0.0 Safari/537.36",
+        bodyHasEdChestPain: true,
+        hasViteOverlay: false,
+        hidden: false,
+        visibilityState: "visible",
+        canvas: { dataUrlLength: 4096 },
+        ...healthyBrowserRuntimeEvidence(),
+      },
+      interaction: {
+        afterTrace: "Trace 2/10",
+        clickedEcg: true,
+        clickedUrgent: true,
+      },
+      frameSample: healthyFrameSampleRuntimeEvidence(),
+    });
+
+    const check = buildQuestSmokeEvidenceCheck("desktop-shaped.json", report);
+
+    expect(check.readyForForegroundQuestClaim).toBe(false);
+    expect(check.classification).toBe("blocked");
+    expect(check.blockers).toEqual(expect.arrayContaining([
+      "quest_cdp_adb_quest_device_missing",
+      "quest_cdp_browser_quest_user_agent_missing",
+    ]));
+    expect(check.satisfiedConditions).not.toContain("quest_cdp_adb_quest_device_recorded");
+    expect(check.satisfiedConditions).not.toContain("quest_cdp_browser_quest_user_agent_recorded");
+    expect(check.readinessMatrix?.foregroundDevice).toEqual(expect.objectContaining({
+      status: "blocked",
+      blockers: expect.arrayContaining([
+        "quest_cdp_adb_quest_device_missing",
+        "quest_cdp_browser_quest_user_agent_missing",
+      ]),
+    }));
+  });
+
   it("propagates immersive-entry outcome into evidence checks", () => {
     const report = buildReport({
       options: parseArgs(["--enter-vr"]),
@@ -715,6 +832,29 @@ describe("Quest CDP smoke probe", () => {
       "quest_frame_stats_present",
     ]));
     expect(check.satisfiedConditions).not.toContain("quest_page_visible");
+    expect(check.readinessMatrix).toEqual(expect.objectContaining({
+      foregroundDevice: expect.objectContaining({
+        status: "blocked",
+        blockers: ["quest_page_hidden_or_inactive"],
+      }),
+      framePacingSample: expect.objectContaining({
+        status: "blocked",
+        blockers: expect.arrayContaining([
+          "quest_cdp_frame_sample_incomplete",
+          "quest_cdp_frame_sample_timed_out",
+          "quest_no_frames_observed_during_probe",
+          "quest_latest_frame_stale_over_1000ms",
+        ]),
+      }),
+      shellInteraction: expect.objectContaining({
+        status: "ready",
+        blockers: [],
+      }),
+      immersiveEntry: expect.objectContaining({
+        status: "not_requested",
+        outcome: "not_requested",
+      }),
+    }));
   });
 
   it("keeps missing Quest smoke evidence as an explicit offline validation blocker", () => {

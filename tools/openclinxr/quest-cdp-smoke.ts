@@ -89,8 +89,29 @@ export type QuestSmokeEvidenceCheck = {
   readyForForegroundQuestClaim: boolean;
   classification: QuestSmokeEvidenceClassification;
   immersiveEntryOutcome: QuestImmersiveEntryOutcome;
+  readinessMatrix?: QuestSmokeReadinessMatrix;
   satisfiedConditions: string[];
   blockers: string[];
+};
+
+export type QuestSmokeReadinessStatus = "ready" | "blocked" | "not_requested" | "not_required";
+
+export type QuestSmokeReadinessLane = {
+  status: QuestSmokeReadinessStatus;
+  satisfiedConditions: string[];
+  blockers: string[];
+};
+
+export type QuestSmokeImmersiveReadinessLane = QuestSmokeReadinessLane & {
+  outcome: QuestImmersiveEntryOutcome;
+};
+
+export type QuestSmokeReadinessMatrix = {
+  foregroundDevice: QuestSmokeReadinessLane;
+  shellInteraction: QuestSmokeReadinessLane;
+  immersiveEntry: QuestSmokeImmersiveReadinessLane;
+  framePacingSample: QuestSmokeReadinessLane;
+  stationRuntimeEvidence: QuestSmokeReadinessLane;
 };
 
 export type QuestSmokeReportInput = {
@@ -688,6 +709,8 @@ export function buildQuestSmokeEvidenceCheck(inputFile: string | undefined, repo
   const verdict = report.verdict;
   const pageVisible = browser.hidden === false && browser.visibilityState === "visible";
   const frameStatsPresent = typeof browser.frameStats === "object" && browser.frameStats !== null;
+  const adbQuestDeviceRecorded = isQuestAdbDeviceLine(adb.deviceLine);
+  const browserQuestUserAgentRecorded = isQuestBrowserUserAgent(browser.userAgent);
   const stationRuntimeEvidenceRequired = report.target === "station";
   const textPanelMetadataPresent = hasTextPanelMetadataEvidence(browser.textPanelEvidence);
   const inputEvidenceShapePresent = hasInputEvidenceShape(browser.inputEvidence);
@@ -707,6 +730,8 @@ export function buildQuestSmokeEvidenceCheck(inputFile: string | undefined, repo
     && verdict.interactionAdvanced === true
     && verdict.frameSampleComplete === true
     && effectiveRawBlockers.length === 0
+    && adbQuestDeviceRecorded
+    && browserQuestUserAgentRecorded
     && pageVisible
     && latestFrameFresh
     && framesAdvancedDuringProbe
@@ -716,7 +741,9 @@ export function buildQuestSmokeEvidenceCheck(inputFile: string | undefined, repo
   const blockers = unique([
     isValidIsoDate(report.generatedAt) ? undefined : "quest_cdp_generated_at_invalid_or_missing",
     typeof adb.deviceLine === "string" && adb.deviceLine.trim().length > 0 ? undefined : "quest_cdp_adb_device_line_missing",
+    adbQuestDeviceRecorded ? undefined : "quest_cdp_adb_quest_device_missing",
     typeof browser.userAgent === "string" && browser.userAgent.trim().length > 0 ? undefined : "quest_cdp_user_agent_missing",
+    browserQuestUserAgentRecorded ? undefined : "quest_cdp_browser_quest_user_agent_missing",
     verdict?.shellLoaded === true ? undefined : "quest_shell_not_loaded",
     verdict?.interactionAdvanced === true ? undefined : "quest_trace_interaction_not_advanced",
     pageVisible ? undefined : "quest_page_hidden_or_inactive",
@@ -733,6 +760,26 @@ export function buildQuestSmokeEvidenceCheck(inputFile: string | undefined, repo
     immersiveEntryOutcome === "session_started" || immersiveEntryOutcome === "not_requested" ? undefined : "quest_immersive_session_not_started",
     ...effectiveRawBlockers,
   ]);
+  const satisfiedConditions = [
+    isValidIsoDate(report.generatedAt) ? "quest_cdp_generated_at_valid" : undefined,
+    typeof adb.deviceLine === "string" && adb.deviceLine.trim().length > 0 ? "quest_cdp_adb_device_recorded" : undefined,
+    adbQuestDeviceRecorded ? "quest_cdp_adb_quest_device_recorded" : undefined,
+    typeof browser.userAgent === "string" && browser.userAgent.trim().length > 0 ? "quest_cdp_user_agent_recorded" : undefined,
+    browserQuestUserAgentRecorded ? "quest_cdp_browser_quest_user_agent_recorded" : undefined,
+    verdict?.shellLoaded === true ? "quest_shell_loaded" : undefined,
+    verdict?.interactionAdvanced === true ? "quest_trace_interaction_advanced" : undefined,
+    pageVisible ? "quest_page_visible" : undefined,
+    verdict?.frameSampleComplete === true ? "quest_cdp_frame_sample_complete" : undefined,
+    frameStatsPresent ? "quest_frame_stats_present" : undefined,
+    stationRuntimeEvidenceRequired && textPanelMetadataPresent ? "quest_text_panel_metadata_present" : undefined,
+    stationRuntimeEvidenceRequired && inputEvidenceShapePresent ? "quest_input_evidence_shape_present" : undefined,
+    stationRuntimeEvidenceRequired && frameQualityEvidencePresent ? "quest_frame_quality_evidence_present" : undefined,
+    latestFrameFresh ? "quest_latest_frame_fresh" : undefined,
+    framesAdvancedDuringProbe ? "quest_frames_advanced_during_probe" : undefined,
+    immersiveEntryOutcome === "not_requested" ? "quest_immersive_entry_not_requested" : undefined,
+    immersiveEntryOutcome === "session_started" ? "quest_immersive_session_started" : undefined,
+    immersiveEntryOutcome === "app_request_failed" ? "quest_immersive_activation_reached_app" : undefined,
+  ].filter((condition): condition is string => typeof condition === "string");
 
   return {
     generatedAt: new Date().toISOString(),
@@ -740,25 +787,111 @@ export function buildQuestSmokeEvidenceCheck(inputFile: string | undefined, repo
     readyForForegroundQuestClaim,
     classification: classifyQuestSmokeEvidence(verdict, blockers),
     immersiveEntryOutcome,
-    satisfiedConditions: [
-      isValidIsoDate(report.generatedAt) ? "quest_cdp_generated_at_valid" : undefined,
-      typeof adb.deviceLine === "string" && adb.deviceLine.trim().length > 0 ? "quest_cdp_adb_device_recorded" : undefined,
-      typeof browser.userAgent === "string" && browser.userAgent.trim().length > 0 ? "quest_cdp_user_agent_recorded" : undefined,
-      verdict?.shellLoaded === true ? "quest_shell_loaded" : undefined,
-      verdict?.interactionAdvanced === true ? "quest_trace_interaction_advanced" : undefined,
-      pageVisible ? "quest_page_visible" : undefined,
-      verdict?.frameSampleComplete === true ? "quest_cdp_frame_sample_complete" : undefined,
-      frameStatsPresent ? "quest_frame_stats_present" : undefined,
-      stationRuntimeEvidenceRequired && textPanelMetadataPresent ? "quest_text_panel_metadata_present" : undefined,
-      stationRuntimeEvidenceRequired && inputEvidenceShapePresent ? "quest_input_evidence_shape_present" : undefined,
-      stationRuntimeEvidenceRequired && frameQualityEvidencePresent ? "quest_frame_quality_evidence_present" : undefined,
-      latestFrameFresh ? "quest_latest_frame_fresh" : undefined,
-      framesAdvancedDuringProbe ? "quest_frames_advanced_during_probe" : undefined,
-      immersiveEntryOutcome === "not_requested" ? "quest_immersive_entry_not_requested" : undefined,
-      immersiveEntryOutcome === "session_started" ? "quest_immersive_session_started" : undefined,
-      immersiveEntryOutcome === "app_request_failed" ? "quest_immersive_activation_reached_app" : undefined,
-    ].filter((condition): condition is string => typeof condition === "string"),
+    readinessMatrix: buildQuestSmokeReadinessMatrix({
+      satisfiedConditions,
+      blockers,
+      immersiveEntryOutcome,
+      stationRuntimeEvidenceRequired,
+    }),
+    satisfiedConditions,
     blockers,
+  };
+}
+
+function buildQuestSmokeReadinessMatrix(input: {
+  satisfiedConditions: string[];
+  blockers: string[];
+  immersiveEntryOutcome: QuestImmersiveEntryOutcome;
+  stationRuntimeEvidenceRequired: boolean;
+}): QuestSmokeReadinessMatrix {
+  return {
+    foregroundDevice: readinessLane(input, {
+      satisfiedConditions: [
+        "quest_cdp_adb_device_recorded",
+        "quest_cdp_adb_quest_device_recorded",
+        "quest_cdp_user_agent_recorded",
+        "quest_cdp_browser_quest_user_agent_recorded",
+        "quest_page_visible",
+      ],
+      blockers: [
+        "quest_cdp_adb_device_line_missing",
+        "quest_cdp_adb_quest_device_missing",
+        "quest_cdp_user_agent_missing",
+        "quest_cdp_browser_quest_user_agent_missing",
+        "quest_page_hidden_or_inactive",
+      ],
+    }),
+    shellInteraction: readinessLane(input, {
+      satisfiedConditions: [
+        "quest_shell_loaded",
+        "quest_trace_interaction_advanced",
+      ],
+      blockers: [
+        "quest_shell_not_loaded",
+        "quest_trace_interaction_not_advanced",
+      ],
+    }),
+    immersiveEntry: {
+      ...readinessLane(input, {
+        satisfiedConditions: [
+          "quest_immersive_entry_not_requested",
+          "quest_immersive_session_started",
+          "quest_immersive_activation_reached_app",
+        ],
+        blockers: [
+          "quest_immersive_entry_activation_not_received",
+          "quest_immersive_app_request_failed",
+          "quest_immersive_session_not_started",
+        ],
+        emptyStatus: input.immersiveEntryOutcome === "not_requested" ? "not_requested" : "ready",
+      }),
+      outcome: input.immersiveEntryOutcome,
+    },
+    framePacingSample: readinessLane(input, {
+      satisfiedConditions: [
+        "quest_cdp_frame_sample_complete",
+        "quest_latest_frame_fresh",
+        "quest_frames_advanced_during_probe",
+        "quest_frame_quality_evidence_present",
+      ],
+      blockers: [
+        "quest_cdp_frame_sample_incomplete",
+        "quest_cdp_frame_sample_timed_out",
+        "quest_no_frames_observed_during_probe",
+        "quest_latest_frame_stale_over_1000ms",
+        "quest_frame_quality_evidence_missing",
+      ],
+    }),
+    stationRuntimeEvidence: input.stationRuntimeEvidenceRequired
+      ? readinessLane(input, {
+        satisfiedConditions: [
+          "quest_text_panel_metadata_present",
+          "quest_input_evidence_shape_present",
+          "quest_frame_quality_evidence_present",
+        ],
+        blockers: [
+          "quest_text_panel_metadata_missing",
+          "quest_input_evidence_shape_missing",
+          "quest_frame_quality_evidence_missing",
+        ],
+      })
+      : {
+        status: "not_required",
+        satisfiedConditions: [],
+        blockers: [],
+      },
+  };
+}
+
+function readinessLane(
+  input: { satisfiedConditions: string[]; blockers: string[] },
+  lane: { satisfiedConditions: string[]; blockers: string[]; emptyStatus?: QuestSmokeReadinessStatus },
+): QuestSmokeReadinessLane {
+  const laneBlockers = lane.blockers.filter((blocker) => input.blockers.includes(blocker));
+  return {
+    status: laneBlockers.length === 0 ? lane.emptyStatus ?? "ready" : "blocked",
+    satisfiedConditions: lane.satisfiedConditions.filter((condition) => input.satisfiedConditions.includes(condition)),
+    blockers: laneBlockers,
   };
 }
 
@@ -792,6 +925,14 @@ function hasFrameQualityEvidence(value: unknown): boolean {
     && typeof evidence.renderLoopMode === "string"
     && latestFrameDeltaKnown
     && longFrameRatioKnown;
+}
+
+function isQuestAdbDeviceLine(value: unknown): boolean {
+  return typeof value === "string" && /\b(?:model:Quest_3|product:eureka|device:eureka|product:quest3|Quest_3|Quest 3)\b/i.test(value);
+}
+
+function isQuestBrowserUserAgent(value: unknown): boolean {
+  return typeof value === "string" && /\b(?:Quest|OculusBrowser|VR)\b/.test(value);
 }
 
 function inferImmersiveEntryOutcomeFromReport(
