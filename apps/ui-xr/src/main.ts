@@ -56,6 +56,7 @@ import {
   type RuntimeEvidencePosture,
   type XrInputSourceEvidence,
   type XrHandGestureStateEvidence,
+  type XrHandSelectStateEvidence,
   type XrExperienceModeEvidence,
   type XrRuntimeState,
   xrExperienceModeEvidence,
@@ -370,14 +371,18 @@ function completeTraceActionFromInput(tag: string, source: OpenClinXrTraceLatenc
   void recordRemoteTraceAction(tag);
 }
 
-function completeNextTraceActionFromXrSelect(isFullVrPresenting: () => boolean): void {
+function completeNextTraceActionFromXrSelect(
+  isFullVrPresenting: () => boolean,
+  source: Extract<OpenClinXrTraceLatencyEvidence["source"], "xr_controller_select" | "xr_hand_select"> = "xr_controller_select",
+): boolean {
   const tag = isFullVrPresenting()
     ? state.requiredTraceTags.find((candidate) => !state.completedTraceTags.includes(candidate))
     : undefined;
   if (!tag) {
-    return;
+    return false;
   }
-  completeTraceActionFromInput(tag, "xr_controller_select");
+  completeTraceActionFromInput(tag, source);
+  return true;
 }
 
 async function initializeRemoteTraceSession(client: StationApiClient | undefined): Promise<void> {
@@ -658,12 +663,18 @@ function createStationScene(): StationSceneRuntime {
   inputPanel.mesh.rotation.y = 0;
   scene.add(inputPanel.mesh);
   let lastPanelSignature = "";
-  addControllerAffordances(renderer, scene, () => completeNextTraceActionFromXrSelect(() => Boolean(activeXrSession && renderer.xr.isPresenting)));
+  addControllerAffordances(renderer, scene, () => {
+    completeNextTraceActionFromXrSelect(
+      () => Boolean(activeXrSession && renderer.xr.isPresenting),
+      "xr_controller_select",
+    );
+  });
   const keyboardLocomotion = createKeyboardLocomotion();
   let handModelStatus: OpenClinXrInputEvidence["handModelStatus"] = "pending_immersive_session";
   let handModelsInstalled = false;
   let lastInputObservedAtMs: number | null = null;
   const handGestureLocomotionState = createXrHandGestureLocomotionState();
+  const handSelectState = createXrHandSelectState();
 
   function resize(): void {
     if (renderer.xr.isPresenting) {
@@ -689,7 +700,7 @@ function createStationScene(): StationSceneRuntime {
     const deltaSeconds = Math.min((now - lastAnimateAtMs) / 1000, 0.05);
     lastAnimateAtMs = now;
     resize();
-    const inputEvidence = applyLocomotion({
+    const locomotionEvidence = applyLocomotion({
       deltaSeconds,
       keyboardLocomotion,
       locomotionRig,
@@ -702,6 +713,20 @@ function createStationScene(): StationSceneRuntime {
       handModelStatus,
       handGestureLocomotionState,
     });
+    const inputEvidence: OpenClinXrInputEvidence = {
+      ...locomotionEvidence,
+      xrHandSelectState: maybeCompleteTraceActionFromHandSelect({
+        renderer,
+        handSelectState,
+        now,
+        controllerInputActive: locomotionEvidence.inputSourceKinds?.includes("xr_gamepad") === true,
+        isFullVrPresenting: () => Boolean(activeXrSession && renderer.xr.isPresenting),
+        onSelect: () => completeNextTraceActionFromXrSelect(
+          () => Boolean(activeXrSession && renderer.xr.isPresenting),
+          "xr_hand_select",
+        ),
+      }),
+    };
     lastInputObservedAtMs = inputEvidence.lastInputObservedAtMs ?? lastInputObservedAtMs;
     lastLocomotionAtMs = inputEvidence.lastLocomotionAtMs;
     window.__openClinXrInputEvidence = inputEvidence;
@@ -809,6 +834,9 @@ function createStationScene(): StationSceneRuntime {
       inputEvidence.xrHandGestureState?.armed ? "gesture-armed" : "gesture-not-armed",
       inputEvidence.xrHandGestureState?.dwellMs ?? 0,
       inputEvidence.xrHandGestureState?.blockedReason ?? "none",
+      inputEvidence.xrHandSelectState?.status ?? "select-idle",
+      inputEvidence.xrHandSelectState?.firedCount ?? 0,
+      inputEvidence.xrHandSelectState?.blockedReason ?? "select-none",
       inputEvidence.rigPosition.x,
       inputEvidence.rigPosition.z,
       inputEvidence.locomotionDelta?.distanceMeters ?? 0,
@@ -828,9 +856,19 @@ function createStationScene(): StationSceneRuntime {
       inputEvidence.xrHandGestureState?.armed
         ? `Gesture: armed; dwell ${inputEvidence.xrHandGestureState.dwellMs}ms`
         : `Gesture: ${inputEvidence.xrHandGestureState?.blockedReason ?? "not armed"}`,
+      `Trace hand select: ${formatHandSelectStatus(inputEvidence.xrHandSelectState)}`,
       `Movement: ${inputEvidence.activeLocomotionSource ?? "none"}; d ${inputEvidence.locomotionDelta?.distanceMeters ?? 0}m; turn ${inputEvidence.locomotionDelta?.turnRadians ?? 0}rad`,
     ]);
   }
+}
+
+function formatHandSelectStatus(state: XrHandSelectStateEvidence | undefined): string {
+  if (!state) {
+    return "idle";
+  }
+  const reason = state.blockedReason ? `; ${state.blockedReason}` : "";
+  const fired = state.firedCount > 0 ? `; fired ${state.firedCount}` : "";
+  return `${state.status}; dwell ${state.dwellMs}ms${fired}${reason}`;
 }
 
 function createClinicalPanel(): ReadableVrTextPanel {
@@ -1010,10 +1048,22 @@ type XrHandGestureLocomotionResult = LocomotionVectorEvidence & {
   state: XrHandGestureStateEvidence;
 };
 
+type XrHandSelectState = {
+  pinchingSinceMs: number | null;
+  neutralOffsetX: number;
+  neutralOffsetZ: number;
+  firedDuringPinch: boolean;
+  firedCount: number;
+  lastFiredAtMs: number | null;
+};
+
 const handGestureDwellMs = 450;
 const handGestureDeadzoneMeters = 0.045;
 const handGestureTurnDeadzoneMeters = 0.055;
 const handGestureTurnCooldownMs = 450;
+const handSelectDwellMs = 650;
+const handSelectMovementToleranceMeters = 0.025;
+const handSelectCooldownMs = 850;
 
 function createKeyboardLocomotion(): KeyboardLocomotionState {
   const state = { forward: 0, strafe: 0, turn: 0 };
@@ -1056,6 +1106,17 @@ function createXrHandGestureHandState(): XrHandGestureHandState {
     neutralOffsetX: 0,
     neutralOffsetZ: 0,
     armed: false,
+  };
+}
+
+function createXrHandSelectState(): XrHandSelectState {
+  return {
+    pinchingSinceMs: null,
+    neutralOffsetX: 0,
+    neutralOffsetZ: 0,
+    firedDuringPinch: false,
+    firedCount: 0,
+    lastFiredAtMs: null,
   };
 }
 
@@ -1277,6 +1338,148 @@ function readHandGestureVector(input: {
     armed: true,
     dwellMs,
   };
+}
+
+function maybeCompleteTraceActionFromHandSelect(input: {
+  renderer: WebGLRenderer;
+  handSelectState: XrHandSelectState;
+  now: number;
+  controllerInputActive: boolean;
+  isFullVrPresenting: () => boolean;
+  onSelect: () => boolean;
+}): XrHandSelectStateEvidence {
+  const hand = input.renderer.xr.getHand(1) as XrHandGroup;
+  const rightPinch = hand.inputState?.pinching === true;
+  if (!input.isFullVrPresenting()) {
+    resetHandSelectState(input.handSelectState);
+    return handSelectEvidence(input.handSelectState, input.now, {
+      status: "blocked",
+      armed: false,
+      rightPinch,
+      blockedReason: "trace_unavailable",
+    });
+  }
+  if (!rightPinch) {
+    resetHandSelectState(input.handSelectState);
+    return handSelectEvidence(input.handSelectState, input.now, {
+      status: "idle",
+      armed: false,
+      rightPinch,
+      blockedReason: "not_pinching",
+    });
+  }
+  if (input.controllerInputActive) {
+    resetHandSelectState(input.handSelectState);
+    return handSelectEvidence(input.handSelectState, input.now, {
+      status: "blocked",
+      armed: false,
+      rightPinch,
+      blockedReason: "controller_input_active",
+    });
+  }
+
+  const wrist = hand.joints?.wrist;
+  const indexTip = hand.joints?.["index-finger-tip"];
+  if (!wrist?.visible || !indexTip?.visible) {
+    resetHandSelectState(input.handSelectState);
+    return handSelectEvidence(input.handSelectState, input.now, {
+      status: "blocked",
+      armed: false,
+      rightPinch,
+      blockedReason: "missing_joints",
+    });
+  }
+
+  const offsetX = indexTip.position.x - wrist.position.x;
+  const offsetZ = indexTip.position.z - wrist.position.z;
+  if (input.handSelectState.pinchingSinceMs === null) {
+    input.handSelectState.pinchingSinceMs = input.now;
+    input.handSelectState.neutralOffsetX = offsetX;
+    input.handSelectState.neutralOffsetZ = offsetZ;
+    input.handSelectState.firedDuringPinch = false;
+  }
+
+  const dwellMs = Math.max(0, input.now - input.handSelectState.pinchingSinceMs);
+  const movementMeters = Math.hypot(
+    offsetX - input.handSelectState.neutralOffsetX,
+    offsetZ - input.handSelectState.neutralOffsetZ,
+  );
+  if (movementMeters > handSelectMovementToleranceMeters) {
+    return handSelectEvidence(input.handSelectState, input.now, {
+      status: "blocked",
+      armed: false,
+      rightPinch,
+      blockedReason: "moving_too_much",
+    });
+  }
+  if (dwellMs < handSelectDwellMs) {
+    return handSelectEvidence(input.handSelectState, input.now, {
+      status: "arming",
+      armed: false,
+      rightPinch,
+      blockedReason: "arming_dwell",
+    });
+  }
+  const coolingDown = input.handSelectState.lastFiredAtMs !== null
+    && input.now - input.handSelectState.lastFiredAtMs < handSelectCooldownMs;
+  if (coolingDown && !input.handSelectState.firedDuringPinch) {
+    return handSelectEvidence(input.handSelectState, input.now, {
+      status: "blocked",
+      armed: true,
+      rightPinch,
+      blockedReason: "cooldown",
+    });
+  }
+  if (input.handSelectState.firedDuringPinch) {
+    return handSelectEvidence(input.handSelectState, input.now, {
+      status: "ready",
+      armed: true,
+      rightPinch,
+    });
+  }
+
+  const fired = input.onSelect();
+  if (!fired) {
+    return handSelectEvidence(input.handSelectState, input.now, {
+      status: "blocked",
+      armed: true,
+      rightPinch,
+      blockedReason: "trace_unavailable",
+    });
+  }
+  input.handSelectState.firedDuringPinch = true;
+  input.handSelectState.firedCount += 1;
+  input.handSelectState.lastFiredAtMs = input.now;
+  return handSelectEvidence(input.handSelectState, input.now, {
+    status: "fired",
+    armed: true,
+    rightPinch,
+  });
+}
+
+function handSelectEvidence(
+  state: XrHandSelectState,
+  now: number,
+  evidence: Pick<XrHandSelectStateEvidence, "status" | "armed" | "rightPinch"> & {
+    blockedReason?: XrHandSelectStateEvidence["blockedReason"];
+  },
+): XrHandSelectStateEvidence {
+  return {
+    status: evidence.status,
+    armed: evidence.armed,
+    dwellMs: state.pinchingSinceMs === null ? 0 : Number(Math.max(0, now - state.pinchingSinceMs).toFixed(2)),
+    rightPinch: evidence.rightPinch,
+    firedCount: state.firedCount,
+    lastFiredAtMs: state.lastFiredAtMs === null ? null : Number(state.lastFiredAtMs.toFixed(2)),
+    ...(evidence.blockedReason ? { blockedReason: evidence.blockedReason } : {}),
+  };
+}
+
+function resetHandSelectState(state: XrHandSelectState): void {
+  state.pinchingSinceMs = null;
+  state.neutralOffsetX = 0;
+  state.neutralOffsetZ = 0;
+  state.firedDuringPinch = false;
 }
 
 function resetHandGestureHandState(state: XrHandGestureHandState): void {

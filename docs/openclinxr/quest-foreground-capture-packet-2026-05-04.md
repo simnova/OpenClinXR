@@ -59,7 +59,7 @@ The human report must still confirm:
 - EHR, dialogue, and input-evidence canvas panels were readable at the intended headset distance.
 - Controller or deliberate hand selection advanced the Trace row in Full VR.
 - Full VR mode, controller grip/ray visibility, hand/input visibility, locomotion behavior, and the trace latency fields were copied from the in-app Quest Evidence payload.
-- `traceLatencyProxy.source` is `xr_controller_select` when a headset controller or deliberate hand-select path is used; `traceLatencyProxy.lastTraceTag`, `traceLatencyProxy.lastSelectLatencyMs`, `traceLatencyProxy.measuredAtMs`, and `performance.controllerSelectLatencyMs` must describe the same trace event. `dom_click_trace_button` is supporting desktop-style evidence only.
+- `traceLatencyProxy.source` is `xr_controller_select` for controller trigger input or `xr_hand_select` for the deliberate right-hand stable-pinch path; `traceLatencyProxy.lastTraceTag`, `traceLatencyProxy.lastSelectLatencyMs`, `traceLatencyProxy.measuredAtMs`, and `performance.controllerSelectLatencyMs` must describe the same trace event. `dom_click_trace_button` is supporting desktop-style evidence only.
 - Locomotion changed the rig position or turn angle and the copied report includes `input.locomotionDelta` from the same accepted event. For hand-only runs, `input.activeLocomotionSource` should be `xr_hand_gesture` or `mixed`, and `input.xrHandGestureState.armed` should be true at the accepted gesture moment.
 - At least 10 minutes of observation completed.
 - At least 600 immersive Full VR frames were observed, with a rolling sample window of at least 120 frames backed by immersive frames rather than preview-only frames.

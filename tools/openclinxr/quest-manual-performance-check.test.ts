@@ -237,6 +237,38 @@ describe("Quest manual performance checker", () => {
     ]));
   });
 
+  it("accepts deliberate hand-select trace latency for hand-tracking-only headset reports", () => {
+    const report = completedQuestManualReport();
+    report.traceLatencyProxy = {
+      source: "xr_hand_select",
+      lastTraceTag: "ecg_request",
+      lastSelectLatencyMs: 12,
+      measuredAtMs: 1234,
+      productionControllerLatencySubstitute: false,
+    };
+    report.input = {
+      ...report.input,
+      activeLocomotionSource: "xr_hand_gesture",
+      xrHandGestureState: {
+        armed: true,
+        dwellMs: 520,
+        leftPinch: true,
+        rightPinch: false,
+        gestureDeadzoneMeters: 0.045,
+        turnCooldownMs: 450,
+      },
+    };
+
+    const check = buildQuestManualPerformanceCheck("quest-manual-performance-hand-select.json", report);
+
+    expect(check.readyToClaimFramePacing).toBe(true);
+    expect(check.blockers).toEqual([]);
+    expect(check.satisfiedConditions).toEqual(expect.arrayContaining([
+      "xr_hand_select_trace_latency_recorded",
+      "controller_select_latency_matches_trace_proxy",
+    ]));
+  });
+
   it("accepts copied in-app payloads while preserving capture-summary blockers", () => {
     const payload = {
       manualPerformanceDraft: completedQuestManualReport(),
@@ -445,7 +477,7 @@ describe("Quest manual performance checker", () => {
     ]));
   });
 
-  it("requires controller latency to come from the xr_controller_select trace path", () => {
+  it("requires headset select latency to come from an XR controller or hand trace path", () => {
     const report = completedQuestManualReport();
     report.traceLatencyProxy = {
       source: "dom_click_trace_button",
@@ -467,6 +499,7 @@ describe("Quest manual performance checker", () => {
     ]));
     expect(check.satisfiedConditions).not.toEqual(expect.arrayContaining([
       "xr_controller_select_trace_latency_recorded",
+      "xr_hand_select_trace_latency_recorded",
     ]));
   });
 
@@ -491,7 +524,7 @@ describe("Quest manual performance checker", () => {
       "controller_select_latency_mismatch",
     ]));
     expect(check.nextSteps).toEqual(expect.arrayContaining([
-      "Copy controller-select latency from the same xr_controller_select trace event used for the Trace row.",
+      "Copy headset select latency from the same xr_controller_select or xr_hand_select trace event used for the Trace row.",
     ]));
   });
 
@@ -897,7 +930,7 @@ describe("Quest manual performance checker", () => {
       "Record a rolling frame window with at least 120 samples.",
       "Record average FPS at or above 72.",
       "Record p95 frame time at or below 25 ms.",
-      "Record controller-select latency at or below 150 ms.",
+      "Record headset select latency at or below 150 ms.",
       "Confirm motion comfort is comfortable/good.",
       "Clear heat concern as false after the run.",
       "Record battery drop percent.",
@@ -974,7 +1007,7 @@ describe("Quest manual performance checker", () => {
     ]));
     expect(check.satisfiedConditions).not.toContain("trace_latency_proxy_recorded_as_supporting_evidence");
     expect(check.nextSteps).toEqual(expect.arrayContaining([
-      "Record a real headset controller-select latency measurement; DOM trace-click latency is supporting evidence only.",
+      "Record a real headset select latency measurement; DOM trace-click latency is supporting evidence only.",
     ]));
   });
 

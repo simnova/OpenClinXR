@@ -147,6 +147,7 @@ export type ManualPerformanceInputEvidence = {
   xrVector?: LocomotionVectorEvidence;
   xrHandGestureVector?: LocomotionVectorEvidence;
   xrHandGestureState?: XrHandGestureStateEvidence;
+  xrHandSelectState?: XrHandSelectStateEvidence;
   xrInputSources?: XrInputSourceEvidence[];
   rigPosition: { x: number; z: number };
   locomotionDelta?: LocomotionDeltaEvidence;
@@ -191,6 +192,16 @@ export type XrHandGestureStateEvidence = {
   blockedReason?: "not_pinching" | "arming_dwell" | "missing_joints" | "other_locomotion_source_active";
 };
 
+export type XrHandSelectStateEvidence = {
+  status: "idle" | "arming" | "ready" | "fired" | "blocked";
+  armed: boolean;
+  dwellMs: number;
+  rightPinch: boolean;
+  firedCount: number;
+  lastFiredAtMs: number | null;
+  blockedReason?: "not_pinching" | "arming_dwell" | "missing_joints" | "moving_too_much" | "controller_input_active" | "cooldown" | "trace_unavailable";
+};
+
 export type ManualPerformanceInputEvidenceInput = {
   handModelCount: number;
   handModelStatus: ManualPerformanceInputEvidence["handModelStatus"];
@@ -199,6 +210,7 @@ export type ManualPerformanceInputEvidenceInput = {
   xrVector: LocomotionVectorEvidence;
   xrHandGestureVector?: LocomotionVectorEvidence;
   xrHandGestureState?: XrHandGestureStateEvidence;
+  xrHandSelectState?: XrHandSelectStateEvidence;
   xrInputSources: XrInputSourceEvidence[];
   now: number;
   previousLastInputObservedAtMs: number | null;
@@ -252,7 +264,7 @@ export type ReadableVrTextPanelEvidenceSet = {
 export type ManualPerformanceTraceLatencyEvidence = {
   lastTraceTag: string | null;
   lastSelectLatencyMs: number | null;
-  source: "dom_click_trace_button" | "xr_controller_select";
+  source: "dom_click_trace_button" | "xr_controller_select" | "xr_hand_select";
   measuredAtMs: number | null;
   productionControllerLatencySubstitute: false;
 };
@@ -872,6 +884,9 @@ export function buildManualPerformanceInputEvidence(
   const xrHandGestureState = input.xrHandGestureState
     ? normalizeXrHandGestureState(input.xrHandGestureState)
     : undefined;
+  const xrHandSelectState = input.xrHandSelectState
+    ? normalizeXrHandSelectState(input.xrHandSelectState)
+    : undefined;
   const xrHandGestureVector = roundedVector(
     xrHandGestureState?.armed === true ? input.xrHandGestureVector ?? emptyLocomotionVector : emptyLocomotionVector,
   );
@@ -922,6 +937,7 @@ export function buildManualPerformanceInputEvidence(
     xrVector,
     xrHandGestureVector,
     ...(xrHandGestureState ? { xrHandGestureState } : {}),
+    ...(xrHandSelectState ? { xrHandSelectState } : {}),
     xrInputSources: input.xrInputSources.map((source) => ({ ...source })),
     rigPosition: {
       x: rigPose.x,
@@ -969,6 +985,18 @@ function normalizeXrHandGestureState(state: XrHandGestureStateEvidence): XrHandG
     rightPinch: state.rightPinch,
     gestureDeadzoneMeters: roundMetric(state.gestureDeadzoneMeters, 3),
     turnCooldownMs: Math.max(0, Math.round(state.turnCooldownMs)),
+    ...(state.blockedReason ? { blockedReason: state.blockedReason } : {}),
+  };
+}
+
+function normalizeXrHandSelectState(state: XrHandSelectStateEvidence): XrHandSelectStateEvidence {
+  return {
+    status: state.status,
+    armed: state.armed,
+    dwellMs: roundMetric(Math.max(0, state.dwellMs)),
+    rightPinch: state.rightPinch,
+    firedCount: Math.max(0, Math.round(state.firedCount)),
+    lastFiredAtMs: nullableRoundedMetric(state.lastFiredAtMs),
     ...(state.blockedReason ? { blockedReason: state.blockedReason } : {}),
   };
 }
@@ -1236,6 +1264,8 @@ function previewManualPerformanceValidation(
   const traceMeasuredAtMs = traceLatencyProxy?.measuredAtMs ?? null;
   const traceLastTraceTag = traceLatencyProxy?.lastTraceTag ?? null;
   const traceSourceXrControllerSelect = traceLatencyProxy?.source === "xr_controller_select";
+  const traceSourceXrHandSelect = traceLatencyProxy?.source === "xr_hand_select";
+  const traceSourceXrHeadsetSelect = traceSourceXrControllerSelect || traceSourceXrHandSelect;
   const traceLastTraceTagRecorded = typeof traceLastTraceTag === "string"
     && traceLastTraceTag.trim().length > 0;
   const traceSelectLatencyMsValid = isPositiveFiniteNumber(traceLastSelectLatencyMs);
@@ -1269,7 +1299,7 @@ function previewManualPerformanceValidation(
     : false;
   const controllerSelectLatencyReady = controllerSelectLatencyMsValid
     && controllerSelectLatencyMs <= 150
-    && traceSourceXrControllerSelect
+    && traceSourceXrHeadsetSelect
     && traceLastTraceTagRecorded
     && traceSelectLatencyMsValid
     && traceMeasuredAtMsValid
@@ -1305,7 +1335,7 @@ function previewManualPerformanceValidation(
       : "minimum_fps_below_60_or_missing",
     p95FrameMsValid && p95FrameMs <= 25 ? undefined : "p95_frame_ms_above_25_or_missing",
     controllerSelectLatencyMsValid && controllerSelectLatencyMs <= 150 ? undefined : "controller_select_latency_ms_above_150_or_missing",
-    traceSourceXrControllerSelect ? undefined : "controller_select_trace_source_not_xr_controller_select",
+    traceSourceXrHeadsetSelect ? undefined : "controller_select_trace_source_not_xr_controller_select",
     traceLastTraceTagRecorded ? undefined : "controller_select_trace_tag_missing",
     traceSelectLatencyMsValid ? undefined : "controller_select_trace_latency_missing",
     traceMeasuredAtMsValid ? undefined : "controller_select_trace_measured_at_missing",
@@ -1350,6 +1380,12 @@ function previewManualPerformanceValidation(
     && traceSelectLatencyMsValid
     && traceMeasuredAtMsValid
       ? "xr_controller_select_trace_latency_recorded"
+      : undefined,
+    traceSourceXrHandSelect
+    && traceLastTraceTagRecorded
+    && traceSelectLatencyMsValid
+    && traceMeasuredAtMsValid
+      ? "xr_hand_select_trace_latency_recorded"
       : undefined,
     controllerSelectLatencyMatchesTrace ? "controller_select_latency_matches_trace_proxy" : undefined,
     motionComfortConfirmed ? "motion_comfort_confirmed" : undefined,

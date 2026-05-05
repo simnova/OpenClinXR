@@ -87,6 +87,10 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("handGestureDwellMs");
     expect(mainSource).toContain("other_locomotion_source_active");
     expect(mainSource).toContain("Gesture: armed");
+    expect(mainSource).toContain("Trace hand select");
+    expect(mainSource).toContain("xr_hand_select");
+    expect(mainSource).toContain("createXrHandSelectState");
+    expect(mainSource).toContain("maybeCompleteTraceActionFromHandSelect");
     expect(mainSource).toContain("xr_hand_gesture");
     expect(mainSource).toContain("xrHandGestureState");
     expect(mainSource).toContain("fallbackAnimationLoop");

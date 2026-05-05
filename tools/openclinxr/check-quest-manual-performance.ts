@@ -257,6 +257,8 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
   const traceMeasuredAtMs = traceLatencyProxy?.measuredAtMs ?? null;
   const traceLastTraceTag = traceLatencyProxy?.lastTraceTag ?? null;
   const traceSourceXrControllerSelect = traceLatencyProxy?.source === "xr_controller_select";
+  const traceSourceXrHandSelect = traceLatencyProxy?.source === "xr_hand_select";
+  const traceSourceXrHeadsetSelect = traceSourceXrControllerSelect || traceSourceXrHandSelect;
   const traceLastTraceTagRecorded = typeof traceLastTraceTag === "string"
     && traceLastTraceTag.trim().length > 0;
   const traceSelectLatencyMsValid = isPositiveFiniteNumber(traceLastSelectLatencyMs);
@@ -291,7 +293,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
     : false;
   const controllerSelectLatencyReady = controllerSelectLatencyMsValid
     && controllerSelectLatencyMs <= 150
-    && traceSourceXrControllerSelect
+    && traceSourceXrHeadsetSelect
     && traceLastTraceTagRecorded
     && traceSelectLatencyMsValid
     && traceMeasuredAtMsValid
@@ -346,7 +348,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
     controllerSelectLatencyMs === null || (controllerSelectLatencyMsValid && controllerSelectLatencyMs > 150)
       ? "controller_select_latency_ms_above_150_or_missing"
       : undefined,
-    traceSourceXrControllerSelect ? undefined : "controller_select_trace_source_not_xr_controller_select",
+    traceSourceXrHeadsetSelect ? undefined : "controller_select_trace_source_not_xr_controller_select",
     traceLastTraceTagRecorded ? undefined : "controller_select_trace_tag_missing",
     traceSelectLatencyMsValid ? undefined : "controller_select_trace_latency_missing",
     traceMeasuredAtMsValid ? undefined : "controller_select_trace_measured_at_missing",
@@ -408,6 +410,12 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
       && traceSelectLatencyMsValid
       && traceMeasuredAtMsValid
         ? "xr_controller_select_trace_latency_recorded"
+        : undefined,
+      traceSourceXrHandSelect
+      && traceLastTraceTagRecorded
+      && traceSelectLatencyMsValid
+      && traceMeasuredAtMsValid
+        ? "xr_hand_select_trace_latency_recorded"
         : undefined,
       controllerSelectLatencyMatchesTrace ? "controller_select_latency_matches_trace_proxy" : undefined,
       isFullVrExperienceEvidence(report.experience) ? "experience_mode_full_vr_recorded" : undefined,
@@ -649,21 +657,21 @@ function questManualNextStepForBlocker(blocker: string): string {
     case "p95_frame_ms_above_25_or_missing":
       return "Record p95 frame time at or below 25 ms.";
     case "controller_select_latency_ms_not_positive_finite":
-      return "Record controller-select latency as a positive finite number.";
+      return "Record headset select latency as a positive finite number.";
     case "controller_select_latency_ms_above_150_or_missing":
-      return "Record controller-select latency at or below 150 ms.";
+      return "Record headset select latency at or below 150 ms.";
     case "controller_select_trace_source_not_xr_controller_select":
-      return "Record controller latency from the xr_controller_select headset trace path, not a DOM click or desktop proxy.";
+      return "Record headset trace latency from xr_controller_select or xr_hand_select, not a DOM click or desktop proxy.";
     case "controller_select_trace_tag_missing":
       return "Record the trace tag triggered by the headset controller or deliberate hand-select event.";
     case "controller_select_trace_latency_missing":
-      return "Record positive lastSelectLatencyMs from the xr_controller_select trace event.";
+      return "Record positive lastSelectLatencyMs from the headset trace event.";
     case "controller_select_trace_measured_at_missing":
-      return "Record measuredAtMs for the xr_controller_select trace event.";
+      return "Record measuredAtMs for the headset trace event.";
     case "controller_select_latency_mismatch":
-      return "Copy controller-select latency from the same xr_controller_select trace event used for the Trace row.";
+      return "Copy headset select latency from the same xr_controller_select or xr_hand_select trace event used for the Trace row.";
     case "trace_latency_proxy_marked_as_production_substitute":
-      return "Record a real headset controller-select latency measurement; DOM trace-click latency is supporting evidence only.";
+      return "Record a real headset select latency measurement; DOM trace-click latency is supporting evidence only.";
     case "motion_comfort_not_confirmed":
       return "Confirm motion comfort is comfortable/good.";
     case "heat_concern_not_cleared":
@@ -768,7 +776,7 @@ function isSupportingTraceLatencyProxy(value: QuestManualPerformanceReport["trac
 }
 
 function isKnownTraceLatencySource(value: string | undefined): boolean {
-  return value === "dom_click_trace_button" || value === "xr_controller_select";
+  return value === "dom_click_trace_button" || value === "xr_controller_select" || value === "xr_hand_select";
 }
 
 function buildReproducibilityEvidence(value: QuestManualPerformanceReport["reproducibility"]): {

@@ -892,6 +892,78 @@ describe("XR runtime state", () => {
     });
   });
 
+  it("accepts deliberate hand-select trace latency for a hand-tracking-only capture preview", () => {
+    const frameStats = buildRuntimeFrameStats({
+      frameDeltasMs: Array.from({ length: 180 }, () => 13),
+      framesObserved: 1200,
+      latestFrameAtMs: 600_000,
+      qualitySource: "webxr_animation_loop",
+      isPresenting: true,
+      visibilityState: "visible",
+    });
+    const draft = buildManualPerformanceDraft({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      elapsedSecond: 600,
+      foregroundPageConfirmed: true,
+      traceInteractionPassed: true,
+      frameStats,
+      controllerSelectLatencyMs: 88,
+      immersiveSessionStarted: true,
+      traceLatencyEvidence: {
+        lastTraceTag: "ecg_request",
+        lastSelectLatencyMs: 88,
+        source: "xr_hand_select",
+        measuredAtMs: 600_000,
+        productionControllerLatencySubstitute: false,
+      },
+      inputEvidence: {
+        handModelCount: 2,
+        handModelStatus: "installed",
+        handInputsObserved: 2,
+        locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
+        lastInputObservedAtMs: 1234.56,
+        lastLocomotionAtMs: 1240,
+        activeLocomotionSource: "xr_hand_gesture",
+        inputSourceKinds: ["xr_hand", "xr_hand_gesture"],
+        rigPosition: { x: 0.25, z: -0.3 },
+        locomotionDelta: {
+          from: { x: 0, z: 0, yawRadians: 0 },
+          to: { x: 0.25, z: -0.3, yawRadians: 0 },
+          delta: { x: 0.25, z: -0.3, yawRadians: 0 },
+          distanceMeters: 0.391,
+          turnRadians: 0,
+        },
+      },
+    });
+    const completeDraft = {
+      ...draft,
+      runContext: {
+        ...draft.runContext,
+        performedBy: "Patrick Gidich",
+      },
+      setup: {
+        ...draft.setup,
+        devtoolsScreencastDisabled: true,
+        extraBrowserWindowsClosed: true,
+      },
+      comfort: {
+        motionComfort: "good" as const,
+        heatConcern: false,
+        batteryDropPercent: 4,
+      },
+    };
+
+    expect(buildManualPerformanceCaptureSummary({ draft: completeDraft, frameStats })).toMatchObject({
+      manualValidationReady: true,
+      traceLatencySource: "xr_hand_select",
+      satisfiedConditions: expect.arrayContaining([
+        "xr_hand_select_trace_latency_recorded",
+        "controller_select_latency_matches_trace_proxy",
+      ]),
+      blockers: [],
+    });
+  });
+
   it("surfaces mock, local voice, Quest, and Mixed Reality posture without readiness overclaim", () => {
     const posture = buildRuntimeEvidencePosture({
       traceSummary: {
