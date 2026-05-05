@@ -592,6 +592,44 @@ describe("workspace architecture rules", () => {
     expect([...manifestViolations, ...sourceViolations].sort()).toEqual([]);
   });
 
+  it("keeps promoted session-state free of realtime framework and persistence dependencies", () => {
+    const manifest = JSON.parse(
+      readFileSync(join(workspaceRoot, "packages/openclinxr/session-state/package.json"), "utf8"),
+    ) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+    const forbiddenDependencies = [
+      "@colyseus/schema",
+      "@openclinxr/data-mongodb",
+      "@openclinxr/data-sources-mongoose-models",
+      "@openclinxr/scenario-runtime",
+      "bitecs",
+      "colyseus",
+      "ioredis",
+      "ioredis-mock",
+      "mongodb",
+      "mongodb-memory-server",
+      "redis",
+    ];
+    const sourceViolations = forbiddenDependencies.flatMap((dependency) =>
+      sourceImportReferences(
+        dependency,
+        sourceFilesUnder("packages/openclinxr/session-state").filter((filePath) => !filePath.endsWith(".test.ts")),
+      ).map(({ filePath, specifier }) => `source:${filePath}:${specifier}`)
+    );
+
+    expect(manifest.dependencies).toEqual({
+      "@openclinxr/shared-schemas": "workspace:*",
+    });
+    expect(manifest.devDependencies).toMatchObject({
+      "@openclinxr/scenario-fixtures": "workspace:*",
+      typescript: "6.0.3",
+      vitest: "4.1.5",
+    });
+    expect(sourceViolations).toEqual([]);
+  });
+
   it("keeps the agent-loop orchestration package independent from app and station runtime code", () => {
     const forbiddenImports = /@openclinxr\/(?:scenario-runtime|data-|data-sources-|model-gateway|voice-gateway|trace-ledger)|apps\//;
     const violations = filesWithContentMatching("packages/openclinxr/agent-loop", forbiddenImports);
