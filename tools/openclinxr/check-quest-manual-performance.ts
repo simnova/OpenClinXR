@@ -301,6 +301,7 @@ function buildAdversarialFindings(input: {
   const immersiveWithNoFrameStats = input.report.station?.immersiveSessionStarted === true
     && input.framesObservedValid
     && input.framesObserved === 0;
+  const traceLatencyProxy = input.traceLatencyProxy;
 
   return [
     input.report.setup?.devtoolsScreencastDisabled === false ? "devtools_screencast_enabled_during_run" : undefined,
@@ -308,7 +309,9 @@ function buildAdversarialFindings(input: {
     primitiveHandModelObserved && handTrackingObserved ? "hand_tracking_observed_without_realistic_hand_meshes" : undefined,
     locomotionModeDeclared && locomotionEventMissing ? "locomotion_mode_declared_without_locomotion_event" : undefined,
     immersiveWithNoFrameStats ? "immersive_session_started_but_frame_stats_empty" : undefined,
-    isKnownTraceLatencySource(input.traceLatencyProxy?.source) && input.traceLatencyProxy.lastSelectLatencyMs === null
+    traceLatencyProxy
+    && isKnownTraceLatencySource(traceLatencyProxy.source)
+    && traceLatencyProxy.lastSelectLatencyMs === null
       ? "trace_latency_proxy_not_measured"
       : undefined,
     input.heatConcern === undefined || input.heatConcern === null ? "heat_observation_not_recorded" : undefined,
@@ -476,7 +479,11 @@ function isFullVrExperienceEvidence(value: QuestManualPerformanceReport["experie
 }
 
 function isSupportingTraceLatencyProxy(value: QuestManualPerformanceReport["traceLatencyProxy"]): boolean {
-  return isKnownTraceLatencySource(value?.source)
+  if (!value) {
+    return false;
+  }
+
+  return isKnownTraceLatencySource(value.source)
     && value.productionControllerLatencySubstitute === false
     && isPositiveFiniteNumber(value.lastSelectLatencyMs ?? null);
 }
