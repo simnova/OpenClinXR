@@ -113,6 +113,13 @@ def assert_source_contract() -> None:
         "transport-echo",
         "moshi-mlx",
         "qwen3-tts-mlx",
+        "backend.ready",
+        "voice.start",
+        "voice.audio_metadata",
+        "voice.started",
+        "voice.stopped",
+        "audio.chunk",
+        "transcript.partial",
     )
     for snippet in expected_snippets:
         if snippet not in source:

@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { buildApiPythonBackendRuntimeSmokeReport } from "./api-python-backend-runtime-smoke.js";
 
+const canonicalWebSocketProtocol = {
+  websocketPath: "/voice/realtime/ws" as const,
+  codec: "opus" as const,
+  clientControlFrameTypesSent: ["voice.start", "voice.audio_metadata", "voice.stop"],
+  serverEventTypesObserved: ["backend.ready", "voice.started", "audio.chunk", "transcript.partial", "voice.stopped"],
+  canonicalProtocolObserved: true,
+};
+
 const baseInput = {
   generatedAt: "2026-05-04T00:00:00.000Z",
   pythonExecutable: "python3",
@@ -44,6 +52,7 @@ const baseInput = {
     transcriptDeltaObserved: true,
     binaryEchoObserved: true,
     latencyMs: 40,
+    protocol: canonicalWebSocketProtocol,
   },
 };
 
@@ -70,6 +79,7 @@ describe("API Python backend runtime smoke report", () => {
       paidApisUsed: false,
       modelDownloadsUsed: false,
     });
+    expect(report.websocket.protocol).toEqual(canonicalWebSocketProtocol);
     expect(report.verdict.caveats.join("\n")).toContain("FastAPI health and WebSocket frame handling only");
   });
 
@@ -107,6 +117,12 @@ describe("API Python backend runtime smoke report", () => {
         transcriptDeltaObserved: false,
         binaryEchoObserved: false,
         latencyMs: null,
+        protocol: {
+          ...canonicalWebSocketProtocol,
+          clientControlFrameTypesSent: [],
+          serverEventTypesObserved: [],
+          canonicalProtocolObserved: false,
+        },
       },
     });
 
@@ -120,5 +136,17 @@ describe("API Python backend runtime smoke report", () => {
       "capabilities_check_failed",
       "websocket_not_connected",
     ]));
+  });
+
+  it("blocks websocket evidence that does not prove the canonical realtime voice protocol", () => {
+    const websocketWithoutProtocol = { ...baseInput.websocket };
+    delete (websocketWithoutProtocol as { protocol?: unknown }).protocol;
+    const report = buildApiPythonBackendRuntimeSmokeReport({
+      ...baseInput,
+      websocket: websocketWithoutProtocol,
+    });
+
+    expect(report.status).toBe("blocked");
+    expect(report.verdict.blockers).toContain("websocket_canonical_protocol_not_observed");
   });
 });

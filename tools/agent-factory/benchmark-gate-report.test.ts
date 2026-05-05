@@ -1149,6 +1149,13 @@ describe("benchmark gate report", () => {
             transcriptDeltaObserved: true,
             binaryEchoObserved: true,
             latencyMs: 8,
+            protocol: {
+              websocketPath: "/voice/realtime/ws",
+              codec: "opus",
+              clientControlFrameTypesSent: ["voice.start", "voice.audio_metadata", "voice.stop"],
+              serverEventTypesObserved: ["backend.ready", "voice.started", "audio.chunk", "transcript.partial", "voice.stopped"],
+              canonicalProtocolObserved: true,
+            },
           },
           verdict: {
             passed: true,

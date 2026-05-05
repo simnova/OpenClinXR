@@ -76,7 +76,7 @@ async def voice_realtime_ws(websocket: WebSocket) -> None:
     await websocket.accept()
     await websocket.send_json(
         {
-            "type": "session.started",
+            "type": "backend.ready",
             "protocol": "json-control-and-binary-audio-echo",
         }
     )
@@ -110,19 +110,20 @@ async def voice_realtime_ws(websocket: WebSocket) -> None:
                 audio_bytes += len(binary_payload)
                 await websocket.send_json(
                     {
-                        "type": "audio.metadata",
-                        "chunkIndex": audio_chunks,
-                        "chunkBytes": len(binary_payload),
+                        "type": "audio.chunk",
+                        "codec": "opus",
+                        "chunkIndex": audio_chunks - 1,
+                        "byteLength": len(binary_payload),
                         "totalBytes": audio_bytes,
-                        "format": "opaque-binary",
+                        "backendObservedAtMs": None,
                     }
                 )
                 await websocket.send_json(
                     {
-                        "type": "transcript.delta",
+                        "type": "transcript.partial",
                         "text": "",
-                        "isFinal": False,
-                        "sourceChunkIndex": audio_chunks,
+                        "confidence": 0.0,
+                        "sourceChunkIndex": audio_chunks - 1,
                     }
                 )
                 await websocket.send_bytes(binary_payload)
@@ -153,33 +154,26 @@ async def handle_control_frame(websocket: WebSocket, payload: str) -> None:
         return
 
     frame_type = str(control.get("type", "control"))
-    await websocket.send_json(
-        {
-            "type": "control.ack",
-            "controlType": frame_type,
-            "received": sanitize_control_frame(control),
-        }
-    )
 
-    if frame_type in {"start", "commit", "flush"}:
+    if frame_type == "voice.start":
         await websocket.send_json(
             {
-                "type": "transcript.metadata",
-                "status": "ready",
-                "controlType": frame_type,
+                "type": "voice.started",
+                "codec": "opus",
             }
         )
+        return
 
+    if frame_type == "voice.stop":
+        await websocket.send_json({"type": "voice.stopped"})
+        return
 
-def sanitize_control_frame(control: dict[str, Any]) -> dict[str, Any]:
-    sanitized: dict[str, Any] = {}
-    for key, value in control.items():
-        if isinstance(value, (str, int, float, bool)) or value is None:
-            sanitized[key] = value
-        elif isinstance(value, list):
-            sanitized[key] = f"list[{len(value)}]"
-        elif isinstance(value, dict):
-            sanitized[key] = f"object[{len(value)}]"
-        else:
-            sanitized[key] = type(value).__name__
-    return sanitized
+    if frame_type == "voice.audio_metadata":
+        return
+
+    await websocket.send_json(
+        {
+            "type": "backend.error",
+            "reason": f"unsupported control frame: {frame_type}",
+        }
+    )

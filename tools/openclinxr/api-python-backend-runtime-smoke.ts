@@ -1,6 +1,7 @@
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { performance } from "node:perf_hooks";
 import { pathToFileURL } from "node:url";
+import { realtimeVoiceProtocol } from "../../packages/openclinxr/voice-gateway/src/index.js";
 import { writeJson } from "../agent-factory/lib.js";
 
 export type PythonDependencyStatus = "available" | "missing";
@@ -57,6 +58,13 @@ export type ApiPythonBackendRuntimeSmokeReport = {
     transcriptDeltaObserved: boolean;
     binaryEchoObserved: boolean;
     latencyMs: number | null;
+    protocol: {
+      websocketPath: "/voice/realtime/ws";
+      codec: "opus";
+      clientControlFrameTypesSent: string[];
+      serverEventTypesObserved: string[];
+      canonicalProtocolObserved: boolean;
+    };
   };
   verdict: {
     passed: boolean;
@@ -221,6 +229,7 @@ export function buildApiPythonBackendRuntimeSmokeReport(
     ...(input.websocket.audioMetadataObserved ? [] : ["websocket_audio_metadata_missing"]),
     ...(input.websocket.transcriptDeltaObserved ? [] : ["websocket_transcript_delta_missing"]),
     ...(input.websocket.binaryEchoObserved ? [] : ["websocket_binary_echo_missing"]),
+    ...(input.websocket.protocol?.canonicalProtocolObserved ? [] : ["websocket_canonical_protocol_not_observed"]),
   ];
   const passed = blockers.length === 0;
 
@@ -430,21 +439,60 @@ async function runWebSocketProbe(
       audioMetadataObserved: false,
       transcriptDeltaObserved: false,
       binaryEchoObserved: false,
+      clientControlFrameTypesSent: [] as string[],
+      serverEventTypesObserved: [] as string[],
     };
+    const buildProtocol = (): ApiPythonBackendRuntimeSmokeReport["websocket"]["protocol"] => {
+      const serverEvents = state.serverEventTypesObserved;
+      return {
+        websocketPath: realtimeVoiceProtocol.websocketPath,
+        codec: realtimeVoiceProtocol.codec,
+        clientControlFrameTypesSent: [...state.clientControlFrameTypesSent],
+        serverEventTypesObserved: [...serverEvents],
+        canonicalProtocolObserved: [
+          realtimeVoiceProtocol.serverEvents.backendReady,
+          realtimeVoiceProtocol.serverEvents.voiceStarted,
+          realtimeVoiceProtocol.serverEvents.audioChunk,
+          realtimeVoiceProtocol.serverEvents.transcriptPartial,
+        ].every((eventType) => serverEvents.includes(eventType)),
+      };
+    };
+    const buildResult = (): ApiPythonBackendRuntimeSmokeReport["websocket"] => ({
+      attempted: true,
+      connected: state.connected,
+      jsonMessages: state.jsonMessages,
+      binaryMessages: state.binaryMessages,
+      controlAckObserved: state.controlAckObserved,
+      audioMetadataObserved: state.audioMetadataObserved,
+      transcriptDeltaObserved: state.transcriptDeltaObserved,
+      binaryEchoObserved: state.binaryEchoObserved,
+      latencyMs: Math.round(performance.now() - startedAt),
+      protocol: buildProtocol(),
+    });
     const timeout = setTimeout(() => {
       websocket.close();
-      resolve({
-        attempted: true,
-        ...state,
-        latencyMs: Math.round(performance.now() - startedAt),
-      });
+      resolve(buildResult());
     }, timeoutMs);
 
     websocket.addEventListener("open", () => {
       state.connected = true;
-      websocket.send(JSON.stringify({ type: "start", codec: "opus", sampleRateHz: 48_000 }));
+      state.clientControlFrameTypesSent.push(realtimeVoiceProtocol.clientControlFrames.start);
+      websocket.send(JSON.stringify({
+        type: realtimeVoiceProtocol.clientControlFrames.start,
+        codec: realtimeVoiceProtocol.codec,
+        sampleRateHz: realtimeVoiceProtocol.sampleRateHz,
+      }));
+      state.clientControlFrameTypesSent.push(realtimeVoiceProtocol.clientControlFrames.audioMetadata);
+      websocket.send(JSON.stringify({
+        type: realtimeVoiceProtocol.clientControlFrames.audioMetadata,
+        chunkIndex: 0,
+        byteLength: 6,
+        codec: realtimeVoiceProtocol.codec,
+        clientSentAtMs: Math.round(performance.now()),
+      }));
       websocket.send(new Uint8Array([1, 1, 2, 3, 5, 8]));
-      websocket.send(JSON.stringify({ type: "commit" }));
+      state.clientControlFrameTypesSent.push(realtimeVoiceProtocol.clientControlFrames.stop);
+      websocket.send(JSON.stringify({ type: realtimeVoiceProtocol.clientControlFrames.stop }));
     });
 
     websocket.addEventListener("message", (event) => {
@@ -452,9 +500,13 @@ async function runWebSocketProbe(
         state.jsonMessages += 1;
         const parsed = safeJsonParse(event.data);
         const type = typeof parsed === "object" && parsed !== null ? (parsed as { type?: unknown }).type : undefined;
-        state.controlAckObserved ||= type === "control.ack";
-        state.audioMetadataObserved ||= type === "audio.metadata";
-        state.transcriptDeltaObserved ||= type === "transcript.delta";
+        if (typeof type === "string") {
+          state.serverEventTypesObserved.push(type);
+        }
+        state.controlAckObserved ||= type === realtimeVoiceProtocol.serverEvents.voiceStarted;
+        state.audioMetadataObserved ||= type === realtimeVoiceProtocol.serverEvents.audioChunk;
+        state.transcriptDeltaObserved ||= type === realtimeVoiceProtocol.serverEvents.transcriptPartial
+          || type === realtimeVoiceProtocol.serverEvents.transcriptFinal;
       } else {
         state.binaryMessages += 1;
         state.binaryEchoObserved = true;
@@ -468,21 +520,13 @@ async function runWebSocketProbe(
       ) {
         clearTimeout(timeout);
         websocket.close();
-        resolve({
-          attempted: true,
-          ...state,
-          latencyMs: Math.round(performance.now() - startedAt),
-        });
+        resolve(buildResult());
       }
     });
 
     websocket.addEventListener("error", () => {
       clearTimeout(timeout);
-      resolve({
-        attempted: true,
-        ...state,
-        latencyMs: Math.round(performance.now() - startedAt),
-      });
+      resolve(buildResult());
     });
   });
 }
@@ -519,6 +563,17 @@ function emptyWebSocket(attempted: boolean): ApiPythonBackendRuntimeSmokeReport[
     transcriptDeltaObserved: false,
     binaryEchoObserved: false,
     latencyMs: null,
+    protocol: emptyWebSocketProtocol(),
+  };
+}
+
+function emptyWebSocketProtocol(): ApiPythonBackendRuntimeSmokeReport["websocket"]["protocol"] {
+  return {
+    websocketPath: realtimeVoiceProtocol.websocketPath,
+    codec: realtimeVoiceProtocol.codec,
+    clientControlFrameTypesSent: [],
+    serverEventTypesObserved: [],
+    canonicalProtocolObserved: false,
   };
 }
 
