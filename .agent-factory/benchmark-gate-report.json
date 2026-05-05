@@ -43,7 +43,7 @@
       "evidence_id": "asset_capability_job_evidence",
       "file": "docs/openclinxr/asset-capability-job-evidence-2026-05-04.json",
       "generated_at": "2026-05-04T21:21:14.173Z",
-      "age_hours": 21,
+      "age_hours": 22,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -88,7 +88,7 @@
     },
     {
       "evidence_id": "local_voice_runtime_benchmark",
-      "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json",
+      "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-05.json",
       "generated_at": "2026-05-04T15:01:12Z",
       "age_hours": 28,
       "max_age_hours": 24,
@@ -119,7 +119,7 @@
       "evidence_id": "api_python_backend_runtime_smoke",
       "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T15:21:12.576Z",
-      "age_hours": 3,
+      "age_hours": 4,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -127,7 +127,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-05T19:17:29.039Z",
+      "generated_at": "2026-05-05T19:24:28.010Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -819,7 +819,7 @@
     }
   },
   "local_voice_runtime_benchmark": {
-    "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json",
+    "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-05.json",
     "generated_at": "2026-05-04T15:01:12Z",
     "status": "passed_with_caveats",
     "runtime": {
@@ -831,7 +831,7 @@
         "src-vibevoice-github-2026"
       ],
       "device": "mps",
-      "torchVersion": "2.11.0",
+      "torchVersion": null,
       "transformersVersion": "4.51.3",
       "pythonVenv": "/Users/patrick/.cache/openclinxr/vibevoice/.venv",
       "huggingFaceCache": "/Users/patrick/.cache/openclinxr/huggingface",
@@ -846,12 +846,12 @@
       "channels": 1,
       "durationMs": 3466.667,
       "sizeBytes": 166444,
-      "bitRate": 384101
+      "bitRate": 384000
     },
     "metrics": {
       "wallClockMs": 118920,
       "modelGenerationMs": 18170,
-      "audioDurationMs": 3466.667,
+      "audioDurationMs": 3470,
       "realTimeFactor": 5.24,
       "approxFirstSpeechTokenLatencyMs": 9000,
       "prefillingTextTokens": 10,
@@ -864,12 +864,14 @@
     },
     "verdict": {
       "passed": true,
+      "readyForLiveDialog": false,
       "blockers": [],
       "caveats": [
         "This measured file-based local generation, not WebXR playback or a live streaming websocket turn.",
         "Approximate first speech-token latency came from the progress log; true first audible playback latency still needs an interactive streaming capture.",
-        "Real-time factor was 5.24x on this Apple M1 Max, so current local VibeVoice is not yet Quest-ready for live dialog.",
-        "Generated audio remains local-only and uncommitted because production, disclosure, retention, and clinical simulation QA are not approved."
+        "Real-time factor was above 1x on this Apple M1 Max evidence run, so current local VibeVoice is not yet Quest-ready for live dialog.",
+        "Generated audio remains local-only and uncommitted because production, disclosure, retention, and clinical simulation QA are not approved.",
+        "This report was harvested from existing local files; this repo-managed tool did not execute VibeVoice."
       ]
     }
   },
@@ -1134,7 +1136,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-05T19:17:29.039Z",
+    "generated_at": "2026-05-05T19:24:28.010Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
