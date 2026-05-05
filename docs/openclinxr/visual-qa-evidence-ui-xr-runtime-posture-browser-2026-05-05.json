@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "openclinxr.visual-qa-evidence.v1",
+  "capture": {
+    "source": "desktop_browser",
+    "artifactType": "screenshot",
+    "artifact": "docs/openclinxr/screenshots/ui-xr-runtime-posture-fullpage-2026-05-05.png",
+    "mimeType": "image/png",
+    "dimensions": {
+      "width": 1910,
+      "height": 3706
+    },
+    "runtimeUrl": "http://localhost:5173/",
+    "route": "/",
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "xrMode": "desktop_browser_flat_preview_not_immersive",
+    "cameraPose": "Desktop browser full-page capture with WebXR unavailable and right-side runtime posture and Quest evidence panels visible",
+    "captureCommand": "Chrome DevTools MCP take_screenshot fullPage"
+  },
+  "adversarialReview": {
+    "reviewers": [
+      "test-automation-lead",
+      "ux-friction-critic",
+      "clinical-safety-critic",
+      "xr-systems-architect",
+      "asset-pipeline-lead"
+    ],
+    "checks": {
+      "clinical_scene_fidelity": {
+        "status": "concern",
+        "notes": [
+          "The ED chest-pain administrative/runtime surface is visible and medically relevant text is readable, but the 3D bay itself is sparse and cannot yet convey a high-pressure emergency encounter."
+        ]
+      },
+      "actor_equipment_realism": {
+        "status": "concern",
+        "notes": [
+          "The visible actor forms are primitive capsule/head proxies with no clothing, facial expression, pain response, skin detail, rigging, or realistic clinical equipment, so this does not advance production realism."
+        ]
+      },
+      "ui_readability": {
+        "status": "pass",
+        "notes": [
+          "The right-side desktop panels, trace buttons, runtime posture, Quest evidence rows, and copied JSON area are readable in the full-page browser artifact."
+        ]
+      },
+      "interaction_affordances": {
+        "status": "concern",
+        "notes": [
+          "Trace buttons and Copy Evidence are visible, but the Enter Full VR button is disabled because desktop WebXR is unavailable; this artifact does not prove controller, hand, locomotion, or headset interaction."
+        ]
+      },
+      "occlusion_scale": {
+        "status": "concern",
+        "notes": [
+          "The left 3D scene shows cropped primitive actors and partly clipped in-canvas evidence text, which is useful as a layout warning but not a headset scale or occlusion pass."
+        ]
+      },
+      "evidence_limits": {
+        "status": "pass",
+        "notes": [
+          "This is a desktop Chrome DevTools screenshot for adversarial visual QA only; it is not physical Quest evidence, not immersive WebXR proof, not in-headset readability proof, and not production runtime readiness."
+        ]
+      }
+    }
+  },
+  "claimBoundaries": {
+    "notEvidenceFor": [
+      "physical_quest_foreground_frame_pacing",
+      "quest_controller_latency",
+      "quest_hand_tracking_quality",
+      "in_headset_text_readability",
+      "thermal_or_battery_behavior",
+      "production_runtime_readiness"
+    ],
+    "allowedClaims": [
+      "adversarial_visual_iteration_artifact",
+      "desktop_runtime_posture_panel_rendered",
+      "desktop_quest_evidence_panel_rendered"
+    ]
+  }
+}

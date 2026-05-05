@@ -1150,22 +1150,22 @@
     ]
   },
   "visual_qa_evidence": {
-    "file": "docs/openclinxr/visual-qa-evidence-iwer-auto-entry-wide-panel-depth-2026-05-05.json",
+    "file": "docs/openclinxr/visual-qa-evidence-ui-xr-runtime-posture-browser-2026-05-05.json",
     "ready_for_adversarial_visual_qa": true,
     "ready_for_production_runtime": false,
     "ready_for_physical_quest_claim": false,
     "capture": {
-      "source": "iwer_emulation",
+      "source": "desktop_browser",
       "artifact_type": "screenshot",
-      "artifact": "docs/openclinxr/screenshots/iwer-auto-entry-wide-panel-depth-2026-05-05.png",
+      "artifact": "docs/openclinxr/screenshots/ui-xr-runtime-posture-fullpage-2026-05-05.png",
       "scenario_id": "ed_chest_pain_priority_v1",
-      "xr_mode": "iwer_emulated_full_vr_auto_entry_query_gated_wide_panel_depth"
+      "xr_mode": "desktop_browser_flat_preview_not_immersive"
     },
     "blockers": [],
     "allowed_claims": [
       "adversarial_visual_iteration_artifact",
-      "iwer_auto_entry_session_started_in_emulation",
-      "query_gated_panel_visibility_capture_mode_observed"
+      "desktop_runtime_posture_panel_rendered",
+      "desktop_quest_evidence_panel_rendered"
     ],
     "not_evidence_for": [
       "physical_quest_foreground_frame_pacing",
