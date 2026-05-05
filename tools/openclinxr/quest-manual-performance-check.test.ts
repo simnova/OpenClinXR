@@ -478,6 +478,57 @@ describe("Quest manual performance checker", () => {
     ]));
   });
 
+  it("keeps copied immersive-session payloads with zero frame stats blocked", () => {
+    const report = completedQuestManualReport();
+    report.performance = {
+      source: "window.__openClinXrFrameStats",
+      framesObserved: 0,
+      sampleWindowSize: 0,
+      firstFrameAtMs: null,
+      previewFramesObserved: 0,
+      immersiveFramesObserved: 0,
+      avgFps: null,
+      p95FrameMs: null,
+      minimumObservedFps: null,
+      controllerSelectLatencyMs: 12,
+    };
+    const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-copy-zero-frame.json", {
+      manualPerformanceDraft: report,
+      captureSummary: {
+        draftAvailable: true,
+        manualValidationReady: false,
+        frameStatsFresh: true,
+        blockers: ["immersive_session_started_but_frame_stats_empty"],
+      },
+    });
+
+    expect(check.readyToClaimFramePacing).toBe(false);
+    expect(check.blockers).toEqual(expect.arrayContaining([
+      "copied_payload_summary_not_ready",
+      "immersive_session_started_but_frame_stats_empty",
+      "frame_sample_under_600_or_missing",
+      "immersive_frame_count_zero_or_missing",
+      "immersive_frame_sample_under_600_or_missing",
+      "rolling_frame_window_under_120_or_missing",
+      "average_fps_below_72_or_missing",
+      "minimum_fps_below_60_or_missing",
+      "p95_frame_ms_above_25_or_missing",
+    ]));
+    expect(check.satisfiedConditions).not.toEqual(expect.arrayContaining([
+      "frame_sample_600_or_more",
+      "immersive_frame_count_recorded",
+      "immersive_frame_sample_600_or_more",
+      "rolling_frame_window_120_or_more",
+    ]));
+    expect(check.adversarialFindings).toEqual(expect.arrayContaining([
+      "copied_ui_manual_performance_payload",
+    ]));
+    expect(check.nextSteps).toEqual(expect.arrayContaining([
+      "Resolve the copied captureSummary blockers before using the payload as readiness evidence.",
+      "Copy the in-app Quest Evidence payload after entering Full VR and confirm performance.immersiveFramesObserved is greater than zero.",
+    ]));
+  });
+
   it("ignores generated check artifacts when locating the latest manual report", async () => {
     const dir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-quest-manual-latest-"));
     const docsDir = path.join(dir, "docs/openclinxr");
