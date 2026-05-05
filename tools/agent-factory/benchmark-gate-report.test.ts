@@ -955,6 +955,54 @@ describe("benchmark gate report", () => {
     ]);
   });
 
+  it("marks benchmark evidence stale as soon as its exact age exceeds the freshness limit", () => {
+    const buildReport = buildBenchmarkGateReport as (
+      input: Parameters<typeof buildBenchmarkGateReport>[0],
+      options: { now: Date; maxEvidenceAgeHours: number },
+    ) => BenchmarkGateReport;
+
+    const localRuntime = {
+      file: "docs/openclinxr/local-runtime-probe-boundary.json",
+      value: {
+        generatedAt: "2026-05-04T00:00:00.000Z",
+        gates: {
+          questUsb: { status: "ready", blockers: [] },
+          questForegroundPreflight: { status: "ready", blockers: [] },
+          apiBunRuntime: { status: "ready", blockers: [] },
+          localModel: { status: "ready", blockers: [] },
+          localVoice: { status: "ready", blockers: [] },
+          assetPipeline: { status: "ready", blockers: [] },
+        },
+      },
+    } satisfies NonNullable<Parameters<typeof buildBenchmarkGateReport>[0]["localRuntime"]>;
+
+    const exactlyAtLimit = buildReport(
+      { localRuntime },
+      { now: new Date("2026-05-05T00:00:00.000Z"), maxEvidenceAgeHours: 24 },
+    );
+    const oneMinutePastLimit = buildReport(
+      { localRuntime },
+      { now: new Date("2026-05-05T00:01:00.000Z"), maxEvidenceAgeHours: 24 },
+    );
+
+    expect(exactlyAtLimit.evidence_freshness).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        evidence_id: "local_runtime_probe",
+        age_hours: 24,
+        status: "fresh",
+        blockers: [],
+      }),
+    ]));
+    expect(oneMinutePastLimit.evidence_freshness).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        evidence_id: "local_runtime_probe",
+        age_hours: 24,
+        status: "stale",
+        blockers: ["local_runtime_probe:evidence_stale_over_24h"],
+      }),
+    ]));
+  });
+
   it("splits iteration 0008 benchmark evidence debt by owner-specific leadership gates", async () => {
     const report = JSON.parse(await readFile(".agent-factory/benchmark-gate-report.json", "utf8")) as BenchmarkGateReport;
     const gatesById = new Map(report.evidence_gates.map((gate) => [gate.evidence_id, gate]));

@@ -1345,8 +1345,9 @@ function evidenceFreshnessEntry(
     };
   }
 
-  const ageHours = wholeHours(Math.max(0, now.getTime() - generatedAt.getTime()) / hourMs);
-  if (ageHours > maxAgeHours) {
+  const ageMs = Math.max(0, now.getTime() - generatedAt.getTime());
+  const ageHours = wholeHours(ageMs / hourMs);
+  if (ageMs > maxAgeHours * hourMs) {
     return {
       evidence_id: evidenceId,
       file: evidence.file,

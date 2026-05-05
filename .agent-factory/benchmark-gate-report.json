@@ -5,7 +5,7 @@
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T18:13:48.812Z",
-      "age_hours": 26,
+      "age_hours": 27,
       "max_age_hours": 24,
       "status": "stale",
       "blockers": [
@@ -16,7 +16,7 @@
       "evidence_id": "local_runtime_probe",
       "file": "docs/openclinxr/local-runtime-probe-2026-05-05.json",
       "generated_at": "2026-05-05T16:48:27.241Z",
-      "age_hours": 4,
+      "age_hours": 5,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -25,7 +25,7 @@
       "evidence_id": "gltf_pipeline_smoke",
       "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
       "generated_at": "2026-05-04T23:49:36.820Z",
-      "age_hours": 21,
+      "age_hours": 22,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -43,10 +43,12 @@
       "evidence_id": "asset_capability_job_evidence",
       "file": "docs/openclinxr/asset-capability-job-evidence-2026-05-04.json",
       "generated_at": "2026-05-04T21:21:14.173Z",
-      "age_hours": 23,
+      "age_hours": 24,
       "max_age_hours": 24,
-      "status": "fresh",
-      "blockers": []
+      "status": "stale",
+      "blockers": [
+        "asset_capability_job_evidence:evidence_stale_over_24h"
+      ]
     },
     {
       "evidence_id": "asset_production_readiness_benchmark",
@@ -54,8 +56,10 @@
       "generated_at": "2026-05-04T21:11:11.999Z",
       "age_hours": 24,
       "max_age_hours": 24,
-      "status": "fresh",
-      "blockers": []
+      "status": "stale",
+      "blockers": [
+        "asset_production_readiness_benchmark:evidence_stale_over_24h"
+      ]
     },
     {
       "evidence_id": "local_provider_benchmark",
@@ -70,7 +74,7 @@
       "evidence_id": "local_model_runtime_benchmark",
       "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T20:20:19.936Z",
-      "age_hours": 0,
+      "age_hours": 1,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -79,10 +83,12 @@
       "evidence_id": "local_model_quality_benchmark",
       "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T21:16:55.867Z",
-      "age_hours": 23,
+      "age_hours": 24,
       "max_age_hours": 24,
-      "status": "fresh",
-      "blockers": []
+      "status": "stale",
+      "blockers": [
+        "local_model_quality_benchmark:evidence_stale_over_24h"
+      ]
     },
     {
       "evidence_id": "local_voice_runtime_benchmark",
@@ -99,16 +105,18 @@
       "evidence_id": "local_voice_live_dialog_benchmark",
       "file": "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T20:47:52.004Z",
-      "age_hours": 24,
+      "age_hours": 25,
       "max_age_hours": 24,
-      "status": "fresh",
-      "blockers": []
+      "status": "stale",
+      "blockers": [
+        "local_voice_live_dialog_benchmark:evidence_stale_over_24h"
+      ]
     },
     {
       "evidence_id": "realtime_voice_transport_spike",
       "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-05.json",
       "generated_at": "2026-05-05T18:28:23.574Z",
-      "age_hours": 2,
+      "age_hours": 3,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -117,7 +125,7 @@
       "evidence_id": "api_python_backend_runtime_smoke",
       "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T15:21:12.576Z",
-      "age_hours": 5,
+      "age_hours": 6,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -126,7 +134,7 @@
       "evidence_id": "api_bun_websocket_runtime_smoke",
       "file": "docs/openclinxr/api-bun-websocket-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T16:45:35.909Z",
-      "age_hours": 4,
+      "age_hours": 5,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -135,7 +143,7 @@
       "evidence_id": "api_bun_python_proxy_runtime_smoke",
       "file": "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T18:21:30.330Z",
-      "age_hours": 2,
+      "age_hours": 3,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -143,7 +151,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-05T21:12:28.335Z",
+      "generated_at": "2026-05-05T21:50:12.893Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -1298,7 +1306,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-05T21:12:28.335Z",
+    "generated_at": "2026-05-05T21:50:12.893Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -1831,12 +1839,22 @@
         "local_model_quality:structured_output:reasoning_markup_emitted",
         "local_model_quality:structured_output:safety_flags_not_guardrail_labels",
         "local_model_quality:structured_output:schema_grammar_not_enforced",
-        "local_model_quality:target_hardware:target_hardware_not_m4_profile"
+        "local_model_quality:target_hardware:target_hardware_not_m4_profile",
+        "local_model_quality_benchmark:evidence_stale_over_24h"
       ],
       "blocker_summary": {
-        "total_blockers": 7,
-        "distinct_problem_count": 1,
+        "total_blockers": 8,
+        "distinct_problem_count": 2,
         "groups": [
+          {
+            "group_id": "benchmark_evidence_freshness",
+            "title": "Benchmark evidence freshness",
+            "owner": "qa-evidence-lead",
+            "blockers": [
+              "local_model_quality_benchmark:evidence_stale_over_24h"
+            ],
+            "next_step": "Regenerate the stale local evidence files before using the benchmark gate as leadership-ready proof."
+          },
           {
             "group_id": "local_model_quality",
             "title": "Local model structured-output and actor-policy evidence",
@@ -1881,10 +1899,11 @@
         "local_voice_live_dialog:runtime:runtime_file_generation_only",
         "local_voice_live_dialog:runtime_stream:real_local_voice_stream_benchmark_missing",
         "local_voice_live_dialog:webxr_playback:webxr_playback_not_observed",
+        "local_voice_live_dialog_benchmark:evidence_stale_over_24h",
         "local_voice_runtime_benchmark:evidence_stale_over_24h"
       ],
       "blocker_summary": {
-        "total_blockers": 10,
+        "total_blockers": 11,
         "distinct_problem_count": 3,
         "groups": [
           {
@@ -1892,6 +1911,7 @@
             "title": "Benchmark evidence freshness",
             "owner": "qa-evidence-lead",
             "blockers": [
+              "local_voice_live_dialog_benchmark:evidence_stale_over_24h",
               "local_voice_runtime_benchmark:evidence_stale_over_24h"
             ],
             "next_step": "Regenerate the stale local evidence files before using the benchmark gate as leadership-ready proof."
@@ -1984,6 +2004,7 @@
         "asset_production_source_smokes_passed"
       ],
       "blockers": [
+        "asset_capability_job_evidence:evidence_stale_over_24h",
         "asset_production:generation:animation_retargeting_missing",
         "asset_production:generation:generated_human_rigging_missing",
         "asset_production:generation:medical_equipment_library_missing",
@@ -1991,12 +2012,23 @@
         "asset_production:optimization:collider_simplification_report_missing",
         "asset_production:optimization:lod_tiers_missing",
         "asset_production:optimization:texture_compression_budget_missing",
-        "asset_production:source:placeholder_bake_only"
+        "asset_production:source:placeholder_bake_only",
+        "asset_production_readiness_benchmark:evidence_stale_over_24h"
       ],
       "blocker_summary": {
-        "total_blockers": 8,
-        "distinct_problem_count": 1,
+        "total_blockers": 10,
+        "distinct_problem_count": 2,
         "groups": [
+          {
+            "group_id": "benchmark_evidence_freshness",
+            "title": "Benchmark evidence freshness",
+            "owner": "qa-evidence-lead",
+            "blockers": [
+              "asset_capability_job_evidence:evidence_stale_over_24h",
+              "asset_production_readiness_benchmark:evidence_stale_over_24h"
+            ],
+            "next_step": "Regenerate the stale local evidence files before using the benchmark gate as leadership-ready proof."
+          },
           {
             "group_id": "asset_production_readiness",
             "title": "Production asset generation readiness",
