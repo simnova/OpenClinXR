@@ -686,6 +686,23 @@ describe("workspace architecture rules", () => {
     expect(sourceViolations).toEqual([]);
   });
 
+  it("keeps session-state WebSocket message contracts design-only", () => {
+    const source = readFileSync(join(workspaceRoot, "packages/openclinxr/session-state/src/index.ts"), "utf8");
+    const docs = readFileSync(join(workspaceRoot, "docs/openclinxr/session-state-websocket-message-design.md"), "utf8");
+    const runtimeSignalPattern = /new WebSocket|Bun\.serve|server\.upgrade|from ["']ws["']|from ["']hono|from ["']redis|from ["']redka|from ["']colyseus|from ["']@colyseus\/schema|from ["']bitecs/;
+
+    expect(source).toContain("websocket_design_contract");
+    expect(source).toContain("transportPosture: \"websocket_design_contract_only\"");
+    expect(source).toContain("runtimeImplemented: false");
+    expect(source).toContain("apiWiringIncluded: false");
+    expect(source).toContain("redisRedkaIncluded: false");
+    expect(source).toContain("databasePersistenceIncluded: false");
+    expect(source).toContain("clinical_event_messages_use_review_projection_redaction");
+    expect(source).not.toMatch(runtimeSignalPattern);
+    expect(docs).toContain("type-level contracts");
+    expect(docs).toContain("does not implement realtime synchronization");
+  });
+
   it("keeps the agent-loop orchestration package independent from app and station runtime code", () => {
     const forbiddenImports = /@openclinxr\/(?:scenario-runtime|data-|data-sources-|model-gateway|voice-gateway|trace-ledger)|apps\//;
     const violations = filesWithContentMatching("packages/openclinxr/agent-loop", forbiddenImports);

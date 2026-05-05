@@ -2,9 +2,15 @@ import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { describe, expect, it } from "vitest";
 import {
   buildActorModelContext,
+  createActorInteractionRoutedMessage,
+  createActorInteractionRouteMessage,
+  createSessionStateClinicalEventMessage,
   createMultiActorClinicalSession,
   createPersistenceSpikeStores,
+  createSessionStateSnapshotMessage,
+  createSpatialActorTransformMessage,
   evaluateMultiActorPersistencePhase2Strategy,
+  evaluateSessionStateWebSocketMessageDesign,
   persistLatestInteractionTurn,
   projectDurableClinicalEventForReview,
   rehydrateRealtimeCacheFromDurableState,
@@ -409,6 +415,185 @@ describe("session state", () => {
         displayHint: "show ECG result after completion",
       },
     });
+  });
+
+  it("creates design-only WebSocket snapshot messages without leaking private actor memory", () => {
+    const session = createMultiActorClinicalSession({
+      scenario: edChestPainScenario,
+      stationRunId: "station_run_websocket_design_001",
+    });
+
+    const message = createSessionStateSnapshotMessage(session, {
+      messageId: "ws_msg_001_snapshot",
+      sequence: 1,
+      atSecond: 0,
+      sentAt: "2026-05-05T23:30:00.000Z",
+    });
+
+    expect(message).toMatchObject({
+      type: "session.snapshot",
+      direction: "server_to_client",
+      transport: "websocket_design_contract",
+      schemaVersion: 1,
+      stationRunId: "station_run_websocket_design_001",
+      evidence: {
+        runtimeSyncImplemented: false,
+        readyForProductionAdoption: false,
+        notEvidenceFor: [
+          "apps_api_websocket_route",
+          "production_realtime_state_sync",
+          "redis_redka_adapter",
+          "quest_network_performance",
+          "clinical_assessment_validity",
+        ],
+      },
+    });
+    expect(message.actors.map((actor) => [actor.actorId, actor.role, actor.conversationTurn])).toEqual([
+      ["patient_robert_hayes_v1", "patient", 0],
+      ["spouse_anna_hayes_v1", "family", 0],
+      ["nurse_maria_alvarez_v1", "nurse", 0],
+    ]);
+    expect(JSON.stringify(message)).not.toContain("Recent cocaine use");
+    expect(JSON.stringify(message)).not.toContain("Repeat blood pressure is falling");
+    expect(message.spatial.actorTransforms.patient_robert_hayes_v1?.position).toEqual({ x: 0, y: 0, z: -1.15 });
+  });
+
+  it("models route, routed, clinical-event, and spatial messages as design-only deltas", () => {
+    let session = createMultiActorClinicalSession({
+      scenario: edChestPainScenario,
+      stationRunId: "station_run_websocket_design_002",
+    });
+    const routeMessage = createActorInteractionRouteMessage({
+      messageId: "ws_msg_002_route",
+      sequence: 2,
+      stationRunId: session.stationRunId,
+      atSecond: 142,
+      sentAt: "2026-05-05T23:31:00.000Z",
+      learnerUtterance: "Nurse, please repeat the blood pressure and start the ECG.",
+      traceContextTags: ["vitals_review", "ecg_request"],
+      source: {
+        kind: "voice_transcript",
+        streamId: "voice_stream_ws_design_001",
+        transcriptSegmentId: "segment_001_final",
+        finalTranscriptText: "Nurse, please repeat the blood pressure and start the ECG.",
+        provider: "local_fastapi_transport_echo",
+        provenanceRefs: ["trace:voice_stream_ws_design_001:segment_001_final"],
+      },
+    });
+    const routed = routeActorInteraction(session, routeMessage.payload);
+    session = routed.updatedSession;
+    const routedMessage = createActorInteractionRoutedMessage(session, {
+      messageId: "ws_msg_003_routed",
+      sequence: 3,
+      atSecond: 142,
+      sentAt: "2026-05-05T23:31:01.000Z",
+      routedActorId: routed.routedActorId,
+      routingReason: routed.routingReason,
+      traceContextTags: ["vitals_review", "ecg_request"],
+    });
+    const transformMessage = createSpatialActorTransformMessage(session.spatialState.actorTransforms.nurse_maria_alvarez_v1!, {
+      messageId: "ws_msg_004_transform",
+      sequence: 4,
+      stationRunId: session.stationRunId,
+      sentAt: "2026-05-05T23:31:02.000Z",
+      direction: "server_to_client",
+    });
+    const clinicalMessage = createSessionStateClinicalEventMessage(clinicalEvent({
+      clinicalEventId: "event_ws_design_001",
+      stationRunId: session.stationRunId,
+      actorId: "nurse_maria_alvarez_v1",
+      atSecond: 180,
+      eventKind: "order_status_changed",
+      traceTag: "ecg_request",
+      label: "12-lead ECG",
+      status: "completed",
+      payload: {
+        public: {
+          orderId: "order_1_ecg_request",
+          resultSummary: "ST elevation present.",
+          hiddenFactRefs: ["fact:patient_robert_hayes_v1:1"],
+        },
+        private: {
+          hiddenFactRefs: ["fact:patient_robert_hayes_v1:1"],
+          serverOnlyNotes: ["Recent cocaine use remains hidden until elicited."],
+        },
+      },
+    }), {
+      messageId: "ws_msg_005_clinical_event",
+      sequence: 5,
+      sentAt: "2026-05-05T23:31:03.000Z",
+    });
+
+    expect(routeMessage).toMatchObject({
+      type: "actor.interaction.route",
+      direction: "client_to_server",
+      transport: "websocket_design_contract",
+      payload: {
+        source: {
+          kind: "voice_transcript",
+          rawAudioStored: false,
+        },
+      },
+    });
+    expect(routedMessage).toMatchObject({
+      type: "actor.interaction.routed",
+      direction: "server_to_client",
+      routedActorId: "nurse_maria_alvarez_v1",
+      conversationTurn: 1,
+    });
+    expect(transformMessage).toMatchObject({
+      type: "spatial.actor.transform",
+      direction: "server_to_client",
+      actorId: "nurse_maria_alvarez_v1",
+      transform: {
+        interactionState: "addressed",
+        lastUpdatedAtSecond: 142,
+      },
+    });
+    expect(clinicalMessage).toMatchObject({
+      type: "clinical.event.appended",
+      direction: "server_to_client",
+      event: {
+        clinicalEventId: "event_ws_design_001",
+        privatePayloadRedacted: true,
+        payload: {
+          orderId: "order_1_ecg_request",
+          resultSummary: "ST elevation present.",
+        },
+      },
+    });
+    expect(JSON.stringify(clinicalMessage)).not.toContain("Recent cocaine use");
+    expect(JSON.stringify(clinicalMessage)).not.toContain("hiddenFactRefs");
+  });
+
+  it("documents WebSocket message design posture without runtime adoption claims", () => {
+    const design = evaluateSessionStateWebSocketMessageDesign();
+
+    expect(design).toMatchObject({
+      generatedAt: "2026-05-05",
+      approvedProposal: "proposals/approved/proposal-multi-actor-runtime-promotion.md",
+      transportPosture: "websocket_design_contract_only",
+      runtimeImplemented: false,
+      apiWiringIncluded: false,
+      redisRedkaIncluded: false,
+      databasePersistenceIncluded: false,
+    });
+    expect(design.messageFamilies).toEqual([
+      "session.snapshot.request",
+      "session.snapshot",
+      "actor.interaction.route",
+      "actor.interaction.routed",
+      "clinical.event.appended",
+      "spatial.actor.transform",
+      "session.resync.required",
+    ]);
+    expect(design.notEvidenceFor).toEqual([
+      "apps_api_websocket_route",
+      "production_realtime_state_sync",
+      "redis_redka_adapter",
+      "quest_network_performance",
+      "clinical_assessment_validity",
+    ]);
   });
 
   it("documents Phase 2 Redis/Redka versus database responsibilities without adding runtime dependencies", () => {

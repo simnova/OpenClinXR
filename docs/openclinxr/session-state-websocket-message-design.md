@@ -7,6 +7,8 @@ Status: Design-only, not runtime implementation
 
 This note defines vocabulary for future WebSocket session-state messages that may use `@openclinxr/session-state`. It does not implement realtime synchronization, persistence, Colyseus, `@colyseus/schema`, bitECS, WebTransport, QUIC, or Redis/Redka integration.
 
+The first production-shaped type-level contracts now live in `@openclinxr/session-state` as `websocket_design_contract` messages. They are serializable domain contracts only; no `apps/api` route, WebSocket server, Redis/Redka adapter, MongoDB repository, or realtime synchronization loop is included.
+
 The current implemented state contract is:
 
 - `packages/openclinxr/session-state`
@@ -31,6 +33,30 @@ The current implemented state contract is:
 | `clinical.state.delta` | server to client | Broadcast completed trace tags, orders, and findings | Durable clinical event projection |
 | `spatial.actor.transform` | client to server or server to client | Low-latency actor transform update | Ephemeral; selectively checkpointed |
 | `session.resync.required` | server to client | Tell client to request a fresh snapshot | Not durable |
+
+## Promoted Type Contracts
+
+`@openclinxr/session-state` now exposes design-only helpers for the reviewed message families:
+
+- `createSessionStateSnapshotMessage`
+- `createActorInteractionRouteMessage`
+- `createActorInteractionRoutedMessage`
+- `createSessionStateClinicalEventMessage`
+- `createSpatialActorTransformMessage`
+- `evaluateSessionStateWebSocketMessageDesign`
+
+The snapshot helper exposes actor visible memory only. The clinical-event helper uses `projectDurableClinicalEventForReview`, so hidden/private payload keys are redacted before a review-facing WebSocket message is built. Voice transcript sources preserve `rawAudioStored: false`.
+
+Every promoted message includes:
+
+- `schemaVersion: 1`
+- `transport: "websocket_design_contract"`
+- `direction`
+- `messageId`
+- `stationRunId`
+- `sequence`
+- `atSecond`
+- `sentAt`
 
 ## Example Messages
 
@@ -76,12 +102,13 @@ The current implemented state contract is:
 }
 ```
 
-## Validation Gates Before Implementation
+## Validation Gates Before Runtime Implementation
 
-- Add type-level message contracts in a production-shaped package only after the message families above are reviewed against `apps/api` WebSocket needs.
+- Keep the current type-level contracts in `@openclinxr/session-state` free of runtime imports.
 - Keep WebSocket as the implemented transport lane until Quest and server evidence supports another transport.
 - Keep `@openclinxr/session-state` free of WebSocket, Redis, Redka, MongoDB, Colyseus, and bitECS runtime dependencies.
 - Add persistence contracts only through a follow-up proposal or an already-approved Phase 2 persistence implementation slice.
+- Add `apps/api` runtime wiring only through a later verified slice; these contracts alone are not route implementation evidence.
 
 ## Open Design Risks
 

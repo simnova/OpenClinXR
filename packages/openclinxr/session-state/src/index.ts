@@ -234,6 +234,108 @@ export type DurableClinicalEventReviewProjection = {
   durableStore: DurableStorePosture;
 };
 
+export type SessionStateWebSocketMessageDirection = "client_to_server" | "server_to_client";
+export type SessionStateWebSocketMessageTransport = "websocket_design_contract";
+export type SessionStateWebSocketMessageType =
+  | "session.snapshot.request"
+  | "session.snapshot"
+  | "actor.interaction.route"
+  | "actor.interaction.routed"
+  | "clinical.event.appended"
+  | "spatial.actor.transform"
+  | "session.resync.required";
+
+export type SessionStateWebSocketEvidenceBoundary = {
+  runtimeSyncImplemented: false;
+  readyForProductionAdoption: false;
+  notEvidenceFor: readonly [
+    "apps_api_websocket_route",
+    "production_realtime_state_sync",
+    "redis_redka_adapter",
+    "quest_network_performance",
+    "clinical_assessment_validity",
+  ];
+};
+
+export type SessionStateWebSocketMessageBase<TType extends SessionStateWebSocketMessageType> = {
+  type: TType;
+  schemaVersion: 1;
+  transport: SessionStateWebSocketMessageTransport;
+  direction: SessionStateWebSocketMessageDirection;
+  messageId: string;
+  stationRunId: string;
+  sequence: number;
+  atSecond: number;
+  sentAt: string;
+};
+
+export type SessionStateSnapshotActor = {
+  actorId: string;
+  role: ActorCard["role"];
+  displayName: string;
+  conversationTurn: number;
+  visibleMemory: {
+    facts: string[];
+    emotionalState: string;
+    relationshipToLearner: string;
+  };
+};
+
+export type SessionStateSnapshotMessage = SessionStateWebSocketMessageBase<"session.snapshot"> & {
+  direction: "server_to_client";
+  scenario: {
+    scenarioId: string;
+    scenarioVersion: number;
+  };
+  actors: SessionStateSnapshotActor[];
+  clinical: MultiActorClinicalSession["clinicalState"];
+  spatial: MultiActorClinicalSession["spatialState"];
+  evidence: SessionStateWebSocketEvidenceBoundary;
+};
+
+export type ActorInteractionRouteMessage = SessionStateWebSocketMessageBase<"actor.interaction.route"> & {
+  direction: "client_to_server";
+  payload: RouteActorInteractionInput;
+};
+
+export type ActorInteractionRoutedMessage = SessionStateWebSocketMessageBase<"actor.interaction.routed"> & {
+  direction: "server_to_client";
+  routedActorId: string;
+  routingReason: InteractionRoutingReason;
+  traceContextTags: string[];
+  conversationTurn: number;
+};
+
+export type ClinicalEventAppendedMessage = SessionStateWebSocketMessageBase<"clinical.event.appended"> & {
+  direction: "server_to_client";
+  event: DurableClinicalEventReviewProjection;
+};
+
+export type SpatialActorTransformMessage = SessionStateWebSocketMessageBase<"spatial.actor.transform"> & {
+  actorId: string;
+  transform: ActorTransformState;
+};
+
+export type SessionStateWebSocketMessage =
+  | SessionStateSnapshotMessage
+  | ActorInteractionRouteMessage
+  | ActorInteractionRoutedMessage
+  | ClinicalEventAppendedMessage
+  | SpatialActorTransformMessage;
+
+export type SessionStateWebSocketMessageDesignPosture = {
+  generatedAt: "2026-05-05";
+  approvedProposal: "proposals/approved/proposal-multi-actor-runtime-promotion.md";
+  transportPosture: "websocket_design_contract_only";
+  runtimeImplemented: false;
+  apiWiringIncluded: false;
+  redisRedkaIncluded: false;
+  databasePersistenceIncluded: false;
+  messageFamilies: readonly SessionStateWebSocketMessageType[];
+  guardrails: string[];
+  notEvidenceFor: SessionStateWebSocketEvidenceBoundary["notEvidenceFor"];
+};
+
 export type RealtimeSessionCacheTurnRef = {
   turnId: string;
   actorId: string;
@@ -635,6 +737,175 @@ export function evaluateMultiActorPersistencePhase2Strategy(): MultiActorPersist
   };
 }
 
+export function createSessionStateSnapshotMessage(
+  session: MultiActorClinicalSession,
+  input: {
+    messageId: string;
+    sequence: number;
+    atSecond: number;
+    sentAt: string;
+  },
+): SessionStateSnapshotMessage {
+  return {
+    ...baseWebSocketMessage("session.snapshot", {
+      direction: "server_to_client",
+      messageId: input.messageId,
+      stationRunId: session.stationRunId,
+      sequence: input.sequence,
+      atSecond: input.atSecond,
+      sentAt: input.sentAt,
+    }),
+    scenario: {
+      scenarioId: session.scenarioId,
+      scenarioVersion: session.scenarioVersion,
+    },
+    actors: session.actors.map((actor) => ({
+      actorId: actor.actorId,
+      role: actor.role,
+      displayName: actor.displayName,
+      conversationTurn: actor.conversationTurn,
+      visibleMemory: {
+        facts: [...actor.memory.visibleFacts],
+        emotionalState: actor.memory.emotionalState,
+        relationshipToLearner: actor.memory.relationshipToLearner,
+      },
+    })),
+    clinical: cloneClinicalState(session.clinicalState),
+    spatial: cloneSpatialState(session.spatialState),
+    evidence: sessionStateWebSocketEvidenceBoundary(),
+  };
+}
+
+export function createActorInteractionRouteMessage(input: {
+  messageId: string;
+  sequence: number;
+  stationRunId: string;
+  atSecond: number;
+  sentAt: string;
+  learnerUtterance: string;
+  traceContextTags?: string[];
+  source?: RouteActorInteractionSourceInput;
+}): ActorInteractionRouteMessage {
+  return {
+    ...baseWebSocketMessage("actor.interaction.route", {
+      direction: "client_to_server",
+      messageId: input.messageId,
+      stationRunId: input.stationRunId,
+      sequence: input.sequence,
+      atSecond: input.atSecond,
+      sentAt: input.sentAt,
+    }),
+    payload: routeActorInteractionPayload({
+      atSecond: input.atSecond,
+      learnerUtterance: input.learnerUtterance,
+      traceContextTags: [...(input.traceContextTags ?? [])],
+    }, input.source) as RouteActorInteractionInput,
+  };
+}
+
+export function createActorInteractionRoutedMessage(
+  session: MultiActorClinicalSession,
+  input: {
+    messageId: string;
+    sequence: number;
+    atSecond: number;
+    sentAt: string;
+    routedActorId: string;
+    routingReason: InteractionRoutingReason;
+    traceContextTags?: string[];
+  },
+): ActorInteractionRoutedMessage {
+  const actor = requireActor(session, input.routedActorId);
+  return {
+    ...baseWebSocketMessage("actor.interaction.routed", {
+      direction: "server_to_client",
+      messageId: input.messageId,
+      stationRunId: session.stationRunId,
+      sequence: input.sequence,
+      atSecond: input.atSecond,
+      sentAt: input.sentAt,
+    }),
+    routedActorId: actor.actorId,
+    routingReason: input.routingReason,
+    traceContextTags: [...(input.traceContextTags ?? [])],
+    conversationTurn: actor.conversationTurn,
+  };
+}
+
+export function createSessionStateClinicalEventMessage(
+  record: DurableClinicalEventRecord,
+  input: {
+    messageId: string;
+    sequence: number;
+    sentAt: string;
+  },
+): ClinicalEventAppendedMessage {
+  return {
+    ...baseWebSocketMessage("clinical.event.appended", {
+      direction: "server_to_client",
+      messageId: input.messageId,
+      stationRunId: record.stationRunId,
+      sequence: input.sequence,
+      atSecond: record.atSecond,
+      sentAt: input.sentAt,
+    }),
+    event: projectDurableClinicalEventForReview(record),
+  };
+}
+
+export function createSpatialActorTransformMessage(
+  transform: ActorTransformState,
+  input: {
+    messageId: string;
+    sequence: number;
+    stationRunId: string;
+    sentAt: string;
+    direction: SessionStateWebSocketMessageDirection;
+  },
+): SpatialActorTransformMessage {
+  return {
+    ...baseWebSocketMessage("spatial.actor.transform", {
+      direction: input.direction,
+      messageId: input.messageId,
+      stationRunId: input.stationRunId,
+      sequence: input.sequence,
+      atSecond: transform.lastUpdatedAtSecond,
+      sentAt: input.sentAt,
+    }),
+    actorId: transform.actorId,
+    transform: cloneActorTransform(transform),
+  };
+}
+
+export function evaluateSessionStateWebSocketMessageDesign(): SessionStateWebSocketMessageDesignPosture {
+  return {
+    generatedAt: "2026-05-05",
+    approvedProposal: "proposals/approved/proposal-multi-actor-runtime-promotion.md",
+    transportPosture: "websocket_design_contract_only",
+    runtimeImplemented: false,
+    apiWiringIncluded: false,
+    redisRedkaIncluded: false,
+    databasePersistenceIncluded: false,
+    messageFamilies: [
+      "session.snapshot.request",
+      "session.snapshot",
+      "actor.interaction.route",
+      "actor.interaction.routed",
+      "clinical.event.appended",
+      "spatial.actor.transform",
+      "session.resync.required",
+    ],
+    guardrails: [
+      "messages_are_serializable_domain_contracts_only",
+      "server_authoritative_for_actor_routing_and_clinical_state",
+      "clinical_event_messages_use_review_projection_redaction",
+      "raw_audio_is_not_carried_in_session_state_messages",
+      "api_runtime_wiring_requires_separate_slice",
+    ],
+    notEvidenceFor: sessionStateWebSocketEvidenceBoundary().notEvidenceFor,
+  };
+}
+
 export function projectDurableClinicalEventForReview(
   record: DurableClinicalEventRecord,
 ): DurableClinicalEventReviewProjection {
@@ -896,6 +1167,102 @@ function unique(values: string[]): string[] {
 
 function emotionalStateTimelineKey(stationRunId: string, actorId: string): string {
   return `${stationRunId}:${actorId}`;
+}
+
+function baseWebSocketMessage<
+  TType extends SessionStateWebSocketMessageType,
+  TDirection extends SessionStateWebSocketMessageDirection,
+>(
+  type: TType,
+  input: {
+    direction: TDirection;
+    messageId: string;
+    stationRunId: string;
+    sequence: number;
+    atSecond: number;
+    sentAt: string;
+  },
+): SessionStateWebSocketMessageBase<TType> & { direction: TDirection } {
+  return {
+    type,
+    schemaVersion: 1,
+    transport: "websocket_design_contract",
+    direction: input.direction,
+    messageId: input.messageId,
+    stationRunId: input.stationRunId,
+    sequence: input.sequence,
+    atSecond: input.atSecond,
+    sentAt: input.sentAt,
+  };
+}
+
+function routeActorInteractionPayload(
+  input: Omit<RouteActorInteractionInput, "source">,
+  source: RouteActorInteractionSourceInput | undefined,
+): RouteActorInteractionInput {
+  if (!source) {
+    return input;
+  }
+
+  if (source.kind === "voice_transcript") {
+    return {
+      ...input,
+      source: {
+        ...source,
+        provenanceRefs: [...source.provenanceRefs],
+        rawAudioStored: false,
+      },
+    };
+  }
+
+  return {
+    ...input,
+    source: {
+      ...source,
+      provenanceRefs: [...(source.provenanceRefs ?? [])],
+    },
+  };
+}
+
+function sessionStateWebSocketEvidenceBoundary(): SessionStateWebSocketEvidenceBoundary {
+  return {
+    runtimeSyncImplemented: false,
+    readyForProductionAdoption: false,
+    notEvidenceFor: [
+      "apps_api_websocket_route",
+      "production_realtime_state_sync",
+      "redis_redka_adapter",
+      "quest_network_performance",
+      "clinical_assessment_validity",
+    ],
+  };
+}
+
+function cloneClinicalState(
+  clinicalState: MultiActorClinicalSession["clinicalState"],
+): MultiActorClinicalSession["clinicalState"] {
+  return {
+    requiredTraceTags: [...clinicalState.requiredTraceTags],
+    completedTraceTags: [...clinicalState.completedTraceTags],
+    orders: clinicalState.orders.map((order) => ({ ...order })),
+    findings: clinicalState.findings.map((finding) => ({ ...finding })),
+  };
+}
+
+function cloneSpatialState(
+  spatialState: MultiActorClinicalSession["spatialState"],
+): MultiActorClinicalSession["spatialState"] {
+  return {
+    actorTransforms: cloneActorTransforms(spatialState.actorTransforms),
+    objectTransforms: cloneActorTransforms(spatialState.objectTransforms),
+  };
+}
+
+function cloneActorTransform(transform: ActorTransformState): ActorTransformState {
+  return {
+    ...transform,
+    position: { ...transform.position },
+  };
 }
 
 function cloneConversationTurn(record: DurableConversationTurnRecord): DurableConversationTurnRecord {
