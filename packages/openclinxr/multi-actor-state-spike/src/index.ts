@@ -160,6 +160,97 @@ export type ActorModelContext = {
   retrievedMemoryIds: string[];
 };
 
+export type DurableStorePosture = "database_source_of_truth";
+export type RealtimeCacheStorePosture = "redis_redka_ephemeral_cache";
+
+export type DurableConversationTurnRecord = {
+  turnId: string;
+  stationRunId: string;
+  actorId: string;
+  atSecond: number;
+  sourceKind: InteractionTurnSource["kind"];
+  text: string;
+  traceContextTags: string[];
+  emotionalState: string;
+  routingReason: InteractionRoutingReason;
+  rawAudioStored: false;
+  provenanceRefs: string[];
+  durableStore: DurableStorePosture;
+};
+
+export type DurableEmotionalStateTimelineRecord = {
+  stationRunId: string;
+  actorId: string;
+  atSecond: number;
+  emotionalState: string;
+  sourceTurnId: string;
+  durableStore: DurableStorePosture;
+};
+
+export type RealtimeSessionCacheTurnRef = {
+  turnId: string;
+  actorId: string;
+  atSecond: number;
+};
+
+export type RealtimeSessionCacheSnapshot = {
+  stationRunId: string;
+  cacheStore: RealtimeCacheStorePosture;
+  expiresAtSecond: number;
+  recentTurns: RealtimeSessionCacheTurnRef[];
+  actorTransforms: Record<string, ActorTransformState>;
+  rehydratedFromDurableStore: boolean;
+};
+
+export type DurableMultiActorSessionStore = {
+  saveConversationTurn(record: DurableConversationTurnRecord): void;
+  listConversationTurns(stationRunId: string): DurableConversationTurnRecord[];
+  saveEmotionalStateTimeline(record: DurableEmotionalStateTimelineRecord): void;
+  listEmotionalStateTimeline(stationRunId: string, actorId: string): DurableEmotionalStateTimelineRecord[];
+};
+
+export type RealtimeSessionCache = {
+  write(snapshot: RealtimeSessionCacheSnapshot): void;
+  read(stationRunId: string): RealtimeSessionCacheSnapshot | null;
+  clear(): void;
+};
+
+export type PersistenceSpikeStores = {
+  durable: DurableMultiActorSessionStore;
+  realtime: RealtimeSessionCache;
+};
+
+export type WriteRealtimeCacheSnapshotInput = {
+  currentSecond: number;
+  ttlSeconds: number;
+  recentTurnLimit: number;
+};
+
+export type MultiActorPersistencePhase2Strategy = {
+  generatedAt: "2026-05-05";
+  approvedProposal: "proposals/approved/proposal-server-side-multi-actor-state-context-persistence-phase2.md";
+  recommendation: "custom_domain_state_with_durable_database_and_ephemeral_redis_cache";
+  localProfile: {
+    realtimeCache: "redka_or_adapter_test_double";
+    durableStore: "mongodb_memory_server_or_local_mongodb";
+  };
+  productionProfile: {
+    realtimeCache: "redis";
+    durableStore: "mongodb_or_documentdb_compatible";
+  };
+  responsibilitySplit: {
+    realtimeCache: string[];
+    durableDatabase: string[];
+  };
+  guardrails: string[];
+  notEvidenceFor: readonly [
+    "production_persistence_architecture",
+    "redis_runtime_performance",
+    "redka_package_compatibility",
+    "clinical_record_retention_policy",
+  ];
+};
+
 export type RecordClinicalActionInput = {
   atSecond: number;
   actorId: string;
@@ -382,6 +473,83 @@ export function updateActorSpatialState(
   };
 }
 
+export function createPersistenceSpikeStores(): PersistenceSpikeStores {
+  return {
+    durable: new InMemoryDurableMultiActorSessionStore(),
+    realtime: new InMemoryRealtimeSessionCache(),
+  };
+}
+
+export function persistLatestInteractionTurn(
+  stores: PersistenceSpikeStores,
+  session: MultiActorClinicalSession,
+): DurableConversationTurnRecord {
+  const entry = session.interactionLog.at(-1);
+  if (!entry) {
+    throw new Error("Cannot persist interaction turn without an interaction log entry");
+  }
+  const actor = requireActor(session, entry.routedActorId);
+  const existingTurns = stores.durable.listConversationTurns(session.stationRunId);
+  const sourceKind = entry.source?.kind ?? "text";
+  const provenanceRefs = entry.source?.provenanceRefs ?? [];
+  const record: DurableConversationTurnRecord = {
+    turnId: `turn_${existingTurns.length + 1}_${entry.routedActorId}_${entry.atSecond}`,
+    stationRunId: session.stationRunId,
+    actorId: entry.routedActorId,
+    atSecond: entry.atSecond,
+    sourceKind,
+    text: entry.source?.kind === "voice_transcript" ? entry.source.finalTranscriptText : entry.learnerUtterance,
+    traceContextTags: [...entry.traceContextTags],
+    emotionalState: actor.memory.emotionalState,
+    routingReason: entry.routingReason,
+    rawAudioStored: false,
+    provenanceRefs: [...provenanceRefs],
+    durableStore: "database_source_of_truth",
+  };
+
+  stores.durable.saveConversationTurn(record);
+  stores.durable.saveEmotionalStateTimeline({
+    stationRunId: session.stationRunId,
+    actorId: entry.routedActorId,
+    atSecond: entry.atSecond,
+    emotionalState: actor.memory.emotionalState,
+    sourceTurnId: record.turnId,
+    durableStore: "database_source_of_truth",
+  });
+
+  return record;
+}
+
+export function writeRealtimeCacheSnapshot(
+  stores: PersistenceSpikeStores,
+  session: MultiActorClinicalSession,
+  input: WriteRealtimeCacheSnapshotInput,
+): RealtimeSessionCacheSnapshot {
+  const snapshot = buildRealtimeCacheSnapshot({
+    stores,
+    session,
+    input,
+    rehydratedFromDurableStore: false,
+  });
+  stores.realtime.write(snapshot);
+  return snapshot;
+}
+
+export function rehydrateRealtimeCacheFromDurableState(
+  stores: PersistenceSpikeStores,
+  session: MultiActorClinicalSession,
+  input: WriteRealtimeCacheSnapshotInput,
+): RealtimeSessionCacheSnapshot {
+  const snapshot = buildRealtimeCacheSnapshot({
+    stores,
+    session,
+    input,
+    rehydratedFromDurableStore: true,
+  });
+  stores.realtime.write(snapshot);
+  return snapshot;
+}
+
 export function evaluateMultiActorStateOptions(): MultiActorStateOptionEvaluation {
   return {
     generatedAt: "2026-05-05",
@@ -445,6 +613,121 @@ export function evaluateMultiActorStateOptions(): MultiActorStateOptionEvaluatio
         ],
       },
     ],
+  };
+}
+
+export function evaluateMultiActorPersistencePhase2Strategy(): MultiActorPersistencePhase2Strategy {
+  return {
+    generatedAt: "2026-05-05",
+    approvedProposal: "proposals/approved/proposal-server-side-multi-actor-state-context-persistence-phase2.md",
+    recommendation: "custom_domain_state_with_durable_database_and_ephemeral_redis_cache",
+    localProfile: {
+      realtimeCache: "redka_or_adapter_test_double",
+      durableStore: "mongodb_memory_server_or_local_mongodb",
+    },
+    productionProfile: {
+      realtimeCache: "redis",
+      durableStore: "mongodb_or_documentdb_compatible",
+    },
+    responsibilitySplit: {
+      realtimeCache: [
+        "spatial_actor_transforms",
+        "presence",
+        "recent_context_window",
+        "pubsub_notifications",
+        "short_lived_session_leases",
+      ],
+      durableDatabase: [
+        "conversation_history",
+        "emotional_state_timeline",
+        "clinical_trace_events",
+        "orders_and_findings",
+        "audit_relevant_interaction_records",
+        "review_and_recovery_checkpoints",
+      ],
+    },
+    guardrails: [
+      "redis_redka_is_not_the_clinical_source_of_truth",
+      "cache_entries_must_be_rehydratable_from_durable_database",
+      "raw_voice_audio_is_not_persisted_in_actor_state",
+      "high_frequency_spatial_updates_should_be_checkpointed_selectively",
+    ],
+    notEvidenceFor: [
+      "production_persistence_architecture",
+      "redis_runtime_performance",
+      "redka_package_compatibility",
+      "clinical_record_retention_policy",
+    ],
+  };
+}
+
+class InMemoryDurableMultiActorSessionStore implements DurableMultiActorSessionStore {
+  private readonly conversationTurns = new Map<string, DurableConversationTurnRecord[]>();
+  private readonly emotionalStateTimeline = new Map<string, DurableEmotionalStateTimelineRecord[]>();
+
+  saveConversationTurn(record: DurableConversationTurnRecord): void {
+    const existing = this.conversationTurns.get(record.stationRunId) ?? [];
+    this.conversationTurns.set(record.stationRunId, [...existing, cloneConversationTurn(record)]);
+  }
+
+  listConversationTurns(stationRunId: string): DurableConversationTurnRecord[] {
+    return [...(this.conversationTurns.get(stationRunId) ?? [])]
+      .sort((left, right) => left.atSecond - right.atSecond || left.turnId.localeCompare(right.turnId))
+      .map(cloneConversationTurn);
+  }
+
+  saveEmotionalStateTimeline(record: DurableEmotionalStateTimelineRecord): void {
+    const key = emotionalStateTimelineKey(record.stationRunId, record.actorId);
+    const existing = this.emotionalStateTimeline.get(key) ?? [];
+    this.emotionalStateTimeline.set(key, [...existing, cloneEmotionalStateRecord(record)]);
+  }
+
+  listEmotionalStateTimeline(stationRunId: string, actorId: string): DurableEmotionalStateTimelineRecord[] {
+    return [...(this.emotionalStateTimeline.get(emotionalStateTimelineKey(stationRunId, actorId)) ?? [])]
+      .sort((left, right) => left.atSecond - right.atSecond || left.sourceTurnId.localeCompare(right.sourceTurnId))
+      .map(cloneEmotionalStateRecord);
+  }
+}
+
+class InMemoryRealtimeSessionCache implements RealtimeSessionCache {
+  private readonly snapshots = new Map<string, RealtimeSessionCacheSnapshot>();
+
+  write(snapshot: RealtimeSessionCacheSnapshot): void {
+    this.snapshots.set(snapshot.stationRunId, cloneRealtimeSessionCacheSnapshot(snapshot));
+  }
+
+  read(stationRunId: string): RealtimeSessionCacheSnapshot | null {
+    const snapshot = this.snapshots.get(stationRunId);
+    return snapshot ? cloneRealtimeSessionCacheSnapshot(snapshot) : null;
+  }
+
+  clear(): void {
+    this.snapshots.clear();
+  }
+}
+
+function buildRealtimeCacheSnapshot(input: {
+  stores: PersistenceSpikeStores;
+  session: MultiActorClinicalSession;
+  input: WriteRealtimeCacheSnapshotInput;
+  rehydratedFromDurableStore: boolean;
+}): RealtimeSessionCacheSnapshot {
+  const durableTurns = input.stores.durable.listConversationTurns(input.session.stationRunId);
+  const recentTurns = durableTurns
+    .slice(-input.input.recentTurnLimit)
+    .map((turn) => ({
+      turnId: turn.turnId,
+      actorId: turn.actorId,
+      atSecond: turn.atSecond,
+    }));
+
+  return {
+    stationRunId: input.session.stationRunId,
+    cacheStore: "redis_redka_ephemeral_cache",
+    expiresAtSecond: input.input.currentSecond + input.input.ttlSeconds,
+    recentTurns,
+    actorTransforms: cloneActorTransforms(input.session.spatialState.actorTransforms),
+    rehydratedFromDurableStore: input.rehydratedFromDurableStore,
   };
 }
 
@@ -603,4 +886,44 @@ function emotionalStateFromDemeanor(demeanor: string): string {
 
 function unique(values: string[]): string[] {
   return [...new Set(values)];
+}
+
+function emotionalStateTimelineKey(stationRunId: string, actorId: string): string {
+  return `${stationRunId}:${actorId}`;
+}
+
+function cloneConversationTurn(record: DurableConversationTurnRecord): DurableConversationTurnRecord {
+  return {
+    ...record,
+    traceContextTags: [...record.traceContextTags],
+    provenanceRefs: [...record.provenanceRefs],
+  };
+}
+
+function cloneEmotionalStateRecord(
+  record: DurableEmotionalStateTimelineRecord,
+): DurableEmotionalStateTimelineRecord {
+  return { ...record };
+}
+
+function cloneRealtimeSessionCacheSnapshot(snapshot: RealtimeSessionCacheSnapshot): RealtimeSessionCacheSnapshot {
+  return {
+    ...snapshot,
+    recentTurns: snapshot.recentTurns.map((turn) => ({ ...turn })),
+    actorTransforms: cloneActorTransforms(snapshot.actorTransforms),
+  };
+}
+
+function cloneActorTransforms(
+  transforms: Record<string, ActorTransformState>,
+): Record<string, ActorTransformState> {
+  return Object.fromEntries(
+    Object.entries(transforms).map(([actorId, transform]) => [
+      actorId,
+      {
+        ...transform,
+        position: { ...transform.position },
+      },
+    ]),
+  );
 }
