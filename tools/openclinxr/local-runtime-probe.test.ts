@@ -53,6 +53,10 @@ describe("local runtime probe gates", () => {
     expect(report.gates.questUsb).toEqual({ status: "ready", blockers: [] });
     expect(report.gates.questForegroundPreflight).toEqual({ status: "ready", blockers: [] });
     expect(report.gates.assetPipeline).toEqual({ status: "ready", blockers: [] });
+    expect(report.gates.apiBunRuntime).toEqual({
+      status: "not_configured",
+      blockers: ["bun_runtime_not_installed_on_this_machine"],
+    });
     expect(report.gates.localModel).toEqual({
       status: "blocked",
       blockers: ["model_weights_not_selected_or_benchmarked"],
@@ -89,6 +93,27 @@ describe("local runtime probe gates", () => {
     expect(report.gates.assetPipeline).toEqual({
       status: "not_configured",
       blockers: ["missing_blender"],
+    });
+    expect(report.gates.apiBunRuntime).toEqual({
+      status: "not_configured",
+      blockers: ["bun_runtime_not_installed_on_this_machine"],
+    });
+  });
+
+  it("keeps Bun API runtime blocked until websocket behavior is benchmarked", () => {
+    const report = buildLocalRuntimeProbeReport({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      system: {},
+      commands: [availableCommand("bun"), availableCommand("gltf-pipeline"), availableCommand("blender")],
+      pythonModules: [],
+      adbDevices: "List of devices attached\n",
+      adbReverse: "",
+      adbPower: "",
+    });
+
+    expect(report.gates.apiBunRuntime).toEqual({
+      status: "blocked",
+      blockers: ["api_bun_websocket_runtime_not_benchmarked"],
     });
   });
 

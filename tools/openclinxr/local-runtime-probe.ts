@@ -54,6 +54,7 @@ export type LocalRuntimeProbeReport = {
   gates: {
     questUsb: GateStatus;
     questForegroundPreflight: GateStatus;
+    apiBunRuntime: GateStatus;
     localModel: GateStatus;
     localVoice: GateStatus;
     assetPipeline: GateStatus;
@@ -238,6 +239,7 @@ export function buildLocalRuntimeProbeReport(input: {
 }): LocalRuntimeProbeReport {
   const hasCommand = (command: string) => input.commands.some((probe) => probe.command === command && probe.status === "available");
   const hasModule = (module: string) => input.pythonModules.some((probe) => probe.module === module && probe.status === "available");
+  const bunRuntimeAvailable = hasCommand("bun");
   const adbHasQuestDevice = /\sdevice\s/.test(input.adbDevices) && /Quest_3|eureka/.test(input.adbDevices);
   const questWakefulness = parseQuestWakefulness(input.adbPower);
   const localModelRuntimeAvailable = hasCommand("ollama") || hasCommand("llama-cli") || hasCommand("llama-server") || hasCommand("mlx_lm") || hasModule("mlx");
@@ -262,6 +264,9 @@ export function buildLocalRuntimeProbeReport(input: {
     gates: {
       questUsb: adbHasQuestDevice ? readyGate() : blockedGate("quest_3_not_authorized_or_not_connected"),
       questForegroundPreflight: questForegroundPreflightGate(adbHasQuestDevice, questWakefulness),
+      apiBunRuntime: bunRuntimeAvailable
+        ? blockedGate("api_bun_websocket_runtime_not_benchmarked")
+        : notConfiguredGate("bun_runtime_not_installed_on_this_machine"),
       localModel: localModelRuntimeAvailable ? blockedGate("model_weights_not_selected_or_benchmarked") : notConfiguredGate("no_ollama_llama_cpp_or_mlx_runtime_detected"),
       localVoice: localVoiceRuntimeAvailable ? blockedGate("voice_model_not_selected_or_benchmarked") : notConfiguredGate("no_vibevoice_runtime_detected"),
       assetPipeline: assetPipelineBlockers.length === 0 ? readyGate() : notConfiguredGate(...assetPipelineBlockers),

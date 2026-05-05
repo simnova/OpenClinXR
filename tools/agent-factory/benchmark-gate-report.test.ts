@@ -80,6 +80,14 @@ type BenchmarkGateReport = {
     status: string;
     blockers: string[];
   }>;
+  local_runtime_probe?: {
+    gates: {
+      apiBunRuntime?: {
+        status: string;
+        blockers: string[];
+      };
+    };
+  };
   asset_production_readiness_benchmark?: {
     generation_evidence?: {
       generatedHumanRiggingObserved: boolean;
@@ -581,6 +589,10 @@ describe("benchmark gate report", () => {
           gates: {
             questUsb: { status: "ready", blockers: [] },
             questForegroundPreflight: { status: "ready", blockers: [] },
+            apiBunRuntime: {
+              status: "not_configured",
+              blockers: ["bun_runtime_not_installed_on_this_machine"],
+            },
             localModel: { status: "ready", blockers: [] },
             localVoice: { status: "ready", blockers: [] },
             assetPipeline: { status: "ready", blockers: [] },
@@ -639,6 +651,10 @@ describe("benchmark gate report", () => {
       }),
     ]));
     expect(report.evidence_freshness?.map((entry) => entry.evidence_id)).not.toContain("iwsdk_evidence_contract");
+    expect(report.local_runtime_probe?.gates.apiBunRuntime).toEqual({
+      status: "not_configured",
+      blockers: ["bun_runtime_not_installed_on_this_machine"],
+    });
 
     expect(report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0008-001")?.blockers).toEqual(
       expect.arrayContaining(["quest_smoke:evidence_stale_over_24h", "local_runtime_probe:evidence_stale_over_24h"]),

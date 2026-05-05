@@ -33,6 +33,7 @@ type LocalRuntimeProbeReport = {
   gates: {
     questUsb: GateStatus;
     questForegroundPreflight?: GateStatus;
+    apiBunRuntime?: GateStatus;
     localModel: GateStatus;
     localVoice: GateStatus;
     assetPipeline: GateStatus;
