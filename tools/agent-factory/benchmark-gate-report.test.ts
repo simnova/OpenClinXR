@@ -172,6 +172,49 @@ type BenchmarkGateReport = {
       blockers: string[];
     };
   };
+  api_bun_websocket_runtime_smoke?: {
+    file: string;
+    generated_at: string;
+    status: string;
+    bun: {
+      version: string | null;
+      revision: string | null;
+    };
+    health: {
+      ok: boolean;
+    };
+    h3: {
+      enabled: false;
+      h3_true_enabled: boolean;
+      out_of_scope_for_this_smoke: true;
+    };
+    trace_contexts: {
+      pre_vr_trace_interaction: {
+        observed: boolean;
+        control_frame_types: string[];
+      };
+      in_vr_trace_interaction: {
+        observed: false;
+        blocker: string;
+      };
+    };
+    websocket: {
+      connected: boolean;
+      reconnect_observed: boolean;
+      control_ack_observed: boolean;
+      audio_metadata_observed: boolean;
+      transcript_delta_observed: boolean;
+      binary_echo_observed: boolean;
+      binary_frames_sent: number;
+      binary_bytes_sent: number;
+      server_errors: string[];
+    };
+    verdict: {
+      smoke_passed: boolean;
+      ready_for_live_dialog: false;
+      blockers: string[];
+    };
+  };
   evidence_gates: Array<{
     evidence_id: string;
     ready_to_resolve?: boolean;
@@ -192,6 +235,117 @@ function expectNoUnresolvedLocalRuntimeSelectionBlockers(blockers: readonly stri
     "missing_local_model_runtime_benchmark_report",
     "missing_local_voice_runtime_benchmark_report",
   ]));
+}
+
+function passedApiBunWebSocketRuntimeSmoke(): Parameters<typeof buildBenchmarkGateReport>[0]["apiBunWebSocketRuntimeSmoke"] {
+  return {
+    file: "docs/openclinxr/api-bun-websocket-runtime-smoke-2026-05-05.json",
+    value: {
+      generatedAt: "2026-05-05T16:45:35.909Z",
+      status: "passed",
+      policy: {
+        cloudApisUsed: false,
+        paidApisUsed: false,
+        modelDownloadsUsed: false,
+        http3Enabled: false,
+        webTransportUsed: false,
+        quicUsed: false,
+        web3Used: false,
+        questHardwareClaimed: false,
+        productionUseAllowed: false,
+        lowLatencyClaimed: false,
+      },
+      bun: {
+        executable: "/Users/patrick/.bun/bin/bun",
+        version: "1.3.13",
+        revision: "1.3.13+bf2e2cecf",
+      },
+      runtime: {
+        target: "apps/api bun+hono",
+        appPath: "apps/api",
+        websocketPath: "/voice/realtime/ws",
+        h3: {
+          enabled: false,
+          h3TrueEnabled: false,
+          optionPresentInServerSource: false,
+          outOfScopeForThisSmoke: true,
+        },
+      },
+      server: {
+        attempted: true,
+        command: ["/Users/patrick/.bun/bin/bun", "src/bun-server.ts"],
+        port: 4322,
+        stdout: ["OpenClinXR Bun/Hono API listening on http://localhost:4322/"],
+        stderr: [],
+      },
+      health: {
+        attempted: true,
+        ok: true,
+        statusCode: 200,
+        latencyMs: 336,
+        body: { ok: true, service: "openclinxr-api" },
+      },
+      traceContexts: {
+        preVrTraceInteraction: {
+          observed: true,
+          source: "synthetic_local_websocket_control_frame",
+          controlFrameTypes: ["voice.start"],
+        },
+        inVrTraceInteraction: {
+          observed: false,
+          blocker: "in_vr_trace_not_executed_by_local_bun_smoke",
+        },
+      },
+      websocket: {
+        attempted: true,
+        connected: true,
+        reconnectObserved: true,
+        openLatencyMs: 4,
+        firstReadyLatencyMs: 5,
+        controlAckLatencyMs: 5,
+        firstBinaryEchoLatencyMs: 5,
+        jsonMessages: 21,
+        binaryMessages: 9,
+        eventTypesObserved: ["gateway.ready", "control.ack", "audio.metadata", "transcript.delta"],
+        controlFrameTypesSent: ["voice.start"],
+        binaryFramesSent: 9,
+        binaryBytesSent: 2054,
+        closeCode: 1000,
+        reconnectCloseCode: 1000,
+        controlAckObserved: true,
+        audioMetadataObserved: true,
+        transcriptDeltaObserved: true,
+        binaryEchoObserved: true,
+        serverErrors: [],
+        backpressure: {
+          burstFrameCount: 8,
+          burstBytes: 2048,
+          maxBufferedAmount: 0,
+          bufferedAmountSamples: [0, 0, 0],
+          droppedOrErroredMessages: 0,
+          localClientObservationOnly: true,
+        },
+      },
+      runtimeEvidenceBlockers: [],
+      verdict: {
+        smokePassed: true,
+        readyForLiveDialog: false,
+        blockers: [
+          "in_vr_trace_not_executed_by_local_bun_smoke",
+          "quest_browser_audio_capture_not_observed",
+          "quest_playback_not_observed",
+          "opus_media_path_not_verified",
+          "real_model_inference_not_observed",
+          "production_ingress_not_verified",
+          "clinical_voice_safety_not_exercised",
+          "low_latency_claim_not_supported_by_local_smoke",
+        ],
+        caveats: [
+          "This smoke proves local Bun server WebSocket upgrade and bidirectional frame handling only.",
+        ],
+      },
+    },
+  };
 }
 
 function expectNoNonFreshnessLocalBenchmarkBlockers(blockers: readonly string[] | undefined): void {
@@ -1210,6 +1364,7 @@ describe("benchmark gate report", () => {
           },
         },
       },
+      apiBunWebSocketRuntimeSmoke: passedApiBunWebSocketRuntimeSmoke(),
     }, { now: new Date("2026-05-04T20:20:00.000Z"), maxEvidenceAgeHours: 24 });
 
     const liveDialogGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-003");
@@ -1220,6 +1375,7 @@ describe("benchmark gate report", () => {
       "local_voice_live_dialog_safety_controls_observed",
       "local_voice_realtime_transport_contract_observed",
       "local_voice_python_backend_runtime_smoke_passed",
+      "local_voice_bun_websocket_runtime_smoke_passed",
     ]));
     expect(liveDialogGate?.blockers).toEqual(expect.arrayContaining([
       "local_voice_live_dialog:runtime_stream:real_local_voice_stream_benchmark_missing",
@@ -1235,6 +1391,8 @@ describe("benchmark gate report", () => {
       "local_voice_live_dialog:missing_streaming_webxr_playback_benchmark",
       "local_voice_live_dialog:missing_disclosure_retention_misuse_controls",
       "local_voice_live_dialog:realtime_transport_spike:transport_contract_failed",
+      "local_voice_live_dialog:api_bun_websocket_runtime_smoke:low_latency_claim_not_supported_by_local_smoke",
+      "local_voice_live_dialog:api_bun_websocket_runtime_smoke:quest_browser_audio_capture_not_observed",
     ]));
     expect(report.realtime_voice_transport_spike).toMatchObject({
       round_trip_latency_ms: 42,
@@ -1282,6 +1440,77 @@ describe("benchmark gate report", () => {
         readyForLiveDialog: false,
       },
     });
+    expect(report.api_bun_websocket_runtime_smoke).toMatchObject({
+      file: "docs/openclinxr/api-bun-websocket-runtime-smoke-2026-05-05.json",
+      generated_at: "2026-05-05T16:45:35.909Z",
+      status: "passed",
+      bun: {
+        version: "1.3.13",
+        revision: "1.3.13+bf2e2cecf",
+      },
+      health: { ok: true },
+      h3: {
+        enabled: false,
+        h3_true_enabled: false,
+        out_of_scope_for_this_smoke: true,
+      },
+      trace_contexts: {
+        pre_vr_trace_interaction: {
+          observed: true,
+          control_frame_types: ["voice.start"],
+        },
+        in_vr_trace_interaction: {
+          observed: false,
+          blocker: "in_vr_trace_not_executed_by_local_bun_smoke",
+        },
+      },
+      websocket: {
+        connected: true,
+        reconnect_observed: true,
+        control_ack_observed: true,
+        audio_metadata_observed: true,
+        transcript_delta_observed: true,
+        binary_echo_observed: true,
+        binary_frames_sent: 9,
+        binary_bytes_sent: 2054,
+        server_errors: [],
+      },
+      verdict: {
+        smoke_passed: true,
+        ready_for_live_dialog: false,
+      },
+    });
+    expect(report.evidence_freshness).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        evidence_id: "api_bun_websocket_runtime_smoke",
+        file: "docs/openclinxr/api-bun-websocket-runtime-smoke-2026-05-05.json",
+        status: "fresh",
+        blockers: [],
+      }),
+    ]));
+  });
+
+  it("keeps live dialog evidence blocked until local Bun WebSocket smoke evidence exists", () => {
+    const report = buildBenchmarkGateReport({}, {
+      now: new Date("2026-05-05T17:00:00.000Z"),
+      maxEvidenceAgeHours: 24,
+    }) as BenchmarkGateReport;
+
+    const liveDialogGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-003");
+
+    expect(report.evidence_freshness).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        evidence_id: "api_bun_websocket_runtime_smoke",
+        status: "missing",
+        blockers: ["api_bun_websocket_runtime_smoke:evidence_missing"],
+      }),
+    ]));
+    expect(liveDialogGate?.blockers).toEqual(expect.arrayContaining([
+      "local_voice_live_dialog:api_bun_websocket_runtime_smoke:missing_api_bun_websocket_runtime_smoke_report",
+    ]));
+    expect(liveDialogGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
+      "local_voice_bun_websocket_runtime_smoke_passed",
+    ]));
   });
 
   it("blocks realtime voice evidence when frame metadata is incomplete or mismatched", () => {

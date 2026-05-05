@@ -108,7 +108,7 @@
       "evidence_id": "realtime_voice_transport_spike",
       "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-05.json",
       "generated_at": "2026-05-05T18:28:23.574Z",
-      "age_hours": 1,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -123,9 +123,18 @@
       "blockers": []
     },
     {
+      "evidence_id": "api_bun_websocket_runtime_smoke",
+      "file": "docs/openclinxr/api-bun-websocket-runtime-smoke-2026-05-05.json",
+      "generated_at": "2026-05-05T16:45:35.909Z",
+      "age_hours": 3,
+      "max_age_hours": 24,
+      "status": "fresh",
+      "blockers": []
+    },
+    {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-05T20:24:01.073Z",
+      "generated_at": "2026-05-05T20:36:40.510Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -1125,9 +1134,100 @@
       ]
     }
   },
+  "api_bun_websocket_runtime_smoke": {
+    "file": "docs/openclinxr/api-bun-websocket-runtime-smoke-2026-05-05.json",
+    "generated_at": "2026-05-05T16:45:35.909Z",
+    "status": "passed",
+    "bun": {
+      "executable": "/Users/patrick/.bun/bin/bun",
+      "version": "1.3.13",
+      "revision": "1.3.13+bf2e2cecf"
+    },
+    "health": {
+      "attempted": true,
+      "ok": true,
+      "statusCode": 200,
+      "latencyMs": 336,
+      "body": {
+        "ok": true,
+        "service": "openclinxr-api",
+        "providerHealth": {
+          "model": {
+            "providerId": "mock-model",
+            "status": "ready"
+          },
+          "voice": {
+            "providerId": "mock-voice",
+            "status": "ready"
+          },
+          "localModel": {
+            "providerId": "local-model",
+            "status": "not_configured",
+            "blockers": [
+              "local_model_runtime_not_configured"
+            ]
+          },
+          "localVoice": {
+            "providerId": "local-voice",
+            "status": "not_configured",
+            "blockers": [
+              "local_voice_runtime_not_configured"
+            ]
+          }
+        }
+      }
+    },
+    "h3": {
+      "enabled": false,
+      "h3_true_enabled": false,
+      "out_of_scope_for_this_smoke": true
+    },
+    "trace_contexts": {
+      "pre_vr_trace_interaction": {
+        "observed": true,
+        "control_frame_types": [
+          "voice.start"
+        ]
+      },
+      "in_vr_trace_interaction": {
+        "observed": false,
+        "blocker": "in_vr_trace_not_executed_by_local_bun_smoke"
+      }
+    },
+    "websocket": {
+      "connected": true,
+      "reconnect_observed": true,
+      "control_ack_observed": true,
+      "audio_metadata_observed": true,
+      "transcript_delta_observed": true,
+      "binary_echo_observed": true,
+      "binary_frames_sent": 9,
+      "binary_bytes_sent": 2054,
+      "server_errors": []
+    },
+    "verdict": {
+      "smoke_passed": true,
+      "ready_for_live_dialog": false,
+      "blockers": [
+        "in_vr_trace_not_executed_by_local_bun_smoke",
+        "quest_browser_audio_capture_not_observed",
+        "quest_playback_not_observed",
+        "opus_media_path_not_verified",
+        "real_model_inference_not_observed",
+        "production_ingress_not_verified",
+        "clinical_voice_safety_not_exercised",
+        "low_latency_claim_not_supported_by_local_smoke"
+      ],
+      "caveats": [
+        "This smoke proves local Bun server WebSocket upgrade and bidirectional frame handling only.",
+        "Backpressure is measured from the local WebSocket client's bufferedAmount field when available; it is not Quest network or headset media evidence.",
+        "HTTP/3, WebTransport, QUIC, Web3, cloud relays, model inference, and Quest in-VR media are out of scope for this report."
+      ]
+    }
+  },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-05T20:24:01.073Z",
+    "generated_at": "2026-05-05T20:36:40.510Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -1331,6 +1431,7 @@
         "local_model_ready_to_benchmark",
         "local_model_runtime_benchmark_passed",
         "local_provider_mock_benchmarks_passed",
+        "local_voice_bun_websocket_runtime_smoke_passed",
         "local_voice_first_audio_benchmark_passed",
         "local_voice_live_dialog_mock_stream_passed",
         "local_voice_live_dialog_report_present",
@@ -1567,6 +1668,7 @@
       "ready_to_resolve": false,
       "satisfied_conditions": [
         "local_provider_mock_benchmarks_passed",
+        "local_voice_bun_websocket_runtime_smoke_passed",
         "local_voice_first_audio_benchmark_passed",
         "local_voice_python_backend_runtime_smoke_passed",
         "local_voice_ready_to_benchmark",
@@ -1668,6 +1770,7 @@
       "ready_to_resolve": false,
       "satisfied_conditions": [
         "local_provider_mock_benchmarks_passed",
+        "local_voice_bun_websocket_runtime_smoke_passed",
         "local_voice_first_audio_benchmark_passed",
         "local_voice_live_dialog_mock_stream_passed",
         "local_voice_live_dialog_report_present",
