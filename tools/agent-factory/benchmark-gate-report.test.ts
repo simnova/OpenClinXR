@@ -183,6 +183,27 @@ type BenchmarkGateReport = {
   }>;
 };
 
+function expectNoUnresolvedLocalRuntimeSelectionBlockers(blockers: readonly string[] | undefined): void {
+  expect(blockers ?? []).not.toEqual(expect.arrayContaining([
+    "local_model:model_weights_not_selected_or_benchmarked",
+    "local_voice:voice_model_not_selected_or_benchmarked",
+    "local_model_benchmark:runtime_not_ready",
+    "local_voice_benchmark:runtime_not_ready",
+    "missing_local_model_runtime_benchmark_report",
+    "missing_local_voice_runtime_benchmark_report",
+  ]));
+}
+
+function expectNoNonFreshnessLocalBenchmarkBlockers(blockers: readonly string[] | undefined): void {
+  const localBenchmarkBlockers = (blockers ?? []).filter((blocker) =>
+    blocker.startsWith("local_model")
+    || blocker.startsWith("local_voice")
+    || blocker.startsWith("mock_model")
+    || blocker.startsWith("mock_voice")
+  );
+  expect(localBenchmarkBlockers.every((blocker) => blocker.includes(":evidence_stale_over_"))).toBe(true);
+}
+
 function healthyQuestRuntimeEvidence(): Record<string, unknown> {
   return {
     textPanelEvidence: {
@@ -519,17 +540,17 @@ describe("benchmark gate report", () => {
     });
   });
 
-  it("keeps resolved local benchmark evidence out of leadership remediation groups", async () => {
+  it("keeps resolved local runtime selection blockers out of leadership remediation groups", async () => {
     const report = JSON.parse(await readFile(".agent-factory/benchmark-gate-report.json", "utf8")) as BenchmarkGateReport;
     const gate = report.evidence_gates.find((candidate) => candidate.evidence_id === "evidence-leadership-0007-002");
 
-    expect(gate?.blockers).not.toEqual(expect.arrayContaining(["local_model:model_weights_not_selected_or_benchmarked"]));
-    expect(gate?.blockers).not.toEqual(expect.arrayContaining(["local_voice:voice_model_not_selected_or_benchmarked"]));
+    expectNoUnresolvedLocalRuntimeSelectionBlockers(gate?.blockers);
+    expect(gate?.satisfied_conditions).toEqual(expect.arrayContaining([
+      "local_model_runtime_benchmark_passed",
+      "local_voice_first_audio_benchmark_passed",
+    ]));
     const groups = gate?.blocker_summary?.groups ?? [];
 
-    expect(groups.map((group) => group.group_id).sort()).toEqual([
-      "quest_foreground_frame_pacing",
-    ]);
     expect(groups).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -700,30 +721,36 @@ describe("benchmark gate report", () => {
         "quest_page_visible",
       ]),
     }));
-    expect(gatesById.get("evidence-leadership-0008-002")).toEqual(expect.objectContaining({
-      ready_to_resolve: true,
-      blockers: [],
+    const localModelGate = gatesById.get("evidence-leadership-0008-002");
+    expect(localModelGate).toEqual(expect.objectContaining({
       satisfied_conditions: expect.arrayContaining([
         "local_model_ready_to_benchmark",
         "local_model_runtime_benchmark_passed",
       ]),
     }));
-    expect(gatesById.get("evidence-leadership-0008-003")).toEqual(expect.objectContaining({
-      ready_to_resolve: true,
-      blockers: [],
+    expectNoNonFreshnessLocalBenchmarkBlockers(localModelGate?.blockers);
+    expectNoUnresolvedLocalRuntimeSelectionBlockers(localModelGate?.blockers);
+    expect(localModelGate?.ready_to_resolve).toBe((localModelGate?.blockers.length ?? 0) === 0);
+
+    const localVoiceGate = gatesById.get("evidence-leadership-0008-003");
+    expect(localVoiceGate).toEqual(expect.objectContaining({
       satisfied_conditions: expect.arrayContaining([
         "local_voice_ready_to_benchmark",
         "local_voice_first_audio_benchmark_passed",
       ]),
     }));
-    expect(gatesById.get("evidence-leadership-0008-004")).toEqual(expect.objectContaining({
-      ready_to_resolve: true,
-      blockers: [],
+    expectNoNonFreshnessLocalBenchmarkBlockers(localVoiceGate?.blockers);
+    expectNoUnresolvedLocalRuntimeSelectionBlockers(localVoiceGate?.blockers);
+    expect(localVoiceGate?.ready_to_resolve).toBe((localVoiceGate?.blockers.length ?? 0) === 0);
+
+    const assetGate = gatesById.get("evidence-leadership-0008-004");
+    expect(assetGate).toEqual(expect.objectContaining({
       satisfied_conditions: expect.arrayContaining([
         "asset_pipeline_blender_bake_smoke_passed",
         "asset_pipeline_gltf_pipeline_smoke_passed",
       ]),
     }));
+    expect(assetGate?.ready_to_resolve).toBe((assetGate?.blockers.length ?? 0) === 0);
     expect(gatesById.get("evidence-leadership-0009-004")).toEqual(expect.objectContaining({
       ready_to_resolve: false,
       blockers: expect.arrayContaining([

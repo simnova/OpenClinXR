@@ -5,7 +5,7 @@
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T18:13:48.812Z",
-      "age_hours": 21,
+      "age_hours": 24,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -13,8 +13,8 @@
     {
       "evidence_id": "local_runtime_probe",
       "file": "docs/openclinxr/local-runtime-probe-2026-05-05.json",
-      "generated_at": "2026-05-05T15:35:24.102Z",
-      "age_hours": 0,
+      "generated_at": "2026-05-05T16:48:27.241Z",
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -23,7 +23,7 @@
       "evidence_id": "gltf_pipeline_smoke",
       "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
       "generated_at": "2026-05-04T23:49:36.820Z",
-      "age_hours": 15,
+      "age_hours": 19,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -32,7 +32,7 @@
       "evidence_id": "blender_asset_bake_smoke",
       "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T11:02:14.867Z",
-      "age_hours": 4,
+      "age_hours": 8,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -41,7 +41,7 @@
       "evidence_id": "asset_capability_job_evidence",
       "file": "docs/openclinxr/asset-capability-job-evidence-2026-05-04.json",
       "generated_at": "2026-05-04T21:21:14.173Z",
-      "age_hours": 18,
+      "age_hours": 21,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -50,16 +50,16 @@
       "evidence_id": "asset_production_readiness_benchmark",
       "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T21:11:11.999Z",
-      "age_hours": 18,
+      "age_hours": 21,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
     },
     {
       "evidence_id": "local_provider_benchmark",
-      "file": "docs/openclinxr/local-provider-benchmark-2026-05-04.json",
-      "generated_at": "2026-05-04T14:53:24.787Z",
-      "age_hours": 24,
+      "file": "docs/openclinxr/local-provider-benchmark-2026-05-05.json",
+      "generated_at": "2026-05-05T19:05:08.997Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -68,16 +68,18 @@
       "evidence_id": "local_model_runtime_benchmark",
       "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T14:57:50Z",
-      "age_hours": 24,
+      "age_hours": 28,
       "max_age_hours": 24,
-      "status": "fresh",
-      "blockers": []
+      "status": "stale",
+      "blockers": [
+        "local_model_runtime_benchmark:evidence_stale_over_24h"
+      ]
     },
     {
       "evidence_id": "local_model_quality_benchmark",
       "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T21:16:55.867Z",
-      "age_hours": 18,
+      "age_hours": 21,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -86,25 +88,27 @@
       "evidence_id": "local_voice_runtime_benchmark",
       "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T15:01:12Z",
-      "age_hours": 24,
+      "age_hours": 28,
       "max_age_hours": 24,
-      "status": "fresh",
-      "blockers": []
+      "status": "stale",
+      "blockers": [
+        "local_voice_runtime_benchmark:evidence_stale_over_24h"
+      ]
     },
     {
       "evidence_id": "local_voice_live_dialog_benchmark",
       "file": "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T20:47:52.004Z",
-      "age_hours": 18,
+      "age_hours": 22,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
     },
     {
       "evidence_id": "realtime_voice_transport_spike",
-      "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json",
-      "generated_at": "2026-05-05T01:28:44.751Z",
-      "age_hours": 14,
+      "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-05.json",
+      "generated_at": "2026-05-05T18:28:23.574Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -113,7 +117,7 @@
       "evidence_id": "api_python_backend_runtime_smoke",
       "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T15:21:12.576Z",
-      "age_hours": 0,
+      "age_hours": 3,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -121,7 +125,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-05T15:35:31.945Z",
+      "generated_at": "2026-05-05T19:06:55.974Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -160,7 +164,7 @@
   },
   "local_runtime_probe": {
     "file": "docs/openclinxr/local-runtime-probe-2026-05-05.json",
-    "generated_at": "2026-05-05T15:35:24.102Z",
+    "generated_at": "2026-05-05T16:48:27.241Z",
     "gates": {
       "questUsb": {
         "status": "ready",
@@ -173,10 +177,8 @@
         ]
       },
       "apiBunRuntime": {
-        "status": "not_configured",
-        "blockers": [
-          "bun_runtime_not_installed_on_this_machine"
-        ]
+        "status": "ready",
+        "blockers": []
       },
       "localModel": {
         "status": "blocked",
@@ -555,8 +557,8 @@
     }
   },
   "local_provider_benchmark": {
-    "file": "docs/openclinxr/local-provider-benchmark-2026-05-04.json",
-    "generated_at": "2026-05-04T14:53:24.787Z",
+    "file": "docs/openclinxr/local-provider-benchmark-2026-05-05.json",
+    "generated_at": "2026-05-05T19:05:08.997Z",
     "mock_model": {
       "status": "passed",
       "latencyMs": 0.01,
@@ -929,15 +931,15 @@
     }
   },
   "realtime_voice_transport_spike": {
-    "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json",
-    "generated_at": "2026-05-05T01:28:44.751Z",
+    "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-05.json",
+    "generated_at": "2026-05-05T18:28:23.574Z",
     "status": "transport_spike_passed",
-    "round_trip_latency_ms": 16.37,
+    "round_trip_latency_ms": 28.47,
     "audio_metadata_frames_sent": 2,
     "audio_chunk_metadata_received": 2,
     "frame_latency_samples_ms": [
-      6.89,
-      6.82
+      9.05,
+      8.96
     ],
     "audio_chunk_indexes_received": [
       0,
@@ -949,7 +951,7 @@
     },
     "protocol_evidence": {
       "websocket_local_harness_observed": true,
-      "bun_hono_runtime_observed": false,
+      "bun_hono_runtime_observed": true,
       "webtransport_observed": false,
       "quic_observed": false,
       "web3_signaling_observed": false,
@@ -970,14 +972,14 @@
       "blockers": [
         "quest_godot_client_not_executed",
         "native_opus_codec_not_integrated_in_godot",
-        "bun_runtime_not_installed_on_this_machine",
         "real_moshi_or_qwen3_inference_not_observed",
         "quest_microphone_and_playback_latency_not_measured",
         "clinical_voice_safety_controls_not_exercised_with_real_model"
       ],
       "caveats": [
         "The measured harness uses a Python-compatible local fixture behind a Node/Hono/WebSocket fallback; it validates streaming shape and latency plumbing only.",
-        "FastAPI runtime smoke passed for health and WebSocket frame handling, but MLX/Moshi/Qwen inference is still not installed or executed by this spike."
+        "FastAPI runtime smoke passed for health and WebSocket frame handling, but MLX/Moshi/Qwen inference is still not installed or executed by this spike.",
+        "Bun/Hono to FastAPI runtime proxy smoke passed for control frames, opaque binary audio frames, backend-ready events, canonical protocol events, and latency-field plumbing."
       ]
     }
   },
@@ -1129,7 +1131,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-05T15:35:31.945Z",
+    "generated_at": "2026-05-05T19:06:55.974Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -1359,6 +1361,8 @@
         "text_readability_confirmed"
       ],
       "blockers": [
+        "local_model_runtime_benchmark:evidence_stale_over_24h",
+        "local_voice_runtime_benchmark:evidence_stale_over_24h",
         "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
         "quest_frame_quality_evidence_missing",
         "quest_immersive_entry_activation_not_received",
@@ -1384,9 +1388,19 @@
         "quest_text_panel_metadata_missing"
       ],
       "blocker_summary": {
-        "total_blockers": 23,
-        "distinct_problem_count": 1,
+        "total_blockers": 25,
+        "distinct_problem_count": 4,
         "groups": [
+          {
+            "group_id": "benchmark_evidence_freshness",
+            "title": "Benchmark evidence freshness",
+            "owner": "qa-evidence-lead",
+            "blockers": [
+              "local_model_runtime_benchmark:evidence_stale_over_24h",
+              "local_voice_runtime_benchmark:evidence_stale_over_24h"
+            ],
+            "next_step": "Regenerate the stale local evidence files before using the benchmark gate as leadership-ready proof."
+          },
           {
             "group_id": "quest_foreground_frame_pacing",
             "title": "Foreground Quest frame pacing evidence",
@@ -1417,6 +1431,24 @@
               "quest_text_panel_metadata_missing"
             ],
             "next_step": "Use the approved proposals/approved/proposal-quest-foreground-performance-capture.md scope, then capture the foreground in-headset manual report for comfort, readability, immersive-session, and sustained-frame observations that CDP cannot honestly attest alone."
+          },
+          {
+            "group_id": "local_model_runtime",
+            "title": "Local model runtime benchmark",
+            "owner": "local-ai-inference-engineer",
+            "blockers": [
+              "local_model_runtime_benchmark:evidence_stale_over_24h"
+            ],
+            "next_step": "Follow the approved proposals/approved/proposal-local-model-benchmark.md scope, set runtime and model environment variables privately, then rerun the local model benchmark."
+          },
+          {
+            "group_id": "local_voice_runtime",
+            "title": "Local voice runtime benchmark",
+            "owner": "voice-speech-engineer",
+            "blockers": [
+              "local_voice_runtime_benchmark:evidence_stale_over_24h"
+            ],
+            "next_step": "Follow the approved proposals/approved/proposal-local-voice-runtime.md scope, configure one local voice runtime and voice ID privately, then record first-audio latency evidence."
           }
         ],
         "ungrouped_blockers": []
@@ -1517,23 +1549,44 @@
     },
     {
       "evidence_id": "evidence-leadership-0008-002",
-      "ready_to_resolve": true,
+      "ready_to_resolve": false,
       "satisfied_conditions": [
         "local_model_ready_to_benchmark",
         "local_model_runtime_benchmark_passed",
         "local_provider_mock_benchmarks_passed"
       ],
-      "blockers": [],
+      "blockers": [
+        "local_model_runtime_benchmark:evidence_stale_over_24h"
+      ],
       "blocker_summary": {
-        "total_blockers": 0,
-        "distinct_problem_count": 0,
-        "groups": [],
+        "total_blockers": 1,
+        "distinct_problem_count": 2,
+        "groups": [
+          {
+            "group_id": "benchmark_evidence_freshness",
+            "title": "Benchmark evidence freshness",
+            "owner": "qa-evidence-lead",
+            "blockers": [
+              "local_model_runtime_benchmark:evidence_stale_over_24h"
+            ],
+            "next_step": "Regenerate the stale local evidence files before using the benchmark gate as leadership-ready proof."
+          },
+          {
+            "group_id": "local_model_runtime",
+            "title": "Local model runtime benchmark",
+            "owner": "local-ai-inference-engineer",
+            "blockers": [
+              "local_model_runtime_benchmark:evidence_stale_over_24h"
+            ],
+            "next_step": "Follow the approved proposals/approved/proposal-local-model-benchmark.md scope, set runtime and model environment variables privately, then rerun the local model benchmark."
+          }
+        ],
         "ungrouped_blockers": []
       }
     },
     {
       "evidence_id": "evidence-leadership-0008-003",
-      "ready_to_resolve": true,
+      "ready_to_resolve": false,
       "satisfied_conditions": [
         "local_provider_mock_benchmarks_passed",
         "local_voice_first_audio_benchmark_passed",
@@ -1541,11 +1594,32 @@
         "local_voice_ready_to_benchmark",
         "local_voice_realtime_transport_contract_observed"
       ],
-      "blockers": [],
+      "blockers": [
+        "local_voice_runtime_benchmark:evidence_stale_over_24h"
+      ],
       "blocker_summary": {
-        "total_blockers": 0,
-        "distinct_problem_count": 0,
-        "groups": [],
+        "total_blockers": 1,
+        "distinct_problem_count": 2,
+        "groups": [
+          {
+            "group_id": "benchmark_evidence_freshness",
+            "title": "Benchmark evidence freshness",
+            "owner": "qa-evidence-lead",
+            "blockers": [
+              "local_voice_runtime_benchmark:evidence_stale_over_24h"
+            ],
+            "next_step": "Regenerate the stale local evidence files before using the benchmark gate as leadership-ready proof."
+          },
+          {
+            "group_id": "local_voice_runtime",
+            "title": "Local voice runtime benchmark",
+            "owner": "voice-speech-engineer",
+            "blockers": [
+              "local_voice_runtime_benchmark:evidence_stale_over_24h"
+            ],
+            "next_step": "Follow the approved proposals/approved/proposal-local-voice-runtime.md scope, configure one local voice runtime and voice ID privately, then record first-audio latency evidence."
+          }
+        ],
         "ungrouped_blockers": []
       }
     },
@@ -1586,12 +1660,31 @@
         "local_model_quality:structured_output:reasoning_markup_emitted",
         "local_model_quality:structured_output:safety_flags_not_guardrail_labels",
         "local_model_quality:structured_output:schema_grammar_not_enforced",
-        "local_model_quality:target_hardware:target_hardware_not_m4_profile"
+        "local_model_quality:target_hardware:target_hardware_not_m4_profile",
+        "local_model_runtime_benchmark:evidence_stale_over_24h"
       ],
       "blocker_summary": {
-        "total_blockers": 7,
-        "distinct_problem_count": 1,
+        "total_blockers": 8,
+        "distinct_problem_count": 3,
         "groups": [
+          {
+            "group_id": "benchmark_evidence_freshness",
+            "title": "Benchmark evidence freshness",
+            "owner": "qa-evidence-lead",
+            "blockers": [
+              "local_model_runtime_benchmark:evidence_stale_over_24h"
+            ],
+            "next_step": "Regenerate the stale local evidence files before using the benchmark gate as leadership-ready proof."
+          },
+          {
+            "group_id": "local_model_runtime",
+            "title": "Local model runtime benchmark",
+            "owner": "local-ai-inference-engineer",
+            "blockers": [
+              "local_model_runtime_benchmark:evidence_stale_over_24h"
+            ],
+            "next_step": "Follow the approved proposals/approved/proposal-local-model-benchmark.md scope, set runtime and model environment variables privately, then rerun the local model benchmark."
+          },
           {
             "group_id": "local_model_quality",
             "title": "Local model structured-output and actor-policy evidence",
@@ -1625,7 +1718,6 @@
         "local_voice_realtime_transport_contract_observed"
       ],
       "blockers": [
-        "local_voice_live_dialog:realtime_transport_spike:bun_runtime_not_installed_on_this_machine",
         "local_voice_live_dialog:realtime_transport_spike:clinical_voice_safety_controls_not_exercised_with_real_model",
         "local_voice_live_dialog:realtime_transport_spike:native_opus_codec_not_integrated_in_godot",
         "local_voice_live_dialog:realtime_transport_spike:quest_godot_client_not_executed",
@@ -1634,18 +1726,36 @@
         "local_voice_live_dialog:runtime:real_time_factor_above_1",
         "local_voice_live_dialog:runtime:runtime_file_generation_only",
         "local_voice_live_dialog:runtime_stream:real_local_voice_stream_benchmark_missing",
-        "local_voice_live_dialog:webxr_playback:webxr_playback_not_observed"
+        "local_voice_live_dialog:webxr_playback:webxr_playback_not_observed",
+        "local_voice_runtime_benchmark:evidence_stale_over_24h"
       ],
       "blocker_summary": {
         "total_blockers": 10,
-        "distinct_problem_count": 1,
+        "distinct_problem_count": 3,
         "groups": [
+          {
+            "group_id": "benchmark_evidence_freshness",
+            "title": "Benchmark evidence freshness",
+            "owner": "qa-evidence-lead",
+            "blockers": [
+              "local_voice_runtime_benchmark:evidence_stale_over_24h"
+            ],
+            "next_step": "Regenerate the stale local evidence files before using the benchmark gate as leadership-ready proof."
+          },
+          {
+            "group_id": "local_voice_runtime",
+            "title": "Local voice runtime benchmark",
+            "owner": "voice-speech-engineer",
+            "blockers": [
+              "local_voice_runtime_benchmark:evidence_stale_over_24h"
+            ],
+            "next_step": "Follow the approved proposals/approved/proposal-local-voice-runtime.md scope, configure one local voice runtime and voice ID privately, then record first-audio latency evidence."
+          },
           {
             "group_id": "local_voice_live_dialog",
             "title": "Local voice live-dialog evidence",
             "owner": "voice-speech-engineer",
             "blockers": [
-              "local_voice_live_dialog:realtime_transport_spike:bun_runtime_not_installed_on_this_machine",
               "local_voice_live_dialog:realtime_transport_spike:clinical_voice_safety_controls_not_exercised_with_real_model",
               "local_voice_live_dialog:realtime_transport_spike:native_opus_codec_not_integrated_in_godot",
               "local_voice_live_dialog:realtime_transport_spike:quest_godot_client_not_executed",
