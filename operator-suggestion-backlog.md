@@ -75,16 +75,17 @@ This file captures useful operator steering that should shape future work but do
 
 ### SUG-2026-05-04-005: Evaluate UIKitML For In-XR Text Content
 
-- Status: `captured`
+- Status: `converted-to-proposal`
 - Captured at: 2026-05-04 20:04 EDT
 - Operator steering: Consider UIKitML for text content in the application, as a stronger candidate than the earlier HTML-in-canvas direction.
+- Proposal: `proposals/proposal-uikitml-spatial-text-sidecar.md`
 - Primary owners: `xr-systems-architect`, `ux-product-lead`, `test-automation-lead`, `open-source-governance-lead`
 - Review when: building simulated EHR, case-note, patient-note, admin-in-XR, or complex text panels in `apps/ui-xr` or `apps/ui-xr-iwsdk-spike`.
 - Acceptance shape:
   - Compare UIKitML against HTML-in-canvas for text readability, styling control, input affordances, accessibility, Quest performance, bundle size, and integration with IWSDK sidecar tooling.
   - Keep UIKitML sidecar-gated until package metadata, license posture, Vite peer compatibility, bundle impact, and Quest/IWER evidence are recorded.
   - Preserve Full VR and Mixed Reality evidence separation; text technology choice must not imply headset readability readiness until manual Quest observations pass.
-- Current posture: backlog only. No `@iwsdk/vite-plugin-uikitml` or related package install is authorized by this entry alone.
+- Current posture: proposal only. No `@iwsdk/vite-plugin-uikitml` or related package install is authorized unless Patrick approves the proposal.
 
 ### SUG-2026-05-04-006: Replace Primitive Box Hands With Local Mesh Hands
 
