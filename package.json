@@ -49,7 +49,7 @@
     "iwer:sidecar:evidence": "tsx tools/openclinxr/iwer-sidecar-emulation-evidence-check.ts --input docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json",
     "iwer:sidecar:evidence:validate": "tsx tools/openclinxr/iwer-sidecar-emulation-evidence-check.ts --input docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json",
     "iwer:auto-entry:evidence": "tsx tools/openclinxr/iwer-auto-entry-browser-smoke-check.ts",
-    "iwer:auto-entry:evidence:validate": "tsx tools/openclinxr/iwer-auto-entry-browser-smoke-check.ts --input docs/openclinxr/iwer-auto-entry-browser-smoke-2026-05-04.json",
+    "iwer:auto-entry:evidence:validate": "tsx tools/openclinxr/iwer-auto-entry-browser-smoke-check.ts --input docs/openclinxr/iwer-auto-entry-browser-smoke-frame-lanes-2026-05-05.json",
     "visual:qa:evidence": "tsx tools/openclinxr/visual-qa-evidence-check.ts",
     "visual:qa:evidence:validate": "tsx tools/openclinxr/visual-qa-evidence-check.ts --input docs/openclinxr/visual-qa-evidence-2026-05-04.json",
     "iwsdk:sidecar:metrics": "tsx tools/openclinxr/iwsdk-sidecar-metrics-check.ts",

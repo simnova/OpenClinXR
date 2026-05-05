@@ -139,7 +139,7 @@ describe("IWER auto-entry browser smoke checker", () => {
       "tsx tools/openclinxr/iwer-auto-entry-browser-smoke-check.ts",
     );
     expect(rootPackage.scripts["iwer:auto-entry:evidence:validate"]).toBe(
-      "tsx tools/openclinxr/iwer-auto-entry-browser-smoke-check.ts --input docs/openclinxr/iwer-auto-entry-browser-smoke-2026-05-04.json",
+      "tsx tools/openclinxr/iwer-auto-entry-browser-smoke-check.ts --input docs/openclinxr/iwer-auto-entry-browser-smoke-frame-lanes-2026-05-05.json",
     );
 
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwer-auto-entry-"));

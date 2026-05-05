@@ -13,8 +13,8 @@ This packet is the operator handoff for the remaining manual Quest 3 evidence ga
 - Page state: visible, focused, not hidden
 - Trace interaction: advanced from `Trace 0/10` to `Trace 2/10`
 - CDP frame sample: 123 samples, 124 frames observed, 71.2 approximate FPS, p95 14.8 ms, max 37 ms, not timed out
-- IWER sidecar auto-entry evidence: `docs/openclinxr/iwer-auto-entry-browser-smoke-2026-05-04.json`
-- IWER visual QA screenshot: `docs/openclinxr/screenshots/iwer-auto-entry-2026-05-04.png`
+- IWER sidecar auto-entry evidence: `docs/openclinxr/iwer-auto-entry-browser-smoke-frame-lanes-2026-05-05.json`
+- IWER visual QA screenshot: `docs/openclinxr/screenshots/iwer-auto-entry-frame-lanes-2026-05-05.png`
 
 ## First Human Foreground Report
 

@@ -15,11 +15,13 @@ Latest IWER managed-browser evidence:
 
 - `docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json`
 - `docs/openclinxr/screenshots/iwer-sidecar-agent-browser-2026-05-04.png`
+- `docs/openclinxr/iwer-auto-entry-browser-smoke-frame-lanes-2026-05-05.json`
+- `docs/openclinxr/screenshots/iwer-auto-entry-frame-lanes-2026-05-05.png`
 - `docs/openclinxr/iwer-auto-entry-browser-smoke-2026-05-04.json`
 - `docs/openclinxr/visual-qa-evidence-iwer-auto-entry-2026-05-04.json`
 - `docs/openclinxr/screenshots/iwer-auto-entry-2026-05-04.png`
 
-This is desktop/IWER emulation evidence only. The auto-entry smoke shows the sidecar can record a query-gated `session_started` Full VR state in an IWER/Chrome DevTools managed browser, while the earlier raw WebSocket evidence still records the useful `no_session_has_been_offered` path for direct `accept_session` probes. Neither replaces Quest foreground frame pacing, controller latency, thermals, comfort, passthrough, physical headset entry, or in-headset readability observations.
+This is desktop/IWER emulation evidence only. The latest auto-entry smoke records a query-gated `session_started` Full VR state in an IWER/Chrome DevTools managed browser with split preview/immersive frame-lane metadata. The earlier raw WebSocket evidence still records the useful `no_session_has_been_offered` path for direct `accept_session` probes. Neither replaces Quest foreground frame pacing, controller latency, thermals, comfort, passthrough, physical headset entry, or in-headset readability observations.
 
 Use `pnpm iwsdk:evidence` to print the current sidecar evidence contract report. A nonzero exit is expected while agent tooling, bundle budget, reference metadata, and Quest foreground blockers remain unresolved; the JSON blockers are the evidence to carry into leadership review.
 
