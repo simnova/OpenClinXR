@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T15:53:51.988Z",
+  "generatedAt": "2026-05-05T16:00:06.701Z",
   "auditEvidence": {
     "supplied": true,
     "sourcePath": "docs/openclinxr/security-audit-2026-05-05.json",
@@ -8,13 +8,25 @@
     "blockingSeverityThreshold": "high"
   },
   "activeExceptions": [],
+  "activePackageManagerOverrides": [
+    {
+      "packageName": "three",
+      "pinnedVersion": "0.184.0",
+      "rationale": "Keep IWSDK sidecar and production XR packages on one reviewed Three.js version while `@iwsdk/core` permits a broad Three.js range.",
+      "owner": "frontend-platform-lead",
+      "reviewBy": "2026-06-05",
+      "removalCondition": "Remove when all workspace packages declare the same exact Three.js version without a root override."
+    }
+  ],
   "scriptFindings": [],
   "exceptionFindings": [],
+  "packageManagerOverrideFindings": [],
   "unresolvedAuditFindings": [],
   "verdict": {
     "passed": true,
     "scriptFindingCount": 0,
     "exceptionFindingCount": 0,
+    "packageManagerOverrideFindingCount": 0,
     "unresolvedAuditFindingCount": 0
   }
 }

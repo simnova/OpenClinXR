@@ -19,6 +19,19 @@ const baseExceptionsMarkdown = `# Security Audit Exceptions
 None.
 `;
 
+const packageManagerOverrideMarkdown = `# Security Audit Exceptions
+
+## Active Exceptions
+
+None.
+
+## Active Package Manager Overrides
+
+| Package | Pinned version | Rationale | Owner | Review-by | Removal condition |
+| --- | --- | --- | --- | --- | --- |
+| \`three\` | \`0.184.0\` | Keep IWSDK sidecar and production XR packages on one reviewed Three.js version. | frontend-platform-lead | 2026-06-05 | Remove when all workspace packages declare the same exact Three.js version without an override. |
+`;
+
 describe("security audit policy", () => {
   it("accepts the hard pnpm audit gate with no active exceptions", () => {
     const report = buildSecurityAuditPolicyReport({
@@ -60,6 +73,57 @@ describe("security audit policy", () => {
       blockingSeverityThreshold: "high",
     });
     expect(report.verdict.passed).toBe(true);
+  });
+
+  it("accepts root pnpm overrides only when a complete markdown rationale is recorded", () => {
+    const report = buildSecurityAuditPolicyReport({
+      rootPackageJson: {
+        ...basePackageJson,
+        pnpm: {
+          overrides: {
+            three: "0.184.0",
+          },
+        },
+      },
+      exceptionsMarkdown: packageManagerOverrideMarkdown,
+      now: new Date("2026-05-05T00:00:00.000Z"),
+    });
+
+    expect(report.activePackageManagerOverrides).toEqual([
+      {
+        packageName: "three",
+        pinnedVersion: "0.184.0",
+        rationale: "Keep IWSDK sidecar and production XR packages on one reviewed Three.js version.",
+        owner: "frontend-platform-lead",
+        reviewBy: "2026-06-05",
+        removalCondition: "Remove when all workspace packages declare the same exact Three.js version without an override.",
+      },
+    ]);
+    expect(report.packageManagerOverrideFindings).toEqual([]);
+    expect(report.verdict.passed).toBe(true);
+  });
+
+  it("rejects root pnpm overrides without a matching markdown rationale", () => {
+    const report = buildSecurityAuditPolicyReport({
+      rootPackageJson: {
+        ...basePackageJson,
+        pnpm: {
+          overrides: {
+            three: "0.184.0",
+          },
+        },
+      },
+      exceptionsMarkdown: baseExceptionsMarkdown,
+    });
+
+    expect(report.verdict.passed).toBe(false);
+    expect(report.packageManagerOverrideFindings).toEqual([
+      {
+        packageName: "three",
+        finding: "package_manager_override_missing_markdown_record",
+      },
+    ]);
+    expect(report.verdict.packageManagerOverrideFindingCount).toBe(1);
   });
 
   it("rejects weakened audit scripts that make pnpm audit non-blocking", () => {

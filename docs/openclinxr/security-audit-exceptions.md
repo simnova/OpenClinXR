@@ -36,7 +36,7 @@ If any active exception is needed, replace `None.` under Active Exceptions with 
 | Advisory | Package | Severity | Affected | Fixed | Rationale | Owner | Review-by | Removal condition |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 
-Any package-manager override or pnpm audit ignore must link back to an exception entry in this file.
+Any pnpm audit ignore must link back to an exception entry in this file. Any package-manager override must be recorded under Active Package Manager Overrides.
 
 ## License Policy Gate
 
@@ -53,6 +53,12 @@ The gate reads `pnpm licenses list --json`, fails on AGPL/GPL/LGPL/SSPL/non-comm
 ## Active Exceptions
 
 None.
+
+## Active Package Manager Overrides
+
+| Package | Pinned version | Rationale | Owner | Review-by | Removal condition |
+| --- | --- | --- | --- | --- | --- |
+| `three` | `0.184.0` | Keep IWSDK sidecar and production XR packages on one reviewed Three.js version while `@iwsdk/core` permits a broad Three.js range. | frontend-platform-lead | 2026-06-05 | Remove when all workspace packages declare the same exact Three.js version without a root override. |
 
 ## Active License Inventory Normalizations
 

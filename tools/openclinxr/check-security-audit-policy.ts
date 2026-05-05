@@ -9,6 +9,9 @@ type CliOptions = {
 
 type PackageJson = {
   scripts?: Record<string, string>;
+  pnpm?: {
+    overrides?: Record<string, string>;
+  };
 };
 
 type PnpmAuditAdvisory = {
@@ -44,6 +47,15 @@ type SecurityAuditException = {
   removalCondition: string;
 };
 
+type PackageManagerOverrideRecord = {
+  packageName: string;
+  pinnedVersion: string;
+  rationale: string;
+  owner: string;
+  reviewBy: string;
+  removalCondition: string;
+};
+
 type ScriptFinding = {
   scriptName: string;
   finding: string;
@@ -53,6 +65,11 @@ type ScriptFinding = {
 
 type ExceptionFinding = {
   advisory: string;
+  packageName: string;
+  finding: string;
+};
+
+type PackageManagerOverrideFinding = {
   packageName: string;
   finding: string;
 };
@@ -75,13 +92,16 @@ export type SecurityAuditPolicyReport = {
     blockingSeverityThreshold: "high";
   };
   activeExceptions: SecurityAuditException[];
+  activePackageManagerOverrides: PackageManagerOverrideRecord[];
   scriptFindings: ScriptFinding[];
   exceptionFindings: ExceptionFinding[];
+  packageManagerOverrideFindings: PackageManagerOverrideFinding[];
   unresolvedAuditFindings: AuditFinding[];
   verdict: {
     passed: boolean;
     scriptFindingCount: number;
     exceptionFindingCount: number;
+    packageManagerOverrideFindingCount: number;
     unresolvedAuditFindingCount: number;
   };
 };
@@ -100,6 +120,15 @@ const requiredExceptionColumns = [
   "severity",
   "affected",
   "fixed",
+  "rationale",
+  "owner",
+  "review-by",
+  "removal condition",
+];
+
+const requiredPackageManagerOverrideColumns = [
+  "package",
+  "pinned version",
   "rationale",
   "owner",
   "review-by",
@@ -159,6 +188,15 @@ export function buildSecurityAuditPolicyReport(input: {
     ...exceptionParse.findings,
     ...exceptionParse.exceptions.flatMap(validateException),
   ];
+  const packageManagerOverrideParse = parseActivePackageManagerOverrides(input.exceptionsMarkdown);
+  const packageManagerOverrideFindings = [
+    ...packageManagerOverrideParse.findings,
+    ...packageManagerOverrideParse.overrides.flatMap(validatePackageManagerOverride),
+    ...validateRootPackageManagerOverrides(
+      input.rootPackageJson.pnpm?.overrides ?? {},
+      packageManagerOverrideParse.overrides,
+    ),
+  ];
   const allAuditFindings = auditFindings(input.auditJson ?? {});
   const blockingAuditFindings = allAuditFindings.filter((finding) => isBlockingSeverity(finding.severity));
   const unresolvedAuditFindings = blockingAuditFindings
@@ -174,13 +212,19 @@ export function buildSecurityAuditPolicyReport(input: {
       blockingSeverityThreshold: "high",
     },
     activeExceptions: exceptionParse.exceptions,
+    activePackageManagerOverrides: packageManagerOverrideParse.overrides,
     scriptFindings,
     exceptionFindings,
+    packageManagerOverrideFindings,
     unresolvedAuditFindings,
     verdict: {
-      passed: scriptFindings.length === 0 && exceptionFindings.length === 0 && unresolvedAuditFindings.length === 0,
+      passed: scriptFindings.length === 0
+        && exceptionFindings.length === 0
+        && packageManagerOverrideFindings.length === 0
+        && unresolvedAuditFindings.length === 0,
       scriptFindingCount: scriptFindings.length,
       exceptionFindingCount: exceptionFindings.length,
+      packageManagerOverrideFindingCount: packageManagerOverrideFindings.length,
       unresolvedAuditFindingCount: unresolvedAuditFindings.length,
     },
   };
@@ -230,7 +274,7 @@ function evaluateScripts(scripts: Record<string, string>): ScriptFinding[] {
 }
 
 function parseActiveExceptions(markdown: string): { exceptions: SecurityAuditException[]; findings: ExceptionFinding[] } {
-  const section = activeExceptionsSection(markdown);
+  const section = sectionForHeading(markdown, "Active Exceptions");
   const nonEmptyLines = section.split("\n").map((line) => line.trim()).filter(Boolean);
   if (nonEmptyLines.length === 0 || nonEmptyLines.some((line) => line === "None.")) {
     return { exceptions: [], findings: [] };
@@ -276,8 +320,53 @@ function parseActiveExceptions(markdown: string): { exceptions: SecurityAuditExc
   return { exceptions, findings: [] };
 }
 
-function activeExceptionsSection(markdown: string): string {
-  const start = markdown.search(/^## Active Exceptions\s*$/m);
+function parseActivePackageManagerOverrides(
+  markdown: string,
+): { overrides: PackageManagerOverrideRecord[]; findings: PackageManagerOverrideFinding[] } {
+  const section = sectionForHeading(markdown, "Active Package Manager Overrides");
+  const nonEmptyLines = section.split("\n").map((line) => line.trim()).filter(Boolean);
+  if (nonEmptyLines.length === 0 || nonEmptyLines.some((line) => line === "None.")) {
+    return { overrides: [], findings: [] };
+  }
+
+  const tableLines = nonEmptyLines.filter((line) => line.startsWith("|"));
+  if (tableLines.length < 2) {
+    return {
+      overrides: [],
+      findings: [{ packageName: "unknown", finding: "active_package_manager_overrides_table_missing" }],
+    };
+  }
+
+  const headers = splitMarkdownRow(tableLines[0]).map(normalizeHeader);
+  const missingColumns = requiredPackageManagerOverrideColumns.filter((column) => !headers.includes(column));
+  if (missingColumns.length > 0) {
+    return {
+      overrides: [],
+      findings: missingColumns.map((column) => ({
+        packageName: "unknown",
+        finding: `active_package_manager_override_missing_column_${column.replace(/\s+/g, "_")}`,
+      })),
+    };
+  }
+
+  const overrides = tableLines.slice(2).map((line) => {
+    const cells = splitMarkdownRow(line);
+    const cellFor = (column: string) => cells[headers.indexOf(column)]?.trim() ?? "";
+    return {
+      packageName: stripBackticks(cellFor("package")),
+      pinnedVersion: stripBackticks(cellFor("pinned version")),
+      rationale: cellFor("rationale"),
+      owner: cellFor("owner"),
+      reviewBy: cellFor("review-by"),
+      removalCondition: cellFor("removal condition"),
+    };
+  });
+
+  return { overrides, findings: [] };
+}
+
+function sectionForHeading(markdown: string, heading: string): string {
+  const start = markdown.search(new RegExp(`^## ${escapeRegExp(heading)}\\s*$`, "m"));
   if (start === -1) {
     return "";
   }
@@ -288,6 +377,10 @@ function activeExceptionsSection(markdown: string): string {
   const rest = markdown.slice(bodyStart + 1);
   const nextHeading = rest.search(/^## /m);
   return nextHeading === -1 ? rest : rest.slice(0, nextHeading);
+}
+
+function stripBackticks(value: string): string {
+  return value.replace(/^`|`$/g, "");
 }
 
 function splitMarkdownRow(line: string): string[] {
@@ -317,6 +410,53 @@ function validateException(exception: SecurityAuditException): ExceptionFinding[
       packageName: exception.packageName || "unknown",
       finding,
     }));
+}
+
+function validatePackageManagerOverride(override: PackageManagerOverrideRecord): PackageManagerOverrideFinding[] {
+  const requiredFields: Array<[keyof PackageManagerOverrideRecord, string]> = [
+    ["packageName", "active_package_manager_override_missing_package"],
+    ["pinnedVersion", "active_package_manager_override_missing_pinned_version"],
+    ["rationale", "active_package_manager_override_missing_rationale"],
+    ["owner", "active_package_manager_override_missing_owner"],
+    ["reviewBy", "active_package_manager_override_missing_review_by"],
+    ["removalCondition", "active_package_manager_override_missing_removal_condition"],
+  ];
+  return requiredFields
+    .filter(([field]) => override[field].trim().length === 0)
+    .map(([, finding]) => ({
+      packageName: override.packageName || "unknown",
+      finding,
+    }));
+}
+
+function validateRootPackageManagerOverrides(
+  rootOverrides: Record<string, string>,
+  recordedOverrides: PackageManagerOverrideRecord[],
+): PackageManagerOverrideFinding[] {
+  const findings: PackageManagerOverrideFinding[] = [];
+  const recordedByPackage = new Map(recordedOverrides.map((override) => [override.packageName, override]));
+
+  for (const [packageName, pinnedVersion] of Object.entries(rootOverrides)) {
+    const recordedOverride = recordedByPackage.get(packageName);
+    if (!recordedOverride) {
+      findings.push({ packageName, finding: "package_manager_override_missing_markdown_record" });
+      continue;
+    }
+    if (recordedOverride.pinnedVersion !== pinnedVersion) {
+      findings.push({ packageName, finding: "package_manager_override_pinned_version_mismatch" });
+    }
+  }
+
+  for (const recordedOverride of recordedOverrides) {
+    if (!Object.hasOwn(rootOverrides, recordedOverride.packageName)) {
+      findings.push({
+        packageName: recordedOverride.packageName,
+        finding: "package_manager_override_record_without_root_override",
+      });
+    }
+  }
+
+  return findings;
 }
 
 function auditFindings(auditJson: PnpmAuditJson): AuditFinding[] {
@@ -403,6 +543,10 @@ function requireValue(args: string[], index: number, flag: string): string {
     throw new Error(`${flag} requires a value`);
   }
   return value;
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 async function readJsonFile<T>(filePath: string): Promise<T> {
