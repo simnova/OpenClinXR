@@ -848,7 +848,9 @@ describe("XR runtime state", () => {
       visibilityState: "visible",
       qualitySource: "webxr_animation_loop",
       handInputsObserved: 2,
+      handModelStatus: "installed",
       handRepresentationKind: "primitive_spheres",
+      handAssetLoadErrors: [],
       activeLocomotionSource: "none",
       inputSourceKinds: ["xr_hand"],
       lastLocomotionAtMs: null,
@@ -1013,6 +1015,28 @@ describe("XR runtime state", () => {
       manualValidationReady: false,
       blockers: ["frame_stats_stale_or_unsampled"],
     });
+
+    const handFailureSummary = buildManualPerformanceCaptureSummary({
+      draft: {
+        ...completeDraft,
+        input: completeDraft.input
+          ? {
+            ...completeDraft.input,
+            handModelStatus: "failed",
+            handAssetLoadErrors: ["/xr-hands/generic-hand/left.glb"],
+          }
+          : null,
+      },
+      frameStats,
+    });
+
+    expect(handFailureSummary).toMatchObject({
+      handModelStatus: "failed",
+      handAssetLoadErrors: ["/xr-hands/generic-hand/left.glb"],
+      manualValidationReady: false,
+      technicalGaps: expect.arrayContaining(["hand_mesh_asset_load_failed"]),
+      blockers: expect.arrayContaining(["hand_mesh_asset_load_failed"]),
+    });
   });
 
   it("flags an immersive session whose copied payload still has empty frame stats", () => {
@@ -1152,7 +1176,9 @@ describe("XR runtime state", () => {
         visibilityState: "visible",
         qualitySource: "webxr_animation_loop",
         handInputsObserved: 2,
+        handModelStatus: "installed",
         handRepresentationKind: "primitive_spheres",
+        handAssetLoadErrors: [],
         activeLocomotionSource: "none",
         inputSourceKinds: ["xr_hand"],
         lastLocomotionAtMs: null,

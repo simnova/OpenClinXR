@@ -393,7 +393,9 @@ export type ManualPerformanceCaptureSummary = {
   visibilityState: string | null;
   qualitySource: ManualPerformanceFrameStats["qualitySource"] | null;
   handInputsObserved: number | null;
+  handModelStatus: ManualPerformanceInputEvidence["handModelStatus"] | null;
   handRepresentationKind: ManualPerformanceInputEvidence["handRepresentationKind"] | null;
+  handAssetLoadErrors: string[];
   activeLocomotionSource: ManualPerformanceInputEvidence["activeLocomotionSource"] | null;
   inputSourceKinds: RuntimeInputSourceKind[];
   lastLocomotionAtMs: number | null;
@@ -1425,7 +1427,9 @@ export function buildManualPerformanceCaptureSummary(
     visibilityState: frameStats?.visibilityState ?? null,
     qualitySource: frameStats?.qualitySource ?? null,
     handInputsObserved: inputEvidence?.handInputsObserved ?? null,
+    handModelStatus: inputEvidence?.handModelStatus ?? null,
     handRepresentationKind: inputEvidence?.handRepresentationKind ?? null,
+    handAssetLoadErrors: [...(inputEvidence?.handAssetLoadErrors ?? [])],
     activeLocomotionSource: inputEvidence?.activeLocomotionSource ?? null,
     inputSourceKinds: [...(inputEvidence?.inputSourceKinds ?? [])],
     lastLocomotionAtMs: inputEvidence?.lastLocomotionAtMs ?? null,
@@ -1457,6 +1461,7 @@ function buildManualPerformanceTechnicalEvidence(
   const immersiveFrameEvidenceReady = isImmersiveFrameEvidenceReady(draft, frameStats);
   const headsetSelectLatencyReady = isHeadsetSelectLatencyReady(draft);
   const locomotionEvidenceReady = hasObservedLocomotion(draft?.input ?? null);
+  const handMeshAssetLoadFailed = hasHandMeshAssetLoadFailure(draft?.input ?? null);
   const technicalGaps = [
     draft ? undefined : "manual_performance_draft_missing",
     frameStats ? undefined : "frame_stats_missing",
@@ -1470,6 +1475,7 @@ function buildManualPerformanceTechnicalEvidence(
       : undefined,
     draft && !headsetSelectLatencyReady ? "headset_select_trace_latency_missing" : undefined,
     draft && !locomotionEvidenceReady ? "locomotion_delta_missing" : undefined,
+    draft && handMeshAssetLoadFailed ? "hand_mesh_asset_load_failed" : undefined,
   ].filter((gap): gap is string => typeof gap === "string");
 
   return {
@@ -1623,6 +1629,7 @@ function previewManualPerformanceValidation(
     && controllerSelectLatencyMatchesTrace;
   const batteryDropPercentValid = isPercentInRange(batteryDropPercent);
   const motionComfortConfirmed = isMotionComfortConfirmed(draft.comfort.motionComfort);
+  const handMeshAssetLoadFailed = hasHandMeshAssetLoadFailure(inputEvidence);
 
   const blockers = [
     isValidIsoDate(draft.generatedAt) ? undefined : "generated_at_invalid_or_missing",
@@ -1637,6 +1644,7 @@ function previewManualPerformanceValidation(
     draft.station.immersiveSessionStarted ? undefined : "immersive_session_not_confirmed",
     isFullVrExperienceEvidence(draft.experience) ? undefined : "experience_mode_full_vr_not_recorded",
     hasObservedHeadsetInput(inputEvidence) ? undefined : "hand_or_controller_input_not_observed",
+    handMeshAssetLoadFailed ? "hand_mesh_asset_load_failed" : undefined,
     hasObservedLocomotion(inputEvidence) ? undefined : "locomotion_not_observed",
     draft.station.consoleErrors.length === 0 ? undefined : "console_errors_present",
     draft.performance.source === "window.__openClinXrFrameStats" ? undefined : "performance_source_not_openclinxr_frame_stats",
@@ -1761,6 +1769,10 @@ function hasObservedHeadsetInput(value: ManualPerformanceDraft["input"]): boolea
   return (value?.handInputsObserved ?? 0) > 0
     || value?.inputSourceKinds?.some((kind) => kind === "xr_gamepad" || kind === "xr_hand") === true
     || (value?.inputSourceCount ?? 0) > 0;
+}
+
+function hasHandMeshAssetLoadFailure(value: ManualPerformanceDraft["input"]): boolean {
+  return value?.handModelStatus === "failed" || (value?.handAssetLoadErrors?.length ?? 0) > 0;
 }
 
 function hasObservedLocomotion(value: ManualPerformanceDraft["input"]): boolean {
