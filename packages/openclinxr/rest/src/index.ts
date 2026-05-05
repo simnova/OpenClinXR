@@ -46,6 +46,7 @@ export const openClinXrRestRoutes = Object.freeze([
   route("start-session", "POST", "/sessions", "xr-runtime"),
   route("start-encounter", "POST", "/sessions/:stationRunId/start-encounter", "xr-runtime", true),
   route("append-trace-event", "POST", "/sessions/:stationRunId/events", "xr-runtime", true),
+  route("actor-interaction-route", "POST", "/sessions/:stationRunId/actor-interaction-route", "xr-runtime", true),
   route("actor-response", "POST", "/sessions/:stationRunId/actor-response", "xr-runtime", true),
   route("voice-synthesis", "POST", "/sessions/:stationRunId/voice-synthesis", "xr-runtime", true),
   route("submit-note", "POST", "/sessions/:stationRunId/note", "xr-runtime", true),

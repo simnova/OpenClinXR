@@ -1275,6 +1275,39 @@ describe("OpenClinXR API shell", () => {
     });
     expect(action.status).toBe(201);
 
+    const actorInteractionRoute = await app.request(`/sessions/${started.stationRunId}/actor-interaction-route`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        learnerUtterance: "Nurse, can you repeat the blood pressure?",
+        atSecond: 510,
+        traceContextTags: ["vitals_review", "team_communication"],
+      }),
+    });
+    const actorInteractionRouteBody = await json(actorInteractionRoute) as {
+      routedActorId: string;
+      routingReason: string;
+      conversationTurn: number;
+      interactionEvent: { eventType: string; actorId: string; payload: { learnerUtterance: string; sourceKind: string } };
+    };
+
+    expect(actorInteractionRoute.status).toBe(201);
+    expect(actorInteractionRouteBody).toMatchObject({
+      routedActorId: "nurse_maria_alvarez_v1",
+      routingReason: "addressed_role_keyword",
+      conversationTurn: 1,
+      interactionEvent: {
+        eventType: "actor.interaction.routed",
+        actorId: "nurse_maria_alvarez_v1",
+        payload: {
+          learnerUtterance: "Nurse, can you repeat the blood pressure?",
+          sourceKind: "text",
+        },
+      },
+    });
+    expect(JSON.stringify(actorInteractionRouteBody)).not.toContain("Father died of myocardial infarction");
+    expect(JSON.stringify(actorInteractionRouteBody)).not.toContain("Repeat blood pressure is falling");
+
     const actorResponse = await app.request(`/sessions/${started.stationRunId}/actor-response`, {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -1356,6 +1389,7 @@ describe("OpenClinXR API shell", () => {
       "consent.accepted",
       "encounter.started",
       "learner.order",
+      "actor.interaction.routed",
       "learner.utterance",
       "actor.response.generated",
       "voice.audio.generated",

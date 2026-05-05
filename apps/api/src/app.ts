@@ -27,7 +27,13 @@ import {
   type RuntimeProfile,
 } from "@openclinxr/capability-gateway";
 import { matchOpenClinXrRestRoute, routeById } from "@openclinxr/rest";
-import { createDefaultScenarioRuntime, type PublicationTargetUse, type ReviewerEvidence, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
+import {
+  createDefaultScenarioRuntime,
+  type PublicationTargetUse,
+  type ReviewerEvidence,
+  type RouteRuntimeActorInteractionInput,
+  type ScenarioRuntime,
+} from "@openclinxr/scenario-runtime";
 import { createLearnerScenarioView, edChestPainScenario, scenarioBank } from "@openclinxr/scenario-fixtures";
 import {
   createNoopTelemetryRecorder,
@@ -344,6 +350,35 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     }
   });
 
+  app.post(routeById("actor-interaction-route").path, async (context) => {
+    const stationRunId = context.req.param("stationRunId");
+    const body = (await context.req.json().catch(() => ({}))) as {
+      learnerUtterance?: unknown;
+      atSecond?: unknown;
+      traceContextTags?: unknown;
+      source?: unknown;
+    };
+    const source = parseActorInteractionSource(body.source);
+
+    try {
+      const result = runtime.routeActorInteractionTurn(stationRunId, {
+        learnerUtterance: typeof body.learnerUtterance === "string" ? body.learnerUtterance : "",
+        atSecond: typeof body.atSecond === "number" ? body.atSecond : 0,
+        traceContextTags: parseStringArray(body.traceContextTags),
+        ...(source ? { source } : {}),
+      });
+      await persistTraceSnapshot(runtime, persistence, stationRunId);
+      return context.json({
+        routedActorId: result.routedActorId,
+        routingReason: result.routingReason,
+        conversationTurn: result.conversationTurn,
+        interactionEvent: result.interactionEvent,
+      }, 201);
+    } catch (error) {
+      return sessionErrorResponse(context, error);
+    }
+  });
+
   app.post(routeById("actor-response").path, async (context) => {
     const stationRunId = context.req.param("stationRunId");
     const body = (await context.req.json().catch(() => ({}))) as {
@@ -358,7 +393,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
         actorId: body.actorId ?? "",
         learnerUtterance: body.learnerUtterance ?? "",
         atSecond: body.atSecond ?? 0,
-        traceContextTags: Array.isArray(body.traceContextTags) ? body.traceContextTags.filter((tag): tag is string => typeof tag === "string") : [],
+        traceContextTags: parseStringArray(body.traceContextTags),
       });
       await persistTraceSnapshot(runtime, persistence, stationRunId);
       return context.json(result, 201);
@@ -739,6 +774,40 @@ function parseReviewerEvidence(value: unknown): ReviewerEvidence[] {
   }
 
   return value.filter(isReviewerEvidence);
+}
+
+function parseActorInteractionSource(value: unknown): RouteRuntimeActorInteractionInput["source"] | undefined {
+  if (!isRecord(value)) {
+    return undefined;
+  }
+
+  if (value.kind === "voice_transcript"
+    && typeof value.streamId === "string"
+    && typeof value.transcriptSegmentId === "string"
+    && typeof value.finalTranscriptText === "string"
+    && typeof value.provider === "string") {
+    return {
+      kind: "voice_transcript",
+      streamId: value.streamId,
+      transcriptSegmentId: value.transcriptSegmentId,
+      finalTranscriptText: value.finalTranscriptText,
+      provider: value.provider,
+      provenanceRefs: parseStringArray(value.provenanceRefs),
+    };
+  }
+
+  if (value.kind === "text") {
+    return {
+      kind: "text",
+      provenanceRefs: parseStringArray(value.provenanceRefs),
+    };
+  }
+
+  return undefined;
+}
+
+function parseStringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : [];
 }
 
 function isReviewerEvidence(value: unknown): value is ReviewerEvidence {

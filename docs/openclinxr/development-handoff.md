@@ -339,6 +339,7 @@ Scenario runtime milestone has also started:
 - Encounter start is a separate runtime/API transition, preserving the doorway hold expected in a clinical-skills exam station.
 - `packages/openclinxr/session-state` now owns the promoted Phase 2 persistence-boundary contract for durable conversation turns, actor emotional-state timeline records, disposable Redis/Redka-shaped realtime cache snapshots, and cache rehydration from durable state. This remains contract/test-double evidence only; MongoDB durable adapters and Redis/Redka runtime adapters are future slices.
 - `packages/openclinxr/scenario-runtime` now exposes `routeActorInteractionTurn` to route learner text or final voice transcripts through the promoted multi-actor session state, update per-actor conversation turns, and append sanitized `actor.interaction.routed` trace events without raw audio.
+- `apps/api` exposes `POST /sessions/:stationRunId/actor-interaction-route` for the same non-realtime routing flow. The response redacts server-only actor context and returns only routed actor id, routing reason, conversation turn, and sanitized trace evidence.
 - `apps/api` now uses it for station sessions, provider health, asset readiness, and review packets.
 - `packages/openclinxr/test-harness` now uses it for the deterministic ED chest pain benchmark.
 
