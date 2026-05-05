@@ -456,7 +456,12 @@ function normalizeQuestManualPerformancePayload(payload: QuestManualPerformanceP
     return { report: undefined, blockers: [], adversarialFindings: [] };
   }
   if (!isCopiedManualPerformancePayload(payload)) {
-    return { report: payload, blockers: [], adversarialFindings: [] };
+    const rawReport = payload as QuestManualPerformanceReport;
+    return {
+      report: rawReport,
+      blockers: [],
+      adversarialFindings: isRecord(rawReport.reproducibility) ? [] : ["raw_manual_report_without_copied_ui_payload"],
+    };
   }
 
   const report = isRecord(payload.manualPerformanceDraft)
@@ -535,6 +540,8 @@ function buildAdversarialFindings(input: {
 
 function questManualNextStepForAdversarialFinding(finding: string): string {
   switch (finding) {
+    case "raw_manual_report_without_copied_ui_payload":
+      return "Prefer the copied in-app Quest Evidence payload so frame stats, captureSummary, and reproducibility metadata come from the same runtime export.";
     case "copied_ui_manual_performance_payload":
       return "The checker accepted the copied in-app payload; preserve the manualPerformanceDraft and captureSummary fields for auditability.";
     case "devtools_screencast_enabled_during_run":

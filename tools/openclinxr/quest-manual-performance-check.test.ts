@@ -327,7 +327,10 @@ describe("Quest manual performance checker", () => {
 
     expect(check.readyToClaimFramePacing).toBe(true);
     expect(check.blockers).toEqual([]);
-    expect(check.adversarialFindings).toEqual(["reproducibility_metadata_missing"]);
+    expect(check.adversarialFindings).toEqual([
+      "reproducibility_metadata_missing",
+      "raw_manual_report_without_copied_ui_payload",
+    ]);
     expect(check.nextSteps).toEqual(expect.arrayContaining([
       "Prefer the copied in-app Quest Evidence payload so URL, user agent, app build, WebXR support, and display context are preserved as audit metadata.",
     ]));
@@ -775,6 +778,7 @@ describe("Quest manual performance checker", () => {
       "heat_observation_not_recorded",
       "short_run_under_reliability_window",
       "reproducibility_metadata_missing",
+      "raw_manual_report_without_copied_ui_payload",
     ]);
     expect(check.nextSteps).toEqual(expect.arrayContaining([
       "Replace primitive box hands with an articulated hand model or document why controller-only affordances are acceptable for this station.",

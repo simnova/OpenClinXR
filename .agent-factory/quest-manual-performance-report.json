@@ -1,6 +1,7 @@
 {
   "generatedAt": "2026-05-05T03:50:22.346Z",
   "inputFile": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
+  "evidencePosture": "early_worn_headset_full_vr_observation",
   "readyToClaimFramePacing": false,
   "satisfiedConditions": [
     "generated_at_valid",
@@ -42,7 +43,9 @@
     "immersive_session_started_but_frame_stats_empty",
     "trace_latency_proxy_not_measured",
     "heat_observation_not_recorded",
-    "short_run_under_reliability_window"
+    "short_run_under_reliability_window",
+    "reproducibility_metadata_missing",
+    "raw_manual_report_without_copied_ui_payload"
   ],
   "nextSteps": [
     "Disable DevTools screencast while observing headset performance.",
@@ -68,6 +71,8 @@
     "Keep the headset foreground for a longer run and verify window.__openClinXrFrameStats increments while immersive mode is active.",
     "Capture a trace interaction or leave the proxy section explicitly unmeasured with a note.",
     "Record heatConcern as false or true after the worn-headset run.",
-    "Repeat the run for at least 10 minutes before using it as readiness evidence."
+    "Repeat the run for at least 10 minutes before using it as readiness evidence.",
+    "Prefer the copied in-app Quest Evidence payload so URL, user agent, app build, WebXR support, and display context are preserved as audit metadata.",
+    "Prefer the copied in-app Quest Evidence payload so frame stats, captureSummary, and reproducibility metadata come from the same runtime export."
   ]
 }
