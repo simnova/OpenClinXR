@@ -247,6 +247,8 @@ describe("Quest CDP smoke probe", () => {
     expect(frameSampleExpression(12, 900)).toContain("window.__openClinXrIwsdkSidecarEvidence");
     expect(frameSampleExpression(12, 900)).toContain("qualitySource");
     expect(frameSampleExpression(12, 900)).toContain("longFrameRatio");
+    expect(frameSampleExpression(12, 900)).toContain("previewFramesObserved");
+    expect(frameSampleExpression(12, 900)).toContain("immersiveFramesObserved");
     expect(enterVrButtonRectExpression()).toContain("enter-xr-button");
     expect(enterVrCompletionExpression(3000)).toContain("xr-status");
     expect(enterVrCompletionExpression(3000)).toContain("window.__openClinXrManualPerformanceDraft");

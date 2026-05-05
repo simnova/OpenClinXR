@@ -595,6 +595,8 @@ export function frameSampleExpression(frameSampleCount: number, frameTimeoutMs: 
       sampleWindowMs: latestStats?.sampleWindowMs ?? null,
       longFrameCountOver33Ms: latestStats?.longFrameCountOver33Ms ?? null,
       longFrameRatio: latestStats?.longFrameRatio ?? null,
+      previewFramesObserved: latestStats?.previewFramesObserved ?? null,
+      immersiveFramesObserved: latestStats?.immersiveFramesObserved ?? null,
       qualitySource: latestStats?.qualitySource ?? null,
       renderLoopMode: latestStats?.renderLoopMode ?? null,
       isPresenting: latestStats?.isPresenting ?? null,
