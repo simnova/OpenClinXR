@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "openclinxr.iwer-controller-input-probe.v1",
+  "generatedAt": "2026-05-05T00:00:00.000Z",
+  "classification": {
+    "lane": "iwer_controller_input_probe",
+    "scope": "sidecar_only_dev_evidence",
+    "notEvidenceFor": [
+      "physical_quest_controller_latency",
+      "physical_quest_hand_tracking_quality",
+      "physical_quest_foreground_frame_pacing",
+      "in_headset_text_readability",
+      "production_runtime_readiness"
+    ]
+  },
+  "sidecar": {
+    "app": "apps/ui-xr-iwsdk-spike",
+    "runtimeUrl": "http://127.0.0.1:5183/?iwerAutoEnterVr=true&iwerEvidenceView=wide",
+    "devServerPort": 5183,
+    "mcpWebSocketEndpoint": "ws://127.0.0.1:5183/__iwer_mcp"
+  },
+  "probe": {
+    "source": "iwer_mcp_emulation",
+    "sessionActive": true,
+    "sessionMode": "immersive-vr",
+    "attemptedToolNames": [
+      "xr_set_input_mode",
+      "xr_set_connected",
+      "xr_set_gamepad_state",
+      "xr_select"
+    ],
+    "successfulToolNames": [
+      "xr_set_input_mode",
+      "xr_set_connected",
+      "xr_set_gamepad_state",
+      "xr_select"
+    ],
+    "observedTraceActionTags": [
+      "ecg_request"
+    ],
+    "controllerSelectTraceTag": "ecg_request",
+    "consoleErrorCount": 0,
+    "readyForInputEmulationEvidence": true,
+    "readyForProductionRuntime": false,
+    "readyForPhysicalQuestClaim": false,
+    "blockers": []
+  }
+}
