@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "openclinxr.quest-http3-compatibility.v1",
+  "generatedAt": "YYYY-MM-DDTHH:mm:ss.sssZ",
+  "runContext": {
+    "performedBy": "",
+    "durationMinutes": 0,
+    "notes": "Complete this during a physical Quest 3 / Quest Browser HTTP/3 compatibility run. Do not use cloud relays, paid APIs, or production ingress for this report."
+  },
+  "localServer": {
+    "appPath": "apps/api",
+    "serverKind": "bun-hono-http3-spike",
+    "bunVersion": null,
+    "honoVersion": null,
+    "h3Enabled": false,
+    "h3TrueEnabled": false,
+    "origin": "https://localhost:4443",
+    "tls": {
+      "secureContext": false,
+      "certificateTrust": "not_configured",
+      "alpnProtocols": []
+    }
+  },
+  "questBrowser": {
+    "deviceModel": "Meta Quest 3",
+    "browserName": "Meta Quest Browser",
+    "browserVersion": null,
+    "userAgent": null,
+    "foregroundPageConfirmed": false
+  },
+  "test": {
+    "physicalQuestUsed": false,
+    "cloudRelayUsed": false,
+    "paidApisUsed": false,
+    "url": "https://localhost:4443/http3-probe",
+    "navigationSucceeded": false,
+    "resourceTimingNextHopProtocol": null,
+    "serverReportedProtocol": null,
+    "webTransportApiPresent": false,
+    "webTransportSessionAttempted": false,
+    "webTransportSessionSucceeded": null,
+    "websocketFallbackUsed": false,
+    "mediaFramesSent": false
+  },
+  "notEvidenceFor": [
+    "azure_http3_ingress_readiness",
+    "production_protocol_readiness",
+    "clinical_media_transport_readiness",
+    "low_latency_voice_readiness"
+  ]
+}

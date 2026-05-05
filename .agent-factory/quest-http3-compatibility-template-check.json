@@ -1,0 +1,67 @@
+{
+  "generatedAt": "2026-05-05T22:12:31.802Z",
+  "inputFile": "docs/openclinxr/quest-http3-compatibility-template.json",
+  "readyToClaimQuestHttp3Reachability": false,
+  "readyToClaimWebTransportCompatibility": false,
+  "readyToClaimAzureIngress": false,
+  "readyToClaimClinicalMedia": false,
+  "satisfiedConditions": [
+    "schema_version_valid",
+    "apps_api_server_recorded",
+    "bun_hono_http3_spike_recorded",
+    "https_origin_recorded",
+    "quest_3_device_recorded",
+    "quest_browser_name_recorded",
+    "no_cloud_or_paid_path",
+    "websocket_fallback_not_used",
+    "media_frames_not_sent"
+  ],
+  "http3Blockers": [
+    "bun_version_missing",
+    "duration_under_10_minutes",
+    "generated_at_invalid_or_missing",
+    "h3_alpn_not_recorded",
+    "h3_not_enabled",
+    "h3_true_not_enabled",
+    "hono_version_missing",
+    "http3_protocol_not_observed",
+    "local_ca_not_trusted_on_quest",
+    "navigation_not_successful",
+    "performed_by_missing",
+    "physical_quest_not_used",
+    "quest_browser_foreground_not_confirmed",
+    "quest_browser_version_missing",
+    "secure_context_missing"
+  ],
+  "webTransportBlockers": [
+    "webtransport_api_missing",
+    "webtransport_session_not_attempted",
+    "webtransport_session_not_succeeded"
+  ],
+  "notEvidenceFor": [
+    "azure_http3_ingress_readiness",
+    "production_protocol_readiness",
+    "clinical_media_transport_readiness",
+    "low_latency_voice_readiness"
+  ],
+  "nextSteps": [
+    "Resolve blocker: bun_version_missing",
+    "Resolve blocker: duration_under_10_minutes",
+    "Resolve blocker: generated_at_invalid_or_missing",
+    "Resolve blocker: h3_alpn_not_recorded",
+    "Start a dedicated local Bun/Hono HTTP/3 spike server with HTTP/3 explicitly enabled.",
+    "Record Bun.serve({ h3: true }) or equivalent local HTTP/3 server configuration.",
+    "Resolve blocker: hono_version_missing",
+    "Record Resource Timing or server-side protocol evidence showing h3, not h2 or http/1.1.",
+    "Install or otherwise validate a local development CA on the Quest before claiming browser reachability.",
+    "Navigate the Quest Browser to the local HTTP/3 probe URL and record a successful load.",
+    "Resolve blocker: performed_by_missing",
+    "Run the compatibility probe from the physical Quest 3 browser; desktop Chromium evidence is not enough.",
+    "Confirm the Quest Browser page is foregrounded in the headset during the run.",
+    "Resolve blocker: quest_browser_version_missing",
+    "Use a secure HTTPS origin trusted by the Quest Browser runtime.",
+    "Resolve blocker: webtransport_api_missing",
+    "Attempt a local WebTransport session only after HTTP/3 reachability is proven.",
+    "Record a successful local WebTransport session before making a WebTransport compatibility claim."
+  ]
+}
