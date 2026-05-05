@@ -268,6 +268,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
     && traceSelectLatencyMsValid
     && traceMeasuredAtMsValid
     && controllerSelectLatencyMatchesTrace;
+  const reproducibilityEvidence = buildReproducibilityEvidence(report.reproducibility);
   const batteryDropPercentValid = isPercentInRange(batteryDropPercent);
   const motionComfortConfirmed = isMotionComfortConfirmed(report.comfort?.motionComfort);
   const blockers = unique([
@@ -343,6 +344,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
       heatConcern: report.comfort?.heatConcern,
       traceLatencyProxy,
     }),
+    ...reproducibilityEvidence.adversarialFindings,
     ...normalizedPayload.adversarialFindings,
   ]);
 
@@ -381,6 +383,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
       headsetInputObserved ? "hand_or_controller_input_observed" : undefined,
       locomotionObserved ? "locomotion_observed" : undefined,
       isSupportingTraceLatencyProxy(traceLatencyProxy) ? "trace_latency_proxy_recorded_as_supporting_evidence" : undefined,
+      ...reproducibilityEvidence.satisfiedConditions,
       motionComfortConfirmed ? "motion_comfort_confirmed" : undefined,
       batteryDropPercentValid && batteryDropPercent <= 20 ? "battery_drop_recorded_under_20" : undefined,
     ].filter((condition): condition is string => typeof condition === "string"),
@@ -496,6 +499,20 @@ function questManualNextStepForAdversarialFinding(finding: string): string {
       return "Record heatConcern as false or true after the worn-headset run.";
     case "short_run_under_reliability_window":
       return "Repeat the run for at least 10 minutes before using it as readiness evidence.";
+    case "reproducibility_metadata_missing":
+      return "Prefer the copied in-app Quest Evidence payload so URL, user agent, app build, WebXR support, and display context are preserved as audit metadata.";
+    case "reproducibility_source_not_browser_runtime":
+      return "Re-copy Quest Evidence from the runtime browser so reproducibility.source is browser_runtime.";
+    case "reproducibility_url_missing":
+      return "Preserve reproducibility.url from the runtime browser location.";
+    case "reproducibility_browser_version_missing":
+      return "Preserve reproducibility.userAgent plus Oculus Browser or Chrome version hints.";
+    case "reproducibility_app_build_missing":
+      return "Preserve app package, version, git commit, build time, and build mode in reproducibility.app.";
+    case "reproducibility_webxr_support_missing":
+      return "Preserve navigator.xr and immersive-vr/immersive-ar support check results in reproducibility.webXr.";
+    case "reproducibility_display_context_missing":
+      return "Preserve viewport, screen, device-pixel-ratio, and visibility-state values in reproducibility.display.";
     default:
       return `Resolve Quest manual evidence-quality finding: ${finding}.`;
   }
@@ -676,6 +693,70 @@ function isSupportingTraceLatencyProxy(value: QuestManualPerformanceReport["trac
 
 function isKnownTraceLatencySource(value: string | undefined): boolean {
   return value === "dom_click_trace_button" || value === "xr_controller_select";
+}
+
+function buildReproducibilityEvidence(value: QuestManualPerformanceReport["reproducibility"]): {
+  satisfiedConditions: string[];
+  adversarialFindings: string[];
+} {
+  if (!value) {
+    return {
+      satisfiedConditions: [],
+      adversarialFindings: ["reproducibility_metadata_missing"],
+    };
+  }
+
+  const sourceRecorded = value.source === "browser_runtime";
+  const urlRecorded = isNonEmptyString(value.url);
+  const browserVersionRecorded = isNonEmptyString(value.userAgent)
+    && (isNonEmptyString(value.browserVersionHints?.oculusBrowser)
+      || isNonEmptyString(value.browserVersionHints?.chrome));
+  const appBuildRecorded = isNonEmptyString(value.app?.packageName)
+    && isNonEmptyString(value.app?.version)
+    && isNonEmptyString(value.app?.gitCommit)
+    && isValidIsoDate(value.app?.buildTime)
+    && isNonEmptyString(value.app?.mode);
+  const webXrSupportRecorded = typeof value.webXr?.navigatorXrPresent === "boolean"
+    && typeof value.webXr.immersiveVrSupported === "boolean"
+    && typeof value.webXr.immersiveArSupported === "boolean";
+  const displayContextRecorded = isPositiveInteger(value.display?.viewportWidth)
+    && isPositiveInteger(value.display?.viewportHeight)
+    && isPositiveFiniteNumber(value.display?.devicePixelRatio ?? null)
+    && isNonEmptyString(value.display?.visibilityState);
+  const allMetadataRecorded = sourceRecorded
+    && urlRecorded
+    && browserVersionRecorded
+    && appBuildRecorded
+    && webXrSupportRecorded
+    && displayContextRecorded;
+
+  return {
+    satisfiedConditions: [
+      sourceRecorded ? "reproducibility_source_browser_runtime" : undefined,
+      urlRecorded ? "reproducibility_url_recorded" : undefined,
+      browserVersionRecorded ? "reproducibility_browser_version_recorded" : undefined,
+      appBuildRecorded ? "reproducibility_app_build_recorded" : undefined,
+      webXrSupportRecorded ? "reproducibility_webxr_support_recorded" : undefined,
+      displayContextRecorded ? "reproducibility_display_context_recorded" : undefined,
+      allMetadataRecorded ? "reproducibility_metadata_recorded" : undefined,
+    ].filter((condition): condition is string => typeof condition === "string"),
+    adversarialFindings: [
+      sourceRecorded ? undefined : "reproducibility_source_not_browser_runtime",
+      urlRecorded ? undefined : "reproducibility_url_missing",
+      browserVersionRecorded ? undefined : "reproducibility_browser_version_missing",
+      appBuildRecorded ? undefined : "reproducibility_app_build_missing",
+      webXrSupportRecorded ? undefined : "reproducibility_webxr_support_missing",
+      displayContextRecorded ? undefined : "reproducibility_display_context_missing",
+    ].filter((finding): finding is string => typeof finding === "string"),
+  };
+}
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function isPositiveInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && Number.isInteger(value) && value > 0;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

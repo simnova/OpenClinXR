@@ -249,6 +249,42 @@ const completedQuestManualPerformanceReport: QuestManualPerformanceReport = {
     minimumObservedFps: 60,
     controllerSelectLatencyMs: 140,
   },
+  reproducibility: {
+    source: "browser_runtime",
+    url: "http://localhost:5173/",
+    userAgent: "Mozilla/5.0 (Linux; Android 14; Quest 3) AppleWebKit/537.36 OculusBrowser/40.0.0.0.0 Chrome/120.0.0.0",
+    browserVersionHints: {
+      oculusBrowser: "40.0.0.0.0",
+      chrome: "120.0.0.0",
+    },
+    app: {
+      packageName: "@openclinxr/ui-xr",
+      version: "0.1.0",
+      gitCommit: "abc1234",
+      buildTime: "2026-05-04T00:00:00.000Z",
+      mode: "production",
+    },
+    webXr: {
+      navigatorXrPresent: true,
+      immersiveVrSupported: true,
+      immersiveVrSupportCheckedAtMs: 228.6,
+      immersiveArSupported: false,
+      immersiveArSupportCheckedAtMs: 228.7,
+      supportError: null,
+    },
+    display: {
+      viewportWidth: 2064,
+      viewportHeight: 2208,
+      screenWidth: 2064,
+      screenHeight: 2208,
+      devicePixelRatio: 1,
+      visibilityState: "visible",
+    },
+    limitations: [
+      "browser_reported_metadata_not_device_firmware_proof",
+      "display_refresh_rate_inferred_from_frame_cadence",
+    ],
+  },
   comfort: {
     motionComfort: "comfortable",
     heatConcern: false,

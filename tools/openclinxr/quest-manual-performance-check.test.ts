@@ -69,6 +69,42 @@ function completedQuestManualReport(): QuestManualPerformanceReport {
       minimumObservedFps: 60,
       controllerSelectLatencyMs: 12,
     },
+    reproducibility: {
+      source: "browser_runtime",
+      url: "http://localhost:5173/",
+      userAgent: "Mozilla/5.0 (Linux; Android 14; Quest 3) AppleWebKit/537.36 OculusBrowser/40.0.0.0.0 Chrome/120.0.0.0",
+      browserVersionHints: {
+        oculusBrowser: "40.0.0.0.0",
+        chrome: "120.0.0.0",
+      },
+      app: {
+        packageName: "@openclinxr/ui-xr",
+        version: "0.1.0",
+        gitCommit: "abc1234",
+        buildTime: "2026-05-04T00:00:00.000Z",
+        mode: "production",
+      },
+      webXr: {
+        navigatorXrPresent: true,
+        immersiveVrSupported: true,
+        immersiveVrSupportCheckedAtMs: 228.6,
+        immersiveArSupported: false,
+        immersiveArSupportCheckedAtMs: 228.7,
+        supportError: null,
+      },
+      display: {
+        viewportWidth: 2064,
+        viewportHeight: 2208,
+        screenWidth: 2064,
+        screenHeight: 2208,
+        devicePixelRatio: 1,
+        visibilityState: "visible",
+      },
+      limitations: [
+        "browser_reported_metadata_not_device_firmware_proof",
+        "display_refresh_rate_inferred_from_frame_cadence",
+      ],
+    },
     comfort: {
       motionComfort: "good",
       heatConcern: false,
@@ -245,6 +281,79 @@ describe("Quest manual performance checker", () => {
     expect(check.readyToClaimFramePacing).toBe(true);
     expect(check.blockers).toEqual([]);
     expect(check.adversarialFindings).toEqual(["copied_ui_manual_performance_payload"]);
+  });
+
+  it("records complete reproducibility metadata as audit evidence", () => {
+    const check = buildQuestManualPerformanceCheck(
+      "docs/openclinxr/quest-manual-performance-copy.json",
+      completedQuestManualReport(),
+    );
+
+    expect(check.readyToClaimFramePacing).toBe(true);
+    expect(check.blockers).toEqual([]);
+    expect(check.satisfiedConditions).toEqual(expect.arrayContaining([
+      "reproducibility_source_browser_runtime",
+      "reproducibility_url_recorded",
+      "reproducibility_browser_version_recorded",
+      "reproducibility_app_build_recorded",
+      "reproducibility_webxr_support_recorded",
+      "reproducibility_display_context_recorded",
+      "reproducibility_metadata_recorded",
+    ]));
+    expect(check.adversarialFindings).toEqual([]);
+  });
+
+  it("treats missing reproducibility metadata as audit-only evidence debt", () => {
+    const report = completedQuestManualReport();
+    delete report.reproducibility;
+
+    const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance.json", report);
+
+    expect(check.readyToClaimFramePacing).toBe(true);
+    expect(check.blockers).toEqual([]);
+    expect(check.adversarialFindings).toEqual(["reproducibility_metadata_missing"]);
+    expect(check.nextSteps).toEqual(expect.arrayContaining([
+      "Prefer the copied in-app Quest Evidence payload so URL, user agent, app build, WebXR support, and display context are preserved as audit metadata.",
+    ]));
+  });
+
+  it("surfaces incomplete reproducibility metadata without blocking frame-pacing readiness", () => {
+    const report = completedQuestManualReport();
+    report.reproducibility = {
+      source: "manual_notes",
+      url: "",
+      userAgent: "Mozilla/5.0 Quest",
+      browserVersionHints: {
+        oculusBrowser: null,
+        chrome: null,
+      },
+      app: {
+        packageName: "@openclinxr/ui-xr",
+      },
+      webXr: {
+        navigatorXrPresent: true,
+      },
+      display: {
+        viewportWidth: 0,
+        viewportHeight: 0,
+      },
+    };
+
+    const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance.json", report);
+
+    expect(check.readyToClaimFramePacing).toBe(true);
+    expect(check.blockers).toEqual([]);
+    expect(check.satisfiedConditions).not.toEqual(expect.arrayContaining([
+      "reproducibility_metadata_recorded",
+    ]));
+    expect(check.adversarialFindings).toEqual([
+      "reproducibility_source_not_browser_runtime",
+      "reproducibility_url_missing",
+      "reproducibility_browser_version_missing",
+      "reproducibility_app_build_missing",
+      "reproducibility_webxr_support_missing",
+      "reproducibility_display_context_missing",
+    ]);
   });
 
   it("requires copied in-app payloads to include a fresh capture summary", () => {
@@ -626,6 +735,7 @@ describe("Quest manual performance checker", () => {
       "trace_latency_proxy_not_measured",
       "heat_observation_not_recorded",
       "short_run_under_reliability_window",
+      "reproducibility_metadata_missing",
     ]);
     expect(check.nextSteps).toEqual(expect.arrayContaining([
       "Replace primitive box hands with an articulated hand model or document why controller-only affordances are acceptable for this station.",

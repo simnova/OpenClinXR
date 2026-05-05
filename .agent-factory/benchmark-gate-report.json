@@ -32,7 +32,7 @@
       "evidence_id": "blender_asset_bake_smoke",
       "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T05:06:10.560Z",
-      "age_hours": 22,
+      "age_hours": 23,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -50,7 +50,7 @@
       "evidence_id": "asset_production_readiness_benchmark",
       "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T21:11:11.999Z",
-      "age_hours": 6,
+      "age_hours": 7,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -59,7 +59,7 @@
       "evidence_id": "local_provider_benchmark",
       "file": "docs/openclinxr/local-provider-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T14:53:24.787Z",
-      "age_hours": 12,
+      "age_hours": 13,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -68,7 +68,7 @@
       "evidence_id": "local_model_runtime_benchmark",
       "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T14:57:50Z",
-      "age_hours": 12,
+      "age_hours": 13,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -86,7 +86,7 @@
       "evidence_id": "local_voice_runtime_benchmark",
       "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T15:01:12Z",
-      "age_hours": 12,
+      "age_hours": 13,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -113,7 +113,7 @@
       "evidence_id": "api_python_backend_runtime_smoke",
       "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-04.json",
       "generated_at": "2026-05-05T01:02:37.265Z",
-      "age_hours": 2,
+      "age_hours": 3,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -121,7 +121,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-05T03:51:45.417Z",
+      "generated_at": "2026-05-05T04:11:48.944Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -1099,7 +1099,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-05T03:51:45.417Z",
+    "generated_at": "2026-05-05T04:11:48.944Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "ready_to_claim_frame_pacing": false,
     "satisfied_conditions": [
@@ -1142,7 +1142,8 @@
       "immersive_session_started_but_frame_stats_empty",
       "trace_latency_proxy_not_measured",
       "heat_observation_not_recorded",
-      "short_run_under_reliability_window"
+      "short_run_under_reliability_window",
+      "reproducibility_metadata_missing"
     ]
   },
   "iwsdk_evidence_contract": {
