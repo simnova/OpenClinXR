@@ -1,0 +1,72 @@
+{
+  "generatedAt": "2026-05-05T22:32:39.478Z",
+  "status": "blocked",
+  "policy": {
+    "cloudApisUsed": false,
+    "paidApisUsed": false,
+    "voiceRuntimeExecutionAllowed": false,
+    "productionUseAllowed": false,
+    "generatedAudioCommitted": false
+  },
+  "input": {
+    "runtimeBenchmarkFile": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-05.json",
+    "runtimeGeneratedAt": "2026-05-04T15:01:12Z",
+    "modelId": "microsoft/VibeVoice-Realtime-0.5B",
+    "runtimeStatus": "passed_with_caveats"
+  },
+  "mockStream": {
+    "provider": "deterministic-mock-voice-gateway",
+    "transcriptEvents": 2,
+    "audioChunks": 1,
+    "firstAudiblePlaybackLatencyMs": 0,
+    "visemeCuesPresent": true,
+    "passed": true,
+    "blockers": []
+  },
+  "runtimeFit": {
+    "fileGenerationOnly": true,
+    "realTimeFactor": 5.24,
+    "realTimeCapable": false,
+    "blockers": [
+      "runtime_file_generation_only",
+      "real_time_factor_above_1"
+    ]
+  },
+  "runtimeStream": {
+    "realLocalVoiceStreamObserved": false,
+    "evidenceSource": "not_captured",
+    "firstAudiblePlaybackLatencyMs": null,
+    "transcriptRoundTripObserved": false,
+    "blockers": [
+      "real_local_voice_stream_benchmark_missing"
+    ]
+  },
+  "webxrPlayback": {
+    "observed": false,
+    "evidenceSource": "not_captured",
+    "blockers": [
+      "webxr_playback_not_observed"
+    ]
+  },
+  "safetyControls": {
+    "disclosureRequired": true,
+    "generatedAudioCommitted": false,
+    "misuseControlsRequired": true,
+    "retentionPolicyObserved": true,
+    "blockers": []
+  },
+  "verdict": {
+    "passed": false,
+    "readyForLiveDialog": false,
+    "blockers": [
+      "runtime_stream:real_local_voice_stream_benchmark_missing",
+      "runtime:runtime_file_generation_only",
+      "runtime:real_time_factor_above_1",
+      "webxr_playback:webxr_playback_not_observed"
+    ],
+    "caveats": [
+      "Mock stream evidence proves gateway event shape only; it is not a real VibeVoice streaming or Quest playback capture.",
+      "The source runtime benchmark is an existing file-generation smoke; this live-dialog report does not execute a voice runtime."
+    ]
+  }
+}
