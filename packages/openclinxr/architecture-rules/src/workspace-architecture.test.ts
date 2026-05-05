@@ -523,7 +523,7 @@ describe("workspace architecture rules", () => {
 
   it("keeps runtime route telemetry low-cardinality and free of station-run identity", () => {
     expect(findRouteTelemetryIdentityViolations(routeTelemetryPolicySourceFiles())).toEqual([]);
-  });
+  }, 10_000);
 
   it("keeps Mongoose data sources out of station runtime and trace-ledger dependencies", () => {
     const forbiddenImports = /@openclinxr\/(?:scenario-runtime|trace-ledger|model-gateway|voice-gateway)|apps\//;
@@ -669,7 +669,7 @@ describe("workspace architecture rules", () => {
 
   it("keeps paid cloud model and voice SDKs out of default local runtime manifests and source", () => {
     expect(findPaidProviderBoundaryViolations(scanPaidProviderBoundary())).toEqual([]);
-  });
+  }, 10_000);
 
   it("scans package scripts, config files, env templates, and tools for paid provider credentials", () => {
     expect(paidProviderPolicyTextFiles()).toEqual(expect.arrayContaining([

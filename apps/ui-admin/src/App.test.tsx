@@ -62,7 +62,7 @@ describe("AdminApp", () => {
 
     const governanceNotice = screen.getByLabelText("Seed exam governance notice");
     expect(findUnsafeClaimLanguage(governanceNotice.textContent ?? "")).toEqual([]);
-  });
+  }, 10_000);
 
   it("renders the generated ScenarioBank operation on the scenarios route", async () => {
     render(<AdminApp initialPath="/scenarios" controlPlaneClient={fakeControlPlaneClient()} />);

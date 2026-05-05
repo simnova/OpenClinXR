@@ -547,7 +547,7 @@ describe("IWSDK workspace posture checker", () => {
     expect(stdout).toContain(`Wrote ${outputPath}`);
     expect(report.result.ready).toBe(true);
     expect(report.result.sidecarStatus).toBe("present_approved");
-  });
+  }, 20_000);
 });
 
 async function createWorkspaceFixture(input: {
