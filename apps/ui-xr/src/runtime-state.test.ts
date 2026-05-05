@@ -399,8 +399,10 @@ describe("XR runtime state", () => {
     })).toEqual({
       handModelCount: 2,
       handModelStatus: "installed",
+      handRepresentationKind: "primitive_boxes",
       handInputsObserved: 2,
       locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
+      locomotionAttempt: "runtime_event_observed",
       lastInputObservedAtMs: 456.79,
       lastLocomotionAtMs: 456.79,
       activeLocomotionSource: "mixed",
@@ -537,6 +539,7 @@ describe("XR runtime state", () => {
 
     expect(evidence).toMatchObject({
       activeLocomotionSource: "keyboard",
+      locomotionAttempt: "keyboard_attempted_no_runtime_event",
       lastInputObservedAtMs: 999.12,
       lastLocomotionAtMs: 222.22,
       rigPosition: { x: 0, z: 0 },
@@ -651,6 +654,7 @@ describe("XR runtime state", () => {
       station: {
         shellLoaded: true,
         traceInteractionPassed: true,
+        traceInteractionAttempt: "runtime_event_observed",
         textReadable: true,
         immersiveSessionStarted: false,
         consoleErrors: [],
@@ -666,8 +670,10 @@ describe("XR runtime state", () => {
       input: {
         handModelCount: 2,
         handModelStatus: "installed",
+        handRepresentationKind: "primitive_boxes",
         handInputsObserved: 2,
         locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
+        locomotionAttempt: "runtime_event_observed",
         lastLocomotionAtMs: 1234.56,
         rigPosition: { x: 0.1, z: -0.2 },
         locomotionDelta: {

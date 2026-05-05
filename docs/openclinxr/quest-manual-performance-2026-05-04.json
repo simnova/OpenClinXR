@@ -13,6 +13,7 @@
   "station": {
     "shellLoaded": true,
     "traceInteractionPassed": false,
+    "traceInteractionAttempt": "dom_click_attempted_no_runtime_event",
     "textReadable": true,
     "immersiveSessionStarted": true,
     "consoleErrors": []
@@ -28,8 +29,10 @@
   "input": {
     "handModelCount": 2,
     "handModelStatus": "active",
+    "handRepresentationKind": "primitive_boxes",
     "handInputsObserved": 2,
     "locomotionMode": "thumbstick",
+    "locomotionAttempt": "thumbstick_attempted_no_runtime_event",
     "activeLocomotionSource": "none",
     "xrHandGestureState": {
       "armed": false,

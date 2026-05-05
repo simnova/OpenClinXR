@@ -133,11 +133,23 @@ export type ManualPerformanceMetrics = {
   immersiveFramesObserved?: number;
 };
 
+export type HandRepresentationKind = "primitive_boxes" | "mesh" | "controller_only" | "not_visible" | "unknown";
+
+export type LocomotionAttempt =
+  | "not_attempted"
+  | "keyboard_attempted_no_runtime_event"
+  | "thumbstick_attempted_no_runtime_event"
+  | "hand_gesture_attempted_no_runtime_event"
+  | "mixed_attempted_no_runtime_event"
+  | "runtime_event_observed";
+
 export type ManualPerformanceInputEvidence = {
   handModelCount: number;
   handModelStatus: "pending_immersive_session" | "installed" | "failed";
+  handRepresentationKind?: HandRepresentationKind;
   handInputsObserved: number;
   locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly";
+  locomotionAttempt?: LocomotionAttempt;
   lastInputObservedAtMs?: number | null;
   lastLocomotionAtMs: number | null;
   activeLocomotionSource?: "none" | "keyboard" | "xr_gamepad" | "xr_hand_gesture" | "mixed";
@@ -269,6 +281,13 @@ export type ManualPerformanceTraceLatencyEvidence = {
   productionControllerLatencySubstitute: false;
 };
 
+export type TraceInteractionAttempt =
+  | "not_attempted"
+  | "dom_click_attempted_no_runtime_event"
+  | "xr_controller_select_attempted_no_runtime_event"
+  | "xr_hand_select_attempted_no_runtime_event"
+  | "runtime_event_observed";
+
 export type ManualPerformanceBrowserVersionHints = {
   oculusBrowser: string | null;
   chrome: string | null;
@@ -328,6 +347,7 @@ export type ManualPerformanceDraft = {
   station: {
     shellLoaded: true;
     traceInteractionPassed: boolean;
+    traceInteractionAttempt: TraceInteractionAttempt;
     textReadable: true;
     immersiveSessionStarted: boolean;
     consoleErrors: string[];
@@ -924,8 +944,18 @@ export function buildManualPerformanceInputEvidence(
   return {
     handModelCount: input.handModelCount,
     handModelStatus: input.handModelStatus,
+    handRepresentationKind: handRepresentationKindFor({
+      handModelCount: input.handModelCount,
+      handModelStatus: input.handModelStatus,
+      handInputsObserved: input.handInputsObserved,
+      inputSourceKinds,
+    }),
     handInputsObserved: input.handInputsObserved,
     locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
+    locomotionAttempt: locomotionAttemptFor({
+      activeLocomotionSource,
+      locomotionObserved,
+    }),
     lastInputObservedAtMs: inputObserved ? roundMetric(input.now) : input.previousLastInputObservedAtMs,
     lastLocomotionAtMs: locomotionObserved
       ? roundMetric(input.now)
@@ -945,6 +975,45 @@ export function buildManualPerformanceInputEvidence(
     },
     ...(locomotionObserved && locomotionDelta ? { locomotionDelta } : {}),
   };
+}
+
+function handRepresentationKindFor(input: {
+  handModelCount: number;
+  handModelStatus: ManualPerformanceInputEvidence["handModelStatus"];
+  handInputsObserved: number;
+  inputSourceKinds: RuntimeInputSourceKind[];
+}): HandRepresentationKind {
+  if (input.handModelStatus === "installed" && input.handModelCount > 0 && input.handInputsObserved > 0) {
+    return "primitive_boxes";
+  }
+  if (input.inputSourceKinds.includes("xr_gamepad") && !input.inputSourceKinds.includes("xr_hand")) {
+    return "controller_only";
+  }
+  if (input.handModelStatus === "pending_immersive_session" && input.handModelCount === 0) {
+    return "not_visible";
+  }
+  return "unknown";
+}
+
+function locomotionAttemptFor(input: {
+  activeLocomotionSource: NonNullable<ManualPerformanceInputEvidence["activeLocomotionSource"]>;
+  locomotionObserved: boolean;
+}): LocomotionAttempt {
+  if (input.locomotionObserved) {
+    return "runtime_event_observed";
+  }
+  switch (input.activeLocomotionSource) {
+    case "keyboard":
+      return "keyboard_attempted_no_runtime_event";
+    case "xr_gamepad":
+      return "thumbstick_attempted_no_runtime_event";
+    case "xr_hand_gesture":
+      return "hand_gesture_attempted_no_runtime_event";
+    case "mixed":
+      return "mixed_attempted_no_runtime_event";
+    case "none":
+      return "not_attempted";
+  }
 }
 
 function normalizeRigPose(pose: RigPoseEvidence): RigPoseEvidence {
@@ -1160,12 +1229,16 @@ export function buildManualPerformanceDraft(input: ManualPerformanceDraftInput):
     station: {
       shellLoaded: true,
       traceInteractionPassed: input.traceInteractionPassed,
+      traceInteractionAttempt: traceInteractionAttemptFor({
+        traceInteractionPassed: input.traceInteractionPassed,
+        traceLatencyEvidence: input.traceLatencyEvidence ?? null,
+      }),
       textReadable: true,
       immersiveSessionStarted: input.immersiveSessionStarted ?? false,
       consoleErrors: input.consoleErrors ?? [],
     },
     experience: input.experienceModeEvidence ?? xrExperienceModeEvidence,
-    input: input.inputEvidence ?? null,
+    input: input.inputEvidence ? enrichManualPerformanceInputEvidence(input.inputEvidence) : null,
     traceLatencyProxy: input.traceLatencyEvidence ?? null,
     performance: {
       ...manualPerformanceMetricsFromFrameStats(input.frameStats),
@@ -1178,6 +1251,75 @@ export function buildManualPerformanceDraft(input: ManualPerformanceDraftInput):
       batteryDropPercent: null,
     },
   };
+}
+
+function enrichManualPerformanceInputEvidence(
+  evidence: ManualPerformanceInputEvidence,
+): ManualPerformanceInputEvidence {
+  return {
+    ...evidence,
+    handRepresentationKind: evidence.handRepresentationKind ?? handRepresentationKindFromEvidence(evidence),
+    locomotionAttempt: evidence.locomotionAttempt ?? locomotionAttemptFromEvidence(evidence),
+  };
+}
+
+function handRepresentationKindFromEvidence(evidence: ManualPerformanceInputEvidence): HandRepresentationKind {
+  if (evidence.handModelStatus === "installed" && evidence.handModelCount > 0 && evidence.handInputsObserved > 0) {
+    return "primitive_boxes";
+  }
+  if (evidence.inputSourceKinds?.includes("xr_gamepad") === true && evidence.inputSourceKinds.includes("xr_hand") !== true) {
+    return "controller_only";
+  }
+  if (evidence.handModelStatus === "pending_immersive_session" && evidence.handModelCount === 0) {
+    return "not_visible";
+  }
+  return "unknown";
+}
+
+function locomotionAttemptFromEvidence(evidence: ManualPerformanceInputEvidence): LocomotionAttempt {
+  if (typeof evidence.lastLocomotionAtMs === "number"
+    && Number.isFinite(evidence.lastLocomotionAtMs)
+    && evidence.locomotionDelta
+    && hasMeasurableLocomotionDelta(evidence.locomotionDelta)) {
+    return "runtime_event_observed";
+  }
+  if (hasObservedLocomotion(evidence)) {
+    return "runtime_event_observed";
+  }
+  switch (evidence.activeLocomotionSource) {
+    case "keyboard":
+      return "keyboard_attempted_no_runtime_event";
+    case "xr_gamepad":
+      return "thumbstick_attempted_no_runtime_event";
+    case "xr_hand_gesture":
+      return "hand_gesture_attempted_no_runtime_event";
+    case "mixed":
+      return "mixed_attempted_no_runtime_event";
+    case "none":
+    case undefined:
+      return "not_attempted";
+  }
+  return "not_attempted";
+}
+
+function traceInteractionAttemptFor(input: {
+  traceInteractionPassed: boolean;
+  traceLatencyEvidence: ManualPerformanceTraceLatencyEvidence | null;
+}): TraceInteractionAttempt {
+  if (input.traceInteractionPassed) {
+    return "runtime_event_observed";
+  }
+  switch (input.traceLatencyEvidence?.source) {
+    case "dom_click_trace_button":
+      return "dom_click_attempted_no_runtime_event";
+    case "xr_controller_select":
+      return "xr_controller_select_attempted_no_runtime_event";
+    case "xr_hand_select":
+      return "xr_hand_select_attempted_no_runtime_event";
+    case undefined:
+      return "not_attempted";
+  }
+  return "not_attempted";
 }
 
 export function buildManualPerformanceCaptureSummary(

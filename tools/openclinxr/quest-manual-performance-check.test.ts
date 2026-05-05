@@ -731,6 +731,7 @@ describe("Quest manual performance checker", () => {
       station: {
         shellLoaded: true,
         traceInteractionPassed: false,
+        traceInteractionAttempt: "xr_hand_select_attempted_no_runtime_event",
         textReadable: true,
         immersiveSessionStarted: true,
         consoleErrors: [],
@@ -746,8 +747,10 @@ describe("Quest manual performance checker", () => {
       input: {
         handModelCount: 2,
         handModelStatus: "active",
+        handRepresentationKind: "primitive_boxes",
         handInputsObserved: 2,
         locomotionMode: "thumbstick",
+        locomotionAttempt: "thumbstick_attempted_no_runtime_event",
         activeLocomotionSource: "none",
         xrHandGestureState: {
           armed: false,
@@ -803,8 +806,10 @@ describe("Quest manual performance checker", () => {
     ]));
     expect(check.adversarialFindings).toEqual([
       "devtools_screencast_enabled_during_run",
+      "trace_interaction_attempted_without_runtime_event",
       "hand_tracking_uses_primitive_box_model",
       "hand_tracking_observed_without_realistic_hand_meshes",
+      "locomotion_attempted_without_runtime_event",
       "locomotion_mode_declared_without_locomotion_event",
       "immersive_session_started_but_frame_stats_empty",
       "trace_latency_proxy_not_measured",
@@ -814,7 +819,9 @@ describe("Quest manual performance checker", () => {
       "raw_manual_report_without_copied_ui_payload",
     ]);
     expect(check.nextSteps).toEqual(expect.arrayContaining([
+      "Retry the in-headset trace action and preserve the resulting xr_controller_select or xr_hand_select runtime event.",
       "Replace primitive box hands with an articulated hand model or document why controller-only affordances are acceptable for this station.",
+      "Retry thumbstick, hand-gesture, or room-scale locomotion and preserve the runtime locomotion event plus rig delta.",
       "Keep the headset foreground for a longer run and verify window.__openClinXrFrameStats increments while immersive mode is active.",
     ]));
   });
@@ -826,6 +833,9 @@ describe("Quest manual performance checker", () => {
     const check = buildQuestManualPerformanceCheck(evidencePath, report);
 
     expect(report.runContext?.performedBy).toBe("Patrick Gidich");
+    expect(report.station?.traceInteractionAttempt).toBe("dom_click_attempted_no_runtime_event");
+    expect(report.input?.handRepresentationKind).toBe("primitive_boxes");
+    expect(report.input?.locomotionAttempt).toBe("thumbstick_attempted_no_runtime_event");
     expect(report.input?.activeLocomotionSource).toBe("none");
     expect(report.input?.xrHandGestureState?.armed).toBe(false);
     expect(check.evidencePosture).toBe("early_worn_headset_full_vr_observation");
@@ -843,7 +853,9 @@ describe("Quest manual performance checker", () => {
       "immersive_frame_count_zero_or_missing",
     ]));
     expect(check.adversarialFindings).toEqual(expect.arrayContaining([
+      "trace_interaction_attempted_without_runtime_event",
       "hand_tracking_observed_without_realistic_hand_meshes",
+      "locomotion_attempted_without_runtime_event",
       "locomotion_mode_declared_without_locomotion_event",
       "immersive_session_started_but_frame_stats_empty",
     ]));

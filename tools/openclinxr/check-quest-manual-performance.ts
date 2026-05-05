@@ -8,6 +8,24 @@ type CliOptions = {
   outputPath: string;
 };
 
+type QuestTraceInteractionAttempt =
+  | "not_attempted"
+  | "dom_click_attempted_no_runtime_event"
+  | "xr_controller_select_attempted_no_runtime_event"
+  | "xr_hand_select_attempted_no_runtime_event"
+  | "runtime_event_observed";
+
+type QuestLocomotionAttempt =
+  | "not_attempted"
+  | "keyboard_attempted_no_runtime_event"
+  | "thumbstick_attempted_no_runtime_event"
+  | "hand_gesture_attempted_no_runtime_event"
+  | "room_scale_attempted_no_runtime_event"
+  | "mixed_attempted_no_runtime_event"
+  | "runtime_event_observed";
+
+type QuestHandRepresentationKind = "primitive_boxes" | "mesh" | "controller_only" | "not_visible" | "unknown";
+
 export type QuestManualPerformanceReport = {
   generatedAt?: string;
   runContext?: {
@@ -23,6 +41,7 @@ export type QuestManualPerformanceReport = {
   station?: {
     shellLoaded?: boolean;
     traceInteractionPassed?: boolean;
+    traceInteractionAttempt?: QuestTraceInteractionAttempt;
     textReadable?: boolean;
     immersiveSessionStarted?: boolean;
     consoleErrors?: string[];
@@ -38,8 +57,10 @@ export type QuestManualPerformanceReport = {
   input?: {
     handModelCount?: number;
     handModelStatus?: string;
+    handRepresentationKind?: QuestHandRepresentationKind;
     handInputsObserved?: number;
     locomotionMode?: string;
+    locomotionAttempt?: QuestLocomotionAttempt;
     activeLocomotionSource?: "none" | "keyboard" | "xr_gamepad" | "xr_hand_gesture" | "mixed";
     xrHandGestureState?: {
       armed?: boolean;
@@ -509,7 +530,11 @@ function buildAdversarialFindings(input: {
 }): string[] {
   const notes = input.report.runContext?.notes ?? "";
   const handTrackingPosture = input.report.experience?.handTrackingPosture ?? "";
-  const primitiveHandModelObserved = /primitive|box/i.test(handTrackingPosture)
+  const traceAttempt = input.report.station?.traceInteractionAttempt;
+  const locomotionAttempt = input.report.input?.locomotionAttempt;
+  const handRepresentationKind = input.report.input?.handRepresentationKind;
+  const primitiveHandModelObserved = handRepresentationKind === "primitive_boxes"
+    || /primitive|box/i.test(handTrackingPosture)
     || /series of boxes|not realistic/i.test(notes);
   const handTrackingObserved = (input.report.input?.handInputsObserved ?? 0) > 0
     && /hand tracking/i.test(notes);
@@ -530,8 +555,13 @@ function buildAdversarialFindings(input: {
 
   return [
     input.report.setup?.devtoolsScreencastDisabled === false ? "devtools_screencast_enabled_during_run" : undefined,
+    isAttemptedTraceWithoutRuntimeEvent(traceAttempt) ? "trace_interaction_attempted_without_runtime_event" : undefined,
     primitiveHandModelObserved ? "hand_tracking_uses_primitive_box_model" : undefined,
     primitiveHandModelObserved && handTrackingObserved ? "hand_tracking_observed_without_realistic_hand_meshes" : undefined,
+    isAttemptedLocomotionWithoutRuntimeEvent(locomotionAttempt) ? "locomotion_attempted_without_runtime_event" : undefined,
+    locomotionAttempt === "runtime_event_observed" && !hasObservedLocomotion(input.report.input)
+      ? "locomotion_runtime_event_without_threshold_evidence"
+      : undefined,
     locomotionModeDeclared && locomotionEventMissing ? "locomotion_mode_declared_without_locomotion_event" : undefined,
     locomotionSourceDeclared && !locomotionEventMissing && locomotionDeltaMissing ? "locomotion_source_without_rig_delta" : undefined,
     handGestureTimestampWithoutActiveSource ? "hand_gesture_locomotion_timestamp_without_active_source" : undefined,
@@ -546,6 +576,20 @@ function buildAdversarialFindings(input: {
   ].filter((finding): finding is string => typeof finding === "string");
 }
 
+function isAttemptedTraceWithoutRuntimeEvent(value: QuestTraceInteractionAttempt | undefined): boolean {
+  return value === "dom_click_attempted_no_runtime_event"
+    || value === "xr_controller_select_attempted_no_runtime_event"
+    || value === "xr_hand_select_attempted_no_runtime_event";
+}
+
+function isAttemptedLocomotionWithoutRuntimeEvent(value: QuestLocomotionAttempt | undefined): boolean {
+  return value === "keyboard_attempted_no_runtime_event"
+    || value === "thumbstick_attempted_no_runtime_event"
+    || value === "hand_gesture_attempted_no_runtime_event"
+    || value === "room_scale_attempted_no_runtime_event"
+    || value === "mixed_attempted_no_runtime_event";
+}
+
 function questManualNextStepForAdversarialFinding(finding: string): string {
   switch (finding) {
     case "raw_manual_report_without_copied_ui_payload":
@@ -554,11 +598,16 @@ function questManualNextStepForAdversarialFinding(finding: string): string {
       return "The checker accepted the copied in-app payload; preserve the manualPerformanceDraft and captureSummary fields for auditability.";
     case "devtools_screencast_enabled_during_run":
       return "Rerun with DevTools screencast disabled so headset frame timing is less distorted.";
+    case "trace_interaction_attempted_without_runtime_event":
+      return "Retry the in-headset trace action and preserve the resulting xr_controller_select or xr_hand_select runtime event.";
     case "hand_tracking_uses_primitive_box_model":
     case "hand_tracking_observed_without_realistic_hand_meshes":
       return "Replace primitive box hands with an articulated hand model or document why controller-only affordances are acceptable for this station.";
     case "locomotion_mode_declared_without_locomotion_event":
-      return "Record an actual locomotion event timestamp after thumbstick, hand-gesture, or room-scale movement.";
+    case "locomotion_attempted_without_runtime_event":
+      return "Retry thumbstick, hand-gesture, or room-scale locomotion and preserve the runtime locomotion event plus rig delta.";
+    case "locomotion_runtime_event_without_threshold_evidence":
+      return "Re-copy the Quest evidence after locomotion so the runtime event includes lastLocomotionAtMs and measurable locomotionDelta.";
     case "locomotion_source_without_rig_delta":
       return "Record locomotionDelta from the same accepted rig movement event as the active locomotion source.";
     case "hand_gesture_locomotion_timestamp_without_active_source":
