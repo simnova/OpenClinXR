@@ -75,7 +75,7 @@ This keeps voice transport and inference concerns outside actor state. The curre
 
 ## Phase 2 Persistence Posture
 
-The Phase 2 persistence spike is approved in `proposals/approved/proposal-server-side-multi-actor-state-context-persistence-phase2.md`.
+The Phase 2 persistence spike is approved in `proposals/approved/proposal-server-side-multi-actor-state-context-persistence-phase2.md`. The contract boundary has now been promoted into `@openclinxr/session-state` and is summarized in `docs/openclinxr/server-side-multi-actor-state-persistence-phase2-2026-05-05.md`.
 
 The implemented spike keeps two contracts separate:
 

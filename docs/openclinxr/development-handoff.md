@@ -337,6 +337,7 @@ Scenario runtime milestone has also started:
 - It centralizes the ED chest pain station session flow, trace append, note submission, provider health, asset readiness, and review packet generation.
 - Session creation now requires explicit consent and starts in doorway phase.
 - Encounter start is a separate runtime/API transition, preserving the doorway hold expected in a clinical-skills exam station.
+- `packages/openclinxr/session-state` now owns the promoted Phase 2 persistence-boundary contract for durable conversation turns, actor emotional-state timeline records, disposable Redis/Redka-shaped realtime cache snapshots, and cache rehydration from durable state. This remains contract/test-double evidence only; MongoDB durable adapters and Redis/Redka runtime adapters are future slices.
 - `apps/api` now uses it for station sessions, provider health, asset readiness, and review packets.
 - `packages/openclinxr/test-harness` now uses it for the deterministic ED chest pain benchmark.
 

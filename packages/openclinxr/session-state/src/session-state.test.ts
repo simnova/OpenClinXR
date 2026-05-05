@@ -3,9 +3,14 @@ import { describe, expect, it } from "vitest";
 import {
   buildActorModelContext,
   createMultiActorClinicalSession,
+  createPersistenceSpikeStores,
+  evaluateMultiActorPersistencePhase2Strategy,
+  persistLatestInteractionTurn,
+  rehydrateRealtimeCacheFromDurableState,
   recordClinicalAction,
   routeActorInteraction,
   updateActorSpatialState,
+  writeRealtimeCacheSnapshot,
 } from "./index.js";
 
 describe("session state", () => {
@@ -136,5 +141,128 @@ describe("session state", () => {
       interactionState: "holding_equipment",
       lastUpdatedAtSecond: 190,
     });
+  });
+
+  it("keeps Phase 2 durable actor history authoritative while realtime cache remains disposable", () => {
+    const stores = createPersistenceSpikeStores();
+    let session = createMultiActorClinicalSession({
+      scenario: edChestPainScenario,
+      stationRunId: "station_run_session_state_persistence_001",
+    });
+    const routed = routeActorInteraction(session, {
+      atSecond: 142,
+      learnerUtterance: "Anna, what happened right before he came in?",
+      traceContextTags: ["history_onset", "family_collateral"],
+      source: {
+        kind: "voice_transcript",
+        streamId: "voice_stream_station_001",
+        transcriptSegmentId: "segment_0008_final",
+        finalTranscriptText: "Anna, what happened right before he came in?",
+        provider: "local_fastapi_transport_echo",
+        provenanceRefs: ["trace:voice_stream_station_001:segment_0008_final"],
+      },
+    });
+    session = updateActorSpatialState(routed.updatedSession, {
+      atSecond: 145,
+      actorId: routed.routedActorId,
+      position: { x: -0.75, y: 0, z: -0.7 },
+      rotationYRadians: 0.35,
+      interactionState: "speaking",
+    });
+
+    const durableRecord = persistLatestInteractionTurn(stores, session);
+    writeRealtimeCacheSnapshot(stores, session, {
+      currentSecond: 146,
+      ttlSeconds: 20,
+      recentTurnLimit: 2,
+    });
+
+    expect(durableRecord).toMatchObject({
+      stationRunId: "station_run_session_state_persistence_001",
+      actorId: "spouse_anna_hayes_v1",
+      sourceKind: "voice_transcript",
+      text: "Anna, what happened right before he came in?",
+      traceContextTags: ["history_onset", "family_collateral"],
+      emotionalState: "anxious",
+      rawAudioStored: false,
+      durableStore: "database_source_of_truth",
+    });
+    expect(stores.durable.listConversationTurns(session.stationRunId)).toHaveLength(1);
+    expect(stores.durable.listEmotionalStateTimeline(session.stationRunId, "spouse_anna_hayes_v1")).toEqual([
+      {
+        stationRunId: "station_run_session_state_persistence_001",
+        actorId: "spouse_anna_hayes_v1",
+        atSecond: 142,
+        emotionalState: "anxious",
+        sourceTurnId: durableRecord.turnId,
+        durableStore: "database_source_of_truth",
+      },
+    ]);
+    expect(stores.realtime.read(session.stationRunId)).toMatchObject({
+      stationRunId: "station_run_session_state_persistence_001",
+      cacheStore: "redis_redka_ephemeral_cache",
+      expiresAtSecond: 166,
+      recentTurns: [{ turnId: durableRecord.turnId, actorId: "spouse_anna_hayes_v1" }],
+      actorTransforms: {
+        spouse_anna_hayes_v1: {
+          position: { x: -0.75, y: 0, z: -0.7 },
+          interactionState: "speaking",
+        },
+      },
+    });
+
+    stores.realtime.clear();
+    expect(stores.realtime.read(session.stationRunId)).toBeNull();
+
+    const rehydrated = rehydrateRealtimeCacheFromDurableState(stores, session, {
+      currentSecond: 200,
+      ttlSeconds: 30,
+      recentTurnLimit: 3,
+    });
+
+    expect(rehydrated).toMatchObject({
+      stationRunId: "station_run_session_state_persistence_001",
+      cacheStore: "redis_redka_ephemeral_cache",
+      expiresAtSecond: 230,
+      recentTurns: [{ turnId: durableRecord.turnId, actorId: "spouse_anna_hayes_v1" }],
+      rehydratedFromDurableStore: true,
+    });
+    expect(stores.durable.listConversationTurns(session.stationRunId)).toHaveLength(1);
+  });
+
+  it("documents Phase 2 Redis/Redka versus database responsibilities without adding runtime dependencies", () => {
+    const strategy = evaluateMultiActorPersistencePhase2Strategy();
+
+    expect(strategy.approvedProposal).toBe(
+      "proposals/approved/proposal-server-side-multi-actor-state-context-persistence-phase2.md",
+    );
+    expect(strategy.recommendation).toBe("custom_domain_state_with_durable_database_and_ephemeral_redis_cache");
+    expect(strategy.localProfile).toMatchObject({
+      realtimeCache: "redka_or_adapter_test_double",
+      durableStore: "mongodb_memory_server_or_local_mongodb",
+    });
+    expect(strategy.productionProfile).toMatchObject({
+      realtimeCache: "redis",
+      durableStore: "mongodb_or_documentdb_compatible",
+    });
+    expect(strategy.responsibilitySplit.realtimeCache).toEqual(expect.arrayContaining([
+      "spatial_actor_transforms",
+      "presence",
+      "recent_context_window",
+      "pubsub_notifications",
+    ]));
+    expect(strategy.responsibilitySplit.durableDatabase).toEqual(expect.arrayContaining([
+      "conversation_history",
+      "emotional_state_timeline",
+      "clinical_trace_events",
+      "orders_and_findings",
+      "audit_relevant_interaction_records",
+    ]));
+    expect(strategy.guardrails).toEqual(expect.arrayContaining([
+      "redis_redka_is_not_the_clinical_source_of_truth",
+      "cache_entries_must_be_rehydratable_from_durable_database",
+      "raw_voice_audio_is_not_persisted_in_actor_state",
+    ]));
+    expect(strategy.notEvidenceFor).toContain("production_persistence_architecture");
   });
 });
