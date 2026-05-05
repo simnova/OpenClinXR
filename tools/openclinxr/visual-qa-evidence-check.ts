@@ -247,16 +247,17 @@ function isLocalHostname(hostname: string): boolean {
 }
 
 function parseArgs(args: string[]): CliOptions {
+  const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
   const options: CliOptions = {};
-  for (let index = 0; index < args.length; index += 1) {
-    const arg = args[index];
+  for (let index = 0; index < normalizedArgs.length; index += 1) {
+    const arg = normalizedArgs[index];
     if (arg === "--input") {
-      options.inputPath = requireValue(args, index, arg);
+      options.inputPath = requireValue(normalizedArgs, index, arg);
       index += 1;
       continue;
     }
     if (arg === "--output") {
-      options.outputPath = requireValue(args, index, arg);
+      options.outputPath = requireValue(normalizedArgs, index, arg);
       index += 1;
       continue;
     }

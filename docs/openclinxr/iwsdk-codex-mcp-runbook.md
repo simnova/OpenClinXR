@@ -15,8 +15,11 @@ Latest IWER managed-browser evidence:
 
 - `docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json`
 - `docs/openclinxr/screenshots/iwer-sidecar-agent-browser-2026-05-04.png`
+- `docs/openclinxr/iwer-auto-entry-browser-smoke-2026-05-04.json`
+- `docs/openclinxr/visual-qa-evidence-iwer-auto-entry-2026-05-04.json`
+- `docs/openclinxr/screenshots/iwer-auto-entry-2026-05-04.png`
 
-This is desktop/IWER emulation evidence only. It does not replace Quest foreground frame pacing, controller latency, thermals, comfort, passthrough, or in-headset readability observations.
+This is desktop/IWER emulation evidence only. The auto-entry smoke shows the sidecar can record a query-gated `session_started` Full VR state in an IWER/Chrome DevTools managed browser, while the earlier raw WebSocket evidence still records the useful `no_session_has_been_offered` path for direct `accept_session` probes. Neither replaces Quest foreground frame pacing, controller latency, thermals, comfort, passthrough, physical headset entry, or in-headset readability observations.
 
 Use `pnpm iwsdk:evidence` to print the current sidecar evidence contract report. A nonzero exit is expected while agent tooling, bundle budget, reference metadata, and Quest foreground blockers remain unresolved; the JSON blockers are the evidence to carry into leadership review.
 
@@ -125,9 +128,10 @@ Score screenshot-based adversarial visual QA evidence separately with:
 
 ```bash
 pnpm visual:qa:evidence:validate
+pnpm visual:qa:evidence -- --input docs/openclinxr/visual-qa-evidence-iwer-auto-entry-2026-05-04.json
 ```
 
-The current visual QA fixture is `docs/openclinxr/visual-qa-evidence-2026-05-04.json`. It wraps the IWER managed-browser screenshot as an adversarial iteration artifact and requires clinical-scene, actor/equipment, readability, interaction-affordance, occlusion/scale, and evidence-limit notes. A passing visual QA report still has `readyForProductionRuntime: false` and `readyForPhysicalQuestClaim: false`.
+The current default visual QA fixture is `docs/openclinxr/visual-qa-evidence-2026-05-04.json`. The auto-entry screenshot has its own visual QA artifact at `docs/openclinxr/visual-qa-evidence-iwer-auto-entry-2026-05-04.json`. These artifacts wrap IWER managed-browser screenshots as adversarial iteration inputs and require clinical-scene, actor/equipment, readability, interaction-affordance, occlusion/scale, and evidence-limit notes. A passing visual QA report still has `readyForProductionRuntime: false` and `readyForPhysicalQuestClaim: false`.
 
 The checker exits nonzero until the aggregate evidence is ready, but it does not install IWSDK, modify MCP config, or touch the sidecar app.
 

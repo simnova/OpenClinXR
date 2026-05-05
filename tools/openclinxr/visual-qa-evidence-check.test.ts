@@ -91,6 +91,22 @@ describe("visual QA evidence checker", () => {
     expect(report.inputFile).toBe(inputPath);
     expect(report.result.readyForAdversarialVisualQa).toBe(true);
   });
+
+  it("accepts pnpm-style argument separators before input flags", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-visual-qa-pnpm-args-"));
+    const inputPath = path.join(tempDir, "visual-qa.json");
+    await writeFile(inputPath, `${JSON.stringify(readyEvidence(), null, 2)}\n`, "utf8");
+
+    const { stdout } = await execFileAsync(
+      path.resolve("node_modules/.bin/tsx"),
+      ["tools/openclinxr/visual-qa-evidence-check.ts", "--", "--input", inputPath],
+      { encoding: "utf8", timeout: 15000 },
+    );
+    const report = JSON.parse(stdout) as VisualQaEvidenceReport;
+
+    expect(report.inputFile).toBe(inputPath);
+    expect(report.result.readyForAdversarialVisualQa).toBe(true);
+  });
 });
 
 function readyEvidence(): VisualQaEvidence {
