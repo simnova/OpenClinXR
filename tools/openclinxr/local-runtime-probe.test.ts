@@ -3,6 +3,7 @@ import {
   buildLocalRuntimeProbeReport,
   LOCAL_RUNTIME_COMMAND_TIMEOUT_MS,
   buildUserLocalCommandCandidatePath,
+  buildUserLocalCommandCandidatePaths,
   localRuntimeCommandNames,
   selectCommandVersionOutput,
   type CommandProbe,
@@ -31,6 +32,10 @@ describe("local runtime probe gates", () => {
 
   it("knows the approved user-local wrapper fallback path", () => {
     expect(buildUserLocalCommandCandidatePath("/Users/patrick", "vibevoice")).toBe("/Users/patrick/.local/bin/vibevoice");
+    expect(buildUserLocalCommandCandidatePaths("/Users/patrick", "portless")).toEqual([
+      "/Users/patrick/.local/bin/portless",
+      "/Users/patrick/Library/pnpm/portless",
+    ]);
   });
 
   it("marks Quest USB and asset pipeline ready while keeping configured runtimes blocked until benchmarked", () => {

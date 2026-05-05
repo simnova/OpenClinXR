@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T15:35:24.102Z",
+  "generatedAt": "2026-05-05T15:48:34.044Z",
   "system": {
     "macosVersion": "26.4.1",
     "macosBuild": "25E253",
@@ -13,7 +13,7 @@
       "filesystem": "/dev/disk3s1s1",
       "oneKBlocks": 3902665360,
       "used": 12257544,
-      "available": 2643566712,
+      "available": 2641352840,
       "capacity": "1%",
       "mountedOn": "/"
     }
@@ -49,7 +49,9 @@
     },
     {
       "command": "portless",
-      "status": "missing"
+      "status": "available",
+      "path": "/Users/patrick/Library/pnpm/portless",
+      "version": "0.12.0"
     },
     {
       "command": "python3",

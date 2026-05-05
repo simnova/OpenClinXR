@@ -335,12 +335,23 @@ async function resolveCommandPath(command: string): Promise<string> {
     return commandPath;
   }
 
-  const userLocalPath = buildUserLocalCommandCandidatePath(homedir(), command);
-  return (await isExecutableFile(userLocalPath)) ? userLocalPath : "";
+  for (const userLocalPath of buildUserLocalCommandCandidatePaths(homedir(), command)) {
+    if (await isExecutableFile(userLocalPath)) {
+      return userLocalPath;
+    }
+  }
+  return "";
 }
 
 export function buildUserLocalCommandCandidatePath(homeDirectory: string, command: string): string {
   return path.join(homeDirectory, ".local/bin", command);
+}
+
+export function buildUserLocalCommandCandidatePaths(homeDirectory: string, command: string): string[] {
+  return [
+    buildUserLocalCommandCandidatePath(homeDirectory, command),
+    path.join(homeDirectory, "Library/pnpm", command),
+  ];
 }
 
 async function isExecutableFile(filePath: string): Promise<boolean> {

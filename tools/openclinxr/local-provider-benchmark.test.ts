@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildUserLocalCommandCandidatePath,
+  buildUserLocalCommandCandidatePaths,
   buildLocalProviderBenchmarkReport,
   parseLocalProviderEnvFileContent,
   type BenchmarkResult,
@@ -9,6 +10,10 @@ import {
 describe("local provider benchmark report", () => {
   it("uses the same approved user-local wrapper fallback convention as the runtime probe", () => {
     expect(buildUserLocalCommandCandidatePath("/Users/patrick", "vibevoice")).toBe("/Users/patrick/.local/bin/vibevoice");
+    expect(buildUserLocalCommandCandidatePaths("/Users/patrick", "portless")).toEqual([
+      "/Users/patrick/.local/bin/portless",
+      "/Users/patrick/Library/pnpm/portless",
+    ]);
   });
 
   it("marks configured local model and voice runtimes as ready to benchmark without executing them", () => {
