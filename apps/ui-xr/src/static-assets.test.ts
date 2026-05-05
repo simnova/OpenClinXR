@@ -29,6 +29,8 @@ describe("static browser assets", () => {
     expect(mainSource).toContain('"hand-tracking"');
     expect(mainSource).toContain("renderer.xr.enabled = true");
     expect(mainSource).toContain("renderer.setAnimationLoop");
+    expect(mainSource).toContain("isImmersiveFrameEvidenceActive");
+    expect(mainSource).toContain("requestAnimationFrame(() => updateManualEvidencePanel())");
     expect(mainSource).toContain("__openClinXrXrEntryEvidence");
     expect(mainSource).toContain("recordXrEntryEvidence");
     expect(mainSource).toContain("lastError");
@@ -94,8 +96,11 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("evidence-trace");
     expect(mainSource).toContain("evidence-validation");
     expect(mainSource).toContain("updateManualEvidencePanel");
+    expect(mainSource).toContain("frameStatsFresh");
+    expect(mainSource).toContain("window.setInterval(updateManualEvidencePanel, 1000)");
     expect(mainSource).toContain("manualPerformanceDraft");
     expect(runtimeStateSource).toContain("manualValidationReady");
+    expect(runtimeStateSource).toContain("frame_stats_stale_or_unsampled");
     expect(mainSource).toContain("navigator.clipboard.writeText");
   });
 

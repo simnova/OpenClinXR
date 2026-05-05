@@ -18,6 +18,7 @@ import {
   iwsdkStationMcpSmokeToolOrder,
   iwsdkStationSceneObjectNames,
   iwsdkStationSceneObjects,
+  isImmersiveFrameEvidenceActive,
   remoteActorTurnForTraceTag,
   manualPerformanceMetricsFromFrameStats,
   stationTraceActionTags,
@@ -28,6 +29,29 @@ import {
 } from "./runtime-state.js";
 
 describe("XR runtime state", () => {
+  it("treats renderer presentation or an active session as immersive frame evidence", () => {
+    expect(isImmersiveFrameEvidenceActive({
+      rendererPresenting: false,
+      activeXrSession: false,
+      immersiveSessionActive: false,
+    })).toBe(false);
+    expect(isImmersiveFrameEvidenceActive({
+      rendererPresenting: true,
+      activeXrSession: false,
+      immersiveSessionActive: false,
+    })).toBe(true);
+    expect(isImmersiveFrameEvidenceActive({
+      rendererPresenting: false,
+      activeXrSession: true,
+      immersiveSessionActive: true,
+    })).toBe(true);
+    expect(isImmersiveFrameEvidenceActive({
+      rendererPresenting: false,
+      activeXrSession: true,
+      immersiveSessionActive: false,
+    })).toBe(false);
+  });
+
   it("formats station time without viewport-dependent sizing", () => {
     expect(formatStationClock(0)).toBe("00:00");
     expect(formatStationClock(65)).toBe("01:05");
@@ -583,11 +607,14 @@ describe("XR runtime state", () => {
       },
     });
 
-    expect(buildManualPerformanceCaptureSummary({ draft, frameStats })).toEqual({
+    expect(buildManualPerformanceCaptureSummary({ draft, frameStats, now: 1300 })).toEqual({
       source: "window.__openClinXrManualPerformanceDraft",
       generatedAt: "2026-05-04T00:00:00.000Z",
       framesObserved: 4,
       firstFrameAtMs: null,
+      latestFrameAtMs: 1234.56,
+      frameStatsAgeMs: 65.44,
+      frameStatsFresh: true,
       sampleWindowSize: 3,
       previewFramesObserved: 0,
       immersiveFramesObserved: 4,
@@ -635,8 +662,12 @@ describe("XR runtime state", () => {
     expect(buildManualPerformanceCaptureSummary({
       draft: undefined,
       frameStats: undefined,
+      now: 1300,
     })).toMatchObject({
       draftAvailable: false,
+      latestFrameAtMs: null,
+      frameStatsAgeMs: null,
+      frameStatsFresh: null,
       manualValidationReady: false,
       blockers: ["missing_manual_performance_draft", "missing_frame_stats"],
     });
@@ -694,6 +725,18 @@ describe("XR runtime state", () => {
       manualValidationReady: true,
       satisfiedConditions: expect.arrayContaining(["motion_comfort_confirmed"]),
       blockers: [],
+    });
+    expect(buildManualPerformanceCaptureSummary({
+      draft: completeDraft,
+      frameStats,
+      now: 603_500,
+    })).toMatchObject({
+      draftAvailable: true,
+      latestFrameAtMs: 600_000,
+      frameStatsAgeMs: 3500,
+      frameStatsFresh: false,
+      manualValidationReady: false,
+      blockers: ["frame_stats_stale_or_unsampled"],
     });
   });
 });

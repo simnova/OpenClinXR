@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "openclinxr.visual-qa-evidence.v1",
+  "capture": {
+    "source": "desktop_browser",
+    "artifactType": "screenshot",
+    "artifact": "docs/openclinxr/screenshots/ui-xr-fresh-frame-evidence-2026-05-04.png",
+    "mimeType": "image/png",
+    "dimensions": {
+      "width": 1910,
+      "height": 2984
+    },
+    "runtimeUrl": "http://localhost:5173/",
+    "route": "/",
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "xrMode": "desktop_preview_not_immersive_session",
+    "cameraPose": "desktop preview with right-side operator panel scrolled to live Quest evidence freshness fields",
+    "captureCommand": "Chrome DevTools MCP take_screenshot after local Vite navigation and frame-freshness instrumentation"
+  },
+  "adversarialReview": {
+    "reviewers": [
+      "test-automation-lead",
+      "ux-friction-critic",
+      "clinical-safety-critic",
+      "xr-systems-architect",
+      "asset-pipeline-lead"
+    ],
+    "checks": {
+      "clinical_scene_fidelity": {
+        "status": "concern",
+        "notes": [
+          "The ED chest-pain intent and EHR text remain visible, but the desktop preview still uses placeholder actors, sparse equipment, and a simplified bay rather than production clinical realism."
+        ]
+      },
+      "actor_equipment_realism": {
+        "status": "concern",
+        "notes": [
+          "The visible patient is a primitive capsule/head actor with no skin, clothing, rigging, pain expression, or realistic hand representation; this does not close Patrick's headset realism finding."
+        ]
+      },
+      "ui_readability": {
+        "status": "pass",
+        "notes": [
+          "The operator panel and Quest Evidence fields are readable in desktop preview, including frames, loop freshness, input, movement, trace, validation, and copyable JSON."
+        ]
+      },
+      "interaction_affordances": {
+        "status": "concern",
+        "notes": [
+          "The screenshot verifies the evidence UI surface and live freshness text only; it does not prove immersive entry, hand-gesture locomotion, controller select latency, or Quest Browser clipboard behavior."
+        ]
+      },
+      "occlusion_scale": {
+        "status": "concern",
+        "notes": [
+          "The in-scene actor and panels overlap in the desktop camera pose, and portions of the clinical/input panels are clipped by the preview framing; headset camera-pose checks remain required."
+        ]
+      },
+      "evidence_limits": {
+        "status": "pass",
+        "notes": [
+          "This artifact supports adversarial visual review of the desktop evidence panel and frame-freshness instrumentation. It is not physical Quest foreground frame pacing or headset readability evidence."
+        ]
+      }
+    }
+  },
+  "claimBoundaries": {
+    "notEvidenceFor": [
+      "physical_quest_foreground_frame_pacing",
+      "quest_controller_latency",
+      "quest_hand_tracking_quality",
+      "in_headset_text_readability",
+      "thermal_or_battery_behavior",
+      "production_runtime_readiness"
+    ],
+    "allowedClaims": [
+      "adversarial_visual_iteration_artifact",
+      "desktop_operator_panel_readability_artifact",
+      "desktop_frame_freshness_evidence_surface_visible"
+    ]
+  }
+}

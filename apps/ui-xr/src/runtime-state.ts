@@ -240,6 +240,9 @@ export type ManualPerformanceCaptureSummary = {
   generatedAt: string | null;
   framesObserved: number | null;
   firstFrameAtMs: number | null;
+  latestFrameAtMs: number | null;
+  frameStatsAgeMs: number | null;
+  frameStatsFresh: boolean | null;
   sampleWindowSize: number | null;
   previewFramesObserved: number | null;
   immersiveFramesObserved: number | null;
@@ -262,6 +265,7 @@ export type ManualPerformanceCaptureSummary = {
 export type ManualPerformanceCaptureSummaryInput = {
   draft?: ManualPerformanceDraft | null | undefined;
   frameStats?: ManualPerformanceFrameStats | null | undefined;
+  now?: number | null | undefined;
 };
 
 export type ManualPerformanceDraftInput = {
@@ -382,6 +386,14 @@ export const xrExperienceModeContracts: XrExperienceModeContract[] = [
     ],
   },
 ];
+
+export function isImmersiveFrameEvidenceActive(input: {
+  rendererPresenting: boolean;
+  activeXrSession: boolean;
+  immersiveSessionActive: boolean;
+}): boolean {
+  return input.rendererPresenting || (input.activeXrSession && input.immersiveSessionActive);
+}
 
 export const iwsdkStationSceneObjects = {
   stationRoot: "openclinxr.ed-chest-pain.station-root",
@@ -869,12 +881,22 @@ export function buildManualPerformanceCaptureSummary(
   const frameStats = input.frameStats ?? null;
   const preview = previewManualPerformanceValidation(input.draft ?? null, frameStats);
   const inputEvidence = input.draft?.input ?? null;
+  const latestFrameAtMs = frameStats?.latestFrameAtMs ?? null;
+  const frameStatsAgeMs = latestFrameAtMs === null || typeof input.now !== "number"
+    ? null
+    : roundMetric(Math.max(0, input.now - latestFrameAtMs));
+  const frameStatsFresh = frameStatsAgeMs === null ? null : frameStatsAgeMs <= manualPerformanceFrameStatsFreshMs;
+  const freshnessBlockers = frameStatsFresh === false ? ["frame_stats_stale_or_unsampled"] : [];
+  const blockers = [...preview.blockers, ...freshnessBlockers];
 
   return {
     source: "window.__openClinXrManualPerformanceDraft",
     generatedAt: input.draft?.generatedAt ?? null,
     framesObserved: frameStats?.framesObserved ?? null,
     firstFrameAtMs: frameStats?.firstFrameAtMs ?? null,
+    latestFrameAtMs,
+    frameStatsAgeMs,
+    frameStatsFresh,
     sampleWindowSize: frameStats?.sampleWindowSize ?? null,
     previewFramesObserved: frameStats?.previewFramesObserved ?? null,
     immersiveFramesObserved: frameStats?.immersiveFramesObserved ?? null,
@@ -889,11 +911,13 @@ export function buildManualPerformanceCaptureSummary(
     lastTraceTag: input.draft?.traceLatencyProxy?.lastTraceTag ?? null,
     lastTraceLatencyMs: input.draft?.traceLatencyProxy?.lastSelectLatencyMs ?? null,
     draftAvailable: Boolean(input.draft && frameStats),
-    manualValidationReady: preview.blockers.length === 0,
+    manualValidationReady: blockers.length === 0,
     satisfiedConditions: preview.satisfiedConditions,
-    blockers: preview.blockers,
+    blockers,
   };
 }
+
+const manualPerformanceFrameStatsFreshMs = 2000;
 
 function previewManualPerformanceValidation(
   draft: ManualPerformanceDraft | null,

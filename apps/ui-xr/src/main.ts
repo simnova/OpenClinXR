@@ -37,6 +37,7 @@ import {
   eventTypeForTraceTag,
   formatStationClock,
   iwsdkStationSceneObjects,
+  isImmersiveFrameEvidenceActive,
   remoteActorTurnForTraceTag,
   stationTraceActionTags,
   summarizeTraceReadiness,
@@ -590,7 +591,11 @@ function createStationScene(): StationSceneRuntime {
     updateVrPanels(inputEvidence);
     recordFrame(now, {
       qualitySource,
-      isPresenting: renderer.xr.isPresenting,
+      isPresenting: isImmersiveFrameEvidenceActive({
+        rendererPresenting: renderer.xr.isPresenting,
+        activeXrSession: Boolean(activeXrSession),
+        immersiveSessionActive,
+      }),
       visibilityState: document.visibilityState,
     });
     patient.rotation.y = Math.sin(now / 1200) * 0.08;
@@ -638,6 +643,7 @@ function createStationScene(): StationSceneRuntime {
         enterXrButton.disabled = false;
         enterXrButton.textContent = "Exit Full VR";
         xrStatus.textContent = "In Full VR";
+        requestAnimationFrame(() => updateManualEvidencePanel());
         recordXrEntryEvidence("started");
       } catch (error) {
         activeXrSession = undefined;
@@ -1291,6 +1297,7 @@ function recordFrame(now: number, evidence: {
   window.__openClinXrManualPerformanceCaptureSummary = buildManualPerformanceCaptureSummary({
     draft: window.__openClinXrManualPerformanceDraft,
     frameStats: window.__openClinXrFrameStats,
+    now,
   });
   if (framesObserved === 1 || framesObserved % 30 === 0) {
     updateManualEvidencePanel();
@@ -1298,9 +1305,11 @@ function recordFrame(now: number, evidence: {
 }
 
 function updateManualEvidencePanel(): string {
+  const now = performance.now();
   const summary = buildManualPerformanceCaptureSummary({
     draft: window.__openClinXrManualPerformanceDraft ?? null,
     frameStats: window.__openClinXrFrameStats ?? null,
+    now,
   });
   window.__openClinXrManualPerformanceCaptureSummary = summary;
   evidenceFrames.textContent = [
@@ -1312,6 +1321,7 @@ function updateManualEvidencePanel(): string {
     summary.qualitySource ?? "pending",
     summary.isPresenting ? "presenting" : "not presenting",
     summary.visibilityState ?? "unknown",
+    summary.frameStatsFresh === null ? "freshness pending" : summary.frameStatsFresh ? `${summary.frameStatsAgeMs}ms fresh` : `${summary.frameStatsAgeMs}ms stale`,
   ].join(" | ");
   evidenceInput.textContent = [
     `${summary.handInputsObserved ?? 0} hand inputs`,
@@ -1357,6 +1367,7 @@ let stationScene: StationSceneRuntime | undefined;
 try {
   stationScene = createStationScene();
   recordBootPhase("station_scene_ready");
+  window.setInterval(updateManualEvidencePanel, 1000);
 } catch (error) {
   recordBootPhase("station_scene_failed", error);
   xrStatus.textContent = "Station boot blocked";
