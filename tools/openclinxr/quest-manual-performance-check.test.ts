@@ -301,6 +301,31 @@ describe("Quest manual performance checker", () => {
     ]));
   });
 
+  it("keeps copied payloads blocked when capture summary still reports technical gaps", () => {
+    const payload = {
+      manualPerformanceDraft: completedQuestManualReport(),
+      captureSummary: {
+        draftAvailable: true,
+        manualValidationReady: true,
+        frameStatsFresh: true,
+        blockers: [],
+        technicalGaps: ["headset_select_trace_latency_missing"],
+      },
+    };
+
+    const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-copy.json", payload);
+
+    expect(check.readyToClaimFramePacing).toBe(false);
+    expect(check.blockers).toEqual([
+      "copied_payload_technical_gaps_present",
+      "copied_payload_technical_gap:headset_select_trace_latency_missing",
+    ]);
+    expect(check.nextSteps).toEqual(expect.arrayContaining([
+      "Resolve the copied captureSummary technical gaps before using the payload as readiness evidence.",
+      "Resolve copied payload technical gap: headset_select_trace_latency_missing.",
+    ]));
+  });
+
   it("surfaces a timed-out CDP manual evidence harvest without breaking copied payload compatibility", () => {
     const payload = {
       manualPerformanceDraft: completedQuestManualReport(),

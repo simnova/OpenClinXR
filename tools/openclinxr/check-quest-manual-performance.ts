@@ -189,6 +189,7 @@ export type QuestManualPerformanceCopiedPayload = {
     manualValidationReady?: boolean;
     frameStatsFresh?: boolean | null;
     blockers?: string[];
+    technicalGaps?: string[];
   } | null;
   harvestSummary?: {
     source?: string;
@@ -548,6 +549,9 @@ function normalizeQuestManualPerformancePayload(payload: QuestManualPerformanceP
   const summaryBlockers = Array.isArray(captureSummary?.blockers)
     ? captureSummary.blockers.filter((blocker): blocker is string => typeof blocker === "string")
     : [];
+  const summaryTechnicalGaps = Array.isArray(captureSummary?.technicalGaps)
+    ? captureSummary.technicalGaps.filter((gap): gap is string => typeof gap === "string")
+    : [];
   const hasHarvestSummary = "harvestSummary" in payload;
   const harvestSummary = isRecord(payload.harvestSummary) ? payload.harvestSummary : undefined;
   const harvestBlockers = Array.isArray(harvestSummary?.blockers)
@@ -559,6 +563,8 @@ function normalizeQuestManualPerformancePayload(payload: QuestManualPerformanceP
     captureSummary && captureSummary.manualValidationReady !== true ? "copied_payload_summary_not_ready" : undefined,
     captureSummary && captureSummary.draftAvailable !== true ? "copied_payload_summary_missing_draft_or_frame_stats" : undefined,
     captureSummary?.frameStatsFresh === true ? undefined : "frame_stats_stale_or_unsampled",
+    summaryTechnicalGaps.length > 0 ? "copied_payload_technical_gaps_present" : undefined,
+    ...summaryTechnicalGaps.map((gap) => `copied_payload_technical_gap:${gap}`),
     hasHarvestSummary && !harvestSummary ? "manual_evidence_harvest_summary_invalid" : undefined,
     harvestSummary && harvestSummary.ready !== true ? "manual_evidence_harvest_not_ready" : undefined,
     harvestSummary?.timedOut === true ? "manual_evidence_harvest_timed_out" : undefined,
@@ -755,6 +761,10 @@ function questManualNextStepForAdversarialFinding(finding: string): string {
 }
 
 function questManualNextStepForBlocker(blocker: string): string {
+  if (blocker.startsWith("copied_payload_technical_gap:")) {
+    return `Resolve copied payload technical gap: ${blocker.slice("copied_payload_technical_gap:".length)}.`;
+  }
+
   switch (blocker) {
     case "generated_at_invalid_or_missing":
       return "Record a strict ISO generatedAt timestamp from the foreground headset capture.";
@@ -858,6 +868,8 @@ function questManualNextStepForBlocker(blocker: string): string {
       return "Copy the full in-app Quest Evidence JSON payload, including captureSummary.";
     case "copied_payload_summary_not_ready":
       return "Resolve the copied captureSummary blockers before using the payload as readiness evidence.";
+    case "copied_payload_technical_gaps_present":
+      return "Resolve the copied captureSummary technical gaps before using the payload as readiness evidence.";
     case "copied_payload_summary_missing_draft_or_frame_stats":
       return "Copy the in-app Quest Evidence payload after the draft and frame stats are both available.";
     case "frame_stats_stale_or_unsampled":
