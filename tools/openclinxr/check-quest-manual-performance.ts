@@ -75,6 +75,39 @@ export type QuestManualPerformanceReport = {
     minimumObservedFps?: number | null;
     controllerSelectLatencyMs?: number | null;
   };
+  reproducibility?: {
+    source?: string;
+    url?: string;
+    userAgent?: string;
+    browserVersionHints?: {
+      oculusBrowser?: string | null;
+      chrome?: string | null;
+    };
+    app?: {
+      packageName?: string;
+      version?: string;
+      gitCommit?: string;
+      buildTime?: string;
+      mode?: string;
+    };
+    webXr?: {
+      navigatorXrPresent?: boolean;
+      immersiveVrSupported?: boolean | null;
+      immersiveVrSupportCheckedAtMs?: number | null;
+      immersiveArSupported?: boolean | null;
+      immersiveArSupportCheckedAtMs?: number | null;
+      supportError?: string | null;
+    };
+    display?: {
+      viewportWidth?: number;
+      viewportHeight?: number;
+      screenWidth?: number | null;
+      screenHeight?: number | null;
+      devicePixelRatio?: number;
+      visibilityState?: string;
+    };
+    limitations?: string[];
+  };
   comfort?: {
     motionComfort?: "comfortable" | "good" | "mild_discomfort" | "uncomfortable" | "not_run";
     heatConcern?: boolean | null;

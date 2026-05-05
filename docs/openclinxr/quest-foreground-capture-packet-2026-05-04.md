@@ -48,7 +48,7 @@ Create a dated report after a human operator completes the next worn-headset pas
 - start from `docs/openclinxr/quest-manual-performance-template.json`, or
 - save the full copied in-app Quest Evidence payload containing `manualPerformanceDraft` and `captureSummary`.
 
-The copied payload is preferred for the next run because it preserves `frameStatsFresh`, `frameStatsAgeMs`, validation blockers, and the exact runtime draft seen in-headset.
+The copied payload is preferred for the next run because it preserves `frameStatsFresh`, `frameStatsAgeMs`, validation blockers, audit-only browser/app/display reproducibility metadata, and the exact runtime draft seen in-headset.
 
 The human report must still confirm:
 
@@ -65,6 +65,7 @@ The human report must still confirm:
 - At least 600 immersive Full VR frames were observed, with a rolling sample window of at least 120 frames backed by immersive frames rather than preview-only frames.
 - `performance.immersiveFramesObserved` increased to at least 600 after Full VR entry.
 - The in-app Quest Evidence Frames row showed fresh frame stats at copy time; copied payloads must include `captureSummary` with `captureSummary.frameStatsFresh: true`.
+- `reproducibility` was preserved from the copied payload for URL, user agent, browser-version hints, app version/commit/build time, WebXR support checks, viewport, screen, and device-pixel-ratio. Treat these as browser-reported audit metadata, not Horizon OS or firmware proof.
 - Comfort, heat, and battery observations were recorded.
 
 Automated supporting evidence: `docs/openclinxr/quest-cdp-smoke-vr-text-input-panels-2026-05-04.json`, `docs/openclinxr/quest-cdp-smoke-vr-resize-guard-2026-05-04.json`, and their check files show the production station page visible in Quest Browser, `Full VR ready`, trace advancement, fresh frames, and no CDP blockers after the in-VR text/input panel revision. The resize-guard smoke was captured after the app stopped calling `renderer.setSize` while a Full VR session is presenting. This supports station-shell readiness only; it does not clear the human worn-headset performance gate.
@@ -91,7 +92,7 @@ After the run:
 
 - Copy the full in-app Quest Evidence JSON.
 - Save it as `docs/openclinxr/quest-manual-performance-YYYY-MM-DD.json`.
-- Keep any written operator notes in `runContext.notes`.
+- Keep any written operator notes in `runContext.notes`, and fill optional `deviceContext` fields if Horizon OS version, Android build fingerprint, USB power state, or thermal details are manually available.
 - Run the validation commands below.
 
 Do not use this Full VR packet for Mixed Reality claims. Mixed Reality/passthrough will remain a separate evidence lane.

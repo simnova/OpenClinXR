@@ -205,6 +205,50 @@ export type ManualPerformanceTraceLatencyEvidence = {
   productionControllerLatencySubstitute: false;
 };
 
+export type ManualPerformanceBrowserVersionHints = {
+  oculusBrowser: string | null;
+  chrome: string | null;
+};
+
+export type ManualPerformanceReproducibilityEvidence = {
+  source: "browser_runtime";
+  url: string;
+  userAgent: string;
+  browserVersionHints: ManualPerformanceBrowserVersionHints;
+  app: {
+    packageName: string;
+    version: string;
+    gitCommit: string;
+    buildTime: string;
+    mode: string;
+  };
+  webXr: {
+    navigatorXrPresent: boolean;
+    immersiveVrSupported: boolean | null;
+    immersiveVrSupportCheckedAtMs: number | null;
+    immersiveArSupported: boolean | null;
+    immersiveArSupportCheckedAtMs: number | null;
+    supportError: string | null;
+  };
+  display: {
+    viewportWidth: number;
+    viewportHeight: number;
+    screenWidth: number | null;
+    screenHeight: number | null;
+    devicePixelRatio: number;
+    visibilityState: string;
+  };
+  limitations: [
+    "browser_reported_metadata_not_device_firmware_proof",
+    "display_refresh_rate_inferred_from_frame_cadence",
+  ];
+};
+
+export type ManualPerformanceReproducibilityInput = Omit<
+  ManualPerformanceReproducibilityEvidence,
+  "source" | "browserVersionHints" | "limitations"
+>;
+
 export type ManualPerformanceDraft = {
   generatedAt: string;
   runContext: {
@@ -228,6 +272,7 @@ export type ManualPerformanceDraft = {
   input: ManualPerformanceInputEvidence | null;
   traceLatencyProxy: ManualPerformanceTraceLatencyEvidence | null;
   performance: ManualPerformanceMetrics;
+  reproducibility?: ManualPerformanceReproducibilityEvidence;
   comfort: {
     motionComfort: "comfortable" | "good" | "mild_discomfort" | "uncomfortable" | "not_run";
     heatConcern: boolean | null;
@@ -278,6 +323,7 @@ export type ManualPerformanceDraftInput = {
   experienceModeEvidence?: XrExperienceModeEvidence;
   inputEvidence?: ManualPerformanceInputEvidence | null;
   traceLatencyEvidence?: ManualPerformanceTraceLatencyEvidence | null;
+  reproducibilityEvidence?: ManualPerformanceReproducibilityEvidence;
   consoleErrors?: string[];
   immersiveSessionStarted?: boolean;
 };
@@ -774,6 +820,45 @@ export function manualPerformanceMetricsFromFrameStats(stats: ManualPerformanceF
   };
 }
 
+export function parseBrowserVersionHints(userAgent: string): ManualPerformanceBrowserVersionHints {
+  return {
+    oculusBrowser: userAgent.match(/OculusBrowser\/([^\s]+)/)?.[1] ?? null,
+    chrome: userAgent.match(/Chrome\/([^\s]+)/)?.[1] ?? null,
+  };
+}
+
+export function buildManualPerformanceReproducibility(
+  input: ManualPerformanceReproducibilityInput,
+): ManualPerformanceReproducibilityEvidence {
+  return {
+    source: "browser_runtime",
+    url: input.url,
+    userAgent: input.userAgent,
+    browserVersionHints: parseBrowserVersionHints(input.userAgent),
+    app: { ...input.app },
+    webXr: {
+      navigatorXrPresent: input.webXr.navigatorXrPresent,
+      immersiveVrSupported: input.webXr.immersiveVrSupported,
+      immersiveVrSupportCheckedAtMs: nullableRoundedMetric(input.webXr.immersiveVrSupportCheckedAtMs),
+      immersiveArSupported: input.webXr.immersiveArSupported,
+      immersiveArSupportCheckedAtMs: nullableRoundedMetric(input.webXr.immersiveArSupportCheckedAtMs),
+      supportError: input.webXr.supportError,
+    },
+    display: {
+      viewportWidth: Math.max(0, Math.round(input.display.viewportWidth)),
+      viewportHeight: Math.max(0, Math.round(input.display.viewportHeight)),
+      screenWidth: nullableRoundedInteger(input.display.screenWidth),
+      screenHeight: nullableRoundedInteger(input.display.screenHeight),
+      devicePixelRatio: roundMetric(Math.max(0, input.display.devicePixelRatio), 3),
+      visibilityState: input.display.visibilityState,
+    },
+    limitations: [
+      "browser_reported_metadata_not_device_firmware_proof",
+      "display_refresh_rate_inferred_from_frame_cadence",
+    ],
+  };
+}
+
 function roundedVector(vector: LocomotionVectorEvidence): LocomotionVectorEvidence {
   return {
     forward: roundMetric(vector.forward, 3),
@@ -867,6 +952,7 @@ export function buildManualPerformanceDraft(input: ManualPerformanceDraftInput):
       ...manualPerformanceMetricsFromFrameStats(input.frameStats),
       controllerSelectLatencyMs: input.controllerSelectLatencyMs ?? null,
     },
+    ...(input.reproducibilityEvidence ? { reproducibility: input.reproducibilityEvidence } : {}),
     comfort: {
       motionComfort: "not_run",
       heatConcern: null,
@@ -915,6 +1001,14 @@ export function buildManualPerformanceCaptureSummary(
     satisfiedConditions: preview.satisfiedConditions,
     blockers,
   };
+}
+
+function nullableRoundedMetric(value: number | null): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? roundMetric(value) : null;
+}
+
+function nullableRoundedInteger(value: number | null): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.round(value)) : null;
 }
 
 const manualPerformanceFrameStatsFreshMs = 2000;

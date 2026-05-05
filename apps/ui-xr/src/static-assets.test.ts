@@ -99,6 +99,10 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("frameStatsFresh");
     expect(mainSource).toContain("window.setInterval(updateManualEvidencePanel, 1000)");
     expect(mainSource).toContain("manualPerformanceDraft");
+    expect(mainSource).toContain("__OPENCLINXR_UI_XR_APP_METADATA__");
+    expect(mainSource).toContain("buildRuntimeReproducibilityEvidence");
+    expect(runtimeStateSource).toContain("buildManualPerformanceReproducibility");
+    expect(runtimeStateSource).toContain("browser_reported_metadata_not_device_firmware_proof");
     expect(runtimeStateSource).toContain("manualValidationReady");
     expect(runtimeStateSource).toContain("frame_stats_stale_or_unsampled");
     expect(mainSource).toContain("navigator.clipboard.writeText");

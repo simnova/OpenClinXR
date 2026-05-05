@@ -9,6 +9,7 @@ import {
   createInitialRuntimeState,
   actorResponseTextFromApiResult,
   buildManualPerformanceDraft,
+  buildManualPerformanceReproducibility,
   buildIwsdkStationMcpSmokePlan,
   evaluateIwsdkStationMcpSmokeEvidence,
   evaluateXrExperienceModeReadiness,
@@ -21,6 +22,7 @@ import {
   isImmersiveFrameEvidenceActive,
   remoteActorTurnForTraceTag,
   manualPerformanceMetricsFromFrameStats,
+  parseBrowserVersionHints,
   stationTraceActionTags,
   summarizeFrameDeltas,
   summarizeTraceReadiness,
@@ -70,6 +72,77 @@ describe("XR runtime state", () => {
 
   it("exposes every required ED trace tag for headset trace controls", () => {
     expect(stationTraceActionTags).toEqual(edChestPainScenario.requiredTraceTags);
+  });
+
+  it("builds audit-only browser reproducibility metadata for copied Quest evidence", () => {
+    const userAgent = "Mozilla/5.0 Quest 3 OculusBrowser/146.0.0.19.27.942135376 Chrome/146.0.7680.177";
+
+    expect(parseBrowserVersionHints(userAgent)).toEqual({
+      oculusBrowser: "146.0.0.19.27.942135376",
+      chrome: "146.0.7680.177",
+    });
+    expect(buildManualPerformanceReproducibility({
+      url: "http://localhost:5173/",
+      userAgent,
+      app: {
+        packageName: "@openclinxr/ui-xr",
+        version: "0.1.0",
+        gitCommit: "abcdef123456",
+        buildTime: "2026-05-04T00:00:00.000Z",
+        mode: "development",
+      },
+      webXr: {
+        navigatorXrPresent: true,
+        immersiveVrSupported: true,
+        immersiveVrSupportCheckedAtMs: 1234.56,
+        immersiveArSupported: null,
+        immersiveArSupportCheckedAtMs: null,
+        supportError: null,
+      },
+      display: {
+        viewportWidth: 859.6,
+        viewportHeight: 774.2,
+        screenWidth: 2064,
+        screenHeight: 2208,
+        devicePixelRatio: 1.5004,
+        visibilityState: "visible",
+      },
+    })).toEqual({
+      source: "browser_runtime",
+      url: "http://localhost:5173/",
+      userAgent,
+      browserVersionHints: {
+        oculusBrowser: "146.0.0.19.27.942135376",
+        chrome: "146.0.7680.177",
+      },
+      app: {
+        packageName: "@openclinxr/ui-xr",
+        version: "0.1.0",
+        gitCommit: "abcdef123456",
+        buildTime: "2026-05-04T00:00:00.000Z",
+        mode: "development",
+      },
+      webXr: {
+        navigatorXrPresent: true,
+        immersiveVrSupported: true,
+        immersiveVrSupportCheckedAtMs: 1234.56,
+        immersiveArSupported: null,
+        immersiveArSupportCheckedAtMs: null,
+        supportError: null,
+      },
+      display: {
+        viewportWidth: 860,
+        viewportHeight: 774,
+        screenWidth: 2064,
+        screenHeight: 2208,
+        devicePixelRatio: 1.5,
+        visibilityState: "visible",
+      },
+      limitations: [
+        "browser_reported_metadata_not_device_firmware_proof",
+        "display_refresh_rate_inferred_from_frame_cadence",
+      ],
+    });
   });
 
   it("states that the current headset runtime is full VR, not mixed reality passthrough", () => {

@@ -30,6 +30,7 @@ import {
   buildManualPerformanceCaptureSummary,
   buildManualPerformanceInputEvidence,
   buildManualPerformanceDraft,
+  buildManualPerformanceReproducibility,
   buildReadableVrTextPanelEvidence,
   buildRuntimeFrameStats,
   completeTraceAction,
@@ -46,6 +47,7 @@ import {
   type ManualPerformanceDraft,
   type ManualPerformanceFrameStats,
   type ManualPerformanceInputEvidence,
+  type ManualPerformanceReproducibilityEvidence,
   type ManualPerformanceTraceLatencyEvidence,
   type ReadableVrTextPanelEvidence,
   type ReadableVrTextPanelEvidenceSet,
@@ -60,7 +62,7 @@ import "./styles.css";
 
 type NavigatorWithXr = Navigator & {
   xr?: {
-    isSessionSupported(mode: "immersive-vr"): Promise<boolean>;
+    isSessionSupported(mode: "immersive-vr" | "immersive-ar"): Promise<boolean>;
     requestSession(
       mode: "immersive-vr",
       options?: { optionalFeatures?: string[] },
@@ -73,6 +75,8 @@ type XrSession = {
   addEventListener(type: "end", listener: () => void, options?: { once?: boolean }): void;
   end(): Promise<void>;
 };
+
+type RuntimeWebXrSupportEvidence = ManualPerformanceReproducibilityEvidence["webXr"];
 
 type XrInputSourceWithGamepad = {
   handedness?: "left" | "right" | "none" | string;
@@ -178,6 +182,10 @@ function formatUnknownError(error: unknown): string {
   return String(error);
 }
 
+function roundPerformanceNow(): number {
+  return Number(performance.now().toFixed(2));
+}
+
 function recordXrEntryEvidence(status: OpenClinXrXrEntryEvidence["lastStatus"], error?: unknown): void {
   const current = window.__openClinXrXrEntryEvidence ?? {
     sessionMode: "immersive-vr",
@@ -207,6 +215,14 @@ const stationApi = configuredApiBaseUrl ? createStationApiClient({ baseUrl: conf
 let remoteStationRunId: string | undefined;
 let immersiveSessionActive = false;
 let lastTraceSelectLatencyMs: number | null = null;
+let runtimeWebXrSupportEvidence: RuntimeWebXrSupportEvidence = {
+  navigatorXrPresent: false,
+  immersiveVrSupported: null,
+  immersiveVrSupportCheckedAtMs: null,
+  immersiveArSupported: null,
+  immersiveArSupportCheckedAtMs: null,
+  supportError: null,
+};
 const initialDialogueText = "Robert Hayes: It feels heavy, like someone is sitting on my chest.";
 
 app.innerHTML = `
@@ -427,18 +443,69 @@ function dialogueFor(tag: string): string {
 async function updateXrStatus(): Promise<void> {
   const navigatorWithXr = navigator as NavigatorWithXr;
   if (!navigatorWithXr.xr) {
+    runtimeWebXrSupportEvidence = {
+      navigatorXrPresent: false,
+      immersiveVrSupported: null,
+      immersiveVrSupportCheckedAtMs: roundPerformanceNow(),
+      immersiveArSupported: null,
+      immersiveArSupportCheckedAtMs: null,
+      supportError: "navigator.xr_missing",
+    };
     xrStatus.textContent = "WebXR unavailable";
     enterXrButton.disabled = true;
     return;
   }
   try {
-    const supported = await navigatorWithXr.xr.isSessionSupported("immersive-vr");
-    xrStatus.textContent = supported ? "Full VR ready" : "WebXR unavailable";
-    enterXrButton.disabled = !supported;
-  } catch {
+    const immersiveVrSupported = await navigatorWithXr.xr.isSessionSupported("immersive-vr");
+    const immersiveVrSupportCheckedAtMs = roundPerformanceNow();
+    let immersiveArSupported: boolean | null = null;
+    let immersiveArSupportCheckedAtMs: number | null = null;
+    let supportError: string | null = null;
+    try {
+      immersiveArSupported = await navigatorWithXr.xr.isSessionSupported("immersive-ar");
+      immersiveArSupportCheckedAtMs = roundPerformanceNow();
+    } catch (error) {
+      supportError = `immersive_ar:${formatUnknownError(error)}`;
+    }
+    runtimeWebXrSupportEvidence = {
+      navigatorXrPresent: true,
+      immersiveVrSupported,
+      immersiveVrSupportCheckedAtMs,
+      immersiveArSupported,
+      immersiveArSupportCheckedAtMs,
+      supportError,
+    };
+    xrStatus.textContent = immersiveVrSupported ? "Full VR ready" : "WebXR unavailable";
+    enterXrButton.disabled = !immersiveVrSupported;
+  } catch (error) {
+    runtimeWebXrSupportEvidence = {
+      navigatorXrPresent: true,
+      immersiveVrSupported: null,
+      immersiveVrSupportCheckedAtMs: roundPerformanceNow(),
+      immersiveArSupported: null,
+      immersiveArSupportCheckedAtMs: null,
+      supportError: `immersive_vr:${formatUnknownError(error)}`,
+    };
     xrStatus.textContent = "WebXR check blocked";
     enterXrButton.disabled = true;
   }
+}
+
+function buildRuntimeReproducibilityEvidence(): ManualPerformanceReproducibilityEvidence {
+  return buildManualPerformanceReproducibility({
+    url: window.location.href,
+    userAgent: navigator.userAgent,
+    app: __OPENCLINXR_UI_XR_APP_METADATA__,
+    webXr: runtimeWebXrSupportEvidence,
+    display: {
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
+      screenWidth: window.screen?.width ?? null,
+      screenHeight: window.screen?.height ?? null,
+      devicePixelRatio: window.devicePixelRatio,
+      visibilityState: document.visibilityState,
+    },
+  });
 }
 
 function createStationScene(): StationSceneRuntime {
@@ -1292,6 +1359,7 @@ function recordFrame(now: number, evidence: {
     experienceModeEvidence: window.__openClinXrExperienceModeEvidence ?? xrExperienceModeEvidence,
     inputEvidence: window.__openClinXrInputEvidence ?? null,
     traceLatencyEvidence: window.__openClinXrTraceLatencyEvidence ?? null,
+    reproducibilityEvidence: buildRuntimeReproducibilityEvidence(),
     immersiveSessionStarted: immersiveSessionActive,
   });
   window.__openClinXrManualPerformanceCaptureSummary = buildManualPerformanceCaptureSummary({

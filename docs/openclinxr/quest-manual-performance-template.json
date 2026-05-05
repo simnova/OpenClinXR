@@ -65,6 +65,48 @@
     "minimumObservedFps": null,
     "controllerSelectLatencyMs": null
   },
+  "reproducibility": {
+    "source": "browser_runtime",
+    "url": "",
+    "userAgent": "",
+    "browserVersionHints": {
+      "oculusBrowser": null,
+      "chrome": null
+    },
+    "app": {
+      "packageName": "@openclinxr/ui-xr",
+      "version": "",
+      "gitCommit": "",
+      "buildTime": "",
+      "mode": ""
+    },
+    "webXr": {
+      "navigatorXrPresent": false,
+      "immersiveVrSupported": null,
+      "immersiveVrSupportCheckedAtMs": null,
+      "immersiveArSupported": null,
+      "immersiveArSupportCheckedAtMs": null,
+      "supportError": null
+    },
+    "display": {
+      "viewportWidth": 0,
+      "viewportHeight": 0,
+      "screenWidth": null,
+      "screenHeight": null,
+      "devicePixelRatio": 0,
+      "visibilityState": ""
+    },
+    "limitations": [
+      "browser_reported_metadata_not_device_firmware_proof",
+      "display_refresh_rate_inferred_from_frame_cadence"
+    ]
+  },
+  "deviceContext": {
+    "horizonOsVersion": "",
+    "androidBuildFingerprint": "",
+    "usbPowerState": "",
+    "thermalObservation": ""
+  },
   "comfort": {
     "motionComfort": "not_run",
     "heatConcern": null,
