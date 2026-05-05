@@ -1,0 +1,98 @@
+# Server-Side Multi-Actor State Spike
+
+**Date:** 2026-05-05  
+**Proposal:** `proposals/approved/proposal-server-side-multi-actor-state-context.md`  
+**Status:** First implementation-backed spike complete  
+**Scope:** Server-side architecture spike only. This is not a production architecture decision.
+
+## Executive Recommendation
+
+Use a custom domain-state baseline first, then promote the stable API surface into `packages/openclinxr/scenario-runtime` through a follow-up proposal after more evidence exists.
+
+Do not install Colyseus, `@colyseus/schema`, or bitECS into production paths yet. The first bottleneck is not networking framework capability; it is defining the clinical domain contract precisely enough that actor memory, routing, trace tags, spatial state, and future voice turns cannot drift apart.
+
+## Implemented Spike Artifact
+
+The spike artifact lives at:
+
+- `packages/openclinxr/multi-actor-state-spike`
+
+It validates a no-new-runtime-dependency model for:
+
+- Distinct actors with role, display name, demeanor, private memory, visible memory, emotional state, and relationship to learner.
+- Addressed routing by actor name or role keyword, with patient fallback.
+- Per-actor context building for future model prompts without leaking one actor's private memory into another actor's context.
+- Structured clinical state for required trace tags, completed trace tags, orders, and findings.
+- Spatial actor transforms with interaction state, position, rotation, and last update time.
+- Explicit evidence boundaries so the spike is not mistaken for Quest sync, LLM quality, production runtime, or clinical validity proof.
+
+## State Model
+
+```mermaid
+flowchart LR
+  Scenario["Scenario fixture"] --> Session["MultiActorClinicalSession"]
+  Session --> Actors["ActorRuntimeState[]"]
+  Session --> Clinical["ClinicalState"]
+  Session --> Spatial["SpatialState"]
+  Session --> Log["InteractionLog"]
+  Actors --> Memory["ActorMemory"]
+  Memory --> Visible["visibleFacts"]
+  Memory --> Private["privateFacts"]
+  Clinical --> Trace["required/completed trace tags"]
+  Clinical --> Orders["orders"]
+  Clinical --> Findings["findings"]
+  Spatial --> ActorTransforms["actorTransforms"]
+  Learner["Learner utterance"] --> Router["routeActorInteraction"]
+  Router --> Context["buildActorModelContext"]
+```
+
+## Dependency Evaluation
+
+Observed package metadata was checked on 2026-05-05 with local `pnpm view` commands.
+
+| Option | Observed Version | License Posture | Fit | Recommendation |
+| --- | ---: | --- | --- | --- |
+| Custom domain state | Internal | No new runtime dependency | Best first fit for Bun/Hono and Azure-compatible API boundaries | Recommended first |
+| Colyseus | 0.17.10 | MIT package metadata | Mature realtime room/state framework, but high transitive and runtime surface for the first domain contract | Install-backed follow-up candidate |
+| `@colyseus/schema` | 4.0.21 | MIT package metadata | Lighter schema/delta candidate if custom state needs binary/delta sync later | Defer until need is proven |
+| bitECS | 0.4.0 | MPL-2.0 package metadata; license-gated | ECS modeling aligns conceptually with spatial actors, but does not solve server replication alone | Defer until license accepted or replaced |
+
+bitECS remains blocked by project license posture until the license inconsistency is resolved or explicitly accepted. The relevant upstream issue is: https://github.com/NateTheGreatt/bitECS/issues/212
+
+## Voice Integration Posture
+
+Voice is not merged into this first server-state slice. That is intentional.
+
+The state contract should accept future voice turn metadata, such as stream id, transcript segment id, actor id, routing decision, latency envelope, and synthesis provider provenance. The current realtime voice spike already separates local Moshi/Qwen candidates, the Python backend, and Bun/Hono WebSocket transport evidence. The next implementation proposal can join these by adding typed interaction events rather than embedding voice runtime concerns directly into actor state.
+
+## Follow-Up Proposal Shape
+
+A production-oriented follow-up should decide:
+
+- Whether the custom state baseline moves into `packages/openclinxr/scenario-runtime` or a dedicated `packages/openclinxr/session-state`.
+- Whether live synchronization stays custom over the existing Bun/Hono WebSocket lane or adopts `@colyseus/schema` for schema/delta encoding.
+- Whether Colyseus is useful only as a mock/load sidecar, not the main Azure Functions-compatible API runtime.
+- How to represent high-frequency spatial updates separately from slower clinical state events.
+- How voice turn ids, transcript segments, actor routing, and trace ledger entries are stitched without leaking hidden actor memory.
+
+## Estimated Effort
+
+| Follow-Up Slice | Estimate | Notes |
+| --- | ---: | --- |
+| Promote baseline into production-shaped package | 0.5-1 day | Mostly move/rename plus ArchUnitTS boundaries and API exports |
+| Add WebSocket session-state messages to `apps/api` | 1-2 days | Keep WebSocket primary; no HTTP/3/WebTransport scope |
+| Add voice turn references to state events | 1-2 days | Depends on realtime voice backend evidence maturity |
+| Evaluate `@colyseus/schema` with custom state | 0.5-1 day | Sidecar only until need is proven |
+| Colyseus sidecar room prototype | 1-2 days | Useful if rooms/presence/matchmaking become requirements |
+
+## Verification
+
+Initial verification commands for this slice:
+
+```bash
+pnpm --filter @openclinxr/multi-actor-state-spike test
+pnpm --filter @openclinxr/multi-actor-state-spike typecheck
+```
+
+Both commands passed during the first implementation run on 2026-05-05.
+
