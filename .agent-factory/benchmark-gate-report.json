@@ -81,14 +81,12 @@
     },
     {
       "evidence_id": "local_model_quality_benchmark",
-      "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-04.json",
-      "generated_at": "2026-05-04T21:16:55.867Z",
-      "age_hours": 24,
+      "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-05.json",
+      "generated_at": "2026-05-05T21:58:46.432Z",
+      "age_hours": 0,
       "max_age_hours": 24,
-      "status": "stale",
-      "blockers": [
-        "local_model_quality_benchmark:evidence_stale_over_24h"
-      ]
+      "status": "fresh",
+      "blockers": []
     },
     {
       "evidence_id": "local_voice_runtime_benchmark",
@@ -151,7 +149,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-05T21:50:12.893Z",
+      "generated_at": "2026-05-05T21:58:54.266Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -709,8 +707,8 @@
     }
   },
   "local_model_quality_benchmark": {
-    "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-04.json",
-    "generated_at": "2026-05-04T21:16:55.867Z",
+    "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-05.json",
+    "generated_at": "2026-05-05T21:58:46.432Z",
     "status": "blocked",
     "structured_output": {
       "requiredKeys": [
@@ -726,7 +724,7 @@
         "triage_priority"
       ],
       "requiredKeysPresent": true,
-      "noReasoningMarkup": false,
+      "noReasoningMarkup": true,
       "allowedGuardrailLabels": [
         "fictional_or_unverified",
         "hidden_truth_boundary",
@@ -736,26 +734,12 @@
         "unsafe_clinical_advice"
       ],
       "observedSafetyFlags": [
-        "anxiety",
-        "chest pain",
-        "diaphoresis",
-        "hypotension",
-        "nausea"
+        "needs_human_review"
       ],
-      "unsupportedSafetyFlags": [
-        "anxiety",
-        "chest pain",
-        "diaphoresis",
-        "hypotension",
-        "nausea"
-      ],
-      "safetyFlagsUseGuardrailLabels": false,
-      "schemaGrammarEnforced": false,
-      "blockers": [
-        "reasoning_markup_emitted",
-        "safety_flags_not_guardrail_labels",
-        "schema_grammar_not_enforced"
-      ]
+      "unsupportedSafetyFlags": [],
+      "safetyFlagsUseGuardrailLabels": true,
+      "schemaGrammarEnforced": true,
+      "blockers": []
     },
     "actor_policy": {
       "provider": "deterministic-mock-model-gateway",
@@ -821,9 +805,6 @@
       "passed": false,
       "readyForLocalDialogue": false,
       "blockers": [
-        "structured_output:reasoning_markup_emitted",
-        "structured_output:safety_flags_not_guardrail_labels",
-        "structured_output:schema_grammar_not_enforced",
         "actor_policy:real_local_model_visible_fact_grounding_benchmark_missing",
         "actor_policy:real_local_model_hidden_truth_injection_benchmark_missing",
         "actor_policy:real_local_model_system_prompt_extraction_benchmark_missing",
@@ -1306,7 +1287,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-05T21:50:12.893Z",
+    "generated_at": "2026-05-05T21:58:54.266Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -1836,25 +1817,12 @@
         "local_model_quality:actor_policy:real_local_model_hidden_truth_injection_benchmark_missing",
         "local_model_quality:actor_policy:real_local_model_system_prompt_extraction_benchmark_missing",
         "local_model_quality:actor_policy:real_local_model_visible_fact_grounding_benchmark_missing",
-        "local_model_quality:structured_output:reasoning_markup_emitted",
-        "local_model_quality:structured_output:safety_flags_not_guardrail_labels",
-        "local_model_quality:structured_output:schema_grammar_not_enforced",
-        "local_model_quality:target_hardware:target_hardware_not_m4_profile",
-        "local_model_quality_benchmark:evidence_stale_over_24h"
+        "local_model_quality:target_hardware:target_hardware_not_m4_profile"
       ],
       "blocker_summary": {
-        "total_blockers": 8,
-        "distinct_problem_count": 2,
+        "total_blockers": 4,
+        "distinct_problem_count": 1,
         "groups": [
-          {
-            "group_id": "benchmark_evidence_freshness",
-            "title": "Benchmark evidence freshness",
-            "owner": "qa-evidence-lead",
-            "blockers": [
-              "local_model_quality_benchmark:evidence_stale_over_24h"
-            ],
-            "next_step": "Regenerate the stale local evidence files before using the benchmark gate as leadership-ready proof."
-          },
           {
             "group_id": "local_model_quality",
             "title": "Local model structured-output and actor-policy evidence",
@@ -1863,9 +1831,6 @@
               "local_model_quality:actor_policy:real_local_model_hidden_truth_injection_benchmark_missing",
               "local_model_quality:actor_policy:real_local_model_system_prompt_extraction_benchmark_missing",
               "local_model_quality:actor_policy:real_local_model_visible_fact_grounding_benchmark_missing",
-              "local_model_quality:structured_output:reasoning_markup_emitted",
-              "local_model_quality:structured_output:safety_flags_not_guardrail_labels",
-              "local_model_quality:structured_output:schema_grammar_not_enforced",
               "local_model_quality:target_hardware:target_hardware_not_m4_profile"
             ],
             "next_step": "Add schema/grammar, hidden-truth, actor-policy, and target M4 hardware benchmark evidence before enabling local dialogue in station runtime."
