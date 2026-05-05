@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "openclinxr.visual-qa-evidence.v1",
+  "capture": {
+    "source": "iwer_emulation",
+    "artifactType": "screenshot",
+    "artifact": "docs/openclinxr/screenshots/iwer-auto-entry-rich-evidence-2026-05-05.png",
+    "mimeType": "image/png",
+    "dimensions": {
+      "width": 1910,
+      "height": 1670
+    },
+    "runtimeUrl": "http://127.0.0.1:5184/?iwerAutoEnterVr=true",
+    "route": "/",
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "xrMode": "iwer_emulated_full_vr_auto_entry_with_rich_app_metadata",
+    "cameraPose": "IWER Meta Quest 3 default pose, close to the text panels, with controller dev UI visible",
+    "captureCommand": "Chrome DevTools MCP take_screenshot"
+  },
+  "adversarialReview": {
+    "reviewers": [
+      "test-automation-lead",
+      "ux-friction-critic",
+      "clinical-safety-critic",
+      "xr-systems-architect",
+      "asset-pipeline-lead"
+    ],
+    "checks": {
+      "clinical_scene_fidelity": {
+        "status": "concern",
+        "notes": [
+          "The capture proves the sidecar can enter an emulated Full VR state and display the clinical text panels, but the actual patient, nurse, spouse, monitor, bed, and room layout are mostly outside the captured view."
+        ]
+      },
+      "actor_equipment_realism": {
+        "status": "concern",
+        "notes": [
+          "The visible scene is dominated by flat canvas panels and IWER controller widgets; no actor face, equipment detail, clothing, skin, rigging, or medical-device realism can be judged from this screenshot."
+        ]
+      },
+      "ui_readability": {
+        "status": "concern",
+        "notes": [
+          "The Input Evidence panel is readable and confirms the app-side rich metadata path, but the left clinical panel is clipped and the Live Dialogue panel is partially obscured by controller overlays from this pose."
+        ]
+      },
+      "interaction_affordances": {
+        "status": "concern",
+        "notes": [
+          "IWER controller controls and rays are visible, but this does not demonstrate physical controller latency, hand-tracking quality, hand-only interaction, or locomotion comfort on Quest hardware."
+        ]
+      },
+      "occlusion_scale": {
+        "status": "concern",
+        "notes": [
+          "The close camera pose and large controller overlays occlude important lower-panel content and make room scale hard to assess; a cleaner emulated camera pose and physical headset capture remain necessary."
+        ]
+      },
+      "evidence_limits": {
+        "status": "pass",
+        "notes": [
+          "This artifact supports only IWER emulation and adversarial visual iteration; it is not physical Quest foreground evidence, not headset readability proof, and not production runtime readiness."
+        ]
+      }
+    }
+  },
+  "claimBoundaries": {
+    "notEvidenceFor": [
+      "physical_quest_foreground_frame_pacing",
+      "quest_controller_latency",
+      "quest_hand_tracking_quality",
+      "in_headset_text_readability",
+      "thermal_or_battery_behavior",
+      "production_runtime_readiness"
+    ],
+    "allowedClaims": [
+      "adversarial_visual_iteration_artifact",
+      "iwer_auto_entry_session_started_in_emulation",
+      "app_side_text_panel_metadata_visible_to_automation"
+    ]
+  }
+}
