@@ -39,7 +39,7 @@ function completedQuestManualReport(): QuestManualPerformanceReport {
       handModelStatus: "active",
       handRepresentationKind: "mesh",
       handInputsObserved: 2,
-      locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
+      locomotionMode: "room_scale_keyboard_thumbstick_and_hand_gesture_dolly",
       locomotionAttempt: "runtime_event_observed",
       activeLocomotionSource: "xr_hand_gesture",
       xrHandGestureState: {
@@ -697,7 +697,7 @@ describe("Quest manual performance checker", () => {
         handModelCount: 2,
         handModelStatus: "active",
         handInputsObserved: 2,
-        locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
+        locomotionMode: "room_scale_keyboard_thumbstick_and_hand_gesture_dolly",
         activeLocomotionSource: "none",
         lastLocomotionAtMs: 60_000,
         xrHandGestureState: {

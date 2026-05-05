@@ -664,7 +664,7 @@ function createStationScene(): StationSceneRuntime {
     lines: [
       "Session: Full VR not entered",
       "Hands: pending optional hand-tracking",
-      "Movement: thumbstick, keyboard, or armed hand gesture",
+      "Movement: room-scale walking, thumbstick, keyboard, or armed hand gesture",
     ],
     widthMeters: 1.65,
     heightMeters: 0.72,

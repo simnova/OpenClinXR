@@ -91,7 +91,9 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("sampleRoomScalePose");
     expect(mainSource).toContain("previousRoomScalePose");
     expect(mainSource).toContain("roomScalePose");
+    expect(mainSource).toContain("Movement: room-scale walking, thumbstick, keyboard, or armed hand gesture");
     expect(runtimeStateSource).toContain("xr_room_scale");
+    expect(runtimeStateSource).toContain("room_scale_keyboard_thumbstick_and_hand_gesture_dolly");
     expect(mainSource).toContain("handGestureDwellMs");
     expect(mainSource).toContain("other_locomotion_source_active");
     expect(mainSource).toContain("Gesture: armed");

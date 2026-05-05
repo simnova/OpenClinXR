@@ -155,7 +155,7 @@ export type ManualPerformanceInputEvidence = {
   handModelStatus: "pending_immersive_session" | "installed" | "failed";
   handRepresentationKind?: HandRepresentationKind;
   handInputsObserved: number;
-  locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly";
+  locomotionMode: "room_scale_keyboard_thumbstick_and_hand_gesture_dolly";
   locomotionAttempt?: LocomotionAttempt;
   lastInputObservedAtMs?: number | null;
   lastLocomotionAtMs: number | null;
@@ -438,7 +438,7 @@ export type FullVrExperienceModeEvidence = {
   requestedSessionMode: "immersive-vr";
   mixedRealityPassthroughImplemented: false;
   handTrackingPosture: "optional_feature_with_primitive_hand_model";
-  locomotionPosture: "experimental_keyboard_thumbstick_and_hand_gesture_dolly";
+  locomotionPosture: "room_scale_keyboard_thumbstick_and_hand_gesture_dolly";
 };
 
 export type MixedRealityExperienceModeEvidence = {
@@ -484,7 +484,7 @@ export const xrExperienceModeEvidence: FullVrExperienceModeEvidence = {
   requestedSessionMode: "immersive-vr",
   mixedRealityPassthroughImplemented: false,
   handTrackingPosture: "optional_feature_with_primitive_hand_model",
-  locomotionPosture: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
+  locomotionPosture: "room_scale_keyboard_thumbstick_and_hand_gesture_dolly",
 };
 
 export const primitiveHandModelProfile = "spheres" as const;
@@ -978,7 +978,7 @@ export function buildManualPerformanceInputEvidence(
       inputSourceKinds,
     }),
     handInputsObserved: input.handInputsObserved,
-    locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
+    locomotionMode: "room_scale_keyboard_thumbstick_and_hand_gesture_dolly",
     locomotionAttempt: locomotionAttemptFor({
       activeLocomotionSource,
       locomotionObserved,

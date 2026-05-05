@@ -24,7 +24,7 @@
     "requestedSessionMode": "immersive-vr",
     "mixedRealityPassthroughImplemented": false,
     "handTrackingPosture": "optional_feature_with_primitive_hand_model",
-    "locomotionPosture": "experimental_keyboard_thumbstick_and_hand_gesture_dolly"
+    "locomotionPosture": "room_scale_keyboard_thumbstick_and_hand_gesture_dolly"
   },
   "input": {
     "handModelCount": 0,
@@ -39,7 +39,7 @@
       "unknown"
     ],
     "handInputsObserved": 0,
-    "locomotionMode": "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
+    "locomotionMode": "room_scale_keyboard_thumbstick_and_hand_gesture_dolly",
     "locomotionAttempt": "not_attempted",
     "activeLocomotionSource": "none",
     "activeLocomotionSourceAllowedValues": [
