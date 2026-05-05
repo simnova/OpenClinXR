@@ -150,7 +150,7 @@ First executable status:
 - Deterministic mock model benchmark passed with zero cost.
 - Deterministic mock voice benchmark passed with transcript and audio-chunk evidence.
 - Local model candidate intake accepts only source-backed first candidates: `Qwen/Qwen3-4B-GGUF` (`src-qwen3-4b-gguf-2026`) and `deepseek-ai/DeepSeek-R1-Distill-Qwen-7B` (`src-deepseek-r1-distill-qwen-2025`).
-- `docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json` records the first approved real local Qwen GGUF benchmark through `llama.cpp`; it passes as a latency smoke but has structured-output caveats.
+- `docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json` records the first approved real local Qwen GGUF benchmark through `llama.cpp`; it passes as a latency smoke but has structured-output caveats. `pnpm local:model:runtime -- --parse-log <local-log> --output <report.json>` can now harvest that local raw log into a versioned JSON report without rerunning inference, downloading weights, or using cloud APIs; it does not make stale runtime evidence fresh.
 - Local voice candidate intake accepts only `microsoft/VibeVoice-Realtime-0.5B` (`src-vibevoice-github-2026`).
 - `docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json` records the first approved local VibeVoice file-generation benchmark; it passes as a file-output smoke but is too slow for live Quest dialog and does not prove streaming playback latency.
 - `docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json` records the first bidirectional realtime voice transport spike. It passes the local transport contract but keeps live dialog blocked because no real local voice/model stream, Quest microphone capture, Opus codec path, or headset playback latency was observed.
