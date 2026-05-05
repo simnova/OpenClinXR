@@ -221,10 +221,18 @@ describe("workspace architecture rules", () => {
     const protocolSupport = readFileSync(join(workspaceRoot, "apps/api/src/protocol-support.ts"), "utf8");
     const speculativeProtocolDependencies = [
       "@fails-components/webtransport",
+      "@walletconnect/modal",
+      "@walletconnect/sign-client",
+      "@web3modal/wagmi",
+      "@solana/web3.js",
       "webtransport",
+      "webtransport-polyfill",
       "quic",
+      "aioquic",
       "ethers",
+      "siwe",
       "viem",
+      "wagmi",
       "web3",
     ];
     const dependencyViolations = workspacePackageDependencyFindings(speculativeProtocolDependencies);
@@ -234,9 +242,13 @@ describe("workspace architecture rules", () => {
     );
 
     expect(protocolSupport).toContain('protocolId: "webtransport"');
-    expect(protocolSupport).toContain("input.bunHttp3WebTransportVerified && input.questWebTransportVerified");
+    expect(protocolSupport).toContain("input.bunHttp3WebTransportVerified");
+    expect(protocolSupport).toContain("input.questWebTransportVerified");
+    expect(protocolSupport).toContain("input.azureWebTransportIngressVerified");
     expect(protocolSupport).toContain("bun_http3_webtransport_not_verified");
     expect(protocolSupport).toContain("quest_webtransport_path_not_verified");
+    expect(protocolSupport).toContain("azureWebTransportIngressVerified");
+    expect(protocolSupport).toContain("azure_webtransport_ingress_not_verified");
     expect(protocolSupport).toContain('protocolId: "quic"');
     expect(protocolSupport).toContain("operator_quic_gateway_proposal_missing");
     expect(protocolSupport).toContain("quic_gateway_not_implemented");
@@ -264,9 +276,18 @@ describe("workspace architecture rules", () => {
     expect(backendPackage.private).toBe(true);
     expect(backendPackage.dependencies).toBeUndefined();
     expect(backendPackage.devDependencies).toBeUndefined();
-    expect(Object.keys(backendPackage.scripts ?? {}).sort()).toEqual(["dev", "test", "typecheck"]);
+    expect(Object.keys(backendPackage.scripts ?? {}).sort()).toEqual([
+      "dev",
+      "test",
+      "typecheck",
+      "voice:evidence",
+      "voice:install-local",
+    ]);
     expect(backendPackage.scripts?.dev).toContain("uvicorn api_python_backend.main:app");
     expect(backendPackage.scripts?.test).toBe("python3 scripts/verify_backend.py");
+    expect(backendPackage.scripts?.typecheck).toBe("python3 scripts/verify_backend.py");
+    expect(backendPackage.scripts?.["voice:evidence"]).toBe("python3 scripts/check_local_voice_evidence.py");
+    expect(backendPackage.scripts?.["voice:install-local"]).toBe("python3 scripts/install_local_voice_models.py");
     expect(backendSource).toContain('@app.get("/health")');
     expect(backendSource).toContain('@app.websocket("/voice/realtime/ws")');
     expect(pyproject).toContain("fastapi>=");

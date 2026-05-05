@@ -32,7 +32,7 @@
       "evidence_id": "blender_asset_bake_smoke",
       "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T05:06:10.560Z",
-      "age_hours": 18,
+      "age_hours": 19,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -59,7 +59,7 @@
       "evidence_id": "local_provider_benchmark",
       "file": "docs/openclinxr/local-provider-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T14:53:24.787Z",
-      "age_hours": 8,
+      "age_hours": 9,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -68,7 +68,7 @@
       "evidence_id": "local_model_runtime_benchmark",
       "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T14:57:50Z",
-      "age_hours": 8,
+      "age_hours": 9,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -86,7 +86,7 @@
       "evidence_id": "local_voice_runtime_benchmark",
       "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T15:01:12Z",
-      "age_hours": 8,
+      "age_hours": 9,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -104,7 +104,7 @@
       "evidence_id": "realtime_voice_transport_spike",
       "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json",
       "generated_at": "2026-05-04T22:52:50.932Z",
-      "age_hours": 0,
+      "age_hours": 1,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -934,6 +934,17 @@
       "targetMs": 250,
       "passed": true
     },
+    "protocol_evidence": {
+      "websocket_local_harness_observed": true,
+      "bun_hono_runtime_observed": false,
+      "webtransport_observed": false,
+      "quic_observed": false,
+      "web3_signaling_observed": false,
+      "notes": [
+        "Only the local WebSocket transport harness has execution evidence in this report.",
+        "WebTransport, direct QUIC, and Web3 signaling remain proposal- and evidence-gated."
+      ]
+    },
     "python_backend_verifier": {
       "status": "passed",
       "command": "python3 apps/api-python-backend/scripts/verify_backend.py",
@@ -1185,7 +1196,7 @@
         "local_voice_live_dialog_safety_controls_observed",
         "local_voice_python_backend_runtime_smoke_passed",
         "local_voice_ready_to_benchmark",
-        "local_voice_realtime_transport_spike_passed",
+        "local_voice_realtime_transport_contract_observed",
         "quest_cdp_adb_device_recorded",
         "quest_cdp_frame_sample_complete",
         "quest_cdp_generated_at_valid",
@@ -1288,7 +1299,7 @@
         "local_voice_first_audio_benchmark_passed",
         "local_voice_python_backend_runtime_smoke_passed",
         "local_voice_ready_to_benchmark",
-        "local_voice_realtime_transport_spike_passed"
+        "local_voice_realtime_transport_contract_observed"
       ],
       "blockers": [],
       "blocker_summary": {
@@ -1371,16 +1382,22 @@
         "local_voice_live_dialog_safety_controls_observed",
         "local_voice_python_backend_runtime_smoke_passed",
         "local_voice_ready_to_benchmark",
-        "local_voice_realtime_transport_spike_passed"
+        "local_voice_realtime_transport_contract_observed"
       ],
       "blockers": [
+        "local_voice_live_dialog:realtime_transport_spike:bun_runtime_not_installed_on_this_machine",
+        "local_voice_live_dialog:realtime_transport_spike:clinical_voice_safety_controls_not_exercised_with_real_model",
+        "local_voice_live_dialog:realtime_transport_spike:native_opus_codec_not_integrated_in_godot",
+        "local_voice_live_dialog:realtime_transport_spike:quest_godot_client_not_executed",
+        "local_voice_live_dialog:realtime_transport_spike:quest_microphone_and_playback_latency_not_measured",
+        "local_voice_live_dialog:realtime_transport_spike:real_moshi_or_qwen3_inference_not_observed",
         "local_voice_live_dialog:runtime:real_time_factor_above_1",
         "local_voice_live_dialog:runtime:runtime_file_generation_only",
         "local_voice_live_dialog:runtime_stream:real_local_voice_stream_benchmark_missing",
         "local_voice_live_dialog:webxr_playback:webxr_playback_not_observed"
       ],
       "blocker_summary": {
-        "total_blockers": 4,
+        "total_blockers": 10,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -1388,6 +1405,12 @@
             "title": "Local voice live-dialog evidence",
             "owner": "voice-speech-engineer",
             "blockers": [
+              "local_voice_live_dialog:realtime_transport_spike:bun_runtime_not_installed_on_this_machine",
+              "local_voice_live_dialog:realtime_transport_spike:clinical_voice_safety_controls_not_exercised_with_real_model",
+              "local_voice_live_dialog:realtime_transport_spike:native_opus_codec_not_integrated_in_godot",
+              "local_voice_live_dialog:realtime_transport_spike:quest_godot_client_not_executed",
+              "local_voice_live_dialog:realtime_transport_spike:quest_microphone_and_playback_latency_not_measured",
+              "local_voice_live_dialog:realtime_transport_spike:real_moshi_or_qwen3_inference_not_observed",
               "local_voice_live_dialog:runtime:real_time_factor_above_1",
               "local_voice_live_dialog:runtime:runtime_file_generation_only",
               "local_voice_live_dialog:runtime_stream:real_local_voice_stream_benchmark_missing",

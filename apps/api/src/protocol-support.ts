@@ -31,6 +31,7 @@ export type OpenClinXrApiProtocolPosture = {
 export function createOpenClinXrApiProtocolPosture(input: {
   bunHttp3WebTransportVerified?: boolean;
   questWebTransportVerified?: boolean;
+  azureWebTransportIngressVerified?: boolean;
   quicGatewayDesignReviewed?: boolean;
   quicGatewayImplemented?: boolean;
   azureQuicIngressVerified?: boolean;
@@ -38,7 +39,11 @@ export function createOpenClinXrApiProtocolPosture(input: {
   web3IdentityAndSignalingProtocolSelected?: boolean;
   web3SignalingProtocolSelected?: boolean;
 } = {}): OpenClinXrApiProtocolPosture {
-  const webTransportReady = Boolean(input.bunHttp3WebTransportVerified && input.questWebTransportVerified);
+  const webTransportReady = Boolean(
+    input.bunHttp3WebTransportVerified
+      && input.questWebTransportVerified
+      && input.azureWebTransportIngressVerified,
+  );
   const quicReady = Boolean(input.quicGatewayDesignReviewed && input.quicGatewayImplemented && input.azureQuicIngressVerified);
   const web3SignalingProtocolSelected = Boolean(
     input.web3IdentityAndSignalingProtocolSelected || input.web3SignalingProtocolSelected,
@@ -90,8 +95,9 @@ export function createOpenClinXrApiProtocolPosture(input: {
         blockers: [
           input.bunHttp3WebTransportVerified ? undefined : "bun_http3_webtransport_not_verified",
           input.questWebTransportVerified ? undefined : "quest_webtransport_path_not_verified",
+          input.azureWebTransportIngressVerified ? undefined : "azure_webtransport_ingress_not_verified",
         ].filter((blocker): blocker is string => typeof blocker === "string"),
-        notes: "Keep WebTransport behind evidence until Bun HTTP/3 and Quest browser/client support are measured end to end.",
+        notes: "Keep WebTransport behind evidence until Bun HTTP/3, Quest browser/client support, and deployable Azure ingress are measured end to end.",
       },
       {
         protocolId: "quic",

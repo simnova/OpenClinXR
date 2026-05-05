@@ -971,6 +971,76 @@
         "supersedes": []
       },
       {
+        "id": "clinical-safety-critic-lesson-0002",
+        "agentId": "clinical-safety-critic",
+        "team": "adversarial",
+        "topic": "visual-evidence",
+        "summary": "XR screenshot and video review should attack whether actors, patient affect, pain behavior, clinical equipment, environmental details, and displayed information could mislead learners or omit safety-critical cues.",
+        "confidence": 0.95,
+        "iteration": 9,
+        "status": "active",
+        "sourceIds": [
+          "src-operator-visual-qa-steering-2026-05-04"
+        ],
+        "supersedes": []
+      },
+      {
+        "id": "test-automation-lead-lesson-0004",
+        "agentId": "test-automation-lead",
+        "team": "core",
+        "topic": "visual-evidence",
+        "summary": "XR and UI verification should capture browser screenshots and, when available, videos as first-class artifacts for multimodal adversarial review of scene fidelity, readability, interaction affordances, and evidence limits.",
+        "confidence": 0.95,
+        "iteration": 9,
+        "status": "active",
+        "sourceIds": [
+          "src-operator-visual-qa-steering-2026-05-04"
+        ],
+        "supersedes": []
+      },
+      {
+        "id": "ux-friction-critic-lesson-0002",
+        "agentId": "ux-friction-critic",
+        "team": "adversarial",
+        "topic": "visual-evidence",
+        "summary": "Browser screenshot and video evidence should be adversarially reviewed for text readability, occlusion, scene scale, affordance discoverability, navigation friction, and workflow mismatch before accepting XR/UI fidelity claims.",
+        "confidence": 0.95,
+        "iteration": 9,
+        "status": "active",
+        "sourceIds": [
+          "src-operator-visual-qa-steering-2026-05-04"
+        ],
+        "supersedes": []
+      },
+      {
+        "id": "xr-systems-architect-lesson-0006",
+        "agentId": "xr-systems-architect",
+        "team": "core",
+        "topic": "visual-evidence",
+        "summary": "Screenshot and video artifacts can accelerate XR scene critique, but each artifact must be labeled as desktop, emulated XR, Quest CDP, or human worn-headset evidence so automated visual review does not replace physical headset comfort, performance, or readability proof.",
+        "confidence": 0.95,
+        "iteration": 9,
+        "status": "active",
+        "sourceIds": [
+          "src-operator-visual-qa-steering-2026-05-04"
+        ],
+        "supersedes": []
+      },
+      {
+        "id": "asset-pipeline-lead-lesson-0002",
+        "agentId": "asset-pipeline-lead",
+        "team": "core",
+        "topic": "visual-evidence",
+        "summary": "Screenshot and video evidence for XR scenarios should be reviewed for clinical scene fidelity, actor/equipment realism, scale, provenance cues, missing critical equipment, and headset budget implications before any asset lane is called production-ready.",
+        "confidence": 0.94,
+        "iteration": 9,
+        "status": "active",
+        "sourceIds": [
+          "src-operator-visual-qa-steering-2026-05-04"
+        ],
+        "supersedes": []
+      },
+      {
         "id": "data-trace-architect-decision-0004",
         "agentId": "data-trace-architect",
         "team": "core",
@@ -3178,6 +3248,78 @@
           "supersedes": []
         }
       ],
+      "visual-evidence": [
+        {
+          "id": "clinical-safety-critic-lesson-0002",
+          "agentId": "clinical-safety-critic",
+          "team": "adversarial",
+          "topic": "visual-evidence",
+          "summary": "XR screenshot and video review should attack whether actors, patient affect, pain behavior, clinical equipment, environmental details, and displayed information could mislead learners or omit safety-critical cues.",
+          "confidence": 0.95,
+          "iteration": 9,
+          "status": "active",
+          "sourceIds": [
+            "src-operator-visual-qa-steering-2026-05-04"
+          ],
+          "supersedes": []
+        },
+        {
+          "id": "test-automation-lead-lesson-0004",
+          "agentId": "test-automation-lead",
+          "team": "core",
+          "topic": "visual-evidence",
+          "summary": "XR and UI verification should capture browser screenshots and, when available, videos as first-class artifacts for multimodal adversarial review of scene fidelity, readability, interaction affordances, and evidence limits.",
+          "confidence": 0.95,
+          "iteration": 9,
+          "status": "active",
+          "sourceIds": [
+            "src-operator-visual-qa-steering-2026-05-04"
+          ],
+          "supersedes": []
+        },
+        {
+          "id": "ux-friction-critic-lesson-0002",
+          "agentId": "ux-friction-critic",
+          "team": "adversarial",
+          "topic": "visual-evidence",
+          "summary": "Browser screenshot and video evidence should be adversarially reviewed for text readability, occlusion, scene scale, affordance discoverability, navigation friction, and workflow mismatch before accepting XR/UI fidelity claims.",
+          "confidence": 0.95,
+          "iteration": 9,
+          "status": "active",
+          "sourceIds": [
+            "src-operator-visual-qa-steering-2026-05-04"
+          ],
+          "supersedes": []
+        },
+        {
+          "id": "xr-systems-architect-lesson-0006",
+          "agentId": "xr-systems-architect",
+          "team": "core",
+          "topic": "visual-evidence",
+          "summary": "Screenshot and video artifacts can accelerate XR scene critique, but each artifact must be labeled as desktop, emulated XR, Quest CDP, or human worn-headset evidence so automated visual review does not replace physical headset comfort, performance, or readability proof.",
+          "confidence": 0.95,
+          "iteration": 9,
+          "status": "active",
+          "sourceIds": [
+            "src-operator-visual-qa-steering-2026-05-04"
+          ],
+          "supersedes": []
+        },
+        {
+          "id": "asset-pipeline-lead-lesson-0002",
+          "agentId": "asset-pipeline-lead",
+          "team": "core",
+          "topic": "visual-evidence",
+          "summary": "Screenshot and video evidence for XR scenarios should be reviewed for clinical scene fidelity, actor/equipment realism, scale, provenance cues, missing critical equipment, and headset budget implications before any asset lane is called production-ready.",
+          "confidence": 0.94,
+          "iteration": 9,
+          "status": "active",
+          "sourceIds": [
+            "src-operator-visual-qa-steering-2026-05-04"
+          ],
+          "supersedes": []
+        }
+      ],
       "voice-misuse": [
         {
           "id": "voice-safety-misuse-attacker-risk-0002",
@@ -3256,6 +3398,20 @@
           "status": "active",
           "sourceIds": [
             "src-internal-agent-factory-design-spec"
+          ],
+          "supersedes": []
+        },
+        {
+          "id": "asset-pipeline-lead-lesson-0002",
+          "agentId": "asset-pipeline-lead",
+          "team": "core",
+          "topic": "visual-evidence",
+          "summary": "Screenshot and video evidence for XR scenarios should be reviewed for clinical scene fidelity, actor/equipment realism, scale, provenance cues, missing critical equipment, and headset budget implications before any asset lane is called production-ready.",
+          "confidence": 0.94,
+          "iteration": 9,
+          "status": "active",
+          "sourceIds": [
+            "src-operator-visual-qa-steering-2026-05-04"
           ],
           "supersedes": []
         }
@@ -3513,6 +3669,20 @@
           "status": "active",
           "sourceIds": [
             "src-internal-agent-factory-design-spec"
+          ],
+          "supersedes": []
+        },
+        {
+          "id": "clinical-safety-critic-lesson-0002",
+          "agentId": "clinical-safety-critic",
+          "team": "adversarial",
+          "topic": "visual-evidence",
+          "summary": "XR screenshot and video review should attack whether actors, patient affect, pain behavior, clinical equipment, environmental details, and displayed information could mislead learners or omit safety-critical cues.",
+          "confidence": 0.95,
+          "iteration": 9,
+          "status": "active",
+          "sourceIds": [
+            "src-operator-visual-qa-steering-2026-05-04"
           ],
           "supersedes": []
         }
@@ -4644,6 +4814,20 @@
           "supersedes": []
         },
         {
+          "id": "test-automation-lead-lesson-0004",
+          "agentId": "test-automation-lead",
+          "team": "core",
+          "topic": "visual-evidence",
+          "summary": "XR and UI verification should capture browser screenshots and, when available, videos as first-class artifacts for multimodal adversarial review of scene fidelity, readability, interaction affordances, and evidence limits.",
+          "confidence": 0.95,
+          "iteration": 9,
+          "status": "active",
+          "sourceIds": [
+            "src-operator-visual-qa-steering-2026-05-04"
+          ],
+          "supersedes": []
+        },
+        {
           "id": "test-automation-lead-decision-0003",
           "agentId": "test-automation-lead",
           "team": "core",
@@ -4685,6 +4869,20 @@
           "status": "active",
           "sourceIds": [
             "src-internal-agent-factory-design-spec"
+          ],
+          "supersedes": []
+        },
+        {
+          "id": "ux-friction-critic-lesson-0002",
+          "agentId": "ux-friction-critic",
+          "team": "adversarial",
+          "topic": "visual-evidence",
+          "summary": "Browser screenshot and video evidence should be adversarially reviewed for text readability, occlusion, scene scale, affordance discoverability, navigation friction, and workflow mismatch before accepting XR/UI fidelity claims.",
+          "confidence": 0.95,
+          "iteration": 9,
+          "status": "active",
+          "sourceIds": [
+            "src-operator-visual-qa-steering-2026-05-04"
           ],
           "supersedes": []
         }
@@ -4825,6 +5023,20 @@
           "status": "active",
           "sourceIds": [
             "src-internal-agent-factory-design-spec"
+          ],
+          "supersedes": []
+        },
+        {
+          "id": "xr-systems-architect-lesson-0006",
+          "agentId": "xr-systems-architect",
+          "team": "core",
+          "topic": "visual-evidence",
+          "summary": "Screenshot and video artifacts can accelerate XR scene critique, but each artifact must be labeled as desktop, emulated XR, Quest CDP, or human worn-headset evidence so automated visual review does not replace physical headset comfort, performance, or readability proof.",
+          "confidence": 0.95,
+          "iteration": 9,
+          "status": "active",
+          "sourceIds": [
+            "src-operator-visual-qa-steering-2026-05-04"
           ],
           "supersedes": []
         },
@@ -5388,7 +5600,7 @@
     }
   ],
   "memoryRetrieval": {
-    "activeEntryCount": 106,
+    "activeEntryCount": 111,
     "topics": [
       "actor-cell-runtime",
       "adb-platform-tools-installed",
@@ -5427,6 +5639,7 @@
       "synthetic-voice-governance",
       "trace-completeness",
       "vibevoice-safety-gate",
+      "visual-evidence",
       "voice-misuse"
     ]
   }

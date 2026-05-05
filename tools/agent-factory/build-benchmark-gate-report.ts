@@ -273,6 +273,14 @@ type RealtimeVoiceTransportSpikeReport = {
     status: string;
     blockers: string[];
   };
+  protocolEvidence?: {
+    websocketLocalHarnessObserved: boolean;
+    bunHonoRuntimeObserved: boolean;
+    webTransportObserved: boolean;
+    quicObserved: boolean;
+    web3SignalingObserved: boolean;
+    notes: string[];
+  };
   verdict: {
     transportContractPassed: boolean;
     readyForLiveDialog: false;
@@ -414,6 +422,14 @@ type EvidenceGateReport = {
     frame_latency_samples_ms?: number[];
     audio_chunk_indexes_received?: number[];
     latency_budget: RealtimeVoiceTransportSpikeReport["harness"]["latencyBudget"];
+    protocol_evidence?: {
+      websocket_local_harness_observed: boolean;
+      bun_hono_runtime_observed: boolean;
+      webtransport_observed: boolean;
+      quic_observed: boolean;
+      web3_signaling_observed: boolean;
+      notes: string[];
+    };
     python_backend_verifier: RealtimeVoiceTransportSpikeReport["pythonBackendVerifier"];
     verdict: RealtimeVoiceTransportSpikeReport["verdict"];
   };
@@ -744,7 +760,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localVoiceLiveDialogBenchmark?.value.webxrPlayback.observed ? "local_voice_live_dialog_webxr_playback_observed" : undefined,
     localVoiceLiveDialogBenchmark && localVoiceLiveDialogBenchmark.value.safetyControls.blockers.length === 0 ? "local_voice_live_dialog_safety_controls_observed" : undefined,
     localVoiceLiveDialogBenchmark?.value.verdict.passed ? "local_voice_live_dialog_benchmark_passed" : undefined,
-    realtimeVoiceTransportSpikePassed(realtimeVoiceTransportSpike) ? "local_voice_realtime_transport_spike_passed" : undefined,
+    realtimeVoiceTransportSpikePassed(realtimeVoiceTransportSpike) ? "local_voice_realtime_transport_contract_observed" : undefined,
     apiPythonBackendRuntimeSmoke?.value.verdict.passed ? "local_voice_python_backend_runtime_smoke_passed" : undefined,
   ]);
   const questSatisfiedConditions = combinedSatisfiedConditions.filter((condition) =>
@@ -912,6 +928,16 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         frame_latency_samples_ms: realtimeVoiceTransportSpike.value.harness.frameLatencySamplesMs,
         audio_chunk_indexes_received: realtimeVoiceTransportSpike.value.harness.audioChunkIndexesReceived,
         latency_budget: realtimeVoiceTransportSpike.value.harness.latencyBudget,
+        ...(realtimeVoiceTransportSpike.value.protocolEvidence ? {
+          protocol_evidence: {
+            websocket_local_harness_observed: realtimeVoiceTransportSpike.value.protocolEvidence.websocketLocalHarnessObserved,
+            bun_hono_runtime_observed: realtimeVoiceTransportSpike.value.protocolEvidence.bunHonoRuntimeObserved,
+            webtransport_observed: realtimeVoiceTransportSpike.value.protocolEvidence.webTransportObserved,
+            quic_observed: realtimeVoiceTransportSpike.value.protocolEvidence.quicObserved,
+            web3_signaling_observed: realtimeVoiceTransportSpike.value.protocolEvidence.web3SignalingObserved,
+            notes: realtimeVoiceTransportSpike.value.protocolEvidence.notes,
+          },
+        } : {}),
         python_backend_verifier: realtimeVoiceTransportSpike.value.pythonBackendVerifier,
         verdict: realtimeVoiceTransportSpike.value.verdict,
       },
@@ -1378,6 +1404,7 @@ function realtimeVoiceTransportSpikeBlockers(
     return [];
   }
   const frameMetadataBlockers = realtimeVoiceTransportSpikeFrameMetadataBlockers(realtimeVoiceTransportSpike);
+  const protocolEvidenceBlockers = realtimeVoiceTransportSpikeProtocolEvidenceBlockers(realtimeVoiceTransportSpike);
   return unique([
     realtimeVoiceTransportSpike.value.verdict.transportContractPassed
       ? undefined
@@ -1387,6 +1414,9 @@ function realtimeVoiceTransportSpikeBlockers(
       : realtimeVoiceTransportSpike.value.pythonBackendVerifier.blockers
         .map((blocker) => `local_voice_live_dialog:realtime_transport_spike:python_backend:${blocker}`)),
     ...frameMetadataBlockers.map((blocker) => `local_voice_live_dialog:realtime_transport_spike:${blocker}`),
+    ...protocolEvidenceBlockers.map((blocker) => `local_voice_live_dialog:realtime_transport_spike:${blocker}`),
+    ...realtimeVoiceTransportSpike.value.verdict.blockers
+      .map((blocker) => `local_voice_live_dialog:realtime_transport_spike:${blocker}`),
   ]);
 }
 
@@ -1395,8 +1425,25 @@ function realtimeVoiceTransportSpikePassed(
 ): boolean {
   return Boolean(
     realtimeVoiceTransportSpike?.value.verdict.transportContractPassed
-      && realtimeVoiceTransportSpikeFrameMetadataBlockers(realtimeVoiceTransportSpike).length === 0,
+      && realtimeVoiceTransportSpikeFrameMetadataBlockers(realtimeVoiceTransportSpike).length === 0
+      && realtimeVoiceTransportSpikeProtocolEvidenceBlockers(realtimeVoiceTransportSpike).length === 0,
   );
+}
+
+function realtimeVoiceTransportSpikeProtocolEvidenceBlockers(
+  realtimeVoiceTransportSpike: EvidenceFile<RealtimeVoiceTransportSpikeReport>,
+): string[] {
+  const protocolEvidence = realtimeVoiceTransportSpike.value.protocolEvidence;
+  if (!protocolEvidence) {
+    return ["protocol_evidence_missing"];
+  }
+
+  return unique([
+    protocolEvidence.websocketLocalHarnessObserved ? undefined : "websocket_local_harness_not_observed",
+    protocolEvidence.webTransportObserved ? "webtransport_unapproved_runtime_observed" : undefined,
+    protocolEvidence.quicObserved ? "quic_unapproved_runtime_observed" : undefined,
+    protocolEvidence.web3SignalingObserved ? "web3_signaling_unapproved_runtime_observed" : undefined,
+  ]);
 }
 
 function realtimeVoiceTransportSpikeFrameMetadataBlockers(

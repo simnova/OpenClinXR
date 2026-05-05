@@ -600,6 +600,14 @@ describe("benchmark gate report", () => {
               status: string;
               blockers: string[];
             };
+            protocolEvidence?: {
+              websocketLocalHarnessObserved: boolean;
+              bunHonoRuntimeObserved: boolean;
+              webTransportObserved: boolean;
+              quicObserved: boolean;
+              web3SignalingObserved: boolean;
+              notes: string[];
+            };
             verdict: {
               transportContractPassed: boolean;
               readyForLiveDialog: false;
@@ -711,6 +719,17 @@ describe("benchmark gate report", () => {
             status: "passed",
             blockers: [],
           },
+          protocolEvidence: {
+            websocketLocalHarnessObserved: true,
+            bunHonoRuntimeObserved: false,
+            webTransportObserved: false,
+            quicObserved: false,
+            web3SignalingObserved: false,
+            notes: [
+              "Only the local WebSocket transport harness has execution evidence in this report.",
+              "WebTransport, direct QUIC, and Web3 signaling remain proposal- and evidence-gated.",
+            ],
+          },
           verdict: {
             transportContractPassed: true,
             readyForLiveDialog: false,
@@ -794,7 +813,7 @@ describe("benchmark gate report", () => {
       "local_voice_live_dialog_report_present",
       "local_voice_live_dialog_mock_stream_passed",
       "local_voice_live_dialog_safety_controls_observed",
-      "local_voice_realtime_transport_spike_passed",
+      "local_voice_realtime_transport_contract_observed",
       "local_voice_python_backend_runtime_smoke_passed",
     ]));
     expect(liveDialogGate?.blockers).toEqual(expect.arrayContaining([
@@ -802,6 +821,7 @@ describe("benchmark gate report", () => {
       "local_voice_live_dialog:runtime:runtime_file_generation_only",
       "local_voice_live_dialog:runtime:real_time_factor_above_1",
       "local_voice_live_dialog:webxr_playback:webxr_playback_not_observed",
+      "local_voice_live_dialog:realtime_transport_spike:real_moshi_or_qwen3_inference_not_observed",
     ]));
     expect(liveDialogGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
       "local_voice_live_dialog_runtime_stream_observed",
@@ -820,6 +840,13 @@ describe("benchmark gate report", () => {
       latency_budget: {
         targetMs: 250,
         passed: true,
+      },
+      protocol_evidence: {
+        websocket_local_harness_observed: true,
+        bun_hono_runtime_observed: false,
+        webtransport_observed: false,
+        quic_observed: false,
+        web3_signaling_observed: false,
       },
       python_backend_verifier: {
         status: "passed",
@@ -878,6 +905,14 @@ describe("benchmark gate report", () => {
             status: "passed",
             blockers: [],
           },
+          protocolEvidence: {
+            websocketLocalHarnessObserved: true,
+            bunHonoRuntimeObserved: false,
+            webTransportObserved: false,
+            quicObserved: false,
+            web3SignalingObserved: false,
+            notes: [],
+          },
           verdict: {
             transportContractPassed: true,
             readyForLiveDialog: false,
@@ -899,7 +934,7 @@ describe("benchmark gate report", () => {
       "local_voice_live_dialog:realtime_transport_spike:transport_contract_failed",
     ]));
     expect(liveDialogGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
-      "local_voice_realtime_transport_spike_passed",
+      "local_voice_realtime_transport_contract_observed",
     ]));
   });
 
@@ -929,6 +964,14 @@ describe("benchmark gate report", () => {
             status: "passed",
             blockers: [],
           },
+          protocolEvidence: {
+            websocketLocalHarnessObserved: true,
+            bunHonoRuntimeObserved: false,
+            webTransportObserved: false,
+            quicObserved: false,
+            web3SignalingObserved: false,
+            notes: [],
+          },
           verdict: {
             transportContractPassed: true,
             readyForLiveDialog: false,
@@ -949,7 +992,7 @@ describe("benchmark gate report", () => {
       "local_voice_live_dialog:realtime_transport_spike:transport_contract_failed",
     ]));
     expect(liveDialogGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
-      "local_voice_realtime_transport_spike_passed",
+      "local_voice_realtime_transport_contract_observed",
     ]));
   });
 

@@ -29,6 +29,21 @@ describe("OpenClinXR API protocol posture", () => {
     });
   });
 
+  it("does not mark WebTransport ready until local Bun, Quest, and Azure ingress evidence are all recorded", () => {
+    const posture = createOpenClinXrApiProtocolPosture({
+      bunHttp3WebTransportVerified: true,
+      questWebTransportVerified: true,
+      azureWebTransportIngressVerified: false,
+    });
+    const webTransport = posture.protocols.find((protocol) => protocol.protocolId === "webtransport");
+
+    expect(webTransport).toMatchObject({
+      status: "blocked",
+      clinicalMediaAllowed: false,
+      blockers: expect.arrayContaining(["azure_webtransport_ingress_not_verified"]),
+    });
+  });
+
   it("keeps Web3 signaling out of the clinical media path while QUIC remains evidence gated", () => {
     const posture = createOpenClinXrApiProtocolPosture();
     const quic = posture.protocols.find((protocol) => protocol.protocolId === "quic");
