@@ -148,4 +148,16 @@ describe("static browser assets", () => {
 
     expect(packageJson.scripts?.["dev:portless"]).toBe("vite --host 127.0.0.1 --port ${PORT:-5173} --strictPort");
   });
+
+  it("bounds the desktop XR stage to the viewport while letting the runtime panel scroll", () => {
+    const styles = readFileSync(new URL("./styles.css", import.meta.url), "utf8");
+
+    expect(styles).toMatch(/\.station-shell\s*{[^}]*height:\s*100vh;[^}]*overflow:\s*hidden;/s);
+    expect(styles).toMatch(/\.stage\s*{[^}]*height:\s*100vh;[^}]*min-height:\s*0;/s);
+    expect(styles).toMatch(/#station-canvas\s*{[^}]*height:\s*100vh;[^}]*min-height:\s*0;/s);
+    expect(styles).toMatch(/\.runtime-panel\s*{[^}]*height:\s*100vh;[^}]*min-height:\s*0;[^}]*overflow-y:\s*auto;/s);
+    expect(styles).toMatch(/@media\s*\(max-width:\s*820px\)\s*{[\s\S]*\.station-shell\s*{[^}]*height:\s*auto;[^}]*overflow:\s*visible;/s);
+    expect(styles).toMatch(/@media\s*\(max-width:\s*820px\)\s*{[\s\S]*\.stage\s*{[^}]*height:\s*56vh;[^}]*min-height:\s*56vh;/s);
+    expect(styles).toMatch(/@media\s*\(max-width:\s*820px\)\s*{[\s\S]*\.runtime-panel\s*{[^}]*height:\s*auto;[^}]*overflow-y:\s*visible;/s);
+  });
 });

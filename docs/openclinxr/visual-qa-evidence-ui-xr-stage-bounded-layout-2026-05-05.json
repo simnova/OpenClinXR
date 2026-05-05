@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "openclinxr.visual-qa-evidence.v1",
+  "capture": {
+    "source": "desktop_browser",
+    "artifactType": "screenshot",
+    "artifact": "docs/openclinxr/screenshots/ui-xr-layout-bounded-stage-2026-05-05.png",
+    "mimeType": "image/png",
+    "dimensions": {
+      "width": 2880,
+      "height": 1800
+    },
+    "runtimeUrl": "http://localhost:5173/",
+    "route": "/",
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "xrMode": "desktop_browser_flat_preview_not_immersive",
+    "cameraPose": "Desktop browser viewport capture after bounding the station stage to the viewport and making the right runtime panel scroll internally",
+    "captureCommand": "Chrome DevTools MCP resize_page 1440x900; evaluate_script reload; take_screenshot fullPage"
+  },
+  "adversarialReview": {
+    "reviewers": [
+      "test-automation-lead",
+      "ux-friction-critic",
+      "clinical-safety-critic",
+      "xr-systems-architect",
+      "asset-pipeline-lead"
+    ],
+    "checks": {
+      "clinical_scene_fidelity": {
+        "status": "concern",
+        "notes": [
+          "The ED chest-pain station still reads as a coarse runtime preview rather than a realistic emergency department; the right-side clinical text is useful, but the 3D bay lacks realistic staff pressure, equipment density, and patient distress cues."
+        ]
+      },
+      "actor_equipment_realism": {
+        "status": "concern",
+        "notes": [
+          "Actors remain primitive capsule/head proxies without clothing, hands, facial expression, rigging, skin detail, pain response, or believable medical-team presence."
+        ]
+      },
+      "ui_readability": {
+        "status": "pass",
+        "notes": [
+          "The browser document is now viewport-bounded at 1440 by 900 CSS pixels, the status strip remains visible at the bottom of the stage, and the runtime panel scrolls independently instead of stretching the 3D canvas to the full panel height."
+        ]
+      },
+      "interaction_affordances": {
+        "status": "concern",
+        "notes": [
+          "Trace buttons and the Full VR entry affordance are visible, but desktop Chrome still cannot prove headset entry, hand/controller input, locomotion, or controller-select latency."
+        ]
+      },
+      "occlusion_scale": {
+        "status": "concern",
+        "notes": [
+          "The prior full-page canvas-stretch artifact is resolved, but in-scene text panels are still partly occluded by actors and the evidence panel, so spatial UI placement remains a target for UIKitML/IWSDK and headset review."
+        ]
+      },
+      "evidence_limits": {
+        "status": "pass",
+        "notes": [
+          "This screenshot is desktop Chrome DevTools evidence for visual iteration only; it is not physical Quest proof, not immersive WebXR proof, not in-headset text-readability proof, and not production runtime readiness."
+        ]
+      }
+    }
+  },
+  "claimBoundaries": {
+    "notEvidenceFor": [
+      "physical_quest_foreground_frame_pacing",
+      "quest_controller_latency",
+      "quest_hand_tracking_quality",
+      "in_headset_text_readability",
+      "thermal_or_battery_behavior",
+      "production_runtime_readiness"
+    ],
+    "allowedClaims": [
+      "adversarial_visual_iteration_artifact",
+      "desktop_runtime_stage_viewport_bounded",
+      "desktop_runtime_panel_scrolls_independently"
+    ]
+  }
+}
