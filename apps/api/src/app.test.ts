@@ -1286,6 +1286,60 @@ describe("OpenClinXR API shell", () => {
     expect(JSON.stringify(body)).not.toContain("Father died of myocardial infarction");
   });
 
+  it("records clinical actions through the API as session-state trace evidence", async () => {
+    const app = createApiApp();
+    const start = await app.request("/sessions", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ learnerId: "learner_api_clinical_action", consentAccepted: true }),
+    });
+    const started = await json(start) as { stationRunId: string };
+
+    const response = await app.request(`/sessions/${started.stationRunId}/clinical-actions`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        atSecond: 240,
+        actorId: "nurse_maria_alvarez_v1",
+        traceTag: "ecg_request",
+        actionType: "order_requested",
+        label: "Obtain 12-lead ECG",
+      }),
+    });
+    const body = await json(response) as {
+      eventType: string;
+      actorId: string;
+      tag: string;
+      payload: {
+        actionType: string;
+        label: string;
+        completedTraceTags: string[];
+        openOrderCount: number;
+      };
+    };
+
+    expect(response.status).toBe(201);
+    expect(body).toMatchObject({
+      eventType: "clinical.action.recorded",
+      actorId: "nurse_maria_alvarez_v1",
+      tag: "ecg_request",
+      payload: {
+        actionType: "order_requested",
+        label: "Obtain 12-lead ECG",
+        completedTraceTags: ["ecg_request"],
+        openOrderCount: 1,
+      },
+    });
+
+    const traceResponse = await app.request(`/sessions/${started.stationRunId}/trace-events`);
+    const traceEvents = await json(traceResponse) as Array<{ eventType: string }>;
+    expect(traceEvents.map((trace) => trace.eventType)).toEqual([
+      "station.started",
+      "consent.accepted",
+      "clinical.action.recorded",
+    ]);
+  });
+
   it("starts a session, records events, submits a note, and returns a review packet", async () => {
     const app = createApiApp();
     const missingConsent = await app.request("/sessions", {

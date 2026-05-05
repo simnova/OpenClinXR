@@ -350,6 +350,31 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     }
   });
 
+  app.post(routeById("record-clinical-action").path, async (context) => {
+    const stationRunId = context.req.param("stationRunId");
+    const body = (await context.req.json().catch(() => ({}))) as {
+      atSecond?: unknown;
+      actorId?: unknown;
+      traceTag?: unknown;
+      actionType?: unknown;
+      label?: unknown;
+    };
+
+    try {
+      const event = runtime.recordClinicalAction(stationRunId, {
+        atSecond: typeof body.atSecond === "number" ? body.atSecond : 0,
+        actorId: typeof body.actorId === "string" ? body.actorId : "",
+        traceTag: typeof body.traceTag === "string" ? body.traceTag : "clinical_action",
+        actionType: body.actionType === "finding_observed" ? "finding_observed" : "order_requested",
+        label: typeof body.label === "string" ? body.label : "Clinical action",
+      });
+      await persistTraceSnapshot(runtime, persistence, stationRunId);
+      return context.json(event, 201);
+    } catch (error) {
+      return sessionErrorResponse(context, error);
+    }
+  });
+
   app.post(routeById("actor-interaction-route").path, async (context) => {
     const stationRunId = context.req.param("stationRunId");
     const body = (await context.req.json().catch(() => ({}))) as {

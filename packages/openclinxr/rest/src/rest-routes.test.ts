@@ -30,6 +30,7 @@ describe("OpenClinXR REST route contract", () => {
       "start-session",
       "start-encounter",
       "append-trace-event",
+      "record-clinical-action",
       "actor-interaction-route",
       "actor-response",
       "voice-synthesis",
@@ -45,6 +46,12 @@ describe("OpenClinXR REST route contract", () => {
     expect(routeById("actor-interaction-route")).toMatchObject({
       method: "POST",
       path: "/sessions/:stationRunId/actor-interaction-route",
+      surface: "xr-runtime",
+      stationRunScoped: true,
+    });
+    expect(routeById("record-clinical-action")).toMatchObject({
+      method: "POST",
+      path: "/sessions/:stationRunId/clinical-actions",
       surface: "xr-runtime",
       stationRunScoped: true,
     });
@@ -111,6 +118,9 @@ describe("OpenClinXR REST route contract", () => {
     expect(buildSessionRoutePath("actor-interaction-route", "run 1/2")).toBe(
       "/sessions/run%201%2F2/actor-interaction-route",
     );
+    expect(buildSessionRoutePath("record-clinical-action", "run 1/2")).toBe(
+      "/sessions/run%201%2F2/clinical-actions",
+    );
     expect(buildSessionRoutePath("trace-events", "run_001")).toBe("/sessions/run_001/trace-events");
   });
 
@@ -127,6 +137,10 @@ describe("OpenClinXR REST route contract", () => {
     });
     expect(matchOpenClinXrRestRoute("POST", "/sessions/run%201%2F2/actor-interaction-route")).toMatchObject({
       route: { id: "actor-interaction-route" },
+      params: { stationRunId: "run 1/2" },
+    });
+    expect(matchOpenClinXrRestRoute("POST", "/sessions/run%201%2F2/clinical-actions")).toMatchObject({
+      route: { id: "record-clinical-action" },
       params: { stationRunId: "run 1/2" },
     });
     expect(matchOpenClinXrRestRoute("POST", "/internal/capabilities/character-generation/jobs")).toMatchObject({
