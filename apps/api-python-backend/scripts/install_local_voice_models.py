@@ -14,6 +14,10 @@ from urllib.parse import urlparse
 
 
 EVIDENCE_FILE = "openclinxr-local-voice-evidence.json"
+APPROVED_MODEL_IDS = [
+    "kyutai/moshiko-mlx-q4",
+    "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+]
 
 
 def default_cache_dir() -> pathlib.Path:
@@ -128,6 +132,7 @@ def plan_install(
         "cache_dir": str(cache_dir),
         "target_dir": str(target_dir),
         "model_id": model_id,
+        "approved_model_ids": APPROVED_MODEL_IDS,
         "storage_name": storage_name,
         "source": source_value,
         "dry_run": dry_run,
@@ -150,10 +155,15 @@ def install(
             "kind": "local_voice_model_install",
             "cache_dir": str(cache_dir.expanduser()),
             "model_id": model_id,
+            "approved_model_ids": APPROVED_MODEL_IDS,
             "dry_run": dry_run,
             "installed": False,
             "error": str(exc),
         }
+
+    if model_id not in APPROVED_MODEL_IDS:
+        payload["error"] = "model_id is not in the approved local realtime voice candidate list"
+        return 2, payload
 
     if source is not None and is_remote_source(str(source)):
         payload["error"] = "remote sources are not allowed"
@@ -194,6 +204,7 @@ def install(
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
+    normalized_argv = argv[1:] if argv[:1] == ["--"] else argv
     parser = JsonArgumentParser(description=__doc__)
     parser.add_argument(
         "--cache-dir",
@@ -204,7 +215,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--model-id", required=True, help="Local model identifier, for example moshi-mlx.")
     parser.add_argument("--source", type=pathlib.Path, help="Existing local file or directory to copy.")
     parser.add_argument("--dry-run", action="store_true", help="Plan the install without creating files.")
-    return parser.parse_args(argv)
+    return parser.parse_args(normalized_argv)
 
 
 def main(argv: list[str] | None = None) -> int:

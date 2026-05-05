@@ -108,7 +108,7 @@ class LocalVoiceEvidenceTests(unittest.TestCase):
                 "--cache-dir",
                 str(cache),
                 "--model-id",
-                "moshi-mlx",
+                "kyutai/moshiko-mlx-q4",
                 "--source",
                 str(source),
                 "--dry-run",
@@ -117,9 +117,9 @@ class LocalVoiceEvidenceTests(unittest.TestCase):
             self.assertFalse(cache.exists())
             self.assertEqual("local_voice_model_install", payload["kind"])
             self.assertTrue(payload["dry_run"])
-            self.assertEqual("moshi-mlx", payload["model_id"])
+            self.assertEqual("kyutai/moshiko-mlx-q4", payload["model_id"])
             self.assertEqual(str(source.resolve()), payload["source"])
-            self.assertEqual(str(cache / "moshi-mlx"), payload["target_dir"])
+            self.assertEqual(str(cache / "kyutai__moshiko-mlx-q4"), payload["target_dir"])
             self.assertEqual("would_copy_local_source", payload["actions"][0]["action"])
 
     def test_install_supports_huggingface_style_model_ids_without_nested_storage(self) -> None:
@@ -139,6 +139,28 @@ class LocalVoiceEvidenceTests(unittest.TestCase):
             self.assertEqual("kyutai__moshiko-mlx-q4", payload["storage_name"])
             self.assertEqual(str(cache / "kyutai__moshiko-mlx-q4"), payload["target_dir"])
 
+    def test_install_rejects_unapproved_model_id_as_json(self) -> None:
+        code, payload = run_json_error(
+            INSTALL,
+            "--model-id",
+            "moshi-mlx",
+            "--dry-run",
+        )
+
+        self.assertEqual(2, code)
+        self.assertEqual("local_voice_model_install", payload["kind"])
+        self.assertEqual(
+            "model_id is not in the approved local realtime voice candidate list",
+            payload["error"],
+        )
+        self.assertEqual(
+            [
+                "kyutai/moshiko-mlx-q4",
+                "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+            ],
+            payload["approved_model_ids"],
+        )
+
     def test_install_rejects_model_id_path_traversal_as_json(self) -> None:
         code, payload = run_json_error(
             INSTALL,
@@ -155,7 +177,7 @@ class LocalVoiceEvidenceTests(unittest.TestCase):
         code, payload = run_json_error(
             INSTALL,
             "--model-id",
-            "moshi-mlx",
+            "kyutai/moshiko-mlx-q4",
             "--source",
             "https://example.invalid/model.bin",
             "--dry-run",
@@ -178,7 +200,7 @@ class LocalVoiceEvidenceTests(unittest.TestCase):
                 "--cache-dir",
                 str(cache),
                 "--model-id",
-                "qwen3-tts-mlx",
+                "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
                 "--source",
                 str(source),
             )
@@ -188,7 +210,7 @@ class LocalVoiceEvidenceTests(unittest.TestCase):
         self.assertTrue(install_payload["installed"])
         self.assertEqual("local_source_copy", install_payload["evidence"]["source_type"])
         self.assertTrue(check_payload["ready"])
-        self.assertEqual("qwen3-tts-mlx", check_payload["models"][0]["model_id"])
+        self.assertEqual("mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit", check_payload["models"][0]["model_id"])
         self.assertEqual("local_source_copy", check_payload["models"][0]["source_type"])
 
     def test_install_argument_errors_are_json(self) -> None:
@@ -198,6 +220,24 @@ class LocalVoiceEvidenceTests(unittest.TestCase):
         self.assertEqual("local_voice_model_install_error", payload["kind"])
         self.assertEqual("argument_error", payload["error"])
         self.assertIn("--model-id", payload["message"])
+
+    def test_install_accepts_pnpm_forwarded_separator(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            cache = pathlib.Path(temp) / "cache"
+
+            payload = run_json(
+                INSTALL,
+                "--",
+                "--cache-dir",
+                str(cache),
+                "--model-id",
+                "kyutai/moshiko-mlx-q4",
+                "--dry-run",
+            )
+
+        self.assertEqual("local_voice_model_install", payload["kind"])
+        self.assertTrue(payload["dry_run"])
+        self.assertEqual("kyutai/moshiko-mlx-q4", payload["model_id"])
 
 
 if __name__ == "__main__":

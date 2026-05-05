@@ -24,3 +24,9 @@ optional packages are installed by the verifier or package scripts.
 evidence files. Runtime support virtual environments such as
 `api-python-backend-venv` are reported under `support_directories`, not as model
 weights, so they do not make local inference appear ready.
+
+`voice:install-local` is intentionally constrained to the approved local
+realtime voice proposal candidates: `kyutai/moshiko-mlx-q4` and
+`mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit`. It only accepts existing local
+source files or directories and rejects remote URLs; model downloads and
+runtime package installs stay outside this repo and outside default verify.
