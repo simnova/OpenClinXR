@@ -58,7 +58,23 @@ export type BunServerConfig = {
   fetch: (request: Request) => Response | Promise<Response>;
   port: number;
   websocketPath: "/voice/realtime/ws";
+  canUpgradeWebSocketRequest: (request: Request) => boolean;
+  websocket: BunRealtimeVoiceWebSocketHandler;
   protocolSupport: OpenClinXrApiProtocolSupport[];
+};
+
+export type BunRealtimeVoiceWebSocket = {
+  data?: {
+    audioChunks: number;
+    audioBytes: number;
+  };
+  send(frame: string | Uint8Array): void | number | Promise<void | number>;
+};
+
+export type BunRealtimeVoiceWebSocketHandler = {
+  open(socket: BunRealtimeVoiceWebSocket): void;
+  message(socket: BunRealtimeVoiceWebSocket, message: string | ArrayBuffer | ArrayBufferView): void;
+  close(socket: BunRealtimeVoiceWebSocket): void;
 };
 
 export type OpenClinXrApiStartupOptions = {
@@ -172,8 +188,124 @@ export function createBunServerConfig(startup: StartedOpenClinXrApi = createOpen
     fetch: startup.fetch,
     port: options.port ?? Number(process.env.PORT ?? 3000),
     websocketPath: "/voice/realtime/ws",
+    canUpgradeWebSocketRequest: isRealtimeVoiceWebSocketUpgradeRequest,
+    websocket: createBunRealtimeVoiceWebSocketHandler(),
     protocolSupport: startup.protocolSupport,
   };
+}
+
+function isRealtimeVoiceWebSocketUpgradeRequest(request: Request): boolean {
+  const url = new URL(request.url);
+  return url.pathname === "/voice/realtime/ws" && request.headers.get("upgrade")?.toLowerCase() === "websocket";
+}
+
+function createBunRealtimeVoiceWebSocketHandler(): BunRealtimeVoiceWebSocketHandler {
+  return {
+    open(socket) {
+      socket.data = { audioChunks: 0, audioBytes: 0 };
+      sendBunWebSocketJson(socket, {
+        type: "gateway.ready",
+        protocol: "bun-native-json-control-and-binary-audio-echo",
+        readyForLiveDialog: false,
+      });
+    },
+    message(socket, message) {
+      if (typeof message === "string") {
+        acknowledgeRealtimeVoiceControlFrame(socket, message);
+        return;
+      }
+
+      const chunk = toUint8Array(message);
+      const data = socket.data ?? { audioChunks: 0, audioBytes: 0 };
+      data.audioChunks += 1;
+      data.audioBytes += chunk.byteLength;
+      socket.data = data;
+      sendBunWebSocketJson(socket, {
+        type: "audio.metadata",
+        chunkIndex: data.audioChunks,
+        chunkBytes: chunk.byteLength,
+        totalBytes: data.audioBytes,
+        format: "opaque-binary",
+      });
+      sendBunWebSocketJson(socket, {
+        type: "transcript.delta",
+        text: "",
+        isFinal: false,
+        sourceChunkIndex: data.audioChunks,
+      });
+      socket.send(chunk);
+    },
+    close(socket) {
+      delete socket.data;
+    },
+  };
+}
+
+function acknowledgeRealtimeVoiceControlFrame(socket: BunRealtimeVoiceWebSocket, payload: string): void {
+  let control: Record<string, unknown>;
+  try {
+    const parsed = JSON.parse(payload) as unknown;
+    control = isRecord(parsed) ? parsed : { type: "control", value: parsed };
+  } catch (error) {
+    sendBunWebSocketJson(socket, {
+      type: "error",
+      reason: "invalid JSON control frame",
+      detail: error instanceof Error ? error.message : "unknown",
+    });
+    return;
+  }
+
+  const controlType = typeof control.type === "string" ? control.type : "control";
+  sendBunWebSocketJson(socket, {
+    type: "control.ack",
+    controlType,
+    received: sanitizeBunRealtimeVoiceControlFrame(control),
+  });
+  if (controlType === "voice.start" || controlType === "start" || controlType === "commit" || controlType === "flush") {
+    sendBunWebSocketJson(socket, {
+      type: "transcript.metadata",
+      status: "ready",
+      controlType,
+    });
+  }
+}
+
+function sanitizeBunRealtimeVoiceControlFrame(control: Record<string, unknown>): Record<string, unknown> {
+  const sanitized: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(control)) {
+    if (typeof value === "string" || typeof value === "number" || typeof value === "boolean" || value === null) {
+      sanitized[key] = value;
+      continue;
+    }
+    if (Array.isArray(value)) {
+      sanitized[key] = `list[${value.length}]`;
+      continue;
+    }
+    if (isRecord(value)) {
+      sanitized[key] = `object[${Object.keys(value).length}]`;
+      continue;
+    }
+    sanitized[key] = typeof value;
+  }
+  return sanitized;
+}
+
+function sendBunWebSocketJson(socket: BunRealtimeVoiceWebSocket, payload: Record<string, unknown>): void {
+  socket.send(JSON.stringify(payload));
+}
+
+function toUint8Array(message: ArrayBuffer | ArrayBufferView): Uint8Array {
+  if (message instanceof Uint8Array) {
+    return message;
+  }
+  if (ArrayBuffer.isView(message)) {
+    return new Uint8Array(message.buffer, message.byteOffset, message.byteLength);
+  }
+  return new Uint8Array(message);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function defaultContextFactory(

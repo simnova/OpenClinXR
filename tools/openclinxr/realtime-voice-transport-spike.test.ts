@@ -35,7 +35,7 @@ describe("realtime voice transport spike report", () => {
       expect.objectContaining({
         protocolId: "websocket",
         status: "contract_ready",
-        blockers: expect.arrayContaining(["api_bun_websocket_upgrade_not_implemented"]),
+        blockers: expect.arrayContaining(["api_bun_websocket_runtime_not_verified"]),
       }),
       expect.objectContaining({ protocolId: "webtransport", status: "blocked" }),
       expect.objectContaining({ protocolId: "quic", status: "planned" }),

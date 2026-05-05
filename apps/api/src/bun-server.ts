@@ -3,8 +3,13 @@ import { createBunServerConfig, createOpenClinXrApiStartup } from "./index.js";
 type BunRuntime = {
   serve: (options: {
     port: number;
-    fetch: (request: Request) => Response | Promise<Response>;
+    fetch: (request: Request, server: BunServer) => Response | Promise<Response> | undefined;
+    websocket: ReturnType<typeof createBunServerConfig>["websocket"];
   }) => { url?: URL; port?: number };
+};
+
+type BunServer = {
+  upgrade(request: Request): boolean;
 };
 
 const bun = (globalThis as { Bun?: BunRuntime }).Bun;
@@ -24,7 +29,16 @@ const config = createBunServerConfig(startup, {
 });
 const server = bun.serve({
   port: config.port,
-  fetch: config.fetch,
+  fetch: (request, server) => {
+    if (config.canUpgradeWebSocketRequest(request)) {
+      if (server.upgrade(request)) {
+        return undefined;
+      }
+      return new Response("WebSocket upgrade failed", { status: 400 });
+    }
+    return config.fetch(request);
+  },
+  websocket: config.websocket,
 });
 
 console.log(`OpenClinXR Bun/Hono API listening on ${server.url?.toString() ?? `http://localhost:${config.port}`}`);

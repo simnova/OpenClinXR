@@ -35,6 +35,7 @@ export type OpenClinXrApiProtocolPosture = {
 };
 
 export function createOpenClinXrApiProtocolPosture(input: {
+  apiBunWebSocketRuntimeVerified?: boolean;
   bunHttp3WebTransportVerified?: boolean;
   questWebTransportVerified?: boolean;
   azureWebTransportIngressVerified?: boolean;
@@ -45,6 +46,7 @@ export function createOpenClinXrApiProtocolPosture(input: {
   web3IdentityAndSignalingProtocolSelected?: boolean;
   web3SignalingProtocolSelected?: boolean;
 } = {}): OpenClinXrApiProtocolPosture {
+  const websocketReady = Boolean(input.apiBunWebSocketRuntimeVerified);
   const webTransportReady = Boolean(
     input.bunHttp3WebTransportVerified
       && input.questWebTransportVerified
@@ -85,14 +87,16 @@ export function createOpenClinXrApiProtocolPosture(input: {
       },
       {
         protocolId: "websocket",
-        status: "contract_ready",
-        claimScope: "contract_only",
+        status: websocketReady ? "ready" : "contract_ready",
+        claimScope: websocketReady ? "runtime_ready" : "contract_only",
         runtimeTarget: "bun-hono",
         role: "media-transport",
         clinicalMediaAllowed: true,
         path: "/voice/realtime/ws",
-        blockers: ["api_bun_websocket_upgrade_not_implemented"],
-        notes: "Realtime audio is WebSocket-first, but the verified bidirectional media path is still the mock gateway fallback until apps/api owns a Bun WebSocket upgrade handler.",
+        blockers: websocketReady ? [] : ["api_bun_websocket_runtime_not_verified"],
+        notes: websocketReady
+          ? "Realtime audio is WebSocket-first and the Bun/Hono upgrade handler has local runtime evidence."
+          : "Realtime audio is WebSocket-first and apps/api owns a Bun WebSocket upgrade handler, but Bun runtime execution evidence is still required before a runtime-ready claim.",
       },
       {
         protocolId: "webtransport",

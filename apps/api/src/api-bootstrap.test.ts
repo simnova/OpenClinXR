@@ -15,7 +15,7 @@ describe("OpenClinXR API startup", () => {
         status: "contract_ready",
         runtimeTarget: "bun-hono",
         path: "/voice/realtime/ws",
-        blockers: expect.arrayContaining(["api_bun_websocket_upgrade_not_implemented"]),
+        blockers: expect.arrayContaining(["api_bun_websocket_runtime_not_verified"]),
       }),
       expect.objectContaining({
         protocolId: "webtransport",
@@ -92,10 +92,61 @@ describe("OpenClinXR API startup", () => {
         expect.objectContaining({
           protocolId: "websocket",
           status: "contract_ready",
-          blockers: expect.arrayContaining(["api_bun_websocket_upgrade_not_implemented"]),
+          blockers: expect.arrayContaining(["api_bun_websocket_runtime_not_verified"]),
         }),
       ]),
     });
+  });
+
+  it("creates a Bun WebSocket upgrade handler for local realtime voice source evidence", async () => {
+    const startup = createOpenClinXrApiStartup().startUp();
+    const config = createBunServerConfig(startup, { port: 4322 });
+    const sentFrames: unknown[] = [];
+    const fakeSocket = {
+      send(frame: string | Uint8Array) {
+        sentFrames.push(frame);
+      },
+    };
+
+    expect(config.canUpgradeWebSocketRequest(new Request("http://localhost/voice/realtime/ws", {
+      headers: { upgrade: "websocket" },
+    }))).toBe(true);
+    expect(config.canUpgradeWebSocketRequest(new Request("http://localhost/voice/realtime/ws"))).toBe(false);
+    expect(config.canUpgradeWebSocketRequest(new Request("http://localhost/health", {
+      headers: { upgrade: "websocket" },
+    }))).toBe(false);
+
+    config.websocket.open(fakeSocket);
+    config.websocket.message(fakeSocket, JSON.stringify({ type: "voice.start", sessionId: "run-001" }));
+    config.websocket.message(fakeSocket, new Uint8Array([0x4f, 0x70, 0x75, 0x73]));
+
+    expect(sentFrames.map((frame) => typeof frame === "string" ? JSON.parse(frame).type : "binary")).toEqual([
+      "gateway.ready",
+      "control.ack",
+      "transcript.metadata",
+      "audio.metadata",
+      "transcript.delta",
+      "binary",
+    ]);
+    expect(sentFrames.at(-1)).toBeInstanceOf(Uint8Array);
+  });
+
+  it("preserves byte offsets when Bun delivers realtime audio as an ArrayBuffer view", () => {
+    const startup = createOpenClinXrApiStartup().startUp();
+    const config = createBunServerConfig(startup, { port: 4322 });
+    const sentFrames: unknown[] = [];
+    const fakeSocket = {
+      send(frame: string | Uint8Array) {
+        sentFrames.push(frame);
+      },
+    };
+    const buffer = new Uint8Array([0xff, 0x4f, 0x70, 0x75, 0x73, 0xee]).buffer;
+    const frame = new DataView(buffer, 1, 4);
+
+    config.websocket.open(fakeSocket);
+    config.websocket.message(fakeSocket, frame);
+
+    expect(sentFrames.at(-1)).toEqual(new Uint8Array([0x4f, 0x70, 0x75, 0x73]));
   });
 
   it("threads Bun runtime posture into the Bun plus Hono server facade", async () => {

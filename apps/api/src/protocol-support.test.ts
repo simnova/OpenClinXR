@@ -31,7 +31,7 @@ describe("OpenClinXR API protocol posture", () => {
     });
   });
 
-  it("keeps WebSocket as a transport contract claim until the API owns a Bun upgrade handler", () => {
+  it("keeps WebSocket as a transport contract claim until Bun runtime evidence is recorded", () => {
     const posture = createOpenClinXrApiProtocolPosture();
     const websocket = posture.protocols.find((protocol) => protocol.protocolId === "websocket");
 
@@ -39,7 +39,19 @@ describe("OpenClinXR API protocol posture", () => {
       status: "contract_ready",
       claimScope: "contract_only",
       clinicalMediaAllowed: true,
-      blockers: ["api_bun_websocket_upgrade_not_implemented"],
+      blockers: ["api_bun_websocket_runtime_not_verified"],
+    });
+  });
+
+  it("marks WebSocket ready only when the Bun runtime handler has local evidence", () => {
+    const posture = createOpenClinXrApiProtocolPosture({ apiBunWebSocketRuntimeVerified: true });
+    const websocket = posture.protocols.find((protocol) => protocol.protocolId === "websocket");
+
+    expect(websocket).toMatchObject({
+      status: "ready",
+      claimScope: "runtime_ready",
+      clinicalMediaAllowed: true,
+      blockers: [],
     });
   });
 

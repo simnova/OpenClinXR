@@ -51,7 +51,7 @@ describe("OpenClinXR API shell", () => {
           status: "contract_ready",
           runtimeTarget: "bun-hono",
           path: "/voice/realtime/ws",
-          blockers: expect.arrayContaining(["api_bun_websocket_upgrade_not_implemented"]),
+          blockers: expect.arrayContaining(["api_bun_websocket_runtime_not_verified"]),
         }),
         expect.objectContaining({
           protocolId: "webtransport",
