@@ -2,12 +2,12 @@
 
 **Date:** 2026-05-05  
 **Proposal:** `proposals/approved/proposal-server-side-multi-actor-state-context.md`  
-**Status:** First implementation-backed spike complete  
+**Status:** Superseded by `@openclinxr/session-state` for production-shaped contracts
 **Scope:** Server-side architecture spike only. This is not a production architecture decision.
 
 ## Executive Recommendation
 
-Use a custom domain-state baseline first, then promote the stable API surface into `packages/openclinxr/scenario-runtime` through a follow-up proposal after more evidence exists.
+Use `packages/openclinxr/session-state` as the production-shaped home for the stable custom domain-state baseline. Keep this spike package as architecture evidence for framework evaluation and Phase 2 persistence-boundary experiments.
 
 Do not install Colyseus, `@colyseus/schema`, or bitECS into production paths yet. The first bottleneck is not networking framework capability; it is defining the clinical domain contract precisely enough that actor memory, routing, trace tags, spatial state, and future voice turns cannot drift apart.
 
@@ -16,6 +16,10 @@ Do not install Colyseus, `@colyseus/schema`, or bitECS into production paths yet
 The spike artifact lives at:
 
 - `packages/openclinxr/multi-actor-state-spike`
+
+The promoted production-shaped package lives at:
+
+- `packages/openclinxr/session-state`
 
 It validates a no-new-runtime-dependency model for:
 
@@ -100,7 +104,7 @@ The recovery test records a voice-transcript interaction turn, persists it to th
 
 A production-oriented follow-up should decide:
 
-- Whether the custom state baseline moves into `packages/openclinxr/scenario-runtime` or a dedicated `packages/openclinxr/session-state`.
+- Whether `packages/openclinxr/session-state` needs a future rename such as `clinical-state` or `actor-state` once WebSocket session requirements solidify.
 - Whether live synchronization stays custom over the existing Bun/Hono WebSocket lane or adopts `@colyseus/schema` for schema/delta encoding.
 - Whether Colyseus is useful only as a mock/load sidecar, not the main Azure Functions-compatible API runtime.
 - How to represent high-frequency spatial updates separately from slower clinical state events.
@@ -110,7 +114,7 @@ A production-oriented follow-up should decide:
 
 | Follow-Up Slice | Estimate | Notes |
 | --- | ---: | --- |
-| Promote baseline into production-shaped package | 0.5-1 day | Mostly move/rename plus ArchUnitTS boundaries and API exports |
+| Promote baseline into production-shaped package | Complete | Implemented as `packages/openclinxr/session-state` with ArchUnitTS boundaries |
 | Add WebSocket session-state messages to `apps/api` | 1-2 days | Keep WebSocket primary; no HTTP/3/WebTransport scope |
 | Connect voice turn references to runtime events | 1-2 days | Depends on realtime voice backend evidence maturity |
 | Add MongoDB-backed durable adapter for Phase 2 persistence | 1-2 days | Use thin `data-mongodb` style and `mongodb-memory-server` tests |
@@ -125,6 +129,9 @@ Initial verification commands for this slice:
 ```bash
 pnpm --filter @openclinxr/multi-actor-state-spike test
 pnpm --filter @openclinxr/multi-actor-state-spike typecheck
+pnpm --filter @openclinxr/session-state test
+pnpm --filter @openclinxr/session-state typecheck
+pnpm --filter @openclinxr/architecture-rules test
 ```
 
 Both commands passed during the first implementation run on 2026-05-05, after the voice-transcript provenance slice, and after the Phase 2 persistence-boundary slice.

@@ -580,6 +580,18 @@ describe("workspace architecture rules", () => {
     expect(publicBarrel).not.toContain("mongo-memory-context");
   });
 
+  it("prevents production code from importing the superseded multi-actor state spike", () => {
+    const spikePackage = "@openclinxr/multi-actor-state-spike";
+    const allowedSpikeRoots = ["packages/openclinxr/multi-actor-state-spike/"];
+    const manifestViolations = workspacePackageDependencyFindings([spikePackage])
+      .filter((finding) => !finding.startsWith("packages/openclinxr/multi-actor-state-spike/package.json:"));
+    const sourceViolations = sourceImportReferences(spikePackage)
+      .filter(({ filePath }) => !allowedSpikeRoots.some((root) => filePath.startsWith(root)))
+      .map(({ filePath, specifier }) => `source:${filePath}:${specifier}`);
+
+    expect([...manifestViolations, ...sourceViolations].sort()).toEqual([]);
+  });
+
   it("keeps the agent-loop orchestration package independent from app and station runtime code", () => {
     const forbiddenImports = /@openclinxr\/(?:scenario-runtime|data-|data-sources-|model-gateway|voice-gateway|trace-ledger)|apps\//;
     const violations = filesWithContentMatching("packages/openclinxr/agent-loop", forbiddenImports);
