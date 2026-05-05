@@ -43,7 +43,7 @@
       "evidence_id": "asset_capability_job_evidence",
       "file": "docs/openclinxr/asset-capability-job-evidence-2026-05-04.json",
       "generated_at": "2026-05-04T21:21:14.173Z",
-      "age_hours": 24,
+      "age_hours": 25,
       "max_age_hours": 24,
       "status": "stale",
       "blockers": [
@@ -74,7 +74,7 @@
       "evidence_id": "local_model_runtime_benchmark",
       "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T20:20:19.936Z",
-      "age_hours": 1,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -111,6 +111,15 @@
       ]
     },
     {
+      "evidence_id": "local_realtime_voice_model_cache_evidence",
+      "file": "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-05.json",
+      "generated_at": "2026-05-05T22:27:38.731Z",
+      "age_hours": 0,
+      "max_age_hours": 24,
+      "status": "fresh",
+      "blockers": []
+    },
+    {
       "evidence_id": "realtime_voice_transport_spike",
       "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-05.json",
       "generated_at": "2026-05-05T18:28:23.574Z",
@@ -123,7 +132,7 @@
       "evidence_id": "api_python_backend_runtime_smoke",
       "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T15:21:12.576Z",
-      "age_hours": 6,
+      "age_hours": 7,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -141,7 +150,7 @@
       "evidence_id": "api_bun_python_proxy_runtime_smoke",
       "file": "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T18:21:30.330Z",
-      "age_hours": 3,
+      "age_hours": 4,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -149,7 +158,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-05T22:17:00.046Z",
+      "generated_at": "2026-05-05T22:28:10.705Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -933,6 +942,32 @@
       ]
     }
   },
+  "local_realtime_voice_model_cache_evidence": {
+    "file": "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-05.json",
+    "generated_at": "2026-05-05T22:27:38.731Z",
+    "kind": "local_voice_evidence_check",
+    "cache_dir": "/Users/patrick/.cache/openclinxr/realtime-voice",
+    "approved_model_ids": [
+      "kyutai/moshiko-mlx-q4",
+      "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit"
+    ],
+    "cache_exists": true,
+    "ready": false,
+    "models": [],
+    "support_directories": [
+      {
+        "file_count": 2494,
+        "name": "api-python-backend-venv",
+        "path": "/Users/patrick/.cache/openclinxr/realtime-voice/api-python-backend-venv",
+        "reason": "runtime_support_venv_not_model_weights",
+        "total_bytes": 45304743
+      }
+    ],
+    "blockers": [
+      "approved_model_weights_not_cached",
+      "real_moshi_or_qwen3_model_cache_missing"
+    ]
+  },
   "realtime_voice_transport_spike": {
     "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-05.json",
     "generated_at": "2026-05-05T18:28:23.574Z",
@@ -1287,7 +1322,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-05T22:17:00.046Z",
+    "generated_at": "2026-05-05T22:28:10.705Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -1505,6 +1540,8 @@
         "local_voice_live_dialog_safety_controls_observed",
         "local_voice_python_backend_runtime_smoke_passed",
         "local_voice_ready_to_benchmark",
+        "local_voice_realtime_model_cache_evidence_present",
+        "local_voice_realtime_model_support_venv_observed",
         "local_voice_realtime_transport_contract_observed",
         "motion_comfort_confirmed",
         "performance_source_openclinxr_frame_stats",
@@ -1752,6 +1789,8 @@
         "local_voice_first_audio_benchmark_passed",
         "local_voice_python_backend_runtime_smoke_passed",
         "local_voice_ready_to_benchmark",
+        "local_voice_realtime_model_cache_evidence_present",
+        "local_voice_realtime_model_support_venv_observed",
         "local_voice_realtime_transport_contract_observed"
       ],
       "blockers": [
@@ -1852,9 +1891,13 @@
         "local_voice_live_dialog_safety_controls_observed",
         "local_voice_python_backend_runtime_smoke_passed",
         "local_voice_ready_to_benchmark",
+        "local_voice_realtime_model_cache_evidence_present",
+        "local_voice_realtime_model_support_venv_observed",
         "local_voice_realtime_transport_contract_observed"
       ],
       "blockers": [
+        "local_voice_live_dialog:local_realtime_voice_model_cache:approved_model_weights_not_cached",
+        "local_voice_live_dialog:local_realtime_voice_model_cache:real_moshi_or_qwen3_model_cache_missing",
         "local_voice_live_dialog:realtime_transport_spike:clinical_voice_safety_controls_not_exercised_with_real_model",
         "local_voice_live_dialog:realtime_transport_spike:native_opus_codec_not_integrated_in_godot",
         "local_voice_live_dialog:realtime_transport_spike:quest_godot_client_not_executed",
@@ -1868,7 +1911,7 @@
         "local_voice_runtime_benchmark:evidence_stale_over_24h"
       ],
       "blocker_summary": {
-        "total_blockers": 11,
+        "total_blockers": 13,
         "distinct_problem_count": 3,
         "groups": [
           {
@@ -1895,6 +1938,8 @@
             "title": "Local voice live-dialog evidence",
             "owner": "voice-speech-engineer",
             "blockers": [
+              "local_voice_live_dialog:local_realtime_voice_model_cache:approved_model_weights_not_cached",
+              "local_voice_live_dialog:local_realtime_voice_model_cache:real_moshi_or_qwen3_model_cache_missing",
               "local_voice_live_dialog:realtime_transport_spike:clinical_voice_safety_controls_not_exercised_with_real_model",
               "local_voice_live_dialog:realtime_transport_spike:native_opus_codec_not_integrated_in_godot",
               "local_voice_live_dialog:realtime_transport_spike:quest_godot_client_not_executed",

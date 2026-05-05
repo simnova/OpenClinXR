@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 import json
 import pathlib
 import sys
@@ -131,6 +132,7 @@ def collect(cache_dir: pathlib.Path) -> dict[str, Any]:
 
     return {
         "kind": "local_voice_evidence_check",
+        "generatedAt": datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z"),
         "cache_dir": str(cache_dir),
         "approved_model_ids": APPROVED_MODEL_IDS,
         "cache_exists": cache_dir.exists(),

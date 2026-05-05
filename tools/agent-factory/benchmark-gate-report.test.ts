@@ -153,6 +153,25 @@ type BenchmarkGateReport = {
       blockers: string[];
     };
   };
+  local_realtime_voice_model_cache_evidence?: {
+    file: string;
+    generated_at: string;
+    kind: string;
+    cache_dir: string;
+    approved_model_ids: string[];
+    cache_exists: boolean;
+    ready: boolean;
+    models: Array<{
+      model_id: string;
+      ready: boolean;
+      blockers: string[];
+    }>;
+    support_directories: Array<{
+      name: string;
+      reason: string;
+    }>;
+    blockers: string[];
+  };
   api_python_backend_runtime_smoke?: {
     status: string;
     health: {
@@ -455,6 +474,93 @@ function passedApiBunPythonProxyRuntimeSmoke(): Parameters<typeof buildBenchmark
         ],
         caveats: ["This smoke proves only the local Bun-to-FastAPI WebSocket proxy path."],
       },
+    },
+  };
+}
+
+type LocalRealtimeVoiceModelCacheEvidenceInput = {
+  file: string;
+  value: {
+    generatedAt: string;
+    kind: string;
+    cache_dir: string;
+    approved_model_ids: string[];
+    cache_exists: boolean;
+    ready: boolean;
+    models: Array<{
+      model_id: string;
+      path: string;
+      source_type: string;
+      expected_storage_name: string | null;
+      approved: boolean;
+      has_evidence: boolean;
+      ready: boolean;
+      blockers: string[];
+      file_count: number;
+      total_bytes: number;
+      evidence?: Record<string, unknown>;
+    }>;
+    support_directories: Array<{
+      path: string;
+      name: string;
+      reason: string;
+      file_count: number;
+      total_bytes: number;
+    }>;
+  };
+};
+
+function missingRealtimeVoiceModelCacheEvidence(): LocalRealtimeVoiceModelCacheEvidenceInput {
+  return {
+    file: "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-05.json",
+    value: {
+      generatedAt: "2026-05-05T18:30:00.000Z",
+      kind: "local_voice_evidence_check",
+      cache_dir: "/Users/patrick/.cache/openclinxr/realtime-voice",
+      approved_model_ids: [
+        "kyutai/moshiko-mlx-q4",
+        "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+      ],
+      cache_exists: true,
+      ready: false,
+      models: [],
+      support_directories: [
+        {
+          path: "/Users/patrick/.cache/openclinxr/realtime-voice/api-python-backend-venv",
+          name: "api-python-backend-venv",
+          reason: "runtime_support_venv_not_model_weights",
+          file_count: 2494,
+          total_bytes: 45304743,
+        },
+      ],
+    },
+  };
+}
+
+function readyRealtimeVoiceModelCacheEvidence(): LocalRealtimeVoiceModelCacheEvidenceInput {
+  return {
+    file: "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-05.json",
+    value: {
+      ...missingRealtimeVoiceModelCacheEvidence().value,
+      ready: true,
+      models: [
+        {
+          model_id: "kyutai/moshiko-mlx-q4",
+          path: "/Users/patrick/.cache/openclinxr/realtime-voice/kyutai__moshiko-mlx-q4",
+          source_type: "local_source_copy",
+          expected_storage_name: "kyutai__moshiko-mlx-q4",
+          approved: true,
+          has_evidence: true,
+          ready: true,
+          blockers: [],
+          file_count: 3,
+          total_bytes: 123456,
+          evidence: {
+            model_id: "kyutai/moshiko-mlx-q4",
+            source_type: "local_source_copy",
+          },
+        },
+      ],
     },
   };
 }
@@ -1694,6 +1800,118 @@ describe("benchmark gate report", () => {
         status: "fresh",
         blockers: [],
       }),
+    ]));
+  });
+
+  it("surfaces local realtime voice model cache evidence as a live-dialog blocker", () => {
+    const buildReport = buildBenchmarkGateReport as (
+      input: Parameters<typeof buildBenchmarkGateReport>[0] & {
+        localRealtimeVoiceModelCacheEvidence?: LocalRealtimeVoiceModelCacheEvidenceInput;
+      },
+      options: { now: Date; maxEvidenceAgeHours: number },
+    ) => BenchmarkGateReport;
+
+    const report = buildReport({
+      localRealtimeVoiceModelCacheEvidence: missingRealtimeVoiceModelCacheEvidence(),
+    }, { now: new Date("2026-05-05T18:45:00.000Z"), maxEvidenceAgeHours: 24 });
+    const liveDialogGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-003");
+
+    expect(report.local_realtime_voice_model_cache_evidence).toMatchObject({
+      file: "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-05.json",
+      generated_at: "2026-05-05T18:30:00.000Z",
+      kind: "local_voice_evidence_check",
+      cache_exists: true,
+      ready: false,
+      models: [],
+      support_directories: [
+        {
+          name: "api-python-backend-venv",
+          reason: "runtime_support_venv_not_model_weights",
+        },
+      ],
+      blockers: [
+        "approved_model_weights_not_cached",
+        "real_moshi_or_qwen3_model_cache_missing",
+      ],
+    });
+    expect(report.evidence_freshness).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        evidence_id: "local_realtime_voice_model_cache_evidence",
+        file: "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-05.json",
+        status: "fresh",
+        blockers: [],
+      }),
+    ]));
+    expect(liveDialogGate?.blockers).toEqual(expect.arrayContaining([
+      "local_voice_live_dialog:local_realtime_voice_model_cache:approved_model_weights_not_cached",
+      "local_voice_live_dialog:local_realtime_voice_model_cache:real_moshi_or_qwen3_model_cache_missing",
+    ]));
+    expect(liveDialogGate?.satisfied_conditions).toEqual(expect.arrayContaining([
+      "local_voice_realtime_model_cache_evidence_present",
+      "local_voice_realtime_model_support_venv_observed",
+    ]));
+    expect(liveDialogGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
+      "local_voice_realtime_model_cache_ready",
+    ]));
+  });
+
+  it("keeps live-dialog evidence blocked until local realtime voice model cache evidence exists", () => {
+    const report = buildBenchmarkGateReport({}, {
+      now: new Date("2026-05-05T18:45:00.000Z"),
+      maxEvidenceAgeHours: 24,
+    }) as BenchmarkGateReport;
+    const liveDialogGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-003");
+
+    expect(report.evidence_freshness).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        evidence_id: "local_realtime_voice_model_cache_evidence",
+        status: "missing",
+        blockers: ["local_realtime_voice_model_cache_evidence:evidence_missing"],
+      }),
+    ]));
+    expect(liveDialogGate?.blockers).toEqual(expect.arrayContaining([
+      "local_voice_live_dialog:local_realtime_voice_model_cache:missing_local_realtime_voice_model_cache_evidence_report",
+    ]));
+    expect(liveDialogGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
+      "local_voice_realtime_model_cache_evidence_present",
+      "local_voice_realtime_model_cache_ready",
+    ]));
+  });
+
+  it("treats a ready local realtime voice model cache as a satisfied live-dialog condition", () => {
+    const buildReport = buildBenchmarkGateReport as (
+      input: Parameters<typeof buildBenchmarkGateReport>[0] & {
+        localRealtimeVoiceModelCacheEvidence?: LocalRealtimeVoiceModelCacheEvidenceInput;
+      },
+      options: { now: Date; maxEvidenceAgeHours: number },
+    ) => BenchmarkGateReport;
+
+    const report = buildReport({
+      localRealtimeVoiceModelCacheEvidence: readyRealtimeVoiceModelCacheEvidence(),
+    }, { now: new Date("2026-05-05T18:45:00.000Z"), maxEvidenceAgeHours: 24 });
+    const liveDialogGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-003");
+
+    expect(report.local_realtime_voice_model_cache_evidence).toMatchObject({
+      cache_exists: true,
+      ready: true,
+      blockers: [],
+      models: [
+        {
+          model_id: "kyutai/moshiko-mlx-q4",
+          ready: true,
+          blockers: [],
+        },
+      ],
+    });
+    expect(liveDialogGate?.satisfied_conditions).toEqual(expect.arrayContaining([
+      "local_voice_realtime_model_cache_evidence_present",
+      "local_voice_realtime_model_cache_ready",
+      "local_voice_realtime_model_support_venv_observed",
+    ]));
+    expect(liveDialogGate?.blockers).not.toEqual(expect.arrayContaining([
+      "local_voice_live_dialog:local_realtime_voice_model_cache:approved_model_weights_not_cached",
+      "local_voice_live_dialog:local_realtime_voice_model_cache:real_moshi_or_qwen3_model_cache_missing",
+      "local_voice_live_dialog:local_realtime_voice_model_cache:missing_local_realtime_voice_model_cache_evidence_report",
     ]));
   });
 
