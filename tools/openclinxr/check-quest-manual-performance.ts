@@ -26,6 +26,32 @@ type QuestLocomotionAttempt =
 
 type QuestHandRepresentationKind = "primitive_boxes" | "mesh" | "controller_only" | "not_visible" | "unknown";
 
+const validQuestTraceInteractionAttempts = new Set<string>([
+  "not_attempted",
+  "dom_click_attempted_no_runtime_event",
+  "xr_controller_select_attempted_no_runtime_event",
+  "xr_hand_select_attempted_no_runtime_event",
+  "runtime_event_observed",
+]);
+
+const validQuestLocomotionAttempts = new Set<string>([
+  "not_attempted",
+  "keyboard_attempted_no_runtime_event",
+  "thumbstick_attempted_no_runtime_event",
+  "hand_gesture_attempted_no_runtime_event",
+  "room_scale_attempted_no_runtime_event",
+  "mixed_attempted_no_runtime_event",
+  "runtime_event_observed",
+]);
+
+const validQuestHandRepresentationKinds = new Set<string>([
+  "primitive_boxes",
+  "mesh",
+  "controller_only",
+  "not_visible",
+  "unknown",
+]);
+
 export type QuestManualPerformanceReport = {
   generatedAt?: string;
   runContext?: {
@@ -291,6 +317,12 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
     && traceLastTraceTag.trim().length > 0;
   const traceSelectLatencyMsValid = isPositiveFiniteNumber(traceLastSelectLatencyMs);
   const traceMeasuredAtMsValid = isNonNegativeFiniteNumber(traceMeasuredAtMs);
+  const traceInteractionAttemptValid = report.station?.traceInteractionAttempt === undefined
+    || validQuestTraceInteractionAttempts.has(report.station.traceInteractionAttempt);
+  const locomotionAttemptValid = report.input?.locomotionAttempt === undefined
+    || validQuestLocomotionAttempts.has(report.input.locomotionAttempt);
+  const handRepresentationKindValid = report.input?.handRepresentationKind === undefined
+    || validQuestHandRepresentationKinds.has(report.input.handRepresentationKind);
   const headsetInputObserved = hasObservedHeadsetInput(report.input);
   const locomotionObserved = hasObservedLocomotion(report.input);
   const framesObservedValid = isNonNegativeInteger(framesObserved);
@@ -340,7 +372,10 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
     report.station?.traceInteractionPassed === true ? undefined : "trace_interaction_not_confirmed",
     report.station?.textReadable === true ? undefined : "text_readability_not_confirmed",
     report.station?.immersiveSessionStarted === true ? undefined : "immersive_session_not_confirmed",
+    traceInteractionAttemptValid ? undefined : "trace_interaction_attempt_invalid",
     isFullVrExperienceEvidence(report.experience) ? undefined : "experience_mode_full_vr_not_recorded",
+    handRepresentationKindValid ? undefined : "hand_representation_kind_invalid",
+    locomotionAttemptValid ? undefined : "locomotion_attempt_invalid",
     headsetInputObserved ? undefined : "hand_or_controller_input_not_observed",
     locomotionObserved ? undefined : "locomotion_not_observed",
     consoleErrorsAreStringArray ? undefined : "console_errors_not_string_array",
@@ -564,6 +599,10 @@ function buildAdversarialFindings(input: {
   const locomotionSourceDeclared = typeof input.report.input?.activeLocomotionSource === "string"
     && input.report.input.activeLocomotionSource !== "none";
   const locomotionDeltaMissing = !hasMeasurableLocomotionDelta(input.report.input?.locomotionDelta);
+  const traceRuntimeEventEvidenceMissing = traceAttempt === "runtime_event_observed"
+    && !hasRuntimeTraceEvidence(input.report);
+  const handRepresentationKindMismatch = handRepresentationKind === "mesh" && primitiveHandModelObserved
+    || handRepresentationKind === "primitive_boxes" && !headsetInputObserved;
   const handGestureTimestampWithoutActiveSource = typeof input.report.input?.lastLocomotionAtMs === "number"
     && input.report.input?.xrHandGestureState !== undefined
     && input.report.input.activeLocomotionSource !== "xr_hand_gesture"
@@ -579,7 +618,9 @@ function buildAdversarialFindings(input: {
       ? "trace_interaction_attempt_status_missing"
       : undefined,
     isAttemptedTraceWithoutRuntimeEvent(traceAttempt) ? "trace_interaction_attempted_without_runtime_event" : undefined,
+    traceRuntimeEventEvidenceMissing ? "trace_attempt_runtime_event_without_trace_evidence" : undefined,
     headsetInputObserved && handRepresentationKind === undefined ? "hand_representation_kind_missing" : undefined,
+    handRepresentationKindMismatch ? "hand_representation_kind_mismatch" : undefined,
     primitiveHandModelObserved ? "hand_tracking_uses_primitive_box_model" : undefined,
     primitiveHandModelObserved && handTrackingObserved ? "hand_tracking_observed_without_realistic_hand_meshes" : undefined,
     locomotionModeDeclared && locomotionAttempt === undefined ? "locomotion_attempt_status_missing" : undefined,
@@ -615,6 +656,17 @@ function isAttemptedLocomotionWithoutRuntimeEvent(value: QuestLocomotionAttempt 
     || value === "mixed_attempted_no_runtime_event";
 }
 
+function hasRuntimeTraceEvidence(report: QuestManualPerformanceReport): boolean {
+  const traceLatencyProxy = report.traceLatencyProxy ?? null;
+  const traceSourceXrHeadsetSelect = traceLatencyProxy?.source === "xr_controller_select"
+    || traceLatencyProxy?.source === "xr_hand_select";
+  return report.station?.traceInteractionPassed === true
+    && traceSourceXrHeadsetSelect
+    && isNonEmptyString(traceLatencyProxy?.lastTraceTag)
+    && isPositiveFiniteNumber(traceLatencyProxy?.lastSelectLatencyMs ?? null)
+    && isNonNegativeFiniteNumber(traceLatencyProxy?.measuredAtMs ?? null);
+}
+
 function questManualNextStepForAdversarialFinding(finding: string): string {
   switch (finding) {
     case "raw_manual_report_without_copied_ui_payload":
@@ -629,8 +681,12 @@ function questManualNextStepForAdversarialFinding(finding: string): string {
       return "Record station.traceInteractionAttempt so failed trace attempts distinguish not-attempted from attempted-without-runtime-event.";
     case "trace_interaction_attempted_without_runtime_event":
       return "Retry the in-headset trace action and preserve the resulting xr_controller_select or xr_hand_select runtime event.";
+    case "trace_attempt_runtime_event_without_trace_evidence":
+      return "Reconcile station.traceInteractionAttempt with the same headset trace tag, latency, and measuredAtMs evidence.";
     case "hand_representation_kind_missing":
       return "Record input.handRepresentationKind so hand-tracking quality is auditable without relying on prose notes.";
+    case "hand_representation_kind_mismatch":
+      return "Reconcile input.handRepresentationKind with observed hand model count, notes, and hand-tracking posture.";
     case "hand_tracking_uses_primitive_box_model":
     case "hand_tracking_observed_without_realistic_hand_meshes":
       return "Replace primitive box hands with an articulated hand model or document why controller-only affordances are acceptable for this station.";
@@ -694,8 +750,14 @@ function questManualNextStepForBlocker(blocker: string): string {
       return "Confirm in-headset EHR and station text readability.";
     case "immersive_session_not_confirmed":
       return "Confirm the immersive session starts in-headset.";
+    case "trace_interaction_attempt_invalid":
+      return "Use a supported station.traceInteractionAttempt value from the Quest manual evidence template.";
     case "experience_mode_full_vr_not_recorded":
       return "Record experience.modeId full_vr, requestedSessionMode immersive-vr, and mixedRealityPassthroughImplemented false for this Full VR manual report.";
+    case "hand_representation_kind_invalid":
+      return "Use a supported input.handRepresentationKind value from the Quest manual evidence template.";
+    case "locomotion_attempt_invalid":
+      return "Use a supported input.locomotionAttempt value from the Quest manual evidence template.";
     case "hand_or_controller_input_not_observed":
       return "Observe at least one foreground headset hand or controller interaction.";
     case "locomotion_not_observed":

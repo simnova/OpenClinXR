@@ -978,6 +978,73 @@ describe("Quest manual performance checker", () => {
     ]));
   });
 
+  it("blocks invalid structured Quest manual evidence enum values", () => {
+    const report = completedQuestManualReport();
+    const unsafeStation = report.station as unknown as Record<string, string>;
+    const unsafeInput = report.input as unknown as Record<string, string>;
+    unsafeStation.traceInteractionAttempt = "clicked_the_button";
+    unsafeInput.handRepresentationKind = "primitive_box";
+    unsafeInput.locomotionAttempt = "thumbstick_attempted";
+
+    const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-invalid-enums.json", report);
+
+    expect(check.readyToClaimFramePacing).toBe(false);
+    expect(check.blockers).toEqual(expect.arrayContaining([
+      "trace_interaction_attempt_invalid",
+      "hand_representation_kind_invalid",
+      "locomotion_attempt_invalid",
+    ]));
+    expect(check.nextSteps).toEqual(expect.arrayContaining([
+      "Use a supported station.traceInteractionAttempt value from the Quest manual evidence template.",
+      "Use a supported input.handRepresentationKind value from the Quest manual evidence template.",
+      "Use a supported input.locomotionAttempt value from the Quest manual evidence template.",
+    ]));
+  });
+
+  it("surfaces contradictory structured Quest manual evidence claims", () => {
+    const report = completedQuestManualReport();
+    report.runContext = {
+      ...report.runContext,
+      notes: "Operator reported the virtual hands were still a series of boxes, not realistic mesh hands.",
+    };
+    report.experience = {
+      ...report.experience,
+      handTrackingPosture: "optional_feature_with_primitive_hand_model",
+    };
+    report.traceLatencyProxy = {
+      source: "xr_hand_select",
+      lastTraceTag: null,
+      lastSelectLatencyMs: null,
+      measuredAtMs: null,
+      productionControllerLatencySubstitute: false,
+    };
+    report.performance = {
+      ...report.performance,
+      controllerSelectLatencyMs: null,
+    };
+    report.input = {
+      ...report.input,
+      handRepresentationKind: "mesh",
+      locomotionAttempt: "runtime_event_observed",
+      lastLocomotionAtMs: null,
+      locomotionDelta: undefined,
+    };
+
+    const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-contradictory.json", report);
+
+    expect(check.readyToClaimFramePacing).toBe(false);
+    expect(check.adversarialFindings).toEqual(expect.arrayContaining([
+      "trace_attempt_runtime_event_without_trace_evidence",
+      "hand_representation_kind_mismatch",
+      "locomotion_runtime_event_without_threshold_evidence",
+    ]));
+    expect(check.nextSteps).toEqual(expect.arrayContaining([
+      "Reconcile station.traceInteractionAttempt with the same headset trace tag, latency, and measuredAtMs evidence.",
+      "Reconcile input.handRepresentationKind with observed hand model count, notes, and hand-tracking posture.",
+      "Re-copy the Quest evidence after locomotion so the runtime event includes lastLocomotionAtMs and measurable locomotionDelta.",
+    ]));
+  });
+
   it("keeps missing comfort and frame metrics as explicit blockers", async () => {
     const dir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-quest-manual-blocked-"));
     const input = path.join(dir, "quest-manual-performance.json");
