@@ -1,9 +1,9 @@
 # Proposal: Durable Clinical Event Persistence
 
-**Status:** Proposed  
-**Decision needed:** Approve, defer, or revise the constrained implementation slice  
-**Requested by:** Codex  
-**Date:** 2026-05-05  
+**Status:** Approved
+**Approved by:** Patrick Gidich on 2026-05-05 18:37:09 EDT
+**Requested by:** Codex
+**Date:** 2026-05-05
 **Scope:** Package-local durable clinical-event persistence only
 
 ## Decision Needed
