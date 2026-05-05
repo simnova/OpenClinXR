@@ -70,12 +70,15 @@ export type FrameDeltaSummary = {
 
 export type ManualPerformanceFrameStats = FrameDeltaSummary & {
   framesObserved: number;
+  firstFrameAtMs?: number | null;
   latestFrameAtMs: number | null;
   sampleWindowSize: number;
   latestFrameDeltaMs?: number | null;
   sampleWindowMs?: number | null;
   longFrameCountOver33Ms?: number;
   longFrameRatio?: number | null;
+  previewFramesObserved?: number;
+  immersiveFramesObserved?: number;
   qualitySource?: "webxr_animation_loop" | "flat_preview_fallback";
   renderLoopMode?: "webxr_animation_loop_with_preview_fallback";
   isPresenting?: boolean;
@@ -141,7 +144,10 @@ export type ManualPerformanceInputEvidenceInput = {
 export type RuntimeFrameStatsInput = {
   frameDeltasMs: number[];
   framesObserved: number;
+  firstFrameAtMs?: number | null;
   latestFrameAtMs: number;
+  previewFramesObserved?: number;
+  immersiveFramesObserved?: number;
   qualitySource: "webxr_animation_loop" | "flat_preview_fallback";
   isPresenting: boolean;
   visibilityState: string;
@@ -218,7 +224,10 @@ export type ManualPerformanceCaptureSummary = {
   source: "window.__openClinXrManualPerformanceDraft";
   generatedAt: string | null;
   framesObserved: number | null;
+  firstFrameAtMs: number | null;
   sampleWindowSize: number | null;
+  previewFramesObserved: number | null;
+  immersiveFramesObserved: number | null;
   isPresenting: boolean | null;
   visibilityState: string | null;
   qualitySource: ManualPerformanceFrameStats["qualitySource"] | null;
@@ -612,12 +621,17 @@ export function buildRuntimeFrameStats(input: RuntimeFrameStatsInput): ManualPer
   return {
     ...summary,
     framesObserved: input.framesObserved,
+    firstFrameAtMs: input.firstFrameAtMs === undefined || input.firstFrameAtMs === null
+      ? null
+      : roundMetric(input.firstFrameAtMs),
     latestFrameAtMs: roundMetric(input.latestFrameAtMs),
     sampleWindowSize: input.frameDeltasMs.length,
     latestFrameDeltaMs: input.frameDeltasMs.length > 0 ? roundMetric(input.frameDeltasMs.at(-1) ?? 0) : null,
     sampleWindowMs,
     longFrameCountOver33Ms,
     longFrameRatio: input.frameDeltasMs.length > 0 ? roundMetric(longFrameCountOver33Ms / input.frameDeltasMs.length) : null,
+    previewFramesObserved: input.previewFramesObserved ?? (input.isPresenting ? 0 : input.framesObserved),
+    immersiveFramesObserved: input.immersiveFramesObserved ?? (input.isPresenting ? input.framesObserved : 0),
     qualitySource: input.qualitySource,
     renderLoopMode: "webxr_animation_loop_with_preview_fallback",
     isPresenting: input.isPresenting,
@@ -821,7 +835,10 @@ export function buildManualPerformanceCaptureSummary(
     source: "window.__openClinXrManualPerformanceDraft",
     generatedAt: input.draft?.generatedAt ?? null,
     framesObserved: frameStats?.framesObserved ?? null,
+    firstFrameAtMs: frameStats?.firstFrameAtMs ?? null,
     sampleWindowSize: frameStats?.sampleWindowSize ?? null,
+    previewFramesObserved: frameStats?.previewFramesObserved ?? null,
+    immersiveFramesObserved: frameStats?.immersiveFramesObserved ?? null,
     isPresenting: frameStats?.isPresenting ?? null,
     visibilityState: frameStats?.visibilityState ?? null,
     qualitySource: frameStats?.qualitySource ?? null,

@@ -1064,6 +1064,9 @@ function actorMesh(color: number): Group {
 
 const frameDeltasMs: number[] = [];
 let framesObserved = 0;
+let previewFramesObserved = 0;
+let immersiveFramesObserved = 0;
+let firstFrameAtMs: number | null = null;
 let lastFrameAtMs: number | undefined;
 
 function recordFrame(now: number, evidence: {
@@ -1077,12 +1080,21 @@ function recordFrame(now: number, evidence: {
       frameDeltasMs.shift();
     }
   }
+  firstFrameAtMs ??= now;
   lastFrameAtMs = now;
   framesObserved += 1;
+  if (evidence.isPresenting) {
+    immersiveFramesObserved += 1;
+  } else {
+    previewFramesObserved += 1;
+  }
   window.__openClinXrFrameStats = buildRuntimeFrameStats({
     frameDeltasMs,
     framesObserved,
+    firstFrameAtMs,
     latestFrameAtMs: now,
+    previewFramesObserved,
+    immersiveFramesObserved,
     qualitySource: evidence.qualitySource,
     isPresenting: evidence.isPresenting,
     visibilityState: evidence.visibilityState,
@@ -1114,7 +1126,11 @@ function updateManualEvidencePanel(): string {
     frameStats: window.__openClinXrFrameStats ?? null,
   });
   window.__openClinXrManualPerformanceCaptureSummary = summary;
-  evidenceFrames.textContent = `${summary.framesObserved ?? 0} / ${summary.sampleWindowSize ?? 0}`;
+  evidenceFrames.textContent = [
+    `${summary.framesObserved ?? 0} / ${summary.sampleWindowSize ?? 0}`,
+    `vr ${summary.immersiveFramesObserved ?? 0}`,
+    `preview ${summary.previewFramesObserved ?? 0}`,
+  ].join(" | ");
   evidenceLoop.textContent = [
     summary.qualitySource ?? "pending",
     summary.isPresenting ? "presenting" : "not presenting",

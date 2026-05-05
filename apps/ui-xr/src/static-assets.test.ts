@@ -71,6 +71,8 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("readXrHandGestureLocomotion");
     expect(mainSource).toContain("xr_hand_gesture");
     expect(mainSource).toContain("fallbackAnimationLoop");
+    expect(mainSource).toContain("immersiveFramesObserved");
+    expect(mainSource).toContain("previewFramesObserved");
     expect(mainSource).toContain("__openClinXrInputEvidence");
   });
 
