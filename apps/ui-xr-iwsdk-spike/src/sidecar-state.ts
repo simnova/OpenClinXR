@@ -80,6 +80,44 @@ export type IwsdkSidecarLocalMetricsEvidenceInput = {
   consoleErrorCount: number;
 };
 
+export type IwsdkSidecarIwerInputProbeTool =
+  | "xr_set_input_mode"
+  | "xr_set_connected"
+  | "xr_set_gamepad_state"
+  | "xr_select";
+
+export type IwsdkSidecarIwerInputProbeEvidenceInput = {
+  generatedAt: string;
+  sessionActive: boolean;
+  sessionMode: string | null;
+  attemptedToolNames: IwsdkSidecarIwerInputProbeTool[];
+  successfulToolNames: IwsdkSidecarIwerInputProbeTool[];
+  observedTraceActionTags: string[];
+  controllerSelectTraceTag: string;
+  consoleErrorCount: number;
+};
+
+export type IwsdkSidecarIwerInputProbeEvidence = IwsdkSidecarIwerInputProbeEvidenceInput & {
+  schemaVersion: "openclinxr.iwer-controller-input-probe.v1";
+  source: "iwer_mcp_emulation";
+  readyForInputEmulationEvidence: boolean;
+  readyForProductionRuntime: false;
+  readyForPhysicalQuestClaim: false;
+  blockers: string[];
+  notEvidenceFor: readonly [
+    "physical_quest_controller_latency",
+    "physical_quest_hand_tracking_quality",
+    "physical_quest_foreground_frame_pacing",
+    "in_headset_text_readability",
+    "production_runtime_readiness",
+  ];
+};
+
+export type IwsdkSidecarIwerInputProbeReadiness = {
+  readyForInputEmulationEvidence: boolean;
+  blockers: string[];
+};
+
 const parityContract = buildIwsdkUiXrStationParityContract();
 
 export const iwsdkSidecarSceneObjectNames = [...parityContract.requiredSceneObjectNames];
@@ -231,6 +269,69 @@ export function buildIwsdkSidecarLocalMetricsEvidence(input: IwsdkSidecarLocalMe
   }
 
   return metrics;
+}
+
+export function buildIwsdkSidecarIwerInputProbeEvidence(
+  input: IwsdkSidecarIwerInputProbeEvidenceInput,
+): IwsdkSidecarIwerInputProbeEvidence {
+  const baseEvidence = {
+    schemaVersion: "openclinxr.iwer-controller-input-probe.v1" as const,
+    source: "iwer_mcp_emulation" as const,
+    ...input,
+    readyForProductionRuntime: false as const,
+    readyForPhysicalQuestClaim: false as const,
+    notEvidenceFor: [
+      "physical_quest_controller_latency",
+      "physical_quest_hand_tracking_quality",
+      "physical_quest_foreground_frame_pacing",
+      "in_headset_text_readability",
+      "production_runtime_readiness",
+    ] as const,
+  };
+  const readiness = evaluateIwsdkSidecarIwerInputProbeEvidence(baseEvidence);
+
+  return {
+    ...baseEvidence,
+    readyForInputEmulationEvidence: readiness.readyForInputEmulationEvidence,
+    blockers: readiness.blockers,
+  };
+}
+
+export function evaluateIwsdkSidecarIwerInputProbeEvidence(input: {
+  sessionActive?: boolean;
+  sessionMode?: string | null;
+  successfulToolNames?: string[];
+  observedTraceActionTags?: string[];
+  controllerSelectTraceTag?: string;
+  consoleErrorCount?: number;
+}): IwsdkSidecarIwerInputProbeReadiness {
+  const successfulToolNames = input.successfulToolNames ?? [];
+  const observedTraceActionTags = input.observedTraceActionTags ?? [];
+  const controllerSelectTraceTag = input.controllerSelectTraceTag ?? iwsdkSidecarControllerSelectTraceTag;
+  const requiredTools: IwsdkSidecarIwerInputProbeTool[] = [
+    "xr_set_input_mode",
+    "xr_set_connected",
+    "xr_set_gamepad_state",
+    "xr_select",
+  ];
+  const blockers = [
+    input.sessionActive === true ? undefined : "iwer_input_probe_session_not_active",
+    input.sessionMode === "immersive-vr" ? undefined : "iwer_input_probe_session_mode_not_immersive_vr",
+    ...requiredTools.map((toolName) => (
+      successfulToolNames.includes(toolName)
+        ? undefined
+        : `iwer_input_probe_missing_required_successful_tool:${toolName}`
+    )),
+    observedTraceActionTags.includes(controllerSelectTraceTag)
+      ? undefined
+      : `iwer_input_probe_missing_trace_tag:${controllerSelectTraceTag}`,
+    input.consoleErrorCount === 0 ? undefined : "iwer_input_probe_console_errors_present",
+  ].filter((blocker): blocker is string => typeof blocker === "string");
+
+  return {
+    readyForInputEmulationEvidence: blockers.length === 0,
+    blockers,
+  };
 }
 
 function classifyIwsdkSidecarXrEntryOutcome(

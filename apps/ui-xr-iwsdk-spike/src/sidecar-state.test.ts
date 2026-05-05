@@ -3,10 +3,12 @@ import { describe, expect, it } from "vitest";
 import { buildIwsdkUiXrStationParityContract } from "@openclinxr/iwsdk-spike";
 import {
   buildIwsdkSidecarLocalMetricsEvidence,
+  buildIwsdkSidecarIwerInputProbeEvidence,
   buildIwsdkSidecarXrEntryEvidence,
   buildIwsdkSidecarRuntimeEvidence,
   completeIwsdkSidecarTraceAction,
   createIwsdkSidecarRuntimeState,
+  evaluateIwsdkSidecarIwerInputProbeEvidence,
   recordIwsdkSidecarXrEntryEvidence,
   formatIwsdkSidecarClock,
   iwsdkSidecarControllerSelectTraceTag,
@@ -139,6 +141,62 @@ describe("IWSDK sidecar runtime state", () => {
     expect(started.lastOutcome).toBe("session_started");
   });
 
+  it("scores IWER controller/input probes as emulation-only evidence", () => {
+    const evidence = buildIwsdkSidecarIwerInputProbeEvidence({
+      generatedAt: "2026-05-05T00:00:00.000Z",
+      sessionActive: true,
+      sessionMode: "immersive-vr",
+      attemptedToolNames: ["xr_set_input_mode", "xr_set_connected", "xr_set_gamepad_state", "xr_select"],
+      successfulToolNames: ["xr_set_input_mode", "xr_set_connected", "xr_set_gamepad_state", "xr_select"],
+      observedTraceActionTags: [iwsdkSidecarControllerSelectTraceTag],
+      controllerSelectTraceTag: iwsdkSidecarControllerSelectTraceTag,
+      consoleErrorCount: 0,
+    });
+
+    expect(evidence).toEqual(expect.objectContaining({
+      schemaVersion: "openclinxr.iwer-controller-input-probe.v1",
+      source: "iwer_mcp_emulation",
+      readyForInputEmulationEvidence: true,
+      readyForPhysicalQuestClaim: false,
+      readyForProductionRuntime: false,
+      blockers: [],
+      notEvidenceFor: expect.arrayContaining([
+        "physical_quest_controller_latency",
+        "physical_quest_hand_tracking_quality",
+      ]),
+    }));
+    expect(evaluateIwsdkSidecarIwerInputProbeEvidence(evidence)).toEqual({
+      readyForInputEmulationEvidence: true,
+      blockers: [],
+    });
+  });
+
+  it("rejects IWER input probes that lack an active emulated session or select trace", () => {
+    const evidence = buildIwsdkSidecarIwerInputProbeEvidence({
+      generatedAt: "2026-05-05T00:00:00.000Z",
+      sessionActive: false,
+      sessionMode: null,
+      attemptedToolNames: ["xr_set_input_mode", "xr_select"],
+      successfulToolNames: ["xr_set_input_mode"],
+      observedTraceActionTags: [],
+      controllerSelectTraceTag: iwsdkSidecarControllerSelectTraceTag,
+      consoleErrorCount: 1,
+    });
+
+    expect(evaluateIwsdkSidecarIwerInputProbeEvidence(evidence)).toEqual({
+      readyForInputEmulationEvidence: false,
+      blockers: [
+        "iwer_input_probe_session_not_active",
+        "iwer_input_probe_session_mode_not_immersive_vr",
+        "iwer_input_probe_missing_required_successful_tool:xr_set_connected",
+        "iwer_input_probe_missing_required_successful_tool:xr_set_gamepad_state",
+        "iwer_input_probe_missing_required_successful_tool:xr_select",
+        `iwer_input_probe_missing_trace_tag:${iwsdkSidecarControllerSelectTraceTag}`,
+        "iwer_input_probe_console_errors_present",
+      ],
+    });
+  });
+
   it("uses the approved IWSDK Phase 1 packages in the browser entrypoint", () => {
     const source = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
 
@@ -227,5 +285,17 @@ describe("IWSDK sidecar runtime state", () => {
     expect(source).toContain("readXrGamepadLocomotion");
     expect(source).toContain("fallbackAnimationLoop");
     expect(source).toContain("__openClinXrInputEvidence");
+  });
+
+  it("publishes richer sidecar input and text-panel evidence for IWER probes", () => {
+    const source = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+
+    expect(source).toContain("__openClinXrTextPanelEvidence");
+    expect(source).toContain("publishReadableVrTextPanelEvidence");
+    expect(source).toContain("activeLocomotionSource");
+    expect(source).toContain("inputSourceCount");
+    expect(source).toContain("inputSourceKinds");
+    expect(source).toContain("keyboardVector");
+    expect(source).toContain("xrVector");
   });
 });

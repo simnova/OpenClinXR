@@ -73,12 +73,33 @@ type XrInputSourceWithGamepad = {
   } | undefined;
 };
 
+type LocomotionVectorEvidence = {
+  forward: number;
+  strafe: number;
+  turn: number;
+};
+
+type RuntimeInputSourceKind = "keyboard" | "xr_gamepad" | "xr_hand";
+
+type XrInputSourceEvidence = {
+  handedness: string;
+  hasHand: boolean;
+  hasGamepad: boolean;
+  axisCount: number;
+};
+
 type OpenClinXrInputEvidence = {
   handModelCount: number;
   handModelStatus: "pending_immersive_session" | "installed" | "failed";
   handInputsObserved: number;
   locomotionMode: "experimental_keyboard_and_thumbstick_dolly";
   lastLocomotionAtMs: number | null;
+  activeLocomotionSource: "none" | "keyboard" | "xr_gamepad" | "mixed";
+  inputSourceCount: number;
+  inputSourceKinds: RuntimeInputSourceKind[];
+  keyboardVector: LocomotionVectorEvidence;
+  xrVector: LocomotionVectorEvidence;
+  xrInputSources: XrInputSourceEvidence[];
   rigPosition: { x: number; z: number };
 };
 
@@ -113,6 +134,26 @@ type ReadableVrTextPanel = {
   update(lines: readonly string[]): void;
 };
 
+type ReadableVrTextPanelEvidence = {
+  name: string;
+  title: string;
+  source: "canvas_texture_metadata";
+  canvasPixels: { width: number; height: number };
+  worldMeters: { width: number; height: number };
+  lineCount: number;
+  previewLines: string[];
+  contentHash: string;
+  lastUpdatedAtMs: number;
+  readabilityClaim: "metadata_only_requires_foreground_headset_confirmation";
+};
+
+type ReadableVrTextPanelEvidenceSet = {
+  source: "window.__openClinXrTextPanelEvidence";
+  panelCount: number;
+  panels: ReadableVrTextPanelEvidence[];
+  limitations: ["metadata_only_requires_foreground_headset_confirmation"];
+};
+
 declare global {
   interface Window {
     __openClinXrFrameStats?: ReturnType<typeof summarizeIwsdkSidecarFrameDeltas> & {
@@ -123,6 +164,7 @@ declare global {
     __openClinXrIwsdkSidecarEvidence?: IwsdkSidecarRuntimeEvidence;
     __openClinXrIwsdkSidecarTraceTags?: string[];
     __openClinXrInputEvidence?: OpenClinXrInputEvidence;
+    __openClinXrTextPanelEvidence?: ReadableVrTextPanelEvidenceSet;
     __openClinXrBootEvidence?: OpenClinXrBootEvidence;
     __openClinXrTraceLatencyEvidence?: OpenClinXrTraceLatencyEvidence;
     __openClinXrMixedRealitySupport?: MixedRealitySupportState;
@@ -706,6 +748,7 @@ function createStationScene(): StationSceneRuntime {
       inputEvidence.handModelStatus,
       inputEvidence.handInputsObserved,
       inputEvidence.lastLocomotionAtMs,
+      inputEvidence.activeLocomotionSource,
       inputEvidence.rigPosition.x,
       inputEvidence.rigPosition.z,
     ].join("|");
@@ -722,7 +765,7 @@ function createStationScene(): StationSceneRuntime {
         ? "Session: In Mixed Reality"
         : immersiveSessionActive ? "Session: In Full VR" : "Session: Desktop preview",
       `Hands: ${inputEvidence.handModelStatus}; observed ${inputEvidence.handInputsObserved}`,
-      `Movement: x ${inputEvidence.rigPosition.x}, z ${inputEvidence.rigPosition.z}`,
+      `Movement: ${inputEvidence.activeLocomotionSource}; x ${inputEvidence.rigPosition.x}, z ${inputEvidence.rigPosition.z}`,
     ]);
   }
 }
@@ -785,10 +828,66 @@ function createReadableVrTextPanel(options: {
       y = drawWrappedText(panelContext, line, 58, y, panelCanvas.width - 116, 50) + 14;
     }
     texture.needsUpdate = true;
+    publishReadableVrTextPanelEvidence({
+      name: options.name,
+      title: options.title,
+      lines,
+      canvasPixels: { width: panelCanvas.width, height: panelCanvas.height },
+      worldMeters: { width: options.widthMeters, height: options.heightMeters },
+      updatedAtMs: performance.now(),
+    });
   }
 
   update(options.lines);
   return { mesh: panel, update };
+}
+
+const readableVrTextPanelEvidence = new Map<string, ReadableVrTextPanelEvidence>();
+
+function publishReadableVrTextPanelEvidence(input: {
+  name: string;
+  title: string;
+  lines: readonly string[];
+  canvasPixels: { width: number; height: number };
+  worldMeters: { width: number; height: number };
+  updatedAtMs: number;
+}): void {
+  const normalizedLines = input.lines.map((line) => line.trim());
+  const content = [input.title, ...normalizedLines].join("\n");
+  readableVrTextPanelEvidence.set(input.name, {
+    name: input.name,
+    title: input.title,
+    source: "canvas_texture_metadata",
+    canvasPixels: { ...input.canvasPixels },
+    worldMeters: {
+      width: Number(input.worldMeters.width.toFixed(3)),
+      height: Number(input.worldMeters.height.toFixed(3)),
+    },
+    lineCount: normalizedLines.length,
+    previewLines: normalizedLines.map(truncateEvidenceLine),
+    contentHash: hashEvidenceContent(content),
+    lastUpdatedAtMs: Number(input.updatedAtMs.toFixed(2)),
+    readabilityClaim: "metadata_only_requires_foreground_headset_confirmation",
+  });
+  window.__openClinXrTextPanelEvidence = {
+    source: "window.__openClinXrTextPanelEvidence",
+    panelCount: readableVrTextPanelEvidence.size,
+    panels: [...readableVrTextPanelEvidence.values()],
+    limitations: ["metadata_only_requires_foreground_headset_confirmation"],
+  };
+}
+
+function truncateEvidenceLine(line: string): string {
+  return line.length <= 140 ? line : `${line.slice(0, 137)}...`;
+}
+
+function hashEvidenceContent(content: string): string {
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < content.length; index += 1) {
+    hash ^= content.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0");
 }
 
 function drawWrappedText(
@@ -895,9 +994,21 @@ function applyLocomotion(input: {
   handModelStatus: OpenClinXrInputEvidence["handModelStatus"];
 }): OpenClinXrInputEvidence {
   const xrLocomotion = readXrGamepadLocomotion(input.session);
-  const forward = clampUnit(input.keyboardLocomotion.forward + xrLocomotion.forward);
-  const strafe = clampUnit(input.keyboardLocomotion.strafe + xrLocomotion.strafe);
-  const turn = clampUnit(input.keyboardLocomotion.turn + xrLocomotion.turn);
+  const keyboardVector = roundedVector({
+    forward: input.keyboardLocomotion.forward,
+    strafe: input.keyboardLocomotion.strafe,
+    turn: input.keyboardLocomotion.turn,
+  });
+  const xrVector = roundedVector({
+    forward: xrLocomotion.forward,
+    strafe: xrLocomotion.strafe,
+    turn: xrLocomotion.turn,
+  });
+  const keyboardActive = isLocomotionVectorActive(keyboardVector);
+  const xrActive = isLocomotionVectorActive(xrVector);
+  const forward = clampUnit(keyboardVector.forward + xrVector.forward);
+  const strafe = clampUnit(keyboardVector.strafe + xrVector.strafe);
+  const turn = clampUnit(keyboardVector.turn + xrVector.turn);
   const moved = Math.abs(forward) > 0 || Math.abs(strafe) > 0 || Math.abs(turn) > 0;
   const speedMetersPerSecond = 1.35;
 
@@ -917,6 +1028,16 @@ function applyLocomotion(input: {
     handInputsObserved: xrLocomotion.handInputsObserved,
     locomotionMode: "experimental_keyboard_and_thumbstick_dolly",
     lastLocomotionAtMs: moved ? Number(input.now.toFixed(2)) : input.lastLocomotionAtMs,
+    activeLocomotionSource: activeLocomotionSourceFor({ keyboardActive, xrActive }),
+    inputSourceCount: xrLocomotion.inputSources.length,
+    inputSourceKinds: runtimeInputSourceKinds({
+      keyboardActive,
+      xrGamepadPresent: xrActive || xrLocomotion.inputSources.some((source) => source.hasGamepad),
+      xrHandPresent: input.handModelCount > 0 || xrLocomotion.inputSources.some((source) => source.hasHand),
+    }),
+    keyboardVector,
+    xrVector,
+    xrInputSources: xrLocomotion.inputSources,
     rigPosition: {
       x: Number(input.locomotionRig.position.x.toFixed(3)),
       z: Number(input.locomotionRig.position.z.toFixed(3)),
@@ -929,17 +1050,25 @@ function readXrGamepadLocomotion(session: XrSession | undefined): {
   strafe: number;
   turn: number;
   handInputsObserved: number;
+  inputSources: XrInputSourceEvidence[];
 } {
   let forward = 0;
   let strafe = 0;
   let turn = 0;
   let handInputsObserved = 0;
+  const inputSources: XrInputSourceEvidence[] = [];
 
   for (const source of session?.inputSources ?? []) {
     if (source.hand) {
       handInputsObserved += 1;
     }
     const axes = source.gamepad?.axes ?? [];
+    inputSources.push({
+      handedness: source.handedness ?? "none",
+      hasHand: Boolean(source.hand),
+      hasGamepad: Boolean(source.gamepad),
+      axisCount: axes.length,
+    });
     const xAxis = deadzone(axes[2] ?? axes[0] ?? 0);
     const yAxis = deadzone(axes[3] ?? axes[1] ?? 0);
     if (source.handedness === "right") {
@@ -955,7 +1084,48 @@ function readXrGamepadLocomotion(session: XrSession | undefined): {
     strafe: clampUnit(strafe),
     turn: clampUnit(turn),
     handInputsObserved,
+    inputSources,
   };
+}
+
+function roundedVector(vector: LocomotionVectorEvidence): LocomotionVectorEvidence {
+  return {
+    forward: Number(clampUnit(vector.forward).toFixed(3)),
+    strafe: Number(clampUnit(vector.strafe).toFixed(3)),
+    turn: Number(clampUnit(vector.turn).toFixed(3)),
+  };
+}
+
+function isLocomotionVectorActive(vector: LocomotionVectorEvidence): boolean {
+  return Math.abs(vector.forward) > 0 || Math.abs(vector.strafe) > 0 || Math.abs(vector.turn) > 0;
+}
+
+function activeLocomotionSourceFor(input: {
+  keyboardActive: boolean;
+  xrActive: boolean;
+}): OpenClinXrInputEvidence["activeLocomotionSource"] {
+  if (input.keyboardActive && input.xrActive) {
+    return "mixed";
+  }
+  if (input.keyboardActive) {
+    return "keyboard";
+  }
+  if (input.xrActive) {
+    return "xr_gamepad";
+  }
+  return "none";
+}
+
+function runtimeInputSourceKinds(input: {
+  keyboardActive: boolean;
+  xrGamepadPresent: boolean;
+  xrHandPresent: boolean;
+}): RuntimeInputSourceKind[] {
+  return [
+    input.keyboardActive ? "keyboard" : undefined,
+    input.xrGamepadPresent ? "xr_gamepad" : undefined,
+    input.xrHandPresent ? "xr_hand" : undefined,
+  ].filter((kind): kind is RuntimeInputSourceKind => kind !== undefined);
 }
 
 function deadzone(value: number): number {
