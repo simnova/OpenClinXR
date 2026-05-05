@@ -33,6 +33,7 @@ import {
   buildManualPerformanceReproducibility,
   buildReadableVrTextPanelEvidence,
   buildRuntimeFrameStats,
+  buildRuntimeEvidencePosture,
   completeTraceAction,
   createInitialRuntimeState,
   eventTypeForTraceTag,
@@ -52,6 +53,7 @@ import {
   type RigPoseEvidence,
   type ReadableVrTextPanelEvidence,
   type ReadableVrTextPanelEvidenceSet,
+  type RuntimeEvidencePosture,
   type XrInputSourceEvidence,
   type XrHandGestureStateEvidence,
   type XrExperienceModeEvidence,
@@ -145,6 +147,7 @@ declare global {
     __openClinXrTraceLatencyEvidence?: OpenClinXrTraceLatencyEvidence;
     __openClinXrXrEntryEvidence?: OpenClinXrXrEntryEvidence;
     __openClinXrTextPanelEvidence?: ReadableVrTextPanelEvidenceSet;
+    __openClinXrRuntimeEvidencePosture?: RuntimeEvidencePosture;
   }
 }
 
@@ -262,6 +265,16 @@ app.innerHTML = `
         <h2>Trace Actions</h2>
         <div id="trace-actions" class="trace-actions"></div>
       </section>
+      <section class="evidence-panel runtime-posture-panel" aria-label="Runtime posture">
+        <h2>Runtime Posture</h2>
+        <p id="posture-summary" class="posture-summary">Mock model/voice active; evidence gates pending.</p>
+        <dl class="runtime-posture-grid">
+          <div><dt>Model</dt><dd id="posture-model">pending</dd></div>
+          <div><dt>Voice</dt><dd id="posture-voice">pending</dd></div>
+          <div><dt>Quest</dt><dd id="posture-quest">pending</dd></div>
+          <div><dt>MR</dt><dd id="posture-mr">pending</dd></div>
+        </dl>
+      </section>
       <section class="evidence-panel" aria-label="Quest manual evidence">
         <h2>Quest Evidence</h2>
         <dl class="evidence-grid">
@@ -295,6 +308,11 @@ const evidenceInput = requireElement<HTMLElement>("#evidence-input");
 const evidenceLocomotion = requireElement<HTMLElement>("#evidence-locomotion");
 const evidenceTrace = requireElement<HTMLElement>("#evidence-trace");
 const evidenceValidation = requireElement<HTMLElement>("#evidence-validation");
+const postureSummary = requireElement<HTMLElement>("#posture-summary");
+const postureModel = requireElement<HTMLElement>("#posture-model");
+const postureVoice = requireElement<HTMLElement>("#posture-voice");
+const postureQuest = requireElement<HTMLElement>("#posture-quest");
+const postureMr = requireElement<HTMLElement>("#posture-mr");
 const copyEvidenceButton = requireElement<HTMLButtonElement>("#copy-evidence-button");
 const copyEvidenceStatus = requireElement<HTMLElement>("#copy-evidence-status");
 const manualEvidenceJson = requireElement<HTMLTextAreaElement>("#manual-evidence-json");
@@ -427,6 +445,7 @@ async function recordRemoteTraceAction(tag: string): Promise<void> {
 function updateReadiness(): void {
   const summary = summarizeTraceReadiness(state);
   traceSummary.textContent = `Trace ${summary.observedCount}/${state.requiredTraceTags.length}`;
+  updateRuntimePosturePanel(window.__openClinXrManualPerformanceCaptureSummary ?? null);
 }
 
 function dialogueFor(tag: string): string {
@@ -454,6 +473,7 @@ async function updateXrStatus(): Promise<void> {
     };
     xrStatus.textContent = "WebXR unavailable";
     enterXrButton.disabled = true;
+    updateRuntimePosturePanel(window.__openClinXrManualPerformanceCaptureSummary ?? null);
     return;
   }
   try {
@@ -478,6 +498,7 @@ async function updateXrStatus(): Promise<void> {
     };
     xrStatus.textContent = immersiveVrSupported ? "Full VR ready" : "WebXR unavailable";
     enterXrButton.disabled = !immersiveVrSupported;
+    updateRuntimePosturePanel(window.__openClinXrManualPerformanceCaptureSummary ?? null);
   } catch (error) {
     runtimeWebXrSupportEvidence = {
       navigatorXrPresent: true,
@@ -489,6 +510,7 @@ async function updateXrStatus(): Promise<void> {
     };
     xrStatus.textContent = "WebXR check blocked";
     enterXrButton.disabled = true;
+    updateRuntimePosturePanel(window.__openClinXrManualPerformanceCaptureSummary ?? null);
   }
 }
 
@@ -507,6 +529,32 @@ function buildRuntimeReproducibilityEvidence(): ManualPerformanceReproducibility
       visibilityState: document.visibilityState,
     },
   });
+}
+
+function updateRuntimePosturePanel(captureSummary: ManualPerformanceCaptureSummary | null): RuntimeEvidencePosture {
+  const posture = buildRuntimeEvidencePosture({
+    traceSummary: summarizeTraceReadiness(state),
+    captureSummary,
+    webXrSupport: runtimeWebXrSupportEvidence,
+  });
+  const lanes = new Map(posture.lanes.map((lane) => [lane.id, lane]));
+  window.__openClinXrRuntimeEvidencePosture = posture;
+  postureSummary.textContent = posture.summary;
+  postureModel.textContent = formatRuntimePostureLane(lanes.get("model_dialogue"));
+  postureVoice.textContent = formatRuntimePostureLane(lanes.get("voice_synthesis"));
+  postureQuest.textContent = formatRuntimePostureLane(lanes.get("quest_foreground"));
+  postureMr.textContent = formatRuntimePostureLane(lanes.get("mixed_reality"));
+  return posture;
+}
+
+function formatRuntimePostureLane(lane: RuntimeEvidencePosture["lanes"][number] | undefined): string {
+  if (!lane) {
+    return "missing";
+  }
+  const blockerText = lane.blockers.length === 0
+    ? "no blockers"
+    : `${lane.blockers.length} ${lane.blockers.length === 1 ? "blocker" : "blockers"}`;
+  return `${lane.display}; ${blockerText}`;
 }
 
 function createStationScene(): StationSceneRuntime {
@@ -1390,6 +1438,7 @@ function updateManualEvidencePanel(): string {
     now,
   });
   window.__openClinXrManualPerformanceCaptureSummary = summary;
+  updateRuntimePosturePanel(summary);
   evidenceFrames.textContent = [
     `${summary.framesObserved ?? 0} / ${summary.sampleWindowSize ?? 0}`,
     `vr ${summary.immersiveFramesObserved ?? 0}`,
@@ -1440,6 +1489,7 @@ start = performance.now();
 recordBootPhase("controls_start");
 renderControls();
 updateReadiness();
+updateRuntimePosturePanel(null);
 recordBootPhase("controls_ready");
 void initializeRemoteTraceSession(stationApi);
 void updateXrStatus();

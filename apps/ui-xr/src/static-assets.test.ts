@@ -108,6 +108,20 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("navigator.clipboard.writeText");
   });
 
+  it("surfaces runtime provider and mode evidence without adding remote dependencies", () => {
+    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
+
+    expect(runtimeStateSource).toContain("buildRuntimeEvidencePosture");
+    expect(mainSource).toContain("__openClinXrRuntimeEvidencePosture");
+    expect(mainSource).toContain("runtime-posture-grid");
+    expect(mainSource).toContain("posture-model");
+    expect(mainSource).toContain("posture-voice");
+    expect(mainSource).toContain("posture-quest");
+    expect(mainSource).toContain("posture-mr");
+    expect(mainSource).toContain("Mock model/voice active");
+  });
+
   it("names station scene objects for future IWSDK scene hierarchy checks", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
 

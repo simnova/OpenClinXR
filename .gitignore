@@ -2,6 +2,7 @@ node_modules/
 .DS_Store
 .env.openclinxr.local
 .openclinxr-local/
+.agent-factory/browser-evidence/
 apps/*/.codex/
 .venv/
 __pycache__/

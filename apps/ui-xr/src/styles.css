@@ -191,6 +191,25 @@ dd {
   overflow-wrap: anywhere;
 }
 
+.runtime-posture-panel {
+  border-top: 1px solid #c8c0aa;
+  padding-top: 14px;
+}
+
+.posture-summary {
+  margin-bottom: 10px;
+  color: #354452;
+  line-height: 1.35;
+}
+
+.runtime-posture-grid {
+  grid-template-columns: 1fr;
+}
+
+.runtime-posture-grid dd {
+  overflow-wrap: anywhere;
+}
+
 .evidence-actions {
   display: flex;
   align-items: center;

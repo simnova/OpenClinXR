@@ -14,6 +14,41 @@ export type TraceReadinessSummary = {
   missingTraceTags: string[];
 };
 
+export type RuntimeEvidenceLaneId =
+  | "model_dialogue"
+  | "voice_synthesis"
+  | "quest_foreground"
+  | "mixed_reality";
+
+export type RuntimeEvidenceLaneStatus =
+  | "mock_active"
+  | "blocked_with_evidence"
+  | "separate_lane_available"
+  | "separate_lane_blocked";
+
+export type RuntimeEvidenceLane = {
+  id: RuntimeEvidenceLaneId;
+  label: string;
+  status: RuntimeEvidenceLaneStatus;
+  display: string;
+  evidencePath: string;
+  blockers: string[];
+  details: Record<string, unknown>;
+};
+
+export type RuntimeEvidencePosture = {
+  source: "window.__openClinXrRuntimeEvidencePosture";
+  summary: string;
+  lanes: RuntimeEvidenceLane[];
+  notEvidenceFor: string[];
+};
+
+export type RuntimeEvidencePostureInput = {
+  traceSummary: TraceReadinessSummary;
+  captureSummary: ManualPerformanceCaptureSummary | null;
+  webXrSupport: ManualPerformanceReproducibilityEvidence["webXr"];
+};
+
 export type RemoteActorTurnPlan = {
   actorId: string;
   voiceId: string;
@@ -605,6 +640,101 @@ export function evaluateXrExperienceModeReadiness(evidence: XrExperienceModeRead
   return {
     ready: blockers.length === 0,
     blockers,
+  };
+}
+
+export function buildRuntimeEvidencePosture(input: RuntimeEvidencePostureInput): RuntimeEvidencePosture {
+  const questBlockers = input.captureSummary?.manualValidationReady === true ? [] : input.captureSummary?.blockers ?? ["missing_manual_performance_draft"];
+  const immersiveArKnownUnsupported = input.webXrSupport.immersiveArSupported !== true;
+  const mixedRealityBlockers = [
+    "mixed_reality_manual_report_missing",
+    immersiveArKnownUnsupported ? "immersive_ar_not_supported_or_unverified" : undefined,
+    input.webXrSupport.immersiveArSupported === true ? "mixed_reality_privacy_safety_review_missing" : undefined,
+  ].filter((blocker): blocker is string => blocker !== undefined);
+
+  return {
+    source: "window.__openClinXrRuntimeEvidencePosture",
+    summary: "Mock model/voice active; local voice, Quest, and MR remain evidence-gated.",
+    lanes: [
+      {
+        id: "model_dialogue",
+        label: "Model",
+        status: "mock_active",
+        display: "mock-model active; local model gated",
+        evidencePath: "packages/openclinxr/model-gateway",
+        blockers: ["local_model_not_enabled_for_station_runtime"],
+        details: {
+          route: "actor-dialogue-offline-v1",
+          activeProvider: "mock-model",
+          localProvider: "local-model",
+          observedTraceTags: input.traceSummary.observedCount,
+          missingTraceTags: input.traceSummary.missingCount,
+        },
+      },
+      {
+        id: "voice_synthesis",
+        label: "Voice",
+        status: "blocked_with_evidence",
+        display: "mock-voice active; VibeVoice RTF 5.24x",
+        evidencePath: "docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json",
+        blockers: [
+          "runtime_file_generation_only",
+          "real_time_factor_above_1",
+          "real_local_voice_stream_benchmark_missing",
+          "webxr_playback_not_observed",
+        ],
+        details: {
+          route: "voice-offline-v1",
+          activeProvider: "mock-voice",
+          localProvider: "local-vibevoice",
+          modelId: "microsoft/VibeVoice-Realtime-0.5B",
+          realTimeFactor: 5.24,
+          approximateFirstSpeechTokenLatencyMs: 9000,
+          productionUseAllowed: false,
+        },
+      },
+      {
+        id: "quest_foreground",
+        label: "Quest",
+        status: questBlockers.length === 0 ? "separate_lane_available" : "blocked_with_evidence",
+        display: questBlockers.length === 0
+          ? "Full VR manual evidence ready"
+          : "Full VR evidence blocked",
+        evidencePath: "docs/openclinxr/quest-manual-performance-2026-05-04.json",
+        blockers: questBlockers,
+        details: {
+          modeId: "full_vr",
+          manualValidationReady: input.captureSummary?.manualValidationReady ?? false,
+          framesObserved: input.captureSummary?.framesObserved ?? null,
+          immersiveFramesObserved: input.captureSummary?.immersiveFramesObserved ?? null,
+          traceLatencySource: input.captureSummary?.traceLatencySource ?? null,
+          handInputsObserved: input.captureSummary?.handInputsObserved ?? null,
+        },
+      },
+      {
+        id: "mixed_reality",
+        label: "MR",
+        status: input.webXrSupport.immersiveArSupported === true ? "separate_lane_available" : "separate_lane_blocked",
+        display: input.webXrSupport.immersiveArSupported === true
+          ? "MR separate lane; immersive-ar supported"
+          : "MR separate lane; immersive-ar unsupported",
+        evidencePath: "proposals/approved/proposal-webxr-mixed-reality-mode.md",
+        blockers: mixedRealityBlockers,
+        details: {
+          modeId: "mixed_reality_passthrough",
+          immersiveArSupported: input.webXrSupport.immersiveArSupported,
+          supportError: input.webXrSupport.supportError,
+          manualReportModeId: null,
+          passthroughObserved: false,
+        },
+      },
+    ],
+    notEvidenceFor: [
+      "production_quest_readiness",
+      "validated_clinical_score_use",
+      "local_voice_live_dialog_readiness",
+      "mixed_reality_privacy_readiness",
+    ],
   };
 }
 

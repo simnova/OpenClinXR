@@ -10,6 +10,7 @@ import {
   actorResponseTextFromApiResult,
   buildManualPerformanceDraft,
   buildManualPerformanceReproducibility,
+  buildRuntimeEvidencePosture,
   buildIwsdkStationMcpSmokePlan,
   evaluateIwsdkStationMcpSmokeEvidence,
   evaluateXrExperienceModeReadiness,
@@ -889,5 +890,85 @@ describe("XR runtime state", () => {
       manualValidationReady: false,
       blockers: ["frame_stats_stale_or_unsampled"],
     });
+  });
+
+  it("surfaces mock, local voice, Quest, and Mixed Reality posture without readiness overclaim", () => {
+    const posture = buildRuntimeEvidencePosture({
+      traceSummary: {
+        observedCount: 2,
+        missingCount: 4,
+        missingTraceTags: ["ecg_request", "urgent_escalation", "team_communication", "patient_note_submitted"],
+      },
+      captureSummary: {
+        source: "window.__openClinXrManualPerformanceDraft",
+        generatedAt: "2026-05-04T20:36:00.000Z",
+        framesObserved: 0,
+        firstFrameAtMs: null,
+        latestFrameAtMs: null,
+        frameStatsAgeMs: null,
+        frameStatsFresh: null,
+        sampleWindowSize: 0,
+        previewFramesObserved: 0,
+        immersiveFramesObserved: 0,
+        isPresenting: true,
+        visibilityState: "visible",
+        qualitySource: "webxr_animation_loop",
+        handInputsObserved: 2,
+        activeLocomotionSource: "none",
+        inputSourceKinds: ["xr_hand"],
+        lastLocomotionAtMs: null,
+        locomotionDistanceMeters: null,
+        locomotionTurnRadians: null,
+        traceLatencySource: "dom_click_trace_button",
+        lastTraceTag: null,
+        lastTraceLatencyMs: null,
+        draftAvailable: true,
+        manualValidationReady: false,
+        satisfiedConditions: ["immersive_session_started", "text_readability_confirmed"],
+        blockers: ["immersive_frame_count_zero_or_missing", "controller_select_trace_source_not_xr_controller_select"],
+      },
+      webXrSupport: {
+        navigatorXrPresent: true,
+        immersiveVrSupported: true,
+        immersiveVrSupportCheckedAtMs: 100,
+        immersiveArSupported: false,
+        immersiveArSupportCheckedAtMs: 110,
+        supportError: null,
+      },
+    });
+
+    expect(posture.lanes).toEqual([
+      expect.objectContaining({
+        id: "model_dialogue",
+        status: "mock_active",
+        display: "mock-model active; local model gated",
+        blockers: ["local_model_not_enabled_for_station_runtime"],
+      }),
+      expect.objectContaining({
+        id: "voice_synthesis",
+        status: "blocked_with_evidence",
+        display: "mock-voice active; VibeVoice RTF 5.24x",
+        blockers: expect.arrayContaining([
+          "runtime_file_generation_only",
+          "real_time_factor_above_1",
+          "real_local_voice_stream_benchmark_missing",
+          "webxr_playback_not_observed",
+        ]),
+      }),
+      expect.objectContaining({
+        id: "quest_foreground",
+        status: "blocked_with_evidence",
+        display: "Full VR evidence blocked",
+        blockers: ["immersive_frame_count_zero_or_missing", "controller_select_trace_source_not_xr_controller_select"],
+      }),
+      expect.objectContaining({
+        id: "mixed_reality",
+        status: "separate_lane_blocked",
+        display: "MR separate lane; immersive-ar unsupported",
+        blockers: ["mixed_reality_manual_report_missing", "immersive_ar_not_supported_or_unverified"],
+      }),
+    ]);
+    expect(posture.summary).toBe("Mock model/voice active; local voice, Quest, and MR remain evidence-gated.");
+    expect(posture.notEvidenceFor).toContain("production_quest_readiness");
   });
 });
