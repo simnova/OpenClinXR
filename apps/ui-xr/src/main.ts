@@ -27,6 +27,7 @@ import { XRHandModelFactory } from "three/addons/webxr/XRHandModelFactory.js";
 import {
   actorIdForTraceTag,
   actorResponseTextFromApiResult,
+  buildManualPerformanceCaptureSummary,
   buildManualPerformanceInputEvidence,
   buildManualPerformanceDraft,
   buildReadableVrTextPanelEvidence,
@@ -40,6 +41,7 @@ import {
   stationTraceActionTags,
   summarizeTraceReadiness,
   type LocomotionVectorEvidence,
+  type ManualPerformanceCaptureSummary,
   type ManualPerformanceDraft,
   type ManualPerformanceFrameStats,
   type ManualPerformanceInputEvidence,
@@ -115,6 +117,7 @@ declare global {
   interface Window {
     __openClinXrFrameStats?: OpenClinXrFrameStats;
     __openClinXrManualPerformanceDraft?: ManualPerformanceDraft;
+    __openClinXrManualPerformanceCaptureSummary?: ManualPerformanceCaptureSummary;
     __openClinXrExperienceModeEvidence?: XrExperienceModeEvidence;
     __openClinXrInputEvidence?: OpenClinXrInputEvidence;
     __openClinXrBootEvidence?: OpenClinXrBootEvidence;
@@ -226,6 +229,20 @@ app.innerHTML = `
         <h2>Trace Actions</h2>
         <div id="trace-actions" class="trace-actions"></div>
       </section>
+      <section class="evidence-panel" aria-label="Quest manual evidence">
+        <h2>Quest Evidence</h2>
+        <dl class="evidence-grid">
+          <div><dt>Frames</dt><dd id="evidence-frames">0 / 0</dd></div>
+          <div><dt>Loop</dt><dd id="evidence-loop">pending</dd></div>
+          <div><dt>Input</dt><dd id="evidence-input">pending</dd></div>
+          <div><dt>Movement</dt><dd id="evidence-locomotion">pending</dd></div>
+        </dl>
+        <div class="evidence-actions">
+          <button id="copy-evidence-button" class="trace-button" type="button">Copy Draft</button>
+          <span id="copy-evidence-status" aria-live="polite">Not copied</span>
+        </div>
+        <textarea id="manual-evidence-json" class="manual-evidence-json" readonly spellcheck="false" aria-label="Manual performance JSON"></textarea>
+      </section>
     </aside>
   </main>
 `;
@@ -237,7 +254,29 @@ const traceActions = requireElement<HTMLElement>("#trace-actions");
 const xrStatus = requireElement<HTMLElement>("#xr-status");
 const dialogueLine = requireElement<HTMLElement>("#dialogue-line");
 const enterXrButton = requireElement<HTMLButtonElement>("#enter-xr-button");
+const evidenceFrames = requireElement<HTMLElement>("#evidence-frames");
+const evidenceLoop = requireElement<HTMLElement>("#evidence-loop");
+const evidenceInput = requireElement<HTMLElement>("#evidence-input");
+const evidenceLocomotion = requireElement<HTMLElement>("#evidence-locomotion");
+const copyEvidenceButton = requireElement<HTMLButtonElement>("#copy-evidence-button");
+const copyEvidenceStatus = requireElement<HTMLElement>("#copy-evidence-status");
+const manualEvidenceJson = requireElement<HTMLTextAreaElement>("#manual-evidence-json");
 window.__openClinXrExperienceModeEvidence = xrExperienceModeEvidence;
+
+copyEvidenceButton.addEventListener("click", () => {
+  const payload = updateManualEvidencePanel();
+  if (navigator.clipboard) {
+    void navigator.clipboard.writeText(payload)
+      .then(() => {
+        copyEvidenceStatus.textContent = "Copied";
+      })
+      .catch(() => {
+        copyEvidenceStatus.textContent = "Copy blocked";
+      });
+    return;
+  }
+  copyEvidenceStatus.textContent = "Clipboard unavailable";
+});
 
 function renderControls(): void {
   traceActions.innerHTML = "";
@@ -944,9 +983,6 @@ function recordFrame(now: number, evidence: {
     isPresenting: evidence.isPresenting,
     visibilityState: evidence.visibilityState,
   });
-  if (framesObserved !== 1 && framesObserved % 30 !== 0) {
-    return;
-  }
   window.__openClinXrManualPerformanceDraft = buildManualPerformanceDraft({
     generatedAt: new Date().toISOString(),
     elapsedSecond: state.elapsedSecond,
@@ -959,6 +995,38 @@ function recordFrame(now: number, evidence: {
     traceLatencyEvidence: window.__openClinXrTraceLatencyEvidence ?? null,
     immersiveSessionStarted: immersiveSessionActive,
   });
+  window.__openClinXrManualPerformanceCaptureSummary = buildManualPerformanceCaptureSummary({
+    draft: window.__openClinXrManualPerformanceDraft,
+    frameStats: window.__openClinXrFrameStats,
+  });
+  if (framesObserved === 1 || framesObserved % 30 === 0) {
+    updateManualEvidencePanel();
+  }
+}
+
+function updateManualEvidencePanel(): string {
+  const summary = buildManualPerformanceCaptureSummary({
+    draft: window.__openClinXrManualPerformanceDraft ?? null,
+    frameStats: window.__openClinXrFrameStats ?? null,
+  });
+  window.__openClinXrManualPerformanceCaptureSummary = summary;
+  evidenceFrames.textContent = `${summary.framesObserved ?? 0} / ${summary.sampleWindowSize ?? 0}`;
+  evidenceLoop.textContent = [
+    summary.qualitySource ?? "pending",
+    summary.isPresenting ? "presenting" : "not presenting",
+    summary.visibilityState ?? "unknown",
+  ].join(" | ");
+  evidenceInput.textContent = [
+    `${summary.handInputsObserved ?? 0} hand inputs`,
+    summary.inputSourceKinds.length > 0 ? summary.inputSourceKinds.join(", ") : "no source",
+  ].join(" | ");
+  evidenceLocomotion.textContent = [
+    summary.activeLocomotionSource ?? "none",
+    summary.lastLocomotionAtMs === null ? "no movement timestamp" : `moved ${summary.lastLocomotionAtMs}ms`,
+  ].join(" | ");
+  const payload = JSON.stringify(window.__openClinXrManualPerformanceDraft ?? {}, null, 2);
+  manualEvidenceJson.value = payload;
+  return payload;
 }
 
 let start = performance.now();

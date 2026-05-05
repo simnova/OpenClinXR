@@ -72,6 +72,18 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("__openClinXrInputEvidence");
   });
 
+  it("exposes a local manual-performance evidence export panel", () => {
+    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
+
+    expect(runtimeStateSource).toContain("buildManualPerformanceCaptureSummary");
+    expect(mainSource).toContain("__openClinXrManualPerformanceCaptureSummary");
+    expect(mainSource).toContain("manual-evidence-json");
+    expect(mainSource).toContain("copy-evidence-button");
+    expect(mainSource).toContain("updateManualEvidencePanel");
+    expect(mainSource).toContain("navigator.clipboard.writeText");
+  });
+
   it("names station scene objects for future IWSDK scene hierarchy checks", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
 

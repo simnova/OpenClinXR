@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
 import {
   completeTraceAction,
+  buildManualPerformanceCaptureSummary,
   buildManualPerformanceInputEvidence,
   buildReadableVrTextPanelEvidence,
   buildRuntimeFrameStats,
@@ -456,6 +457,59 @@ describe("XR runtime state", () => {
         heatConcern: null,
         batteryDropPercent: null,
       },
+    });
+  });
+
+  it("summarizes the live manual performance capture for operator export", () => {
+    const frameStats = buildRuntimeFrameStats({
+      frameDeltasMs: [11, 12, 13],
+      framesObserved: 4,
+      latestFrameAtMs: 1234.56,
+      qualitySource: "webxr_animation_loop",
+      isPresenting: true,
+      visibilityState: "visible",
+    });
+    const draft = buildManualPerformanceDraft({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      elapsedSecond: 90,
+      foregroundPageConfirmed: true,
+      traceInteractionPassed: false,
+      frameStats,
+      immersiveSessionStarted: true,
+      inputEvidence: {
+        handModelCount: 2,
+        handModelStatus: "installed",
+        handInputsObserved: 2,
+        locomotionMode: "experimental_keyboard_and_thumbstick_dolly",
+        lastInputObservedAtMs: 1234.56,
+        lastLocomotionAtMs: null,
+        activeLocomotionSource: "none",
+        inputSourceKinds: ["xr_hand"],
+        rigPosition: { x: 0, z: 0 },
+      },
+    });
+
+    expect(buildManualPerformanceCaptureSummary({ draft, frameStats })).toEqual({
+      source: "window.__openClinXrManualPerformanceDraft",
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      framesObserved: 4,
+      sampleWindowSize: 3,
+      isPresenting: true,
+      visibilityState: "visible",
+      qualitySource: "webxr_animation_loop",
+      handInputsObserved: 2,
+      activeLocomotionSource: "none",
+      inputSourceKinds: ["xr_hand"],
+      lastLocomotionAtMs: null,
+      exportReady: true,
+      blockers: [],
+    });
+    expect(buildManualPerformanceCaptureSummary({
+      draft: undefined,
+      frameStats: undefined,
+    })).toMatchObject({
+      exportReady: false,
+      blockers: ["missing_manual_performance_draft", "missing_frame_stats"],
     });
   });
 });

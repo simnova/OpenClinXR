@@ -212,6 +212,27 @@ export type ManualPerformanceDraft = {
   };
 };
 
+export type ManualPerformanceCaptureSummary = {
+  source: "window.__openClinXrManualPerformanceDraft";
+  generatedAt: string | null;
+  framesObserved: number | null;
+  sampleWindowSize: number | null;
+  isPresenting: boolean | null;
+  visibilityState: string | null;
+  qualitySource: ManualPerformanceFrameStats["qualitySource"] | null;
+  handInputsObserved: number | null;
+  activeLocomotionSource: ManualPerformanceInputEvidence["activeLocomotionSource"] | null;
+  inputSourceKinds: RuntimeInputSourceKind[];
+  lastLocomotionAtMs: number | null;
+  exportReady: boolean;
+  blockers: string[];
+};
+
+export type ManualPerformanceCaptureSummaryInput = {
+  draft?: ManualPerformanceDraft | null | undefined;
+  frameStats?: ManualPerformanceFrameStats | null | undefined;
+};
+
 export type ManualPerformanceDraftInput = {
   generatedAt: string;
   elapsedSecond: number;
@@ -758,6 +779,33 @@ export function buildManualPerformanceDraft(input: ManualPerformanceDraftInput):
       heatConcern: null,
       batteryDropPercent: null,
     },
+  };
+}
+
+export function buildManualPerformanceCaptureSummary(
+  input: ManualPerformanceCaptureSummaryInput,
+): ManualPerformanceCaptureSummary {
+  const blockers = [
+    input.draft ? undefined : "missing_manual_performance_draft",
+    input.frameStats ? undefined : "missing_frame_stats",
+  ].filter((blocker): blocker is string => blocker !== undefined);
+  const frameStats = input.frameStats ?? null;
+  const inputEvidence = input.draft?.input ?? null;
+
+  return {
+    source: "window.__openClinXrManualPerformanceDraft",
+    generatedAt: input.draft?.generatedAt ?? null,
+    framesObserved: frameStats?.framesObserved ?? null,
+    sampleWindowSize: frameStats?.sampleWindowSize ?? null,
+    isPresenting: frameStats?.isPresenting ?? null,
+    visibilityState: frameStats?.visibilityState ?? null,
+    qualitySource: frameStats?.qualitySource ?? null,
+    handInputsObserved: inputEvidence?.handInputsObserved ?? null,
+    activeLocomotionSource: inputEvidence?.activeLocomotionSource ?? null,
+    inputSourceKinds: [...(inputEvidence?.inputSourceKinds ?? [])],
+    lastLocomotionAtMs: inputEvidence?.lastLocomotionAtMs ?? null,
+    exportReady: blockers.length === 0,
+    blockers,
   };
 }
 
