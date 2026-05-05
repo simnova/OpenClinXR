@@ -154,6 +154,22 @@ type ReadableVrTextPanelEvidenceSet = {
   limitations: ["metadata_only_requires_foreground_headset_confirmation"];
 };
 
+type IwerEvidenceViewMode = "default" | "wide_iwer_capture";
+
+type IwerEvidenceViewEvidence = {
+  source: "window.__openClinXrIwerEvidenceViewEvidence";
+  mode: IwerEvidenceViewMode;
+  queryFlag: "iwerEvidenceView=wide";
+  purpose: "query_gated_visual_evidence_capture_layout";
+  controllerAffordancesRendered: boolean;
+  rigPosition: { x: number; z: number };
+  notEvidenceFor: [
+    "physical_quest_view_framing",
+    "in_headset_text_readability",
+    "production_runtime_readiness",
+  ];
+};
+
 declare global {
   interface Window {
     __openClinXrFrameStats?: ReturnType<typeof summarizeIwsdkSidecarFrameDeltas> & {
@@ -169,6 +185,7 @@ declare global {
     __openClinXrTraceLatencyEvidence?: OpenClinXrTraceLatencyEvidence;
     __openClinXrMixedRealitySupport?: MixedRealitySupportState;
     __openClinXrIwerSessionEntryEvidence?: IwsdkSidecarXrEntryEvidence;
+    __openClinXrIwerEvidenceViewEvidence?: IwerEvidenceViewEvidence;
   }
 }
 
@@ -187,6 +204,7 @@ function requireElement<TElement extends Element>(selector: string): TElement {
 
 const bootStartedAtMs = performance.now();
 const iwerAutoEnterVrQueryFlag = "iwerAutoEnterVr=true";
+const iwerEvidenceViewWideQueryFlag = "iwerEvidenceView=wide";
 
 function recordBootPhase(phase: string, error?: unknown): void {
   const current: OpenClinXrBootEvidence = window.__openClinXrBootEvidence ?? { app: "ui-xr-iwsdk-spike", events: [] };
@@ -212,6 +230,10 @@ function hasIwerAutoEnterVrProbe(search: string): boolean {
   return search.includes(iwerAutoEnterVrQueryFlag) || new URLSearchParams(search).get("iwerAutoEnterVr") === "true";
 }
 
+function hasIwerWideEvidenceView(search: string): boolean {
+  return search.includes(iwerEvidenceViewWideQueryFlag) || new URLSearchParams(search).get("iwerEvidenceView") === "wide";
+}
+
 let state: IwsdkSidecarRuntimeState = createIwsdkSidecarRuntimeState();
 let iwsdkCoreExportCount = 0;
 let iwsdkXrInputExportCount = 0;
@@ -220,6 +242,9 @@ let immersiveSessionActive = false;
 let activePresentationMode: PresentationMode | null = null;
 const mixedRealityOperatorApproved = hasApprovedMixedRealityOperatorGate(window.location.search);
 const iwerAutoEnterVrProbeEnabled = hasIwerAutoEnterVrProbe(window.location.search);
+const iwerEvidenceViewMode: IwerEvidenceViewMode = hasIwerWideEvidenceView(window.location.search)
+  ? "wide_iwer_capture"
+  : "default";
 let mixedRealitySupport = buildMixedRealitySupportState({
   operatorApproved: mixedRealityOperatorApproved,
   webXrAvailable: false,
@@ -297,7 +322,35 @@ window.__openClinXrIwerSessionEntryEvidence = buildIwsdkSidecarXrEntryEvidence({
 });
 window.__openClinXrIwsdkSidecarTraceTags = [];
 window.__openClinXrMixedRealitySupport = mixedRealitySupport;
+window.__openClinXrIwerEvidenceViewEvidence = buildIwerEvidenceViewEvidence({
+  mode: iwerEvidenceViewMode,
+  controllerAffordancesRendered: iwerEvidenceViewMode !== "wide_iwer_capture",
+  rigPosition: { x: 0, z: 0 },
+});
 scheduleIwsdkEvidenceHydration();
+
+function buildIwerEvidenceViewEvidence(input: {
+  mode: IwerEvidenceViewMode;
+  controllerAffordancesRendered: boolean;
+  rigPosition: { x: number; z: number };
+}): IwerEvidenceViewEvidence {
+  return {
+    source: "window.__openClinXrIwerEvidenceViewEvidence",
+    mode: input.mode,
+    queryFlag: "iwerEvidenceView=wide",
+    purpose: "query_gated_visual_evidence_capture_layout",
+    controllerAffordancesRendered: input.controllerAffordancesRendered,
+    rigPosition: {
+      x: Number(input.rigPosition.x.toFixed(3)),
+      z: Number(input.rigPosition.z.toFixed(3)),
+    },
+    notEvidenceFor: [
+      "physical_quest_view_framing",
+      "in_headset_text_readability",
+      "production_runtime_readiness",
+    ],
+  };
+}
 
 function recordIwerSessionEntryEvidence(status: IwsdkSidecarXrEntryStatus, error?: unknown): void {
   const current = window.__openClinXrIwerSessionEntryEvidence ?? buildIwsdkSidecarXrEntryEvidence({
@@ -463,6 +516,9 @@ function createStationScene(): StationSceneRuntime {
 
   const locomotionRig = new Group();
   locomotionRig.name = "openclinxr.ed-chest-pain.locomotion-rig";
+  if (iwerEvidenceViewMode === "wide_iwer_capture") {
+    locomotionRig.position.set(0, 0, 1.35);
+  }
   scene.add(locomotionRig);
 
   const camera = new PerspectiveCamera(52, 1, 0.1, 100);
@@ -545,7 +601,24 @@ function createStationScene(): StationSceneRuntime {
   inputPanel.mesh.position.set(0.15, 0.78, -1.2);
   scene.add(inputPanel.mesh);
   let lastPanelSignature = "";
-  addControllerAffordances(renderer, scene);
+  applyEvidenceCaptureLayout({
+    enabled: iwerEvidenceViewMode === "wide_iwer_capture",
+    clinicalPanel,
+    dialoguePanel,
+    inputPanel,
+  });
+  const controllerAffordancesRendered = iwerEvidenceViewMode !== "wide_iwer_capture";
+  if (controllerAffordancesRendered) {
+    addControllerAffordances(renderer, scene);
+  }
+  window.__openClinXrIwerEvidenceViewEvidence = buildIwerEvidenceViewEvidence({
+    mode: iwerEvidenceViewMode,
+    controllerAffordancesRendered,
+    rigPosition: {
+      x: locomotionRig.position.x,
+      z: locomotionRig.position.z,
+    },
+  });
   const keyboardLocomotion = createKeyboardLocomotion();
   let handModelStatus: OpenClinXrInputEvidence["handModelStatus"] = "pending_immersive_session";
   let handModelsInstalled = false;
@@ -580,6 +653,11 @@ function createStationScene(): StationSceneRuntime {
     });
     lastLocomotionAtMs = inputEvidence.lastLocomotionAtMs;
     window.__openClinXrInputEvidence = inputEvidence;
+    window.__openClinXrIwerEvidenceViewEvidence = buildIwerEvidenceViewEvidence({
+      mode: iwerEvidenceViewMode,
+      controllerAffordancesRendered,
+      rigPosition: inputEvidence.rigPosition,
+    });
     updateVrPanels(inputEvidence);
     resize();
     patient.rotation.y = Math.sin(now / 1200) * 0.08;
@@ -788,6 +866,36 @@ function createClinicalPanel(): ReadableVrTextPanel {
   panel.mesh.position.set(-1.32, 1.55, -1.08);
   panel.mesh.rotation.y = 0.34;
   return panel;
+}
+
+function applyEvidenceCaptureLayout(input: {
+  enabled: boolean;
+  clinicalPanel: ReadableVrTextPanel;
+  dialoguePanel: ReadableVrTextPanel;
+  inputPanel: ReadableVrTextPanel;
+}): void {
+  if (!input.enabled) {
+    return;
+  }
+
+  input.clinicalPanel.mesh.position.set(-1.48, 1.7, -1.65);
+  input.clinicalPanel.mesh.rotation.y = 0.12;
+  input.dialoguePanel.mesh.position.set(1.48, 1.7, -1.65);
+  input.dialoguePanel.mesh.rotation.y = -0.12;
+  input.inputPanel.mesh.position.set(0, 1.05, -1.55);
+  input.inputPanel.mesh.rotation.y = 0;
+  prioritizeEvidencePanelVisibility(input.clinicalPanel.mesh);
+  prioritizeEvidencePanelVisibility(input.dialoguePanel.mesh);
+  prioritizeEvidencePanelVisibility(input.inputPanel.mesh);
+}
+
+function prioritizeEvidencePanelVisibility(mesh: Mesh): void {
+  mesh.renderOrder = 50;
+  const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+  for (const material of materials) {
+    material.depthTest = false;
+    material.depthWrite = false;
+  }
 }
 
 function createReadableVrTextPanel(options: {

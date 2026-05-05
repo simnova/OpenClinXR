@@ -298,4 +298,23 @@ describe("IWSDK sidecar runtime state", () => {
     expect(source).toContain("keyboardVector");
     expect(source).toContain("xrVector");
   });
+
+  it("keeps the cleaner IWER visual evidence layout query-gated", () => {
+    const source = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+
+    expect(source).toContain("iwerEvidenceView=wide");
+    expect(source).toContain("hasIwerWideEvidenceView");
+    expect(source).toContain("applyEvidenceCaptureLayout");
+    expect(source).toContain("__openClinXrIwerEvidenceViewEvidence");
+    expect(source).toContain("wide_iwer_capture");
+  });
+
+  it("prioritizes panel visibility only in the IWER visual evidence layout", () => {
+    const source = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+
+    expect(source).toContain("prioritizeEvidencePanelVisibility");
+    expect(source).toContain("mesh.renderOrder = 50");
+    expect(source).toContain("depthTest = false");
+    expect(source).toContain("depthWrite = false");
+  });
 });

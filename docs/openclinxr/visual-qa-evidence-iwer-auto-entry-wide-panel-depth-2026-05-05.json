@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "openclinxr.visual-qa-evidence.v1",
+  "capture": {
+    "source": "iwer_emulation",
+    "artifactType": "screenshot",
+    "artifact": "docs/openclinxr/screenshots/iwer-auto-entry-wide-panel-depth-2026-05-05.png",
+    "mimeType": "image/png",
+    "dimensions": {
+      "width": 1910,
+      "height": 1670
+    },
+    "runtimeUrl": "http://127.0.0.1:5184/?iwerAutoEnterVr=true&iwerEvidenceView=wide&captureRevision=panel-depth",
+    "route": "/",
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "xrMode": "iwer_emulated_full_vr_auto_entry_query_gated_wide_panel_depth",
+    "cameraPose": "IWER Meta Quest 3 default pose with query-gated panel visibility priority and controller dev UI visible",
+    "captureCommand": "Chrome DevTools MCP take_screenshot"
+  },
+  "adversarialReview": {
+    "reviewers": [
+      "test-automation-lead",
+      "ux-friction-critic",
+      "clinical-safety-critic",
+      "xr-systems-architect",
+      "asset-pipeline-lead"
+    ],
+    "checks": {
+      "clinical_scene_fidelity": {
+        "status": "concern",
+        "notes": [
+          "The capture shows the emergency chest-pain station with patient, dialogue, clinical panel, and input panel in view, but the simplified actors and sparse room do not yet communicate a production clinical environment."
+        ]
+      },
+      "actor_equipment_realism": {
+        "status": "concern",
+        "notes": [
+          "Actors are primitive capsule forms and the bed/monitor/equipment remain block-level proxies; this artifact supports layout iteration, not asset realism validation."
+        ]
+      },
+      "ui_readability": {
+        "status": "concern",
+        "notes": [
+          "The query-gated panel visibility mode makes all three panels materially more readable than the prior rich-evidence capture, but the IWER controller overlays still crowd the lower input panel and the text remains too soft for a headset readability claim."
+        ]
+      },
+      "interaction_affordances": {
+        "status": "concern",
+        "notes": [
+          "The app-authored controller affordances are intentionally hidden in this capture mode, so interaction readiness must still be assessed through separate IWER input probes and physical Quest tests."
+        ]
+      },
+      "occlusion_scale": {
+        "status": "concern",
+        "notes": [
+          "Depth-prioritized panels reduce actor occlusion and improve adversarial screenshot review, but they are an evidence-capture composition rather than a normal user-facing spatial layout."
+        ]
+      },
+      "evidence_limits": {
+        "status": "pass",
+        "notes": [
+          "This artifact is explicitly limited to IWER emulation and visual QA iteration; it is not physical Quest foreground evidence, not headset readability proof, and not production runtime readiness."
+        ]
+      }
+    }
+  },
+  "claimBoundaries": {
+    "notEvidenceFor": [
+      "physical_quest_foreground_frame_pacing",
+      "quest_controller_latency",
+      "quest_hand_tracking_quality",
+      "in_headset_text_readability",
+      "thermal_or_battery_behavior",
+      "production_runtime_readiness"
+    ],
+    "allowedClaims": [
+      "adversarial_visual_iteration_artifact",
+      "iwer_auto_entry_session_started_in_emulation",
+      "query_gated_panel_visibility_capture_mode_observed"
+    ]
+  }
+}
