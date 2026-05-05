@@ -819,6 +819,14 @@ describe("XR runtime state", () => {
       traceInteractionAttempt: "xr_controller_select_attempted_no_runtime_event",
       lastTraceTag: "ecg_request",
       lastTraceLatencyMs: 24,
+      immersiveFrameEvidenceReady: false,
+      headsetSelectLatencyReady: false,
+      locomotionEvidenceReady: false,
+      technicalGaps: [
+        "immersive_frame_sample_not_ready",
+        "headset_select_trace_latency_missing",
+        "locomotion_delta_missing",
+      ],
       draftAvailable: true,
       manualValidationReady: false,
       satisfiedConditions: [
@@ -1000,6 +1008,8 @@ describe("XR runtime state", () => {
       draftAvailable: true,
       framesObserved: 0,
       immersiveFramesObserved: 0,
+      immersiveFrameEvidenceReady: false,
+      technicalGaps: expect.arrayContaining(["immersive_session_started_without_frame_samples"]),
       manualValidationReady: false,
       blockers: expect.arrayContaining([
         "immersive_session_started_but_frame_stats_empty",
@@ -1113,6 +1123,14 @@ describe("XR runtime state", () => {
         traceInteractionAttempt: "dom_click_attempted_no_runtime_event",
         lastTraceTag: null,
         lastTraceLatencyMs: null,
+        immersiveFrameEvidenceReady: false,
+        headsetSelectLatencyReady: false,
+        locomotionEvidenceReady: false,
+        technicalGaps: [
+          "immersive_session_started_without_frame_samples",
+          "headset_select_trace_latency_missing",
+          "locomotion_delta_missing",
+        ],
         draftAvailable: true,
         manualValidationReady: false,
         satisfiedConditions: ["immersive_session_started", "text_readability_confirmed"],

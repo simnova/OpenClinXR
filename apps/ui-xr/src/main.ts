@@ -871,6 +871,7 @@ function createStationScene(): StationSceneRuntime {
       inputEvidence.locomotionDelta?.distanceMeters ?? 0,
       inputEvidence.locomotionDelta?.turnRadians ?? 0,
       captureReadinessStatus,
+      captureSummary?.technicalGaps[0] ?? "no-technical-gap",
     ].join("|");
     if (panelSignature === lastPanelSignature) {
       return;
@@ -888,7 +889,7 @@ function createStationScene(): StationSceneRuntime {
         : `Gesture: ${inputEvidence.xrHandGestureState?.blockedReason ?? "not armed"}`,
       `Trace hand select: ${formatHandSelectStatus(inputEvidence.xrHandSelectState)}`,
       `Movement: ${inputEvidence.activeLocomotionSource ?? "none"}; d ${inputEvidence.locomotionDelta?.distanceMeters ?? 0}m; turn ${inputEvidence.locomotionDelta?.turnRadians ?? 0}rad`,
-      `Capture: ${captureReadinessStatus}`,
+      `Capture: ${captureReadinessStatus}; gap ${formatTechnicalGapStatus(captureSummary)}`,
     ]);
   }
 }
@@ -908,6 +909,10 @@ function formatCaptureReadinessStatus(summary: ManualPerformanceCaptureSummary |
   }
   const status = summary.manualValidationReady ? "ready" : `${summary.blockers.length} blockers`;
   return `${status}; vr ${summary.immersiveFramesObserved ?? 0}; window ${summary.sampleWindowSize ?? 0}`;
+}
+
+function formatTechnicalGapStatus(summary: ManualPerformanceCaptureSummary | null): string {
+  return summary?.technicalGaps[0] ?? "none";
 }
 
 function createClinicalPanel(): ReadableVrTextPanel {
@@ -1710,6 +1715,7 @@ function updateManualEvidencePanel(): string {
     `${summary.framesObserved ?? 0} / ${summary.sampleWindowSize ?? 0}`,
     `vr ${summary.immersiveFramesObserved ?? 0}`,
     `preview ${summary.previewFramesObserved ?? 0}`,
+    summary.immersiveFrameEvidenceReady ? "frame evidence ready" : "frame gap",
   ].join(" | ");
   evidenceLoop.textContent = [
     summary.qualitySource ?? "pending",
@@ -1724,6 +1730,7 @@ function updateManualEvidencePanel(): string {
   ].join(" | ");
   evidenceLocomotion.textContent = [
     summary.activeLocomotionSource ?? "none",
+    summary.locomotionEvidenceReady ? "locomotion ready" : "locomotion gap",
     `attempt ${summary.locomotionAttempt ?? "unknown"}`,
     summary.lastLocomotionAtMs === null ? "no movement timestamp" : `moved ${summary.lastLocomotionAtMs}ms`,
     summary.locomotionDistanceMeters === null ? "no distance delta" : `d ${summary.locomotionDistanceMeters}m`,
@@ -1731,6 +1738,7 @@ function updateManualEvidencePanel(): string {
   ].join(" | ");
   evidenceTrace.textContent = [
     summary.traceLatencySource ?? "no trace source",
+    summary.headsetSelectLatencyReady ? "headset latency ready" : "headset latency gap",
     `attempt ${summary.traceInteractionAttempt ?? "unknown"}`,
     summary.lastTraceTag ?? "no tag",
     summary.lastTraceLatencyMs === null ? "no latency" : `${summary.lastTraceLatencyMs}ms`,
@@ -1738,6 +1746,7 @@ function updateManualEvidencePanel(): string {
   evidenceValidation.textContent = [
     summary.manualValidationReady ? "manual validation ready" : "draft only",
     summary.blockers.length === 0 ? "no blockers" : `${summary.blockers.length} blockers`,
+    `gap ${formatTechnicalGapStatus(summary)}`,
   ].join(" | ");
   copyEvidenceStatus.textContent = formatManualEvidenceCopyStatus(summary, evidenceCopyDisposition);
   const manualPerformanceDraft = window.__openClinXrManualPerformanceDraft ?? null;

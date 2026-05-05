@@ -401,6 +401,10 @@ export type ManualPerformanceCaptureSummary = {
   traceInteractionAttempt: TraceInteractionAttempt | null;
   lastTraceTag: string | null;
   lastTraceLatencyMs: number | null;
+  immersiveFrameEvidenceReady: boolean;
+  headsetSelectLatencyReady: boolean;
+  locomotionEvidenceReady: boolean;
+  technicalGaps: string[];
   draftAvailable: boolean;
   manualValidationReady: boolean;
   satisfiedConditions: string[];
@@ -1385,6 +1389,7 @@ export function buildManualPerformanceCaptureSummary(
   const frameStatsFresh = frameStatsAgeMs === null ? null : frameStatsAgeMs <= manualPerformanceFrameStatsFreshMs;
   const freshnessBlockers = frameStatsFresh === false ? ["frame_stats_stale_or_unsampled"] : [];
   const blockers = [...preview.blockers, ...freshnessBlockers];
+  const technicalEvidence = buildManualPerformanceTechnicalEvidence(input.draft ?? null, frameStats);
 
   return {
     source: "window.__openClinXrManualPerformanceDraft",
@@ -1412,11 +1417,90 @@ export function buildManualPerformanceCaptureSummary(
     traceInteractionAttempt: input.draft?.station.traceInteractionAttempt ?? null,
     lastTraceTag: input.draft?.traceLatencyProxy?.lastTraceTag ?? null,
     lastTraceLatencyMs: input.draft?.traceLatencyProxy?.lastSelectLatencyMs ?? null,
+    immersiveFrameEvidenceReady: technicalEvidence.immersiveFrameEvidenceReady,
+    headsetSelectLatencyReady: technicalEvidence.headsetSelectLatencyReady,
+    locomotionEvidenceReady: technicalEvidence.locomotionEvidenceReady,
+    technicalGaps: technicalEvidence.technicalGaps,
     draftAvailable: Boolean(input.draft && frameStats),
     manualValidationReady: blockers.length === 0,
     satisfiedConditions: preview.satisfiedConditions,
     blockers,
   };
+}
+
+function buildManualPerformanceTechnicalEvidence(
+  draft: ManualPerformanceDraft | null,
+  frameStats: ManualPerformanceFrameStats | null,
+): Pick<
+  ManualPerformanceCaptureSummary,
+  "immersiveFrameEvidenceReady" | "headsetSelectLatencyReady" | "locomotionEvidenceReady" | "technicalGaps"
+> {
+  const immersiveFrameEvidenceReady = isImmersiveFrameEvidenceReady(draft, frameStats);
+  const headsetSelectLatencyReady = isHeadsetSelectLatencyReady(draft);
+  const locomotionEvidenceReady = hasObservedLocomotion(draft?.input ?? null);
+  const technicalGaps = [
+    draft ? undefined : "manual_performance_draft_missing",
+    frameStats ? undefined : "frame_stats_missing",
+    draft?.station.immersiveSessionStarted === true && hasEmptyImmersiveFrameStats(draft)
+      ? "immersive_session_started_without_frame_samples"
+      : undefined,
+    draft?.station.immersiveSessionStarted === true
+    && !hasEmptyImmersiveFrameStats(draft)
+    && !immersiveFrameEvidenceReady
+      ? "immersive_frame_sample_not_ready"
+      : undefined,
+    draft && !headsetSelectLatencyReady ? "headset_select_trace_latency_missing" : undefined,
+    draft && !locomotionEvidenceReady ? "locomotion_delta_missing" : undefined,
+  ].filter((gap): gap is string => typeof gap === "string");
+
+  return {
+    immersiveFrameEvidenceReady,
+    headsetSelectLatencyReady,
+    locomotionEvidenceReady,
+    technicalGaps,
+  };
+}
+
+function isImmersiveFrameEvidenceReady(
+  draft: ManualPerformanceDraft | null,
+  frameStats: ManualPerformanceFrameStats | null,
+): boolean {
+  if (!draft?.station.immersiveSessionStarted || !frameStats) {
+    return false;
+  }
+
+  const immersiveFramesObserved = frameStats.immersiveFramesObserved ?? draft.performance.immersiveFramesObserved ?? null;
+  const sampleWindowSize = frameStats.sampleWindowSize;
+  return isNonNegativeInteger(immersiveFramesObserved)
+    && immersiveFramesObserved >= 600
+    && isNonNegativeInteger(sampleWindowSize)
+    && sampleWindowSize >= 120
+    && sampleWindowSize <= immersiveFramesObserved;
+}
+
+function isHeadsetSelectLatencyReady(draft: ManualPerformanceDraft | null): boolean {
+  if (!draft?.station.traceInteractionPassed) {
+    return false;
+  }
+
+  const traceLatencyProxy = draft.traceLatencyProxy;
+  const controllerSelectLatencyMs = draft.performance.controllerSelectLatencyMs;
+  const traceSelectLatencyMs = traceLatencyProxy?.lastSelectLatencyMs ?? null;
+  const traceMeasuredAtMs = traceLatencyProxy?.measuredAtMs ?? null;
+  const traceTag = traceLatencyProxy?.lastTraceTag ?? null;
+  const source = traceLatencyProxy?.source;
+  const sourceIsHeadsetSelect = source === "xr_controller_select" || source === "xr_hand_select";
+  const tagRecorded = typeof traceTag === "string" && traceTag.trim().length > 0;
+  const latencyMatches = isPositiveFiniteNumber(controllerSelectLatencyMs)
+    && isPositiveFiniteNumber(traceSelectLatencyMs)
+    && Math.abs(controllerSelectLatencyMs - traceSelectLatencyMs) <= 1;
+
+  return sourceIsHeadsetSelect
+    && tagRecorded
+    && isNonNegativeFiniteNumber(traceMeasuredAtMs)
+    && isPositiveFiniteNumber(traceSelectLatencyMs)
+    && isPositiveFiniteNumber(controllerSelectLatencyMs)
+    && latencyMatches;
 }
 
 export function formatManualEvidenceCopyStatus(

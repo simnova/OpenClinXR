@@ -128,6 +128,8 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("hand rep");
     expect(mainSource).toContain("attempt");
     expect(mainSource).toContain("frameStatsFresh");
+    expect(mainSource).toContain("formatTechnicalGapStatus");
+    expect(mainSource).toContain("technicalGaps");
     expect(mainSource).toContain("window.setInterval(updateManualEvidencePanel, 1000)");
     expect(mainSource).toContain("manualPerformanceDraft");
     expect(mainSource).toContain("__OPENCLINXR_UI_XR_APP_METADATA__");
