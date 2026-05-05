@@ -3,6 +3,7 @@ import * as ajvFormatsModule from "ajv-formats";
 import {
   ActorCardSchema,
   PatientNoteSchema,
+  ProviderHealthSchema,
   ReviewPacketSchema,
   ScenarioSchema,
   TraceEventSchema,
@@ -21,6 +22,7 @@ const scenarioValidator = ajv.compile(ScenarioSchema);
 const traceEventValidator = ajv.compile(TraceEventSchema);
 const patientNoteValidator = ajv.compile(PatientNoteSchema);
 const reviewPacketValidator = ajv.compile(ReviewPacketSchema);
+const providerHealthValidator = ajv.compile(ProviderHealthSchema);
 
 function toResult(valid: boolean, errors: ErrorObject[] | null | undefined): ValidationResult {
   if (valid) {
@@ -110,4 +112,8 @@ export function validatePatientNote(value: unknown): ValidationResult {
 
 export function validateReviewPacket(value: unknown): ValidationResult {
   return validateWith(reviewPacketValidator, value);
+}
+
+export function validateProviderHealth(value: unknown): ValidationResult {
+  return validateWith(providerHealthValidator, value);
 }

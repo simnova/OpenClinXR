@@ -177,6 +177,12 @@ export const ProviderHealthSchema = Type.Object({
     Type.Literal("blocked"),
   ]),
   blockers: Type.Optional(Type.Array(Type.String({ minLength: 1 }))),
+  evidence: Type.Optional(Type.Object({
+    evidenceId: Type.String({ minLength: 1 }),
+    sourceFile: Type.String({ minLength: 1 }),
+    generatedAt: Type.String({ format: "date-time" }),
+    summary: Type.Record(Type.String({ minLength: 1 }), Type.Unknown()),
+  })),
 });
 
 export type ActorCard = Static<typeof ActorCardSchema>;

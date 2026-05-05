@@ -212,4 +212,75 @@ describe("voice gateway", () => {
       ),
     ).rejects.toThrow("No ready voice provider");
   });
+
+  it("reports local VibeVoice benchmark evidence as blocked for live Quest dialog", async () => {
+    const gateway = createDefaultVoiceGateway({
+      adapters: [
+        new LocalVoiceProviderAdapter({
+          providerId: "local-vibevoice",
+          runtimeEvidence: {
+            evidenceId: "local_voice_runtime_benchmark",
+            sourceFile: "docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json",
+            generatedAt: "2026-05-04T15:01:12Z",
+            policy: {
+              productionUseAllowed: false,
+              generatedAudioCommitted: false,
+            },
+            runtime: {
+              modelId: "microsoft/VibeVoice-Realtime-0.5B",
+              device: "mps",
+            },
+            audio: {
+              durationMs: 3466.667,
+              sampleRateHz: 24000,
+            },
+            metrics: {
+              wallClockMs: 118920,
+              modelGenerationMs: 18170,
+              realTimeFactor: 5.24,
+              approxFirstSpeechTokenLatencyMs: 9000,
+            },
+            verdict: {
+              caveats: [
+                "This measured file-based local generation, not WebXR playback or a live streaming websocket turn.",
+                "Real-time factor was 5.24x on this Apple M1 Max, so current local VibeVoice is not yet Quest-ready for live dialog.",
+              ],
+            },
+          },
+        }),
+      ],
+      routeId: "voice-local-v1",
+    });
+
+    expect(await gateway.health()).toEqual([
+      {
+        providerId: "local-vibevoice",
+        status: "blocked",
+        blockers: [
+          "runtime_file_generation_only",
+          "real_time_factor_above_1",
+          "real_local_voice_stream_benchmark_missing",
+          "webxr_playback_not_observed",
+        ],
+        evidence: {
+          evidenceId: "local_voice_runtime_benchmark",
+          sourceFile: "docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json",
+          generatedAt: "2026-05-04T15:01:12Z",
+          summary: {
+            modelId: "microsoft/VibeVoice-Realtime-0.5B",
+            device: "mps",
+            realTimeFactor: 5.24,
+            approximateFirstSpeechTokenLatencyMs: 9000,
+            wallClockMs: 118920,
+            modelGenerationMs: 18170,
+            audioDurationMs: 3466.667,
+            sampleRateHz: 24000,
+            productionUseAllowed: false,
+            generatedAudioCommitted: false,
+            caveatCount: 2,
+          },
+        },
+      },
+    ]);
+  });
 });

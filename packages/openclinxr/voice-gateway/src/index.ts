@@ -383,6 +383,35 @@ export class MockVoiceProviderAdapter implements VoiceProviderAdapter {
 export type LocalVoiceProviderOptions = {
   providerId: string;
   blockers?: string[];
+  runtimeEvidence?: LocalVoiceRuntimeBenchmarkEvidence;
+};
+
+export type LocalVoiceRuntimeBenchmarkEvidence = {
+  evidenceId: string;
+  sourceFile: string;
+  generatedAt: string;
+  policy?: {
+    productionUseAllowed?: boolean;
+    generatedAudioCommitted?: boolean;
+  };
+  runtime?: {
+    modelId?: string;
+    device?: string;
+  };
+  audio?: {
+    durationMs?: number;
+    sampleRateHz?: number;
+  };
+  metrics?: {
+    wallClockMs?: number;
+    modelGenerationMs?: number;
+    realTimeFactor?: number;
+    approxFirstSpeechTokenLatencyMs?: number;
+  };
+  verdict?: {
+    blockers?: string[];
+    caveats?: string[];
+  };
 };
 
 export class LocalVoiceProviderAdapter implements VoiceProviderAdapter {
@@ -395,6 +424,10 @@ export class LocalVoiceProviderAdapter implements VoiceProviderAdapter {
   }
 
   async health(): Promise<ProviderHealth> {
+    if (this.options.runtimeEvidence) {
+      return localVoiceRuntimeEvidenceHealth(this.id, this.options.runtimeEvidence, this.options.blockers ?? []);
+    }
+
     return {
       providerId: this.id,
       status: "not_configured",
@@ -409,4 +442,70 @@ export class LocalVoiceProviderAdapter implements VoiceProviderAdapter {
   async *synthesize(): AsyncIterable<AudioEvent> {
     throw new Error(`Local voice provider ${this.id} is not configured`);
   }
+}
+
+function localVoiceRuntimeEvidenceHealth(
+  providerId: string,
+  evidence: LocalVoiceRuntimeBenchmarkEvidence,
+  configuredBlockers: string[],
+): ProviderHealth {
+  return {
+    providerId,
+    status: "blocked",
+    blockers: localVoiceRuntimeEvidenceBlockers(evidence, configuredBlockers),
+    evidence: {
+      evidenceId: evidence.evidenceId,
+      sourceFile: evidence.sourceFile,
+      generatedAt: evidence.generatedAt,
+      summary: localVoiceRuntimeEvidenceSummary(evidence),
+    },
+  };
+}
+
+function localVoiceRuntimeEvidenceBlockers(
+  evidence: LocalVoiceRuntimeBenchmarkEvidence,
+  configuredBlockers: string[],
+): string[] {
+  const caveats = (evidence.verdict?.caveats ?? []).map((caveat) => caveat.toLowerCase());
+  const realTimeFactor = finiteNumber(evidence.metrics?.realTimeFactor);
+  return unique([
+    ...configuredBlockers,
+    ...(evidence.verdict?.blockers ?? []),
+    caveats.some((caveat) => caveat.includes("file-based") || caveat.includes("file generation"))
+      ? "runtime_file_generation_only"
+      : undefined,
+    realTimeFactor === null || realTimeFactor > 1 ? "real_time_factor_above_1" : undefined,
+    "real_local_voice_stream_benchmark_missing",
+    "webxr_playback_not_observed",
+    evidence.policy?.productionUseAllowed ? "production_use_allowed_before_live_dialog_approval" : undefined,
+    evidence.policy?.generatedAudioCommitted ? "generated_audio_committed" : undefined,
+  ]);
+}
+
+function localVoiceRuntimeEvidenceSummary(evidence: LocalVoiceRuntimeBenchmarkEvidence): Record<string, unknown> {
+  return compactSummary({
+    modelId: evidence.runtime?.modelId,
+    device: evidence.runtime?.device,
+    realTimeFactor: finiteNumber(evidence.metrics?.realTimeFactor),
+    approximateFirstSpeechTokenLatencyMs: finiteNumber(evidence.metrics?.approxFirstSpeechTokenLatencyMs),
+    wallClockMs: finiteNumber(evidence.metrics?.wallClockMs),
+    modelGenerationMs: finiteNumber(evidence.metrics?.modelGenerationMs),
+    audioDurationMs: finiteNumber(evidence.audio?.durationMs),
+    sampleRateHz: finiteNumber(evidence.audio?.sampleRateHz),
+    productionUseAllowed: evidence.policy?.productionUseAllowed,
+    generatedAudioCommitted: evidence.policy?.generatedAudioCommitted,
+    caveatCount: evidence.verdict?.caveats?.length,
+  });
+}
+
+function compactSummary(summary: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(summary).filter(([, value]) => value !== undefined && value !== null));
+}
+
+function finiteNumber(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function unique(values: Array<string | undefined>): string[] {
+  return [...new Set(values.filter((value): value is string => typeof value === "string"))];
 }

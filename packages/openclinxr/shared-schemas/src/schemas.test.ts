@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { validateActorCard, validatePatientNote, validateReviewPacket, validateScenario, validateTraceEvent } from "./index.js";
+import {
+  validateActorCard,
+  validatePatientNote,
+  validateProviderHealth,
+  validateReviewPacket,
+  validateScenario,
+  validateTraceEvent,
+} from "./index.js";
 
 describe("OpenClinXR shared schemas", () => {
   it("accepts a reviewed ED chest pain scenario shape", () => {
@@ -161,5 +168,26 @@ describe("OpenClinXR shared schemas", () => {
         facultyScoreDraft: { reviewerId: "faculty_001", status: "draft", comments: "Missing replay evidence." },
       }).ok,
     ).toBe(false);
+  });
+
+  it("accepts provider health with indexed local runtime evidence", () => {
+    expect(
+      validateProviderHealth({
+        providerId: "local-vibevoice",
+        status: "blocked",
+        blockers: ["runtime_file_generation_only", "real_time_factor_above_1"],
+        evidence: {
+          evidenceId: "local_voice_runtime_benchmark",
+          sourceFile: "docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json",
+          generatedAt: "2026-05-04T15:01:12Z",
+          summary: {
+            modelId: "microsoft/VibeVoice-Realtime-0.5B",
+            realTimeFactor: 5.24,
+            approximateFirstSpeechTokenLatencyMs: 9000,
+            productionUseAllowed: false,
+          },
+        },
+      }).ok,
+    ).toBe(true);
   });
 });
