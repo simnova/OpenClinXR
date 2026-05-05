@@ -101,3 +101,17 @@ This file captures useful operator steering that should shape future work but do
   - Keep primitive/spheres fallback available and recorded as a limitation if mesh loading fails.
   - Require a later human Quest run before claiming hand-quality readiness, but wait until instrumentation and hand-asset improvements are ready so the run can collect trace, frame, locomotion, latency, and visual-fidelity evidence in one pass.
 - Current posture: first slice implemented. `apps/ui-xr` uses reviewed local `@webxr-input-profiles/assets@1.0.20` generic-hand GLBs from `apps/ui-xr/public/xr-hands/generic-hand/`, records MIT provenance beside the copied assets, calls Three's mesh profile through a local path, preserves primitive-sphere fallback, and surfaces async GLB load failures as fallback evidence. Quest hand-quality and frame-pacing claims still require a fresh worn-headset run with active `handRepresentationKind: "mesh"` and valid frame stats.
+
+### SUG-2026-05-05-001: Evaluate Blender MCP For Asset Pipeline Automation
+
+- Status: `captured`
+- Captured at: 2026-05-05 16:03 EDT
+- Operator steering: Blender MCP exists and may assist the solution design for generated clinical actors, equipment, rigging, scene setup, asset inspection, and repeatable Blender automation.
+- Reference: https://www.blender.org/lab/mcp-server/
+- Primary owners: `asset-pipeline-lead`, `xr-systems-architect`, `test-automation-lead`, `open-source-governance-lead`
+- Review when: advancing Blender asset bake automation, generated-human/medical-equipment pipelines, rigging/animation validation, scene fidelity QA, or adversarial visual inspection workflows.
+- Acceptance shape:
+  - Verify official Blender MCP installation, license, versioning, security posture, local-only operation, and compatibility with the installed Blender runtime before adding any package or server configuration.
+  - Treat Blender MCP as an optional local developer automation lane unless a later proposal approves production or CI usage.
+  - Evaluate whether it can produce structured evidence for scene contents, mesh/material provenance, equipment presence, rigging/animation readiness, polycount/texture budgets, and screenshots/videos for adversarial visual QA.
+  - Keep existing non-MCP Blender CLI smoke tests as the baseline until MCP evidence proves added value.
