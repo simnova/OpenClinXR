@@ -57,7 +57,7 @@ This file captures useful operator steering that should shape future work but do
   - Prefer no new package installation if IWER is already present through the approved IWSDK Phase 2 devtools sidecar.
   - Keep IWER evidence labeled as emulation evidence, not physical Quest proof.
   - Record package versions, licenses, commands, artifact size, session-entry reliability, controller/hand input support, and rollback path before claiming usefulness.
-- Current posture: first local evidence slice captured. IWER remains emulation-only and does not replace physical Quest foreground evidence.
+- Current posture: multiple local sidecar evidence slices are captured. `pnpm iwer:auto-entry:evidence:validate` validates the auto-entry/browser smoke lane, including explicit `handRepresentationKind` vocabulary so primitive hand evidence cannot imply mesh or physical Quest readiness. `pnpm iwer:controller-input:evidence:validate` validates the controller/input probe contract for IWER emulation-only evidence. IWER remains emulation-only and does not replace physical Quest foreground evidence.
 
 ### SUG-2026-05-04-004: PNPM Audit Security Monitoring
 
@@ -78,14 +78,14 @@ This file captures useful operator steering that should shape future work but do
 - Status: `approved-and-implemented-first-slice`
 - Captured at: 2026-05-04 20:04 EDT
 - Operator steering: Consider UIKitML for text content in the application, as a stronger candidate than the earlier HTML-in-canvas direction.
-- Proposal: `proposals/proposal-uikitml-spatial-text-sidecar.md`
+- Proposal: `proposals/approved/proposal-uikitml-spatial-text-sidecar.md`
 - Primary owners: `xr-systems-architect`, `ux-product-lead`, `test-automation-lead`, `open-source-governance-lead`
 - Review when: building simulated EHR, case-note, patient-note, admin-in-XR, or complex text panels in `apps/ui-xr` or `apps/ui-xr-iwsdk-spike`.
 - Acceptance shape:
   - Compare UIKitML against HTML-in-canvas for text readability, styling control, input affordances, accessibility, Quest performance, bundle size, and integration with IWSDK sidecar tooling.
   - Keep UIKitML sidecar-gated until package metadata, license posture, Vite peer compatibility, bundle impact, and Quest/IWER evidence are recorded.
   - Preserve Full VR and Mixed Reality evidence separation; Patrick's latest manual Quest report confirms the current in-scene text was readable in Full VR, so UIKitML should be evaluated as a richer spatial text option rather than as an active readability blocker.
-- Current posture: proposal only. No `@iwsdk/vite-plugin-uikitml` or related package install is authorized unless Patrick approves the proposal; it is not blocking the current operator posture.
+- Current posture: first sidecar slice implemented under the approved proposal. `apps/ui-xr-iwsdk-spike` owns the UIKitML-only package set, reviewed `.uikitml` source, generated local JSON, and `window.__openClinXrUikitmlSpatialTextEvidence`; `docs/openclinxr/uikitml-spatial-text-sidecar-2026-05-05.md` records Vite 8 peer-risk handling, license posture, and desktop/IWER visual evidence. UIKitML remains sidecar-only and does not authorize production `apps/ui-xr` adoption, broader spatial UI adoption, or Quest text-readiness claims.
 
 ### SUG-2026-05-04-006: Replace Primitive Box Hands With Local Mesh Hands
 
