@@ -1594,6 +1594,14 @@ describe("benchmark gate report", () => {
             requestedSessionMode: "immersive-vr",
             mixedRealityPassthroughImplemented: false,
           },
+          input: {
+            handModelCount: 2,
+            handModelStatus: "active",
+            handInputsObserved: 2,
+            locomotionMode: "thumbstick",
+            lastLocomotionAtMs: 60_000,
+            rigPosition: { x: 0.4, z: -0.2 },
+          },
           performance: {
             source: "window.__openClinXrFrameStats",
             framesObserved: 600,
@@ -1645,6 +1653,8 @@ describe("benchmark gate report", () => {
       "average_fps_72_or_higher",
       "p95_frame_ms_25_or_lower",
       "controller_select_latency_150ms_or_lower",
+      "hand_or_controller_input_observed",
+      "locomotion_observed",
     ]));
     expect(questGate?.blockers).not.toContain("quest_manual_performance:missing_quest_manual_performance_report");
   });

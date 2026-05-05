@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T00:39:49.929Z",
+  "generatedAt": "2026-05-05T00:55:38.599Z",
   "inputFile": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
   "readyToClaimFramePacing": false,
   "satisfiedConditions": [
@@ -10,12 +10,14 @@
     "immersive_session_started",
     "performance_source_openclinxr_frame_stats",
     "experience_mode_full_vr_recorded",
+    "hand_or_controller_input_observed",
     "battery_drop_recorded_under_20"
   ],
   "blockers": [
     "devtools_screencast_not_disabled",
     "duration_under_10_minutes",
     "trace_interaction_not_confirmed",
+    "locomotion_not_observed",
     "frame_sample_under_600_or_missing",
     "rolling_frame_window_under_120_or_missing",
     "average_fps_below_72_or_missing",
@@ -28,6 +30,7 @@
     "Disable DevTools screencast while observing headset performance.",
     "Observe for at least 10 minutes in the foreground headset session.",
     "Confirm a trace interaction advances in the headset.",
+    "Observe thumbstick or room-scale locomotion and record lastLocomotionAtMs.",
     "Observe at least 600 frames before claiming frame pacing.",
     "Record a rolling frame window with at least 120 samples.",
     "Record average FPS at or above 72.",

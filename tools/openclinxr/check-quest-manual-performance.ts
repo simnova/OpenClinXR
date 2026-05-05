@@ -155,6 +155,8 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
   const minimumObservedFps = report.performance?.minimumObservedFps ?? null;
   const controllerSelectLatencyMs = report.performance?.controllerSelectLatencyMs ?? null;
   const traceLatencyProxy = report.traceLatencyProxy ?? null;
+  const headsetInputObserved = hasObservedHeadsetInput(report.input);
+  const locomotionObserved = hasObservedLocomotion(report.input);
   const framesObservedValid = isNonNegativeInteger(framesObserved);
   const sampleWindowSizeValid = isNonNegativeInteger(sampleWindowSize);
   const sampleWindowWithinObservedFrames = framesObservedValid
@@ -183,6 +185,8 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
     report.station?.textReadable === true ? undefined : "text_readability_not_confirmed",
     report.station?.immersiveSessionStarted === true ? undefined : "immersive_session_not_confirmed",
     isFullVrExperienceEvidence(report.experience) ? undefined : "experience_mode_full_vr_not_recorded",
+    headsetInputObserved ? undefined : "hand_or_controller_input_not_observed",
+    locomotionObserved ? undefined : "locomotion_not_observed",
     consoleErrorsAreStringArray ? undefined : "console_errors_not_string_array",
     consoleErrors.length === 0 ? undefined : "console_errors_present",
     report.performance?.source === "window.__openClinXrFrameStats" ? undefined : "performance_source_not_openclinxr_frame_stats",
@@ -232,6 +236,8 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
       p95FrameMsValid && p95FrameMs <= 25 ? "p95_frame_ms_25_or_lower" : undefined,
       controllerSelectLatencyMsValid && controllerSelectLatencyMs <= 150 ? "controller_select_latency_150ms_or_lower" : undefined,
       isFullVrExperienceEvidence(report.experience) ? "experience_mode_full_vr_recorded" : undefined,
+      headsetInputObserved ? "hand_or_controller_input_observed" : undefined,
+      locomotionObserved ? "locomotion_observed" : undefined,
       isSupportingTraceLatencyProxy(traceLatencyProxy) ? "trace_latency_proxy_recorded_as_supporting_evidence" : undefined,
       batteryDropPercentValid && batteryDropPercent <= 20 ? "battery_drop_recorded_under_20" : undefined,
     ].filter((condition): condition is string => typeof condition === "string"),
@@ -264,6 +270,10 @@ function questManualNextStepForBlocker(blocker: string): string {
       return "Confirm the immersive session starts in-headset.";
     case "experience_mode_full_vr_not_recorded":
       return "Record experience.modeId full_vr, requestedSessionMode immersive-vr, and mixedRealityPassthroughImplemented false for this Full VR manual report.";
+    case "hand_or_controller_input_not_observed":
+      return "Observe at least one foreground headset hand or controller interaction.";
+    case "locomotion_not_observed":
+      return "Observe thumbstick or room-scale locomotion and record lastLocomotionAtMs.";
     case "console_errors_not_string_array":
       return "Record consoleErrors as an array of strings.";
     case "console_errors_present":
@@ -338,6 +348,20 @@ function isPositiveFiniteNumber(value: number | null): value is number {
 
 function isPercentInRange(value: number | null): value is number {
   return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100;
+}
+
+function hasObservedHeadsetInput(value: QuestManualPerformanceReport["input"]): boolean {
+  return typeof value?.handInputsObserved === "number"
+    && Number.isInteger(value.handInputsObserved)
+    && value.handInputsObserved > 0;
+}
+
+function hasObservedLocomotion(value: QuestManualPerformanceReport["input"]): boolean {
+  return typeof value?.lastLocomotionAtMs === "number"
+    && Number.isFinite(value.lastLocomotionAtMs)
+    && value.lastLocomotionAtMs >= 0
+    && typeof value.locomotionMode === "string"
+    && value.locomotionMode.trim().length > 0;
 }
 
 function isFullVrExperienceEvidence(value: QuestManualPerformanceReport["experience"]): boolean {

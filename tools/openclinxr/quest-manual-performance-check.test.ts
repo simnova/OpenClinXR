@@ -36,6 +36,14 @@ describe("Quest manual performance checker", () => {
         requestedSessionMode: "immersive-vr",
         mixedRealityPassthroughImplemented: false,
       },
+      input: {
+        handModelCount: 2,
+        handModelStatus: "active",
+        handInputsObserved: 2,
+        locomotionMode: "thumbstick",
+        lastLocomotionAtMs: 60_000,
+        rigPosition: { x: 0.4, z: -0.2 },
+      },
       traceLatencyProxy: {
         source: "dom_click_trace_button",
         lastTraceTag: "ecg_request",
@@ -87,7 +95,91 @@ describe("Quest manual performance checker", () => {
       "p95_frame_ms_25_or_lower",
       "controller_select_latency_150ms_or_lower",
       "experience_mode_full_vr_recorded",
+      "hand_or_controller_input_observed",
+      "locomotion_observed",
       "trace_latency_proxy_recorded_as_supporting_evidence",
+    ]));
+  });
+
+  it("requires foreground headset input and locomotion observations before clearing readiness", async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-quest-manual-input-blocked-"));
+    const input = path.join(dir, "quest-manual-performance.json");
+    const output = path.join(dir, "quest-manual-performance-check.json");
+    await writeFile(input, JSON.stringify({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      runContext: {
+        performedBy: "xr-systems-architect",
+        durationMinutes: 10,
+      },
+      setup: {
+        foregroundPageConfirmed: true,
+        devtoolsScreencastDisabled: true,
+        extraBrowserWindowsClosed: true,
+      },
+      station: {
+        shellLoaded: true,
+        traceInteractionPassed: true,
+        textReadable: true,
+        immersiveSessionStarted: true,
+        consoleErrors: [],
+      },
+      experience: {
+        modeId: "full_vr",
+        phaseLabel: "Phase 1 Full VR",
+        requestedSessionMode: "immersive-vr",
+        mixedRealityPassthroughImplemented: false,
+      },
+      input: {
+        handModelCount: 0,
+        handModelStatus: "pending_immersive_session",
+        handInputsObserved: 0,
+        locomotionMode: "thumbstick",
+        lastLocomotionAtMs: null,
+        rigPosition: { x: 0, z: 0 },
+      },
+      performance: {
+        source: "window.__openClinXrFrameStats",
+        framesObserved: 600,
+        sampleWindowSize: 120,
+        avgFps: 72,
+        p95FrameMs: 25,
+        minimumObservedFps: 60,
+        controllerSelectLatencyMs: 150,
+      },
+      comfort: {
+        motionComfort: "comfortable",
+        heatConcern: false,
+        batteryDropPercent: 2,
+      },
+    }, null, 2), "utf8");
+
+    await execFileAsync(path.resolve("node_modules/.bin/tsx"), [
+      "tools/openclinxr/check-quest-manual-performance.ts",
+      "--input",
+      input,
+      "--output",
+      output,
+    ], { encoding: "utf8", timeout: 15000 });
+
+    const check = JSON.parse(await readFile(output, "utf8")) as {
+      readyToClaimFramePacing: boolean;
+      blockers: string[];
+      satisfiedConditions: string[];
+      nextSteps: string[];
+    };
+
+    expect(check.readyToClaimFramePacing).toBe(false);
+    expect(check.blockers).toEqual(expect.arrayContaining([
+      "hand_or_controller_input_not_observed",
+      "locomotion_not_observed",
+    ]));
+    expect(check.satisfiedConditions).not.toEqual(expect.arrayContaining([
+      "hand_or_controller_input_observed",
+      "locomotion_observed",
+    ]));
+    expect(check.nextSteps).toEqual(expect.arrayContaining([
+      "Observe at least one foreground headset hand or controller interaction.",
+      "Observe thumbstick or room-scale locomotion and record lastLocomotionAtMs.",
     ]));
   });
 
