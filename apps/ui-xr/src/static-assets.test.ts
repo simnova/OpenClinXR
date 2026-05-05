@@ -53,6 +53,9 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("XRControllerModelFactory");
     expect(mainSource).toContain("renderer.xr.getControllerGrip");
     expect(mainSource).toContain("openclinxr.ed-chest-pain.controller-ray");
+    expect(mainSource).toContain('"select"');
+    expect(mainSource).toContain("xr_controller_select");
+    expect(mainSource).toContain("completeNextTraceActionFromXrSelect");
     expect(mainSource).toContain("iwsdkStationSceneObjects.controllerGripLeft");
     expect(mainSource).toContain("iwsdkStationSceneObjects.controllerGripRight");
   });

@@ -422,7 +422,7 @@ describe("XR runtime state", () => {
       traceLatencyEvidence: {
         lastTraceTag: "ecg_request",
         lastSelectLatencyMs: 87.5,
-        source: "dom_click_trace_button",
+        source: "xr_controller_select",
         measuredAtMs: 1288.4,
         productionControllerLatencySubstitute: false,
       },
@@ -476,7 +476,7 @@ describe("XR runtime state", () => {
       traceLatencyProxy: {
         lastTraceTag: "ecg_request",
         lastSelectLatencyMs: 87.5,
-        source: "dom_click_trace_button",
+        source: "xr_controller_select",
         measuredAtMs: 1288.4,
         productionControllerLatencySubstitute: false,
       },

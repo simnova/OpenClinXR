@@ -301,28 +301,44 @@ function renderControls(): void {
     button.type = "button";
     button.textContent = tag.replaceAll("_", " ");
     button.className = state.completedTraceTags.includes(tag) ? "trace-button complete" : "trace-button";
-    button.addEventListener("click", () => {
-      const traceSelectStartedAtMs = performance.now();
-      state = completeTraceAction(state, tag);
-      dialogueLine.textContent = dialogueFor(tag);
-      renderControls();
-      updateReadiness();
-      recordTraceSelectLatency(traceSelectStartedAtMs, tag);
-      void recordRemoteTraceAction(tag);
-    });
+    button.addEventListener("click", () => completeTraceActionFromInput(tag, "dom_click_trace_button"));
     traceActions.append(button);
   }
 }
 
-function recordTraceSelectLatency(startedAtMs: number, tag: string): void {
+function recordTraceSelectLatency(
+  startedAtMs: number,
+  tag: string,
+  source: OpenClinXrTraceLatencyEvidence["source"],
+): void {
   lastTraceSelectLatencyMs = Number((performance.now() - startedAtMs).toFixed(2));
   window.__openClinXrTraceLatencyEvidence = {
     lastTraceTag: tag,
     lastSelectLatencyMs: lastTraceSelectLatencyMs,
-    source: "dom_click_trace_button",
+    source,
     measuredAtMs: Number(performance.now().toFixed(2)),
     productionControllerLatencySubstitute: false,
   };
+}
+
+function completeTraceActionFromInput(tag: string, source: OpenClinXrTraceLatencyEvidence["source"]): void {
+  const traceSelectStartedAtMs = performance.now();
+  state = completeTraceAction(state, tag);
+  dialogueLine.textContent = dialogueFor(tag);
+  renderControls();
+  updateReadiness();
+  recordTraceSelectLatency(traceSelectStartedAtMs, tag, source);
+  void recordRemoteTraceAction(tag);
+}
+
+function completeNextTraceActionFromXrSelect(isFullVrPresenting: () => boolean): void {
+  const tag = isFullVrPresenting()
+    ? state.requiredTraceTags.find((candidate) => !state.completedTraceTags.includes(candidate))
+    : undefined;
+  if (!tag) {
+    return;
+  }
+  completeTraceActionFromInput(tag, "xr_controller_select");
 }
 
 async function initializeRemoteTraceSession(client: StationApiClient | undefined): Promise<void> {
@@ -521,7 +537,7 @@ function createStationScene(): StationSceneRuntime {
   inputPanel.mesh.position.set(0.15, 0.78, -1.2);
   scene.add(inputPanel.mesh);
   let lastPanelSignature = "";
-  addControllerAffordances(renderer, scene);
+  addControllerAffordances(renderer, scene, () => completeNextTraceActionFromXrSelect(() => Boolean(activeXrSession && renderer.xr.isPresenting)));
   const keyboardLocomotion = createKeyboardLocomotion();
   let handModelStatus: OpenClinXrInputEvidence["handModelStatus"] = "pending_immersive_session";
   let handModelsInstalled = false;
@@ -792,7 +808,7 @@ function drawWrappedText(
   return currentY + lineHeight;
 }
 
-function addControllerAffordances(renderer: WebGLRenderer, scene: Scene): void {
+function addControllerAffordances(renderer: WebGLRenderer, scene: Scene, onSelect: () => void): void {
   const controllerModelFactory = new XRControllerModelFactory();
   const gripNames = [
     iwsdkStationSceneObjects.controllerGripLeft,
@@ -801,6 +817,8 @@ function addControllerAffordances(renderer: WebGLRenderer, scene: Scene): void {
   for (let index = 0; index < 2; index += 1) {
     const controller = renderer.xr.getController(index);
     controller.name = `openclinxr.ed-chest-pain.controller-${index + 1}`;
+    (controller as unknown as { addEventListener(type: "select", listener: () => void): void })
+      .addEventListener("select", onSelect);
     const ray = new Line(
       new BufferGeometry().setFromPoints([new Vector3(0, 0, 0), new Vector3(0, 0, -3)]),
       new LineBasicMaterial({ color: 0xd9c493 }),

@@ -188,7 +188,7 @@ export type ReadableVrTextPanelEvidenceSet = {
 export type ManualPerformanceTraceLatencyEvidence = {
   lastTraceTag: string | null;
   lastSelectLatencyMs: number | null;
-  source: "dom_click_trace_button";
+  source: "dom_click_trace_button" | "xr_controller_select";
   measuredAtMs: number | null;
   productionControllerLatencySubstitute: false;
 };
