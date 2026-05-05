@@ -357,7 +357,7 @@ Manual in-headset run still needs to capture:
 - Mock actor dialogue readable.
 - Simulated EHR/note panel readable.
 - Controller ray/grip affordances visible, with optional hand-model visibility recorded when hand tracking is active.
-- Thumbstick or keyboard locomotion changes the rig position without leaving the bounded bay.
+- Thumbstick, keyboard, room-scale, or deliberate hand-gesture locomotion changes the rig position without leaving the bounded bay; hand-only runs should record `activeLocomotionSource: "xr_hand_gesture"` when that path is used.
 - Console errors.
 - Frame comfort observations.
 - Heat/battery observations after 10 minutes.

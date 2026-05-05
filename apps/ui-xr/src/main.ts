@@ -80,6 +80,20 @@ type XrInputSourceWithGamepad = {
   };
 };
 
+type XrHandJointGroup = Group & {
+  jointRadius?: number;
+};
+
+type XrHandGroup = Group & {
+  joints?: Record<string, XrHandJointGroup | undefined>;
+  inputState?: {
+    pinching?: boolean;
+  };
+  userData: {
+    openClinXrHandedness?: string;
+  };
+};
+
 type OpenClinXrFrameStats = ManualPerformanceFrameStats;
 
 type OpenClinXrInputEvidence = ManualPerformanceInputEvidence;
@@ -542,6 +556,7 @@ function createStationScene(): StationSceneRuntime {
       keyboardLocomotion,
       locomotionRig,
       now,
+      renderer,
       session: activeXrSession,
       lastInputObservedAtMs,
       lastLocomotionAtMs,
@@ -636,6 +651,7 @@ function createStationScene(): StationSceneRuntime {
   function updateVrPanels(inputEvidence: OpenClinXrInputEvidence): void {
     const summary = summarizeTraceReadiness(state);
     const dialogueText = dialogueLine.textContent ?? initialDialogueText;
+    const handGestureSourceActive = inputEvidence.inputSourceKinds?.includes("xr_hand_gesture") === true;
     const panelSignature = [
       dialogueText,
       summary.observedCount,
@@ -645,6 +661,7 @@ function createStationScene(): StationSceneRuntime {
       inputEvidence.handInputsObserved,
       inputEvidence.lastLocomotionAtMs,
       inputEvidence.activeLocomotionSource,
+      handGestureSourceActive ? "hand-gesture-active" : "hand-gesture-inactive",
       inputEvidence.rigPosition.x,
       inputEvidence.rigPosition.z,
     ].join("|");
@@ -803,6 +820,12 @@ function addHandModels(renderer: WebGLRenderer, scene: Scene): void {
   for (let index = 0; index < 2; index += 1) {
     const hand = renderer.xr.getHand(index);
     hand.name = `openclinxr.ed-chest-pain.hand-${index + 1}`;
+    hand.addEventListener("connected", (event) => {
+      const data = "data" in event ? event.data as { handedness?: string } : undefined;
+      if (data?.handedness) {
+        hand.userData.openClinXrHandedness = data.handedness;
+      }
+    });
     const handModel = handModelFactory.createHandModel(hand, "boxes");
     handModel.name = `openclinxr.ed-chest-pain.hand-model-${index + 1}`;
     hand.add(handModel);
@@ -846,6 +869,7 @@ function applyLocomotion(input: {
   keyboardLocomotion: KeyboardLocomotionState;
   locomotionRig: Group;
   now: number;
+  renderer: WebGLRenderer;
   session: XrSession | undefined;
   lastInputObservedAtMs: number | null;
   lastLocomotionAtMs: number | null;
@@ -853,6 +877,7 @@ function applyLocomotion(input: {
   handModelStatus: OpenClinXrInputEvidence["handModelStatus"];
 }): OpenClinXrInputEvidence {
   const xrLocomotion = readXrGamepadLocomotion(input.session);
+  const xrHandGestureLocomotion = readXrHandGestureLocomotion(input.renderer);
   const keyboardVector: LocomotionVectorEvidence = {
     forward: clampUnit(input.keyboardLocomotion.forward),
     strafe: clampUnit(input.keyboardLocomotion.strafe),
@@ -863,9 +888,14 @@ function applyLocomotion(input: {
     strafe: xrLocomotion.strafe,
     turn: xrLocomotion.turn,
   };
-  const forward = clampUnit(keyboardVector.forward + xrVector.forward);
-  const strafe = clampUnit(keyboardVector.strafe + xrVector.strafe);
-  const turn = clampUnit(keyboardVector.turn + xrVector.turn);
+  const xrHandGestureVector: LocomotionVectorEvidence = {
+    forward: xrHandGestureLocomotion.forward,
+    strafe: xrHandGestureLocomotion.strafe,
+    turn: xrHandGestureLocomotion.turn,
+  };
+  const forward = clampUnit(keyboardVector.forward + xrVector.forward + xrHandGestureVector.forward);
+  const strafe = clampUnit(keyboardVector.strafe + xrVector.strafe + xrHandGestureVector.strafe);
+  const turn = clampUnit(keyboardVector.turn + xrVector.turn + xrHandGestureVector.turn);
   const speedMetersPerSecond = 1.35;
 
   input.locomotionRig.rotation.y += turn * input.deltaSeconds * 1.8;
@@ -881,9 +911,10 @@ function applyLocomotion(input: {
   return buildManualPerformanceInputEvidence({
     handModelCount: input.handModelCount,
     handModelStatus: input.handModelStatus,
-    handInputsObserved: xrLocomotion.handInputsObserved,
+    handInputsObserved: Math.max(xrLocomotion.handInputsObserved, xrHandGestureLocomotion.handInputsObserved),
     keyboardVector,
     xrVector,
+    xrHandGestureVector,
     xrInputSources: xrLocomotion.inputSources,
     now: input.now,
     previousLastInputObservedAtMs: input.lastInputObservedAtMs,
@@ -893,6 +924,69 @@ function applyLocomotion(input: {
       z: Number(input.locomotionRig.position.z.toFixed(3)),
     },
   });
+}
+
+function readXrHandGestureLocomotion(renderer: WebGLRenderer): {
+  forward: number;
+  strafe: number;
+  turn: number;
+  handInputsObserved: number;
+} {
+  let forward = 0;
+  let strafe = 0;
+  let turn = 0;
+  let handInputsObserved = 0;
+
+  for (let index = 0; index < 2; index += 1) {
+    const hand = renderer.xr.getHand(index) as XrHandGroup;
+    if (isTrackedHandVisible(hand)) {
+      handInputsObserved += 1;
+    }
+    const gesture = readHandGestureVector(hand, index);
+    forward += gesture.forward;
+    strafe += gesture.strafe;
+    turn += gesture.turn;
+  }
+
+  return {
+    forward: clampUnit(forward),
+    strafe: clampUnit(strafe),
+    turn: clampUnit(turn),
+    handInputsObserved,
+  };
+}
+
+function readHandGestureVector(hand: XrHandGroup, index: number): LocomotionVectorEvidence {
+  if (hand.inputState?.pinching !== true) {
+    return { forward: 0, strafe: 0, turn: 0 };
+  }
+  const wrist = hand.joints?.wrist;
+  const indexTip = hand.joints?.["index-finger-tip"];
+  if (!wrist?.visible || !indexTip?.visible) {
+    return { forward: 0, strafe: 0, turn: 0 };
+  }
+
+  const offsetX = indexTip.position.x - wrist.position.x;
+  const offsetZ = indexTip.position.z - wrist.position.z;
+  const handedness = hand.userData.openClinXrHandedness ?? (index === 0 ? "left" : "right");
+
+  if (handedness === "right") {
+    return {
+      forward: 0,
+      strafe: 0,
+      turn: gestureAxis(offsetX, 0.035, 4),
+    };
+  }
+
+  return {
+    forward: gestureAxis(-offsetZ, 0.04, 5),
+    strafe: gestureAxis(offsetX, 0.04, 5),
+    turn: 0,
+  };
+}
+
+function isTrackedHandVisible(hand: XrHandGroup): boolean {
+  return Boolean(hand.visible || hand.joints?.wrist?.visible || hand.joints?.["index-finger-tip"]?.visible);
 }
 
 function readXrGamepadLocomotion(session: XrSession | undefined): {
@@ -940,6 +1034,14 @@ function readXrGamepadLocomotion(session: XrSession | undefined): {
 
 function deadzone(value: number): number {
   return Math.abs(value) < 0.18 ? 0 : clampUnit(value);
+}
+
+function gestureAxis(value: number, deadzoneMeters: number, sensitivity: number): number {
+  const magnitude = Math.abs(value);
+  if (magnitude < deadzoneMeters) {
+    return 0;
+  }
+  return clampUnit(Math.sign(value) * (magnitude - deadzoneMeters) * sensitivity);
 }
 
 function clampUnit(value: number): number {

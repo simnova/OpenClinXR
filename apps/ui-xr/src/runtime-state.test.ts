@@ -266,7 +266,7 @@ describe("XR runtime state", () => {
     });
   });
 
-  it("builds richer manual input evidence without treating hand tracking as locomotion", () => {
+  it("builds richer manual input evidence and distinguishes deliberate hand-gesture locomotion", () => {
     expect(buildManualPerformanceInputEvidence({
       handModelCount: 2,
       handModelStatus: "installed",
@@ -293,6 +293,7 @@ describe("XR runtime state", () => {
       inputSourceKinds: ["keyboard", "xr_gamepad", "xr_hand"],
       keyboardVector: { forward: 1, strafe: 0, turn: 0 },
       xrVector: { forward: 0, strafe: 0.5, turn: 0 },
+      xrHandGestureVector: { forward: 0, strafe: 0, turn: 0 },
       xrInputSources: [
         { handedness: "left", hasHand: true, hasGamepad: true, axisCount: 4 },
         { handedness: "right", hasHand: true, hasGamepad: false, axisCount: 0 },
@@ -306,6 +307,30 @@ describe("XR runtime state", () => {
       handInputsObserved: 2,
       keyboardVector: { forward: 0, strafe: 0, turn: 0 },
       xrVector: { forward: 0, strafe: 0, turn: 0 },
+      xrHandGestureVector: { forward: 0.4, strafe: -0.2, turn: 0.15 },
+      xrInputSources: [
+        { handedness: "left", hasHand: true, hasGamepad: false, axisCount: 0 },
+        { handedness: "right", hasHand: true, hasGamepad: false, axisCount: 0 },
+      ],
+      now: 567.891,
+      previousLastInputObservedAtMs: 111.11,
+      previousLastLocomotionAtMs: null,
+      rigPosition: { x: 0.08, z: -0.12 },
+    })).toMatchObject({
+      lastInputObservedAtMs: 567.89,
+      lastLocomotionAtMs: 567.89,
+      activeLocomotionSource: "xr_hand_gesture",
+      inputSourceKinds: ["xr_hand", "xr_hand_gesture"],
+      xrHandGestureVector: { forward: 0.4, strafe: -0.2, turn: 0.15 },
+    });
+
+    expect(buildManualPerformanceInputEvidence({
+      handModelCount: 2,
+      handModelStatus: "installed",
+      handInputsObserved: 2,
+      keyboardVector: { forward: 0, strafe: 0, turn: 0 },
+      xrVector: { forward: 0, strafe: 0, turn: 0 },
+      xrHandGestureVector: { forward: 0, strafe: 0, turn: 0 },
       xrInputSources: [
         { handedness: "left", hasHand: true, hasGamepad: false, axisCount: 0 },
         { handedness: "right", hasHand: true, hasGamepad: false, axisCount: 0 },

@@ -68,6 +68,8 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("__openClinXrBootEvidence");
     expect(mainSource).toContain("applyLocomotion");
     expect(mainSource).toContain("readXrGamepadLocomotion");
+    expect(mainSource).toContain("readXrHandGestureLocomotion");
+    expect(mainSource).toContain("xr_hand_gesture");
     expect(mainSource).toContain("fallbackAnimationLoop");
     expect(mainSource).toContain("__openClinXrInputEvidence");
   });

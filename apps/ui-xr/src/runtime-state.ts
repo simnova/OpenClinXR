@@ -99,16 +99,17 @@ export type ManualPerformanceInputEvidence = {
   locomotionMode: "experimental_keyboard_and_thumbstick_dolly";
   lastInputObservedAtMs?: number | null;
   lastLocomotionAtMs: number | null;
-  activeLocomotionSource?: "none" | "keyboard" | "xr_gamepad" | "mixed";
+  activeLocomotionSource?: "none" | "keyboard" | "xr_gamepad" | "xr_hand_gesture" | "mixed";
   inputSourceCount?: number;
   inputSourceKinds?: RuntimeInputSourceKind[];
   keyboardVector?: LocomotionVectorEvidence;
   xrVector?: LocomotionVectorEvidence;
+  xrHandGestureVector?: LocomotionVectorEvidence;
   xrInputSources?: XrInputSourceEvidence[];
   rigPosition: { x: number; z: number };
 };
 
-export type RuntimeInputSourceKind = "keyboard" | "xr_gamepad" | "xr_hand";
+export type RuntimeInputSourceKind = "keyboard" | "xr_gamepad" | "xr_hand" | "xr_hand_gesture";
 
 export type LocomotionVectorEvidence = {
   forward: number;
@@ -129,6 +130,7 @@ export type ManualPerformanceInputEvidenceInput = {
   handInputsObserved: number;
   keyboardVector: LocomotionVectorEvidence;
   xrVector: LocomotionVectorEvidence;
+  xrHandGestureVector?: LocomotionVectorEvidence;
   xrInputSources: XrInputSourceEvidence[];
   now: number;
   previousLastInputObservedAtMs: number | null;
@@ -628,17 +630,25 @@ export function buildManualPerformanceInputEvidence(
 ): ManualPerformanceInputEvidence {
   const keyboardVector = roundedVector(input.keyboardVector);
   const xrVector = roundedVector(input.xrVector);
+  const xrHandGestureVector = roundedVector(input.xrHandGestureVector ?? emptyLocomotionVector);
   const keyboardActive = isLocomotionVectorActive(keyboardVector);
   const xrActive = isLocomotionVectorActive(xrVector);
+  const xrHandGestureActive = isLocomotionVectorActive(xrHandGestureVector);
   const inputObserved = keyboardActive
     || xrActive
+    || xrHandGestureActive
     || input.handInputsObserved > 0
     || input.xrInputSources.length > 0;
-  const activeLocomotionSource = activeLocomotionSourceFor(keyboardActive, xrActive);
+  const activeLocomotionSource = activeLocomotionSourceFor({
+    keyboardActive,
+    xrActive,
+    xrHandGestureActive,
+  });
   const inputSourceKinds = runtimeInputSourceKinds({
     keyboardActive,
     xrGamepadPresent: xrActive || input.xrInputSources.some((source) => source.hasGamepad),
     xrHandPresent: input.handInputsObserved > 0 || input.xrInputSources.some((source) => source.hasHand),
+    xrHandGestureActive,
   });
 
   return {
@@ -647,12 +657,15 @@ export function buildManualPerformanceInputEvidence(
     handInputsObserved: input.handInputsObserved,
     locomotionMode: "experimental_keyboard_and_thumbstick_dolly",
     lastInputObservedAtMs: inputObserved ? roundMetric(input.now) : input.previousLastInputObservedAtMs,
-    lastLocomotionAtMs: keyboardActive || xrActive ? roundMetric(input.now) : input.previousLastLocomotionAtMs,
+    lastLocomotionAtMs: keyboardActive || xrActive || xrHandGestureActive
+      ? roundMetric(input.now)
+      : input.previousLastLocomotionAtMs,
     activeLocomotionSource,
     inputSourceCount: input.xrInputSources.length,
     inputSourceKinds,
     keyboardVector,
     xrVector,
+    xrHandGestureVector,
     xrInputSources: input.xrInputSources.map((source) => ({ ...source })),
     rigPosition: {
       x: roundMetric(input.rigPosition.x, 3),
@@ -704,22 +717,33 @@ function roundedVector(vector: LocomotionVectorEvidence): LocomotionVectorEviden
   };
 }
 
+const emptyLocomotionVector: LocomotionVectorEvidence = {
+  forward: 0,
+  strafe: 0,
+  turn: 0,
+};
+
 function isLocomotionVectorActive(vector: LocomotionVectorEvidence): boolean {
   return Math.abs(vector.forward) > 0 || Math.abs(vector.strafe) > 0 || Math.abs(vector.turn) > 0;
 }
 
-function activeLocomotionSourceFor(
-  keyboardActive: boolean,
-  xrActive: boolean,
-): NonNullable<ManualPerformanceInputEvidence["activeLocomotionSource"]> {
-  if (keyboardActive && xrActive) {
+function activeLocomotionSourceFor(input: {
+  keyboardActive: boolean;
+  xrActive: boolean;
+  xrHandGestureActive: boolean;
+}): NonNullable<ManualPerformanceInputEvidence["activeLocomotionSource"]> {
+  const activeCount = [input.keyboardActive, input.xrActive, input.xrHandGestureActive].filter(Boolean).length;
+  if (activeCount > 1) {
     return "mixed";
   }
-  if (keyboardActive) {
+  if (input.keyboardActive) {
     return "keyboard";
   }
-  if (xrActive) {
+  if (input.xrActive) {
     return "xr_gamepad";
+  }
+  if (input.xrHandGestureActive) {
+    return "xr_hand_gesture";
   }
   return "none";
 }
@@ -728,11 +752,13 @@ function runtimeInputSourceKinds(input: {
   keyboardActive: boolean;
   xrGamepadPresent: boolean;
   xrHandPresent: boolean;
+  xrHandGestureActive: boolean;
 }): RuntimeInputSourceKind[] {
   return [
     input.keyboardActive ? "keyboard" : undefined,
     input.xrGamepadPresent ? "xr_gamepad" : undefined,
     input.xrHandPresent ? "xr_hand" : undefined,
+    input.xrHandGestureActive ? "xr_hand_gesture" : undefined,
   ].filter((kind): kind is RuntimeInputSourceKind => kind !== undefined);
 }
 
