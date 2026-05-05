@@ -12,7 +12,7 @@ import time
 from typing import Any
 from urllib.parse import urlparse
 
-from local_voice_candidates import APPROVED_MODEL_IDS
+from local_voice_candidates import APPROVED_MODEL_IDS, approved_candidate_metadata, model_storage_name
 
 EVIDENCE_FILE = "openclinxr-local-voice-evidence.json"
 
@@ -40,18 +40,6 @@ class JsonArgumentParser(argparse.ArgumentParser):
 def is_remote_source(value: str) -> bool:
     parsed = urlparse(value)
     return parsed.scheme in {"http", "https", "ftp", "s3", "gs"}
-
-
-def model_storage_name(model_id: str) -> str:
-    parts = model_id.strip().split("/")
-    if (
-        not model_id.strip()
-        or model_id.startswith("/")
-        or "\\" in model_id
-        or any(part in {"", ".", ".."} for part in parts)
-    ):
-        raise ValueError("model_id must be a non-empty relative identifier")
-    return "__".join(parts)
 
 
 def source_stats(path: pathlib.Path) -> dict[str, int]:
@@ -86,10 +74,12 @@ def build_evidence(
 ) -> dict[str, Any]:
     return {
         "model_id": model_id,
+        "storage_name": target_dir.name,
         "source": str(source.resolve()),
         "source_type": "local_source_copy",
         "target_dir": str(target_dir),
         "installed_at_unix": int(time.time()),
+        "candidate": approved_candidate_metadata(model_id),
         **stats,
     }
 

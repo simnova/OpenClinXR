@@ -17,6 +17,22 @@ const execFileAsync = promisify(execFile);
 type CliOptions = {
   outputPath?: string;
   apiPythonBackendRuntimeSmokePath?: string;
+  apiBunWebSocketRuntimeSmokePath?: string;
+};
+
+type ApiBunWebSocketRuntimeSmokeEvidence = {
+  status: string;
+  runtimeEvidenceBlockers: string[];
+  websocket: {
+    connected: boolean;
+    controlAckObserved: boolean;
+    audioMetadataObserved: boolean;
+    transcriptDeltaObserved: boolean;
+    binaryEchoObserved: boolean;
+  };
+  verdict: {
+    smokePassed: boolean;
+  };
 };
 
 type ApiPythonBackendRuntimeSmokeEvidence = {
@@ -116,6 +132,15 @@ export type RealtimeVoiceTransportSpikeReport = {
       canonicalProtocolObserved: boolean;
     };
   };
+  apiBunWebSocketRuntimeSmoke?: {
+    status: "passed" | "blocked";
+    blockers: string[];
+    websocketConnected: boolean;
+    controlAckObserved: boolean;
+    audioMetadataObserved: boolean;
+    transcriptDeltaObserved: boolean;
+    binaryEchoObserved: boolean;
+  };
   questClientSourceContract: QuestClientSourceContractEvidence;
   harness: Awaited<ReturnType<typeof runRealtimeVoiceProxyHarness>>;
   verdict: {
@@ -131,7 +156,10 @@ async function main(): Promise<void> {
   const apiPythonBackendRuntimeSmoke = options.apiPythonBackendRuntimeSmokePath
     ? await readJson<ApiPythonBackendRuntimeSmokeEvidence>(options.apiPythonBackendRuntimeSmokePath)
     : undefined;
-  const report = await buildRealtimeVoiceTransportSpikeReport({ apiPythonBackendRuntimeSmoke });
+  const apiBunWebSocketRuntimeSmoke = options.apiBunWebSocketRuntimeSmokePath
+    ? await readJson<ApiBunWebSocketRuntimeSmokeEvidence>(options.apiBunWebSocketRuntimeSmokePath)
+    : undefined;
+  const report = await buildRealtimeVoiceTransportSpikeReport({ apiPythonBackendRuntimeSmoke, apiBunWebSocketRuntimeSmoke });
 
   if (options.outputPath) {
     await writeJson(options.outputPath, report);
@@ -158,6 +186,11 @@ function parseArgs(args: string[]): CliOptions {
       index += 1;
       continue;
     }
+    if (arg === "--api-bun-websocket-runtime-smoke") {
+      options.apiBunWebSocketRuntimeSmokePath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
     throw new Error(`Unknown argument: ${arg ?? ""}`);
   }
 
@@ -178,6 +211,7 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
   bunAvailable?: boolean;
   godotAvailable?: boolean;
   apiPythonBackendRuntimeSmoke?: ApiPythonBackendRuntimeSmokeEvidence;
+  apiBunWebSocketRuntimeSmoke?: ApiBunWebSocketRuntimeSmokeEvidence;
 } = {}): Promise<RealtimeVoiceTransportSpikeReport> {
   const generatedAt = input.generatedAt ?? new Date().toISOString();
   const targetLatencyMs = input.targetLatencyMs ?? 250;
@@ -191,12 +225,17 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
   const pythonBackendRuntimeSmoke = input.apiPythonBackendRuntimeSmoke
     ? summarizePythonBackendRuntimeSmoke(input.apiPythonBackendRuntimeSmoke)
     : undefined;
+  const apiBunWebSocketRuntimeSmoke = input.apiBunWebSocketRuntimeSmoke
+    ? summarizeApiBunWebSocketRuntimeSmoke(input.apiBunWebSocketRuntimeSmoke)
+    : undefined;
   const suppliedRuntimeSmokePassed = pythonBackendRuntimeSmoke ? pythonBackendRuntimeSmoke.status === "passed" : true;
+  const suppliedBunRuntimeSmokePassed = apiBunWebSocketRuntimeSmoke ? apiBunWebSocketRuntimeSmoke.status === "passed" : false;
+  const bunRuntimeObserved = bunAvailable || suppliedBunRuntimeSmokePassed;
   const transportContractPassed = pythonBackendVerifier.status === "passed" && harness.latencyBudget.passed && suppliedRuntimeSmokePassed;
   const blockers = [
     "quest_godot_client_not_executed",
     "native_opus_codec_not_integrated_in_godot",
-    bunAvailable ? undefined : "bun_runtime_not_installed_on_this_machine",
+    bunRuntimeObserved ? undefined : "bun_runtime_not_installed_on_this_machine",
     pythonBackendRuntimeSmoke?.status === "passed" ? undefined : "fastapi_backend_not_runtime_executed",
     "real_moshi_or_qwen3_inference_not_observed",
     "quest_microphone_and_playback_latency_not_measured",
@@ -242,10 +281,12 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
         },
       ],
     },
-    apiProtocolPosture: createOpenClinXrApiProtocolPosture(),
+    apiProtocolPosture: createOpenClinXrApiProtocolPosture({
+      apiBunWebSocketRuntimeVerified: bunRuntimeObserved,
+    }),
     protocolEvidence: {
       websocketLocalHarnessObserved: true,
-      bunHonoRuntimeObserved: bunAvailable,
+      bunHonoRuntimeObserved: bunRuntimeObserved,
       webTransportObserved: false,
       quicObserved: false,
       web3SignalingObserved: false,
@@ -256,6 +297,7 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
     },
     pythonBackendVerifier,
     ...(pythonBackendRuntimeSmoke ? { pythonBackendRuntimeSmoke } : {}),
+    ...(apiBunWebSocketRuntimeSmoke ? { apiBunWebSocketRuntimeSmoke } : {}),
     questClientSourceContract,
     harness,
     verdict: {
@@ -367,6 +409,29 @@ function summarizePythonBackendRuntimeSmoke(
     websocketConnected: report.websocket.connected,
     websocketLatencyMs: report.websocket.latencyMs,
     protocolObserved,
+  };
+}
+
+function summarizeApiBunWebSocketRuntimeSmoke(
+  report: ApiBunWebSocketRuntimeSmokeEvidence,
+): RealtimeVoiceTransportSpikeReport["apiBunWebSocketRuntimeSmoke"] {
+  const blockers = [
+    ...report.runtimeEvidenceBlockers,
+    report.websocket.connected ? undefined : "runtime_smoke_websocket_not_connected",
+    report.websocket.controlAckObserved ? undefined : "runtime_smoke_control_ack_missing",
+    report.websocket.audioMetadataObserved ? undefined : "runtime_smoke_audio_metadata_missing",
+    report.websocket.transcriptDeltaObserved ? undefined : "runtime_smoke_transcript_delta_missing",
+    report.websocket.binaryEchoObserved ? undefined : "runtime_smoke_binary_echo_missing",
+  ].filter((blocker): blocker is string => typeof blocker === "string");
+
+  return {
+    status: report.status === "passed" && report.verdict.smokePassed && blockers.length === 0 ? "passed" : "blocked",
+    blockers,
+    websocketConnected: report.websocket.connected,
+    controlAckObserved: report.websocket.controlAckObserved,
+    audioMetadataObserved: report.websocket.audioMetadataObserved,
+    transcriptDeltaObserved: report.websocket.transcriptDeltaObserved,
+    binaryEchoObserved: report.websocket.binaryEchoObserved,
   };
 }
 

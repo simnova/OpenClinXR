@@ -152,6 +152,89 @@ describe("realtime voice transport spike report", () => {
     expect(report.questClientSourceContract.blockers).not.toContain("godot_runtime_not_installed_on_this_machine");
   });
 
+  it("uses passed Bun runtime smoke evidence to retire only the Bun blocker and mark websocket runtime ready", async () => {
+    const report = await buildRealtimeVoiceTransportSpikeReport({
+      generatedAt: "2026-05-04T22:35:00.000Z",
+      targetLatencyMs: 250,
+      bunAvailable: false,
+      godotAvailable: false,
+      apiBunWebSocketRuntimeSmoke: {
+        status: "passed",
+        runtimeEvidenceBlockers: [],
+        websocket: {
+          connected: true,
+          controlAckObserved: true,
+          audioMetadataObserved: true,
+          transcriptDeltaObserved: true,
+          binaryEchoObserved: true,
+        },
+        verdict: {
+          smokePassed: true,
+        },
+      },
+    });
+
+    expect(report.apiBunWebSocketRuntimeSmoke).toEqual({
+      status: "passed",
+      blockers: [],
+      websocketConnected: true,
+      controlAckObserved: true,
+      audioMetadataObserved: true,
+      transcriptDeltaObserved: true,
+      binaryEchoObserved: true,
+    });
+    expect(report.protocolEvidence.bunHonoRuntimeObserved).toBe(true);
+    expect(report.apiProtocolPosture.protocols).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        protocolId: "websocket",
+        status: "ready",
+        blockers: [],
+      }),
+    ]));
+    expect(report.verdict.blockers).not.toContain("bun_runtime_not_installed_on_this_machine");
+    expect(report.verdict.blockers).toEqual(expect.arrayContaining([
+      "fastapi_backend_not_runtime_executed",
+      "real_moshi_or_qwen3_inference_not_observed",
+      "quest_microphone_and_playback_latency_not_measured",
+      "clinical_voice_safety_controls_not_exercised_with_real_model",
+    ]));
+    expect(report.verdict.readyForLiveDialog).toBe(false);
+  });
+
+  it("keeps Bun runtime evidence blocked when supplied smoke has runtime blockers", async () => {
+    const report = await buildRealtimeVoiceTransportSpikeReport({
+      generatedAt: "2026-05-04T22:36:00.000Z",
+      targetLatencyMs: 250,
+      bunAvailable: false,
+      apiBunWebSocketRuntimeSmoke: {
+        status: "blocked",
+        runtimeEvidenceBlockers: ["websocket_binary_echo_missing"],
+        websocket: {
+          connected: true,
+          controlAckObserved: true,
+          audioMetadataObserved: true,
+          transcriptDeltaObserved: true,
+          binaryEchoObserved: false,
+        },
+        verdict: {
+          smokePassed: false,
+        },
+      },
+    });
+
+    expect(report.apiBunWebSocketRuntimeSmoke).toEqual({
+      status: "blocked",
+      blockers: ["websocket_binary_echo_missing", "runtime_smoke_binary_echo_missing"],
+      websocketConnected: true,
+      controlAckObserved: true,
+      audioMetadataObserved: true,
+      transcriptDeltaObserved: true,
+      binaryEchoObserved: false,
+    });
+    expect(report.protocolEvidence.bunHonoRuntimeObserved).toBe(false);
+    expect(report.verdict.blockers).toContain("bun_runtime_not_installed_on_this_machine");
+  });
+
   it("keeps FastAPI runtime smoke blocked when websocket protocol evidence is stale", async () => {
     const report = await buildRealtimeVoiceTransportSpikeReport({
       generatedAt: "2026-05-04T22:40:00.000Z",

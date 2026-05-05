@@ -9,7 +9,7 @@ import pathlib
 import sys
 from typing import Any
 
-from local_voice_candidates import APPROVED_MODEL_IDS
+from local_voice_candidates import APPROVED_MODEL_IDS, approved_candidate_metadata, model_storage_name
 
 EVIDENCE_FILE = "openclinxr-local-voice-evidence.json"
 
@@ -65,22 +65,39 @@ def model_record(model_dir: pathlib.Path) -> dict[str, Any]:
     source_type = evidence.get("source_type") if isinstance(evidence.get("source_type"), str) else "unknown"
     has_evidence = bool(evidence) and "evidence_error" not in evidence
     approved = model_id in APPROVED_MODEL_IDS
+    expected_storage_name = expected_storage_name_for(model_id)
+    storage_name_matches = expected_storage_name == model_dir.name
+    candidate = approved_candidate_metadata(model_id)
+    candidate_matches = evidence.get("candidate") == candidate if candidate is not None else False
+    source_type_allowed = source_type == "local_source_copy"
     blockers = [
         None if approved else "model_id_not_approved_for_local_realtime_voice_spike",
         None if has_evidence else "model_evidence_file_missing_or_invalid",
+        None if source_type_allowed else "model_source_type_not_local_source_copy",
+        None if storage_name_matches else "model_storage_name_mismatch",
+        None if candidate_matches else "model_candidate_metadata_missing_or_mismatched",
         None if stats["file_count"] > 1 else "model_file_count_under_2",
     ]
+    ready = approved and has_evidence and source_type_allowed and storage_name_matches and candidate_matches and stats["file_count"] > 1
     return {
         "model_id": model_id,
         "path": str(model_dir),
         "source_type": source_type,
+        "expected_storage_name": expected_storage_name,
         "approved": approved,
         "has_evidence": has_evidence,
-        "ready": approved and has_evidence and stats["file_count"] > 1,
+        "ready": ready,
         "blockers": [blocker for blocker in blockers if blocker is not None],
         "evidence": evidence,
         **stats,
     }
+
+
+def expected_storage_name_for(model_id: str) -> str | None:
+    try:
+        return model_storage_name(model_id)
+    except ValueError:
+        return None
 
 
 def support_directory_record(directory: pathlib.Path) -> dict[str, Any]:

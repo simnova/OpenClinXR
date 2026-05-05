@@ -121,8 +121,8 @@ class LocalVoiceEvidenceTests(unittest.TestCase):
 
         self.assertFalse(payload["ready"])
         self.assertFalse(payload["models"][0]["approved"])
-        self.assertEqual(
-            ["model_id_not_approved_for_local_realtime_voice_spike"],
+        self.assertIn(
+            "model_id_not_approved_for_local_realtime_voice_spike",
             payload["models"][0]["blockers"],
         )
 
@@ -244,6 +244,76 @@ class LocalVoiceEvidenceTests(unittest.TestCase):
         self.assertEqual("mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit", check_payload["models"][0]["model_id"])
         self.assertTrue(check_payload["models"][0]["approved"])
         self.assertEqual("local_source_copy", check_payload["models"][0]["source_type"])
+
+    def test_install_records_candidate_metadata_in_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = pathlib.Path(temp)
+            source = temp_path / "moshi-source"
+            cache = temp_path / "cache"
+            source.mkdir()
+            (source / "config.json").write_text('{"ok": true}\n', encoding="utf-8")
+
+            install_payload = run_json(
+                INSTALL,
+                "--cache-dir",
+                str(cache),
+                "--model-id",
+                "kyutai/moshiko-mlx-q4",
+                "--source",
+                str(source),
+            )
+
+        evidence = install_payload["evidence"]
+        self.assertEqual("kyutai__moshiko-mlx-q4", evidence["storage_name"])
+        self.assertEqual("full_duplex_dialog", evidence["candidate"]["runtime_role"])
+        self.assertEqual(
+            "proposals/approved/proposal-local-realtime-voice-model-inference.md",
+            evidence["candidate"]["approved_proposal"],
+        )
+
+    def test_check_rejects_non_local_source_type_for_approved_model(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = pathlib.Path(temp)
+            cache = temp_path / "cache"
+            model = cache / "kyutai__moshiko-mlx-q4"
+            model.mkdir(parents=True)
+            (model / "weights.bin").write_bytes(b"not real weights")
+            (model / "config.json").write_text("{}\n", encoding="utf-8")
+            (model / "openclinxr-local-voice-evidence.json").write_text(
+                json.dumps({
+                    "model_id": "kyutai/moshiko-mlx-q4",
+                    "source_type": "huggingface_download",
+                }),
+                encoding="utf-8",
+            )
+
+            payload = run_json(CHECK, "--cache-dir", str(cache))
+
+        self.assertFalse(payload["ready"])
+        self.assertFalse(payload["models"][0]["ready"])
+        self.assertIn("model_source_type_not_local_source_copy", payload["models"][0]["blockers"])
+
+    def test_check_rejects_storage_name_mismatch_for_approved_model(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = pathlib.Path(temp)
+            cache = temp_path / "cache"
+            model = cache / "manual-moshi-copy"
+            model.mkdir(parents=True)
+            (model / "weights.bin").write_bytes(b"not real weights")
+            (model / "config.json").write_text("{}\n", encoding="utf-8")
+            (model / "openclinxr-local-voice-evidence.json").write_text(
+                json.dumps({
+                    "model_id": "kyutai/moshiko-mlx-q4",
+                    "source_type": "local_source_copy",
+                }),
+                encoding="utf-8",
+            )
+
+            payload = run_json(CHECK, "--cache-dir", str(cache))
+
+        self.assertFalse(payload["ready"])
+        self.assertFalse(payload["models"][0]["ready"])
+        self.assertIn("model_storage_name_mismatch", payload["models"][0]["blockers"])
 
     def test_install_argument_errors_are_json(self) -> None:
         code, payload = run_json_error(INSTALL)
