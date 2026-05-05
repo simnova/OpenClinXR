@@ -68,6 +68,7 @@
     "asset:production:readiness": "tsx tools/openclinxr/asset-production-readiness-benchmark.ts",
     "xr:quest:smoke": "tsx tools/openclinxr/quest-cdp-smoke.ts",
     "xr:quest:smoke:validate": "tsx tools/openclinxr/quest-cdp-smoke.ts --validate-latest",
+    "xr:quest:manual:harvest": "tsx tools/openclinxr/quest-cdp-smoke.ts --harvest-manual-evidence",
     "xr:quest:manual:check": "tsx tools/openclinxr/check-quest-manual-performance.ts",
     "xr:quest:mr:check": "tsx tools/openclinxr/check-quest-mixed-reality-manual.ts",
     "hygiene:knip": "knip --no-progress --reporter compact --no-exit-code",

@@ -10,6 +10,8 @@ import {
   fetchQuestCdpPages,
   frameSampleExpression,
   interactionExpression,
+  buildManualEvidenceHarvestPayload,
+  manualEvidenceHarvestExpression,
   pageMatchesRequestedUrl,
   parseArgs,
   selectQuestPage,
@@ -139,6 +141,29 @@ describe("Quest CDP smoke probe", () => {
       mode: "validate",
       inputPath: "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
     });
+
+    expect(parseArgs([
+      "--harvest-manual-evidence",
+      "--reuse-open-page",
+      "--skip-launch",
+      "--output",
+      "docs/openclinxr/quest-manual-performance-2026-05-05.json",
+      "--manual-evidence-timeout-ms",
+      "9000",
+      "--manual-evidence-min-immersive-frames",
+      "600",
+      "--manual-evidence-min-sample-window",
+      "120",
+    ])).toMatchObject({
+      mode: "manual-evidence",
+      reuseOpenPage: true,
+      skipLaunch: true,
+      enterVr: false,
+      outputPath: "docs/openclinxr/quest-manual-performance-2026-05-05.json",
+      manualEvidenceTimeoutMs: 9000,
+      manualEvidenceMinImmersiveFrames: 600,
+      manualEvidenceMinSampleWindowSize: 120,
+    });
   });
 
   it("rejects unknown, missing, and non-positive CLI values", () => {
@@ -149,6 +174,9 @@ describe("Quest CDP smoke probe", () => {
     expect(() => parseArgs(["--cdp-port", "0"])).toThrow("--cdp-port must be a positive number");
     expect(() => parseArgs(["--frame-sample-count", "0"])).toThrow("--frame-sample-count must be a positive number");
     expect(() => parseArgs(["--frame-timeout-ms", "0"])).toThrow("--frame-timeout-ms must be a positive number");
+    expect(() => parseArgs(["--manual-evidence-timeout-ms", "0"])).toThrow("--manual-evidence-timeout-ms must be a positive number");
+    expect(() => parseArgs(["--harvest-manual-evidence", "--enter-vr"]))
+      .toThrow("--harvest-manual-evidence waits for operator-entered VR and cannot be combined with --enter-vr");
   });
 
   it("matches the requested Quest page while ignoring query-string differences", () => {
@@ -282,6 +310,69 @@ describe("Quest CDP smoke probe", () => {
     expect(enterVrCompletionExpression(3000)).toContain("window.__openClinXrManualPerformanceDraft");
     expect(enterVrCompletionExpression(3000)).toContain("window.__openClinXrXrEntryEvidence");
     expect(enterVrCompletionExpression(3000)).toContain('xrStatusAfter === "In Full VR" && immersiveSessionStarted');
+    expect(manualEvidenceHarvestExpression({
+      timeoutMs: 9000,
+      minImmersiveFrames: 600,
+      minSampleWindowSize: 120,
+    })).toContain("window.__openClinXrManualPerformanceDraft");
+    expect(manualEvidenceHarvestExpression({
+      timeoutMs: 9000,
+      minImmersiveFrames: 600,
+      minSampleWindowSize: 120,
+    })).toContain("immersiveFramesObserved >= 600");
+    expect(manualEvidenceHarvestExpression({
+      timeoutMs: 9000,
+      minImmersiveFrames: 600,
+      minSampleWindowSize: 120,
+    })).toContain('traceSource === "xr_controller_select" || traceSource === "xr_hand_select"');
+    expect(manualEvidenceHarvestExpression({
+      timeoutMs: 9000,
+      minImmersiveFrames: 600,
+      minSampleWindowSize: 120,
+    })).toContain("hasLocomotionEvidence");
+  });
+
+  it("wraps harvested in-app Quest evidence without upgrading it to manual readiness", () => {
+    const payload = buildManualEvidenceHarvestPayload({
+      ready: true,
+      timedOut: false,
+      blockers: [],
+      elapsedWallMs: 601_234,
+      manualPerformanceDraft: {
+        generatedAt: "2026-05-05T00:00:00.000Z",
+        station: { immersiveSessionStarted: true },
+      },
+      captureSummary: {
+        frameStatsFresh: true,
+        immersiveFramesObserved: 720,
+        traceLatencySource: "xr_hand_select",
+        locomotionDistanceMeters: 0.4,
+        manualValidationReady: false,
+        blockers: ["performed_by_missing"],
+      },
+    });
+
+    expect(payload).toEqual({
+      manualPerformanceDraft: {
+        generatedAt: "2026-05-05T00:00:00.000Z",
+        station: { immersiveSessionStarted: true },
+      },
+      captureSummary: {
+        frameStatsFresh: true,
+        immersiveFramesObserved: 720,
+        traceLatencySource: "xr_hand_select",
+        locomotionDistanceMeters: 0.4,
+        manualValidationReady: false,
+        blockers: ["performed_by_missing"],
+      },
+      harvestSummary: {
+        source: "quest_cdp_manual_evidence_harvest",
+        ready: true,
+        timedOut: false,
+        blockers: [],
+        elapsedWallMs: 601_234,
+      },
+    });
   });
 
   it("builds a passing report when shell, interaction, visibility, and frame sample are healthy", () => {

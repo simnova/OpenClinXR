@@ -9,7 +9,7 @@ import fg from "fast-glob";
 const execFileAsync = promisify(execFile);
 
 export type CliOptions = {
-  mode: "run" | "validate";
+  mode: "run" | "validate" | "manual-evidence";
   url: string;
   target: QuestSmokeTarget;
   appPort: number;
@@ -17,6 +17,9 @@ export type CliOptions = {
   outputPath?: string;
   frameSampleCount: number;
   frameTimeoutMs: number;
+  manualEvidenceTimeoutMs: number;
+  manualEvidenceMinImmersiveFrames: number;
+  manualEvidenceMinSampleWindowSize: number;
   skipLaunch: boolean;
   reuseOpenPage: boolean;
   enterVr: boolean;
@@ -213,6 +216,15 @@ async function main(): Promise<void> {
   try {
     await client.bringToFront();
     await delay(250);
+    if (options.mode === "manual-evidence") {
+      const harvest = await client.evaluate(manualEvidenceHarvestExpression({
+        timeoutMs: options.manualEvidenceTimeoutMs,
+        minImmersiveFrames: options.manualEvidenceMinImmersiveFrames,
+        minSampleWindowSize: options.manualEvidenceMinSampleWindowSize,
+      }), options.manualEvidenceTimeoutMs + 3000);
+      await emitManualEvidenceHarvestPayload(buildManualEvidenceHarvestPayload(harvest), options.outputPath);
+      return;
+    }
     await client.navigate(options.url);
     await delay(750);
     await client.reload();
@@ -248,6 +260,9 @@ export function parseArgs(args: string[]): CliOptions {
     cdpPort: 9222,
     frameSampleCount: 90,
     frameTimeoutMs: 4000,
+    manualEvidenceTimeoutMs: 600_000,
+    manualEvidenceMinImmersiveFrames: 600,
+    manualEvidenceMinSampleWindowSize: 120,
     skipLaunch: false,
     reuseOpenPage: false,
     enterVr: false,
@@ -300,6 +315,14 @@ export function parseArgs(args: string[]): CliOptions {
       index += 1;
       continue;
     }
+    if (arg === "--harvest-manual-evidence") {
+      if (options.enterVr) {
+        throw new Error("--harvest-manual-evidence waits for operator-entered VR and cannot be combined with --enter-vr");
+      }
+      options.mode = "manual-evidence";
+      options.enterVr = false;
+      continue;
+    }
     if (arg === "--frame-sample-count") {
       options.frameSampleCount = Number.parseInt(requireValue(normalizedArgs, index, arg), 10);
       index += 1;
@@ -307,6 +330,21 @@ export function parseArgs(args: string[]): CliOptions {
     }
     if (arg === "--frame-timeout-ms") {
       options.frameTimeoutMs = Number.parseInt(requireValue(normalizedArgs, index, arg), 10);
+      index += 1;
+      continue;
+    }
+    if (arg === "--manual-evidence-timeout-ms") {
+      options.manualEvidenceTimeoutMs = Number.parseInt(requireValue(normalizedArgs, index, arg), 10);
+      index += 1;
+      continue;
+    }
+    if (arg === "--manual-evidence-min-immersive-frames") {
+      options.manualEvidenceMinImmersiveFrames = Number.parseInt(requireValue(normalizedArgs, index, arg), 10);
+      index += 1;
+      continue;
+    }
+    if (arg === "--manual-evidence-min-sample-window") {
+      options.manualEvidenceMinSampleWindowSize = Number.parseInt(requireValue(normalizedArgs, index, arg), 10);
       index += 1;
       continue;
     }
@@ -319,6 +357,9 @@ export function parseArgs(args: string[]): CliOptions {
       continue;
     }
     if (arg === "--enter-vr") {
+      if (options.mode === "manual-evidence") {
+        throw new Error("--harvest-manual-evidence waits for operator-entered VR and cannot be combined with --enter-vr");
+      }
       options.enterVr = true;
       continue;
     }
@@ -336,6 +377,18 @@ export function parseArgs(args: string[]): CliOptions {
   }
   if (!Number.isFinite(options.frameTimeoutMs) || options.frameTimeoutMs <= 0) {
     throw new Error("--frame-timeout-ms must be a positive number");
+  }
+  if (!Number.isFinite(options.manualEvidenceTimeoutMs) || options.manualEvidenceTimeoutMs <= 0) {
+    throw new Error("--manual-evidence-timeout-ms must be a positive number");
+  }
+  if (!Number.isFinite(options.manualEvidenceMinImmersiveFrames) || options.manualEvidenceMinImmersiveFrames <= 0) {
+    throw new Error("--manual-evidence-min-immersive-frames must be a positive number");
+  }
+  if (!Number.isFinite(options.manualEvidenceMinSampleWindowSize) || options.manualEvidenceMinSampleWindowSize <= 0) {
+    throw new Error("--manual-evidence-min-sample-window must be a positive number");
+  }
+  if (options.mode === "manual-evidence" && options.enterVr) {
+    throw new Error("--harvest-manual-evidence waits for operator-entered VR and cannot be combined with --enter-vr");
   }
 
   return options;
@@ -471,6 +524,16 @@ async function emitQuestSmokeReport(report: QuestSmokeReport, outputPath: string
     return;
   }
   console.log(JSON.stringify(report, null, 2));
+}
+
+async function emitManualEvidenceHarvestPayload(payload: Record<string, unknown>, outputPath: string | undefined): Promise<void> {
+  if (outputPath) {
+    await mkdir(path.dirname(outputPath), { recursive: true });
+    await writeFile(outputPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
+    console.log(`Wrote ${outputPath}; harvestReady=${asRecord(payload.harvestSummary).ready === true}`);
+    return;
+  }
+  console.log(JSON.stringify(payload, null, 2));
 }
 
 export function pageMatchesRequestedUrl(actual: string, requested: string): boolean {
@@ -704,6 +767,97 @@ export function frameSampleExpression(frameSampleCount: number, frameTimeoutMs: 
       iwsdkEvidence: window.__openClinXrIwsdkSidecarEvidence ?? null,
     };
   })()`;
+}
+
+export function manualEvidenceHarvestExpression(input: {
+  timeoutMs: number;
+  minImmersiveFrames: number;
+  minSampleWindowSize: number;
+}): string {
+  return String.raw`(async () => {
+    const started = performance.now();
+    const readHarvest = () => {
+      const manualPerformanceDraft = window.__openClinXrManualPerformanceDraft ?? null;
+      const captureSummary = window.__openClinXrManualPerformanceCaptureSummary ?? null;
+      const performanceEvidence = manualPerformanceDraft?.performance ?? {};
+      const stationEvidence = manualPerformanceDraft?.station ?? {};
+      const inputEvidence = manualPerformanceDraft?.input ?? {};
+      const traceEvidence = manualPerformanceDraft?.traceLatencyProxy ?? {};
+      const locomotionDelta = inputEvidence?.locomotionDelta ?? {};
+      const immersiveFramesObserved = performanceEvidence?.immersiveFramesObserved
+        ?? captureSummary?.immersiveFramesObserved
+        ?? null;
+      const sampleWindowSize = performanceEvidence?.sampleWindowSize ?? captureSummary?.sampleWindowSize ?? null;
+      const traceSource = traceEvidence?.source ?? captureSummary?.traceLatencySource ?? null;
+      const lastTraceTag = traceEvidence?.lastTraceTag ?? captureSummary?.lastTraceTag ?? null;
+      const lastTraceLatencyMs = traceEvidence?.lastSelectLatencyMs ?? captureSummary?.lastTraceLatencyMs ?? null;
+      const locomotionDistanceMeters = locomotionDelta?.distanceMeters ?? captureSummary?.locomotionDistanceMeters ?? null;
+      const locomotionTurnRadians = locomotionDelta?.turnRadians ?? captureSummary?.locomotionTurnRadians ?? null;
+      const immersiveSessionStarted = stationEvidence?.immersiveSessionStarted === true;
+      const frameStatsFresh = captureSummary?.frameStatsFresh === true;
+      const immersiveFrameReady = typeof immersiveFramesObserved === "number" && immersiveFramesObserved >= ${input.minImmersiveFrames};
+      const sampleWindowReady = typeof sampleWindowSize === "number" && sampleWindowSize >= ${input.minSampleWindowSize};
+      const hasHeadsetTraceEvidence = (traceSource === "xr_controller_select" || traceSource === "xr_hand_select")
+        && typeof lastTraceTag === "string"
+        && lastTraceTag.trim().length > 0
+        && typeof lastTraceLatencyMs === "number"
+        && Number.isFinite(lastTraceLatencyMs)
+        && lastTraceLatencyMs > 0;
+      const hasLocomotionEvidence = typeof inputEvidence?.lastLocomotionAtMs === "number"
+        && Number.isFinite(inputEvidence.lastLocomotionAtMs)
+        && ((typeof locomotionDistanceMeters === "number" && locomotionDistanceMeters > 0)
+          || (typeof locomotionTurnRadians === "number" && locomotionTurnRadians > 0));
+      const blockers = [
+        manualPerformanceDraft ? undefined : "manual_performance_draft_missing",
+        captureSummary ? undefined : "manual_performance_capture_summary_missing",
+        immersiveSessionStarted ? undefined : "immersive_session_not_started",
+        frameStatsFresh ? undefined : "frame_stats_stale_or_unsampled",
+        immersiveFrameReady ? undefined : "immersive_frame_sample_under_${input.minImmersiveFrames}",
+        sampleWindowReady ? undefined : "rolling_frame_window_under_${input.minSampleWindowSize}",
+        hasHeadsetTraceEvidence ? undefined : "headset_trace_latency_missing",
+        hasLocomotionEvidence ? undefined : "locomotion_evidence_missing",
+      ].filter((blocker) => typeof blocker === "string");
+      return {
+        ready: blockers.length === 0,
+        timedOut: false,
+        blockers,
+        elapsedWallMs: Number((performance.now() - started).toFixed(2)),
+        manualPerformanceDraft,
+        captureSummary,
+      };
+    };
+
+    let latest = readHarvest();
+    while (!latest.ready && performance.now() - started < ${input.timeoutMs}) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      latest = readHarvest();
+    }
+    latest = readHarvest();
+    return {
+      ...latest,
+      timedOut: latest.ready ? false : true,
+      elapsedWallMs: Number((performance.now() - started).toFixed(2)),
+    };
+  })()`;
+}
+
+export function buildManualEvidenceHarvestPayload(input: unknown): Record<string, unknown> {
+  const result = asRecord(input);
+  return {
+    manualPerformanceDraft: result.manualPerformanceDraft ?? null,
+    captureSummary: result.captureSummary ?? null,
+    harvestSummary: {
+      source: "quest_cdp_manual_evidence_harvest",
+      ready: result.ready === true,
+      timedOut: result.timedOut === true,
+      blockers: Array.isArray(result.blockers)
+        ? result.blockers.filter((blocker): blocker is string => typeof blocker === "string")
+        : ["manual_evidence_harvest_result_invalid"],
+      elapsedWallMs: typeof result.elapsedWallMs === "number" && Number.isFinite(result.elapsedWallMs)
+        ? result.elapsedWallMs
+        : null,
+    },
+  };
 }
 
 export function buildReport(input: QuestSmokeReportInput): QuestSmokeReport {
