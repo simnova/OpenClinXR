@@ -121,6 +121,14 @@ Score a future captured aggregate MCP evidence JSON file with:
 pnpm iwsdk:agent-tooling:evidence -- --input path/to/iwsdk-agent-tooling-evidence.json --output docs/openclinxr/iwsdk-agent-tooling-evidence-YYYY-MM-DD.json
 ```
 
+Score screenshot-based adversarial visual QA evidence separately with:
+
+```bash
+pnpm visual:qa:evidence:validate
+```
+
+The current visual QA fixture is `docs/openclinxr/visual-qa-evidence-2026-05-04.json`. It wraps the IWER managed-browser screenshot as an adversarial iteration artifact and requires clinical-scene, actor/equipment, readability, interaction-affordance, occlusion/scale, and evidence-limit notes. A passing visual QA report still has `readyForProductionRuntime: false` and `readyForPhysicalQuestClaim: false`.
+
 The checker exits nonzero until the aggregate evidence is ready, but it does not install IWSDK, modify MCP config, or touch the sidecar app.
 
 Score future phase-2 compatibility evidence with:

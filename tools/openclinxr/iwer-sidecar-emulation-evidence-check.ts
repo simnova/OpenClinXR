@@ -1,8 +1,11 @@
-import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { buildIwsdkMcpToolInventory } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
+import {
+  evaluateVisualQaEvidence,
+  type VisualQaEvidence,
+} from "./visual-qa-evidence-check.js";
 
 type CliOptions = {
   inputPath?: string;
@@ -228,15 +231,7 @@ export function evaluateIwerSidecarEmulationEvidence(
       && evidence.productionBuildOutputInspection?.distSearchMatches.length === 0
       ? undefined
       : "production_dist_dev_runtime_matches_present",
-    evidence.adversarialVisualQa?.xrMode === "desktop_managed_browser_not_immersive_session"
-      ? undefined
-      : "visual_qa_not_marked_desktop_managed_browser",
-    evidence.adversarialVisualQa?.artifact && existsSync(evidence.adversarialVisualQa.artifact)
-      ? undefined
-      : "visual_qa_artifact_missing",
-    evidence.adversarialVisualQa?.notes?.some((note) => /adversarial|not physical|not Quest|not immersive|iteration only/i.test(note))
-      ? undefined
-      : "visual_qa_limits_not_recorded",
+    ...iwerVisualQaBlockers(evidence),
     ...knownBlockers.map((blocker) => (
       evidence.blockers?.includes(blocker) ? undefined : `known_blocker_missing_${blocker}`
     )),
@@ -247,6 +242,67 @@ export function evaluateIwerSidecarEmulationEvidence(
     readyForProductionRuntime: false,
     readyForPhysicalQuestClaim: false,
     blockers,
+  };
+}
+
+function iwerVisualQaBlockers(evidence: IwerSidecarEmulationEvidence): string[] {
+  const screenshotProbe = evidence.rawWebSocketProbes?.find((probe) => probe.method === "screenshot");
+  const visualEvidence = buildIwerVisualQaEvidence(evidence, screenshotProbe);
+  return evaluateVisualQaEvidence(visualEvidence).blockers.map((blocker) => `visual_qa:${blocker}`);
+}
+
+function buildIwerVisualQaEvidence(
+  evidence: IwerSidecarEmulationEvidence,
+  screenshotProbe: IwerEvidenceProbe | undefined,
+): VisualQaEvidence {
+  const notes = evidence.adversarialVisualQa?.notes ?? [];
+  const evidenceLimitNotes = [
+    ...notes,
+    "IWER managed-browser evidence is not physical Quest, not immersive headset, and not production runtime readiness proof.",
+  ];
+
+  return {
+    schemaVersion: "openclinxr.visual-qa-evidence.v1",
+    capture: {
+      source: "iwer_emulation",
+      artifactType: "screenshot",
+      artifact: evidence.adversarialVisualQa?.artifact ?? screenshotProbe?.artifact,
+      mimeType: screenshotProbe?.mimeType,
+      dimensions: screenshotProbe?.dimensions,
+      runtimeUrl: evidence.sidecar?.runtimeUrl,
+      route: "/",
+      scenarioId: "ed_chest_pain_priority_v1",
+      xrMode: evidence.adversarialVisualQa?.xrMode,
+      captureCommand: "pnpm iwsdk:iwer:evidence",
+    },
+    adversarialReview: {
+      reviewers: [
+        "test-automation-lead",
+        "ux-friction-critic",
+        "clinical-safety-critic",
+        "xr-systems-architect",
+        "asset-pipeline-lead",
+      ],
+      checks: {
+        clinical_scene_fidelity: { status: "concern", notes },
+        actor_equipment_realism: { status: "concern", notes },
+        ui_readability: { status: "concern", notes },
+        interaction_affordances: { status: "concern", notes },
+        occlusion_scale: { status: "concern", notes },
+        evidence_limits: { status: "pass", notes: evidenceLimitNotes },
+      },
+    },
+    claimBoundaries: {
+      notEvidenceFor: [
+        "physical_quest_foreground_frame_pacing",
+        "quest_controller_latency",
+        "quest_hand_tracking_quality",
+        "in_headset_text_readability",
+        "thermal_or_battery_behavior",
+        "production_runtime_readiness",
+      ],
+      allowedClaims: ["adversarial_visual_iteration_artifact"],
+    },
   };
 }
 

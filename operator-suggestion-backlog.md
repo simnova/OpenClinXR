@@ -21,7 +21,7 @@ This file captures useful operator steering that should shape future work but do
 
 ### SUG-2026-05-04-001: Browser Screenshot/Video Adversarial Visual QA
 
-- Status: `accepted-for-review`
+- Status: `promoted-to-slice`
 - Captured at: 2026-05-04 19:53 EDT
 - Operator steering: Use browser screenshots and videos, then apply multimodal review from an adversarial perspective to determine whether the XR/VR scene accurately depicts the intended scenario, especially as realistic actors and equipment are added.
 - Primary owners: `test-automation-lead`, `ux-friction-critic`, `clinical-safety-critic`, `xr-systems-architect`, `asset-pipeline-lead`
@@ -31,7 +31,7 @@ This file captures useful operator steering that should shape future work but do
   - Store evidence metadata with viewport/device, route, scenario ID, camera pose, XR mode, capture command, and artifact path.
   - Require adversarial notes on clinical scene fidelity, actor/equipment realism, UI readability, interaction affordances, locomotion/comfort cues, occlusion, scale, and missing critical equipment.
   - Keep human worn-headset observations separate from automated browser or emulation evidence.
-- Current posture: backlog only. No new browser automation, capture storage, or video tooling is authorized by this entry alone.
+- Current posture: first evidence checker slice implemented. `pnpm visual:qa:evidence:validate` scores `docs/openclinxr/visual-qa-evidence-2026-05-04.json`, which wraps the captured IWER screenshot as adversarial visual iteration evidence only. This does not authorize new package installs, video tooling, or physical Quest readiness claims.
 
 ### SUG-2026-05-04-002: Steering Suggestions Are Backlog By Default
 

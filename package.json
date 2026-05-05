@@ -48,6 +48,8 @@
     "iwsdk:iwer:evidence": "tsx tools/openclinxr/iwer-sidecar-emulation-evidence-check.ts",
     "iwer:sidecar:evidence": "tsx tools/openclinxr/iwer-sidecar-emulation-evidence-check.ts --input docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json",
     "iwer:sidecar:evidence:validate": "tsx tools/openclinxr/iwer-sidecar-emulation-evidence-check.ts --input docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json",
+    "visual:qa:evidence": "tsx tools/openclinxr/visual-qa-evidence-check.ts",
+    "visual:qa:evidence:validate": "tsx tools/openclinxr/visual-qa-evidence-check.ts --input docs/openclinxr/visual-qa-evidence-2026-05-04.json",
     "iwsdk:sidecar:metrics": "tsx tools/openclinxr/iwsdk-sidecar-metrics-check.ts",
     "iwsdk:evidence": "tsx tools/openclinxr/iwsdk-evidence-contract-check.ts",
     "iwsdk:evidence:validate": "tsx tools/openclinxr/iwsdk-evidence-contract-check.ts --validate-latest",
