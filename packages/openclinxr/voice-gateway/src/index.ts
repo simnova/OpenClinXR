@@ -27,6 +27,37 @@ export type RealtimeVoiceProtocolSelection = {
   }>;
 };
 
+export const realtimeVoiceProtocol = {
+  websocketPath: "/voice/realtime/ws",
+  codec: "opus",
+  sampleRateHz: 48_000,
+  backendProtocol: "python-fastapi-compatible-websocket",
+  clientControlFrames: {
+    start: "voice.start",
+    stop: "voice.stop",
+    audioMetadata: "voice.audio_metadata",
+  },
+  serverEvents: {
+    backendReady: "backend.ready",
+    backendError: "backend.error",
+    voiceStarted: "voice.started",
+    voiceStopped: "voice.stopped",
+    audioChunk: "audio.chunk",
+    transcriptPartial: "transcript.partial",
+    transcriptFinal: "transcript.final",
+  },
+  latencyFields: {
+    clientSentAtMs: "clientSentAtMs",
+    backendObservedAtMs: "backendObservedAtMs",
+  },
+} as const;
+
+export type RealtimeVoiceClientControlFrameType =
+  (typeof realtimeVoiceProtocol.clientControlFrames)[keyof typeof realtimeVoiceProtocol.clientControlFrames];
+
+export type RealtimeVoiceServerEventType =
+  (typeof realtimeVoiceProtocol.serverEvents)[keyof typeof realtimeVoiceProtocol.serverEvents];
+
 export type RealtimeVoiceGatewayPosture = {
   policy: {
     cloudApisUsed: false;
@@ -176,8 +207,8 @@ export function createRealtimeVoiceGatewayPosture(input: RealtimeVoiceGatewayPos
     transports: {
       websocket: {
         status: "working_spike_transport",
-        path: "/voice/realtime/ws",
-        codec: "opus",
+        path: realtimeVoiceProtocol.websocketPath,
+        codec: realtimeVoiceProtocol.codec,
       },
       webTransport: {
         status: "blocked_pending_runtime_support",
@@ -199,7 +230,7 @@ export function createRealtimeVoiceGatewayPosture(input: RealtimeVoiceGatewayPos
     backends: {
       pythonFastApi: {
         status: input.pythonBackendDependenciesInstalled ? "available_for_local_run" : "source_present_not_executed",
-        websocketPath: "/voice/realtime/ws",
+        websocketPath: realtimeVoiceProtocol.websocketPath,
         blockers: [
           ...(input.pythonBackendDependenciesInstalled ? [] : ["fastapi_uvicorn_websockets_not_installed"]),
           ...(input.pythonInferenceRuntimeInstalled ? [] : ["mlx_moshi_or_qwen3_tts_not_installed"]),

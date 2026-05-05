@@ -1,7 +1,7 @@
 import { Buffer } from "node:buffer";
 import { createServer, type IncomingMessage, type Server as NodeHttpServer, type ServerResponse } from "node:http";
 import { performance } from "node:perf_hooks";
-import { createRealtimeVoiceGatewayPosture } from "@openclinxr/voice-gateway";
+import { createRealtimeVoiceGatewayPosture, realtimeVoiceProtocol } from "@openclinxr/voice-gateway";
 import { Hono } from "hono";
 import WebSocket, { WebSocketServer, type RawData } from "ws";
 
@@ -48,7 +48,7 @@ type RealtimeGatewayOptions = {
   backendUrl: string;
 };
 
-const realtimeVoicePath = "/voice/realtime/ws";
+const realtimeVoicePath = realtimeVoiceProtocol.websocketPath;
 
 export async function startPythonCompatibleVoiceBackendFixture(options: BackendFixtureOptions): Promise<StoppableServer> {
   const delayMs = options.artificialDelayMs ?? 0;
@@ -67,15 +67,18 @@ export async function startPythonCompatibleVoiceBackendFixture(options: BackendF
 
   websocketServer.on("connection", (socket) => {
     const pendingAudioMetadata = new Map<number, { clientSentAtMs: number }>();
-    sendJson(socket, { type: "backend.ready", backendProtocol: "python-fastapi-compatible-websocket" });
+    sendJson(socket, {
+      type: realtimeVoiceProtocol.serverEvents.backendReady,
+      backendProtocol: realtimeVoiceProtocol.backendProtocol,
+    });
 
     socket.on("message", async (data, isBinary) => {
       await delay(delayMs);
       if (isBinary) {
         const chunk = toBuffer(data);
         sendJson(socket, {
-          type: "audio.chunk",
-          codec: "opus",
+          type: realtimeVoiceProtocol.serverEvents.audioChunk,
+          codec: realtimeVoiceProtocol.codec,
           chunkIndex,
           byteLength: chunk.byteLength,
           clientSentAtMs: pendingAudioMetadata.get(chunkIndex)?.clientSentAtMs ?? null,
@@ -88,28 +91,31 @@ export async function startPythonCompatibleVoiceBackendFixture(options: BackendF
       }
 
       const message = parseJsonFrame(data);
-      if (message?.type === "voice.audio_metadata" && typeof message.chunkIndex === "number") {
+      if (message?.type === realtimeVoiceProtocol.clientControlFrames.audioMetadata && typeof message.chunkIndex === "number") {
         pendingAudioMetadata.set(message.chunkIndex, {
           clientSentAtMs: typeof message.clientSentAtMs === "number" ? message.clientSentAtMs : performance.now(),
         });
         return;
       }
-      if (message?.type === "voice.start") {
-        sendJson(socket, { type: "voice.started", codec: "opus" });
+      if (message?.type === realtimeVoiceProtocol.clientControlFrames.start) {
         sendJson(socket, {
-          type: "transcript.partial",
+          type: realtimeVoiceProtocol.serverEvents.voiceStarted,
+          codec: realtimeVoiceProtocol.codec,
+        });
+        sendJson(socket, {
+          type: realtimeVoiceProtocol.serverEvents.transcriptPartial,
           text: "simulated local transcript",
           confidence: 0.88,
         });
         sendJson(socket, {
-          type: "transcript.final",
+          type: realtimeVoiceProtocol.serverEvents.transcriptFinal,
           text: "simulated local transcript",
           confidence: 0.96,
         });
         return;
       }
-      if (message?.type === "voice.stop") {
-        sendJson(socket, { type: "voice.stopped" });
+      if (message?.type === realtimeVoiceProtocol.clientControlFrames.stop) {
+        sendJson(socket, { type: realtimeVoiceProtocol.serverEvents.voiceStopped });
       }
     });
   });
@@ -166,7 +172,7 @@ export async function startRealtimeVoiceGatewayServer(options: RealtimeGatewayOp
     });
     backendSocket.on("error", (error) => {
       sendJson(clientSocket, {
-        type: "backend.error",
+        type: realtimeVoiceProtocol.serverEvents.backendError,
         message: error.message,
       });
     });
@@ -225,23 +231,23 @@ export async function runRealtimeVoiceProxyHarness(input: RealtimeVoiceProxyHarn
 
     socket.on("open", () => {
       sendJson(socket, {
-        type: "voice.start",
+        type: realtimeVoiceProtocol.clientControlFrames.start,
         sessionId: "voice-spike-session-001",
-        codec: "opus",
-        sampleRateHz: 48_000,
+        codec: realtimeVoiceProtocol.codec,
+        sampleRateHz: realtimeVoiceProtocol.sampleRateHz,
         targetBackend: "moshi-mlx",
       });
       input.audioChunks.forEach((chunk, chunkIndex) => {
         sendJson(socket, {
-          type: "voice.audio_metadata",
+          type: realtimeVoiceProtocol.clientControlFrames.audioMetadata,
           chunkIndex,
           byteLength: chunk.byteLength,
-          codec: "opus",
+          codec: realtimeVoiceProtocol.codec,
           clientSentAtMs: Number(performance.now().toFixed(2)),
         });
         socket.send(chunk, { binary: true });
       });
-      sendJson(socket, { type: "voice.stop" });
+      sendJson(socket, { type: realtimeVoiceProtocol.clientControlFrames.stop });
     });
     socket.on("message", (data, isBinary) => {
       if (isBinary) {
@@ -254,10 +260,13 @@ export async function runRealtimeVoiceProxyHarness(input: RealtimeVoiceProxyHarn
         return;
       }
       eventTypes.push(message.type);
-      if (message.type.startsWith("transcript.")) {
+      if (
+        message.type === realtimeVoiceProtocol.serverEvents.transcriptPartial
+        || message.type === realtimeVoiceProtocol.serverEvents.transcriptFinal
+      ) {
         transcriptEventsReceived += 1;
       }
-      if (message.type === "audio.chunk") {
+      if (message.type === realtimeVoiceProtocol.serverEvents.audioChunk) {
         audioChunkMetadataReceived += 1;
         if (typeof message.chunkIndex === "number") {
           audioChunkIndexesReceived.push(message.chunkIndex);
@@ -267,7 +276,7 @@ export async function runRealtimeVoiceProxyHarness(input: RealtimeVoiceProxyHarn
         }
       }
       if (
-        message.type === "voice.stopped"
+        message.type === realtimeVoiceProtocol.serverEvents.voiceStopped
         && binaryAudioChunksReceived >= input.audioChunks.length
         && audioChunkMetadataReceived >= input.audioChunks.length
       ) {
@@ -282,8 +291,8 @@ export async function runRealtimeVoiceProxyHarness(input: RealtimeVoiceProxyHarn
           transcriptEventsReceived,
           audioChunkMetadataReceived,
           binaryAudioChunksReceived,
-          backendProtocol: "python-fastapi-compatible-websocket",
-          codec: "opus",
+          backendProtocol: realtimeVoiceProtocol.backendProtocol,
+          codec: realtimeVoiceProtocol.codec,
           roundTripLatencyMs,
           frameLatencySamplesMs,
           audioChunkIndexesReceived,

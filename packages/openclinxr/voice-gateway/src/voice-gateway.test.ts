@@ -5,10 +5,38 @@ import {
   createRealtimeVoiceGatewayPosture,
   LocalVoiceProviderAdapter,
   MockVoiceProviderAdapter,
+  realtimeVoiceProtocol,
   selectRealtimeVoiceProtocol,
 } from "./index.js";
 
 describe("voice gateway", () => {
+  it("exports a canonical realtime voice frame taxonomy for gateway, Python, and Godot clients", () => {
+    expect(realtimeVoiceProtocol).toEqual({
+      websocketPath: "/voice/realtime/ws",
+      codec: "opus",
+      sampleRateHz: 48_000,
+      backendProtocol: "python-fastapi-compatible-websocket",
+      clientControlFrames: {
+        start: "voice.start",
+        stop: "voice.stop",
+        audioMetadata: "voice.audio_metadata",
+      },
+      serverEvents: {
+        backendReady: "backend.ready",
+        backendError: "backend.error",
+        voiceStarted: "voice.started",
+        voiceStopped: "voice.stopped",
+        audioChunk: "audio.chunk",
+        transcriptPartial: "transcript.partial",
+        transcriptFinal: "transcript.final",
+      },
+      latencyFields: {
+        clientSentAtMs: "clientSentAtMs",
+        backendObservedAtMs: "backendObservedAtMs",
+      },
+    });
+  });
+
   it("owns realtime gateway posture separately from the mock server harness", () => {
     const posture = createRealtimeVoiceGatewayPosture({
       bunAvailable: false,

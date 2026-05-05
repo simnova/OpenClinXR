@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
+import { realtimeVoiceProtocol } from "@openclinxr/voice-gateway";
 import {
   createRealtimeVoiceGatewayPosture,
   runRealtimeVoiceProxyHarness,
@@ -75,13 +76,15 @@ describe("realtime voice gateway spike", () => {
       expect(latencyMs).toBeLessThan(1_000);
     }
     expect(result.audioChunkIndexesReceived).toEqual([0, 1]);
-    expect(result.receivedEventTypes).toEqual(expect.arrayContaining([
-      "backend.ready",
-      "voice.started",
-      "transcript.partial",
-      "audio.chunk",
-      "voice.stopped",
-    ]));
+    expect(result.receivedEventTypes).toEqual([
+      realtimeVoiceProtocol.serverEvents.backendReady,
+      realtimeVoiceProtocol.serverEvents.voiceStarted,
+      realtimeVoiceProtocol.serverEvents.transcriptPartial,
+      realtimeVoiceProtocol.serverEvents.transcriptFinal,
+      realtimeVoiceProtocol.serverEvents.audioChunk,
+      realtimeVoiceProtocol.serverEvents.audioChunk,
+      realtimeVoiceProtocol.serverEvents.voiceStopped,
+    ]);
   });
 
   it("serves Hono HTTP posture routes alongside the websocket upgrade path", async () => {

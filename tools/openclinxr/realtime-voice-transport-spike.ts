@@ -9,6 +9,7 @@ import {
   startRealtimeVoiceGatewayServer,
 } from "../../apps/mock-realtime-voice-server/src/index.js";
 import { createOpenClinXrApiProtocolPosture, type OpenClinXrApiProtocolPosture } from "../../apps/api/src/index.js";
+import { realtimeVoiceProtocol } from "../../packages/openclinxr/voice-gateway/src/index.js";
 import { readJson, writeJson } from "../agent-factory/lib.js";
 
 const execFileAsync = promisify(execFile);
@@ -275,8 +276,17 @@ function buildQuestClientSourceContract(input: {
   const dependencyFreeSidecar = !existsSync(join(process.cwd(), appPath, "package.json"));
   const websocketPeerObserved = client.includes("WebSocketPeer.new()")
     && client.includes("connect_to_url")
-    && client.includes("/voice/realtime/ws");
-  const audioMetadataObserved = client.includes('"type": "voice.audio_metadata"')
+    && client.includes(realtimeVoiceProtocol.websocketPath);
+  const canonicalFrameConstantsObserved = client.includes(`const FRAME_VOICE_START := "${realtimeVoiceProtocol.clientControlFrames.start}"`)
+    && client.includes(`const FRAME_VOICE_STOP := "${realtimeVoiceProtocol.clientControlFrames.stop}"`)
+    && client.includes(`const FRAME_AUDIO_METADATA := "${realtimeVoiceProtocol.clientControlFrames.audioMetadata}"`)
+    && client.includes(`"${realtimeVoiceProtocol.serverEvents.backendReady}"`)
+    && client.includes(`"${realtimeVoiceProtocol.serverEvents.voiceStarted}"`)
+    && client.includes(`"${realtimeVoiceProtocol.serverEvents.audioChunk}"`)
+    && client.includes(`"${realtimeVoiceProtocol.serverEvents.transcriptPartial}"`)
+    && client.includes(`"${realtimeVoiceProtocol.serverEvents.transcriptFinal}"`);
+  const audioMetadataObserved = canonicalFrameConstantsObserved
+    && client.includes('"type": FRAME_AUDIO_METADATA')
     && client.includes('"chunkIndex": next_chunk_index')
     && client.includes('"clientSentAtMs": Time.get_ticks_msec()');
   const opaqueBinaryPacketProbeObserved = client.includes("socket.put_packet(packet)")
@@ -286,6 +296,7 @@ function buildQuestClientSourceContract(input: {
     && project.includes('run/main_scene="res://scenes/realtime_voice_spike.tscn"')
     && dependencyFreeSidecar
     && websocketPeerObserved
+    && canonicalFrameConstantsObserved
     && audioMetadataObserved
     && opaqueBinaryPacketProbeObserved
     && !productionAudioClaims;

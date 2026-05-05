@@ -9,6 +9,10 @@ const VOICE_GATEWAY_URL := "ws://127.0.0.1:3000/voice/realtime/ws"
 const CODEC := "opus"
 const SAMPLE_RATE_HZ := 48000
 const CLIENT_TARGET := "quest3-godot"
+const FRAME_VOICE_START := "voice.start"
+const FRAME_VOICE_STOP := "voice.stop"
+const FRAME_AUDIO_METADATA := "voice.audio_metadata"
+const EXPECTED_GATEWAY_EVENTS := ["backend.ready", "backend.error", "voice.started", "voice.stopped", "audio.chunk", "transcript.partial", "transcript.final"]
 
 var gateway_url := VOICE_GATEWAY_URL
 var socket := WebSocketPeer.new()
@@ -36,21 +40,21 @@ func _process(_delta: float) -> void:
 func start_session() -> void:
 	next_chunk_index = 0
 	_send_json({
-		"type": "voice.start",
+		"type": FRAME_VOICE_START,
 		"codec": CODEC,
 		"sampleRateHz": SAMPLE_RATE_HZ,
 		"client": CLIENT_TARGET,
 	})
 
 func stop_session() -> void:
-	_send_json({ "type": "voice.stop", "client": CLIENT_TARGET })
+	_send_json({ "type": FRAME_VOICE_STOP, "client": CLIENT_TARGET })
 	socket.close()
 	_set_status("closed")
 
 func send_encoded_audio_packet(packet: PackedByteArray) -> void:
 	if socket.get_ready_state() == WebSocketPeer.STATE_OPEN:
 		_send_json({
-			"type": "voice.audio_metadata",
+			"type": FRAME_AUDIO_METADATA,
 			"chunkIndex": next_chunk_index,
 			"byteLength": packet.size(),
 			"codec": CODEC,
@@ -73,7 +77,9 @@ func _send_json(payload: Dictionary) -> void:
 func _handle_json_packet(text: String) -> void:
 	var parsed = JSON.parse_string(text)
 	if typeof(parsed) == TYPE_DICTIONARY:
-		gateway_event.emit(parsed)
+		var event_type := str(parsed.get("type", ""))
+		if event_type == "" or EXPECTED_GATEWAY_EVENTS.has(event_type):
+			gateway_event.emit(parsed)
 
 func _update_connection_status() -> void:
 	var state := socket.get_ready_state()

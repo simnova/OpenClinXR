@@ -26,9 +26,13 @@ describe("Godot Quest voice client contract", () => {
     expect(client).toContain("/voice/realtime/ws");
     expect(client).toContain('const CODEC := "opus"');
     expect(client).toContain("const SAMPLE_RATE_HZ := 48000");
-    expect(client).toContain('"type": "voice.start"');
-    expect(client).toContain('"type": "voice.stop"');
-    expect(client).toContain('"type": "voice.audio_metadata"');
+    expect(client).toContain('const FRAME_VOICE_START := "voice.start"');
+    expect(client).toContain('const FRAME_VOICE_STOP := "voice.stop"');
+    expect(client).toContain('const FRAME_AUDIO_METADATA := "voice.audio_metadata"');
+    expect(client).toContain('const EXPECTED_GATEWAY_EVENTS := ["backend.ready", "backend.error", "voice.started", "voice.stopped", "audio.chunk", "transcript.partial", "transcript.final"]');
+    expect(client).toContain('"type": FRAME_VOICE_START');
+    expect(client).toContain('"type": FRAME_VOICE_STOP');
+    expect(client).toContain('"type": FRAME_AUDIO_METADATA');
     expect(client).toContain('"chunkIndex": next_chunk_index');
     expect(client).toContain('"clientSentAtMs": Time.get_ticks_msec()');
     expect(client).toContain("socket.send_text(JSON.stringify(payload))");
