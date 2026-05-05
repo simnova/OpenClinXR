@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { readFile } from "node:fs/promises";
 import {
   buildApiBunWebSocketRuntimeSmokeReport,
   type ApiBunWebSocketRuntimeSmokeObservation,
@@ -64,6 +65,16 @@ const baseObservation = {
 } satisfies ApiBunWebSocketRuntimeSmokeObservation;
 
 describe("API Bun WebSocket runtime smoke report", () => {
+  it("keeps the package script on tsx so the smoke can resolve user-local Bun installs", async () => {
+    const packageJson = JSON.parse(await readFile("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+
+    expect(packageJson.scripts["local:voice:bun-websocket-smoke"]).toBe(
+      "tsx tools/openclinxr/api-bun-websocket-runtime-smoke.ts",
+    );
+  });
+
   it("passes a local Bun websocket smoke while preserving non-Quest claim boundaries", () => {
     const report = buildApiBunWebSocketRuntimeSmokeReport(baseObservation);
 
