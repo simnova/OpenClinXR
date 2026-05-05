@@ -686,6 +686,7 @@ describe("benchmark gate report", () => {
     expect(gatesById.get("evidence-leadership-0008-001")).toEqual(expect.objectContaining({
       ready_to_resolve: false,
       blockers: expect.arrayContaining([
+        "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
         "quest_immersive_entry_activation_not_received",
         "quest_immersive_session_not_started",
         "quest_manual_performance:duration_under_10_minutes",
@@ -697,7 +698,6 @@ describe("benchmark gate report", () => {
         "immersive_session_started",
         "quest_cdp_frame_sample_complete",
         "quest_page_visible",
-        "quest_foreground_preflight_ready",
       ]),
     }));
     expect(gatesById.get("evidence-leadership-0008-002")).toEqual(expect.objectContaining({

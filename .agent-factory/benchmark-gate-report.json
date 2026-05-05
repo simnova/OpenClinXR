@@ -5,16 +5,16 @@
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T18:13:48.812Z",
-      "age_hours": 18,
+      "age_hours": 21,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
     },
     {
       "evidence_id": "local_runtime_probe",
-      "file": "docs/openclinxr/local-runtime-probe-2026-05-04.json",
-      "generated_at": "2026-05-04T15:16:18.712Z",
-      "age_hours": 21,
+      "file": "docs/openclinxr/local-runtime-probe-2026-05-05.json",
+      "generated_at": "2026-05-05T15:35:24.102Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -23,7 +23,7 @@
       "evidence_id": "gltf_pipeline_smoke",
       "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
       "generated_at": "2026-05-04T23:49:36.820Z",
-      "age_hours": 13,
+      "age_hours": 15,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -32,7 +32,7 @@
       "evidence_id": "blender_asset_bake_smoke",
       "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T11:02:14.867Z",
-      "age_hours": 2,
+      "age_hours": 4,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -41,7 +41,7 @@
       "evidence_id": "asset_capability_job_evidence",
       "file": "docs/openclinxr/asset-capability-job-evidence-2026-05-04.json",
       "generated_at": "2026-05-04T21:21:14.173Z",
-      "age_hours": 15,
+      "age_hours": 18,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -50,7 +50,7 @@
       "evidence_id": "asset_production_readiness_benchmark",
       "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T21:11:11.999Z",
-      "age_hours": 16,
+      "age_hours": 18,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -59,7 +59,7 @@
       "evidence_id": "local_provider_benchmark",
       "file": "docs/openclinxr/local-provider-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T14:53:24.787Z",
-      "age_hours": 22,
+      "age_hours": 24,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -68,7 +68,7 @@
       "evidence_id": "local_model_runtime_benchmark",
       "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T14:57:50Z",
-      "age_hours": 22,
+      "age_hours": 24,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -77,7 +77,7 @@
       "evidence_id": "local_model_quality_benchmark",
       "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T21:16:55.867Z",
-      "age_hours": 15,
+      "age_hours": 18,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -86,7 +86,7 @@
       "evidence_id": "local_voice_runtime_benchmark",
       "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T15:01:12Z",
-      "age_hours": 22,
+      "age_hours": 24,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -95,7 +95,7 @@
       "evidence_id": "local_voice_live_dialog_benchmark",
       "file": "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T20:47:52.004Z",
-      "age_hours": 16,
+      "age_hours": 18,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -104,7 +104,7 @@
       "evidence_id": "realtime_voice_transport_spike",
       "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json",
       "generated_at": "2026-05-05T01:28:44.751Z",
-      "age_hours": 11,
+      "age_hours": 14,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -121,7 +121,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-05T13:13:09.934Z",
+      "generated_at": "2026-05-05T15:35:31.945Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -159,16 +159,24 @@
     ]
   },
   "local_runtime_probe": {
-    "file": "docs/openclinxr/local-runtime-probe-2026-05-04.json",
-    "generated_at": "2026-05-04T15:16:18.712Z",
+    "file": "docs/openclinxr/local-runtime-probe-2026-05-05.json",
+    "generated_at": "2026-05-05T15:35:24.102Z",
     "gates": {
       "questUsb": {
         "status": "ready",
         "blockers": []
       },
       "questForegroundPreflight": {
-        "status": "ready",
-        "blockers": []
+        "status": "blocked",
+        "blockers": [
+          "quest_3_asleep_or_not_foreground_ready"
+        ]
+      },
+      "apiBunRuntime": {
+        "status": "not_configured",
+        "blockers": [
+          "bun_runtime_not_installed_on_this_machine"
+        ]
       },
       "localModel": {
         "status": "blocked",
@@ -1121,7 +1129,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-05T13:13:09.934Z",
+    "generated_at": "2026-05-05T15:35:31.945Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -1341,7 +1349,6 @@
         "quest_cdp_frame_sample_complete",
         "quest_cdp_generated_at_valid",
         "quest_cdp_user_agent_recorded",
-        "quest_foreground_preflight_ready",
         "quest_frame_stats_present",
         "quest_frames_advanced_during_probe",
         "quest_latest_frame_fresh",
@@ -1352,6 +1359,7 @@
         "text_readability_confirmed"
       ],
       "blockers": [
+        "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
         "quest_frame_quality_evidence_missing",
         "quest_immersive_entry_activation_not_received",
         "quest_immersive_session_not_started",
@@ -1376,7 +1384,7 @@
         "quest_text_panel_metadata_missing"
       ],
       "blocker_summary": {
-        "total_blockers": 22,
+        "total_blockers": 23,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -1384,6 +1392,7 @@
             "title": "Foreground Quest frame pacing evidence",
             "owner": "xr-systems-architect",
             "blockers": [
+              "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
               "quest_frame_quality_evidence_missing",
               "quest_immersive_entry_activation_not_received",
               "quest_immersive_session_not_started",
@@ -1433,7 +1442,6 @@
         "quest_cdp_frame_sample_complete",
         "quest_cdp_generated_at_valid",
         "quest_cdp_user_agent_recorded",
-        "quest_foreground_preflight_ready",
         "quest_frame_stats_present",
         "quest_frames_advanced_during_probe",
         "quest_latest_frame_fresh",
@@ -1444,6 +1452,7 @@
         "text_readability_confirmed"
       ],
       "blockers": [
+        "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
         "quest_frame_quality_evidence_missing",
         "quest_immersive_entry_activation_not_received",
         "quest_immersive_session_not_started",
@@ -1468,7 +1477,7 @@
         "quest_text_panel_metadata_missing"
       ],
       "blocker_summary": {
-        "total_blockers": 22,
+        "total_blockers": 23,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -1476,6 +1485,7 @@
             "title": "Foreground Quest frame pacing evidence",
             "owner": "xr-systems-architect",
             "blockers": [
+              "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
               "quest_frame_quality_evidence_missing",
               "quest_immersive_entry_activation_not_received",
               "quest_immersive_session_not_started",
