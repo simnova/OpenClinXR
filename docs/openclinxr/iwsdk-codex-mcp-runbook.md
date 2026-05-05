@@ -131,9 +131,12 @@ Score screenshot-based adversarial visual QA evidence separately with:
 ```bash
 pnpm visual:qa:evidence:validate
 pnpm visual:qa:evidence -- --input docs/openclinxr/visual-qa-evidence-iwer-auto-entry-2026-05-04.json
+pnpm visual:qa:adversarial:validate
+pnpm visual:qa:adversarial -- --input docs/openclinxr/adversarial-visual-qa-evidence-iwer-sidecar-2026-05-04.json
 ```
 
 The current default visual QA fixture is `docs/openclinxr/visual-qa-evidence-2026-05-04.json`. The auto-entry screenshot has its own visual QA artifact at `docs/openclinxr/visual-qa-evidence-iwer-auto-entry-2026-05-04.json`. These artifacts wrap IWER managed-browser screenshots as adversarial iteration inputs and require clinical-scene, actor/equipment, readability, interaction-affordance, occlusion/scale, and evidence-limit notes. A passing visual QA report still has `readyForProductionRuntime: false` and `readyForPhysicalQuestClaim: false`.
+The standalone adversarial contract fixture is `docs/openclinxr/adversarial-visual-qa-evidence-iwer-sidecar-2026-05-04.json`; use it when a screenshot or video artifact needs the lighter media-level claim-boundary check without the full reviewer checklist.
 
 The checker exits nonzero until the aggregate evidence is ready, but it does not install IWSDK, modify MCP config, or touch the sidecar app.
 

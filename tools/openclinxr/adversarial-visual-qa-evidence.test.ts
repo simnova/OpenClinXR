@@ -1,8 +1,17 @@
+import { execFile } from "node:child_process";
+import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
 import {
+  buildAdversarialVisualQaEvidenceReport,
   evaluateAdversarialVisualQaEvidence,
   type AdversarialVisualQaEvidence,
+  type AdversarialVisualQaEvidenceReport,
 } from "./adversarial-visual-qa-evidence.js";
+
+const execFileAsync = promisify(execFile);
 
 describe("adversarial visual QA evidence evaluator", () => {
   it("accepts the current IWER screenshot as adversarial visual QA support only", () => {
@@ -124,6 +133,72 @@ describe("adversarial visual QA evidence evaluator", () => {
       "missing_limit_note:not_quest_or_headset",
       "missing_limit_note:manual_headset_required",
     ]));
+  });
+
+  it("builds a timestamped report around the adversarial evidence contract", () => {
+    const report = buildAdversarialVisualQaEvidenceReport({
+      generatedAt: "2026-05-05T00:00:00.000Z",
+      inputFile: "docs/openclinxr/adversarial-visual-qa-evidence-iwer-sidecar-2026-05-04.json",
+      evidence: readyEvidence(),
+    });
+
+    expect(report).toEqual({
+      generatedAt: "2026-05-05T00:00:00.000Z",
+      inputFile: "docs/openclinxr/adversarial-visual-qa-evidence-iwer-sidecar-2026-05-04.json",
+      evidence: readyEvidence(),
+      result: {
+        readyForAdversarialVisualQaSupport: true,
+        readyForProductionRuntime: false,
+        readyForPhysicalQuestClaim: false,
+        blockers: [],
+      },
+    });
+  });
+
+  it("exposes a CLI and package scripts for adversarial visual QA evidence JSON", async () => {
+    const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+    expect(rootPackage.scripts["visual:qa:adversarial"]).toBe(
+      "tsx tools/openclinxr/adversarial-visual-qa-evidence.ts",
+    );
+    expect(rootPackage.scripts["visual:qa:adversarial:validate"]).toBe(
+      "tsx tools/openclinxr/adversarial-visual-qa-evidence.ts --input docs/openclinxr/adversarial-visual-qa-evidence-iwer-sidecar-2026-05-04.json",
+    );
+
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-adversarial-visual-qa-"));
+    const inputPath = path.join(tempDir, "adversarial-visual-qa.json");
+    const outputPath = path.join(tempDir, "adversarial-visual-qa-report.json");
+    await writeFile(inputPath, `${JSON.stringify(readyEvidence(), null, 2)}\n`, "utf8");
+
+    const { stdout } = await execFileAsync(
+      path.resolve("node_modules/.bin/tsx"),
+      ["tools/openclinxr/adversarial-visual-qa-evidence.ts", "--input", inputPath, "--output", outputPath],
+      { encoding: "utf8", timeout: 15000 },
+    );
+    const report = JSON.parse(await readFile(outputPath, "utf8")) as AdversarialVisualQaEvidenceReport;
+
+    expect(stdout).toContain(`Wrote ${outputPath}`);
+    expect(report.inputFile).toBe(inputPath);
+    expect(report.result.readyForAdversarialVisualQaSupport).toBe(true);
+    expect(report.result.readyForProductionRuntime).toBe(false);
+    expect(report.result.readyForPhysicalQuestClaim).toBe(false);
+  });
+
+  it("accepts pnpm-style argument separators before input flags", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-adversarial-visual-qa-pnpm-args-"));
+    const inputPath = path.join(tempDir, "adversarial-visual-qa.json");
+    await writeFile(inputPath, `${JSON.stringify(readyEvidence(), null, 2)}\n`, "utf8");
+
+    const { stdout } = await execFileAsync(
+      path.resolve("node_modules/.bin/tsx"),
+      ["tools/openclinxr/adversarial-visual-qa-evidence.ts", "--", "--input", inputPath],
+      { encoding: "utf8", timeout: 15000 },
+    );
+    const report = JSON.parse(stdout) as AdversarialVisualQaEvidenceReport;
+
+    expect(report.inputFile).toBe(inputPath);
+    expect(report.result.readyForAdversarialVisualQaSupport).toBe(true);
   });
 });
 

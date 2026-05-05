@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "openclinxr.adversarial-visual-qa-evidence.v1",
+  "media": [
+    {
+      "source": "iwer_emulation",
+      "artifactType": "screenshot",
+      "artifact": "docs/openclinxr/screenshots/iwer-sidecar-agent-browser-2026-05-04.png",
+      "mimeType": "image/png",
+      "bytes": 39536,
+      "dimensions": {
+        "width": 500,
+        "height": 500
+      },
+      "runtimeUrl": "http://127.0.0.1:5183/",
+      "route": "/",
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "xrMode": "desktop_managed_browser_not_immersive_session",
+      "captureCommand": "pnpm iwsdk:iwer:evidence"
+    }
+  ],
+  "notes": [
+    "This is IWER emulation only for adversarial visual iteration.",
+    "This is not physical Quest, not a headset readability pass, and not production readiness proof.",
+    "Manual headset validation is required before physical Quest readiness claims."
+  ],
+  "notEvidenceFor": [
+    "physical_quest_foreground_frame_pacing",
+    "quest_controller_latency",
+    "quest_hand_tracking_quality",
+    "in_headset_text_readability",
+    "thermal_or_battery_behavior",
+    "production_runtime_readiness"
+  ],
+  "allowedClaims": [
+    "adversarial_visual_iteration_artifact"
+  ]
+}
