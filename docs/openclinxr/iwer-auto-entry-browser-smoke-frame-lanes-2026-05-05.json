@@ -1,0 +1,264 @@
+{
+  "schemaVersion": "openclinxr.iwer-auto-entry-browser-smoke.v1",
+  "generatedAt": "2026-05-05T14:56:28Z",
+  "classification": {
+    "lane": "iwer_devtools_managed_browser_auto_entry",
+    "scope": "sidecar_only_dev_evidence",
+    "notEvidenceFor": [
+      "physical_quest_immersive_entry",
+      "physical_quest_foreground_frame_pacing",
+      "quest_controller_latency",
+      "quest_hand_tracking_quality",
+      "in_headset_text_readability",
+      "thermal_or_battery_behavior",
+      "production_runtime_readiness"
+    ]
+  },
+  "sidecar": {
+    "app": "apps/ui-xr-iwsdk-spike",
+    "runtimeUrl": "http://127.0.0.1:5183/?iwerAutoEnterVr=true&iwerEvidenceView=wide&captureRevision=frame-lanes-20260505",
+    "devServerPort": 5183,
+    "devCommand": "PORT=5183 pnpm --filter @openclinxr/ui-xr-iwsdk-spike dev:portless",
+    "queryFlag": "iwerAutoEnterVr=true"
+  },
+  "sessionEntryEvidence": {
+    "sessionMode": "immersive-vr",
+    "requestedBy": "iwer_auto_entry_probe",
+    "autoAttemptEnabled": true,
+    "outcome": "session_started",
+    "appEvidence": {
+      "attempts": 1,
+      "lastStatus": "started",
+      "lastOutcome": "session_started",
+      "lastRequestedAtMs": 555.5,
+      "lastUpdatedAtMs": 564.6,
+      "lastError": null
+    },
+    "pageEvidence": {
+      "xrStatusText": "In Full VR",
+      "bodyTextIncludesFullVrStatus": true
+    }
+  },
+  "frameStats": {
+    "sampleCount": 180,
+    "avgFrameMs": 8.33,
+    "p95FrameMs": 10.3,
+    "maxFrameMs": 12.2,
+    "approxFps": 120,
+    "framesObserved": 2255,
+    "sampleWindowSize": 180,
+    "previewFramesObserved": 23,
+    "immersiveFramesObserved": 2232,
+    "qualitySource": "webxr_animation_loop",
+    "isPresenting": true,
+    "visibilityState": "visible"
+  },
+  "evidenceViewEvidence": {
+    "source": "window.__openClinXrIwerEvidenceViewEvidence",
+    "mode": "wide_iwer_capture",
+    "queryFlag": "iwerEvidenceView=wide",
+    "purpose": "query_gated_visual_evidence_capture_layout",
+    "controllerAffordancesRendered": false,
+    "rigPosition": {
+      "x": 0,
+      "z": 1.35
+    },
+    "notEvidenceFor": [
+      "physical_quest_view_framing",
+      "in_headset_text_readability",
+      "production_runtime_readiness"
+    ]
+  },
+  "inputEvidence": {
+    "handModelCount": 2,
+    "handModelStatus": "installed",
+    "handInputsObserved": 0,
+    "locomotionMode": "experimental_keyboard_and_thumbstick_dolly",
+    "lastLocomotionAtMs": null,
+    "activeLocomotionSource": "none",
+    "inputSourceCount": 2,
+    "inputSourceKinds": [
+      "xr_gamepad",
+      "xr_hand"
+    ],
+    "keyboardVector": {
+      "forward": 0,
+      "strafe": 0,
+      "turn": 0
+    },
+    "xrVector": {
+      "forward": 0,
+      "strafe": 0,
+      "turn": 0
+    },
+    "xrInputSources": [
+      {
+        "handedness": "left",
+        "hasHand": false,
+        "hasGamepad": true,
+        "axisCount": 4
+      },
+      {
+        "handedness": "right",
+        "hasHand": false,
+        "hasGamepad": true,
+        "axisCount": 4
+      }
+    ],
+    "rigPosition": {
+      "x": 0,
+      "z": 1.35
+    }
+  },
+  "textPanelEvidence": {
+    "source": "window.__openClinXrTextPanelEvidence",
+    "panelCount": 3,
+    "panels": [
+      {
+        "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+        "title": "Simulated EHR",
+        "source": "canvas_texture_metadata",
+        "canvasPixels": {
+          "width": 1280,
+          "height": 640
+        },
+        "worldMeters": {
+          "width": 2.3,
+          "height": 1.15
+        },
+        "lineCount": 4,
+        "previewLines": [
+          "Chief concern: crushing substernal pressure",
+          "Vitals: BP 152/92  HR 104  RR 20  SpO2 96%",
+          "Actors: patient, nurse, spouse",
+          "Priority: obtain ECG and escalate urgently"
+        ],
+        "contentHash": "835e2cd8",
+        "lastUpdatedAtMs": 303.1,
+        "readabilityClaim": "metadata_only_requires_foreground_headset_confirmation"
+      },
+      {
+        "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+        "title": "Live Dialogue",
+        "source": "canvas_texture_metadata",
+        "canvasPixels": {
+          "width": 1280,
+          "height": 640
+        },
+        "worldMeters": {
+          "width": 1.85,
+          "height": 0.95
+        },
+        "lineCount": 2,
+        "previewLines": [
+          "Robert Hayes: The pressure is heavy and I feel sweaty.",
+          "Trace 0/10; missing 10"
+        ],
+        "contentHash": "0a37436c",
+        "lastUpdatedAtMs": 585.9,
+        "readabilityClaim": "metadata_only_requires_foreground_headset_confirmation"
+      },
+      {
+        "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+        "title": "Input Evidence",
+        "source": "canvas_texture_metadata",
+        "canvasPixels": {
+          "width": 1280,
+          "height": 640
+        },
+        "worldMeters": {
+          "width": 1.65,
+          "height": 0.72
+        },
+        "lineCount": 3,
+        "previewLines": [
+          "Session: In Full VR",
+          "Hands: installed; observed 0",
+          "Movement: none; x 0, z 1.35"
+        ],
+        "contentHash": "60f67b32",
+        "lastUpdatedAtMs": 586,
+        "readabilityClaim": "metadata_only_requires_foreground_headset_confirmation"
+      }
+    ],
+    "limitations": [
+      "metadata_only_requires_foreground_headset_confirmation"
+    ]
+  },
+  "bootEvidence": {
+    "app": "ui-xr-iwsdk-spike",
+    "events": [
+      {
+        "phase": "controls_start",
+        "atMs": 0.5
+      },
+      {
+        "phase": "controls_ready",
+        "atMs": 0.6
+      },
+      {
+        "phase": "station_scene_start",
+        "atMs": 0.8
+      },
+      {
+        "phase": "station_render_loop_started",
+        "atMs": 27.4
+      },
+      {
+        "phase": "station_scene_ready",
+        "atMs": 27.4
+      },
+      {
+        "phase": "clock_started",
+        "atMs": 27.5
+      },
+      {
+        "phase": "full_vr_entry_iwer_auto_entry_probe",
+        "atMs": 278.7
+      },
+      {
+        "phase": "iwsdk_evidence_load_start",
+        "atMs": 1001
+      },
+      {
+        "phase": "iwsdk_evidence_loaded",
+        "atMs": 1061.1
+      }
+    ]
+  },
+  "browserEvidence": {
+    "title": "OpenClinXR IWSDK Spike",
+    "hasCanvas": true,
+    "bodyTextSample": "In Full VR\nExit Full VR\nMR requires ?mr=approved\nEnter Mixed Reality\nIWSDK exports 586/31\nTrace 0/10\n\nIWSDK PHASE 1\n\nED Chest Pain\n\nApproved sidecar shell for measuring package weight, scene parity, and Quest behavior before production adoption.\n\nEncounter\n00:18\nRuntime Evidence\nCORE EXPORTS\n586\nXR INPUT EXPORTS\n31\nSCENE OBJECTS\n15 parity targets\nMock Dialogue\n\nRobert Hayes: The pressure is heavy and I feel sweaty.",
+    "consoleErrors": [],
+    "consoleWarnings": [],
+    "consoleIssues": [
+      "A form field element should have an id or name attribute"
+    ]
+  },
+  "screenshot": {
+    "source": "chrome_devtools_mcp",
+    "artifact": "docs/openclinxr/screenshots/iwer-auto-entry-frame-lanes-2026-05-05.png",
+    "mimeType": "image/png",
+    "bytes": 628103,
+    "dimensions": {
+      "width": 2880,
+      "height": 1800
+    },
+    "captureCommand": "Chrome DevTools MCP take_screenshot"
+  },
+  "blockers": [
+    "iwer_auto_entry_not_physical_quest_evidence",
+    "physical_quest_foreground_metrics_still_required",
+    "hand_tracking_visuals_remain_primitive",
+    "hand_locomotion_not_observed"
+  ],
+  "acceptedClaim": "IWER/Chrome DevTools managed browser can exercise the sidecar auto-entry probe and observe app-level Full VR started status with split preview and immersive frame-lane metadata.",
+  "remainingLimitations": [
+    "This is desktop/IWER emulation evidence only, not a worn Quest 3 foreground performance report.",
+    "The query-gated visual evidence layout disables app-authored controller affordances and depth-prioritizes text panels, so it is not the normal headset composition.",
+    "Text-panel metadata records canvas dimensions and content only; it does not prove in-headset readability.",
+    "No controller-select trace latency, hand input, or locomotion movement was observed in this capture.",
+    "Split frame-lane evidence is useful for sidecar parity, but it does not prove physical Quest frame pacing."
+  ]
+}
