@@ -2,6 +2,7 @@ import type { ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-sche
 import type { ExamForm, ExamStationRunQueue } from "@openclinxr/exam-assembly";
 import type {
   AsyncDurableMultiActorSessionStore,
+  DurableClinicalEventRecord,
   DurableConversationTurnRecord,
   DurableEmotionalStateTimelineRecord,
 } from "@openclinxr/session-state";
@@ -39,6 +40,21 @@ export const durableActorTurnPersistenceScope = {
   ],
 } as const;
 
+export const durableClinicalEventPersistenceScope = {
+  approvedProposal: "proposals/approved/proposal-durable-clinical-event-persistence.md",
+  eventScope: "clinical_actions_orders_findings_checklists_rubric_and_case_progress",
+  actorTurnScopeChanged: false,
+  redisRedkaIncluded: false,
+  databaseOnly: true,
+  notEvidenceFor: [
+    "api_runtime_wiring",
+    "redis_redka_cache_layer",
+    "realtime_synchronization",
+    "clinical_record_retention_policy",
+    "clinical_assessment_validity",
+  ],
+} as const;
+
 export class MongoDurableConversationTurnRepository {
   private readonly collection: Collection<DurableConversationTurnRecord>;
 
@@ -64,6 +80,36 @@ export class MongoDurableConversationTurnRepository {
   async listByStationRunId(stationRunId: string): Promise<DurableConversationTurnRecord[]> {
     return this.collection.find({ stationRunId }, { projection: { _id: 0 } })
       .sort({ atSecond: 1, turnId: 1 })
+      .toArray();
+  }
+}
+
+export class MongoDurableClinicalEventRepository {
+  private readonly collection: Collection<DurableClinicalEventRecord>;
+
+  constructor(db: Db) {
+    this.collection = db.collection<DurableClinicalEventRecord>("durable_clinical_events");
+  }
+
+  async ensureIndexes(): Promise<void> {
+    await this.collection.createIndex({ stationRunId: 1, clinicalEventId: 1 }, { unique: true });
+    await this.collection.createIndex({ stationRunId: 1, atSecond: 1, clinicalEventId: 1 });
+    await this.collection.createIndex({ stationRunId: 1, eventKind: 1, atSecond: 1 });
+    await this.collection.createIndex({ stationRunId: 1, traceTag: 1, atSecond: 1 });
+  }
+
+  async save(record: DurableClinicalEventRecord): Promise<void> {
+    const storedRecord = cloneClinicalEventForMongo(record);
+    await this.collection.updateOne(
+      { stationRunId: storedRecord.stationRunId, clinicalEventId: storedRecord.clinicalEventId },
+      { $set: storedRecord },
+      { upsert: true },
+    );
+  }
+
+  async listByStationRunId(stationRunId: string): Promise<DurableClinicalEventRecord[]> {
+    return this.collection.find({ stationRunId }, { projection: { _id: 0 } })
+      .sort({ atSecond: 1, clinicalEventId: 1 })
       .toArray();
   }
 }
@@ -106,16 +152,19 @@ export class MongoDurableEmotionalStateTimelineRepository {
 export class MongoDurableMultiActorSessionStore implements AsyncDurableMultiActorSessionStore {
   private readonly conversationTurns: MongoDurableConversationTurnRepository;
   private readonly emotionalStateTimeline: MongoDurableEmotionalStateTimelineRepository;
+  private readonly clinicalEvents: MongoDurableClinicalEventRepository;
 
   constructor(db: Db) {
     this.conversationTurns = new MongoDurableConversationTurnRepository(db);
     this.emotionalStateTimeline = new MongoDurableEmotionalStateTimelineRepository(db);
+    this.clinicalEvents = new MongoDurableClinicalEventRepository(db);
   }
 
   async ensureIndexes(): Promise<void> {
     await Promise.all([
       this.conversationTurns.ensureIndexes(),
       this.emotionalStateTimeline.ensureIndexes(),
+      this.clinicalEvents.ensureIndexes(),
     ]);
   }
 
@@ -136,6 +185,14 @@ export class MongoDurableMultiActorSessionStore implements AsyncDurableMultiActo
     actorId: string,
   ): Promise<DurableEmotionalStateTimelineRecord[]> {
     return this.emotionalStateTimeline.listByStationRunIdAndActorId(stationRunId, actorId);
+  }
+
+  async saveClinicalEvent(record: DurableClinicalEventRecord): Promise<void> {
+    await this.clinicalEvents.save(record);
+  }
+
+  async listClinicalEvents(stationRunId: string): Promise<DurableClinicalEventRecord[]> {
+    return this.clinicalEvents.listByStationRunId(stationRunId);
   }
 }
 
@@ -403,4 +460,27 @@ function cloneConversationTurnForMongo(record: DurableConversationTurnRecord): D
     traceContextTags: [...record.traceContextTags],
     provenanceRefs: [...record.provenanceRefs],
   };
+}
+
+function cloneClinicalEventForMongo(record: DurableClinicalEventRecord): DurableClinicalEventRecord {
+  return {
+    ...record,
+    payload: {
+      public: cloneJsonRecord(record.payload.public),
+      ...(record.payload.private
+        ? {
+          private: {
+            ...record.payload.private,
+            hiddenFactRefs: [...(record.payload.private.hiddenFactRefs ?? [])],
+            serverOnlyNotes: [...(record.payload.private.serverOnlyNotes ?? [])],
+          },
+        }
+        : {}),
+    },
+    provenanceRefs: [...record.provenanceRefs],
+  };
+}
+
+function cloneJsonRecord(record: Record<string, unknown>): Record<string, unknown> {
+  return JSON.parse(JSON.stringify(record)) as Record<string, unknown>;
 }

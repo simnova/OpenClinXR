@@ -188,6 +188,52 @@ export type DurableEmotionalStateTimelineRecord = {
   durableStore: DurableStorePosture;
 };
 
+export type DurableClinicalEventKind =
+  | "clinical_action_recorded"
+  | "order_status_changed"
+  | "finding_recorded"
+  | "checklist_item_updated"
+  | "rubric_progress_updated"
+  | "case_status_changed";
+
+export type DurableClinicalEventPayload = {
+  public: Record<string, unknown>;
+  private?: {
+    hiddenFactRefs?: string[];
+    serverOnlyNotes?: string[];
+    [key: string]: unknown;
+  };
+};
+
+export type DurableClinicalEventRecord = {
+  clinicalEventId: string;
+  stationRunId: string;
+  actorId?: string;
+  atSecond: number;
+  eventKind: DurableClinicalEventKind;
+  traceTag?: string;
+  label: string;
+  status?: string;
+  payload: DurableClinicalEventPayload;
+  provenanceRefs: string[];
+  durableStore: DurableStorePosture;
+};
+
+export type DurableClinicalEventReviewProjection = {
+  clinicalEventId: string;
+  stationRunId: string;
+  actorId?: string;
+  atSecond: number;
+  eventKind: DurableClinicalEventKind;
+  traceTag?: string;
+  label: string;
+  status?: string;
+  payload: Record<string, unknown>;
+  provenanceRefs: string[];
+  privatePayloadRedacted: boolean;
+  durableStore: DurableStorePosture;
+};
+
 export type RealtimeSessionCacheTurnRef = {
   turnId: string;
   actorId: string;
@@ -208,6 +254,8 @@ export type DurableMultiActorSessionStore = {
   listConversationTurns(stationRunId: string): DurableConversationTurnRecord[];
   saveEmotionalStateTimeline(record: DurableEmotionalStateTimelineRecord): void;
   listEmotionalStateTimeline(stationRunId: string, actorId: string): DurableEmotionalStateTimelineRecord[];
+  saveClinicalEvent(record: DurableClinicalEventRecord): void;
+  listClinicalEvents(stationRunId: string): DurableClinicalEventRecord[];
 };
 
 export type AsyncDurableMultiActorSessionStore = {
@@ -219,6 +267,8 @@ export type AsyncDurableMultiActorSessionStore = {
     stationRunId: string,
     actorId: string,
   ): Promise<DurableEmotionalStateTimelineRecord[]>;
+  saveClinicalEvent(record: DurableClinicalEventRecord): Promise<void>;
+  listClinicalEvents(stationRunId: string): Promise<DurableClinicalEventRecord[]>;
 };
 
 export type RealtimeSessionCache = {
@@ -585,9 +635,29 @@ export function evaluateMultiActorPersistencePhase2Strategy(): MultiActorPersist
   };
 }
 
+export function projectDurableClinicalEventForReview(
+  record: DurableClinicalEventRecord,
+): DurableClinicalEventReviewProjection {
+  return {
+    clinicalEventId: record.clinicalEventId,
+    stationRunId: record.stationRunId,
+    atSecond: record.atSecond,
+    eventKind: record.eventKind,
+    label: record.label,
+    payload: redactReviewPayload(record.payload.public),
+    provenanceRefs: [...record.provenanceRefs],
+    privatePayloadRedacted: Boolean(record.payload.private) || reviewPayloadRequiresRedaction(record.payload.public),
+    durableStore: record.durableStore,
+    ...(record.actorId ? { actorId: record.actorId } : {}),
+    ...(record.traceTag ? { traceTag: record.traceTag } : {}),
+    ...(record.status ? { status: record.status } : {}),
+  };
+}
+
 class InMemoryDurableMultiActorSessionStore implements DurableMultiActorSessionStore {
   private readonly conversationTurns = new Map<string, DurableConversationTurnRecord[]>();
   private readonly emotionalStateTimeline = new Map<string, DurableEmotionalStateTimelineRecord[]>();
+  private readonly clinicalEvents = new Map<string, DurableClinicalEventRecord[]>();
 
   saveConversationTurn(record: DurableConversationTurnRecord): void {
     const existing = this.conversationTurns.get(record.stationRunId) ?? [];
@@ -610,6 +680,18 @@ class InMemoryDurableMultiActorSessionStore implements DurableMultiActorSessionS
     return [...(this.emotionalStateTimeline.get(emotionalStateTimelineKey(stationRunId, actorId)) ?? [])]
       .sort((left, right) => left.atSecond - right.atSecond || left.sourceTurnId.localeCompare(right.sourceTurnId))
       .map(cloneEmotionalStateRecord);
+  }
+
+  saveClinicalEvent(record: DurableClinicalEventRecord): void {
+    const existing = this.clinicalEvents.get(record.stationRunId) ?? [];
+    const withoutDuplicate = existing.filter((event) => event.clinicalEventId !== record.clinicalEventId);
+    this.clinicalEvents.set(record.stationRunId, [...withoutDuplicate, cloneClinicalEventRecord(record)]);
+  }
+
+  listClinicalEvents(stationRunId: string): DurableClinicalEventRecord[] {
+    return [...(this.clinicalEvents.get(stationRunId) ?? [])]
+      .sort((left, right) => left.atSecond - right.atSecond || left.clinicalEventId.localeCompare(right.clinicalEventId))
+      .map(cloneClinicalEventRecord);
   }
 }
 
@@ -828,6 +910,63 @@ function cloneEmotionalStateRecord(
   record: DurableEmotionalStateTimelineRecord,
 ): DurableEmotionalStateTimelineRecord {
   return { ...record };
+}
+
+function cloneClinicalEventRecord(record: DurableClinicalEventRecord): DurableClinicalEventRecord {
+  return {
+    ...record,
+    payload: {
+      public: cloneJsonRecord(record.payload.public),
+      ...(record.payload.private
+        ? {
+          private: {
+            ...record.payload.private,
+            hiddenFactRefs: [...(record.payload.private.hiddenFactRefs ?? [])],
+            serverOnlyNotes: [...(record.payload.private.serverOnlyNotes ?? [])],
+          },
+        }
+        : {}),
+    },
+    provenanceRefs: [...record.provenanceRefs],
+  };
+}
+
+function cloneJsonRecord(record: Record<string, unknown>): Record<string, unknown> {
+  return JSON.parse(JSON.stringify(record)) as Record<string, unknown>;
+}
+
+function redactReviewPayload(record: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(record)
+      .filter(([key]) => !isPrivateReviewPayloadKey(key))
+      .map(([key, value]) => [key, redactReviewPayloadValue(value)])
+      .filter((entry): entry is [string, unknown] => entry[1] !== undefined),
+  );
+}
+
+function redactReviewPayloadValue(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value
+      .map(redactReviewPayloadValue)
+      .filter((item) => item !== undefined);
+  }
+  if (typeof value === "object" && value !== null) {
+    return redactReviewPayload(value as Record<string, unknown>);
+  }
+  return value;
+}
+
+function reviewPayloadRequiresRedaction(record: Record<string, unknown>): boolean {
+  return Object.entries(record).some(([key, value]) =>
+    isPrivateReviewPayloadKey(key)
+    || (Array.isArray(value)
+      ? value.some((item) => typeof item === "object" && item !== null && reviewPayloadRequiresRedaction(item as Record<string, unknown>))
+      : typeof value === "object" && value !== null && reviewPayloadRequiresRedaction(value as Record<string, unknown>))
+  );
+}
+
+function isPrivateReviewPayloadKey(key: string): boolean {
+  return /(?:hidden|private|serverOnly|server_only|internal|secret|confidential)/i.test(key);
 }
 
 function cloneRealtimeSessionCacheSnapshot(snapshot: RealtimeSessionCacheSnapshot): RealtimeSessionCacheSnapshot {

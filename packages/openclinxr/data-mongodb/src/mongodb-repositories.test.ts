@@ -1,6 +1,7 @@
 import type { ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
 import type {
   AsyncDurableMultiActorSessionStore,
+  DurableClinicalEventRecord,
   DurableConversationTurnRecord,
   DurableEmotionalStateTimelineRecord,
 } from "@openclinxr/session-state";
@@ -20,8 +21,10 @@ import {
   MongoTraceRepository,
   MongoReviewPacketRepository,
   MongoDurableConversationTurnRepository,
+  MongoDurableClinicalEventRepository,
   MongoDurableEmotionalStateTimelineRepository,
   createMongoDurableMultiActorSessionStore,
+  durableClinicalEventPersistenceScope,
   durableActorTurnPersistenceScope,
   type ScenarioReviewDecisionRecord,
 } from "./index.js";
@@ -169,6 +172,47 @@ const spouseEmotionalState: DurableEmotionalStateTimelineRecord = {
   atSecond: 120,
   emotionalState: "anxious",
   sourceTurnId: "turn_001_spouse_anna_hayes_v1_120",
+  durableStore: "database_source_of_truth",
+};
+
+const clinicalEventOrderRequested: DurableClinicalEventRecord = {
+  clinicalEventId: "event_001_ecg_order",
+  stationRunId: "station_run_durable_clinical_event_001",
+  actorId: "nurse_maria_alvarez_v1",
+  atSecond: 180,
+  eventKind: "order_status_changed",
+  traceTag: "ecg_request",
+  label: "12-lead ECG",
+  status: "requested",
+  payload: {
+    public: {
+      orderId: "order_1_ecg_request",
+      requestedOrder: "12-lead ECG",
+    },
+    private: {
+      hiddenFactRefs: ["fact:patient_robert_hayes_v1:1"],
+      serverOnlyNotes: ["Recent cocaine use remains hidden until elicited."],
+    },
+  },
+  provenanceRefs: ["trace:station_run_durable_clinical_event_001:180"],
+  durableStore: "database_source_of_truth",
+};
+
+const clinicalEventFinding: DurableClinicalEventRecord = {
+  clinicalEventId: "event_002_diaphoresis",
+  stationRunId: "station_run_durable_clinical_event_001",
+  actorId: "patient_robert_hayes_v1",
+  atSecond: 190,
+  eventKind: "finding_recorded",
+  traceTag: "physical_exam_general",
+  label: "Patient appears diaphoretic",
+  payload: {
+    public: {
+      findingId: "finding_1_diaphoretic",
+      observed: true,
+    },
+  },
+  provenanceRefs: ["trace:station_run_durable_clinical_event_001:190"],
   durableStore: "database_source_of_truth",
 };
 
@@ -524,5 +568,78 @@ describe("MongoDB memory repositories", () => {
       redisRedkaIncluded: false,
       databaseOnly: true,
     });
+  });
+
+  it("stores durable clinical events in deterministic replay order with idempotent upsert", async () => {
+    const repository = new MongoDurableClinicalEventRepository(context.db);
+    await repository.ensureIndexes();
+
+    await repository.save(clinicalEventFinding);
+    await repository.save(clinicalEventOrderRequested);
+    await repository.save({
+      ...clinicalEventOrderRequested,
+      status: "completed",
+      payload: {
+        public: {
+          orderId: "order_1_ecg_request",
+          requestedOrder: "12-lead ECG",
+          resultSummary: "ST elevation present.",
+        },
+        ...(clinicalEventOrderRequested.payload.private
+          ? { private: clinicalEventOrderRequested.payload.private }
+          : {}),
+      },
+      provenanceRefs: [
+        ...clinicalEventOrderRequested.provenanceRefs,
+        "review:cardiology:ecg-overread",
+      ],
+    });
+
+    await expect(repository.listByStationRunId("station_run_durable_clinical_event_001")).resolves.toEqual([
+      {
+        ...clinicalEventOrderRequested,
+        status: "completed",
+        payload: {
+          public: {
+            orderId: "order_1_ecg_request",
+            requestedOrder: "12-lead ECG",
+            resultSummary: "ST elevation present.",
+          },
+          ...(clinicalEventOrderRequested.payload.private
+            ? { private: clinicalEventOrderRequested.payload.private }
+            : {}),
+        },
+        provenanceRefs: [
+          "trace:station_run_durable_clinical_event_001:180",
+          "review:cardiology:ecg-overread",
+        ],
+      },
+      clinicalEventFinding,
+    ]);
+    expect(durableClinicalEventPersistenceScope).toMatchObject({
+      approvedProposal: "proposals/approved/proposal-durable-clinical-event-persistence.md",
+      eventScope: "clinical_actions_orders_findings_checklists_rubric_and_case_progress",
+      actorTurnScopeChanged: false,
+      redisRedkaIncluded: false,
+      databaseOnly: true,
+    });
+  });
+
+  it("adds clinical-event methods to the Mongo durable multi-actor session store without overloading actor turns", async () => {
+    const store: AsyncDurableMultiActorSessionStore = createMongoDurableMultiActorSessionStore(context.db);
+    await store.ensureIndexes?.();
+
+    await store.saveClinicalEvent({
+      ...clinicalEventOrderRequested,
+      stationRunId: "station_run_durable_clinical_event_store_001",
+    });
+
+    await expect(store.listClinicalEvents("station_run_durable_clinical_event_store_001")).resolves.toEqual([
+      {
+        ...clinicalEventOrderRequested,
+        stationRunId: "station_run_durable_clinical_event_store_001",
+      },
+    ]);
+    await expect(store.listConversationTurns("station_run_durable_clinical_event_store_001")).resolves.toEqual([]);
   });
 });

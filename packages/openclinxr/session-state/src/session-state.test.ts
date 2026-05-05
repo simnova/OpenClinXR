@@ -6,11 +6,14 @@ import {
   createPersistenceSpikeStores,
   evaluateMultiActorPersistencePhase2Strategy,
   persistLatestInteractionTurn,
+  projectDurableClinicalEventForReview,
   rehydrateRealtimeCacheFromDurableState,
   recordClinicalAction,
   routeActorInteraction,
   updateActorSpatialState,
   writeRealtimeCacheSnapshot,
+  type DurableClinicalEventKind,
+  type DurableClinicalEventRecord,
 } from "./index.js";
 
 describe("session state", () => {
@@ -230,6 +233,184 @@ describe("session state", () => {
     expect(stores.durable.listConversationTurns(session.stationRunId)).toHaveLength(1);
   });
 
+  it("persists durable clinical events separately from actor turns and redacts private payload", () => {
+    const stores = createPersistenceSpikeStores();
+    const stationRunId = "station_run_durable_clinical_event_001";
+
+    stores.durable.saveClinicalEvent(clinicalEvent({
+      clinicalEventId: "event_003_checklist_airway",
+      stationRunId,
+      atSecond: 210,
+      eventKind: "checklist_item_updated",
+      label: "Airway and breathing assessed",
+      status: "completed",
+      payload: {
+        public: {
+          checklistItemId: "primary_survey_airway_breathing",
+          checked: true,
+        },
+      },
+    }));
+    stores.durable.saveClinicalEvent(clinicalEvent({
+      clinicalEventId: "event_001_ecg_order",
+      stationRunId,
+      actorId: "nurse_maria_alvarez_v1",
+      atSecond: 180,
+      eventKind: "order_status_changed",
+      traceTag: "ecg_request",
+      label: "12-lead ECG",
+      status: "requested",
+      payload: {
+        public: {
+          orderId: "order_1_ecg_request",
+          requestedOrder: "12-lead ECG",
+        },
+        private: {
+          hiddenFactRefs: ["fact:patient_robert_hayes_v1:1"],
+          serverOnlyNotes: ["Recent cocaine use remains hidden until elicited."],
+        },
+      },
+    }));
+    stores.durable.saveClinicalEvent(clinicalEvent({
+      clinicalEventId: "event_001_ecg_order",
+      stationRunId,
+      actorId: "nurse_maria_alvarez_v1",
+      atSecond: 180,
+      eventKind: "order_status_changed",
+      traceTag: "ecg_request",
+      label: "12-lead ECG",
+      status: "completed",
+      payload: {
+        public: {
+          orderId: "order_1_ecg_request",
+          requestedOrder: "12-lead ECG",
+          resultSummary: "ST elevation present.",
+          hiddenFactRefs: ["fact:patient_robert_hayes_v1:1"],
+          nested: {
+            hiddenClinicalTruth: "Recent cocaine use remains hidden until elicited.",
+            displayHint: "show ECG result after completion",
+          },
+        },
+        private: {
+          hiddenFactRefs: ["fact:patient_robert_hayes_v1:1"],
+          serverOnlyNotes: ["Recent cocaine use remains hidden until elicited."],
+        },
+      },
+      provenanceRefs: [
+        "trace:station_run_durable_clinical_event_001:180",
+        "review:cardiology:ecg-overread",
+      ],
+    }));
+    stores.durable.saveClinicalEvent(clinicalEvent({
+      clinicalEventId: "event_002_finding_diaphoresis",
+      stationRunId,
+      actorId: "patient_robert_hayes_v1",
+      atSecond: 190,
+      eventKind: "finding_recorded",
+      traceTag: "physical_exam_general",
+      label: "Patient appears diaphoretic",
+      payload: {
+        public: {
+          findingId: "finding_1_diaphoretic",
+          observed: true,
+        },
+      },
+    }));
+    stores.durable.saveClinicalEvent(clinicalEvent({
+      clinicalEventId: "event_004_rubric_acs",
+      stationRunId,
+      atSecond: 240,
+      eventKind: "rubric_progress_updated",
+      traceTag: "diagnostic_reasoning_acs",
+      label: "ACS considered",
+      status: "met",
+      payload: {
+        public: {
+          rubricItemId: "diagnostic_reasoning_acs",
+          scoreDraft: "met",
+        },
+      },
+    }));
+    stores.durable.saveClinicalEvent(clinicalEvent({
+      clinicalEventId: "event_005_case_escalation",
+      stationRunId,
+      atSecond: 300,
+      eventKind: "case_status_changed",
+      traceTag: "escalation_to_attending",
+      label: "Case escalated to attending",
+      status: "escalated",
+      payload: {
+        public: {
+          casePhase: "escalated_care",
+        },
+      },
+    }));
+    stores.durable.saveClinicalEvent(clinicalEvent({
+      clinicalEventId: "event_006_clinical_action",
+      stationRunId,
+      actorId: "nurse_maria_alvarez_v1",
+      atSecond: 320,
+      eventKind: "clinical_action_recorded",
+      traceTag: "team_communication",
+      label: "Nurse repeats closed-loop instruction",
+      status: "observed",
+      payload: {
+        public: {
+          actionId: "closed_loop_communication_001",
+          communicationPattern: "closed_loop",
+        },
+      },
+    }));
+
+    const replay = stores.durable.listClinicalEvents(stationRunId);
+
+    expect(replay.map((event) => [event.clinicalEventId, event.eventKind, event.status])).toEqual([
+      ["event_001_ecg_order", "order_status_changed", "completed"],
+      ["event_002_finding_diaphoresis", "finding_recorded", undefined],
+      ["event_003_checklist_airway", "checklist_item_updated", "completed"],
+      ["event_004_rubric_acs", "rubric_progress_updated", "met"],
+      ["event_005_case_escalation", "case_status_changed", "escalated"],
+      ["event_006_clinical_action", "clinical_action_recorded", "observed"],
+    ]);
+    expect(new Set(replay.map((event) => event.eventKind))).toEqual(new Set<DurableClinicalEventKind>([
+      "clinical_action_recorded",
+      "order_status_changed",
+      "finding_recorded",
+      "checklist_item_updated",
+      "rubric_progress_updated",
+      "case_status_changed",
+    ]));
+    expect(stores.durable.listConversationTurns(stationRunId)).toEqual([]);
+
+    const firstEvent = replay[0];
+    if (!firstEvent) {
+      throw new Error("Expected a first clinical event for projection");
+    }
+    const projection = projectDurableClinicalEventForReview(firstEvent);
+
+    expect(projection).toMatchObject({
+      clinicalEventId: "event_001_ecg_order",
+      stationRunId,
+      eventKind: "order_status_changed",
+      payload: {
+        orderId: "order_1_ecg_request",
+        requestedOrder: "12-lead ECG",
+        resultSummary: "ST elevation present.",
+      },
+      privatePayloadRedacted: true,
+      durableStore: "database_source_of_truth",
+    });
+    expect(JSON.stringify(projection)).not.toContain("Recent cocaine use");
+    expect(JSON.stringify(projection)).not.toContain("serverOnlyNotes");
+    expect(JSON.stringify(projection)).not.toContain("hiddenFactRefs");
+    expect(JSON.stringify(projection)).not.toContain("hiddenClinicalTruth");
+    expect(projection.payload).toMatchObject({
+      nested: {
+        displayHint: "show ECG result after completion",
+      },
+    });
+  });
+
   it("documents Phase 2 Redis/Redka versus database responsibilities without adding runtime dependencies", () => {
     const strategy = evaluateMultiActorPersistencePhase2Strategy();
 
@@ -266,3 +447,30 @@ describe("session state", () => {
     expect(strategy.notEvidenceFor).toContain("production_persistence_architecture");
   });
 });
+
+function clinicalEvent(input: {
+  clinicalEventId: string;
+  stationRunId: string;
+  atSecond: number;
+  eventKind: DurableClinicalEventKind;
+  label: string;
+  actorId?: string;
+  traceTag?: string;
+  status?: string;
+  payload?: DurableClinicalEventRecord["payload"];
+  provenanceRefs?: string[];
+}): DurableClinicalEventRecord {
+  return {
+    clinicalEventId: input.clinicalEventId,
+    stationRunId: input.stationRunId,
+    atSecond: input.atSecond,
+    eventKind: input.eventKind,
+    label: input.label,
+    payload: input.payload ?? { public: {} },
+    provenanceRefs: input.provenanceRefs ?? [`trace:${input.stationRunId}:${input.atSecond}`],
+    durableStore: "database_source_of_truth",
+    ...(input.actorId ? { actorId: input.actorId } : {}),
+    ...(input.traceTag ? { traceTag: input.traceTag } : {}),
+    ...(input.status ? { status: input.status } : {}),
+  };
+}

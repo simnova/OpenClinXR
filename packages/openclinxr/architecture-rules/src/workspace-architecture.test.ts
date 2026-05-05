@@ -623,6 +623,18 @@ describe("workspace architecture rules", () => {
     expect([...manifestViolations, ...sourceViolations]).toEqual([]);
   });
 
+  it("keeps durable clinical-event Mongo repositories database-only and separate from actor-turn and realtime lanes", () => {
+    const repositorySource = readFileSync(join(workspaceRoot, "packages/openclinxr/data-mongodb/src/repositories.ts"), "utf8");
+
+    expect(repositorySource).toContain("proposals/approved/proposal-durable-clinical-event-persistence.md");
+    expect(repositorySource).toContain("clinical_actions_orders_findings_checklists_rubric_and_case_progress");
+    expect(repositorySource).toContain("actorTurnScopeChanged: false");
+    expect(repositorySource).toContain("redisRedkaIncluded: false");
+    expect(repositorySource).toContain("databaseOnly: true");
+    expect(repositorySource).toContain("durable_clinical_events");
+    expect(repositorySource).not.toMatch(/clinicalEvent[\s\S]{0,120}(?:redis|redka|colyseus|bitecs|websocket|webtransport|quic|web3)/i);
+  });
+
   it("prevents production code from importing the superseded multi-actor state spike", () => {
     const spikePackage = "@openclinxr/multi-actor-state-spike";
     const allowedSpikeRoots = ["packages/openclinxr/multi-actor-state-spike/"];
@@ -653,6 +665,7 @@ describe("workspace architecture rules", () => {
       "ioredis-mock",
       "mongodb",
       "mongodb-memory-server",
+      "redka",
       "redis",
     ];
     const sourceViolations = forbiddenDependencies.flatMap((dependency) =>
