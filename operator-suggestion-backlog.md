@@ -31,7 +31,7 @@ This file captures useful operator steering that should shape future work but do
   - Store evidence metadata with viewport/device, route, scenario ID, camera pose, XR mode, capture command, and artifact path.
   - Require adversarial notes on clinical scene fidelity, actor/equipment realism, UI readability, interaction affordances, locomotion/comfort cues, occlusion, scale, and missing critical equipment.
   - Keep human worn-headset observations separate from automated browser or emulation evidence.
-- Current posture: first evidence checker slice implemented. `pnpm visual:qa:evidence:validate` scores `docs/openclinxr/visual-qa-evidence-2026-05-04.json`, which wraps the captured IWER screenshot as adversarial visual iteration evidence only. This does not authorize new package installs, video tooling, or physical Quest readiness claims.
+- Current posture: evidence checker slices are implemented. `pnpm visual:qa:evidence:validate` scores `docs/openclinxr/visual-qa-evidence-2026-05-04.json`, which wraps the captured IWER screenshot as adversarial visual iteration evidence only, and the latest Chrome DevTools desktop evidence `docs/openclinxr/visual-qa-evidence-ui-xr-attempt-fields-browser-2026-05-05.json` confirms the structured Quest attempt fields render without claiming physical Quest readiness. This does not authorize new package installs, video tooling, or physical Quest readiness claims.
 
 ### SUG-2026-05-04-002: Steering Suggestions Are Backlog By Default
 
