@@ -7,6 +7,7 @@ import {
   isQuestManualPerformanceRawReportPath,
   latestJson,
 } from "./build-benchmark-gate-report.js";
+import type { QuestManualPerformanceReport } from "../openclinxr/check-quest-manual-performance.js";
 
 type BlockerGroup = {
   group_id: string;
@@ -195,6 +196,58 @@ function healthyQuestFrameSampleEvidence(): Record<string, unknown> {
     longFrameRatio: 0.02,
   };
 }
+
+const completedQuestManualPerformanceReport: QuestManualPerformanceReport = {
+  generatedAt: "2026-05-04T00:00:00.000Z",
+  runContext: {
+    performedBy: "xr-systems-architect",
+    durationMinutes: 10,
+  },
+  setup: {
+    foregroundPageConfirmed: true,
+    devtoolsScreencastDisabled: true,
+    extraBrowserWindowsClosed: true,
+  },
+  station: {
+    shellLoaded: true,
+    traceInteractionPassed: true,
+    textReadable: true,
+    immersiveSessionStarted: true,
+    consoleErrors: [],
+  },
+  experience: {
+    modeId: "full_vr",
+    phaseLabel: "Phase 1 Full VR",
+    requestedSessionMode: "immersive-vr",
+    mixedRealityPassthroughImplemented: false,
+  },
+  input: {
+    handModelCount: 2,
+    handModelStatus: "active",
+    handInputsObserved: 2,
+    locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
+    activeLocomotionSource: "xr_gamepad",
+    lastLocomotionAtMs: 60_000,
+    rigPosition: { x: 0.4, z: -0.2 },
+  },
+  performance: {
+    source: "window.__openClinXrFrameStats",
+    framesObserved: 600,
+    sampleWindowSize: 120,
+    firstFrameAtMs: 1000,
+    previewFramesObserved: 0,
+    immersiveFramesObserved: 600,
+    avgFps: 72,
+    p95FrameMs: 25,
+    minimumObservedFps: 60,
+    controllerSelectLatencyMs: 140,
+  },
+  comfort: {
+    motionComfort: "comfortable",
+    heatConcern: false,
+    batteryDropPercent: 2,
+  },
+};
 
 describe("benchmark gate report", () => {
   it("selects raw Quest CDP smoke evidence without derived check reports", async () => {
@@ -1617,57 +1670,7 @@ describe("benchmark gate report", () => {
       },
       questManualPerformanceReport: {
         file: "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-        value: {
-          generatedAt: "2026-05-04T00:00:00.000Z",
-          runContext: {
-            performedBy: "xr-systems-architect",
-            durationMinutes: 10,
-          },
-          setup: {
-            foregroundPageConfirmed: true,
-            devtoolsScreencastDisabled: true,
-            extraBrowserWindowsClosed: true,
-          },
-          station: {
-            shellLoaded: true,
-            traceInteractionPassed: true,
-            textReadable: true,
-            immersiveSessionStarted: true,
-            consoleErrors: [],
-          },
-          experience: {
-            modeId: "full_vr",
-            phaseLabel: "Phase 1 Full VR",
-            requestedSessionMode: "immersive-vr",
-            mixedRealityPassthroughImplemented: false,
-          },
-          input: {
-            handModelCount: 2,
-            handModelStatus: "active",
-            handInputsObserved: 2,
-            locomotionMode: "thumbstick",
-            activeLocomotionSource: "xr_gamepad",
-            lastLocomotionAtMs: 60_000,
-            rigPosition: { x: 0.4, z: -0.2 },
-          },
-          performance: {
-            source: "window.__openClinXrFrameStats",
-            framesObserved: 600,
-            sampleWindowSize: 120,
-            firstFrameAtMs: 1000,
-            previewFramesObserved: 0,
-            immersiveFramesObserved: 600,
-            avgFps: 72,
-            p95FrameMs: 25,
-            minimumObservedFps: 60,
-            controllerSelectLatencyMs: 140,
-          },
-          comfort: {
-            motionComfort: "comfortable",
-            heatConcern: false,
-            batteryDropPercent: 2,
-          },
-        },
+        value: completedQuestManualPerformanceReport,
       },
       localRuntime: {
         file: "runtime.json",
@@ -1710,6 +1713,81 @@ describe("benchmark gate report", () => {
       "locomotion_observed",
     ]));
     expect(questGate?.blockers).not.toContain("quest_manual_performance:missing_quest_manual_performance_report");
+  });
+
+  it("derives Quest manual benchmark readiness from copied UI payloads", () => {
+    const report = buildBenchmarkGateReport({
+      questSmoke: {
+        file: "quest.json",
+        value: {
+          generatedAt: "2026-05-04T00:00:00.000Z",
+          url: "http://localhost:5173/",
+          target: "station",
+          adb: {
+            version: "Android Debug Bridge version 1.0.41",
+            deviceLine: "1234 device product:quest3",
+            reverseList: "1234 tcp:5173 tcp:5173",
+          },
+          browser: {
+            userAgent: "Mozilla/5.0 Quest 3",
+            hidden: false,
+            visibilityState: "visible",
+          },
+          interaction: {},
+          frameSample: {},
+          verdict: {
+            shellLoaded: true,
+            interactionAdvanced: true,
+            frameSampleComplete: false,
+            immersiveEntryOutcome: "not_requested",
+            blockers: ["quest_cdp_frame_sample_incomplete"],
+          },
+        },
+      },
+      questManualPerformanceReport: {
+        file: "docs/openclinxr/quest-manual-performance-2026-05-04.json",
+        value: {
+          manualPerformanceDraft: completedQuestManualPerformanceReport,
+          captureSummary: {
+            draftAvailable: true,
+            manualValidationReady: true,
+            frameStatsFresh: true,
+            blockers: [],
+          },
+        },
+      },
+    });
+    const questGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0008-001");
+
+    expect(report.quest_manual_performance?.adversarial_findings).toEqual(["copied_ui_manual_performance_payload"]);
+    expect(questGate?.satisfied_conditions).toEqual(expect.arrayContaining([
+      "quest_manual_frame_pacing_ready",
+      "frame_sample_600_or_more",
+      "immersive_frame_count_recorded",
+      "controller_select_latency_150ms_or_lower",
+    ]));
+    expect(questGate?.blockers).not.toContain("quest_manual_performance:missing_quest_manual_performance_report");
+  });
+
+  it("keeps copied UI payload summary blockers in Quest manual benchmark gates", () => {
+    const report = buildBenchmarkGateReport({
+      questManualPerformanceReport: {
+        file: "docs/openclinxr/quest-manual-performance-2026-05-04.json",
+        value: {
+          manualPerformanceDraft: completedQuestManualPerformanceReport,
+          captureSummary: {
+            draftAvailable: true,
+            manualValidationReady: false,
+            frameStatsFresh: false,
+            blockers: ["frame_stats_stale_or_unsampled"],
+          },
+        },
+      },
+    });
+    const questGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0008-001");
+
+    expect(report.quest_manual_performance?.blockers).toEqual(["frame_stats_stale_or_unsampled"]);
+    expect(questGate?.blockers).toContain("quest_manual_performance:frame_stats_stale_or_unsampled");
   });
 
   it("marks the leadership evidence gate ready when all fixture evidence is satisfied", () => {

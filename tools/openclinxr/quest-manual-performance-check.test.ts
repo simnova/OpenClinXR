@@ -8,6 +8,75 @@ import { buildQuestManualPerformanceCheck, type QuestManualPerformanceReport } f
 
 const execFileAsync = promisify(execFile);
 
+function completedQuestManualReport(): QuestManualPerformanceReport {
+  return {
+    generatedAt: "2026-05-04T00:00:00.000Z",
+    runContext: {
+      performedBy: "xr-systems-architect",
+      durationMinutes: 10,
+    },
+    setup: {
+      foregroundPageConfirmed: true,
+      devtoolsScreencastDisabled: true,
+      extraBrowserWindowsClosed: true,
+    },
+    station: {
+      shellLoaded: true,
+      traceInteractionPassed: true,
+      textReadable: true,
+      immersiveSessionStarted: true,
+      consoleErrors: [],
+    },
+    experience: {
+      modeId: "full_vr",
+      phaseLabel: "Phase 1 Full VR",
+      requestedSessionMode: "immersive-vr",
+      mixedRealityPassthroughImplemented: false,
+    },
+    input: {
+      handModelCount: 2,
+      handModelStatus: "active",
+      handInputsObserved: 2,
+      locomotionMode: "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
+      activeLocomotionSource: "xr_hand_gesture",
+      xrHandGestureState: {
+        armed: true,
+        dwellMs: 520,
+        leftPinch: true,
+        rightPinch: false,
+        gestureDeadzoneMeters: 0.045,
+        turnCooldownMs: 450,
+      },
+      lastLocomotionAtMs: 60_000,
+      rigPosition: { x: 0.4, z: -0.2 },
+    },
+    traceLatencyProxy: {
+      source: "xr_controller_select",
+      lastTraceTag: "ecg_request",
+      lastSelectLatencyMs: 12,
+      measuredAtMs: 1234,
+      productionControllerLatencySubstitute: false,
+    },
+    performance: {
+      source: "window.__openClinXrFrameStats",
+      framesObserved: 600,
+      sampleWindowSize: 120,
+      firstFrameAtMs: 1000,
+      previewFramesObserved: 0,
+      immersiveFramesObserved: 600,
+      avgFps: 72,
+      p95FrameMs: 25,
+      minimumObservedFps: 60,
+      controllerSelectLatencyMs: 150,
+    },
+    comfort: {
+      motionComfort: "good",
+      heatConcern: false,
+      batteryDropPercent: 2,
+    },
+  };
+}
+
 describe("Quest manual performance checker", () => {
   it("accepts a completed foreground headset report at the current readiness thresholds", async () => {
     const dir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-quest-manual-pass-"));
@@ -114,6 +183,65 @@ describe("Quest manual performance checker", () => {
       "trace_latency_proxy_recorded_as_supporting_evidence",
       "motion_comfort_confirmed",
     ]));
+  });
+
+  it("accepts copied in-app payloads while preserving capture-summary blockers", () => {
+    const payload = {
+      manualPerformanceDraft: completedQuestManualReport(),
+      captureSummary: {
+        draftAvailable: true,
+        manualValidationReady: false,
+        frameStatsFresh: false,
+        blockers: ["frame_stats_stale_or_unsampled"],
+      },
+    };
+
+    const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-copy.json", payload);
+
+    expect(check.readyToClaimFramePacing).toBe(false);
+    expect(check.satisfiedConditions).toEqual(expect.arrayContaining([
+      "frame_sample_600_or_more",
+      "immersive_frame_count_recorded",
+      "controller_select_latency_150ms_or_lower",
+    ]));
+    expect(check.blockers).toEqual(["frame_stats_stale_or_unsampled"]);
+    expect(check.adversarialFindings).toEqual(["copied_ui_manual_performance_payload"]);
+    expect(check.nextSteps).toEqual(expect.arrayContaining([
+      "Keep the headset foreground and copy the evidence only while frameStatsFresh is true.",
+    ]));
+  });
+
+  it("reads the copied in-app Quest Evidence payload through the CLI", async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-quest-manual-copy-pass-"));
+    const input = path.join(dir, "quest-manual-performance-copy.json");
+    const output = path.join(dir, "quest-manual-performance-check.json");
+    await writeFile(input, JSON.stringify({
+      manualPerformanceDraft: completedQuestManualReport(),
+      captureSummary: {
+        draftAvailable: true,
+        manualValidationReady: true,
+        frameStatsFresh: true,
+        blockers: [],
+      },
+    }, null, 2), "utf8");
+
+    await execFileAsync(path.resolve("node_modules/.bin/tsx"), [
+      "tools/openclinxr/check-quest-manual-performance.ts",
+      "--input",
+      input,
+      "--output",
+      output,
+    ], { encoding: "utf8", timeout: 15000 });
+
+    const check = JSON.parse(await readFile(output, "utf8")) as {
+      readyToClaimFramePacing: boolean;
+      blockers: string[];
+      adversarialFindings: string[];
+    };
+
+    expect(check.readyToClaimFramePacing).toBe(true);
+    expect(check.blockers).toEqual([]);
+    expect(check.adversarialFindings).toEqual(["copied_ui_manual_performance_payload"]);
   });
 
   it("requires foreground headset input and locomotion observations before clearing readiness", async () => {

@@ -3,7 +3,7 @@ import { pathToFileURL } from "node:url";
 import {
   buildQuestManualPerformanceCheck,
   type QuestManualPerformanceCheck,
-  type QuestManualPerformanceReport,
+  type QuestManualPerformancePayload,
 } from "../openclinxr/check-quest-manual-performance.js";
 import {
   buildQuestSmokeEvidenceCheck,
@@ -515,7 +515,7 @@ export type BenchmarkGateReportInput = {
   realtimeVoiceTransportSpike?: EvidenceFile<RealtimeVoiceTransportSpikeReport>;
   apiPythonBackendRuntimeSmoke?: EvidenceFile<ApiPythonBackendRuntimeSmokeReport>;
   questManualPerformance?: EvidenceFile<QuestManualPerformanceCheck>;
-  questManualPerformanceReport?: EvidenceFile<QuestManualPerformanceReport>;
+  questManualPerformanceReport?: EvidenceFile<QuestManualPerformancePayload>;
   iwsdkEvidenceContract?: EvidenceFile<IwsdkEvidenceContractReport>;
 };
 
@@ -1105,7 +1105,7 @@ function wholeHours(value: number): number {
   return Math.floor(value);
 }
 
-async function latestQuestManualPerformanceReportJson(): Promise<EvidenceFile<QuestManualPerformanceReport> | undefined> {
+async function latestQuestManualPerformanceReportJson(): Promise<EvidenceFile<QuestManualPerformancePayload> | undefined> {
   const files = (await globFiles("docs/openclinxr/quest-manual-performance-*.json"))
     .filter(isQuestManualPerformanceRawReportPath)
     .sort();
@@ -1113,7 +1113,7 @@ async function latestQuestManualPerformanceReportJson(): Promise<EvidenceFile<Qu
   if (!file) {
     return undefined;
   }
-  return { file, value: await readJson<QuestManualPerformanceReport>(file) };
+  return { file, value: await readJson<QuestManualPerformancePayload>(file) };
 }
 
 export function isQuestManualPerformanceRawReportPath(file: string): boolean {
@@ -1124,7 +1124,7 @@ export function isQuestManualPerformanceRawReportPath(file: string): boolean {
 }
 
 function manualPerformanceReportToCheck(
-  report: EvidenceFile<QuestManualPerformanceReport>,
+  report: EvidenceFile<QuestManualPerformancePayload>,
 ): EvidenceFile<QuestManualPerformanceCheck> {
   return {
     file: report.file,

@@ -82,6 +82,18 @@ export type QuestManualPerformanceReport = {
   };
 };
 
+export type QuestManualPerformanceCopiedPayload = {
+  manualPerformanceDraft?: QuestManualPerformanceReport | null;
+  captureSummary?: {
+    draftAvailable?: boolean;
+    manualValidationReady?: boolean;
+    frameStatsFresh?: boolean | null;
+    blockers?: string[];
+  } | null;
+};
+
+export type QuestManualPerformancePayload = QuestManualPerformanceReport | QuestManualPerformanceCopiedPayload;
+
 export type QuestManualPerformanceCheck = {
   generatedAt: string;
   inputFile: string | null;
@@ -95,8 +107,8 @@ export type QuestManualPerformanceCheck = {
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
   const inputPath = options.inputPath ?? await latestManualReportPath();
-  const report = inputPath ? await readJson<QuestManualPerformanceReport>(inputPath) : undefined;
-  const check = buildQuestManualPerformanceCheck(inputPath, report);
+  const payload = inputPath ? await readJson<QuestManualPerformancePayload>(inputPath) : undefined;
+  const check = buildQuestManualPerformanceCheck(inputPath, payload);
   await mkdir(path.dirname(options.outputPath), { recursive: true });
   await writeFile(options.outputPath, `${JSON.stringify(check, null, 2)}\n`, "utf8");
   console.log(`Wrote ${options.outputPath}; readyToClaimFramePacing=${check.readyToClaimFramePacing}`);
@@ -145,16 +157,22 @@ async function readJson<TValue>(filePath: string): Promise<TValue> {
   return JSON.parse(await readFile(filePath, "utf8")) as TValue;
 }
 
-export function buildQuestManualPerformanceCheck(inputFile: string | undefined, report: QuestManualPerformanceReport | undefined): QuestManualPerformanceCheck {
+export function buildQuestManualPerformanceCheck(inputFile: string | undefined, payload: QuestManualPerformancePayload | undefined): QuestManualPerformanceCheck {
+  const normalizedPayload = normalizeQuestManualPerformancePayload(payload);
+  const report = normalizedPayload.report;
   if (!report) {
+    const blockers = unique([
+      "missing_quest_manual_performance_report",
+      ...normalizedPayload.blockers,
+    ]);
     return {
       generatedAt: new Date().toISOString(),
       inputFile: null,
       readyToClaimFramePacing: false,
       satisfiedConditions: [],
-      blockers: ["missing_quest_manual_performance_report"],
+      blockers,
       adversarialFindings: [],
-      nextSteps: ["Create a dated Quest manual performance report from docs/openclinxr/quest-manual-performance-template.json."],
+      nextSteps: blockers.map(questManualNextStepForBlocker),
     };
   }
 
@@ -193,7 +211,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
   const controllerSelectLatencyMsValid = isPositiveFiniteNumber(controllerSelectLatencyMs);
   const batteryDropPercentValid = isPercentInRange(batteryDropPercent);
   const motionComfortConfirmed = isMotionComfortConfirmed(report.comfort?.motionComfort);
-  const blockers = [
+  const blockers = unique([
     isValidIsoDate(report.generatedAt) ? undefined : "generated_at_invalid_or_missing",
     performedBy.trim().length > 0 ? undefined : "performed_by_missing",
     report.setup?.foregroundPageConfirmed === true ? undefined : "foreground_page_not_confirmed",
@@ -241,15 +259,19 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
     typeof batteryDropPercent === "number" && !batteryDropPercentValid ? "battery_drop_not_finite_range_0_to_100" : undefined,
     batteryDropPercent === null ? "battery_drop_not_recorded" : undefined,
     batteryDropPercentValid && batteryDropPercent > 20 ? "battery_drop_above_20" : undefined,
-  ].filter((blocker): blocker is string => typeof blocker === "string");
-  const adversarialFindings = buildAdversarialFindings({
-    report,
-    durationMinutes,
-    framesObserved,
-    framesObservedValid,
-    heatConcern: report.comfort?.heatConcern,
-    traceLatencyProxy,
-  });
+    ...normalizedPayload.blockers,
+  ].filter((blocker): blocker is string => typeof blocker === "string"));
+  const adversarialFindings = unique([
+    ...buildAdversarialFindings({
+      report,
+      durationMinutes,
+      framesObserved,
+      framesObservedValid,
+      heatConcern: report.comfort?.heatConcern,
+      traceLatencyProxy,
+    }),
+    ...normalizedPayload.adversarialFindings,
+  ]);
 
   return {
     generatedAt: new Date().toISOString(),
@@ -288,6 +310,48 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
       ...adversarialFindings.map(questManualNextStepForAdversarialFinding),
     ]),
   };
+}
+
+function normalizeQuestManualPerformancePayload(payload: QuestManualPerformancePayload | undefined): {
+  report: QuestManualPerformanceReport | undefined;
+  blockers: string[];
+  adversarialFindings: string[];
+} {
+  if (!payload) {
+    return { report: undefined, blockers: [], adversarialFindings: [] };
+  }
+  if (!isCopiedManualPerformancePayload(payload)) {
+    return { report: payload, blockers: [], adversarialFindings: [] };
+  }
+
+  const report = isRecord(payload.manualPerformanceDraft)
+    ? payload.manualPerformanceDraft as QuestManualPerformanceReport
+    : undefined;
+  const captureSummary = isRecord(payload.captureSummary) ? payload.captureSummary : undefined;
+  const summaryBlockers = Array.isArray(captureSummary?.blockers)
+    ? captureSummary.blockers.filter((blocker): blocker is string => typeof blocker === "string")
+    : [];
+  const blockers = unique([
+    report ? undefined : "copied_payload_missing_manual_performance_draft",
+    captureSummary?.manualValidationReady === false && summaryBlockers.length === 0
+      ? "copied_payload_summary_not_ready"
+      : undefined,
+    captureSummary?.draftAvailable === false && summaryBlockers.length === 0
+      ? "copied_payload_summary_missing_draft_or_frame_stats"
+      : undefined,
+    captureSummary?.frameStatsFresh === false ? "frame_stats_stale_or_unsampled" : undefined,
+    ...summaryBlockers,
+  ].filter((blocker): blocker is string => typeof blocker === "string"));
+
+  return {
+    report,
+    blockers,
+    adversarialFindings: ["copied_ui_manual_performance_payload"],
+  };
+}
+
+function isCopiedManualPerformancePayload(payload: QuestManualPerformancePayload): payload is QuestManualPerformanceCopiedPayload {
+  return isRecord(payload) && "manualPerformanceDraft" in payload;
 }
 
 function buildAdversarialFindings(input: {
@@ -335,6 +399,8 @@ function buildAdversarialFindings(input: {
 
 function questManualNextStepForAdversarialFinding(finding: string): string {
   switch (finding) {
+    case "copied_ui_manual_performance_payload":
+      return "The checker accepted the copied in-app payload; preserve the manualPerformanceDraft and captureSummary fields for auditability.";
     case "devtools_screencast_enabled_during_run":
       return "Rerun with DevTools screencast disabled so headset frame timing is less distorted.";
     case "hand_tracking_uses_primitive_box_model":
@@ -435,6 +501,14 @@ function questManualNextStepForBlocker(blocker: string): string {
       return "Record battery drop percent.";
     case "battery_drop_above_20":
       return "Investigate or rerun if battery drop exceeds 20 percent.";
+    case "copied_payload_missing_manual_performance_draft":
+      return "Copy the full in-app Quest Evidence JSON payload, including manualPerformanceDraft.";
+    case "copied_payload_summary_not_ready":
+      return "Resolve the copied captureSummary blockers before using the payload as readiness evidence.";
+    case "copied_payload_summary_missing_draft_or_frame_stats":
+      return "Copy the in-app Quest Evidence payload after the draft and frame stats are both available.";
+    case "frame_stats_stale_or_unsampled":
+      return "Keep the headset foreground and copy the evidence only while frameStatsFresh is true.";
     default:
       return `Resolve Quest manual blocker: ${blocker}.`;
   }
@@ -504,6 +578,10 @@ function isSupportingTraceLatencyProxy(value: QuestManualPerformanceReport["trac
 
 function isKnownTraceLatencySource(value: string | undefined): boolean {
   return value === "dom_click_trace_button" || value === "xr_controller_select";
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function unique(values: string[]): string[] {
