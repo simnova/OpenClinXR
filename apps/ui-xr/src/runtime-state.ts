@@ -939,16 +939,34 @@ function previewManualPerformanceValidation(
   const inputEvidence = draft.input;
   const framesObserved = draft.performance.framesObserved;
   const sampleWindowSize = draft.performance.sampleWindowSize;
+  const immersiveFramesObserved = draft.performance.immersiveFramesObserved ?? null;
   const avgFps = draft.performance.avgFps;
   const p95FrameMs = draft.performance.p95FrameMs;
   const minimumObservedFps = draft.performance.minimumObservedFps;
   const controllerSelectLatencyMs = draft.performance.controllerSelectLatencyMs;
+  const traceLatencyProxy = draft.traceLatencyProxy;
+  const traceLastSelectLatencyMs = traceLatencyProxy?.lastSelectLatencyMs ?? null;
+  const traceMeasuredAtMs = traceLatencyProxy?.measuredAtMs ?? null;
+  const traceLastTraceTag = traceLatencyProxy?.lastTraceTag ?? null;
+  const traceSourceXrControllerSelect = traceLatencyProxy?.source === "xr_controller_select";
+  const traceLastTraceTagRecorded = typeof traceLastTraceTag === "string"
+    && traceLastTraceTag.trim().length > 0;
+  const traceSelectLatencyMsValid = isPositiveFiniteNumber(traceLastSelectLatencyMs);
+  const traceMeasuredAtMsValid = isNonNegativeFiniteNumber(traceMeasuredAtMs);
   const batteryDropPercent = draft.comfort.batteryDropPercent;
   const framesObservedValid = isNonNegativeInteger(framesObserved);
   const sampleWindowSizeValid = isNonNegativeInteger(sampleWindowSize);
+  const immersiveFramesObservedValid = isNonNegativeInteger(immersiveFramesObserved);
+  const immersiveFrameSampleReady = immersiveFramesObservedValid && immersiveFramesObserved >= 600;
   const sampleWindowWithinObservedFrames = framesObservedValid
     && sampleWindowSizeValid
     && sampleWindowSize <= framesObserved;
+  const sampleWindowWithinImmersiveFrames = immersiveFramesObservedValid
+    && sampleWindowSizeValid
+    && sampleWindowSize <= immersiveFramesObserved;
+  const rollingFrameWindowReady = sampleWindowWithinObservedFrames
+    && sampleWindowWithinImmersiveFrames
+    && sampleWindowSize >= 120;
   const avgFpsPlausible = isPlausibleFps(avgFps);
   const minimumObservedFpsPlausible = isPlausibleFps(minimumObservedFps);
   const minimumFpsAtOrBelowAverage = typeof minimumObservedFps === "number"
@@ -959,6 +977,16 @@ function previewManualPerformanceValidation(
     : true;
   const p95FrameMsValid = isPositiveFiniteNumber(p95FrameMs);
   const controllerSelectLatencyMsValid = isPositiveFiniteNumber(controllerSelectLatencyMs);
+  const controllerSelectLatencyMatchesTrace = controllerSelectLatencyMsValid && traceSelectLatencyMsValid
+    ? Math.abs(controllerSelectLatencyMs - traceLastSelectLatencyMs) <= 1
+    : false;
+  const controllerSelectLatencyReady = controllerSelectLatencyMsValid
+    && controllerSelectLatencyMs <= 150
+    && traceSourceXrControllerSelect
+    && traceLastTraceTagRecorded
+    && traceSelectLatencyMsValid
+    && traceMeasuredAtMsValid
+    && controllerSelectLatencyMatchesTrace;
   const batteryDropPercentValid = isPercentInRange(batteryDropPercent);
   const motionComfortConfirmed = isMotionComfortConfirmed(draft.comfort.motionComfort);
 
@@ -979,15 +1007,24 @@ function previewManualPerformanceValidation(
     draft.station.consoleErrors.length === 0 ? undefined : "console_errors_present",
     draft.performance.source === "window.__openClinXrFrameStats" ? undefined : "performance_source_not_openclinxr_frame_stats",
     framesObservedValid && framesObserved >= 600 ? undefined : "frame_sample_under_600_or_missing",
-    sampleWindowWithinObservedFrames && sampleWindowSize >= 120 ? undefined : "rolling_frame_window_under_120_or_missing",
+    draft.station.immersiveSessionStarted && immersiveFrameSampleReady ? undefined : "immersive_frame_sample_under_600_or_missing",
+    sampleWindowSizeValid && immersiveFramesObservedValid && sampleWindowSize > immersiveFramesObserved
+      ? "rolling_frame_window_exceeds_immersive_frames_observed"
+      : undefined,
+    rollingFrameWindowReady ? undefined : "rolling_frame_window_under_120_or_missing",
     avgFpsPlausible && avgFps >= 72 ? undefined : "average_fps_below_72_or_missing",
     minimumObservedFpsPlausible && minimumFpsAtOrBelowAverage && minimumObservedFps >= 60
       ? undefined
       : "minimum_fps_below_60_or_missing",
     p95FrameMsValid && p95FrameMs <= 25 ? undefined : "p95_frame_ms_above_25_or_missing",
-    controllerSelectLatencyMsValid && controllerSelectLatencyMs <= 150
-      ? undefined
-      : "controller_select_latency_ms_above_150_or_missing",
+    controllerSelectLatencyMsValid && controllerSelectLatencyMs <= 150 ? undefined : "controller_select_latency_ms_above_150_or_missing",
+    traceSourceXrControllerSelect ? undefined : "controller_select_trace_source_not_xr_controller_select",
+    traceLastTraceTagRecorded ? undefined : "controller_select_trace_tag_missing",
+    traceSelectLatencyMsValid ? undefined : "controller_select_trace_latency_missing",
+    traceMeasuredAtMsValid ? undefined : "controller_select_trace_measured_at_missing",
+    controllerSelectLatencyMsValid && traceSelectLatencyMsValid && !controllerSelectLatencyMatchesTrace
+      ? "controller_select_latency_mismatch"
+      : undefined,
     motionComfortConfirmed ? undefined : "motion_comfort_not_confirmed",
     draft.comfort.heatConcern === false ? undefined : "heat_concern_not_cleared",
     batteryDropPercentValid ? undefined : "battery_drop_not_recorded",
@@ -1011,15 +1048,23 @@ function previewManualPerformanceValidation(
     draft.station.consoleErrors.length === 0 ? "console_errors_empty" : undefined,
     draft.performance.source === "window.__openClinXrFrameStats" ? "performance_source_openclinxr_frame_stats" : undefined,
     framesObservedValid && framesObserved >= 600 ? "frame_sample_600_or_more" : undefined,
-    sampleWindowWithinObservedFrames && sampleWindowSize >= 120 ? "rolling_frame_window_120_or_more" : undefined,
+    immersiveFrameSampleReady ? "immersive_frame_sample_600_or_more" : undefined,
+    rollingFrameWindowReady ? "rolling_frame_window_120_or_more" : undefined,
     avgFpsPlausible && avgFps >= 72 ? "average_fps_72_or_higher" : undefined,
     minimumObservedFpsPlausible && minimumFpsAtOrBelowAverage && minimumObservedFps >= 60
       ? "minimum_fps_60_or_higher"
       : undefined,
     p95FrameMsValid && p95FrameMs <= 25 ? "p95_frame_ms_25_or_lower" : undefined,
-    controllerSelectLatencyMsValid && controllerSelectLatencyMs <= 150
+    controllerSelectLatencyReady
       ? "controller_select_latency_150ms_or_lower"
       : undefined,
+    traceSourceXrControllerSelect
+    && traceLastTraceTagRecorded
+    && traceSelectLatencyMsValid
+    && traceMeasuredAtMsValid
+      ? "xr_controller_select_trace_latency_recorded"
+      : undefined,
+    controllerSelectLatencyMatchesTrace ? "controller_select_latency_matches_trace_proxy" : undefined,
     motionComfortConfirmed ? "motion_comfort_confirmed" : undefined,
     draft.comfort.heatConcern === false ? "heat_concern_cleared" : undefined,
     batteryDropPercentValid && batteryDropPercent <= 20 ? "battery_drop_recorded_under_20" : undefined,
@@ -1045,6 +1090,10 @@ function isPositiveFiniteNumber(value: number | null): value is number {
   return typeof value === "number" && Number.isFinite(value) && value > 0;
 }
 
+function isNonNegativeFiniteNumber(value: number | null): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0;
+}
+
 function isPercentInRange(value: number | null): value is number {
   return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100;
 }
@@ -1060,9 +1109,13 @@ function hasObservedHeadsetInput(value: ManualPerformanceDraft["input"]): boolea
 }
 
 function hasObservedLocomotion(value: ManualPerformanceDraft["input"]): boolean {
+  const hasLocomotionSource = typeof value?.activeLocomotionSource === "string"
+    && value.activeLocomotionSource !== "none";
+
   return typeof value?.lastLocomotionAtMs === "number"
     && Number.isFinite(value.lastLocomotionAtMs)
-    && value.lastLocomotionAtMs >= 0;
+    && value.lastLocomotionAtMs >= 0
+    && hasLocomotionSource;
 }
 
 function isFullVrExperienceEvidence(value: XrExperienceModeEvidence): boolean {

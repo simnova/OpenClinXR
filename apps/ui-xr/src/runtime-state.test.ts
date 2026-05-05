@@ -642,6 +642,7 @@ describe("XR runtime state", () => {
         "performance_source_openclinxr_frame_stats",
         "average_fps_72_or_higher",
         "p95_frame_ms_25_or_lower",
+        "xr_controller_select_trace_latency_recorded",
       ],
       blockers: [
         "performed_by_missing",
@@ -651,6 +652,7 @@ describe("XR runtime state", () => {
         "trace_interaction_not_confirmed",
         "locomotion_not_observed",
         "frame_sample_under_600_or_missing",
+        "immersive_frame_sample_under_600_or_missing",
         "rolling_frame_window_under_120_or_missing",
         "minimum_fps_below_60_or_missing",
         "controller_select_latency_ms_above_150_or_missing",
@@ -690,6 +692,13 @@ describe("XR runtime state", () => {
       frameStats,
       controllerSelectLatencyMs: 87.5,
       immersiveSessionStarted: true,
+      traceLatencyEvidence: {
+        lastTraceTag: "ecg_request",
+        lastSelectLatencyMs: 87.5,
+        source: "xr_controller_select",
+        measuredAtMs: 600_000,
+        productionControllerLatencySubstitute: false,
+      },
       inputEvidence: {
         handModelCount: 2,
         handModelStatus: "installed",
