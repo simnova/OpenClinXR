@@ -16,7 +16,8 @@ Use WebSocket-first for the immediate Quest 3 voice path, with `/apps/api` treat
 - `docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json` records a no-cloud bidirectional streaming harness run.
 - `docs/openclinxr/api-python-backend-runtime-smoke-2026-05-04.json` is now linked into the realtime report, retiring the stale FastAPI-not-executed blocker while preserving model, Quest audio, Opus, and safety blockers.
 - The report now records protocol evidence separately: WebSocket local harness observed; Bun/Hono runtime, WebTransport, direct QUIC, and Web3 signaling remain unobserved and evidence-gated.
-- Godot and the local gateway contract now send `voice.audio_metadata` before binary chunks so chunk indexes and per-frame latency samples can be measured before native Opus and real model integration.
+- The Godot Quest client source contract is observed in `apps/ui-quest-voice-godot`: dependency-free Godot sidecar, `WebSocketPeer`, `voice.audio_metadata`, and opaque binary packets. Godot runtime execution on this machine and Quest microphone/playback evidence are still unobserved.
+- Godot and the local gateway contract send `voice.audio_metadata` before binary chunks so chunk indexes and per-frame latency samples can be measured before native Opus and real model integration.
 
 ## Sequence
 
@@ -68,6 +69,13 @@ func start_voice_session() -> void:
     }))
 
 func send_opus_packet(packet: PackedByteArray) -> void:
+    socket.send_text(JSON.stringify({
+        "type": "voice.audio_metadata",
+        "chunkIndex": 0,
+        "byteLength": packet.size(),
+        "codec": "opus",
+        "clientSentAtMs": Time.get_ticks_msec()
+    }))
     socket.put_packet(packet)
 
 func stop_voice_session() -> void:
@@ -88,6 +96,7 @@ func _play_received_audio_packet(_packet: PackedByteArray) -> void:
 
 ## Remaining Blockers
 
+- Install or attach a Godot runtime for source-level sidecar execution.
 - Execute a real Quest/Godot client with microphone capture and playback.
 - Add or select a native Opus encode/decode path for Quest/Godot, or switch this lane to WebRTC if that proves simpler.
 - Install Bun locally and benchmark `/apps/api` Bun/Hono WebSocket behavior.

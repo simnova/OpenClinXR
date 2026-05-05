@@ -1,4 +1,6 @@
 import { execFile } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { promisify } from "node:util";
 import { pathToFileURL } from "node:url";
 import {
@@ -34,6 +36,19 @@ type ApiPythonBackendRuntimeSmokeEvidence = {
     passed: boolean;
     blockers: string[];
   };
+};
+
+type QuestClientSourceContractEvidence = {
+  status: "source_contract_observed" | "blocked";
+  appPath: "apps/ui-quest-voice-godot";
+  sourceContractObserved: boolean;
+  godotRuntimeAvailable: boolean;
+  dependencyFreeSidecar: boolean;
+  websocketPeerObserved: boolean;
+  audioMetadataObserved: boolean;
+  opaqueBinaryPacketProbeObserved: boolean;
+  productionAudioClaims: boolean;
+  blockers: string[];
 };
 
 export type RealtimeVoiceTransportSpikeReport = {
@@ -90,6 +105,7 @@ export type RealtimeVoiceTransportSpikeReport = {
     websocketConnected: boolean;
     websocketLatencyMs: number | null;
   };
+  questClientSourceContract: QuestClientSourceContractEvidence;
   harness: Awaited<ReturnType<typeof runRealtimeVoiceProxyHarness>>;
   verdict: {
     transportContractPassed: boolean;
@@ -149,15 +165,18 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
   generatedAt?: string;
   targetLatencyMs?: number;
   bunAvailable?: boolean;
+  godotAvailable?: boolean;
   apiPythonBackendRuntimeSmoke?: ApiPythonBackendRuntimeSmokeEvidence;
 } = {}): Promise<RealtimeVoiceTransportSpikeReport> {
   const generatedAt = input.generatedAt ?? new Date().toISOString();
   const targetLatencyMs = input.targetLatencyMs ?? 250;
-  const bunAvailable = input.bunAvailable ?? await commandAvailable("bun");
-  const [pythonBackendVerifier, harness] = await Promise.all([
+  const [bunAvailable, godotAvailable, pythonBackendVerifier, harness] = await Promise.all([
+    input.bunAvailable === undefined ? commandAvailable("bun") : Promise.resolve(input.bunAvailable),
+    input.godotAvailable === undefined ? anyCommandAvailable(["godot", "godot4", "Godot"]) : Promise.resolve(input.godotAvailable),
     verifyPythonBackendSource(),
     runHarness(targetLatencyMs),
   ]);
+  const questClientSourceContract = buildQuestClientSourceContract({ godotRuntimeAvailable: godotAvailable });
   const pythonBackendRuntimeSmoke = input.apiPythonBackendRuntimeSmoke
     ? summarizePythonBackendRuntimeSmoke(input.apiPythonBackendRuntimeSmoke)
     : undefined;
@@ -226,6 +245,7 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
     },
     pythonBackendVerifier,
     ...(pythonBackendRuntimeSmoke ? { pythonBackendRuntimeSmoke } : {}),
+    questClientSourceContract,
     harness,
     verdict: {
       transportContractPassed,
@@ -239,6 +259,63 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
       ],
     },
   };
+}
+
+function buildQuestClientSourceContract(input: {
+  godotRuntimeAvailable: boolean;
+}): QuestClientSourceContractEvidence {
+  const appPath = "apps/ui-quest-voice-godot" as const;
+  const project = readWorkspaceText(join(appPath, "project.godot"));
+  const client = readWorkspaceText(join(appPath, "src/RealtimeVoiceClient.gd"));
+  const readme = readWorkspaceText(join(appPath, "README.md"));
+  const scene = readWorkspaceText(join(appPath, "scenes/realtime_voice_spike.tscn"));
+  const main = readWorkspaceText(join(appPath, "src/Main.gd"));
+  const allSidecarText = [readme, project, scene, main, client].join("\n");
+
+  const dependencyFreeSidecar = !existsSync(join(process.cwd(), appPath, "package.json"));
+  const websocketPeerObserved = client.includes("WebSocketPeer.new()")
+    && client.includes("connect_to_url")
+    && client.includes("/voice/realtime/ws");
+  const audioMetadataObserved = client.includes('"type": "voice.audio_metadata"')
+    && client.includes('"chunkIndex": next_chunk_index')
+    && client.includes('"clientSentAtMs": Time.get_ticks_msec()');
+  const opaqueBinaryPacketProbeObserved = client.includes("socket.put_packet(packet)")
+    && client.includes("send_transport_probe");
+  const productionAudioClaims = /production[- ]ready|live dialog ready|latency proven/i.test(allSidecarText);
+  const sourceContractObserved = project.includes("config_version=5")
+    && project.includes('run/main_scene="res://scenes/realtime_voice_spike.tscn"')
+    && dependencyFreeSidecar
+    && websocketPeerObserved
+    && audioMetadataObserved
+    && opaqueBinaryPacketProbeObserved
+    && !productionAudioClaims;
+  const blockers = [
+    sourceContractObserved ? undefined : "quest_godot_source_contract_not_observed",
+    input.godotRuntimeAvailable ? undefined : "godot_runtime_not_installed_on_this_machine",
+    "quest_device_execution_not_observed",
+    "native_opus_codec_not_integrated_in_godot",
+    "quest_microphone_capture_not_observed",
+    "quest_audio_playback_not_observed",
+    productionAudioClaims ? "quest_godot_sidecar_contains_production_audio_claims" : undefined,
+  ].filter((blocker): blocker is string => typeof blocker === "string");
+
+  return {
+    status: sourceContractObserved ? "source_contract_observed" : "blocked",
+    appPath,
+    sourceContractObserved,
+    godotRuntimeAvailable: input.godotRuntimeAvailable,
+    dependencyFreeSidecar,
+    websocketPeerObserved,
+    audioMetadataObserved,
+    opaqueBinaryPacketProbeObserved,
+    productionAudioClaims,
+    blockers,
+  };
+}
+
+function readWorkspaceText(relativePath: string): string {
+  const absolutePath = join(process.cwd(), relativePath);
+  return existsSync(absolutePath) ? readFileSync(absolutePath, "utf8") : "";
 }
 
 function summarizePythonBackendRuntimeSmoke(
@@ -308,6 +385,15 @@ async function commandAvailable(command: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+async function anyCommandAvailable(commands: string[]): Promise<boolean> {
+  for (const command of commands) {
+    if (await commandAvailable(command)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {

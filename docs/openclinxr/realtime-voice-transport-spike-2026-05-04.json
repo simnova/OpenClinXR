@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T01:03:06.651Z",
+  "generatedAt": "2026-05-05T01:28:44.751Z",
   "status": "transport_spike_passed",
   "policy": {
     "cloudApisUsed": false,
@@ -145,6 +145,24 @@
     "websocketConnected": true,
     "websocketLatencyMs": 17
   },
+  "questClientSourceContract": {
+    "status": "source_contract_observed",
+    "appPath": "apps/ui-quest-voice-godot",
+    "sourceContractObserved": true,
+    "godotRuntimeAvailable": false,
+    "dependencyFreeSidecar": true,
+    "websocketPeerObserved": true,
+    "audioMetadataObserved": true,
+    "opaqueBinaryPacketProbeObserved": true,
+    "productionAudioClaims": false,
+    "blockers": [
+      "godot_runtime_not_installed_on_this_machine",
+      "quest_device_execution_not_observed",
+      "native_opus_codec_not_integrated_in_godot",
+      "quest_microphone_capture_not_observed",
+      "quest_audio_playback_not_observed"
+    ]
+  },
   "harness": {
     "controlFramesSent": 2,
     "audioMetadataFramesSent": 2,
@@ -154,10 +172,10 @@
     "binaryAudioChunksReceived": 2,
     "backendProtocol": "python-fastapi-compatible-websocket",
     "codec": "opus",
-    "roundTripLatencyMs": 10.23,
+    "roundTripLatencyMs": 16.37,
     "frameLatencySamplesMs": [
-      4.23,
-      4.16
+      6.89,
+      6.82
     ],
     "audioChunkIndexesReceived": [
       0,

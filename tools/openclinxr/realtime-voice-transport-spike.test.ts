@@ -7,6 +7,7 @@ describe("realtime voice transport spike report", () => {
       generatedAt: "2026-05-04T22:00:00.000Z",
       targetLatencyMs: 250,
       bunAvailable: false,
+      godotAvailable: false,
     });
 
     expect(report.policy).toEqual({
@@ -62,6 +63,24 @@ describe("realtime voice transport spike report", () => {
       status: "passed",
       command: "python3 apps/api-python-backend/scripts/verify_backend.py",
     });
+    expect(report.questClientSourceContract).toEqual({
+      status: "source_contract_observed",
+      appPath: "apps/ui-quest-voice-godot",
+      sourceContractObserved: true,
+      godotRuntimeAvailable: false,
+      dependencyFreeSidecar: true,
+      websocketPeerObserved: true,
+      audioMetadataObserved: true,
+      opaqueBinaryPacketProbeObserved: true,
+      productionAudioClaims: false,
+      blockers: [
+        "godot_runtime_not_installed_on_this_machine",
+        "quest_device_execution_not_observed",
+        "native_opus_codec_not_integrated_in_godot",
+        "quest_microphone_capture_not_observed",
+        "quest_audio_playback_not_observed",
+      ],
+    });
     expect(report.verdict).toEqual({
       transportContractPassed: true,
       readyForLiveDialog: false,
@@ -86,6 +105,7 @@ describe("realtime voice transport spike report", () => {
       generatedAt: "2026-05-04T22:30:00.000Z",
       targetLatencyMs: 250,
       bunAvailable: false,
+      godotAvailable: true,
       apiPythonBackendRuntimeSmoke: {
         status: "passed",
         health: { ok: true, latencyMs: 40 },
@@ -119,6 +139,7 @@ describe("realtime voice transport spike report", () => {
     ]));
     expect(report.verdict.caveats.join("\n")).toContain("FastAPI runtime smoke passed");
     expect(report.verdict.readyForLiveDialog).toBe(false);
+    expect(report.questClientSourceContract.blockers).not.toContain("godot_runtime_not_installed_on_this_machine");
   });
 
   it("blocks the transport contract when supplied FastAPI runtime smoke is blocked", async () => {

@@ -103,7 +103,7 @@
     {
       "evidence_id": "realtime_voice_transport_spike",
       "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json",
-      "generated_at": "2026-05-05T01:03:06.651Z",
+      "generated_at": "2026-05-05T01:28:44.751Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -121,7 +121,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-05T01:23:42.762Z",
+      "generated_at": "2026-05-05T01:29:25.857Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -920,14 +920,14 @@
   },
   "realtime_voice_transport_spike": {
     "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json",
-    "generated_at": "2026-05-05T01:03:06.651Z",
+    "generated_at": "2026-05-05T01:28:44.751Z",
     "status": "transport_spike_passed",
-    "round_trip_latency_ms": 10.23,
+    "round_trip_latency_ms": 16.37,
     "audio_metadata_frames_sent": 2,
     "audio_chunk_metadata_received": 2,
     "frame_latency_samples_ms": [
-      4.23,
-      4.16
+      6.89,
+      6.82
     ],
     "audio_chunk_indexes_received": [
       0,
@@ -1099,7 +1099,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-05T01:23:42.762Z",
+    "generated_at": "2026-05-05T01:29:25.857Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "ready_to_claim_frame_pacing": false,
     "satisfied_conditions": [
