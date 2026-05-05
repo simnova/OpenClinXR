@@ -4,6 +4,7 @@ import { buildIwsdkUiXrStationParityContract } from "@openclinxr/iwsdk-spike";
 import {
   buildIwsdkSidecarLocalMetricsEvidence,
   buildIwsdkSidecarIwerInputProbeEvidence,
+  buildIwsdkSidecarFrameStats,
   buildIwsdkSidecarXrEntryEvidence,
   buildIwsdkSidecarRuntimeEvidence,
   completeIwsdkSidecarTraceAction,
@@ -73,6 +74,33 @@ describe("IWSDK sidecar runtime state", () => {
       p95FrameMs: 40,
       maxFrameMs: 40,
       approxFps: 40,
+    });
+  });
+
+  it("builds split preview and immersive frame stats for IWER evidence parity", () => {
+    expect(buildIwsdkSidecarFrameStats({
+      frameDeltasMs: [10, 20, 30, 40],
+      framesObserved: 5,
+      previewFramesObserved: 2,
+      immersiveFramesObserved: 3,
+      latestFrameAtMs: 123.45,
+      qualitySource: "webxr_animation_loop",
+      isPresenting: true,
+      visibilityState: "visible",
+    })).toEqual({
+      sampleCount: 4,
+      avgFrameMs: 25,
+      p95FrameMs: 40,
+      maxFrameMs: 40,
+      approxFps: 40,
+      framesObserved: 5,
+      latestFrameAtMs: 123.45,
+      sampleWindowSize: 4,
+      previewFramesObserved: 2,
+      immersiveFramesObserved: 3,
+      qualitySource: "webxr_animation_loop",
+      isPresenting: true,
+      visibilityState: "visible",
     });
   });
 
@@ -254,6 +282,17 @@ describe("IWSDK sidecar runtime state", () => {
 
     expect(source).toContain("renderer.xr.isPresenting");
     expect(source.indexOf("renderer.xr.isPresenting")).toBeLessThan(source.indexOf("renderer.setSize(width, height, false)"));
+  });
+
+  it("publishes split preview and immersive frame evidence from the sidecar render loops", () => {
+    const source = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+
+    expect(source).toContain("buildIwsdkSidecarFrameStats");
+    expect(source).toContain("previewFramesObserved");
+    expect(source).toContain("immersiveFramesObserved");
+    expect(source).toContain("webxr_animation_loop");
+    expect(source).toContain("flat_preview_fallback");
+    expect(source).toContain("visibilityState: document.visibilityState");
   });
 
   it("renders clinical text and controller affordances inside the immersive scene", () => {

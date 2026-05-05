@@ -65,6 +65,11 @@ export type IwerAutoEntryBrowserSmokeEvidence = {
     maxFrameMs?: number;
     approxFps?: number;
     framesObserved?: number;
+    previewFramesObserved?: number;
+    immersiveFramesObserved?: number;
+    qualitySource?: "webxr_animation_loop" | "flat_preview_fallback";
+    isPresenting?: boolean;
+    visibilityState?: string;
     sampleWindowSize?: number;
   };
   inputEvidence?: {
@@ -349,11 +354,36 @@ function evidenceWarnings(evidence: IwerAutoEntryBrowserSmokeEvidence): string[]
       ? "hand_models_installed_but_no_hand_inputs_observed"
       : undefined,
     evidence.inputEvidence?.lastLocomotionAtMs === null ? "locomotion_not_observed" : undefined,
+    ...frameLaneParityWarnings(evidence),
     hasRichInputEvidence(evidence.inputEvidence) ? undefined : "input_evidence_shape_incomplete",
     textPanelEvidenceWarning(evidence.textPanelEvidence),
   ].filter((warning): warning is string => typeof warning === "string");
 
   return [...new Set(warnings)];
+}
+
+function frameLaneParityWarnings(evidence: IwerAutoEntryBrowserSmokeEvidence): string[] {
+  if (!startedSessionEntry(evidence.sessionEntryEvidence)) {
+    return [];
+  }
+
+  const frameStats = evidence.frameStats;
+  if (!hasFrameLaneSplit(frameStats)) {
+    return ["iwer_frame_lane_split_missing"];
+  }
+
+  return frameStats.immersiveFramesObserved === 0 ? ["iwer_immersive_frame_lane_not_observed"] : [];
+}
+
+function startedSessionEntry(entry: IwerAutoEntryBrowserSmokeEvidence["sessionEntryEvidence"]): boolean {
+  return entry?.outcome === "session_started" || entry?.appEvidence?.lastStatus === "started";
+}
+
+function hasFrameLaneSplit(frameStats: IwerAutoEntryBrowserSmokeEvidence["frameStats"]): frameStats is
+  NonNullable<IwerAutoEntryBrowserSmokeEvidence["frameStats"]>
+  & Required<Pick<NonNullable<IwerAutoEntryBrowserSmokeEvidence["frameStats"]>, "previewFramesObserved" | "immersiveFramesObserved">> {
+  return validNonNegativeNumber(frameStats?.previewFramesObserved)
+    && validNonNegativeNumber(frameStats?.immersiveFramesObserved);
 }
 
 function hasRichInputEvidence(input: IwerAutoEntryBrowserSmokeEvidence["inputEvidence"]): boolean {

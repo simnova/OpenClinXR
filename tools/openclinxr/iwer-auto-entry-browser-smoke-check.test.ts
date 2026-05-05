@@ -29,6 +29,7 @@ describe("IWER auto-entry browser smoke checker", () => {
         "console_warning_observed",
         "hand_models_installed_but_no_hand_inputs_observed",
         "locomotion_not_observed",
+        "iwer_frame_lane_split_missing",
         "input_evidence_shape_incomplete",
         "text_panel_evidence_missing",
       ],
@@ -81,6 +82,40 @@ describe("IWER auto-entry browser smoke checker", () => {
       "text_panel_evidence_missing",
     ]));
     expect(report.evidence.sessionEntryEvidence?.outcome).toBe("session_started");
+  });
+
+  it("warns without blocking when started auto-entry evidence lacks frame-lane split fields", () => {
+    const report = buildIwerAutoEntryBrowserSmokeReport({
+      generatedAt: "2026-05-05T02:45:00.000Z",
+      evidence: readyEvidence(),
+    });
+
+    expect(report.result.readyForAutoEntryEvidence).toBe(true);
+    expect(report.result.blockers).toEqual([]);
+    expect(report.result.warnings).toContain("iwer_frame_lane_split_missing");
+    expect(report.result.warnings).not.toContain("iwer_immersive_frame_lane_not_observed");
+  });
+
+  it("warns without blocking when started auto-entry evidence observes only preview or fallback frames", () => {
+    const evidence = readyEvidence();
+    evidence.frameStats = {
+      ...evidence.frameStats,
+      previewFramesObserved: 27237,
+      immersiveFramesObserved: 0,
+      qualitySource: "flat_preview_fallback",
+      isPresenting: false,
+      visibilityState: "visible",
+    };
+
+    const report = buildIwerAutoEntryBrowserSmokeReport({
+      generatedAt: "2026-05-05T02:45:00.000Z",
+      evidence,
+    });
+
+    expect(report.result.readyForAutoEntryEvidence).toBe(true);
+    expect(report.result.blockers).toEqual([]);
+    expect(report.result.warnings).not.toContain("iwer_frame_lane_split_missing");
+    expect(report.result.warnings).toContain("iwer_immersive_frame_lane_not_observed");
   });
 
   it("clears optional app-side evidence warnings when rich input and text-panel metadata are present", () => {

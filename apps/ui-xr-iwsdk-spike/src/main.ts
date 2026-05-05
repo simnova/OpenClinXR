@@ -24,6 +24,7 @@ import {
 import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
 import { XRHandModelFactory } from "three/addons/webxr/XRHandModelFactory.js";
 import {
+  buildIwsdkSidecarFrameStats,
   buildIwsdkSidecarXrEntryEvidence,
   buildIwsdkSidecarRuntimeEvidence,
   completeIwsdkSidecarTraceAction,
@@ -32,7 +33,8 @@ import {
   iwsdkSidecarSceneObjectNames,
   recordIwsdkSidecarXrEntryEvidence,
   summarizeIwsdkSidecarReadiness,
-  summarizeIwsdkSidecarFrameDeltas,
+  type IwsdkSidecarFrameQualitySource,
+  type IwsdkSidecarFrameStats,
   type IwsdkSidecarRuntimeEvidence,
   type IwsdkSidecarRuntimeState,
   type IwsdkSidecarXrEntryEvidence,
@@ -172,11 +174,7 @@ type IwerEvidenceViewEvidence = {
 
 declare global {
   interface Window {
-    __openClinXrFrameStats?: ReturnType<typeof summarizeIwsdkSidecarFrameDeltas> & {
-      framesObserved: number;
-      latestFrameAtMs: number | null;
-      sampleWindowSize: number;
-    };
+    __openClinXrFrameStats?: IwsdkSidecarFrameStats;
     __openClinXrIwsdkSidecarEvidence?: IwsdkSidecarRuntimeEvidence;
     __openClinXrIwsdkSidecarTraceTags?: string[];
     __openClinXrInputEvidence?: OpenClinXrInputEvidence;
@@ -637,10 +635,18 @@ function createStationScene(): StationSceneRuntime {
 
   function animate(timestamp?: number): void {
     const now = typeof timestamp === "number" ? timestamp : performance.now();
+    renderStationFrame(now, "webxr_animation_loop");
+  }
+
+  function renderStationFrame(now: number, qualitySource: IwsdkSidecarFrameQualitySource): void {
     lastRenderLoopAtMs = now;
     const deltaSeconds = Math.min((now - lastAnimateAtMs) / 1000, 0.05);
     lastAnimateAtMs = now;
-    recordFrame(now);
+    recordFrame(now, {
+      qualitySource,
+      isPresenting: renderer.xr.isPresenting && activeXrSession !== undefined && immersiveSessionActive,
+      visibilityState: document.visibilityState,
+    });
     const inputEvidence = applyLocomotion({
       deltaSeconds,
       keyboardLocomotion,
@@ -798,7 +804,7 @@ function createStationScene(): StationSceneRuntime {
   function fallbackAnimationLoop(): void {
     const now = performance.now();
     if (now - lastRenderLoopAtMs > flatPreviewFallbackFrameMs) {
-      animate(now);
+      renderStationFrame(now, "flat_preview_fallback");
     }
   }
 
@@ -1260,9 +1266,15 @@ function actorMesh(color: number): Group {
 
 const frameDeltasMs: number[] = [];
 let framesObserved = 0;
+let previewFramesObserved = 0;
+let immersiveFramesObserved = 0;
 let lastFrameAtMs: number | undefined;
 
-function recordFrame(now: number): void {
+function recordFrame(now: number, input: {
+  qualitySource: IwsdkSidecarFrameQualitySource;
+  isPresenting: boolean;
+  visibilityState: string;
+}): void {
   if (lastFrameAtMs !== undefined) {
     frameDeltasMs.push(now - lastFrameAtMs);
     if (frameDeltasMs.length > 180) {
@@ -1271,12 +1283,21 @@ function recordFrame(now: number): void {
   }
   lastFrameAtMs = now;
   framesObserved += 1;
-  window.__openClinXrFrameStats = {
-    ...summarizeIwsdkSidecarFrameDeltas(frameDeltasMs),
+  if (input.isPresenting) {
+    immersiveFramesObserved += 1;
+  } else {
+    previewFramesObserved += 1;
+  }
+  window.__openClinXrFrameStats = buildIwsdkSidecarFrameStats({
+    frameDeltasMs,
     framesObserved,
     latestFrameAtMs: Number(now.toFixed(2)),
-    sampleWindowSize: frameDeltasMs.length,
-  };
+    previewFramesObserved,
+    immersiveFramesObserved,
+    qualitySource: input.qualitySource,
+    isPresenting: input.isPresenting,
+    visibilityState: input.visibilityState,
+  });
 }
 
 const start = performance.now();

@@ -67,6 +67,19 @@ export type IwsdkSidecarFrameDeltaSummary = {
   approxFps: number | null;
 };
 
+export type IwsdkSidecarFrameQualitySource = "webxr_animation_loop" | "flat_preview_fallback";
+
+export type IwsdkSidecarFrameStats = IwsdkSidecarFrameDeltaSummary & {
+  framesObserved: number;
+  latestFrameAtMs: number | null;
+  sampleWindowSize: number;
+  previewFramesObserved: number;
+  immersiveFramesObserved: number;
+  qualitySource: IwsdkSidecarFrameQualitySource;
+  isPresenting: boolean;
+  visibilityState: string;
+};
+
 export type IwsdkSidecarLocalMetricsEvidenceInput = {
   installedNodeModulesMb: number;
   injectedDevRuntimeKb: number;
@@ -184,6 +197,29 @@ export function summarizeIwsdkSidecarFrameDeltas(frameDeltasMs: number[]): Iwsdk
     p95FrameMs: roundMetric(sorted[p95Index] ?? avgFrameMs),
     maxFrameMs: roundMetric(sorted.at(-1) ?? avgFrameMs),
     approxFps: roundMetric(1000 / avgFrameMs, 1),
+  };
+}
+
+export function buildIwsdkSidecarFrameStats(input: {
+  frameDeltasMs: number[];
+  framesObserved: number;
+  latestFrameAtMs: number | null;
+  previewFramesObserved: number;
+  immersiveFramesObserved: number;
+  qualitySource: IwsdkSidecarFrameQualitySource;
+  isPresenting: boolean;
+  visibilityState: string;
+}): IwsdkSidecarFrameStats {
+  return {
+    ...summarizeIwsdkSidecarFrameDeltas(input.frameDeltasMs),
+    framesObserved: input.framesObserved,
+    latestFrameAtMs: input.latestFrameAtMs,
+    sampleWindowSize: input.frameDeltasMs.length,
+    previewFramesObserved: input.previewFramesObserved,
+    immersiveFramesObserved: input.immersiveFramesObserved,
+    qualitySource: input.qualitySource,
+    isPresenting: input.isPresenting,
+    visibilityState: input.visibilityState,
   };
 }
 
