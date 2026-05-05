@@ -86,7 +86,7 @@ This lane is useful because it separates transport evidence from model evidence:
 - Moshi MLX and Qwen3-TTS remain future local inference candidates.
 - The Godot sidecar proves source shape only; it does not prove Quest microphone capture, native Opus encode/decode, playback, or headset latency.
 
-Follow-up runtime evidence: `docs/openclinxr/api-python-backend-runtime-smoke-2026-05-05.json` proves the FastAPI backend can run in an ignored local venv and satisfy health plus JSON/binary WebSocket frame handling with canonical realtime voice protocol and latency-field proof. `apps/api` now has an opt-in Bun proxy boundary controlled by `OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL`; with no backend URL, the local Bun smoke remains deterministic echo evidence. Live dialog remains blocked on real local inference, audio codec, Quest capture/playback, and safety controls.
+Follow-up runtime evidence: `docs/openclinxr/api-python-backend-runtime-smoke-2026-05-05.json` proves the FastAPI backend can run in an ignored local venv and satisfy health plus JSON/binary WebSocket frame handling with canonical realtime voice protocol and latency-field proof. `apps/api` now has an opt-in Bun proxy boundary controlled by `OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL`; `docs/openclinxr/api-bun-python-proxy-smoke-2026-05-05.md` records a local Bun-to-FastAPI proxy pass. With no backend URL, the local Bun smoke remains deterministic echo evidence. Live dialog remains blocked on real local inference, audio codec, Quest capture/playback, and safety controls.
 
 ### Voice Fallback Ladder
 
