@@ -580,6 +580,49 @@ describe("workspace architecture rules", () => {
     expect(publicBarrel).not.toContain("mongo-memory-context");
   });
 
+  it("keeps durable actor-turn Mongo repositories database-only and separate from realtime/cache lanes", () => {
+    const manifestPath = "packages/openclinxr/data-mongodb/package.json";
+    const manifest = JSON.parse(readFileSync(join(workspaceRoot, manifestPath), "utf8")) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+    const repositorySource = readFileSync(join(workspaceRoot, "packages/openclinxr/data-mongodb/src/repositories.ts"), "utf8");
+    const forbiddenRuntimeDependencies = [
+      "@colyseus/schema",
+      "@openclinxr/rest",
+      "@openclinxr/scenario-runtime",
+      "@openclinxr/voice-gateway",
+      "bitecs",
+      "colyseus",
+      "ioredis",
+      "redka",
+      "redis",
+      "ws",
+    ];
+    const productionSourceFiles = sourceFilesUnder("packages/openclinxr/data-mongodb")
+      .filter((filePath) => !filePath.endsWith(".test.ts"));
+    const manifestViolations = workspacePackageDependencyReferences(forbiddenRuntimeDependencies)
+      .filter((reference) => reference.manifestPath === manifestPath)
+      .map(({ field, dependency }) => `manifest:${manifestPath}:${field}.${dependency}`);
+    const sourceViolations = forbiddenRuntimeDependencies.flatMap((dependency) =>
+      sourceImportReferences(dependency, productionSourceFiles)
+        .map(({ filePath, specifier }) => `source:${filePath}:${specifier}`)
+    );
+
+    expect(manifest.dependencies).toMatchObject({
+      "@openclinxr/session-state": "workspace:*",
+      mongodb: "7.2.0",
+    });
+    expect(manifest.devDependencies).toMatchObject({
+      "mongodb-memory-server": "11.1.0",
+    });
+    expect(repositorySource).toContain("conversation_turns_and_emotional_state_timeline_only");
+    expect(repositorySource).toContain("clinicalActionsIncluded: false");
+    expect(repositorySource).toContain("redisRedkaIncluded: false");
+    expect(repositorySource).toContain("databaseOnly: true");
+    expect([...manifestViolations, ...sourceViolations]).toEqual([]);
+  });
+
   it("prevents production code from importing the superseded multi-actor state spike", () => {
     const spikePackage = "@openclinxr/multi-actor-state-spike";
     const allowedSpikeRoots = ["packages/openclinxr/multi-actor-state-spike/"];
