@@ -12,6 +12,7 @@ Use WebSocket-first for the immediate Quest 3 voice path, with `/apps/api` treat
 - `apps/api` also exposes realtime voice gateway posture at `GET /voice/realtime/posture`, using the shared `@openclinxr/voice-gateway` contract while keeping runtime availability conservative.
 - `apps/api/src/bun-server.ts` is the Bun + Hono entrypoint. `pnpm --filter @openclinxr/api dev:bun` runs the local Bun server, and `pnpm local:voice:bun-websocket-smoke` resolves the user-local Bun install before running evidence.
 - `apps/api` now supports an opt-in Python backend proxy boundary when `OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL` is set. With no backend URL, the deterministic local Bun smoke stays on the internal echo path.
+- `pnpm local:voice:bun-python-proxy-smoke` records the opt-in Bun-to-FastAPI proxy lane when the local venv is available; `docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json` is the first passed run.
 - `apps/mock-realtime-voice-server` provides the verified Node/Hono/WebSocket fallback harness.
 - `apps/api-python-backend` provides a FastAPI/Uvicorn source skeleton with stdlib-only verification.
 - `docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json` records a no-cloud bidirectional streaming harness run.

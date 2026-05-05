@@ -1,7 +1,7 @@
 # API Bun To Python Voice Proxy Smoke
 
 **Date:** 2026-05-05  
-**Status:** Passed local developer smoke  
+**Status:** Passed local developer smoke; repeatable script added
 **Scope:** Local workstation only; no cloud, no paid APIs, no model downloads, no Quest claim
 
 ## Purpose
@@ -56,7 +56,12 @@ This complements:
 - No Opus encode/decode quality was validated; the binary frame is still opaque Opus-like data.
 - No production Azure ingress, TLS, scaling, or low-latency claim is made.
 
-## Follow-Up
+## Repeatable Command
 
-Convert this one-off proof into a package-managed repeatable smoke if the proxy path becomes part of default local validation. Until then, keep the default `pnpm local:voice:bun-websocket-smoke` deterministic and backend-free.
+The one-off proof has been converted into an opt-in package-managed smoke:
 
+```bash
+pnpm local:voice:bun-python-proxy-smoke -- --output docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json --python-port 8767 --api-port 4327 --timeout-ms 5000
+```
+
+Keep the default `pnpm local:voice:bun-websocket-smoke` deterministic and backend-free.

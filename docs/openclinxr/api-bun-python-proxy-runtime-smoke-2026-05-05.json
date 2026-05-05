@@ -1,0 +1,95 @@
+{
+  "generatedAt": "2026-05-05T18:21:30.330Z",
+  "status": "passed",
+  "policy": {
+    "cloudApisUsed": false,
+    "paidApisUsed": false,
+    "modelDownloadsUsed": false,
+    "http3Enabled": false,
+    "webTransportUsed": false,
+    "quicUsed": false,
+    "web3Used": false,
+    "questHardwareClaimed": false,
+    "productionUseAllowed": false,
+    "lowLatencyClaimed": false
+  },
+  "python": {
+    "executable": "/Users/patrick/.cache/openclinxr/realtime-voice/api-python-backend-venv/bin/python",
+    "version": "Python 3.11.4"
+  },
+  "bun": {
+    "executable": "/Users/patrick/.bun/bin/bun",
+    "version": "1.3.13",
+    "revision": "1.3.13+bf2e2cecf"
+  },
+  "runtime": {
+    "apiTarget": "apps/api bun+hono",
+    "pythonBackendTarget": "apps/api-python-backend fastapi",
+    "websocketPath": "/voice/realtime/ws",
+    "backendProtocol": "python-fastapi-compatible-websocket"
+  },
+  "pythonBackend": {
+    "attempted": true,
+    "port": 8767,
+    "healthOk": true,
+    "stdout": [
+      "INFO:     127.0.0.1:59611 - \"GET /health HTTP/1.1\" 200 OK"
+    ],
+    "stderr": [
+      "INFO:     Started server process [53844]",
+      "INFO:     Waiting for application startup.",
+      "INFO:     Application startup complete.",
+      "INFO:     Uvicorn running on http://127.0.0.1:8767 (Press CTRL+C to quit)",
+      "INFO:     127.0.0.1:59617 - \"WebSocket /voice/realtime/ws\" [accepted]",
+      "INFO:     connection open"
+    ]
+  },
+  "bunGateway": {
+    "attempted": true,
+    "port": 4327,
+    "healthOk": true,
+    "backendUrlConfigured": true,
+    "stdout": [
+      "OpenClinXR Bun/Hono API listening on http://localhost:4327/",
+      "Realtime WebSocket route contract: /voice/realtime/ws"
+    ],
+    "stderr": []
+  },
+  "websocket": {
+    "attempted": true,
+    "connected": true,
+    "eventTypesObserved": [
+      "gateway.ready",
+      "backend.ready",
+      "voice.started",
+      "audio.chunk",
+      "transcript.partial",
+      "transcript.final",
+      "voice.stopped"
+    ],
+    "binaryMessages": 1,
+    "backendProtocolObserved": true,
+    "latencyFieldsObserved": true,
+    "binaryEchoObserved": true,
+    "errorMessages": []
+  },
+  "runtimeEvidenceBlockers": [],
+  "verdict": {
+    "smokePassed": true,
+    "readyForLiveDialog": false,
+    "blockers": [
+      "real_model_inference_not_observed",
+      "quest_browser_audio_capture_not_observed",
+      "quest_playback_not_observed",
+      "opus_codec_not_verified",
+      "clinical_voice_safety_not_exercised",
+      "production_ingress_not_verified",
+      "low_latency_claim_not_supported_by_local_smoke"
+    ],
+    "caveats": [
+      "This smoke proves only the local Bun-to-FastAPI WebSocket proxy path.",
+      "The binary frame is opaque Opus-like data; no codec, speech recognition, model inference, or speech synthesis is exercised.",
+      "HTTP/3, WebTransport, QUIC, Web3, cloud relays, paid APIs, and Quest media are out of scope."
+    ]
+  }
+}
