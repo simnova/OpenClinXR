@@ -1103,6 +1103,7 @@
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "generated_at": "2026-05-05T04:11:48.944Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
+    "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
     "satisfied_conditions": [
       "generated_at_valid",

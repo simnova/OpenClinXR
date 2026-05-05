@@ -208,11 +208,13 @@ describe("Quest manual performance checker", () => {
     ], { encoding: "utf8", timeout: 15000 });
 
     const check = JSON.parse(await readFile(output, "utf8")) as {
+      evidencePosture: string;
       readyToClaimFramePacing: boolean;
       blockers: string[];
       satisfiedConditions: string[];
     };
 
+    expect(check.evidencePosture).toBe("full_vr_frame_pacing_readiness");
     expect(check.readyToClaimFramePacing).toBe(true);
     expect(check.blockers).toEqual([]);
     expect(check.satisfiedConditions).toEqual(expect.arrayContaining([
@@ -789,6 +791,7 @@ describe("Quest manual performance checker", () => {
     expect(report.runContext?.performedBy).toBe("Patrick Gidich");
     expect(report.input?.activeLocomotionSource).toBe("none");
     expect(report.input?.xrHandGestureState?.armed).toBe(false);
+    expect(check.evidencePosture).toBe("early_worn_headset_full_vr_observation");
     expect(check.readyToClaimFramePacing).toBe(false);
     expect(check.satisfiedConditions).toEqual(expect.arrayContaining([
       "immersive_session_started",

@@ -150,12 +150,19 @@ type QuestManualLocomotionDelta = NonNullable<NonNullable<QuestManualPerformance
 export type QuestManualPerformanceCheck = {
   generatedAt: string;
   inputFile: string | null;
+  evidencePosture: QuestManualPerformanceEvidencePosture;
   readyToClaimFramePacing: boolean;
   satisfiedConditions: string[];
   blockers: string[];
   adversarialFindings: string[];
   nextSteps: string[];
 };
+
+export type QuestManualPerformanceEvidencePosture =
+  | "missing_manual_report"
+  | "blocked_manual_observation"
+  | "early_worn_headset_full_vr_observation"
+  | "full_vr_frame_pacing_readiness";
 
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
@@ -222,6 +229,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
     return {
       generatedAt: new Date().toISOString(),
       inputFile: null,
+      evidencePosture: "missing_manual_report",
       readyToClaimFramePacing: false,
       satisfiedConditions: [],
       blockers,
@@ -368,10 +376,13 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
     ...normalizedPayload.adversarialFindings,
   ]);
 
+  const readyToClaimFramePacing = blockers.length === 0;
+
   return {
     generatedAt: new Date().toISOString(),
     inputFile: inputFile ?? null,
-    readyToClaimFramePacing: blockers.length === 0,
+    evidencePosture: questManualEvidencePosture(report, readyToClaimFramePacing),
+    readyToClaimFramePacing,
     satisfiedConditions: [
       isValidIsoDate(report.generatedAt) ? "generated_at_valid" : undefined,
       performedBy.trim().length > 0 ? "performed_by_recorded" : undefined,
@@ -414,6 +425,26 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
       ...adversarialFindings.map(questManualNextStepForAdversarialFinding),
     ]),
   };
+}
+
+function questManualEvidencePosture(
+  report: QuestManualPerformanceReport,
+  readyToClaimFramePacing: boolean,
+): QuestManualPerformanceEvidencePosture {
+  if (readyToClaimFramePacing) {
+    return "full_vr_frame_pacing_readiness";
+  }
+
+  const fullVrObservationRecorded = isFullVrExperienceEvidence(report.experience)
+    && (
+      report.station?.immersiveSessionStarted === true
+      || report.station?.textReadable === true
+      || hasObservedHeadsetInput(report.input)
+    );
+
+  return fullVrObservationRecorded
+    ? "early_worn_headset_full_vr_observation"
+    : "blocked_manual_observation";
 }
 
 function normalizeQuestManualPerformancePayload(payload: QuestManualPerformancePayload | undefined): {

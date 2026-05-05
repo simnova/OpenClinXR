@@ -452,6 +452,7 @@ type EvidenceGateReport = {
     file: string;
     generated_at: string;
     input_file: string | null;
+    evidence_posture: QuestManualPerformanceCheck["evidencePosture"];
     ready_to_claim_frame_pacing: boolean;
     satisfied_conditions: string[];
     blockers: string[];
@@ -988,6 +989,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         file: questManualPerformance.file,
         generated_at: questManualPerformance.value.generatedAt,
         input_file: questManualPerformance.value.inputFile,
+        evidence_posture: questManualPerformance.value.evidencePosture,
         ready_to_claim_frame_pacing: questManualPerformance.value.readyToClaimFramePacing,
         satisfied_conditions: [...questManualPerformance.value.satisfiedConditions],
         blockers: [...questManualPerformance.value.blockers],
