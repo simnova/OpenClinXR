@@ -1,12 +1,63 @@
 {
-  "generatedAt": "2026-05-04T15:37:29.215Z",
-  "inputFile": null,
+  "generatedAt": "2026-05-05T03:43:03.157Z",
+  "inputFile": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
   "readyToClaimFramePacing": false,
-  "satisfiedConditions": [],
+  "satisfiedConditions": [
+    "generated_at_valid",
+    "performed_by_recorded",
+    "foreground_page_confirmed",
+    "extra_browser_windows_closed",
+    "immersive_session_started",
+    "text_readability_confirmed",
+    "performance_source_openclinxr_frame_stats",
+    "experience_mode_full_vr_recorded",
+    "hand_or_controller_input_observed",
+    "motion_comfort_confirmed",
+    "battery_drop_recorded_under_20"
+  ],
   "blockers": [
-    "missing_quest_manual_performance_report"
+    "devtools_screencast_not_disabled",
+    "duration_under_10_minutes",
+    "trace_interaction_not_confirmed",
+    "locomotion_not_observed",
+    "frame_sample_under_600_or_missing",
+    "immersive_frame_count_zero_or_missing",
+    "rolling_frame_window_under_120_or_missing",
+    "average_fps_below_72_or_missing",
+    "minimum_fps_below_60_or_missing",
+    "p95_frame_ms_above_25_or_missing",
+    "controller_select_latency_ms_above_150_or_missing",
+    "heat_concern_not_cleared"
+  ],
+  "adversarialFindings": [
+    "devtools_screencast_enabled_during_run",
+    "hand_tracking_uses_primitive_box_model",
+    "hand_tracking_observed_without_realistic_hand_meshes",
+    "locomotion_mode_declared_without_locomotion_event",
+    "immersive_session_started_but_frame_stats_empty",
+    "trace_latency_proxy_not_measured",
+    "heat_observation_not_recorded",
+    "short_run_under_reliability_window"
   ],
   "nextSteps": [
-    "Create a dated Quest manual performance report from docs/openclinxr/quest-manual-performance-template.json."
+    "Disable DevTools screencast while observing headset performance.",
+    "Observe for at least 10 minutes in the foreground headset session.",
+    "Confirm a trace interaction advances in the headset.",
+    "Observe thumbstick, hand-gesture, or room-scale locomotion and record lastLocomotionAtMs.",
+    "Observe at least 600 frames before claiming frame pacing.",
+    "Copy the in-app Quest Evidence payload after entering Full VR and confirm performance.immersiveFramesObserved is greater than zero.",
+    "Record a rolling frame window with at least 120 samples.",
+    "Record average FPS at or above 72.",
+    "Record minimum observed FPS at or above 60.",
+    "Record p95 frame time at or below 25 ms.",
+    "Record controller-select latency at or below 150 ms.",
+    "Clear heat concern as false after the run.",
+    "Rerun with DevTools screencast disabled so headset frame timing is less distorted.",
+    "Replace primitive box hands with an articulated hand model or document why controller-only affordances are acceptable for this station.",
+    "Record an actual locomotion event timestamp after thumbstick, hand-gesture, or room-scale movement.",
+    "Keep the headset foreground for a longer run and verify window.__openClinXrFrameStats increments while immersive mode is active.",
+    "Capture a trace interaction or leave the proxy section explicitly unmeasured with a note.",
+    "Record heatConcern as false or true after the worn-headset run.",
+    "Repeat the run for at least 10 minutes before using it as readiness evidence."
   ]
 }
