@@ -320,8 +320,24 @@ describe("Quest manual performance checker", () => {
     };
 
     const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-harvest.json", payload);
+    const checkWithHarvestSummary = check as typeof check & {
+      harvestSummary?: {
+        source?: string;
+        ready?: boolean;
+        timedOut?: boolean;
+        blockers?: string[];
+        elapsedWallMs?: number | null;
+      };
+    };
 
     expect(check.readyToClaimFramePacing).toBe(false);
+    expect(checkWithHarvestSummary.harvestSummary).toEqual({
+      source: "quest_cdp_manual_evidence_harvest",
+      ready: false,
+      timedOut: true,
+      blockers: ["locomotion_evidence_missing"],
+      elapsedWallMs: 9000,
+    });
     expect(check.blockers).toEqual([
       "manual_evidence_harvest_not_ready",
       "manual_evidence_harvest_timed_out",

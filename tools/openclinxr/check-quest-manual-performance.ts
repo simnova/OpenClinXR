@@ -200,6 +200,7 @@ export type QuestManualPerformanceCopiedPayload = {
 
 export type QuestManualPerformancePayload = QuestManualPerformanceReport | QuestManualPerformanceCopiedPayload;
 type QuestManualLocomotionDelta = NonNullable<NonNullable<QuestManualPerformanceReport["input"]>["locomotionDelta"]>;
+export type QuestManualPerformanceHarvestSummary = NonNullable<QuestManualPerformanceCopiedPayload["harvestSummary"]>;
 
 export type QuestManualPerformanceCheck = {
   generatedAt: string;
@@ -210,6 +211,7 @@ export type QuestManualPerformanceCheck = {
   blockers: string[];
   adversarialFindings: string[];
   nextSteps: string[];
+  harvestSummary?: QuestManualPerformanceHarvestSummary;
 };
 
 export type QuestManualPerformanceEvidencePosture =
@@ -289,6 +291,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
       blockers,
       adversarialFindings: [],
       nextSteps: blockers.map(questManualNextStepForBlocker),
+      ...(normalizedPayload.harvestSummary ? { harvestSummary: normalizedPayload.harvestSummary } : {}),
     };
   }
 
@@ -495,6 +498,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
       ...blockers.map(questManualNextStepForBlocker),
       ...adversarialFindings.map(questManualNextStepForAdversarialFinding),
     ]),
+    ...(normalizedPayload.harvestSummary ? { harvestSummary: normalizedPayload.harvestSummary } : {}),
   };
 }
 
@@ -522,6 +526,7 @@ function normalizeQuestManualPerformancePayload(payload: QuestManualPerformanceP
   report: QuestManualPerformanceReport | undefined;
   blockers: string[];
   adversarialFindings: string[];
+  harvestSummary?: QuestManualPerformanceHarvestSummary;
 } {
   if (!payload) {
     return { report: undefined, blockers: [], adversarialFindings: [] };
@@ -567,11 +572,28 @@ function normalizeQuestManualPerformancePayload(payload: QuestManualPerformanceP
       "copied_ui_manual_performance_payload",
       harvestSummary ? "cdp_manual_evidence_harvest_payload" : undefined,
     ].filter((finding): finding is string => typeof finding === "string"),
+    ...(harvestSummary ? { harvestSummary: sanitizeHarvestSummary(harvestSummary) } : {}),
   };
 }
 
 function isCopiedManualPerformancePayload(payload: QuestManualPerformancePayload): payload is QuestManualPerformanceCopiedPayload {
   return isRecord(payload) && "manualPerformanceDraft" in payload;
+}
+
+function sanitizeHarvestSummary(
+  value: Record<string, unknown>,
+): QuestManualPerformanceHarvestSummary {
+  return {
+    ...(typeof value.source === "string" ? { source: value.source } : {}),
+    ...(typeof value.ready === "boolean" ? { ready: value.ready } : {}),
+    ...(typeof value.timedOut === "boolean" ? { timedOut: value.timedOut } : {}),
+    blockers: Array.isArray(value.blockers)
+      ? value.blockers.filter((blocker): blocker is string => typeof blocker === "string")
+      : [],
+    elapsedWallMs: typeof value.elapsedWallMs === "number" && Number.isFinite(value.elapsedWallMs)
+      ? value.elapsedWallMs
+      : null,
+  };
 }
 
 function buildAdversarialFindings(input: {

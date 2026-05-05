@@ -462,6 +462,14 @@ type EvidenceGateReport = {
     satisfied_conditions: string[];
     blockers: string[];
     adversarial_findings: string[];
+    next_steps: string[];
+    harvest_summary?: {
+      source?: string;
+      ready?: boolean;
+      timed_out?: boolean;
+      blockers: string[];
+      elapsed_wall_ms?: number | null;
+    };
   };
   quest_mixed_reality_manual?: {
     file: string;
@@ -1022,6 +1030,16 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         satisfied_conditions: [...questManualPerformance.value.satisfiedConditions],
         blockers: [...questManualPerformance.value.blockers],
         adversarial_findings: [...questManualPerformance.value.adversarialFindings],
+        next_steps: [...questManualPerformance.value.nextSteps],
+        ...(questManualPerformance.value.harvestSummary ? {
+          harvest_summary: {
+            source: questManualPerformance.value.harvestSummary.source,
+            ready: questManualPerformance.value.harvestSummary.ready,
+            timed_out: questManualPerformance.value.harvestSummary.timedOut,
+            blockers: [...(questManualPerformance.value.harvestSummary.blockers ?? [])],
+            elapsed_wall_ms: questManualPerformance.value.harvestSummary.elapsedWallMs ?? null,
+          },
+        } : {}),
       },
     } : {}),
     ...(questMixedRealityManual ? {

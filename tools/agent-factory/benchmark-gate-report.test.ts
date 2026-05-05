@@ -2096,6 +2096,60 @@ describe("benchmark gate report", () => {
     expect(questGate?.blockers).toContain("quest_manual_performance:frame_stats_stale_or_unsampled");
   });
 
+  it("surfaces CDP manual harvest summaries in Quest benchmark gates", () => {
+    const report = buildBenchmarkGateReport({
+      questManualPerformanceReport: {
+        file: "docs/openclinxr/quest-manual-performance-harvest-2026-05-04.json",
+        value: {
+          manualPerformanceDraft: completedQuestManualPerformanceReport,
+          captureSummary: {
+            draftAvailable: true,
+            manualValidationReady: true,
+            frameStatsFresh: true,
+            blockers: [],
+          },
+          harvestSummary: {
+            source: "quest_cdp_manual_evidence_harvest",
+            ready: false,
+            timedOut: true,
+            blockers: ["headset_trace_latency_missing"],
+            elapsedWallMs: 9000,
+          },
+        },
+      },
+    });
+    const questManualPerformance = report.quest_manual_performance as typeof report.quest_manual_performance & {
+      harvest_summary?: {
+        source?: string;
+        ready?: boolean;
+        timed_out?: boolean;
+        blockers?: string[];
+        elapsed_wall_ms?: number | null;
+      };
+      next_steps?: string[];
+    };
+    const questGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0008-001");
+
+    expect(questManualPerformance?.harvest_summary).toEqual({
+      source: "quest_cdp_manual_evidence_harvest",
+      ready: false,
+      timed_out: true,
+      blockers: ["headset_trace_latency_missing"],
+      elapsed_wall_ms: 9000,
+    });
+    expect(report.quest_manual_performance?.blockers).toEqual([
+      "manual_evidence_harvest_not_ready",
+      "manual_evidence_harvest_timed_out",
+      "headset_trace_latency_missing",
+    ]);
+    expect(questGate?.blockers).toContain("quest_manual_performance:manual_evidence_harvest_not_ready");
+    expect(questGate?.blockers).toContain("quest_manual_performance:headset_trace_latency_missing");
+    expect(questManualPerformance?.next_steps).toEqual(expect.arrayContaining([
+      "Rerun the CDP manual evidence harvester after the headset is foregrounded and the missing technical signal is visible.",
+      "Trigger an xr_controller_select or xr_hand_select trace action before harvesting manual evidence.",
+    ]));
+  });
+
   it("marks the leadership evidence gate ready when all fixture evidence is satisfied", () => {
     const report = buildBenchmarkGateReport({
       questSmoke: {

@@ -5,7 +5,7 @@
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T18:13:48.812Z",
-      "age_hours": 9,
+      "age_hours": 18,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -14,7 +14,7 @@
       "evidence_id": "local_runtime_probe",
       "file": "docs/openclinxr/local-runtime-probe-2026-05-04.json",
       "generated_at": "2026-05-04T15:16:18.712Z",
-      "age_hours": 12,
+      "age_hours": 21,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -23,7 +23,7 @@
       "evidence_id": "gltf_pipeline_smoke",
       "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
       "generated_at": "2026-05-04T23:49:36.820Z",
-      "age_hours": 4,
+      "age_hours": 13,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -32,7 +32,7 @@
       "evidence_id": "blender_asset_bake_smoke",
       "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T11:02:14.867Z",
-      "age_hours": 0,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -41,7 +41,7 @@
       "evidence_id": "asset_capability_job_evidence",
       "file": "docs/openclinxr/asset-capability-job-evidence-2026-05-04.json",
       "generated_at": "2026-05-04T21:21:14.173Z",
-      "age_hours": 6,
+      "age_hours": 15,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -50,7 +50,7 @@
       "evidence_id": "asset_production_readiness_benchmark",
       "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T21:11:11.999Z",
-      "age_hours": 7,
+      "age_hours": 16,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -59,7 +59,7 @@
       "evidence_id": "local_provider_benchmark",
       "file": "docs/openclinxr/local-provider-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T14:53:24.787Z",
-      "age_hours": 13,
+      "age_hours": 22,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -68,7 +68,7 @@
       "evidence_id": "local_model_runtime_benchmark",
       "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T14:57:50Z",
-      "age_hours": 13,
+      "age_hours": 22,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -77,7 +77,7 @@
       "evidence_id": "local_model_quality_benchmark",
       "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T21:16:55.867Z",
-      "age_hours": 6,
+      "age_hours": 15,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -86,7 +86,7 @@
       "evidence_id": "local_voice_runtime_benchmark",
       "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T15:01:12Z",
-      "age_hours": 13,
+      "age_hours": 22,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -95,7 +95,7 @@
       "evidence_id": "local_voice_live_dialog_benchmark",
       "file": "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-04.json",
       "generated_at": "2026-05-04T20:47:52.004Z",
-      "age_hours": 7,
+      "age_hours": 16,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -104,7 +104,7 @@
       "evidence_id": "realtime_voice_transport_spike",
       "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json",
       "generated_at": "2026-05-05T01:28:44.751Z",
-      "age_hours": 2,
+      "age_hours": 11,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -113,7 +113,7 @@
       "evidence_id": "api_python_backend_runtime_smoke",
       "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-04.json",
       "generated_at": "2026-05-05T01:02:37.265Z",
-      "age_hours": 3,
+      "age_hours": 12,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -121,7 +121,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-05T04:11:48.944Z",
+      "generated_at": "2026-05-05T13:13:09.934Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -1101,7 +1101,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-05T04:11:48.944Z",
+    "generated_at": "2026-05-05T13:13:09.934Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -1139,14 +1139,46 @@
     ],
     "adversarial_findings": [
       "devtools_screencast_enabled_during_run",
+      "trace_interaction_attempted_without_runtime_event",
       "hand_tracking_uses_primitive_box_model",
       "hand_tracking_observed_without_realistic_hand_meshes",
+      "locomotion_attempted_without_runtime_event",
       "locomotion_mode_declared_without_locomotion_event",
       "immersive_session_started_but_frame_stats_empty",
       "trace_latency_proxy_not_measured",
       "heat_observation_not_recorded",
       "short_run_under_reliability_window",
-      "reproducibility_metadata_missing"
+      "reproducibility_metadata_missing",
+      "raw_manual_report_without_copied_ui_payload"
+    ],
+    "next_steps": [
+      "Disable DevTools screencast while observing headset performance.",
+      "Observe for at least 10 minutes in the foreground headset session.",
+      "Confirm a trace interaction advances in the headset.",
+      "Observe thumbstick, hand-gesture, or room-scale locomotion and record lastLocomotionAtMs.",
+      "Observe at least 600 frames before claiming frame pacing.",
+      "Copy the in-app Quest Evidence payload after entering Full VR and confirm performance.immersiveFramesObserved is greater than zero.",
+      "Observe at least 600 immersive Full VR frames before claiming headset frame pacing.",
+      "Record a rolling frame window with at least 120 samples.",
+      "Record average FPS at or above 72.",
+      "Record minimum observed FPS at or above 60.",
+      "Record p95 frame time at or below 25 ms.",
+      "Record headset select latency at or below 150 ms.",
+      "Record headset trace latency from xr_controller_select or xr_hand_select, not a DOM click or desktop proxy.",
+      "Record the trace tag triggered by the headset controller or deliberate hand-select event.",
+      "Record positive lastSelectLatencyMs from the headset trace event.",
+      "Record measuredAtMs for the headset trace event.",
+      "Clear heat concern as false after the run.",
+      "Rerun with DevTools screencast disabled so headset frame timing is less distorted.",
+      "Retry the in-headset trace action and preserve the resulting xr_controller_select or xr_hand_select runtime event.",
+      "Replace primitive box hands with an articulated hand model or document why controller-only affordances are acceptable for this station.",
+      "Retry thumbstick, hand-gesture, or room-scale locomotion and preserve the runtime locomotion event plus rig delta.",
+      "Keep the headset foreground for a longer run and verify window.__openClinXrFrameStats increments while immersive mode is active.",
+      "Capture a trace interaction or leave the proxy section explicitly unmeasured with a note.",
+      "Record heatConcern as false or true after the worn-headset run.",
+      "Repeat the run for at least 10 minutes before using it as readiness evidence.",
+      "Prefer the copied in-app Quest Evidence payload so URL, user agent, app build, WebXR support, and display context are preserved as audit metadata.",
+      "Prefer the copied in-app Quest Evidence payload so frame stats, captureSummary, and reproducibility metadata come from the same runtime export."
     ]
   },
   "visual_qa_evidence": {
