@@ -30,6 +30,7 @@
     "handModelStatus": "pending_immersive_session",
     "handInputsObserved": 0,
     "locomotionMode": "experimental_keyboard_and_thumbstick_dolly",
+    "activeLocomotionSource": "none",
     "lastLocomotionAtMs": null,
     "rigPosition": {
       "x": 0,

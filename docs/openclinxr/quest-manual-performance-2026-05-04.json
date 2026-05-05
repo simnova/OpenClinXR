@@ -53,7 +53,7 @@
     "controllerSelectLatencyMs": null
   },
   "comfort": {
-    "motionComfort": "comfortable",
+    "motionComfort": "good",
     "heatConcern": null,
     "batteryDropPercent": 0
   }

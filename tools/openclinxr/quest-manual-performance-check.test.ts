@@ -41,7 +41,7 @@ describe("Quest manual performance checker", () => {
         handModelCount: 2,
         handModelStatus: "active",
         handInputsObserved: 2,
-        locomotionMode: "thumbstick",
+        locomotionMode: "xr_hand_gesture",
         lastLocomotionAtMs: 60_000,
         rigPosition: { x: 0.4, z: -0.2 },
       },
@@ -62,7 +62,7 @@ describe("Quest manual performance checker", () => {
         controllerSelectLatencyMs: 150,
       },
       comfort: {
-        motionComfort: "comfortable",
+        motionComfort: "good",
         heatConcern: false,
         batteryDropPercent: 2,
       },
@@ -99,6 +99,7 @@ describe("Quest manual performance checker", () => {
       "hand_or_controller_input_observed",
       "locomotion_observed",
       "trace_latency_proxy_recorded_as_supporting_evidence",
+      "motion_comfort_confirmed",
     ]));
   });
 
@@ -180,7 +181,7 @@ describe("Quest manual performance checker", () => {
     ]));
     expect(check.nextSteps).toEqual(expect.arrayContaining([
       "Observe at least one foreground headset hand or controller interaction.",
-      "Observe thumbstick or room-scale locomotion and record lastLocomotionAtMs.",
+      "Observe thumbstick, hand-gesture, or room-scale locomotion and record lastLocomotionAtMs.",
     ]));
   });
 
@@ -354,7 +355,7 @@ describe("Quest manual performance checker", () => {
       "Record average FPS at or above 72.",
       "Record p95 frame time at or below 25 ms.",
       "Record controller-select latency at or below 150 ms.",
-      "Confirm motion comfort is comfortable.",
+      "Confirm motion comfort is comfortable/good.",
       "Clear heat concern as false after the run.",
       "Record battery drop percent.",
     ]));

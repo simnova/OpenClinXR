@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T01:32:45.891Z",
+  "generatedAt": "2026-05-05T02:04:31.972Z",
   "inputFile": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
   "readyToClaimFramePacing": false,
   "satisfiedConditions": [
@@ -12,6 +12,7 @@
     "performance_source_openclinxr_frame_stats",
     "experience_mode_full_vr_recorded",
     "hand_or_controller_input_observed",
+    "motion_comfort_confirmed",
     "battery_drop_recorded_under_20"
   ],
   "blockers": [
@@ -41,7 +42,7 @@
     "Disable DevTools screencast while observing headset performance.",
     "Observe for at least 10 minutes in the foreground headset session.",
     "Confirm a trace interaction advances in the headset.",
-    "Observe thumbstick or room-scale locomotion and record lastLocomotionAtMs.",
+    "Observe thumbstick, hand-gesture, or room-scale locomotion and record lastLocomotionAtMs.",
     "Observe at least 600 frames before claiming frame pacing.",
     "Record a rolling frame window with at least 120 samples.",
     "Record average FPS at or above 72.",
@@ -51,7 +52,7 @@
     "Clear heat concern as false after the run.",
     "Rerun with DevTools screencast disabled so headset frame timing is less distorted.",
     "Replace primitive box hands with an articulated hand model or document why controller-only affordances are acceptable for this station.",
-    "Record an actual locomotion event timestamp after thumbstick or room-scale movement.",
+    "Record an actual locomotion event timestamp after thumbstick, hand-gesture, or room-scale movement.",
     "Keep the headset foreground for a longer run and verify window.__openClinXrFrameStats increments while immersive mode is active.",
     "Capture a trace interaction or leave the proxy section explicitly unmeasured with a note.",
     "Record heatConcern as false or true after the worn-headset run.",

@@ -208,7 +208,7 @@ export type ManualPerformanceDraft = {
   traceLatencyProxy: ManualPerformanceTraceLatencyEvidence | null;
   performance: ManualPerformanceMetrics;
   comfort: {
-    motionComfort: "comfortable" | "mild_discomfort" | "uncomfortable" | "not_run";
+    motionComfort: "comfortable" | "good" | "mild_discomfort" | "uncomfortable" | "not_run";
     heatConcern: boolean | null;
     batteryDropPercent: number | null;
   };
@@ -877,6 +877,7 @@ function previewManualPerformanceValidation(
   const p95FrameMsValid = isPositiveFiniteNumber(p95FrameMs);
   const controllerSelectLatencyMsValid = isPositiveFiniteNumber(controllerSelectLatencyMs);
   const batteryDropPercentValid = isPercentInRange(batteryDropPercent);
+  const motionComfortConfirmed = isMotionComfortConfirmed(draft.comfort.motionComfort);
 
   const blockers = [
     isValidIsoDate(draft.generatedAt) ? undefined : "generated_at_invalid_or_missing",
@@ -904,7 +905,7 @@ function previewManualPerformanceValidation(
     controllerSelectLatencyMsValid && controllerSelectLatencyMs <= 150
       ? undefined
       : "controller_select_latency_ms_above_150_or_missing",
-    draft.comfort.motionComfort === "comfortable" ? undefined : "motion_comfort_not_confirmed",
+    motionComfortConfirmed ? undefined : "motion_comfort_not_confirmed",
     draft.comfort.heatConcern === false ? undefined : "heat_concern_not_cleared",
     batteryDropPercentValid ? undefined : "battery_drop_not_recorded",
     batteryDropPercentValid && batteryDropPercent > 20 ? "battery_drop_above_20" : undefined,
@@ -936,7 +937,7 @@ function previewManualPerformanceValidation(
     controllerSelectLatencyMsValid && controllerSelectLatencyMs <= 150
       ? "controller_select_latency_150ms_or_lower"
       : undefined,
-    draft.comfort.motionComfort === "comfortable" ? "motion_comfort_confirmed" : undefined,
+    motionComfortConfirmed ? "motion_comfort_confirmed" : undefined,
     draft.comfort.heatConcern === false ? "heat_concern_cleared" : undefined,
     batteryDropPercentValid && batteryDropPercent <= 20 ? "battery_drop_recorded_under_20" : undefined,
   ].filter((condition): condition is string => typeof condition === "string");
@@ -963,6 +964,10 @@ function isPositiveFiniteNumber(value: number | null): value is number {
 
 function isPercentInRange(value: number | null): value is number {
   return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100;
+}
+
+function isMotionComfortConfirmed(value: string): boolean {
+  return value === "comfortable" || value === "good";
 }
 
 function hasObservedHeadsetInput(value: ManualPerformanceDraft["input"]): boolean {

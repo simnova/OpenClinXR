@@ -608,7 +608,7 @@ describe("XR runtime state", () => {
         extraBrowserWindowsClosed: true,
       },
       comfort: {
-        motionComfort: "comfortable" as const,
+        motionComfort: "good" as const,
         heatConcern: false,
         batteryDropPercent: 4,
       },
@@ -617,6 +617,7 @@ describe("XR runtime state", () => {
     expect(buildManualPerformanceCaptureSummary({ draft: completeDraft, frameStats })).toMatchObject({
       draftAvailable: true,
       manualValidationReady: true,
+      satisfiedConditions: expect.arrayContaining(["motion_comfort_confirmed"]),
       blockers: [],
     });
   });

@@ -40,6 +40,7 @@ export type QuestManualPerformanceReport = {
     handModelStatus?: string;
     handInputsObserved?: number;
     locomotionMode?: string;
+    activeLocomotionSource?: "none" | "keyboard" | "xr_gamepad" | "xr_hand_gesture" | "mixed";
     lastLocomotionAtMs?: number | null;
     rigPosition?: {
       x?: number;
@@ -63,7 +64,7 @@ export type QuestManualPerformanceReport = {
     controllerSelectLatencyMs?: number | null;
   };
   comfort?: {
-    motionComfort?: "comfortable" | "mild_discomfort" | "uncomfortable" | "not_run";
+    motionComfort?: "comfortable" | "good" | "mild_discomfort" | "uncomfortable" | "not_run";
     heatConcern?: boolean | null;
     batteryDropPercent?: number | null;
   };
@@ -177,6 +178,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
   const p95FrameMsValid = isPositiveFiniteNumber(p95FrameMs);
   const controllerSelectLatencyMsValid = isPositiveFiniteNumber(controllerSelectLatencyMs);
   const batteryDropPercentValid = isPercentInRange(batteryDropPercent);
+  const motionComfortConfirmed = isMotionComfortConfirmed(report.comfort?.motionComfort);
   const blockers = [
     isValidIsoDate(report.generatedAt) ? undefined : "generated_at_invalid_or_missing",
     performedBy.trim().length > 0 ? undefined : "performed_by_missing",
@@ -213,7 +215,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
     traceLatencyProxy?.productionControllerLatencySubstitute === true
       ? "trace_latency_proxy_marked_as_production_substitute"
       : undefined,
-    report.comfort?.motionComfort === "comfortable" ? undefined : "motion_comfort_not_confirmed",
+    motionComfortConfirmed ? undefined : "motion_comfort_not_confirmed",
     report.comfort?.heatConcern === false ? undefined : "heat_concern_not_cleared",
     typeof batteryDropPercent === "number" && !batteryDropPercentValid ? "battery_drop_not_finite_range_0_to_100" : undefined,
     batteryDropPercent === null ? "battery_drop_not_recorded" : undefined,
@@ -252,6 +254,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
       headsetInputObserved ? "hand_or_controller_input_observed" : undefined,
       locomotionObserved ? "locomotion_observed" : undefined,
       isSupportingTraceLatencyProxy(traceLatencyProxy) ? "trace_latency_proxy_recorded_as_supporting_evidence" : undefined,
+      motionComfortConfirmed ? "motion_comfort_confirmed" : undefined,
       batteryDropPercentValid && batteryDropPercent <= 20 ? "battery_drop_recorded_under_20" : undefined,
     ].filter((condition): condition is string => typeof condition === "string"),
     blockers,
@@ -306,7 +309,7 @@ function questManualNextStepForAdversarialFinding(finding: string): string {
     case "hand_tracking_observed_without_realistic_hand_meshes":
       return "Replace primitive box hands with an articulated hand model or document why controller-only affordances are acceptable for this station.";
     case "locomotion_mode_declared_without_locomotion_event":
-      return "Record an actual locomotion event timestamp after thumbstick or room-scale movement.";
+      return "Record an actual locomotion event timestamp after thumbstick, hand-gesture, or room-scale movement.";
     case "immersive_session_started_but_frame_stats_empty":
       return "Keep the headset foreground for a longer run and verify window.__openClinXrFrameStats increments while immersive mode is active.";
     case "trace_latency_proxy_not_measured":
@@ -347,7 +350,7 @@ function questManualNextStepForBlocker(blocker: string): string {
     case "hand_or_controller_input_not_observed":
       return "Observe at least one foreground headset hand or controller interaction.";
     case "locomotion_not_observed":
-      return "Observe thumbstick or room-scale locomotion and record lastLocomotionAtMs.";
+      return "Observe thumbstick, hand-gesture, or room-scale locomotion and record lastLocomotionAtMs.";
     case "console_errors_not_string_array":
       return "Record consoleErrors as an array of strings.";
     case "console_errors_present":
@@ -385,7 +388,7 @@ function questManualNextStepForBlocker(blocker: string): string {
     case "trace_latency_proxy_marked_as_production_substitute":
       return "Record a real headset controller-select latency measurement; DOM trace-click latency is supporting evidence only.";
     case "motion_comfort_not_confirmed":
-      return "Confirm motion comfort is comfortable.";
+      return "Confirm motion comfort is comfortable/good.";
     case "heat_concern_not_cleared":
       return "Clear heat concern as false after the run.";
     case "battery_drop_not_finite_range_0_to_100":
@@ -424,6 +427,10 @@ function isPercentInRange(value: number | null): value is number {
   return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100;
 }
 
+function isMotionComfortConfirmed(value: string | undefined): boolean {
+  return value === "comfortable" || value === "good";
+}
+
 function hasObservedHeadsetInput(value: QuestManualPerformanceReport["input"]): boolean {
   return typeof value?.handInputsObserved === "number"
     && Number.isInteger(value.handInputsObserved)
@@ -431,11 +438,15 @@ function hasObservedHeadsetInput(value: QuestManualPerformanceReport["input"]): 
 }
 
 function hasObservedLocomotion(value: QuestManualPerformanceReport["input"]): boolean {
+  const hasLocomotionSource = typeof value?.activeLocomotionSource === "string"
+    && value.activeLocomotionSource !== "none";
+  const hasLocomotionMode = typeof value?.locomotionMode === "string"
+    && value.locomotionMode.trim().length > 0;
+
   return typeof value?.lastLocomotionAtMs === "number"
     && Number.isFinite(value.lastLocomotionAtMs)
     && value.lastLocomotionAtMs >= 0
-    && typeof value.locomotionMode === "string"
-    && value.locomotionMode.trim().length > 0;
+    && (hasLocomotionSource || hasLocomotionMode);
 }
 
 function isFullVrExperienceEvidence(value: QuestManualPerformanceReport["experience"]): boolean {
