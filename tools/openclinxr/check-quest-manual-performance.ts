@@ -163,6 +163,13 @@ export type QuestManualPerformanceCopiedPayload = {
     frameStatsFresh?: boolean | null;
     blockers?: string[];
   } | null;
+  harvestSummary?: {
+    source?: string;
+    ready?: boolean;
+    timedOut?: boolean;
+    blockers?: string[];
+    elapsedWallMs?: number | null;
+  } | null;
 };
 
 export type QuestManualPerformancePayload = QuestManualPerformanceReport | QuestManualPerformanceCopiedPayload;
@@ -500,19 +507,31 @@ function normalizeQuestManualPerformancePayload(payload: QuestManualPerformanceP
   const summaryBlockers = Array.isArray(captureSummary?.blockers)
     ? captureSummary.blockers.filter((blocker): blocker is string => typeof blocker === "string")
     : [];
+  const hasHarvestSummary = "harvestSummary" in payload;
+  const harvestSummary = isRecord(payload.harvestSummary) ? payload.harvestSummary : undefined;
+  const harvestBlockers = Array.isArray(harvestSummary?.blockers)
+    ? harvestSummary.blockers.filter((blocker): blocker is string => typeof blocker === "string")
+    : [];
   const blockers = unique([
     report ? undefined : "copied_payload_missing_manual_performance_draft",
     captureSummary ? undefined : "copied_payload_capture_summary_missing",
     captureSummary && captureSummary.manualValidationReady !== true ? "copied_payload_summary_not_ready" : undefined,
     captureSummary && captureSummary.draftAvailable !== true ? "copied_payload_summary_missing_draft_or_frame_stats" : undefined,
     captureSummary?.frameStatsFresh === true ? undefined : "frame_stats_stale_or_unsampled",
+    hasHarvestSummary && !harvestSummary ? "manual_evidence_harvest_summary_invalid" : undefined,
+    harvestSummary && harvestSummary.ready !== true ? "manual_evidence_harvest_not_ready" : undefined,
+    harvestSummary?.timedOut === true ? "manual_evidence_harvest_timed_out" : undefined,
     ...summaryBlockers,
+    ...harvestBlockers,
   ].filter((blocker): blocker is string => typeof blocker === "string"));
 
   return {
     report,
     blockers,
-    adversarialFindings: ["copied_ui_manual_performance_payload"],
+    adversarialFindings: [
+      "copied_ui_manual_performance_payload",
+      harvestSummary ? "cdp_manual_evidence_harvest_payload" : undefined,
+    ].filter((finding): finding is string => typeof finding === "string"),
   };
 }
 
@@ -596,6 +615,8 @@ function questManualNextStepForAdversarialFinding(finding: string): string {
       return "Prefer the copied in-app Quest Evidence payload so frame stats, captureSummary, and reproducibility metadata come from the same runtime export.";
     case "copied_ui_manual_performance_payload":
       return "The checker accepted the copied in-app payload; preserve the manualPerformanceDraft and captureSummary fields for auditability.";
+    case "cdp_manual_evidence_harvest_payload":
+      return "Preserve harvestSummary with the copied payload so CDP harvest readiness remains auditable.";
     case "devtools_screencast_enabled_during_run":
       return "Rerun with DevTools screencast disabled so headset frame timing is less distorted.";
     case "trace_interaction_attempted_without_runtime_event":
@@ -741,6 +762,15 @@ function questManualNextStepForBlocker(blocker: string): string {
       return "Copy the in-app Quest Evidence payload after the draft and frame stats are both available.";
     case "frame_stats_stale_or_unsampled":
       return "Keep the headset foreground and copy the evidence only while frameStatsFresh is true.";
+    case "manual_evidence_harvest_summary_invalid":
+      return "Re-copy the CDP harvester output with a valid harvestSummary object.";
+    case "manual_evidence_harvest_not_ready":
+    case "manual_evidence_harvest_timed_out":
+      return "Rerun the CDP manual evidence harvester after the headset is foregrounded and the missing technical signal is visible.";
+    case "locomotion_evidence_missing":
+      return "Retry thumbstick, hand-gesture, or room-scale locomotion before harvesting manual evidence.";
+    case "headset_trace_latency_missing":
+      return "Trigger an xr_controller_select or xr_hand_select trace action before harvesting manual evidence.";
     default:
       return `Resolve Quest manual blocker: ${blocker}.`;
   }

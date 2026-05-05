@@ -298,6 +298,42 @@ describe("Quest manual performance checker", () => {
     ]));
   });
 
+  it("surfaces a timed-out CDP manual evidence harvest without breaking copied payload compatibility", () => {
+    const payload = {
+      manualPerformanceDraft: completedQuestManualReport(),
+      captureSummary: {
+        draftAvailable: true,
+        manualValidationReady: true,
+        frameStatsFresh: true,
+        blockers: [],
+      },
+      harvestSummary: {
+        source: "quest_cdp_manual_evidence_harvest",
+        ready: false,
+        timedOut: true,
+        blockers: ["locomotion_evidence_missing"],
+        elapsedWallMs: 9000,
+      },
+    };
+
+    const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-harvest.json", payload);
+
+    expect(check.readyToClaimFramePacing).toBe(false);
+    expect(check.blockers).toEqual([
+      "manual_evidence_harvest_not_ready",
+      "manual_evidence_harvest_timed_out",
+      "locomotion_evidence_missing",
+    ]);
+    expect(check.adversarialFindings).toEqual([
+      "copied_ui_manual_performance_payload",
+      "cdp_manual_evidence_harvest_payload",
+    ]);
+    expect(check.nextSteps).toEqual(expect.arrayContaining([
+      "Rerun the CDP manual evidence harvester after the headset is foregrounded and the missing technical signal is visible.",
+      "Retry thumbstick, hand-gesture, or room-scale locomotion before harvesting manual evidence.",
+    ]));
+  });
+
   it("reads the copied in-app Quest Evidence payload through the CLI", async () => {
     const dir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-quest-manual-copy-pass-"));
     const input = path.join(dir, "quest-manual-performance-copy.json");
