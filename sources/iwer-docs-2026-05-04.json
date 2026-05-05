@@ -1,0 +1,21 @@
+{
+  "source_id": "src-iwer-docs-2026-05-04",
+  "title": "Meta Quest Immersive Web Emulation Runtime Documentation",
+  "url": "https://meta-quest.github.io/immersive-web-emulation-runtime/",
+  "source_type": "vendor",
+  "citation": "Meta Quest, Immersive Web Emulation Runtime documentation, accessed 2026-05-04.",
+  "accessed_at": "2026-05-04",
+  "permitted_uses": [
+    "Internal technical planning for a sidecar-only IWER emulation and visual evidence spike."
+  ],
+  "claims_supported": [
+    "IWER is a browser-based WebXR emulation runtime for development and testing without a native WebXR device.",
+    "IWER documentation describes action recording and playback as useful for debugging and automated WebXR testing.",
+    "IWSDK testing guidance describes IWER injection through the `iwsdkDev` Vite plugin and keeps physical headset testing as a separate path."
+  ],
+  "claims_not_supported": [
+    "IWER emulation proves Quest 3 foreground frame pacing, thermal behavior, comfort, controller latency, or in-headset readability.",
+    "IWER evidence is sufficient for production clinical simulation readiness."
+  ],
+  "confidence": 0.95
+}
