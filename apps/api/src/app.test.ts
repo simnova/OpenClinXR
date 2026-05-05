@@ -1239,6 +1239,53 @@ describe("OpenClinXR API shell", () => {
     expect(serializedSpans).not.toContain("Father died of myocardial infarction");
   });
 
+  it("routes actor response requests through session-state when actorId is omitted", async () => {
+    const app = createApiApp();
+    const start = await app.request("/sessions", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ learnerId: "learner_api_routed", consentAccepted: true }),
+    });
+    const started = await json(start) as { stationRunId: string };
+
+    const response = await app.request(`/sessions/${started.stationRunId}/actor-response`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        learnerUtterance: "Nurse, can you repeat the blood pressure for me?",
+        atSecond: 180,
+        traceContextTags: ["vitals_review", "team_communication"],
+      }),
+    });
+    const body = await json(response) as {
+      routedActorId: string;
+      routingReason: string;
+      conversationTurn: number;
+      routeEvent: { eventType: string; actorId: string };
+      response: { text: string; provenance: { actorId: string; guardrail: { status: string } } };
+    };
+
+    expect(response.status).toBe(201);
+    expect(body).toMatchObject({
+      routedActorId: "nurse_maria_alvarez_v1",
+      routingReason: "addressed_role_keyword",
+      conversationTurn: 1,
+      routeEvent: {
+        eventType: "actor.interaction.routed",
+        actorId: "nurse_maria_alvarez_v1",
+      },
+      response: {
+        provenance: {
+          actorId: "nurse_maria_alvarez_v1",
+          guardrail: { status: "pass" },
+        },
+      },
+    });
+    expect(body.response.text).toContain("Maria Alvarez");
+    expect(JSON.stringify(body)).not.toContain("Repeat blood pressure is falling");
+    expect(JSON.stringify(body)).not.toContain("Father died of myocardial infarction");
+  });
+
   it("starts a session, records events, submits a note, and returns a review packet", async () => {
     const app = createApiApp();
     const missingConsent = await app.request("/sessions", {

@@ -382,19 +382,32 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   app.post(routeById("actor-response").path, async (context) => {
     const stationRunId = context.req.param("stationRunId");
     const body = (await context.req.json().catch(() => ({}))) as {
-      actorId?: string;
-      learnerUtterance?: string;
-      atSecond?: number;
+      actorId?: unknown;
+      learnerUtterance?: unknown;
+      atSecond?: unknown;
       traceContextTags?: unknown;
+      source?: unknown;
     };
+    const learnerUtterance = typeof body.learnerUtterance === "string" ? body.learnerUtterance : "";
+    const atSecond = typeof body.atSecond === "number" ? body.atSecond : 0;
+    const traceContextTags = parseStringArray(body.traceContextTags);
+    const actorId = typeof body.actorId === "string" ? body.actorId.trim() : "";
+    const source = parseActorInteractionSource(body.source);
 
     try {
-      const result = await runtime.generateActorResponse(stationRunId, {
-        actorId: body.actorId ?? "",
-        learnerUtterance: body.learnerUtterance ?? "",
-        atSecond: body.atSecond ?? 0,
-        traceContextTags: parseStringArray(body.traceContextTags),
-      });
+      const result = actorId.length > 0
+        ? await runtime.generateActorResponse(stationRunId, {
+            actorId,
+            learnerUtterance,
+            atSecond,
+            traceContextTags,
+          })
+        : await runtime.generateRoutedActorResponse(stationRunId, {
+            learnerUtterance,
+            atSecond,
+            traceContextTags,
+            ...(source ? { source } : {}),
+          });
       await persistTraceSnapshot(runtime, persistence, stationRunId);
       return context.json(result, 201);
     } catch (error) {
