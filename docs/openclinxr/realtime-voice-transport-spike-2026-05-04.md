@@ -44,7 +44,7 @@ sequenceDiagram
 extends Node
 
 var socket := WebSocketPeer.new()
-var target_url := "ws://127.0.0.1:3000/voice/realtime/ws"
+var target_url := "ws://127.0.0.1:4017/voice/realtime/ws"
 
 func _ready() -> void:
     var error := socket.connect_to_url(target_url)

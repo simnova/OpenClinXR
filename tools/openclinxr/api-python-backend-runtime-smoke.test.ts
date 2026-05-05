@@ -4,8 +4,10 @@ import { buildApiPythonBackendRuntimeSmokeReport } from "./api-python-backend-ru
 const canonicalWebSocketProtocol = {
   websocketPath: "/voice/realtime/ws" as const,
   codec: "opus" as const,
+  backendProtocolObserved: true,
   clientControlFrameTypesSent: ["voice.start", "voice.audio_metadata", "voice.stop"],
-  serverEventTypesObserved: ["backend.ready", "voice.started", "audio.chunk", "transcript.partial", "voice.stopped"],
+  serverEventTypesObserved: ["backend.ready", "voice.started", "audio.chunk", "transcript.partial", "transcript.final", "voice.stopped"],
+  latencyFieldsObserved: true,
   canonicalProtocolObserved: true,
 };
 
@@ -148,5 +150,21 @@ describe("API Python backend runtime smoke report", () => {
 
     expect(report.status).toBe("blocked");
     expect(report.verdict.blockers).toContain("websocket_canonical_protocol_not_observed");
+  });
+
+  it("blocks websocket evidence that does not carry canonical latency fields", () => {
+    const report = buildApiPythonBackendRuntimeSmokeReport({
+      ...baseInput,
+      websocket: {
+        ...baseInput.websocket,
+        protocol: {
+          ...canonicalWebSocketProtocol,
+          latencyFieldsObserved: false,
+        },
+      },
+    });
+
+    expect(report.status).toBe("blocked");
+    expect(report.verdict.blockers).toContain("websocket_latency_fields_not_observed");
   });
 });

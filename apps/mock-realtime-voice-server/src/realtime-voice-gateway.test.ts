@@ -63,6 +63,21 @@ describe("realtime voice gateway spike", () => {
       binaryAudioChunksReceived: 2,
       backendProtocol: "python-fastapi-compatible-websocket",
       codec: "opus",
+      latencyFieldsObserved: true,
+      audioChunkMetadataSamples: [
+        {
+          chunkIndex: 0,
+          byteLength: 6,
+          clientSentAtMsEchoed: true,
+          backendObservedAtMsObserved: true,
+        },
+        {
+          chunkIndex: 1,
+          byteLength: 6,
+          clientSentAtMsEchoed: true,
+          backendObservedAtMsObserved: true,
+        },
+      ],
       latencyBudget: {
         targetMs: 1_000,
         passed: true,

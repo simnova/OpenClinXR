@@ -25,6 +25,13 @@ export type RealtimeVoiceProxyHarnessResult = {
   binaryAudioChunksSent: number;
   transcriptEventsReceived: number;
   audioChunkMetadataReceived: number;
+  latencyFieldsObserved: boolean;
+  audioChunkMetadataSamples: Array<{
+    chunkIndex: number;
+    byteLength: number | null;
+    clientSentAtMsEchoed: boolean;
+    backendObservedAtMsObserved: boolean;
+  }>;
   binaryAudioChunksReceived: number;
   backendProtocol: "python-fastapi-compatible-websocket";
   codec: "opus";
@@ -218,6 +225,7 @@ export async function runRealtimeVoiceProxyHarness(input: RealtimeVoiceProxyHarn
   let transcriptEventsReceived = 0;
   let audioChunkMetadataReceived = 0;
   let binaryAudioChunksReceived = 0;
+  const audioChunkMetadataSamples: RealtimeVoiceProxyHarnessResult["audioChunkMetadataSamples"] = [];
   let resolved = false;
 
   return await new Promise<RealtimeVoiceProxyHarnessResult>((resolve, reject) => {
@@ -271,6 +279,12 @@ export async function runRealtimeVoiceProxyHarness(input: RealtimeVoiceProxyHarn
         if (typeof message.chunkIndex === "number") {
           audioChunkIndexesReceived.push(message.chunkIndex);
         }
+        audioChunkMetadataSamples.push({
+          chunkIndex: typeof message.chunkIndex === "number" ? message.chunkIndex : -1,
+          byteLength: typeof message.byteLength === "number" ? message.byteLength : null,
+          clientSentAtMsEchoed: typeof message.clientSentAtMs === "number",
+          backendObservedAtMsObserved: typeof message.backendObservedAtMs === "number",
+        });
         if (typeof message.clientSentAtMs === "number") {
           frameLatencySamplesMs.push(Number((performance.now() - message.clientSentAtMs).toFixed(2)));
         }
@@ -290,6 +304,11 @@ export async function runRealtimeVoiceProxyHarness(input: RealtimeVoiceProxyHarn
           binaryAudioChunksSent: input.audioChunks.length,
           transcriptEventsReceived,
           audioChunkMetadataReceived,
+          latencyFieldsObserved: audioChunkMetadataSamples.length >= input.audioChunks.length
+            && audioChunkMetadataSamples.every(
+              (sample) => sample.clientSentAtMsEchoed && sample.backendObservedAtMsObserved,
+            ),
+          audioChunkMetadataSamples,
           binaryAudioChunksReceived,
           backendProtocol: realtimeVoiceProtocol.backendProtocol,
           codec: realtimeVoiceProtocol.codec,
@@ -357,7 +376,13 @@ function sendJson(socket: WebSocket, body: Record<string, unknown>): void {
   }
 }
 
-function parseJsonFrame(data: RawData): { type?: string; chunkIndex?: number; clientSentAtMs?: number } | null {
+function parseJsonFrame(data: RawData): {
+  type?: string;
+  chunkIndex?: number;
+  byteLength?: number;
+  clientSentAtMs?: number;
+  backendObservedAtMs?: number;
+} | null {
   try {
     const text = toBuffer(data).toString("utf8");
     const parsed = JSON.parse(text) as unknown;

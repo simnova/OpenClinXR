@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import time
 from typing import Any
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -77,12 +78,13 @@ async def voice_realtime_ws(websocket: WebSocket) -> None:
     await websocket.send_json(
         {
             "type": "backend.ready",
-            "protocol": "json-control-and-binary-audio-echo",
+            "backendProtocol": "python-fastapi-compatible-websocket",
         }
     )
 
     audio_chunks = 0
     audio_bytes = 0
+    pending_audio_metadata: dict[int, dict[str, Any]] = {}
 
     try:
         while True:
@@ -94,7 +96,7 @@ async def voice_realtime_ws(websocket: WebSocket) -> None:
 
             if message_type != "websocket.receive":
                 await websocket.send_json(
-                    {"type": "error", "reason": f"unsupported message type: {message_type}"}
+                    {"type": "backend.error", "reason": f"unsupported message type: {message_type}"}
                 )
                 continue
 
@@ -102,20 +104,23 @@ async def voice_realtime_ws(websocket: WebSocket) -> None:
             binary_payload = message.get("bytes")
 
             if text_payload is not None:
-                await handle_control_frame(websocket, text_payload)
+                await handle_control_frame(websocket, text_payload, pending_audio_metadata)
                 continue
 
             if binary_payload is not None:
+                chunk_index = audio_chunks
+                metadata = pending_audio_metadata.pop(chunk_index, {})
                 audio_chunks += 1
                 audio_bytes += len(binary_payload)
                 await websocket.send_json(
                     {
                         "type": "audio.chunk",
                         "codec": "opus",
-                        "chunkIndex": audio_chunks - 1,
+                        "chunkIndex": chunk_index,
                         "byteLength": len(binary_payload),
                         "totalBytes": audio_bytes,
-                        "backendObservedAtMs": None,
+                        "clientSentAtMs": metadata.get("clientSentAtMs"),
+                        "backendObservedAtMs": round(time.perf_counter() * 1000, 2),
                     }
                 )
                 await websocket.send_json(
@@ -123,24 +128,36 @@ async def voice_realtime_ws(websocket: WebSocket) -> None:
                         "type": "transcript.partial",
                         "text": "",
                         "confidence": 0.0,
-                        "sourceChunkIndex": audio_chunks - 1,
+                        "sourceChunkIndex": chunk_index,
+                    }
+                )
+                await websocket.send_json(
+                    {
+                        "type": "transcript.final",
+                        "text": "",
+                        "confidence": 0.0,
+                        "sourceChunkIndex": chunk_index,
                     }
                 )
                 await websocket.send_bytes(binary_payload)
                 continue
 
-            await websocket.send_json({"type": "error", "reason": "empty websocket frame"})
+            await websocket.send_json({"type": "backend.error", "reason": "empty websocket frame"})
     except WebSocketDisconnect:
         return
 
 
-async def handle_control_frame(websocket: WebSocket, payload: str) -> None:
+async def handle_control_frame(
+    websocket: WebSocket,
+    payload: str,
+    pending_audio_metadata: dict[int, dict[str, Any]],
+) -> None:
     try:
         control = json.loads(payload)
     except json.JSONDecodeError as error:
         await websocket.send_json(
             {
-                "type": "error",
+                "type": "backend.error",
                 "reason": "invalid JSON control frame",
                 "detail": str(error),
             }
@@ -149,7 +166,7 @@ async def handle_control_frame(websocket: WebSocket, payload: str) -> None:
 
     if not isinstance(control, dict):
         await websocket.send_json(
-            {"type": "error", "reason": "control frame must be a JSON object"}
+            {"type": "backend.error", "reason": "control frame must be a JSON object"}
         )
         return
 
@@ -169,6 +186,14 @@ async def handle_control_frame(websocket: WebSocket, payload: str) -> None:
         return
 
     if frame_type == "voice.audio_metadata":
+        chunk_index = control.get("chunkIndex")
+        client_sent_at_ms = control.get("clientSentAtMs")
+        if isinstance(chunk_index, int) and not isinstance(chunk_index, bool):
+            pending_audio_metadata[chunk_index] = {
+                "clientSentAtMs": client_sent_at_ms
+                if isinstance(client_sent_at_ms, (int, float)) and not isinstance(client_sent_at_ms, bool)
+                else None
+            }
         return
 
     await websocket.send_json(

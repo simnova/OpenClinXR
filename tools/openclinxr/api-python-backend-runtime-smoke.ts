@@ -61,8 +61,10 @@ export type ApiPythonBackendRuntimeSmokeReport = {
     protocol: {
       websocketPath: "/voice/realtime/ws";
       codec: "opus";
+      backendProtocolObserved: boolean;
       clientControlFrameTypesSent: string[];
       serverEventTypesObserved: string[];
+      latencyFieldsObserved: boolean;
       canonicalProtocolObserved: boolean;
     };
   };
@@ -229,6 +231,8 @@ export function buildApiPythonBackendRuntimeSmokeReport(
     ...(input.websocket.audioMetadataObserved ? [] : ["websocket_audio_metadata_missing"]),
     ...(input.websocket.transcriptDeltaObserved ? [] : ["websocket_transcript_delta_missing"]),
     ...(input.websocket.binaryEchoObserved ? [] : ["websocket_binary_echo_missing"]),
+    ...(input.websocket.protocol?.backendProtocolObserved ? [] : ["websocket_backend_protocol_not_observed"]),
+    ...(input.websocket.protocol?.latencyFieldsObserved ? [] : ["websocket_latency_fields_not_observed"]),
     ...(input.websocket.protocol?.canonicalProtocolObserved ? [] : ["websocket_canonical_protocol_not_observed"]),
   ];
   const passed = blockers.length === 0;
@@ -441,19 +445,25 @@ async function runWebSocketProbe(
       binaryEchoObserved: false,
       clientControlFrameTypesSent: [] as string[],
       serverEventTypesObserved: [] as string[],
+      backendProtocolObserved: false,
+      latencyFieldsObserved: false,
     };
     const buildProtocol = (): ApiPythonBackendRuntimeSmokeReport["websocket"]["protocol"] => {
       const serverEvents = state.serverEventTypesObserved;
       return {
         websocketPath: realtimeVoiceProtocol.websocketPath,
         codec: realtimeVoiceProtocol.codec,
+        backendProtocolObserved: state.backendProtocolObserved,
         clientControlFrameTypesSent: [...state.clientControlFrameTypesSent],
         serverEventTypesObserved: [...serverEvents],
+        latencyFieldsObserved: state.latencyFieldsObserved,
         canonicalProtocolObserved: [
           realtimeVoiceProtocol.serverEvents.backendReady,
           realtimeVoiceProtocol.serverEvents.voiceStarted,
           realtimeVoiceProtocol.serverEvents.audioChunk,
           realtimeVoiceProtocol.serverEvents.transcriptPartial,
+          realtimeVoiceProtocol.serverEvents.transcriptFinal,
+          realtimeVoiceProtocol.serverEvents.voiceStopped,
         ].every((eventType) => serverEvents.includes(eventType)),
       };
     };
@@ -503,8 +513,17 @@ async function runWebSocketProbe(
         if (typeof type === "string") {
           state.serverEventTypesObserved.push(type);
         }
+        state.backendProtocolObserved ||= type === realtimeVoiceProtocol.serverEvents.backendReady
+          && typeof parsed === "object"
+          && parsed !== null
+          && (parsed as { backendProtocol?: unknown }).backendProtocol === realtimeVoiceProtocol.backendProtocol;
         state.controlAckObserved ||= type === realtimeVoiceProtocol.serverEvents.voiceStarted;
         state.audioMetadataObserved ||= type === realtimeVoiceProtocol.serverEvents.audioChunk;
+        state.latencyFieldsObserved ||= type === realtimeVoiceProtocol.serverEvents.audioChunk
+          && typeof parsed === "object"
+          && parsed !== null
+          && typeof (parsed as { clientSentAtMs?: unknown }).clientSentAtMs === "number"
+          && typeof (parsed as { backendObservedAtMs?: unknown }).backendObservedAtMs === "number";
         state.transcriptDeltaObserved ||= type === realtimeVoiceProtocol.serverEvents.transcriptPartial
           || type === realtimeVoiceProtocol.serverEvents.transcriptFinal;
       } else {
@@ -517,6 +536,10 @@ async function runWebSocketProbe(
         && state.audioMetadataObserved
         && state.transcriptDeltaObserved
         && state.binaryEchoObserved
+        && state.backendProtocolObserved
+        && state.latencyFieldsObserved
+        && state.serverEventTypesObserved.includes(realtimeVoiceProtocol.serverEvents.transcriptFinal)
+        && state.serverEventTypesObserved.includes(realtimeVoiceProtocol.serverEvents.voiceStopped)
       ) {
         clearTimeout(timeout);
         websocket.close();
@@ -573,6 +596,8 @@ function emptyWebSocketProtocol(): ApiPythonBackendRuntimeSmokeReport["websocket
     codec: realtimeVoiceProtocol.codec,
     clientControlFrameTypesSent: [],
     serverEventTypesObserved: [],
+    backendProtocolObserved: false,
+    latencyFieldsObserved: false,
     canonicalProtocolObserved: false,
   };
 }

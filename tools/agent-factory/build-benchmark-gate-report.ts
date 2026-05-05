@@ -827,7 +827,9 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localVoiceLiveDialogBenchmark && localVoiceLiveDialogBenchmark.value.safetyControls.blockers.length === 0 ? "local_voice_live_dialog_safety_controls_observed" : undefined,
     localVoiceLiveDialogBenchmark?.value.verdict.passed ? "local_voice_live_dialog_benchmark_passed" : undefined,
     realtimeVoiceTransportSpikePassed(realtimeVoiceTransportSpike) ? "local_voice_realtime_transport_contract_observed" : undefined,
-    apiPythonBackendRuntimeSmoke?.value.verdict.passed ? "local_voice_python_backend_runtime_smoke_passed" : undefined,
+    apiPythonBackendRuntimeSmokePassed(apiPythonBackendRuntimeSmoke)
+      ? "local_voice_python_backend_runtime_smoke_passed"
+      : undefined,
   ]);
   const questSatisfiedConditions = combinedSatisfiedConditions.filter((condition) =>
     condition.startsWith("quest_") || (questManualPerformance?.value.satisfiedConditions ?? []).includes(condition)
@@ -1664,11 +1666,32 @@ function realtimeVoiceTransportSpikeFrameMetadataBlockers(
 function apiPythonBackendRuntimeSmokeBlockers(
   apiPythonBackendRuntimeSmoke: EvidenceFile<ApiPythonBackendRuntimeSmokeReport> | undefined,
 ): string[] {
-  if (!apiPythonBackendRuntimeSmoke || apiPythonBackendRuntimeSmoke.value.verdict.passed) {
+  if (!apiPythonBackendRuntimeSmoke) {
     return [];
   }
-  return unique(apiPythonBackendRuntimeSmoke.value.verdict.blockers
-    .map((blocker) => `local_voice_live_dialog:api_python_backend_runtime_smoke:${blocker}`));
+
+  return unique([
+    ...apiPythonBackendRuntimeSmoke.value.verdict.blockers,
+    ...apiPythonBackendRuntimeSmokeProtocolBlockers(apiPythonBackendRuntimeSmoke.value),
+  ].map((blocker) => `local_voice_live_dialog:api_python_backend_runtime_smoke:${blocker}`));
+}
+
+function apiPythonBackendRuntimeSmokePassed(
+  apiPythonBackendRuntimeSmoke: EvidenceFile<ApiPythonBackendRuntimeSmokeReport> | undefined,
+): boolean {
+  return Boolean(
+    apiPythonBackendRuntimeSmoke?.value.verdict.passed
+      && apiPythonBackendRuntimeSmokeProtocolBlockers(apiPythonBackendRuntimeSmoke.value).length === 0,
+  );
+}
+
+function apiPythonBackendRuntimeSmokeProtocolBlockers(report: ApiPythonBackendRuntimeSmokeReport): string[] {
+  const protocol = report.websocket.protocol;
+  return unique([
+    protocol?.backendProtocolObserved ? undefined : "websocket_backend_protocol_not_observed",
+    protocol?.latencyFieldsObserved ? undefined : "websocket_latency_fields_not_observed",
+    protocol?.canonicalProtocolObserved ? undefined : "websocket_canonical_protocol_not_observed",
+  ]);
 }
 
 function assetProductionBlockers(

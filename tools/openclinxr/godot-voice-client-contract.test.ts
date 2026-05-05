@@ -23,6 +23,10 @@ describe("Godot Quest voice client contract", () => {
     expect(client).toContain("WebSocketPeer.new()");
     expect(client).toContain("connect_to_url");
     expect(client).toContain("VOICE_GATEWAY_URL");
+    expect(client).toContain('const VOICE_GATEWAY_URL := "ws://127.0.0.1:4017/voice/realtime/ws"');
+    expect(readAppFile("scenes/realtime_voice_spike.tscn")).toContain(
+      'text = "ws://127.0.0.1:4017/voice/realtime/ws"',
+    );
     expect(client).toContain("/voice/realtime/ws");
     expect(client).toContain('const CODEC := "opus"');
     expect(client).toContain("const SAMPLE_RATE_HZ := 48000");
@@ -39,6 +43,22 @@ describe("Godot Quest voice client contract", () => {
     expect(client).toContain("socket.put_packet(packet)");
     expect(client).toContain("socket.get_packet()");
     expect(client).toContain("socket.was_string_packet()");
+  });
+
+  it("waits for voice.stopped before closing the websocket", () => {
+    const client = readAppFile("src/RealtimeVoiceClient.gd");
+
+    expect(client).toContain("var close_after_stop_ack := false");
+    expect(client).toContain("close_after_stop_ack = true");
+    expect(client).toContain('if event_type == "voice.stopped" and close_after_stop_ack:');
+    expect(client.indexOf('if event_type == "voice.stopped" and close_after_stop_ack:')).toBeLessThan(
+      client.lastIndexOf("socket.close()"),
+    );
+
+    const stopSessionStart = client.indexOf("func stop_session() -> void:");
+    const handleJsonStart = client.indexOf("func _handle_json_packet(text: String) -> void:");
+    const stopSessionBody = client.slice(stopSessionStart, handleJsonStart);
+    expect(stopSessionBody).not.toContain("socket.close()");
   });
 
   it("keeps speculative protocol and production-readiness claims out of the Godot sidecar", () => {

@@ -5,7 +5,7 @@ signal connection_status_changed(status: String)
 signal gateway_event(event: Dictionary)
 signal audio_packet_received(packet: PackedByteArray)
 
-const VOICE_GATEWAY_URL := "ws://127.0.0.1:3000/voice/realtime/ws"
+const VOICE_GATEWAY_URL := "ws://127.0.0.1:4017/voice/realtime/ws"
 const CODEC := "opus"
 const SAMPLE_RATE_HZ := 48000
 const CLIENT_TARGET := "quest3-godot"
@@ -18,9 +18,11 @@ var gateway_url := VOICE_GATEWAY_URL
 var socket := WebSocketPeer.new()
 var last_status := "idle"
 var next_chunk_index := 0
+var close_after_stop_ack := false
 
 func connect_gateway(url: String = VOICE_GATEWAY_URL) -> int:
 	gateway_url = url
+	close_after_stop_ack = false
 	var error := socket.connect_to_url(gateway_url)
 	if error == OK:
 		_set_status("connecting")
@@ -39,6 +41,7 @@ func _process(_delta: float) -> void:
 
 func start_session() -> void:
 	next_chunk_index = 0
+	close_after_stop_ack = false
 	_send_json({
 		"type": FRAME_VOICE_START,
 		"codec": CODEC,
@@ -47,9 +50,9 @@ func start_session() -> void:
 	})
 
 func stop_session() -> void:
+	close_after_stop_ack = true
 	_send_json({ "type": FRAME_VOICE_STOP, "client": CLIENT_TARGET })
-	socket.close()
-	_set_status("closed")
+	_set_status("closing")
 
 func send_encoded_audio_packet(packet: PackedByteArray) -> void:
 	if socket.get_ready_state() == WebSocketPeer.STATE_OPEN:
@@ -80,6 +83,9 @@ func _handle_json_packet(text: String) -> void:
 		var event_type := str(parsed.get("type", ""))
 		if event_type == "" or EXPECTED_GATEWAY_EVENTS.has(event_type):
 			gateway_event.emit(parsed)
+		if event_type == "voice.stopped" and close_after_stop_ack:
+			close_after_stop_ack = false
+			socket.close()
 
 func _update_connection_status() -> void:
 	var state := socket.get_ready_state()

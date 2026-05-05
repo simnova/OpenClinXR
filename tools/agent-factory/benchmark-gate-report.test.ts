@@ -1152,8 +1152,10 @@ describe("benchmark gate report", () => {
             protocol: {
               websocketPath: "/voice/realtime/ws",
               codec: "opus",
+              backendProtocolObserved: true,
               clientControlFrameTypesSent: ["voice.start", "voice.audio_metadata", "voice.stop"],
-              serverEventTypesObserved: ["backend.ready", "voice.started", "audio.chunk", "transcript.partial", "voice.stopped"],
+              serverEventTypesObserved: ["backend.ready", "voice.started", "audio.chunk", "transcript.partial", "transcript.final", "voice.stopped"],
+              latencyFieldsObserved: true,
               canonicalProtocolObserved: true,
             },
           },
@@ -1353,6 +1355,94 @@ describe("benchmark gate report", () => {
     ]));
     expect(liveDialogGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
       "local_voice_realtime_transport_contract_observed",
+    ]));
+  });
+
+  it("blocks stale FastAPI runtime smoke evidence that lacks canonical websocket protocol fields", () => {
+    const buildReport = buildBenchmarkGateReport as (
+      input: Parameters<typeof buildBenchmarkGateReport>[0],
+      options: { now: Date; maxEvidenceAgeHours: number },
+    ) => BenchmarkGateReport;
+    const report = buildReport({
+      apiPythonBackendRuntimeSmoke: {
+        file: "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-04.json",
+        value: {
+          generatedAt: "2026-05-04T20:17:00.000Z",
+          status: "passed",
+          policy: {
+            cloudApisUsed: false,
+            paidApisUsed: false,
+            modelDownloadsUsed: false,
+            committedGeneratedAudio: false,
+            productionUseAllowed: false,
+          },
+          python: {
+            executable: "python3",
+            version: "Python 3.11.4",
+            dependencies: { fastapi: "available", uvicorn: "available", websockets: "available" },
+            missingPackages: [],
+          },
+          server: {
+            attempted: true,
+            command: ["python3", "-m", "uvicorn"],
+            port: 8765,
+            stdout: [],
+            stderr: [],
+          },
+          health: {
+            attempted: true,
+            ok: true,
+            statusCode: 200,
+            latencyMs: 10,
+            body: { status: "ok", service: "api-python-backend" },
+          },
+          capabilities: {
+            attempted: true,
+            ok: true,
+            statusCode: 200,
+            latencyMs: 11,
+            modes: [],
+            body: { defaultMode: "transport-echo" },
+          },
+          websocket: {
+            attempted: true,
+            connected: true,
+            jsonMessages: 5,
+            binaryMessages: 1,
+            controlAckObserved: true,
+            audioMetadataObserved: true,
+            transcriptDeltaObserved: true,
+            binaryEchoObserved: true,
+            latencyMs: 17,
+            protocol: {
+              websocketPath: "/voice/realtime/ws",
+              codec: "opus",
+              backendProtocolObserved: false,
+              clientControlFrameTypesSent: ["voice.start", "voice.audio_metadata", "voice.stop"],
+              serverEventTypesObserved: ["backend.ready", "voice.started", "audio.chunk", "transcript.partial", "voice.stopped"],
+              latencyFieldsObserved: false,
+              canonicalProtocolObserved: false,
+            },
+          },
+          verdict: {
+            passed: true,
+            readyForLiveDialog: false,
+            blockers: [],
+            caveats: [],
+          },
+        },
+      },
+    }, { now: new Date("2026-05-04T20:20:00.000Z"), maxEvidenceAgeHours: 24 });
+
+    const liveDialogGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-003");
+
+    expect(liveDialogGate?.blockers).toEqual(expect.arrayContaining([
+      "local_voice_live_dialog:api_python_backend_runtime_smoke:websocket_backend_protocol_not_observed",
+      "local_voice_live_dialog:api_python_backend_runtime_smoke:websocket_latency_fields_not_observed",
+      "local_voice_live_dialog:api_python_backend_runtime_smoke:websocket_canonical_protocol_not_observed",
+    ]));
+    expect(liveDialogGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
+      "local_voice_python_backend_runtime_smoke_passed",
     ]));
   });
 

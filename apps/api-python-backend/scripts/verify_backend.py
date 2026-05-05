@@ -120,6 +120,10 @@ def assert_source_contract() -> None:
         "voice.stopped",
         "audio.chunk",
         "transcript.partial",
+        "pending_audio_metadata",
+        "clientSentAtMs",
+        "backendObservedAtMs",
+        "time.perf_counter",
     )
     for snippet in expected_snippets:
         if snippet not in source:

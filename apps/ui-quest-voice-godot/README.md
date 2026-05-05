@@ -23,6 +23,8 @@ native Opus encode/decode, playback, or end-to-end headset latency.
 3. Run the `RealtimeVoiceSpike` scene.
 4. Use the transport probe button to validate bidirectional binary frames.
 
+The default local gateway URL is `ws://127.0.0.1:4017/voice/realtime/ws`.
+
 The transport probe is deliberately not presented as clinical voice evidence.
 Production voice requires a real codec path, disclosure/retention/misuse controls,
 and measured Quest capture/playback latency.
