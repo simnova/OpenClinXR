@@ -16,6 +16,7 @@
     "@openclinxr/model-gateway": "workspace:*",
     "@openclinxr/review-workflow": "workspace:*",
     "@openclinxr/scenario-fixtures": "workspace:*",
+    "@openclinxr/session-state": "workspace:*",
     "@openclinxr/shared-schemas": "workspace:*",
     "@openclinxr/trace-ledger": "workspace:*",
     "@openclinxr/voice-gateway": "workspace:*"

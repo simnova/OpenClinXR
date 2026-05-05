@@ -193,6 +193,15 @@ describe("scenario runtime", () => {
 
     expect(provider.requests).toHaveLength(1);
     expect(provider.requests[0]?.hiddenFacts).toEqual([]);
+    expect(provider.requests[0]?.visibleFacts).toEqual([
+      "Demeanor: anxious, diaphoretic, protective of chest",
+    ]);
+    expect(provider.requests[0]?.retrievedMemoryIds).toEqual([
+      "scenario:ed_chest_pain_priority_v1:v1",
+      "actor:patient_robert_hayes_v1",
+      "fact:patient_robert_hayes_v1:0",
+      "fact:patient_robert_hayes_v1:1",
+    ]);
     expect(JSON.stringify(provider.requests[0])).not.toContain("Father died of myocardial infarction");
     expect(JSON.stringify(runtime.traceEvents(session.stationRunId))).not.toContain("Father died of myocardial infarction");
   });

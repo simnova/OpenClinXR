@@ -16,6 +16,11 @@ import {
   type ScenarioPublicationReadiness,
 } from "@openclinxr/review-workflow";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
+import {
+  buildActorModelContext,
+  createMultiActorClinicalSession,
+  type MultiActorClinicalSession,
+} from "@openclinxr/session-state";
 import type { ProviderHealth, ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
 import { InMemoryTraceLedger } from "@openclinxr/trace-ledger";
 import {
@@ -108,6 +113,7 @@ export type SubmitNoteResult = {
 
 type SessionRecord = {
   run: StationRun;
+  multiActorSession: MultiActorClinicalSession;
   nextSequence: number;
   facultyScoreDraft?: ReviewPacket["facultyScoreDraft"];
 };
@@ -133,7 +139,14 @@ export class ScenarioRuntime {
     let run = createStationRun(this.options.scenario.scenarioId, input.learnerId);
     this.options.ledger.append(traceEvent({ stationRunId: run.stationRunId, sequence: 0, eventType: "station.started", atSecond: 0, source: "system" }));
     this.options.ledger.append(traceEvent({ stationRunId: run.stationRunId, sequence: 1, eventType: "consent.accepted", atSecond: 0, source: "learner" }));
-    this.sessions.set(run.stationRunId, { run, nextSequence: 2 });
+    this.sessions.set(run.stationRunId, {
+      run,
+      multiActorSession: createMultiActorClinicalSession({
+        scenario: this.options.scenario,
+        stationRunId: run.stationRunId,
+      }),
+      nextSequence: 2,
+    });
 
     return {
       stationRunId: run.stationRunId,
@@ -191,6 +204,7 @@ export class ScenarioRuntime {
     if (!actor) {
       throw new Error(`Actor not found: ${input.actorId}`);
     }
+    const actorContext = buildActorModelContext(session.multiActorSession, input.actorId);
 
     const traceContextTags = [...(input.traceContextTags ?? [])];
     const primaryTag = traceContextTags[0];
@@ -217,13 +231,9 @@ export class ScenarioRuntime {
         actorRole: actor.role,
         conversationTurn,
         learnerUtterance: input.learnerUtterance,
-        visibleFacts: actorVisibleFacts(this.options.scenario, actor),
+        visibleFacts: actorContext.visibleMemory.facts,
         hiddenFacts: [],
-        retrievedMemoryIds: [
-          `scenario:${this.options.scenario.scenarioId}:v${this.options.scenario.version}`,
-          `actor:${actor.actorId}`,
-          `governance:${this.options.scenario.scenarioId}:hidden-fact-policy`,
-        ],
+        retrievedMemoryIds: actorContext.retrievedMemoryIds,
         traceContextTags,
         policy: actorResponsePolicy,
       });
@@ -517,14 +527,6 @@ const voiceSynthesisPolicy: VoiceRequestPolicy = {
   requestPolicyId: "voice-offline-v1",
   safetyPolicyVersion: "clinical-simulation-safety-v1",
 };
-
-function actorVisibleFacts(scenario: Scenario, actor: Scenario["actors"][number]): string[] {
-  return [
-    `${actor.displayName} is the ${actor.role} in ${scenario.title}.`,
-    ...(actor.demeanor ? [`Demeanor: ${actor.demeanor}.`] : []),
-    ...(scenario.environment ? [`Environment: ${scenario.environment.name}.`] : []),
-  ];
-}
 
 function occurredAt(atSecond: number): string {
   return new Date(Date.parse("2026-05-03T15:38:58.000Z") + atSecond * 1000).toISOString();

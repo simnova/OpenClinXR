@@ -559,6 +559,9 @@ importers:
       '@openclinxr/scenario-fixtures':
         specifier: workspace:*
         version: link:../scenario-fixtures
+      '@openclinxr/session-state':
+        specifier: workspace:*
+        version: link:../session-state
       '@openclinxr/shared-schemas':
         specifier: workspace:*
         version: link:../shared-schemas
