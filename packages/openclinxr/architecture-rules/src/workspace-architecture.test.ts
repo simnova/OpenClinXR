@@ -242,6 +242,8 @@ describe("workspace architecture rules", () => {
     );
 
     expect(protocolSupport).toContain('protocolId: "webtransport"');
+    expect(protocolSupport).toContain("OpenClinXrApiProtocolClaimScope");
+    expect(protocolSupport).toContain('claimScope: webTransportReady ? "runtime_ready" : "evidence_gated_future_lane"');
     expect(protocolSupport).toContain("input.bunHttp3WebTransportVerified");
     expect(protocolSupport).toContain("input.questWebTransportVerified");
     expect(protocolSupport).toContain("input.azureWebTransportIngressVerified");
@@ -250,10 +252,12 @@ describe("workspace architecture rules", () => {
     expect(protocolSupport).toContain("azureWebTransportIngressVerified");
     expect(protocolSupport).toContain("azure_webtransport_ingress_not_verified");
     expect(protocolSupport).toContain('protocolId: "quic"');
+    expect(protocolSupport).toContain('claimScope: quicReady ? "runtime_ready" : "evidence_gated_future_lane"');
     expect(protocolSupport).toContain("operator_quic_gateway_proposal_missing");
     expect(protocolSupport).toContain("quic_gateway_not_implemented");
     expect(protocolSupport).toContain("azure_quic_ingress_not_verified");
     expect(protocolSupport).toContain('protocolId: "web3-signaling"');
+    expect(protocolSupport).toContain('claimScope: "identity_signaling_audit_only"');
     expect(protocolSupport).toContain("operator_web3_signaling_proposal_missing");
     expect(protocolSupport).toContain("web3_identity_and_signaling_protocol_not_selected");
     expect(protocolSupport).toContain("web3 support stays scoped to identity/signaling");

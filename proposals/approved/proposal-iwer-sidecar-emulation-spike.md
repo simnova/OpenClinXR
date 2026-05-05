@@ -1,6 +1,8 @@
 # Proposal: IWER Sidecar Emulation Spike
 
-Status: Proposed on 2026-05-04 19:59 EDT; awaiting Patrick approval before Codex treats IWER-specific emulation runs as an approved evidence lane.
+Status: Approved by Patrick Gidich on 2026-05-04 20:13:53 EDT.
+
+Approval note: Patrick clarified approval in-thread after seeing the proposal still under `proposals/`; Codex may treat IWER-specific emulation runs as an approved sidecar evidence lane within the constraints below.
 
 ## Decision Needed
 

@@ -9,10 +9,16 @@ export type OpenClinXrRealtimeProtocolId =
   | "web3-signaling";
 
 export type OpenClinXrApiProtocolStatus = "ready" | "contract_ready" | "planned" | "blocked";
+export type OpenClinXrApiProtocolClaimScope =
+  | "runtime_ready"
+  | "contract_only"
+  | "evidence_gated_future_lane"
+  | "identity_signaling_audit_only";
 
 export type OpenClinXrApiProtocolSupport = {
   protocolId: OpenClinXrRealtimeProtocolId;
   status: OpenClinXrApiProtocolStatus;
+  claimScope: OpenClinXrApiProtocolClaimScope;
   runtimeTarget: OpenClinXrApiRuntimeTarget;
   role: "control-plane" | "admin-graphql" | "media-transport" | "identity-signaling-audit";
   clinicalMediaAllowed: boolean;
@@ -58,6 +64,7 @@ export function createOpenClinXrApiProtocolPosture(input: {
       {
         protocolId: "http-rest",
         status: "ready",
+        claimScope: "runtime_ready",
         runtimeTarget: "bun-hono",
         role: "control-plane",
         clinicalMediaAllowed: false,
@@ -68,6 +75,7 @@ export function createOpenClinXrApiProtocolPosture(input: {
       {
         protocolId: "admin-graphql",
         status: "ready",
+        claimScope: "runtime_ready",
         runtimeTarget: "bun-hono",
         role: "admin-graphql",
         clinicalMediaAllowed: false,
@@ -78,6 +86,7 @@ export function createOpenClinXrApiProtocolPosture(input: {
       {
         protocolId: "websocket",
         status: "contract_ready",
+        claimScope: "contract_only",
         runtimeTarget: "bun-hono",
         role: "media-transport",
         clinicalMediaAllowed: true,
@@ -88,6 +97,7 @@ export function createOpenClinXrApiProtocolPosture(input: {
       {
         protocolId: "webtransport",
         status: webTransportReady ? "ready" : "blocked",
+        claimScope: webTransportReady ? "runtime_ready" : "evidence_gated_future_lane",
         runtimeTarget: "bun-hono",
         role: "media-transport",
         clinicalMediaAllowed: webTransportReady,
@@ -102,6 +112,7 @@ export function createOpenClinXrApiProtocolPosture(input: {
       {
         protocolId: "quic",
         status: quicReady ? "ready" : "planned",
+        claimScope: quicReady ? "runtime_ready" : "evidence_gated_future_lane",
         runtimeTarget: "bun-hono",
         role: "media-transport",
         clinicalMediaAllowed: quicReady,
@@ -115,6 +126,7 @@ export function createOpenClinXrApiProtocolPosture(input: {
       {
         protocolId: "web3-signaling",
         status: web3SignalingReady ? "ready" : "planned",
+        claimScope: "identity_signaling_audit_only",
         runtimeTarget: "bun-hono",
         role: "identity-signaling-audit",
         clinicalMediaAllowed: false,

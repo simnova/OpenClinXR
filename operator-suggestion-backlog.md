@@ -49,7 +49,7 @@ This file captures useful operator steering that should shape future work but do
 - Status: `converted-to-proposal`
 - Captured at: 2026-05-04 19:53 EDT
 - Operator steering: IWER looks worth a gated sidecar spike as a complement to CDP and human Quest confirmation for immersive session and controller/input evidence.
-- Proposal: `proposals/proposal-iwer-sidecar-emulation-spike.md`
+- Proposal: `proposals/approved/proposal-iwer-sidecar-emulation-spike.md` approved by Patrick on 2026-05-04 20:13:53 EDT.
 - Primary owners: `xr-systems-architect`, `test-automation-lead`, `platform-devops-lead`, `ux-friction-critic`
 - Review when: extending `apps/ui-xr-iwsdk-spike`, adding IWER evidence contracts, or addressing the WebXR activation automation gap.
 - Acceptance shape:

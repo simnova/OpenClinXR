@@ -11,6 +11,7 @@ describe("OpenClinXR API protocol posture", () => {
 
     expect(quic).toMatchObject({
       status: "planned",
+      claimScope: "evidence_gated_future_lane",
       blockers: expect.arrayContaining(["operator_quic_gateway_proposal_missing"]),
     });
   });
@@ -25,7 +26,20 @@ describe("OpenClinXR API protocol posture", () => {
 
     expect(quic).toMatchObject({
       status: "ready",
+      claimScope: "runtime_ready",
       blockers: [],
+    });
+  });
+
+  it("keeps WebSocket as a transport contract claim until the API owns a Bun upgrade handler", () => {
+    const posture = createOpenClinXrApiProtocolPosture();
+    const websocket = posture.protocols.find((protocol) => protocol.protocolId === "websocket");
+
+    expect(websocket).toMatchObject({
+      status: "contract_ready",
+      claimScope: "contract_only",
+      clinicalMediaAllowed: true,
+      blockers: ["api_bun_websocket_upgrade_not_implemented"],
     });
   });
 
@@ -39,8 +53,25 @@ describe("OpenClinXR API protocol posture", () => {
 
     expect(webTransport).toMatchObject({
       status: "blocked",
+      claimScope: "evidence_gated_future_lane",
       clinicalMediaAllowed: false,
       blockers: expect.arrayContaining(["azure_webtransport_ingress_not_verified"]),
+    });
+  });
+
+  it("promotes WebTransport to runtime claim scope only when every approved evidence lane is present", () => {
+    const posture = createOpenClinXrApiProtocolPosture({
+      bunHttp3WebTransportVerified: true,
+      questWebTransportVerified: true,
+      azureWebTransportIngressVerified: true,
+    });
+    const webTransport = posture.protocols.find((protocol) => protocol.protocolId === "webtransport");
+
+    expect(webTransport).toMatchObject({
+      status: "ready",
+      claimScope: "runtime_ready",
+      clinicalMediaAllowed: true,
+      blockers: [],
     });
   });
 
@@ -56,6 +87,7 @@ describe("OpenClinXR API protocol posture", () => {
     });
     expect(web3).toMatchObject({
       role: "identity-signaling-audit",
+      claimScope: "identity_signaling_audit_only",
       clinicalMediaAllowed: false,
       blockers: expect.arrayContaining([
         "operator_web3_signaling_proposal_missing",
