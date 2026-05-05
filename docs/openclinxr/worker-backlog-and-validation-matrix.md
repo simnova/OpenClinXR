@@ -152,6 +152,13 @@ Validation:
 - `pnpm --filter @openclinxr/session-state typecheck`
 - `pnpm --filter @openclinxr/architecture-rules test`
 
+Current implementation evidence:
+
+- `packages/openclinxr/scenario-runtime` creates a promoted `MultiActorClinicalSession` per station run and uses `@openclinxr/session-state` for routed actor turns, final voice-transcript routing, clinical actions, open-order context, and actor model context.
+- `packages/openclinxr/model-gateway` actor-response requests now carry safe clinical state context (`completedTraceTags` and `openOrders`) while `hiddenFacts` remains empty for model calls.
+- `apps/api` exposes `POST /sessions/:stationRunId/clinical-actions` for explicit clinical action updates and `POST /sessions/:stationRunId/actor-response` can route through session-state when `actorId` is omitted.
+- Verification evidence as of 2026-05-05: `pnpm typecheck`, `pnpm test`, `pnpm security:audit-policy`, `pnpm security:licenses`, and high-severity `pnpm security:audit` passed after these slices; `pnpm security:audit` still reports one moderate advisory below the configured fail level.
+
 Done when:
 
 - Scenario runtime consumes `@openclinxr/session-state` for actor model context.

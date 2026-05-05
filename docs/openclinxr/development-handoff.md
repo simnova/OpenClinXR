@@ -394,6 +394,9 @@ Actor-response safety milestone has also started:
 - Hidden-truth extraction attempts such as requests to reveal hidden facts or ignore instructions return an auditable `blocked_fallback`.
 - Scenario runtime records actor responses as trace events with model provenance, guardrail status, token usage, and zero-cost mock accounting.
 - API exposes `POST /sessions/:stationRunId/actor-response` for actor turns.
+- If `actorId` is omitted from `POST /sessions/:stationRunId/actor-response`, the API now routes the utterance through the promoted session-state actor router before generating the response; explicit `actorId` keeps the direct path.
+- API exposes `POST /sessions/:stationRunId/clinical-actions` for explicit session-state clinical action updates (`order_requested` or `finding_observed`) without changing the generic trace-event endpoint.
+- Actor model requests now include safe clinical context from session-state (`completedTraceTags` and open orders) while keeping hidden facts out of model requests and response payloads.
 - Actor-response generation failures now append sanitized `actor.response.failed` trace events and return a controlled API error.
 - Test harness now includes both a normal actor turn and a blocked hidden-fact extraction probe.
 
