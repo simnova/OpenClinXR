@@ -88,6 +88,26 @@ describe("IWER sidecar emulation evidence checker", () => {
     ]));
   });
 
+  it("rejects screenshot probe metadata that does not match the local PNG artifact", () => {
+    const evidence = readyEvidence();
+    const screenshotProbe = evidence.rawWebSocketProbes!.find((probe) => probe.method === "screenshot")!;
+    screenshotProbe.bytes = 1;
+    screenshotProbe.dimensions = { width: 499, height: 500 };
+
+    const report = buildIwerSidecarEmulationEvidenceReport({
+      generatedAt: "2026-05-05T00:00:00.000Z",
+      evidence,
+    });
+
+    expect(report.result.readyForEmulationEvidence).toBe(false);
+    expect(report.result.blockers).toEqual(expect.arrayContaining([
+      "screenshot_probe_bytes_do_not_match_file_size",
+      "screenshot_probe_dimensions_do_not_match_png_header",
+      "visual_qa:media[0].artifact_bytes_do_not_match_file_size",
+      "visual_qa:media[0].artifact_dimensions_do_not_match_png_header",
+    ]));
+  });
+
   it("exposes a CLI for scoring captured evidence JSON", async () => {
     const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
       scripts: Record<string, string>;

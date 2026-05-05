@@ -6,6 +6,10 @@ import {
   evaluateAdversarialVisualQaEvidence,
   type AdversarialVisualQaEvidence,
 } from "./adversarial-visual-qa-evidence.js";
+import {
+  inspectMediaArtifact,
+  isAllowedRelativeArtifactPath,
+} from "./media-artifact-integrity.js";
 
 type CliOptions = {
   inputPath?: string;
@@ -176,6 +180,9 @@ export function evaluateIwerSidecarEmulationEvidence(
   const toolNames = evidence.mcpToolInventory?.toolNames ?? [];
   const expectedToolNames = buildIwsdkMcpToolInventory().allToolNames;
   const screenshotProbe = evidence.rawWebSocketProbes?.find((probe) => probe.method === "screenshot");
+  const screenshotArtifactIntegrity = inspectMediaArtifact(screenshotProbe?.artifact);
+  const screenshotFileSize = screenshotArtifactIntegrity.size;
+  const screenshotPngDimensions = screenshotArtifactIntegrity.pngDimensions;
   const blockers = [
     evidence.schemaVersion === "openclinxr.iwer-sidecar-emulation-evidence.v1"
       ? undefined
@@ -217,10 +224,28 @@ export function evaluateIwerSidecarEmulationEvidence(
     probeSucceeded(evidence, "screenshot") ? undefined : "screenshot_probe_not_successful",
     screenshotProbe?.mimeType === "image/png" ? undefined : "screenshot_probe_mime_type_not_png",
     typeof screenshotProbe?.bytes === "number" && screenshotProbe.bytes > 0 ? undefined : "screenshot_probe_has_no_bytes",
+    typeof screenshotProbe?.bytes === "number"
+      && screenshotFileSize !== undefined
+      && screenshotProbe.bytes !== screenshotFileSize
+      ? "screenshot_probe_bytes_do_not_match_file_size"
+      : undefined,
     screenshotProbe?.dimensions?.width === 500 && screenshotProbe.dimensions.height === 500
       ? undefined
       : "screenshot_probe_dimensions_not_500",
-    screenshotProbe?.artifact?.startsWith("docs/openclinxr/screenshots/")
+    screenshotProbe?.mimeType === "image/png" && screenshotArtifactIntegrity.exists && !screenshotPngDimensions
+      ? "screenshot_probe_png_signature_invalid"
+      : undefined,
+    screenshotProbe?.mimeType === "image/png"
+      && screenshotPngDimensions
+      && (
+        screenshotProbe.dimensions?.width !== screenshotPngDimensions.width
+        || screenshotProbe.dimensions.height !== screenshotPngDimensions.height
+      )
+      ? "screenshot_probe_dimensions_do_not_match_png_header"
+      : undefined,
+    screenshotArtifactIntegrity.exists ? undefined : "screenshot_probe_artifact_file_missing",
+    screenshotFileSize === undefined || screenshotFileSize > 0 ? undefined : "screenshot_probe_artifact_file_empty",
+    isAllowedRelativeArtifactPath(screenshotProbe?.artifact, "docs/openclinxr/screenshots/")
       ? undefined
       : "screenshot_artifact_not_under_docs_openclinxr_screenshots",
     evidence.productionBuildOutputInspection?.buildExitCode === 0 ? undefined : "production_build_not_successful",

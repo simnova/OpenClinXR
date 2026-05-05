@@ -1,5 +1,7 @@
-import { existsSync, statSync } from "node:fs";
-import path from "node:path";
+import {
+  inspectMediaArtifact,
+  isAllowedRelativeArtifactPath,
+} from "./media-artifact-integrity.js";
 
 export type AdversarialVisualQaSource =
   | "browser"
@@ -109,8 +111,10 @@ function mediaBlockers(media: AdversarialVisualQaMedia, index: number): string[]
   const prefix = `media[${index}]`;
   const artifact = media.artifact;
   const dimensions = media.dimensions ?? {};
-  const fileExists = artifact ? existsSync(artifact) : false;
-  const fileSize = fileExists && artifact ? statSync(artifact).size : undefined;
+  const artifactIntegrity = inspectMediaArtifact(artifact);
+  const fileSize = artifactIntegrity.size;
+  const pngDimensions = artifactIntegrity.pngDimensions;
+  const screenshotPng = media.artifactType === "screenshot" && media.mimeType === "image/png";
 
   return [
     media.source && allowedSources.includes(media.source) ? undefined : `${prefix}.source_invalid_or_missing`,
@@ -122,14 +126,22 @@ function mediaBlockers(media: AdversarialVisualQaMedia, index: number): string[]
       : `${prefix}.artifact_not_under_allowed_media_dir`,
     mimeTypeMatchesArtifactType(media.mimeType, media.artifactType) ? undefined : `${prefix}.mime_type_invalid_for_artifact_type`,
     artifact ? undefined : `${prefix}.artifact_missing`,
-    fileExists ? undefined : `${prefix}.artifact_file_missing`,
+    artifactIntegrity.exists ? undefined : `${prefix}.artifact_file_missing`,
     fileSize === undefined || fileSize > 0 ? undefined : `${prefix}.artifact_file_empty`,
     typeof media.bytes === "number" && media.bytes > 0 ? undefined : `${prefix}.artifact_bytes_invalid_or_missing`,
+    typeof media.bytes === "number" && fileSize !== undefined && media.bytes !== fileSize
+      ? `${prefix}.artifact_bytes_do_not_match_file_size`
+      : undefined,
     media.artifactType === "screenshot" && !(typeof dimensions.width === "number" && dimensions.width > 0)
       ? `${prefix}.artifact_width_invalid_or_missing`
       : undefined,
     media.artifactType === "screenshot" && !(typeof dimensions.height === "number" && dimensions.height > 0)
       ? `${prefix}.artifact_height_invalid_or_missing`
+      : undefined,
+    screenshotPng && artifactIntegrity.exists && !pngDimensions ? `${prefix}.artifact_png_signature_invalid` : undefined,
+    screenshotPng && pngDimensions
+      && (dimensions.width !== pngDimensions.width || dimensions.height !== pngDimensions.height)
+      ? `${prefix}.artifact_dimensions_do_not_match_png_header`
       : undefined,
     typeof media.runtimeUrl === "string" && media.runtimeUrl.trim().length > 0
       ? undefined
@@ -146,20 +158,11 @@ function mediaBlockers(media: AdversarialVisualQaMedia, index: number): string[]
 }
 
 function isAllowedArtifactPath(artifact: string, artifactType: AdversarialVisualQaMedia["artifactType"]): boolean {
-  if (path.isAbsolute(artifact)) {
-    return false;
-  }
-
-  const normalized = path.posix.normalize(artifact.replaceAll("\\", "/"));
-  if (normalized.startsWith("../")) {
-    return false;
-  }
-
   if (artifactType === "screenshot") {
-    return normalized.startsWith("docs/openclinxr/screenshots/");
+    return isAllowedRelativeArtifactPath(artifact, "docs/openclinxr/screenshots/");
   }
   if (artifactType === "video") {
-    return normalized.startsWith("docs/openclinxr/videos/");
+    return isAllowedRelativeArtifactPath(artifact, "docs/openclinxr/videos/");
   }
   return false;
 }
@@ -169,7 +172,7 @@ function mimeTypeMatchesArtifactType(
   artifactType: AdversarialVisualQaMedia["artifactType"],
 ): boolean {
   if (artifactType === "screenshot") {
-    return typeof mimeType === "string" && mimeType.startsWith("image/");
+    return mimeType === "image/png";
   }
   if (artifactType === "video") {
     return typeof mimeType === "string" && mimeType.startsWith("video/");

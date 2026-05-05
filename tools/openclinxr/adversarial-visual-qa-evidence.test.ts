@@ -52,6 +52,20 @@ describe("adversarial visual QA evidence evaluator", () => {
     ]));
   });
 
+  it("rejects screenshot metadata that does not match the local PNG artifact", () => {
+    const evidence = readyEvidence();
+    evidence.media![0]!.bytes = 1;
+    evidence.media![0]!.dimensions = { width: 499, height: 500 };
+
+    const result = evaluateAdversarialVisualQaEvidence(evidence);
+
+    expect(result.readyForAdversarialVisualQaSupport).toBe(false);
+    expect(result.blockers).toEqual(expect.arrayContaining([
+      "media[0].artifact_bytes_do_not_match_file_size",
+      "media[0].artifact_dimensions_do_not_match_png_header",
+    ]));
+  });
+
   it("rejects artifacts outside the allowed screenshot and video directories", () => {
     const screenshotEvidence = readyEvidence();
     screenshotEvidence.media![0]!.artifact = "docs/openclinxr/iwer-sidecar-agent-browser-2026-05-04.png";
