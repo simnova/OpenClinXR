@@ -5,9 +5,11 @@ import { describe, expect, it } from "vitest";
 import {
   buildBenchmarkGateReport,
   isQuestManualPerformanceRawReportPath,
+  isQuestMixedRealityManualRawReportPath,
   latestJson,
 } from "./build-benchmark-gate-report.js";
 import type { QuestManualPerformanceReport } from "../openclinxr/check-quest-manual-performance.js";
+import type { QuestMixedRealityManualReport } from "../openclinxr/check-quest-mixed-reality-manual.js";
 
 type BlockerGroup = {
   group_id: string;
@@ -24,6 +26,15 @@ type BenchmarkGateReport = {
     ready_for_foreground_quest_claim: boolean;
     satisfied_conditions: string[];
     blockers: string[];
+  };
+  quest_mixed_reality_manual?: {
+    file: string;
+    input_file: string | null;
+    ready_to_claim_mixed_reality_readiness: boolean;
+    ready_to_claim_full_vr_readiness: false;
+    satisfied_conditions: string[];
+    blockers: string[];
+    not_evidence_for: string[];
   };
   iwsdk_evidence_contract?: {
     file: string;
@@ -299,6 +310,70 @@ const completedQuestManualPerformanceReport: QuestManualPerformanceReport = {
   },
 };
 
+const completedQuestMixedRealityManualReport: QuestMixedRealityManualReport = {
+  schemaVersion: "openclinxr.quest-mixed-reality-manual.v1",
+  generatedAt: "2026-05-04T20:45:00.000Z",
+  runContext: {
+    performedBy: "xr-systems-architect",
+    durationMinutes: 10,
+    notes: "Operator-approved local Mixed Reality run with no room recording.",
+  },
+  experience: {
+    modeId: "mixed_reality_passthrough",
+    requestedSessionMode: "immersive-ar",
+    entryGate: "mr=approved",
+    mixedRealityPassthroughImplemented: true,
+  },
+  webXr: {
+    navigatorXrPresent: true,
+    immersiveArSupported: true,
+    immersiveArSupportCheckedAtMs: 250,
+    supportError: null,
+  },
+  entry: {
+    operatorApproved: true,
+    physicalUserGestureUsed: true,
+    sessionStarted: true,
+    lastOutcome: "session_started",
+    lastError: null,
+  },
+  passthrough: {
+    observed: true,
+    transparentBackgroundObserved: true,
+    blackSkyboxOrFloorAbsent: true,
+    realRoomRecorded: false,
+  },
+  readability: {
+    clinicalTextReadable: true,
+    panelsReadable: ["clinical", "dialogue", "input"],
+    occlusionIssues: [],
+  },
+  privacySafety: {
+    reviewCompleted: true,
+    roomScanOrRecordingAvoided: true,
+    bystandersOrPhiVisible: false,
+    boundaryComfort: "good",
+  },
+  performance: {
+    source: "window.__openClinXrFrameStats",
+    framesObserved: 600,
+    immersiveFramesObserved: 600,
+    avgFps: 72,
+    p95FrameMs: 25,
+  },
+  comfort: {
+    motionComfort: "good",
+    heatConcern: false,
+    batteryDropPercent: 2,
+  },
+  notEvidenceFor: [
+    "replacement_for_full_vr",
+    "production_quest_readiness",
+    "passthrough_privacy_readiness",
+    "clinical_room_safety_readiness",
+  ],
+};
+
 describe("benchmark gate report", () => {
   it("selects raw Quest CDP smoke evidence without derived check reports", async () => {
     const tempDir = await mkdtemp(path.join(tmpdir(), "openclinxr-quest-smoke-latest-"));
@@ -328,6 +403,26 @@ describe("benchmark gate report", () => {
     const selected = await latestJson<{ kind: string }>(
       `${tempDir}/quest-manual-performance-*.json`,
       isQuestManualPerformanceRawReportPath,
+    );
+
+    expect(selected).toEqual({
+      file: rawPath,
+      value: { kind: "raw" },
+    });
+  });
+
+  it("selects raw Quest Mixed Reality manual evidence without template or derived check reports", async () => {
+    const tempDir = await mkdtemp(path.join(tmpdir(), "openclinxr-quest-mr-latest-"));
+    const rawPath = path.join(tempDir, "quest-mixed-reality-manual-2026-05-04.json");
+    const derivedCheckPath = path.join(tempDir, "quest-mixed-reality-manual-check-2026-05-04.json");
+    const templatePath = path.join(tempDir, "quest-mixed-reality-manual-template.json");
+    await writeFile(rawPath, `${JSON.stringify({ kind: "raw" })}\n`, "utf8");
+    await writeFile(derivedCheckPath, `${JSON.stringify({ kind: "check" })}\n`, "utf8");
+    await writeFile(templatePath, `${JSON.stringify({ kind: "template" })}\n`, "utf8");
+
+    const selected = await latestJson<{ kind: string }>(
+      `${tempDir}/quest-mixed-reality-manual-*.json`,
+      isQuestMixedRealityManualRawReportPath,
     );
 
     expect(selected).toEqual({
@@ -1817,6 +1912,43 @@ describe("benchmark gate report", () => {
       "controller_select_latency_150ms_or_lower",
     ]));
     expect(questGate?.blockers).not.toContain("quest_manual_performance:missing_quest_manual_performance_report");
+  });
+
+  it("surfaces Quest Mixed Reality manual checks separately without satisfying Full VR gates", () => {
+    const report = buildBenchmarkGateReport({
+      questMixedRealityManualReport: {
+        file: "docs/openclinxr/quest-mixed-reality-manual-2026-05-04.json",
+        value: completedQuestMixedRealityManualReport,
+      },
+    });
+    const questGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0008-001");
+
+    expect(report.quest_mixed_reality_manual).toMatchObject({
+      file: "docs/openclinxr/quest-mixed-reality-manual-2026-05-04.json",
+      input_file: "docs/openclinxr/quest-mixed-reality-manual-2026-05-04.json",
+      ready_to_claim_mixed_reality_readiness: true,
+      ready_to_claim_full_vr_readiness: false,
+      blockers: [],
+      not_evidence_for: [
+        "replacement_for_full_vr",
+        "production_quest_readiness",
+        "passthrough_privacy_readiness",
+        "clinical_room_safety_readiness",
+      ],
+    });
+    expect(report.quest_mixed_reality_manual?.satisfied_conditions).toEqual(expect.arrayContaining([
+      "mixed_reality_session_started",
+      "passthrough_observed",
+      "clinical_text_readable",
+      "frame_sample_600_or_more",
+    ]));
+    expect(report.evidence_freshness.map((entry) => entry.evidence_id)).toContain("quest_mixed_reality_manual");
+    expect(questGate?.satisfied_conditions).not.toContain("mixed_reality_session_started");
+    expect(questGate?.satisfied_conditions).not.toContain("passthrough_observed");
+    expect(questGate?.blockers).toEqual(expect.arrayContaining([
+      "missing_quest_manual_performance_check",
+    ]));
+    expect(questGate?.ready_to_resolve).toBe(false);
   });
 
   it("keeps copied UI payload summary blockers in Quest manual benchmark gates", () => {

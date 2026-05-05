@@ -6,6 +6,11 @@ import {
   type QuestManualPerformancePayload,
 } from "../openclinxr/check-quest-manual-performance.js";
 import {
+  buildQuestMixedRealityManualCheck,
+  type QuestMixedRealityManualCheck,
+  type QuestMixedRealityManualReport,
+} from "../openclinxr/check-quest-mixed-reality-manual.js";
+import {
   buildQuestSmokeEvidenceCheck,
   type QuestSmokeEvidenceCheck,
   type QuestSmokeReport,
@@ -452,6 +457,17 @@ type EvidenceGateReport = {
     blockers: string[];
     adversarial_findings: string[];
   };
+  quest_mixed_reality_manual?: {
+    file: string;
+    generated_at: string;
+    input_file: string | null;
+    ready_to_claim_mixed_reality_readiness: boolean;
+    ready_to_claim_full_vr_readiness: false;
+    satisfied_conditions: string[];
+    blockers: string[];
+    not_evidence_for: string[];
+    next_steps: string[];
+  };
   iwsdk_evidence_contract?: {
     file: string;
     generated_at: string;
@@ -516,6 +532,8 @@ export type BenchmarkGateReportInput = {
   apiPythonBackendRuntimeSmoke?: EvidenceFile<ApiPythonBackendRuntimeSmokeReport>;
   questManualPerformance?: EvidenceFile<QuestManualPerformanceCheck>;
   questManualPerformanceReport?: EvidenceFile<QuestManualPerformancePayload>;
+  questMixedRealityManual?: EvidenceFile<QuestMixedRealityManualCheck>;
+  questMixedRealityManualReport?: EvidenceFile<QuestMixedRealityManualReport>;
   iwsdkEvidenceContract?: EvidenceFile<IwsdkEvidenceContractReport>;
 };
 
@@ -549,6 +567,10 @@ async function main(): Promise<void> {
   const questManualPerformance = questManualPerformanceReport
     ? manualPerformanceReportToCheck(questManualPerformanceReport)
     : await fileJson<QuestManualPerformanceCheck>(".agent-factory/quest-manual-performance-report.json");
+  const questMixedRealityManualReport = await latestQuestMixedRealityManualReportJson();
+  const questMixedRealityManual = questMixedRealityManualReport
+    ? mixedRealityManualReportToCheck(questMixedRealityManualReport)
+    : await fileJson<QuestMixedRealityManualCheck>(".agent-factory/quest-mixed-reality-manual-report.json");
   const report = buildBenchmarkGateReport({
     questSmoke,
     localRuntime,
@@ -566,6 +588,8 @@ async function main(): Promise<void> {
     iwsdkEvidenceContract,
     questManualPerformance,
     questManualPerformanceReport,
+    questMixedRealityManual,
+    questMixedRealityManualReport,
   });
   await writeJson(".agent-factory/benchmark-gate-report.json", report);
   const readySummary = report.evidence_gates
@@ -617,6 +641,9 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
   const questManualPerformance = input.questManualPerformanceReport
     ? manualPerformanceReportToCheck(input.questManualPerformanceReport)
     : input.questManualPerformance;
+  const questMixedRealityManual = input.questMixedRealityManualReport
+    ? mixedRealityManualReportToCheck(input.questMixedRealityManualReport)
+    : input.questMixedRealityManual;
   const evidenceFreshness = buildEvidenceFreshnessReport({
     questSmoke,
     localRuntime,
@@ -632,6 +659,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     realtimeVoiceTransportSpike,
     apiPythonBackendRuntimeSmoke,
     questManualPerformance,
+    questMixedRealityManual,
   }, options);
   const localModelRuntimeBenchmarkIsRequired = requiresLocalModelRuntimeBenchmark(localRuntime?.value);
   const localVoiceRuntimeBenchmarkIsRequired = requiresLocalVoiceRuntimeBenchmark(localRuntime?.value);
@@ -966,6 +994,19 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         adversarial_findings: [...questManualPerformance.value.adversarialFindings],
       },
     } : {}),
+    ...(questMixedRealityManual ? {
+      quest_mixed_reality_manual: {
+        file: questMixedRealityManual.file,
+        generated_at: questMixedRealityManual.value.generatedAt,
+        input_file: questMixedRealityManual.value.inputFile,
+        ready_to_claim_mixed_reality_readiness: questMixedRealityManual.value.readyToClaimMixedRealityReadiness,
+        ready_to_claim_full_vr_readiness: questMixedRealityManual.value.readyToClaimFullVrReadiness,
+        satisfied_conditions: [...questMixedRealityManual.value.satisfiedConditions],
+        blockers: [...questMixedRealityManual.value.blockers],
+        not_evidence_for: [...questMixedRealityManual.value.notEvidenceFor],
+        next_steps: [...questMixedRealityManual.value.nextSteps],
+      },
+    } : {}),
     ...(iwsdkEvidenceContract ? {
       iwsdk_evidence_contract: {
         file: iwsdkEvidenceContract.file,
@@ -1008,6 +1049,7 @@ function buildEvidenceFreshnessReport(
     realtimeVoiceTransportSpike?: EvidenceFile<RealtimeVoiceTransportSpikeReport>;
     apiPythonBackendRuntimeSmoke?: EvidenceFile<ApiPythonBackendRuntimeSmokeReport>;
     questManualPerformance?: EvidenceFile<QuestManualPerformanceCheck>;
+    questMixedRealityManual?: EvidenceFile<QuestMixedRealityManualCheck>;
   },
   options: BenchmarkGateReportOptions,
 ): EvidenceFreshnessEntry[] {
@@ -1029,6 +1071,9 @@ function buildEvidenceFreshnessReport(
     evidenceFreshnessEntry("realtime_voice_transport_spike", evidence.realtimeVoiceTransportSpike, now, maxAgeHours),
     evidenceFreshnessEntry("api_python_backend_runtime_smoke", evidence.apiPythonBackendRuntimeSmoke, now, maxAgeHours),
     evidenceFreshnessEntry("quest_manual_performance", evidence.questManualPerformance, now, maxAgeHours),
+    ...(evidence.questMixedRealityManual
+      ? [evidenceFreshnessEntry("quest_mixed_reality_manual", evidence.questMixedRealityManual, now, maxAgeHours)]
+      : []),
   ];
 }
 
@@ -1123,12 +1168,39 @@ export function isQuestManualPerformanceRawReportPath(file: string): boolean {
     && baseName !== "quest-manual-performance-template.json";
 }
 
+async function latestQuestMixedRealityManualReportJson(): Promise<EvidenceFile<QuestMixedRealityManualReport> | undefined> {
+  const files = (await globFiles("docs/openclinxr/quest-mixed-reality-manual-*.json"))
+    .filter(isQuestMixedRealityManualRawReportPath)
+    .sort();
+  const file = files.at(-1);
+  if (!file) {
+    return undefined;
+  }
+  return { file, value: await readJson<QuestMixedRealityManualReport>(file) };
+}
+
+export function isQuestMixedRealityManualRawReportPath(file: string): boolean {
+  const baseName = path.basename(file);
+  return baseName.startsWith("quest-mixed-reality-manual-")
+    && !baseName.startsWith("quest-mixed-reality-manual-check-")
+    && baseName !== "quest-mixed-reality-manual-template.json";
+}
+
 function manualPerformanceReportToCheck(
   report: EvidenceFile<QuestManualPerformancePayload>,
 ): EvidenceFile<QuestManualPerformanceCheck> {
   return {
     file: report.file,
     value: buildQuestManualPerformanceCheck(report.file, report.value),
+  };
+}
+
+function mixedRealityManualReportToCheck(
+  report: EvidenceFile<QuestMixedRealityManualReport>,
+): EvidenceFile<QuestMixedRealityManualCheck> {
+  return {
+    file: report.file,
+    value: buildQuestMixedRealityManualCheck(report.file, report.value),
   };
 }
 
