@@ -70,6 +70,13 @@ class LocalVoiceEvidenceTests(unittest.TestCase):
         self.assertEqual("local_voice_evidence_check", payload["kind"])
         self.assertEqual(str(cache), payload["cache_dir"])
         self.assertFalse(payload["cache_exists"])
+        self.assertEqual(
+            [
+                "kyutai/moshiko-mlx-q4",
+                "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+            ],
+            payload["approved_model_ids"],
+        )
         self.assertEqual([], payload["models"])
         self.assertEqual([], payload["support_directories"])
         self.assertFalse(payload["ready"])
@@ -93,6 +100,30 @@ class LocalVoiceEvidenceTests(unittest.TestCase):
         self.assertEqual(
             "runtime_support_venv_not_model_weights",
             payload["support_directories"][0]["reason"],
+        )
+
+    def test_check_rejects_unapproved_model_evidence_for_readiness(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = pathlib.Path(temp)
+            cache = temp_path / "cache"
+            model = cache / "unapproved-model"
+            model.mkdir(parents=True)
+            (model / "weights.bin").write_bytes(b"not real weights")
+            (model / "openclinxr-local-voice-evidence.json").write_text(
+                json.dumps({
+                    "model_id": "unapproved/model",
+                    "source_type": "local_source_copy",
+                }),
+                encoding="utf-8",
+            )
+
+            payload = run_json(CHECK, "--cache-dir", str(cache))
+
+        self.assertFalse(payload["ready"])
+        self.assertFalse(payload["models"][0]["approved"])
+        self.assertEqual(
+            ["model_id_not_approved_for_local_realtime_voice_spike"],
+            payload["models"][0]["blockers"],
         )
 
     def test_install_dry_run_does_not_create_cache_or_copy_models(self) -> None:
@@ -211,6 +242,7 @@ class LocalVoiceEvidenceTests(unittest.TestCase):
         self.assertEqual("local_source_copy", install_payload["evidence"]["source_type"])
         self.assertTrue(check_payload["ready"])
         self.assertEqual("mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit", check_payload["models"][0]["model_id"])
+        self.assertTrue(check_payload["models"][0]["approved"])
         self.assertEqual("local_source_copy", check_payload["models"][0]["source_type"])
 
     def test_install_argument_errors_are_json(self) -> None:

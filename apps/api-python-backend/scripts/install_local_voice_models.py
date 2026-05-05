@@ -12,12 +12,9 @@ import time
 from typing import Any
 from urllib.parse import urlparse
 
+from local_voice_candidates import APPROVED_MODEL_IDS
 
 EVIDENCE_FILE = "openclinxr-local-voice-evidence.json"
-APPROVED_MODEL_IDS = [
-    "kyutai/moshiko-mlx-q4",
-    "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
-]
 
 
 def default_cache_dir() -> pathlib.Path:

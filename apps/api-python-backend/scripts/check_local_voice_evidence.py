@@ -9,6 +9,7 @@ import pathlib
 import sys
 from typing import Any
 
+from local_voice_candidates import APPROVED_MODEL_IDS
 
 EVIDENCE_FILE = "openclinxr-local-voice-evidence.json"
 
@@ -62,11 +63,21 @@ def model_record(model_dir: pathlib.Path) -> dict[str, Any]:
     stats = directory_stats(model_dir)
     model_id = evidence.get("model_id") if isinstance(evidence.get("model_id"), str) else model_dir.name
     source_type = evidence.get("source_type") if isinstance(evidence.get("source_type"), str) else "unknown"
+    has_evidence = bool(evidence) and "evidence_error" not in evidence
+    approved = model_id in APPROVED_MODEL_IDS
+    blockers = [
+        None if approved else "model_id_not_approved_for_local_realtime_voice_spike",
+        None if has_evidence else "model_evidence_file_missing_or_invalid",
+        None if stats["file_count"] > 1 else "model_file_count_under_2",
+    ]
     return {
         "model_id": model_id,
         "path": str(model_dir),
         "source_type": source_type,
-        "has_evidence": bool(evidence) and "evidence_error" not in evidence,
+        "approved": approved,
+        "has_evidence": has_evidence,
+        "ready": approved and has_evidence and stats["file_count"] > 1,
+        "blockers": [blocker for blocker in blockers if blocker is not None],
         "evidence": evidence,
         **stats,
     }
@@ -104,8 +115,9 @@ def collect(cache_dir: pathlib.Path) -> dict[str, Any]:
     return {
         "kind": "local_voice_evidence_check",
         "cache_dir": str(cache_dir),
+        "approved_model_ids": APPROVED_MODEL_IDS,
         "cache_exists": cache_dir.exists(),
-        "ready": any(model["has_evidence"] and model["file_count"] > 1 for model in models),
+        "ready": any(model["ready"] for model in models),
         "models": models,
         "support_directories": support_directories,
     }

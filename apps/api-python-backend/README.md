@@ -30,3 +30,5 @@ realtime voice proposal candidates: `kyutai/moshiko-mlx-q4` and
 `mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit`. It only accepts existing local
 source files or directories and rejects remote URLs; model downloads and
 runtime package installs stay outside this repo and outside default verify.
+`voice:evidence` uses the same candidate list and will not mark a manually
+dropped unapproved model directory as ready.
