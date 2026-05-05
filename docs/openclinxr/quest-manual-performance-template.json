@@ -42,6 +42,14 @@
     "locomotionMode": "experimental_keyboard_thumbstick_and_hand_gesture_dolly",
     "locomotionAttempt": "not_attempted",
     "activeLocomotionSource": "none",
+    "activeLocomotionSourceAllowedValues": [
+      "none",
+      "keyboard",
+      "xr_gamepad",
+      "xr_hand_gesture",
+      "xr_room_scale",
+      "mixed"
+    ],
     "xrHandGestureState": {
       "armed": false,
       "dwellMs": 0,

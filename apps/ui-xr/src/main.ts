@@ -571,6 +571,7 @@ function createStationScene(): StationSceneRuntime {
   renderer.setClearColor(0x101820);
   let activeXrSession: XrSession | undefined;
   let lastLocomotionAtMs: number | null = null;
+  let previousRoomScalePose: RigPoseEvidence | null = null;
   let lastAnimateAtMs = performance.now();
   let lastRenderLoopAtMs = 0;
   const flatPreviewFallbackFrameMs = 1000 / 30;
@@ -701,6 +702,11 @@ function createStationScene(): StationSceneRuntime {
     const deltaSeconds = Math.min((now - lastAnimateAtMs) / 1000, 0.05);
     lastAnimateAtMs = now;
     resize();
+    const roomScalePose = sampleRoomScalePose({
+      camera,
+      renderer,
+      presenting: Boolean(activeXrSession && renderer.xr.isPresenting),
+    });
     const locomotionEvidence = applyLocomotion({
       deltaSeconds,
       keyboardLocomotion,
@@ -713,7 +719,10 @@ function createStationScene(): StationSceneRuntime {
       handModelCount: handModelsInstalled ? 2 : 0,
       handModelStatus,
       handGestureLocomotionState,
+      previousRoomScalePose,
+      roomScalePose,
     });
+    previousRoomScalePose = roomScalePose ?? previousRoomScalePose;
     const inputEvidence: OpenClinXrInputEvidence = {
       ...locomotionEvidence,
       xrHandSelectState: maybeCompleteTraceActionFromHandSelect({
@@ -1133,6 +1142,8 @@ function applyLocomotion(input: {
   handModelCount: number;
   handModelStatus: OpenClinXrInputEvidence["handModelStatus"];
   handGestureLocomotionState: XrHandGestureLocomotionState;
+  previousRoomScalePose: RigPoseEvidence | null;
+  roomScalePose: RigPoseEvidence | null;
 }): OpenClinXrInputEvidence {
   const xrLocomotion = readXrGamepadLocomotion(input.session);
   const keyboardVector: LocomotionVectorEvidence = {
@@ -1194,7 +1205,25 @@ function applyLocomotion(input: {
       z: Number(input.locomotionRig.position.z.toFixed(3)),
     },
     rigYawRadians: Number(input.locomotionRig.rotation.y.toFixed(3)),
+    previousRoomScalePose: input.previousRoomScalePose,
+    roomScalePose: input.roomScalePose,
   });
+}
+
+function sampleRoomScalePose(input: {
+  camera: PerspectiveCamera;
+  renderer: WebGLRenderer;
+  presenting: boolean;
+}): RigPoseEvidence | null {
+  if (!input.presenting) {
+    return null;
+  }
+  input.renderer.xr.updateCamera(input.camera);
+  return {
+    x: Number(input.camera.position.x.toFixed(3)),
+    z: Number(input.camera.position.z.toFixed(3)),
+    yawRadians: 0,
+  };
 }
 
 function readXrHandGestureLocomotion(input: {

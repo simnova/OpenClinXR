@@ -552,6 +552,46 @@ describe("XR runtime state", () => {
     expect(evidence).not.toHaveProperty("locomotionDelta");
   });
 
+  it("treats measured room-scale headset movement as locomotion evidence", () => {
+    const evidence = buildManualPerformanceInputEvidence({
+      handModelCount: 2,
+      handModelStatus: "installed",
+      handInputsObserved: 2,
+      keyboardVector: { forward: 0, strafe: 0, turn: 0 },
+      xrVector: { forward: 0, strafe: 0, turn: 0 },
+      xrHandGestureVector: { forward: 0, strafe: 0, turn: 0 },
+      xrInputSources: [
+        { handedness: "left", hasHand: true, hasGamepad: false, axisCount: 0 },
+        { handedness: "right", hasHand: true, hasGamepad: false, axisCount: 0 },
+      ],
+      now: 1001.234,
+      previousLastInputObservedAtMs: 900,
+      previousLastLocomotionAtMs: null,
+      previousRigPose: { x: 0, z: 0, yawRadians: 0 },
+      rigPosition: { x: 0, z: 0 },
+      rigYawRadians: 0,
+      previousRoomScalePose: { x: 0.1, z: -0.1, yawRadians: 0 },
+      roomScalePose: { x: 0.42, z: -0.24, yawRadians: 0 },
+    });
+
+    expect(evidence).toMatchObject({
+      activeLocomotionSource: "xr_room_scale",
+      locomotionAttempt: "runtime_event_observed",
+      lastInputObservedAtMs: 1001.23,
+      lastLocomotionAtMs: 1001.23,
+      inputSourceKinds: ["xr_hand", "xr_room_scale"],
+      roomScalePose: { x: 0.42, z: -0.24, yawRadians: 0 },
+      locomotionDelta: {
+        from: { x: 0.1, z: -0.1, yawRadians: 0 },
+        to: { x: 0.42, z: -0.24, yawRadians: 0 },
+        delta: { x: 0.32, z: -0.14, yawRadians: 0 },
+        distanceMeters: 0.349,
+        turnRadians: 0,
+      },
+    });
+    expect(evidence.roomScaleDelta).toEqual(evidence.locomotionDelta);
+  });
+
   it("builds metadata evidence for in-VR text panels without claiming headset readability", () => {
     const evidence = buildReadableVrTextPanelEvidence({
       name: "openclinxr.ed-chest-pain.in-vr-input-panel",

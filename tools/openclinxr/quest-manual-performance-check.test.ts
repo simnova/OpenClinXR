@@ -747,6 +747,43 @@ describe("Quest manual performance checker", () => {
     ]));
   });
 
+  it("accepts room-scale walking as observed locomotion when a measurable pose delta is present", () => {
+    const report = completedQuestManualReport();
+    report.input = {
+      ...report.input,
+      locomotionMode: "room_scale",
+      locomotionAttempt: "runtime_event_observed",
+      activeLocomotionSource: "xr_room_scale",
+      xrHandGestureState: {
+        armed: false,
+        dwellMs: 0,
+        leftPinch: false,
+        rightPinch: false,
+        gestureDeadzoneMeters: 0.045,
+        turnCooldownMs: 450,
+        blockedReason: "not_pinching",
+      },
+      lastLocomotionAtMs: 60_500,
+      locomotionDelta: {
+        from: { x: 0.1, z: -0.1, yawRadians: 0 },
+        to: { x: 0.42, z: -0.24, yawRadians: 0 },
+        delta: { x: 0.32, z: -0.14, yawRadians: 0 },
+        distanceMeters: 0.349,
+        turnRadians: 0,
+      },
+    };
+
+    const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-room-scale.json", report);
+
+    expect(check.blockers).not.toEqual(expect.arrayContaining(["locomotion_not_observed"]));
+    expect(check.satisfiedConditions).toEqual(expect.arrayContaining(["locomotion_observed"]));
+    expect(check.adversarialFindings).not.toEqual(expect.arrayContaining([
+      "hand_gesture_locomotion_timestamp_without_active_source",
+      "locomotion_attempted_without_runtime_event",
+      "locomotion_source_without_rig_delta",
+    ]));
+  });
+
   it("requires locomotion claims to include a measurable rig delta", () => {
     const report = completedQuestManualReport();
     report.input = {

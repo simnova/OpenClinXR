@@ -74,6 +74,7 @@ describe("static browser assets", () => {
 
   it("adds primitive hand models and experimental locomotion affordances", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
 
     expect(mainSource).toContain("XRHandModelFactory");
     expect(mainSource).toContain("renderer.xr.getHand");
@@ -87,6 +88,10 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("applyLocomotion");
     expect(mainSource).toContain("readXrGamepadLocomotion");
     expect(mainSource).toContain("readXrHandGestureLocomotion");
+    expect(mainSource).toContain("sampleRoomScalePose");
+    expect(mainSource).toContain("previousRoomScalePose");
+    expect(mainSource).toContain("roomScalePose");
+    expect(runtimeStateSource).toContain("xr_room_scale");
     expect(mainSource).toContain("handGestureDwellMs");
     expect(mainSource).toContain("other_locomotion_source_active");
     expect(mainSource).toContain("Gesture: armed");

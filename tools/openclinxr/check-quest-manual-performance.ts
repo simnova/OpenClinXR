@@ -88,7 +88,7 @@ export type QuestManualPerformanceReport = {
     handInputsObserved?: number;
     locomotionMode?: string;
     locomotionAttempt?: QuestLocomotionAttempt;
-    activeLocomotionSource?: "none" | "keyboard" | "xr_gamepad" | "xr_hand_gesture" | "mixed";
+    activeLocomotionSource?: "none" | "keyboard" | "xr_gamepad" | "xr_hand_gesture" | "xr_room_scale" | "mixed";
     xrHandGestureState?: {
       armed?: boolean;
       dwellMs?: number;
@@ -631,6 +631,7 @@ function buildAdversarialFindings(input: {
   const handGestureTimestampWithoutActiveSource = typeof input.report.input?.lastLocomotionAtMs === "number"
     && input.report.input?.xrHandGestureState !== undefined
     && input.report.input.activeLocomotionSource !== "xr_hand_gesture"
+    && input.report.input.activeLocomotionSource !== "xr_room_scale"
     && input.report.input.activeLocomotionSource !== "mixed";
   const immersiveWithNoFrameStats = input.report.station?.immersiveSessionStarted === true
     && input.framesObservedValid

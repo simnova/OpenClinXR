@@ -146,6 +146,7 @@ export type LocomotionAttempt =
   | "keyboard_attempted_no_runtime_event"
   | "thumbstick_attempted_no_runtime_event"
   | "hand_gesture_attempted_no_runtime_event"
+  | "room_scale_attempted_no_runtime_event"
   | "mixed_attempted_no_runtime_event"
   | "runtime_event_observed";
 
@@ -158,7 +159,7 @@ export type ManualPerformanceInputEvidence = {
   locomotionAttempt?: LocomotionAttempt;
   lastInputObservedAtMs?: number | null;
   lastLocomotionAtMs: number | null;
-  activeLocomotionSource?: "none" | "keyboard" | "xr_gamepad" | "xr_hand_gesture" | "mixed";
+  activeLocomotionSource?: "none" | "keyboard" | "xr_gamepad" | "xr_hand_gesture" | "xr_room_scale" | "mixed";
   inputSourceCount?: number;
   inputSourceKinds?: RuntimeInputSourceKind[];
   keyboardVector?: LocomotionVectorEvidence;
@@ -168,10 +169,12 @@ export type ManualPerformanceInputEvidence = {
   xrHandSelectState?: XrHandSelectStateEvidence;
   xrInputSources?: XrInputSourceEvidence[];
   rigPosition: { x: number; z: number };
+  roomScalePose?: RigPoseEvidence;
+  roomScaleDelta?: LocomotionDeltaEvidence;
   locomotionDelta?: LocomotionDeltaEvidence;
 };
 
-export type RuntimeInputSourceKind = "keyboard" | "xr_gamepad" | "xr_hand" | "xr_hand_gesture";
+export type RuntimeInputSourceKind = "keyboard" | "xr_gamepad" | "xr_hand" | "xr_hand_gesture" | "xr_room_scale";
 
 export type LocomotionVectorEvidence = {
   forward: number;
@@ -236,6 +239,8 @@ export type ManualPerformanceInputEvidenceInput = {
   previousRigPose?: RigPoseEvidence | null;
   rigPosition: { x: number; z: number };
   rigYawRadians?: number;
+  previousRoomScalePose?: RigPoseEvidence | null;
+  roomScalePose?: RigPoseEvidence | null;
 };
 
 export type RuntimeFrameStatsInput = {
@@ -925,34 +930,44 @@ export function buildManualPerformanceInputEvidence(
   const keyboardActive = isLocomotionVectorActive(keyboardVector);
   const xrActive = isLocomotionVectorActive(xrVector);
   const xrHandGestureActive = isLocomotionVectorActive(xrHandGestureVector);
-  const inputObserved = keyboardActive
-    || xrActive
-    || xrHandGestureActive
-    || input.handInputsObserved > 0
-    || input.xrInputSources.length > 0;
+  const rigPose = normalizeRigPose({
+    x: input.rigPosition.x,
+    z: input.rigPosition.z,
+    yawRadians: input.rigYawRadians ?? 0,
+  });
+  const roomScalePose = input.roomScalePose ? normalizeRigPose(input.roomScalePose) : undefined;
+  const locomotionDelta = input.previousRigPose
+    ? buildLocomotionDeltaEvidence(input.previousRigPose, rigPose)
+    : undefined;
+  const roomScaleDelta = input.previousRoomScalePose && roomScalePose
+    ? buildLocomotionDeltaEvidence(input.previousRoomScalePose, roomScalePose)
+    : undefined;
+  const roomScaleActive = roomScaleDelta ? hasMeasurableLocomotionDelta(roomScaleDelta) : false;
+  const acceptedLocomotionDelta = roomScaleActive ? roomScaleDelta : locomotionDelta;
+  const locomotionSourceActive = keyboardActive || xrActive || xrHandGestureActive;
+  const locomotionObserved = (
+    locomotionSourceActive
+    && (locomotionDelta === undefined || hasMeasurableLocomotionDelta(locomotionDelta))
+  ) || roomScaleActive;
   const activeLocomotionSource = activeLocomotionSourceFor({
     keyboardActive,
     xrActive,
     xrHandGestureActive,
+    roomScaleActive,
   });
   const inputSourceKinds = runtimeInputSourceKinds({
     keyboardActive,
     xrGamepadPresent: xrActive || input.xrInputSources.some((source) => source.hasGamepad),
     xrHandPresent: input.handInputsObserved > 0 || input.xrInputSources.some((source) => source.hasHand),
     xrHandGestureActive,
+    xrRoomScalePresent: roomScalePose !== undefined,
   });
-  const rigPose = normalizeRigPose({
-    x: input.rigPosition.x,
-    z: input.rigPosition.z,
-    yawRadians: input.rigYawRadians ?? 0,
-  });
-  const locomotionDelta = input.previousRigPose
-    ? buildLocomotionDeltaEvidence(input.previousRigPose, rigPose)
-    : undefined;
-  const locomotionSourceActive = keyboardActive || xrActive || xrHandGestureActive;
-  const locomotionObserved = locomotionSourceActive
-    && (locomotionDelta === undefined || hasMeasurableLocomotionDelta(locomotionDelta));
-
+  const inputObserved = keyboardActive
+    || xrActive
+    || xrHandGestureActive
+    || roomScalePose !== undefined
+    || input.handInputsObserved > 0
+    || input.xrInputSources.length > 0;
   return {
     handModelCount: input.handModelCount,
     handModelStatus: input.handModelStatus,
@@ -985,7 +1000,9 @@ export function buildManualPerformanceInputEvidence(
       x: rigPose.x,
       z: rigPose.z,
     },
-    ...(locomotionObserved && locomotionDelta ? { locomotionDelta } : {}),
+    ...(roomScalePose ? { roomScalePose } : {}),
+    ...(roomScaleActive && roomScaleDelta ? { roomScaleDelta } : {}),
+    ...(locomotionObserved && acceptedLocomotionDelta ? { locomotionDelta: acceptedLocomotionDelta } : {}),
   };
 }
 
@@ -1021,6 +1038,8 @@ function locomotionAttemptFor(input: {
       return "thumbstick_attempted_no_runtime_event";
     case "xr_hand_gesture":
       return "hand_gesture_attempted_no_runtime_event";
+    case "xr_room_scale":
+      return "room_scale_attempted_no_runtime_event";
     case "mixed":
       return "mixed_attempted_no_runtime_event";
     case "none":
@@ -1181,8 +1200,14 @@ function activeLocomotionSourceFor(input: {
   keyboardActive: boolean;
   xrActive: boolean;
   xrHandGestureActive: boolean;
+  roomScaleActive: boolean;
 }): NonNullable<ManualPerformanceInputEvidence["activeLocomotionSource"]> {
-  const activeCount = [input.keyboardActive, input.xrActive, input.xrHandGestureActive].filter(Boolean).length;
+  const activeCount = [
+    input.keyboardActive,
+    input.xrActive,
+    input.xrHandGestureActive,
+    input.roomScaleActive,
+  ].filter(Boolean).length;
   if (activeCount > 1) {
     return "mixed";
   }
@@ -1195,6 +1220,9 @@ function activeLocomotionSourceFor(input: {
   if (input.xrHandGestureActive) {
     return "xr_hand_gesture";
   }
+  if (input.roomScaleActive) {
+    return "xr_room_scale";
+  }
   return "none";
 }
 
@@ -1203,12 +1231,14 @@ function runtimeInputSourceKinds(input: {
   xrGamepadPresent: boolean;
   xrHandPresent: boolean;
   xrHandGestureActive: boolean;
+  xrRoomScalePresent: boolean;
 }): RuntimeInputSourceKind[] {
   return [
     input.keyboardActive ? "keyboard" : undefined,
     input.xrGamepadPresent ? "xr_gamepad" : undefined,
     input.xrHandPresent ? "xr_hand" : undefined,
     input.xrHandGestureActive ? "xr_hand_gesture" : undefined,
+    input.xrRoomScalePresent ? "xr_room_scale" : undefined,
   ].filter((kind): kind is RuntimeInputSourceKind => kind !== undefined);
 }
 
@@ -1305,6 +1335,8 @@ function locomotionAttemptFromEvidence(evidence: ManualPerformanceInputEvidence)
       return "thumbstick_attempted_no_runtime_event";
     case "xr_hand_gesture":
       return "hand_gesture_attempted_no_runtime_event";
+    case "xr_room_scale":
+      return "room_scale_attempted_no_runtime_event";
     case "mixed":
       return "mixed_attempted_no_runtime_event";
     case "none":
