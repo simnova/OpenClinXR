@@ -19,3 +19,8 @@ inference evidence exist.
 
 The MLX, Moshi, and Qwen stacks are intentionally notes-only in this spike; no
 optional packages are installed by the verifier or package scripts.
+
+`voice:evidence` scans `~/.cache/openclinxr/realtime-voice` for local model
+evidence files. Runtime support virtual environments such as
+`api-python-backend-venv` are reported under `support_directories`, not as model
+weights, so they do not make local inference appear ready.

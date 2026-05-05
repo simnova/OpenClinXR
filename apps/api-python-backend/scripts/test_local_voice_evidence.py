@@ -71,7 +71,29 @@ class LocalVoiceEvidenceTests(unittest.TestCase):
         self.assertEqual(str(cache), payload["cache_dir"])
         self.assertFalse(payload["cache_exists"])
         self.assertEqual([], payload["models"])
+        self.assertEqual([], payload["support_directories"])
         self.assertFalse(payload["ready"])
+
+    def test_check_reports_support_venvs_separately_from_model_dirs(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = pathlib.Path(temp)
+            cache = temp_path / "cache"
+            venv = cache / "api-python-backend-venv"
+            model = cache / "kyutai__moshiko-mlx-q4"
+            (venv / "bin").mkdir(parents=True)
+            (venv / "bin" / "python").write_text("# placeholder\n", encoding="utf-8")
+            model.mkdir(parents=True)
+            (model / "weights.bin").write_bytes(b"not real weights")
+
+            payload = run_json(CHECK, "--cache-dir", str(cache))
+
+        self.assertFalse(payload["ready"])
+        self.assertEqual(["kyutai__moshiko-mlx-q4"], [model["model_id"] for model in payload["models"]])
+        self.assertEqual(["api-python-backend-venv"], [entry["name"] for entry in payload["support_directories"]])
+        self.assertEqual(
+            "runtime_support_venv_not_model_weights",
+            payload["support_directories"][0]["reason"],
+        )
 
     def test_install_dry_run_does_not_create_cache_or_copy_models(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

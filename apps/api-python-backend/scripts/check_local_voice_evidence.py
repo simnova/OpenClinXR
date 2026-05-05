@@ -72,14 +72,33 @@ def model_record(model_dir: pathlib.Path) -> dict[str, Any]:
     }
 
 
+def support_directory_record(directory: pathlib.Path) -> dict[str, Any]:
+    return {
+        "path": str(directory),
+        "name": directory.name,
+        "reason": "runtime_support_venv_not_model_weights",
+        **directory_stats(directory),
+    }
+
+
+def is_support_directory(path: pathlib.Path) -> bool:
+    return path.name in {"venv", ".venv"} or path.name.endswith("-venv")
+
+
 def collect(cache_dir: pathlib.Path) -> dict[str, Any]:
     cache_dir = cache_dir.expanduser()
     models: list[dict[str, Any]] = []
+    support_directories: list[dict[str, Any]] = []
     if cache_dir.exists():
         models = [
             model_record(child)
             for child in sorted(cache_dir.iterdir())
-            if child.is_dir()
+            if child.is_dir() and not is_support_directory(child)
+        ]
+        support_directories = [
+            support_directory_record(child)
+            for child in sorted(cache_dir.iterdir())
+            if child.is_dir() and is_support_directory(child)
         ]
 
     return {
@@ -88,6 +107,7 @@ def collect(cache_dir: pathlib.Path) -> dict[str, Any]:
         "cache_exists": cache_dir.exists(),
         "ready": any(model["has_evidence"] and model["file_count"] > 1 for model in models),
         "models": models,
+        "support_directories": support_directories,
     }
 
 
