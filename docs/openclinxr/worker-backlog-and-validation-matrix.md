@@ -13,6 +13,7 @@ This document translates the architecture into worker-owned build slices. It com
 - No model or voice downloads during install, test, or dev startup.
 - Optional local runtimes must report `not_configured` instead of failing.
 - `mongodb-memory-server` may download a `mongod` binary for local integration tests; this must be pinned, documented, and skippable until cached.
+- MongoDB schema, repository, query, index, and search/AI slices should consult the MongoDB Agent Skills installed from `mongodb/agent-skills` before design or implementation work; this is advisory workflow guidance, not approval for Atlas/cloud services.
 - Every package gets unit tests before downstream UI depends on it.
 - Every user-facing assessment phrase must avoid licensure, diagnosis, and exam-equivalence claims.
 - Every asset record must carry provenance, license, optimization target, and QA status.
