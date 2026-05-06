@@ -223,6 +223,32 @@ describe("asset production evidence ladder report", () => {
       ]),
     });
   });
+
+  it("rejects duplicated or missing canonical proof lanes", () => {
+    const readiness = buildAssetProductionReadinessReport({
+      generatedAt: "2026-05-06T12:00:00.000Z",
+      gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
+      blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+      gltfPipelineSmoke: gltfSmoke(),
+      blenderAssetBakeSmoke: blenderSmokeWithClinicalInventory(),
+      useLocalAssetEvidenceFixture: true,
+    });
+    const report = buildAssetProductionEvidenceLadderReport({
+      generatedAt: "2026-05-06T12:05:00.000Z",
+      readinessReportFile: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+      readinessReport: readiness,
+    });
+    const invalid = structuredClone(report);
+    invalid.lanes[1] = structuredClone(invalid.lanes[0]);
+
+    expect(validateAssetProductionEvidenceLadderReport(invalid)).toEqual({
+      ok: false,
+      errors: expect.arrayContaining([
+        "/lanes must not repeat canonical lane id generatedHumanRigging",
+        "/lanes must include canonical lane id skinClothingProvenance",
+      ]),
+    });
+  });
 });
 
 function gltfSmoke() {

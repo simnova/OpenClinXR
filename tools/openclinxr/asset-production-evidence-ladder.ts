@@ -360,12 +360,28 @@ function validateConsistency(value: Record<string, unknown>, errors: string[]): 
   const lanes = value.lanes.filter(isRecord);
   const summary = value.summary;
   const verdict = value.verdict;
+  const observedLaneIds = new Set<string>();
   const statusCounts = {
     observed: lanes.filter((lane) => lane.status === "observed").length,
     contractOnly: lanes.filter((lane) => lane.status === "contract_only").length,
     blocked: lanes.filter((lane) => lane.status !== "observed").length,
   };
 
+  for (const lane of lanes) {
+    if (typeof lane.id !== "string" || !ladderLaneIds.includes(lane.id as LadderLaneId)) {
+      continue;
+    }
+    if (observedLaneIds.has(lane.id)) {
+      errors.push(`/lanes must not repeat canonical lane id ${lane.id}`);
+      continue;
+    }
+    observedLaneIds.add(lane.id);
+  }
+  for (const laneId of ladderLaneIds) {
+    if (!observedLaneIds.has(laneId)) {
+      errors.push(`/lanes must include canonical lane id ${laneId}`);
+    }
+  }
   if (summary.totalLaneCount !== value.lanes.length) {
     errors.push("/summary/totalLaneCount must match lanes.length");
   }
