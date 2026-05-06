@@ -80,6 +80,12 @@ Future hardware runs should start from
 pnpm godot:quest:voice:evidence -- --input docs/openclinxr/godot-quest-voice-evidence-template.json
 ```
 
+The committed `docs/openclinxr/godot-quest-voice-evidence-2026-05-06.json`
+report is generated from that template and is intentionally blocked. It exists
+to make the physical Quest, JSON/binary round-trip, microphone/playback, Opus,
+and latency evidence gaps explicit instead of leaving the lane as a missing
+report.
+
 The checker intentionally scores binary WebSocket round-trip, Quest microphone
 capture, Opus encode/decode, playback, and latency as separate evidence lanes.
 It does not convert a transport probe into production runtime readiness,
