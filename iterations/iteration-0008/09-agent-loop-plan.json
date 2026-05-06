@@ -5194,28 +5194,6 @@
       ]
     },
     {
-      "id": "evidence-leadership-0008-002",
-      "actionType": "close_evidence_debt",
-      "owner": "local-ai-inference-engineer",
-      "summary": "Install and benchmark one explicit local model runtime and model ID on target Apple Silicon hardware before enabling local dialogue.",
-      "dimensions": [
-        "technical_feasibility",
-        "cost_performance_efficiency",
-        "open_source_sustainability"
-      ]
-    },
-    {
-      "id": "evidence-leadership-0008-003",
-      "actionType": "close_evidence_debt",
-      "owner": "voice-speech-engineer",
-      "summary": "Install and benchmark a local voice runtime only after safety and misuse review, then record first-audio latency and transcript/synthesis evidence.",
-      "dimensions": [
-        "technical_feasibility",
-        "security_privacy",
-        "cost_performance_efficiency"
-      ]
-    },
-    {
       "id": "risk-leadership-0008-001",
       "actionType": "mitigate_critical_risk",
       "owner": "xr-systems-architect",

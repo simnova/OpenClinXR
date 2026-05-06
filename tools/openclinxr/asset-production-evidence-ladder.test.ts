@@ -20,6 +20,7 @@ describe("asset production evidence ladder report", () => {
     expect(rootPackage.scripts["asset:production:ladder:validate"]).toBe(
       "tsx tools/openclinxr/asset-production-evidence-ladder.ts --validate docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
     );
+    expect(rootPackage.scripts["agent:verify"]).toContain("pnpm asset:production:ladder:validate");
   });
 
   it("turns contract-only local asset fixture readiness into explicit blocked proof lanes", () => {
