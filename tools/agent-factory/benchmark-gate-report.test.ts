@@ -3040,6 +3040,41 @@ describe("benchmark gate report", () => {
     expect(questGate?.blockers).toContain("quest_manual_performance:frame_stats_stale_or_unsampled");
   });
 
+  it("keeps unknown copied locomotion probe reasons blocked in Quest leadership gates", () => {
+    const report = buildBenchmarkGateReport({
+      questManualPerformanceReport: {
+        file: "docs/openclinxr/quest-manual-performance-copied-probe-unknown.json",
+        value: {
+          manualPerformanceDraft: completedQuestManualPerformanceReport,
+          captureSummary: {
+            draftAvailable: true,
+            manualValidationReady: false,
+            frameStatsFresh: true,
+            blockers: [],
+            technicalGaps: [],
+            locomotionProbeSummary: {
+              claimScope: "runtime_probe_only",
+              readiness: "blocked",
+              primaryReason: "future_probe_reason",
+              reasonCodes: ["future_probe_reason"],
+            },
+          },
+        },
+      },
+    });
+    const questGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0008-001");
+
+    expect(report.quest_manual_performance?.blockers).toEqual(expect.arrayContaining([
+      "copied_payload_locomotion_probe_reason_invalid:future_probe_reason",
+    ]));
+    expect(questGate?.blockers).toContain(
+      "quest_manual_performance:copied_payload_locomotion_probe_reason_invalid:future_probe_reason",
+    );
+    expect(report.quest_manual_performance?.next_steps).toContain(
+      "Re-copy the in-app Quest Evidence payload after updating the manual checker to recognize locomotion probe reason future_probe_reason.",
+    );
+  });
+
   it("surfaces CDP manual harvest summaries in Quest benchmark gates", () => {
     const report = buildBenchmarkGateReport({
       questManualPerformanceReport: {
