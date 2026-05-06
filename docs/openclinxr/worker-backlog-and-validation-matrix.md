@@ -294,7 +294,7 @@ Validation:
 - WebGL canvas is nonblank.
 - Browser screenshot evidence is captured with route, viewport, scenario ID, XR mode, camera pose if available, and artifact path.
 - Adversarial visual review records whether the ED room, actors, equipment, simulated EHR/note surfaces, text, controls, scale, occlusion, and clinical safety cues match the intended scenario.
-- Latest manual Quest visual posture: Full VR was manually entered, text was readable, primitive box-style hands were visible but non-realistic, comfort was good, trace interaction did not pass, `framesObserved` and `sampleWindowSize` were 0, and no locomotion event was observed; defer the next worn-headset validation until instrumentation improvements can capture frame, trace, locomotion, and latency evidence.
+- Latest manual Quest visual posture: Full VR was manually entered, text was readable, primitive box-style hands were visible but non-realistic, comfort was good, trace interaction did not pass, `framesObserved` and `sampleWindowSize` were 0, and no locomotion event was observed; Patrick later reported a smooth in-headset demo with locomotion still absent. The hand-tracking locomotion path now uses thumb-tip/index-tip joint-distance pinch inference instead of a non-standard `hand.inputState.pinching` flag, so the next worn-headset validation should explicitly retry hand-pinch dolly/turn while still capturing frame, trace, locomotion, and latency evidence.
 - Core UI text does not overlap at desktop and mobile widths.
 - XR feature detection does not throw when WebXR is unavailable.
 - Quest 3 USB-C smoke loads the local Vite app through Quest Browser port forwarding after `adb devices -l` reports the headset as `device`.

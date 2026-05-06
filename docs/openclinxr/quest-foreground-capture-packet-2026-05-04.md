@@ -34,6 +34,7 @@ Still blocked:
 - DevTools screencast was still enabled, so performance timing is not clean.
 - Trace interaction did not pass from the in-headset interaction path (`traceInteractionPassed: false`).
 - No locomotion event was recorded even though thumbstick locomotion was declared.
+- Patrick later reported a smooth in-headset demo, still with no locomotion available beyond physical movement.
 - `window.__openClinXrFrameStats` reported 0 total frames and 0 immersive frames; the rolling `sampleWindowSize` was 0.
 - Controller or hand-select latency was not measured.
 - Heat observation was not cleared.
@@ -60,7 +61,7 @@ The human report must still confirm:
 - Controller or deliberate hand selection advanced the Trace row in Full VR.
 - Full VR mode, controller grip/ray visibility, hand/input visibility, locomotion behavior, and the trace latency fields were copied from the in-app Quest Evidence payload.
 - `traceLatencyProxy.source` is `xr_controller_select` for controller trigger input or `xr_hand_select` for the deliberate right-hand stable-pinch path; `traceLatencyProxy.lastTraceTag`, `traceLatencyProxy.lastSelectLatencyMs`, `traceLatencyProxy.measuredAtMs`, and `performance.controllerSelectLatencyMs` must describe the same trace event. `dom_click_trace_button` is supporting desktop-style evidence only.
-- Locomotion changed the rig position or turn angle and the copied report includes `input.locomotionDelta` from the same accepted event. For hand-only runs, `input.activeLocomotionSource` should be `xr_hand_gesture` or `mixed`, and `input.xrHandGestureState.armed` should be true at the accepted gesture moment.
+- Locomotion changed the rig position or turn angle and the copied report includes `input.locomotionDelta` from the same accepted event. For hand-only runs, `input.activeLocomotionSource` should be `xr_hand_gesture` or `mixed`, and `input.xrHandGestureState.armed` should be true at the accepted gesture moment. After the 2026-05-06 no-locomotion demo, the `apps/ui-xr` hand gesture detector infers pinch from thumb-tip/index-tip joint distance instead of the non-standard `hand.inputState.pinching` field; explicitly try this path by pinching, waiting for the dwell interval, then moving the left hand for dolly or the right hand for turn.
 - At least 10 minutes of observation completed.
 - At least 600 immersive Full VR frames were observed, with a rolling sample window of at least 120 frames backed by immersive frames rather than preview-only frames.
 - `performance.immersiveFramesObserved` increased to at least 600 after Full VR entry.
@@ -84,7 +85,7 @@ During the run:
 - Stay in Full VR for at least 10 minutes.
 - Read the EHR, dialogue, and input-evidence panels from normal headset distance.
 - Trigger at least one station Trace action using headset input, then verify the Trace row changes.
-- Move intentionally using the active locomotion path and verify Movement changes from `none` with a nonzero distance or turn delta.
+- Move intentionally using the active locomotion path and verify Movement changes from `none` with a nonzero distance or turn delta. For hand-tracking-only validation, pinch until the Input Evidence panel reports `Gesture: armed`, then move the left hand forward/back/sideways for dolly or the right hand sideways for turn.
 - Watch the Frames row until total frames and `vr` frames are at least 600, the sample window is at least 120, and the loop freshness label is `fresh`.
 - Record comfort, heat, and battery after the run rather than at startup.
 
