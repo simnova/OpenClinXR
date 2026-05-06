@@ -1935,7 +1935,7 @@ function godotQuestVoiceEvidenceBlockers(
   evidence: EvidenceFile<GodotQuestVoiceEvidenceReport> | undefined,
 ): string[] {
   if (!evidence) {
-    return [];
+    return ["local_voice_live_dialog:godot_quest_voice:missing_godot_quest_voice_evidence_report"];
   }
   return unique(evidence.value.result.blockers
     .map((blocker) => `local_voice_live_dialog:godot_quest_voice:${blocker}`));

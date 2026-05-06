@@ -2248,6 +2248,31 @@ describe("benchmark gate report", () => {
     ]));
   });
 
+  it("keeps live dialog evidence blocked until Godot Quest voice evidence exists", () => {
+    const report = buildBenchmarkGateReport({}, {
+      now: new Date("2026-05-06T09:30:00.000Z"),
+      maxEvidenceAgeHours: 24,
+    }) as BenchmarkGateReport;
+    const liveDialogGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-003");
+
+    expect(report.evidence_freshness).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        evidence_id: "godot_quest_voice_evidence",
+        status: "missing",
+        blockers: ["godot_quest_voice_evidence:evidence_missing"],
+      }),
+    ]));
+    expect(liveDialogGate?.blockers).toEqual(expect.arrayContaining([
+      "local_voice_live_dialog:godot_quest_voice:missing_godot_quest_voice_evidence_report",
+    ]));
+    expect(liveDialogGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
+      "local_voice_godot_quest_voice_evidence_present",
+      "local_voice_godot_quest_binary_transport_observed",
+      "local_voice_godot_quest_audio_pipeline_observed",
+      "local_voice_godot_quest_latency_measurement_observed",
+    ]));
+  });
+
   it("surfaces Godot Quest voice evidence without satisfying live-dialog or low-latency claims", () => {
     const report = buildBenchmarkGateReport({
       godotQuestVoiceEvidence: binaryOnlyGodotQuestVoiceEvidence(),
