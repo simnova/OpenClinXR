@@ -357,9 +357,35 @@ describe("Quest CDP smoke probe", () => {
       minImmersiveFrames: 600,
       minSampleWindowSize: 120,
     })).toContain("capture_summary_locomotion_probe:");
+    expect(manualEvidenceHarvestExpression({
+      timeoutMs: 9000,
+      minImmersiveFrames: 600,
+      minSampleWindowSize: 120,
+    })).toContain("window.__openClinXrTextPanelEvidence");
   });
 
   it("wraps harvested in-app Quest evidence without upgrading it to manual readiness", () => {
+    const textPanelEvidence = {
+      source: "window.__openClinXrTextPanelEvidence",
+      panelCount: 3,
+      panels: [
+        {
+          name: "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          lineCount: 4,
+          readabilityClaim: "metadata_only_requires_foreground_headset_confirmation",
+        },
+        {
+          name: "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          lineCount: 2,
+          readabilityClaim: "metadata_only_requires_foreground_headset_confirmation",
+        },
+        {
+          name: "openclinxr.ed-chest-pain.in-vr-input-panel",
+          lineCount: 6,
+          readabilityClaim: "metadata_only_requires_foreground_headset_confirmation",
+        },
+      ],
+    };
     const payload = buildManualEvidenceHarvestPayload({
       ready: true,
       timedOut: false,
@@ -377,6 +403,7 @@ describe("Quest CDP smoke probe", () => {
         manualValidationReady: false,
         blockers: ["performed_by_missing"],
       },
+      textPanelEvidence,
     });
 
     expect(payload).toEqual({
@@ -392,6 +419,7 @@ describe("Quest CDP smoke probe", () => {
         manualValidationReady: false,
         blockers: ["performed_by_missing"],
       },
+      textPanelEvidence,
       harvestSummary: {
         source: "quest_cdp_manual_evidence_harvest",
         ready: true,

@@ -267,6 +267,15 @@ export type QuestManualPerformanceCopiedPayload = {
       reasonCodes?: string[];
     } | null;
   } | null;
+  textPanelEvidence?: {
+    source?: string;
+    panelCount?: number;
+    panels?: Array<{
+      name?: string;
+      lineCount?: number;
+      readabilityClaim?: string;
+    }>;
+  } | null;
   harvestSummary?: {
     source?: string;
     ready?: boolean;
@@ -637,6 +646,8 @@ function normalizeQuestManualPerformancePayload(payload: QuestManualPerformanceP
   const summaryTechnicalGaps = Array.isArray(captureSummary?.technicalGaps)
     ? captureSummary.technicalGaps.filter((gap): gap is string => typeof gap === "string")
     : [];
+  const textPanelEvidence = isRecord(payload.textPanelEvidence) ? payload.textPanelEvidence : undefined;
+  const textPanelMetadataPresent = hasCopiedTextPanelMetadataEvidence(textPanelEvidence);
   const locomotionProbeSummary = isRecord(captureSummary?.locomotionProbeSummary)
     ? captureSummary.locomotionProbeSummary
     : undefined;
@@ -663,6 +674,7 @@ function normalizeQuestManualPerformancePayload(payload: QuestManualPerformanceP
     captureSummary && captureSummary.manualValidationReady !== true ? "copied_payload_summary_not_ready" : undefined,
     captureSummary && captureSummary.draftAvailable !== true ? "copied_payload_summary_missing_draft_or_frame_stats" : undefined,
     captureSummary?.frameStatsFresh === true ? undefined : "frame_stats_stale_or_unsampled",
+    report?.station?.textReadable === true && !textPanelMetadataPresent ? "copied_payload_text_panel_metadata_missing" : undefined,
     summaryTechnicalGaps.length > 0 ? "copied_payload_technical_gaps_present" : undefined,
     ...summaryTechnicalGaps.map((gap) => `copied_payload_technical_gap:${gap}`),
     locomotionProbeSummary && locomotionProbeSummary.claimScope !== "runtime_probe_only"
@@ -696,6 +708,19 @@ function normalizeQuestManualPerformancePayload(payload: QuestManualPerformanceP
 
 function isCopiedManualPerformancePayload(payload: QuestManualPerformancePayload): payload is QuestManualPerformanceCopiedPayload {
   return isRecord(payload) && "manualPerformanceDraft" in payload;
+}
+
+function hasCopiedTextPanelMetadataEvidence(value: Record<string, unknown> | undefined): boolean {
+  const panels = Array.isArray(value?.panels) ? value.panels.filter(isRecord) : [];
+  const panelCount = typeof value?.panelCount === "number" ? value.panelCount : panels.length;
+
+  return value?.source === "window.__openClinXrTextPanelEvidence"
+    && panelCount >= 3
+    && panels.length >= 3
+    && panels.every((panel) => typeof panel.name === "string"
+      && typeof panel.lineCount === "number"
+      && panel.lineCount > 0
+      && panel.readabilityClaim === "metadata_only_requires_foreground_headset_confirmation");
 }
 
 function sanitizeHarvestSummary(
@@ -992,6 +1017,8 @@ function questManualNextStepForBlocker(blocker: string): string {
       return "Copy the full in-app Quest Evidence JSON payload, including manualPerformanceDraft.";
     case "copied_payload_capture_summary_missing":
       return "Copy the full in-app Quest Evidence JSON payload, including captureSummary.";
+    case "copied_payload_text_panel_metadata_missing":
+      return "Copy the full in-app Quest Evidence JSON payload, including textPanelEvidence.";
     case "copied_payload_summary_not_ready":
       return "Resolve the copied captureSummary blockers before using the payload as readiness evidence.";
     case "copied_payload_technical_gaps_present":

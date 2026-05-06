@@ -781,6 +781,7 @@ export function manualEvidenceHarvestExpression(input: {
     const readHarvest = () => {
       const manualPerformanceDraft = window.__openClinXrManualPerformanceDraft ?? null;
       const captureSummary = window.__openClinXrManualPerformanceCaptureSummary ?? null;
+      const textPanelEvidence = window.__openClinXrTextPanelEvidence ?? null;
       const performanceEvidence = manualPerformanceDraft?.performance ?? {};
       const stationEvidence = manualPerformanceDraft?.station ?? {};
       const inputEvidence = manualPerformanceDraft?.input ?? {};
@@ -840,6 +841,7 @@ export function manualEvidenceHarvestExpression(input: {
         elapsedWallMs: Number((performance.now() - started).toFixed(2)),
         manualPerformanceDraft,
         captureSummary,
+        textPanelEvidence,
       };
     };
 
@@ -862,6 +864,7 @@ export function buildManualEvidenceHarvestPayload(input: unknown): Record<string
   return {
     manualPerformanceDraft: result.manualPerformanceDraft ?? null,
     captureSummary: result.captureSummary ?? null,
+    textPanelEvidence: result.textPanelEvidence ?? null,
     harvestSummary: {
       source: "quest_cdp_manual_evidence_harvest",
       ready: result.ready === true,

@@ -457,6 +457,12 @@ export type ManualPerformanceCaptureSummary = {
   blockers: string[];
 };
 
+export type ManualPerformanceEvidencePayload = {
+  manualPerformanceDraft: ManualPerformanceDraft | null;
+  captureSummary: ManualPerformanceCaptureSummary;
+  textPanelEvidence: ReadableVrTextPanelEvidenceSet | null;
+};
+
 export type LocomotionDiagnosticSummary = {
   claimScope: "attempt_diagnostics_only";
   gamepadSourceCount: number;
@@ -1280,6 +1286,18 @@ export function buildReadableVrTextPanelEvidence(
     contentHash: hashEvidenceContent(content),
     lastUpdatedAtMs: roundMetric(input.updatedAtMs),
     readabilityClaim: "metadata_only_requires_foreground_headset_confirmation",
+  };
+}
+
+export function buildManualPerformanceEvidencePayload(input: {
+  manualPerformanceDraft: ManualPerformanceDraft | null;
+  captureSummary: ManualPerformanceCaptureSummary;
+  textPanelEvidence?: ReadableVrTextPanelEvidenceSet | null | undefined;
+}): ManualPerformanceEvidencePayload {
+  return {
+    manualPerformanceDraft: input.manualPerformanceDraft,
+    captureSummary: input.captureSummary,
+    textPanelEvidence: input.textPanelEvidence ?? null,
   };
 }
 

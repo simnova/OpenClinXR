@@ -30,6 +30,7 @@ import {
   actorIdForTraceTag,
   actorResponseTextFromApiResult,
   buildManualPerformanceCaptureSummary,
+  buildManualPerformanceEvidencePayload,
   buildManualPerformanceInputEvidence,
   buildManualPerformanceDraft,
   buildManualPerformanceReproducibility,
@@ -1969,10 +1970,11 @@ function updateManualEvidencePanel(): string {
   ].join(" | ");
   copyEvidenceStatus.textContent = formatManualEvidenceCopyStatus(summary, evidenceCopyDisposition);
   const manualPerformanceDraft = window.__openClinXrManualPerformanceDraft ?? null;
-  const payload = JSON.stringify({
+  const payload = JSON.stringify(buildManualPerformanceEvidencePayload({
     manualPerformanceDraft,
     captureSummary: summary,
-  }, null, 2);
+    textPanelEvidence: window.__openClinXrTextPanelEvidence ?? null,
+  }), null, 2);
   manualEvidenceJson.value = payload;
   return payload;
 }

@@ -125,6 +125,32 @@ function completedQuestManualReport(): QuestManualPerformanceReport {
   };
 }
 
+function completedTextPanelEvidence(): NonNullable<Parameters<typeof buildQuestManualPerformanceCheck>[1]> {
+  return {
+    textPanelEvidence: {
+      source: "window.__openClinXrTextPanelEvidence",
+      panelCount: 3,
+      panels: [
+        {
+          name: "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          lineCount: 4,
+          readabilityClaim: "metadata_only_requires_foreground_headset_confirmation",
+        },
+        {
+          name: "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          lineCount: 2,
+          readabilityClaim: "metadata_only_requires_foreground_headset_confirmation",
+        },
+        {
+          name: "openclinxr.ed-chest-pain.in-vr-input-panel",
+          lineCount: 6,
+          readabilityClaim: "metadata_only_requires_foreground_headset_confirmation",
+        },
+      ],
+    },
+  };
+}
+
 describe("Quest manual performance checker", () => {
   it("accepts a completed foreground headset report at the current readiness thresholds", async () => {
     const dir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-quest-manual-pass-"));
@@ -287,6 +313,7 @@ describe("Quest manual performance checker", () => {
         frameStatsFresh: false,
         blockers: ["frame_stats_stale_or_unsampled"],
       },
+      ...completedTextPanelEvidence(),
     };
 
     const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-copy.json", payload);
@@ -307,6 +334,27 @@ describe("Quest manual performance checker", () => {
     ]));
   });
 
+  it("blocks copied payloads that claim text readability without text panel metadata", () => {
+    const payload = {
+      manualPerformanceDraft: completedQuestManualReport(),
+      captureSummary: {
+        draftAvailable: true,
+        manualValidationReady: true,
+        frameStatsFresh: true,
+        blockers: [],
+        technicalGaps: [],
+      },
+    };
+
+    const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-copy.json", payload);
+
+    expect(check.readyToClaimFramePacing).toBe(false);
+    expect(check.blockers).toEqual(["copied_payload_text_panel_metadata_missing"]);
+    expect(check.nextSteps).toEqual(expect.arrayContaining([
+      "Copy the full in-app Quest Evidence JSON payload, including textPanelEvidence.",
+    ]));
+  });
+
   it("keeps copied payloads blocked when capture summary still reports technical gaps", () => {
     const payload = {
       manualPerformanceDraft: completedQuestManualReport(),
@@ -317,6 +365,7 @@ describe("Quest manual performance checker", () => {
         blockers: [],
         technicalGaps: ["headset_select_trace_latency_missing"],
       },
+      ...completedTextPanelEvidence(),
     };
 
     const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-copy.json", payload);
@@ -341,6 +390,7 @@ describe("Quest manual performance checker", () => {
         frameStatsFresh: true,
         blockers: [],
       },
+      ...completedTextPanelEvidence(),
       harvestSummary: {
         source: "quest_cdp_manual_evidence_harvest",
         ready: false,
@@ -396,6 +446,7 @@ describe("Quest manual performance checker", () => {
         frameStatsFresh: true,
         blockers: [],
       },
+      ...completedTextPanelEvidence(),
     }, null, 2), "utf8");
 
     await execFileAsync(path.resolve("node_modules/.bin/tsx"), [

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
 import {
   completeTraceAction,
+  buildManualPerformanceEvidencePayload,
   buildManualPerformanceCaptureSummary,
   buildManualPerformanceInputEvidence,
   buildReadableVrTextPanelEvidence,
@@ -26,6 +27,7 @@ import {
   primitiveHandRepresentationKind,
   meshHandModelProfile,
   meshHandRepresentationKind,
+  type ReadableVrTextPanelEvidenceSet,
   localHandMeshPath,
   remoteActorTurnForTraceTag,
   manualPerformanceMetricsFromFrameStats,
@@ -727,6 +729,37 @@ describe("XR runtime state", () => {
       readabilityClaim: "metadata_only_requires_foreground_headset_confirmation",
     });
     expect(evidence.contentHash).toMatch(/^[0-9a-f]{8}$/);
+  });
+
+  it("bundles text panel metadata into copied Quest evidence payloads", () => {
+    const textPanelEvidence: ReadableVrTextPanelEvidenceSet = {
+      source: "window.__openClinXrTextPanelEvidence" as const,
+      panelCount: 1,
+      panels: [buildReadableVrTextPanelEvidence({
+        name: "openclinxr.ed-chest-pain.in-vr-input-panel",
+        title: "Input Evidence",
+        lines: ["Session: In Full VR"],
+        canvasPixels: { width: 1280, height: 640 },
+        worldMeters: { width: 1.65, height: 0.72 },
+        updatedAtMs: 123.456,
+      })],
+      limitations: ["metadata_only_requires_foreground_headset_confirmation"],
+    };
+
+    const payload = buildManualPerformanceEvidencePayload({
+      manualPerformanceDraft: null,
+      captureSummary: buildManualPerformanceCaptureSummary({
+        draft: undefined,
+        frameStats: undefined,
+        now: 1300,
+      }),
+      textPanelEvidence,
+    });
+
+    expect(payload.textPanelEvidence).toBe(textPanelEvidence);
+    expect(payload.textPanelEvidence?.panels[0]?.readabilityClaim).toBe(
+      "metadata_only_requires_foreground_headset_confirmation",
+    );
   });
 
   it("derives manual Quest performance metrics from rolling frame stats", () => {

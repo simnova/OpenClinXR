@@ -981,6 +981,28 @@ const completedQuestManualPerformanceReport: QuestManualPerformanceReport = {
   },
 };
 
+const completedQuestTextPanelEvidence = {
+  source: "window.__openClinXrTextPanelEvidence",
+  panelCount: 3,
+  panels: [
+    {
+      name: "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+      lineCount: 4,
+      readabilityClaim: "metadata_only_requires_foreground_headset_confirmation",
+    },
+    {
+      name: "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+      lineCount: 2,
+      readabilityClaim: "metadata_only_requires_foreground_headset_confirmation",
+    },
+    {
+      name: "openclinxr.ed-chest-pain.in-vr-input-panel",
+      lineCount: 6,
+      readabilityClaim: "metadata_only_requires_foreground_headset_confirmation",
+    },
+  ],
+};
+
 const completedQuestMixedRealityManualReport: QuestMixedRealityManualReport = {
   schemaVersion: "openclinxr.quest-mixed-reality-manual.v1",
   generatedAt: "2026-05-04T20:45:00.000Z",
@@ -3316,6 +3338,7 @@ describe("benchmark gate report", () => {
             frameStatsFresh: true,
             blockers: [],
           },
+          textPanelEvidence: completedQuestTextPanelEvidence,
         },
       },
     });
@@ -3419,6 +3442,7 @@ describe("benchmark gate report", () => {
             frameStatsFresh: false,
             blockers: ["frame_stats_stale_or_unsampled"],
           },
+          textPanelEvidence: completedQuestTextPanelEvidence,
         },
       },
     });
@@ -3451,6 +3475,7 @@ describe("benchmark gate report", () => {
               reasonCodes: ["future_probe_reason"],
             },
           },
+          textPanelEvidence: completedQuestTextPanelEvidence,
         },
       },
     });
@@ -3486,6 +3511,7 @@ describe("benchmark gate report", () => {
               reasonCodes: ["no_gamepad_sources", "hand_arming_dwell", "hand_below_deadzone"],
             },
           },
+          textPanelEvidence: completedQuestTextPanelEvidence,
         },
       },
     });
@@ -3516,6 +3542,7 @@ describe("benchmark gate report", () => {
             frameStatsFresh: true,
             blockers: [],
           },
+          textPanelEvidence: completedQuestTextPanelEvidence,
           harvestSummary: {
             source: "quest_cdp_manual_evidence_harvest",
             ready: false,
