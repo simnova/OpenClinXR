@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -156,6 +156,41 @@ describe("asset production evidence ladder report", () => {
       process.exitCode = undefined;
       await runAssetProductionEvidenceLadderCli(["--validate", invalidPath]);
       expect(process.exitCode).toBe(1);
+    } finally {
+      process.exitCode = previousExitCode;
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects invalid source readiness reports before writing derived ladder evidence", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-asset-ladder-invalid-readiness-"));
+    const readinessPath = path.join(tempDir, "asset-production-readiness-invalid.json");
+    const outputPath = path.join(tempDir, "asset-production-evidence-ladder.json");
+    const previousExitCode = process.exitCode;
+
+    try {
+      const readiness = buildAssetProductionReadinessReport({
+        generatedAt: "2026-05-06T12:00:00.000Z",
+        gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
+        blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+        gltfPipelineSmoke: gltfSmoke(),
+        blenderAssetBakeSmoke: blenderSmokeWithClinicalInventory(),
+        useLocalAssetEvidenceFixture: true,
+      });
+      const invalidReadiness = structuredClone(readiness) as Record<string, unknown>;
+      delete invalidReadiness.policy;
+      await writeFile(readinessPath, `${JSON.stringify(invalidReadiness, null, 2)}\n`, "utf8");
+
+      process.exitCode = undefined;
+      await runAssetProductionEvidenceLadderCli([
+        "--readiness",
+        readinessPath,
+        "--output",
+        outputPath,
+      ]);
+
+      expect(process.exitCode).toBe(1);
+      await expect(stat(outputPath)).rejects.toThrow();
     } finally {
       process.exitCode = previousExitCode;
       await rm(tempDir, { recursive: true, force: true });

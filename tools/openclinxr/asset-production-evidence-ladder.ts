@@ -1,6 +1,9 @@
 import { pathToFileURL } from "node:url";
 import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
-import type { AssetProductionReadinessReport } from "./asset-production-readiness-benchmark.js";
+import {
+  validateAssetProductionReadinessReport,
+  type AssetProductionReadinessReport,
+} from "./asset-production-readiness-benchmark.js";
 
 type CliOptions = {
   validatePath?: string;
@@ -186,9 +189,20 @@ export async function runAssetProductionEvidenceLadderCli(args: string[]): Promi
     throw new Error("Missing asset production readiness report. Run asset:production:readiness first or pass --readiness.");
   }
 
+  const readinessReport = await readJson<unknown>(readinessReportPath);
+  const readinessValidation = validateAssetProductionReadinessReport(readinessReport);
+  if (!readinessValidation.ok) {
+    for (const error of readinessValidation.errors) {
+      console.error(`source readiness report ${error}`);
+    }
+    process.exitCode = 1;
+    return;
+  }
+  const validatedReadinessReport = readinessReport as AssetProductionReadinessReport;
+
   const report = buildAssetProductionEvidenceLadderReport({
     readinessReportFile: readinessReportPath,
-    readinessReport: await readJson<AssetProductionReadinessReport>(readinessReportPath),
+    readinessReport: validatedReadinessReport,
   });
 
   if (options.outputPath) {
