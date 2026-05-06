@@ -70,7 +70,7 @@
       "evidence_id": "local_model_runtime_benchmark",
       "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T20:20:19.936Z",
-      "age_hours": 17,
+      "age_hours": 18,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -88,7 +88,7 @@
       "evidence_id": "local_voice_runtime_benchmark",
       "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T06:20:53Z",
-      "age_hours": 7,
+      "age_hours": 8,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -96,8 +96,8 @@
     {
       "evidence_id": "local_voice_live_dialog_benchmark",
       "file": "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-06.json",
-      "generated_at": "2026-05-06T13:09:17.300Z",
-      "age_hours": 1,
+      "generated_at": "2026-05-06T14:23:31.092Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -186,7 +186,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T14:20:04.059Z",
+      "generated_at": "2026-05-06T14:23:41.818Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -954,13 +954,15 @@
   },
   "local_voice_live_dialog_benchmark": {
     "file": "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-06.json",
-    "generated_at": "2026-05-06T13:09:17.300Z",
+    "generated_at": "2026-05-06T14:23:31.092Z",
     "status": "blocked",
     "mock_stream": {
       "provider": "deterministic-mock-voice-gateway",
       "transcriptEvents": 2,
       "audioChunks": 1,
       "firstAudiblePlaybackLatencyMs": 0,
+      "realPlaybackLatencyObserved": false,
+      "latencyEvidenceSource": "synthetic_mock",
       "visemeCuesPresent": true,
       "passed": true,
       "blockers": []
@@ -1615,7 +1617,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T14:20:04.059Z",
+    "generated_at": "2026-05-06T14:23:41.818Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,

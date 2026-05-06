@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T13:09:17.300Z",
+  "generatedAt": "2026-05-06T14:23:31.092Z",
   "status": "blocked",
   "policy": {
     "cloudApisUsed": false,
@@ -19,6 +19,8 @@
     "transcriptEvents": 2,
     "audioChunks": 1,
     "firstAudiblePlaybackLatencyMs": 0,
+    "realPlaybackLatencyObserved": false,
+    "latencyEvidenceSource": "synthetic_mock",
     "visemeCuesPresent": true,
     "passed": true,
     "blockers": []

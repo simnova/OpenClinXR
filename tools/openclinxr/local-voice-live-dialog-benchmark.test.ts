@@ -31,8 +31,11 @@ describe("local voice live-dialog benchmark report", () => {
       transcriptEvents: 2,
       audioChunks: 1,
       firstAudiblePlaybackLatencyMs: 0,
+      realPlaybackLatencyObserved: false,
+      latencyEvidenceSource: "synthetic_mock",
       visemeCuesPresent: true,
       passed: true,
+      blockers: [],
     });
     expect(report.runtimeFit).toMatchObject({
       fileGenerationOnly: true,

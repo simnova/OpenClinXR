@@ -78,6 +78,8 @@ export type LocalVoiceLiveDialogBenchmarkReport = {
     transcriptEvents: number;
     audioChunks: number;
     firstAudiblePlaybackLatencyMs: number | null;
+    realPlaybackLatencyObserved: boolean;
+    latencyEvidenceSource: "synthetic_mock" | "not_available";
     visemeCuesPresent: boolean;
     passed: boolean;
     blockers: string[];
@@ -374,6 +376,8 @@ async function runMockStreamProbe(): Promise<LocalVoiceLiveDialogBenchmarkReport
     transcriptEvents: transcript.length,
     audioChunks: audio.length,
     firstAudiblePlaybackLatencyMs: audio[0]?.provenance.latencyMs ?? null,
+    realPlaybackLatencyObserved: false,
+    latencyEvidenceSource: audio.length > 0 ? "synthetic_mock" : "not_available",
     visemeCuesPresent: audio.length > 0 && audio.every((event) => Boolean(event.visemeCue)),
     passed: blockers.length === 0,
     blockers,
