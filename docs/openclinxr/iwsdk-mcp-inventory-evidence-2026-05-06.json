@@ -1,0 +1,162 @@
+{
+  "generatedAt": "2026-05-06T02:01:43.386Z",
+  "source": "iwsdk_dev_mcp_stdio_tools_list",
+  "policy": {
+    "cloudApisUsed": false,
+    "paidApisUsed": false,
+    "mcpConfigMutated": false,
+    "optionalReferenceWarmupUsed": false,
+    "hzdbUsed": false,
+    "productionUseAllowed": false,
+    "physicalQuestClaimed": false
+  },
+  "command": {
+    "executable": "pnpm",
+    "args": [
+      "--filter",
+      "@openclinxr/ui-xr-iwsdk-spike",
+      "exec",
+      "iwsdk-dev-mcp"
+    ],
+    "cwd": "/Volumes/files/src/openclinxr"
+  },
+  "package": {
+    "name": "@iwsdk/vite-plugin-dev",
+    "version": "0.3.1",
+    "sidecarManifest": "apps/ui-xr-iwsdk-spike/package.json"
+  },
+  "server": {
+    "name": "iwsdk-dev-mcp",
+    "version": "1.0.0",
+    "protocolVersion": "2024-11-05"
+  },
+  "inventory": {
+    "expectedToolCount": 32,
+    "observedToolCount": 32,
+    "observedToolNames": [
+      "browser_get_console_logs",
+      "browser_reload_page",
+      "browser_screenshot",
+      "ecs_diff",
+      "ecs_find_entities",
+      "ecs_list_components",
+      "ecs_list_systems",
+      "ecs_pause",
+      "ecs_query_entity",
+      "ecs_resume",
+      "ecs_set_component",
+      "ecs_snapshot",
+      "ecs_step",
+      "ecs_toggle_system",
+      "scene_get_hierarchy",
+      "scene_get_object_transform",
+      "xr_accept_session",
+      "xr_animate_to",
+      "xr_end_session",
+      "xr_get_device_state",
+      "xr_get_gamepad_state",
+      "xr_get_select_value",
+      "xr_get_session_status",
+      "xr_get_transform",
+      "xr_look_at",
+      "xr_select",
+      "xr_set_connected",
+      "xr_set_device_state",
+      "xr_set_gamepad_state",
+      "xr_set_input_mode",
+      "xr_set_select_value",
+      "xr_set_transform"
+    ],
+    "missingExpectedToolNames": [],
+    "unknownToolNames": [],
+    "coveredCategories": [
+      "session",
+      "transforms",
+      "input_mode",
+      "select_trigger",
+      "gamepad",
+      "device_state",
+      "browser",
+      "scene",
+      "ecs"
+    ],
+    "requiredCategoriesCovered": true,
+    "matchedExpectedInventory": true
+  },
+  "agentToolingEvidence": {
+    "phase2DevtoolsConfiguredInSidecar": true,
+    "adapterSyncRecorded": false,
+    "toolCount": 32,
+    "coveredCategories": [
+      "session",
+      "transforms",
+      "input_mode",
+      "select_trigger",
+      "gamepad",
+      "device_state",
+      "browser",
+      "scene",
+      "ecs"
+    ],
+    "validatedSmokeTools": [],
+    "observedToolNames": [
+      "browser_get_console_logs",
+      "browser_reload_page",
+      "browser_screenshot",
+      "ecs_diff",
+      "ecs_find_entities",
+      "ecs_list_components",
+      "ecs_list_systems",
+      "ecs_pause",
+      "ecs_query_entity",
+      "ecs_resume",
+      "ecs_set_component",
+      "ecs_snapshot",
+      "ecs_step",
+      "ecs_toggle_system",
+      "scene_get_hierarchy",
+      "scene_get_object_transform",
+      "xr_accept_session",
+      "xr_animate_to",
+      "xr_end_session",
+      "xr_get_device_state",
+      "xr_get_gamepad_state",
+      "xr_get_select_value",
+      "xr_get_session_status",
+      "xr_get_transform",
+      "xr_look_at",
+      "xr_select",
+      "xr_set_connected",
+      "xr_set_device_state",
+      "xr_set_gamepad_state",
+      "xr_set_input_mode",
+      "xr_set_select_value",
+      "xr_set_transform"
+    ],
+    "mcpRuntimeRegistered": false,
+    "sceneHierarchyContainsRequiredObjects": false,
+    "ecsRuntimeQueryable": false,
+    "optionalServerActions": []
+  },
+  "agentToolingReadiness": {
+    "readyForAgentTooling": false,
+    "blockers": [
+      "adapter_sync_not_recorded",
+      "ecs_runtime_not_queryable",
+      "mcp_runtime_not_registered",
+      "mcp_smoke_tool_not_validated_browser_get_console_logs",
+      "mcp_smoke_tool_not_validated_browser_screenshot",
+      "mcp_smoke_tool_not_validated_scene_get_hierarchy",
+      "mcp_smoke_tool_not_validated_xr_accept_session",
+      "mcp_smoke_tool_not_validated_xr_get_session_status",
+      "mcp_smoke_tool_not_validated_xr_select",
+      "missing_managed_browser_evidence",
+      "scene_hierarchy_required_objects_not_confirmed"
+    ]
+  },
+  "caveats": [
+    "This report proves only stdio MCP tool inventory from the installed sidecar dev plugin.",
+    "No adapter sync, MCP config mutation, browser session, scene hierarchy query, ECS query, or physical Quest run is performed.",
+    "Agent-tooling readiness remains blocked until the aggregate evaluator accepts managed-browser, smoke-tool, scene, and ECS evidence."
+  ]
+}

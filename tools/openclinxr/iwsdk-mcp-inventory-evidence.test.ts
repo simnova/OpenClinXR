@@ -1,0 +1,134 @@
+import { execFile } from "node:child_process";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+import { promisify } from "node:util";
+import { describe, expect, it } from "vitest";
+import { buildIwsdkMcpToolInventory } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
+import {
+  buildIwsdkMcpInventoryEvidenceReport,
+  type IwsdkMcpInventoryEvidenceReport,
+} from "./iwsdk-mcp-inventory-evidence.js";
+
+const execFileAsync = promisify(execFile);
+
+describe("IWSDK MCP inventory evidence", () => {
+  it("turns an observed stdio tools/list inventory into a bounded readiness report", () => {
+    const observedToolNames = buildIwsdkMcpToolInventory().allToolNames;
+    const report = buildIwsdkMcpInventoryEvidenceReport({
+      generatedAt: "2026-05-06T02:00:00.000Z",
+      cwd: "/Volumes/files/src/openclinxr",
+      packageVersion: "0.3.1",
+      server: {
+        name: "iwsdk-dev-mcp",
+        version: "1.0.0",
+        protocolVersion: "2024-11-05",
+      },
+      observedToolNames,
+    });
+
+    expect(report).toMatchObject({
+      generatedAt: "2026-05-06T02:00:00.000Z",
+      source: "iwsdk_dev_mcp_stdio_tools_list",
+      policy: {
+        cloudApisUsed: false,
+        paidApisUsed: false,
+        mcpConfigMutated: false,
+        optionalReferenceWarmupUsed: false,
+        hzdbUsed: false,
+        productionUseAllowed: false,
+        physicalQuestClaimed: false,
+      },
+      package: {
+        name: "@iwsdk/vite-plugin-dev",
+        version: "0.3.1",
+      },
+      server: {
+        name: "iwsdk-dev-mcp",
+        version: "1.0.0",
+        protocolVersion: "2024-11-05",
+      },
+      inventory: {
+        expectedToolCount: 32,
+        observedToolCount: 32,
+        missingExpectedToolNames: [],
+        unknownToolNames: [],
+        requiredCategoriesCovered: true,
+        matchedExpectedInventory: true,
+      },
+      agentToolingReadiness: {
+        readyForAgentTooling: false,
+        blockers: expect.arrayContaining([
+          "adapter_sync_not_recorded",
+          "missing_managed_browser_evidence",
+          "mcp_runtime_not_registered",
+          "scene_hierarchy_required_objects_not_confirmed",
+          "ecs_runtime_not_queryable",
+        ]),
+      },
+    });
+    expect(report.inventory.coveredCategories).toEqual([
+      "session",
+      "transforms",
+      "input_mode",
+      "select_trigger",
+      "gamepad",
+      "device_state",
+      "browser",
+      "scene",
+      "ecs",
+    ]);
+    expect(report.agentToolingReadiness.blockers).not.toContain("mcp_tool_inventory_count_not_32");
+  });
+
+  it("flags missing and unknown MCP tools before agent tooling can be claimed", () => {
+    const report = buildIwsdkMcpInventoryEvidenceReport({
+      observedToolNames: [
+        ...buildIwsdkMcpToolInventory().allToolNames.filter((toolName) => toolName !== "ecs_diff"),
+        "xr_future_tool",
+      ],
+    });
+
+    expect(report.inventory.matchedExpectedInventory).toBe(false);
+    expect(report.inventory.missingExpectedToolNames).toEqual(["ecs_diff"]);
+    expect(report.inventory.unknownToolNames).toEqual(["xr_future_tool"]);
+    expect(report.agentToolingReadiness.blockers).toEqual(expect.arrayContaining([
+      "mcp_tool_missing_ecs_diff",
+      "mcp_tool_unknown_xr_future_tool",
+    ]));
+  });
+
+  it("adds an opt-in package script without putting MCP capture in default verify", async () => {
+    const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+
+    expect(rootPackage.scripts["iwsdk:mcp-inventory:evidence"]).toBe(
+      "tsx tools/openclinxr/iwsdk-mcp-inventory-evidence.ts",
+    );
+    expect(rootPackage.scripts.verify).not.toContain("iwsdk:mcp-inventory:evidence");
+  });
+
+  it("captures the installed sidecar MCP tools over stdio", async () => {
+    const { stdout } = await execFileAsync(
+      path.resolve("node_modules/.bin/tsx"),
+      [
+        "tools/openclinxr/iwsdk-mcp-inventory-evidence.ts",
+        "--timeout-ms",
+        "5000",
+      ],
+      {
+        encoding: "utf8",
+        timeout: 10_000,
+      },
+    );
+    const report = JSON.parse(stdout) as IwsdkMcpInventoryEvidenceReport;
+
+    expect(report.inventory.matchedExpectedInventory).toBe(true);
+    expect(report.inventory.observedToolCount).toBe(32);
+    expect(report.agentToolingReadiness.readyForAgentTooling).toBe(false);
+    expect(report.agentToolingReadiness.blockers).toEqual(expect.arrayContaining([
+      "adapter_sync_not_recorded",
+      "missing_managed_browser_evidence",
+    ]));
+  });
+});

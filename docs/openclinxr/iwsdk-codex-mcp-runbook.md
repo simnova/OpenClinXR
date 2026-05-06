@@ -20,8 +20,11 @@ Latest IWER managed-browser evidence:
 - `docs/openclinxr/iwer-auto-entry-browser-smoke-2026-05-04.json`
 - `docs/openclinxr/visual-qa-evidence-iwer-auto-entry-2026-05-04.json`
 - `docs/openclinxr/screenshots/iwer-auto-entry-2026-05-04.png`
+- `docs/openclinxr/iwsdk-mcp-inventory-evidence-2026-05-06.json`
 
 This is desktop/IWER emulation evidence only. The latest auto-entry smoke records a query-gated `session_started` Full VR state in an IWER/Chrome DevTools managed browser with split preview/immersive frame-lane metadata. The earlier raw WebSocket evidence still records the useful `no_session_has_been_offered` path for direct `accept_session` probes. Neither replaces Quest foreground frame pacing, controller latency, thermals, comfort, passthrough, physical headset entry, or in-headset readability observations.
+
+The 2026-05-06 MCP inventory capture queried the installed sidecar `iwsdk-dev-mcp` server over stdio and matched the expected 32 tool names and all required categories without mutating local MCP config, running adapter sync, using `@iwsdk/reference`, using `@meta-quest/hzdb`, or making a physical Quest claim. It intentionally still blocks aggregate agent-tooling readiness because managed-browser, smoke-tool execution, scene hierarchy, and ECS runtime evidence are not complete.
 
 Use `pnpm iwsdk:evidence` to print the current sidecar evidence contract report. A nonzero exit is expected while agent tooling, bundle budget, reference metadata, and Quest foreground blockers remain unresolved; the JSON blockers are the evidence to carry into leadership review.
 
@@ -124,6 +127,12 @@ Score a future captured aggregate MCP evidence JSON file with:
 
 ```bash
 pnpm iwsdk:agent-tooling:evidence -- --input path/to/iwsdk-agent-tooling-evidence.json --output docs/openclinxr/iwsdk-agent-tooling-evidence-YYYY-MM-DD.json
+```
+
+Capture and score the installed sidecar MCP tool inventory without mutating Codex MCP config with:
+
+```bash
+pnpm iwsdk:mcp-inventory:evidence -- --output docs/openclinxr/iwsdk-mcp-inventory-evidence-YYYY-MM-DD.json
 ```
 
 Score screenshot-based adversarial visual QA evidence separately with:

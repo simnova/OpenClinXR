@@ -49,6 +49,7 @@
     "iwsdk:compatibility:evidence": "tsx tools/openclinxr/iwsdk-compatibility-evidence-check.ts",
     "iwsdk:metadata-drift:evidence": "tsx tools/openclinxr/iwsdk-metadata-drift-evidence-check.ts",
     "iwsdk:agent-tooling:evidence": "tsx tools/openclinxr/iwsdk-agent-tooling-evidence-check.ts",
+    "iwsdk:mcp-inventory:evidence": "tsx tools/openclinxr/iwsdk-mcp-inventory-evidence.ts",
     "iwsdk:iwer:evidence": "tsx tools/openclinxr/iwer-sidecar-emulation-evidence-check.ts",
     "iwer:sidecar:evidence": "tsx tools/openclinxr/iwer-sidecar-emulation-evidence-check.ts --input docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json",
     "iwer:sidecar:evidence:validate": "tsx tools/openclinxr/iwer-sidecar-emulation-evidence-check.ts --input docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json",
