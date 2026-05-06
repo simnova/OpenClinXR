@@ -152,6 +152,25 @@ describe("session state", () => {
     });
   });
 
+  it("rejects non-finite spatial coordinates before they can enter realtime snapshots", () => {
+    const session = createMultiActorClinicalSession({
+      scenario: edChestPainScenario,
+      stationRunId: "station_run_session_state_bad_spatial_001",
+    });
+
+    expect(() =>
+      updateActorSpatialState(session, {
+        atSecond: 191,
+        actorId: "nurse_maria_alvarez_v1",
+        position: { x: Number.NaN, y: 0, z: Number.POSITIVE_INFINITY },
+        rotationYRadians: Number.NEGATIVE_INFINITY,
+        interactionState: "holding_equipment",
+      })
+    ).toThrow("Spatial transform contains non-finite numeric values for actor nurse_maria_alvarez_v1");
+
+    expect(session.spatialState.actorTransforms.nurse_maria_alvarez_v1?.position).toEqual({ x: 0.9, y: 0, z: -0.8 });
+  });
+
   it("keeps Phase 2 durable actor history authoritative while realtime cache remains disposable", () => {
     const stores = createPersistenceSpikeStores();
     let session = createMultiActorClinicalSession({

@@ -598,6 +598,13 @@ export function updateActorSpatialState(
   input: UpdateActorSpatialStateInput,
 ): MultiActorClinicalSession {
   requireActor(session, input.actorId);
+  assertFiniteActorTransform({
+    actorId: input.actorId,
+    position: input.position,
+    rotationYRadians: input.rotationYRadians,
+    interactionState: input.interactionState,
+    lastUpdatedAtSecond: input.atSecond,
+  });
 
   return {
     ...session,
@@ -1267,6 +1274,7 @@ function cloneSpatialState(
 }
 
 function cloneActorTransform(transform: ActorTransformState): ActorTransformState {
+  assertFiniteActorTransform(transform);
   return {
     ...transform,
     position: { ...transform.position },
@@ -1356,12 +1364,28 @@ function cloneActorTransforms(
   transforms: Record<string, ActorTransformState>,
 ): Record<string, ActorTransformState> {
   return Object.fromEntries(
-    Object.entries(transforms).map(([actorId, transform]) => [
-      actorId,
-      {
-        ...transform,
-        position: { ...transform.position },
-      },
-    ]),
+    Object.entries(transforms).map(([actorId, transform]) => {
+      assertFiniteActorTransform(transform);
+      return [
+        actorId,
+        {
+          ...transform,
+          position: { ...transform.position },
+        },
+      ];
+    }),
   );
+}
+
+function assertFiniteActorTransform(transform: ActorTransformState): void {
+  const values = [
+    transform.position.x,
+    transform.position.y,
+    transform.position.z,
+    transform.rotationYRadians,
+    transform.lastUpdatedAtSecond,
+  ];
+  if (values.some((value) => !Number.isFinite(value))) {
+    throw new Error(`Spatial transform contains non-finite numeric values for actor ${transform.actorId}`);
+  }
 }
