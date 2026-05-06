@@ -1,0 +1,190 @@
+{
+  "generatedAt": "2026-05-06T13:39:59.065Z",
+  "status": "passed",
+  "policy": {
+    "cloudApisUsed": false,
+    "paidApisUsed": false,
+    "modelDownloadsUsed": false,
+    "committedGeneratedAudio": false,
+    "productionUseAllowed": false
+  },
+  "python": {
+    "executable": "/Users/patrick/.cache/openclinxr/realtime-voice/api-python-backend-venv/bin/python",
+    "version": "Python 3.11.4",
+    "dependencies": {
+      "fastapi": "available",
+      "uvicorn": "available",
+      "websockets": "available"
+    },
+    "missingPackages": []
+  },
+  "server": {
+    "attempted": true,
+    "command": [
+      "/Users/patrick/.cache/openclinxr/realtime-voice/api-python-backend-venv/bin/python",
+      "-m",
+      "uvicorn",
+      "api_python_backend.main:app",
+      "--app-dir",
+      "apps/api-python-backend/src",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "8765"
+    ],
+    "port": 8765,
+    "stdout": [
+      "INFO:     127.0.0.1:52598 - \"GET /health HTTP/1.1\" 200 OK",
+      "INFO:     127.0.0.1:52599 - \"GET /capabilities HTTP/1.1\" 200 OK"
+    ],
+    "stderr": [
+      "INFO:     Started server process [67948]",
+      "INFO:     Waiting for application startup.",
+      "INFO:     Application startup complete.",
+      "INFO:     Uvicorn running on http://127.0.0.1:8765 (Press CTRL+C to quit)",
+      "INFO:     127.0.0.1:52598 - \"WebSocket /voice/realtime/ws\" [accepted]",
+      "INFO:     connection open"
+    ]
+  },
+  "health": {
+    "attempted": true,
+    "ok": true,
+    "statusCode": 200,
+    "latencyMs": 539,
+    "body": {
+      "status": "ok",
+      "service": "api-python-backend"
+    }
+  },
+  "capabilities": {
+    "attempted": true,
+    "ok": true,
+    "statusCode": 200,
+    "latencyMs": 3,
+    "modes": [
+      {
+        "id": "transport-echo",
+        "status": "ready",
+        "blockers": []
+      },
+      {
+        "id": "moshi-mlx",
+        "status": "approved_runtime_missing",
+        "blockers": [
+          "model_weights_not_installed",
+          "mlx_runtime_not_installed",
+          "real_inference_not_observed"
+        ]
+      },
+      {
+        "id": "qwen3-tts-mlx",
+        "status": "approved_runtime_missing",
+        "blockers": [
+          "model_weights_not_installed",
+          "mlx_runtime_not_installed",
+          "real_inference_not_observed"
+        ]
+      }
+    ],
+    "body": {
+      "service": "api-python-backend",
+      "defaultMode": "transport-echo",
+      "routes": {
+        "health": "/health",
+        "capabilities": "/capabilities",
+        "realtimeWebSocket": "/voice/realtime/ws"
+      },
+      "modes": [
+        {
+          "id": "transport-echo",
+          "status": "ready",
+          "cloudApisUsed": false,
+          "paidApisUsed": false,
+          "modelDownloadsUsed": false,
+          "description": "Local WebSocket control and binary-frame echo for gateway integration tests.",
+          "blockers": []
+        },
+        {
+          "id": "moshi-mlx",
+          "status": "approved_runtime_missing",
+          "cloudApisUsed": false,
+          "paidApisUsed": false,
+          "modelDownloadsUsed": false,
+          "approvedProposal": "proposals/approved/proposal-local-realtime-voice-model-inference.md",
+          "modelId": "kyutai/moshiko-mlx-q4",
+          "description": "Approved local full-duplex voice candidate, still blocked until model weights, MLX runtime, and real inference evidence exist.",
+          "blockers": [
+            "model_weights_not_installed",
+            "mlx_runtime_not_installed",
+            "real_inference_not_observed"
+          ]
+        },
+        {
+          "id": "qwen3-tts-mlx",
+          "status": "approved_runtime_missing",
+          "cloudApisUsed": false,
+          "paidApisUsed": false,
+          "modelDownloadsUsed": false,
+          "approvedProposal": "proposals/approved/proposal-local-realtime-voice-model-inference.md",
+          "modelId": "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+          "description": "Approved local streaming TTS fallback, still blocked until model weights, MLX runtime, and real inference evidence exist.",
+          "blockers": [
+            "model_weights_not_installed",
+            "mlx_runtime_not_installed",
+            "real_inference_not_observed"
+          ]
+        }
+      ]
+    }
+  },
+  "websocket": {
+    "attempted": true,
+    "connected": true,
+    "jsonMessages": 6,
+    "binaryMessages": 1,
+    "controlAckObserved": true,
+    "audioMetadataObserved": true,
+    "transcriptDeltaObserved": true,
+    "binaryEchoObserved": true,
+    "latencyMs": 8,
+    "protocol": {
+      "websocketPath": "/voice/realtime/ws",
+      "codec": "opus",
+      "backendProtocolObserved": true,
+      "clientControlFrameTypesSent": [
+        "voice.start",
+        "voice.audio_metadata",
+        "voice.stop"
+      ],
+      "serverEventTypesObserved": [
+        "backend.ready",
+        "voice.started",
+        "audio.chunk",
+        "transcript.partial",
+        "transcript.final",
+        "voice.stopped"
+      ],
+      "latencyFieldsObserved": true,
+      "canonicalProtocolObserved": true
+    }
+  },
+  "relatedLocalInferenceEvidence": {
+    "qwen3Tts": {
+      "observed": true,
+      "claimScope": "local_tts_inference_only",
+      "modelId": "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+      "realTimeFactor": 1.96,
+      "readyForLiveDialog": false,
+      "blockers": []
+    }
+  },
+  "verdict": {
+    "passed": true,
+    "readyForLiveDialog": false,
+    "blockers": [],
+    "caveats": [
+      "This smoke proves FastAPI health and WebSocket frame handling only.",
+      "Qwen3-TTS local inference has separate file-generation evidence, but the FastAPI backend is still transport-echo only and does not execute that model."
+    ]
+  }
+}

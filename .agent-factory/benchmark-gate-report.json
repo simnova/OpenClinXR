@@ -152,7 +152,7 @@
     {
       "evidence_id": "realtime_voice_transport_spike",
       "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-06.json",
-      "generated_at": "2026-05-06T13:33:51.722Z",
+      "generated_at": "2026-05-06T13:40:30.076Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -160,9 +160,9 @@
     },
     {
       "evidence_id": "api_python_backend_runtime_smoke",
-      "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-05.json",
-      "generated_at": "2026-05-05T15:21:12.576Z",
-      "age_hours": 22,
+      "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-06.json",
+      "generated_at": "2026-05-06T13:39:59.065Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -188,7 +188,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T13:33:52.530Z",
+      "generated_at": "2026-05-06T13:47:34.385Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -1205,14 +1205,14 @@
   },
   "realtime_voice_transport_spike": {
     "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-06.json",
-    "generated_at": "2026-05-06T13:33:51.722Z",
+    "generated_at": "2026-05-06T13:40:30.076Z",
     "status": "transport_spike_passed",
-    "round_trip_latency_ms": 25.01,
+    "round_trip_latency_ms": 13.31,
     "audio_metadata_frames_sent": 2,
     "audio_chunk_metadata_received": 2,
     "frame_latency_samples_ms": [
-      10.01,
-      9.91
+      4.21,
+      4.13
     ],
     "audio_chunk_indexes_received": [
       0,
@@ -1259,8 +1259,8 @@
     }
   },
   "api_python_backend_runtime_smoke": {
-    "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-05.json",
-    "generated_at": "2026-05-05T15:21:12.576Z",
+    "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-06.json",
+    "generated_at": "2026-05-06T13:39:59.065Z",
     "status": "passed",
     "python": {
       "executable": "/Users/patrick/.cache/openclinxr/realtime-voice/api-python-backend-venv/bin/python",
@@ -1276,7 +1276,7 @@
       "attempted": true,
       "ok": true,
       "statusCode": 200,
-      "latencyMs": 564,
+      "latencyMs": 539,
       "body": {
         "status": "ok",
         "service": "api-python-backend"
@@ -1372,7 +1372,7 @@
       "audioMetadataObserved": true,
       "transcriptDeltaObserved": true,
       "binaryEchoObserved": true,
-      "latencyMs": 13,
+      "latencyMs": 8,
       "protocol": {
         "websocketPath": "/voice/realtime/ws",
         "codec": "opus",
@@ -1394,13 +1394,23 @@
         "canonicalProtocolObserved": true
       }
     },
+    "related_local_inference_evidence": {
+      "qwen3Tts": {
+        "observed": true,
+        "claimScope": "local_tts_inference_only",
+        "modelId": "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+        "realTimeFactor": 1.96,
+        "readyForLiveDialog": false,
+        "blockers": []
+      }
+    },
     "verdict": {
       "passed": true,
       "readyForLiveDialog": false,
       "blockers": [],
       "caveats": [
         "This smoke proves FastAPI health and WebSocket frame handling only.",
-        "No Moshi, Qwen3-TTS, VibeVoice, Grok Voice, ASR, Opus codec, or Quest playback inference is exercised."
+        "Qwen3-TTS local inference has separate file-generation evidence, but the FastAPI backend is still transport-echo only and does not execute that model."
       ]
     }
   },
@@ -1560,7 +1570,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T13:33:52.530Z",
+    "generated_at": "2026-05-06T13:47:34.385Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,

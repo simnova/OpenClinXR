@@ -2,7 +2,8 @@ import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { performance } from "node:perf_hooks";
 import { pathToFileURL } from "node:url";
 import { realtimeVoiceProtocol } from "../../packages/openclinxr/voice-gateway/src/index.js";
-import { writeJson } from "../agent-factory/lib.js";
+import { readJson, writeJson } from "../agent-factory/lib.js";
+import type { LocalQwenTtsRuntimeSmokeReport } from "./local-qwen-tts-runtime-smoke.js";
 
 export type PythonDependencyStatus = "available" | "missing";
 
@@ -68,6 +69,16 @@ export type ApiPythonBackendRuntimeSmokeReport = {
       canonicalProtocolObserved: boolean;
     };
   };
+  relatedLocalInferenceEvidence?: {
+    qwen3Tts?: {
+      observed: boolean;
+      claimScope: string;
+      modelId: string;
+      realTimeFactor: number | null;
+      readyForLiveDialog: false;
+      blockers: string[];
+    };
+  };
   verdict: {
     passed: boolean;
     readyForLiveDialog: false;
@@ -81,6 +92,7 @@ type CliOptions = {
   pythonExecutable: string;
   port: number;
   timeoutMs: number;
+  localQwenTtsRuntimeSmokePath?: string;
 };
 
 type RuntimeSmokeObservation = {
@@ -96,11 +108,18 @@ type RuntimeSmokeObservation = {
   health: ApiPythonBackendRuntimeSmokeReport["health"];
   capabilities: ApiPythonBackendRuntimeSmokeReport["capabilities"];
   websocket: ApiPythonBackendRuntimeSmokeReport["websocket"];
+  localQwenTtsRuntimeSmoke?: LocalQwenTtsRuntimeSmokeReport;
 };
 
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
-  const report = await runApiPythonBackendRuntimeSmoke(options);
+  const localQwenTtsRuntimeSmoke = options.localQwenTtsRuntimeSmokePath
+    ? await readJson<LocalQwenTtsRuntimeSmokeReport>(options.localQwenTtsRuntimeSmokePath)
+    : undefined;
+  const report = await runApiPythonBackendRuntimeSmoke({
+    ...options,
+    localQwenTtsRuntimeSmoke,
+  });
 
   if (options.outputPath) {
     await writeJson(options.outputPath, report);
@@ -141,13 +160,20 @@ function parseArgs(args: string[]): CliOptions {
       index += 1;
       continue;
     }
+    if (arg === "--local-qwen-tts-runtime-smoke") {
+      options.localQwenTtsRuntimeSmokePath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
     throw new Error(`Unknown argument: ${arg ?? ""}`);
   }
 
   return options;
 }
 
-export async function runApiPythonBackendRuntimeSmoke(options: CliOptions): Promise<ApiPythonBackendRuntimeSmokeReport> {
+export async function runApiPythonBackendRuntimeSmoke(
+  options: CliOptions & { localQwenTtsRuntimeSmoke?: LocalQwenTtsRuntimeSmokeReport },
+): Promise<ApiPythonBackendRuntimeSmokeReport> {
   const pythonVersion = await readPythonVersion(options.pythonExecutable);
   const dependencies = await probePythonDependencies(options.pythonExecutable, ["fastapi", "uvicorn", "websockets"]);
   const serverCommand = [
@@ -176,6 +202,7 @@ export async function runApiPythonBackendRuntimeSmoke(options: CliOptions): Prom
       health: emptyHealth(false),
       capabilities: emptyCapabilities(false),
       websocket: emptyWebSocket(false),
+      localQwenTtsRuntimeSmoke: options.localQwenTtsRuntimeSmoke,
     });
   }
 
@@ -209,6 +236,7 @@ export async function runApiPythonBackendRuntimeSmoke(options: CliOptions): Prom
       health,
       capabilities,
       websocket,
+      localQwenTtsRuntimeSmoke: options.localQwenTtsRuntimeSmoke,
     });
   } finally {
     await stopServer(server);
@@ -236,6 +264,8 @@ export function buildApiPythonBackendRuntimeSmokeReport(
     ...(input.websocket.protocol?.canonicalProtocolObserved ? [] : ["websocket_canonical_protocol_not_observed"]),
   ];
   const passed = blockers.length === 0;
+  const relatedLocalInferenceEvidence = buildRelatedLocalInferenceEvidence(input.localQwenTtsRuntimeSmoke);
+  const qwenEvidenceObserved = relatedLocalInferenceEvidence?.qwen3Tts?.observed === true;
 
   return {
     generatedAt: input.generatedAt ?? new Date().toISOString(),
@@ -263,14 +293,45 @@ export function buildApiPythonBackendRuntimeSmokeReport(
     health: input.health,
     capabilities: input.capabilities,
     websocket: input.websocket,
+    ...(relatedLocalInferenceEvidence ? { relatedLocalInferenceEvidence } : {}),
     verdict: {
       passed,
       readyForLiveDialog: false,
       blockers,
       caveats: [
         "This smoke proves FastAPI health and WebSocket frame handling only.",
-        "No Moshi, Qwen3-TTS, VibeVoice, Grok Voice, ASR, Opus codec, or Quest playback inference is exercised.",
+        qwenEvidenceObserved
+          ? "Qwen3-TTS local inference has separate file-generation evidence, but the FastAPI backend is still transport-echo only and does not execute that model."
+          : "No Moshi, Qwen3-TTS, VibeVoice, Grok Voice, ASR, Opus codec, or Quest playback inference is exercised.",
       ],
+    },
+  };
+}
+
+function buildRelatedLocalInferenceEvidence(
+  qwenSmoke: LocalQwenTtsRuntimeSmokeReport | undefined,
+): ApiPythonBackendRuntimeSmokeReport["relatedLocalInferenceEvidence"] | undefined {
+  if (!qwenSmoke) {
+    return undefined;
+  }
+  const blockers = [
+    qwenSmoke.kind === "local_qwen_tts_runtime_smoke" ? undefined : "invalid_local_qwen_tts_runtime_smoke_kind",
+    qwenSmoke.claim_scope === "local_tts_inference_only" ? undefined : "invalid_local_qwen_tts_claim_scope",
+    qwenSmoke.policy.cloudApisUsed ? "qwen_tts_smoke_cloud_apis_used" : undefined,
+    qwenSmoke.policy.paidApisUsed ? "qwen_tts_smoke_paid_apis_used" : undefined,
+    qwenSmoke.policy.generatedAudioCommitted ? "qwen_tts_generated_audio_committed" : undefined,
+    qwenSmoke.verdict.passed ? undefined : "qwen_tts_runtime_smoke_failed",
+    ...qwenSmoke.verdict.blockers,
+  ].filter((blocker): blocker is string => typeof blocker === "string");
+
+  return {
+    qwen3Tts: {
+      observed: blockers.length === 0,
+      claimScope: qwenSmoke.claim_scope,
+      modelId: qwenSmoke.runtime.modelId,
+      realTimeFactor: qwenSmoke.metrics.realTimeFactor,
+      readyForLiveDialog: false,
+      blockers,
     },
   };
 }

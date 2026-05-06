@@ -640,6 +640,7 @@ type EvidenceGateReport = {
     health: ApiPythonBackendRuntimeSmokeReport["health"];
     capabilities: ApiPythonBackendRuntimeSmokeReport["capabilities"];
     websocket: ApiPythonBackendRuntimeSmokeReport["websocket"];
+    related_local_inference_evidence?: ApiPythonBackendRuntimeSmokeReport["relatedLocalInferenceEvidence"];
     verdict: ApiPythonBackendRuntimeSmokeReport["verdict"];
   };
   api_bun_websocket_runtime_smoke?: {
@@ -1487,6 +1488,9 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         health: apiPythonBackendRuntimeSmoke.value.health,
         capabilities: apiPythonBackendRuntimeSmoke.value.capabilities,
         websocket: apiPythonBackendRuntimeSmoke.value.websocket,
+        ...(apiPythonBackendRuntimeSmoke.value.relatedLocalInferenceEvidence
+          ? { related_local_inference_evidence: apiPythonBackendRuntimeSmoke.value.relatedLocalInferenceEvidence }
+          : {}),
         verdict: apiPythonBackendRuntimeSmoke.value.verdict,
       },
     } : {}),

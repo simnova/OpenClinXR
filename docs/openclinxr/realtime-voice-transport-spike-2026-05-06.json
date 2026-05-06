@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T13:33:51.722Z",
+  "generatedAt": "2026-05-06T13:40:30.076Z",
   "status": "transport_spike_passed",
   "policy": {
     "cloudApisUsed": false,
@@ -141,7 +141,7 @@
     "blockers": [],
     "healthOk": true,
     "websocketConnected": true,
-    "websocketLatencyMs": 13,
+    "websocketLatencyMs": 8,
     "protocolObserved": {
       "backendProtocolObserved": true,
       "latencyFieldsObserved": true,
@@ -243,10 +243,10 @@
     "binaryAudioChunksReceived": 2,
     "backendProtocol": "python-fastapi-compatible-websocket",
     "codec": "opus",
-    "roundTripLatencyMs": 25.01,
+    "roundTripLatencyMs": 13.31,
     "frameLatencySamplesMs": [
-      10.01,
-      9.91
+      4.21,
+      4.13
     ],
     "audioChunkIndexesReceived": [
       0,

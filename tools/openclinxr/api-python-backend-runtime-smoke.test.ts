@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildApiPythonBackendRuntimeSmokeReport } from "./api-python-backend-runtime-smoke.js";
+import type { LocalQwenTtsRuntimeSmokeReport } from "./local-qwen-tts-runtime-smoke.js";
 
 const canonicalWebSocketProtocol = {
   websocketPath: "/voice/realtime/ws" as const,
@@ -85,6 +86,33 @@ describe("API Python backend runtime smoke report", () => {
     expect(report.verdict.caveats.join("\n")).toContain("FastAPI health and WebSocket frame handling only");
   });
 
+  it("records related Qwen TTS evidence without marking the backend mode as wired", () => {
+    const report = buildApiPythonBackendRuntimeSmokeReport({
+      ...baseInput,
+      localQwenTtsRuntimeSmoke: passedQwenTtsRuntimeSmoke(),
+    });
+
+    expect(report.status).toBe("passed");
+    expect(report.capabilities.modes).toEqual(expect.arrayContaining([
+      { id: "qwen3-tts-mlx", status: "approved_runtime_missing", blockers: ["model_weights_not_installed", "mlx_runtime_not_installed", "real_inference_not_observed"] },
+    ]));
+    expect(report.relatedLocalInferenceEvidence).toEqual({
+      qwen3Tts: {
+        observed: true,
+        claimScope: "local_tts_inference_only",
+        modelId: "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+        realTimeFactor: 1.96,
+        readyForLiveDialog: false,
+        blockers: [],
+      },
+    });
+    expect(report.verdict.caveats).toEqual(expect.arrayContaining([
+      "Qwen3-TTS local inference has separate file-generation evidence, but the FastAPI backend is still transport-echo only and does not execute that model.",
+    ]));
+    expect(report.verdict.caveats.join("\n")).not.toContain("No Moshi, Qwen3-TTS");
+    expect(report.verdict.readyForLiveDialog).toBe(false);
+  });
+
   it("keeps missing FastAPI dependencies as explicit blockers before starting the server", () => {
     const report = buildApiPythonBackendRuntimeSmokeReport({
       ...baseInput,
@@ -168,3 +196,76 @@ describe("API Python backend runtime smoke report", () => {
     expect(report.verdict.blockers).toContain("websocket_latency_fields_not_observed");
   });
 });
+
+function passedQwenTtsRuntimeSmoke(): LocalQwenTtsRuntimeSmokeReport {
+  return {
+    kind: "local_qwen_tts_runtime_smoke",
+    claim_scope: "local_tts_inference_only",
+    generatedAt: "2026-05-06T13:24:08Z",
+    status: "passed_with_caveats",
+    policy: {
+      cloudApisUsed: false,
+      paidApisUsed: false,
+      productionUseAllowed: false,
+      generatedAudioCommitted: false,
+      fullDuplexClaimAllowed: false,
+      clinicalValidityClaimAllowed: false,
+      runtimeExecutionObserved: true,
+      downloadAttemptedByThisTool: false,
+      networkAccessObservedByThisTool: false,
+    },
+    runtime: {
+      modelId: "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+      modelLicense: "Apache-2.0",
+      sourceRecordIds: [
+        "src-qwen3-tts-mlx-4bit-2026",
+        "src-mlx-audio-pypi-2026",
+      ],
+      tool: "mlx-audio",
+      toolVersion: "0.3.0",
+      toolLicense: "MIT",
+      pythonVersion: "3.11.4",
+      exitStatus: 0,
+      command: "/Users/patrick/.cache/openclinxr/realtime-voice/api-python-backend-venv/bin/python -m mlx_audio.tts.generate",
+    },
+    input: {
+      text: "The patient reports chest pressure and needs help now.",
+      textLength: 54,
+      referenceAudioUsed: false,
+    },
+    audio: {
+      outputPath: "/Users/patrick/.cache/openclinxr/realtime-voice/qwen-tts-smoke-2026-05-06-run2/openclinxr-qwen-smoke_000.wav",
+      sha256: "eac24ecd365e266f71a960fe445d124f4a856db996694134f00e06d6b742bb1f",
+      codec: "pcm_s16le",
+      sampleRateHz: 24000,
+      channels: 1,
+      durationMs: 3360,
+      sizeBytes: 161324,
+      bitRate: 384000,
+    },
+    metrics: {
+      wallClockMs: 6600,
+      audioDurationMs: 3360,
+      realTimeFactor: 1.96,
+      maxResidentSetBytes: 1976532992,
+      approxFirstAudiblePlaybackLatencyMs: null,
+    },
+    modelCache: {
+      evidenceKind: "local_voice_evidence_check",
+      evidenceGeneratedAt: "2026-05-06T13:09:06.623Z",
+      cacheDir: "/Users/patrick/.cache/openclinxr/realtime-voice",
+      ready: true,
+      readyModelObserved: true,
+      readyModelIds: ["mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit"],
+      blockers: [],
+    },
+    verdict: {
+      passed: true,
+      readyForLiveDialog: false,
+      blockers: [],
+      caveats: [
+        "This is local outbound TTS file-generation evidence only; it is not full-duplex ASR/dialog evidence.",
+      ],
+    },
+  };
+}

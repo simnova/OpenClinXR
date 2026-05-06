@@ -274,6 +274,16 @@ type BenchmarkGateReport = {
       connected: boolean;
       binaryEchoObserved: boolean;
     };
+    related_local_inference_evidence?: {
+      qwen3Tts?: {
+        observed: boolean;
+        claimScope: string;
+        modelId: string;
+        realTimeFactor: number | null;
+        readyForLiveDialog: false;
+        blockers: string[];
+      };
+    };
     verdict: {
       passed: boolean;
       readyForLiveDialog: false;
@@ -778,6 +788,97 @@ function passedQwenTtsRuntimeSmoke(): LocalQwenTtsRuntimeSmokeInput {
         blockers: [],
         caveats: [
           "This is local outbound TTS file-generation evidence only; it is not full-duplex ASR/dialog evidence.",
+        ],
+      },
+    },
+  };
+}
+
+function passedApiPythonBackendRuntimeSmokeWithQwenEvidence(): NonNullable<Parameters<typeof buildBenchmarkGateReport>[0]["apiPythonBackendRuntimeSmoke"]> {
+  return {
+    file: "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-06.json",
+    value: {
+      generatedAt: "2026-05-06T09:30:00.000Z",
+      status: "passed",
+      policy: {
+        cloudApisUsed: false,
+        paidApisUsed: false,
+        modelDownloadsUsed: false,
+        committedGeneratedAudio: false,
+        productionUseAllowed: false,
+      },
+      python: {
+        executable: "/Users/patrick/.cache/openclinxr/realtime-voice/api-python-backend-venv/bin/python",
+        version: "Python 3.11.4",
+        dependencies: {
+          fastapi: "available",
+          uvicorn: "available",
+          websockets: "available",
+        },
+        missingPackages: [],
+      },
+      server: {
+        attempted: true,
+        command: ["python", "-m", "uvicorn"],
+        port: 8765,
+        stdout: [],
+        stderr: [],
+      },
+      health: {
+        attempted: true,
+        ok: true,
+        statusCode: 200,
+        latencyMs: 10,
+        body: { status: "ok" },
+      },
+      capabilities: {
+        attempted: true,
+        ok: true,
+        statusCode: 200,
+        latencyMs: 11,
+        modes: [
+          { id: "transport-echo", status: "ready", blockers: [] },
+          { id: "moshi-mlx", status: "approved_runtime_missing", blockers: ["model_weights_not_installed", "mlx_runtime_not_installed", "real_inference_not_observed"] },
+          { id: "qwen3-tts-mlx", status: "approved_runtime_missing", blockers: ["model_weights_not_installed", "mlx_runtime_not_installed", "real_inference_not_observed"] },
+        ],
+        body: { defaultMode: "transport-echo" },
+      },
+      websocket: {
+        attempted: true,
+        connected: true,
+        jsonMessages: 5,
+        binaryMessages: 1,
+        controlAckObserved: true,
+        audioMetadataObserved: true,
+        transcriptDeltaObserved: true,
+        binaryEchoObserved: true,
+        latencyMs: 8,
+        protocol: {
+          websocketPath: "/voice/realtime/ws",
+          codec: "opus",
+          backendProtocolObserved: true,
+          clientControlFrameTypesSent: ["voice.start", "voice.audio_metadata", "voice.stop"],
+          serverEventTypesObserved: ["backend.ready", "voice.started", "audio.chunk", "transcript.partial", "transcript.final", "voice.stopped"],
+          latencyFieldsObserved: true,
+          canonicalProtocolObserved: true,
+        },
+      },
+      relatedLocalInferenceEvidence: {
+        qwen3Tts: {
+          observed: true,
+          claimScope: "local_tts_inference_only",
+          modelId: "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+          realTimeFactor: 1.96,
+          readyForLiveDialog: false,
+          blockers: [],
+        },
+      },
+      verdict: {
+        passed: true,
+        readyForLiveDialog: false,
+        blockers: [],
+        caveats: [
+          "Qwen3-TTS local inference has separate file-generation evidence, but the FastAPI backend is still transport-echo only and does not execute that model.",
         ],
       },
     },
@@ -2486,6 +2587,52 @@ describe("benchmark gate report", () => {
     ]));
     expect(liveDialogGate?.blockers).not.toEqual(expect.arrayContaining([
       "local_voice_live_dialog:local_qwen_tts_runtime_smoke:tts_runtime_smoke_failed",
+    ]));
+  });
+
+  it("surfaces FastAPI related Qwen TTS evidence without treating the backend mode as wired", () => {
+    const buildReport = buildBenchmarkGateReport as (
+      input: Parameters<typeof buildBenchmarkGateReport>[0] & {
+        apiPythonBackendRuntimeSmoke?: ReturnType<typeof passedApiPythonBackendRuntimeSmokeWithQwenEvidence>;
+      },
+      options: { now: Date; maxEvidenceAgeHours: number },
+    ) => BenchmarkGateReport;
+
+    const report = buildReport({
+      apiPythonBackendRuntimeSmoke: passedApiPythonBackendRuntimeSmokeWithQwenEvidence(),
+    }, { now: new Date("2026-05-06T09:45:00.000Z"), maxEvidenceAgeHours: 24 });
+    const liveDialogGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-003");
+
+    expect(report.api_python_backend_runtime_smoke).toMatchObject({
+      file: "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-06.json",
+      status: "passed",
+      capabilities: {
+        modes: [
+          { id: "transport-echo", status: "ready" },
+          { id: "moshi-mlx", status: "approved_runtime_missing" },
+          { id: "qwen3-tts-mlx", status: "approved_runtime_missing" },
+        ],
+      },
+      related_local_inference_evidence: {
+        qwen3Tts: {
+          observed: true,
+          claimScope: "local_tts_inference_only",
+          modelId: "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+          realTimeFactor: 1.96,
+          readyForLiveDialog: false,
+          blockers: [],
+        },
+      },
+      verdict: {
+        passed: true,
+        readyForLiveDialog: false,
+      },
+    });
+    expect(liveDialogGate?.satisfied_conditions).toEqual(expect.arrayContaining([
+      "local_voice_python_backend_runtime_smoke_passed",
+    ]));
+    expect(liveDialogGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
+      "local_voice_live_dialog_runtime_stream_observed",
     ]));
   });
 
