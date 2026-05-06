@@ -23,6 +23,22 @@ type CliOptions = {
 
 type ApiBunWebSocketRuntimeSmokeEvidence = {
   status: string;
+  policy?: {
+    http3Enabled?: boolean;
+  };
+  bun?: {
+    executable?: string;
+    version?: string;
+    revision?: string;
+  };
+  runtime?: {
+    h3?: {
+      enabled?: boolean;
+      h3TrueEnabled?: boolean;
+      optionPresentInServerSource?: boolean;
+      outOfScopeForThisSmoke?: boolean;
+    };
+  };
   runtimeEvidenceBlockers: string[];
   websocket: {
     connected: boolean;
@@ -63,6 +79,22 @@ type ApiPythonBackendRuntimeSmokeEvidence = {
 
 type ApiBunPythonProxyRuntimeSmokeEvidence = {
   status: string;
+  policy?: {
+    http3Enabled?: boolean;
+  };
+  bun?: {
+    executable?: string;
+    version?: string;
+    revision?: string;
+  };
+  runtime?: {
+    h3?: {
+      enabled?: boolean;
+      h3TrueEnabled?: boolean;
+      optionPresentInServerSource?: boolean;
+      outOfScopeForThisSmoke?: boolean;
+    };
+  };
   runtimeEvidenceBlockers: string[];
   pythonBackend: {
     healthOk: boolean;
@@ -95,6 +127,19 @@ type QuestClientSourceContractEvidence = {
   opaqueBinaryPacketProbeObserved: boolean;
   productionAudioClaims: boolean;
   blockers: string[];
+};
+
+type ApiBunRuntimeEvidenceSource = "api-bun-websocket-runtime-smoke" | "api-bun-python-proxy-runtime-smoke";
+
+type ApiBunRuntimeEvidence = {
+  sources: ApiBunRuntimeEvidenceSource[];
+  executable: string | null;
+  version: string | null;
+  revision: string | null;
+  http3Enabled: boolean;
+  h3TrueEnabled: boolean;
+  optionPresentInServerSource: boolean;
+  outOfScopeForThisSmoke: boolean;
 };
 
 export type RealtimeVoiceTransportSpikeReport = {
@@ -178,6 +223,7 @@ export type RealtimeVoiceTransportSpikeReport = {
     binaryEchoObserved: boolean;
     eventTypesObserved: string[];
   };
+  apiBunRuntimeEvidence?: ApiBunRuntimeEvidence;
   questClientSourceContract: QuestClientSourceContractEvidence;
   harness: Awaited<ReturnType<typeof runRealtimeVoiceProxyHarness>>;
   verdict: {
@@ -281,6 +327,10 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
   const apiBunPythonProxyRuntimeSmoke = input.apiBunPythonProxyRuntimeSmoke
     ? summarizeApiBunPythonProxyRuntimeSmoke(input.apiBunPythonProxyRuntimeSmoke)
     : undefined;
+  const apiBunRuntimeEvidence = buildApiBunRuntimeEvidence({
+    apiBunWebSocketRuntimeSmoke: input.apiBunWebSocketRuntimeSmoke,
+    apiBunPythonProxyRuntimeSmoke: input.apiBunPythonProxyRuntimeSmoke,
+  });
   const suppliedRuntimeSmokePassed = pythonBackendRuntimeSmoke ? pythonBackendRuntimeSmoke.status === "passed" : true;
   const suppliedBunRuntimeSmokePassed = apiBunWebSocketRuntimeSmoke ? apiBunWebSocketRuntimeSmoke.status === "passed" : false;
   const suppliedBunPythonProxySmokePassed = apiBunPythonProxyRuntimeSmoke ? apiBunPythonProxyRuntimeSmoke.status === "passed" : false;
@@ -359,6 +409,7 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
     ...(pythonBackendRuntimeSmoke ? { pythonBackendRuntimeSmoke } : {}),
     ...(apiBunWebSocketRuntimeSmoke ? { apiBunWebSocketRuntimeSmoke } : {}),
     ...(apiBunPythonProxyRuntimeSmoke ? { apiBunPythonProxyRuntimeSmoke } : {}),
+    ...(apiBunRuntimeEvidence ? { apiBunRuntimeEvidence } : {}),
     questClientSourceContract,
     harness,
     verdict: {
@@ -528,6 +579,53 @@ function summarizeApiBunPythonProxyRuntimeSmoke(
     binaryEchoObserved: report.websocket.binaryEchoObserved,
     eventTypesObserved: report.websocket.eventTypesObserved,
   };
+}
+
+function buildApiBunRuntimeEvidence(input: {
+  apiBunWebSocketRuntimeSmoke?: ApiBunWebSocketRuntimeSmokeEvidence;
+  apiBunPythonProxyRuntimeSmoke?: ApiBunPythonProxyRuntimeSmokeEvidence;
+}): ApiBunRuntimeEvidence | undefined {
+  const sources: ApiBunRuntimeEvidenceSource[] = [];
+  const candidates: Array<{
+    source: ApiBunRuntimeEvidenceSource;
+    smoke: ApiBunWebSocketRuntimeSmokeEvidence | ApiBunPythonProxyRuntimeSmokeEvidence;
+  }> = [];
+
+  if (input.apiBunWebSocketRuntimeSmoke) {
+    candidates.push({
+      source: "api-bun-websocket-runtime-smoke",
+      smoke: input.apiBunWebSocketRuntimeSmoke,
+    });
+  }
+  if (input.apiBunPythonProxyRuntimeSmoke) {
+    candidates.push({
+      source: "api-bun-python-proxy-runtime-smoke",
+      smoke: input.apiBunPythonProxyRuntimeSmoke,
+    });
+  }
+
+  if (candidates.length === 0) {
+    return undefined;
+  }
+
+  for (const candidate of candidates) {
+    sources.push(candidate.source);
+  }
+
+  return {
+    sources,
+    executable: firstString(candidates.map((candidate) => candidate.smoke.bun?.executable)),
+    version: firstString(candidates.map((candidate) => candidate.smoke.bun?.version)),
+    revision: firstString(candidates.map((candidate) => candidate.smoke.bun?.revision)),
+    http3Enabled: candidates.some((candidate) => candidate.smoke.policy?.http3Enabled === true),
+    h3TrueEnabled: candidates.some((candidate) => candidate.smoke.runtime?.h3?.h3TrueEnabled === true),
+    optionPresentInServerSource: candidates.some((candidate) => candidate.smoke.runtime?.h3?.optionPresentInServerSource === true),
+    outOfScopeForThisSmoke: candidates.every((candidate) => candidate.smoke.runtime?.h3?.outOfScopeForThisSmoke !== false),
+  };
+}
+
+function firstString(values: Array<string | undefined>): string | null {
+  return values.find((value): value is string => typeof value === "string" && value.length > 0) ?? null;
 }
 
 async function runHarness(targetLatencyMs: number): Promise<Awaited<ReturnType<typeof runRealtimeVoiceProxyHarness>>> {

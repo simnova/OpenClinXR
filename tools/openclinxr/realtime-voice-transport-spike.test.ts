@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 import { buildRealtimeVoiceTransportSpikeReport } from "./realtime-voice-transport-spike.js";
 
@@ -163,6 +164,22 @@ describe("realtime voice transport spike report", () => {
       godotAvailable: false,
       apiBunWebSocketRuntimeSmoke: {
         status: "passed",
+        policy: {
+          http3Enabled: false,
+        },
+        bun: {
+          executable: "/Users/patrick/.bun/bin/bun",
+          version: "1.3.13",
+          revision: "1.3.13+bf2e2cecf",
+        },
+        runtime: {
+          h3: {
+            enabled: false,
+            h3TrueEnabled: false,
+            optionPresentInServerSource: false,
+            outOfScopeForThisSmoke: true,
+          },
+        },
         runtimeEvidenceBlockers: [],
         websocket: {
           connected: true,
@@ -177,6 +194,18 @@ describe("realtime voice transport spike report", () => {
       },
     });
 
+    expect(report).toMatchObject({
+      apiBunRuntimeEvidence: {
+        sources: ["api-bun-websocket-runtime-smoke"],
+        executable: "/Users/patrick/.bun/bin/bun",
+        version: "1.3.13",
+        revision: "1.3.13+bf2e2cecf",
+        http3Enabled: false,
+        h3TrueEnabled: false,
+        optionPresentInServerSource: false,
+        outOfScopeForThisSmoke: true,
+      },
+    });
     expect(report.apiBunWebSocketRuntimeSmoke).toEqual({
       status: "passed",
       blockers: [],
@@ -247,6 +276,14 @@ describe("realtime voice transport spike report", () => {
       godotAvailable: false,
       apiBunPythonProxyRuntimeSmoke: {
         status: "passed",
+        policy: {
+          http3Enabled: false,
+        },
+        bun: {
+          executable: "/Users/patrick/.bun/bin/bun",
+          version: "1.3.13",
+          revision: "1.3.13+bf2e2cecf",
+        },
         runtimeEvidenceBlockers: [],
         pythonBackend: {
           healthOk: true,
@@ -280,6 +317,18 @@ describe("realtime voice transport spike report", () => {
       },
     });
 
+    expect(report).toMatchObject({
+      apiBunRuntimeEvidence: {
+        sources: ["api-bun-python-proxy-runtime-smoke"],
+        executable: "/Users/patrick/.bun/bin/bun",
+        version: "1.3.13",
+        revision: "1.3.13+bf2e2cecf",
+        http3Enabled: false,
+        h3TrueEnabled: false,
+        optionPresentInServerSource: false,
+        outOfScopeForThisSmoke: true,
+      },
+    });
     expect(report.apiBunPythonProxyRuntimeSmoke).toEqual({
       status: "passed",
       blockers: [],
@@ -420,5 +469,63 @@ describe("realtime voice transport spike report", () => {
     expect(report.verdict.blockers).toContain("fastapi_backend_not_runtime_executed");
     expect(report.verdict.blockers).not.toContain("bun_runtime_not_installed_on_this_machine");
     expect(report.verdict.blockers).toContain("bun_to_fastapi_proxy_runtime_not_verified");
+  });
+
+  it("keeps the committed 2026-05-06 realtime transport evidence bounded to local WebSocket proof", async () => {
+    const report = JSON.parse(
+      await readFile("docs/openclinxr/realtime-voice-transport-spike-2026-05-06.json", "utf8"),
+    );
+
+    expect(report).toMatchObject({
+      policy: {
+        cloudApisUsed: false,
+        paidApisUsed: false,
+        modelDownloadsPerformed: false,
+        productionUseAllowed: false,
+      },
+      protocolEvidence: {
+        websocketLocalHarnessObserved: true,
+        bunHonoRuntimeObserved: true,
+        webTransportObserved: false,
+        quicObserved: false,
+        web3SignalingObserved: false,
+      },
+      apiBunRuntimeEvidence: {
+        sources: ["api-bun-websocket-runtime-smoke", "api-bun-python-proxy-runtime-smoke"],
+        executable: "/Users/patrick/.bun/bin/bun",
+        version: "1.3.13",
+        revision: "1.3.13+bf2e2cecf",
+        http3Enabled: false,
+        h3TrueEnabled: false,
+        optionPresentInServerSource: false,
+        outOfScopeForThisSmoke: true,
+      },
+      pythonBackendRuntimeSmoke: { status: "passed", blockers: [] },
+      apiBunWebSocketRuntimeSmoke: {
+        status: "passed",
+        blockers: [],
+        websocketConnected: true,
+        binaryEchoObserved: true,
+      },
+      apiBunPythonProxyRuntimeSmoke: {
+        status: "passed",
+        blockers: [],
+        backendReadyObserved: true,
+        backendProtocolObserved: true,
+        latencyFieldsObserved: true,
+        binaryEchoObserved: true,
+      },
+      verdict: {
+        transportContractPassed: true,
+        readyForLiveDialog: false,
+        blockers: [
+          "quest_godot_client_not_executed",
+          "native_opus_codec_not_integrated_in_godot",
+          "real_moshi_or_qwen3_inference_not_observed",
+          "quest_microphone_and_playback_latency_not_measured",
+          "clinical_voice_safety_controls_not_exercised_with_real_model",
+        ],
+      },
+    });
   });
 });
