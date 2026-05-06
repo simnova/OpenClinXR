@@ -46,6 +46,30 @@ describe("benchmark gate evidence id checker", () => {
     ]);
   });
 
+  it("flags open scorecard debt when its benchmark gate is ready to resolve", () => {
+    const report = buildBenchmarkEvidenceIdReport({
+      scorecardFiles: [
+        {
+          file: "iterations/iteration-0008/06-leadership-scorecard.json",
+          evidenceDebt: [
+            { id: "evidence-leadership-0008-002", status: "open" },
+          ],
+        },
+      ],
+      benchmarkGateIds: [
+        { evidence_id: "evidence-leadership-0008-002", ready_to_resolve: true },
+      ],
+    });
+
+    expect(report.ok).toBe(false);
+    expect(report.open_debt_with_ready_gate).toEqual([
+      {
+        evidence_id: "evidence-leadership-0008-002",
+        scorecard_file: "iterations/iteration-0008/06-leadership-scorecard.json",
+      },
+    ]);
+  });
+
   it("flags latest open scorecard evidence debt when no benchmark gate exists", () => {
     const report = buildBenchmarkEvidenceIdReport({
       scorecardFiles: [
@@ -103,6 +127,7 @@ describe("benchmark gate evidence id checker", () => {
     expect(report).toMatchObject({
       ok: true,
       gates_without_scorecard_debt: [],
+      open_debt_with_ready_gate: [],
       resolved_debt_with_unready_gate: [],
     });
   });

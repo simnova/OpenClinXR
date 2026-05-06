@@ -42,6 +42,10 @@ export type BenchmarkEvidenceIdReport = {
     evidence_id: string;
     scorecard_file: string;
   }>;
+  open_debt_with_ready_gate: Array<{
+    evidence_id: string;
+    scorecard_file: string;
+  }>;
 };
 
 async function main(): Promise<void> {
@@ -124,18 +128,34 @@ export function buildBenchmarkEvidenceIdReport(input: BenchmarkEvidenceIdInput):
         }));
     })
     .sort((left, right) => left.evidence_id.localeCompare(right.evidence_id) || left.scorecard_file.localeCompare(right.scorecard_file));
+  const openDebtWithReadyGate = [...debtById.entries()]
+    .flatMap(([id, debtRecords]) => {
+      const gate = gateById.get(id);
+      if (!gate?.ready_to_resolve) {
+        return [];
+      }
+      return debtRecords
+        .filter((record) => record.status === "open")
+        .map((record) => ({
+          evidence_id: id,
+          scorecard_file: record.file,
+        }));
+    })
+    .sort((left, right) => left.evidence_id.localeCompare(right.evidence_id) || left.scorecard_file.localeCompare(right.scorecard_file));
 
   return {
     ok: gatesWithoutScorecardDebt.length === 0
       && duplicateGateIds.length === 0
       && latestOpenDebtWithoutGate.length === 0
-      && resolvedDebtWithUnreadyGate.length === 0,
+      && resolvedDebtWithUnreadyGate.length === 0
+      && openDebtWithReadyGate.length === 0,
     scorecard_debt_count: [...debtById.values()].reduce((sum, records) => sum + records.length, 0),
     benchmark_gate_count: input.benchmarkGateIds.length,
     gates_without_scorecard_debt: [...new Set(gatesWithoutScorecardDebt)].sort(),
     duplicate_gate_ids: duplicateGateIds,
     latest_open_debt_without_gate: latestOpenDebtWithoutGate,
     resolved_debt_with_unready_gate: resolvedDebtWithUnreadyGate,
+    open_debt_with_ready_gate: openDebtWithReadyGate,
   };
 }
 
