@@ -60,8 +60,8 @@ export type LocalVoiceLiveDialogBenchmarkReport = {
   generatedAt: string;
   status: "passed" | "blocked";
   policy: {
-    cloudApisUsed: false;
-    paidApisUsed: false;
+    cloudApisUsed: boolean;
+    paidApisUsed: boolean;
     voiceRuntimeExecutionAllowed: false;
     productionUseAllowed: false;
     generatedAudioCommitted: boolean;
@@ -254,8 +254,8 @@ export async function buildLocalVoiceLiveDialogBenchmarkReport(input: {
     generatedAt: input.generatedAt ?? new Date().toISOString(),
     status: passed ? "passed" : "blocked",
     policy: {
-      cloudApisUsed: false,
-      paidApisUsed: false,
+      cloudApisUsed: input.runtimeBenchmark.policy.cloudApisUsed,
+      paidApisUsed: input.runtimeBenchmark.policy.paidApisUsed,
       voiceRuntimeExecutionAllowed: false,
       productionUseAllowed: false,
       generatedAudioCommitted: input.runtimeBenchmark.policy.generatedAudioCommitted,
@@ -427,6 +427,8 @@ function inspectSafetyControls(report: LocalVoiceRuntimeBenchmarkReport): LocalV
   const generatedAudioCommitted = report.policy.generatedAudioCommitted;
   const productionUseAllowed = report.policy.productionUseAllowed;
   const blockers = [
+    report.policy.cloudApisUsed ? "cloud_apis_used_in_source_runtime_benchmark" : undefined,
+    report.policy.paidApisUsed ? "paid_apis_used_in_source_runtime_benchmark" : undefined,
     productionUseAllowed ? "production_use_allowed_before_live_dialog_approval" : undefined,
     generatedAudioCommitted ? "generated_audio_committed" : undefined,
   ].filter((blocker): blocker is string => typeof blocker === "string");

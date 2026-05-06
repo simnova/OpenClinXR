@@ -244,18 +244,67 @@ describe("local voice live-dialog benchmark report", () => {
       blockers: ["model_cache:missing_local_realtime_voice_model_cache_evidence_report"],
     });
   });
+
+  it("propagates cloud and paid source-runtime policy violations into the live-dialog verdict", async () => {
+    const report = await buildLocalVoiceLiveDialogBenchmarkReport({
+      generatedAt: "2026-05-05T22:45:00.000Z",
+      runtimeBenchmarkFile: "docs/openclinxr/local-voice-runtime-benchmark-2026-05-05.json",
+      runtimeBenchmark: localVoiceRuntimeBenchmark({
+        caveats: [],
+        realTimeFactor: 0.7,
+        cloudApisUsed: true,
+        paidApisUsed: true,
+      }),
+      modelCacheEvidenceFile: "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-05.json",
+      modelCacheEvidence: localRealtimeVoiceModelCacheEvidence({
+        ready: true,
+        models: [
+          {
+            model_id: "kyutai/moshiko-mlx-q4",
+            ready: true,
+            blockers: [],
+          },
+        ],
+        supportDirectories: [
+          {
+            name: "api-python-backend-venv",
+            reason: "runtime_support_venv_not_model_weights",
+          },
+        ],
+      }),
+      webxrPlaybackObserved: true,
+      realLocalVoiceStreamObserved: true,
+      firstAudiblePlaybackLatencyMs: 450,
+      transcriptRoundTripObserved: true,
+    });
+
+    expect(report.policy).toMatchObject({
+      cloudApisUsed: true,
+      paidApisUsed: true,
+    });
+    expect(report.safetyControls.blockers).toEqual([
+      "cloud_apis_used_in_source_runtime_benchmark",
+      "paid_apis_used_in_source_runtime_benchmark",
+    ]);
+    expect(report.verdict.blockers).toEqual([
+      "safety_controls:cloud_apis_used_in_source_runtime_benchmark",
+      "safety_controls:paid_apis_used_in_source_runtime_benchmark",
+    ]);
+  });
 });
 
 function localVoiceRuntimeBenchmark(input: {
   caveats: string[];
   realTimeFactor: number;
+  cloudApisUsed?: boolean;
+  paidApisUsed?: boolean;
 }): LocalVoiceRuntimeBenchmarkReport {
   return {
     generatedAt: "2026-05-04T15:01:12Z",
     status: "passed_with_caveats",
     policy: {
-      cloudApisUsed: false,
-      paidApisUsed: false,
+      cloudApisUsed: input.cloudApisUsed ?? false,
+      paidApisUsed: input.paidApisUsed ?? false,
       voiceInstallApproved: true,
       voiceSafetyReviewApproved: true,
       productionUseAllowed: false,
