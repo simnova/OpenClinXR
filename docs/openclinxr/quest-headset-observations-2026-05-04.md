@@ -20,6 +20,12 @@ Patrick's latest manual Quest report adds:
 - No locomotion event was observed.
 - Short-session comfort was good.
 
+Patrick's 2026-05-06 worn-headset demo observation adds:
+
+- The experience was smooth in headset.
+- No locomotion was available beyond physical movement.
+- Treat this as qualitative operator feedback only; no copied runtime frame-stat payload, headset video, or locomotion trace event accompanied this observation.
+
 ## Actions Taken
 
 - Added explicit `Enter Full VR` controls to both `apps/ui-xr` and `apps/ui-xr-iwsdk-spike`.
@@ -38,6 +44,7 @@ Patrick's latest manual Quest report adds:
 - Mixed-reality/passthrough mode is approved for a parallel sidecar track, but is not implemented or validated yet.
 - Primitive hands have now been observed as non-realistic; articulated/skinned hand meshes remain future work.
 - Experimental thumbstick locomotion has not produced a manual headset locomotion event yet; defer the next human headset validation until instrumentation improvements are ready.
+- The 2026-05-06 manual demo reinforces locomotion as an active usability blocker even when visual comfort is acceptable.
 - Real headset select latency is not yet measured in the manual performance report; the automated DOM-click proxy is supporting evidence only, and the new `xr_controller_select` or `xr_hand_select` Trace row still needs a physical Quest confirmation.
 - The updated in-scene text path was readable after manual Full VR entry; the remaining worn-headset rerun should target trace, frame, locomotion, latency, and hand-fidelity evidence.
 

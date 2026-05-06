@@ -94,7 +94,8 @@ describe("blueprint-driven voice simulation spike", () => {
       learnerUtteranceStored: false,
       rawAudioStored: false,
       selectedActorId: "nurse_maria_alvarez_v1",
-      routingReason: "display_name_or_role_match",
+      routingReason: "addressed_actor_name",
+      routingSource: "scenario_runtime",
       transcript: {
         eventCount: 2,
         finalTextRedacted: true,
@@ -132,6 +133,60 @@ describe("blueprint-driven voice simulation spike", () => {
         visemeCuesPresent: true,
       },
     ]);
+    expect(report.runtimeRouting).toEqual({
+      exercised: true,
+      routeSource: "scenario_runtime",
+      stationRunScoped: true,
+      selectedActorId: "nurse_maria_alvarez_v1",
+      routingReason: "addressed_actor_name",
+      conversationTurn: 1,
+      sourceKind: "voice_transcript",
+      traceProjection: {
+        eventCount: 4,
+        eventTypes: ["station.started", "consent.accepted", "encounter.started", "actor.interaction.routed"],
+        sensitiveFieldsDropped: true,
+        rawRuntimeTraceStoredInReport: false,
+        events: [
+          {
+            sequence: 0,
+            eventType: "station.started",
+            source: "system",
+            payload: {},
+          },
+          {
+            sequence: 1,
+            eventType: "consent.accepted",
+            source: "learner",
+            payload: {},
+          },
+          {
+            sequence: 2,
+            eventType: "encounter.started",
+            source: "system",
+            payload: {},
+          },
+          {
+            sequence: 3,
+            eventType: "actor.interaction.routed",
+            source: "session-state",
+            actorId: "nurse_maria_alvarez_v1",
+            tag: "ecg_request",
+            payload: {
+              learnerUtteranceRedacted: true,
+              finalTranscriptTextRedacted: true,
+              routingReason: "addressed_actor_name",
+              traceContextTags: ["ecg_request"],
+              sourceKind: "voice_transcript",
+              streamId: "learner-mic-mock-001",
+              transcriptSegmentId: "mock-final-transcript-001",
+              provider: "mock-voice",
+              provenanceRefs: ["voice:learner-mic-mock-001:mock-final-transcript-001"],
+              rawAudioStored: false,
+            },
+          },
+        ],
+      },
+    });
     expect(report.triggerEvidence).toEqual({
       scheduler: "deterministic_mock_trigger_scheduler",
       firedTriggers: [

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T01:17:49.255Z",
+  "generatedAt": "2026-05-06T01:28:58.699Z",
   "status": "mock_facade_exercised",
   "policy": {
     "cloudApisUsed": false,
@@ -246,7 +246,8 @@
     "learnerUtteranceStored": false,
     "rawAudioStored": false,
     "selectedActorId": "nurse_maria_alvarez_v1",
-    "routingReason": "display_name_or_role_match",
+    "routingReason": "addressed_actor_name",
+    "routingSource": "scenario_runtime",
     "transcript": {
       "eventCount": 2,
       "finalTextRedacted": true
@@ -261,7 +262,7 @@
         "stationRunId": "blueprint_voice_simulation_mock_run_001",
         "sequence": 0,
         "eventType": "voice.transcript.final",
-        "occurredAt": "2026-05-06T01:17:49.255Z",
+        "occurredAt": "2026-05-06T01:28:58.699Z",
         "atSecond": 135,
         "source": "mock-voice-gateway",
         "actorId": "nurse_maria_alvarez_v1",
@@ -276,7 +277,7 @@
         "stationRunId": "blueprint_voice_simulation_mock_run_001",
         "sequence": 1,
         "eventType": "voice.audio.generated",
-        "occurredAt": "2026-05-06T01:17:49.255Z",
+        "occurredAt": "2026-05-06T01:28:58.699Z",
         "atSecond": 135,
         "source": "mock-voice-gateway",
         "actorId": "nurse_maria_alvarez_v1",
@@ -289,6 +290,69 @@
         }
       }
     ]
+  },
+  "runtimeRouting": {
+    "exercised": true,
+    "routeSource": "scenario_runtime",
+    "stationRunScoped": true,
+    "selectedActorId": "nurse_maria_alvarez_v1",
+    "routingReason": "addressed_actor_name",
+    "conversationTurn": 1,
+    "sourceKind": "voice_transcript",
+    "traceProjection": {
+      "eventCount": 4,
+      "eventTypes": [
+        "station.started",
+        "consent.accepted",
+        "encounter.started",
+        "actor.interaction.routed"
+      ],
+      "sensitiveFieldsDropped": true,
+      "rawRuntimeTraceStoredInReport": false,
+      "events": [
+        {
+          "sequence": 0,
+          "eventType": "station.started",
+          "source": "system",
+          "payload": {}
+        },
+        {
+          "sequence": 1,
+          "eventType": "consent.accepted",
+          "source": "learner",
+          "payload": {}
+        },
+        {
+          "sequence": 2,
+          "eventType": "encounter.started",
+          "source": "system",
+          "payload": {}
+        },
+        {
+          "sequence": 3,
+          "eventType": "actor.interaction.routed",
+          "source": "session-state",
+          "payload": {
+            "learnerUtteranceRedacted": true,
+            "routingReason": "addressed_actor_name",
+            "traceContextTags": [
+              "ecg_request"
+            ],
+            "sourceKind": "voice_transcript",
+            "streamId": "learner-mic-mock-001",
+            "transcriptSegmentId": "mock-final-transcript-001",
+            "provider": "mock-voice",
+            "provenanceRefs": [
+              "voice:learner-mic-mock-001:mock-final-transcript-001"
+            ],
+            "rawAudioStored": false,
+            "finalTranscriptTextRedacted": true
+          },
+          "actorId": "nurse_maria_alvarez_v1",
+          "tag": "ecg_request"
+        }
+      ]
+    }
   },
   "telemetry": {
     "recorderSpanCount": 1,
