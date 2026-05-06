@@ -18,6 +18,7 @@ import {
 import type { ApiBunWebSocketRuntimeSmokeReport } from "../openclinxr/api-bun-websocket-runtime-smoke.js";
 import type { ApiBunPythonProxyRuntimeSmokeReport } from "../openclinxr/api-bun-python-proxy-runtime-smoke.js";
 import type { ApiPythonBackendRuntimeSmokeReport } from "../openclinxr/api-python-backend-runtime-smoke.js";
+import type { LocalMoshiRuntimePackageEvidenceReport } from "../openclinxr/local-moshi-runtime-package-evidence.js";
 import type { LocalQwenTtsRuntimeSmokeReport } from "../openclinxr/local-qwen-tts-runtime-smoke.js";
 import type { GodotProjectImportCheck } from "../openclinxr/godot-project-import-check.js";
 import {
@@ -544,6 +545,16 @@ type EvidenceGateReport = {
     model_cache: LocalQwenTtsRuntimeSmokeReport["modelCache"];
     verdict: LocalQwenTtsRuntimeSmokeReport["verdict"];
   };
+  local_moshi_runtime_package_evidence?: {
+    file: string;
+    generated_at: string;
+    kind: string;
+    claim_scope: string;
+    status: string;
+    runtime: LocalMoshiRuntimePackageEvidenceReport["runtime"];
+    model_cache: LocalMoshiRuntimePackageEvidenceReport["modelCache"];
+    verdict: LocalMoshiRuntimePackageEvidenceReport["verdict"];
+  };
   blueprint_voice_simulation_spike?: {
     file: string;
     generated_at: string;
@@ -819,6 +830,7 @@ export type BenchmarkGateReportInput = {
   localVoiceLiveDialogBenchmark?: EvidenceFile<LocalVoiceLiveDialogBenchmarkReport>;
   localRealtimeVoiceModelCacheEvidence?: EvidenceFile<LocalRealtimeVoiceModelCacheEvidenceReport>;
   localQwenTtsRuntimeSmoke?: EvidenceFile<LocalQwenTtsRuntimeSmokeReport>;
+  localMoshiRuntimePackageEvidence?: EvidenceFile<LocalMoshiRuntimePackageEvidenceReport>;
   blueprintVoiceSimulationSpike?: EvidenceFile<BlueprintVoiceSimulationSpikeReport>;
   godotQuestVoiceEvidence?: EvidenceFile<GodotQuestVoiceEvidenceReport>;
   godotProjectImportCheck?: EvidenceFile<GodotProjectImportCheck>;
@@ -859,6 +871,7 @@ async function main(): Promise<void> {
   const localVoiceLiveDialogBenchmark = await latestJson<LocalVoiceLiveDialogBenchmarkReport>("docs/openclinxr/local-voice-live-dialog-benchmark-*.json");
   const localRealtimeVoiceModelCacheEvidence = await latestJson<LocalRealtimeVoiceModelCacheEvidenceReport>("docs/openclinxr/local-realtime-voice-model-cache-evidence-*.json");
   const localQwenTtsRuntimeSmoke = await latestJson<LocalQwenTtsRuntimeSmokeReport>("docs/openclinxr/local-qwen-tts-runtime-smoke-*.json");
+  const localMoshiRuntimePackageEvidence = await latestJson<LocalMoshiRuntimePackageEvidenceReport>("docs/openclinxr/local-moshi-runtime-package-evidence-*.json");
   const blueprintVoiceSimulationSpike = await latestJson<BlueprintVoiceSimulationSpikeReport>("docs/openclinxr/blueprint-voice-simulation-spike-*.json");
   const godotQuestVoiceEvidence = await latestJson<GodotQuestVoiceEvidenceReport>(
     "docs/openclinxr/godot-quest-voice-evidence-*.json",
@@ -893,6 +906,7 @@ async function main(): Promise<void> {
     localVoiceLiveDialogBenchmark,
     localRealtimeVoiceModelCacheEvidence,
     localQwenTtsRuntimeSmoke,
+    localMoshiRuntimePackageEvidence,
     blueprintVoiceSimulationSpike,
     godotQuestVoiceEvidence,
     godotProjectImportCheck,
@@ -949,6 +963,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localVoiceLiveDialogBenchmark,
     localRealtimeVoiceModelCacheEvidence,
     localQwenTtsRuntimeSmoke,
+    localMoshiRuntimePackageEvidence,
     blueprintVoiceSimulationSpike,
     godotQuestVoiceEvidence,
     godotProjectImportCheck,
@@ -985,6 +1000,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localVoiceLiveDialogBenchmark,
     localRealtimeVoiceModelCacheEvidence,
     localQwenTtsRuntimeSmoke,
+    localMoshiRuntimePackageEvidence,
     blueprintVoiceSimulationSpike,
     godotQuestVoiceEvidence,
     godotProjectImportCheck,
@@ -1057,6 +1073,8 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
       .map((blocker) => `local_voice_live_dialog:local_realtime_voice_model_cache:${blocker}`),
     ...localQwenTtsRuntimeSmokeBlockers(localQwenTtsRuntimeSmoke)
       .map((blocker) => `local_voice_live_dialog:local_qwen_tts_runtime_smoke:${blocker}`),
+    ...localMoshiRuntimePackageEvidenceBlockers(localMoshiRuntimePackageEvidence)
+      .map((blocker) => `local_voice_live_dialog:local_moshi_runtime_package_evidence:${blocker}`),
     ...blueprintVoiceSimulationSpikeBlockers(blueprintVoiceSimulationSpike)
       .map((blocker) => `local_voice_live_dialog:blueprint_voice_simulation:${blocker}`),
     ...godotQuestVoiceEvidenceBlockers(godotQuestVoiceEvidence),
@@ -1072,6 +1090,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
       "local_voice_live_dialog_benchmark",
       "local_realtime_voice_model_cache_evidence",
       ...(localQwenTtsRuntimeSmoke ? ["local_qwen_tts_runtime_smoke"] : []),
+      ...(localMoshiRuntimePackageEvidence ? ["local_moshi_runtime_package_evidence"] : []),
       ...(blueprintVoiceSimulationSpike ? ["blueprint_voice_simulation_spike"] : []),
       "godot_quest_voice_evidence",
       ...(godotProjectImportCheck ? ["godot_project_import_check"] : []),
@@ -1154,6 +1173,13 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
       && localQwenTtsRuntimeSmoke.value.kind === "local_qwen_tts_runtime_smoke"
       && localQwenTtsRuntimeSmoke.value.claim_scope === "local_tts_inference_only"
       ? "local_voice_qwen_tts_local_inference_observed"
+      : undefined,
+    localMoshiRuntimePackageEvidence ? "local_voice_moshi_runtime_package_evidence_present" : undefined,
+    localMoshiRuntimePackageEvidence?.value.verdict.passed ? "local_voice_moshi_runtime_package_evidence_passed" : undefined,
+    localMoshiRuntimePackageEvidence?.value.verdict.passed
+      && localMoshiRuntimePackageEvidence.value.kind === "local_moshi_runtime_package_evidence"
+      && localMoshiRuntimePackageEvidence.value.claim_scope === "runtime_package_import_only"
+      ? "local_voice_moshi_runtime_imports_observed"
       : undefined,
     ...(blueprintVoiceSimulationSpikeSatisfiedConditions(blueprintVoiceSimulationSpike)),
     godotQuestVoiceEvidence ? "local_voice_godot_quest_voice_evidence_present" : undefined,
@@ -1379,6 +1405,18 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         metrics: localQwenTtsRuntimeSmoke.value.metrics,
         model_cache: localQwenTtsRuntimeSmoke.value.modelCache,
         verdict: localQwenTtsRuntimeSmoke.value.verdict,
+      },
+    } : {}),
+    ...(localMoshiRuntimePackageEvidence ? {
+      local_moshi_runtime_package_evidence: {
+        file: localMoshiRuntimePackageEvidence.file,
+        generated_at: localMoshiRuntimePackageEvidence.value.generatedAt,
+        kind: localMoshiRuntimePackageEvidence.value.kind,
+        claim_scope: localMoshiRuntimePackageEvidence.value.claim_scope,
+        status: localMoshiRuntimePackageEvidence.value.status,
+        runtime: localMoshiRuntimePackageEvidence.value.runtime,
+        model_cache: localMoshiRuntimePackageEvidence.value.modelCache,
+        verdict: localMoshiRuntimePackageEvidence.value.verdict,
       },
     } : {}),
     ...(blueprintVoiceSimulationSpike ? {
@@ -1662,6 +1700,7 @@ function buildEvidenceFreshnessReport(
     localVoiceLiveDialogBenchmark?: EvidenceFile<LocalVoiceLiveDialogBenchmarkReport>;
     localRealtimeVoiceModelCacheEvidence?: EvidenceFile<LocalRealtimeVoiceModelCacheEvidenceReport>;
     localQwenTtsRuntimeSmoke?: EvidenceFile<LocalQwenTtsRuntimeSmokeReport>;
+    localMoshiRuntimePackageEvidence?: EvidenceFile<LocalMoshiRuntimePackageEvidenceReport>;
     blueprintVoiceSimulationSpike?: EvidenceFile<BlueprintVoiceSimulationSpikeReport>;
     godotQuestVoiceEvidence?: EvidenceFile<GodotQuestVoiceEvidenceReport>;
     godotProjectImportCheck?: EvidenceFile<GodotProjectImportCheck>;
@@ -1692,6 +1731,9 @@ function buildEvidenceFreshnessReport(
     evidenceFreshnessEntry("local_realtime_voice_model_cache_evidence", evidence.localRealtimeVoiceModelCacheEvidence, now, maxAgeHours),
     ...(evidence.localQwenTtsRuntimeSmoke
       ? [evidenceFreshnessEntry("local_qwen_tts_runtime_smoke", evidence.localQwenTtsRuntimeSmoke, now, maxAgeHours)]
+      : []),
+    ...(evidence.localMoshiRuntimePackageEvidence
+      ? [evidenceFreshnessEntry("local_moshi_runtime_package_evidence", evidence.localMoshiRuntimePackageEvidence, now, maxAgeHours)]
       : []),
     ...(evidence.blueprintVoiceSimulationSpike
       ? [evidenceFreshnessEntry("blueprint_voice_simulation_spike", evidence.blueprintVoiceSimulationSpike, now, maxAgeHours)]
@@ -2216,6 +2258,29 @@ function localQwenTtsRuntimeSmokeBlockers(
     report.runtime.toolLicense === "MIT" ? undefined : "mlx_audio_tool_license_not_mit",
     report.modelCache.ready && report.modelCache.readyModelObserved ? undefined : "qwen_tts_model_cache_not_ready",
     report.verdict.passed ? undefined : "tts_runtime_smoke_failed",
+    ...report.verdict.blockers,
+  ]);
+}
+
+function localMoshiRuntimePackageEvidenceBlockers(
+  evidence: EvidenceFile<LocalMoshiRuntimePackageEvidenceReport> | undefined,
+): string[] {
+  if (!evidence) {
+    return [];
+  }
+  const report = evidence.value;
+  const importBlockers = Object.entries(report.runtime.importResults)
+    .flatMap(([moduleName, result]) => result.ok ? [] : [`import:${moduleName}:${result.error ?? "failed"}`]);
+  return unique([
+    report.kind === "local_moshi_runtime_package_evidence" ? undefined : "invalid_local_moshi_runtime_package_evidence_kind",
+    report.claim_scope === "runtime_package_import_only" ? undefined : "invalid_local_moshi_claim_scope",
+    report.runtime.modelId === "kyutai/moshiko-mlx-q4" ? undefined : "unexpected_moshi_model_id",
+    report.runtime.modelLicense === "CC-BY-4.0" ? undefined : "moshi_model_license_not_cc_by_4",
+    report.runtime.packageVersions.moshi_mlx ? undefined : "moshi_mlx_package_missing",
+    report.runtime.packageVersions.mlx ? undefined : "mlx_package_missing",
+    report.runtime.entrypoints.includes("moshi-local") ? undefined : "moshi_local_entrypoint_missing",
+    ...importBlockers,
+    report.verdict.passed ? undefined : "moshi_runtime_package_evidence_failed",
     ...report.verdict.blockers,
   ]);
 }

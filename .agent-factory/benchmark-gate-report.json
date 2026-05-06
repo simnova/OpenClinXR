@@ -79,7 +79,7 @@
       "evidence_id": "local_model_quality_benchmark",
       "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T06:57:35.610Z",
-      "age_hours": 7,
+      "age_hours": 8,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -121,6 +121,15 @@
       "blockers": []
     },
     {
+      "evidence_id": "local_moshi_runtime_package_evidence",
+      "file": "docs/openclinxr/local-moshi-runtime-package-evidence-2026-05-06.json",
+      "generated_at": "2026-05-06T14:59:16.154Z",
+      "age_hours": 0,
+      "max_age_hours": 24,
+      "status": "fresh",
+      "blockers": []
+    },
+    {
       "evidence_id": "blueprint_voice_simulation_spike",
       "file": "docs/openclinxr/blueprint-voice-simulation-spike-2026-05-05.json",
       "generated_at": "2026-05-06T03:18:07.296Z",
@@ -133,7 +142,7 @@
       "evidence_id": "godot_quest_voice_evidence",
       "file": "docs/openclinxr/godot-quest-voice-evidence-2026-05-06.json",
       "generated_at": "2026-05-06T14:00:03.516Z",
-      "age_hours": 0,
+      "age_hours": 1,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -142,7 +151,7 @@
       "evidence_id": "godot_project_import_check",
       "file": ".agent-factory/godot-project-import-check.json",
       "generated_at": "2026-05-06T13:56:47.467Z",
-      "age_hours": 0,
+      "age_hours": 1,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -178,7 +187,7 @@
       "evidence_id": "api_bun_python_proxy_runtime_smoke",
       "file": "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-06T01:52:40.346Z",
-      "age_hours": 12,
+      "age_hours": 13,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -186,7 +195,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T14:41:52.916Z",
+      "generated_at": "2026-05-06T15:03:40.758Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -1145,6 +1154,69 @@
       ]
     }
   },
+  "local_moshi_runtime_package_evidence": {
+    "file": "docs/openclinxr/local-moshi-runtime-package-evidence-2026-05-06.json",
+    "generated_at": "2026-05-06T14:59:16.154Z",
+    "kind": "local_moshi_runtime_package_evidence",
+    "claim_scope": "runtime_package_import_only",
+    "status": "passed_with_caveats",
+    "runtime": {
+      "modelId": "kyutai/moshiko-mlx-q4",
+      "modelLicense": "CC-BY-4.0",
+      "sourceRecordIds": [
+        "src-moshiko-mlx-q4-2026"
+      ],
+      "venvPath": "/Users/patrick/.cache/openclinxr/realtime-voice/moshi-mlx-venv",
+      "venvBytes": 203758908,
+      "packageVersions": {
+        "huggingface-hub": "0.28.1",
+        "mlx": "0.26.5",
+        "mlx-metal": "0.26.5",
+        "moshi_mlx": "0.3.0",
+        "rustymimi": "0.4.1",
+        "sentencepiece": "0.2.0",
+        "sounddevice": "0.5.0",
+        "sphn": "0.2.1"
+      },
+      "importResults": {
+        "mlx.core": {
+          "ok": true
+        },
+        "moshi_mlx": {
+          "ok": true
+        },
+        "rustymimi": {
+          "ok": true
+        },
+        "sentencepiece": {
+          "ok": true
+        },
+        "sounddevice": {
+          "ok": true
+        },
+        "sphn": {
+          "ok": true
+        }
+      },
+      "entrypoints": [
+        "moshi-local-web",
+        "moshi-local"
+      ],
+      "commandHelp": "usage: moshi-local [-h] [--tokenizer TOKENIZER] [--moshi-weight MOSHI_WEIGHT]\n                   [--mimi-weight MIMI_WEIGHT] [-q {4,8}] [--steps STEPS]\n                   [--hf-repo HF_REPO]\n\noptions:\n  -h, --help            show this help message and exit\n  --tokenizer TOKENIZER\n  --moshi-weight MOSHI_WEIGHT\n  --mimi-weight MIMI_WEIGHT\n  -q {4,8}, --quantized {4,8}\n  --steps STEPS\n  --hf-repo HF_REPO\n"
+    },
+    "model_cache": {
+      "evidenceFile": "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-06.json"
+    },
+    "verdict": {
+      "passed": true,
+      "readyForLiveDialog": false,
+      "blockers": [],
+      "caveats": [
+        "Moshi package imports and CLI entrypoints are evidence of isolated runtime availability only; no model inference, microphone capture, or playback loop ran.",
+        "Moshi remains research-only under the approved local realtime voice model proposal and is not clinical, Quest, or production readiness evidence."
+      ]
+    }
+  },
   "blueprint_voice_simulation_spike": {
     "file": "docs/openclinxr/blueprint-voice-simulation-spike-2026-05-05.json",
     "generated_at": "2026-05-06T03:18:07.296Z",
@@ -1645,7 +1717,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T14:41:52.916Z",
+    "generated_at": "2026-05-06T15:03:40.758Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -1893,6 +1965,9 @@
         "local_voice_live_dialog_mock_stream_passed",
         "local_voice_live_dialog_report_present",
         "local_voice_live_dialog_safety_controls_observed",
+        "local_voice_moshi_runtime_imports_observed",
+        "local_voice_moshi_runtime_package_evidence_passed",
+        "local_voice_moshi_runtime_package_evidence_present",
         "local_voice_python_backend_runtime_smoke_passed",
         "local_voice_qwen_tts_local_inference_observed",
         "local_voice_qwen_tts_runtime_smoke_passed",
@@ -2138,6 +2213,9 @@
         "local_voice_godot_import_observed",
         "local_voice_godot_quest_voice_evidence_present",
         "local_voice_godot_source_contract_observed",
+        "local_voice_moshi_runtime_imports_observed",
+        "local_voice_moshi_runtime_package_evidence_passed",
+        "local_voice_moshi_runtime_package_evidence_present",
         "local_voice_python_backend_runtime_smoke_passed",
         "local_voice_qwen_tts_local_inference_observed",
         "local_voice_qwen_tts_runtime_smoke_passed",
@@ -2349,6 +2427,9 @@
         "local_voice_live_dialog_mock_stream_passed",
         "local_voice_live_dialog_report_present",
         "local_voice_live_dialog_safety_controls_observed",
+        "local_voice_moshi_runtime_imports_observed",
+        "local_voice_moshi_runtime_package_evidence_passed",
+        "local_voice_moshi_runtime_package_evidence_present",
         "local_voice_python_backend_runtime_smoke_passed",
         "local_voice_qwen_tts_local_inference_observed",
         "local_voice_qwen_tts_runtime_smoke_passed",

@@ -11,6 +11,7 @@ import {
 } from "./build-benchmark-gate-report.js";
 import type { QuestManualPerformanceReport } from "../openclinxr/check-quest-manual-performance.js";
 import type { QuestMixedRealityManualReport } from "../openclinxr/check-quest-mixed-reality-manual.js";
+import type { LocalMoshiRuntimePackageEvidenceReport } from "../openclinxr/local-moshi-runtime-package-evidence.js";
 import type { LocalQwenTtsRuntimeSmokeReport } from "../openclinxr/local-qwen-tts-runtime-smoke.js";
 import type { VisualQaEvidence } from "../openclinxr/visual-qa-evidence-check.js";
 
@@ -193,6 +194,16 @@ type BenchmarkGateReport = {
       passed: boolean;
       readyForLiveDialog: false;
     };
+  };
+  local_moshi_runtime_package_evidence?: {
+    file: string;
+    generated_at: string;
+    kind: string;
+    claim_scope: string;
+    status: string;
+    runtime: LocalMoshiRuntimePackageEvidenceReport["runtime"];
+    model_cache: LocalMoshiRuntimePackageEvidenceReport["modelCache"];
+    verdict: LocalMoshiRuntimePackageEvidenceReport["verdict"];
   };
   blueprint_voice_simulation_spike?: {
     file: string;
@@ -662,6 +673,11 @@ type LocalQwenTtsRuntimeSmokeInput = {
   value: LocalQwenTtsRuntimeSmokeReport;
 };
 
+type LocalMoshiRuntimePackageEvidenceInput = {
+  file: string;
+  value: LocalMoshiRuntimePackageEvidenceReport;
+};
+
 function missingRealtimeVoiceModelCacheEvidence(): LocalRealtimeVoiceModelCacheEvidenceInput {
   return {
     file: "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-05.json",
@@ -788,6 +804,57 @@ function passedQwenTtsRuntimeSmoke(): LocalQwenTtsRuntimeSmokeInput {
         blockers: [],
         caveats: [
           "This is local outbound TTS file-generation evidence only; it is not full-duplex ASR/dialog evidence.",
+        ],
+      },
+    },
+  };
+}
+
+function passedMoshiRuntimePackageEvidence(): LocalMoshiRuntimePackageEvidenceInput {
+  return {
+    file: "docs/openclinxr/local-moshi-runtime-package-evidence-2026-05-06.json",
+    value: {
+      kind: "local_moshi_runtime_package_evidence",
+      claim_scope: "runtime_package_import_only",
+      generatedAt: "2026-05-05T18:33:00.000Z",
+      status: "passed_with_caveats",
+      policy: {
+        cloudApisUsed: false,
+        paidApisUsed: false,
+        productionUseAllowed: false,
+        generatedAudioCommitted: false,
+        runtimeInferenceObserved: false,
+        microphonePlaybackObserved: false,
+        downloadAttemptedByThisTool: false,
+        networkAccessObservedByThisTool: false,
+      },
+      runtime: {
+        modelId: "kyutai/moshiko-mlx-q4",
+        modelLicense: "CC-BY-4.0",
+        sourceRecordIds: ["src-moshiko-mlx-q4-2026"],
+        venvPath: "/Users/patrick/.cache/openclinxr/realtime-voice/moshi-mlx-venv",
+        venvBytes: null,
+        packageVersions: {
+          moshi_mlx: "0.3.0",
+          mlx: "0.26.5",
+          "mlx-metal": "0.26.5",
+        },
+        importResults: {
+          moshi_mlx: { ok: true },
+          "mlx.core": { ok: true },
+        },
+        entrypoints: ["moshi-local-web", "moshi-local"],
+        commandHelp: "usage: moshi-local [-h]",
+      },
+      modelCache: {
+        evidenceFile: "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-06.json",
+      },
+      verdict: {
+        passed: true,
+        readyForLiveDialog: false,
+        blockers: [],
+        caveats: [
+          "Moshi package imports and CLI entrypoints are evidence of isolated runtime availability only; no model inference, microphone capture, or playback loop ran.",
         ],
       },
     },
@@ -2587,6 +2654,58 @@ describe("benchmark gate report", () => {
     ]));
     expect(liveDialogGate?.blockers).not.toEqual(expect.arrayContaining([
       "local_voice_live_dialog:local_qwen_tts_runtime_smoke:tts_runtime_smoke_failed",
+    ]));
+  });
+
+  it("surfaces isolated Moshi package evidence without upgrading it to live-dialog evidence", () => {
+    const buildReport = buildBenchmarkGateReport as (
+      input: Parameters<typeof buildBenchmarkGateReport>[0] & {
+        localMoshiRuntimePackageEvidence?: LocalMoshiRuntimePackageEvidenceInput;
+      },
+      options: { now: Date; maxEvidenceAgeHours: number },
+    ) => BenchmarkGateReport;
+
+    const report = buildReport({
+      localMoshiRuntimePackageEvidence: passedMoshiRuntimePackageEvidence(),
+    }, { now: new Date("2026-05-05T18:45:00.000Z"), maxEvidenceAgeHours: 24 });
+    const liveDialogGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-003");
+
+    expect(report.local_moshi_runtime_package_evidence).toMatchObject({
+      file: "docs/openclinxr/local-moshi-runtime-package-evidence-2026-05-06.json",
+      generated_at: "2026-05-05T18:33:00.000Z",
+      kind: "local_moshi_runtime_package_evidence",
+      claim_scope: "runtime_package_import_only",
+      status: "passed_with_caveats",
+      runtime: {
+        modelId: "kyutai/moshiko-mlx-q4",
+        modelLicense: "CC-BY-4.0",
+        packageVersions: {
+          moshi_mlx: "0.3.0",
+          mlx: "0.26.5",
+        },
+        entrypoints: ["moshi-local-web", "moshi-local"],
+      },
+      verdict: {
+        passed: true,
+        readyForLiveDialog: false,
+      },
+    });
+    expect(report.evidence_freshness).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        evidence_id: "local_moshi_runtime_package_evidence",
+        file: "docs/openclinxr/local-moshi-runtime-package-evidence-2026-05-06.json",
+        status: "fresh",
+        blockers: [],
+      }),
+    ]));
+    expect(liveDialogGate?.satisfied_conditions).toEqual(expect.arrayContaining([
+      "local_voice_moshi_runtime_package_evidence_passed",
+      "local_voice_moshi_runtime_imports_observed",
+    ]));
+    expect(liveDialogGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
+      "local_voice_live_dialog_runtime_stream_observed",
+      "local_voice_live_dialog_webxr_playback_observed",
+      "local_voice_live_dialog_benchmark_passed",
     ]));
   });
 
