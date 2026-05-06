@@ -508,6 +508,8 @@ export type LocalVoiceRuntimeBenchmarkEvidence = {
   sourceFile: string;
   generatedAt: string;
   policy?: {
+    cloudApisUsed?: boolean;
+    paidApisUsed?: boolean;
     productionUseAllowed?: boolean;
     generatedAudioCommitted?: boolean;
   };
@@ -594,6 +596,8 @@ function localVoiceRuntimeEvidenceBlockers(
     realTimeFactor === null || realTimeFactor > 1 ? "real_time_factor_above_1" : undefined,
     "real_local_voice_stream_benchmark_missing",
     "webxr_playback_not_observed",
+    evidence.policy?.cloudApisUsed ? "cloud_apis_used_in_source_runtime_benchmark" : undefined,
+    evidence.policy?.paidApisUsed ? "paid_apis_used_in_source_runtime_benchmark" : undefined,
     evidence.policy?.productionUseAllowed ? "production_use_allowed_before_live_dialog_approval" : undefined,
     evidence.policy?.generatedAudioCommitted ? "generated_audio_committed" : undefined,
   ]);
@@ -609,6 +613,8 @@ function localVoiceRuntimeEvidenceSummary(evidence: LocalVoiceRuntimeBenchmarkEv
     modelGenerationMs: finiteNumber(evidence.metrics?.modelGenerationMs),
     audioDurationMs: finiteNumber(evidence.audio?.durationMs),
     sampleRateHz: finiteNumber(evidence.audio?.sampleRateHz),
+    cloudApisUsed: evidence.policy?.cloudApisUsed,
+    paidApisUsed: evidence.policy?.paidApisUsed,
     productionUseAllowed: evidence.policy?.productionUseAllowed,
     generatedAudioCommitted: evidence.policy?.generatedAudioCommitted,
     caveatCount: evidence.verdict?.caveats?.length,

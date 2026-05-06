@@ -432,4 +432,49 @@ describe("voice gateway", () => {
       },
     ]);
   });
+
+  it("propagates cloud and paid policy violations from local voice runtime evidence", async () => {
+    const gateway = createDefaultVoiceGateway({
+      adapters: [
+        new LocalVoiceProviderAdapter({
+          providerId: "local-vibevoice",
+          runtimeEvidence: {
+            evidenceId: "local_voice_runtime_benchmark",
+            sourceFile: "docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json",
+            generatedAt: "2026-05-04T15:01:12Z",
+            policy: {
+              cloudApisUsed: true,
+              paidApisUsed: true,
+              productionUseAllowed: false,
+              generatedAudioCommitted: false,
+            },
+            metrics: {
+              realTimeFactor: 0.7,
+            },
+            verdict: {
+              caveats: [],
+            },
+          },
+        }),
+      ],
+      routeId: "voice-local-v1",
+    });
+
+    expect(await gateway.health()).toEqual([
+      expect.objectContaining({
+        providerId: "local-vibevoice",
+        status: "blocked",
+        blockers: expect.arrayContaining([
+          "cloud_apis_used_in_source_runtime_benchmark",
+          "paid_apis_used_in_source_runtime_benchmark",
+        ]),
+        evidence: expect.objectContaining({
+          summary: expect.objectContaining({
+            cloudApisUsed: true,
+            paidApisUsed: true,
+          }),
+        }),
+      }),
+    ]);
+  });
 });
