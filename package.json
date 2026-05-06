@@ -58,7 +58,7 @@
     "iwer:controller-input:evidence": "tsx tools/openclinxr/iwer-controller-input-probe-check.ts",
     "iwer:controller-input:evidence:validate": "tsx tools/openclinxr/iwer-controller-input-probe-check.ts --validate-latest",
     "visual:qa:evidence": "tsx tools/openclinxr/visual-qa-evidence-check.ts",
-    "visual:qa:evidence:validate": "tsx tools/openclinxr/visual-qa-evidence-check.ts --input docs/openclinxr/visual-qa-evidence-2026-05-04.json",
+    "visual:qa:evidence:validate": "tsx tools/openclinxr/visual-qa-evidence-check.ts --validate-latest",
     "visual:qa:adversarial": "tsx tools/openclinxr/adversarial-visual-qa-evidence.ts",
     "visual:qa:adversarial:validate": "tsx tools/openclinxr/adversarial-visual-qa-evidence.ts --input docs/openclinxr/adversarial-visual-qa-evidence-iwer-sidecar-2026-05-04.json",
     "iwsdk:sidecar:metrics": "tsx tools/openclinxr/iwsdk-sidecar-metrics-check.ts",

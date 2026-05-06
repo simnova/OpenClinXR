@@ -72,7 +72,7 @@ describe("visual QA evidence checker", () => {
       "tsx tools/openclinxr/visual-qa-evidence-check.ts",
     );
     expect(rootPackage.scripts["visual:qa:evidence:validate"]).toBe(
-      "tsx tools/openclinxr/visual-qa-evidence-check.ts --input docs/openclinxr/visual-qa-evidence-2026-05-04.json",
+      "tsx tools/openclinxr/visual-qa-evidence-check.ts --validate-latest",
     );
 
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-visual-qa-"));
@@ -90,6 +90,16 @@ describe("visual QA evidence checker", () => {
     expect(stdout).toContain(`Wrote ${outputPath}`);
     expect(report.inputFile).toBe(inputPath);
     expect(report.result.readyForAdversarialVisualQa).toBe(true);
+  });
+
+  it("validates the latest passing committed visual QA evidence", async () => {
+    const { stdout } = await execFileAsync(
+      path.resolve("node_modules/.bin/tsx"),
+      ["tools/openclinxr/visual-qa-evidence-check.ts", "--validate-latest"],
+      { encoding: "utf8", timeout: 15000 },
+    );
+
+    expect(stdout.trim()).toBe("Validated docs/openclinxr/visual-qa-evidence-ui-xr-copy-status-2026-05-05.json");
   });
 
   it("accepts pnpm-style argument separators before input flags", async () => {

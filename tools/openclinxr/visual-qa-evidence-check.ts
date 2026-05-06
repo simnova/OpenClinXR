@@ -2,10 +2,12 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { globFiles } from "../agent-factory/lib.js";
 
 type CliOptions = {
   inputPath?: string;
   outputPath?: string;
+  validateLatest: boolean;
 };
 
 export type VisualQaCaptureSource =
@@ -112,17 +114,22 @@ const unsafeNonHumanClaims = new Set([
   "production_quest_readiness",
 ]);
 
-async function main(): Promise<void> {
-  const options = parseArgs(process.argv.slice(2));
+async function main(args = process.argv.slice(2)): Promise<void> {
+  const options = parseArgs(args);
+  if (options.validateLatest) {
+    const report = await latestPassingVisualQaEvidenceReport();
+    if (!report) {
+      throw new Error("Missing passing visual QA evidence to validate.");
+    }
+    console.log(`Validated ${report.inputFile}`);
+    return;
+  }
+
   if (!options.inputPath) {
     throw new Error("--input is required");
   }
 
-  const evidence = JSON.parse(await readFile(options.inputPath, "utf8")) as VisualQaEvidence;
-  const report = buildVisualQaEvidenceReport({
-    inputFile: options.inputPath,
-    evidence,
-  });
+  const report = await readVisualQaEvidenceReport(options.inputPath);
   const payload = `${JSON.stringify(report, null, 2)}\n`;
 
   if (options.outputPath) {
@@ -136,6 +143,41 @@ async function main(): Promise<void> {
   if (!report.result.readyForAdversarialVisualQa) {
     process.exitCode = 1;
   }
+}
+
+async function readVisualQaEvidenceReport(inputPath: string): Promise<VisualQaEvidenceReport> {
+  const evidence = JSON.parse(await readFile(inputPath, "utf8")) as VisualQaEvidence;
+  return buildVisualQaEvidenceReport({
+    inputFile: inputPath,
+    evidence,
+  });
+}
+
+async function latestPassingVisualQaEvidenceReport(): Promise<VisualQaEvidenceReport | undefined> {
+  const files = await globFiles("docs/openclinxr/visual-qa-evidence-*.json");
+  const candidates = (await Promise.all(files.map(async (file) => {
+    try {
+      const report = await readVisualQaEvidenceReport(file);
+      return {
+        file,
+        report,
+        generatedAtMs: evidenceGeneratedAtMs(report.evidence),
+      };
+    } catch {
+      return undefined;
+    }
+  }))).filter((candidate): candidate is {
+    file: string;
+    report: VisualQaEvidenceReport;
+    generatedAtMs: number;
+  } => candidate !== undefined && candidate.report.result.readyForAdversarialVisualQa);
+
+  return candidates
+    .sort((left, right) => {
+      const timeDelta = normalizeTimestamp(left.generatedAtMs) - normalizeTimestamp(right.generatedAtMs);
+      return timeDelta === 0 ? left.file.localeCompare(right.file) : timeDelta;
+    })
+    .at(-1)?.report;
 }
 
 export function buildVisualQaEvidenceReport(input: {
@@ -246,11 +288,24 @@ function isLocalHostname(hostname: string): boolean {
   return ["localhost", "127.0.0.1", "::1", "[::1]"].includes(hostname);
 }
 
+function evidenceGeneratedAtMs(evidence: VisualQaEvidence): number {
+  const generatedAt = (evidence as { generatedAt?: unknown }).generatedAt;
+  return typeof generatedAt === "string" ? Date.parse(generatedAt) : Number.NaN;
+}
+
+function normalizeTimestamp(value: number): number {
+  return Number.isFinite(value) ? value : Number.NEGATIVE_INFINITY;
+}
+
 function parseArgs(args: string[]): CliOptions {
   const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
-  const options: CliOptions = {};
+  const options: CliOptions = { validateLatest: false };
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
+    if (arg === "--validate-latest") {
+      options.validateLatest = true;
+      continue;
+    }
     if (arg === "--input") {
       options.inputPath = requireValue(normalizedArgs, index, arg);
       index += 1;
