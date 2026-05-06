@@ -458,6 +458,32 @@ describe("session state", () => {
         displayHint: "show ECG result after completion",
       },
     });
+
+    const reviewReplay = stores.durable.listClinicalEventReviewProjections(stationRunId);
+    expect(reviewReplay.map((event) => event.clinicalEventId)).toEqual([
+      "event_001_ecg_order_requested",
+      "event_002_finding_diaphoresis",
+      "event_001_ecg_order_completed",
+      "event_003_checklist_airway",
+      "event_004_rubric_acs",
+      "event_005_case_escalation",
+      "event_006_clinical_action",
+    ]);
+    const completedOrderProjection = reviewReplay.find((event) => event.clinicalEventId === "event_001_ecg_order_completed");
+    expect(completedOrderProjection).toMatchObject({
+      payload: {
+        orderId: "order_1_ecg_request",
+        requestedOrder: "12-lead ECG",
+        resultSummary: "ST elevation present.",
+        nested: {
+          displayHint: "show ECG result after completion",
+        },
+      },
+      privatePayloadRedacted: true,
+    });
+    expect(JSON.stringify(reviewReplay)).not.toContain("Recent cocaine use");
+    expect(JSON.stringify(reviewReplay)).not.toContain("hiddenFactRefs");
+    expect(JSON.stringify(reviewReplay)).not.toContain("hiddenClinicalTruth");
   });
 
   it("creates design-only WebSocket snapshot messages without leaking private actor memory", () => {

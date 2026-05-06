@@ -845,6 +845,24 @@ describe("MongoDB memory repositories", () => {
         stationRunId: "station_run_durable_clinical_event_store_001",
       },
     ]);
+    await expect(store.listClinicalEventReviewProjections("station_run_durable_clinical_event_store_001"))
+      .resolves.toEqual([
+        expect.objectContaining({
+          clinicalEventId: "event_001_ecg_order",
+          stationRunId: "station_run_durable_clinical_event_store_001",
+          payload: {
+            orderId: "order_1_ecg_request",
+            requestedOrder: "12-lead ECG",
+          },
+          privatePayloadRedacted: true,
+          durableStore: "database_source_of_truth",
+        }),
+      ]);
+    const reviewProjectionJson = JSON.stringify(
+      await store.listClinicalEventReviewProjections("station_run_durable_clinical_event_store_001"),
+    );
+    expect(reviewProjectionJson).not.toContain("Recent cocaine use");
+    expect(reviewProjectionJson).not.toContain("hiddenFactRefs");
     await expect(store.listConversationTurns("station_run_durable_clinical_event_store_001")).resolves.toEqual([]);
   });
 });

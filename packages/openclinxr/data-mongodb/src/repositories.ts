@@ -202,6 +202,10 @@ export class MongoDurableMultiActorSessionStore implements AsyncDurableMultiActo
   async listClinicalEvents(stationRunId: string): Promise<DurableClinicalEventRecord[]> {
     return this.clinicalEvents.listByStationRunId(stationRunId);
   }
+
+  async listClinicalEventReviewProjections(stationRunId: string): Promise<DurableClinicalEventReviewProjection[]> {
+    return this.clinicalEvents.listReviewProjectionsByStationRunId(stationRunId);
+  }
 }
 
 export class MongoScenarioRepository {

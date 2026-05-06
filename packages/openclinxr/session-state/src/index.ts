@@ -358,6 +358,7 @@ export type DurableMultiActorSessionStore = {
   listEmotionalStateTimeline(stationRunId: string, actorId: string): DurableEmotionalStateTimelineRecord[];
   saveClinicalEvent(record: DurableClinicalEventRecord): void;
   listClinicalEvents(stationRunId: string): DurableClinicalEventRecord[];
+  listClinicalEventReviewProjections(stationRunId: string): DurableClinicalEventReviewProjection[];
 };
 
 export type AsyncDurableMultiActorSessionStore = {
@@ -371,6 +372,7 @@ export type AsyncDurableMultiActorSessionStore = {
   ): Promise<DurableEmotionalStateTimelineRecord[]>;
   saveClinicalEvent(record: DurableClinicalEventRecord): Promise<void>;
   listClinicalEvents(stationRunId: string): Promise<DurableClinicalEventRecord[]>;
+  listClinicalEventReviewProjections(stationRunId: string): Promise<DurableClinicalEventReviewProjection[]>;
 };
 
 export type RealtimeSessionCache = {
@@ -965,6 +967,10 @@ class InMemoryDurableMultiActorSessionStore implements DurableMultiActorSessionS
     return [...(this.clinicalEvents.get(stationRunId) ?? [])]
       .sort((left, right) => left.atSecond - right.atSecond || left.clinicalEventId.localeCompare(right.clinicalEventId))
       .map(cloneClinicalEventRecord);
+  }
+
+  listClinicalEventReviewProjections(stationRunId: string): DurableClinicalEventReviewProjection[] {
+    return this.listClinicalEvents(stationRunId).map(projectDurableClinicalEventForReview);
   }
 }
 
