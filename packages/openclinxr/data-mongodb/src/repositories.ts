@@ -72,6 +72,7 @@ export class MongoDurableConversationTurnRepository {
   }
 
   async save(record: DurableConversationTurnRecord): Promise<void> {
+    assertDatabaseSourceOfTruth(record);
     const storedRecord = cloneConversationTurnForMongo(record);
     await this.collection.updateOne(
       { stationRunId: storedRecord.stationRunId, turnId: storedRecord.turnId },
@@ -102,6 +103,7 @@ export class MongoDurableClinicalEventRepository {
   }
 
   async save(record: DurableClinicalEventRecord): Promise<void> {
+    assertDatabaseSourceOfTruth(record);
     const storedRecord = cloneClinicalEventForMongo(record);
     await this.collection.updateOne(
       { stationRunId: storedRecord.stationRunId, clinicalEventId: storedRecord.clinicalEventId },
@@ -135,6 +137,7 @@ export class MongoDurableEmotionalStateTimelineRepository {
   }
 
   async save(record: DurableEmotionalStateTimelineRecord): Promise<void> {
+    assertDatabaseSourceOfTruth(record);
     const storedRecord = { ...record };
     await this.collection.updateOne(
       {
@@ -506,6 +509,12 @@ function cloneConversationTurnForMongo(record: DurableConversationTurnRecord): D
     traceContextTags: [...record.traceContextTags],
     provenanceRefs: [...record.provenanceRefs],
   };
+}
+
+function assertDatabaseSourceOfTruth(record: { durableStore: string }): void {
+  if (record.durableStore !== "database_source_of_truth") {
+    throw new Error("durable Mongo records must use durableStore database_source_of_truth");
+  }
 }
 
 function cloneClinicalEventForMongo(record: DurableClinicalEventRecord): DurableClinicalEventRecord {

@@ -639,6 +639,32 @@ describe("MongoDB memory repositories", () => {
     });
   });
 
+  it("rejects Redis or Redka cache posture at durable actor-turn Mongo boundaries", async () => {
+    const conversationTurns = new MongoDurableConversationTurnRepository(context.db);
+    const emotionalStateTimeline = new MongoDurableEmotionalStateTimelineRepository(context.db);
+    await Promise.all([
+      conversationTurns.ensureIndexes(),
+      emotionalStateTimeline.ensureIndexes(),
+    ]);
+
+    await expect(conversationTurns.save({
+      ...spouseConversationTurn,
+      turnId: "turn_invalid_cache_store",
+      durableStore: "redis_redka_ephemeral_cache" as never,
+    })).rejects.toThrow("durable Mongo records must use durableStore database_source_of_truth");
+    await expect(emotionalStateTimeline.save({
+      ...spouseEmotionalState,
+      sourceTurnId: "turn_invalid_cache_store",
+      durableStore: "redis_redka_ephemeral_cache" as never,
+    })).rejects.toThrow("durable Mongo records must use durableStore database_source_of_truth");
+
+    await expect(conversationTurns.listByStationRunId(spouseConversationTurn.stationRunId)).resolves.not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ turnId: "turn_invalid_cache_store" }),
+      ]),
+    );
+  });
+
   it("stores durable clinical events in deterministic replay order with idempotent upsert", async () => {
     const repository = new MongoDurableClinicalEventRepository(context.db);
     await repository.ensureIndexes();
@@ -775,6 +801,23 @@ describe("MongoDB memory repositories", () => {
       redisRedkaIncluded: false,
       databaseOnly: true,
     });
+  });
+
+  it("rejects Redis or Redka cache posture at durable clinical-event Mongo boundaries", async () => {
+    const repository = new MongoDurableClinicalEventRepository(context.db);
+    await repository.ensureIndexes();
+
+    await expect(repository.save({
+      ...clinicalEventOrderRequested,
+      clinicalEventId: "event_invalid_cache_store",
+      durableStore: "redis_redka_ephemeral_cache" as never,
+    })).rejects.toThrow("durable Mongo records must use durableStore database_source_of_truth");
+
+    await expect(repository.listByStationRunId(clinicalEventOrderRequested.stationRunId)).resolves.not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ clinicalEventId: "event_invalid_cache_store" }),
+      ]),
+    );
   });
 
   it("keeps durable clinical-event replay and review queries on indexed sort paths", async () => {
