@@ -75,7 +75,7 @@ export class MongoDurableConversationTurnRepository {
     const storedRecord = cloneConversationTurnForMongo(record);
     await this.collection.updateOne(
       { stationRunId: storedRecord.stationRunId, turnId: storedRecord.turnId },
-      { $set: storedRecord },
+      { $setOnInsert: storedRecord },
       { upsert: true },
     );
   }
@@ -142,7 +142,7 @@ export class MongoDurableEmotionalStateTimelineRepository {
         actorId: storedRecord.actorId,
         sourceTurnId: storedRecord.sourceTurnId,
       },
-      { $set: storedRecord },
+      { $setOnInsert: storedRecord },
       { upsert: true },
     );
   }

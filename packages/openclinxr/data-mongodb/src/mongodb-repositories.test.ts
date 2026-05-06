@@ -543,7 +543,7 @@ describe("MongoDB memory repositories", () => {
     expect(JSON.stringify(await sink.listClinicalEventReviewProjections(stationRunId))).not.toContain("Recent cocaine use");
   });
 
-  it("stores durable conversation turns in replay order without persisting raw voice audio", async () => {
+  it("stores durable conversation turns in replay order without persisting raw voice audio or mutating duplicate turns", async () => {
     const repository = new MongoDurableConversationTurnRepository(context.db);
     await repository.ensureIndexes();
 
@@ -559,19 +559,12 @@ describe("MongoDB memory repositories", () => {
     });
 
     await expect(repository.listByStationRunId("station_run_durable_actor_turn_001")).resolves.toEqual([
-      {
-        ...spouseConversationTurn,
-        text: "Anna, did the pain start before dinner or after dinner?",
-        provenanceRefs: [
-          "trace:voice_stream_station_001:segment_0008_final",
-          "trace:voice_stream_station_001:segment_0008_corrected",
-        ],
-      },
+      spouseConversationTurn,
       nurseConversationTurn,
     ]);
   });
 
-  it("stores durable emotional-state timeline records in actor replay order with idempotent upsert", async () => {
+  it("stores durable emotional-state timeline records in actor replay order without mutating duplicate source turns", async () => {
     const repository = new MongoDurableEmotionalStateTimelineRepository(context.db);
     await repository.ensureIndexes();
 
@@ -599,10 +592,7 @@ describe("MongoDB memory repositories", () => {
       "station_run_durable_actor_turn_001",
       "spouse_anna_hayes_v1",
     )).resolves.toEqual([
-      {
-        ...spouseEmotionalState,
-        emotionalState: "very anxious",
-      },
+      spouseEmotionalState,
       {
         ...spouseEmotionalState,
         sourceTurnId: "turn_002_spouse_anna_hayes_v1_300",
