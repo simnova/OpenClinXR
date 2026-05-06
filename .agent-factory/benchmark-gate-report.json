@@ -43,7 +43,7 @@
       "evidence_id": "asset_capability_job_evidence",
       "file": "docs/openclinxr/asset-capability-job-evidence-2026-05-05.json",
       "generated_at": "2026-05-05T22:32:39.465Z",
-      "age_hours": 14,
+      "age_hours": 15,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -152,8 +152,8 @@
     {
       "evidence_id": "realtime_voice_transport_spike",
       "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-06.json",
-      "generated_at": "2026-05-06T08:39:43.771Z",
-      "age_hours": 4,
+      "generated_at": "2026-05-06T13:33:51.722Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -188,7 +188,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T13:29:51.506Z",
+      "generated_at": "2026-05-06T13:33:52.530Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -1205,14 +1205,14 @@
   },
   "realtime_voice_transport_spike": {
     "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-06.json",
-    "generated_at": "2026-05-06T08:39:43.771Z",
+    "generated_at": "2026-05-06T13:33:51.722Z",
     "status": "transport_spike_passed",
-    "round_trip_latency_ms": 12.85,
+    "round_trip_latency_ms": 25.01,
     "audio_metadata_frames_sent": 2,
     "audio_chunk_metadata_received": 2,
     "frame_latency_samples_ms": [
-      4.63,
-      4.56
+      10.01,
+      9.91
     ],
     "audio_chunk_indexes_received": [
       0,
@@ -1245,14 +1245,16 @@
       "blockers": [
         "quest_godot_client_not_executed",
         "native_opus_codec_not_integrated_in_godot",
-        "real_moshi_or_qwen3_inference_not_observed",
+        "qwen3_tts_not_full_duplex_dialog",
+        "full_duplex_asr_dialog_model_not_observed",
         "quest_microphone_and_playback_latency_not_measured",
         "clinical_voice_safety_controls_not_exercised_with_real_model"
       ],
       "caveats": [
         "The measured harness uses a Python-compatible local fixture behind a Node/Hono/WebSocket fallback; it validates streaming shape and latency plumbing only.",
         "FastAPI runtime smoke passed for health and WebSocket frame handling, but MLX/Moshi/Qwen inference is still not installed or executed by this spike.",
-        "Bun/Hono to FastAPI runtime proxy smoke passed for control frames, opaque binary audio frames, backend-ready events, canonical protocol events, and latency-field plumbing."
+        "Bun/Hono to FastAPI runtime proxy smoke passed for control frames, opaque binary audio frames, backend-ready events, canonical protocol events, and latency-field plumbing.",
+        "Qwen3-TTS local inference was observed for outbound file generation only; full-duplex ASR/dialog, interruption, and Quest microphone/playback evidence remain blocked."
       ]
     }
   },
@@ -1558,7 +1560,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T13:29:51.506Z",
+    "generated_at": "2026-05-06T13:33:52.530Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -2282,17 +2284,18 @@
         "local_voice_live_dialog:godot_project_import:voice_runtime:not_executed",
         "local_voice_live_dialog:godot_quest_voice:missing_godot_quest_voice_evidence_report",
         "local_voice_live_dialog:realtime_transport_spike:clinical_voice_safety_controls_not_exercised_with_real_model",
+        "local_voice_live_dialog:realtime_transport_spike:full_duplex_asr_dialog_model_not_observed",
         "local_voice_live_dialog:realtime_transport_spike:native_opus_codec_not_integrated_in_godot",
         "local_voice_live_dialog:realtime_transport_spike:quest_godot_client_not_executed",
         "local_voice_live_dialog:realtime_transport_spike:quest_microphone_and_playback_latency_not_measured",
-        "local_voice_live_dialog:realtime_transport_spike:real_moshi_or_qwen3_inference_not_observed",
+        "local_voice_live_dialog:realtime_transport_spike:qwen3_tts_not_full_duplex_dialog",
         "local_voice_live_dialog:runtime:real_time_factor_above_1",
         "local_voice_live_dialog:runtime:runtime_file_generation_only",
         "local_voice_live_dialog:runtime_stream:real_local_voice_stream_benchmark_missing",
         "local_voice_live_dialog:webxr_playback:webxr_playback_not_observed"
       ],
       "blocker_summary": {
-        "total_blockers": 23,
+        "total_blockers": 24,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -2315,10 +2318,11 @@
               "local_voice_live_dialog:godot_project_import:voice_runtime:not_executed",
               "local_voice_live_dialog:godot_quest_voice:missing_godot_quest_voice_evidence_report",
               "local_voice_live_dialog:realtime_transport_spike:clinical_voice_safety_controls_not_exercised_with_real_model",
+              "local_voice_live_dialog:realtime_transport_spike:full_duplex_asr_dialog_model_not_observed",
               "local_voice_live_dialog:realtime_transport_spike:native_opus_codec_not_integrated_in_godot",
               "local_voice_live_dialog:realtime_transport_spike:quest_godot_client_not_executed",
               "local_voice_live_dialog:realtime_transport_spike:quest_microphone_and_playback_latency_not_measured",
-              "local_voice_live_dialog:realtime_transport_spike:real_moshi_or_qwen3_inference_not_observed",
+              "local_voice_live_dialog:realtime_transport_spike:qwen3_tts_not_full_duplex_dialog",
               "local_voice_live_dialog:runtime:real_time_factor_above_1",
               "local_voice_live_dialog:runtime:runtime_file_generation_only",
               "local_voice_live_dialog:runtime_stream:real_local_voice_stream_benchmark_missing",

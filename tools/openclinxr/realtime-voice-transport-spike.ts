@@ -11,6 +11,7 @@ import {
 import { createOpenClinXrApiProtocolPosture, type OpenClinXrApiProtocolPosture } from "../../apps/api/src/index.js";
 import { realtimeVoiceProtocol } from "../../packages/openclinxr/voice-gateway/src/index.js";
 import { readJson, writeJson } from "../agent-factory/lib.js";
+import type { LocalQwenTtsRuntimeSmokeReport } from "./local-qwen-tts-runtime-smoke.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -19,6 +20,7 @@ type CliOptions = {
   apiPythonBackendRuntimeSmokePath?: string;
   apiBunWebSocketRuntimeSmokePath?: string;
   apiBunPythonProxyRuntimeSmokePath?: string;
+  localQwenTtsRuntimeSmokePath?: string;
 };
 
 type ApiBunWebSocketRuntimeSmokeEvidence = {
@@ -142,6 +144,17 @@ type ApiBunRuntimeEvidence = {
   outOfScopeForThisSmoke: boolean;
 };
 
+type LocalQwenTtsRuntimeSmokeSummary = {
+  status: "passed" | "blocked";
+  modelId: string;
+  claimScope: string;
+  realTimeFactor: number | null;
+  audioDurationMs: number;
+  wallClockMs: number | null;
+  readyForLiveDialog: false;
+  blockers: string[];
+};
+
 export type RealtimeVoiceTransportSpikeReport = {
   generatedAt: string;
   status: "transport_spike_passed" | "blocked";
@@ -171,7 +184,7 @@ export type RealtimeVoiceTransportSpikeReport = {
     inferenceCandidates: Array<{
       id: "moshi-mlx" | "qwen3-tts";
       fit: string;
-      executionObserved: false;
+      executionObserved: boolean;
     }>;
   };
   apiProtocolPosture: OpenClinXrApiProtocolPosture;
@@ -223,6 +236,7 @@ export type RealtimeVoiceTransportSpikeReport = {
     binaryEchoObserved: boolean;
     eventTypesObserved: string[];
   };
+  localQwenTtsRuntimeSmoke?: LocalQwenTtsRuntimeSmokeSummary;
   apiBunRuntimeEvidence?: ApiBunRuntimeEvidence;
   questClientSourceContract: QuestClientSourceContractEvidence;
   harness: Awaited<ReturnType<typeof runRealtimeVoiceProxyHarness>>;
@@ -245,10 +259,14 @@ async function main(): Promise<void> {
   const apiBunPythonProxyRuntimeSmoke = options.apiBunPythonProxyRuntimeSmokePath
     ? await readJson<ApiBunPythonProxyRuntimeSmokeEvidence>(options.apiBunPythonProxyRuntimeSmokePath)
     : undefined;
+  const localQwenTtsRuntimeSmoke = options.localQwenTtsRuntimeSmokePath
+    ? await readJson<LocalQwenTtsRuntimeSmokeReport>(options.localQwenTtsRuntimeSmokePath)
+    : undefined;
   const report = await buildRealtimeVoiceTransportSpikeReport({
     apiPythonBackendRuntimeSmoke,
     apiBunWebSocketRuntimeSmoke,
     apiBunPythonProxyRuntimeSmoke,
+    localQwenTtsRuntimeSmoke,
   });
 
   if (options.outputPath) {
@@ -286,6 +304,11 @@ function parseArgs(args: string[]): CliOptions {
       index += 1;
       continue;
     }
+    if (arg === "--local-qwen-tts-runtime-smoke") {
+      options.localQwenTtsRuntimeSmokePath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
     throw new Error(`Unknown argument: ${arg ?? ""}`);
   }
 
@@ -308,6 +331,7 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
   apiPythonBackendRuntimeSmoke?: ApiPythonBackendRuntimeSmokeEvidence;
   apiBunWebSocketRuntimeSmoke?: ApiBunWebSocketRuntimeSmokeEvidence;
   apiBunPythonProxyRuntimeSmoke?: ApiBunPythonProxyRuntimeSmokeEvidence;
+  localQwenTtsRuntimeSmoke?: LocalQwenTtsRuntimeSmokeReport;
 } = {}): Promise<RealtimeVoiceTransportSpikeReport> {
   const generatedAt = input.generatedAt ?? new Date().toISOString();
   const targetLatencyMs = input.targetLatencyMs ?? 250;
@@ -327,6 +351,9 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
   const apiBunPythonProxyRuntimeSmoke = input.apiBunPythonProxyRuntimeSmoke
     ? summarizeApiBunPythonProxyRuntimeSmoke(input.apiBunPythonProxyRuntimeSmoke)
     : undefined;
+  const localQwenTtsRuntimeSmoke = input.localQwenTtsRuntimeSmoke
+    ? summarizeLocalQwenTtsRuntimeSmoke(input.localQwenTtsRuntimeSmoke)
+    : undefined;
   const apiBunRuntimeEvidence = buildApiBunRuntimeEvidence({
     apiBunWebSocketRuntimeSmoke: input.apiBunWebSocketRuntimeSmoke,
     apiBunPythonProxyRuntimeSmoke: input.apiBunPythonProxyRuntimeSmoke,
@@ -337,6 +364,7 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
   const bunRuntimeObserved = bunAvailable || suppliedBunRuntimeSmokePassed || suppliedBunPythonProxySmokePassed;
   const backendRuntimeObserved = pythonBackendRuntimeSmoke?.status === "passed" || suppliedBunPythonProxySmokePassed;
   const suppliedBunPythonProxySmokeHealthy = apiBunPythonProxyRuntimeSmoke ? suppliedBunPythonProxySmokePassed : true;
+  const qwenTtsInferenceObserved = localQwenTtsRuntimeSmoke?.status === "passed";
   const transportContractPassed = pythonBackendVerifier.status === "passed"
     && harness.latencyBudget.passed
     && suppliedRuntimeSmokePassed
@@ -347,7 +375,10 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
     bunRuntimeObserved ? undefined : "bun_runtime_not_installed_on_this_machine",
     suppliedBunPythonProxySmokePassed ? undefined : "bun_to_fastapi_proxy_runtime_not_verified",
     backendRuntimeObserved ? undefined : "fastapi_backend_not_runtime_executed",
-    "real_moshi_or_qwen3_inference_not_observed",
+    qwenTtsInferenceObserved ? undefined : "real_moshi_or_qwen3_inference_not_observed",
+    qwenTtsInferenceObserved ? "qwen3_tts_not_full_duplex_dialog" : undefined,
+    qwenTtsInferenceObserved ? "full_duplex_asr_dialog_model_not_observed" : undefined,
+    ...(localQwenTtsRuntimeSmoke?.blockers ?? []).map((blocker) => `qwen3_tts:${blocker}`),
     "quest_microphone_and_playback_latency_not_measured",
     "clinical_voice_safety_controls_not_exercised_with_real_model",
   ].filter((blocker): blocker is string => typeof blocker === "string");
@@ -387,7 +418,7 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
         {
           id: "qwen3-tts",
           fit: "strong future streaming TTS candidate, but not standalone full-duplex dialogue",
-          executionObserved: false,
+          executionObserved: qwenTtsInferenceObserved,
         },
       ],
     },
@@ -409,6 +440,7 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
     ...(pythonBackendRuntimeSmoke ? { pythonBackendRuntimeSmoke } : {}),
     ...(apiBunWebSocketRuntimeSmoke ? { apiBunWebSocketRuntimeSmoke } : {}),
     ...(apiBunPythonProxyRuntimeSmoke ? { apiBunPythonProxyRuntimeSmoke } : {}),
+    ...(localQwenTtsRuntimeSmoke ? { localQwenTtsRuntimeSmoke } : {}),
     ...(apiBunRuntimeEvidence ? { apiBunRuntimeEvidence } : {}),
     questClientSourceContract,
     harness,
@@ -424,6 +456,9 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
         apiBunPythonProxyRuntimeSmoke?.status === "passed"
           ? "Bun/Hono to FastAPI runtime proxy smoke passed for control frames, opaque binary audio frames, backend-ready events, canonical protocol events, and latency-field plumbing."
           : "Bun/Hono to FastAPI runtime proxy evidence is still required before claiming the target gateway-to-backend transport path.",
+        qwenTtsInferenceObserved
+          ? "Qwen3-TTS local inference was observed for outbound file generation only; full-duplex ASR/dialog, interruption, and Quest microphone/playback evidence remain blocked."
+          : "No real Moshi or Qwen voice inference was observed by this transport spike.",
       ],
     },
   };
@@ -578,6 +613,34 @@ function summarizeApiBunPythonProxyRuntimeSmoke(
     latencyFieldsObserved: report.websocket.latencyFieldsObserved,
     binaryEchoObserved: report.websocket.binaryEchoObserved,
     eventTypesObserved: report.websocket.eventTypesObserved,
+  };
+}
+
+function summarizeLocalQwenTtsRuntimeSmoke(
+  report: LocalQwenTtsRuntimeSmokeReport,
+): LocalQwenTtsRuntimeSmokeSummary {
+  const blockers = [
+    report.kind === "local_qwen_tts_runtime_smoke" ? undefined : "invalid_local_qwen_tts_runtime_smoke_kind",
+    report.claim_scope === "local_tts_inference_only" ? undefined : "invalid_local_qwen_tts_claim_scope",
+    report.runtime.modelId === "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit" ? undefined : "unexpected_qwen_tts_model_id",
+    report.policy.cloudApisUsed ? "qwen_tts_smoke_cloud_apis_used" : undefined,
+    report.policy.paidApisUsed ? "qwen_tts_smoke_paid_apis_used" : undefined,
+    report.policy.generatedAudioCommitted ? "qwen_tts_generated_audio_committed" : undefined,
+    report.policy.productionUseAllowed ? "qwen_tts_production_use_allowed" : undefined,
+    report.policy.fullDuplexClaimAllowed ? "qwen_tts_full_duplex_claim_allowed" : undefined,
+    report.verdict.passed ? undefined : "qwen_tts_runtime_smoke_failed",
+    ...report.verdict.blockers,
+  ].filter((blocker): blocker is string => typeof blocker === "string");
+
+  return {
+    status: blockers.length === 0 ? "passed" : "blocked",
+    modelId: report.runtime.modelId,
+    claimScope: report.claim_scope,
+    realTimeFactor: report.metrics.realTimeFactor,
+    audioDurationMs: report.audio.durationMs,
+    wallClockMs: report.metrics.wallClockMs,
+    readyForLiveDialog: false,
+    blockers,
   };
 }
 

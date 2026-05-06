@@ -99,6 +99,7 @@ describe("realtime voice transport spike report", () => {
         "The measured harness uses a Python-compatible local fixture behind a Node/Hono/WebSocket fallback; it validates streaming shape and latency plumbing only.",
         "The committed FastAPI backend is source-verified with stdlib checks, but FastAPI/Uvicorn/MLX/Moshi/Qwen dependencies are not installed or executed by this spike.",
         "Bun/Hono to FastAPI runtime proxy evidence is still required before claiming the target gateway-to-backend transport path.",
+        "No real Moshi or Qwen voice inference was observed by this transport spike.",
       ],
     });
   });
@@ -370,6 +371,111 @@ describe("realtime voice transport spike report", () => {
     expect(report.verdict.readyForLiveDialog).toBe(false);
   });
 
+  it("uses local Qwen TTS smoke evidence to retire only the generic real-inference blocker", async () => {
+    const report = await buildRealtimeVoiceTransportSpikeReport({
+      generatedAt: "2026-05-06T13:40:00.000Z",
+      targetLatencyMs: 250,
+      bunAvailable: false,
+      godotAvailable: false,
+      localQwenTtsRuntimeSmoke: {
+        kind: "local_qwen_tts_runtime_smoke",
+        claim_scope: "local_tts_inference_only",
+        generatedAt: "2026-05-06T13:24:08Z",
+        status: "passed_with_caveats",
+        runtime: {
+          modelId: "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+          modelLicense: "Apache-2.0",
+          sourceRecordIds: [
+            "src-qwen3-tts-mlx-4bit-2026",
+            "src-mlx-audio-pypi-2026",
+          ],
+          tool: "mlx-audio",
+          toolVersion: "0.3.0",
+          toolLicense: "MIT",
+          pythonVersion: "3.11.4",
+          exitStatus: 0,
+          command: "/Users/patrick/.cache/openclinxr/realtime-voice/api-python-backend-venv/bin/python -m mlx_audio.tts.generate",
+        },
+        input: {
+          text: "The patient reports chest pressure and needs help now.",
+          textLength: 54,
+          referenceAudioUsed: false,
+        },
+        audio: {
+          outputPath: "/Users/patrick/.cache/openclinxr/realtime-voice/qwen-tts-smoke-2026-05-06-run2/openclinxr-qwen-smoke_000.wav",
+          sha256: "eac24ecd365e266f71a960fe445d124f4a856db996694134f00e06d6b742bb1f",
+          codec: "pcm_s16le",
+          sampleRateHz: 24000,
+          channels: 1,
+          durationMs: 3360,
+          sizeBytes: 161324,
+          bitRate: 384000,
+        },
+        metrics: {
+          wallClockMs: 6600,
+          audioDurationMs: 3360,
+          realTimeFactor: 1.96,
+          maxResidentSetBytes: 1976532992,
+          approxFirstAudiblePlaybackLatencyMs: null,
+        },
+        policy: {
+          cloudApisUsed: false,
+          paidApisUsed: false,
+          productionUseAllowed: false,
+          generatedAudioCommitted: false,
+          fullDuplexClaimAllowed: false,
+          clinicalValidityClaimAllowed: false,
+          runtimeExecutionObserved: true,
+          downloadAttemptedByThisTool: false,
+          networkAccessObservedByThisTool: false,
+        },
+        modelCache: {
+          evidenceKind: "local_voice_evidence_check",
+          evidenceGeneratedAt: "2026-05-06T13:09:06.623Z",
+          cacheDir: "/Users/patrick/.cache/openclinxr/realtime-voice",
+          ready: true,
+          readyModelObserved: true,
+          readyModelIds: ["mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit"],
+          blockers: [],
+        },
+        verdict: {
+          passed: true,
+          readyForLiveDialog: false,
+          blockers: [],
+          caveats: [
+            "This is local outbound TTS file-generation evidence only; it is not full-duplex ASR/dialog evidence.",
+          ],
+        },
+      },
+    });
+
+    expect(report.localQwenTtsRuntimeSmoke).toMatchObject({
+      status: "passed",
+      modelId: "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+      realTimeFactor: 1.96,
+      blockers: [],
+    });
+    expect(report.architecture.inferenceCandidates).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: "qwen3-tts",
+        executionObserved: true,
+      }),
+      expect.objectContaining({
+        id: "moshi-mlx",
+        executionObserved: false,
+      }),
+    ]));
+    expect(report.verdict.blockers).not.toContain("real_moshi_or_qwen3_inference_not_observed");
+    expect(report.verdict.blockers).toEqual(expect.arrayContaining([
+      "qwen3_tts_not_full_duplex_dialog",
+      "full_duplex_asr_dialog_model_not_observed",
+      "quest_microphone_and_playback_latency_not_measured",
+      "clinical_voice_safety_controls_not_exercised_with_real_model",
+    ]));
+    expect(report.verdict.caveats.join("\n")).toContain("Qwen3-TTS local inference was observed for outbound file generation only");
+    expect(report.verdict.readyForLiveDialog).toBe(false);
+  });
+
   it("keeps FastAPI runtime smoke blocked when websocket protocol evidence is stale", async () => {
     const report = await buildRealtimeVoiceTransportSpikeReport({
       generatedAt: "2026-05-04T22:40:00.000Z",
@@ -521,7 +627,8 @@ describe("realtime voice transport spike report", () => {
         blockers: [
           "quest_godot_client_not_executed",
           "native_opus_codec_not_integrated_in_godot",
-          "real_moshi_or_qwen3_inference_not_observed",
+          "qwen3_tts_not_full_duplex_dialog",
+          "full_duplex_asr_dialog_model_not_observed",
           "quest_microphone_and_playback_latency_not_measured",
           "clinical_voice_safety_controls_not_exercised_with_real_model",
         ],

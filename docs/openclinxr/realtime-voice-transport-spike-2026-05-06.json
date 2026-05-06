@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T08:39:43.771Z",
+  "generatedAt": "2026-05-06T13:33:51.722Z",
   "status": "transport_spike_passed",
   "policy": {
     "cloudApisUsed": false,
@@ -33,7 +33,7 @@
       {
         "id": "qwen3-tts",
         "fit": "strong future streaming TTS candidate, but not standalone full-duplex dialogue",
-        "executionObserved": false
+        "executionObserved": true
       }
     ]
   },
@@ -178,6 +178,16 @@
       "voice.stopped"
     ]
   },
+  "localQwenTtsRuntimeSmoke": {
+    "status": "passed",
+    "modelId": "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+    "claimScope": "local_tts_inference_only",
+    "realTimeFactor": 1.96,
+    "audioDurationMs": 3360,
+    "wallClockMs": 6600,
+    "readyForLiveDialog": false,
+    "blockers": []
+  },
   "apiBunRuntimeEvidence": {
     "sources": [
       "api-bun-websocket-runtime-smoke",
@@ -233,10 +243,10 @@
     "binaryAudioChunksReceived": 2,
     "backendProtocol": "python-fastapi-compatible-websocket",
     "codec": "opus",
-    "roundTripLatencyMs": 12.85,
+    "roundTripLatencyMs": 25.01,
     "frameLatencySamplesMs": [
-      4.63,
-      4.56
+      10.01,
+      9.91
     ],
     "audioChunkIndexesReceived": [
       0,
@@ -262,14 +272,16 @@
     "blockers": [
       "quest_godot_client_not_executed",
       "native_opus_codec_not_integrated_in_godot",
-      "real_moshi_or_qwen3_inference_not_observed",
+      "qwen3_tts_not_full_duplex_dialog",
+      "full_duplex_asr_dialog_model_not_observed",
       "quest_microphone_and_playback_latency_not_measured",
       "clinical_voice_safety_controls_not_exercised_with_real_model"
     ],
     "caveats": [
       "The measured harness uses a Python-compatible local fixture behind a Node/Hono/WebSocket fallback; it validates streaming shape and latency plumbing only.",
       "FastAPI runtime smoke passed for health and WebSocket frame handling, but MLX/Moshi/Qwen inference is still not installed or executed by this spike.",
-      "Bun/Hono to FastAPI runtime proxy smoke passed for control frames, opaque binary audio frames, backend-ready events, canonical protocol events, and latency-field plumbing."
+      "Bun/Hono to FastAPI runtime proxy smoke passed for control frames, opaque binary audio frames, backend-ready events, canonical protocol events, and latency-field plumbing.",
+      "Qwen3-TTS local inference was observed for outbound file generation only; full-duplex ASR/dialog, interruption, and Quest microphone/playback evidence remain blocked."
     ]
   }
 }
