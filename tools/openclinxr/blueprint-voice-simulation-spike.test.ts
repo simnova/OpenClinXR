@@ -132,6 +132,33 @@ describe("blueprint-driven voice simulation spike", () => {
         visemeCuesPresent: true,
       },
     ]);
+    expect(report.telemetry).toEqual({
+      recorderSpanCount: 1,
+      sensitiveFieldsDropped: true,
+      summary: {
+        buckets: [
+          {
+            name: "openclinxr.voice.synthesize",
+            labels: {
+              "openclinxr.provider_id": "mock-voice",
+              "openclinxr.request_policy_id": "blueprint-voice-simulation-spike-v1",
+              "openclinxr.route_id": "blueprint-voice-simulation-spike-v1",
+              "openclinxr.route_surface": "local_tool_spike",
+              "openclinxr.station_run_scoped": false,
+            },
+            count: 1,
+            errorCount: 0,
+            statusCodes: [],
+            durationMs: {
+              avg: 0,
+              max: 0,
+              min: 0,
+              p95: 0,
+            },
+          },
+        ],
+      },
+    });
     expect(report.verdict).toEqual({
       tier0BlueprintCompilerPassed: true,
       tier1MockVoiceLoopPassed: true,

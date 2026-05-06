@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T00:45:46.308Z",
+  "generatedAt": "2026-05-06T01:09:49.367Z",
   "status": "mock_loop_passed",
   "policy": {
     "cloudApisUsed": false,
@@ -261,7 +261,7 @@
         "stationRunId": "blueprint_voice_simulation_mock_run_001",
         "sequence": 0,
         "eventType": "voice.transcript.final",
-        "occurredAt": "2026-05-06T00:45:46.308Z",
+        "occurredAt": "2026-05-06T01:09:49.367Z",
         "atSecond": 135,
         "source": "mock-voice-gateway",
         "actorId": "nurse_maria_alvarez_v1",
@@ -276,7 +276,7 @@
         "stationRunId": "blueprint_voice_simulation_mock_run_001",
         "sequence": 1,
         "eventType": "voice.audio.generated",
-        "occurredAt": "2026-05-06T00:45:46.308Z",
+        "occurredAt": "2026-05-06T01:09:49.367Z",
         "atSecond": 135,
         "source": "mock-voice-gateway",
         "actorId": "nurse_maria_alvarez_v1",
@@ -289,6 +289,33 @@
         }
       }
     ]
+  },
+  "telemetry": {
+    "recorderSpanCount": 1,
+    "sensitiveFieldsDropped": true,
+    "summary": {
+      "buckets": [
+        {
+          "name": "openclinxr.voice.synthesize",
+          "labels": {
+            "openclinxr.provider_id": "mock-voice",
+            "openclinxr.request_policy_id": "blueprint-voice-simulation-spike-v1",
+            "openclinxr.route_id": "blueprint-voice-simulation-spike-v1",
+            "openclinxr.route_surface": "local_tool_spike",
+            "openclinxr.station_run_scoped": false
+          },
+          "count": 1,
+          "errorCount": 0,
+          "statusCodes": [],
+          "durationMs": {
+            "avg": 0,
+            "max": 0,
+            "min": 0,
+            "p95": 0
+          }
+        }
+      ]
+    }
   },
   "verdict": {
     "tier0BlueprintCompilerPassed": true,

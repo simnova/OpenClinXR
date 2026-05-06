@@ -2,7 +2,12 @@ import { pathToFileURL } from "node:url";
 import { createDefaultClinicalSkillsBlueprint, type ExamBlueprint } from "../../packages/openclinxr/exam-assembly/src/index.js";
 import { edChestPainScenario } from "../../packages/openclinxr/scenario-fixtures/src/index.js";
 import type { Scenario, TraceEvent } from "../../packages/openclinxr/shared-schemas/src/index.js";
-import { safeTelemetryAttributes } from "../../packages/openclinxr/telemetry/src/index.js";
+import {
+  createInMemoryTelemetryRecorder,
+  openClinXrSpanNames,
+  safeTelemetryAttributes,
+  summarizeTelemetrySpans,
+} from "../../packages/openclinxr/telemetry/src/index.js";
 import {
   collectVoiceStream,
   createDefaultVoiceGateway,
@@ -107,6 +112,11 @@ export type BlueprintVoiceSimulationSpikeReport = {
       providerId: string | null;
     };
     traceEvents: TraceEvent[];
+  };
+  telemetry: {
+    recorderSpanCount: number;
+    sensitiveFieldsDropped: boolean;
+    summary: ReturnType<typeof summarizeTelemetrySpans>;
   };
   verdict: {
     tier0BlueprintCompilerPassed: boolean;
@@ -317,6 +327,21 @@ export async function buildBlueprintVoiceSimulationSpikeReport(input: {
     policy,
   }));
   const firstAudio = audioEvents[0];
+  const telemetry = createInMemoryTelemetryRecorder();
+  telemetry.recordSpan({
+    name: openClinXrSpanNames.voiceSynthesize,
+    attributes: safeTelemetryAttributes({
+      scenarioId: plan.station.scenarioId,
+      scenarioVersion: plan.station.scenarioVersion,
+      actorId: selectedActor.actorId,
+      providerId: firstAudio?.provenance.providerId ?? "mock-voice",
+      requestPolicyId: policy.requestPolicyId,
+      routeId: "blueprint-voice-simulation-spike-v1",
+      routeSurface: "local_tool_spike",
+      stationRunScoped: false,
+    }),
+    durationMs: firstAudio?.provenance.latencyMs ?? 0,
+  });
   const traceEvents: TraceEvent[] = [
     {
       stationRunId: "blueprint_voice_simulation_mock_run_001",
@@ -372,6 +397,11 @@ export async function buildBlueprintVoiceSimulationSpikeReport(input: {
       },
       traceEvents,
     },
+    telemetry: {
+      recorderSpanCount: telemetry.spans().length,
+      sensitiveFieldsDropped: sensitiveTelemetryFieldsDropped(input.learnerUtterance),
+      summary: summarizeTelemetrySpans(telemetry.spans()),
+    },
     verdict: {
       tier0BlueprintCompilerPassed: true,
       tier1MockVoiceLoopPassed: transcriptEvents.length > 0 && audioEvents.length > 0,
@@ -387,6 +417,16 @@ export async function buildBlueprintVoiceSimulationSpikeReport(input: {
       ],
     },
   };
+}
+
+function sensitiveTelemetryFieldsDropped(learnerUtterance: string): boolean {
+  return Object.keys(safeTelemetryAttributes({
+    learnerUtterance,
+    hiddenFacts: ["redacted hidden fact"],
+    patientNoteText: "redacted patient note",
+    promptText: "redacted prompt",
+    rawAudioReference: "audio://redacted",
+  })).length === 0;
 }
 
 function simulationPolicy(): VoiceSimulationPolicy {
