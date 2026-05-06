@@ -403,27 +403,13 @@ describe("OpenClinXR API startup", () => {
       {
         OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL: "ws://127.0.0.1:8766/voice/realtime/ws",
         OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE: "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
+        OPENCLINXR_PYTHON_VOICE_BACKEND_RUNTIME_EVIDENCE_FILE: "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-05.json",
       },
       {
-        readEvidenceFile: () => ({
-          generatedAt: "2026-05-06T01:52:40.346Z",
-          status: "passed",
-          websocket: {
-            eventTypesObserved: [
-              "gateway.ready",
-              "backend.ready",
-              "voice.started",
-              "audio.chunk",
-              "transcript.partial",
-              "transcript.final",
-              "voice.stopped",
-            ],
-            binaryMessages: 1,
-            backendProtocolObserved: true,
-            latencyFieldsObserved: true,
-            binaryEchoObserved: true,
-          },
-        }),
+        readEvidenceFile: (filePath) =>
+          filePath.includes("api-python-backend-runtime-smoke")
+            ? passedPythonBackendRuntimeSmokeEvidence()
+            : passedPythonProxyRuntimeSmokeEvidence(),
       },
     );
     const startup = createOpenClinXrApiStartup({ realtimeVoiceGatewayPosture: postureInput }).startUp();
@@ -432,6 +418,8 @@ describe("OpenClinXR API startup", () => {
     const posture = await response.json() as {
       backends: {
         pythonFastApi: {
+          status: string;
+          blockers: string[];
           transportProxy: {
             status: string;
             reachabilityEvidence?: {
@@ -450,7 +438,12 @@ describe("OpenClinXR API startup", () => {
       latencyFieldsObserved: true,
       binaryEchoObserved: true,
     });
+    expect(postureInput.pythonBackendDependenciesInstalled).toBe(true);
+    expect(postureInput.pythonInferenceRuntimeInstalled).toBe(false);
     expect(response.status).toBe(200);
+    expect(posture.backends.pythonFastApi.status).toBe("available_for_local_run");
+    expect(posture.backends.pythonFastApi.blockers).not.toContain("fastapi_uvicorn_websockets_not_installed");
+    expect(posture.backends.pythonFastApi.blockers).toContain("mlx_moshi_or_qwen3_tts_not_installed");
     expect(posture.backends.pythonFastApi.transportProxy).toMatchObject({
       status: "configured_reachability_verified",
       reachabilityEvidence: {
@@ -460,32 +453,27 @@ describe("OpenClinXR API startup", () => {
     });
   });
 
-  it("ignores local proxy evidence when the explicit evidence file is blocked or absent", () => {
+  it("ignores local proxy and backend runtime evidence when explicit evidence files are blocked or absent", () => {
     const blockedPostureInput = createBunRealtimeVoiceGatewayPostureInputFromEnvironment(
       {
         OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL: "ws://127.0.0.1:8766/voice/realtime/ws",
         OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE: "docs/openclinxr/api-bun-python-proxy-runtime-smoke-blocked.json",
+        OPENCLINXR_PYTHON_VOICE_BACKEND_RUNTIME_EVIDENCE_FILE: "docs/openclinxr/api-python-backend-runtime-smoke-blocked.json",
       },
       {
-        readEvidenceFile: () => ({
-          status: "blocked",
-          websocket: {
-            eventTypesObserved: ["gateway.ready"],
-            binaryMessages: 0,
-            backendProtocolObserved: false,
-            latencyFieldsObserved: false,
-            binaryEchoObserved: false,
-          },
-        }),
+        readEvidenceFile: () => ({ status: "blocked" }),
       },
     );
     const absentPostureInput = createBunRealtimeVoiceGatewayPostureInputFromEnvironment({
       OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL: "ws://127.0.0.1:8766/voice/realtime/ws",
       OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE: "docs/openclinxr/missing.json",
+      OPENCLINXR_PYTHON_VOICE_BACKEND_RUNTIME_EVIDENCE_FILE: "docs/openclinxr/missing-backend-runtime.json",
     });
 
     expect(blockedPostureInput.pythonBackendProxyReachabilityEvidence).toBeUndefined();
+    expect(blockedPostureInput.pythonBackendDependenciesInstalled).toBe(false);
     expect(absentPostureInput.pythonBackendProxyReachabilityEvidence).toBeUndefined();
+    expect(absentPostureInput.pythonBackendDependenciesInstalled).toBe(false);
   });
 
   it("ignores proxy evidence that omits canonical backend event proof", () => {
@@ -509,6 +497,30 @@ describe("OpenClinXR API startup", () => {
     );
 
     expect(incompletePostureInput.pythonBackendProxyReachabilityEvidence).toBeUndefined();
+  });
+
+  it("ignores backend runtime evidence that omits dependency, health, capability, or canonical websocket proof", () => {
+    const incompletePostureInput = createBunRealtimeVoiceGatewayPostureInputFromEnvironment(
+      {
+        OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL: "ws://127.0.0.1:8766/voice/realtime/ws",
+        OPENCLINXR_PYTHON_VOICE_BACKEND_RUNTIME_EVIDENCE_FILE: "docs/openclinxr/api-python-backend-runtime-smoke-incomplete.json",
+      },
+      {
+        readEvidenceFile: () => ({
+          ...passedPythonBackendRuntimeSmokeEvidence(),
+          websocket: {
+            ...passedPythonBackendRuntimeSmokeEvidence().websocket,
+            protocol: {
+              ...passedPythonBackendRuntimeSmokeEvidence().websocket.protocol,
+              serverEventTypesObserved: ["backend.ready", "voice.started"],
+            },
+          },
+        }),
+      },
+    );
+
+    expect(incompletePostureInput.pythonBackendDependenciesInstalled).toBe(false);
+    expect(incompletePostureInput.pythonInferenceRuntimeInstalled).toBe(false);
   });
 
   it("persists station run queue review snapshots in the default single-user startup", async () => {
@@ -669,4 +681,81 @@ class FakeBackendWebSocket {
       listener(event);
     }
   }
+}
+
+function passedPythonProxyRuntimeSmokeEvidence(): Record<string, unknown> {
+  return {
+    generatedAt: "2026-05-06T01:52:40.346Z",
+    status: "passed",
+    websocket: {
+      eventTypesObserved: [
+        "gateway.ready",
+        "backend.ready",
+        "voice.started",
+        "audio.chunk",
+        "transcript.partial",
+        "transcript.final",
+        "voice.stopped",
+      ],
+      binaryMessages: 1,
+      backendProtocolObserved: true,
+      latencyFieldsObserved: true,
+      binaryEchoObserved: true,
+    },
+  };
+}
+
+function passedPythonBackendRuntimeSmokeEvidence(): {
+  status: "passed";
+  python: {
+    dependencies: {
+      fastapi: "available";
+      uvicorn: "available";
+      websockets: "available";
+    };
+    missingPackages: string[];
+  };
+  health: { ok: true };
+  capabilities: { ok: true };
+  websocket: {
+    connected: true;
+    binaryEchoObserved: true;
+    protocol: {
+      backendProtocolObserved: true;
+      latencyFieldsObserved: true;
+      canonicalProtocolObserved: true;
+      serverEventTypesObserved: string[];
+    };
+  };
+} {
+  return {
+    status: "passed",
+    python: {
+      dependencies: {
+        fastapi: "available",
+        uvicorn: "available",
+        websockets: "available",
+      },
+      missingPackages: [],
+    },
+    health: { ok: true },
+    capabilities: { ok: true },
+    websocket: {
+      connected: true,
+      binaryEchoObserved: true,
+      protocol: {
+        backendProtocolObserved: true,
+        latencyFieldsObserved: true,
+        canonicalProtocolObserved: true,
+        serverEventTypesObserved: [
+          "backend.ready",
+          "voice.started",
+          "audio.chunk",
+          "transcript.partial",
+          "transcript.final",
+          "voice.stopped",
+        ],
+      },
+    },
+  };
 }

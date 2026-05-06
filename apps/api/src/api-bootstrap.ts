@@ -107,6 +107,7 @@ export type OpenClinXrApiStartupOptions = {
 export type BunRealtimeVoiceGatewayPostureEnvironment = {
   OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL?: string;
   OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE?: string;
+  OPENCLINXR_PYTHON_VOICE_BACKEND_RUNTIME_EVIDENCE_FILE?: string;
 };
 
 export type BunRealtimeVoiceGatewayPostureEnvironmentOptions = {
@@ -218,10 +219,14 @@ export function createBunRealtimeVoiceGatewayPostureInputFromEnvironment(
   const pythonBackendProxyReachabilityEvidence = pythonBackendWebSocketUrlConfigured
     ? readPythonProxyReachabilityEvidenceFromEnvironment(environment, options)
     : undefined;
+  const pythonBackendDependenciesInstalled = readPythonBackendRuntimeDependenciesEvidenceFromEnvironment(
+    environment,
+    options,
+  );
   return {
     bunAvailable: true,
     pythonBackendWebSocketUrlConfigured,
-    pythonBackendDependenciesInstalled: false,
+    pythonBackendDependenciesInstalled,
     pythonInferenceRuntimeInstalled: false,
     ...(pythonBackendProxyReachabilityEvidence ? { pythonBackendProxyReachabilityEvidence } : {}),
   };
@@ -286,6 +291,51 @@ function readPythonProxyReachabilityEvidenceFromEnvironment(
     && canonicalEventsObserved
     ? evidence
     : undefined;
+}
+
+function readPythonBackendRuntimeDependenciesEvidenceFromEnvironment(
+  environment: BunRealtimeVoiceGatewayPostureEnvironment,
+  options: BunRealtimeVoiceGatewayPostureEnvironmentOptions,
+): boolean {
+  const evidenceFile = environment.OPENCLINXR_PYTHON_VOICE_BACKEND_RUNTIME_EVIDENCE_FILE;
+  if (!evidenceFile) {
+    return false;
+  }
+
+  const rawEvidence = readOptionalEvidenceFile(evidenceFile, options);
+  if (!isRecord(rawEvidence) || rawEvidence.status !== "passed") {
+    return false;
+  }
+
+  const python = isRecord(rawEvidence.python) ? rawEvidence.python : {};
+  const dependencies = isRecord(python.dependencies) ? python.dependencies : {};
+  const health = isRecord(rawEvidence.health) ? rawEvidence.health : {};
+  const capabilities = isRecord(rawEvidence.capabilities) ? rawEvidence.capabilities : {};
+  const websocket = isRecord(rawEvidence.websocket) ? rawEvidence.websocket : {};
+  const protocol = isRecord(websocket.protocol) ? websocket.protocol : {};
+  const missingPackages = stringArray(python.missingPackages);
+  const serverEventTypesObserved = stringArray(protocol.serverEventTypesObserved);
+  const canonicalServerEventsObserved = [
+    realtimeVoiceProtocol.serverEvents.backendReady,
+    realtimeVoiceProtocol.serverEvents.voiceStarted,
+    realtimeVoiceProtocol.serverEvents.audioChunk,
+    realtimeVoiceProtocol.serverEvents.transcriptPartial,
+    realtimeVoiceProtocol.serverEvents.transcriptFinal,
+    realtimeVoiceProtocol.serverEvents.voiceStopped,
+  ].every((eventType) => serverEventTypesObserved.includes(eventType));
+
+  return dependencies.fastapi === "available"
+    && dependencies.uvicorn === "available"
+    && dependencies.websockets === "available"
+    && missingPackages.length === 0
+    && health.ok === true
+    && capabilities.ok === true
+    && websocket.connected === true
+    && protocol.canonicalProtocolObserved === true
+    && protocol.backendProtocolObserved === true
+    && protocol.latencyFieldsObserved === true
+    && websocket.binaryEchoObserved === true
+    && canonicalServerEventsObserved;
 }
 
 function readOptionalEvidenceFile(

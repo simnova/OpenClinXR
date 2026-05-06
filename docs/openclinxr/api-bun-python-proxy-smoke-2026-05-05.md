@@ -57,11 +57,12 @@ After a smoke report passes, a later Bun/Hono API process may use it as explicit
 
 ```bash
 OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL=ws://127.0.0.1:8766/voice/realtime/ws \
+OPENCLINXR_PYTHON_VOICE_BACKEND_RUNTIME_EVIDENCE_FILE=docs/openclinxr/api-python-backend-runtime-smoke-2026-05-05.json \
 OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE=docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json \
 bun src/bun-server.ts
 ```
 
-That later posture may promote only the transport proxy status to `configured_reachability_verified`. It must still keep `readyForLiveDialog: false` until model inference, Quest microphone capture, headset playback, Opus codec behavior, and clinical voice safety are separately verified.
+That later posture may promote only backend dependency status to `available_for_local_run` and transport proxy status to `configured_reachability_verified`. It must still keep `readyForLiveDialog: false` until model inference, Quest microphone capture, headset playback, Opus codec behavior, and clinical voice safety are separately verified.
 
 ## What This Does Not Prove
 
