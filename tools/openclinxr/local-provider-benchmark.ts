@@ -6,12 +6,15 @@ import path from "node:path";
 import { performance } from "node:perf_hooks";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
+import { globFiles, readJson } from "../agent-factory/lib.js";
 
 const execFileAsync = promisify(execFile);
 
 type CliOptions = {
   outputPath?: string;
   envFilePath?: string;
+  validatePath?: string;
+  validateLatest: boolean;
 };
 
 export type BenchmarkStatus = "passed" | "not_configured" | "blocked";
@@ -41,6 +44,8 @@ export type LocalProviderBenchmarkReport = {
     blockers: string[];
   };
 };
+
+type ValidationResult = { ok: true } | { ok: false; errors: string[] };
 
 const localModelCommands = ["ollama", "llama-cli", "llama-server", "mlx_lm"] as const;
 const localVoiceCommands = ["vibevoice"] as const;
@@ -75,7 +80,29 @@ const localVoiceCandidates = [
 ] as const;
 
 async function main(): Promise<void> {
-  const options = parseArgs(process.argv.slice(2));
+  await runLocalProviderBenchmarkCli(process.argv.slice(2));
+}
+
+export async function runLocalProviderBenchmarkCli(args: string[]): Promise<void> {
+  const options = parseArgs(args);
+  if (options.validatePath || options.validateLatest) {
+    const validatePath = options.validatePath ?? await latestLocalProviderBenchmarkPath();
+    if (!validatePath) {
+      throw new Error("Missing local provider benchmark report to validate.");
+    }
+    const validation = validateLocalProviderBenchmarkReport(await readJson<unknown>(validatePath));
+    if (validation.ok) {
+      console.log(`Validated ${validatePath}`);
+      return;
+    }
+
+    for (const error of validation.errors) {
+      console.error(error);
+    }
+    process.exitCode = 1;
+    return;
+  }
+
   if (options.envFilePath) {
     await loadEnvFile(options.envFilePath);
   }
@@ -96,7 +123,9 @@ async function main(): Promise<void> {
 
 function parseArgs(args: string[]): CliOptions {
   const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
-  const options: CliOptions = {};
+  const options: CliOptions = {
+    validateLatest: false,
+  };
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
@@ -110,10 +139,24 @@ function parseArgs(args: string[]): CliOptions {
       index += 1;
       continue;
     }
+    if (arg === "--validate") {
+      options.validatePath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--validate-latest") {
+      options.validateLatest = true;
+      continue;
+    }
     throw new Error(`Unknown argument: ${arg ?? ""}`);
   }
 
   return options;
+}
+
+async function latestLocalProviderBenchmarkPath(): Promise<string | undefined> {
+  const files = await globFiles("docs/openclinxr/local-provider-benchmark-*.json");
+  return files.sort().at(-1);
 }
 
 function requireValue(args: string[], index: number, flag: string): string {
@@ -377,6 +420,152 @@ async function runOptional(command: string, args: string[]): Promise<string> {
 
 function elapsedMs(started: number): number {
   return Number((performance.now() - started).toFixed(2));
+}
+
+export function validateLocalProviderBenchmarkReport(value: unknown): ValidationResult {
+  const errors: string[] = [];
+
+  if (!isRecord(value)) {
+    return { ok: false, errors: ["/ must be object"] };
+  }
+
+  requireString(value.generatedAt, "/generatedAt", errors);
+  validatePolicy(value.policy, errors);
+  validateBenchmarkResult(value.mockModel, "/mockModel", errors);
+  validateBenchmarkResult(value.mockVoice, "/mockVoice", errors);
+  validateBenchmarkResult(value.localModel, "/localModel", errors);
+  validateBenchmarkResult(value.localVoice, "/localVoice", errors);
+  validateVerdict(value.verdict, errors);
+  validateReportConsistency(value, errors);
+
+  return errors.length === 0 ? { ok: true } : { ok: false, errors };
+}
+
+function validatePolicy(value: unknown, errors: string[]): void {
+  requireRecord(value, "/policy", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+  requireLiteral(value.cloudCallsAllowed, false, "/policy/cloudCallsAllowed", errors);
+  requireLiteral(value.modelDownloadsAllowed, false, "/policy/modelDownloadsAllowed", errors);
+  requireLiteral(value.localRuntimeExecutionAllowed, false, "/policy/localRuntimeExecutionAllowed", errors);
+}
+
+function validateBenchmarkResult(value: unknown, pathName: string, errors: string[]): void {
+  requireRecord(value, pathName, errors);
+  if (!isRecord(value)) {
+    return;
+  }
+  requireOneOf(value.status, ["passed", "not_configured", "blocked"], `${pathName}/status`, errors);
+  requireNullableNumber(value.latencyMs, `${pathName}/latencyMs`, errors);
+  requireStringArray(value.blockers, `${pathName}/blockers`, errors);
+  requireRecord(value.metrics, `${pathName}/metrics`, errors);
+  if (isRecord(value.metrics) && value.metrics.executionAttempted !== undefined) {
+    requireLiteral(value.metrics.executionAttempted, false, `${pathName}/metrics/executionAttempted`, errors);
+  }
+}
+
+function validateVerdict(value: unknown, errors: string[]): void {
+  requireRecord(value, "/verdict", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+  requireBoolean(value.deterministicMocksPassed, "/verdict/deterministicMocksPassed", errors);
+  requireBoolean(value.localModelReadyToBenchmark, "/verdict/localModelReadyToBenchmark", errors);
+  requireBoolean(value.localVoiceReadyToBenchmark, "/verdict/localVoiceReadyToBenchmark", errors);
+  requireStringArray(value.blockers, "/verdict/blockers", errors);
+}
+
+function validateReportConsistency(value: Record<string, unknown>, errors: string[]): void {
+  const mockModel = value.mockModel;
+  const mockVoice = value.mockVoice;
+  const localModel = value.localModel;
+  const localVoice = value.localVoice;
+  const verdict = value.verdict;
+  if (!isRecord(mockModel) || !isRecord(mockVoice) || !isRecord(localModel) || !isRecord(localVoice) || !isRecord(verdict)) {
+    return;
+  }
+  if (
+    typeof verdict.deterministicMocksPassed === "boolean"
+    && verdict.deterministicMocksPassed !== (mockModel.status === "passed" && mockVoice.status === "passed")
+  ) {
+    errors.push("/verdict/deterministicMocksPassed must match mock model and mock voice passed status");
+  }
+  if (
+    typeof verdict.localModelReadyToBenchmark === "boolean"
+    && verdict.localModelReadyToBenchmark !== (localModel.status === "passed")
+  ) {
+    errors.push("/verdict/localModelReadyToBenchmark must match /localModel/status");
+  }
+  if (
+    typeof verdict.localVoiceReadyToBenchmark === "boolean"
+    && verdict.localVoiceReadyToBenchmark !== (localVoice.status === "passed")
+  ) {
+    errors.push("/verdict/localVoiceReadyToBenchmark must match /localVoice/status");
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function requireRecord(value: unknown, pathName: string, errors: string[]): void {
+  if (!isRecord(value)) {
+    errors.push(`${pathName} must be object`);
+  }
+}
+
+function requireString(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "string" || value.length === 0) {
+    errors.push(`${pathName} must be non-empty string`);
+  }
+}
+
+function requireStringArray(value: unknown, pathName: string, errors: string[]): void {
+  if (!Array.isArray(value)) {
+    errors.push(`${pathName} must be array`);
+    return;
+  }
+
+  value.forEach((entry, index) => {
+    if (typeof entry !== "string" || entry.length === 0) {
+      errors.push(`${pathName}/${index} must be non-empty string`);
+    }
+  });
+}
+
+function requireBoolean(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "boolean") {
+    errors.push(`${pathName} must be boolean`);
+  }
+}
+
+function requireNullableNumber(value: unknown, pathName: string, errors: string[]): void {
+  if (value !== null && (typeof value !== "number" || !Number.isFinite(value))) {
+    errors.push(`${pathName} must be null or finite number`);
+  }
+}
+
+function requireLiteral<T extends string | boolean | number>(
+  value: unknown,
+  literal: T,
+  pathName: string,
+  errors: string[],
+): void {
+  if (value !== literal) {
+    errors.push(`${pathName} must be ${JSON.stringify(literal)}`);
+  }
+}
+
+function requireOneOf<T extends string>(
+  value: unknown,
+  allowed: readonly T[],
+  pathName: string,
+  errors: string[],
+): void {
+  if (typeof value !== "string" || !(allowed as readonly string[]).includes(value)) {
+    errors.push(`${pathName} must be one of ${allowed.map((entry) => JSON.stringify(entry)).join(", ")}`);
+  }
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {

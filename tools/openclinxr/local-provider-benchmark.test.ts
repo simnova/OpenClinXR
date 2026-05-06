@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import {
   buildUserLocalCommandCandidatePath,
   buildUserLocalCommandCandidatePaths,
   buildLocalProviderBenchmarkReport,
   parseLocalProviderEnvFileContent,
+  runLocalProviderBenchmarkCli,
+  validateLocalProviderBenchmarkReport,
   type BenchmarkResult,
 } from "./local-provider-benchmark.js";
 
@@ -126,6 +129,57 @@ describe("local provider benchmark report", () => {
       "local_voice:OPENCLINXR_LOCAL_VOICE_INSTALL_APPROVED_not_true",
       "local_voice:OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED_not_true",
     ]);
+  });
+
+  it("validates local provider benchmark reports without allowing runtime execution claims", () => {
+    const report = buildLocalProviderBenchmarkReport({
+      generatedAt: "2026-05-06T10:00:00.000Z",
+      availableCommands: ["llama-cli", "vibevoice"],
+      env: {
+        OPENCLINXR_LOCAL_MODEL_RUNTIME: "llama-cli",
+        OPENCLINXR_LOCAL_MODEL_ID: "Qwen/Qwen3-4B-GGUF",
+        OPENCLINXR_LOCAL_MODEL_DOWNLOAD_APPROVED: "true",
+        OPENCLINXR_LOCAL_VOICE_RUNTIME: "vibevoice",
+        OPENCLINXR_LOCAL_VOICE_ID: "microsoft/VibeVoice-Realtime-0.5B",
+        OPENCLINXR_LOCAL_VOICE_INSTALL_APPROVED: "true",
+        OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED: "true",
+      },
+      mockModel: passedBenchmark("model"),
+      mockVoice: passedBenchmark("voice"),
+    });
+
+    expect(validateLocalProviderBenchmarkReport(report)).toEqual({ ok: true });
+
+    const unsafeReport = {
+      ...report,
+      policy: {
+        ...report.policy,
+        cloudCallsAllowed: true,
+        modelDownloadsAllowed: true,
+        localRuntimeExecutionAllowed: true,
+      },
+    };
+
+    expect(validateLocalProviderBenchmarkReport(unsafeReport)).toMatchObject({
+      ok: false,
+      errors: expect.arrayContaining([
+        "/policy/cloudCallsAllowed must be false",
+        "/policy/modelDownloadsAllowed must be false",
+        "/policy/localRuntimeExecutionAllowed must be false",
+      ]),
+    });
+  });
+
+  it("keeps latest local provider benchmark validation wired into agent verification", async () => {
+    const rootPackage = JSON.parse(readFileSync("package.json", "utf8")) as {
+      scripts?: Record<string, string>;
+    };
+
+    expect(rootPackage.scripts?.["local:provider:benchmark:validate"]).toBe(
+      "tsx tools/openclinxr/local-provider-benchmark.ts --validate-latest",
+    );
+    expect(rootPackage.scripts?.["agent:verify"]).toContain("pnpm local:provider:benchmark:validate");
+    await expect(runLocalProviderBenchmarkCli(["--validate-latest"])).resolves.toBeUndefined();
   });
 });
 

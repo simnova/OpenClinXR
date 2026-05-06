@@ -68,14 +68,12 @@
     },
     {
       "evidence_id": "local_provider_benchmark",
-      "file": "docs/openclinxr/local-provider-benchmark-2026-05-05.json",
-      "generated_at": "2026-05-05T19:05:08.997Z",
-      "age_hours": 24,
+      "file": "docs/openclinxr/local-provider-benchmark-2026-05-06.json",
+      "generated_at": "2026-05-06T19:40:00.698Z",
+      "age_hours": 0,
       "max_age_hours": 24,
-      "status": "stale",
-      "blockers": [
-        "local_provider_benchmark:evidence_stale_over_24h"
-      ]
+      "status": "fresh",
+      "blockers": []
     },
     {
       "evidence_id": "local_model_runtime_benchmark",
@@ -108,7 +106,7 @@
       "evidence_id": "local_voice_live_dialog_benchmark",
       "file": "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T14:41:44.220Z",
-      "age_hours": 4,
+      "age_hours": 5,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -117,7 +115,7 @@
       "evidence_id": "local_realtime_voice_model_cache_evidence",
       "file": "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-06.json",
       "generated_at": "2026-05-06T14:41:23.601Z",
-      "age_hours": 4,
+      "age_hours": 5,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -171,7 +169,7 @@
       "evidence_id": "realtime_voice_transport_spike",
       "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-06.json",
       "generated_at": "2026-05-06T13:40:30.076Z",
-      "age_hours": 5,
+      "age_hours": 6,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -180,7 +178,7 @@
       "evidence_id": "api_python_backend_runtime_smoke",
       "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-06.json",
       "generated_at": "2026-05-06T13:39:59.065Z",
-      "age_hours": 5,
+      "age_hours": 6,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -206,7 +204,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T19:34:15.180Z",
+      "generated_at": "2026-05-06T19:43:50.767Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -735,8 +733,8 @@
     }
   },
   "local_provider_benchmark": {
-    "file": "docs/openclinxr/local-provider-benchmark-2026-05-05.json",
-    "generated_at": "2026-05-05T19:05:08.997Z",
+    "file": "docs/openclinxr/local-provider-benchmark-2026-05-06.json",
+    "generated_at": "2026-05-06T19:40:00.698Z",
     "mock_model": {
       "status": "passed",
       "latencyMs": 0.01,
@@ -1794,7 +1792,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T19:34:15.180Z",
+    "generated_at": "2026-05-06T19:43:50.767Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -2072,7 +2070,6 @@
         "text_readability_confirmed"
       ],
       "blockers": [
-        "local_provider_benchmark:evidence_stale_over_24h",
         "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
         "quest_frame_quality_evidence_missing",
         "quest_immersive_entry_activation_not_received",
@@ -2102,7 +2099,7 @@
         "quest_text_panel_metadata_missing"
       ],
       "blocker_summary": {
-        "total_blockers": 28,
+        "total_blockers": 27,
         "distinct_problem_count": 2,
         "groups": [
           {
@@ -2110,7 +2107,6 @@
             "title": "Benchmark evidence freshness",
             "owner": "qa-evidence-lead",
             "blockers": [
-              "local_provider_benchmark:evidence_stale_over_24h",
               "quest_smoke:evidence_stale_over_24h"
             ],
             "next_step": "Regenerate the stale local evidence files before using the benchmark gate as leadership-ready proof."
@@ -2462,22 +2458,12 @@
         "local_provider_mock_benchmarks_passed"
       ],
       "blockers": [
-        "local_model_quality:target_hardware:target_hardware_not_m4_profile",
-        "local_provider_benchmark:evidence_stale_over_24h"
+        "local_model_quality:target_hardware:target_hardware_not_m4_profile"
       ],
       "blocker_summary": {
-        "total_blockers": 2,
-        "distinct_problem_count": 2,
+        "total_blockers": 1,
+        "distinct_problem_count": 1,
         "groups": [
-          {
-            "group_id": "benchmark_evidence_freshness",
-            "title": "Benchmark evidence freshness",
-            "owner": "qa-evidence-lead",
-            "blockers": [
-              "local_provider_benchmark:evidence_stale_over_24h"
-            ],
-            "next_step": "Regenerate the stale local evidence files before using the benchmark gate as leadership-ready proof."
-          },
           {
             "group_id": "local_model_quality",
             "title": "Local model structured-output and actor-policy evidence",
@@ -2528,7 +2514,6 @@
         "local_voice_realtime_transport_contract_observed"
       ],
       "blockers": [
-        "local_provider_benchmark:evidence_stale_over_24h",
         "local_voice_live_dialog:blueprint_voice_simulation:clinical_voice_safety_controls_not_validated_with_real_model",
         "local_voice_live_dialog:blueprint_voice_simulation:first_response_improvement_not_measured",
         "local_voice_live_dialog:blueprint_voice_simulation:not_ready_for_production",
@@ -2572,18 +2557,9 @@
         "local_voice_live_dialog:webxr_playback:webxr_playback_not_observed"
       ],
       "blocker_summary": {
-        "total_blockers": 42,
-        "distinct_problem_count": 2,
+        "total_blockers": 41,
+        "distinct_problem_count": 1,
         "groups": [
-          {
-            "group_id": "benchmark_evidence_freshness",
-            "title": "Benchmark evidence freshness",
-            "owner": "qa-evidence-lead",
-            "blockers": [
-              "local_provider_benchmark:evidence_stale_over_24h"
-            ],
-            "next_step": "Regenerate the stale local evidence files before using the benchmark gate as leadership-ready proof."
-          },
           {
             "group_id": "local_voice_live_dialog",
             "title": "Local voice live-dialog evidence",
