@@ -456,6 +456,23 @@ function passedApiBunPythonProxyRuntimeSmoke(): Parameters<typeof buildBenchmark
         stdout: ["OpenClinXR Bun/Hono API listening on http://localhost:4327/"],
         stderr: [],
       },
+      bunGatewayPosture: {
+        attempted: true,
+        fetched: true,
+        httpStatus: 200,
+        pythonFastApiStatus: "source_present_not_executed",
+        pythonBackendTransportProxyStatus: "configured_not_verified",
+        pythonBackendTransportProxyConfigured: true,
+        readyForLiveDialog: false,
+        transportProxyBlockers: [
+          "python_backend_proxy_reachability_not_claimed_by_posture_endpoint",
+          "real_model_inference_not_observed",
+        ],
+        pythonBackendBlockers: [
+          "fastapi_uvicorn_websockets_not_installed",
+          "mlx_moshi_or_qwen3_tts_not_installed",
+        ],
+      },
       websocket: {
         attempted: true,
         connected: true,

@@ -85,6 +85,12 @@ export type RealtimeVoiceGatewayPosture = {
     pythonFastApi: {
       status: "source_present_not_executed" | "available_for_local_run";
       websocketPath: "/voice/realtime/ws";
+      transportProxy: {
+        status: "not_configured" | "configured_not_verified";
+        backendUrlConfigured: boolean;
+        readyForLiveDialog: false;
+        blockers: string[];
+      };
       blockers: string[];
     };
     inferenceCandidates: Array<{
@@ -192,6 +198,7 @@ export function createDefaultVoiceGateway(options: VoiceGatewayOptions): VoiceGa
 
 export type RealtimeVoiceGatewayPostureInput = {
   bunAvailable: boolean;
+  pythonBackendWebSocketUrlConfigured?: boolean;
   pythonBackendDependenciesInstalled: boolean;
   pythonInferenceRuntimeInstalled: boolean;
 };
@@ -231,6 +238,16 @@ export function createRealtimeVoiceGatewayPosture(input: RealtimeVoiceGatewayPos
       pythonFastApi: {
         status: input.pythonBackendDependenciesInstalled ? "available_for_local_run" : "source_present_not_executed",
         websocketPath: realtimeVoiceProtocol.websocketPath,
+        transportProxy: {
+          status: input.pythonBackendWebSocketUrlConfigured ? "configured_not_verified" : "not_configured",
+          backendUrlConfigured: input.pythonBackendWebSocketUrlConfigured === true,
+          readyForLiveDialog: false,
+          blockers: [
+            ...(input.pythonBackendWebSocketUrlConfigured ? [] : ["python_backend_websocket_url_not_configured"]),
+            "python_backend_proxy_reachability_not_claimed_by_posture_endpoint",
+            "real_model_inference_not_observed",
+          ],
+        },
         blockers: [
           ...(input.pythonBackendDependenciesInstalled ? [] : ["fastapi_uvicorn_websockets_not_installed"]),
           ...(input.pythonInferenceRuntimeInstalled ? [] : ["mlx_moshi_or_qwen3_tts_not_installed"]),

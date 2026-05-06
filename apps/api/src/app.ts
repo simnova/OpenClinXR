@@ -507,6 +507,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
 function createDefaultRealtimeVoiceGatewayPostureInput(): RealtimeVoiceGatewayPostureInput {
   return {
     bunAvailable: false,
+    pythonBackendWebSocketUrlConfigured: false,
     pythonBackendDependenciesInstalled: false,
     pythonInferenceRuntimeInstalled: false,
   };

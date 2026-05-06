@@ -500,6 +500,7 @@ function defaultApplicationServicesFactory(context: ApiStartupContext): ApiAppli
 function createDefaultRealtimeVoiceGatewayPostureInput(): RealtimeVoiceGatewayPostureInput {
   return {
     bunAvailable: false,
+    pythonBackendWebSocketUrlConfigured: false,
     pythonBackendDependenciesInstalled: false,
     pythonInferenceRuntimeInstalled: false,
   };

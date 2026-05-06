@@ -268,6 +268,7 @@ describe("OpenClinXR API startup", () => {
     const startup = createOpenClinXrApiStartup({
       realtimeVoiceGatewayPosture: {
         bunAvailable: true,
+        pythonBackendWebSocketUrlConfigured: false,
         pythonBackendDependenciesInstalled: false,
         pythonInferenceRuntimeInstalled: false,
       },
@@ -275,11 +276,58 @@ describe("OpenClinXR API startup", () => {
     const config = createBunServerConfig(startup, { port: 4322 });
 
     const response = await config.fetch(new Request("http://localhost/voice/realtime/posture"));
-    const posture = await response.json() as { gatewayRuntime: { blockers: string[] } };
+    const posture = await response.json() as {
+      gatewayRuntime: { blockers: string[] };
+      backends: { pythonFastApi: { transportProxy: { status: string; backendUrlConfigured: boolean } } };
+    };
 
     expect(response.status).toBe(200);
     expect(posture.gatewayRuntime.blockers).not.toContain("bun_not_installed");
     expect(posture.gatewayRuntime.blockers).toContain("http3_webtransport_not_verified");
+    expect(posture.backends.pythonFastApi.transportProxy).toMatchObject({
+      status: "not_configured",
+      backendUrlConfigured: false,
+    });
+  });
+
+  it("threads configured Python websocket proxy posture through startup fetch without claiming inference readiness", async () => {
+    const startup = createOpenClinXrApiStartup({
+      realtimeVoiceGatewayPosture: {
+        bunAvailable: true,
+        pythonBackendWebSocketUrlConfigured: true,
+        pythonBackendDependenciesInstalled: false,
+        pythonInferenceRuntimeInstalled: false,
+      },
+    }).startUp();
+
+    const response = await startup.fetch(new Request("http://localhost/voice/realtime/posture"));
+    const posture = await response.json() as {
+      backends: {
+        pythonFastApi: {
+          status: string;
+          transportProxy: {
+            status: string;
+            backendUrlConfigured: boolean;
+            readyForLiveDialog: boolean;
+            blockers: string[];
+          };
+          blockers: string[];
+        };
+      };
+    };
+
+    expect(response.status).toBe(200);
+    expect(posture.backends.pythonFastApi.status).toBe("source_present_not_executed");
+    expect(posture.backends.pythonFastApi.transportProxy).toMatchObject({
+      status: "configured_not_verified",
+      backendUrlConfigured: true,
+      readyForLiveDialog: false,
+    });
+    expect(posture.backends.pythonFastApi.transportProxy.blockers).toContain("real_model_inference_not_observed");
+    expect(posture.backends.pythonFastApi.blockers).toEqual(expect.arrayContaining([
+      "fastapi_uvicorn_websockets_not_installed",
+      "mlx_moshi_or_qwen3_tts_not_installed",
+    ]));
   });
 
   it("persists station run queue review snapshots in the default single-user startup", async () => {

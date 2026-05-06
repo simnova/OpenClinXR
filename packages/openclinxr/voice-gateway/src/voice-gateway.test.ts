@@ -40,6 +40,7 @@ describe("voice gateway", () => {
   it("owns realtime gateway posture separately from the mock server harness", () => {
     const posture = createRealtimeVoiceGatewayPosture({
       bunAvailable: false,
+      pythonBackendWebSocketUrlConfigured: true,
       pythonBackendDependenciesInstalled: true,
       pythonInferenceRuntimeInstalled: false,
     });
@@ -69,6 +70,15 @@ describe("voice gateway", () => {
       backends: {
         pythonFastApi: {
           status: "available_for_local_run",
+          transportProxy: {
+            status: "configured_not_verified",
+            backendUrlConfigured: true,
+            readyForLiveDialog: false,
+            blockers: expect.arrayContaining([
+              "python_backend_proxy_reachability_not_claimed_by_posture_endpoint",
+              "real_model_inference_not_observed",
+            ]),
+          },
           blockers: ["mlx_moshi_or_qwen3_tts_not_installed"],
         },
       },
@@ -112,6 +122,7 @@ describe("voice gateway", () => {
   it("negotiates preferred realtime protocol lanes without allowing Web3 to carry media", () => {
     const posture = createRealtimeVoiceGatewayPosture({
       bunAvailable: true,
+      pythonBackendWebSocketUrlConfigured: true,
       pythonBackendDependenciesInstalled: true,
       pythonInferenceRuntimeInstalled: false,
     });

@@ -31,6 +31,23 @@ const baseObservation = {
     stdout: ["OpenClinXR Bun/Hono API listening on http://localhost:4326/"],
     stderr: [],
   },
+  bunGatewayPosture: {
+    attempted: true,
+    fetched: true,
+    httpStatus: 200,
+    pythonFastApiStatus: "source_present_not_executed",
+    pythonBackendTransportProxyStatus: "configured_not_verified",
+    pythonBackendTransportProxyConfigured: true,
+    readyForLiveDialog: false,
+    transportProxyBlockers: [
+      "python_backend_proxy_reachability_not_claimed_by_posture_endpoint",
+      "real_model_inference_not_observed",
+    ],
+    pythonBackendBlockers: [
+      "fastapi_uvicorn_websockets_not_installed",
+      "mlx_moshi_or_qwen3_tts_not_installed",
+    ],
+  },
   websocket: {
     attempted: true,
     connected: true,
@@ -79,6 +96,12 @@ describe("API Bun to Python proxy runtime smoke", () => {
       lowLatencyClaimed: false,
     });
     expect(report.websocket.eventTypesObserved).toEqual(baseObservation.websocket.eventTypesObserved);
+    expect(report.bunGatewayPosture).toMatchObject({
+      fetched: true,
+      pythonBackendTransportProxyConfigured: true,
+      pythonBackendTransportProxyStatus: "configured_not_verified",
+      readyForLiveDialog: false,
+    });
     expect(report.runtimeEvidenceBlockers).toEqual([]);
     expect(report.verdict).toMatchObject({
       smokePassed: true,

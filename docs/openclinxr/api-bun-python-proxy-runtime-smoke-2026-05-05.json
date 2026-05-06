@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T18:21:30.330Z",
+  "generatedAt": "2026-05-06T01:52:40.346Z",
   "status": "passed",
   "policy": {
     "cloudApisUsed": false,
@@ -30,30 +30,47 @@
   },
   "pythonBackend": {
     "attempted": true,
-    "port": 8767,
+    "port": 8766,
     "healthOk": true,
     "stdout": [
-      "INFO:     127.0.0.1:59611 - \"GET /health HTTP/1.1\" 200 OK"
+      "INFO:     127.0.0.1:50776 - \"GET /health HTTP/1.1\" 200 OK"
     ],
     "stderr": [
-      "INFO:     Started server process [53844]",
+      "INFO:     Started server process [48182]",
       "INFO:     Waiting for application startup.",
       "INFO:     Application startup complete.",
-      "INFO:     Uvicorn running on http://127.0.0.1:8767 (Press CTRL+C to quit)",
-      "INFO:     127.0.0.1:59617 - \"WebSocket /voice/realtime/ws\" [accepted]",
+      "INFO:     Uvicorn running on http://127.0.0.1:8766 (Press CTRL+C to quit)",
+      "INFO:     127.0.0.1:50782 - \"WebSocket /voice/realtime/ws\" [accepted]",
       "INFO:     connection open"
     ]
   },
   "bunGateway": {
     "attempted": true,
-    "port": 4327,
+    "port": 4326,
     "healthOk": true,
     "backendUrlConfigured": true,
     "stdout": [
-      "OpenClinXR Bun/Hono API listening on http://localhost:4327/",
+      "OpenClinXR Bun/Hono API listening on http://localhost:4326/",
       "Realtime WebSocket route contract: /voice/realtime/ws"
     ],
     "stderr": []
+  },
+  "bunGatewayPosture": {
+    "attempted": true,
+    "fetched": true,
+    "httpStatus": 200,
+    "pythonFastApiStatus": "source_present_not_executed",
+    "pythonBackendTransportProxyStatus": "configured_not_verified",
+    "pythonBackendTransportProxyConfigured": true,
+    "readyForLiveDialog": false,
+    "transportProxyBlockers": [
+      "python_backend_proxy_reachability_not_claimed_by_posture_endpoint",
+      "real_model_inference_not_observed"
+    ],
+    "pythonBackendBlockers": [
+      "fastapi_uvicorn_websockets_not_installed",
+      "mlx_moshi_or_qwen3_tts_not_installed"
+    ]
   },
   "websocket": {
     "attempted": true,

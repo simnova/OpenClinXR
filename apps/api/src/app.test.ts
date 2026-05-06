@@ -103,6 +103,16 @@ describe("OpenClinXR API shell", () => {
         pythonFastApi: {
           status: "source_present_not_executed",
           websocketPath: "/voice/realtime/ws",
+          transportProxy: {
+            status: "not_configured",
+            backendUrlConfigured: false,
+            readyForLiveDialog: false,
+            blockers: expect.arrayContaining([
+              "python_backend_websocket_url_not_configured",
+              "python_backend_proxy_reachability_not_claimed_by_posture_endpoint",
+              "real_model_inference_not_observed",
+            ]),
+          },
           blockers: ["fastapi_uvicorn_websockets_not_installed", "mlx_moshi_or_qwen3_tts_not_installed"],
         },
       },
@@ -134,6 +144,7 @@ describe("OpenClinXR API shell", () => {
     const app = createApiApp(undefined, {}, {
       realtimeVoiceGatewayPosture: {
         bunAvailable: true,
+        pythonBackendWebSocketUrlConfigured: false,
         pythonBackendDependenciesInstalled: false,
         pythonInferenceRuntimeInstalled: false,
       },
@@ -142,7 +153,7 @@ describe("OpenClinXR API shell", () => {
     const posture = await json(response) as {
       gatewayRuntime: { blockers: string[] };
       transports: { webTransport: { status: string; blockers: string[] } };
-      backends: { pythonFastApi: { blockers: string[] } };
+      backends: { pythonFastApi: { transportProxy: { status: string; backendUrlConfigured: boolean }; blockers: string[] } };
     };
 
     expect(response.status).toBe(200);
@@ -153,6 +164,53 @@ describe("OpenClinXR API shell", () => {
       "quest_godot_webtransport_client_not_implemented",
       "bun_http3_webtransport_not_verified",
       "azure_http3_gateway_path_not_verified",
+    ]));
+    expect(posture.backends.pythonFastApi.blockers).toEqual(expect.arrayContaining([
+      "fastapi_uvicorn_websockets_not_installed",
+      "mlx_moshi_or_qwen3_tts_not_installed",
+    ]));
+    expect(posture.backends.pythonFastApi.transportProxy).toMatchObject({
+      status: "not_configured",
+      backendUrlConfigured: false,
+    });
+  });
+
+  it("reports Python websocket proxy configuration separately from local inference readiness", async () => {
+    const app = createApiApp(undefined, {}, {
+      realtimeVoiceGatewayPosture: {
+        bunAvailable: true,
+        pythonBackendWebSocketUrlConfigured: true,
+        pythonBackendDependenciesInstalled: false,
+        pythonInferenceRuntimeInstalled: false,
+      },
+    });
+    const response = await app.request("/voice/realtime/posture");
+    const posture = await json(response) as {
+      backends: {
+        pythonFastApi: {
+          status: string;
+          transportProxy: {
+            status: string;
+            backendUrlConfigured: boolean;
+            readyForLiveDialog: boolean;
+            blockers: string[];
+          };
+          blockers: string[];
+        };
+      };
+    };
+
+    expect(response.status).toBe(200);
+    expect(posture.backends.pythonFastApi.status).toBe("source_present_not_executed");
+    expect(posture.backends.pythonFastApi.transportProxy).toMatchObject({
+      status: "configured_not_verified",
+      backendUrlConfigured: true,
+      readyForLiveDialog: false,
+    });
+    expect(posture.backends.pythonFastApi.transportProxy.blockers).not.toContain("python_backend_websocket_url_not_configured");
+    expect(posture.backends.pythonFastApi.transportProxy.blockers).toEqual(expect.arrayContaining([
+      "python_backend_proxy_reachability_not_claimed_by_posture_endpoint",
+      "real_model_inference_not_observed",
     ]));
     expect(posture.backends.pythonFastApi.blockers).toEqual(expect.arrayContaining([
       "fastapi_uvicorn_websockets_not_installed",

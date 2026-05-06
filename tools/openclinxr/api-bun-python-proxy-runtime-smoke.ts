@@ -36,6 +36,17 @@ export type ApiBunPythonProxyRuntimeSmokeObservation = {
     stdout: string[];
     stderr: string[];
   };
+  bunGatewayPosture: {
+    attempted: boolean;
+    fetched: boolean;
+    httpStatus: number | null;
+    pythonFastApiStatus: string | null;
+    pythonBackendTransportProxyStatus: string | null;
+    pythonBackendTransportProxyConfigured: boolean;
+    readyForLiveDialog: boolean | null;
+    transportProxyBlockers: string[];
+    pythonBackendBlockers: string[];
+  };
   websocket: {
     attempted: boolean;
     connected: boolean;
@@ -73,6 +84,7 @@ export type ApiBunPythonProxyRuntimeSmokeReport = {
   };
   pythonBackend: ApiBunPythonProxyRuntimeSmokeObservation["pythonBackend"];
   bunGateway: ApiBunPythonProxyRuntimeSmokeObservation["bunGateway"];
+  bunGatewayPosture: ApiBunPythonProxyRuntimeSmokeObservation["bunGatewayPosture"];
   websocket: Required<ApiBunPythonProxyRuntimeSmokeObservation["websocket"]>;
   runtimeEvidenceBlockers: string[];
   verdict: {
@@ -181,6 +193,7 @@ export async function runApiBunPythonProxyRuntimeSmoke(
         ...emptyServerObservation(false, options.apiPort),
         backendUrlConfigured: false,
       },
+      bunGatewayPosture: emptyBunGatewayPosture(false),
       websocket: emptyWebSocket(false),
     });
   }
@@ -227,6 +240,9 @@ export async function runApiBunPythonProxyRuntimeSmoke(
     const bunHealthOk = bunServer
       ? await waitForHealth(options.apiPort, options.timeoutMs, "openclinxr-api")
       : false;
+    const bunGatewayPosture = bunHealthOk
+      ? await fetchBunGatewayPosture(options.apiPort, options.timeoutMs)
+      : emptyBunGatewayPosture(Boolean(bunServer));
     const websocket = bunHealthOk
       ? await runProxyWebSocketProbe(options.apiPort, options.timeoutMs)
       : emptyWebSocket(false);
@@ -249,6 +265,7 @@ export async function runApiBunPythonProxyRuntimeSmoke(
         stdout: bunStdout,
         stderr: bunStderr,
       },
+      bunGatewayPosture,
       websocket,
     });
   } finally {
@@ -271,6 +288,18 @@ export function buildApiBunPythonProxyRuntimeSmokeReport(
     input.bunGateway.attempted ? undefined : "bun_gateway_not_started",
     input.bunGateway.healthOk ? undefined : "bun_gateway_health_failed",
     input.bunGateway.backendUrlConfigured ? undefined : "python_backend_url_not_configured",
+    input.bunGatewayPosture.attempted ? undefined : "bun_gateway_posture_not_requested",
+    input.bunGatewayPosture.fetched ? undefined : "bun_gateway_posture_fetch_failed",
+    input.bunGatewayPosture.pythonFastApiStatus === "source_present_not_executed"
+      ? undefined
+      : "python_backend_posture_status_unexpected",
+    input.bunGatewayPosture.pythonBackendTransportProxyConfigured
+      ? undefined
+      : "python_backend_transport_proxy_not_configured_in_posture",
+    input.bunGatewayPosture.pythonBackendTransportProxyStatus === "configured_not_verified"
+      ? undefined
+      : "python_backend_transport_proxy_status_unexpected",
+    input.bunGatewayPosture.readyForLiveDialog === false ? undefined : "bun_gateway_posture_overclaims_live_dialog_ready",
     input.websocket.attempted && input.websocket.connected ? undefined : "websocket_not_connected",
     input.websocket.eventTypesObserved.includes("gateway.ready") ? undefined : "gateway_ready_not_observed",
     input.websocket.backendProtocolObserved ? undefined : "backend_protocol_not_observed",
@@ -318,6 +347,7 @@ export function buildApiBunPythonProxyRuntimeSmokeReport(
       stdout: input.bunGateway.stdout.slice(-20),
       stderr: input.bunGateway.stderr.slice(-20),
     },
+    bunGatewayPosture: input.bunGatewayPosture,
     websocket: {
       ...input.websocket,
       errorMessages: websocketErrors,
@@ -439,6 +469,40 @@ async function runProxyWebSocketProbe(
   });
 }
 
+async function fetchBunGatewayPosture(
+  port: number,
+  timeoutMs: number,
+): Promise<ApiBunPythonProxyRuntimeSmokeObservation["bunGatewayPosture"]> {
+  try {
+    const response = await fetch(`http://127.0.0.1:${port}/voice/realtime/posture`, {
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    const body = await response.json();
+    const pythonFastApi = isRecord(body)
+      && isRecord(body.backends)
+      && isRecord(body.backends.pythonFastApi)
+      ? body.backends.pythonFastApi
+      : {};
+    const transportProxy = isRecord(pythonFastApi.transportProxy) ? pythonFastApi.transportProxy : {};
+
+    return {
+      attempted: true,
+      fetched: response.ok,
+      httpStatus: response.status,
+      pythonFastApiStatus: stringOrNull(pythonFastApi.status),
+      pythonBackendTransportProxyStatus: stringOrNull(transportProxy.status),
+      pythonBackendTransportProxyConfigured: transportProxy.backendUrlConfigured === true,
+      readyForLiveDialog: typeof transportProxy.readyForLiveDialog === "boolean"
+        ? transportProxy.readyForLiveDialog
+        : null,
+      transportProxyBlockers: stringArray(transportProxy.blockers),
+      pythonBackendBlockers: stringArray(pythonFastApi.blockers),
+    };
+  } catch {
+    return emptyBunGatewayPosture(true);
+  }
+}
+
 async function waitForHealth(
   port: number,
   timeoutMs: number,
@@ -468,6 +532,22 @@ function emptyServerObservation(attempted: boolean, port: number): ApiBunPythonP
     healthOk: false,
     stdout: [],
     stderr: [],
+  };
+}
+
+function emptyBunGatewayPosture(
+  attempted: boolean,
+): ApiBunPythonProxyRuntimeSmokeObservation["bunGatewayPosture"] {
+  return {
+    attempted,
+    fetched: false,
+    httpStatus: null,
+    pythonFastApiStatus: null,
+    pythonBackendTransportProxyStatus: null,
+    pythonBackendTransportProxyConfigured: false,
+    readyForLiveDialog: null,
+    transportProxyBlockers: [],
+    pythonBackendBlockers: [],
   };
 }
 
@@ -557,6 +637,18 @@ function safeJsonParse(payload: string): unknown {
   } catch {
     return null;
   }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function stringOrNull(value: unknown): string | null {
+  return typeof value === "string" ? value : null;
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
 }
 
 function requireValue(args: string[], index: number, flag: string): string {
