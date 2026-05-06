@@ -1448,6 +1448,7 @@ describe("benchmark gate report", () => {
         "iwsdk:agent_tooling:ecs_runtime_not_queryable",
       ]),
       satisfied_conditions: expect.arrayContaining([
+        "iwsdk_agent_tooling_local_preflight_ready",
         "iwsdk_evidence_contract_present",
         "iwsdk_install_backed_sidecar_ready",
       ]),

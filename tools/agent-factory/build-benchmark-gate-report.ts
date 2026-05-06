@@ -337,6 +337,11 @@ type RealtimeVoiceTransportSpikeReport = {
 type IwsdkEvidenceContractReport = {
   generatedAt: string;
   status: string;
+  agentToolingLocalPreflight?: {
+    readyForLocalAgentToolingPreflight: boolean;
+    blockers: string[];
+    notEvidenceFor: string[];
+  };
   verdict: {
     readyForInstallBackedSidecar: boolean;
     readyForAgentTooling: boolean;
@@ -1079,6 +1084,9 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     ? [
       "iwsdk_evidence_contract_present",
       iwsdkEvidenceContract.value.verdict.readyForInstallBackedSidecar ? "iwsdk_install_backed_sidecar_ready" : undefined,
+      iwsdkEvidenceContract.value.agentToolingLocalPreflight?.readyForLocalAgentToolingPreflight
+        ? "iwsdk_agent_tooling_local_preflight_ready"
+        : undefined,
       iwsdkEvidenceContract.value.verdict.readyForAgentTooling ? "iwsdk_agent_tooling_ready" : undefined,
       iwsdkEvidenceContract.value.verdict.readyForProductionRuntime ? "iwsdk_production_runtime_ready" : undefined,
     ].filter((condition): condition is string => typeof condition === "string")

@@ -61,7 +61,7 @@
       "evidence_id": "local_provider_benchmark",
       "file": "docs/openclinxr/local-provider-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T19:05:08.997Z",
-      "age_hours": 11,
+      "age_hours": 12,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -170,7 +170,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T06:58:59.592Z",
+      "generated_at": "2026-05-06T07:05:47.159Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -1363,7 +1363,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T06:58:59.592Z",
+    "generated_at": "2026-05-06T07:05:47.159Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -2102,7 +2102,8 @@
       "ready_to_resolve": false,
       "satisfied_conditions": [
         "iwsdk_evidence_contract_present",
-        "iwsdk_install_backed_sidecar_ready"
+        "iwsdk_install_backed_sidecar_ready",
+        "iwsdk_agent_tooling_local_preflight_ready"
       ],
       "blockers": [
         "iwsdk:agent_tooling:adapter_sync_not_recorded",
