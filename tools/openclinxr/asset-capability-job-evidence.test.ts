@@ -20,6 +20,7 @@ describe("asset capability job evidence report", () => {
     expect(rootPackage.scripts["asset:capability:evidence:validate"]).toBe(
       "tsx tools/openclinxr/asset-capability-job-evidence.ts --validate docs/openclinxr/asset-capability-job-evidence-2026-05-05.json",
     );
+    expect(rootPackage.scripts["agent:verify"]).toContain("pnpm asset:capability:evidence:validate");
   });
 
   it("proves deterministic asset generation job contracts without spend or network", async () => {

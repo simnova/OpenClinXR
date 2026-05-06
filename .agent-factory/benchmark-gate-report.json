@@ -5,7 +5,7 @@
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T18:13:48.812Z",
-      "age_hours": 45,
+      "age_hours": 46,
       "max_age_hours": 24,
       "status": "stale",
       "blockers": [
@@ -16,7 +16,7 @@
       "evidence_id": "local_runtime_probe",
       "file": "docs/openclinxr/local-runtime-probe-2026-05-06.json",
       "generated_at": "2026-05-06T14:06:52.238Z",
-      "age_hours": 1,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -25,7 +25,7 @@
       "evidence_id": "gltf_pipeline_smoke",
       "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
       "generated_at": "2026-05-06T00:10:04.220Z",
-      "age_hours": 15,
+      "age_hours": 16,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -34,7 +34,7 @@
       "evidence_id": "blender_asset_bake_smoke",
       "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
       "generated_at": "2026-05-06T08:19:07.305Z",
-      "age_hours": 7,
+      "age_hours": 8,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -52,7 +52,7 @@
       "evidence_id": "asset_production_readiness_benchmark",
       "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T15:09:30.325Z",
-      "age_hours": 0,
+      "age_hours": 1,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -70,7 +70,7 @@
       "evidence_id": "local_provider_benchmark",
       "file": "docs/openclinxr/local-provider-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T19:05:08.997Z",
-      "age_hours": 20,
+      "age_hours": 21,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -88,7 +88,7 @@
       "evidence_id": "local_model_quality_benchmark",
       "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T06:57:35.610Z",
-      "age_hours": 8,
+      "age_hours": 9,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -133,7 +133,7 @@
       "evidence_id": "local_moshi_runtime_package_evidence",
       "file": "docs/openclinxr/local-moshi-runtime-package-evidence-2026-05-06.json",
       "generated_at": "2026-05-06T14:59:16.154Z",
-      "age_hours": 0,
+      "age_hours": 1,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -142,7 +142,7 @@
       "evidence_id": "blueprint_voice_simulation_spike",
       "file": "docs/openclinxr/blueprint-voice-simulation-spike-2026-05-05.json",
       "generated_at": "2026-05-06T03:18:07.296Z",
-      "age_hours": 12,
+      "age_hours": 13,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -151,7 +151,7 @@
       "evidence_id": "godot_quest_voice_evidence",
       "file": "docs/openclinxr/godot-quest-voice-evidence-2026-05-06.json",
       "generated_at": "2026-05-06T14:00:03.516Z",
-      "age_hours": 1,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -160,7 +160,7 @@
       "evidence_id": "godot_project_import_check",
       "file": ".agent-factory/godot-project-import-check.json",
       "generated_at": "2026-05-06T13:56:47.467Z",
-      "age_hours": 1,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -196,7 +196,7 @@
       "evidence_id": "api_bun_python_proxy_runtime_smoke",
       "file": "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-06T01:52:40.346Z",
-      "age_hours": 13,
+      "age_hours": 14,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -204,7 +204,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T15:45:37.676Z",
+      "generated_at": "2026-05-06T16:19:20.916Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -1764,7 +1764,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T15:45:37.676Z",
+    "generated_at": "2026-05-06T16:19:20.916Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
