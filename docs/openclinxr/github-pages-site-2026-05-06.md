@@ -1,7 +1,7 @@
 # GitHub Pages Site
 
 Date: 2026-05-06
-Status: Static site committed; GitHub Pages enablement blocked by token permissions
+Status: GitHub Pages built from `main` `/docs`
 
 ## Committed Site
 
@@ -12,9 +12,11 @@ The public project site lives under the repository Pages source directory:
 - `docs/assets/openclinxr-xr-evidence.png`
 - `docs/.nojekyll`
 
-The root `README.md` links to the expected Pages URL:
+The root `README.md` links to the live Pages URL reported by GitHub:
 
-<https://simnova.github.io/OpenClinXR/>
+<http://developers.simnova.com/OpenClinXR/>
+
+`gh api repos/simnova/OpenClinXR/pages` reports source branch `main`, path `/docs`, status `built`, and `html_url` `http://developers.simnova.com/OpenClinXR/`. A local `curl -I` check returned HTTP 200 for that URL on 2026-05-06. HTTPS for the custom domain is not yet claimable from this machine because the certificate response did not match `developers.simnova.com`.
 
 ## Validation
 
@@ -26,19 +28,6 @@ pnpm pages:validate
 
 The validator is also included in `pnpm agent:verify`.
 
-## Blocked Operator Step
+## Remaining Operator Step
 
-GitHub Pages still needs to be enabled in repository settings:
-
-1. Open `https://github.com/simnova/OpenClinXR/settings/pages`.
-2. Set **Build and deployment** source to **Deploy from a branch**.
-3. Select branch `main` and folder `/docs`.
-4. Save.
-
-Attempted API enablement with:
-
-```bash
-gh api repos/simnova/OpenClinXR/pages -X POST -f 'source[branch]=main' -f 'source[path]=/docs'
-```
-
-GitHub returned `403 Resource not accessible by personal access token`, so the local token can push the site files but cannot change Pages settings.
+Review the repository Pages/domain settings before publishing the URL externally. The HTTP URL serves the site, but HTTPS certificate posture for `developers.simnova.com` still needs DNS/certificate cleanup before using an `https://` public link.

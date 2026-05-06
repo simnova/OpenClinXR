@@ -2,7 +2,7 @@
 
 OpenClinXR is an evidence-gated XR clinical simulation workspace for virtual-patient encounters, Quest/WebXR runtime evidence, local-first voice, and production asset readiness.
 
-Project page: <https://simnova.github.io/OpenClinXR/>
+Project page: <http://developers.simnova.com/OpenClinXR/>
 
 ## Current Posture
 

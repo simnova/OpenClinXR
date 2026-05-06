@@ -51,7 +51,7 @@ export async function validateGitHubPagesSite(): Promise<ValidationResult> {
     indexHtml.includes("https://github.com/simnova/OpenClinXR") ? undefined : "pages_index_repo_link_missing",
     indexHtml.includes("Evidence Docs") ? undefined : "pages_index_evidence_docs_link_missing",
     styles.includes("@media (max-width: 860px)") ? undefined : "pages_styles_mobile_breakpoint_missing",
-    readme.includes("https://simnova.github.io/OpenClinXR/") ? undefined : "readme_pages_url_missing",
+    readme.includes("http://developers.simnova.com/OpenClinXR/") ? undefined : "readme_pages_url_missing",
     readme.includes("main") && readme.includes("/docs") ? undefined : "readme_pages_source_missing",
   ].filter((blocker): blocker is string => typeof blocker === "string"));
 
