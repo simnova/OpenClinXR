@@ -127,6 +127,28 @@ type BenchmarkGateReport = {
       };
     };
   };
+  asset_production_evidence_ladder?: {
+    file: string;
+    generated_at: string;
+    status: string;
+    source_readiness_report: {
+      file: string;
+      status: string;
+      localAssetEvidenceFixtureUsed: boolean;
+    };
+    summary: {
+      totalLaneCount: number;
+      observedLaneCount: number;
+      contractOnlyLaneCount: number;
+      blockedLaneCount: number;
+      artifactBackedProductionAssetEvidenceObserved: boolean;
+    };
+    verdict: {
+      passed: boolean;
+      readyForProductionAssets: false;
+      blockers: string[];
+    };
+  };
   asset_capability_job_evidence?: {
     summary: {
       allCapabilitiesObserved: boolean;
@@ -3801,7 +3823,81 @@ describe("benchmark gate report", () => {
           },
         },
       },
-    }, { now: new Date("2026-05-06T09:00:00.000Z"), maxEvidenceAgeHours: 24 });
+      assetProductionEvidenceLadder: {
+        file: "docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
+        value: {
+          kind: "asset_production_evidence_ladder",
+          generatedAt: "2026-05-06T08:20:00.000Z",
+          status: "blocked",
+          sourceReadinessReport: {
+            file: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+            generatedAt: "2026-05-06T08:19:18.833Z",
+            status: "blocked",
+            localAssetEvidenceFixtureUsed: true,
+          },
+          policy: {
+            installsIntroduced: false,
+            cloudApisUsed: false,
+            paidApisUsed: false,
+            externalAssetsUsed: false,
+            productionAssetReadinessClaimed: false,
+          },
+          lanes: [],
+          summary: {
+            totalLaneCount: 7,
+            observedLaneCount: 0,
+            contractOnlyLaneCount: 6,
+            blockedLaneCount: 7,
+            artifactBackedProductionAssetEvidenceObserved: false,
+          },
+          verdict: {
+            passed: false,
+            readyForProductionAssets: false,
+            blockers: [
+              "artifact_backed_production_asset_evidence_missing",
+              "generatedHumanRigging:contract_only_fixture_not_artifact_backed",
+            ],
+            caveats: ["Contract-only local fixture evidence is not artifact-backed production asset evidence."],
+          },
+        },
+      },
+    } as Parameters<typeof buildBenchmarkGateReport>[0] & {
+      assetProductionEvidenceLadder: {
+        file: string;
+        value: {
+          kind: string;
+          generatedAt: string;
+          status: string;
+          sourceReadinessReport: {
+            file: string;
+            generatedAt: string;
+            status: string;
+            localAssetEvidenceFixtureUsed: boolean;
+          };
+          policy: {
+            installsIntroduced: false;
+            cloudApisUsed: false;
+            paidApisUsed: false;
+            externalAssetsUsed: false;
+            productionAssetReadinessClaimed: false;
+          };
+          lanes: unknown[];
+          summary: {
+            totalLaneCount: number;
+            observedLaneCount: number;
+            contractOnlyLaneCount: number;
+            blockedLaneCount: number;
+            artifactBackedProductionAssetEvidenceObserved: boolean;
+          };
+          verdict: {
+            passed: boolean;
+            readyForProductionAssets: false;
+            blockers: string[];
+            caveats: string[];
+          };
+        };
+      };
+    }, { now: new Date("2026-05-06T09:00:00.000Z"), maxEvidenceAgeHours: 24 }) as BenchmarkGateReport;
 
     const assetGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-005");
 
@@ -3818,6 +3914,34 @@ describe("benchmark gate report", () => {
     expect(assetGate?.satisfied_conditions).not.toContain("asset_production_readiness_benchmark_passed");
     expect(report.asset_production_readiness_benchmark?.input).toEqual({
       localAssetEvidenceFixtureUsed: true,
+    });
+    expect(report.asset_production_evidence_ladder).toMatchObject({
+      file: "docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
+      status: "blocked",
+      source_readiness_report: {
+        file: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+        status: "blocked",
+        localAssetEvidenceFixtureUsed: true,
+      },
+      summary: {
+        totalLaneCount: 7,
+        observedLaneCount: 0,
+        contractOnlyLaneCount: 6,
+        blockedLaneCount: 7,
+        artifactBackedProductionAssetEvidenceObserved: false,
+      },
+      verdict: {
+        passed: false,
+        readyForProductionAssets: false,
+        blockers: [
+          "artifact_backed_production_asset_evidence_missing",
+          "generatedHumanRigging:contract_only_fixture_not_artifact_backed",
+        ],
+      },
+    });
+    expect(report.evidence_freshness?.find((entry) => entry.evidence_id === "asset_production_evidence_ladder")).toMatchObject({
+      status: "fresh",
+      file: "docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
     });
   });
 

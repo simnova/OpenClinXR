@@ -5,7 +5,7 @@
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T18:13:48.812Z",
-      "age_hours": 44,
+      "age_hours": 45,
       "max_age_hours": 24,
       "status": "stale",
       "blockers": [
@@ -25,7 +25,7 @@
       "evidence_id": "gltf_pipeline_smoke",
       "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
       "generated_at": "2026-05-06T00:10:04.220Z",
-      "age_hours": 14,
+      "age_hours": 15,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -34,7 +34,7 @@
       "evidence_id": "blender_asset_bake_smoke",
       "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
       "generated_at": "2026-05-06T08:19:07.305Z",
-      "age_hours": 6,
+      "age_hours": 7,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -58,6 +58,15 @@
       "blockers": []
     },
     {
+      "evidence_id": "asset_production_evidence_ladder",
+      "file": "docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
+      "generated_at": "2026-05-06T15:18:41.997Z",
+      "age_hours": 0,
+      "max_age_hours": 24,
+      "status": "fresh",
+      "blockers": []
+    },
+    {
       "evidence_id": "local_provider_benchmark",
       "file": "docs/openclinxr/local-provider-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T19:05:08.997Z",
@@ -70,7 +79,7 @@
       "evidence_id": "local_model_runtime_benchmark",
       "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T20:20:19.936Z",
-      "age_hours": 18,
+      "age_hours": 19,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -88,7 +97,7 @@
       "evidence_id": "local_voice_runtime_benchmark",
       "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T06:20:53Z",
-      "age_hours": 8,
+      "age_hours": 9,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -133,7 +142,7 @@
       "evidence_id": "blueprint_voice_simulation_spike",
       "file": "docs/openclinxr/blueprint-voice-simulation-spike-2026-05-05.json",
       "generated_at": "2026-05-06T03:18:07.296Z",
-      "age_hours": 11,
+      "age_hours": 12,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -195,7 +204,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T15:09:46.473Z",
+      "generated_at": "2026-05-06T15:22:58.845Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -492,6 +501,41 @@
         "This report evaluates production-readiness evidence from local smoke outputs only; it does not generate new third-party assets.",
         "Reviewed local clinical fixture output still requires visual QA, clinical fidelity review, and headset frame-pacing evidence before production use.",
         "The local asset evidence fixture supplies contract-level proof slots only; fixture IDs are not artifact-backed generated production assets."
+      ]
+    }
+  },
+  "asset_production_evidence_ladder": {
+    "file": "docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
+    "generated_at": "2026-05-06T15:18:41.997Z",
+    "status": "blocked",
+    "source_readiness_report": {
+      "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+      "generatedAt": "2026-05-06T15:09:30.325Z",
+      "status": "blocked",
+      "localAssetEvidenceFixtureUsed": true
+    },
+    "summary": {
+      "totalLaneCount": 7,
+      "observedLaneCount": 0,
+      "contractOnlyLaneCount": 6,
+      "blockedLaneCount": 7,
+      "artifactBackedProductionAssetEvidenceObserved": false
+    },
+    "verdict": {
+      "passed": false,
+      "readyForProductionAssets": false,
+      "blockers": [
+        "artifact_backed_production_asset_evidence_missing",
+        "generatedHumanRigging:contract_only_fixture_not_artifact_backed",
+        "skinClothingProvenance:contract_only_fixture_not_artifact_backed",
+        "medicalEquipmentLibrary:contract_only_fixture_not_artifact_backed",
+        "animationRetargeting:contract_only_fixture_not_artifact_backed",
+        "lodTextureColliderBudget:contract_only_fixture_not_artifact_backed",
+        "multiActorQuestBudget:contract_only_fixture_not_artifact_backed"
+      ],
+      "caveats": [
+        "This ladder names production asset proof lanes and claim boundaries only; it does not generate new assets.",
+        "Contract-only local fixture evidence is useful for validating report shape but is not artifact-backed production asset evidence."
       ]
     }
   },
@@ -1719,7 +1763,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T15:09:46.473Z",
+    "generated_at": "2026-05-06T15:22:58.845Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,

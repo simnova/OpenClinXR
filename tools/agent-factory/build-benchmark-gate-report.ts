@@ -18,6 +18,7 @@ import {
 import type { ApiBunWebSocketRuntimeSmokeReport } from "../openclinxr/api-bun-websocket-runtime-smoke.js";
 import type { ApiBunPythonProxyRuntimeSmokeReport } from "../openclinxr/api-bun-python-proxy-runtime-smoke.js";
 import type { ApiPythonBackendRuntimeSmokeReport } from "../openclinxr/api-python-backend-runtime-smoke.js";
+import type { AssetProductionEvidenceLadderReport } from "../openclinxr/asset-production-evidence-ladder.js";
 import type { LocalMoshiRuntimePackageEvidenceReport } from "../openclinxr/local-moshi-runtime-package-evidence.js";
 import type { LocalQwenTtsRuntimeSmokeReport } from "../openclinxr/local-qwen-tts-runtime-smoke.js";
 import type { GodotProjectImportCheck } from "../openclinxr/godot-project-import-check.js";
@@ -823,6 +824,7 @@ export type BenchmarkGateReportInput = {
   blenderAssetBakeSmoke?: EvidenceFile<BlenderAssetBakeSmokeReport>;
   assetCapabilityJobEvidence?: EvidenceFile<AssetCapabilityJobEvidenceReport>;
   assetProductionReadinessBenchmark?: EvidenceFile<AssetProductionReadinessBenchmarkReport>;
+  assetProductionEvidenceLadder?: EvidenceFile<AssetProductionEvidenceLadderReport>;
   localProviderBenchmark?: EvidenceFile<LocalProviderBenchmarkReport>;
   localModelRuntimeBenchmark?: EvidenceFile<LocalModelRuntimeBenchmarkReport>;
   localModelQualityBenchmark?: EvidenceFile<LocalModelQualityBenchmarkReport>;
@@ -864,6 +866,7 @@ async function main(): Promise<void> {
   const blenderAssetBakeSmoke = await latestJson<BlenderAssetBakeSmokeReport>("docs/openclinxr/blender-asset-bake-smoke-*.json");
   const assetCapabilityJobEvidence = await latestJson<AssetCapabilityJobEvidenceReport>("docs/openclinxr/asset-capability-job-evidence-*.json");
   const assetProductionReadinessBenchmark = await latestJson<AssetProductionReadinessBenchmarkReport>("docs/openclinxr/asset-production-readiness-benchmark-*.json");
+  const assetProductionEvidenceLadder = await latestJson<AssetProductionEvidenceLadderReport>("docs/openclinxr/asset-production-evidence-ladder-*.json");
   const localProviderBenchmark = await latestJson<LocalProviderBenchmarkReport>("docs/openclinxr/local-provider-benchmark-*.json");
   const localModelRuntimeBenchmark = await latestJson<LocalModelRuntimeBenchmarkReport>("docs/openclinxr/local-model-runtime-benchmark-*.json");
   const localModelQualityBenchmark = await latestJson<LocalModelQualityBenchmarkReport>("docs/openclinxr/local-model-quality-benchmark-*.json");
@@ -899,6 +902,7 @@ async function main(): Promise<void> {
     blenderAssetBakeSmoke,
     assetCapabilityJobEvidence,
     assetProductionReadinessBenchmark,
+    assetProductionEvidenceLadder,
     localProviderBenchmark,
     localModelRuntimeBenchmark,
     localModelQualityBenchmark,
@@ -956,6 +960,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     blenderAssetBakeSmoke,
     assetCapabilityJobEvidence,
     assetProductionReadinessBenchmark,
+    assetProductionEvidenceLadder,
     localProviderBenchmark,
     localModelRuntimeBenchmark,
     localModelQualityBenchmark,
@@ -993,6 +998,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     blenderAssetBakeSmoke,
     assetCapabilityJobEvidence,
     assetProductionReadinessBenchmark,
+    assetProductionEvidenceLadder,
     localProviderBenchmark,
     localModelRuntimeBenchmark,
     localModelQualityBenchmark,
@@ -1109,6 +1115,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
       "blender_asset_bake_smoke",
       "asset_capability_job_evidence",
       "asset_production_readiness_benchmark",
+      ...(assetProductionEvidenceLadder ? ["asset_production_evidence_ladder"] : []),
     ]),
   ];
   const iwsdkEvidenceBlockers = iwsdkEvidenceContractBlockers(iwsdkEvidenceContract?.value);
@@ -1308,6 +1315,16 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         } : {}),
         runtime_budget: assetProductionReadinessBenchmark.value.runtimeBudget,
         verdict: assetProductionReadinessBenchmark.value.verdict,
+      },
+    } : {}),
+    ...(assetProductionEvidenceLadder ? {
+      asset_production_evidence_ladder: {
+        file: assetProductionEvidenceLadder.file,
+        generated_at: assetProductionEvidenceLadder.value.generatedAt,
+        status: assetProductionEvidenceLadder.value.status,
+        source_readiness_report: assetProductionEvidenceLadder.value.sourceReadinessReport,
+        summary: assetProductionEvidenceLadder.value.summary,
+        verdict: assetProductionEvidenceLadder.value.verdict,
       },
     } : {}),
     ...(assetCapabilityJobEvidence ? {
@@ -1693,6 +1710,7 @@ function buildEvidenceFreshnessReport(
     blenderAssetBakeSmoke?: EvidenceFile<BlenderAssetBakeSmokeReport>;
     assetCapabilityJobEvidence?: EvidenceFile<AssetCapabilityJobEvidenceReport>;
     assetProductionReadinessBenchmark?: EvidenceFile<AssetProductionReadinessBenchmarkReport>;
+    assetProductionEvidenceLadder?: EvidenceFile<AssetProductionEvidenceLadderReport>;
     localProviderBenchmark?: EvidenceFile<LocalProviderBenchmarkReport>;
     localModelRuntimeBenchmark?: EvidenceFile<LocalModelRuntimeBenchmarkReport>;
     localModelQualityBenchmark?: EvidenceFile<LocalModelQualityBenchmarkReport>;
@@ -1723,6 +1741,9 @@ function buildEvidenceFreshnessReport(
     evidenceFreshnessEntry("blender_asset_bake_smoke", evidence.blenderAssetBakeSmoke, now, maxAgeHours),
     evidenceFreshnessEntry("asset_capability_job_evidence", evidence.assetCapabilityJobEvidence, now, maxAgeHours),
     evidenceFreshnessEntry("asset_production_readiness_benchmark", evidence.assetProductionReadinessBenchmark, now, maxAgeHours),
+    ...(evidence.assetProductionEvidenceLadder
+      ? [evidenceFreshnessEntry("asset_production_evidence_ladder", evidence.assetProductionEvidenceLadder, now, maxAgeHours)]
+      : []),
     evidenceFreshnessEntry("local_provider_benchmark", evidence.localProviderBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_model_runtime_benchmark", evidence.localModelRuntimeBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_model_quality_benchmark", evidence.localModelQualityBenchmark, now, maxAgeHours),

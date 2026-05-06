@@ -85,6 +85,7 @@
     "asset:gltf:smoke": "tsx tools/openclinxr/gltf-pipeline-smoke.ts",
     "asset:blender:bake": "tsx tools/openclinxr/blender-asset-bake-smoke.ts",
     "asset:capability:evidence": "tsx tools/openclinxr/asset-capability-job-evidence.ts",
+    "asset:production:ladder": "tsx tools/openclinxr/asset-production-evidence-ladder.ts",
     "asset:production:readiness": "tsx tools/openclinxr/asset-production-readiness-benchmark.ts",
     "xr:quest:smoke": "tsx tools/openclinxr/quest-cdp-smoke.ts",
     "xr:quest:smoke:validate": "tsx tools/openclinxr/quest-cdp-smoke.ts --validate-latest",

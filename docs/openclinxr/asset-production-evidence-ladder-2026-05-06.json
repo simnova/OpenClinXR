@@ -1,0 +1,268 @@
+{
+  "kind": "asset_production_evidence_ladder",
+  "generatedAt": "2026-05-06T15:18:41.997Z",
+  "status": "blocked",
+  "sourceReadinessReport": {
+    "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+    "generatedAt": "2026-05-06T15:09:30.325Z",
+    "status": "blocked",
+    "localAssetEvidenceFixtureUsed": true
+  },
+  "policy": {
+    "installsIntroduced": false,
+    "cloudApisUsed": false,
+    "paidApisUsed": false,
+    "externalAssetsUsed": false,
+    "productionAssetReadinessClaimed": false
+  },
+  "lanes": [
+    {
+      "id": "generatedHumanRigging",
+      "title": "Generated human rigging",
+      "status": "contract_only",
+      "requiredArtifactEvidence": [
+        "neutral generated human GLB",
+        "canonical skeleton binding report",
+        "skin-weight quality report"
+      ],
+      "currentEvidence": {
+        "source": "asset_production_readiness_benchmark.productionProofs.generatedHumanRigging",
+        "observed": true,
+        "posture": "contract_only_fixture"
+      },
+      "claimBoundary": {
+        "allowedClaims": [
+          "local asset evidence fixture contract slots observed",
+          "reviewed local clinical fixture semantic inventory observed"
+        ],
+        "notEvidenceFor": [
+          "production clinical asset generation readiness",
+          "artifact-backed generated human rigging",
+          "artifact-backed skin and clothing provenance",
+          "artifact-backed medical equipment library coverage",
+          "artifact-backed animation retargeting",
+          "artifact-backed Quest 3 production bundle budget"
+        ]
+      },
+      "blockers": [
+        "contract_only_fixture_not_artifact_backed"
+      ]
+    },
+    {
+      "id": "skinClothingProvenance",
+      "title": "Skin and clothing provenance",
+      "status": "contract_only",
+      "requiredArtifactEvidence": [
+        "skin and texture provenance manifest",
+        "clothing mesh provenance manifest",
+        "runtime-safe material report"
+      ],
+      "currentEvidence": {
+        "source": "asset_production_readiness_benchmark.productionProofs.skinClothingProvenance",
+        "observed": true,
+        "posture": "contract_only_fixture"
+      },
+      "claimBoundary": {
+        "allowedClaims": [
+          "local asset evidence fixture contract slots observed",
+          "reviewed local clinical fixture semantic inventory observed"
+        ],
+        "notEvidenceFor": [
+          "production clinical asset generation readiness",
+          "artifact-backed generated human rigging",
+          "artifact-backed skin and clothing provenance",
+          "artifact-backed medical equipment library coverage",
+          "artifact-backed animation retargeting",
+          "artifact-backed Quest 3 production bundle budget"
+        ]
+      },
+      "blockers": [
+        "contract_only_fixture_not_artifact_backed"
+      ]
+    },
+    {
+      "id": "medicalEquipmentLibrary",
+      "title": "Medical equipment library",
+      "status": "contract_only",
+      "requiredArtifactEvidence": [
+        "equipment GLB artifact inventory",
+        "clinical affordance metadata",
+        "license provenance record"
+      ],
+      "currentEvidence": {
+        "source": "asset_production_readiness_benchmark.productionProofs.medicalEquipmentLibrary",
+        "observed": true,
+        "posture": "contract_only_fixture"
+      },
+      "claimBoundary": {
+        "allowedClaims": [
+          "local asset evidence fixture contract slots observed",
+          "reviewed local clinical fixture semantic inventory observed"
+        ],
+        "notEvidenceFor": [
+          "production clinical asset generation readiness",
+          "artifact-backed generated human rigging",
+          "artifact-backed skin and clothing provenance",
+          "artifact-backed medical equipment library coverage",
+          "artifact-backed animation retargeting",
+          "artifact-backed Quest 3 production bundle budget"
+        ]
+      },
+      "blockers": [
+        "contract_only_fixture_not_artifact_backed"
+      ]
+    },
+    {
+      "id": "animationRetargeting",
+      "title": "Animation retargeting",
+      "status": "contract_only",
+      "requiredArtifactEvidence": [
+        "canonical skeleton animation clips",
+        "facial target or viseme mapping",
+        "retargeting QA report"
+      ],
+      "currentEvidence": {
+        "source": "asset_production_readiness_benchmark.productionProofs.animationRetargeting",
+        "observed": true,
+        "posture": "contract_only_fixture"
+      },
+      "claimBoundary": {
+        "allowedClaims": [
+          "local asset evidence fixture contract slots observed",
+          "reviewed local clinical fixture semantic inventory observed"
+        ],
+        "notEvidenceFor": [
+          "production clinical asset generation readiness",
+          "artifact-backed generated human rigging",
+          "artifact-backed skin and clothing provenance",
+          "artifact-backed medical equipment library coverage",
+          "artifact-backed animation retargeting",
+          "artifact-backed Quest 3 production bundle budget"
+        ]
+      },
+      "blockers": [
+        "contract_only_fixture_not_artifact_backed"
+      ]
+    },
+    {
+      "id": "lodTextureColliderBudget",
+      "title": "LOD, texture, and collider budget",
+      "status": "contract_only",
+      "requiredArtifactEvidence": [
+        "LOD0/LOD1/LOD2 artifact set",
+        "KTX2 or texture budget report",
+        "collider simplification report"
+      ],
+      "currentEvidence": {
+        "source": "asset_production_readiness_benchmark.productionProofs.lodTextureColliderBudget",
+        "observed": true,
+        "posture": "contract_only_fixture"
+      },
+      "claimBoundary": {
+        "allowedClaims": [
+          "local asset evidence fixture contract slots observed",
+          "reviewed local clinical fixture semantic inventory observed"
+        ],
+        "notEvidenceFor": [
+          "production clinical asset generation readiness",
+          "artifact-backed generated human rigging",
+          "artifact-backed skin and clothing provenance",
+          "artifact-backed medical equipment library coverage",
+          "artifact-backed animation retargeting",
+          "artifact-backed Quest 3 production bundle budget"
+        ]
+      },
+      "blockers": [
+        "contract_only_fixture_not_artifact_backed"
+      ]
+    },
+    {
+      "id": "multiActorQuestBudget",
+      "title": "Multi-actor Quest 3 station budget",
+      "status": "contract_only",
+      "requiredArtifactEvidence": [
+        "station bundle artifact manifest",
+        "multi-actor draw-call and texture-memory budget",
+        "Quest foreground frame-pacing evidence"
+      ],
+      "currentEvidence": {
+        "source": "asset_production_readiness_benchmark.productionProofs.multiActorQuestBudget",
+        "observed": true,
+        "posture": "contract_only_fixture"
+      },
+      "claimBoundary": {
+        "allowedClaims": [
+          "local asset evidence fixture contract slots observed",
+          "reviewed local clinical fixture semantic inventory observed"
+        ],
+        "notEvidenceFor": [
+          "production clinical asset generation readiness",
+          "artifact-backed generated human rigging",
+          "artifact-backed skin and clothing provenance",
+          "artifact-backed medical equipment library coverage",
+          "artifact-backed animation retargeting",
+          "artifact-backed Quest 3 production bundle budget"
+        ]
+      },
+      "blockers": [
+        "contract_only_fixture_not_artifact_backed"
+      ]
+    },
+    {
+      "id": "artifactBackedProductionAssetEvidence",
+      "title": "Artifact-backed production asset evidence",
+      "status": "blocked",
+      "requiredArtifactEvidence": [
+        "artifact-backed generated clinical character and equipment assets",
+        "reviewed provenance for generated source assets",
+        "visual QA and Quest budget evidence tied to those artifacts"
+      ],
+      "currentEvidence": {
+        "source": "asset_production_readiness_benchmark.claimBoundaries",
+        "observed": false,
+        "posture": "missing"
+      },
+      "claimBoundary": {
+        "allowedClaims": [
+          "local asset evidence fixture contract slots observed",
+          "reviewed local clinical fixture semantic inventory observed"
+        ],
+        "notEvidenceFor": [
+          "production clinical asset generation readiness",
+          "artifact-backed generated human rigging",
+          "artifact-backed skin and clothing provenance",
+          "artifact-backed medical equipment library coverage",
+          "artifact-backed animation retargeting",
+          "artifact-backed Quest 3 production bundle budget"
+        ]
+      },
+      "blockers": [
+        "artifact_backed_production_asset_evidence_missing"
+      ]
+    }
+  ],
+  "summary": {
+    "totalLaneCount": 7,
+    "observedLaneCount": 0,
+    "contractOnlyLaneCount": 6,
+    "blockedLaneCount": 7,
+    "artifactBackedProductionAssetEvidenceObserved": false
+  },
+  "verdict": {
+    "passed": false,
+    "readyForProductionAssets": false,
+    "blockers": [
+      "artifact_backed_production_asset_evidence_missing",
+      "generatedHumanRigging:contract_only_fixture_not_artifact_backed",
+      "skinClothingProvenance:contract_only_fixture_not_artifact_backed",
+      "medicalEquipmentLibrary:contract_only_fixture_not_artifact_backed",
+      "animationRetargeting:contract_only_fixture_not_artifact_backed",
+      "lodTextureColliderBudget:contract_only_fixture_not_artifact_backed",
+      "multiActorQuestBudget:contract_only_fixture_not_artifact_backed"
+    ],
+    "caveats": [
+      "This ladder names production asset proof lanes and claim boundaries only; it does not generate new assets.",
+      "Contract-only local fixture evidence is useful for validating report shape but is not artifact-backed production asset evidence."
+    ]
+  }
+}
