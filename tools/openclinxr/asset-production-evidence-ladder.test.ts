@@ -137,6 +137,7 @@ describe("asset production evidence ladder report", () => {
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-asset-ladder-validate-"));
     const outputPath = path.join(tempDir, "asset-production-evidence-ladder.json");
     const invalidPath = path.join(tempDir, "asset-production-evidence-ladder-invalid.json");
+    const staleSourcePath = path.join(tempDir, "asset-production-evidence-ladder-stale-source.json");
     const previousExitCode = process.exitCode;
 
     try {
@@ -149,6 +150,14 @@ describe("asset production evidence ladder report", () => {
 
       await expect(runAssetProductionEvidenceLadderCli(["--validate", outputPath])).resolves.toBeUndefined();
       await expect(runAssetProductionEvidenceLadderCli(["--validate-latest"])).resolves.toBeUndefined();
+
+      const staleSourceReport = JSON.parse(await readFile(outputPath, "utf8"));
+      staleSourceReport.sourceReadinessReport.generatedAt = "2026-05-06T00:00:00.000Z";
+      await writeFile(staleSourcePath, `${JSON.stringify(staleSourceReport, null, 2)}\n`, "utf8");
+
+      process.exitCode = undefined;
+      await runAssetProductionEvidenceLadderCli(["--validate", staleSourcePath]);
+      expect(process.exitCode).toBe(1);
 
       const invalidReport = JSON.parse(await readFile(outputPath, "utf8"));
       delete invalidReport.schemaVersion;

@@ -173,10 +173,20 @@ export async function runAssetProductionEvidenceLadderCli(args: string[]): Promi
     if (!validatePath) {
       throw new Error("Missing asset production evidence ladder report to validate.");
     }
-    const validation = validateAssetProductionEvidenceLadderReport(
-      await readJson<unknown>(validatePath),
-    );
+    const report = await readJson<unknown>(validatePath);
+    const validation = validateAssetProductionEvidenceLadderReport(report);
+    const sourceValidation = validation.ok
+      ? await validateSourceReadinessReportLink(report as AssetProductionEvidenceLadderReport)
+      : { ok: true } satisfies ValidationResult;
     if (validation.ok) {
+      if (!sourceValidation.ok) {
+        for (const error of sourceValidation.errors) {
+          console.error(error);
+        }
+        process.exitCode = 1;
+        return;
+      }
+
       console.log(`Validated ${validatePath}`);
       return;
     }
@@ -375,6 +385,46 @@ export function validateAssetProductionEvidenceLadderReport(value: unknown): Val
   validateConsistency(value, errors);
 
   return errors.length === 0 ? { ok: true } : { ok: false, errors };
+}
+
+async function validateSourceReadinessReportLink(
+  report: AssetProductionEvidenceLadderReport,
+): Promise<ValidationResult> {
+  const errors: string[] = [];
+  let sourceReadinessReport: unknown;
+  try {
+    sourceReadinessReport = await readJson<unknown>(report.sourceReadinessReport.file);
+  } catch (error) {
+    errors.push(`/sourceReadinessReport/file could not be read: ${formatError(error)}`);
+    return { ok: false, errors };
+  }
+
+  const sourceValidation = validateAssetProductionReadinessReport(sourceReadinessReport);
+  if (!sourceValidation.ok) {
+    return {
+      ok: false,
+      errors: sourceValidation.errors.map((error) => `/sourceReadinessReport/file ${error}`),
+    };
+  }
+
+  const source = sourceReadinessReport as AssetProductionReadinessReport;
+  if (report.sourceReadinessReport.generatedAt !== source.generatedAt) {
+    errors.push("/sourceReadinessReport/generatedAt must match linked readiness report generatedAt");
+  }
+  if (report.sourceReadinessReport.status !== source.status) {
+    errors.push("/sourceReadinessReport/status must match linked readiness report status");
+  }
+  if (report.sourceReadinessReport.localAssetEvidenceFixtureUsed !== source.input.localAssetEvidenceFixtureUsed) {
+    errors.push(
+      "/sourceReadinessReport/localAssetEvidenceFixtureUsed must match linked readiness report input.localAssetEvidenceFixtureUsed",
+    );
+  }
+
+  return errors.length === 0 ? { ok: true } : { ok: false, errors };
+}
+
+function formatError(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
 
 function validateConsistency(value: Record<string, unknown>, errors: string[]): void {
