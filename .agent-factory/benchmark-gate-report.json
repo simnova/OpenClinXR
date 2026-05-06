@@ -16,7 +16,7 @@
       "evidence_id": "local_runtime_probe",
       "file": "docs/openclinxr/local-runtime-probe-2026-05-06.json",
       "generated_at": "2026-05-06T14:06:52.238Z",
-      "age_hours": 0,
+      "age_hours": 1,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -51,8 +51,8 @@
     {
       "evidence_id": "asset_production_readiness_benchmark",
       "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
-      "generated_at": "2026-05-06T08:19:18.833Z",
-      "age_hours": 6,
+      "generated_at": "2026-05-06T15:09:30.325Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -61,7 +61,7 @@
       "evidence_id": "local_provider_benchmark",
       "file": "docs/openclinxr/local-provider-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T19:05:08.997Z",
-      "age_hours": 19,
+      "age_hours": 20,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -195,7 +195,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T15:03:40.758Z",
+      "generated_at": "2026-05-06T15:09:46.473Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -367,8 +367,8 @@
   },
   "asset_production_readiness_benchmark": {
     "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
-    "generated_at": "2026-05-06T08:19:18.833Z",
-    "status": "passed",
+    "generated_at": "2026-05-06T15:09:30.325Z",
+    "status": "blocked",
     "input": {
       "gltfPipelineSmokeFile": "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
       "blenderAssetBakeSmokeFile": "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
@@ -483,9 +483,11 @@
       "blockers": []
     },
     "verdict": {
-      "passed": true,
+      "passed": false,
       "readyForProductionAssets": false,
-      "blockers": [],
+      "blockers": [
+        "artifact_backed_production_asset_evidence_missing"
+      ],
       "caveats": [
         "This report evaluates production-readiness evidence from local smoke outputs only; it does not generate new third-party assets.",
         "Reviewed local clinical fixture output still requires visual QA, clinical fidelity review, and headset frame-pacing evidence before production use.",
@@ -1717,7 +1719,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T15:03:40.758Z",
+    "generated_at": "2026-05-06T15:09:46.473Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -1929,7 +1931,6 @@
         "asset_production_lod_tiers_observed",
         "asset_production_medical_equipment_library_observed",
         "asset_production_multi_actor_quest_budget_observed",
-        "asset_production_readiness_benchmark_passed",
         "asset_production_readiness_report_present",
         "asset_production_skin_clothing_provenance_observed",
         "asset_production_source_smokes_passed",
@@ -2249,7 +2250,6 @@
         "asset_production_lod_tiers_observed",
         "asset_production_medical_equipment_library_observed",
         "asset_production_multi_actor_quest_budget_observed",
-        "asset_production_readiness_benchmark_passed",
         "asset_production_readiness_report_present",
         "asset_production_skin_clothing_provenance_observed",
         "asset_production_source_smokes_passed",
@@ -2611,7 +2611,6 @@
         "asset_production_lod_tiers_observed",
         "asset_production_medical_equipment_library_observed",
         "asset_production_multi_actor_quest_budget_observed",
-        "asset_production_readiness_benchmark_passed",
         "asset_production_readiness_report_present",
         "asset_production_skin_clothing_provenance_observed",
         "asset_production_source_smokes_passed",

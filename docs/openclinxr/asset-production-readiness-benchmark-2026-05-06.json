@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-06T08:19:18.833Z",
-  "status": "passed",
+  "generatedAt": "2026-05-06T15:09:30.325Z",
+  "status": "blocked",
   "policy": {
     "cloudApisUsed": false,
     "paidApisUsed": false,
@@ -121,10 +121,28 @@
     "multiActorBudgetObserved": true,
     "blockers": []
   },
+  "claimBoundaries": {
+    "localAssetEvidenceFixtureIsContractOnly": true,
+    "artifactBackedProductionAssetEvidenceObserved": false,
+    "allowedClaims": [
+      "local asset evidence fixture contract slots observed",
+      "reviewed local clinical fixture semantic inventory observed"
+    ],
+    "notEvidenceFor": [
+      "production clinical asset generation readiness",
+      "artifact-backed generated human rigging",
+      "artifact-backed skin and clothing provenance",
+      "artifact-backed medical equipment library coverage",
+      "artifact-backed animation retargeting",
+      "artifact-backed Quest 3 production bundle budget"
+    ]
+  },
   "verdict": {
-    "passed": true,
+    "passed": false,
     "readyForProductionAssets": false,
-    "blockers": [],
+    "blockers": [
+      "artifact_backed_production_asset_evidence_missing"
+    ],
     "caveats": [
       "This report evaluates production-readiness evidence from local smoke outputs only; it does not generate new third-party assets.",
       "Reviewed local clinical fixture output still requires visual QA, clinical fidelity review, and headset frame-pacing evidence before production use.",

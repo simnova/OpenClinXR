@@ -141,6 +141,12 @@ export type AssetProductionReadinessReport = {
     multiActorBudgetObserved: boolean;
     blockers: string[];
   };
+  claimBoundaries: {
+    localAssetEvidenceFixtureIsContractOnly: boolean;
+    artifactBackedProductionAssetEvidenceObserved: boolean;
+    allowedClaims: string[];
+    notEvidenceFor: string[];
+  };
   verdict: {
     passed: boolean;
     readyForProductionAssets: false;
@@ -244,8 +250,17 @@ export function buildAssetProductionReadinessReport(input: {
   const proofs = buildProofLanes(input.proofOverrides ?? {}, stationBudgetEvidence, generationEvidence, optimizationEvidence);
   const sourceEvidence = inspectSourceEvidence(input.gltfPipelineSmoke, input.blenderAssetBakeSmoke);
   const runtimeBudget = inspectRuntimeBudget(input.blenderAssetBakeSmoke, stationBudgetEvidence.observed);
+  const claimBoundaries = buildClaimBoundaries(
+    input.useLocalAssetEvidenceFixture === true,
+    sourceEvidence,
+    proofs,
+    stationBudgetEvidence,
+    generationEvidence,
+    optimizationEvidence,
+  );
   const blockers = [
     ...sourceEvidence.blockers.map((blocker) => `source:${blocker}`),
+    claimBoundaries.localAssetEvidenceFixtureIsContractOnly ? "artifact_backed_production_asset_evidence_missing" : undefined,
     stationBudgetEvidence.placeholderOnly ? "station_budget:placeholder_asset_budget_only" : undefined,
     generationEvidence.placeholderOnly ? "generation:placeholder_asset_generation_only" : undefined,
     optimizationEvidence.placeholderOnly ? "optimization:placeholder_asset_optimization_only" : undefined,
@@ -281,6 +296,7 @@ export function buildAssetProductionReadinessReport(input: {
     generationEvidence,
     optimizationEvidence,
     runtimeBudget,
+    claimBoundaries,
     verdict: {
       passed,
       readyForProductionAssets: false,
@@ -295,6 +311,41 @@ export function buildAssetProductionReadinessReport(input: {
           : []),
       ],
     },
+  };
+}
+
+function buildClaimBoundaries(
+  localAssetEvidenceFixtureIsContractOnly: boolean,
+  sourceEvidence: AssetProductionReadinessReport["sourceEvidence"],
+  proofs: Record<ProofLaneId, ProofLaneReport>,
+  stationBudgetEvidence: StationBudgetEvidence,
+  generationEvidence: ScenarioGenerationEvidence,
+  optimizationEvidence: ScenarioOptimizationEvidence,
+): AssetProductionReadinessReport["claimBoundaries"] {
+  const allProofLanesObserved = Object.values(proofs).every((proof) => proof.observed);
+  const artifactBackedProductionAssetEvidenceObserved = !localAssetEvidenceFixtureIsContractOnly
+    && sourceEvidence.blockers.length === 0
+    && !stationBudgetEvidence.placeholderOnly
+    && !generationEvidence.placeholderOnly
+    && !optimizationEvidence.placeholderOnly
+    && allProofLanesObserved;
+
+  return {
+    localAssetEvidenceFixtureIsContractOnly,
+    artifactBackedProductionAssetEvidenceObserved,
+    allowedClaims: [
+      localAssetEvidenceFixtureIsContractOnly ? "local asset evidence fixture contract slots observed" : undefined,
+      sourceEvidence.blenderSemanticInventoryObserved ? "reviewed local clinical fixture semantic inventory observed" : undefined,
+      artifactBackedProductionAssetEvidenceObserved ? "artifact-backed production asset evidence observed" : undefined,
+    ].filter((claim): claim is string => typeof claim === "string"),
+    notEvidenceFor: artifactBackedProductionAssetEvidenceObserved ? [] : [
+      "production clinical asset generation readiness",
+      "artifact-backed generated human rigging",
+      "artifact-backed skin and clothing provenance",
+      "artifact-backed medical equipment library coverage",
+      "artifact-backed animation retargeting",
+      "artifact-backed Quest 3 production bundle budget",
+    ],
   };
 }
 

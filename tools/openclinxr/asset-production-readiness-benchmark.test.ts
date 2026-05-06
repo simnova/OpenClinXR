@@ -279,14 +279,17 @@ describe("asset production readiness report", () => {
     expect(report.verdict).toMatchObject({
       passed: false,
       readyForProductionAssets: false,
-      blockers: ["source:placeholder_bake_only"],
+      blockers: [
+        "source:placeholder_bake_only",
+        "artifact_backed_production_asset_evidence_missing",
+      ],
     });
     expect(report.verdict.caveats).toContain(
       "The local asset evidence fixture supplies contract-level proof slots only; fixture IDs are not artifact-backed generated production assets.",
     );
   });
 
-  it("passes local evidence fixture manifests with reviewed artifact-backed Blender source evidence", () => {
+  it("blocks contract-only local evidence fixtures even when reviewed Blender source evidence is present", () => {
     const report = buildAssetProductionReadinessReport({
       generatedAt: "2026-05-06T06:45:00.000Z",
       gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
@@ -308,10 +311,26 @@ describe("asset production readiness report", () => {
       blenderMissingRequiredObjectNames: [],
       blockers: [],
     });
+    expect(report.claimBoundaries).toEqual({
+      localAssetEvidenceFixtureIsContractOnly: true,
+      artifactBackedProductionAssetEvidenceObserved: false,
+      allowedClaims: [
+        "local asset evidence fixture contract slots observed",
+        "reviewed local clinical fixture semantic inventory observed",
+      ],
+      notEvidenceFor: [
+        "production clinical asset generation readiness",
+        "artifact-backed generated human rigging",
+        "artifact-backed skin and clothing provenance",
+        "artifact-backed medical equipment library coverage",
+        "artifact-backed animation retargeting",
+        "artifact-backed Quest 3 production bundle budget",
+      ],
+    });
     expect(report.verdict).toMatchObject({
-      passed: true,
+      passed: false,
       readyForProductionAssets: false,
-      blockers: [],
+      blockers: ["artifact_backed_production_asset_evidence_missing"],
     });
     expect(report.runtimeBudget.singleAssetPackGlbBytes).toBe(109040);
     expect(report.verdict.caveats).toEqual([

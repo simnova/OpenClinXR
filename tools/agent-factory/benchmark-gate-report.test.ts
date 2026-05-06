@@ -1831,13 +1831,13 @@ describe("benchmark gate report", () => {
         "asset_production_local_fixture_contract_slots_observed",
         "asset_production_medical_equipment_library_observed",
         "asset_production_multi_actor_quest_budget_observed",
-        "asset_production_readiness_benchmark_passed",
         "asset_production_readiness_report_present",
         "asset_production_skin_clothing_provenance_observed",
         "asset_production_source_smokes_passed",
         "asset_production_texture_compression_budget_observed",
       ]),
     }));
+    expect(gatesById.get("evidence-leadership-0009-005")?.satisfied_conditions).not.toContain("asset_production_readiness_benchmark_passed");
     expect(gatesById.get("evidence-leadership-0009-005")?.blockers).not.toEqual(expect.arrayContaining([
       "asset_production:generation:generated_human_rigging_missing",
       "asset_production:generation:skin_clothing_provenance_missing",
@@ -3792,9 +3792,9 @@ describe("benchmark gate report", () => {
             blockers: [],
           },
           verdict: {
-            passed: true,
+            passed: false,
             readyForProductionAssets: false,
-            blockers: [],
+            blockers: ["artifact_backed_production_asset_evidence_missing"],
             caveats: [
               "The local asset evidence fixture supplies contract-level proof slots only; fixture IDs are not artifact-backed generated production assets.",
             ],
@@ -3814,8 +3814,8 @@ describe("benchmark gate report", () => {
     });
     expect(assetGate?.satisfied_conditions).toEqual(expect.arrayContaining([
       "asset_production_local_fixture_contract_slots_observed",
-      "asset_production_readiness_benchmark_passed",
     ]));
+    expect(assetGate?.satisfied_conditions).not.toContain("asset_production_readiness_benchmark_passed");
     expect(report.asset_production_readiness_benchmark?.input).toEqual({
       localAssetEvidenceFixtureUsed: true,
     });
