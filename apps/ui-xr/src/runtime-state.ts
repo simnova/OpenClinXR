@@ -169,6 +169,7 @@ export type ManualPerformanceInputEvidence = {
   xrHandGestureState?: XrHandGestureStateEvidence;
   xrHandSelectState?: XrHandSelectStateEvidence;
   xrInputSources?: XrInputSourceEvidence[];
+  locomotionDiagnostics?: LocomotionAttemptDiagnosticsEvidence;
   rigPosition: { x: number; z: number };
   roomScalePose?: RigPoseEvidence;
   roomScaleDelta?: LocomotionDeltaEvidence;
@@ -204,6 +205,43 @@ export type XrInputSourceEvidence = {
   axisCount: number;
 };
 
+export type XrGamepadLocomotionDiagnosticEvidence = {
+  handedness: string;
+  rawAxes: number[];
+  selectedXAxisIndex: number | null;
+  selectedYAxisIndex: number | null;
+  xAxisAfterDeadzone: number;
+  yAxisAfterDeadzone: number;
+  activeAfterDeadzone: boolean;
+  contribution: "move" | "turn";
+};
+
+export type XrHandGestureHandDiagnosticEvidence = {
+  handedness: "left" | "right";
+  jointsVisible: {
+    wrist: boolean;
+    indexTip: boolean;
+    thumbTip: boolean;
+  };
+  pinchDistanceMeters: number | null;
+  pinching: boolean;
+  armed: boolean;
+  dwellMs: number;
+  relativeOffsetMeters: { x: number; z: number } | null;
+  movementCrossedDeadzone: boolean;
+  blockedReason?: XrHandGestureStateEvidence["blockedReason"] | "below_deadzone" | "turn_cooldown";
+};
+
+export type LocomotionAttemptDiagnosticsEvidence = {
+  claimScope: "attempt_diagnostics_only";
+  gamepadDeadzone: number;
+  handPinchThresholdMeters: number;
+  handGestureDeadzoneMeters: number;
+  handGestureTurnDeadzoneMeters: number;
+  gamepadSources: XrGamepadLocomotionDiagnosticEvidence[];
+  handGestureHands: XrHandGestureHandDiagnosticEvidence[];
+};
+
 export type XrHandGestureStateEvidence = {
   armed: boolean;
   dwellMs: number;
@@ -236,6 +274,7 @@ export type ManualPerformanceInputEvidenceInput = {
   xrHandGestureState?: XrHandGestureStateEvidence;
   xrHandSelectState?: XrHandSelectStateEvidence;
   xrInputSources: XrInputSourceEvidence[];
+  locomotionDiagnostics?: LocomotionAttemptDiagnosticsEvidence;
   now: number;
   previousLastInputObservedAtMs: number | null;
   previousLastLocomotionAtMs: number | null;
@@ -1019,6 +1058,7 @@ export function buildManualPerformanceInputEvidence(
     ...(xrHandGestureState ? { xrHandGestureState } : {}),
     ...(xrHandSelectState ? { xrHandSelectState } : {}),
     xrInputSources: input.xrInputSources.map((source) => ({ ...source })),
+    ...(input.locomotionDiagnostics ? { locomotionDiagnostics: normalizeLocomotionAttemptDiagnostics(input.locomotionDiagnostics) } : {}),
     rigPosition: {
       x: rigPose.x,
       z: rigPose.z,
@@ -1129,6 +1169,46 @@ function normalizeXrHandSelectState(state: XrHandSelectStateEvidence): XrHandSel
     firedCount: Math.max(0, Math.round(state.firedCount)),
     lastFiredAtMs: nullableRoundedMetric(state.lastFiredAtMs),
     ...(state.blockedReason ? { blockedReason: state.blockedReason } : {}),
+  };
+}
+
+function normalizeLocomotionAttemptDiagnostics(
+  diagnostics: LocomotionAttemptDiagnosticsEvidence,
+): LocomotionAttemptDiagnosticsEvidence {
+  return {
+    claimScope: "attempt_diagnostics_only",
+    gamepadDeadzone: roundMetric(diagnostics.gamepadDeadzone, 3),
+    handPinchThresholdMeters: roundMetric(diagnostics.handPinchThresholdMeters, 3),
+    handGestureDeadzoneMeters: roundMetric(diagnostics.handGestureDeadzoneMeters, 3),
+    handGestureTurnDeadzoneMeters: roundMetric(diagnostics.handGestureTurnDeadzoneMeters, 3),
+    gamepadSources: diagnostics.gamepadSources.map((source) => ({
+      handedness: source.handedness,
+      rawAxes: source.rawAxes.map((axis) => roundMetric(axis, 3)),
+      selectedXAxisIndex: source.selectedXAxisIndex,
+      selectedYAxisIndex: source.selectedYAxisIndex,
+      xAxisAfterDeadzone: roundMetric(source.xAxisAfterDeadzone, 3),
+      yAxisAfterDeadzone: roundMetric(source.yAxisAfterDeadzone, 3),
+      activeAfterDeadzone: source.activeAfterDeadzone,
+      contribution: source.contribution,
+    })),
+    handGestureHands: diagnostics.handGestureHands.map((hand) => ({
+      handedness: hand.handedness,
+      jointsVisible: { ...hand.jointsVisible },
+      pinchDistanceMeters: typeof hand.pinchDistanceMeters === "number" && Number.isFinite(hand.pinchDistanceMeters)
+        ? roundMetric(hand.pinchDistanceMeters, 3)
+        : null,
+      pinching: hand.pinching,
+      armed: hand.armed,
+      dwellMs: roundMetric(Math.max(0, hand.dwellMs)),
+      relativeOffsetMeters: hand.relativeOffsetMeters
+        ? {
+          x: roundMetric(hand.relativeOffsetMeters.x, 3),
+          z: roundMetric(hand.relativeOffsetMeters.z, 3),
+        }
+        : null,
+      movementCrossedDeadzone: hand.movementCrossedDeadzone,
+      ...(hand.blockedReason ? { blockedReason: hand.blockedReason } : {}),
+    })),
   };
 }
 

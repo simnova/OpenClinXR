@@ -99,6 +99,38 @@ export type QuestManualPerformanceReport = {
     locomotionMode?: string;
     locomotionAttempt?: QuestLocomotionAttempt;
     activeLocomotionSource?: "none" | "keyboard" | "xr_gamepad" | "xr_hand_gesture" | "xr_room_scale" | "mixed";
+    locomotionDiagnostics?: {
+      claimScope?: "attempt_diagnostics_only";
+      gamepadDeadzone?: number;
+      handPinchThresholdMeters?: number;
+      handGestureDeadzoneMeters?: number;
+      handGestureTurnDeadzoneMeters?: number;
+      gamepadSources?: Array<{
+        handedness?: string;
+        rawAxes?: number[];
+        selectedXAxisIndex?: number | null;
+        selectedYAxisIndex?: number | null;
+        xAxisAfterDeadzone?: number;
+        yAxisAfterDeadzone?: number;
+        activeAfterDeadzone?: boolean;
+        contribution?: "move" | "turn";
+      }>;
+      handGestureHands?: Array<{
+        handedness?: "left" | "right";
+        jointsVisible?: {
+          wrist?: boolean;
+          indexTip?: boolean;
+          thumbTip?: boolean;
+        };
+        pinchDistanceMeters?: number | null;
+        pinching?: boolean;
+        armed?: boolean;
+        dwellMs?: number;
+        relativeOffsetMeters?: { x?: number; z?: number } | null;
+        movementCrossedDeadzone?: boolean;
+        blockedReason?: string;
+      }>;
+    };
     xrHandGestureState?: {
       armed?: boolean;
       dwellMs?: number;

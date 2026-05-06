@@ -59,6 +59,15 @@
       "turnCooldownMs": 450,
       "blockedReason": "not_pinching"
     },
+    "locomotionDiagnostics": {
+      "claimScope": "attempt_diagnostics_only",
+      "gamepadDeadzone": 0.18,
+      "handPinchThresholdMeters": 0.035,
+      "handGestureDeadzoneMeters": 0.045,
+      "handGestureTurnDeadzoneMeters": 0.055,
+      "gamepadSources": [],
+      "handGestureHands": []
+    },
     "lastLocomotionAtMs": null,
     "rigPosition": {
       "x": 0,

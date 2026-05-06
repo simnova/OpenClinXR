@@ -51,6 +51,7 @@ import {
   remoteActorTurnForTraceTag,
   stationTraceActionTags,
   summarizeTraceReadiness,
+  type LocomotionAttemptDiagnosticsEvidence,
   type LocomotionVectorEvidence,
   type ManualEvidenceCopyDisposition,
   type ManualPerformanceCaptureSummary,
@@ -1133,6 +1134,14 @@ type XrHandGestureHandState = {
 type XrHandGestureLocomotionResult = LocomotionVectorEvidence & {
   handInputsObserved: number;
   state: XrHandGestureStateEvidence;
+  diagnostics: LocomotionAttemptDiagnosticsEvidence["handGestureHands"];
+};
+
+type XrHandGestureVectorResult = LocomotionVectorEvidence & {
+  armed: boolean;
+  dwellMs: number;
+  blockedReason?: XrHandGestureStateEvidence["blockedReason"] | "below_deadzone" | "turn_cooldown";
+  diagnostic: LocomotionAttemptDiagnosticsEvidence["handGestureHands"][number];
 };
 
 type XrHandSelectState = {
@@ -1152,6 +1161,7 @@ const handSelectDwellMs = 650;
 const handSelectMovementToleranceMeters = 0.025;
 const handSelectCooldownMs = 850;
 const handPinchDistanceThresholdMeters = 0.035;
+const xrGamepadDeadzone = 0.18;
 
 function createKeyboardLocomotion(): KeyboardLocomotionState {
   const state = { forward: 0, strafe: 0, turn: 0 };
@@ -1277,6 +1287,15 @@ function applyLocomotion(input: {
     xrVector,
     xrHandGestureVector,
     xrHandGestureState: xrHandGestureLocomotion.state,
+    locomotionDiagnostics: {
+      claimScope: "attempt_diagnostics_only",
+      gamepadDeadzone: xrGamepadDeadzone,
+      handPinchThresholdMeters: handPinchDistanceThresholdMeters,
+      handGestureDeadzoneMeters,
+      handGestureTurnDeadzoneMeters,
+      gamepadSources: xrLocomotion.diagnostics,
+      handGestureHands: xrHandGestureLocomotion.diagnostics,
+    },
     xrInputSources: xrLocomotion.inputSources,
     now: input.now,
     previousLastInputObservedAtMs: input.lastInputObservedAtMs,
@@ -1322,7 +1341,8 @@ function readXrHandGestureLocomotion(input: {
   let rightPinch = false;
   let dwellMs = 0;
   let armed = false;
-  let blockedReason: XrHandGestureStateEvidence["blockedReason"] = "not_pinching";
+  let blockedReason: NonNullable<XrHandGestureStateEvidence["blockedReason"]> = "not_pinching";
+  const diagnostics: LocomotionAttemptDiagnosticsEvidence["handGestureHands"] = [];
 
   for (let index = 0; index < 2; index += 1) {
     const hand = input.renderer.xr.getHand(index) as XrHandGroup;
@@ -1349,7 +1369,22 @@ function readXrHandGestureLocomotion(input: {
     turn += gesture.turn;
     dwellMs = Math.max(dwellMs, gesture.dwellMs);
     armed = armed || gesture.armed;
-    blockedReason = gesture.blockedReason ?? blockedReason;
+    if (isXrHandGestureStateBlockedReason(gesture.blockedReason)) {
+      blockedReason = gesture.blockedReason;
+    }
+    diagnostics.push(gesture.diagnostic);
+  }
+
+  const state: XrHandGestureStateEvidence = {
+    armed,
+    dwellMs,
+    leftPinch,
+    rightPinch,
+    gestureDeadzoneMeters: handGestureDeadzoneMeters,
+    turnCooldownMs: handGestureTurnCooldownMs,
+  };
+  if (!armed) {
+    state.blockedReason = blockedReason;
   }
 
   return {
@@ -1357,16 +1392,18 @@ function readXrHandGestureLocomotion(input: {
     strafe: clampUnit(strafe),
     turn: clampUnit(turn),
     handInputsObserved,
-    state: {
-      armed,
-      dwellMs,
-      leftPinch,
-      rightPinch,
-      gestureDeadzoneMeters: handGestureDeadzoneMeters,
-      turnCooldownMs: handGestureTurnCooldownMs,
-      ...(armed ? {} : { blockedReason }),
-    },
+    state,
+    diagnostics,
   };
+}
+
+function isXrHandGestureStateBlockedReason(
+  reason: XrHandGestureVectorResult["blockedReason"],
+): reason is NonNullable<XrHandGestureStateEvidence["blockedReason"]> {
+  return reason === "not_pinching"
+    || reason === "arming_dwell"
+    || reason === "missing_joints"
+    || reason === "other_locomotion_source_active";
 }
 
 function readHandGestureVector(input: {
@@ -1375,37 +1412,65 @@ function readHandGestureVector(input: {
   now: number;
   gestureState: XrHandGestureLocomotionState;
   otherLocomotionSourceActive: boolean;
-}): LocomotionVectorEvidence & {
-  armed: boolean;
-  dwellMs: number;
-  blockedReason?: XrHandGestureStateEvidence["blockedReason"];
-} {
+}): XrHandGestureVectorResult {
   const handedness = handednessForHand(input.hand, input.index);
   const state = input.gestureState.hands[handedness];
 
   const wrist = input.hand.joints?.wrist;
   const indexTip = input.hand.joints?.["index-finger-tip"];
   const thumbTip = input.hand.joints?.["thumb-tip"];
+  const jointsVisible = {
+    wrist: Boolean(wrist?.visible),
+    indexTip: Boolean(indexTip?.visible),
+    thumbTip: Boolean(thumbTip?.visible),
+  };
+  const pinchDistanceMeters = indexTip?.visible && thumbTip?.visible
+    ? indexTip.position.distanceTo(thumbTip.position)
+    : null;
+  const pinching = pinchDistanceMeters !== null && pinchDistanceMeters <= handPinchDistanceThresholdMeters;
   if (!wrist?.visible || !indexTip?.visible || !thumbTip?.visible) {
     resetHandGestureHandState(state);
-    return { forward: 0, strafe: 0, turn: 0, armed: false, dwellMs: 0, blockedReason: "missing_joints" };
+    return handGestureResult({
+      handedness,
+      jointsVisible,
+      pinchDistanceMeters,
+      pinching,
+      armed: false,
+      dwellMs: 0,
+      relativeOffsetMeters: null,
+      movementCrossedDeadzone: false,
+      blockedReason: "missing_joints",
+    });
   }
 
-  if (!isXrHandPinching(input.hand)) {
+  if (!pinching) {
     resetHandGestureHandState(state);
-    return { forward: 0, strafe: 0, turn: 0, armed: false, dwellMs: 0, blockedReason: "not_pinching" };
+    return handGestureResult({
+      handedness,
+      jointsVisible,
+      pinchDistanceMeters,
+      pinching,
+      armed: false,
+      dwellMs: 0,
+      relativeOffsetMeters: null,
+      movementCrossedDeadzone: false,
+      blockedReason: "not_pinching",
+    });
   }
 
   if (input.otherLocomotionSourceActive) {
     resetHandGestureHandState(state);
-    return {
-      forward: 0,
-      strafe: 0,
-      turn: 0,
+    return handGestureResult({
+      handedness,
+      jointsVisible,
+      pinchDistanceMeters,
+      pinching,
       armed: false,
       dwellMs: 0,
+      relativeOffsetMeters: null,
+      movementCrossedDeadzone: false,
       blockedReason: "other_locomotion_source_active",
-    };
+    });
   }
 
   const offsetX = indexTip.position.x - wrist.position.x;
@@ -1419,39 +1484,116 @@ function readHandGestureVector(input: {
 
   const dwellMs = Math.max(0, input.now - state.pinchingSinceMs);
   if (dwellMs < handGestureDwellMs) {
-    return { forward: 0, strafe: 0, turn: 0, armed: false, dwellMs, blockedReason: "arming_dwell" };
+    return handGestureResult({
+      handedness,
+      jointsVisible,
+      pinchDistanceMeters,
+      pinching,
+      armed: false,
+      dwellMs,
+      relativeOffsetMeters: null,
+      movementCrossedDeadzone: false,
+      blockedReason: "arming_dwell",
+    });
   }
   state.armed = true;
   const relativeOffsetX = offsetX - state.neutralOffsetX;
   const relativeOffsetZ = offsetZ - state.neutralOffsetZ;
+  const relativeOffsetMeters = { x: relativeOffsetX, z: relativeOffsetZ };
 
   if (handedness === "right") {
     const turn = gestureAxis(relativeOffsetX, handGestureTurnDeadzoneMeters, 4);
     if (turn === 0) {
-      return { forward: 0, strafe: 0, turn: 0, armed: true, dwellMs };
+      return handGestureResult({
+        handedness,
+        jointsVisible,
+        pinchDistanceMeters,
+        pinching,
+        armed: true,
+        dwellMs,
+        relativeOffsetMeters,
+        movementCrossedDeadzone: false,
+        blockedReason: "below_deadzone",
+      });
     }
     if (
       input.gestureState.lastTurnAtMs !== null
       && input.now - input.gestureState.lastTurnAtMs < handGestureTurnCooldownMs
     ) {
-      return { forward: 0, strafe: 0, turn: 0, armed: true, dwellMs };
+      return handGestureResult({
+        handedness,
+        jointsVisible,
+        pinchDistanceMeters,
+        pinching,
+        armed: true,
+        dwellMs,
+        relativeOffsetMeters,
+        movementCrossedDeadzone: true,
+        blockedReason: "turn_cooldown",
+      });
     }
     input.gestureState.lastTurnAtMs = input.now;
-    return {
-      forward: 0,
-      strafe: 0,
+    return handGestureResult({
       turn,
+      handedness,
+      jointsVisible,
+      pinchDistanceMeters,
+      pinching,
       armed: true,
       dwellMs,
-    };
+      relativeOffsetMeters,
+      movementCrossedDeadzone: true,
+    });
   }
 
-  return {
-    forward: gestureAxis(-relativeOffsetZ, handGestureDeadzoneMeters, 5),
-    strafe: gestureAxis(relativeOffsetX, handGestureDeadzoneMeters, 5),
-    turn: 0,
+  const forward = gestureAxis(-relativeOffsetZ, handGestureDeadzoneMeters, 5);
+  const strafe = gestureAxis(relativeOffsetX, handGestureDeadzoneMeters, 5);
+  const movementCrossedDeadzone = forward !== 0 || strafe !== 0;
+  return handGestureResult({
+    forward,
+    strafe,
+    handedness,
+    jointsVisible,
+    pinchDistanceMeters,
+    pinching,
     armed: true,
     dwellMs,
+    relativeOffsetMeters,
+    movementCrossedDeadzone,
+    ...(movementCrossedDeadzone ? {} : { blockedReason: "below_deadzone" }),
+  });
+}
+
+function handGestureResult(input: Partial<LocomotionVectorEvidence> & {
+  handedness: "left" | "right";
+  jointsVisible: LocomotionAttemptDiagnosticsEvidence["handGestureHands"][number]["jointsVisible"];
+  pinchDistanceMeters: number | null;
+  pinching: boolean;
+  armed: boolean;
+  dwellMs: number;
+  relativeOffsetMeters: { x: number; z: number } | null;
+  movementCrossedDeadzone: boolean;
+  blockedReason?: XrHandGestureVectorResult["blockedReason"];
+}): XrHandGestureVectorResult {
+  const blockedReason = input.blockedReason;
+  return {
+    forward: input.forward ?? 0,
+    strafe: input.strafe ?? 0,
+    turn: input.turn ?? 0,
+    armed: input.armed,
+    dwellMs: input.dwellMs,
+    ...(blockedReason ? { blockedReason } : {}),
+    diagnostic: {
+      handedness: input.handedness,
+      jointsVisible: input.jointsVisible,
+      pinchDistanceMeters: input.pinchDistanceMeters,
+      pinching: input.pinching,
+      armed: input.armed,
+      dwellMs: input.dwellMs,
+      relativeOffsetMeters: input.relativeOffsetMeters,
+      movementCrossedDeadzone: input.movementCrossedDeadzone,
+      ...(blockedReason ? { blockedReason } : {}),
+    },
   };
 }
 
@@ -1628,12 +1770,14 @@ function readXrGamepadLocomotion(session: XrSession | undefined): {
   turn: number;
   handInputsObserved: number;
   inputSources: XrInputSourceEvidence[];
+  diagnostics: LocomotionAttemptDiagnosticsEvidence["gamepadSources"];
 } {
   let forward = 0;
   let strafe = 0;
   let turn = 0;
   let handInputsObserved = 0;
   const inputSources: XrInputSourceEvidence[] = [];
+  const diagnostics: LocomotionAttemptDiagnosticsEvidence["gamepadSources"] = [];
 
   for (const source of session?.inputSources ?? []) {
     if (source.hand) {
@@ -1646,8 +1790,22 @@ function readXrGamepadLocomotion(session: XrSession | undefined): {
       hasGamepad: Boolean(source.gamepad),
       axisCount: axes.length,
     });
-    const xAxis = deadzone(axes[2] ?? axes[0] ?? 0);
-    const yAxis = deadzone(axes[3] ?? axes[1] ?? 0);
+    const selectedXAxisIndex = axes[2] === undefined ? (axes[0] === undefined ? null : 0) : 2;
+    const selectedYAxisIndex = axes[3] === undefined ? (axes[1] === undefined ? null : 1) : 3;
+    const xAxis = deadzone(selectedXAxisIndex === null ? 0 : axes[selectedXAxisIndex] ?? 0);
+    const yAxis = deadzone(selectedYAxisIndex === null ? 0 : axes[selectedYAxisIndex] ?? 0);
+    if (source.gamepad) {
+      diagnostics.push({
+        handedness: source.handedness ?? "unknown",
+        rawAxes: Array.from(axes),
+        selectedXAxisIndex,
+        selectedYAxisIndex,
+        xAxisAfterDeadzone: xAxis,
+        yAxisAfterDeadzone: yAxis,
+        activeAfterDeadzone: xAxis !== 0 || yAxis !== 0,
+        contribution: source.handedness === "right" ? "turn" : "move",
+      });
+    }
     if (source.handedness === "right") {
       turn += xAxis;
       continue;
@@ -1662,11 +1820,12 @@ function readXrGamepadLocomotion(session: XrSession | undefined): {
     turn: clampUnit(turn),
     handInputsObserved,
     inputSources,
+    diagnostics,
   };
 }
 
 function deadzone(value: number): number {
-  return Math.abs(value) < 0.18 ? 0 : clampUnit(value);
+  return Math.abs(value) < xrGamepadDeadzone ? 0 : clampUnit(value);
 }
 
 function isLocomotionVectorActive(vector: LocomotionVectorEvidence): boolean {

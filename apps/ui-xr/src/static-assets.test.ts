@@ -137,6 +137,10 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("maybeCompleteTraceActionFromHandSelect");
     expect(mainSource).toContain("xr_hand_gesture");
     expect(mainSource).toContain("xrHandGestureState");
+    expect(mainSource).toContain("locomotionDiagnostics");
+    expect(mainSource).toContain("gamepadSources");
+    expect(mainSource).toContain("pinchDistanceMeters");
+    expect(mainSource).toContain("movementCrossedDeadzone");
     expect(mainSource).toContain("fallbackAnimationLoop");
     expect(mainSource).toContain("immersiveFramesObserved");
     expect(mainSource).toContain("previewFramesObserved");

@@ -581,6 +581,42 @@ describe("XR runtime state", () => {
       previousRigPose: { x: 0, z: 0, yawRadians: 0 },
       rigPosition: { x: 0, z: 0 },
       rigYawRadians: 0,
+      locomotionDiagnostics: {
+        claimScope: "attempt_diagnostics_only",
+        gamepadDeadzone: 0.18,
+        handPinchThresholdMeters: 0.035,
+        handGestureDeadzoneMeters: 0.045,
+        handGestureTurnDeadzoneMeters: 0.055,
+        gamepadSources: [
+          {
+            handedness: "left",
+            rawAxes: [0.1012, -0.2209, 0.176, -0.188],
+            selectedXAxisIndex: 2,
+            selectedYAxisIndex: 3,
+            xAxisAfterDeadzone: 0,
+            yAxisAfterDeadzone: -0.188,
+            activeAfterDeadzone: true,
+            contribution: "move",
+          },
+        ],
+        handGestureHands: [
+          {
+            handedness: "left",
+            jointsVisible: {
+              wrist: true,
+              indexTip: true,
+              thumbTip: true,
+            },
+            pinchDistanceMeters: 0.0416,
+            pinching: false,
+            armed: false,
+            dwellMs: 0,
+            relativeOffsetMeters: null,
+            movementCrossedDeadzone: false,
+            blockedReason: "not_pinching",
+          },
+        ],
+      },
     });
 
     expect(evidence).toMatchObject({
@@ -589,6 +625,42 @@ describe("XR runtime state", () => {
       lastInputObservedAtMs: 999.12,
       lastLocomotionAtMs: 222.22,
       rigPosition: { x: 0, z: 0 },
+      locomotionDiagnostics: {
+        claimScope: "attempt_diagnostics_only",
+        gamepadDeadzone: 0.18,
+        handPinchThresholdMeters: 0.035,
+        handGestureDeadzoneMeters: 0.045,
+        handGestureTurnDeadzoneMeters: 0.055,
+        gamepadSources: [
+          {
+            handedness: "left",
+            rawAxes: [0.101, -0.221, 0.176, -0.188],
+            selectedXAxisIndex: 2,
+            selectedYAxisIndex: 3,
+            xAxisAfterDeadzone: 0,
+            yAxisAfterDeadzone: -0.188,
+            activeAfterDeadzone: true,
+            contribution: "move",
+          },
+        ],
+        handGestureHands: [
+          {
+            handedness: "left",
+            jointsVisible: {
+              wrist: true,
+              indexTip: true,
+              thumbTip: true,
+            },
+            pinchDistanceMeters: 0.042,
+            pinching: false,
+            armed: false,
+            dwellMs: 0,
+            relativeOffsetMeters: null,
+            movementCrossedDeadzone: false,
+            blockedReason: "not_pinching",
+          },
+        ],
+      },
     });
     expect(evidence).not.toHaveProperty("locomotionDelta");
   });
