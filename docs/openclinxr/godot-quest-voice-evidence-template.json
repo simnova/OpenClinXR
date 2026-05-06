@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "openclinxr.godot-quest-voice-evidence.v1",
+  "generatedAt": "2026-05-05T00:00:00.000Z",
+  "classification": {
+    "lane": "godot_quest_voice_transport",
+    "scope": "physical_quest_developer_evidence",
+    "notEvidenceFor": [
+      "production_voice_runtime_readiness",
+      "clinical_voice_dialog_quality",
+      "grok_voice_parity",
+      "webxr_client_readiness",
+      "low_latency_voice_readiness"
+    ]
+  },
+  "device": {
+    "app": "apps/ui-quest-voice-godot",
+    "performedOnPhysicalQuest3": false,
+    "headsetConnectedViaUsbC": false,
+    "godotVersion": "",
+    "buildProfile": "debug_local"
+  },
+  "gateway": {
+    "endpoint": "ws://127.0.0.1:4017/voice/realtime/ws",
+    "serverRuntime": "bun_hono_gateway",
+    "cloudApisUsed": false,
+    "paidApisUsed": false,
+    "http3Enabled": false,
+    "webTransportUsed": false,
+    "quicUsed": false,
+    "web3Used": false
+  },
+  "transport": {
+    "webSocketConnected": false,
+    "jsonControlFramesObserved": [],
+    "binaryPacketsSent": 0,
+    "binaryPacketsReceived": 0,
+    "binaryRoundTripObserved": false,
+    "firstBinaryRoundTripLatencyMs": null,
+    "reconnects": 0
+  },
+  "audio": {
+    "microphoneCaptureObserved": false,
+    "opusEncodeDecodeObserved": false,
+    "playbackObserved": false,
+    "codec": "opus",
+    "sampleRateHz": 48000
+  },
+  "latency": {
+    "endToEndLatencyMs": {
+      "firstPacket": null,
+      "p50": null,
+      "p95": null,
+      "sampleCount": 0
+    }
+  },
+  "safety": {
+    "rawAudioCommitted": false,
+    "noCloudApis": true,
+    "noPaidApis": true
+  },
+  "claims": {
+    "readyForProductionRuntime": false,
+    "readyForClinicalVoiceUse": false,
+    "readyForLowLatencyVoiceClaim": false
+  }
+}

@@ -52,3 +52,18 @@ It does not prove:
 3. Connect to the local gateway and record first binary frame round-trip from
    the Quest.
 4. Add capture/playback timestamps and report p50/p95 end-to-end latency.
+
+## Evidence Checker
+
+Future hardware runs should start from
+`docs/openclinxr/godot-quest-voice-evidence-template.json` and validate with:
+
+```bash
+pnpm godot:quest:voice:evidence -- --input docs/openclinxr/godot-quest-voice-evidence-template.json
+```
+
+The checker intentionally scores binary WebSocket round-trip, Quest microphone
+capture, Opus encode/decode, playback, and latency as separate evidence lanes.
+It does not convert a transport probe into production runtime readiness,
+clinical voice-dialog quality, Grok parity, WebXR readiness, or low-latency
+voice readiness.
