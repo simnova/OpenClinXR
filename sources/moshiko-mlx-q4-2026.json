@@ -11,7 +11,8 @@
   "claims_supported": [
     "The model card identifies the model license as CC-BY-4.0.",
     "The model card describes a Moshi speech-text model adapted to MLX for Mac and quantized to 4 bits.",
-    "The model card positions the model as a research artifact and cautions against professional-duty use."
+    "The model card positions the model as a research artifact and cautions against professional-duty use.",
+    "The Hugging Face API metadata captured on 2026-05-06 reports source revision 18e4df760a34d5977a34517d7d1580e07acbb2f1 and lists model.q4.safetensors."
   ],
   "claims_not_supported": [
     "That the model is clinically validated for medical education.",

@@ -1,4 +1,4 @@
-import { readdir, stat } from "node:fs/promises";
+import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
@@ -39,6 +39,9 @@ export type LocalRealtimeVoiceModelCacheEvidenceReport = {
     blockers: string[];
     file_count: number;
     total_bytes: number;
+    local_revision: string | null;
+    metadata_revision_file_count: number;
+    metadata_revision_consistent: boolean;
   }>;
   support_directories: Array<{
     path: string;
@@ -170,6 +173,9 @@ function validateModel(value: unknown, pathName: string, errors: string[]): void
   requireStringArray(value.blockers, `${pathName}/blockers`, errors);
   requireNumber(value.file_count, `${pathName}/file_count`, errors);
   requireNumber(value.total_bytes, `${pathName}/total_bytes`, errors);
+  requireNullableString(value.local_revision, `${pathName}/local_revision`, errors);
+  requireNumber(value.metadata_revision_file_count, `${pathName}/metadata_revision_file_count`, errors);
+  requireBoolean(value.metadata_revision_consistent, `${pathName}/metadata_revision_consistent`, errors);
 }
 
 function validateSupportDirectory(value: unknown, pathName: string, errors: string[]): void {
@@ -221,6 +227,7 @@ async function collectApprovedModels(cacheDir: string): Promise<LocalRealtimeVoi
     }
 
     const inventory = await inventoryDirectory(modelPath);
+    const metadataRevision = await collectHuggingFaceMetadataRevision(modelPath);
     const hasEvidence = inventory.weightFileCount > 0;
     const blockers = hasEvidence ? [] : ["model_weight_file_missing"];
     models.push({
@@ -236,6 +243,9 @@ async function collectApprovedModels(cacheDir: string): Promise<LocalRealtimeVoi
       blockers,
       file_count: inventory.fileCount,
       total_bytes: inventory.totalBytes,
+      local_revision: metadataRevision.localRevision,
+      metadata_revision_file_count: metadataRevision.fileCount,
+      metadata_revision_consistent: metadataRevision.consistent,
     });
   }
   return models;
@@ -312,6 +322,49 @@ async function inventoryDirectory(dir: string): Promise<{
 
 function isWeightFile(fileName: string): boolean {
   return /\.(?:safetensors|bin|gguf|npz)$/i.test(fileName);
+}
+
+async function collectHuggingFaceMetadataRevision(modelPath: string): Promise<{
+  localRevision: string | null;
+  fileCount: number;
+  consistent: boolean;
+}> {
+  const metadataDir = path.join(modelPath, ".cache/huggingface/download");
+  const metadataStats = await safeStat(metadataDir);
+  if (!metadataStats?.isDirectory()) {
+    return { localRevision: null, fileCount: 0, consistent: false };
+  }
+
+  const revisions = await collectMetadataFileRevisions(metadataDir);
+  const uniqueRevisions = [...new Set(revisions)].sort();
+  return {
+    localRevision: uniqueRevisions.length === 1 ? uniqueRevisions[0] ?? null : null,
+    fileCount: revisions.length,
+    consistent: uniqueRevisions.length === 1,
+  };
+}
+
+async function collectMetadataFileRevisions(dir: string): Promise<string[]> {
+  const revisions: string[] = [];
+  const entries = await readdir(dir, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const entryPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      revisions.push(...await collectMetadataFileRevisions(entryPath));
+      continue;
+    }
+    if (!entry.isFile() || !entry.name.endsWith(".metadata")) {
+      continue;
+    }
+
+    const firstLine = (await readFile(entryPath, "utf8")).split(/\r?\n/, 1)[0]?.trim() ?? "";
+    if (/^[0-9a-f]{40}$/i.test(firstLine)) {
+      revisions.push(firstLine);
+    }
+  }
+
+  return revisions;
 }
 
 async function safeStat(filePath: string) {
@@ -392,6 +445,12 @@ function requireArray(value: unknown, pathName: string, errors: string[]): void 
 function requireString(value: unknown, pathName: string, errors: string[]): void {
   if (typeof value !== "string" || value.length === 0) {
     errors.push(`${pathName} must be non-empty string`);
+  }
+}
+
+function requireNullableString(value: unknown, pathName: string, errors: string[]): void {
+  if (value !== null && (typeof value !== "string" || value.length === 0)) {
+    errors.push(`${pathName} must be null or non-empty string`);
   }
 }
 

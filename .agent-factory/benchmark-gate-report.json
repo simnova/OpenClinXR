@@ -132,8 +132,8 @@
     {
       "evidence_id": "local_realtime_voice_model_cache_evidence",
       "file": "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-06.json",
-      "generated_at": "2026-05-06T14:41:23.601Z",
-      "age_hours": 6,
+      "generated_at": "2026-05-06T22:32:53.541Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -1377,7 +1377,7 @@
   },
   "local_realtime_voice_model_cache_evidence": {
     "file": "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-06.json",
-    "generated_at": "2026-05-06T14:41:23.601Z",
+    "generated_at": "2026-05-06T22:32:53.541Z",
     "kind": "local_voice_evidence_check",
     "claim_scope": "cache_inventory_only",
     "cache_dir": "/Users/patrick/.cache/openclinxr/realtime-voice",
@@ -1400,7 +1400,10 @@
         "ready": true,
         "blockers": [],
         "file_count": 12,
-        "total_bytes": 5190750933
+        "total_bytes": 5190750933,
+        "local_revision": "18e4df760a34d5977a34517d7d1580e07acbb2f1",
+        "metadata_revision_file_count": 5,
+        "metadata_revision_consistent": true
       },
       {
         "model_id": "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
@@ -1414,7 +1417,10 @@
         "ready": true,
         "blockers": [],
         "file_count": 30,
-        "total_bytes": 1711330264
+        "total_bytes": 1711330264,
+        "local_revision": "0d6bb6fe33f92d47a507e23b9148940e8366ab5b",
+        "metadata_revision_file_count": 14,
+        "metadata_revision_consistent": true
       }
     ],
     "support_directories": [

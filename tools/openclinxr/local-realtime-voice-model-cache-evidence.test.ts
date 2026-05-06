@@ -27,10 +27,14 @@ describe("local realtime voice model cache evidence", () => {
   it("recognizes an approved Qwen3-TTS MLX cache with local weight evidence", async () => {
     const dir = await mkdtemp(path.join(tmpdir(), "openclinxr-voice-cache-"));
     const modelDir = path.join(dir, "mlx-community__Qwen3-TTS-12Hz-0.6B-Base-4bit");
+    const metadataDir = path.join(modelDir, ".cache/huggingface/download");
+    const localRevision = "0d6bb6fe33f92d47a507e23b9148940e8366ab5b";
     await mkdir(modelDir, { recursive: true });
     await writeFile(path.join(modelDir, "config.json"), "{}");
     await writeFile(path.join(modelDir, "model.safetensors"), "pretend weights");
     await writeFile(path.join(modelDir, "README.md"), "# Qwen3-TTS");
+    await mkdir(metadataDir, { recursive: true });
+    await writeFile(path.join(metadataDir, "model.safetensors.metadata"), `${localRevision}\n07dcb37b\n1778072899\n`);
     await mkdir(path.join(dir, "api-python-backend-venv"), { recursive: true });
     await writeFile(path.join(dir, "api-python-backend-venv", "pyvenv.cfg"), "home = /usr/bin");
 
@@ -62,7 +66,10 @@ describe("local realtime voice model cache evidence", () => {
           has_evidence: true,
           ready: true,
           blockers: [],
-          file_count: 3,
+          local_revision: localRevision,
+          metadata_revision_file_count: 1,
+          metadata_revision_consistent: true,
+          file_count: 4,
         },
       ],
       support_directories: [

@@ -11,7 +11,8 @@
   "claims_supported": [
     "The model card identifies the model license as Apache-2.0.",
     "The model card identifies the model as a 4-bit MLX conversion for Qwen3-TTS-12Hz-0.6B-Base.",
-    "The model card describes use through mlx-community tooling and Hugging Face downloads."
+    "The model card describes use through mlx-community tooling and Hugging Face downloads.",
+    "The Hugging Face API metadata captured on 2026-05-06 reports source revision 0d6bb6fe33f92d47a507e23b9148940e8366ab5b and lists model.safetensors plus speech_tokenizer/model.safetensors."
   ],
   "claims_not_supported": [
     "That Qwen3-TTS is a full-duplex dialog system or ASR model.",
