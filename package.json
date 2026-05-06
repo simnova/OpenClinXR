@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=22.19.0",
+    "pnpm": ">=10.33.0"
+  },
   "packageManager": "pnpm@10.33.0",
   "scripts": {
     "agent:generate": "tsx tools/agent-factory/generate-agent-scaffold.ts",
