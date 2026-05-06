@@ -1326,6 +1326,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
       buildEvidenceGate("evidence-leadership-0008-002", localModelSatisfiedConditions, unique(localModelEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0008-003", localVoiceSatisfiedConditions, unique(localVoiceEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0008-004", assetSatisfiedConditions, unique(assetEvidenceBlockers)),
+      buildEvidenceGate("evidence-leadership-0009-001", questSatisfiedConditions, unique(questEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0009-002", localModelQualitySatisfiedConditions, unique(localModelQualityEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0009-003", localVoiceLiveDialogSatisfiedConditions, unique(localVoiceLiveDialogEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0009-004", iwsdkSatisfiedConditions, unique(iwsdkEvidenceBlockers)),

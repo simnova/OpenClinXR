@@ -1134,6 +1134,7 @@ describe("benchmark gate report", () => {
       "evidence-leadership-0008-002",
       "evidence-leadership-0008-003",
       "evidence-leadership-0008-004",
+      "evidence-leadership-0009-001",
       "evidence-leadership-0009-002",
       "evidence-leadership-0009-003",
       "evidence-leadership-0009-004",
@@ -1141,6 +1142,23 @@ describe("benchmark gate report", () => {
     ]);
 
     expect(gatesById.get("evidence-leadership-0008-001")).toEqual(expect.objectContaining({
+      ready_to_resolve: false,
+      blockers: expect.arrayContaining([
+        "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
+        "quest_immersive_entry_activation_not_received",
+        "quest_immersive_session_not_started",
+        "quest_manual_performance:duration_under_10_minutes",
+        "quest_manual_performance:frame_sample_under_600_or_missing",
+        "quest_manual_performance:controller_select_latency_ms_above_150_or_missing",
+      ]),
+      satisfied_conditions: expect.arrayContaining([
+        "performed_by_recorded",
+        "immersive_session_started",
+        "quest_cdp_frame_sample_complete",
+        "quest_page_visible",
+      ]),
+    }));
+    expect(gatesById.get("evidence-leadership-0009-001")).toEqual(expect.objectContaining({
       ready_to_resolve: false,
       blockers: expect.arrayContaining([
         "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",

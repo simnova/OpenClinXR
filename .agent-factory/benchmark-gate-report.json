@@ -5,7 +5,7 @@
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T18:13:48.812Z",
-      "age_hours": 29,
+      "age_hours": 30,
       "max_age_hours": 24,
       "status": "stale",
       "blockers": [
@@ -43,7 +43,7 @@
       "evidence_id": "asset_capability_job_evidence",
       "file": "docs/openclinxr/asset-capability-job-evidence-2026-05-05.json",
       "generated_at": "2026-05-05T22:32:39.465Z",
-      "age_hours": 1,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -52,7 +52,7 @@
       "evidence_id": "asset_production_readiness_benchmark",
       "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T22:32:39.510Z",
-      "age_hours": 1,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -70,7 +70,7 @@
       "evidence_id": "local_model_runtime_benchmark",
       "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T20:20:19.936Z",
-      "age_hours": 3,
+      "age_hours": 4,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -99,7 +99,7 @@
       "evidence_id": "local_voice_live_dialog_benchmark",
       "file": "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T22:32:39.478Z",
-      "age_hours": 1,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -108,7 +108,7 @@
       "evidence_id": "local_realtime_voice_model_cache_evidence",
       "file": "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-05.json",
       "generated_at": "2026-05-05T22:27:38.731Z",
-      "age_hours": 1,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -117,7 +117,7 @@
       "evidence_id": "realtime_voice_transport_spike",
       "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-05.json",
       "generated_at": "2026-05-05T18:28:23.574Z",
-      "age_hours": 5,
+      "age_hours": 6,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -126,7 +126,7 @@
       "evidence_id": "api_python_backend_runtime_smoke",
       "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T15:21:12.576Z",
-      "age_hours": 8,
+      "age_hours": 9,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -135,7 +135,7 @@
       "evidence_id": "api_bun_websocket_runtime_smoke",
       "file": "docs/openclinxr/api-bun-websocket-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T23:27:29.751Z",
-      "age_hours": 0,
+      "age_hours": 1,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -144,7 +144,7 @@
       "evidence_id": "api_bun_python_proxy_runtime_smoke",
       "file": "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T18:21:30.330Z",
-      "age_hours": 5,
+      "age_hours": 6,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -152,7 +152,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T00:12:53.260Z",
+      "generated_at": "2026-05-06T00:37:32.879Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -1333,7 +1333,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T00:12:53.260Z",
+    "generated_at": "2026-05-06T00:37:32.879Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -1850,6 +1850,116 @@
         "total_blockers": 0,
         "distinct_problem_count": 0,
         "groups": [],
+        "ungrouped_blockers": []
+      }
+    },
+    {
+      "evidence_id": "evidence-leadership-0009-001",
+      "ready_to_resolve": false,
+      "satisfied_conditions": [
+        "battery_drop_recorded_under_20",
+        "experience_mode_full_vr_recorded",
+        "extra_browser_windows_closed",
+        "foreground_page_confirmed",
+        "generated_at_valid",
+        "hand_or_controller_input_observed",
+        "immersive_session_started",
+        "motion_comfort_confirmed",
+        "performance_source_openclinxr_frame_stats",
+        "performed_by_recorded",
+        "quest_cdp_adb_device_recorded",
+        "quest_cdp_adb_quest_device_recorded",
+        "quest_cdp_browser_quest_user_agent_recorded",
+        "quest_cdp_frame_sample_complete",
+        "quest_cdp_generated_at_valid",
+        "quest_cdp_user_agent_recorded",
+        "quest_frame_stats_present",
+        "quest_frames_advanced_during_probe",
+        "quest_latest_frame_fresh",
+        "quest_page_visible",
+        "quest_shell_loaded",
+        "quest_trace_interaction_advanced",
+        "quest_usb_ready",
+        "text_readability_confirmed"
+      ],
+      "blockers": [
+        "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
+        "quest_frame_quality_evidence_missing",
+        "quest_immersive_entry_activation_not_received",
+        "quest_immersive_session_not_started",
+        "quest_input_evidence_shape_missing",
+        "quest_manual_performance:average_fps_below_72_or_missing",
+        "quest_manual_performance:controller_select_latency_ms_above_150_or_missing",
+        "quest_manual_performance:controller_select_trace_latency_missing",
+        "quest_manual_performance:controller_select_trace_measured_at_missing",
+        "quest_manual_performance:controller_select_trace_source_not_xr_controller_select",
+        "quest_manual_performance:controller_select_trace_tag_missing",
+        "quest_manual_performance:devtools_screencast_not_disabled",
+        "quest_manual_performance:duration_under_10_minutes",
+        "quest_manual_performance:frame_sample_under_600_or_missing",
+        "quest_manual_performance:hand_model_status_invalid",
+        "quest_manual_performance:hand_tracking_posture_not_current_mesh_or_fallback",
+        "quest_manual_performance:heat_concern_not_cleared",
+        "quest_manual_performance:immersive_frame_count_zero_or_missing",
+        "quest_manual_performance:immersive_frame_sample_under_600_or_missing",
+        "quest_manual_performance:locomotion_not_observed",
+        "quest_manual_performance:locomotion_posture_not_current_room_scale_contract",
+        "quest_manual_performance:minimum_fps_below_60_or_missing",
+        "quest_manual_performance:p95_frame_ms_above_25_or_missing",
+        "quest_manual_performance:rolling_frame_window_under_120_or_missing",
+        "quest_manual_performance:trace_interaction_not_confirmed",
+        "quest_smoke:evidence_stale_over_24h",
+        "quest_text_panel_metadata_missing"
+      ],
+      "blocker_summary": {
+        "total_blockers": 27,
+        "distinct_problem_count": 2,
+        "groups": [
+          {
+            "group_id": "benchmark_evidence_freshness",
+            "title": "Benchmark evidence freshness",
+            "owner": "qa-evidence-lead",
+            "blockers": [
+              "quest_smoke:evidence_stale_over_24h"
+            ],
+            "next_step": "Regenerate the stale local evidence files before using the benchmark gate as leadership-ready proof."
+          },
+          {
+            "group_id": "quest_foreground_frame_pacing",
+            "title": "Foreground Quest frame pacing evidence",
+            "owner": "xr-systems-architect",
+            "blockers": [
+              "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
+              "quest_frame_quality_evidence_missing",
+              "quest_immersive_entry_activation_not_received",
+              "quest_immersive_session_not_started",
+              "quest_input_evidence_shape_missing",
+              "quest_manual_performance:average_fps_below_72_or_missing",
+              "quest_manual_performance:controller_select_latency_ms_above_150_or_missing",
+              "quest_manual_performance:controller_select_trace_latency_missing",
+              "quest_manual_performance:controller_select_trace_measured_at_missing",
+              "quest_manual_performance:controller_select_trace_source_not_xr_controller_select",
+              "quest_manual_performance:controller_select_trace_tag_missing",
+              "quest_manual_performance:devtools_screencast_not_disabled",
+              "quest_manual_performance:duration_under_10_minutes",
+              "quest_manual_performance:frame_sample_under_600_or_missing",
+              "quest_manual_performance:hand_model_status_invalid",
+              "quest_manual_performance:hand_tracking_posture_not_current_mesh_or_fallback",
+              "quest_manual_performance:heat_concern_not_cleared",
+              "quest_manual_performance:immersive_frame_count_zero_or_missing",
+              "quest_manual_performance:immersive_frame_sample_under_600_or_missing",
+              "quest_manual_performance:locomotion_not_observed",
+              "quest_manual_performance:locomotion_posture_not_current_room_scale_contract",
+              "quest_manual_performance:minimum_fps_below_60_or_missing",
+              "quest_manual_performance:p95_frame_ms_above_25_or_missing",
+              "quest_manual_performance:rolling_frame_window_under_120_or_missing",
+              "quest_manual_performance:trace_interaction_not_confirmed",
+              "quest_smoke:evidence_stale_over_24h",
+              "quest_text_panel_metadata_missing"
+            ],
+            "next_step": "Use the approved proposals/approved/proposal-quest-foreground-performance-capture.md scope, then capture the foreground in-headset manual report for comfort, readability, immersive-session, and sustained-frame observations that CDP cannot honestly attest alone."
+          }
+        ],
         "ungrouped_blockers": []
       }
     },
