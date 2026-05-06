@@ -1037,6 +1037,55 @@ describe("Quest manual performance checker", () => {
     ]));
   });
 
+  it("preserves copied locomotion probe reasons as actionable manual evidence blockers", () => {
+    const report = completedQuestManualReport();
+    report.station = {
+      ...report.station,
+      traceInteractionPassed: false,
+      traceInteractionAttempt: "xr_hand_select_attempted_no_runtime_event",
+    };
+    report.input = {
+      ...report.input,
+      locomotionAttempt: "not_attempted",
+      activeLocomotionSource: "none",
+      lastLocomotionAtMs: null,
+      locomotionDelta: undefined,
+    };
+
+    const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-copied-probe.json", {
+      manualPerformanceDraft: report,
+      captureSummary: {
+        draftAvailable: true,
+        manualValidationReady: false,
+        frameStatsFresh: true,
+        blockers: ["locomotion_not_observed"],
+        technicalGaps: ["locomotion_delta_missing"],
+        locomotionProbeSummary: {
+          claimScope: "runtime_probe_only",
+          readiness: "blocked",
+          primaryReason: "no_gamepad_sources",
+          reasonCodes: ["no_gamepad_sources", "hand_arming_dwell", "hand_below_deadzone"],
+        },
+      },
+    });
+
+    expect(check.readyToClaimFramePacing).toBe(false);
+    expect(check.blockers).toEqual(expect.arrayContaining([
+      "copied_payload_locomotion_probe:no_gamepad_sources",
+      "copied_payload_locomotion_probe:hand_arming_dwell",
+      "copied_payload_locomotion_probe:hand_below_deadzone",
+    ]));
+    expect(check.nextSteps).toEqual(expect.arrayContaining([
+      "For the copied locomotion probe, use hand tracking deliberately or wake/activate a controller; no gamepad sources were seen.",
+      "For the copied locomotion probe, hold the pinch until the gesture arming dwell completes before moving.",
+      "For the copied locomotion probe, move the armed hand farther past the gesture deadzone or use room-scale walking.",
+    ]));
+    expect(check.adversarialFindings).toEqual(expect.arrayContaining([
+      "copied_ui_manual_performance_payload",
+      "locomotion_probe:runtime_probe_only",
+    ]));
+  });
+
   it("flags raw human reports that are missing structured attempt and representation fields", () => {
     const report: QuestManualPerformanceReport = {
       generatedAt: "2026-05-04T20:36:00.000Z",

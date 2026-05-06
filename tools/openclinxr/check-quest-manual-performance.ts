@@ -26,6 +26,19 @@ type QuestLocomotionAttempt =
 
 type QuestHandRepresentationKind = "primitive_boxes" | "primitive_spheres" | "mesh" | "controller_only" | "not_visible" | "unknown";
 type QuestHandModelStatus = "pending_immersive_session" | "installed" | "failed";
+type QuestLocomotionProbeReasonCode =
+  | "locomotion_observed"
+  | "active_vector_without_rig_delta"
+  | "no_gamepad_sources"
+  | "gamepad_axes_below_deadzone"
+  | "hand_not_pinching"
+  | "hand_arming_dwell"
+  | "hand_missing_joints"
+  | "hand_below_deadzone"
+  | "hand_turn_cooldown"
+  | "hand_other_locomotion_source_active"
+  | "no_xr_input_sources"
+  | "locomotion_delta_missing";
 
 const expectedFullVrHandTrackingPosture = "optional_feature_with_local_mesh_hand_model_and_primitive_fallback";
 const expectedFullVrLocomotionPosture = "room_scale_keyboard_thumbstick_and_hand_gesture_dolly";
@@ -61,6 +74,21 @@ const validQuestHandModelStatuses = new Set<string>([
   "pending_immersive_session",
   "installed",
   "failed",
+]);
+
+const validQuestLocomotionProbeReasonCodes = new Set<string>([
+  "locomotion_observed",
+  "active_vector_without_rig_delta",
+  "no_gamepad_sources",
+  "gamepad_axes_below_deadzone",
+  "hand_not_pinching",
+  "hand_arming_dwell",
+  "hand_missing_joints",
+  "hand_below_deadzone",
+  "hand_turn_cooldown",
+  "hand_other_locomotion_source_active",
+  "no_xr_input_sources",
+  "locomotion_delta_missing",
 ]);
 
 export type QuestManualPerformanceReport = {
@@ -232,6 +260,12 @@ export type QuestManualPerformanceCopiedPayload = {
     frameStatsFresh?: boolean | null;
     blockers?: string[];
     technicalGaps?: string[];
+    locomotionProbeSummary?: {
+      claimScope?: "runtime_probe_only";
+      readiness?: "ready" | "blocked";
+      primaryReason?: QuestLocomotionProbeReasonCode;
+      reasonCodes?: QuestLocomotionProbeReasonCode[];
+    } | null;
   } | null;
   harvestSummary?: {
     source?: string;
@@ -603,6 +637,14 @@ function normalizeQuestManualPerformancePayload(payload: QuestManualPerformanceP
   const summaryTechnicalGaps = Array.isArray(captureSummary?.technicalGaps)
     ? captureSummary.technicalGaps.filter((gap): gap is string => typeof gap === "string")
     : [];
+  const locomotionProbeSummary = isRecord(captureSummary?.locomotionProbeSummary)
+    ? captureSummary.locomotionProbeSummary
+    : undefined;
+  const locomotionProbeReasonCodes = Array.isArray(locomotionProbeSummary?.reasonCodes)
+    ? locomotionProbeSummary.reasonCodes.filter((reason): reason is QuestLocomotionProbeReasonCode =>
+      typeof reason === "string" && validQuestLocomotionProbeReasonCodes.has(reason)
+    )
+    : [];
   const hasHarvestSummary = "harvestSummary" in payload;
   const harvestSummary = isRecord(payload.harvestSummary) ? payload.harvestSummary : undefined;
   const harvestBlockers = Array.isArray(harvestSummary?.blockers)
@@ -616,6 +658,12 @@ function normalizeQuestManualPerformancePayload(payload: QuestManualPerformanceP
     captureSummary?.frameStatsFresh === true ? undefined : "frame_stats_stale_or_unsampled",
     summaryTechnicalGaps.length > 0 ? "copied_payload_technical_gaps_present" : undefined,
     ...summaryTechnicalGaps.map((gap) => `copied_payload_technical_gap:${gap}`),
+    locomotionProbeSummary && locomotionProbeSummary.claimScope !== "runtime_probe_only"
+      ? "copied_payload_locomotion_probe_scope_invalid"
+      : undefined,
+    ...locomotionProbeReasonCodes
+      .filter((reason) => reason !== "locomotion_observed")
+      .map((reason) => `copied_payload_locomotion_probe:${reason}`),
     hasHarvestSummary && !harvestSummary ? "manual_evidence_harvest_summary_invalid" : undefined,
     harvestSummary && harvestSummary.ready !== true ? "manual_evidence_harvest_not_ready" : undefined,
     harvestSummary?.timedOut === true ? "manual_evidence_harvest_timed_out" : undefined,
@@ -628,6 +676,7 @@ function normalizeQuestManualPerformancePayload(payload: QuestManualPerformanceP
     blockers,
     adversarialFindings: [
       "copied_ui_manual_performance_payload",
+      locomotionProbeSummary?.claimScope === "runtime_probe_only" ? "locomotion_probe:runtime_probe_only" : undefined,
       harvestSummary ? "cdp_manual_evidence_harvest_payload" : undefined,
     ].filter((finding): finding is string => typeof finding === "string"),
     ...(harvestSummary ? { harvestSummary: sanitizeHarvestSummary(harvestSummary) } : {}),
@@ -758,6 +807,8 @@ function questManualNextStepForAdversarialFinding(finding: string): string {
       return "The checker accepted the copied in-app payload; preserve the manualPerformanceDraft and captureSummary fields for auditability.";
     case "cdp_manual_evidence_harvest_payload":
       return "Preserve harvestSummary with the copied payload so CDP harvest readiness remains auditable.";
+    case "locomotion_probe:runtime_probe_only":
+      return "Preserve captureSummary.locomotionProbeSummary so failed locomotion attempts keep their runtime-probe reason codes.";
     case "devtools_screencast_enabled_during_run":
       return "Rerun with DevTools screencast disabled so headset frame timing is less distorted.";
     case "trace_interaction_attempt_status_missing":
@@ -814,6 +865,9 @@ function questManualNextStepForAdversarialFinding(finding: string): string {
 function questManualNextStepForBlocker(blocker: string): string {
   if (blocker.startsWith("copied_payload_technical_gap:")) {
     return `Resolve copied payload technical gap: ${blocker.slice("copied_payload_technical_gap:".length)}.`;
+  }
+  if (blocker.startsWith("copied_payload_locomotion_probe:")) {
+    return questManualNextStepForLocomotionProbe(blocker.slice("copied_payload_locomotion_probe:".length));
   }
 
   switch (blocker) {
@@ -927,6 +981,8 @@ function questManualNextStepForBlocker(blocker: string): string {
       return "Resolve the copied captureSummary blockers before using the payload as readiness evidence.";
     case "copied_payload_technical_gaps_present":
       return "Resolve the copied captureSummary technical gaps before using the payload as readiness evidence.";
+    case "copied_payload_locomotion_probe_scope_invalid":
+      return "Re-copy the in-app Quest Evidence payload so captureSummary.locomotionProbeSummary has claimScope runtime_probe_only.";
     case "copied_payload_summary_missing_draft_or_frame_stats":
       return "Copy the in-app Quest Evidence payload after the draft and frame stats are both available.";
     case "frame_stats_stale_or_unsampled":
@@ -942,6 +998,35 @@ function questManualNextStepForBlocker(blocker: string): string {
       return "Trigger an xr_controller_select or xr_hand_select trace action before harvesting manual evidence.";
     default:
       return `Resolve Quest manual blocker: ${blocker}.`;
+  }
+}
+
+function questManualNextStepForLocomotionProbe(reason: string): string {
+  switch (reason) {
+    case "active_vector_without_rig_delta":
+      return "For the copied locomotion probe, preserve the active input vector and measurable rig delta from the same movement frame.";
+    case "no_gamepad_sources":
+      return "For the copied locomotion probe, use hand tracking deliberately or wake/activate a controller; no gamepad sources were seen.";
+    case "gamepad_axes_below_deadzone":
+      return "For the copied locomotion probe, move the thumbstick farther past the configured deadzone.";
+    case "hand_not_pinching":
+      return "For the copied locomotion probe, pinch thumb and index tip together before attempting hand-gesture locomotion.";
+    case "hand_arming_dwell":
+      return "For the copied locomotion probe, hold the pinch until the gesture arming dwell completes before moving.";
+    case "hand_missing_joints":
+      return "For the copied locomotion probe, reposition hands so wrist, index-tip, and thumb-tip joints are visible to Quest hand tracking.";
+    case "hand_below_deadzone":
+      return "For the copied locomotion probe, move the armed hand farther past the gesture deadzone or use room-scale walking.";
+    case "hand_turn_cooldown":
+      return "For the copied locomotion probe, wait for the turn cooldown before repeating a hand-turn gesture.";
+    case "hand_other_locomotion_source_active":
+      return "For the copied locomotion probe, retry hand locomotion without another locomotion source active.";
+    case "no_xr_input_sources":
+      return "For the copied locomotion probe, confirm Quest hand tracking or controllers are visible before attempting movement.";
+    case "locomotion_delta_missing":
+      return "For the copied locomotion probe, preserve lastLocomotionAtMs plus a measurable locomotionDelta after moving.";
+    default:
+      return `Resolve copied locomotion probe reason: ${reason}.`;
   }
 }
 
