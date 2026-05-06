@@ -999,6 +999,21 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     ...blenderAssetBakeSmokeBlockers(blenderAssetBakeSmoke?.value),
     ...assetEvidenceFreshnessBlockers,
   ];
+  const localModelInstallSmokeBlockers = [
+    ...localModelRuntimeBlockers(localRuntime?.value, localModelRuntimeBenchmark),
+    ...localModelBenchmarkBlockers(localProviderBenchmark?.value),
+    ...localModelRuntimeBenchmarkBlockers(localRuntime?.value, localModelRuntimeBenchmark),
+  ];
+  const localVoiceInstallSmokeBlockers = [
+    ...localVoiceRuntimeBlockers(localRuntime?.value, localVoiceRuntimeBenchmark),
+    ...localVoiceBenchmarkBlockers(localProviderBenchmark?.value),
+    ...localVoiceRuntimeBenchmarkBlockers(localRuntime?.value, localVoiceRuntimeBenchmark),
+  ];
+  const assetInstallSmokeBlockers = [
+    ...assetRuntimeBlockers(localRuntime?.value),
+    ...gltfPipelineSmokeBlockers(gltfPipelineSmoke?.value),
+    ...blenderAssetBakeSmokeBlockers(blenderAssetBakeSmoke?.value),
+  ];
   const localModelQualityEvidenceBlockers = [
     ...localModelQualityBlockers(localModelRuntimeBenchmark, localModelQualityBenchmark),
     ...freshnessBlockers(evidenceFreshness, [
@@ -1630,9 +1645,9 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     evidence_gates: [
       buildEvidenceGate("evidence-leadership-0007-002", combinedSatisfiedConditions, combinedBlockers),
       buildEvidenceGate("evidence-leadership-0008-001", questSatisfiedConditions, unique(questEvidenceBlockers)),
-      buildEvidenceGate("evidence-leadership-0008-002", localModelSatisfiedConditions, unique(localModelEvidenceBlockers)),
-      buildEvidenceGate("evidence-leadership-0008-003", localVoiceSatisfiedConditions, unique(localVoiceEvidenceBlockers)),
-      buildEvidenceGate("evidence-leadership-0008-004", assetSatisfiedConditions, unique(assetEvidenceBlockers)),
+      buildEvidenceGate("evidence-leadership-0008-002", localModelSatisfiedConditions, unique(localModelInstallSmokeBlockers)),
+      buildEvidenceGate("evidence-leadership-0008-003", localVoiceSatisfiedConditions, unique(localVoiceInstallSmokeBlockers)),
+      buildEvidenceGate("evidence-leadership-0008-004", assetSatisfiedConditions, unique(assetInstallSmokeBlockers)),
       buildEvidenceGate("evidence-leadership-0009-001", questSatisfiedConditions, unique(questEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0009-002", localModelQualitySatisfiedConditions, unique(localModelQualityEvidenceBlockers)),
       buildEvidenceGate("evidence-leadership-0009-003", localVoiceLiveDialogSatisfiedConditions, unique(localVoiceLiveDialogEvidenceBlockers)),

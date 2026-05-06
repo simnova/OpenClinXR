@@ -46,9 +46,9 @@ It does not prove:
 
 ## Next Evidence Steps
 
-1. Run the source-level check now, and optionally provide a local Godot 4 binary
-   for a headless import check:
-   `pnpm godot:project:import-check -- --godot-binary /path/to/godot`.
+1. Use the committed local headless import evidence in
+   `docs/openclinxr/godot-project-import-check-2026-05-06.json` as the current
+   source/import baseline.
 2. Add a Quest-compatible native Opus codec path or deliberately switch this
    lane to WebRTC if that proves simpler.
 3. Connect to the local gateway and record first binary frame round-trip from
@@ -67,8 +67,18 @@ Without `--godot-binary`, it validates only committed source shape: Godot 4
 project metadata, mobile renderer posture, the `RealtimeVoiceSpike` scene
 bindings, local WebSocket endpoint, JSON control frames, binary packet sending,
 and explicit `opus` / 48 kHz declarations. It records
-`godot_import_not_executed` until a local Godot executable is supplied. Even a
-passing import check is not Quest runtime, microphone, Opus encode/decode,
+`godot_import_not_executed` until a local Godot executable is supplied.
+
+The current committed local import report is:
+
+```bash
+pnpm godot:project:import-check:validate
+```
+
+That report uses the cached official Godot 4.5.1 stable macOS editor at
+`/Users/patrick/.cache/openclinxr/godot/4.5.1-stable/Godot.app/Contents/MacOS/Godot`
+and records release/hash/license posture through `sources/godot-github-release-2026.json`.
+Even a passing import check is not Quest runtime, microphone, Opus encode/decode,
 playback, latency, clinical voice, or production-readiness evidence.
 
 ## Evidence Checker

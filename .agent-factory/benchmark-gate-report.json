@@ -5,7 +5,7 @@
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T18:13:48.812Z",
-      "age_hours": 48,
+      "age_hours": 49,
       "max_age_hours": 24,
       "status": "stale",
       "blockers": [
@@ -16,7 +16,7 @@
       "evidence_id": "local_runtime_probe",
       "file": "docs/openclinxr/local-runtime-probe-2026-05-06.json",
       "generated_at": "2026-05-06T14:06:52.238Z",
-      "age_hours": 4,
+      "age_hours": 5,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -25,7 +25,7 @@
       "evidence_id": "gltf_pipeline_smoke",
       "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
       "generated_at": "2026-05-06T00:10:04.220Z",
-      "age_hours": 18,
+      "age_hours": 19,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -34,7 +34,7 @@
       "evidence_id": "blender_asset_bake_smoke",
       "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
       "generated_at": "2026-05-06T08:19:07.305Z",
-      "age_hours": 10,
+      "age_hours": 11,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -43,7 +43,7 @@
       "evidence_id": "asset_capability_job_evidence",
       "file": "docs/openclinxr/asset-capability-job-evidence-2026-05-05.json",
       "generated_at": "2026-05-06T17:03:23.936Z",
-      "age_hours": 1,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -52,7 +52,7 @@
       "evidence_id": "asset_production_readiness_benchmark",
       "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T15:09:30.325Z",
-      "age_hours": 3,
+      "age_hours": 4,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -61,7 +61,7 @@
       "evidence_id": "asset_production_evidence_ladder",
       "file": "docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
       "generated_at": "2026-05-06T15:33:39.087Z",
-      "age_hours": 2,
+      "age_hours": 4,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -70,16 +70,18 @@
       "evidence_id": "local_provider_benchmark",
       "file": "docs/openclinxr/local-provider-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T19:05:08.997Z",
-      "age_hours": 23,
+      "age_hours": 24,
       "max_age_hours": 24,
-      "status": "fresh",
-      "blockers": []
+      "status": "stale",
+      "blockers": [
+        "local_provider_benchmark:evidence_stale_over_24h"
+      ]
     },
     {
       "evidence_id": "local_model_runtime_benchmark",
       "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T20:20:19.936Z",
-      "age_hours": 22,
+      "age_hours": 23,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -88,7 +90,7 @@
       "evidence_id": "local_model_quality_benchmark",
       "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T06:57:35.610Z",
-      "age_hours": 11,
+      "age_hours": 12,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -97,7 +99,7 @@
       "evidence_id": "local_voice_runtime_benchmark",
       "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T06:20:53Z",
-      "age_hours": 12,
+      "age_hours": 13,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -106,7 +108,7 @@
       "evidence_id": "local_voice_live_dialog_benchmark",
       "file": "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T14:41:44.220Z",
-      "age_hours": 3,
+      "age_hours": 4,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -115,7 +117,7 @@
       "evidence_id": "local_realtime_voice_model_cache_evidence",
       "file": "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-06.json",
       "generated_at": "2026-05-06T14:41:23.601Z",
-      "age_hours": 3,
+      "age_hours": 4,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -124,7 +126,7 @@
       "evidence_id": "local_qwen_tts_runtime_smoke",
       "file": "docs/openclinxr/local-qwen-tts-runtime-smoke-2026-05-06.json",
       "generated_at": "2026-05-06T13:24:08Z",
-      "age_hours": 5,
+      "age_hours": 6,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -133,7 +135,7 @@
       "evidence_id": "local_moshi_runtime_package_evidence",
       "file": "docs/openclinxr/local-moshi-runtime-package-evidence-2026-05-06.json",
       "generated_at": "2026-05-06T14:59:16.154Z",
-      "age_hours": 3,
+      "age_hours": 4,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -142,7 +144,7 @@
       "evidence_id": "blueprint_voice_simulation_spike",
       "file": "docs/openclinxr/blueprint-voice-simulation-spike-2026-05-05.json",
       "generated_at": "2026-05-06T03:18:07.296Z",
-      "age_hours": 15,
+      "age_hours": 16,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -151,7 +153,7 @@
       "evidence_id": "godot_quest_voice_evidence",
       "file": "docs/openclinxr/godot-quest-voice-evidence-2026-05-06.json",
       "generated_at": "2026-05-06T14:00:03.516Z",
-      "age_hours": 4,
+      "age_hours": 5,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -160,7 +162,7 @@
       "evidence_id": "godot_project_import_check",
       "file": ".agent-factory/godot-project-import-check.json",
       "generated_at": "2026-05-06T13:56:47.467Z",
-      "age_hours": 4,
+      "age_hours": 5,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -169,7 +171,7 @@
       "evidence_id": "realtime_voice_transport_spike",
       "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-06.json",
       "generated_at": "2026-05-06T13:40:30.076Z",
-      "age_hours": 4,
+      "age_hours": 5,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -178,7 +180,7 @@
       "evidence_id": "api_python_backend_runtime_smoke",
       "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-06.json",
       "generated_at": "2026-05-06T13:39:59.065Z",
-      "age_hours": 4,
+      "age_hours": 5,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -187,7 +189,7 @@
       "evidence_id": "api_bun_websocket_runtime_smoke",
       "file": "docs/openclinxr/api-bun-websocket-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T23:27:29.751Z",
-      "age_hours": 19,
+      "age_hours": 20,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -196,7 +198,7 @@
       "evidence_id": "api_bun_python_proxy_runtime_smoke",
       "file": "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-06T01:52:40.346Z",
-      "age_hours": 16,
+      "age_hours": 17,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -204,7 +206,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T18:30:53.487Z",
+      "generated_at": "2026-05-06T19:34:15.180Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -1792,7 +1794,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T18:30:53.487Z",
+    "generated_at": "2026-05-06T19:34:15.180Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -2070,6 +2072,7 @@
         "text_readability_confirmed"
       ],
       "blockers": [
+        "local_provider_benchmark:evidence_stale_over_24h",
         "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
         "quest_frame_quality_evidence_missing",
         "quest_immersive_entry_activation_not_received",
@@ -2099,7 +2102,7 @@
         "quest_text_panel_metadata_missing"
       ],
       "blocker_summary": {
-        "total_blockers": 27,
+        "total_blockers": 28,
         "distinct_problem_count": 2,
         "groups": [
           {
@@ -2107,6 +2110,7 @@
             "title": "Benchmark evidence freshness",
             "owner": "qa-evidence-lead",
             "blockers": [
+              "local_provider_benchmark:evidence_stale_over_24h",
               "quest_smoke:evidence_stale_over_24h"
             ],
             "next_step": "Regenerate the stale local evidence files before using the benchmark gate as leadership-ready proof."
@@ -2458,12 +2462,22 @@
         "local_provider_mock_benchmarks_passed"
       ],
       "blockers": [
-        "local_model_quality:target_hardware:target_hardware_not_m4_profile"
+        "local_model_quality:target_hardware:target_hardware_not_m4_profile",
+        "local_provider_benchmark:evidence_stale_over_24h"
       ],
       "blocker_summary": {
-        "total_blockers": 1,
-        "distinct_problem_count": 1,
+        "total_blockers": 2,
+        "distinct_problem_count": 2,
         "groups": [
+          {
+            "group_id": "benchmark_evidence_freshness",
+            "title": "Benchmark evidence freshness",
+            "owner": "qa-evidence-lead",
+            "blockers": [
+              "local_provider_benchmark:evidence_stale_over_24h"
+            ],
+            "next_step": "Regenerate the stale local evidence files before using the benchmark gate as leadership-ready proof."
+          },
           {
             "group_id": "local_model_quality",
             "title": "Local model structured-output and actor-policy evidence",
@@ -2514,6 +2528,7 @@
         "local_voice_realtime_transport_contract_observed"
       ],
       "blockers": [
+        "local_provider_benchmark:evidence_stale_over_24h",
         "local_voice_live_dialog:blueprint_voice_simulation:clinical_voice_safety_controls_not_validated_with_real_model",
         "local_voice_live_dialog:blueprint_voice_simulation:first_response_improvement_not_measured",
         "local_voice_live_dialog:blueprint_voice_simulation:not_ready_for_production",
@@ -2557,9 +2572,18 @@
         "local_voice_live_dialog:webxr_playback:webxr_playback_not_observed"
       ],
       "blocker_summary": {
-        "total_blockers": 41,
-        "distinct_problem_count": 1,
+        "total_blockers": 42,
+        "distinct_problem_count": 2,
         "groups": [
+          {
+            "group_id": "benchmark_evidence_freshness",
+            "title": "Benchmark evidence freshness",
+            "owner": "qa-evidence-lead",
+            "blockers": [
+              "local_provider_benchmark:evidence_stale_over_24h"
+            ],
+            "next_step": "Regenerate the stale local evidence files before using the benchmark gate as leadership-ready proof."
+          },
           {
             "group_id": "local_voice_live_dialog",
             "title": "Local voice live-dialog evidence",

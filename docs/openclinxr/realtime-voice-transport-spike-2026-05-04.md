@@ -18,7 +18,7 @@ Use WebSocket-first for the immediate Quest 3 voice path, with `/apps/api` treat
 - `docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json` records a no-cloud bidirectional streaming harness run.
 - `docs/openclinxr/api-python-backend-runtime-smoke-2026-05-05.json` is now linked into the realtime report, retiring the stale FastAPI-not-executed blocker with canonical protocol and latency-field proof while preserving model, Quest audio, Opus, and safety blockers.
 - The report now records protocol evidence separately: WebSocket local harness observed, Bun/Hono runtime smoke observed, and WebTransport, direct QUIC, and Web3 signaling remain unobserved and evidence-gated.
-- The Godot Quest client source contract is observed in `apps/ui-quest-voice-godot`: dependency-free Godot sidecar, `WebSocketPeer`, `voice.audio_metadata`, and opaque binary packets. Godot runtime execution on this machine and Quest microphone/playback evidence are still unobserved.
+- The Godot Quest client source contract is observed in `apps/ui-quest-voice-godot`: dependency-free Godot sidecar, `WebSocketPeer`, `voice.audio_metadata`, and opaque binary packets. Local headless editor import evidence was later captured in `docs/openclinxr/godot-project-import-check-2026-05-06.json`; Quest microphone/playback evidence is still unobserved.
 - Godot and the local gateway contract send `voice.audio_metadata` before binary chunks so chunk indexes and per-frame latency samples can be measured before native Opus and real model integration.
 
 ## Sequence
@@ -98,7 +98,7 @@ func _play_received_audio_packet(_packet: PackedByteArray) -> void:
 
 ## Remaining Blockers
 
-- Install or attach a Godot runtime for source-level sidecar execution.
+- Keep `docs/openclinxr/godot-project-import-check-2026-05-06.json` current after sidecar source changes.
 - Execute a real Quest/Godot client with microphone capture and playback.
 - Add or select a native Opus encode/decode path for Quest/Godot, or switch this lane to WebRTC if that proves simpler.
 - Keep the Bun/Hono WebSocket smoke current after proxy, codec, or backend changes.

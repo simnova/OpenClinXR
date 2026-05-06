@@ -4,6 +4,8 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   buildGodotProjectImportCheck,
+  runGodotProjectImportCheckCli,
+  validateGodotProjectImportCheckReport,
   type GodotProjectImportInput,
 } from "./godot-project-import-check.js";
 
@@ -20,6 +22,20 @@ function sourceOnlyInput(): GodotProjectImportInput {
       voiceClientScript: readFileSync(`${appPath}/src/RealtimeVoiceClient.gd`, "utf8"),
     },
   };
+}
+
+function localReleaseSource() {
+  const assetSha256 = "65c27959d02aaacfc131ec7ecb90179ba8045200cb02982bf2be96d117010b8a";
+  return {
+    sourceRecordIds: ["src-godot-github-release-2026"],
+    tag: "4.5.1-stable",
+    releaseUrl: "https://github.com/godotengine/godot/releases/tag/4.5.1-stable",
+    assetName: "Godot_v4.5.1-stable_macos.universal.zip",
+    assetDigest: `sha256:${assetSha256}`,
+    assetSha256,
+    cacheArchivePath: "/Users/patrick/.cache/openclinxr/godot/4.5.1-stable/Godot_v4.5.1-stable_macos.universal.zip",
+    license: "MIT",
+  } as const;
 }
 
 describe("Godot project import check", () => {
@@ -115,6 +131,56 @@ describe("Godot project import check", () => {
     expect(check.verdict.readyForGodotImportClaim).toBe(false);
   });
 
+  it("validates passed Godot import evidence without widening runtime claims", () => {
+    const fakeGodot = path.join(mkdtempSync(path.join(tmpdir(), "openclinxr-godot-")), "godot");
+    writeFileSync(fakeGodot, [
+      "#!/usr/bin/env bash",
+      "echo 'Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org'",
+      "exit 0",
+      "",
+    ].join("\n"));
+    chmodSync(fakeGodot, 0o755);
+
+    const check = buildGodotProjectImportCheck({
+      ...sourceOnlyInput(),
+      godotBinary: fakeGodot,
+      godotBinarySource: localReleaseSource(),
+    });
+
+    expect(validateGodotProjectImportCheckReport(check)).toEqual({ ok: true });
+    expect(check.verdict).toMatchObject({
+      readyForGodotImportClaim: true,
+      readyForQuestRuntimeClaim: false,
+      readyForVoiceRuntimeClaim: false,
+    });
+    expect(check.godotBinarySource).toEqual(localReleaseSource());
+    expect(check.notEvidenceFor).toContain("production_runtime_readiness");
+  });
+
+  it("rejects reports that treat Godot import evidence as Quest or voice runtime evidence", () => {
+    const check = buildGodotProjectImportCheck(sourceOnlyInput());
+    const unsafeReport = {
+      ...check,
+      verdict: {
+        ...check.verdict,
+        readyForQuestRuntimeClaim: true,
+        readyForVoiceRuntimeClaim: true,
+      },
+      notEvidenceFor: [],
+    };
+
+    const validation = validateGodotProjectImportCheckReport(unsafeReport);
+
+    expect(validation.ok).toBe(false);
+    expect(validation).toMatchObject({
+      errors: expect.arrayContaining([
+        "/verdict/readyForQuestRuntimeClaim must be false",
+        "/verdict/readyForVoiceRuntimeClaim must be false",
+        "/notEvidenceFor must include physical_quest_voice_runtime",
+      ]),
+    });
+  });
+
   it("keeps the root script available for local source/import evidence generation", () => {
     const rootPackage = JSON.parse(readFileSync("package.json", "utf8")) as {
       scripts?: Record<string, string>;
@@ -123,5 +189,13 @@ describe("Godot project import check", () => {
     expect(rootPackage.scripts?.["godot:project:import-check"]).toBe(
       "tsx tools/openclinxr/godot-project-import-check.ts",
     );
+    expect(rootPackage.scripts?.["godot:project:import-check:validate"]).toBe(
+      "tsx tools/openclinxr/godot-project-import-check.ts --validate-latest",
+    );
+    expect(rootPackage.scripts?.["agent:verify"]).toContain("pnpm godot:project:import-check:validate");
+  });
+
+  it("validates the latest committed Godot import evidence artifact", async () => {
+    await expect(runGodotProjectImportCheckCli(["--validate-latest"])).resolves.toBeUndefined();
   });
 });

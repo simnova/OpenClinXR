@@ -37,7 +37,16 @@ The source/import evidence lane can use a locally cached Godot 4 editor binary:
 pnpm godot:project:import-check -- --godot-binary /Users/patrick/.cache/openclinxr/godot/4.5.1-stable/Godot.app/Contents/MacOS/Godot
 ```
 
+The committed evidence artifact is
+`docs/openclinxr/godot-project-import-check-2026-05-06.json` and can be checked
+from the repo root with:
+
+```bash
+pnpm godot:project:import-check:validate
+```
+
 This only proves that Godot can parse/import the committed sidecar source on the
-developer machine. It still does not prove physical Quest runtime behavior,
+developer machine, with release/hash/license posture recorded for the local
+editor binary. It still does not prove physical Quest runtime behavior,
 microphone capture, native Opus encode/decode, headset playback, latency, or
 clinical voice readiness.
