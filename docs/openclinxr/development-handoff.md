@@ -191,6 +191,7 @@ The next implementation plan should not start until these docs are reviewed:
 - Do not require cloud API keys, paid services, local model downloads, local voice runtimes, MongoDB, Bun, or Quest 3 hardware for the first deterministic station simulation.
 - Do not start local LLM or voice runtime implementation until mock provider audit contracts exist and pass verification.
 - Do not start generated-human asset work until asset manifest validation and license/provenance gates exist.
+- Do not claim production asset readiness from placeholder Blender bake evidence or local asset evidence fixtures; the production asset evidence ladder must be backed by reviewed generated artifacts, provenance, visual QA, and Quest budget evidence.
 - Do not claim diagnostic performance, licensure readiness, ECFMG replacement, USMLE equivalence, or validated high-stakes scoring.
 - Do not call the first XR shell ready until the desktop fallback renders a nonblank canvas and core text does not overlap.
 - Do not claim Quest readiness until the Quest 3 USB-C smoke checklist records a pass or a precise blocker.

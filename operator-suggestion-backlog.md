@@ -57,7 +57,7 @@ This file captures useful operator suggestions that should not interrupt the cur
 - Current status: proposed future tool, not installed.
 - Confidence: medium.
 - Notes: Blender CLI placeholder bake evidence is passing. Blender MCP could help agents inspect Blender scenes and capture visual QA, but it gives an AI-controlled path into Blender/Python/desktop automation and should require a separate security/install proposal before use.
-- Promote when: production asset evidence ladder is approved and needs agent-readable Blender scene inspection beyond CLI smoke exports.
+- Promote when: a separate security/install proposal is approved and the production asset evidence ladder needs agent-readable Blender scene inspection beyond CLI smoke exports.
 
 ### SkinTokens / TokenRig
 

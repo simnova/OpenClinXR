@@ -1,7 +1,7 @@
 # Automated Asset Generation Pipeline
 
-Date: 2026-05-03
-Status: Development-team guidance with first registry contract implemented
+Date: 2026-05-06
+Status: Development-team guidance with registry contracts and production evidence ladder implemented
 
 ## Goal
 
@@ -302,6 +302,29 @@ pnpm asset:gltf:smoke -- --output docs/openclinxr/gltf-pipeline-smoke-2026-05-03
 ```
 
 Do not treat a successful conversion command as proof of runtime readiness. Runtime readiness requires headset FPS, memory, interaction, visual checks, and later compression/texture-bake evidence.
+
+## Production Asset Evidence Ladder
+
+Current machine-readable production-asset evidence:
+
+- `pnpm asset:production:readiness -- --use-local-asset-evidence-fixture --output docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json`
+- `pnpm asset:production:ladder -- --readiness docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json --output docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json`
+
+The current readiness benchmark and ladder are intentionally blocked. They validate that the evidence shape exists, but the local asset fixture is contract-only evidence and is not artifact-backed production asset proof.
+
+The ladder tracks these proof lanes:
+
+- Generated human rigging.
+- Skin and clothing provenance.
+- Medical equipment library.
+- Animation retargeting.
+- LOD, texture, and collider budget.
+- Multi-actor Quest 3 station budget.
+- Artifact-backed production asset evidence.
+
+All production asset readiness claims remain blocked until those lanes are backed by reviewed generated clinical character and equipment artifacts, provenance records, visual QA, and Quest budget evidence tied to those artifacts.
+
+The aggregate benchmark gate also loads the latest ladder report and surfaces lane blockers under `asset_production:ladder:*`. This prevents placeholder Blender bake evidence or local fixture slots from satisfying production asset debt.
 
 ## QA Gates
 
