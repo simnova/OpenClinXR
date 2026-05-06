@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T22:32:39.478Z",
+  "generatedAt": "2026-05-06T02:18:16.813Z",
   "status": "blocked",
   "policy": {
     "cloudApisUsed": false,
@@ -48,6 +48,25 @@
       "webxr_playback_not_observed"
     ]
   },
+  "modelCache": {
+    "evidenceFile": "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-05.json",
+    "generatedAt": "2026-05-06T02:18:16.248Z",
+    "kind": "local_voice_evidence_check",
+    "claimScope": "cache_inventory_only",
+    "cacheDir": "/Users/patrick/.cache/openclinxr/realtime-voice",
+    "approvedModelIds": [
+      "kyutai/moshiko-mlx-q4",
+      "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit"
+    ],
+    "cacheExists": true,
+    "ready": false,
+    "readyModelIds": [],
+    "supportRuntimeObserved": true,
+    "blockers": [
+      "approved_model_weights_not_cached",
+      "real_moshi_or_qwen3_model_cache_missing"
+    ]
+  },
   "safetyControls": {
     "disclosureRequired": true,
     "generatedAudioCommitted": false,
@@ -62,7 +81,9 @@
       "runtime_stream:real_local_voice_stream_benchmark_missing",
       "runtime:runtime_file_generation_only",
       "runtime:real_time_factor_above_1",
-      "webxr_playback:webxr_playback_not_observed"
+      "webxr_playback:webxr_playback_not_observed",
+      "model_cache:approved_model_weights_not_cached",
+      "model_cache:real_moshi_or_qwen3_model_cache_missing"
     ],
     "caveats": [
       "Mock stream evidence proves gateway event shape only; it is not a real VibeVoice streaming or Quest playback capture.",

@@ -157,6 +157,7 @@ type BenchmarkGateReport = {
     file: string;
     generated_at: string;
     kind: string;
+    claim_scope: string | null;
     cache_dir: string;
     approved_model_ids: string[];
     cache_exists: boolean;
@@ -515,6 +516,7 @@ type LocalRealtimeVoiceModelCacheEvidenceInput = {
   value: {
     generatedAt: string;
     kind: string;
+    claim_scope?: string;
     cache_dir: string;
     approved_model_ids: string[];
     cache_exists: boolean;
@@ -548,6 +550,7 @@ function missingRealtimeVoiceModelCacheEvidence(): LocalRealtimeVoiceModelCacheE
     value: {
       generatedAt: "2026-05-05T18:30:00.000Z",
       kind: "local_voice_evidence_check",
+      claim_scope: "cache_inventory_only",
       cache_dir: "/Users/patrick/.cache/openclinxr/realtime-voice",
       approved_model_ids: [
         "kyutai/moshiko-mlx-q4",
@@ -1854,12 +1857,84 @@ describe("benchmark gate report", () => {
   it("surfaces local realtime voice model cache evidence as a live-dialog blocker", () => {
     const buildReport = buildBenchmarkGateReport as (
       input: Parameters<typeof buildBenchmarkGateReport>[0] & {
+        localVoiceLiveDialogBenchmark?: {
+          file: string;
+          value: {
+            generatedAt: string;
+            status: string;
+            mockStream: {
+              passed: boolean;
+              blockers: string[];
+            };
+            runtimeFit: {
+              blockers: string[];
+            };
+            webxrPlayback: {
+              observed: boolean;
+              blockers: string[];
+            };
+            safetyControls: {
+              blockers: string[];
+            };
+            verdict: {
+              passed: boolean;
+              blockers: string[];
+              caveats: string[];
+            };
+          };
+        };
         localRealtimeVoiceModelCacheEvidence?: LocalRealtimeVoiceModelCacheEvidenceInput;
       },
       options: { now: Date; maxEvidenceAgeHours: number },
     ) => BenchmarkGateReport;
 
     const report = buildReport({
+      localVoiceRuntimeBenchmark: {
+        file: "docs/openclinxr/local-voice-runtime-benchmark-2026-05-05.json",
+        value: {
+          generatedAt: "2026-05-05T18:30:30.000Z",
+          status: "passed_with_caveats",
+          runtime: {},
+          audio: {},
+          metrics: {
+            realTimeFactor: 0.7,
+          },
+          verdict: {
+            passed: true,
+            blockers: [],
+            caveats: [],
+          },
+        },
+      },
+      localVoiceLiveDialogBenchmark: {
+        file: "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-05.json",
+        value: {
+          generatedAt: "2026-05-05T18:31:00.000Z",
+          status: "blocked",
+          mockStream: {
+            passed: true,
+            blockers: [],
+          },
+          runtimeFit: {
+            blockers: [],
+          },
+          webxrPlayback: {
+            observed: true,
+            blockers: [],
+          },
+          safetyControls: {
+            blockers: [],
+          },
+          verdict: {
+            passed: false,
+            blockers: [
+              "model_cache:approved_model_weights_not_cached",
+              "model_cache:real_moshi_or_qwen3_model_cache_missing",
+            ],
+            caveats: [],
+          },
+        },
+      },
       localRealtimeVoiceModelCacheEvidence: missingRealtimeVoiceModelCacheEvidence(),
     }, { now: new Date("2026-05-05T18:45:00.000Z"), maxEvidenceAgeHours: 24 });
     const liveDialogGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-003");
@@ -1868,6 +1943,7 @@ describe("benchmark gate report", () => {
       file: "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-05.json",
       generated_at: "2026-05-05T18:30:00.000Z",
       kind: "local_voice_evidence_check",
+      claim_scope: "cache_inventory_only",
       cache_exists: true,
       ready: false,
       models: [],
@@ -1893,6 +1969,10 @@ describe("benchmark gate report", () => {
     expect(liveDialogGate?.blockers).toEqual(expect.arrayContaining([
       "local_voice_live_dialog:local_realtime_voice_model_cache:approved_model_weights_not_cached",
       "local_voice_live_dialog:local_realtime_voice_model_cache:real_moshi_or_qwen3_model_cache_missing",
+    ]));
+    expect(liveDialogGate?.blockers).not.toEqual(expect.arrayContaining([
+      "local_voice_live_dialog:model_cache:approved_model_weights_not_cached",
+      "local_voice_live_dialog:model_cache:real_moshi_or_qwen3_model_cache_missing",
     ]));
     expect(liveDialogGate?.satisfied_conditions).toEqual(expect.arrayContaining([
       "local_voice_realtime_model_cache_evidence_present",

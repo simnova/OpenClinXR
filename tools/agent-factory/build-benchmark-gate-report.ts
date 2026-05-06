@@ -271,6 +271,7 @@ type LocalVoiceLiveDialogBenchmarkReport = {
 type LocalRealtimeVoiceModelCacheEvidenceReport = {
   generatedAt: string;
   kind: string;
+  claim_scope?: string;
   cache_dir: string;
   approved_model_ids: string[];
   cache_exists: boolean;
@@ -458,6 +459,7 @@ type EvidenceGateReport = {
     file: string;
     generated_at: string;
     kind: string;
+    claim_scope: string | null;
     cache_dir: string;
     approved_model_ids: string[];
     cache_exists: boolean;
@@ -1136,6 +1138,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         file: localRealtimeVoiceModelCacheEvidence.file,
         generated_at: localRealtimeVoiceModelCacheEvidence.value.generatedAt,
         kind: localRealtimeVoiceModelCacheEvidence.value.kind,
+        claim_scope: localRealtimeVoiceModelCacheEvidence.value.claim_scope ?? null,
         cache_dir: localRealtimeVoiceModelCacheEvidence.value.cache_dir,
         approved_model_ids: [...localRealtimeVoiceModelCacheEvidence.value.approved_model_ids],
         cache_exists: localRealtimeVoiceModelCacheEvidence.value.cache_exists,
@@ -1803,7 +1806,9 @@ function localVoiceLiveDialogBlockers(
   if (liveDialogBenchmark) {
     const runtimeStreamBlockers = liveDialogBenchmark.value.runtimeStream?.blockers ?? ["real_local_voice_stream_benchmark_missing"];
     return unique([
-      ...liveDialogBenchmark.value.verdict.blockers.map((blocker) => `local_voice_live_dialog:${blocker}`),
+      ...liveDialogBenchmark.value.verdict.blockers
+        .filter((blocker) => !blocker.startsWith("model_cache:"))
+        .map((blocker) => `local_voice_live_dialog:${blocker}`),
       ...(liveDialogBenchmark.value.mockStream.passed
         ? []
         : (liveDialogBenchmark.value.mockStream.blockers.length > 0 ? liveDialogBenchmark.value.mockStream.blockers : ["mock_stream_probe_failed"])

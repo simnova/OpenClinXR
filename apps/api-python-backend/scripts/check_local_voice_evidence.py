@@ -132,6 +132,7 @@ def collect(cache_dir: pathlib.Path) -> dict[str, Any]:
 
     return {
         "kind": "local_voice_evidence_check",
+        "claim_scope": "cache_inventory_only",
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z"),
         "cache_dir": str(cache_dir),
         "approved_model_ids": APPROVED_MODEL_IDS,

@@ -68,6 +68,7 @@ class LocalVoiceEvidenceTests(unittest.TestCase):
             payload = run_json(CHECK, "--cache-dir", str(cache))
 
         self.assertEqual("local_voice_evidence_check", payload["kind"])
+        self.assertEqual("cache_inventory_only", payload["claim_scope"])
         self.assertRegex(str(payload["generatedAt"]), r"^\d{4}-\d{2}-\d{2}T")
         self.assertEqual(str(cache), payload["cache_dir"])
         self.assertFalse(payload["cache_exists"])

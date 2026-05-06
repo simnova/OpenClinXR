@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { buildLocalVoiceLiveDialogBenchmarkReport, type LocalVoiceRuntimeBenchmarkReport } from "./local-voice-live-dialog-benchmark.js";
+import {
+  buildLocalVoiceLiveDialogBenchmarkReport,
+  type LocalRealtimeVoiceModelCacheEvidenceReport,
+  type LocalVoiceRuntimeBenchmarkReport,
+} from "./local-voice-live-dialog-benchmark.js";
 
 describe("local voice live-dialog benchmark report", () => {
   it("turns file-generation voice evidence into explicit live-dialog blockers without executing a voice runtime", async () => {
@@ -63,6 +67,7 @@ describe("local voice live-dialog benchmark report", () => {
         "runtime:runtime_file_generation_only",
         "runtime:real_time_factor_above_1",
         "webxr_playback:webxr_playback_not_observed",
+        "model_cache:missing_local_realtime_voice_model_cache_evidence_report",
       ],
       caveats: [
         "Mock stream evidence proves gateway event shape only; it is not a real VibeVoice streaming or Quest playback capture.",
@@ -79,6 +84,23 @@ describe("local voice live-dialog benchmark report", () => {
       realLocalVoiceStreamObserved: true,
       firstAudiblePlaybackLatencyMs: 450,
       transcriptRoundTripObserved: true,
+      modelCacheEvidenceFile: "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-05.json",
+      modelCacheEvidence: localRealtimeVoiceModelCacheEvidence({
+        ready: true,
+        models: [
+          {
+            model_id: "kyutai/moshiko-mlx-q4",
+            ready: true,
+            blockers: [],
+          },
+        ],
+        supportDirectories: [
+          {
+            name: "api-python-backend-venv",
+            reason: "runtime_support_venv_not_model_weights",
+          },
+        ],
+      }),
       runtimeBenchmark: localVoiceRuntimeBenchmark({
         caveats: [],
         realTimeFactor: 0.7,
@@ -99,6 +121,87 @@ describe("local voice live-dialog benchmark report", () => {
       passed: true,
       readyForLiveDialog: false,
       blockers: [],
+    });
+  });
+
+  it("surfaces local realtime model cache evidence as a first-class live-dialog blocker", async () => {
+    const report = await buildLocalVoiceLiveDialogBenchmarkReport({
+      generatedAt: "2026-05-05T22:45:00.000Z",
+      runtimeBenchmarkFile: "docs/openclinxr/local-voice-runtime-benchmark-2026-05-05.json",
+      runtimeBenchmark: localVoiceRuntimeBenchmark({
+        caveats: [],
+        realTimeFactor: 0.7,
+      }),
+      modelCacheEvidenceFile: "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-05.json",
+      modelCacheEvidence: localRealtimeVoiceModelCacheEvidence({
+        ready: false,
+        models: [],
+        supportDirectories: [
+          {
+            name: "api-python-backend-venv",
+            reason: "runtime_support_venv_not_model_weights",
+          },
+        ],
+      }),
+      webxrPlaybackObserved: true,
+      realLocalVoiceStreamObserved: true,
+      firstAudiblePlaybackLatencyMs: 450,
+      transcriptRoundTripObserved: true,
+    });
+
+    expect(report.modelCache).toMatchObject({
+      evidenceFile: "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-05.json",
+      generatedAt: "2026-05-05T22:27:38.731Z",
+      kind: "local_voice_evidence_check",
+      claimScope: "cache_inventory_only",
+      approvedModelIds: [
+        "kyutai/moshiko-mlx-q4",
+        "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+      ],
+      cacheExists: true,
+      ready: false,
+      readyModelIds: [],
+      supportRuntimeObserved: true,
+      blockers: [
+        "approved_model_weights_not_cached",
+        "real_moshi_or_qwen3_model_cache_missing",
+      ],
+    });
+    expect(report.verdict).toMatchObject({
+      passed: false,
+      readyForLiveDialog: false,
+      blockers: [
+        "model_cache:approved_model_weights_not_cached",
+        "model_cache:real_moshi_or_qwen3_model_cache_missing",
+      ],
+    });
+  });
+
+  it("keeps missing local realtime model cache evidence explicit in standalone live-dialog reports", async () => {
+    const report = await buildLocalVoiceLiveDialogBenchmarkReport({
+      generatedAt: "2026-05-05T22:45:00.000Z",
+      runtimeBenchmarkFile: "docs/openclinxr/local-voice-runtime-benchmark-2026-05-05.json",
+      runtimeBenchmark: localVoiceRuntimeBenchmark({
+        caveats: [],
+        realTimeFactor: 0.7,
+      }),
+      webxrPlaybackObserved: true,
+      realLocalVoiceStreamObserved: true,
+      firstAudiblePlaybackLatencyMs: 450,
+      transcriptRoundTripObserved: true,
+    });
+
+    expect(report.modelCache).toMatchObject({
+      evidenceFile: null,
+      ready: false,
+      readyModelIds: [],
+      supportRuntimeObserved: false,
+      blockers: ["missing_local_realtime_voice_model_cache_evidence_report"],
+    });
+    expect(report.verdict).toMatchObject({
+      passed: false,
+      readyForLiveDialog: false,
+      blockers: ["model_cache:missing_local_realtime_voice_model_cache_evidence_report"],
     });
   });
 });
@@ -135,5 +238,26 @@ function localVoiceRuntimeBenchmark(input: {
       blockers: [],
       caveats: input.caveats,
     },
+  };
+}
+
+function localRealtimeVoiceModelCacheEvidence(input: {
+  ready: boolean;
+  models: LocalRealtimeVoiceModelCacheEvidenceReport["models"];
+  supportDirectories: LocalRealtimeVoiceModelCacheEvidenceReport["support_directories"];
+}): LocalRealtimeVoiceModelCacheEvidenceReport {
+  return {
+    kind: "local_voice_evidence_check",
+    claim_scope: "cache_inventory_only",
+    generatedAt: "2026-05-05T22:27:38.731Z",
+    cache_dir: "/Users/patrick/.cache/openclinxr/realtime-voice",
+    approved_model_ids: [
+      "kyutai/moshiko-mlx-q4",
+      "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+    ],
+    cache_exists: true,
+    ready: input.ready,
+    models: input.models,
+    support_directories: input.supportDirectories,
   };
 }

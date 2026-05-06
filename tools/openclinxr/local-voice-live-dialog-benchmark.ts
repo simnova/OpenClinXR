@@ -8,6 +8,7 @@ import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 
 type CliOptions = {
   runtimeReportPath?: string;
+  modelCacheEvidencePath?: string;
   outputPath?: string;
   webxrPlaybackObserved?: boolean;
   realLocalVoiceStreamObserved?: boolean;
@@ -34,6 +35,25 @@ export type LocalVoiceRuntimeBenchmarkReport = {
     blockers: string[];
     caveats: string[];
   };
+};
+
+export type LocalRealtimeVoiceModelCacheEvidenceReport = {
+  kind: string;
+  claim_scope?: string;
+  generatedAt: string;
+  cache_dir: string;
+  approved_model_ids: string[];
+  cache_exists: boolean;
+  ready: boolean;
+  models: Array<{
+    model_id: string;
+    ready: boolean;
+    blockers: string[];
+  }>;
+  support_directories: Array<{
+    name: string;
+    reason: string;
+  }>;
 };
 
 export type LocalVoiceLiveDialogBenchmarkReport = {
@@ -79,6 +99,19 @@ export type LocalVoiceLiveDialogBenchmarkReport = {
     evidenceSource: "not_captured" | "operator_or_cdp_capture";
     blockers: string[];
   };
+  modelCache?: {
+    evidenceFile: string | null;
+    generatedAt: string | null;
+    kind: string | null;
+    claimScope: string | null;
+    cacheDir: string | null;
+    approvedModelIds: string[];
+    cacheExists: boolean;
+    ready: boolean;
+    readyModelIds: string[];
+    supportRuntimeObserved: boolean;
+    blockers: string[];
+  };
   safetyControls: {
     disclosureRequired: boolean;
     generatedAudioCommitted: boolean;
@@ -100,10 +133,15 @@ async function main(): Promise<void> {
   if (!runtimeReportPath) {
     throw new Error("Missing local voice runtime benchmark report. Run the approved local voice benchmark first or pass --runtime-report.");
   }
+  const modelCacheEvidencePath = options.modelCacheEvidencePath ?? await latestModelCacheEvidencePath();
 
   const report = await buildLocalVoiceLiveDialogBenchmarkReport({
     runtimeBenchmarkFile: runtimeReportPath,
     runtimeBenchmark: await readJson<LocalVoiceRuntimeBenchmarkReport>(runtimeReportPath),
+    modelCacheEvidenceFile: modelCacheEvidencePath,
+    modelCacheEvidence: modelCacheEvidencePath
+      ? await readJson<LocalRealtimeVoiceModelCacheEvidenceReport>(modelCacheEvidencePath)
+      : undefined,
     webxrPlaybackObserved: options.webxrPlaybackObserved,
     realLocalVoiceStreamObserved: options.realLocalVoiceStreamObserved,
     firstAudiblePlaybackLatencyMs: options.firstAudiblePlaybackLatencyMs,
@@ -127,6 +165,11 @@ function parseArgs(args: string[]): CliOptions {
     const arg = normalizedArgs[index];
     if (arg === "--runtime-report") {
       options.runtimeReportPath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--model-cache-evidence") {
+      options.modelCacheEvidencePath = requireValue(normalizedArgs, index, arg);
       index += 1;
       continue;
     }
@@ -171,10 +214,17 @@ async function latestRuntimeReportPath(): Promise<string | undefined> {
   return files.sort().at(-1);
 }
 
+async function latestModelCacheEvidencePath(): Promise<string | undefined> {
+  const files = await globFiles("docs/openclinxr/local-realtime-voice-model-cache-evidence-*.json");
+  return files.sort().at(-1);
+}
+
 export async function buildLocalVoiceLiveDialogBenchmarkReport(input: {
   generatedAt?: string;
   runtimeBenchmarkFile: string;
   runtimeBenchmark: LocalVoiceRuntimeBenchmarkReport;
+  modelCacheEvidenceFile?: string;
+  modelCacheEvidence?: LocalRealtimeVoiceModelCacheEvidenceReport;
   webxrPlaybackObserved?: boolean;
   realLocalVoiceStreamObserved?: boolean;
   firstAudiblePlaybackLatencyMs?: number;
@@ -188,12 +238,14 @@ export async function buildLocalVoiceLiveDialogBenchmarkReport(input: {
     transcriptRoundTripObserved: input.transcriptRoundTripObserved ?? false,
   });
   const webxrPlayback = inspectWebxrPlayback(input.webxrPlaybackObserved ?? false);
+  const modelCache = inspectModelCache(input.modelCacheEvidenceFile, input.modelCacheEvidence);
   const safetyControls = inspectSafetyControls(input.runtimeBenchmark);
   const blockers = [
     ...mockStream.blockers.map((blocker) => `mock_stream:${blocker}`),
     ...runtimeStream.blockers.map((blocker) => `runtime_stream:${blocker}`),
     ...runtimeFit.blockers.map((blocker) => `runtime:${blocker}`),
     ...webxrPlayback.blockers.map((blocker) => `webxr_playback:${blocker}`),
+    ...(modelCache?.blockers ?? []).map((blocker) => `model_cache:${blocker}`),
     ...safetyControls.blockers.map((blocker) => `safety_controls:${blocker}`),
   ];
   const passed = blockers.length === 0;
@@ -218,6 +270,7 @@ export async function buildLocalVoiceLiveDialogBenchmarkReport(input: {
     runtimeFit,
     runtimeStream,
     webxrPlayback,
+    ...(modelCache ? { modelCache } : {}),
     safetyControls,
     verdict: {
       passed,
@@ -228,6 +281,54 @@ export async function buildLocalVoiceLiveDialogBenchmarkReport(input: {
         "The source runtime benchmark is an existing file-generation smoke; this live-dialog report does not execute a voice runtime.",
       ],
     },
+  };
+}
+
+function inspectModelCache(
+  evidenceFile: string | undefined,
+  evidence: LocalRealtimeVoiceModelCacheEvidenceReport | undefined,
+): LocalVoiceLiveDialogBenchmarkReport["modelCache"] {
+  if (!evidenceFile || !evidence) {
+    return {
+      evidenceFile: null,
+      generatedAt: null,
+      kind: null,
+      claimScope: null,
+      cacheDir: null,
+      approvedModelIds: [],
+      cacheExists: false,
+      ready: false,
+      readyModelIds: [],
+      supportRuntimeObserved: false,
+      blockers: ["missing_local_realtime_voice_model_cache_evidence_report"],
+    };
+  }
+
+  const readyModelIds = evidence.models
+    .filter((model) => model.ready)
+    .map((model) => model.model_id);
+  const blockers = [
+    evidence.kind === "local_voice_evidence_check" ? undefined : "invalid_local_realtime_voice_model_cache_evidence_kind",
+    evidence.cache_exists ? undefined : "cache_directory_missing",
+    evidence.models.length > 0 ? undefined : "approved_model_weights_not_cached",
+    evidence.ready ? undefined : "real_moshi_or_qwen3_model_cache_missing",
+    ...evidence.models.flatMap((model) =>
+      model.ready ? [] : model.blockers.map((blocker) => `model:${model.model_id}:${blocker}`),
+    ),
+  ].filter((blocker): blocker is string => typeof blocker === "string");
+
+  return {
+    evidenceFile,
+    generatedAt: evidence.generatedAt,
+    kind: evidence.kind,
+    claimScope: evidence.claim_scope ?? null,
+    cacheDir: evidence.cache_dir,
+    approvedModelIds: evidence.approved_model_ids,
+    cacheExists: evidence.cache_exists,
+    ready: evidence.ready,
+    readyModelIds,
+    supportRuntimeObserved: evidence.support_directories.some((entry) => entry.reason === "runtime_support_venv_not_model_weights"),
+    blockers,
   };
 }
 
