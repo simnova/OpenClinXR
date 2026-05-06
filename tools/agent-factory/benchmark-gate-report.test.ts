@@ -173,6 +173,20 @@ type BenchmarkGateReport = {
     }>;
     blockers: string[];
   };
+  godot_quest_voice_evidence?: {
+    file: string;
+    generated_at: string;
+    input_file: string | null;
+    ready_for_binary_transport_evidence: boolean;
+    ready_for_quest_audio_pipeline_evidence: boolean;
+    ready_for_latency_measurement_evidence: boolean;
+    ready_for_production_runtime: false;
+    ready_for_clinical_voice_claim: false;
+    blockers: string[];
+    satisfied_conditions: string[];
+    not_evidence_for: string[];
+    next_steps: string[];
+  };
   api_python_backend_runtime_smoke?: {
     status: string;
     health: {
@@ -611,6 +625,110 @@ function readyRealtimeVoiceModelCacheEvidence(): LocalRealtimeVoiceModelCacheEvi
           },
         },
       ],
+    },
+  };
+}
+
+function binaryOnlyGodotQuestVoiceEvidence(): Parameters<typeof buildBenchmarkGateReport>[0]["godotQuestVoiceEvidence"] {
+  return {
+    file: "docs/openclinxr/godot-quest-voice-evidence-2026-05-06.json",
+    value: {
+      generatedAt: "2026-05-06T09:00:00.000Z",
+      inputFile: "docs/openclinxr/godot-quest-voice-evidence-raw-2026-05-06.json",
+      evidence: {
+        schemaVersion: "openclinxr.godot-quest-voice-evidence.v1",
+        classification: {
+          lane: "godot_quest_voice_transport",
+          scope: "physical_quest_developer_evidence",
+          notEvidenceFor: [
+            "production_voice_runtime_readiness",
+            "clinical_voice_dialog_quality",
+            "grok_voice_parity",
+            "webxr_client_readiness",
+            "low_latency_voice_readiness",
+          ],
+        },
+        device: {
+          app: "apps/ui-quest-voice-godot",
+          performedOnPhysicalQuest3: true,
+          headsetConnectedViaUsbC: true,
+          godotVersion: "4.5.1",
+          buildProfile: "debug",
+        },
+        gateway: {
+          endpoint: "ws://localhost:4322/voice/realtime/ws",
+          serverRuntime: "bun_hono_gateway",
+          cloudApisUsed: false,
+          paidApisUsed: false,
+          http3Enabled: false,
+          webTransportUsed: false,
+          quicUsed: false,
+          web3Used: false,
+        },
+        transport: {
+          webSocketConnected: true,
+          jsonControlFramesObserved: ["voice.start", "voice.audio_metadata", "voice.stop"],
+          binaryPacketsSent: 12,
+          binaryPacketsReceived: 12,
+          binaryRoundTripObserved: true,
+          firstBinaryRoundTripLatencyMs: 18,
+          reconnects: 0,
+        },
+        audio: {
+          microphoneCaptureObserved: false,
+          opusEncodeDecodeObserved: false,
+          playbackObserved: false,
+          codec: "opus",
+          sampleRateHz: 48_000,
+        },
+        latency: {
+          endToEndLatencyMs: {
+            firstPacket: null,
+            p50: null,
+            p95: null,
+            sampleCount: 0,
+          },
+        },
+        safety: {
+          rawAudioCommitted: false,
+          noCloudApis: true,
+          noPaidApis: true,
+        },
+        claims: {
+          readyForProductionRuntime: false,
+          readyForClinicalVoiceUse: false,
+          readyForLowLatencyVoiceClaim: false,
+        },
+      },
+      result: {
+        readyForBinaryTransportEvidence: true,
+        readyForQuestAudioPipelineEvidence: false,
+        readyForLatencyMeasurementEvidence: false,
+        readyForProductionRuntime: false,
+        readyForClinicalVoiceClaim: false,
+        blockers: [
+          "quest_microphone_capture_not_observed",
+          "opus_encode_decode_not_observed",
+          "quest_playback_not_observed",
+          "latency_first_packet_missing_or_nonpositive",
+          "latency_p50_missing_or_nonpositive",
+          "latency_p95_missing_or_nonpositive",
+          "latency_p95_less_than_p50",
+          "latency_sample_count_under_10",
+        ],
+        satisfiedConditions: [
+          "schema_version_godot_quest_voice_evidence_v1",
+          "classification_physical_quest_developer_evidence",
+          "physical_quest3_device_recorded",
+          "local_websocket_gateway_recorded",
+          "binary_websocket_roundtrip_observed",
+          "safety_boundaries_preserved",
+        ],
+        nextSteps: [
+          "Record separate Quest microphone capture, Opus encode/decode, and playback observations before claiming audio-pipeline evidence.",
+          "Capture at least 10 end-to-end Quest audio latency samples with first-packet, p50, and p95 values.",
+        ],
+      },
     },
   };
 }
@@ -2128,6 +2246,78 @@ describe("benchmark gate report", () => {
       "local_voice_bun_websocket_runtime_smoke_passed",
       "local_voice_bun_python_proxy_runtime_smoke_passed",
     ]));
+  });
+
+  it("surfaces Godot Quest voice evidence without satisfying live-dialog or low-latency claims", () => {
+    const report = buildBenchmarkGateReport({
+      godotQuestVoiceEvidence: binaryOnlyGodotQuestVoiceEvidence(),
+    }, {
+      now: new Date("2026-05-06T09:30:00.000Z"),
+      maxEvidenceAgeHours: 24,
+    }) as BenchmarkGateReport;
+    const liveDialogGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-003");
+
+    expect(report.godot_quest_voice_evidence).toMatchObject({
+      file: "docs/openclinxr/godot-quest-voice-evidence-2026-05-06.json",
+      generated_at: "2026-05-06T09:00:00.000Z",
+      input_file: "docs/openclinxr/godot-quest-voice-evidence-raw-2026-05-06.json",
+      ready_for_binary_transport_evidence: true,
+      ready_for_quest_audio_pipeline_evidence: false,
+      ready_for_latency_measurement_evidence: false,
+      ready_for_production_runtime: false,
+      ready_for_clinical_voice_claim: false,
+      blockers: [
+        "quest_microphone_capture_not_observed",
+        "opus_encode_decode_not_observed",
+        "quest_playback_not_observed",
+        "latency_first_packet_missing_or_nonpositive",
+        "latency_p50_missing_or_nonpositive",
+        "latency_p95_missing_or_nonpositive",
+        "latency_p95_less_than_p50",
+        "latency_sample_count_under_10",
+      ],
+      satisfied_conditions: [
+        "schema_version_godot_quest_voice_evidence_v1",
+        "classification_physical_quest_developer_evidence",
+        "physical_quest3_device_recorded",
+        "local_websocket_gateway_recorded",
+        "binary_websocket_roundtrip_observed",
+        "safety_boundaries_preserved",
+      ],
+      not_evidence_for: [
+        "production_voice_runtime_readiness",
+        "clinical_voice_dialog_quality",
+        "grok_voice_parity",
+        "webxr_client_readiness",
+        "low_latency_voice_readiness",
+      ],
+    });
+    expect(report.evidence_freshness).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        evidence_id: "godot_quest_voice_evidence",
+        file: "docs/openclinxr/godot-quest-voice-evidence-2026-05-06.json",
+        status: "fresh",
+        blockers: [],
+      }),
+    ]));
+    expect(liveDialogGate?.satisfied_conditions).toEqual(expect.arrayContaining([
+      "local_voice_godot_quest_voice_evidence_present",
+      "local_voice_godot_quest_binary_transport_observed",
+    ]));
+    expect(liveDialogGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
+      "local_voice_godot_quest_audio_pipeline_observed",
+      "local_voice_godot_quest_latency_measurement_observed",
+      "local_voice_live_dialog_runtime_stream_observed",
+      "local_voice_live_dialog_benchmark_passed",
+    ]));
+    expect(liveDialogGate?.blockers).toEqual(expect.arrayContaining([
+      "local_voice_live_dialog:godot_quest_voice:quest_microphone_capture_not_observed",
+      "local_voice_live_dialog:godot_quest_voice:opus_encode_decode_not_observed",
+      "local_voice_live_dialog:godot_quest_voice:quest_playback_not_observed",
+      "local_voice_live_dialog:godot_quest_voice:latency_first_packet_missing_or_nonpositive",
+      "local_voice_live_dialog:godot_quest_voice:latency_sample_count_under_10",
+    ]));
+    expect(liveDialogGate?.ready_to_resolve).toBe(false);
   });
 
   it("blocks realtime voice evidence when frame metadata is incomplete or mismatched", () => {
