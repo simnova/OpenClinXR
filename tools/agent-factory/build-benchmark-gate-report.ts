@@ -964,7 +964,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localVoiceLiveDialogBenchmark && localVoiceLiveDialogBenchmark.value.safetyControls.blockers.length === 0 ? "local_voice_live_dialog_safety_controls_observed" : undefined,
     localVoiceLiveDialogBenchmark?.value.verdict.passed ? "local_voice_live_dialog_benchmark_passed" : undefined,
     localRealtimeVoiceModelCacheEvidence ? "local_voice_realtime_model_cache_evidence_present" : undefined,
-    localRealtimeVoiceModelCacheEvidence?.value.ready ? "local_voice_realtime_model_cache_ready" : undefined,
+    localRealtimeVoiceModelCacheReady(localRealtimeVoiceModelCacheEvidence) ? "local_voice_realtime_model_cache_ready" : undefined,
     localRealtimeVoiceModelCacheEvidence && localRealtimeVoiceModelCacheEvidence.value.support_directories.length > 0
       ? "local_voice_realtime_model_support_venv_observed"
       : undefined,
@@ -1142,7 +1142,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         cache_dir: localRealtimeVoiceModelCacheEvidence.value.cache_dir,
         approved_model_ids: [...localRealtimeVoiceModelCacheEvidence.value.approved_model_ids],
         cache_exists: localRealtimeVoiceModelCacheEvidence.value.cache_exists,
-        ready: localRealtimeVoiceModelCacheEvidence.value.ready,
+        ready: localRealtimeVoiceModelCacheReady(localRealtimeVoiceModelCacheEvidence),
         models: localRealtimeVoiceModelCacheEvidence.value.models,
         support_directories: localRealtimeVoiceModelCacheEvidence.value.support_directories,
         blockers: localRealtimeVoiceModelCacheEvidenceBlockers(localRealtimeVoiceModelCacheEvidence),
@@ -1845,15 +1845,33 @@ function localRealtimeVoiceModelCacheEvidenceBlockers(
   }
 
   const report = evidence.value;
+  const approvedModelIds = new Set(report.approved_model_ids);
+  const modelApprovalBlockers = report.models.flatMap((model) => [
+    approvedModelIds.has(model.model_id) ? undefined : `model:${model.model_id}:not_in_approved_model_ids`,
+    model.approved ? undefined : `model:${model.model_id}:not_marked_approved`,
+  ]);
   return unique([
     report.kind === "local_voice_evidence_check" ? undefined : "invalid_local_realtime_voice_model_cache_evidence_kind",
     report.cache_exists ? undefined : "cache_directory_missing",
     report.models.length > 0 ? undefined : "approved_model_weights_not_cached",
-    report.ready ? undefined : "real_moshi_or_qwen3_model_cache_missing",
+    ...modelApprovalBlockers,
+    localRealtimeVoiceModelCacheReady(evidence) ? undefined : "real_moshi_or_qwen3_model_cache_missing",
     ...report.models.flatMap((model) =>
       model.ready ? [] : model.blockers.map((blocker) => `model:${model.model_id}:${blocker}`),
     ),
   ]);
+}
+
+function localRealtimeVoiceModelCacheReady(
+  evidence: EvidenceFile<LocalRealtimeVoiceModelCacheEvidenceReport> | undefined,
+): boolean {
+  if (!evidence?.value.ready) {
+    return false;
+  }
+  const approvedModelIds = new Set(evidence.value.approved_model_ids);
+  return evidence.value.models.some((model) =>
+    model.ready && model.approved && approvedModelIds.has(model.model_id)
+  );
 }
 
 function realtimeVoiceTransportSpikeBlockers(

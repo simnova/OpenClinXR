@@ -177,6 +177,96 @@ describe("local voice live-dialog benchmark report", () => {
     });
   });
 
+  it("rejects ready local realtime model cache evidence when the ready model is not approved", async () => {
+    const report = await buildLocalVoiceLiveDialogBenchmarkReport({
+      generatedAt: "2026-05-05T22:45:00.000Z",
+      runtimeBenchmarkFile: "docs/openclinxr/local-voice-runtime-benchmark-2026-05-05.json",
+      runtimeBenchmark: localVoiceRuntimeBenchmark({
+        caveats: [],
+        realTimeFactor: 0.7,
+      }),
+      modelCacheEvidenceFile: "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-05.json",
+      modelCacheEvidence: localRealtimeVoiceModelCacheEvidence({
+        ready: true,
+        models: [
+          {
+            model_id: "unapproved-lab/experimental-voice",
+            approved: false,
+            ready: true,
+            blockers: [],
+          },
+        ],
+        supportDirectories: [
+          {
+            name: "api-python-backend-venv",
+            reason: "runtime_support_venv_not_model_weights",
+          },
+        ],
+      }),
+      webxrPlaybackObserved: true,
+      realLocalVoiceStreamObserved: true,
+      firstAudiblePlaybackLatencyMs: 450,
+      transcriptRoundTripObserved: true,
+    });
+
+    expect(report.modelCache).toMatchObject({
+      ready: false,
+      readyModelIds: [],
+      blockers: [
+        "model:unapproved-lab/experimental-voice:not_in_approved_model_ids",
+        "model:unapproved-lab/experimental-voice:not_marked_approved",
+        "real_moshi_or_qwen3_model_cache_missing",
+      ],
+    });
+    expect(report.verdict.blockers).toEqual([
+      "model_cache:model:unapproved-lab/experimental-voice:not_in_approved_model_ids",
+      "model_cache:model:unapproved-lab/experimental-voice:not_marked_approved",
+      "model_cache:real_moshi_or_qwen3_model_cache_missing",
+    ]);
+  });
+
+  it("rejects ready local realtime model cache evidence when the ready model approval flag is missing", async () => {
+    const report = await buildLocalVoiceLiveDialogBenchmarkReport({
+      generatedAt: "2026-05-05T22:45:00.000Z",
+      runtimeBenchmarkFile: "docs/openclinxr/local-voice-runtime-benchmark-2026-05-05.json",
+      runtimeBenchmark: localVoiceRuntimeBenchmark({
+        caveats: [],
+        realTimeFactor: 0.7,
+      }),
+      modelCacheEvidenceFile: "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-05.json",
+      modelCacheEvidence: localRealtimeVoiceModelCacheEvidence({
+        ready: true,
+        models: [
+          {
+            model_id: "kyutai/moshiko-mlx-q4",
+            approved: undefined,
+            ready: true,
+            blockers: [],
+          },
+        ],
+        supportDirectories: [
+          {
+            name: "api-python-backend-venv",
+            reason: "runtime_support_venv_not_model_weights",
+          },
+        ],
+      }),
+      webxrPlaybackObserved: true,
+      realLocalVoiceStreamObserved: true,
+      firstAudiblePlaybackLatencyMs: 450,
+      transcriptRoundTripObserved: true,
+    });
+
+    expect(report.modelCache).toMatchObject({
+      ready: false,
+      readyModelIds: [],
+      blockers: [
+        "model:kyutai/moshiko-mlx-q4:not_marked_approved",
+        "real_moshi_or_qwen3_model_cache_missing",
+      ],
+    });
+  });
+
   it("rejects nonpositive first-audible latency for real local voice stream claims", async () => {
     const report = await buildLocalVoiceLiveDialogBenchmarkReport({
       generatedAt: "2026-05-05T22:45:00.000Z",
@@ -332,7 +422,11 @@ function localVoiceRuntimeBenchmark(input: {
 
 function localRealtimeVoiceModelCacheEvidence(input: {
   ready: boolean;
-  models: LocalRealtimeVoiceModelCacheEvidenceReport["models"];
+  models: Array<Partial<LocalRealtimeVoiceModelCacheEvidenceReport["models"][number]> & {
+    model_id: string;
+    ready: boolean;
+    blockers: string[];
+  }>;
   supportDirectories: LocalRealtimeVoiceModelCacheEvidenceReport["support_directories"];
 }): LocalRealtimeVoiceModelCacheEvidenceReport {
   return {
@@ -346,7 +440,10 @@ function localRealtimeVoiceModelCacheEvidence(input: {
     ],
     cache_exists: true,
     ready: input.ready,
-    models: input.models,
+    models: input.models.map((model) => ({
+      approved: true,
+      ...model,
+    })),
     support_directories: input.supportDirectories,
   };
 }

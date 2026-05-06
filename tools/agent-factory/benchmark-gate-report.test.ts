@@ -2058,6 +2058,48 @@ describe("benchmark gate report", () => {
     ]));
   });
 
+  it("does not satisfy realtime voice model cache readiness from unapproved model evidence", () => {
+    const buildReport = buildBenchmarkGateReport as (
+      input: Parameters<typeof buildBenchmarkGateReport>[0] & {
+        localRealtimeVoiceModelCacheEvidence?: LocalRealtimeVoiceModelCacheEvidenceInput;
+      },
+      options: { now: Date; maxEvidenceAgeHours: number },
+    ) => BenchmarkGateReport;
+
+    const unapprovedCacheEvidence = readyRealtimeVoiceModelCacheEvidence();
+    unapprovedCacheEvidence.value.models = [
+      {
+        ...unapprovedCacheEvidence.value.models[0],
+        model_id: "unapproved-lab/experimental-voice",
+        approved: false,
+        ready: true,
+        blockers: [],
+      },
+    ];
+
+    const report = buildReport({
+      localRealtimeVoiceModelCacheEvidence: unapprovedCacheEvidence,
+    }, { now: new Date("2026-05-05T18:45:00.000Z"), maxEvidenceAgeHours: 24 });
+    const liveDialogGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-003");
+
+    expect(report.local_realtime_voice_model_cache_evidence).toMatchObject({
+      ready: false,
+      blockers: [
+        "model:unapproved-lab/experimental-voice:not_in_approved_model_ids",
+        "model:unapproved-lab/experimental-voice:not_marked_approved",
+        "real_moshi_or_qwen3_model_cache_missing",
+      ],
+    });
+    expect(liveDialogGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
+      "local_voice_realtime_model_cache_ready",
+    ]));
+    expect(liveDialogGate?.blockers).toEqual(expect.arrayContaining([
+      "local_voice_live_dialog:local_realtime_voice_model_cache:model:unapproved-lab/experimental-voice:not_in_approved_model_ids",
+      "local_voice_live_dialog:local_realtime_voice_model_cache:model:unapproved-lab/experimental-voice:not_marked_approved",
+      "local_voice_live_dialog:local_realtime_voice_model_cache:real_moshi_or_qwen3_model_cache_missing",
+    ]));
+  });
+
   it("keeps live dialog evidence blocked until local Bun WebSocket smoke evidence exists", () => {
     const report = buildBenchmarkGateReport({}, {
       now: new Date("2026-05-05T17:00:00.000Z"),

@@ -47,6 +47,7 @@ export type LocalRealtimeVoiceModelCacheEvidenceReport = {
   ready: boolean;
   models: Array<{
     model_id: string;
+    approved?: boolean;
     ready: boolean;
     blockers: string[];
   }>;
@@ -304,14 +305,21 @@ function inspectModelCache(
     };
   }
 
+  const approvedModelIds = new Set(evidence.approved_model_ids);
+  const modelApprovalBlockers = evidence.models.flatMap((model) => [
+    approvedModelIds.has(model.model_id) ? undefined : `model:${model.model_id}:not_in_approved_model_ids`,
+    model.approved === true ? undefined : `model:${model.model_id}:not_marked_approved`,
+  ]).filter((blocker): blocker is string => typeof blocker === "string");
   const readyModelIds = evidence.models
-    .filter((model) => model.ready)
+    .filter((model) => model.ready && approvedModelIds.has(model.model_id) && model.approved === true)
     .map((model) => model.model_id);
+  const ready = evidence.ready && readyModelIds.length > 0 && modelApprovalBlockers.length === 0;
   const blockers = [
     evidence.kind === "local_voice_evidence_check" ? undefined : "invalid_local_realtime_voice_model_cache_evidence_kind",
     evidence.cache_exists ? undefined : "cache_directory_missing",
     evidence.models.length > 0 ? undefined : "approved_model_weights_not_cached",
-    evidence.ready ? undefined : "real_moshi_or_qwen3_model_cache_missing",
+    ...modelApprovalBlockers,
+    ready ? undefined : "real_moshi_or_qwen3_model_cache_missing",
     ...evidence.models.flatMap((model) =>
       model.ready ? [] : model.blockers.map((blocker) => `model:${model.model_id}:${blocker}`),
     ),
@@ -325,7 +333,7 @@ function inspectModelCache(
     cacheDir: evidence.cache_dir,
     approvedModelIds: evidence.approved_model_ids,
     cacheExists: evidence.cache_exists,
-    ready: evidence.ready,
+    ready,
     readyModelIds,
     supportRuntimeObserved: evidence.support_directories.some((entry) => entry.reason === "runtime_support_venv_not_model_weights"),
     blockers,
