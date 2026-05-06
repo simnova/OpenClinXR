@@ -1,7 +1,10 @@
 # Proposal: Production Asset Evidence Ladder
 
-**Status:** Proposed  
-**Decision needed:** Approve or defer the constrained evidence slice  
+Status: Approved by Patrick on 2026-05-06.
+
+Approval note: Patrick approved the constrained evidence-ladder slice. The approval authorizes repo-local deterministic evidence/reporting work for generated-human rigging, skin/clothing provenance, medical equipment, animation retargeting, LOD/texture/collider budgets, and multi-actor Quest bundle budgets. It does not authorize new asset-generation package installs, downloaded third-party assets, cloud or paid APIs, committed generated third-party assets, production runtime adoption, or production asset-readiness claims.
+
+**Decision:** Approved
 **Requested by:** Codex  
 **Date:** 2026-05-06  
 **Scope:** Asset-pipeline evidence design and local deterministic report generation only
@@ -78,4 +81,3 @@ Approve this as the next asset-pipeline planning/evidence slice. It is the right
 - Blender Lab MCP operator reference: https://www.blender.org/lab/mcp-server/
 - SkinTokens code repository: https://github.com/VAST-AI-Research/SkinTokens
 - SkinTokens checkpoint model card: https://huggingface.co/VAST-AI/SkinTokens
-
