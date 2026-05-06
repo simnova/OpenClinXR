@@ -18,6 +18,7 @@ import {
 import type { ApiBunWebSocketRuntimeSmokeReport } from "../openclinxr/api-bun-websocket-runtime-smoke.js";
 import type { ApiBunPythonProxyRuntimeSmokeReport } from "../openclinxr/api-bun-python-proxy-runtime-smoke.js";
 import type { ApiPythonBackendRuntimeSmokeReport } from "../openclinxr/api-python-backend-runtime-smoke.js";
+import type { GodotProjectImportCheck } from "../openclinxr/godot-project-import-check.js";
 import {
   buildVisualQaEvidenceReport,
   type VisualQaEvidence,
@@ -483,6 +484,29 @@ type EvidenceGateReport = {
     not_evidence_for: string[];
     next_steps: string[];
   };
+  godot_project_import_check?: {
+    file: string;
+    generated_at: string;
+    project_path: string;
+    source_contract: {
+      passed: boolean;
+      blockers: string[];
+      satisfied_conditions: string[];
+    };
+    godot_import: {
+      attempted: boolean;
+      status: GodotProjectImportCheck["godotImport"]["status"];
+      blockers: string[];
+    };
+    verdict: {
+      ready_for_source_contract_claim: boolean;
+      ready_for_godot_import_claim: boolean;
+      ready_for_quest_runtime_claim: false;
+      ready_for_voice_runtime_claim: false;
+      blockers: string[];
+    };
+    not_evidence_for: string[];
+  };
   realtime_voice_transport_spike?: {
     file: string;
     generated_at: string;
@@ -690,6 +714,7 @@ export type BenchmarkGateReportInput = {
   localVoiceLiveDialogBenchmark?: EvidenceFile<LocalVoiceLiveDialogBenchmarkReport>;
   localRealtimeVoiceModelCacheEvidence?: EvidenceFile<LocalRealtimeVoiceModelCacheEvidenceReport>;
   godotQuestVoiceEvidence?: EvidenceFile<GodotQuestVoiceEvidenceReport>;
+  godotProjectImportCheck?: EvidenceFile<GodotProjectImportCheck>;
   realtimeVoiceTransportSpike?: EvidenceFile<RealtimeVoiceTransportSpikeReport>;
   apiPythonBackendRuntimeSmoke?: EvidenceFile<ApiPythonBackendRuntimeSmokeReport>;
   apiBunWebSocketRuntimeSmoke?: EvidenceFile<ApiBunWebSocketRuntimeSmokeReport>;
@@ -730,6 +755,7 @@ async function main(): Promise<void> {
     "docs/openclinxr/godot-quest-voice-evidence-*.json",
     isGodotQuestVoiceEvidenceReportPath,
   );
+  const godotProjectImportCheck = await fileJson<GodotProjectImportCheck>(".agent-factory/godot-project-import-check.json");
   const realtimeVoiceTransportSpike = await latestJson<RealtimeVoiceTransportSpikeReport>("docs/openclinxr/realtime-voice-transport-spike-*.json");
   const apiPythonBackendRuntimeSmoke = await latestJson<ApiPythonBackendRuntimeSmokeReport>("docs/openclinxr/api-python-backend-runtime-smoke-*.json");
   const apiBunWebSocketRuntimeSmoke = await latestJson<ApiBunWebSocketRuntimeSmokeReport>("docs/openclinxr/api-bun-websocket-runtime-smoke-*.json");
@@ -758,6 +784,7 @@ async function main(): Promise<void> {
     localVoiceLiveDialogBenchmark,
     localRealtimeVoiceModelCacheEvidence,
     godotQuestVoiceEvidence,
+    godotProjectImportCheck,
     realtimeVoiceTransportSpike,
     apiPythonBackendRuntimeSmoke,
     apiBunWebSocketRuntimeSmoke,
@@ -811,6 +838,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localVoiceLiveDialogBenchmark,
     localRealtimeVoiceModelCacheEvidence,
     godotQuestVoiceEvidence,
+    godotProjectImportCheck,
     realtimeVoiceTransportSpike,
     apiPythonBackendRuntimeSmoke,
     apiBunWebSocketRuntimeSmoke,
@@ -844,6 +872,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localVoiceLiveDialogBenchmark,
     localRealtimeVoiceModelCacheEvidence,
     godotQuestVoiceEvidence,
+    godotProjectImportCheck,
     realtimeVoiceTransportSpike,
     apiPythonBackendRuntimeSmoke,
     apiBunWebSocketRuntimeSmoke,
@@ -912,6 +941,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     ...localRealtimeVoiceModelCacheEvidenceBlockers(localRealtimeVoiceModelCacheEvidence)
       .map((blocker) => `local_voice_live_dialog:local_realtime_voice_model_cache:${blocker}`),
     ...godotQuestVoiceEvidenceBlockers(godotQuestVoiceEvidence),
+    ...godotProjectImportCheckBlockers(godotProjectImportCheck),
     ...realtimeVoiceTransportSpikeBlockers(realtimeVoiceTransportSpike),
     ...apiPythonBackendRuntimeSmokeBlockers(apiPythonBackendRuntimeSmoke),
     ...apiBunWebSocketRuntimeSmokeBlockers(apiBunWebSocketRuntimeSmoke),
@@ -923,6 +953,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
       "local_voice_live_dialog_benchmark",
       "local_realtime_voice_model_cache_evidence",
       "godot_quest_voice_evidence",
+      ...(godotProjectImportCheck ? ["godot_project_import_check"] : []),
       "realtime_voice_transport_spike",
       ...(apiPythonBackendRuntimeSmoke ? ["api_python_backend_runtime_smoke"] : []),
       "api_bun_websocket_runtime_smoke",
@@ -1002,6 +1033,18 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
       : undefined,
     godotQuestVoiceEvidence?.value.result.readyForLatencyMeasurementEvidence
       ? "local_voice_godot_quest_latency_measurement_observed"
+      : undefined,
+    godotProjectImportCheck?.value.verdict.readyForSourceContractClaim
+      ? "local_voice_godot_source_contract_observed"
+      : undefined,
+    godotProjectImportCheck?.value.verdict.readyForGodotImportClaim
+      ? "local_voice_godot_import_observed"
+      : undefined,
+    godotProjectImportCheck?.value.verdict.readyForQuestRuntimeClaim
+      ? "local_voice_godot_quest_runtime_observed"
+      : undefined,
+    godotProjectImportCheck?.value.verdict.readyForVoiceRuntimeClaim
+      ? "local_voice_godot_voice_runtime_observed"
       : undefined,
     realtimeVoiceTransportSpikePassed(realtimeVoiceTransportSpike) ? "local_voice_realtime_transport_contract_observed" : undefined,
     apiPythonBackendRuntimeSmokePassed(apiPythonBackendRuntimeSmoke)
@@ -1197,6 +1240,31 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         satisfied_conditions: [...godotQuestVoiceEvidence.value.result.satisfiedConditions],
         not_evidence_for: [...(godotQuestVoiceEvidence.value.evidence.classification?.notEvidenceFor ?? [])],
         next_steps: [...godotQuestVoiceEvidence.value.result.nextSteps],
+      },
+    } : {}),
+    ...(godotProjectImportCheck ? {
+      godot_project_import_check: {
+        file: godotProjectImportCheck.file,
+        generated_at: godotProjectImportCheck.value.generatedAt,
+        project_path: godotProjectImportCheck.value.projectPath,
+        source_contract: {
+          passed: godotProjectImportCheck.value.sourceContract.passed,
+          blockers: [...godotProjectImportCheck.value.sourceContract.blockers],
+          satisfied_conditions: [...godotProjectImportCheck.value.sourceContract.satisfiedConditions],
+        },
+        godot_import: {
+          attempted: godotProjectImportCheck.value.godotImport.attempted,
+          status: godotProjectImportCheck.value.godotImport.status,
+          blockers: [...godotProjectImportCheck.value.godotImport.blockers],
+        },
+        verdict: {
+          ready_for_source_contract_claim: godotProjectImportCheck.value.verdict.readyForSourceContractClaim,
+          ready_for_godot_import_claim: godotProjectImportCheck.value.verdict.readyForGodotImportClaim,
+          ready_for_quest_runtime_claim: godotProjectImportCheck.value.verdict.readyForQuestRuntimeClaim,
+          ready_for_voice_runtime_claim: godotProjectImportCheck.value.verdict.readyForVoiceRuntimeClaim,
+          blockers: [...godotProjectImportCheck.value.verdict.blockers],
+        },
+        not_evidence_for: [...godotProjectImportCheck.value.notEvidenceFor],
       },
     } : {}),
     ...(realtimeVoiceTransportSpike ? {
@@ -1404,6 +1472,7 @@ function buildEvidenceFreshnessReport(
     localVoiceLiveDialogBenchmark?: EvidenceFile<LocalVoiceLiveDialogBenchmarkReport>;
     localRealtimeVoiceModelCacheEvidence?: EvidenceFile<LocalRealtimeVoiceModelCacheEvidenceReport>;
     godotQuestVoiceEvidence?: EvidenceFile<GodotQuestVoiceEvidenceReport>;
+    godotProjectImportCheck?: EvidenceFile<GodotProjectImportCheck>;
     realtimeVoiceTransportSpike?: EvidenceFile<RealtimeVoiceTransportSpikeReport>;
     apiPythonBackendRuntimeSmoke?: EvidenceFile<ApiPythonBackendRuntimeSmokeReport>;
     apiBunWebSocketRuntimeSmoke?: EvidenceFile<ApiBunWebSocketRuntimeSmokeReport>;
@@ -1430,6 +1499,9 @@ function buildEvidenceFreshnessReport(
     evidenceFreshnessEntry("local_voice_live_dialog_benchmark", evidence.localVoiceLiveDialogBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_realtime_voice_model_cache_evidence", evidence.localRealtimeVoiceModelCacheEvidence, now, maxAgeHours),
     evidenceFreshnessEntry("godot_quest_voice_evidence", evidence.godotQuestVoiceEvidence, now, maxAgeHours),
+    ...(evidence.godotProjectImportCheck
+      ? [evidenceFreshnessEntry("godot_project_import_check", evidence.godotProjectImportCheck, now, maxAgeHours)]
+      : []),
     evidenceFreshnessEntry("realtime_voice_transport_spike", evidence.realtimeVoiceTransportSpike, now, maxAgeHours),
     evidenceFreshnessEntry("api_python_backend_runtime_smoke", evidence.apiPythonBackendRuntimeSmoke, now, maxAgeHours),
     evidenceFreshnessEntry("api_bun_websocket_runtime_smoke", evidence.apiBunWebSocketRuntimeSmoke, now, maxAgeHours),
@@ -1939,6 +2011,16 @@ function godotQuestVoiceEvidenceBlockers(
   }
   return unique(evidence.value.result.blockers
     .map((blocker) => `local_voice_live_dialog:godot_quest_voice:${blocker}`));
+}
+
+function godotProjectImportCheckBlockers(
+  evidence: EvidenceFile<GodotProjectImportCheck> | undefined,
+): string[] {
+  if (!evidence) {
+    return [];
+  }
+  return unique(evidence.value.verdict.blockers
+    .map((blocker) => `local_voice_live_dialog:godot_project_import:${blocker}`));
 }
 
 function realtimeVoiceTransportSpikeBlockers(

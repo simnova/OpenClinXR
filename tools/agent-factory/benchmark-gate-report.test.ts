@@ -187,6 +187,29 @@ type BenchmarkGateReport = {
     not_evidence_for: string[];
     next_steps: string[];
   };
+  godot_project_import_check?: {
+    file: string;
+    generated_at: string;
+    project_path: string;
+    source_contract: {
+      passed: boolean;
+      blockers: string[];
+      satisfied_conditions: string[];
+    };
+    godot_import: {
+      attempted: boolean;
+      status: string;
+      blockers: string[];
+    };
+    verdict: {
+      ready_for_source_contract_claim: boolean;
+      ready_for_godot_import_claim: boolean;
+      ready_for_quest_runtime_claim: false;
+      ready_for_voice_runtime_claim: false;
+      blockers: string[];
+    };
+    not_evidence_for: string[];
+  };
   api_python_backend_runtime_smoke?: {
     status: string;
     health: {
@@ -729,6 +752,62 @@ function binaryOnlyGodotQuestVoiceEvidence(): Parameters<typeof buildBenchmarkGa
           "Capture at least 10 end-to-end Quest audio latency samples with first-packet, p50, and p95 values.",
         ],
       },
+    },
+  };
+}
+
+function sourceOnlyGodotProjectImportCheck(): Parameters<typeof buildBenchmarkGateReport>[0]["godotProjectImportCheck"] {
+  return {
+    file: ".agent-factory/godot-project-import-check.json",
+    value: {
+      generatedAt: "2026-05-06T10:00:00.000Z",
+      projectPath: "apps/ui-quest-voice-godot",
+      sourceContract: {
+        passed: true,
+        blockers: [],
+        satisfiedConditions: [
+          "binary_packet_send_source_observed",
+          "forty_eight_khz_sample_rate_declared",
+          "godot_4_project_source_observed",
+          "json_binary_receive_split_source_observed",
+          "mobile_renderer_configured",
+          "opus_codec_lane_declared",
+          "websocket_peer_source_observed",
+        ],
+      },
+      godotImport: {
+        attempted: false,
+        status: "skipped_no_godot_binary",
+        executable: null,
+        exitCode: null,
+        stdout: [],
+        stderr: [],
+        blockers: ["godot_import_not_executed"],
+      },
+      verdict: {
+        readyForSourceContractClaim: true,
+        readyForGodotImportClaim: false,
+        readyForQuestRuntimeClaim: false,
+        readyForVoiceRuntimeClaim: false,
+        blockers: [
+          "godot_import:not_executed",
+          "quest_runtime:not_executed",
+          "voice_runtime:not_executed",
+        ],
+      },
+      notEvidenceFor: [
+        "physical_quest_voice_runtime",
+        "quest_microphone_capture",
+        "native_opus_encode_decode",
+        "headset_audio_playback",
+        "low_latency_voice_readiness",
+        "clinical_voice_dialog_quality",
+        "production_runtime_readiness",
+      ],
+      nextSteps: [
+        "Provide a local Godot 4 executable with --godot-binary to run the headless import check.",
+        "Run the sidecar on the physical Quest 3 before claiming microphone, playback, Opus, latency, or production voice readiness.",
+      ],
     },
   };
 }
@@ -2343,6 +2422,73 @@ describe("benchmark gate report", () => {
       "local_voice_live_dialog:godot_quest_voice:latency_sample_count_under_10",
     ]));
     expect(liveDialogGate?.ready_to_resolve).toBe(false);
+  });
+
+  it("surfaces Godot source/import evidence while preserving Quest voice runtime blockers", () => {
+    const report = buildBenchmarkGateReport({
+      godotProjectImportCheck: sourceOnlyGodotProjectImportCheck(),
+    }, {
+      now: new Date("2026-05-06T10:30:00.000Z"),
+      maxEvidenceAgeHours: 24,
+    }) as BenchmarkGateReport;
+    const liveDialogGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-003");
+
+    expect(report.godot_project_import_check).toMatchObject({
+      file: ".agent-factory/godot-project-import-check.json",
+      generated_at: "2026-05-06T10:00:00.000Z",
+      project_path: "apps/ui-quest-voice-godot",
+      source_contract: {
+        passed: true,
+        blockers: [],
+        satisfied_conditions: [
+          "binary_packet_send_source_observed",
+          "forty_eight_khz_sample_rate_declared",
+          "godot_4_project_source_observed",
+          "json_binary_receive_split_source_observed",
+          "mobile_renderer_configured",
+          "opus_codec_lane_declared",
+          "websocket_peer_source_observed",
+        ],
+      },
+      godot_import: {
+        attempted: false,
+        status: "skipped_no_godot_binary",
+        blockers: ["godot_import_not_executed"],
+      },
+      verdict: {
+        ready_for_source_contract_claim: true,
+        ready_for_godot_import_claim: false,
+        ready_for_quest_runtime_claim: false,
+        ready_for_voice_runtime_claim: false,
+        blockers: [
+          "godot_import:not_executed",
+          "quest_runtime:not_executed",
+          "voice_runtime:not_executed",
+        ],
+      },
+    });
+    expect(report.evidence_freshness).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        evidence_id: "godot_project_import_check",
+        file: ".agent-factory/godot-project-import-check.json",
+        status: "fresh",
+        blockers: [],
+      }),
+    ]));
+    expect(liveDialogGate?.satisfied_conditions).toEqual(expect.arrayContaining([
+      "local_voice_godot_source_contract_observed",
+    ]));
+    expect(liveDialogGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
+      "local_voice_godot_import_observed",
+      "local_voice_godot_quest_runtime_observed",
+      "local_voice_godot_voice_runtime_observed",
+    ]));
+    expect(liveDialogGate?.blockers).toEqual(expect.arrayContaining([
+      "local_voice_live_dialog:godot_project_import:godot_import:not_executed",
+      "local_voice_live_dialog:godot_project_import:quest_runtime:not_executed",
+      "local_voice_live_dialog:godot_project_import:voice_runtime:not_executed",
+      "local_voice_live_dialog:godot_quest_voice:missing_godot_quest_voice_evidence_report",
+    ]));
   });
 
   it("blocks realtime voice evidence when frame metadata is incomplete or mismatched", () => {

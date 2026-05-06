@@ -46,12 +46,30 @@ It does not prove:
 
 ## Next Evidence Steps
 
-1. Install or locate Godot 4 locally and run a syntax/import check.
+1. Run the source-level check now, and optionally provide a local Godot 4 binary
+   for a headless import check:
+   `pnpm godot:project:import-check -- --godot-binary /path/to/godot`.
 2. Add a Quest-compatible native Opus codec path or deliberately switch this
    lane to WebRTC if that proves simpler.
 3. Connect to the local gateway and record first binary frame round-trip from
    the Quest.
 4. Add capture/playback timestamps and report p50/p95 end-to-end latency.
+
+## Source/Import Checker
+
+The repo-managed checker is:
+
+```bash
+pnpm godot:project:import-check
+```
+
+Without `--godot-binary`, it validates only committed source shape: Godot 4
+project metadata, mobile renderer posture, the `RealtimeVoiceSpike` scene
+bindings, local WebSocket endpoint, JSON control frames, binary packet sending,
+and explicit `opus` / 48 kHz declarations. It records
+`godot_import_not_executed` until a local Godot executable is supplied. Even a
+passing import check is not Quest runtime, microphone, Opus encode/decode,
+playback, latency, clinical voice, or production-readiness evidence.
 
 ## Evidence Checker
 
