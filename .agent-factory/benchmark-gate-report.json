@@ -32,9 +32,9 @@
     },
     {
       "evidence_id": "blender_asset_bake_smoke",
-      "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-05.json",
-      "generated_at": "2026-05-05T11:02:14.867Z",
-      "age_hours": 19,
+      "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+      "generated_at": "2026-05-06T06:45:36.886Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -51,7 +51,7 @@
     {
       "evidence_id": "asset_production_readiness_benchmark",
       "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
-      "generated_at": "2026-05-06T06:06:09.795Z",
+      "generated_at": "2026-05-06T06:48:24.902Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -106,7 +106,7 @@
       "evidence_id": "local_realtime_voice_model_cache_evidence",
       "file": "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-05.json",
       "generated_at": "2026-05-06T02:37:04.486Z",
-      "age_hours": 3,
+      "age_hours": 4,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -170,7 +170,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T06:36:08.283Z",
+      "generated_at": "2026-05-06T06:48:25.458Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -263,8 +263,8 @@
     "blockers": []
   },
   "blender_asset_bake_smoke": {
-    "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-05.json",
-    "generated_at": "2026-05-05T11:02:14.867Z",
+    "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+    "generated_at": "2026-05-06T06:45:36.886Z",
     "tool": {
       "command": "blender",
       "package": "Blender",
@@ -272,33 +272,31 @@
       "license": "GPL-3.0-or-later-tooling"
     },
     "input": {
-      "fixture": "low_poly_clinical_humanoid",
+      "fixture": "ed_chest_pain_clinical_asset_pack",
       "externalAssetsUsed": false,
-      "sourceLicensePosture": "repo_generated_placeholder",
-      "expectedObjectCount": 7
+      "sourceLicensePosture": "reviewed_local_clinical_asset_fixture",
+      "expectedObjectCount": 19
     },
     "output": {
-      "glbBytes": 27284,
+      "glbBytes": 109040,
       "magic": "glTF",
       "version": 2,
-      "declaredLength": 27284,
-      "elapsedMs": 1591.37
+      "declaredLength": 109040,
+      "elapsedMs": 10066.53
     },
     "passed": true,
     "blockers": []
   },
   "asset_production_readiness_benchmark": {
     "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
-    "generated_at": "2026-05-06T06:06:09.795Z",
-    "status": "blocked",
+    "generated_at": "2026-05-06T06:48:24.902Z",
+    "status": "passed",
     "source_evidence": {
       "gltfPipelineSmokePassed": true,
       "blenderBakeSmokePassed": true,
-      "blenderSourceLicensePosture": "repo_generated_placeholder",
-      "placeholderBakeOnly": true,
-      "blockers": [
-        "placeholder_bake_only"
-      ]
+      "blenderSourceLicensePosture": "reviewed_local_clinical_asset_fixture",
+      "placeholderBakeOnly": false,
+      "blockers": []
     },
     "production_proofs": {
       "generatedHumanRigging": {
@@ -389,7 +387,7 @@
       "blockers": []
     },
     "runtime_budget": {
-      "singlePlaceholderGlbBytes": 27284,
+      "singleAssetPackGlbBytes": 109040,
       "targetStationBundleMb": 80,
       "maxVisibleTriangles": 180000,
       "maxDrawCalls": 120,
@@ -398,14 +396,12 @@
       "blockers": []
     },
     "verdict": {
-      "passed": false,
+      "passed": true,
       "readyForProductionAssets": false,
-      "blockers": [
-        "source:placeholder_bake_only"
-      ],
+      "blockers": [],
       "caveats": [
         "This report evaluates production-readiness evidence from local smoke outputs only; it does not generate new third-party assets.",
-        "Placeholder GLB smoke proves the authoring tool chain can emit a GLB, not that generated clinical characters or environments are production-ready.",
+        "Reviewed local clinical fixture output still requires visual QA, clinical fidelity review, and headset frame-pacing evidence before production use.",
         "The local asset evidence fixture supplies contract-level proof slots only; fixture IDs are not artifact-backed generated production assets."
       ]
     }
@@ -1372,7 +1368,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T06:36:08.283Z",
+    "generated_at": "2026-05-06T06:48:25.458Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -1593,6 +1589,7 @@
         "asset_production_lod_tiers_observed",
         "asset_production_medical_equipment_library_observed",
         "asset_production_multi_actor_quest_budget_observed",
+        "asset_production_readiness_benchmark_passed",
         "asset_production_readiness_report_present",
         "asset_production_skin_clothing_provenance_observed",
         "asset_production_source_smokes_passed",
@@ -1883,6 +1880,7 @@
         "asset_production_lod_tiers_observed",
         "asset_production_medical_equipment_library_observed",
         "asset_production_multi_actor_quest_budget_observed",
+        "asset_production_readiness_benchmark_passed",
         "asset_production_readiness_report_present",
         "asset_production_skin_clothing_provenance_observed",
         "asset_production_source_smokes_passed",
@@ -2171,7 +2169,7 @@
     },
     {
       "evidence_id": "evidence-leadership-0009-005",
-      "ready_to_resolve": false,
+      "ready_to_resolve": true,
       "satisfied_conditions": [
         "asset_pipeline_blender_bake_smoke_passed",
         "asset_pipeline_gltf_pipeline_smoke_passed",
@@ -2183,28 +2181,17 @@
         "asset_production_lod_tiers_observed",
         "asset_production_medical_equipment_library_observed",
         "asset_production_multi_actor_quest_budget_observed",
+        "asset_production_readiness_benchmark_passed",
         "asset_production_readiness_report_present",
         "asset_production_skin_clothing_provenance_observed",
         "asset_production_source_smokes_passed",
         "asset_production_texture_compression_budget_observed"
       ],
-      "blockers": [
-        "asset_production:source:placeholder_bake_only"
-      ],
+      "blockers": [],
       "blocker_summary": {
-        "total_blockers": 1,
-        "distinct_problem_count": 1,
-        "groups": [
-          {
-            "group_id": "asset_production_readiness",
-            "title": "Production asset generation readiness",
-            "owner": "asset-pipeline-lead",
-            "blockers": [
-              "asset_production:source:placeholder_bake_only"
-            ],
-            "next_step": "Replace placeholder Blender bake/source evidence with reviewed generated clinical assets, then rerun the production asset readiness benchmark before claiming production asset readiness."
-          }
-        ],
+        "total_blockers": 0,
+        "distinct_problem_count": 0,
+        "groups": [],
         "ungrouped_blockers": []
       }
     }

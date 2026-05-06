@@ -122,7 +122,7 @@ export type AssetProductionReadinessReport = {
   generationEvidence: ScenarioGenerationEvidence;
   optimizationEvidence: ScenarioOptimizationEvidence;
   runtimeBudget: {
-    singlePlaceholderGlbBytes: number;
+    singleAssetPackGlbBytes: number;
     targetStationBundleMb: 80;
     maxVisibleTriangles: 180000;
     maxDrawCalls: 120;
@@ -276,7 +276,9 @@ export function buildAssetProductionReadinessReport(input: {
       blockers,
       caveats: [
         "This report evaluates production-readiness evidence from local smoke outputs only; it does not generate new third-party assets.",
-        "Placeholder GLB smoke proves the authoring tool chain can emit a GLB, not that generated clinical characters or environments are production-ready.",
+        sourceEvidence.placeholderBakeOnly
+          ? "Placeholder GLB smoke proves the authoring tool chain can emit a GLB, not that generated clinical characters or environments are production-ready."
+          : "Reviewed local clinical fixture output still requires visual QA, clinical fidelity review, and headset frame-pacing evidence before production use.",
         ...(input.useLocalAssetEvidenceFixture === true
           ? ["The local asset evidence fixture supplies contract-level proof slots only; fixture IDs are not artifact-backed generated production assets."]
           : []),
@@ -395,7 +397,7 @@ function inspectRuntimeBudget(
   multiActorBudgetObserved: boolean,
 ): AssetProductionReadinessReport["runtimeBudget"] {
   return {
-    singlePlaceholderGlbBytes: blenderSmoke.output.glbBytes,
+    singleAssetPackGlbBytes: blenderSmoke.output.glbBytes,
     targetStationBundleMb: 80,
     maxVisibleTriangles: 180000,
     maxDrawCalls: 120,

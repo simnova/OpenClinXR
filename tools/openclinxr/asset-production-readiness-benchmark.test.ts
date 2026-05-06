@@ -61,7 +61,7 @@ describe("asset production readiness report", () => {
       ],
     });
     expect(report.runtimeBudget).toEqual({
-      singlePlaceholderGlbBytes: 27284,
+      singleAssetPackGlbBytes: 27284,
       targetStationBundleMb: 80,
       maxVisibleTriangles: 180000,
       maxDrawCalls: 120,
@@ -285,6 +285,38 @@ describe("asset production readiness report", () => {
       "The local asset evidence fixture supplies contract-level proof slots only; fixture IDs are not artifact-backed generated production assets.",
     );
   });
+
+  it("passes local evidence fixture manifests with reviewed artifact-backed Blender source evidence", () => {
+    const report = buildAssetProductionReadinessReport({
+      generatedAt: "2026-05-06T06:45:00.000Z",
+      gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
+      blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+      gltfPipelineSmoke: gltfSmoke({ passed: true }),
+      blenderAssetBakeSmoke: blenderSmoke({
+        passed: true,
+        sourceLicensePosture: "reviewed_local_clinical_asset_fixture",
+        glbBytes: 109040,
+      }),
+      useLocalAssetEvidenceFixture: true,
+    });
+
+    expect(report.sourceEvidence).toMatchObject({
+      blenderSourceLicensePosture: "reviewed_local_clinical_asset_fixture",
+      placeholderBakeOnly: false,
+      blockers: [],
+    });
+    expect(report.verdict).toMatchObject({
+      passed: true,
+      readyForProductionAssets: false,
+      blockers: [],
+    });
+    expect(report.runtimeBudget.singleAssetPackGlbBytes).toBe(109040);
+    expect(report.verdict.caveats).toEqual([
+      "This report evaluates production-readiness evidence from local smoke outputs only; it does not generate new third-party assets.",
+      "Reviewed local clinical fixture output still requires visual QA, clinical fidelity review, and headset frame-pacing evidence before production use.",
+      "The local asset evidence fixture supplies contract-level proof slots only; fixture IDs are not artifact-backed generated production assets.",
+    ]);
+  });
 });
 
 function gltfSmoke(input: {
@@ -356,6 +388,7 @@ function completeStationBudgetEvidence() {
 function blenderSmoke(input: {
   passed: boolean;
   sourceLicensePosture: string;
+  glbBytes?: number;
 }): BlenderAssetBakeSmokeReport {
   return {
     generatedAt: "2026-05-04T05:06:10.560Z",
@@ -372,10 +405,10 @@ function blenderSmoke(input: {
       expectedObjectCount: 7,
     },
     output: {
-      glbBytes: 27284,
+      glbBytes: input.glbBytes ?? 27284,
       magic: "glTF",
       version: 2,
-      declaredLength: 27284,
+      declaredLength: input.glbBytes ?? 27284,
       elapsedMs: 5610.77,
     },
     verdict: {

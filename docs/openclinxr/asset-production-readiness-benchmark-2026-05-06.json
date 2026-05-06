@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-06T06:06:09.795Z",
-  "status": "blocked",
+  "generatedAt": "2026-05-06T06:48:24.902Z",
+  "status": "passed",
   "policy": {
     "cloudApisUsed": false,
     "paidApisUsed": false,
@@ -10,19 +10,17 @@
   },
   "input": {
     "gltfPipelineSmokeFile": "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
-    "blenderAssetBakeSmokeFile": "docs/openclinxr/blender-asset-bake-smoke-2026-05-05.json",
+    "blenderAssetBakeSmokeFile": "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
     "gltfGeneratedAt": "2026-05-06T00:10:04.220Z",
-    "blenderGeneratedAt": "2026-05-05T11:02:14.867Z",
+    "blenderGeneratedAt": "2026-05-06T06:45:36.886Z",
     "localAssetEvidenceFixtureUsed": true
   },
   "sourceEvidence": {
     "gltfPipelineSmokePassed": true,
     "blenderBakeSmokePassed": true,
-    "blenderSourceLicensePosture": "repo_generated_placeholder",
-    "placeholderBakeOnly": true,
-    "blockers": [
-      "placeholder_bake_only"
-    ]
+    "blenderSourceLicensePosture": "reviewed_local_clinical_asset_fixture",
+    "placeholderBakeOnly": false,
+    "blockers": []
   },
   "productionProofs": {
     "generatedHumanRigging": {
@@ -113,7 +111,7 @@
     "blockers": []
   },
   "runtimeBudget": {
-    "singlePlaceholderGlbBytes": 27284,
+    "singleAssetPackGlbBytes": 109040,
     "targetStationBundleMb": 80,
     "maxVisibleTriangles": 180000,
     "maxDrawCalls": 120,
@@ -122,14 +120,12 @@
     "blockers": []
   },
   "verdict": {
-    "passed": false,
+    "passed": true,
     "readyForProductionAssets": false,
-    "blockers": [
-      "source:placeholder_bake_only"
-    ],
+    "blockers": [],
     "caveats": [
       "This report evaluates production-readiness evidence from local smoke outputs only; it does not generate new third-party assets.",
-      "Placeholder GLB smoke proves the authoring tool chain can emit a GLB, not that generated clinical characters or environments are production-ready.",
+      "Reviewed local clinical fixture output still requires visual QA, clinical fidelity review, and headset frame-pacing evidence before production use.",
       "The local asset evidence fixture supplies contract-level proof slots only; fixture IDs are not artifact-backed generated production assets."
     ]
   }

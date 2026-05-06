@@ -1493,8 +1493,8 @@ describe("benchmark gate report", () => {
       ]),
     }));
     expect(gatesById.get("evidence-leadership-0009-005")).toEqual(expect.objectContaining({
-      ready_to_resolve: false,
-      blockers: ["asset_production:source:placeholder_bake_only"],
+      ready_to_resolve: true,
+      blockers: [],
       satisfied_conditions: expect.arrayContaining([
         "asset_pipeline_blender_bake_smoke_passed",
         "asset_pipeline_gltf_pipeline_smoke_passed",
@@ -1504,6 +1504,7 @@ describe("benchmark gate report", () => {
         "asset_production_lod_tiers_observed",
         "asset_production_medical_equipment_library_observed",
         "asset_production_multi_actor_quest_budget_observed",
+        "asset_production_readiness_benchmark_passed",
         "asset_production_readiness_report_present",
         "asset_production_skin_clothing_provenance_observed",
         "asset_production_source_smokes_passed",
