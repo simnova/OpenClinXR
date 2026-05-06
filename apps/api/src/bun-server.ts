@@ -1,4 +1,8 @@
-import { createBunServerConfig, createOpenClinXrApiStartup } from "./index.js";
+import {
+  createBunRealtimeVoiceGatewayPostureInputFromEnvironment,
+  createBunServerConfig,
+  createOpenClinXrApiStartup,
+} from "./index.js";
 
 type BunRuntime = {
   serve: (options: {
@@ -19,12 +23,7 @@ if (!bun) {
 
 const pythonBackendWebSocketUrl = process.env.OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL;
 const startup = createOpenClinXrApiStartup({
-  realtimeVoiceGatewayPosture: {
-    bunAvailable: true,
-    pythonBackendWebSocketUrlConfigured: Boolean(pythonBackendWebSocketUrl),
-    pythonBackendDependenciesInstalled: false,
-    pythonInferenceRuntimeInstalled: false,
-  },
+  realtimeVoiceGatewayPosture: createBunRealtimeVoiceGatewayPostureInputFromEnvironment(process.env),
 }).startUp();
 const config = createBunServerConfig(startup, {
   port: Number(process.env.PORT ?? 3000),

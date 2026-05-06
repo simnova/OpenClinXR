@@ -3,6 +3,7 @@ import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway"
 import { createDefaultScenarioRuntime, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createNoopTelemetryRecorder, type TelemetryRecorder } from "@openclinxr/telemetry";
 import { realtimeVoiceProtocol, type RealtimeVoiceGatewayPostureInput } from "@openclinxr/voice-gateway";
+import { existsSync, readFileSync } from "node:fs";
 import { createApiApp, type ApiPersistenceSink, type ApiScenarioReviewDecisionRecord, type ApiStationRunQueueSnapshot } from "./app.js";
 import { createOpenClinXrApiProtocolPosture, type OpenClinXrApiProtocolSupport } from "./protocol-support.js";
 
@@ -103,6 +104,15 @@ export type OpenClinXrApiStartupOptions = {
   realtimeVoiceGatewayPosture?: RealtimeVoiceGatewayPostureInput;
 };
 
+export type BunRealtimeVoiceGatewayPostureEnvironment = {
+  OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL?: string;
+  OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE?: string;
+};
+
+export type BunRealtimeVoiceGatewayPostureEnvironmentOptions = {
+  readEvidenceFile?: (filePath: string) => unknown;
+};
+
 class ApiInfrastructureRegistry {
   private readonly services = new Map<ApiInfrastructureServiceId, ApiInfrastructureServices[ApiInfrastructureServiceId]>();
 
@@ -200,6 +210,23 @@ export function createNodeServerConfig(startup: StartedOpenClinXrApi = createOpe
   };
 }
 
+export function createBunRealtimeVoiceGatewayPostureInputFromEnvironment(
+  environment: BunRealtimeVoiceGatewayPostureEnvironment,
+  options: BunRealtimeVoiceGatewayPostureEnvironmentOptions = {},
+): RealtimeVoiceGatewayPostureInput {
+  const pythonBackendWebSocketUrlConfigured = Boolean(environment.OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL);
+  const pythonBackendProxyReachabilityEvidence = pythonBackendWebSocketUrlConfigured
+    ? readPythonProxyReachabilityEvidenceFromEnvironment(environment, options)
+    : undefined;
+  return {
+    bunAvailable: true,
+    pythonBackendWebSocketUrlConfigured,
+    pythonBackendDependenciesInstalled: false,
+    pythonInferenceRuntimeInstalled: false,
+    ...(pythonBackendProxyReachabilityEvidence ? { pythonBackendProxyReachabilityEvidence } : {}),
+  };
+}
+
 export function createBunServerConfig(startup: StartedOpenClinXrApi = createOpenClinXrApiStartup().startUp(), options: BunServerConfigOptions = {}): BunServerConfig {
   const websocketOptions = {
     ...(options.pythonBackendWebSocketUrl ? { pythonBackendWebSocketUrl: options.pythonBackendWebSocketUrl } : {}),
@@ -215,6 +242,58 @@ export function createBunServerConfig(startup: StartedOpenClinXrApi = createOpen
     websocket: createBunRealtimeVoiceWebSocketHandler(websocketOptions),
     protocolSupport: startup.protocolSupport,
   };
+}
+
+function readPythonProxyReachabilityEvidenceFromEnvironment(
+  environment: BunRealtimeVoiceGatewayPostureEnvironment,
+  options: BunRealtimeVoiceGatewayPostureEnvironmentOptions,
+): RealtimeVoiceGatewayPostureInput["pythonBackendProxyReachabilityEvidence"] {
+  const evidenceFile = environment.OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE;
+  if (!evidenceFile) {
+    return undefined;
+  }
+
+  const rawEvidence = readOptionalEvidenceFile(evidenceFile, options);
+  if (!isRecord(rawEvidence) || rawEvidence.status !== "passed") {
+    return undefined;
+  }
+  const websocket = isRecord(rawEvidence.websocket) ? rawEvidence.websocket : {};
+  const eventTypesObserved = stringArray(websocket.eventTypesObserved);
+  const binaryMessages = finiteNumber(websocket.binaryMessages);
+  const evidence = {
+    sourceFile: evidenceFile,
+    ...(typeof rawEvidence.generatedAt === "string" ? { generatedAt: rawEvidence.generatedAt } : {}),
+    status: "passed" as const,
+    eventTypesObserved,
+    binaryMessages,
+    backendProtocolObserved: websocket.backendProtocolObserved === true,
+    latencyFieldsObserved: websocket.latencyFieldsObserved === true,
+    binaryEchoObserved: websocket.binaryEchoObserved === true,
+  };
+
+  return evidence.binaryMessages > 0
+    && evidence.backendProtocolObserved
+    && evidence.latencyFieldsObserved
+    && evidence.binaryEchoObserved
+    ? evidence
+    : undefined;
+}
+
+function readOptionalEvidenceFile(
+  filePath: string,
+  options: BunRealtimeVoiceGatewayPostureEnvironmentOptions,
+): unknown {
+  try {
+    if (options.readEvidenceFile) {
+      return options.readEvidenceFile(filePath);
+    }
+    if (!existsSync(filePath)) {
+      return undefined;
+    }
+    return JSON.parse(readFileSync(filePath, "utf8")) as unknown;
+  } catch {
+    return undefined;
+  }
 }
 
 function isRealtimeVoiceWebSocketUpgradeRequest(request: Request): boolean {
@@ -471,6 +550,14 @@ function toUint8Array(message: ArrayBuffer | ArrayBufferView): Uint8Array {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+}
+
+function finiteNumber(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
 
 function defaultContextFactory(

@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
-import { createBunServerConfig, createOpenClinXrApiStartup, createNodeServerConfig } from "./index.js";
+import {
+  createBunRealtimeVoiceGatewayPostureInputFromEnvironment,
+  createBunServerConfig,
+  createOpenClinXrApiStartup,
+  createNodeServerConfig,
+} from "./index.js";
 
 describe("OpenClinXR API startup", () => {
   it("starts through a CellixJS-inspired fluent bootstrap with Azure-compatible handler metadata", async () => {
@@ -391,6 +396,96 @@ describe("OpenClinXR API startup", () => {
       "opus_codec_not_verified",
       "clinical_voice_safety_not_exercised",
     ]));
+  });
+
+  it("builds Bun realtime voice posture input from explicit local proxy evidence environment", async () => {
+    const postureInput = createBunRealtimeVoiceGatewayPostureInputFromEnvironment(
+      {
+        OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL: "ws://127.0.0.1:8766/voice/realtime/ws",
+        OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE: "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
+      },
+      {
+        readEvidenceFile: () => ({
+          generatedAt: "2026-05-06T01:52:40.346Z",
+          status: "passed",
+          websocket: {
+            eventTypesObserved: [
+              "gateway.ready",
+              "backend.ready",
+              "voice.started",
+              "audio.chunk",
+              "transcript.partial",
+              "transcript.final",
+              "voice.stopped",
+            ],
+            binaryMessages: 1,
+            backendProtocolObserved: true,
+            latencyFieldsObserved: true,
+            binaryEchoObserved: true,
+          },
+        }),
+      },
+    );
+    const startup = createOpenClinXrApiStartup({ realtimeVoiceGatewayPosture: postureInput }).startUp();
+
+    const response = await startup.fetch(new Request("http://localhost/voice/realtime/posture"));
+    const posture = await response.json() as {
+      backends: {
+        pythonFastApi: {
+          transportProxy: {
+            status: string;
+            reachabilityEvidence?: {
+              sourceFile: string;
+              status: string;
+            };
+          };
+        };
+      };
+    };
+
+    expect(postureInput.pythonBackendProxyReachabilityEvidence).toMatchObject({
+      sourceFile: "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
+      status: "passed",
+      backendProtocolObserved: true,
+      latencyFieldsObserved: true,
+      binaryEchoObserved: true,
+    });
+    expect(response.status).toBe(200);
+    expect(posture.backends.pythonFastApi.transportProxy).toMatchObject({
+      status: "configured_reachability_verified",
+      reachabilityEvidence: {
+        sourceFile: "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
+        status: "passed",
+      },
+    });
+  });
+
+  it("ignores local proxy evidence when the explicit evidence file is blocked or absent", () => {
+    const blockedPostureInput = createBunRealtimeVoiceGatewayPostureInputFromEnvironment(
+      {
+        OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL: "ws://127.0.0.1:8766/voice/realtime/ws",
+        OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE: "docs/openclinxr/api-bun-python-proxy-runtime-smoke-blocked.json",
+      },
+      {
+        readEvidenceFile: () => ({
+          status: "blocked",
+          websocket: {
+            eventTypesObserved: ["gateway.ready"],
+            binaryMessages: 0,
+            backendProtocolObserved: false,
+            latencyFieldsObserved: false,
+            binaryEchoObserved: false,
+          },
+        }),
+      },
+    );
+    const absentPostureInput = createBunRealtimeVoiceGatewayPostureInputFromEnvironment({
+      OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL: "ws://127.0.0.1:8766/voice/realtime/ws",
+      OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE: "docs/openclinxr/missing.json",
+    });
+
+    expect(blockedPostureInput.pythonBackendProxyReachabilityEvidence).toBeUndefined();
+    expect(absentPostureInput.pythonBackendProxyReachabilityEvidence).toBeUndefined();
   });
 
   it("persists station run queue review snapshots in the default single-user startup", async () => {
