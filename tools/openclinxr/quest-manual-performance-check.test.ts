@@ -1086,6 +1086,34 @@ describe("Quest manual performance checker", () => {
     ]));
   });
 
+  it("blocks unknown copied locomotion probe reason codes instead of ignoring them", () => {
+    const report = completedQuestManualReport();
+    const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-copied-probe-unknown.json", {
+      manualPerformanceDraft: report,
+      captureSummary: {
+        draftAvailable: true,
+        manualValidationReady: false,
+        frameStatsFresh: true,
+        blockers: [],
+        technicalGaps: [],
+        locomotionProbeSummary: {
+          claimScope: "runtime_probe_only",
+          readiness: "blocked",
+          primaryReason: "future_probe_reason" as never,
+          reasonCodes: ["future_probe_reason" as never],
+        },
+      },
+    });
+
+    expect(check.readyToClaimFramePacing).toBe(false);
+    expect(check.blockers).toEqual(expect.arrayContaining([
+      "copied_payload_locomotion_probe_reason_invalid:future_probe_reason",
+    ]));
+    expect(check.nextSteps).toEqual(expect.arrayContaining([
+      "Re-copy the in-app Quest Evidence payload after updating the manual checker to recognize locomotion probe reason future_probe_reason.",
+    ]));
+  });
+
   it("flags raw human reports that are missing structured attempt and representation fields", () => {
     const report: QuestManualPerformanceReport = {
       generatedAt: "2026-05-04T20:36:00.000Z",

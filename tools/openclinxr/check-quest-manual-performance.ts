@@ -263,8 +263,8 @@ export type QuestManualPerformanceCopiedPayload = {
     locomotionProbeSummary?: {
       claimScope?: "runtime_probe_only";
       readiness?: "ready" | "blocked";
-      primaryReason?: QuestLocomotionProbeReasonCode;
-      reasonCodes?: QuestLocomotionProbeReasonCode[];
+      primaryReason?: string;
+      reasonCodes?: string[];
     } | null;
   } | null;
   harvestSummary?: {
@@ -645,6 +645,13 @@ function normalizeQuestManualPerformancePayload(payload: QuestManualPerformanceP
       typeof reason === "string" && validQuestLocomotionProbeReasonCodes.has(reason)
     )
     : [];
+  const invalidLocomotionProbeReasonCodes = Array.isArray(locomotionProbeSummary?.reasonCodes)
+    ? locomotionProbeSummary.reasonCodes.filter((reason): reason is string =>
+      typeof reason === "string" && !validQuestLocomotionProbeReasonCodes.has(reason)
+    )
+    : [];
+  const locomotionProbePrimaryReasonInvalid = typeof locomotionProbeSummary?.primaryReason === "string"
+    && !validQuestLocomotionProbeReasonCodes.has(locomotionProbeSummary.primaryReason);
   const hasHarvestSummary = "harvestSummary" in payload;
   const harvestSummary = isRecord(payload.harvestSummary) ? payload.harvestSummary : undefined;
   const harvestBlockers = Array.isArray(harvestSummary?.blockers)
@@ -661,6 +668,10 @@ function normalizeQuestManualPerformancePayload(payload: QuestManualPerformanceP
     locomotionProbeSummary && locomotionProbeSummary.claimScope !== "runtime_probe_only"
       ? "copied_payload_locomotion_probe_scope_invalid"
       : undefined,
+    locomotionProbePrimaryReasonInvalid
+      ? `copied_payload_locomotion_probe_reason_invalid:${locomotionProbeSummary.primaryReason}`
+      : undefined,
+    ...invalidLocomotionProbeReasonCodes.map((reason) => `copied_payload_locomotion_probe_reason_invalid:${reason}`),
     ...locomotionProbeReasonCodes
       .filter((reason) => reason !== "locomotion_observed")
       .map((reason) => `copied_payload_locomotion_probe:${reason}`),
@@ -868,6 +879,10 @@ function questManualNextStepForBlocker(blocker: string): string {
   }
   if (blocker.startsWith("copied_payload_locomotion_probe:")) {
     return questManualNextStepForLocomotionProbe(blocker.slice("copied_payload_locomotion_probe:".length));
+  }
+  if (blocker.startsWith("copied_payload_locomotion_probe_reason_invalid:")) {
+    const reason = blocker.slice("copied_payload_locomotion_probe_reason_invalid:".length);
+    return `Re-copy the in-app Quest Evidence payload after updating the manual checker to recognize locomotion probe reason ${reason}.`;
   }
 
   switch (blocker) {
