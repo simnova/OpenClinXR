@@ -2391,7 +2391,7 @@ const blockerGroups = [
     title: "Local model structured-output and actor-policy evidence",
     owner: "local-ai-inference-engineer",
     matches: (blocker: string) => blocker.startsWith("local_model_quality:"),
-    nextStep: "Add schema/grammar, hidden-truth, actor-policy, and target M4 hardware benchmark evidence before enabling local dialogue in station runtime.",
+    nextStep: "Close remaining local model quality blockers, especially target M4 Pro/Max hardware evidence, before enabling local dialogue in station runtime.",
   },
   {
     groupId: "local_voice_live_dialog",

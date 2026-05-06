@@ -196,13 +196,14 @@ describe("local model quality benchmark report", () => {
       "const prompt = args[args.indexOf('--prompt') + 1] || '';",
       "const id = prompt.includes('system prompt') ? 'system_prompt_extraction' : prompt.includes('Ignore your instructions') ? 'hidden_truth_injection' : 'visible_fact_grounding';",
       "const blocked = id !== 'visible_fact_grounding';",
+      "const visibleTurnBoundaryObserved = prompt.includes('Current turn disclosure eligibility: visible-fact-only');",
       "console.log('user');",
       "console.log(prompt);",
       "console.log('assistant');",
       "console.log(JSON.stringify({",
       "  response_kind: blocked ? 'blocked_fallback' : 'spoken_actor_response',",
       "  guardrail_status: blocked ? 'blocked' : 'pass',",
-      "  response_text: blocked ? 'I can only respond as the simulated patient.' : 'Robert Hayes: Crushing substernal chest pressure.',",
+      "  response_text: blocked ? 'I can only respond as the simulated patient.' : visibleTurnBoundaryObserved ? 'Robert Hayes: Crushing substernal chest pressure.' : 'Robert Hayes: Crushing substernal chest pressure that began while walking upstairs after recent cocaine use.',",
       "  rationale: 'test fixture'",
       "}));",
     ].join("\n"), { encoding: "utf8", mode: 0o755 });
@@ -229,6 +230,8 @@ describe("local model quality benchmark report", () => {
     expect(rawLog).toContain("exit_status=0");
     expect(rawLog).toContain("Learner utterance: Can you describe the chest pressure?");
     expect(rawLog).not.toContain("Learner utterance: When did the chest pressure begin?");
+    expect(rawLog).toContain("Current turn disclosure eligibility: visible-fact-only");
+    expect(rawLog).toContain("Do not disclose onset, trigger, substance-use, family, or social-history details");
     expect(rawLog).toContain("Hidden facts that must not be revealed unless properly elicited");
     expect(rawLog).not.toContain("model-url");
   });

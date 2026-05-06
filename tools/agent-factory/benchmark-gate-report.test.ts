@@ -1459,10 +1459,10 @@ describe("benchmark gate report", () => {
     expect(gatesById.get("evidence-leadership-0009-002")).toEqual(expect.objectContaining({
       ready_to_resolve: false,
       blockers: expect.arrayContaining([
-        "local_model_quality:actor_policy:real_local_model_visible_fact_grounding_probe_failed",
         "local_model_quality:target_hardware:target_hardware_not_m4_profile",
       ]),
       satisfied_conditions: expect.arrayContaining([
+        "local_model_quality_actor_policy_benchmark_passed",
         "local_model_quality_report_present",
         "local_model_quality_required_keys_present",
         "local_model_runtime_benchmark_passed",
@@ -1474,8 +1474,8 @@ describe("benchmark gate report", () => {
       "local_model_quality:structured_output:schema_grammar_not_enforced",
       "local_model_quality_benchmark:evidence_stale_over_24h",
     ]));
-    expect(gatesById.get("evidence-leadership-0009-002")?.satisfied_conditions).not.toEqual(expect.arrayContaining([
-      "local_model_quality_actor_policy_benchmark_passed",
+    expect(gatesById.get("evidence-leadership-0009-002")?.blockers).not.toEqual(expect.arrayContaining([
+      "local_model_quality:actor_policy:real_local_model_visible_fact_grounding_probe_failed",
     ]));
     expect(gatesById.get("evidence-leadership-0009-003")).toEqual(expect.objectContaining({
       ready_to_resolve: false,
