@@ -124,7 +124,7 @@
       "evidence_id": "local_qwen_tts_runtime_smoke",
       "file": "docs/openclinxr/local-qwen-tts-runtime-smoke-2026-05-06.json",
       "generated_at": "2026-05-06T13:24:08Z",
-      "age_hours": 1,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -204,7 +204,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T15:22:58.845Z",
+      "generated_at": "2026-05-06T15:27:10.583Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -1763,7 +1763,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T15:22:58.845Z",
+    "generated_at": "2026-05-06T15:27:10.583Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -2662,10 +2662,16 @@
       ],
       "blockers": [
         "asset_production:artifact_backed_production_asset_evidence_missing",
+        "asset_production:ladder:animationRetargeting:contract_only_fixture_not_artifact_backed",
+        "asset_production:ladder:generatedHumanRigging:contract_only_fixture_not_artifact_backed",
+        "asset_production:ladder:lodTextureColliderBudget:contract_only_fixture_not_artifact_backed",
+        "asset_production:ladder:medicalEquipmentLibrary:contract_only_fixture_not_artifact_backed",
+        "asset_production:ladder:multiActorQuestBudget:contract_only_fixture_not_artifact_backed",
+        "asset_production:ladder:skinClothingProvenance:contract_only_fixture_not_artifact_backed",
         "asset_production:not_ready_for_production_assets"
       ],
       "blocker_summary": {
-        "total_blockers": 2,
+        "total_blockers": 8,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -2674,6 +2680,12 @@
             "owner": "asset-pipeline-lead",
             "blockers": [
               "asset_production:artifact_backed_production_asset_evidence_missing",
+              "asset_production:ladder:animationRetargeting:contract_only_fixture_not_artifact_backed",
+              "asset_production:ladder:generatedHumanRigging:contract_only_fixture_not_artifact_backed",
+              "asset_production:ladder:lodTextureColliderBudget:contract_only_fixture_not_artifact_backed",
+              "asset_production:ladder:medicalEquipmentLibrary:contract_only_fixture_not_artifact_backed",
+              "asset_production:ladder:multiActorQuestBudget:contract_only_fixture_not_artifact_backed",
+              "asset_production:ladder:skinClothingProvenance:contract_only_fixture_not_artifact_backed",
               "asset_production:not_ready_for_production_assets"
             ],
             "next_step": "Replace placeholder Blender bake/source evidence with reviewed generated clinical assets, then rerun the production asset readiness benchmark before claiming production asset readiness."

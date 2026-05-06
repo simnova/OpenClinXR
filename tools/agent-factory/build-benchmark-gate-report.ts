@@ -1109,6 +1109,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
   const assetProductionEvidenceBlockers = [
     ...assetCapabilityJobEvidenceBlockers(assetCapabilityJobEvidence),
     ...assetProductionBlockers(gltfPipelineSmoke, blenderAssetBakeSmoke, assetProductionReadinessBenchmark),
+    ...assetProductionEvidenceLadderBlockers(assetProductionEvidenceLadder),
     ...freshnessBlockers(evidenceFreshness, [
       "local_runtime_probe",
       "gltf_pipeline_smoke",
@@ -2589,6 +2590,18 @@ function assetProductionBlockers(
     "asset_production:missing_multi_actor_quest_budget_report",
   );
   return unique(blockers);
+}
+
+function assetProductionEvidenceLadderBlockers(
+  assetProductionEvidenceLadder: EvidenceFile<AssetProductionEvidenceLadderReport> | undefined,
+): string[] {
+  if (!assetProductionEvidenceLadder) {
+    return [];
+  }
+
+  return unique(assetProductionEvidenceLadder.value.verdict.blockers
+    .filter((blocker) => blocker !== "artifact_backed_production_asset_evidence_missing")
+    .map((blocker) => `asset_production:ladder:${blocker}`));
 }
 
 function assetCapabilityJobEvidenceBlockers(

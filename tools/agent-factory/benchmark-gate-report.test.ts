@@ -3905,6 +3905,7 @@ describe("benchmark gate report", () => {
       ready_to_resolve: false,
       blockers: [
         "asset_production:artifact_backed_production_asset_evidence_missing",
+        "asset_production:ladder:generatedHumanRigging:contract_only_fixture_not_artifact_backed",
         "asset_production:not_ready_for_production_assets",
       ],
     });
