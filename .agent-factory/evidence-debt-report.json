@@ -2,11 +2,11 @@
   "generated_by": "tools/agent-factory/find-evidence-debt.ts",
   "scorecard_count": 14,
   "debt_count": 32,
-  "open_count": 26,
-  "closed_count": 6,
+  "open_count": 24,
+  "closed_count": 8,
   "status_counts": {
-    "open": 26,
-    "resolved": 6
+    "open": 24,
+    "resolved": 8
   },
   "open_by_iteration": {
     "iteration-0001": 3,
@@ -15,7 +15,7 @@
     "iteration-0004": 2,
     "iteration-0006": 1,
     "iteration-0007": 1,
-    "iteration-0008": 3,
+    "iteration-0008": 1,
     "iteration-0009": 5
   },
   "open_by_owner": {
@@ -23,7 +23,7 @@
     "chief-medical-officer": 1,
     "clinical-safety-critic": 1,
     "cto": 2,
-    "local-ai-inference-engineer": 4,
+    "local-ai-inference-engineer": 3,
     "open-source-governance-lead": 1,
     "platform-architect": 1,
     "platform-devops-lead": 2,
@@ -31,7 +31,7 @@
     "psychometrics-lead": 1,
     "solution-architect": 1,
     "source-librarian": 4,
-    "voice-speech-engineer": 3,
+    "voice-speech-engineer": 2,
     "xr-systems-architect": 3
   },
   "priority_open_debt": [
@@ -88,28 +88,6 @@
       "scored_by": "senior-leadership-panel",
       "owner": "xr-systems-architect",
       "summary": "Capture and validate a human worn-headset Quest manual performance report that proves immersive entry, readable in-scene text, controller/hand affordances, locomotion comfort, frame pacing, heat, and battery observations.",
-      "status": "open"
-    },
-    {
-      "id": "evidence-leadership-0008-002",
-      "file": "iterations/iteration-0008/06-leadership-scorecard.json",
-      "iteration_id": "iteration-0008",
-      "iteration_number": 8,
-      "plan_type": "leadership-review",
-      "scored_by": "senior-leadership-panel",
-      "owner": "local-ai-inference-engineer",
-      "summary": "Install and benchmark one explicit local model runtime and model ID on target Apple Silicon hardware before enabling local dialogue.",
-      "status": "open"
-    },
-    {
-      "id": "evidence-leadership-0008-003",
-      "file": "iterations/iteration-0008/06-leadership-scorecard.json",
-      "iteration_id": "iteration-0008",
-      "iteration_number": 8,
-      "plan_type": "leadership-review",
-      "scored_by": "senior-leadership-panel",
-      "owner": "voice-speech-engineer",
-      "summary": "Install and benchmark a local voice runtime only after safety and misuse review, then record first-audio latency and transcript/synthesis evidence.",
       "status": "open"
     },
     {
@@ -533,28 +511,6 @@
       "status": "open"
     },
     {
-      "id": "evidence-leadership-0008-002",
-      "file": "iterations/iteration-0008/06-leadership-scorecard.json",
-      "iteration_id": "iteration-0008",
-      "iteration_number": 8,
-      "plan_type": "leadership-review",
-      "scored_by": "senior-leadership-panel",
-      "owner": "local-ai-inference-engineer",
-      "summary": "Install and benchmark one explicit local model runtime and model ID on target Apple Silicon hardware before enabling local dialogue.",
-      "status": "open"
-    },
-    {
-      "id": "evidence-leadership-0008-003",
-      "file": "iterations/iteration-0008/06-leadership-scorecard.json",
-      "iteration_id": "iteration-0008",
-      "iteration_number": 8,
-      "plan_type": "leadership-review",
-      "scored_by": "senior-leadership-panel",
-      "owner": "voice-speech-engineer",
-      "summary": "Install and benchmark a local voice runtime only after safety and misuse review, then record first-audio latency and transcript/synthesis evidence.",
-      "status": "open"
-    },
-    {
       "id": "evidence-leadership-0009-001",
       "file": "iterations/iteration-0009/06-leadership-scorecard.json",
       "iteration_id": "iteration-0009",
@@ -862,7 +818,7 @@
       "scored_by": "senior-leadership-panel",
       "owner": "local-ai-inference-engineer",
       "summary": "Install and benchmark one explicit local model runtime and model ID on target Apple Silicon hardware before enabling local dialogue.",
-      "status": "open"
+      "status": "resolved"
     },
     {
       "id": "evidence-leadership-0008-003",
@@ -873,7 +829,7 @@
       "scored_by": "senior-leadership-panel",
       "owner": "voice-speech-engineer",
       "summary": "Install and benchmark a local voice runtime only after safety and misuse review, then record first-audio latency and transcript/synthesis evidence.",
-      "status": "open"
+      "status": "resolved"
     },
     {
       "id": "evidence-leadership-0008-004",

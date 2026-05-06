@@ -26,8 +26,8 @@
   ],
   "evidence_debt": [
     { "id": "evidence-leadership-0008-001", "summary": "Capture and validate a foreground in-headset Quest manual performance report before claiming frame pacing or comfort readiness.", "owner": "xr-systems-architect", "status": "open" },
-    { "id": "evidence-leadership-0008-002", "summary": "Install and benchmark one explicit local model runtime and model ID on target Apple Silicon hardware before enabling local dialogue.", "owner": "local-ai-inference-engineer", "status": "open" },
-    { "id": "evidence-leadership-0008-003", "summary": "Install and benchmark a local voice runtime only after safety and misuse review, then record first-audio latency and transcript/synthesis evidence.", "owner": "voice-speech-engineer", "status": "open" },
+    { "id": "evidence-leadership-0008-002", "summary": "Install and benchmark one explicit local model runtime and model ID on target Apple Silicon hardware before enabling local dialogue.", "owner": "local-ai-inference-engineer", "status": "resolved" },
+    { "id": "evidence-leadership-0008-003", "summary": "Install and benchmark a local voice runtime only after safety and misuse review, then record first-audio latency and transcript/synthesis evidence.", "owner": "voice-speech-engineer", "status": "resolved" },
     { "id": "evidence-leadership-0008-004", "summary": "Install Blender and run a small asset bake report before calling the 3D asset pipeline ready.", "owner": "asset-pipeline-lead", "status": "resolved" }
   ],
   "decision_debt": [],
