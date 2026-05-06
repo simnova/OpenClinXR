@@ -32,6 +32,9 @@ describe("IWSDK npm currentness check", () => {
       repoViteVersion: "8.0.10",
     });
 
+    const packageByName = (name: string) =>
+      report.packages.find((entry) => entry.name === name);
+
     expect(report).toMatchObject({
       kind: "iwsdk_npm_currentness_check",
       ready: true,
@@ -42,41 +45,48 @@ describe("IWSDK npm currentness check", () => {
       repo: {
         viteVersion: "8.0.10",
       },
-      packages: [
-        {
-          name: "@iwsdk/core",
-          latest_version: "0.3.1",
-          expected_latest_version: "0.3.1",
-          license: {
-            source: "MIT",
-            expected: "MIT",
-            accepted: true,
-          },
-          current: true,
-        },
-        {
-          name: "@iwsdk/vite-plugin-dev",
-          latest_version: "0.3.1",
-          expected_latest_version: "0.3.1",
-          peer_dependencies: {
-            vite: "^7.0.0",
-          },
-          adoption_blockers: [
-            "vite_peer_range_does_not_accept_repo_vite_major:@iwsdk/vite-plugin-dev:^7.0.0_vs_8.0.10",
-          ],
-        },
-        {
-          name: "@meta-quest/hzdb",
-          latest_version: "1.1.0",
-          license: {
-            source: "UNLICENSED",
-            expected: "UNLICENSED",
-            accepted: true,
-          },
-          adoption_blockers: [
-            "package_license_requires_legal_procurement_approval:@meta-quest/hzdb:UNLICENSED",
-          ],
-        },
+    });
+
+    expect(
+      packageByName("@iwsdk/core"),
+    ).toMatchObject({
+      name: "@iwsdk/core",
+      latest_version: "0.3.1",
+      expected_latest_version: "0.3.1",
+      license: {
+        source: "MIT",
+        expected: "MIT",
+        accepted: true,
+      },
+      current: true,
+    });
+
+    expect(
+      packageByName("@iwsdk/vite-plugin-dev"),
+    ).toMatchObject({
+      name: "@iwsdk/vite-plugin-dev",
+      latest_version: "0.3.1",
+      expected_latest_version: "0.3.1",
+      peer_dependencies: {
+        vite: "^7.0.0",
+      },
+      adoption_blockers: [
+        "vite_peer_range_does_not_accept_repo_vite_major:@iwsdk/vite-plugin-dev:^7.0.0_vs_8.0.10",
+      ],
+    });
+
+    expect(
+      packageByName("@meta-quest/hzdb"),
+    ).toMatchObject({
+      name: "@meta-quest/hzdb",
+      latest_version: "1.1.0",
+      license: {
+        source: "UNLICENSED",
+        expected: "UNLICENSED",
+        accepted: true,
+      },
+      adoption_blockers: [
+        "package_license_requires_legal_procurement_approval:@meta-quest/hzdb:UNLICENSED",
       ],
     });
   });
