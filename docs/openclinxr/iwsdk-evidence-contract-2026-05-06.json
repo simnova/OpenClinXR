@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T05:44:22.344Z",
+  "generatedAt": "2026-05-06T06:36:02.066Z",
   "status": "phase_1_install_backed_sidecar",
   "sidecar": {
     "sidecarAppRoot": "apps/ui-xr-iwsdk-spike/",
@@ -470,6 +470,21 @@
       "mcp_smoke_tool_not_validated_xr_select",
       "missing_managed_browser_evidence",
       "scene_hierarchy_required_objects_not_confirmed"
+    ]
+  },
+  "agentToolingLocalPreflight": {
+    "readyForLocalAgentToolingPreflight": true,
+    "blockers": [],
+    "notEvidenceFor": [
+      "adapter_sync_completed",
+      "mcp_runtime_registered",
+      "managed_browser_ready",
+      "mcp_smoke_tools_validated",
+      "scene_hierarchy_query_passed",
+      "ecs_runtime_query_passed",
+      "xr_session_smoke_passed",
+      "physical_quest_readiness",
+      "production_runtime_readiness"
     ]
   },
   "productionRuntime": {

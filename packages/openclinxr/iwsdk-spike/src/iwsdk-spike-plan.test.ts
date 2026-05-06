@@ -28,11 +28,13 @@ import {
   evaluateIwsdkCompatibilityEvidence,
   evaluateIwsdkWorkspacePosture,
   evaluateIwsdkAgentToolingEvidence,
+  evaluateIwsdkAgentToolingLocalPreflightEvidence,
   evaluateIwsdkManagedBrowserEvidence,
   evaluateIwsdkPackageMetadataDriftEvidence,
   evaluateIwsdkPreInstallPackageSelection,
   evaluateIwsdkSpikeMetrics,
   evaluateIwsdkSpikeReadiness,
+  type IwsdkAgentToolingEvidence,
   type IwsdkSpikeGateEvidence,
 } from "./index.js";
 
@@ -664,6 +666,96 @@ describe("IWSDK spike plan", () => {
     })).toEqual({
       readyForAgentTooling: false,
       blockers: ["phase2_devtools_not_installed_in_sidecar"],
+    });
+  });
+
+  it("treats exact stdio MCP inventory as a local preflight without claiming full agent tooling", () => {
+    const inventory = buildIwsdkMcpToolInventory();
+    const evidence: IwsdkAgentToolingEvidence = {
+      phase2DevtoolsConfiguredInSidecar: true,
+      adapterSyncRecorded: false,
+      toolCount: inventory.allToolNames.length,
+      coveredCategories: inventory.categories.map((category) => category.category),
+      validatedSmokeTools: [],
+      observedToolNames: inventory.allToolNames,
+      mcpRuntimeRegistered: false,
+      sceneHierarchyContainsRequiredObjects: false,
+      ecsRuntimeQueryable: false,
+      optionalServerActions: [],
+    };
+
+    expect(evaluateIwsdkAgentToolingLocalPreflightEvidence(evidence)).toEqual({
+      readyForLocalAgentToolingPreflight: true,
+      blockers: [],
+      notEvidenceFor: [
+        "adapter_sync_completed",
+        "mcp_runtime_registered",
+        "managed_browser_ready",
+        "mcp_smoke_tools_validated",
+        "scene_hierarchy_query_passed",
+        "ecs_runtime_query_passed",
+        "xr_session_smoke_passed",
+        "physical_quest_readiness",
+        "production_runtime_readiness",
+      ],
+    });
+    expect(evaluateIwsdkAgentToolingEvidence(evidence)).toEqual({
+      readyForAgentTooling: false,
+      blockers: [
+        "adapter_sync_not_recorded",
+        "ecs_runtime_not_queryable",
+        "mcp_runtime_not_registered",
+        "mcp_smoke_tool_not_validated_browser_get_console_logs",
+        "mcp_smoke_tool_not_validated_browser_screenshot",
+        "mcp_smoke_tool_not_validated_scene_get_hierarchy",
+        "mcp_smoke_tool_not_validated_xr_accept_session",
+        "mcp_smoke_tool_not_validated_xr_get_session_status",
+        "mcp_smoke_tool_not_validated_xr_select",
+        "missing_managed_browser_evidence",
+        "scene_hierarchy_required_objects_not_confirmed",
+      ],
+    });
+  });
+
+  it("keeps local IWSDK preflight blocked for inventory drift and optional server actions", () => {
+    const observedToolNames = buildIwsdkMcpToolInventory().allToolNames.filter((tool) => tool !== "ecs_diff");
+
+    expect(evaluateIwsdkAgentToolingLocalPreflightEvidence({
+      phase2DevtoolsConfiguredInSidecar: true,
+      adapterSyncRecorded: false,
+      toolCount: 32,
+      coveredCategories: [
+        "session",
+        "transforms",
+        "input_mode",
+        "select_trigger",
+        "gamepad",
+        "device_state",
+        "browser",
+        "scene",
+        "ecs",
+      ],
+      validatedSmokeTools: [],
+      observedToolNames: [...observedToolNames, "xr_unexpected_future_tool"],
+      optionalServerActions: ["npx iwsdk reference warmup"],
+    })).toEqual({
+      readyForLocalAgentToolingPreflight: false,
+      blockers: [
+        "mcp_tool_missing_ecs_diff",
+        "mcp_tool_unknown_xr_unexpected_future_tool",
+        "optional_mcp_server_action_blocked:npx iwsdk reference warmup",
+      ],
+      notEvidenceFor: [
+        "adapter_sync_completed",
+        "mcp_runtime_registered",
+        "managed_browser_ready",
+        "mcp_smoke_tools_validated",
+        "scene_hierarchy_query_passed",
+        "ecs_runtime_query_passed",
+        "xr_session_smoke_passed",
+        "physical_quest_readiness",
+        "production_runtime_readiness",
+      ],
     });
   });
 

@@ -137,6 +137,18 @@ describe("IWSDK evidence contract checker", () => {
     expect(report.operatorSteeringBlockers.map((blocker) => blocker.id)).not.toContain("iwsdk-hzdb-legal-procurement-approval");
     expect(report.agentTooling.readyForAgentTooling).toBe(false);
     expect(report.agentTooling.blockers).toEqual(["phase2_devtools_not_installed_in_sidecar"]);
+    expect(report.agentToolingLocalPreflight).toEqual({
+      readyForLocalAgentToolingPreflight: false,
+      blockers: ["phase2_devtools_not_installed_in_sidecar"],
+      notEvidenceFor: expect.arrayContaining([
+        "adapter_sync_completed",
+        "mcp_runtime_registered",
+        "managed_browser_ready",
+        "mcp_smoke_tools_validated",
+        "scene_hierarchy_query_passed",
+        "ecs_runtime_query_passed",
+      ]),
+    });
     expect(report.productionRuntime.readyForProductionRuntime).toBe(false);
     expect(report.verdict).toEqual({
       readyForInstallBackedSidecar: true,
@@ -178,6 +190,7 @@ describe("IWSDK evidence contract checker", () => {
     });
 
     expect(report.agentTooling.readyForAgentTooling).toBe(true);
+    expect(report.agentToolingLocalPreflight.readyForLocalAgentToolingPreflight).toBe(true);
     expect(report.compatibility.result.readyForPhase2AgentDevtools).toBe(true);
     expect(report.metadataDrift.result.readyForUnattendedUse).toBe(true);
     expect(report.verdict.readyForAgentTooling).toBe(true);
@@ -220,6 +233,7 @@ describe("IWSDK evidence contract checker", () => {
       expect(failedRun.code).toBe(1);
       expect(report.verdict.readyForInstallBackedSidecar).toBe(true);
       expect(report.verdict.readyForProductionRuntime).toBe(false);
+      expect(report.agentToolingLocalPreflight.readyForLocalAgentToolingPreflight).toBe(false);
       expect(report.verdict.blockers).toEqual(expect.arrayContaining([
         "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
         "metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
@@ -271,6 +285,8 @@ describe("IWSDK evidence contract checker", () => {
 
       expect(failedRun.code).toBe(1);
       expect(failedRun.stdout).toContain(`Wrote ${outputPath}`);
+      expect(report.agentToolingLocalPreflight.readyForLocalAgentToolingPreflight).toBe(true);
+      expect(report.agentToolingLocalPreflight.blockers).toEqual([]);
       expect(report.agentTooling.readyForAgentTooling).toBe(false);
       expect(report.agentTooling.blockers).toEqual(expect.arrayContaining([
         "adapter_sync_not_recorded",
@@ -343,6 +359,7 @@ describe("IWSDK evidence contract checker", () => {
       expect(failedRun.code).toBe(1);
       expect(failedRun.stdout).toContain(`Wrote ${outputPath}`);
       expect(report.verdict.readyForAgentTooling).toBe(true);
+      expect(report.agentToolingLocalPreflight.readyForLocalAgentToolingPreflight).toBe(true);
       expect(report.verdict.readyForProductionRuntime).toBe(false);
       expect(report.verdict.blockers).toEqual(expect.arrayContaining([
         "tool_selection:manual_quest_foreground_required_for_production_readiness",
@@ -398,6 +415,16 @@ describe("IWSDK evidence contract checker", () => {
     })).toEqual({
       ok: false,
       errors: ["/toolSelection/blockers must be array"],
+    });
+    expect(validateIwsdkEvidenceContractReport({
+      ...report,
+      agentToolingLocalPreflight: {
+        ...report.agentToolingLocalPreflight,
+        blockers: "mcp_tool_inventory_count_not_32",
+      },
+    })).toEqual({
+      ok: false,
+      errors: ["/agentToolingLocalPreflight/blockers must be array"],
     });
     expect(validateIwsdkEvidenceContractReport({
       ...report,

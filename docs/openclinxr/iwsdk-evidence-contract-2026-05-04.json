@@ -462,6 +462,23 @@
       "phase2_devtools_not_installed_in_sidecar"
     ]
   },
+  "agentToolingLocalPreflight": {
+    "readyForLocalAgentToolingPreflight": false,
+    "blockers": [
+      "phase2_devtools_not_installed_in_sidecar"
+    ],
+    "notEvidenceFor": [
+      "adapter_sync_completed",
+      "mcp_runtime_registered",
+      "managed_browser_ready",
+      "mcp_smoke_tools_validated",
+      "scene_hierarchy_query_passed",
+      "ecs_runtime_query_passed",
+      "xr_session_smoke_passed",
+      "physical_quest_readiness",
+      "production_runtime_readiness"
+    ]
+  },
   "productionRuntime": {
     "readyForCommittedSpike": false,
     "readyForProductionRuntime": false,

@@ -15,12 +15,14 @@ import {
   buildIwsdkVerificationToolSelectionContract,
   buildIwsdkViteAiDevConfigContract,
   evaluateIwsdkAgentToolingEvidence,
+  evaluateIwsdkAgentToolingLocalPreflightEvidence,
   evaluateIwsdkCompatibilityEvidence,
   evaluateIwsdkPackageMetadataDriftEvidence,
   evaluateIwsdkPreInstallPackageSelection,
   evaluateIwsdkSpikeMetrics,
   type IwsdkAgentToolingEvidence,
   type IwsdkAgentToolingEvidenceReadiness,
+  type IwsdkAgentToolingLocalPreflightReadiness,
   type IwsdkCompatibilityContract,
   type IwsdkCompatibilityEvidence,
   type IwsdkCompatibilityReadiness,
@@ -74,6 +76,7 @@ export type IwsdkEvidenceContractReport = {
   operatorApprovals: IwsdkOperatorApprovalContract;
   operatorSteeringBlockers: IwsdkOperatorSteeringBlocker[];
   agentTooling: IwsdkAgentToolingEvidenceReadiness;
+  agentToolingLocalPreflight: IwsdkAgentToolingLocalPreflightReadiness;
   productionRuntime: IwsdkSpikeMetricReadiness;
   verdict: {
     readyForInstallBackedSidecar: boolean;
@@ -166,6 +169,7 @@ export function buildIwsdkEvidenceContractReport(input: {
     optionalServerActions: [],
   };
   const agentTooling = evaluateIwsdkAgentToolingEvidence(agentToolingEvidence);
+  const agentToolingLocalPreflight = evaluateIwsdkAgentToolingLocalPreflightEvidence(agentToolingEvidence);
   const compatibilityContract = buildIwsdkCompatibilityContract();
   const currentKnownCompatibilityEvidence: IwsdkCompatibilityEvidence = input.compatibilityEvidence ?? {
     openclinxrViteMajor: 8,
@@ -247,6 +251,7 @@ export function buildIwsdkEvidenceContractReport(input: {
     operatorApprovals: buildIwsdkOperatorApprovalContract(),
     operatorSteeringBlockers: buildIwsdkOperatorSteeringBlockers(),
     agentTooling,
+    agentToolingLocalPreflight,
     productionRuntime,
     verdict: {
       readyForInstallBackedSidecar: installBackedSidecarReady,
@@ -295,6 +300,7 @@ export function validateIwsdkEvidenceContractReport(value: unknown): IwsdkEviden
   requireObject(readAt(value, ["operatorApprovals"]), "/operatorApprovals", errors);
   requireArray(readAt(value, ["operatorSteeringBlockers"]), "/operatorSteeringBlockers", errors);
   requireObject(readAt(value, ["agentTooling"]), "/agentTooling", errors);
+  requireObject(readAt(value, ["agentToolingLocalPreflight"]), "/agentToolingLocalPreflight", errors);
   requireObject(readAt(value, ["productionRuntime"]), "/productionRuntime", errors);
   requireObject(readAt(value, ["verdict"]), "/verdict", errors);
 
@@ -421,6 +427,17 @@ export function validateIwsdkEvidenceContractReport(value: unknown): IwsdkEviden
 
   requireBoolean(readAt(value, ["agentTooling", "readyForAgentTooling"]), "/agentTooling/readyForAgentTooling", errors);
   requireStringArray(readAt(value, ["agentTooling", "blockers"]), "/agentTooling/blockers", errors);
+  requireBoolean(
+    readAt(value, ["agentToolingLocalPreflight", "readyForLocalAgentToolingPreflight"]),
+    "/agentToolingLocalPreflight/readyForLocalAgentToolingPreflight",
+    errors,
+  );
+  requireStringArray(readAt(value, ["agentToolingLocalPreflight", "blockers"]), "/agentToolingLocalPreflight/blockers", errors);
+  requireStringArray(
+    readAt(value, ["agentToolingLocalPreflight", "notEvidenceFor"]),
+    "/agentToolingLocalPreflight/notEvidenceFor",
+    errors,
+  );
   requireBoolean(readAt(value, ["productionRuntime", "readyForCommittedSpike"]), "/productionRuntime/readyForCommittedSpike", errors);
   requireBoolean(readAt(value, ["productionRuntime", "readyForProductionRuntime"]), "/productionRuntime/readyForProductionRuntime", errors);
   requireStringArray(readAt(value, ["productionRuntime", "blockers"]), "/productionRuntime/blockers", errors);

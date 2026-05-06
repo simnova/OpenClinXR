@@ -28,6 +28,16 @@ describe("IWSDK agent-tooling evidence checker", () => {
         readyForAgentTooling: true,
         blockers: [],
       },
+      localPreflightResult: {
+        readyForLocalAgentToolingPreflight: true,
+        blockers: [],
+        notEvidenceFor: expect.arrayContaining([
+          "adapter_sync_completed",
+          "mcp_runtime_registered",
+          "managed_browser_ready",
+          "mcp_smoke_tools_validated",
+        ]),
+      },
     });
   });
 
@@ -56,6 +66,13 @@ describe("IWSDK agent-tooling evidence checker", () => {
       "missing_managed_browser_evidence",
       "optional_mcp_server_action_blocked:npx iwsdk reference warmup",
     ]));
+    expect(report.localPreflightResult.readyForLocalAgentToolingPreflight).toBe(false);
+    expect(report.localPreflightResult.blockers).toEqual(expect.arrayContaining([
+      "mcp_tool_inventory_count_not_32",
+      "mcp_tool_names_not_recorded",
+      "mcp_required_category_missing_ecs",
+      "optional_mcp_server_action_blocked:npx iwsdk reference warmup",
+    ]));
   });
 
   it("exposes a CLI for scoring captured IWSDK MCP evidence JSON", async () => {
@@ -80,6 +97,7 @@ describe("IWSDK agent-tooling evidence checker", () => {
 
     expect(stdout).toContain(`Wrote ${outputPath}`);
     expect(report.inputFile).toBe(inputPath);
+    expect(report.localPreflightResult.readyForLocalAgentToolingPreflight).toBe(true);
     expect(report.result.readyForAgentTooling).toBe(true);
   });
 });

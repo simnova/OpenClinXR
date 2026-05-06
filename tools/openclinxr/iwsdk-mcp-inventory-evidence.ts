@@ -6,8 +6,10 @@ import {
   buildIwsdkMcpToolInventory,
   buildIwsdkMcpToolInventoryRequirement,
   evaluateIwsdkAgentToolingEvidence,
+  evaluateIwsdkAgentToolingLocalPreflightEvidence,
   type IwsdkAgentToolingEvidence,
   type IwsdkAgentToolingEvidenceReadiness,
+  type IwsdkAgentToolingLocalPreflightReadiness,
   type IwsdkMcpToolCategory,
 } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
 
@@ -61,6 +63,7 @@ export type IwsdkMcpInventoryEvidenceReport = {
   };
   agentToolingEvidence: IwsdkAgentToolingEvidence;
   agentToolingReadiness: IwsdkAgentToolingEvidenceReadiness;
+  localPreflightReadiness: IwsdkAgentToolingLocalPreflightReadiness;
   caveats: string[];
 };
 
@@ -186,8 +189,10 @@ export function buildIwsdkMcpInventoryEvidenceReport(input: {
     },
     agentToolingEvidence,
     agentToolingReadiness: evaluateIwsdkAgentToolingEvidence(agentToolingEvidence),
+    localPreflightReadiness: evaluateIwsdkAgentToolingLocalPreflightEvidence(agentToolingEvidence),
     caveats: [
       "This report proves only stdio MCP tool inventory from the installed sidecar dev plugin.",
+      "Local preflight readiness means only that the sidecar MCP tool inventory is complete and policy-clean.",
       "No adapter sync, MCP config mutation, browser session, scene hierarchy query, ECS query, or physical Quest run is performed.",
       "Agent-tooling readiness remains blocked until the aggregate evaluator accepts managed-browser, smoke-tool, scene, and ECS evidence.",
     ],

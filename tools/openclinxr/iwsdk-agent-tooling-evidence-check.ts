@@ -3,8 +3,10 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import {
   evaluateIwsdkAgentToolingEvidence,
+  evaluateIwsdkAgentToolingLocalPreflightEvidence,
   type IwsdkAgentToolingEvidence,
   type IwsdkAgentToolingEvidenceReadiness,
+  type IwsdkAgentToolingLocalPreflightReadiness,
 } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
 
 type CliOptions = {
@@ -17,6 +19,7 @@ export type IwsdkAgentToolingEvidenceReport = {
   inputFile?: string;
   evidence: IwsdkAgentToolingEvidence;
   result: IwsdkAgentToolingEvidenceReadiness;
+  localPreflightResult: IwsdkAgentToolingLocalPreflightReadiness;
 };
 
 async function main(): Promise<void> {
@@ -55,6 +58,7 @@ export function buildIwsdkAgentToolingEvidenceReport(input: {
     inputFile: input.inputFile,
     evidence: input.evidence,
     result: evaluateIwsdkAgentToolingEvidence(input.evidence),
+    localPreflightResult: evaluateIwsdkAgentToolingLocalPreflightEvidence(input.evidence),
   };
 }
 

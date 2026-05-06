@@ -65,6 +65,20 @@ describe("IWSDK MCP inventory evidence", () => {
           "ecs_runtime_not_queryable",
         ]),
       },
+      localPreflightReadiness: {
+        readyForLocalAgentToolingPreflight: true,
+        blockers: [],
+        notEvidenceFor: expect.arrayContaining([
+          "adapter_sync_completed",
+          "mcp_runtime_registered",
+          "managed_browser_ready",
+          "mcp_smoke_tools_validated",
+          "scene_hierarchy_query_passed",
+          "ecs_runtime_query_passed",
+          "physical_quest_readiness",
+          "production_runtime_readiness",
+        ]),
+      },
     });
     expect(report.inventory.coveredCategories).toEqual([
       "session",
@@ -92,6 +106,11 @@ describe("IWSDK MCP inventory evidence", () => {
     expect(report.inventory.missingExpectedToolNames).toEqual(["ecs_diff"]);
     expect(report.inventory.unknownToolNames).toEqual(["xr_future_tool"]);
     expect(report.agentToolingReadiness.blockers).toEqual(expect.arrayContaining([
+      "mcp_tool_missing_ecs_diff",
+      "mcp_tool_unknown_xr_future_tool",
+    ]));
+    expect(report.localPreflightReadiness.readyForLocalAgentToolingPreflight).toBe(false);
+    expect(report.localPreflightReadiness.blockers).toEqual(expect.arrayContaining([
       "mcp_tool_missing_ecs_diff",
       "mcp_tool_unknown_xr_future_tool",
     ]));
@@ -125,6 +144,7 @@ describe("IWSDK MCP inventory evidence", () => {
 
     expect(report.inventory.matchedExpectedInventory).toBe(true);
     expect(report.inventory.observedToolCount).toBe(32);
+    expect(report.localPreflightReadiness.readyForLocalAgentToolingPreflight).toBe(true);
     expect(report.agentToolingReadiness.readyForAgentTooling).toBe(false);
     expect(report.agentToolingReadiness.blockers).toEqual(expect.arrayContaining([
       "adapter_sync_not_recorded",

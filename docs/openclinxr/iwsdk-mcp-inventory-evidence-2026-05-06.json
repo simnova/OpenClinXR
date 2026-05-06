@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T02:01:43.386Z",
+  "generatedAt": "2026-05-06T06:35:54.153Z",
   "source": "iwsdk_dev_mcp_stdio_tools_list",
   "policy": {
     "cloudApisUsed": false,
@@ -154,8 +154,24 @@
       "scene_hierarchy_required_objects_not_confirmed"
     ]
   },
+  "localPreflightReadiness": {
+    "readyForLocalAgentToolingPreflight": true,
+    "blockers": [],
+    "notEvidenceFor": [
+      "adapter_sync_completed",
+      "mcp_runtime_registered",
+      "managed_browser_ready",
+      "mcp_smoke_tools_validated",
+      "scene_hierarchy_query_passed",
+      "ecs_runtime_query_passed",
+      "xr_session_smoke_passed",
+      "physical_quest_readiness",
+      "production_runtime_readiness"
+    ]
+  },
   "caveats": [
     "This report proves only stdio MCP tool inventory from the installed sidecar dev plugin.",
+    "Local preflight readiness means only that the sidecar MCP tool inventory is complete and policy-clean.",
     "No adapter sync, MCP config mutation, browser session, scene hierarchy query, ECS query, or physical Quest run is performed.",
     "Agent-tooling readiness remains blocked until the aggregate evaluator accepts managed-browser, smoke-tool, scene, and ECS evidence."
   ]

@@ -273,6 +273,24 @@ export type IwsdkAgentToolingEvidenceReadiness = {
   blockers: string[];
 };
 
+export type IwsdkAgentToolingLocalPreflightReadiness = {
+  readyForLocalAgentToolingPreflight: boolean;
+  blockers: string[];
+  notEvidenceFor: string[];
+};
+
+const iwsdkAgentToolingLocalPreflightCaveats = [
+  "adapter_sync_completed",
+  "mcp_runtime_registered",
+  "managed_browser_ready",
+  "mcp_smoke_tools_validated",
+  "scene_hierarchy_query_passed",
+  "ecs_runtime_query_passed",
+  "xr_session_smoke_passed",
+  "physical_quest_readiness",
+  "production_runtime_readiness",
+] as const;
+
 export type IwsdkOptionalMcpServerPolicy = {
   serverName: string;
   packageName: string;
@@ -1535,6 +1553,62 @@ export function evaluateIwsdkAgentToolingEvidence(
   return {
     readyForAgentTooling: uniqueBlockers.length === 0,
     blockers: uniqueBlockers,
+  };
+}
+
+export function evaluateIwsdkAgentToolingLocalPreflightEvidence(
+  evidence: IwsdkAgentToolingEvidence,
+): IwsdkAgentToolingLocalPreflightReadiness {
+  if (evidence.phase2DevtoolsConfiguredInSidecar === false) {
+    return {
+      readyForLocalAgentToolingPreflight: false,
+      blockers: ["phase2_devtools_not_installed_in_sidecar"],
+      notEvidenceFor: [...iwsdkAgentToolingLocalPreflightCaveats],
+    };
+  }
+
+  const inventoryRequirement = buildIwsdkMcpToolInventoryRequirement();
+  const blockers: string[] = [];
+
+  if (evidence.toolCount !== inventoryRequirement.expectedToolCount) {
+    blockers.push("mcp_tool_inventory_count_not_32");
+  }
+
+  const expectedToolNames = buildIwsdkMcpToolInventory().allToolNames;
+  if (!evidence.observedToolNames?.length) {
+    blockers.push("mcp_tool_names_not_recorded");
+  } else {
+    for (const expectedToolName of expectedToolNames) {
+      if (!evidence.observedToolNames.includes(expectedToolName)) {
+        blockers.push(`mcp_tool_missing_${expectedToolName}`);
+      }
+    }
+
+    for (const observedToolName of evidence.observedToolNames) {
+      if (!expectedToolNames.includes(observedToolName as IwsdkMcpToolName)) {
+        blockers.push(`mcp_tool_unknown_${observedToolName}`);
+      }
+    }
+  }
+
+  for (const category of inventoryRequirement.requiredCategories) {
+    if (!evidence.coveredCategories.includes(category)) {
+      blockers.push(`mcp_required_category_missing_${category}`);
+    }
+  }
+
+  const blockedOptionalActions = buildIwsdkOptionalMcpServerPolicy().flatMap((policy) => policy.blockedActions);
+  for (const action of evidence.optionalServerActions ?? []) {
+    if (blockedOptionalActions.includes(action)) {
+      blockers.push(`optional_mcp_server_action_blocked:${action}`);
+    }
+  }
+
+  const uniqueBlockers = unique(blockers);
+  return {
+    readyForLocalAgentToolingPreflight: uniqueBlockers.length === 0,
+    blockers: uniqueBlockers,
+    notEvidenceFor: [...iwsdkAgentToolingLocalPreflightCaveats],
   };
 }
 
