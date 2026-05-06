@@ -3395,62 +3395,7 @@ describe("benchmark gate report", () => {
       input: Parameters<typeof buildBenchmarkGateReport>[0] & {
         assetProductionReadinessBenchmark?: {
           file: string;
-          value: {
-            generatedAt: string;
-            status: string;
-            sourceEvidence: {
-              gltfPipelineSmokePassed: boolean;
-              blenderBakeSmokePassed: boolean;
-              placeholderBakeOnly: boolean;
-              blockers: string[];
-            };
-            productionProofs: Record<string, { observed: boolean; blockers: string[] }>;
-            generationEvidence: {
-              generatedHumanRiggingObserved: boolean;
-              skinClothingProvenanceObserved: boolean;
-              medicalEquipmentLibraryObserved: boolean;
-              animationRetargetingObserved: boolean;
-              placeholderOnly: boolean;
-              blockers: string[];
-            };
-            optimizationEvidence: {
-              lodTiersObserved: boolean;
-              textureCompressionBudgetObserved: boolean;
-              colliderSimplificationObserved: boolean;
-              placeholderOnly: boolean;
-              blockers: string[];
-            };
-            stationBudgetEvidence: {
-              scenarioId: string;
-              source: string;
-              requiredAssetCount: number;
-              placeholderOnly: boolean;
-              observed: boolean;
-              blockers: string[];
-              budget: {
-                maxVisibleTriangles: number;
-                maxTextureMegabytes: number;
-                maxDrawCalls: number;
-                totalTriangles: number;
-                totalTextureMegabytes: number;
-                totalDrawCalls: number;
-                blockers: string[];
-              };
-            };
-            runtimeBudget: {
-              multiActorBudgetObserved: boolean;
-              blockers: string[];
-            };
-            input?: {
-              localAssetEvidenceFixtureUsed?: boolean;
-            };
-            verdict: {
-              passed: boolean;
-              readyForProductionAssets?: boolean;
-              blockers: string[];
-              caveats: string[];
-            };
-          };
+          value: AssetProductionReadinessReport;
         };
         assetCapabilityJobEvidence?: {
           file: string;
@@ -3528,19 +3473,60 @@ describe("benchmark gate report", () => {
         value: {
           generatedAt: "2026-05-04T20:30:00.000Z",
           status: "blocked",
+          policy: {
+            cloudApisUsed: false,
+            paidApisUsed: false,
+            externalAssetsUsed: false,
+            productionUseAllowed: false,
+            copyleftRuntimeAllowed: false,
+          },
+          input: {
+            gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
+            blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
+            gltfGeneratedAt: "2026-05-04T20:00:00.000Z",
+            blenderGeneratedAt: "2026-05-04T20:00:00.000Z",
+            localAssetEvidenceFixtureUsed: false,
+          },
           sourceEvidence: {
             gltfPipelineSmokePassed: true,
             blenderBakeSmokePassed: true,
+            blenderSourceLicensePosture: "repo_generated_placeholder",
             placeholderBakeOnly: true,
+            blenderSemanticInventoryObserved: false,
+            blenderMissingRequiredObjectNames: [],
             blockers: ["placeholder_bake_only"],
           },
           productionProofs: {
-            generatedHumanRigging: { observed: true, blockers: [] },
-            skinClothingProvenance: { observed: true, blockers: [] },
-            medicalEquipmentLibrary: { observed: true, blockers: [] },
-            animationRetargeting: { observed: true, blockers: [] },
-            lodTextureColliderBudget: { observed: true, blockers: [] },
-            multiActorQuestBudget: { observed: true, blockers: [] },
+            generatedHumanRigging: {
+              observed: true,
+              requiredEvidence: ["neutral generated human GLB", "canonical skeleton binding", "skin-weight or rigging report"],
+              blockers: [],
+            },
+            skinClothingProvenance: {
+              observed: true,
+              requiredEvidence: ["skin/texture provenance", "clothing mesh provenance", "runtime-safe material report"],
+              blockers: [],
+            },
+            medicalEquipmentLibrary: {
+              observed: true,
+              requiredEvidence: ["equipment GLB library", "clinical equipment metadata", "license provenance"],
+              blockers: [],
+            },
+            animationRetargeting: {
+              observed: true,
+              requiredEvidence: ["canonical skeleton clips", "viseme or facial target mapping", "retargeting QA report"],
+              blockers: [],
+            },
+            lodTextureColliderBudget: {
+              observed: true,
+              requiredEvidence: ["LOD tiers", "KTX2 or texture budget report", "collider simplification report"],
+              blockers: [],
+            },
+            multiActorQuestBudget: {
+              observed: true,
+              requiredEvidence: ["multi-actor station budget", "Quest frame budget", "draw-call and texture-memory budget"],
+              blockers: [],
+            },
           },
           generationEvidence: {
             generatedHumanRiggingObserved: true,
@@ -3575,11 +3561,26 @@ describe("benchmark gate report", () => {
             },
           },
           runtimeBudget: {
+            singleAssetPackGlbBytes: 27284,
+            targetStationBundleMb: 80,
+            maxVisibleTriangles: 180000,
+            maxDrawCalls: 120,
+            maxTextureMemoryMb: 512,
             multiActorBudgetObserved: true,
             blockers: [],
           },
-          input: {
-            localAssetEvidenceFixtureUsed: false,
+          claimBoundaries: {
+            localAssetEvidenceFixtureIsContractOnly: false,
+            artifactBackedProductionAssetEvidenceObserved: false,
+            allowedClaims: [],
+            notEvidenceFor: [
+              "production clinical asset generation readiness",
+              "artifact-backed generated human rigging",
+              "artifact-backed skin and clothing provenance",
+              "artifact-backed medical equipment library coverage",
+              "artifact-backed animation retargeting",
+              "artifact-backed Quest 3 production bundle budget",
+            ],
           },
           verdict: {
             passed: false,
@@ -3663,9 +3664,9 @@ describe("benchmark gate report", () => {
         blockers: [],
       },
     });
-    expect(report.asset_production_readiness_benchmark?.input).toEqual({
+    expect(report.asset_production_readiness_benchmark?.input).toEqual(expect.objectContaining({
       localAssetEvidenceFixtureUsed: false,
-    });
+    }));
     expect(report.asset_production_readiness_benchmark?.generation_evidence).toEqual({
       generatedHumanRiggingObserved: true,
       skinClothingProvenanceObserved: true,
@@ -3953,7 +3954,10 @@ describe("benchmark gate report", () => {
           },
         },
       },
-    } as Parameters<typeof buildBenchmarkGateReport>[0], { now: new Date("2026-05-06T09:00:00.000Z"), maxEvidenceAgeHours: 24 });
+    } as unknown as Parameters<typeof buildBenchmarkGateReport>[0], {
+      now: new Date("2026-05-06T09:00:00.000Z"),
+      maxEvidenceAgeHours: 24,
+    });
 
     const assetGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-005");
 
@@ -3966,12 +3970,56 @@ describe("benchmark gate report", () => {
 
     const report = buildBenchmarkGateReport({
       assetCapabilityJobEvidence: invalidCapabilityEvidence,
-    } as Parameters<typeof buildBenchmarkGateReport>[0], { now: new Date("2026-05-06T09:00:00.000Z"), maxEvidenceAgeHours: 24 });
+    } as unknown as Parameters<typeof buildBenchmarkGateReport>[0], {
+      now: new Date("2026-05-06T09:00:00.000Z"),
+      maxEvidenceAgeHours: 24,
+    });
 
     const assetGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-005");
 
     expect(assetGate?.blockers).toContain("asset_production:invalid_asset_capability_job_evidence_report");
     expect(assetGate?.satisfied_conditions).not.toContain("asset_production_capability_job_contract_observed");
+  });
+
+  it("flags invalid asset production readiness evidence before consuming readiness blockers", () => {
+    const report = buildBenchmarkGateReport({
+      assetProductionReadinessBenchmark: {
+        file: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+        value: {
+          generatedAt: "2026-05-06T08:19:18.833Z",
+          status: "blocked",
+          input: {
+            localAssetEvidenceFixtureUsed: true,
+          },
+          sourceEvidence: {
+            gltfPipelineSmokePassed: true,
+            blenderBakeSmokePassed: true,
+            placeholderBakeOnly: false,
+            blockers: [],
+          },
+          productionProofs: {},
+          runtimeBudget: {
+            multiActorBudgetObserved: true,
+            blockers: [],
+          },
+          verdict: {
+            passed: false,
+            readyForProductionAssets: false,
+            blockers: [],
+            caveats: [],
+          },
+        },
+      },
+    } as unknown as Parameters<typeof buildBenchmarkGateReport>[0], {
+      now: new Date("2026-05-06T09:00:00.000Z"),
+      maxEvidenceAgeHours: 24,
+    });
+
+    const assetGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-005");
+
+    expect(assetGate?.blockers).toContain("asset_production:invalid_asset_production_readiness_benchmark_report");
+    expect(assetGate?.satisfied_conditions).not.toContain("asset_production_readiness_report_present");
+    expect(assetGate?.satisfied_conditions).not.toContain("asset_production_source_smokes_passed");
   });
 
   it("summarizes missing Blender asset evidence as an asset-pipeline group", () => {

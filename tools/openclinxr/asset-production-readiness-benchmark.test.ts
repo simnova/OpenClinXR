@@ -1,11 +1,29 @@
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   buildAssetProductionReadinessReport,
+  runAssetProductionReadinessCli,
+  validateAssetProductionReadinessReport,
   type BlenderAssetBakeSmokeReport,
   type GltfPipelineSmokeReport,
 } from "./asset-production-readiness-benchmark.js";
 
 describe("asset production readiness report", () => {
+  it("exposes generation and validation scripts", async () => {
+    const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+
+    expect(rootPackage.scripts["asset:production:readiness"]).toBe(
+      "tsx tools/openclinxr/asset-production-readiness-benchmark.ts",
+    );
+    expect(rootPackage.scripts["asset:production:readiness:validate"]).toBe(
+      "tsx tools/openclinxr/asset-production-readiness-benchmark.ts --validate docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+    );
+  });
+
   it("keeps placeholder Blender and GLTF smoke evidence blocked for production asset readiness", () => {
     const report = buildAssetProductionReadinessReport({
       generatedAt: "2026-05-04T20:30:00.000Z",
@@ -392,6 +410,69 @@ describe("asset production readiness report", () => {
       "source:blender_required_object_missing:ecg_cart_12_lead",
       "source:blender_required_object_missing:iv_pole_with_pump",
     ]));
+  });
+
+  it("validates generated production readiness reports before aggregate reuse", () => {
+    const report = buildAssetProductionReadinessReport({
+      generatedAt: "2026-05-06T06:45:00.000Z",
+      gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
+      blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+      gltfPipelineSmoke: gltfSmoke({ passed: true }),
+      blenderAssetBakeSmoke: blenderSmoke({
+        passed: true,
+        sourceLicensePosture: "reviewed_local_clinical_asset_fixture",
+        glbBytes: 109040,
+        semanticInventory: completeClinicalSemanticInventory(),
+      }),
+      useLocalAssetEvidenceFixture: true,
+    });
+    expect(validateAssetProductionReadinessReport(report)).toEqual({ ok: true });
+
+    const invalid = structuredClone(report) as unknown as Record<string, unknown>;
+    const productionProofs = invalid.productionProofs as Record<string, unknown>;
+    delete productionProofs.skinClothingProvenance;
+    const verdict = invalid.verdict as { blockers: string[] };
+    verdict.blockers = [];
+
+    expect(validateAssetProductionReadinessReport(invalid)).toEqual({
+      ok: false,
+      errors: expect.arrayContaining([
+        "/productionProofs must include proof lane skinClothingProvenance",
+        "/verdict/blockers must include artifact_backed_production_asset_evidence_missing",
+      ]),
+    });
+  });
+
+  it("validates production readiness reports from the CLI", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-asset-readiness-"));
+    const outputPath = path.join(tempDir, "asset-production-readiness.json");
+    const invalidPath = path.join(tempDir, "asset-production-readiness-invalid.json");
+    const previousExitCode = process.exitCode;
+
+    try {
+      await runAssetProductionReadinessCli([
+        "--gltf-smoke",
+        "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
+        "--blender-smoke",
+        "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+        "--use-local-asset-evidence-fixture",
+        "--output",
+        outputPath,
+      ]);
+
+      await expect(runAssetProductionReadinessCli(["--validate", outputPath])).resolves.toBeUndefined();
+
+      const invalidReport = JSON.parse(await readFile(outputPath, "utf8"));
+      delete invalidReport.policy.productionUseAllowed;
+      await writeFile(invalidPath, `${JSON.stringify(invalidReport, null, 2)}\n`, "utf8");
+
+      process.exitCode = undefined;
+      await runAssetProductionReadinessCli(["--validate", invalidPath]);
+      expect(process.exitCode).toBe(1);
+    } finally {
+      process.exitCode = previousExitCode;
+      await rm(tempDir, { recursive: true, force: true });
+    }
   });
 });
 

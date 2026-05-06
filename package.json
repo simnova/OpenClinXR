@@ -89,6 +89,7 @@
     "asset:production:ladder": "tsx tools/openclinxr/asset-production-evidence-ladder.ts",
     "asset:production:ladder:validate": "tsx tools/openclinxr/asset-production-evidence-ladder.ts --validate docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
     "asset:production:readiness": "tsx tools/openclinxr/asset-production-readiness-benchmark.ts",
+    "asset:production:readiness:validate": "tsx tools/openclinxr/asset-production-readiness-benchmark.ts --validate docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
     "xr:quest:smoke": "tsx tools/openclinxr/quest-cdp-smoke.ts",
     "xr:quest:smoke:validate": "tsx tools/openclinxr/quest-cdp-smoke.ts --validate-latest",
     "xr:quest:manual:harvest": "tsx tools/openclinxr/quest-cdp-smoke.ts --harvest-manual-evidence",

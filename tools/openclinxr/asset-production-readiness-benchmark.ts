@@ -13,6 +13,7 @@ import {
 } from "../../packages/openclinxr/asset-registry/src/index.js";
 
 type CliOptions = {
+  validatePath?: string;
   gltfPipelineSmokePath?: string;
   blenderAssetBakeSmokePath?: string;
   outputPath?: string;
@@ -84,6 +85,15 @@ type ProofLaneId =
   | "lodTextureColliderBudget"
   | "multiActorQuestBudget";
 
+const proofLaneIds: ProofLaneId[] = [
+  "generatedHumanRigging",
+  "skinClothingProvenance",
+  "medicalEquipmentLibrary",
+  "animationRetargeting",
+  "lodTextureColliderBudget",
+  "multiActorQuestBudget",
+];
+
 type ProofLanes = Record<ProofLaneId, boolean>;
 
 type ProofLaneReport = {
@@ -91,6 +101,8 @@ type ProofLaneReport = {
   requiredEvidence: string[];
   blockers: string[];
 };
+
+type ValidationResult = { ok: true } | { ok: false; errors: string[] };
 
 type StationBudgetEvidence = {
   scenarioId: string;
@@ -156,7 +168,25 @@ export type AssetProductionReadinessReport = {
 };
 
 async function main(): Promise<void> {
-  const options = parseArgs(process.argv.slice(2));
+  await runAssetProductionReadinessCli(process.argv.slice(2));
+}
+
+export async function runAssetProductionReadinessCli(args: string[]): Promise<void> {
+  const options = parseArgs(args);
+  if (options.validatePath) {
+    const validation = validateAssetProductionReadinessReport(await readJson<unknown>(options.validatePath));
+    if (validation.ok) {
+      console.log(`Validated ${options.validatePath}`);
+      return;
+    }
+
+    for (const error of validation.errors) {
+      console.error(error);
+    }
+    process.exitCode = 1;
+    return;
+  }
+
   const gltfPipelineSmokeFile = options.gltfPipelineSmokePath ?? await latestPath("docs/openclinxr/gltf-pipeline-smoke-*.json");
   const blenderAssetBakeSmokeFile = options.blenderAssetBakeSmokePath ?? await latestPath("docs/openclinxr/blender-asset-bake-smoke-*.json");
   if (!gltfPipelineSmokeFile) {
@@ -191,6 +221,11 @@ function parseArgs(args: string[]): CliOptions {
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
+    if (arg === "--validate") {
+      options.validatePath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
     if (arg === "--gltf-smoke") {
       options.gltfPipelineSmokePath = requireValue(normalizedArgs, index, arg);
       index += 1;
@@ -314,6 +349,81 @@ export function buildAssetProductionReadinessReport(input: {
   };
 }
 
+export function validateAssetProductionReadinessReport(value: unknown): ValidationResult {
+  const errors: string[] = [];
+
+  if (!isRecord(value)) {
+    return { ok: false, errors: ["/ must be object"] };
+  }
+
+  requireString(value.generatedAt, "/generatedAt", errors);
+  requireOneOf(value.status, ["passed", "blocked"], "/status", errors);
+  requireRecord(value.policy, "/policy", errors);
+  if (isRecord(value.policy)) {
+    requireLiteral(value.policy.cloudApisUsed, false, "/policy/cloudApisUsed", errors);
+    requireLiteral(value.policy.paidApisUsed, false, "/policy/paidApisUsed", errors);
+    requireBoolean(value.policy.externalAssetsUsed, "/policy/externalAssetsUsed", errors);
+    requireLiteral(value.policy.productionUseAllowed, false, "/policy/productionUseAllowed", errors);
+    requireLiteral(value.policy.copyleftRuntimeAllowed, false, "/policy/copyleftRuntimeAllowed", errors);
+  }
+  requireRecord(value.input, "/input", errors);
+  if (isRecord(value.input)) {
+    requireString(value.input.gltfPipelineSmokeFile, "/input/gltfPipelineSmokeFile", errors);
+    requireString(value.input.blenderAssetBakeSmokeFile, "/input/blenderAssetBakeSmokeFile", errors);
+    requireString(value.input.gltfGeneratedAt, "/input/gltfGeneratedAt", errors);
+    requireString(value.input.blenderGeneratedAt, "/input/blenderGeneratedAt", errors);
+    requireBoolean(value.input.localAssetEvidenceFixtureUsed, "/input/localAssetEvidenceFixtureUsed", errors);
+  }
+  requireRecord(value.sourceEvidence, "/sourceEvidence", errors);
+  if (isRecord(value.sourceEvidence)) {
+    requireBoolean(value.sourceEvidence.gltfPipelineSmokePassed, "/sourceEvidence/gltfPipelineSmokePassed", errors);
+    requireBoolean(value.sourceEvidence.blenderBakeSmokePassed, "/sourceEvidence/blenderBakeSmokePassed", errors);
+    requireString(value.sourceEvidence.blenderSourceLicensePosture, "/sourceEvidence/blenderSourceLicensePosture", errors);
+    requireBoolean(value.sourceEvidence.placeholderBakeOnly, "/sourceEvidence/placeholderBakeOnly", errors);
+    requireBoolean(value.sourceEvidence.blenderSemanticInventoryObserved, "/sourceEvidence/blenderSemanticInventoryObserved", errors);
+    requireStringArray(value.sourceEvidence.blenderMissingRequiredObjectNames, "/sourceEvidence/blenderMissingRequiredObjectNames", errors);
+    requireStringArray(value.sourceEvidence.blockers, "/sourceEvidence/blockers", errors);
+  }
+  requireRecord(value.productionProofs, "/productionProofs", errors);
+  if (isRecord(value.productionProofs)) {
+    validateProofLanes(value.productionProofs, errors);
+  }
+  validateStationBudgetEvidence(value.stationBudgetEvidence, "/stationBudgetEvidence", errors);
+  validateGenerationEvidence(value.generationEvidence, "/generationEvidence", errors);
+  validateOptimizationEvidence(value.optimizationEvidence, "/optimizationEvidence", errors);
+  requireRecord(value.runtimeBudget, "/runtimeBudget", errors);
+  if (isRecord(value.runtimeBudget)) {
+    requireNumber(value.runtimeBudget.singleAssetPackGlbBytes, "/runtimeBudget/singleAssetPackGlbBytes", errors);
+    requireLiteral(value.runtimeBudget.targetStationBundleMb, 80, "/runtimeBudget/targetStationBundleMb", errors);
+    requireLiteral(value.runtimeBudget.maxVisibleTriangles, 180000, "/runtimeBudget/maxVisibleTriangles", errors);
+    requireLiteral(value.runtimeBudget.maxDrawCalls, 120, "/runtimeBudget/maxDrawCalls", errors);
+    requireLiteral(value.runtimeBudget.maxTextureMemoryMb, 512, "/runtimeBudget/maxTextureMemoryMb", errors);
+    requireBoolean(value.runtimeBudget.multiActorBudgetObserved, "/runtimeBudget/multiActorBudgetObserved", errors);
+    requireStringArray(value.runtimeBudget.blockers, "/runtimeBudget/blockers", errors);
+  }
+  requireRecord(value.claimBoundaries, "/claimBoundaries", errors);
+  if (isRecord(value.claimBoundaries)) {
+    requireBoolean(value.claimBoundaries.localAssetEvidenceFixtureIsContractOnly, "/claimBoundaries/localAssetEvidenceFixtureIsContractOnly", errors);
+    requireBoolean(
+      value.claimBoundaries.artifactBackedProductionAssetEvidenceObserved,
+      "/claimBoundaries/artifactBackedProductionAssetEvidenceObserved",
+      errors,
+    );
+    requireStringArray(value.claimBoundaries.allowedClaims, "/claimBoundaries/allowedClaims", errors);
+    requireStringArray(value.claimBoundaries.notEvidenceFor, "/claimBoundaries/notEvidenceFor", errors);
+  }
+  requireRecord(value.verdict, "/verdict", errors);
+  if (isRecord(value.verdict)) {
+    requireBoolean(value.verdict.passed, "/verdict/passed", errors);
+    requireLiteral(value.verdict.readyForProductionAssets, false, "/verdict/readyForProductionAssets", errors);
+    requireStringArray(value.verdict.blockers, "/verdict/blockers", errors);
+    requireStringArray(value.verdict.caveats, "/verdict/caveats", errors);
+  }
+  validateConsistency(value, errors);
+
+  return errors.length === 0 ? { ok: true } : { ok: false, errors };
+}
+
 function buildClaimBoundaries(
   localAssetEvidenceFixtureIsContractOnly: boolean,
   sourceEvidence: AssetProductionReadinessReport["sourceEvidence"],
@@ -347,6 +457,191 @@ function buildClaimBoundaries(
       "artifact-backed Quest 3 production bundle budget",
     ],
   };
+}
+
+function validateProofLanes(value: Record<string, unknown>, errors: string[]): void {
+  for (const laneId of proofLaneIds) {
+    if (!(laneId in value)) {
+      errors.push(`/productionProofs must include proof lane ${laneId}`);
+      continue;
+    }
+    validateProofLane(value[laneId], `/productionProofs/${laneId}`, errors);
+  }
+}
+
+function validateProofLane(value: unknown, pathName: string, errors: string[]): void {
+  requireRecord(value, pathName, errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireBoolean(value.observed, `${pathName}/observed`, errors);
+  requireStringArray(value.requiredEvidence, `${pathName}/requiredEvidence`, errors);
+  requireStringArray(value.blockers, `${pathName}/blockers`, errors);
+}
+
+function validateStationBudgetEvidence(value: unknown, pathName: string, errors: string[]): void {
+  requireRecord(value, pathName, errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireString(value.scenarioId, `${pathName}/scenarioId`, errors);
+  requireString(value.source, `${pathName}/source`, errors);
+  requireNumber(value.requiredAssetCount, `${pathName}/requiredAssetCount`, errors);
+  requireRecord(value.budget, `${pathName}/budget`, errors);
+  if (isRecord(value.budget)) {
+    requireNumber(value.budget.maxVisibleTriangles, `${pathName}/budget/maxVisibleTriangles`, errors);
+    requireNumber(value.budget.maxTextureMegabytes, `${pathName}/budget/maxTextureMegabytes`, errors);
+    requireNumber(value.budget.maxDrawCalls, `${pathName}/budget/maxDrawCalls`, errors);
+    requireNumber(value.budget.totalTriangles, `${pathName}/budget/totalTriangles`, errors);
+    requireNumber(value.budget.totalTextureMegabytes, `${pathName}/budget/totalTextureMegabytes`, errors);
+    requireNumber(value.budget.totalDrawCalls, `${pathName}/budget/totalDrawCalls`, errors);
+    requireStringArray(value.budget.blockers, `${pathName}/budget/blockers`, errors);
+  }
+  requireBoolean(value.placeholderOnly, `${pathName}/placeholderOnly`, errors);
+  requireBoolean(value.observed, `${pathName}/observed`, errors);
+  requireStringArray(value.blockers, `${pathName}/blockers`, errors);
+}
+
+function validateGenerationEvidence(value: unknown, pathName: string, errors: string[]): void {
+  requireRecord(value, pathName, errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireBoolean(value.generatedHumanRiggingObserved, `${pathName}/generatedHumanRiggingObserved`, errors);
+  requireBoolean(value.skinClothingProvenanceObserved, `${pathName}/skinClothingProvenanceObserved`, errors);
+  requireBoolean(value.medicalEquipmentLibraryObserved, `${pathName}/medicalEquipmentLibraryObserved`, errors);
+  requireBoolean(value.animationRetargetingObserved, `${pathName}/animationRetargetingObserved`, errors);
+  requireBoolean(value.placeholderOnly, `${pathName}/placeholderOnly`, errors);
+  requireStringArray(value.blockers, `${pathName}/blockers`, errors);
+}
+
+function validateOptimizationEvidence(value: unknown, pathName: string, errors: string[]): void {
+  requireRecord(value, pathName, errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireBoolean(value.lodTiersObserved, `${pathName}/lodTiersObserved`, errors);
+  requireBoolean(value.textureCompressionBudgetObserved, `${pathName}/textureCompressionBudgetObserved`, errors);
+  requireBoolean(value.colliderSimplificationObserved, `${pathName}/colliderSimplificationObserved`, errors);
+  requireBoolean(value.placeholderOnly, `${pathName}/placeholderOnly`, errors);
+  requireStringArray(value.blockers, `${pathName}/blockers`, errors);
+}
+
+function validateConsistency(value: Record<string, unknown>, errors: string[]): void {
+  if (!isRecord(value.verdict)) {
+    return;
+  }
+
+  const expectedBlockers = expectedReadinessBlockers(value);
+  if (Array.isArray(value.verdict.blockers)) {
+    const verdictBlockers = new Set(value.verdict.blockers);
+    for (const blocker of expectedBlockers) {
+      if (!verdictBlockers.has(blocker)) {
+        errors.push(`/verdict/blockers must include ${blocker}`);
+      }
+    }
+  }
+}
+
+function expectedReadinessBlockers(value: Record<string, unknown>): string[] {
+  const sourceEvidence = isRecord(value.sourceEvidence) ? value.sourceEvidence : {};
+  const proofs = isRecord(value.productionProofs) ? value.productionProofs : {};
+  const stationBudgetEvidence = isRecord(value.stationBudgetEvidence) ? value.stationBudgetEvidence : {};
+  const generationEvidence = isRecord(value.generationEvidence) ? value.generationEvidence : {};
+  const optimizationEvidence = isRecord(value.optimizationEvidence) ? value.optimizationEvidence : {};
+  const runtimeBudget = isRecord(value.runtimeBudget) ? value.runtimeBudget : {};
+  const claimBoundaries = isRecord(value.claimBoundaries) ? value.claimBoundaries : {};
+
+  return [
+    ...stringArray(sourceEvidence.blockers).map((blocker) => `source:${blocker}`),
+    claimBoundaries.localAssetEvidenceFixtureIsContractOnly === true ? "artifact_backed_production_asset_evidence_missing" : undefined,
+    stationBudgetEvidence.placeholderOnly === true ? "station_budget:placeholder_asset_budget_only" : undefined,
+    generationEvidence.placeholderOnly === true ? "generation:placeholder_asset_generation_only" : undefined,
+    optimizationEvidence.placeholderOnly === true ? "optimization:placeholder_asset_optimization_only" : undefined,
+    ...proofBlockers(proofs.generatedHumanRigging, "generation"),
+    ...proofBlockers(proofs.skinClothingProvenance, "generation"),
+    ...proofBlockers(proofs.medicalEquipmentLibrary, "generation"),
+    ...proofBlockers(proofs.animationRetargeting, "generation"),
+    ...proofBlockers(proofs.lodTextureColliderBudget, "optimization"),
+    ...stringArray(runtimeBudget.blockers).map((blocker) => `runtime:${blocker}`),
+  ].filter((blocker): blocker is string => typeof blocker === "string");
+}
+
+function proofBlockers(value: unknown, prefix: string): string[] {
+  return isRecord(value) ? stringArray(value.blockers).map((blocker) => `${prefix}:${blocker}`) : [];
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function requireRecord(value: unknown, pathName: string, errors: string[]): void {
+  if (!isRecord(value)) {
+    errors.push(`${pathName} must be object`);
+  }
+}
+
+function requireString(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "string" || value.length === 0) {
+    errors.push(`${pathName} must be non-empty string`);
+  }
+}
+
+function requireStringArray(value: unknown, pathName: string, errors: string[]): void {
+  if (!Array.isArray(value)) {
+    errors.push(`${pathName} must be array`);
+    return;
+  }
+
+  value.forEach((entry, index) => {
+    if (typeof entry !== "string" || entry.length === 0) {
+      errors.push(`${pathName}/${index} must be non-empty string`);
+    }
+  });
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((entry): entry is string => typeof entry === "string")
+    : [];
+}
+
+function requireBoolean(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "boolean") {
+    errors.push(`${pathName} must be boolean`);
+  }
+}
+
+function requireNumber(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    errors.push(`${pathName} must be finite number`);
+  }
+}
+
+function requireLiteral<T extends string | boolean | number>(
+  value: unknown,
+  literal: T,
+  pathName: string,
+  errors: string[],
+): void {
+  if (value !== literal) {
+    errors.push(`${pathName} must be ${JSON.stringify(literal)}`);
+  }
+}
+
+function requireOneOf<T extends string>(
+  value: unknown,
+  allowed: readonly T[],
+  pathName: string,
+  errors: string[],
+): void {
+  if (typeof value !== "string" || !(allowed as readonly string[]).includes(value)) {
+    errors.push(`${pathName} must be one of ${allowed.map((entry) => JSON.stringify(entry)).join(", ")}`);
+  }
 }
 
 function buildEdChestPainStationBudgetEvidence(inputManifests?: readonly AssetManifest[]): StationBudgetEvidence {

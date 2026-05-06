@@ -26,6 +26,10 @@ import {
   validateAssetProductionEvidenceLadderReport,
   type AssetProductionEvidenceLadderReport,
 } from "../openclinxr/asset-production-evidence-ladder.js";
+import {
+  validateAssetProductionReadinessReport,
+  type AssetProductionReadinessReport,
+} from "../openclinxr/asset-production-readiness-benchmark.js";
 import type { LocalMoshiRuntimePackageEvidenceReport } from "../openclinxr/local-moshi-runtime-package-evidence.js";
 import type { LocalQwenTtsRuntimeSmokeReport } from "../openclinxr/local-qwen-tts-runtime-smoke.js";
 import type { GodotProjectImportCheck } from "../openclinxr/godot-project-import-check.js";
@@ -102,54 +106,7 @@ type BlenderAssetBakeSmokeReport = {
   };
 };
 
-type AssetProductionReadinessBenchmarkReport = {
-  generatedAt: string;
-  status: string;
-  input?: {
-    localAssetEvidenceFixtureUsed?: boolean;
-  };
-  sourceEvidence: {
-    gltfPipelineSmokePassed: boolean;
-    blenderBakeSmokePassed: boolean;
-    placeholderBakeOnly: boolean;
-    blockers: string[];
-  };
-  productionProofs: Record<string, { observed: boolean; blockers: string[] }>;
-  generationEvidence?: {
-    generatedHumanRiggingObserved: boolean;
-    skinClothingProvenanceObserved: boolean;
-    medicalEquipmentLibraryObserved: boolean;
-    animationRetargetingObserved: boolean;
-    placeholderOnly: boolean;
-    blockers: string[];
-  };
-  optimizationEvidence?: {
-    lodTiersObserved: boolean;
-    textureCompressionBudgetObserved: boolean;
-    colliderSimplificationObserved: boolean;
-    placeholderOnly: boolean;
-    blockers: string[];
-  };
-  stationBudgetEvidence?: {
-    scenarioId: string;
-    source: string;
-    requiredAssetCount: number;
-    placeholderOnly: boolean;
-    observed: boolean;
-    blockers: string[];
-    budget: Record<string, unknown>;
-  };
-  runtimeBudget: {
-    multiActorBudgetObserved: boolean;
-    blockers: string[];
-  };
-  verdict: {
-    passed: boolean;
-    readyForProductionAssets?: boolean;
-    blockers: string[];
-    caveats: string[];
-  };
-};
+type AssetProductionReadinessBenchmarkReport = AssetProductionReadinessReport;
 
 type LocalProviderBenchmarkReport = {
   generatedAt: string;
@@ -966,6 +923,9 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
   const visualQaEvidenceReport = visualQaEvidence
     ? visualQaEvidenceToReport(visualQaEvidence)
     : undefined;
+  const assetProductionReadinessBenchmarkValid = assetProductionReadinessBenchmark
+    ? validateAssetProductionReadinessReport(assetProductionReadinessBenchmark.value).ok
+    : false;
   const evidenceFreshness = buildEvidenceFreshnessReport({
     questSmoke,
     localRuntime,
@@ -1116,18 +1076,18 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
       && validateAssetCapabilityJobEvidenceReport(assetCapabilityJobEvidence.value).ok
       ? "asset_production_capability_job_contract_observed"
       : undefined,
-    assetProductionReadinessBenchmark ? "asset_production_readiness_report_present" : undefined,
-    assetProductionReadinessBenchmark?.value.sourceEvidence.gltfPipelineSmokePassed && assetProductionReadinessBenchmark.value.sourceEvidence.blenderBakeSmokePassed ? "asset_production_source_smokes_passed" : undefined,
-    assetProductionReadinessBenchmark?.value.generationEvidence?.generatedHumanRiggingObserved ? "asset_production_generated_human_rigging_observed" : undefined,
-    assetProductionReadinessBenchmark?.value.generationEvidence?.skinClothingProvenanceObserved ? "asset_production_skin_clothing_provenance_observed" : undefined,
-    assetProductionReadinessBenchmark?.value.generationEvidence?.medicalEquipmentLibraryObserved ? "asset_production_medical_equipment_library_observed" : undefined,
-    assetProductionReadinessBenchmark?.value.generationEvidence?.animationRetargetingObserved ? "asset_production_animation_retargeting_observed" : undefined,
-    assetProductionReadinessBenchmark?.value.optimizationEvidence?.lodTiersObserved ? "asset_production_lod_tiers_observed" : undefined,
-    assetProductionReadinessBenchmark?.value.optimizationEvidence?.textureCompressionBudgetObserved ? "asset_production_texture_compression_budget_observed" : undefined,
-    assetProductionReadinessBenchmark?.value.optimizationEvidence?.colliderSimplificationObserved ? "asset_production_collider_simplification_observed" : undefined,
-    assetProductionReadinessBenchmark?.value.runtimeBudget.multiActorBudgetObserved ? "asset_production_multi_actor_quest_budget_observed" : undefined,
-    assetProductionReadinessBenchmark?.value.verdict.passed ? "asset_production_readiness_benchmark_passed" : undefined,
-    assetProductionReadinessBenchmark?.value.input?.localAssetEvidenceFixtureUsed
+    assetProductionReadinessBenchmarkValid ? "asset_production_readiness_report_present" : undefined,
+    assetProductionReadinessBenchmarkValid && assetProductionReadinessBenchmark?.value.sourceEvidence.gltfPipelineSmokePassed && assetProductionReadinessBenchmark.value.sourceEvidence.blenderBakeSmokePassed ? "asset_production_source_smokes_passed" : undefined,
+    assetProductionReadinessBenchmarkValid && assetProductionReadinessBenchmark?.value.generationEvidence?.generatedHumanRiggingObserved ? "asset_production_generated_human_rigging_observed" : undefined,
+    assetProductionReadinessBenchmarkValid && assetProductionReadinessBenchmark?.value.generationEvidence?.skinClothingProvenanceObserved ? "asset_production_skin_clothing_provenance_observed" : undefined,
+    assetProductionReadinessBenchmarkValid && assetProductionReadinessBenchmark?.value.generationEvidence?.medicalEquipmentLibraryObserved ? "asset_production_medical_equipment_library_observed" : undefined,
+    assetProductionReadinessBenchmarkValid && assetProductionReadinessBenchmark?.value.generationEvidence?.animationRetargetingObserved ? "asset_production_animation_retargeting_observed" : undefined,
+    assetProductionReadinessBenchmarkValid && assetProductionReadinessBenchmark?.value.optimizationEvidence?.lodTiersObserved ? "asset_production_lod_tiers_observed" : undefined,
+    assetProductionReadinessBenchmarkValid && assetProductionReadinessBenchmark?.value.optimizationEvidence?.textureCompressionBudgetObserved ? "asset_production_texture_compression_budget_observed" : undefined,
+    assetProductionReadinessBenchmarkValid && assetProductionReadinessBenchmark?.value.optimizationEvidence?.colliderSimplificationObserved ? "asset_production_collider_simplification_observed" : undefined,
+    assetProductionReadinessBenchmarkValid && assetProductionReadinessBenchmark?.value.runtimeBudget.multiActorBudgetObserved ? "asset_production_multi_actor_quest_budget_observed" : undefined,
+    assetProductionReadinessBenchmarkValid && assetProductionReadinessBenchmark?.value.verdict.passed ? "asset_production_readiness_benchmark_passed" : undefined,
+    assetProductionReadinessBenchmarkValid && assetProductionReadinessBenchmark?.value.input?.localAssetEvidenceFixtureUsed
       ? "asset_production_local_fixture_contract_slots_observed"
       : undefined,
     localProviderBenchmark?.value.verdict.deterministicMocksPassed ? "local_provider_mock_benchmarks_passed" : undefined,
@@ -2539,14 +2499,15 @@ function assetProductionBlockers(
   assetProductionReadinessBenchmark: EvidenceFile<AssetProductionReadinessBenchmarkReport> | undefined,
 ): string[] {
   if (assetProductionReadinessBenchmark) {
+    if (!validateAssetProductionReadinessReport(assetProductionReadinessBenchmark.value).ok) {
+      return ["asset_production:invalid_asset_production_readiness_benchmark_report"];
+    }
     return unique([
       ...assetProductionReadinessBenchmark.value.verdict.blockers.map((blocker) => `asset_production:${blocker}`),
       ...(assetProductionReadinessBenchmark.value.input?.localAssetEvidenceFixtureUsed
         ? ["asset_production:artifact_backed_production_asset_evidence_missing"]
         : []),
-      ...(assetProductionReadinessBenchmark.value.verdict.readyForProductionAssets === true
-        ? []
-        : ["asset_production:not_ready_for_production_assets"]),
+      "asset_production:not_ready_for_production_assets",
     ]);
   }
 
