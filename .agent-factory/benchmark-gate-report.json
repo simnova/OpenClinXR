@@ -196,7 +196,7 @@
       "evidence_id": "api_bun_python_proxy_runtime_smoke",
       "file": "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-06T01:52:40.346Z",
-      "age_hours": 14,
+      "age_hours": 15,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -204,7 +204,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T16:49:51.110Z",
+      "generated_at": "2026-05-06T16:54:44.827Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -1764,7 +1764,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T16:49:51.110Z",
+    "generated_at": "2026-05-06T16:54:44.827Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,

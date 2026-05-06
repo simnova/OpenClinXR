@@ -307,6 +307,7 @@ Do not treat a successful conversion command as proof of runtime readiness. Runt
 
 Current machine-readable production-asset evidence:
 
+- `pnpm asset:gltf:smoke:validate`
 - `pnpm asset:blender:bake:validate`
 - `pnpm asset:production:readiness -- --use-local-asset-evidence-fixture --output docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json`
 - `pnpm asset:capability:evidence:validate`
