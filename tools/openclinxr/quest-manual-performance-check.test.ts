@@ -942,6 +942,40 @@ describe("Quest manual performance checker", () => {
     ]));
   });
 
+  it("blocks locomotion readiness when operator notes contradict the structured movement evidence", () => {
+    const report = completedQuestManualReport();
+    report.runContext = {
+      ...report.runContext,
+      notes: "The headset experience was smooth, but no locomotion was available beyond physical movement.",
+    };
+    report.input = {
+      ...report.input,
+      activeLocomotionSource: "xr_hand_gesture",
+      locomotionAttempt: "runtime_event_observed",
+      lastLocomotionAtMs: 60_000,
+      locomotionDelta: {
+        from: { x: 0, z: 0, yawRadians: 0 },
+        to: { x: 0.2, z: -0.3, yawRadians: 0 },
+        delta: { x: 0.2, z: -0.3, yawRadians: 0 },
+        distanceMeters: 0.361,
+        turnRadians: 0,
+      },
+    };
+
+    const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-contradictory-locomotion.json", report);
+
+    expect(check.readyToClaimFramePacing).toBe(false);
+    expect(check.blockers).toEqual(expect.arrayContaining([
+      "operator_notes_contradict_locomotion_evidence",
+    ]));
+    expect(check.adversarialFindings).toEqual(expect.arrayContaining([
+      "operator_notes_contradict_locomotion_evidence",
+    ]));
+    expect(check.nextSteps).toEqual(expect.arrayContaining([
+      "Reconcile operator locomotion notes with activeLocomotionSource, lastLocomotionAtMs, and locomotionDelta from the same headset run.",
+    ]));
+  });
+
   it("records adversarial evidence-quality findings from a short worn-headset hand-tracking run", () => {
     const report: QuestManualPerformanceReport = {
       generatedAt: "2026-05-04T20:36:00.000Z",

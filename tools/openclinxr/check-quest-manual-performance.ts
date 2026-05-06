@@ -419,6 +419,8 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
   const currentFullVrLocomotionPosture = report.experience?.locomotionPosture === expectedFullVrLocomotionPosture;
   const headsetInputObserved = hasObservedHeadsetInput(report.input);
   const locomotionObserved = hasObservedLocomotion(report.input);
+  const operatorNotesContradictLocomotionEvidence = locomotionObserved
+    && notesContradictLocomotion(report.runContext?.notes);
   const framesObservedValid = isNonNegativeInteger(framesObserved);
   const sampleWindowSizeValid = isNonNegativeInteger(sampleWindowSize);
   const immersiveFramesObservedValid = isNonNegativeInteger(immersiveFramesObserved);
@@ -475,6 +477,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
     locomotionAttemptValid ? undefined : "locomotion_attempt_invalid",
     headsetInputObserved ? undefined : "hand_or_controller_input_not_observed",
     locomotionObserved ? undefined : "locomotion_not_observed",
+    operatorNotesContradictLocomotionEvidence ? "operator_notes_contradict_locomotion_evidence" : undefined,
     consoleErrorsAreStringArray ? undefined : "console_errors_not_string_array",
     consoleErrors.length === 0 ? undefined : "console_errors_present",
     report.performance?.source === "window.__openClinXrFrameStats" ? undefined : "performance_source_not_openclinxr_frame_stats",
@@ -533,6 +536,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
       framesObservedValid,
       heatConcern: report.comfort?.heatConcern,
       traceLatencyProxy,
+      locomotionObserved,
     }),
     ...reproducibilityEvidence.adversarialFindings,
     ...normalizedPayload.adversarialFindings,
@@ -746,6 +750,7 @@ function buildAdversarialFindings(input: {
   framesObservedValid: boolean;
   heatConcern: boolean | null | undefined;
   traceLatencyProxy: QuestManualPerformanceReport["traceLatencyProxy"];
+  locomotionObserved: boolean;
 }): string[] {
   const notes = input.report.runContext?.notes ?? "";
   const handTrackingPosture = input.report.experience?.handTrackingPosture ?? "";
@@ -799,6 +804,7 @@ function buildAdversarialFindings(input: {
     locomotionModeDeclared && locomotionEventMissing ? "locomotion_mode_declared_without_locomotion_event" : undefined,
     locomotionSourceDeclared && !locomotionEventMissing && locomotionDeltaMissing ? "locomotion_source_without_rig_delta" : undefined,
     handGestureTimestampWithoutActiveSource ? "hand_gesture_locomotion_timestamp_without_active_source" : undefined,
+    input.locomotionObserved && notesContradictLocomotion(notes) ? "operator_notes_contradict_locomotion_evidence" : undefined,
     immersiveWithNoFrameStats ? "immersive_session_started_but_frame_stats_empty" : undefined,
     traceLatencyProxy
     && isKnownTraceLatencySource(traceLatencyProxy.source)
@@ -871,6 +877,8 @@ function questManualNextStepForAdversarialFinding(finding: string): string {
       return "Record locomotionDelta from the same accepted rig movement event as the active locomotion source.";
     case "hand_gesture_locomotion_timestamp_without_active_source":
       return "Re-copy the Quest evidence after deliberate hand-gesture locomotion is armed and active, or clear the locomotion timestamp.";
+    case "operator_notes_contradict_locomotion_evidence":
+      return "Reconcile operator locomotion notes with activeLocomotionSource, lastLocomotionAtMs, and locomotionDelta from the same headset run.";
     case "immersive_session_started_but_frame_stats_empty":
       return "Keep the headset foreground for a longer run and verify window.__openClinXrFrameStats increments while immersive mode is active.";
     case "trace_latency_proxy_not_measured":
@@ -949,6 +957,8 @@ function questManualNextStepForBlocker(blocker: string): string {
       return "Observe at least one foreground headset hand or controller interaction.";
     case "locomotion_not_observed":
       return "Observe thumbstick, hand-gesture, or room-scale locomotion and record lastLocomotionAtMs.";
+    case "operator_notes_contradict_locomotion_evidence":
+      return "Reconcile operator locomotion notes with activeLocomotionSource, lastLocomotionAtMs, and locomotionDelta from the same headset run.";
     case "console_errors_not_string_array":
       return "Record consoleErrors as an array of strings.";
     case "console_errors_present":
@@ -1152,6 +1162,17 @@ function isSupportingTraceLatencyProxy(value: QuestManualPerformanceReport["trac
 
 function isKnownTraceLatencySource(value: string | undefined): boolean {
   return value === "dom_click_trace_button" || value === "xr_controller_select" || value === "xr_hand_select";
+}
+
+function notesContradictLocomotion(notes: string | undefined): boolean {
+  if (!notes) {
+    return false;
+  }
+
+  return /\bno\s+locomotion\b/i.test(notes)
+    || /\bloc(?:o)?motion\s+(?:was\s+)?(?:not|unavailable|absent)\b/i.test(notes)
+    || /\bno\s+movement\s+(?:occurred|available|registered)\b/i.test(notes)
+    || /\bmovement\s+(?:did\s+not|didn't)\s+(?:occur|register|work)\b/i.test(notes);
 }
 
 function buildReproducibilityEvidence(value: QuestManualPerformanceReport["reproducibility"]): {
