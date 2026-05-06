@@ -3591,42 +3591,7 @@ describe("benchmark gate report", () => {
           },
         },
       },
-      assetCapabilityJobEvidence: {
-        file: "docs/openclinxr/asset-capability-job-evidence-2026-05-04.json",
-        value: {
-          generatedAt: "2026-05-04T20:25:00.000Z",
-          status: "passed",
-          policy: {
-            cloudApisUsed: false,
-            paidApisUsed: false,
-            externalNetworkAllowed: false,
-            spendLimitCents: 0,
-            productionArtifactClaimed: false,
-          },
-          summary: {
-            allCapabilitiesObserved: true,
-            allJobsSucceeded: true,
-            allManifestsObserved: true,
-            allLicenseProvenanceObserved: true,
-            zeroSpendObserved: true,
-            noExternalNetworkObserved: true,
-            blockers: [],
-          },
-          jobs: [
-            { capabilityId: "character-generation", passed: true, blockers: [] },
-            { capabilityId: "medical-equipment-generation", passed: true, blockers: [] },
-            { capabilityId: "voice-asset-generation", passed: true, blockers: [] },
-            { capabilityId: "animation-generation", passed: true, blockers: [] },
-            { capabilityId: "asset-bake", passed: true, blockers: [] },
-          ],
-          verdict: {
-            passed: true,
-            readyForProductionAssets: false,
-            blockers: [],
-            caveats: ["Deterministic control-plane evidence only."],
-          },
-        },
-      },
+      assetCapabilityJobEvidence: passedAssetCapabilityJobEvidence("2026-05-04T20:25:00.000Z"),
     }, { now: new Date("2026-05-04T20:35:00.000Z"), maxEvidenceAgeHours: 24 });
 
     const assetGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-005");
@@ -3993,6 +3958,20 @@ describe("benchmark gate report", () => {
     const assetGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-005");
 
     expect(assetGate?.blockers).toContain("asset_production:ladder:invalid_asset_production_evidence_ladder_report");
+  });
+
+  it("flags invalid asset capability job evidence before accepting contract evidence", () => {
+    const invalidCapabilityEvidence = passedAssetCapabilityJobEvidence("2026-05-06T08:15:00.000Z");
+    invalidCapabilityEvidence.value.jobs = [];
+
+    const report = buildBenchmarkGateReport({
+      assetCapabilityJobEvidence: invalidCapabilityEvidence,
+    } as Parameters<typeof buildBenchmarkGateReport>[0], { now: new Date("2026-05-06T09:00:00.000Z"), maxEvidenceAgeHours: 24 });
+
+    const assetGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-005");
+
+    expect(assetGate?.blockers).toContain("asset_production:invalid_asset_capability_job_evidence_report");
+    expect(assetGate?.satisfied_conditions).not.toContain("asset_production_capability_job_contract_observed");
   });
 
   it("summarizes missing Blender asset evidence as an asset-pipeline group", () => {
@@ -4641,6 +4620,14 @@ describe("benchmark gate report", () => {
 function passedAssetCapabilityJobEvidence(
   generatedAt = "2026-05-04T20:25:00.000Z",
 ): NonNullable<Parameters<typeof buildBenchmarkGateReport>[0]["assetCapabilityJobEvidence"]> {
+  const capabilityIds = [
+    "character-generation",
+    "medical-equipment-generation",
+    "voice-asset-generation",
+    "animation-generation",
+    "asset-bake",
+  ] as const;
+
   return {
     file: "docs/openclinxr/asset-capability-job-evidence-2026-05-04.json",
     value: {
@@ -4654,6 +4641,8 @@ function passedAssetCapabilityJobEvidence(
         productionArtifactClaimed: false,
       },
       summary: {
+        requiredCapabilityIds: [...capabilityIds],
+        observedCapabilityIds: [...capabilityIds],
         allCapabilitiesObserved: true,
         allJobsSucceeded: true,
         allManifestsObserved: true,
@@ -4662,13 +4651,28 @@ function passedAssetCapabilityJobEvidence(
         noExternalNetworkObserved: true,
         blockers: [],
       },
-      jobs: [
-        { capabilityId: "character-generation", passed: true, blockers: [] },
-        { capabilityId: "medical-equipment-generation", passed: true, blockers: [] },
-        { capabilityId: "voice-asset-generation", passed: true, blockers: [] },
-        { capabilityId: "animation-generation", passed: true, blockers: [] },
-        { capabilityId: "asset-bake", passed: true, blockers: [] },
-      ],
+      jobs: capabilityIds.map((capabilityId, index) => ({
+        capabilityId,
+        jobId: `asset-capability-job-${String(index + 1).padStart(3, "0")}`,
+        status: "succeeded",
+        worker: {
+          providerId: `deterministic-${capabilityId}`,
+          providerKind: "deterministic-mock",
+          implementationLanguage: "typescript",
+          transport: "in-process",
+        },
+        artifactKinds: ["manifest", "source"],
+        artifactPaths: [
+          `.openclinxr/asset-generation/asset-capability-job-${String(index + 1).padStart(3, "0")}/${capabilityId}-manifest.json`,
+          `.openclinxr/asset-generation/asset-capability-job-${String(index + 1).padStart(3, "0")}/${capabilityId}-source.asset.json`,
+        ],
+        manifestObserved: true,
+        licenseProvenanceObserved: true,
+        zeroSpendObserved: true,
+        noExternalNetworkObserved: true,
+        passed: true,
+        blockers: [],
+      })),
       verdict: {
         passed: true,
         readyForProductionAssets: false,

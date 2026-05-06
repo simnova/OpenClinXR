@@ -5,9 +5,10 @@ import {
   type AssetGenerationCapabilityId,
   type AssetGenerationJobRecord,
 } from "../../packages/openclinxr/capability-gateway/src/index.js";
-import { writeJson } from "../agent-factory/lib.js";
+import { readJson, writeJson } from "../agent-factory/lib.js";
 
 type CliOptions = {
+  validatePath?: string;
   outputPath?: string;
 };
 
@@ -25,6 +26,8 @@ type AssetCapabilityJobEvidence = {
   passed: boolean;
   blockers: string[];
 };
+
+type ValidationResult = { ok: true } | { ok: false; errors: string[] };
 
 export type AssetCapabilityJobEvidenceReport = {
   generatedAt: string;
@@ -65,7 +68,25 @@ const requiredCapabilityIds: AssetGenerationCapabilityId[] = [
 ];
 
 async function main(): Promise<void> {
-  const options = parseArgs(process.argv.slice(2));
+  await runAssetCapabilityJobEvidenceCli(process.argv.slice(2));
+}
+
+export async function runAssetCapabilityJobEvidenceCli(args: string[]): Promise<void> {
+  const options = parseArgs(args);
+  if (options.validatePath) {
+    const validation = validateAssetCapabilityJobEvidenceReport(await readJson<unknown>(options.validatePath));
+    if (validation.ok) {
+      console.log(`Validated ${options.validatePath}`);
+      return;
+    }
+
+    for (const error of validation.errors) {
+      console.error(error);
+    }
+    process.exitCode = 1;
+    return;
+  }
+
   const report = await buildAssetCapabilityJobEvidenceReport();
 
   if (options.outputPath) {
@@ -83,6 +104,11 @@ function parseArgs(args: string[]): CliOptions {
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
+    if (arg === "--validate") {
+      options.validatePath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
     if (arg === "--output") {
       options.outputPath = requireValue(normalizedArgs, index, arg);
       index += 1;
@@ -177,6 +203,51 @@ export async function buildAssetCapabilityJobEvidenceReport(input: {
   };
 }
 
+export function validateAssetCapabilityJobEvidenceReport(value: unknown): ValidationResult {
+  const errors: string[] = [];
+
+  if (!isRecord(value)) {
+    return { ok: false, errors: ["/ must be object"] };
+  }
+
+  requireString(value.generatedAt, "/generatedAt", errors);
+  requireOneOf(value.status, ["passed", "blocked"], "/status", errors);
+  requireRecord(value.policy, "/policy", errors);
+  if (isRecord(value.policy)) {
+    requireLiteral(value.policy.cloudApisUsed, false, "/policy/cloudApisUsed", errors);
+    requireLiteral(value.policy.paidApisUsed, false, "/policy/paidApisUsed", errors);
+    requireLiteral(value.policy.externalNetworkAllowed, false, "/policy/externalNetworkAllowed", errors);
+    requireLiteral(value.policy.spendLimitCents, 0, "/policy/spendLimitCents", errors);
+    requireLiteral(value.policy.productionArtifactClaimed, false, "/policy/productionArtifactClaimed", errors);
+  }
+  requireRecord(value.summary, "/summary", errors);
+  if (isRecord(value.summary)) {
+    requireCapabilityIdArray(value.summary.requiredCapabilityIds, "/summary/requiredCapabilityIds", errors);
+    requireCapabilityIdArray(value.summary.observedCapabilityIds, "/summary/observedCapabilityIds", errors);
+    requireBoolean(value.summary.allCapabilitiesObserved, "/summary/allCapabilitiesObserved", errors);
+    requireBoolean(value.summary.allJobsSucceeded, "/summary/allJobsSucceeded", errors);
+    requireBoolean(value.summary.allManifestsObserved, "/summary/allManifestsObserved", errors);
+    requireBoolean(value.summary.allLicenseProvenanceObserved, "/summary/allLicenseProvenanceObserved", errors);
+    requireBoolean(value.summary.zeroSpendObserved, "/summary/zeroSpendObserved", errors);
+    requireBoolean(value.summary.noExternalNetworkObserved, "/summary/noExternalNetworkObserved", errors);
+    requireStringArray(value.summary.blockers, "/summary/blockers", errors);
+  }
+  requireArray(value.jobs, "/jobs", errors);
+  if (Array.isArray(value.jobs)) {
+    value.jobs.forEach((job, index) => validateJobEvidence(job, `/jobs/${index}`, errors));
+  }
+  requireRecord(value.verdict, "/verdict", errors);
+  if (isRecord(value.verdict)) {
+    requireBoolean(value.verdict.passed, "/verdict/passed", errors);
+    requireLiteral(value.verdict.readyForProductionAssets, false, "/verdict/readyForProductionAssets", errors);
+    requireStringArray(value.verdict.blockers, "/verdict/blockers", errors);
+    requireStringArray(value.verdict.caveats, "/verdict/caveats", errors);
+  }
+  validateConsistency(value, errors);
+
+  return errors.length === 0 ? { ok: true } : { ok: false, errors };
+}
+
 function toJobEvidence(record: AssetGenerationJobRecord): AssetCapabilityJobEvidence {
   const manifestObserved = record.manifest?.schemaVersion === "asset-generation-manifest.v1"
     && record.manifest.capabilityId === record.request.capabilityId;
@@ -205,6 +276,194 @@ function toJobEvidence(record: AssetGenerationJobRecord): AssetCapabilityJobEvid
     passed: blockers.length === 0,
     blockers,
   };
+}
+
+function validateConsistency(value: Record<string, unknown>, errors: string[]): void {
+  const summary = isRecord(value.summary) ? value.summary : undefined;
+  const jobs = Array.isArray(value.jobs) ? value.jobs.filter(isRecord) : undefined;
+  const verdict = isRecord(value.verdict) ? value.verdict : undefined;
+
+  if (summary) {
+    validateCanonicalCapabilityIds(summary.requiredCapabilityIds, "/summary/requiredCapabilityIds", errors);
+  }
+  if (jobs) {
+    validateCanonicalCapabilityIds(jobs.map((job) => job.capabilityId), "/jobs", errors);
+  }
+  if (!summary || !jobs || !verdict) {
+    return;
+  }
+
+  const passedJobs = jobs.filter((job) => job.passed === true);
+  const observedCapabilityIds = passedJobs
+    .map((job) => job.capabilityId)
+    .filter((capabilityId): capabilityId is AssetGenerationCapabilityId =>
+      typeof capabilityId === "string" && requiredCapabilityIds.includes(capabilityId as AssetGenerationCapabilityId),
+    );
+  if (!arraysEqual(summary.observedCapabilityIds, observedCapabilityIds)) {
+    errors.push("/summary/observedCapabilityIds must match passed job capability ids");
+  }
+  if (summary.allCapabilitiesObserved !== requiredCapabilityIds.every((capabilityId) => observedCapabilityIds.includes(capabilityId))) {
+    errors.push("/summary/allCapabilitiesObserved must match required capability coverage");
+  }
+  if (summary.allJobsSucceeded !== jobs.every((job) => job.status === "succeeded")) {
+    errors.push("/summary/allJobsSucceeded must match succeeded job statuses");
+  }
+  if (summary.allManifestsObserved !== jobs.every((job) => job.manifestObserved === true)) {
+    errors.push("/summary/allManifestsObserved must match job manifest evidence");
+  }
+  if (summary.allLicenseProvenanceObserved !== jobs.every((job) => job.licenseProvenanceObserved === true)) {
+    errors.push("/summary/allLicenseProvenanceObserved must match job license provenance evidence");
+  }
+  if (summary.zeroSpendObserved !== jobs.every((job) => job.zeroSpendObserved === true)) {
+    errors.push("/summary/zeroSpendObserved must match job spend evidence");
+  }
+  if (summary.noExternalNetworkObserved !== jobs.every((job) => job.noExternalNetworkObserved === true)) {
+    errors.push("/summary/noExternalNetworkObserved must match job network evidence");
+  }
+
+  const expectedVerdictBlockers = [
+    ...(Array.isArray(summary.blockers) ? summary.blockers.filter((blocker): blocker is string => typeof blocker === "string") : []),
+    ...jobs.flatMap((job) => typeof job.capabilityId === "string" && Array.isArray(job.blockers)
+      ? job.blockers
+        .filter((blocker): blocker is string => typeof blocker === "string")
+        .map((blocker) => `${job.capabilityId}:${blocker}`)
+      : []),
+  ];
+  if (Array.isArray(verdict.blockers)) {
+    const verdictBlockers = new Set(verdict.blockers);
+    for (const blocker of expectedVerdictBlockers) {
+      if (!verdictBlockers.has(blocker)) {
+        errors.push(`/verdict/blockers must include ${blocker}`);
+      }
+    }
+  }
+}
+
+function validateCanonicalCapabilityIds(value: unknown, pathName: string, errors: string[]): void {
+  if (!Array.isArray(value)) {
+    return;
+  }
+
+  const observedCapabilityIds = new Set<string>();
+  for (const capabilityId of value) {
+    if (typeof capabilityId !== "string" || !requiredCapabilityIds.includes(capabilityId as AssetGenerationCapabilityId)) {
+      continue;
+    }
+    if (observedCapabilityIds.has(capabilityId)) {
+      errors.push(`${pathName} must not repeat capability id ${capabilityId}`);
+      continue;
+    }
+    observedCapabilityIds.add(capabilityId);
+  }
+  for (const capabilityId of requiredCapabilityIds) {
+    if (!observedCapabilityIds.has(capabilityId)) {
+      errors.push(`${pathName} must include capability id ${capabilityId}`);
+    }
+  }
+}
+
+function validateJobEvidence(value: unknown, pathName: string, errors: string[]): void {
+  requireRecord(value, pathName, errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireOneOf(value.capabilityId, requiredCapabilityIds, `${pathName}/capabilityId`, errors);
+  requireString(value.jobId, `${pathName}/jobId`, errors);
+  requireOneOf(value.status, ["queued", "running", "succeeded", "failed", "canceled"], `${pathName}/status`, errors);
+  requireRecord(value.worker, `${pathName}/worker`, errors);
+  if (isRecord(value.worker)) {
+    requireString(value.worker.providerId, `${pathName}/worker/providerId`, errors);
+    requireString(value.worker.providerKind, `${pathName}/worker/providerKind`, errors);
+    requireString(value.worker.implementationLanguage, `${pathName}/worker/implementationLanguage`, errors);
+    requireString(value.worker.transport, `${pathName}/worker/transport`, errors);
+  }
+  requireStringArray(value.artifactKinds, `${pathName}/artifactKinds`, errors);
+  requireStringArray(value.artifactPaths, `${pathName}/artifactPaths`, errors);
+  requireBoolean(value.manifestObserved, `${pathName}/manifestObserved`, errors);
+  requireBoolean(value.licenseProvenanceObserved, `${pathName}/licenseProvenanceObserved`, errors);
+  requireBoolean(value.zeroSpendObserved, `${pathName}/zeroSpendObserved`, errors);
+  requireBoolean(value.noExternalNetworkObserved, `${pathName}/noExternalNetworkObserved`, errors);
+  requireBoolean(value.passed, `${pathName}/passed`, errors);
+  requireStringArray(value.blockers, `${pathName}/blockers`, errors);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function requireRecord(value: unknown, pathName: string, errors: string[]): void {
+  if (!isRecord(value)) {
+    errors.push(`${pathName} must be object`);
+  }
+}
+
+function requireArray(value: unknown, pathName: string, errors: string[]): void {
+  if (!Array.isArray(value)) {
+    errors.push(`${pathName} must be array`);
+  }
+}
+
+function requireString(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "string" || value.length === 0) {
+    errors.push(`${pathName} must be non-empty string`);
+  }
+}
+
+function requireStringArray(value: unknown, pathName: string, errors: string[]): void {
+  if (!Array.isArray(value)) {
+    errors.push(`${pathName} must be array`);
+    return;
+  }
+
+  value.forEach((entry, index) => {
+    if (typeof entry !== "string" || entry.length === 0) {
+      errors.push(`${pathName}/${index} must be non-empty string`);
+    }
+  });
+}
+
+function requireCapabilityIdArray(value: unknown, pathName: string, errors: string[]): void {
+  if (!Array.isArray(value)) {
+    errors.push(`${pathName} must be array`);
+    return;
+  }
+
+  value.forEach((entry, index) => requireOneOf(entry, requiredCapabilityIds, `${pathName}/${index}`, errors));
+}
+
+function requireBoolean(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "boolean") {
+    errors.push(`${pathName} must be boolean`);
+  }
+}
+
+function requireLiteral<T extends string | boolean | number>(
+  value: unknown,
+  literal: T,
+  pathName: string,
+  errors: string[],
+): void {
+  if (value !== literal) {
+    errors.push(`${pathName} must be ${JSON.stringify(literal)}`);
+  }
+}
+
+function requireOneOf<T extends string>(
+  value: unknown,
+  allowed: readonly T[],
+  pathName: string,
+  errors: string[],
+): void {
+  if (typeof value !== "string" || !(allowed as readonly string[]).includes(value)) {
+    errors.push(`${pathName} must be one of ${allowed.map((entry) => JSON.stringify(entry)).join(", ")}`);
+  }
+}
+
+function arraysEqual(left: unknown, right: string[]): boolean {
+  return Array.isArray(left)
+    && left.length === right.length
+    && left.every((entry, index) => entry === right[index]);
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {

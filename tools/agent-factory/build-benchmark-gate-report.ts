@@ -19,6 +19,10 @@ import type { ApiBunWebSocketRuntimeSmokeReport } from "../openclinxr/api-bun-we
 import type { ApiBunPythonProxyRuntimeSmokeReport } from "../openclinxr/api-bun-python-proxy-runtime-smoke.js";
 import type { ApiPythonBackendRuntimeSmokeReport } from "../openclinxr/api-python-backend-runtime-smoke.js";
 import {
+  validateAssetCapabilityJobEvidenceReport,
+  type AssetCapabilityJobEvidenceReport,
+} from "../openclinxr/asset-capability-job-evidence.js";
+import {
   validateAssetProductionEvidenceLadderReport,
   type AssetProductionEvidenceLadderReport,
 } from "../openclinxr/asset-production-evidence-ladder.js";
@@ -142,38 +146,6 @@ type AssetProductionReadinessBenchmarkReport = {
   verdict: {
     passed: boolean;
     readyForProductionAssets?: boolean;
-    blockers: string[];
-    caveats: string[];
-  };
-};
-
-type AssetCapabilityJobEvidenceReport = {
-  generatedAt: string;
-  status: string;
-  policy?: {
-    cloudApisUsed: boolean;
-    paidApisUsed: boolean;
-    externalNetworkAllowed: boolean;
-    spendLimitCents: number;
-    productionArtifactClaimed: boolean;
-  };
-  summary: {
-    allCapabilitiesObserved: boolean;
-    allJobsSucceeded: boolean;
-    allManifestsObserved: boolean;
-    allLicenseProvenanceObserved: boolean;
-    zeroSpendObserved: boolean;
-    noExternalNetworkObserved: boolean;
-    blockers: string[];
-  };
-  jobs: Array<{
-    capabilityId: string;
-    passed: boolean;
-    blockers: string[];
-  }>;
-  verdict: {
-    passed: boolean;
-    readyForProductionAssets: false;
     blockers: string[];
     caveats: string[];
   };
@@ -1140,7 +1112,10 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localRuntime?.value.gates.assetPipeline.status === "ready" ? "asset_pipeline_runtime_ready" : undefined,
     gltfPipelineSmoke?.value.verdict.passed ? "asset_pipeline_gltf_pipeline_smoke_passed" : undefined,
     blenderAssetBakeSmoke?.value.verdict.passed ? "asset_pipeline_blender_bake_smoke_passed" : undefined,
-    assetCapabilityJobEvidence?.value.verdict.passed ? "asset_production_capability_job_contract_observed" : undefined,
+    assetCapabilityJobEvidence?.value.verdict.passed
+      && validateAssetCapabilityJobEvidenceReport(assetCapabilityJobEvidence.value).ok
+      ? "asset_production_capability_job_contract_observed"
+      : undefined,
     assetProductionReadinessBenchmark ? "asset_production_readiness_report_present" : undefined,
     assetProductionReadinessBenchmark?.value.sourceEvidence.gltfPipelineSmokePassed && assetProductionReadinessBenchmark.value.sourceEvidence.blenderBakeSmokePassed ? "asset_production_source_smokes_passed" : undefined,
     assetProductionReadinessBenchmark?.value.generationEvidence?.generatedHumanRiggingObserved ? "asset_production_generated_human_rigging_observed" : undefined,
@@ -2616,6 +2591,9 @@ function assetCapabilityJobEvidenceBlockers(
 ): string[] {
   if (!assetCapabilityJobEvidence) {
     return ["asset_production:missing_asset_capability_job_evidence_report"];
+  }
+  if (!validateAssetCapabilityJobEvidenceReport(assetCapabilityJobEvidence.value).ok) {
+    return ["asset_production:invalid_asset_capability_job_evidence_report"];
   }
   if (assetCapabilityJobEvidence.value.verdict.passed) {
     return [];
