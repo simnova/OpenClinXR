@@ -625,6 +625,48 @@ describe("MongoDB memory repositories", () => {
     });
   });
 
+  it("returns redacted durable clinical-event review projections from Mongo replay", async () => {
+    const repository = new MongoDurableClinicalEventRepository(context.db);
+    await repository.ensureIndexes();
+
+    await repository.save({
+      ...clinicalEventOrderRequested,
+      stationRunId: "station_run_durable_clinical_event_projection_001",
+      payload: {
+        public: {
+          orderId: "order_1_ecg_request",
+          requestedOrder: "12-lead ECG",
+          hiddenFactRefs: ["fact:patient_robert_hayes_v1:1"],
+          nested: {
+            displayHint: "show ECG result after completion",
+            serverOnlyNotes: ["Do not show this reviewer projection."],
+          },
+        },
+        private: {
+          hiddenFactRefs: ["fact:patient_robert_hayes_v1:1"],
+          serverOnlyNotes: ["Recent cocaine use remains hidden until elicited."],
+        },
+      },
+    });
+
+    await expect(repository.listReviewProjectionsByStationRunId("station_run_durable_clinical_event_projection_001"))
+      .resolves.toEqual([
+        expect.objectContaining({
+          clinicalEventId: "event_001_ecg_order",
+          stationRunId: "station_run_durable_clinical_event_projection_001",
+          payload: {
+            orderId: "order_1_ecg_request",
+            requestedOrder: "12-lead ECG",
+            nested: {
+              displayHint: "show ECG result after completion",
+            },
+          },
+          privatePayloadRedacted: true,
+          durableStore: "database_source_of_truth",
+        }),
+      ]);
+  });
+
   it("adds clinical-event methods to the Mongo durable multi-actor session store without overloading actor turns", async () => {
     const store: AsyncDurableMultiActorSessionStore = createMongoDurableMultiActorSessionStore(context.db);
     await store.ensureIndexes?.();

@@ -79,7 +79,7 @@ This proves the intended separation:
 - Recent turn refs point back to durable turn ids.
 - Spatial transforms stay in the realtime snapshot, not in the durable conversation record.
 
-The durable clinical-event replay flow stores package-local event-log records keyed by `clinicalEventId`, upserts repeated saves idempotently, and replays events by `stationRunId` in deterministic `atSecond` plus id order. The public review projection exposes `payload.public` and redacts `payload.private`, so hidden clinical truth, hidden-fact refs, and server-only actor notes do not leak into reviewer-facing projections.
+The durable clinical-event replay flow stores package-local event-log records keyed by `clinicalEventId`, upserts repeated saves idempotently, and replays events by `stationRunId` in deterministic `atSecond` plus id order. The raw Mongo replay remains an internal durable-store path. `MongoDurableClinicalEventRepository.listReviewProjectionsByStationRunId()` is the reviewer-facing path and maps stored events through the session-state redaction helper, so hidden clinical truth, hidden-fact refs, nested private-looking keys, and server-only actor notes do not leak into review projections.
 
 ## Follow-Up Direction
 

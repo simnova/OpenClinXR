@@ -2,10 +2,12 @@ import type { ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-sche
 import type { ExamForm, ExamStationRunQueue } from "@openclinxr/exam-assembly";
 import type {
   AsyncDurableMultiActorSessionStore,
+  DurableClinicalEventReviewProjection,
   DurableClinicalEventRecord,
   DurableConversationTurnRecord,
   DurableEmotionalStateTimelineRecord,
 } from "@openclinxr/session-state";
+import { projectDurableClinicalEventForReview } from "@openclinxr/session-state";
 import type { Collection, Db } from "mongodb";
 
 export type ExamStationRunQueueSnapshot = {
@@ -111,6 +113,11 @@ export class MongoDurableClinicalEventRepository {
     return this.collection.find({ stationRunId }, { projection: { _id: 0 } })
       .sort({ atSecond: 1, clinicalEventId: 1 })
       .toArray();
+  }
+
+  async listReviewProjectionsByStationRunId(stationRunId: string): Promise<DurableClinicalEventReviewProjection[]> {
+    const records = await this.listByStationRunId(stationRunId);
+    return records.map(projectDurableClinicalEventForReview);
   }
 }
 
