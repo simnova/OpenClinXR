@@ -10,7 +10,7 @@ import {
 } from "../../apps/mock-realtime-voice-server/src/index.js";
 import { createOpenClinXrApiProtocolPosture, type OpenClinXrApiProtocolPosture } from "../../apps/api/src/index.js";
 import { realtimeVoiceProtocol } from "../../packages/openclinxr/voice-gateway/src/index.js";
-import { readJson, writeJson } from "../agent-factory/lib.js";
+import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 import type { LocalQwenTtsRuntimeSmokeReport } from "./local-qwen-tts-runtime-smoke.js";
 
 const execFileAsync = promisify(execFile);
@@ -21,6 +21,8 @@ type CliOptions = {
   apiBunWebSocketRuntimeSmokePath?: string;
   apiBunPythonProxyRuntimeSmokePath?: string;
   localQwenTtsRuntimeSmokePath?: string;
+  validatePath?: string;
+  validateLatest: boolean;
 };
 
 type ApiBunWebSocketRuntimeSmokeEvidence = {
@@ -155,6 +157,8 @@ type LocalQwenTtsRuntimeSmokeSummary = {
   blockers: string[];
 };
 
+type ValidationResult = { ok: true } | { ok: false; errors: string[] };
+
 export type RealtimeVoiceTransportSpikeReport = {
   generatedAt: string;
   status: "transport_spike_passed" | "blocked";
@@ -248,8 +252,27 @@ export type RealtimeVoiceTransportSpikeReport = {
   };
 };
 
-async function main(): Promise<void> {
-  const options = parseArgs(process.argv.slice(2));
+export async function main(args = process.argv.slice(2)): Promise<void> {
+  await runRealtimeVoiceTransportSpikeCli(args);
+}
+
+export async function runRealtimeVoiceTransportSpikeCli(args: string[]): Promise<void> {
+  const options = parseArgs(args);
+  if (options.validatePath || options.validateLatest) {
+    const validatePath = options.validatePath ?? await latestRealtimeVoiceTransportSpikePath();
+    const validation = validateRealtimeVoiceTransportSpikeReport(await readJson<unknown>(validatePath));
+    if (validation.ok) {
+      console.log(`Validated ${validatePath}`);
+      return;
+    }
+
+    for (const error of validation.errors) {
+      console.error(error);
+    }
+    process.exitCode = 1;
+    return;
+  }
+
   const apiPythonBackendRuntimeSmoke = options.apiPythonBackendRuntimeSmokePath
     ? await readJson<ApiPythonBackendRuntimeSmokeEvidence>(options.apiPythonBackendRuntimeSmokePath)
     : undefined;
@@ -280,10 +303,19 @@ async function main(): Promise<void> {
 
 function parseArgs(args: string[]): CliOptions {
   const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
-  const options: CliOptions = {};
+  const options: CliOptions = { validateLatest: false };
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
+    if (arg === "--validate") {
+      options.validatePath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--validate-latest") {
+      options.validateLatest = true;
+      continue;
+    }
     if (arg === "--output") {
       options.outputPath = requireValue(normalizedArgs, index, arg);
       index += 1;
@@ -321,6 +353,405 @@ function requireValue(args: string[], index: number, flag: string): string {
     throw new Error(`${flag} requires a value`);
   }
   return value;
+}
+
+async function latestRealtimeVoiceTransportSpikePath(): Promise<string> {
+  const files = await globFiles("docs/openclinxr/realtime-voice-transport-spike-*.json");
+  const latest = files.sort().at(-1);
+  if (!latest) {
+    throw new Error("No realtime voice transport spike report found.");
+  }
+  return latest;
+}
+
+export function validateRealtimeVoiceTransportSpikeReport(value: unknown): ValidationResult {
+  const errors: string[] = [];
+  if (!isRecord(value)) {
+    return { ok: false, errors: ["/ must be object"] };
+  }
+
+  requireString(value.generatedAt, "/generatedAt", errors);
+  requireOneOf(value.status, ["transport_spike_passed", "blocked"], "/status", errors);
+
+  requireRecord(value.policy, "/policy", errors);
+  if (isRecord(value.policy)) {
+    requireLiteral(value.policy.cloudApisUsed, false, "/policy/cloudApisUsed", errors);
+    requireLiteral(value.policy.paidApisUsed, false, "/policy/paidApisUsed", errors);
+    requireLiteral(value.policy.modelDownloadsPerformed, false, "/policy/modelDownloadsPerformed", errors);
+    requireLiteral(value.policy.productionUseAllowed, false, "/policy/productionUseAllowed", errors);
+  }
+
+  validateArchitecture(value.architecture, errors);
+  validateProtocolEvidence(value.protocolEvidence, errors);
+  validatePythonBackendVerifier(value.pythonBackendVerifier, errors);
+  if (value.pythonBackendRuntimeSmoke !== undefined) {
+    validatePythonBackendRuntimeSmoke(value.pythonBackendRuntimeSmoke, errors);
+  }
+  if (value.apiBunWebSocketRuntimeSmoke !== undefined) {
+    validateApiBunWebSocketRuntimeSmoke(value.apiBunWebSocketRuntimeSmoke, errors);
+  }
+  if (value.apiBunPythonProxyRuntimeSmoke !== undefined) {
+    validateApiBunPythonProxyRuntimeSmoke(value.apiBunPythonProxyRuntimeSmoke, errors);
+  }
+  if (value.localQwenTtsRuntimeSmoke !== undefined) {
+    validateLocalQwenTtsRuntimeSmokeSummary(value.localQwenTtsRuntimeSmoke, errors);
+  }
+  if (value.apiBunRuntimeEvidence !== undefined) {
+    validateApiBunRuntimeEvidence(value.apiBunRuntimeEvidence, errors);
+  }
+  validateQuestClientSourceContract(value.questClientSourceContract, errors);
+  validateHarness(value.harness, errors);
+  validateRealtimeTransportVerdict(value.verdict, errors);
+  validateRealtimeTransportConsistency(value, errors);
+
+  return errors.length === 0 ? { ok: true } : { ok: false, errors };
+}
+
+function validateArchitecture(value: unknown, errors: string[]): void {
+  requireRecord(value, "/architecture", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireRecord(value.questClient, "/architecture/questClient", errors);
+  if (isRecord(value.questClient)) {
+    requireLiteral(value.questClient.target, "quest3-godot", "/architecture/questClient/target", errors);
+    requireLiteral(value.questClient.transport, "websocket-binary-frames", "/architecture/questClient/transport", errors);
+    requireLiteral(value.questClient.codecContract, "opus-frame-contract", "/architecture/questClient/codecContract", errors);
+    requireString(value.questClient.note, "/architecture/questClient/note", errors);
+  }
+  requireRecord(value.gateway, "/architecture/gateway", errors);
+  if (isRecord(value.gateway)) {
+    requireLiteral(value.gateway.target, "apps/api bun+hono", "/architecture/gateway/target", errors);
+    requireLiteral(value.gateway.verifiedLocalFallback, "apps/mock-realtime-voice-server node+hono+ws", "/architecture/gateway/verifiedLocalFallback", errors);
+    requireLiteral(value.gateway.websocketPath, "/voice/realtime/ws", "/architecture/gateway/websocketPath", errors);
+  }
+  requireRecord(value.pythonBackend, "/architecture/pythonBackend", errors);
+  if (isRecord(value.pythonBackend)) {
+    requireLiteral(value.pythonBackend.appPath, "apps/api-python-backend", "/architecture/pythonBackend/appPath", errors);
+    requireLiteral(value.pythonBackend.target, "fastapi-uvicorn-websocket", "/architecture/pythonBackend/target", errors);
+    requireLiteral(value.pythonBackend.websocketPath, "/voice/realtime/ws", "/architecture/pythonBackend/websocketPath", errors);
+  }
+  if (!Array.isArray(value.inferenceCandidates)) {
+    errors.push("/architecture/inferenceCandidates must be array");
+    return;
+  }
+  const candidateIds = new Set<string>();
+  value.inferenceCandidates.forEach((candidate, index) => {
+    if (!isRecord(candidate)) {
+      errors.push(`/architecture/inferenceCandidates/${index} must be object`);
+      return;
+    }
+    requireOneOf(candidate.id, ["moshi-mlx", "qwen3-tts"], `/architecture/inferenceCandidates/${index}/id`, errors);
+    requireString(candidate.fit, `/architecture/inferenceCandidates/${index}/fit`, errors);
+    requireBoolean(candidate.executionObserved, `/architecture/inferenceCandidates/${index}/executionObserved`, errors);
+    if (typeof candidate.id === "string") {
+      candidateIds.add(candidate.id);
+    }
+  });
+  for (const id of ["moshi-mlx", "qwen3-tts"]) {
+    if (!candidateIds.has(id)) {
+      errors.push(`/architecture/inferenceCandidates missing ${id}`);
+    }
+  }
+}
+
+function validateProtocolEvidence(value: unknown, errors: string[]): void {
+  requireRecord(value, "/protocolEvidence", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireLiteral(value.websocketLocalHarnessObserved, true, "/protocolEvidence/websocketLocalHarnessObserved", errors);
+  requireBoolean(value.bunHonoRuntimeObserved, "/protocolEvidence/bunHonoRuntimeObserved", errors);
+  requireLiteral(value.webTransportObserved, false, "/protocolEvidence/webTransportObserved", errors);
+  requireLiteral(value.quicObserved, false, "/protocolEvidence/quicObserved", errors);
+  requireLiteral(value.web3SignalingObserved, false, "/protocolEvidence/web3SignalingObserved", errors);
+  requireStringArray(value.notes, "/protocolEvidence/notes", errors);
+}
+
+function validatePythonBackendVerifier(value: unknown, errors: string[]): void {
+  requireRecord(value, "/pythonBackendVerifier", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireOneOf(value.status, ["passed", "blocked"], "/pythonBackendVerifier/status", errors);
+  requireLiteral(value.command, "python3 apps/api-python-backend/scripts/verify_backend.py", "/pythonBackendVerifier/command", errors);
+  requireString(value.stdout, "/pythonBackendVerifier/stdout", errors);
+  requireStringArray(value.blockers, "/pythonBackendVerifier/blockers", errors);
+}
+
+function validatePythonBackendRuntimeSmoke(value: unknown, errors: string[]): void {
+  requireRecord(value, "/pythonBackendRuntimeSmoke", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireOneOf(value.status, ["passed", "blocked"], "/pythonBackendRuntimeSmoke/status", errors);
+  requireStringArray(value.blockers, "/pythonBackendRuntimeSmoke/blockers", errors);
+  requireBoolean(value.healthOk, "/pythonBackendRuntimeSmoke/healthOk", errors);
+  requireBoolean(value.websocketConnected, "/pythonBackendRuntimeSmoke/websocketConnected", errors);
+  requireNullableNumber(value.websocketLatencyMs, "/pythonBackendRuntimeSmoke/websocketLatencyMs", errors);
+  requireRecord(value.protocolObserved, "/pythonBackendRuntimeSmoke/protocolObserved", errors);
+  if (isRecord(value.protocolObserved)) {
+    requireBoolean(value.protocolObserved.backendProtocolObserved, "/pythonBackendRuntimeSmoke/protocolObserved/backendProtocolObserved", errors);
+    requireBoolean(value.protocolObserved.latencyFieldsObserved, "/pythonBackendRuntimeSmoke/protocolObserved/latencyFieldsObserved", errors);
+    requireBoolean(value.protocolObserved.canonicalProtocolObserved, "/pythonBackendRuntimeSmoke/protocolObserved/canonicalProtocolObserved", errors);
+  }
+}
+
+function validateApiBunWebSocketRuntimeSmoke(value: unknown, errors: string[]): void {
+  requireRecord(value, "/apiBunWebSocketRuntimeSmoke", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireOneOf(value.status, ["passed", "blocked"], "/apiBunWebSocketRuntimeSmoke/status", errors);
+  requireStringArray(value.blockers, "/apiBunWebSocketRuntimeSmoke/blockers", errors);
+  for (const key of ["websocketConnected", "controlAckObserved", "audioMetadataObserved", "transcriptDeltaObserved", "binaryEchoObserved"]) {
+    requireBoolean(value[key], `/apiBunWebSocketRuntimeSmoke/${key}`, errors);
+  }
+}
+
+function validateApiBunPythonProxyRuntimeSmoke(value: unknown, errors: string[]): void {
+  requireRecord(value, "/apiBunPythonProxyRuntimeSmoke", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireOneOf(value.status, ["passed", "blocked"], "/apiBunPythonProxyRuntimeSmoke/status", errors);
+  requireStringArray(value.blockers, "/apiBunPythonProxyRuntimeSmoke/blockers", errors);
+  for (const key of [
+    "pythonBackendHealthOk",
+    "bunGatewayHealthOk",
+    "backendUrlConfigured",
+    "websocketConnected",
+    "backendReadyObserved",
+    "backendProtocolObserved",
+    "latencyFieldsObserved",
+    "binaryEchoObserved",
+  ]) {
+    requireBoolean(value[key], `/apiBunPythonProxyRuntimeSmoke/${key}`, errors);
+  }
+  requireStringArray(value.eventTypesObserved, "/apiBunPythonProxyRuntimeSmoke/eventTypesObserved", errors);
+}
+
+function validateLocalQwenTtsRuntimeSmokeSummary(value: unknown, errors: string[]): void {
+  requireRecord(value, "/localQwenTtsRuntimeSmoke", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireOneOf(value.status, ["passed", "blocked"], "/localQwenTtsRuntimeSmoke/status", errors);
+  requireLiteral(value.modelId, "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit", "/localQwenTtsRuntimeSmoke/modelId", errors);
+  requireLiteral(value.claimScope, "local_tts_inference_only", "/localQwenTtsRuntimeSmoke/claimScope", errors);
+  requireNullableNumber(value.realTimeFactor, "/localQwenTtsRuntimeSmoke/realTimeFactor", errors);
+  requireNumber(value.audioDurationMs, "/localQwenTtsRuntimeSmoke/audioDurationMs", errors);
+  requireNullableNumber(value.wallClockMs, "/localQwenTtsRuntimeSmoke/wallClockMs", errors);
+  requireLiteral(value.readyForLiveDialog, false, "/localQwenTtsRuntimeSmoke/readyForLiveDialog", errors);
+  requireStringArray(value.blockers, "/localQwenTtsRuntimeSmoke/blockers", errors);
+}
+
+function validateApiBunRuntimeEvidence(value: unknown, errors: string[]): void {
+  requireRecord(value, "/apiBunRuntimeEvidence", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireStringArray(value.sources, "/apiBunRuntimeEvidence/sources", errors);
+  requireNullableString(value.executable, "/apiBunRuntimeEvidence/executable", errors);
+  requireNullableString(value.version, "/apiBunRuntimeEvidence/version", errors);
+  requireNullableString(value.revision, "/apiBunRuntimeEvidence/revision", errors);
+  requireLiteral(value.http3Enabled, false, "/apiBunRuntimeEvidence/http3Enabled", errors);
+  requireLiteral(value.h3TrueEnabled, false, "/apiBunRuntimeEvidence/h3TrueEnabled", errors);
+  requireLiteral(value.optionPresentInServerSource, false, "/apiBunRuntimeEvidence/optionPresentInServerSource", errors);
+  requireLiteral(value.outOfScopeForThisSmoke, true, "/apiBunRuntimeEvidence/outOfScopeForThisSmoke", errors);
+}
+
+function validateQuestClientSourceContract(value: unknown, errors: string[]): void {
+  requireRecord(value, "/questClientSourceContract", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireOneOf(value.status, ["source_contract_observed", "blocked"], "/questClientSourceContract/status", errors);
+  requireLiteral(value.appPath, "apps/ui-quest-voice-godot", "/questClientSourceContract/appPath", errors);
+  for (const key of [
+    "sourceContractObserved",
+    "godotRuntimeAvailable",
+    "dependencyFreeSidecar",
+    "websocketPeerObserved",
+    "audioMetadataObserved",
+    "opaqueBinaryPacketProbeObserved",
+    "productionAudioClaims",
+  ]) {
+    requireBoolean(value[key], `/questClientSourceContract/${key}`, errors);
+  }
+  if (value.productionAudioClaims === true) {
+    errors.push("/questClientSourceContract/productionAudioClaims must remain false");
+  }
+  requireStringArray(value.blockers, "/questClientSourceContract/blockers", errors);
+}
+
+function validateHarness(value: unknown, errors: string[]): void {
+  requireRecord(value, "/harness", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  for (const key of [
+    "controlFramesSent",
+    "audioMetadataFramesSent",
+    "binaryAudioChunksSent",
+    "transcriptEventsReceived",
+    "audioChunkMetadataReceived",
+    "binaryAudioChunksReceived",
+  ]) {
+    requireNumber(value[key], `/harness/${key}`, errors);
+  }
+  requireBoolean(value.latencyFieldsObserved, "/harness/latencyFieldsObserved", errors);
+  requireLiteral(value.backendProtocol, "python-fastapi-compatible-websocket", "/harness/backendProtocol", errors);
+  requireLiteral(value.codec, "opus", "/harness/codec", errors);
+  requireNumber(value.roundTripLatencyMs, "/harness/roundTripLatencyMs", errors);
+  if (!Array.isArray(value.frameLatencySamplesMs)) {
+    errors.push("/harness/frameLatencySamplesMs must be array");
+  }
+  requireStringArray(value.receivedEventTypes, "/harness/receivedEventTypes", errors);
+  requireRecord(value.latencyBudget, "/harness/latencyBudget", errors);
+  if (isRecord(value.latencyBudget)) {
+    requireNumber(value.latencyBudget.targetMs, "/harness/latencyBudget/targetMs", errors);
+    requireBoolean(value.latencyBudget.passed, "/harness/latencyBudget/passed", errors);
+  }
+}
+
+function validateRealtimeTransportVerdict(value: unknown, errors: string[]): void {
+  requireRecord(value, "/verdict", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireBoolean(value.transportContractPassed, "/verdict/transportContractPassed", errors);
+  requireLiteral(value.readyForLiveDialog, false, "/verdict/readyForLiveDialog", errors);
+  requireStringArray(value.blockers, "/verdict/blockers", errors);
+  requireStringArray(value.caveats, "/verdict/caveats", errors);
+}
+
+function validateRealtimeTransportConsistency(value: Record<string, unknown>, errors: string[]): void {
+  const verdict = isRecord(value.verdict) ? value.verdict : undefined;
+  if (!verdict) {
+    return;
+  }
+
+  if (verdict.transportContractPassed === true && value.status !== "transport_spike_passed") {
+    errors.push("/status must be transport_spike_passed when /verdict/transportContractPassed is true");
+  }
+  if (verdict.transportContractPassed === false && value.status !== "blocked") {
+    errors.push("/status must be blocked when /verdict/transportContractPassed is false");
+  }
+
+  const actualBlockers = new Set(stringArray(verdict.blockers));
+  for (const blocker of expectedRealtimeTransportBlockers(value)) {
+    if (!actualBlockers.has(blocker)) {
+      errors.push(`/verdict/blockers missing expected blocker ${blocker}`);
+    }
+  }
+}
+
+function expectedRealtimeTransportBlockers(value: Record<string, unknown>): string[] {
+  const localQwenTtsRuntimeSmoke = isRecord(value.localQwenTtsRuntimeSmoke) ? value.localQwenTtsRuntimeSmoke : undefined;
+  const questClientSourceContract = isRecord(value.questClientSourceContract) ? value.questClientSourceContract : undefined;
+  const qwenTtsObserved = localQwenTtsRuntimeSmoke?.status === "passed";
+
+  return [
+    questClientSourceContract?.godotRuntimeAvailable === true ? undefined : "quest_godot_client_not_executed",
+    "native_opus_codec_not_integrated_in_godot",
+    qwenTtsObserved ? "qwen3_tts_not_full_duplex_dialog" : "real_moshi_or_qwen3_inference_not_observed",
+    qwenTtsObserved ? "full_duplex_asr_dialog_model_not_observed" : undefined,
+    "quest_microphone_and_playback_latency_not_measured",
+    "clinical_voice_safety_controls_not_exercised_with_real_model",
+  ].filter((blocker): blocker is string => typeof blocker === "string");
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function requireRecord(value: unknown, pathName: string, errors: string[]): void {
+  if (!isRecord(value)) {
+    errors.push(`${pathName} must be object`);
+  }
+}
+
+function requireString(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "string" || value.length === 0) {
+    errors.push(`${pathName} must be non-empty string`);
+  }
+}
+
+function requireNullableString(value: unknown, pathName: string, errors: string[]): void {
+  if (value !== null && (typeof value !== "string" || value.length === 0)) {
+    errors.push(`${pathName} must be null or non-empty string`);
+  }
+}
+
+function requireStringArray(value: unknown, pathName: string, errors: string[]): void {
+  if (!Array.isArray(value)) {
+    errors.push(`${pathName} must be array`);
+    return;
+  }
+
+  value.forEach((entry, index) => {
+    if (typeof entry !== "string" || entry.length === 0) {
+      errors.push(`${pathName}/${index} must be non-empty string`);
+    }
+  });
+}
+
+function requireBoolean(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "boolean") {
+    errors.push(`${pathName} must be boolean`);
+  }
+}
+
+function requireNumber(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    errors.push(`${pathName} must be finite number`);
+  }
+}
+
+function requireNullableNumber(value: unknown, pathName: string, errors: string[]): void {
+  if (value !== null && (typeof value !== "number" || !Number.isFinite(value))) {
+    errors.push(`${pathName} must be null or finite number`);
+  }
+}
+
+function requireLiteral<T extends string | boolean | number>(
+  value: unknown,
+  literal: T,
+  pathName: string,
+  errors: string[],
+): void {
+  if (value !== literal) {
+    errors.push(`${pathName} must be ${JSON.stringify(literal)}`);
+  }
+}
+
+function requireOneOf<T extends string>(
+  value: unknown,
+  allowed: readonly T[],
+  pathName: string,
+  errors: string[],
+): void {
+  if (typeof value !== "string" || !(allowed as readonly string[]).includes(value)) {
+    errors.push(`${pathName} must be one of ${allowed.map((entry) => JSON.stringify(entry)).join(", ")}`);
+  }
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((entry): entry is string => typeof entry === "string")
+    : [];
 }
 
 export async function buildRealtimeVoiceTransportSpikeReport(input: {

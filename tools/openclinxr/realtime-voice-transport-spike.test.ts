@@ -1,8 +1,28 @@
-import { readFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { buildRealtimeVoiceTransportSpikeReport } from "./realtime-voice-transport-spike.js";
+import {
+  buildRealtimeVoiceTransportSpikeReport,
+  main,
+  validateRealtimeVoiceTransportSpikeReport,
+} from "./realtime-voice-transport-spike.js";
 
 describe("realtime voice transport spike report", () => {
+  it("exposes generation and validation scripts", async () => {
+    const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+
+    expect(rootPackage.scripts["local:voice:realtime-spike"]).toBe(
+      "tsx tools/openclinxr/realtime-voice-transport-spike.ts",
+    );
+    expect(rootPackage.scripts["local:voice:realtime-spike:validate"]).toBe(
+      "tsx tools/openclinxr/realtime-voice-transport-spike.ts --validate-latest",
+    );
+    expect(rootPackage.scripts["agent:verify"]).toContain("pnpm local:voice:realtime-spike:validate");
+  });
+
   it("measures a local bidirectional websocket proxy harness without claiming real inference readiness", async () => {
     const report = await buildRealtimeVoiceTransportSpikeReport({
       generatedAt: "2026-05-04T22:00:00.000Z",
@@ -634,5 +654,84 @@ describe("realtime voice transport spike report", () => {
         ],
       },
     });
+  });
+
+  it("validates the committed realtime transport evidence safety and protocol boundary", async () => {
+    const report = JSON.parse(
+      await readFile("docs/openclinxr/realtime-voice-transport-spike-2026-05-06.json", "utf8"),
+    );
+
+    expect(validateRealtimeVoiceTransportSpikeReport(report)).toEqual({ ok: true });
+
+    const invalid = structuredClone(report) as {
+      policy: Partial<{ productionUseAllowed: boolean }>;
+      protocolEvidence: { webTransportObserved: boolean };
+      verdict: { readyForLiveDialog: boolean };
+    };
+    delete invalid.policy.productionUseAllowed;
+    invalid.protocolEvidence.webTransportObserved = true;
+    invalid.verdict.readyForLiveDialog = true;
+
+    expect(validateRealtimeVoiceTransportSpikeReport(invalid)).toEqual({
+      ok: false,
+      errors: [
+        "/policy/productionUseAllowed must be false",
+        "/protocolEvidence/webTransportObserved must be false",
+        "/verdict/readyForLiveDialog must be false",
+      ],
+    });
+  });
+
+  it("requires status and full-duplex blockers to match observed Qwen TTS evidence", async () => {
+    const report = JSON.parse(
+      await readFile("docs/openclinxr/realtime-voice-transport-spike-2026-05-06.json", "utf8"),
+    );
+    const invalid = structuredClone(report) as {
+      status: string;
+      verdict: { blockers: string[] };
+    };
+    invalid.status = "blocked";
+    invalid.verdict.blockers = invalid.verdict.blockers.filter(
+      (blocker) => blocker !== "qwen3_tts_not_full_duplex_dialog"
+        && blocker !== "full_duplex_asr_dialog_model_not_observed",
+    );
+
+    expect(validateRealtimeVoiceTransportSpikeReport(invalid)).toEqual({
+      ok: false,
+      errors: [
+        "/status must be transport_spike_passed when /verdict/transportContractPassed is true",
+        "/verdict/blockers missing expected blocker qwen3_tts_not_full_duplex_dialog",
+        "/verdict/blockers missing expected blocker full_duplex_asr_dialog_model_not_observed",
+      ],
+    });
+  });
+
+  it("validates CLI reports by explicit path and latest evidence path", async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), "openclinxr-realtime-transport-validate-"));
+    try {
+      const report = JSON.parse(
+        await readFile("docs/openclinxr/realtime-voice-transport-spike-2026-05-06.json", "utf8"),
+      );
+      const output = path.join(dir, "report.json");
+      await writeFile(output, JSON.stringify(report, null, 2));
+
+      await expect(main(["--validate", output])).resolves.toBeUndefined();
+      await expect(main(["--validate-latest"])).resolves.toBeUndefined();
+
+      const invalid = structuredClone(report) as {
+        apiBunRuntimeEvidence: { http3Enabled: boolean };
+      };
+      invalid.apiBunRuntimeEvidence.http3Enabled = true;
+      const invalidOutput = path.join(dir, "invalid-report.json");
+      await writeFile(invalidOutput, JSON.stringify(invalid, null, 2));
+      process.exitCode = undefined;
+
+      await expect(main(["--validate", invalidOutput])).resolves.toBeUndefined();
+
+      expect(process.exitCode).toBe(1);
+    } finally {
+      process.exitCode = undefined;
+      await rm(dir, { recursive: true, force: true });
+    }
   });
 });
