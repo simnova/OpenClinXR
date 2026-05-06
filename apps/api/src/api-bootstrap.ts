@@ -260,6 +260,14 @@ function readPythonProxyReachabilityEvidenceFromEnvironment(
   const websocket = isRecord(rawEvidence.websocket) ? rawEvidence.websocket : {};
   const eventTypesObserved = stringArray(websocket.eventTypesObserved);
   const binaryMessages = finiteNumber(websocket.binaryMessages);
+  const canonicalEventsObserved = [
+    "backend.ready",
+    "voice.started",
+    "audio.chunk",
+    "transcript.partial",
+    "transcript.final",
+    "voice.stopped",
+  ].every((eventType) => eventTypesObserved.includes(eventType));
   const evidence = {
     sourceFile: evidenceFile,
     ...(typeof rawEvidence.generatedAt === "string" ? { generatedAt: rawEvidence.generatedAt } : {}),
@@ -275,6 +283,7 @@ function readPythonProxyReachabilityEvidenceFromEnvironment(
     && evidence.backendProtocolObserved
     && evidence.latencyFieldsObserved
     && evidence.binaryEchoObserved
+    && canonicalEventsObserved
     ? evidence
     : undefined;
 }

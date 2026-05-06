@@ -488,6 +488,29 @@ describe("OpenClinXR API startup", () => {
     expect(absentPostureInput.pythonBackendProxyReachabilityEvidence).toBeUndefined();
   });
 
+  it("ignores proxy evidence that omits canonical backend event proof", () => {
+    const incompletePostureInput = createBunRealtimeVoiceGatewayPostureInputFromEnvironment(
+      {
+        OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL: "ws://127.0.0.1:8766/voice/realtime/ws",
+        OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE: "docs/openclinxr/api-bun-python-proxy-runtime-smoke-incomplete.json",
+      },
+      {
+        readEvidenceFile: () => ({
+          status: "passed",
+          websocket: {
+            eventTypesObserved: ["gateway.ready", "backend.ready", "voice.started", "audio.chunk"],
+            binaryMessages: 1,
+            backendProtocolObserved: true,
+            latencyFieldsObserved: true,
+            binaryEchoObserved: true,
+          },
+        }),
+      },
+    );
+
+    expect(incompletePostureInput.pythonBackendProxyReachabilityEvidence).toBeUndefined();
+  });
+
   it("persists station run queue review snapshots in the default single-user startup", async () => {
     const startup = createOpenClinXrApiStartup().startUp();
 
