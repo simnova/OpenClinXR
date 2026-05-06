@@ -1,5 +1,5 @@
-import { createDefaultClinicalSkillsBlueprint } from "../../packages/openclinxr/exam-assembly/src/index.js";
-import { edChestPainScenario } from "../../packages/openclinxr/scenario-fixtures/src/index.js";
+import { createStep2CsStyleSeedBlueprint } from "../../packages/openclinxr/exam-assembly/src/index.js";
+import { edChestPainScenario, scenarioBank } from "../../packages/openclinxr/scenario-fixtures/src/index.js";
 import { describe, expect, it } from "vitest";
 import {
   buildBlueprintVoiceSimulationPlan,
@@ -7,19 +7,19 @@ import {
 } from "./blueprint-voice-simulation-spike.js";
 
 describe("blueprint-driven voice simulation spike", () => {
-  it("compiles an existing station blueprint into privacy-safe actor voice plans", () => {
-    const blueprint = createDefaultClinicalSkillsBlueprint();
+  it("compiles the Step 2 CS-style seed blueprint into privacy-safe actor voice plans without depending on scenario order", () => {
+    const blueprint = createStep2CsStyleSeedBlueprint(scenarioBank);
     const plan = buildBlueprintVoiceSimulationPlan({
       blueprint,
-      scenarios: [edChestPainScenario],
+      scenarios: [...scenarioBank].reverse(),
       scenarioId: "ed_chest_pain_priority_v1",
     });
 
     expect(plan).toMatchObject({
-      blueprintId: "blueprint_openclinxr_clinical_skills_pilot_v1",
+      blueprintId: "blueprint_openclinxr_step2cs_style_seed_v1",
       station: {
         stationOrder: 1,
-        slotId: "station_001_ed_urgent_recognition",
+        slotId: "station_001_ed_chest_pain_priority_v1",
         scenarioId: "ed_chest_pain_priority_v1",
         title: "ED Chest Pain With Nurse Interruption And Family Pressure",
       },
@@ -77,14 +77,14 @@ describe("blueprint-driven voice simulation spike", () => {
   it("runs a deterministic mock voice loop without claiming local model or Quest readiness", async () => {
     const report = await buildBlueprintVoiceSimulationSpikeReport({
       generatedAt: "2026-05-05T21:05:00.000Z",
-      blueprint: createDefaultClinicalSkillsBlueprint(),
-      scenarios: [edChestPainScenario],
+      blueprint: createStep2CsStyleSeedBlueprint(scenarioBank),
+      scenarios: scenarioBank,
       scenarioId: "ed_chest_pain_priority_v1",
       learnerUtterance: "Maria, please get an ECG and repeat the vitals.",
       atSecond: 135,
     });
 
-    expect(report.status).toBe("mock_loop_passed");
+    expect(report.status).toBe("mock_facade_exercised");
     expect(report.plan.actorRoster.map((actor) => actor.actorId)).toEqual([
       "patient_robert_hayes_v1",
       "spouse_anna_hayes_v1",
@@ -96,8 +96,8 @@ describe("blueprint-driven voice simulation spike", () => {
       selectedActorId: "nurse_maria_alvarez_v1",
       routingReason: "display_name_or_role_match",
       transcript: {
-        finalText: "When did the chest pressure start?",
         eventCount: 2,
+        finalTextRedacted: true,
       },
       synthesis: {
         audioChunkCount: 1,
@@ -132,6 +132,14 @@ describe("blueprint-driven voice simulation spike", () => {
         visemeCuesPresent: true,
       },
     ]);
+    const serializedReport = JSON.stringify(report);
+    expect(serializedReport).not.toContain("Maria, please get an ECG");
+    expect(serializedReport).not.toContain("When did the chest pressure start?");
+    for (const actor of edChestPainScenario.actors) {
+      for (const hiddenFact of actor.hiddenFacts ?? []) {
+        expect(serializedReport).not.toContain(hiddenFact);
+      }
+    }
     expect(report.telemetry).toEqual({
       recorderSpanCount: 1,
       sensitiveFieldsDropped: true,
@@ -161,11 +169,13 @@ describe("blueprint-driven voice simulation spike", () => {
     });
     expect(report.verdict).toEqual({
       tier0BlueprintCompilerPassed: true,
-      tier1MockVoiceLoopPassed: true,
+      mockVoiceFacadeExercised: true,
+      tier1TransportLoopPassed: false,
       tier2LocalInferenceObserved: false,
       tier3WebXrObserved: false,
       readyForProduction: false,
       blockers: [
+        "tier1_bun_python_transport_loop_not_executed",
         "real_local_full_duplex_model_not_executed",
         "python_backend_runtime_not_executed_for_this_report",
         "webxr_iwsdk_client_not_executed_for_this_report",

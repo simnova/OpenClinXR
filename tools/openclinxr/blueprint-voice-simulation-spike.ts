@@ -1,6 +1,6 @@
 import { pathToFileURL } from "node:url";
-import { createDefaultClinicalSkillsBlueprint, type ExamBlueprint } from "../../packages/openclinxr/exam-assembly/src/index.js";
-import { edChestPainScenario } from "../../packages/openclinxr/scenario-fixtures/src/index.js";
+import { createStep2CsStyleSeedBlueprint, type ExamBlueprint } from "../../packages/openclinxr/exam-assembly/src/index.js";
+import { scenarioBank } from "../../packages/openclinxr/scenario-fixtures/src/index.js";
 import type { Scenario, TraceEvent } from "../../packages/openclinxr/shared-schemas/src/index.js";
 import {
   createInMemoryTelemetryRecorder,
@@ -94,7 +94,7 @@ export type BlueprintVoiceSimulationPlan = {
 
 export type BlueprintVoiceSimulationSpikeReport = {
   generatedAt: string;
-  status: "mock_loop_passed" | "blocked";
+  status: "mock_facade_exercised" | "blocked";
   policy: VoiceSimulationPolicy;
   plan: BlueprintVoiceSimulationPlan;
   mockLoop: {
@@ -103,8 +103,8 @@ export type BlueprintVoiceSimulationSpikeReport = {
     selectedActorId: string;
     routingReason: "display_name_or_role_match" | "primary_patient_default";
     transcript: {
-      finalText: string;
       eventCount: number;
+      finalTextRedacted: true;
     };
     synthesis: {
       audioChunkCount: number;
@@ -120,7 +120,8 @@ export type BlueprintVoiceSimulationSpikeReport = {
   };
   verdict: {
     tier0BlueprintCompilerPassed: boolean;
-    tier1MockVoiceLoopPassed: boolean;
+    mockVoiceFacadeExercised: boolean;
+    tier1TransportLoopPassed: false;
     tier2LocalInferenceObserved: false;
     tier3WebXrObserved: false;
     readyForProduction: false;
@@ -131,8 +132,8 @@ export type BlueprintVoiceSimulationSpikeReport = {
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
   const report = await buildBlueprintVoiceSimulationSpikeReport({
-    blueprint: createDefaultClinicalSkillsBlueprint(),
-    scenarios: [edChestPainScenario],
+    blueprint: createStep2CsStyleSeedBlueprint(scenarioBank),
+    scenarios: scenarioBank,
     scenarioId: options.scenarioId ?? "ed_chest_pain_priority_v1",
     learnerUtterance: options.learnerUtterance ?? "Maria, please get an ECG and repeat the vitals.",
     atSecond: options.atSecond ?? 135,
@@ -201,7 +202,7 @@ export function buildBlueprintVoiceSimulationPlan(input: {
     throw new Error(`Scenario not found for blueprint voice simulation: ${input.scenarioId}`);
   }
 
-  const stationSlot = input.blueprint.stationSlots[scenarioIndex];
+  const stationSlot = findStationSlotForScenario(input.blueprint, scenario, scenarioIndex);
   if (!stationSlot) {
     throw new Error(`Blueprint station slot not found for scenario: ${input.scenarioId}`);
   }
@@ -378,7 +379,7 @@ export async function buildBlueprintVoiceSimulationSpikeReport(input: {
 
   return {
     generatedAt,
-    status: "mock_loop_passed",
+    status: "mock_facade_exercised",
     policy: simulationPolicy(),
     plan,
     mockLoop: {
@@ -387,8 +388,8 @@ export async function buildBlueprintVoiceSimulationSpikeReport(input: {
       selectedActorId: selectedActor.actorId,
       routingReason: selectedActor.routingReason,
       transcript: {
-        finalText: finalTranscript?.text ?? "",
         eventCount: transcriptEvents.length,
+        finalTextRedacted: true,
       },
       synthesis: {
         audioChunkCount: audioEvents.length,
@@ -404,11 +405,13 @@ export async function buildBlueprintVoiceSimulationSpikeReport(input: {
     },
     verdict: {
       tier0BlueprintCompilerPassed: true,
-      tier1MockVoiceLoopPassed: transcriptEvents.length > 0 && audioEvents.length > 0,
+      mockVoiceFacadeExercised: transcriptEvents.length > 0 && audioEvents.length > 0,
+      tier1TransportLoopPassed: false,
       tier2LocalInferenceObserved: false,
       tier3WebXrObserved: false,
       readyForProduction: false,
       blockers: [
+        "tier1_bun_python_transport_loop_not_executed",
         "real_local_full_duplex_model_not_executed",
         "python_backend_runtime_not_executed_for_this_report",
         "webxr_iwsdk_client_not_executed_for_this_report",
@@ -427,6 +430,33 @@ function sensitiveTelemetryFieldsDropped(learnerUtterance: string): boolean {
     promptText: "redacted prompt",
     rawAudioReference: "audio://redacted",
   })).length === 0;
+}
+
+function findStationSlotForScenario(
+  blueprint: ExamBlueprint,
+  scenario: Scenario,
+  fallbackIndex: number,
+): ExamBlueprint["stationSlots"][number] | undefined {
+  const slotByScenarioId = blueprint.stationSlots.find((slot) => slot.slotId.includes(scenario.scenarioId));
+  if (slotByScenarioId) {
+    return slotByScenarioId;
+  }
+
+  const slotByTitle = blueprint.stationSlots.find((slot) => slot.label === scenario.title);
+  if (slotByTitle) {
+    return slotByTitle;
+  }
+
+  const scenarioEnvironmentId = scenario.environment?.environmentId;
+  const slotByCoverage = blueprint.stationSlots.find((slot) =>
+    (!scenarioEnvironmentId || slot.requiredEnvironmentIds.includes(scenarioEnvironmentId))
+    && slot.requiredTraceTags.every((tag) => scenario.requiredTraceTags.includes(tag))
+  );
+  if (slotByCoverage) {
+    return slotByCoverage;
+  }
+
+  return blueprint.stationSlots[fallbackIndex];
 }
 
 function simulationPolicy(): VoiceSimulationPolicy {

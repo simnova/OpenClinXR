@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-06T01:09:49.367Z",
-  "status": "mock_loop_passed",
+  "generatedAt": "2026-05-06T01:14:55.180Z",
+  "status": "mock_facade_exercised",
   "policy": {
     "cloudApisUsed": false,
     "paidApisUsed": false,
@@ -10,10 +10,10 @@
     "hiddenFactsExposedToLearner": false
   },
   "plan": {
-    "blueprintId": "blueprint_openclinxr_clinical_skills_pilot_v1",
+    "blueprintId": "blueprint_openclinxr_step2cs_style_seed_v1",
     "station": {
       "stationOrder": 1,
-      "slotId": "station_001_ed_urgent_recognition",
+      "slotId": "station_001_ed_chest_pain_priority_v1",
       "scenarioId": "ed_chest_pain_priority_v1",
       "scenarioVersion": 1,
       "title": "ED Chest Pain With Nurse Interruption And Family Pressure",
@@ -248,8 +248,8 @@
     "selectedActorId": "nurse_maria_alvarez_v1",
     "routingReason": "display_name_or_role_match",
     "transcript": {
-      "finalText": "When did the chest pressure start?",
-      "eventCount": 2
+      "eventCount": 2,
+      "finalTextRedacted": true
     },
     "synthesis": {
       "audioChunkCount": 1,
@@ -261,7 +261,7 @@
         "stationRunId": "blueprint_voice_simulation_mock_run_001",
         "sequence": 0,
         "eventType": "voice.transcript.final",
-        "occurredAt": "2026-05-06T01:09:49.367Z",
+        "occurredAt": "2026-05-06T01:14:55.180Z",
         "atSecond": 135,
         "source": "mock-voice-gateway",
         "actorId": "nurse_maria_alvarez_v1",
@@ -276,7 +276,7 @@
         "stationRunId": "blueprint_voice_simulation_mock_run_001",
         "sequence": 1,
         "eventType": "voice.audio.generated",
-        "occurredAt": "2026-05-06T01:09:49.367Z",
+        "occurredAt": "2026-05-06T01:14:55.180Z",
         "atSecond": 135,
         "source": "mock-voice-gateway",
         "actorId": "nurse_maria_alvarez_v1",
@@ -319,11 +319,13 @@
   },
   "verdict": {
     "tier0BlueprintCompilerPassed": true,
-    "tier1MockVoiceLoopPassed": true,
+    "mockVoiceFacadeExercised": true,
+    "tier1TransportLoopPassed": false,
     "tier2LocalInferenceObserved": false,
     "tier3WebXrObserved": false,
     "readyForProduction": false,
     "blockers": [
+      "tier1_bun_python_transport_loop_not_executed",
       "real_local_full_duplex_model_not_executed",
       "python_backend_runtime_not_executed_for_this_report",
       "webxr_iwsdk_client_not_executed_for_this_report",
