@@ -2415,7 +2415,7 @@ const blockerGroups = [
     title: "Production asset generation readiness",
     owner: "asset-pipeline-lead",
     matches: (blocker: string) => blocker.startsWith("asset_production:"),
-    nextStep: "Add generated human, skin, clothing, rigging, animation, equipment, LOD, texture, and collider reports before claiming production asset readiness.",
+    nextStep: "Replace placeholder Blender bake/source evidence with reviewed generated clinical assets, then rerun the production asset readiness benchmark before claiming production asset readiness.",
   },
   {
     groupId: "iwsdk_sidecar_tooling",

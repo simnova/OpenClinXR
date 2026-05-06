@@ -566,6 +566,41 @@ export function createEdChestPainPlaceholderManifests(): AssetManifest[] {
   ];
 }
 
+export function createEdChestPainLocalAssetEvidenceFixtureManifests(): AssetManifest[] {
+  return createEdChestPainPlaceholderManifests().map((manifest) => {
+    const sourceRef = "openclinxr-local-asset-evidence-fixture-2026-05-06";
+
+    return {
+      ...manifest,
+      provenance: {
+        generationMethod: manifest.kind === "environment" ? "manual_modeling" : "anny",
+        sourceRefs: [sourceRef, `${manifest.assetId}_local_fixture_provenance`],
+        licenseStatus: "approved",
+      },
+      generationEvidence: {
+        ...(manifest.kind === "character" ? {
+          generatedHumanRiggingReportId: `${manifest.assetId}_canonical_skeleton_report`,
+          skinClothingProvenanceId: `${manifest.assetId}_skin_clothing_provenance`,
+          animationRetargetingReportId: `${manifest.assetId}_retargeting_report`,
+        } : {}),
+        ...(manifest.kind === "environment" ? {
+          medicalEquipmentLibraryRecordId: `${manifest.assetId}_ecg_cart_equipment_library`,
+        } : {}),
+      },
+      optimizationEvidence: {
+        lodTiers: [`${manifest.assetId}_lod0`, `${manifest.assetId}_lod1`, `${manifest.assetId}_lod2`],
+        textureCompressionFormat: "none_flat_generated_materials",
+        textureBudgetReportId: `${manifest.assetId}_texture_budget_report`,
+        colliderSimplificationReportId: `${manifest.assetId}_collider_simplification_report`,
+      },
+      pipelineStages: manifest.pipelineStages.map((stageRecord) => ({
+        ...stageRecord,
+        notes: `Local fixture evidence for ${stageRecord.stage} on ${manifest.assetId}.`,
+      })),
+    };
+  });
+}
+
 export function createScenarioPlaceholderManifests(scenario: Scenario): AssetManifest[] {
   return (scenario.assetNeeds ?? []).map((assetNeed) => {
     const kind = assetKindFromNeed(assetNeed.assetType);

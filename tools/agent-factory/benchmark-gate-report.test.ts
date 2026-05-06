@@ -108,6 +108,7 @@ type BenchmarkGateReport = {
       scenarioId: string;
       source: string;
       requiredAssetCount: number;
+      placeholderOnly: boolean;
       observed: boolean;
       blockers: string[];
       budget: {
@@ -1493,21 +1494,32 @@ describe("benchmark gate report", () => {
     }));
     expect(gatesById.get("evidence-leadership-0009-005")).toEqual(expect.objectContaining({
       ready_to_resolve: false,
-      blockers: expect.arrayContaining([
-        "asset_production:source:placeholder_bake_only",
-        "asset_production:generation:generated_human_rigging_missing",
-        "asset_production:optimization:lod_tiers_missing",
-        "asset_production:optimization:texture_compression_budget_missing",
-        "asset_production:optimization:collider_simplification_report_missing",
-      ]),
+      blockers: ["asset_production:source:placeholder_bake_only"],
       satisfied_conditions: expect.arrayContaining([
         "asset_pipeline_blender_bake_smoke_passed",
         "asset_pipeline_gltf_pipeline_smoke_passed",
+        "asset_production_animation_retargeting_observed",
+        "asset_production_collider_simplification_observed",
+        "asset_production_generated_human_rigging_observed",
+        "asset_production_lod_tiers_observed",
+        "asset_production_medical_equipment_library_observed",
         "asset_production_multi_actor_quest_budget_observed",
         "asset_production_readiness_report_present",
+        "asset_production_skin_clothing_provenance_observed",
         "asset_production_source_smokes_passed",
+        "asset_production_texture_compression_budget_observed",
       ]),
     }));
+    expect(gatesById.get("evidence-leadership-0009-005")?.blockers).not.toEqual(expect.arrayContaining([
+      "asset_production:generation:generated_human_rigging_missing",
+      "asset_production:generation:skin_clothing_provenance_missing",
+      "asset_production:generation:medical_equipment_library_missing",
+      "asset_production:generation:animation_retargeting_missing",
+      "asset_production:optimization:lod_tiers_missing",
+      "asset_production:optimization:texture_compression_budget_missing",
+      "asset_production:optimization:collider_simplification_report_missing",
+      "asset_production:runtime:multi_actor_quest_budget_missing",
+    ]));
   });
 
   it("uses local model quality evidence to replace generic actor-policy blockers with precise findings", () => {
@@ -2738,6 +2750,7 @@ describe("benchmark gate report", () => {
               scenarioId: string;
               source: string;
               requiredAssetCount: number;
+              placeholderOnly: boolean;
               observed: boolean;
               blockers: string[];
               budget: {
@@ -2833,7 +2846,7 @@ describe("benchmark gate report", () => {
         },
       },
       assetProductionReadinessBenchmark: {
-        file: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-04.json",
+        file: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
         value: {
           generatedAt: "2026-05-04T20:30:00.000Z",
           status: "blocked",
@@ -2844,48 +2857,33 @@ describe("benchmark gate report", () => {
             blockers: ["placeholder_bake_only"],
           },
           productionProofs: {
-            generatedHumanRigging: { observed: false, blockers: ["generated_human_rigging_missing"] },
-            skinClothingProvenance: { observed: false, blockers: ["skin_clothing_provenance_missing"] },
-            medicalEquipmentLibrary: { observed: false, blockers: ["medical_equipment_library_missing"] },
-            animationRetargeting: { observed: false, blockers: ["animation_retargeting_missing"] },
-            lodTextureColliderBudget: {
-              observed: false,
-              blockers: [
-                "lod_tiers_missing",
-                "texture_compression_budget_missing",
-                "collider_simplification_report_missing",
-              ],
-            },
-            multiActorQuestBudget: { observed: false, blockers: ["multi_actor_quest_budget_missing"] },
+            generatedHumanRigging: { observed: true, blockers: [] },
+            skinClothingProvenance: { observed: true, blockers: [] },
+            medicalEquipmentLibrary: { observed: true, blockers: [] },
+            animationRetargeting: { observed: true, blockers: [] },
+            lodTextureColliderBudget: { observed: true, blockers: [] },
+            multiActorQuestBudget: { observed: true, blockers: [] },
           },
           generationEvidence: {
-            generatedHumanRiggingObserved: false,
-            skinClothingProvenanceObserved: false,
-            medicalEquipmentLibraryObserved: false,
-            animationRetargetingObserved: false,
-            placeholderOnly: true,
-            blockers: [
-              "generated_human_rigging_missing",
-              "skin_clothing_provenance_missing",
-              "medical_equipment_library_missing",
-              "animation_retargeting_missing",
-            ],
+            generatedHumanRiggingObserved: true,
+            skinClothingProvenanceObserved: true,
+            medicalEquipmentLibraryObserved: true,
+            animationRetargetingObserved: true,
+            placeholderOnly: false,
+            blockers: [],
           },
           optimizationEvidence: {
-            lodTiersObserved: false,
-            textureCompressionBudgetObserved: false,
-            colliderSimplificationObserved: false,
-            placeholderOnly: true,
-            blockers: [
-              "lod_tiers_missing",
-              "texture_compression_budget_missing",
-              "collider_simplification_report_missing",
-            ],
+            lodTiersObserved: true,
+            textureCompressionBudgetObserved: true,
+            colliderSimplificationObserved: true,
+            placeholderOnly: false,
+            blockers: [],
           },
           stationBudgetEvidence: {
             scenarioId: "ed_chest_pain_priority_v1",
-            source: "@openclinxr/asset-registry:createEdChestPainPlaceholderManifests",
+            source: "@openclinxr/asset-registry:createEdChestPainLocalAssetEvidenceFixtureManifests",
             requiredAssetCount: 3,
+            placeholderOnly: false,
             observed: true,
             blockers: [],
             budget: {
@@ -2899,21 +2897,13 @@ describe("benchmark gate report", () => {
             },
           },
           runtimeBudget: {
-            multiActorBudgetObserved: false,
-            blockers: ["multi_actor_quest_budget_missing"],
+            multiActorBudgetObserved: true,
+            blockers: [],
           },
           verdict: {
             passed: false,
             blockers: [
               "source:placeholder_bake_only",
-              "generation:generated_human_rigging_missing",
-              "generation:skin_clothing_provenance_missing",
-              "generation:medical_equipment_library_missing",
-              "generation:animation_retargeting_missing",
-              "optimization:lod_tiers_missing",
-              "optimization:texture_compression_budget_missing",
-              "optimization:collider_simplification_report_missing",
-              "runtime:multi_actor_quest_budget_missing",
             ],
             caveats: [],
           },
@@ -2962,30 +2952,19 @@ describe("benchmark gate report", () => {
     expect(assetGate?.satisfied_conditions).toEqual(expect.arrayContaining([
       "asset_pipeline_blender_bake_smoke_passed",
       "asset_pipeline_gltf_pipeline_smoke_passed",
-      "asset_production_capability_job_contract_observed",
-      "asset_production_readiness_report_present",
-      "asset_production_source_smokes_passed",
-    ]));
-    expect(assetGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
-      "asset_production_generated_human_rigging_observed",
-      "asset_production_skin_clothing_provenance_observed",
-      "asset_production_medical_equipment_library_observed",
       "asset_production_animation_retargeting_observed",
-    ]));
-    expect(assetGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
-      "asset_production_lod_tiers_observed",
-      "asset_production_texture_compression_budget_observed",
+      "asset_production_capability_job_contract_observed",
       "asset_production_collider_simplification_observed",
+      "asset_production_generated_human_rigging_observed",
+      "asset_production_lod_tiers_observed",
+      "asset_production_medical_equipment_library_observed",
+      "asset_production_multi_actor_quest_budget_observed",
+      "asset_production_readiness_report_present",
+      "asset_production_skin_clothing_provenance_observed",
+      "asset_production_source_smokes_passed",
+      "asset_production_texture_compression_budget_observed",
     ]));
-    expect(assetGate?.blockers).toEqual(expect.arrayContaining([
-      "asset_production:source:placeholder_bake_only",
-      "asset_production:generation:generated_human_rigging_missing",
-      "asset_production:generation:medical_equipment_library_missing",
-      "asset_production:optimization:lod_tiers_missing",
-      "asset_production:optimization:texture_compression_budget_missing",
-      "asset_production:optimization:collider_simplification_report_missing",
-      "asset_production:runtime:multi_actor_quest_budget_missing",
-    ]));
+    expect(assetGate?.blockers).toEqual(["asset_production:source:placeholder_bake_only"]);
     expect(assetGate?.blockers).not.toEqual(expect.arrayContaining([
       "asset_production:missing_asset_capability_job_evidence_report",
       "asset_production:asset_capability_job_contract_failed",
@@ -2993,6 +2972,14 @@ describe("benchmark gate report", () => {
       "asset_production:missing_lod_texture_collider_budget_report",
       "asset_production:missing_multi_actor_quest_budget_report",
       "asset_production:placeholder_bake_only",
+      "asset_production:generation:generated_human_rigging_missing",
+      "asset_production:generation:skin_clothing_provenance_missing",
+      "asset_production:generation:medical_equipment_library_missing",
+      "asset_production:generation:animation_retargeting_missing",
+      "asset_production:optimization:lod_tiers_missing",
+      "asset_production:optimization:texture_compression_budget_missing",
+      "asset_production:optimization:collider_simplification_report_missing",
+      "asset_production:runtime:multi_actor_quest_budget_missing",
     ]));
     expect(assetGate?.blockers.some((blocker) => blocker.startsWith("asset_production:proof:"))).toBe(false);
     expect(report.asset_capability_job_evidence?.summary).toMatchObject({
@@ -3011,8 +2998,9 @@ describe("benchmark gate report", () => {
     });
     expect(report.asset_production_readiness_benchmark?.station_budget_evidence).toEqual({
       scenarioId: "ed_chest_pain_priority_v1",
-      source: "@openclinxr/asset-registry:createEdChestPainPlaceholderManifests",
+      source: "@openclinxr/asset-registry:createEdChestPainLocalAssetEvidenceFixtureManifests",
       requiredAssetCount: 3,
+      placeholderOnly: false,
       observed: true,
       blockers: [],
       budget: {
@@ -3026,28 +3014,19 @@ describe("benchmark gate report", () => {
       },
     });
     expect(report.asset_production_readiness_benchmark?.generation_evidence).toEqual({
-      generatedHumanRiggingObserved: false,
-      skinClothingProvenanceObserved: false,
-      medicalEquipmentLibraryObserved: false,
-      animationRetargetingObserved: false,
-      placeholderOnly: true,
-      blockers: [
-        "generated_human_rigging_missing",
-        "skin_clothing_provenance_missing",
-        "medical_equipment_library_missing",
-        "animation_retargeting_missing",
-      ],
+      generatedHumanRiggingObserved: true,
+      skinClothingProvenanceObserved: true,
+      medicalEquipmentLibraryObserved: true,
+      animationRetargetingObserved: true,
+      placeholderOnly: false,
+      blockers: [],
     });
     expect(report.asset_production_readiness_benchmark?.optimization_evidence).toEqual({
-      lodTiersObserved: false,
-      textureCompressionBudgetObserved: false,
-      colliderSimplificationObserved: false,
-      placeholderOnly: true,
-      blockers: [
-        "lod_tiers_missing",
-        "texture_compression_budget_missing",
-        "collider_simplification_report_missing",
-      ],
+      lodTiersObserved: true,
+      textureCompressionBudgetObserved: true,
+      colliderSimplificationObserved: true,
+      placeholderOnly: false,
+      blockers: [],
     });
   });
 

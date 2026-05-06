@@ -74,6 +74,9 @@ describe("asset production readiness report", () => {
       readyForProductionAssets: false,
       blockers: [
         "source:placeholder_bake_only",
+        "station_budget:placeholder_asset_budget_only",
+        "generation:placeholder_asset_generation_only",
+        "optimization:placeholder_asset_optimization_only",
         "generation:generated_human_rigging_missing",
         "generation:skin_clothing_provenance_missing",
         "generation:medical_equipment_library_missing",
@@ -97,6 +100,7 @@ describe("asset production readiness report", () => {
       gltfPipelineSmoke: gltfSmoke({ passed: true }),
       blenderAssetBakeSmoke: blenderSmoke({ passed: true, sourceLicensePosture: "reviewed_generated_character_pipeline" }),
       proofOverrides: { multiActorQuestBudget: true },
+      stationBudgetEvidence: completeStationBudgetEvidence(),
       generationEvidence: completeGenerationEvidence(),
       optimizationEvidence: completeOptimizationEvidence(),
     });
@@ -147,7 +151,10 @@ describe("asset production readiness report", () => {
     expect(report.verdict.blockers).not.toContain("runtime:multi_actor_quest_budget_missing");
     expect(report.verdict.blockers).toEqual(expect.arrayContaining([
       "source:placeholder_bake_only",
+      "station_budget:placeholder_asset_budget_only",
       "generation:generated_human_rigging_missing",
+      "generation:placeholder_asset_generation_only",
+      "optimization:placeholder_asset_optimization_only",
       "optimization:lod_tiers_missing",
       "optimization:texture_compression_budget_missing",
       "optimization:collider_simplification_report_missing",
@@ -208,6 +215,76 @@ describe("asset production readiness report", () => {
     ]));
     expect(report.verdict.blockers).not.toContain("generation:production_asset_generation_missing");
   });
+
+  it("blocks reviewed source evidence when station budget still comes only from placeholder manifests", () => {
+    const report = buildAssetProductionReadinessReport({
+      generatedAt: "2026-05-06T02:15:00.000Z",
+      gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
+      blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-05.json",
+      gltfPipelineSmoke: gltfSmoke({ passed: true }),
+      blenderAssetBakeSmoke: blenderSmoke({ passed: true, sourceLicensePosture: "reviewed_generated_character_pipeline" }),
+      proofOverrides: { multiActorQuestBudget: true },
+      generationEvidence: completeGenerationEvidence(),
+      optimizationEvidence: completeOptimizationEvidence(),
+    });
+
+    expect(Object.values(report.productionProofs).every((proof) => proof.observed)).toBe(true);
+    expect(report.sourceEvidence.blockers).toEqual([]);
+    expect(report.stationBudgetEvidence).toMatchObject({
+      source: "@openclinxr/asset-registry:createEdChestPainPlaceholderManifests",
+      placeholderOnly: true,
+      observed: true,
+      blockers: [],
+    });
+    expect(report.verdict).toMatchObject({
+      passed: false,
+      readyForProductionAssets: false,
+      blockers: ["station_budget:placeholder_asset_budget_only"],
+    });
+  });
+
+  it("can consume local asset evidence fixture manifests while preserving the placeholder source blocker", () => {
+    const report = buildAssetProductionReadinessReport({
+      generatedAt: "2026-05-06T02:00:00.000Z",
+      gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
+      blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-05.json",
+      gltfPipelineSmoke: gltfSmoke({ passed: true }),
+      blenderAssetBakeSmoke: blenderSmoke({ passed: true, sourceLicensePosture: "repo_generated_placeholder" }),
+      useLocalAssetEvidenceFixture: true,
+    });
+
+    expect(Object.values(report.productionProofs).every((proof) => proof.observed)).toBe(true);
+    expect(report.input.localAssetEvidenceFixtureUsed).toBe(true);
+    expect(report.generationEvidence).toMatchObject({
+      generatedHumanRiggingObserved: true,
+      skinClothingProvenanceObserved: true,
+      medicalEquipmentLibraryObserved: true,
+      animationRetargetingObserved: true,
+      placeholderOnly: false,
+      blockers: [],
+    });
+    expect(report.optimizationEvidence).toMatchObject({
+      lodTiersObserved: true,
+      textureCompressionBudgetObserved: true,
+      colliderSimplificationObserved: true,
+      placeholderOnly: false,
+      blockers: [],
+    });
+    expect(report.stationBudgetEvidence).toMatchObject({
+      source: "@openclinxr/asset-registry:createEdChestPainLocalAssetEvidenceFixtureManifests",
+      placeholderOnly: false,
+      observed: true,
+      blockers: [],
+    });
+    expect(report.verdict).toMatchObject({
+      passed: false,
+      readyForProductionAssets: false,
+      blockers: ["source:placeholder_bake_only"],
+    });
+    expect(report.verdict.caveats).toContain(
+      "The local asset evidence fixture supplies contract-level proof slots only; fixture IDs are not artifact-backed generated production assets.",
+    );
+  });
 });
 
 function gltfSmoke(input: {
@@ -252,6 +329,26 @@ function completeGenerationEvidence() {
     medicalEquipmentLibraryObserved: true,
     animationRetargetingObserved: true,
     placeholderOnly: false,
+    blockers: [],
+  };
+}
+
+function completeStationBudgetEvidence() {
+  return {
+    scenarioId: "ed_chest_pain_priority_v1",
+    source: "@openclinxr/asset-registry:createEdChestPainLocalAssetEvidenceFixtureManifests",
+    requiredAssetCount: 3,
+    budget: {
+      maxVisibleTriangles: 180000,
+      maxTextureMegabytes: 512,
+      maxDrawCalls: 120,
+      totalTriangles: 60000,
+      totalTextureMegabytes: 80,
+      totalDrawCalls: 28,
+      blockers: [],
+    },
+    placeholderOnly: false,
+    observed: true,
     blockers: [],
   };
 }

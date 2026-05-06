@@ -34,7 +34,7 @@
       "evidence_id": "blender_asset_bake_smoke",
       "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T11:02:14.867Z",
-      "age_hours": 18,
+      "age_hours": 19,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -50,9 +50,9 @@
     },
     {
       "evidence_id": "asset_production_readiness_benchmark",
-      "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-05.json",
-      "generated_at": "2026-05-05T22:32:39.510Z",
-      "age_hours": 7,
+      "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+      "generated_at": "2026-05-06T06:06:09.795Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -61,7 +61,7 @@
       "evidence_id": "local_provider_benchmark",
       "file": "docs/openclinxr/local-provider-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T19:05:08.997Z",
-      "age_hours": 10,
+      "age_hours": 11,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -88,7 +88,7 @@
       "evidence_id": "local_voice_runtime_benchmark",
       "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-05.json",
       "generated_at": "2026-05-04T15:01:12Z",
-      "age_hours": 38,
+      "age_hours": 39,
       "max_age_hours": 24,
       "status": "stale",
       "blockers": [
@@ -164,7 +164,7 @@
       "evidence_id": "api_bun_python_proxy_runtime_smoke",
       "file": "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-06T01:52:40.346Z",
-      "age_hours": 3,
+      "age_hours": 4,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -172,7 +172,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T05:48:43.071Z",
+      "generated_at": "2026-05-06T06:06:10.527Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -290,8 +290,8 @@
     "blockers": []
   },
   "asset_production_readiness_benchmark": {
-    "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-05.json",
-    "generated_at": "2026-05-05T22:32:39.510Z",
+    "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+    "generated_at": "2026-05-06T06:06:09.795Z",
     "status": "blocked",
     "source_evidence": {
       "gltfPipelineSmokePassed": true,
@@ -304,61 +304,49 @@
     },
     "production_proofs": {
       "generatedHumanRigging": {
-        "observed": false,
+        "observed": true,
         "requiredEvidence": [
           "neutral generated human GLB",
           "canonical skeleton binding",
           "skin-weight or rigging report"
         ],
-        "blockers": [
-          "generated_human_rigging_missing"
-        ]
+        "blockers": []
       },
       "skinClothingProvenance": {
-        "observed": false,
+        "observed": true,
         "requiredEvidence": [
           "skin/texture provenance",
           "clothing mesh provenance",
           "runtime-safe material report"
         ],
-        "blockers": [
-          "skin_clothing_provenance_missing"
-        ]
+        "blockers": []
       },
       "medicalEquipmentLibrary": {
-        "observed": false,
+        "observed": true,
         "requiredEvidence": [
           "equipment GLB library",
           "clinical equipment metadata",
           "license provenance"
         ],
-        "blockers": [
-          "medical_equipment_library_missing"
-        ]
+        "blockers": []
       },
       "animationRetargeting": {
-        "observed": false,
+        "observed": true,
         "requiredEvidence": [
           "canonical skeleton clips",
           "viseme or facial target mapping",
           "retargeting QA report"
         ],
-        "blockers": [
-          "animation_retargeting_missing"
-        ]
+        "blockers": []
       },
       "lodTextureColliderBudget": {
-        "observed": false,
+        "observed": true,
         "requiredEvidence": [
           "LOD tiers",
           "KTX2 or texture budget report",
           "collider simplification report"
         ],
-        "blockers": [
-          "lod_tiers_missing",
-          "texture_compression_budget_missing",
-          "collider_simplification_report_missing"
-        ]
+        "blockers": []
       },
       "multiActorQuestBudget": {
         "observed": true,
@@ -371,32 +359,23 @@
       }
     },
     "generation_evidence": {
-      "generatedHumanRiggingObserved": false,
-      "skinClothingProvenanceObserved": false,
-      "medicalEquipmentLibraryObserved": false,
-      "animationRetargetingObserved": false,
-      "placeholderOnly": true,
-      "blockers": [
-        "generated_human_rigging_missing",
-        "skin_clothing_provenance_missing",
-        "medical_equipment_library_missing",
-        "animation_retargeting_missing"
-      ]
+      "generatedHumanRiggingObserved": true,
+      "skinClothingProvenanceObserved": true,
+      "medicalEquipmentLibraryObserved": true,
+      "animationRetargetingObserved": true,
+      "placeholderOnly": false,
+      "blockers": []
     },
     "optimization_evidence": {
-      "lodTiersObserved": false,
-      "textureCompressionBudgetObserved": false,
-      "colliderSimplificationObserved": false,
-      "placeholderOnly": true,
-      "blockers": [
-        "lod_tiers_missing",
-        "texture_compression_budget_missing",
-        "collider_simplification_report_missing"
-      ]
+      "lodTiersObserved": true,
+      "textureCompressionBudgetObserved": true,
+      "colliderSimplificationObserved": true,
+      "placeholderOnly": false,
+      "blockers": []
     },
     "station_budget_evidence": {
       "scenarioId": "ed_chest_pain_priority_v1",
-      "source": "@openclinxr/asset-registry:createEdChestPainPlaceholderManifests",
+      "source": "@openclinxr/asset-registry:createEdChestPainLocalAssetEvidenceFixtureManifests",
       "requiredAssetCount": 3,
       "budget": {
         "maxVisibleTriangles": 180000,
@@ -407,7 +386,7 @@
         "totalDrawCalls": 28,
         "blockers": []
       },
-      "placeholderOnly": true,
+      "placeholderOnly": false,
       "observed": true,
       "blockers": []
     },
@@ -424,18 +403,12 @@
       "passed": false,
       "readyForProductionAssets": false,
       "blockers": [
-        "source:placeholder_bake_only",
-        "generation:generated_human_rigging_missing",
-        "generation:skin_clothing_provenance_missing",
-        "generation:medical_equipment_library_missing",
-        "generation:animation_retargeting_missing",
-        "optimization:lod_tiers_missing",
-        "optimization:texture_compression_budget_missing",
-        "optimization:collider_simplification_report_missing"
+        "source:placeholder_bake_only"
       ],
       "caveats": [
         "This report evaluates production-readiness evidence from local smoke outputs only; it does not generate new third-party assets.",
-        "Placeholder GLB smoke proves the authoring tool chain can emit a GLB, not that generated clinical characters or environments are production-ready."
+        "Placeholder GLB smoke proves the authoring tool chain can emit a GLB, not that generated clinical characters or environments are production-ready.",
+        "The local asset evidence fixture supplies contract-level proof slots only; fixture IDs are not artifact-backed generated production assets."
       ]
     }
   },
@@ -1401,7 +1374,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T05:48:43.071Z",
+    "generated_at": "2026-05-06T06:06:10.527Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -1615,10 +1588,17 @@
         "asset_pipeline_blender_bake_smoke_passed",
         "asset_pipeline_gltf_pipeline_smoke_passed",
         "asset_pipeline_runtime_ready",
+        "asset_production_animation_retargeting_observed",
         "asset_production_capability_job_contract_observed",
+        "asset_production_collider_simplification_observed",
+        "asset_production_generated_human_rigging_observed",
+        "asset_production_lod_tiers_observed",
+        "asset_production_medical_equipment_library_observed",
         "asset_production_multi_actor_quest_budget_observed",
         "asset_production_readiness_report_present",
+        "asset_production_skin_clothing_provenance_observed",
         "asset_production_source_smokes_passed",
+        "asset_production_texture_compression_budget_observed",
         "battery_drop_recorded_under_20",
         "experience_mode_full_vr_recorded",
         "extra_browser_windows_closed",
@@ -1930,10 +1910,17 @@
         "asset_pipeline_blender_bake_smoke_passed",
         "asset_pipeline_gltf_pipeline_smoke_passed",
         "asset_pipeline_runtime_ready",
+        "asset_production_animation_retargeting_observed",
         "asset_production_capability_job_contract_observed",
+        "asset_production_collider_simplification_observed",
+        "asset_production_generated_human_rigging_observed",
+        "asset_production_lod_tiers_observed",
+        "asset_production_medical_equipment_library_observed",
         "asset_production_multi_actor_quest_budget_observed",
         "asset_production_readiness_report_present",
-        "asset_production_source_smokes_passed"
+        "asset_production_skin_clothing_provenance_observed",
+        "asset_production_source_smokes_passed",
+        "asset_production_texture_compression_budget_observed"
       ],
       "blockers": [],
       "blocker_summary": {
@@ -2242,23 +2229,23 @@
         "asset_pipeline_blender_bake_smoke_passed",
         "asset_pipeline_gltf_pipeline_smoke_passed",
         "asset_pipeline_runtime_ready",
+        "asset_production_animation_retargeting_observed",
         "asset_production_capability_job_contract_observed",
+        "asset_production_collider_simplification_observed",
+        "asset_production_generated_human_rigging_observed",
+        "asset_production_lod_tiers_observed",
+        "asset_production_medical_equipment_library_observed",
         "asset_production_multi_actor_quest_budget_observed",
         "asset_production_readiness_report_present",
-        "asset_production_source_smokes_passed"
+        "asset_production_skin_clothing_provenance_observed",
+        "asset_production_source_smokes_passed",
+        "asset_production_texture_compression_budget_observed"
       ],
       "blockers": [
-        "asset_production:generation:animation_retargeting_missing",
-        "asset_production:generation:generated_human_rigging_missing",
-        "asset_production:generation:medical_equipment_library_missing",
-        "asset_production:generation:skin_clothing_provenance_missing",
-        "asset_production:optimization:collider_simplification_report_missing",
-        "asset_production:optimization:lod_tiers_missing",
-        "asset_production:optimization:texture_compression_budget_missing",
         "asset_production:source:placeholder_bake_only"
       ],
       "blocker_summary": {
-        "total_blockers": 8,
+        "total_blockers": 1,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -2266,16 +2253,9 @@
             "title": "Production asset generation readiness",
             "owner": "asset-pipeline-lead",
             "blockers": [
-              "asset_production:generation:animation_retargeting_missing",
-              "asset_production:generation:generated_human_rigging_missing",
-              "asset_production:generation:medical_equipment_library_missing",
-              "asset_production:generation:skin_clothing_provenance_missing",
-              "asset_production:optimization:collider_simplification_report_missing",
-              "asset_production:optimization:lod_tiers_missing",
-              "asset_production:optimization:texture_compression_budget_missing",
               "asset_production:source:placeholder_bake_only"
             ],
-            "next_step": "Add generated human, skin, clothing, rigging, animation, equipment, LOD, texture, and collider reports before claiming production asset readiness."
+            "next_step": "Replace placeholder Blender bake/source evidence with reviewed generated clinical assets, then rerun the production asset readiness benchmark before claiming production asset readiness."
           }
         ],
         "ungrouped_blockers": []

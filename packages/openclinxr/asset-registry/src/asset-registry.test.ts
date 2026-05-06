@@ -1,6 +1,7 @@
 import { edChestPainScenario, scenarioBank } from "@openclinxr/scenario-fixtures";
 import { describe, expect, it } from "vitest";
 import {
+  createEdChestPainLocalAssetEvidenceFixtureManifests,
   createEdChestPainPlaceholderManifests,
   createScenarioPlaceholderManifests,
   evaluateAssetManifest,
@@ -224,6 +225,33 @@ describe("asset registry", () => {
       skinClothingProvenanceObserved: true,
       medicalEquipmentLibraryObserved: true,
       animationRetargetingObserved: true,
+      placeholderOnly: false,
+      blockers: [],
+    });
+  });
+
+  it("creates a local ED chest pain evidence fixture with rigging, equipment, LOD, texture, and collider proof slots", () => {
+    const fixtureManifests = createEdChestPainLocalAssetEvidenceFixtureManifests();
+
+    expect(fixtureManifests.map((manifest) => manifest.assetId)).toEqual([
+      "patient_robert_hayes_character",
+      "nurse_maria_alvarez_character",
+      "ed_exam_bay_environment",
+    ]);
+    expect(fixtureManifests.every((manifest) => manifest.provenance.licenseStatus === "approved")).toBe(true);
+    expect(fixtureManifests.every((manifest) => manifest.provenance.sourceRefs.includes("openclinxr-local-asset-evidence-fixture-2026-05-06"))).toBe(true);
+    expect(evaluateScenarioGenerationEvidence(fixtureManifests)).toEqual({
+      generatedHumanRiggingObserved: true,
+      skinClothingProvenanceObserved: true,
+      medicalEquipmentLibraryObserved: true,
+      animationRetargetingObserved: true,
+      placeholderOnly: false,
+      blockers: [],
+    });
+    expect(evaluateScenarioOptimizationEvidence(fixtureManifests)).toEqual({
+      lodTiersObserved: true,
+      textureCompressionBudgetObserved: true,
+      colliderSimplificationObserved: true,
       placeholderOnly: false,
       blockers: [],
     });

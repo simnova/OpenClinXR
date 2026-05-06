@@ -1,0 +1,136 @@
+{
+  "generatedAt": "2026-05-06T06:06:09.795Z",
+  "status": "blocked",
+  "policy": {
+    "cloudApisUsed": false,
+    "paidApisUsed": false,
+    "externalAssetsUsed": false,
+    "productionUseAllowed": false,
+    "copyleftRuntimeAllowed": false
+  },
+  "input": {
+    "gltfPipelineSmokeFile": "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
+    "blenderAssetBakeSmokeFile": "docs/openclinxr/blender-asset-bake-smoke-2026-05-05.json",
+    "gltfGeneratedAt": "2026-05-06T00:10:04.220Z",
+    "blenderGeneratedAt": "2026-05-05T11:02:14.867Z",
+    "localAssetEvidenceFixtureUsed": true
+  },
+  "sourceEvidence": {
+    "gltfPipelineSmokePassed": true,
+    "blenderBakeSmokePassed": true,
+    "blenderSourceLicensePosture": "repo_generated_placeholder",
+    "placeholderBakeOnly": true,
+    "blockers": [
+      "placeholder_bake_only"
+    ]
+  },
+  "productionProofs": {
+    "generatedHumanRigging": {
+      "observed": true,
+      "requiredEvidence": [
+        "neutral generated human GLB",
+        "canonical skeleton binding",
+        "skin-weight or rigging report"
+      ],
+      "blockers": []
+    },
+    "skinClothingProvenance": {
+      "observed": true,
+      "requiredEvidence": [
+        "skin/texture provenance",
+        "clothing mesh provenance",
+        "runtime-safe material report"
+      ],
+      "blockers": []
+    },
+    "medicalEquipmentLibrary": {
+      "observed": true,
+      "requiredEvidence": [
+        "equipment GLB library",
+        "clinical equipment metadata",
+        "license provenance"
+      ],
+      "blockers": []
+    },
+    "animationRetargeting": {
+      "observed": true,
+      "requiredEvidence": [
+        "canonical skeleton clips",
+        "viseme or facial target mapping",
+        "retargeting QA report"
+      ],
+      "blockers": []
+    },
+    "lodTextureColliderBudget": {
+      "observed": true,
+      "requiredEvidence": [
+        "LOD tiers",
+        "KTX2 or texture budget report",
+        "collider simplification report"
+      ],
+      "blockers": []
+    },
+    "multiActorQuestBudget": {
+      "observed": true,
+      "requiredEvidence": [
+        "multi-actor station budget",
+        "Quest frame budget",
+        "draw-call and texture-memory budget"
+      ],
+      "blockers": []
+    }
+  },
+  "stationBudgetEvidence": {
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "source": "@openclinxr/asset-registry:createEdChestPainLocalAssetEvidenceFixtureManifests",
+    "requiredAssetCount": 3,
+    "budget": {
+      "maxVisibleTriangles": 180000,
+      "maxTextureMegabytes": 512,
+      "maxDrawCalls": 120,
+      "totalTriangles": 60000,
+      "totalTextureMegabytes": 80,
+      "totalDrawCalls": 28,
+      "blockers": []
+    },
+    "placeholderOnly": false,
+    "observed": true,
+    "blockers": []
+  },
+  "generationEvidence": {
+    "generatedHumanRiggingObserved": true,
+    "skinClothingProvenanceObserved": true,
+    "medicalEquipmentLibraryObserved": true,
+    "animationRetargetingObserved": true,
+    "placeholderOnly": false,
+    "blockers": []
+  },
+  "optimizationEvidence": {
+    "lodTiersObserved": true,
+    "textureCompressionBudgetObserved": true,
+    "colliderSimplificationObserved": true,
+    "placeholderOnly": false,
+    "blockers": []
+  },
+  "runtimeBudget": {
+    "singlePlaceholderGlbBytes": 27284,
+    "targetStationBundleMb": 80,
+    "maxVisibleTriangles": 180000,
+    "maxDrawCalls": 120,
+    "maxTextureMemoryMb": 512,
+    "multiActorBudgetObserved": true,
+    "blockers": []
+  },
+  "verdict": {
+    "passed": false,
+    "readyForProductionAssets": false,
+    "blockers": [
+      "source:placeholder_bake_only"
+    ],
+    "caveats": [
+      "This report evaluates production-readiness evidence from local smoke outputs only; it does not generate new third-party assets.",
+      "Placeholder GLB smoke proves the authoring tool chain can emit a GLB, not that generated clinical characters or environments are production-ready.",
+      "The local asset evidence fixture supplies contract-level proof slots only; fixture IDs are not artifact-backed generated production assets."
+    ]
+  }
+}

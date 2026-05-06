@@ -1,10 +1,12 @@
 import { pathToFileURL } from "node:url";
 import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 import {
+  createEdChestPainLocalAssetEvidenceFixtureManifests,
   createEdChestPainPlaceholderManifests,
   evaluateScenarioAssetBudget,
   evaluateScenarioGenerationEvidence,
   evaluateScenarioOptimizationEvidence,
+  type AssetManifest,
   type ScenarioAssetBudget,
   type ScenarioGenerationEvidence,
   type ScenarioOptimizationEvidence,
@@ -14,6 +16,7 @@ type CliOptions = {
   gltfPipelineSmokePath?: string;
   blenderAssetBakeSmokePath?: string;
   outputPath?: string;
+  useLocalAssetEvidenceFixture: boolean;
 };
 
 export type GltfPipelineSmokeReport = {
@@ -105,6 +108,7 @@ export type AssetProductionReadinessReport = {
     blenderAssetBakeSmokeFile: string;
     gltfGeneratedAt: string;
     blenderGeneratedAt: string;
+    localAssetEvidenceFixtureUsed: boolean;
   };
   sourceEvidence: {
     gltfPipelineSmokePassed: boolean;
@@ -150,6 +154,7 @@ async function main(): Promise<void> {
     blenderAssetBakeSmokeFile,
     gltfPipelineSmoke: await readJson<GltfPipelineSmokeReport>(gltfPipelineSmokeFile),
     blenderAssetBakeSmoke: await readJson<BlenderAssetBakeSmokeReport>(blenderAssetBakeSmokeFile),
+    useLocalAssetEvidenceFixture: options.useLocalAssetEvidenceFixture,
   });
 
   if (options.outputPath) {
@@ -163,7 +168,9 @@ async function main(): Promise<void> {
 
 function parseArgs(args: string[]): CliOptions {
   const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
-  const options: CliOptions = {};
+  const options: CliOptions = {
+    useLocalAssetEvidenceFixture: false,
+  };
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
@@ -180,6 +187,10 @@ function parseArgs(args: string[]): CliOptions {
     if (arg === "--output") {
       options.outputPath = requireValue(normalizedArgs, index, arg);
       index += 1;
+      continue;
+    }
+    if (arg === "--use-local-asset-evidence-fixture") {
+      options.useLocalAssetEvidenceFixture = true;
       continue;
     }
     throw new Error(`Unknown argument: ${arg ?? ""}`);
@@ -211,22 +222,29 @@ export function buildAssetProductionReadinessReport(input: {
   stationBudgetEvidence?: StationBudgetEvidence;
   generationEvidence?: ScenarioGenerationEvidence;
   optimizationEvidence?: ScenarioOptimizationEvidence;
+  useLocalAssetEvidenceFixture?: boolean;
 }): AssetProductionReadinessReport {
-  const stationBudgetEvidence = input.stationBudgetEvidence ?? buildEdChestPainStationBudgetEvidence();
-  const generationEvidence = input.generationEvidence ?? buildEdChestPainGenerationEvidence();
-  const optimizationEvidence = input.optimizationEvidence ?? buildEdChestPainOptimizationEvidence();
+  const localEvidenceFixtureManifests = input.useLocalAssetEvidenceFixture
+    ? createEdChestPainLocalAssetEvidenceFixtureManifests()
+    : undefined;
+  const stationBudgetEvidence = input.stationBudgetEvidence ?? buildEdChestPainStationBudgetEvidence(localEvidenceFixtureManifests);
+  const generationEvidence = input.generationEvidence ?? buildEdChestPainGenerationEvidence(localEvidenceFixtureManifests);
+  const optimizationEvidence = input.optimizationEvidence ?? buildEdChestPainOptimizationEvidence(localEvidenceFixtureManifests);
   const proofs = buildProofLanes(input.proofOverrides ?? {}, stationBudgetEvidence, generationEvidence, optimizationEvidence);
   const sourceEvidence = inspectSourceEvidence(input.gltfPipelineSmoke, input.blenderAssetBakeSmoke);
   const runtimeBudget = inspectRuntimeBudget(input.blenderAssetBakeSmoke, stationBudgetEvidence.observed);
   const blockers = [
     ...sourceEvidence.blockers.map((blocker) => `source:${blocker}`),
+    stationBudgetEvidence.placeholderOnly ? "station_budget:placeholder_asset_budget_only" : undefined,
+    generationEvidence.placeholderOnly ? "generation:placeholder_asset_generation_only" : undefined,
+    optimizationEvidence.placeholderOnly ? "optimization:placeholder_asset_optimization_only" : undefined,
     ...proofs.generatedHumanRigging.blockers.map((blocker) => `generation:${blocker}`),
     ...proofs.skinClothingProvenance.blockers.map((blocker) => `generation:${blocker}`),
     ...proofs.medicalEquipmentLibrary.blockers.map((blocker) => `generation:${blocker}`),
     ...proofs.animationRetargeting.blockers.map((blocker) => `generation:${blocker}`),
     ...proofs.lodTextureColliderBudget.blockers.map((blocker) => `optimization:${blocker}`),
     ...runtimeBudget.blockers.map((blocker) => `runtime:${blocker}`),
-  ];
+  ].filter((blocker): blocker is string => typeof blocker === "string");
   const passed = blockers.length === 0;
 
   return {
@@ -244,6 +262,7 @@ export function buildAssetProductionReadinessReport(input: {
       blenderAssetBakeSmokeFile: input.blenderAssetBakeSmokeFile,
       gltfGeneratedAt: input.gltfPipelineSmoke.generatedAt,
       blenderGeneratedAt: input.blenderAssetBakeSmoke.generatedAt,
+      localAssetEvidenceFixtureUsed: input.useLocalAssetEvidenceFixture === true,
     },
     sourceEvidence,
     productionProofs: proofs,
@@ -258,32 +277,48 @@ export function buildAssetProductionReadinessReport(input: {
       caveats: [
         "This report evaluates production-readiness evidence from local smoke outputs only; it does not generate new third-party assets.",
         "Placeholder GLB smoke proves the authoring tool chain can emit a GLB, not that generated clinical characters or environments are production-ready.",
+        ...(input.useLocalAssetEvidenceFixture === true
+          ? ["The local asset evidence fixture supplies contract-level proof slots only; fixture IDs are not artifact-backed generated production assets."]
+          : []),
       ],
     },
   };
 }
 
-function buildEdChestPainStationBudgetEvidence(): StationBudgetEvidence {
-  const manifests = createEdChestPainPlaceholderManifests();
+function buildEdChestPainStationBudgetEvidence(inputManifests?: readonly AssetManifest[]): StationBudgetEvidence {
+  const manifests = inputManifests ?? createEdChestPainPlaceholderManifests();
   const budget = evaluateScenarioAssetBudget(manifests);
+  const usesLocalEvidenceFixture = inputManifests !== undefined;
 
   return {
     scenarioId: "ed_chest_pain_priority_v1",
-    source: "@openclinxr/asset-registry:createEdChestPainPlaceholderManifests",
+    source: usesLocalEvidenceFixture
+      ? "@openclinxr/asset-registry:createEdChestPainLocalAssetEvidenceFixtureManifests"
+      : "@openclinxr/asset-registry:createEdChestPainPlaceholderManifests",
     requiredAssetCount: manifests.length,
     budget,
-    placeholderOnly: true,
+    placeholderOnly: manifestsArePlaceholderOnly(manifests),
     observed: budget.blockers.length === 0,
     blockers: [...budget.blockers],
   };
 }
 
-function buildEdChestPainGenerationEvidence(): ScenarioGenerationEvidence {
-  return evaluateScenarioGenerationEvidence(createEdChestPainPlaceholderManifests());
+function buildEdChestPainGenerationEvidence(inputManifests?: readonly AssetManifest[]): ScenarioGenerationEvidence {
+  return evaluateScenarioGenerationEvidence(inputManifests ?? createEdChestPainPlaceholderManifests());
 }
 
-function buildEdChestPainOptimizationEvidence(): ScenarioOptimizationEvidence {
-  return evaluateScenarioOptimizationEvidence(createEdChestPainPlaceholderManifests());
+function buildEdChestPainOptimizationEvidence(inputManifests?: readonly AssetManifest[]): ScenarioOptimizationEvidence {
+  return evaluateScenarioOptimizationEvidence(inputManifests ?? createEdChestPainPlaceholderManifests());
+}
+
+function manifestsArePlaceholderOnly(manifests: readonly AssetManifest[]): boolean {
+  return manifests.length > 0 && manifests.every((manifest) => {
+    const generationMethodIsPlaceholder = manifest.provenance.generationMethod === "procedural_placeholder";
+    const sourceRefsArePlaceholder = manifest.provenance.sourceRefs.some((sourceRef) => sourceRef.includes("placeholder"));
+    const stageNotesArePlaceholder = manifest.pipelineStages.some((stage) => stage.notes.toLowerCase().includes("placeholder"));
+
+    return generationMethodIsPlaceholder || sourceRefsArePlaceholder || stageNotesArePlaceholder;
+  });
 }
 
 function inspectSourceEvidence(
