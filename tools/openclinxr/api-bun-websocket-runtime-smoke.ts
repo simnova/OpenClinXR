@@ -5,7 +5,7 @@ import path from "node:path";
 import { performance } from "node:perf_hooks";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
-import { writeJson } from "../agent-factory/lib.js";
+import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -137,7 +137,11 @@ type CliOptions = {
   bunExecutable?: string;
   burstFrames: number;
   burstFrameBytes: number;
+  validatePath?: string;
+  validateLatest: boolean;
 };
+
+type ValidationResult = { ok: true } | { ok: false; errors: string[] };
 
 type WebSocketLike = {
   binaryType: string;
@@ -147,8 +151,23 @@ type WebSocketLike = {
   addEventListener: (type: string, listener: (event: { data?: unknown; code?: number }) => void) => void;
 };
 
-async function main(): Promise<void> {
-  const options = parseArgs(process.argv.slice(2));
+export async function main(args = process.argv.slice(2)): Promise<void> {
+  const options = parseArgs(args);
+  if (options.validatePath || options.validateLatest) {
+    const validatePath = options.validatePath ?? await latestApiBunWebSocketRuntimeSmokePath();
+    const validation = validateApiBunWebSocketRuntimeSmokeReport(await readJson<unknown>(validatePath));
+    if (validation.ok) {
+      console.log(`Validated ${validatePath}`);
+      return;
+    }
+
+    for (const error of validation.errors) {
+      console.error(error);
+    }
+    process.exitCode = 1;
+    return;
+  }
+
   const report = await runApiBunWebSocketRuntimeSmoke(options);
 
   if (options.outputPath) {
@@ -167,10 +186,20 @@ function parseArgs(args: string[]): CliOptions {
     timeoutMs: 8_000,
     burstFrames: 8,
     burstFrameBytes: 256,
+    validateLatest: false,
   };
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
+    if (arg === "--validate") {
+      options.validatePath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--validate-latest") {
+      options.validateLatest = true;
+      continue;
+    }
     if (arg === "--output") {
       options.outputPath = requireValue(normalizedArgs, index, arg);
       index += 1;
@@ -205,6 +234,299 @@ function parseArgs(args: string[]): CliOptions {
   }
 
   return options;
+}
+
+async function latestApiBunWebSocketRuntimeSmokePath(): Promise<string> {
+  const files = await globFiles("docs/openclinxr/api-bun-websocket-runtime-smoke-*.json");
+  const latest = files.sort().at(-1);
+  if (!latest) {
+    throw new Error("No API Bun WebSocket runtime smoke report found.");
+  }
+  return latest;
+}
+
+export function validateApiBunWebSocketRuntimeSmokeReport(value: unknown): ValidationResult {
+  const errors: string[] = [];
+  if (!isRecord(value)) {
+    return { ok: false, errors: ["/ must be object"] };
+  }
+
+  requireString(value.generatedAt, "/generatedAt", errors);
+  requireOneOf(value.status, ["passed", "blocked"], "/status", errors);
+  validatePolicy(value.policy, errors);
+  validateBun(value.bun, errors);
+  validateRuntime(value.runtime, errors);
+  validateServer(value.server, errors);
+  validateHealth(value.health, errors);
+  validateTraceContexts(value.traceContexts, errors);
+  validateWebSocket(value.websocket, errors);
+  requireStringArray(value.runtimeEvidenceBlockers, "/runtimeEvidenceBlockers", errors);
+  validateVerdict(value.verdict, errors);
+  validateConsistency(value, errors);
+
+  return errors.length === 0 ? { ok: true } : { ok: false, errors };
+}
+
+function validatePolicy(value: unknown, errors: string[]): void {
+  requireRecord(value, "/policy", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  for (const key of [
+    "cloudApisUsed",
+    "paidApisUsed",
+    "modelDownloadsUsed",
+    "http3Enabled",
+    "webTransportUsed",
+    "quicUsed",
+    "web3Used",
+    "questHardwareClaimed",
+    "productionUseAllowed",
+    "lowLatencyClaimed",
+  ]) {
+    requireLiteral(value[key], false, `/policy/${key}`, errors);
+  }
+}
+
+function validateBun(value: unknown, errors: string[]): void {
+  requireRecord(value, "/bun", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireNullableString(value.executable, "/bun/executable", errors);
+  requireNullableString(value.version, "/bun/version", errors);
+  requireNullableString(value.revision, "/bun/revision", errors);
+}
+
+function validateRuntime(value: unknown, errors: string[]): void {
+  requireRecord(value, "/runtime", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireLiteral(value.target, "apps/api bun+hono", "/runtime/target", errors);
+  requireLiteral(value.appPath, "apps/api", "/runtime/appPath", errors);
+  requireLiteral(value.websocketPath, "/voice/realtime/ws", "/runtime/websocketPath", errors);
+  requireRecord(value.h3, "/runtime/h3", errors);
+  if (!isRecord(value.h3)) {
+    return;
+  }
+  requireLiteral(value.h3.enabled, false, "/runtime/h3/enabled", errors);
+  requireLiteral(value.h3.h3TrueEnabled, false, "/runtime/h3/h3TrueEnabled", errors);
+  requireBoolean(value.h3.optionPresentInServerSource, "/runtime/h3/optionPresentInServerSource", errors);
+  requireLiteral(value.h3.outOfScopeForThisSmoke, true, "/runtime/h3/outOfScopeForThisSmoke", errors);
+}
+
+function validateServer(value: unknown, errors: string[]): void {
+  requireRecord(value, "/server", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireBoolean(value.attempted, "/server/attempted", errors);
+  requireStringArray(value.command, "/server/command", errors);
+  requireNumber(value.port, "/server/port", errors);
+  requireStringArray(value.stdout, "/server/stdout", errors);
+  requireStringArray(value.stderr, "/server/stderr", errors);
+}
+
+function validateHealth(value: unknown, errors: string[]): void {
+  requireRecord(value, "/health", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireBoolean(value.attempted, "/health/attempted", errors);
+  requireBoolean(value.ok, "/health/ok", errors);
+  requireNullableNumber(value.statusCode, "/health/statusCode", errors);
+  requireNullableNumber(value.latencyMs, "/health/latencyMs", errors);
+}
+
+function validateTraceContexts(value: unknown, errors: string[]): void {
+  requireRecord(value, "/traceContexts", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireRecord(value.preVrTraceInteraction, "/traceContexts/preVrTraceInteraction", errors);
+  if (isRecord(value.preVrTraceInteraction)) {
+    requireBoolean(value.preVrTraceInteraction.observed, "/traceContexts/preVrTraceInteraction/observed", errors);
+    requireLiteral(
+      value.preVrTraceInteraction.source,
+      "synthetic_local_websocket_control_frame",
+      "/traceContexts/preVrTraceInteraction/source",
+      errors,
+    );
+    requireStringArray(value.preVrTraceInteraction.controlFrameTypes, "/traceContexts/preVrTraceInteraction/controlFrameTypes", errors);
+  }
+  requireRecord(value.inVrTraceInteraction, "/traceContexts/inVrTraceInteraction", errors);
+  if (isRecord(value.inVrTraceInteraction)) {
+    requireLiteral(value.inVrTraceInteraction.observed, false, "/traceContexts/inVrTraceInteraction/observed", errors);
+    requireLiteral(
+      value.inVrTraceInteraction.blocker,
+      "in_vr_trace_not_executed_by_local_bun_smoke",
+      "/traceContexts/inVrTraceInteraction/blocker",
+      errors,
+    );
+  }
+}
+
+function validateWebSocket(value: unknown, errors: string[]): void {
+  requireRecord(value, "/websocket", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  for (const key of [
+    "attempted",
+    "connected",
+    "reconnectObserved",
+    "controlAckObserved",
+    "audioMetadataObserved",
+    "transcriptDeltaObserved",
+    "binaryEchoObserved",
+  ]) {
+    requireBoolean(value[key], `/websocket/${key}`, errors);
+  }
+  for (const key of [
+    "openLatencyMs",
+    "firstReadyLatencyMs",
+    "controlAckLatencyMs",
+    "firstBinaryEchoLatencyMs",
+    "closeCode",
+    "reconnectCloseCode",
+  ]) {
+    requireNullableNumber(value[key], `/websocket/${key}`, errors);
+  }
+  for (const key of [
+    "jsonMessages",
+    "binaryMessages",
+    "binaryFramesSent",
+    "binaryBytesSent",
+  ]) {
+    requireNumber(value[key], `/websocket/${key}`, errors);
+  }
+  requireStringArray(value.eventTypesObserved, "/websocket/eventTypesObserved", errors);
+  requireStringArray(value.controlFrameTypesSent, "/websocket/controlFrameTypesSent", errors);
+  requireStringArray(value.serverErrors, "/websocket/serverErrors", errors);
+  validateProtocolContract(value.protocolContract, errors);
+  validateProtocolBoundary(value.protocolBoundary, errors);
+  validateBackpressure(value.backpressure, errors);
+}
+
+function validateProtocolContract(value: unknown, errors: string[]): void {
+  requireRecord(value, "/websocket/protocolContract", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  for (const key of [
+    "gatewayReadyLocalEchoObserved",
+    "gatewayReadyLiveDialogDisabledObserved",
+    "canonicalVoiceStartAckObserved",
+    "sanitizedControlPayloadObserved",
+  ]) {
+    requireBoolean(value[key], `/websocket/protocolContract/${key}`, errors);
+  }
+  requireLiteral(value.localClientObservationOnly, true, "/websocket/protocolContract/localClientObservationOnly", errors);
+}
+
+function validateProtocolBoundary(value: unknown, errors: string[]): void {
+  requireRecord(value, "/websocket/protocolBoundary", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireNumber(value.malformedJsonFramesSent, "/websocket/protocolBoundary/malformedJsonFramesSent", errors);
+  requireBoolean(value.malformedJsonControlRejected, "/websocket/protocolBoundary/malformedJsonControlRejected", errors);
+  requireStringArray(value.unsupportedControlFrameTypesSent, "/websocket/protocolBoundary/unsupportedControlFrameTypesSent", errors);
+  requireBoolean(value.unsupportedControlRejected, "/websocket/protocolBoundary/unsupportedControlRejected", errors);
+  requireStringArray(value.errorReasonsObserved, "/websocket/protocolBoundary/errorReasonsObserved", errors);
+  requireLiteral(value.localClientObservationOnly, true, "/websocket/protocolBoundary/localClientObservationOnly", errors);
+}
+
+function validateBackpressure(value: unknown, errors: string[]): void {
+  requireRecord(value, "/websocket/backpressure", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireNumber(value.burstFrameCount, "/websocket/backpressure/burstFrameCount", errors);
+  requireNumber(value.burstBytes, "/websocket/backpressure/burstBytes", errors);
+  requireNullableNumber(value.maxBufferedAmount, "/websocket/backpressure/maxBufferedAmount", errors);
+  if (!Array.isArray(value.bufferedAmountSamples) || value.bufferedAmountSamples.some((sample) => typeof sample !== "number" || !Number.isFinite(sample))) {
+    errors.push("/websocket/backpressure/bufferedAmountSamples must be array of finite numbers");
+  }
+  requireNumber(value.droppedOrErroredMessages, "/websocket/backpressure/droppedOrErroredMessages", errors);
+  requireLiteral(value.localClientObservationOnly, true, "/websocket/backpressure/localClientObservationOnly", errors);
+}
+
+function validateVerdict(value: unknown, errors: string[]): void {
+  requireRecord(value, "/verdict", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireBoolean(value.smokePassed, "/verdict/smokePassed", errors);
+  requireLiteral(value.readyForLiveDialog, false, "/verdict/readyForLiveDialog", errors);
+  requireStringArray(value.blockers, "/verdict/blockers", errors);
+  requireStringArray(value.caveats, "/verdict/caveats", errors);
+}
+
+function validateConsistency(value: Record<string, unknown>, errors: string[]): void {
+  const expectedBlockers = expectedRuntimeEvidenceBlockers(value);
+  const actualBlockers = new Set(stringArray(value.runtimeEvidenceBlockers));
+  const hasBlockers = expectedBlockers.length > 0;
+  const verdict = isRecord(value.verdict) ? value.verdict : {};
+
+  if (value.status === "passed" && hasBlockers) {
+    errors.push("/status must be blocked when runtime evidence blockers are present");
+  }
+  if (value.status === "blocked" && !hasBlockers) {
+    errors.push("/status must be passed when no runtime evidence blockers are present");
+  }
+  for (const blocker of expectedBlockers) {
+    if (!actualBlockers.has(blocker)) {
+      errors.push(`/runtimeEvidenceBlockers missing expected blocker ${blocker}`);
+    }
+  }
+  if (verdict.smokePassed !== !hasBlockers) {
+    errors.push(`/verdict/smokePassed must be ${String(!hasBlockers)} when runtime evidence blockers are ${hasBlockers ? "present" : "absent"}`);
+  }
+}
+
+function expectedRuntimeEvidenceBlockers(value: Record<string, unknown>): string[] {
+  const bun = isRecord(value.bun) ? value.bun : {};
+  const server = isRecord(value.server) ? value.server : {};
+  const health = isRecord(value.health) ? value.health : {};
+  const runtime = isRecord(value.runtime) ? value.runtime : {};
+  const h3 = isRecord(runtime.h3) ? runtime.h3 : {};
+  const websocket = isRecord(value.websocket) ? value.websocket : {};
+  const contract = isRecord(websocket.protocolContract) ? websocket.protocolContract : {};
+  const boundary = isRecord(websocket.protocolBoundary) ? websocket.protocolBoundary : {};
+  const serverErrors = stringArray(websocket.serverErrors);
+
+  return [
+    typeof bun.executable === "string" && typeof bun.version === "string" ? undefined : "bun_runtime_not_available",
+    server.attempted === true ? undefined : "server_not_started",
+    health.attempted === true && health.ok === true ? undefined : "health_check_failed",
+    websocket.attempted === true && websocket.connected === true ? undefined : "websocket_not_connected",
+    websocket.reconnectObserved === true ? undefined : "websocket_reconnect_not_observed",
+    websocket.controlAckObserved === true ? undefined : "websocket_control_ack_missing",
+    websocket.audioMetadataObserved === true ? undefined : "websocket_audio_metadata_missing",
+    websocket.transcriptDeltaObserved === true ? undefined : "websocket_transcript_delta_missing",
+    websocket.binaryEchoObserved === true ? undefined : "websocket_binary_echo_missing",
+    contract.gatewayReadyLocalEchoObserved === true ? undefined : "websocket_gateway_ready_contract_missing",
+    contract.gatewayReadyLiveDialogDisabledObserved === true ? undefined : "websocket_live_dialog_disabled_posture_missing",
+    contract.canonicalVoiceStartAckObserved === true ? undefined : "websocket_canonical_voice_start_ack_missing",
+    contract.sanitizedControlPayloadObserved === true ? undefined : "websocket_control_payload_sanitization_missing",
+    boundary.malformedJsonControlRejected === true ? undefined : "websocket_malformed_json_not_rejected",
+    boundary.unsupportedControlRejected === true ? undefined : "websocket_unsupported_control_not_rejected",
+    serverErrors.length === 0 ? undefined : "server_errors_observed",
+    h3.enabled === false && h3.h3TrueEnabled === false ? undefined : "http3_enabled_outside_approved_scope",
+  ].filter((blocker): blocker is string => typeof blocker === "string");
 }
 
 export async function runApiBunWebSocketRuntimeSmoke(
@@ -808,6 +1130,83 @@ function safeJsonParse(value: string): unknown {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function requireRecord(value: unknown, pathName: string, errors: string[]): void {
+  if (!isRecord(value)) {
+    errors.push(`${pathName} must be object`);
+  }
+}
+
+function requireString(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "string" || value.length === 0) {
+    errors.push(`${pathName} must be non-empty string`);
+  }
+}
+
+function requireNullableString(value: unknown, pathName: string, errors: string[]): void {
+  if (value !== null && (typeof value !== "string" || value.length === 0)) {
+    errors.push(`${pathName} must be null or non-empty string`);
+  }
+}
+
+function requireStringArray(value: unknown, pathName: string, errors: string[]): void {
+  if (!Array.isArray(value)) {
+    errors.push(`${pathName} must be array`);
+    return;
+  }
+
+  value.forEach((entry, index) => {
+    if (typeof entry !== "string" || entry.length === 0) {
+      errors.push(`${pathName}/${index} must be non-empty string`);
+    }
+  });
+}
+
+function requireBoolean(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "boolean") {
+    errors.push(`${pathName} must be boolean`);
+  }
+}
+
+function requireNumber(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    errors.push(`${pathName} must be finite number`);
+  }
+}
+
+function requireNullableNumber(value: unknown, pathName: string, errors: string[]): void {
+  if (value !== null && (typeof value !== "number" || !Number.isFinite(value))) {
+    errors.push(`${pathName} must be null or finite number`);
+  }
+}
+
+function requireLiteral<T extends string | boolean | number>(
+  value: unknown,
+  literal: T,
+  pathName: string,
+  errors: string[],
+): void {
+  if (value !== literal) {
+    errors.push(`${pathName} must be ${JSON.stringify(literal)}`);
+  }
+}
+
+function requireOneOf<T extends string>(
+  value: unknown,
+  allowed: readonly T[],
+  pathName: string,
+  errors: string[],
+): void {
+  if (typeof value !== "string" || !(allowed as readonly string[]).includes(value)) {
+    errors.push(`${pathName} must be one of ${allowed.map((entry) => JSON.stringify(entry)).join(", ")}`);
+  }
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((entry): entry is string => typeof entry === "string")
+    : [];
 }
 
 function sleep(milliseconds: number): Promise<void> {

@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { readFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import {
   buildApiBunWebSocketRuntimeSmokeReport,
+  main,
   type ApiBunWebSocketRuntimeSmokeObservation,
+  validateApiBunWebSocketRuntimeSmokeReport,
 } from "./api-bun-websocket-runtime-smoke.js";
 
 const baseObservation = {
@@ -88,6 +92,10 @@ describe("API Bun WebSocket runtime smoke report", () => {
     expect(packageJson.scripts["local:voice:bun-websocket-smoke"]).toBe(
       "tsx tools/openclinxr/api-bun-websocket-runtime-smoke.ts",
     );
+    expect(packageJson.scripts["local:voice:bun-websocket-smoke:validate"]).toBe(
+      "tsx tools/openclinxr/api-bun-websocket-runtime-smoke.ts --validate-latest",
+    );
+    expect(packageJson.scripts["agent:verify"]).toContain("pnpm local:voice:bun-websocket-smoke:validate");
   });
 
   it("passes a local Bun websocket smoke while preserving non-Quest claim boundaries", () => {
@@ -222,5 +230,90 @@ describe("API Bun WebSocket runtime smoke report", () => {
     ]));
     expect(report.verdict.smokePassed).toBe(false);
     expect(report.verdict.readyForLiveDialog).toBe(false);
+  });
+
+  it("validates the latest Bun websocket smoke without expanding its claim scope", async () => {
+    const report = JSON.parse(
+      await readFile("docs/openclinxr/api-bun-websocket-runtime-smoke-2026-05-05.json", "utf8"),
+    );
+
+    expect(validateApiBunWebSocketRuntimeSmokeReport(report)).toEqual({ ok: true });
+
+    const invalid = structuredClone(report) as {
+      policy: Partial<{ productionUseAllowed: boolean }>;
+      runtime: { h3: { h3TrueEnabled: boolean } };
+      verdict: { readyForLiveDialog: boolean };
+    };
+    delete invalid.policy.productionUseAllowed;
+    invalid.runtime.h3.h3TrueEnabled = true;
+    invalid.verdict.readyForLiveDialog = true;
+
+    expect(validateApiBunWebSocketRuntimeSmokeReport(invalid)).toEqual({
+      ok: false,
+      errors: [
+        "/policy/productionUseAllowed must be false",
+        "/runtime/h3/h3TrueEnabled must be false",
+        "/verdict/readyForLiveDialog must be false",
+        "/status must be blocked when runtime evidence blockers are present",
+        "/runtimeEvidenceBlockers missing expected blocker http3_enabled_outside_approved_scope",
+        "/verdict/smokePassed must be false when runtime evidence blockers are present",
+      ],
+    });
+  });
+
+  it("requires status and runtime evidence blockers to match websocket observations", () => {
+    const report = buildApiBunWebSocketRuntimeSmokeReport({
+      ...baseObservation,
+      websocket: {
+        ...baseObservation.websocket,
+        connected: false,
+        binaryEchoObserved: false,
+      },
+    });
+    const invalid = structuredClone(report) as {
+      status: string;
+      runtimeEvidenceBlockers: string[];
+      verdict: { smokePassed: boolean };
+    };
+    invalid.status = "passed";
+    invalid.runtimeEvidenceBlockers = [];
+    invalid.verdict.smokePassed = true;
+
+    expect(validateApiBunWebSocketRuntimeSmokeReport(invalid)).toEqual({
+      ok: false,
+      errors: [
+        "/status must be blocked when runtime evidence blockers are present",
+        "/runtimeEvidenceBlockers missing expected blocker websocket_not_connected",
+        "/runtimeEvidenceBlockers missing expected blocker websocket_binary_echo_missing",
+        "/verdict/smokePassed must be false when runtime evidence blockers are present",
+      ],
+    });
+  });
+
+  it("validates CLI reports by explicit path and latest evidence path", async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), "openclinxr-bun-websocket-validate-"));
+    try {
+      const report = buildApiBunWebSocketRuntimeSmokeReport(baseObservation);
+      const output = path.join(dir, "report.json");
+      await writeFile(output, JSON.stringify(report, null, 2));
+
+      await expect(main(["--validate", output])).resolves.toBeUndefined();
+      await expect(main(["--validate-latest"])).resolves.toBeUndefined();
+
+      const invalid = structuredClone(report) as {
+        websocket: { protocolBoundary: { localClientObservationOnly: boolean } };
+      };
+      invalid.websocket.protocolBoundary.localClientObservationOnly = false;
+      const invalidOutput = path.join(dir, "invalid-report.json");
+      await writeFile(invalidOutput, JSON.stringify(invalid, null, 2));
+      process.exitCode = undefined;
+
+      await expect(main(["--validate", invalidOutput])).resolves.toBeUndefined();
+
+      expect(process.exitCode).toBe(1);
+    } finally {
+      process.exitCode = undefined;
+      await rm(dir, { recursive: true, force: true });
+    }
   });
 });
