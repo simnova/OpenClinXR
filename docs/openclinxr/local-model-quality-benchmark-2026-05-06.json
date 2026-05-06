@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T06:57:35.610Z",
+  "generatedAt": "2026-05-06T21:39:44.035Z",
   "status": "blocked",
   "policy": {
     "cloudApisUsed": false,
@@ -9,8 +9,8 @@
     "productionUseAllowed": false
   },
   "input": {
-    "runtimeBenchmarkFile": "docs/openclinxr/local-model-runtime-benchmark-2026-05-05.json",
-    "runtimeGeneratedAt": "2026-05-05T20:20:19.936Z",
+    "runtimeBenchmarkFile": "docs/openclinxr/local-model-runtime-benchmark-2026-05-06.json",
+    "runtimeGeneratedAt": "2026-05-06T21:37:38.260Z",
     "modelId": "Qwen/Qwen3-4B-GGUF",
     "runtimeStatus": "passed_with_caveats"
   },
