@@ -1751,7 +1751,7 @@ describe("benchmark gate report", () => {
     expect(gatesById.get("evidence-leadership-0009-005")).toEqual(expect.objectContaining({
       ready_to_resolve: false,
       blockers: expect.arrayContaining([
-        "asset_production:local_fixture_contract_slots_not_artifact_backed",
+        "asset_production:artifact_backed_production_asset_evidence_missing",
         "asset_production:not_ready_for_production_assets",
       ]),
       satisfied_conditions: expect.arrayContaining([
@@ -3689,7 +3689,7 @@ describe("benchmark gate report", () => {
     expect(assetGate).toMatchObject({
       ready_to_resolve: false,
       blockers: [
-        "asset_production:local_fixture_contract_slots_not_artifact_backed",
+        "asset_production:artifact_backed_production_asset_evidence_missing",
         "asset_production:not_ready_for_production_assets",
       ],
     });

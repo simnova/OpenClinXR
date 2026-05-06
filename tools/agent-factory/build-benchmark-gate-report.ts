@@ -2476,7 +2476,7 @@ function assetProductionBlockers(
     return unique([
       ...assetProductionReadinessBenchmark.value.verdict.blockers.map((blocker) => `asset_production:${blocker}`),
       ...(assetProductionReadinessBenchmark.value.input?.localAssetEvidenceFixtureUsed
-        ? ["asset_production:local_fixture_contract_slots_not_artifact_backed"]
+        ? ["asset_production:artifact_backed_production_asset_evidence_missing"]
         : []),
       ...(assetProductionReadinessBenchmark.value.verdict.readyForProductionAssets === true
         ? []
