@@ -1,6 +1,7 @@
 {
+  "schemaVersion": "openclinxr.asset-production-evidence-ladder.v1",
   "kind": "asset_production_evidence_ladder",
-  "generatedAt": "2026-05-06T15:18:41.997Z",
+  "generatedAt": "2026-05-06T15:33:39.087Z",
   "status": "blocked",
   "sourceReadinessReport": {
     "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",

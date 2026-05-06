@@ -1321,6 +1321,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     ...(assetProductionEvidenceLadder ? {
       asset_production_evidence_ladder: {
         file: assetProductionEvidenceLadder.file,
+        schema_version: assetProductionEvidenceLadder.value.schemaVersion,
         generated_at: assetProductionEvidenceLadder.value.generatedAt,
         status: assetProductionEvidenceLadder.value.status,
         source_readiness_report: assetProductionEvidenceLadder.value.sourceReadinessReport,

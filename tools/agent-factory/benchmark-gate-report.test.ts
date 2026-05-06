@@ -129,6 +129,7 @@ type BenchmarkGateReport = {
   };
   asset_production_evidence_ladder?: {
     file: string;
+    schema_version: string;
     generated_at: string;
     status: string;
     source_readiness_report: {
@@ -3826,6 +3827,7 @@ describe("benchmark gate report", () => {
       assetProductionEvidenceLadder: {
         file: "docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
         value: {
+          schemaVersion: "openclinxr.asset-production-evidence-ladder.v1",
           kind: "asset_production_evidence_ladder",
           generatedAt: "2026-05-06T08:20:00.000Z",
           status: "blocked",
@@ -3865,6 +3867,7 @@ describe("benchmark gate report", () => {
       assetProductionEvidenceLadder: {
         file: string;
         value: {
+          schemaVersion: string;
           kind: string;
           generatedAt: string;
           status: string;
@@ -3918,6 +3921,7 @@ describe("benchmark gate report", () => {
     });
     expect(report.asset_production_evidence_ladder).toMatchObject({
       file: "docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
+      schema_version: "openclinxr.asset-production-evidence-ladder.v1",
       status: "blocked",
       source_readiness_report: {
         file: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",

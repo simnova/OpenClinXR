@@ -36,6 +36,7 @@ type AssetProductionEvidenceLadderLane = {
 };
 
 export type AssetProductionEvidenceLadderReport = {
+  schemaVersion: "openclinxr.asset-production-evidence-ladder.v1";
   kind: "asset_production_evidence_ladder";
   generatedAt: string;
   status: "passed" | "blocked";
@@ -214,6 +215,7 @@ export function buildAssetProductionEvidenceLadderReport(input: {
   const passed = blockers.length === 0 && input.readinessReport.claimBoundaries.artifactBackedProductionAssetEvidenceObserved;
 
   return {
+    schemaVersion: "openclinxr.asset-production-evidence-ladder.v1",
     kind: "asset_production_evidence_ladder",
     generatedAt: input.generatedAt ?? new Date().toISOString(),
     status: passed ? "passed" : "blocked",

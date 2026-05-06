@@ -26,6 +26,7 @@ describe("asset production evidence ladder report", () => {
     });
 
     expect(report).toMatchObject({
+      schemaVersion: "openclinxr.asset-production-evidence-ladder.v1",
       kind: "asset_production_evidence_ladder",
       status: "blocked",
       sourceReadinessReport: {
