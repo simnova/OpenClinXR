@@ -59,14 +59,14 @@ type LinkedTransportEvidence = {
     eventTypesObserved: string[];
   };
   policy: {
-    cloudApisUsed: false;
-    paidApisUsed: false;
-    http3Enabled: false;
-    webTransportUsed: false;
-    quicUsed: false;
-    web3Used: false;
-    questHardwareClaimed: false;
-    lowLatencyClaimed: false;
+    cloudApisUsed: boolean;
+    paidApisUsed: boolean;
+    http3Enabled: boolean;
+    webTransportUsed: boolean;
+    quicUsed: boolean;
+    web3Used: boolean;
+    questHardwareClaimed: boolean;
+    lowLatencyClaimed: boolean;
   };
   blockers: string[];
   caveats: string[];
@@ -429,13 +429,14 @@ export async function buildBlueprintVoiceSimulationSpikeReport(input: {
   scenarioId: string;
   learnerUtterance: string;
   atSecond: number;
+  transportEvidenceSourceFile?: string;
 }): Promise<BlueprintVoiceSimulationSpikeReport> {
   const generatedAt = input.generatedAt ?? new Date().toISOString();
   const scenario = requireScenario(input.scenarios, input.scenarioId);
   const plan = buildBlueprintVoiceSimulationPlan(input);
   const triggerEvidence = buildTriggerEvidence(plan);
   const prewarmEvidence = buildPrewarmEvidence(plan);
-  const transportEvidence = buildLinkedTransportEvidence();
+  const transportEvidence = buildLinkedTransportEvidence(input.transportEvidenceSourceFile);
   const multiCharacterInterruption = await buildMultiCharacterInterruptionEvidence({
     scenario,
     plan,
@@ -562,7 +563,9 @@ export async function buildBlueprintVoiceSimulationSpikeReport(input: {
       tier3WebXrObserved: false,
       readyForProduction: false,
       blockers: [
-        transportEvidence.bunPythonProxyPassed
+        transportEvidence.blockers.includes("transport_policy_boundary_not_clean")
+          ? "tier1_transport_policy_boundary_not_clean"
+          : transportEvidence.bunPythonProxyPassed
           ? "tier1_transport_linked_but_not_executed_by_blueprint_report"
           : "tier1_bun_python_transport_loop_not_executed",
         "real_local_full_duplex_model_not_executed",
@@ -882,12 +885,24 @@ function buildLinkedTransportEvidence(sourceFile = defaultTransportEvidenceSourc
     const websocket = asRecord(report.websocket);
     const policy = asRecord(report.policy);
     const verdict = asRecord(report.verdict);
+    const transportPolicy = {
+      cloudApisUsed: policy.cloudApisUsed === true,
+      paidApisUsed: policy.paidApisUsed === true,
+      http3Enabled: policy.http3Enabled === true,
+      webTransportUsed: policy.webTransportUsed === true,
+      quicUsed: policy.quicUsed === true,
+      web3Used: policy.web3Used === true,
+      questHardwareClaimed: policy.questHardwareClaimed === true,
+      lowLatencyClaimed: policy.lowLatencyClaimed === true,
+    };
+    const policyBoundaryClean = Object.values(transportPolicy).every((value) => value === false);
     const sourceStatus = report.status === "passed" ? "passed" : "blocked";
     const bunPythonProxyPassed = sourceStatus === "passed"
       && websocket.connected === true
       && websocket.backendProtocolObserved === true
       && websocket.latencyFieldsObserved === true
-      && websocket.binaryEchoObserved === true;
+      && websocket.binaryEchoObserved === true
+      && policyBoundaryClean;
 
     return {
       linkedExistingEvidence: true,
@@ -909,27 +924,14 @@ function buildLinkedTransportEvidence(sourceFile = defaultTransportEvidenceSourc
         binaryEchoObserved: websocket.binaryEchoObserved === true,
         eventTypesObserved: stringArray(websocket.eventTypesObserved),
       },
-      policy: {
-        cloudApisUsed: false,
-        paidApisUsed: false,
-        http3Enabled: false,
-        webTransportUsed: false,
-        quicUsed: false,
-        web3Used: false,
-        questHardwareClaimed: false,
-        lowLatencyClaimed: false,
-      },
-      blockers: stringArray(verdict.blockers),
+      policy: transportPolicy,
+      blockers: [
+        ...(policyBoundaryClean ? [] : ["transport_policy_boundary_not_clean"]),
+        ...stringArray(verdict.blockers),
+      ],
       caveats: [
         ...stringArray(verdict.caveats),
-        ...(policy.cloudApisUsed === false
-          && policy.paidApisUsed === false
-          && policy.http3Enabled === false
-          && policy.webTransportUsed === false
-          && policy.quicUsed === false
-          && policy.web3Used === false
-          ? []
-          : ["transport_policy_boundary_not_clean"]),
+        ...(policyBoundaryClean ? [] : ["transport_policy_boundary_not_clean"]),
       ],
     };
   } catch {

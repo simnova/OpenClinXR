@@ -1,3 +1,6 @@
+import { mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { createStep2CsStyleSeedBlueprint } from "../../packages/openclinxr/exam-assembly/src/index.js";
 import { edChestPainScenario, scenarioBank } from "../../packages/openclinxr/scenario-fixtures/src/index.js";
 import { describe, expect, it } from "vitest";
@@ -370,5 +373,81 @@ describe("blueprint-driven voice simulation spike", () => {
         "clinical_voice_safety_controls_not_validated_with_real_model",
       ],
     });
+  });
+
+  it("blocks linked transport evidence when its local-only policy boundary is dirty", async () => {
+    const tempDir = await mkdtemp(path.join(tmpdir(), "openclinxr-blueprint-voice-transport-"));
+    const dirtyTransportEvidenceFile = path.join(tempDir, "api-bun-python-proxy-runtime-smoke-dirty.json");
+    await writeFile(dirtyTransportEvidenceFile, `${JSON.stringify({
+      status: "passed",
+      runtime: {
+        apiTarget: "apps/api bun+hono",
+        pythonBackendTarget: "apps/api-python-backend fastapi",
+        websocketPath: "/voice/realtime/ws",
+        backendProtocol: "python-fastapi-compatible-websocket",
+      },
+      websocket: {
+        connected: true,
+        backendProtocolObserved: true,
+        latencyFieldsObserved: true,
+        binaryEchoObserved: true,
+        eventTypesObserved: [
+          "gateway.ready",
+          "backend.ready",
+          "voice.started",
+          "audio.chunk",
+          "transcript.partial",
+          "transcript.final",
+          "voice.stopped",
+        ],
+      },
+      policy: {
+        cloudApisUsed: true,
+        paidApisUsed: true,
+        http3Enabled: true,
+        webTransportUsed: true,
+        quicUsed: false,
+        web3Used: false,
+        questHardwareClaimed: false,
+        lowLatencyClaimed: true,
+      },
+      verdict: {
+        blockers: [],
+        caveats: [],
+      },
+    }, null, 2)}\n`);
+
+    const report = await buildBlueprintVoiceSimulationSpikeReport({
+      generatedAt: "2026-05-05T21:05:00.000Z",
+      blueprint: createStep2CsStyleSeedBlueprint(scenarioBank),
+      scenarios: scenarioBank,
+      scenarioId: "ed_chest_pain_priority_v1",
+      learnerUtterance: "Maria, please get an ECG and repeat the vitals.",
+      atSecond: 135,
+      transportEvidenceSourceFile: dirtyTransportEvidenceFile,
+    });
+
+    expect(report.transportEvidence).toMatchObject({
+      sourceFile: dirtyTransportEvidenceFile,
+      sourceStatus: "passed",
+      bunPythonProxyPassed: false,
+      policy: {
+        cloudApisUsed: true,
+        paidApisUsed: true,
+        http3Enabled: true,
+        webTransportUsed: true,
+        quicUsed: false,
+        web3Used: false,
+        questHardwareClaimed: false,
+        lowLatencyClaimed: true,
+      },
+      blockers: ["transport_policy_boundary_not_clean"],
+      caveats: ["transport_policy_boundary_not_clean"],
+    });
+    expect(report.verdict).toMatchObject({
+      tier1TransportLoopPassed: false,
+      readyForProduction: false,
+    });
+    expect(report.verdict.blockers).toContain("tier1_transport_policy_boundary_not_clean");
   });
 });
