@@ -35,7 +35,7 @@ Important note: this is not the M4 Pro mentioned by the user. Treat these result
 | Python | 3.11.4 | Available for local AI/asset tooling |
 | ffmpeg | 8.1 | Good for local audio and media processing |
 | Android Platform Tools | Installed on 2026-05-03 | `adb` is available for Quest 3 USB-C WebXR smoke testing |
-| Bun | Not installed | Bun/Hono production path needs install gate or Node adapter during development |
+| Bun | 1.3.13 available at `/Users/patrick/.bun/bin/bun` by 2026-05-05 | Bun/Hono WebSocket runtime smoke passed locally; keep HTTP/3/WebTransport/QUIC/Web3 out of scope until separately exercised |
 | Blender | 5.1.1 installed through Homebrew cask on 2026-05-04 | Headless placeholder asset bake passed; keep as workstation tooling, not bundled runtime |
 | gltf-pipeline | 4.3.1 installed as a pinned pnpm dev dependency | Apache-2.0 local GLB conversion/optimization CLI available through pnpm |
 | gltf-transform | Not installed | Keep as optional external workstation tool until its current CLI dependency path is cleared by license review |
@@ -80,6 +80,16 @@ Gate results:
 | Asset pipeline | Ready | None |
 
 The probe intentionally does not download models, install runtimes, or call cloud APIs. It is suitable for repeating before a local-model or local-voice benchmark so the team can separate "runtime not installed" from "runtime installed but model not benchmarked."
+
+The 2026-05-06 refresh paired the runtime probe with the already-passed Bun WebSocket smoke so the `apiBunRuntime` gate reflects both installed Bun and verified local `/voice/realtime/ws` behavior:
+
+```bash
+pnpm local:runtime:probe -- \
+  --api-bun-websocket-runtime-smoke docs/openclinxr/api-bun-websocket-runtime-smoke-2026-05-05.json \
+  --output docs/openclinxr/local-runtime-probe-2026-05-06.json
+```
+
+That refresh kept Quest USB ready, kept `apiBunRuntime` ready, and kept foreground Quest evidence blocked because ADB reported `mWakefulness=Asleep`.
 
 ## llama.cpp Runtime Install Smoke
 

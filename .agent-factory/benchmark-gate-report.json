@@ -14,9 +14,9 @@
     },
     {
       "evidence_id": "local_runtime_probe",
-      "file": "docs/openclinxr/local-runtime-probe-2026-05-05.json",
-      "generated_at": "2026-05-05T16:48:27.241Z",
-      "age_hours": 21,
+      "file": "docs/openclinxr/local-runtime-probe-2026-05-06.json",
+      "generated_at": "2026-05-06T14:06:52.238Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -61,7 +61,7 @@
       "evidence_id": "local_provider_benchmark",
       "file": "docs/openclinxr/local-provider-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T19:05:08.997Z",
-      "age_hours": 18,
+      "age_hours": 19,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -106,7 +106,7 @@
       "evidence_id": "local_realtime_voice_model_cache_evidence",
       "file": "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-06.json",
       "generated_at": "2026-05-06T13:09:06.623Z",
-      "age_hours": 0,
+      "age_hours": 1,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -186,7 +186,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T14:01:20.943Z",
+      "generated_at": "2026-05-06T14:09:10.013Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -224,8 +224,8 @@
     ]
   },
   "local_runtime_probe": {
-    "file": "docs/openclinxr/local-runtime-probe-2026-05-05.json",
-    "generated_at": "2026-05-05T16:48:27.241Z",
+    "file": "docs/openclinxr/local-runtime-probe-2026-05-06.json",
+    "generated_at": "2026-05-06T14:06:52.238Z",
     "gates": {
       "questUsb": {
         "status": "ready",
@@ -1615,7 +1615,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T14:01:20.943Z",
+    "generated_at": "2026-05-06T14:09:10.013Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
