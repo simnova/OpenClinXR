@@ -207,7 +207,7 @@ describe("IWER auto-entry browser smoke checker", () => {
       "tsx tools/openclinxr/iwer-auto-entry-browser-smoke-check.ts",
     );
     expect(rootPackage.scripts["iwer:auto-entry:evidence:validate"]).toBe(
-      "tsx tools/openclinxr/iwer-auto-entry-browser-smoke-check.ts --input docs/openclinxr/iwer-auto-entry-browser-smoke-frame-lanes-2026-05-05.json",
+      "tsx tools/openclinxr/iwer-auto-entry-browser-smoke-check.ts --validate-latest",
     );
 
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwer-auto-entry-"));
@@ -225,6 +225,18 @@ describe("IWER auto-entry browser smoke checker", () => {
     expect(stdout).toContain(`Wrote ${outputPath}`);
     expect(report.inputFile).toBe(inputPath);
     expect(report.result.readyForAutoEntryEvidence).toBe(true);
+  });
+
+  it("validates the newest committed auto-entry evidence by generatedAt", async () => {
+    const { stdout } = await execFileAsync(
+      path.resolve("node_modules/.bin/tsx"),
+      ["tools/openclinxr/iwer-auto-entry-browser-smoke-check.ts", "--validate-latest"],
+      { encoding: "utf8", timeout: 15000 },
+    );
+
+    expect(stdout.trim()).toBe(
+      "Validated docs/openclinxr/iwer-auto-entry-browser-smoke-frame-lanes-2026-05-05.json",
+    );
   });
 });
 
