@@ -41,6 +41,22 @@ describe("local voice runtime benchmark parser", () => {
     expect(parsed.blockers).toEqual([]);
   });
 
+  it("treats a missing VibeVoice exit footer as blocked evidence", () => {
+    const parsed = parseVibeVoiceRuntimeLog(sampleVibeVoiceLog
+      .split("\n")
+      .filter((line) => !line.startsWith("ended_at_utc=") && !line.startsWith("exit_status="))
+      .join("\n"));
+
+    expect(parsed.generatedAt).toBeNull();
+    expect(parsed.blockers).toContain("missing_vibevoice_exit_status");
+  });
+
+  it("parses BSD time output from macOS runtime logs", () => {
+    const parsed = parseVibeVoiceRuntimeLog(sampleVibeVoiceLog.replace("real 118.92", "       31.82 real        10.73 user         9.26 sys"));
+
+    expect(parsed.metrics.wallClockMs).toBe(31820);
+  });
+
   it("reads PCM WAV metadata from local bytes", () => {
     const metadata = parsePcmWavMetadata(samplePcmWav({
       sampleRateHz: 24_000,
@@ -105,6 +121,36 @@ describe("local voice runtime benchmark parser", () => {
       "This report was harvested from existing local files; this repo-managed tool did not execute VibeVoice.",
     ]));
   });
+
+  it("records approved observed runtime execution separately from harvester execution", () => {
+    const audioBytes = samplePcmWav({
+      sampleRateHz: 24_000,
+      channels: 1,
+      durationMs: 500,
+    });
+    const report = buildLocalVoiceRuntimeBenchmarkReport({
+      logPath: "/Users/patrick/.cache/openclinxr/vibevoice/benchmarks/vibevoice-first-audio.log",
+      logContent: sampleVibeVoiceLog,
+      promptPath: "/Users/patrick/.cache/openclinxr/vibevoice/benchmarks/openclinxr-first-audio.txt",
+      promptText: "The patient reports chest pressure and needs help now.",
+      audioPath: "/Users/patrick/.cache/openclinxr/vibevoice/outputs/openclinxr-first-audio_generated.wav",
+      audioBytes,
+      audioSha256: "abc123",
+      runtimeExecutionApproved: true,
+      runtimeExecutionObserved: true,
+    });
+
+    expect(report.policy).toMatchObject({
+      voiceRuntimeExecutionApproved: true,
+      voiceRuntimeExecutionObserved: true,
+      voiceRuntimeExecutionAttemptedByThisTool: false,
+      downloadAttemptedByThisTool: false,
+      networkAccessObservedByThisTool: false,
+    });
+    expect(report.verdict.caveats).toEqual(expect.arrayContaining([
+      "Approved local VibeVoice runtime execution was observed in the harvested log/audio inputs, but this repo-managed harvester did not execute VibeVoice.",
+    ]));
+  });
 });
 
 describe("local voice runtime benchmark CLI", () => {
@@ -158,6 +204,50 @@ describe("local voice runtime benchmark CLI", () => {
     expect(report.audio.outputPath).toBe(audioPath);
     expect(report.audio.sha256).toMatch(/^[a-f0-9]{64}$/);
     expect(report.verdict.readyForLiveDialog).toBe(false);
+  });
+
+  it("accepts explicit runtime approval and observed-execution flags", async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-local-voice-runtime-"));
+    const logPath = path.join(dir, "voice.log");
+    const promptPath = path.join(dir, "prompt.txt");
+    const audioPath = path.join(dir, "voice.wav");
+    const outputPath = path.join(dir, "report.json");
+    await writeFile(logPath, sampleVibeVoiceLog, "utf8");
+    await writeFile(promptPath, "The patient reports chest pressure and needs help now.", "utf8");
+    await writeFile(audioPath, samplePcmWav({ sampleRateHz: 24_000, channels: 1, durationMs: 500 }));
+
+    await execFileAsync(
+      path.resolve("node_modules/.bin/tsx"),
+      [
+        "tools/openclinxr/local-voice-runtime-benchmark.ts",
+        "--log",
+        logPath,
+        "--prompt",
+        promptPath,
+        "--audio",
+        audioPath,
+        "--output",
+        outputPath,
+        "--runtime-execution-approved",
+        "--runtime-execution-observed",
+      ],
+      {
+        encoding: "utf8",
+        timeout: 15000,
+      },
+    );
+
+    const report = JSON.parse(await readFile(outputPath, "utf8")) as {
+      policy: {
+        voiceRuntimeExecutionApproved: boolean;
+        voiceRuntimeExecutionObserved: boolean;
+        voiceRuntimeExecutionAttemptedByThisTool: boolean;
+      };
+    };
+
+    expect(report.policy.voiceRuntimeExecutionApproved).toBe(true);
+    expect(report.policy.voiceRuntimeExecutionObserved).toBe(true);
+    expect(report.policy.voiceRuntimeExecutionAttemptedByThisTool).toBe(false);
   });
 });
 

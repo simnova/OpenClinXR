@@ -1,0 +1,93 @@
+{
+  "generatedAt": "2026-05-06T06:21:17.789Z",
+  "status": "blocked",
+  "policy": {
+    "cloudApisUsed": false,
+    "paidApisUsed": false,
+    "voiceRuntimeExecutionAllowed": false,
+    "productionUseAllowed": false,
+    "generatedAudioCommitted": false
+  },
+  "input": {
+    "runtimeBenchmarkFile": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-06.json",
+    "runtimeGeneratedAt": "2026-05-06T06:20:53Z",
+    "modelId": "microsoft/VibeVoice-Realtime-0.5B",
+    "runtimeStatus": "passed_with_caveats"
+  },
+  "mockStream": {
+    "provider": "deterministic-mock-voice-gateway",
+    "transcriptEvents": 2,
+    "audioChunks": 1,
+    "firstAudiblePlaybackLatencyMs": 0,
+    "visemeCuesPresent": true,
+    "passed": true,
+    "blockers": []
+  },
+  "runtimeFit": {
+    "fileGenerationOnly": true,
+    "realTimeFactor": 2.51,
+    "realTimeCapable": false,
+    "blockers": [
+      "runtime_file_generation_only",
+      "real_time_factor_above_1"
+    ]
+  },
+  "runtimeStream": {
+    "realLocalVoiceStreamObserved": false,
+    "evidenceSource": "not_captured",
+    "firstAudiblePlaybackLatencyMs": null,
+    "transcriptRoundTripObserved": false,
+    "blockers": [
+      "real_local_voice_stream_benchmark_missing"
+    ]
+  },
+  "webxrPlayback": {
+    "observed": false,
+    "evidenceSource": "not_captured",
+    "blockers": [
+      "webxr_playback_not_observed"
+    ]
+  },
+  "modelCache": {
+    "evidenceFile": "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-05.json",
+    "generatedAt": "2026-05-06T02:37:04.486Z",
+    "kind": "local_voice_evidence_check",
+    "claimScope": "cache_inventory_only",
+    "cacheDir": "/Users/patrick/.cache/openclinxr/realtime-voice",
+    "approvedModelIds": [
+      "kyutai/moshiko-mlx-q4",
+      "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit"
+    ],
+    "cacheExists": true,
+    "ready": false,
+    "readyModelIds": [],
+    "supportRuntimeObserved": true,
+    "blockers": [
+      "approved_model_weights_not_cached",
+      "real_moshi_or_qwen3_model_cache_missing"
+    ]
+  },
+  "safetyControls": {
+    "disclosureRequired": true,
+    "generatedAudioCommitted": false,
+    "misuseControlsRequired": true,
+    "retentionPolicyObserved": true,
+    "blockers": []
+  },
+  "verdict": {
+    "passed": false,
+    "readyForLiveDialog": false,
+    "blockers": [
+      "runtime_stream:real_local_voice_stream_benchmark_missing",
+      "runtime:runtime_file_generation_only",
+      "runtime:real_time_factor_above_1",
+      "webxr_playback:webxr_playback_not_observed",
+      "model_cache:approved_model_weights_not_cached",
+      "model_cache:real_moshi_or_qwen3_model_cache_missing"
+    ],
+    "caveats": [
+      "Mock stream evidence proves gateway event shape only; it is not a real VibeVoice streaming or Quest playback capture.",
+      "The source runtime benchmark is an existing file-generation smoke; this live-dialog report does not execute a voice runtime."
+    ]
+  }
+}

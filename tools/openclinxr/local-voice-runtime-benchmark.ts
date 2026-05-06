@@ -8,6 +8,8 @@ type CliOptions = {
   promptPath?: string;
   audioPath?: string;
   outputPath?: string;
+  runtimeExecutionApproved?: boolean;
+  runtimeExecutionObserved?: boolean;
 };
 
 type WavMetadata = {
@@ -55,7 +57,8 @@ export type LocalVoiceRuntimeBenchmarkReport = {
     paidApisUsed: false;
     voiceInstallApproved: true;
     voiceSafetyReviewApproved: true;
-    voiceRuntimeExecutionApproved: false;
+    voiceRuntimeExecutionApproved: boolean;
+    voiceRuntimeExecutionObserved: boolean;
     voiceRuntimeExecutionAttemptedByThisTool: false;
     productionUseAllowed: false;
     generatedAudioCommitted: false;
@@ -111,6 +114,8 @@ async function main(): Promise<void> {
     audioPath: options.audioPath,
     audioBytes,
     audioSha256: sha256(audioBytes),
+    runtimeExecutionApproved: options.runtimeExecutionApproved,
+    runtimeExecutionObserved: options.runtimeExecutionObserved,
   });
 
   if (options.outputPath) {
@@ -148,6 +153,14 @@ function parseArgs(args: string[]): CliOptions {
       index += 1;
       continue;
     }
+    if (arg === "--runtime-execution-approved") {
+      options.runtimeExecutionApproved = true;
+      continue;
+    }
+    if (arg === "--runtime-execution-observed") {
+      options.runtimeExecutionObserved = true;
+      continue;
+    }
     throw new Error(`Unknown argument: ${arg ?? ""}`);
   }
   return options;
@@ -165,8 +178,10 @@ export function parseVibeVoiceRuntimeLog(content: string): ParsedVibeVoiceRuntim
   const exitStatus = parseNumberMatch(content, /exit_status=(\d+)/);
   const modelGenerationSeconds = parseNumberMatch(content, /Generation time:\s*([\d.]+)\s*seconds/);
   const audioDurationSeconds = parseNumberMatch(content, /Generated audio duration:\s*([\d.]+)\s*seconds/);
-  const realSeconds = parseNumberMatch(content, /^real\s+([\d.]+)$/m);
+  const realSeconds = parseNumberMatch(content, /^real\s+([\d.]+)$/m)
+    ?? parseNumberMatch(content, /^\s*([\d.]+)\s+real\b/m);
   const blockers = [
+    exitStatus === null ? "missing_vibevoice_exit_status" : undefined,
     exitStatus !== null && exitStatus !== 0 ? `vibevoice_exit_status_${exitStatus}` : undefined,
   ].filter((blocker): blocker is string => typeof blocker === "string");
   const voice = content.match(/Using voice preset for ([^:]+):\s*([^\n]+)/);
@@ -232,11 +247,15 @@ export function buildLocalVoiceRuntimeBenchmarkReport(input: {
   audioPath: string;
   audioBytes: Buffer;
   audioSha256?: string;
+  runtimeExecutionApproved?: boolean;
+  runtimeExecutionObserved?: boolean;
 }): LocalVoiceRuntimeBenchmarkReport {
   const parsed = parseVibeVoiceRuntimeLog(input.logContent);
   const audio = parsePcmWavMetadata(input.audioBytes);
   const blockers = [...parsed.blockers];
   const passed = blockers.length === 0;
+  const runtimeExecutionApproved = input.runtimeExecutionApproved ?? false;
+  const runtimeExecutionObserved = input.runtimeExecutionObserved ?? false;
 
   return {
     generatedAt: parsed.generatedAt ?? new Date().toISOString(),
@@ -246,7 +265,8 @@ export function buildLocalVoiceRuntimeBenchmarkReport(input: {
       paidApisUsed: false,
       voiceInstallApproved: true,
       voiceSafetyReviewApproved: true,
-      voiceRuntimeExecutionApproved: false,
+      voiceRuntimeExecutionApproved: runtimeExecutionApproved,
+      voiceRuntimeExecutionObserved: runtimeExecutionObserved,
       voiceRuntimeExecutionAttemptedByThisTool: false,
       productionUseAllowed: false,
       generatedAudioCommitted: false,
@@ -289,7 +309,9 @@ export function buildLocalVoiceRuntimeBenchmarkReport(input: {
         "Approximate first speech-token latency came from the progress log; true first audible playback latency still needs an interactive streaming capture.",
         "Real-time factor was above 1x on this Apple M1 Max evidence run, so current local VibeVoice is not yet Quest-ready for live dialog.",
         "Generated audio remains local-only and uncommitted because production, disclosure, retention, and clinical simulation QA are not approved.",
-        "This report was harvested from existing local files; this repo-managed tool did not execute VibeVoice.",
+        runtimeExecutionObserved
+          ? "Approved local VibeVoice runtime execution was observed in the harvested log/audio inputs, but this repo-managed harvester did not execute VibeVoice."
+          : "This report was harvested from existing local files; this repo-managed tool did not execute VibeVoice.",
       ],
     },
   };

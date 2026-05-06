@@ -26,7 +26,7 @@ The machine used for this spike reports Apple M1 Max with 64 GB RAM. The user me
 
 The refreshed 2026-05-04 probe records Node 22.19.0, pnpm 10.33.0, Python 3.11.4, ffmpeg 8.1, adb, Homebrew 5.1.8, Blender 5.1.1, `llama.cpp` 9010, and the pinned pnpm `gltf-pipeline` CLI as available. Quest USB and foreground preflight are ready after the headset wake rerun, but Quest frame pacing still needs a manual foreground headset performance report because CDP sampling continues to classify the browser page as hidden.
 
-The refreshed 2026-05-05 probe records Bun 1.3.13 and Portless 0.12.0 as available, while Ollama and MLX LM remain missing from PATH. Since this strategy was first written, Codex has recorded approved local-model and local-voice benchmark evidence: `docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json` for Qwen3-4B through `llama.cpp`, and `docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json` for VibeVoice-Realtime-0.5B file generation. Those clear basic local execution smoke gates, but not live clinical dialogue. Blender-backed placeholder asset baking now has a passing local smoke report, but production avatar generation still needs rigging, LOD, texture, collider, and headset-performance evidence.
+The refreshed 2026-05-05 probe records Bun 1.3.13 and Portless 0.12.0 as available, while Ollama and MLX LM remain missing from PATH. Since this strategy was first written, Codex has recorded approved local-model and local-voice benchmark evidence: `docs/openclinxr/local-model-runtime-benchmark-2026-05-04.json` for Qwen3-4B through `llama.cpp`, and `docs/openclinxr/local-voice-runtime-benchmark-2026-05-06.json` for VibeVoice-Realtime-0.5B file generation. Those clear basic local execution smoke gates, but not live clinical dialogue. Blender-backed placeholder asset baking now has a passing local smoke report, but production avatar generation still needs rigging, LOD, texture, collider, and headset-performance evidence.
 
 ## Recommended Local Reasoning Stack
 
@@ -72,7 +72,7 @@ But it is not production-ready by assumption:
 
 Recommendation: build `VoiceProviderAdapter` support for VibeVoice, but keep it disabled by default until local benchmark, voice-safety review, license review, and disclosure UX pass.
 
-Current intake: `docs/openclinxr/spikes/vibevoice-local-voice-spike.md` records the safe spike boundary. Patrick approved the local voice runtime proposal on 2026-05-04, Codex installed the local wrapper outside committed source, and `docs/openclinxr/local-voice-runtime-benchmark-2026-05-04.json` recorded first local file-generation evidence. VibeVoice remains disabled for learner-facing station runtime and blocked on true streaming latency, Quest/WebXR playback, safety/disclosure/retention controls, and real-time multi-actor turn-taking evidence.
+Current intake: `docs/openclinxr/spikes/vibevoice-local-voice-spike.md` records the safe spike boundary. Patrick approved the local voice runtime proposal on 2026-05-04, Codex installed the local wrapper outside committed source, and `docs/openclinxr/local-voice-runtime-benchmark-2026-05-06.json` records the latest offline local file-generation evidence: 3.33 seconds of audio, 20.59 seconds wall-clock, 8.37 seconds model generation, and 2.51x real-time factor on this M1 Max machine. VibeVoice remains disabled for learner-facing station runtime and blocked on true streaming latency, Quest/WebXR playback, safety/disclosure/retention controls, and real-time multi-actor turn-taking evidence.
 
 ### Realtime Voice Transport Position
 
