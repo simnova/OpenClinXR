@@ -3,7 +3,10 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
-import { buildIwsdkMcpToolInventory } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
+import {
+  buildIwsdkMcpToolInventory,
+  buildIwsdkPackageManagedMcpCommand,
+} from "../../packages/openclinxr/iwsdk-spike/src/index.js";
 import {
   buildIwsdkMcpInventoryEvidenceReport,
   type IwsdkMcpInventoryEvidenceReport,
@@ -41,6 +44,11 @@ describe("IWSDK MCP inventory evidence", () => {
       package: {
         name: "@iwsdk/vite-plugin-dev",
         version: "0.3.1",
+      },
+      command: {
+        executable: "pnpm",
+        args: buildIwsdkPackageManagedMcpCommand().args,
+        cwd: "/Volumes/files/src/openclinxr",
       },
       server: {
         name: "iwsdk-dev-mcp",

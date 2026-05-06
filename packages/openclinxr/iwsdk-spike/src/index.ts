@@ -339,10 +339,18 @@ export type IwsdkAgentVerificationRunbook = {
 export type IwsdkCodexMcpAdapterTemplate = {
   target: ".codex/config.toml";
   serverName: "iwsdk-runtime";
+  command: IwsdkPackageManagedMcpCommand;
   tomlSnippet: string;
   prerequisites: string[];
   validationCommandOrder: string[];
   blockedActions: string[];
+};
+
+export type IwsdkPackageManagedMcpCommand = {
+  executable: "pnpm";
+  args: string[];
+  sidecarPackageName: "@openclinxr/ui-xr-iwsdk-spike";
+  serverBin: "iwsdk-dev-mcp";
 };
 
 export type IwsdkViteAiDevConfigContract = {
@@ -2010,14 +2018,16 @@ export function buildIwsdkAgentVerificationRunbook(options: {
 
 export function buildIwsdkCodexMcpAdapterTemplate(): IwsdkCodexMcpAdapterTemplate {
   const runbook = buildIwsdkAgentVerificationRunbook({ aiTool: "codex", mode: "agent" });
+  const command = buildIwsdkPackageManagedMcpCommand();
 
   return {
     target: ".codex/config.toml",
     serverName: "iwsdk-runtime",
+    command,
     tomlSnippet: [
       "[mcp_servers.iwsdk-runtime]",
-      'command = "pnpm"',
-      'args = ["exec", "iwsdk", "mcp", "stdio"]',
+      `command = "${command.executable}"`,
+      `args = ${formatTomlStringArray(command.args)}`,
     ].join("\n"),
     prerequisites: [
       "Use only after apps/ui-xr-iwsdk-spike exists with exact IWSDK package versions installed.",
@@ -2073,6 +2083,19 @@ export function buildIwsdkViteAiDevConfigContract(): IwsdkViteAiDevConfigContrac
       "install @meta-quest/hzdb",
     ],
   };
+}
+
+export function buildIwsdkPackageManagedMcpCommand(): IwsdkPackageManagedMcpCommand {
+  return {
+    executable: "pnpm",
+    args: ["--filter", "@openclinxr/ui-xr-iwsdk-spike", "exec", "iwsdk-dev-mcp"],
+    sidecarPackageName: "@openclinxr/ui-xr-iwsdk-spike",
+    serverBin: "iwsdk-dev-mcp",
+  };
+}
+
+function formatTomlStringArray(values: string[]): string {
+  return `[${values.map((value) => JSON.stringify(value)).join(", ")}]`;
 }
 
 export function buildIwsdkCompatibilityContract(): IwsdkCompatibilityContract {

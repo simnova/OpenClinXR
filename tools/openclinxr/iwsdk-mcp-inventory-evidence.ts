@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 import {
   buildIwsdkMcpToolInventory,
   buildIwsdkMcpToolInventoryRequirement,
+  buildIwsdkPackageManagedMcpCommand,
   evaluateIwsdkAgentToolingEvidence,
   evaluateIwsdkAgentToolingLocalPreflightEvidence,
   type IwsdkAgentToolingEvidence,
@@ -123,6 +124,7 @@ export function buildIwsdkMcpInventoryEvidenceReport(input: {
   };
   observedToolNames: string[];
 }): IwsdkMcpInventoryEvidenceReport {
+  const command = buildIwsdkPackageManagedMcpCommand();
   const expectedInventory = buildIwsdkMcpToolInventory();
   const requirement = buildIwsdkMcpToolInventoryRequirement();
   const observedToolNames = [...input.observedToolNames].sort();
@@ -163,8 +165,8 @@ export function buildIwsdkMcpInventoryEvidenceReport(input: {
       physicalQuestClaimed: false,
     },
     command: {
-      executable: "pnpm",
-      args: iwsdkMcpCommandArgs(),
+      executable: command.executable,
+      args: command.args,
       cwd: input.cwd ?? process.cwd(),
     },
     package: {
@@ -212,7 +214,8 @@ async function requestIwsdkMcpToolInventory(input: {
   };
   toolNames: string[];
 }> {
-  const child = spawn("pnpm", iwsdkMcpCommandArgs(), {
+  const command = buildIwsdkPackageManagedMcpCommand();
+  const child = spawn(command.executable, command.args, {
     cwd: input.cwd,
     stdio: ["pipe", "pipe", "pipe"],
     env: process.env,
@@ -334,10 +337,6 @@ function sendJsonRpc(child: ReturnType<typeof spawn>, message: Record<string, un
     throw new Error("IWSDK MCP process stdin is unavailable");
   }
   child.stdin.write(`${JSON.stringify(message)}\n`);
-}
-
-function iwsdkMcpCommandArgs(): string[] {
-  return ["--filter", "@openclinxr/ui-xr-iwsdk-spike", "exec", "iwsdk-dev-mcp"];
 }
 
 function parseArgs(args: string[]): CliOptions {

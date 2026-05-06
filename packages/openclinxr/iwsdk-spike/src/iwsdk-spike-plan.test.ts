@@ -1027,9 +1027,17 @@ describe("IWSDK spike plan", () => {
 
     expect(template.target).toBe(".codex/config.toml");
     expect(template.serverName).toBe("iwsdk-runtime");
+    expect(template.command).toEqual({
+      executable: "pnpm",
+      args: ["--filter", "@openclinxr/ui-xr-iwsdk-spike", "exec", "iwsdk-dev-mcp"],
+      sidecarPackageName: "@openclinxr/ui-xr-iwsdk-spike",
+      serverBin: "iwsdk-dev-mcp",
+    });
     expect(template.tomlSnippet).toContain("[mcp_servers.iwsdk-runtime]");
     expect(template.tomlSnippet).toContain('command = "pnpm"');
-    expect(template.tomlSnippet).toContain('args = ["exec", "iwsdk", "mcp", "stdio"]');
+    expect(template.tomlSnippet).toContain(
+      'args = ["--filter", "@openclinxr/ui-xr-iwsdk-spike", "exec", "iwsdk-dev-mcp"]',
+    );
     expect(template.validationCommandOrder).toEqual([
       "iwsdk dev status",
       "xr_get_session_status",

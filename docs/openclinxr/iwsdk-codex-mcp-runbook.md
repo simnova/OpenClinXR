@@ -48,7 +48,7 @@ Use `pnpm iwsdk:evidence:validate` to validate the latest committed `docs/opencl
 
 `packages/openclinxr/iwsdk-spike` exposes `buildIwsdkCodexMcpAdapterTemplate()` as the source of truth for the local adapter template.
 
-The package-level runbook also records `adapterSyncCommand = "iwsdk adapter sync"`. Run that only after the sidecar app and exact packages are approved, then keep the resulting local MCP config reversible.
+The package-level runbook still records `adapterSyncCommand = "iwsdk adapter sync"` as the upstream/advisory adapter action. The installed `@iwsdk/vite-plugin-dev@0.3.1` package exposes the `iwsdk-dev-mcp` bin, and the committed template therefore uses the same package-managed command that produced `docs/openclinxr/iwsdk-mcp-inventory-evidence-2026-05-06.json`. Keep any local Codex MCP config reversible, and do not mark `adapterSyncRecorded` true until an actual adapter-sync action or equivalent local config mutation is captured with rollback evidence.
 
 ## Future Vite AI Config
 
@@ -76,7 +76,7 @@ Template:
 ```toml
 [mcp_servers.iwsdk-runtime]
 command = "pnpm"
-args = ["exec", "iwsdk", "mcp", "stdio"]
+args = ["--filter", "@openclinxr/ui-xr-iwsdk-spike", "exec", "iwsdk-dev-mcp"]
 ```
 
 Keep this adapter local and reversible. Do not commit `.codex/config.toml` changes to the repo.
