@@ -309,6 +309,7 @@ Current machine-readable production-asset evidence:
 
 - `pnpm asset:production:readiness -- --use-local-asset-evidence-fixture --output docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json`
 - `pnpm asset:capability:evidence:validate`
+- `pnpm asset:production:readiness:validate`
 - `pnpm asset:production:ladder -- --readiness docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json --output docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json`
 - `pnpm asset:production:ladder:validate`
 

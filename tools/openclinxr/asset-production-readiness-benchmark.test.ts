@@ -22,6 +22,7 @@ describe("asset production readiness report", () => {
     expect(rootPackage.scripts["asset:production:readiness:validate"]).toBe(
       "tsx tools/openclinxr/asset-production-readiness-benchmark.ts --validate docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
     );
+    expect(rootPackage.scripts["agent:verify"]).toContain("pnpm asset:production:readiness:validate");
   });
 
   it("keeps placeholder Blender and GLTF smoke evidence blocked for production asset readiness", () => {
