@@ -45,10 +45,10 @@ This file captures useful operator suggestions that should not interrupt the cur
 
 - Date added: 2026-05-05
 - Suggestion: Try a minimal local low-latency realtime voice AI spike with Moshi MLX primary and Qwen3-TTS fallback.
-- Current status: approved, blocked on local approved model files.
+- Current status: approved; model caches present, runtime inference still blocked.
 - Confidence: medium.
-- Notes: The approved cache path currently contains the support venv but no approved `kyutai/moshiko-mlx-q4` or `mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit` model weights. The repo installer intentionally rejects remote sources and only copies existing local files/directories.
-- Promote when: local model files exist under approved cache boundaries or a separate explicit download/install step is requested.
+- Notes: `docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-06.json` records both approved model caches after Patrick allowed Hugging Face downloads when licensing posture works. Qwen3-TTS has file-generation smoke evidence only. Moshi q4 is cached but not executed; `moshi_mlx==0.3.0` dry-run metadata wants `mlx==0.26.5`, which conflicts with the existing Qwen support venv's newer `mlx==0.31.2`.
+- Promote when: a separate Moshi runtime venv and minimal local file or loopback audio smoke can run without mutating the Qwen evidence venv, and without claiming Quest or production readiness.
 
 ### Blender MCP
 

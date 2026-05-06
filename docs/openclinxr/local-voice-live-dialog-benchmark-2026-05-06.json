@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T14:23:31.092Z",
+  "generatedAt": "2026-05-06T14:33:32.608Z",
   "status": "blocked",
   "policy": {
     "cloudApisUsed": false,
@@ -52,7 +52,7 @@
   },
   "modelCache": {
     "evidenceFile": "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-06.json",
-    "generatedAt": "2026-05-06T13:09:06.623Z",
+    "generatedAt": "2026-05-06T14:32:49.876Z",
     "kind": "local_voice_evidence_check",
     "claimScope": "cache_inventory_only",
     "cacheDir": "/Users/patrick/.cache/openclinxr/realtime-voice",
@@ -63,6 +63,7 @@
     "cacheExists": true,
     "ready": true,
     "readyModelIds": [
+      "kyutai/moshiko-mlx-q4",
       "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit"
     ],
     "supportRuntimeObserved": true,

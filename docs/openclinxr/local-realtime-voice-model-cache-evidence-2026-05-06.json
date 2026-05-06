@@ -1,7 +1,7 @@
 {
   "kind": "local_voice_evidence_check",
   "claim_scope": "cache_inventory_only",
-  "generatedAt": "2026-05-06T13:09:06.623Z",
+  "generatedAt": "2026-05-06T14:32:49.876Z",
   "cache_dir": "/Users/patrick/.cache/openclinxr/realtime-voice",
   "approved_model_ids": [
     "kyutai/moshiko-mlx-q4",
@@ -10,6 +10,20 @@
   "cache_exists": true,
   "ready": true,
   "models": [
+    {
+      "model_id": "kyutai/moshiko-mlx-q4",
+      "path": "/Users/patrick/.cache/openclinxr/realtime-voice/kyutai__moshiko-mlx-q4",
+      "source_type": "local_cache_snapshot",
+      "expected_storage_name": "kyutai__moshiko-mlx-q4",
+      "license": "CC-BY-4.0",
+      "source_id": "src-moshiko-mlx-q4-2026",
+      "approved": true,
+      "has_evidence": true,
+      "ready": true,
+      "blockers": [],
+      "file_count": 12,
+      "total_bytes": 5190750933
+    },
     {
       "model_id": "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
       "path": "/Users/patrick/.cache/openclinxr/realtime-voice/mlx-community__Qwen3-TTS-12Hz-0.6B-Base-4bit",
@@ -30,8 +44,8 @@
       "path": "/Users/patrick/.cache/openclinxr/realtime-voice/api-python-backend-venv",
       "name": "api-python-backend-venv",
       "reason": "runtime_support_venv_not_model_weights",
-      "file_count": 4387,
-      "total_bytes": 75788032
+      "file_count": 18116,
+      "total_bytes": 723512187
     }
   ]
 }

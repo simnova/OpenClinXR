@@ -20,13 +20,17 @@ Use `mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit` first.
 - Expected total download footprint: roughly 1.71 GB plus tokenizer/config files.
 - Target cache path: `/Users/patrick/.cache/openclinxr/realtime-voice/mlx-community__Qwen3-TTS-12Hz-0.6B-Base-4bit`.
 
-## Deferred Candidate
+## Moshi Candidate Cache
 
-Keep `kyutai/moshiko-mlx-q4` deferred until the Apache-2.0 TTS fallback cache and benchmark path are clean.
+`kyutai/moshiko-mlx-q4` is now cached for developer-only research evidence after the Apache-2.0 Qwen fallback cache and file-generation path were recorded.
 
 - License: CC-BY-4.0 per Hugging Face model metadata.
 - Source record: `sources/moshiko-mlx-q4-2026.json`.
 - Posture: developer-only research candidate for full-duplex voice; not professional-duty or production clinical simulation evidence.
+- Cache path: `/Users/patrick/.cache/openclinxr/realtime-voice/kyutai__moshiko-mlx-q4`.
+- Files observed: 12.
+- Bytes observed: 5,190,750,933.
+- Runtime status: not executed. `moshi_mlx==0.3.0` dry-run package metadata would install `mlx==0.26.5`, which conflicts with the existing Qwen support venv's `mlx==0.31.2`; use a separate ignored Moshi venv before any runtime smoke.
 
 ## Commands
 
@@ -61,18 +65,25 @@ pnpm agent:benchmarks
 ```bash
 rm -rf /Users/patrick/.cache/openclinxr/realtime-voice/mlx-community__Qwen3-TTS-12Hz-0.6B-Base-4bit
 rm -rf /Users/patrick/.cache/openclinxr/huggingface/models--mlx-community--Qwen3-TTS-12Hz-0.6B-Base-4bit
+rm -rf /Users/patrick/.cache/openclinxr/realtime-voice/kyutai__moshiko-mlx-q4
+rm -rf /Users/patrick/.cache/openclinxr/huggingface/models--kyutai--moshiko-mlx-q4
 ```
 
 Do not remove `/Users/patrick/.cache/openclinxr/realtime-voice/api-python-backend-venv` unless intentionally rebuilding the local FastAPI support runtime.
 
 ## Current Evidence
 
-`pnpm local:voice:model-cache` now records a reproducible cache-inventory report. After the Qwen3-TTS MLX download, `docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-06.json` records:
+`pnpm local:voice:model-cache` now records a reproducible cache-inventory report. After the Qwen3-TTS MLX and Moshi q4 downloads, `docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-06.json` records:
 
 - Ready approved model cache: `mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit`.
 - Local cache path: `/Users/patrick/.cache/openclinxr/realtime-voice/mlx-community__Qwen3-TTS-12Hz-0.6B-Base-4bit`.
 - Files observed: 30.
 - Bytes observed: 1,711,330,264.
 - License/source posture: Apache-2.0, `sources/qwen3-tts-mlx-4bit-2026.json`.
+- Ready approved model cache: `kyutai/moshiko-mlx-q4`.
+- Local cache path: `/Users/patrick/.cache/openclinxr/realtime-voice/kyutai__moshiko-mlx-q4`.
+- Files observed: 12.
+- Bytes observed: 5,190,750,933.
+- License/source posture: CC-BY-4.0, `sources/moshiko-mlx-q4-2026.json`.
 
 Live dialog remains blocked on real local voice stream evidence, WebXR/Quest playback, and safety controls. This cache evidence is not model inference, Quest audio, clinical voice quality, or production readiness evidence.
