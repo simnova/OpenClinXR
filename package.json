@@ -67,6 +67,7 @@
     "local:model:quality": "tsx tools/openclinxr/local-model-quality-benchmark.ts",
     "local:voice:runtime": "tsx tools/openclinxr/local-voice-runtime-benchmark.ts",
     "local:voice:live-dialog": "tsx tools/openclinxr/local-voice-live-dialog-benchmark.ts",
+    "local:voice:blueprint-simulation": "tsx tools/openclinxr/blueprint-voice-simulation-spike.ts",
     "local:voice:realtime-spike": "tsx tools/openclinxr/realtime-voice-transport-spike.ts",
     "local:voice:bun-websocket-smoke": "tsx tools/openclinxr/api-bun-websocket-runtime-smoke.ts",
     "local:voice:bun-python-proxy-smoke": "tsx tools/openclinxr/api-bun-python-proxy-runtime-smoke.ts",
