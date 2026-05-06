@@ -815,6 +815,9 @@ export function manualEvidenceHarvestExpression(input: {
         && lastTraceLatencyMs > 0;
       const hasLocomotionEvidence = typeof inputEvidence?.lastLocomotionAtMs === "number"
         && Number.isFinite(inputEvidence.lastLocomotionAtMs)
+        && inputEvidence?.locomotionAttempt === "runtime_event_observed"
+        && typeof inputEvidence?.activeLocomotionSource === "string"
+        && inputEvidence?.activeLocomotionSource !== "none"
         && ((typeof locomotionDistanceMeters === "number" && locomotionDistanceMeters > 0)
           || (typeof locomotionTurnRadians === "number" && locomotionTurnRadians > 0));
       const blockers = [

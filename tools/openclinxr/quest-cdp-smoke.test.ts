@@ -341,6 +341,16 @@ describe("Quest CDP smoke probe", () => {
       timeoutMs: 9000,
       minImmersiveFrames: 600,
       minSampleWindowSize: 120,
+    })).toContain('inputEvidence?.locomotionAttempt === "runtime_event_observed"');
+    expect(manualEvidenceHarvestExpression({
+      timeoutMs: 9000,
+      minImmersiveFrames: 600,
+      minSampleWindowSize: 120,
+    })).toContain('inputEvidence?.activeLocomotionSource !== "none"');
+    expect(manualEvidenceHarvestExpression({
+      timeoutMs: 9000,
+      minImmersiveFrames: 600,
+      minSampleWindowSize: 120,
     })).toContain("capture_summary_technical_gap:");
     expect(manualEvidenceHarvestExpression({
       timeoutMs: 9000,
