@@ -1,22 +1,22 @@
 {
+  "kind": "local_voice_evidence_check",
+  "claim_scope": "cache_inventory_only",
+  "generatedAt": "2026-05-06T13:03:38.510Z",
+  "cache_dir": "/Users/patrick/.cache/openclinxr/realtime-voice",
   "approved_model_ids": [
     "kyutai/moshiko-mlx-q4",
     "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit"
   ],
-  "cache_dir": "/Users/patrick/.cache/openclinxr/realtime-voice",
   "cache_exists": true,
-  "claim_scope": "cache_inventory_only",
-  "generatedAt": "2026-05-06T09:31:28.074Z",
-  "kind": "local_voice_evidence_check",
-  "models": [],
   "ready": false,
+  "models": [],
   "support_directories": [
     {
-      "file_count": 2494,
-      "name": "api-python-backend-venv",
       "path": "/Users/patrick/.cache/openclinxr/realtime-voice/api-python-backend-venv",
+      "name": "api-python-backend-venv",
       "reason": "runtime_support_venv_not_model_weights",
-      "total_bytes": 45304743
+      "file_count": 2491,
+      "total_bytes": 44846871
     }
   ]
 }

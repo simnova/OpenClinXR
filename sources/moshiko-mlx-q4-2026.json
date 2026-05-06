@@ -1,0 +1,22 @@
+{
+  "source_id": "src-moshiko-mlx-q4-2026",
+  "title": "Kyutai Moshiko MLX Q4 Model Card",
+  "url": "https://huggingface.co/kyutai/moshiko-mlx-q4",
+  "source_type": "vendor",
+  "citation": "Kyutai. Moshiko MLX Q4 model card. Hugging Face. Accessed 2026-05-06.",
+  "accessed_at": "2026-05-06",
+  "permitted_uses": [
+    "Planning and local research evidence source for a developer-only Moshi MLX q4 full-duplex voice candidate."
+  ],
+  "claims_supported": [
+    "The model card identifies the model license as CC-BY-4.0.",
+    "The model card describes a Moshi speech-text model adapted to MLX for Mac and quantized to 4 bits.",
+    "The model card positions the model as a research artifact and cautions against professional-duty use."
+  ],
+  "claims_not_supported": [
+    "That the model is clinically validated for medical education.",
+    "That the model may be used for production clinical simulation without separate legal, safety, and clinical review.",
+    "That the model has been downloaded, benchmarked, or connected to OpenClinXR runtime evidence."
+  ],
+  "confidence": 0.9
+}

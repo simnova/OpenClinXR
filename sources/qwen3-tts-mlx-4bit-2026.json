@@ -1,0 +1,22 @@
+{
+  "source_id": "src-qwen3-tts-mlx-4bit-2026",
+  "title": "Qwen3-TTS 12Hz 0.6B Base 4-bit MLX Model Card",
+  "url": "https://huggingface.co/mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+  "source_type": "vendor",
+  "citation": "MLX Community. Qwen3-TTS-12Hz-0.6B-Base-4bit model card. Hugging Face. Accessed 2026-05-06.",
+  "accessed_at": "2026-05-06",
+  "permitted_uses": [
+    "Planning and local cache-evidence source for the approved developer-only Qwen3-TTS MLX outbound speech fallback."
+  ],
+  "claims_supported": [
+    "The model card identifies the model license as Apache-2.0.",
+    "The model card identifies the model as a 4-bit MLX conversion for Qwen3-TTS-12Hz-0.6B-Base.",
+    "The model card describes use through mlx-community tooling and Hugging Face downloads."
+  ],
+  "claims_not_supported": [
+    "That Qwen3-TTS is a full-duplex dialog system or ASR model.",
+    "That the model is clinically validated for medical education.",
+    "That the model has been downloaded, benchmarked, or connected to OpenClinXR runtime evidence."
+  ],
+  "confidence": 0.9
+}

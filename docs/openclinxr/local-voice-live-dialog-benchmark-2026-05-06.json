@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T09:31:39.392Z",
+  "generatedAt": "2026-05-06T13:04:01.120Z",
   "status": "blocked",
   "policy": {
     "cloudApisUsed": false,
@@ -50,7 +50,7 @@
   },
   "modelCache": {
     "evidenceFile": "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-06.json",
-    "generatedAt": "2026-05-06T09:31:28.074Z",
+    "generatedAt": "2026-05-06T13:03:38.510Z",
     "kind": "local_voice_evidence_check",
     "claimScope": "cache_inventory_only",
     "cacheDir": "/Users/patrick/.cache/openclinxr/realtime-voice",
