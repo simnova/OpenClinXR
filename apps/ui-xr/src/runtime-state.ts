@@ -859,6 +859,10 @@ export function buildRuntimeEvidencePosture(input: RuntimeEvidencePostureInput):
           immersiveFramesObserved: input.captureSummary?.immersiveFramesObserved ?? null,
           traceLatencySource: input.captureSummary?.traceLatencySource ?? null,
           handInputsObserved: input.captureSummary?.handInputsObserved ?? null,
+          locomotionProbeClaimScope: input.captureSummary?.locomotionProbeSummary?.claimScope ?? null,
+          locomotionProbeReadiness: input.captureSummary?.locomotionProbeSummary?.readiness ?? null,
+          locomotionProbePrimaryReason: input.captureSummary?.locomotionProbeSummary?.primaryReason ?? null,
+          locomotionProbeReasonCodes: input.captureSummary?.locomotionProbeSummary?.reasonCodes ?? [],
         },
       },
       {

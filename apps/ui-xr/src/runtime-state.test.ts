@@ -1475,6 +1475,12 @@ describe("XR runtime state", () => {
         status: "blocked_with_evidence",
         display: "Full VR evidence blocked",
         blockers: ["immersive_frame_count_zero_or_missing", "controller_select_trace_source_not_xr_controller_select"],
+        details: expect.objectContaining({
+          locomotionProbeClaimScope: "runtime_probe_only",
+          locomotionProbeReadiness: "blocked",
+          locomotionProbePrimaryReason: "locomotion_delta_missing",
+          locomotionProbeReasonCodes: ["locomotion_delta_missing"],
+        }),
       }),
       expect.objectContaining({
         id: "mixed_reality",
