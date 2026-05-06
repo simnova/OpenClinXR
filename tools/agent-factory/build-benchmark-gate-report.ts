@@ -18,7 +18,10 @@ import {
 import type { ApiBunWebSocketRuntimeSmokeReport } from "../openclinxr/api-bun-websocket-runtime-smoke.js";
 import type { ApiBunPythonProxyRuntimeSmokeReport } from "../openclinxr/api-bun-python-proxy-runtime-smoke.js";
 import type { ApiPythonBackendRuntimeSmokeReport } from "../openclinxr/api-python-backend-runtime-smoke.js";
-import type { AssetProductionEvidenceLadderReport } from "../openclinxr/asset-production-evidence-ladder.js";
+import {
+  validateAssetProductionEvidenceLadderReport,
+  type AssetProductionEvidenceLadderReport,
+} from "../openclinxr/asset-production-evidence-ladder.js";
 import type { LocalMoshiRuntimePackageEvidenceReport } from "../openclinxr/local-moshi-runtime-package-evidence.js";
 import type { LocalQwenTtsRuntimeSmokeReport } from "../openclinxr/local-qwen-tts-runtime-smoke.js";
 import type { GodotProjectImportCheck } from "../openclinxr/godot-project-import-check.js";
@@ -2598,6 +2601,9 @@ function assetProductionEvidenceLadderBlockers(
 ): string[] {
   if (!assetProductionEvidenceLadder) {
     return [];
+  }
+  if (!validateAssetProductionEvidenceLadderReport(assetProductionEvidenceLadder.value).ok) {
+    return ["asset_production:ladder:invalid_asset_production_evidence_ladder_report"];
   }
 
   return unique(assetProductionEvidenceLadder.value.verdict.blockers

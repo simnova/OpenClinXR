@@ -14,6 +14,8 @@ import type { QuestMixedRealityManualReport } from "../openclinxr/check-quest-mi
 import type { LocalMoshiRuntimePackageEvidenceReport } from "../openclinxr/local-moshi-runtime-package-evidence.js";
 import type { LocalQwenTtsRuntimeSmokeReport } from "../openclinxr/local-qwen-tts-runtime-smoke.js";
 import type { VisualQaEvidence } from "../openclinxr/visual-qa-evidence-check.js";
+import { buildAssetProductionEvidenceLadderReport } from "../openclinxr/asset-production-evidence-ladder.js";
+import type { AssetProductionReadinessReport } from "../openclinxr/asset-production-readiness-benchmark.js";
 
 type BlockerGroup = {
   group_id: string;
@@ -3717,6 +3719,130 @@ describe("benchmark gate report", () => {
   });
 
   it("keeps contract-only local asset fixture reports blocked from resolving production asset debt", () => {
+    const assetProductionReadinessValue = {
+      generatedAt: "2026-05-06T08:19:18.833Z",
+      status: "blocked" as const,
+      input: {
+        gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
+        blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+        gltfGeneratedAt: "2026-05-06T08:05:00.000Z",
+        blenderGeneratedAt: "2026-05-06T08:10:00.000Z",
+        localAssetEvidenceFixtureUsed: true,
+      },
+      sourceEvidence: {
+        gltfPipelineSmokePassed: true,
+        blenderBakeSmokePassed: true,
+        blenderSourceLicensePosture: "reviewed_local_clinical_asset_fixture",
+        placeholderBakeOnly: false,
+        blenderSemanticInventoryObserved: true,
+        blenderMissingRequiredObjectNames: [],
+        blockers: [],
+      },
+      policy: {
+        cloudApisUsed: false,
+        paidApisUsed: false,
+        externalAssetsUsed: false,
+        productionUseAllowed: false,
+        copyleftRuntimeAllowed: false,
+      },
+      productionProofs: {
+        generatedHumanRigging: {
+          observed: true,
+          requiredEvidence: ["neutral generated human GLB", "canonical skeleton binding", "skin-weight or rigging report"],
+          blockers: [],
+        },
+        skinClothingProvenance: {
+          observed: true,
+          requiredEvidence: ["skin/texture provenance", "clothing mesh provenance", "runtime-safe material report"],
+          blockers: [],
+        },
+        medicalEquipmentLibrary: {
+          observed: true,
+          requiredEvidence: ["equipment GLB library", "clinical equipment metadata", "license provenance"],
+          blockers: [],
+        },
+        animationRetargeting: {
+          observed: true,
+          requiredEvidence: ["canonical skeleton clips", "viseme or facial target mapping", "retargeting QA report"],
+          blockers: [],
+        },
+        lodTextureColliderBudget: {
+          observed: true,
+          requiredEvidence: ["LOD tiers", "KTX2 or texture budget report", "collider simplification report"],
+          blockers: [],
+        },
+        multiActorQuestBudget: {
+          observed: true,
+          requiredEvidence: ["multi-actor station budget", "Quest frame budget", "draw-call and texture-memory budget"],
+          blockers: [],
+        },
+      },
+      generationEvidence: {
+        generatedHumanRiggingObserved: true,
+        skinClothingProvenanceObserved: true,
+        medicalEquipmentLibraryObserved: true,
+        animationRetargetingObserved: true,
+        placeholderOnly: false,
+        blockers: [],
+      },
+      optimizationEvidence: {
+        lodTiersObserved: true,
+        textureCompressionBudgetObserved: true,
+        colliderSimplificationObserved: true,
+        placeholderOnly: false,
+        blockers: [],
+      },
+      stationBudgetEvidence: {
+        scenarioId: "ed_chest_pain_priority_v1",
+        source: "@openclinxr/asset-registry:createEdChestPainLocalAssetEvidenceFixtureManifests",
+        requiredAssetCount: 3,
+        placeholderOnly: false,
+        observed: true,
+        blockers: [],
+        budget: {
+          maxVisibleTriangles: 180000,
+          maxTextureMegabytes: 512,
+          maxDrawCalls: 120,
+          totalTriangles: 60000,
+          totalTextureMegabytes: 80,
+          totalDrawCalls: 28,
+          blockers: [],
+        },
+      },
+      runtimeBudget: {
+        singleAssetPackGlbBytes: 109040,
+        targetStationBundleMb: 80,
+        maxVisibleTriangles: 180000,
+        maxDrawCalls: 120,
+        maxTextureMemoryMb: 512,
+        multiActorBudgetObserved: true,
+        blockers: [],
+      },
+      claimBoundaries: {
+        localAssetEvidenceFixtureIsContractOnly: true,
+        artifactBackedProductionAssetEvidenceObserved: false,
+        allowedClaims: [
+          "local asset evidence fixture contract slots observed",
+          "reviewed local clinical fixture semantic inventory observed",
+        ],
+        notEvidenceFor: [
+          "production clinical asset generation readiness",
+          "artifact-backed generated human rigging",
+          "artifact-backed skin and clothing provenance",
+          "artifact-backed medical equipment library coverage",
+          "artifact-backed animation retargeting",
+          "artifact-backed Quest 3 production bundle budget",
+        ],
+      },
+      verdict: {
+        passed: false,
+        readyForProductionAssets: false,
+        blockers: ["artifact_backed_production_asset_evidence_missing"],
+        caveats: [
+          "The local asset evidence fixture supplies contract-level proof slots only; fixture IDs are not artifact-backed generated production assets.",
+        ],
+      },
+    } satisfies AssetProductionReadinessReport;
     const report = buildBenchmarkGateReport({
       localRuntime: {
         file: "docs/openclinxr/local-runtime-probe-2026-05-04.json",
@@ -3758,72 +3884,71 @@ describe("benchmark gate report", () => {
       assetCapabilityJobEvidence: passedAssetCapabilityJobEvidence("2026-05-06T08:15:00.000Z"),
       assetProductionReadinessBenchmark: {
         file: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
-        value: {
-          generatedAt: "2026-05-06T08:19:18.833Z",
-          status: "passed",
-          input: {
-            localAssetEvidenceFixtureUsed: true,
-          },
-          sourceEvidence: {
-            gltfPipelineSmokePassed: true,
-            blenderBakeSmokePassed: true,
-            placeholderBakeOnly: false,
-            blockers: [],
-          },
-          productionProofs: {
-            generatedHumanRigging: { observed: true, blockers: [] },
-            skinClothingProvenance: { observed: true, blockers: [] },
-            medicalEquipmentLibrary: { observed: true, blockers: [] },
-            animationRetargeting: { observed: true, blockers: [] },
-            lodTextureColliderBudget: { observed: true, blockers: [] },
-            multiActorQuestBudget: { observed: true, blockers: [] },
-          },
-          generationEvidence: {
-            generatedHumanRiggingObserved: true,
-            skinClothingProvenanceObserved: true,
-            medicalEquipmentLibraryObserved: true,
-            animationRetargetingObserved: true,
-            placeholderOnly: false,
-            blockers: [],
-          },
-          optimizationEvidence: {
-            lodTiersObserved: true,
-            textureCompressionBudgetObserved: true,
-            colliderSimplificationObserved: true,
-            placeholderOnly: false,
-            blockers: [],
-          },
-          stationBudgetEvidence: {
-            scenarioId: "ed_chest_pain_priority_v1",
-            source: "@openclinxr/asset-registry:createEdChestPainLocalAssetEvidenceFixtureManifests",
-            requiredAssetCount: 3,
-            placeholderOnly: false,
-            observed: true,
-            blockers: [],
-            budget: {
-              maxVisibleTriangles: 180000,
-              maxTextureMegabytes: 512,
-              maxDrawCalls: 120,
-              totalTriangles: 60000,
-              totalTextureMegabytes: 80,
-              totalDrawCalls: 28,
-              blockers: [],
-            },
-          },
-          runtimeBudget: {
-            multiActorBudgetObserved: true,
-            blockers: [],
-          },
-          verdict: {
-            passed: false,
-            readyForProductionAssets: false,
-            blockers: ["artifact_backed_production_asset_evidence_missing"],
-            caveats: [
-              "The local asset evidence fixture supplies contract-level proof slots only; fixture IDs are not artifact-backed generated production assets.",
-            ],
-          },
-        },
+        value: assetProductionReadinessValue,
       },
+      assetProductionEvidenceLadder: {
+        file: "docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
+        value: buildAssetProductionEvidenceLadderReport({
+          generatedAt: "2026-05-06T08:20:00.000Z",
+          readinessReportFile: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+          readinessReport: assetProductionReadinessValue,
+        }),
+      },
+    } satisfies Parameters<typeof buildBenchmarkGateReport>[0], {
+      now: new Date("2026-05-06T09:00:00.000Z"),
+      maxEvidenceAgeHours: 24,
+    }) as BenchmarkGateReport;
+
+    const assetGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-005");
+
+    expect(assetGate).toMatchObject({
+      ready_to_resolve: false,
+      blockers: expect.arrayContaining([
+        "asset_production:artifact_backed_production_asset_evidence_missing",
+        "asset_production:ladder:generatedHumanRigging:contract_only_fixture_not_artifact_backed",
+        "asset_production:not_ready_for_production_assets",
+      ]),
+    });
+    expect(assetGate?.satisfied_conditions).toEqual(expect.arrayContaining([
+      "asset_production_local_fixture_contract_slots_observed",
+    ]));
+    expect(assetGate?.satisfied_conditions).not.toContain("asset_production_readiness_benchmark_passed");
+    expect(report.asset_production_readiness_benchmark?.input).toEqual(expect.objectContaining({
+      localAssetEvidenceFixtureUsed: true,
+    }));
+    expect(report.asset_production_evidence_ladder).toMatchObject({
+      file: "docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
+      schema_version: "openclinxr.asset-production-evidence-ladder.v1",
+      status: "blocked",
+      source_readiness_report: {
+        file: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+        status: "blocked",
+        localAssetEvidenceFixtureUsed: true,
+      },
+      summary: {
+        totalLaneCount: 7,
+        observedLaneCount: 0,
+        contractOnlyLaneCount: 6,
+        blockedLaneCount: 7,
+        artifactBackedProductionAssetEvidenceObserved: false,
+      },
+      verdict: {
+        passed: false,
+        readyForProductionAssets: false,
+        blockers: expect.arrayContaining([
+          "artifact_backed_production_asset_evidence_missing",
+          "generatedHumanRigging:contract_only_fixture_not_artifact_backed",
+        ]),
+      },
+    });
+    expect(report.evidence_freshness?.find((entry) => entry.evidence_id === "asset_production_evidence_ladder")).toMatchObject({
+      status: "fresh",
+      file: "docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
+    });
+  });
+
+  it("flags invalid asset production ladder reports before consuming lane blockers", () => {
+    const report = buildBenchmarkGateReport({
       assetProductionEvidenceLadder: {
         file: "docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
         value: {
@@ -3863,91 +3988,11 @@ describe("benchmark gate report", () => {
           },
         },
       },
-    } as Parameters<typeof buildBenchmarkGateReport>[0] & {
-      assetProductionEvidenceLadder: {
-        file: string;
-        value: {
-          schemaVersion: string;
-          kind: string;
-          generatedAt: string;
-          status: string;
-          sourceReadinessReport: {
-            file: string;
-            generatedAt: string;
-            status: string;
-            localAssetEvidenceFixtureUsed: boolean;
-          };
-          policy: {
-            installsIntroduced: false;
-            cloudApisUsed: false;
-            paidApisUsed: false;
-            externalAssetsUsed: false;
-            productionAssetReadinessClaimed: false;
-          };
-          lanes: unknown[];
-          summary: {
-            totalLaneCount: number;
-            observedLaneCount: number;
-            contractOnlyLaneCount: number;
-            blockedLaneCount: number;
-            artifactBackedProductionAssetEvidenceObserved: boolean;
-          };
-          verdict: {
-            passed: boolean;
-            readyForProductionAssets: false;
-            blockers: string[];
-            caveats: string[];
-          };
-        };
-      };
-    }, { now: new Date("2026-05-06T09:00:00.000Z"), maxEvidenceAgeHours: 24 }) as BenchmarkGateReport;
+    } as Parameters<typeof buildBenchmarkGateReport>[0], { now: new Date("2026-05-06T09:00:00.000Z"), maxEvidenceAgeHours: 24 });
 
     const assetGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-005");
 
-    expect(assetGate).toMatchObject({
-      ready_to_resolve: false,
-      blockers: [
-        "asset_production:artifact_backed_production_asset_evidence_missing",
-        "asset_production:ladder:generatedHumanRigging:contract_only_fixture_not_artifact_backed",
-        "asset_production:not_ready_for_production_assets",
-      ],
-    });
-    expect(assetGate?.satisfied_conditions).toEqual(expect.arrayContaining([
-      "asset_production_local_fixture_contract_slots_observed",
-    ]));
-    expect(assetGate?.satisfied_conditions).not.toContain("asset_production_readiness_benchmark_passed");
-    expect(report.asset_production_readiness_benchmark?.input).toEqual({
-      localAssetEvidenceFixtureUsed: true,
-    });
-    expect(report.asset_production_evidence_ladder).toMatchObject({
-      file: "docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
-      schema_version: "openclinxr.asset-production-evidence-ladder.v1",
-      status: "blocked",
-      source_readiness_report: {
-        file: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
-        status: "blocked",
-        localAssetEvidenceFixtureUsed: true,
-      },
-      summary: {
-        totalLaneCount: 7,
-        observedLaneCount: 0,
-        contractOnlyLaneCount: 6,
-        blockedLaneCount: 7,
-        artifactBackedProductionAssetEvidenceObserved: false,
-      },
-      verdict: {
-        passed: false,
-        readyForProductionAssets: false,
-        blockers: [
-          "artifact_backed_production_asset_evidence_missing",
-          "generatedHumanRigging:contract_only_fixture_not_artifact_backed",
-        ],
-      },
-    });
-    expect(report.evidence_freshness?.find((entry) => entry.evidence_id === "asset_production_evidence_ladder")).toMatchObject({
-      status: "fresh",
-      file: "docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
-    });
+    expect(assetGate?.blockers).toContain("asset_production:ladder:invalid_asset_production_evidence_ladder_report");
   });
 
   it("summarizes missing Blender asset evidence as an asset-pipeline group", () => {
