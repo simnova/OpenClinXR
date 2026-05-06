@@ -1440,13 +1440,21 @@ describe("benchmark gate report", () => {
     expect(gatesById.get("evidence-leadership-0009-004")).toEqual(expect.objectContaining({
       ready_to_resolve: false,
       blockers: expect.arrayContaining([
-        "iwsdk:agent_tooling:phase2_devtools_not_installed_in_sidecar",
+        "iwsdk:agent_tooling:adapter_sync_not_recorded",
+        "iwsdk:agent_tooling:missing_managed_browser_evidence",
+        "iwsdk:agent_tooling:mcp_runtime_not_registered",
+        "iwsdk:agent_tooling:scene_hierarchy_required_objects_not_confirmed",
+        "iwsdk:agent_tooling:ecs_runtime_not_queryable",
       ]),
       satisfied_conditions: expect.arrayContaining([
         "iwsdk_evidence_contract_present",
         "iwsdk_install_backed_sidecar_ready",
       ]),
     }));
+    expect(gatesById.get("evidence-leadership-0009-004")?.blockers).not.toEqual(expect.arrayContaining([
+      "iwsdk:agent_tooling:phase2_devtools_not_installed_in_sidecar",
+      "iwsdk:agent_tooling:mcp_tool_inventory_count_not_32",
+    ]));
     expect(gatesById.get("evidence-leadership-0009-002")).toEqual(expect.objectContaining({
       ready_to_resolve: false,
       blockers: expect.arrayContaining([

@@ -9,6 +9,7 @@ import {
   validateIwsdkEvidenceContractReport,
   type IwsdkEvidenceContractReport,
 } from "./iwsdk-evidence-contract-check.js";
+import { buildIwsdkMcpInventoryEvidenceReport } from "./iwsdk-mcp-inventory-evidence.js";
 import { buildIwsdkMcpToolInventory, type IwsdkAgentToolingEvidence } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
 
 const execFileAsync = promisify(execFile);
@@ -201,7 +202,9 @@ describe("IWSDK evidence contract checker", () => {
     const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
       scripts: Record<string, string>;
     };
-    expect(rootPackage.scripts["iwsdk:evidence"]).toBe("tsx tools/openclinxr/iwsdk-evidence-contract-check.ts");
+    expect(rootPackage.scripts["iwsdk:evidence"]).toBe(
+      "tsx tools/openclinxr/iwsdk-evidence-contract-check.ts --mcp-inventory-input docs/openclinxr/iwsdk-mcp-inventory-evidence-2026-05-06.json",
+    );
 
     try {
       await execFileAsync(
@@ -227,6 +230,69 @@ describe("IWSDK evidence contract checker", () => {
       expect(report.verdict.blockers).not.toEqual(expect.arrayContaining([
         "agent_tooling:adapter_sync_not_recorded",
         "agent_tooling:missing_managed_browser_evidence",
+        "agent_tooling:mcp_tool_inventory_count_not_32",
+      ]));
+    }
+  });
+
+  it("maps committed MCP inventory evidence into partial agent-tooling readiness", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwsdk-mcp-contract-"));
+    const inventoryInputPath = path.join(tempDir, "iwsdk-mcp-inventory.json");
+    const outputPath = path.join(tempDir, "iwsdk-evidence-contract.json");
+
+    await writeFile(inventoryInputPath, `${JSON.stringify(buildIwsdkMcpInventoryEvidenceReport({
+      generatedAt: "2026-05-06T02:00:00.000Z",
+      packageVersion: "0.3.1",
+      server: {
+        name: "iwsdk-dev-mcp",
+        version: "1.0.0",
+        protocolVersion: "2024-11-05",
+      },
+      observedToolNames: buildIwsdkMcpToolInventory().allToolNames,
+    }), null, 2)}\n`, "utf8");
+
+    try {
+      await execFileAsync(
+        path.resolve("node_modules/.bin/tsx"),
+        [
+          "tools/openclinxr/iwsdk-evidence-contract-check.ts",
+          "--mcp-inventory-input",
+          inventoryInputPath,
+          "--",
+          "--output",
+          outputPath,
+        ],
+        { encoding: "utf8", timeout: 15000 },
+      );
+      throw new Error("Expected IWSDK evidence contract checker to preserve remaining blockers");
+    } catch (error) {
+      const failedRun = error as { code: number; stdout: string };
+      const report = JSON.parse(await readFile(outputPath, "utf8")) as IwsdkEvidenceContractReport;
+
+      expect(failedRun.code).toBe(1);
+      expect(failedRun.stdout).toContain(`Wrote ${outputPath}`);
+      expect(report.agentTooling.readyForAgentTooling).toBe(false);
+      expect(report.agentTooling.blockers).toEqual(expect.arrayContaining([
+        "adapter_sync_not_recorded",
+        "missing_managed_browser_evidence",
+        "mcp_runtime_not_registered",
+        "scene_hierarchy_required_objects_not_confirmed",
+        "ecs_runtime_not_queryable",
+      ]));
+      expect(report.agentTooling.blockers).not.toEqual(expect.arrayContaining([
+        "phase2_devtools_not_installed_in_sidecar",
+        "mcp_tool_inventory_count_not_32",
+      ]));
+      expect(report.verdict.blockers).toEqual(expect.arrayContaining([
+        "agent_tooling:adapter_sync_not_recorded",
+        "agent_tooling:missing_managed_browser_evidence",
+        "agent_tooling:mcp_runtime_not_registered",
+        "agent_tooling:scene_hierarchy_required_objects_not_confirmed",
+        "agent_tooling:ecs_runtime_not_queryable",
+        "tool_selection:iwsdk_mcp_future_blocked_until_sidecar",
+      ]));
+      expect(report.verdict.blockers).not.toEqual(expect.arrayContaining([
+        "agent_tooling:phase2_devtools_not_installed_in_sidecar",
         "agent_tooling:mcp_tool_inventory_count_not_32",
       ]));
     }

@@ -38,11 +38,13 @@ import {
   type IwsdkVerificationToolSelectionContract,
   type IwsdkViteAiDevConfigContract,
 } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
+import type { IwsdkMcpInventoryEvidenceReport } from "./iwsdk-mcp-inventory-evidence.js";
 
 type CliOptions = {
   outputPath?: string;
   validateLatestPattern?: string;
   agentToolingInputPath?: string;
+  mcpInventoryInputPath?: string;
   compatibilityInputPath?: string;
   metadataDriftInputPath?: string;
   sidecarMetricsInputPath?: string;
@@ -93,8 +95,10 @@ async function main(): Promise<void> {
     return;
   }
 
+  const mcpInventoryEvidence = await readJsonFile<IwsdkMcpInventoryEvidenceReport>(options.mcpInventoryInputPath);
   const report = buildIwsdkEvidenceContractReport({
-    agentToolingEvidence: await readJsonFile<IwsdkAgentToolingEvidence>(options.agentToolingInputPath),
+    agentToolingEvidence: await readJsonFile<IwsdkAgentToolingEvidence>(options.agentToolingInputPath)
+      ?? mcpInventoryEvidence?.agentToolingEvidence,
     compatibilityEvidence: await readJsonFile<IwsdkCompatibilityEvidence>(options.compatibilityInputPath),
     metadataDriftEvidence: await readJsonFile<IwsdkPackageMetadataDriftEvidence>(options.metadataDriftInputPath),
     sidecarMetrics: await readJsonFile<IwsdkSpikeMetrics>(options.sidecarMetricsInputPath),
@@ -435,6 +439,9 @@ function parseArgs(args: string[]): CliOptions {
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
+    if (arg === "--") {
+      continue;
+    }
     if (arg === "--output") {
       options.outputPath = requireValue(normalizedArgs, index, arg);
       index += 1;
@@ -442,6 +449,11 @@ function parseArgs(args: string[]): CliOptions {
     }
     if (arg === "--agent-tooling-input") {
       options.agentToolingInputPath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--mcp-inventory-input") {
+      options.mcpInventoryInputPath = requireValue(normalizedArgs, index, arg);
       index += 1;
       continue;
     }
