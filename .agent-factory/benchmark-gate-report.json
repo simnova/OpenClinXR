@@ -5,7 +5,7 @@
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T18:13:48.812Z",
-      "age_hours": 36,
+      "age_hours": 38,
       "max_age_hours": 24,
       "status": "stale",
       "blockers": [
@@ -16,7 +16,7 @@
       "evidence_id": "local_runtime_probe",
       "file": "docs/openclinxr/local-runtime-probe-2026-05-05.json",
       "generated_at": "2026-05-05T16:48:27.241Z",
-      "age_hours": 14,
+      "age_hours": 16,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -25,7 +25,7 @@
       "evidence_id": "gltf_pipeline_smoke",
       "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
       "generated_at": "2026-05-06T00:10:04.220Z",
-      "age_hours": 6,
+      "age_hours": 8,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -33,7 +33,7 @@
     {
       "evidence_id": "blender_asset_bake_smoke",
       "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
-      "generated_at": "2026-05-06T06:45:36.886Z",
+      "generated_at": "2026-05-06T08:19:07.305Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -43,7 +43,7 @@
       "evidence_id": "asset_capability_job_evidence",
       "file": "docs/openclinxr/asset-capability-job-evidence-2026-05-05.json",
       "generated_at": "2026-05-05T22:32:39.465Z",
-      "age_hours": 8,
+      "age_hours": 10,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -51,7 +51,7 @@
     {
       "evidence_id": "asset_production_readiness_benchmark",
       "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
-      "generated_at": "2026-05-06T06:48:24.902Z",
+      "generated_at": "2026-05-06T08:19:18.833Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -61,7 +61,7 @@
       "evidence_id": "local_provider_benchmark",
       "file": "docs/openclinxr/local-provider-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T19:05:08.997Z",
-      "age_hours": 12,
+      "age_hours": 14,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -70,7 +70,7 @@
       "evidence_id": "local_model_runtime_benchmark",
       "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T20:20:19.936Z",
-      "age_hours": 10,
+      "age_hours": 12,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -79,7 +79,7 @@
       "evidence_id": "local_model_quality_benchmark",
       "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T06:57:35.610Z",
-      "age_hours": 0,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -88,7 +88,7 @@
       "evidence_id": "local_voice_runtime_benchmark",
       "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T06:20:53Z",
-      "age_hours": 0,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -97,7 +97,7 @@
       "evidence_id": "local_voice_live_dialog_benchmark",
       "file": "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T06:21:17.789Z",
-      "age_hours": 0,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -106,7 +106,7 @@
       "evidence_id": "local_realtime_voice_model_cache_evidence",
       "file": "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-05.json",
       "generated_at": "2026-05-06T02:37:04.486Z",
-      "age_hours": 4,
+      "age_hours": 6,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -126,16 +126,16 @@
       "evidence_id": "godot_project_import_check",
       "file": ".agent-factory/godot-project-import-check.json",
       "generated_at": "2026-05-06T05:24:31.991Z",
-      "age_hours": 1,
+      "age_hours": 3,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
     },
     {
       "evidence_id": "realtime_voice_transport_spike",
-      "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-05.json",
-      "generated_at": "2026-05-05T18:28:23.574Z",
-      "age_hours": 12,
+      "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-06.json",
+      "generated_at": "2026-05-06T08:39:43.771Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -144,7 +144,7 @@
       "evidence_id": "api_python_backend_runtime_smoke",
       "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T15:21:12.576Z",
-      "age_hours": 15,
+      "age_hours": 17,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -153,7 +153,7 @@
       "evidence_id": "api_bun_websocket_runtime_smoke",
       "file": "docs/openclinxr/api-bun-websocket-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T23:27:29.751Z",
-      "age_hours": 7,
+      "age_hours": 9,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -162,7 +162,7 @@
       "evidence_id": "api_bun_python_proxy_runtime_smoke",
       "file": "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-06T01:52:40.346Z",
-      "age_hours": 5,
+      "age_hours": 7,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -170,7 +170,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T07:05:47.159Z",
+      "generated_at": "2026-05-06T09:09:29.485Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -264,7 +264,7 @@
   },
   "blender_asset_bake_smoke": {
     "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
-    "generated_at": "2026-05-06T06:45:36.886Z",
+    "generated_at": "2026-05-06T08:19:07.305Z",
     "tool": {
       "command": "blender",
       "package": "Blender",
@@ -275,27 +275,89 @@
       "fixture": "ed_chest_pain_clinical_asset_pack",
       "externalAssetsUsed": false,
       "sourceLicensePosture": "reviewed_local_clinical_asset_fixture",
-      "expectedObjectCount": 19
+      "expectedObjectCount": 21
     },
     "output": {
       "glbBytes": 109040,
       "magic": "glTF",
       "version": 2,
       "declaredLength": 109040,
-      "elapsedMs": 10066.53
+      "elapsedMs": 5608.9,
+      "semanticInventory": {
+        "sceneCount": 1,
+        "nodeCount": 21,
+        "meshCount": 21,
+        "materialCount": 7,
+        "observedObjectNames": [
+          "ed_exam_bay_floor_panel",
+          "ed_exam_bay_back_wall",
+          "ed_exam_bay_privacy_curtain_rail",
+          "stretcher_frame_with_side_rails",
+          "stretcher_mattress_linen",
+          "stretcher_left_side_rail",
+          "stretcher_right_side_rail",
+          "patient_robert_hayes_head",
+          "patient_robert_hayes_torso_hospital_gown",
+          "patient_robert_hayes_left_arm_diaphoretic_pose",
+          "patient_robert_hayes_right_arm_chest_guarding_pose",
+          "patient_robert_hayes_canonical_skeleton_anchor",
+          "nurse_maria_alvarez_head",
+          "nurse_maria_alvarez_torso_scrubs",
+          "nurse_maria_alvarez_tablet",
+          "nurse_maria_alvarez_canonical_skeleton_anchor",
+          "ed_exam_bay_wall_monitor",
+          "ecg_cart_12_lead",
+          "iv_pole_with_pump",
+          "oxygen_flowmeter_wall_unit",
+          "asset_pack_scale_and_origin_marker"
+        ],
+        "requiredObjectNames": [
+          "ed_exam_bay_floor_panel",
+          "ed_exam_bay_back_wall",
+          "ed_exam_bay_privacy_curtain_rail",
+          "stretcher_frame_with_side_rails",
+          "stretcher_mattress_linen",
+          "stretcher_left_side_rail",
+          "stretcher_right_side_rail",
+          "patient_robert_hayes_head",
+          "patient_robert_hayes_torso_hospital_gown",
+          "patient_robert_hayes_left_arm_diaphoretic_pose",
+          "patient_robert_hayes_right_arm_chest_guarding_pose",
+          "patient_robert_hayes_canonical_skeleton_anchor",
+          "nurse_maria_alvarez_head",
+          "nurse_maria_alvarez_torso_scrubs",
+          "nurse_maria_alvarez_tablet",
+          "nurse_maria_alvarez_canonical_skeleton_anchor",
+          "ed_exam_bay_wall_monitor",
+          "ecg_cart_12_lead",
+          "iv_pole_with_pump",
+          "oxygen_flowmeter_wall_unit",
+          "asset_pack_scale_and_origin_marker"
+        ],
+        "missingRequiredObjectNames": []
+      }
     },
     "passed": true,
     "blockers": []
   },
   "asset_production_readiness_benchmark": {
     "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
-    "generated_at": "2026-05-06T06:48:24.902Z",
+    "generated_at": "2026-05-06T08:19:18.833Z",
     "status": "passed",
+    "input": {
+      "gltfPipelineSmokeFile": "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
+      "blenderAssetBakeSmokeFile": "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+      "gltfGeneratedAt": "2026-05-06T00:10:04.220Z",
+      "blenderGeneratedAt": "2026-05-06T08:19:07.305Z",
+      "localAssetEvidenceFixtureUsed": true
+    },
     "source_evidence": {
       "gltfPipelineSmokePassed": true,
       "blenderBakeSmokePassed": true,
       "blenderSourceLicensePosture": "reviewed_local_clinical_asset_fixture",
       "placeholderBakeOnly": false,
+      "blenderSemanticInventoryObserved": true,
+      "blenderMissingRequiredObjectNames": [],
       "blockers": []
     },
     "production_proofs": {
@@ -1009,15 +1071,15 @@
     ]
   },
   "realtime_voice_transport_spike": {
-    "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-05.json",
-    "generated_at": "2026-05-05T18:28:23.574Z",
+    "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-06.json",
+    "generated_at": "2026-05-06T08:39:43.771Z",
     "status": "transport_spike_passed",
-    "round_trip_latency_ms": 28.47,
+    "round_trip_latency_ms": 12.85,
     "audio_metadata_frames_sent": 2,
     "audio_chunk_metadata_received": 2,
     "frame_latency_samples_ms": [
-      9.05,
-      8.96
+      4.63,
+      4.56
     ],
     "audio_chunk_indexes_received": [
       0,
@@ -1363,7 +1425,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T07:05:47.159Z",
+    "generated_at": "2026-05-06T09:09:29.485Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -1478,7 +1540,7 @@
   },
   "iwsdk_evidence_contract": {
     "file": "docs/openclinxr/iwsdk-evidence-contract-2026-05-06.json",
-    "generated_at": "2026-05-06T06:36:02.066Z",
+    "generated_at": "2026-05-06T08:25:03.126Z",
     "status": "phase_1_install_backed_sidecar",
     "ready_for_install_backed_sidecar": true,
     "ready_for_agent_tooling": false,
@@ -1486,14 +1548,9 @@
     "blockers": [
       "agent_tooling:adapter_sync_not_recorded",
       "agent_tooling:ecs_runtime_not_queryable",
-      "agent_tooling:mcp_runtime_not_registered",
-      "agent_tooling:mcp_smoke_tool_not_validated_browser_get_console_logs",
-      "agent_tooling:mcp_smoke_tool_not_validated_browser_screenshot",
       "agent_tooling:mcp_smoke_tool_not_validated_scene_get_hierarchy",
       "agent_tooling:mcp_smoke_tool_not_validated_xr_accept_session",
-      "agent_tooling:mcp_smoke_tool_not_validated_xr_get_session_status",
       "agent_tooling:mcp_smoke_tool_not_validated_xr_select",
-      "agent_tooling:missing_managed_browser_evidence",
       "agent_tooling:scene_hierarchy_required_objects_not_confirmed",
       "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
       "metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
@@ -1534,14 +1591,9 @@
           "blockers": [
             "agent_tooling:adapter_sync_not_recorded",
             "agent_tooling:ecs_runtime_not_queryable",
-            "agent_tooling:mcp_runtime_not_registered",
-            "agent_tooling:mcp_smoke_tool_not_validated_browser_get_console_logs",
-            "agent_tooling:mcp_smoke_tool_not_validated_browser_screenshot",
             "agent_tooling:mcp_smoke_tool_not_validated_scene_get_hierarchy",
             "agent_tooling:mcp_smoke_tool_not_validated_xr_accept_session",
-            "agent_tooling:mcp_smoke_tool_not_validated_xr_get_session_status",
             "agent_tooling:mcp_smoke_tool_not_validated_xr_select",
-            "agent_tooling:missing_managed_browser_evidence",
             "agent_tooling:scene_hierarchy_required_objects_not_confirmed"
           ]
         },
@@ -1581,6 +1633,7 @@
         "asset_production_capability_job_contract_observed",
         "asset_production_collider_simplification_observed",
         "asset_production_generated_human_rigging_observed",
+        "asset_production_local_fixture_contract_slots_observed",
         "asset_production_lod_tiers_observed",
         "asset_production_medical_equipment_library_observed",
         "asset_production_multi_actor_quest_budget_observed",
@@ -1873,6 +1926,7 @@
         "asset_production_capability_job_contract_observed",
         "asset_production_collider_simplification_observed",
         "asset_production_generated_human_rigging_observed",
+        "asset_production_local_fixture_contract_slots_observed",
         "asset_production_lod_tiers_observed",
         "asset_production_medical_equipment_library_observed",
         "asset_production_multi_actor_quest_budget_observed",
@@ -2108,14 +2162,9 @@
       "blockers": [
         "iwsdk:agent_tooling:adapter_sync_not_recorded",
         "iwsdk:agent_tooling:ecs_runtime_not_queryable",
-        "iwsdk:agent_tooling:mcp_runtime_not_registered",
-        "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_browser_get_console_logs",
-        "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_browser_screenshot",
         "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_scene_get_hierarchy",
         "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_xr_accept_session",
-        "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_xr_get_session_status",
         "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_xr_select",
-        "iwsdk:agent_tooling:missing_managed_browser_evidence",
         "iwsdk:agent_tooling:scene_hierarchy_required_objects_not_confirmed",
         "iwsdk:compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
         "iwsdk:metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
@@ -2128,7 +2177,7 @@
         "iwsdk:tool_selection:manual_quest_foreground_required_for_production_readiness"
       ],
       "blocker_summary": {
-        "total_blockers": 20,
+        "total_blockers": 15,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -2138,14 +2187,9 @@
             "blockers": [
               "iwsdk:agent_tooling:adapter_sync_not_recorded",
               "iwsdk:agent_tooling:ecs_runtime_not_queryable",
-              "iwsdk:agent_tooling:mcp_runtime_not_registered",
-              "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_browser_get_console_logs",
-              "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_browser_screenshot",
               "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_scene_get_hierarchy",
               "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_xr_accept_session",
-              "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_xr_get_session_status",
               "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_xr_select",
-              "iwsdk:agent_tooling:missing_managed_browser_evidence",
               "iwsdk:agent_tooling:scene_hierarchy_required_objects_not_confirmed",
               "iwsdk:compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
               "iwsdk:metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
@@ -2165,7 +2209,7 @@
     },
     {
       "evidence_id": "evidence-leadership-0009-005",
-      "ready_to_resolve": true,
+      "ready_to_resolve": false,
       "satisfied_conditions": [
         "asset_pipeline_blender_bake_smoke_passed",
         "asset_pipeline_gltf_pipeline_smoke_passed",
@@ -2174,6 +2218,7 @@
         "asset_production_capability_job_contract_observed",
         "asset_production_collider_simplification_observed",
         "asset_production_generated_human_rigging_observed",
+        "asset_production_local_fixture_contract_slots_observed",
         "asset_production_lod_tiers_observed",
         "asset_production_medical_equipment_library_observed",
         "asset_production_multi_actor_quest_budget_observed",
@@ -2183,11 +2228,25 @@
         "asset_production_source_smokes_passed",
         "asset_production_texture_compression_budget_observed"
       ],
-      "blockers": [],
+      "blockers": [
+        "asset_production:local_fixture_contract_slots_not_artifact_backed",
+        "asset_production:not_ready_for_production_assets"
+      ],
       "blocker_summary": {
-        "total_blockers": 0,
-        "distinct_problem_count": 0,
-        "groups": [],
+        "total_blockers": 2,
+        "distinct_problem_count": 1,
+        "groups": [
+          {
+            "group_id": "asset_production_readiness",
+            "title": "Production asset generation readiness",
+            "owner": "asset-pipeline-lead",
+            "blockers": [
+              "asset_production:local_fixture_contract_slots_not_artifact_backed",
+              "asset_production:not_ready_for_production_assets"
+            ],
+            "next_step": "Replace placeholder Blender bake/source evidence with reviewed generated clinical assets, then rerun the production asset readiness benchmark before claiming production asset readiness."
+          }
+        ],
         "ungrouped_blockers": []
       }
     }

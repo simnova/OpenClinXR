@@ -95,6 +95,9 @@ type BlenderAssetBakeSmokeReport = {
 type AssetProductionReadinessBenchmarkReport = {
   generatedAt: string;
   status: string;
+  input?: {
+    localAssetEvidenceFixtureUsed?: boolean;
+  };
   sourceEvidence: {
     gltfPipelineSmokePassed: boolean;
     blenderBakeSmokePassed: boolean;
@@ -121,6 +124,7 @@ type AssetProductionReadinessBenchmarkReport = {
     scenarioId: string;
     source: string;
     requiredAssetCount: number;
+    placeholderOnly: boolean;
     observed: boolean;
     blockers: string[];
     budget: Record<string, unknown>;
@@ -131,6 +135,7 @@ type AssetProductionReadinessBenchmarkReport = {
   };
   verdict: {
     passed: boolean;
+    readyForProductionAssets?: boolean;
     blockers: string[];
     caveats: string[];
   };
@@ -139,6 +144,13 @@ type AssetProductionReadinessBenchmarkReport = {
 type AssetCapabilityJobEvidenceReport = {
   generatedAt: string;
   status: string;
+  policy?: {
+    cloudApisUsed: boolean;
+    paidApisUsed: boolean;
+    externalNetworkAllowed: boolean;
+    spendLimitCents: number;
+    productionArtifactClaimed: boolean;
+  };
   summary: {
     allCapabilitiesObserved: boolean;
     allJobsSucceeded: boolean;
@@ -399,6 +411,7 @@ type EvidenceGateReport = {
     file: string;
     generated_at: string;
     status: string;
+    input?: AssetProductionReadinessBenchmarkReport["input"];
     source_evidence: AssetProductionReadinessBenchmarkReport["sourceEvidence"];
     production_proofs: AssetProductionReadinessBenchmarkReport["productionProofs"];
     generation_evidence: AssetProductionReadinessBenchmarkReport["generationEvidence"];
@@ -1006,6 +1019,9 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     assetProductionReadinessBenchmark?.value.optimizationEvidence?.colliderSimplificationObserved ? "asset_production_collider_simplification_observed" : undefined,
     assetProductionReadinessBenchmark?.value.runtimeBudget.multiActorBudgetObserved ? "asset_production_multi_actor_quest_budget_observed" : undefined,
     assetProductionReadinessBenchmark?.value.verdict.passed ? "asset_production_readiness_benchmark_passed" : undefined,
+    assetProductionReadinessBenchmark?.value.input?.localAssetEvidenceFixtureUsed
+      ? "asset_production_local_fixture_contract_slots_observed"
+      : undefined,
     localProviderBenchmark?.value.verdict.deterministicMocksPassed ? "local_provider_mock_benchmarks_passed" : undefined,
     localRuntime?.value.gates.localModel.status === "ready" ? "local_model_runtime_ready" : undefined,
     localRuntime?.value.gates.localVoice.status === "ready" ? "local_voice_runtime_ready" : undefined,
@@ -1141,6 +1157,9 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         file: assetProductionReadinessBenchmark.file,
         generated_at: assetProductionReadinessBenchmark.value.generatedAt,
         status: assetProductionReadinessBenchmark.value.status,
+        ...(assetProductionReadinessBenchmark.value.input ? {
+          input: assetProductionReadinessBenchmark.value.input,
+        } : {}),
         source_evidence: assetProductionReadinessBenchmark.value.sourceEvidence,
         production_proofs: assetProductionReadinessBenchmark.value.productionProofs,
         generation_evidence: assetProductionReadinessBenchmark.value.generationEvidence,
@@ -2217,7 +2236,15 @@ function assetProductionBlockers(
   assetProductionReadinessBenchmark: EvidenceFile<AssetProductionReadinessBenchmarkReport> | undefined,
 ): string[] {
   if (assetProductionReadinessBenchmark) {
-    return unique(assetProductionReadinessBenchmark.value.verdict.blockers.map((blocker) => `asset_production:${blocker}`));
+    return unique([
+      ...assetProductionReadinessBenchmark.value.verdict.blockers.map((blocker) => `asset_production:${blocker}`),
+      ...(assetProductionReadinessBenchmark.value.input?.localAssetEvidenceFixtureUsed
+        ? ["asset_production:local_fixture_contract_slots_not_artifact_backed"]
+        : []),
+      ...(assetProductionReadinessBenchmark.value.verdict.readyForProductionAssets === true
+        ? []
+        : ["asset_production:not_ready_for_production_assets"]),
+    ]);
   }
 
   const blockers: string[] = [];

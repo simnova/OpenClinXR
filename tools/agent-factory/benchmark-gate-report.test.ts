@@ -89,6 +89,9 @@ type BenchmarkGateReport = {
     };
   };
   asset_production_readiness_benchmark?: {
+    input?: {
+      localAssetEvidenceFixtureUsed?: boolean;
+    };
     generation_evidence?: {
       generatedHumanRiggingObserved: boolean;
       skinClothingProvenanceObserved: boolean;
@@ -1464,8 +1467,9 @@ describe("benchmark gate report", () => {
       ready_to_resolve: false,
       blockers: expect.arrayContaining([
         "iwsdk:agent_tooling:adapter_sync_not_recorded",
-        "iwsdk:agent_tooling:missing_managed_browser_evidence",
-        "iwsdk:agent_tooling:mcp_runtime_not_registered",
+        "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_scene_get_hierarchy",
+        "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_xr_accept_session",
+        "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_xr_select",
         "iwsdk:agent_tooling:scene_hierarchy_required_objects_not_confirmed",
         "iwsdk:agent_tooling:ecs_runtime_not_queryable",
       ]),
@@ -1516,8 +1520,11 @@ describe("benchmark gate report", () => {
       ]),
     }));
     expect(gatesById.get("evidence-leadership-0009-005")).toEqual(expect.objectContaining({
-      ready_to_resolve: true,
-      blockers: [],
+      ready_to_resolve: false,
+      blockers: expect.arrayContaining([
+        "asset_production:local_fixture_contract_slots_not_artifact_backed",
+        "asset_production:not_ready_for_production_assets",
+      ]),
       satisfied_conditions: expect.arrayContaining([
         "asset_pipeline_blender_bake_smoke_passed",
         "asset_pipeline_gltf_pipeline_smoke_passed",
@@ -1525,6 +1532,7 @@ describe("benchmark gate report", () => {
         "asset_production_collider_simplification_observed",
         "asset_production_generated_human_rigging_observed",
         "asset_production_lod_tiers_observed",
+        "asset_production_local_fixture_contract_slots_observed",
         "asset_production_medical_equipment_library_observed",
         "asset_production_multi_actor_quest_budget_observed",
         "asset_production_readiness_benchmark_passed",
@@ -1544,6 +1552,9 @@ describe("benchmark gate report", () => {
       "asset_production:optimization:collider_simplification_report_missing",
       "asset_production:runtime:multi_actor_quest_budget_missing",
     ]));
+    expect(report.asset_production_readiness_benchmark?.input).toEqual(expect.objectContaining({
+      localAssetEvidenceFixtureUsed: true,
+    }));
   });
 
   it("uses local model quality evidence to replace generic actor-policy blockers with precise findings", () => {
@@ -2791,8 +2802,12 @@ describe("benchmark gate report", () => {
               multiActorBudgetObserved: boolean;
               blockers: string[];
             };
+            input?: {
+              localAssetEvidenceFixtureUsed?: boolean;
+            };
             verdict: {
               passed: boolean;
+              readyForProductionAssets?: boolean;
               blockers: string[];
               caveats: string[];
             };
@@ -2924,8 +2939,12 @@ describe("benchmark gate report", () => {
             multiActorBudgetObserved: true,
             blockers: [],
           },
+          input: {
+            localAssetEvidenceFixtureUsed: false,
+          },
           verdict: {
             passed: false,
+            readyForProductionAssets: false,
             blockers: [
               "source:placeholder_bake_only",
             ],
@@ -2988,7 +3007,10 @@ describe("benchmark gate report", () => {
       "asset_production_source_smokes_passed",
       "asset_production_texture_compression_budget_observed",
     ]));
-    expect(assetGate?.blockers).toEqual(["asset_production:source:placeholder_bake_only"]);
+    expect(assetGate?.blockers).toEqual([
+      "asset_production:not_ready_for_production_assets",
+      "asset_production:source:placeholder_bake_only",
+    ]);
     expect(assetGate?.blockers).not.toEqual(expect.arrayContaining([
       "asset_production:missing_asset_capability_job_evidence_report",
       "asset_production:asset_capability_job_contract_failed",
@@ -3037,6 +3059,9 @@ describe("benchmark gate report", () => {
         blockers: [],
       },
     });
+    expect(report.asset_production_readiness_benchmark?.input).toEqual({
+      localAssetEvidenceFixtureUsed: false,
+    });
     expect(report.asset_production_readiness_benchmark?.generation_evidence).toEqual({
       generatedHumanRiggingObserved: true,
       skinClothingProvenanceObserved: true,
@@ -3051,6 +3076,134 @@ describe("benchmark gate report", () => {
       colliderSimplificationObserved: true,
       placeholderOnly: false,
       blockers: [],
+    });
+  });
+
+  it("keeps contract-only local asset fixture reports blocked from resolving production asset debt", () => {
+    const report = buildBenchmarkGateReport({
+      localRuntime: {
+        file: "docs/openclinxr/local-runtime-probe-2026-05-04.json",
+        value: {
+          generatedAt: "2026-05-06T08:00:00.000Z",
+          gates: {
+            questUsb: { status: "ready", blockers: [] },
+            questForegroundPreflight: { status: "ready", blockers: [] },
+            localModel: { status: "ready", blockers: [] },
+            localVoice: { status: "ready", blockers: [] },
+            assetPipeline: { status: "ready", blockers: [] },
+          },
+        },
+      },
+      gltfPipelineSmoke: {
+        file: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
+        value: {
+          generatedAt: "2026-05-06T08:05:00.000Z",
+          tool: { command: "gltf-pipeline", package: "gltf-pipeline", version: "4.3.1", license: "Apache-2.0" },
+          output: { glbBytes: 848, magic: "glTF", version: 2, declaredLength: 848, elapsedMs: 1 },
+          verdict: { passed: true, blockers: [] },
+        },
+      },
+      blenderAssetBakeSmoke: {
+        file: "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+        value: {
+          generatedAt: "2026-05-06T08:10:00.000Z",
+          tool: { command: "blender", package: "Blender", version: "Blender 5.1.1", license: "GPL-3.0-or-later-tooling" },
+          input: {
+            fixture: "ed_chest_pain_clinical_asset_pack",
+            externalAssetsUsed: false,
+            sourceLicensePosture: "reviewed_local_clinical_asset_fixture",
+            expectedObjectCount: 21,
+          },
+          output: { glbBytes: 109040, magic: "glTF", version: 2, declaredLength: 109040, elapsedMs: 5608.9 },
+          verdict: { passed: true, blockers: [] },
+        },
+      },
+      assetCapabilityJobEvidence: passedAssetCapabilityJobEvidence("2026-05-06T08:15:00.000Z"),
+      assetProductionReadinessBenchmark: {
+        file: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+        value: {
+          generatedAt: "2026-05-06T08:19:18.833Z",
+          status: "passed",
+          input: {
+            localAssetEvidenceFixtureUsed: true,
+          },
+          sourceEvidence: {
+            gltfPipelineSmokePassed: true,
+            blenderBakeSmokePassed: true,
+            placeholderBakeOnly: false,
+            blockers: [],
+          },
+          productionProofs: {
+            generatedHumanRigging: { observed: true, blockers: [] },
+            skinClothingProvenance: { observed: true, blockers: [] },
+            medicalEquipmentLibrary: { observed: true, blockers: [] },
+            animationRetargeting: { observed: true, blockers: [] },
+            lodTextureColliderBudget: { observed: true, blockers: [] },
+            multiActorQuestBudget: { observed: true, blockers: [] },
+          },
+          generationEvidence: {
+            generatedHumanRiggingObserved: true,
+            skinClothingProvenanceObserved: true,
+            medicalEquipmentLibraryObserved: true,
+            animationRetargetingObserved: true,
+            placeholderOnly: false,
+            blockers: [],
+          },
+          optimizationEvidence: {
+            lodTiersObserved: true,
+            textureCompressionBudgetObserved: true,
+            colliderSimplificationObserved: true,
+            placeholderOnly: false,
+            blockers: [],
+          },
+          stationBudgetEvidence: {
+            scenarioId: "ed_chest_pain_priority_v1",
+            source: "@openclinxr/asset-registry:createEdChestPainLocalAssetEvidenceFixtureManifests",
+            requiredAssetCount: 3,
+            placeholderOnly: false,
+            observed: true,
+            blockers: [],
+            budget: {
+              maxVisibleTriangles: 180000,
+              maxTextureMegabytes: 512,
+              maxDrawCalls: 120,
+              totalTriangles: 60000,
+              totalTextureMegabytes: 80,
+              totalDrawCalls: 28,
+              blockers: [],
+            },
+          },
+          runtimeBudget: {
+            multiActorBudgetObserved: true,
+            blockers: [],
+          },
+          verdict: {
+            passed: true,
+            readyForProductionAssets: false,
+            blockers: [],
+            caveats: [
+              "The local asset evidence fixture supplies contract-level proof slots only; fixture IDs are not artifact-backed generated production assets.",
+            ],
+          },
+        },
+      },
+    }, { now: new Date("2026-05-06T09:00:00.000Z"), maxEvidenceAgeHours: 24 });
+
+    const assetGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-005");
+
+    expect(assetGate).toMatchObject({
+      ready_to_resolve: false,
+      blockers: [
+        "asset_production:local_fixture_contract_slots_not_artifact_backed",
+        "asset_production:not_ready_for_production_assets",
+      ],
+    });
+    expect(assetGate?.satisfied_conditions).toEqual(expect.arrayContaining([
+      "asset_production_local_fixture_contract_slots_observed",
+      "asset_production_readiness_benchmark_passed",
+    ]));
+    expect(report.asset_production_readiness_benchmark?.input).toEqual({
+      localAssetEvidenceFixtureUsed: true,
     });
   });
 
@@ -3696,3 +3849,44 @@ describe("benchmark gate report", () => {
     ]));
   });
 });
+
+function passedAssetCapabilityJobEvidence(
+  generatedAt = "2026-05-04T20:25:00.000Z",
+): NonNullable<Parameters<typeof buildBenchmarkGateReport>[0]["assetCapabilityJobEvidence"]> {
+  return {
+    file: "docs/openclinxr/asset-capability-job-evidence-2026-05-04.json",
+    value: {
+      generatedAt,
+      status: "passed",
+      policy: {
+        cloudApisUsed: false,
+        paidApisUsed: false,
+        externalNetworkAllowed: false,
+        spendLimitCents: 0,
+        productionArtifactClaimed: false,
+      },
+      summary: {
+        allCapabilitiesObserved: true,
+        allJobsSucceeded: true,
+        allManifestsObserved: true,
+        allLicenseProvenanceObserved: true,
+        zeroSpendObserved: true,
+        noExternalNetworkObserved: true,
+        blockers: [],
+      },
+      jobs: [
+        { capabilityId: "character-generation", passed: true, blockers: [] },
+        { capabilityId: "medical-equipment-generation", passed: true, blockers: [] },
+        { capabilityId: "voice-asset-generation", passed: true, blockers: [] },
+        { capabilityId: "animation-generation", passed: true, blockers: [] },
+        { capabilityId: "asset-bake", passed: true, blockers: [] },
+      ],
+      verdict: {
+        passed: true,
+        readyForProductionAssets: false,
+        blockers: [],
+        caveats: ["Deterministic control-plane evidence only."],
+      },
+    },
+  };
+}
