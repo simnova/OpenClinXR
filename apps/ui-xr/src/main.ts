@@ -1951,6 +1951,7 @@ function updateManualEvidencePanel(): string {
     summary.lastLocomotionAtMs === null ? "no movement timestamp" : `moved ${summary.lastLocomotionAtMs}ms`,
     summary.locomotionDistanceMeters === null ? "no distance delta" : `d ${summary.locomotionDistanceMeters}m`,
     summary.locomotionTurnRadians === null ? "no turn delta" : `turn ${summary.locomotionTurnRadians}rad`,
+    formatLocomotionDiagnosticSummary(summary.locomotionDiagnosticSummary),
   ].join(" | ");
   evidenceTrace.textContent = [
     summary.traceLatencySource ?? "no trace source",
@@ -1972,6 +1973,18 @@ function updateManualEvidencePanel(): string {
   }, null, 2);
   manualEvidenceJson.value = payload;
   return payload;
+}
+
+function formatLocomotionDiagnosticSummary(
+  summary: ManualPerformanceCaptureSummary["locomotionDiagnosticSummary"],
+): string {
+  if (!summary) {
+    return "diag pending";
+  }
+  const reasons = summary.handGestureBlockedReasons.length > 0
+    ? summary.handGestureBlockedReasons.join(",")
+    : "none";
+  return `diag gp ${summary.activeGamepadSourceCount}/${summary.gamepadSourceCount}; hand ${summary.pinchingHandCount}/${summary.handGestureHandCount}; blocked ${reasons}`;
 }
 
 let start = performance.now();

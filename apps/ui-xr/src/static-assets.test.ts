@@ -138,6 +138,7 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("xr_hand_gesture");
     expect(mainSource).toContain("xrHandGestureState");
     expect(mainSource).toContain("locomotionDiagnostics");
+    expect(mainSource).toContain("formatLocomotionDiagnosticSummary");
     expect(mainSource).toContain("gamepadSources");
     expect(mainSource).toContain("pinchDistanceMeters");
     expect(mainSource).toContain("movementCrossedDeadzone");

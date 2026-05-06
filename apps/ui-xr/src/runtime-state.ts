@@ -441,6 +441,7 @@ export type ManualPerformanceCaptureSummary = {
   locomotionAttempt: ManualPerformanceInputEvidence["locomotionAttempt"] | null;
   locomotionDistanceMeters: number | null;
   locomotionTurnRadians: number | null;
+  locomotionDiagnosticSummary: LocomotionDiagnosticSummary | null;
   traceLatencySource: ManualPerformanceTraceLatencyEvidence["source"] | null;
   traceInteractionAttempt: TraceInteractionAttempt | null;
   lastTraceTag: string | null;
@@ -453,6 +454,16 @@ export type ManualPerformanceCaptureSummary = {
   manualValidationReady: boolean;
   satisfiedConditions: string[];
   blockers: string[];
+};
+
+export type LocomotionDiagnosticSummary = {
+  claimScope: "attempt_diagnostics_only";
+  gamepadSourceCount: number;
+  activeGamepadSourceCount: number;
+  handGestureHandCount: number;
+  pinchingHandCount: number;
+  movementCrossedDeadzoneHandCount: number;
+  handGestureBlockedReasons: string[];
 };
 
 export type ManualEvidenceCopyDisposition =
@@ -1516,6 +1527,7 @@ export function buildManualPerformanceCaptureSummary(
     locomotionAttempt: inputEvidence?.locomotionAttempt ?? null,
     locomotionDistanceMeters: inputEvidence?.locomotionDelta?.distanceMeters ?? null,
     locomotionTurnRadians: inputEvidence?.locomotionDelta?.turnRadians ?? null,
+    locomotionDiagnosticSummary: summarizeLocomotionDiagnostics(inputEvidence?.locomotionDiagnostics),
     traceLatencySource: input.draft?.traceLatencyProxy?.source ?? null,
     traceInteractionAttempt: input.draft?.station.traceInteractionAttempt ?? null,
     lastTraceTag: input.draft?.traceLatencyProxy?.lastTraceTag ?? null,
@@ -1529,6 +1541,29 @@ export function buildManualPerformanceCaptureSummary(
     satisfiedConditions: preview.satisfiedConditions,
     blockers,
   };
+}
+
+function summarizeLocomotionDiagnostics(
+  diagnostics: LocomotionAttemptDiagnosticsEvidence | undefined,
+): LocomotionDiagnosticSummary | null {
+  if (!diagnostics) {
+    return null;
+  }
+  return {
+    claimScope: "attempt_diagnostics_only",
+    gamepadSourceCount: diagnostics.gamepadSources.length,
+    activeGamepadSourceCount: diagnostics.gamepadSources.filter((source) => source.activeAfterDeadzone).length,
+    handGestureHandCount: diagnostics.handGestureHands.length,
+    pinchingHandCount: diagnostics.handGestureHands.filter((hand) => hand.pinching).length,
+    movementCrossedDeadzoneHandCount: diagnostics.handGestureHands.filter((hand) => hand.movementCrossedDeadzone).length,
+    handGestureBlockedReasons: uniqueStrings(
+      diagnostics.handGestureHands.flatMap((hand) => hand.blockedReason ? [hand.blockedReason] : []),
+    ),
+  };
+}
+
+function uniqueStrings(values: string[]): string[] {
+  return [...new Set(values)];
 }
 
 function buildManualPerformanceTechnicalEvidence(
