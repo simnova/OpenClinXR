@@ -7,6 +7,7 @@ import {
 
 type CliOptions = {
   validatePath?: string;
+  validateLatest: boolean;
   readinessReportPath?: string;
   outputPath?: string;
 };
@@ -167,12 +168,16 @@ async function main(): Promise<void> {
 
 export async function runAssetProductionEvidenceLadderCli(args: string[]): Promise<void> {
   const options = parseArgs(args);
-  if (options.validatePath) {
+  if (options.validatePath || options.validateLatest) {
+    const validatePath = options.validatePath ?? await latestPath("docs/openclinxr/asset-production-evidence-ladder-*.json");
+    if (!validatePath) {
+      throw new Error("Missing asset production evidence ladder report to validate.");
+    }
     const validation = validateAssetProductionEvidenceLadderReport(
-      await readJson<unknown>(options.validatePath),
+      await readJson<unknown>(validatePath),
     );
     if (validation.ok) {
-      console.log(`Validated ${options.validatePath}`);
+      console.log(`Validated ${validatePath}`);
       return;
     }
 
@@ -216,13 +221,19 @@ export async function runAssetProductionEvidenceLadderCli(args: string[]): Promi
 
 function parseArgs(args: string[]): CliOptions {
   const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
-  const options: CliOptions = {};
+  const options: CliOptions = {
+    validateLatest: false,
+  };
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
     if (arg === "--validate") {
       options.validatePath = requireValue(normalizedArgs, index, arg);
       index += 1;
+      continue;
+    }
+    if (arg === "--validate-latest") {
+      options.validateLatest = true;
       continue;
     }
     if (arg === "--readiness") {

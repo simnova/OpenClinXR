@@ -6,10 +6,11 @@ import {
   type AssetGenerationCapabilityId,
   type AssetGenerationJobRecord,
 } from "../../packages/openclinxr/capability-gateway/src/index.js";
-import { readJson, writeJson } from "../agent-factory/lib.js";
+import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 
 type CliOptions = {
   validatePath?: string;
+  validateLatest: boolean;
   outputPath?: string;
 };
 
@@ -78,10 +79,14 @@ async function main(): Promise<void> {
 
 export async function runAssetCapabilityJobEvidenceCli(args: string[]): Promise<void> {
   const options = parseArgs(args);
-  if (options.validatePath) {
-    const validation = validateAssetCapabilityJobEvidenceReport(await readJson<unknown>(options.validatePath));
+  if (options.validatePath || options.validateLatest) {
+    const validatePath = options.validatePath ?? await latestPath("docs/openclinxr/asset-capability-job-evidence-*.json");
+    if (!validatePath) {
+      throw new Error("Missing asset capability job evidence report to validate.");
+    }
+    const validation = validateAssetCapabilityJobEvidenceReport(await readJson<unknown>(validatePath));
     if (validation.ok) {
-      console.log(`Validated ${options.validatePath}`);
+      console.log(`Validated ${validatePath}`);
       return;
     }
 
@@ -105,13 +110,19 @@ export async function runAssetCapabilityJobEvidenceCli(args: string[]): Promise<
 
 function parseArgs(args: string[]): CliOptions {
   const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
-  const options: CliOptions = {};
+  const options: CliOptions = {
+    validateLatest: false,
+  };
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
     if (arg === "--validate") {
       options.validatePath = requireValue(normalizedArgs, index, arg);
       index += 1;
+      continue;
+    }
+    if (arg === "--validate-latest") {
+      options.validateLatest = true;
       continue;
     }
     if (arg === "--output") {
@@ -123,6 +134,11 @@ function parseArgs(args: string[]): CliOptions {
   }
 
   return options;
+}
+
+async function latestPath(pattern: string): Promise<string | undefined> {
+  const files = await globFiles(pattern);
+  return files.sort().at(-1);
 }
 
 function requireValue(args: string[], index: number, flag: string): string {

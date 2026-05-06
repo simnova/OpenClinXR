@@ -18,7 +18,7 @@ describe("gltf-pipeline smoke report", () => {
       "tsx tools/openclinxr/gltf-pipeline-smoke.ts",
     );
     expect(rootPackage.scripts["asset:gltf:smoke:validate"]).toBe(
-      "tsx tools/openclinxr/gltf-pipeline-smoke.ts --validate docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
+      "tsx tools/openclinxr/gltf-pipeline-smoke.ts --validate-latest",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm asset:gltf:smoke:validate");
   });
@@ -53,6 +53,7 @@ describe("gltf-pipeline smoke report", () => {
       await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 
       await expect(runGltfPipelineSmokeCli(["--validate", reportPath])).resolves.toBeUndefined();
+      await expect(runGltfPipelineSmokeCli(["--validate-latest"])).resolves.toBeUndefined();
 
       const invalidReport = structuredClone(report) as Record<string, unknown>;
       delete invalidReport.tool;

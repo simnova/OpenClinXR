@@ -20,7 +20,7 @@ describe("asset production readiness report", () => {
       "tsx tools/openclinxr/asset-production-readiness-benchmark.ts",
     );
     expect(rootPackage.scripts["asset:production:readiness:validate"]).toBe(
-      "tsx tools/openclinxr/asset-production-readiness-benchmark.ts --validate docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+      "tsx tools/openclinxr/asset-production-readiness-benchmark.ts --validate-latest",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm asset:production:readiness:validate");
   });
@@ -462,6 +462,7 @@ describe("asset production readiness report", () => {
       ]);
 
       await expect(runAssetProductionReadinessCli(["--validate", outputPath])).resolves.toBeUndefined();
+      await expect(runAssetProductionReadinessCli(["--validate-latest"])).resolves.toBeUndefined();
 
       const invalidReport = JSON.parse(await readFile(outputPath, "utf8"));
       delete invalidReport.policy.productionUseAllowed;

@@ -5,11 +5,13 @@ import path from "node:path";
 import { performance } from "node:perf_hooks";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
+import { globFiles } from "../agent-factory/lib.js";
 
 const execFileAsync = promisify(execFile);
 
 type CliOptions = {
   validatePath?: string;
+  validateLatest: boolean;
   outputPath?: string;
 };
 
@@ -48,10 +50,14 @@ async function main(): Promise<void> {
 
 export async function runGltfPipelineSmokeCli(args: string[]): Promise<void> {
   const options = parseArgs(args);
-  if (options.validatePath) {
-    const validation = validateGltfPipelineSmokeReport(JSON.parse(await readFile(options.validatePath, "utf8")));
+  if (options.validatePath || options.validateLatest) {
+    const validatePath = options.validatePath ?? await latestPath("docs/openclinxr/gltf-pipeline-smoke-*.json");
+    if (!validatePath) {
+      throw new Error("Missing GLTF pipeline smoke report to validate.");
+    }
+    const validation = validateGltfPipelineSmokeReport(JSON.parse(await readFile(validatePath, "utf8")));
     if (validation.ok) {
-      console.log(`Validated ${options.validatePath}`);
+      console.log(`Validated ${validatePath}`);
       return;
     }
 
@@ -80,13 +86,19 @@ export async function runGltfPipelineSmokeCli(args: string[]): Promise<void> {
 
 function parseArgs(args: string[]): CliOptions {
   const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
-  const options: CliOptions = {};
+  const options: CliOptions = {
+    validateLatest: false,
+  };
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
     if (arg === "--validate") {
       options.validatePath = requireValue(normalizedArgs, index, arg);
       index += 1;
+      continue;
+    }
+    if (arg === "--validate-latest") {
+      options.validateLatest = true;
       continue;
     }
     if (arg === "--output") {
@@ -106,6 +118,11 @@ function requireValue(args: string[], index: number, flag: string): string {
     throw new Error(`${flag} requires a value`);
   }
   return value;
+}
+
+async function latestPath(pattern: string): Promise<string | undefined> {
+  const files = await globFiles(pattern);
+  return files.sort().at(-1);
 }
 
 async function runSmoke(): Promise<GltfPipelineSmokeReport> {

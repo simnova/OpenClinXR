@@ -14,6 +14,7 @@ import {
 
 type CliOptions = {
   validatePath?: string;
+  validateLatest: boolean;
   gltfPipelineSmokePath?: string;
   blenderAssetBakeSmokePath?: string;
   outputPath?: string;
@@ -173,10 +174,14 @@ async function main(): Promise<void> {
 
 export async function runAssetProductionReadinessCli(args: string[]): Promise<void> {
   const options = parseArgs(args);
-  if (options.validatePath) {
-    const validation = validateAssetProductionReadinessReport(await readJson<unknown>(options.validatePath));
+  if (options.validatePath || options.validateLatest) {
+    const validatePath = options.validatePath ?? await latestPath("docs/openclinxr/asset-production-readiness-benchmark-*.json");
+    if (!validatePath) {
+      throw new Error("Missing asset production readiness report to validate.");
+    }
+    const validation = validateAssetProductionReadinessReport(await readJson<unknown>(validatePath));
     if (validation.ok) {
-      console.log(`Validated ${options.validatePath}`);
+      console.log(`Validated ${validatePath}`);
       return;
     }
 
@@ -216,6 +221,7 @@ export async function runAssetProductionReadinessCli(args: string[]): Promise<vo
 function parseArgs(args: string[]): CliOptions {
   const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
   const options: CliOptions = {
+    validateLatest: false,
     useLocalAssetEvidenceFixture: false,
   };
 
@@ -224,6 +230,10 @@ function parseArgs(args: string[]): CliOptions {
     if (arg === "--validate") {
       options.validatePath = requireValue(normalizedArgs, index, arg);
       index += 1;
+      continue;
+    }
+    if (arg === "--validate-latest") {
+      options.validateLatest = true;
       continue;
     }
     if (arg === "--gltf-smoke") {

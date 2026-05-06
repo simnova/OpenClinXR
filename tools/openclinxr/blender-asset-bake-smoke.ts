@@ -5,6 +5,7 @@ import path from "node:path";
 import { performance } from "node:perf_hooks";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
+import { globFiles } from "../agent-factory/lib.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -12,6 +13,7 @@ export const BLENDER_COMMAND_TIMEOUT_MS = 60_000;
 
 type CliOptions = {
   validatePath?: string;
+  validateLatest: boolean;
   outputPath?: string;
   fixture: BlenderBakeFixture;
 };
@@ -71,10 +73,14 @@ async function main(): Promise<void> {
 
 export async function runBlenderBakeSmokeCli(args: string[]): Promise<void> {
   const options = parseArgs(args);
-  if (options.validatePath) {
-    const validation = validateBlenderBakeSmokeReport(JSON.parse(await readFile(options.validatePath, "utf8")));
+  if (options.validatePath || options.validateLatest) {
+    const validatePath = options.validatePath ?? await latestPath("docs/openclinxr/blender-asset-bake-smoke-*.json");
+    if (!validatePath) {
+      throw new Error("Missing Blender asset bake smoke report to validate.");
+    }
+    const validation = validateBlenderBakeSmokeReport(JSON.parse(await readFile(validatePath, "utf8")));
     if (validation.ok) {
-      console.log(`Validated ${options.validatePath}`);
+      console.log(`Validated ${validatePath}`);
       return;
     }
 
@@ -104,6 +110,7 @@ export async function runBlenderBakeSmokeCli(args: string[]): Promise<void> {
 function parseArgs(args: string[]): CliOptions {
   const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
   const options: CliOptions = {
+    validateLatest: false,
     fixture: "low_poly_clinical_humanoid",
   };
 
@@ -112,6 +119,10 @@ function parseArgs(args: string[]): CliOptions {
     if (arg === "--validate") {
       options.validatePath = requireValue(normalizedArgs, index, arg);
       index += 1;
+      continue;
+    }
+    if (arg === "--validate-latest") {
+      options.validateLatest = true;
       continue;
     }
     if (arg === "--fixture") {
@@ -128,6 +139,11 @@ function parseArgs(args: string[]): CliOptions {
   }
 
   return options;
+}
+
+async function latestPath(pattern: string): Promise<string | undefined> {
+  const files = await globFiles(pattern);
+  return files.sort().at(-1);
 }
 
 function requireValue(args: string[], index: number, flag: string): string {

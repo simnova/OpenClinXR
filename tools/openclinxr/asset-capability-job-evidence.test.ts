@@ -18,7 +18,7 @@ describe("asset capability job evidence report", () => {
       "tsx tools/openclinxr/asset-capability-job-evidence.ts",
     );
     expect(rootPackage.scripts["asset:capability:evidence:validate"]).toBe(
-      "tsx tools/openclinxr/asset-capability-job-evidence.ts --validate docs/openclinxr/asset-capability-job-evidence-2026-05-05.json",
+      "tsx tools/openclinxr/asset-capability-job-evidence.ts --validate-latest",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm asset:capability:evidence:validate");
   });
@@ -159,6 +159,7 @@ describe("asset capability job evidence report", () => {
       ]);
 
       await expect(runAssetCapabilityJobEvidenceCli(["--validate", outputPath])).resolves.toBeUndefined();
+      await expect(runAssetCapabilityJobEvidenceCli(["--validate-latest"])).resolves.toBeUndefined();
 
       const invalidReport = JSON.parse(await readFile(outputPath, "utf8"));
       delete invalidReport.policy.externalNetworkAllowed;

@@ -19,7 +19,7 @@ describe("asset production evidence ladder report", () => {
       "tsx tools/openclinxr/asset-production-evidence-ladder.ts",
     );
     expect(rootPackage.scripts["asset:production:ladder:validate"]).toBe(
-      "tsx tools/openclinxr/asset-production-evidence-ladder.ts --validate docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
+      "tsx tools/openclinxr/asset-production-evidence-ladder.ts --validate-latest",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm asset:production:ladder:validate");
   });
@@ -148,6 +148,7 @@ describe("asset production evidence ladder report", () => {
       ]);
 
       await expect(runAssetProductionEvidenceLadderCli(["--validate", outputPath])).resolves.toBeUndefined();
+      await expect(runAssetProductionEvidenceLadderCli(["--validate-latest"])).resolves.toBeUndefined();
 
       const invalidReport = JSON.parse(await readFile(outputPath, "utf8"));
       delete invalidReport.schemaVersion;

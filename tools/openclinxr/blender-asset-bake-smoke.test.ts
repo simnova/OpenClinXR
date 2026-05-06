@@ -20,7 +20,7 @@ describe("Blender asset bake smoke", () => {
       "tsx tools/openclinxr/blender-asset-bake-smoke.ts",
     );
     expect(rootPackage.scripts["asset:blender:bake:validate"]).toBe(
-      "tsx tools/openclinxr/blender-asset-bake-smoke.ts --validate docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+      "tsx tools/openclinxr/blender-asset-bake-smoke.ts --validate-latest",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm asset:blender:bake:validate");
   });
@@ -173,6 +173,7 @@ describe("Blender asset bake smoke", () => {
       await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 
       await expect(runBlenderBakeSmokeCli(["--validate", reportPath])).resolves.toBeUndefined();
+      await expect(runBlenderBakeSmokeCli(["--validate-latest"])).resolves.toBeUndefined();
 
       const invalidReport = structuredClone(report) as Record<string, unknown>;
       delete invalidReport.tool;
