@@ -1,11 +1,30 @@
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   buildLocalVoiceLiveDialogBenchmarkReport,
+  runLocalVoiceLiveDialogBenchmarkCli,
+  validateLocalVoiceLiveDialogBenchmarkReport,
   type LocalRealtimeVoiceModelCacheEvidenceReport,
   type LocalVoiceRuntimeBenchmarkReport,
 } from "./local-voice-live-dialog-benchmark.js";
 
 describe("local voice live-dialog benchmark report", () => {
+  it("exposes generation and validation scripts", async () => {
+    const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+
+    expect(rootPackage.scripts["local:voice:live-dialog"]).toBe(
+      "tsx tools/openclinxr/local-voice-live-dialog-benchmark.ts",
+    );
+    expect(rootPackage.scripts["local:voice:live-dialog:validate"]).toBe(
+      "tsx tools/openclinxr/local-voice-live-dialog-benchmark.ts --validate-latest",
+    );
+    expect(rootPackage.scripts["agent:verify"]).toContain("pnpm local:voice:live-dialog:validate");
+  });
+
   it("turns file-generation voice evidence into explicit live-dialog blockers without executing a voice runtime", async () => {
     const report = await buildLocalVoiceLiveDialogBenchmarkReport({
       generatedAt: "2026-05-04T20:15:00.000Z",
@@ -383,6 +402,106 @@ describe("local voice live-dialog benchmark report", () => {
       "safety_controls:cloud_apis_used_in_source_runtime_benchmark",
       "safety_controls:paid_apis_used_in_source_runtime_benchmark",
     ]);
+  });
+
+  it("validates live-dialog reports before aggregate reuse", async () => {
+    const report = await buildLocalVoiceLiveDialogBenchmarkReport({
+      generatedAt: "2026-05-06T14:45:00.000Z",
+      runtimeBenchmarkFile: "docs/openclinxr/local-voice-runtime-benchmark-2026-05-06.json",
+      runtimeBenchmark: localVoiceRuntimeBenchmark({
+        caveats: [
+          "This measured file-based local generation, not WebXR playback or a live streaming websocket turn.",
+        ],
+        realTimeFactor: 2.51,
+      }),
+      modelCacheEvidenceFile: "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-06.json",
+      modelCacheEvidence: localRealtimeVoiceModelCacheEvidence({
+        ready: true,
+        models: [
+          {
+            model_id: "kyutai/moshiko-mlx-q4",
+            ready: true,
+            blockers: [],
+          },
+        ],
+        supportDirectories: [
+          {
+            name: "api-python-backend-venv",
+            reason: "runtime_support_venv_not_model_weights",
+          },
+        ],
+      }),
+    });
+
+    expect(validateLocalVoiceLiveDialogBenchmarkReport(report)).toEqual({ ok: true });
+
+    const invalid = structuredClone(report) as unknown as Record<string, unknown>;
+    const policy = invalid.policy as Record<string, unknown>;
+    delete policy.productionUseAllowed;
+    const verdict = invalid.verdict as { blockers: string[] };
+    verdict.blockers = [];
+
+    expect(validateLocalVoiceLiveDialogBenchmarkReport(invalid)).toEqual({
+      ok: false,
+      errors: expect.arrayContaining([
+        "/policy/productionUseAllowed must be false",
+        "/verdict/blockers must include runtime_stream:real_local_voice_stream_benchmark_missing",
+        "/verdict/blockers must include runtime:runtime_file_generation_only",
+        "/verdict/blockers must include webxr_playback:webxr_playback_not_observed",
+      ]),
+    });
+  });
+
+  it("validates live-dialog reports from the CLI without executing a voice runtime", async () => {
+    const tempDir = await mkdtemp(path.join(tmpdir(), "openclinxr-local-voice-live-dialog-"));
+    const outputPath = path.join(tempDir, "local-voice-live-dialog.json");
+    const invalidPath = path.join(tempDir, "local-voice-live-dialog-invalid.json");
+    const previousExitCode = process.exitCode;
+
+    try {
+      const report = await buildLocalVoiceLiveDialogBenchmarkReport({
+        generatedAt: "2026-05-06T14:45:00.000Z",
+        runtimeBenchmarkFile: "docs/openclinxr/local-voice-runtime-benchmark-2026-05-06.json",
+        runtimeBenchmark: localVoiceRuntimeBenchmark({
+          caveats: [
+            "This measured file-based local generation, not WebXR playback or a live streaming websocket turn.",
+          ],
+          realTimeFactor: 2.51,
+        }),
+        modelCacheEvidenceFile: "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-06.json",
+        modelCacheEvidence: localRealtimeVoiceModelCacheEvidence({
+          ready: true,
+          models: [
+            {
+              model_id: "kyutai/moshiko-mlx-q4",
+              ready: true,
+              blockers: [],
+            },
+          ],
+          supportDirectories: [
+            {
+              name: "api-python-backend-venv",
+              reason: "runtime_support_venv_not_model_weights",
+            },
+          ],
+        }),
+      });
+      await writeFile(outputPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+
+      await expect(runLocalVoiceLiveDialogBenchmarkCli(["--validate", outputPath])).resolves.toBeUndefined();
+      await expect(runLocalVoiceLiveDialogBenchmarkCli(["--validate-latest"])).resolves.toBeUndefined();
+
+      const invalidReport = structuredClone(report) as unknown as Record<string, unknown>;
+      delete invalidReport.runtimeStream;
+      await writeFile(invalidPath, `${JSON.stringify(invalidReport, null, 2)}\n`, "utf8");
+
+      process.exitCode = undefined;
+      await runLocalVoiceLiveDialogBenchmarkCli(["--validate", invalidPath]);
+      expect(process.exitCode).toBe(1);
+    } finally {
+      process.exitCode = previousExitCode;
+      await rm(tempDir, { recursive: true, force: true });
+    }
   });
 });
 
