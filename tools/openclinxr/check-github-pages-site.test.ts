@@ -14,7 +14,7 @@ describe("GitHub Pages static site", () => {
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm pages:validate");
   });
 
-  it("keeps the static Pages site and deployment workflow wired", async () => {
+  it("keeps the static branch-source Pages site wired", async () => {
     await expect(validateGitHubPagesSite()).resolves.toEqual({
       passed: true,
       blockers: [],
