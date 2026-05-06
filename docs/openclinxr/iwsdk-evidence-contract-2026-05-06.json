@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T08:25:03.126Z",
+  "generatedAt": "2026-05-06T21:50:02.018Z",
   "status": "phase_1_install_backed_sidecar",
   "sidecar": {
     "sidecarAppRoot": "apps/ui-xr-iwsdk-spike/",
@@ -170,10 +170,8 @@
       }
     ],
     "result": {
-      "readyForUnattendedUse": false,
-      "blockers": [
-        "package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2"
-      ]
+      "readyForUnattendedUse": true,
+      "blockers": []
     }
   },
   "uiXrParity": {
@@ -505,7 +503,6 @@
       "agent_tooling:mcp_smoke_tool_not_validated_xr_select",
       "agent_tooling:scene_hierarchy_required_objects_not_confirmed",
       "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
-      "metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
       "production_runtime:app_js_bundle_kb_over_budget",
       "production_runtime:avg_fps_below_floor",
       "production_runtime:bundle_delta_vs_ui_xr_kb_over_budget",

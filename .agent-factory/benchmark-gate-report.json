@@ -2135,7 +2135,7 @@
   },
   "iwsdk_evidence_contract": {
     "file": "docs/openclinxr/iwsdk-evidence-contract-2026-05-06.json",
-    "generated_at": "2026-05-06T08:25:03.126Z",
+    "generated_at": "2026-05-06T21:50:02.018Z",
     "status": "phase_1_install_backed_sidecar",
     "ready_for_install_backed_sidecar": true,
     "ready_for_agent_tooling": false,
@@ -2148,7 +2148,6 @@
       "agent_tooling:mcp_smoke_tool_not_validated_xr_select",
       "agent_tooling:scene_hierarchy_required_objects_not_confirmed",
       "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
-      "metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
       "production_runtime:app_js_bundle_kb_over_budget",
       "production_runtime:avg_fps_below_floor",
       "production_runtime:bundle_delta_vs_ui_xr_kb_over_budget",
@@ -2208,10 +2207,8 @@
         },
         {
           "area": "reference_downloads",
-          "status": "blocked",
-          "blockers": [
-            "metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2"
-          ]
+          "status": "ready",
+          "blockers": []
         }
       ]
     }
@@ -2861,7 +2858,6 @@
         "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_xr_select",
         "iwsdk:agent_tooling:scene_hierarchy_required_objects_not_confirmed",
         "iwsdk:compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
-        "iwsdk:metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
         "iwsdk:production_runtime:app_js_bundle_kb_over_budget",
         "iwsdk:production_runtime:avg_fps_below_floor",
         "iwsdk:production_runtime:bundle_delta_vs_ui_xr_kb_over_budget",
@@ -2871,7 +2867,7 @@
         "iwsdk:tool_selection:manual_quest_foreground_required_for_production_readiness"
       ],
       "blocker_summary": {
-        "total_blockers": 15,
+        "total_blockers": 14,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -2886,7 +2882,6 @@
               "iwsdk:agent_tooling:mcp_smoke_tool_not_validated_xr_select",
               "iwsdk:agent_tooling:scene_hierarchy_required_objects_not_confirmed",
               "iwsdk:compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
-              "iwsdk:metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",
               "iwsdk:production_runtime:app_js_bundle_kb_over_budget",
               "iwsdk:production_runtime:avg_fps_below_floor",
               "iwsdk:production_runtime:bundle_delta_vs_ui_xr_kb_over_budget",

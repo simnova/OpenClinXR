@@ -26,7 +26,7 @@ This is desktop/IWER emulation evidence only. The latest auto-entry smoke record
 
 The 2026-05-06 MCP inventory capture queried the installed sidecar `iwsdk-dev-mcp` server over stdio and matched the expected 32 tool names and all required categories without mutating local MCP config, running adapter sync, using `@iwsdk/reference`, using `@meta-quest/hzdb`, or making a physical Quest claim. It intentionally still blocks aggregate agent-tooling readiness because managed-browser, smoke-tool execution, scene hierarchy, and ECS runtime evidence are not complete.
 
-Use `pnpm iwsdk:evidence` to print the current sidecar evidence contract report. A nonzero exit is expected while agent tooling, bundle budget, reference metadata, and Quest foreground blockers remain unresolved; the JSON blockers are the evidence to carry into leadership review.
+Use `pnpm iwsdk:evidence` to print the current sidecar evidence contract report. A nonzero exit is expected while agent tooling, Vite peer posture, bundle budget, and Quest foreground blockers remain unresolved; the JSON blockers are the evidence to carry into leadership review.
 
 Use `pnpm iwsdk:evidence:validate` to validate the latest committed `docs/openclinxr/iwsdk-evidence-contract-*.json` snapshot's structure without treating current readiness blockers as command failures. This check is now part of `pnpm iwsdk:verify`, alongside the contract tests that bind UI-XR parity and operator-steering blockers. The snapshot also carries the preinstall package policy and the Vite/Node/Rolldown compatibility gate so leadership can see which packages are allowed, review-required, or blocked without running the TypeScript package.
 
@@ -37,7 +37,7 @@ Use `pnpm iwsdk:evidence:validate` to validate the latest committed `docs/opencl
 - `pnpm iwsdk:preinstall -- --proposal path/to/proposal.json` records a ready JSON verdict for the exact package proposal, including required package-manager controls.
 - `pnpm iwsdk:compatibility:evidence -- --input path/to/evidence.json --output docs/openclinxr/iwsdk-compatibility-evidence-YYYY-MM-DD.json` records a ready verdict for the exact Vite/Node/Rolldown evidence captured from the sidecar workspace.
 - `pnpm iwsdk:metadata-drift:evidence -- --input path/to/evidence.json --output docs/openclinxr/iwsdk-metadata-drift-evidence-YYYY-MM-DD.json` records a ready verdict for any optional IWSDK package whose docs and npm metadata must be reconciled before use.
-- The `metadataDrift` section in the latest evidence snapshot has no blockers before any `@iwsdk/reference` warmup; current evidence records docs `v0.3.1` versus npm latest `0.3.2`.
+- The `metadataDrift` section in the latest evidence snapshot has no blockers before any `@iwsdk/reference` warmup because Patrick approved an exact `@iwsdk/reference@0.3.2` pin and the 2026-05-06 npm spot-check still reports `0.3.2` as latest. This resolves only the docs/npm version-drift blocker; CLI help, cache location, model/corpus download size, and keep-assets-out-of-git evidence remain required before warmup.
 - `apps/ui-xr-iwsdk-spike` exists and is intentionally outside production runtime paths.
 - IWSDK dependencies are exact-versioned in the sidecar app.
 - The sidecar app does not import or depend on `@openclinxr/ui-xr` or `apps/ui-xr/src/**`; parity must flow through explicit contracts, shared packages, or committed evidence snapshots.
@@ -163,7 +163,7 @@ Score package metadata drift evidence with:
 pnpm iwsdk:metadata-drift:evidence -- --input path/to/iwsdk-metadata-drift-evidence.json --output docs/openclinxr/iwsdk-metadata-drift-evidence-YYYY-MM-DD.json
 ```
 
-The checker exits nonzero until package docs and npm latest versions align, or a deliberate exact-pin/source-refresh decision is recorded elsewhere in the policy.
+The checker exits nonzero until package docs and npm latest versions align, or a deliberate exact-pin/source-refresh decision is recorded in evidence. Exact-pin metadata evidence does not authorize reference warmup by itself.
 
 Score a future committed sidecar metrics JSON file with:
 

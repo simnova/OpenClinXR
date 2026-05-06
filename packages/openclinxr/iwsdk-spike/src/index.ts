@@ -315,6 +315,9 @@ export type IwsdkPackageMetadataDriftEvidence = {
   packageName: string;
   docsVersion?: string;
   npmLatestVersion?: string;
+  exactPinApproved?: boolean;
+  exactPinVersion?: string;
+  approvalRecordId?: string;
 };
 
 export type IwsdkPackageMetadataDriftReadiness = {
@@ -1678,6 +1681,18 @@ export function evaluateIwsdkPackageMetadataDriftEvidence(
     blockers.push(`missing_npm_latest_version:${evidence.packageName}`);
   }
   if (evidence.docsVersion && evidence.npmLatestVersion && evidence.docsVersion !== evidence.npmLatestVersion) {
+    const exactPinResolvesDrift = evidence.exactPinApproved === true
+      && evidence.exactPinVersion === evidence.npmLatestVersion
+      && typeof evidence.approvalRecordId === "string"
+      && evidence.approvalRecordId.length > 0;
+
+    if (exactPinResolvesDrift) {
+      return {
+        readyForUnattendedUse: blockers.length === 0,
+        blockers,
+      };
+    }
+
     blockers.push(
       `package_metadata_drift:${evidence.packageName}:docs_${evidence.docsVersion}_npm_${evidence.npmLatestVersion}`,
     );

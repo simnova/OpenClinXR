@@ -19,6 +19,7 @@ Default development mode:
 - Mock providers are the default for CI and deterministic tests.
 - Local model providers are opt-in and run behind environment flags.
 - Every local model has a model card record, license record, hardware profile, and benchmark report.
+- Newer model and weight revisions may be downloaded when licensing posture works, but each refresh must record the exact repo/revision or file hash, cache path, license/source posture, disk footprint, and benchmark evidence before it supports any runtime claim.
 
 ## Current Hardware Reality
 

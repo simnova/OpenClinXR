@@ -34,6 +34,25 @@ describe("IWSDK metadata drift evidence checker", () => {
     });
   });
 
+  it("accepts an approved exact npm pin as metadata-drift resolution without running warmup", () => {
+    const report = buildIwsdkMetadataDriftEvidenceReport({
+      generatedAt: "2026-05-06T00:00:00.000Z",
+      evidence: {
+        packageName: "@iwsdk/reference",
+        docsVersion: "0.3.1",
+        npmLatestVersion: "0.3.2",
+        exactPinApproved: true,
+        exactPinVersion: "0.3.2",
+        approvalRecordId: "iwsdk-reference-warmup-download-approval",
+      },
+    });
+
+    expect(report.verdict).toEqual({
+      readyForUnattendedUse: true,
+      blockers: [],
+    });
+  });
+
   it("exposes a CLI that exits nonzero when metadata drift evidence is not ready", async () => {
     const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
       scripts: Record<string, string>;

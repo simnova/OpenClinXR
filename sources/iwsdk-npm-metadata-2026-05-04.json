@@ -3,8 +3,8 @@
   "title": "Immersive Web SDK npm Package Metadata",
   "url": "https://www.npmjs.com/search?q=%40iwsdk",
   "source_type": "vendor",
-  "citation": "Local pnpm view queries for iwsdk, @iwsdk/core, @iwsdk/vite-plugin-dev, @iwsdk/xr-input, @iwsdk/vite-plugin-gltf-optimizer, @iwsdk/vite-plugin-uikitml, @iwsdk/locomotor, @iwsdk/glxf, @iwsdk/vite-plugin-metaspatial, @iwsdk/reference, @meta-quest/hzdb, three, vite, @vitejs/plugin-react, sharp, and @img/sharp-libvips-darwin-arm64, run 2026-05-04.",
-  "accessed_at": "2026-05-04",
+  "citation": "Local pnpm view queries for iwsdk, @iwsdk/core, @iwsdk/vite-plugin-dev, @iwsdk/xr-input, @iwsdk/vite-plugin-gltf-optimizer, @iwsdk/vite-plugin-uikitml, @iwsdk/locomotor, @iwsdk/glxf, @iwsdk/vite-plugin-metaspatial, @iwsdk/reference, @meta-quest/hzdb, three, vite, @vitejs/plugin-react, sharp, and @img/sharp-libvips-darwin-arm64, run 2026-05-04; spot-checked @iwsdk/reference, @iwsdk/vite-plugin-dev, @iwsdk/core, and @iwsdk/xr-input again with npm view on 2026-05-06.",
+  "accessed_at": "2026-05-06",
   "permitted_uses": [
     "Dependency-risk evaluation before any OpenClinXR IWSDK spike or package installation."
   ],
@@ -17,7 +17,8 @@
     "As queried on 2026-05-04, sharp latest is 0.34.5 and reports license Apache-2.0; sharp 0.33.5 also reports license Apache-2.0 and includes optional dependencies on @img/sharp-libvips-* packages.",
     "As queried on 2026-05-04, @img/sharp-libvips-darwin-arm64 1.0.4 and latest 1.2.4 report license LGPL-3.0-or-later.",
     "As queried on 2026-05-04, @meta-quest/hzdb latest is 1.1.0, exposes bin hzdb, and reports license UNLICENSED.",
-    "As queried on 2026-05-04, three latest is 0.184.0, vite latest is 8.0.10, and @vitejs/plugin-react latest is 6.0.1."
+    "As queried on 2026-05-04, three latest is 0.184.0, vite latest is 8.0.10, and @vitejs/plugin-react latest is 6.0.1.",
+    "As spot-checked on 2026-05-06, @iwsdk/reference latest remains 0.3.2, @iwsdk/vite-plugin-dev latest remains 0.3.1 with peer Vite ^7.0.0, and @iwsdk/core plus @iwsdk/xr-input latest remain 0.3.1."
   ],
   "claims_not_supported": [
     "That IWSDK peer ranges have been validated with this repo's Vite 8.0.10 setup.",

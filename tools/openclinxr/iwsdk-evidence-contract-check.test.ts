@@ -218,7 +218,7 @@ describe("IWSDK evidence contract checker", () => {
       scripts: Record<string, string>;
     };
     expect(rootPackage.scripts["iwsdk:evidence"]).toBe(
-      "tsx tools/openclinxr/iwsdk-evidence-contract-check.ts --mcp-inventory-input docs/openclinxr/iwsdk-mcp-inventory-evidence-2026-05-06.json --iwer-sidecar-input docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json",
+      "tsx tools/openclinxr/iwsdk-evidence-contract-check.ts --mcp-inventory-input docs/openclinxr/iwsdk-mcp-inventory-evidence-2026-05-06.json --iwer-sidecar-input docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json --metadata-drift-input docs/openclinxr/iwsdk-reference-exact-pin-metadata-evidence-2026-05-06.json",
     );
 
     try {
