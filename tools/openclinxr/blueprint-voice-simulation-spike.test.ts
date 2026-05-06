@@ -187,6 +187,52 @@ describe("blueprint-driven voice simulation spike", () => {
         ],
       },
     });
+    expect(report.transportEvidence).toMatchObject({
+      linkedExistingEvidence: true,
+      executedByThisReport: false,
+      sourceFile: "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
+      sourceStatus: "passed",
+      bunPythonProxyPassed: true,
+      readyForLiveDialog: false,
+      runtime: {
+        apiTarget: "apps/api bun+hono",
+        pythonBackendTarget: "apps/api-python-backend fastapi",
+        websocketPath: "/voice/realtime/ws",
+        backendProtocol: "python-fastapi-compatible-websocket",
+      },
+      observed: {
+        connected: true,
+        backendProtocolObserved: true,
+        latencyFieldsObserved: true,
+        binaryEchoObserved: true,
+        eventTypesObserved: [
+          "gateway.ready",
+          "backend.ready",
+          "voice.started",
+          "audio.chunk",
+          "transcript.partial",
+          "transcript.final",
+          "voice.stopped",
+        ],
+      },
+      policy: {
+        cloudApisUsed: false,
+        paidApisUsed: false,
+        http3Enabled: false,
+        webTransportUsed: false,
+        quicUsed: false,
+        web3Used: false,
+        questHardwareClaimed: false,
+        lowLatencyClaimed: false,
+      },
+      caveats: expect.arrayContaining([
+        "This smoke proves only the local Bun-to-FastAPI WebSocket proxy path.",
+      ]),
+      blockers: expect.arrayContaining([
+        "real_model_inference_not_observed",
+        "quest_browser_audio_capture_not_observed",
+      ]),
+    });
     expect(report.triggerEvidence).toEqual({
       scheduler: "deterministic_mock_trigger_scheduler",
       firedTriggers: [
@@ -249,12 +295,12 @@ describe("blueprint-driven voice simulation spike", () => {
     expect(report.verdict).toEqual({
       tier0BlueprintCompilerPassed: true,
       mockVoiceFacadeExercised: true,
-      tier1TransportLoopPassed: false,
+      tier1TransportLoopPassed: true,
       tier2LocalInferenceObserved: false,
       tier3WebXrObserved: false,
       readyForProduction: false,
       blockers: [
-        "tier1_bun_python_transport_loop_not_executed",
+        "tier1_transport_linked_but_not_executed_by_blueprint_report",
         "real_local_full_duplex_model_not_executed",
         "python_backend_runtime_not_executed_for_this_report",
         "webxr_iwsdk_client_not_executed_for_this_report",

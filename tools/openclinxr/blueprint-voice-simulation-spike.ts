@@ -1,3 +1,4 @@
+import { existsSync, readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { createScenarioPlaceholderManifests, InMemoryAssetRegistry } from "../../packages/openclinxr/asset-registry/src/index.js";
 import { createStep2CsStyleSeedBlueprint, type ExamBlueprint } from "../../packages/openclinxr/exam-assembly/src/index.js";
@@ -35,6 +36,40 @@ type VoiceSimulationPolicy = {
   productionUseAllowed: false;
   rawAudioStored: false;
   hiddenFactsExposedToLearner: false;
+};
+
+type LinkedTransportEvidence = {
+  linkedExistingEvidence: boolean;
+  executedByThisReport: false;
+  sourceFile: string;
+  sourceStatus: "passed" | "blocked" | "missing" | "unreadable";
+  bunPythonProxyPassed: boolean;
+  readyForLiveDialog: false;
+  runtime: {
+    apiTarget: string | null;
+    pythonBackendTarget: string | null;
+    websocketPath: string | null;
+    backendProtocol: string | null;
+  };
+  observed: {
+    connected: boolean;
+    backendProtocolObserved: boolean;
+    latencyFieldsObserved: boolean;
+    binaryEchoObserved: boolean;
+    eventTypesObserved: string[];
+  };
+  policy: {
+    cloudApisUsed: false;
+    paidApisUsed: false;
+    http3Enabled: false;
+    webTransportUsed: false;
+    quicUsed: false;
+    web3Used: false;
+    questHardwareClaimed: false;
+    lowLatencyClaimed: false;
+  };
+  blockers: string[];
+  caveats: string[];
 };
 
 export type ActorVoicePlan = {
@@ -143,6 +178,7 @@ export type BlueprintVoiceSimulationSpikeReport = {
       }>;
     };
   };
+  transportEvidence: LinkedTransportEvidence;
   telemetry: {
     recorderSpanCount: number;
     sensitiveFieldsDropped: boolean;
@@ -173,13 +209,15 @@ export type BlueprintVoiceSimulationSpikeReport = {
   verdict: {
     tier0BlueprintCompilerPassed: boolean;
     mockVoiceFacadeExercised: boolean;
-    tier1TransportLoopPassed: false;
+    tier1TransportLoopPassed: boolean;
     tier2LocalInferenceObserved: false;
     tier3WebXrObserved: false;
     readyForProduction: false;
     blockers: string[];
   };
 };
+
+const defaultTransportEvidenceSourceFile = "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json";
 
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
@@ -357,6 +395,7 @@ export async function buildBlueprintVoiceSimulationSpikeReport(input: {
   const plan = buildBlueprintVoiceSimulationPlan(input);
   const triggerEvidence = buildTriggerEvidence(plan);
   const prewarmEvidence = buildPrewarmEvidence(plan);
+  const transportEvidence = buildLinkedTransportEvidence();
   const primaryTraceTag = inferPrimaryTraceTag(input.learnerUtterance, plan.traceExpectations.requiredTraceTags);
   const gateway = createDefaultVoiceGateway({
     routeId: "blueprint-voice-simulation-spike-v1",
@@ -462,6 +501,7 @@ export async function buildBlueprintVoiceSimulationSpikeReport(input: {
       traceEvents,
     },
     runtimeRouting,
+    transportEvidence,
     telemetry: {
       recorderSpanCount: telemetry.spans().length,
       sensitiveFieldsDropped: sensitiveTelemetryFieldsDropped(input.learnerUtterance),
@@ -472,12 +512,14 @@ export async function buildBlueprintVoiceSimulationSpikeReport(input: {
     verdict: {
       tier0BlueprintCompilerPassed: true,
       mockVoiceFacadeExercised: transcriptEvents.length > 0 && audioEvents.length > 0,
-      tier1TransportLoopPassed: false,
+      tier1TransportLoopPassed: transportEvidence.bunPythonProxyPassed,
       tier2LocalInferenceObserved: false,
       tier3WebXrObserved: false,
       readyForProduction: false,
       blockers: [
-        "tier1_bun_python_transport_loop_not_executed",
+        transportEvidence.bunPythonProxyPassed
+          ? "tier1_transport_linked_but_not_executed_by_blueprint_report"
+          : "tier1_bun_python_transport_loop_not_executed",
         "real_local_full_duplex_model_not_executed",
         "python_backend_runtime_not_executed_for_this_report",
         "webxr_iwsdk_client_not_executed_for_this_report",
@@ -622,6 +664,123 @@ function projectionDropsSensitiveFields(
     && !serialized.includes("rawAudioBytes")
     && !serialized.includes("rawAudioBase64")
     && !serialized.includes("audioData");
+}
+
+function buildLinkedTransportEvidence(sourceFile = defaultTransportEvidenceSourceFile): LinkedTransportEvidence {
+  if (!existsSync(sourceFile)) {
+    return emptyTransportEvidence(sourceFile, "missing");
+  }
+
+  try {
+    const report = asRecord(JSON.parse(readFileSync(sourceFile, "utf8")));
+    const runtime = asRecord(report.runtime);
+    const websocket = asRecord(report.websocket);
+    const policy = asRecord(report.policy);
+    const verdict = asRecord(report.verdict);
+    const sourceStatus = report.status === "passed" ? "passed" : "blocked";
+    const bunPythonProxyPassed = sourceStatus === "passed"
+      && websocket.connected === true
+      && websocket.backendProtocolObserved === true
+      && websocket.latencyFieldsObserved === true
+      && websocket.binaryEchoObserved === true;
+
+    return {
+      linkedExistingEvidence: true,
+      executedByThisReport: false,
+      sourceFile,
+      sourceStatus,
+      bunPythonProxyPassed,
+      readyForLiveDialog: false,
+      runtime: {
+        apiTarget: stringOrNull(runtime.apiTarget),
+        pythonBackendTarget: stringOrNull(runtime.pythonBackendTarget),
+        websocketPath: stringOrNull(runtime.websocketPath),
+        backendProtocol: stringOrNull(runtime.backendProtocol),
+      },
+      observed: {
+        connected: websocket.connected === true,
+        backendProtocolObserved: websocket.backendProtocolObserved === true,
+        latencyFieldsObserved: websocket.latencyFieldsObserved === true,
+        binaryEchoObserved: websocket.binaryEchoObserved === true,
+        eventTypesObserved: stringArray(websocket.eventTypesObserved),
+      },
+      policy: {
+        cloudApisUsed: false,
+        paidApisUsed: false,
+        http3Enabled: false,
+        webTransportUsed: false,
+        quicUsed: false,
+        web3Used: false,
+        questHardwareClaimed: false,
+        lowLatencyClaimed: false,
+      },
+      blockers: stringArray(verdict.blockers),
+      caveats: [
+        ...stringArray(verdict.caveats),
+        ...(policy.cloudApisUsed === false
+          && policy.paidApisUsed === false
+          && policy.http3Enabled === false
+          && policy.webTransportUsed === false
+          && policy.quicUsed === false
+          && policy.web3Used === false
+          ? []
+          : ["transport_policy_boundary_not_clean"]),
+      ],
+    };
+  } catch {
+    return emptyTransportEvidence(sourceFile, "unreadable");
+  }
+}
+
+function emptyTransportEvidence(
+  sourceFile: string,
+  sourceStatus: LinkedTransportEvidence["sourceStatus"],
+): LinkedTransportEvidence {
+  return {
+    linkedExistingEvidence: false,
+    executedByThisReport: false,
+    sourceFile,
+    sourceStatus,
+    bunPythonProxyPassed: false,
+    readyForLiveDialog: false,
+    runtime: {
+      apiTarget: null,
+      pythonBackendTarget: null,
+      websocketPath: null,
+      backendProtocol: null,
+    },
+    observed: {
+      connected: false,
+      backendProtocolObserved: false,
+      latencyFieldsObserved: false,
+      binaryEchoObserved: false,
+      eventTypesObserved: [],
+    },
+    policy: {
+      cloudApisUsed: false,
+      paidApisUsed: false,
+      http3Enabled: false,
+      webTransportUsed: false,
+      quicUsed: false,
+      web3Used: false,
+      questHardwareClaimed: false,
+      lowLatencyClaimed: false,
+    },
+    blockers: [`transport_evidence_${sourceStatus}`],
+    caveats: ["No linked Bun-to-FastAPI WebSocket evidence was available to this blueprint report."],
+  };
+}
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function stringOrNull(value: unknown): string | null {
+  return typeof value === "string" ? value : null;
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : [];
 }
 
 function buildTriggerEvidence(plan: BlueprintVoiceSimulationPlan): BlueprintVoiceSimulationSpikeReport["triggerEvidence"] {
