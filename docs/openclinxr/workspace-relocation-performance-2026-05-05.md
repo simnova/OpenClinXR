@@ -39,6 +39,24 @@ The quick benchmark does not prove a dramatic steady-state speedup. It shows:
 
 The relocation still appears worthwhile for unattended Codex work because it avoids iCloud sync churn and the earlier temporary disappearance of the Documents workspace. Treat the measurable performance gain as modest until longer multi-hour runs produce stronger evidence.
 
+## Settled Recheck
+
+After the workspace had settled and the recovery copy had been fast-forwarded, Codex reran a small A/B timing set from both locations with Node `v22.19.0`.
+
+| Command | Documents/iCloud Path | `/Volumes/files` Path | Observation |
+| --- | ---: | ---: | --- |
+| targeted Vitest run 1 | 1213 ms | 978 ms | `/Volumes/files` faster |
+| targeted Vitest run 2 | 1044 ms | 905 ms | `/Volumes/files` faster |
+| targeted Vitest run 3 | 882 ms | 864 ms | roughly equal |
+| `pnpm agent:sources` run 1 | 759 ms | 745 ms | roughly equal |
+| `pnpm agent:sources` run 2 | 1169 ms | 1128 ms | roughly equal |
+| `pnpm agent:sources` run 3 | 668 ms | 679 ms | roughly equal |
+| cached `pnpm typecheck` run 1 | 10026 ms | 1177 ms | Documents had a cache/outlier penalty after fast-forward |
+| cached `pnpm typecheck` run 2 | 1101 ms | 1077 ms | roughly equal |
+| cached `pnpm typecheck` run 3 | 1038 ms | 1070 ms | roughly equal |
+
+Updated interpretation: the move has had a good operational impact because it removes iCloud sync interference from the active repo and keeps long unattended work away from the volatile Documents path. The raw command-speed impact is positive but modest: targeted Vitest improved by about 13 percent on median time in this settled sample, source-ledger checks were effectively unchanged, and warm cached typecheck was effectively unchanged.
+
 ## Follow-Up
 
 - Use `/Volumes/files/src/openclinxr` as the active Codex workspace for future long unattended work.
