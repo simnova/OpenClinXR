@@ -27,6 +27,10 @@ import {
   type AssetProductionEvidenceLadderReport,
 } from "../openclinxr/asset-production-evidence-ladder.js";
 import {
+  validateAssetProductionArtifactEvidenceReport,
+  type AssetProductionArtifactEvidenceReport,
+} from "../openclinxr/asset-production-artifact-evidence.js";
+import {
   validateAssetProductionReadinessReport,
   type AssetProductionReadinessReport,
 } from "../openclinxr/asset-production-readiness-benchmark.js";
@@ -397,6 +401,15 @@ type EvidenceGateReport = {
     runtime_budget: AssetProductionReadinessBenchmarkReport["runtimeBudget"];
     verdict: AssetProductionReadinessBenchmarkReport["verdict"];
   };
+  asset_production_artifact_evidence?: {
+    file: string;
+    schema_version: string;
+    generated_at: string;
+    status: string;
+    summary: AssetProductionArtifactEvidenceReport["summary"];
+    records: AssetProductionArtifactEvidenceReport["records"];
+    verdict: AssetProductionArtifactEvidenceReport["verdict"];
+  };
   asset_capability_job_evidence?: {
     file: string;
     generated_at: string;
@@ -757,6 +770,7 @@ export type BenchmarkGateReportInput = {
   assetCapabilityJobEvidence?: EvidenceFile<AssetCapabilityJobEvidenceReport>;
   assetProductionReadinessBenchmark?: EvidenceFile<AssetProductionReadinessBenchmarkReport>;
   assetProductionEvidenceLadder?: EvidenceFile<AssetProductionEvidenceLadderReport>;
+  assetProductionArtifactEvidence?: EvidenceFile<AssetProductionArtifactEvidenceReport>;
   localProviderBenchmark?: EvidenceFile<LocalProviderBenchmarkReport>;
   localModelRuntimeBenchmark?: EvidenceFile<LocalModelRuntimeBenchmarkReport>;
   localModelQualityBenchmark?: EvidenceFile<LocalModelQualityBenchmarkReport>;
@@ -799,6 +813,7 @@ async function main(): Promise<void> {
   const assetCapabilityJobEvidence = await latestJson<AssetCapabilityJobEvidenceReport>("docs/openclinxr/asset-capability-job-evidence-*.json");
   const assetProductionReadinessBenchmark = await latestJson<AssetProductionReadinessBenchmarkReport>("docs/openclinxr/asset-production-readiness-benchmark-*.json");
   const assetProductionEvidenceLadder = await latestJson<AssetProductionEvidenceLadderReport>("docs/openclinxr/asset-production-evidence-ladder-*.json");
+  const assetProductionArtifactEvidence = await latestJson<AssetProductionArtifactEvidenceReport>("docs/openclinxr/asset-production-artifact-evidence-*.json");
   const localProviderBenchmark = await latestJson<LocalProviderBenchmarkReport>("docs/openclinxr/local-provider-benchmark-*.json");
   const localModelRuntimeBenchmark = await latestJson<LocalModelRuntimeBenchmarkReport>("docs/openclinxr/local-model-runtime-benchmark-*.json");
   const localModelQualityBenchmark = await latestJson<LocalModelQualityBenchmarkReport>("docs/openclinxr/local-model-quality-benchmark-*.json");
@@ -835,6 +850,7 @@ async function main(): Promise<void> {
     assetCapabilityJobEvidence,
     assetProductionReadinessBenchmark,
     assetProductionEvidenceLadder,
+    assetProductionArtifactEvidence,
     localProviderBenchmark,
     localModelRuntimeBenchmark,
     localModelQualityBenchmark,
@@ -893,6 +909,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     assetCapabilityJobEvidence,
     assetProductionReadinessBenchmark,
     assetProductionEvidenceLadder,
+    assetProductionArtifactEvidence,
     localProviderBenchmark,
     localModelRuntimeBenchmark,
     localModelQualityBenchmark,
@@ -934,6 +951,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     assetCapabilityJobEvidence,
     assetProductionReadinessBenchmark,
     assetProductionEvidenceLadder,
+    assetProductionArtifactEvidence,
     localProviderBenchmark,
     localModelRuntimeBenchmark,
     localModelQualityBenchmark,
@@ -1060,6 +1078,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     ...assetCapabilityJobEvidenceBlockers(assetCapabilityJobEvidence),
     ...assetProductionBlockers(gltfPipelineSmoke, blenderAssetBakeSmoke, assetProductionReadinessBenchmark),
     ...assetProductionEvidenceLadderBlockers(assetProductionEvidenceLadder),
+    ...assetProductionArtifactEvidenceBlockers(assetProductionArtifactEvidence),
     ...freshnessBlockers(evidenceFreshness, [
       "local_runtime_probe",
       "gltf_pipeline_smoke",
@@ -1067,6 +1086,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
       "asset_capability_job_evidence",
       "asset_production_readiness_benchmark",
       ...(assetProductionEvidenceLadder ? ["asset_production_evidence_ladder"] : []),
+      ...(assetProductionArtifactEvidence ? ["asset_production_artifact_evidence"] : []),
     ]),
   ];
   const iwsdkEvidenceBlockers = iwsdkEvidenceContractBlockers(iwsdkEvidenceContract?.value);
@@ -1104,6 +1124,19 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     assetProductionReadinessBenchmarkValid && assetProductionReadinessBenchmark?.value.verdict.passed ? "asset_production_readiness_benchmark_passed" : undefined,
     assetProductionReadinessBenchmarkValid && assetProductionReadinessBenchmark?.value.input?.localAssetEvidenceFixtureUsed
       ? "asset_production_local_fixture_contract_slots_observed"
+      : undefined,
+    assetProductionArtifactEvidence && validateAssetProductionArtifactEvidenceReport(assetProductionArtifactEvidence.value).ok
+      ? "asset_production_artifact_evidence_manifest_present"
+      : undefined,
+    assetProductionArtifactEvidence
+      && validateAssetProductionArtifactEvidenceReport(assetProductionArtifactEvidence.value).ok
+      && assetProductionArtifactEvidence.value.summary.allRequiredLanesObserved
+      ? "asset_production_artifact_evidence_lanes_observed"
+      : undefined,
+    assetProductionArtifactEvidence
+      && validateAssetProductionArtifactEvidenceReport(assetProductionArtifactEvidence.value).ok
+      && assetProductionArtifactEvidence.value.summary.artifactBackedProductionEvidenceObserved
+      ? "asset_production_artifact_backed_evidence_observed"
       : undefined,
     localProviderBenchmark?.value.verdict.deterministicMocksPassed ? "local_provider_mock_benchmarks_passed" : undefined,
     localRuntime?.value.gates.localModel.status === "ready" ? "local_model_runtime_ready" : undefined,
@@ -1280,6 +1313,17 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         source_readiness_report: assetProductionEvidenceLadder.value.sourceReadinessReport,
         summary: assetProductionEvidenceLadder.value.summary,
         verdict: assetProductionEvidenceLadder.value.verdict,
+      },
+    } : {}),
+    ...(assetProductionArtifactEvidence ? {
+      asset_production_artifact_evidence: {
+        file: assetProductionArtifactEvidence.file,
+        schema_version: assetProductionArtifactEvidence.value.schemaVersion,
+        generated_at: assetProductionArtifactEvidence.value.generatedAt,
+        status: assetProductionArtifactEvidence.value.status,
+        summary: assetProductionArtifactEvidence.value.summary,
+        records: assetProductionArtifactEvidence.value.records,
+        verdict: assetProductionArtifactEvidence.value.verdict,
       },
     } : {}),
     ...(assetCapabilityJobEvidence ? {
@@ -1666,6 +1710,7 @@ function buildEvidenceFreshnessReport(
     assetCapabilityJobEvidence?: EvidenceFile<AssetCapabilityJobEvidenceReport>;
     assetProductionReadinessBenchmark?: EvidenceFile<AssetProductionReadinessBenchmarkReport>;
     assetProductionEvidenceLadder?: EvidenceFile<AssetProductionEvidenceLadderReport>;
+    assetProductionArtifactEvidence?: EvidenceFile<AssetProductionArtifactEvidenceReport>;
     localProviderBenchmark?: EvidenceFile<LocalProviderBenchmarkReport>;
     localModelRuntimeBenchmark?: EvidenceFile<LocalModelRuntimeBenchmarkReport>;
     localModelQualityBenchmark?: EvidenceFile<LocalModelQualityBenchmarkReport>;
@@ -1698,6 +1743,9 @@ function buildEvidenceFreshnessReport(
     evidenceFreshnessEntry("asset_production_readiness_benchmark", evidence.assetProductionReadinessBenchmark, now, maxAgeHours),
     ...(evidence.assetProductionEvidenceLadder
       ? [evidenceFreshnessEntry("asset_production_evidence_ladder", evidence.assetProductionEvidenceLadder, now, maxAgeHours)]
+      : []),
+    ...(evidence.assetProductionArtifactEvidence
+      ? [evidenceFreshnessEntry("asset_production_artifact_evidence", evidence.assetProductionArtifactEvidence, now, maxAgeHours)]
       : []),
     evidenceFreshnessEntry("local_provider_benchmark", evidence.localProviderBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_model_runtime_benchmark", evidence.localModelRuntimeBenchmark, now, maxAgeHours),
@@ -2560,6 +2608,23 @@ function assetProductionEvidenceLadderBlockers(
   return unique(assetProductionEvidenceLadder.value.verdict.blockers
     .filter((blocker) => blocker !== "artifact_backed_production_asset_evidence_missing")
     .map((blocker) => `asset_production:ladder:${blocker}`));
+}
+
+function assetProductionArtifactEvidenceBlockers(
+  assetProductionArtifactEvidence: EvidenceFile<AssetProductionArtifactEvidenceReport> | undefined,
+): string[] {
+  if (!assetProductionArtifactEvidence) {
+    return [];
+  }
+  if (!validateAssetProductionArtifactEvidenceReport(assetProductionArtifactEvidence.value).ok) {
+    return ["asset_production:artifact_evidence:invalid_asset_production_artifact_evidence_report"];
+  }
+  if (assetProductionArtifactEvidence.value.verdict.passed) {
+    return [];
+  }
+
+  return unique(assetProductionArtifactEvidence.value.verdict.blockers
+    .map((blocker) => `asset_production:artifact_evidence:${blocker}`));
 }
 
 function assetCapabilityJobEvidenceBlockers(

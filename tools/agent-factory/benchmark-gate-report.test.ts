@@ -15,6 +15,7 @@ import type { LocalMoshiRuntimePackageEvidenceReport } from "../openclinxr/local
 import type { LocalQwenTtsRuntimeSmokeReport } from "../openclinxr/local-qwen-tts-runtime-smoke.js";
 import type { VisualQaEvidence } from "../openclinxr/visual-qa-evidence-check.js";
 import { buildAssetProductionEvidenceLadderReport } from "../openclinxr/asset-production-evidence-ladder.js";
+import { buildAssetProductionArtifactEvidenceReport } from "../openclinxr/asset-production-artifact-evidence.js";
 import type { AssetProductionReadinessReport } from "../openclinxr/asset-production-readiness-benchmark.js";
 
 type BlockerGroup = {
@@ -145,6 +146,27 @@ type BenchmarkGateReport = {
       contractOnlyLaneCount: number;
       blockedLaneCount: number;
       artifactBackedProductionAssetEvidenceObserved: boolean;
+    };
+    verdict: {
+      passed: boolean;
+      readyForProductionAssets: false;
+      blockers: string[];
+    };
+  };
+  asset_production_artifact_evidence?: {
+    file: string;
+    schema_version: string;
+    generated_at: string;
+    status: string;
+    summary: {
+      requiredLaneIds: string[];
+      observedLaneIds: string[];
+      artifactBackedLaneIds: string[];
+      placeholderOrFixtureLaneIds: string[];
+      missingLaneIds: string[];
+      allRequiredLanesObserved: boolean;
+      allArtifactFilesMaterialized: boolean;
+      artifactBackedProductionEvidenceObserved: boolean;
     };
     verdict: {
       passed: boolean;
@@ -3965,6 +3987,51 @@ describe("benchmark gate report", () => {
     const assetGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-005");
 
     expect(assetGate?.blockers).toContain("asset_production:ladder:invalid_asset_production_evidence_ladder_report");
+  });
+
+  it("consumes asset production artifact evidence without resolving placeholder-only production asset debt", () => {
+    const report = buildBenchmarkGateReport({
+      assetProductionArtifactEvidence: {
+        file: "docs/openclinxr/asset-production-artifact-evidence-2026-05-06.json",
+        value: buildAssetProductionArtifactEvidenceReport({
+          generatedAt: "2026-05-06T08:25:00.000Z",
+        }),
+      },
+    } as unknown as Parameters<typeof buildBenchmarkGateReport>[0], {
+      now: new Date("2026-05-06T09:00:00.000Z"),
+      maxEvidenceAgeHours: 24,
+    }) as BenchmarkGateReport;
+
+    const assetGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-005");
+
+    expect(report.asset_production_artifact_evidence).toMatchObject({
+      file: "docs/openclinxr/asset-production-artifact-evidence-2026-05-06.json",
+      schema_version: "openclinxr.asset-production-artifact-evidence.v1",
+      status: "blocked",
+      summary: {
+        allRequiredLanesObserved: true,
+        allArtifactFilesMaterialized: false,
+        artifactBackedProductionEvidenceObserved: false,
+      },
+      verdict: {
+        passed: false,
+        readyForProductionAssets: false,
+        blockers: expect.arrayContaining([
+          "artifact_backed_production_asset_evidence_missing",
+          "generatedHumanRigging:artifact_files_missing",
+        ]),
+      },
+    });
+    expect(assetGate?.satisfied_conditions).toEqual(expect.arrayContaining([
+      "asset_production_artifact_evidence_manifest_present",
+      "asset_production_artifact_evidence_lanes_observed",
+    ]));
+    expect(assetGate?.satisfied_conditions).not.toContain("asset_production_artifact_backed_evidence_observed");
+    expect(assetGate?.blockers).toEqual(expect.arrayContaining([
+      "asset_production:artifact_evidence:artifact_backed_production_asset_evidence_missing",
+      "asset_production:artifact_evidence:generatedHumanRigging:evidence_tier_not_reviewed_generated_production_source",
+      "asset_production:artifact_evidence:generatedHumanRigging:artifact_files_missing",
+    ]));
   });
 
   it("flags invalid asset capability job evidence before accepting contract evidence", () => {

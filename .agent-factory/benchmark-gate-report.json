@@ -67,6 +67,15 @@
       "blockers": []
     },
     {
+      "evidence_id": "asset_production_artifact_evidence",
+      "file": "docs/openclinxr/asset-production-artifact-evidence-2026-05-06.json",
+      "generated_at": "2026-05-06T19:53:34.703Z",
+      "age_hours": 0,
+      "max_age_hours": 24,
+      "status": "fresh",
+      "blockers": []
+    },
+    {
       "evidence_id": "local_provider_benchmark",
       "file": "docs/openclinxr/local-provider-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T19:40:00.698Z",
@@ -88,7 +97,7 @@
       "evidence_id": "local_model_quality_benchmark",
       "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T06:57:35.610Z",
-      "age_hours": 12,
+      "age_hours": 13,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -133,7 +142,7 @@
       "evidence_id": "local_moshi_runtime_package_evidence",
       "file": "docs/openclinxr/local-moshi-runtime-package-evidence-2026-05-06.json",
       "generated_at": "2026-05-06T14:59:16.154Z",
-      "age_hours": 4,
+      "age_hours": 5,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -151,7 +160,7 @@
       "evidence_id": "godot_quest_voice_evidence",
       "file": "docs/openclinxr/godot-quest-voice-evidence-2026-05-06.json",
       "generated_at": "2026-05-06T14:00:03.516Z",
-      "age_hours": 5,
+      "age_hours": 6,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -160,7 +169,7 @@
       "evidence_id": "godot_project_import_check",
       "file": ".agent-factory/godot-project-import-check.json",
       "generated_at": "2026-05-06T13:56:47.467Z",
-      "age_hours": 5,
+      "age_hours": 6,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -196,7 +205,7 @@
       "evidence_id": "api_bun_python_proxy_runtime_smoke",
       "file": "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-06T01:52:40.346Z",
-      "age_hours": 17,
+      "age_hours": 18,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -204,7 +213,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T19:43:50.767Z",
+      "generated_at": "2026-05-06T20:00:44.702Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -537,6 +546,225 @@
       "caveats": [
         "This ladder names production asset proof lanes and claim boundaries only; it does not generate new assets.",
         "Contract-only local fixture evidence is useful for validating report shape but is not artifact-backed production asset evidence."
+      ]
+    }
+  },
+  "asset_production_artifact_evidence": {
+    "file": "docs/openclinxr/asset-production-artifact-evidence-2026-05-06.json",
+    "schema_version": "openclinxr.asset-production-artifact-evidence.v1",
+    "generated_at": "2026-05-06T19:53:34.703Z",
+    "status": "blocked",
+    "summary": {
+      "requiredLaneIds": [
+        "generatedHumanRigging",
+        "skinClothingProvenance",
+        "medicalEquipmentLibrary",
+        "animationRetargeting",
+        "lodTextureColliderBudget",
+        "multiActorQuestBudget"
+      ],
+      "observedLaneIds": [
+        "generatedHumanRigging",
+        "skinClothingProvenance",
+        "medicalEquipmentLibrary",
+        "animationRetargeting",
+        "lodTextureColliderBudget",
+        "multiActorQuestBudget"
+      ],
+      "artifactBackedLaneIds": [],
+      "placeholderOrFixtureLaneIds": [
+        "generatedHumanRigging",
+        "skinClothingProvenance",
+        "medicalEquipmentLibrary",
+        "animationRetargeting",
+        "lodTextureColliderBudget",
+        "multiActorQuestBudget"
+      ],
+      "missingLaneIds": [],
+      "allRequiredLanesObserved": true,
+      "allArtifactFilesMaterialized": false,
+      "artifactBackedProductionEvidenceObserved": false
+    },
+    "records": [
+      {
+        "laneId": "generatedHumanRigging",
+        "title": "Generated human rigging",
+        "evidenceTier": "reviewed_local_clinical_asset_fixture",
+        "artifactBacked": false,
+        "requiredArtifactPaths": [
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json"
+        ],
+        "materializedArtifactPaths": [],
+        "missingArtifactPaths": [
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json"
+        ],
+        "requiredReviewReports": [
+          "canonical skeleton hierarchy review",
+          "skin-weight deformation QA",
+          "clinical actor realism review"
+        ],
+        "blockers": [
+          "evidence_tier_not_reviewed_generated_production_source",
+          "artifact_files_missing"
+        ]
+      },
+      {
+        "laneId": "skinClothingProvenance",
+        "title": "Skin and clothing provenance",
+        "evidenceTier": "reviewed_local_clinical_asset_fixture",
+        "artifactBacked": false,
+        "requiredArtifactPaths": [
+          ".openclinxr/asset-production/ed-chest-pain/skin-clothing-provenance/skin-texture-provenance.json",
+          ".openclinxr/asset-production/ed-chest-pain/skin-clothing-provenance/clothing-mesh-provenance.json",
+          ".openclinxr/asset-production/ed-chest-pain/skin-clothing-provenance/runtime-safe-materials.json"
+        ],
+        "materializedArtifactPaths": [],
+        "missingArtifactPaths": [
+          ".openclinxr/asset-production/ed-chest-pain/skin-clothing-provenance/skin-texture-provenance.json",
+          ".openclinxr/asset-production/ed-chest-pain/skin-clothing-provenance/clothing-mesh-provenance.json",
+          ".openclinxr/asset-production/ed-chest-pain/skin-clothing-provenance/runtime-safe-materials.json"
+        ],
+        "requiredReviewReports": [
+          "skin tone and texture provenance review",
+          "clothing mesh provenance review",
+          "runtime material safety review"
+        ],
+        "blockers": [
+          "evidence_tier_not_reviewed_generated_production_source",
+          "artifact_files_missing"
+        ]
+      },
+      {
+        "laneId": "medicalEquipmentLibrary",
+        "title": "Medical equipment library",
+        "evidenceTier": "reviewed_local_clinical_asset_fixture",
+        "artifactBacked": false,
+        "requiredArtifactPaths": [
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json"
+        ],
+        "materializedArtifactPaths": [],
+        "missingArtifactPaths": [
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json"
+        ],
+        "requiredReviewReports": [
+          "clinical equipment affordance review",
+          "equipment license provenance review",
+          "scale and interaction anchor review"
+        ],
+        "blockers": [
+          "evidence_tier_not_reviewed_generated_production_source",
+          "artifact_files_missing"
+        ]
+      },
+      {
+        "laneId": "animationRetargeting",
+        "title": "Animation retargeting",
+        "evidenceTier": "reviewed_local_clinical_asset_fixture",
+        "artifactBacked": false,
+        "requiredArtifactPaths": [
+          ".openclinxr/asset-production/ed-chest-pain/animation-retargeting/idle-pain.clip.json",
+          ".openclinxr/asset-production/ed-chest-pain/animation-retargeting/clutch-chest.clip.json",
+          ".openclinxr/asset-production/ed-chest-pain/animation-retargeting/retargeting-qa.json"
+        ],
+        "materializedArtifactPaths": [],
+        "missingArtifactPaths": [
+          ".openclinxr/asset-production/ed-chest-pain/animation-retargeting/idle-pain.clip.json",
+          ".openclinxr/asset-production/ed-chest-pain/animation-retargeting/clutch-chest.clip.json",
+          ".openclinxr/asset-production/ed-chest-pain/animation-retargeting/retargeting-qa.json"
+        ],
+        "requiredReviewReports": [
+          "body animation retargeting QA",
+          "facial or viseme target mapping review",
+          "clinical gesture realism review"
+        ],
+        "blockers": [
+          "evidence_tier_not_reviewed_generated_production_source",
+          "artifact_files_missing"
+        ]
+      },
+      {
+        "laneId": "lodTextureColliderBudget",
+        "title": "LOD, texture, and collider budget",
+        "evidenceTier": "reviewed_local_clinical_asset_fixture",
+        "artifactBacked": false,
+        "requiredArtifactPaths": [
+          ".openclinxr/asset-production/ed-chest-pain/optimization/lod-artifact-set.json",
+          ".openclinxr/asset-production/ed-chest-pain/optimization/texture-budget.json",
+          ".openclinxr/asset-production/ed-chest-pain/optimization/collider-simplification.json"
+        ],
+        "materializedArtifactPaths": [],
+        "missingArtifactPaths": [
+          ".openclinxr/asset-production/ed-chest-pain/optimization/lod-artifact-set.json",
+          ".openclinxr/asset-production/ed-chest-pain/optimization/texture-budget.json",
+          ".openclinxr/asset-production/ed-chest-pain/optimization/collider-simplification.json"
+        ],
+        "requiredReviewReports": [
+          "LOD tier review",
+          "texture compression budget review",
+          "collider simplification review"
+        ],
+        "blockers": [
+          "evidence_tier_not_reviewed_generated_production_source",
+          "artifact_files_missing"
+        ]
+      },
+      {
+        "laneId": "multiActorQuestBudget",
+        "title": "Multi-actor Quest 3 station budget",
+        "evidenceTier": "reviewed_local_clinical_asset_fixture",
+        "artifactBacked": false,
+        "requiredArtifactPaths": [
+          ".openclinxr/asset-production/ed-chest-pain/quest-budget/station-bundle-manifest.json",
+          ".openclinxr/asset-production/ed-chest-pain/quest-budget/multi-actor-budget.json",
+          ".openclinxr/asset-production/ed-chest-pain/quest-budget/foreground-frame-pacing.json"
+        ],
+        "materializedArtifactPaths": [],
+        "missingArtifactPaths": [
+          ".openclinxr/asset-production/ed-chest-pain/quest-budget/station-bundle-manifest.json",
+          ".openclinxr/asset-production/ed-chest-pain/quest-budget/multi-actor-budget.json",
+          ".openclinxr/asset-production/ed-chest-pain/quest-budget/foreground-frame-pacing.json"
+        ],
+        "requiredReviewReports": [
+          "multi-actor draw-call and texture-memory budget review",
+          "Quest foreground frame-pacing review",
+          "station bundle artifact manifest review"
+        ],
+        "blockers": [
+          "evidence_tier_not_reviewed_generated_production_source",
+          "artifact_files_missing"
+        ]
+      }
+    ],
+    "verdict": {
+      "passed": false,
+      "readyForProductionAssets": false,
+      "blockers": [
+        "artifact_backed_production_asset_evidence_missing",
+        "generatedHumanRigging:evidence_tier_not_reviewed_generated_production_source",
+        "generatedHumanRigging:artifact_files_missing",
+        "skinClothingProvenance:evidence_tier_not_reviewed_generated_production_source",
+        "skinClothingProvenance:artifact_files_missing",
+        "medicalEquipmentLibrary:evidence_tier_not_reviewed_generated_production_source",
+        "medicalEquipmentLibrary:artifact_files_missing",
+        "animationRetargeting:evidence_tier_not_reviewed_generated_production_source",
+        "animationRetargeting:artifact_files_missing",
+        "lodTextureColliderBudget:evidence_tier_not_reviewed_generated_production_source",
+        "lodTextureColliderBudget:artifact_files_missing",
+        "multiActorQuestBudget:evidence_tier_not_reviewed_generated_production_source",
+        "multiActorQuestBudget:artifact_files_missing"
+      ],
+      "caveats": [
+        "This report defines artifact-backed production asset evidence slots only; it does not generate or download assets.",
+        "Fixture and placeholder tiers are useful for validator shape, but cannot satisfy production asset readiness.",
+        "Production asset readiness still requires reviewed generated production-source artifacts, visual QA, provenance, and Quest budget evidence."
       ]
     }
   },
@@ -1792,7 +2020,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T19:43:50.767Z",
+    "generated_at": "2026-05-06T20:00:44.702Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -1997,6 +2225,8 @@
         "asset_pipeline_gltf_pipeline_smoke_passed",
         "asset_pipeline_runtime_ready",
         "asset_production_animation_retargeting_observed",
+        "asset_production_artifact_evidence_lanes_observed",
+        "asset_production_artifact_evidence_manifest_present",
         "asset_production_capability_job_contract_observed",
         "asset_production_collider_simplification_observed",
         "asset_production_generated_human_rigging_observed",
@@ -2316,6 +2546,8 @@
         "asset_pipeline_gltf_pipeline_smoke_passed",
         "asset_pipeline_runtime_ready",
         "asset_production_animation_retargeting_observed",
+        "asset_production_artifact_evidence_lanes_observed",
+        "asset_production_artifact_evidence_manifest_present",
         "asset_production_capability_job_contract_observed",
         "asset_production_collider_simplification_observed",
         "asset_production_generated_human_rigging_observed",
@@ -2677,6 +2909,8 @@
         "asset_pipeline_gltf_pipeline_smoke_passed",
         "asset_pipeline_runtime_ready",
         "asset_production_animation_retargeting_observed",
+        "asset_production_artifact_evidence_lanes_observed",
+        "asset_production_artifact_evidence_manifest_present",
         "asset_production_capability_job_contract_observed",
         "asset_production_collider_simplification_observed",
         "asset_production_generated_human_rigging_observed",
@@ -2691,6 +2925,19 @@
       ],
       "blockers": [
         "asset_production:artifact_backed_production_asset_evidence_missing",
+        "asset_production:artifact_evidence:animationRetargeting:artifact_files_missing",
+        "asset_production:artifact_evidence:animationRetargeting:evidence_tier_not_reviewed_generated_production_source",
+        "asset_production:artifact_evidence:artifact_backed_production_asset_evidence_missing",
+        "asset_production:artifact_evidence:generatedHumanRigging:artifact_files_missing",
+        "asset_production:artifact_evidence:generatedHumanRigging:evidence_tier_not_reviewed_generated_production_source",
+        "asset_production:artifact_evidence:lodTextureColliderBudget:artifact_files_missing",
+        "asset_production:artifact_evidence:lodTextureColliderBudget:evidence_tier_not_reviewed_generated_production_source",
+        "asset_production:artifact_evidence:medicalEquipmentLibrary:artifact_files_missing",
+        "asset_production:artifact_evidence:medicalEquipmentLibrary:evidence_tier_not_reviewed_generated_production_source",
+        "asset_production:artifact_evidence:multiActorQuestBudget:artifact_files_missing",
+        "asset_production:artifact_evidence:multiActorQuestBudget:evidence_tier_not_reviewed_generated_production_source",
+        "asset_production:artifact_evidence:skinClothingProvenance:artifact_files_missing",
+        "asset_production:artifact_evidence:skinClothingProvenance:evidence_tier_not_reviewed_generated_production_source",
         "asset_production:ladder:animationRetargeting:contract_only_fixture_not_artifact_backed",
         "asset_production:ladder:generatedHumanRigging:contract_only_fixture_not_artifact_backed",
         "asset_production:ladder:lodTextureColliderBudget:contract_only_fixture_not_artifact_backed",
@@ -2700,7 +2947,7 @@
         "asset_production:not_ready_for_production_assets"
       ],
       "blocker_summary": {
-        "total_blockers": 8,
+        "total_blockers": 21,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -2709,6 +2956,19 @@
             "owner": "asset-pipeline-lead",
             "blockers": [
               "asset_production:artifact_backed_production_asset_evidence_missing",
+              "asset_production:artifact_evidence:animationRetargeting:artifact_files_missing",
+              "asset_production:artifact_evidence:animationRetargeting:evidence_tier_not_reviewed_generated_production_source",
+              "asset_production:artifact_evidence:artifact_backed_production_asset_evidence_missing",
+              "asset_production:artifact_evidence:generatedHumanRigging:artifact_files_missing",
+              "asset_production:artifact_evidence:generatedHumanRigging:evidence_tier_not_reviewed_generated_production_source",
+              "asset_production:artifact_evidence:lodTextureColliderBudget:artifact_files_missing",
+              "asset_production:artifact_evidence:lodTextureColliderBudget:evidence_tier_not_reviewed_generated_production_source",
+              "asset_production:artifact_evidence:medicalEquipmentLibrary:artifact_files_missing",
+              "asset_production:artifact_evidence:medicalEquipmentLibrary:evidence_tier_not_reviewed_generated_production_source",
+              "asset_production:artifact_evidence:multiActorQuestBudget:artifact_files_missing",
+              "asset_production:artifact_evidence:multiActorQuestBudget:evidence_tier_not_reviewed_generated_production_source",
+              "asset_production:artifact_evidence:skinClothingProvenance:artifact_files_missing",
+              "asset_production:artifact_evidence:skinClothingProvenance:evidence_tier_not_reviewed_generated_production_source",
               "asset_production:ladder:animationRetargeting:contract_only_fixture_not_artifact_backed",
               "asset_production:ladder:generatedHumanRigging:contract_only_fixture_not_artifact_backed",
               "asset_production:ladder:lodTextureColliderBudget:contract_only_fixture_not_artifact_backed",

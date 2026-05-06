@@ -315,8 +315,10 @@ Current machine-readable production-asset evidence:
 - `pnpm asset:production:readiness:validate`
 - `pnpm asset:production:ladder -- --readiness docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json --output docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json`
 - `pnpm asset:production:ladder:validate`
+- `pnpm asset:production:artifact-evidence -- --output docs/openclinxr/asset-production-artifact-evidence-2026-05-06.json`
+- `pnpm asset:production:artifact-evidence:validate`
 
-The current readiness benchmark and ladder are intentionally blocked. They validate that the evidence shape exists, but the local asset fixture is contract-only evidence and is not artifact-backed production asset proof.
+The current readiness benchmark, ladder, and artifact-evidence manifest are intentionally blocked. They validate that the evidence shape exists, but the local asset fixture is contract-only evidence and is not artifact-backed production asset proof.
 
 The ladder tracks these proof lanes:
 
@@ -330,7 +332,9 @@ The ladder tracks these proof lanes:
 
 All production asset readiness claims remain blocked until those lanes are backed by reviewed generated clinical character and equipment artifacts, provenance records, visual QA, and Quest budget evidence tied to those artifacts.
 
-The aggregate benchmark gate also loads the latest ladder report and surfaces lane blockers under `asset_production:ladder:*`. This prevents placeholder Blender bake evidence or local fixture slots from satisfying production asset debt.
+The artifact-evidence manifest defines the expected local proof paths under `.openclinxr/asset-production/ed-chest-pain/**` for neutral generated humans, skeleton binding, skin-weight QA, skin/clothing provenance, equipment GLBs, animation retargeting, LOD/texture/collider budgets, and Quest station budgets. The committed report uses the `reviewed_local_clinical_asset_fixture` tier and keeps every lane non-artifact-backed until those files exist and are reviewed production-source evidence.
+
+The aggregate benchmark gate also loads the latest ladder and artifact-evidence reports, then surfaces lane blockers under `asset_production:ladder:*` and `asset_production:artifact_evidence:*`. This prevents placeholder Blender bake evidence or local fixture slots from satisfying production asset debt.
 
 ## QA Gates
 
