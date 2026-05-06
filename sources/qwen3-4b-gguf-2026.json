@@ -3,14 +3,15 @@
   "title": "Qwen3-4B-GGUF Model Card",
   "url": "https://huggingface.co/Qwen/Qwen3-4B-GGUF",
   "source_type": "vendor",
-  "citation": "Qwen. Qwen3-4B-GGUF model card. Hugging Face. Accessed 2026-05-03.",
-  "accessed_at": "2026-05-03",
+  "citation": "Qwen. Qwen3-4B-GGUF model card and Hugging Face model metadata. Accessed 2026-05-03; model API spot-check for license and revision repeated 2026-05-06.",
+  "accessed_at": "2026-05-06",
   "permitted_uses": [
     "Planning source for a small local reasoning smoke-test model candidate using llama.cpp/GGUF on Apple Silicon."
   ],
   "claims_supported": [
     "Qwen provides official GGUF model repositories for Qwen3 models.",
-    "The Qwen3-4B-GGUF card includes llama.cpp-oriented usage guidance."
+    "The Qwen3-4B-GGUF card includes llama.cpp-oriented usage guidance.",
+    "As spot-checked on 2026-05-06, Hugging Face model metadata reports license apache-2.0 and main revision bc640142c66e1fdd12af0bd68f40445458f3869b."
   ],
   "claims_not_supported": [
     "That Qwen3-4B-GGUF is clinically validated.",
