@@ -5,7 +5,7 @@
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T18:13:48.812Z",
-      "age_hours": 42,
+      "age_hours": 43,
       "max_age_hours": 24,
       "status": "stale",
       "blockers": [
@@ -25,7 +25,7 @@
       "evidence_id": "gltf_pipeline_smoke",
       "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
       "generated_at": "2026-05-06T00:10:04.220Z",
-      "age_hours": 12,
+      "age_hours": 13,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -34,7 +34,7 @@
       "evidence_id": "blender_asset_bake_smoke",
       "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
       "generated_at": "2026-05-06T08:19:07.305Z",
-      "age_hours": 4,
+      "age_hours": 5,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -52,7 +52,7 @@
       "evidence_id": "asset_production_readiness_benchmark",
       "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T08:19:18.833Z",
-      "age_hours": 4,
+      "age_hours": 5,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -70,7 +70,7 @@
       "evidence_id": "local_model_runtime_benchmark",
       "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T20:20:19.936Z",
-      "age_hours": 16,
+      "age_hours": 17,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -88,7 +88,7 @@
       "evidence_id": "local_voice_runtime_benchmark",
       "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T06:20:53Z",
-      "age_hours": 6,
+      "age_hours": 7,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -112,10 +112,19 @@
       "blockers": []
     },
     {
+      "evidence_id": "local_qwen_tts_runtime_smoke",
+      "file": "docs/openclinxr/local-qwen-tts-runtime-smoke-2026-05-06.json",
+      "generated_at": "2026-05-06T13:24:08Z",
+      "age_hours": 0,
+      "max_age_hours": 24,
+      "status": "fresh",
+      "blockers": []
+    },
+    {
       "evidence_id": "blueprint_voice_simulation_spike",
       "file": "docs/openclinxr/blueprint-voice-simulation-spike-2026-05-05.json",
       "generated_at": "2026-05-06T03:18:07.296Z",
-      "age_hours": 9,
+      "age_hours": 10,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -135,7 +144,7 @@
       "evidence_id": "godot_project_import_check",
       "file": ".agent-factory/godot-project-import-check.json",
       "generated_at": "2026-05-06T05:24:31.991Z",
-      "age_hours": 7,
+      "age_hours": 8,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -153,7 +162,7 @@
       "evidence_id": "api_python_backend_runtime_smoke",
       "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T15:21:12.576Z",
-      "age_hours": 21,
+      "age_hours": 22,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -162,7 +171,7 @@
       "evidence_id": "api_bun_websocket_runtime_smoke",
       "file": "docs/openclinxr/api-bun-websocket-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T23:27:29.751Z",
-      "age_hours": 13,
+      "age_hours": 14,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -179,7 +188,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T13:09:17.877Z",
+      "generated_at": "2026-05-06T13:29:51.506Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -1044,6 +1053,70 @@
     ],
     "blockers": []
   },
+  "local_qwen_tts_runtime_smoke": {
+    "file": "docs/openclinxr/local-qwen-tts-runtime-smoke-2026-05-06.json",
+    "generated_at": "2026-05-06T13:24:08Z",
+    "kind": "local_qwen_tts_runtime_smoke",
+    "claim_scope": "local_tts_inference_only",
+    "status": "passed_with_caveats",
+    "runtime": {
+      "modelId": "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+      "modelLicense": "Apache-2.0",
+      "sourceRecordIds": [
+        "src-qwen3-tts-mlx-4bit-2026",
+        "src-mlx-audio-pypi-2026"
+      ],
+      "tool": "mlx-audio",
+      "toolVersion": "0.3.0",
+      "toolLicense": "MIT",
+      "pythonVersion": "3.11.4",
+      "exitStatus": 0,
+      "command": "/Users/patrick/.cache/openclinxr/realtime-voice/api-python-backend-venv/bin/python -m mlx_audio.tts.generate --model /Users/patrick/.cache/openclinxr/realtime-voice/mlx-community__Qwen3-TTS-12Hz-0.6B-Base-4bit --text The patient reports chest pressure and needs help now. --voice Chelsie --output_path /Users/patrick/.cache/openclinxr/realtime-voice/qwen-tts-smoke-2026-05-06-run2 --file_prefix openclinxr-qwen-smoke --audio_format wav --max_tokens 64"
+    },
+    "input": {
+      "text": "The patient reports chest pressure and needs help now.",
+      "textLength": 54,
+      "referenceAudioUsed": false
+    },
+    "audio": {
+      "outputPath": "/Users/patrick/.cache/openclinxr/realtime-voice/qwen-tts-smoke-2026-05-06-run2/openclinxr-qwen-smoke_000.wav",
+      "sha256": "eac24ecd365e266f71a960fe445d124f4a856db996694134f00e06d6b742bb1f",
+      "codec": "pcm_s16le",
+      "sampleRateHz": 24000,
+      "channels": 1,
+      "durationMs": 3360,
+      "sizeBytes": 161324,
+      "bitRate": 384000
+    },
+    "metrics": {
+      "wallClockMs": 6600,
+      "audioDurationMs": 3360,
+      "realTimeFactor": 1.96,
+      "maxResidentSetBytes": 1976532992,
+      "approxFirstAudiblePlaybackLatencyMs": null
+    },
+    "model_cache": {
+      "evidenceKind": "local_voice_evidence_check",
+      "evidenceGeneratedAt": "2026-05-06T13:09:06.623Z",
+      "cacheDir": "/Users/patrick/.cache/openclinxr/realtime-voice",
+      "ready": true,
+      "readyModelObserved": true,
+      "readyModelIds": [
+        "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit"
+      ],
+      "blockers": []
+    },
+    "verdict": {
+      "passed": true,
+      "readyForLiveDialog": false,
+      "blockers": [],
+      "caveats": [
+        "This is local outbound TTS file-generation evidence only; it is not full-duplex ASR/dialog evidence.",
+        "Qwen3-TTS does not satisfy the learner interruption, microphone capture, or agent-to-agent realtime loop by itself.",
+        "Generated audio remains local-only and must not be committed as clinical or production voice evidence."
+      ]
+    }
+  },
   "blueprint_voice_simulation_spike": {
     "file": "docs/openclinxr/blueprint-voice-simulation-spike-2026-05-05.json",
     "generated_at": "2026-05-06T03:18:07.296Z",
@@ -1485,7 +1558,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T13:09:17.877Z",
+    "generated_at": "2026-05-06T13:29:51.506Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -1732,6 +1805,9 @@
         "local_voice_live_dialog_report_present",
         "local_voice_live_dialog_safety_controls_observed",
         "local_voice_python_backend_runtime_smoke_passed",
+        "local_voice_qwen_tts_local_inference_observed",
+        "local_voice_qwen_tts_runtime_smoke_passed",
+        "local_voice_qwen_tts_runtime_smoke_present",
         "local_voice_ready_to_benchmark",
         "local_voice_realtime_model_cache_evidence_present",
         "local_voice_realtime_model_cache_ready",
@@ -1972,6 +2048,9 @@
         "local_voice_first_audio_benchmark_passed",
         "local_voice_godot_source_contract_observed",
         "local_voice_python_backend_runtime_smoke_passed",
+        "local_voice_qwen_tts_local_inference_observed",
+        "local_voice_qwen_tts_runtime_smoke_passed",
+        "local_voice_qwen_tts_runtime_smoke_present",
         "local_voice_ready_to_benchmark",
         "local_voice_realtime_model_cache_evidence_present",
         "local_voice_realtime_model_cache_ready",
@@ -2178,6 +2257,9 @@
         "local_voice_live_dialog_report_present",
         "local_voice_live_dialog_safety_controls_observed",
         "local_voice_python_backend_runtime_smoke_passed",
+        "local_voice_qwen_tts_local_inference_observed",
+        "local_voice_qwen_tts_runtime_smoke_passed",
+        "local_voice_qwen_tts_runtime_smoke_present",
         "local_voice_ready_to_benchmark",
         "local_voice_realtime_model_cache_evidence_present",
         "local_voice_realtime_model_cache_ready",

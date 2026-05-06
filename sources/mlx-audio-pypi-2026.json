@@ -1,0 +1,21 @@
+{
+  "source_id": "src-mlx-audio-pypi-2026",
+  "title": "mlx-audio 0.3.0 Python Package Metadata",
+  "url": "https://pypi.org/project/mlx-audio/0.3.0/",
+  "source_type": "vendor",
+  "citation": "PyPI. mlx-audio 0.3.0 package metadata. Accessed 2026-05-06.",
+  "accessed_at": "2026-05-06",
+  "permitted_uses": [
+    "Planning and local developer-only runtime evidence for the approved Qwen3-TTS MLX smoke path."
+  ],
+  "claims_supported": [
+    "The package metadata identifies mlx-audio 0.3.0 as MIT licensed.",
+    "The package metadata identifies mlx-audio as the Python package used by the Qwen3-TTS MLX model-card example."
+  ],
+  "claims_not_supported": [
+    "That mlx-audio makes Qwen3-TTS full-duplex or clinically validated.",
+    "That mlx-audio can satisfy Quest microphone capture, WebXR playback, or production voice safety gates by itself.",
+    "That the package is safe for production clinical simulation without dependency, privacy, latency, and misuse review."
+  ],
+  "confidence": 0.86
+}

@@ -11,6 +11,7 @@ import {
 } from "./build-benchmark-gate-report.js";
 import type { QuestManualPerformanceReport } from "../openclinxr/check-quest-manual-performance.js";
 import type { QuestMixedRealityManualReport } from "../openclinxr/check-quest-mixed-reality-manual.js";
+import type { LocalQwenTtsRuntimeSmokeReport } from "../openclinxr/local-qwen-tts-runtime-smoke.js";
 import type { VisualQaEvidence } from "../openclinxr/visual-qa-evidence-check.js";
 
 type BlockerGroup = {
@@ -176,6 +177,22 @@ type BenchmarkGateReport = {
       reason: string;
     }>;
     blockers: string[];
+  };
+  local_qwen_tts_runtime_smoke?: {
+    file: string;
+    generated_at: string;
+    kind: string;
+    claim_scope: string;
+    status: string;
+    runtime: {
+      modelId: string;
+      tool: string;
+      toolVersion: string | null;
+    };
+    verdict: {
+      passed: boolean;
+      readyForLiveDialog: false;
+    };
   };
   blueprint_voice_simulation_spike?: {
     file: string;
@@ -630,6 +647,11 @@ type LocalRealtimeVoiceModelCacheEvidenceInput = {
   };
 };
 
+type LocalQwenTtsRuntimeSmokeInput = {
+  file: string;
+  value: LocalQwenTtsRuntimeSmokeReport;
+};
+
 function missingRealtimeVoiceModelCacheEvidence(): LocalRealtimeVoiceModelCacheEvidenceInput {
   return {
     file: "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-05.json",
@@ -682,6 +704,82 @@ function readyRealtimeVoiceModelCacheEvidence(): LocalRealtimeVoiceModelCacheEvi
           },
         },
       ],
+    },
+  };
+}
+
+function passedQwenTtsRuntimeSmoke(): LocalQwenTtsRuntimeSmokeInput {
+  return {
+    file: "docs/openclinxr/local-qwen-tts-runtime-smoke-2026-05-06.json",
+    value: {
+      kind: "local_qwen_tts_runtime_smoke",
+      claim_scope: "local_tts_inference_only",
+      generatedAt: "2026-05-05T18:32:00.000Z",
+      status: "passed_with_caveats",
+      policy: {
+        cloudApisUsed: false,
+        paidApisUsed: false,
+        productionUseAllowed: false,
+        generatedAudioCommitted: false,
+        fullDuplexClaimAllowed: false,
+        clinicalValidityClaimAllowed: false,
+        runtimeExecutionObserved: true,
+        downloadAttemptedByThisTool: false,
+        networkAccessObservedByThisTool: false,
+      },
+      runtime: {
+        modelId: "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+        modelLicense: "Apache-2.0",
+        sourceRecordIds: [
+          "src-qwen3-tts-mlx-4bit-2026",
+          "src-mlx-audio-pypi-2026",
+        ],
+        tool: "mlx-audio",
+        toolVersion: "0.3.0",
+        toolLicense: "MIT",
+        pythonVersion: "3.11.4",
+        exitStatus: 0,
+        command: "/Users/patrick/.cache/openclinxr/realtime-voice/api-python-backend-venv/bin/python -m mlx_audio.tts.generate",
+      },
+      input: {
+        text: "The patient reports chest pressure and needs help now.",
+        textLength: 48,
+        referenceAudioUsed: false,
+      },
+      audio: {
+        outputPath: "/Users/patrick/.cache/openclinxr/realtime-voice/qwen-smoke/out.wav",
+        sha256: "0".repeat(64),
+        codec: "pcm_s16le",
+        durationMs: 1200,
+        sampleRateHz: 24000,
+        channels: 1,
+        sizeBytes: 57644,
+        bitRate: 384000,
+      },
+      metrics: {
+        wallClockMs: 420,
+        audioDurationMs: 1200,
+        realTimeFactor: 0.35,
+        maxResidentSetBytes: 123456,
+        approxFirstAudiblePlaybackLatencyMs: null,
+      },
+      modelCache: {
+        evidenceKind: "local_voice_evidence_check",
+        evidenceGeneratedAt: "2026-05-05T18:30:00.000Z",
+        cacheDir: "/Users/patrick/.cache/openclinxr/realtime-voice",
+        ready: true,
+        readyModelObserved: true,
+        readyModelIds: ["mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit"],
+        blockers: [],
+      },
+      verdict: {
+        passed: true,
+        readyForLiveDialog: false,
+        blockers: [],
+        caveats: [
+          "This is local outbound TTS file-generation evidence only; it is not full-duplex ASR/dialog evidence.",
+        ],
+      },
     },
   };
 }
@@ -2337,6 +2435,57 @@ describe("benchmark gate report", () => {
       "local_voice_live_dialog:local_realtime_voice_model_cache:approved_model_weights_not_cached",
       "local_voice_live_dialog:local_realtime_voice_model_cache:real_moshi_or_qwen3_model_cache_missing",
       "local_voice_live_dialog:local_realtime_voice_model_cache:missing_local_realtime_voice_model_cache_evidence_report",
+    ]));
+  });
+
+  it("surfaces passed local Qwen TTS inference without upgrading it to full-duplex live-dialog evidence", () => {
+    const buildReport = buildBenchmarkGateReport as (
+      input: Parameters<typeof buildBenchmarkGateReport>[0] & {
+        localQwenTtsRuntimeSmoke?: LocalQwenTtsRuntimeSmokeInput;
+      },
+      options: { now: Date; maxEvidenceAgeHours: number },
+    ) => BenchmarkGateReport;
+
+    const report = buildReport({
+      localQwenTtsRuntimeSmoke: passedQwenTtsRuntimeSmoke(),
+    }, { now: new Date("2026-05-05T18:45:00.000Z"), maxEvidenceAgeHours: 24 });
+    const liveDialogGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-003");
+
+    expect(report.local_qwen_tts_runtime_smoke).toMatchObject({
+      file: "docs/openclinxr/local-qwen-tts-runtime-smoke-2026-05-06.json",
+      generated_at: "2026-05-05T18:32:00.000Z",
+      kind: "local_qwen_tts_runtime_smoke",
+      claim_scope: "local_tts_inference_only",
+      status: "passed_with_caveats",
+      runtime: {
+        modelId: "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+        tool: "mlx-audio",
+        toolVersion: "0.3.0",
+      },
+      verdict: {
+        passed: true,
+        readyForLiveDialog: false,
+      },
+    });
+    expect(report.evidence_freshness).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        evidence_id: "local_qwen_tts_runtime_smoke",
+        file: "docs/openclinxr/local-qwen-tts-runtime-smoke-2026-05-06.json",
+        status: "fresh",
+        blockers: [],
+      }),
+    ]));
+    expect(liveDialogGate?.satisfied_conditions).toEqual(expect.arrayContaining([
+      "local_voice_qwen_tts_runtime_smoke_passed",
+      "local_voice_qwen_tts_local_inference_observed",
+    ]));
+    expect(liveDialogGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
+      "local_voice_live_dialog_runtime_stream_observed",
+      "local_voice_live_dialog_webxr_playback_observed",
+      "local_voice_live_dialog_benchmark_passed",
+    ]));
+    expect(liveDialogGate?.blockers).not.toEqual(expect.arrayContaining([
+      "local_voice_live_dialog:local_qwen_tts_runtime_smoke:tts_runtime_smoke_failed",
     ]));
   });
 

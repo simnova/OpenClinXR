@@ -72,6 +72,7 @@
     "local:model:quality": "tsx tools/openclinxr/local-model-quality-benchmark.ts",
     "local:voice:runtime": "tsx tools/openclinxr/local-voice-runtime-benchmark.ts",
     "local:voice:model-cache": "tsx tools/openclinxr/local-realtime-voice-model-cache-evidence.ts",
+    "local:voice:qwen-tts-smoke": "tsx tools/openclinxr/local-qwen-tts-runtime-smoke.ts",
     "local:voice:live-dialog": "tsx tools/openclinxr/local-voice-live-dialog-benchmark.ts",
     "local:voice:blueprint-simulation": "tsx tools/openclinxr/blueprint-voice-simulation-spike.ts",
     "local:voice:realtime-spike": "tsx tools/openclinxr/realtime-voice-transport-spike.ts",

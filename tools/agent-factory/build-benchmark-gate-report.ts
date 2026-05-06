@@ -18,6 +18,7 @@ import {
 import type { ApiBunWebSocketRuntimeSmokeReport } from "../openclinxr/api-bun-websocket-runtime-smoke.js";
 import type { ApiBunPythonProxyRuntimeSmokeReport } from "../openclinxr/api-bun-python-proxy-runtime-smoke.js";
 import type { ApiPythonBackendRuntimeSmokeReport } from "../openclinxr/api-python-backend-runtime-smoke.js";
+import type { LocalQwenTtsRuntimeSmokeReport } from "../openclinxr/local-qwen-tts-runtime-smoke.js";
 import type { GodotProjectImportCheck } from "../openclinxr/godot-project-import-check.js";
 import {
   buildVisualQaEvidenceReport,
@@ -530,6 +531,19 @@ type EvidenceGateReport = {
     support_directories: LocalRealtimeVoiceModelCacheEvidenceReport["support_directories"];
     blockers: string[];
   };
+  local_qwen_tts_runtime_smoke?: {
+    file: string;
+    generated_at: string;
+    kind: string;
+    claim_scope: string;
+    status: string;
+    runtime: LocalQwenTtsRuntimeSmokeReport["runtime"];
+    input: LocalQwenTtsRuntimeSmokeReport["input"];
+    audio: LocalQwenTtsRuntimeSmokeReport["audio"];
+    metrics: LocalQwenTtsRuntimeSmokeReport["metrics"];
+    model_cache: LocalQwenTtsRuntimeSmokeReport["modelCache"];
+    verdict: LocalQwenTtsRuntimeSmokeReport["verdict"];
+  };
   blueprint_voice_simulation_spike?: {
     file: string;
     generated_at: string;
@@ -803,6 +817,7 @@ export type BenchmarkGateReportInput = {
   localVoiceRuntimeBenchmark?: EvidenceFile<LocalVoiceRuntimeBenchmarkReport>;
   localVoiceLiveDialogBenchmark?: EvidenceFile<LocalVoiceLiveDialogBenchmarkReport>;
   localRealtimeVoiceModelCacheEvidence?: EvidenceFile<LocalRealtimeVoiceModelCacheEvidenceReport>;
+  localQwenTtsRuntimeSmoke?: EvidenceFile<LocalQwenTtsRuntimeSmokeReport>;
   blueprintVoiceSimulationSpike?: EvidenceFile<BlueprintVoiceSimulationSpikeReport>;
   godotQuestVoiceEvidence?: EvidenceFile<GodotQuestVoiceEvidenceReport>;
   godotProjectImportCheck?: EvidenceFile<GodotProjectImportCheck>;
@@ -842,6 +857,7 @@ async function main(): Promise<void> {
   const localVoiceRuntimeBenchmark = await latestJson<LocalVoiceRuntimeBenchmarkReport>("docs/openclinxr/local-voice-runtime-benchmark-*.json");
   const localVoiceLiveDialogBenchmark = await latestJson<LocalVoiceLiveDialogBenchmarkReport>("docs/openclinxr/local-voice-live-dialog-benchmark-*.json");
   const localRealtimeVoiceModelCacheEvidence = await latestJson<LocalRealtimeVoiceModelCacheEvidenceReport>("docs/openclinxr/local-realtime-voice-model-cache-evidence-*.json");
+  const localQwenTtsRuntimeSmoke = await latestJson<LocalQwenTtsRuntimeSmokeReport>("docs/openclinxr/local-qwen-tts-runtime-smoke-*.json");
   const blueprintVoiceSimulationSpike = await latestJson<BlueprintVoiceSimulationSpikeReport>("docs/openclinxr/blueprint-voice-simulation-spike-*.json");
   const godotQuestVoiceEvidence = await latestJson<GodotQuestVoiceEvidenceReport>(
     "docs/openclinxr/godot-quest-voice-evidence-*.json",
@@ -875,6 +891,7 @@ async function main(): Promise<void> {
     localVoiceRuntimeBenchmark,
     localVoiceLiveDialogBenchmark,
     localRealtimeVoiceModelCacheEvidence,
+    localQwenTtsRuntimeSmoke,
     blueprintVoiceSimulationSpike,
     godotQuestVoiceEvidence,
     godotProjectImportCheck,
@@ -930,6 +947,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localVoiceRuntimeBenchmark,
     localVoiceLiveDialogBenchmark,
     localRealtimeVoiceModelCacheEvidence,
+    localQwenTtsRuntimeSmoke,
     blueprintVoiceSimulationSpike,
     godotQuestVoiceEvidence,
     godotProjectImportCheck,
@@ -965,6 +983,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localVoiceRuntimeBenchmark,
     localVoiceLiveDialogBenchmark,
     localRealtimeVoiceModelCacheEvidence,
+    localQwenTtsRuntimeSmoke,
     blueprintVoiceSimulationSpike,
     godotQuestVoiceEvidence,
     godotProjectImportCheck,
@@ -1035,6 +1054,8 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     ...localVoiceLiveDialogBlockers(localVoiceRuntimeBenchmark, localVoiceLiveDialogBenchmark),
     ...localRealtimeVoiceModelCacheEvidenceBlockers(localRealtimeVoiceModelCacheEvidence)
       .map((blocker) => `local_voice_live_dialog:local_realtime_voice_model_cache:${blocker}`),
+    ...localQwenTtsRuntimeSmokeBlockers(localQwenTtsRuntimeSmoke)
+      .map((blocker) => `local_voice_live_dialog:local_qwen_tts_runtime_smoke:${blocker}`),
     ...blueprintVoiceSimulationSpikeBlockers(blueprintVoiceSimulationSpike)
       .map((blocker) => `local_voice_live_dialog:blueprint_voice_simulation:${blocker}`),
     ...godotQuestVoiceEvidenceBlockers(godotQuestVoiceEvidence),
@@ -1049,6 +1070,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
       "local_voice_runtime_benchmark",
       "local_voice_live_dialog_benchmark",
       "local_realtime_voice_model_cache_evidence",
+      ...(localQwenTtsRuntimeSmoke ? ["local_qwen_tts_runtime_smoke"] : []),
       ...(blueprintVoiceSimulationSpike ? ["blueprint_voice_simulation_spike"] : []),
       "godot_quest_voice_evidence",
       ...(godotProjectImportCheck ? ["godot_project_import_check"] : []),
@@ -1124,6 +1146,13 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localRealtimeVoiceModelCacheReady(localRealtimeVoiceModelCacheEvidence) ? "local_voice_realtime_model_cache_ready" : undefined,
     localRealtimeVoiceModelCacheEvidence && localRealtimeVoiceModelCacheEvidence.value.support_directories.length > 0
       ? "local_voice_realtime_model_support_venv_observed"
+      : undefined,
+    localQwenTtsRuntimeSmoke ? "local_voice_qwen_tts_runtime_smoke_present" : undefined,
+    localQwenTtsRuntimeSmoke?.value.verdict.passed ? "local_voice_qwen_tts_runtime_smoke_passed" : undefined,
+    localQwenTtsRuntimeSmoke?.value.verdict.passed
+      && localQwenTtsRuntimeSmoke.value.kind === "local_qwen_tts_runtime_smoke"
+      && localQwenTtsRuntimeSmoke.value.claim_scope === "local_tts_inference_only"
+      ? "local_voice_qwen_tts_local_inference_observed"
       : undefined,
     ...(blueprintVoiceSimulationSpikeSatisfiedConditions(blueprintVoiceSimulationSpike)),
     godotQuestVoiceEvidence ? "local_voice_godot_quest_voice_evidence_present" : undefined,
@@ -1334,6 +1363,21 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         models: localRealtimeVoiceModelCacheEvidence.value.models,
         support_directories: localRealtimeVoiceModelCacheEvidence.value.support_directories,
         blockers: localRealtimeVoiceModelCacheEvidenceBlockers(localRealtimeVoiceModelCacheEvidence),
+      },
+    } : {}),
+    ...(localQwenTtsRuntimeSmoke ? {
+      local_qwen_tts_runtime_smoke: {
+        file: localQwenTtsRuntimeSmoke.file,
+        generated_at: localQwenTtsRuntimeSmoke.value.generatedAt,
+        kind: localQwenTtsRuntimeSmoke.value.kind,
+        claim_scope: localQwenTtsRuntimeSmoke.value.claim_scope,
+        status: localQwenTtsRuntimeSmoke.value.status,
+        runtime: localQwenTtsRuntimeSmoke.value.runtime,
+        input: localQwenTtsRuntimeSmoke.value.input,
+        audio: localQwenTtsRuntimeSmoke.value.audio,
+        metrics: localQwenTtsRuntimeSmoke.value.metrics,
+        model_cache: localQwenTtsRuntimeSmoke.value.modelCache,
+        verdict: localQwenTtsRuntimeSmoke.value.verdict,
       },
     } : {}),
     ...(blueprintVoiceSimulationSpike ? {
@@ -1613,6 +1657,7 @@ function buildEvidenceFreshnessReport(
     localVoiceRuntimeBenchmark?: EvidenceFile<LocalVoiceRuntimeBenchmarkReport>;
     localVoiceLiveDialogBenchmark?: EvidenceFile<LocalVoiceLiveDialogBenchmarkReport>;
     localRealtimeVoiceModelCacheEvidence?: EvidenceFile<LocalRealtimeVoiceModelCacheEvidenceReport>;
+    localQwenTtsRuntimeSmoke?: EvidenceFile<LocalQwenTtsRuntimeSmokeReport>;
     blueprintVoiceSimulationSpike?: EvidenceFile<BlueprintVoiceSimulationSpikeReport>;
     godotQuestVoiceEvidence?: EvidenceFile<GodotQuestVoiceEvidenceReport>;
     godotProjectImportCheck?: EvidenceFile<GodotProjectImportCheck>;
@@ -1641,6 +1686,9 @@ function buildEvidenceFreshnessReport(
     evidenceFreshnessEntry("local_voice_runtime_benchmark", evidence.localVoiceRuntimeBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_voice_live_dialog_benchmark", evidence.localVoiceLiveDialogBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_realtime_voice_model_cache_evidence", evidence.localRealtimeVoiceModelCacheEvidence, now, maxAgeHours),
+    ...(evidence.localQwenTtsRuntimeSmoke
+      ? [evidenceFreshnessEntry("local_qwen_tts_runtime_smoke", evidence.localQwenTtsRuntimeSmoke, now, maxAgeHours)]
+      : []),
     ...(evidence.blueprintVoiceSimulationSpike
       ? [evidenceFreshnessEntry("blueprint_voice_simulation_spike", evidence.blueprintVoiceSimulationSpike, now, maxAgeHours)]
       : []),
@@ -2147,6 +2195,25 @@ function localRealtimeVoiceModelCacheReady(
   return evidence.value.models.some((model) =>
     model.ready && model.approved && approvedModelIds.has(model.model_id)
   );
+}
+
+function localQwenTtsRuntimeSmokeBlockers(
+  evidence: EvidenceFile<LocalQwenTtsRuntimeSmokeReport> | undefined,
+): string[] {
+  if (!evidence) {
+    return [];
+  }
+  const report = evidence.value;
+  return unique([
+    report.kind === "local_qwen_tts_runtime_smoke" ? undefined : "invalid_local_qwen_tts_runtime_smoke_kind",
+    report.claim_scope === "local_tts_inference_only" ? undefined : "invalid_local_qwen_tts_claim_scope",
+    report.runtime.modelId === "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit" ? undefined : "unexpected_qwen_tts_model_id",
+    report.runtime.modelLicense === "Apache-2.0" ? undefined : "qwen_tts_model_license_not_apache_2",
+    report.runtime.toolLicense === "MIT" ? undefined : "mlx_audio_tool_license_not_mit",
+    report.modelCache.ready && report.modelCache.readyModelObserved ? undefined : "qwen_tts_model_cache_not_ready",
+    report.verdict.passed ? undefined : "tts_runtime_smoke_failed",
+    ...report.verdict.blockers,
+  ]);
 }
 
 function blueprintVoiceSimulationSpikeBlockers(

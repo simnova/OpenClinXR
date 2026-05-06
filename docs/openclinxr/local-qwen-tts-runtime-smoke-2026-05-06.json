@@ -1,0 +1,74 @@
+{
+  "kind": "local_qwen_tts_runtime_smoke",
+  "claim_scope": "local_tts_inference_only",
+  "generatedAt": "2026-05-06T13:24:08Z",
+  "status": "passed_with_caveats",
+  "policy": {
+    "cloudApisUsed": false,
+    "paidApisUsed": false,
+    "productionUseAllowed": false,
+    "generatedAudioCommitted": false,
+    "fullDuplexClaimAllowed": false,
+    "clinicalValidityClaimAllowed": false,
+    "runtimeExecutionObserved": true,
+    "downloadAttemptedByThisTool": false,
+    "networkAccessObservedByThisTool": false
+  },
+  "runtime": {
+    "modelId": "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+    "modelLicense": "Apache-2.0",
+    "sourceRecordIds": [
+      "src-qwen3-tts-mlx-4bit-2026",
+      "src-mlx-audio-pypi-2026"
+    ],
+    "tool": "mlx-audio",
+    "toolVersion": "0.3.0",
+    "toolLicense": "MIT",
+    "pythonVersion": "3.11.4",
+    "exitStatus": 0,
+    "command": "/Users/patrick/.cache/openclinxr/realtime-voice/api-python-backend-venv/bin/python -m mlx_audio.tts.generate --model /Users/patrick/.cache/openclinxr/realtime-voice/mlx-community__Qwen3-TTS-12Hz-0.6B-Base-4bit --text The patient reports chest pressure and needs help now. --voice Chelsie --output_path /Users/patrick/.cache/openclinxr/realtime-voice/qwen-tts-smoke-2026-05-06-run2 --file_prefix openclinxr-qwen-smoke --audio_format wav --max_tokens 64"
+  },
+  "input": {
+    "text": "The patient reports chest pressure and needs help now.",
+    "textLength": 54,
+    "referenceAudioUsed": false
+  },
+  "audio": {
+    "outputPath": "/Users/patrick/.cache/openclinxr/realtime-voice/qwen-tts-smoke-2026-05-06-run2/openclinxr-qwen-smoke_000.wav",
+    "sha256": "eac24ecd365e266f71a960fe445d124f4a856db996694134f00e06d6b742bb1f",
+    "codec": "pcm_s16le",
+    "sampleRateHz": 24000,
+    "channels": 1,
+    "durationMs": 3360,
+    "sizeBytes": 161324,
+    "bitRate": 384000
+  },
+  "metrics": {
+    "wallClockMs": 6600,
+    "audioDurationMs": 3360,
+    "realTimeFactor": 1.96,
+    "maxResidentSetBytes": 1976532992,
+    "approxFirstAudiblePlaybackLatencyMs": null
+  },
+  "modelCache": {
+    "evidenceKind": "local_voice_evidence_check",
+    "evidenceGeneratedAt": "2026-05-06T13:09:06.623Z",
+    "cacheDir": "/Users/patrick/.cache/openclinxr/realtime-voice",
+    "ready": true,
+    "readyModelObserved": true,
+    "readyModelIds": [
+      "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit"
+    ],
+    "blockers": []
+  },
+  "verdict": {
+    "passed": true,
+    "readyForLiveDialog": false,
+    "blockers": [],
+    "caveats": [
+      "This is local outbound TTS file-generation evidence only; it is not full-duplex ASR/dialog evidence.",
+      "Qwen3-TTS does not satisfy the learner interruption, microphone capture, or agent-to-agent realtime loop by itself.",
+      "Generated audio remains local-only and must not be committed as clinical or production voice evidence."
+    ]
+  }
+}
