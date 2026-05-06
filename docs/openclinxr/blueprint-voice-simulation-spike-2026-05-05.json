@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T01:14:55.180Z",
+  "generatedAt": "2026-05-06T01:17:49.255Z",
   "status": "mock_facade_exercised",
   "policy": {
     "cloudApisUsed": false,
@@ -261,7 +261,7 @@
         "stationRunId": "blueprint_voice_simulation_mock_run_001",
         "sequence": 0,
         "eventType": "voice.transcript.final",
-        "occurredAt": "2026-05-06T01:14:55.180Z",
+        "occurredAt": "2026-05-06T01:17:49.255Z",
         "atSecond": 135,
         "source": "mock-voice-gateway",
         "actorId": "nurse_maria_alvarez_v1",
@@ -276,7 +276,7 @@
         "stationRunId": "blueprint_voice_simulation_mock_run_001",
         "sequence": 1,
         "eventType": "voice.audio.generated",
-        "occurredAt": "2026-05-06T01:14:55.180Z",
+        "occurredAt": "2026-05-06T01:17:49.255Z",
         "atSecond": 135,
         "source": "mock-voice-gateway",
         "actorId": "nurse_maria_alvarez_v1",
@@ -316,6 +316,37 @@
         }
       ]
     }
+  },
+  "triggerEvidence": {
+    "scheduler": "deterministic_mock_trigger_scheduler",
+    "firedTriggers": [
+      {
+        "triggerId": "nurse_vitals_change",
+        "atSecond": 420,
+        "actorId": "nurse_maria_alvarez_v1",
+        "traceTag": "vitals_review",
+        "traceEventType": "scenario.trigger.fired"
+      }
+    ],
+    "pendingTriggerCount": 0,
+    "runtimeSchedulerClaimed": false
+  },
+  "prewarmEvidence": {
+    "executed": true,
+    "preparedArtifactCount": 8,
+    "preparedArtifactTypes": [
+      "actor_context_card",
+      "telemetry_labels",
+      "trigger_rule",
+      "voice_slot"
+    ],
+    "modelWeightsLoaded": false,
+    "voiceRuntimeLoaded": false,
+    "firstResponseImprovementMeasured": false,
+    "cleanupRequired": false,
+    "blockers": [
+      "first_response_improvement_not_measured"
+    ]
   },
   "verdict": {
     "tier0BlueprintCompilerPassed": true,

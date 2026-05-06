@@ -118,6 +118,28 @@ export type BlueprintVoiceSimulationSpikeReport = {
     sensitiveFieldsDropped: boolean;
     summary: ReturnType<typeof summarizeTelemetrySpans>;
   };
+  triggerEvidence: {
+    scheduler: "deterministic_mock_trigger_scheduler";
+    firedTriggers: Array<{
+      triggerId: string;
+      atSecond: number;
+      actorId: string;
+      traceTag: string;
+      traceEventType: "scenario.trigger.fired";
+    }>;
+    pendingTriggerCount: number;
+    runtimeSchedulerClaimed: false;
+  };
+  prewarmEvidence: {
+    executed: boolean;
+    preparedArtifactCount: number;
+    preparedArtifactTypes: string[];
+    modelWeightsLoaded: false;
+    voiceRuntimeLoaded: false;
+    firstResponseImprovementMeasured: false;
+    cleanupRequired: false;
+    blockers: string[];
+  };
   verdict: {
     tier0BlueprintCompilerPassed: boolean;
     mockVoiceFacadeExercised: boolean;
@@ -302,6 +324,8 @@ export async function buildBlueprintVoiceSimulationSpikeReport(input: {
 }): Promise<BlueprintVoiceSimulationSpikeReport> {
   const generatedAt = input.generatedAt ?? new Date().toISOString();
   const plan = buildBlueprintVoiceSimulationPlan(input);
+  const triggerEvidence = buildTriggerEvidence(plan);
+  const prewarmEvidence = buildPrewarmEvidence(plan);
   const selectedActor = selectActor(plan, input.learnerUtterance);
   const primaryTraceTag = inferPrimaryTraceTag(input.learnerUtterance, plan.traceExpectations.requiredTraceTags);
   const gateway = createDefaultVoiceGateway({
@@ -403,6 +427,8 @@ export async function buildBlueprintVoiceSimulationSpikeReport(input: {
       sensitiveFieldsDropped: sensitiveTelemetryFieldsDropped(input.learnerUtterance),
       summary: summarizeTelemetrySpans(telemetry.spans()),
     },
+    triggerEvidence,
+    prewarmEvidence,
     verdict: {
       tier0BlueprintCompilerPassed: true,
       mockVoiceFacadeExercised: transcriptEvents.length > 0 && audioEvents.length > 0,
@@ -419,6 +445,34 @@ export async function buildBlueprintVoiceSimulationSpikeReport(input: {
         "clinical_voice_safety_controls_not_validated_with_real_model",
       ],
     },
+  };
+}
+
+function buildTriggerEvidence(plan: BlueprintVoiceSimulationPlan): BlueprintVoiceSimulationSpikeReport["triggerEvidence"] {
+  return {
+    scheduler: "deterministic_mock_trigger_scheduler",
+    firedTriggers: plan.triggerPlan.map((trigger) => ({
+      triggerId: trigger.triggerId,
+      atSecond: trigger.atSecond,
+      actorId: trigger.actorId,
+      traceTag: trigger.traceTag,
+      traceEventType: "scenario.trigger.fired",
+    })),
+    pendingTriggerCount: 0,
+    runtimeSchedulerClaimed: false,
+  };
+}
+
+function buildPrewarmEvidence(plan: BlueprintVoiceSimulationPlan): BlueprintVoiceSimulationSpikeReport["prewarmEvidence"] {
+  return {
+    executed: true,
+    preparedArtifactCount: plan.prewarmPlan.artifacts.length,
+    preparedArtifactTypes: uniqueSorted(plan.prewarmPlan.artifacts.map((artifact) => artifact.artifactType)),
+    modelWeightsLoaded: false,
+    voiceRuntimeLoaded: false,
+    firstResponseImprovementMeasured: false,
+    cleanupRequired: false,
+    blockers: ["first_response_improvement_not_measured"],
   };
 }
 
@@ -529,6 +583,10 @@ function mockActorSpeech(actor: ActorVoicePlan, traceTag: string): string {
     return `${actor.displayName}: I will get the ECG and repeat the vitals now.`;
   }
   return `${actor.displayName}: I hear you. I will respond within the scenario role.`;
+}
+
+function uniqueSorted(values: string[]): string[] {
+  return [...new Set(values)].sort();
 }
 
 const emotionLexicon = [

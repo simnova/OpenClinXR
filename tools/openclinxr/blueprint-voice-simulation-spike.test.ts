@@ -132,6 +132,30 @@ describe("blueprint-driven voice simulation spike", () => {
         visemeCuesPresent: true,
       },
     ]);
+    expect(report.triggerEvidence).toEqual({
+      scheduler: "deterministic_mock_trigger_scheduler",
+      firedTriggers: [
+        {
+          triggerId: "nurse_vitals_change",
+          atSecond: 420,
+          actorId: "nurse_maria_alvarez_v1",
+          traceTag: "vitals_review",
+          traceEventType: "scenario.trigger.fired",
+        },
+      ],
+      pendingTriggerCount: 0,
+      runtimeSchedulerClaimed: false,
+    });
+    expect(report.prewarmEvidence).toEqual({
+      executed: true,
+      preparedArtifactCount: 8,
+      preparedArtifactTypes: ["actor_context_card", "telemetry_labels", "trigger_rule", "voice_slot"],
+      modelWeightsLoaded: false,
+      voiceRuntimeLoaded: false,
+      firstResponseImprovementMeasured: false,
+      cleanupRequired: false,
+      blockers: ["first_response_improvement_not_measured"],
+    });
     const serializedReport = JSON.stringify(report);
     expect(serializedReport).not.toContain("Maria, please get an ECG");
     expect(serializedReport).not.toContain("When did the chest pressure start?");
