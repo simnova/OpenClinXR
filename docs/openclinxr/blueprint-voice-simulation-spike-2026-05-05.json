@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T01:39:00.510Z",
+  "generatedAt": "2026-05-06T03:18:07.296Z",
   "status": "mock_facade_exercised",
   "policy": {
     "cloudApisUsed": false,
@@ -262,7 +262,7 @@
         "stationRunId": "blueprint_voice_simulation_mock_run_001",
         "sequence": 0,
         "eventType": "voice.transcript.final",
-        "occurredAt": "2026-05-06T01:39:00.510Z",
+        "occurredAt": "2026-05-06T03:18:07.296Z",
         "atSecond": 135,
         "source": "mock-voice-gateway",
         "actorId": "nurse_maria_alvarez_v1",
@@ -277,7 +277,7 @@
         "stationRunId": "blueprint_voice_simulation_mock_run_001",
         "sequence": 1,
         "eventType": "voice.audio.generated",
-        "occurredAt": "2026-05-06T01:39:00.510Z",
+        "occurredAt": "2026-05-06T03:18:07.296Z",
         "atSecond": 135,
         "source": "mock-voice-gateway",
         "actorId": "nurse_maria_alvarez_v1",
@@ -353,6 +353,124 @@
         }
       ]
     }
+  },
+  "multiCharacterInterruption": {
+    "exercised": true,
+    "source": "scenario_actor_roster_and_required_trace_tags",
+    "prerequisiteActorRoles": [
+      "patient",
+      "family",
+      "nurse"
+    ],
+    "agentDialogue": {
+      "participantActorIds": [
+        "spouse_anna_hayes_v1",
+        "patient_robert_hayes_v1"
+      ],
+      "startedByActorId": "spouse_anna_hayes_v1",
+      "addressedActorId": "patient_robert_hayes_v1",
+      "atSecond": 250,
+      "traceTag": "family_communication",
+      "rawDialogueStored": false,
+      "transcriptRedacted": true,
+      "runtimeDialogueClaimed": false
+    },
+    "learnerInterruption": {
+      "atSecond": 255,
+      "routedActorId": "spouse_anna_hayes_v1",
+      "routingReason": "addressed_actor_name",
+      "traceContextTags": [
+        "family_communication",
+        "empathy_statement"
+      ],
+      "sourceKind": "voice_transcript",
+      "rawLearnerUtteranceStored": false,
+      "finalTranscriptTextRedacted": true
+    },
+    "traceProjection": {
+      "eventCount": 5,
+      "eventTypes": [
+        "agent.dialogue.mock.started",
+        "station.started",
+        "consent.accepted",
+        "encounter.started",
+        "actor.interaction.routed"
+      ],
+      "sensitiveFieldsDropped": true,
+      "rawRuntimeTraceStoredInReport": false,
+      "events": [
+        {
+          "sequence": 0,
+          "eventType": "agent.dialogue.mock.started",
+          "source": "blueprint-voice-simulation-spike",
+          "actorId": "spouse_anna_hayes_v1",
+          "tag": "family_communication",
+          "payload": {
+            "participantActorIds": [
+              "spouse_anna_hayes_v1",
+              "patient_robert_hayes_v1"
+            ],
+            "addressedActorId": "patient_robert_hayes_v1",
+            "rawDialogueStored": false,
+            "transcriptRedacted": true,
+            "runtimeDialogueClaimed": false,
+            "traceContextTags": [
+              "family_communication",
+              "empathy_statement"
+            ]
+          }
+        },
+        {
+          "sequence": 1,
+          "eventType": "station.started",
+          "source": "system",
+          "payload": {}
+        },
+        {
+          "sequence": 2,
+          "eventType": "consent.accepted",
+          "source": "learner",
+          "payload": {}
+        },
+        {
+          "sequence": 3,
+          "eventType": "encounter.started",
+          "source": "system",
+          "payload": {}
+        },
+        {
+          "sequence": 4,
+          "eventType": "actor.interaction.routed",
+          "source": "session-state",
+          "payload": {
+            "learnerUtteranceRedacted": true,
+            "routingReason": "addressed_actor_name",
+            "traceContextTags": [
+              "family_communication",
+              "empathy_statement"
+            ],
+            "sourceKind": "voice_transcript",
+            "streamId": "learner-mic-mock-interrupt-001",
+            "transcriptSegmentId": "mock-interrupt-final-transcript-001",
+            "provider": "mock-voice",
+            "provenanceRefs": [
+              "voice:learner-mic-mock-interrupt-001:mock-interrupt-final-transcript-001"
+            ],
+            "rawAudioStored": false,
+            "finalTranscriptTextRedacted": true
+          },
+          "actorId": "spouse_anna_hayes_v1",
+          "tag": "family_communication"
+        }
+      ]
+    },
+    "hiddenFactsRedacted": true,
+    "limitations": [
+      "agent_dialogue_content_redacted_and_not_generated_by_llm",
+      "runtime_dialogue_between_virtual_actors_not_implemented",
+      "real_full_duplex_interruption_timing_not_measured",
+      "quest_microphone_and_playback_not_measured"
+    ]
   },
   "transportEvidence": {
     "linkedExistingEvidence": true,

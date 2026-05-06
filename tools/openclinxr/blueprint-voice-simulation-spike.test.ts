@@ -187,6 +187,67 @@ describe("blueprint-driven voice simulation spike", () => {
         ],
       },
     });
+    expect(report.multiCharacterInterruption).toMatchObject({
+      exercised: true,
+      source: "scenario_actor_roster_and_required_trace_tags",
+      prerequisiteActorRoles: ["patient", "family", "nurse"],
+      agentDialogue: {
+        participantActorIds: ["spouse_anna_hayes_v1", "patient_robert_hayes_v1"],
+        startedByActorId: "spouse_anna_hayes_v1",
+        addressedActorId: "patient_robert_hayes_v1",
+        atSecond: 250,
+        traceTag: "family_communication",
+        rawDialogueStored: false,
+        transcriptRedacted: true,
+        runtimeDialogueClaimed: false,
+      },
+      learnerInterruption: {
+        atSecond: 255,
+        routedActorId: "spouse_anna_hayes_v1",
+        routingReason: "addressed_actor_name",
+        traceContextTags: ["family_communication", "empathy_statement"],
+        sourceKind: "voice_transcript",
+        rawLearnerUtteranceStored: false,
+        finalTranscriptTextRedacted: true,
+      },
+      traceProjection: {
+        eventCount: 5,
+        eventTypes: [
+          "agent.dialogue.mock.started",
+          "station.started",
+          "consent.accepted",
+          "encounter.started",
+          "actor.interaction.routed",
+        ],
+        sensitiveFieldsDropped: true,
+        rawRuntimeTraceStoredInReport: false,
+      },
+      hiddenFactsRedacted: true,
+      limitations: [
+        "agent_dialogue_content_redacted_and_not_generated_by_llm",
+        "runtime_dialogue_between_virtual_actors_not_implemented",
+        "real_full_duplex_interruption_timing_not_measured",
+        "quest_microphone_and_playback_not_measured",
+      ],
+    });
+    expect(report.multiCharacterInterruption.traceProjection.events.at(-1)).toMatchObject({
+      eventType: "actor.interaction.routed",
+      source: "session-state",
+      actorId: "spouse_anna_hayes_v1",
+      tag: "family_communication",
+      payload: {
+        learnerUtteranceRedacted: true,
+        finalTranscriptTextRedacted: true,
+        routingReason: "addressed_actor_name",
+        traceContextTags: ["family_communication", "empathy_statement"],
+        sourceKind: "voice_transcript",
+        streamId: "learner-mic-mock-interrupt-001",
+        transcriptSegmentId: "mock-interrupt-final-transcript-001",
+        provider: "mock-voice",
+        provenanceRefs: ["voice:learner-mic-mock-interrupt-001:mock-interrupt-final-transcript-001"],
+        rawAudioStored: false,
+      },
+    });
     expect(report.transportEvidence).toMatchObject({
       linkedExistingEvidence: true,
       executedByThisReport: false,
@@ -259,6 +320,7 @@ describe("blueprint-driven voice simulation spike", () => {
     });
     const serializedReport = JSON.stringify(report);
     expect(serializedReport).not.toContain("Maria, please get an ECG");
+    expect(serializedReport).not.toContain("I hear your concern");
     expect(serializedReport).not.toContain("When did the chest pressure start?");
     for (const actor of edChestPainScenario.actors) {
       for (const hiddenFact of actor.hiddenFacts ?? []) {

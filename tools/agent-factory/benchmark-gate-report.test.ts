@@ -493,6 +493,21 @@ function passedApiBunPythonProxyRuntimeSmoke(): Parameters<typeof buildBenchmark
         errorMessages: [],
       },
       runtimeEvidenceBlockers: [],
+      postureEvidencePromotion: {
+        eligible: true,
+        promotedTransportProxyStatus: "configured_reachability_verified",
+        environment: {
+          backendUrlVariable: "OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL",
+          evidenceFileVariable: "OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE",
+        },
+        instructions: [
+          "Set OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE to this passed smoke report JSON file before starting a later Bun/Hono API process.",
+        ],
+        blockers: [],
+        caveats: [
+          "The live smoke fetches the posture endpoint before this report is written, so the current process can truthfully remain configured_not_verified.",
+        ],
+      },
       verdict: {
         smokePassed: true,
         readyForLiveDialog: false,
