@@ -67,6 +67,11 @@ type MongoMemoryServerBoundaryInput = {
   sourceReferences: SourceImportReference[];
 };
 
+type DataMongoMongooseBoundaryInput = {
+  manifestDependencies: WorkspaceDependencyReference[];
+  sourceReferences: SourceImportReference[];
+};
+
 type PaidProviderBoundaryInput = {
   manifestDependencies: WorkspaceDependencyReference[];
   sourceReferences: SourceImportReference[];
@@ -496,6 +501,53 @@ describe("workspace architecture rules", () => {
 
   it("keeps the API app manifest free of concrete Mongo persistence packages", () => {
     expect(findApiConcretePersistenceManifestViolations()).toEqual([]);
+  });
+
+  it("reports Mongoose dependencies when they leak into the raw MongoDB repository package", () => {
+    const violations = findDataMongoMongooseBoundaryViolations({
+      manifestDependencies: [
+        {
+          manifestPath: "packages/openclinxr/data-mongodb/package.json",
+          field: "dependencies",
+          dependency: "mongoose",
+        },
+        {
+          manifestPath: "packages/openclinxr/data-mongodb/package.json",
+          field: "devDependencies",
+          dependency: "@openclinxr/data-sources-mongoose-models",
+        },
+        {
+          manifestPath: "packages/openclinxr/data-sources-mongoose-models/package.json",
+          field: "dependencies",
+          dependency: "mongoose",
+        },
+      ],
+      sourceReferences: [
+        {
+          filePath: "packages/openclinxr/data-mongodb/src/repositories.ts",
+          specifier: "@openclinxr/data-sources-mongoose-models",
+        },
+        {
+          filePath: "packages/openclinxr/data-mongodb/src/repositories.ts",
+          specifier: "mongoose",
+        },
+        {
+          filePath: "packages/openclinxr/data-sources-mongoose-models/src/scenario-bank-model.ts",
+          specifier: "mongoose",
+        },
+      ],
+    });
+
+    expect(violations).toEqual([
+      "manifest:packages/openclinxr/data-mongodb/package.json:dependencies.mongoose",
+      "manifest:packages/openclinxr/data-mongodb/package.json:devDependencies.@openclinxr/data-sources-mongoose-models",
+      "source:packages/openclinxr/data-mongodb/src/repositories.ts:@openclinxr/data-sources-mongoose-models",
+      "source:packages/openclinxr/data-mongodb/src/repositories.ts:mongoose",
+    ]);
+  });
+
+  it("keeps the raw MongoDB repository package separate from Mongoose models", () => {
+    expect(findDataMongoMongooseBoundaryViolations(scanDataMongoMongooseBoundary())).toEqual([]);
   });
 
   it("keeps telemetry contracts independent from application and runtime packages", () => {
@@ -1013,6 +1065,17 @@ function scanMongoMemoryServerBoundary(): MongoMemoryServerBoundaryInput {
   };
 }
 
+function scanDataMongoMongooseBoundary(): DataMongoMongooseBoundaryInput {
+  const forbiddenDependencies = ["@openclinxr/data-sources-mongoose-models", "mongoose"];
+
+  return {
+    manifestDependencies: workspacePackageDependencyReferences(forbiddenDependencies),
+    sourceReferences: forbiddenDependencies.flatMap((dependency) =>
+      sourceImportReferences(dependency, sourceFilesUnder("packages/openclinxr/data-mongodb"))
+    ),
+  };
+}
+
 function findApiConcretePersistenceManifestViolations(
   manifestDependencies = workspacePackageDependencyReferences([...apiConcretePersistenceDependencies]),
 ): string[] {
@@ -1023,6 +1086,20 @@ function findApiConcretePersistenceManifestViolations(
     )
     .map(({ manifestPath, field, dependency }) => `manifest:${manifestPath}:${field}.${dependency}`)
     .sort();
+}
+
+function findDataMongoMongooseBoundaryViolations(input: DataMongoMongooseBoundaryInput): string[] {
+  return [
+    ...input.manifestDependencies
+      .filter(({ manifestPath, dependency }) =>
+        manifestPath === "packages/openclinxr/data-mongodb/package.json"
+        && (dependency === "@openclinxr/data-sources-mongoose-models" || dependency === "mongoose")
+      )
+      .map(({ manifestPath, field, dependency }) => `manifest:${manifestPath}:${field}.${dependency}`),
+    ...input.sourceReferences
+      .filter(({ filePath }) => filePath.startsWith("packages/openclinxr/data-mongodb/src/"))
+      .map(({ filePath, specifier }) => `source:${filePath}:${specifier}`),
+  ].sort();
 }
 
 function scanPaidProviderBoundary(): PaidProviderBoundaryInput {
