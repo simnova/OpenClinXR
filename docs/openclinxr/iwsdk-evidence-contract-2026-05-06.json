@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T06:36:02.066Z",
+  "generatedAt": "2026-05-06T08:25:03.126Z",
   "status": "phase_1_install_backed_sidecar",
   "sidecar": {
     "sidecarAppRoot": "apps/ui-xr-iwsdk-spike/",
@@ -461,14 +461,9 @@
     "blockers": [
       "adapter_sync_not_recorded",
       "ecs_runtime_not_queryable",
-      "mcp_runtime_not_registered",
-      "mcp_smoke_tool_not_validated_browser_get_console_logs",
-      "mcp_smoke_tool_not_validated_browser_screenshot",
       "mcp_smoke_tool_not_validated_scene_get_hierarchy",
       "mcp_smoke_tool_not_validated_xr_accept_session",
-      "mcp_smoke_tool_not_validated_xr_get_session_status",
       "mcp_smoke_tool_not_validated_xr_select",
-      "missing_managed_browser_evidence",
       "scene_hierarchy_required_objects_not_confirmed"
     ]
   },
@@ -505,14 +500,9 @@
     "blockers": [
       "agent_tooling:adapter_sync_not_recorded",
       "agent_tooling:ecs_runtime_not_queryable",
-      "agent_tooling:mcp_runtime_not_registered",
-      "agent_tooling:mcp_smoke_tool_not_validated_browser_get_console_logs",
-      "agent_tooling:mcp_smoke_tool_not_validated_browser_screenshot",
       "agent_tooling:mcp_smoke_tool_not_validated_scene_get_hierarchy",
       "agent_tooling:mcp_smoke_tool_not_validated_xr_accept_session",
-      "agent_tooling:mcp_smoke_tool_not_validated_xr_get_session_status",
       "agent_tooling:mcp_smoke_tool_not_validated_xr_select",
-      "agent_tooling:missing_managed_browser_evidence",
       "agent_tooling:scene_hierarchy_required_objects_not_confirmed",
       "compatibility:vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
       "metadata_drift:package_metadata_drift:@iwsdk/reference:docs_0.3.1_npm_0.3.2",

@@ -6,6 +6,7 @@ import {
   buildIwsdkCoreRequiredTransitivePackageNames,
   buildIwsdkCoreTransitivePackageLicenseEvidence,
   buildIwsdkCompatibilityContract,
+  buildIwsdkMcpToolInventory,
   buildIwsdkOperatorApprovalContract,
   buildIwsdkOperatorSteeringBlockers,
   buildIwsdkPackageMetadataDriftPolicies,
@@ -26,6 +27,7 @@ import {
   type IwsdkCompatibilityContract,
   type IwsdkCompatibilityEvidence,
   type IwsdkCompatibilityReadiness,
+  type IwsdkMcpToolCategory,
   type IwsdkOperatorApprovalContract,
   type IwsdkOperatorSteeringBlocker,
   type IwsdkPackageMetadataDriftEvidence,
@@ -40,6 +42,7 @@ import {
   type IwsdkVerificationToolSelectionContract,
   type IwsdkViteAiDevConfigContract,
 } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
+import type { IwerSidecarEmulationEvidence } from "./iwer-sidecar-emulation-evidence-check.js";
 import type { IwsdkMcpInventoryEvidenceReport } from "./iwsdk-mcp-inventory-evidence.js";
 
 type CliOptions = {
@@ -47,6 +50,7 @@ type CliOptions = {
   validateLatestPattern?: string;
   agentToolingInputPath?: string;
   mcpInventoryInputPath?: string;
+  iwerSidecarInputPath?: string;
   compatibilityInputPath?: string;
   metadataDriftInputPath?: string;
   sidecarMetricsInputPath?: string;
@@ -99,9 +103,12 @@ async function main(): Promise<void> {
   }
 
   const mcpInventoryEvidence = await readJsonFile<IwsdkMcpInventoryEvidenceReport>(options.mcpInventoryInputPath);
+  const iwerSidecarEvidence = await readJsonFile<IwerSidecarEmulationEvidence>(options.iwerSidecarInputPath);
   const report = buildIwsdkEvidenceContractReport({
     agentToolingEvidence: await readJsonFile<IwsdkAgentToolingEvidence>(options.agentToolingInputPath)
+      ?? (iwerSidecarEvidence ? mapIwerSidecarEvidenceToIwsdkAgentToolingEvidence(iwerSidecarEvidence) : undefined)
       ?? mcpInventoryEvidence?.agentToolingEvidence,
+    iwerSidecarEvidence,
     compatibilityEvidence: await readJsonFile<IwsdkCompatibilityEvidence>(options.compatibilityInputPath),
     metadataDriftEvidence: await readJsonFile<IwsdkPackageMetadataDriftEvidence>(options.metadataDriftInputPath),
     sidecarMetrics: await readJsonFile<IwsdkSpikeMetrics>(options.sidecarMetricsInputPath),
@@ -144,6 +151,7 @@ async function validateLatestReportFile(pattern: string): Promise<void> {
 export function buildIwsdkEvidenceContractReport(input: {
   generatedAt?: string;
   agentToolingEvidence?: IwsdkAgentToolingEvidence;
+  iwerSidecarEvidence?: IwerSidecarEmulationEvidence;
   compatibilityEvidence?: IwsdkCompatibilityEvidence;
   metadataDriftEvidence?: IwsdkPackageMetadataDriftEvidence;
   sidecarMetrics?: IwsdkSpikeMetrics;
@@ -160,7 +168,9 @@ export function buildIwsdkEvidenceContractReport(input: {
     },
     { name: "@iwsdk/xr-input", version: "0.3.1", license: "MIT", transitivePackages: [] },
   ], preinstallPolicy);
-  const agentToolingEvidence = input.agentToolingEvidence ?? {
+  const agentToolingEvidence = input.agentToolingEvidence
+    ?? (input.iwerSidecarEvidence ? mapIwerSidecarEvidenceToIwsdkAgentToolingEvidence(input.iwerSidecarEvidence) : undefined)
+    ?? {
     phase2DevtoolsConfiguredInSidecar: false,
     adapterSyncRecorded: false,
     toolCount: 0,
@@ -260,6 +270,76 @@ export function buildIwsdkEvidenceContractReport(input: {
       blockers,
     },
   };
+}
+
+export function mapIwerSidecarEvidenceToIwsdkAgentToolingEvidence(
+  evidence: IwerSidecarEmulationEvidence,
+): IwsdkAgentToolingEvidence {
+  const inventory = buildIwsdkMcpToolInventory();
+  const observedToolNames = evidence.mcpToolInventory?.toolNames ?? [];
+  const observedToolNameSet = new Set(observedToolNames);
+  const coveredCategories = inventory.categories
+    .filter((category) => category.tools.every((toolName) => observedToolNameSet.has(toolName)))
+    .map((category) => category.category);
+  const successfulTools = new Set((evidence.rawWebSocketProbes ?? [])
+    .filter((probe) => probe.ok === true)
+    .map((probe) => iwerProbeMethodToIwsdkToolName(probe.method))
+    .filter((toolName): toolName is string => typeof toolName === "string"));
+  const screenshotProbe = evidence.rawWebSocketProbes?.find((probe) => probe.method === "screenshot" && probe.ok === true);
+  const mcpRuntimeRegistered = Boolean(
+    evidence.sidecar?.mcpWebSocketEndpoint
+      && (evidence.rawWebSocketProbes ?? []).some((probe) => probe.ok === true),
+  );
+
+  return {
+    phase2DevtoolsConfiguredInSidecar: true,
+    adapterSyncRecorded: false,
+    toolCount: evidence.mcpToolInventory?.count ?? observedToolNames.length,
+    coveredCategories: coveredCategories as IwsdkMcpToolCategory[],
+    validatedSmokeTools: [...successfulTools].sort(),
+    observedToolNames,
+    managedBrowserEvidence: screenshotProbe
+      ? {
+        mode: "oversight",
+        runtimeUrl: evidence.sidecar?.runtimeUrl,
+        managedBrowserReady: true,
+        managedSessionId: `iwer-managed-browser:${evidence.sidecar?.devServerPort ?? "unknown"}`,
+        normalBrowserOpened: false,
+        screenshotWidth: screenshotProbe.dimensions?.width,
+        screenshotHeight: screenshotProbe.dimensions?.height,
+        managedDevUiVisible: false,
+      }
+      : undefined,
+    mcpRuntimeRegistered,
+    sceneHierarchyContainsRequiredObjects: false,
+    ecsRuntimeQueryable: false,
+    optionalServerActions: [],
+  };
+}
+
+function iwerProbeMethodToIwsdkToolName(method: string | undefined): string | undefined {
+  switch (method) {
+    case "get_session_status":
+      return "xr_get_session_status";
+    case "accept_session":
+      return "xr_accept_session";
+    case "screenshot":
+      return "browser_screenshot";
+    case "get_console_logs":
+      return "browser_get_console_logs";
+    case "get_scene_hierarchy":
+      return "scene_get_hierarchy";
+    case "select":
+      return "xr_select";
+    case "get_device_state":
+      return "xr_get_device_state";
+    case "set_input_mode":
+      return "xr_set_input_mode";
+    case "set_connected":
+      return "xr_set_connected";
+    default:
+      return undefined;
+  }
 }
 
 function selectUnresolvedToolSelectionBlockers(
@@ -471,6 +551,11 @@ function parseArgs(args: string[]): CliOptions {
     }
     if (arg === "--mcp-inventory-input") {
       options.mcpInventoryInputPath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--iwer-sidecar-input") {
+      options.iwerSidecarInputPath = requireValue(normalizedArgs, index, arg);
       index += 1;
       continue;
     }

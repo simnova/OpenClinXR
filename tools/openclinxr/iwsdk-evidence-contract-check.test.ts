@@ -6,9 +6,11 @@ import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
 import {
   buildIwsdkEvidenceContractReport,
+  mapIwerSidecarEvidenceToIwsdkAgentToolingEvidence,
   validateIwsdkEvidenceContractReport,
   type IwsdkEvidenceContractReport,
 } from "./iwsdk-evidence-contract-check.js";
+import type { IwerSidecarEmulationEvidence } from "./iwer-sidecar-emulation-evidence-check.js";
 import { buildIwsdkMcpInventoryEvidenceReport } from "./iwsdk-mcp-inventory-evidence.js";
 import { buildIwsdkMcpToolInventory, type IwsdkAgentToolingEvidence } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
 
@@ -216,7 +218,7 @@ describe("IWSDK evidence contract checker", () => {
       scripts: Record<string, string>;
     };
     expect(rootPackage.scripts["iwsdk:evidence"]).toBe(
-      "tsx tools/openclinxr/iwsdk-evidence-contract-check.ts --mcp-inventory-input docs/openclinxr/iwsdk-mcp-inventory-evidence-2026-05-06.json",
+      "tsx tools/openclinxr/iwsdk-evidence-contract-check.ts --mcp-inventory-input docs/openclinxr/iwsdk-mcp-inventory-evidence-2026-05-06.json --iwer-sidecar-input docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json",
     );
 
     try {
@@ -311,6 +313,115 @@ describe("IWSDK evidence contract checker", () => {
         "agent_tooling:phase2_devtools_not_installed_in_sidecar",
         "agent_tooling:mcp_tool_inventory_count_not_32",
       ]));
+    }
+  });
+
+  it("maps IWER sidecar evidence into partial agent-tooling readiness without physical Quest claims", () => {
+    const mappedEvidence = mapIwerSidecarEvidenceToIwsdkAgentToolingEvidence(iwerSidecarEvidence());
+
+    expect(mappedEvidence).toMatchObject({
+      phase2DevtoolsConfiguredInSidecar: true,
+      adapterSyncRecorded: false,
+      toolCount: 32,
+      coveredCategories: [
+        "session",
+        "transforms",
+        "input_mode",
+        "select_trigger",
+        "gamepad",
+        "device_state",
+        "browser",
+        "scene",
+        "ecs",
+      ],
+      validatedSmokeTools: [
+        "browser_get_console_logs",
+        "browser_screenshot",
+        "xr_get_device_state",
+        "xr_get_session_status",
+      ],
+      mcpRuntimeRegistered: true,
+      sceneHierarchyContainsRequiredObjects: false,
+      ecsRuntimeQueryable: false,
+      optionalServerActions: [],
+    });
+    expect(mappedEvidence.managedBrowserEvidence).toEqual({
+      mode: "oversight",
+      runtimeUrl: "http://127.0.0.1:5183/",
+      managedBrowserReady: true,
+      managedSessionId: "iwer-managed-browser:5183",
+      normalBrowserOpened: false,
+      screenshotWidth: 500,
+      screenshotHeight: 500,
+      managedDevUiVisible: false,
+    });
+
+    const report = buildIwsdkEvidenceContractReport({
+      generatedAt: "2026-05-06T08:00:00.000Z",
+      iwerSidecarEvidence: iwerSidecarEvidence(),
+    });
+
+    expect(report.agentToolingLocalPreflight.readyForLocalAgentToolingPreflight).toBe(true);
+    expect(report.agentToolingLocalPreflight.blockers).toEqual([]);
+    expect(report.agentTooling.readyForAgentTooling).toBe(false);
+    expect(report.agentTooling.blockers).toEqual(expect.arrayContaining([
+      "adapter_sync_not_recorded",
+      "mcp_smoke_tool_not_validated_xr_accept_session",
+      "mcp_smoke_tool_not_validated_scene_get_hierarchy",
+      "mcp_smoke_tool_not_validated_xr_select",
+      "scene_hierarchy_required_objects_not_confirmed",
+      "ecs_runtime_not_queryable",
+    ]));
+    expect(report.agentTooling.blockers).not.toEqual(expect.arrayContaining([
+      "phase2_devtools_not_installed_in_sidecar",
+      "mcp_tool_inventory_count_not_32",
+      "mcp_tool_names_not_recorded",
+      "missing_managed_browser_evidence",
+      "mcp_runtime_not_registered",
+    ]));
+    expect(report.verdict.readyForProductionRuntime).toBe(false);
+    expect(report.verdict.blockers).toEqual(expect.arrayContaining([
+      "agent_tooling:scene_hierarchy_required_objects_not_confirmed",
+      "agent_tooling:ecs_runtime_not_queryable",
+      "tool_selection:iwsdk_mcp_future_blocked_until_sidecar",
+      "tool_selection:manual_quest_foreground_required_for_production_readiness",
+      "production_runtime:avg_fps_below_floor",
+    ]));
+  });
+
+  it("exposes a CLI input for committed IWER sidecar emulation evidence", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwer-iwsdk-contract-"));
+    const iwerInputPath = path.join(tempDir, "iwer-sidecar-evidence.json");
+    const outputPath = path.join(tempDir, "iwsdk-evidence-contract.json");
+
+    await writeFile(iwerInputPath, `${JSON.stringify(iwerSidecarEvidence(), null, 2)}\n`, "utf8");
+
+    try {
+      await execFileAsync(
+        path.resolve("node_modules/.bin/tsx"),
+        [
+          "tools/openclinxr/iwsdk-evidence-contract-check.ts",
+          "--iwer-sidecar-input",
+          iwerInputPath,
+          "--output",
+          outputPath,
+        ],
+        { encoding: "utf8", timeout: 15000 },
+      );
+      throw new Error("Expected IWSDK evidence contract checker to preserve remaining blockers");
+    } catch (error) {
+      const failedRun = error as { code: number; stdout: string };
+      const report = JSON.parse(await readFile(outputPath, "utf8")) as IwsdkEvidenceContractReport;
+
+      expect(failedRun.code).toBe(1);
+      expect(failedRun.stdout).toContain(`Wrote ${outputPath}`);
+      expect(report.agentToolingLocalPreflight.readyForLocalAgentToolingPreflight).toBe(true);
+      expect(report.agentTooling.blockers).not.toEqual(expect.arrayContaining([
+        "phase2_devtools_not_installed_in_sidecar",
+        "missing_managed_browser_evidence",
+        "mcp_runtime_not_registered",
+      ]));
+      expect(report.verdict.readyForProductionRuntime).toBe(false);
     }
   });
 
@@ -515,5 +626,92 @@ function readyAgentToolingEvidence(): IwsdkAgentToolingEvidence {
     sceneHierarchyContainsRequiredObjects: true,
     ecsRuntimeQueryable: true,
     optionalServerActions: [],
+  };
+}
+
+function iwerSidecarEvidence(): IwerSidecarEmulationEvidence {
+  return {
+    schemaVersion: "openclinxr.iwer-sidecar-emulation-evidence.v1",
+    proposal: "proposals/approved/proposal-iwer-sidecar-emulation-spike.md",
+    classification: {
+      lane: "iwer_managed_browser_emulation",
+      scope: "sidecar_only_dev_evidence",
+      notEvidenceFor: [
+        "physical_quest_foreground_frame_pacing",
+        "quest_controller_latency",
+        "quest_hand_tracking_quality",
+        "quest_passthrough_privacy_or_safety",
+        "in_headset_text_readability",
+        "thermal_or_battery_behavior",
+        "production_runtime_readiness",
+      ],
+    },
+    sidecar: {
+      app: "apps/ui-xr-iwsdk-spike",
+      runtimeUrl: "http://127.0.0.1:5183/",
+      devServerPort: 5183,
+      mcpWebSocketEndpoint: "ws://127.0.0.1:5183/__iwsdk/mcp",
+      generatedLocalCodexConfigPolicy: "ignored_by_git_and_not_committed",
+    },
+    mcpToolInventory: {
+      count: 32,
+      toolNames: buildIwsdkMcpToolInventory().allToolNames,
+    },
+    rawWebSocketProbes: [
+      {
+        id: "codex-probe-status",
+        method: "get_session_status",
+        elapsedMs: 12,
+        ok: true,
+      },
+      {
+        id: "codex-probe-screenshot",
+        method: "screenshot",
+        elapsedMs: 526,
+        ok: true,
+        artifact: "docs/openclinxr/screenshots/iwer-sidecar-agent-browser-2026-05-04.png",
+        mimeType: "image/png",
+        bytes: 39536,
+        dimensions: { width: 500, height: 500 },
+      },
+      {
+        id: "codex-probe-device-state",
+        method: "get_device_state",
+        elapsedMs: 18,
+        ok: true,
+      },
+      {
+        id: "logs-after-serve-only",
+        method: "get_console_logs",
+        elapsedMs: 24,
+        ok: true,
+      },
+      {
+        id: "codex-probe-accept",
+        method: "accept_session",
+        elapsedMs: 13,
+        ok: false,
+        blocker: "no_session_has_been_offered",
+      },
+      {
+        id: "codex-probe-scene",
+        method: "get_scene_hierarchy",
+        elapsedMs: 6001,
+        ok: false,
+        blocker: "scene_hierarchy_timeout",
+      },
+      {
+        id: "codex-probe-select",
+        method: "select",
+        ok: false,
+        blocker: "no_active_xr_session",
+      },
+    ],
+    blockers: [
+      "iwer_emulation_not_physical_quest_evidence",
+      "session_acceptance_blocked_until_app_offers_xr_session",
+      "input_mutation_blocked_without_active_xr_session",
+      "scene_hierarchy_and_ecs_blocked_until_framework_mcp_runtime_exists",
+    ],
   };
 }
