@@ -39,7 +39,7 @@ The durable actor-turn promotion approved on 2026-05-05 narrows "actor turn" to 
 - Durable conversation turn replay by station run.
 - Durable emotional-state timeline replay by station run and actor.
 - Durable clinical-event replay by station run.
-- Idempotent upsert behavior for all durable record types.
+- Idempotent write behavior for all durable record types. Clinical-event IDs are insert-once idempotency keys; order status history or other state transitions must use distinct event IDs rather than replacing an existing event-log record.
 - `rawAudioStored: false` preservation and transcript provenance references for voice-transcript turns.
 - Hidden-fact-safe clinical-event review projection via public payload only.
 - Explicit conformance to `AsyncDurableMultiActorSessionStore`.
@@ -79,7 +79,7 @@ This proves the intended separation:
 - Recent turn refs point back to durable turn ids.
 - Spatial transforms stay in the realtime snapshot, not in the durable conversation record.
 
-The durable clinical-event replay flow stores package-local event-log records keyed by `clinicalEventId`, upserts repeated saves idempotently, and replays events by `stationRunId` in deterministic `atSecond` plus id order. The raw Mongo replay remains an internal durable-store path. `MongoDurableClinicalEventRepository.listReviewProjectionsByStationRunId()` is the reviewer-facing path and maps stored events through the session-state redaction helper, so hidden clinical truth, hidden-fact refs, nested private-looking keys, and server-only actor notes do not leak into review projections.
+The durable clinical-event replay flow stores package-local event-log records keyed by `clinicalEventId`, ignores repeated saves for an existing clinical-event id, and replays events by `stationRunId` in deterministic `atSecond` plus id order. Status-change history is represented by separate immutable events such as `order_requested` and `order_completed`, not by mutating the earlier event. The raw Mongo replay remains an internal durable-store path. `MongoDurableClinicalEventRepository.listReviewProjectionsByStationRunId()` is the reviewer-facing path and maps stored events through the session-state redaction helper, so hidden clinical truth, hidden-fact refs, nested private-looking keys, and server-only actor notes do not leak into review projections.
 
 ## Follow-Up Direction
 

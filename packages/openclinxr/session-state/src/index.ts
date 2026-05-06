@@ -955,8 +955,10 @@ class InMemoryDurableMultiActorSessionStore implements DurableMultiActorSessionS
 
   saveClinicalEvent(record: DurableClinicalEventRecord): void {
     const existing = this.clinicalEvents.get(record.stationRunId) ?? [];
-    const withoutDuplicate = existing.filter((event) => event.clinicalEventId !== record.clinicalEventId);
-    this.clinicalEvents.set(record.stationRunId, [...withoutDuplicate, cloneClinicalEventRecord(record)]);
+    if (existing.some((event) => event.clinicalEventId === record.clinicalEventId)) {
+      return;
+    }
+    this.clinicalEvents.set(record.stationRunId, [...existing, cloneClinicalEventRecord(record)]);
   }
 
   listClinicalEvents(stationRunId: string): DurableClinicalEventRecord[] {

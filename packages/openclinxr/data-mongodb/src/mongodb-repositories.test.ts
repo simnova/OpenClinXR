@@ -574,10 +574,14 @@ describe("MongoDB memory repositories", () => {
     const repository = new MongoDurableClinicalEventRepository(context.db);
     await repository.ensureIndexes();
 
-    await repository.save(clinicalEventFinding);
-    await repository.save(clinicalEventOrderRequested);
-    await repository.save({
+    const orderRequested: DurableClinicalEventRecord = {
       ...clinicalEventOrderRequested,
+      clinicalEventId: "event_001_ecg_order_requested",
+    };
+    const orderCompleted: DurableClinicalEventRecord = {
+      ...clinicalEventOrderRequested,
+      clinicalEventId: "event_001_ecg_order_completed",
+      atSecond: 205,
       status: "completed",
       payload: {
         public: {
@@ -593,32 +597,111 @@ describe("MongoDB memory repositories", () => {
         ...clinicalEventOrderRequested.provenanceRefs,
         "review:cardiology:ecg-overread",
       ],
+    };
+    const checklistUpdated: DurableClinicalEventRecord = {
+      clinicalEventId: "event_003_checklist_airway",
+      stationRunId: "station_run_durable_clinical_event_001",
+      atSecond: 210,
+      eventKind: "checklist_item_updated",
+      label: "Airway and breathing assessed",
+      status: "completed",
+      payload: {
+        public: {
+          checklistItemId: "primary_survey_airway_breathing",
+          checked: true,
+        },
+      },
+      provenanceRefs: ["trace:station_run_durable_clinical_event_001:210"],
+      durableStore: "database_source_of_truth",
+    };
+    const rubricProgressUpdated: DurableClinicalEventRecord = {
+      clinicalEventId: "event_004_rubric_acs",
+      stationRunId: "station_run_durable_clinical_event_001",
+      atSecond: 240,
+      eventKind: "rubric_progress_updated",
+      traceTag: "diagnostic_reasoning_acs",
+      label: "ACS considered",
+      status: "met",
+      payload: {
+        public: {
+          rubricItemId: "diagnostic_reasoning_acs",
+          scoreDraft: "met",
+        },
+      },
+      provenanceRefs: ["trace:station_run_durable_clinical_event_001:240"],
+      durableStore: "database_source_of_truth",
+    };
+    const caseStatusChanged: DurableClinicalEventRecord = {
+      clinicalEventId: "event_005_case_escalation",
+      stationRunId: "station_run_durable_clinical_event_001",
+      atSecond: 300,
+      eventKind: "case_status_changed",
+      traceTag: "escalation_to_attending",
+      label: "Case escalated to attending",
+      status: "escalated",
+      payload: {
+        public: {
+          casePhase: "escalated_care",
+        },
+      },
+      provenanceRefs: ["trace:station_run_durable_clinical_event_001:300"],
+      durableStore: "database_source_of_truth",
+    };
+    const clinicalActionRecorded: DurableClinicalEventRecord = {
+      clinicalEventId: "event_006_clinical_action",
+      stationRunId: "station_run_durable_clinical_event_001",
+      actorId: "nurse_maria_alvarez_v1",
+      atSecond: 320,
+      eventKind: "clinical_action_recorded",
+      traceTag: "team_communication",
+      label: "Nurse repeats closed-loop instruction",
+      status: "observed",
+      payload: {
+        public: {
+          actionId: "closed_loop_communication_001",
+          communicationPattern: "closed_loop",
+        },
+      },
+      provenanceRefs: ["trace:station_run_durable_clinical_event_001:320"],
+      durableStore: "database_source_of_truth",
+    };
+
+    await repository.save(clinicalEventFinding);
+    await repository.save(orderRequested);
+    await repository.save(orderRequested);
+    await repository.save({
+      ...orderRequested,
+      status: "conflicting_duplicate_should_not_replace",
+      payload: {
+        public: {
+          orderId: "order_1_ecg_request",
+          requestedOrder: "12-lead ECG",
+          resultSummary: "This conflicting duplicate must not replace the original event.",
+        },
+        ...(orderRequested.payload.private
+          ? { private: orderRequested.payload.private }
+          : {}),
+      },
     });
+    await repository.save(orderCompleted);
+    await repository.save(checklistUpdated);
+    await repository.save(rubricProgressUpdated);
+    await repository.save(caseStatusChanged);
+    await repository.save(clinicalActionRecorded);
 
     await expect(repository.listByStationRunId("station_run_durable_clinical_event_001")).resolves.toEqual([
-      {
-        ...clinicalEventOrderRequested,
-        status: "completed",
-        payload: {
-          public: {
-            orderId: "order_1_ecg_request",
-            requestedOrder: "12-lead ECG",
-            resultSummary: "ST elevation present.",
-          },
-          ...(clinicalEventOrderRequested.payload.private
-            ? { private: clinicalEventOrderRequested.payload.private }
-            : {}),
-        },
-        provenanceRefs: [
-          "trace:station_run_durable_clinical_event_001:180",
-          "review:cardiology:ecg-overread",
-        ],
-      },
+      orderRequested,
       clinicalEventFinding,
+      orderCompleted,
+      checklistUpdated,
+      rubricProgressUpdated,
+      caseStatusChanged,
+      clinicalActionRecorded,
     ]);
     expect(durableClinicalEventPersistenceScope).toMatchObject({
       approvedProposal: "proposals/approved/proposal-durable-clinical-event-persistence.md",
       eventScope: "clinical_actions_orders_findings_checklists_rubric_and_case_progress",
+      idempotencyBehavior: "clinical_event_id_is_insert_once_status_history_uses_distinct_event_ids",
       actorTurnScopeChanged: false,
       redisRedkaIncluded: false,
       databaseOnly: true,

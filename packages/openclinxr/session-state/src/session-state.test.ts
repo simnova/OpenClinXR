@@ -258,7 +258,7 @@ describe("session state", () => {
       },
     }));
     stores.durable.saveClinicalEvent(clinicalEvent({
-      clinicalEventId: "event_001_ecg_order",
+      clinicalEventId: "event_001_ecg_order_requested",
       stationRunId,
       actorId: "nurse_maria_alvarez_v1",
       atSecond: 180,
@@ -278,10 +278,51 @@ describe("session state", () => {
       },
     }));
     stores.durable.saveClinicalEvent(clinicalEvent({
-      clinicalEventId: "event_001_ecg_order",
+      clinicalEventId: "event_001_ecg_order_requested",
       stationRunId,
       actorId: "nurse_maria_alvarez_v1",
       atSecond: 180,
+      eventKind: "order_status_changed",
+      traceTag: "ecg_request",
+      label: "12-lead ECG",
+      status: "requested",
+      payload: {
+        public: {
+          orderId: "order_1_ecg_request",
+          requestedOrder: "12-lead ECG",
+        },
+        private: {
+          hiddenFactRefs: ["fact:patient_robert_hayes_v1:1"],
+          serverOnlyNotes: ["Recent cocaine use remains hidden until elicited."],
+        },
+      },
+    }));
+    stores.durable.saveClinicalEvent(clinicalEvent({
+      clinicalEventId: "event_001_ecg_order_requested",
+      stationRunId,
+      actorId: "nurse_maria_alvarez_v1",
+      atSecond: 180,
+      eventKind: "order_status_changed",
+      traceTag: "ecg_request",
+      label: "12-lead ECG",
+      status: "conflicting_duplicate_should_not_replace",
+      payload: {
+        public: {
+          orderId: "order_1_ecg_request",
+          requestedOrder: "12-lead ECG",
+          resultSummary: "This conflicting duplicate must not replace the original event.",
+        },
+        private: {
+          hiddenFactRefs: ["fact:patient_robert_hayes_v1:1"],
+          serverOnlyNotes: ["Recent cocaine use remains hidden until elicited."],
+        },
+      },
+    }));
+    stores.durable.saveClinicalEvent(clinicalEvent({
+      clinicalEventId: "event_001_ecg_order_completed",
+      stationRunId,
+      actorId: "nurse_maria_alvarez_v1",
+      atSecond: 205,
       eventKind: "order_status_changed",
       traceTag: "ecg_request",
       label: "12-lead ECG",
@@ -371,13 +412,15 @@ describe("session state", () => {
     const replay = stores.durable.listClinicalEvents(stationRunId);
 
     expect(replay.map((event) => [event.clinicalEventId, event.eventKind, event.status])).toEqual([
-      ["event_001_ecg_order", "order_status_changed", "completed"],
+      ["event_001_ecg_order_requested", "order_status_changed", "requested"],
       ["event_002_finding_diaphoresis", "finding_recorded", undefined],
+      ["event_001_ecg_order_completed", "order_status_changed", "completed"],
       ["event_003_checklist_airway", "checklist_item_updated", "completed"],
       ["event_004_rubric_acs", "rubric_progress_updated", "met"],
       ["event_005_case_escalation", "case_status_changed", "escalated"],
       ["event_006_clinical_action", "clinical_action_recorded", "observed"],
     ]);
+    expect(replay.filter((event) => event.clinicalEventId === "event_001_ecg_order_requested")).toHaveLength(1);
     expect(new Set(replay.map((event) => event.eventKind))).toEqual(new Set<DurableClinicalEventKind>([
       "clinical_action_recorded",
       "order_status_changed",
@@ -388,14 +431,14 @@ describe("session state", () => {
     ]));
     expect(stores.durable.listConversationTurns(stationRunId)).toEqual([]);
 
-    const firstEvent = replay[0];
-    if (!firstEvent) {
-      throw new Error("Expected a first clinical event for projection");
+    const completedOrderEvent = replay.find((event) => event.clinicalEventId === "event_001_ecg_order_completed");
+    if (!completedOrderEvent) {
+      throw new Error("Expected completed order clinical event for projection");
     }
-    const projection = projectDurableClinicalEventForReview(firstEvent);
+    const projection = projectDurableClinicalEventForReview(completedOrderEvent);
 
     expect(projection).toMatchObject({
-      clinicalEventId: "event_001_ecg_order",
+      clinicalEventId: "event_001_ecg_order_completed",
       stationRunId,
       eventKind: "order_status_changed",
       payload: {

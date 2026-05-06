@@ -45,6 +45,7 @@ export const durableActorTurnPersistenceScope = {
 export const durableClinicalEventPersistenceScope = {
   approvedProposal: "proposals/approved/proposal-durable-clinical-event-persistence.md",
   eventScope: "clinical_actions_orders_findings_checklists_rubric_and_case_progress",
+  idempotencyBehavior: "clinical_event_id_is_insert_once_status_history_uses_distinct_event_ids",
   actorTurnScopeChanged: false,
   redisRedkaIncluded: false,
   databaseOnly: true,
@@ -104,7 +105,7 @@ export class MongoDurableClinicalEventRepository {
     const storedRecord = cloneClinicalEventForMongo(record);
     await this.collection.updateOne(
       { stationRunId: storedRecord.stationRunId, clinicalEventId: storedRecord.clinicalEventId },
-      { $set: storedRecord },
+      { $setOnInsert: storedRecord },
       { upsert: true },
     );
   }
