@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-05T22:32:39.465Z",
+  "generatedAt": "2026-05-06T17:03:23.936Z",
   "status": "passed",
   "policy": {
     "cloudApisUsed": false,
@@ -26,6 +26,8 @@
     "allCapabilitiesObserved": true,
     "allJobsSucceeded": true,
     "allManifestsObserved": true,
+    "allArtifactFilesMaterialized": false,
+    "missingArtifactPathCount": 10,
     "allLicenseProvenanceObserved": true,
     "zeroSpendObserved": true,
     "noExternalNetworkObserved": true,
@@ -47,6 +49,11 @@
         "source"
       ],
       "artifactPaths": [
+        ".openclinxr/asset-generation/asset-capability-job-001/character-generation-manifest.json",
+        ".openclinxr/asset-generation/asset-capability-job-001/character-generation-source.asset.json"
+      ],
+      "allArtifactFilesMaterialized": false,
+      "missingArtifactPaths": [
         ".openclinxr/asset-generation/asset-capability-job-001/character-generation-manifest.json",
         ".openclinxr/asset-generation/asset-capability-job-001/character-generation-source.asset.json"
       ],
@@ -75,6 +82,11 @@
         ".openclinxr/asset-generation/asset-capability-job-002/medical-equipment-generation-manifest.json",
         ".openclinxr/asset-generation/asset-capability-job-002/medical-equipment-generation-source.asset.json"
       ],
+      "allArtifactFilesMaterialized": false,
+      "missingArtifactPaths": [
+        ".openclinxr/asset-generation/asset-capability-job-002/medical-equipment-generation-manifest.json",
+        ".openclinxr/asset-generation/asset-capability-job-002/medical-equipment-generation-source.asset.json"
+      ],
       "manifestObserved": true,
       "licenseProvenanceObserved": true,
       "zeroSpendObserved": true,
@@ -97,6 +109,11 @@
         "source"
       ],
       "artifactPaths": [
+        ".openclinxr/asset-generation/asset-capability-job-003/voice-asset-generation-manifest.json",
+        ".openclinxr/asset-generation/asset-capability-job-003/voice-asset-generation-source.asset.json"
+      ],
+      "allArtifactFilesMaterialized": false,
+      "missingArtifactPaths": [
         ".openclinxr/asset-generation/asset-capability-job-003/voice-asset-generation-manifest.json",
         ".openclinxr/asset-generation/asset-capability-job-003/voice-asset-generation-source.asset.json"
       ],
@@ -125,6 +142,11 @@
         ".openclinxr/asset-generation/asset-capability-job-004/animation-generation-manifest.json",
         ".openclinxr/asset-generation/asset-capability-job-004/animation-generation-source.asset.json"
       ],
+      "allArtifactFilesMaterialized": false,
+      "missingArtifactPaths": [
+        ".openclinxr/asset-generation/asset-capability-job-004/animation-generation-manifest.json",
+        ".openclinxr/asset-generation/asset-capability-job-004/animation-generation-source.asset.json"
+      ],
       "manifestObserved": true,
       "licenseProvenanceObserved": true,
       "zeroSpendObserved": true,
@@ -150,6 +172,11 @@
         ".openclinxr/asset-generation/asset-capability-job-005/asset-bake-manifest.json",
         ".openclinxr/asset-generation/asset-capability-job-005/asset-bake-source.asset.json"
       ],
+      "allArtifactFilesMaterialized": false,
+      "missingArtifactPaths": [
+        ".openclinxr/asset-generation/asset-capability-job-005/asset-bake-manifest.json",
+        ".openclinxr/asset-generation/asset-capability-job-005/asset-bake-source.asset.json"
+      ],
       "manifestObserved": true,
       "licenseProvenanceObserved": true,
       "zeroSpendObserved": true,
@@ -164,6 +191,7 @@
     "blockers": [],
     "caveats": [
       "Deterministic asset capability jobs prove routing, policy, provenance, and artifact-manifest contracts only; they are not production clinical assets.",
+      "Declared deterministic artifact paths are not materialized in the committed workspace and remain contract-only output locations.",
       "No cloud APIs, paid APIs, external network calls, or production artifact claims are made by this report."
     ]
   }

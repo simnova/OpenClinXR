@@ -57,6 +57,7 @@ Current zero-spend deterministic capabilities routed through this endpoint imple
 Worker placement rule:
 
 - The default contract stays deterministic and zero-spend, and Python/native workers remain behind the main API tunnel/facade and stay separate from interactive provider swaps.
+- `asset-capability-job-evidence` now records both declared worker artifact paths and whether those files are materialized in the local workspace. A deterministic contract pass can keep `readyForProductionAssets: false` while showing `allArtifactFilesMaterialized: false`, so aggregate gates do not mistake contract-only output locations for artifact-backed production assets.
 
 ## Asset Manifest
 

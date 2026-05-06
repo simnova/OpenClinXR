@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import {
   AssetGenerationCapabilityFacade,
@@ -19,6 +20,8 @@ type AssetCapabilityJobEvidence = {
   worker: AssetGenerationJobRecord["worker"];
   artifactKinds: AssetGenerationArtifactKind[];
   artifactPaths: string[];
+  allArtifactFilesMaterialized: boolean;
+  missingArtifactPaths: string[];
   manifestObserved: boolean;
   licenseProvenanceObserved: boolean;
   zeroSpendObserved: boolean;
@@ -45,6 +48,8 @@ export type AssetCapabilityJobEvidenceReport = {
     allCapabilitiesObserved: boolean;
     allJobsSucceeded: boolean;
     allManifestsObserved: boolean;
+    allArtifactFilesMaterialized: boolean;
+    missingArtifactPathCount: number;
     allLicenseProvenanceObserved: boolean;
     zeroSpendObserved: boolean;
     noExternalNetworkObserved: boolean;
@@ -152,6 +157,8 @@ export async function buildAssetCapabilityJobEvidenceReport(input: {
   const allCapabilitiesObserved = requiredCapabilityIds.every((capabilityId) => observedCapabilityIds.includes(capabilityId));
   const allJobsSucceeded = jobs.every((job) => job.status === "succeeded");
   const allManifestsObserved = jobs.every((job) => job.manifestObserved);
+  const allArtifactFilesMaterialized = jobs.every((job) => job.allArtifactFilesMaterialized);
+  const missingArtifactPathCount = jobs.reduce((total, job) => total + job.missingArtifactPaths.length, 0);
   const allLicenseProvenanceObserved = jobs.every((job) => job.licenseProvenanceObserved);
   const zeroSpendObserved = jobs.every((job) => job.zeroSpendObserved);
   const noExternalNetworkObserved = jobs.every((job) => job.noExternalNetworkObserved);
@@ -185,6 +192,8 @@ export async function buildAssetCapabilityJobEvidenceReport(input: {
       allCapabilitiesObserved,
       allJobsSucceeded,
       allManifestsObserved,
+      allArtifactFilesMaterialized,
+      missingArtifactPathCount,
       allLicenseProvenanceObserved,
       zeroSpendObserved,
       noExternalNetworkObserved,
@@ -197,6 +206,9 @@ export async function buildAssetCapabilityJobEvidenceReport(input: {
       blockers,
       caveats: [
         "Deterministic asset capability jobs prove routing, policy, provenance, and artifact-manifest contracts only; they are not production clinical assets.",
+        allArtifactFilesMaterialized
+          ? "Declared deterministic artifact paths are materialized in the local workspace; they remain fixture artifacts, not production assets."
+          : "Declared deterministic artifact paths are not materialized in the committed workspace and remain contract-only output locations.",
         "No cloud APIs, paid APIs, external network calls, or production artifact claims are made by this report.",
       ],
     },
@@ -227,6 +239,8 @@ export function validateAssetCapabilityJobEvidenceReport(value: unknown): Valida
     requireBoolean(value.summary.allCapabilitiesObserved, "/summary/allCapabilitiesObserved", errors);
     requireBoolean(value.summary.allJobsSucceeded, "/summary/allJobsSucceeded", errors);
     requireBoolean(value.summary.allManifestsObserved, "/summary/allManifestsObserved", errors);
+    requireBoolean(value.summary.allArtifactFilesMaterialized, "/summary/allArtifactFilesMaterialized", errors);
+    requireNumber(value.summary.missingArtifactPathCount, "/summary/missingArtifactPathCount", errors);
     requireBoolean(value.summary.allLicenseProvenanceObserved, "/summary/allLicenseProvenanceObserved", errors);
     requireBoolean(value.summary.zeroSpendObserved, "/summary/zeroSpendObserved", errors);
     requireBoolean(value.summary.noExternalNetworkObserved, "/summary/noExternalNetworkObserved", errors);
@@ -254,6 +268,9 @@ function toJobEvidence(record: AssetGenerationJobRecord): AssetCapabilityJobEvid
   const licenseProvenanceObserved = Boolean(record.provenance?.license);
   const zeroSpendObserved = record.provenance?.spendCents === 0;
   const noExternalNetworkObserved = record.provenance?.externalNetworkUsed === false;
+  const artifactPaths = record.artifacts.map((artifact) => artifact.path);
+  const missingArtifactPaths = artifactPaths.filter((artifactPath) => !existsSync(artifactPath));
+  const allArtifactFilesMaterialized = missingArtifactPaths.length === 0;
   const blockers = [
     record.status === "succeeded" ? undefined : "job_not_succeeded",
     manifestObserved ? undefined : "manifest_missing",
@@ -268,7 +285,9 @@ function toJobEvidence(record: AssetGenerationJobRecord): AssetCapabilityJobEvid
     status: record.status,
     worker: record.worker,
     artifactKinds: record.artifacts.map((artifact) => artifact.kind),
-    artifactPaths: record.artifacts.map((artifact) => artifact.path),
+    artifactPaths,
+    allArtifactFilesMaterialized,
+    missingArtifactPaths,
     manifestObserved,
     licenseProvenanceObserved,
     zeroSpendObserved,
@@ -310,6 +329,23 @@ function validateConsistency(value: Record<string, unknown>, errors: string[]): 
   }
   if (summary.allManifestsObserved !== jobs.every((job) => job.manifestObserved === true)) {
     errors.push("/summary/allManifestsObserved must match job manifest evidence");
+  }
+  if (summary.allArtifactFilesMaterialized !== jobs.every((job) => job.allArtifactFilesMaterialized === true)) {
+    errors.push("/summary/allArtifactFilesMaterialized must match job artifact file evidence");
+  }
+  const missingArtifactPathCount = jobs.reduce((total, job) => total + stringArray(job.missingArtifactPaths).length, 0);
+  const missingArtifactPathCountOnDisk = jobs.reduce(
+    (total, job) => total + stringArray(job.artifactPaths).filter((artifactPath) => !existsSync(artifactPath)).length,
+    0,
+  );
+  if (summary.missingArtifactPathCount !== missingArtifactPathCount) {
+    errors.push("/summary/missingArtifactPathCount must match job missing artifact paths");
+  }
+  if (summary.allArtifactFilesMaterialized === true && missingArtifactPathCount > 0) {
+    errors.push("/summary/allArtifactFilesMaterialized cannot be true while artifact files are missing");
+  }
+  if (summary.allArtifactFilesMaterialized === true && missingArtifactPathCountOnDisk > 0) {
+    errors.push("/summary/allArtifactFilesMaterialized cannot be true while artifact files are missing");
   }
   if (summary.allLicenseProvenanceObserved !== jobs.every((job) => job.licenseProvenanceObserved === true)) {
     errors.push("/summary/allLicenseProvenanceObserved must match job license provenance evidence");
@@ -380,6 +416,9 @@ function validateJobEvidence(value: unknown, pathName: string, errors: string[])
   }
   requireStringArray(value.artifactKinds, `${pathName}/artifactKinds`, errors);
   requireStringArray(value.artifactPaths, `${pathName}/artifactPaths`, errors);
+  requireBoolean(value.allArtifactFilesMaterialized, `${pathName}/allArtifactFilesMaterialized`, errors);
+  requireStringArray(value.missingArtifactPaths, `${pathName}/missingArtifactPaths`, errors);
+  validateArtifactFileEvidence(value, pathName, errors);
   requireBoolean(value.manifestObserved, `${pathName}/manifestObserved`, errors);
   requireBoolean(value.licenseProvenanceObserved, `${pathName}/licenseProvenanceObserved`, errors);
   requireBoolean(value.zeroSpendObserved, `${pathName}/zeroSpendObserved`, errors);
@@ -423,6 +462,36 @@ function requireStringArray(value: unknown, pathName: string, errors: string[]):
   });
 }
 
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((entry): entry is string => typeof entry === "string")
+    : [];
+}
+
+function validateArtifactFileEvidence(value: Record<string, unknown>, pathName: string, errors: string[]): void {
+  const artifactPaths = stringArray(value.artifactPaths);
+  const missingArtifactPaths = stringArray(value.missingArtifactPaths);
+
+  for (const missingPath of missingArtifactPaths) {
+    if (!artifactPaths.includes(missingPath)) {
+      errors.push(`${pathName}/missingArtifactPaths must only include declared artifact paths`);
+    }
+  }
+  if (value.allArtifactFilesMaterialized === true && missingArtifactPaths.length > 0) {
+    errors.push(`${pathName}/allArtifactFilesMaterialized cannot be true while missingArtifactPaths is non-empty`);
+  }
+  if (value.allArtifactFilesMaterialized === false && missingArtifactPaths.length === 0) {
+    errors.push(`${pathName}/allArtifactFilesMaterialized cannot be false without missingArtifactPaths`);
+  }
+  if (value.allArtifactFilesMaterialized === true) {
+    for (const artifactPath of artifactPaths) {
+      if (!existsSync(artifactPath)) {
+        errors.push(`${pathName}/allArtifactFilesMaterialized cannot be true while artifact path is missing: ${artifactPath}`);
+      }
+    }
+  }
+}
+
 function requireCapabilityIdArray(value: unknown, pathName: string, errors: string[]): void {
   if (!Array.isArray(value)) {
     errors.push(`${pathName} must be array`);
@@ -435,6 +504,12 @@ function requireCapabilityIdArray(value: unknown, pathName: string, errors: stri
 function requireBoolean(value: unknown, pathName: string, errors: string[]): void {
   if (typeof value !== "boolean") {
     errors.push(`${pathName} must be boolean`);
+  }
+}
+
+function requireNumber(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    errors.push(`${pathName} must be finite number`);
   }
 }
 

@@ -4694,6 +4694,8 @@ function passedAssetCapabilityJobEvidence(
         allCapabilitiesObserved: true,
         allJobsSucceeded: true,
         allManifestsObserved: true,
+        allArtifactFilesMaterialized: false,
+        missingArtifactPathCount: capabilityIds.length * 2,
         allLicenseProvenanceObserved: true,
         zeroSpendObserved: true,
         noExternalNetworkObserved: true,
@@ -4711,6 +4713,11 @@ function passedAssetCapabilityJobEvidence(
         },
         artifactKinds: ["manifest", "source"],
         artifactPaths: [
+          `.openclinxr/asset-generation/asset-capability-job-${String(index + 1).padStart(3, "0")}/${capabilityId}-manifest.json`,
+          `.openclinxr/asset-generation/asset-capability-job-${String(index + 1).padStart(3, "0")}/${capabilityId}-source.asset.json`,
+        ],
+        allArtifactFilesMaterialized: false,
+        missingArtifactPaths: [
           `.openclinxr/asset-generation/asset-capability-job-${String(index + 1).padStart(3, "0")}/${capabilityId}-manifest.json`,
           `.openclinxr/asset-generation/asset-capability-job-${String(index + 1).padStart(3, "0")}/${capabilityId}-source.asset.json`,
         ],

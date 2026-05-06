@@ -53,6 +53,8 @@ describe("asset capability job evidence report", () => {
       allCapabilitiesObserved: true,
       allJobsSucceeded: true,
       allManifestsObserved: true,
+      allArtifactFilesMaterialized: false,
+      missingArtifactPathCount: 10,
       allLicenseProvenanceObserved: true,
       zeroSpendObserved: true,
       noExternalNetworkObserved: true,
@@ -71,6 +73,11 @@ describe("asset capability job evidence report", () => {
       capabilityId: "character-generation",
       status: "succeeded",
       artifactKinds: ["manifest", "source"],
+      allArtifactFilesMaterialized: false,
+      missingArtifactPaths: [
+        ".openclinxr/asset-generation/asset-capability-job-001/character-generation-manifest.json",
+        ".openclinxr/asset-generation/asset-capability-job-001/character-generation-source.asset.json",
+      ],
       manifestObserved: true,
       licenseProvenanceObserved: true,
       zeroSpendObserved: true,
@@ -84,6 +91,7 @@ describe("asset capability job evidence report", () => {
       blockers: [],
       caveats: [
         "Deterministic asset capability jobs prove routing, policy, provenance, and artifact-manifest contracts only; they are not production clinical assets.",
+        "Declared deterministic artifact paths are not materialized in the committed workspace and remain contract-only output locations.",
         "No cloud APIs, paid APIs, external network calls, or production artifact claims are made by this report.",
       ],
     });
@@ -112,6 +120,28 @@ describe("asset capability job evidence report", () => {
         "/summary/requiredCapabilityIds must include capability id medical-equipment-generation",
         "/jobs must not repeat capability id character-generation",
         "/jobs must include capability id medical-equipment-generation",
+      ]),
+    });
+  });
+
+  it("rejects artifact materialization claims when declared paths are not present", async () => {
+    const report = await buildAssetCapabilityJobEvidenceReport({
+      generatedAt: "2026-05-04T21:30:00.000Z",
+    });
+    const invalid = structuredClone(report);
+
+    invalid.summary.allArtifactFilesMaterialized = true;
+    invalid.summary.missingArtifactPathCount = 0;
+    for (const job of invalid.jobs) {
+      job.allArtifactFilesMaterialized = true;
+      job.missingArtifactPaths = [];
+    }
+
+    expect(validateAssetCapabilityJobEvidenceReport(invalid)).toEqual({
+      ok: false,
+      errors: expect.arrayContaining([
+        "/jobs/0/allArtifactFilesMaterialized cannot be true while artifact path is missing: .openclinxr/asset-generation/asset-capability-job-001/character-generation-manifest.json",
+        "/summary/allArtifactFilesMaterialized cannot be true while artifact files are missing",
       ]),
     });
   });
