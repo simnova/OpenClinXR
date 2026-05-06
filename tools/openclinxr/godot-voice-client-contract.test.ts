@@ -84,4 +84,16 @@ describe("Godot Quest voice client contract", () => {
     expect(brief).toContain("It does not prove:");
     expect(brief).toContain("End-to-end latency on the headset");
   });
+
+  it("documents Godot as a deletable voice sidecar rather than the selected primary XR client", () => {
+    const note = readFileSync(join(workspaceRoot, "godot-usage-temporary-note.md"), "utf8");
+
+    expect(note).toContain("temporary, deletable");
+    expect(note).toContain("Godot is not currently selected as the long-term primary OpenClinXR client");
+    expect(note).toContain("The WebXR/IWSDK browser app remains the main XR scenario UI path");
+    expect(note).toContain("Godot does not replace:");
+    expect(note).toContain("apps/ui-xr");
+    expect(note).toContain("apps/api");
+    expect(note).toContain("Production readiness without a follow-up proposal");
+  });
 });
