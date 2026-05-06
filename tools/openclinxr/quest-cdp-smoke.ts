@@ -798,6 +798,11 @@ export function manualEvidenceHarvestExpression(input: {
       const technicalGaps = Array.isArray(captureSummary?.technicalGaps)
         ? captureSummary.technicalGaps.filter((gap) => typeof gap === "string")
         : [];
+      const locomotionProbeReasons = Array.isArray(captureSummary?.locomotionProbeSummary?.reasonCodes)
+        ? captureSummary.locomotionProbeSummary.reasonCodes.filter((reason) =>
+          typeof reason === "string" && reason !== "locomotion_observed"
+        )
+        : [];
       const immersiveSessionStarted = stationEvidence?.immersiveSessionStarted === true;
       const frameStatsFresh = captureSummary?.frameStatsFresh === true;
       const immersiveFrameReady = typeof immersiveFramesObserved === "number" && immersiveFramesObserved >= ${input.minImmersiveFrames};
@@ -823,6 +828,7 @@ export function manualEvidenceHarvestExpression(input: {
         hasLocomotionEvidence ? undefined : "locomotion_evidence_missing",
         technicalGaps.length > 0 ? "capture_summary_technical_gaps_present" : undefined,
         ...technicalGaps.map((gap) => "capture_summary_technical_gap:" + gap),
+        ...locomotionProbeReasons.map((reason) => "capture_summary_locomotion_probe:" + reason),
       ].filter((blocker) => typeof blocker === "string");
       return {
         ready: blockers.length === 0,
