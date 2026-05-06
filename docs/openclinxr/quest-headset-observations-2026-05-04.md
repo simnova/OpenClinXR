@@ -38,13 +38,13 @@ Patrick's 2026-05-06 worn-headset demo observation adds:
 - Added and later approved [proposal-webxr-mixed-reality-mode.md](../../proposals/approved/proposal-webxr-mixed-reality-mode.md) so passthrough/MR is handled as an explicit parallel sidecar track instead of silently conflating it with full VR.
 - Added a DOM trace-select latency proxy in both XR shells and the Quest CDP smoke harness so automated runs can prove trace latency evidence is wired without pretending to measure physical controller latency.
 - Added an in-Full-VR `select` path that advances the next missing trace action from controller trigger input as `xr_controller_select`, plus a deliberate right-hand stable-pinch path that records the Trace row as `xr_hand_select` for hand-tracking-only runs.
+- After the 2026-05-06 no-locomotion demo, replaced the `apps/ui-xr` hand gesture dependency on a non-standard `hand.inputState.pinching` flag with thumb-tip/index-tip joint-distance pinch inference so hand-tracking-only locomotion can actually arm when Quest exposes tracked hand joints.
 
 ## Remaining Gaps
 
 - Mixed-reality/passthrough mode is approved for a parallel sidecar track, but is not implemented or validated yet.
 - Primitive hands have now been observed as non-realistic; articulated/skinned hand meshes remain future work.
-- Experimental thumbstick locomotion has not produced a manual headset locomotion event yet; defer the next human headset validation until instrumentation improvements are ready.
-- The 2026-05-06 manual demo reinforces locomotion as an active usability blocker even when visual comfort is acceptable.
+- Experimental locomotion still needs a fresh worn-headset validation pass after the thumb-tip/index-tip pinch fix; the 2026-05-06 manual demo reinforced locomotion as an active usability blocker even when visual comfort was acceptable.
 - Real headset select latency is not yet measured in the manual performance report; the automated DOM-click proxy is supporting evidence only, and the new `xr_controller_select` or `xr_hand_select` Trace row still needs a physical Quest confirmation.
 - The updated in-scene text path was readable after manual Full VR entry; the remaining worn-headset rerun should target trace, frame, locomotion, latency, and hand-fidelity evidence.
 

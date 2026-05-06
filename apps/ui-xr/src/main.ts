@@ -105,9 +105,6 @@ type XrHandJointGroup = Group & {
 
 type XrHandGroup = Group & {
   joints?: Record<string, XrHandJointGroup | undefined>;
-  inputState?: {
-    pinching?: boolean;
-  };
   userData: {
     openClinXrHandedness?: string;
   };
@@ -1154,6 +1151,7 @@ const handGestureTurnCooldownMs = 450;
 const handSelectDwellMs = 650;
 const handSelectMovementToleranceMeters = 0.025;
 const handSelectCooldownMs = 850;
+const handPinchDistanceThresholdMeters = 0.035;
 
 function createKeyboardLocomotion(): KeyboardLocomotionState {
   const state = { forward: 0, strafe: 0, turn: 0 };
@@ -1332,7 +1330,7 @@ function readXrHandGestureLocomotion(input: {
       handInputsObserved += 1;
     }
     const handedness = handednessForHand(hand, index);
-    if (hand.inputState?.pinching === true) {
+    if (isXrHandPinching(hand)) {
       if (handedness === "right") {
         rightPinch = true;
       } else {
@@ -1384,17 +1382,20 @@ function readHandGestureVector(input: {
 } {
   const handedness = handednessForHand(input.hand, input.index);
   const state = input.gestureState.hands[handedness];
-  if (input.hand.inputState?.pinching !== true) {
+
+  const wrist = input.hand.joints?.wrist;
+  const indexTip = input.hand.joints?.["index-finger-tip"];
+  const thumbTip = input.hand.joints?.["thumb-tip"];
+  if (!wrist?.visible || !indexTip?.visible || !thumbTip?.visible) {
+    resetHandGestureHandState(state);
+    return { forward: 0, strafe: 0, turn: 0, armed: false, dwellMs: 0, blockedReason: "missing_joints" };
+  }
+
+  if (!isXrHandPinching(input.hand)) {
     resetHandGestureHandState(state);
     return { forward: 0, strafe: 0, turn: 0, armed: false, dwellMs: 0, blockedReason: "not_pinching" };
   }
 
-  const wrist = input.hand.joints?.wrist;
-  const indexTip = input.hand.joints?.["index-finger-tip"];
-  if (!wrist?.visible || !indexTip?.visible) {
-    resetHandGestureHandState(state);
-    return { forward: 0, strafe: 0, turn: 0, armed: false, dwellMs: 0, blockedReason: "missing_joints" };
-  }
   if (input.otherLocomotionSourceActive) {
     resetHandGestureHandState(state);
     return {
@@ -1463,7 +1464,7 @@ function maybeCompleteTraceActionFromHandSelect(input: {
   onSelect: () => boolean;
 }): XrHandSelectStateEvidence {
   const hand = input.renderer.xr.getHand(1) as XrHandGroup;
-  const rightPinch = hand.inputState?.pinching === true;
+  const rightPinch = isXrHandPinching(hand);
   if (!input.isFullVrPresenting()) {
     resetHandSelectState(input.handSelectState);
     return handSelectEvidence(input.handSelectState, input.now, {
@@ -1494,7 +1495,8 @@ function maybeCompleteTraceActionFromHandSelect(input: {
 
   const wrist = hand.joints?.wrist;
   const indexTip = hand.joints?.["index-finger-tip"];
-  if (!wrist?.visible || !indexTip?.visible) {
+  const thumbTip = hand.joints?.["thumb-tip"];
+  if (!wrist?.visible || !indexTip?.visible || !thumbTip?.visible) {
     resetHandSelectState(input.handSelectState);
     return handSelectEvidence(input.handSelectState, input.now, {
       status: "blocked",
@@ -1609,6 +1611,15 @@ function handednessForHand(hand: XrHandGroup, index: number): "left" | "right" {
 
 function isTrackedHandVisible(hand: XrHandGroup): boolean {
   return Boolean(hand.visible || hand.joints?.wrist?.visible || hand.joints?.["index-finger-tip"]?.visible);
+}
+
+function isXrHandPinching(hand: XrHandGroup): boolean {
+  const indexTip = hand.joints?.["index-finger-tip"];
+  const thumbTip = hand.joints?.["thumb-tip"];
+  if (!indexTip?.visible || !thumbTip?.visible) {
+    return false;
+  }
+  return indexTip.position.distanceTo(thumbTip.position) <= handPinchDistanceThresholdMeters;
 }
 
 function readXrGamepadLocomotion(session: XrSession | undefined): {
