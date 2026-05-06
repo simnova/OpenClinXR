@@ -5,7 +5,7 @@
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T18:13:48.812Z",
-      "age_hours": 39,
+      "age_hours": 42,
       "max_age_hours": 24,
       "status": "stale",
       "blockers": [
@@ -16,7 +16,7 @@
       "evidence_id": "local_runtime_probe",
       "file": "docs/openclinxr/local-runtime-probe-2026-05-05.json",
       "generated_at": "2026-05-05T16:48:27.241Z",
-      "age_hours": 16,
+      "age_hours": 20,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -25,7 +25,7 @@
       "evidence_id": "gltf_pipeline_smoke",
       "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
       "generated_at": "2026-05-06T00:10:04.220Z",
-      "age_hours": 9,
+      "age_hours": 12,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -34,7 +34,7 @@
       "evidence_id": "blender_asset_bake_smoke",
       "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
       "generated_at": "2026-05-06T08:19:07.305Z",
-      "age_hours": 1,
+      "age_hours": 4,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -43,7 +43,7 @@
       "evidence_id": "asset_capability_job_evidence",
       "file": "docs/openclinxr/asset-capability-job-evidence-2026-05-05.json",
       "generated_at": "2026-05-05T22:32:39.465Z",
-      "age_hours": 10,
+      "age_hours": 14,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -52,7 +52,7 @@
       "evidence_id": "asset_production_readiness_benchmark",
       "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T08:19:18.833Z",
-      "age_hours": 1,
+      "age_hours": 4,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -61,7 +61,7 @@
       "evidence_id": "local_provider_benchmark",
       "file": "docs/openclinxr/local-provider-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T19:05:08.997Z",
-      "age_hours": 14,
+      "age_hours": 17,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -70,7 +70,7 @@
       "evidence_id": "local_model_runtime_benchmark",
       "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T20:20:19.936Z",
-      "age_hours": 13,
+      "age_hours": 16,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -79,7 +79,7 @@
       "evidence_id": "local_model_quality_benchmark",
       "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T06:57:35.610Z",
-      "age_hours": 2,
+      "age_hours": 5,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -88,7 +88,7 @@
       "evidence_id": "local_voice_runtime_benchmark",
       "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T06:20:53Z",
-      "age_hours": 3,
+      "age_hours": 6,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -97,7 +97,7 @@
       "evidence_id": "local_voice_live_dialog_benchmark",
       "file": "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T09:31:39.392Z",
-      "age_hours": 0,
+      "age_hours": 3,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -106,7 +106,16 @@
       "evidence_id": "local_realtime_voice_model_cache_evidence",
       "file": "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-06.json",
       "generated_at": "2026-05-06T09:31:28.074Z",
-      "age_hours": 0,
+      "age_hours": 3,
+      "max_age_hours": 24,
+      "status": "fresh",
+      "blockers": []
+    },
+    {
+      "evidence_id": "blueprint_voice_simulation_spike",
+      "file": "docs/openclinxr/blueprint-voice-simulation-spike-2026-05-05.json",
+      "generated_at": "2026-05-06T03:18:07.296Z",
+      "age_hours": 9,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -126,7 +135,7 @@
       "evidence_id": "godot_project_import_check",
       "file": ".agent-factory/godot-project-import-check.json",
       "generated_at": "2026-05-06T05:24:31.991Z",
-      "age_hours": 4,
+      "age_hours": 7,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -135,7 +144,7 @@
       "evidence_id": "realtime_voice_transport_spike",
       "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-06.json",
       "generated_at": "2026-05-06T08:39:43.771Z",
-      "age_hours": 0,
+      "age_hours": 4,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -144,7 +153,7 @@
       "evidence_id": "api_python_backend_runtime_smoke",
       "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T15:21:12.576Z",
-      "age_hours": 18,
+      "age_hours": 21,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -153,7 +162,7 @@
       "evidence_id": "api_bun_websocket_runtime_smoke",
       "file": "docs/openclinxr/api-bun-websocket-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T23:27:29.751Z",
-      "age_hours": 10,
+      "age_hours": 13,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -162,7 +171,7 @@
       "evidence_id": "api_bun_python_proxy_runtime_smoke",
       "file": "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-06T01:52:40.346Z",
-      "age_hours": 7,
+      "age_hours": 11,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -170,7 +179,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T09:31:48.070Z",
+      "generated_at": "2026-05-06T12:55:16.156Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -1025,6 +1034,47 @@
       "real_moshi_or_qwen3_model_cache_missing"
     ]
   },
+  "blueprint_voice_simulation_spike": {
+    "file": "docs/openclinxr/blueprint-voice-simulation-spike-2026-05-05.json",
+    "generated_at": "2026-05-06T03:18:07.296Z",
+    "status": "mock_facade_exercised",
+    "claim_scope": {
+      "tier0_blueprint_compiler_passed": true,
+      "mock_voice_facade_exercised": true,
+      "tier1_transport_loop_passed": true,
+      "tier2_local_inference_observed": false,
+      "tier3_webxr_observed": false,
+      "ready_for_production": false
+    },
+    "plan_summary": {
+      "blueprint_id": "blueprint_openclinxr_step2cs_style_seed_v1",
+      "scenario_id": "ed_chest_pain_priority_v1",
+      "actor_count": 3,
+      "voice_slot_count": 3,
+      "trigger_count": 1,
+      "prewarm_artifact_count": 8
+    },
+    "interaction_evidence": {
+      "runtime_routing_exercised": true,
+      "multi_character_interruption_exercised": true,
+      "transport_linked_existing_evidence": true,
+      "bun_python_proxy_passed": true,
+      "raw_audio_stored": false,
+      "hidden_facts_exposed_to_learner": false
+    },
+    "blockers": [
+      "clinical_voice_safety_controls_not_validated_with_real_model",
+      "first_response_improvement_not_measured",
+      "not_ready_for_production",
+      "python_backend_runtime_not_executed_for_this_report",
+      "quest_microphone_and_playback_not_measured",
+      "real_local_full_duplex_model_not_executed",
+      "tier1_transport_linked_but_not_executed_by_blueprint_report",
+      "tier2_local_inference_not_observed",
+      "tier3_webxr_not_observed",
+      "webxr_iwsdk_client_not_executed_for_this_report"
+    ]
+  },
   "godot_project_import_check": {
     "file": ".agent-factory/godot-project-import-check.json",
     "generated_at": "2026-05-06T05:24:31.991Z",
@@ -1425,7 +1475,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T09:31:48.070Z",
+    "generated_at": "2026-05-06T12:55:16.156Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -1643,6 +1693,15 @@
         "asset_production_source_smokes_passed",
         "asset_production_texture_compression_budget_observed",
         "battery_drop_recorded_under_20",
+        "blueprint_voice_bun_python_proxy_passed",
+        "blueprint_voice_mock_facade_exercised",
+        "blueprint_voice_multi_character_interruption_exercised",
+        "blueprint_voice_prewarm_executed",
+        "blueprint_voice_runtime_routing_exercised",
+        "blueprint_voice_simulation_report_present",
+        "blueprint_voice_tier0_compiler_passed",
+        "blueprint_voice_tier1_transport_loop_passed",
+        "blueprint_voice_transport_linked_existing_evidence",
         "experience_mode_full_vr_recorded",
         "extra_browser_windows_closed",
         "foreground_page_confirmed",
@@ -2089,6 +2148,15 @@
       "evidence_id": "evidence-leadership-0009-003",
       "ready_to_resolve": false,
       "satisfied_conditions": [
+        "blueprint_voice_bun_python_proxy_passed",
+        "blueprint_voice_mock_facade_exercised",
+        "blueprint_voice_multi_character_interruption_exercised",
+        "blueprint_voice_prewarm_executed",
+        "blueprint_voice_runtime_routing_exercised",
+        "blueprint_voice_simulation_report_present",
+        "blueprint_voice_tier0_compiler_passed",
+        "blueprint_voice_tier1_transport_loop_passed",
+        "blueprint_voice_transport_linked_existing_evidence",
         "local_provider_mock_benchmarks_passed",
         "local_voice_bun_python_proxy_runtime_smoke_passed",
         "local_voice_bun_websocket_runtime_smoke_passed",
@@ -2104,6 +2172,16 @@
         "local_voice_realtime_transport_contract_observed"
       ],
       "blockers": [
+        "local_voice_live_dialog:blueprint_voice_simulation:clinical_voice_safety_controls_not_validated_with_real_model",
+        "local_voice_live_dialog:blueprint_voice_simulation:first_response_improvement_not_measured",
+        "local_voice_live_dialog:blueprint_voice_simulation:not_ready_for_production",
+        "local_voice_live_dialog:blueprint_voice_simulation:python_backend_runtime_not_executed_for_this_report",
+        "local_voice_live_dialog:blueprint_voice_simulation:quest_microphone_and_playback_not_measured",
+        "local_voice_live_dialog:blueprint_voice_simulation:real_local_full_duplex_model_not_executed",
+        "local_voice_live_dialog:blueprint_voice_simulation:tier1_transport_linked_but_not_executed_by_blueprint_report",
+        "local_voice_live_dialog:blueprint_voice_simulation:tier2_local_inference_not_observed",
+        "local_voice_live_dialog:blueprint_voice_simulation:tier3_webxr_not_observed",
+        "local_voice_live_dialog:blueprint_voice_simulation:webxr_iwsdk_client_not_executed_for_this_report",
         "local_voice_live_dialog:godot_project_import:godot_import:not_executed",
         "local_voice_live_dialog:godot_project_import:quest_runtime:not_executed",
         "local_voice_live_dialog:godot_project_import:voice_runtime:not_executed",
@@ -2121,7 +2199,7 @@
         "local_voice_live_dialog:webxr_playback:webxr_playback_not_observed"
       ],
       "blocker_summary": {
-        "total_blockers": 15,
+        "total_blockers": 25,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -2129,6 +2207,16 @@
             "title": "Local voice live-dialog evidence",
             "owner": "voice-speech-engineer",
             "blockers": [
+              "local_voice_live_dialog:blueprint_voice_simulation:clinical_voice_safety_controls_not_validated_with_real_model",
+              "local_voice_live_dialog:blueprint_voice_simulation:first_response_improvement_not_measured",
+              "local_voice_live_dialog:blueprint_voice_simulation:not_ready_for_production",
+              "local_voice_live_dialog:blueprint_voice_simulation:python_backend_runtime_not_executed_for_this_report",
+              "local_voice_live_dialog:blueprint_voice_simulation:quest_microphone_and_playback_not_measured",
+              "local_voice_live_dialog:blueprint_voice_simulation:real_local_full_duplex_model_not_executed",
+              "local_voice_live_dialog:blueprint_voice_simulation:tier1_transport_linked_but_not_executed_by_blueprint_report",
+              "local_voice_live_dialog:blueprint_voice_simulation:tier2_local_inference_not_observed",
+              "local_voice_live_dialog:blueprint_voice_simulation:tier3_webxr_not_observed",
+              "local_voice_live_dialog:blueprint_voice_simulation:webxr_iwsdk_client_not_executed_for_this_report",
               "local_voice_live_dialog:godot_project_import:godot_import:not_executed",
               "local_voice_live_dialog:godot_project_import:quest_runtime:not_executed",
               "local_voice_live_dialog:godot_project_import:voice_runtime:not_executed",

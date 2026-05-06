@@ -177,6 +177,36 @@ type BenchmarkGateReport = {
     }>;
     blockers: string[];
   };
+  blueprint_voice_simulation_spike?: {
+    file: string;
+    generated_at: string;
+    status: string;
+    claim_scope: {
+      tier0_blueprint_compiler_passed: boolean;
+      mock_voice_facade_exercised: boolean;
+      tier1_transport_loop_passed: boolean;
+      tier2_local_inference_observed: boolean;
+      tier3_webxr_observed: boolean;
+      ready_for_production: boolean;
+    };
+    plan_summary: {
+      blueprint_id: string;
+      scenario_id: string;
+      actor_count: number;
+      voice_slot_count: number;
+      trigger_count: number;
+      prewarm_artifact_count: number;
+    };
+    interaction_evidence: {
+      runtime_routing_exercised: boolean;
+      multi_character_interruption_exercised: boolean;
+      transport_linked_existing_evidence: boolean;
+      bun_python_proxy_passed: boolean;
+      raw_audio_stored: boolean;
+      hidden_facts_exposed_to_learner: boolean;
+    };
+    blockers: string[];
+  };
   godot_quest_voice_evidence?: {
     file: string;
     generated_at: string;
@@ -2307,6 +2337,175 @@ describe("benchmark gate report", () => {
       "local_voice_live_dialog:local_realtime_voice_model_cache:approved_model_weights_not_cached",
       "local_voice_live_dialog:local_realtime_voice_model_cache:real_moshi_or_qwen3_model_cache_missing",
       "local_voice_live_dialog:local_realtime_voice_model_cache:missing_local_realtime_voice_model_cache_evidence_report",
+    ]));
+  });
+
+  it("surfaces blueprint voice simulation tiers without promoting mock evidence to local inference or WebXR readiness", () => {
+    const buildReport = buildBenchmarkGateReport as (
+      input: Parameters<typeof buildBenchmarkGateReport>[0] & {
+        blueprintVoiceSimulationSpike?: {
+          file: string;
+          value: {
+            generatedAt: string;
+            status: string;
+            policy: {
+              rawAudioStored: boolean;
+              hiddenFactsExposedToLearner: boolean;
+            };
+            plan: {
+              blueprintId: string;
+              station: {
+                scenarioId: string;
+              };
+              actorRoster: unknown[];
+              voiceSlots: unknown[];
+              triggerPlan: unknown[];
+            };
+            runtimeRouting: {
+              exercised: boolean;
+            };
+            multiCharacterInterruption: {
+              exercised: boolean;
+            };
+            transportEvidence: {
+              linkedExistingEvidence: boolean;
+              bunPythonProxyPassed: boolean;
+            };
+            prewarmEvidence: {
+              executed: boolean;
+              preparedArtifactCount: number;
+              blockers: string[];
+            };
+            verdict: {
+              tier0BlueprintCompilerPassed: boolean;
+              mockVoiceFacadeExercised: boolean;
+              tier1TransportLoopPassed: boolean;
+              tier2LocalInferenceObserved: boolean;
+              tier3WebXrObserved: boolean;
+              readyForProduction: boolean;
+              blockers: string[];
+            };
+          };
+        };
+      },
+      options: { now: Date; maxEvidenceAgeHours: number },
+    ) => BenchmarkGateReport;
+
+    const report = buildReport({
+      blueprintVoiceSimulationSpike: {
+        file: "docs/openclinxr/blueprint-voice-simulation-spike-2026-05-05.json",
+        value: {
+          generatedAt: "2026-05-06T03:18:07.296Z",
+          status: "mock_facade_exercised",
+          policy: {
+            rawAudioStored: false,
+            hiddenFactsExposedToLearner: false,
+          },
+          plan: {
+            blueprintId: "blueprint_openclinxr_step2cs_style_seed_v1",
+            station: {
+              scenarioId: "ed_chest_pain_priority_v1",
+            },
+            actorRoster: [{}, {}, {}],
+            voiceSlots: [{}, {}, {}],
+            triggerPlan: [{}],
+          },
+          runtimeRouting: {
+            exercised: true,
+          },
+          multiCharacterInterruption: {
+            exercised: true,
+          },
+          transportEvidence: {
+            linkedExistingEvidence: true,
+            bunPythonProxyPassed: true,
+          },
+          prewarmEvidence: {
+            executed: true,
+            preparedArtifactCount: 8,
+            blockers: ["first_response_improvement_not_measured"],
+          },
+          verdict: {
+            tier0BlueprintCompilerPassed: true,
+            mockVoiceFacadeExercised: true,
+            tier1TransportLoopPassed: true,
+            tier2LocalInferenceObserved: false,
+            tier3WebXrObserved: false,
+            readyForProduction: false,
+            blockers: [
+              "real_local_full_duplex_model_not_executed",
+              "webxr_iwsdk_client_not_executed_for_this_report",
+            ],
+          },
+        },
+      },
+    }, { now: new Date("2026-05-06T04:00:00.000Z"), maxEvidenceAgeHours: 24 });
+    const liveDialogGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-003");
+
+    expect(report.blueprint_voice_simulation_spike).toEqual({
+      file: "docs/openclinxr/blueprint-voice-simulation-spike-2026-05-05.json",
+      generated_at: "2026-05-06T03:18:07.296Z",
+      status: "mock_facade_exercised",
+      claim_scope: {
+        tier0_blueprint_compiler_passed: true,
+        mock_voice_facade_exercised: true,
+        tier1_transport_loop_passed: true,
+        tier2_local_inference_observed: false,
+        tier3_webxr_observed: false,
+        ready_for_production: false,
+      },
+      plan_summary: {
+        blueprint_id: "blueprint_openclinxr_step2cs_style_seed_v1",
+        scenario_id: "ed_chest_pain_priority_v1",
+        actor_count: 3,
+        voice_slot_count: 3,
+        trigger_count: 1,
+        prewarm_artifact_count: 8,
+      },
+      interaction_evidence: {
+        runtime_routing_exercised: true,
+        multi_character_interruption_exercised: true,
+        transport_linked_existing_evidence: true,
+        bun_python_proxy_passed: true,
+        raw_audio_stored: false,
+        hidden_facts_exposed_to_learner: false,
+      },
+      blockers: [
+        "first_response_improvement_not_measured",
+        "not_ready_for_production",
+        "real_local_full_duplex_model_not_executed",
+        "tier2_local_inference_not_observed",
+        "tier3_webxr_not_observed",
+        "webxr_iwsdk_client_not_executed_for_this_report",
+      ],
+    });
+    expect(report.evidence_freshness).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        evidence_id: "blueprint_voice_simulation_spike",
+        file: "docs/openclinxr/blueprint-voice-simulation-spike-2026-05-05.json",
+        status: "fresh",
+        blockers: [],
+      }),
+    ]));
+    expect(liveDialogGate?.satisfied_conditions).toEqual(expect.arrayContaining([
+      "blueprint_voice_tier0_compiler_passed",
+      "blueprint_voice_mock_facade_exercised",
+      "blueprint_voice_tier1_transport_loop_passed",
+      "blueprint_voice_runtime_routing_exercised",
+      "blueprint_voice_multi_character_interruption_exercised",
+    ]));
+    expect(liveDialogGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
+      "blueprint_voice_tier2_local_inference_observed",
+      "blueprint_voice_tier3_webxr_observed",
+      "blueprint_voice_production_ready",
+    ]));
+    expect(liveDialogGate?.blockers).toEqual(expect.arrayContaining([
+      "local_voice_live_dialog:blueprint_voice_simulation:real_local_full_duplex_model_not_executed",
+      "local_voice_live_dialog:blueprint_voice_simulation:tier2_local_inference_not_observed",
+      "local_voice_live_dialog:blueprint_voice_simulation:tier3_webxr_not_observed",
+      "local_voice_live_dialog:blueprint_voice_simulation:webxr_iwsdk_client_not_executed_for_this_report",
+      "local_voice_live_dialog:blueprint_voice_simulation:first_response_improvement_not_measured",
+      "local_voice_live_dialog:blueprint_voice_simulation:not_ready_for_production",
     ]));
   });
 

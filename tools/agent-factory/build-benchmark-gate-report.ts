@@ -312,6 +312,48 @@ type LocalRealtimeVoiceModelCacheEvidenceReport = {
   }>;
 };
 
+type BlueprintVoiceSimulationSpikeReport = {
+  generatedAt: string;
+  status: string;
+  policy: {
+    rawAudioStored: boolean;
+    hiddenFactsExposedToLearner: boolean;
+  };
+  plan: {
+    blueprintId: string;
+    station: {
+      scenarioId: string;
+    };
+    actorRoster: unknown[];
+    voiceSlots: unknown[];
+    triggerPlan: unknown[];
+  };
+  runtimeRouting: {
+    exercised: boolean;
+  };
+  multiCharacterInterruption: {
+    exercised: boolean;
+  };
+  transportEvidence: {
+    linkedExistingEvidence: boolean;
+    bunPythonProxyPassed: boolean;
+  };
+  prewarmEvidence: {
+    executed: boolean;
+    preparedArtifactCount: number;
+    blockers: string[];
+  };
+  verdict: {
+    tier0BlueprintCompilerPassed: boolean;
+    mockVoiceFacadeExercised: boolean;
+    tier1TransportLoopPassed: boolean;
+    tier2LocalInferenceObserved: boolean;
+    tier3WebXrObserved: boolean;
+    readyForProduction: boolean;
+    blockers: string[];
+  };
+};
+
 type RealtimeVoiceTransportSpikeReport = {
   generatedAt: string;
   status: string;
@@ -486,6 +528,36 @@ type EvidenceGateReport = {
     ready: boolean;
     models: LocalRealtimeVoiceModelCacheEvidenceReport["models"];
     support_directories: LocalRealtimeVoiceModelCacheEvidenceReport["support_directories"];
+    blockers: string[];
+  };
+  blueprint_voice_simulation_spike?: {
+    file: string;
+    generated_at: string;
+    status: string;
+    claim_scope: {
+      tier0_blueprint_compiler_passed: boolean;
+      mock_voice_facade_exercised: boolean;
+      tier1_transport_loop_passed: boolean;
+      tier2_local_inference_observed: boolean;
+      tier3_webxr_observed: boolean;
+      ready_for_production: boolean;
+    };
+    plan_summary: {
+      blueprint_id: string;
+      scenario_id: string;
+      actor_count: number;
+      voice_slot_count: number;
+      trigger_count: number;
+      prewarm_artifact_count: number;
+    };
+    interaction_evidence: {
+      runtime_routing_exercised: boolean;
+      multi_character_interruption_exercised: boolean;
+      transport_linked_existing_evidence: boolean;
+      bun_python_proxy_passed: boolean;
+      raw_audio_stored: boolean;
+      hidden_facts_exposed_to_learner: boolean;
+    };
     blockers: string[];
   };
   godot_quest_voice_evidence?: {
@@ -731,6 +803,7 @@ export type BenchmarkGateReportInput = {
   localVoiceRuntimeBenchmark?: EvidenceFile<LocalVoiceRuntimeBenchmarkReport>;
   localVoiceLiveDialogBenchmark?: EvidenceFile<LocalVoiceLiveDialogBenchmarkReport>;
   localRealtimeVoiceModelCacheEvidence?: EvidenceFile<LocalRealtimeVoiceModelCacheEvidenceReport>;
+  blueprintVoiceSimulationSpike?: EvidenceFile<BlueprintVoiceSimulationSpikeReport>;
   godotQuestVoiceEvidence?: EvidenceFile<GodotQuestVoiceEvidenceReport>;
   godotProjectImportCheck?: EvidenceFile<GodotProjectImportCheck>;
   realtimeVoiceTransportSpike?: EvidenceFile<RealtimeVoiceTransportSpikeReport>;
@@ -769,6 +842,7 @@ async function main(): Promise<void> {
   const localVoiceRuntimeBenchmark = await latestJson<LocalVoiceRuntimeBenchmarkReport>("docs/openclinxr/local-voice-runtime-benchmark-*.json");
   const localVoiceLiveDialogBenchmark = await latestJson<LocalVoiceLiveDialogBenchmarkReport>("docs/openclinxr/local-voice-live-dialog-benchmark-*.json");
   const localRealtimeVoiceModelCacheEvidence = await latestJson<LocalRealtimeVoiceModelCacheEvidenceReport>("docs/openclinxr/local-realtime-voice-model-cache-evidence-*.json");
+  const blueprintVoiceSimulationSpike = await latestJson<BlueprintVoiceSimulationSpikeReport>("docs/openclinxr/blueprint-voice-simulation-spike-*.json");
   const godotQuestVoiceEvidence = await latestJson<GodotQuestVoiceEvidenceReport>(
     "docs/openclinxr/godot-quest-voice-evidence-*.json",
     isGodotQuestVoiceEvidenceReportPath,
@@ -801,6 +875,7 @@ async function main(): Promise<void> {
     localVoiceRuntimeBenchmark,
     localVoiceLiveDialogBenchmark,
     localRealtimeVoiceModelCacheEvidence,
+    blueprintVoiceSimulationSpike,
     godotQuestVoiceEvidence,
     godotProjectImportCheck,
     realtimeVoiceTransportSpike,
@@ -855,6 +930,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localVoiceRuntimeBenchmark,
     localVoiceLiveDialogBenchmark,
     localRealtimeVoiceModelCacheEvidence,
+    blueprintVoiceSimulationSpike,
     godotQuestVoiceEvidence,
     godotProjectImportCheck,
     realtimeVoiceTransportSpike,
@@ -889,6 +965,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localVoiceRuntimeBenchmark,
     localVoiceLiveDialogBenchmark,
     localRealtimeVoiceModelCacheEvidence,
+    blueprintVoiceSimulationSpike,
     godotQuestVoiceEvidence,
     godotProjectImportCheck,
     realtimeVoiceTransportSpike,
@@ -958,6 +1035,8 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     ...localVoiceLiveDialogBlockers(localVoiceRuntimeBenchmark, localVoiceLiveDialogBenchmark),
     ...localRealtimeVoiceModelCacheEvidenceBlockers(localRealtimeVoiceModelCacheEvidence)
       .map((blocker) => `local_voice_live_dialog:local_realtime_voice_model_cache:${blocker}`),
+    ...blueprintVoiceSimulationSpikeBlockers(blueprintVoiceSimulationSpike)
+      .map((blocker) => `local_voice_live_dialog:blueprint_voice_simulation:${blocker}`),
     ...godotQuestVoiceEvidenceBlockers(godotQuestVoiceEvidence),
     ...godotProjectImportCheckBlockers(godotProjectImportCheck),
     ...realtimeVoiceTransportSpikeBlockers(realtimeVoiceTransportSpike),
@@ -970,6 +1049,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
       "local_voice_runtime_benchmark",
       "local_voice_live_dialog_benchmark",
       "local_realtime_voice_model_cache_evidence",
+      ...(blueprintVoiceSimulationSpike ? ["blueprint_voice_simulation_spike"] : []),
       "godot_quest_voice_evidence",
       ...(godotProjectImportCheck ? ["godot_project_import_check"] : []),
       "realtime_voice_transport_spike",
@@ -1045,6 +1125,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localRealtimeVoiceModelCacheEvidence && localRealtimeVoiceModelCacheEvidence.value.support_directories.length > 0
       ? "local_voice_realtime_model_support_venv_observed"
       : undefined,
+    ...(blueprintVoiceSimulationSpikeSatisfiedConditions(blueprintVoiceSimulationSpike)),
     godotQuestVoiceEvidence ? "local_voice_godot_quest_voice_evidence_present" : undefined,
     godotQuestVoiceEvidence?.value.result.readyForBinaryTransportEvidence
       ? "local_voice_godot_quest_binary_transport_observed"
@@ -1091,7 +1172,9 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     (condition.startsWith("local_voice_") && !condition.startsWith("local_voice_live_dialog_")) || condition === "local_provider_mock_benchmarks_passed"
   );
   const localVoiceLiveDialogSatisfiedConditions = combinedSatisfiedConditions.filter((condition) =>
-    condition.startsWith("local_voice_") || condition === "local_provider_mock_benchmarks_passed"
+    condition.startsWith("local_voice_")
+    || condition.startsWith("blueprint_voice_")
+    || condition === "local_provider_mock_benchmarks_passed"
   );
   const assetSatisfiedConditions = combinedSatisfiedConditions.filter((condition) =>
     condition.startsWith("asset_pipeline_") || condition.startsWith("asset_production_")
@@ -1251,6 +1334,38 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         models: localRealtimeVoiceModelCacheEvidence.value.models,
         support_directories: localRealtimeVoiceModelCacheEvidence.value.support_directories,
         blockers: localRealtimeVoiceModelCacheEvidenceBlockers(localRealtimeVoiceModelCacheEvidence),
+      },
+    } : {}),
+    ...(blueprintVoiceSimulationSpike ? {
+      blueprint_voice_simulation_spike: {
+        file: blueprintVoiceSimulationSpike.file,
+        generated_at: blueprintVoiceSimulationSpike.value.generatedAt,
+        status: blueprintVoiceSimulationSpike.value.status,
+        claim_scope: {
+          tier0_blueprint_compiler_passed: blueprintVoiceSimulationSpike.value.verdict.tier0BlueprintCompilerPassed,
+          mock_voice_facade_exercised: blueprintVoiceSimulationSpike.value.verdict.mockVoiceFacadeExercised,
+          tier1_transport_loop_passed: blueprintVoiceSimulationSpike.value.verdict.tier1TransportLoopPassed,
+          tier2_local_inference_observed: blueprintVoiceSimulationSpike.value.verdict.tier2LocalInferenceObserved,
+          tier3_webxr_observed: blueprintVoiceSimulationSpike.value.verdict.tier3WebXrObserved,
+          ready_for_production: blueprintVoiceSimulationSpike.value.verdict.readyForProduction,
+        },
+        plan_summary: {
+          blueprint_id: blueprintVoiceSimulationSpike.value.plan.blueprintId,
+          scenario_id: blueprintVoiceSimulationSpike.value.plan.station.scenarioId,
+          actor_count: blueprintVoiceSimulationSpike.value.plan.actorRoster.length,
+          voice_slot_count: blueprintVoiceSimulationSpike.value.plan.voiceSlots.length,
+          trigger_count: blueprintVoiceSimulationSpike.value.plan.triggerPlan.length,
+          prewarm_artifact_count: blueprintVoiceSimulationSpike.value.prewarmEvidence.preparedArtifactCount,
+        },
+        interaction_evidence: {
+          runtime_routing_exercised: blueprintVoiceSimulationSpike.value.runtimeRouting.exercised,
+          multi_character_interruption_exercised: blueprintVoiceSimulationSpike.value.multiCharacterInterruption.exercised,
+          transport_linked_existing_evidence: blueprintVoiceSimulationSpike.value.transportEvidence.linkedExistingEvidence,
+          bun_python_proxy_passed: blueprintVoiceSimulationSpike.value.transportEvidence.bunPythonProxyPassed,
+          raw_audio_stored: blueprintVoiceSimulationSpike.value.policy.rawAudioStored,
+          hidden_facts_exposed_to_learner: blueprintVoiceSimulationSpike.value.policy.hiddenFactsExposedToLearner,
+        },
+        blockers: blueprintVoiceSimulationSpikeBlockers(blueprintVoiceSimulationSpike),
       },
     } : {}),
     ...(godotQuestVoiceEvidence ? {
@@ -1498,6 +1613,7 @@ function buildEvidenceFreshnessReport(
     localVoiceRuntimeBenchmark?: EvidenceFile<LocalVoiceRuntimeBenchmarkReport>;
     localVoiceLiveDialogBenchmark?: EvidenceFile<LocalVoiceLiveDialogBenchmarkReport>;
     localRealtimeVoiceModelCacheEvidence?: EvidenceFile<LocalRealtimeVoiceModelCacheEvidenceReport>;
+    blueprintVoiceSimulationSpike?: EvidenceFile<BlueprintVoiceSimulationSpikeReport>;
     godotQuestVoiceEvidence?: EvidenceFile<GodotQuestVoiceEvidenceReport>;
     godotProjectImportCheck?: EvidenceFile<GodotProjectImportCheck>;
     realtimeVoiceTransportSpike?: EvidenceFile<RealtimeVoiceTransportSpikeReport>;
@@ -1525,6 +1641,9 @@ function buildEvidenceFreshnessReport(
     evidenceFreshnessEntry("local_voice_runtime_benchmark", evidence.localVoiceRuntimeBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_voice_live_dialog_benchmark", evidence.localVoiceLiveDialogBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_realtime_voice_model_cache_evidence", evidence.localRealtimeVoiceModelCacheEvidence, now, maxAgeHours),
+    ...(evidence.blueprintVoiceSimulationSpike
+      ? [evidenceFreshnessEntry("blueprint_voice_simulation_spike", evidence.blueprintVoiceSimulationSpike, now, maxAgeHours)]
+      : []),
     evidenceFreshnessEntry("godot_quest_voice_evidence", evidence.godotQuestVoiceEvidence, now, maxAgeHours),
     ...(evidence.godotProjectImportCheck
       ? [evidenceFreshnessEntry("godot_project_import_check", evidence.godotProjectImportCheck, now, maxAgeHours)]
@@ -2028,6 +2147,53 @@ function localRealtimeVoiceModelCacheReady(
   return evidence.value.models.some((model) =>
     model.ready && model.approved && approvedModelIds.has(model.model_id)
   );
+}
+
+function blueprintVoiceSimulationSpikeBlockers(
+  evidence: EvidenceFile<BlueprintVoiceSimulationSpikeReport> | undefined,
+): string[] {
+  if (!evidence) {
+    return [];
+  }
+
+  const report = evidence.value;
+  return unique([
+    ...report.verdict.blockers,
+    ...report.prewarmEvidence.blockers,
+    report.policy.rawAudioStored ? "raw_audio_stored" : undefined,
+    report.policy.hiddenFactsExposedToLearner ? "hidden_facts_exposed_to_learner" : undefined,
+    report.runtimeRouting.exercised ? undefined : "runtime_routing_not_exercised",
+    report.multiCharacterInterruption.exercised ? undefined : "multi_character_interruption_not_exercised",
+    report.transportEvidence.linkedExistingEvidence ? undefined : "transport_evidence_not_linked",
+    report.transportEvidence.bunPythonProxyPassed ? undefined : "bun_python_proxy_not_passed",
+    report.verdict.tier2LocalInferenceObserved ? undefined : "tier2_local_inference_not_observed",
+    report.verdict.tier3WebXrObserved ? undefined : "tier3_webxr_not_observed",
+    report.verdict.readyForProduction ? undefined : "not_ready_for_production",
+  ]);
+}
+
+function blueprintVoiceSimulationSpikeSatisfiedConditions(
+  evidence: EvidenceFile<BlueprintVoiceSimulationSpikeReport> | undefined,
+): string[] {
+  if (!evidence) {
+    return [];
+  }
+
+  const report = evidence.value;
+  return unique([
+    "blueprint_voice_simulation_report_present",
+    report.verdict.tier0BlueprintCompilerPassed ? "blueprint_voice_tier0_compiler_passed" : undefined,
+    report.verdict.mockVoiceFacadeExercised ? "blueprint_voice_mock_facade_exercised" : undefined,
+    report.verdict.tier1TransportLoopPassed ? "blueprint_voice_tier1_transport_loop_passed" : undefined,
+    report.verdict.tier2LocalInferenceObserved ? "blueprint_voice_tier2_local_inference_observed" : undefined,
+    report.verdict.tier3WebXrObserved ? "blueprint_voice_tier3_webxr_observed" : undefined,
+    report.verdict.readyForProduction ? "blueprint_voice_production_ready" : undefined,
+    report.runtimeRouting.exercised ? "blueprint_voice_runtime_routing_exercised" : undefined,
+    report.multiCharacterInterruption.exercised ? "blueprint_voice_multi_character_interruption_exercised" : undefined,
+    report.transportEvidence.linkedExistingEvidence ? "blueprint_voice_transport_linked_existing_evidence" : undefined,
+    report.transportEvidence.bunPythonProxyPassed ? "blueprint_voice_bun_python_proxy_passed" : undefined,
+    report.prewarmEvidence.executed ? "blueprint_voice_prewarm_executed" : undefined,
+  ]);
 }
 
 function godotQuestVoiceEvidenceBlockers(
