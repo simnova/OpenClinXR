@@ -200,6 +200,35 @@ describe("voice gateway", () => {
     ]));
   });
 
+  it("does not promote Python proxy reachability evidence without timestamped provenance", () => {
+    const posture = createRealtimeVoiceGatewayPosture({
+      bunAvailable: true,
+      pythonBackendWebSocketUrlConfigured: true,
+      pythonBackendDependenciesInstalled: true,
+      pythonInferenceRuntimeInstalled: false,
+      pythonBackendProxyReachabilityEvidence: {
+        sourceFile: "",
+        status: "passed",
+        eventTypesObserved: ["backend.ready", "voice.started", "audio.chunk", "transcript.partial", "transcript.final", "voice.stopped"],
+        binaryMessages: 1,
+        backendProtocolObserved: true,
+        latencyFieldsObserved: true,
+        binaryEchoObserved: true,
+      },
+    });
+
+    expect(posture.backends.pythonFastApi.transportProxy).toMatchObject({
+      status: "configured_not_verified",
+      backendUrlConfigured: true,
+      readyForLiveDialog: false,
+    });
+    expect(posture.backends.pythonFastApi.transportProxy).not.toHaveProperty("reachabilityEvidence");
+    expect(posture.backends.pythonFastApi.transportProxy.blockers).toEqual(expect.arrayContaining([
+      "python_backend_proxy_reachability_evidence_invalid",
+      "real_model_inference_not_observed",
+    ]));
+  });
+
   it("negotiates preferred realtime protocol lanes without allowing Web3 to carry media", () => {
     const posture = createRealtimeVoiceGatewayPosture({
       bunAvailable: true,

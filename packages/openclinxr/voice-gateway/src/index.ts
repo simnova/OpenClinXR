@@ -374,7 +374,11 @@ function verifiedPythonBackendProxyReachabilityEvidence(
     "voice.stopped",
   ];
   const eventTypes = new Set(evidence.eventTypesObserved);
+  const provenanceComplete = evidence.sourceFile.trim().length > 0
+    && typeof evidence.generatedAt === "string"
+    && !Number.isNaN(Date.parse(evidence.generatedAt));
   const complete = evidence.status === "passed"
+    && provenanceComplete
     && evidence.binaryMessages > 0
     && evidence.backendProtocolObserved
     && evidence.latencyFieldsObserved
