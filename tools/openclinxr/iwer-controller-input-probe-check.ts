@@ -5,10 +5,12 @@ import {
   evaluateIwsdkSidecarIwerInputProbeEvidence,
   iwsdkSidecarControllerSelectTraceTag,
 } from "../../apps/ui-xr-iwsdk-spike/src/sidecar-state.js";
+import { globFiles } from "../agent-factory/lib.js";
 
 type CliOptions = {
   inputPath?: string;
   outputPath?: string;
+  validateLatest: boolean;
 };
 
 export type IwerControllerInputProbeEvidence = {
@@ -64,17 +66,31 @@ const requiredNotEvidenceFor = [
   "production_runtime_readiness",
 ];
 
-async function main(): Promise<void> {
-  const options = parseArgs(process.argv.slice(2));
+async function main(args = process.argv.slice(2)): Promise<void> {
+  const options = parseArgs(args);
+  if (options.validateLatest) {
+    const inputPath = await latestIwerControllerInputProbePath();
+    if (!inputPath) {
+      throw new Error("Missing IWER controller/input probe evidence to validate.");
+    }
+    const report = await readIwerControllerInputProbeReport(inputPath);
+    if (report.result.readyForInputEmulationEvidence) {
+      console.log(`Validated ${inputPath}`);
+      return;
+    }
+
+    for (const blocker of report.result.blockers) {
+      console.error(blocker);
+    }
+    process.exitCode = 1;
+    return;
+  }
+
   if (!options.inputPath) {
     throw new Error("--input is required");
   }
 
-  const evidence = JSON.parse(await readFile(options.inputPath, "utf8")) as IwerControllerInputProbeEvidence;
-  const report = buildIwerControllerInputProbeReport({
-    inputFile: options.inputPath,
-    evidence,
-  });
+  const report = await readIwerControllerInputProbeReport(options.inputPath);
   const payload = `${JSON.stringify(report, null, 2)}\n`;
 
   if (options.outputPath) {
@@ -88,6 +104,19 @@ async function main(): Promise<void> {
   if (!report.result.readyForInputEmulationEvidence) {
     process.exitCode = 1;
   }
+}
+
+async function readIwerControllerInputProbeReport(inputPath: string): Promise<IwerControllerInputProbeReport> {
+  const evidence = JSON.parse(await readFile(inputPath, "utf8")) as IwerControllerInputProbeEvidence;
+  return buildIwerControllerInputProbeReport({
+    inputFile: inputPath,
+    evidence,
+  });
+}
+
+async function latestIwerControllerInputProbePath(): Promise<string | undefined> {
+  const files = await globFiles("docs/openclinxr/iwer-controller-input-probe-*.json");
+  return files.sort().at(-1);
 }
 
 export function buildIwerControllerInputProbeReport(input: {
@@ -240,10 +269,14 @@ function isValidPort(port: number | undefined): boolean {
 
 function parseArgs(args: string[]): CliOptions {
   const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
-  const options: CliOptions = {};
+  const options: CliOptions = { validateLatest: false };
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
+    if (arg === "--validate-latest") {
+      options.validateLatest = true;
+      continue;
+    }
     if (arg === "--input") {
       options.inputPath = requireValue(normalizedArgs, index, arg);
       index += 1;

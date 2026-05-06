@@ -56,7 +56,7 @@
     "iwer:auto-entry:evidence": "tsx tools/openclinxr/iwer-auto-entry-browser-smoke-check.ts",
     "iwer:auto-entry:evidence:validate": "tsx tools/openclinxr/iwer-auto-entry-browser-smoke-check.ts --validate-latest",
     "iwer:controller-input:evidence": "tsx tools/openclinxr/iwer-controller-input-probe-check.ts",
-    "iwer:controller-input:evidence:validate": "tsx tools/openclinxr/iwer-controller-input-probe-check.ts --input docs/openclinxr/iwer-controller-input-probe-2026-05-05.json",
+    "iwer:controller-input:evidence:validate": "tsx tools/openclinxr/iwer-controller-input-probe-check.ts --validate-latest",
     "visual:qa:evidence": "tsx tools/openclinxr/visual-qa-evidence-check.ts",
     "visual:qa:evidence:validate": "tsx tools/openclinxr/visual-qa-evidence-check.ts --input docs/openclinxr/visual-qa-evidence-2026-05-04.json",
     "visual:qa:adversarial": "tsx tools/openclinxr/adversarial-visual-qa-evidence.ts",

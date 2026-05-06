@@ -117,7 +117,7 @@ describe("IWER controller/input probe checker", () => {
       "tsx tools/openclinxr/iwer-controller-input-probe-check.ts",
     );
     expect(rootPackage.scripts["iwer:controller-input:evidence:validate"]).toBe(
-      "tsx tools/openclinxr/iwer-controller-input-probe-check.ts --input docs/openclinxr/iwer-controller-input-probe-2026-05-05.json",
+      "tsx tools/openclinxr/iwer-controller-input-probe-check.ts --validate-latest",
     );
 
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwer-controller-input-"));
@@ -135,6 +135,16 @@ describe("IWER controller/input probe checker", () => {
     expect(stdout).toContain(`Wrote ${outputPath}`);
     expect(report.inputFile).toBe(inputPath);
     expect(report.result.readyForInputEmulationEvidence).toBe(true);
+  });
+
+  it("validates the latest committed controller/input probe evidence", async () => {
+    const { stdout } = await execFileAsync(
+      path.resolve("node_modules/.bin/tsx"),
+      ["tools/openclinxr/iwer-controller-input-probe-check.ts", "--validate-latest"],
+      { encoding: "utf8", timeout: 15000 },
+    );
+
+    expect(stdout.trim()).toBe("Validated docs/openclinxr/iwer-controller-input-probe-2026-05-05.json");
   });
 });
 
