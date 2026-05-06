@@ -11,6 +11,7 @@ const execFileAsync = promisify(execFile);
 export const BLENDER_COMMAND_TIMEOUT_MS = 60_000;
 
 type CliOptions = {
+  validatePath?: string;
   outputPath?: string;
   fixture: BlenderBakeFixture;
 };
@@ -62,8 +63,28 @@ export type BlenderBakeSmokeReport = {
   };
 };
 
+type ValidationResult = { ok: true } | { ok: false; errors: string[] };
+
 async function main(): Promise<void> {
-  const options = parseArgs(process.argv.slice(2));
+  await runBlenderBakeSmokeCli(process.argv.slice(2));
+}
+
+export async function runBlenderBakeSmokeCli(args: string[]): Promise<void> {
+  const options = parseArgs(args);
+  if (options.validatePath) {
+    const validation = validateBlenderBakeSmokeReport(JSON.parse(await readFile(options.validatePath, "utf8")));
+    if (validation.ok) {
+      console.log(`Validated ${options.validatePath}`);
+      return;
+    }
+
+    for (const error of validation.errors) {
+      console.error(error);
+    }
+    process.exitCode = 1;
+    return;
+  }
+
   const report = await runBlenderBakeSmoke({ fixture: options.fixture });
 
   if (options.outputPath) {
@@ -88,6 +109,11 @@ function parseArgs(args: string[]): CliOptions {
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
+    if (arg === "--validate") {
+      options.validatePath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
     if (arg === "--fixture") {
       options.fixture = parseFixture(requireValue(normalizedArgs, index, arg));
       index += 1;
@@ -206,6 +232,99 @@ export function buildBlenderBakeSmokeReportFromGlb(input: {
   };
 }
 
+export function validateBlenderBakeSmokeReport(value: unknown): ValidationResult {
+  const errors: string[] = [];
+
+  if (!isRecord(value)) {
+    return { ok: false, errors: ["/ must be object"] };
+  }
+
+  requireString(value.generatedAt, "/generatedAt", errors);
+  requireRecord(value.tool, "/tool", errors);
+  if (isRecord(value.tool)) {
+    requireLiteral(value.tool.command, "blender", "/tool/command", errors);
+    requireLiteral(value.tool.package, "Blender", "/tool/package", errors);
+    requireString(value.tool.version, "/tool/version", errors);
+    requireLiteral(value.tool.license, "GPL-3.0-or-later-tooling", "/tool/license", errors);
+  }
+  requireRecord(value.input, "/input", errors);
+  if (isRecord(value.input)) {
+    requireOneOf(value.input.fixture, ["low_poly_clinical_humanoid", "ed_chest_pain_clinical_asset_pack"], "/input/fixture", errors);
+    requireLiteral(value.input.externalAssetsUsed, false, "/input/externalAssetsUsed", errors);
+    requireOneOf(
+      value.input.sourceLicensePosture,
+      ["repo_generated_placeholder", "reviewed_local_clinical_asset_fixture"],
+      "/input/sourceLicensePosture",
+      errors,
+    );
+    requireNumber(value.input.expectedObjectCount, "/input/expectedObjectCount", errors);
+  }
+  requireRecord(value.output, "/output", errors);
+  if (isRecord(value.output)) {
+    requireNumber(value.output.glbBytes, "/output/glbBytes", errors);
+    requireLiteral(value.output.magic, "glTF", "/output/magic", errors);
+    requireLiteral(value.output.version, 2, "/output/version", errors);
+    requireNumber(value.output.declaredLength, "/output/declaredLength", errors);
+    requireNumber(value.output.elapsedMs, "/output/elapsedMs", errors);
+    if (value.output.semanticInventory !== null) {
+      validateSemanticInventory(value.output.semanticInventory, "/output/semanticInventory", errors);
+    }
+  }
+  requireRecord(value.verdict, "/verdict", errors);
+  if (isRecord(value.verdict)) {
+    requireBoolean(value.verdict.passed, "/verdict/passed", errors);
+    requireStringArray(value.verdict.blockers, "/verdict/blockers", errors);
+  }
+  validateReportConsistency(value, errors);
+
+  return errors.length === 0 ? { ok: true } : { ok: false, errors };
+}
+
+function validateSemanticInventory(value: unknown, pathName: string, errors: string[]): void {
+  requireRecord(value, pathName, errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireNumber(value.sceneCount, `${pathName}/sceneCount`, errors);
+  requireNumber(value.nodeCount, `${pathName}/nodeCount`, errors);
+  requireNumber(value.meshCount, `${pathName}/meshCount`, errors);
+  requireNumber(value.materialCount, `${pathName}/materialCount`, errors);
+  requireStringArray(value.observedObjectNames, `${pathName}/observedObjectNames`, errors);
+  requireStringArray(value.requiredObjectNames, `${pathName}/requiredObjectNames`, errors);
+  requireStringArray(value.missingRequiredObjectNames, `${pathName}/missingRequiredObjectNames`, errors);
+}
+
+function validateReportConsistency(value: Record<string, unknown>, errors: string[]): void {
+  if (!isRecord(value.output) || !isRecord(value.verdict)) {
+    return;
+  }
+  const expectedBlockers = expectedReportBlockers(value.output);
+  if (!Array.isArray(value.verdict.blockers)) {
+    return;
+  }
+
+  const verdictBlockers = new Set(value.verdict.blockers);
+  for (const blocker of expectedBlockers) {
+    if (!verdictBlockers.has(blocker)) {
+      errors.push(`/verdict/blockers must include ${blocker}`);
+    }
+  }
+}
+
+function expectedReportBlockers(output: Record<string, unknown>): string[] {
+  const semanticInventory = isRecord(output.semanticInventory) ? output.semanticInventory : null;
+  return [
+    output.magic === "glTF" ? undefined : "glb_magic_missing",
+    output.version === 2 ? undefined : "glb_version_not_2",
+    typeof output.glbBytes === "number" && output.declaredLength === output.glbBytes ? undefined : "glb_declared_length_mismatch",
+    typeof output.glbBytes === "number" && output.glbBytes > 20 ? undefined : "glb_output_too_small",
+    semanticInventory ? undefined : "glb_json_chunk_missing",
+    semanticInventory ? undefined : "glb_node_count_below_expected_object_count",
+    ...stringArray(semanticInventory?.missingRequiredObjectNames).map((name) => `glb_required_object_missing:${name}`),
+  ].filter((blocker): blocker is string => typeof blocker === "string");
+}
+
 function blenderBakeFixtureMetadata(fixture: BlenderBakeFixture): BlenderBakeFixtureMetadata {
   if (fixture === "ed_chest_pain_clinical_asset_pack") {
     return {
@@ -289,6 +408,71 @@ function parseJsonRecord(value: string): Record<string, unknown> | null {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function requireRecord(value: unknown, pathName: string, errors: string[]): void {
+  if (!isRecord(value)) {
+    errors.push(`${pathName} must be object`);
+  }
+}
+
+function requireString(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "string" || value.length === 0) {
+    errors.push(`${pathName} must be non-empty string`);
+  }
+}
+
+function requireStringArray(value: unknown, pathName: string, errors: string[]): void {
+  if (!Array.isArray(value)) {
+    errors.push(`${pathName} must be array`);
+    return;
+  }
+
+  value.forEach((entry, index) => {
+    if (typeof entry !== "string" || entry.length === 0) {
+      errors.push(`${pathName}/${index} must be non-empty string`);
+    }
+  });
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((entry): entry is string => typeof entry === "string")
+    : [];
+}
+
+function requireBoolean(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "boolean") {
+    errors.push(`${pathName} must be boolean`);
+  }
+}
+
+function requireNumber(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    errors.push(`${pathName} must be finite number`);
+  }
+}
+
+function requireLiteral<T extends string | boolean | number>(
+  value: unknown,
+  literal: T,
+  pathName: string,
+  errors: string[],
+): void {
+  if (value !== literal) {
+    errors.push(`${pathName} must be ${JSON.stringify(literal)}`);
+  }
+}
+
+function requireOneOf<T extends string>(
+  value: unknown,
+  allowed: readonly T[],
+  pathName: string,
+  errors: string[],
+): void {
+  if (typeof value !== "string" || !(allowed as readonly string[]).includes(value)) {
+    errors.push(`${pathName} must be one of ${allowed.map((entry) => JSON.stringify(entry)).join(", ")}`);
+  }
 }
 
 const clinicalAssetPackRequiredObjectNames = [

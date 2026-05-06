@@ -1,11 +1,30 @@
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   BLENDER_COMMAND_TIMEOUT_MS,
   buildBlenderBakeSmokeReportFromGlb,
   createBlenderBakePythonScript,
+  runBlenderBakeSmokeCli,
+  validateBlenderBakeSmokeReport,
 } from "./blender-asset-bake-smoke.js";
 
 describe("Blender asset bake smoke", () => {
+  it("exposes generation and validation scripts", async () => {
+    const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+
+    expect(rootPackage.scripts["asset:blender:bake"]).toBe(
+      "tsx tools/openclinxr/blender-asset-bake-smoke.ts",
+    );
+    expect(rootPackage.scripts["asset:blender:bake:validate"]).toBe(
+      "tsx tools/openclinxr/blender-asset-bake-smoke.ts --validate docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+    );
+    expect(rootPackage.scripts["agent:verify"]).toContain("pnpm asset:blender:bake:validate");
+  });
+
   it("validates a baked GLB header and records Quest-budget fixture metadata", () => {
     const placeholderObjectNames = [
       "patient_placeholder_head",
@@ -85,6 +104,87 @@ describe("Blender asset bake smoke", () => {
       missingRequiredObjectNames: [],
     });
     expect(report.verdict).toEqual({ passed: true, blockers: [] });
+  });
+
+  it("validates report schema and blocker consistency before downstream reuse", () => {
+    const objectNames = clinicalAssetPackObjectNames();
+    const buffer = glbBufferWithJson({
+      scene: 0,
+      scenes: [{ name: "ed_chest_pain_clinical_asset_pack_scene", nodes: objectNames.map((_, index) => index) }],
+      nodes: objectNames.map((name, index) => ({ name, mesh: index })),
+      meshes: objectNames.map((name) => ({ name: `${name}_mesh` })),
+      materials: [{ name: "patient_skin_tone_reviewed_local" }],
+    });
+    const report = buildBlenderBakeSmokeReportFromGlb({
+      generatedAt: "2026-05-06T00:00:00.000Z",
+      blenderVersion: "Blender 5.1.1",
+      elapsedMs: 42,
+      glb: buffer,
+      fixture: "ed_chest_pain_clinical_asset_pack",
+    });
+    expect(validateBlenderBakeSmokeReport(report)).toEqual({ ok: true });
+
+    const invalid = structuredClone(report) as Record<string, unknown>;
+    const output = invalid.output as Record<string, unknown>;
+    const semanticInventory = output.semanticInventory as Record<string, unknown>;
+    semanticInventory.missingRequiredObjectNames = ["ecg_cart_12_lead"];
+    const verdict = invalid.verdict as { blockers: string[] };
+    verdict.blockers = [];
+
+    expect(validateBlenderBakeSmokeReport(invalid)).toEqual({
+      ok: false,
+      errors: expect.arrayContaining([
+        "/verdict/blockers must include glb_required_object_missing:ecg_cart_12_lead",
+      ]),
+    });
+
+    const missingInventory = structuredClone(report) as Record<string, unknown>;
+    (missingInventory.output as Record<string, unknown>).semanticInventory = null;
+    (missingInventory.verdict as { blockers: string[] }).blockers = [];
+
+    expect(validateBlenderBakeSmokeReport(missingInventory)).toEqual({
+      ok: false,
+      errors: expect.arrayContaining([
+        "/verdict/blockers must include glb_json_chunk_missing",
+        "/verdict/blockers must include glb_node_count_below_expected_object_count",
+      ]),
+    });
+  });
+
+  it("validates committed bake reports from the CLI without launching Blender", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-blender-bake-validate-"));
+    const reportPath = path.join(tempDir, "blender-asset-bake-smoke.json");
+    const invalidPath = path.join(tempDir, "blender-asset-bake-smoke-invalid.json");
+    const previousExitCode = process.exitCode;
+
+    try {
+      const report = buildBlenderBakeSmokeReportFromGlb({
+        generatedAt: "2026-05-06T00:00:00.000Z",
+        blenderVersion: "Blender 5.1.1",
+        elapsedMs: 42,
+        glb: glbBufferWithJson({
+          scene: 0,
+          scenes: [{ name: "clinical_placeholder_scene", nodes: [0] }],
+          nodes: [{ name: "patient_placeholder_head", mesh: 0 }],
+          meshes: [{ name: "patient_placeholder_head_mesh" }],
+          materials: [{ name: "clinical_placeholder_skin" }],
+        }),
+      });
+      await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+
+      await expect(runBlenderBakeSmokeCli(["--validate", reportPath])).resolves.toBeUndefined();
+
+      const invalidReport = structuredClone(report) as Record<string, unknown>;
+      delete invalidReport.tool;
+      await writeFile(invalidPath, `${JSON.stringify(invalidReport, null, 2)}\n`, "utf8");
+
+      process.exitCode = undefined;
+      await runBlenderBakeSmokeCli(["--validate", invalidPath]);
+      expect(process.exitCode).toBe(1);
+    } finally {
+      process.exitCode = previousExitCode;
+      await rm(tempDir, { recursive: true, force: true });
+    }
   });
 
   it("blocks reviewed clinical asset-pack GLBs when required semantic objects are missing", () => {
