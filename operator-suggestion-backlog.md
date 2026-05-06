@@ -1,118 +1,114 @@
 # Operator Suggestion Backlog
 
-This file captures useful operator steering that should shape future work but does not automatically become an immediate task or blocker. True blockers stay in `operator-steering-needed-questions.md`; evidence-backed questions stay in `operator-open-questions.md`.
+Date: 2026-05-06
+Status: nonblocking idea ledger
 
-## Intake Rules
+This file captures useful operator suggestions that should not interrupt the current implementation flow. Items here are not approvals, blockers, or active scope by themselves. Promote an item through an approved proposal, a verified implementation slice, or an explicit operator request before treating it as committed work.
 
-- Record suggestions here when they are non-blocking, speculative, or better reviewed at the next logical planning point.
-- Promote an item to an implementation slice only when it has a clear owner, acceptance criteria, verification path, and no unresolved approval boundary.
-- Promote an item to `operator-steering-needed-questions.md` only when Patrick must approve paid/cloud/API use, destructive actions, machine-level trust/security changes, credentials, or physical hardware actions.
-- Do not treat this backlog as permission to add packages, run paid services, download large models/assets, or claim production readiness.
+## How To Use This File
 
-## Status Values
+- Keep suggestions short, dated, and tied to evidence when possible.
+- Record confidence as `low`, `medium`, or `high` based on current repo evidence.
+- Move items to the worker backlog, an approved proposal, or evidence docs when they become actionable.
+- Do not use this file to authorize cloud, paid API, production runtime, security/trust changes, or destructive operations.
 
-- `captured`: recorded for later triage.
-- `accepted-for-review`: likely useful; review during the next related slice.
-- `converted-to-proposal`: requires explicit proposal approval before implementation.
-- `promoted-to-slice`: selected for implementation with tests/evidence.
-- `closed`: addressed, rejected, or superseded.
+## Active Suggestions
 
-## Suggestions
+### PNPM Audit Cadence
 
-### SUG-2026-05-04-001: Browser Screenshot/Video Adversarial Visual QA
+- Date added: 2026-05-05
+- Suggestion: Leverage `pnpm audit` to keep abreast of package security issues.
+- Current status: partially implemented.
+- Confidence: high.
+- Notes: The repo already has `pnpm security:audit`, `pnpm security:audit-policy`, committed audit evidence, and high-severity audit gating. Useful next step is a periodic point-in-time audit evidence cadence or GitHub issue/project checklist, not a new runtime dependency.
+- Promote when: security review wants recurring evidence snapshots or CI scheduling.
 
-- Status: `promoted-to-slice`
-- Captured at: 2026-05-04 19:53 EDT
-- Operator steering: Use browser screenshots and videos, then apply multimodal review from an adversarial perspective to determine whether the XR/VR scene accurately depicts the intended scenario, especially as realistic actors and equipment are added.
-- Primary owners: `test-automation-lead`, `ux-friction-critic`, `clinical-safety-critic`, `xr-systems-architect`, `asset-pipeline-lead`
-- Review when: building XR scene evidence, IWER/IWSDK automation, Quest smoke tests, Storybook visual checks, or asset-pipeline QA.
-- Acceptance shape:
-  - Capture screenshots and, when tooling supports it, short videos from desktop browser, emulated XR, and Quest paths.
-  - Store evidence metadata with viewport/device, route, scenario ID, camera pose, XR mode, capture command, and artifact path.
-  - Require adversarial notes on clinical scene fidelity, actor/equipment realism, UI readability, interaction affordances, locomotion/comfort cues, occlusion, scale, and missing critical equipment.
-  - Keep human worn-headset observations separate from automated browser or emulation evidence.
-- Current posture: evidence checker slices are implemented. `pnpm visual:qa:evidence:validate` scores `docs/openclinxr/visual-qa-evidence-2026-05-04.json`, which wraps the captured IWER screenshot as adversarial visual iteration evidence only, and the latest Chrome DevTools desktop evidence `docs/openclinxr/visual-qa-evidence-ui-xr-attempt-fields-browser-2026-05-05.json` confirms the structured Quest attempt fields render without claiming physical Quest readiness. Patrick's latest manual Quest report is now the human observation source for Full VR entry, readable text, primitive non-realistic hands, good comfort, and telemetry gaps; do not request another worn-headset visual QA pass until instrumentation improvements are ready to validate frames, trace interaction, locomotion, and latency. This does not authorize new package installs, video tooling, or physical Quest readiness claims.
+### UIKitML For Spatial Text
 
-### SUG-2026-05-04-002: Steering Suggestions Are Backlog By Default
+- Date added: 2026-05-05
+- Suggestion: Prefer UIKitML for text content exploration over the earlier HTML-in-canvas idea.
+- Current status: sidecar spike implemented.
+- Confidence: high for sidecar readability comparison; low for production adoption.
+- Notes: `apps/ui-xr-iwsdk-spike` now has UIKitML sidecar evidence, Vite 8 peer mismatch documentation, reviewed license posture, and desktop/IWER screenshot evidence. This does not authorize production `apps/ui-xr` adoption or Quest text-readiness claims.
+- Promote when: a later proposal has physical Quest readability/frame-pacing evidence and a production spatial UI migration plan.
 
-- Status: `accepted-for-review`
-- Captured at: 2026-05-04 19:53 EDT
-- Operator steering: Suggestions may be peppered in while Codex is working; they do not all need immediate implementation and can be reviewed as progress continues.
-- Primary owners: `chief-coordinator`, `rubric-steward`, `implementation-planning-lead`
-- Review when: selecting the next verified slice or deciding whether a suggestion needs a proposal.
-- Acceptance shape:
-  - Classify incoming suggestions as immediate blocker, approved implementation input, evidence question, proposal candidate, or backlog idea.
-  - Preserve unattended execution unless the suggestion creates a true blocker or changes an approval boundary.
+### VibeVoice As A Grok Voice Proof-Of-Concept Substitute
 
-### SUG-2026-05-04-003: IWER Sidecar Evidence Automation
+- Date added: 2026-05-05
+- Suggestion: Track whether VibeVoice is usable as a free local proof-of-concept alternative to burning Grok Voice API credits.
+- Current status: evidence says useful for offline file-generation POC, not live low-latency dialog.
+- Confidence: medium-high.
+- Notes: Latest local VibeVoice evidence records successful local file generation, no cloud/paid calls, and no committed audio, but real-time factor remains above 1x on the M1 Max evidence run. Live dialog remains blocked on streaming runtime evidence, Quest/WebXR playback, safety/disclosure/retention controls, and latency.
+- Promote when: a real streaming local voice runtime benchmark shows first-audio and transcript round-trip evidence, or when Grok Voice comparison criteria are explicitly approved.
 
-- Status: `promoted-to-slice`
-- Captured at: 2026-05-04 19:53 EDT
-- Operator steering: IWER looks worth a gated sidecar spike as a complement to CDP and human Quest confirmation for immersive session and controller/input evidence.
-- Proposal: `proposals/approved/proposal-iwer-sidecar-emulation-spike.md` approved by Patrick on 2026-05-04 20:13:53 EDT.
-- Evidence captured: `docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json` and `docs/openclinxr/screenshots/iwer-sidecar-agent-browser-2026-05-04.png`.
-- Primary owners: `xr-systems-architect`, `test-automation-lead`, `platform-devops-lead`, `ux-friction-critic`
-- Review when: extending `apps/ui-xr-iwsdk-spike`, adding IWER evidence contracts, or addressing the WebXR activation automation gap.
-- Acceptance shape:
-  - Prefer no new package installation if IWER is already present through the approved IWSDK Phase 2 devtools sidecar.
-  - Keep IWER evidence labeled as emulation evidence, not physical Quest proof.
-  - Record package versions, licenses, commands, artifact size, session-entry reliability, controller/hand input support, and rollback path before claiming usefulness.
-- Current posture: multiple local sidecar evidence slices are captured. `pnpm iwer:auto-entry:evidence:validate` validates the auto-entry/browser smoke lane, including explicit `handRepresentationKind` vocabulary so primitive hand evidence cannot imply mesh or physical Quest readiness. `pnpm iwer:controller-input:evidence:validate` validates the controller/input probe contract for IWER emulation-only evidence. IWER remains emulation-only and does not replace physical Quest foreground evidence.
+### Moshi MLX / Qwen3-TTS Local Realtime Voice
 
-### SUG-2026-05-04-004: PNPM Audit Security Monitoring
+- Date added: 2026-05-05
+- Suggestion: Try a minimal local low-latency realtime voice AI spike with Moshi MLX primary and Qwen3-TTS fallback.
+- Current status: approved, blocked on local approved model files.
+- Confidence: medium.
+- Notes: The approved cache path currently contains the support venv but no approved `kyutai/moshiko-mlx-q4` or `mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit` model weights. The repo installer intentionally rejects remote sources and only copies existing local files/directories.
+- Promote when: local model files exist under approved cache boundaries or a separate explicit download/install step is requested.
 
-- Status: `promoted-to-slice`
-- Captured at: 2026-05-04 19:53 EDT
-- Operator steering: Leverage PNPM audit to keep abreast of security issues in packages.
-- Primary owners: `open-source-governance-lead`, `security-privacy-lead`, `supply-chain-dependency-attacker`, `workspace-steward`
-- Review when: dependency upgrades, package installs, CI verification, release hardening, or pnpm audit exception handling are touched.
-- Acceptance shape:
-  - Keep `pnpm security:audit`, `pnpm security:audit:prod`, and `pnpm security:audit:dev` runnable and documented.
-  - Preserve `pnpm audit --audit-level=high` in the default verification path unless a future proposal changes the gate.
-  - Record any audit exceptions, overrides, or accepted risks in a markdown evidence file with package name, advisory, severity, affected version, fixed version, rationale, owner, and review date.
-  - Pair audit results with license-policy checks so security and licensing posture are both visible before committing dependency changes.
-- Current posture: promoted into the security audit policy slice. `pnpm security:audit-policy` now validates that the hard audit scripts remain in the default verification path and that future high or critical audit exceptions are recorded with owner/review metadata. The latest Quest manual report does not change PNPM audit posture.
+### Blender MCP
 
-### SUG-2026-05-04-005: Evaluate UIKitML For In-XR Text Content
+- Date added: 2026-05-05
+- Suggestion: Blender MCP may assist solution design, asset inspection, screenshots/videos, and scene QA.
+- Current status: proposed future tool, not installed.
+- Confidence: medium.
+- Notes: Blender CLI placeholder bake evidence is passing. Blender MCP could help agents inspect Blender scenes and capture visual QA, but it gives an AI-controlled path into Blender/Python/desktop automation and should require a separate security/install proposal before use.
+- Promote when: production asset evidence ladder is approved and needs agent-readable Blender scene inspection beyond CLI smoke exports.
 
-- Status: `approved-and-implemented-first-slice`
-- Captured at: 2026-05-04 20:04 EDT
-- Operator steering: Consider UIKitML for text content in the application, as a stronger candidate than the earlier HTML-in-canvas direction.
-- Proposal: `proposals/approved/proposal-uikitml-spatial-text-sidecar.md`
-- Primary owners: `xr-systems-architect`, `ux-product-lead`, `test-automation-lead`, `open-source-governance-lead`
-- Review when: building simulated EHR, case-note, patient-note, admin-in-XR, or complex text panels in `apps/ui-xr` or `apps/ui-xr-iwsdk-spike`.
-- Acceptance shape:
-  - Compare UIKitML against HTML-in-canvas for text readability, styling control, input affordances, accessibility, Quest performance, bundle size, and integration with IWSDK sidecar tooling.
-  - Keep UIKitML sidecar-gated until package metadata, license posture, Vite peer compatibility, bundle impact, and Quest/IWER evidence are recorded.
-  - Preserve Full VR and Mixed Reality evidence separation; Patrick's latest manual Quest report confirms the current in-scene text was readable in Full VR, so UIKitML should be evaluated as a richer spatial text option rather than as an active readability blocker.
-- Current posture: first sidecar slice implemented under the approved proposal. `apps/ui-xr-iwsdk-spike` owns the UIKitML-only package set, reviewed `.uikitml` source, generated local JSON, and `window.__openClinXrUikitmlSpatialTextEvidence`; `docs/openclinxr/uikitml-spatial-text-sidecar-2026-05-05.md` records Vite 8 peer-risk handling, license posture, and desktop/IWER visual evidence. UIKitML remains sidecar-only and does not authorize production `apps/ui-xr` adoption, broader spatial UI adoption, or Quest text-readiness claims.
+### SkinTokens / TokenRig
 
-### SUG-2026-05-04-006: Replace Primitive Box Hands With Local Mesh Hands
+- Date added: 2026-05-04
+- Suggestion: Consider SkinTokens for avatar skinning or rigging.
+- Current status: research candidate only.
+- Confidence: medium.
+- Notes: Current docs treat SkinTokens/TokenRig as an offline rigging research candidate, not an Apple Silicon, Quest, or production runtime dependency. It likely needs a GPU-backed research environment, checkpoint provenance review, and clear generated-asset validation gates.
+- Promote when: production avatar/rigging evidence work is approved and a local/GPU worker environment is available.
 
-- Status: `converted-to-proposal`
-- Captured at: 2026-05-04 23:31 EDT
-- Operator steering: Patrick's worn-headset Quest reports observed primitive hand rendering: earlier hands were absent, and the latest manually entered immersive session showed two visible box-style hands that were readable as hands but non-realistic.
-- Proposal: `proposals/approved/proposal-local-webxr-hand-mesh-assets.md`
-- Primary owners: `xr-systems-architect`, `asset-pipeline-lead`, `open-source-governance-lead`, `ux-friction-critic`, `test-automation-lead`
-- Review when: improving Quest hand representation, hand-tracking affordances, in-headset visual fidelity, or manual Quest readiness gates.
-- Acceptance shape:
-  - Use local reviewed GLB hand assets only; do not rely on Three's default jsDelivr hand-profile fallback.
-  - Record per-asset provenance, license status, modification notes, Quest geometry/texture budget, and fallback behavior.
-  - Keep primitive/spheres fallback available and recorded as a limitation if mesh loading fails.
-  - Require a later human Quest run before claiming hand-quality readiness, but wait until instrumentation and hand-asset improvements are ready so the run can collect trace, frame, locomotion, latency, and visual-fidelity evidence in one pass.
-- Current posture: first slice implemented. `apps/ui-xr` uses reviewed local `@webxr-input-profiles/assets@1.0.20` generic-hand GLBs from `apps/ui-xr/public/xr-hands/generic-hand/`, records MIT provenance beside the copied assets, calls Three's mesh profile through a local path, preserves primitive-sphere fallback, and surfaces async GLB load failures as fallback evidence. Quest hand-quality and frame-pacing claims still require a fresh worn-headset run with active `handRepresentationKind: "mesh"` and valid frame stats.
+### IWER Adversarial Visual QA
 
-### SUG-2026-05-05-001: Evaluate Blender MCP For Asset Pipeline Automation
+- Date added: 2026-05-04
+- Suggestion: Use browser screenshots/videos and multimodal adversarial review to judge whether XR scenes accurately depict actors, equipment, readability, occlusion, and clinical intent.
+- Current status: implemented as a standing evidence posture for IWER/managed-browser artifacts.
+- Confidence: high for emulated visual iteration; low for physical Quest readiness.
+- Notes: IWER screenshots and visual QA reports are already labeled as emulation evidence. They help iterate scene fidelity but do not replace worn-headset frame pacing, comfort, latency, or hand/controller evidence.
+- Promote when: a new visual slice changes actors, equipment, spatial text, hand models, or scenario layout.
 
-- Status: `accepted-for-review`
-- Captured at: 2026-05-05 16:03 EDT
-- Operator steering: Blender MCP exists and may assist the solution design for generated clinical actors, equipment, rigging, scene setup, asset inspection, and repeatable Blender automation.
-- Reference: https://www.blender.org/lab/mcp-server/
-- Primary owners: `asset-pipeline-lead`, `xr-systems-architect`, `test-automation-lead`, `open-source-governance-lead`
-- Review when: advancing Blender asset bake automation, generated-human/medical-equipment pipelines, rigging/animation validation, scene fidelity QA, or adversarial visual inspection workflows.
-- Acceptance shape:
-  - Verify official Blender MCP installation, license, versioning, security posture, local-only operation, and compatibility with the installed Blender runtime before adding any package or server configuration.
-  - Treat Blender MCP as an optional local developer automation lane unless a later proposal approves production or CI usage.
-  - Evaluate whether it can produce structured evidence for scene contents, mesh/material provenance, equipment presence, rigging/animation readiness, polycount/texture budgets, and screenshots/videos for adversarial visual QA.
-  - Keep existing non-MCP Blender CLI smoke tests as the baseline until MCP evidence proves added value.
-- Current posture: recorded as an optional agent-loop workflow recommendation for asset-pipeline work only. No Blender MCP package/server install, MCP configuration, production use, CI use, or remote-access posture has been approved.
+### Parallel Agents, Worktrees, And Portless
+
+- Date added: 2026-05-04
+- Suggestion: Use background agents, git worktrees, and Portless when slices can run independently without stepping on each other.
+- Current status: active workflow guidance.
+- Confidence: high.
+- Notes: Use subagents for independent research/review/implementation slices with disjoint ownership. Portless is optional local developer routing; do not use it as Quest evidence until a headset path is validated.
+- Promote when: a large feature can split into independent write scopes or parallel evidence collection.
+
+### Web3 / QUIC / HTTP3 Quick Protocol Support
+
+- Date added: 2026-05-04
+- Suggestion: Explore quick protocol support, including HTTP/3 where Bun/Hono support is emerging.
+- Current status: WebSocket primary is implemented; HTTP/3 Quest compatibility is future approved; QUIC/Web3 remain gated.
+- Confidence: high for WebSocket-first posture; low until Quest HTTP/3 evidence exists.
+- Notes: Do not add WebTransport, direct QUIC, Web3, wallet, DID, blockchain, cloud relay, or paid transport dependencies without explicit follow-up approval. Future HTTP/3 work must use real Quest Browser evidence and separate protocol reachability from clinical media readiness.
+- Promote when: a local no-cloud Quest Browser HTTP/3 compatibility run is ready.
+
+### Godot Quest Voice Client
+
+- Date added: 2026-05-05
+- Suggestion: Clarify whether Godot is long-term or single-purpose.
+- Current status: documented as temporary, deletable sidecar.
+- Confidence: high.
+- Notes: Godot is not the primary long-term OpenClinXR client. It exists to test a Quest-native voice transport hypothesis while WebXR/IWSDK remains the main scenario UI path.
+- Promote when: a physical Quest Godot voice run becomes valuable for binary WebSocket, microphone, Opus, playback, or latency evidence.
+
+### MongoDB Agent Skills
+
+- Date added: 2026-05-05
+- Suggestion: Use MongoDB agent skills for MongoDB work.
+- Current status: standing rule.
+- Confidence: high.
+- Notes: MongoDB schema, repository, query, index, and search/AI slices should consult the installed MongoDB skills before implementation. This does not authorize Atlas/cloud usage by itself.
+- Promote when: a MongoDB schema, repository, indexing, or query optimization slice starts.

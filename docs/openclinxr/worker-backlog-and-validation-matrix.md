@@ -7,6 +7,8 @@ Status: code-phase handoff companion
 
 This document translates the architecture into worker-owned build slices. It complements the exhaustive implementation plan and should be kept current while code is being written.
 
+Nonblocking operator suggestions that should be remembered but not implemented immediately live in [operator-suggestion-backlog.md](../../operator-suggestion-backlog.md).
+
 ## Global Rules
 
 - No cloud APIs, paid services, or third-party model calls in default setup.
