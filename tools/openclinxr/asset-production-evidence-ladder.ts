@@ -3,6 +3,7 @@ import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 import type { AssetProductionReadinessReport } from "./asset-production-readiness-benchmark.js";
 
 type CliOptions = {
+  validatePath?: string;
   readinessReportPath?: string;
   outputPath?: string;
 };
@@ -68,6 +69,8 @@ export type AssetProductionEvidenceLadderReport = {
     caveats: string[];
   };
 };
+
+type ValidationResult = { ok: true } | { ok: false; errors: string[] };
 
 const laneDefinitions: Array<{
   id: Exclude<LadderLaneId, "artifactBackedProductionAssetEvidence">;
@@ -143,6 +146,22 @@ async function main(): Promise<void> {
 
 export async function runAssetProductionEvidenceLadderCli(args: string[]): Promise<void> {
   const options = parseArgs(args);
+  if (options.validatePath) {
+    const validation = validateAssetProductionEvidenceLadderReport(
+      await readJson<unknown>(options.validatePath),
+    );
+    if (validation.ok) {
+      console.log(`Validated ${options.validatePath}`);
+      return;
+    }
+
+    for (const error of validation.errors) {
+      console.error(error);
+    }
+    process.exitCode = 1;
+    return;
+  }
+
   const readinessReportPath = options.readinessReportPath
     ?? await latestPath("docs/openclinxr/asset-production-readiness-benchmark-*.json");
   if (!readinessReportPath) {
@@ -169,6 +188,11 @@ function parseArgs(args: string[]): CliOptions {
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
+    if (arg === "--validate") {
+      options.validatePath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
     if (arg === "--readiness") {
       options.readinessReportPath = requireValue(normalizedArgs, index, arg);
       index += 1;
@@ -250,6 +274,129 @@ export function buildAssetProductionEvidenceLadderReport(input: {
       ],
     },
   };
+}
+
+export function validateAssetProductionEvidenceLadderReport(value: unknown): ValidationResult {
+  const errors: string[] = [];
+
+  if (!isRecord(value)) {
+    return { ok: false, errors: ["/ must be object"] };
+  }
+
+  requireLiteral(value.schemaVersion, "openclinxr.asset-production-evidence-ladder.v1", "/schemaVersion", errors);
+  requireLiteral(value.kind, "asset_production_evidence_ladder", "/kind", errors);
+  requireString(value.generatedAt, "/generatedAt", errors);
+  requireOneOf(value.status, ["passed", "blocked"], "/status", errors);
+  requireRecord(value.sourceReadinessReport, "/sourceReadinessReport", errors);
+  if (isRecord(value.sourceReadinessReport)) {
+    requireString(value.sourceReadinessReport.file, "/sourceReadinessReport/file", errors);
+    requireString(value.sourceReadinessReport.generatedAt, "/sourceReadinessReport/generatedAt", errors);
+    requireString(value.sourceReadinessReport.status, "/sourceReadinessReport/status", errors);
+    requireBoolean(
+      value.sourceReadinessReport.localAssetEvidenceFixtureUsed,
+      "/sourceReadinessReport/localAssetEvidenceFixtureUsed",
+      errors,
+    );
+  }
+  requireRecord(value.policy, "/policy", errors);
+  if (isRecord(value.policy)) {
+    requireLiteral(value.policy.installsIntroduced, false, "/policy/installsIntroduced", errors);
+    requireLiteral(value.policy.cloudApisUsed, false, "/policy/cloudApisUsed", errors);
+    requireLiteral(value.policy.paidApisUsed, false, "/policy/paidApisUsed", errors);
+    requireBoolean(value.policy.externalAssetsUsed, "/policy/externalAssetsUsed", errors);
+    requireLiteral(value.policy.productionAssetReadinessClaimed, false, "/policy/productionAssetReadinessClaimed", errors);
+  }
+  requireArray(value.lanes, "/lanes", errors);
+  requireRecord(value.summary, "/summary", errors);
+  if (isRecord(value.summary)) {
+    requireNumber(value.summary.totalLaneCount, "/summary/totalLaneCount", errors);
+    requireNumber(value.summary.observedLaneCount, "/summary/observedLaneCount", errors);
+    requireNumber(value.summary.contractOnlyLaneCount, "/summary/contractOnlyLaneCount", errors);
+    requireNumber(value.summary.blockedLaneCount, "/summary/blockedLaneCount", errors);
+    requireBoolean(
+      value.summary.artifactBackedProductionAssetEvidenceObserved,
+      "/summary/artifactBackedProductionAssetEvidenceObserved",
+      errors,
+    );
+  }
+  requireRecord(value.verdict, "/verdict", errors);
+  if (isRecord(value.verdict)) {
+    requireBoolean(value.verdict.passed, "/verdict/passed", errors);
+    requireLiteral(value.verdict.readyForProductionAssets, false, "/verdict/readyForProductionAssets", errors);
+    requireStringArray(value.verdict.blockers, "/verdict/blockers", errors);
+    requireStringArray(value.verdict.caveats, "/verdict/caveats", errors);
+  }
+
+  return errors.length === 0 ? { ok: true } : { ok: false, errors };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function requireRecord(value: unknown, pathName: string, errors: string[]): void {
+  if (!isRecord(value)) {
+    errors.push(`${pathName} must be object`);
+  }
+}
+
+function requireArray(value: unknown, pathName: string, errors: string[]): void {
+  if (!Array.isArray(value)) {
+    errors.push(`${pathName} must be array`);
+  }
+}
+
+function requireString(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "string" || value.length === 0) {
+    errors.push(`${pathName} must be non-empty string`);
+  }
+}
+
+function requireStringArray(value: unknown, pathName: string, errors: string[]): void {
+  if (!Array.isArray(value)) {
+    errors.push(`${pathName} must be array`);
+    return;
+  }
+
+  value.forEach((entry, index) => {
+    if (typeof entry !== "string" || entry.length === 0) {
+      errors.push(`${pathName}/${index} must be non-empty string`);
+    }
+  });
+}
+
+function requireBoolean(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "boolean") {
+    errors.push(`${pathName} must be boolean`);
+  }
+}
+
+function requireNumber(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    errors.push(`${pathName} must be finite number`);
+  }
+}
+
+function requireLiteral<T extends string | boolean>(
+  value: unknown,
+  literal: T,
+  pathName: string,
+  errors: string[],
+): void {
+  if (value !== literal) {
+    errors.push(`${pathName} must be ${JSON.stringify(literal)}`);
+  }
+}
+
+function requireOneOf<T extends string>(
+  value: unknown,
+  allowed: T[],
+  pathName: string,
+  errors: string[],
+): void {
+  if (typeof value !== "string" || !(allowed as string[]).includes(value)) {
+    errors.push(`${pathName} must be one of ${allowed.map((entry) => JSON.stringify(entry)).join(", ")}`);
+  }
 }
 
 function buildLanes(readinessReport: AssetProductionReadinessReport): AssetProductionEvidenceLadderLane[] {

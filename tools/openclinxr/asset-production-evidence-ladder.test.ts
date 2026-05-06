@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -9,6 +9,19 @@ import {
 } from "./asset-production-evidence-ladder.js";
 
 describe("asset production evidence ladder report", () => {
+  it("exposes generation and validation scripts", async () => {
+    const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+
+    expect(rootPackage.scripts["asset:production:ladder"]).toBe(
+      "tsx tools/openclinxr/asset-production-evidence-ladder.ts",
+    );
+    expect(rootPackage.scripts["asset:production:ladder:validate"]).toBe(
+      "tsx tools/openclinxr/asset-production-evidence-ladder.ts --validate docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
+    );
+  });
+
   it("turns contract-only local asset fixture readiness into explicit blocked proof lanes", () => {
     const readiness = buildAssetProductionReadinessReport({
       generatedAt: "2026-05-06T12:00:00.000Z",
@@ -114,6 +127,35 @@ describe("asset production evidence ladder report", () => {
       expect(report.verdict.readyForProductionAssets).toBe(false);
       expect(report.verdict.blockers).toContain("artifact_backed_production_asset_evidence_missing");
     } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("validates generated ladder reports before reuse", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-asset-ladder-validate-"));
+    const outputPath = path.join(tempDir, "asset-production-evidence-ladder.json");
+    const invalidPath = path.join(tempDir, "asset-production-evidence-ladder-invalid.json");
+    const previousExitCode = process.exitCode;
+
+    try {
+      await runAssetProductionEvidenceLadderCli([
+        "--readiness",
+        "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+        "--output",
+        outputPath,
+      ]);
+
+      await expect(runAssetProductionEvidenceLadderCli(["--validate", outputPath])).resolves.toBeUndefined();
+
+      const invalidReport = JSON.parse(await readFile(outputPath, "utf8"));
+      delete invalidReport.schemaVersion;
+      await writeFile(invalidPath, `${JSON.stringify(invalidReport, null, 2)}\n`, "utf8");
+
+      process.exitCode = undefined;
+      await runAssetProductionEvidenceLadderCli(["--validate", invalidPath]);
+      expect(process.exitCode).toBe(1);
+    } finally {
+      process.exitCode = previousExitCode;
       await rm(tempDir, { recursive: true, force: true });
     }
   });
