@@ -82,6 +82,27 @@ describe("local realtime voice model cache evidence", () => {
     ]);
   });
 
+  it("ignores cached smoke output directories when judging approved model readiness", async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), "openclinxr-voice-cache-"));
+    const smokeDir = path.join(dir, "qwen-tts-smoke-2026-05-06-run2");
+    await mkdir(smokeDir, { recursive: true });
+    await writeFile(path.join(smokeDir, "openclinxr-qwen-smoke_000.wav"), "pretend audio");
+
+    const report = await buildLocalRealtimeVoiceModelCacheEvidence({
+      cacheDir: dir,
+      generatedAt: "2026-05-06T14:00:00.000Z",
+    });
+
+    expect(report.ready).toBe(false);
+    expect(report.models).toEqual([]);
+    expect(report.support_directories).toEqual([
+      expect.objectContaining({
+        name: "qwen-tts-smoke-2026-05-06-run2",
+        reason: "runtime_generated_output_not_model_weights",
+      }),
+    ]);
+  });
+
   it("writes a CLI report to the requested output path", async () => {
     const dir = await mkdtemp(path.join(tmpdir(), "openclinxr-voice-cache-"));
     const output = path.join(dir, "cache-evidence.json");

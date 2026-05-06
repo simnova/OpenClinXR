@@ -96,7 +96,7 @@
     {
       "evidence_id": "local_voice_live_dialog_benchmark",
       "file": "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-06.json",
-      "generated_at": "2026-05-06T14:33:32.608Z",
+      "generated_at": "2026-05-06T14:41:44.220Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -105,7 +105,7 @@
     {
       "evidence_id": "local_realtime_voice_model_cache_evidence",
       "file": "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-06.json",
-      "generated_at": "2026-05-06T14:32:49.876Z",
+      "generated_at": "2026-05-06T14:41:23.601Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -151,7 +151,7 @@
       "evidence_id": "realtime_voice_transport_spike",
       "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-06.json",
       "generated_at": "2026-05-06T13:40:30.076Z",
-      "age_hours": 0,
+      "age_hours": 1,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -160,7 +160,7 @@
       "evidence_id": "api_python_backend_runtime_smoke",
       "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-06.json",
       "generated_at": "2026-05-06T13:39:59.065Z",
-      "age_hours": 0,
+      "age_hours": 1,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -186,7 +186,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T14:34:04.911Z",
+      "generated_at": "2026-05-06T14:41:52.916Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -954,7 +954,7 @@
   },
   "local_voice_live_dialog_benchmark": {
     "file": "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-06.json",
-    "generated_at": "2026-05-06T14:33:32.608Z",
+    "generated_at": "2026-05-06T14:41:44.220Z",
     "status": "blocked",
     "mock_stream": {
       "provider": "deterministic-mock-voice-gateway",
@@ -1016,7 +1016,7 @@
   },
   "local_realtime_voice_model_cache_evidence": {
     "file": "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-06.json",
-    "generated_at": "2026-05-06T14:32:49.876Z",
+    "generated_at": "2026-05-06T14:41:23.601Z",
     "kind": "local_voice_evidence_check",
     "claim_scope": "cache_inventory_only",
     "cache_dir": "/Users/patrick/.cache/openclinxr/realtime-voice",
@@ -1063,6 +1063,20 @@
         "reason": "runtime_support_venv_not_model_weights",
         "file_count": 18116,
         "total_bytes": 723512187
+      },
+      {
+        "path": "/Users/patrick/.cache/openclinxr/realtime-voice/qwen-tts-smoke-2026-05-06",
+        "name": "qwen-tts-smoke-2026-05-06",
+        "reason": "runtime_generated_output_not_model_weights",
+        "file_count": 3,
+        "total_bytes": 171428
+      },
+      {
+        "path": "/Users/patrick/.cache/openclinxr/realtime-voice/qwen-tts-smoke-2026-05-06-run2",
+        "name": "qwen-tts-smoke-2026-05-06-run2",
+        "reason": "runtime_generated_output_not_model_weights",
+        "file_count": 3,
+        "total_bytes": 163771
       }
     ],
     "blockers": []
@@ -1631,7 +1645,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T14:34:04.911Z",
+    "generated_at": "2026-05-06T14:41:52.916Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,

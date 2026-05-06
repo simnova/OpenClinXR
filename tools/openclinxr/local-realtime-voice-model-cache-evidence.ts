@@ -41,7 +41,7 @@ export type LocalRealtimeVoiceModelCacheEvidenceReport = {
   support_directories: Array<{
     path: string;
     name: string;
-    reason: "runtime_support_venv_not_model_weights";
+    reason: "runtime_support_venv_not_model_weights" | "runtime_generated_output_not_model_weights";
     file_count: number;
     total_bytes: number;
   }>;
@@ -137,7 +137,11 @@ async function collectSupportDirectories(cacheDir: string): Promise<LocalRealtim
   const entries = await readdir(cacheDir, { withFileTypes: true });
   const supportDirectories = [];
   for (const entry of entries) {
-    if (!entry.isDirectory() || entry.name !== "api-python-backend-venv") {
+    if (!entry.isDirectory()) {
+      continue;
+    }
+    const reason = supportDirectoryReason(entry.name);
+    if (!reason) {
       continue;
     }
     const supportPath = path.join(cacheDir, entry.name);
@@ -145,12 +149,24 @@ async function collectSupportDirectories(cacheDir: string): Promise<LocalRealtim
     supportDirectories.push({
       path: supportPath,
       name: entry.name,
-      reason: "runtime_support_venv_not_model_weights" as const,
+      reason,
       file_count: inventory.fileCount,
       total_bytes: inventory.totalBytes,
     });
   }
   return supportDirectories;
+}
+
+function supportDirectoryReason(
+  name: string,
+): LocalRealtimeVoiceModelCacheEvidenceReport["support_directories"][number]["reason"] | undefined {
+  if (name === "api-python-backend-venv") {
+    return "runtime_support_venv_not_model_weights";
+  }
+  if (/^qwen-tts-smoke-\d{4}-\d{2}-\d{2}(?:-.+)?$/.test(name)) {
+    return "runtime_generated_output_not_model_weights";
+  }
+  return undefined;
 }
 
 async function inventoryDirectory(dir: string): Promise<{

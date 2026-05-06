@@ -1,7 +1,7 @@
 {
   "kind": "local_voice_evidence_check",
   "claim_scope": "cache_inventory_only",
-  "generatedAt": "2026-05-06T14:32:49.876Z",
+  "generatedAt": "2026-05-06T14:41:23.601Z",
   "cache_dir": "/Users/patrick/.cache/openclinxr/realtime-voice",
   "approved_model_ids": [
     "kyutai/moshiko-mlx-q4",
@@ -46,6 +46,20 @@
       "reason": "runtime_support_venv_not_model_weights",
       "file_count": 18116,
       "total_bytes": 723512187
+    },
+    {
+      "path": "/Users/patrick/.cache/openclinxr/realtime-voice/qwen-tts-smoke-2026-05-06",
+      "name": "qwen-tts-smoke-2026-05-06",
+      "reason": "runtime_generated_output_not_model_weights",
+      "file_count": 3,
+      "total_bytes": 171428
+    },
+    {
+      "path": "/Users/patrick/.cache/openclinxr/realtime-voice/qwen-tts-smoke-2026-05-06-run2",
+      "name": "qwen-tts-smoke-2026-05-06-run2",
+      "reason": "runtime_generated_output_not_model_weights",
+      "file_count": 3,
+      "total_bytes": 163771
     }
   ]
 }
