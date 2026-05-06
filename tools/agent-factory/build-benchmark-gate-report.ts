@@ -35,6 +35,7 @@ import {
   type AssetProductionReadinessReport,
 } from "../openclinxr/asset-production-readiness-benchmark.js";
 import type { LocalMoshiRuntimePackageEvidenceReport } from "../openclinxr/local-moshi-runtime-package-evidence.js";
+import type { LocalModelCacheEvidenceReport } from "../openclinxr/local-model-cache-evidence.js";
 import type { LocalQwenTtsRuntimeSmokeReport } from "../openclinxr/local-qwen-tts-runtime-smoke.js";
 import type { GodotProjectImportCheck } from "../openclinxr/godot-project-import-check.js";
 import {
@@ -445,6 +446,19 @@ type EvidenceGateReport = {
     target_hardware: LocalModelQualityBenchmarkReport["targetHardware"];
     verdict: LocalModelQualityBenchmarkReport["verdict"];
   };
+  local_model_cache_evidence?: {
+    file: string;
+    generated_at: string;
+    kind: string;
+    claim_scope: "cache_inventory_only";
+    cache_dir: string;
+    approved_model_ids: string[];
+    cache_exists: boolean;
+    ready: boolean;
+    policy: LocalModelCacheEvidenceReport["policy"];
+    models: LocalModelCacheEvidenceReport["models"];
+    blockers: string[];
+  };
   local_voice_runtime_benchmark?: {
     file: string;
     generated_at: string;
@@ -774,6 +788,7 @@ export type BenchmarkGateReportInput = {
   localProviderBenchmark?: EvidenceFile<LocalProviderBenchmarkReport>;
   localModelRuntimeBenchmark?: EvidenceFile<LocalModelRuntimeBenchmarkReport>;
   localModelQualityBenchmark?: EvidenceFile<LocalModelQualityBenchmarkReport>;
+  localModelCacheEvidence?: EvidenceFile<LocalModelCacheEvidenceReport>;
   localVoiceRuntimeBenchmark?: EvidenceFile<LocalVoiceRuntimeBenchmarkReport>;
   localVoiceLiveDialogBenchmark?: EvidenceFile<LocalVoiceLiveDialogBenchmarkReport>;
   localRealtimeVoiceModelCacheEvidence?: EvidenceFile<LocalRealtimeVoiceModelCacheEvidenceReport>;
@@ -817,6 +832,7 @@ async function main(): Promise<void> {
   const localProviderBenchmark = await latestJson<LocalProviderBenchmarkReport>("docs/openclinxr/local-provider-benchmark-*.json");
   const localModelRuntimeBenchmark = await latestJson<LocalModelRuntimeBenchmarkReport>("docs/openclinxr/local-model-runtime-benchmark-*.json");
   const localModelQualityBenchmark = await latestJson<LocalModelQualityBenchmarkReport>("docs/openclinxr/local-model-quality-benchmark-*.json");
+  const localModelCacheEvidence = await latestJson<LocalModelCacheEvidenceReport>("docs/openclinxr/local-model-cache-evidence-*.json");
   const localVoiceRuntimeBenchmark = await latestJson<LocalVoiceRuntimeBenchmarkReport>("docs/openclinxr/local-voice-runtime-benchmark-*.json");
   const localVoiceLiveDialogBenchmark = await latestJson<LocalVoiceLiveDialogBenchmarkReport>("docs/openclinxr/local-voice-live-dialog-benchmark-*.json");
   const localRealtimeVoiceModelCacheEvidence = await latestJson<LocalRealtimeVoiceModelCacheEvidenceReport>("docs/openclinxr/local-realtime-voice-model-cache-evidence-*.json");
@@ -854,6 +870,7 @@ async function main(): Promise<void> {
     localProviderBenchmark,
     localModelRuntimeBenchmark,
     localModelQualityBenchmark,
+    localModelCacheEvidence,
     localVoiceRuntimeBenchmark,
     localVoiceLiveDialogBenchmark,
     localRealtimeVoiceModelCacheEvidence,
@@ -913,6 +930,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localProviderBenchmark,
     localModelRuntimeBenchmark,
     localModelQualityBenchmark,
+    localModelCacheEvidence,
     localVoiceRuntimeBenchmark,
     localVoiceLiveDialogBenchmark,
     localRealtimeVoiceModelCacheEvidence,
@@ -955,6 +973,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localProviderBenchmark,
     localModelRuntimeBenchmark,
     localModelQualityBenchmark,
+    localModelCacheEvidence,
     localVoiceRuntimeBenchmark,
     localVoiceLiveDialogBenchmark,
     localRealtimeVoiceModelCacheEvidence,
@@ -1034,11 +1053,14 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
   ];
   const localModelQualityEvidenceBlockers = [
     ...localModelQualityBlockers(localModelRuntimeBenchmark, localModelQualityBenchmark),
+    ...localModelCacheEvidenceBlockers(localModelCacheEvidence)
+      .map((blocker) => `local_model_quality:local_model_cache:${blocker}`),
     ...freshnessBlockers(evidenceFreshness, [
       "local_runtime_probe",
       "local_provider_benchmark",
       "local_model_runtime_benchmark",
       "local_model_quality_benchmark",
+      "local_model_cache_evidence",
     ]),
   ];
   const localVoiceLiveDialogEvidenceBlockers = [
@@ -1149,6 +1171,8 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localModelQualityBenchmark?.value.actorPolicy.passed ? "local_model_quality_actor_policy_benchmark_passed" : undefined,
     localModelQualityBenchmark?.value.targetHardware.passed ? "local_model_quality_target_hardware_passed" : undefined,
     localModelQualityBenchmark?.value.verdict.passed ? "local_model_quality_benchmark_passed" : undefined,
+    localModelCacheEvidence ? "local_model_cache_evidence_present" : undefined,
+    localModelCacheReady(localModelCacheEvidence) ? "local_model_cache_ready" : undefined,
     localVoiceRuntimeBenchmark?.value.verdict.passed ? "local_voice_first_audio_benchmark_passed" : undefined,
     localVoiceLiveDialogBenchmark ? "local_voice_live_dialog_report_present" : undefined,
     localVoiceLiveDialogBenchmark?.value.mockStream.passed ? "local_voice_live_dialog_mock_stream_passed" : undefined,
@@ -1367,6 +1391,21 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         actor_policy: localModelQualityBenchmark.value.actorPolicy,
         target_hardware: localModelQualityBenchmark.value.targetHardware,
         verdict: localModelQualityBenchmark.value.verdict,
+      },
+    } : {}),
+    ...(localModelCacheEvidence ? {
+      local_model_cache_evidence: {
+        file: localModelCacheEvidence.file,
+        generated_at: localModelCacheEvidence.value.generatedAt,
+        kind: localModelCacheEvidence.value.kind,
+        claim_scope: localModelCacheEvidence.value.claim_scope,
+        cache_dir: localModelCacheEvidence.value.cache_dir,
+        approved_model_ids: [...localModelCacheEvidence.value.approved_model_ids],
+        cache_exists: localModelCacheEvidence.value.cache_exists,
+        ready: localModelCacheReady(localModelCacheEvidence),
+        policy: localModelCacheEvidence.value.policy,
+        models: localModelCacheEvidence.value.models,
+        blockers: localModelCacheEvidenceBlockers(localModelCacheEvidence),
       },
     } : {}),
     ...(localVoiceRuntimeBenchmark ? {
@@ -1714,6 +1753,7 @@ function buildEvidenceFreshnessReport(
     localProviderBenchmark?: EvidenceFile<LocalProviderBenchmarkReport>;
     localModelRuntimeBenchmark?: EvidenceFile<LocalModelRuntimeBenchmarkReport>;
     localModelQualityBenchmark?: EvidenceFile<LocalModelQualityBenchmarkReport>;
+    localModelCacheEvidence?: EvidenceFile<LocalModelCacheEvidenceReport>;
     localVoiceRuntimeBenchmark?: EvidenceFile<LocalVoiceRuntimeBenchmarkReport>;
     localVoiceLiveDialogBenchmark?: EvidenceFile<LocalVoiceLiveDialogBenchmarkReport>;
     localRealtimeVoiceModelCacheEvidence?: EvidenceFile<LocalRealtimeVoiceModelCacheEvidenceReport>;
@@ -1750,6 +1790,7 @@ function buildEvidenceFreshnessReport(
     evidenceFreshnessEntry("local_provider_benchmark", evidence.localProviderBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_model_runtime_benchmark", evidence.localModelRuntimeBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_model_quality_benchmark", evidence.localModelQualityBenchmark, now, maxAgeHours),
+    evidenceFreshnessEntry("local_model_cache_evidence", evidence.localModelCacheEvidence, now, maxAgeHours),
     evidenceFreshnessEntry("local_voice_runtime_benchmark", evidence.localVoiceRuntimeBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_voice_live_dialog_benchmark", evidence.localVoiceLiveDialogBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_realtime_voice_model_cache_evidence", evidence.localRealtimeVoiceModelCacheEvidence, now, maxAgeHours),
@@ -2170,6 +2211,54 @@ function localModelQualityBlockers(
     "local_model_quality:missing_schema_grammar_benchmark",
   );
   return unique(blockers);
+}
+
+function localModelCacheEvidenceBlockers(
+  evidence: EvidenceFile<LocalModelCacheEvidenceReport> | undefined,
+): string[] {
+  if (!evidence) {
+    return ["missing_local_model_cache_evidence_report"];
+  }
+
+  const report = evidence.value;
+  const approvedModelIds = new Set(report.approved_model_ids);
+  const modelApprovalBlockers = report.models.flatMap((model) => [
+    approvedModelIds.has(model.model_id) ? undefined : `model:${model.model_id}:not_in_approved_model_ids`,
+    model.approved ? undefined : `model:${model.model_id}:not_marked_approved`,
+    model.has_evidence ? undefined : `model:${model.model_id}:weight_evidence_missing`,
+    model.main_ref_matches_file_revision === true ? undefined : `model:${model.model_id}:main_ref_revision_not_matched`,
+    typeof model.sha256 === "string" ? undefined : `model:${model.model_id}:sha256_missing`,
+    model.size_bytes > 0 ? undefined : `model:${model.model_id}:size_bytes_missing_or_zero`,
+  ]);
+  return unique([
+    report.kind === "local_model_evidence_check" ? undefined : "invalid_local_model_cache_evidence_kind",
+    report.claim_scope === "cache_inventory_only" ? undefined : "invalid_local_model_cache_claim_scope",
+    report.cache_exists ? undefined : "cache_directory_missing",
+    report.models.length > 0 ? undefined : "approved_model_weights_not_cached",
+    ...modelApprovalBlockers,
+    localModelCacheReady(evidence) ? undefined : "approved_local_model_cache_missing_or_not_ready",
+    ...report.models.flatMap((model) =>
+      model.ready ? [] : model.blockers.map((blocker) => `model:${model.model_id}:${blocker}`),
+    ),
+  ]);
+}
+
+function localModelCacheReady(
+  evidence: EvidenceFile<LocalModelCacheEvidenceReport> | undefined,
+): boolean {
+  if (!evidence?.value.ready) {
+    return false;
+  }
+  const approvedModelIds = new Set(evidence.value.approved_model_ids);
+  return evidence.value.models.some((model) =>
+    model.ready
+    && model.approved
+    && model.has_evidence
+    && approvedModelIds.has(model.model_id)
+    && model.main_ref_matches_file_revision === true
+    && typeof model.sha256 === "string"
+    && model.size_bytes > 0
+  );
 }
 
 function localVoiceRuntimeBenchmarkBlockers(

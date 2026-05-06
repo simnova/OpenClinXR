@@ -226,6 +226,35 @@ type BenchmarkGateReport = {
     }>;
     blockers: string[];
   };
+  local_model_cache_evidence?: {
+    file: string;
+    generated_at: string;
+    kind: string;
+    claim_scope: string;
+    cache_dir: string;
+    approved_model_ids: string[];
+    cache_exists: boolean;
+    ready: boolean;
+    policy: {
+      cloudApisUsed: false;
+      paidApisUsed: false;
+      downloadAttemptedByThisTool: false;
+      localRuntimeExecutionAttemptedByThisTool: false;
+      productionUseAllowed: false;
+    };
+    models: Array<{
+      model_id: string;
+      file_name: string;
+      ready: boolean;
+      blockers: string[];
+      local_revision: string | null;
+      main_ref_revision: string | null;
+      main_ref_matches_file_revision: boolean | null;
+      size_bytes: number;
+      sha256: string | null;
+    }>;
+    blockers: string[];
+  };
   local_qwen_tts_runtime_smoke?: {
     file: string;
     generated_at: string;
@@ -715,6 +744,44 @@ type LocalRealtimeVoiceModelCacheEvidenceInput = {
   };
 };
 
+type LocalModelCacheEvidenceInput = {
+  file: string;
+  value: {
+    generatedAt: string;
+    kind: "local_model_evidence_check";
+    claim_scope: "cache_inventory_only";
+    cache_dir: string;
+    approved_model_ids: string[];
+    cache_exists: boolean;
+    ready: boolean;
+    policy: {
+      cloudApisUsed: false;
+      paidApisUsed: false;
+      downloadAttemptedByThisTool: false;
+      localRuntimeExecutionAttemptedByThisTool: false;
+      productionUseAllowed: false;
+    };
+    models: Array<{
+      model_id: string;
+      path: string;
+      source_type: "local_cache_snapshot";
+      expected_storage_name: string;
+      file_name: string;
+      license: string;
+      source_id: string;
+      approved: true;
+      has_evidence: boolean;
+      ready: boolean;
+      blockers: string[];
+      local_revision: string | null;
+      main_ref_revision: string | null;
+      main_ref_matches_file_revision: boolean | null;
+      size_bytes: number;
+      sha256: string | null;
+    }>;
+  };
+};
+
 type LocalQwenTtsRuntimeSmokeInput = {
   file: string;
   value: LocalQwenTtsRuntimeSmokeReport;
@@ -775,6 +842,59 @@ function readyRealtimeVoiceModelCacheEvidence(): LocalRealtimeVoiceModelCacheEvi
             model_id: "kyutai/moshiko-mlx-q4",
             source_type: "local_source_copy",
           },
+        },
+      ],
+    },
+  };
+}
+
+function missingLocalModelCacheEvidence(): LocalModelCacheEvidenceInput {
+  return {
+    file: "docs/openclinxr/local-model-cache-evidence-2026-05-06.json",
+    value: {
+      generatedAt: "2026-05-06T22:00:00.000Z",
+      kind: "local_model_evidence_check",
+      claim_scope: "cache_inventory_only",
+      cache_dir: "/Users/patrick/.cache/huggingface/hub",
+      approved_model_ids: ["Qwen/Qwen3-4B-GGUF"],
+      cache_exists: true,
+      ready: false,
+      policy: {
+        cloudApisUsed: false,
+        paidApisUsed: false,
+        downloadAttemptedByThisTool: false,
+        localRuntimeExecutionAttemptedByThisTool: false,
+        productionUseAllowed: false,
+      },
+      models: [],
+    },
+  };
+}
+
+function readyLocalModelCacheEvidence(): LocalModelCacheEvidenceInput {
+  return {
+    file: "docs/openclinxr/local-model-cache-evidence-2026-05-06.json",
+    value: {
+      ...missingLocalModelCacheEvidence().value,
+      ready: true,
+      models: [
+        {
+          model_id: "Qwen/Qwen3-4B-GGUF",
+          path: "/Users/patrick/.cache/huggingface/hub/models--Qwen--Qwen3-4B-GGUF/snapshots/bc640142c66e1fdd12af0bd68f40445458f3869b/Qwen3-4B-Q4_K_M.gguf",
+          source_type: "local_cache_snapshot",
+          expected_storage_name: "models--Qwen--Qwen3-4B-GGUF",
+          file_name: "Qwen3-4B-Q4_K_M.gguf",
+          license: "Apache-2.0",
+          source_id: "src-qwen3-4b-gguf-2026",
+          approved: true,
+          has_evidence: true,
+          ready: true,
+          blockers: [],
+          local_revision: "bc640142c66e1fdd12af0bd68f40445458f3869b",
+          main_ref_revision: "bc640142c66e1fdd12af0bd68f40445458f3869b",
+          main_ref_matches_file_revision: true,
+          size_bytes: 2497280256,
+          sha256: "7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5",
         },
       ],
     },
@@ -2036,6 +2156,89 @@ describe("benchmark gate report", () => {
       "local_model_quality:missing_hidden_truth_actor_policy_benchmark",
       "local_model_quality:actor_policy:real_local_model_actor_policy_benchmark_missing",
       "local_model_quality:missing_schema_grammar_benchmark",
+    ]));
+  });
+
+  it("surfaces local model cache evidence as a local model quality gate input", () => {
+    const buildReport = buildBenchmarkGateReport as (
+      input: Parameters<typeof buildBenchmarkGateReport>[0] & {
+        localModelCacheEvidence?: LocalModelCacheEvidenceInput;
+      },
+      options: { now: Date; maxEvidenceAgeHours: number },
+    ) => BenchmarkGateReport;
+
+    const report = buildReport({
+      localModelCacheEvidence: missingLocalModelCacheEvidence(),
+    }, { now: new Date("2026-05-06T22:05:00.000Z"), maxEvidenceAgeHours: 24 });
+    const qualityGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-002");
+
+    expect(report.local_model_cache_evidence).toMatchObject({
+      file: "docs/openclinxr/local-model-cache-evidence-2026-05-06.json",
+      kind: "local_model_evidence_check",
+      claim_scope: "cache_inventory_only",
+      cache_exists: true,
+      ready: false,
+      models: [],
+      blockers: [
+        "approved_local_model_cache_missing_or_not_ready",
+        "approved_model_weights_not_cached",
+      ],
+    });
+    expect(report.evidence_freshness).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        evidence_id: "local_model_cache_evidence",
+        file: "docs/openclinxr/local-model-cache-evidence-2026-05-06.json",
+        status: "fresh",
+        blockers: [],
+      }),
+    ]));
+    expect(qualityGate?.blockers).toEqual(expect.arrayContaining([
+      "local_model_quality:local_model_cache:approved_local_model_cache_missing_or_not_ready",
+      "local_model_quality:local_model_cache:approved_model_weights_not_cached",
+    ]));
+    expect(qualityGate?.satisfied_conditions).toEqual(expect.arrayContaining([
+      "local_model_cache_evidence_present",
+    ]));
+    expect(qualityGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
+      "local_model_cache_ready",
+    ]));
+  });
+
+  it("treats a ready local model cache as a satisfied local model quality condition", () => {
+    const buildReport = buildBenchmarkGateReport as (
+      input: Parameters<typeof buildBenchmarkGateReport>[0] & {
+        localModelCacheEvidence?: LocalModelCacheEvidenceInput;
+      },
+      options: { now: Date; maxEvidenceAgeHours: number },
+    ) => BenchmarkGateReport;
+
+    const report = buildReport({
+      localModelCacheEvidence: readyLocalModelCacheEvidence(),
+    }, { now: new Date("2026-05-06T22:05:00.000Z"), maxEvidenceAgeHours: 24 });
+    const qualityGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-002");
+
+    expect(report.local_model_cache_evidence).toMatchObject({
+      cache_exists: true,
+      ready: true,
+      blockers: [],
+      models: [
+        {
+          model_id: "Qwen/Qwen3-4B-GGUF",
+          ready: true,
+          blockers: [],
+          main_ref_matches_file_revision: true,
+          sha256: "7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5",
+        },
+      ],
+    });
+    expect(qualityGate?.satisfied_conditions).toEqual(expect.arrayContaining([
+      "local_model_cache_evidence_present",
+      "local_model_cache_ready",
+    ]));
+    expect(qualityGate?.blockers).not.toEqual(expect.arrayContaining([
+      "local_model_quality:local_model_cache:approved_local_model_cache_missing_or_not_ready",
+      "local_model_quality:local_model_cache:approved_model_weights_not_cached",
+      "local_model_quality:local_model_cache:missing_local_model_cache_evidence_report",
     ]));
   });
 

@@ -103,6 +103,15 @@
       "blockers": []
     },
     {
+      "evidence_id": "local_model_cache_evidence",
+      "file": "docs/openclinxr/local-model-cache-evidence-2026-05-06.json",
+      "generated_at": "2026-05-06T22:00:20.143Z",
+      "age_hours": 0,
+      "max_age_hours": 24,
+      "status": "fresh",
+      "blockers": []
+    },
+    {
       "evidence_id": "local_voice_runtime_benchmark",
       "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T06:20:53Z",
@@ -1207,6 +1216,46 @@
       ]
     }
   },
+  "local_model_cache_evidence": {
+    "file": "docs/openclinxr/local-model-cache-evidence-2026-05-06.json",
+    "generated_at": "2026-05-06T22:00:20.143Z",
+    "kind": "local_model_evidence_check",
+    "claim_scope": "cache_inventory_only",
+    "cache_dir": "/Users/patrick/.cache/huggingface/hub",
+    "approved_model_ids": [
+      "Qwen/Qwen3-4B-GGUF"
+    ],
+    "cache_exists": true,
+    "ready": true,
+    "policy": {
+      "cloudApisUsed": false,
+      "paidApisUsed": false,
+      "downloadAttemptedByThisTool": false,
+      "localRuntimeExecutionAttemptedByThisTool": false,
+      "productionUseAllowed": false
+    },
+    "models": [
+      {
+        "model_id": "Qwen/Qwen3-4B-GGUF",
+        "path": "/Users/patrick/.cache/huggingface/hub/models--Qwen--Qwen3-4B-GGUF/snapshots/bc640142c66e1fdd12af0bd68f40445458f3869b/Qwen3-4B-Q4_K_M.gguf",
+        "source_type": "local_cache_snapshot",
+        "expected_storage_name": "models--Qwen--Qwen3-4B-GGUF",
+        "file_name": "Qwen3-4B-Q4_K_M.gguf",
+        "license": "Apache-2.0",
+        "source_id": "src-qwen3-4b-gguf-2026",
+        "approved": true,
+        "has_evidence": true,
+        "ready": true,
+        "blockers": [],
+        "local_revision": "bc640142c66e1fdd12af0bd68f40445458f3869b",
+        "main_ref_revision": "bc640142c66e1fdd12af0bd68f40445458f3869b",
+        "main_ref_matches_file_revision": true,
+        "size_bytes": 2497280256,
+        "sha256": "7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5"
+      }
+    ],
+    "blockers": []
+  },
   "local_voice_runtime_benchmark": {
     "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-06.json",
     "generated_at": "2026-05-06T06:20:53Z",
@@ -2251,6 +2300,8 @@
         "generated_at_valid",
         "hand_or_controller_input_observed",
         "immersive_session_started",
+        "local_model_cache_evidence_present",
+        "local_model_cache_ready",
         "local_model_quality_actor_policy_benchmark_passed",
         "local_model_quality_report_present",
         "local_model_quality_required_keys_present",
@@ -2491,6 +2542,8 @@
       "evidence_id": "evidence-leadership-0008-002",
       "ready_to_resolve": true,
       "satisfied_conditions": [
+        "local_model_cache_evidence_present",
+        "local_model_cache_ready",
         "local_model_ready_to_benchmark",
         "local_model_runtime_benchmark_passed",
         "local_provider_mock_benchmarks_passed"
@@ -2679,6 +2732,8 @@
       "evidence_id": "evidence-leadership-0009-002",
       "ready_to_resolve": false,
       "satisfied_conditions": [
+        "local_model_cache_evidence_present",
+        "local_model_cache_ready",
         "local_model_quality_actor_policy_benchmark_passed",
         "local_model_quality_report_present",
         "local_model_quality_required_keys_present",
