@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T06:48:24.902Z",
+  "generatedAt": "2026-05-06T08:19:18.833Z",
   "status": "passed",
   "policy": {
     "cloudApisUsed": false,
@@ -12,7 +12,7 @@
     "gltfPipelineSmokeFile": "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
     "blenderAssetBakeSmokeFile": "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
     "gltfGeneratedAt": "2026-05-06T00:10:04.220Z",
-    "blenderGeneratedAt": "2026-05-06T06:45:36.886Z",
+    "blenderGeneratedAt": "2026-05-06T08:19:07.305Z",
     "localAssetEvidenceFixtureUsed": true
   },
   "sourceEvidence": {
@@ -20,6 +20,8 @@
     "blenderBakeSmokePassed": true,
     "blenderSourceLicensePosture": "reviewed_local_clinical_asset_fixture",
     "placeholderBakeOnly": false,
+    "blenderSemanticInventoryObserved": true,
+    "blenderMissingRequiredObjectNames": [],
     "blockers": []
   },
   "productionProofs": {

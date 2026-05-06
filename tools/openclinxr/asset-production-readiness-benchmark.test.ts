@@ -296,6 +296,7 @@ describe("asset production readiness report", () => {
         passed: true,
         sourceLicensePosture: "reviewed_local_clinical_asset_fixture",
         glbBytes: 109040,
+        semanticInventory: completeClinicalSemanticInventory(),
       }),
       useLocalAssetEvidenceFixture: true,
     });
@@ -303,6 +304,8 @@ describe("asset production readiness report", () => {
     expect(report.sourceEvidence).toMatchObject({
       blenderSourceLicensePosture: "reviewed_local_clinical_asset_fixture",
       placeholderBakeOnly: false,
+      blenderSemanticInventoryObserved: true,
+      blenderMissingRequiredObjectNames: [],
       blockers: [],
     });
     expect(report.verdict).toMatchObject({
@@ -316,6 +319,60 @@ describe("asset production readiness report", () => {
       "Reviewed local clinical fixture output still requires visual QA, clinical fidelity review, and headset frame-pacing evidence before production use.",
       "The local asset evidence fixture supplies contract-level proof slots only; fixture IDs are not artifact-backed generated production assets.",
     ]);
+  });
+
+  it("blocks reviewed local clinical fixture evidence when semantic object inventory is missing", () => {
+    const report = buildAssetProductionReadinessReport({
+      generatedAt: "2026-05-06T07:30:00.000Z",
+      gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
+      blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+      gltfPipelineSmoke: gltfSmoke({ passed: true }),
+      blenderAssetBakeSmoke: blenderSmoke({
+        passed: true,
+        sourceLicensePosture: "reviewed_local_clinical_asset_fixture",
+        glbBytes: 109040,
+      }),
+      useLocalAssetEvidenceFixture: true,
+    });
+
+    expect(report.sourceEvidence).toMatchObject({
+      blenderSemanticInventoryObserved: false,
+      blenderMissingRequiredObjectNames: [],
+      blockers: ["blender_semantic_inventory_missing"],
+    });
+    expect(report.verdict.blockers).toContain("source:blender_semantic_inventory_missing");
+  });
+
+  it("blocks reviewed local clinical fixture evidence when required semantic objects are missing", () => {
+    const report = buildAssetProductionReadinessReport({
+      generatedAt: "2026-05-06T07:31:00.000Z",
+      gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
+      blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+      gltfPipelineSmoke: gltfSmoke({ passed: true }),
+      blenderAssetBakeSmoke: blenderSmoke({
+        passed: true,
+        sourceLicensePosture: "reviewed_local_clinical_asset_fixture",
+        glbBytes: 109040,
+        semanticInventory: {
+          ...completeClinicalSemanticInventory(),
+          missingRequiredObjectNames: ["ecg_cart_12_lead", "iv_pole_with_pump"],
+        },
+      }),
+      useLocalAssetEvidenceFixture: true,
+    });
+
+    expect(report.sourceEvidence).toMatchObject({
+      blenderSemanticInventoryObserved: true,
+      blenderMissingRequiredObjectNames: ["ecg_cart_12_lead", "iv_pole_with_pump"],
+      blockers: [
+        "blender_required_object_missing:ecg_cart_12_lead",
+        "blender_required_object_missing:iv_pole_with_pump",
+      ],
+    });
+    expect(report.verdict.blockers).toEqual(expect.arrayContaining([
+      "source:blender_required_object_missing:ecg_cart_12_lead",
+      "source:blender_required_object_missing:iv_pole_with_pump",
+    ]));
   });
 });
 
@@ -389,6 +446,7 @@ function blenderSmoke(input: {
   passed: boolean;
   sourceLicensePosture: string;
   glbBytes?: number;
+  semanticInventory?: NonNullable<BlenderAssetBakeSmokeReport["output"]["semanticInventory"]>;
 }): BlenderAssetBakeSmokeReport {
   return {
     generatedAt: "2026-05-04T05:06:10.560Z",
@@ -410,10 +468,51 @@ function blenderSmoke(input: {
       version: 2,
       declaredLength: input.glbBytes ?? 27284,
       elapsedMs: 5610.77,
+      semanticInventory: input.semanticInventory,
     },
     verdict: {
       passed: input.passed,
       blockers: input.passed ? [] : ["blender_bake_failed"],
     },
   };
+}
+
+function completeClinicalSemanticInventory(): NonNullable<BlenderAssetBakeSmokeReport["output"]["semanticInventory"]> {
+  const names = clinicalAssetPackObjectNames();
+
+  return {
+    sceneCount: 1,
+    nodeCount: names.length,
+    meshCount: names.length,
+    materialCount: 2,
+    observedObjectNames: names,
+    requiredObjectNames: names,
+    missingRequiredObjectNames: [],
+  };
+}
+
+function clinicalAssetPackObjectNames(): string[] {
+  return [
+    "ed_exam_bay_floor_panel",
+    "ed_exam_bay_back_wall",
+    "ed_exam_bay_privacy_curtain_rail",
+    "stretcher_frame_with_side_rails",
+    "stretcher_mattress_linen",
+    "stretcher_left_side_rail",
+    "stretcher_right_side_rail",
+    "patient_robert_hayes_head",
+    "patient_robert_hayes_torso_hospital_gown",
+    "patient_robert_hayes_left_arm_diaphoretic_pose",
+    "patient_robert_hayes_right_arm_chest_guarding_pose",
+    "patient_robert_hayes_canonical_skeleton_anchor",
+    "nurse_maria_alvarez_head",
+    "nurse_maria_alvarez_torso_scrubs",
+    "nurse_maria_alvarez_tablet",
+    "nurse_maria_alvarez_canonical_skeleton_anchor",
+    "ed_exam_bay_wall_monitor",
+    "ecg_cart_12_lead",
+    "iv_pole_with_pump",
+    "oxygen_flowmeter_wall_unit",
+    "asset_pack_scale_and_origin_marker",
+  ];
 }

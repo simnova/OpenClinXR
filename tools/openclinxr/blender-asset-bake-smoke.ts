@@ -21,6 +21,17 @@ type BlenderBakeFixtureMetadata = {
   fixture: BlenderBakeFixture;
   sourceLicensePosture: "repo_generated_placeholder" | "reviewed_local_clinical_asset_fixture";
   expectedObjectCount: number;
+  requiredObjectNames: string[];
+};
+
+export type BlenderBakeSemanticInventory = {
+  sceneCount: number;
+  nodeCount: number;
+  meshCount: number;
+  materialCount: number;
+  observedObjectNames: string[];
+  requiredObjectNames: string[];
+  missingRequiredObjectNames: string[];
 };
 
 export type BlenderBakeSmokeReport = {
@@ -43,6 +54,7 @@ export type BlenderBakeSmokeReport = {
     version: number | null;
     declaredLength: number | null;
     elapsedMs: number;
+    semanticInventory: BlenderBakeSemanticInventory | null;
   };
   verdict: {
     passed: boolean;
@@ -149,11 +161,20 @@ export function buildBlenderBakeSmokeReportFromGlb(input: {
   const magic = input.glb.subarray(0, 4).toString("utf8");
   const parsedVersion = input.glb.length >= 8 ? input.glb.readUInt32LE(4) : null;
   const declaredLength = input.glb.length >= 12 ? input.glb.readUInt32LE(8) : null;
+  const semanticInventory = parseBlenderBakeSemanticInventory(input.glb, fixtureMetadata.requiredObjectNames);
   const blockers = [
     magic === "glTF" ? undefined : "glb_magic_missing",
     parsedVersion === 2 ? undefined : "glb_version_not_2",
     declaredLength === input.glb.length ? undefined : "glb_declared_length_mismatch",
     input.glb.length > 20 ? undefined : "glb_output_too_small",
+    semanticInventory ? undefined : "glb_json_chunk_missing",
+    semanticInventory && semanticInventory.nodeCount >= fixtureMetadata.expectedObjectCount
+      ? undefined
+      : "glb_node_count_below_expected_object_count",
+    ...(semanticInventory
+      ? semanticInventory.missingRequiredObjectNames
+      : fixtureMetadata.requiredObjectNames
+    ).map((name) => `glb_required_object_missing:${name}`),
   ].filter((blocker): blocker is string => typeof blocker === "string");
 
   return {
@@ -176,6 +197,7 @@ export function buildBlenderBakeSmokeReportFromGlb(input: {
       version: parsedVersion,
       declaredLength,
       elapsedMs: input.elapsedMs,
+      semanticInventory,
     },
     verdict: {
       passed: blockers.length === 0,
@@ -189,7 +211,8 @@ function blenderBakeFixtureMetadata(fixture: BlenderBakeFixture): BlenderBakeFix
     return {
       fixture,
       sourceLicensePosture: "reviewed_local_clinical_asset_fixture",
-      expectedObjectCount: 19,
+      expectedObjectCount: clinicalAssetPackRequiredObjectNames.length,
+      requiredObjectNames: clinicalAssetPackRequiredObjectNames,
     };
   }
 
@@ -197,8 +220,100 @@ function blenderBakeFixtureMetadata(fixture: BlenderBakeFixture): BlenderBakeFix
     fixture,
     sourceLicensePosture: "repo_generated_placeholder",
     expectedObjectCount: 7,
+    requiredObjectNames: [],
   };
 }
+
+function parseBlenderBakeSemanticInventory(
+  glb: Buffer,
+  requiredObjectNames: string[],
+): BlenderBakeSemanticInventory | null {
+  const jsonChunk = readGlbJsonChunk(glb);
+  if (!jsonChunk) {
+    return null;
+  }
+
+  const gltf = parseJsonRecord(jsonChunk);
+  if (!gltf) {
+    return null;
+  }
+
+  const nodes = Array.isArray(gltf.nodes) ? gltf.nodes.filter(isRecord) : [];
+  const nodeNames = nodes
+    .map((node) => typeof node.name === "string" ? node.name : undefined)
+    .filter((name): name is string => typeof name === "string" && name.trim().length > 0);
+  const observedNames = new Set(nodeNames);
+
+  return {
+    sceneCount: Array.isArray(gltf.scenes) ? gltf.scenes.length : 0,
+    nodeCount: nodes.length,
+    meshCount: Array.isArray(gltf.meshes) ? gltf.meshes.length : 0,
+    materialCount: Array.isArray(gltf.materials) ? gltf.materials.length : 0,
+    observedObjectNames: nodeNames,
+    requiredObjectNames,
+    missingRequiredObjectNames: requiredObjectNames.filter((name) => !observedNames.has(name)),
+  };
+}
+
+function readGlbJsonChunk(glb: Buffer): string | null {
+  if (glb.length < 20 || glb.subarray(0, 4).toString("utf8") !== "glTF") {
+    return null;
+  }
+
+  let offset = 12;
+  while (offset + 8 <= glb.length) {
+    const chunkLength = glb.readUInt32LE(offset);
+    const chunkType = glb.readUInt32LE(offset + 4);
+    const chunkStart = offset + 8;
+    const chunkEnd = chunkStart + chunkLength;
+    if (chunkEnd > glb.length) {
+      return null;
+    }
+    if (chunkType === 0x4e4f534a) {
+      return glb.subarray(chunkStart, chunkEnd).toString("utf8").trim();
+    }
+    offset = chunkEnd;
+  }
+
+  return null;
+}
+
+function parseJsonRecord(value: string): Record<string, unknown> | null {
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    return isRecord(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+const clinicalAssetPackRequiredObjectNames = [
+  "ed_exam_bay_floor_panel",
+  "ed_exam_bay_back_wall",
+  "ed_exam_bay_privacy_curtain_rail",
+  "stretcher_frame_with_side_rails",
+  "stretcher_mattress_linen",
+  "stretcher_left_side_rail",
+  "stretcher_right_side_rail",
+  "patient_robert_hayes_head",
+  "patient_robert_hayes_torso_hospital_gown",
+  "patient_robert_hayes_left_arm_diaphoretic_pose",
+  "patient_robert_hayes_right_arm_chest_guarding_pose",
+  "patient_robert_hayes_canonical_skeleton_anchor",
+  "nurse_maria_alvarez_head",
+  "nurse_maria_alvarez_torso_scrubs",
+  "nurse_maria_alvarez_tablet",
+  "nurse_maria_alvarez_canonical_skeleton_anchor",
+  "ed_exam_bay_wall_monitor",
+  "ecg_cart_12_lead",
+  "iv_pole_with_pump",
+  "oxygen_flowmeter_wall_unit",
+  "asset_pack_scale_and_origin_marker",
+];
 
 export function createBlenderBakePythonScript(
   outputPath: string,

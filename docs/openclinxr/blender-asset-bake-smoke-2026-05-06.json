@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T06:45:36.886Z",
+  "generatedAt": "2026-05-06T08:19:07.305Z",
   "tool": {
     "command": "blender",
     "package": "Blender",
@@ -10,14 +10,67 @@
     "fixture": "ed_chest_pain_clinical_asset_pack",
     "externalAssetsUsed": false,
     "sourceLicensePosture": "reviewed_local_clinical_asset_fixture",
-    "expectedObjectCount": 19
+    "expectedObjectCount": 21
   },
   "output": {
     "glbBytes": 109040,
     "magic": "glTF",
     "version": 2,
     "declaredLength": 109040,
-    "elapsedMs": 10066.53
+    "elapsedMs": 5608.9,
+    "semanticInventory": {
+      "sceneCount": 1,
+      "nodeCount": 21,
+      "meshCount": 21,
+      "materialCount": 7,
+      "observedObjectNames": [
+        "ed_exam_bay_floor_panel",
+        "ed_exam_bay_back_wall",
+        "ed_exam_bay_privacy_curtain_rail",
+        "stretcher_frame_with_side_rails",
+        "stretcher_mattress_linen",
+        "stretcher_left_side_rail",
+        "stretcher_right_side_rail",
+        "patient_robert_hayes_head",
+        "patient_robert_hayes_torso_hospital_gown",
+        "patient_robert_hayes_left_arm_diaphoretic_pose",
+        "patient_robert_hayes_right_arm_chest_guarding_pose",
+        "patient_robert_hayes_canonical_skeleton_anchor",
+        "nurse_maria_alvarez_head",
+        "nurse_maria_alvarez_torso_scrubs",
+        "nurse_maria_alvarez_tablet",
+        "nurse_maria_alvarez_canonical_skeleton_anchor",
+        "ed_exam_bay_wall_monitor",
+        "ecg_cart_12_lead",
+        "iv_pole_with_pump",
+        "oxygen_flowmeter_wall_unit",
+        "asset_pack_scale_and_origin_marker"
+      ],
+      "requiredObjectNames": [
+        "ed_exam_bay_floor_panel",
+        "ed_exam_bay_back_wall",
+        "ed_exam_bay_privacy_curtain_rail",
+        "stretcher_frame_with_side_rails",
+        "stretcher_mattress_linen",
+        "stretcher_left_side_rail",
+        "stretcher_right_side_rail",
+        "patient_robert_hayes_head",
+        "patient_robert_hayes_torso_hospital_gown",
+        "patient_robert_hayes_left_arm_diaphoretic_pose",
+        "patient_robert_hayes_right_arm_chest_guarding_pose",
+        "patient_robert_hayes_canonical_skeleton_anchor",
+        "nurse_maria_alvarez_head",
+        "nurse_maria_alvarez_torso_scrubs",
+        "nurse_maria_alvarez_tablet",
+        "nurse_maria_alvarez_canonical_skeleton_anchor",
+        "ed_exam_bay_wall_monitor",
+        "ecg_cart_12_lead",
+        "iv_pole_with_pump",
+        "oxygen_flowmeter_wall_unit",
+        "asset_pack_scale_and_origin_marker"
+      ],
+      "missingRequiredObjectNames": []
+    }
   },
   "verdict": {
     "passed": true,

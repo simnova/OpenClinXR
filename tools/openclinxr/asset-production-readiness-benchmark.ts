@@ -60,6 +60,15 @@ export type BlenderAssetBakeSmokeReport = {
     version: number | null;
     declaredLength: number | null;
     elapsedMs: number;
+    semanticInventory?: {
+      sceneCount: number;
+      nodeCount: number;
+      meshCount: number;
+      materialCount: number;
+      observedObjectNames: string[];
+      requiredObjectNames: string[];
+      missingRequiredObjectNames: string[];
+    } | null;
   };
   verdict: {
     passed: boolean;
@@ -115,6 +124,8 @@ export type AssetProductionReadinessReport = {
     blenderBakeSmokePassed: boolean;
     blenderSourceLicensePosture: string;
     placeholderBakeOnly: boolean;
+    blenderSemanticInventoryObserved: boolean;
+    blenderMissingRequiredObjectNames: string[];
     blockers: string[];
   };
   productionProofs: Record<ProofLaneId, ProofLaneReport>;
@@ -328,11 +339,16 @@ function inspectSourceEvidence(
   blenderSmoke: BlenderAssetBakeSmokeReport,
 ): AssetProductionReadinessReport["sourceEvidence"] {
   const placeholderBakeOnly = blenderSmoke.input.sourceLicensePosture === "repo_generated_placeholder";
+  const requiresSemanticInventory = blenderSmoke.input.sourceLicensePosture === "reviewed_local_clinical_asset_fixture";
+  const blenderSemanticInventoryObserved = blenderSmoke.output.semanticInventory !== null && blenderSmoke.output.semanticInventory !== undefined;
+  const blenderMissingRequiredObjectNames = blenderSmoke.output.semanticInventory?.missingRequiredObjectNames ?? [];
   const blockers = [
     gltfSmoke.verdict.passed ? undefined : "gltf_pipeline_smoke_failed",
     blenderSmoke.verdict.passed ? undefined : "blender_bake_smoke_failed",
     placeholderBakeOnly ? "placeholder_bake_only" : undefined,
     blenderSmoke.input.externalAssetsUsed ? "external_asset_provenance_not_reviewed" : undefined,
+    requiresSemanticInventory && !blenderSemanticInventoryObserved ? "blender_semantic_inventory_missing" : undefined,
+    ...blenderMissingRequiredObjectNames.map((name) => `blender_required_object_missing:${name}`),
   ].filter((blocker): blocker is string => typeof blocker === "string");
 
   return {
@@ -340,6 +356,8 @@ function inspectSourceEvidence(
     blenderBakeSmokePassed: blenderSmoke.verdict.passed,
     blenderSourceLicensePosture: blenderSmoke.input.sourceLicensePosture,
     placeholderBakeOnly,
+    blenderSemanticInventoryObserved,
+    blenderMissingRequiredObjectNames,
     blockers,
   };
 }
