@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
@@ -8,11 +8,27 @@ import {
   buildLocalVoiceRuntimeBenchmarkReport,
   parsePcmWavMetadata,
   parseVibeVoiceRuntimeLog,
+  runLocalVoiceRuntimeBenchmarkCli,
+  validateLocalVoiceRuntimeBenchmarkReport,
 } from "./local-voice-runtime-benchmark.js";
 
 const execFileAsync = promisify(execFile);
 
 describe("local voice runtime benchmark parser", () => {
+  it("exposes generation and validation scripts", async () => {
+    const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+
+    expect(rootPackage.scripts["local:voice:runtime"]).toBe(
+      "tsx tools/openclinxr/local-voice-runtime-benchmark.ts",
+    );
+    expect(rootPackage.scripts["local:voice:runtime:validate"]).toBe(
+      "tsx tools/openclinxr/local-voice-runtime-benchmark.ts --validate-latest",
+    );
+    expect(rootPackage.scripts["agent:verify"]).toContain("pnpm local:voice:runtime:validate");
+  });
+
   it("parses VibeVoice file-generation logs without treating them as live-dialog evidence", () => {
     const parsed = parseVibeVoiceRuntimeLog(sampleVibeVoiceLog);
 
@@ -151,6 +167,39 @@ describe("local voice runtime benchmark parser", () => {
       "Approved local VibeVoice runtime execution was observed in the harvested log/audio inputs, but this repo-managed harvester did not execute VibeVoice.",
     ]));
   });
+
+  it("validates local voice runtime reports before aggregate reuse", () => {
+    const audioBytes = samplePcmWav({
+      sampleRateHz: 24_000,
+      channels: 1,
+      durationMs: 3470,
+    });
+    const report = buildLocalVoiceRuntimeBenchmarkReport({
+      logPath: "/Users/patrick/.cache/openclinxr/vibevoice/benchmarks/vibevoice-first-audio.log",
+      logContent: sampleVibeVoiceLog,
+      promptPath: "/Users/patrick/.cache/openclinxr/vibevoice/benchmarks/openclinxr-first-audio.txt",
+      promptText: "The patient reports chest pressure and needs help now.",
+      audioPath: "/Users/patrick/.cache/openclinxr/vibevoice/outputs/openclinxr-first-audio_generated.wav",
+      audioBytes,
+      audioSha256: "a".repeat(64),
+    });
+
+    expect(validateLocalVoiceRuntimeBenchmarkReport(report)).toEqual({ ok: true });
+
+    const invalid = structuredClone(report) as unknown as Record<string, unknown>;
+    const policy = invalid.policy as Record<string, unknown>;
+    delete policy.productionUseAllowed;
+    const verdict = invalid.verdict as Record<string, unknown>;
+    verdict.readyForLiveDialog = true;
+
+    expect(validateLocalVoiceRuntimeBenchmarkReport(invalid)).toEqual({
+      ok: false,
+      errors: expect.arrayContaining([
+        "/policy/productionUseAllowed must be false",
+        "/verdict/readyForLiveDialog must be false",
+      ]),
+    });
+  });
 });
 
 describe("local voice runtime benchmark CLI", () => {
@@ -248,6 +297,45 @@ describe("local voice runtime benchmark CLI", () => {
     expect(report.policy.voiceRuntimeExecutionApproved).toBe(true);
     expect(report.policy.voiceRuntimeExecutionObserved).toBe(true);
     expect(report.policy.voiceRuntimeExecutionAttemptedByThisTool).toBe(false);
+  });
+
+  it("validates local voice runtime reports from the CLI without running VibeVoice", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-local-voice-runtime-validate-"));
+    const reportPath = path.join(tempDir, "local-voice-runtime-benchmark.json");
+    const invalidPath = path.join(tempDir, "local-voice-runtime-benchmark-invalid.json");
+    const previousExitCode = process.exitCode;
+
+    try {
+      const audioBytes = samplePcmWav({
+        sampleRateHz: 24_000,
+        channels: 1,
+        durationMs: 3470,
+      });
+      const report = buildLocalVoiceRuntimeBenchmarkReport({
+        logPath: "/Users/patrick/.cache/openclinxr/vibevoice/benchmarks/vibevoice-first-audio.log",
+        logContent: sampleVibeVoiceLog,
+        promptPath: "/Users/patrick/.cache/openclinxr/vibevoice/benchmarks/openclinxr-first-audio.txt",
+        promptText: "The patient reports chest pressure and needs help now.",
+        audioPath: "/Users/patrick/.cache/openclinxr/vibevoice/outputs/openclinxr-first-audio_generated.wav",
+        audioBytes,
+        audioSha256: "a".repeat(64),
+      });
+      await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+
+      await expect(runLocalVoiceRuntimeBenchmarkCli(["--validate", reportPath])).resolves.toBeUndefined();
+      await expect(runLocalVoiceRuntimeBenchmarkCli(["--validate-latest"])).resolves.toBeUndefined();
+
+      const invalidReport = structuredClone(report) as unknown as Record<string, unknown>;
+      delete invalidReport.audio;
+      await writeFile(invalidPath, `${JSON.stringify(invalidReport, null, 2)}\n`, "utf8");
+
+      process.exitCode = undefined;
+      await runLocalVoiceRuntimeBenchmarkCli(["--validate", invalidPath]);
+      expect(process.exitCode).toBe(1);
+    } finally {
+      process.exitCode = previousExitCode;
+      await rm(tempDir, { recursive: true, force: true });
+    }
   });
 });
 
