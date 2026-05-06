@@ -2,18 +2,17 @@
   "generated_by": "tools/agent-factory/find-evidence-debt.ts",
   "scorecard_count": 14,
   "debt_count": 32,
-  "open_count": 27,
-  "closed_count": 5,
+  "open_count": 26,
+  "closed_count": 6,
   "status_counts": {
-    "open": 27,
-    "resolved": 5
+    "open": 26,
+    "resolved": 6
   },
   "open_by_iteration": {
     "iteration-0001": 3,
     "iteration-0002": 6,
     "iteration-0003": 5,
     "iteration-0004": 2,
-    "iteration-0005": 1,
     "iteration-0006": 1,
     "iteration-0007": 1,
     "iteration-0008": 3,
@@ -32,7 +31,6 @@
     "psychometrics-lead": 1,
     "solution-architect": 1,
     "source-librarian": 4,
-    "test-automation-lead": 1,
     "voice-speech-engineer": 3,
     "xr-systems-architect": 3
   },
@@ -145,17 +143,6 @@
       "scored_by": "senior-leadership-panel",
       "owner": "local-ai-inference-engineer",
       "summary": "Benchmark a small local Qwen GGUF or MLX model on the target Apple Silicon hardware before enabling local dialogue.",
-      "status": "open"
-    },
-    {
-      "id": "evidence-leadership-0005-001",
-      "file": "iterations/iteration-0005/06-leadership-scorecard.json",
-      "iteration_id": "iteration-0005",
-      "iteration_number": 5,
-      "plan_type": "leadership-review",
-      "scored_by": "senior-leadership-panel",
-      "owner": "test-automation-lead",
-      "summary": "Validate dependency install and package workspace behavior on a clean checkout.",
       "status": "open"
     },
     {
@@ -513,17 +500,6 @@
       "status": "open"
     },
     {
-      "id": "evidence-leadership-0005-001",
-      "file": "iterations/iteration-0005/06-leadership-scorecard.json",
-      "iteration_id": "iteration-0005",
-      "iteration_number": 5,
-      "plan_type": "leadership-review",
-      "scored_by": "senior-leadership-panel",
-      "owner": "test-automation-lead",
-      "summary": "Validate dependency install and package workspace behavior on a clean checkout.",
-      "status": "open"
-    },
-    {
       "id": "evidence-leadership-0006-002",
       "file": "iterations/iteration-0006/06-leadership-scorecard.json",
       "iteration_id": "iteration-0006",
@@ -820,7 +796,7 @@
       "scored_by": "senior-leadership-panel",
       "owner": "test-automation-lead",
       "summary": "Validate dependency install and package workspace behavior on a clean checkout.",
-      "status": "open"
+      "status": "resolved"
     },
     {
       "id": "evidence-leadership-0006-001",

@@ -180,13 +180,11 @@
       "confidence": 0.91,
       "weighted_score": 4.602,
       "composite_score": 4.603,
-      "open_selected_evidence_debt_count": 1,
+      "open_selected_evidence_debt_count": 0,
       "open_selected_decision_debt_count": 1,
       "open_selected_risk_count": 1,
       "open_selected_high_or_critical_risk_count": 0,
-      "open_selected_evidence_debt_ids": [
-        "evidence-leadership-0005-001"
-      ],
+      "open_selected_evidence_debt_ids": [],
       "open_selected_decision_debt_ids": [
         "decision-leadership-0005-001"
       ],
@@ -196,7 +194,6 @@
       "open_selected_high_or_critical_risk_ids": [],
       "dimensions_below_quality_bar": [],
       "blockers": [
-        "open_selected_evidence_debt",
         "open_selected_decision_debt"
       ],
       "leadership_quality_bar_ready": false,

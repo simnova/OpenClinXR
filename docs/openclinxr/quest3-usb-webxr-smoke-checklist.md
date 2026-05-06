@@ -181,6 +181,7 @@ Debt impact:
 
 - Closes `evidence-leadership-0006-001`: clean pnpm install after monorepo creation.
 - Closes `evidence-leadership-0007-001`: clean install, tests, and browser checks after application monorepo creation.
+- Later clean-checkout workspace evidence for `evidence-leadership-0005-001` is recorded in `docs/openclinxr/clean-checkout-workspace-evidence-2026-05-06.md`.
 - Does not close Quest 3 immersive, local model, local voice, sustained performance, or validation-study evidence debt.
 
 ## Smoke Run 0005: Repeatable Quest CDP Probe

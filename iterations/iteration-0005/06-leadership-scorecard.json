@@ -23,7 +23,7 @@
     { "id": "risk-leadership-0005-001", "severity": "medium", "summary": "The package map could still feel large unless workers implement it strictly by vertical-slice tests.", "owner": "implementation-planning-lead", "status": "open" }
   ],
   "evidence_debt": [
-    { "id": "evidence-leadership-0005-001", "summary": "Validate dependency install and package workspace behavior on a clean checkout.", "owner": "test-automation-lead", "status": "open" }
+    { "id": "evidence-leadership-0005-001", "summary": "Validate dependency install and package workspace behavior on a clean checkout.", "owner": "test-automation-lead", "status": "resolved" }
   ],
   "decision_debt": [
     { "id": "decision-leadership-0005-001", "summary": "Choose whether Bun is installed before or after the first Node-compatible Hono API skeleton.", "owner": "vp-engineering-delivery", "status": "open" }

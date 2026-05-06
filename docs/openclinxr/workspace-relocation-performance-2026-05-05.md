@@ -6,6 +6,8 @@ Patrick suggested moving active OpenClinXR work from `/Users/patrick/Documents/N
 
 Codex created a source clone at `/Volumes/files/src/openclinxr` after a full `rsync` copy proved too slow for unattended work. The new workspace was installed with `pnpm install --frozen-lockfile --prefer-offline`, then a forced relink was required to materialize Rolldown native optional bindings.
 
+On 2026-05-06, Codex also ran a detached clean-worktree smoke from `/Volumes/files/src/openclinxr` and recorded the results in `docs/openclinxr/clean-checkout-workspace-evidence-2026-05-06.md`.
+
 ## Runtime Notes
 
 - Node used for comparable benchmarks: `v22.19.0`
@@ -60,5 +62,5 @@ Updated interpretation: the move has had a good operational impact because it re
 ## Follow-Up
 
 - Use `/Volumes/files/src/openclinxr` as the active Codex workspace for future long unattended work.
-- Keep `/Users/patrick/Documents/New project 2` as a recovery/source copy unless Patrick explicitly asks to remove or replace it.
+- The old `/Users/patrick/Documents/New project 2` mirror was removed after Patrick confirmed the active workspace had moved away from iCloud-backed Documents storage.
 - The partial interrupted copy remains at `/Volumes/files/src/openclinxr.partial-rsync-20260505-2052` and can be removed after Patrick confirms it is not needed.

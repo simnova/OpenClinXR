@@ -25,6 +25,19 @@ describe("evidence debt report builder", () => {
     expect(report.open_debt.map((debt) => debt.id)).toEqual(["evidence-old", "evidence-latest"]);
     expect(report.priority_open_debt.map((debt) => debt.id)).toEqual(["evidence-latest", "evidence-old"]);
   });
+
+  it("treats resolved evidence debt as closed and removes it from open queues", () => {
+    const report = buildEvidenceDebtReport(1, [
+      evidenceDebt({ id: "evidence-resolved", status: "resolved" }),
+      evidenceDebt({ id: "evidence-open", status: "open" }),
+    ]);
+
+    expect(report.open_count).toBe(1);
+    expect(report.closed_count).toBe(1);
+    expect(report.status_counts).toEqual({ open: 1, resolved: 1 });
+    expect(report.open_debt.map((debt) => debt.id)).toEqual(["evidence-open"]);
+    expect(report.priority_open_debt.map((debt) => debt.id)).toEqual(["evidence-open"]);
+  });
 });
 
 function evidenceDebt(overrides: Partial<EvidenceDebtRecord>): EvidenceDebtRecord {
