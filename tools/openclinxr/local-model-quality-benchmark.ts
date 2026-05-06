@@ -12,6 +12,8 @@ import type {
 } from "./local-model-actor-policy-benchmark.js";
 
 type CliOptions = {
+  validatePath?: string;
+  validateLatest: boolean;
   runtimeReportPath?: string;
   actorPolicyReportPath?: string;
   outputPath?: string;
@@ -105,6 +107,8 @@ type ActorPolicyProbeResult = {
   rawLogSha256?: string;
 };
 
+type ValidationResult = { ok: true } | { ok: false; errors: string[] };
+
 const allowedStructuredOutputGuardrailLabels = [
   "fictional_or_unverified",
   "hidden_truth_boundary",
@@ -115,7 +119,29 @@ const allowedStructuredOutputGuardrailLabels = [
 ] as const;
 
 async function main(): Promise<void> {
-  const options = parseArgs(process.argv.slice(2));
+  await runLocalModelQualityBenchmarkCli(process.argv.slice(2));
+}
+
+export async function runLocalModelQualityBenchmarkCli(args: string[]): Promise<void> {
+  const options = parseArgs(args);
+  if (options.validatePath || options.validateLatest) {
+    const validatePath = options.validatePath ?? await latestQualityReportPath();
+    if (!validatePath) {
+      throw new Error("Missing local model quality benchmark report to validate.");
+    }
+    const validation = validateLocalModelQualityBenchmarkReport(await readJson<unknown>(validatePath));
+    if (validation.ok) {
+      console.log(`Validated ${validatePath}`);
+      return;
+    }
+
+    for (const error of validation.errors) {
+      console.error(error);
+    }
+    process.exitCode = 1;
+    return;
+  }
+
   const runtimeReportPath = options.runtimeReportPath ?? await latestRuntimeReportPath();
   if (!runtimeReportPath) {
     throw new Error("Missing local model runtime benchmark report. Run the approved local model runtime benchmark first or pass --runtime-report.");
@@ -140,10 +166,21 @@ async function main(): Promise<void> {
 
 function parseArgs(args: string[]): CliOptions {
   const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
-  const options: CliOptions = {};
+  const options: CliOptions = {
+    validateLatest: false,
+  };
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
+    if (arg === "--validate") {
+      options.validatePath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--validate-latest") {
+      options.validateLatest = true;
+      continue;
+    }
     if (arg === "--runtime-report") {
       options.runtimeReportPath = requireValue(normalizedArgs, index, arg);
       index += 1;
@@ -175,6 +212,11 @@ function requireValue(args: string[], index: number, flag: string): string {
 
 async function latestRuntimeReportPath(): Promise<string | undefined> {
   const files = await globFiles("docs/openclinxr/local-model-runtime-benchmark-*.json");
+  return files.sort().at(-1);
+}
+
+async function latestQualityReportPath(): Promise<string | undefined> {
+  const files = await globFiles("docs/openclinxr/local-model-quality-benchmark-*.json");
   return files.sort().at(-1);
 }
 
@@ -232,6 +274,161 @@ export async function buildLocalModelQualityBenchmarkReport(input: {
       ],
     },
   };
+}
+
+export function validateLocalModelQualityBenchmarkReport(value: unknown): ValidationResult {
+  const errors: string[] = [];
+
+  if (!isRecord(value)) {
+    return { ok: false, errors: ["/ must be object"] };
+  }
+
+  requireString(value.generatedAt, "/generatedAt", errors);
+  requireOneOf(value.status, ["passed", "blocked"], "/status", errors);
+  requireRecord(value.policy, "/policy", errors);
+  if (isRecord(value.policy)) {
+    requireLiteral(value.policy.cloudApisUsed, false, "/policy/cloudApisUsed", errors);
+    requireLiteral(value.policy.paidApisUsed, false, "/policy/paidApisUsed", errors);
+    requireLiteral(value.policy.modelDownloadsAllowed, false, "/policy/modelDownloadsAllowed", errors);
+    requireLiteral(value.policy.localRuntimeExecutionAllowed, false, "/policy/localRuntimeExecutionAllowed", errors);
+    requireLiteral(value.policy.productionUseAllowed, false, "/policy/productionUseAllowed", errors);
+  }
+  requireRecord(value.input, "/input", errors);
+  if (isRecord(value.input)) {
+    requireString(value.input.runtimeBenchmarkFile, "/input/runtimeBenchmarkFile", errors);
+    requireString(value.input.runtimeGeneratedAt, "/input/runtimeGeneratedAt", errors);
+    requireNullableString(value.input.modelId, "/input/modelId", errors);
+    requireString(value.input.runtimeStatus, "/input/runtimeStatus", errors);
+  }
+  validateStructuredOutput(value.structuredOutput, errors);
+  validateActorPolicy(value.actorPolicy, errors);
+  validateTargetHardware(value.targetHardware, errors);
+  requireRecord(value.verdict, "/verdict", errors);
+  if (isRecord(value.verdict)) {
+    requireBoolean(value.verdict.passed, "/verdict/passed", errors);
+    requireLiteral(value.verdict.readyForLocalDialogue, false, "/verdict/readyForLocalDialogue", errors);
+    requireStringArray(value.verdict.blockers, "/verdict/blockers", errors);
+    requireStringArray(value.verdict.caveats, "/verdict/caveats", errors);
+  }
+  validateQualityConsistency(value, errors);
+
+  return errors.length === 0 ? { ok: true } : { ok: false, errors };
+}
+
+function validateStructuredOutput(value: unknown, errors: string[]): void {
+  requireRecord(value, "/structuredOutput", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireStringArray(value.requiredKeys, "/structuredOutput/requiredKeys", errors);
+  requireStringArray(value.observedKeys, "/structuredOutput/observedKeys", errors);
+  requireBoolean(value.requiredKeysPresent, "/structuredOutput/requiredKeysPresent", errors);
+  requireBoolean(value.noReasoningMarkup, "/structuredOutput/noReasoningMarkup", errors);
+  requireStringArray(value.allowedGuardrailLabels, "/structuredOutput/allowedGuardrailLabels", errors);
+  requireStringArray(value.observedSafetyFlags, "/structuredOutput/observedSafetyFlags", errors);
+  requireStringArray(value.unsupportedSafetyFlags, "/structuredOutput/unsupportedSafetyFlags", errors);
+  requireBoolean(value.safetyFlagsUseGuardrailLabels, "/structuredOutput/safetyFlagsUseGuardrailLabels", errors);
+  requireBoolean(value.schemaGrammarEnforced, "/structuredOutput/schemaGrammarEnforced", errors);
+  requireStringArray(value.blockers, "/structuredOutput/blockers", errors);
+}
+
+function validateActorPolicy(value: unknown, errors: string[]): void {
+  requireRecord(value, "/actorPolicy", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireOneOf(value.provider, ["deterministic-mock-model-gateway", "approved-local-qwen-llama-cpp"], "/actorPolicy/provider", errors);
+  requireOneOf(value.evidenceSource, ["deterministic_mock_only", "partial_real_local_model_runtime", "real_local_model_runtime"], "/actorPolicy/evidenceSource", errors);
+  requireBoolean(value.realLocalModelObserved, "/actorPolicy/realLocalModelObserved", errors);
+  requireBoolean(value.mockProbesPassed, "/actorPolicy/mockProbesPassed", errors);
+  requireBoolean(value.passed, "/actorPolicy/passed", errors);
+  requireStringArray(value.blockers, "/actorPolicy/blockers", errors);
+  requireActorPolicyProbeIdArray(value.requiredRealLocalProbeIds, "/actorPolicy/requiredRealLocalProbeIds", errors);
+  requireActorPolicyProbeIdArray(value.observedRealLocalProbeIds, "/actorPolicy/observedRealLocalProbeIds", errors);
+  requireActorPolicyProbeIdArray(value.missingRealLocalProbeIds, "/actorPolicy/missingRealLocalProbeIds", errors);
+  requireArray(value.probes, "/actorPolicy/probes", errors);
+  if (Array.isArray(value.probes)) {
+    value.probes.forEach((probe, index) => validateActorPolicyProbe(probe, `/actorPolicy/probes/${index}`, errors));
+  }
+}
+
+function validateActorPolicyProbe(value: unknown, pathName: string, errors: string[]): void {
+  requireRecord(value, pathName, errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireActorPolicyProbeId(value.id, `${pathName}/id`, errors);
+  if (value.provider !== undefined) {
+    requireOneOf(value.provider, ["deterministic-mock-model-gateway", "approved-local-qwen-llama-cpp"], `${pathName}/provider`, errors);
+  }
+  requireString(value.learnerUtterance, `${pathName}/learnerUtterance`, errors);
+  requireString(value.responseKind, `${pathName}/responseKind`, errors);
+  requireString(value.guardrailStatus, `${pathName}/guardrailStatus`, errors);
+  if (value.responseText !== undefined) {
+    requireString(value.responseText, `${pathName}/responseText`, errors);
+  }
+  requireBoolean(value.hiddenFactsLeaked, `${pathName}/hiddenFactsLeaked`, errors);
+  if (value.systemPromptLeaked !== undefined) {
+    requireBoolean(value.systemPromptLeaked, `${pathName}/systemPromptLeaked`, errors);
+  }
+  requireBoolean(value.passed, `${pathName}/passed`, errors);
+  if (value.blockers !== undefined) {
+    requireStringArray(value.blockers, `${pathName}/blockers`, errors);
+  }
+  if (value.rawLogPath !== undefined) {
+    requireString(value.rawLogPath, `${pathName}/rawLogPath`, errors);
+  }
+  if (value.rawLogSha256 !== undefined) {
+    requireSha256(value.rawLogSha256, `${pathName}/rawLogSha256`, errors);
+  }
+}
+
+function validateTargetHardware(value: unknown, errors: string[]): void {
+  requireRecord(value, "/targetHardware", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireNullableString(value.observedDevice, "/targetHardware/observedDevice", errors);
+  requireStringArray(value.requiredFamilies, "/targetHardware/requiredFamilies", errors);
+  requireBoolean(value.passed, "/targetHardware/passed", errors);
+  requireStringArray(value.blockers, "/targetHardware/blockers", errors);
+}
+
+function validateQualityConsistency(value: Record<string, unknown>, errors: string[]): void {
+  if (!isRecord(value.verdict)) {
+    return;
+  }
+
+  const expectedBlockers = expectedQualityBlockers(value);
+  if (Array.isArray(value.verdict.blockers)) {
+    const verdictBlockers = new Set(value.verdict.blockers);
+    for (const blocker of expectedBlockers) {
+      if (!verdictBlockers.has(blocker)) {
+        errors.push(`/verdict/blockers must include ${blocker}`);
+      }
+    }
+  }
+
+  const verdictPassed = value.verdict.passed;
+  if (typeof verdictPassed === "boolean" && Array.isArray(value.verdict.blockers) && verdictPassed !== (value.verdict.blockers.length === 0)) {
+    errors.push("/verdict/passed must match whether verdict blockers are empty");
+  }
+}
+
+function expectedQualityBlockers(value: Record<string, unknown>): string[] {
+  const structuredOutput = isRecord(value.structuredOutput) ? value.structuredOutput : {};
+  const actorPolicy = isRecord(value.actorPolicy) ? value.actorPolicy : {};
+  const targetHardware = isRecord(value.targetHardware) ? value.targetHardware : {};
+
+  return [
+    ...stringArray(structuredOutput.blockers).map((blocker) => `structured_output:${blocker}`),
+    ...stringArray(actorPolicy.blockers).map((blocker) => `actor_policy:${blocker}`),
+    ...stringArray(targetHardware.blockers).map((blocker) => `target_hardware:${blocker}`),
+  ];
 }
 
 function inspectStructuredOutput(report: LocalModelRuntimeBenchmarkReport): LocalModelQualityBenchmarkReport["structuredOutput"] {
@@ -413,6 +610,108 @@ function stringArrayValue(value: unknown): string[] {
     return [];
   }
   return value.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function requireRecord(value: unknown, pathName: string, errors: string[]): void {
+  if (!isRecord(value)) {
+    errors.push(`${pathName} must be object`);
+  }
+}
+
+function requireArray(value: unknown, pathName: string, errors: string[]): void {
+  if (!Array.isArray(value)) {
+    errors.push(`${pathName} must be array`);
+  }
+}
+
+function requireString(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "string" || value.length === 0) {
+    errors.push(`${pathName} must be non-empty string`);
+  }
+}
+
+function requireNullableString(value: unknown, pathName: string, errors: string[]): void {
+  if (value !== null && (typeof value !== "string" || value.length === 0)) {
+    errors.push(`${pathName} must be null or non-empty string`);
+  }
+}
+
+function requireStringArray(value: unknown, pathName: string, errors: string[]): void {
+  if (!Array.isArray(value)) {
+    errors.push(`${pathName} must be array`);
+    return;
+  }
+
+  value.forEach((entry, index) => {
+    if (typeof entry !== "string" || entry.length === 0) {
+      errors.push(`${pathName}/${index} must be non-empty string`);
+    }
+  });
+}
+
+function requireBoolean(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "boolean") {
+    errors.push(`${pathName} must be boolean`);
+  }
+}
+
+function requireLiteral<T extends string | boolean | number>(
+  value: unknown,
+  literal: T,
+  pathName: string,
+  errors: string[],
+): void {
+  if (value !== literal) {
+    errors.push(`${pathName} must be ${JSON.stringify(literal)}`);
+  }
+}
+
+function requireOneOf<T extends string>(
+  value: unknown,
+  allowed: readonly T[],
+  pathName: string,
+  errors: string[],
+): void {
+  if (typeof value !== "string" || !(allowed as readonly string[]).includes(value)) {
+    errors.push(`${pathName} must be one of ${allowed.map((entry) => JSON.stringify(entry)).join(", ")}`);
+  }
+}
+
+const actorPolicyProbeIds: readonly ActorPolicyProbeId[] = [
+  "visible_fact_grounding",
+  "hidden_truth_injection",
+  "system_prompt_extraction",
+];
+
+function requireActorPolicyProbeId(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "string" || !(actorPolicyProbeIds as readonly string[]).includes(value)) {
+    errors.push(`${pathName} must be one of ${actorPolicyProbeIds.map((entry) => JSON.stringify(entry)).join(", ")}`);
+  }
+}
+
+function requireActorPolicyProbeIdArray(value: unknown, pathName: string, errors: string[]): void {
+  if (!Array.isArray(value)) {
+    errors.push(`${pathName} must be array`);
+    return;
+  }
+
+  value.forEach((entry, index) => requireActorPolicyProbeId(entry, `${pathName}/${index}`, errors));
+}
+
+function requireSha256(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "string" || !/^[a-f0-9]{64}$/.test(value)) {
+    errors.push(`${pathName} must be sha256 hex string`);
+  }
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((entry): entry is string => typeof entry === "string")
+    : [];
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {

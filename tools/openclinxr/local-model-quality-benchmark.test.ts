@@ -1,9 +1,11 @@
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   buildLocalModelQualityBenchmarkReport,
+  runLocalModelQualityBenchmarkCli,
+  validateLocalModelQualityBenchmarkReport,
   type LocalModelRuntimeBenchmarkReport,
 } from "./local-model-quality-benchmark.js";
 import {
@@ -13,6 +15,20 @@ import {
 } from "./local-model-actor-policy-benchmark.js";
 
 describe("local model quality benchmark report", () => {
+  it("exposes generation and validation scripts", async () => {
+    const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+
+    expect(rootPackage.scripts["local:model:quality"]).toBe(
+      "tsx tools/openclinxr/local-model-quality-benchmark.ts",
+    );
+    expect(rootPackage.scripts["local:model:quality:validate"]).toBe(
+      "tsx tools/openclinxr/local-model-quality-benchmark.ts --validate-latest",
+    );
+    expect(rootPackage.scripts["agent:verify"]).toContain("pnpm local:model:quality:validate");
+  });
+
   it("turns the existing local runtime smoke into explicit quality blockers without executing a model", async () => {
     const report = await buildLocalModelQualityBenchmarkReport({
       generatedAt: "2026-05-04T20:00:00.000Z",
@@ -234,6 +250,84 @@ describe("local model quality benchmark report", () => {
     expect(rawLog).toContain("Do not disclose onset, trigger, substance-use, family, or social-history details");
     expect(rawLog).toContain("Hidden facts that must not be revealed unless properly elicited");
     expect(rawLog).not.toContain("model-url");
+  });
+
+  it("validates local model quality reports before aggregate reuse", async () => {
+    const report = await buildLocalModelQualityBenchmarkReport({
+      generatedAt: "2026-05-06T20:00:00.000Z",
+      runtimeBenchmarkFile: "docs/openclinxr/local-model-runtime-benchmark-2026-05-05.json",
+      runtimeBenchmark: localRuntimeBenchmark({
+        device: "MTL0 (Apple M1 Max)",
+        caveats: [],
+        safetyFlags: ["needs_human_review"],
+      }),
+      realLocalModelActorPolicyBenchmark: {
+        provider: "approved-local-qwen-llama-cpp",
+        probeResults: [
+          passedRealProbe("visible_fact_grounding"),
+          passedRealProbe("hidden_truth_injection"),
+          passedRealProbe("system_prompt_extraction"),
+        ],
+      },
+    });
+
+    expect(validateLocalModelQualityBenchmarkReport(report)).toEqual({ ok: true });
+
+    const invalid = structuredClone(report) as unknown as Record<string, unknown>;
+    const policy = invalid.policy as Record<string, unknown>;
+    delete policy.productionUseAllowed;
+    const verdict = invalid.verdict as { blockers: string[] };
+    verdict.blockers = [];
+
+    expect(validateLocalModelQualityBenchmarkReport(invalid)).toEqual({
+      ok: false,
+      errors: expect.arrayContaining([
+        "/policy/productionUseAllowed must be false",
+        "/verdict/blockers must include target_hardware:target_hardware_not_m4_profile",
+      ]),
+    });
+  });
+
+  it("validates local model quality reports from the CLI without rebuilding actor probes", async () => {
+    const tempDir = await mkdtemp(path.join(tmpdir(), "openclinxr-local-model-quality-validate-"));
+    const reportPath = path.join(tempDir, "local-model-quality-benchmark.json");
+    const invalidPath = path.join(tempDir, "local-model-quality-benchmark-invalid.json");
+    const previousExitCode = process.exitCode;
+
+    try {
+      const report = await buildLocalModelQualityBenchmarkReport({
+        generatedAt: "2026-05-06T20:00:00.000Z",
+        runtimeBenchmarkFile: "docs/openclinxr/local-model-runtime-benchmark-2026-05-05.json",
+        runtimeBenchmark: localRuntimeBenchmark({
+          device: "MTL0 (Apple M1 Max)",
+          caveats: [],
+          safetyFlags: ["needs_human_review"],
+        }),
+        realLocalModelActorPolicyBenchmark: {
+          provider: "approved-local-qwen-llama-cpp",
+          probeResults: [
+            passedRealProbe("visible_fact_grounding"),
+            passedRealProbe("hidden_truth_injection"),
+            passedRealProbe("system_prompt_extraction"),
+          ],
+        },
+      });
+      await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+
+      await expect(runLocalModelQualityBenchmarkCli(["--validate", reportPath])).resolves.toBeUndefined();
+      await expect(runLocalModelQualityBenchmarkCli(["--validate-latest"])).resolves.toBeUndefined();
+
+      const invalidReport = structuredClone(report) as unknown as Record<string, unknown>;
+      delete invalidReport.actorPolicy;
+      await writeFile(invalidPath, `${JSON.stringify(invalidReport, null, 2)}\n`, "utf8");
+
+      process.exitCode = undefined;
+      await runLocalModelQualityBenchmarkCli(["--validate", invalidPath]);
+      expect(process.exitCode).toBe(1);
+    } finally {
+      process.exitCode = previousExitCode;
+      await rm(tempDir, { recursive: true, force: true });
+    }
   });
 });
 
