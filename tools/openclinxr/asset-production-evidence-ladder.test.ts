@@ -193,6 +193,36 @@ describe("asset production evidence ladder report", () => {
       ]),
     });
   });
+
+  it("rejects internally inconsistent lane counts and verdict blockers", () => {
+    const readiness = buildAssetProductionReadinessReport({
+      generatedAt: "2026-05-06T12:00:00.000Z",
+      gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
+      blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+      gltfPipelineSmoke: gltfSmoke(),
+      blenderAssetBakeSmoke: blenderSmokeWithClinicalInventory(),
+      useLocalAssetEvidenceFixture: true,
+    });
+    const report = buildAssetProductionEvidenceLadderReport({
+      generatedAt: "2026-05-06T12:05:00.000Z",
+      readinessReportFile: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+      readinessReport: readiness,
+    });
+    const inconsistent = structuredClone(report);
+    inconsistent.summary.totalLaneCount = 6;
+    inconsistent.verdict.blockers = [
+      "artifact_backed_production_asset_evidence_missing",
+      "generatedHumanRigging:contract_only_fixture_not_artifact_backed",
+    ];
+
+    expect(validateAssetProductionEvidenceLadderReport(inconsistent)).toEqual({
+      ok: false,
+      errors: expect.arrayContaining([
+        "/summary/totalLaneCount must match lanes.length",
+        "/verdict/blockers must include lane blocker skinClothingProvenance:contract_only_fixture_not_artifact_backed",
+      ]),
+    });
+  });
 });
 
 function gltfSmoke() {

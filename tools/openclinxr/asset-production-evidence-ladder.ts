@@ -347,8 +347,58 @@ export function validateAssetProductionEvidenceLadderReport(value: unknown): Val
     requireStringArray(value.verdict.blockers, "/verdict/blockers", errors);
     requireStringArray(value.verdict.caveats, "/verdict/caveats", errors);
   }
+  validateConsistency(value, errors);
 
   return errors.length === 0 ? { ok: true } : { ok: false, errors };
+}
+
+function validateConsistency(value: Record<string, unknown>, errors: string[]): void {
+  if (!Array.isArray(value.lanes) || !isRecord(value.summary) || !isRecord(value.verdict)) {
+    return;
+  }
+
+  const lanes = value.lanes.filter(isRecord);
+  const summary = value.summary;
+  const verdict = value.verdict;
+  const statusCounts = {
+    observed: lanes.filter((lane) => lane.status === "observed").length,
+    contractOnly: lanes.filter((lane) => lane.status === "contract_only").length,
+    blocked: lanes.filter((lane) => lane.status !== "observed").length,
+  };
+
+  if (summary.totalLaneCount !== value.lanes.length) {
+    errors.push("/summary/totalLaneCount must match lanes.length");
+  }
+  if (summary.observedLaneCount !== statusCounts.observed) {
+    errors.push("/summary/observedLaneCount must match observed lane count");
+  }
+  if (summary.contractOnlyLaneCount !== statusCounts.contractOnly) {
+    errors.push("/summary/contractOnlyLaneCount must match contract-only lane count");
+  }
+  if (summary.blockedLaneCount !== statusCounts.blocked) {
+    errors.push("/summary/blockedLaneCount must match non-observed lane count");
+  }
+  if (!Array.isArray(verdict.blockers)) {
+    return;
+  }
+
+  const verdictBlockers = new Set(verdict.blockers);
+  for (const lane of lanes) {
+    if (typeof lane.id !== "string" || !Array.isArray(lane.blockers)) {
+      continue;
+    }
+    for (const blocker of lane.blockers) {
+      if (typeof blocker !== "string") {
+        continue;
+      }
+      const expectedBlocker = lane.id === "artifactBackedProductionAssetEvidence"
+        ? blocker
+        : `${lane.id}:${blocker}`;
+      if (!verdictBlockers.has(expectedBlocker)) {
+        errors.push(`/verdict/blockers must include lane blocker ${expectedBlocker}`);
+      }
+    }
+  }
 }
 
 function validateLane(value: unknown, pathName: string, errors: string[]): void {
