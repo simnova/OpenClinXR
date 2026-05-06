@@ -395,7 +395,9 @@ function inspectRuntimeStream(input: {
   firstAudiblePlaybackLatencyMs?: number;
   transcriptRoundTripObserved: boolean;
 }): LocalVoiceLiveDialogBenchmarkReport["runtimeStream"] {
-  const firstAudiblePlaybackLatencyMs = typeof input.firstAudiblePlaybackLatencyMs === "number" && Number.isFinite(input.firstAudiblePlaybackLatencyMs)
+  const firstAudiblePlaybackLatencyMs = typeof input.firstAudiblePlaybackLatencyMs === "number"
+    && Number.isFinite(input.firstAudiblePlaybackLatencyMs)
+    && input.firstAudiblePlaybackLatencyMs > 0
     ? input.firstAudiblePlaybackLatencyMs
     : null;
   const blockers = [

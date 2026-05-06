@@ -177,6 +177,46 @@ describe("local voice live-dialog benchmark report", () => {
     });
   });
 
+  it("rejects nonpositive first-audible latency for real local voice stream claims", async () => {
+    const report = await buildLocalVoiceLiveDialogBenchmarkReport({
+      generatedAt: "2026-05-05T22:45:00.000Z",
+      runtimeBenchmarkFile: "docs/openclinxr/local-voice-runtime-benchmark-2026-05-05.json",
+      runtimeBenchmark: localVoiceRuntimeBenchmark({
+        caveats: [],
+        realTimeFactor: 0.7,
+      }),
+      modelCacheEvidenceFile: "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-05.json",
+      modelCacheEvidence: localRealtimeVoiceModelCacheEvidence({
+        ready: true,
+        models: [
+          {
+            model_id: "kyutai/moshiko-mlx-q4",
+            ready: true,
+            blockers: [],
+          },
+        ],
+        supportDirectories: [
+          {
+            name: "api-python-backend-venv",
+            reason: "runtime_support_venv_not_model_weights",
+          },
+        ],
+      }),
+      webxrPlaybackObserved: true,
+      realLocalVoiceStreamObserved: true,
+      firstAudiblePlaybackLatencyMs: 0,
+      transcriptRoundTripObserved: true,
+    });
+
+    expect(report.runtimeStream).toMatchObject({
+      realLocalVoiceStreamObserved: true,
+      evidenceSource: "local_voice_runtime_stream",
+      firstAudiblePlaybackLatencyMs: null,
+      blockers: ["first_audible_playback_latency_missing"],
+    });
+    expect(report.verdict.blockers).toContain("runtime_stream:first_audible_playback_latency_missing");
+  });
+
   it("keeps missing local realtime model cache evidence explicit in standalone live-dialog reports", async () => {
     const report = await buildLocalVoiceLiveDialogBenchmarkReport({
       generatedAt: "2026-05-05T22:45:00.000Z",
