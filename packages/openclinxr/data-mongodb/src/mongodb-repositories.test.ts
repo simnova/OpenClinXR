@@ -492,6 +492,57 @@ describe("MongoDB memory repositories", () => {
     );
   });
 
+  it("exposes durable multi-actor session methods through the Mongo API persistence sink without runtime wiring", async () => {
+    const sink: AsyncDurableMultiActorSessionStore = createMongoApiPersistenceSink(context.db);
+    await sink.ensureIndexes?.();
+    const stationRunId = "station_run_api_sink_durable_multi_actor_001";
+
+    await sink.saveConversationTurn({
+      ...spouseConversationTurn,
+      stationRunId,
+    });
+    await sink.saveEmotionalStateTimeline({
+      ...spouseEmotionalState,
+      stationRunId,
+    });
+    await sink.saveClinicalEvent({
+      ...clinicalEventOrderRequested,
+      stationRunId,
+    });
+
+    await expect(sink.listConversationTurns(stationRunId)).resolves.toEqual([
+      {
+        ...spouseConversationTurn,
+        stationRunId,
+      },
+    ]);
+    await expect(sink.listEmotionalStateTimeline(stationRunId, "spouse_anna_hayes_v1")).resolves.toEqual([
+      {
+        ...spouseEmotionalState,
+        stationRunId,
+      },
+    ]);
+    await expect(sink.listClinicalEvents(stationRunId)).resolves.toEqual([
+      {
+        ...clinicalEventOrderRequested,
+        stationRunId,
+      },
+    ]);
+    await expect(sink.listClinicalEventReviewProjections(stationRunId)).resolves.toEqual([
+      expect.objectContaining({
+        clinicalEventId: "event_001_ecg_order",
+        stationRunId,
+        payload: {
+          orderId: "order_1_ecg_request",
+          requestedOrder: "12-lead ECG",
+        },
+        privatePayloadRedacted: true,
+        durableStore: "database_source_of_truth",
+      }),
+    ]);
+    expect(JSON.stringify(await sink.listClinicalEventReviewProjections(stationRunId))).not.toContain("Recent cocaine use");
+  });
+
   it("stores durable conversation turns in replay order without persisting raw voice audio", async () => {
     const repository = new MongoDurableConversationTurnRepository(context.db);
     await repository.ensureIndexes();

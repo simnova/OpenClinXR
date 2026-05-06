@@ -83,12 +83,11 @@ The durable clinical-event replay flow stores package-local event-log records ke
 
 ## Follow-Up Direction
 
-The database-backed durable actor-turn and clinical-event slices now live in `packages/openclinxr/data-mongodb`. Remaining follow-up work should stay sequenced after these durable replay paths:
+The database-backed durable actor-turn and clinical-event slices now live in `packages/openclinxr/data-mongodb`. `MongoApiPersistenceSink` also exposes the package-local `AsyncDurableMultiActorSessionStore` methods by delegating to `MongoDurableMultiActorSessionStore`, so persistence-sink recreation can replay durable conversation turns and redacted clinical-event review projections without adding API routes or runtime wiring. Remaining follow-up work should stay sequenced after these durable replay paths:
 
-1. Consider a later API persistence-sink extension for durable multi-actor methods only after repository evidence is stable.
-2. Keep Redis/Redka as a later adapter after durable replay exists.
-3. Keep WebSocket session-state sync separate from durable database repositories.
-4. Add retention policy, archival, and clinical audit governance only through a later proposal.
+1. Keep Redis/Redka as a later adapter after durable replay exists.
+2. Keep WebSocket session-state sync separate from durable database repositories.
+3. Add retention policy, archival, and clinical audit governance only through a later proposal.
 
 Do not add Redis/Redka dependencies before there is a durable replay path to protect clinical/audit state from cache loss.
 

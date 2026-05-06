@@ -1,5 +1,6 @@
 import { createApiApp } from "@openclinxr/api";
 import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
+import type { AsyncDurableMultiActorSessionStore } from "@openclinxr/session-state";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createMongoApiPersistenceSink } from "./index.js";
 import { createMongoMemoryTestContext, type MongoMemoryTestContext } from "./mongo-memory-context.js";
@@ -129,5 +130,72 @@ describe("Mongo-backed API persistence sink", () => {
       }),
     ]);
     expect(JSON.stringify(restartedDecisions)).not.toContain("hiddenFacts");
+  });
+
+  it("replays durable multi-actor records after persistence sink recreation without API route wiring", async () => {
+    const stationRunId = "station_run_api_sink_restart_durable_multi_actor_001";
+    const sink: AsyncDurableMultiActorSessionStore = createMongoApiPersistenceSink(context.db);
+    await sink.ensureIndexes?.();
+    await sink.saveConversationTurn({
+      turnId: "turn_001_spouse_anna_hayes_v1_120",
+      stationRunId,
+      actorId: "spouse_anna_hayes_v1",
+      atSecond: 120,
+      sourceKind: "voice_transcript",
+      text: "Anna, what happened right before he came in?",
+      traceContextTags: ["history_onset", "family_collateral"],
+      emotionalState: "anxious",
+      routingReason: "addressed_actor_name",
+      rawAudioStored: false,
+      provenanceRefs: ["trace:voice_stream_station_001:segment_0008_final"],
+      durableStore: "database_source_of_truth",
+    });
+    await sink.saveClinicalEvent({
+      clinicalEventId: "event_001_ecg_order",
+      stationRunId,
+      actorId: "nurse_maria_alvarez_v1",
+      atSecond: 180,
+      eventKind: "order_status_changed",
+      traceTag: "ecg_request",
+      label: "12-lead ECG",
+      status: "requested",
+      payload: {
+        public: {
+          orderId: "order_1_ecg_request",
+          requestedOrder: "12-lead ECG",
+        },
+        private: {
+          hiddenFactRefs: ["fact:patient_robert_hayes_v1:1"],
+          serverOnlyNotes: ["Recent cocaine use remains hidden until elicited."],
+        },
+      },
+      provenanceRefs: ["trace:station_run_api_sink_restart_durable_multi_actor_001:180"],
+      durableStore: "database_source_of_truth",
+    });
+
+    const restartedSink: AsyncDurableMultiActorSessionStore = createMongoApiPersistenceSink(context.db);
+    await restartedSink.ensureIndexes?.();
+
+    await expect(restartedSink.listConversationTurns(stationRunId)).resolves.toEqual([
+      expect.objectContaining({
+        turnId: "turn_001_spouse_anna_hayes_v1_120",
+        stationRunId,
+        actorId: "spouse_anna_hayes_v1",
+        rawAudioStored: false,
+        durableStore: "database_source_of_truth",
+      }),
+    ]);
+    await expect(restartedSink.listClinicalEventReviewProjections(stationRunId)).resolves.toEqual([
+      expect.objectContaining({
+        clinicalEventId: "event_001_ecg_order",
+        stationRunId,
+        privatePayloadRedacted: true,
+        payload: {
+          orderId: "order_1_ecg_request",
+          requestedOrder: "12-lead ECG",
+        },
+      }),
+    ]);
+    expect(JSON.stringify(await restartedSink.listClinicalEventReviewProjections(stationRunId))).not.toContain("Recent cocaine use");
   });
 });

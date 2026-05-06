@@ -98,6 +98,10 @@ Current repositories:
 - `MongoExamFormRepository`
 - `MongoStationRunQueueRepository`
 - `MongoApiPersistenceSink`
+- `MongoDurableConversationTurnRepository`
+- `MongoDurableEmotionalStateTimelineRepository`
+- `MongoDurableClinicalEventRepository`
+- `MongoDurableMultiActorSessionStore`
 
 Current tests:
 
@@ -109,7 +113,10 @@ Current tests:
 - Exam form persistence with locked scenario versions.
 - Station run queue snapshot persistence for reviewer launch gating.
 - API sink persistence for exam forms, trace snapshots, review packets, scenario review decisions, and station queues.
+- Durable actor-turn replay and emotional-state timeline replay through repository and API-sink delegation.
+- Durable clinical-event replay, idempotent insert-once behavior, indexed review queries, and redacted review projection replay through repository and API-sink delegation.
 - API restart replay: `packages/openclinxr/data-mongodb` now uses a dev-only Mongo memory integration test to submit `SubmitScenarioReview`, recreate the app with a fresh Mongo-backed sink, and confirm `ScenarioDetail` reflects the persisted review decision without exposing hidden facts.
+- API-sink durable multi-actor restart replay confirms conversation turns and redacted clinical-event review projections survive sink recreation without adding API routes.
 
 ## Sources
 

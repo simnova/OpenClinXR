@@ -409,6 +409,7 @@ export class MongoApiPersistenceSink {
   private readonly traces: MongoTraceRepository;
   private readonly reviewPackets: MongoReviewPacketRepository;
   private readonly scenarioReviewDecisions: MongoScenarioReviewDecisionRepository;
+  private readonly durableMultiActorSessions: MongoDurableMultiActorSessionStore;
 
   constructor(db: Db) {
     this.examForms = new MongoExamFormRepository(db);
@@ -416,6 +417,7 @@ export class MongoApiPersistenceSink {
     this.traces = new MongoTraceRepository(db);
     this.reviewPackets = new MongoReviewPacketRepository(db);
     this.scenarioReviewDecisions = new MongoScenarioReviewDecisionRepository(db);
+    this.durableMultiActorSessions = new MongoDurableMultiActorSessionStore(db);
   }
 
   async ensureIndexes(): Promise<void> {
@@ -425,6 +427,7 @@ export class MongoApiPersistenceSink {
       this.traces.ensureIndexes(),
       this.reviewPackets.ensureIndexes(),
       this.scenarioReviewDecisions.ensureIndexes(),
+      this.durableMultiActorSessions.ensureIndexes(),
     ]);
   }
 
@@ -454,6 +457,37 @@ export class MongoApiPersistenceSink {
 
   async listScenarioReviewDecisions(): Promise<ScenarioReviewDecisionRecord[]> {
     return this.scenarioReviewDecisions.list();
+  }
+
+  async saveConversationTurn(record: DurableConversationTurnRecord): Promise<void> {
+    await this.durableMultiActorSessions.saveConversationTurn(record);
+  }
+
+  async listConversationTurns(stationRunId: string): Promise<DurableConversationTurnRecord[]> {
+    return this.durableMultiActorSessions.listConversationTurns(stationRunId);
+  }
+
+  async saveEmotionalStateTimeline(record: DurableEmotionalStateTimelineRecord): Promise<void> {
+    await this.durableMultiActorSessions.saveEmotionalStateTimeline(record);
+  }
+
+  async listEmotionalStateTimeline(
+    stationRunId: string,
+    actorId: string,
+  ): Promise<DurableEmotionalStateTimelineRecord[]> {
+    return this.durableMultiActorSessions.listEmotionalStateTimeline(stationRunId, actorId);
+  }
+
+  async saveClinicalEvent(record: DurableClinicalEventRecord): Promise<void> {
+    await this.durableMultiActorSessions.saveClinicalEvent(record);
+  }
+
+  async listClinicalEvents(stationRunId: string): Promise<DurableClinicalEventRecord[]> {
+    return this.durableMultiActorSessions.listClinicalEvents(stationRunId);
+  }
+
+  async listClinicalEventReviewProjections(stationRunId: string): Promise<DurableClinicalEventReviewProjection[]> {
+    return this.durableMultiActorSessions.listClinicalEventReviewProjections(stationRunId);
   }
 }
 
