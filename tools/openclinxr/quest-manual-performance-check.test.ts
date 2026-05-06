@@ -397,6 +397,27 @@ describe("Quest manual performance checker", () => {
         timedOut: true,
         blockers: ["locomotion_evidence_missing"],
         elapsedWallMs: 9000,
+        signalSnapshot: {
+          textPanelMetadataPresent: true,
+          textPanelCount: 3,
+          frameStatsFresh: true,
+          immersiveFramesObserved: 720,
+          sampleWindowSize: 120,
+          immersiveFrameReady: true,
+          sampleWindowReady: true,
+          traceSource: "xr_hand_select",
+          lastTraceTag: "ecg_request",
+          lastTraceLatencyMs: 18,
+          headsetTraceEvidencePresent: true,
+          activeLocomotionSource: "none",
+          locomotionAttempt: "not_attempted",
+          lastLocomotionAtMs: null,
+          locomotionDistanceMeters: null,
+          locomotionTurnRadians: null,
+          locomotionEvidencePresent: false,
+          locomotionProbeReasonCodes: ["hand_arming_dwell"],
+          technicalGaps: ["locomotion_delta_missing"],
+        },
       },
     };
 
@@ -408,6 +429,7 @@ describe("Quest manual performance checker", () => {
         timedOut?: boolean;
         blockers?: string[];
         elapsedWallMs?: number | null;
+        signalSnapshot?: Record<string, unknown>;
       };
     };
 
@@ -418,6 +440,27 @@ describe("Quest manual performance checker", () => {
       timedOut: true,
       blockers: ["locomotion_evidence_missing"],
       elapsedWallMs: 9000,
+      signalSnapshot: {
+        textPanelMetadataPresent: true,
+        textPanelCount: 3,
+        frameStatsFresh: true,
+        immersiveFramesObserved: 720,
+        sampleWindowSize: 120,
+        immersiveFrameReady: true,
+        sampleWindowReady: true,
+        traceSource: "xr_hand_select",
+        lastTraceTag: "ecg_request",
+        lastTraceLatencyMs: 18,
+        headsetTraceEvidencePresent: true,
+        activeLocomotionSource: "none",
+        locomotionAttempt: "not_attempted",
+        lastLocomotionAtMs: null,
+        locomotionDistanceMeters: null,
+        locomotionTurnRadians: null,
+        locomotionEvidencePresent: false,
+        locomotionProbeReasonCodes: ["hand_arming_dwell"],
+        technicalGaps: ["locomotion_delta_missing"],
+      },
     });
     expect(check.blockers).toEqual([
       "manual_evidence_harvest_not_ready",

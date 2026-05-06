@@ -834,6 +834,29 @@ export function manualEvidenceHarvestExpression(input: {
         ...technicalGaps.map((gap) => "capture_summary_technical_gap:" + gap),
         ...locomotionProbeReasons.map((reason) => "capture_summary_locomotion_probe:" + reason),
       ].filter((blocker) => typeof blocker === "string");
+      const signalSnapshot = {
+        textPanelMetadataPresent: textPanelEvidence?.source === "window.__openClinXrTextPanelEvidence"
+          && typeof textPanelEvidence?.panelCount === "number"
+          && textPanelEvidence.panelCount >= 3,
+        textPanelCount: typeof textPanelEvidence?.panelCount === "number" ? textPanelEvidence.panelCount : null,
+        frameStatsFresh,
+        immersiveFramesObserved,
+        sampleWindowSize,
+        immersiveFrameReady,
+        sampleWindowReady,
+        traceSource,
+        lastTraceTag,
+        lastTraceLatencyMs,
+        headsetTraceEvidencePresent: hasHeadsetTraceEvidence,
+        activeLocomotionSource: inputEvidence?.activeLocomotionSource ?? captureSummary?.activeLocomotionSource ?? null,
+        locomotionAttempt: inputEvidence?.locomotionAttempt ?? captureSummary?.locomotionAttempt ?? null,
+        lastLocomotionAtMs: inputEvidence?.lastLocomotionAtMs ?? captureSummary?.lastLocomotionAtMs ?? null,
+        locomotionDistanceMeters,
+        locomotionTurnRadians,
+        locomotionEvidencePresent: hasLocomotionEvidence,
+        locomotionProbeReasonCodes: locomotionProbeReasons,
+        technicalGaps,
+      };
       return {
         ready: blockers.length === 0,
         timedOut: false,
@@ -842,6 +865,7 @@ export function manualEvidenceHarvestExpression(input: {
         manualPerformanceDraft,
         captureSummary,
         textPanelEvidence,
+        signalSnapshot,
       };
     };
 
@@ -875,7 +899,37 @@ export function buildManualEvidenceHarvestPayload(input: unknown): Record<string
       elapsedWallMs: typeof result.elapsedWallMs === "number" && Number.isFinite(result.elapsedWallMs)
         ? result.elapsedWallMs
         : null,
+      signalSnapshot: sanitizeManualEvidenceHarvestSignalSnapshot(result.signalSnapshot),
     },
+  };
+}
+
+function sanitizeManualEvidenceHarvestSignalSnapshot(value: unknown): Record<string, unknown> | null {
+  const record = asRecord(value);
+  if (Object.keys(record).length === 0) {
+    return null;
+  }
+
+  return {
+    textPanelMetadataPresent: record.textPanelMetadataPresent === true,
+    textPanelCount: finiteNumberOrNull(record.textPanelCount),
+    frameStatsFresh: record.frameStatsFresh === true,
+    immersiveFramesObserved: finiteNumberOrNull(record.immersiveFramesObserved),
+    sampleWindowSize: finiteNumberOrNull(record.sampleWindowSize),
+    immersiveFrameReady: record.immersiveFrameReady === true,
+    sampleWindowReady: record.sampleWindowReady === true,
+    traceSource: stringOrNull(record.traceSource),
+    lastTraceTag: stringOrNull(record.lastTraceTag),
+    lastTraceLatencyMs: finiteNumberOrNull(record.lastTraceLatencyMs),
+    headsetTraceEvidencePresent: record.headsetTraceEvidencePresent === true,
+    activeLocomotionSource: stringOrNull(record.activeLocomotionSource),
+    locomotionAttempt: stringOrNull(record.locomotionAttempt),
+    lastLocomotionAtMs: finiteNumberOrNull(record.lastLocomotionAtMs),
+    locomotionDistanceMeters: finiteNumberOrNull(record.locomotionDistanceMeters),
+    locomotionTurnRadians: finiteNumberOrNull(record.locomotionTurnRadians),
+    locomotionEvidencePresent: record.locomotionEvidencePresent === true,
+    locomotionProbeReasonCodes: stringArray(record.locomotionProbeReasonCodes),
+    technicalGaps: stringArray(record.technicalGaps),
   };
 }
 
@@ -1342,6 +1396,18 @@ function classifyQuestSmokeEvidence(
 
 function asRecord(value: unknown): Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function finiteNumberOrNull(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function stringOrNull(value: unknown): string | null {
+  return typeof value === "string" && value.trim().length > 0 ? value : null;
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

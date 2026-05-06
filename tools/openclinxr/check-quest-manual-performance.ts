@@ -282,11 +282,33 @@ export type QuestManualPerformanceCopiedPayload = {
     timedOut?: boolean;
     blockers?: string[];
     elapsedWallMs?: number | null;
+    signalSnapshot?: QuestManualPerformanceHarvestSignalSnapshot | null;
   } | null;
 };
 
 export type QuestManualPerformancePayload = QuestManualPerformanceReport | QuestManualPerformanceCopiedPayload;
 type QuestManualLocomotionDelta = NonNullable<NonNullable<QuestManualPerformanceReport["input"]>["locomotionDelta"]>;
+export type QuestManualPerformanceHarvestSignalSnapshot = {
+  textPanelMetadataPresent: boolean;
+  textPanelCount: number | null;
+  frameStatsFresh: boolean;
+  immersiveFramesObserved: number | null;
+  sampleWindowSize: number | null;
+  immersiveFrameReady: boolean;
+  sampleWindowReady: boolean;
+  traceSource: string | null;
+  lastTraceTag: string | null;
+  lastTraceLatencyMs: number | null;
+  headsetTraceEvidencePresent: boolean;
+  activeLocomotionSource: string | null;
+  locomotionAttempt: string | null;
+  lastLocomotionAtMs: number | null;
+  locomotionDistanceMeters: number | null;
+  locomotionTurnRadians: number | null;
+  locomotionEvidencePresent: boolean;
+  locomotionProbeReasonCodes: string[];
+  technicalGaps: string[];
+};
 export type QuestManualPerformanceHarvestSummary = NonNullable<QuestManualPerformanceCopiedPayload["harvestSummary"]>;
 
 export type QuestManualPerformanceCheck = {
@@ -740,6 +762,36 @@ function sanitizeHarvestSummary(
     elapsedWallMs: typeof value.elapsedWallMs === "number" && Number.isFinite(value.elapsedWallMs)
       ? value.elapsedWallMs
       : null,
+    signalSnapshot: sanitizeHarvestSignalSnapshot(value.signalSnapshot),
+  };
+}
+
+function sanitizeHarvestSignalSnapshot(value: unknown): QuestManualPerformanceHarvestSignalSnapshot | null {
+  const record = isRecord(value) ? value : undefined;
+  if (!record) {
+    return null;
+  }
+
+  return {
+    textPanelMetadataPresent: record.textPanelMetadataPresent === true,
+    textPanelCount: finiteNumberOrNull(record.textPanelCount),
+    frameStatsFresh: record.frameStatsFresh === true,
+    immersiveFramesObserved: finiteNumberOrNull(record.immersiveFramesObserved),
+    sampleWindowSize: finiteNumberOrNull(record.sampleWindowSize),
+    immersiveFrameReady: record.immersiveFrameReady === true,
+    sampleWindowReady: record.sampleWindowReady === true,
+    traceSource: stringOrNull(record.traceSource),
+    lastTraceTag: stringOrNull(record.lastTraceTag),
+    lastTraceLatencyMs: finiteNumberOrNull(record.lastTraceLatencyMs),
+    headsetTraceEvidencePresent: record.headsetTraceEvidencePresent === true,
+    activeLocomotionSource: stringOrNull(record.activeLocomotionSource),
+    locomotionAttempt: stringOrNull(record.locomotionAttempt),
+    lastLocomotionAtMs: finiteNumberOrNull(record.lastLocomotionAtMs),
+    locomotionDistanceMeters: finiteNumberOrNull(record.locomotionDistanceMeters),
+    locomotionTurnRadians: finiteNumberOrNull(record.locomotionTurnRadians),
+    locomotionEvidencePresent: record.locomotionEvidencePresent === true,
+    locomotionProbeReasonCodes: stringArray(record.locomotionProbeReasonCodes),
+    technicalGaps: stringArray(record.technicalGaps),
   };
 }
 
@@ -1105,6 +1157,18 @@ function isPositiveFiniteNumber(value: number | null): value is number {
 
 function isNonNegativeFiniteNumber(value: number | null): value is number {
   return typeof value === "number" && Number.isFinite(value) && value >= 0;
+}
+
+function finiteNumberOrNull(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function stringOrNull(value: unknown): string | null {
+  return typeof value === "string" && value.trim().length > 0 ? value : null;
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
 }
 
 function isPercentInRange(value: number | null): value is number {
