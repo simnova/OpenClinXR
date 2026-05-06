@@ -139,6 +139,15 @@
       "blockers": []
     },
     {
+      "evidence_id": "local_realtime_voice_model_source_currentness",
+      "file": "docs/openclinxr/local-realtime-voice-model-source-currentness-2026-05-06.json",
+      "generated_at": "2026-05-06T22:32:54.407Z",
+      "age_hours": 0,
+      "max_age_hours": 24,
+      "status": "fresh",
+      "blockers": []
+    },
+    {
       "evidence_id": "local_qwen_tts_runtime_smoke",
       "file": "docs/openclinxr/local-qwen-tts-runtime-smoke-2026-05-06.json",
       "generated_at": "2026-05-06T13:24:08Z",
@@ -1448,6 +1457,68 @@
     ],
     "blockers": []
   },
+  "local_realtime_voice_model_source_currentness": {
+    "file": "docs/openclinxr/local-realtime-voice-model-source-currentness-2026-05-06.json",
+    "generated_at": "2026-05-06T22:32:54.407Z",
+    "ready": true,
+    "models": [
+      {
+        "model_id": "kyutai/moshiko-mlx-q4",
+        "source_revision": "18e4df760a34d5977a34517d7d1580e07acbb2f1",
+        "local_revision": "18e4df760a34d5977a34517d7d1580e07acbb2f1",
+        "license": {
+          "source": "cc-by-4.0",
+          "expected": "cc-by-4.0",
+          "accepted": true
+        },
+        "files": {
+          "required": [
+            "model.q4.safetensors"
+          ],
+          "listed_by_source": true
+        },
+        "cache": {
+          "cached": true,
+          "ready": true,
+          "metadata_revision_consistent": true
+        },
+        "verdict": {
+          "passed": true,
+          "blockers": []
+        }
+      },
+      {
+        "model_id": "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+        "source_revision": "0d6bb6fe33f92d47a507e23b9148940e8366ab5b",
+        "local_revision": "0d6bb6fe33f92d47a507e23b9148940e8366ab5b",
+        "license": {
+          "source": "apache-2.0",
+          "expected": "apache-2.0",
+          "accepted": true
+        },
+        "files": {
+          "required": [
+            "model.safetensors",
+            "speech_tokenizer/model.safetensors"
+          ],
+          "listed_by_source": true
+        },
+        "cache": {
+          "cached": true,
+          "ready": true,
+          "metadata_revision_consistent": true
+        },
+        "verdict": {
+          "passed": true,
+          "blockers": []
+        }
+      }
+    ],
+    "verdict": {
+      "passed": true,
+      "blockers": []
+    }
+  },
   "local_qwen_tts_runtime_smoke": {
     "file": "docs/openclinxr/local-qwen-tts-runtime-smoke-2026-05-06.json",
     "generated_at": "2026-05-06T13:24:08Z",
@@ -2333,6 +2404,8 @@
         "local_voice_ready_to_benchmark",
         "local_voice_realtime_model_cache_evidence_present",
         "local_voice_realtime_model_cache_ready",
+        "local_voice_realtime_model_source_currentness_present",
+        "local_voice_realtime_model_source_currentness_ready",
         "local_voice_realtime_model_support_venv_observed",
         "local_voice_realtime_transport_contract_observed",
         "motion_comfort_confirmed",
@@ -2583,6 +2656,8 @@
         "local_voice_ready_to_benchmark",
         "local_voice_realtime_model_cache_evidence_present",
         "local_voice_realtime_model_cache_ready",
+        "local_voice_realtime_model_source_currentness_present",
+        "local_voice_realtime_model_source_currentness_ready",
         "local_voice_realtime_model_support_venv_observed",
         "local_voice_realtime_transport_contract_observed"
       ],
@@ -2800,6 +2875,8 @@
         "local_voice_ready_to_benchmark",
         "local_voice_realtime_model_cache_evidence_present",
         "local_voice_realtime_model_cache_ready",
+        "local_voice_realtime_model_source_currentness_present",
+        "local_voice_realtime_model_source_currentness_ready",
         "local_voice_realtime_model_support_venv_observed",
         "local_voice_realtime_transport_contract_observed"
       ],

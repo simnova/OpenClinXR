@@ -226,6 +226,24 @@ type BenchmarkGateReport = {
     }>;
     blockers: string[];
   };
+  local_realtime_voice_model_source_currentness?: {
+    file: string;
+    generated_at: string;
+    ready: boolean;
+    models: Array<{
+      model_id: string;
+      source_revision: string | null;
+      local_revision: string | null;
+      verdict: {
+        passed: boolean;
+        blockers: string[];
+      };
+    }>;
+    verdict: {
+      passed: boolean;
+      blockers: string[];
+    };
+  };
   local_model_cache_evidence?: {
     file: string;
     generated_at: string;
@@ -732,6 +750,9 @@ type LocalRealtimeVoiceModelCacheEvidenceInput = {
       blockers: string[];
       file_count: number;
       total_bytes: number;
+      local_revision?: string | null;
+      metadata_revision_file_count?: number;
+      metadata_revision_consistent?: boolean;
       evidence?: Record<string, unknown>;
     }>;
     support_directories: Array<{
@@ -741,6 +762,44 @@ type LocalRealtimeVoiceModelCacheEvidenceInput = {
       file_count: number;
       total_bytes: number;
     }>;
+  };
+};
+
+type LocalRealtimeVoiceModelSourceCurrentnessInput = {
+  file: string;
+  value: {
+    kind: "local_realtime_voice_model_source_currentness_check";
+    generatedAt: string;
+    ready: boolean;
+    metadata_file: string;
+    cache_evidence_file: string;
+    models: Array<{
+      model_id: string;
+      source_revision: string | null;
+      local_revision: string | null;
+      license: {
+        source: string | null;
+        expected: "cc-by-4.0" | "apache-2.0";
+        accepted: boolean;
+      };
+      files: {
+        required: string[];
+        listed_by_source: boolean;
+      };
+      cache: {
+        cached: boolean;
+        ready: boolean;
+        metadata_revision_consistent: boolean;
+      };
+      verdict: {
+        passed: boolean;
+        blockers: string[];
+      };
+    }>;
+    verdict: {
+      passed: boolean;
+      blockers: string[];
+    };
   };
 };
 
@@ -838,6 +897,9 @@ function readyRealtimeVoiceModelCacheEvidence(): LocalRealtimeVoiceModelCacheEvi
           blockers: [],
           file_count: 3,
           total_bytes: 123456,
+          local_revision: "18e4df760a34d5977a34517d7d1580e07acbb2f1",
+          metadata_revision_file_count: 5,
+          metadata_revision_consistent: true,
           evidence: {
             model_id: "kyutai/moshiko-mlx-q4",
             source_type: "local_source_copy",
@@ -867,6 +929,48 @@ function missingLocalModelCacheEvidence(): LocalModelCacheEvidenceInput {
         productionUseAllowed: false,
       },
       models: [],
+    },
+  };
+}
+
+function readyRealtimeVoiceModelSourceCurrentness(): LocalRealtimeVoiceModelSourceCurrentnessInput {
+  return {
+    file: "docs/openclinxr/local-realtime-voice-model-source-currentness-2026-05-06.json",
+    value: {
+      kind: "local_realtime_voice_model_source_currentness_check",
+      generatedAt: "2026-05-05T18:35:00.000Z",
+      ready: true,
+      metadata_file: "docs/openclinxr/local-realtime-voice-model-source-metadata-2026-05-06.json",
+      cache_evidence_file: "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-05.json",
+      models: [
+        {
+          model_id: "kyutai/moshiko-mlx-q4",
+          source_revision: "18e4df760a34d5977a34517d7d1580e07acbb2f1",
+          local_revision: "18e4df760a34d5977a34517d7d1580e07acbb2f1",
+          license: {
+            source: "cc-by-4.0",
+            expected: "cc-by-4.0",
+            accepted: true,
+          },
+          files: {
+            required: ["model.q4.safetensors"],
+            listed_by_source: true,
+          },
+          cache: {
+            cached: true,
+            ready: true,
+            metadata_revision_consistent: true,
+          },
+          verdict: {
+            passed: true,
+            blockers: [],
+          },
+        },
+      ],
+      verdict: {
+        passed: true,
+        blockers: [],
+      },
     },
   };
 }
@@ -2826,12 +2930,14 @@ describe("benchmark gate report", () => {
     const buildReport = buildBenchmarkGateReport as (
       input: Parameters<typeof buildBenchmarkGateReport>[0] & {
         localRealtimeVoiceModelCacheEvidence?: LocalRealtimeVoiceModelCacheEvidenceInput;
+        localRealtimeVoiceModelSourceCurrentness?: LocalRealtimeVoiceModelSourceCurrentnessInput;
       },
       options: { now: Date; maxEvidenceAgeHours: number },
     ) => BenchmarkGateReport;
 
     const report = buildReport({
       localRealtimeVoiceModelCacheEvidence: readyRealtimeVoiceModelCacheEvidence(),
+      localRealtimeVoiceModelSourceCurrentness: readyRealtimeVoiceModelSourceCurrentness(),
     }, { now: new Date("2026-05-05T18:45:00.000Z"), maxEvidenceAgeHours: 24 });
     const liveDialogGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-003");
 
@@ -2850,12 +2956,43 @@ describe("benchmark gate report", () => {
     expect(liveDialogGate?.satisfied_conditions).toEqual(expect.arrayContaining([
       "local_voice_realtime_model_cache_evidence_present",
       "local_voice_realtime_model_cache_ready",
+      "local_voice_realtime_model_source_currentness_present",
+      "local_voice_realtime_model_source_currentness_ready",
       "local_voice_realtime_model_support_venv_observed",
     ]));
     expect(liveDialogGate?.blockers).not.toEqual(expect.arrayContaining([
       "local_voice_live_dialog:local_realtime_voice_model_cache:approved_model_weights_not_cached",
       "local_voice_live_dialog:local_realtime_voice_model_cache:real_moshi_or_qwen3_model_cache_missing",
       "local_voice_live_dialog:local_realtime_voice_model_cache:missing_local_realtime_voice_model_cache_evidence_report",
+    ]));
+  });
+
+  it("keeps live-dialog evidence blocked when ready voice cache evidence lacks source currentness", () => {
+    const buildReport = buildBenchmarkGateReport as (
+      input: Parameters<typeof buildBenchmarkGateReport>[0] & {
+        localRealtimeVoiceModelCacheEvidence?: LocalRealtimeVoiceModelCacheEvidenceInput;
+      },
+      options: { now: Date; maxEvidenceAgeHours: number },
+    ) => BenchmarkGateReport;
+
+    const report = buildReport({
+      localRealtimeVoiceModelCacheEvidence: readyRealtimeVoiceModelCacheEvidence(),
+    }, { now: new Date("2026-05-05T18:45:00.000Z"), maxEvidenceAgeHours: 24 });
+    const liveDialogGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0009-003");
+
+    expect(report.evidence_freshness).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        evidence_id: "local_realtime_voice_model_source_currentness",
+        status: "missing",
+        blockers: ["local_realtime_voice_model_source_currentness:evidence_missing"],
+      }),
+    ]));
+    expect(liveDialogGate?.blockers).toEqual(expect.arrayContaining([
+      "local_voice_live_dialog:local_realtime_voice_model_source_currentness:missing_local_realtime_voice_model_source_currentness_report",
+    ]));
+    expect(liveDialogGate?.satisfied_conditions).not.toEqual(expect.arrayContaining([
+      "local_voice_realtime_model_source_currentness_present",
+      "local_voice_realtime_model_source_currentness_ready",
     ]));
   });
 

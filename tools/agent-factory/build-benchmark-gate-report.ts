@@ -37,6 +37,7 @@ import {
 import type { LocalMoshiRuntimePackageEvidenceReport } from "../openclinxr/local-moshi-runtime-package-evidence.js";
 import type { LocalModelCacheEvidenceReport } from "../openclinxr/local-model-cache-evidence.js";
 import type { LocalQwenTtsRuntimeSmokeReport } from "../openclinxr/local-qwen-tts-runtime-smoke.js";
+import type { LocalRealtimeVoiceModelSourceCurrentnessReport } from "../openclinxr/local-realtime-voice-model-source-currentness-check.js";
 import type { GodotProjectImportCheck } from "../openclinxr/godot-project-import-check.js";
 import {
   buildVisualQaEvidenceReport,
@@ -241,6 +242,9 @@ type LocalRealtimeVoiceModelCacheEvidenceReport = {
     blockers: string[];
     file_count: number;
     total_bytes: number;
+    local_revision?: string | null;
+    metadata_revision_file_count?: number;
+    metadata_revision_consistent?: boolean;
     evidence?: Record<string, unknown>;
   }>;
   support_directories: Array<{
@@ -491,6 +495,13 @@ type EvidenceGateReport = {
     models: LocalRealtimeVoiceModelCacheEvidenceReport["models"];
     support_directories: LocalRealtimeVoiceModelCacheEvidenceReport["support_directories"];
     blockers: string[];
+  };
+  local_realtime_voice_model_source_currentness?: {
+    file: string;
+    generated_at: string;
+    ready: boolean;
+    models: LocalRealtimeVoiceModelSourceCurrentnessReport["models"];
+    verdict: LocalRealtimeVoiceModelSourceCurrentnessReport["verdict"];
   };
   local_qwen_tts_runtime_smoke?: {
     file: string;
@@ -792,6 +803,7 @@ export type BenchmarkGateReportInput = {
   localVoiceRuntimeBenchmark?: EvidenceFile<LocalVoiceRuntimeBenchmarkReport>;
   localVoiceLiveDialogBenchmark?: EvidenceFile<LocalVoiceLiveDialogBenchmarkReport>;
   localRealtimeVoiceModelCacheEvidence?: EvidenceFile<LocalRealtimeVoiceModelCacheEvidenceReport>;
+  localRealtimeVoiceModelSourceCurrentness?: EvidenceFile<LocalRealtimeVoiceModelSourceCurrentnessReport>;
   localQwenTtsRuntimeSmoke?: EvidenceFile<LocalQwenTtsRuntimeSmokeReport>;
   localMoshiRuntimePackageEvidence?: EvidenceFile<LocalMoshiRuntimePackageEvidenceReport>;
   blueprintVoiceSimulationSpike?: EvidenceFile<BlueprintVoiceSimulationSpikeReport>;
@@ -836,6 +848,7 @@ async function main(): Promise<void> {
   const localVoiceRuntimeBenchmark = await latestJson<LocalVoiceRuntimeBenchmarkReport>("docs/openclinxr/local-voice-runtime-benchmark-*.json");
   const localVoiceLiveDialogBenchmark = await latestJson<LocalVoiceLiveDialogBenchmarkReport>("docs/openclinxr/local-voice-live-dialog-benchmark-*.json");
   const localRealtimeVoiceModelCacheEvidence = await latestJson<LocalRealtimeVoiceModelCacheEvidenceReport>("docs/openclinxr/local-realtime-voice-model-cache-evidence-*.json");
+  const localRealtimeVoiceModelSourceCurrentness = await latestJson<LocalRealtimeVoiceModelSourceCurrentnessReport>("docs/openclinxr/local-realtime-voice-model-source-currentness-*.json");
   const localQwenTtsRuntimeSmoke = await latestJson<LocalQwenTtsRuntimeSmokeReport>("docs/openclinxr/local-qwen-tts-runtime-smoke-*.json");
   const localMoshiRuntimePackageEvidence = await latestJson<LocalMoshiRuntimePackageEvidenceReport>("docs/openclinxr/local-moshi-runtime-package-evidence-*.json");
   const blueprintVoiceSimulationSpike = await latestJson<BlueprintVoiceSimulationSpikeReport>("docs/openclinxr/blueprint-voice-simulation-spike-*.json");
@@ -874,6 +887,7 @@ async function main(): Promise<void> {
     localVoiceRuntimeBenchmark,
     localVoiceLiveDialogBenchmark,
     localRealtimeVoiceModelCacheEvidence,
+    localRealtimeVoiceModelSourceCurrentness,
     localQwenTtsRuntimeSmoke,
     localMoshiRuntimePackageEvidence,
     blueprintVoiceSimulationSpike,
@@ -934,6 +948,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localVoiceRuntimeBenchmark,
     localVoiceLiveDialogBenchmark,
     localRealtimeVoiceModelCacheEvidence,
+    localRealtimeVoiceModelSourceCurrentness,
     localQwenTtsRuntimeSmoke,
     localMoshiRuntimePackageEvidence,
     blueprintVoiceSimulationSpike,
@@ -977,6 +992,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localVoiceRuntimeBenchmark,
     localVoiceLiveDialogBenchmark,
     localRealtimeVoiceModelCacheEvidence,
+    localRealtimeVoiceModelSourceCurrentness,
     localQwenTtsRuntimeSmoke,
     localMoshiRuntimePackageEvidence,
     blueprintVoiceSimulationSpike,
@@ -1067,6 +1083,10 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     ...localVoiceLiveDialogBlockers(localVoiceRuntimeBenchmark, localVoiceLiveDialogBenchmark),
     ...localRealtimeVoiceModelCacheEvidenceBlockers(localRealtimeVoiceModelCacheEvidence)
       .map((blocker) => `local_voice_live_dialog:local_realtime_voice_model_cache:${blocker}`),
+    ...localRealtimeVoiceModelSourceCurrentnessBlockers(
+      localRealtimeVoiceModelSourceCurrentness,
+      localRealtimeVoiceModelCacheEvidence,
+    ).map((blocker) => `local_voice_live_dialog:local_realtime_voice_model_source_currentness:${blocker}`),
     ...localQwenTtsRuntimeSmokeBlockers(localQwenTtsRuntimeSmoke)
       .map((blocker) => `local_voice_live_dialog:local_qwen_tts_runtime_smoke:${blocker}`),
     ...localMoshiRuntimePackageEvidenceBlockers(localMoshiRuntimePackageEvidence)
@@ -1085,6 +1105,9 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
       "local_voice_runtime_benchmark",
       "local_voice_live_dialog_benchmark",
       "local_realtime_voice_model_cache_evidence",
+      ...(localRealtimeVoiceModelCacheEvidence || localRealtimeVoiceModelSourceCurrentness
+        ? ["local_realtime_voice_model_source_currentness"]
+        : []),
       ...(localQwenTtsRuntimeSmoke ? ["local_qwen_tts_runtime_smoke"] : []),
       ...(localMoshiRuntimePackageEvidence ? ["local_moshi_runtime_package_evidence"] : []),
       ...(blueprintVoiceSimulationSpike ? ["blueprint_voice_simulation_spike"] : []),
@@ -1182,6 +1205,10 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
     localVoiceLiveDialogBenchmark?.value.verdict.passed ? "local_voice_live_dialog_benchmark_passed" : undefined,
     localRealtimeVoiceModelCacheEvidence ? "local_voice_realtime_model_cache_evidence_present" : undefined,
     localRealtimeVoiceModelCacheReady(localRealtimeVoiceModelCacheEvidence) ? "local_voice_realtime_model_cache_ready" : undefined,
+    localRealtimeVoiceModelSourceCurrentness ? "local_voice_realtime_model_source_currentness_present" : undefined,
+    localRealtimeVoiceModelSourceCurrentnessReady(localRealtimeVoiceModelSourceCurrentness)
+      ? "local_voice_realtime_model_source_currentness_ready"
+      : undefined,
     localRealtimeVoiceModelCacheEvidence && localRealtimeVoiceModelCacheEvidence.value.support_directories.length > 0
       ? "local_voice_realtime_model_support_venv_observed"
       : undefined,
@@ -1445,6 +1472,15 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
         models: localRealtimeVoiceModelCacheEvidence.value.models,
         support_directories: localRealtimeVoiceModelCacheEvidence.value.support_directories,
         blockers: localRealtimeVoiceModelCacheEvidenceBlockers(localRealtimeVoiceModelCacheEvidence),
+      },
+    } : {}),
+    ...(localRealtimeVoiceModelSourceCurrentness ? {
+      local_realtime_voice_model_source_currentness: {
+        file: localRealtimeVoiceModelSourceCurrentness.file,
+        generated_at: localRealtimeVoiceModelSourceCurrentness.value.generatedAt,
+        ready: localRealtimeVoiceModelSourceCurrentnessReady(localRealtimeVoiceModelSourceCurrentness),
+        models: localRealtimeVoiceModelSourceCurrentness.value.models,
+        verdict: localRealtimeVoiceModelSourceCurrentness.value.verdict,
       },
     } : {}),
     ...(localQwenTtsRuntimeSmoke ? {
@@ -1757,6 +1793,7 @@ function buildEvidenceFreshnessReport(
     localVoiceRuntimeBenchmark?: EvidenceFile<LocalVoiceRuntimeBenchmarkReport>;
     localVoiceLiveDialogBenchmark?: EvidenceFile<LocalVoiceLiveDialogBenchmarkReport>;
     localRealtimeVoiceModelCacheEvidence?: EvidenceFile<LocalRealtimeVoiceModelCacheEvidenceReport>;
+    localRealtimeVoiceModelSourceCurrentness?: EvidenceFile<LocalRealtimeVoiceModelSourceCurrentnessReport>;
     localQwenTtsRuntimeSmoke?: EvidenceFile<LocalQwenTtsRuntimeSmokeReport>;
     localMoshiRuntimePackageEvidence?: EvidenceFile<LocalMoshiRuntimePackageEvidenceReport>;
     blueprintVoiceSimulationSpike?: EvidenceFile<BlueprintVoiceSimulationSpikeReport>;
@@ -1794,6 +1831,9 @@ function buildEvidenceFreshnessReport(
     evidenceFreshnessEntry("local_voice_runtime_benchmark", evidence.localVoiceRuntimeBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_voice_live_dialog_benchmark", evidence.localVoiceLiveDialogBenchmark, now, maxAgeHours),
     evidenceFreshnessEntry("local_realtime_voice_model_cache_evidence", evidence.localRealtimeVoiceModelCacheEvidence, now, maxAgeHours),
+    ...(evidence.localRealtimeVoiceModelCacheEvidence || evidence.localRealtimeVoiceModelSourceCurrentness
+      ? [evidenceFreshnessEntry("local_realtime_voice_model_source_currentness", evidence.localRealtimeVoiceModelSourceCurrentness, now, maxAgeHours)]
+      : []),
     ...(evidence.localQwenTtsRuntimeSmoke
       ? [evidenceFreshnessEntry("local_qwen_tts_runtime_smoke", evidence.localQwenTtsRuntimeSmoke, now, maxAgeHours)]
       : []),
@@ -2354,6 +2394,36 @@ function localRealtimeVoiceModelCacheReady(
   return evidence.value.models.some((model) =>
     model.ready && model.approved && approvedModelIds.has(model.model_id)
   );
+}
+
+function localRealtimeVoiceModelSourceCurrentnessBlockers(
+  evidence: EvidenceFile<LocalRealtimeVoiceModelSourceCurrentnessReport> | undefined,
+  cacheEvidence: EvidenceFile<LocalRealtimeVoiceModelCacheEvidenceReport> | undefined,
+): string[] {
+  if (!cacheEvidence) {
+    return [];
+  }
+  if (!evidence) {
+    return ["missing_local_realtime_voice_model_source_currentness_report"];
+  }
+
+  const report = evidence.value;
+  return unique([
+    report.kind === "local_realtime_voice_model_source_currentness_check"
+      ? undefined
+      : "invalid_local_realtime_voice_model_source_currentness_kind",
+    report.ready ? undefined : "local_realtime_voice_model_source_currentness_not_ready",
+    report.verdict.passed ? undefined : "local_realtime_voice_model_source_currentness_verdict_failed",
+    ...report.verdict.blockers,
+  ]);
+}
+
+function localRealtimeVoiceModelSourceCurrentnessReady(
+  evidence: EvidenceFile<LocalRealtimeVoiceModelSourceCurrentnessReport> | undefined,
+): boolean {
+  return evidence?.value.ready === true
+    && evidence.value.kind === "local_realtime_voice_model_source_currentness_check"
+    && evidence.value.verdict.passed === true;
 }
 
 function localQwenTtsRuntimeSmokeBlockers(
