@@ -1,5 +1,12 @@
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { buildApiPythonBackendRuntimeSmokeReport } from "./api-python-backend-runtime-smoke.js";
+import {
+  buildApiPythonBackendRuntimeSmokeReport,
+  main,
+  validateApiPythonBackendRuntimeSmokeReport,
+} from "./api-python-backend-runtime-smoke.js";
 import type { LocalQwenTtsRuntimeSmokeReport } from "./local-qwen-tts-runtime-smoke.js";
 
 const canonicalWebSocketProtocol = {
@@ -60,6 +67,20 @@ const baseInput = {
 };
 
 describe("API Python backend runtime smoke report", () => {
+  it("exposes generation and validation scripts", async () => {
+    const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+
+    expect(rootPackage.scripts["local:voice:python-backend-smoke"]).toBe(
+      "tsx tools/openclinxr/api-python-backend-runtime-smoke.ts",
+    );
+    expect(rootPackage.scripts["local:voice:python-backend-smoke:validate"]).toBe(
+      "tsx tools/openclinxr/api-python-backend-runtime-smoke.ts --validate-latest",
+    );
+    expect(rootPackage.scripts["agent:verify"]).toContain("pnpm local:voice:python-backend-smoke:validate");
+  });
+
   it("passes only when health and websocket frame evidence are observed", () => {
     const report = buildApiPythonBackendRuntimeSmokeReport(baseInput);
 
@@ -194,6 +215,105 @@ describe("API Python backend runtime smoke report", () => {
 
     expect(report.status).toBe("blocked");
     expect(report.verdict.blockers).toContain("websocket_latency_fields_not_observed");
+  });
+
+  it("validates the latest Python backend smoke without allowing live-dialog claims", async () => {
+    const report = JSON.parse(
+      await readFile("docs/openclinxr/api-python-backend-runtime-smoke-2026-05-06.json", "utf8"),
+    );
+
+    expect(validateApiPythonBackendRuntimeSmokeReport(report)).toEqual({ ok: true });
+
+    const invalid = structuredClone(report) as {
+      policy: Partial<{ productionUseAllowed: boolean }>;
+      websocket: { protocol: { codec: string } };
+      verdict: { readyForLiveDialog: boolean };
+    };
+    delete invalid.policy.productionUseAllowed;
+    invalid.websocket.protocol.codec = "pcm";
+    invalid.verdict.readyForLiveDialog = true;
+
+    expect(validateApiPythonBackendRuntimeSmokeReport(invalid)).toEqual({
+      ok: false,
+      errors: [
+        "/policy/productionUseAllowed must be false",
+        "/websocket/protocol/codec must be \"opus\"",
+        "/verdict/readyForLiveDialog must be false",
+      ],
+    });
+  });
+
+  it("requires status and verdict to match observed runtime blockers", () => {
+    const report = buildApiPythonBackendRuntimeSmokeReport({
+      ...baseInput,
+      websocket: {
+        ...baseInput.websocket,
+        connected: false,
+        binaryEchoObserved: false,
+      },
+    });
+    const invalid = structuredClone(report) as {
+      status: string;
+      verdict: { passed: boolean; blockers: string[] };
+    };
+    invalid.status = "passed";
+    invalid.verdict.passed = true;
+    invalid.verdict.blockers = [];
+
+    expect(validateApiPythonBackendRuntimeSmokeReport(invalid)).toEqual({
+      ok: false,
+      errors: [
+        "/status must be blocked when blockers are present",
+        "/verdict/passed must be false when blockers are present",
+        "/verdict/blockers missing expected blocker websocket_not_connected",
+        "/verdict/blockers missing expected blocker websocket_binary_echo_missing",
+      ],
+    });
+  });
+
+  it("validates CLI reports by explicit path and latest evidence path", async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), "openclinxr-python-backend-validate-"));
+    try {
+      const report = buildApiPythonBackendRuntimeSmokeReport(baseInput);
+      const output = path.join(dir, "report.json");
+      await writeFile(output, JSON.stringify(report, null, 2));
+
+      await expect(main(["--validate", output])).resolves.toBeUndefined();
+      await expect(main(["--validate-latest"])).resolves.toBeUndefined();
+
+      const invalid = structuredClone(report) as {
+        relatedLocalInferenceEvidence: {
+          qwen3Tts: {
+            observed: boolean;
+            claimScope: string;
+            modelId: string;
+            realTimeFactor: number | null;
+            readyForLiveDialog: boolean;
+            blockers: string[];
+          };
+        };
+      };
+      invalid.relatedLocalInferenceEvidence = {
+        qwen3Tts: {
+          observed: true,
+          claimScope: "local_tts_inference_only",
+          modelId: "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+          realTimeFactor: 1.96,
+          readyForLiveDialog: true,
+          blockers: [],
+        },
+      };
+      const invalidOutput = path.join(dir, "invalid-report.json");
+      await writeFile(invalidOutput, JSON.stringify(invalid, null, 2));
+      process.exitCode = undefined;
+
+      await expect(main(["--validate", invalidOutput])).resolves.toBeUndefined();
+
+      expect(process.exitCode).toBe(1);
+    } finally {
+      process.exitCode = undefined;
+      await rm(dir, { recursive: true, force: true });
+    }
   });
 });
 
