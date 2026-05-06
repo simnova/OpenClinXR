@@ -184,6 +184,21 @@ export type LocomotionVectorEvidence = {
   turn: number;
 };
 
+export type HandGestureLocomotionVectorInput = {
+  handedness: "left" | "right";
+  relativeOffsetMeters: { x: number; z: number };
+  movementDeadzoneMeters: number;
+  turnDeadzoneMeters: number;
+  movementSensitivity: number;
+  turnSensitivity: number;
+  turnCoolingDown: boolean;
+};
+
+export type HandGestureLocomotionVectorResult = LocomotionVectorEvidence & {
+  movementCrossedDeadzone: boolean;
+  turnCrossedDeadzone: boolean;
+};
+
 export type RigPoseEvidence = {
   x: number;
   z: number;
@@ -1289,6 +1304,27 @@ export function buildReadableVrTextPanelEvidence(
   };
 }
 
+export function mapHandGestureLocomotionVector(
+  input: HandGestureLocomotionVectorInput,
+): HandGestureLocomotionVectorResult {
+  const forward = gestureAxis(-input.relativeOffsetMeters.z, input.movementDeadzoneMeters, input.movementSensitivity);
+  const leftHandStrafe = input.handedness === "left"
+    ? gestureAxis(input.relativeOffsetMeters.x, input.movementDeadzoneMeters, input.movementSensitivity)
+    : 0;
+  const rightHandTurn = input.handedness === "right"
+    ? gestureAxis(input.relativeOffsetMeters.x, input.turnDeadzoneMeters, input.turnSensitivity)
+    : 0;
+  const turn = input.turnCoolingDown ? 0 : rightHandTurn;
+
+  return {
+    forward,
+    strafe: leftHandStrafe,
+    turn,
+    movementCrossedDeadzone: forward !== 0 || leftHandStrafe !== 0 || turn !== 0,
+    turnCrossedDeadzone: rightHandTurn !== 0,
+  };
+}
+
 export function buildManualPerformanceEvidencePayload(input: {
   manualPerformanceDraft: ManualPerformanceDraft | null;
   captureSummary: ManualPerformanceCaptureSummary;
@@ -2088,6 +2124,18 @@ function nurseTurn(traceTag: string, learnerUtterance: string): RemoteActorTurnP
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function gestureAxis(value: number, deadzoneMeters: number, sensitivity: number): number {
+  const magnitude = Math.abs(value);
+  if (magnitude < deadzoneMeters) {
+    return 0;
+  }
+  return clampUnit(Math.sign(value) * (magnitude - deadzoneMeters) * sensitivity);
+}
+
+function clampUnit(value: number): number {
+  return Math.min(Math.max(value, -1), 1);
 }
 
 function roundMetric(value: number, fractionDigits = 2): number {

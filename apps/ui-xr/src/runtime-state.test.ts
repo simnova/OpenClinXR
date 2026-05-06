@@ -31,6 +31,7 @@ import {
   localHandMeshPath,
   remoteActorTurnForTraceTag,
   manualPerformanceMetricsFromFrameStats,
+  mapHandGestureLocomotionVector,
   parseBrowserVersionHints,
   stationTraceActionTags,
   summarizeFrameDeltas,
@@ -705,6 +706,56 @@ describe("XR runtime state", () => {
       },
     });
     expect(evidence.roomScaleDelta).toEqual(evidence.locomotionDelta);
+  });
+
+  it("maps right-hand pinch motion to forward locomotion without requiring controllers", () => {
+    expect(mapHandGestureLocomotionVector({
+      handedness: "right",
+      relativeOffsetMeters: { x: 0.01, z: -0.12 },
+      movementDeadzoneMeters: 0.045,
+      turnDeadzoneMeters: 0.055,
+      movementSensitivity: 5,
+      turnSensitivity: 4,
+      turnCoolingDown: false,
+    })).toEqual({
+      forward: 0.375,
+      strafe: 0,
+      turn: 0,
+      movementCrossedDeadzone: true,
+      turnCrossedDeadzone: false,
+    });
+
+    expect(mapHandGestureLocomotionVector({
+      handedness: "right",
+      relativeOffsetMeters: { x: 0.12, z: -0.12 },
+      movementDeadzoneMeters: 0.045,
+      turnDeadzoneMeters: 0.055,
+      movementSensitivity: 5,
+      turnSensitivity: 4,
+      turnCoolingDown: true,
+    })).toEqual({
+      forward: 0.375,
+      strafe: 0,
+      turn: 0,
+      movementCrossedDeadzone: true,
+      turnCrossedDeadzone: true,
+    });
+
+    expect(mapHandGestureLocomotionVector({
+      handedness: "right",
+      relativeOffsetMeters: { x: 0.01, z: -0.01 },
+      movementDeadzoneMeters: 0.045,
+      turnDeadzoneMeters: 0.055,
+      movementSensitivity: 5,
+      turnSensitivity: 4,
+      turnCoolingDown: true,
+    })).toEqual({
+      forward: 0,
+      strafe: 0,
+      turn: 0,
+      movementCrossedDeadzone: false,
+      turnCrossedDeadzone: false,
+    });
   });
 
   it("builds metadata evidence for in-VR text panels without claiming headset readability", () => {

@@ -45,6 +45,7 @@ import {
   iwsdkStationSceneObjects,
   isImmersiveFrameEvidenceActive,
   localHandMeshPath,
+  mapHandGestureLocomotionVector,
   meshHandModelProfile,
   meshHandRepresentationKind,
   primitiveHandModelProfile,
@@ -1503,25 +1504,21 @@ function readHandGestureVector(input: {
   const relativeOffsetZ = offsetZ - state.neutralOffsetZ;
   const relativeOffsetMeters = { x: relativeOffsetX, z: relativeOffsetZ };
 
+  const turnCoolingDown = handedness === "right"
+    && input.gestureState.lastTurnAtMs !== null
+    && input.now - input.gestureState.lastTurnAtMs < handGestureTurnCooldownMs;
+  const mappedGesture = mapHandGestureLocomotionVector({
+    handedness,
+    relativeOffsetMeters,
+    movementDeadzoneMeters: handGestureDeadzoneMeters,
+    turnDeadzoneMeters: handGestureTurnDeadzoneMeters,
+    movementSensitivity: 5,
+    turnSensitivity: 4,
+    turnCoolingDown,
+  });
+
   if (handedness === "right") {
-    const turn = gestureAxis(relativeOffsetX, handGestureTurnDeadzoneMeters, 4);
-    if (turn === 0) {
-      return handGestureResult({
-        handedness,
-        jointsVisible,
-        pinchDistanceMeters,
-        pinching,
-        armed: true,
-        dwellMs,
-        relativeOffsetMeters,
-        movementCrossedDeadzone: false,
-        blockedReason: "below_deadzone",
-      });
-    }
-    if (
-      input.gestureState.lastTurnAtMs !== null
-      && input.now - input.gestureState.lastTurnAtMs < handGestureTurnCooldownMs
-    ) {
+    if (turnCoolingDown && mappedGesture.turnCrossedDeadzone && mappedGesture.forward === 0 && mappedGesture.strafe === 0) {
       return handGestureResult({
         handedness,
         jointsVisible,
@@ -1534,26 +1531,15 @@ function readHandGestureVector(input: {
         blockedReason: "turn_cooldown",
       });
     }
-    input.gestureState.lastTurnAtMs = input.now;
-    return handGestureResult({
-      turn,
-      handedness,
-      jointsVisible,
-      pinchDistanceMeters,
-      pinching,
-      armed: true,
-      dwellMs,
-      relativeOffsetMeters,
-      movementCrossedDeadzone: true,
-    });
+    if (mappedGesture.turn !== 0) {
+      input.gestureState.lastTurnAtMs = input.now;
+    }
   }
 
-  const forward = gestureAxis(-relativeOffsetZ, handGestureDeadzoneMeters, 5);
-  const strafe = gestureAxis(relativeOffsetX, handGestureDeadzoneMeters, 5);
-  const movementCrossedDeadzone = forward !== 0 || strafe !== 0;
   return handGestureResult({
-    forward,
-    strafe,
+    forward: mappedGesture.forward,
+    strafe: mappedGesture.strafe,
+    turn: mappedGesture.turn,
     handedness,
     jointsVisible,
     pinchDistanceMeters,
@@ -1561,8 +1547,8 @@ function readHandGestureVector(input: {
     armed: true,
     dwellMs,
     relativeOffsetMeters,
-    movementCrossedDeadzone,
-    ...(movementCrossedDeadzone ? {} : { blockedReason: "below_deadzone" }),
+    movementCrossedDeadzone: mappedGesture.movementCrossedDeadzone,
+    ...(mappedGesture.movementCrossedDeadzone ? {} : { blockedReason: "below_deadzone" }),
   });
 }
 
@@ -1832,14 +1818,6 @@ function deadzone(value: number): number {
 
 function isLocomotionVectorActive(vector: LocomotionVectorEvidence): boolean {
   return Math.abs(vector.forward) > 0 || Math.abs(vector.strafe) > 0 || Math.abs(vector.turn) > 0;
-}
-
-function gestureAxis(value: number, deadzoneMeters: number, sensitivity: number): number {
-  const magnitude = Math.abs(value);
-  if (magnitude < deadzoneMeters) {
-    return 0;
-  }
-  return clampUnit(Math.sign(value) * (magnitude - deadzoneMeters) * sensitivity);
 }
 
 function clampUnit(value: number): number {
