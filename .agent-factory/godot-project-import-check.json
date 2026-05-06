@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T05:24:31.991Z",
+  "generatedAt": "2026-05-06T13:56:47.467Z",
   "projectPath": "apps/ui-quest-voice-godot",
   "sourceContract": {
     "passed": true,
@@ -15,23 +15,22 @@
     ]
   },
   "godotImport": {
-    "attempted": false,
-    "status": "skipped_no_godot_binary",
-    "executable": null,
-    "exitCode": null,
-    "stdout": [],
+    "attempted": true,
+    "status": "passed",
+    "executable": "/Users/patrick/.cache/openclinxr/godot/4.5.1-stable/Godot.app/Contents/MacOS/Godot",
+    "exitCode": 0,
+    "stdout": [
+      "Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org"
+    ],
     "stderr": [],
-    "blockers": [
-      "godot_import_not_executed"
-    ]
+    "blockers": []
   },
   "verdict": {
     "readyForSourceContractClaim": true,
-    "readyForGodotImportClaim": false,
+    "readyForGodotImportClaim": true,
     "readyForQuestRuntimeClaim": false,
     "readyForVoiceRuntimeClaim": false,
     "blockers": [
-      "godot_import:not_executed",
       "quest_runtime:not_executed",
       "voice_runtime:not_executed"
     ]
@@ -46,7 +45,6 @@
     "production_runtime_readiness"
   ],
   "nextSteps": [
-    "Provide a local Godot 4 executable with --godot-binary to run the headless import check.",
     "Run the sidecar on the physical Quest 3 before claiming microphone, playback, Opus, latency, or production voice readiness."
   ]
 }

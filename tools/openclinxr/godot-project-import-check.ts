@@ -120,6 +120,9 @@ function sourceContractBlockers(input: GodotProjectImportInput): string[] {
     scene.includes('type="Script" path="res://src/RealtimeVoiceClient.gd"')
       ? undefined
       : "voice_client_script_not_bound_in_scene",
+    mainScript.includes("@onready var client: RealtimeVoiceClient")
+      ? "main_client_type_depends_on_global_class_cache"
+      : undefined,
     mainScript.includes("client.connect_gateway(endpoint.text)") ? undefined : "main_does_not_connect_endpoint",
     mainScript.includes("client.send_transport_probe()") ? undefined : "main_transport_probe_button_not_wired",
     voiceClientScript.includes("WebSocketPeer.new()") ? undefined : "websocket_peer_missing",
@@ -193,7 +196,8 @@ function runGodotImport(input: GodotProjectImportInput): GodotProjectImportCheck
   });
   const stderr = lines(result.stderr);
   const stdout = lines(result.stdout);
-  const failed = typeof result.status !== "number" || result.status !== 0;
+  const stderrErrorBlockers = godotErrorLines(stderr).map((line) => `godot_stderr:${line}`);
+  const failed = typeof result.status !== "number" || result.status !== 0 || stderrErrorBlockers.length > 0;
   return {
     attempted: true,
     status: failed ? "failed" : "passed",
@@ -205,9 +209,13 @@ function runGodotImport(input: GodotProjectImportInput): GodotProjectImportCheck
       "godot_import_failed",
       result.error ? `godot_process_error:${result.error.message}` : undefined,
       result.signal ? `godot_process_signal:${result.signal}` : undefined,
-      ...stderr.filter((line) => /error|failed/i.test(line)).map((line) => `godot_stderr:${line}`),
+      ...stderrErrorBlockers,
     ]) : [],
   };
+}
+
+function godotErrorLines(stderr: string[]): string[] {
+  return stderr.filter((line) => /\b(script error|error|failed|parse error)\b/i.test(line));
 }
 
 function stripGodotPrefix(blocker: string): string {

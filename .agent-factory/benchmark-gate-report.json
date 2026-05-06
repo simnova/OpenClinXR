@@ -16,7 +16,7 @@
       "evidence_id": "local_runtime_probe",
       "file": "docs/openclinxr/local-runtime-probe-2026-05-05.json",
       "generated_at": "2026-05-05T16:48:27.241Z",
-      "age_hours": 20,
+      "age_hours": 21,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -143,8 +143,8 @@
     {
       "evidence_id": "godot_project_import_check",
       "file": ".agent-factory/godot-project-import-check.json",
-      "generated_at": "2026-05-06T05:24:31.991Z",
-      "age_hours": 8,
+      "generated_at": "2026-05-06T13:56:47.467Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -180,7 +180,7 @@
       "evidence_id": "api_bun_python_proxy_runtime_smoke",
       "file": "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-06T01:52:40.346Z",
-      "age_hours": 11,
+      "age_hours": 12,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -188,7 +188,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T13:47:34.385Z",
+      "generated_at": "2026-05-06T13:57:35.170Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -1160,7 +1160,7 @@
   },
   "godot_project_import_check": {
     "file": ".agent-factory/godot-project-import-check.json",
-    "generated_at": "2026-05-06T05:24:31.991Z",
+    "generated_at": "2026-05-06T13:56:47.467Z",
     "project_path": "apps/ui-quest-voice-godot",
     "source_contract": {
       "passed": true,
@@ -1176,19 +1176,16 @@
       ]
     },
     "godot_import": {
-      "attempted": false,
-      "status": "skipped_no_godot_binary",
-      "blockers": [
-        "godot_import_not_executed"
-      ]
+      "attempted": true,
+      "status": "passed",
+      "blockers": []
     },
     "verdict": {
       "ready_for_source_contract_claim": true,
-      "ready_for_godot_import_claim": false,
+      "ready_for_godot_import_claim": true,
       "ready_for_quest_runtime_claim": false,
       "ready_for_voice_runtime_claim": false,
       "blockers": [
-        "godot_import:not_executed",
         "quest_runtime:not_executed",
         "voice_runtime:not_executed"
       ]
@@ -1570,7 +1567,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T13:47:34.385Z",
+    "generated_at": "2026-05-06T13:57:35.170Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -1812,6 +1809,7 @@
         "local_voice_bun_python_proxy_runtime_smoke_passed",
         "local_voice_bun_websocket_runtime_smoke_passed",
         "local_voice_first_audio_benchmark_passed",
+        "local_voice_godot_import_observed",
         "local_voice_godot_source_contract_observed",
         "local_voice_live_dialog_mock_stream_passed",
         "local_voice_live_dialog_report_present",
@@ -2058,6 +2056,7 @@
         "local_voice_bun_python_proxy_runtime_smoke_passed",
         "local_voice_bun_websocket_runtime_smoke_passed",
         "local_voice_first_audio_benchmark_passed",
+        "local_voice_godot_import_observed",
         "local_voice_godot_source_contract_observed",
         "local_voice_python_backend_runtime_smoke_passed",
         "local_voice_qwen_tts_local_inference_observed",
@@ -2264,6 +2263,7 @@
         "local_voice_bun_python_proxy_runtime_smoke_passed",
         "local_voice_bun_websocket_runtime_smoke_passed",
         "local_voice_first_audio_benchmark_passed",
+        "local_voice_godot_import_observed",
         "local_voice_godot_source_contract_observed",
         "local_voice_live_dialog_mock_stream_passed",
         "local_voice_live_dialog_report_present",
@@ -2289,7 +2289,6 @@
         "local_voice_live_dialog:blueprint_voice_simulation:tier2_local_inference_not_observed",
         "local_voice_live_dialog:blueprint_voice_simulation:tier3_webxr_not_observed",
         "local_voice_live_dialog:blueprint_voice_simulation:webxr_iwsdk_client_not_executed_for_this_report",
-        "local_voice_live_dialog:godot_project_import:godot_import:not_executed",
         "local_voice_live_dialog:godot_project_import:quest_runtime:not_executed",
         "local_voice_live_dialog:godot_project_import:voice_runtime:not_executed",
         "local_voice_live_dialog:godot_quest_voice:missing_godot_quest_voice_evidence_report",
@@ -2305,7 +2304,7 @@
         "local_voice_live_dialog:webxr_playback:webxr_playback_not_observed"
       ],
       "blocker_summary": {
-        "total_blockers": 24,
+        "total_blockers": 23,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -2323,7 +2322,6 @@
               "local_voice_live_dialog:blueprint_voice_simulation:tier2_local_inference_not_observed",
               "local_voice_live_dialog:blueprint_voice_simulation:tier3_webxr_not_observed",
               "local_voice_live_dialog:blueprint_voice_simulation:webxr_iwsdk_client_not_executed_for_this_report",
-              "local_voice_live_dialog:godot_project_import:godot_import:not_executed",
               "local_voice_live_dialog:godot_project_import:quest_runtime:not_executed",
               "local_voice_live_dialog:godot_project_import:voice_runtime:not_executed",
               "local_voice_live_dialog:godot_quest_voice:missing_godot_quest_voice_evidence_report",

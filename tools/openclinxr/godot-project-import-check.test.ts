@@ -1,4 +1,6 @@
-import { readFileSync } from "node:fs";
+import { chmodSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   buildGodotProjectImportCheck,
@@ -68,6 +70,49 @@ describe("Godot project import check", () => {
       "codec_constant_not_opus",
     ]));
     expect(check.verdict.readyForSourceContractClaim).toBe(false);
+  });
+
+  it("blocks Main.gd from depending on Godot global class cache for the voice client type", () => {
+    const input = sourceOnlyInput();
+    input.files.mainScript = input.files.mainScript.replace(
+      "@onready var client = $RealtimeVoiceClient",
+      "@onready var client: RealtimeVoiceClient = $RealtimeVoiceClient",
+    );
+
+    const check = buildGodotProjectImportCheck(input);
+
+    expect(check.sourceContract.blockers).toContain("main_client_type_depends_on_global_class_cache");
+    expect(check.verdict.readyForSourceContractClaim).toBe(false);
+  });
+
+  it("fails the import check when Godot prints parse errors despite a zero exit code", () => {
+    const fakeGodot = path.join(mkdtempSync(path.join(tmpdir(), "openclinxr-godot-")), "godot");
+    writeFileSync(fakeGodot, [
+      "#!/usr/bin/env bash",
+      "echo 'Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org'",
+      "echo 'SCRIPT ERROR: Parse Error: Could not find type \"RealtimeVoiceClient\" in the current scope.' >&2",
+      "echo 'ERROR: Failed to load script \"res://src/Main.gd\" with error \"Parse error\".' >&2",
+      "exit 0",
+      "",
+    ].join("\n"));
+    chmodSync(fakeGodot, 0o755);
+
+    const check = buildGodotProjectImportCheck({
+      ...sourceOnlyInput(),
+      godotBinary: fakeGodot,
+    });
+
+    expect(check.godotImport).toMatchObject({
+      attempted: true,
+      status: "failed",
+      exitCode: 0,
+    });
+    expect(check.godotImport.blockers).toEqual(expect.arrayContaining([
+      "godot_import_failed",
+      "godot_stderr:SCRIPT ERROR: Parse Error: Could not find type \"RealtimeVoiceClient\" in the current scope.",
+      "godot_stderr:ERROR: Failed to load script \"res://src/Main.gd\" with error \"Parse error\".",
+    ]));
+    expect(check.verdict.readyForGodotImportClaim).toBe(false);
   });
 
   it("keeps the root script available for local source/import evidence generation", () => {

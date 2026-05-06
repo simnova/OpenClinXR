@@ -1,6 +1,6 @@
 extends Control
 
-@onready var client: RealtimeVoiceClient = $RealtimeVoiceClient
+@onready var client = $RealtimeVoiceClient
 @onready var endpoint: LineEdit = $Panel/VBox/Endpoint
 @onready var status_label: Label = $Panel/VBox/Status
 
@@ -13,7 +13,7 @@ func _ready() -> void:
 	client.audio_packet_received.connect(_on_audio_packet_received)
 
 func _on_connect_pressed() -> void:
-	var error := client.connect_gateway(endpoint.text)
+	var error: int = client.connect_gateway(endpoint.text)
 	if error != OK:
 		status_label.text = "connect error: %s" % error
 

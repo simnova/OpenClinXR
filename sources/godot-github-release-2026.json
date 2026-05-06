@@ -1,0 +1,22 @@
+{
+  "source_id": "src-godot-github-release-2026",
+  "title": "Godot 4.5.1 Stable GitHub Release",
+  "url": "https://github.com/godotengine/godot/releases/tag/4.5.1-stable",
+  "source_type": "vendor",
+  "citation": "Godot Engine. Godot 4.5.1-stable release assets and repository license metadata. GitHub. Accessed 2026-05-06.",
+  "accessed_at": "2026-05-06",
+  "permitted_uses": [
+    "Developer-local Godot editor binary download for OpenClinXR sidecar source import checks."
+  ],
+  "claims_supported": [
+    "The GitHub release exposes a Godot_v4.5.1-stable_macos.universal.zip editor asset.",
+    "The Godot repository GitHub license metadata identifies the repository license as MIT.",
+    "The downloaded macOS universal editor zip was verified against the release SHA512-SUMS.txt before local headless import evidence was generated."
+  ],
+  "claims_not_supported": [
+    "That OpenClinXR may redistribute Godot binaries without packaging and legal review.",
+    "That Godot import evidence proves Quest microphone capture, playback, Opus encode/decode, latency, or production voice readiness.",
+    "That Godot editor import evidence proves clinical voice simulation validity."
+  ],
+  "confidence": 0.9
+}

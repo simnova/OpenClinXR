@@ -28,3 +28,16 @@ The default local gateway URL is `ws://127.0.0.1:4017/voice/realtime/ws`.
 The transport probe is deliberately not presented as clinical voice evidence.
 Production voice requires a real codec path, disclosure/retention/misuse controls,
 and measured Quest capture/playback latency.
+
+## Local Import Evidence
+
+The source/import evidence lane can use a locally cached Godot 4 editor binary:
+
+```bash
+pnpm godot:project:import-check -- --godot-binary /Users/patrick/.cache/openclinxr/godot/4.5.1-stable/Godot.app/Contents/MacOS/Godot
+```
+
+This only proves that Godot can parse/import the committed sidecar source on the
+developer machine. It still does not prove physical Quest runtime behavior,
+microphone capture, native Opus encode/decode, headset playback, latency, or
+clinical voice readiness.
