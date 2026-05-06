@@ -330,6 +330,69 @@ describe("OpenClinXR API startup", () => {
     ]));
   });
 
+  it("threads verified Python proxy reachability posture through startup fetch without claiming live dialog", async () => {
+    const startup = createOpenClinXrApiStartup({
+      realtimeVoiceGatewayPosture: {
+        bunAvailable: true,
+        pythonBackendWebSocketUrlConfigured: true,
+        pythonBackendDependenciesInstalled: true,
+        pythonInferenceRuntimeInstalled: false,
+        pythonBackendProxyReachabilityEvidence: {
+          sourceFile: "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
+          generatedAt: "2026-05-06T01:52:40.346Z",
+          status: "passed",
+          eventTypesObserved: [
+            "gateway.ready",
+            "backend.ready",
+            "voice.started",
+            "audio.chunk",
+            "transcript.partial",
+            "transcript.final",
+            "voice.stopped",
+          ],
+          binaryMessages: 1,
+          backendProtocolObserved: true,
+          latencyFieldsObserved: true,
+          binaryEchoObserved: true,
+        },
+      },
+    }).startUp();
+
+    const response = await startup.fetch(new Request("http://localhost/voice/realtime/posture"));
+    const posture = await response.json() as {
+      backends: {
+        pythonFastApi: {
+          transportProxy: {
+            status: string;
+            readyForLiveDialog: boolean;
+            blockers: string[];
+            reachabilityEvidence?: {
+              sourceFile: string;
+              status: string;
+            };
+          };
+        };
+      };
+    };
+
+    expect(response.status).toBe(200);
+    expect(posture.backends.pythonFastApi.transportProxy).toMatchObject({
+      status: "configured_reachability_verified",
+      readyForLiveDialog: false,
+      reachabilityEvidence: {
+        sourceFile: "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
+        status: "passed",
+      },
+    });
+    expect(posture.backends.pythonFastApi.transportProxy.blockers).toEqual(expect.arrayContaining([
+      "real_model_inference_not_observed",
+      "quest_browser_audio_capture_not_observed",
+      "quest_playback_not_observed",
+      "opus_codec_not_verified",
+      "clinical_voice_safety_not_exercised",
+    ]));
+  });
+
   it("persists station run queue review snapshots in the default single-user startup", async () => {
     const startup = createOpenClinXrApiStartup().startUp();
 

@@ -86,10 +86,11 @@ export type RealtimeVoiceGatewayPosture = {
       status: "source_present_not_executed" | "available_for_local_run";
       websocketPath: "/voice/realtime/ws";
       transportProxy: {
-        status: "not_configured" | "configured_not_verified";
+        status: "not_configured" | "configured_not_verified" | "configured_reachability_verified";
         backendUrlConfigured: boolean;
         readyForLiveDialog: false;
         blockers: string[];
+        reachabilityEvidence?: RealtimeVoicePythonBackendProxyReachabilityEvidence;
       };
       blockers: string[];
     };
@@ -201,9 +202,24 @@ export type RealtimeVoiceGatewayPostureInput = {
   pythonBackendWebSocketUrlConfigured?: boolean;
   pythonBackendDependenciesInstalled: boolean;
   pythonInferenceRuntimeInstalled: boolean;
+  pythonBackendProxyReachabilityEvidence?: RealtimeVoicePythonBackendProxyReachabilityEvidence;
+};
+
+export type RealtimeVoicePythonBackendProxyReachabilityEvidence = {
+  sourceFile: string;
+  generatedAt?: string;
+  status: "passed" | "blocked";
+  eventTypesObserved: string[];
+  binaryMessages: number;
+  backendProtocolObserved: boolean;
+  latencyFieldsObserved: boolean;
+  binaryEchoObserved: boolean;
 };
 
 export function createRealtimeVoiceGatewayPosture(input: RealtimeVoiceGatewayPostureInput): RealtimeVoiceGatewayPosture {
+  const pythonBackendProxyReachabilityEvidence = input.pythonBackendWebSocketUrlConfigured
+    ? verifiedPythonBackendProxyReachabilityEvidence(input.pythonBackendProxyReachabilityEvidence)
+    : undefined;
   return {
     policy: {
       cloudApisUsed: false,
@@ -239,14 +255,20 @@ export function createRealtimeVoiceGatewayPosture(input: RealtimeVoiceGatewayPos
         status: input.pythonBackendDependenciesInstalled ? "available_for_local_run" : "source_present_not_executed",
         websocketPath: realtimeVoiceProtocol.websocketPath,
         transportProxy: {
-          status: input.pythonBackendWebSocketUrlConfigured ? "configured_not_verified" : "not_configured",
+          status: realtimeVoiceTransportProxyStatus(input, pythonBackendProxyReachabilityEvidence),
           backendUrlConfigured: input.pythonBackendWebSocketUrlConfigured === true,
           readyForLiveDialog: false,
           blockers: [
             ...(input.pythonBackendWebSocketUrlConfigured ? [] : ["python_backend_websocket_url_not_configured"]),
-            "python_backend_proxy_reachability_not_claimed_by_posture_endpoint",
-            "real_model_inference_not_observed",
+            ...(input.pythonBackendWebSocketUrlConfigured && !pythonBackendProxyReachabilityEvidence
+              ? ["python_backend_proxy_reachability_not_claimed_by_posture_endpoint"]
+              : []),
+            ...(input.pythonBackendProxyReachabilityEvidence && !pythonBackendProxyReachabilityEvidence
+              ? ["python_backend_proxy_reachability_evidence_invalid"]
+              : []),
+            ...liveDialogReadinessBlockers,
           ],
+          ...(pythonBackendProxyReachabilityEvidence ? { reachabilityEvidence: pythonBackendProxyReachabilityEvidence } : {}),
         },
         blockers: [
           ...(input.pythonBackendDependenciesInstalled ? [] : ["fastapi_uvicorn_websockets_not_installed"]),
@@ -317,6 +339,49 @@ export function createRealtimeVoiceGatewayPosture(input: RealtimeVoiceGatewayPos
       },
     ],
   };
+}
+
+const liveDialogReadinessBlockers = [
+  "real_model_inference_not_observed",
+  "quest_browser_audio_capture_not_observed",
+  "quest_playback_not_observed",
+  "opus_codec_not_verified",
+  "clinical_voice_safety_not_exercised",
+] as const;
+
+function realtimeVoiceTransportProxyStatus(
+  input: RealtimeVoiceGatewayPostureInput,
+  reachabilityEvidence: RealtimeVoicePythonBackendProxyReachabilityEvidence | undefined,
+): RealtimeVoiceGatewayPosture["backends"]["pythonFastApi"]["transportProxy"]["status"] {
+  if (!input.pythonBackendWebSocketUrlConfigured) {
+    return "not_configured";
+  }
+  return reachabilityEvidence ? "configured_reachability_verified" : "configured_not_verified";
+}
+
+function verifiedPythonBackendProxyReachabilityEvidence(
+  evidence: RealtimeVoiceGatewayPostureInput["pythonBackendProxyReachabilityEvidence"],
+): RealtimeVoicePythonBackendProxyReachabilityEvidence | undefined {
+  if (!evidence) {
+    return undefined;
+  }
+  const requiredEvents = [
+    "backend.ready",
+    "voice.started",
+    "audio.chunk",
+    "transcript.partial",
+    "transcript.final",
+    "voice.stopped",
+  ];
+  const eventTypes = new Set(evidence.eventTypesObserved);
+  const complete = evidence.status === "passed"
+    && evidence.binaryMessages > 0
+    && evidence.backendProtocolObserved
+    && evidence.latencyFieldsObserved
+    && evidence.binaryEchoObserved
+    && requiredEvents.every((eventType) => eventTypes.has(eventType));
+
+  return complete ? evidence : undefined;
 }
 
 export function selectRealtimeVoiceProtocol(

@@ -119,6 +119,87 @@ describe("voice gateway", () => {
     ]));
   });
 
+  it("promotes verified Python proxy reachability without claiming live dialog readiness", () => {
+    const posture = createRealtimeVoiceGatewayPosture({
+      bunAvailable: true,
+      pythonBackendWebSocketUrlConfigured: true,
+      pythonBackendDependenciesInstalled: true,
+      pythonInferenceRuntimeInstalled: false,
+      pythonBackendProxyReachabilityEvidence: {
+        sourceFile: "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
+        generatedAt: "2026-05-06T01:52:40.346Z",
+        status: "passed",
+        eventTypesObserved: [
+          "gateway.ready",
+          "backend.ready",
+          "voice.started",
+          "audio.chunk",
+          "transcript.partial",
+          "transcript.final",
+          "voice.stopped",
+        ],
+        binaryMessages: 1,
+        backendProtocolObserved: true,
+        latencyFieldsObserved: true,
+        binaryEchoObserved: true,
+      },
+    });
+
+    expect(posture.backends.pythonFastApi.transportProxy).toMatchObject({
+      status: "configured_reachability_verified",
+      backendUrlConfigured: true,
+      readyForLiveDialog: false,
+      reachabilityEvidence: {
+        sourceFile: "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
+        status: "passed",
+        eventTypesObserved: expect.arrayContaining(["backend.ready", "transcript.final"]),
+        binaryMessages: 1,
+        backendProtocolObserved: true,
+        latencyFieldsObserved: true,
+        binaryEchoObserved: true,
+      },
+    });
+    expect(posture.backends.pythonFastApi.transportProxy.blockers).not.toContain(
+      "python_backend_proxy_reachability_not_claimed_by_posture_endpoint",
+    );
+    expect(posture.backends.pythonFastApi.transportProxy.blockers).toEqual(expect.arrayContaining([
+      "real_model_inference_not_observed",
+      "quest_browser_audio_capture_not_observed",
+      "quest_playback_not_observed",
+      "opus_codec_not_verified",
+      "clinical_voice_safety_not_exercised",
+    ]));
+  });
+
+  it("does not promote proxy reachability evidence when the backend URL is not configured", () => {
+    const posture = createRealtimeVoiceGatewayPosture({
+      bunAvailable: true,
+      pythonBackendWebSocketUrlConfigured: false,
+      pythonBackendDependenciesInstalled: true,
+      pythonInferenceRuntimeInstalled: false,
+      pythonBackendProxyReachabilityEvidence: {
+        sourceFile: "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
+        status: "passed",
+        eventTypesObserved: ["backend.ready", "voice.started", "audio.chunk", "transcript.partial", "transcript.final", "voice.stopped"],
+        binaryMessages: 1,
+        backendProtocolObserved: true,
+        latencyFieldsObserved: true,
+        binaryEchoObserved: true,
+      },
+    });
+
+    expect(posture.backends.pythonFastApi.transportProxy).toMatchObject({
+      status: "not_configured",
+      backendUrlConfigured: false,
+      readyForLiveDialog: false,
+    });
+    expect(posture.backends.pythonFastApi.transportProxy).not.toHaveProperty("reachabilityEvidence");
+    expect(posture.backends.pythonFastApi.transportProxy.blockers).toEqual(expect.arrayContaining([
+      "python_backend_websocket_url_not_configured",
+      "real_model_inference_not_observed",
+    ]));
+  });
+
   it("negotiates preferred realtime protocol lanes without allowing Web3 to carry media", () => {
     const posture = createRealtimeVoiceGatewayPosture({
       bunAvailable: true,

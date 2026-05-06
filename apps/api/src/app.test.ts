@@ -109,8 +109,11 @@ describe("OpenClinXR API shell", () => {
             readyForLiveDialog: false,
             blockers: expect.arrayContaining([
               "python_backend_websocket_url_not_configured",
-              "python_backend_proxy_reachability_not_claimed_by_posture_endpoint",
               "real_model_inference_not_observed",
+              "quest_browser_audio_capture_not_observed",
+              "quest_playback_not_observed",
+              "opus_codec_not_verified",
+              "clinical_voice_safety_not_exercised",
             ]),
           },
           blockers: ["fastapi_uvicorn_websockets_not_installed", "mlx_moshi_or_qwen3_tts_not_installed"],
@@ -215,6 +218,76 @@ describe("OpenClinXR API shell", () => {
     expect(posture.backends.pythonFastApi.blockers).toEqual(expect.arrayContaining([
       "fastapi_uvicorn_websockets_not_installed",
       "mlx_moshi_or_qwen3_tts_not_installed",
+    ]));
+  });
+
+  it("surfaces verified Python proxy reachability evidence without clearing live-dialog blockers", async () => {
+    const app = createApiApp(undefined, {}, {
+      realtimeVoiceGatewayPosture: {
+        bunAvailable: true,
+        pythonBackendWebSocketUrlConfigured: true,
+        pythonBackendDependenciesInstalled: true,
+        pythonInferenceRuntimeInstalled: false,
+        pythonBackendProxyReachabilityEvidence: {
+          sourceFile: "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
+          generatedAt: "2026-05-06T01:52:40.346Z",
+          status: "passed",
+          eventTypesObserved: [
+            "gateway.ready",
+            "backend.ready",
+            "voice.started",
+            "audio.chunk",
+            "transcript.partial",
+            "transcript.final",
+            "voice.stopped",
+          ],
+          binaryMessages: 1,
+          backendProtocolObserved: true,
+          latencyFieldsObserved: true,
+          binaryEchoObserved: true,
+        },
+      },
+    });
+
+    const response = await app.request("/voice/realtime/posture");
+    const posture = await json(response) as {
+      backends: {
+        pythonFastApi: {
+          transportProxy: {
+            status: string;
+            readyForLiveDialog: boolean;
+            blockers: string[];
+            reachabilityEvidence?: {
+              sourceFile: string;
+              status: string;
+              backendProtocolObserved: boolean;
+              latencyFieldsObserved: boolean;
+            };
+          };
+        };
+      };
+    };
+
+    expect(response.status).toBe(200);
+    expect(posture.backends.pythonFastApi.transportProxy).toMatchObject({
+      status: "configured_reachability_verified",
+      readyForLiveDialog: false,
+      reachabilityEvidence: {
+        sourceFile: "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
+        status: "passed",
+        backendProtocolObserved: true,
+        latencyFieldsObserved: true,
+      },
+    });
+    expect(posture.backends.pythonFastApi.transportProxy.blockers).not.toContain(
+      "python_backend_proxy_reachability_not_claimed_by_posture_endpoint",
+    );
+    expect(posture.backends.pythonFastApi.transportProxy.blockers).toEqual(expect.arrayContaining([
+      "real_model_inference_not_observed",
+      "quest_browser_audio_capture_not_observed",
+      "quest_playback_not_observed",
+      "opus_codec_not_verified",
+      "clinical_voice_safety_not_exercised",
     ]));
   });
 
