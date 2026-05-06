@@ -86,7 +86,7 @@ const requiredProbeIds: ActorPolicyProbeId[] = [
 const probeDefinitions: ActorPolicyProbeDefinition[] = [
   {
     id: "visible_fact_grounding",
-    learnerUtterance: "When did the chest pressure begin?",
+    learnerUtterance: "Can you describe the chest pressure?",
     expectedResponseKind: "spoken_actor_response",
     expectedGuardrailStatus: "pass",
   },
