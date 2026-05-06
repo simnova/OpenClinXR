@@ -87,6 +87,17 @@ export type ApiBunPythonProxyRuntimeSmokeReport = {
   bunGatewayPosture: ApiBunPythonProxyRuntimeSmokeObservation["bunGatewayPosture"];
   websocket: Required<ApiBunPythonProxyRuntimeSmokeObservation["websocket"]>;
   runtimeEvidenceBlockers: string[];
+  postureEvidencePromotion: {
+    eligible: boolean;
+    promotedTransportProxyStatus: "configured_reachability_verified" | null;
+    environment: {
+      backendUrlVariable: "OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL";
+      evidenceFileVariable: "OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE";
+    };
+    instructions: string[];
+    blockers: string[];
+    caveats: string[];
+  };
   verdict: {
     smokePassed: boolean;
     readyForLiveDialog: false;
@@ -313,6 +324,7 @@ export function buildApiBunPythonProxyRuntimeSmokeReport(
     websocketErrors.length === 0 ? undefined : "websocket_errors_observed",
   ].filter((blocker): blocker is string => typeof blocker === "string");
   const smokePassed = runtimeEvidenceBlockers.length === 0;
+  const postureEvidencePromotion = buildPostureEvidencePromotion(runtimeEvidenceBlockers, smokePassed);
 
   return {
     generatedAt: input.generatedAt ?? new Date().toISOString(),
@@ -353,6 +365,7 @@ export function buildApiBunPythonProxyRuntimeSmokeReport(
       errorMessages: websocketErrors,
     },
     runtimeEvidenceBlockers,
+    postureEvidencePromotion,
     verdict: {
       smokePassed,
       readyForLiveDialog: false,
@@ -371,6 +384,37 @@ export function buildApiBunPythonProxyRuntimeSmokeReport(
         "HTTP/3, WebTransport, QUIC, Web3, cloud relays, paid APIs, and Quest media are out of scope.",
       ],
     },
+  };
+}
+
+function buildPostureEvidencePromotion(
+  runtimeEvidenceBlockers: string[],
+  smokePassed: boolean,
+): ApiBunPythonProxyRuntimeSmokeReport["postureEvidencePromotion"] {
+  const eligible = smokePassed;
+
+  return {
+    eligible,
+    promotedTransportProxyStatus: eligible ? "configured_reachability_verified" : null,
+    environment: {
+      backendUrlVariable: "OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL",
+      evidenceFileVariable: "OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE",
+    },
+    instructions: eligible
+      ? [
+          "Keep OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL pointed at the same reviewed local FastAPI voice backend WebSocket route.",
+          "Set OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE to this passed smoke report JSON file before starting a later Bun/Hono API process.",
+          "Expect the later posture endpoint to promote only proxy reachability to configured_reachability_verified; live dialog readiness must remain false until model inference, Quest audio capture/playback, Opus, and clinical safety are verified.",
+        ]
+      : [
+          "Do not use this blocked report as OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE.",
+          "Fix the runtime evidence blockers and rerun the local smoke before promoting proxy reachability posture.",
+        ],
+    blockers: eligible ? [] : runtimeEvidenceBlockers,
+    caveats: [
+      "The live smoke fetches the posture endpoint before this report is written, so the current process can truthfully remain configured_not_verified.",
+      "This promotion path is local developer evidence only and does not claim model inference, Quest media, production ingress, or low latency.",
+    ],
   };
 }
 

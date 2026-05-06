@@ -103,6 +103,17 @@ describe("API Bun to Python proxy runtime smoke", () => {
       readyForLiveDialog: false,
     });
     expect(report.runtimeEvidenceBlockers).toEqual([]);
+    expect(report.postureEvidencePromotion).toMatchObject({
+      eligible: true,
+      promotedTransportProxyStatus: "configured_reachability_verified",
+      environment: {
+        backendUrlVariable: "OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL",
+        evidenceFileVariable: "OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE",
+      },
+      blockers: [],
+    });
+    expect(report.postureEvidencePromotion.instructions.join("\n")).toContain("later Bun/Hono API process");
+    expect(report.postureEvidencePromotion.caveats.join("\n")).toContain("configured_not_verified");
     expect(report.verdict).toMatchObject({
       smokePassed: true,
       readyForLiveDialog: false,
@@ -127,6 +138,16 @@ describe("API Bun to Python proxy runtime smoke", () => {
       "latency_fields_not_observed",
       "binary_echo_not_observed",
     ]));
+    expect(report.postureEvidencePromotion).toMatchObject({
+      eligible: false,
+      promotedTransportProxyStatus: null,
+    });
+    expect(report.postureEvidencePromotion.blockers).toEqual(expect.arrayContaining([
+      "backend_protocol_not_observed",
+      "latency_fields_not_observed",
+      "binary_echo_not_observed",
+    ]));
+    expect(report.postureEvidencePromotion.instructions.join("\n")).toContain("Do not use this blocked report");
     expect(report.verdict.smokePassed).toBe(false);
   });
 });

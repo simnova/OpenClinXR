@@ -91,6 +91,24 @@
     "errorMessages": []
   },
   "runtimeEvidenceBlockers": [],
+  "postureEvidencePromotion": {
+    "eligible": true,
+    "promotedTransportProxyStatus": "configured_reachability_verified",
+    "environment": {
+      "backendUrlVariable": "OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL",
+      "evidenceFileVariable": "OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE"
+    },
+    "instructions": [
+      "Keep OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL pointed at the same reviewed local FastAPI voice backend WebSocket route.",
+      "Set OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE to this passed smoke report JSON file before starting a later Bun/Hono API process.",
+      "Expect the later posture endpoint to promote only proxy reachability to configured_reachability_verified; live dialog readiness must remain false until model inference, Quest audio capture/playback, Opus, and clinical safety are verified."
+    ],
+    "blockers": [],
+    "caveats": [
+      "The live smoke fetches the posture endpoint before this report is written, so the current process can truthfully remain configured_not_verified.",
+      "This promotion path is local developer evidence only and does not claim model inference, Quest media, production ingress, or low latency."
+    ]
+  },
   "verdict": {
     "smokePassed": true,
     "readyForLiveDialog": false,
