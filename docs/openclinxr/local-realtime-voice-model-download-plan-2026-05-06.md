@@ -36,12 +36,14 @@ Install Hugging Face Hub only inside the ignored realtime voice venv if needed:
 /Users/patrick/.cache/openclinxr/realtime-voice/api-python-backend-venv/bin/python -m pip install 'huggingface_hub[cli]'
 ```
 
+`huggingface_hub` 1.13.0 installs the `hf` CLI; the older `huggingface-cli` wrapper is deprecated in this version.
+
 Download Qwen3-TTS MLX into the approved cache:
 
 ```bash
 mkdir -p /Users/patrick/.cache/openclinxr/realtime-voice/mlx-community__Qwen3-TTS-12Hz-0.6B-Base-4bit
 HF_HOME=/Users/patrick/.cache/openclinxr/huggingface \
-  /Users/patrick/.cache/openclinxr/realtime-voice/api-python-backend-venv/bin/huggingface-cli download \
+  /Users/patrick/.cache/openclinxr/realtime-voice/api-python-backend-venv/bin/hf download \
   mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit \
   --local-dir /Users/patrick/.cache/openclinxr/realtime-voice/mlx-community__Qwen3-TTS-12Hz-0.6B-Base-4bit
 ```
@@ -65,4 +67,12 @@ Do not remove `/Users/patrick/.cache/openclinxr/realtime-voice/api-python-backen
 
 ## Current Evidence
 
-`pnpm local:voice:model-cache` now records a reproducible cache-inventory report. As of this pre-download record, the cache contains the support venv only and no approved Moshi/Qwen model weights. Live dialog remains blocked on real local voice stream evidence, WebXR/Quest playback, safety controls, and production review.
+`pnpm local:voice:model-cache` now records a reproducible cache-inventory report. After the Qwen3-TTS MLX download, `docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-06.json` records:
+
+- Ready approved model cache: `mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit`.
+- Local cache path: `/Users/patrick/.cache/openclinxr/realtime-voice/mlx-community__Qwen3-TTS-12Hz-0.6B-Base-4bit`.
+- Files observed: 30.
+- Bytes observed: 1,711,330,264.
+- License/source posture: Apache-2.0, `sources/qwen3-tts-mlx-4bit-2026.json`.
+
+Live dialog remains blocked on real local voice stream evidence, WebXR/Quest playback, and safety controls. This cache evidence is not model inference, Quest audio, clinical voice quality, or production readiness evidence.

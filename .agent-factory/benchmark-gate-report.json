@@ -61,7 +61,7 @@
       "evidence_id": "local_provider_benchmark",
       "file": "docs/openclinxr/local-provider-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T19:05:08.997Z",
-      "age_hours": 17,
+      "age_hours": 18,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -96,7 +96,7 @@
     {
       "evidence_id": "local_voice_live_dialog_benchmark",
       "file": "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-06.json",
-      "generated_at": "2026-05-06T13:04:01.120Z",
+      "generated_at": "2026-05-06T13:09:17.300Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -105,7 +105,7 @@
     {
       "evidence_id": "local_realtime_voice_model_cache_evidence",
       "file": "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-06.json",
-      "generated_at": "2026-05-06T13:03:38.510Z",
+      "generated_at": "2026-05-06T13:09:06.623Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -179,7 +179,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T13:04:10.113Z",
+      "generated_at": "2026-05-06T13:09:17.877Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -947,7 +947,7 @@
   },
   "local_voice_live_dialog_benchmark": {
     "file": "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-06.json",
-    "generated_at": "2026-05-06T13:04:01.120Z",
+    "generated_at": "2026-05-06T13:09:17.300Z",
     "status": "blocked",
     "mock_stream": {
       "provider": "deterministic-mock-voice-gateway",
@@ -997,9 +997,7 @@
         "runtime_stream:real_local_voice_stream_benchmark_missing",
         "runtime:runtime_file_generation_only",
         "runtime:real_time_factor_above_1",
-        "webxr_playback:webxr_playback_not_observed",
-        "model_cache:approved_model_weights_not_cached",
-        "model_cache:real_moshi_or_qwen3_model_cache_missing"
+        "webxr_playback:webxr_playback_not_observed"
       ],
       "caveats": [
         "Mock stream evidence proves gateway event shape only; it is not a real VibeVoice streaming or Quest playback capture.",
@@ -1009,7 +1007,7 @@
   },
   "local_realtime_voice_model_cache_evidence": {
     "file": "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-06.json",
-    "generated_at": "2026-05-06T13:03:38.510Z",
+    "generated_at": "2026-05-06T13:09:06.623Z",
     "kind": "local_voice_evidence_check",
     "claim_scope": "cache_inventory_only",
     "cache_dir": "/Users/patrick/.cache/openclinxr/realtime-voice",
@@ -1018,21 +1016,33 @@
       "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit"
     ],
     "cache_exists": true,
-    "ready": false,
-    "models": [],
+    "ready": true,
+    "models": [
+      {
+        "model_id": "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
+        "path": "/Users/patrick/.cache/openclinxr/realtime-voice/mlx-community__Qwen3-TTS-12Hz-0.6B-Base-4bit",
+        "source_type": "local_cache_snapshot",
+        "expected_storage_name": "mlx-community__Qwen3-TTS-12Hz-0.6B-Base-4bit",
+        "license": "Apache-2.0",
+        "source_id": "src-qwen3-tts-mlx-4bit-2026",
+        "approved": true,
+        "has_evidence": true,
+        "ready": true,
+        "blockers": [],
+        "file_count": 30,
+        "total_bytes": 1711330264
+      }
+    ],
     "support_directories": [
       {
         "path": "/Users/patrick/.cache/openclinxr/realtime-voice/api-python-backend-venv",
         "name": "api-python-backend-venv",
         "reason": "runtime_support_venv_not_model_weights",
-        "file_count": 2491,
-        "total_bytes": 44846871
+        "file_count": 4387,
+        "total_bytes": 75788032
       }
     ],
-    "blockers": [
-      "approved_model_weights_not_cached",
-      "real_moshi_or_qwen3_model_cache_missing"
-    ]
+    "blockers": []
   },
   "blueprint_voice_simulation_spike": {
     "file": "docs/openclinxr/blueprint-voice-simulation-spike-2026-05-05.json",
@@ -1475,7 +1485,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T13:04:10.113Z",
+    "generated_at": "2026-05-06T13:09:17.877Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -1724,6 +1734,7 @@
         "local_voice_python_backend_runtime_smoke_passed",
         "local_voice_ready_to_benchmark",
         "local_voice_realtime_model_cache_evidence_present",
+        "local_voice_realtime_model_cache_ready",
         "local_voice_realtime_model_support_venv_observed",
         "local_voice_realtime_transport_contract_observed",
         "motion_comfort_confirmed",
@@ -1963,6 +1974,7 @@
         "local_voice_python_backend_runtime_smoke_passed",
         "local_voice_ready_to_benchmark",
         "local_voice_realtime_model_cache_evidence_present",
+        "local_voice_realtime_model_cache_ready",
         "local_voice_realtime_model_support_venv_observed",
         "local_voice_realtime_transport_contract_observed"
       ],
@@ -2168,6 +2180,7 @@
         "local_voice_python_backend_runtime_smoke_passed",
         "local_voice_ready_to_benchmark",
         "local_voice_realtime_model_cache_evidence_present",
+        "local_voice_realtime_model_cache_ready",
         "local_voice_realtime_model_support_venv_observed",
         "local_voice_realtime_transport_contract_observed"
       ],
@@ -2186,8 +2199,6 @@
         "local_voice_live_dialog:godot_project_import:quest_runtime:not_executed",
         "local_voice_live_dialog:godot_project_import:voice_runtime:not_executed",
         "local_voice_live_dialog:godot_quest_voice:missing_godot_quest_voice_evidence_report",
-        "local_voice_live_dialog:local_realtime_voice_model_cache:approved_model_weights_not_cached",
-        "local_voice_live_dialog:local_realtime_voice_model_cache:real_moshi_or_qwen3_model_cache_missing",
         "local_voice_live_dialog:realtime_transport_spike:clinical_voice_safety_controls_not_exercised_with_real_model",
         "local_voice_live_dialog:realtime_transport_spike:native_opus_codec_not_integrated_in_godot",
         "local_voice_live_dialog:realtime_transport_spike:quest_godot_client_not_executed",
@@ -2199,7 +2210,7 @@
         "local_voice_live_dialog:webxr_playback:webxr_playback_not_observed"
       ],
       "blocker_summary": {
-        "total_blockers": 25,
+        "total_blockers": 23,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -2221,8 +2232,6 @@
               "local_voice_live_dialog:godot_project_import:quest_runtime:not_executed",
               "local_voice_live_dialog:godot_project_import:voice_runtime:not_executed",
               "local_voice_live_dialog:godot_quest_voice:missing_godot_quest_voice_evidence_report",
-              "local_voice_live_dialog:local_realtime_voice_model_cache:approved_model_weights_not_cached",
-              "local_voice_live_dialog:local_realtime_voice_model_cache:real_moshi_or_qwen3_model_cache_missing",
               "local_voice_live_dialog:realtime_transport_spike:clinical_voice_safety_controls_not_exercised_with_real_model",
               "local_voice_live_dialog:realtime_transport_spike:native_opus_codec_not_integrated_in_godot",
               "local_voice_live_dialog:realtime_transport_spike:quest_godot_client_not_executed",
