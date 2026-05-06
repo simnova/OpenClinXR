@@ -70,6 +70,10 @@ def model_record(model_dir: pathlib.Path) -> dict[str, Any]:
     storage_name_matches = expected_storage_name == model_dir.name
     candidate = approved_candidate_metadata(model_id)
     candidate_matches = evidence.get("candidate") == candidate if candidate is not None else False
+    minimum_total_bytes = int(candidate.get("minimum_total_bytes", 0)) if candidate is not None else 0
+    config_file_present = has_required_config_file(model_dir, candidate)
+    weight_file_present = has_weight_file(model_dir, candidate)
+    minimum_bytes_satisfied = stats["total_bytes"] >= minimum_total_bytes
     source_type_allowed = source_type == "local_source_copy"
     blockers = [
         None if approved else "model_id_not_approved_for_local_realtime_voice_spike",
@@ -78,20 +82,55 @@ def model_record(model_dir: pathlib.Path) -> dict[str, Any]:
         None if storage_name_matches else "model_storage_name_mismatch",
         None if candidate_matches else "model_candidate_metadata_missing_or_mismatched",
         None if stats["file_count"] > 1 else "model_file_count_under_2",
+        None if config_file_present else "model_config_file_missing",
+        None if weight_file_present else "model_weight_file_missing",
+        None if minimum_bytes_satisfied else "model_cache_total_bytes_below_minimum",
     ]
-    ready = approved and has_evidence and source_type_allowed and storage_name_matches and candidate_matches and stats["file_count"] > 1
+    ready = (
+        approved
+        and has_evidence
+        and source_type_allowed
+        and storage_name_matches
+        and candidate_matches
+        and stats["file_count"] > 1
+        and config_file_present
+        and weight_file_present
+        and minimum_bytes_satisfied
+    )
     return {
         "model_id": model_id,
         "path": str(model_dir),
         "source_type": source_type,
         "expected_storage_name": expected_storage_name,
+        "minimum_total_bytes": minimum_total_bytes,
         "approved": approved,
         "has_evidence": has_evidence,
+        "config_file_present": config_file_present,
+        "weight_file_present": weight_file_present,
         "ready": ready,
         "blockers": [blocker for blocker in blockers if blocker is not None],
         "evidence": evidence,
         **stats,
     }
+
+
+def has_required_config_file(model_dir: pathlib.Path, candidate: dict[str, Any] | None) -> bool:
+    if candidate is None:
+        return False
+    required = candidate.get("required_config_files")
+    if not isinstance(required, list) or not required:
+        return False
+    return any((model_dir / name).is_file() for name in required if isinstance(name, str))
+
+
+def has_weight_file(model_dir: pathlib.Path, candidate: dict[str, Any] | None) -> bool:
+    if candidate is None:
+        return False
+    extensions = candidate.get("weight_file_extensions")
+    if not isinstance(extensions, list) or not extensions:
+        return False
+    allowed = {extension for extension in extensions if isinstance(extension, str)}
+    return any(child.is_file() and child.suffix in allowed for child in model_dir.rglob("*"))
 
 
 def expected_storage_name_for(model_id: str) -> str | None:

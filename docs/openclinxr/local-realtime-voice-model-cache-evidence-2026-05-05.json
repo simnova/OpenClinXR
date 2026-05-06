@@ -6,7 +6,7 @@
   "cache_dir": "/Users/patrick/.cache/openclinxr/realtime-voice",
   "cache_exists": true,
   "claim_scope": "cache_inventory_only",
-  "generatedAt": "2026-05-06T02:18:16.248Z",
+  "generatedAt": "2026-05-06T02:37:04.486Z",
   "kind": "local_voice_evidence_check",
   "models": [],
   "ready": false,

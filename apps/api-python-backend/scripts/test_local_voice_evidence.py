@@ -242,7 +242,7 @@ class LocalVoiceEvidenceTests(unittest.TestCase):
         self.assertEqual("local_voice_model_install", payload["kind"])
         self.assertEqual("remote sources are not allowed", payload["error"])
 
-    def test_install_local_source_then_check_reports_evidence(self) -> None:
+    def test_install_local_source_then_check_reports_evidence_without_overclaiming_readiness(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             temp_path = pathlib.Path(temp)
             source = temp_path / "qwen-source"
@@ -264,10 +264,48 @@ class LocalVoiceEvidenceTests(unittest.TestCase):
         self.assertFalse(install_payload["dry_run"])
         self.assertTrue(install_payload["installed"])
         self.assertEqual("local_source_copy", install_payload["evidence"]["source_type"])
-        self.assertTrue(check_payload["ready"])
+        self.assertFalse(check_payload["ready"])
         self.assertEqual("mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit", check_payload["models"][0]["model_id"])
         self.assertTrue(check_payload["models"][0]["approved"])
+        self.assertFalse(check_payload["models"][0]["ready"])
         self.assertEqual("local_source_copy", check_payload["models"][0]["source_type"])
+        self.assertIn("model_weight_file_missing", check_payload["models"][0]["blockers"])
+        self.assertIn("model_cache_total_bytes_below_minimum", check_payload["models"][0]["blockers"])
+
+    def test_check_reports_ready_only_for_plausible_approved_model_inventory(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = pathlib.Path(temp)
+            cache = temp_path / "cache"
+            model = cache / "kyutai__moshiko-mlx-q4"
+            model.mkdir(parents=True)
+            (model / "config.json").write_text("{}\n", encoding="utf-8")
+            weight = model / "model.safetensors"
+            with weight.open("wb") as handle:
+                handle.truncate(150_000_000)
+            (model / "openclinxr-local-voice-evidence.json").write_text(
+                json.dumps({
+                    "model_id": "kyutai/moshiko-mlx-q4",
+                    "storage_name": "kyutai__moshiko-mlx-q4",
+                    "source_type": "local_source_copy",
+                    "candidate": {
+                        "model_id": "kyutai/moshiko-mlx-q4",
+                        "storage_name": "kyutai__moshiko-mlx-q4",
+                        "runtime_role": "full_duplex_dialog",
+                        "approved_proposal": "proposals/approved/proposal-local-realtime-voice-model-inference.md",
+                        "posture": "local_research_only",
+                        "minimum_total_bytes": 100_000_000,
+                        "required_config_files": ["config.json"],
+                        "weight_file_extensions": [".bin", ".pt", ".safetensors"],
+                    },
+                }),
+                encoding="utf-8",
+            )
+
+            payload = run_json(CHECK, "--cache-dir", str(cache))
+
+        self.assertTrue(payload["ready"])
+        self.assertTrue(payload["models"][0]["ready"])
+        self.assertEqual([], payload["models"][0]["blockers"])
 
     def test_install_records_candidate_metadata_in_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

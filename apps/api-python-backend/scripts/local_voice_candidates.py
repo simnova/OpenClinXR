@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
+from typing import Any
+
 
 APPROVED_PROPOSAL = "proposals/approved/proposal-local-realtime-voice-model-inference.md"
 
@@ -25,6 +28,9 @@ APPROVED_MODEL_CANDIDATES = {
         "runtime_role": "full_duplex_dialog",
         "approved_proposal": APPROVED_PROPOSAL,
         "posture": "local_research_only",
+        "minimum_total_bytes": 100_000_000,
+        "required_config_files": ["config.json"],
+        "weight_file_extensions": [".bin", ".pt", ".safetensors"],
     },
     "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit": {
         "model_id": "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
@@ -32,12 +38,15 @@ APPROVED_MODEL_CANDIDATES = {
         "runtime_role": "streaming_tts_fallback",
         "approved_proposal": APPROVED_PROPOSAL,
         "posture": "local_research_only",
+        "minimum_total_bytes": 100_000_000,
+        "required_config_files": ["config.json"],
+        "weight_file_extensions": [".bin", ".pt", ".safetensors"],
     },
 }
 
 APPROVED_MODEL_IDS = list(APPROVED_MODEL_CANDIDATES)
 
 
-def approved_candidate_metadata(model_id: str) -> dict[str, str] | None:
+def approved_candidate_metadata(model_id: str) -> dict[str, Any] | None:
     candidate = APPROVED_MODEL_CANDIDATES.get(model_id)
-    return {**candidate} if candidate else None
+    return deepcopy(candidate) if candidate else None
