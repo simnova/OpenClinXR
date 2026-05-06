@@ -1,10 +1,12 @@
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
-import { writeJson } from "../agent-factory/lib.js";
+import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 import { type LocalRealtimeVoiceModelCacheEvidenceReport } from "./local-realtime-voice-model-cache-evidence.js";
 
 type CliOptions = {
+  validatePath?: string;
+  validateLatest: boolean;
   logPath?: string;
   promptPath?: string;
   audioPath?: string;
@@ -82,8 +84,28 @@ export type LocalQwenTtsRuntimeSmokeReport = {
   };
 };
 
+type ValidationResult = { ok: true } | { ok: false; errors: string[] };
+
 export async function main(args = process.argv.slice(2)): Promise<void> {
   const options = parseArgs(args);
+  if (options.validatePath || options.validateLatest) {
+    const validatePath = options.validatePath ?? await latestQwenTtsSmokePath();
+    if (!validatePath) {
+      throw new Error("Missing local Qwen TTS runtime smoke report to validate.");
+    }
+    const validation = validateLocalQwenTtsRuntimeSmokeReport(await readJson<unknown>(validatePath));
+    if (validation.ok) {
+      console.log(`Validated ${validatePath}`);
+      return;
+    }
+
+    for (const error of validation.errors) {
+      console.error(error);
+    }
+    process.exitCode = 1;
+    return;
+  }
+
   if (!options.logPath || !options.promptPath || !options.audioPath) {
     throw new Error("Missing --log, --prompt, or --audio. This tool harvests existing local Qwen TTS files only and does not execute inference.");
   }
@@ -194,6 +216,153 @@ export function buildLocalQwenTtsRuntimeSmokeReport(input: {
   };
 }
 
+export function validateLocalQwenTtsRuntimeSmokeReport(value: unknown): ValidationResult {
+  const errors: string[] = [];
+
+  if (!isRecord(value)) {
+    return { ok: false, errors: ["/ must be object"] };
+  }
+
+  requireLiteral(value.kind, "local_qwen_tts_runtime_smoke", "/kind", errors);
+  requireLiteral(value.claim_scope, "local_tts_inference_only", "/claim_scope", errors);
+  requireString(value.generatedAt, "/generatedAt", errors);
+  requireOneOf(value.status, ["passed_with_caveats", "blocked"], "/status", errors);
+  requireRecord(value.policy, "/policy", errors);
+  if (isRecord(value.policy)) {
+    requireLiteral(value.policy.cloudApisUsed, false, "/policy/cloudApisUsed", errors);
+    requireLiteral(value.policy.paidApisUsed, false, "/policy/paidApisUsed", errors);
+    requireLiteral(value.policy.productionUseAllowed, false, "/policy/productionUseAllowed", errors);
+    requireLiteral(value.policy.generatedAudioCommitted, false, "/policy/generatedAudioCommitted", errors);
+    requireLiteral(value.policy.fullDuplexClaimAllowed, false, "/policy/fullDuplexClaimAllowed", errors);
+    requireLiteral(value.policy.clinicalValidityClaimAllowed, false, "/policy/clinicalValidityClaimAllowed", errors);
+    requireBoolean(value.policy.runtimeExecutionObserved, "/policy/runtimeExecutionObserved", errors);
+    requireLiteral(value.policy.downloadAttemptedByThisTool, false, "/policy/downloadAttemptedByThisTool", errors);
+    requireLiteral(value.policy.networkAccessObservedByThisTool, false, "/policy/networkAccessObservedByThisTool", errors);
+  }
+  validateRuntime(value.runtime, errors);
+  requireRecord(value.input, "/input", errors);
+  if (isRecord(value.input)) {
+    requireString(value.input.text, "/input/text", errors);
+    requireNumber(value.input.textLength, "/input/textLength", errors);
+    requireBoolean(value.input.referenceAudioUsed, "/input/referenceAudioUsed", errors);
+  }
+  validateAudio(value.audio, errors);
+  validateMetrics(value.metrics, errors);
+  validateModelCache(value.modelCache, errors);
+  requireRecord(value.verdict, "/verdict", errors);
+  if (isRecord(value.verdict)) {
+    requireBoolean(value.verdict.passed, "/verdict/passed", errors);
+    requireLiteral(value.verdict.readyForLiveDialog, false, "/verdict/readyForLiveDialog", errors);
+    requireStringArray(value.verdict.blockers, "/verdict/blockers", errors);
+    requireStringArray(value.verdict.caveats, "/verdict/caveats", errors);
+  }
+  validateConsistency(value, errors);
+
+  return errors.length === 0 ? { ok: true } : { ok: false, errors };
+}
+
+function validateRuntime(value: unknown, errors: string[]): void {
+  requireRecord(value, "/runtime", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireLiteral(value.modelId, "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit", "/runtime/modelId", errors);
+  requireLiteral(value.modelLicense, "Apache-2.0", "/runtime/modelLicense", errors);
+  requireStringArray(value.sourceRecordIds, "/runtime/sourceRecordIds", errors);
+  requireLiteral(value.tool, "mlx-audio", "/runtime/tool", errors);
+  requireNullableString(value.toolVersion, "/runtime/toolVersion", errors);
+  requireLiteral(value.toolLicense, "MIT", "/runtime/toolLicense", errors);
+  requireNullableString(value.pythonVersion, "/runtime/pythonVersion", errors);
+  requireNullableNumber(value.exitStatus, "/runtime/exitStatus", errors);
+  requireNullableString(value.command, "/runtime/command", errors);
+}
+
+function validateAudio(value: unknown, errors: string[]): void {
+  requireRecord(value, "/audio", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireString(value.outputPath, "/audio/outputPath", errors);
+  requireSha256(value.sha256, "/audio/sha256", errors);
+  requireLiteral(value.codec, "pcm_s16le", "/audio/codec", errors);
+  requireNumber(value.sampleRateHz, "/audio/sampleRateHz", errors);
+  requireNumber(value.channels, "/audio/channels", errors);
+  requireNumber(value.durationMs, "/audio/durationMs", errors);
+  requireNumber(value.sizeBytes, "/audio/sizeBytes", errors);
+  requireNumber(value.bitRate, "/audio/bitRate", errors);
+}
+
+function validateMetrics(value: unknown, errors: string[]): void {
+  requireRecord(value, "/metrics", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireNullableNumber(value.wallClockMs, "/metrics/wallClockMs", errors);
+  requireNumber(value.audioDurationMs, "/metrics/audioDurationMs", errors);
+  requireNullableNumber(value.realTimeFactor, "/metrics/realTimeFactor", errors);
+  requireNullableNumber(value.maxResidentSetBytes, "/metrics/maxResidentSetBytes", errors);
+  requireLiteral(value.approxFirstAudiblePlaybackLatencyMs, null, "/metrics/approxFirstAudiblePlaybackLatencyMs", errors);
+}
+
+function validateModelCache(value: unknown, errors: string[]): void {
+  requireRecord(value, "/modelCache", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireNullableString(value.evidenceKind, "/modelCache/evidenceKind", errors);
+  requireNullableString(value.evidenceGeneratedAt, "/modelCache/evidenceGeneratedAt", errors);
+  requireNullableString(value.cacheDir, "/modelCache/cacheDir", errors);
+  requireBoolean(value.ready, "/modelCache/ready", errors);
+  requireBoolean(value.readyModelObserved, "/modelCache/readyModelObserved", errors);
+  requireStringArray(value.readyModelIds, "/modelCache/readyModelIds", errors);
+  requireStringArray(value.blockers, "/modelCache/blockers", errors);
+}
+
+function validateConsistency(value: Record<string, unknown>, errors: string[]): void {
+  if (isRecord(value.input) && typeof value.input.text === "string" && typeof value.input.textLength === "number" && value.input.textLength !== value.input.text.length) {
+    errors.push("/input/textLength must match /input/text length");
+  }
+  if (isRecord(value.audio) && isRecord(value.metrics)) {
+    const audioDurationMs = numberOrNull(value.audio.durationMs);
+    const metricAudioDurationMs = numberOrNull(value.metrics.audioDurationMs);
+    if (audioDurationMs !== null && metricAudioDurationMs !== null && audioDurationMs !== metricAudioDurationMs) {
+      errors.push("/metrics/audioDurationMs must match /audio/durationMs");
+    }
+  }
+  if (isRecord(value.verdict)) {
+    const expectedBlockers = expectedBlockersFor(value);
+    if (Array.isArray(value.verdict.blockers)) {
+      const verdictBlockers = new Set(value.verdict.blockers);
+      for (const blocker of expectedBlockers) {
+        if (!verdictBlockers.has(blocker)) {
+          errors.push(`/verdict/blockers must include ${blocker}`);
+        }
+      }
+    }
+    const verdictPassed = value.verdict.passed;
+    if (typeof verdictPassed === "boolean" && Array.isArray(value.verdict.blockers) && verdictPassed !== (value.verdict.blockers.length === 0)) {
+      errors.push("/verdict/passed must match whether verdict blockers are empty");
+    }
+  }
+}
+
+function expectedBlockersFor(value: Record<string, unknown>): string[] {
+  const runtime = isRecord(value.runtime) ? value.runtime : {};
+  const audio = isRecord(value.audio) ? value.audio : {};
+  const modelCache = isRecord(value.modelCache) ? value.modelCache : {};
+
+  return [
+    runtime.exitStatus === null ? "runtime_exit_status_missing" : undefined,
+    typeof runtime.exitStatus === "number" && runtime.exitStatus !== 0 ? `runtime_exit_status_${runtime.exitStatus}` : undefined,
+    numberOrNull(audio.durationMs) !== null && numberOrNull(audio.durationMs)! > 0 ? undefined : "audio_duration_missing",
+    ...stringArray(modelCache.blockers).map((blocker) => `model_cache:${blocker}`),
+  ].filter((blocker): blocker is string => typeof blocker === "string");
+}
+
 function parseQwenTtsRuntimeLog(content: string): {
   endedAt: string | null;
   exitStatus: number | null;
@@ -297,10 +466,21 @@ function findChunk(bytes: Buffer, chunkId: string): number {
 
 function parseArgs(args: string[]): CliOptions {
   const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
-  const options: CliOptions = {};
+  const options: CliOptions = {
+    validateLatest: false,
+  };
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
+    if (arg === "--validate") {
+      options.validatePath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--validate-latest") {
+      options.validateLatest = true;
+      continue;
+    }
     if (arg === "--log") {
       options.logPath = requireValue(normalizedArgs, index, arg);
       index += 1;
@@ -337,6 +517,11 @@ function parseArgs(args: string[]): CliOptions {
   return options;
 }
 
+async function latestQwenTtsSmokePath(): Promise<string | undefined> {
+  const files = await globFiles("docs/openclinxr/local-qwen-tts-runtime-smoke-*.json");
+  return files.sort().at(-1);
+}
+
 function requireValue(args: string[], index: number, flag: string): string {
   const value = args[index + 1];
   if (!value) {
@@ -345,8 +530,95 @@ function requireValue(args: string[], index: number, flag: string): string {
   return value;
 }
 
-async function readJson<T>(filePath: string): Promise<T> {
-  return JSON.parse(await readFile(filePath, "utf8")) as T;
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function requireRecord(value: unknown, pathName: string, errors: string[]): void {
+  if (!isRecord(value)) {
+    errors.push(`${pathName} must be object`);
+  }
+}
+
+function requireString(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "string" || value.length === 0) {
+    errors.push(`${pathName} must be non-empty string`);
+  }
+}
+
+function requireNullableString(value: unknown, pathName: string, errors: string[]): void {
+  if (value !== null && (typeof value !== "string" || value.length === 0)) {
+    errors.push(`${pathName} must be null or non-empty string`);
+  }
+}
+
+function requireStringArray(value: unknown, pathName: string, errors: string[]): void {
+  if (!Array.isArray(value)) {
+    errors.push(`${pathName} must be array`);
+    return;
+  }
+
+  value.forEach((entry, index) => {
+    if (typeof entry !== "string" || entry.length === 0) {
+      errors.push(`${pathName}/${index} must be non-empty string`);
+    }
+  });
+}
+
+function requireBoolean(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "boolean") {
+    errors.push(`${pathName} must be boolean`);
+  }
+}
+
+function requireNumber(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    errors.push(`${pathName} must be finite number`);
+  }
+}
+
+function requireNullableNumber(value: unknown, pathName: string, errors: string[]): void {
+  if (value !== null && (typeof value !== "number" || !Number.isFinite(value))) {
+    errors.push(`${pathName} must be null or finite number`);
+  }
+}
+
+function requireLiteral<T extends string | boolean | number | null>(
+  value: unknown,
+  literal: T,
+  pathName: string,
+  errors: string[],
+): void {
+  if (value !== literal) {
+    errors.push(`${pathName} must be ${JSON.stringify(literal)}`);
+  }
+}
+
+function requireOneOf<T extends string>(
+  value: unknown,
+  allowed: readonly T[],
+  pathName: string,
+  errors: string[],
+): void {
+  if (typeof value !== "string" || !(allowed as readonly string[]).includes(value)) {
+    errors.push(`${pathName} must be one of ${allowed.map((entry) => JSON.stringify(entry)).join(", ")}`);
+  }
+}
+
+function requireSha256(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "string" || !/^[a-f0-9]{64}$/.test(value)) {
+    errors.push(`${pathName} must be sha256 hex string`);
+  }
+}
+
+function numberOrNull(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((entry): entry is string => typeof entry === "string")
+    : [];
 }
 
 function parseNumberMatch(content: string, pattern: RegExp): number | null {

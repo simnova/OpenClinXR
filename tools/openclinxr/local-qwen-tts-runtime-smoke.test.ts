@@ -1,12 +1,30 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { mkdtemp } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
-import { buildLocalQwenTtsRuntimeSmokeReport, main } from "./local-qwen-tts-runtime-smoke.js";
+import {
+  buildLocalQwenTtsRuntimeSmokeReport,
+  main,
+  validateLocalQwenTtsRuntimeSmokeReport,
+} from "./local-qwen-tts-runtime-smoke.js";
 import type { LocalRealtimeVoiceModelCacheEvidenceReport } from "./local-realtime-voice-model-cache-evidence.js";
 
 describe("local Qwen TTS runtime smoke report", () => {
+  it("exposes generation and validation scripts", async () => {
+    const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+
+    expect(rootPackage.scripts["local:voice:qwen-tts-smoke"]).toBe(
+      "tsx tools/openclinxr/local-qwen-tts-runtime-smoke.ts",
+    );
+    expect(rootPackage.scripts["local:voice:qwen-tts-smoke:validate"]).toBe(
+      "tsx tools/openclinxr/local-qwen-tts-runtime-smoke.ts --validate-latest",
+    );
+    expect(rootPackage.scripts["agent:verify"]).toContain("pnpm local:voice:qwen-tts-smoke:validate");
+  });
+
   it("harvests a successful local Qwen3-TTS MLX file-generation smoke without claiming full duplex", async () => {
     const dir = await mkdtemp(path.join(tmpdir(), "openclinxr-qwen-tts-"));
     const audioPath = path.join(dir, "qwen-output.wav");
@@ -150,6 +168,90 @@ describe("local Qwen TTS runtime smoke report", () => {
         passed: true,
       },
     });
+  });
+
+  it("validates Qwen TTS smoke reports before aggregate reuse", () => {
+    const audioBytes = pcm16Wav({ durationMs: 1200, sampleRateHz: 24000 });
+    const report = buildLocalQwenTtsRuntimeSmokeReport({
+      generatedAt: "2026-05-06T18:30:00.000Z",
+      logPath: "/tmp/qwen.log",
+      logContent: "exit_status=0\nreal 0.42",
+      audioPath: "/tmp/qwen.wav",
+      audioBytes,
+      promptText: "The chest pressure is worse.",
+      modelCacheEvidence: readyQwenCacheEvidence(),
+    });
+
+    expect(validateLocalQwenTtsRuntimeSmokeReport(report)).toEqual({ ok: true });
+
+    const invalid = structuredClone(report) as unknown as Record<string, unknown>;
+    const policy = invalid.policy as Record<string, unknown>;
+    delete policy.productionUseAllowed;
+    const verdict = invalid.verdict as Record<string, unknown>;
+    verdict.readyForLiveDialog = true;
+
+    expect(validateLocalQwenTtsRuntimeSmokeReport(invalid)).toEqual({
+      ok: false,
+      errors: expect.arrayContaining([
+        "/policy/productionUseAllowed must be false",
+        "/verdict/readyForLiveDialog must be false",
+      ]),
+    });
+  });
+
+  it("rejects Qwen TTS smoke reports with mismatched audio duration metrics", () => {
+    const audioBytes = pcm16Wav({ durationMs: 1200, sampleRateHz: 24000 });
+    const report = buildLocalQwenTtsRuntimeSmokeReport({
+      generatedAt: "2026-05-06T18:30:00.000Z",
+      logPath: "/tmp/qwen.log",
+      logContent: "exit_status=0\nreal 0.42",
+      audioPath: "/tmp/qwen.wav",
+      audioBytes,
+      promptText: "The chest pressure is worse.",
+      modelCacheEvidence: readyQwenCacheEvidence(),
+    });
+    report.metrics.audioDurationMs = 200;
+
+    expect(validateLocalQwenTtsRuntimeSmokeReport(report)).toEqual({
+      ok: false,
+      errors: expect.arrayContaining([
+        "/metrics/audioDurationMs must match /audio/durationMs",
+      ]),
+    });
+  });
+
+  it("validates Qwen TTS smoke reports from the CLI without executing inference", async () => {
+    const tempDir = await mkdtemp(path.join(tmpdir(), "openclinxr-qwen-tts-validate-"));
+    const outputPath = path.join(tempDir, "qwen-tts-smoke.json");
+    const invalidPath = path.join(tempDir, "qwen-tts-smoke-invalid.json");
+    const previousExitCode = process.exitCode;
+
+    try {
+      const report = buildLocalQwenTtsRuntimeSmokeReport({
+        generatedAt: "2026-05-06T18:30:00.000Z",
+        logPath: "/tmp/qwen.log",
+        logContent: "exit_status=0\nreal 0.42",
+        audioPath: "/tmp/qwen.wav",
+        audioBytes: pcm16Wav({ durationMs: 1200, sampleRateHz: 24000 }),
+        promptText: "The chest pressure is worse.",
+        modelCacheEvidence: readyQwenCacheEvidence(),
+      });
+      await writeFile(outputPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+
+      await expect(main(["--validate", outputPath])).resolves.toBeUndefined();
+      await expect(main(["--validate-latest"])).resolves.toBeUndefined();
+
+      const invalidReport = structuredClone(report) as unknown as Record<string, unknown>;
+      delete invalidReport.modelCache;
+      await writeFile(invalidPath, `${JSON.stringify(invalidReport, null, 2)}\n`, "utf8");
+
+      process.exitCode = undefined;
+      await main(["--validate", invalidPath]);
+      expect(process.exitCode).toBe(1);
+    } finally {
+      process.exitCode = previousExitCode;
+      await rm(tempDir, { recursive: true, force: true });
+    }
   });
 });
 
