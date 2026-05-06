@@ -141,6 +141,13 @@ describe("IWER sidecar emulation evidence checker", () => {
     expect(rootPackage.scripts["iwer:sidecar:evidence"]).toBe(
       "tsx tools/openclinxr/iwer-sidecar-emulation-evidence-check.ts --input docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json",
     );
+    expect(rootPackage.scripts["iwer:sidecar:evidence:validate"]).toBe(
+      "tsx tools/openclinxr/iwer-sidecar-emulation-evidence-check.ts --validate-latest",
+    );
+    expect(rootPackage.scripts["iwsdk:verify"]).toContain("pnpm iwer:sidecar:evidence:validate");
+    expect(rootPackage.scripts["iwsdk:verify"]).not.toContain(
+      "pnpm iwsdk:iwer:evidence -- --input docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json",
+    );
 
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwer-evidence-"));
     const inputPath = path.join(tempDir, "iwer-evidence.json");
@@ -157,6 +164,16 @@ describe("IWER sidecar emulation evidence checker", () => {
     expect(stdout).toContain(`Wrote ${outputPath}`);
     expect(report.inputFile).toBe(inputPath);
     expect(report.result.readyForEmulationEvidence).toBe(true);
+  });
+
+  it("validates the latest committed sidecar evidence without a dated input path", async () => {
+    const { stdout } = await execFileAsync(
+      path.resolve("node_modules/.bin/tsx"),
+      ["tools/openclinxr/iwer-sidecar-emulation-evidence-check.ts", "--validate-latest"],
+      { encoding: "utf8", timeout: 15000 },
+    );
+
+    expect(stdout.trim()).toBe("Validated docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json");
   });
 });
 
