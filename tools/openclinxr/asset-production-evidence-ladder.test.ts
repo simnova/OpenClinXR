@@ -6,6 +6,7 @@ import { buildAssetProductionReadinessReport } from "./asset-production-readines
 import {
   buildAssetProductionEvidenceLadderReport,
   runAssetProductionEvidenceLadderCli,
+  validateAssetProductionEvidenceLadderReport,
 } from "./asset-production-evidence-ladder.js";
 
 describe("asset production evidence ladder report", () => {
@@ -159,6 +160,38 @@ describe("asset production evidence ladder report", () => {
       process.exitCode = previousExitCode;
       await rm(tempDir, { recursive: true, force: true });
     }
+  });
+
+  it("rejects malformed lane evidence inside an otherwise valid report", () => {
+    const readiness = buildAssetProductionReadinessReport({
+      generatedAt: "2026-05-06T12:00:00.000Z",
+      gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
+      blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+      gltfPipelineSmoke: gltfSmoke(),
+      blenderAssetBakeSmoke: blenderSmokeWithClinicalInventory(),
+      useLocalAssetEvidenceFixture: true,
+    });
+    const report = buildAssetProductionEvidenceLadderReport({
+      generatedAt: "2026-05-06T12:05:00.000Z",
+      readinessReportFile: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+      readinessReport: readiness,
+    });
+    const malformed = structuredClone(report) as Record<string, unknown>;
+    (malformed.lanes as Array<Record<string, unknown>>)[0] = {
+      id: "generatedHumanRigging",
+      title: "Generated human rigging",
+      status: "contract_only",
+    };
+
+    expect(validateAssetProductionEvidenceLadderReport(malformed)).toEqual({
+      ok: false,
+      errors: expect.arrayContaining([
+        "/lanes/0/requiredArtifactEvidence must be array",
+        "/lanes/0/currentEvidence must be object",
+        "/lanes/0/claimBoundary must be object",
+        "/lanes/0/blockers must be array",
+      ]),
+    });
   });
 });
 

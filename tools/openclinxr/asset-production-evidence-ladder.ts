@@ -72,6 +72,24 @@ export type AssetProductionEvidenceLadderReport = {
 
 type ValidationResult = { ok: true } | { ok: false; errors: string[] };
 
+const ladderLaneIds: LadderLaneId[] = [
+  "generatedHumanRigging",
+  "skinClothingProvenance",
+  "medicalEquipmentLibrary",
+  "animationRetargeting",
+  "lodTextureColliderBudget",
+  "multiActorQuestBudget",
+  "artifactBackedProductionAssetEvidence",
+];
+
+const ladderLaneStatuses: LadderLaneStatus[] = ["observed", "contract_only", "blocked"];
+
+const evidencePostures: AssetProductionEvidenceLadderLane["currentEvidence"]["posture"][] = [
+  "artifact_backed",
+  "contract_only_fixture",
+  "missing",
+];
+
 const laneDefinitions: Array<{
   id: Exclude<LadderLaneId, "artifactBackedProductionAssetEvidence">;
   title: string;
@@ -307,6 +325,9 @@ export function validateAssetProductionEvidenceLadderReport(value: unknown): Val
     requireLiteral(value.policy.productionAssetReadinessClaimed, false, "/policy/productionAssetReadinessClaimed", errors);
   }
   requireArray(value.lanes, "/lanes", errors);
+  if (Array.isArray(value.lanes)) {
+    value.lanes.forEach((lane, index) => validateLane(lane, `/lanes/${index}`, errors));
+  }
   requireRecord(value.summary, "/summary", errors);
   if (isRecord(value.summary)) {
     requireNumber(value.summary.totalLaneCount, "/summary/totalLaneCount", errors);
@@ -328,6 +349,30 @@ export function validateAssetProductionEvidenceLadderReport(value: unknown): Val
   }
 
   return errors.length === 0 ? { ok: true } : { ok: false, errors };
+}
+
+function validateLane(value: unknown, pathName: string, errors: string[]): void {
+  requireRecord(value, pathName, errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireOneOf(value.id, ladderLaneIds, `${pathName}/id`, errors);
+  requireString(value.title, `${pathName}/title`, errors);
+  requireOneOf(value.status, ladderLaneStatuses, `${pathName}/status`, errors);
+  requireStringArray(value.requiredArtifactEvidence, `${pathName}/requiredArtifactEvidence`, errors);
+  requireRecord(value.currentEvidence, `${pathName}/currentEvidence`, errors);
+  if (isRecord(value.currentEvidence)) {
+    requireString(value.currentEvidence.source, `${pathName}/currentEvidence/source`, errors);
+    requireBoolean(value.currentEvidence.observed, `${pathName}/currentEvidence/observed`, errors);
+    requireOneOf(value.currentEvidence.posture, evidencePostures, `${pathName}/currentEvidence/posture`, errors);
+  }
+  requireRecord(value.claimBoundary, `${pathName}/claimBoundary`, errors);
+  if (isRecord(value.claimBoundary)) {
+    requireStringArray(value.claimBoundary.allowedClaims, `${pathName}/claimBoundary/allowedClaims`, errors);
+    requireStringArray(value.claimBoundary.notEvidenceFor, `${pathName}/claimBoundary/notEvidenceFor`, errors);
+  }
+  requireStringArray(value.blockers, `${pathName}/blockers`, errors);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
