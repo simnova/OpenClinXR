@@ -199,6 +199,17 @@ export type HandGestureLocomotionVectorResult = LocomotionVectorEvidence & {
   turnCrossedDeadzone: boolean;
 };
 
+export type HandGestureLocomotionJointMeters = {
+  x: number;
+  z: number;
+};
+
+export type HandGestureLocomotionJointsMeters = {
+  wrist: HandGestureLocomotionJointMeters;
+  indexTip: HandGestureLocomotionJointMeters;
+  thumbTip: HandGestureLocomotionJointMeters;
+};
+
 export type RigPoseEvidence = {
   x: number;
   z: number;
@@ -1322,6 +1333,26 @@ export function mapHandGestureLocomotionVector(
     turn,
     movementCrossedDeadzone: forward !== 0 || leftHandStrafe !== 0 || turn !== 0,
     turnCrossedDeadzone: rightHandTurn !== 0,
+  };
+}
+
+export function handGestureLocomotionOriginMeters(
+  joints: HandGestureLocomotionJointsMeters,
+): HandGestureLocomotionJointMeters {
+  return {
+    x: (joints.wrist.x + joints.indexTip.x + joints.thumbTip.x) / 3,
+    z: (joints.wrist.z + joints.indexTip.z + joints.thumbTip.z) / 3,
+  };
+}
+
+export function handGestureRelativeOffsetMeters(input: {
+  neutralOriginMeters: HandGestureLocomotionJointMeters;
+  current: HandGestureLocomotionJointsMeters;
+}): HandGestureLocomotionJointMeters {
+  const currentOriginMeters = handGestureLocomotionOriginMeters(input.current);
+  return {
+    x: currentOriginMeters.x - input.neutralOriginMeters.x,
+    z: currentOriginMeters.z - input.neutralOriginMeters.z,
   };
 }
 

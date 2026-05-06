@@ -121,6 +121,8 @@ describe("static browser assets", () => {
     expect(runtimeStateSource).toContain('meshHandRepresentationKind = "mesh"');
     expect(mainSource).toContain("handGestureDwellMs");
     expect(mainSource).toContain("handPinchDistanceThresholdMeters");
+    expect(mainSource).toContain("handGestureLocomotionOriginMeters");
+    expect(mainSource).toContain("handGestureRelativeOffsetMeters");
     expect(mainSource).toContain("isXrHandPinching");
     expect(mainSource).toContain('joints?.["thumb-tip"]');
     expect(mainSource).not.toContain("inputState?.pinching");

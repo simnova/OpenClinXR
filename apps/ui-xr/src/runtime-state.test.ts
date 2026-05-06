@@ -27,6 +27,8 @@ import {
   primitiveHandRepresentationKind,
   meshHandModelProfile,
   meshHandRepresentationKind,
+  handGestureLocomotionOriginMeters,
+  handGestureRelativeOffsetMeters,
   type ReadableVrTextPanelEvidenceSet,
   localHandMeshPath,
   remoteActorTurnForTraceTag,
@@ -754,6 +756,42 @@ describe("XR runtime state", () => {
       strafe: 0,
       turn: 0,
       movementCrossedDeadzone: false,
+      turnCrossedDeadzone: false,
+    });
+  });
+
+  it("maps whole-hand pinch displacement to forward locomotion when finger-to-wrist pose stays stable", () => {
+    const neutralOriginMeters = handGestureLocomotionOriginMeters({
+      wrist: { x: 0, z: 0 },
+      indexTip: { x: 0.02, z: -0.04 },
+      thumbTip: { x: 0.018, z: -0.015 },
+    });
+    const relativeOffsetMeters = handGestureRelativeOffsetMeters({
+      neutralOriginMeters,
+      current: {
+        wrist: { x: 0, z: -0.12 },
+        indexTip: { x: 0.02, z: -0.16 },
+        thumbTip: { x: 0.018, z: -0.135 },
+      },
+    });
+
+    expect(relativeOffsetMeters).toEqual({
+      x: 0,
+      z: -0.12,
+    });
+    expect(mapHandGestureLocomotionVector({
+      handedness: "right",
+      relativeOffsetMeters,
+      movementDeadzoneMeters: 0.045,
+      turnDeadzoneMeters: 0.055,
+      movementSensitivity: 5,
+      turnSensitivity: 4,
+      turnCoolingDown: false,
+    })).toEqual({
+      forward: 0.375,
+      strafe: 0,
+      turn: 0,
+      movementCrossedDeadzone: true,
       turnCrossedDeadzone: false,
     });
   });

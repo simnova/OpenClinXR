@@ -45,6 +45,8 @@ import {
   iwsdkStationSceneObjects,
   isImmersiveFrameEvidenceActive,
   localHandMeshPath,
+  handGestureLocomotionOriginMeters,
+  handGestureRelativeOffsetMeters,
   mapHandGestureLocomotionVector,
   meshHandModelProfile,
   meshHandRepresentationKind,
@@ -1476,12 +1478,15 @@ function readHandGestureVector(input: {
     });
   }
 
-  const offsetX = indexTip.position.x - wrist.position.x;
-  const offsetZ = indexTip.position.z - wrist.position.z;
+  const gestureOriginMeters = handGestureLocomotionOriginMeters({
+    wrist: { x: wrist.position.x, z: wrist.position.z },
+    indexTip: { x: indexTip.position.x, z: indexTip.position.z },
+    thumbTip: { x: thumbTip.position.x, z: thumbTip.position.z },
+  });
   if (state.pinchingSinceMs === null) {
     state.pinchingSinceMs = input.now;
-    state.neutralOffsetX = offsetX;
-    state.neutralOffsetZ = offsetZ;
+    state.neutralOffsetX = gestureOriginMeters.x;
+    state.neutralOffsetZ = gestureOriginMeters.z;
     state.armed = false;
   }
 
@@ -1500,9 +1505,17 @@ function readHandGestureVector(input: {
     });
   }
   state.armed = true;
-  const relativeOffsetX = offsetX - state.neutralOffsetX;
-  const relativeOffsetZ = offsetZ - state.neutralOffsetZ;
-  const relativeOffsetMeters = { x: relativeOffsetX, z: relativeOffsetZ };
+  const relativeOffsetMeters = handGestureRelativeOffsetMeters({
+    neutralOriginMeters: {
+      x: state.neutralOffsetX,
+      z: state.neutralOffsetZ,
+    },
+    current: {
+      wrist: { x: wrist.position.x, z: wrist.position.z },
+      indexTip: { x: indexTip.position.x, z: indexTip.position.z },
+      thumbTip: { x: thumbTip.position.x, z: thumbTip.position.z },
+    },
+  });
 
   const turnCoolingDown = handedness === "right"
     && input.gestureState.lastTurnAtMs !== null
