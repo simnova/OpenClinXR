@@ -11,6 +11,7 @@ import {
   createExamStationRunQueue,
   createStep2CsStyleSeedBlueprint,
 } from "@openclinxr/exam-assembly";
+import type { Document } from "mongodb";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   MongoExamFormRepository,
@@ -215,6 +216,33 @@ const clinicalEventFinding: DurableClinicalEventRecord = {
   provenanceRefs: ["trace:station_run_durable_clinical_event_001:190"],
   durableStore: "database_source_of_truth",
 };
+
+function planUsesIndex(plan: Document, indexName: string): boolean {
+  return visitPlan(plan, (node) => node.indexName === indexName);
+}
+
+function planHasStage(plan: Document, stage: string): boolean {
+  return visitPlan(plan, (node) => node.stage === stage);
+}
+
+function winningPlanFromExplain(explain: Document): Document {
+  const winningPlan = explain.queryPlanner?.winningPlan;
+  if (!winningPlan || typeof winningPlan !== "object") {
+    throw new Error("Expected MongoDB explain output to include queryPlanner.winningPlan");
+  }
+  return winningPlan as Document;
+}
+
+function visitPlan(value: unknown, predicate: (node: Record<string, unknown>) => boolean): boolean {
+  if (Array.isArray(value)) {
+    return value.some((child) => visitPlan(child, predicate));
+  }
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+  const node = value as Record<string, unknown>;
+  return predicate(node) || Object.values(node).some((child) => visitPlan(child, predicate));
+}
 
 const seedQueueScenarios: Scenario[] = Array.from({ length: 12 }, (_, index) => {
   const stationOrder = index + 1;
@@ -706,6 +734,58 @@ describe("MongoDB memory repositories", () => {
       redisRedkaIncluded: false,
       databaseOnly: true,
     });
+  });
+
+  it("keeps durable clinical-event replay and review queries on indexed sort paths", async () => {
+    const repository = new MongoDurableClinicalEventRepository(context.db);
+    await repository.ensureIndexes();
+
+    await repository.save({
+      ...clinicalEventOrderRequested,
+      stationRunId: "station_run_clinical_event_index_001",
+      clinicalEventId: "event_001_order_requested",
+    });
+    await repository.save({
+      ...clinicalEventFinding,
+      stationRunId: "station_run_clinical_event_index_001",
+      clinicalEventId: "event_002_finding",
+    });
+
+    const indexes = await context.db.collection("durable_clinical_events").indexes();
+    expect(indexes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          key: { stationRunId: 1, clinicalEventId: 1 },
+          unique: true,
+        }),
+        expect.objectContaining({
+          key: { stationRunId: 1, atSecond: 1, clinicalEventId: 1 },
+        }),
+        expect.objectContaining({
+          key: { stationRunId: 1, eventKind: 1, atSecond: 1 },
+        }),
+        expect.objectContaining({
+          key: { stationRunId: 1, traceTag: 1, atSecond: 1 },
+        }),
+      ]),
+    );
+
+    const stationReplayPlan = winningPlanFromExplain(await context.db.collection("durable_clinical_events")
+      .find({ stationRunId: "station_run_clinical_event_index_001" }, { projection: { _id: 0 } })
+      .sort({ atSecond: 1, clinicalEventId: 1 })
+      .explain("queryPlanner"));
+    expect(planUsesIndex(stationReplayPlan, "stationRunId_1_atSecond_1_clinicalEventId_1")).toBe(true);
+    expect(planHasStage(stationReplayPlan, "SORT")).toBe(false);
+
+    const kindReviewPlan = winningPlanFromExplain(await context.db.collection("durable_clinical_events")
+      .find(
+        { stationRunId: "station_run_clinical_event_index_001", eventKind: "order_status_changed" },
+        { projection: { _id: 0 } },
+      )
+      .sort({ atSecond: 1 })
+      .explain("queryPlanner"));
+    expect(planUsesIndex(kindReviewPlan, "stationRunId_1_eventKind_1_atSecond_1")).toBe(true);
+    expect(planHasStage(kindReviewPlan, "SORT")).toBe(false);
   });
 
   it("returns redacted durable clinical-event review projections from Mongo replay", async () => {
