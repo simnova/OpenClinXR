@@ -39,14 +39,14 @@ Patrick's 2026-05-06 worn-headset demo observation adds:
 - Added a DOM trace-select latency proxy in both XR shells and the Quest CDP smoke harness so automated runs can prove trace latency evidence is wired without pretending to measure physical controller latency.
 - Added an in-Full-VR `select` path that advances the next missing trace action from controller trigger input as `xr_controller_select`, plus a deliberate right-hand stable-pinch path that records the Trace row as `xr_hand_select` for hand-tracking-only runs.
 - After the 2026-05-06 no-locomotion demo, replaced the `apps/ui-xr` hand gesture dependency on a non-standard `hand.inputState.pinching` flag with thumb-tip/index-tip joint-distance pinch inference so hand-tracking-only locomotion can actually arm when Quest exposes tracked hand joints.
-- Added a tested shared hand-gesture locomotion mapper so right-hand pinch motion can also drive forward/back movement during hand-tracking-only runs while preserving the deliberate right-hand stable-pinch trace-select path.
+- Added a tested shared hand-gesture locomotion mapper so whole-hand pinch displacement, measured from the wrist/index/thumb centroid captured at arming time, can drive forward/back movement during hand-tracking-only runs while preserving the deliberate right-hand stable-pinch trace-select path.
 - Hardened the manual Quest checker so operator notes such as "no locomotion" cannot be contradicted by a structured `activeLocomotionSource`, `lastLocomotionAtMs`, and `locomotionDelta` claim without an explicit blocker.
 
 ## Remaining Gaps
 
 - Mixed-reality/passthrough mode is approved for a parallel sidecar track, but is not implemented or validated yet.
 - Primitive hands have now been observed as non-realistic; articulated/skinned hand meshes remain future work.
-- Experimental locomotion still needs a fresh worn-headset validation pass after the thumb-tip/index-tip pinch fix and the right-hand forward/back gesture mapping; the 2026-05-06 manual demo reinforced locomotion as an active usability blocker even when visual comfort was acceptable.
+- Experimental locomotion still needs a fresh worn-headset validation pass after the thumb-tip/index-tip pinch fix and the whole-hand displacement mapping; the 2026-05-06 manual demo reinforced locomotion as an active usability blocker even when visual comfort was acceptable. The next run should pinch thumb to index, hold the whole hand steady through the 450 ms dwell, then move the still-pinched hand beyond the deadzone rather than only flexing fingers in place; the copied payload should show `activeLocomotionSource: "xr_hand_gesture"` plus `locomotionDelta`.
 - Real headset select latency is not yet measured in the manual performance report; the automated DOM-click proxy is supporting evidence only, and the new `xr_controller_select` or `xr_hand_select` Trace row still needs a physical Quest confirmation.
 - The updated in-scene text path was readable after manual Full VR entry; the remaining worn-headset rerun should target trace, frame, locomotion, latency, and hand-fidelity evidence.
 
