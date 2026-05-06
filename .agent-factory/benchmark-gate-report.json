@@ -5,7 +5,7 @@
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T18:13:48.812Z",
-      "age_hours": 47,
+      "age_hours": 48,
       "max_age_hours": 24,
       "status": "stale",
       "blockers": [
@@ -34,7 +34,7 @@
       "evidence_id": "blender_asset_bake_smoke",
       "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
       "generated_at": "2026-05-06T08:19:07.305Z",
-      "age_hours": 9,
+      "age_hours": 10,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -79,7 +79,7 @@
       "evidence_id": "local_model_runtime_benchmark",
       "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-05.json",
       "generated_at": "2026-05-05T20:20:19.936Z",
-      "age_hours": 21,
+      "age_hours": 22,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -97,7 +97,7 @@
       "evidence_id": "local_voice_runtime_benchmark",
       "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T06:20:53Z",
-      "age_hours": 11,
+      "age_hours": 12,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -124,7 +124,7 @@
       "evidence_id": "local_qwen_tts_runtime_smoke",
       "file": "docs/openclinxr/local-qwen-tts-runtime-smoke-2026-05-06.json",
       "generated_at": "2026-05-06T13:24:08Z",
-      "age_hours": 4,
+      "age_hours": 5,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -142,7 +142,7 @@
       "evidence_id": "blueprint_voice_simulation_spike",
       "file": "docs/openclinxr/blueprint-voice-simulation-spike-2026-05-05.json",
       "generated_at": "2026-05-06T03:18:07.296Z",
-      "age_hours": 14,
+      "age_hours": 15,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -187,7 +187,7 @@
       "evidence_id": "api_bun_websocket_runtime_smoke",
       "file": "docs/openclinxr/api-bun-websocket-runtime-smoke-2026-05-05.json",
       "generated_at": "2026-05-05T23:27:29.751Z",
-      "age_hours": 18,
+      "age_hours": 19,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -204,7 +204,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T18:12:35.940Z",
+      "generated_at": "2026-05-06T18:30:53.487Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -1792,7 +1792,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T18:12:35.940Z",
+    "generated_at": "2026-05-06T18:30:53.487Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,

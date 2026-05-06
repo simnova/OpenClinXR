@@ -20,13 +20,15 @@ import {
   MockVoiceProviderAdapter,
   type TranscriptEvent,
 } from "../../packages/openclinxr/voice-gateway/src/index.js";
-import { writeJson } from "../agent-factory/lib.js";
+import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 
 type CliOptions = {
   outputPath?: string;
   scenarioId?: string;
   learnerUtterance?: string;
   atSecond?: number;
+  validatePath?: string;
+  validateLatest: boolean;
 };
 
 type VoiceSimulationPolicy = {
@@ -257,10 +259,31 @@ export type BlueprintVoiceSimulationSpikeReport = {
   };
 };
 
+type ValidationResult = { ok: true } | { ok: false; errors: string[] };
+
 const defaultTransportEvidenceSourceFile = "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json";
 
-async function main(): Promise<void> {
-  const options = parseArgs(process.argv.slice(2));
+export async function main(args = process.argv.slice(2)): Promise<void> {
+  const options = parseArgs(args);
+  if (options.validatePath || options.validateLatest) {
+    const validatePath = options.validatePath ?? await latestBlueprintVoiceSimulationSpikePath();
+    if (!validatePath) {
+      throw new Error("Missing blueprint voice simulation evidence report to validate.");
+    }
+
+    const validation = validateBlueprintVoiceSimulationSpikeReport(await readJson<unknown>(validatePath));
+    if (validation.ok) {
+      console.log(`Validated ${validatePath}`);
+      return;
+    }
+
+    for (const error of validation.errors) {
+      console.error(error);
+    }
+    process.exitCode = 1;
+    return;
+  }
+
   const report = await buildBlueprintVoiceSimulationSpikeReport({
     blueprint: createStep2CsStyleSeedBlueprint(scenarioBank),
     scenarios: scenarioBank,
@@ -280,10 +303,19 @@ async function main(): Promise<void> {
 
 function parseArgs(args: string[]): CliOptions {
   const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
-  const options: CliOptions = {};
+  const options: CliOptions = { validateLatest: false };
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
+    if (arg === "--validate") {
+      options.validatePath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--validate-latest") {
+      options.validateLatest = true;
+      continue;
+    }
     if (arg === "--output") {
       options.outputPath = requireValue(normalizedArgs, index, arg);
       index += 1;
@@ -311,6 +343,11 @@ function parseArgs(args: string[]): CliOptions {
   }
 
   return options;
+}
+
+async function latestBlueprintVoiceSimulationSpikePath(): Promise<string | undefined> {
+  const files = await globFiles("docs/openclinxr/blueprint-voice-simulation-spike-*.json");
+  return files.sort().at(-1);
 }
 
 function requireValue(args: string[], index: number, flag: string): string {
@@ -976,6 +1013,543 @@ function emptyTransportEvidence(
     blockers: [`transport_evidence_${sourceStatus}`],
     caveats: ["No linked Bun-to-FastAPI WebSocket evidence was available to this blueprint report."],
   };
+}
+
+export function validateBlueprintVoiceSimulationSpikeReport(value: unknown): ValidationResult {
+  const errors: string[] = [];
+  const report = requireRecordValue(value, "", errors);
+  if (!report) {
+    return { ok: false, errors };
+  }
+
+  requireStringValue(report.generatedAt, "/generatedAt", errors);
+  requireOneOfValue(report.status, "/status", ["mock_facade_exercised", "blocked"], errors);
+
+  const policy = requireRecordValue(report.policy, "/policy", errors);
+  if (policy) {
+    validateFalseLiterals(policy, "/policy", [
+      "cloudApisUsed",
+      "paidApisUsed",
+      "modelDownloadsPerformed",
+      "productionUseAllowed",
+      "rawAudioStored",
+      "hiddenFactsExposedToLearner",
+    ], errors);
+  }
+
+  validatePlan(report.plan, errors);
+  validateMockLoop(report.mockLoop, errors);
+  validateRuntimeRouting(report.runtimeRouting, errors);
+  validateMultiCharacterInterruption(report.multiCharacterInterruption, errors);
+  validateTransportEvidence(report.transportEvidence, errors);
+  validateTelemetry(report.telemetry, errors);
+  validateTriggerEvidence(report.triggerEvidence, errors);
+  validatePrewarmEvidence(report.prewarmEvidence, errors);
+  validateVerdict(report.verdict, errors);
+  validateVerdictConsistency(report.transportEvidence, report.verdict, errors);
+
+  return errors.length === 0 ? { ok: true } : { ok: false, errors };
+}
+
+function validatePlan(value: unknown, errors: string[]): void {
+  const plan = requireRecordValue(value, "/plan", errors);
+  if (!plan) {
+    return;
+  }
+
+  requireStringValue(plan.blueprintId, "/plan/blueprintId", errors);
+  const station = requireRecordValue(plan.station, "/plan/station", errors);
+  if (station) {
+    requireNumberValue(station.stationOrder, "/plan/station/stationOrder", errors);
+    requireStringValue(station.slotId, "/plan/station/slotId", errors);
+    requireStringValue(station.scenarioId, "/plan/station/scenarioId", errors);
+    requireNumberValue(station.scenarioVersion, "/plan/station/scenarioVersion", errors);
+    requireStringValue(station.title, "/plan/station/title", errors);
+    requireNullableStringValue(station.environmentId, "/plan/station/environmentId", errors);
+  }
+
+  const policy = requireRecordValue(plan.policy, "/plan/policy", errors);
+  if (policy) {
+    validateFalseLiterals(policy, "/plan/policy", [
+      "cloudApisUsed",
+      "paidApisUsed",
+      "modelDownloadsPerformed",
+      "productionUseAllowed",
+      "rawAudioStored",
+      "hiddenFactsExposedToLearner",
+    ], errors);
+  }
+
+  const actors = requireArrayValue(plan.actorRoster, "/plan/actorRoster", errors);
+  actors?.forEach((actorValue, index) => {
+    const actor = requireRecordValue(actorValue, `/plan/actorRoster/${index}`, errors);
+    if (!actor) {
+      return;
+    }
+    requireStringValue(actor.actorId, `/plan/actorRoster/${index}/actorId`, errors);
+    requireStringValue(actor.role, `/plan/actorRoster/${index}/role`, errors);
+    requireStringValue(actor.displayName, `/plan/actorRoster/${index}/displayName`, errors);
+    requireStringValue(actor.demeanor, `/plan/actorRoster/${index}/demeanor`, errors);
+    requireStringValue(actor.voiceId, `/plan/actorRoster/${index}/voiceId`, errors);
+    requireStringArrayValue(actor.personalityTags, `/plan/actorRoster/${index}/personalityTags`, errors);
+    requireStringArrayValue(actor.emotionTags, `/plan/actorRoster/${index}/emotionTags`, errors);
+    requireNumberValue(actor.hiddenFactCount, `/plan/actorRoster/${index}/hiddenFactCount`, errors);
+    requireTrueValue(actor.hiddenFactsRedacted, `/plan/actorRoster/${index}/hiddenFactsRedacted`, errors);
+    if ("hiddenFacts" in actor) {
+      errors.push(`/plan/actorRoster/${index}/hiddenFacts must be omitted`);
+    }
+  });
+
+  const voiceSlots = requireArrayValue(plan.voiceSlots, "/plan/voiceSlots", errors);
+  voiceSlots?.forEach((slotValue, index) => {
+    const slot = requireRecordValue(slotValue, `/plan/voiceSlots/${index}`, errors);
+    if (!slot) {
+      return;
+    }
+    requireStringValue(slot.actorId, `/plan/voiceSlots/${index}/actorId`, errors);
+    requireStringValue(slot.voiceId, `/plan/voiceSlots/${index}/voiceId`, errors);
+    requireLiteralValue(slot.provider, `/plan/voiceSlots/${index}/provider`, "mock-voice", errors);
+    requireLiteralValue(
+      slot.providerTier,
+      `/plan/voiceSlots/${index}/providerTier`,
+      "deterministic_mock_first",
+      errors,
+    );
+    requireLiteralValue(slot.localRuntimeStatus, `/plan/voiceSlots/${index}/localRuntimeStatus`, "not_executed", errors);
+  });
+
+  const triggerPlan = requireArrayValue(plan.triggerPlan, "/plan/triggerPlan", errors);
+  triggerPlan?.forEach((triggerValue, index) => {
+    const trigger = requireRecordValue(triggerValue, `/plan/triggerPlan/${index}`, errors);
+    if (!trigger) {
+      return;
+    }
+    requireStringValue(trigger.triggerId, `/plan/triggerPlan/${index}/triggerId`, errors);
+    requireLiteralValue(trigger.triggerType, `/plan/triggerPlan/${index}/triggerType`, "timed_event", errors);
+    requireNumberValue(trigger.atSecond, `/plan/triggerPlan/${index}/atSecond`, errors);
+    requireStringValue(trigger.actorId, `/plan/triggerPlan/${index}/actorId`, errors);
+    requireStringValue(trigger.traceTag, `/plan/triggerPlan/${index}/traceTag`, errors);
+    requireTrueValue(trigger.learnerInterruptible, `/plan/triggerPlan/${index}/learnerInterruptible`, errors);
+  });
+
+  const privacyRules = requireRecordValue(plan.privacyRules, "/plan/privacyRules", errors);
+  if (privacyRules) {
+    requireLiteralValue(privacyRules.learnerView, "/plan/privacyRules/learnerView", "redact_hidden_facts", errors);
+    requireBooleanValue(privacyRules.disclosureRequiresTrigger, "/plan/privacyRules/disclosureRequiresTrigger", errors);
+    requireArrayValue(privacyRules.actorHiddenFactCounts, "/plan/privacyRules/actorHiddenFactCounts", errors);
+  }
+
+  const traceExpectations = requireRecordValue(plan.traceExpectations, "/plan/traceExpectations", errors);
+  if (traceExpectations) {
+    requireStringArrayValue(traceExpectations.requiredTraceTags, "/plan/traceExpectations/requiredTraceTags", errors);
+    requireStringArrayValue(
+      traceExpectations.safetyCriticalTraceTags,
+      "/plan/traceExpectations/safetyCriticalTraceTags",
+      errors,
+    );
+    requireArrayValue(traceExpectations.rubricTraceTags, "/plan/traceExpectations/rubricTraceTags", errors);
+  }
+
+  const prewarmPlan = requireRecordValue(plan.prewarmPlan, "/plan/prewarmPlan", errors);
+  if (prewarmPlan) {
+    requireTrueValue(prewarmPlan.allowed, "/plan/prewarmPlan/allowed", errors);
+    requireStringArrayValue(prewarmPlan.steps, "/plan/prewarmPlan/steps", errors);
+    requireArrayValue(prewarmPlan.artifacts, "/plan/prewarmPlan/artifacts", errors);
+  }
+
+  requireRecordValue(plan.telemetryAttributes, "/plan/telemetryAttributes", errors);
+}
+
+function validateMockLoop(value: unknown, errors: string[]): void {
+  const mockLoop = requireRecordValue(value, "/mockLoop", errors);
+  if (!mockLoop) {
+    return;
+  }
+
+  requireFalseValue(mockLoop.learnerUtteranceStored, "/mockLoop/learnerUtteranceStored", errors);
+  requireFalseValue(mockLoop.rawAudioStored, "/mockLoop/rawAudioStored", errors);
+  requireStringValue(mockLoop.selectedActorId, "/mockLoop/selectedActorId", errors);
+  requireStringValue(mockLoop.routingReason, "/mockLoop/routingReason", errors);
+  requireLiteralValue(mockLoop.routingSource, "/mockLoop/routingSource", "scenario_runtime", errors);
+  const transcript = requireRecordValue(mockLoop.transcript, "/mockLoop/transcript", errors);
+  if (transcript) {
+    requireNumberValue(transcript.eventCount, "/mockLoop/transcript/eventCount", errors);
+    requireTrueValue(transcript.finalTextRedacted, "/mockLoop/transcript/finalTextRedacted", errors);
+  }
+  const synthesis = requireRecordValue(mockLoop.synthesis, "/mockLoop/synthesis", errors);
+  if (synthesis) {
+    requireNumberValue(synthesis.audioChunkCount, "/mockLoop/synthesis/audioChunkCount", errors);
+    requireNullableNumberValue(
+      synthesis.firstAudiblePlaybackLatencyMs,
+      "/mockLoop/synthesis/firstAudiblePlaybackLatencyMs",
+      errors,
+    );
+    requireNullableStringValue(synthesis.providerId, "/mockLoop/synthesis/providerId", errors);
+  }
+  requireArrayValue(mockLoop.traceEvents, "/mockLoop/traceEvents", errors);
+}
+
+function validateRuntimeRouting(value: unknown, errors: string[]): void {
+  const runtimeRouting = requireRecordValue(value, "/runtimeRouting", errors);
+  if (!runtimeRouting) {
+    return;
+  }
+
+  requireBooleanValue(runtimeRouting.exercised, "/runtimeRouting/exercised", errors);
+  requireLiteralValue(runtimeRouting.routeSource, "/runtimeRouting/routeSource", "scenario_runtime", errors);
+  requireTrueValue(runtimeRouting.stationRunScoped, "/runtimeRouting/stationRunScoped", errors);
+  requireStringValue(runtimeRouting.selectedActorId, "/runtimeRouting/selectedActorId", errors);
+  requireStringValue(runtimeRouting.routingReason, "/runtimeRouting/routingReason", errors);
+  requireNumberValue(runtimeRouting.conversationTurn, "/runtimeRouting/conversationTurn", errors);
+  requireLiteralValue(runtimeRouting.sourceKind, "/runtimeRouting/sourceKind", "voice_transcript", errors);
+  validateTraceProjection(runtimeRouting.traceProjection, "/runtimeRouting/traceProjection", errors);
+}
+
+function validateMultiCharacterInterruption(value: unknown, errors: string[]): void {
+  const interruption = requireRecordValue(value, "/multiCharacterInterruption", errors);
+  if (!interruption) {
+    return;
+  }
+
+  requireBooleanValue(interruption.exercised, "/multiCharacterInterruption/exercised", errors);
+  requireLiteralValue(
+    interruption.source,
+    "/multiCharacterInterruption/source",
+    "scenario_actor_roster_and_required_trace_tags",
+    errors,
+  );
+  requireStringArrayValue(
+    interruption.prerequisiteActorRoles,
+    "/multiCharacterInterruption/prerequisiteActorRoles",
+    errors,
+  );
+  const agentDialogue = requireRecordValue(interruption.agentDialogue, "/multiCharacterInterruption/agentDialogue", errors);
+  if (agentDialogue) {
+    requireStringArrayValue(
+      agentDialogue.participantActorIds,
+      "/multiCharacterInterruption/agentDialogue/participantActorIds",
+      errors,
+    );
+    requireNullableStringValue(
+      agentDialogue.startedByActorId,
+      "/multiCharacterInterruption/agentDialogue/startedByActorId",
+      errors,
+    );
+    requireNullableStringValue(
+      agentDialogue.addressedActorId,
+      "/multiCharacterInterruption/agentDialogue/addressedActorId",
+      errors,
+    );
+    requireNullableNumberValue(agentDialogue.atSecond, "/multiCharacterInterruption/agentDialogue/atSecond", errors);
+    requireNullableStringValue(agentDialogue.traceTag, "/multiCharacterInterruption/agentDialogue/traceTag", errors);
+    requireFalseValue(
+      agentDialogue.rawDialogueStored,
+      "/multiCharacterInterruption/agentDialogue/rawDialogueStored",
+      errors,
+    );
+    requireTrueValue(
+      agentDialogue.transcriptRedacted,
+      "/multiCharacterInterruption/agentDialogue/transcriptRedacted",
+      errors,
+    );
+    requireFalseValue(
+      agentDialogue.runtimeDialogueClaimed,
+      "/multiCharacterInterruption/agentDialogue/runtimeDialogueClaimed",
+      errors,
+    );
+  }
+
+  const learnerInterruption = requireRecordValue(
+    interruption.learnerInterruption,
+    "/multiCharacterInterruption/learnerInterruption",
+    errors,
+  );
+  if (learnerInterruption) {
+    requireNullableNumberValue(
+      learnerInterruption.atSecond,
+      "/multiCharacterInterruption/learnerInterruption/atSecond",
+      errors,
+    );
+    requireNullableStringValue(
+      learnerInterruption.routedActorId,
+      "/multiCharacterInterruption/learnerInterruption/routedActorId",
+      errors,
+    );
+    requireNullableStringValue(
+      learnerInterruption.routingReason,
+      "/multiCharacterInterruption/learnerInterruption/routingReason",
+      errors,
+    );
+    requireStringArrayValue(
+      learnerInterruption.traceContextTags,
+      "/multiCharacterInterruption/learnerInterruption/traceContextTags",
+      errors,
+    );
+    if (learnerInterruption.sourceKind !== "voice_transcript" && learnerInterruption.sourceKind !== null) {
+      errors.push("/multiCharacterInterruption/learnerInterruption/sourceKind must be voice_transcript or null");
+    }
+    requireFalseValue(
+      learnerInterruption.rawLearnerUtteranceStored,
+      "/multiCharacterInterruption/learnerInterruption/rawLearnerUtteranceStored",
+      errors,
+    );
+    requireTrueValue(
+      learnerInterruption.finalTranscriptTextRedacted,
+      "/multiCharacterInterruption/learnerInterruption/finalTranscriptTextRedacted",
+      errors,
+    );
+  }
+
+  validateTraceProjection(interruption.traceProjection, "/multiCharacterInterruption/traceProjection", errors);
+  requireTrueValue(interruption.hiddenFactsRedacted, "/multiCharacterInterruption/hiddenFactsRedacted", errors);
+  requireStringArrayValue(interruption.limitations, "/multiCharacterInterruption/limitations", errors);
+}
+
+function validateTraceProjection(value: unknown, path: string, errors: string[]): void {
+  const traceProjection = requireRecordValue(value, path, errors);
+  if (!traceProjection) {
+    return;
+  }
+  requireNumberValue(traceProjection.eventCount, `${path}/eventCount`, errors);
+  requireStringArrayValue(traceProjection.eventTypes, `${path}/eventTypes`, errors);
+  requireTrueValue(traceProjection.sensitiveFieldsDropped, `${path}/sensitiveFieldsDropped`, errors);
+  requireFalseValue(traceProjection.rawRuntimeTraceStoredInReport, `${path}/rawRuntimeTraceStoredInReport`, errors);
+  requireArrayValue(traceProjection.events, `${path}/events`, errors);
+}
+
+function validateTransportEvidence(value: unknown, errors: string[]): void {
+  const transportEvidence = requireRecordValue(value, "/transportEvidence", errors);
+  if (!transportEvidence) {
+    return;
+  }
+
+  requireBooleanValue(transportEvidence.linkedExistingEvidence, "/transportEvidence/linkedExistingEvidence", errors);
+  requireFalseValue(transportEvidence.executedByThisReport, "/transportEvidence/executedByThisReport", errors);
+  requireStringValue(transportEvidence.sourceFile, "/transportEvidence/sourceFile", errors);
+  requireOneOfValue(
+    transportEvidence.sourceStatus,
+    "/transportEvidence/sourceStatus",
+    ["passed", "blocked", "missing", "unreadable"],
+    errors,
+  );
+  requireBooleanValue(transportEvidence.bunPythonProxyPassed, "/transportEvidence/bunPythonProxyPassed", errors);
+  requireFalseValue(transportEvidence.readyForLiveDialog, "/transportEvidence/readyForLiveDialog", errors);
+
+  const runtime = requireRecordValue(transportEvidence.runtime, "/transportEvidence/runtime", errors);
+  if (runtime) {
+    requireNullableStringValue(runtime.apiTarget, "/transportEvidence/runtime/apiTarget", errors);
+    requireNullableStringValue(runtime.pythonBackendTarget, "/transportEvidence/runtime/pythonBackendTarget", errors);
+    requireNullableStringValue(runtime.websocketPath, "/transportEvidence/runtime/websocketPath", errors);
+    requireNullableStringValue(runtime.backendProtocol, "/transportEvidence/runtime/backendProtocol", errors);
+  }
+
+  const observed = requireRecordValue(transportEvidence.observed, "/transportEvidence/observed", errors);
+  if (observed) {
+    requireBooleanValue(observed.connected, "/transportEvidence/observed/connected", errors);
+    requireBooleanValue(observed.backendProtocolObserved, "/transportEvidence/observed/backendProtocolObserved", errors);
+    requireBooleanValue(observed.latencyFieldsObserved, "/transportEvidence/observed/latencyFieldsObserved", errors);
+    requireBooleanValue(observed.binaryEchoObserved, "/transportEvidence/observed/binaryEchoObserved", errors);
+    requireStringArrayValue(observed.eventTypesObserved, "/transportEvidence/observed/eventTypesObserved", errors);
+  }
+
+  const policy = requireRecordValue(transportEvidence.policy, "/transportEvidence/policy", errors);
+  if (policy) {
+    validateFalseLiterals(policy, "/transportEvidence/policy", [
+      "cloudApisUsed",
+      "paidApisUsed",
+      "http3Enabled",
+      "webTransportUsed",
+      "quicUsed",
+      "web3Used",
+      "questHardwareClaimed",
+      "lowLatencyClaimed",
+    ], errors);
+  }
+
+  requireStringArrayValue(transportEvidence.blockers, "/transportEvidence/blockers", errors);
+  requireStringArrayValue(transportEvidence.caveats, "/transportEvidence/caveats", errors);
+}
+
+function validateTelemetry(value: unknown, errors: string[]): void {
+  const telemetry = requireRecordValue(value, "/telemetry", errors);
+  if (!telemetry) {
+    return;
+  }
+  requireNumberValue(telemetry.recorderSpanCount, "/telemetry/recorderSpanCount", errors);
+  requireTrueValue(telemetry.sensitiveFieldsDropped, "/telemetry/sensitiveFieldsDropped", errors);
+  requireRecordValue(telemetry.summary, "/telemetry/summary", errors);
+}
+
+function validateTriggerEvidence(value: unknown, errors: string[]): void {
+  const triggerEvidence = requireRecordValue(value, "/triggerEvidence", errors);
+  if (!triggerEvidence) {
+    return;
+  }
+  requireLiteralValue(
+    triggerEvidence.scheduler,
+    "/triggerEvidence/scheduler",
+    "deterministic_mock_trigger_scheduler",
+    errors,
+  );
+  requireArrayValue(triggerEvidence.firedTriggers, "/triggerEvidence/firedTriggers", errors);
+  requireNumberValue(triggerEvidence.pendingTriggerCount, "/triggerEvidence/pendingTriggerCount", errors);
+  requireFalseValue(triggerEvidence.runtimeSchedulerClaimed, "/triggerEvidence/runtimeSchedulerClaimed", errors);
+}
+
+function validatePrewarmEvidence(value: unknown, errors: string[]): void {
+  const prewarmEvidence = requireRecordValue(value, "/prewarmEvidence", errors);
+  if (!prewarmEvidence) {
+    return;
+  }
+  requireBooleanValue(prewarmEvidence.executed, "/prewarmEvidence/executed", errors);
+  requireNumberValue(prewarmEvidence.preparedArtifactCount, "/prewarmEvidence/preparedArtifactCount", errors);
+  requireStringArrayValue(prewarmEvidence.preparedArtifactTypes, "/prewarmEvidence/preparedArtifactTypes", errors);
+  requireFalseValue(prewarmEvidence.modelWeightsLoaded, "/prewarmEvidence/modelWeightsLoaded", errors);
+  requireFalseValue(prewarmEvidence.voiceRuntimeLoaded, "/prewarmEvidence/voiceRuntimeLoaded", errors);
+  requireFalseValue(
+    prewarmEvidence.firstResponseImprovementMeasured,
+    "/prewarmEvidence/firstResponseImprovementMeasured",
+    errors,
+  );
+  requireFalseValue(prewarmEvidence.cleanupRequired, "/prewarmEvidence/cleanupRequired", errors);
+  requireStringArrayValue(prewarmEvidence.blockers, "/prewarmEvidence/blockers", errors);
+}
+
+function validateVerdict(value: unknown, errors: string[]): void {
+  const verdict = requireRecordValue(value, "/verdict", errors);
+  if (!verdict) {
+    return;
+  }
+  requireBooleanValue(verdict.tier0BlueprintCompilerPassed, "/verdict/tier0BlueprintCompilerPassed", errors);
+  requireBooleanValue(verdict.mockVoiceFacadeExercised, "/verdict/mockVoiceFacadeExercised", errors);
+  requireBooleanValue(verdict.tier1TransportLoopPassed, "/verdict/tier1TransportLoopPassed", errors);
+  requireFalseValue(verdict.tier2LocalInferenceObserved, "/verdict/tier2LocalInferenceObserved", errors);
+  requireFalseValue(verdict.tier3WebXrObserved, "/verdict/tier3WebXrObserved", errors);
+  requireFalseValue(verdict.readyForProduction, "/verdict/readyForProduction", errors);
+  requireStringArrayValue(verdict.blockers, "/verdict/blockers", errors);
+}
+
+function validateVerdictConsistency(transportValue: unknown, verdictValue: unknown, errors: string[]): void {
+  const transportEvidence = asRecord(transportValue);
+  const verdict = asRecord(verdictValue);
+  const bunPythonProxyPassed = transportEvidence.bunPythonProxyPassed === true;
+  if (verdict.tier1TransportLoopPassed !== bunPythonProxyPassed) {
+    errors.push("/verdict/tier1TransportLoopPassed must match /transportEvidence/bunPythonProxyPassed");
+  }
+
+  const transportBlockers = stringArray(transportEvidence.blockers);
+  const expectedTransportBlocker = transportBlockers.includes("transport_policy_boundary_not_clean")
+    ? "tier1_transport_policy_boundary_not_clean"
+    : bunPythonProxyPassed
+    ? "tier1_transport_linked_but_not_executed_by_blueprint_report"
+    : "tier1_bun_python_transport_loop_not_executed";
+  const expectedBlockers = [
+    expectedTransportBlocker,
+    "real_local_full_duplex_model_not_executed",
+    "python_backend_runtime_not_executed_for_this_report",
+    "webxr_iwsdk_client_not_executed_for_this_report",
+    "quest_microphone_and_playback_not_measured",
+    "clinical_voice_safety_controls_not_validated_with_real_model",
+  ];
+  const verdictBlockers = stringArray(verdict.blockers);
+  for (const blocker of expectedBlockers) {
+    if (!verdictBlockers.includes(blocker)) {
+      errors.push(`/verdict/blockers missing expected blocker ${blocker}`);
+    }
+  }
+}
+
+function requireRecordValue(value: unknown, path: string, errors: string[]): Record<string, unknown> | undefined {
+  if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  errors.push(`${path || "/"} must be an object`);
+  return undefined;
+}
+
+function requireArrayValue(value: unknown, path: string, errors: string[]): unknown[] | undefined {
+  if (Array.isArray(value)) {
+    return value;
+  }
+  errors.push(`${path} must be an array`);
+  return undefined;
+}
+
+function requireStringArrayValue(value: unknown, path: string, errors: string[]): string[] | undefined {
+  const values = requireArrayValue(value, path, errors);
+  if (!values) {
+    return undefined;
+  }
+  if (!values.every((entry) => typeof entry === "string")) {
+    errors.push(`${path} must contain only strings`);
+    return undefined;
+  }
+  return values;
+}
+
+function requireStringValue(value: unknown, path: string, errors: string[]): void {
+  if (typeof value !== "string") {
+    errors.push(`${path} must be a string`);
+  }
+}
+
+function requireNullableStringValue(value: unknown, path: string, errors: string[]): void {
+  if (value !== null && typeof value !== "string") {
+    errors.push(`${path} must be a string or null`);
+  }
+}
+
+function requireNumberValue(value: unknown, path: string, errors: string[]): void {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    errors.push(`${path} must be a number`);
+  }
+}
+
+function requireNullableNumberValue(value: unknown, path: string, errors: string[]): void {
+  if (value !== null && (typeof value !== "number" || !Number.isFinite(value))) {
+    errors.push(`${path} must be a number or null`);
+  }
+}
+
+function requireBooleanValue(value: unknown, path: string, errors: string[]): void {
+  if (typeof value !== "boolean") {
+    errors.push(`${path} must be a boolean`);
+  }
+}
+
+function requireFalseValue(value: unknown, path: string, errors: string[]): void {
+  if (value !== false) {
+    errors.push(`${path} must be false`);
+  }
+}
+
+function requireTrueValue(value: unknown, path: string, errors: string[]): void {
+  if (value !== true) {
+    errors.push(`${path} must be true`);
+  }
+}
+
+function requireLiteralValue(value: unknown, path: string, expected: string, errors: string[]): void {
+  if (value !== expected) {
+    errors.push(`${path} must be ${expected}`);
+  }
+}
+
+function requireOneOfValue(value: unknown, path: string, expected: readonly string[], errors: string[]): void {
+  if (typeof value !== "string" || !expected.includes(value)) {
+    errors.push(`${path} must be one of ${expected.join(", ")}`);
+  }
+}
+
+function validateFalseLiterals(
+  record: Record<string, unknown>,
+  path: string,
+  keys: readonly string[],
+  errors: string[],
+): void {
+  for (const key of keys) {
+    requireFalseValue(record[key], `${path}/${key}`, errors);
+  }
 }
 
 function asRecord(value: unknown): Record<string, unknown> {
