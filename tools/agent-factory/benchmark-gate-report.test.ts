@@ -3075,6 +3075,43 @@ describe("benchmark gate report", () => {
     );
   });
 
+  it("keeps copied locomotion probe blockers in Quest leadership gates", () => {
+    const report = buildBenchmarkGateReport({
+      questManualPerformanceReport: {
+        file: "docs/openclinxr/quest-manual-performance-copied-probe-blocked.json",
+        value: {
+          manualPerformanceDraft: completedQuestManualPerformanceReport,
+          captureSummary: {
+            draftAvailable: true,
+            manualValidationReady: false,
+            frameStatsFresh: true,
+            blockers: [],
+            technicalGaps: [],
+            locomotionProbeSummary: {
+              claimScope: "runtime_probe_only",
+              readiness: "blocked",
+              primaryReason: "no_gamepad_sources",
+              reasonCodes: ["no_gamepad_sources", "hand_arming_dwell", "hand_below_deadzone"],
+            },
+          },
+        },
+      },
+    });
+    const questGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0008-001");
+
+    expect(report.quest_manual_performance?.blockers).toEqual(expect.arrayContaining([
+      "copied_payload_locomotion_probe:no_gamepad_sources",
+      "copied_payload_locomotion_probe:hand_arming_dwell",
+      "copied_payload_locomotion_probe:hand_below_deadzone",
+    ]));
+    expect(questGate?.blockers).toEqual(expect.arrayContaining([
+      "quest_manual_performance:copied_payload_locomotion_probe:no_gamepad_sources",
+      "quest_manual_performance:copied_payload_locomotion_probe:hand_arming_dwell",
+      "quest_manual_performance:copied_payload_locomotion_probe:hand_below_deadzone",
+    ]));
+    expect(report.quest_manual_performance?.adversarial_findings).toContain("locomotion_probe:runtime_probe_only");
+  });
+
   it("surfaces CDP manual harvest summaries in Quest benchmark gates", () => {
     const report = buildBenchmarkGateReport({
       questManualPerformanceReport: {
