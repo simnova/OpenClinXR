@@ -6,7 +6,7 @@ import { performance } from "node:perf_hooks";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import { realtimeVoiceProtocol } from "../../packages/openclinxr/voice-gateway/src/index.js";
-import { writeJson } from "../agent-factory/lib.js";
+import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -113,7 +113,11 @@ type CliOptions = {
   pythonPort: number;
   apiPort: number;
   timeoutMs: number;
+  validatePath?: string;
+  validateLatest: boolean;
 };
+
+type ValidationResult = { ok: true } | { ok: false; errors: string[] };
 
 type WebSocketLike = {
   binaryType: string;
@@ -122,8 +126,23 @@ type WebSocketLike = {
   addEventListener: (type: string, listener: (event: { data?: unknown }) => void) => void;
 };
 
-async function main(): Promise<void> {
-  const options = parseArgs(process.argv.slice(2));
+export async function main(args = process.argv.slice(2)): Promise<void> {
+  const options = parseArgs(args);
+  if (options.validatePath || options.validateLatest) {
+    const validatePath = options.validatePath ?? await latestApiBunPythonProxyRuntimeSmokePath();
+    const validation = validateApiBunPythonProxyRuntimeSmokeReport(await readJson<unknown>(validatePath));
+    if (validation.ok) {
+      console.log(`Validated ${validatePath}`);
+      return;
+    }
+
+    for (const error of validation.errors) {
+      console.error(error);
+    }
+    process.exitCode = 1;
+    return;
+  }
+
   const report = await runApiBunPythonProxyRuntimeSmoke(options);
 
   if (options.outputPath) {
@@ -142,10 +161,20 @@ function parseArgs(args: string[]): CliOptions {
     pythonPort: 8766,
     apiPort: 4326,
     timeoutMs: 8_000,
+    validateLatest: false,
   };
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
+    if (arg === "--validate") {
+      options.validatePath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--validate-latest") {
+      options.validateLatest = true;
+      continue;
+    }
     if (arg === "--output") {
       options.outputPath = requireValue(normalizedArgs, index, arg);
       index += 1;
@@ -180,6 +209,257 @@ function parseArgs(args: string[]): CliOptions {
   }
 
   return options;
+}
+
+async function latestApiBunPythonProxyRuntimeSmokePath(): Promise<string> {
+  const files = await globFiles("docs/openclinxr/api-bun-python-proxy-runtime-smoke-*.json");
+  const latest = files.sort().at(-1);
+  if (!latest) {
+    throw new Error("No API Bun-to-Python proxy runtime smoke report found.");
+  }
+  return latest;
+}
+
+export function validateApiBunPythonProxyRuntimeSmokeReport(value: unknown): ValidationResult {
+  const errors: string[] = [];
+  if (!isRecord(value)) {
+    return { ok: false, errors: ["/ must be object"] };
+  }
+
+  requireString(value.generatedAt, "/generatedAt", errors);
+  requireOneOf(value.status, ["passed", "blocked"], "/status", errors);
+  validatePolicy(value.policy, errors);
+  validatePython(value.python, errors);
+  validateBun(value.bun, errors);
+  validateRuntime(value.runtime, errors);
+  validateServer(value.pythonBackend, "/pythonBackend", errors);
+  validateBunGateway(value.bunGateway, errors);
+  validateBunGatewayPosture(value.bunGatewayPosture, errors);
+  validateWebSocket(value.websocket, errors);
+  requireStringArray(value.runtimeEvidenceBlockers, "/runtimeEvidenceBlockers", errors);
+  validatePostureEvidencePromotion(value.postureEvidencePromotion, errors);
+  validateVerdict(value.verdict, errors);
+  validateConsistency(value, errors);
+
+  return errors.length === 0 ? { ok: true } : { ok: false, errors };
+}
+
+function validatePolicy(value: unknown, errors: string[]): void {
+  requireRecord(value, "/policy", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  for (const key of [
+    "cloudApisUsed",
+    "paidApisUsed",
+    "modelDownloadsUsed",
+    "http3Enabled",
+    "webTransportUsed",
+    "quicUsed",
+    "web3Used",
+    "questHardwareClaimed",
+    "productionUseAllowed",
+    "lowLatencyClaimed",
+  ]) {
+    requireLiteral(value[key], false, `/policy/${key}`, errors);
+  }
+}
+
+function validatePython(value: unknown, errors: string[]): void {
+  requireRecord(value, "/python", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+  requireString(value.executable, "/python/executable", errors);
+  requireNullableString(value.version, "/python/version", errors);
+}
+
+function validateBun(value: unknown, errors: string[]): void {
+  requireRecord(value, "/bun", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+  requireNullableString(value.executable, "/bun/executable", errors);
+  requireNullableString(value.version, "/bun/version", errors);
+  requireNullableString(value.revision, "/bun/revision", errors);
+}
+
+function validateRuntime(value: unknown, errors: string[]): void {
+  requireRecord(value, "/runtime", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireLiteral(value.apiTarget, "apps/api bun+hono", "/runtime/apiTarget", errors);
+  requireLiteral(value.pythonBackendTarget, "apps/api-python-backend fastapi", "/runtime/pythonBackendTarget", errors);
+  requireLiteral(value.websocketPath, "/voice/realtime/ws", "/runtime/websocketPath", errors);
+  requireLiteral(value.backendProtocol, "python-fastapi-compatible-websocket", "/runtime/backendProtocol", errors);
+}
+
+function validateServer(value: unknown, pathName: string, errors: string[]): void {
+  requireRecord(value, pathName, errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireBoolean(value.attempted, `${pathName}/attempted`, errors);
+  requireNumber(value.port, `${pathName}/port`, errors);
+  requireBoolean(value.healthOk, `${pathName}/healthOk`, errors);
+  requireStringArray(value.stdout, `${pathName}/stdout`, errors);
+  requireStringArray(value.stderr, `${pathName}/stderr`, errors);
+}
+
+function validateBunGateway(value: unknown, errors: string[]): void {
+  validateServer(value, "/bunGateway", errors);
+  if (isRecord(value)) {
+    requireBoolean(value.backendUrlConfigured, "/bunGateway/backendUrlConfigured", errors);
+  }
+}
+
+function validateBunGatewayPosture(value: unknown, errors: string[]): void {
+  requireRecord(value, "/bunGatewayPosture", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireBoolean(value.attempted, "/bunGatewayPosture/attempted", errors);
+  requireBoolean(value.fetched, "/bunGatewayPosture/fetched", errors);
+  requireNullableNumber(value.httpStatus, "/bunGatewayPosture/httpStatus", errors);
+  requireNullableString(value.pythonFastApiStatus, "/bunGatewayPosture/pythonFastApiStatus", errors);
+  requireNullableString(value.pythonBackendTransportProxyStatus, "/bunGatewayPosture/pythonBackendTransportProxyStatus", errors);
+  requireBoolean(value.pythonBackendTransportProxyConfigured, "/bunGatewayPosture/pythonBackendTransportProxyConfigured", errors);
+  requireLiteral(value.readyForLiveDialog, false, "/bunGatewayPosture/readyForLiveDialog", errors);
+  requireStringArray(value.transportProxyBlockers, "/bunGatewayPosture/transportProxyBlockers", errors);
+  requireStringArray(value.pythonBackendBlockers, "/bunGatewayPosture/pythonBackendBlockers", errors);
+}
+
+function validateWebSocket(value: unknown, errors: string[]): void {
+  requireRecord(value, "/websocket", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireBoolean(value.attempted, "/websocket/attempted", errors);
+  requireBoolean(value.connected, "/websocket/connected", errors);
+  requireStringArray(value.eventTypesObserved, "/websocket/eventTypesObserved", errors);
+  requireNumber(value.binaryMessages, "/websocket/binaryMessages", errors);
+  requireBoolean(value.backendProtocolObserved, "/websocket/backendProtocolObserved", errors);
+  requireBoolean(value.latencyFieldsObserved, "/websocket/latencyFieldsObserved", errors);
+  requireBoolean(value.binaryEchoObserved, "/websocket/binaryEchoObserved", errors);
+  requireStringArray(value.errorMessages, "/websocket/errorMessages", errors);
+}
+
+function validatePostureEvidencePromotion(value: unknown, errors: string[]): void {
+  requireRecord(value, "/postureEvidencePromotion", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireBoolean(value.eligible, "/postureEvidencePromotion/eligible", errors);
+  if (value.promotedTransportProxyStatus !== "configured_reachability_verified" && value.promotedTransportProxyStatus !== null) {
+    errors.push("/postureEvidencePromotion/promotedTransportProxyStatus must be \"configured_reachability_verified\" or null");
+  }
+  requireRecord(value.environment, "/postureEvidencePromotion/environment", errors);
+  if (isRecord(value.environment)) {
+    requireLiteral(
+      value.environment.backendUrlVariable,
+      "OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL",
+      "/postureEvidencePromotion/environment/backendUrlVariable",
+      errors,
+    );
+    requireLiteral(
+      value.environment.evidenceFileVariable,
+      "OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE",
+      "/postureEvidencePromotion/environment/evidenceFileVariable",
+      errors,
+    );
+  }
+  requireStringArray(value.instructions, "/postureEvidencePromotion/instructions", errors);
+  requireStringArray(value.blockers, "/postureEvidencePromotion/blockers", errors);
+  requireStringArray(value.caveats, "/postureEvidencePromotion/caveats", errors);
+}
+
+function validateVerdict(value: unknown, errors: string[]): void {
+  requireRecord(value, "/verdict", errors);
+  if (!isRecord(value)) {
+    return;
+  }
+
+  requireBoolean(value.smokePassed, "/verdict/smokePassed", errors);
+  requireLiteral(value.readyForLiveDialog, false, "/verdict/readyForLiveDialog", errors);
+  requireStringArray(value.blockers, "/verdict/blockers", errors);
+  requireStringArray(value.caveats, "/verdict/caveats", errors);
+}
+
+function validateConsistency(value: Record<string, unknown>, errors: string[]): void {
+  const expectedBlockers = expectedRuntimeEvidenceBlockers(value);
+  const actualBlockers = new Set(stringArray(value.runtimeEvidenceBlockers));
+  const hasBlockers = expectedBlockers.length > 0;
+  const promotion = isRecord(value.postureEvidencePromotion) ? value.postureEvidencePromotion : {};
+  const promotionBlockers = new Set(stringArray(promotion.blockers));
+  const verdict = isRecord(value.verdict) ? value.verdict : {};
+
+  if (value.status === "passed" && hasBlockers) {
+    errors.push("/status must be blocked when runtime evidence blockers are present");
+  }
+  if (value.status === "blocked" && !hasBlockers) {
+    errors.push("/status must be passed when no runtime evidence blockers are present");
+  }
+  for (const blocker of expectedBlockers) {
+    if (!actualBlockers.has(blocker)) {
+      errors.push(`/runtimeEvidenceBlockers missing expected blocker ${blocker}`);
+    }
+  }
+  if (promotion.eligible !== !hasBlockers) {
+    errors.push(`/postureEvidencePromotion/eligible must be ${String(!hasBlockers)} when runtime evidence blockers are ${hasBlockers ? "present" : "absent"}`);
+  }
+  for (const blocker of expectedBlockers) {
+    if (!promotionBlockers.has(blocker) && hasBlockers) {
+      errors.push(`/postureEvidencePromotion/blockers missing expected blocker ${blocker}`);
+    }
+  }
+  if (verdict.smokePassed !== !hasBlockers) {
+    errors.push(`/verdict/smokePassed must be ${String(!hasBlockers)} when runtime evidence blockers are ${hasBlockers ? "present" : "absent"}`);
+  }
+}
+
+function expectedRuntimeEvidenceBlockers(value: Record<string, unknown>): string[] {
+  const python = isRecord(value.python) ? value.python : {};
+  const bun = isRecord(value.bun) ? value.bun : {};
+  const pythonBackend = isRecord(value.pythonBackend) ? value.pythonBackend : {};
+  const bunGateway = isRecord(value.bunGateway) ? value.bunGateway : {};
+  const posture = isRecord(value.bunGatewayPosture) ? value.bunGatewayPosture : {};
+  const websocket = isRecord(value.websocket) ? value.websocket : {};
+  const eventTypesObserved = stringArray(websocket.eventTypesObserved);
+  const websocketErrors = stringArray(websocket.errorMessages);
+
+  return [
+    typeof bun.executable === "string" && typeof bun.version === "string" ? undefined : "bun_runtime_not_available",
+    typeof python.version === "string" ? undefined : "python_runtime_not_available",
+    pythonBackend.attempted === true ? undefined : "python_backend_not_started",
+    pythonBackend.healthOk === true ? undefined : "python_backend_health_failed",
+    bunGateway.attempted === true ? undefined : "bun_gateway_not_started",
+    bunGateway.healthOk === true ? undefined : "bun_gateway_health_failed",
+    bunGateway.backendUrlConfigured === true ? undefined : "python_backend_url_not_configured",
+    posture.attempted === true ? undefined : "bun_gateway_posture_not_requested",
+    posture.fetched === true ? undefined : "bun_gateway_posture_fetch_failed",
+    posture.pythonFastApiStatus === "source_present_not_executed" ? undefined : "python_backend_posture_status_unexpected",
+    posture.pythonBackendTransportProxyConfigured === true ? undefined : "python_backend_transport_proxy_not_configured_in_posture",
+    posture.pythonBackendTransportProxyStatus === "configured_not_verified" ? undefined : "python_backend_transport_proxy_status_unexpected",
+    posture.readyForLiveDialog === false ? undefined : "bun_gateway_posture_overclaims_live_dialog_ready",
+    websocket.attempted === true && websocket.connected === true ? undefined : "websocket_not_connected",
+    eventTypesObserved.includes("gateway.ready") ? undefined : "gateway_ready_not_observed",
+    websocket.backendProtocolObserved === true ? undefined : "backend_protocol_not_observed",
+    eventTypesObserved.includes("voice.started") ? undefined : "voice_started_not_observed",
+    eventTypesObserved.includes("audio.chunk") ? undefined : "audio_chunk_not_observed",
+    eventTypesObserved.includes("transcript.partial") ? undefined : "transcript_partial_not_observed",
+    eventTypesObserved.includes("transcript.final") ? undefined : "transcript_final_not_observed",
+    eventTypesObserved.includes("voice.stopped") ? undefined : "voice_stopped_not_observed",
+    websocket.latencyFieldsObserved === true ? undefined : "latency_fields_not_observed",
+    websocket.binaryEchoObserved === true ? undefined : "binary_echo_not_observed",
+    websocketErrors.length === 0 ? undefined : "websocket_errors_observed",
+  ].filter((blocker): blocker is string => typeof blocker === "string");
 }
 
 export async function runApiBunPythonProxyRuntimeSmoke(
@@ -685,6 +965,77 @@ function safeJsonParse(payload: string): unknown {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function requireRecord(value: unknown, pathName: string, errors: string[]): void {
+  if (!isRecord(value)) {
+    errors.push(`${pathName} must be object`);
+  }
+}
+
+function requireString(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "string" || value.length === 0) {
+    errors.push(`${pathName} must be non-empty string`);
+  }
+}
+
+function requireNullableString(value: unknown, pathName: string, errors: string[]): void {
+  if (value !== null && (typeof value !== "string" || value.length === 0)) {
+    errors.push(`${pathName} must be null or non-empty string`);
+  }
+}
+
+function requireStringArray(value: unknown, pathName: string, errors: string[]): void {
+  if (!Array.isArray(value)) {
+    errors.push(`${pathName} must be array`);
+    return;
+  }
+
+  value.forEach((entry, index) => {
+    if (typeof entry !== "string" || entry.length === 0) {
+      errors.push(`${pathName}/${index} must be non-empty string`);
+    }
+  });
+}
+
+function requireBoolean(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "boolean") {
+    errors.push(`${pathName} must be boolean`);
+  }
+}
+
+function requireNumber(value: unknown, pathName: string, errors: string[]): void {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    errors.push(`${pathName} must be finite number`);
+  }
+}
+
+function requireNullableNumber(value: unknown, pathName: string, errors: string[]): void {
+  if (value !== null && (typeof value !== "number" || !Number.isFinite(value))) {
+    errors.push(`${pathName} must be null or finite number`);
+  }
+}
+
+function requireLiteral<T extends string | boolean | number>(
+  value: unknown,
+  literal: T,
+  pathName: string,
+  errors: string[],
+): void {
+  if (value !== literal) {
+    errors.push(`${pathName} must be ${JSON.stringify(literal)}`);
+  }
+}
+
+function requireOneOf<T extends string>(
+  value: unknown,
+  allowed: readonly T[],
+  pathName: string,
+  errors: string[],
+): void {
+  if (typeof value !== "string" || !(allowed as readonly string[]).includes(value)) {
+    errors.push(`${pathName} must be one of ${allowed.map((entry) => JSON.stringify(entry)).join(", ")}`);
+  }
 }
 
 function stringOrNull(value: unknown): string | null {

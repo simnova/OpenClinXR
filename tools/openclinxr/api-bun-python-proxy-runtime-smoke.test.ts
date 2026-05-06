@@ -1,8 +1,12 @@
-import { readFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   buildApiBunPythonProxyRuntimeSmokeReport,
+  main,
   type ApiBunPythonProxyRuntimeSmokeObservation,
+  validateApiBunPythonProxyRuntimeSmokeReport,
 } from "./api-bun-python-proxy-runtime-smoke.js";
 
 const baseObservation = {
@@ -76,7 +80,10 @@ describe("API Bun to Python proxy runtime smoke", () => {
     expect(packageJson.scripts["local:voice:bun-python-proxy-smoke"]).toBe(
       "tsx tools/openclinxr/api-bun-python-proxy-runtime-smoke.ts",
     );
-    expect(packageJson.scripts.verify).not.toContain("local:voice:bun-python-proxy-smoke");
+    expect(packageJson.scripts["local:voice:bun-python-proxy-smoke:validate"]).toBe(
+      "tsx tools/openclinxr/api-bun-python-proxy-runtime-smoke.ts --validate-latest",
+    );
+    expect(packageJson.scripts["agent:verify"]).toContain("pnpm local:voice:bun-python-proxy-smoke:validate");
   });
 
   it("passes when Bun forwards JSON and binary frames to a FastAPI backend", () => {
@@ -149,5 +156,101 @@ describe("API Bun to Python proxy runtime smoke", () => {
     ]));
     expect(report.postureEvidencePromotion.instructions.join("\n")).toContain("Do not use this blocked report");
     expect(report.verdict.smokePassed).toBe(false);
+  });
+
+  it("validates the latest Bun-to-Python proxy smoke without over-promoting live readiness", async () => {
+    const report = JSON.parse(
+      await readFile("docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json", "utf8"),
+    );
+
+    expect(validateApiBunPythonProxyRuntimeSmokeReport(report)).toEqual({ ok: true });
+
+    const invalid = structuredClone(report) as {
+      policy: Partial<{ productionUseAllowed: boolean }>;
+      bunGatewayPosture: { readyForLiveDialog: boolean };
+      postureEvidencePromotion: { promotedTransportProxyStatus: string | null };
+      verdict: { readyForLiveDialog: boolean };
+    };
+    delete invalid.policy.productionUseAllowed;
+    invalid.bunGatewayPosture.readyForLiveDialog = true;
+    invalid.postureEvidencePromotion.promotedTransportProxyStatus = "live_dialog_ready";
+    invalid.verdict.readyForLiveDialog = true;
+
+    expect(validateApiBunPythonProxyRuntimeSmokeReport(invalid)).toEqual({
+      ok: false,
+      errors: [
+        "/policy/productionUseAllowed must be false",
+        "/bunGatewayPosture/readyForLiveDialog must be false",
+        "/postureEvidencePromotion/promotedTransportProxyStatus must be \"configured_reachability_verified\" or null",
+        "/verdict/readyForLiveDialog must be false",
+        "/status must be blocked when runtime evidence blockers are present",
+        "/runtimeEvidenceBlockers missing expected blocker bun_gateway_posture_overclaims_live_dialog_ready",
+        "/postureEvidencePromotion/eligible must be false when runtime evidence blockers are present",
+        "/postureEvidencePromotion/blockers missing expected blocker bun_gateway_posture_overclaims_live_dialog_ready",
+        "/verdict/smokePassed must be false when runtime evidence blockers are present",
+      ],
+    });
+  });
+
+  it("requires status, runtime blockers, and promotion eligibility to match websocket observations", () => {
+    const report = buildApiBunPythonProxyRuntimeSmokeReport({
+      ...baseObservation,
+      websocket: {
+        ...baseObservation.websocket,
+        backendProtocolObserved: false,
+        binaryEchoObserved: false,
+      },
+    });
+    const invalid = structuredClone(report) as {
+      status: string;
+      runtimeEvidenceBlockers: string[];
+      postureEvidencePromotion: { eligible: boolean; blockers: string[] };
+      verdict: { smokePassed: boolean };
+    };
+    invalid.status = "passed";
+    invalid.runtimeEvidenceBlockers = [];
+    invalid.postureEvidencePromotion.eligible = true;
+    invalid.postureEvidencePromotion.blockers = [];
+    invalid.verdict.smokePassed = true;
+
+    expect(validateApiBunPythonProxyRuntimeSmokeReport(invalid)).toEqual({
+      ok: false,
+      errors: [
+        "/status must be blocked when runtime evidence blockers are present",
+        "/runtimeEvidenceBlockers missing expected blocker backend_protocol_not_observed",
+        "/runtimeEvidenceBlockers missing expected blocker binary_echo_not_observed",
+        "/postureEvidencePromotion/eligible must be false when runtime evidence blockers are present",
+        "/postureEvidencePromotion/blockers missing expected blocker backend_protocol_not_observed",
+        "/postureEvidencePromotion/blockers missing expected blocker binary_echo_not_observed",
+        "/verdict/smokePassed must be false when runtime evidence blockers are present",
+      ],
+    });
+  });
+
+  it("validates CLI reports by explicit path and latest evidence path", async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), "openclinxr-bun-python-proxy-validate-"));
+    try {
+      const report = buildApiBunPythonProxyRuntimeSmokeReport(baseObservation);
+      const output = path.join(dir, "report.json");
+      await writeFile(output, JSON.stringify(report, null, 2));
+
+      await expect(main(["--validate", output])).resolves.toBeUndefined();
+      await expect(main(["--validate-latest"])).resolves.toBeUndefined();
+
+      const invalid = structuredClone(report) as {
+        runtime: { backendProtocol: string };
+      };
+      invalid.runtime.backendProtocol = "other";
+      const invalidOutput = path.join(dir, "invalid-report.json");
+      await writeFile(invalidOutput, JSON.stringify(invalid, null, 2));
+      process.exitCode = undefined;
+
+      await expect(main(["--validate", invalidOutput])).resolves.toBeUndefined();
+
+      expect(process.exitCode).toBe(1);
+    } finally {
+      process.exitCode = undefined;
+      await rm(dir, { recursive: true, force: true });
+    }
   });
 });
