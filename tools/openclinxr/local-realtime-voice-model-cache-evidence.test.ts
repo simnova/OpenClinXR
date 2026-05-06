@@ -1,11 +1,29 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { mkdtemp } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
-import { buildLocalRealtimeVoiceModelCacheEvidence, main } from "./local-realtime-voice-model-cache-evidence.js";
+import {
+  buildLocalRealtimeVoiceModelCacheEvidence,
+  main,
+  validateLocalRealtimeVoiceModelCacheEvidenceReport,
+} from "./local-realtime-voice-model-cache-evidence.js";
 
 describe("local realtime voice model cache evidence", () => {
+  it("exposes generation and validation scripts", async () => {
+    const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+
+    expect(rootPackage.scripts["local:voice:model-cache"]).toBe(
+      "tsx tools/openclinxr/local-realtime-voice-model-cache-evidence.ts",
+    );
+    expect(rootPackage.scripts["local:voice:model-cache:validate"]).toBe(
+      "tsx tools/openclinxr/local-realtime-voice-model-cache-evidence.ts --validate-latest",
+    );
+    expect(rootPackage.scripts["agent:verify"]).toContain("pnpm local:voice:model-cache:validate");
+  });
+
   it("recognizes an approved Qwen3-TTS MLX cache with local weight evidence", async () => {
     const dir = await mkdtemp(path.join(tmpdir(), "openclinxr-voice-cache-"));
     const modelDir = path.join(dir, "mlx-community__Qwen3-TTS-12Hz-0.6B-Base-4bit");
@@ -123,5 +141,60 @@ describe("local realtime voice model cache evidence", () => {
       models: [],
       ready: false,
     });
+  });
+
+  it("validates model cache reports before aggregate reuse", async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), "openclinxr-voice-cache-"));
+    const modelDir = path.join(dir, "mlx-community__Qwen3-TTS-12Hz-0.6B-Base-4bit");
+    await mkdir(modelDir, { recursive: true });
+    await writeFile(path.join(modelDir, "config.json"), "{}");
+    await writeFile(path.join(modelDir, "model.safetensors"), "pretend weights");
+
+    const report = await buildLocalRealtimeVoiceModelCacheEvidence({
+      cacheDir: dir,
+      generatedAt: "2026-05-06T14:00:00.000Z",
+    });
+
+    expect(validateLocalRealtimeVoiceModelCacheEvidenceReport(report)).toEqual({ ok: true });
+
+    const invalid = structuredClone(report) as unknown as Record<string, unknown>;
+    invalid.ready = true;
+    invalid.models = [];
+
+    expect(validateLocalRealtimeVoiceModelCacheEvidenceReport(invalid)).toEqual({
+      ok: false,
+      errors: expect.arrayContaining([
+        "/ready cannot be true without at least one ready approved model",
+      ]),
+    });
+  });
+
+  it("validates model cache reports from the CLI without rescanning the cache", async () => {
+    const tempDir = await mkdtemp(path.join(tmpdir(), "openclinxr-voice-cache-validate-"));
+    const outputPath = path.join(tempDir, "model-cache-evidence.json");
+    const invalidPath = path.join(tempDir, "model-cache-evidence-invalid.json");
+    const previousExitCode = process.exitCode;
+
+    try {
+      const report = await buildLocalRealtimeVoiceModelCacheEvidence({
+        cacheDir: tempDir,
+        generatedAt: "2026-05-06T14:00:00.000Z",
+      });
+      await writeFile(outputPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+
+      await expect(main(["--validate", outputPath])).resolves.toBeUndefined();
+      await expect(main(["--validate-latest"])).resolves.toBeUndefined();
+
+      const invalidReport = structuredClone(report) as unknown as Record<string, unknown>;
+      delete invalidReport.approved_model_ids;
+      await writeFile(invalidPath, `${JSON.stringify(invalidReport, null, 2)}\n`, "utf8");
+
+      process.exitCode = undefined;
+      await main(["--validate", invalidPath]);
+      expect(process.exitCode).toBe(1);
+    } finally {
+      process.exitCode = previousExitCode;
+      await rm(tempDir, { recursive: true, force: true });
+    }
   });
 });

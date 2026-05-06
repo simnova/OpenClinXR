@@ -61,7 +61,7 @@
       "evidence_id": "asset_production_evidence_ladder",
       "file": "docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
       "generated_at": "2026-05-06T15:33:39.087Z",
-      "age_hours": 1,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -204,7 +204,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T17:31:47.893Z",
+      "generated_at": "2026-05-06T17:35:25.818Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -1792,7 +1792,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T17:31:47.893Z",
+    "generated_at": "2026-05-06T17:35:25.818Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
