@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { globFiles } from "../agent-factory/lib.js";
 import {
   inspectMediaArtifact,
   isAllowedRelativeArtifactPath,
@@ -9,6 +10,7 @@ import {
 type CliOptions = {
   inputPath?: string;
   outputPath?: string;
+  validateLatest: boolean;
 };
 
 export type AdversarialVisualQaSource =
@@ -89,17 +91,31 @@ const unsafeAutomatedClaims = new Set([
   "production_quest_readiness",
 ]);
 
-async function main(): Promise<void> {
-  const options = parseArgs(process.argv.slice(2));
+async function main(args = process.argv.slice(2)): Promise<void> {
+  const options = parseArgs(args);
+  if (options.validateLatest) {
+    const inputPath = await latestAdversarialVisualQaEvidencePath();
+    if (!inputPath) {
+      throw new Error("Missing adversarial visual QA evidence to validate.");
+    }
+    const report = await readAdversarialVisualQaEvidenceReport(inputPath);
+    if (report.result.readyForAdversarialVisualQaSupport) {
+      console.log(`Validated ${inputPath}`);
+      return;
+    }
+
+    for (const blocker of report.result.blockers) {
+      console.error(blocker);
+    }
+    process.exitCode = 1;
+    return;
+  }
+
   if (!options.inputPath) {
     throw new Error("--input is required");
   }
 
-  const evidence = JSON.parse(await readFile(options.inputPath, "utf8")) as AdversarialVisualQaEvidence;
-  const report = buildAdversarialVisualQaEvidenceReport({
-    inputFile: options.inputPath,
-    evidence,
-  });
+  const report = await readAdversarialVisualQaEvidenceReport(options.inputPath);
   const payload = `${JSON.stringify(report, null, 2)}\n`;
 
   if (options.outputPath) {
@@ -113,6 +129,19 @@ async function main(): Promise<void> {
   if (!report.result.readyForAdversarialVisualQaSupport) {
     process.exitCode = 1;
   }
+}
+
+async function readAdversarialVisualQaEvidenceReport(inputPath: string): Promise<AdversarialVisualQaEvidenceReport> {
+  const evidence = JSON.parse(await readFile(inputPath, "utf8")) as AdversarialVisualQaEvidence;
+  return buildAdversarialVisualQaEvidenceReport({
+    inputFile: inputPath,
+    evidence,
+  });
+}
+
+async function latestAdversarialVisualQaEvidencePath(): Promise<string | undefined> {
+  const files = await globFiles("docs/openclinxr/adversarial-visual-qa-evidence-*.json");
+  return files.sort().at(-1);
 }
 
 export function buildAdversarialVisualQaEvidenceReport(input: {
@@ -273,9 +302,13 @@ function limitationNoteBlockers(
 
 function parseArgs(args: string[]): CliOptions {
   const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
-  const options: CliOptions = {};
+  const options: CliOptions = { validateLatest: false };
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
+    if (arg === "--validate-latest") {
+      options.validateLatest = true;
+      continue;
+    }
     if (arg === "--input") {
       options.inputPath = requireValue(normalizedArgs, index, arg);
       index += 1;

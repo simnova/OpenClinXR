@@ -60,7 +60,7 @@
     "visual:qa:evidence": "tsx tools/openclinxr/visual-qa-evidence-check.ts",
     "visual:qa:evidence:validate": "tsx tools/openclinxr/visual-qa-evidence-check.ts --validate-latest",
     "visual:qa:adversarial": "tsx tools/openclinxr/adversarial-visual-qa-evidence.ts",
-    "visual:qa:adversarial:validate": "tsx tools/openclinxr/adversarial-visual-qa-evidence.ts --input docs/openclinxr/adversarial-visual-qa-evidence-iwer-sidecar-2026-05-04.json",
+    "visual:qa:adversarial:validate": "tsx tools/openclinxr/adversarial-visual-qa-evidence.ts --validate-latest",
     "iwsdk:sidecar:metrics": "tsx tools/openclinxr/iwsdk-sidecar-metrics-check.ts",
     "iwsdk:evidence": "tsx tools/openclinxr/iwsdk-evidence-contract-check.ts --mcp-inventory-input docs/openclinxr/iwsdk-mcp-inventory-evidence-2026-05-06.json --iwer-sidecar-input docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json",
     "iwsdk:evidence:validate": "tsx tools/openclinxr/iwsdk-evidence-contract-check.ts --validate-latest",

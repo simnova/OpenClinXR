@@ -205,7 +205,7 @@ describe("adversarial visual QA evidence evaluator", () => {
       "tsx tools/openclinxr/adversarial-visual-qa-evidence.ts",
     );
     expect(rootPackage.scripts["visual:qa:adversarial:validate"]).toBe(
-      "tsx tools/openclinxr/adversarial-visual-qa-evidence.ts --input docs/openclinxr/adversarial-visual-qa-evidence-iwer-sidecar-2026-05-04.json",
+      "tsx tools/openclinxr/adversarial-visual-qa-evidence.ts --validate-latest",
     );
 
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-adversarial-visual-qa-"));
@@ -225,6 +225,18 @@ describe("adversarial visual QA evidence evaluator", () => {
     expect(report.result.readyForAdversarialVisualQaSupport).toBe(true);
     expect(report.result.readyForProductionRuntime).toBe(false);
     expect(report.result.readyForPhysicalQuestClaim).toBe(false);
+  });
+
+  it("validates the latest committed adversarial visual QA evidence", async () => {
+    const { stdout } = await execFileAsync(
+      path.resolve("node_modules/.bin/tsx"),
+      ["tools/openclinxr/adversarial-visual-qa-evidence.ts", "--validate-latest"],
+      { encoding: "utf8", timeout: 15000 },
+    );
+
+    expect(stdout.trim()).toBe(
+      "Validated docs/openclinxr/adversarial-visual-qa-evidence-iwer-sidecar-2026-05-04.json",
+    );
   });
 
   it("accepts pnpm-style argument separators before input flags", async () => {
