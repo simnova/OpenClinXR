@@ -892,6 +892,7 @@ function createStationScene(): StationSceneRuntime {
       inputEvidence.locomotionDelta?.turnRadians ?? 0,
       captureReadinessStatus,
       captureSummary?.technicalGaps[0] ?? "no-technical-gap",
+      captureSummary?.locomotionProbeSummary?.primaryReason ?? "no-locomotion-probe",
     ].join("|");
     if (panelSignature === lastPanelSignature) {
       return;
@@ -908,7 +909,7 @@ function createStationScene(): StationSceneRuntime {
         ? `Gesture: armed; dwell ${inputEvidence.xrHandGestureState.dwellMs}ms`
         : `Gesture: ${inputEvidence.xrHandGestureState?.blockedReason ?? "not armed"}`,
       `Trace hand select: ${formatHandSelectStatus(inputEvidence.xrHandSelectState)}`,
-      `Movement: ${inputEvidence.activeLocomotionSource ?? "none"}; d ${inputEvidence.locomotionDelta?.distanceMeters ?? 0}m; turn ${inputEvidence.locomotionDelta?.turnRadians ?? 0}rad`,
+      `Movement: ${inputEvidence.activeLocomotionSource ?? "none"}; d ${inputEvidence.locomotionDelta?.distanceMeters ?? 0}m; turn ${inputEvidence.locomotionDelta?.turnRadians ?? 0}rad; ${formatLocomotionProbeSummary(captureSummary?.locomotionProbeSummary ?? null)}`,
       `Capture: ${captureReadinessStatus}; gap ${formatTechnicalGapStatus(captureSummary)}`,
     ]);
   }
@@ -1952,6 +1953,7 @@ function updateManualEvidencePanel(): string {
     summary.locomotionDistanceMeters === null ? "no distance delta" : `d ${summary.locomotionDistanceMeters}m`,
     summary.locomotionTurnRadians === null ? "no turn delta" : `turn ${summary.locomotionTurnRadians}rad`,
     formatLocomotionDiagnosticSummary(summary.locomotionDiagnosticSummary),
+    formatLocomotionProbeSummary(summary.locomotionProbeSummary),
   ].join(" | ");
   evidenceTrace.textContent = [
     summary.traceLatencySource ?? "no trace source",
@@ -1985,6 +1987,15 @@ function formatLocomotionDiagnosticSummary(
     ? summary.handGestureBlockedReasons.join(",")
     : "none";
   return `diag gp ${summary.activeGamepadSourceCount}/${summary.gamepadSourceCount}; hand ${summary.pinchingHandCount}/${summary.handGestureHandCount}; blocked ${reasons}`;
+}
+
+function formatLocomotionProbeSummary(
+  summary: ManualPerformanceCaptureSummary["locomotionProbeSummary"],
+): string {
+  if (!summary) {
+    return "probe pending";
+  }
+  return `probe ${summary.primaryReason}; ctrl ${summary.controllerSources.activeAfterDeadzone}/${summary.controllerSources.total}; hand ${summary.handGesture.pinching}/${summary.handGesture.handsObserved}`;
 }
 
 let start = performance.now();

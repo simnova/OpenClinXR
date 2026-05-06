@@ -442,6 +442,7 @@ export type ManualPerformanceCaptureSummary = {
   locomotionDistanceMeters: number | null;
   locomotionTurnRadians: number | null;
   locomotionDiagnosticSummary: LocomotionDiagnosticSummary | null;
+  locomotionProbeSummary: LocomotionProbeSummary | null;
   traceLatencySource: ManualPerformanceTraceLatencyEvidence["source"] | null;
   traceInteractionAttempt: TraceInteractionAttempt | null;
   lastTraceTag: string | null;
@@ -464,6 +465,38 @@ export type LocomotionDiagnosticSummary = {
   pinchingHandCount: number;
   movementCrossedDeadzoneHandCount: number;
   handGestureBlockedReasons: string[];
+};
+
+export type LocomotionProbeReasonCode =
+  | "locomotion_observed"
+  | "active_vector_without_rig_delta"
+  | "no_gamepad_sources"
+  | "gamepad_axes_below_deadzone"
+  | "hand_not_pinching"
+  | "hand_arming_dwell"
+  | "hand_missing_joints"
+  | "hand_below_deadzone"
+  | "hand_turn_cooldown"
+  | "hand_other_locomotion_source_active"
+  | "no_xr_input_sources"
+  | "locomotion_delta_missing";
+
+export type LocomotionProbeSummary = {
+  claimScope: "runtime_probe_only";
+  readiness: "ready" | "blocked";
+  primaryReason: LocomotionProbeReasonCode;
+  reasonCodes: LocomotionProbeReasonCode[];
+  activeVectorWithoutRigDelta: boolean;
+  controllerSources: {
+    total: number;
+    activeAfterDeadzone: number;
+  };
+  handGesture: {
+    handsObserved: number;
+    pinching: number;
+    armed: number;
+    movementCrossedDeadzone: number;
+  };
 };
 
 export type ManualEvidenceCopyDisposition =
@@ -1502,6 +1535,7 @@ export function buildManualPerformanceCaptureSummary(
   const freshnessBlockers = frameStatsFresh === false ? ["frame_stats_stale_or_unsampled"] : [];
   const blockers = [...preview.blockers, ...freshnessBlockers];
   const technicalEvidence = buildManualPerformanceTechnicalEvidence(input.draft ?? null, frameStats);
+  const locomotionProbeSummary = summarizeLocomotionProbe(inputEvidence, technicalEvidence.locomotionEvidenceReady);
 
   return {
     source: "window.__openClinXrManualPerformanceDraft",
@@ -1528,6 +1562,7 @@ export function buildManualPerformanceCaptureSummary(
     locomotionDistanceMeters: inputEvidence?.locomotionDelta?.distanceMeters ?? null,
     locomotionTurnRadians: inputEvidence?.locomotionDelta?.turnRadians ?? null,
     locomotionDiagnosticSummary: summarizeLocomotionDiagnostics(inputEvidence?.locomotionDiagnostics),
+    locomotionProbeSummary,
     traceLatencySource: input.draft?.traceLatencyProxy?.source ?? null,
     traceInteractionAttempt: input.draft?.station.traceInteractionAttempt ?? null,
     lastTraceTag: input.draft?.traceLatencyProxy?.lastTraceTag ?? null,
@@ -1541,6 +1576,106 @@ export function buildManualPerformanceCaptureSummary(
     satisfiedConditions: preview.satisfiedConditions,
     blockers,
   };
+}
+
+function summarizeLocomotionProbe(
+  inputEvidence: ManualPerformanceInputEvidence | null,
+  locomotionEvidenceReady: boolean,
+): LocomotionProbeSummary | null {
+  if (!inputEvidence) {
+    return null;
+  }
+
+  const diagnostics = inputEvidence.locomotionDiagnostics;
+  const gamepadSources = diagnostics?.gamepadSources ?? [];
+  const handGestureHands = diagnostics?.handGestureHands ?? [];
+  const activeGamepadSourceCount = gamepadSources.filter((source) => source.activeAfterDeadzone).length;
+  const activeVectorWithoutRigDelta = (inputEvidence.activeLocomotionSource ?? "none") !== "none"
+    && !locomotionEvidenceReady;
+  const reasonCodes: LocomotionProbeReasonCode[] = [];
+
+  if (locomotionEvidenceReady) {
+    reasonCodes.push("locomotion_observed");
+  } else {
+    if (activeVectorWithoutRigDelta) {
+      reasonCodes.push("active_vector_without_rig_delta");
+    }
+    if (diagnostics && gamepadSources.length === 0) {
+      reasonCodes.push("no_gamepad_sources");
+    } else if (diagnostics && activeGamepadSourceCount === 0) {
+      reasonCodes.push("gamepad_axes_below_deadzone");
+    }
+    if (!diagnostics && (inputEvidence.inputSourceKinds?.length ?? 0) === 0) {
+      reasonCodes.push("no_xr_input_sources");
+    }
+    reasonCodes.push(...handGestureProbeReasons(handGestureHands));
+    if (reasonCodes.length === 0) {
+      reasonCodes.push("locomotion_delta_missing");
+    }
+  }
+
+  const uniqueReasonCodes = uniqueLocomotionProbeReasonCodes(reasonCodes);
+
+  return {
+    claimScope: "runtime_probe_only",
+    readiness: locomotionEvidenceReady ? "ready" : "blocked",
+    primaryReason: uniqueReasonCodes[0] ?? "locomotion_delta_missing",
+    reasonCodes: uniqueReasonCodes,
+    activeVectorWithoutRigDelta,
+    controllerSources: {
+      total: gamepadSources.length,
+      activeAfterDeadzone: activeGamepadSourceCount,
+    },
+    handGesture: {
+      handsObserved: handGestureHands.length,
+      pinching: handGestureHands.filter((hand) => hand.pinching).length,
+      armed: handGestureHands.filter((hand) => hand.armed).length,
+      movementCrossedDeadzone: handGestureHands.filter((hand) => hand.movementCrossedDeadzone).length,
+    },
+  };
+}
+
+function handGestureProbeReasons(
+  hands: XrHandGestureHandDiagnosticEvidence[],
+): LocomotionProbeReasonCode[] {
+  return hands.flatMap((hand): LocomotionProbeReasonCode[] => {
+    const reasons: LocomotionProbeReasonCode[] = [];
+    if (!hand.jointsVisible.wrist || !hand.jointsVisible.indexTip || !hand.jointsVisible.thumbTip) {
+      reasons.push("hand_missing_joints");
+    }
+    switch (hand.blockedReason) {
+      case "not_pinching":
+        reasons.push("hand_not_pinching");
+        break;
+      case "arming_dwell":
+        reasons.push("hand_arming_dwell");
+        break;
+      case "missing_joints":
+        reasons.push("hand_missing_joints");
+        break;
+      case "below_deadzone":
+        reasons.push("hand_below_deadzone");
+        break;
+      case "turn_cooldown":
+        reasons.push("hand_turn_cooldown");
+        break;
+      case "other_locomotion_source_active":
+        reasons.push("hand_other_locomotion_source_active");
+        break;
+      case undefined:
+        if (hand.pinching && !hand.movementCrossedDeadzone) {
+          reasons.push("hand_below_deadzone");
+        }
+        break;
+    }
+    return reasons;
+  });
+}
+
+function uniqueLocomotionProbeReasonCodes(
+  values: LocomotionProbeReasonCode[],
+): LocomotionProbeReasonCode[] {
+  return [...new Set(values)];
 }
 
 function summarizeLocomotionDiagnostics(

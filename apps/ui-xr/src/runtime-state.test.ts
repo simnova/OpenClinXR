@@ -974,6 +974,23 @@ describe("XR runtime state", () => {
         movementCrossedDeadzoneHandCount: 0,
         handGestureBlockedReasons: ["not_pinching"],
       },
+      locomotionProbeSummary: {
+        claimScope: "runtime_probe_only",
+        readiness: "blocked",
+        primaryReason: "gamepad_axes_below_deadzone",
+        reasonCodes: ["gamepad_axes_below_deadzone", "hand_not_pinching"],
+        activeVectorWithoutRigDelta: false,
+        controllerSources: {
+          total: 1,
+          activeAfterDeadzone: 0,
+        },
+        handGesture: {
+          handsObserved: 1,
+          pinching: 0,
+          armed: 0,
+          movementCrossedDeadzone: 0,
+        },
+      },
       traceLatencySource: "xr_controller_select",
       traceInteractionAttempt: "xr_controller_select_attempted_no_runtime_event",
       lastTraceTag: "ecg_request",
@@ -1051,6 +1068,94 @@ describe("XR runtime state", () => {
       blockers: ["frame_stats_stale_or_unsampled"],
     }, "copy_blocked")).toBe("Copy blocked: draft; 1 blocker");
     expect(formatManualEvidenceCopyStatus(missingSummary, "clipboard_unavailable")).toBe("Clipboard unavailable: draft; 2 blockers");
+  });
+
+  it("summarizes why hand-tracking-only locomotion did not move the rig", () => {
+    const frameStats = buildRuntimeFrameStats({
+      frameDeltasMs: [12, 13, 14],
+      framesObserved: 180,
+      latestFrameAtMs: 3200,
+      qualitySource: "webxr_animation_loop",
+      isPresenting: true,
+      visibilityState: "visible",
+    });
+    const draft = buildManualPerformanceDraft({
+      generatedAt: "2026-05-04T00:02:00.000Z",
+      elapsedSecond: 120,
+      foregroundPageConfirmed: true,
+      traceInteractionPassed: false,
+      frameStats,
+      immersiveSessionStarted: true,
+      inputEvidence: {
+        handModelCount: 2,
+        handModelStatus: "installed",
+        handInputsObserved: 2,
+        locomotionMode: "room_scale_keyboard_thumbstick_and_hand_gesture_dolly",
+        lastInputObservedAtMs: 3188,
+        lastLocomotionAtMs: null,
+        activeLocomotionSource: "none",
+        inputSourceKinds: ["xr_hand"],
+        locomotionDiagnostics: {
+          claimScope: "attempt_diagnostics_only",
+          gamepadDeadzone: 0.18,
+          handPinchThresholdMeters: 0.035,
+          handGestureDeadzoneMeters: 0.045,
+          handGestureTurnDeadzoneMeters: 0.055,
+          gamepadSources: [],
+          handGestureHands: [
+            {
+              handedness: "left",
+              jointsVisible: {
+                wrist: true,
+                indexTip: true,
+                thumbTip: true,
+              },
+              pinchDistanceMeters: 0.052,
+              pinching: false,
+              armed: false,
+              dwellMs: 0,
+              relativeOffsetMeters: null,
+              movementCrossedDeadzone: false,
+              blockedReason: "not_pinching",
+            },
+            {
+              handedness: "right",
+              jointsVisible: {
+                wrist: true,
+                indexTip: true,
+                thumbTip: true,
+              },
+              pinchDistanceMeters: 0.029,
+              pinching: true,
+              armed: false,
+              dwellMs: 120,
+              relativeOffsetMeters: { x: 0.01, z: 0.012 },
+              movementCrossedDeadzone: false,
+              blockedReason: "arming_dwell",
+            },
+          ],
+        },
+        rigPosition: { x: 0, z: 0 },
+      },
+    });
+
+    expect(buildManualPerformanceCaptureSummary({ draft, frameStats, now: 3300 }).locomotionProbeSummary).toEqual({
+      claimScope: "runtime_probe_only",
+      readiness: "blocked",
+      primaryReason: "no_gamepad_sources",
+      reasonCodes: ["no_gamepad_sources", "hand_not_pinching", "hand_arming_dwell"],
+      activeVectorWithoutRigDelta: false,
+      controllerSources: {
+        total: 0,
+        activeAfterDeadzone: 0,
+      },
+      handGesture: {
+        handsObserved: 2,
+        pinching: 1,
+        armed: 0,
+        movementCrossedDeadzone: 0,
+      },
+    });
   });
 
   it("reports manual validation readiness for a complete ten-minute capture preview", () => {
@@ -1303,6 +1408,23 @@ describe("XR runtime state", () => {
         locomotionDistanceMeters: null,
         locomotionTurnRadians: null,
         locomotionDiagnosticSummary: null,
+        locomotionProbeSummary: {
+          claimScope: "runtime_probe_only",
+          readiness: "blocked",
+          primaryReason: "locomotion_delta_missing",
+          reasonCodes: ["locomotion_delta_missing"],
+          activeVectorWithoutRigDelta: false,
+          controllerSources: {
+            total: 0,
+            activeAfterDeadzone: 0,
+          },
+          handGesture: {
+            handsObserved: 0,
+            pinching: 0,
+            armed: 0,
+            movementCrossedDeadzone: 0,
+          },
+        },
         traceLatencySource: "dom_click_trace_button",
         traceInteractionAttempt: "dom_click_attempted_no_runtime_event",
         lastTraceTag: null,
