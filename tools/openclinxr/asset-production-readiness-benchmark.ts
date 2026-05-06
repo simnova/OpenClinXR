@@ -11,6 +11,8 @@ import {
   type ScenarioGenerationEvidence,
   type ScenarioOptimizationEvidence,
 } from "../../packages/openclinxr/asset-registry/src/index.js";
+import { validateBlenderBakeSmokeReport } from "./blender-asset-bake-smoke.js";
+import { validateGltfPipelineSmokeReport } from "./gltf-pipeline-smoke.js";
 
 type CliOptions = {
   validatePath?: string;
@@ -179,8 +181,20 @@ export async function runAssetProductionReadinessCli(args: string[]): Promise<vo
     if (!validatePath) {
       throw new Error("Missing asset production readiness report to validate.");
     }
-    const validation = validateAssetProductionReadinessReport(await readJson<unknown>(validatePath));
+    const report = await readJson<unknown>(validatePath);
+    const validation = validateAssetProductionReadinessReport(report);
+    const sourceValidation = validation.ok
+      ? await validateLinkedSmokeReports(report as AssetProductionReadinessReport)
+      : { ok: true } satisfies ValidationResult;
     if (validation.ok) {
+      if (!sourceValidation.ok) {
+        for (const error of sourceValidation.errors) {
+          console.error(error);
+        }
+        process.exitCode = 1;
+        return;
+      }
+
       console.log(`Validated ${validatePath}`);
       return;
     }
@@ -432,6 +446,102 @@ export function validateAssetProductionReadinessReport(value: unknown): Validati
   validateConsistency(value, errors);
 
   return errors.length === 0 ? { ok: true } : { ok: false, errors };
+}
+
+async function validateLinkedSmokeReports(report: AssetProductionReadinessReport): Promise<ValidationResult> {
+  const errors: string[] = [];
+  const gltfSmoke = await readLinkedGltfSmoke(report.input.gltfPipelineSmokeFile, errors);
+  const blenderSmoke = await readLinkedBlenderSmoke(report.input.blenderAssetBakeSmokeFile, errors);
+
+  if (gltfSmoke) {
+    compareLinkedGltfSmoke(report, gltfSmoke, errors);
+  }
+  if (blenderSmoke) {
+    compareLinkedBlenderSmoke(report, blenderSmoke, errors);
+  }
+
+  return errors.length === 0 ? { ok: true } : { ok: false, errors };
+}
+
+async function readLinkedGltfSmoke(
+  filePath: string,
+  errors: string[],
+): Promise<GltfPipelineSmokeReport | undefined> {
+  let linkedSmoke: unknown;
+  try {
+    linkedSmoke = await readJson<unknown>(filePath);
+  } catch (error) {
+    errors.push(`/input/gltfPipelineSmokeFile could not be read: ${formatError(error)}`);
+    return undefined;
+  }
+
+  const validation = validateGltfPipelineSmokeReport(linkedSmoke);
+  if (!validation.ok) {
+    errors.push(...validation.errors.map((error) => `/input/gltfPipelineSmokeFile ${error}`));
+    return undefined;
+  }
+
+  return linkedSmoke as GltfPipelineSmokeReport;
+}
+
+async function readLinkedBlenderSmoke(
+  filePath: string,
+  errors: string[],
+): Promise<BlenderAssetBakeSmokeReport | undefined> {
+  let linkedSmoke: unknown;
+  try {
+    linkedSmoke = await readJson<unknown>(filePath);
+  } catch (error) {
+    errors.push(`/input/blenderAssetBakeSmokeFile could not be read: ${formatError(error)}`);
+    return undefined;
+  }
+
+  const validation = validateBlenderBakeSmokeReport(linkedSmoke);
+  if (!validation.ok) {
+    errors.push(...validation.errors.map((error) => `/input/blenderAssetBakeSmokeFile ${error}`));
+    return undefined;
+  }
+
+  return linkedSmoke as BlenderAssetBakeSmokeReport;
+}
+
+function compareLinkedGltfSmoke(
+  report: AssetProductionReadinessReport,
+  smoke: GltfPipelineSmokeReport,
+  errors: string[],
+): void {
+  if (report.input.gltfGeneratedAt !== smoke.generatedAt) {
+    errors.push("/input/gltfGeneratedAt must match linked GLTF pipeline smoke generatedAt");
+  }
+  if (report.sourceEvidence.gltfPipelineSmokePassed !== smoke.verdict.passed) {
+    errors.push("/sourceEvidence/gltfPipelineSmokePassed must match linked GLTF pipeline smoke verdict.passed");
+  }
+}
+
+function compareLinkedBlenderSmoke(
+  report: AssetProductionReadinessReport,
+  smoke: BlenderAssetBakeSmokeReport,
+  errors: string[],
+): void {
+  if (report.input.blenderGeneratedAt !== smoke.generatedAt) {
+    errors.push("/input/blenderGeneratedAt must match linked Blender asset bake smoke generatedAt");
+  }
+  if (report.policy.externalAssetsUsed !== smoke.input.externalAssetsUsed) {
+    errors.push("/policy/externalAssetsUsed must match linked Blender asset bake smoke input.externalAssetsUsed");
+  }
+  if (report.sourceEvidence.blenderBakeSmokePassed !== smoke.verdict.passed) {
+    errors.push("/sourceEvidence/blenderBakeSmokePassed must match linked Blender asset bake smoke verdict.passed");
+  }
+  if (report.sourceEvidence.blenderSourceLicensePosture !== smoke.input.sourceLicensePosture) {
+    errors.push("/sourceEvidence/blenderSourceLicensePosture must match linked Blender asset bake smoke sourceLicensePosture");
+  }
+  if (report.runtimeBudget.singleAssetPackGlbBytes !== smoke.output.glbBytes) {
+    errors.push("/runtimeBudget/singleAssetPackGlbBytes must match linked Blender asset bake smoke output.glbBytes");
+  }
+}
+
+function formatError(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
 
 function buildClaimBoundaries(

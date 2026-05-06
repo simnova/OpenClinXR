@@ -448,6 +448,7 @@ describe("asset production readiness report", () => {
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-asset-readiness-"));
     const outputPath = path.join(tempDir, "asset-production-readiness.json");
     const invalidPath = path.join(tempDir, "asset-production-readiness-invalid.json");
+    const staleSourcePath = path.join(tempDir, "asset-production-readiness-stale-source.json");
     const previousExitCode = process.exitCode;
 
     try {
@@ -463,6 +464,15 @@ describe("asset production readiness report", () => {
 
       await expect(runAssetProductionReadinessCli(["--validate", outputPath])).resolves.toBeUndefined();
       await expect(runAssetProductionReadinessCli(["--validate-latest"])).resolves.toBeUndefined();
+
+      const staleSourceReport = JSON.parse(await readFile(outputPath, "utf8"));
+      staleSourceReport.input.gltfGeneratedAt = "2026-05-06T00:00:00.000Z";
+      staleSourceReport.sourceEvidence.blenderSourceLicensePosture = "repo_generated_placeholder";
+      await writeFile(staleSourcePath, `${JSON.stringify(staleSourceReport, null, 2)}\n`, "utf8");
+
+      process.exitCode = undefined;
+      await runAssetProductionReadinessCli(["--validate", staleSourcePath]);
+      expect(process.exitCode).toBe(1);
 
       const invalidReport = JSON.parse(await readFile(outputPath, "utf8"));
       delete invalidReport.policy.productionUseAllowed;
