@@ -1,0 +1,19 @@
+{
+  "generatedAt": "2026-05-07T06:01:19.223Z",
+  "inputFile": null,
+  "readyToClaimMixedRealityReadiness": false,
+  "readyToClaimFullVrReadiness": false,
+  "satisfiedConditions": [],
+  "blockers": [
+    "missing_quest_mixed_reality_manual_report"
+  ],
+  "notEvidenceFor": [
+    "replacement_for_full_vr",
+    "production_quest_readiness",
+    "passthrough_privacy_readiness",
+    "clinical_room_safety_readiness"
+  ],
+  "nextSteps": [
+    "Capture a separate Quest Mixed Reality manual report before making MR readiness claims."
+  ]
+}
