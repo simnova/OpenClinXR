@@ -1,0 +1,36 @@
+{
+  "generatedAt": "2026-05-07T05:49:31.484Z",
+  "evidence": {
+    "packageName": "@iwsdk/reference",
+    "docsVersion": "0.3.1",
+    "npmLatestVersion": "0.3.2",
+    "exactPinApproved": true,
+    "exactPinVersion": "0.3.2",
+    "approvalRecordId": "iwsdk-reference-warmup-download-approval"
+  },
+  "policies": [
+    {
+      "packageName": "@iwsdk/reference",
+      "docsVersion": "0.3.1",
+      "npmLatestVersion": "0.3.2",
+      "sourceRecordIds": [
+        "src-iwsdk-ai-docs-2026",
+        "src-iwsdk-npm-metadata-2026-05-04"
+      ],
+      "impact": "Do not run reference warmup until the exact package version, docs version, model/corpus payload, and cache path are revalidated together.",
+      "blockedActions": [
+        "npx iwsdk reference warmup"
+      ],
+      "requiredResolutionEvidence": [
+        "docs_and_npm_versions_match_or_exact_pin_is_approved",
+        "model_and_corpus_download_size_recorded",
+        "cache_location_recorded",
+        "operator_approval_for_model_and_corpus_downloads"
+      ]
+    }
+  ],
+  "verdict": {
+    "readyForUnattendedUse": true,
+    "blockers": []
+  }
+}
