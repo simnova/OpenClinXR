@@ -5,7 +5,7 @@
       "evidence_id": "quest_smoke",
       "file": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
       "generated_at": "2026-05-04T18:13:48.812Z",
-      "age_hours": 51,
+      "age_hours": 54,
       "max_age_hours": 24,
       "status": "stale",
       "blockers": [
@@ -16,7 +16,7 @@
       "evidence_id": "local_runtime_probe",
       "file": "docs/openclinxr/local-runtime-probe-2026-05-06.json",
       "generated_at": "2026-05-06T14:06:52.238Z",
-      "age_hours": 7,
+      "age_hours": 10,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -24,8 +24,8 @@
     {
       "evidence_id": "gltf_pipeline_smoke",
       "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
-      "generated_at": "2026-05-06T00:10:04.220Z",
-      "age_hours": 21,
+      "generated_at": "2026-05-07T00:21:50.880Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -34,7 +34,7 @@
       "evidence_id": "blender_asset_bake_smoke",
       "file": "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
       "generated_at": "2026-05-06T08:19:07.305Z",
-      "age_hours": 13,
+      "age_hours": 16,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -43,7 +43,7 @@
       "evidence_id": "asset_capability_job_evidence",
       "file": "docs/openclinxr/asset-capability-job-evidence-2026-05-05.json",
       "generated_at": "2026-05-06T17:03:23.936Z",
-      "age_hours": 4,
+      "age_hours": 7,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -51,8 +51,8 @@
     {
       "evidence_id": "asset_production_readiness_benchmark",
       "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
-      "generated_at": "2026-05-06T15:09:30.325Z",
-      "age_hours": 6,
+      "generated_at": "2026-05-07T00:24:00.350Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -60,8 +60,8 @@
     {
       "evidence_id": "asset_production_evidence_ladder",
       "file": "docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
-      "generated_at": "2026-05-06T15:33:39.087Z",
-      "age_hours": 6,
+      "generated_at": "2026-05-07T00:24:55.474Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -70,7 +70,7 @@
       "evidence_id": "asset_production_artifact_evidence",
       "file": "docs/openclinxr/asset-production-artifact-evidence-2026-05-06.json",
       "generated_at": "2026-05-06T19:53:34.703Z",
-      "age_hours": 1,
+      "age_hours": 4,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -79,7 +79,7 @@
       "evidence_id": "local_provider_benchmark",
       "file": "docs/openclinxr/local-provider-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T19:40:00.698Z",
-      "age_hours": 2,
+      "age_hours": 4,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -88,7 +88,7 @@
       "evidence_id": "local_model_runtime_benchmark",
       "file": "docs/openclinxr/local-model-runtime-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T21:37:38.260Z",
-      "age_hours": 0,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -97,7 +97,7 @@
       "evidence_id": "local_model_quality_benchmark",
       "file": "docs/openclinxr/local-model-quality-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T21:39:44.035Z",
-      "age_hours": 0,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -106,7 +106,7 @@
       "evidence_id": "local_model_cache_evidence",
       "file": "docs/openclinxr/local-model-cache-evidence-2026-05-06.json",
       "generated_at": "2026-05-06T22:00:20.143Z",
-      "age_hours": 0,
+      "age_hours": 2,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -115,7 +115,7 @@
       "evidence_id": "local_voice_runtime_benchmark",
       "file": "docs/openclinxr/local-voice-runtime-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T06:20:53Z",
-      "age_hours": 15,
+      "age_hours": 18,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -124,7 +124,7 @@
       "evidence_id": "local_voice_live_dialog_benchmark",
       "file": "docs/openclinxr/local-voice-live-dialog-benchmark-2026-05-06.json",
       "generated_at": "2026-05-06T14:41:44.220Z",
-      "age_hours": 6,
+      "age_hours": 9,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -133,7 +133,7 @@
       "evidence_id": "local_realtime_voice_model_cache_evidence",
       "file": "docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-06.json",
       "generated_at": "2026-05-06T22:32:53.541Z",
-      "age_hours": 0,
+      "age_hours": 1,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -142,7 +142,7 @@
       "evidence_id": "local_realtime_voice_model_source_currentness",
       "file": "docs/openclinxr/local-realtime-voice-model-source-currentness-2026-05-06.json",
       "generated_at": "2026-05-06T22:32:54.407Z",
-      "age_hours": 0,
+      "age_hours": 1,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -151,7 +151,7 @@
       "evidence_id": "local_qwen_tts_runtime_smoke",
       "file": "docs/openclinxr/local-qwen-tts-runtime-smoke-2026-05-06.json",
       "generated_at": "2026-05-06T13:24:08Z",
-      "age_hours": 8,
+      "age_hours": 11,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -160,7 +160,7 @@
       "evidence_id": "local_moshi_runtime_package_evidence",
       "file": "docs/openclinxr/local-moshi-runtime-package-evidence-2026-05-06.json",
       "generated_at": "2026-05-06T14:59:16.154Z",
-      "age_hours": 6,
+      "age_hours": 9,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -169,7 +169,7 @@
       "evidence_id": "blueprint_voice_simulation_spike",
       "file": "docs/openclinxr/blueprint-voice-simulation-spike-2026-05-05.json",
       "generated_at": "2026-05-06T03:18:07.296Z",
-      "age_hours": 18,
+      "age_hours": 21,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -178,7 +178,7 @@
       "evidence_id": "godot_quest_voice_evidence",
       "file": "docs/openclinxr/godot-quest-voice-evidence-2026-05-06.json",
       "generated_at": "2026-05-06T14:00:03.516Z",
-      "age_hours": 7,
+      "age_hours": 10,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -187,7 +187,7 @@
       "evidence_id": "godot_project_import_check",
       "file": ".agent-factory/godot-project-import-check.json",
       "generated_at": "2026-05-06T13:56:47.467Z",
-      "age_hours": 7,
+      "age_hours": 10,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -196,7 +196,7 @@
       "evidence_id": "realtime_voice_transport_spike",
       "file": "docs/openclinxr/realtime-voice-transport-spike-2026-05-06.json",
       "generated_at": "2026-05-06T13:40:30.076Z",
-      "age_hours": 8,
+      "age_hours": 10,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -205,7 +205,7 @@
       "evidence_id": "api_python_backend_runtime_smoke",
       "file": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-06.json",
       "generated_at": "2026-05-06T13:39:59.065Z",
-      "age_hours": 8,
+      "age_hours": 10,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -213,8 +213,8 @@
     {
       "evidence_id": "api_bun_websocket_runtime_smoke",
       "file": "docs/openclinxr/api-bun-websocket-runtime-smoke-2026-05-05.json",
-      "generated_at": "2026-05-05T23:27:29.751Z",
-      "age_hours": 22,
+      "generated_at": "2026-05-07T00:22:22.971Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -222,8 +222,8 @@
     {
       "evidence_id": "api_bun_python_proxy_runtime_smoke",
       "file": "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
-      "generated_at": "2026-05-06T01:52:40.346Z",
-      "age_hours": 19,
+      "generated_at": "2026-05-07T00:22:30.127Z",
+      "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -231,7 +231,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-06T21:40:30.844Z",
+      "generated_at": "2026-05-07T00:25:04.471Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -306,7 +306,7 @@
   },
   "gltf_pipeline_smoke": {
     "file": "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
-    "generated_at": "2026-05-06T00:10:04.220Z",
+    "generated_at": "2026-05-07T00:21:50.880Z",
     "tool": {
       "command": "gltf-pipeline",
       "package": "gltf-pipeline",
@@ -318,7 +318,7 @@
       "magic": "glTF",
       "version": 2,
       "declaredLength": 848,
-      "elapsedMs": 1317.44
+      "elapsedMs": 598.77
     },
     "passed": true,
     "blockers": []
@@ -403,14 +403,14 @@
   },
   "asset_production_readiness_benchmark": {
     "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
-    "generated_at": "2026-05-06T15:09:30.325Z",
+    "generated_at": "2026-05-07T00:24:00.350Z",
     "status": "blocked",
     "input": {
       "gltfPipelineSmokeFile": "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
       "blenderAssetBakeSmokeFile": "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
-      "gltfGeneratedAt": "2026-05-06T00:10:04.220Z",
+      "gltfGeneratedAt": "2026-05-07T00:21:50.880Z",
       "blenderGeneratedAt": "2026-05-06T08:19:07.305Z",
-      "localAssetEvidenceFixtureUsed": true
+      "localAssetEvidenceFixtureUsed": false
     },
     "source_evidence": {
       "gltfPipelineSmokePassed": true,
@@ -423,49 +423,61 @@
     },
     "production_proofs": {
       "generatedHumanRigging": {
-        "observed": true,
+        "observed": false,
         "requiredEvidence": [
           "neutral generated human GLB",
           "canonical skeleton binding",
           "skin-weight or rigging report"
         ],
-        "blockers": []
+        "blockers": [
+          "generated_human_rigging_missing"
+        ]
       },
       "skinClothingProvenance": {
-        "observed": true,
+        "observed": false,
         "requiredEvidence": [
           "skin/texture provenance",
           "clothing mesh provenance",
           "runtime-safe material report"
         ],
-        "blockers": []
+        "blockers": [
+          "skin_clothing_provenance_missing"
+        ]
       },
       "medicalEquipmentLibrary": {
-        "observed": true,
+        "observed": false,
         "requiredEvidence": [
           "equipment GLB library",
           "clinical equipment metadata",
           "license provenance"
         ],
-        "blockers": []
+        "blockers": [
+          "medical_equipment_library_missing"
+        ]
       },
       "animationRetargeting": {
-        "observed": true,
+        "observed": false,
         "requiredEvidence": [
           "canonical skeleton clips",
           "viseme or facial target mapping",
           "retargeting QA report"
         ],
-        "blockers": []
+        "blockers": [
+          "animation_retargeting_missing"
+        ]
       },
       "lodTextureColliderBudget": {
-        "observed": true,
+        "observed": false,
         "requiredEvidence": [
           "LOD tiers",
           "KTX2 or texture budget report",
           "collider simplification report"
         ],
-        "blockers": []
+        "blockers": [
+          "lod_tiers_missing",
+          "texture_compression_budget_missing",
+          "collider_simplification_report_missing"
+        ]
       },
       "multiActorQuestBudget": {
         "observed": true,
@@ -478,23 +490,32 @@
       }
     },
     "generation_evidence": {
-      "generatedHumanRiggingObserved": true,
-      "skinClothingProvenanceObserved": true,
-      "medicalEquipmentLibraryObserved": true,
-      "animationRetargetingObserved": true,
-      "placeholderOnly": false,
-      "blockers": []
+      "generatedHumanRiggingObserved": false,
+      "skinClothingProvenanceObserved": false,
+      "medicalEquipmentLibraryObserved": false,
+      "animationRetargetingObserved": false,
+      "placeholderOnly": true,
+      "blockers": [
+        "generated_human_rigging_missing",
+        "skin_clothing_provenance_missing",
+        "medical_equipment_library_missing",
+        "animation_retargeting_missing"
+      ]
     },
     "optimization_evidence": {
-      "lodTiersObserved": true,
-      "textureCompressionBudgetObserved": true,
-      "colliderSimplificationObserved": true,
-      "placeholderOnly": false,
-      "blockers": []
+      "lodTiersObserved": false,
+      "textureCompressionBudgetObserved": false,
+      "colliderSimplificationObserved": false,
+      "placeholderOnly": true,
+      "blockers": [
+        "lod_tiers_missing",
+        "texture_compression_budget_missing",
+        "collider_simplification_report_missing"
+      ]
     },
     "station_budget_evidence": {
       "scenarioId": "ed_chest_pain_priority_v1",
-      "source": "@openclinxr/asset-registry:createEdChestPainLocalAssetEvidenceFixtureManifests",
+      "source": "@openclinxr/asset-registry:createEdChestPainPlaceholderManifests",
       "requiredAssetCount": 3,
       "budget": {
         "maxVisibleTriangles": 180000,
@@ -505,7 +526,7 @@
         "totalDrawCalls": 28,
         "blockers": []
       },
-      "placeholderOnly": false,
+      "placeholderOnly": true,
       "observed": true,
       "blockers": []
     },
@@ -522,31 +543,39 @@
       "passed": false,
       "readyForProductionAssets": false,
       "blockers": [
-        "artifact_backed_production_asset_evidence_missing"
+        "station_budget:placeholder_asset_budget_only",
+        "generation:placeholder_asset_generation_only",
+        "optimization:placeholder_asset_optimization_only",
+        "generation:generated_human_rigging_missing",
+        "generation:skin_clothing_provenance_missing",
+        "generation:medical_equipment_library_missing",
+        "generation:animation_retargeting_missing",
+        "optimization:lod_tiers_missing",
+        "optimization:texture_compression_budget_missing",
+        "optimization:collider_simplification_report_missing"
       ],
       "caveats": [
         "This report evaluates production-readiness evidence from local smoke outputs only; it does not generate new third-party assets.",
-        "Reviewed local clinical fixture output still requires visual QA, clinical fidelity review, and headset frame-pacing evidence before production use.",
-        "The local asset evidence fixture supplies contract-level proof slots only; fixture IDs are not artifact-backed generated production assets."
+        "Reviewed local clinical fixture output still requires visual QA, clinical fidelity review, and headset frame-pacing evidence before production use."
       ]
     }
   },
   "asset_production_evidence_ladder": {
     "file": "docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
     "schema_version": "openclinxr.asset-production-evidence-ladder.v1",
-    "generated_at": "2026-05-06T15:33:39.087Z",
+    "generated_at": "2026-05-07T00:24:55.474Z",
     "status": "blocked",
     "source_readiness_report": {
       "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
-      "generatedAt": "2026-05-06T15:09:30.325Z",
+      "generatedAt": "2026-05-07T00:24:00.350Z",
       "status": "blocked",
-      "localAssetEvidenceFixtureUsed": true
+      "localAssetEvidenceFixtureUsed": false
     },
     "summary": {
       "totalLaneCount": 7,
-      "observedLaneCount": 0,
-      "contractOnlyLaneCount": 6,
-      "blockedLaneCount": 7,
+      "observedLaneCount": 1,
+      "contractOnlyLaneCount": 0,
+      "blockedLaneCount": 6,
       "artifactBackedProductionAssetEvidenceObserved": false
     },
     "verdict": {
@@ -554,12 +583,11 @@
       "readyForProductionAssets": false,
       "blockers": [
         "artifact_backed_production_asset_evidence_missing",
-        "generatedHumanRigging:contract_only_fixture_not_artifact_backed",
-        "skinClothingProvenance:contract_only_fixture_not_artifact_backed",
-        "medicalEquipmentLibrary:contract_only_fixture_not_artifact_backed",
-        "animationRetargeting:contract_only_fixture_not_artifact_backed",
-        "lodTextureColliderBudget:contract_only_fixture_not_artifact_backed",
-        "multiActorQuestBudget:contract_only_fixture_not_artifact_backed"
+        "generatedHumanRigging:proof_lane_not_observed",
+        "skinClothingProvenance:proof_lane_not_observed",
+        "medicalEquipmentLibrary:proof_lane_not_observed",
+        "animationRetargeting:proof_lane_not_observed",
+        "lodTextureColliderBudget:proof_lane_not_observed"
       ],
       "caveats": [
         "This ladder names production asset proof lanes and claim boundaries only; it does not generate new assets.",
@@ -1992,8 +2020,8 @@
   },
   "api_bun_websocket_runtime_smoke": {
     "file": "docs/openclinxr/api-bun-websocket-runtime-smoke-2026-05-05.json",
-    "generated_at": "2026-05-05T23:27:29.751Z",
-    "status": "passed",
+    "generated_at": "2026-05-07T00:22:22.971Z",
+    "status": "blocked",
     "bun": {
       "executable": "/Users/patrick/.bun/bin/bun",
       "version": "1.3.13",
@@ -2003,7 +2031,7 @@
       "attempted": true,
       "ok": true,
       "statusCode": 200,
-      "latencyMs": 579,
+      "latencyMs": 340,
       "body": {
         "ok": true,
         "service": "openclinxr-api",
@@ -2040,10 +2068,8 @@
     },
     "trace_contexts": {
       "pre_vr_trace_interaction": {
-        "observed": true,
-        "control_frame_types": [
-          "voice.start"
-        ]
+        "observed": false,
+        "control_frame_types": []
       },
       "in_vr_trace_interaction": {
         "observed": false,
@@ -2051,18 +2077,18 @@
       }
     },
     "websocket": {
-      "connected": true,
-      "reconnect_observed": true,
-      "control_ack_observed": true,
-      "audio_metadata_observed": true,
-      "transcript_delta_observed": true,
-      "binary_echo_observed": true,
-      "binary_frames_sent": 9,
-      "binary_bytes_sent": 2054,
+      "connected": false,
+      "reconnect_observed": false,
+      "control_ack_observed": false,
+      "audio_metadata_observed": false,
+      "transcript_delta_observed": false,
+      "binary_echo_observed": false,
+      "binary_frames_sent": 0,
+      "binary_bytes_sent": 0,
       "server_errors": []
     },
     "verdict": {
-      "smoke_passed": true,
+      "smoke_passed": false,
       "ready_for_live_dialog": false,
       "blockers": [
         "in_vr_trace_not_executed_by_local_bun_smoke",
@@ -2084,8 +2110,8 @@
   },
   "api_bun_python_proxy_runtime_smoke": {
     "file": "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
-    "generated_at": "2026-05-06T01:52:40.346Z",
-    "status": "passed",
+    "generated_at": "2026-05-07T00:22:30.127Z",
+    "status": "blocked",
     "python": {
       "executable": "/Users/patrick/.cache/openclinxr/realtime-voice/api-python-backend-venv/bin/python",
       "version": "Python 3.11.4"
@@ -2109,24 +2135,18 @@
       "backend_url_configured": true
     },
     "websocket": {
-      "connected": true,
-      "backend_protocol_observed": true,
-      "latency_fields_observed": true,
-      "binary_echo_observed": true,
-      "binary_messages": 1,
-      "event_types_observed": [
-        "gateway.ready",
-        "backend.ready",
-        "voice.started",
-        "audio.chunk",
-        "transcript.partial",
-        "transcript.final",
-        "voice.stopped"
-      ],
-      "error_messages": []
+      "connected": false,
+      "backend_protocol_observed": false,
+      "latency_fields_observed": false,
+      "binary_echo_observed": false,
+      "binary_messages": 0,
+      "event_types_observed": [],
+      "error_messages": [
+        "global_websocket_unavailable"
+      ]
     },
     "verdict": {
-      "smoke_passed": true,
+      "smoke_passed": false,
       "ready_for_live_dialog": false,
       "blockers": [
         "real_model_inference_not_observed",
@@ -2146,7 +2166,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-06T21:40:30.844Z",
+    "generated_at": "2026-05-07T00:25:04.471Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -2347,20 +2367,12 @@
         "asset_pipeline_blender_bake_smoke_passed",
         "asset_pipeline_gltf_pipeline_smoke_passed",
         "asset_pipeline_runtime_ready",
-        "asset_production_animation_retargeting_observed",
         "asset_production_artifact_evidence_lanes_observed",
         "asset_production_artifact_evidence_manifest_present",
         "asset_production_capability_job_contract_observed",
-        "asset_production_collider_simplification_observed",
-        "asset_production_generated_human_rigging_observed",
-        "asset_production_local_fixture_contract_slots_observed",
-        "asset_production_lod_tiers_observed",
-        "asset_production_medical_equipment_library_observed",
         "asset_production_multi_actor_quest_budget_observed",
         "asset_production_readiness_report_present",
-        "asset_production_skin_clothing_provenance_observed",
         "asset_production_source_smokes_passed",
-        "asset_production_texture_compression_budget_observed",
         "battery_drop_recorded_under_20",
         "blueprint_voice_bun_python_proxy_passed",
         "blueprint_voice_mock_facade_exercised",
@@ -2385,8 +2397,6 @@
         "local_model_ready_to_benchmark",
         "local_model_runtime_benchmark_passed",
         "local_provider_mock_benchmarks_passed",
-        "local_voice_bun_python_proxy_runtime_smoke_passed",
-        "local_voice_bun_websocket_runtime_smoke_passed",
         "local_voice_first_audio_benchmark_passed",
         "local_voice_godot_import_observed",
         "local_voice_godot_quest_voice_evidence_present",
@@ -2640,8 +2650,6 @@
       "ready_to_resolve": true,
       "satisfied_conditions": [
         "local_provider_mock_benchmarks_passed",
-        "local_voice_bun_python_proxy_runtime_smoke_passed",
-        "local_voice_bun_websocket_runtime_smoke_passed",
         "local_voice_first_audio_benchmark_passed",
         "local_voice_godot_import_observed",
         "local_voice_godot_quest_voice_evidence_present",
@@ -2676,20 +2684,12 @@
         "asset_pipeline_blender_bake_smoke_passed",
         "asset_pipeline_gltf_pipeline_smoke_passed",
         "asset_pipeline_runtime_ready",
-        "asset_production_animation_retargeting_observed",
         "asset_production_artifact_evidence_lanes_observed",
         "asset_production_artifact_evidence_manifest_present",
         "asset_production_capability_job_contract_observed",
-        "asset_production_collider_simplification_observed",
-        "asset_production_generated_human_rigging_observed",
-        "asset_production_local_fixture_contract_slots_observed",
-        "asset_production_lod_tiers_observed",
-        "asset_production_medical_equipment_library_observed",
         "asset_production_multi_actor_quest_budget_observed",
         "asset_production_readiness_report_present",
-        "asset_production_skin_clothing_provenance_observed",
-        "asset_production_source_smokes_passed",
-        "asset_production_texture_compression_budget_observed"
+        "asset_production_source_smokes_passed"
       ],
       "blockers": [],
       "blocker_summary": {
@@ -2856,8 +2856,6 @@
         "blueprint_voice_tier1_transport_loop_passed",
         "blueprint_voice_transport_linked_existing_evidence",
         "local_provider_mock_benchmarks_passed",
-        "local_voice_bun_python_proxy_runtime_smoke_passed",
-        "local_voice_bun_websocket_runtime_smoke_passed",
         "local_voice_first_audio_benchmark_passed",
         "local_voice_godot_import_observed",
         "local_voice_godot_quest_voice_evidence_present",
@@ -2881,6 +2879,33 @@
         "local_voice_realtime_transport_contract_observed"
       ],
       "blockers": [
+        "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:api_bun_python_proxy_runtime_smoke_not_passed",
+        "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:audio_chunk_not_observed",
+        "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:backend_protocol_not_observed",
+        "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:binary_echo_not_observed",
+        "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:gateway_ready_not_observed",
+        "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:latency_fields_not_observed",
+        "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:smoke_verdict_not_passed",
+        "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:transcript_final_not_observed",
+        "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:transcript_partial_not_observed",
+        "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:voice_started_not_observed",
+        "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:voice_stopped_not_observed",
+        "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:websocket_errors_observed",
+        "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:websocket_not_connected",
+        "local_voice_live_dialog:api_bun_websocket_runtime_smoke:api_bun_websocket_runtime_smoke_not_passed",
+        "local_voice_live_dialog:api_bun_websocket_runtime_smoke:smoke_verdict_not_passed",
+        "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_audio_metadata_missing",
+        "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_binary_echo_missing",
+        "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_canonical_voice_start_ack_missing",
+        "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_control_ack_missing",
+        "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_control_payload_sanitization_missing",
+        "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_gateway_ready_contract_missing",
+        "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_live_dialog_disabled_posture_missing",
+        "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_malformed_json_not_rejected",
+        "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_not_connected",
+        "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_reconnect_not_observed",
+        "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_transcript_delta_missing",
+        "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_unsupported_control_not_rejected",
         "local_voice_live_dialog:blueprint_voice_simulation:clinical_voice_safety_controls_not_validated_with_real_model",
         "local_voice_live_dialog:blueprint_voice_simulation:first_response_improvement_not_measured",
         "local_voice_live_dialog:blueprint_voice_simulation:not_ready_for_production",
@@ -2924,7 +2949,7 @@
         "local_voice_live_dialog:webxr_playback:webxr_playback_not_observed"
       ],
       "blocker_summary": {
-        "total_blockers": 41,
+        "total_blockers": 68,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -2932,6 +2957,33 @@
             "title": "Local voice live-dialog evidence",
             "owner": "voice-speech-engineer",
             "blockers": [
+              "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:api_bun_python_proxy_runtime_smoke_not_passed",
+              "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:audio_chunk_not_observed",
+              "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:backend_protocol_not_observed",
+              "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:binary_echo_not_observed",
+              "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:gateway_ready_not_observed",
+              "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:latency_fields_not_observed",
+              "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:smoke_verdict_not_passed",
+              "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:transcript_final_not_observed",
+              "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:transcript_partial_not_observed",
+              "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:voice_started_not_observed",
+              "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:voice_stopped_not_observed",
+              "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:websocket_errors_observed",
+              "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:websocket_not_connected",
+              "local_voice_live_dialog:api_bun_websocket_runtime_smoke:api_bun_websocket_runtime_smoke_not_passed",
+              "local_voice_live_dialog:api_bun_websocket_runtime_smoke:smoke_verdict_not_passed",
+              "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_audio_metadata_missing",
+              "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_binary_echo_missing",
+              "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_canonical_voice_start_ack_missing",
+              "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_control_ack_missing",
+              "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_control_payload_sanitization_missing",
+              "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_gateway_ready_contract_missing",
+              "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_live_dialog_disabled_posture_missing",
+              "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_malformed_json_not_rejected",
+              "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_not_connected",
+              "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_reconnect_not_observed",
+              "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_transcript_delta_missing",
+              "local_voice_live_dialog:api_bun_websocket_runtime_smoke:websocket_unsupported_control_not_rejected",
               "local_voice_live_dialog:blueprint_voice_simulation:clinical_voice_safety_controls_not_validated_with_real_model",
               "local_voice_live_dialog:blueprint_voice_simulation:first_response_improvement_not_measured",
               "local_voice_live_dialog:blueprint_voice_simulation:not_ready_for_production",
@@ -3041,23 +3093,14 @@
         "asset_pipeline_blender_bake_smoke_passed",
         "asset_pipeline_gltf_pipeline_smoke_passed",
         "asset_pipeline_runtime_ready",
-        "asset_production_animation_retargeting_observed",
         "asset_production_artifact_evidence_lanes_observed",
         "asset_production_artifact_evidence_manifest_present",
         "asset_production_capability_job_contract_observed",
-        "asset_production_collider_simplification_observed",
-        "asset_production_generated_human_rigging_observed",
-        "asset_production_local_fixture_contract_slots_observed",
-        "asset_production_lod_tiers_observed",
-        "asset_production_medical_equipment_library_observed",
         "asset_production_multi_actor_quest_budget_observed",
         "asset_production_readiness_report_present",
-        "asset_production_skin_clothing_provenance_observed",
-        "asset_production_source_smokes_passed",
-        "asset_production_texture_compression_budget_observed"
+        "asset_production_source_smokes_passed"
       ],
       "blockers": [
-        "asset_production:artifact_backed_production_asset_evidence_missing",
         "asset_production:artifact_evidence:animationRetargeting:artifact_files_missing",
         "asset_production:artifact_evidence:animationRetargeting:evidence_tier_not_reviewed_generated_production_source",
         "asset_production:artifact_evidence:artifact_backed_production_asset_evidence_missing",
@@ -3071,16 +3114,25 @@
         "asset_production:artifact_evidence:multiActorQuestBudget:evidence_tier_not_reviewed_generated_production_source",
         "asset_production:artifact_evidence:skinClothingProvenance:artifact_files_missing",
         "asset_production:artifact_evidence:skinClothingProvenance:evidence_tier_not_reviewed_generated_production_source",
-        "asset_production:ladder:animationRetargeting:contract_only_fixture_not_artifact_backed",
-        "asset_production:ladder:generatedHumanRigging:contract_only_fixture_not_artifact_backed",
-        "asset_production:ladder:lodTextureColliderBudget:contract_only_fixture_not_artifact_backed",
-        "asset_production:ladder:medicalEquipmentLibrary:contract_only_fixture_not_artifact_backed",
-        "asset_production:ladder:multiActorQuestBudget:contract_only_fixture_not_artifact_backed",
-        "asset_production:ladder:skinClothingProvenance:contract_only_fixture_not_artifact_backed",
-        "asset_production:not_ready_for_production_assets"
+        "asset_production:generation:animation_retargeting_missing",
+        "asset_production:generation:generated_human_rigging_missing",
+        "asset_production:generation:medical_equipment_library_missing",
+        "asset_production:generation:placeholder_asset_generation_only",
+        "asset_production:generation:skin_clothing_provenance_missing",
+        "asset_production:ladder:animationRetargeting:proof_lane_not_observed",
+        "asset_production:ladder:generatedHumanRigging:proof_lane_not_observed",
+        "asset_production:ladder:lodTextureColliderBudget:proof_lane_not_observed",
+        "asset_production:ladder:medicalEquipmentLibrary:proof_lane_not_observed",
+        "asset_production:ladder:skinClothingProvenance:proof_lane_not_observed",
+        "asset_production:not_ready_for_production_assets",
+        "asset_production:optimization:collider_simplification_report_missing",
+        "asset_production:optimization:lod_tiers_missing",
+        "asset_production:optimization:placeholder_asset_optimization_only",
+        "asset_production:optimization:texture_compression_budget_missing",
+        "asset_production:station_budget:placeholder_asset_budget_only"
       ],
       "blocker_summary": {
-        "total_blockers": 21,
+        "total_blockers": 29,
         "distinct_problem_count": 1,
         "groups": [
           {
@@ -3088,7 +3140,6 @@
             "title": "Production asset generation readiness",
             "owner": "asset-pipeline-lead",
             "blockers": [
-              "asset_production:artifact_backed_production_asset_evidence_missing",
               "asset_production:artifact_evidence:animationRetargeting:artifact_files_missing",
               "asset_production:artifact_evidence:animationRetargeting:evidence_tier_not_reviewed_generated_production_source",
               "asset_production:artifact_evidence:artifact_backed_production_asset_evidence_missing",
@@ -3102,13 +3153,22 @@
               "asset_production:artifact_evidence:multiActorQuestBudget:evidence_tier_not_reviewed_generated_production_source",
               "asset_production:artifact_evidence:skinClothingProvenance:artifact_files_missing",
               "asset_production:artifact_evidence:skinClothingProvenance:evidence_tier_not_reviewed_generated_production_source",
-              "asset_production:ladder:animationRetargeting:contract_only_fixture_not_artifact_backed",
-              "asset_production:ladder:generatedHumanRigging:contract_only_fixture_not_artifact_backed",
-              "asset_production:ladder:lodTextureColliderBudget:contract_only_fixture_not_artifact_backed",
-              "asset_production:ladder:medicalEquipmentLibrary:contract_only_fixture_not_artifact_backed",
-              "asset_production:ladder:multiActorQuestBudget:contract_only_fixture_not_artifact_backed",
-              "asset_production:ladder:skinClothingProvenance:contract_only_fixture_not_artifact_backed",
-              "asset_production:not_ready_for_production_assets"
+              "asset_production:generation:animation_retargeting_missing",
+              "asset_production:generation:generated_human_rigging_missing",
+              "asset_production:generation:medical_equipment_library_missing",
+              "asset_production:generation:placeholder_asset_generation_only",
+              "asset_production:generation:skin_clothing_provenance_missing",
+              "asset_production:ladder:animationRetargeting:proof_lane_not_observed",
+              "asset_production:ladder:generatedHumanRigging:proof_lane_not_observed",
+              "asset_production:ladder:lodTextureColliderBudget:proof_lane_not_observed",
+              "asset_production:ladder:medicalEquipmentLibrary:proof_lane_not_observed",
+              "asset_production:ladder:skinClothingProvenance:proof_lane_not_observed",
+              "asset_production:not_ready_for_production_assets",
+              "asset_production:optimization:collider_simplification_report_missing",
+              "asset_production:optimization:lod_tiers_missing",
+              "asset_production:optimization:placeholder_asset_optimization_only",
+              "asset_production:optimization:texture_compression_budget_missing",
+              "asset_production:station_budget:placeholder_asset_budget_only"
             ],
             "next_step": "Replace placeholder Blender bake/source evidence with reviewed generated clinical assets, then rerun the production asset readiness benchmark before claiming production asset readiness."
           }

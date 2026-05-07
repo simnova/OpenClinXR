@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06T15:09:30.325Z",
+  "generatedAt": "2026-05-07T00:24:00.350Z",
   "status": "blocked",
   "policy": {
     "cloudApisUsed": false,
@@ -11,9 +11,9 @@
   "input": {
     "gltfPipelineSmokeFile": "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
     "blenderAssetBakeSmokeFile": "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
-    "gltfGeneratedAt": "2026-05-06T00:10:04.220Z",
+    "gltfGeneratedAt": "2026-05-07T00:21:50.880Z",
     "blenderGeneratedAt": "2026-05-06T08:19:07.305Z",
-    "localAssetEvidenceFixtureUsed": true
+    "localAssetEvidenceFixtureUsed": false
   },
   "sourceEvidence": {
     "gltfPipelineSmokePassed": true,
@@ -26,49 +26,61 @@
   },
   "productionProofs": {
     "generatedHumanRigging": {
-      "observed": true,
+      "observed": false,
       "requiredEvidence": [
         "neutral generated human GLB",
         "canonical skeleton binding",
         "skin-weight or rigging report"
       ],
-      "blockers": []
+      "blockers": [
+        "generated_human_rigging_missing"
+      ]
     },
     "skinClothingProvenance": {
-      "observed": true,
+      "observed": false,
       "requiredEvidence": [
         "skin/texture provenance",
         "clothing mesh provenance",
         "runtime-safe material report"
       ],
-      "blockers": []
+      "blockers": [
+        "skin_clothing_provenance_missing"
+      ]
     },
     "medicalEquipmentLibrary": {
-      "observed": true,
+      "observed": false,
       "requiredEvidence": [
         "equipment GLB library",
         "clinical equipment metadata",
         "license provenance"
       ],
-      "blockers": []
+      "blockers": [
+        "medical_equipment_library_missing"
+      ]
     },
     "animationRetargeting": {
-      "observed": true,
+      "observed": false,
       "requiredEvidence": [
         "canonical skeleton clips",
         "viseme or facial target mapping",
         "retargeting QA report"
       ],
-      "blockers": []
+      "blockers": [
+        "animation_retargeting_missing"
+      ]
     },
     "lodTextureColliderBudget": {
-      "observed": true,
+      "observed": false,
       "requiredEvidence": [
         "LOD tiers",
         "KTX2 or texture budget report",
         "collider simplification report"
       ],
-      "blockers": []
+      "blockers": [
+        "lod_tiers_missing",
+        "texture_compression_budget_missing",
+        "collider_simplification_report_missing"
+      ]
     },
     "multiActorQuestBudget": {
       "observed": true,
@@ -82,7 +94,7 @@
   },
   "stationBudgetEvidence": {
     "scenarioId": "ed_chest_pain_priority_v1",
-    "source": "@openclinxr/asset-registry:createEdChestPainLocalAssetEvidenceFixtureManifests",
+    "source": "@openclinxr/asset-registry:createEdChestPainPlaceholderManifests",
     "requiredAssetCount": 3,
     "budget": {
       "maxVisibleTriangles": 180000,
@@ -93,24 +105,33 @@
       "totalDrawCalls": 28,
       "blockers": []
     },
-    "placeholderOnly": false,
+    "placeholderOnly": true,
     "observed": true,
     "blockers": []
   },
   "generationEvidence": {
-    "generatedHumanRiggingObserved": true,
-    "skinClothingProvenanceObserved": true,
-    "medicalEquipmentLibraryObserved": true,
-    "animationRetargetingObserved": true,
-    "placeholderOnly": false,
-    "blockers": []
+    "generatedHumanRiggingObserved": false,
+    "skinClothingProvenanceObserved": false,
+    "medicalEquipmentLibraryObserved": false,
+    "animationRetargetingObserved": false,
+    "placeholderOnly": true,
+    "blockers": [
+      "generated_human_rigging_missing",
+      "skin_clothing_provenance_missing",
+      "medical_equipment_library_missing",
+      "animation_retargeting_missing"
+    ]
   },
   "optimizationEvidence": {
-    "lodTiersObserved": true,
-    "textureCompressionBudgetObserved": true,
-    "colliderSimplificationObserved": true,
-    "placeholderOnly": false,
-    "blockers": []
+    "lodTiersObserved": false,
+    "textureCompressionBudgetObserved": false,
+    "colliderSimplificationObserved": false,
+    "placeholderOnly": true,
+    "blockers": [
+      "lod_tiers_missing",
+      "texture_compression_budget_missing",
+      "collider_simplification_report_missing"
+    ]
   },
   "runtimeBudget": {
     "singleAssetPackGlbBytes": 109040,
@@ -122,10 +143,9 @@
     "blockers": []
   },
   "claimBoundaries": {
-    "localAssetEvidenceFixtureIsContractOnly": true,
+    "localAssetEvidenceFixtureIsContractOnly": false,
     "artifactBackedProductionAssetEvidenceObserved": false,
     "allowedClaims": [
-      "local asset evidence fixture contract slots observed",
       "reviewed local clinical fixture semantic inventory observed"
     ],
     "notEvidenceFor": [
@@ -141,12 +161,20 @@
     "passed": false,
     "readyForProductionAssets": false,
     "blockers": [
-      "artifact_backed_production_asset_evidence_missing"
+      "station_budget:placeholder_asset_budget_only",
+      "generation:placeholder_asset_generation_only",
+      "optimization:placeholder_asset_optimization_only",
+      "generation:generated_human_rigging_missing",
+      "generation:skin_clothing_provenance_missing",
+      "generation:medical_equipment_library_missing",
+      "generation:animation_retargeting_missing",
+      "optimization:lod_tiers_missing",
+      "optimization:texture_compression_budget_missing",
+      "optimization:collider_simplification_report_missing"
     ],
     "caveats": [
       "This report evaluates production-readiness evidence from local smoke outputs only; it does not generate new third-party assets.",
-      "Reviewed local clinical fixture output still requires visual QA, clinical fidelity review, and headset frame-pacing evidence before production use.",
-      "The local asset evidence fixture supplies contract-level proof slots only; fixture IDs are not artifact-backed generated production assets."
+      "Reviewed local clinical fixture output still requires visual QA, clinical fidelity review, and headset frame-pacing evidence before production use."
     ]
   }
 }

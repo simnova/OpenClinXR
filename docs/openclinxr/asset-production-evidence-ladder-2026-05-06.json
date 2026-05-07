@@ -1,13 +1,13 @@
 {
   "schemaVersion": "openclinxr.asset-production-evidence-ladder.v1",
   "kind": "asset_production_evidence_ladder",
-  "generatedAt": "2026-05-06T15:33:39.087Z",
+  "generatedAt": "2026-05-07T00:24:55.474Z",
   "status": "blocked",
   "sourceReadinessReport": {
     "file": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
-    "generatedAt": "2026-05-06T15:09:30.325Z",
+    "generatedAt": "2026-05-07T00:24:00.350Z",
     "status": "blocked",
-    "localAssetEvidenceFixtureUsed": true
+    "localAssetEvidenceFixtureUsed": false
   },
   "policy": {
     "installsIntroduced": false,
@@ -20,7 +20,7 @@
     {
       "id": "generatedHumanRigging",
       "title": "Generated human rigging",
-      "status": "contract_only",
+      "status": "blocked",
       "requiredArtifactEvidence": [
         "neutral generated human GLB",
         "canonical skeleton binding report",
@@ -28,12 +28,11 @@
       ],
       "currentEvidence": {
         "source": "asset_production_readiness_benchmark.productionProofs.generatedHumanRigging",
-        "observed": true,
-        "posture": "contract_only_fixture"
+        "observed": false,
+        "posture": "missing"
       },
       "claimBoundary": {
         "allowedClaims": [
-          "local asset evidence fixture contract slots observed",
           "reviewed local clinical fixture semantic inventory observed"
         ],
         "notEvidenceFor": [
@@ -46,13 +45,13 @@
         ]
       },
       "blockers": [
-        "contract_only_fixture_not_artifact_backed"
+        "proof_lane_not_observed"
       ]
     },
     {
       "id": "skinClothingProvenance",
       "title": "Skin and clothing provenance",
-      "status": "contract_only",
+      "status": "blocked",
       "requiredArtifactEvidence": [
         "skin and texture provenance manifest",
         "clothing mesh provenance manifest",
@@ -60,12 +59,11 @@
       ],
       "currentEvidence": {
         "source": "asset_production_readiness_benchmark.productionProofs.skinClothingProvenance",
-        "observed": true,
-        "posture": "contract_only_fixture"
+        "observed": false,
+        "posture": "missing"
       },
       "claimBoundary": {
         "allowedClaims": [
-          "local asset evidence fixture contract slots observed",
           "reviewed local clinical fixture semantic inventory observed"
         ],
         "notEvidenceFor": [
@@ -78,13 +76,13 @@
         ]
       },
       "blockers": [
-        "contract_only_fixture_not_artifact_backed"
+        "proof_lane_not_observed"
       ]
     },
     {
       "id": "medicalEquipmentLibrary",
       "title": "Medical equipment library",
-      "status": "contract_only",
+      "status": "blocked",
       "requiredArtifactEvidence": [
         "equipment GLB artifact inventory",
         "clinical affordance metadata",
@@ -92,12 +90,11 @@
       ],
       "currentEvidence": {
         "source": "asset_production_readiness_benchmark.productionProofs.medicalEquipmentLibrary",
-        "observed": true,
-        "posture": "contract_only_fixture"
+        "observed": false,
+        "posture": "missing"
       },
       "claimBoundary": {
         "allowedClaims": [
-          "local asset evidence fixture contract slots observed",
           "reviewed local clinical fixture semantic inventory observed"
         ],
         "notEvidenceFor": [
@@ -110,13 +107,13 @@
         ]
       },
       "blockers": [
-        "contract_only_fixture_not_artifact_backed"
+        "proof_lane_not_observed"
       ]
     },
     {
       "id": "animationRetargeting",
       "title": "Animation retargeting",
-      "status": "contract_only",
+      "status": "blocked",
       "requiredArtifactEvidence": [
         "canonical skeleton animation clips",
         "facial target or viseme mapping",
@@ -124,12 +121,11 @@
       ],
       "currentEvidence": {
         "source": "asset_production_readiness_benchmark.productionProofs.animationRetargeting",
-        "observed": true,
-        "posture": "contract_only_fixture"
+        "observed": false,
+        "posture": "missing"
       },
       "claimBoundary": {
         "allowedClaims": [
-          "local asset evidence fixture contract slots observed",
           "reviewed local clinical fixture semantic inventory observed"
         ],
         "notEvidenceFor": [
@@ -142,13 +138,13 @@
         ]
       },
       "blockers": [
-        "contract_only_fixture_not_artifact_backed"
+        "proof_lane_not_observed"
       ]
     },
     {
       "id": "lodTextureColliderBudget",
       "title": "LOD, texture, and collider budget",
-      "status": "contract_only",
+      "status": "blocked",
       "requiredArtifactEvidence": [
         "LOD0/LOD1/LOD2 artifact set",
         "KTX2 or texture budget report",
@@ -156,12 +152,11 @@
       ],
       "currentEvidence": {
         "source": "asset_production_readiness_benchmark.productionProofs.lodTextureColliderBudget",
-        "observed": true,
-        "posture": "contract_only_fixture"
+        "observed": false,
+        "posture": "missing"
       },
       "claimBoundary": {
         "allowedClaims": [
-          "local asset evidence fixture contract slots observed",
           "reviewed local clinical fixture semantic inventory observed"
         ],
         "notEvidenceFor": [
@@ -174,13 +169,13 @@
         ]
       },
       "blockers": [
-        "contract_only_fixture_not_artifact_backed"
+        "proof_lane_not_observed"
       ]
     },
     {
       "id": "multiActorQuestBudget",
       "title": "Multi-actor Quest 3 station budget",
-      "status": "contract_only",
+      "status": "observed",
       "requiredArtifactEvidence": [
         "station bundle artifact manifest",
         "multi-actor draw-call and texture-memory budget",
@@ -189,11 +184,10 @@
       "currentEvidence": {
         "source": "asset_production_readiness_benchmark.productionProofs.multiActorQuestBudget",
         "observed": true,
-        "posture": "contract_only_fixture"
+        "posture": "artifact_backed"
       },
       "claimBoundary": {
         "allowedClaims": [
-          "local asset evidence fixture contract slots observed",
           "reviewed local clinical fixture semantic inventory observed"
         ],
         "notEvidenceFor": [
@@ -205,9 +199,7 @@
           "artifact-backed Quest 3 production bundle budget"
         ]
       },
-      "blockers": [
-        "contract_only_fixture_not_artifact_backed"
-      ]
+      "blockers": []
     },
     {
       "id": "artifactBackedProductionAssetEvidence",
@@ -225,7 +217,6 @@
       },
       "claimBoundary": {
         "allowedClaims": [
-          "local asset evidence fixture contract slots observed",
           "reviewed local clinical fixture semantic inventory observed"
         ],
         "notEvidenceFor": [
@@ -244,9 +235,9 @@
   ],
   "summary": {
     "totalLaneCount": 7,
-    "observedLaneCount": 0,
-    "contractOnlyLaneCount": 6,
-    "blockedLaneCount": 7,
+    "observedLaneCount": 1,
+    "contractOnlyLaneCount": 0,
+    "blockedLaneCount": 6,
     "artifactBackedProductionAssetEvidenceObserved": false
   },
   "verdict": {
@@ -254,12 +245,11 @@
     "readyForProductionAssets": false,
     "blockers": [
       "artifact_backed_production_asset_evidence_missing",
-      "generatedHumanRigging:contract_only_fixture_not_artifact_backed",
-      "skinClothingProvenance:contract_only_fixture_not_artifact_backed",
-      "medicalEquipmentLibrary:contract_only_fixture_not_artifact_backed",
-      "animationRetargeting:contract_only_fixture_not_artifact_backed",
-      "lodTextureColliderBudget:contract_only_fixture_not_artifact_backed",
-      "multiActorQuestBudget:contract_only_fixture_not_artifact_backed"
+      "generatedHumanRigging:proof_lane_not_observed",
+      "skinClothingProvenance:proof_lane_not_observed",
+      "medicalEquipmentLibrary:proof_lane_not_observed",
+      "animationRetargeting:proof_lane_not_observed",
+      "lodTextureColliderBudget:proof_lane_not_observed"
     ],
     "caveats": [
       "This ladder names production asset proof lanes and claim boundaries only; it does not generate new assets.",
