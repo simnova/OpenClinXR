@@ -167,14 +167,12 @@
     },
     {
       "evidence_id": "blueprint_voice_simulation_spike",
-      "file": "docs/openclinxr/blueprint-voice-simulation-spike-2026-05-05.json",
-      "generated_at": "2026-05-06T03:18:07.296Z",
-      "age_hours": 26,
+      "file": "docs/openclinxr/blueprint-voice-simulation-spike-2026-05-07.json",
+      "generated_at": "2026-05-07T05:45:54.295Z",
+      "age_hours": 0,
       "max_age_hours": 24,
-      "status": "stale",
-      "blockers": [
-        "blueprint_voice_simulation_spike:evidence_stale_over_24h"
-      ]
+      "status": "fresh",
+      "blockers": []
     },
     {
       "evidence_id": "godot_quest_voice_evidence",
@@ -233,7 +231,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-07T05:43:13.794Z",
+      "generated_at": "2026-05-07T05:48:11.445Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -1679,13 +1677,13 @@
     }
   },
   "blueprint_voice_simulation_spike": {
-    "file": "docs/openclinxr/blueprint-voice-simulation-spike-2026-05-05.json",
-    "generated_at": "2026-05-06T03:18:07.296Z",
+    "file": "docs/openclinxr/blueprint-voice-simulation-spike-2026-05-07.json",
+    "generated_at": "2026-05-07T05:45:54.295Z",
     "status": "mock_facade_exercised",
     "claim_scope": {
       "tier0_blueprint_compiler_passed": true,
       "mock_voice_facade_exercised": true,
-      "tier1_transport_loop_passed": true,
+      "tier1_transport_loop_passed": false,
       "tier2_local_inference_observed": false,
       "tier3_webxr_observed": false,
       "ready_for_production": false
@@ -1702,18 +1700,19 @@
       "runtime_routing_exercised": true,
       "multi_character_interruption_exercised": true,
       "transport_linked_existing_evidence": true,
-      "bun_python_proxy_passed": true,
+      "bun_python_proxy_passed": false,
       "raw_audio_stored": false,
       "hidden_facts_exposed_to_learner": false
     },
     "blockers": [
+      "bun_python_proxy_not_passed",
       "clinical_voice_safety_controls_not_validated_with_real_model",
       "first_response_improvement_not_measured",
       "not_ready_for_production",
       "python_backend_runtime_not_executed_for_this_report",
       "quest_microphone_and_playback_not_measured",
       "real_local_full_duplex_model_not_executed",
-      "tier1_transport_linked_but_not_executed_by_blueprint_report",
+      "tier1_bun_python_transport_loop_not_executed",
       "tier2_local_inference_not_observed",
       "tier3_webxr_not_observed",
       "webxr_iwsdk_client_not_executed_for_this_report"
@@ -2172,7 +2171,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-07T05:43:13.794Z",
+    "generated_at": "2026-05-07T05:48:11.445Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
@@ -2380,14 +2379,12 @@
         "asset_production_readiness_report_present",
         "asset_production_source_smokes_passed",
         "battery_drop_recorded_under_20",
-        "blueprint_voice_bun_python_proxy_passed",
         "blueprint_voice_mock_facade_exercised",
         "blueprint_voice_multi_character_interruption_exercised",
         "blueprint_voice_prewarm_executed",
         "blueprint_voice_runtime_routing_exercised",
         "blueprint_voice_simulation_report_present",
         "blueprint_voice_tier0_compiler_passed",
-        "blueprint_voice_tier1_transport_loop_passed",
         "blueprint_voice_transport_linked_existing_evidence",
         "experience_mode_full_vr_recorded",
         "extra_browser_windows_closed",
@@ -2854,14 +2851,12 @@
       "evidence_id": "evidence-leadership-0009-003",
       "ready_to_resolve": false,
       "satisfied_conditions": [
-        "blueprint_voice_bun_python_proxy_passed",
         "blueprint_voice_mock_facade_exercised",
         "blueprint_voice_multi_character_interruption_exercised",
         "blueprint_voice_prewarm_executed",
         "blueprint_voice_runtime_routing_exercised",
         "blueprint_voice_simulation_report_present",
         "blueprint_voice_tier0_compiler_passed",
-        "blueprint_voice_tier1_transport_loop_passed",
         "blueprint_voice_transport_linked_existing_evidence",
         "local_provider_mock_benchmarks_passed",
         "local_voice_bun_websocket_runtime_smoke_passed",
@@ -2888,7 +2883,6 @@
         "local_voice_realtime_transport_contract_observed"
       ],
       "blockers": [
-        "blueprint_voice_simulation_spike:evidence_stale_over_24h",
         "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:api_bun_python_proxy_runtime_smoke_not_passed",
         "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:audio_chunk_not_observed",
         "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:backend_protocol_not_observed",
@@ -2902,13 +2896,14 @@
         "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:voice_stopped_not_observed",
         "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:websocket_errors_observed",
         "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:websocket_not_connected",
+        "local_voice_live_dialog:blueprint_voice_simulation:bun_python_proxy_not_passed",
         "local_voice_live_dialog:blueprint_voice_simulation:clinical_voice_safety_controls_not_validated_with_real_model",
         "local_voice_live_dialog:blueprint_voice_simulation:first_response_improvement_not_measured",
         "local_voice_live_dialog:blueprint_voice_simulation:not_ready_for_production",
         "local_voice_live_dialog:blueprint_voice_simulation:python_backend_runtime_not_executed_for_this_report",
         "local_voice_live_dialog:blueprint_voice_simulation:quest_microphone_and_playback_not_measured",
         "local_voice_live_dialog:blueprint_voice_simulation:real_local_full_duplex_model_not_executed",
-        "local_voice_live_dialog:blueprint_voice_simulation:tier1_transport_linked_but_not_executed_by_blueprint_report",
+        "local_voice_live_dialog:blueprint_voice_simulation:tier1_bun_python_transport_loop_not_executed",
         "local_voice_live_dialog:blueprint_voice_simulation:tier2_local_inference_not_observed",
         "local_voice_live_dialog:blueprint_voice_simulation:tier3_webxr_not_observed",
         "local_voice_live_dialog:blueprint_voice_simulation:webxr_iwsdk_client_not_executed_for_this_report",
@@ -2946,17 +2941,8 @@
       ],
       "blocker_summary": {
         "total_blockers": 55,
-        "distinct_problem_count": 2,
+        "distinct_problem_count": 1,
         "groups": [
-          {
-            "group_id": "benchmark_evidence_freshness",
-            "title": "Benchmark evidence freshness",
-            "owner": "qa-evidence-lead",
-            "blockers": [
-              "blueprint_voice_simulation_spike:evidence_stale_over_24h"
-            ],
-            "next_step": "Regenerate the stale local evidence files before using the benchmark gate as leadership-ready proof."
-          },
           {
             "group_id": "local_voice_live_dialog",
             "title": "Local voice live-dialog evidence",
@@ -2975,13 +2961,14 @@
               "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:voice_stopped_not_observed",
               "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:websocket_errors_observed",
               "local_voice_live_dialog:api_bun_python_proxy_runtime_smoke:websocket_not_connected",
+              "local_voice_live_dialog:blueprint_voice_simulation:bun_python_proxy_not_passed",
               "local_voice_live_dialog:blueprint_voice_simulation:clinical_voice_safety_controls_not_validated_with_real_model",
               "local_voice_live_dialog:blueprint_voice_simulation:first_response_improvement_not_measured",
               "local_voice_live_dialog:blueprint_voice_simulation:not_ready_for_production",
               "local_voice_live_dialog:blueprint_voice_simulation:python_backend_runtime_not_executed_for_this_report",
               "local_voice_live_dialog:blueprint_voice_simulation:quest_microphone_and_playback_not_measured",
               "local_voice_live_dialog:blueprint_voice_simulation:real_local_full_duplex_model_not_executed",
-              "local_voice_live_dialog:blueprint_voice_simulation:tier1_transport_linked_but_not_executed_by_blueprint_report",
+              "local_voice_live_dialog:blueprint_voice_simulation:tier1_bun_python_transport_loop_not_executed",
               "local_voice_live_dialog:blueprint_voice_simulation:tier2_local_inference_not_observed",
               "local_voice_live_dialog:blueprint_voice_simulation:tier3_webxr_not_observed",
               "local_voice_live_dialog:blueprint_voice_simulation:webxr_iwsdk_client_not_executed_for_this_report",
