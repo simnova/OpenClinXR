@@ -160,7 +160,7 @@
       "evidence_id": "local_moshi_runtime_package_evidence",
       "file": "docs/openclinxr/local-moshi-runtime-package-evidence-2026-05-06.json",
       "generated_at": "2026-05-06T14:59:16.154Z",
-      "age_hours": 14,
+      "age_hours": 15,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -178,7 +178,7 @@
       "evidence_id": "godot_quest_voice_evidence",
       "file": "docs/openclinxr/godot-quest-voice-evidence-2026-05-06.json",
       "generated_at": "2026-05-06T14:00:03.516Z",
-      "age_hours": 15,
+      "age_hours": 16,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -231,7 +231,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-07T05:58:10.522Z",
+      "generated_at": "2026-05-07T06:00:07.223Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -2171,7 +2171,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-07T05:58:10.522Z",
+    "generated_at": "2026-05-07T06:00:07.223Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
