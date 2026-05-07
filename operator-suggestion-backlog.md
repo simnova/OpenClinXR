@@ -30,7 +30,11 @@ This file captures useful operator suggestions that should not interrupt the cur
 - Current status: blocked by local runtime mismatch (`libicui18n.74.dylib` missing).
 - Confidence: medium.
 - Notes: `node` is resolving to `/opt/homebrew/bin/node`, but this build expects `/opt/homebrew/Cellar/node/21.7.1/bin/node` linked against `/opt/homebrew/opt/icu4c/lib/libicui18n.74.dylib`, which is missing on this environment. Until this is fixed, `pnpm` and targeted Vitest checks cannot complete locally.
+- Local evidence check (2026-05-07): `node` fails at startup with `Library not loaded: /opt/homebrew/opt/icu4c/lib/libicui18n.74.dylib` and `/opt/homebrew/opt/icu4c/lib` currently exposes ICU 78 (`libicui18n.78.3.dylib`).
 - Promote when: Homebrew Node/icu4c is repaired or replaced with a compatible runtime in your local environment.
+- Suggested operator actions:
+  - either reinstall `icu4c` to a 74-compatible artifact compatible with the installed Node 21.7.1 runtime, or
+  - switch this workstation to a single consistent Node runtime (for example Node 22+ with matching ICU) and ensure `pnpm` resolves through that runtime.
 
 ### UIKitML For Spatial Text
 
