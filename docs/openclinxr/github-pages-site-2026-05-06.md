@@ -17,9 +17,10 @@ GitHub Pages can be enabled either with a committed workflow or through reposito
 
 The root `README.md` links to the live Pages URL reported by GitHub:
 
-<http://developers.simnova.com/OpenClinXR/>
+<https://developers.simnova.com/OpenClinXR/>
 
-`gh api repos/simnova/OpenClinXR/pages` reports source branch `main`, path `/docs`, status `built`, and `html_url` `http://developers.simnova.com/OpenClinXR/`. A local `curl -I` check returned HTTP 200 for that URL on 2026-05-06. HTTPS for the custom domain is not yet claimable from this machine because the certificate response did not match `developers.simnova.com`.
+`gh api repos/simnova/OpenClinXR/pages` reports source branch `main`, path `/docs`, status `built`, and `html_url` `https://developers.simnova.com/OpenClinXR/`.
+A local `curl -I` check returned HTTP 200 for the URL on 2026-05-06 after the CNAME file was added.
 
 ## Validation
 
@@ -49,4 +50,4 @@ pnpm pages:validate
 
 ## Remaining Operator Step
 
-Review the repository Pages/domain settings before publishing the URL externally. The HTTP URL serves the site, but HTTPS certificate posture for `developers.simnova.com` still needs DNS/certificate cleanup before using an `https://` public link.
+Review the repository Pages/domain settings once before major domain changes, then rely on `docs/openclinxr/security-audit-cadence.md`/`docs/openclinxr/worker-backlog-and-validation-matrix.md` for recurring evidence cadence.
