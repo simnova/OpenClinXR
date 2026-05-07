@@ -13,6 +13,9 @@ describe("GitHub Pages static site", () => {
     expect(rootPackage.scripts["pages:validate"]).toBe(
       "tsx tools/openclinxr/check-github-pages-site.ts",
     );
+    expect(rootPackage.scripts["pages:sync-evidence-links"]).toBe(
+      "tsx tools/openclinxr/sync-github-pages-evidence-links.ts",
+    );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm pages:validate");
   });
 
@@ -72,6 +75,21 @@ describe("GitHub Pages static site", () => {
       expect(
         brokenLinks.blockers,
       ).toContain("pages_index_github_link_missing:openclinxr/missing-voice-strategy.md");
+    } finally {
+      await writeFile(indexPath, index, "utf8");
+    }
+
+    const staleIndex = index.replace(
+      'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json"',
+      'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/asset-production-readiness-benchmark-2026-05-05.json"',
+    );
+    try {
+      await writeFile(indexPath, staleIndex, "utf8");
+      const staleResult = await validateGitHubPagesSite();
+      expect(staleResult.passed).toBe(false);
+      expect(staleResult.blockers).toContain(
+        "pages_index_snapshot_not_latest:asset-production-readiness-benchmark:found:asset-production-readiness-benchmark-2026-05-05.json:expected:asset-production-readiness-benchmark-2026-05-06.json",
+      );
     } finally {
       await writeFile(indexPath, index, "utf8");
     }

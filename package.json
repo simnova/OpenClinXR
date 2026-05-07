@@ -41,6 +41,7 @@
     "security:licenses": "tsx tools/openclinxr/check-license-policy.ts",
     "verify": "pnpm agent:verify && pnpm typecheck && pnpm test && pnpm security:audit && pnpm security:audit-policy && pnpm security:licenses",
     "pages:validate": "tsx tools/openclinxr/check-github-pages-site.ts",
+    "pages:sync-evidence-links": "tsx tools/openclinxr/sync-github-pages-evidence-links.ts",
     "iwsdk:verify": "pnpm --filter @openclinxr/iwsdk-spike typecheck && pnpm --filter @openclinxr/iwsdk-spike test && pnpm iwsdk:contract:tests && pnpm iwsdk:preinstall && pnpm iwsdk:preinstall:fixture && pnpm iwsdk:workspace:posture -- --approved-sidecar --approved-phase2-devtools --approved-sharp-libvips-exception --approved-uikitml-spatial-text && pnpm iwsdk:npm-currentness:validate && pnpm iwsdk:evidence:validate && pnpm iwer:sidecar:evidence:validate && pnpm iwer:auto-entry:evidence:validate && pnpm iwer:controller-input:evidence:validate && pnpm xr:quest:mr:check -- --input docs/openclinxr/quest-mixed-reality-manual-template.json --output .agent-factory/quest-mixed-reality-manual-template-check.json && pnpm --filter @openclinxr/architecture-rules typecheck && pnpm --filter @openclinxr/architecture-rules test && pnpm agent:sources",
     "iwsdk:contract:tests": "vitest run tools/openclinxr/iwsdk-operator-steering-blockers.test.ts tools/openclinxr/iwsdk-ui-xr-parity.test.ts",
     "iwsdk:preinstall": "tsx tools/openclinxr/iwsdk-preinstall-check.ts",

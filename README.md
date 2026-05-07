@@ -28,4 +28,14 @@ pnpm security:audit-policy
 pnpm security:licenses
 ```
 
+For GitHub Pages maintenance:
+
+```bash
+pnpm pages:sync-evidence-links
+pnpm pages:validate
+```
+
+`pages:sync-evidence-links` updates the four snapshot links under `docs/index.html`
+to the latest matching files in `docs/openclinxr` using the `data-pages-snapshot` keys.
+
 The public GitHub Pages site is static content in [docs](docs/) and is configured to publish from `main` with `/docs` as the Pages source.

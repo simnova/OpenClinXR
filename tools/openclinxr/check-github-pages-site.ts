@@ -1,4 +1,4 @@
-import { access, constants, readFile } from "node:fs/promises";
+import { access, constants, readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -14,6 +14,12 @@ const requiredSiteFiles = [
   "docs/assets/openclinxr-xr-evidence.png",
   "README.md",
 ];
+const knownPagesSnapshotKeys = [
+  "asset-production-evidence-ladder",
+  "asset-production-artifact-evidence",
+  "asset-production-readiness-benchmark",
+  "github-pages-site",
+] as const;
 
 async function main(): Promise<void> {
   const result = await validateGitHubPagesSite();
@@ -82,6 +88,53 @@ export async function validateGitHubPagesSite(): Promise<ValidationResult> {
     }
   }
 
+  const snapshotLinks = [...indexHtml.matchAll(pageLiveSnapshotPattern())];
+  const snapshotStatuses = new Map<string, string>();
+  for (const match of snapshotLinks) {
+    const key = match[1];
+    const href = match[2];
+    if (!key || !href) {
+      continue;
+    }
+    if (!knownPagesSnapshotKeys.includes(key as (typeof knownPagesSnapshotKeys)[number])) {
+      blockers.push(`pages_index_snapshot_key_unknown:${key}`);
+      continue;
+    }
+
+    const fullPath = href;
+    const fileName = fullPath.split("/").pop();
+    if (!fileName) {
+      blockers.push(`pages_index_snapshot_path_invalid:${key}`);
+      continue;
+    }
+
+    const snapshotMatch = fileName.match(pagesSnapshotFilePattern(key));
+    if (!snapshotMatch) {
+      blockers.push(`pages_index_snapshot_filename_invalid:${key}:${fileName}`);
+      continue;
+    }
+
+    const currentDate = snapshotMatch[1];
+    const extension = snapshotMatch[2];
+    const latestDate = await latestSnapshotDate(key, extension);
+    if (!latestDate) {
+      blockers.push(`pages_index_snapshot_missing:${key}`);
+      continue;
+    }
+
+    if (currentDate !== latestDate) {
+      blockers.push(`pages_index_snapshot_not_latest:${key}:found:${fileName}:expected:${key}-${latestDate}${extension}`);
+    }
+
+    snapshotStatuses.set(key, fileName);
+  }
+
+  for (const key of knownPagesSnapshotKeys) {
+    if (!snapshotStatuses.has(key)) {
+      blockers.push(`pages_index_snapshot_key_missing:${key}`);
+    }
+  }
+
   if (workflow) {
     const uploadPath = workflow.match(/^\s*path:\s*(.+)$/m)?.[1]?.trim();
     if (!uploadPath || uploadPath !== "docs") {
@@ -110,6 +163,43 @@ async function fileExists(pathname: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+function pageLiveSnapshotPattern(): RegExp {
+  return /<a\b[\s\S]*?data-pages-snapshot="([^"]+)"[\s\S]*?href="([^"]+)"[\s\S]*?>/g;
+}
+
+function pagesSnapshotFilePattern(key: string): RegExp {
+  return new RegExp(
+    `^${escapeRegex(key)}-([0-9]{4}-[0-9]{2}-[0-9]{2})(\\.[a-z0-9]+)$`,
+    "i",
+  );
+}
+
+async function latestSnapshotDate(key: string, extension: string): Promise<string | undefined> {
+  const pattern = new RegExp(
+    `^${escapeRegex(key)}-([0-9]{4}-[0-9]{2}-[0-9]{2})${escapeRegex(extension)}$`,
+    "i",
+  );
+  const files = await readdir("docs/openclinxr", { withFileTypes: true });
+  const candidates = files
+    .filter((entry) => entry.isFile() && pattern.test(entry.name))
+    .map((entry) => {
+      const match = entry.name.match(pattern);
+      const date = match?.[1];
+      if (!date) {
+        return null;
+      }
+      return date;
+    })
+    .filter((date): date is string => date !== null)
+    .sort((a, b) => b.localeCompare(a));
+
+  return candidates[0];
+}
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ? path.resolve(process.argv[1]) : "").href) {
