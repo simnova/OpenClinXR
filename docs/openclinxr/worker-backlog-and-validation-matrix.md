@@ -21,6 +21,32 @@ Nonblocking operator suggestions that should be remembered but not implemented i
 - Every asset record must carry provenance, license, optimization target, and QA status.
 - XR and UI slices should capture browser screenshots and, when tooling supports it, short videos as review artifacts; adversarial agents must label the evidence source and critique scene fidelity, readability, actor/equipment realism, interaction affordances, occlusion, scale, and clinical safety cues before visual-readiness claims.
 
+## Worker 0: Security Posture Steward
+
+Owned paths:
+
+- `docs/openclinxr/security-audit-exceptions.md`
+- `docs/openclinxr/security-audit-cadence.md`
+- `docs/openclinxr/worker-backlog-and-validation-matrix.md`
+- `operator-suggestion-backlog.md` (audit cadence suggestion entry)
+
+Tasks:
+
+- Run recurring high-severity point-in-time audit snapshots.
+- Keep the latest snapshot references current in `docs/openclinxr/security-audit-exceptions.md`.
+- Validate audit evidence with `pnpm security:audit-policy`.
+
+Validation:
+
+- `pnpm security:audit --audit-level=high`
+- `pnpm security:audit-policy -- --audit-json docs/openclinxr/security-audit-YYYY-MM-DD.json --output docs/openclinxr/security-audit-policy-YYYY-MM-DD.json`
+
+Done when:
+
+- `security-audit-exceptions.md` contains a current snapshot reference and policy result link.
+- `operator-suggestion-backlog.md` marks this cadence item as promoted/tracked.
+- No unresolved high/critical exceptions are in `pnpm verify` posture.
+
 ## Worker 1: Workspace Steward
 
 Owned paths:

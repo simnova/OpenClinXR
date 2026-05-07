@@ -2,7 +2,7 @@
 
 OpenClinXR is an evidence-gated XR clinical simulation workspace for virtual-patient encounters, Quest/WebXR runtime evidence, local-first voice, and production asset readiness.
 
-Project page: <http://developers.simnova.com/OpenClinXR/>
+Project page: <https://developers.simnova.com/OpenClinXR/>
 
 ## Current Posture
 
@@ -12,6 +12,7 @@ Useful entry points:
 
 - [OpenClinXR docs](docs/openclinxr/)
 - [Implementation plan](docs/openclinxr/code-implementation-plan.md)
+- [PNPM audit cadence runbook](docs/openclinxr/security-audit-cadence.md)
 - [Quest 3 USB WebXR smoke checklist](docs/openclinxr/quest3-usb-webxr-smoke-checklist.md)
 - [Local AI voice model strategy](docs/openclinxr/local-ai-voice-model-strategy.md)
 - [Automated asset generation pipeline](docs/openclinxr/asset-generation-pipeline.md)

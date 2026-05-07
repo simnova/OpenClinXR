@@ -21,6 +21,29 @@ The latest local audit evidence is:
 - `docs/openclinxr/security-audit-2026-05-05.json`
 - `docs/openclinxr/security-audit-policy-2026-05-05.json`
 
+## Audit Cadence (Backlog-Tracked)
+
+Run a recurring point-in-time snapshot at least weekly (or after any dependency lockfile change) and keep evidence in `docs/openclinxr/`.
+
+Recommended cadence:
+
+- **Weekly baseline:** after dependency reviews, or at least every Tuesday.
+- **Post-change snapshot:** immediately after any dependency update that changed lockfile inputs.
+- **Before major milestones:** run one extra snapshot before any proposal handoff that changes verification posture.
+
+Command:
+
+```bash
+pnpm audit --audit-level=high --json > docs/openclinxr/security-audit-YYYY-MM-DD.json
+pnpm security:audit-policy -- --audit-json docs/openclinxr/security-audit-YYYY-MM-DD.json --output docs/openclinxr/security-audit-policy-YYYY-MM-DD.json
+```
+
+Update both the timestamped file references in this document and the validation worker matrix when a newer snapshot replaces the prior one.
+
+Detailed cadence steps also live in:
+
+- [docs/openclinxr/security-audit-cadence.md](security-audit-cadence.md)
+
 Exceptions are allowed only when all of the following are recorded here:
 
 - Advisory ID or GHSA.
