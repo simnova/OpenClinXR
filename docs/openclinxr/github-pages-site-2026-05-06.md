@@ -5,6 +5,14 @@ Status: GitHub Pages built from `main` `/docs`
 
 ## Committed Site
 
+## Decision
+
+- Date: 2026-05-07
+- Decision: **Use legacy branch/folder Pages delivery for now (`main` + `/docs`).**
+- Reasoning: The repository is already publishing successfully through the repository Pages source settings, with HTTPS routed via committed `docs/CNAME`. This path is stable and avoids introducing a new deployment workflow until there is a compelling reason.
+- Compensating rule: only revisit if we need custom deployment semantics, pull-request-only preview behavior, or multi-environment pages controls that settings-based source cannot provide.
+
+
 The public project site lives under the repository Pages source directory:
 
 - `docs/index.html`
