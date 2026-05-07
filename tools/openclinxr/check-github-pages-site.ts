@@ -1,4 +1,5 @@
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
+import { constants } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -13,6 +14,7 @@ const requiredSiteFiles = [
   "docs/.nojekyll",
   "docs/assets/openclinxr-xr-evidence.png",
   "README.md",
+  ".github/workflows/pages.yml",
 ];
 
 async function main(): Promise<void> {
@@ -43,6 +45,7 @@ export async function validateGitHubPagesSite(): Promise<ValidationResult> {
   const indexHtml = fileText.get("docs/index.html") ?? "";
   const styles = fileText.get("docs/styles.css") ?? "";
   const readme = fileText.get("README.md") ?? "";
+  const workflow = fileText.get(".github/workflows/pages.yml") ?? "";
 
   blockers.push(...[
     indexHtml.includes("<title>OpenClinXR</title>") ? undefined : "pages_index_title_missing",
@@ -51,14 +54,36 @@ export async function validateGitHubPagesSite(): Promise<ValidationResult> {
     indexHtml.includes("https://github.com/simnova/OpenClinXR") ? undefined : "pages_index_repo_link_missing",
     indexHtml.includes("Evidence Docs") ? undefined : "pages_index_evidence_docs_link_missing",
     styles.includes("@media (max-width: 860px)") ? undefined : "pages_styles_mobile_breakpoint_missing",
+    workflow.includes('path: docs') ? undefined : "pages_workflow_upload_path_missing",
     readme.includes("http://developers.simnova.com/OpenClinXR/") ? undefined : "readme_pages_url_missing",
     readme.includes("main") && readme.includes("/docs") ? undefined : "readme_pages_source_missing",
   ].filter((blocker): blocker is string => typeof blocker === "string"));
+
+  const indexLinks = extractGitHubLinks(indexHtml);
+  for (const link of indexLinks) {
+    try {
+      await access(path.resolve(process.cwd(), link), constants.F_OK);
+    } catch {
+      blockers.push(`pages_index_github_link_missing:${link}`);
+    }
+  }
 
   return {
     passed: blockers.length === 0,
     blockers,
   };
+}
+
+function extractGitHubLinks(markup: string): string[] {
+  const rawLinkPattern = /href="https:\/\/github\.com\/simnova\/OpenClinXR\/(blob|tree)\/main\/([^"]+)"/g;
+  const links: string[] = [];
+  for (const match of markup.matchAll(rawLinkPattern)) {
+    const relativePath = match[2];
+    if (typeof relativePath === "string") {
+      links.push(relativePath);
+    }
+  }
+  return links;
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ? path.resolve(process.argv[1]) : "").href) {
