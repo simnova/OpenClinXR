@@ -13,10 +13,23 @@
       content="Evidence-gated clinical XR simulation for virtual patients, Quest 3, local voice, and production asset readiness."
     >
     <meta property="og:type" content="website">
-    <title>OpenClinXR</title>
+    <title>OpenClinXR — Evidence-Gated Clinical XR Infrastructure</title>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
+    <!-- Top Navigation -->
+    <nav class="top-nav" aria-label="Main navigation">
+      <div class="nav-inner">
+        <a href="#" class="nav-logo">OpenClinXR</a>
+        <div class="nav-links">
+          <a href="#evidence-gates">Evidence Gates</a>
+          <a href="#architecture">Architecture Decisions</a>
+          <a href="#agents">Agent System</a>
+          <a href="https://github.com/simnova/OpenClinXR" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </nav>
+
     <main>
       <section class="hero" aria-labelledby="openclinxr-title">
         <div class="hero__copy">
@@ -84,7 +97,7 @@
         </div>
       </section>
 
-      <section class="band band--evidence" aria-labelledby="evidence-title">
+      <section id="evidence-gates" class="band band--evidence" aria-labelledby="evidence-title">
         <div class="section-heading">
           <p class="eyebrow">Evidence gates</p>
           <h2 id="evidence-title">Every capability carries its own proof boundary.</h2>
@@ -101,6 +114,50 @@
           </a>
           <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/quest3-usb-webxr-smoke-checklist.md">
             Quest 3 USB WebXR smoke checklist
+          </a>
+        </div>
+        <p class="evidence-note">
+          Full evidence documentation lives in <a href="https://github.com/simnova/OpenClinXR/tree/main/docs/openclinxr">docs/openclinxr/</a>.
+          Run <code>pnpm pages:sync-evidence-links</code> and <code>pnpm pages:validate</code> to keep snapshots current.
+        </p>
+      </section>
+
+      <!-- NEW: Architecture Decisions Section -->
+      <section id="architecture" class="band" aria-labelledby="architecture-title">
+        <div class="section-heading">
+          <p class="eyebrow">Architecture</p>
+          <h2 id="architecture-title">Decisions are recorded as MADRs.</h2>
+        </div>
+        <p>
+          Key technical and process decisions are captured as <strong>Markdown Architecture Decision Records (MADRs)</strong>
+          in the repository. This provides a living, searchable history of why choices were made.
+        </p>
+        <div class="actions" style="margin-top: 24px;">
+          <a class="button button--primary" href="https://github.com/simnova/OpenClinXR/tree/main/madr" target="_blank" rel="noopener">
+            Browse all MADRs
+          </a>
+        </div>
+        <p class="muted" style="margin-top: 12px; font-size: 0.9rem;">
+          Examples include domain modeling, local-first voice strategy, Quest WebXR evidence gates, and asset pipeline design.
+        </p>
+      </section>
+
+      <!-- NEW: Agent System Section -->
+      <section id="agents" class="band band--evidence" aria-labelledby="agents-title">
+        <div class="section-heading">
+          <p class="eyebrow">Development approach</p>
+          <h2 id="agents-title">Agent-augmented, evidence-first workflow.</h2>
+        </div>
+        <p>
+          OpenClinXR uses structured agent personas and skills (in <code>/agents/</code>) alongside MADR records
+          and automated evidence gates in <code>/.agent-factory/</code>. This keeps development honest, auditable, and aligned with clinical-grade rigor even in early stages.
+        </p>
+        <div class="actions" style="margin-top: 24px;">
+          <a class="button" href="https://github.com/simnova/OpenClinXR/tree/main/agents" target="_blank" rel="noopener">
+            Explore Agent Personas
+          </a>
+          <a class="button" href="https://github.com/simnova/OpenClinXR/tree/main/.agent-factory" target="_blank" rel="noopener">
+            View Evidence Reports
           </a>
         </div>
       </section>
@@ -136,6 +193,9 @@
             GitHub Pages posture and validation notes
           </a>
         </div>
+        <p class="evidence-note">
+          These snapshots are maintained via repository automation. See the <code>pnpm pages:*</code> scripts in package.json for sync and validation commands.
+        </p>
       </section>
 
       <section class="band" aria-labelledby="status-title">
@@ -150,5 +210,21 @@
         </p>
       </section>
     </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <p>
+          OpenClinXR • Evidence-gated XR clinical simulation infrastructure<br>
+          <small>Maintained with MADR records, agent personas, and automated evidence validation.</small>
+        </p>
+        <div class="footer-links">
+          <a href="https://github.com/simnova/OpenClinXR" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/simnova/OpenClinXR/tree/main/madr" target="_blank" rel="noopener">MADRs</a>
+          <a href="https://github.com/simnova/OpenClinXR/tree/main/agents" target="_blank" rel="noopener">Agents</a>
+          <a href="https://github.com/simnova/OpenClinXR/issues" target="_blank" rel="noopener">Issues</a>
+        </div>
+      </div>
+    </footer>
   </body>
 </html>
