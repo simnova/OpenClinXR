@@ -26,11 +26,15 @@ Local validation commands:
 
 ```bash
 pnpm pages:sync-evidence-links
+pnpm pages:sync-validate
 pnpm pages:validate
 ```
 
 `pages:sync-evidence-links` updates the indexed evidence snapshot links under `docs/index.html` to the
 most recent committed snapshot files for each configured `data-pages-snapshot` key.
+
+`pages:sync-validate` performs the same check in validation mode (no file writes) and then
+invokes `pages:validate`.
 
 The validator is also included in `pnpm agent:verify`.
 

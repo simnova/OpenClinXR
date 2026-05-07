@@ -38,7 +38,9 @@ function parseTagHref(tag: string): string | undefined {
 
 export async function syncGithubPagesEvidenceLinks(
   indexPath = evidencePageRepoRoot,
+  options: { write?: boolean } = {},
 ): Promise<SyncResult> {
+  const { write = true } = options;
   const indexHtml = await readFile(indexPath, "utf8");
   const updates: SyncUpdate[] = [];
   const tagMatches = [...indexHtml.matchAll(anchorTagPattern)];
@@ -108,7 +110,9 @@ export async function syncGithubPagesEvidenceLinks(
     return { changed: false, updates };
   }
 
-  await writeFile(indexPath, output, "utf8");
+  if (write) {
+    await writeFile(indexPath, output, "utf8");
+  }
   return { changed: true, updates };
 }
 
@@ -153,9 +157,19 @@ async function main(): Promise<void> {
   const indexArgIndex = process.argv.indexOf("--index");
   const indexArgValue = indexArgIndex >= 0 ? process.argv[indexArgIndex + 1] : undefined;
   const indexPath = indexArgValue ?? evidencePageRepoRoot;
-  const result = await syncGithubPagesEvidenceLinks(indexPath);
+  const checkMode = process.argv.includes("--check");
+  const result = await syncGithubPagesEvidenceLinks(indexPath, { write: !checkMode });
 
   if (result.changed) {
+    if (checkMode) {
+      console.error("Evidence snapshot links are stale. Run pnpm pages:sync-evidence-links to update them.");
+      for (const update of result.updates) {
+        console.error(`Updated ${update.key}: ${update.previousFile} -> ${update.nextFile}`);
+      }
+      process.exitCode = 1;
+      return;
+    }
+
     for (const update of result.updates) {
       console.log(`Updated ${update.key}: ${update.previousFile} -> ${update.nextFile}`);
     }

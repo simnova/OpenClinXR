@@ -16,6 +16,9 @@ describe("GitHub Pages static site", () => {
     expect(rootPackage.scripts["pages:sync-evidence-links"]).toBe(
       "tsx tools/openclinxr/sync-github-pages-evidence-links.ts",
     );
+    expect(rootPackage.scripts["pages:sync-validate"]).toBe(
+      "tsx tools/openclinxr/sync-github-pages-evidence-links.ts --check && pnpm pages:validate",
+    );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm pages:validate");
   });
 
