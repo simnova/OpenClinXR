@@ -18,7 +18,7 @@ This file captures useful operator suggestions that should not interrupt the cur
 
 - Date added: 2026-05-05
 - Suggestion: Leverage `pnpm audit` to keep abreast of package security issues.
-- Current status: promoted to recurring security evidence cadence docs.
+- Current status: promoted to recurring security evidence cadence docs; executable now via `pnpm security:audit:snapshot`.
 - Confidence: high.
 - Notes: The repo already has `pnpm security:audit`, `pnpm security:audit-policy`, committed audit evidence, and high-severity audit gating. Useful next step is a periodic point-in-time audit evidence cadence or GitHub issue/project checklist, not a new runtime dependency.
 - Promote status: implemented via `docs/openclinxr/security-audit-cadence.md` and `docs/openclinxr/worker-backlog-and-validation-matrix.md`.
