@@ -15,6 +15,30 @@ describe("local runtime probe gates", () => {
     expect(localRuntimeCommandNames).toEqual(expect.arrayContaining(["brew", "portless"]));
   });
 
+  it("ignores errored command probes when evaluating command-ready gates", () => {
+    const report = buildLocalRuntimeProbeReport({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      system: {},
+      commands: [
+        { command: "vibevoice", status: "available", path: "/usr/local/bin/vibevoice", version: "", error: "module missing" },
+        { command: "ollama", status: "available", path: "/usr/local/bin/ollama", version: "", error: "binary broken" },
+      ],
+      pythonModules: [],
+      adbDevices: "List of devices attached\n",
+      adbReverse: "",
+      adbPower: "",
+    });
+
+    expect(report.gates.localModel).toEqual({
+      status: "not_configured",
+      blockers: ["no_ollama_llama_cpp_or_mlx_runtime_detected"],
+    });
+    expect(report.gates.localVoice).toEqual({
+      status: "not_configured",
+      blockers: ["no_vibevoice_runtime_detected"],
+    });
+  });
+
   it("allows enough time for first-launch local model runtime probes", () => {
     expect(LOCAL_RUNTIME_COMMAND_TIMEOUT_MS).toBeGreaterThanOrEqual(60_000);
   });

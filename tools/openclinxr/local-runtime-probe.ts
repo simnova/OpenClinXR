@@ -272,7 +272,9 @@ export function buildLocalRuntimeProbeReport(input: {
   adbPower: string;
   apiBunWebSocketRuntimeSmoke?: ApiBunWebSocketRuntimeSmokeEvidence;
 }): LocalRuntimeProbeReport {
-  const hasCommand = (command: string) => input.commands.some((probe) => probe.command === command && probe.status === "available");
+  const hasCommand = (command: string) => input.commands.some((probe) => probe.command === command
+    && probe.status === "available"
+    && !probe.error);
   const hasModule = (module: string) => input.pythonModules.some((probe) => probe.module === module && probe.status === "available");
   const bunRuntimeAvailable = hasCommand("bun");
   const bunWebSocketRuntimeSmokePassed = input.apiBunWebSocketRuntimeSmoke?.status === "passed"
