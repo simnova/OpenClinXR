@@ -231,7 +231,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-07T00:25:04.471Z",
+      "generated_at": "2026-05-07T00:26:01.333Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -2166,7 +2166,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-07T00:25:04.471Z",
+    "generated_at": "2026-05-07T00:26:01.333Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
