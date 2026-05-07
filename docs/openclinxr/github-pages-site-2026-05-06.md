@@ -11,6 +11,7 @@ The public project site lives under the repository Pages source directory:
 - `docs/styles.css`
 - `docs/assets/openclinxr-xr-evidence.png`
 - `docs/.nojekyll`
+- `docs/CNAME`
 
 GitHub Pages can be enabled either with a committed workflow or through repository settings (`main` + `/docs` source). This repo is currently managed without requiring the committed Pages workflow file.
 
@@ -37,6 +38,14 @@ most recent committed snapshot files for each configured `data-pages-snapshot` k
 invokes `pages:validate`.
 
 The validator is also included in `pnpm agent:verify`.
+
+The pages wiring and evidence snapshot integrity checks now pass when running:
+
+```bash
+pnpm pages:sync-evidence-links
+pnpm pages:sync-validate
+pnpm pages:validate
+```
 
 ## Remaining Operator Step
 
