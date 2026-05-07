@@ -4,6 +4,8 @@ import { globFiles, readJson } from "./lib.js";
 type ScorecardEvidenceDebt = {
   id: string;
   status: string;
+  summary?: string | null;
+  details?: string | null;
 };
 
 type ScorecardRecord = {
@@ -46,7 +48,28 @@ export type BenchmarkEvidenceIdReport = {
     evidence_id: string;
     scorecard_file: string;
   }>;
+  evidence_id_signature_mismatches: Array<{
+    evidence_id: string;
+    evidence_signature: string;
+    scorecard_file: string;
+    previous_file: string;
+    previous_signature: string;
+  }>;
 };
+
+type DebtRecordWithSignature = {
+  file: string;
+  status: string;
+  evidence_signature: string;
+};
+
+function normalizeEvidenceText(value: string | null | undefined): string {
+  return (value ?? "").trim().replace(/\s+/gu, " ");
+}
+
+function buildEvidenceSignature(debt: ScorecardEvidenceDebt): string {
+  return `${normalizeEvidenceText(debt.summary)}\u0000${normalizeEvidenceText(debt.details)}`;
+}
 
 async function main(): Promise<void> {
   const report = buildBenchmarkEvidenceIdReport({
@@ -79,12 +102,16 @@ async function loadScorecardEvidenceDebt(): Promise<BenchmarkEvidenceIdInput["sc
 }
 
 export function buildBenchmarkEvidenceIdReport(input: BenchmarkEvidenceIdInput): BenchmarkEvidenceIdReport {
-  const debtById = new Map<string, Array<{ file: string; status: string }>>();
+  const debtById = new Map<string, Array<DebtRecordWithSignature>>();
   for (const scorecardFile of input.scorecardFiles) {
     for (const debt of scorecardFile.evidenceDebt) {
       debtById.set(debt.id, [
         ...(debtById.get(debt.id) ?? []),
-        { file: scorecardFile.file, status: debt.status },
+        {
+          file: scorecardFile.file,
+          status: debt.status,
+          evidence_signature: buildEvidenceSignature(debt),
+        },
       ]);
     }
   }
@@ -142,13 +169,39 @@ export function buildBenchmarkEvidenceIdReport(input: BenchmarkEvidenceIdInput):
         }));
     })
     .sort((left, right) => left.evidence_id.localeCompare(right.evidence_id) || left.scorecard_file.localeCompare(right.scorecard_file));
+  const evidenceIdSignatureMismatches = [...debtById.entries()].flatMap(([id, debtRecords]) => {
+    if (debtRecords.length <= 1) {
+      return [];
+    }
+
+    const first = debtRecords[0];
+    if (!first) {
+      return [];
+    }
+
+    return debtRecords
+      .slice(1)
+      .flatMap((record) => (record.evidence_signature === first.evidence_signature ? [] : [{
+        evidence_id: id,
+        evidence_signature: record.evidence_signature,
+        previous_signature: first.evidence_signature,
+        scorecard_file: record.file,
+        previous_file: first.file,
+      }]));
+  })
+    .sort((left, right) =>
+      left.evidence_id.localeCompare(right.evidence_id)
+      || left.previous_file.localeCompare(right.previous_file)
+      || left.scorecard_file.localeCompare(right.scorecard_file),
+    );
 
   return {
     ok: gatesWithoutScorecardDebt.length === 0
       && duplicateGateIds.length === 0
       && latestOpenDebtWithoutGate.length === 0
       && resolvedDebtWithUnreadyGate.length === 0
-      && openDebtWithReadyGate.length === 0,
+      && openDebtWithReadyGate.length === 0
+      && evidenceIdSignatureMismatches.length === 0,
     scorecard_debt_count: [...debtById.values()].reduce((sum, records) => sum + records.length, 0),
     benchmark_gate_count: input.benchmarkGateIds.length,
     gates_without_scorecard_debt: [...new Set(gatesWithoutScorecardDebt)].sort(),
@@ -156,6 +209,7 @@ export function buildBenchmarkEvidenceIdReport(input: BenchmarkEvidenceIdInput):
     latest_open_debt_without_gate: latestOpenDebtWithoutGate,
     resolved_debt_with_unready_gate: resolvedDebtWithUnreadyGate,
     open_debt_with_ready_gate: openDebtWithReadyGate,
+    evidence_id_signature_mismatches: evidenceIdSignatureMismatches,
   };
 }
 

@@ -102,6 +102,47 @@ describe("benchmark gate evidence id checker", () => {
     ]);
   });
 
+  it("flags reused evidence IDs whose debt summaries/details changed across scorecards", () => {
+    const report = buildBenchmarkEvidenceIdReport({
+      scorecardFiles: [
+        {
+          file: "iterations/iteration-0008/06-leadership-scorecard.json",
+          evidenceDebt: [
+            {
+              id: "evidence-leadership-0008-004",
+              status: "resolved",
+              summary: "Install Blender and run a small asset bake report before calling the 3D asset pipeline ready.",
+            },
+          ],
+        },
+        {
+          file: "iterations/iteration-0009/06-leadership-scorecard.json",
+          evidenceDebt: [
+            {
+              id: "evidence-leadership-0008-004",
+              status: "open",
+              summary: "Gate IWSDK sidecar adoption until peer range, tools inventory, and bundle metrics are validated.",
+            },
+          ],
+        },
+      ],
+      benchmarkGateIds: [
+        { evidence_id: "evidence-leadership-0008-004", ready_to_resolve: false },
+      ],
+    });
+
+    expect(report.ok).toBe(false);
+    expect(report.evidence_id_signature_mismatches).toEqual([
+      {
+        evidence_id: "evidence-leadership-0008-004",
+        evidence_signature: "Gate IWSDK sidecar adoption until peer range, tools inventory, and bundle metrics are validated.\u0000",
+        previous_signature: "Install Blender and run a small asset bake report before calling the 3D asset pipeline ready.\u0000",
+        scorecard_file: "iterations/iteration-0009/06-leadership-scorecard.json",
+        previous_file: "iterations/iteration-0008/06-leadership-scorecard.json",
+      },
+    ]);
+  });
+
   it("passes when gates map to scorecard debt and resolved debt gates are ready", () => {
     const report = buildBenchmarkEvidenceIdReport({
       scorecardFiles: [
