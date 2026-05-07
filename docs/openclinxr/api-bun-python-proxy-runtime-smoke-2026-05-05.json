@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-06T01:52:40.346Z",
-  "status": "passed",
+  "generatedAt": "2026-05-07T00:22:30.127Z",
+  "status": "blocked",
   "policy": {
     "cloudApisUsed": false,
     "paidApisUsed": false,
@@ -33,15 +33,13 @@
     "port": 8766,
     "healthOk": true,
     "stdout": [
-      "INFO:     127.0.0.1:50776 - \"GET /health HTTP/1.1\" 200 OK"
+      "INFO:     127.0.0.1:50752 - \"GET /health HTTP/1.1\" 200 OK"
     ],
     "stderr": [
-      "INFO:     Started server process [48182]",
+      "INFO:     Started server process [18655]",
       "INFO:     Waiting for application startup.",
       "INFO:     Application startup complete.",
-      "INFO:     Uvicorn running on http://127.0.0.1:8766 (Press CTRL+C to quit)",
-      "INFO:     127.0.0.1:50782 - \"WebSocket /voice/realtime/ws\" [accepted]",
-      "INFO:     connection open"
+      "INFO:     Uvicorn running on http://127.0.0.1:8766 (Press CTRL+C to quit)"
     ]
   },
   "bunGateway": {
@@ -65,7 +63,11 @@
     "readyForLiveDialog": false,
     "transportProxyBlockers": [
       "python_backend_proxy_reachability_not_claimed_by_posture_endpoint",
-      "real_model_inference_not_observed"
+      "real_model_inference_not_observed",
+      "quest_browser_audio_capture_not_observed",
+      "quest_playback_not_observed",
+      "opus_codec_not_verified",
+      "clinical_voice_safety_not_exercised"
     ],
     "pythonBackendBlockers": [
       "fastapi_uvicorn_websockets_not_installed",
@@ -74,43 +76,60 @@
   },
   "websocket": {
     "attempted": true,
-    "connected": true,
-    "eventTypesObserved": [
-      "gateway.ready",
-      "backend.ready",
-      "voice.started",
-      "audio.chunk",
-      "transcript.partial",
-      "transcript.final",
-      "voice.stopped"
-    ],
-    "binaryMessages": 1,
-    "backendProtocolObserved": true,
-    "latencyFieldsObserved": true,
-    "binaryEchoObserved": true,
-    "errorMessages": []
+    "connected": false,
+    "eventTypesObserved": [],
+    "binaryMessages": 0,
+    "backendProtocolObserved": false,
+    "latencyFieldsObserved": false,
+    "binaryEchoObserved": false,
+    "errorMessages": [
+      "global_websocket_unavailable"
+    ]
   },
-  "runtimeEvidenceBlockers": [],
+  "runtimeEvidenceBlockers": [
+    "websocket_not_connected",
+    "gateway_ready_not_observed",
+    "backend_protocol_not_observed",
+    "voice_started_not_observed",
+    "audio_chunk_not_observed",
+    "transcript_partial_not_observed",
+    "transcript_final_not_observed",
+    "voice_stopped_not_observed",
+    "latency_fields_not_observed",
+    "binary_echo_not_observed",
+    "websocket_errors_observed"
+  ],
   "postureEvidencePromotion": {
-    "eligible": true,
-    "promotedTransportProxyStatus": "configured_reachability_verified",
+    "eligible": false,
+    "promotedTransportProxyStatus": null,
     "environment": {
       "backendUrlVariable": "OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL",
       "evidenceFileVariable": "OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE"
     },
     "instructions": [
-      "Keep OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL pointed at the same reviewed local FastAPI voice backend WebSocket route.",
-      "Set OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE to this passed smoke report JSON file before starting a later Bun/Hono API process.",
-      "Expect the later posture endpoint to promote only proxy reachability to configured_reachability_verified; live dialog readiness must remain false until model inference, Quest audio capture/playback, Opus, and clinical safety are verified."
+      "Do not use this blocked report as OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE.",
+      "Fix the runtime evidence blockers and rerun the local smoke before promoting proxy reachability posture."
     ],
-    "blockers": [],
+    "blockers": [
+      "websocket_not_connected",
+      "gateway_ready_not_observed",
+      "backend_protocol_not_observed",
+      "voice_started_not_observed",
+      "audio_chunk_not_observed",
+      "transcript_partial_not_observed",
+      "transcript_final_not_observed",
+      "voice_stopped_not_observed",
+      "latency_fields_not_observed",
+      "binary_echo_not_observed",
+      "websocket_errors_observed"
+    ],
     "caveats": [
       "The live smoke fetches the posture endpoint before this report is written, so the current process can truthfully remain configured_not_verified.",
       "This promotion path is local developer evidence only and does not claim model inference, Quest media, production ingress, or low latency."
     ]
   },
   "verdict": {
-    "smokePassed": true,
+    "smokePassed": false,
     "readyForLiveDialog": false,
     "blockers": [
       "real_model_inference_not_observed",
