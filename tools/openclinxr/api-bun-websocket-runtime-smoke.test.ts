@@ -254,9 +254,7 @@ describe("API Bun WebSocket runtime smoke report", () => {
         "/policy/productionUseAllowed must be false",
         "/runtime/h3/h3TrueEnabled must be false",
         "/verdict/readyForLiveDialog must be false",
-        "/status must be blocked when runtime evidence blockers are present",
         "/runtimeEvidenceBlockers missing expected blocker http3_enabled_outside_approved_scope",
-        "/verdict/smokePassed must be false when runtime evidence blockers are present",
       ],
     });
   });

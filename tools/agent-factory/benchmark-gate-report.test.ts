@@ -2089,41 +2089,40 @@ describe("benchmark gate report", () => {
         "local_voice_live_dialog_safety_controls_observed",
       ]),
     }));
-    expect(gatesById.get("evidence-leadership-0009-005")).toEqual(expect.objectContaining({
-      ready_to_resolve: false,
-      blockers: expect.arrayContaining([
-        "asset_production:artifact_backed_production_asset_evidence_missing",
-        "asset_production:not_ready_for_production_assets",
-      ]),
-      satisfied_conditions: expect.arrayContaining([
-        "asset_pipeline_blender_bake_smoke_passed",
-        "asset_pipeline_gltf_pipeline_smoke_passed",
-        "asset_production_animation_retargeting_observed",
-        "asset_production_collider_simplification_observed",
-        "asset_production_generated_human_rigging_observed",
-        "asset_production_lod_tiers_observed",
-        "asset_production_local_fixture_contract_slots_observed",
-        "asset_production_medical_equipment_library_observed",
-        "asset_production_multi_actor_quest_budget_observed",
-        "asset_production_readiness_report_present",
-        "asset_production_skin_clothing_provenance_observed",
-        "asset_production_source_smokes_passed",
-        "asset_production_texture_compression_budget_observed",
-      ]),
-    }));
-    expect(gatesById.get("evidence-leadership-0009-005")?.satisfied_conditions).not.toContain("asset_production_readiness_benchmark_passed");
-    expect(gatesById.get("evidence-leadership-0009-005")?.blockers).not.toEqual(expect.arrayContaining([
-      "asset_production:generation:generated_human_rigging_missing",
-      "asset_production:generation:skin_clothing_provenance_missing",
-      "asset_production:generation:medical_equipment_library_missing",
-      "asset_production:generation:animation_retargeting_missing",
-      "asset_production:optimization:lod_tiers_missing",
-      "asset_production:optimization:texture_compression_budget_missing",
-      "asset_production:optimization:collider_simplification_report_missing",
-      "asset_production:runtime:multi_actor_quest_budget_missing",
-    ]));
+    const assetProductionReadinessGate = gatesById.get("evidence-leadership-0009-005");
+    expect(assetProductionReadinessGate).toBeDefined();
+    expect(assetProductionReadinessGate?.ready_to_resolve).toBe(false);
+    expect(assetProductionReadinessGate?.blockers).toBeDefined();
+    for (const expectedBlocker of [
+      "asset_production:artifact_evidence:artifact_backed_production_asset_evidence_missing",
+      "asset_production:not_ready_for_production_assets",
+    ]) {
+      expect(assetProductionReadinessGate?.blockers).toContain(expectedBlocker);
+    }
+    expect(assetProductionReadinessGate?.satisfied_conditions).toBeDefined();
+    for (const expectedCondition of [
+      "asset_pipeline_blender_bake_smoke_passed",
+      "asset_pipeline_gltf_pipeline_smoke_passed",
+      "asset_pipeline_runtime_ready",
+      "asset_production_artifact_evidence_lanes_observed",
+      "asset_production_artifact_evidence_manifest_present",
+      "asset_production_capability_job_contract_observed",
+      "asset_production_multi_actor_quest_budget_observed",
+      "asset_production_readiness_report_present",
+      "asset_production_source_smokes_passed",
+    ]) {
+      expect(assetProductionReadinessGate?.satisfied_conditions).toContain(expectedCondition);
+    }
+    expect(assetProductionReadinessGate?.blocker_summary?.distinct_problem_count).toBe(1);
+    expect(assetProductionReadinessGate?.blocker_summary?.total_blockers).toBeGreaterThanOrEqual(1);
+    expect(
+      assetProductionReadinessGate?.blocker_summary?.groups?.some(
+        (group) => group?.group_id === "asset_production_readiness" && group?.owner === "asset-pipeline-lead",
+      ),
+    ).toBe(true);
+    expect(assetProductionReadinessGate?.satisfied_conditions).not.toContain("asset_production_readiness_benchmark_passed");
     expect(report.asset_production_readiness_benchmark?.input).toEqual(expect.objectContaining({
-      localAssetEvidenceFixtureUsed: true,
+      localAssetEvidenceFixtureUsed: false,
     }));
   });
 

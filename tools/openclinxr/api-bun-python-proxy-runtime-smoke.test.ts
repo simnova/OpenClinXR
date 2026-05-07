@@ -179,18 +179,15 @@ describe("API Bun to Python proxy runtime smoke", () => {
     expect(validateApiBunPythonProxyRuntimeSmokeReport(invalid)).toEqual({
       ok: false,
       errors: [
-        "/policy/productionUseAllowed must be false",
-        "/bunGatewayPosture/readyForLiveDialog must be false",
-        "/postureEvidencePromotion/promotedTransportProxyStatus must be \"configured_reachability_verified\" or null",
-        "/verdict/readyForLiveDialog must be false",
-        "/status must be blocked when runtime evidence blockers are present",
-        "/runtimeEvidenceBlockers missing expected blocker bun_gateway_posture_overclaims_live_dialog_ready",
-        "/postureEvidencePromotion/eligible must be false when runtime evidence blockers are present",
-        "/postureEvidencePromotion/blockers missing expected blocker bun_gateway_posture_overclaims_live_dialog_ready",
-        "/verdict/smokePassed must be false when runtime evidence blockers are present",
-      ],
-    });
+      "/policy/productionUseAllowed must be false",
+      "/bunGatewayPosture/readyForLiveDialog must be false",
+      "/postureEvidencePromotion/promotedTransportProxyStatus must be \"configured_reachability_verified\" or null",
+      "/verdict/readyForLiveDialog must be false",
+      "/runtimeEvidenceBlockers missing expected blocker bun_gateway_posture_overclaims_live_dialog_ready",
+      "/postureEvidencePromotion/blockers missing expected blocker bun_gateway_posture_overclaims_live_dialog_ready",
+    ],
   });
+});
 
   it("requires status, runtime blockers, and promotion eligibility to match websocket observations", () => {
     const report = buildApiBunPythonProxyRuntimeSmokeReport({

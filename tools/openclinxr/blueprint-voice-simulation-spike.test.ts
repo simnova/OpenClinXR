@@ -271,8 +271,8 @@ describe("blueprint-driven voice simulation spike", () => {
       linkedExistingEvidence: true,
       executedByThisReport: false,
       sourceFile: "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
-      sourceStatus: "passed",
-      bunPythonProxyPassed: true,
+      sourceStatus: "blocked",
+      bunPythonProxyPassed: false,
       readyForLiveDialog: false,
       runtime: {
         apiTarget: "apps/api bun+hono",
@@ -281,19 +281,11 @@ describe("blueprint-driven voice simulation spike", () => {
         backendProtocol: "python-fastapi-compatible-websocket",
       },
       observed: {
-        connected: true,
-        backendProtocolObserved: true,
-        latencyFieldsObserved: true,
-        binaryEchoObserved: true,
-        eventTypesObserved: [
-          "gateway.ready",
-          "backend.ready",
-          "voice.started",
-          "audio.chunk",
-          "transcript.partial",
-          "transcript.final",
-          "voice.stopped",
-        ],
+        connected: false,
+        backendProtocolObserved: false,
+        latencyFieldsObserved: false,
+        binaryEchoObserved: false,
+        eventTypesObserved: [],
       },
       policy: {
         cloudApisUsed: false,
@@ -376,12 +368,12 @@ describe("blueprint-driven voice simulation spike", () => {
     expect(report.verdict).toEqual({
       tier0BlueprintCompilerPassed: true,
       mockVoiceFacadeExercised: true,
-      tier1TransportLoopPassed: true,
+      tier1TransportLoopPassed: false,
       tier2LocalInferenceObserved: false,
       tier3WebXrObserved: false,
       readyForProduction: false,
       blockers: [
-        "tier1_transport_linked_but_not_executed_by_blueprint_report",
+        "tier1_bun_python_transport_loop_not_executed",
         "real_local_full_duplex_model_not_executed",
         "python_backend_runtime_not_executed_for_this_report",
         "webxr_iwsdk_client_not_executed_for_this_report",
@@ -497,11 +489,14 @@ describe("blueprint-driven voice simulation spike", () => {
     const report = JSON.parse(
       await readFile("docs/openclinxr/blueprint-voice-simulation-spike-2026-05-05.json", "utf8"),
     );
+    const requiredTransportBlocker = report.verdict.blockers.find(
+      (blocker: string) => blocker.startsWith("tier1_"),
+    );
     const invalid = structuredClone(report) as {
       verdict: { blockers: string[]; tier1TransportLoopPassed: boolean };
     };
     invalid.verdict.blockers = invalid.verdict.blockers.filter(
-      (blocker) => blocker !== "tier1_transport_linked_but_not_executed_by_blueprint_report",
+      (blocker) => blocker !== requiredTransportBlocker,
     );
     invalid.verdict.tier1TransportLoopPassed = false;
 
@@ -509,7 +504,7 @@ describe("blueprint-driven voice simulation spike", () => {
       ok: false,
       errors: [
         "/verdict/tier1TransportLoopPassed must match /transportEvidence/bunPythonProxyPassed",
-        "/verdict/blockers missing expected blocker tier1_transport_linked_but_not_executed_by_blueprint_report",
+        `/verdict/blockers missing expected blocker ${requiredTransportBlocker}`,
       ],
     });
   });
