@@ -35,6 +35,7 @@
     "test": "pnpm test:tools && pnpm packages:test",
     "test:tools": "vitest run tools/**/*.test.ts",
     "security:audit": "pnpm audit --audit-level=high",
+    "security:audit:snapshot": "TS=$(date +%Y-%m-%d) && pnpm audit --audit-level=high --json > docs/openclinxr/security-audit-${TS}.json && pnpm security:audit-policy -- --audit-json docs/openclinxr/security-audit-${TS}.json --output docs/openclinxr/security-audit-policy-${TS}.json",
     "security:audit:prod": "pnpm audit --prod --audit-level=high",
     "security:audit:dev": "pnpm audit --dev --audit-level=high",
     "security:audit-policy": "tsx tools/openclinxr/check-security-audit-policy.ts",

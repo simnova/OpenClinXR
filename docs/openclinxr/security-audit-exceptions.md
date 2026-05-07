@@ -12,6 +12,12 @@ OpenClinXR runs `pnpm audit --audit-level=high` as part of `pnpm verify`. Produc
 To preserve a point-in-time audit evidence artifact, run:
 
 ```bash
+pnpm security:audit:snapshot
+```
+
+or run manually:
+
+```bash
 pnpm audit --json > docs/openclinxr/security-audit-YYYY-MM-DD.json
 pnpm security:audit-policy -- --audit-json docs/openclinxr/security-audit-YYYY-MM-DD.json --output docs/openclinxr/security-audit-policy-YYYY-MM-DD.json
 ```

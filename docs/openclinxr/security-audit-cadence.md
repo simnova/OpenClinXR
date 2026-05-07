@@ -17,6 +17,12 @@ This runbook keeps security evidence current without changing verification gates
 ## Steps
 
 ```bash
+pnpm security:audit:snapshot
+```
+
+or run manually:
+
+```bash
 pnpm audit --audit-level=high --json > docs/openclinxr/security-audit-YYYY-MM-DD.json
 pnpm security:audit-policy -- --audit-json docs/openclinxr/security-audit-YYYY-MM-DD.json --output docs/openclinxr/security-audit-policy-YYYY-MM-DD.json
 ```
