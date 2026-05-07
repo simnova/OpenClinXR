@@ -70,7 +70,7 @@
       "evidence_id": "asset_production_artifact_evidence",
       "file": "docs/openclinxr/asset-production-artifact-evidence-2026-05-06.json",
       "generated_at": "2026-05-06T19:53:34.703Z",
-      "age_hours": 9,
+      "age_hours": 10,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -187,7 +187,7 @@
       "evidence_id": "godot_project_import_check",
       "file": ".agent-factory/godot-project-import-check.json",
       "generated_at": "2026-05-06T13:56:47.467Z",
-      "age_hours": 15,
+      "age_hours": 16,
       "max_age_hours": 24,
       "status": "fresh",
       "blockers": []
@@ -231,7 +231,7 @@
     {
       "evidence_id": "quest_manual_performance",
       "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-      "generated_at": "2026-05-07T05:48:11.445Z",
+      "generated_at": "2026-05-07T05:58:10.522Z",
       "age_hours": 0,
       "max_age_hours": 24,
       "status": "fresh",
@@ -2171,7 +2171,7 @@
   },
   "quest_manual_performance": {
     "file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
-    "generated_at": "2026-05-07T05:48:11.445Z",
+    "generated_at": "2026-05-07T05:58:10.522Z",
     "input_file": "docs/openclinxr/quest-manual-performance-2026-05-04.json",
     "evidence_posture": "early_worn_headset_full_vr_observation",
     "ready_to_claim_frame_pacing": false,
