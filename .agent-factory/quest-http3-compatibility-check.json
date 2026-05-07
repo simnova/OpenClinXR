@@ -1,0 +1,24 @@
+{
+  "generatedAt": "2026-05-07T06:01:28.113Z",
+  "inputFile": null,
+  "readyToClaimQuestHttp3Reachability": false,
+  "readyToClaimWebTransportCompatibility": false,
+  "readyToClaimAzureIngress": false,
+  "readyToClaimClinicalMedia": false,
+  "satisfiedConditions": [],
+  "http3Blockers": [
+    "missing_quest_http3_compatibility_report"
+  ],
+  "webTransportBlockers": [
+    "missing_quest_http3_compatibility_report"
+  ],
+  "notEvidenceFor": [
+    "azure_http3_ingress_readiness",
+    "production_protocol_readiness",
+    "clinical_media_transport_readiness",
+    "low_latency_voice_readiness"
+  ],
+  "nextSteps": [
+    "Capture a real Quest Browser HTTP/3 compatibility report before changing protocol claims."
+  ]
+}
