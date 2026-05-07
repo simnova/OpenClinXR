@@ -39,6 +39,24 @@ pnpm security:audit-policy
 pnpm security:licenses
 ```
 
+To reproduce the ICU mismatch error before you switch Node runtimes:
+
+```bash
+/opt/homebrew/bin/node -v
+```
+
+On this machine this fails with:
+
+`dyld[xxxx]: Library not loaded: /opt/homebrew/opt/icu4c/lib/libicui18n.74.dylib`
+
+If you still see that error, run:
+
+```bash
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+nvm use
+```
+
 For GitHub Pages maintenance:
 
 ```bash
