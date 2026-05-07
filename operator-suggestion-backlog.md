@@ -23,6 +23,15 @@ This file captures useful operator suggestions that should not interrupt the cur
 - Notes: The repo already has `pnpm security:audit`, `pnpm security:audit-policy`, committed audit evidence, and high-severity audit gating. Useful next step is a periodic point-in-time audit evidence cadence or GitHub issue/project checklist, not a new runtime dependency.
 - Promote when: security review wants recurring evidence snapshots or CI scheduling.
 
+### Local Node Runtime Repair
+
+- Date added: 2026-05-07
+- Suggestion: Repair the local Node executable dependency chain so repository verification commands can run consistently.
+- Current status: blocked by local runtime mismatch (`libicui18n.74.dylib` missing).
+- Confidence: medium.
+- Notes: `node` is resolving to `/opt/homebrew/bin/node`, but this build expects `/opt/homebrew/Cellar/node/21.7.1/bin/node` linked against `/opt/homebrew/opt/icu4c/lib/libicui18n.74.dylib`, which is missing on this environment. Until this is fixed, `pnpm` and targeted Vitest checks cannot complete locally.
+- Promote when: Homebrew Node/icu4c is repaired or replaced with a compatible runtime in your local environment.
+
 ### UIKitML For Spatial Text
 
 - Date added: 2026-05-05
