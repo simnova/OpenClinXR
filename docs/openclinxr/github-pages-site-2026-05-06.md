@@ -12,6 +12,8 @@ The public project site lives under the repository Pages source directory:
 - `docs/assets/openclinxr-xr-evidence.png`
 - `docs/.nojekyll`
 
+GitHub Pages can be enabled either with a committed workflow or through repository settings (`main` + `/docs` source). This repo is currently managed without requiring the committed Pages workflow file.
+
 The root `README.md` links to the live Pages URL reported by GitHub:
 
 <http://developers.simnova.com/OpenClinXR/>
