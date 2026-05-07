@@ -22,11 +22,15 @@ The root `README.md` links to the live Pages URL reported by GitHub:
 
 ## Validation
 
-Local validation command:
+Local validation commands:
 
 ```bash
+pnpm pages:sync-evidence-links
 pnpm pages:validate
 ```
+
+`pages:sync-evidence-links` updates the indexed evidence snapshot links under `docs/index.html` to the
+most recent committed snapshot files for each configured `data-pages-snapshot` key.
 
 The validator is also included in `pnpm agent:verify`.
 
