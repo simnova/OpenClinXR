@@ -164,7 +164,7 @@ async function main(): Promise<void> {
     if (checkMode) {
       console.error("Evidence snapshot links are stale. Run pnpm pages:sync-evidence-links to update them.");
       for (const update of result.updates) {
-        console.error(`Updated ${update.key}: ${update.previousFile} -> ${update.nextFile}`);
+        console.error(`Would update ${update.key}: ${update.previousFile} -> ${update.nextFile}`);
       }
       process.exitCode = 1;
       return;
