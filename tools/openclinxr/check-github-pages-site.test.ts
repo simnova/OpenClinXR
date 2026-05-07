@@ -1,5 +1,6 @@
 import { access, readFile, writeFile } from "node:fs/promises";
 import { constants } from "node:fs";
+import { rename } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 import { validateGitHubPagesSite } from "./check-github-pages-site.js";
 
@@ -45,6 +46,17 @@ describe("GitHub Pages static site", () => {
         expect(badWorkflowResult.blockers).toContain("pages_workflow_upload_path_missing");
       } finally {
         await writeFile(workflowPath, previousWorkflow, "utf8");
+      }
+
+      const workflowBackupPath = `${workflowPath}.codex-test-disabled`;
+      const workflowWithoutConfig = workflowPath;
+      await rename(workflowWithoutConfig, workflowBackupPath);
+      try {
+        const noWorkflowResult = await validateGitHubPagesSite();
+        expect(noWorkflowResult.passed).toBe(true);
+        expect(noWorkflowResult.blockers).not.toContain("pages_workflow_upload_path_missing");
+      } finally {
+        await rename(workflowBackupPath, workflowWithoutConfig);
       }
     }
 
