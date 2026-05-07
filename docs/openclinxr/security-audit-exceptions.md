@@ -1,6 +1,6 @@
 # Security Audit Exceptions
 
-Date: 2026-05-04
+Date: 2026-05-07
 Status: No active security audit exceptions; active version-pinned license inventory normalizations are recorded below.
 
 ## Policy
@@ -18,8 +18,8 @@ pnpm security:audit-policy -- --audit-json docs/openclinxr/security-audit-YYYY-M
 
 The latest local audit evidence is:
 
-- `docs/openclinxr/security-audit-2026-05-05.json`
-- `docs/openclinxr/security-audit-policy-2026-05-05.json`
+- `docs/openclinxr/security-audit-2026-05-07.json`
+- `docs/openclinxr/security-audit-policy-2026-05-07.json`
 
 ## Audit Cadence (Backlog-Tracked)
 
@@ -82,6 +82,7 @@ None.
 | Package | Pinned version | Rationale | Owner | Review-by | Removal condition |
 | --- | --- | --- | --- | --- | --- |
 | `three` | `0.184.0` | Keep IWSDK sidecar and production XR packages on one reviewed Three.js version while `@iwsdk/core` permits a broad Three.js range. | frontend-platform-lead | 2026-06-05 | Remove when all workspace packages declare the same exact Three.js version without a root override. |
+| `rolldown` | `1.0.0-rc.18` | Keep packaging and local preview bundling aligned while the existing build scripts are validated against this pinned `rolldown` version. | frontend-platform-lead | 2026-06-05 | Remove when the full stack lockfile and workspace overrides can be moved to a newer pinned version after compatibility validation. |
 
 ## Active License Inventory Normalizations
 
