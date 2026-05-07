@@ -11,6 +11,7 @@ const requiredSiteFiles = [
   "docs/index.html",
   "docs/styles.css",
   "docs/.nojekyll",
+  "docs/CNAME",
   "docs/assets/openclinxr-xr-evidence.png",
   "README.md",
 ];

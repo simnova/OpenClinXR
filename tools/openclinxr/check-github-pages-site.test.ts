@@ -29,6 +29,23 @@ describe("GitHub Pages static site", () => {
     });
   });
 
+  it("requires CNAME for custom domain configuration", async () => {
+    const cnamePath = "docs/CNAME";
+    const cname = await readFile(cnamePath, "utf8");
+    const expectedCname = "developers.simnova.com";
+
+    expect(cname.trim()).toBe(expectedCname);
+    const noCname = "CNAME.tmp";
+    await rename(cnamePath, noCname);
+    try {
+      const result = await validateGitHubPagesSite();
+      expect(result.passed).toBe(false);
+      expect(result.blockers).toContain("missing_required_pages_file:docs/CNAME");
+    } finally {
+      await rename(noCname, cnamePath);
+    }
+  });
+
   it("validates upload-path wiring and tracked GitHub doc links", async () => {
     const workflowPath = ".github/workflows/pages.yml";
     const indexPath = "docs/index.html";
