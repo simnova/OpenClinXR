@@ -27,14 +27,12 @@ This file captures useful operator suggestions that should not interrupt the cur
 
 - Date added: 2026-05-07
 - Suggestion: Repair the local Node executable dependency chain so repository verification commands can run consistently.
-- Current status: blocked by local runtime mismatch (`libicui18n.74.dylib` missing).
+- Current status: resolved in repo guidance by enforcing `nvm` + repo-local runtime pin (`.nvmrc` set to `22.19.0`).
 - Confidence: medium.
 - Notes: `node` is resolving to `/opt/homebrew/bin/node`, but this build expects `/opt/homebrew/Cellar/node/21.7.1/bin/node` linked against `/opt/homebrew/opt/icu4c/lib/libicui18n.74.dylib`, which is missing on this environment. Until this is fixed, `pnpm` and targeted Vitest checks cannot complete locally.
-- Local evidence check (2026-05-07): `node` fails at startup with `Library not loaded: /opt/homebrew/opt/icu4c/lib/libicui18n.74.dylib` and `/opt/homebrew/opt/icu4c/lib` currently exposes ICU 78 (`libicui18n.78.3.dylib`).
-- Promote when: Homebrew Node/icu4c is repaired or replaced with a compatible runtime in your local environment.
-- Suggested operator actions:
-  - either reinstall `icu4c` to a 74-compatible artifact compatible with the installed Node 21.7.1 runtime, or
-  - switch this workstation to a single consistent Node runtime (for example Node 22+ with matching ICU) and ensure `pnpm` resolves through that runtime.
+- Local evidence check (2026-05-07): `node` failed at startup with `Library not loaded: /opt/homebrew/opt/icu4c/lib/libicui18n.74.dylib` when resolving `/opt/homebrew/bin/node`. `node` and `pnpm` now validate correctly when launched through `nvm`/`v22.19.0`.
+- Current operator guidance: use `nvm use` in shells before `pnpm` work (README updated). The repo now includes `.nvmrc` (`22.19.0`) to keep local sessions consistent.
+- Alternative if you do want Homebrew cleanup later: either reinstall `icu4c` to a 74-compatible artifact compatible with Node 21.7.1, or switch this workstation to a single consistent Node runtime with matching ICU.
 
 ### UIKitML For Spatial Text
 

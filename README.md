@@ -21,6 +21,16 @@ Useful entry points:
 
 Use Node `22.19.0` and pnpm `10.33.0`.
 
+If your terminal still points to an old/global Node binary, use `nvm` before running `pnpm`:
+
+```bash
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+nvm use
+```
+
+With `.nvmrc` in this repo, `nvm use` will pick `22.19.0`.
+
 ```bash
 pnpm agent:verify
 pnpm typecheck
