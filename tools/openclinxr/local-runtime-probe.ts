@@ -188,12 +188,13 @@ async function probeCommand(spec: CommandSpec): Promise<CommandProbe> {
     return { command: spec.command, status: "missing" };
   }
 
-  const version = await runOptional(commandPath, [...spec.args]);
+  const probe = await runCommand(commandPath, [...spec.args]);
   return {
     command: spec.command,
     status: "available",
     path: commandPath,
-    version: selectCommandVersionOutput(version, spec.versionLinePattern, spec.firstLineOnly),
+    version: selectCommandVersionOutput(probe.output, spec.versionLinePattern, spec.firstLineOnly),
+    error: probe.error,
   };
 }
 
@@ -353,6 +354,27 @@ async function runOptional(command: string, args: string[]): Promise<string> {
     return `${stdout}${stderr}`.trim();
   } catch {
     return "";
+  }
+}
+
+async function runCommand(command: string, args: string[]): Promise<{ output: string; error?: string }> {
+  try {
+    const { stdout, stderr } = await execFileAsync(command, args, {
+      encoding: "utf8",
+      timeout: LOCAL_RUNTIME_COMMAND_TIMEOUT_MS,
+    });
+    return { output: `${stdout}${stderr}`.trim() };
+  } catch (error) {
+    const execError = error as NodeJS.ErrnoException & { stdout?: string; stderr?: string };
+    const rawOutput = `${execError.stdout ?? ""}${execError.stderr ?? ""}`.trim();
+    const trimmedOutput = rawOutput || "";
+    const message = trimmedOutput.length > 0
+      ? trimmedOutput
+      : execError.message && execError.message.length > 0
+        ? execError.message
+        : `command failed with no output`;
+
+    return { output: "", error: message };
   }
 }
 
