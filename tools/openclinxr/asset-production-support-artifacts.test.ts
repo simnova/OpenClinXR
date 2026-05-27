@@ -3,9 +3,9 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
-  SUPPORT_ARTIFACT_PATHS,
   buildAssetProductionSupportArtifactsReport,
   runAssetProductionSupportArtifactsCli,
+  SUPPORT_ARTIFACT_PATHS,
   validateAssetProductionSupportArtifactsReport,
   writeAssetProductionSupportArtifacts,
 } from "./asset-production-support-artifacts.js";

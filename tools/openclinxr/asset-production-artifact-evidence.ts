@@ -377,7 +377,9 @@ export function validateAssetProductionArtifactEvidenceReport(value: unknown): V
   validateSummary(value.summary, errors);
   requireArray(value.records, "/records", errors);
   if (Array.isArray(value.records)) {
-    value.records.forEach((record, index) => validateRecord(record, `/records/${index}`, errors));
+    value.records.forEach((record, index) => {
+      validateRecord(record, `/records/${index}`, errors);
+    });
   }
   validateVerdict(value.verdict, errors);
   validateConsistency(value, errors);

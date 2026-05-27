@@ -1,8 +1,8 @@
 import { pathToFileURL } from "node:url";
 import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 import {
-  validateAssetProductionReadinessReport,
   type AssetProductionReadinessReport,
+  validateAssetProductionReadinessReport,
 } from "./asset-production-readiness-benchmark.js";
 
 type CliOptions = {
@@ -361,7 +361,9 @@ export function validateAssetProductionEvidenceLadderReport(value: unknown): Val
   }
   requireArray(value.lanes, "/lanes", errors);
   if (Array.isArray(value.lanes)) {
-    value.lanes.forEach((lane, index) => validateLane(lane, `/lanes/${index}`, errors));
+    value.lanes.forEach((lane, index) => {
+      validateLane(lane, `/lanes/${index}`, errors);
+    });
   }
   requireRecord(value.summary, "/summary", errors);
   if (isRecord(value.summary)) {

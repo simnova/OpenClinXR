@@ -1,16 +1,16 @@
 import { pathToFileURL } from "node:url";
-import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 import {
+  type AssetManifest,
   createEdChestPainLocalAssetEvidenceFixtureManifests,
   createEdChestPainPlaceholderManifests,
   evaluateScenarioAssetBudget,
   evaluateScenarioGenerationEvidence,
   evaluateScenarioOptimizationEvidence,
-  type AssetManifest,
   type ScenarioAssetBudget,
   type ScenarioGenerationEvidence,
   type ScenarioOptimizationEvidence,
 } from "../../packages/openclinxr/asset-registry/src/index.js";
+import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 import { validateBlenderBakeSmokeReport } from "./blender-asset-bake-smoke.js";
 import { validateGltfPipelineSmokeReport } from "./gltf-pipeline-smoke.js";
 

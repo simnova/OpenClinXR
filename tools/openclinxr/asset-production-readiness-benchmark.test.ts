@@ -3,11 +3,11 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  type BlenderAssetBakeSmokeReport,
   buildAssetProductionReadinessReport,
+  type GltfPipelineSmokeReport,
   runAssetProductionReadinessCli,
   validateAssetProductionReadinessReport,
-  type BlenderAssetBakeSmokeReport,
-  type GltfPipelineSmokeReport,
 } from "./asset-production-readiness-benchmark.js";
 
 describe("asset production readiness report", () => {

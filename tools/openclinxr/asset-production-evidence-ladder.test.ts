@@ -2,12 +2,12 @@ import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { buildAssetProductionReadinessReport } from "./asset-production-readiness-benchmark.js";
 import {
   buildAssetProductionEvidenceLadderReport,
   runAssetProductionEvidenceLadderCli,
   validateAssetProductionEvidenceLadderReport,
 } from "./asset-production-evidence-ladder.js";
+import { buildAssetProductionReadinessReport } from "./asset-production-readiness-benchmark.js";
 
 describe("asset production evidence ladder report", () => {
   it("exposes generation and validation scripts", async () => {
