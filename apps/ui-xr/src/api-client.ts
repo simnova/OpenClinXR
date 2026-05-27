@@ -57,6 +57,12 @@ export type StationApiClientOptions = {
 };
 
 export type StationApiClient = {
+  listLearnerRuntimeAssetBundles(): Promise<LearnerRuntimeAssetBundleListResponse>;
+  findLearnerRuntimeAssetBundleByScenarioStation(input: {
+    scenarioId: string;
+    stationId?: string | null | undefined;
+  }): Promise<LearnerRuntimeAssetBundleListResponse["bundles"][number] | null>;
+  getLearnerRuntimeAssetBundle(bundleId: string): Promise<LearnerRuntimeAssetBundle>;
   startSession(input: StartSessionRequest): Promise<RuntimeSessionSummary>;
   startEncounter(stationRunId: string, input: StartEncounterRequest): Promise<RuntimeSessionSummary>;
   recordTraceAction(stationRunId: string, input: TraceActionRequest): Promise<unknown>;
@@ -66,11 +72,34 @@ export type StationApiClient = {
   listTraceEvents(stationRunId: string): Promise<TraceEventSummary[]>;
 };
 
+export type LearnerRuntimeAssetBundleListResponse = {
+  productionCloudCall: false;
+  bundles: Array<{
+    bundleId: string;
+    scenarioId: string;
+    stationId: string;
+    identityScope: "learner_runtime_opaque_bundle";
+    actorCount: number;
+    equipmentCount: number;
+    retrievalMode: "local_fixture_fallback" | "persistence_sink";
+  }>;
+  notEvidenceFor: string[];
+};
+
 export function createStationApiClient(options: StationApiClientOptions): StationApiClient {
   const baseUrl = options.baseUrl.replace(/\/$/, "");
   const fetcher = options.fetch ?? fetch;
 
   return {
+    listLearnerRuntimeAssetBundles: () => get(fetcher, baseUrl, "/runtime/asset-bundles"),
+    findLearnerRuntimeAssetBundleByScenarioStation: async (input) => {
+      const response = await get<LearnerRuntimeAssetBundleListResponse>(fetcher, baseUrl, "/runtime/asset-bundles");
+      return response.bundles.find((bundle) =>
+        bundle.scenarioId === input.scenarioId
+          && (input.stationId === undefined || input.stationId === null || bundle.stationId === input.stationId),
+      ) ?? null;
+    },
+    getLearnerRuntimeAssetBundle: (bundleId) => get(fetcher, baseUrl, `/runtime/asset-bundles/${encodeURIComponent(bundleId)}`),
     startSession: (input) => request(fetcher, baseUrl, "/sessions", input),
     startEncounter: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/start-encounter`, input),
     recordTraceAction: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/events`, input),
@@ -116,3 +145,4 @@ async function get<TResponse>(fetcher: typeof fetch, baseUrl: string, path: stri
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
+import type { LearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";

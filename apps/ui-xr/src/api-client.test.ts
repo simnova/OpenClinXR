@@ -30,6 +30,107 @@ describe("XR station API client", () => {
     ]);
   });
 
+  it("fetches learner runtime asset bundles by opaque bundle id", async () => {
+    const requests: RecordedRequest[] = [];
+    const client = createStationApiClient({
+      baseUrl: "http://localhost:8787/",
+      fetch: recordingFetch(requests, {
+        bundleId: "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+        identityScope: "learner_runtime_opaque_bundle",
+        actors: [],
+        equipment: [],
+        notEvidenceFor: ["quest_readiness"],
+      }),
+    });
+
+    await expect(client.getLearnerRuntimeAssetBundle("bundle 1/#")).resolves.toMatchObject({
+      identityScope: "learner_runtime_opaque_bundle",
+    });
+    expect(requests).toEqual([
+      {
+        url: "http://localhost:8787/runtime/asset-bundles/bundle%201%2F%23",
+        method: "GET",
+        body: undefined,
+      },
+    ]);
+  });
+
+  it("lists learner runtime asset bundle summaries", async () => {
+    const requests: RecordedRequest[] = [];
+    const client = createStationApiClient({
+      baseUrl: "http://localhost:8787/",
+      fetch: recordingFetch(requests, {
+        productionCloudCall: false,
+        bundles: [
+          {
+            bundleId: "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+            scenarioId: "ed_chest_pain_priority_v1",
+            stationId: "ed_chest_pain_station_v1",
+            identityScope: "learner_runtime_opaque_bundle",
+            actorCount: 3,
+            equipmentCount: 2,
+            retrievalMode: "local_fixture_fallback",
+          },
+        ],
+        notEvidenceFor: ["quest_readiness"],
+      }),
+    });
+
+    await expect(client.listLearnerRuntimeAssetBundles()).resolves.toMatchObject({
+      productionCloudCall: false,
+      bundles: [
+        expect.objectContaining({
+          bundleId: "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+          actorCount: 3,
+        }),
+      ],
+    });
+    expect(requests).toEqual([
+      {
+        url: "http://localhost:8787/runtime/asset-bundles",
+        method: "GET",
+        body: undefined,
+      },
+    ]);
+  });
+
+  it("finds learner runtime asset bundle summaries by scenario and station", async () => {
+    const requests: RecordedRequest[] = [];
+    const client = createStationApiClient({
+      baseUrl: "http://localhost:8787/",
+      fetch: recordingFetch(requests, {
+        productionCloudCall: false,
+        bundles: [
+          {
+            bundleId: "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+            scenarioId: "ed_chest_pain_priority_v1",
+            stationId: "ed_chest_pain_station_v1",
+            identityScope: "learner_runtime_opaque_bundle",
+            actorCount: 3,
+            equipmentCount: 2,
+            retrievalMode: "local_fixture_fallback",
+          },
+        ],
+        notEvidenceFor: ["quest_readiness"],
+      }),
+    });
+
+    await expect(client.findLearnerRuntimeAssetBundleByScenarioStation({
+      scenarioId: "ed_chest_pain_priority_v1",
+      stationId: "ed_chest_pain_station_v1",
+    })).resolves.toMatchObject({
+      bundleId: "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+    });
+    expect(requests).toEqual([
+      {
+        url: "http://localhost:8787/runtime/asset-bundles",
+        method: "GET",
+        body: undefined,
+      },
+    ]);
+  });
+
+
   it("records learner trace actions and actor-response requests without hidden facts", async () => {
     const requests: RecordedRequest[] = [];
     const client = createStationApiClient({

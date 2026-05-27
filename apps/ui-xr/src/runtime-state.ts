@@ -1,4 +1,11 @@
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
+import type {
+  EncounterRuntimeDialogueTurn,
+  EncounterRuntimeEvidenceGateId,
+  EncounterRuntimeLearnerUseGate,
+  LearnerRuntimeAssetBundle,
+  RuntimeAssetStoreKind,
+} from "@openclinxr/asset-registry/runtime-bundles";
 
 export type XrRuntimeState = {
   scenarioId: string;
@@ -47,6 +54,9 @@ export type RuntimeEvidencePostureInput = {
   traceSummary: TraceReadinessSummary;
   captureSummary: ManualPerformanceCaptureSummary | null;
   webXrSupport: ManualPerformanceReproducibilityEvidence["webXr"];
+  traceActionHandoffEvidence?: XrTraceActionHandoffEvidence | null;
+  runtimeInteractionEvidence?: RuntimeInteractionEvidence | null;
+  runtimeNowMs?: number | null;
 };
 
 export type RemoteActorTurnPlan = {
@@ -177,6 +187,22 @@ export type ManualPerformanceInputEvidence = {
 };
 
 export type RuntimeInputSourceKind = "keyboard" | "xr_gamepad" | "xr_hand" | "xr_hand_gesture" | "xr_room_scale";
+
+export type ExamineeLocomotionEvidence = {
+  source: Exclude<NonNullable<ManualPerformanceInputEvidence["activeLocomotionSource"]>, "none" | "mixed"> | "mixed";
+  startPose: RigPoseEvidence;
+  currentPose: RigPoseEvidence;
+  distanceMeters: number;
+  turnRadians: number;
+  sampleCount: number;
+  pathCueIds: string[];
+  notEvidenceFor: [
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "motion_comfort_validation",
+  ];
+};
 
 export type LocomotionVectorEvidence = {
   forward: number;
@@ -358,6 +384,81 @@ export type ManualPerformanceTraceLatencyEvidence = {
   source: "dom_click_trace_button" | "xr_controller_select" | "xr_hand_select";
   measuredAtMs: number | null;
   productionControllerLatencySubstitute: false;
+  interactionDetail?: XrHandSelectInteractionDetail;
+};
+
+export type XrHandSelectInteractionDetail = {
+  modality: "hand_pinch_select";
+  handedness: "right";
+  status: XrHandSelectStateEvidence["status"];
+  blockedReason?: XrHandSelectStateEvidence["blockedReason"];
+  dwellMs: number;
+  firedCount: number;
+  rightPinch: boolean;
+};
+
+export type XrTraceActionHandoffAction = {
+  sequence: number;
+  traceTag: string;
+  source: ManualPerformanceTraceLatencyEvidence["source"];
+  eventType: string;
+  actorId: string | null;
+  completedAtSecond: number;
+  completedAtMs: number;
+  selectLatencyMs: number | null;
+};
+
+export type XrTraceActionHandoffEvidence = {
+  source: "window.__openClinXrTraceActionHandoffEvidence";
+  scenarioId: string;
+  title: string;
+  generatedAtMs: number;
+  observedRequiredCount: number;
+  requiredCount: number;
+  missingCount: number;
+  missingTraceTags: string[];
+  nextTraceTag: string | null;
+  latestAction: XrTraceActionHandoffAction | null;
+  actions: XrTraceActionHandoffAction[];
+  lastTraceLatencyEvidence: ManualPerformanceTraceLatencyEvidence | null;
+  iwsdkSidecarHandoff: {
+    posture: "sidecar_only_supporting_evidence";
+    smokePlanHash: string;
+    controllerSelectTraceTag: string;
+    requiredSceneObjectNames: string[];
+    reviewTargets: {
+      clinicalPanel: string;
+      dialoguePanel: string;
+      actorRealismPanel: string;
+      inputPanel: string;
+      controllerGripLeft: string;
+      controllerGripRight: string;
+    };
+  };
+  notEvidenceFor: readonly [
+    "production_quest_readiness",
+    "validated_clinical_score_use",
+    "live_provider_readiness",
+  ];
+};
+
+export type XrTraceInteractionEvidenceSummary = {
+  source: "xr_trace_action_handoff_summary";
+  scenarioId: string;
+  latestTraceTag: string | null;
+  latestTraceSource: XrTraceActionHandoffAction["source"] | null;
+  latestTraceLatencyMs: number | null;
+  observedRequiredCount: number;
+  requiredCount: number;
+  nextMissingTraceTag: string | null;
+  sourceClass: "headset_class_input" | "desktop_or_runtime_input" | "not_observed";
+  reviewSafe: true;
+  claimBoundary: "xr_trace_interaction_summary_not_quest_readiness";
+  notEvidenceFor: readonly [
+    "production_quest_readiness",
+    "validated_clinical_score_use",
+    "live_provider_readiness",
+  ];
 };
 
 export type TraceInteractionAttempt =
@@ -467,12 +568,17 @@ export type ManualPerformanceCaptureSummary = {
   locomotionAttempt: ManualPerformanceInputEvidence["locomotionAttempt"] | null;
   locomotionDistanceMeters: number | null;
   locomotionTurnRadians: number | null;
+  locomotionPathQuality: LocomotionPathQualitySummary | null;
   locomotionDiagnosticSummary: LocomotionDiagnosticSummary | null;
   locomotionProbeSummary: LocomotionProbeSummary | null;
   traceLatencySource: ManualPerformanceTraceLatencyEvidence["source"] | null;
   traceInteractionAttempt: TraceInteractionAttempt | null;
   lastTraceTag: string | null;
   lastTraceLatencyMs: number | null;
+  handSelectStatus: XrHandSelectStateEvidence["status"] | null;
+  handSelectDwellMs: number | null;
+  handSelectFiredCount: number | null;
+  handSelectBlockedReason: XrHandSelectStateEvidence["blockedReason"] | null;
   immersiveFrameEvidenceReady: boolean;
   headsetSelectLatencyReady: boolean;
   locomotionEvidenceReady: boolean;
@@ -483,10 +589,238 @@ export type ManualPerformanceCaptureSummary = {
   blockers: string[];
 };
 
+export type RuntimeInteractionEvidence = {
+  capturedAtMs: number;
+  activeLocomotionSource: ManualPerformanceInputEvidence["activeLocomotionSource"] | null;
+  locomotionAttempt: ManualPerformanceInputEvidence["locomotionAttempt"] | null;
+  locomotionDistanceMeters: number | null;
+  locomotionTurnRadians: number | null;
+  locomotionProbeReadiness: LocomotionProbeSummary["readiness"] | null;
+  locomotionProbePrimaryReason: LocomotionProbeSummary["primaryReason"] | null;
+  locomotionProbeReasonCodes: LocomotionProbeSummary["reasonCodes"] | null;
+  handSelectStatus: XrHandSelectStateEvidence["status"] | null;
+  handSelectDwellMs: number | null;
+  handSelectFiredCount: number | null;
+  handSelectBlockedReason: XrHandSelectStateEvidence["blockedReason"] | null;
+  activeEmotionState: HumanoidSpeechEvidence["activeEmotionState"] | null;
+  activeExpressionTransitionMs: HumanoidSpeechEvidence["activeExpressionTransitionMs"] | null;
+  activeExpressionCueCount: number;
+  activeBodyMotionMode: HumanoidSpeechEvidence["activeBodyMotionMode"] | null;
+  activeBodyMotionIntensity: HumanoidSpeechEvidence["activeBodyMotionIntensity"] | null;
+  activeMouthOpenness: HumanoidSpeechEvidence["activeMouthOpenness"] | null;
+  activeEyeBlinkIntensity: HumanoidSpeechEvidence["activeEyeBlinkIntensity"] | null;
+  gazeTargetKind: HumanoidSpeechEvidence["gazeTargetKind"] | null;
+  gazeTargetActorId: HumanoidSpeechEvidence["gazeTargetActorId"] | null;
+};
+
+export type LocomotionPathQualitySummary = {
+  claimScope: "path_shape_probe_only";
+  sampleCount: number;
+  distanceMeters: number;
+  turnRadians: number;
+  straightLineOnly: boolean;
+  pathCueIds: string[];
+  blockers: string[];
+};
+
 export type ManualPerformanceEvidencePayload = {
   manualPerformanceDraft: ManualPerformanceDraft | null;
   captureSummary: ManualPerformanceCaptureSummary;
+  runtimeAssetBundleId: string | null;
+  learnerRuntimeUseGateEvidence: LearnerRuntimeUseGateEvidence | null;
+  runtimeSceneManifestEvidence: RuntimeSceneManifestEvidence | null;
   textPanelEvidence: ReadableVrTextPanelEvidenceSet | null;
+  traceActionHandoffEvidence: XrTraceActionHandoffEvidence | null;
+  sceneAssetEvidence: SceneAssetEvidence | null;
+  environmentStateEvidence: EnvironmentStateEvidence | null;
+  humanoidSpeechEvidence: HumanoidSpeechEvidence | null;
+  caseDefinedHumanoidPerformanceContractEvidence: CaseDefinedHumanoidPerformanceContractEvidence | null;
+  examineeLocomotionEvidence: ExamineeLocomotionEvidence | null;
+  runtimeInteractionEvidence: RuntimeInteractionEvidence | null;
+  traceInteractionEvidenceSummary: XrTraceInteractionEvidenceSummary | null;
+};
+
+export type LearnerRuntimeUseGateEvidence = EncounterRuntimeLearnerUseGate & {
+  source: "window.__openClinXrLearnerRuntimeUseGateEvidence";
+  bundleId: string;
+  scenarioId: string;
+  assetStoreKind: RuntimeAssetStoreKind;
+  activeBundleSource: "local_fixture_fallback" | "api_bundle" | "static_generated_bundle";
+  generatedBundleLearnerUseBlocked: boolean;
+  fallbackActive: boolean;
+  fallbackReason: string | null;
+  requiredGateIds: [
+    "runtime_realism_evidence",
+    "visual_qa_evidence",
+    "quest_runtime_evidence",
+  ];
+  blockingGateIds: EncounterRuntimeEvidenceGateId[];
+  approvedLocalFixtureOnly: boolean;
+  claimBoundary: "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach";
+};
+
+export type CaseDefinedHumanoidRuntimeHandoffEvidence = {
+  claimBoundary: "case_definition_humanoid_runtime_handoff_metadata_only";
+  actorRole: string;
+  workOrderIds: string[];
+  locomotionRequired: boolean;
+  expressionRequired: boolean;
+  gazeRequired: boolean;
+  lipSyncRequired: boolean;
+  interactiveRequired: boolean;
+  requiredSignalIds: string[];
+  blockers: string[];
+  notEvidenceFor: Array<
+    | "generated_humanoid_asset_readiness"
+    | "animation_quality"
+    | "quest_readiness"
+    | "runtime_readiness"
+    | "clinical_validity"
+    | "scoring_validity"
+  >;
+};
+
+export type RuntimeSceneManifestEvidence = {
+  source: "learner_runtime_asset_bundle_scene_manifest";
+  manifestId: string;
+  schemaVersion: "openclinxr.runtime-scene-manifest.v1";
+  roomPropCount: number;
+  semanticRoomPropCount: number;
+  actorPlacementCount: number;
+  equipmentPlacementCount: number;
+  dialogueTurnCount: number;
+  virtualDeviceActorCount: number;
+  virtualDeviceDialogueRoutedCount: number;
+  generatedBySceneManifestCount: number;
+  propIds: string[];
+  caseDefinedHumanoidRuntimeHandoffCount: number;
+  caseDefinedHumanoidRuntimeHandoffActorRoles: string[];
+  caseDefinedHumanoidRuntimeHandoffRequiredSignalIds: string[];
+  caseDefinedHumanoidRuntimeHandoff: CaseDefinedHumanoidRuntimeHandoffEvidence[];
+  storageBackedBundle: boolean;
+  productionReadinessClaimed: false;
+  notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"];
+};
+
+export type EnvironmentStateEvidence = {
+  source: "local_trace_tied_environment_state";
+  activeTraceTags: string[];
+  stressCueIds: string[];
+  environmentalRealismCueIds: string[];
+  monitorState: "baseline" | "vitals_concerning" | "urgent_ecg_requested" | "oxygen_started" | "bronchodilator_in_progress";
+  alarmState: "quiet" | "soft_warning" | "urgent_attention";
+  alarmCueMode: "visual_only_no_audio" | "none";
+  environmentMotionCueMode: "deterministic_visual_pulse" | "none";
+  propStateCueIds: string[];
+  activePropIds: string[];
+  productionClinicalMonitoringClaimed: false;
+  notEvidenceFor: ["clinical_validity", "scoring_validity", "quest_readiness"];
+};
+
+export type SceneAssetEvidence = {
+  source: "window.__openClinXrSceneAssetEvidence";
+  generatedAtMs: number;
+  expectedAssetCount: number;
+  loadedCount: number;
+  failedCount: number;
+  pendingCount: number;
+  fallbackActiveCount: number;
+  cameraFramingCue: "humanoid_camera_framing_decluttered_three_actor_environment_review";
+  visualFidelityCueIds: string[];
+  interactionCollisionEvidence: {
+    proxyCueCount: number;
+    physicsProbeMode: "runtime_proxy_cues_with_offline_rapier_gate";
+    latestProbeReportPath: string;
+    notEvidenceFor: ["production_physics_readiness", "validated_ragdoll_biomechanics"];
+  };
+  assets: Array<{
+    assetId: string;
+    assetPath: string;
+    sceneObjectName: string;
+    status: "pending" | "loaded" | "failed";
+    fallbackActive: boolean;
+    affordanceCueIds?: string[];
+    animationPlayback?: "gltf_animation_clips_playing" | "procedural_idle_breathing_fallback" | "procedural_dialogue_expression_gaze_fallback" | "not_applicable";
+  }>;
+  productionAssetReadinessClaimed: false;
+  notEvidenceFor: [
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+  ];
+};
+
+export type HumanoidSpeechEvidence = {
+  source: "local_dialogue_phoneme_viseme_mapping";
+  activeActorId: string | null;
+  activeAssetId: string | null;
+  lastText: string | null;
+  phonemeSequence: string[];
+  visemeSequence: string[];
+  emotionSource?:
+    | "runtime_affect_timeline"
+    | "scenario_actor_communication_profile"
+    | "dialogue_text_heuristic"
+    | undefined;
+  scenarioBaselineMood?: string[] | undefined;
+  scenarioEmotionCueIds?: string[] | undefined;
+  activeActorRuntimeRealismRequirement?:
+    | NonNullable<NonNullable<EncounterRuntimeDialogueTurn["caseDefinitionRuntimeSignals"]>["actorRuntimeRealismRequirement"]>
+    | undefined;
+  activeActorRealismLaunchBadge?: {
+    actorId: string;
+    actorRole: string;
+    status: "realismBlocked";
+    blockers: string[];
+    claimBoundary: "case_defined_actor_realism_launch_badge_metadata_only";
+  } | undefined;
+  activePhoneme?: string | undefined;
+  activeViseme?: string | undefined;
+  activeMouthOpenness?: number | undefined;
+  activeEyeBlinkIntensity?: number | undefined;
+  activeEyeMicroSaccadeYaw?: number | undefined;
+  activeEyeMicroSaccadePitch?: number | undefined;
+  activeEmotionState?: "neutral" | "anxious" | "concerned" | "reassured" | "pain" | undefined;
+  activeExpressionTransitionMs?: number | undefined;
+  activeExpressionWeights?: Partial<Record<"mouthOpen" | "browConcern" | "cheekTension", number>> | undefined;
+  activeExpressionCueIds?: string[] | undefined;
+  activeBodyMotionCueIds?: string[] | undefined;
+  activeBodyMotionIntensity?: number | undefined;
+  activeBodyMotionMode?:
+    | "scenario_dialogue_body_motion_runtime"
+    | "procedural_idle_body_motion"
+    | undefined;
+  gazeTargetKind: "learner_camera" | "actor" | null;
+  gazeTargetActorId: string | null;
+  notEvidenceFor: readonly [
+    "clinical_speech_quality",
+    "production_lip_sync",
+    "production_eye_tracking",
+    "scoring_validity",
+  ];
+};
+
+export type CaseDefinedHumanoidPerformanceContractEvidence = {
+  source: "case_definition_humanoid_performance_contract";
+  scenarioId: string;
+  claimBoundary: "case_definition_humanoid_performance_metadata_only";
+  actorCount: number;
+  locomotionActorRoles: string[];
+  expressionActorRoles: string[];
+  gazeActorRoles: string[];
+  lipSyncActorRoles: string[];
+  interactiveActorRoles: string[];
+  emotionStateCount: number;
+  dialogueDrivenVisemeMappingRequired: boolean;
+  gazeTargetingRequired: boolean;
+  locomotionPlanningRequired: boolean;
+  notEvidenceFor: [
+    "generated_humanoid_asset_readiness",
+    "animation_quality",
+    "quest_readiness",
+    "runtime_readiness",
+    "clinical_validity",
+  ];
 };
 
 export type LocomotionDiagnosticSummary = {
@@ -682,14 +1016,24 @@ export const iwsdkStationSceneObjects = {
   ambientLight: "openclinxr.ed-chest-pain.ambient-light",
   keyLight: "openclinxr.ed-chest-pain.key-light",
   floor: "openclinxr.ed-chest-pain.floor",
+  environmentShell: "openclinxr.ed-chest-pain.environment-shell",
+  generatedEnvironmentShell: "openclinxr.ed-chest-pain.environment-shell.generated-glb",
   bed: "openclinxr.ed-chest-pain.bed",
   monitor: "openclinxr.ed-chest-pain.monitor",
+  ecgCart: "openclinxr.ed-chest-pain.ecg-cart-12-lead",
+  generatedEcgCart: "openclinxr.ed-chest-pain.ecg-cart-12-lead.generated-glb",
+  ivPoleWithPump: "openclinxr.ed-chest-pain.iv-pole-with-pump",
+  generatedIvPoleWithPump: "openclinxr.ed-chest-pain.iv-pole-with-pump.generated-glb",
   patientRobertHayes: "openclinxr.ed-chest-pain.patient-robert-hayes",
+  patientRobertHayesGeneratedHumanoid: "openclinxr.ed-chest-pain.patient-robert-hayes.generated-humanoid-glb",
   nurseMariaAlvarez: "openclinxr.ed-chest-pain.nurse-maria-alvarez",
+  nurseMariaAlvarezGeneratedHumanoid: "openclinxr.ed-chest-pain.nurse-maria-alvarez.generated-humanoid-glb",
   spouseAnnaHayes: "openclinxr.ed-chest-pain.spouse-anna-hayes",
+  spouseAnnaHayesGeneratedHumanoid: "openclinxr.ed-chest-pain.spouse-anna-hayes.generated-humanoid-glb",
   wallClock: "openclinxr.ed-chest-pain.wall-clock",
   clinicalPanel: "openclinxr.ed-chest-pain.in-vr-clinical-panel",
   dialoguePanel: "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+  actorRealismPanel: "openclinxr.ed-chest-pain.in-vr-actor-realism-requirements-panel",
   inputPanel: "openclinxr.ed-chest-pain.in-vr-input-panel",
   controllerGripLeft: "openclinxr.ed-chest-pain.controller-grip-left",
   controllerGripRight: "openclinxr.ed-chest-pain.controller-grip-right",
@@ -718,9 +1062,33 @@ export function createInitialRuntimeState(): XrRuntimeState {
   };
 }
 
+export function deriveRuntimeTraceActionTags(bundle: LearnerRuntimeAssetBundle): string[] {
+  const runtimeTraceTags = bundle.sceneManifest.dialogueTurns
+    .map((turn) => turn.traceTag)
+    .filter((tag): tag is string => typeof tag === "string" && tag.trim().length > 0);
+  const uniqueRuntimeTraceTags = [...new Set(runtimeTraceTags)];
+  return uniqueRuntimeTraceTags.length > 0 ? uniqueRuntimeTraceTags : [...edChestPainScenario.requiredTraceTags];
+}
+
+export function createRuntimeStateFromBundle(
+  bundle: LearnerRuntimeAssetBundle,
+  previousState?: XrRuntimeState,
+): XrRuntimeState {
+  const requiredTraceTags = deriveRuntimeTraceActionTags(bundle);
+  const requiredTraceTagSet = new Set(requiredTraceTags);
+  return {
+    scenarioId: bundle.scenarioId,
+    title: bundle.sceneManifest.stationContext?.title ?? previousState?.title ?? bundle.stationId,
+    elapsedSecond: previousState?.elapsedSecond ?? 0,
+    requiredTraceTags,
+    completedTraceTags: previousState?.completedTraceTags.filter((tag) => requiredTraceTagSet.has(tag)) ?? [],
+  };
+}
+
 export function formatStationClock(totalSeconds: number): string {
-  const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, "0");
-  const seconds = Math.floor(totalSeconds % 60).toString().padStart(2, "0");
+  const clampedTotalSeconds = Number.isFinite(totalSeconds) ? Math.max(0, totalSeconds) : 0;
+  const minutes = Math.floor(clampedTotalSeconds / 60).toString().padStart(2, "0");
+  const seconds = Math.floor(clampedTotalSeconds % 60).toString().padStart(2, "0");
   return `${minutes}:${seconds}`;
 }
 
@@ -737,12 +1105,92 @@ export function completeTraceAction(state: XrRuntimeState, traceTag: string): Xr
 
 export function summarizeTraceReadiness(state: XrRuntimeState): TraceReadinessSummary {
   const observed = new Set(state.completedTraceTags);
-  const missingTraceTags = state.requiredTraceTags.filter((tag) => !observed.has(tag));
+  const requiredTraceTags = [...new Set(state.requiredTraceTags)];
+  const missingTraceTags = requiredTraceTags.filter((tag) => !observed.has(tag));
+  const observedRequiredTraceTags = requiredTraceTags.filter((tag) => observed.has(tag));
   return {
-    observedCount: state.completedTraceTags.length,
+    observedCount: observedRequiredTraceTags.length,
     missingCount: missingTraceTags.length,
     missingTraceTags,
   };
+}
+
+export function buildXrTraceActionHandoffEvidence(input: {
+  state: XrRuntimeState;
+  actions: readonly XrTraceActionHandoffAction[];
+  generatedAtMs: number;
+  lastTraceLatencyEvidence?: ManualPerformanceTraceLatencyEvidence | null | undefined;
+}): XrTraceActionHandoffEvidence {
+  const traceSummary = summarizeTraceReadiness(input.state);
+  const smokePlan = buildIwsdkStationMcpSmokePlan(input.state);
+  const actions = input.actions.map((action) => ({ ...action }));
+
+  return {
+    source: "window.__openClinXrTraceActionHandoffEvidence",
+    scenarioId: input.state.scenarioId,
+    title: input.state.title,
+    generatedAtMs: roundMetric(input.generatedAtMs),
+    observedRequiredCount: traceSummary.observedCount,
+    requiredCount: [...new Set(input.state.requiredTraceTags)].length,
+    missingCount: traceSummary.missingCount,
+    missingTraceTags: [...traceSummary.missingTraceTags],
+    nextTraceTag: traceSummary.missingTraceTags[0] ?? null,
+    latestAction: actions.at(-1) ?? null,
+    actions,
+    lastTraceLatencyEvidence: input.lastTraceLatencyEvidence ?? null,
+    iwsdkSidecarHandoff: {
+      posture: "sidecar_only_supporting_evidence",
+      smokePlanHash: smokePlan.smokePlanHash,
+      controllerSelectTraceTag: smokePlan.controllerSelectTraceTag,
+      requiredSceneObjectNames: [...smokePlan.requiredSceneObjectNames],
+      reviewTargets: {
+        clinicalPanel: iwsdkStationSceneObjects.clinicalPanel,
+        dialoguePanel: iwsdkStationSceneObjects.dialoguePanel,
+        actorRealismPanel: iwsdkStationSceneObjects.actorRealismPanel,
+        inputPanel: iwsdkStationSceneObjects.inputPanel,
+        controllerGripLeft: iwsdkStationSceneObjects.controllerGripLeft,
+        controllerGripRight: iwsdkStationSceneObjects.controllerGripRight,
+      },
+    },
+    notEvidenceFor: [
+      "production_quest_readiness",
+      "validated_clinical_score_use",
+      "live_provider_readiness",
+    ],
+  };
+}
+
+export function buildXrTraceInteractionEvidenceSummary(
+  handoff: XrTraceActionHandoffEvidence | null | undefined,
+): XrTraceInteractionEvidenceSummary {
+  const latestAction = handoff?.latestAction ?? null;
+  const latestTraceSource = latestAction?.source ?? null;
+  return {
+    source: "xr_trace_action_handoff_summary",
+    scenarioId: handoff?.scenarioId ?? "unknown",
+    latestTraceTag: latestAction?.traceTag ?? null,
+    latestTraceSource,
+    latestTraceLatencyMs: latestAction?.selectLatencyMs ?? handoff?.lastTraceLatencyEvidence?.lastSelectLatencyMs ?? null,
+    observedRequiredCount: handoff?.observedRequiredCount ?? 0,
+    requiredCount: handoff?.requiredCount ?? 0,
+    nextMissingTraceTag: handoff?.nextTraceTag ?? null,
+    sourceClass: traceSourceClass(latestTraceSource),
+    reviewSafe: true,
+    claimBoundary: "xr_trace_interaction_summary_not_quest_readiness",
+    notEvidenceFor: [
+      "production_quest_readiness",
+      "validated_clinical_score_use",
+      "live_provider_readiness",
+    ],
+  };
+}
+
+function traceSourceClass(
+  source: XrTraceActionHandoffAction["source"] | null,
+): XrTraceInteractionEvidenceSummary["sourceClass"] {
+  if (!source) return "not_observed";
+  if (source === "xr_controller_select" || source === "xr_hand_select") return "headset_class_input";
+  return "desktop_or_runtime_input";
 }
 
 export function buildIwsdkStationMcpSmokePlan(state: XrRuntimeState = createInitialRuntimeState()): IwsdkStationMcpSmokePlan {
@@ -828,6 +1276,12 @@ export function evaluateXrExperienceModeReadiness(evidence: XrExperienceModeRead
 export function buildRuntimeEvidencePosture(input: RuntimeEvidencePostureInput): RuntimeEvidencePosture {
   const questBlockers = input.captureSummary?.manualValidationReady === true ? [] : input.captureSummary?.blockers ?? ["missing_manual_performance_draft"];
   const immersiveArKnownUnsupported = input.webXrSupport.immersiveArSupported !== true;
+  const runtimeNowMs = input.runtimeNowMs ?? null;
+  const freshRuntimeInteractionEvidence = input.runtimeInteractionEvidence && runtimeNowMs !== null
+    && runtimeNowMs >= input.runtimeInteractionEvidence.capturedAtMs
+    && runtimeNowMs - input.runtimeInteractionEvidence.capturedAtMs <= runtimeInteractionEvidenceFreshMs
+      ? input.runtimeInteractionEvidence
+      : null;
   const mixedRealityBlockers = [
     "mixed_reality_manual_report_missing",
     immersiveArKnownUnsupported ? "immersive_ar_not_supported_or_unverified" : undefined,
@@ -891,10 +1345,45 @@ export function buildRuntimeEvidencePosture(input: RuntimeEvidencePostureInput):
           immersiveFramesObserved: input.captureSummary?.immersiveFramesObserved ?? null,
           traceLatencySource: input.captureSummary?.traceLatencySource ?? null,
           handInputsObserved: input.captureSummary?.handInputsObserved ?? null,
+          activeLocomotionSource: input.captureSummary?.activeLocomotionSource ?? null,
+          lastLocomotionAtMs: input.captureSummary?.lastLocomotionAtMs ?? null,
+          locomotionDistanceMeters: input.captureSummary?.locomotionDistanceMeters ?? null,
+          locomotionTurnRadians: input.captureSummary?.locomotionTurnRadians ?? null,
           locomotionProbeClaimScope: input.captureSummary?.locomotionProbeSummary?.claimScope ?? null,
           locomotionProbeReadiness: input.captureSummary?.locomotionProbeSummary?.readiness ?? null,
           locomotionProbePrimaryReason: input.captureSummary?.locomotionProbeSummary?.primaryReason ?? null,
           locomotionProbeReasonCodes: input.captureSummary?.locomotionProbeSummary?.reasonCodes ?? [],
+          runtimeInteractionEvidenceAtMs: freshRuntimeInteractionEvidence?.capturedAtMs ?? null,
+          runtimeInteractionLocomotionSource: freshRuntimeInteractionEvidence?.activeLocomotionSource ?? null,
+          runtimeInteractionLocomotionAttempt: freshRuntimeInteractionEvidence?.locomotionAttempt ?? null,
+          runtimeInteractionLocomotionDistanceMeters: freshRuntimeInteractionEvidence?.locomotionDistanceMeters ?? null,
+          runtimeInteractionLocomotionTurnRadians: freshRuntimeInteractionEvidence?.locomotionTurnRadians ?? null,
+          runtimeInteractionHandSelectStatus: freshRuntimeInteractionEvidence?.handSelectStatus ?? null,
+          runtimeInteractionHandSelectDwellMs: freshRuntimeInteractionEvidence?.handSelectDwellMs ?? null,
+          runtimeInteractionHandSelectFiredCount: freshRuntimeInteractionEvidence?.handSelectFiredCount ?? null,
+          runtimeInteractionHandSelectBlockedReason: freshRuntimeInteractionEvidence?.handSelectBlockedReason ?? null,
+          runtimeInteractionLocomotionProbeReadiness: freshRuntimeInteractionEvidence?.locomotionProbeReadiness ?? null,
+          runtimeInteractionLocomotionProbePrimaryReason: freshRuntimeInteractionEvidence?.locomotionProbePrimaryReason ?? null,
+          runtimeInteractionLocomotionProbeReasonCodes: freshRuntimeInteractionEvidence?.locomotionProbeReasonCodes ?? [],
+          runtimeInteractionHumanoidEmotionState: freshRuntimeInteractionEvidence?.activeEmotionState ?? null,
+          runtimeInteractionHumanoidExpressionTransitionMs: freshRuntimeInteractionEvidence?.activeExpressionTransitionMs ?? null,
+          runtimeInteractionHumanoidExpressionCueCount: freshRuntimeInteractionEvidence?.activeExpressionCueCount ?? 0,
+          runtimeInteractionHumanoidBodyMotionMode: freshRuntimeInteractionEvidence?.activeBodyMotionMode ?? null,
+          runtimeInteractionHumanoidBodyMotionIntensity: freshRuntimeInteractionEvidence?.activeBodyMotionIntensity ?? null,
+          runtimeInteractionHumanoidMouthOpenness: freshRuntimeInteractionEvidence?.activeMouthOpenness ?? null,
+          runtimeInteractionHumanoidEyeBlinkIntensity: freshRuntimeInteractionEvidence?.activeEyeBlinkIntensity ?? null,
+          runtimeInteractionHumanoidGazeTargetKind: freshRuntimeInteractionEvidence?.gazeTargetKind ?? null,
+          runtimeInteractionHumanoidGazeTargetActorId: freshRuntimeInteractionEvidence?.gazeTargetActorId ?? null,
+          handSelectStatus: input.captureSummary?.handSelectStatus ?? null,
+          handSelectDwellMs: input.captureSummary?.handSelectDwellMs ?? null,
+          handSelectFiredCount: input.captureSummary?.handSelectFiredCount ?? null,
+          handSelectBlockedReason: input.captureSummary?.handSelectBlockedReason ?? null,
+          traceHandoffObservedRequiredCount: input.traceActionHandoffEvidence?.observedRequiredCount ?? null,
+          traceHandoffRequiredCount: input.traceActionHandoffEvidence?.requiredCount ?? null,
+          traceHandoffNextTraceTag: input.traceActionHandoffEvidence?.nextTraceTag ?? null,
+          traceHandoffLatestSource: input.traceActionHandoffEvidence?.latestAction?.source ?? null,
+          iwsdkSidecarPosture: input.traceActionHandoffEvidence?.iwsdkSidecarHandoff.posture ?? null,
+          iwsdkSmokePlanHash: input.traceActionHandoffEvidence?.iwsdkSidecarHandoff.smokePlanHash ?? null,
         },
       },
       {
@@ -961,7 +1450,16 @@ export function eventTypeForTraceTag(tag: string): string {
     empathy_statement: "learner.empathy",
     patient_note_submitted: "learner.note",
   };
-  return eventTypes[tag] ?? "learner.action";
+  if (eventTypes[tag]) return eventTypes[tag];
+  if (/history|trigger|inhaler|medication|symptom|question|known_well/i.test(tag)) return "learner.history";
+  if (/assessment|exam|work_of_breathing|neuro|orientation/i.test(tag)) return "learner.exam";
+  if (/oxygen|bronchodilator|plan|order|request|activation/i.test(tag)) return "learner.order";
+  if (/urgent|escalation|safety|recognition/i.test(tag)) return "learner.escalation";
+  if (/parent|family|partner|guardian/i.test(tag)) return "learner.family";
+  if (/team|handoff|summary|communication/i.test(tag)) return "learner.team";
+  if (/empathy|reassurance|emotion/i.test(tag)) return "learner.empathy";
+  if (/note|documentation/i.test(tag)) return "learner.note";
+  return "learner.action";
 }
 
 export function actorIdForTraceTag(tag: string): string | undefined {
@@ -1359,12 +1857,34 @@ export function handGestureRelativeOffsetMeters(input: {
 export function buildManualPerformanceEvidencePayload(input: {
   manualPerformanceDraft: ManualPerformanceDraft | null;
   captureSummary: ManualPerformanceCaptureSummary;
+  runtimeAssetBundleId?: string | null | undefined;
+  learnerRuntimeUseGateEvidence?: LearnerRuntimeUseGateEvidence | null | undefined;
+  runtimeSceneManifestEvidence?: RuntimeSceneManifestEvidence | null | undefined;
   textPanelEvidence?: ReadableVrTextPanelEvidenceSet | null | undefined;
+  traceActionHandoffEvidence?: XrTraceActionHandoffEvidence | null | undefined;
+  sceneAssetEvidence?: SceneAssetEvidence | null | undefined;
+  environmentStateEvidence?: EnvironmentStateEvidence | null | undefined;
+  humanoidSpeechEvidence?: HumanoidSpeechEvidence | null | undefined;
+  caseDefinedHumanoidPerformanceContractEvidence?: CaseDefinedHumanoidPerformanceContractEvidence | null | undefined;
+  examineeLocomotionEvidence?: ExamineeLocomotionEvidence | null | undefined;
+  runtimeInteractionEvidence?: RuntimeInteractionEvidence | null | undefined;
+  traceInteractionEvidenceSummary?: XrTraceInteractionEvidenceSummary | null | undefined;
 }): ManualPerformanceEvidencePayload {
   return {
     manualPerformanceDraft: input.manualPerformanceDraft,
     captureSummary: input.captureSummary,
+    runtimeAssetBundleId: input.runtimeAssetBundleId ?? null,
+    learnerRuntimeUseGateEvidence: input.learnerRuntimeUseGateEvidence ?? null,
+    runtimeSceneManifestEvidence: input.runtimeSceneManifestEvidence ?? null,
     textPanelEvidence: input.textPanelEvidence ?? null,
+    traceActionHandoffEvidence: input.traceActionHandoffEvidence ?? null,
+    sceneAssetEvidence: input.sceneAssetEvidence ?? null,
+    environmentStateEvidence: input.environmentStateEvidence ?? null,
+    humanoidSpeechEvidence: input.humanoidSpeechEvidence ?? null,
+    caseDefinedHumanoidPerformanceContractEvidence: input.caseDefinedHumanoidPerformanceContractEvidence ?? null,
+    examineeLocomotionEvidence: input.examineeLocomotionEvidence ?? null,
+    runtimeInteractionEvidence: input.runtimeInteractionEvidence ?? null,
+    traceInteractionEvidenceSummary: input.traceInteractionEvidenceSummary ?? null,
   };
 }
 
@@ -1650,12 +2170,17 @@ export function buildManualPerformanceCaptureSummary(
     locomotionAttempt: inputEvidence?.locomotionAttempt ?? null,
     locomotionDistanceMeters: inputEvidence?.locomotionDelta?.distanceMeters ?? null,
     locomotionTurnRadians: inputEvidence?.locomotionDelta?.turnRadians ?? null,
+    locomotionPathQuality: summarizeLocomotionPathQuality(inputEvidence),
     locomotionDiagnosticSummary: summarizeLocomotionDiagnostics(inputEvidence?.locomotionDiagnostics),
     locomotionProbeSummary,
     traceLatencySource: input.draft?.traceLatencyProxy?.source ?? null,
     traceInteractionAttempt: input.draft?.station.traceInteractionAttempt ?? null,
     lastTraceTag: input.draft?.traceLatencyProxy?.lastTraceTag ?? null,
     lastTraceLatencyMs: input.draft?.traceLatencyProxy?.lastSelectLatencyMs ?? null,
+    handSelectStatus: inputEvidence?.xrHandSelectState?.status ?? null,
+    handSelectDwellMs: inputEvidence?.xrHandSelectState?.dwellMs ?? null,
+    handSelectFiredCount: inputEvidence?.xrHandSelectState?.firedCount ?? null,
+    handSelectBlockedReason: inputEvidence?.xrHandSelectState?.blockedReason ?? null,
     immersiveFrameEvidenceReady: technicalEvidence.immersiveFrameEvidenceReady,
     headsetSelectLatencyReady: technicalEvidence.headsetSelectLatencyReady,
     locomotionEvidenceReady: technicalEvidence.locomotionEvidenceReady,
@@ -1721,6 +2246,32 @@ function summarizeLocomotionProbe(
       armed: handGestureHands.filter((hand) => hand.armed).length,
       movementCrossedDeadzone: handGestureHands.filter((hand) => hand.movementCrossedDeadzone).length,
     },
+  };
+}
+
+function summarizeLocomotionPathQuality(
+  inputEvidence: ManualPerformanceInputEvidence | null,
+): LocomotionPathQualitySummary | null {
+  const delta = inputEvidence?.locomotionDelta;
+  if (!delta) {
+    return null;
+  }
+
+  const sampleCount = inputEvidence.lastLocomotionAtMs === null ? 0 : 1;
+  const straightLineOnly = sampleCount <= 1 || Math.abs(delta.turnRadians) < 0.01;
+  const blockers = [
+    sampleCount < 2 ? "multi_sample_path_not_captured" : undefined,
+    straightLineOnly ? "turn_or_curve_quality_not_captured" : undefined,
+  ].filter((blocker): blocker is string => typeof blocker === "string");
+
+  return {
+    claimScope: "path_shape_probe_only",
+    sampleCount,
+    distanceMeters: roundMetric(delta.distanceMeters),
+    turnRadians: roundMetric(delta.turnRadians),
+    straightLineOnly,
+    pathCueIds: delta.distanceMeters > 0 ? ["runtime_locomotion_delta"] : [],
+    blockers,
   };
 }
 
@@ -1801,6 +2352,7 @@ function buildManualPerformanceTechnicalEvidence(
   const headsetSelectLatencyReady = isHeadsetSelectLatencyReady(draft);
   const locomotionEvidenceReady = hasObservedLocomotion(draft?.input ?? null);
   const handMeshAssetLoadFailed = hasHandMeshAssetLoadFailure(draft?.input ?? null);
+  const handSelectBlockedReason = resolveHandSelectTraceBlockedReason(draft?.traceLatencyProxy ?? null);
   const technicalGaps = [
     draft ? undefined : "manual_performance_draft_missing",
     frameStats ? undefined : "frame_stats_missing",
@@ -1813,6 +2365,7 @@ function buildManualPerformanceTechnicalEvidence(
       ? "immersive_frame_sample_not_ready"
       : undefined,
     draft && !headsetSelectLatencyReady ? "headset_select_trace_latency_missing" : undefined,
+    handSelectBlockedReason ? `headset_select_trace_hand_select_blocked_${handSelectBlockedReason}` : undefined,
     draft && !locomotionEvidenceReady ? "locomotion_delta_missing" : undefined,
     draft && handMeshAssetLoadFailed ? "hand_mesh_asset_load_failed" : undefined,
   ].filter((gap): gap is string => typeof gap === "string");
@@ -1894,6 +2447,7 @@ function nullableRoundedInteger(value: number | null): number | null {
 }
 
 const manualPerformanceFrameStatsFreshMs = 2000;
+const runtimeInteractionEvidenceFreshMs = 3000;
 
 function previewManualPerformanceValidation(
   draft: ManualPerformanceDraft | null,
@@ -1933,6 +2487,7 @@ function previewManualPerformanceValidation(
   const traceSelectLatencyMsValid = isPositiveFiniteNumber(traceLastSelectLatencyMs);
   const traceMeasuredAtMsValid = isNonNegativeFiniteNumber(traceMeasuredAtMs);
   const batteryDropPercent = draft.comfort.batteryDropPercent;
+  const handSelectBlockedReason = resolveHandSelectTraceBlockedReason(traceLatencyProxy);
   const framesObservedValid = isNonNegativeInteger(framesObserved);
   const sampleWindowSizeValid = isNonNegativeInteger(sampleWindowSize);
   const immersiveFramesObservedValid = isNonNegativeInteger(immersiveFramesObserved);
@@ -2001,6 +2556,9 @@ function previewManualPerformanceValidation(
     p95FrameMsValid && p95FrameMs <= 25 ? undefined : "p95_frame_ms_above_25_or_missing",
     controllerSelectLatencyMsValid && controllerSelectLatencyMs <= 150 ? undefined : "controller_select_latency_ms_above_150_or_missing",
     traceSourceXrHeadsetSelect ? undefined : "controller_select_trace_source_not_xr_controller_select",
+    handSelectBlockedReason
+      ? `headset_select_trace_hand_select_blocked_${handSelectBlockedReason}`
+      : undefined,
     traceLastTraceTagRecorded ? undefined : "controller_select_trace_tag_missing",
     traceSelectLatencyMsValid ? undefined : "controller_select_trace_latency_missing",
     traceMeasuredAtMsValid ? undefined : "controller_select_trace_measured_at_missing",
@@ -2128,6 +2686,16 @@ function hasObservedLocomotion(value: ManualPerformanceDraft["input"]): boolean 
     && hasLocomotionDelta;
 }
 
+function resolveHandSelectTraceBlockedReason(
+  traceLatencyProxy: ManualPerformanceTraceLatencyEvidence | null,
+): string | null {
+  const interactionDetail = traceLatencyProxy?.interactionDetail;
+  if (traceLatencyProxy?.source !== "xr_hand_select" || interactionDetail?.status !== "blocked") {
+    return null;
+  }
+  return interactionDetail.blockedReason ?? null;
+}
+
 function isFullVrExperienceEvidence(value: XrExperienceModeEvidence): boolean {
   return value.modeId === "full_vr"
     && value.phaseLabel === "Phase 1 Full VR"
@@ -2171,4 +2739,85 @@ function clampUnit(value: number): number {
 
 function roundMetric(value: number, fractionDigits = 2): number {
   return Number(value.toFixed(fractionDigits));
+}
+
+export type XrRuntimeRecommendedNextAction =
+  | "complete_full_vr_manual_evidence_before_runtime_claim"
+  | "replace_mock_model_and_voice_before_live_runtime_claim"
+  | "attach_iwsdk_station_mcp_smoke_evidence"
+  | "complete_mixed_reality_privacy_and_passthrough_evidence"
+  | "ready_for_local_faculty_runtime_review";
+
+export type XrRuntimeReadinessDecisionInput = {
+  posture: RuntimeEvidencePosture;
+  iwsdkStationMcpSmokeReady?: boolean;
+};
+
+export type XrRuntimeReadinessDecision = {
+  source: "runtime_evidence_posture";
+  learnerLaunchReady: boolean;
+  fullVrEvidenceReady: boolean;
+  liveModelAndVoiceReady: boolean;
+  iwsdkStationMcpSmokeReady: boolean;
+  mixedRealityReady: boolean;
+  blockedLaneIds: RuntimeEvidenceLaneId[];
+  blockerCount: number;
+  recommendedNextAction: XrRuntimeRecommendedNextAction;
+  notEvidenceFor: string[];
+};
+
+function isBlockingRuntimeEvidenceLane(lane: RuntimeEvidenceLane): boolean {
+  return (
+    lane.blockers.length > 0 ||
+    lane.status === "mock_active" ||
+    lane.status === "blocked_with_evidence" ||
+    lane.status === "separate_lane_blocked"
+  );
+}
+
+function isReadyRuntimeEvidenceLane(lane: RuntimeEvidenceLane | undefined): boolean {
+  return lane !== undefined && !isBlockingRuntimeEvidenceLane(lane);
+}
+
+export function buildXrRuntimeReadinessDecision(
+  input: XrRuntimeReadinessDecisionInput,
+): XrRuntimeReadinessDecision {
+  const laneById = new Map(input.posture.lanes.map((lane) => [lane.id, lane]));
+  const blockedLaneIds = input.posture.lanes
+    .filter(isBlockingRuntimeEvidenceLane)
+    .map((lane) => lane.id);
+  const blockerCount = input.posture.lanes.reduce(
+    (sum, lane) => sum + lane.blockers.length,
+    0,
+  );
+  const fullVrEvidenceReady = isReadyRuntimeEvidenceLane(laneById.get("quest_foreground"));
+  const liveModelAndVoiceReady =
+    isReadyRuntimeEvidenceLane(laneById.get("model_dialogue")) &&
+    isReadyRuntimeEvidenceLane(laneById.get("voice_synthesis"));
+  const iwsdkStationMcpSmokeReady = input.iwsdkStationMcpSmokeReady === true;
+  const mixedRealityReady = isReadyRuntimeEvidenceLane(laneById.get("mixed_reality"));
+  const learnerLaunchReady =
+    fullVrEvidenceReady && liveModelAndVoiceReady && iwsdkStationMcpSmokeReady;
+  const recommendedNextAction: XrRuntimeRecommendedNextAction = !fullVrEvidenceReady
+    ? "complete_full_vr_manual_evidence_before_runtime_claim"
+    : !liveModelAndVoiceReady
+      ? "replace_mock_model_and_voice_before_live_runtime_claim"
+      : !iwsdkStationMcpSmokeReady
+        ? "attach_iwsdk_station_mcp_smoke_evidence"
+        : !mixedRealityReady
+          ? "complete_mixed_reality_privacy_and_passthrough_evidence"
+          : "ready_for_local_faculty_runtime_review";
+
+  return {
+    source: "runtime_evidence_posture",
+    learnerLaunchReady,
+    fullVrEvidenceReady,
+    liveModelAndVoiceReady,
+    iwsdkStationMcpSmokeReady,
+    mixedRealityReady,
+    blockedLaneIds,
+    blockerCount,
+    recommendedNextAction,
+    notEvidenceFor: input.posture.notEvidenceFor,
+  };
 }

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
+import { createEdChestPainLocalLearnerRuntimeAssetBundle, type LearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
 import {
   completeTraceAction,
   buildManualPerformanceEvidencePayload,
@@ -8,11 +9,16 @@ import {
   buildReadableVrTextPanelEvidence,
   buildRuntimeFrameStats,
   createInitialRuntimeState,
+  createRuntimeStateFromBundle,
+  deriveRuntimeTraceActionTags,
   actorResponseTextFromApiResult,
   buildManualPerformanceDraft,
   buildManualPerformanceReproducibility,
   buildRuntimeEvidencePosture,
+  buildXrTraceActionHandoffEvidence,
+  buildXrTraceInteractionEvidenceSummary,
   buildIwsdkStationMcpSmokePlan,
+  eventTypeForTraceTag,
   evaluateIwsdkStationMcpSmokeEvidence,
   evaluateXrExperienceModeReadiness,
   findXrExperienceModeContract,
@@ -30,6 +36,7 @@ import {
   handGestureLocomotionOriginMeters,
   handGestureRelativeOffsetMeters,
   type ReadableVrTextPanelEvidenceSet,
+  type SceneAssetEvidence,
   localHandMeshPath,
   remoteActorTurnForTraceTag,
   manualPerformanceMetricsFromFrameStats,
@@ -40,6 +47,7 @@ import {
   summarizeTraceReadiness,
   xrExperienceModeEvidence,
   xrExperienceModeContracts,
+  type RuntimeInteractionEvidence,
 } from "./runtime-state.js";
 
 describe("XR runtime state", () => {
@@ -70,6 +78,8 @@ describe("XR runtime state", () => {
     expect(formatStationClock(0)).toBe("00:00");
     expect(formatStationClock(65)).toBe("01:05");
     expect(formatStationClock(960)).toBe("16:00");
+    expect(formatStationClock(-5)).toBe("00:00");
+    expect(formatStationClock(Number.NaN)).toBe("00:00");
   });
 
   it("tracks required trace actions for the ED station", () => {
@@ -82,8 +92,224 @@ describe("XR runtime state", () => {
     expect(summarizeTraceReadiness(state).missingCount).toBeGreaterThan(0);
   });
 
+  it("summarizes trace readiness from required tags only", () => {
+    expect(summarizeTraceReadiness({
+      ...createInitialRuntimeState(),
+      requiredTraceTags: ["ecg_request", "team_communication"],
+      completedTraceTags: ["ecg_request", "ecg_request", "unmapped_runtime_probe"],
+    })).toEqual({
+      observedCount: 1,
+      missingCount: 1,
+      missingTraceTags: ["team_communication"],
+    });
+  });
+
+  it("deduplicates repeated required trace tags in readiness counts", () => {
+    expect(summarizeTraceReadiness({
+      ...createInitialRuntimeState(),
+      requiredTraceTags: ["ecg_request", "ecg_request", "team_communication"],
+      completedTraceTags: ["ecg_request"],
+    })).toEqual({
+      observedCount: 1,
+      missingCount: 1,
+      missingTraceTags: ["team_communication"],
+    });
+  });
+
   it("exposes every required ED trace tag for headset trace controls", () => {
     expect(stationTraceActionTags).toEqual(edChestPainScenario.requiredTraceTags);
+  });
+
+  it("derives runtime trace controls from the selected learner bundle dialogue manifest", () => {
+    const bundle: LearnerRuntimeAssetBundle = {
+      ...createEdChestPainLocalLearnerRuntimeAssetBundle({
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      stationId: "peds_asthma_parent_anxiety_station_v1",
+      }),
+      sceneManifest: {
+        ...createEdChestPainLocalLearnerRuntimeAssetBundle().sceneManifest,
+        schemaVersion: "openclinxr.runtime-scene-manifest.v1",
+        manifestId: "runtime-scene-manifest:peds_asthma_parent_anxiety_v1:test",
+        source: "generated_scene_pipeline",
+        scenarioId: "peds_asthma_parent_anxiety_v1",
+        stationId: "peds_asthma_parent_anxiety_station_v1",
+        stationContext: {
+          title: "Pediatric Asthma With Parent Anxiety",
+          subtitle: "Respiratory distress with worried parent",
+          stageAriaLabel: "Pediatric asthma station",
+          canvasAriaLabel: "Pediatric asthma WebXR station",
+          chiefConcern: "Assess pediatric respiratory distress",
+          initialVitals: "HR 128, RR 32, SpO2 91% on room air",
+          interruption: "Parent asks whether her child needs oxygen.",
+          initialDialogueText: "Parent: She is breathing so fast.",
+        },
+        roomProps: [],
+        actorPlacements: {},
+        equipmentPlacements: {},
+        dialogueTurns: [
+          {
+            traceTag: "work_of_breathing_assessment",
+            actorId: "patient_maya_johnson_v1",
+            text: "Maya: It is hard to breathe.",
+            gazeTargetKind: "learner_camera",
+            gazeTargetActorId: null,
+          },
+          {
+            traceTag: "oxygen_request",
+            actorId: "nurse_kevin_lee_v1",
+            text: "Nurse Lee: I will start oxygen now.",
+            gazeTargetKind: "actor",
+            gazeTargetActorId: "patient_maya_johnson_v1",
+          },
+          {
+            traceTag: "parent_communication",
+            actorId: "parent_tara_johnson_v1",
+            text: "Tara: Please explain what you are doing.",
+            gazeTargetKind: "learner_camera",
+            gazeTargetActorId: null,
+          },
+        ],
+      },
+    };
+
+    expect(deriveRuntimeTraceActionTags(bundle)).toEqual([
+      "work_of_breathing_assessment",
+      "oxygen_request",
+      "parent_communication",
+    ]);
+    expect(createRuntimeStateFromBundle(bundle, {
+      ...createInitialRuntimeState(),
+      completedTraceTags: ["ecg_request", "oxygen_request"],
+      elapsedSecond: 42,
+    })).toMatchObject({
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      title: "Pediatric Asthma With Parent Anxiety",
+      elapsedSecond: 42,
+      requiredTraceTags: [
+        "work_of_breathing_assessment",
+        "oxygen_request",
+        "parent_communication",
+      ],
+      completedTraceTags: ["oxygen_request"],
+    });
+  });
+
+  it("classifies scenario-bank trace tags into review-safe learner event types", () => {
+    expect(eventTypeForTraceTag("work_of_breathing_assessment")).toBe("learner.exam");
+    expect(eventTypeForTraceTag("inhaler_history")).toBe("learner.history");
+    expect(eventTypeForTraceTag("trigger_history")).toBe("learner.history");
+    expect(eventTypeForTraceTag("oxygen_request")).toBe("learner.order");
+    expect(eventTypeForTraceTag("bronchodilator_plan")).toBe("learner.order");
+    expect(eventTypeForTraceTag("urgent_escalation")).toBe("learner.escalation");
+    expect(eventTypeForTraceTag("parent_communication")).toBe("learner.family");
+    expect(eventTypeForTraceTag("empathy_statement")).toBe("learner.empathy");
+    expect(eventTypeForTraceTag("patient_note_submitted")).toBe("learner.note");
+  });
+
+  it("builds a review-safe XR trace action handoff with IWSDK sidecar targets", () => {
+    const firstState = completeTraceAction(createInitialRuntimeState(), "ecg_request");
+    const secondState = completeTraceAction(firstState, "team_communication");
+
+    expect(buildXrTraceActionHandoffEvidence({
+      state: secondState,
+      generatedAtMs: 1234.567,
+      lastTraceLatencyEvidence: {
+        lastTraceTag: "team_communication",
+        lastSelectLatencyMs: 18.25,
+        source: "xr_controller_select",
+        measuredAtMs: 1234.56,
+        productionControllerLatencySubstitute: false,
+      },
+      actions: [
+        {
+          sequence: 1,
+          traceTag: "ecg_request",
+          source: "dom_click_trace_button",
+          eventType: "learner.order",
+          actorId: "nurse_maria_alvarez_v1",
+          completedAtSecond: 83,
+          completedAtMs: 1200,
+          selectLatencyMs: 12.5,
+        },
+        {
+          sequence: 2,
+          traceTag: "team_communication",
+          source: "xr_controller_select",
+          eventType: "learner.team",
+          actorId: "nurse_maria_alvarez_v1",
+          completedAtSecond: 120,
+          completedAtMs: 1234.56,
+          selectLatencyMs: 18.25,
+        },
+      ],
+    })).toMatchObject({
+      source: "window.__openClinXrTraceActionHandoffEvidence",
+      scenarioId: "ed_chest_pain_priority_v1",
+      generatedAtMs: 1234.57,
+      observedRequiredCount: 2,
+      requiredCount: edChestPainScenario.requiredTraceTags.length,
+      nextTraceTag: "history_opqrst",
+      latestAction: {
+        traceTag: "team_communication",
+        source: "xr_controller_select",
+        eventType: "learner.team",
+        actorId: "nurse_maria_alvarez_v1",
+      },
+      iwsdkSidecarHandoff: {
+        posture: "sidecar_only_supporting_evidence",
+        smokePlanHash: iwsdkStationMcpSmokePlanHash,
+        controllerSelectTraceTag: "ecg_request",
+        reviewTargets: {
+          inputPanel: iwsdkStationSceneObjects.inputPanel,
+          controllerGripLeft: iwsdkStationSceneObjects.controllerGripLeft,
+          controllerGripRight: iwsdkStationSceneObjects.controllerGripRight,
+        },
+      },
+      notEvidenceFor: [
+        "production_quest_readiness",
+        "validated_clinical_score_use",
+        "live_provider_readiness",
+      ],
+    });
+  });
+
+  it("summarizes XR trace action handoff evidence for faculty review without Quest-readiness claims", () => {
+    const state = completeTraceAction(createInitialRuntimeState(), "ecg_request");
+    const handoff = buildXrTraceActionHandoffEvidence({
+      state,
+      generatedAtMs: 1234.567,
+      actions: [
+        {
+          sequence: 1,
+          traceTag: "ecg_request",
+          source: "dom_click_trace_button",
+          eventType: "learner.order",
+          actorId: "nurse_maria_alvarez_v1",
+          completedAtSecond: 83,
+          completedAtMs: 1200,
+          selectLatencyMs: 12.5,
+        },
+      ],
+    });
+
+    expect(buildXrTraceInteractionEvidenceSummary(handoff)).toEqual({
+      source: "xr_trace_action_handoff_summary",
+      scenarioId: "ed_chest_pain_priority_v1",
+      latestTraceTag: "ecg_request",
+      latestTraceSource: "dom_click_trace_button",
+      latestTraceLatencyMs: 12.5,
+      observedRequiredCount: 1,
+      requiredCount: edChestPainScenario.requiredTraceTags.length,
+      nextMissingTraceTag: "history_opqrst",
+      sourceClass: "desktop_or_runtime_input",
+      reviewSafe: true,
+      claimBoundary: "xr_trace_interaction_summary_not_quest_readiness",
+      notEvidenceFor: [
+        "production_quest_readiness",
+        "validated_clinical_score_use",
+        "live_provider_readiness",
+      ],
+    });
   });
 
   it("builds audit-only browser reproducibility metadata for copied Quest evidence", () => {
@@ -257,14 +483,24 @@ describe("XR runtime state", () => {
       "openclinxr.ed-chest-pain.ambient-light",
       "openclinxr.ed-chest-pain.key-light",
       "openclinxr.ed-chest-pain.floor",
+      "openclinxr.ed-chest-pain.environment-shell",
+      "openclinxr.ed-chest-pain.environment-shell.generated-glb",
       "openclinxr.ed-chest-pain.bed",
       "openclinxr.ed-chest-pain.monitor",
+      "openclinxr.ed-chest-pain.ecg-cart-12-lead",
+      "openclinxr.ed-chest-pain.ecg-cart-12-lead.generated-glb",
+      "openclinxr.ed-chest-pain.iv-pole-with-pump",
+      "openclinxr.ed-chest-pain.iv-pole-with-pump.generated-glb",
       "openclinxr.ed-chest-pain.patient-robert-hayes",
+      "openclinxr.ed-chest-pain.patient-robert-hayes.generated-humanoid-glb",
       "openclinxr.ed-chest-pain.nurse-maria-alvarez",
+      "openclinxr.ed-chest-pain.nurse-maria-alvarez.generated-humanoid-glb",
       "openclinxr.ed-chest-pain.spouse-anna-hayes",
+      "openclinxr.ed-chest-pain.spouse-anna-hayes.generated-humanoid-glb",
       "openclinxr.ed-chest-pain.wall-clock",
       "openclinxr.ed-chest-pain.in-vr-clinical-panel",
       "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+      "openclinxr.ed-chest-pain.in-vr-actor-realism-requirements-panel",
       "openclinxr.ed-chest-pain.in-vr-input-panel",
       "openclinxr.ed-chest-pain.controller-grip-left",
       "openclinxr.ed-chest-pain.controller-grip-right",
@@ -851,6 +1087,389 @@ describe("XR runtime state", () => {
     );
   });
 
+  it("bundles generated scene asset evidence into copied Quest evidence payloads", () => {
+    const sceneAssetEvidence: SceneAssetEvidence = {
+      source: "window.__openClinXrSceneAssetEvidence",
+      generatedAtMs: 1300,
+      expectedAssetCount: 5,
+      loadedCount: 5,
+      failedCount: 0,
+      pendingCount: 0,
+      fallbackActiveCount: 0,
+      cameraFramingCue: "humanoid_camera_framing_decluttered_three_actor_environment_review",
+      visualFidelityCueIds: ["generated_humanoid_front_fidelity_badge"],
+      interactionCollisionEvidence: {
+        proxyCueCount: 1,
+        physicsProbeMode: "runtime_proxy_cues_with_offline_rapier_gate",
+        latestProbeReportPath: "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+        notEvidenceFor: ["production_physics_readiness", "validated_ragdoll_biomechanics"],
+      },
+      notEvidenceFor: [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+      ],
+      productionAssetReadinessClaimed: false,
+      assets: [
+        {
+          assetId: "openclinxr.ed-chest-pain.patient-robert-hayes.generated-humanoid",
+          assetPath: "/xr-assets/humanoids/neutral-generated-human.glb",
+          sceneObjectName: "patientRobertHayesGeneratedHumanoid",
+          status: "loaded",
+          fallbackActive: false,
+        },
+      ],
+    };
+
+    const payload = buildManualPerformanceEvidencePayload({
+      manualPerformanceDraft: null,
+      captureSummary: buildManualPerformanceCaptureSummary({
+        draft: undefined,
+        frameStats: undefined,
+        now: 1300,
+      }),
+      textPanelEvidence: null,
+      sceneAssetEvidence,
+    });
+
+    expect(payload.sceneAssetEvidence).toBe(sceneAssetEvidence);
+    expect(payload.sceneAssetEvidence?.productionAssetReadinessClaimed).toBe(false);
+    expect(payload.sceneAssetEvidence?.notEvidenceFor).toContain("clinical_validity");
+  });
+
+  it("bundles latest runtime interaction evidence into copied Quest payloads", () => {
+    const runtimeInteractionEvidence: RuntimeInteractionEvidence = {
+      capturedAtMs: 1300,
+      activeLocomotionSource: "xr_gamepad",
+      locomotionAttempt: "runtime_event_observed",
+      locomotionDistanceMeters: 1.4,
+      locomotionTurnRadians: 0.25,
+      locomotionProbeReadiness: "blocked",
+      locomotionProbePrimaryReason: "locomotion_delta_missing",
+      locomotionProbeReasonCodes: ["locomotion_delta_missing"],
+      handSelectStatus: "fired",
+      handSelectDwellMs: 120,
+      handSelectFiredCount: 2,
+      handSelectBlockedReason: null,
+      activeEmotionState: "pain",
+      activeExpressionTransitionMs: 420,
+      activeExpressionCueCount: 6,
+      activeBodyMotionMode: "scenario_dialogue_body_motion_runtime",
+      activeBodyMotionIntensity: 0.25,
+      activeMouthOpenness: 0.48,
+      activeEyeBlinkIntensity: 0.2,
+      gazeTargetKind: "learner_camera",
+      gazeTargetActorId: null,
+    };
+
+    const payload = buildManualPerformanceEvidencePayload({
+      manualPerformanceDraft: null,
+      captureSummary: buildManualPerformanceCaptureSummary({
+        draft: undefined,
+        frameStats: undefined,
+        now: 1300,
+      }),
+      runtimeInteractionEvidence,
+    });
+
+    expect(payload.runtimeInteractionEvidence).toEqual(runtimeInteractionEvidence);
+  });
+
+  it("bundles review-safe trace interaction summary into copied Quest payloads", () => {
+    const state = completeTraceAction(createInitialRuntimeState(), "ecg_request");
+    const handoff = buildXrTraceActionHandoffEvidence({
+      state,
+      generatedAtMs: 1500,
+      actions: [
+        {
+          sequence: 1,
+          traceTag: "ecg_request",
+          source: "xr_controller_select",
+          eventType: "learner.order",
+          actorId: "nurse_maria_alvarez_v1",
+          completedAtSecond: 60,
+          completedAtMs: 1490,
+          selectLatencyMs: 22,
+        },
+      ],
+    });
+    const traceInteractionEvidenceSummary = buildXrTraceInteractionEvidenceSummary(handoff);
+    const payload = buildManualPerformanceEvidencePayload({
+      manualPerformanceDraft: null,
+      captureSummary: buildManualPerformanceCaptureSummary({
+        draft: undefined,
+        frameStats: undefined,
+        now: 1500,
+      }),
+      traceActionHandoffEvidence: handoff,
+      traceInteractionEvidenceSummary,
+    });
+
+    expect(payload.traceInteractionEvidenceSummary).toMatchObject({
+      latestTraceTag: "ecg_request",
+      latestTraceSource: "xr_controller_select",
+      sourceClass: "headset_class_input",
+      reviewSafe: true,
+      claimBoundary: "xr_trace_interaction_summary_not_quest_readiness",
+    });
+    expect(payload.traceInteractionEvidenceSummary?.notEvidenceFor).toContain("production_quest_readiness");
+  });
+
+  it("bundles humanoid speech phoneme and gaze evidence into copied Quest evidence payloads", () => {
+    const humanoidSpeechEvidence = {
+      source: "local_dialogue_phoneme_viseme_mapping" as const,
+      activeActorId: "patient_robert_hayes_v1",
+      activeAssetId: "openclinxr.ed-chest-pain.patient-robert-hayes.generated-humanoid",
+      lastText: "My chest feels tight.",
+      phonemeSequence: ["m", "a", "sil"],
+      visemeSequence: ["closed", "open", "rest"],
+      activePhoneme: "a",
+      activeViseme: "open",
+      activeMouthOpenness: 0.42,
+      activeEyeBlinkIntensity: 0.61,
+      activeEyeMicroSaccadeYaw: 0.018,
+      activeEyeMicroSaccadePitch: -0.006,
+      activeEmotionState: "pain" as const,
+      activeExpressionTransitionMs: 420,
+      activeExpressionWeights: {
+        mouthOpen: 0.34,
+        browConcern: 0.86,
+        cheekTension: 0.72,
+      },
+      activeExpressionCueIds: [
+        "visible_runtime_mouth_shape_cue",
+        "visible_runtime_eye_focus_cue",
+        "visible_runtime_eyebrow_jaw_cheek_cue",
+        "emotion_aligned_expression_transition_cue",
+        "dialogue_eye_micro_saccade_blink_cue",
+        "generated_eyelid_blink_control_cue",
+      ],
+      activeActorRuntimeRealismRequirement: {
+        actorId: "patient_robert_hayes_v1",
+        role: "patient",
+        baselineMood: ["uncomfortable", "anxious"],
+        locomotionRequired: true,
+        expressionRequired: true,
+        gazeRequired: true,
+        lipSyncRequired: true,
+        interactionRequired: true,
+        requiredCueIds: [
+          "case_definition_driven_expression_selection",
+          "dialogue_viseme_and_gaze_mapping",
+          "actor_target_gaze_from_trace_intent",
+          "scenario_actor_interaction_affordance",
+          "scenario_timeline_locomotion_or_posture_change",
+        ],
+      },
+      activeActorRealismLaunchBadge: {
+        actorId: "patient_robert_hayes_v1",
+        actorRole: "patient",
+        status: "realismBlocked" as const,
+        blockers: [
+          "actor_specific_humanoid_realism_gate_not_attached",
+          "runtime_realism_evidence_not_attached_to_actor_badge",
+        ],
+        claimBoundary: "case_defined_actor_realism_launch_badge_metadata_only" as const,
+      },
+      gazeTargetKind: "learner_camera" as const,
+      gazeTargetActorId: null,
+      notEvidenceFor: [
+        "clinical_speech_quality",
+        "production_lip_sync",
+        "production_eye_tracking",
+        "scoring_validity",
+      ] as const,
+    };
+
+    const payload = buildManualPerformanceEvidencePayload({
+      manualPerformanceDraft: null,
+      captureSummary: buildManualPerformanceCaptureSummary({
+        draft: undefined,
+        frameStats: undefined,
+        now: 1300,
+      }),
+      humanoidSpeechEvidence,
+      caseDefinedHumanoidPerformanceContractEvidence: {
+        source: "case_definition_humanoid_performance_contract",
+        scenarioId: "ed_chest_pain_priority_v1",
+        claimBoundary: "case_definition_humanoid_performance_metadata_only",
+        actorCount: 3,
+        locomotionActorRoles: ["family", "nurse", "patient"],
+        expressionActorRoles: ["family", "nurse", "patient"],
+        gazeActorRoles: ["family", "nurse", "patient"],
+        lipSyncActorRoles: ["family", "nurse", "patient"],
+        interactiveActorRoles: ["family", "nurse", "patient"],
+        emotionStateCount: 9,
+        dialogueDrivenVisemeMappingRequired: true,
+        gazeTargetingRequired: true,
+        locomotionPlanningRequired: true,
+        notEvidenceFor: [
+          "generated_humanoid_asset_readiness",
+          "animation_quality",
+          "quest_readiness",
+          "runtime_readiness",
+          "clinical_validity",
+        ],
+      },
+    });
+
+    expect(payload.humanoidSpeechEvidence).toBe(humanoidSpeechEvidence);
+    expect(payload.humanoidSpeechEvidence?.phonemeSequence).toEqual(["m", "a", "sil"]);
+    expect(payload.humanoidSpeechEvidence?.activeExpressionCueIds).toContain("dialogue_eye_micro_saccade_blink_cue");
+    expect(payload.humanoidSpeechEvidence?.activeMouthOpenness).toBe(0.42);
+    expect(payload.humanoidSpeechEvidence?.activeEyeBlinkIntensity).toBe(0.61);
+    expect(payload.humanoidSpeechEvidence?.activeEyeMicroSaccadeYaw).toBe(0.018);
+    expect(payload.humanoidSpeechEvidence?.activeEyeMicroSaccadePitch).toBe(-0.006);
+    expect(payload.humanoidSpeechEvidence?.activeEmotionState).toBe("pain");
+    expect(payload.humanoidSpeechEvidence?.activeExpressionTransitionMs).toBe(420);
+    expect(payload.humanoidSpeechEvidence?.activeExpressionWeights?.browConcern).toBe(0.86);
+    expect(payload.humanoidSpeechEvidence?.activeActorRuntimeRealismRequirement).toMatchObject({
+      actorId: "patient_robert_hayes_v1",
+      role: "patient",
+      locomotionRequired: true,
+      expressionRequired: true,
+      gazeRequired: true,
+      lipSyncRequired: true,
+      interactionRequired: true,
+    });
+    expect(payload.humanoidSpeechEvidence?.activeActorRuntimeRealismRequirement?.requiredCueIds).toContain("actor_target_gaze_from_trace_intent");
+    expect(payload.humanoidSpeechEvidence?.activeActorRuntimeRealismRequirement?.baselineMood).toEqual(["uncomfortable", "anxious"]);
+    expect(payload.humanoidSpeechEvidence?.activeActorRealismLaunchBadge).toMatchObject({
+      actorId: "patient_robert_hayes_v1",
+      actorRole: "patient",
+      status: "realismBlocked",
+      claimBoundary: "case_defined_actor_realism_launch_badge_metadata_only",
+    });
+    expect(payload.humanoidSpeechEvidence?.activeActorRealismLaunchBadge?.blockers).toContain("actor_specific_humanoid_realism_gate_not_attached");
+    expect(payload.humanoidSpeechEvidence?.gazeTargetKind).toBe("learner_camera");
+    expect(payload.humanoidSpeechEvidence?.notEvidenceFor).toContain("production_lip_sync");
+    expect(payload.caseDefinedHumanoidPerformanceContractEvidence).toMatchObject({
+      source: "case_definition_humanoid_performance_contract",
+      claimBoundary: "case_definition_humanoid_performance_metadata_only",
+      actorCount: 3,
+      dialogueDrivenVisemeMappingRequired: true,
+      gazeTargetingRequired: true,
+      locomotionPlanningRequired: true,
+    });
+    expect(payload.caseDefinedHumanoidPerformanceContractEvidence?.notEvidenceFor).toContain("generated_humanoid_asset_readiness");
+  });
+
+  it("bundles the selected runtime asset bundle id into copied Quest evidence payloads", () => {
+    const payload = buildManualPerformanceEvidencePayload({
+      manualPerformanceDraft: null,
+      runtimeAssetBundleId: "generated-ed-bundle-001",
+      captureSummary: buildManualPerformanceCaptureSummary({
+        draft: undefined,
+        frameStats: undefined,
+        now: 1300,
+      }),
+    });
+
+    expect(payload.runtimeAssetBundleId).toBe("generated-ed-bundle-001");
+  });
+
+  it("bundles generated runtime scene manifest evidence into copied Quest evidence payloads", () => {
+    const runtimeSceneManifestEvidence = {
+      source: "learner_runtime_asset_bundle_scene_manifest" as const,
+      manifestId: "ed_chest_pain_runtime_scene_manifest_v1",
+      schemaVersion: "openclinxr.runtime-scene-manifest.v1" as const,
+      roomPropCount: 30,
+      semanticRoomPropCount: 30,
+      actorPlacementCount: 3,
+      equipmentPlacementCount: 2,
+      dialogueTurnCount: 10,
+      virtualDeviceActorCount: 0,
+      virtualDeviceDialogueRoutedCount: 0,
+      generatedBySceneManifestCount: 30,
+      propIds: ["oxygen-panel", "monitor-waveform-card"],
+      caseDefinedHumanoidRuntimeHandoffCount: 1,
+      caseDefinedHumanoidRuntimeHandoffActorRoles: ["patient"],
+      caseDefinedHumanoidRuntimeHandoffRequiredSignalIds: [
+        "dialogue_viseme_and_gaze_mapping",
+        "dialogue_eye_micro_saccade_blink_cue",
+        "generated_eyelid_blink_control_cue",
+      ],
+      caseDefinedHumanoidRuntimeHandoff: [
+        {
+          claimBoundary: "case_definition_humanoid_runtime_handoff_metadata_only" as const,
+          actorRole: "patient",
+          workOrderIds: ["encounter_assets_ed_chest_pain_executable_v1:patient:role-animation"],
+          locomotionRequired: true,
+          expressionRequired: true,
+          gazeRequired: true,
+          lipSyncRequired: true,
+          interactiveRequired: true,
+          requiredSignalIds: [
+            "dialogue_viseme_and_gaze_mapping",
+            "dialogue_eye_micro_saccade_blink_cue",
+            "generated_eyelid_blink_control_cue",
+          ],
+          blockers: [
+            "runtime_realism_evidence_not_attached_to_encounter_bundle",
+            "visual_qa_evidence_not_attached_to_encounter_bundle",
+          ],
+          notEvidenceFor: [
+            "generated_humanoid_asset_readiness",
+            "animation_quality",
+            "quest_readiness",
+            "runtime_readiness",
+            "clinical_validity",
+            "scoring_validity",
+          ] as [
+            "generated_humanoid_asset_readiness",
+            "animation_quality",
+            "quest_readiness",
+            "runtime_readiness",
+            "clinical_validity",
+            "scoring_validity",
+          ],
+        },
+      ],
+      storageBackedBundle: true,
+      productionReadinessClaimed: false as const,
+      notEvidenceFor: [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity",
+      ] as ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+    };
+    const payload = buildManualPerformanceEvidencePayload({
+      manualPerformanceDraft: null,
+      runtimeSceneManifestEvidence,
+      captureSummary: buildManualPerformanceCaptureSummary({
+        draft: undefined,
+        frameStats: undefined,
+        now: 1300,
+      }),
+    });
+
+    expect(payload.runtimeSceneManifestEvidence).toBe(runtimeSceneManifestEvidence);
+    expect(payload.runtimeSceneManifestEvidence?.storageBackedBundle).toBe(true);
+    expect(payload.runtimeSceneManifestEvidence?.productionReadinessClaimed).toBe(false);
+    expect(payload.runtimeSceneManifestEvidence?.caseDefinedHumanoidRuntimeHandoff[0]).toMatchObject({
+      claimBoundary: "case_definition_humanoid_runtime_handoff_metadata_only",
+      actorRole: "patient",
+      blockers: [
+        "runtime_realism_evidence_not_attached_to_encounter_bundle",
+        "visual_qa_evidence_not_attached_to_encounter_bundle",
+      ],
+    });
+    expect(payload.runtimeSceneManifestEvidence?.caseDefinedHumanoidRuntimeHandoffRequiredSignalIds).toEqual(expect.arrayContaining([
+      "dialogue_viseme_and_gaze_mapping",
+      "dialogue_eye_micro_saccade_blink_cue",
+      "generated_eyelid_blink_control_cue",
+    ]));
+    expect(payload.runtimeSceneManifestEvidence?.caseDefinedHumanoidRuntimeHandoff[0]?.notEvidenceFor).toEqual(expect.arrayContaining([
+      "generated_humanoid_asset_readiness",
+      "animation_quality",
+      "quest_readiness",
+      "runtime_readiness",
+      "clinical_validity",
+      "scoring_validity",
+    ]));
+  });
+
   it("derives manual Quest performance metrics from rolling frame stats", () => {
     expect(manualPerformanceMetricsFromFrameStats({
       sampleCount: 3,
@@ -1087,6 +1706,7 @@ describe("XR runtime state", () => {
       locomotionAttempt: "not_attempted",
       locomotionDistanceMeters: null,
       locomotionTurnRadians: null,
+      locomotionPathQuality: null,
       locomotionDiagnosticSummary: {
         claimScope: "attempt_diagnostics_only",
         gamepadSourceCount: 1,
@@ -1117,6 +1737,10 @@ describe("XR runtime state", () => {
       traceInteractionAttempt: "xr_controller_select_attempted_no_runtime_event",
       lastTraceTag: "ecg_request",
       lastTraceLatencyMs: 24,
+      handSelectStatus: null,
+      handSelectDwellMs: null,
+      handSelectFiredCount: null,
+      handSelectBlockedReason: null,
       immersiveFrameEvidenceReady: false,
       headsetSelectLatencyReady: false,
       locomotionEvidenceReady: false,
@@ -1278,6 +1902,95 @@ describe("XR runtime state", () => {
         movementCrossedDeadzone: 0,
       },
     });
+  });
+
+  it("summarizes locomotion path shape without claiming motion comfort or Quest readiness", () => {
+    const frameStats = buildRuntimeFrameStats({
+      frameDeltasMs: Array.from({ length: 12 }, () => 13),
+      framesObserved: 12,
+      latestFrameAtMs: 1300,
+      previewFramesObserved: 0,
+      immersiveFramesObserved: 12,
+      qualitySource: "webxr_animation_loop",
+      isPresenting: true,
+      visibilityState: "visible",
+    });
+    const draft = buildManualPerformanceDraft({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      frameStats,
+      elapsedSecond: 120,
+      foregroundPageConfirmed: true,
+      traceInteractionPassed: true,
+      immersiveSessionStarted: true,
+      inputEvidence: buildManualPerformanceInputEvidence({
+        handModelCount: 2,
+        handModelStatus: "installed",
+        handInputsObserved: 0,
+        rigPosition: { x: 0.4, z: -0.3 },
+        keyboardVector: { forward: 1, strafe: 0, turn: 0 },
+        xrVector: { forward: 0, strafe: 0, turn: 0 },
+        xrInputSources: [],
+        now: 1290,
+        previousRigPose: { x: 0, z: 0, yawRadians: 0 },
+        previousLastInputObservedAtMs: null,
+        previousLastLocomotionAtMs: null,
+      }),
+    });
+
+    expect(buildManualPerformanceCaptureSummary({ draft, frameStats, now: 1310 }).locomotionPathQuality).toEqual({
+      claimScope: "path_shape_probe_only",
+      sampleCount: 1,
+      distanceMeters: 0.5,
+      turnRadians: 0,
+      straightLineOnly: true,
+      pathCueIds: ["runtime_locomotion_delta"],
+      blockers: ["multi_sample_path_not_captured", "turn_or_curve_quality_not_captured"],
+    });
+  });
+
+  it("copies structured examinee locomotion evidence without Quest or comfort claims", () => {
+    const examineeLocomotionEvidence = {
+      source: "keyboard" as const,
+      startPose: { x: 0, z: 0, yawRadians: 0 },
+      currentPose: { x: 0.04, z: -0.025, yawRadians: 0.012 },
+      distanceMeters: 0.047,
+      turnRadians: 0.012,
+      sampleCount: 3,
+      pathCueIds: ["structured_examinee_locomotion_path_evidence"],
+      notEvidenceFor: [
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity",
+        "motion_comfort_validation",
+      ] as [
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity",
+        "motion_comfort_validation",
+      ],
+    };
+    const payload = buildManualPerformanceEvidencePayload({
+      manualPerformanceDraft: null,
+      captureSummary: buildManualPerformanceCaptureSummary({
+        draft: undefined,
+        frameStats: undefined,
+        now: 1300,
+      }),
+      examineeLocomotionEvidence,
+    });
+
+    expect(payload.examineeLocomotionEvidence).toMatchObject({
+      source: "keyboard",
+      sampleCount: 3,
+      distanceMeters: 0.047,
+      pathCueIds: ["structured_examinee_locomotion_path_evidence"],
+    });
+    expect(payload.examineeLocomotionEvidence?.notEvidenceFor).toEqual([
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity",
+      "motion_comfort_validation",
+    ]);
   });
 
   it("reports manual validation readiness for a complete ten-minute capture preview", () => {
@@ -1459,6 +2172,14 @@ describe("XR runtime state", () => {
         lastLocomotionAtMs: 1240,
         activeLocomotionSource: "xr_hand_gesture",
         inputSourceKinds: ["xr_hand", "xr_hand_gesture"],
+        xrHandSelectState: {
+          status: "fired",
+          armed: true,
+          dwellMs: 690,
+          rightPinch: true,
+          firedCount: 1,
+          lastFiredAtMs: 600_000,
+        },
         rigPosition: { x: 0.25, z: -0.3 },
         locomotionDelta: {
           from: { x: 0, z: 0, yawRadians: 0 },
@@ -1490,6 +2211,10 @@ describe("XR runtime state", () => {
     expect(buildManualPerformanceCaptureSummary({ draft: completeDraft, frameStats })).toMatchObject({
       manualValidationReady: true,
       traceLatencySource: "xr_hand_select",
+      handSelectStatus: "fired",
+      handSelectDwellMs: 690,
+      handSelectFiredCount: 1,
+      handSelectBlockedReason: null,
       satisfiedConditions: expect.arrayContaining([
         "xr_hand_select_trace_latency_recorded",
         "controller_select_latency_matches_trace_proxy",
@@ -1498,7 +2223,83 @@ describe("XR runtime state", () => {
     });
   });
 
+  it("preserves blocked hand-pinch select interaction detail without claiming readiness", () => {
+    const frameStats = buildRuntimeFrameStats({
+      frameDeltasMs: [16, 17, 16],
+      framesObserved: 30,
+      latestFrameAtMs: 1500,
+      qualitySource: "webxr_animation_loop",
+      isPresenting: true,
+      visibilityState: "visible",
+    });
+    const draft = buildManualPerformanceDraft({
+      generatedAt: "2026-05-04T00:00:00.000Z",
+      elapsedSecond: 45,
+      foregroundPageConfirmed: true,
+      traceInteractionPassed: false,
+      frameStats,
+      traceLatencyEvidence: {
+        lastTraceTag: null,
+        lastSelectLatencyMs: null,
+        source: "xr_hand_select",
+        measuredAtMs: 1500,
+        productionControllerLatencySubstitute: false,
+        interactionDetail: {
+          modality: "hand_pinch_select",
+          handedness: "right",
+          status: "blocked",
+          blockedReason: "arming_dwell",
+          dwellMs: 180,
+          firedCount: 0,
+          rightPinch: true,
+        },
+      },
+    });
+
+    expect(draft.station.traceInteractionAttempt).toBe("xr_hand_select_attempted_no_runtime_event");
+    expect(draft.traceLatencyProxy).toMatchObject({
+      source: "xr_hand_select",
+      productionControllerLatencySubstitute: false,
+      interactionDetail: {
+        modality: "hand_pinch_select",
+        handedness: "right",
+        status: "blocked",
+        blockedReason: "arming_dwell",
+        dwellMs: 180,
+        firedCount: 0,
+        rightPinch: true,
+      },
+    });
+    const summary = buildManualPerformanceCaptureSummary({ draft, frameStats, now: 1700 });
+    expect(summary.blockers).toContain("headset_select_trace_hand_select_blocked_arming_dwell");
+    expect(summary.technicalGaps).toContain("headset_select_trace_hand_select_blocked_arming_dwell");
+  });
+
   it("surfaces mock, local voice, Quest, and Mixed Reality posture without readiness overclaim", () => {
+    const handoffState = completeTraceAction(createInitialRuntimeState(), "ecg_request");
+    const traceActionHandoffEvidence = buildXrTraceActionHandoffEvidence({
+      state: handoffState,
+      generatedAtMs: 1234.567,
+      lastTraceLatencyEvidence: {
+        lastTraceTag: "ecg_request",
+        lastSelectLatencyMs: 18.25,
+        source: "xr_controller_select",
+        measuredAtMs: 1234.56,
+        productionControllerLatencySubstitute: false,
+      },
+      actions: [
+        {
+          sequence: 1,
+          traceTag: "ecg_request",
+          source: "xr_controller_select",
+          eventType: "learner.order",
+          actorId: "nurse_maria_alvarez_v1",
+          completedAtSecond: 83,
+          completedAtMs: 1234.56,
+          selectLatencyMs: 18.25,
+        },
+      ],
+    });
     const posture = buildRuntimeEvidencePosture({
       traceSummary: {
         observedCount: 2,
@@ -1529,6 +2330,7 @@ describe("XR runtime state", () => {
         locomotionAttempt: "not_attempted",
         locomotionDistanceMeters: null,
         locomotionTurnRadians: null,
+        locomotionPathQuality: null,
         locomotionDiagnosticSummary: null,
         locomotionProbeSummary: {
           claimScope: "runtime_probe_only",
@@ -1551,6 +2353,10 @@ describe("XR runtime state", () => {
         traceInteractionAttempt: "dom_click_attempted_no_runtime_event",
         lastTraceTag: null,
         lastTraceLatencyMs: null,
+        handSelectStatus: null,
+        handSelectDwellMs: null,
+        handSelectFiredCount: null,
+        handSelectBlockedReason: null,
         immersiveFrameEvidenceReady: false,
         headsetSelectLatencyReady: false,
         locomotionEvidenceReady: false,
@@ -1572,6 +2378,31 @@ describe("XR runtime state", () => {
         immersiveArSupportCheckedAtMs: 110,
         supportError: null,
       },
+      runtimeInteractionEvidence: {
+        capturedAtMs: 900,
+        activeLocomotionSource: "xr_gamepad",
+        locomotionAttempt: "runtime_event_observed",
+        locomotionDistanceMeters: 1.2,
+        locomotionTurnRadians: 0.13,
+        locomotionProbeReadiness: "blocked",
+        locomotionProbePrimaryReason: "locomotion_delta_missing",
+        locomotionProbeReasonCodes: ["locomotion_delta_missing"],
+        handSelectStatus: "ready",
+        handSelectDwellMs: 140,
+        handSelectFiredCount: 1,
+        handSelectBlockedReason: null,
+        activeEmotionState: "pain",
+        activeExpressionTransitionMs: 110,
+        activeExpressionCueCount: 4,
+        activeBodyMotionMode: "scenario_dialogue_body_motion_runtime",
+        activeBodyMotionIntensity: 0.22,
+        activeMouthOpenness: 0.36,
+        activeEyeBlinkIntensity: 0.19,
+        gazeTargetKind: "learner_camera",
+        gazeTargetActorId: null,
+      },
+      runtimeNowMs: 1200,
+      traceActionHandoffEvidence,
     });
 
     expect(posture.lanes).toEqual([
@@ -1598,10 +2429,45 @@ describe("XR runtime state", () => {
         display: "Full VR evidence blocked",
         blockers: ["immersive_frame_count_zero_or_missing", "controller_select_trace_source_not_xr_controller_select"],
         details: expect.objectContaining({
+          activeLocomotionSource: "none",
+          lastLocomotionAtMs: null,
+          locomotionDistanceMeters: null,
+          locomotionTurnRadians: null,
           locomotionProbeClaimScope: "runtime_probe_only",
           locomotionProbeReadiness: "blocked",
           locomotionProbePrimaryReason: "locomotion_delta_missing",
           locomotionProbeReasonCodes: ["locomotion_delta_missing"],
+          runtimeInteractionEvidenceAtMs: 900,
+          runtimeInteractionLocomotionSource: "xr_gamepad",
+          runtimeInteractionLocomotionAttempt: "runtime_event_observed",
+          runtimeInteractionLocomotionDistanceMeters: 1.2,
+          runtimeInteractionLocomotionTurnRadians: 0.13,
+          runtimeInteractionHandSelectStatus: "ready",
+          runtimeInteractionHandSelectDwellMs: 140,
+          runtimeInteractionHandSelectFiredCount: 1,
+          runtimeInteractionHandSelectBlockedReason: null,
+          runtimeInteractionLocomotionProbeReadiness: "blocked",
+          runtimeInteractionLocomotionProbePrimaryReason: "locomotion_delta_missing",
+          runtimeInteractionLocomotionProbeReasonCodes: ["locomotion_delta_missing"],
+          runtimeInteractionHumanoidEmotionState: "pain",
+          runtimeInteractionHumanoidExpressionTransitionMs: 110,
+          runtimeInteractionHumanoidExpressionCueCount: 4,
+          runtimeInteractionHumanoidBodyMotionMode: "scenario_dialogue_body_motion_runtime",
+          runtimeInteractionHumanoidBodyMotionIntensity: 0.22,
+          runtimeInteractionHumanoidMouthOpenness: 0.36,
+          runtimeInteractionHumanoidEyeBlinkIntensity: 0.19,
+          runtimeInteractionHumanoidGazeTargetKind: "learner_camera",
+          runtimeInteractionHumanoidGazeTargetActorId: null,
+          handSelectStatus: null,
+          handSelectDwellMs: null,
+          handSelectFiredCount: null,
+          handSelectBlockedReason: null,
+          traceHandoffObservedRequiredCount: 1,
+          traceHandoffRequiredCount: edChestPainScenario.requiredTraceTags.length,
+          traceHandoffNextTraceTag: "history_opqrst",
+          traceHandoffLatestSource: "xr_controller_select",
+          iwsdkSidecarPosture: "sidecar_only_supporting_evidence",
+          iwsdkSmokePlanHash: iwsdkStationMcpSmokePlanHash,
         }),
       }),
       expect.objectContaining({
@@ -1613,5 +2479,182 @@ describe("XR runtime state", () => {
     ]);
     expect(posture.summary).toBe("Mock model/voice active; local voice, Quest, and MR remain evidence-gated.");
     expect(posture.notEvidenceFor).toContain("production_quest_readiness");
+  });
+
+  it("ignores stale runtime interaction snapshots beyond freshness window", () => {
+    const captureSummary = buildManualPerformanceCaptureSummary({
+      draft: undefined,
+      frameStats: undefined,
+      now: 5000,
+    });
+    const fresh = buildRuntimeEvidencePosture({
+      traceSummary: {
+        observedCount: 0,
+        missingCount: 1,
+        missingTraceTags: ["ecg_request"],
+      },
+      captureSummary,
+      webXrSupport: {
+        navigatorXrPresent: true,
+        immersiveVrSupported: true,
+        immersiveVrSupportCheckedAtMs: 5000,
+        immersiveArSupported: true,
+        immersiveArSupportCheckedAtMs: 5000,
+        supportError: null,
+      },
+      runtimeInteractionEvidence: {
+        capturedAtMs: 4800,
+        activeLocomotionSource: "xr_gamepad",
+        locomotionAttempt: "runtime_event_observed",
+        locomotionDistanceMeters: 1.8,
+        locomotionTurnRadians: 0.21,
+        locomotionProbeReadiness: "blocked",
+        locomotionProbePrimaryReason: "locomotion_delta_missing",
+        locomotionProbeReasonCodes: ["locomotion_delta_missing"],
+        handSelectStatus: "fired",
+        handSelectDwellMs: 220,
+        handSelectFiredCount: 3,
+        handSelectBlockedReason: null,
+        activeEmotionState: "neutral",
+        activeExpressionTransitionMs: 140,
+        activeExpressionCueCount: 3,
+        activeBodyMotionMode: "scenario_dialogue_body_motion_runtime",
+        activeBodyMotionIntensity: 0.33,
+        activeMouthOpenness: 0.52,
+        activeEyeBlinkIntensity: 0.2,
+        gazeTargetKind: "learner_camera",
+        gazeTargetActorId: null,
+      },
+      runtimeNowMs: 5200,
+    });
+    const stale = buildRuntimeEvidencePosture({
+      traceSummary: {
+        observedCount: 0,
+        missingCount: 1,
+        missingTraceTags: ["ecg_request"],
+      },
+      captureSummary,
+      webXrSupport: {
+        navigatorXrPresent: true,
+        immersiveVrSupported: true,
+        immersiveVrSupportCheckedAtMs: 5000,
+        immersiveArSupported: true,
+        immersiveArSupportCheckedAtMs: 5000,
+        supportError: null,
+      },
+      runtimeInteractionEvidence: {
+        capturedAtMs: 1000,
+        activeLocomotionSource: "xr_gamepad",
+        locomotionAttempt: "runtime_event_observed",
+        locomotionDistanceMeters: 1.8,
+        locomotionTurnRadians: 0.21,
+        locomotionProbeReadiness: "blocked",
+        locomotionProbePrimaryReason: "locomotion_delta_missing",
+        locomotionProbeReasonCodes: ["locomotion_delta_missing"],
+        handSelectStatus: "fired",
+        handSelectDwellMs: 220,
+        handSelectFiredCount: 3,
+        handSelectBlockedReason: null,
+        activeEmotionState: "neutral",
+        activeExpressionTransitionMs: 140,
+        activeExpressionCueCount: 3,
+        activeBodyMotionMode: "scenario_dialogue_body_motion_runtime",
+        activeBodyMotionIntensity: 0.33,
+        activeMouthOpenness: 0.52,
+        activeEyeBlinkIntensity: 0.2,
+        gazeTargetKind: "learner_camera",
+        gazeTargetActorId: null,
+      },
+      runtimeNowMs: 5200,
+    });
+    const freshQuestDetails = fresh.lanes.find((lane) => lane.id === "quest_foreground")?.details;
+    const staleQuestDetails = stale.lanes.find((lane) => lane.id === "quest_foreground")?.details;
+
+    expect(freshQuestDetails?.runtimeInteractionEvidenceAtMs).toBe(4800);
+    expect(staleQuestDetails?.runtimeInteractionEvidenceAtMs).toBeNull();
+    expect(staleQuestDetails?.runtimeInteractionLocomotionSource).toBeNull();
+    expect(staleQuestDetails?.runtimeInteractionHandSelectStatus).toBeNull();
+    expect(staleQuestDetails?.runtimeInteractionHumanoidEmotionState).toBeNull();
+  });
+});
+
+import {
+  buildXrRuntimeReadinessDecision,
+  type RuntimeEvidencePosture,
+} from "./runtime-state.js";
+
+describe("buildXrRuntimeReadinessDecision", () => {
+  it("keeps learner launch blocked until full VR, live providers, and IWSDK smoke evidence are ready", () => {
+    const posture: RuntimeEvidencePosture = {
+      source: "window.__openClinXrRuntimeEvidencePosture",
+      summary: "Mock model/voice active; local voice, Quest, and MR remain evidence-gated.",
+      notEvidenceFor: [
+        "production_quest_readiness",
+        "validated_clinical_score_use",
+        "local_voice_live_dialog_readiness",
+        "mixed_reality_privacy_readiness",
+      ],
+      lanes: [
+        {
+          id: "model_dialogue",
+          label: "Model dialogue",
+          status: "mock_active",
+          display: "Mock dialogue active",
+          evidencePath: "apps/ui-xr/src/runtime-state.ts",
+          blockers: ["local_model_not_enabled_for_station_runtime"],
+          details: {},
+        },
+        {
+          id: "voice_synthesis",
+          label: "Voice synthesis",
+          status: "blocked_with_evidence",
+          display: "File-generation only",
+          evidencePath: "docs/openclinxr/runtime/voice-runtime-evidence.md",
+          blockers: ["webxr_playback_not_observed"],
+          details: {},
+        },
+        {
+          id: "quest_foreground",
+          label: "Quest foreground",
+          status: "blocked_with_evidence",
+          display: "Manual capture pending",
+          evidencePath: "docs/openclinxr/runtime/quest-manual-performance.md",
+          blockers: ["quest_foreground_capture_missing"],
+          details: {},
+        },
+        {
+          id: "mixed_reality",
+          label: "Mixed reality",
+          status: "separate_lane_blocked",
+          display: "Separate lane blocked",
+          evidencePath: "docs/openclinxr/runtime/mixed-reality-evidence.md",
+          blockers: ["mixed_reality_manual_report_missing"],
+          details: {},
+        },
+      ],
+    };
+
+    expect(
+      buildXrRuntimeReadinessDecision({
+        posture,
+        iwsdkStationMcpSmokeReady: false,
+      }),
+    ).toEqual({
+      source: "runtime_evidence_posture",
+      learnerLaunchReady: false,
+      fullVrEvidenceReady: false,
+      liveModelAndVoiceReady: false,
+      iwsdkStationMcpSmokeReady: false,
+      mixedRealityReady: false,
+      blockedLaneIds: [
+        "model_dialogue",
+        "voice_synthesis",
+        "quest_foreground",
+        "mixed_reality",
+      ],
+      blockerCount: 4,
+      recommendedNextAction: "complete_full_vr_manual_evidence_before_runtime_claim",
+      notEvidenceFor: posture.notEvidenceFor,
+    });
   });
 });

@@ -28,6 +28,15 @@ button {
   overflow: hidden;
 }
 
+.station-shell.scene-only-visual-review {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.station-shell.scene-only-visual-review .runtime-panel,
+.station-shell.scene-only-visual-review .status-strip {
+  display: none;
+}
+
 .stage {
   position: relative;
   height: 100vh;
@@ -49,6 +58,7 @@ button {
   right: 16px;
   bottom: 16px;
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 12px;
   padding: 10px 12px;
@@ -56,6 +66,36 @@ button {
   background: #172332;
   color: #f6f1df;
   font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.scene-boot-message {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  gap: 8px;
+  max-width: min(520px, calc(100% - 40px));
+  padding: 18px 20px;
+  border: 1px solid #d9c493;
+  border-radius: 14px;
+  background: rgba(23, 35, 50, 0.92);
+  color: #f6f1df;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.scene-boot-message strong {
+  font-size: 18px;
+}
+
+.scene-boot-message span {
+  color: #d9c493;
+  line-height: 1.4;
+}
+
+.scene-boot-message[hidden] {
+  display: none;
 }
 
 .xr-entry-button {
@@ -84,6 +124,7 @@ button {
   background: #f6f1df;
   color: #172332;
   border-left: 1px solid #55606b;
+  overflow-wrap: anywhere;
   overflow-y: auto;
 }
 
@@ -179,11 +220,48 @@ dd {
   color: #172332;
   text-align: left;
   text-transform: capitalize;
+  word-break: break-word;
 }
 
 .trace-button.complete {
   border-color: #286b54;
   background: #d8eadf;
+}
+
+.exam-flow-panel {
+  display: grid;
+  gap: 10px;
+  border-top: 1px solid #c8c0aa;
+  padding-top: 14px;
+}
+
+.patient-note-label {
+  color: #47525e;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.patient-note-text {
+  width: 100%;
+  min-height: 130px;
+  resize: vertical;
+  padding: 10px;
+  border: 1px solid #c8c0aa;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #172332;
+  font: 14px/1.45 ui-serif, Georgia, "Times New Roman", serif;
+}
+
+.exam-flow-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.exam-flow-actions .trace-button {
+  text-align: center;
 }
 
 .evidence-grid {
