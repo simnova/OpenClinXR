@@ -1,0 +1,22 @@
+{
+  "source": "desktop_browser_local_vite_static_generated_bundle_refined_dialogue_smoke",
+  "capturedAt": "2026-05-26T02:52:11.944Z",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "clickedTraceTag": "oxygen_request",
+  "url": "http://localhost:5173/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1",
+  "screenshotPath": "/Volumes/files/src/openclinxr/docs/openclinxr/screenshots/ui-xr-peds-runtime-refined-dialogue-smoke-2026-05-26.png",
+  "visibleChecks": {
+    "traceIncremented": true,
+    "oxygenSpecificDialogueVisible": true,
+    "scenarioDefinitionBoundaryVisible": true,
+    "genericEscalationBoilerplateAbsent": true,
+    "learnerUseBlockedBoundaryVisible": true
+  },
+  "bodyExcerpt": "WebXR unavailable\nTrace 1/9\nEnter Full VR\n\nDOORWAY\n\nPediatric Asthma\n\nChild-sized urgent-care bay with pulse oximeter, nebulizer setup, parent chair, and pediatric distraction items.\n\nEncounter\n00:06\nSimulated EHR\nCHIEF CONCERN\nAssess pediatric respiratory distress\nINITIAL VITALS\nHR 128, RR 32, SpO2 91% on room air\nINTERRUPTION\nNurse Kevin Lee cue at 300s: oxygen request\nMock Dialogue\n\nNurse Kevin Lee: Oxygen saturation is 91% on room air, so a clear oxygen request and reassessment plan should happen now. I am focused; this response comes from the pediatric escalation requirement in the scenario definition.\n\nTrace Actions\nWork Of Breathing Assessment\nInhaler History\nTrigger History\nOxygen Request\nBronchodilator Plan\nUrgent Escalation\nParent Communication\nEmpathy Statement\nPatient Note Submitted\nEncounter Flow\nSTATION\n1/6: peds_asthma_parent_anxiety_v1\nPHASE TIMER\nencounter 00:06 / 15:00\nADVANCE\ncomplete encounter, then submit a non-empty patient note\nPATIENT NOTE\nEnd Encounter / Start Note\nSubmit Note / Next Encounter\nRoom State\n\nmonitor baseline | alarm quiet | no active props\n\nRuntime Posture\n\nMock model/voice active; local voice, Quest, and MR remain evidence-gated.\n\nMODEL\nmock-model active; local model gated; 1 blocker\nVOICE\nmock-voice active; VibeVoice RTF 5.24x; 4 blockers\nQUEST\nFull VR evidence blocked; 20 blockers\nMR\nMR separate lane; immersive-ar unsupported; 2 blockers\nBUNDLE GATE\nusing static_generated_bundle | generated learner use blocked | blocking runtime_realism_evidence, visual_qa_evidence, quest_runtime_evidence | fallback static_generated_visual_review_only_learner_use_blocked:local_exam_run:peds_asthma_parent_anxiety_encounter_v1:generated-runtime-assets\nLAUNCH\nlearner launch blocked | 27 blockers | next complete_full_vr_manual_evidence_before_runtime_claim\nQuest Evidence\nFRAMES\n37 / 36 | vr 0 | preview 37 | frame gap\nLOOP\nflat_preview_fallback | not presenting | visible | 2.4ms fresh\nINPUT\n0 hand inputs | hand rep not_visible | no source\nASSETS\n",
+  "notEvidenceFor": [
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "production_readiness"
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "url": "http://localhost:5173/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1",
+  "evidence": {
+    "source": "window.__openClinXrRuntimeHumanoidActingCueEvidence",
+    "scenarioId": "peds_asthma_parent_anxiety_v1",
+    "actorCount": 3,
+    "activeCueIds": [
+      "emotion_microstep_weight_shift_cue",
+      "idle_breathing_sway_cue",
+      "pediatric_asthma_visible_work_of_breathing_idle_cue",
+      "pediatric_dialogue_breathing_overlay_preserved_while_speaking",
+      "pediatric_patient_idle_gaze_alternates_parent_nurse_learner",
+      "pediatric_patient_shoulder_hunch_respiratory_distress_cue",
+      "scenario_actor_idle_attention_shift_cue",
+      "scenario_dialogue_body_lean_cue"
+    ],
+    "actorCues": [
+      {
+        "actorId": "patient_maya_johnson_v1",
+        "role": "patient",
+        "cueIds": [
+          "scenario_dialogue_body_lean_cue",
+          "idle_breathing_sway_cue",
+          "emotion_microstep_weight_shift_cue",
+          "pediatric_asthma_visible_work_of_breathing_idle_cue",
+          "pediatric_patient_shoulder_hunch_respiratory_distress_cue",
+          "pediatric_patient_idle_gaze_alternates_parent_nurse_learner",
+          "pediatric_dialogue_breathing_overlay_preserved_while_speaking"
+        ],
+        "respiratoryRateCueHz": 0.78,
+        "gazeAlternationTargetActorId": "parent_tara_johnson_v1",
+        "bodyMotionMode": "scenario_pediatric_respiratory_distress_idle_overlay"
+      },
+      {
+        "actorId": "nurse_kevin_lee_v1",
+        "role": "nurse",
+        "cueIds": [
+          "idle_breathing_sway_cue",
+          "scenario_actor_idle_attention_shift_cue"
+        ],
+        "bodyMotionMode": "scenario_pediatric_respiratory_distress_idle_overlay"
+      },
+      {
+        "actorId": "parent_tara_johnson_v1",
+        "role": "family",
+        "cueIds": [
+          "idle_breathing_sway_cue",
+          "scenario_actor_idle_attention_shift_cue"
+        ],
+        "bodyMotionMode": "scenario_pediatric_respiratory_distress_idle_overlay"
+      }
+    ],
+    "notEvidenceFor": [
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity",
+      "production_readiness",
+      "animation_quality"
+    ]
+  },
+  "checks": {
+    "scenarioIsPediatric": true,
+    "hasThreeActorCues": true,
+    "patientHasWorkOfBreathingCue": true,
+    "patientHasGazeAlternationCue": true,
+    "patientHasRespiratoryRateCue": true,
+    "patientHasTargetActor": true
+  },
+  "notEvidenceFor": [
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "production_readiness",
+    "animation_quality"
+  ],
+  "consoleErrors": []
+}

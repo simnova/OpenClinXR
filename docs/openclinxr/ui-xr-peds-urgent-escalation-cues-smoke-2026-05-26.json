@@ -1,0 +1,60 @@
+{
+  "source": "desktop_browser_local_vite_static_generated_bundle_urgent_escalation_cues_smoke",
+  "capturedAt": "2026-05-26T05:32:23.534Z",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "clickedTraceTag": "urgent_escalation",
+  "url": "http://localhost:5173/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1",
+  "screenshotPath": "/Volumes/files/src/openclinxr/docs/openclinxr/screenshots/ui-xr-peds-urgent-escalation-cues-smoke-2026-05-26.png",
+  "visibleChecks": {
+    "traceOneOfNineVisible": true,
+    "urgentAttentionAlarm": true,
+    "escalationCuePresent": true,
+    "familySupportCuePresent": true,
+    "oxygenEquipmentActive": true,
+    "pulseOxEquipmentActive": true,
+    "parentChairActive": true,
+    "escalationEventType": true,
+    "learnerUseBlockedBoundaryVisible": true
+  },
+  "environmentStateExcerpt": {
+    "activeTraceTags": [
+      "urgent_escalation"
+    ],
+    "stressCueIds": [
+      "doorway_station_sign_escalation",
+      "ceiling_exam_light_attention",
+      "pediatric_escalation_runtime_attention",
+      "urgent_family_support_runtime_attention"
+    ],
+    "activePropIds": [
+      "ceiling-exam-light",
+      "doorway-escalation-badge",
+      "pulse_oximeter_equipment",
+      "oxygen_wall_port_equipment",
+      "pediatric_stretcher_equipment",
+      "parent_chair_equipment"
+    ],
+    "monitorState": "baseline",
+    "alarmState": "urgent_attention"
+  },
+  "handoffExcerpt": {
+    "latestAction": {
+      "sequence": 1,
+      "traceTag": "urgent_escalation",
+      "source": "dom_click_trace_button",
+      "eventType": "learner.escalation",
+      "actorId": "nurse_kevin_lee_v1",
+      "completedAtSecond": 4,
+      "completedAtMs": 4859.8,
+      "selectLatencyMs": 1
+    },
+    "requiredCount": 9,
+    "observedRequiredCount": 1
+  },
+  "notEvidenceFor": [
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "production_readiness"
+  ]
+}

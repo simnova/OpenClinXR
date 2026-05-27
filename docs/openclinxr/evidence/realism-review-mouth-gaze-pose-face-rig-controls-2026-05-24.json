@@ -1,0 +1,26 @@
+{
+  "capturedAt": "2026-05-24T03:16:35.176Z",
+  "scenarioId": "oncology_bad_news_family_v1",
+  "station": "oncology_bad_news_family_v1",
+  "captureMode": "mouth-gaze-pose-face-rig-controls-2026-05-24",
+  "screenshot": "docs/openclinxr/screenshots/realism-review-mouth-gaze-pose-face-rig-controls-2026-05-24.png",
+  "runtimeSignalsObserved": [
+    "animated_humanoid_runtime_playback",
+    "authored_clinical_idle_pose_runtime_cue",
+    "visible_mouth_eye_expression_cues",
+    "dialogue_viseme_and_gaze_mapping",
+    "face_lip_eye_rig_contract_cue",
+    "scenario_specific_vr_clinical_panel",
+    "examinee_locomotion_observed"
+  ],
+  "reviewFocus": [
+    "face_lip_eye_rig_controls",
+    "mouth_movement_readability",
+    "gaze_target_alignment",
+    "pose_naturalness",
+    "hand_arm_naturalness"
+  ],
+  "notes": [
+    "Captured after mapping active dialogue viseme/gaze state onto generated GLB lip and eye controls."
+  ]
+}

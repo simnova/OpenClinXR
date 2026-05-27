@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "openclinxr.runtime-realism-evidence-check.v1",
+  "generatedAt": "2026-05-23T19:28:52.431Z",
+  "inputFile": "docs/openclinxr/evidence/realism-review-oncology-expression-v3-runtime-2026-05-23.json",
+  "result": {
+    "status": "realism_evidence_blocked",
+    "blockers": [
+      "animated_humanoid_runtime_playback_missing"
+    ],
+    "passedSignals": [
+      "visible_mouth_eye_expression_cues",
+      "scenario_specific_vr_clinical_panel",
+      "dialogue_viseme_and_gaze_mapping",
+      "examinee_locomotion_observed"
+    ]
+  },
+  "productionReadinessClaimed": false,
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "generatedAt": "2026-05-21T12:52:58.157Z",
+  "tool": {
+    "command": "blender",
+    "package": "Blender",
+    "version": "Blender 5.1.1",
+    "license": "GPL-3.0-or-later-tooling"
+  },
+  "input": {
+    "fixture": "low_poly_clinical_humanoid",
+    "externalAssetsUsed": false,
+    "sourceLicensePosture": "repo_generated_placeholder",
+    "expectedObjectCount": 7
+  },
+  "output": {
+    "glbBytes": 27284,
+    "magic": "glTF",
+    "version": 2,
+    "declaredLength": 27284,
+    "elapsedMs": 1375.29,
+    "semanticInventory": {
+      "sceneCount": 1,
+      "nodeCount": 7,
+      "meshCount": 7,
+      "materialCount": 2,
+      "observedObjectNames": [
+        "patient_placeholder_head",
+        "patient_placeholder_torso",
+        "patient_placeholder_left_arm",
+        "patient_placeholder_right_arm",
+        "patient_placeholder_left_leg",
+        "patient_placeholder_right_leg",
+        "clinical_scale_marker"
+      ],
+      "requiredObjectNames": [],
+      "missingRequiredObjectNames": []
+    }
+  },
+  "verdict": {
+    "passed": true,
+    "blockers": []
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "openclinxr.runtime-realism-browser-tool-timeout-note.v1",
+  "generatedAt": "2026-05-23T20:29:45.000Z",
+  "capture": "realism-review-body-motion",
+  "status": "browser_devtools_evaluate_and_screenshot_timed_out_after_runtime_patch",
+  "implementedSignals": [
+    "scenario_dialogue_body_motion_runtime",
+    "structured_examinee_locomotion_path_evidence",
+    "visible_examinee_runtime_position_ring_cue"
+  ],
+  "verification": [
+    "pnpm exec vitest run apps/ui-xr/src/static-assets.test.ts tools/openclinxr/runtime-realism-evidence-check.test.ts",
+    "pnpm --filter @openclinxr/ui-xr typecheck"
+  ],
+  "notEvidenceFor": [
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "motion_comfort_validation",
+    "production_asset_readiness"
+  ]
+}

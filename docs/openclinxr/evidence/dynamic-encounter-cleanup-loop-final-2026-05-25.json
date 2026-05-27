@@ -1,0 +1,2146 @@
+{
+  "url": "http://127.0.0.1:5173/?scenarioId=ed_chest_pain_priority_v1&capture=dynamic-only-cleanup-loop-2026-05-25&bust=scene-only",
+  "screenshot": "/Volumes/files/src/openclinxr/docs/openclinxr/screenshots/dynamic-encounter-cleanup-loop-final-2026-05-25.png",
+  "iterations": [
+    {
+      "iteration": 1,
+      "visibleCount": 361,
+      "hiddenCount": 101,
+      "suspectedVisibleClutter": [],
+      "hiddenByCleanupCount": 77,
+      "runtimePanelVisible": false,
+      "statusStripVisible": false,
+      "canvasWidth": 1440,
+      "bodyWidth": 1440,
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 964.1,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      }
+    },
+    {
+      "iteration": 2,
+      "visibleCount": 361,
+      "hiddenCount": 101,
+      "suspectedVisibleClutter": [],
+      "hiddenByCleanupCount": 77,
+      "runtimePanelVisible": false,
+      "statusStripVisible": false,
+      "canvasWidth": 1440,
+      "bodyWidth": 1440,
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 964.1,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      }
+    },
+    {
+      "iteration": 3,
+      "visibleCount": 361,
+      "hiddenCount": 101,
+      "suspectedVisibleClutter": [],
+      "hiddenByCleanupCount": 77,
+      "runtimePanelVisible": false,
+      "statusStripVisible": false,
+      "canvasWidth": 1440,
+      "bodyWidth": 1440,
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 964.1,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      }
+    },
+    {
+      "iteration": 4,
+      "visibleCount": 361,
+      "hiddenCount": 101,
+      "suspectedVisibleClutter": [],
+      "hiddenByCleanupCount": 77,
+      "runtimePanelVisible": false,
+      "statusStripVisible": false,
+      "canvasWidth": 1440,
+      "bodyWidth": 1440,
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 964.1,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      }
+    },
+    {
+      "iteration": 5,
+      "visibleCount": 357,
+      "hiddenCount": 105,
+      "suspectedVisibleClutter": [],
+      "hiddenByCleanupCount": 77,
+      "runtimePanelVisible": false,
+      "statusStripVisible": false,
+      "canvasWidth": 1440,
+      "bodyWidth": 1440,
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 964.1,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      }
+    },
+    {
+      "iteration": 6,
+      "visibleCount": 357,
+      "hiddenCount": 105,
+      "suspectedVisibleClutter": [],
+      "hiddenByCleanupCount": 77,
+      "runtimePanelVisible": false,
+      "statusStripVisible": false,
+      "canvasWidth": 1440,
+      "bodyWidth": 1440,
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 964.1,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      }
+    },
+    {
+      "iteration": 7,
+      "visibleCount": 357,
+      "hiddenCount": 105,
+      "suspectedVisibleClutter": [],
+      "hiddenByCleanupCount": 77,
+      "runtimePanelVisible": false,
+      "statusStripVisible": false,
+      "canvasWidth": 1440,
+      "bodyWidth": 1440,
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 964.1,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      }
+    },
+    {
+      "iteration": 8,
+      "visibleCount": 357,
+      "hiddenCount": 105,
+      "suspectedVisibleClutter": [],
+      "hiddenByCleanupCount": 77,
+      "runtimePanelVisible": false,
+      "statusStripVisible": false,
+      "canvasWidth": 1440,
+      "bodyWidth": 1440,
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 964.1,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      }
+    },
+    {
+      "iteration": 9,
+      "visibleCount": 357,
+      "hiddenCount": 105,
+      "suspectedVisibleClutter": [],
+      "hiddenByCleanupCount": 77,
+      "runtimePanelVisible": false,
+      "statusStripVisible": false,
+      "canvasWidth": 1440,
+      "bodyWidth": 1440,
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 964.1,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      }
+    },
+    {
+      "iteration": 10,
+      "visibleCount": 357,
+      "hiddenCount": 105,
+      "suspectedVisibleClutter": [],
+      "hiddenByCleanupCount": 77,
+      "runtimePanelVisible": false,
+      "statusStripVisible": false,
+      "canvasWidth": 1440,
+      "bodyWidth": 1440,
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 964.1,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      }
+    },
+    {
+      "iteration": 11,
+      "visibleCount": 357,
+      "hiddenCount": 105,
+      "suspectedVisibleClutter": [],
+      "hiddenByCleanupCount": 77,
+      "runtimePanelVisible": false,
+      "statusStripVisible": false,
+      "canvasWidth": 1440,
+      "bodyWidth": 1440,
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 964.1,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      }
+    },
+    {
+      "iteration": 12,
+      "visibleCount": 357,
+      "hiddenCount": 105,
+      "suspectedVisibleClutter": [],
+      "hiddenByCleanupCount": 77,
+      "runtimePanelVisible": false,
+      "statusStripVisible": false,
+      "canvasWidth": 1440,
+      "bodyWidth": 1440,
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 964.1,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      }
+    },
+    {
+      "iteration": 13,
+      "visibleCount": 357,
+      "hiddenCount": 105,
+      "suspectedVisibleClutter": [],
+      "hiddenByCleanupCount": 77,
+      "runtimePanelVisible": false,
+      "statusStripVisible": false,
+      "canvasWidth": 1440,
+      "bodyWidth": 1440,
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 964.1,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      }
+    },
+    {
+      "iteration": 14,
+      "visibleCount": 357,
+      "hiddenCount": 105,
+      "suspectedVisibleClutter": [],
+      "hiddenByCleanupCount": 77,
+      "runtimePanelVisible": false,
+      "statusStripVisible": false,
+      "canvasWidth": 1440,
+      "bodyWidth": 1440,
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 964.1,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      }
+    },
+    {
+      "iteration": 15,
+      "visibleCount": 357,
+      "hiddenCount": 105,
+      "suspectedVisibleClutter": [],
+      "hiddenByCleanupCount": 77,
+      "runtimePanelVisible": false,
+      "statusStripVisible": false,
+      "canvasWidth": 1440,
+      "bodyWidth": 1440,
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 964.1,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      }
+    },
+    {
+      "iteration": 16,
+      "visibleCount": 357,
+      "hiddenCount": 105,
+      "suspectedVisibleClutter": [],
+      "hiddenByCleanupCount": 77,
+      "runtimePanelVisible": false,
+      "statusStripVisible": false,
+      "canvasWidth": 1440,
+      "bodyWidth": 1440,
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 964.1,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      }
+    },
+    {
+      "iteration": 17,
+      "visibleCount": 357,
+      "hiddenCount": 105,
+      "suspectedVisibleClutter": [],
+      "hiddenByCleanupCount": 77,
+      "runtimePanelVisible": false,
+      "statusStripVisible": false,
+      "canvasWidth": 1440,
+      "bodyWidth": 1440,
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 964.1,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      }
+    },
+    {
+      "iteration": 18,
+      "visibleCount": 357,
+      "hiddenCount": 105,
+      "suspectedVisibleClutter": [],
+      "hiddenByCleanupCount": 77,
+      "runtimePanelVisible": false,
+      "statusStripVisible": false,
+      "canvasWidth": 1440,
+      "bodyWidth": 1440,
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 964.1,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      }
+    },
+    {
+      "iteration": 19,
+      "visibleCount": 357,
+      "hiddenCount": 105,
+      "suspectedVisibleClutter": [],
+      "hiddenByCleanupCount": 77,
+      "runtimePanelVisible": false,
+      "statusStripVisible": false,
+      "canvasWidth": 1440,
+      "bodyWidth": 1440,
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 964.1,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      }
+    },
+    {
+      "iteration": 20,
+      "visibleCount": 357,
+      "hiddenCount": 105,
+      "suspectedVisibleClutter": [],
+      "hiddenByCleanupCount": 77,
+      "runtimePanelVisible": false,
+      "statusStripVisible": false,
+      "canvasWidth": 1440,
+      "bodyWidth": 1440,
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 964.1,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      }
+    }
+  ]
+}

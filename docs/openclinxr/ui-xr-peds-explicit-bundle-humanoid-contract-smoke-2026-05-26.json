@@ -1,0 +1,101 @@
+{
+  "url": "http://localhost:5173/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1",
+  "contract": {
+    "source": "case_definition_humanoid_performance_contract",
+    "scenarioId": "peds_asthma_parent_anxiety_v1",
+    "claimBoundary": "case_definition_humanoid_performance_metadata_only",
+    "actorCount": 3,
+    "locomotionActorRoles": [
+      "family",
+      "nurse",
+      "patient"
+    ],
+    "expressionActorRoles": [
+      "family",
+      "nurse",
+      "patient"
+    ],
+    "gazeActorRoles": [
+      "family",
+      "nurse",
+      "patient"
+    ],
+    "lipSyncActorRoles": [
+      "family",
+      "nurse",
+      "patient"
+    ],
+    "interactiveActorRoles": [
+      "family",
+      "nurse",
+      "patient"
+    ],
+    "emotionStateCount": 9,
+    "dialogueDrivenVisemeMappingRequired": true,
+    "gazeTargetingRequired": true,
+    "locomotionPlanningRequired": true,
+    "notEvidenceFor": [
+      "generated_humanoid_asset_readiness",
+      "animation_quality",
+      "quest_readiness",
+      "runtime_readiness",
+      "clinical_validity"
+    ]
+  },
+  "gate": {
+    "canUseGeneratedBundleForLearnerRuntime": false,
+    "blockers": [
+      "runtime_realism_evidence_not_attached_to_encounter_bundle",
+      "visual_qa_evidence_not_attached_to_encounter_bundle",
+      "quest_runtime_evidence_not_attached_to_encounter_bundle"
+    ],
+    "pendingGateIds": [
+      "runtime_realism_evidence",
+      "visual_qa_evidence",
+      "quest_runtime_evidence"
+    ],
+    "attachedGateIds": [],
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ],
+    "source": "window.__openClinXrLearnerRuntimeUseGateEvidence",
+    "bundleId": "local_exam_run:peds_asthma_parent_anxiety_encounter_v1:generated-runtime-assets",
+    "scenarioId": "peds_asthma_parent_anxiety_v1",
+    "assetStoreKind": "azurite_blob",
+    "activeBundleSource": "static_generated_bundle",
+    "generatedBundleLearnerUseBlocked": true,
+    "fallbackActive": true,
+    "fallbackReason": "static_generated_visual_review_only_learner_use_blocked:local_exam_run:peds_asthma_parent_anxiety_encounter_v1:generated-runtime-assets",
+    "requiredGateIds": [
+      "runtime_realism_evidence",
+      "visual_qa_evidence",
+      "quest_runtime_evidence"
+    ],
+    "blockingGateIds": [
+      "runtime_realism_evidence",
+      "visual_qa_evidence",
+      "quest_runtime_evidence"
+    ],
+    "approvedLocalFixtureOnly": false,
+    "claimBoundary": "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach"
+  },
+  "checks": {
+    "contractScenarioMatchesPediatricBundle": true,
+    "contractUsesPediatricActorCount": true,
+    "contractRequiresLipSync": true,
+    "contractRequiresGaze": true,
+    "contractRequiresLocomotionPlanning": true,
+    "learnerUseStillBlockedByEvidenceGates": true
+  },
+  "notEvidenceFor": [
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "production_readiness",
+    "animation_quality"
+  ],
+  "consoleErrors": []
+}

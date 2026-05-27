@@ -1,0 +1,48 @@
+{
+  "source": "desktop_browser_local_vite_static_generated_bundle_parent_communication_equipment_smoke",
+  "capturedAt": "2026-05-26T04:02:33.408Z",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "clickedTraceTag": "parent_communication",
+  "url": "http://localhost:5173/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1",
+  "screenshotPath": "/Volumes/files/src/openclinxr/docs/openclinxr/screenshots/ui-xr-peds-parent-communication-equipment-smoke-2026-05-26.png",
+  "visibleChecks": {
+    "traceOneOfNineVisible": true,
+    "parentChairActive": true,
+    "pediatricStretcherActive": true,
+    "parentEventTypeFamily": true,
+    "parentActorActive": true,
+    "parentDialogueSpecific": true,
+    "learnerUseBlockedBoundaryVisible": true
+  },
+  "environmentStateExcerpt": {
+    "activeTraceTags": [
+      "parent_communication"
+    ],
+    "activePropIds": [
+      "pediatric_stretcher_equipment",
+      "parent_chair_equipment"
+    ],
+    "monitorState": "baseline",
+    "alarmState": "quiet"
+  },
+  "handoffExcerpt": {
+    "latestAction": {
+      "sequence": 1,
+      "traceTag": "parent_communication",
+      "source": "dom_click_trace_button",
+      "eventType": "learner.family",
+      "actorId": "parent_tara_johnson_v1",
+      "completedAtSecond": 4,
+      "completedAtMs": 4869.6,
+      "selectLatencyMs": 0.9
+    },
+    "requiredCount": 9,
+    "observedRequiredCount": 1
+  },
+  "notEvidenceFor": [
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "production_readiness"
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "url": "http://localhost:5173/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1",
+  "evidence": {
+    "source": "window.__openClinXrRoleDistinctHumanoidCueEvidence",
+    "scenarioId": "peds_asthma_parent_anxiety_v1",
+    "cueCount": 5,
+    "cues": [
+      {
+        "actorId": "patient_maya_johnson_v1",
+        "role": "patient",
+        "cueId": "patient_hand_to_chest_distress_cue",
+        "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.patient-hand-to-chest-distress-cue"
+      },
+      {
+        "actorId": "patient_maya_johnson_v1",
+        "role": "patient",
+        "cueId": "pediatric_nebulizer_mask_face_cue",
+        "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.pediatric-nebulizer-mask-face-cue"
+      },
+      {
+        "actorId": "patient_maya_johnson_v1",
+        "role": "patient",
+        "cueId": "pediatric_oxygen_tubing_work_of_breathing_cue",
+        "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.pediatric-oxygen-tubing-work-of-breathing-cue"
+      },
+      {
+        "actorId": "nurse_kevin_lee_v1",
+        "role": "nurse",
+        "cueId": "nurse_stethoscope_clinical_role_cue",
+        "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.nurse-stethoscope-clinical-role-cue"
+      },
+      {
+        "actorId": "parent_tara_johnson_v1",
+        "role": "family",
+        "cueId": "family_parent_hand_to_chest_anxiety_cue",
+        "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.family-parent-hand-to-chest-anxiety-cue"
+      }
+    ],
+    "notEvidenceFor": [
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity",
+      "production_readiness",
+      "animation_quality"
+    ]
+  },
+  "checks": {
+    "scenarioIsPediatric": true,
+    "hasPediatricNebulizerMask": true,
+    "hasPediatricOxygenTubing": true,
+    "hasNurseStethoscopeCue": true,
+    "hasFamilyAnxietyCue": true,
+    "noEdPrefixLeakInRoleCueNames": true
+  },
+  "notEvidenceFor": [
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "production_readiness",
+    "animation_quality"
+  ],
+  "consoleErrors": []
+}

@@ -1,0 +1,48 @@
+{
+  "source": "desktop_browser_local_vite_static_generated_bundle_dynamic_humanoid_cue_names_smoke",
+  "capturedAt": "2026-05-26T08:03:20.653Z",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "url": "http://localhost:5173/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1",
+  "screenshotPath": "/Volumes/files/src/openclinxr/docs/openclinxr/screenshots/ui-xr-peds-dynamic-humanoid-cue-names-smoke-2026-05-26.png",
+  "visibleChecks": {
+    "pediatricCueNamesPresent": true,
+    "mouthCuePediatric": true,
+    "gazeCuePediatric": true,
+    "collisionCuePediatric": true,
+    "edCueNamesAbsent": true,
+    "learnerUseBlockedBoundaryVisible": true
+  },
+  "humanoidCueObjectNameSample": [
+    "openclinxr.peds_asthma_parent_anxiety_v1.glb-affordance.openclinxr-peds_asthma_parent_anxiety_v1-environment-generated-glb:room_boundary",
+    "openclinxr.peds_asthma_parent_anxiety_v1.glb-affordance.pediatric-nebulizer-station:scenario_context",
+    "openclinxr.peds_asthma_parent_anxiety_v1.glb-affordance.parent-coaching-chair:communication_cue",
+    "openclinxr.peds_asthma_parent_anxiety_v1.glb-affordance.pediatric-pulse-ox-monitor:objective_cue",
+    "openclinxr.peds_asthma_parent_anxiety_v1.glb-affordance.child-calm-breathing-card:review_cue",
+    "openclinxr.peds_asthma_parent_anxiety_v1.glb-affordance.openclinxr-peds_asthma_parent_anxiety_v1-pulse_oximeter_equipment-generated-glb:equipment_reference",
+    "openclinxr.peds_asthma_parent_anxiety_v1.glb-affordance.openclinxr-peds_asthma_parent_anxiety_v1-nebulizer_mask_equipment-generated-glb:equipment_reference",
+    "openclinxr.peds_asthma_parent_anxiety_v1.glb-affordance.openclinxr-peds_asthma_parent_anxiety_v1-patient_maya_johnson_v1-generated-humanoid-glb:dialogue_target",
+    "openclinxr.peds_asthma_parent_anxiety_v1.humanoid-interaction-collision.openclinxr-peds_asthma_parent_anxiety_v1-patient_maya_johnson_v1-generated-humanoid-glb",
+    "openclinxr.peds_asthma_parent_anxiety_v1.ragdoll-collision-proxy.openclinxr-peds_asthma_parent_anxiety_v1-patient_maya_johnson_v1-generated-humanoid-glb",
+    "openclinxr.peds_asthma_parent_anxiety_v1.phoneme-mouth-cue.openclinxr-peds_asthma_parent_anxiety_v1-patient_maya_johnson_v1-generated-humanoid-glb",
+    "openclinxr.peds_asthma_parent_anxiety_v1.eye-gaze-cue.openclinxr-peds_asthma_parent_anxiety_v1-patient_maya_johnson_v1-generated-humanoid-glb",
+    "openclinxr.peds_asthma_parent_anxiety_v1.runtime-expression-cue.openclinxr-peds_asthma_parent_anxiety_v1-patient_maya_johnson_v1-generated-humanoid-glb",
+    "openclinxr.peds_asthma_parent_anxiety_v1.glb-affordance.openclinxr-peds_asthma_parent_anxiety_v1-nurse_kevin_lee_v1-generated-humanoid-glb:dialogue_target",
+    "openclinxr.peds_asthma_parent_anxiety_v1.humanoid-interaction-collision.openclinxr-peds_asthma_parent_anxiety_v1-nurse_kevin_lee_v1-generated-humanoid-glb",
+    "openclinxr.peds_asthma_parent_anxiety_v1.ragdoll-collision-proxy.openclinxr-peds_asthma_parent_anxiety_v1-nurse_kevin_lee_v1-generated-humanoid-glb",
+    "openclinxr.peds_asthma_parent_anxiety_v1.phoneme-mouth-cue.openclinxr-peds_asthma_parent_anxiety_v1-nurse_kevin_lee_v1-generated-humanoid-glb",
+    "openclinxr.peds_asthma_parent_anxiety_v1.eye-gaze-cue.openclinxr-peds_asthma_parent_anxiety_v1-nurse_kevin_lee_v1-generated-humanoid-glb",
+    "openclinxr.peds_asthma_parent_anxiety_v1.runtime-expression-cue.openclinxr-peds_asthma_parent_anxiety_v1-nurse_kevin_lee_v1-generated-humanoid-glb",
+    "openclinxr.peds_asthma_parent_anxiety_v1.glb-affordance.openclinxr-peds_asthma_parent_anxiety_v1-parent_tara_johnson_v1-generated-humanoid-glb:dialogue_target",
+    "openclinxr.peds_asthma_parent_anxiety_v1.humanoid-interaction-collision.openclinxr-peds_asthma_parent_anxiety_v1-parent_tara_johnson_v1-generated-humanoid-glb",
+    "openclinxr.peds_asthma_parent_anxiety_v1.ragdoll-collision-proxy.openclinxr-peds_asthma_parent_anxiety_v1-parent_tara_johnson_v1-generated-humanoid-glb",
+    "openclinxr.peds_asthma_parent_anxiety_v1.phoneme-mouth-cue.openclinxr-peds_asthma_parent_anxiety_v1-parent_tara_johnson_v1-generated-humanoid-glb",
+    "openclinxr.peds_asthma_parent_anxiety_v1.eye-gaze-cue.openclinxr-peds_asthma_parent_anxiety_v1-parent_tara_johnson_v1-generated-humanoid-glb",
+    "openclinxr.peds_asthma_parent_anxiety_v1.runtime-expression-cue.openclinxr-peds_asthma_parent_anxiety_v1-parent_tara_johnson_v1-generated-humanoid-glb"
+  ],
+  "notEvidenceFor": [
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "production_readiness"
+  ]
+}

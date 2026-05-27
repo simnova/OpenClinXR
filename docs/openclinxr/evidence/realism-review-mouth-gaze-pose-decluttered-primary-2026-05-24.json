@@ -1,0 +1,25 @@
+{
+  "capturedAt": "2026-05-24T02:51:30.990Z",
+  "scenarioId": "oncology_bad_news_family_v1",
+  "station": "oncology_bad_news_family_v1",
+  "captureMode": "mouth-gaze-pose-decluttered-primary-2026-05-24",
+  "screenshot": "docs/openclinxr/screenshots/realism-review-mouth-gaze-pose-decluttered-primary-2026-05-24.png",
+  "runtimeSignalsObserved": [
+    "animated_humanoid_runtime_playback",
+    "authored_clinical_idle_pose_runtime_cue",
+    "visible_mouth_eye_expression_cues",
+    "scenario_specific_vr_clinical_panel",
+    "dialogue_viseme_and_gaze_mapping",
+    "examinee_locomotion_observed"
+  ],
+  "reviewFocus": [
+    "primary_actor_only",
+    "mouth_movement_readability",
+    "gaze_target_alignment",
+    "pose_naturalness",
+    "hand_arm_naturalness"
+  ],
+  "notes": [
+    "Captured after hiding secondary actors and generic target markers for primary humanoid mouth/gaze/pose review."
+  ]
+}

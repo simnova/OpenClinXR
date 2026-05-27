@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "openclinxr.materialize-clinical-idle-pose-clip.v1",
+  "generatedAt": "2026-05-23T22:21:46.266Z",
+  "inputPath": "apps/ui-xr/public/xr-assets/humanoids/neutral-generated-human.glb",
+  "outputPath": "apps/ui-xr/public/xr-assets/humanoids/neutral-generated-human.glb",
+  "backupPath": ".openclinxr/asset-production/realism-backups/neutral-generated-human-pre-clinical-idle-pose-v3-2026-05-23.glb",
+  "animationName": "clinical_idle_conversation_pose",
+  "appliedNodeCount": 7,
+  "appliedNodes": [
+    "head",
+    "upper_arm.L",
+    "forearm.L",
+    "hand.L",
+    "upper_arm.R",
+    "forearm.R",
+    "hand.R"
+  ],
+  "missingNodes": [],
+  "claimBoundaries": {
+    "notEvidenceFor": [
+      "production_animation_quality",
+      "biomechanical_validity",
+      "quest_readiness",
+      "clinical_validity"
+    ]
+  }
+}

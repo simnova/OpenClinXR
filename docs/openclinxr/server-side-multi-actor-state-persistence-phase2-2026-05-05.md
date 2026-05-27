@@ -42,6 +42,7 @@ The durable actor-turn promotion approved on 2026-05-05 narrows "actor turn" to 
 - Idempotent write behavior for all durable record types. Clinical-event IDs are insert-once idempotency keys; order status history or other state transitions must use distinct event IDs rather than replacing an existing event-log record.
 - `rawAudioStored: false` preservation and transcript provenance references for voice-transcript turns.
 - Hidden-fact-safe clinical-event review projection via public payload only.
+- Runtime semantic guards before durable persistence or review projection: durable conversation turns, emotional-state timeline records, and clinical events reject blank identity/content fields, non-finite or negative `atSecond` values, raw-audio persistence, unknown event/source kinds, and blank trace/provenance refs where applicable.
 - Explicit conformance to `AsyncDurableMultiActorSessionStore`.
 
 These repositories are package-local and use `mongodb-memory-server` tests. They are not wired into `apps/api`, REST, GraphQL, WebSocket routes, or runtime session synchronization.
@@ -80,6 +81,10 @@ This proves the intended separation:
 - Spatial transforms stay in the realtime snapshot, not in the durable conversation record.
 
 The durable clinical-event replay flow stores package-local event-log records keyed by `clinicalEventId`, ignores repeated saves for an existing clinical-event id, and replays events by `stationRunId` in deterministic `atSecond` plus id order. Status-change history is represented by separate immutable events such as `order_requested` and `order_completed`, not by mutating the earlier event. The raw Mongo replay remains an internal durable-store path. `MongoDurableClinicalEventRepository.listReviewProjectionsByStationRunId()` is the reviewer-facing path and maps stored events through the session-state redaction helper, so hidden clinical truth, hidden-fact refs, nested private-looking keys, and server-only actor notes do not leak into review projections.
+
+Conflicting duplicate saves for the same `clinicalEventId` are intentionally out of scope for this slice. The current approved behavior is insert-once idempotency: the first durable event is the source of truth, later saves with the same id do not create revisions, mutate status history, or produce a conflict audit record. If the project later needs a conflict or revision audit trail, add it through a separate proposal so the event-log semantics, reviewer projection shape, and retention-policy implications can be reviewed together.
+
+The 2026-05-21 hardening pass also makes malformed durable records fail closed before replay storage or reviewer projection. Durable clinical events must carry a nonblank `clinicalEventId`, `stationRunId`, label, and any optional actor/tag/status fields; they must use a known clinical-event kind and nonnegative finite `atSecond`. Durable conversation turns must carry nonblank turn/station/actor/content/routing fields, nonblank trace and provenance refs, known source kind, `rawAudioStored: false`, and nonnegative finite `atSecond`. Emotional-state timeline records must carry nonblank station/actor/source-turn/emotional-state fields and nonnegative finite `atSecond`.
 
 ## Follow-Up Direction
 

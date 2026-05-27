@@ -1,0 +1,38 @@
+{
+  "kind": "local_model_evidence_check",
+  "claim_scope": "cache_inventory_only",
+  "generatedAt": "2026-05-21T12:55:23.059Z",
+  "cache_dir": "/Users/patrick/.cache/huggingface/hub",
+  "approved_model_ids": [
+    "Qwen/Qwen3-4B-GGUF"
+  ],
+  "cache_exists": true,
+  "ready": true,
+  "policy": {
+    "cloudApisUsed": false,
+    "paidApisUsed": false,
+    "downloadAttemptedByThisTool": false,
+    "localRuntimeExecutionAttemptedByThisTool": false,
+    "productionUseAllowed": false
+  },
+  "models": [
+    {
+      "model_id": "Qwen/Qwen3-4B-GGUF",
+      "path": "/Users/patrick/.cache/huggingface/hub/models--Qwen--Qwen3-4B-GGUF/snapshots/bc640142c66e1fdd12af0bd68f40445458f3869b/Qwen3-4B-Q4_K_M.gguf",
+      "source_type": "local_cache_snapshot",
+      "expected_storage_name": "models--Qwen--Qwen3-4B-GGUF",
+      "file_name": "Qwen3-4B-Q4_K_M.gguf",
+      "license": "Apache-2.0",
+      "source_id": "src-qwen3-4b-gguf-2026",
+      "approved": true,
+      "has_evidence": true,
+      "ready": true,
+      "blockers": [],
+      "local_revision": "bc640142c66e1fdd12af0bd68f40445458f3869b",
+      "main_ref_revision": "bc640142c66e1fdd12af0bd68f40445458f3869b",
+      "main_ref_matches_file_revision": true,
+      "size_bytes": 2497280256,
+      "sha256": "7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "source": "desktop_browser_local_vite_static_generated_bundle_note_completion_cues_smoke",
+  "capturedAt": "2026-05-26T07:02:25.325Z",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "clickedTraceTag": "patient_note_submitted",
+  "url": "http://localhost:5173/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1",
+  "screenshotPath": "/Volumes/files/src/openclinxr/docs/openclinxr/screenshots/ui-xr-peds-note-completion-cues-smoke-2026-05-26.png",
+  "visibleChecks": {
+    "traceOneOfNineVisible": true,
+    "noteCompletionCuePresent": true,
+    "facultyHandoffCuePresent": true,
+    "parentChairActive": true,
+    "pulseOxActive": true,
+    "noteEventType": true,
+    "noteDialogueVisible": true,
+    "learnerUseBlockedBoundaryVisible": true
+  },
+  "environmentStateExcerpt": {
+    "activeTraceTags": [
+      "patient_note_submitted"
+    ],
+    "stressCueIds": [
+      "patient_note_runtime_completion_attention",
+      "faculty_review_handoff_runtime_attention"
+    ],
+    "activePropIds": [
+      "pulse_oximeter_equipment",
+      "pediatric_stretcher_equipment",
+      "parent_chair_equipment"
+    ],
+    "monitorState": "baseline",
+    "alarmState": "quiet"
+  },
+  "handoffExcerpt": {
+    "latestAction": {
+      "sequence": 1,
+      "traceTag": "patient_note_submitted",
+      "source": "dom_click_trace_button",
+      "eventType": "learner.note",
+      "actorId": "nurse_kevin_lee_v1",
+      "completedAtSecond": 4,
+      "completedAtMs": 5094.4,
+      "selectLatencyMs": 0.9
+    },
+    "requiredCount": 9,
+    "observedRequiredCount": 1
+  },
+  "notEvidenceFor": [
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "production_readiness"
+  ]
+}

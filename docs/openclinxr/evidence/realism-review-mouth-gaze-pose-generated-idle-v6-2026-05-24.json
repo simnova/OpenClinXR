@@ -1,0 +1,27 @@
+{
+  "capturedAt": "2026-05-24T03:09:32.259Z",
+  "scenarioId": "oncology_bad_news_family_v1",
+  "station": "oncology_bad_news_family_v1",
+  "captureMode": "mouth-gaze-pose-generated-idle-v6-2026-05-24",
+  "screenshot": "docs/openclinxr/screenshots/realism-review-mouth-gaze-pose-generated-idle-v6-2026-05-24.png",
+  "runtimeSignalsObserved": [
+    "animated_humanoid_runtime_playback",
+    "authored_clinical_idle_pose_runtime_cue",
+    "visible_mouth_eye_expression_cues",
+    "scenario_specific_vr_clinical_panel",
+    "dialogue_viseme_and_gaze_mapping",
+    "examinee_locomotion_observed",
+    "generated_glb_clinical_idle_pose_v6"
+  ],
+  "reviewFocus": [
+    "generated_idle_clip_posture_v6",
+    "rigged_arm_visibility",
+    "mouth_movement_readability",
+    "gaze_target_alignment",
+    "pose_naturalness",
+    "hand_arm_naturalness"
+  ],
+  "notes": [
+    "Captured after moving evidence-backed lower-arm fallback rotations into the generated GLB clinical idle clip."
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "source": "desktop_browser_local_vite_static_generated_bundle_dynamic_locomotion_rig_name_smoke",
+  "capturedAt": "2026-05-26T09:03:47.685Z",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "url": "http://localhost:5173/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1",
+  "screenshotPath": "/Volumes/files/src/openclinxr/docs/openclinxr/screenshots/ui-xr-peds-dynamic-locomotion-rig-name-smoke-2026-05-26.png",
+  "visibleChecks": {
+    "pediatricLocomotionRigPresent": true,
+    "edLocomotionRigAbsent": true,
+    "pediatricScenarioVisible": true,
+    "learnerUseBlockedBoundaryVisible": true
+  },
+  "locomotionRigObjectNames": [
+    "openclinxr.peds_asthma_parent_anxiety_v1.locomotion-rig"
+  ],
+  "notEvidenceFor": [
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "production_readiness"
+  ]
+}

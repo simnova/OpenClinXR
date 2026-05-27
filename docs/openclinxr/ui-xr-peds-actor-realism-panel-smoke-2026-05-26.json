@@ -1,0 +1,313 @@
+{
+  "speechEvidence": {
+    "source": "local_dialogue_phoneme_viseme_mapping",
+    "activeActorId": "nurse_kevin_lee_v1",
+    "activeAssetId": "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.generated-humanoid-glb",
+    "lastText": "Nurse Kevin Lee: If breathing effort or saturation worsens, the team needs an urgent escalation plan rather than reassurance alone. I am focused; this response comes from the pediatric escalation requirement in the scenario definition.",
+    "phonemeSequence": [
+      "i",
+      "f",
+      "m",
+      "k",
+      "e",
+      "a",
+      "t",
+      "i",
+      "t",
+      "k",
+      "e",
+      "f",
+      "f",
+      "o",
+      "k",
+      "t",
+      "o",
+      "k",
+      "t",
+      "a",
+      "t",
+      "u",
+      "k",
+      "a",
+      "t",
+      "i",
+      "o",
+      "t",
+      "w",
+      "o",
+      "k",
+      "t",
+      "e",
+      "t",
+      "t",
+      "t",
+      "e",
+      "t",
+      "e",
+      "a",
+      "m",
+      "t",
+      "e",
+      "e",
+      "t",
+      "t",
+      "a",
+      "t"
+    ],
+    "visemeSequence": [
+      "wide",
+      "teeth",
+      "closed",
+      "mid",
+      "wide",
+      "open",
+      "mid",
+      "wide",
+      "mid",
+      "mid",
+      "wide",
+      "teeth",
+      "teeth",
+      "open",
+      "mid",
+      "mid",
+      "open",
+      "mid",
+      "mid",
+      "open",
+      "mid",
+      "mid",
+      "mid",
+      "open",
+      "mid",
+      "wide",
+      "open",
+      "mid",
+      "rounded",
+      "open",
+      "mid",
+      "mid",
+      "wide",
+      "mid",
+      "mid",
+      "mid",
+      "wide",
+      "mid",
+      "wide",
+      "open",
+      "closed",
+      "mid",
+      "wide",
+      "wide",
+      "mid",
+      "mid",
+      "open",
+      "mid"
+    ],
+    "emotionSource": "runtime_affect_timeline",
+    "scenarioBaselineMood": [
+      "focused",
+      "concerned",
+      "ready to act"
+    ],
+    "scenarioEmotionCueIds": [
+      "scenario_actor_baseline_mood_emotion_mapping",
+      "scenario_dialogue_emotion_transition_cue",
+      "case_definition_driven_expression_selection"
+    ],
+    "activeActorRuntimeRealismRequirement": {
+      "actorId": "nurse_kevin_lee_v1",
+      "role": "nurse",
+      "baselineMood": [
+        "focused",
+        "concerned",
+        "ready to act"
+      ],
+      "locomotionRequired": true,
+      "expressionRequired": true,
+      "gazeRequired": true,
+      "lipSyncRequired": true,
+      "interactionRequired": true,
+      "requiredCueIds": [
+        "case_definition_driven_expression_selection",
+        "dialogue_viseme_and_gaze_mapping",
+        "actor_target_gaze_from_trace_intent",
+        "scenario_actor_interaction_affordance",
+        "scenario_timeline_locomotion_or_posture_change"
+      ]
+    },
+    "gazeTargetKind": "actor",
+    "gazeTargetActorId": "nurse_kevin_lee_v1",
+    "notEvidenceFor": [
+      "clinical_speech_quality",
+      "production_lip_sync",
+      "production_eye_tracking",
+      "scoring_validity"
+    ],
+    "activePhoneme": "u",
+    "activeViseme": "mid",
+    "activeMouthOpenness": 0.432,
+    "activeEyeBlinkIntensity": 0,
+    "activeEyeMicroSaccadeYaw": -0.029,
+    "activeEyeMicroSaccadePitch": 0.011,
+    "activeEmotionState": "anxious",
+    "activeExpressionTransitionMs": 1911,
+    "activeExpressionWeights": {
+      "mouthOpen": 0.167,
+      "browConcern": 0.569,
+      "cheekTension": 0.442
+    },
+    "activeExpressionCueIds": [
+      "visible_runtime_mouth_shape_cue",
+      "visible_runtime_eye_focus_cue",
+      "visible_runtime_eyebrow_jaw_cheek_cue",
+      "emotion_aligned_expression_transition_cue",
+      "dialogue_eye_micro_saccade_blink_cue",
+      "generated_eyelid_blink_control_cue"
+    ],
+    "activeBodyMotionCueIds": [
+      "scenario_dialogue_body_lean_cue",
+      "idle_breathing_sway_cue",
+      "emotion_microstep_weight_shift_cue"
+    ],
+    "activeBodyMotionIntensity": 0.612,
+    "activeBodyMotionMode": "scenario_dialogue_body_motion_runtime"
+  },
+  "textPanelEvidence": {
+    "source": "window.__openClinXrTextPanelEvidence",
+    "panelCount": 4,
+    "panels": [
+      {
+        "name": "openclinxr.ed-chest-pain.in-vr-actor-realism-requirements-panel",
+        "title": "Actor Realism Requirements",
+        "source": "canvas_texture_metadata",
+        "canvasPixels": {
+          "width": 1280,
+          "height": 640
+        },
+        "worldMeters": {
+          "width": 1.8,
+          "height": 0.82
+        },
+        "lineCount": 6,
+        "previewLines": [
+          "nurse: nurse_kevin_lee_v1",
+          "Mood: focused, concerned, ready to act",
+          "Required: locomotion, expression, gaze, lip-sync, interaction",
+          "Cue IDs: case_definition_driven_expression_selection, dialogue_viseme_and_gaze_mapping, actor_target_gaze_from_trace_intent",
+          "+2 more cues in copied evidence",
+          "Not Quest/clinical/scoring readiness."
+        ],
+        "contentHash": "187498dc",
+        "lastUpdatedAtMs": 8836.8,
+        "readabilityClaim": "metadata_only_requires_foreground_headset_confirmation"
+      },
+      {
+        "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+        "title": "Simulated EHR",
+        "source": "canvas_texture_metadata",
+        "canvasPixels": {
+          "width": 1280,
+          "height": 640
+        },
+        "worldMeters": {
+          "width": 2.3,
+          "height": 1.15
+        },
+        "lineCount": 4,
+        "previewLines": [
+          "Chief concern: Assess pediatric respiratory distress",
+          "Vitals/context: HR 128, RR 32, SpO2 91% on room air",
+          "Interruption: Nurse Kevin Lee cue at 300s: oxygen request",
+          "Scenario: Pediatric Asthma"
+        ],
+        "contentHash": "3b159b58",
+        "lastUpdatedAtMs": 8836.7,
+        "readabilityClaim": "metadata_only_requires_foreground_headset_confirmation"
+      },
+      {
+        "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+        "title": "Live Dialogue",
+        "source": "canvas_texture_metadata",
+        "canvasPixels": {
+          "width": 1280,
+          "height": 640
+        },
+        "worldMeters": {
+          "width": 1.85,
+          "height": 0.95
+        },
+        "lineCount": 2,
+        "previewLines": [
+          "Nurse Kevin Lee: If breathing effort or saturation worsens, the team needs an urgent escalation plan rather than reassurance alone. I am ...",
+          "Trace 1/9; missing 8"
+        ],
+        "contentHash": "1aad58fa",
+        "lastUpdatedAtMs": 8836.7,
+        "readabilityClaim": "metadata_only_requires_foreground_headset_confirmation"
+      },
+      {
+        "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+        "title": "Input Evidence",
+        "source": "canvas_texture_metadata",
+        "canvasPixels": {
+          "width": 1280,
+          "height": 640
+        },
+        "worldMeters": {
+          "width": 1.65,
+          "height": 0.72
+        },
+        "lineCount": 9,
+        "previewLines": [
+          "Session: Desktop preview",
+          "Exam: 1/6 encounter; next ed_chest_pain_priority_v1",
+          "Note: 0 chars; not ready",
+          "Hands: pending_immersive_session; observed 0; rep not_visible",
+          "Gesture: missing_joints",
+          "Trace hand select: blocked; dwell 0ms; trace_unavailable",
+          "Movement: none observed; probe no_gamepad_sources; ctrl 0/0; hand 0/2",
+          "Speech affect: emotion anxious | transition 1640ms | mouth 0.16; brow 0.543; cheek 0.423 | actor nurse:nurse_kevin_lee_v1; locomotion tru...",
+          "Capture: 20 blockers; vr 0; window 29; gap headset_select_trace_latency_missing"
+        ],
+        "contentHash": "126a05ad",
+        "lastUpdatedAtMs": 8836.9,
+        "readabilityClaim": "metadata_only_requires_foreground_headset_confirmation"
+      }
+    ],
+    "limitations": [
+      "metadata_only_requires_foreground_headset_confirmation"
+    ]
+  },
+  "runtimeSceneManifestEvidence": {
+    "source": "learner_runtime_asset_bundle_scene_manifest",
+    "manifestId": "scene_manifest:peds_asthma_parent_anxiety_v1:peds_asthma_parent_anxiety_station_v1",
+    "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+    "roomPropCount": 4,
+    "semanticRoomPropCount": 4,
+    "actorPlacementCount": 3,
+    "equipmentPlacementCount": 6,
+    "dialogueTurnCount": 9,
+    "virtualDeviceActorCount": 0,
+    "virtualDeviceDialogueRoutedCount": 0,
+    "generatedBySceneManifestCount": 4,
+    "propIds": [
+      "pediatric-nebulizer-station",
+      "parent-coaching-chair",
+      "pediatric-pulse-ox-monitor",
+      "child-calm-breathing-card"
+    ],
+    "caseDefinedHumanoidRuntimeHandoffCount": 0,
+    "caseDefinedHumanoidRuntimeHandoffActorRoles": [],
+    "caseDefinedHumanoidRuntimeHandoffRequiredSignalIds": [],
+    "caseDefinedHumanoidRuntimeHandoff": [],
+    "storageBackedBundle": true,
+    "productionReadinessClaimed": false,
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  }
+}

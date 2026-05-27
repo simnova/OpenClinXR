@@ -1,0 +1,480 @@
+{
+  "generatedAt": "2026-05-21T12:37:41.589Z",
+  "url": "http://localhost:5173/?questSmoke=foreground-clean-20260521-autonomy",
+  "target": "station",
+  "adb": {
+    "version": "Android Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as /opt/homebrew/bin/adb\nRunning on Darwin 25.5.0 (arm64)",
+    "deviceLine": "2G0YC5ZGB5000J         device usb:0-1 product:eureka model:Quest_3 device:eureka transport_id:1",
+    "reverseList": "UsbFfs tcp:5173 tcp:5173"
+  },
+  "browser": {
+    "title": "OpenClinXR Station Runtime",
+    "url": "http://localhost:5173/?questSmoke=foreground-clean-20260521-autonomy",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64; Quest 3) AppleWebKit/537.36 (KHTML, like Gecko) OculusBrowser/146.1.0.27.53.958285939 Chrome/146.0.7680.188 VR Safari/537.36",
+    "devicePixelRatio": 1,
+    "visibilityState": "visible",
+    "hidden": false,
+    "hasFocus": true,
+    "bodyHasEdChestPain": true,
+    "hasViteOverlay": false,
+    "hasNavigatorXr": true,
+    "xrStatus": "Full VR ready",
+    "trace": "Trace 0/10",
+    "bootEvidence": {
+      "app": "ui-xr",
+      "events": [
+        {
+          "phase": "controls_start",
+          "atMs": 0.6
+        },
+        {
+          "phase": "controls_ready",
+          "atMs": 1
+        },
+        {
+          "phase": "station_scene_start",
+          "atMs": 1.3
+        },
+        {
+          "phase": "station_render_loop_started",
+          "atMs": 30.4
+        },
+        {
+          "phase": "station_scene_ready",
+          "atMs": 30.4
+        },
+        {
+          "phase": "clock_started",
+          "atMs": 30.5
+        }
+      ]
+    },
+    "iwsdkEvidence": null,
+    "frameStats": {
+      "sampleCount": 18,
+      "avgFrameMs": 30.39,
+      "p95FrameMs": 95.7,
+      "maxFrameMs": 95.7,
+      "approxFps": 32.9,
+      "framesObserved": 19,
+      "firstFrameAtMs": 198.7,
+      "latestFrameAtMs": 745.8,
+      "sampleWindowSize": 18,
+      "latestFrameDeltaMs": 27.8,
+      "sampleWindowMs": 547.1,
+      "longFrameCountOver33Ms": 6,
+      "longFrameRatio": 0.33,
+      "previewFramesObserved": 19,
+      "immersiveFramesObserved": 0,
+      "qualitySource": "webxr_animation_loop",
+      "renderLoopMode": "webxr_animation_loop_with_preview_fallback",
+      "isPresenting": false,
+      "visibilityState": "visible"
+    },
+    "inputEvidence": {
+      "handModelCount": 0,
+      "handModelStatus": "pending_immersive_session",
+      "handRepresentationKind": "not_visible",
+      "handInputsObserved": 0,
+      "locomotionMode": "room_scale_keyboard_thumbstick_and_hand_gesture_dolly",
+      "locomotionAttempt": "not_attempted",
+      "lastInputObservedAtMs": null,
+      "lastLocomotionAtMs": null,
+      "activeLocomotionSource": "none",
+      "inputSourceCount": 0,
+      "inputSourceKinds": [],
+      "keyboardVector": {
+        "forward": 0,
+        "strafe": 0,
+        "turn": 0
+      },
+      "xrVector": {
+        "forward": 0,
+        "strafe": 0,
+        "turn": 0
+      },
+      "xrHandGestureVector": {
+        "forward": 0,
+        "strafe": 0,
+        "turn": 0
+      },
+      "xrHandGestureState": {
+        "armed": false,
+        "dwellMs": 0,
+        "leftPinch": false,
+        "rightPinch": false,
+        "gestureDeadzoneMeters": 0.045,
+        "turnCooldownMs": 450,
+        "blockedReason": "missing_joints"
+      },
+      "xrInputSources": [],
+      "locomotionDiagnostics": {
+        "claimScope": "attempt_diagnostics_only",
+        "gamepadDeadzone": 0.18,
+        "handPinchThresholdMeters": 0.035,
+        "handGestureDeadzoneMeters": 0.045,
+        "handGestureTurnDeadzoneMeters": 0.055,
+        "gamepadSources": [],
+        "handGestureHands": [
+          {
+            "handedness": "left",
+            "jointsVisible": {
+              "wrist": false,
+              "indexTip": false,
+              "thumbTip": false
+            },
+            "pinchDistanceMeters": null,
+            "pinching": false,
+            "armed": false,
+            "dwellMs": 0,
+            "relativeOffsetMeters": null,
+            "movementCrossedDeadzone": false,
+            "blockedReason": "missing_joints"
+          },
+          {
+            "handedness": "right",
+            "jointsVisible": {
+              "wrist": false,
+              "indexTip": false,
+              "thumbTip": false
+            },
+            "pinchDistanceMeters": null,
+            "pinching": false,
+            "armed": false,
+            "dwellMs": 0,
+            "relativeOffsetMeters": null,
+            "movementCrossedDeadzone": false,
+            "blockedReason": "missing_joints"
+          }
+        ]
+      },
+      "rigPosition": {
+        "x": 0,
+        "z": 0
+      },
+      "xrHandSelectState": {
+        "status": "blocked",
+        "armed": false,
+        "dwellMs": 0,
+        "rightPinch": false,
+        "firedCount": 0,
+        "lastFiredAtMs": null,
+        "blockedReason": "trace_unavailable"
+      }
+    },
+    "textPanelEvidence": {
+      "source": "window.__openClinXrTextPanelEvidence",
+      "panelCount": 3,
+      "panels": [
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          "title": "Simulated EHR",
+          "source": "canvas_texture_metadata",
+          "canvasPixels": {
+            "width": 1280,
+            "height": 640
+          },
+          "worldMeters": {
+            "width": 2.3,
+            "height": 1.15
+          },
+          "lineCount": 4,
+          "previewLines": [
+            "Chief concern: crushing substernal pressure",
+            "Vitals: BP 152/92  HR 104  RR 20  SpO2 96%",
+            "Interruption: nurse repeats vitals at minute seven",
+            "Priority: obtain ECG and escalate urgently"
+          ],
+          "contentHash": "ab20d57a",
+          "lastUpdatedAtMs": 209.4,
+          "readabilityClaim": "metadata_only_requires_foreground_headset_confirmation"
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          "title": "Live Dialogue",
+          "source": "canvas_texture_metadata",
+          "canvasPixels": {
+            "width": 1280,
+            "height": 640
+          },
+          "worldMeters": {
+            "width": 1.85,
+            "height": 0.95
+          },
+          "lineCount": 2,
+          "previewLines": [
+            "Robert Hayes: It feels heavy, like someone is sitting on my chest.",
+            "Trace 0/10; missing 10"
+          ],
+          "contentHash": "aaede4b8",
+          "lastUpdatedAtMs": 747.2,
+          "readabilityClaim": "metadata_only_requires_foreground_headset_confirmation"
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+          "title": "Input Evidence",
+          "source": "canvas_texture_metadata",
+          "canvasPixels": {
+            "width": 1280,
+            "height": 640
+          },
+          "worldMeters": {
+            "width": 1.65,
+            "height": 0.72
+          },
+          "lineCount": 6,
+          "previewLines": [
+            "Session: Desktop preview",
+            "Hands: pending_immersive_session; observed 0; rep not_visible",
+            "Gesture: missing_joints",
+            "Trace hand select: blocked; dwell 0ms; trace_unavailable",
+            "Movement: none; d 0m; turn 0rad; probe no_gamepad_sources; ctrl 0/0; hand 0/2",
+            "Capture: 23 blockers; vr 0; window 17; gap headset_select_trace_latency_missing"
+          ],
+          "contentHash": "21fe9fe5",
+          "lastUpdatedAtMs": 747.6,
+          "readabilityClaim": "metadata_only_requires_foreground_headset_confirmation"
+        }
+      ],
+      "limitations": [
+        "metadata_only_requires_foreground_headset_confirmation"
+      ]
+    },
+    "traceLatencyEvidence": null,
+    "xrEntryEvidence": {
+      "sessionMode": "immersive-vr",
+      "attempts": 0,
+      "lastStatus": "not_requested",
+      "lastRequestedAtMs": null,
+      "lastUpdatedAtMs": 183.2,
+      "lastError": null
+    },
+    "manualPerformanceDraft": {
+      "generatedAt": "2026-05-21T12:37:39.814Z",
+      "runContext": {
+        "performedBy": "",
+        "durationMinutes": 0,
+        "notes": "Complete this during a foreground in-headset Quest Browser run."
+      },
+      "setup": {
+        "foregroundPageConfirmed": true,
+        "devtoolsScreencastDisabled": false,
+        "extraBrowserWindowsClosed": false
+      },
+      "station": {
+        "shellLoaded": true,
+        "traceInteractionPassed": false,
+        "traceInteractionAttempt": "not_attempted",
+        "textReadable": true,
+        "immersiveSessionStarted": false,
+        "consoleErrors": []
+      },
+      "experience": {
+        "modeId": "full_vr",
+        "phaseLabel": "Phase 1 Full VR",
+        "requestedSessionMode": "immersive-vr",
+        "mixedRealityPassthroughImplemented": false,
+        "handTrackingPosture": "optional_feature_with_local_mesh_hand_model_and_primitive_fallback",
+        "locomotionPosture": "room_scale_keyboard_thumbstick_and_hand_gesture_dolly"
+      },
+      "input": {
+        "handModelCount": 0,
+        "handModelStatus": "pending_immersive_session",
+        "handRepresentationKind": "not_visible",
+        "handInputsObserved": 0,
+        "locomotionMode": "room_scale_keyboard_thumbstick_and_hand_gesture_dolly",
+        "locomotionAttempt": "not_attempted",
+        "lastInputObservedAtMs": null,
+        "lastLocomotionAtMs": null,
+        "activeLocomotionSource": "none",
+        "inputSourceCount": 0,
+        "inputSourceKinds": [],
+        "keyboardVector": {
+          "forward": 0,
+          "strafe": 0,
+          "turn": 0
+        },
+        "xrVector": {
+          "forward": 0,
+          "strafe": 0,
+          "turn": 0
+        },
+        "xrHandGestureVector": {
+          "forward": 0,
+          "strafe": 0,
+          "turn": 0
+        },
+        "xrHandGestureState": {
+          "armed": false,
+          "dwellMs": 0,
+          "leftPinch": false,
+          "rightPinch": false,
+          "gestureDeadzoneMeters": 0.045,
+          "turnCooldownMs": 450,
+          "blockedReason": "missing_joints"
+        },
+        "xrInputSources": [],
+        "locomotionDiagnostics": {
+          "claimScope": "attempt_diagnostics_only",
+          "gamepadDeadzone": 0.18,
+          "handPinchThresholdMeters": 0.035,
+          "handGestureDeadzoneMeters": 0.045,
+          "handGestureTurnDeadzoneMeters": 0.055,
+          "gamepadSources": [],
+          "handGestureHands": [
+            {
+              "handedness": "left",
+              "jointsVisible": {
+                "wrist": false,
+                "indexTip": false,
+                "thumbTip": false
+              },
+              "pinchDistanceMeters": null,
+              "pinching": false,
+              "armed": false,
+              "dwellMs": 0,
+              "relativeOffsetMeters": null,
+              "movementCrossedDeadzone": false,
+              "blockedReason": "missing_joints"
+            },
+            {
+              "handedness": "right",
+              "jointsVisible": {
+                "wrist": false,
+                "indexTip": false,
+                "thumbTip": false
+              },
+              "pinchDistanceMeters": null,
+              "pinching": false,
+              "armed": false,
+              "dwellMs": 0,
+              "relativeOffsetMeters": null,
+              "movementCrossedDeadzone": false,
+              "blockedReason": "missing_joints"
+            }
+          ]
+        },
+        "rigPosition": {
+          "x": 0,
+          "z": 0
+        },
+        "xrHandSelectState": {
+          "status": "blocked",
+          "armed": false,
+          "dwellMs": 0,
+          "rightPinch": false,
+          "firedCount": 0,
+          "lastFiredAtMs": null,
+          "blockedReason": "trace_unavailable"
+        }
+      },
+      "traceLatencyProxy": null,
+      "performance": {
+        "avgFps": 32.9,
+        "p95FrameMs": 95.7,
+        "minimumObservedFps": 10.4,
+        "controllerSelectLatencyMs": null,
+        "source": "window.__openClinXrFrameStats",
+        "framesObserved": 19,
+        "sampleWindowSize": 18,
+        "firstFrameAtMs": 198.7,
+        "previewFramesObserved": 19,
+        "immersiveFramesObserved": 0
+      },
+      "reproducibility": {
+        "source": "browser_runtime",
+        "url": "http://localhost:5173/?questSmoke=foreground-clean-20260521-autonomy",
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64; Quest 3) AppleWebKit/537.36 (KHTML, like Gecko) OculusBrowser/146.1.0.27.53.958285939 Chrome/146.0.7680.188 VR Safari/537.36",
+        "browserVersionHints": {
+          "oculusBrowser": "146.1.0.27.53.958285939",
+          "chrome": "146.0.7680.188"
+        },
+        "app": {
+          "packageName": "@openclinxr/ui-xr",
+          "version": "0.1.0",
+          "gitCommit": "02e0fe5423fb",
+          "buildTime": "2026-05-21T12:26:51.324Z",
+          "mode": "development"
+        },
+        "webXr": {
+          "navigatorXrPresent": true,
+          "immersiveVrSupported": true,
+          "immersiveVrSupportCheckedAtMs": 283.8,
+          "immersiveArSupported": true,
+          "immersiveArSupportCheckedAtMs": 297.5,
+          "supportError": null
+        },
+        "display": {
+          "viewportWidth": 1280,
+          "viewportHeight": 670,
+          "screenWidth": 1280,
+          "screenHeight": 800,
+          "devicePixelRatio": 1,
+          "visibilityState": "visible"
+        },
+        "limitations": [
+          "browser_reported_metadata_not_device_firmware_proof",
+          "display_refresh_rate_inferred_from_frame_cadence"
+        ]
+      },
+      "comfort": {
+        "motionComfort": "not_run",
+        "heatConcern": null,
+        "batteryDropPercent": null
+      }
+    },
+    "canvas": {
+      "width": 860,
+      "height": 670,
+      "clientWidth": 860,
+      "clientHeight": 670,
+      "dataUrlLength": 18670
+    }
+  },
+  "interaction": {
+    "beforeTrace": "Trace 0/10",
+    "afterTrace": "Trace 2/10",
+    "traceActionsAdvancedBy": 2,
+    "clickedEcg": true,
+    "clickedUrgent": true,
+    "hasViteOverlay": false,
+    "dialogue": "Spouse: Are you saying this could be his heart?",
+    "traceLatencyEvidence": {
+      "lastTraceTag": "urgent_escalation",
+      "lastSelectLatencyMs": 0.4,
+      "source": "dom_click_trace_button",
+      "measuredAtMs": 904.1,
+      "productionControllerLatencySubstitute": false
+    }
+  },
+  "frameSample": {
+    "framesObserved": 116,
+    "framesObservedDuringProbe": 90,
+    "sampleCount": 115,
+    "timedOut": false,
+    "elapsedWallMs": 2646.6,
+    "latestFrameAgeMs": 6.2,
+    "avgFrameMs": 30,
+    "p95FrameMs": 41.7,
+    "maxFrameMs": 95.7,
+    "approxFps": 33.3,
+    "latestFrameDeltaMs": 27.7,
+    "sampleWindowMs": 3449.6,
+    "longFrameCountOver33Ms": 41,
+    "longFrameRatio": 0.36,
+    "previewFramesObserved": 116,
+    "immersiveFramesObserved": 0,
+    "qualitySource": "webxr_animation_loop",
+    "renderLoopMode": "webxr_animation_loop_with_preview_fallback",
+    "isPresenting": false,
+    "visibilityState": "visible",
+    "iwsdkEvidence": null
+  },
+  "verdict": {
+    "shellLoaded": true,
+    "interactionAdvanced": true,
+    "frameSampleComplete": true,
+    "immersiveEntryOutcome": "not_requested",
+    "blockers": []
+  }
+}

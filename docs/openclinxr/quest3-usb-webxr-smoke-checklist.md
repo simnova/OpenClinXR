@@ -425,3 +425,9 @@ Minimum early pass:
 - `src-meta-iwsdk-github-2026`
 - `src-iwsdk-ai-docs-2026`
 - `src-openclinxr-iwsdk-spike-plan-2026-05-04`
+
+### Generated scene asset evidence note
+
+When validating humanoids/equipment in the headset, copy the in-app Quest Evidence payload after the Assets row reports all expected generated scene assets loaded with zero failures, zero pending assets, and zero fallback-active assets. The payload should include `sceneAssetEvidence.source: "window.__openClinXrSceneAssetEvidence"`, `expectedAssetCount`, `loadedCount`, `failedCount`, `pendingCount`, `fallbackActiveCount`, and per-asset `assetId`, `assetPath`, `sceneObjectName`, `status`, and `fallbackActive`. This is visual runtime-presence evidence only; it does not claim production asset readiness, Quest readiness, clinical validity, or scoring validity.
+
+Current generated scene asset set for the ED chest-pain station is six assets: patient generated humanoid, nurse generated humanoid, spouse generated humanoid, ECG cart, IV pole/pump, and ED bay shell. A copied payload with fewer than six expected/generated scene assets is stale for the current runtime and should be recopied after the scene finishes loading.

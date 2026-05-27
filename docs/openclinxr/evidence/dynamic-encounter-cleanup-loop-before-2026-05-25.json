@@ -1,0 +1,4541 @@
+{
+  "url": "http://127.0.0.1:5173/?scenarioId=ed_chest_pain_priority_v1&capture=dynamic-only-cleanup-loop-2026-05-25",
+  "screenshot": "/Volumes/files/src/openclinxr/docs/openclinxr/screenshots/dynamic-encounter-cleanup-loop-before-2026-05-25.png",
+  "iterations": [
+    {
+      "iteration": 1,
+      "visibleCount": 365,
+      "hiddenCount": 97,
+      "suspectedVisibleClutter": [
+        {
+          "name": "openclinxr.ed-chest-pain.phoneme-mouth-cue.neutral_generated_humanoid_model_glb",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": [
+            "phoneme_viseme_dialogue_cue",
+            "visible_runtime_mouth_shape_cue"
+          ]
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.eye-gaze-cue.neutral_generated_humanoid_model_glb",
+          "type": "Line",
+          "visible": true,
+          "policy": null,
+          "affordances": [
+            "dialogue_gaze_target_cue"
+          ]
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.eye-focus-cue.neutral_generated_humanoid_model_glb",
+          "type": "Group",
+          "visible": true,
+          "policy": null,
+          "affordances": [
+            "dialogue_eye_focus_target_cue",
+            "visible_runtime_eye_focus_cue"
+          ]
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.runtime-expression-cue.neutral_generated_humanoid_model_glb",
+          "type": "Group",
+          "visible": true,
+          "policy": null,
+          "affordances": [
+            "scenario_emotion_expression_cue",
+            "visible_runtime_eyebrow_jaw_cheek_cue"
+          ]
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        }
+      ],
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 1069.8,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      },
+      "manifestEvidence": {
+        "source": "learner_runtime_asset_bundle_scene_manifest",
+        "manifestId": "ed_chest_pain_runtime_scene_manifest_v1",
+        "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+        "roomPropCount": 30,
+        "semanticRoomPropCount": 30,
+        "actorPlacementCount": 3,
+        "equipmentPlacementCount": 2,
+        "dialogueTurnCount": 6,
+        "virtualDeviceActorCount": 0,
+        "virtualDeviceDialogueRoutedCount": 0,
+        "generatedBySceneManifestCount": 30,
+        "propIds": [
+          "oxygen-panel",
+          "suction-canister",
+          "glove-box-stack",
+          "sharps-bin",
+          "biohazard-trash",
+          "supply-cabinet",
+          "hand-sanitizer",
+          "privacy-curtain",
+          "wall-clock",
+          "ceiling-exam-light",
+          "doorway-station-sign",
+          "floor-scuff-path",
+          "infection-control-sign",
+          "patient-handoff-whiteboard",
+          "supply-drawer-labels",
+          "privacy-zone-floor-tape",
+          "curtain-track-rings",
+          "ekg-leads-on-bed",
+          "monitor-lead-cable",
+          "patient-blanket",
+          "bed-wheel-locks",
+          "clipboard-case-notes",
+          "iv-tubing-line",
+          "monitor-waveform-card",
+          "monitor-vitals-badge",
+          "ecg-paper-strip",
+          "nurse-task-tray",
+          "doorway-escalation-badge",
+          "trash-liner-fold",
+          "call-light-remote"
+        ],
+        "storageBackedBundle": false,
+        "productionReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "learnerGate": {
+        "canUseGeneratedBundleForLearnerRuntime": false,
+        "blockers": [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle",
+          "quest_runtime_evidence_not_attached_to_encounter_bundle"
+        ],
+        "pendingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "attachedGateIds": [],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "source": "window.__openClinXrLearnerRuntimeUseGateEvidence",
+        "bundleId": "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "assetStoreKind": "app_public_fixture",
+        "activeBundleSource": "local_fixture_fallback",
+        "generatedBundleLearnerUseBlocked": false,
+        "fallbackActive": true,
+        "fallbackReason": null,
+        "requiredGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "blockingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "approvedLocalFixtureOnly": true,
+        "claimBoundary": "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach"
+      }
+    },
+    {
+      "iteration": 2,
+      "visibleCount": 365,
+      "hiddenCount": 97,
+      "suspectedVisibleClutter": [
+        {
+          "name": "openclinxr.ed-chest-pain.phoneme-mouth-cue.neutral_generated_humanoid_model_glb",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": [
+            "phoneme_viseme_dialogue_cue",
+            "visible_runtime_mouth_shape_cue"
+          ]
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.eye-gaze-cue.neutral_generated_humanoid_model_glb",
+          "type": "Line",
+          "visible": true,
+          "policy": null,
+          "affordances": [
+            "dialogue_gaze_target_cue"
+          ]
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.eye-focus-cue.neutral_generated_humanoid_model_glb",
+          "type": "Group",
+          "visible": true,
+          "policy": null,
+          "affordances": [
+            "dialogue_eye_focus_target_cue",
+            "visible_runtime_eye_focus_cue"
+          ]
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.runtime-expression-cue.neutral_generated_humanoid_model_glb",
+          "type": "Group",
+          "visible": true,
+          "policy": null,
+          "affordances": [
+            "scenario_emotion_expression_cue",
+            "visible_runtime_eyebrow_jaw_cheek_cue"
+          ]
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        }
+      ],
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 1069.8,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      },
+      "manifestEvidence": {
+        "source": "learner_runtime_asset_bundle_scene_manifest",
+        "manifestId": "ed_chest_pain_runtime_scene_manifest_v1",
+        "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+        "roomPropCount": 30,
+        "semanticRoomPropCount": 30,
+        "actorPlacementCount": 3,
+        "equipmentPlacementCount": 2,
+        "dialogueTurnCount": 6,
+        "virtualDeviceActorCount": 0,
+        "virtualDeviceDialogueRoutedCount": 0,
+        "generatedBySceneManifestCount": 30,
+        "propIds": [
+          "oxygen-panel",
+          "suction-canister",
+          "glove-box-stack",
+          "sharps-bin",
+          "biohazard-trash",
+          "supply-cabinet",
+          "hand-sanitizer",
+          "privacy-curtain",
+          "wall-clock",
+          "ceiling-exam-light",
+          "doorway-station-sign",
+          "floor-scuff-path",
+          "infection-control-sign",
+          "patient-handoff-whiteboard",
+          "supply-drawer-labels",
+          "privacy-zone-floor-tape",
+          "curtain-track-rings",
+          "ekg-leads-on-bed",
+          "monitor-lead-cable",
+          "patient-blanket",
+          "bed-wheel-locks",
+          "clipboard-case-notes",
+          "iv-tubing-line",
+          "monitor-waveform-card",
+          "monitor-vitals-badge",
+          "ecg-paper-strip",
+          "nurse-task-tray",
+          "doorway-escalation-badge",
+          "trash-liner-fold",
+          "call-light-remote"
+        ],
+        "storageBackedBundle": false,
+        "productionReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "learnerGate": {
+        "canUseGeneratedBundleForLearnerRuntime": false,
+        "blockers": [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle",
+          "quest_runtime_evidence_not_attached_to_encounter_bundle"
+        ],
+        "pendingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "attachedGateIds": [],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "source": "window.__openClinXrLearnerRuntimeUseGateEvidence",
+        "bundleId": "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "assetStoreKind": "app_public_fixture",
+        "activeBundleSource": "local_fixture_fallback",
+        "generatedBundleLearnerUseBlocked": false,
+        "fallbackActive": true,
+        "fallbackReason": null,
+        "requiredGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "blockingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "approvedLocalFixtureOnly": true,
+        "claimBoundary": "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach"
+      }
+    },
+    {
+      "iteration": 3,
+      "visibleCount": 365,
+      "hiddenCount": 97,
+      "suspectedVisibleClutter": [
+        {
+          "name": "openclinxr.ed-chest-pain.phoneme-mouth-cue.neutral_generated_humanoid_model_glb",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": [
+            "phoneme_viseme_dialogue_cue",
+            "visible_runtime_mouth_shape_cue"
+          ]
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.eye-gaze-cue.neutral_generated_humanoid_model_glb",
+          "type": "Line",
+          "visible": true,
+          "policy": null,
+          "affordances": [
+            "dialogue_gaze_target_cue"
+          ]
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.eye-focus-cue.neutral_generated_humanoid_model_glb",
+          "type": "Group",
+          "visible": true,
+          "policy": null,
+          "affordances": [
+            "dialogue_eye_focus_target_cue",
+            "visible_runtime_eye_focus_cue"
+          ]
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.runtime-expression-cue.neutral_generated_humanoid_model_glb",
+          "type": "Group",
+          "visible": true,
+          "policy": null,
+          "affordances": [
+            "scenario_emotion_expression_cue",
+            "visible_runtime_eyebrow_jaw_cheek_cue"
+          ]
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        }
+      ],
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 1069.8,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      },
+      "manifestEvidence": {
+        "source": "learner_runtime_asset_bundle_scene_manifest",
+        "manifestId": "ed_chest_pain_runtime_scene_manifest_v1",
+        "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+        "roomPropCount": 30,
+        "semanticRoomPropCount": 30,
+        "actorPlacementCount": 3,
+        "equipmentPlacementCount": 2,
+        "dialogueTurnCount": 6,
+        "virtualDeviceActorCount": 0,
+        "virtualDeviceDialogueRoutedCount": 0,
+        "generatedBySceneManifestCount": 30,
+        "propIds": [
+          "oxygen-panel",
+          "suction-canister",
+          "glove-box-stack",
+          "sharps-bin",
+          "biohazard-trash",
+          "supply-cabinet",
+          "hand-sanitizer",
+          "privacy-curtain",
+          "wall-clock",
+          "ceiling-exam-light",
+          "doorway-station-sign",
+          "floor-scuff-path",
+          "infection-control-sign",
+          "patient-handoff-whiteboard",
+          "supply-drawer-labels",
+          "privacy-zone-floor-tape",
+          "curtain-track-rings",
+          "ekg-leads-on-bed",
+          "monitor-lead-cable",
+          "patient-blanket",
+          "bed-wheel-locks",
+          "clipboard-case-notes",
+          "iv-tubing-line",
+          "monitor-waveform-card",
+          "monitor-vitals-badge",
+          "ecg-paper-strip",
+          "nurse-task-tray",
+          "doorway-escalation-badge",
+          "trash-liner-fold",
+          "call-light-remote"
+        ],
+        "storageBackedBundle": false,
+        "productionReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "learnerGate": {
+        "canUseGeneratedBundleForLearnerRuntime": false,
+        "blockers": [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle",
+          "quest_runtime_evidence_not_attached_to_encounter_bundle"
+        ],
+        "pendingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "attachedGateIds": [],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "source": "window.__openClinXrLearnerRuntimeUseGateEvidence",
+        "bundleId": "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "assetStoreKind": "app_public_fixture",
+        "activeBundleSource": "local_fixture_fallback",
+        "generatedBundleLearnerUseBlocked": false,
+        "fallbackActive": true,
+        "fallbackReason": null,
+        "requiredGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "blockingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "approvedLocalFixtureOnly": true,
+        "claimBoundary": "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach"
+      }
+    },
+    {
+      "iteration": 4,
+      "visibleCount": 365,
+      "hiddenCount": 97,
+      "suspectedVisibleClutter": [
+        {
+          "name": "openclinxr.ed-chest-pain.phoneme-mouth-cue.neutral_generated_humanoid_model_glb",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": [
+            "phoneme_viseme_dialogue_cue",
+            "visible_runtime_mouth_shape_cue"
+          ]
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.eye-gaze-cue.neutral_generated_humanoid_model_glb",
+          "type": "Line",
+          "visible": true,
+          "policy": null,
+          "affordances": [
+            "dialogue_gaze_target_cue"
+          ]
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.eye-focus-cue.neutral_generated_humanoid_model_glb",
+          "type": "Group",
+          "visible": true,
+          "policy": null,
+          "affordances": [
+            "dialogue_eye_focus_target_cue",
+            "visible_runtime_eye_focus_cue"
+          ]
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.runtime-expression-cue.neutral_generated_humanoid_model_glb",
+          "type": "Group",
+          "visible": true,
+          "policy": null,
+          "affordances": [
+            "scenario_emotion_expression_cue",
+            "visible_runtime_eyebrow_jaw_cheek_cue"
+          ]
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        }
+      ],
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 1069.8,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      },
+      "manifestEvidence": {
+        "source": "learner_runtime_asset_bundle_scene_manifest",
+        "manifestId": "ed_chest_pain_runtime_scene_manifest_v1",
+        "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+        "roomPropCount": 30,
+        "semanticRoomPropCount": 30,
+        "actorPlacementCount": 3,
+        "equipmentPlacementCount": 2,
+        "dialogueTurnCount": 6,
+        "virtualDeviceActorCount": 0,
+        "virtualDeviceDialogueRoutedCount": 0,
+        "generatedBySceneManifestCount": 30,
+        "propIds": [
+          "oxygen-panel",
+          "suction-canister",
+          "glove-box-stack",
+          "sharps-bin",
+          "biohazard-trash",
+          "supply-cabinet",
+          "hand-sanitizer",
+          "privacy-curtain",
+          "wall-clock",
+          "ceiling-exam-light",
+          "doorway-station-sign",
+          "floor-scuff-path",
+          "infection-control-sign",
+          "patient-handoff-whiteboard",
+          "supply-drawer-labels",
+          "privacy-zone-floor-tape",
+          "curtain-track-rings",
+          "ekg-leads-on-bed",
+          "monitor-lead-cable",
+          "patient-blanket",
+          "bed-wheel-locks",
+          "clipboard-case-notes",
+          "iv-tubing-line",
+          "monitor-waveform-card",
+          "monitor-vitals-badge",
+          "ecg-paper-strip",
+          "nurse-task-tray",
+          "doorway-escalation-badge",
+          "trash-liner-fold",
+          "call-light-remote"
+        ],
+        "storageBackedBundle": false,
+        "productionReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "learnerGate": {
+        "canUseGeneratedBundleForLearnerRuntime": false,
+        "blockers": [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle",
+          "quest_runtime_evidence_not_attached_to_encounter_bundle"
+        ],
+        "pendingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "attachedGateIds": [],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "source": "window.__openClinXrLearnerRuntimeUseGateEvidence",
+        "bundleId": "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "assetStoreKind": "app_public_fixture",
+        "activeBundleSource": "local_fixture_fallback",
+        "generatedBundleLearnerUseBlocked": false,
+        "fallbackActive": true,
+        "fallbackReason": null,
+        "requiredGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "blockingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "approvedLocalFixtureOnly": true,
+        "claimBoundary": "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach"
+      }
+    },
+    {
+      "iteration": 5,
+      "visibleCount": 365,
+      "hiddenCount": 97,
+      "suspectedVisibleClutter": [
+        {
+          "name": "openclinxr.ed-chest-pain.phoneme-mouth-cue.neutral_generated_humanoid_model_glb",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": [
+            "phoneme_viseme_dialogue_cue",
+            "visible_runtime_mouth_shape_cue"
+          ]
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.eye-gaze-cue.neutral_generated_humanoid_model_glb",
+          "type": "Line",
+          "visible": true,
+          "policy": null,
+          "affordances": [
+            "dialogue_gaze_target_cue"
+          ]
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.eye-focus-cue.neutral_generated_humanoid_model_glb",
+          "type": "Group",
+          "visible": true,
+          "policy": null,
+          "affordances": [
+            "dialogue_eye_focus_target_cue",
+            "visible_runtime_eye_focus_cue"
+          ]
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.runtime-expression-cue.neutral_generated_humanoid_model_glb",
+          "type": "Group",
+          "visible": true,
+          "policy": null,
+          "affordances": [
+            "scenario_emotion_expression_cue",
+            "visible_runtime_eyebrow_jaw_cheek_cue"
+          ]
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        }
+      ],
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 1069.8,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      },
+      "manifestEvidence": {
+        "source": "learner_runtime_asset_bundle_scene_manifest",
+        "manifestId": "ed_chest_pain_runtime_scene_manifest_v1",
+        "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+        "roomPropCount": 30,
+        "semanticRoomPropCount": 30,
+        "actorPlacementCount": 3,
+        "equipmentPlacementCount": 2,
+        "dialogueTurnCount": 6,
+        "virtualDeviceActorCount": 0,
+        "virtualDeviceDialogueRoutedCount": 0,
+        "generatedBySceneManifestCount": 30,
+        "propIds": [
+          "oxygen-panel",
+          "suction-canister",
+          "glove-box-stack",
+          "sharps-bin",
+          "biohazard-trash",
+          "supply-cabinet",
+          "hand-sanitizer",
+          "privacy-curtain",
+          "wall-clock",
+          "ceiling-exam-light",
+          "doorway-station-sign",
+          "floor-scuff-path",
+          "infection-control-sign",
+          "patient-handoff-whiteboard",
+          "supply-drawer-labels",
+          "privacy-zone-floor-tape",
+          "curtain-track-rings",
+          "ekg-leads-on-bed",
+          "monitor-lead-cable",
+          "patient-blanket",
+          "bed-wheel-locks",
+          "clipboard-case-notes",
+          "iv-tubing-line",
+          "monitor-waveform-card",
+          "monitor-vitals-badge",
+          "ecg-paper-strip",
+          "nurse-task-tray",
+          "doorway-escalation-badge",
+          "trash-liner-fold",
+          "call-light-remote"
+        ],
+        "storageBackedBundle": false,
+        "productionReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "learnerGate": {
+        "canUseGeneratedBundleForLearnerRuntime": false,
+        "blockers": [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle",
+          "quest_runtime_evidence_not_attached_to_encounter_bundle"
+        ],
+        "pendingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "attachedGateIds": [],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "source": "window.__openClinXrLearnerRuntimeUseGateEvidence",
+        "bundleId": "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "assetStoreKind": "app_public_fixture",
+        "activeBundleSource": "local_fixture_fallback",
+        "generatedBundleLearnerUseBlocked": false,
+        "fallbackActive": true,
+        "fallbackReason": null,
+        "requiredGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "blockingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "approvedLocalFixtureOnly": true,
+        "claimBoundary": "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach"
+      }
+    },
+    {
+      "iteration": 6,
+      "visibleCount": 361,
+      "hiddenCount": 101,
+      "suspectedVisibleClutter": [
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        }
+      ],
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 1069.8,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      },
+      "manifestEvidence": {
+        "source": "learner_runtime_asset_bundle_scene_manifest",
+        "manifestId": "ed_chest_pain_runtime_scene_manifest_v1",
+        "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+        "roomPropCount": 30,
+        "semanticRoomPropCount": 30,
+        "actorPlacementCount": 3,
+        "equipmentPlacementCount": 2,
+        "dialogueTurnCount": 6,
+        "virtualDeviceActorCount": 0,
+        "virtualDeviceDialogueRoutedCount": 0,
+        "generatedBySceneManifestCount": 30,
+        "propIds": [
+          "oxygen-panel",
+          "suction-canister",
+          "glove-box-stack",
+          "sharps-bin",
+          "biohazard-trash",
+          "supply-cabinet",
+          "hand-sanitizer",
+          "privacy-curtain",
+          "wall-clock",
+          "ceiling-exam-light",
+          "doorway-station-sign",
+          "floor-scuff-path",
+          "infection-control-sign",
+          "patient-handoff-whiteboard",
+          "supply-drawer-labels",
+          "privacy-zone-floor-tape",
+          "curtain-track-rings",
+          "ekg-leads-on-bed",
+          "monitor-lead-cable",
+          "patient-blanket",
+          "bed-wheel-locks",
+          "clipboard-case-notes",
+          "iv-tubing-line",
+          "monitor-waveform-card",
+          "monitor-vitals-badge",
+          "ecg-paper-strip",
+          "nurse-task-tray",
+          "doorway-escalation-badge",
+          "trash-liner-fold",
+          "call-light-remote"
+        ],
+        "storageBackedBundle": false,
+        "productionReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "learnerGate": {
+        "canUseGeneratedBundleForLearnerRuntime": false,
+        "blockers": [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle",
+          "quest_runtime_evidence_not_attached_to_encounter_bundle"
+        ],
+        "pendingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "attachedGateIds": [],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "source": "window.__openClinXrLearnerRuntimeUseGateEvidence",
+        "bundleId": "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "assetStoreKind": "app_public_fixture",
+        "activeBundleSource": "local_fixture_fallback",
+        "generatedBundleLearnerUseBlocked": false,
+        "fallbackActive": true,
+        "fallbackReason": null,
+        "requiredGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "blockingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "approvedLocalFixtureOnly": true,
+        "claimBoundary": "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach"
+      }
+    },
+    {
+      "iteration": 7,
+      "visibleCount": 361,
+      "hiddenCount": 101,
+      "suspectedVisibleClutter": [
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        }
+      ],
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 1069.8,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      },
+      "manifestEvidence": {
+        "source": "learner_runtime_asset_bundle_scene_manifest",
+        "manifestId": "ed_chest_pain_runtime_scene_manifest_v1",
+        "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+        "roomPropCount": 30,
+        "semanticRoomPropCount": 30,
+        "actorPlacementCount": 3,
+        "equipmentPlacementCount": 2,
+        "dialogueTurnCount": 6,
+        "virtualDeviceActorCount": 0,
+        "virtualDeviceDialogueRoutedCount": 0,
+        "generatedBySceneManifestCount": 30,
+        "propIds": [
+          "oxygen-panel",
+          "suction-canister",
+          "glove-box-stack",
+          "sharps-bin",
+          "biohazard-trash",
+          "supply-cabinet",
+          "hand-sanitizer",
+          "privacy-curtain",
+          "wall-clock",
+          "ceiling-exam-light",
+          "doorway-station-sign",
+          "floor-scuff-path",
+          "infection-control-sign",
+          "patient-handoff-whiteboard",
+          "supply-drawer-labels",
+          "privacy-zone-floor-tape",
+          "curtain-track-rings",
+          "ekg-leads-on-bed",
+          "monitor-lead-cable",
+          "patient-blanket",
+          "bed-wheel-locks",
+          "clipboard-case-notes",
+          "iv-tubing-line",
+          "monitor-waveform-card",
+          "monitor-vitals-badge",
+          "ecg-paper-strip",
+          "nurse-task-tray",
+          "doorway-escalation-badge",
+          "trash-liner-fold",
+          "call-light-remote"
+        ],
+        "storageBackedBundle": false,
+        "productionReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "learnerGate": {
+        "canUseGeneratedBundleForLearnerRuntime": false,
+        "blockers": [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle",
+          "quest_runtime_evidence_not_attached_to_encounter_bundle"
+        ],
+        "pendingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "attachedGateIds": [],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "source": "window.__openClinXrLearnerRuntimeUseGateEvidence",
+        "bundleId": "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "assetStoreKind": "app_public_fixture",
+        "activeBundleSource": "local_fixture_fallback",
+        "generatedBundleLearnerUseBlocked": false,
+        "fallbackActive": true,
+        "fallbackReason": null,
+        "requiredGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "blockingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "approvedLocalFixtureOnly": true,
+        "claimBoundary": "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach"
+      }
+    },
+    {
+      "iteration": 8,
+      "visibleCount": 361,
+      "hiddenCount": 101,
+      "suspectedVisibleClutter": [
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        }
+      ],
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 1069.8,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      },
+      "manifestEvidence": {
+        "source": "learner_runtime_asset_bundle_scene_manifest",
+        "manifestId": "ed_chest_pain_runtime_scene_manifest_v1",
+        "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+        "roomPropCount": 30,
+        "semanticRoomPropCount": 30,
+        "actorPlacementCount": 3,
+        "equipmentPlacementCount": 2,
+        "dialogueTurnCount": 6,
+        "virtualDeviceActorCount": 0,
+        "virtualDeviceDialogueRoutedCount": 0,
+        "generatedBySceneManifestCount": 30,
+        "propIds": [
+          "oxygen-panel",
+          "suction-canister",
+          "glove-box-stack",
+          "sharps-bin",
+          "biohazard-trash",
+          "supply-cabinet",
+          "hand-sanitizer",
+          "privacy-curtain",
+          "wall-clock",
+          "ceiling-exam-light",
+          "doorway-station-sign",
+          "floor-scuff-path",
+          "infection-control-sign",
+          "patient-handoff-whiteboard",
+          "supply-drawer-labels",
+          "privacy-zone-floor-tape",
+          "curtain-track-rings",
+          "ekg-leads-on-bed",
+          "monitor-lead-cable",
+          "patient-blanket",
+          "bed-wheel-locks",
+          "clipboard-case-notes",
+          "iv-tubing-line",
+          "monitor-waveform-card",
+          "monitor-vitals-badge",
+          "ecg-paper-strip",
+          "nurse-task-tray",
+          "doorway-escalation-badge",
+          "trash-liner-fold",
+          "call-light-remote"
+        ],
+        "storageBackedBundle": false,
+        "productionReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "learnerGate": {
+        "canUseGeneratedBundleForLearnerRuntime": false,
+        "blockers": [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle",
+          "quest_runtime_evidence_not_attached_to_encounter_bundle"
+        ],
+        "pendingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "attachedGateIds": [],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "source": "window.__openClinXrLearnerRuntimeUseGateEvidence",
+        "bundleId": "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "assetStoreKind": "app_public_fixture",
+        "activeBundleSource": "local_fixture_fallback",
+        "generatedBundleLearnerUseBlocked": false,
+        "fallbackActive": true,
+        "fallbackReason": null,
+        "requiredGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "blockingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "approvedLocalFixtureOnly": true,
+        "claimBoundary": "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach"
+      }
+    },
+    {
+      "iteration": 9,
+      "visibleCount": 361,
+      "hiddenCount": 101,
+      "suspectedVisibleClutter": [
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        }
+      ],
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 1069.8,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      },
+      "manifestEvidence": {
+        "source": "learner_runtime_asset_bundle_scene_manifest",
+        "manifestId": "ed_chest_pain_runtime_scene_manifest_v1",
+        "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+        "roomPropCount": 30,
+        "semanticRoomPropCount": 30,
+        "actorPlacementCount": 3,
+        "equipmentPlacementCount": 2,
+        "dialogueTurnCount": 6,
+        "virtualDeviceActorCount": 0,
+        "virtualDeviceDialogueRoutedCount": 0,
+        "generatedBySceneManifestCount": 30,
+        "propIds": [
+          "oxygen-panel",
+          "suction-canister",
+          "glove-box-stack",
+          "sharps-bin",
+          "biohazard-trash",
+          "supply-cabinet",
+          "hand-sanitizer",
+          "privacy-curtain",
+          "wall-clock",
+          "ceiling-exam-light",
+          "doorway-station-sign",
+          "floor-scuff-path",
+          "infection-control-sign",
+          "patient-handoff-whiteboard",
+          "supply-drawer-labels",
+          "privacy-zone-floor-tape",
+          "curtain-track-rings",
+          "ekg-leads-on-bed",
+          "monitor-lead-cable",
+          "patient-blanket",
+          "bed-wheel-locks",
+          "clipboard-case-notes",
+          "iv-tubing-line",
+          "monitor-waveform-card",
+          "monitor-vitals-badge",
+          "ecg-paper-strip",
+          "nurse-task-tray",
+          "doorway-escalation-badge",
+          "trash-liner-fold",
+          "call-light-remote"
+        ],
+        "storageBackedBundle": false,
+        "productionReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "learnerGate": {
+        "canUseGeneratedBundleForLearnerRuntime": false,
+        "blockers": [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle",
+          "quest_runtime_evidence_not_attached_to_encounter_bundle"
+        ],
+        "pendingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "attachedGateIds": [],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "source": "window.__openClinXrLearnerRuntimeUseGateEvidence",
+        "bundleId": "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "assetStoreKind": "app_public_fixture",
+        "activeBundleSource": "local_fixture_fallback",
+        "generatedBundleLearnerUseBlocked": false,
+        "fallbackActive": true,
+        "fallbackReason": null,
+        "requiredGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "blockingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "approvedLocalFixtureOnly": true,
+        "claimBoundary": "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach"
+      }
+    },
+    {
+      "iteration": 10,
+      "visibleCount": 361,
+      "hiddenCount": 101,
+      "suspectedVisibleClutter": [
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        }
+      ],
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 1069.8,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      },
+      "manifestEvidence": {
+        "source": "learner_runtime_asset_bundle_scene_manifest",
+        "manifestId": "ed_chest_pain_runtime_scene_manifest_v1",
+        "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+        "roomPropCount": 30,
+        "semanticRoomPropCount": 30,
+        "actorPlacementCount": 3,
+        "equipmentPlacementCount": 2,
+        "dialogueTurnCount": 6,
+        "virtualDeviceActorCount": 0,
+        "virtualDeviceDialogueRoutedCount": 0,
+        "generatedBySceneManifestCount": 30,
+        "propIds": [
+          "oxygen-panel",
+          "suction-canister",
+          "glove-box-stack",
+          "sharps-bin",
+          "biohazard-trash",
+          "supply-cabinet",
+          "hand-sanitizer",
+          "privacy-curtain",
+          "wall-clock",
+          "ceiling-exam-light",
+          "doorway-station-sign",
+          "floor-scuff-path",
+          "infection-control-sign",
+          "patient-handoff-whiteboard",
+          "supply-drawer-labels",
+          "privacy-zone-floor-tape",
+          "curtain-track-rings",
+          "ekg-leads-on-bed",
+          "monitor-lead-cable",
+          "patient-blanket",
+          "bed-wheel-locks",
+          "clipboard-case-notes",
+          "iv-tubing-line",
+          "monitor-waveform-card",
+          "monitor-vitals-badge",
+          "ecg-paper-strip",
+          "nurse-task-tray",
+          "doorway-escalation-badge",
+          "trash-liner-fold",
+          "call-light-remote"
+        ],
+        "storageBackedBundle": false,
+        "productionReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "learnerGate": {
+        "canUseGeneratedBundleForLearnerRuntime": false,
+        "blockers": [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle",
+          "quest_runtime_evidence_not_attached_to_encounter_bundle"
+        ],
+        "pendingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "attachedGateIds": [],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "source": "window.__openClinXrLearnerRuntimeUseGateEvidence",
+        "bundleId": "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "assetStoreKind": "app_public_fixture",
+        "activeBundleSource": "local_fixture_fallback",
+        "generatedBundleLearnerUseBlocked": false,
+        "fallbackActive": true,
+        "fallbackReason": null,
+        "requiredGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "blockingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "approvedLocalFixtureOnly": true,
+        "claimBoundary": "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach"
+      }
+    },
+    {
+      "iteration": 11,
+      "visibleCount": 361,
+      "hiddenCount": 101,
+      "suspectedVisibleClutter": [
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        }
+      ],
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 1069.8,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      },
+      "manifestEvidence": {
+        "source": "learner_runtime_asset_bundle_scene_manifest",
+        "manifestId": "ed_chest_pain_runtime_scene_manifest_v1",
+        "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+        "roomPropCount": 30,
+        "semanticRoomPropCount": 30,
+        "actorPlacementCount": 3,
+        "equipmentPlacementCount": 2,
+        "dialogueTurnCount": 6,
+        "virtualDeviceActorCount": 0,
+        "virtualDeviceDialogueRoutedCount": 0,
+        "generatedBySceneManifestCount": 30,
+        "propIds": [
+          "oxygen-panel",
+          "suction-canister",
+          "glove-box-stack",
+          "sharps-bin",
+          "biohazard-trash",
+          "supply-cabinet",
+          "hand-sanitizer",
+          "privacy-curtain",
+          "wall-clock",
+          "ceiling-exam-light",
+          "doorway-station-sign",
+          "floor-scuff-path",
+          "infection-control-sign",
+          "patient-handoff-whiteboard",
+          "supply-drawer-labels",
+          "privacy-zone-floor-tape",
+          "curtain-track-rings",
+          "ekg-leads-on-bed",
+          "monitor-lead-cable",
+          "patient-blanket",
+          "bed-wheel-locks",
+          "clipboard-case-notes",
+          "iv-tubing-line",
+          "monitor-waveform-card",
+          "monitor-vitals-badge",
+          "ecg-paper-strip",
+          "nurse-task-tray",
+          "doorway-escalation-badge",
+          "trash-liner-fold",
+          "call-light-remote"
+        ],
+        "storageBackedBundle": false,
+        "productionReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "learnerGate": {
+        "canUseGeneratedBundleForLearnerRuntime": false,
+        "blockers": [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle",
+          "quest_runtime_evidence_not_attached_to_encounter_bundle"
+        ],
+        "pendingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "attachedGateIds": [],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "source": "window.__openClinXrLearnerRuntimeUseGateEvidence",
+        "bundleId": "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "assetStoreKind": "app_public_fixture",
+        "activeBundleSource": "local_fixture_fallback",
+        "generatedBundleLearnerUseBlocked": false,
+        "fallbackActive": true,
+        "fallbackReason": null,
+        "requiredGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "blockingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "approvedLocalFixtureOnly": true,
+        "claimBoundary": "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach"
+      }
+    },
+    {
+      "iteration": 12,
+      "visibleCount": 361,
+      "hiddenCount": 101,
+      "suspectedVisibleClutter": [
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        }
+      ],
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 1069.8,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      },
+      "manifestEvidence": {
+        "source": "learner_runtime_asset_bundle_scene_manifest",
+        "manifestId": "ed_chest_pain_runtime_scene_manifest_v1",
+        "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+        "roomPropCount": 30,
+        "semanticRoomPropCount": 30,
+        "actorPlacementCount": 3,
+        "equipmentPlacementCount": 2,
+        "dialogueTurnCount": 6,
+        "virtualDeviceActorCount": 0,
+        "virtualDeviceDialogueRoutedCount": 0,
+        "generatedBySceneManifestCount": 30,
+        "propIds": [
+          "oxygen-panel",
+          "suction-canister",
+          "glove-box-stack",
+          "sharps-bin",
+          "biohazard-trash",
+          "supply-cabinet",
+          "hand-sanitizer",
+          "privacy-curtain",
+          "wall-clock",
+          "ceiling-exam-light",
+          "doorway-station-sign",
+          "floor-scuff-path",
+          "infection-control-sign",
+          "patient-handoff-whiteboard",
+          "supply-drawer-labels",
+          "privacy-zone-floor-tape",
+          "curtain-track-rings",
+          "ekg-leads-on-bed",
+          "monitor-lead-cable",
+          "patient-blanket",
+          "bed-wheel-locks",
+          "clipboard-case-notes",
+          "iv-tubing-line",
+          "monitor-waveform-card",
+          "monitor-vitals-badge",
+          "ecg-paper-strip",
+          "nurse-task-tray",
+          "doorway-escalation-badge",
+          "trash-liner-fold",
+          "call-light-remote"
+        ],
+        "storageBackedBundle": false,
+        "productionReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "learnerGate": {
+        "canUseGeneratedBundleForLearnerRuntime": false,
+        "blockers": [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle",
+          "quest_runtime_evidence_not_attached_to_encounter_bundle"
+        ],
+        "pendingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "attachedGateIds": [],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "source": "window.__openClinXrLearnerRuntimeUseGateEvidence",
+        "bundleId": "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "assetStoreKind": "app_public_fixture",
+        "activeBundleSource": "local_fixture_fallback",
+        "generatedBundleLearnerUseBlocked": false,
+        "fallbackActive": true,
+        "fallbackReason": null,
+        "requiredGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "blockingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "approvedLocalFixtureOnly": true,
+        "claimBoundary": "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach"
+      }
+    },
+    {
+      "iteration": 13,
+      "visibleCount": 361,
+      "hiddenCount": 101,
+      "suspectedVisibleClutter": [
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        }
+      ],
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 1069.8,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      },
+      "manifestEvidence": {
+        "source": "learner_runtime_asset_bundle_scene_manifest",
+        "manifestId": "ed_chest_pain_runtime_scene_manifest_v1",
+        "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+        "roomPropCount": 30,
+        "semanticRoomPropCount": 30,
+        "actorPlacementCount": 3,
+        "equipmentPlacementCount": 2,
+        "dialogueTurnCount": 6,
+        "virtualDeviceActorCount": 0,
+        "virtualDeviceDialogueRoutedCount": 0,
+        "generatedBySceneManifestCount": 30,
+        "propIds": [
+          "oxygen-panel",
+          "suction-canister",
+          "glove-box-stack",
+          "sharps-bin",
+          "biohazard-trash",
+          "supply-cabinet",
+          "hand-sanitizer",
+          "privacy-curtain",
+          "wall-clock",
+          "ceiling-exam-light",
+          "doorway-station-sign",
+          "floor-scuff-path",
+          "infection-control-sign",
+          "patient-handoff-whiteboard",
+          "supply-drawer-labels",
+          "privacy-zone-floor-tape",
+          "curtain-track-rings",
+          "ekg-leads-on-bed",
+          "monitor-lead-cable",
+          "patient-blanket",
+          "bed-wheel-locks",
+          "clipboard-case-notes",
+          "iv-tubing-line",
+          "monitor-waveform-card",
+          "monitor-vitals-badge",
+          "ecg-paper-strip",
+          "nurse-task-tray",
+          "doorway-escalation-badge",
+          "trash-liner-fold",
+          "call-light-remote"
+        ],
+        "storageBackedBundle": false,
+        "productionReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "learnerGate": {
+        "canUseGeneratedBundleForLearnerRuntime": false,
+        "blockers": [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle",
+          "quest_runtime_evidence_not_attached_to_encounter_bundle"
+        ],
+        "pendingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "attachedGateIds": [],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "source": "window.__openClinXrLearnerRuntimeUseGateEvidence",
+        "bundleId": "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "assetStoreKind": "app_public_fixture",
+        "activeBundleSource": "local_fixture_fallback",
+        "generatedBundleLearnerUseBlocked": false,
+        "fallbackActive": true,
+        "fallbackReason": null,
+        "requiredGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "blockingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "approvedLocalFixtureOnly": true,
+        "claimBoundary": "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach"
+      }
+    },
+    {
+      "iteration": 14,
+      "visibleCount": 361,
+      "hiddenCount": 101,
+      "suspectedVisibleClutter": [
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        }
+      ],
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 1069.8,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      },
+      "manifestEvidence": {
+        "source": "learner_runtime_asset_bundle_scene_manifest",
+        "manifestId": "ed_chest_pain_runtime_scene_manifest_v1",
+        "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+        "roomPropCount": 30,
+        "semanticRoomPropCount": 30,
+        "actorPlacementCount": 3,
+        "equipmentPlacementCount": 2,
+        "dialogueTurnCount": 6,
+        "virtualDeviceActorCount": 0,
+        "virtualDeviceDialogueRoutedCount": 0,
+        "generatedBySceneManifestCount": 30,
+        "propIds": [
+          "oxygen-panel",
+          "suction-canister",
+          "glove-box-stack",
+          "sharps-bin",
+          "biohazard-trash",
+          "supply-cabinet",
+          "hand-sanitizer",
+          "privacy-curtain",
+          "wall-clock",
+          "ceiling-exam-light",
+          "doorway-station-sign",
+          "floor-scuff-path",
+          "infection-control-sign",
+          "patient-handoff-whiteboard",
+          "supply-drawer-labels",
+          "privacy-zone-floor-tape",
+          "curtain-track-rings",
+          "ekg-leads-on-bed",
+          "monitor-lead-cable",
+          "patient-blanket",
+          "bed-wheel-locks",
+          "clipboard-case-notes",
+          "iv-tubing-line",
+          "monitor-waveform-card",
+          "monitor-vitals-badge",
+          "ecg-paper-strip",
+          "nurse-task-tray",
+          "doorway-escalation-badge",
+          "trash-liner-fold",
+          "call-light-remote"
+        ],
+        "storageBackedBundle": false,
+        "productionReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "learnerGate": {
+        "canUseGeneratedBundleForLearnerRuntime": false,
+        "blockers": [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle",
+          "quest_runtime_evidence_not_attached_to_encounter_bundle"
+        ],
+        "pendingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "attachedGateIds": [],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "source": "window.__openClinXrLearnerRuntimeUseGateEvidence",
+        "bundleId": "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "assetStoreKind": "app_public_fixture",
+        "activeBundleSource": "local_fixture_fallback",
+        "generatedBundleLearnerUseBlocked": false,
+        "fallbackActive": true,
+        "fallbackReason": null,
+        "requiredGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "blockingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "approvedLocalFixtureOnly": true,
+        "claimBoundary": "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach"
+      }
+    },
+    {
+      "iteration": 15,
+      "visibleCount": 361,
+      "hiddenCount": 101,
+      "suspectedVisibleClutter": [
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        }
+      ],
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 1069.8,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      },
+      "manifestEvidence": {
+        "source": "learner_runtime_asset_bundle_scene_manifest",
+        "manifestId": "ed_chest_pain_runtime_scene_manifest_v1",
+        "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+        "roomPropCount": 30,
+        "semanticRoomPropCount": 30,
+        "actorPlacementCount": 3,
+        "equipmentPlacementCount": 2,
+        "dialogueTurnCount": 6,
+        "virtualDeviceActorCount": 0,
+        "virtualDeviceDialogueRoutedCount": 0,
+        "generatedBySceneManifestCount": 30,
+        "propIds": [
+          "oxygen-panel",
+          "suction-canister",
+          "glove-box-stack",
+          "sharps-bin",
+          "biohazard-trash",
+          "supply-cabinet",
+          "hand-sanitizer",
+          "privacy-curtain",
+          "wall-clock",
+          "ceiling-exam-light",
+          "doorway-station-sign",
+          "floor-scuff-path",
+          "infection-control-sign",
+          "patient-handoff-whiteboard",
+          "supply-drawer-labels",
+          "privacy-zone-floor-tape",
+          "curtain-track-rings",
+          "ekg-leads-on-bed",
+          "monitor-lead-cable",
+          "patient-blanket",
+          "bed-wheel-locks",
+          "clipboard-case-notes",
+          "iv-tubing-line",
+          "monitor-waveform-card",
+          "monitor-vitals-badge",
+          "ecg-paper-strip",
+          "nurse-task-tray",
+          "doorway-escalation-badge",
+          "trash-liner-fold",
+          "call-light-remote"
+        ],
+        "storageBackedBundle": false,
+        "productionReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "learnerGate": {
+        "canUseGeneratedBundleForLearnerRuntime": false,
+        "blockers": [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle",
+          "quest_runtime_evidence_not_attached_to_encounter_bundle"
+        ],
+        "pendingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "attachedGateIds": [],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "source": "window.__openClinXrLearnerRuntimeUseGateEvidence",
+        "bundleId": "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "assetStoreKind": "app_public_fixture",
+        "activeBundleSource": "local_fixture_fallback",
+        "generatedBundleLearnerUseBlocked": false,
+        "fallbackActive": true,
+        "fallbackReason": null,
+        "requiredGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "blockingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "approvedLocalFixtureOnly": true,
+        "claimBoundary": "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach"
+      }
+    },
+    {
+      "iteration": 16,
+      "visibleCount": 361,
+      "hiddenCount": 101,
+      "suspectedVisibleClutter": [
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        }
+      ],
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 1069.8,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      },
+      "manifestEvidence": {
+        "source": "learner_runtime_asset_bundle_scene_manifest",
+        "manifestId": "ed_chest_pain_runtime_scene_manifest_v1",
+        "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+        "roomPropCount": 30,
+        "semanticRoomPropCount": 30,
+        "actorPlacementCount": 3,
+        "equipmentPlacementCount": 2,
+        "dialogueTurnCount": 6,
+        "virtualDeviceActorCount": 0,
+        "virtualDeviceDialogueRoutedCount": 0,
+        "generatedBySceneManifestCount": 30,
+        "propIds": [
+          "oxygen-panel",
+          "suction-canister",
+          "glove-box-stack",
+          "sharps-bin",
+          "biohazard-trash",
+          "supply-cabinet",
+          "hand-sanitizer",
+          "privacy-curtain",
+          "wall-clock",
+          "ceiling-exam-light",
+          "doorway-station-sign",
+          "floor-scuff-path",
+          "infection-control-sign",
+          "patient-handoff-whiteboard",
+          "supply-drawer-labels",
+          "privacy-zone-floor-tape",
+          "curtain-track-rings",
+          "ekg-leads-on-bed",
+          "monitor-lead-cable",
+          "patient-blanket",
+          "bed-wheel-locks",
+          "clipboard-case-notes",
+          "iv-tubing-line",
+          "monitor-waveform-card",
+          "monitor-vitals-badge",
+          "ecg-paper-strip",
+          "nurse-task-tray",
+          "doorway-escalation-badge",
+          "trash-liner-fold",
+          "call-light-remote"
+        ],
+        "storageBackedBundle": false,
+        "productionReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "learnerGate": {
+        "canUseGeneratedBundleForLearnerRuntime": false,
+        "blockers": [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle",
+          "quest_runtime_evidence_not_attached_to_encounter_bundle"
+        ],
+        "pendingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "attachedGateIds": [],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "source": "window.__openClinXrLearnerRuntimeUseGateEvidence",
+        "bundleId": "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "assetStoreKind": "app_public_fixture",
+        "activeBundleSource": "local_fixture_fallback",
+        "generatedBundleLearnerUseBlocked": false,
+        "fallbackActive": true,
+        "fallbackReason": null,
+        "requiredGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "blockingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "approvedLocalFixtureOnly": true,
+        "claimBoundary": "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach"
+      }
+    },
+    {
+      "iteration": 17,
+      "visibleCount": 361,
+      "hiddenCount": 101,
+      "suspectedVisibleClutter": [
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        }
+      ],
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 1069.8,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      },
+      "manifestEvidence": {
+        "source": "learner_runtime_asset_bundle_scene_manifest",
+        "manifestId": "ed_chest_pain_runtime_scene_manifest_v1",
+        "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+        "roomPropCount": 30,
+        "semanticRoomPropCount": 30,
+        "actorPlacementCount": 3,
+        "equipmentPlacementCount": 2,
+        "dialogueTurnCount": 6,
+        "virtualDeviceActorCount": 0,
+        "virtualDeviceDialogueRoutedCount": 0,
+        "generatedBySceneManifestCount": 30,
+        "propIds": [
+          "oxygen-panel",
+          "suction-canister",
+          "glove-box-stack",
+          "sharps-bin",
+          "biohazard-trash",
+          "supply-cabinet",
+          "hand-sanitizer",
+          "privacy-curtain",
+          "wall-clock",
+          "ceiling-exam-light",
+          "doorway-station-sign",
+          "floor-scuff-path",
+          "infection-control-sign",
+          "patient-handoff-whiteboard",
+          "supply-drawer-labels",
+          "privacy-zone-floor-tape",
+          "curtain-track-rings",
+          "ekg-leads-on-bed",
+          "monitor-lead-cable",
+          "patient-blanket",
+          "bed-wheel-locks",
+          "clipboard-case-notes",
+          "iv-tubing-line",
+          "monitor-waveform-card",
+          "monitor-vitals-badge",
+          "ecg-paper-strip",
+          "nurse-task-tray",
+          "doorway-escalation-badge",
+          "trash-liner-fold",
+          "call-light-remote"
+        ],
+        "storageBackedBundle": false,
+        "productionReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "learnerGate": {
+        "canUseGeneratedBundleForLearnerRuntime": false,
+        "blockers": [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle",
+          "quest_runtime_evidence_not_attached_to_encounter_bundle"
+        ],
+        "pendingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "attachedGateIds": [],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "source": "window.__openClinXrLearnerRuntimeUseGateEvidence",
+        "bundleId": "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "assetStoreKind": "app_public_fixture",
+        "activeBundleSource": "local_fixture_fallback",
+        "generatedBundleLearnerUseBlocked": false,
+        "fallbackActive": true,
+        "fallbackReason": null,
+        "requiredGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "blockingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "approvedLocalFixtureOnly": true,
+        "claimBoundary": "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach"
+      }
+    },
+    {
+      "iteration": 18,
+      "visibleCount": 361,
+      "hiddenCount": 101,
+      "suspectedVisibleClutter": [
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        }
+      ],
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 1069.8,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      },
+      "manifestEvidence": {
+        "source": "learner_runtime_asset_bundle_scene_manifest",
+        "manifestId": "ed_chest_pain_runtime_scene_manifest_v1",
+        "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+        "roomPropCount": 30,
+        "semanticRoomPropCount": 30,
+        "actorPlacementCount": 3,
+        "equipmentPlacementCount": 2,
+        "dialogueTurnCount": 6,
+        "virtualDeviceActorCount": 0,
+        "virtualDeviceDialogueRoutedCount": 0,
+        "generatedBySceneManifestCount": 30,
+        "propIds": [
+          "oxygen-panel",
+          "suction-canister",
+          "glove-box-stack",
+          "sharps-bin",
+          "biohazard-trash",
+          "supply-cabinet",
+          "hand-sanitizer",
+          "privacy-curtain",
+          "wall-clock",
+          "ceiling-exam-light",
+          "doorway-station-sign",
+          "floor-scuff-path",
+          "infection-control-sign",
+          "patient-handoff-whiteboard",
+          "supply-drawer-labels",
+          "privacy-zone-floor-tape",
+          "curtain-track-rings",
+          "ekg-leads-on-bed",
+          "monitor-lead-cable",
+          "patient-blanket",
+          "bed-wheel-locks",
+          "clipboard-case-notes",
+          "iv-tubing-line",
+          "monitor-waveform-card",
+          "monitor-vitals-badge",
+          "ecg-paper-strip",
+          "nurse-task-tray",
+          "doorway-escalation-badge",
+          "trash-liner-fold",
+          "call-light-remote"
+        ],
+        "storageBackedBundle": false,
+        "productionReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "learnerGate": {
+        "canUseGeneratedBundleForLearnerRuntime": false,
+        "blockers": [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle",
+          "quest_runtime_evidence_not_attached_to_encounter_bundle"
+        ],
+        "pendingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "attachedGateIds": [],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "source": "window.__openClinXrLearnerRuntimeUseGateEvidence",
+        "bundleId": "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "assetStoreKind": "app_public_fixture",
+        "activeBundleSource": "local_fixture_fallback",
+        "generatedBundleLearnerUseBlocked": false,
+        "fallbackActive": true,
+        "fallbackReason": null,
+        "requiredGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "blockingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "approvedLocalFixtureOnly": true,
+        "claimBoundary": "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach"
+      }
+    },
+    {
+      "iteration": 19,
+      "visibleCount": 361,
+      "hiddenCount": 101,
+      "suspectedVisibleClutter": [
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        }
+      ],
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 1069.8,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      },
+      "manifestEvidence": {
+        "source": "learner_runtime_asset_bundle_scene_manifest",
+        "manifestId": "ed_chest_pain_runtime_scene_manifest_v1",
+        "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+        "roomPropCount": 30,
+        "semanticRoomPropCount": 30,
+        "actorPlacementCount": 3,
+        "equipmentPlacementCount": 2,
+        "dialogueTurnCount": 6,
+        "virtualDeviceActorCount": 0,
+        "virtualDeviceDialogueRoutedCount": 0,
+        "generatedBySceneManifestCount": 30,
+        "propIds": [
+          "oxygen-panel",
+          "suction-canister",
+          "glove-box-stack",
+          "sharps-bin",
+          "biohazard-trash",
+          "supply-cabinet",
+          "hand-sanitizer",
+          "privacy-curtain",
+          "wall-clock",
+          "ceiling-exam-light",
+          "doorway-station-sign",
+          "floor-scuff-path",
+          "infection-control-sign",
+          "patient-handoff-whiteboard",
+          "supply-drawer-labels",
+          "privacy-zone-floor-tape",
+          "curtain-track-rings",
+          "ekg-leads-on-bed",
+          "monitor-lead-cable",
+          "patient-blanket",
+          "bed-wheel-locks",
+          "clipboard-case-notes",
+          "iv-tubing-line",
+          "monitor-waveform-card",
+          "monitor-vitals-badge",
+          "ecg-paper-strip",
+          "nurse-task-tray",
+          "doorway-escalation-badge",
+          "trash-liner-fold",
+          "call-light-remote"
+        ],
+        "storageBackedBundle": false,
+        "productionReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "learnerGate": {
+        "canUseGeneratedBundleForLearnerRuntime": false,
+        "blockers": [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle",
+          "quest_runtime_evidence_not_attached_to_encounter_bundle"
+        ],
+        "pendingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "attachedGateIds": [],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "source": "window.__openClinXrLearnerRuntimeUseGateEvidence",
+        "bundleId": "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "assetStoreKind": "app_public_fixture",
+        "activeBundleSource": "local_fixture_fallback",
+        "generatedBundleLearnerUseBlocked": false,
+        "fallbackActive": true,
+        "fallbackReason": null,
+        "requiredGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "blockingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "approvedLocalFixtureOnly": true,
+        "claimBoundary": "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach"
+      }
+    },
+    {
+      "iteration": 20,
+      "visibleCount": 361,
+      "hiddenCount": 101,
+      "suspectedVisibleClutter": [
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+          "type": "Mesh",
+          "visible": true,
+          "policy": null,
+          "affordances": null
+        }
+      ],
+      "sceneAssetEvidence": {
+        "source": "window.__openClinXrSceneAssetEvidence",
+        "generatedAtMs": 1069.8,
+        "expectedAssetCount": 4,
+        "loadedCount": 4,
+        "failedCount": 0,
+        "pendingCount": 0,
+        "fallbackActiveCount": 0,
+        "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+        "visualFidelityCueIds": [
+          "generated_humanoid_front_fidelity_badge",
+          "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+          "room_prop_label_occlusion_reduced",
+          "generated_humanoid_generator_native_front_orientation_preserved",
+          "humanoid_interaction_target_decluttered",
+          "generated_humanoid_facial_features_unobscured",
+          "visible_runtime_mouth_eye_expression_cues"
+        ],
+        "interactionCollisionEvidence": {
+          "proxyCueCount": 1,
+          "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+          "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+          "notEvidenceFor": [
+            "production_physics_readiness",
+            "validated_ragdoll_biomechanics"
+          ]
+        },
+        "assets": [
+          {
+            "assetId": "ecg_cart_12_lead_glb",
+            "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+            "sceneObjectName": "ecg_cart_12_lead_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ecg_cart_12_lead_glb:selectable_equipment_reference",
+              "ecg_cart_12_lead_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "ed_exam_bay_environment_shell_glb",
+            "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+            "sceneObjectName": "ed_exam_bay_environment_shell_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "ed_exam_bay_environment_shell_glb:room_boundary_reference",
+              "ed_exam_bay_environment_shell_glb:spatial_orientation_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "iv_pole_with_pump_glb",
+            "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+            "sceneObjectName": "iv_pole_with_pump_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "iv_pole_with_pump_glb:selectable_equipment_reference",
+              "iv_pole_with_pump_glb:clinical_workflow_cue"
+            ],
+            "animationPlayback": "not_applicable"
+          },
+          {
+            "assetId": "neutral_generated_humanoid_model_glb",
+            "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+            "sceneObjectName": "neutral_generated_humanoid_model_glb",
+            "status": "loaded",
+            "fallbackActive": false,
+            "affordanceCueIds": [
+              "neutral_generated_humanoid_model_glb:dialogue_target",
+              "neutral_generated_humanoid_model_glb:clinical_observation_target",
+              "neutral_generated_humanoid_model_glb:generated_humanoid_hair_clothing_eye_detail_cue",
+              "neutral_generated_humanoid_model_glb:phoneme_viseme_dialogue_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_gaze_target_cue",
+              "neutral_generated_humanoid_model_glb:dialogue_eye_focus_target_cue",
+              "neutral_generated_humanoid_model_glb:scenario_emotion_expression_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_mouth_shape_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eye_focus_cue",
+              "neutral_generated_humanoid_model_glb:visible_runtime_eyebrow_jaw_cheek_cue",
+              "neutral_generated_humanoid_model_glb:face_lip_eye_rig_contract_cue",
+              "neutral_generated_humanoid_model_glb:ragdoll_collision_proxy_cue",
+              "neutral_generated_humanoid_model_glb:physician_interaction_target_cue",
+              "neutral_generated_humanoid_model_glb:authored_clinical_idle_pose_clip_cue"
+            ],
+            "animationPlayback": "gltf_animation_clips_playing"
+          }
+        ],
+        "productionAssetReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity"
+        ]
+      },
+      "manifestEvidence": {
+        "source": "learner_runtime_asset_bundle_scene_manifest",
+        "manifestId": "ed_chest_pain_runtime_scene_manifest_v1",
+        "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+        "roomPropCount": 30,
+        "semanticRoomPropCount": 30,
+        "actorPlacementCount": 3,
+        "equipmentPlacementCount": 2,
+        "dialogueTurnCount": 6,
+        "virtualDeviceActorCount": 0,
+        "virtualDeviceDialogueRoutedCount": 0,
+        "generatedBySceneManifestCount": 30,
+        "propIds": [
+          "oxygen-panel",
+          "suction-canister",
+          "glove-box-stack",
+          "sharps-bin",
+          "biohazard-trash",
+          "supply-cabinet",
+          "hand-sanitizer",
+          "privacy-curtain",
+          "wall-clock",
+          "ceiling-exam-light",
+          "doorway-station-sign",
+          "floor-scuff-path",
+          "infection-control-sign",
+          "patient-handoff-whiteboard",
+          "supply-drawer-labels",
+          "privacy-zone-floor-tape",
+          "curtain-track-rings",
+          "ekg-leads-on-bed",
+          "monitor-lead-cable",
+          "patient-blanket",
+          "bed-wheel-locks",
+          "clipboard-case-notes",
+          "iv-tubing-line",
+          "monitor-waveform-card",
+          "monitor-vitals-badge",
+          "ecg-paper-strip",
+          "nurse-task-tray",
+          "doorway-escalation-badge",
+          "trash-liner-fold",
+          "call-light-remote"
+        ],
+        "storageBackedBundle": false,
+        "productionReadinessClaimed": false,
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "learnerGate": {
+        "canUseGeneratedBundleForLearnerRuntime": false,
+        "blockers": [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle",
+          "quest_runtime_evidence_not_attached_to_encounter_bundle"
+        ],
+        "pendingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "attachedGateIds": [],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "source": "window.__openClinXrLearnerRuntimeUseGateEvidence",
+        "bundleId": "local_exam_run:ed_chest_pain_local_encounter:runtime-assets",
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "assetStoreKind": "app_public_fixture",
+        "activeBundleSource": "local_fixture_fallback",
+        "generatedBundleLearnerUseBlocked": false,
+        "fallbackActive": true,
+        "fallbackReason": null,
+        "requiredGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "blockingGateIds": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence",
+          "quest_runtime_evidence"
+        ],
+        "approvedLocalFixtureOnly": true,
+        "claimBoundary": "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach"
+      }
+    }
+  ]
+}

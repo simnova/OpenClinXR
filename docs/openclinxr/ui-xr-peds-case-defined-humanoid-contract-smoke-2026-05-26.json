@@ -1,0 +1,66 @@
+{
+  "source": "desktop_browser_local_vite_static_generated_bundle_case_defined_humanoid_contract_smoke",
+  "capturedAt": "2026-05-26T11:05:32.743Z",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "url": "http://localhost:5173/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1",
+  "screenshotPath": "/Volumes/files/src/openclinxr/docs/openclinxr/screenshots/ui-xr-peds-case-defined-humanoid-contract-smoke-2026-05-26.png",
+  "visibleChecks": {
+    "contractScenarioIsPediatric": true,
+    "actorCountThree": true,
+    "includesPatientRole": true,
+    "includesFamilyRole": true,
+    "includesNurseRole": true,
+    "emotionStatesAvailable": true,
+    "locomotionPlanningRequired": true,
+    "learnerUseBlockedBoundaryVisible": true
+  },
+  "caseDefinedHumanoidPerformanceContractEvidence": {
+    "source": "case_definition_humanoid_performance_contract",
+    "scenarioId": "peds_asthma_parent_anxiety_v1",
+    "claimBoundary": "case_definition_humanoid_performance_metadata_only",
+    "actorCount": 3,
+    "locomotionActorRoles": [
+      "family",
+      "nurse",
+      "patient"
+    ],
+    "expressionActorRoles": [
+      "family",
+      "nurse",
+      "patient"
+    ],
+    "gazeActorRoles": [
+      "family",
+      "nurse",
+      "patient"
+    ],
+    "lipSyncActorRoles": [
+      "family",
+      "nurse",
+      "patient"
+    ],
+    "interactiveActorRoles": [
+      "family",
+      "nurse",
+      "patient"
+    ],
+    "emotionStateCount": 9,
+    "dialogueDrivenVisemeMappingRequired": true,
+    "gazeTargetingRequired": true,
+    "locomotionPlanningRequired": true,
+    "notEvidenceFor": [
+      "generated_humanoid_asset_readiness",
+      "animation_quality",
+      "quest_readiness",
+      "runtime_readiness",
+      "clinical_validity"
+    ]
+  },
+  "supersedesEvidenceRef": "docs/openclinxr/ui-xr-peds-case-defined-humanoid-contract-smoke-2026-05-26.json#previous_failed_probe",
+  "notEvidenceFor": [
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "production_readiness"
+  ]
+}

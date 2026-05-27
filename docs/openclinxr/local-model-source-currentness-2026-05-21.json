@@ -1,0 +1,24 @@
+{
+  "kind": "local_model_source_currentness_check",
+  "generatedAt": "2026-05-21T12:55:19.893Z",
+  "ready": true,
+  "metadata_file": "docs/openclinxr/local-model-source-metadata-2026-05-06.json",
+  "cache_evidence_file": "docs/openclinxr/local-model-cache-evidence-2026-05-06.json",
+  "model_id": "Qwen/Qwen3-4B-GGUF",
+  "source_revision": "bc640142c66e1fdd12af0bd68f40445458f3869b",
+  "local_revision": "bc640142c66e1fdd12af0bd68f40445458f3869b",
+  "license": {
+    "source": "apache-2.0",
+    "expected": "apache-2.0",
+    "accepted": true
+  },
+  "file": {
+    "expected": "Qwen3-4B-Q4_K_M.gguf",
+    "listed_by_source": true,
+    "cached": true
+  },
+  "verdict": {
+    "passed": true,
+    "blockers": []
+  }
+}

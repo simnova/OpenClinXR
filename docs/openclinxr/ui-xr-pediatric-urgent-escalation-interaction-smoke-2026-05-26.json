@@ -1,0 +1,45 @@
+{
+  "generatedAt": "2026-05-26T14:53:32.610Z",
+  "screenshotPath": "/Volumes/files/src/openclinxr/docs/openclinxr/screenshots/ui-xr-pediatric-urgent-escalation-interaction-smoke-2026-05-26.png",
+  "bodyChecks": {
+    "urgentEscalation": true,
+    "traceOne": true,
+    "pediatric": true
+  },
+  "evidence": {
+    "scenarioId": null,
+    "activeActor": "nurse_kevin_lee_v1",
+    "activeEmotion": "anxious",
+    "actorRealismBadge": {
+      "actorId": "nurse_kevin_lee_v1",
+      "actorRole": "nurse",
+      "status": "realismBlocked",
+      "blockers": [
+        "actor_specific_humanoid_realism_gate_not_attached",
+        "runtime_realism_evidence_not_attached_to_actor_badge",
+        "humanoid_visual_qa_evidence_not_attached_to_actor_badge"
+      ],
+      "claimBoundary": "case_defined_actor_realism_launch_badge_metadata_only"
+    },
+    "traceCount": null
+  },
+  "consoleMessages": [
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x12c001c4800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x12c001c4800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x12c001c4800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x12c001c4800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+    }
+  ],
+  "pageErrors": []
+}

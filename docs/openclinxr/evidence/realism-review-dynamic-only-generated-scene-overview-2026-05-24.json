@@ -1,0 +1,26 @@
+{
+  "capturedAt": "2026-05-24T04:01:10.171Z",
+  "scenarioId": "oncology_bad_news_family_v1",
+  "station": "oncology_bad_news_family_v1",
+  "captureMode": "dynamic-only-generated-scene-overview-2026-05-24",
+  "screenshot": "docs/openclinxr/screenshots/realism-review-dynamic-only-generated-scene-overview-2026-05-24.png",
+  "runtimeSignalsObserved": [
+    "generated_environment_runtime_loaded",
+    "scene_manifest_room_props_active",
+    "legacy_bed_monitor_primitives_hidden_when_generated_scene_available",
+    "runtime_affordance_markers_hidden_unless_evidence_capture",
+    "generated_scene_overview_multi_actor_dynamic_encounter_capture",
+    "generated_humanoid_runtime_playback",
+    "generated_equipment_runtime_loaded"
+  ],
+  "reviewFocus": [
+    "dynamic_generated_scene_only",
+    "multi_actor_scene_framing",
+    "legacy_fixture_clutter_absence",
+    "humanoid_realism",
+    "equipment_and_room_context"
+  ],
+  "notes": [
+    "Captured after adding generated-scene overview camera framing for multi-actor dynamic encounter evidence."
+  ]
+}

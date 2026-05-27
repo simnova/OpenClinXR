@@ -1,0 +1,162 @@
+{
+  "generatedAt": "2026-05-25T14:18:26.177Z",
+  "schemaVersion": "openclinxr.external-ai-asset-provider-preflight.v1",
+  "claimScope": "provider_preflight_metadata_only_no_execution",
+  "providerGate": {
+    "status": "blocked_until_operator_approval_and_runtime_evidence",
+    "evidenceKind": "external_ai_provider_preflight_metadata",
+    "executionEnabled": false,
+    "externalProviderExecutionAttempted": false,
+    "reportMetadataOnly": true,
+    "surfacedInProviderGateReport": true
+  },
+  "candidates": [
+    {
+      "providerId": "hunyuan3d_local",
+      "intendedTargets": [
+        "medical_equipment_glb",
+        "room_props_glb",
+        "humanoid_base_mesh_fallback"
+      ],
+      "preferredOrderRole": "first_for_equipment_and_props_fallback_for_humanoids",
+      "executionEnabled": false,
+      "externalNetworkUsed": false,
+      "paidApiUsed": false,
+      "credentialRequiredBeforeExecution": false,
+      "requiredControls": [
+        "local_install_evidence",
+        "model_license_review",
+        "cache_location_recorded",
+        "shared_asset_library_lru_lookup",
+        "runtime_smoke_evidence"
+      ],
+      "blockers": [
+        "hunyuan3d_not_installed",
+        "model_license_review_missing",
+        "runtime_smoke_evidence_missing"
+      ]
+    },
+    {
+      "providerId": "meshy_cloud_requires_approval",
+      "intendedTargets": [
+        "role_specific_humanoid_glb",
+        "humanoid_rigging",
+        "basic_humanoid_animation",
+        "equipment_comparison"
+      ],
+      "preferredOrderRole": "first_for_humanoid_mesh_and_rig_cloud_only_after_approval",
+      "executionEnabled": false,
+      "externalNetworkUsed": false,
+      "paidApiUsed": false,
+      "credentialRequiredBeforeExecution": true,
+      "requiredControls": [
+        "explicit_operator_approval",
+        "credential_secret",
+        "paid_api_budget",
+        "asset_license_review",
+        "shared_asset_library_lru_lookup",
+        "human_review_before_learner_use"
+      ],
+      "blockers": [
+        "explicit_operator_approval_missing",
+        "credential_secret_missing",
+        "paid_api_budget_missing",
+        "asset_license_review_missing"
+      ]
+    },
+    {
+      "providerId": "tripo_cloud_requires_approval",
+      "intendedTargets": [
+        "draft_props",
+        "reference_image_to_3d_comparison",
+        "equipment_comparison"
+      ],
+      "preferredOrderRole": "comparison_for_equipment_and_props_cloud_only_after_approval",
+      "executionEnabled": false,
+      "externalNetworkUsed": false,
+      "paidApiUsed": false,
+      "credentialRequiredBeforeExecution": true,
+      "requiredControls": [
+        "explicit_operator_approval",
+        "credential_secret",
+        "paid_api_budget",
+        "asset_license_review",
+        "shared_asset_library_lru_lookup"
+      ],
+      "blockers": [
+        "explicit_operator_approval_missing",
+        "credential_secret_missing",
+        "paid_api_budget_missing",
+        "asset_license_review_missing"
+      ]
+    },
+    {
+      "providerId": "vlm_adversarial_reviewer_requires_approval",
+      "intendedTargets": [
+        "screenshot_realism_review",
+        "video_motion_review",
+        "aaa_realism_gap_detection",
+        "visual_qa_blocker_generation"
+      ],
+      "preferredOrderRole": "local_open_vlm_first_frontier_cloud_only_after_approval",
+      "executionEnabled": false,
+      "externalNetworkUsed": false,
+      "paidApiUsed": false,
+      "credentialRequiredBeforeExecution": true,
+      "requiredControls": [
+        "local_or_cloud_model_policy",
+        "screenshot_video_redaction",
+        "explicit_operator_approval",
+        "claim_boundary_enforced",
+        "cost_budget",
+        "shared_asset_library_lru_lookup"
+      ],
+      "blockers": [
+        "approved_vlm_route_missing",
+        "screenshot_video_redaction_policy_missing",
+        "runtime_evidence_missing"
+      ]
+    }
+  ],
+  "recommendedRouting": {
+    "humanoidMeshAndRig": [
+      "meshy_cloud_requires_approval",
+      "hunyuan3d_local",
+      "blender_mixamo_style_rigging_fallback"
+    ],
+    "equipmentAndProps": [
+      "hunyuan3d_local",
+      "meshy_cloud_requires_approval",
+      "tripo_cloud_requires_approval"
+    ],
+    "adversarialReview": [
+      "local_open_vlm_if_available",
+      "frontier_cloud_vlm_requires_approval",
+      "deterministic_fixture"
+    ]
+  },
+  "handoff": {
+    "providerDisabledBoundary": "No external provider execution: keep executionEnabled false, do not request credentials, and do not use paid APIs or network calls.",
+    "localOnlyBoundary": "Offline/local metadata review only: restrict work to workspace evidence, deterministic fixtures, and local registry checks.",
+    "missingEvidenceIds": [
+      "hunyuan3d_not_installed",
+      "model_license_review_missing",
+      "runtime_smoke_evidence_missing",
+      "explicit_operator_approval_missing",
+      "credential_secret_missing",
+      "paid_api_budget_missing",
+      "asset_license_review_missing",
+      "approved_vlm_route_missing",
+      "screenshot_video_redaction_policy_missing"
+    ],
+    "nextSafeProviderDisabledExecutionStep": "Assemble the local evidence bundle for hunyuan3d_local and the approval-gated cloud candidates, then re-run this preflight in metadata-only mode without invoking any provider."
+  },
+  "notEvidenceFor": [
+    "provider_runtime_readiness",
+    "generated_asset_quality",
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ]
+}

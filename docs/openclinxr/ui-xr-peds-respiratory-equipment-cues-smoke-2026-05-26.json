@@ -1,0 +1,69 @@
+{
+  "url": "http://localhost:5173/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1",
+  "evidence": {
+    "source": "window.__openClinXrPediatricRespiratoryEquipmentCueEvidence",
+    "scenarioId": "peds_asthma_parent_anxiety_v1",
+    "cueCount": 7,
+    "cues": [
+      {
+        "equipmentId": "openclinxr.peds_asthma_parent_anxiety_v1.pulse_oximeter_equipment.generated-glb",
+        "cueId": "pulse_ox_finger_clip_readability_cue",
+        "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.equipment-cue.pulse_ox_finger_clip_readability_cue"
+      },
+      {
+        "equipmentId": "openclinxr.peds_asthma_parent_anxiety_v1.pulse_oximeter_equipment.generated-glb",
+        "cueId": "pulse_ox_spo2_screen_91_cue",
+        "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.equipment-cue.pulse_ox_spo2_screen_91_cue"
+      },
+      {
+        "equipmentId": "openclinxr.peds_asthma_parent_anxiety_v1.nebulizer_mask_equipment.generated-glb",
+        "cueId": "pediatric_nebulizer_mask_readability_cue",
+        "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.equipment-cue.pediatric_nebulizer_mask_readability_cue"
+      },
+      {
+        "equipmentId": "openclinxr.peds_asthma_parent_anxiety_v1.nebulizer_mask_equipment.generated-glb",
+        "cueId": "pediatric_nebulizer_tubing_line_cue",
+        "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.equipment-cue.pediatric_nebulizer_tubing_line_cue"
+      },
+      {
+        "equipmentId": "openclinxr.peds_asthma_parent_anxiety_v1.oxygen_wall_port_equipment.generated-glb",
+        "cueId": "oxygen_wall_port_round_connector_cue",
+        "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.equipment-cue.oxygen_wall_port_round_connector_cue"
+      },
+      {
+        "equipmentId": "openclinxr.peds_asthma_parent_anxiety_v1.oxygen_wall_port_equipment.generated-glb",
+        "cueId": "oxygen_tubing_clear_line_cue",
+        "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.equipment-cue.oxygen_tubing_clear_line_cue"
+      },
+      {
+        "equipmentId": "openclinxr.peds_asthma_parent_anxiety_v1.pediatric_stretcher_equipment.generated-glb",
+        "cueId": "low_translucent_pediatric_bed_rail_cue",
+        "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.equipment-cue.low_translucent_pediatric_bed_rail_cue"
+      }
+    ],
+    "notEvidenceFor": [
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity",
+      "production_readiness",
+      "equipment_asset_readiness"
+    ]
+  },
+  "checks": {
+    "scenarioIsPediatric": true,
+    "hasNebulizerMaskCue": true,
+    "hasOxygenPortCue": true,
+    "hasPulseOxClipCue": true,
+    "hasLowBedRailCue": true,
+    "hasAtLeastFourRespiratoryEquipmentCueTypes": true,
+    "noEdPrefixLeakInEquipmentCueNames": true
+  },
+  "notEvidenceFor": [
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "production_readiness",
+    "equipment_asset_readiness"
+  ],
+  "consoleErrors": []
+}

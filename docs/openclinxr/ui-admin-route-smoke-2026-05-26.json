@@ -1,0 +1,43 @@
+{
+  "generatedAt": "2026-05-26T15:02:20.317Z",
+  "pageErrors": [],
+  "results": [
+    {
+      "route": "Open Scenario Bank",
+      "screenshotPath": "/Volumes/files/src/openclinxr/docs/openclinxr/screenshots/ui-admin-scenario-bank-route-smoke-2026-05-26.png",
+      "checks": [
+        {
+          "text": "Scenario Bank",
+          "present": true
+        },
+        {
+          "text": "Publication gates",
+          "present": false
+        }
+      ],
+      "bodyPreview": "OpenClinXR Admin\nScenario Bank\nReview Replay\nExam Forms\nSINGLE-USER PILOT CONTROL PLANE\nScenario governance workbench\nClinical, psychometric, legal, and simulation QA gates stay visible before a scenario can feed a learner-facing XR station.\nGraphQL Codegen\nApollo Client\nProComponents v3\nReact Router\nAnt Design 6\nScenario Bank\nScenario bank unavailable\nOpenClinXR admin API request failed: GET /scenario-bank/maturity 502 unknown_error"
+    },
+    {
+      "route": "Review Replay",
+      "screenshotPath": "/Volumes/files/src/openclinxr/docs/openclinxr/screenshots/ui-admin-review-replay-route-smoke-2026-05-26.png",
+      "checks": [
+        {
+          "text": "Review Replay",
+          "present": true
+        }
+      ],
+      "bodyPreview": "OpenClinXR Admin\nScenario Bank\nReview Replay\nExam Forms\nSINGLE-USER PILOT CONTROL PLANE\nScenario governance workbench\nClinical, psychometric, legal, and simulation QA gates stay visible before a scenario can feed a learner-facing XR station.\nGraphQL Codegen\nApollo Client\nProComponents v3\nReact Router\nAnt Design 6\nGENERATED REVIEWPACKETREPLAY\nReview Replay\nLoad replay\nCreate seed replay\nStation run required\nEnter a station run ID to replay trace evidence and record a faculty draft."
+    },
+    {
+      "route": "Exam Forms",
+      "screenshotPath": "/Volumes/files/src/openclinxr/docs/openclinxr/screenshots/ui-admin-exam-forms-route-smoke-2026-05-26.png",
+      "checks": [
+        {
+          "text": "Exam Forms",
+          "present": true
+        }
+      ],
+      "bodyPreview": "OpenClinXR Admin\nScenario Bank\nReview Replay\nExam Forms\nSINGLE-USER PILOT CONTROL PLANE\nScenario governance workbench\nClinical, psychometric, legal, and simulation QA gates stay visible before a scenario can feed a learner-facing XR station.\nGraphQL Codegen\nApollo Client\nProComponents v3\nReact Router\nAnt Design 6\nSeed Exam Readiness\nControl-plane data unavailable\nResponse not successful: Received status code 502"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "source": "desktop_browser_local_vite_static_generated_bundle_work_of_breathing_state_smoke",
+  "capturedAt": "2026-05-26T04:32:22.653Z",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "clickedTraceTag": "work_of_breathing_assessment",
+  "url": "http://localhost:5173/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1",
+  "screenshotPath": "/Volumes/files/src/openclinxr/docs/openclinxr/screenshots/ui-xr-peds-work-of-breathing-state-smoke-2026-05-26.png",
+  "visibleChecks": {
+    "traceOneOfNineVisible": true,
+    "vitalsConcerningState": true,
+    "softWarningState": true,
+    "workOfBreathingCuePresent": true,
+    "pulseOxCuePresent": true,
+    "pulseOxEquipmentActive": true,
+    "pediatricStretcherActive": true,
+    "patientActorSpeaking": true,
+    "learnerUseBlockedBoundaryVisible": true
+  },
+  "environmentStateExcerpt": {
+    "activeTraceTags": [
+      "work_of_breathing_assessment"
+    ],
+    "stressCueIds": [
+      "work_of_breathing_runtime_attention",
+      "pulse_oximeter_runtime_attention"
+    ],
+    "activePropIds": [
+      "pulse_oximeter_equipment",
+      "pediatric_stretcher_equipment"
+    ],
+    "monitorState": "vitals_concerning",
+    "alarmState": "soft_warning"
+  },
+  "speechEvidenceExcerpt": {
+    "activeActorId": "patient_maya_johnson_v1",
+    "gazeTargetKind": "learner_camera",
+    "visemeCount": 48
+  },
+  "notEvidenceFor": [
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "production_readiness"
+  ]
+}

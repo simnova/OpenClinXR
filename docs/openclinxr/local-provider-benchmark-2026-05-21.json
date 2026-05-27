@@ -1,0 +1,76 @@
+{
+  "generatedAt": "2026-05-21T12:54:53.112Z",
+  "policy": {
+    "cloudCallsAllowed": false,
+    "modelDownloadsAllowed": false,
+    "localRuntimeExecutionAllowed": false
+  },
+  "mockModel": {
+    "status": "passed",
+    "latencyMs": 0.01,
+    "blockers": [],
+    "metrics": {
+      "promptTokens": 22,
+      "completionTokens": 10,
+      "totalTokens": 32,
+      "responseChars": 49,
+      "costEstimateUsd": 0
+    }
+  },
+  "mockVoice": {
+    "status": "passed",
+    "latencyMs": 0,
+    "blockers": [],
+    "metrics": {
+      "transcriptEvents": 2,
+      "audioChunks": 1,
+      "totalAudioDurationMs": 1100,
+      "firstVisemeCue": "neutral-pain",
+      "costEstimateUsd": 0
+    }
+  },
+  "localModel": {
+    "status": "not_configured",
+    "latencyMs": null,
+    "blockers": [
+      "OPENCLINXR_LOCAL_MODEL_RUNTIME_not_set",
+      "OPENCLINXR_LOCAL_MODEL_ID_not_set"
+    ],
+    "metrics": {
+      "availableRuntimeCommands": "llama-cli,llama-server",
+      "configuredRuntime": null,
+      "configuredModel": null,
+      "sourceRecordIds": null,
+      "downloadApproved": false,
+      "executionAttempted": false
+    }
+  },
+  "localVoice": {
+    "status": "not_configured",
+    "latencyMs": null,
+    "blockers": [
+      "OPENCLINXR_LOCAL_VOICE_RUNTIME_not_set",
+      "OPENCLINXR_LOCAL_VOICE_ID_not_set"
+    ],
+    "metrics": {
+      "availableRuntimeCommands": "vibevoice",
+      "configuredRuntime": null,
+      "configuredVoice": null,
+      "sourceRecordIds": null,
+      "installApproved": false,
+      "safetyReviewApproved": false,
+      "executionAttempted": false
+    }
+  },
+  "verdict": {
+    "deterministicMocksPassed": true,
+    "localModelReadyToBenchmark": false,
+    "localVoiceReadyToBenchmark": false,
+    "blockers": [
+      "local_model:OPENCLINXR_LOCAL_MODEL_RUNTIME_not_set",
+      "local_model:OPENCLINXR_LOCAL_MODEL_ID_not_set",
+      "local_voice:OPENCLINXR_LOCAL_VOICE_RUNTIME_not_set",
+      "local_voice:OPENCLINXR_LOCAL_VOICE_ID_not_set"
+    ]
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "source": "desktop_browser_local_vite_static_generated_bundle_history_equipment_cues_smoke",
+  "capturedAt": "2026-05-26T05:02:33.892Z",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "clickedTraceTags": [
+    "inhaler_history",
+    "trigger_history"
+  ],
+  "url": "http://localhost:5173/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1",
+  "screenshotPath": "/Volumes/files/src/openclinxr/docs/openclinxr/screenshots/ui-xr-peds-history-equipment-cues-smoke-2026-05-26.png",
+  "visibleChecks": {
+    "traceTwoOfNineVisible": true,
+    "inhalerHistoryCuePresent": true,
+    "triggerHistoryCuePresent": true,
+    "parentChairCuePresent": true,
+    "inhalerSpacerActive": true,
+    "parentChairActive": true,
+    "scenarioSpecificTriggerDialogueVisible": true,
+    "learnerUseBlockedBoundaryVisible": true
+  },
+  "environmentStateExcerpt": {
+    "activeTraceTags": [
+      "inhaler_history",
+      "trigger_history"
+    ],
+    "stressCueIds": [
+      "inhaler_spacer_history_runtime_attention",
+      "asthma_trigger_history_runtime_attention",
+      "parent_chair_runtime_attention"
+    ],
+    "activePropIds": [
+      "nebulizer_mask_equipment",
+      "oxygen_wall_port_equipment",
+      "inhaler_spacer_equipment",
+      "pediatric_stretcher_equipment",
+      "parent_chair_equipment"
+    ],
+    "monitorState": "baseline",
+    "alarmState": "quiet"
+  },
+  "notEvidenceFor": [
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "production_readiness"
+  ]
+}

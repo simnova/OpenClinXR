@@ -1,7 +1,7 @@
 # Security Audit Exceptions
 
-Date: 2026-05-07
-Status: No active security audit exceptions; active version-pinned license inventory normalizations are recorded below.
+Date: 2026-05-21
+Status: No active security audit exceptions; active package-manager overrides and version-pinned license inventory normalizations are recorded below.
 
 ## Policy
 
@@ -24,8 +24,8 @@ pnpm security:audit-policy -- --audit-json docs/openclinxr/security-audit-YYYY-M
 
 The latest local audit evidence is:
 
-- `docs/openclinxr/security-audit-2026-05-07.json`
-- `docs/openclinxr/security-audit-policy-2026-05-07.json`
+- `docs/openclinxr/security-audit-2026-05-21.json`
+- `docs/openclinxr/security-audit-policy-2026-05-21.json`
 
 ## Audit Cadence (Backlog-Tracked)
 
@@ -87,6 +87,7 @@ None.
 
 | Package | Pinned version | Rationale | Owner | Review-by | Removal condition |
 | --- | --- | --- | --- | --- | --- |
+| `fast-uri` | `3.1.2` | Force AJV's transitive URI parser onto the patched version that resolves GHSA-q3j6-qgpj-74h6 and GHSA-v39h-62p7-jpjc while keeping `ajv@8.20.0` pinned. | security-posture-steward | 2026-06-21 | Remove when `ajv` or the lockfile resolves `fast-uri >=3.1.2` without a root override. |
 | `three` | `0.184.0` | Keep IWSDK sidecar and production XR packages on one reviewed Three.js version while `@iwsdk/core` permits a broad Three.js range. | frontend-platform-lead | 2026-06-05 | Remove when all workspace packages declare the same exact Three.js version without a root override. |
 | `rolldown` | `1.0.0-rc.18` | Keep packaging and local preview bundling aligned while the existing build scripts are validated against this pinned `rolldown` version. | frontend-platform-lead | 2026-06-05 | Remove when the full stack lockfile and workspace overrides can be moved to a newer pinned version after compatibility validation. |
 

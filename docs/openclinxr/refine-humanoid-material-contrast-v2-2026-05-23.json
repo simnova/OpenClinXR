@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "openclinxr.refine-humanoid-material-contrast.v1",
+  "generatedAt": "2026-05-23T22:29:43.517Z",
+  "inputPath": "apps/ui-xr/public/xr-assets/humanoids/neutral-generated-human.glb",
+  "outputPath": "apps/ui-xr/public/xr-assets/humanoids/neutral-generated-human.glb",
+  "backupPath": ".openclinxr/asset-production/realism-backups/neutral-generated-human-pre-material-contrast-v2-2026-05-23.glb",
+  "updatedMaterials": [
+    "anny_surface_hair_dark",
+    "anny_surface_scrub_teal",
+    "anny_mesh_skin_warm_review",
+    "anny_mesh_lip_region_review",
+    "anny_mesh_nose_mouth_shadow_review"
+  ],
+  "claimBoundaries": {
+    "notEvidenceFor": [
+      "production_skin_shader_quality",
+      "photorealism",
+      "quest_readiness",
+      "clinical_validity"
+    ]
+  }
+}

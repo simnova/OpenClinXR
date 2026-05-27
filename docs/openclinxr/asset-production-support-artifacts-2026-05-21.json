@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "openclinxr.asset-production-support-artifacts.v1",
+  "kind": "asset_production_support_artifacts",
+  "generatedAt": "2026-05-21T20:02:34.916Z",
+  "tool": "tools/openclinxr/asset-production-support-artifacts.ts",
+  "policy": {
+    "localOnly": true,
+    "installsIntroduced": false,
+    "cloudApisUsed": false,
+    "paidApisUsed": false,
+    "externalAssetsUsed": false,
+    "generatedThirdPartyAssetsCommitted": false,
+    "productionAssetReadinessClaimed": false
+  },
+  "input": {
+    "stationSlug": "ed-chest-pain",
+    "generationMode": "repo_authored_support_evidence_fixtures"
+  },
+  "artifacts": {
+    "requiredArtifactPaths": [
+      ".openclinxr/asset-production/ed-chest-pain/animation-retargeting/idle-pain.clip.json",
+      ".openclinxr/asset-production/ed-chest-pain/animation-retargeting/clutch-chest.clip.json",
+      ".openclinxr/asset-production/ed-chest-pain/animation-retargeting/retargeting-qa.json",
+      ".openclinxr/asset-production/ed-chest-pain/optimization/lod-artifact-set.json",
+      ".openclinxr/asset-production/ed-chest-pain/optimization/texture-budget.json",
+      ".openclinxr/asset-production/ed-chest-pain/optimization/collider-simplification.json",
+      ".openclinxr/asset-production/ed-chest-pain/quest-budget/station-bundle-manifest.json",
+      ".openclinxr/asset-production/ed-chest-pain/quest-budget/multi-actor-budget.json",
+      ".openclinxr/asset-production/ed-chest-pain/quest-budget/foreground-frame-pacing.json"
+    ],
+    "materializedArtifactPaths": [
+      ".openclinxr/asset-production/ed-chest-pain/animation-retargeting/idle-pain.clip.json",
+      ".openclinxr/asset-production/ed-chest-pain/animation-retargeting/clutch-chest.clip.json",
+      ".openclinxr/asset-production/ed-chest-pain/animation-retargeting/retargeting-qa.json",
+      ".openclinxr/asset-production/ed-chest-pain/optimization/lod-artifact-set.json",
+      ".openclinxr/asset-production/ed-chest-pain/optimization/texture-budget.json",
+      ".openclinxr/asset-production/ed-chest-pain/optimization/collider-simplification.json",
+      ".openclinxr/asset-production/ed-chest-pain/quest-budget/station-bundle-manifest.json",
+      ".openclinxr/asset-production/ed-chest-pain/quest-budget/multi-actor-budget.json",
+      ".openclinxr/asset-production/ed-chest-pain/quest-budget/foreground-frame-pacing.json"
+    ],
+    "missingArtifactPaths": []
+  },
+  "summary": {
+    "lanesCovered": [
+      "animationRetargeting",
+      "lodTextureColliderBudget",
+      "multiActorQuestBudget"
+    ],
+    "caveats": [
+      "These JSON artifacts are local fixture evidence only; they do not prove production animation quality, Quest frame pacing, or headset readiness.",
+      "Animation, LOD, collider, and station-bundle values are intentionally conservative placeholders for review workflow wiring.",
+      "No external assets, cloud APIs, paid APIs, production deployment, or production-readiness claims are introduced."
+    ]
+  },
+  "verdict": {
+    "passed": true,
+    "readyForProductionAssets": false,
+    "blockers": []
+  }
+}

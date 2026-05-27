@@ -1,0 +1,272 @@
+{
+  "capturedAt": "2026-05-26T22:28:02.808Z",
+  "mode": "webxr_only_dynamic_only_visual_cleanup",
+  "contactSheet": "docs/openclinxr/screenshots/ui-xr-webxr-only-portal-anteroom-contact-sheet-2026-05-26.png",
+  "captures": [
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "slug": "pediatric-asthma",
+      "screenshot": "docs/openclinxr/screenshots/ui-xr-webxr-only-dynamic-cleanup-pediatric-asthma-2026-05-26.png",
+      "evidence": {
+        "scenarioId": "peds_asthma_parent_anxiety_v1",
+        "roleCueCount": 11,
+        "stationBootError": null,
+        "namedObjects": 64,
+        "hardcodedEdPrefixLeakCount": 0,
+        "runtimeHumanoidActingCueEvidence": {
+          "source": "window.__openClinXrRuntimeHumanoidActingCueEvidence",
+          "scenarioId": "peds_asthma_parent_anxiety_v1",
+          "actorCount": 0,
+          "activeCueIds": [],
+          "actorCues": [],
+          "notEvidenceFor": [
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity",
+            "production_readiness",
+            "animation_quality"
+          ]
+        }
+      }
+    },
+    {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "slug": "ed-chest-pain",
+      "screenshot": "docs/openclinxr/screenshots/ui-xr-webxr-only-dynamic-cleanup-ed-chest-pain-2026-05-26.png",
+      "evidence": {
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "roleCueCount": 9,
+        "stationBootError": null,
+        "namedObjects": 49,
+        "hardcodedEdPrefixLeakCount": 0,
+        "runtimeHumanoidActingCueEvidence": {
+          "source": "window.__openClinXrRuntimeHumanoidActingCueEvidence",
+          "scenarioId": "ed_chest_pain_priority_v1",
+          "actorCount": 0,
+          "activeCueIds": [],
+          "actorCues": [],
+          "notEvidenceFor": [
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity",
+            "production_readiness",
+            "animation_quality"
+          ]
+        }
+      }
+    },
+    {
+      "scenarioId": "ob_headache_preeclampsia_triage_v1",
+      "slug": "ob-preeclampsia",
+      "screenshot": "docs/openclinxr/screenshots/ui-xr-webxr-only-dynamic-cleanup-ob-preeclampsia-2026-05-26.png",
+      "evidence": {
+        "scenarioId": "ob_headache_preeclampsia_triage_v1",
+        "roleCueCount": 11,
+        "stationBootError": null,
+        "namedObjects": 72,
+        "hardcodedEdPrefixLeakCount": 0,
+        "runtimeHumanoidActingCueEvidence": {
+          "source": "window.__openClinXrRuntimeHumanoidActingCueEvidence",
+          "scenarioId": "ob_headache_preeclampsia_triage_v1",
+          "actorCount": 3,
+          "activeCueIds": [
+            "idle_breathing_sway_cue"
+          ],
+          "actorCues": [
+            {
+              "actorId": "patient_aisha_khan_v1",
+              "role": "patient",
+              "cueIds": [
+                "idle_breathing_sway_cue"
+              ],
+              "bodyMotionMode": "procedural_idle_body_motion"
+            },
+            {
+              "actorId": "ob_nurse_williams_v1",
+              "role": "nurse",
+              "cueIds": [
+                "idle_breathing_sway_cue"
+              ],
+              "bodyMotionMode": "procedural_idle_body_motion"
+            },
+            {
+              "actorId": "partner_omar_khan_v1",
+              "role": "family",
+              "cueIds": [
+                "idle_breathing_sway_cue"
+              ],
+              "bodyMotionMode": "procedural_idle_body_motion"
+            }
+          ],
+          "notEvidenceFor": [
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity",
+            "production_readiness",
+            "animation_quality"
+          ]
+        }
+      }
+    },
+    {
+      "scenarioId": "clinic_abdominal_pain_interpreter_v1",
+      "slug": "clinic-abdominal-pain",
+      "screenshot": "docs/openclinxr/screenshots/ui-xr-webxr-only-dynamic-cleanup-clinic-abdominal-pain-2026-05-26.png",
+      "evidence": {
+        "scenarioId": "clinic_abdominal_pain_interpreter_v1",
+        "roleCueCount": 7,
+        "stationBootError": null,
+        "namedObjects": 77,
+        "hardcodedEdPrefixLeakCount": 0,
+        "runtimeHumanoidActingCueEvidence": {
+          "source": "window.__openClinXrRuntimeHumanoidActingCueEvidence",
+          "scenarioId": "clinic_abdominal_pain_interpreter_v1",
+          "actorCount": 3,
+          "activeCueIds": [
+            "idle_breathing_sway_cue"
+          ],
+          "actorCues": [
+            {
+              "actorId": "patient_lucia_morales_v1",
+              "role": "patient",
+              "cueIds": [
+                "idle_breathing_sway_cue"
+              ],
+              "bodyMotionMode": "procedural_idle_body_motion"
+            },
+            {
+              "actorId": "father_carlos_morales_v1",
+              "role": "family",
+              "cueIds": [
+                "idle_breathing_sway_cue"
+              ],
+              "bodyMotionMode": "procedural_idle_body_motion"
+            },
+            {
+              "actorId": "father_carlos_morales_v1",
+              "role": "family",
+              "cueIds": [
+                "idle_breathing_sway_cue"
+              ],
+              "bodyMotionMode": "procedural_idle_body_motion"
+            }
+          ],
+          "notEvidenceFor": [
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity",
+            "production_readiness",
+            "animation_quality"
+          ]
+        }
+      }
+    },
+    {
+      "scenarioId": "oncology_bad_news_family_v1",
+      "slug": "oncology-bad-news",
+      "screenshot": "docs/openclinxr/screenshots/ui-xr-webxr-only-dynamic-cleanup-oncology-bad-news-2026-05-26.png",
+      "evidence": {
+        "scenarioId": "oncology_bad_news_family_v1",
+        "roleCueCount": 7,
+        "stationBootError": null,
+        "namedObjects": 72,
+        "hardcodedEdPrefixLeakCount": 0,
+        "runtimeHumanoidActingCueEvidence": {
+          "source": "window.__openClinXrRuntimeHumanoidActingCueEvidence",
+          "scenarioId": "oncology_bad_news_family_v1",
+          "actorCount": 3,
+          "activeCueIds": [
+            "idle_breathing_sway_cue"
+          ],
+          "actorCues": [
+            {
+              "actorId": "patient_david_miller_v1",
+              "role": "patient",
+              "cueIds": [
+                "idle_breathing_sway_cue"
+              ],
+              "bodyMotionMode": "procedural_idle_body_motion"
+            },
+            {
+              "actorId": "sister_rachel_miller_v1",
+              "role": "family",
+              "cueIds": [
+                "idle_breathing_sway_cue"
+              ],
+              "bodyMotionMode": "procedural_idle_body_motion"
+            },
+            {
+              "actorId": "sister_rachel_miller_v1",
+              "role": "family",
+              "cueIds": [
+                "idle_breathing_sway_cue"
+              ],
+              "bodyMotionMode": "procedural_idle_body_motion"
+            }
+          ],
+          "notEvidenceFor": [
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity",
+            "production_readiness",
+            "animation_quality"
+          ]
+        }
+      }
+    },
+    {
+      "scenarioId": "postop_fever_consult_pressure_v1",
+      "slug": "postop-fever",
+      "screenshot": "docs/openclinxr/screenshots/ui-xr-webxr-only-dynamic-cleanup-postop-fever-2026-05-26.png",
+      "evidence": {
+        "scenarioId": "postop_fever_consult_pressure_v1",
+        "roleCueCount": 11,
+        "stationBootError": null,
+        "namedObjects": 72,
+        "hardcodedEdPrefixLeakCount": 0,
+        "runtimeHumanoidActingCueEvidence": {
+          "source": "window.__openClinXrRuntimeHumanoidActingCueEvidence",
+          "scenarioId": "postop_fever_consult_pressure_v1",
+          "actorCount": 3,
+          "activeCueIds": [
+            "idle_breathing_sway_cue"
+          ],
+          "actorCues": [
+            {
+              "actorId": "patient_priya_shah_v1",
+              "role": "patient",
+              "cueIds": [
+                "idle_breathing_sway_cue"
+              ],
+              "bodyMotionMode": "procedural_idle_body_motion"
+            },
+            {
+              "actorId": "floor_nurse_bennett_v1",
+              "role": "nurse",
+              "cueIds": [
+                "idle_breathing_sway_cue"
+              ],
+              "bodyMotionMode": "procedural_idle_body_motion"
+            },
+            {
+              "actorId": "surgery_resident_kim_v1",
+              "role": "consultant",
+              "cueIds": [
+                "idle_breathing_sway_cue"
+              ],
+              "bodyMotionMode": "procedural_idle_body_motion"
+            }
+          ],
+          "notEvidenceFor": [
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity",
+            "production_readiness",
+            "animation_quality"
+          ]
+        }
+      }
+    }
+  ],
+  "portalAnteroomPolicy": "reusable exterior room houses doorway orientation and patient note capture; clinical world beyond threshold derives from selected encounter runtime bundle"
+}

@@ -1,0 +1,70 @@
+{
+  "generatedAt": "2026-05-26T15:00:54.626Z",
+  "results": [
+    {
+      "name": "ui-xr-full-app-resmoke-2026-05-26",
+      "url": "http://127.0.0.1:5173/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1&openclinxrCaptureMode=actor-realism",
+      "httpStatus": 200,
+      "title": "OpenClinXR Station Runtime",
+      "screenshotPath": "/Volumes/files/src/openclinxr/docs/openclinxr/screenshots/ui-xr-full-app-resmoke-2026-05-26.png",
+      "checks": [
+        {
+          "text": "Pediatric Asthma",
+          "present": true
+        },
+        {
+          "text": "Urgent Escalation",
+          "present": true
+        },
+        {
+          "text": "Trace 1/9",
+          "present": true
+        }
+      ],
+      "bodyPreview": "WebXR unavailable\nTrace 1/9\nEnter Full VR\n\nDOORWAY\n\nPediatric Asthma\n\nChild-sized urgent-care bay with pulse oximeter, nebulizer setup, parent chair, and pediatric distraction items.\n\nEncounter\n00:09\nSimulated EHR\nCHIEF CONCERN\nAssess pediatric respiratory distress\nINITIAL VITALS\nHR 128, RR 32, SpO2 91% on room air\nINTERRUPTION\nNurse Kevin Lee cue at 300s: oxygen request\nMock Dialogue\n\nNurse Kevin Lee: If breathing effort or saturation worsens, the team needs an urgent escalation plan rather than reassurance alone. I am focused; this response comes from the pediatric escalation requirement in the scenario definition.\n\nTrace Actions\nWork Of Breathing Assessment\nInhaler History\nTrigger History\nOxygen Request\nBronchodilator Plan\nUrgent Escalation\nParent Communication\nEmpathy Statement\nPatient Note Submitted\nEncounter Flow\nSTATION\n1/6: peds_asthma_parent_anxiety_v1\nPHASE TIMER\nencounter 00:09 / 15:00\nADVANCE\ncomplete encounter, then submit a non-empty patient note\nPATIENT NOTE\nEnd Encounter / Start Note\nSubmit Note / Next Encounter\nRoom State\n\nmonitor baseline | alarm urgent_attention | active ceiling-exam-light, doorway-escalation-badge, pulse_oximeter_equipment, oxygen_wall_port_equi",
+      "consoleMessages": [
+        {
+          "type": "warning",
+          "text": "[.WebGL-0x11c001c4e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+        },
+        {
+          "type": "warning",
+          "text": "[.WebGL-0x11c001c4e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+        },
+        {
+          "type": "warning",
+          "text": "[.WebGL-0x11c001c4e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+        },
+        {
+          "type": "warning",
+          "text": "[.WebGL-0x11c001c4e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+        }
+      ],
+      "pageErrors": []
+    },
+    {
+      "name": "ui-admin-full-app-resmoke-2026-05-26",
+      "url": "http://127.0.0.1:5174/",
+      "httpStatus": 200,
+      "title": "OpenClinXR Admin",
+      "screenshotPath": "/Volumes/files/src/openclinxr/docs/openclinxr/screenshots/ui-admin-full-app-resmoke-2026-05-26.png",
+      "checks": [
+        {
+          "text": "3D Environment Generation Queue",
+          "present": false
+        },
+        {
+          "text": "Runtime Selection",
+          "present": false
+        },
+        {
+          "text": "Scenario Bank",
+          "present": true
+        }
+      ],
+      "bodyPreview": "OpenClinXR Admin\nScenario Bank\nReview Replay\nExam Forms\nSINGLE-USER PILOT CONTROL PLANE\nScenario governance workbench\nClinical, psychometric, legal, and simulation QA gates stay visible before a scenario can feed a learner-facing XR station.\nGraphQL Codegen\nApollo Client\nProComponents v3\nReact Router\nAnt Design 6\nScenario Bank\nAuthor, validate, and review case-bank scenarios before publication.\nOpen Scenario Bank\nReview Replay\nInspect trace replay, actor responses, scoring evidence, and reviewer findings.\nOpen Review Replay\nExam Forms\nAssemble locked station sequences from approved scenarios and coverage targets.\nOpen Exam Forms\nPublication gates\n1\nClinical review\n2\nPsychometric review\n3\nLegal review\n4\nSimulation QA",
+      "consoleMessages": [],
+      "pageErrors": []
+    }
+  ]
+}

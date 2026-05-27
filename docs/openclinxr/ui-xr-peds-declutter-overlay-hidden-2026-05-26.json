@@ -1,0 +1,352 @@
+{
+  "url": "http://127.0.0.1:5173/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1&openclinxrCaptureMode=actor-realism",
+  "screenshotPath": "/Volumes/files/src/openclinxr/docs/openclinxr/screenshots/ui-xr-peds-declutter-overlay-hidden-2026-05-26.png",
+  "errors": [],
+  "evidence": {
+    "scenario": null,
+    "roleCues": {
+      "source": "window.__openClinXrRoleDistinctHumanoidCueEvidence",
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "cueCount": 5,
+      "cues": [
+        {
+          "actorId": "patient_maya_johnson_v1",
+          "role": "patient",
+          "cueId": "patient_hand_to_chest_distress_cue",
+          "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.patient-hand-to-chest-distress-cue"
+        },
+        {
+          "actorId": "patient_maya_johnson_v1",
+          "role": "patient",
+          "cueId": "pediatric_nebulizer_mask_face_cue",
+          "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.pediatric-nebulizer-mask-face-cue"
+        },
+        {
+          "actorId": "patient_maya_johnson_v1",
+          "role": "patient",
+          "cueId": "pediatric_oxygen_tubing_work_of_breathing_cue",
+          "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.pediatric-oxygen-tubing-work-of-breathing-cue"
+        },
+        {
+          "actorId": "nurse_kevin_lee_v1",
+          "role": "nurse",
+          "cueId": "nurse_stethoscope_clinical_role_cue",
+          "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.nurse-stethoscope-clinical-role-cue"
+        },
+        {
+          "actorId": "parent_tara_johnson_v1",
+          "role": "family",
+          "cueId": "family_parent_hand_to_chest_anxiety_cue",
+          "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.family-parent-hand-to-chest-anxiety-cue"
+        }
+      ],
+      "notEvidenceFor": [
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity",
+        "production_readiness",
+        "animation_quality"
+      ]
+    },
+    "equipmentCues": {
+      "source": "window.__openClinXrPediatricRespiratoryEquipmentCueEvidence",
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "cueCount": 7,
+      "cues": [
+        {
+          "equipmentId": "openclinxr.peds_asthma_parent_anxiety_v1.pulse_oximeter_equipment.generated-glb",
+          "cueId": "pulse_ox_finger_clip_readability_cue",
+          "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.equipment-cue.pulse_ox_finger_clip_readability_cue"
+        },
+        {
+          "equipmentId": "openclinxr.peds_asthma_parent_anxiety_v1.pulse_oximeter_equipment.generated-glb",
+          "cueId": "pulse_ox_spo2_screen_91_cue",
+          "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.equipment-cue.pulse_ox_spo2_screen_91_cue"
+        },
+        {
+          "equipmentId": "openclinxr.peds_asthma_parent_anxiety_v1.nebulizer_mask_equipment.generated-glb",
+          "cueId": "pediatric_nebulizer_mask_readability_cue",
+          "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.equipment-cue.pediatric_nebulizer_mask_readability_cue"
+        },
+        {
+          "equipmentId": "openclinxr.peds_asthma_parent_anxiety_v1.nebulizer_mask_equipment.generated-glb",
+          "cueId": "pediatric_nebulizer_tubing_line_cue",
+          "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.equipment-cue.pediatric_nebulizer_tubing_line_cue"
+        },
+        {
+          "equipmentId": "openclinxr.peds_asthma_parent_anxiety_v1.oxygen_wall_port_equipment.generated-glb",
+          "cueId": "oxygen_wall_port_round_connector_cue",
+          "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.equipment-cue.oxygen_wall_port_round_connector_cue"
+        },
+        {
+          "equipmentId": "openclinxr.peds_asthma_parent_anxiety_v1.oxygen_wall_port_equipment.generated-glb",
+          "cueId": "oxygen_tubing_clear_line_cue",
+          "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.equipment-cue.oxygen_tubing_clear_line_cue"
+        },
+        {
+          "equipmentId": "openclinxr.peds_asthma_parent_anxiety_v1.pediatric_stretcher_equipment.generated-glb",
+          "cueId": "low_translucent_pediatric_bed_rail_cue",
+          "sceneObjectName": "openclinxr.peds_asthma_parent_anxiety_v1.equipment-cue.low_translucent_pediatric_bed_rail_cue"
+        }
+      ],
+      "notEvidenceFor": [
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity",
+        "production_readiness",
+        "equipment_asset_readiness"
+      ]
+    },
+    "actingCues": {
+      "source": "window.__openClinXrRuntimeHumanoidActingCueEvidence",
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorCount": 3,
+      "activeCueIds": [
+        "idle_breathing_sway_cue",
+        "pediatric_asthma_visible_work_of_breathing_idle_cue",
+        "pediatric_patient_idle_gaze_alternates_parent_nurse_learner",
+        "pediatric_patient_shoulder_hunch_respiratory_distress_cue",
+        "scenario_actor_idle_attention_shift_cue"
+      ],
+      "actorCues": [
+        {
+          "actorId": "patient_maya_johnson_v1",
+          "role": "patient",
+          "cueIds": [
+            "idle_breathing_sway_cue",
+            "pediatric_asthma_visible_work_of_breathing_idle_cue",
+            "pediatric_patient_shoulder_hunch_respiratory_distress_cue",
+            "pediatric_patient_idle_gaze_alternates_parent_nurse_learner"
+          ],
+          "respiratoryRateCueHz": 0.78,
+          "gazeAlternationTargetActorId": "parent_tara_johnson_v1",
+          "bodyMotionMode": "scenario_pediatric_respiratory_distress_idle_overlay"
+        },
+        {
+          "actorId": "nurse_kevin_lee_v1",
+          "role": "nurse",
+          "cueIds": [
+            "idle_breathing_sway_cue",
+            "scenario_actor_idle_attention_shift_cue"
+          ],
+          "bodyMotionMode": "scenario_pediatric_respiratory_distress_idle_overlay"
+        },
+        {
+          "actorId": "parent_tara_johnson_v1",
+          "role": "family",
+          "cueIds": [
+            "idle_breathing_sway_cue",
+            "scenario_actor_idle_attention_shift_cue"
+          ],
+          "bodyMotionMode": "scenario_pediatric_respiratory_distress_idle_overlay"
+        }
+      ],
+      "notEvidenceFor": [
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity",
+        "production_readiness",
+        "animation_quality"
+      ]
+    },
+    "sceneAssets": {
+      "source": "window.__openClinXrSceneAssetEvidence",
+      "generatedAtMs": 978.6,
+      "expectedAssetCount": 10,
+      "loadedCount": 10,
+      "failedCount": 0,
+      "pendingCount": 0,
+      "fallbackActiveCount": 6,
+      "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+      "visualFidelityCueIds": [
+        "generated_humanoid_front_fidelity_badge",
+        "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+        "room_prop_label_occlusion_reduced",
+        "generated_humanoid_generator_native_front_orientation_preserved",
+        "humanoid_interaction_target_decluttered",
+        "generated_humanoid_facial_features_unobscured",
+        "visible_runtime_mouth_eye_expression_cues"
+      ],
+      "interactionCollisionEvidence": {
+        "proxyCueCount": 3,
+        "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+        "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+        "notEvidenceFor": [
+          "production_physics_readiness",
+          "validated_ragdoll_biomechanics"
+        ]
+      },
+      "assets": [
+        {
+          "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.environment.generated-glb",
+          "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+          "sceneObjectName": "openclinxr-peds_asthma_parent_anxiety_v1-environment-generated-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "affordanceCueIds": [
+            "openclinxr.peds_asthma_parent_anxiety_v1.environment.generated-glb:room_boundary_reference",
+            "openclinxr.peds_asthma_parent_anxiety_v1.environment.generated-glb:spatial_orientation_cue"
+          ],
+          "animationPlayback": "not_applicable"
+        },
+        {
+          "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.inhaler_spacer_equipment.generated-glb",
+          "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+          "sceneObjectName": "openclinxr-peds_asthma_parent_anxiety_v1-inhaler_spacer_equipment-generated-glb",
+          "status": "loaded",
+          "fallbackActive": true,
+          "affordanceCueIds": [
+            "openclinxr.peds_asthma_parent_anxiety_v1.inhaler_spacer_equipment.generated-glb:case_definition_equipment_loaded_from_runtime_bundle",
+            "openclinxr.peds_asthma_parent_anxiety_v1.inhaler_spacer_equipment.generated-glb:mismatched_placeholder_equipment_glb_suppressed",
+            "openclinxr.peds_asthma_parent_anxiety_v1.inhaler_spacer_equipment.generated-glb:semantic_pediatric_equipment_cues_visible"
+          ],
+          "animationPlayback": "not_applicable"
+        },
+        {
+          "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.nebulizer_mask_equipment.generated-glb",
+          "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+          "sceneObjectName": "openclinxr-peds_asthma_parent_anxiety_v1-nebulizer_mask_equipment-generated-glb",
+          "status": "loaded",
+          "fallbackActive": true,
+          "affordanceCueIds": [
+            "openclinxr.peds_asthma_parent_anxiety_v1.nebulizer_mask_equipment.generated-glb:case_definition_equipment_loaded_from_runtime_bundle",
+            "openclinxr.peds_asthma_parent_anxiety_v1.nebulizer_mask_equipment.generated-glb:mismatched_placeholder_equipment_glb_suppressed",
+            "openclinxr.peds_asthma_parent_anxiety_v1.nebulizer_mask_equipment.generated-glb:semantic_pediatric_equipment_cues_visible"
+          ],
+          "animationPlayback": "not_applicable"
+        },
+        {
+          "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.generated-humanoid-glb",
+          "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+          "sceneObjectName": "openclinxr-peds_asthma_parent_anxiety_v1-nurse_kevin_lee_v1-generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "affordanceCueIds": [
+            "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.generated-humanoid-glb:dialogue_target",
+            "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.generated-humanoid-glb:clinical_observation_target",
+            "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.generated-humanoid-glb:generated_humanoid_hair_clothing_eye_detail_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.generated-humanoid-glb:phoneme_viseme_dialogue_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.generated-humanoid-glb:dialogue_gaze_target_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.generated-humanoid-glb:dialogue_eye_focus_target_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.generated-humanoid-glb:scenario_emotion_expression_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.generated-humanoid-glb:visible_runtime_mouth_shape_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.generated-humanoid-glb:visible_runtime_eye_focus_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.generated-humanoid-glb:visible_runtime_eyebrow_jaw_cheek_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.generated-humanoid-glb:face_lip_eye_rig_contract_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.generated-humanoid-glb:ragdoll_collision_proxy_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.generated-humanoid-glb:physician_interaction_target_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.generated-humanoid-glb:authored_clinical_idle_pose_clip_cue"
+          ],
+          "animationPlayback": "gltf_animation_clips_playing"
+        },
+        {
+          "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.oxygen_wall_port_equipment.generated-glb",
+          "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+          "sceneObjectName": "openclinxr-peds_asthma_parent_anxiety_v1-oxygen_wall_port_equipment-generated-glb",
+          "status": "loaded",
+          "fallbackActive": true,
+          "affordanceCueIds": [
+            "openclinxr.peds_asthma_parent_anxiety_v1.oxygen_wall_port_equipment.generated-glb:case_definition_equipment_loaded_from_runtime_bundle",
+            "openclinxr.peds_asthma_parent_anxiety_v1.oxygen_wall_port_equipment.generated-glb:mismatched_placeholder_equipment_glb_suppressed",
+            "openclinxr.peds_asthma_parent_anxiety_v1.oxygen_wall_port_equipment.generated-glb:semantic_pediatric_equipment_cues_visible"
+          ],
+          "animationPlayback": "not_applicable"
+        },
+        {
+          "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.parent_chair_equipment.generated-glb",
+          "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+          "sceneObjectName": "openclinxr-peds_asthma_parent_anxiety_v1-parent_chair_equipment-generated-glb",
+          "status": "loaded",
+          "fallbackActive": true,
+          "affordanceCueIds": [
+            "openclinxr.peds_asthma_parent_anxiety_v1.parent_chair_equipment.generated-glb:case_definition_equipment_loaded_from_runtime_bundle",
+            "openclinxr.peds_asthma_parent_anxiety_v1.parent_chair_equipment.generated-glb:mismatched_placeholder_equipment_glb_suppressed",
+            "openclinxr.peds_asthma_parent_anxiety_v1.parent_chair_equipment.generated-glb:semantic_pediatric_equipment_cues_visible"
+          ],
+          "animationPlayback": "not_applicable"
+        },
+        {
+          "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.generated-humanoid-glb",
+          "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+          "sceneObjectName": "openclinxr-peds_asthma_parent_anxiety_v1-parent_tara_johnson_v1-generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "affordanceCueIds": [
+            "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.generated-humanoid-glb:dialogue_target",
+            "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.generated-humanoid-glb:clinical_observation_target",
+            "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.generated-humanoid-glb:generated_humanoid_hair_clothing_eye_detail_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.generated-humanoid-glb:phoneme_viseme_dialogue_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.generated-humanoid-glb:dialogue_gaze_target_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.generated-humanoid-glb:dialogue_eye_focus_target_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.generated-humanoid-glb:scenario_emotion_expression_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.generated-humanoid-glb:visible_runtime_mouth_shape_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.generated-humanoid-glb:visible_runtime_eye_focus_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.generated-humanoid-glb:visible_runtime_eyebrow_jaw_cheek_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.generated-humanoid-glb:face_lip_eye_rig_contract_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.generated-humanoid-glb:ragdoll_collision_proxy_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.generated-humanoid-glb:physician_interaction_target_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.generated-humanoid-glb:authored_clinical_idle_pose_clip_cue"
+          ],
+          "animationPlayback": "gltf_animation_clips_playing"
+        },
+        {
+          "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.generated-humanoid-glb",
+          "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+          "sceneObjectName": "openclinxr-peds_asthma_parent_anxiety_v1-patient_maya_johnson_v1-generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "affordanceCueIds": [
+            "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.generated-humanoid-glb:dialogue_target",
+            "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.generated-humanoid-glb:clinical_observation_target",
+            "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.generated-humanoid-glb:generated_humanoid_hair_clothing_eye_detail_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.generated-humanoid-glb:phoneme_viseme_dialogue_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.generated-humanoid-glb:dialogue_gaze_target_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.generated-humanoid-glb:dialogue_eye_focus_target_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.generated-humanoid-glb:scenario_emotion_expression_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.generated-humanoid-glb:visible_runtime_mouth_shape_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.generated-humanoid-glb:visible_runtime_eye_focus_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.generated-humanoid-glb:visible_runtime_eyebrow_jaw_cheek_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.generated-humanoid-glb:face_lip_eye_rig_contract_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.generated-humanoid-glb:ragdoll_collision_proxy_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.generated-humanoid-glb:physician_interaction_target_cue",
+            "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.generated-humanoid-glb:authored_clinical_idle_pose_clip_cue"
+          ],
+          "animationPlayback": "gltf_animation_clips_playing"
+        },
+        {
+          "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.pediatric_stretcher_equipment.generated-glb",
+          "assetPath": "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+          "sceneObjectName": "openclinxr-peds_asthma_parent_anxiety_v1-pediatric_stretcher_equipment-generated-glb",
+          "status": "loaded",
+          "fallbackActive": true,
+          "affordanceCueIds": [
+            "openclinxr.peds_asthma_parent_anxiety_v1.pediatric_stretcher_equipment.generated-glb:case_definition_equipment_loaded_from_runtime_bundle",
+            "openclinxr.peds_asthma_parent_anxiety_v1.pediatric_stretcher_equipment.generated-glb:mismatched_placeholder_equipment_glb_suppressed",
+            "openclinxr.peds_asthma_parent_anxiety_v1.pediatric_stretcher_equipment.generated-glb:semantic_pediatric_equipment_cues_visible"
+          ],
+          "animationPlayback": "not_applicable"
+        },
+        {
+          "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.pulse_oximeter_equipment.generated-glb",
+          "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+          "sceneObjectName": "openclinxr-peds_asthma_parent_anxiety_v1-pulse_oximeter_equipment-generated-glb",
+          "status": "loaded",
+          "fallbackActive": true,
+          "affordanceCueIds": [
+            "openclinxr.peds_asthma_parent_anxiety_v1.pulse_oximeter_equipment.generated-glb:case_definition_equipment_loaded_from_runtime_bundle",
+            "openclinxr.peds_asthma_parent_anxiety_v1.pulse_oximeter_equipment.generated-glb:mismatched_placeholder_equipment_glb_suppressed",
+            "openclinxr.peds_asthma_parent_anxiety_v1.pulse_oximeter_equipment.generated-glb:semantic_pediatric_equipment_cues_visible"
+          ],
+          "animationPlayback": "not_applicable"
+        }
+      ],
+      "productionAssetReadinessClaimed": false,
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity"
+      ]
+    },
+    "actorRealismPanelVisible": false
+  }
+}

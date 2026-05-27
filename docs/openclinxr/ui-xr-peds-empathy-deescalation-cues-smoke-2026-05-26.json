@@ -1,0 +1,59 @@
+{
+  "source": "desktop_browser_local_vite_static_generated_bundle_empathy_deescalation_cues_smoke",
+  "capturedAt": "2026-05-26T06:02:25.440Z",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "clickedTraceTag": "empathy_statement",
+  "url": "http://localhost:5173/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1",
+  "screenshotPath": "/Volumes/files/src/openclinxr/docs/openclinxr/screenshots/ui-xr-peds-empathy-deescalation-cues-smoke-2026-05-26.png",
+  "visibleChecks": {
+    "traceOneOfNineVisible": true,
+    "empathyCuePresent": true,
+    "reassuranceCuePresent": true,
+    "parentChairActive": true,
+    "pediatricStretcherActive": true,
+    "empathyEventType": true,
+    "patientActorSpeaking": false,
+    "scenarioSpecificEmpathyDialogueVisible": true,
+    "learnerUseBlockedBoundaryVisible": true
+  },
+  "environmentStateExcerpt": {
+    "activeTraceTags": [
+      "empathy_statement"
+    ],
+    "stressCueIds": [
+      "pediatric_empathy_deescalation_runtime_attention",
+      "child_parent_reassurance_runtime_attention"
+    ],
+    "activePropIds": [
+      "pediatric_stretcher_equipment",
+      "parent_chair_equipment"
+    ],
+    "monitorState": "baseline",
+    "alarmState": "quiet"
+  },
+  "handoffExcerpt": {
+    "latestAction": {
+      "sequence": 1,
+      "traceTag": "empathy_statement",
+      "source": "dom_click_trace_button",
+      "eventType": "learner.empathy",
+      "actorId": "parent_tara_johnson_v1",
+      "completedAtSecond": 4,
+      "completedAtMs": 4743.8,
+      "selectLatencyMs": 1.4
+    },
+    "requiredCount": 9,
+    "observedRequiredCount": 1
+  },
+  "speechEvidenceExcerpt": {
+    "activeActorId": "parent_tara_johnson_v1",
+    "gazeTargetKind": "learner_camera",
+    "visemeCount": 48
+  },
+  "notEvidenceFor": [
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "production_readiness"
+  ]
+}
