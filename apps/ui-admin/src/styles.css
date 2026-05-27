@@ -108,6 +108,8 @@ a {
   display: grid;
   gap: 4px;
   min-height: 72px;
+  min-width: 0;
+  overflow-wrap: anywhere;
   padding: 12px;
 }
 
@@ -121,6 +123,8 @@ a {
   background: #ffffff;
   border: 1px solid #dbe3e1;
   border-radius: 6px;
+  min-width: 0;
+  overflow-wrap: anywhere;
   padding: 16px;
 }
 
@@ -188,6 +192,8 @@ a {
   border-radius: 6px;
   display: grid;
   gap: 14px;
+  min-width: 0;
+  overflow-wrap: anywhere;
   padding: 16px;
 }
 
@@ -235,6 +241,7 @@ a {
 }
 
 .station-run-input {
+  max-width: 100%;
   min-width: 300px;
 }
 
@@ -272,6 +279,8 @@ a {
 .compact-list li {
   display: grid;
   gap: 2px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 @media (max-width: 760px) {

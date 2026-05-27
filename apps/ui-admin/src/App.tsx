@@ -6,20 +6,42 @@ import { adminWorkbenchCapabilityTags, openClinXrAdminTheme } from "@openclinxr/
 import { Alert, Button, Card, ConfigProvider, Input, Layout, Space, Spin, Steps, Tag, Typography } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { BrowserRouter, Link, MemoryRouter, Route, Routes, useParams, useSearchParams } from "react-router";
+import { buildFacultyReviewPath } from "@openclinxr/review-workflow";
 import {
   createAdminControlPlaneClient,
   buildAdminGraphqlEndpoint,
+  type CreateScenarioSceneGenerationRequestResult,
+  type ScenarioSceneGenerationRequestPublicationReadiness,
   type AdminScenario,
   type AdminScenarioDetail,
   type AdminControlPlaneClient,
+  type AdminRealtimeVoicePosture,
+  type AdminRuntimeProtocolPosture,
+  type AdminRuntimeProviderReadiness,
+  type AdminRuntimeSelectionReviewPacket,
+  type AdminDynamicEncounterFactoryPlanningProjection,
+  type AdminScenarioBankExamSequenceProjection,
+  type AdminScenarioBankMaturityReport,
+  type AdminScenarioPublicationReadiness,
   type AdminReviewPacketReplay,
   type AdminStationRunQueueSnapshot,
   type BlueprintScenarioReadiness,
+  type EnvironmentGenerationQueue,
+  type EnvironmentGenerationWorkOrderQueue,
+  type ScenarioSceneGenerationRequestQueue,
+  type ScenarioSceneGenerationPipelineWorkOrderQueue,
   type ExamBlueprint,
   type ExamStationRunQueue,
   type ExamTimingPlan,
   type ScenarioAssetReadiness,
 } from "./api-client.js";
+import { EnvironmentGenerationQueuePanel } from "./EnvironmentGenerationQueuePanel.js";
+import { FacultyReviewDecisionPanel } from "./FacultyReviewDecisionPanel.js";
+import { ReviewReplayReadinessSummaryPanel } from "./ReviewReplayReadinessSummaryPanel.js";
+import { ReviewReplaySafetyPanel } from "./ReviewReplaySafetyPanel.js";
+import { RuntimeSelectionReviewPacketPanel } from "./RuntimeSelectionReviewPacketPanel.js";
+import { ScenarioBankMaturityPanel } from "./ScenarioBankMaturityPanel.js";
+import { SeedExamReadinessBoundaryPanel } from "./SeedExamReadinessBoundaryPanel.js";
 
 const { Content, Sider } = Layout;
 const { TextArea } = Input;
@@ -180,12 +202,22 @@ function ReviewReplayWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
 
     let active = true;
     setState({ status: "loading", stationRunId });
-    controlPlaneClient.getReviewPacketReplay({ stationRunId })
-      .then((replay) => {
+    Promise.all([
+      controlPlaneClient.getReviewPacketReplay({ stationRunId }),
+      controlPlaneClient.getReviewReplayReadinessSummary({ stationRunId }),
+    ])
+      .then(([replay, reviewReplayReadinessSummary]) => {
         if (!active) {
           return;
         }
-        setState({ status: "ready", stationRunId, replay });
+        setState({
+          status: "ready",
+          stationRunId,
+          replay: {
+            ...replay,
+            reviewReplayReadinessSummary,
+          },
+        });
         setReviewerId(replay.reviewPacket?.facultyScoreDraft.reviewerId ?? "faculty_001");
         setComments(replay.reviewPacket?.facultyScoreDraft.comments ?? "");
       })
@@ -258,6 +290,28 @@ function ReviewReplayWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
   };
 
   const packet = state.status === "ready" ? state.replay.reviewPacket : null;
+  const clinicalEventReviewSummary = state.status === "ready" ? state.replay.clinicalEventReviewSummary : null;
+  const reviewReplayReadinessSummary = state.status === "ready" ? state.replay.reviewReplayReadinessSummary : null;
+  const traceEventCount = state.status === "ready" ? state.replay.traceEvents.length : 0;
+  const unsafeTraceEventLabels = state.status === "ready"
+    ? state.replay.traceEvents.flatMap((event) => {
+      const tag = event.tag ?? "";
+      if (tag.startsWith("unsafe_") || event.eventType.includes("unsafe") || event.eventType.includes("safety")) {
+        return [tag || event.eventType];
+      }
+      return [];
+    })
+    : [];
+  const safetyFlagLabels = uniqueValues([...(packet?.unsafeEvents ?? []), ...unsafeTraceEventLabels]);
+  const facultyReviewPath = packet ? buildFacultyReviewPath({
+    packet,
+    hasDurableSummary: Boolean(clinicalEventReviewSummary),
+    durableSummaryIsSafe: clinicalEventReviewSummary?.safeForFacultyReview === true,
+    traceEventCount,
+    safetyFlagLabels,
+  }) : null;
+  const facultyReviewPosture = facultyReviewPath?.posture ?? null;
+  const facultyActionChecklist = facultyReviewPath?.actionChecklist ?? [];
 
   return (
     <section className="review-replay-workbench" aria-labelledby="review-replay-title" aria-label="Review packet replay workbench">
@@ -311,6 +365,114 @@ function ReviewReplayWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
             <ReadinessMetric label={`${packet.traceQuality.unsafeEventCount} unsafe events`} detail={`${packet.traceQuality.blockedGuardrailCount} blocked guardrails`} />
           </div>
 
+          {clinicalEventReviewSummary ? (
+            <ReviewReplaySafetyPanel
+              packet={packet}
+              clinicalEventReviewSummary={clinicalEventReviewSummary}
+              traceEventCount={traceEventCount}
+              safetyFlagLabels={safetyFlagLabels}
+            />
+          ) : null}
+
+          {reviewReplayReadinessSummary ? (
+            <ReviewReplayReadinessSummaryPanel
+              summary={reviewReplayReadinessSummary}
+              humanoidPerformanceContract={reviewReplayReadinessSummary.caseDefinedHumanoidPerformanceContract}
+            />
+          ) : null}
+
+          <FacultyReviewDecisionPanel
+            packet={packet}
+            clinicalEventReviewSummary={clinicalEventReviewSummary}
+            reviewReplayReadinessSummary={reviewReplayReadinessSummary}
+            humanoidPerformanceContract={reviewReplayReadinessSummary?.caseDefinedHumanoidPerformanceContract}
+            traceEventCount={traceEventCount}
+            safetyFlagLabels={safetyFlagLabels}
+          />
+
+          {facultyReviewPosture ? (
+            <section className="workbench-panel" aria-label="Faculty review posture">
+              <div className="workbench-title-row">
+                <div>
+                  <Typography.Text className="eyebrow">Completed-station faculty posture</Typography.Text>
+                  <Typography.Title level={4}>Faculty Review Posture</Typography.Title>
+                </div>
+                <Tag color={facultyReviewPosture.color}>{facultyReviewPosture.title}</Tag>
+              </div>
+              <Typography.Paragraph>{facultyReviewPosture.guidance}</Typography.Paragraph>
+              <ol className="compact-list">
+                {facultyReviewPosture.checks.map((check) => (
+                  <li key={check.label}>
+                    <Typography.Text>{check.label}</Typography.Text>
+                    <Space wrap>
+                      <Tag color={check.color}>{check.status}</Tag>
+                      <Typography.Text type="secondary">{check.detail}</Typography.Text>
+                    </Space>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          ) : null}
+
+          <section className="workbench-panel" aria-label="Faculty action checklist">
+            <div className="workbench-title-row">
+              <div>
+                <Typography.Text className="eyebrow">Completed-station next actions</Typography.Text>
+                <Typography.Title level={4}>Faculty Action Checklist</Typography.Title>
+              </div>
+              <Tag color={facultyActionChecklist.some((item) => item.color !== "green") ? "gold" : "green"}>
+                {facultyActionChecklist.some((item) => item.color !== "green") ? "Review actions present" : "No blocking actions"}
+              </Tag>
+            </div>
+            <ol className="compact-list">
+              {facultyActionChecklist.map((item) => (
+                <li key={item.label}>
+                  <Typography.Text>{item.label}</Typography.Text>
+                  <Space wrap>
+                    <Tag color={item.color}>{item.status}</Tag>
+                    <Typography.Text type="secondary">{item.detail}</Typography.Text>
+                  </Space>
+                </li>
+              ))}
+            </ol>
+          </section>
+
+          {clinicalEventReviewSummary ? (
+            <section className="workbench-panel" aria-label="Durable clinical-event review summary">
+              <div className="workbench-title-row">
+                <div>
+                  <Typography.Text className="eyebrow">Replay-safe durable evidence</Typography.Text>
+                  <Typography.Title level={4}>Clinical Event Review Summary</Typography.Title>
+                </div>
+                <Tag color={clinicalEventReviewSummary.safeForFacultyReview ? "green" : "gold"}>
+                  {clinicalEventReviewSummary.safeForFacultyReview ? "Review safe" : "Needs redaction review"}
+                </Tag>
+              </div>
+              <div className="readiness-strip review-replay-strip">
+                <ReadinessMetric label={`${clinicalEventReviewSummary.eventCount} clinical ${pluralize(clinicalEventReviewSummary.eventCount, "event")}`} detail={`${clinicalEventReviewSummary.redactedEventCount} redacted`} />
+                <ReadinessMetric label={clinicalEventReviewSummary.durableStore ?? "No durable store"} detail={`${clinicalEventReviewSummary.latestAtSecond ?? 0}s latest event`} />
+                <ReadinessMetric label={`${clinicalEventReviewSummary.traceTags.length} trace links`} detail={clinicalEventReviewSummary.traceTags.join(", ") || "none"} />
+                <ReadinessMetric label={`${Object.keys(clinicalEventReviewSummary.clinicalEventKinds as Record<string, unknown>).length} event kinds`} detail="summary only, no private payloads" />
+              </div>
+            </section>
+          ) : null}
+
+          <section className="workbench-panel" aria-label="Assessment use boundary">
+            <div className="workbench-title-row">
+              <div>
+                <Typography.Text className="eyebrow">Psychometric guardrail</Typography.Text>
+                <Typography.Title level={4}>Assessment Use Boundary</Typography.Title>
+              </div>
+              <Tag color="blue">Formative local practice only</Tag>
+            </div>
+            <Typography.Paragraph>
+              Use only for local formative practice and debrief preparation until approved score-use evidence is complete.
+            </Typography.Paragraph>
+            <Typography.Paragraph>
+              Faculty score drafts are local review aids for scenario iteration and debrief preparation until psychometric validation, rater training, and score-use evidence are complete.
+            </Typography.Paragraph>
+          </section>
+
           {saveState.status === "saved" ? (
             <Alert type="success" title="Faculty draft saved" description={`${packet.facultyScoreDraft.reviewerId} draft updated`} showIcon />
           ) : null}
@@ -331,6 +493,22 @@ function ReviewReplayWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
               <div className="tag-row">
                 {packet.missingRequiredTraceTags.length === 0 ? <Tag color="green">none</Tag> : packet.missingRequiredTraceTags.map((tag) => (
                   <Tag key={tag} color="gold">{tag}</Tag>
+                ))}
+              </div>
+            </section>
+
+            <section className="workbench-panel" aria-label="Review flags">
+              <Typography.Title level={4}>Review Flags</Typography.Title>
+              <Typography.Text strong>Late behaviors</Typography.Text>
+              <div className="tag-row">
+                {packet.lateTraceTags.length === 0 ? <Tag color="green">none</Tag> : packet.lateTraceTags.map((tag) => (
+                  <Tag key={tag} color="orange">{tag}</Tag>
+                ))}
+              </div>
+              <Typography.Text strong>Safety flags</Typography.Text>
+              <div className="tag-row">
+                {safetyFlagLabels.length === 0 ? <Tag color="green">none</Tag> : safetyFlagLabels.map((event) => (
+                  <Tag key={event} color="red">{event}</Tag>
                 ))}
               </div>
             </section>
@@ -424,7 +602,13 @@ function ReviewReplayWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
 type ScenarioBankWorkbenchState =
   | { status: "loading" }
   | { status: "error"; message: string }
-  | { status: "ready"; scenarios: AdminScenario[] };
+  | {
+    status: "ready";
+    scenarios: AdminScenario[];
+    scenarioBankMaturity: AdminScenarioBankMaturityReport;
+    scenarioBankExamSequence: AdminScenarioBankExamSequenceProjection;
+    dynamicEncounterFactoryPlanning: AdminDynamicEncounterFactoryPlanningProjection;
+  };
 
 function ScenarioBankWorkbench({ controlPlaneClient }: { controlPlaneClient: AdminControlPlaneClient }): React.ReactElement {
   const [state, setState] = useState<ScenarioBankWorkbenchState>({ status: "loading" });
@@ -432,10 +616,15 @@ function ScenarioBankWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
   useEffect(() => {
     let active = true;
 
-    controlPlaneClient.listScenarios()
-      .then((scenarios) => {
+    Promise.all([
+      controlPlaneClient.listScenarios(),
+      controlPlaneClient.getScenarioBankMaturity(),
+      controlPlaneClient.getScenarioBankExamSequence(),
+      controlPlaneClient.getDynamicEncounterFactoryPlanning(),
+    ])
+      .then(([scenarios, scenarioBankMaturity, scenarioBankExamSequence, dynamicEncounterFactoryPlanning]) => {
         if (active) {
-          setState({ status: "ready", scenarios });
+          setState({ status: "ready", scenarios, scenarioBankMaturity, scenarioBankExamSequence, dynamicEncounterFactoryPlanning });
         }
       })
       .catch((error: unknown) => {
@@ -474,6 +663,8 @@ function ScenarioBankWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
   const approvedCount = state.scenarios.filter((scenario) => scenario.status === "APPROVED").length;
   const draftCount = state.scenarios.filter((scenario) => scenario.status === "DRAFT").length;
   const readyForReviewCount = state.scenarios.filter((scenario) => scenario.status === "READY_FOR_REVIEW").length;
+  const actorCount = state.scenarios.reduce((total, scenario) => total + scenario.actors.length, 0);
+  const behaviorProfileCount = state.scenarios.reduce((total, scenario) => total + countActorCommunicationProfiles(scenario.actors), 0);
 
   return (
     <section className="scenario-bank-workbench" aria-labelledby="scenario-bank-title" aria-label="Scenario bank governance">
@@ -494,9 +685,48 @@ function ScenarioBankWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
       <div className="readiness-strip scenario-bank-strip" aria-label="Scenario bank status summary">
         <ReadinessMetric label={`${state.scenarios.length} scenarios`} detail={`${uniqueValues(state.scenarios.flatMap((scenario) => scenario.governance.requiredReviewerRoles)).length} reviewer roles`} />
         <ReadinessMetric label={`${approvedCount} approved`} detail={`${draftCount + readyForReviewCount} awaiting gates`} />
-        <ReadinessMetric label={`${uniqueValues(state.scenarios.flatMap((scenario) => scenario.actors.map((actor) => actor.role))).length} actor roles`} detail={`${state.scenarios.reduce((total, scenario) => total + scenario.actors.length, 0)} virtual actors`} />
+        <ReadinessMetric label={`${uniqueValues(state.scenarios.flatMap((scenario) => scenario.actors.map((actor) => actor.role))).length} actor roles`} detail={`${actorCount} virtual actors`} />
+        <ReadinessMetric label={`${behaviorProfileCount} behavior profiles`} detail={`${actorCount} actors, review evidence only`} />
         <ReadinessMetric label={`${state.scenarios.reduce((total, scenario) => total + scenario.assetNeeds.length, 0)} asset needs`} detail="placeholder license posture" />
       </div>
+
+      <ScenarioBankMaturityPanel
+        scenarios={state.scenarios}
+        maturityReport={state.scenarioBankMaturity}
+        examSequenceProjection={state.scenarioBankExamSequence}
+      />
+
+      <section className="workbench-panel" aria-label="Scenario bank dynamic encounter factory planning">
+        <Typography.Title level={4}>Dynamic Encounter Factory Planning</Typography.Title>
+        <Typography.Paragraph type="secondary">
+          {`Boundary: ${state.dynamicEncounterFactoryPlanning.claimBoundary}; next scenario: ${state.dynamicEncounterFactoryPlanning.nextFactoryPlanningScenarioId ?? "none"} via ${state.dynamicEncounterFactoryPlanning.nextFactoryPlanningScenarioSelectionMode}.`}
+        </Typography.Paragraph>
+        <div className="readiness-strip" aria-label="Scenario bank dynamic encounter factory planning metrics">
+          <ReadinessMetric
+            label={`${state.dynamicEncounterFactoryPlanning.scenarios.length} factory candidates`}
+            detail={`anchor ${state.dynamicEncounterFactoryPlanning.anchorScenarioId}`}
+          />
+          <ReadinessMetric
+            label={state.dynamicEncounterFactoryPlanning.routeContractBoundary?.posture ?? "read_only_review_packet"}
+            detail={`provider ${String(state.dynamicEncounterFactoryPlanning.routeContractBoundary?.providerExecutionAllowed ?? false)}; runtime ${String(state.dynamicEncounterFactoryPlanning.routeContractBoundary?.runtimeExecutionAllowed ?? false)}; learner ${String(state.dynamicEncounterFactoryPlanning.routeContractBoundary?.learnerLaunchAllowed ?? false)}; Quest ${String(state.dynamicEncounterFactoryPlanning.routeContractBoundary?.questEvidenceRefreshAllowed ?? false)}`}
+          />
+        </div>
+        <ul className="compact-list" aria-label="Scenario bank dynamic encounter factory candidate summaries">
+          {state.dynamicEncounterFactoryPlanning.scenarios.slice(0, 3).map((scenario) => (
+            <li key={scenario.scenarioId}>
+              <Typography.Text>{scenario.scenarioId}</Typography.Text>
+              <Typography.Text type="secondary">
+                {`actors ${scenario.encounterFactoryInputSummary.actorAssetWorkOrderCount}; environment ${scenario.encounterFactoryInputSummary.environmentAssetWorkOrderCount}; equipment ${scenario.encounterFactoryInputSummary.equipmentAssetWorkOrderCount}; ${scenario.encounterFactoryInputSummary.factorySelectionClaimBoundary}`}
+              </Typography.Text>
+              {scenario.humanoidPerformanceContract ? (
+                <Typography.Text type="secondary">
+                  {`humanoid behavior contract actors ${scenario.humanoidPerformanceContract.actorCount}; locomotion ${scenario.humanoidPerformanceContract.locomotionActorRoles.length}; expression ${scenario.humanoidPerformanceContract.expressionActorRoles.length}; gaze ${scenario.humanoidPerformanceContract.gazeActorRoles.length}; lip-sync ${scenario.humanoidPerformanceContract.lipSyncActorRoles.length}; interactivity ${scenario.humanoidPerformanceContract.interactiveActorRoles.length}; emotion states ${scenario.humanoidPerformanceContract.emotionStateCount}; viseme mapping ${String(scenario.humanoidPerformanceContract.dialogueDrivenVisemeMappingRequired)}; ${scenario.humanoidPerformanceContract.claimBoundary}; not evidence for ${scenario.humanoidPerformanceContract.notEvidenceFor.join(", ")}`}
+                </Typography.Text>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <div className="scenario-list">
         {state.scenarios.map((scenario) => (
@@ -524,6 +754,9 @@ function ScenarioBankWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
 
               <section aria-label={`${scenario.title} actors`}>
                 <Typography.Text strong>Actors</Typography.Text>
+                <Typography.Paragraph type="secondary">
+                  {formatActorCommunicationProfileCoverage(scenario.actors)}
+                </Typography.Paragraph>
                 <ol className="compact-list">
                   {scenario.actors.map((actor) => (
                     <li key={actor.actorId}>
@@ -559,7 +792,7 @@ function ScenarioBankWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
 type ScenarioDetailWorkbenchState =
   | { status: "loading" }
   | { status: "error"; message: string }
-  | { status: "ready"; detail: AdminScenarioDetail };
+  | { status: "ready"; detail: AdminScenarioDetail; publicationReadiness?: AdminScenarioPublicationReadiness };
 
 function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: AdminControlPlaneClient }): React.ReactElement {
   const { scenarioId = "" } = useParams();
@@ -576,10 +809,15 @@ function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: A
   useEffect(() => {
     let active = true;
 
-    controlPlaneClient.getScenarioDetail({ scenarioId, version: Number.isFinite(version) ? version : 1 })
-      .then((detail) => {
+    Promise.all([
+      controlPlaneClient.getScenarioDetail({ scenarioId, version: Number.isFinite(version) ? version : 1 }),
+      scenarioId === "ed_chest_pain_priority_v1"
+        ? controlPlaneClient.getEdChestPainPublicationReadiness({ targetUse: "local_formative", reviewerEvidence: [] }).catch(() => undefined)
+        : Promise.resolve(undefined),
+    ])
+      .then(([detail, publicationReadiness]) => {
         if (active) {
-          setState({ status: "ready", detail });
+          setState({ status: "ready", detail, publicationReadiness });
         }
       })
       .catch((error: unknown) => {
@@ -618,6 +856,10 @@ function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: A
   }
 
   const { scenario, assetReadiness } = state.detail;
+  const publicationReadiness = state.publicationReadiness;
+  const productionReadinessLadder = assetReadiness.productionReadinessLadder;
+  const blockedProductionAssetCount = productionReadinessLadder.blockedAssetIds.length;
+  const productionLadderBlockerCount = productionReadinessLadder.blockers.length;
 
   if (!scenario) {
     return (
@@ -631,7 +873,16 @@ function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: A
     );
   }
 
+  const canRecordClinicalApproval = hasClinicalReviewerRole(scenario.governance.requiredReviewerRoles);
   const recordClinicalApproval = async () => {
+    if (!canRecordClinicalApproval) {
+      setReviewDecisionState({
+        status: "error",
+        message: "Clinical approval requires a clinical reviewer role in governance.",
+      });
+      return;
+    }
+
     setReviewDecisionState({ status: "saving" });
     try {
       const nextScenario = await controlPlaneClient.submitScenarioReview({
@@ -666,7 +917,7 @@ function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: A
           <Typography.Text type="secondary">{`${scenario.scenarioId} v${scenario.version}`}</Typography.Text>
         </div>
         <Space wrap>
-          <Button loading={reviewDecisionState.status === "saving"} onClick={() => void recordClinicalApproval()}>
+          <Button disabled={!canRecordClinicalApproval} loading={reviewDecisionState.status === "saving"} onClick={() => void recordClinicalApproval()}>
             Record clinical approval
           </Button>
           <Tag color={scenarioStatusColor(scenario.status)}>{scenario.status.toLowerCase().replaceAll("_", " ")}</Tag>
@@ -684,6 +935,15 @@ function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: A
         showIcon
       />
 
+      {!canRecordClinicalApproval ? (
+        <Alert
+          type="warning"
+          title="Clinical approval unavailable"
+          description="Clinical approval requires a clinical reviewer role in governance."
+          showIcon
+        />
+      ) : null}
+
       {reviewDecisionState.status === "saved" ? (
         <Alert type="success" title="Review decision recorded" description={`${reviewDecisionState.reviewerRole} gate updated`} showIcon />
       ) : null}
@@ -693,8 +953,9 @@ function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: A
 
       <div className="readiness-strip scenario-bank-strip" aria-label="Scenario detail summary">
         <ReadinessMetric label={`${scenario.clinicalObjectives.length} objectives`} detail={`${scenario.requiredTraceTags.length} required trace tags`} />
-        <ReadinessMetric label={`${scenario.actors.length} actors`} detail={`${uniqueValues(scenario.actors.map((actor) => actor.role)).length} actor roles`} />
+        <ReadinessMetric label={`${scenario.actors.length} actors`} detail={`${countActorCommunicationProfiles(scenario.actors)} behavior profiles`} />
         <ReadinessMetric label={`${scenario.assetNeeds.length} asset needs`} detail={`${assetReadiness.productionBlockedAssets.length} production blockers`} />
+        <ReadinessMetric label={`${productionReadinessLadder.assetCount} release-ladder assets`} detail={`${blockedProductionAssetCount} blocked for release`} />
         <ReadinessMetric label={scenario.environment?.name ?? "Environment pending"} detail={`${scenario.equipment.length} equipment items`} />
       </div>
 
@@ -729,6 +990,26 @@ function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: A
           </ol>
         </section>
 
+        <section className="workbench-panel" aria-label="Scenario behavior profiles">
+          <Typography.Title level={4}>Behavior Profile Review</Typography.Title>
+          <Typography.Paragraph>{formatActorCommunicationProfileCoverage(scenario.actors)}</Typography.Paragraph>
+          <Typography.Paragraph type="secondary">
+            Supports faculty review of synthetic actor behavior; scenario status and score-use gates still control learner use.
+          </Typography.Paragraph>
+          <ol className="compact-list">
+            {scenario.actors.map((actor) => (
+              <li key={actor.actorId}>
+                <Typography.Text>{actor.displayName}</Typography.Text>
+                <Typography.Text type="secondary">
+                  {actor.communicationProfile
+                    ? `${actor.communicationProfile.style} / ${actor.communicationProfile.baselineMood.join(", ")}`
+                    : "Behavior profile not exposed by the admin API."}
+                </Typography.Text>
+              </li>
+            ))}
+          </ol>
+        </section>
+
         <section className="workbench-panel" aria-label="Scenario review gates">
           <Typography.Title level={4}>Review Gates</Typography.Title>
           <div className="tag-row">
@@ -737,6 +1018,27 @@ function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: A
             ))}
           </div>
         </section>
+
+        {publicationReadiness ? (
+          <section className="workbench-panel" aria-label="Publication blocker visibility">
+            <Typography.Title level={4}>Publication Blocker Visibility</Typography.Title>
+            <Typography.Paragraph type="secondary">
+              This read-only posture explains scenario publication blockers for operator review; it is not Quest readiness, clinical validity, scoring validity, or production release evidence.
+            </Typography.Paragraph>
+            <div className="tag-row">
+              <Tag color="cyan">{`target use: ${publicationReadiness.targetUse}`}</Tag>
+              <Tag color="gold">{publicationReadiness.blockerVisibility.claimBoundary}</Tag>
+              <Tag color={publicationReadiness.blockerVisibility.humanReviewRequired ? "gold" : "blue"}>
+                {publicationReadiness.blockerVisibility.humanReviewRequired ? "human review required" : "operator review clear"}
+              </Tag>
+              <Tag color="blue">{publicationReadiness.blockerVisibility.recommendedNextAction}</Tag>
+            </div>
+            <Typography.Text type="secondary">{`Gate statuses: ${publicationReadiness.gateResults.map((gate) => `${gate.gate}:${gate.status}`).join(", ")}`}</Typography.Text>
+            <Typography.Text type="secondary">{`Missing reviewer roles: ${publicationReadiness.missingReviewerRoles.join(", ") || "none"}`}</Typography.Text>
+            <Typography.Text type="secondary">{`Blocker IDs: ${publicationReadiness.blockerVisibility.blockerIds.join(", ") || "none"}`}</Typography.Text>
+            <Typography.Text type="secondary">{`Warning IDs: ${publicationReadiness.blockerVisibility.warningIds.join(", ") || "none"}`}</Typography.Text>
+          </section>
+        ) : null}
 
         <section className="workbench-panel" aria-label="Scenario asset needs">
           <Typography.Title level={4}>Asset Needs</Typography.Title>
@@ -765,6 +1067,34 @@ function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: A
             </ol>
           )}
         </section>
+
+        <section className="workbench-panel" aria-label="Scenario production readiness ladder">
+          <Typography.Title level={4}>Production Readiness Ladder</Typography.Title>
+          <Typography.Paragraph>{`${productionReadinessLadder.assetCount} station assets in ladder; ${productionLadderBlockerCount} evidence blockers remain.`}</Typography.Paragraph>
+          <Typography.Paragraph type="secondary">
+            Release-ladder evidence supports faculty/operator review only; it does not establish Quest runtime readiness or learner launch.
+          </Typography.Paragraph>
+          <div className="tag-row">
+            <Tag color={productionReadinessLadder.productionReady ? "green" : "gold"}>
+              {productionReadinessLadder.productionReady ? "release ready" : "release blocked"}
+            </Tag>
+            <Tag color={productionReadinessLadder.stationBudget.blockers.length === 0 ? "green" : "red"}>
+              {productionReadinessLadder.stationBudget.blockers.length === 0 ? "budget clear" : "budget blocked"}
+            </Tag>
+          </div>
+          <ol className="compact-list">
+            {productionReadinessLadder.assetLadders.map((assetLadder) => {
+              const completeStepCount = assetLadder.steps.filter((step) => step.status === "complete").length;
+              return (
+                <li key={assetLadder.assetId}>
+                  <Typography.Text>{assetLadder.assetId}</Typography.Text>
+                  <Typography.Text type="secondary">{`${completeStepCount} of ${assetLadder.steps.length} release steps complete`}</Typography.Text>
+                  {assetLadder.blockers.length > 0 ? <Typography.Text type="secondary">{assetLadder.blockers.join(", ")}</Typography.Text> : null}
+                </li>
+              );
+            })}
+          </ol>
+        </section>
       </div>
     </section>
   );
@@ -781,6 +1111,15 @@ type SeedBlueprintWorkbenchState =
     stationRunQueue: ExamStationRunQueue;
     queueSnapshots: AdminStationRunQueueSnapshot[];
     assetReadiness: ScenarioAssetReadiness[];
+    environmentGenerationQueue: EnvironmentGenerationQueue;
+    environmentGenerationWorkOrderQueue: EnvironmentGenerationWorkOrderQueue;
+    sceneGenerationPipelineQueue: ScenarioSceneGenerationPipelineWorkOrderQueue;
+    sceneGenerationRequestQueue: ScenarioSceneGenerationRequestQueue;
+    dynamicEncounterFactoryPlanning: AdminDynamicEncounterFactoryPlanningProjection;
+    runtimeProviderReadiness: AdminRuntimeProviderReadiness;
+    runtimeSelectionReviewPacket: AdminRuntimeSelectionReviewPacket;
+    runtimeProtocolPosture: AdminRuntimeProtocolPosture;
+    realtimeVoicePosture: AdminRealtimeVoicePosture;
   };
 
 function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: AdminControlPlaneClient }): React.ReactElement {
@@ -791,6 +1130,12 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
     | { status: "saved"; snapshotId: string }
     | { status: "error"; message: string }
   >({ status: "idle" });
+  const [sceneGenerationRequestState, setSceneGenerationRequestState] = useState<
+    | { status: "idle" }
+    | { status: "requested"; requestId: string }
+    | { status: "error"; message: string }
+  >({ status: "idle" });
+  const [sceneGenerationPublicationReadiness, setSceneGenerationPublicationReadiness] = useState<ScenarioSceneGenerationRequestPublicationReadiness | undefined>();
 
   useEffect(() => {
     let active = true;
@@ -802,10 +1147,19 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
       controlPlaneClient.getStep2CsSeedStationRunQueue(),
       controlPlaneClient.listStep2CsSeedStationRunQueueSnapshots(),
       controlPlaneClient.getScenarioBankAssetReadiness(),
+      controlPlaneClient.getScenarioBankEnvironmentGenerationQueue(),
+      controlPlaneClient.getScenarioBankEnvironmentWorkOrderQueue(),
+      controlPlaneClient.getScenarioBankSceneGenerationPipelineQueue(),
+      controlPlaneClient.listScenarioSceneGenerationRequests(),
+      controlPlaneClient.getDynamicEncounterFactoryPlanning(),
+      controlPlaneClient.getRuntimeProviderReadiness(),
+      controlPlaneClient.getRuntimeSelectionReviewPacket(),
+      controlPlaneClient.getRuntimeProtocolPosture(),
+      controlPlaneClient.getRealtimeVoicePosture(),
     ])
-      .then(([blueprint, readiness, timingPlan, stationRunQueue, queueSnapshots, assetReadiness]) => {
+      .then(([blueprint, readiness, timingPlan, stationRunQueue, queueSnapshots, assetReadiness, environmentGenerationQueue, environmentGenerationWorkOrderQueue, sceneGenerationPipelineQueue, sceneGenerationRequestQueue, dynamicEncounterFactoryPlanning, runtimeProviderReadiness, runtimeSelectionReviewPacket, runtimeProtocolPosture, realtimeVoicePosture]) => {
         if (active) {
-          setState({ status: "ready", blueprint, readiness, timingPlan, stationRunQueue, queueSnapshots, assetReadiness });
+          setState({ status: "ready", blueprint, readiness, timingPlan, stationRunQueue, queueSnapshots, assetReadiness, environmentGenerationQueue, environmentGenerationWorkOrderQueue, sceneGenerationPipelineQueue, sceneGenerationRequestQueue, dynamicEncounterFactoryPlanning, runtimeProviderReadiness, runtimeSelectionReviewPacket, runtimeProtocolPosture, realtimeVoicePosture });
         }
       })
       .catch((error: unknown) => {
@@ -859,6 +1213,68 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
     }
   };
 
+  const initiateSceneGeneration = async (scenarioId: string) => {
+    try {
+      const result = await controlPlaneClient.createScenarioSceneGenerationRequest({ scenarioId });
+      setState((currentState) => currentState.status === "ready"
+        ? {
+          ...currentState,
+          sceneGenerationRequestQueue: {
+            ...currentState.sceneGenerationRequestQueue,
+            requestCount: currentState.sceneGenerationRequestQueue.requestCount + 1,
+            requests: [result, ...currentState.sceneGenerationRequestQueue.requests],
+          },
+        }
+        : currentState);
+      setSceneGenerationRequestState({ status: "requested", requestId: result.requestId });
+    } catch (error) {
+      setSceneGenerationRequestState({ status: "error", message: error instanceof Error ? error.message : "Unknown scene generation request error" });
+    }
+  };
+
+  const attachSceneGenerationReview = async (request: CreateScenarioSceneGenerationRequestResult) => {
+    const assetId = request.workOrder.characterAssetIds[0] ?? request.workOrder.environmentAssetIds[0] ?? request.scenarioId;
+    const result = await controlPlaneClient.submitScenarioSceneGenerationRequestReview({
+      requestId: request.requestId,
+      decisions: [
+        {
+          assetId,
+          reviewerRole: "asset_pipeline",
+          reviewerId: "admin_asset_pipeline_reviewer",
+          decision: "approved_for_local_runtime",
+          comments: "Local generated asset references are ready for local runtime promotion review only.",
+          evidenceRefs: [`${request.requestId}:asset_pipeline:local-admin`],
+          reviewedAt: new Date().toISOString(),
+        },
+        {
+          assetId,
+          reviewerRole: "security_privacy",
+          reviewerId: "admin_security_privacy_reviewer",
+          decision: "approved_for_local_runtime",
+          comments: "Local runtime asset references do not include identity-bearing URLs in the admin-visible request record.",
+          evidenceRefs: [`${request.requestId}:security_privacy:local-admin`],
+          reviewedAt: new Date().toISOString(),
+        },
+      ],
+    });
+    const publicationReadiness = await controlPlaneClient.getScenarioSceneGenerationRequestPublicationReadiness({ requestId: request.requestId });
+    setSceneGenerationPublicationReadiness(publicationReadiness);
+    setState((currentState) => currentState.status === "ready"
+      ? {
+        ...currentState,
+        sceneGenerationRequestQueue: {
+          ...currentState.sceneGenerationRequestQueue,
+          requests: currentState.sceneGenerationRequestQueue.requests.map((candidate) => candidate.requestId === result.requestId ? result : candidate),
+        },
+      }
+      : currentState);
+  };
+
+  const checkSceneGenerationPublicationReadiness = async (request: CreateScenarioSceneGenerationRequestResult) => {
+    const publicationReadiness = await controlPlaneClient.getScenarioSceneGenerationRequestPublicationReadiness({ requestId: request.requestId });
+    setSceneGenerationPublicationReadiness(publicationReadiness);
+  };
+
   return (
     <section className="seed-workbench" aria-labelledby="seed-exam-readiness-title">
       <div className="workbench-title-row">
@@ -894,19 +1310,75 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
         <ReadinessMetric label={`${devReadyScenes} dev-ready scenes`} detail={`${productionReadyScenes} production-ready scenes`} />
         <ReadinessMetric
           label={state.stationRunQueue.canStartLearnerExam ? "Learner launch ready" : "Learner launch blocked"}
-          detail={`${state.stationRunQueue.summary.draftBlocked} draft-blocked stations`}
+          detail={`${state.stationRunQueue.summary.draftBlocked} draft, ${state.stationRunQueue.summary.governanceBlocked} governance blocked`}
         />
       </div>
 
       {snapshotState.status === "saved" ? <Alert type="success" title="Review snapshot saved" description={snapshotState.snapshotId} showIcon /> : null}
       {snapshotState.status === "error" ? <Alert type="error" title="Review snapshot failed" description={snapshotState.message} showIcon /> : null}
+      {sceneGenerationRequestState.status === "requested" ? <Alert type="success" title="Scene generation request created" description={sceneGenerationRequestState.requestId} showIcon /> : null}
+      {sceneGenerationRequestState.status === "error" ? <Alert type="error" title="Scene generation request failed" description={sceneGenerationRequestState.message} showIcon /> : null}
 
       <div className="workbench-panels">
+        <SeedExamReadinessBoundaryPanel
+          assetReadiness={state.assetReadiness}
+          stationRunQueue={state.stationRunQueue}
+          runtimeProviderReadiness={state.runtimeProviderReadiness}
+          runtimeProtocolPosture={state.runtimeProtocolPosture}
+          realtimeVoicePosture={state.realtimeVoicePosture}
+          environmentGenerationQueue={state.environmentGenerationQueue}
+        />
+
+        <RuntimeSelectionReviewPacketPanel packet={state.runtimeSelectionReviewPacket} />
+
+        <section className="workbench-panel" aria-label="Dynamic encounter factory planning">
+          <Typography.Title level={4}>Dynamic Encounter Factory Planning</Typography.Title>
+          <Typography.Paragraph type="secondary">
+            {`Boundary: ${state.dynamicEncounterFactoryPlanning.claimBoundary}; next scenario: ${state.dynamicEncounterFactoryPlanning.nextFactoryPlanningScenarioId ?? "none"} via ${state.dynamicEncounterFactoryPlanning.nextFactoryPlanningScenarioSelectionMode}.`}
+          </Typography.Paragraph>
+          <div className="readiness-strip" aria-label="Dynamic encounter factory planning metrics">
+            <ReadinessMetric
+              label={`${state.dynamicEncounterFactoryPlanning.scenarios.length} factory candidates`}
+              detail={`anchor ${state.dynamicEncounterFactoryPlanning.anchorScenarioId}`}
+            />
+            <ReadinessMetric
+              label={state.dynamicEncounterFactoryPlanning.routeContractBoundary?.posture ?? "read_only_review_packet"}
+              detail={`provider ${String(state.dynamicEncounterFactoryPlanning.routeContractBoundary?.providerExecutionAllowed ?? false)}; runtime ${String(state.dynamicEncounterFactoryPlanning.routeContractBoundary?.runtimeExecutionAllowed ?? false)}; Quest ${String(state.dynamicEncounterFactoryPlanning.routeContractBoundary?.questEvidenceRefreshAllowed ?? false)}`}
+            />
+          </div>
+          <ul className="compact-list" aria-label="Dynamic encounter factory candidate summaries">
+            {state.dynamicEncounterFactoryPlanning.scenarios.slice(0, 3).map((scenario) => (
+              <li key={scenario.scenarioId}>
+                <Typography.Text>{scenario.scenarioId}</Typography.Text>
+                <Typography.Text type="secondary">
+                  {`actors ${scenario.encounterFactoryInputSummary.actorAssetWorkOrderCount}; environment ${scenario.encounterFactoryInputSummary.environmentAssetWorkOrderCount}; equipment ${scenario.encounterFactoryInputSummary.equipmentAssetWorkOrderCount}; ${scenario.encounterFactoryInputSummary.factorySelectionClaimBoundary}`}
+                </Typography.Text>
+                {scenario.humanoidPerformanceContract ? (
+                  <Typography.Text type="secondary">
+                    {`humanoid behavior contract actors ${scenario.humanoidPerformanceContract.actorCount}; locomotion ${scenario.humanoidPerformanceContract.locomotionActorRoles.length}; expression ${scenario.humanoidPerformanceContract.expressionActorRoles.length}; gaze ${scenario.humanoidPerformanceContract.gazeActorRoles.length}; lip-sync ${scenario.humanoidPerformanceContract.lipSyncActorRoles.length}; interactivity ${scenario.humanoidPerformanceContract.interactiveActorRoles.length}; emotion states ${scenario.humanoidPerformanceContract.emotionStateCount}; viseme mapping ${String(scenario.humanoidPerformanceContract.dialogueDrivenVisemeMappingRequired)}; ${scenario.humanoidPerformanceContract.claimBoundary}; not evidence for ${scenario.humanoidPerformanceContract.notEvidenceFor.join(", ")}`}
+                  </Typography.Text>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <EnvironmentGenerationQueuePanel
+          environmentGenerationQueue={state.environmentGenerationQueue}
+          environmentGenerationWorkOrderQueue={state.environmentGenerationWorkOrderQueue}
+          sceneGenerationPipelineQueue={state.sceneGenerationPipelineQueue}
+          sceneGenerationRequestQueue={state.sceneGenerationRequestQueue}
+          sceneGenerationPublicationReadiness={sceneGenerationPublicationReadiness}
+          onInitiateSceneGeneration={(scenarioId) => void initiateSceneGeneration(scenarioId)}
+          onAttachSceneGenerationReview={(request) => void attachSceneGenerationReview(request)}
+          onCheckSceneGenerationPublicationReadiness={(request) => void checkSceneGenerationPublicationReadiness(request)}
+        />
+
         <section className="workbench-panel station-queue-panel" aria-labelledby="station-queue-title">
           <Typography.Title id="station-queue-title" level={4}>
             Station Run Queue
           </Typography.Title>
-          <Typography.Text>{`${state.stationRunQueue.summary.activationReady} activation-ready station, ${state.stationRunQueue.summary.draftBlocked} draft-blocked stations`}</Typography.Text>
+          <Typography.Text>{`${state.stationRunQueue.summary.activationReady} activation-ready station, ${state.stationRunQueue.summary.draftBlocked} draft-blocked, ${state.stationRunQueue.summary.governanceBlocked} governance-blocked`}</Typography.Text>
           <ol className="station-queue-list">
             {state.stationRunQueue.stationQueue.map((station) => (
               <li key={station.slotId}>
@@ -915,7 +1387,8 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
                   <Tag color={station.status === "activation_ready" ? "green" : "gold"}>{station.status}</Tag>
                 </div>
                 <Typography.Text>{station.scenarioId ?? "missing scenario"}</Typography.Text>
-                {station.blockers.length > 0 ? <Typography.Text type="secondary">{station.blockers.join(", ")}</Typography.Text> : null}
+                {station.blockers.length > 0 ? <Typography.Text type="secondary">{station.blockers.map(formatStationQueueBlocker).join(", ")}</Typography.Text> : null}
+                {station.blockers.length > 0 ? <Typography.Text type="secondary">{`Blocker IDs: ${station.blockers.join(", ")}`}</Typography.Text> : null}
               </li>
             ))}
           </ol>
@@ -1001,12 +1474,33 @@ function ReadinessMetric({ label, detail }: { label: string; detail: string }): 
   );
 }
 
+function countActorCommunicationProfiles(actors: readonly { communicationProfile?: unknown | null }[]): number {
+  return actors.filter((actor) => actor.communicationProfile).length;
+}
+
+function formatActorCommunicationProfileCoverage(actors: readonly { communicationProfile?: unknown | null }[]): string {
+  const profileCount = countActorCommunicationProfiles(actors);
+  return `${profileCount} of ${actors.length} actors include behavior profiles for faculty review.`;
+}
+
 function formatDuration(totalSeconds: number): string {
   const totalMinutes = Math.round(totalSeconds / 60);
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
 
   return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+}
+
+function formatStationQueueBlocker(blocker: string): string {
+  const blockerCopy: Record<string, string> = {
+    scenario_not_approved: "Scenario not approved",
+    dialogue_seed_replay_not_ready: "Dialogue replay seeds not ready",
+    governance_not_ready: "Governance not ready",
+    synthetic_draft_validation_stage: "Synthetic draft validation stage",
+    summative_score_use_not_allowed_for_seed_queue: "Summative score use not allowed for seed queue",
+  };
+
+  return blockerCopy[blocker] ?? blocker.replaceAll("_", " ");
 }
 
 function formatMinutes(seconds: number): string {
@@ -1043,6 +1537,11 @@ function scenarioReviewGateEntries(scenario: AdminScenario): Array<[string, stri
   ) as Array<[string, string]>;
 }
 
+function hasClinicalReviewerRole(requiredReviewerRoles: readonly string[]): boolean {
+  const nonClinicalGateRoles = new Set(["legal", "psychometrician", "simulation_qa"]);
+  return requiredReviewerRoles.some((role) => !nonClinicalGateRoles.has(role));
+}
+
 function formatScenarioGovernanceNotice(scenario: AdminScenario): string {
   const scoreUseNotice = scoreUseCopy[scenario.governance.scoreUseLabel as keyof typeof scoreUseCopy]
     ?? safeUserFacingClaimLanguage.formativeAssessment;
@@ -1054,6 +1553,10 @@ function formatScenarioGovernanceNotice(scenario: AdminScenario): string {
 
 function uniqueValues(values: string[]): string[] {
   return [...new Set(values)];
+}
+
+function pluralize(count: number, singular: string): string {
+  return count === 1 ? singular : `${singular}s`;
 }
 
 function clampedScoreFromInput(value: string): number {

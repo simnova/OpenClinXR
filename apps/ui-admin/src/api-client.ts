@@ -1,5 +1,13 @@
 import type { ApolloClient } from "@apollo/client";
-import type { ScenarioAssetReadiness } from "@openclinxr/asset-registry";
+import type {
+  EnvironmentGenerationQueue,
+  EnvironmentGenerationWorkOrderQueue,
+  EncounterDynamicBehaviorCoverageSummary,
+  EncounterFactoryDryRunSummary,
+  EncounterFactoryInputPlanningSummary,
+  ScenarioAssetReadiness,
+  ScenarioSceneGenerationPipelineWorkOrderQueue,
+} from "@openclinxr/asset-registry";
 import type { BlueprintScenarioReadiness, ExamBlueprint, ExamStationRunQueue, ExamTimingPlan } from "@openclinxr/exam-assembly";
 import {
   CreateStationRunQueueSnapshotDocument,
@@ -33,12 +41,24 @@ import { print } from "graphql";
 
 export type AdminApolloGraphqlClient = Pick<ApolloClient, "mutate" | "query">;
 
+export type AdminNoReadinessEvidenceClaim =
+  | "provider_availability"
+  | "runtime_readiness"
+  | "production_asset_readiness"
+  | "quest_readiness"
+  | "clinical_validity"
+  | "scoring_validity"
+  | "learner_launch_readiness";
+
 export type {
   BlueprintScenarioReadiness,
   ExamBlueprint,
   ExamStationRunQueue,
   ExamTimingPlan,
+  EnvironmentGenerationQueue,
+  EnvironmentGenerationWorkOrderQueue,
   ScenarioAssetReadiness,
+  ScenarioSceneGenerationPipelineWorkOrderQueue,
 };
 
 export type AdminControlPlaneClientOptions = {
@@ -52,16 +72,32 @@ export type AdminControlPlaneClient = {
   getStep2CsSeedBlueprintReadiness(): Promise<BlueprintScenarioReadiness>;
   getStep2CsSeedTimingPlan(): Promise<ExamTimingPlan>;
   getStep2CsSeedStationRunQueue(): Promise<ExamStationRunQueue>;
+  getRuntimeProviderReadiness(): Promise<AdminRuntimeProviderReadiness>;
+  getRuntimeSelectionReviewPacket(): Promise<AdminRuntimeSelectionReviewPacket>;
+  getRuntimeProtocolPosture(): Promise<AdminRuntimeProtocolPosture>;
+  getRealtimeVoicePosture(): Promise<AdminRealtimeVoicePosture>;
   createLocalReviewReplaySeed(input?: CreateLocalReviewReplaySeedInput): Promise<CreateLocalReviewReplaySeedResult>;
   listScenarios(input?: ListScenariosInput): Promise<AdminScenario[]>;
   getScenarioDetail(input: GetScenarioDetailInput): Promise<AdminScenarioDetail>;
   listScenarioReviewDecisions(input: ListScenarioReviewDecisionsInput): Promise<AdminScenarioReviewDecision[]>;
   getReviewPacketReplay(input: GetReviewPacketReplayInput): Promise<AdminReviewPacketReplay>;
+  getReviewReplayReadinessSummary(input: GetReviewPacketReplayInput): Promise<AdminReviewReplayReadinessSummary>;
   submitScenarioReview(input: SubmitScenarioReviewInput): Promise<AdminScenarioReviewResult>;
   saveFacultyScoreDraft(input: SaveFacultyScoreDraftInput): Promise<AdminReviewPacket>;
   listStep2CsSeedStationRunQueueSnapshots(): Promise<AdminStationRunQueueSnapshot[]>;
   createStep2CsSeedStationRunQueueSnapshot(input: CreateStationRunQueueSnapshotInput): Promise<AdminStationRunQueueSnapshot>;
+  getEdChestPainPublicationReadiness(input: GetScenarioPublicationReadinessInput): Promise<AdminScenarioPublicationReadiness>;
+  getScenarioBankMaturity(): Promise<AdminScenarioBankMaturityReport>;
+  getScenarioBankExamSequence(): Promise<AdminScenarioBankExamSequenceProjection>;
+  getDynamicEncounterFactoryPlanning(): Promise<AdminDynamicEncounterFactoryPlanningProjection>;
   getScenarioBankAssetReadiness(): Promise<ScenarioAssetReadiness[]>;
+  getScenarioBankEnvironmentGenerationQueue(): Promise<EnvironmentGenerationQueue>;
+  getScenarioBankEnvironmentWorkOrderQueue(): Promise<EnvironmentGenerationWorkOrderQueue>;
+  getScenarioBankSceneGenerationPipelineQueue(): Promise<ScenarioSceneGenerationPipelineWorkOrderQueue>;
+  listScenarioSceneGenerationRequests(): Promise<ScenarioSceneGenerationRequestQueue>;
+  createScenarioSceneGenerationRequest(input: CreateScenarioSceneGenerationRequestInput): Promise<CreateScenarioSceneGenerationRequestResult>;
+  submitScenarioSceneGenerationRequestReview(input: SubmitScenarioSceneGenerationRequestReviewInput): Promise<CreateScenarioSceneGenerationRequestResult>;
+  getScenarioSceneGenerationRequestPublicationReadiness(input: { requestId: string }): Promise<ScenarioSceneGenerationRequestPublicationReadiness>;
 };
 
 export type ListScenariosInput = {
@@ -96,13 +132,634 @@ export type CreateStationRunQueueSnapshotInput = {
   reviewerId?: string;
 };
 
+export type GetScenarioPublicationReadinessInput = {
+  targetUse: "local_formative" | "pilot_research" | "summative";
+  reviewerEvidence: Array<{
+    reviewerRole: string;
+    reviewerId: string;
+    decision: "approved" | "changes_requested";
+    comments: string;
+    evidenceRefs: string[];
+    reviewedAt: string;
+  }>;
+};
+
+export type AdminScenarioPublicationReadiness = {
+  scenarioId: string;
+  targetUse: GetScenarioPublicationReadinessInput["targetUse"];
+  releaseLabel: string;
+  canPublishForLearnerUse: boolean;
+  requiredReviewerRoles: string[];
+  missingReviewerRoles: string[];
+  gateResults: Array<{ gate: string; status: "pass" | "warn" | "block"; details: string[] }>;
+  blockerVisibility: {
+    claimBoundary: "publication_blocker_visibility_not_readiness_claim";
+    humanReviewRequired: boolean;
+    blockerIds: string[];
+    warningIds: string[];
+    recommendedNextAction: string;
+  };
+};
+
+export type AdminDynamicEncounterFactoryPlanningProjection = {
+  source: "scenario_bank_dynamic_encounter_factory_planning";
+  claimBoundary: "review_gated_factory_metadata_only";
+  anchorScenarioId: string;
+  nextFactoryPlanningScenarioId: string | null;
+  nextFactoryPlanningScenarioSelectionMode: "approved_encounter_variant" | "next_scenario_fallback" | "anchor_not_found";
+  learnerUseBoundary: "activation_ready_only";
+  scenarios: Array<{
+    scenarioId: string;
+    title: string;
+    factoryPlanningOrder: number;
+    encounterFactoryInputSummary: {
+      factorySelectionClaimBoundary: "review_gated_factory_metadata_only";
+      actorAssetWorkOrderCount: number;
+      environmentAssetWorkOrderCount: number;
+      equipmentAssetWorkOrderCount: number;
+      sharedAssetLookupKeys: string[];
+      dynamicBehaviorTraceTags: string[];
+    };
+    humanoidPerformanceContract?: {
+      claimBoundary: "case_definition_humanoid_performance_metadata_only";
+      actorCount: number;
+      locomotionActorRoles: string[];
+      expressionActorRoles: string[];
+      gazeActorRoles: string[];
+      lipSyncActorRoles: string[];
+      interactiveActorRoles: string[];
+      emotionStateCount: number;
+      dialogueDrivenVisemeMappingRequired: boolean;
+      gazeTargetingRequired: boolean;
+      locomotionPlanningRequired: boolean;
+      notEvidenceFor: Array<"generated_humanoid_asset_readiness" | "animation_quality" | "quest_readiness" | "runtime_readiness" | "clinical_validity">;
+    };
+  } & Record<string, unknown>>;
+  routeContractBoundary?: {
+    posture: "read_only_review_packet";
+    providerExecutionAllowed: false;
+    runtimeExecutionAllowed: false;
+    learnerLaunchAllowed: false;
+    questEvidenceRefreshAllowed: false;
+  };
+};
+
+export type CreateScenarioSceneGenerationRequestInput = {
+  scenarioId: string;
+};
+
+export type CreateScenarioSceneGenerationRequestResult = {
+  requestId: string;
+  scenarioId: string;
+  createdAt: string;
+  status: "accepted";
+  reviewStatus: "pending_runtime_asset_review" | "runtime_asset_review_attached";
+  nextAction: "attach_runtime_asset_review_decisions" | "run_generated_bundle_publisher";
+  runtimeAssetReviewDecisionCount: number;
+  scenarioReviewGate?: ScenarioReviewGateSummary;
+  humanReviewActions?: HumanReviewActionSummary[];
+  accepted: boolean;
+  productionAssetReadinessClaimed: false;
+  claimBoundary: "scene_generation_request_not_asset_production";
+  factoryPlanningContext?: {
+    scenarioId: string;
+    workOrderId: string;
+    isFeaturedFactoryPlanningTarget: boolean;
+    factoryPlanningClaimBoundary: "review_gated_factory_metadata_only";
+    generationApprovalInferred: false;
+  };
+  workOrder: ScenarioSceneGenerationPipelineWorkOrderQueue["workOrders"][number];
+};
+
+export type ScenarioReviewApprovalBoundary =
+  | "approved_scenario_factory_planning_only"
+  | "draft_no_learner_use_without_human_approval"
+  | "scenario_status_preserved_no_generation_approval_inferred";
+
+export type ScenarioReviewGateSummary = {
+  scenarioStatus: string;
+  approvalBoundary: ScenarioReviewApprovalBoundary;
+  learnerUseBlocked: boolean;
+  blockerIds: string[];
+  claimBoundary: "scenario_status_gate_not_clinical_or_production_readiness";
+};
+
+export type HumanReviewActionSummary = {
+  actionId:
+    | "attach_runtime_asset_review_decisions"
+    | "review_humanoid_realism_metadata"
+    | "review_runtime_bundle_assembly_audit"
+    | "resolve_scenario_approval_boundary";
+  status: "available" | "blocked" | "complete";
+  label: string;
+  blockerIds: string[];
+  evidenceRefs: string[];
+  claimBoundary: "human_review_action_not_automated_approval";
+};
+
+export type SubmitScenarioSceneGenerationRequestReviewInput = {
+  requestId: string;
+  decisions: Array<{
+    assetId: string;
+    reviewerRole: "asset_pipeline" | "clinical_simulation" | "xr_performance" | "security_privacy";
+    reviewerId: string;
+    decision: "approved_for_local_runtime" | "changes_requested";
+    comments: string;
+    evidenceRefs: string[];
+    reviewedAt: string;
+  }>;
+};
+
+export type ScenarioSceneGenerationRequestQueue = {
+  requestCount: number;
+  claimBoundary: "scene_generation_request_queue_not_asset_production";
+  requests: CreateScenarioSceneGenerationRequestResult[];
+};
+
+type LegacyScenarioSceneGenerationDynamicBehaviorCoverageProjection = {
+  dialogueActorRoles: string[];
+  missingDialogueActorRoles: string[];
+  gazeActorRoles: string[];
+  missingGazeActorRoles: string[];
+  placementActorRoles: string[];
+  missingPlacementActorRoles: string[];
+  affectActorRoles?: string[];
+  missingAffectActorRoles?: string[];
+  affectTimelineCount?: number;
+  affectClaimBoundary?: "metadata_only_not_runtime_facial_animation_evidence";
+  blockerIds: string[];
+  warningIds: string[];
+};
+
+export type ScenarioSceneGenerationRequestPublicationReadiness = {
+  requestId: string;
+  scenarioId: string;
+  canRunGeneratedBundlePublisher: boolean;
+  canUseGeneratedBundleForLearnerRuntime?: boolean;
+  blockers: string[];
+  learnerRuntimeUseBlockers?: string[];
+  nextAction: "attach_runtime_asset_review_decisions" | "run_generated_bundle_publisher";
+  scenarioReviewGate?: ScenarioReviewGateSummary;
+  runtimeBundleGateRefs?: Array<{
+    gateId: "runtime_bundle_assembly_audit" | "human_runtime_asset_review" | "scenario_approval_boundary";
+    status: "pending" | "attached" | "blocked";
+    refId: string;
+    blockerIds: string[];
+    claimBoundary: "runtime_bundle_gate_ref_not_published_runtime";
+  }>;
+  humanoidMetadataBlockerIds?: string[];
+  humanReviewActions?: HumanReviewActionSummary[];
+  evidenceGateRefs?: Array<{
+    gateId: "runtime_realism_evidence" | "visual_qa_evidence" | "quest_runtime_evidence" | "asset_production_review";
+    status: "pending" | "attached" | "blocked";
+    evidenceRefs: string[];
+    requiredSignalIds: string[];
+    blockers: string[];
+    notEvidenceFor: AdminNoReadinessEvidenceClaim[];
+  }>;
+  publicationMetadata?: {
+    bundleId: string;
+    status: "publication_prepared_not_learner_use" | "blocked";
+    assetStoreKind: string;
+    generatedAssetCount: number;
+    humanoidActorCount: number;
+    equipmentCount: number;
+    learnerRuntimeUseBlocked: true;
+    publicationReviewEvidenceRefs?: string[];
+    humanoidRealismProfileSummary?: {
+      profileCount: number;
+      actorRoles: string[];
+      requiredSignalIds: string[];
+      claimScope: "metadata_only_not_visual_quality_evidence";
+    };
+    assemblyAuditMetadata?: {
+      claimBoundary: "asset_reference_audit_metadata_not_materialized_assets";
+      sourceDefinitionRefs: string[];
+      humanoidMetadataRefs: Array<{
+        actorId: string;
+        actorRole: string;
+        claimScope: "metadata_only_not_visual_quality_evidence";
+      }>;
+      fallbackPosture: {
+        learnerUseBlockedUntilEvidenceGatesAttach: boolean;
+      };
+    };
+    claimBoundary: "local_publication_metadata_not_runtime_readiness";
+    notEvidenceFor: AdminNoReadinessEvidenceClaim[];
+  };
+  dynamicBehaviorCoverage?: (EncounterDynamicBehaviorCoverageSummary & LegacyScenarioSceneGenerationDynamicBehaviorCoverageProjection);
+  encounterFactoryDryRunSummary?: EncounterFactoryDryRunSummary;
+  inputPlanningSummary?: EncounterFactoryInputPlanningSummary;
+  claimBoundary: "publication_readiness_not_learner_bundle_persistence";
+  notEvidenceFor: AdminNoReadinessEvidenceClaim[];
+};
+
+export type AdminRuntimeProviderPlaneReadiness = {
+  readyCapabilityIds: string[];
+  notConfiguredCapabilityIds: string[];
+  plannedCapabilityIds: string[];
+  blockedCapabilityIds: string[];
+};
+
+export type AdminRuntimeProviderReadinessSurface = {
+  profile: string;
+  providerProfile?: string;
+  deterministicReplayReady: boolean;
+  liveInteractiveProviderReady: boolean;
+  interactiveRuntime: AdminRuntimeProviderPlaneReadiness;
+  assetPipeline: AdminRuntimeProviderPlaneReadiness;
+  persistence: AdminRuntimeProviderPlaneReadiness;
+  providerGates?: Array<{
+    gateId: string;
+    domain: string;
+    path: string;
+    capabilityIds: string[];
+    state: string;
+    liveProviderReady: boolean;
+    credentialEvidencePresent: boolean;
+    runtimeEvidencePresent: boolean;
+    blockers: string[];
+    recommendedNextAction: string;
+    claimBoundary: string;
+  }>;
+  recommendedNextAction?: string;
+  warnings: string[];
+};
+
+export type AdminRuntimeProviderReadiness = {
+  source: string;
+  claimBoundary: string;
+  surfaces: AdminRuntimeProviderReadinessSurface[];
+};
+
+export type AdminRuntimeSelectionReviewPacket = {
+  schemaVersion: "openclinxr.encounter-runtime-selection-review-packet.v1";
+  source: string;
+  reviewPacketMode: "read_only_guarded_runtime_handoff";
+  selectedScenarioId: string;
+  selectedEncounterId: string;
+  selectedStationId: string;
+  selectedRuntimeAssetBundleId: string;
+  handoffArtifactsInternallyPaired: boolean;
+  runtimeCandidates: {
+    model: string;
+    voice: string;
+  };
+  guardedRuntimeSelectorDecision: {
+    selectionStatus: string;
+    claimBoundary: "guarded_runtime_selector_seam_not_runtime_execution";
+    runtimeExecutionAllowed: false;
+    learnerLaunchAllowed: false;
+    providerExecutionPerformed: false;
+    uiLaunchPerformed: false;
+    questEvidenceRefreshed: false;
+    blockers: string[];
+  };
+  publicationPayloadLinkage?: {
+    source: "encounter_publication_payloads";
+    status: string;
+    blockers: string[];
+    localMaterializationHandoff: {
+      requestId: string;
+      scenarioId: string;
+      rootPath: string;
+      plannedOutputCount: number;
+      materializedOutputCount: number;
+      allOutputsPlannedMetadataOnly: boolean;
+    };
+    assetNeedsReadiness: {
+      readyForDeterministicGeneration: boolean;
+      missingRequiredAssetNeedIds: string[];
+      blockers: string[];
+      requiredHumanoidRoles: string[];
+      animationRequirementCount: number;
+      emotionRequirementCount: number;
+      gazeRequirementCount: number;
+      lipSyncRequirementCount: number;
+      sharedAssetLibrarySemanticKeyCount: number;
+    };
+    realismEvidenceRefs?: {
+      claimBoundary: "metadata_only_not_runtime_or_visual_quality_evidence" | "unavailable";
+      refIds: string[];
+      refs?: Array<{
+        refId: string;
+        evidenceRef: string;
+        requiredBefore: "guarded_runtime_wiring";
+        status: "required_not_attached";
+        notEvidenceFor: string[];
+      }>;
+      requiredBefore: "guarded_runtime_wiring" | "unavailable";
+      runtimeExecutionAllowed: false;
+      providerExecutionPerformed: false;
+      questReadinessClaimed: false;
+    };
+  };
+  operatorReviewReadiness?: {
+    status: "ready_for_operator_review" | "not_ready_for_operator_review";
+    reviewedArtifactCount: number;
+    blockingArtifactCount: number;
+    blockerIds: string[];
+    requiredOperatorActions: string[];
+    materializationRequiredBeforeRuntime: boolean;
+    providerExecutionAllowed: false;
+    runtimeExecutionAllowed: false;
+    questEvidenceRefreshAllowed: false;
+    claimBoundary: "operator_review_readiness_metadata_only";
+  };
+  runtimeExecutionAllowed: false;
+  learnerLaunchAllowed: false;
+  providerExecutionPerformed: false;
+  uiLaunchPerformed: false;
+  questEvidenceRefreshed: false;
+  broadVerificationPerformed: false;
+  reviewerChecklist: Array<{
+    checkId: string;
+    status: "required_before_runtime_wiring";
+    blockerIds: string[];
+  }>;
+  blockers: string[];
+  nextAllowedStep: "review_disabled_runtime_selector_before_guarded_wiring" | "review_publication_materialization_blockers_before_guarded_wiring";
+  claimBoundary: "runtime_selection_review_packet_not_runtime_execution";
+  notEvidenceFor: AdminNoReadinessEvidenceClaim[];
+};
+
+export type AdminScenarioBankMaturityReport = {
+  scenarioCount: number;
+  targetScenarioCount: number;
+  missingScenarioCount: number;
+  activationEligibleScenarioIds: string[];
+  blockedScenarioIds: Array<{ scenarioId: string; reason: string }>;
+  statusCounts?: Record<"approved" | "draft" | "retired", number>;
+  validationStageCounts?: Record<
+    "stage_0_synthetic_draft" | "stage_1_expert_reviewed" | "stage_2_pilot_ready" | "stage_3_validated",
+    number
+  >;
+  scenarioMaturityBreakdown?: Array<{
+    scenarioId: string;
+    status: string;
+    validationStage: string;
+    activationEligible: boolean;
+    blockerIds: string[];
+    dialogueSeedReady: boolean;
+    traceabilityReady: boolean;
+    requiredTraceTagCount: number;
+    assetNeedTypes: string[];
+    environmentId: string | null;
+    recommendedNextAction: string;
+  }>;
+  clinicalSettings: string[];
+  actorRoleCoverage?: string[];
+  hiddenFactPolicy?: {
+    redactsAll: boolean;
+    requiresTriggerForAll: boolean;
+  };
+  fixtureCompleteness: { missingRequiredActorRoles: string[] };
+  communicationProfileCoverage?: {
+    completeScenarioIds: string[];
+    incompleteScenarioIds: Array<{ scenarioId: string; missingActorIds: string[] }>;
+    actorCount: {
+      total: number;
+      withCommunicationProfile: number;
+    };
+  };
+  pressureActorCoverage?: {
+    completeScenarioIds: string[];
+    incompleteScenarioIds: Array<{ scenarioId: string; blockers: string[] }>;
+    scenarioCountWithNonPatientActors: number;
+    minimumNonPatientActorCount: number;
+  };
+  traceabilityCoverage?: {
+    completeScenarioIds: string[];
+    incompleteScenarioIds: Array<{ scenarioId: string; blockers: string[] }>;
+    requiredTraceTagsCoveredByRubric: boolean;
+    eventTagsWithinRequiredTraceTags: boolean;
+    safetyCriticalTagsWithinRequiredTraceTags: boolean;
+  };
+  dialogueSeedCoverage: {
+    seededScenarioIds: string[];
+    guardrailProbeScenarioIds: string[];
+  };
+  sharedAssetReuseMaturity?: {
+    claimBoundary: "scenario_bank_shared_asset_reuse_metadata_only";
+    lookupKeyCount: number;
+    reusableLookupKeyCount: number;
+    duplicateLookupKeyCount: number;
+    scenarioCountWithLookupKeys: number;
+    scenarioCountWithReusableKeys: number;
+    topReusableLookupKeys: Array<{ lookupKey: string; scenarioCount: number }>;
+    lruReuseCandidateScenarioIds: string[];
+    notEvidenceFor: Array<"generated_asset_readiness" | "shared_asset_library_materialization" | "quest_readiness" | "runtime_readiness" | "production_asset_readiness">;
+  };
+};
+
+export type AdminScenarioBankExamSequenceProjection = {
+  source: string;
+  targetStationCount: number;
+  stationCount: number;
+  missingStationCount: number;
+  activationEligibleCount: number;
+  learnerUseBoundary: string;
+  stations: Array<{
+    stationOrder: number;
+    scenarioId: string;
+    learnerUseBoundary: string;
+    reviewBlockers: string[];
+  }>;
+};
+
+export type AdminReviewReplayRuntimeEvidenceGateRef = {
+  gateId: string;
+  status: "pending" | "attached" | "blocked";
+  evidenceRefs: string[];
+  requiredSignalIds: string[];
+  blockers: string[];
+  notEvidenceFor: AdminNoReadinessEvidenceClaim[];
+  claimBoundary: "runtime_evidence_gate_ref_not_learner_or_quest_readiness";
+};
+
+export type AdminReviewReplayGeneratedBundlePosture = {
+  bundleId: string;
+  scenarioId: string;
+  stationId: string;
+  status: "publication_prepared_not_learner_use" | "blocked";
+  learnerRuntimeUseBlocked: true;
+  learnerRuntimeUseBlockers: string[];
+  pendingEvidenceGateIds: string[];
+  attachedEvidenceGateIds: string[];
+  publicationArtifactRefs: {
+    sceneManifest: string;
+    learnerRuntimeBundle: string;
+  };
+  claimBoundary: "generated_bundle_posture_blocks_learner_use_until_evidence_gates_attach";
+  notEvidenceFor: AdminNoReadinessEvidenceClaim[];
+};
+
+export type AdminReviewReplayEvidenceHandoff = {
+  reviewPacketRef: string;
+  traceEventRefs: string[];
+  patientNoteRef: string | null;
+  actorTurnRefs: string[];
+  timelineEntryCount: number;
+  patientNoteAttached: boolean;
+  actorTurnCount: number;
+  privatePayloadRedacted: true;
+  xrTraceEvidenceSummary?: {
+    stationRunId: string;
+    source: string;
+    evidenceRef: string;
+    activeLocomotionSource: string | null;
+    locomotionDistanceMeters: number | null;
+    locomotionTurnRadians: number | null;
+    interactionSignalRefs: string[];
+    latestTraceTag: string | null;
+    latestTraceLatencyMs: number | null;
+    blockers: string[];
+    claimBoundary: "xr_trace_evidence_summary_not_score_use_quest_readiness_clinical_validity_or_raw_payload_readiness";
+  } | undefined;
+  claimBoundary: "review_packet_handoff_summary_only_no_private_payloads";
+};
+
+export type AdminReviewReplayProviderDisabledRemediation = {
+  providerId: string;
+  status: "disabled" | "not_configured" | "blocked";
+  remediationPlanRefs: string[];
+  blockers: string[];
+  claimBoundary: "provider_disabled_remediation_metadata_not_runtime_readiness";
+};
+
+export type AdminCaseDefinedHumanoidPerformanceContract = {
+  claimBoundary: "case_definition_humanoid_performance_metadata_only";
+  actorCount: number;
+  locomotionActorRoles: string[];
+  expressionActorRoles: string[];
+  gazeActorRoles: string[];
+  lipSyncActorRoles: string[];
+  interactiveActorRoles: string[];
+  emotionStateCount: number;
+  dialogueDrivenVisemeMappingRequired: boolean;
+  gazeTargetingRequired: boolean;
+  locomotionPlanningRequired: boolean;
+  notEvidenceFor: Array<"generated_humanoid_asset_readiness" | "animation_quality" | "quest_readiness" | "runtime_readiness" | "clinical_validity">;
+};
+
+export type AdminCaseDefinedHumanoidRuntimeHandoff = {
+  claimBoundary: "case_definition_humanoid_runtime_handoff_metadata_only";
+  actorRole: string;
+  workOrderIds: string[];
+  locomotionRequired: boolean;
+  expressionRequired: boolean;
+  gazeRequired: boolean;
+  lipSyncRequired: boolean;
+  interactiveRequired: boolean;
+  requiredSignalIds: string[];
+  blockers: string[];
+  notEvidenceFor: Array<"generated_humanoid_asset_readiness" | "animation_quality" | "quest_readiness" | "runtime_readiness" | "clinical_validity" | "scoring_validity">;
+};
+
+export type AdminReviewReplayReadinessSummary = NonNullable<ReviewPacketReplayQuery["reviewReplayReadinessSummary"]> & {
+  runtimeEvidenceGateRefs?: AdminReviewReplayRuntimeEvidenceGateRef[];
+  generatedBundlePosture?: AdminReviewReplayGeneratedBundlePosture;
+  reviewPacketEvidenceHandoff?: AdminReviewReplayEvidenceHandoff;
+  xrTraceEvidenceSummary?: NonNullable<AdminReviewReplayEvidenceHandoff["xrTraceEvidenceSummary"]>;
+  runtimeRemediationPlanRefs?: string[];
+  providerDisabledRemediation?: AdminReviewReplayProviderDisabledRemediation[];
+  caseDefinedHumanoidPerformanceContract?: AdminCaseDefinedHumanoidPerformanceContract;
+  caseDefinedHumanoidRuntimeHandoff?: AdminCaseDefinedHumanoidRuntimeHandoff[];
+};
+
+export type AdminReviewPacketReplay = Omit<ReviewPacketReplayQuery, "reviewReplayReadinessSummary"> & {
+  reviewReplayReadinessSummary: AdminReviewReplayReadinessSummary;
+};
+
+export type AdminRuntimeProtocolSupport = {
+  protocolId: string;
+  status: string;
+  claimScope: string;
+  runtimeTarget: string;
+  role: string;
+  clinicalMediaAllowed: boolean;
+  path?: string;
+  blockers: string[];
+  notes: string;
+};
+
+export type AdminRuntimeProtocolPosture = {
+  primaryRuntimeTarget: string;
+  localFallbackRuntimeTarget: string;
+  azureRuntimeTarget: string;
+  protocols: AdminRuntimeProtocolSupport[];
+};
+
+export type AdminRealtimeVoicePosture = {
+  policy: {
+    cloudApisUsed: boolean;
+    paidApisUsed: boolean;
+    modelDownloadsPerformed: boolean;
+    productionUseAllowed: boolean;
+  };
+  transports: {
+    websocket: { status: string; path: string; codec: string };
+    webTransport: { status: string; blockers: string[] };
+  };
+  gatewayRuntime: {
+    target: string;
+    localVerifiedFallback: string;
+    blockers: string[];
+  };
+  backends: {
+    pythonFastApi: {
+      status: string;
+      websocketPath: string;
+      transportProxy: {
+        status: string;
+        backendUrlConfigured: boolean;
+        readyForLiveDialog: boolean;
+        blockers: string[];
+      };
+      blockers: string[];
+    };
+  };
+  protocolLanes: Array<{
+    id: string;
+    protocol: string;
+    role: string;
+    status: string;
+    mediaAllowed: boolean;
+    blockers: string[];
+    notes: string;
+  }>;
+  providerGates?: Array<{
+    gateId: string;
+    capability: string;
+    providerPath: string;
+    state: string;
+    liveProviderReady: boolean;
+    credentialEvidencePresent: boolean;
+    runtimeEvidencePresent: boolean;
+    blockers: string[];
+    recommendedNextAction: string;
+    claimBoundary: string;
+  }>;
+  recommendedProtocolSelection: {
+    selectedLane?: {
+      id: string;
+      protocol: string;
+      role: string;
+      status: string;
+      mediaAllowed: boolean;
+      blockers: string[];
+      notes: string;
+    };
+    rejectedLaneReasons: Array<{ id: string; reason: string; blockers: string[] }>;
+  };
+};
+
 export type SubmitScenarioReviewInput = SubmitScenarioReviewMutationVariables["input"];
 export type SaveFacultyScoreDraftInput = SaveFacultyScoreDraftMutationVariables["input"];
 
 export type AdminScenario = ScenarioBankQuery["scenarios"][number];
 export type AdminScenarioDetail = ScenarioDetailQuery;
 export type AdminScenarioReviewDecision = ScenarioReviewDecisionsQuery["scenarioReviewDecisions"][number];
-export type AdminReviewPacketReplay = ReviewPacketReplayQuery;
 export type AdminScenarioReviewResult = SubmitScenarioReviewMutation["submitScenarioReview"];
 export type AdminReviewPacket = SaveFacultyScoreDraftMutation["saveFacultyScoreDraft"];
 export type AdminStationRunQueueSnapshot = StationRunQueueSnapshotsQuery["stationRunQueueSnapshots"][number];
@@ -132,6 +789,10 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
     getStep2CsSeedBlueprintReadiness: () => get(fetcher, baseUrl, routeById("step2cs-seed-exam-blueprint-readiness").path),
     getStep2CsSeedTimingPlan: () => get(fetcher, baseUrl, routeById("step2cs-seed-exam-timing-plan").path),
     getStep2CsSeedStationRunQueue: () => get(fetcher, baseUrl, routeById("step2cs-seed-station-run-queue").path),
+    getRuntimeProviderReadiness: () => get(fetcher, baseUrl, routeById("runtime-provider-readiness").path),
+    getRuntimeSelectionReviewPacket: () => get(fetcher, baseUrl, routeById("runtime-selection-review-packet").path),
+    getRuntimeProtocolPosture: () => get(fetcher, baseUrl, routeById("runtime-protocols").path),
+    getRealtimeVoicePosture: () => get(fetcher, baseUrl, routeById("realtime-voice-posture").path),
     createLocalReviewReplaySeed: async (input = {}) => {
       const session = await post<CreateLocalReviewReplaySeedResult>(
         fetcher,
@@ -149,6 +810,18 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
         atSecond: 83,
         tag: "ecg_request",
         actorId: "patient_robert_hayes_v1",
+      });
+      await post(fetcher, baseUrl, buildSessionRoutePath("append-trace-event", stationRunId), {
+        eventType: "learner.action",
+        atSecond: 140,
+        tag: "urgent_escalation",
+        actorId: "nurse_amelia_singh_v1",
+      });
+      await post(fetcher, baseUrl, buildSessionRoutePath("append-trace-event", stationRunId), {
+        eventType: "learner.action",
+        atSecond: 190,
+        tag: "team_communication",
+        actorId: "spouse_linda_hayes_v1",
       });
       await post(fetcher, baseUrl, buildSessionRoutePath("submit-note", stationRunId), {
         atSecond: 960,
@@ -255,6 +928,8 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
         variables,
       );
     },
+    getReviewReplayReadinessSummary: (input) =>
+      get(fetcher, baseUrl, buildSessionRoutePath("review-replay-readiness-summary", input.stationRunId)),
     submitScenarioReview: async (input) => {
       if (apolloClient) {
         const { data } = await apolloClient.mutate<SubmitScenarioReviewMutation, SubmitScenarioReviewMutationVariables>({
@@ -340,7 +1015,18 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
       );
       return data.createStationRunQueueSnapshot;
     },
+    getEdChestPainPublicationReadiness: (input) => post(fetcher, baseUrl, routeById("scenario-publication-readiness").path, input),
+    getScenarioBankMaturity: () => get(fetcher, baseUrl, routeById("scenario-bank-maturity").path),
+    getScenarioBankExamSequence: () => get(fetcher, baseUrl, routeById("scenario-bank-exam-sequence").path),
+    getDynamicEncounterFactoryPlanning: () => get(fetcher, baseUrl, routeById("scenario-bank-dynamic-encounter-factory-planning").path),
     getScenarioBankAssetReadiness: () => get(fetcher, baseUrl, routeById("scenario-bank-asset-readiness").path),
+    getScenarioBankEnvironmentGenerationQueue: () => get(fetcher, baseUrl, routeById("scenario-bank-environment-generation-queue").path),
+    getScenarioBankEnvironmentWorkOrderQueue: () => get(fetcher, baseUrl, routeById("scenario-bank-environment-work-order-queue").path),
+    getScenarioBankSceneGenerationPipelineQueue: () => get(fetcher, baseUrl, routeById("scenario-bank-scene-generation-pipeline").path),
+    listScenarioSceneGenerationRequests: () => get(fetcher, baseUrl, routeById("list-scenario-scene-generation-requests").path),
+    createScenarioSceneGenerationRequest: (input) => post(fetcher, baseUrl, routeById("create-scenario-scene-generation-request").path, { scenarioId: input.scenarioId }),
+    submitScenarioSceneGenerationRequestReview: (input) => post(fetcher, baseUrl, routeById("submit-scenario-scene-generation-request-review").path.replace(":requestId", encodeURIComponent(input.requestId)), { decisions: input.decisions }),
+    getScenarioSceneGenerationRequestPublicationReadiness: (input) => get(fetcher, baseUrl, routeById("scenario-scene-generation-request-publication-readiness").path.replace(":requestId", encodeURIComponent(input.requestId))),
   };
 }
 
