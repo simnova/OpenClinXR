@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -471,6 +470,8 @@ type BenchmarkGateReport = {
     satisfied_conditions?: string[];
     blockers: string[];
     blocker_summary?: {
+      distinct_problem_count?: number;
+      total_blockers?: number;
       groups: BlockerGroup[];
     };
   }>;
@@ -1586,42 +1587,41 @@ const completedQuestSceneAssetEvidence = {
     {
       assetId: "openclinxr.ed-chest-pain.patient-robert-hayes.generated-humanoid",
       assetPath: "/xr-assets/humanoids/neutral-generated-human.glb",
-      status: "loaded",
+      status: "loaded" as const,
       fallbackActive: false,
     },
     {
       assetId: "openclinxr.ed-chest-pain.nurse-maria-alvarez.generated-humanoid",
       assetPath: "/xr-assets/humanoids/neutral-generated-human.glb",
-      status: "loaded",
+      status: "loaded" as const,
       fallbackActive: false,
     },
     {
       assetId: "openclinxr.ed-chest-pain.spouse-anna-hayes.generated-humanoid",
       assetPath: "/xr-assets/humanoids/neutral-generated-human.glb",
-      status: "loaded",
+      status: "loaded" as const,
       fallbackActive: false,
     },
     {
       assetId: "openclinxr.ed-chest-pain.ecg-cart.generated-glb",
       assetPath: "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
-      status: "loaded",
+      status: "loaded" as const,
       fallbackActive: false,
     },
     {
       assetId: "openclinxr.ed-chest-pain.iv-pole-with-pump.generated-glb",
       assetPath: "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
-      status: "loaded",
+      status: "loaded" as const,
       fallbackActive: false,
     },
     {
       assetId: "openclinxr.ed-chest-pain.environment-shell.generated-glb",
       assetPath: "/xr-assets/environment/ed-exam-bay-shell.glb",
-      status: "loaded",
+      status: "loaded" as const,
       fallbackActive: false,
     },
   ],
 };
-
 
 const completedQuestMixedRealityManualReport: QuestMixedRealityManualReport = {
   schemaVersion: "openclinxr.quest-mixed-reality-manual.v1",
@@ -5018,11 +5018,31 @@ describe("benchmark gate report", () => {
             blockers: ["headset_trace_latency_missing"],
             elapsedWallMs: 9000,
             signalSnapshot: {
+              textPanelMetadataPresent: true,
+              textPanelCount: 3,
+              frameStatsFresh: true,
+              immersiveFramesObserved: 720,
+              sampleWindowSize: 120,
+              immersiveFrameReady: true,
+              sampleWindowReady: true,
               sceneAssetEvidencePresent: true,
               generatedSceneAssetsLoaded: true,
               generatedSceneAssetExpectedCount: 6,
               generatedSceneAssetLoadedCount: 6,
               generatedSceneAssetFallbackCount: 0,
+              traceSource: null,
+              lastTraceTag: null,
+              lastTraceLatencyMs: null,
+              headsetTraceEvidencePresent: false,
+              activeLocomotionSource: "none",
+              locomotionAttempt: "not_attempted",
+              lastLocomotionAtMs: null,
+              locomotionDistanceMeters: null,
+              locomotionTurnRadians: null,
+              locomotionDelta: null,
+              locomotionEvidencePresent: false,
+              locomotionProbeReasonCodes: [],
+              technicalGaps: ["headset_trace_latency_missing"],
             },
           },
         },
