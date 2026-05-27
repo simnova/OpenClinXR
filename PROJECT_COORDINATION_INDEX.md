@@ -115,6 +115,8 @@ If the answer is no, do not do the slice.
 
 `docs/openclinxr/doc-authority-registry-2026-05-27.md` is the Markdown authority map. Use it before treating old plans, iteration syntheses, proposals, evidence reports, temporary notes, or handoff files as active instructions.
 
+`docs/openclinxr/generated-artifact-registry-2026-05-27.md` is the generated artifact authority map. Use it before deleting, ignoring, or committing generated JSON, screenshots, local cache outputs, or runtime asset artifacts.
+
 Coordinator rule:
 
 - Reject slices that polish one fixture, garment, screenshot, prop, or room without strengthening the blueprint-to-runtime factory contract.

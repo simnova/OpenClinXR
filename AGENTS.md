@@ -36,6 +36,8 @@ The target system should support:
 
 `docs/openclinxr/doc-authority-registry-2026-05-27.md` and `docs/openclinxr/doc-authority-registry-2026-05-27.json` classify Markdown files by authority. Agents must consult the registry before treating Markdown outside the canonical control surfaces as active instructions.
 
+`docs/openclinxr/generated-artifact-registry-2026-05-27.md` and `docs/openclinxr/generated-artifact-registry-2026-05-27.json` classify generated non-Markdown artifacts. Agents must consult the registry before deleting, ignoring, or committing generated JSON, screenshots, local cache outputs, or runtime asset artifacts.
+
 OpenClinXR is not a collection of handcrafted XR scenes. OpenClinXR is a blueprint-driven encounter factory. The encounter specification/blueprint must drive environment, actors, conversation tooling, emotion state, locomotion, gaze/lip-sync, clothing, equipment, interactions, traces, persistence, review packets, provider gates, shared asset reuse, and runtime/screenshot evidence.
 
 Conversation tooling is first-class. Actor dialogue policies, learner utterance/action intake, turn-taking, interruptions, emotion transitions, trace tags, replayable actor turns, and review-safe conversation evidence must not be displaced by one-off asset or screenshot work.

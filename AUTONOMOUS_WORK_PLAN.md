@@ -330,6 +330,8 @@ This section is the active source of truth for what to do next. It overrides old
 
 `docs/openclinxr/doc-authority-registry-2026-05-27.md` is the current Markdown authority map. Use it before relying on old plans, iteration outputs, proposals, evidence reports, temporary notes, or handoff files as instructions.
 
+`docs/openclinxr/generated-artifact-registry-2026-05-27.md` is the current generated artifact authority map. Use it before deleting, ignoring, or committing generated JSON, screenshots, local cache outputs, or runtime asset artifacts.
+
 Current correction: recenter on the blueprint-driven encounter factory. Visual assets, garments, screenshots, and provider gates are supporting lanes only. The active product is a reviewed encounter specification/blueprint that autonomously drives environment, actors, conversation tooling, emotional-state timelines, locomotion, gaze/lip-sync, clothing, equipment, trace interactions, persistence metadata, review packets, provider gates, shared asset-library reuse, and runtime/screenshot evidence.
 
 Conversation tooling is first-class. If visual asset work repeats without advancing actor dialogue, learner interaction, turn-taking, emotion transitions, trace tags, replayable actor turns, or review-safe conversation evidence, the coordinator must choose a conversation/runtime/review slice next unless all such lanes are blocked.
@@ -900,6 +902,7 @@ Durable active guidance now lives in:
 - `docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md`
 - `docs/openclinxr/codex-openclaw-operating-bridge-2026-05-27.md`
 - `docs/openclinxr/doc-authority-registry-2026-05-27.md`
+- `docs/openclinxr/generated-artifact-registry-2026-05-27.md`
 - `docs/openclinxr/worker-backlog-and-validation-matrix.md`
 
 Recent cleanup checkpoints:

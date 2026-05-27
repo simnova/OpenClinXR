@@ -40,6 +40,7 @@ const requiredMarkers: Record<string, string[]> = {
     "Anti-Toil Product Advancement Gate",
     "blueprint-factory-drift-guardrails-2026-05-27.md",
     "doc-authority-registry-2026-05-27.md",
+    "generated-artifact-registry-2026-05-27.md",
     "Conversation tooling is first-class",
   ],
   "PROJECT_COORDINATION_INDEX.md": [
@@ -51,6 +52,7 @@ const requiredMarkers: Record<string, string[]> = {
     "Protected Blueprint-Factory Guardrails",
     "blueprint-factory-drift-guardrails-2026-05-27.md",
     "doc-authority-registry-2026-05-27.md",
+    "generated-artifact-registry-2026-05-27.md",
   ],
   "AUTONOMOUS_WORK_PLAN.md": [
     "PROJECT_COORDINATION_INDEX.md",
@@ -60,6 +62,7 @@ const requiredMarkers: Record<string, string[]> = {
     "Protected Blueprint-Factory Guardrails",
     "blueprint-factory-drift-guardrails-2026-05-27.md",
     "doc-authority-registry-2026-05-27.md",
+    "generated-artifact-registry-2026-05-27.md",
   ],
   "docs/openclinxr/worker-backlog-and-validation-matrix.md": [
     "PROJECT_COORDINATION_INDEX.md",
