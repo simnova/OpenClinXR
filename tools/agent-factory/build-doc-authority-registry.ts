@@ -54,6 +54,17 @@ const currentReferences = new Set([
   "docs/openclinxr/communication-style-and-emotion-qa.md",
   "docs/openclinxr/sample-case-bank-v1.md",
   "docs/openclinxr/station-pack-ed-chest-pain-v1.md",
+  "docs/openclinxr/external-ai-asset-pipeline-integration-plan.md",
+  "docs/openclinxr/garment-license-compatible-source-options-2026-05-27.md",
+  "docs/openclinxr/garment-pipeline-slices-2026-05-27.md",
+  "docs/openclinxr/humanoid-clothing-tooling-research-2026-05-27.md",
+  "docs/openclinxr/humanoid-provider-upgrade-plan-2026-05-27.md",
+  "docs/openclinxr/humanoid-toolchain-bakeoff-2026-05-27.md",
+  "docs/openclinxr/humanoid-toolchain-options-2026-05-27.md",
+  "docs/openclinxr/humanoid-variant-materialization-next-slice-2026-05-26.md",
+  "templates/decision-record.md",
+  "templates/risk-record.md",
+  "templates/source-record.md",
 ]);
 
 function walk(dir: string, out: string[] = []): string[] {

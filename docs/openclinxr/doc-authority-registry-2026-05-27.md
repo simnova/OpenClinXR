@@ -12,8 +12,8 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 138
 - agent-methodology: 8
-- archive-candidate: 35
-- current-reference: 30
+- archive-candidate: 24
+- current-reference: 41
 - decision-record: 18
 - evidence: 36
 - historical-synthesis: 77
@@ -46,6 +46,14 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `docs/openclinxr/doc-authority-registry-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/dynamic-session-asset-strategy.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/exam-scenario-architecture.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
+- `docs/openclinxr/external-ai-asset-pipeline-integration-plan.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
+- `docs/openclinxr/garment-license-compatible-source-options-2026-05-27.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
+- `docs/openclinxr/garment-pipeline-slices-2026-05-27.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
+- `docs/openclinxr/humanoid-clothing-tooling-research-2026-05-27.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
+- `docs/openclinxr/humanoid-provider-upgrade-plan-2026-05-27.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
+- `docs/openclinxr/humanoid-toolchain-bakeoff-2026-05-27.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
+- `docs/openclinxr/humanoid-toolchain-options-2026-05-27.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
+- `docs/openclinxr/humanoid-variant-materialization-next-slice-2026-05-26.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/model-provider-and-voice-routing.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/mongodb-data-model.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/sample-case-bank-v1.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
@@ -59,6 +67,9 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `packages/cellix/config-vitest/CHANGELOG.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `packages/openclinxr/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `packages/openclinxr/multi-actor-state-spike/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `templates/decision-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
+- `templates/risk-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
+- `templates/source-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 
 ## Cleanup Candidates
 
@@ -68,15 +79,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/ant-design-cli-local-spike-2026-05-04.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/cellix-package-adoption-brief.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/code-implementation-plan.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/external-ai-asset-pipeline-integration-plan.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/garment-license-compatible-source-options-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/garment-pipeline-slices-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/github-pages-site-2026-05-06.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/humanoid-clothing-tooling-research-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/humanoid-provider-upgrade-plan-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/humanoid-toolchain-bakeoff-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/humanoid-toolchain-options-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/humanoid-variant-materialization-next-slice-2026-05-26.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/immersive-web-sdk-evaluation-2026-05-04.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/implementation-milestone-1-results.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/knowledge-graph-and-indexing.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -96,6 +99,3 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/tsdown-api-bundle-spike-2026-05-04.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/uikitml-spatial-text-sidecar-2026-05-05.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/workspace-relocation-performance-2026-05-05.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `templates/decision-record.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `templates/risk-record.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `templates/source-record.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

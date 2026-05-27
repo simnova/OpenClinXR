@@ -6,10 +6,10 @@
   "counts": {
     "evidence": 36,
     "protected-policy": 7,
-    "current-reference": 30,
+    "current-reference": 41,
     "agent-memory": 138,
     "agent-methodology": 8,
-    "archive-candidate": 35,
+    "archive-candidate": 24,
     "historical-synthesis": 77,
     "decision-record": 18,
     "proposal": 21
@@ -1375,24 +1375,24 @@
     },
     {
       "path": "docs/openclinxr/external-ai-asset-pipeline-integration-plan.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/openclinxr/garment-license-compatible-source-options-2026-05-27.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/openclinxr/garment-pipeline-slices-2026-05-27.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/openclinxr/github-pages-site-2026-05-06.md",
@@ -1410,17 +1410,17 @@
     },
     {
       "path": "docs/openclinxr/humanoid-clothing-tooling-research-2026-05-27.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/openclinxr/humanoid-provider-upgrade-plan-2026-05-27.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/openclinxr/humanoid-source-quality-gate-2026-05-27.md",
@@ -1431,24 +1431,24 @@
     },
     {
       "path": "docs/openclinxr/humanoid-toolchain-bakeoff-2026-05-27.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/openclinxr/humanoid-toolchain-options-2026-05-27.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/openclinxr/humanoid-variant-materialization-next-slice-2026-05-26.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/openclinxr/immersive-web-sdk-evaluation-2026-05-04.md",
@@ -2586,24 +2586,24 @@
     },
     {
       "path": "templates/decision-record.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "templates/risk-record.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "templates/source-record.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     }
   ]
 }
