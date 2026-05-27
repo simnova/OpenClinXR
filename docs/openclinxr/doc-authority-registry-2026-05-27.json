@@ -8,7 +8,6 @@
     "protected-policy": 7,
     "current-reference": 30,
     "agent-memory": 138,
-    "temporary": 5,
     "archive-candidate": 37,
     "agent-methodology": 8,
     "historical-synthesis": 77,
@@ -1179,13 +1178,6 @@
       "rationale": "Package/app-local README or provenance reference; local to its module."
     },
     {
-      "path": "blender-bake-temporary-note.md",
-      "authority": "temporary",
-      "agentInstructionWeight": "none",
-      "action": "archive-or-inline-summary",
-      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
-    },
-    {
       "path": "cellixjs-feedback.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
@@ -1345,13 +1337,6 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "docs/openclinxr/development-handoff.md",
-      "authority": "temporary",
-      "agentInstructionWeight": "none",
-      "action": "archive-or-inline-summary",
-      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
     },
     {
       "path": "docs/openclinxr/doc-authority-registry-2026-05-27.md",
@@ -1697,13 +1682,6 @@
       "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
-      "path": "docs/openclinxr/unattended-runs/2026-05-03-codex-continuation.md",
-      "authority": "temporary",
-      "agentInstructionWeight": "none",
-      "action": "archive-or-inline-summary",
-      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
-    },
-    {
       "path": "docs/openclinxr/ux-flows.md",
       "authority": "current-reference",
       "agentInstructionWeight": "medium",
@@ -1786,20 +1764,6 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": "godot-usage-posture-temporary.md",
-      "authority": "temporary",
-      "agentInstructionWeight": "none",
-      "action": "archive-or-inline-summary",
-      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
-    },
-    {
-      "path": "godot-usage-temporary-note.md",
-      "authority": "temporary",
-      "agentInstructionWeight": "none",
-      "action": "archive-or-inline-summary",
-      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
     },
     {
       "path": "iterations/iteration-0001/00-brief.md",

@@ -19,7 +19,6 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - historical-synthesis: 77
 - proposal: 21
 - protected-policy: 7
-- temporary: 5
 
 ## Highest-Value Current Navigation
 
@@ -65,13 +64,11 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 These files should be summarized, archived, or explicitly marked historical before agents use them as instructions.
 
-- `blender-bake-temporary-note.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
 - `cellixjs-feedback.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/admin-ux-and-testing-brief.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/ant-design-cli-local-spike-2026-05-04.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/cellix-package-adoption-brief.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/code-implementation-plan.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/development-handoff.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
 - `docs/openclinxr/external-ai-asset-pipeline-integration-plan.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/garment-license-compatible-source-options-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/garment-pipeline-slices-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -99,10 +96,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/technology-approach-brief.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/tsdown-api-bundle-spike-2026-05-04.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/uikitml-spatial-text-sidecar-2026-05-05.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/unattended-runs/2026-05-03-codex-continuation.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
 - `docs/openclinxr/workspace-relocation-performance-2026-05-05.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `godot-usage-posture-temporary.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `godot-usage-temporary-note.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
 - `operator-suggestion-backlog.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `templates/decision-record.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `templates/risk-record.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
