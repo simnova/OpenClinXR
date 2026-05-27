@@ -1,12 +1,12 @@
-// @ts-nocheck
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   buildEncounterAssetGenerationQueueReport,
-  runEncounterAssetGenerationQueueCli,
   buildEncounterAssetGenerationRequestForScenario,
+  type EncounterAssetGenerationQueueReport,
+  runEncounterAssetGenerationQueueCli,
   validateEncounterAssetGenerationQueueReport,
 } from "./encounter-asset-generation-queue.js";
 import { buildDynamicEncounterFactoryProjectionArtifact, edChestPainScenario, edChestPainScenarioV2, edChestPainScenarioV3, variantScenarioBank } from "../../packages/openclinxr/scenario-fixtures/src/index.js";
@@ -597,21 +597,48 @@ describe("encounter asset generation queue report", () => {
     });
     expect(validateEncounterAssetGenerationQueueReport(report)).toEqual({ ok: true });
 
-    const invalid = structuredClone(report);
+    const invalid = structuredClone(report) as {
+      evidenceBoundaries: { productionReadinessClaimed: boolean };
+      operationalNotes: {
+        mayRunForDays: boolean;
+        providerDisabledBoundary: { claimBoundary: string; missingEvidenceIds: string[] };
+        localOnlyBoundary: { missingEvidenceIds: string[] };
+      };
+      humanoidRealismRequirements: {
+        requirements: Array<{
+          actorRole: string;
+          requiredSignalIds: string[];
+          realismProfile: { requiredRealismEvidenceIds: string[] } | undefined;
+        }>;
+      };
+      humanoidRealismProfiles: Array<{
+        actorRole: string;
+        requiredRealismEvidenceIds: string[];
+      }>;
+      plan: {
+        generationWorkOrders: Array<{
+          targetKind: string;
+          modelProviderPolicy: { allowPaidCloudApis: boolean };
+          sharedAssetLibraryReuse: { lruCache: { enabled: boolean } };
+          providerRoutingPreference: string[];
+          providerRoute: string;
+        }>;
+      };
+    };
     invalid.evidenceBoundaries.productionReadinessClaimed = true;
     invalid.operationalNotes.mayRunForDays = false;
-    invalid.humanoidRealismRequirements.requirements[0].requiredSignalIds = ["animated_humanoid_runtime_playback"];
-    invalid.humanoidRealismRequirements.requirements[0].realismProfile.requiredRealismEvidenceIds = ["dialogue_viseme_and_gaze_mapping"];
-    invalid.humanoidRealismRequirements.requirements[0].realismProfile = undefined as never;
-    invalid.humanoidRealismRequirements.requirements[1].actorRole = invalid.humanoidRealismRequirements.requirements[0].actorRole;
-    invalid.humanoidRealismProfiles[0].requiredRealismEvidenceIds = ["dialogue_viseme_and_gaze_mapping"];
-    invalid.humanoidRealismProfiles[0].actorRole = "unmatched_actor";
+    invalid.humanoidRealismRequirements!.requirements[0]!.requiredSignalIds = ["animated_humanoid_runtime_playback"];
+    invalid.humanoidRealismRequirements!.requirements[0]!.realismProfile!.requiredRealismEvidenceIds = ["dialogue_viseme_and_gaze_mapping"];
+    invalid.humanoidRealismRequirements!.requirements[0]!.realismProfile = undefined as never;
+    invalid.humanoidRealismRequirements!.requirements[1]!.actorRole = invalid.humanoidRealismRequirements!.requirements[0]!.actorRole;
+    invalid.humanoidRealismProfiles[0]!.requiredRealismEvidenceIds = ["dialogue_viseme_and_gaze_mapping"];
+    invalid.humanoidRealismProfiles[0]!.actorRole = "unmatched_actor";
     invalid.humanoidRealismProfiles.pop();
     invalid.plan.generationWorkOrders = invalid.plan.generationWorkOrders.filter((workOrder) => workOrder.targetKind !== "visual_feedback_closure");
-    invalid.plan.generationWorkOrders[0].modelProviderPolicy.allowPaidCloudApis = true;
-    invalid.plan.generationWorkOrders[0].sharedAssetLibraryReuse.lruCache.enabled = false;
-    invalid.plan.generationWorkOrders[0].providerRoutingPreference = [];
-    invalid.plan.generationWorkOrders[0].providerRoute = "cloud-approved-planned";
+    invalid.plan.generationWorkOrders[0]!.modelProviderPolicy.allowPaidCloudApis = true;
+    invalid.plan.generationWorkOrders[0]!.sharedAssetLibraryReuse.lruCache.enabled = false;
+    invalid.plan.generationWorkOrders[0]!.providerRoutingPreference = [];
+    invalid.plan.generationWorkOrders[0]!.providerRoute = "cloud-approved-planned";
     invalid.operationalNotes.providerDisabledBoundary.claimBoundary = "metadata_only_claimed_as_live_provider_readiness";
     invalid.operationalNotes.providerDisabledBoundary.missingEvidenceIds = [];
     invalid.operationalNotes.localOnlyBoundary.missingEvidenceIds = ["azurite_or_queue_emulator_evidence_missing"];
@@ -662,10 +689,20 @@ describe("encounter asset generation queue report", () => {
     try {
       await runEncounterAssetGenerationQueueCli(["--projection-artifact", projectionArtifactPath, "--output", outputPath]);
       const report = JSON.parse(await readFile(outputPath, "utf8")) as {
-        request: { scenarioId: string };
+        request: {
+          scenarioId: string;
+          encounterFactoryInputSummary?: {
+            factorySelectionRole: string;
+            factorySelectionClaimBoundary: string;
+          };
+        };
         projectionArtifactConsumption?: {
           nextFactoryPlanningScenarioSelectionMode: string;
           scenarioBankSliceSize: number;
+          factorySelectionMetadata?: {
+            factorySelectionRole: string;
+            generationApprovalInferred: boolean;
+          };
           sharedAssetReuseSummary?: {
             scenarioBankSliceScenarioIds: string[];
           };

@@ -2,8 +2,6 @@ import { glob, readFile } from "node:fs/promises";
 
 const allowedTsNoCheckFiles = new Set([
   "tools/agent-factory/benchmark-gate-report.test.ts",
-  "tools/openclinxr/encounter-asset-generation-queue.test.ts",
-  "tools/openclinxr/encounter-local-launch-selection.test.ts",
   "tools/openclinxr/encounter-publication-payloads.test.ts",
   "tools/openclinxr/quest-manual-performance-check.test.ts",
 ]);

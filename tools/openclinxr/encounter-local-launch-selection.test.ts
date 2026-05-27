@@ -1,53 +1,86 @@
-// @ts-nocheck
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "../../packages/openclinxr/asset-registry/src/index.js";
 import { buildEncounterAssetGenerationQueueReport } from "./encounter-asset-generation-queue.js";
-import { buildEncounterPublicationPayloadReport } from "./encounter-publication-payloads.js";
+import {
+  buildEncounterPublicationPayloadReport,
+  type EncounterPublicationCaseDefinedHumanoidRuntimeHandoff,
+} from "./encounter-publication-payloads.js";
 import {
   buildEncounterLocalLaunchSelectionReport,
   runEncounterLocalLaunchSelectionCli,
   validateEncounterLocalLaunchSelectionReport,
 } from "./encounter-local-launch-selection.js";
+import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-station-runtime-bundle.js";
 
-const bundleReport = () => ({
+const notEvidenceFor: GeneratedEdStationRuntimeBundleReport["notEvidenceFor"] = [
+  "production_asset_readiness",
+  "quest_readiness",
+  "clinical_validity",
+  "scoring_validity",
+];
+
+const bundleReport = (): GeneratedEdStationRuntimeBundleReport => ({
   generatedAt: "2026-05-23T12:00:00.000Z",
-  schemaVersion: "openclinxr.generated-ed-station-runtime-bundle.v1" as const,
-  status: "bundle_ready" as const,
-  learnerBundle: {
-    bundleId: "ed_chest_pain_encounter_v1:learner-runtime-bundle:v1",
-    scenarioId: "ed_chest_pain_priority_v1",
-    stationId: "ed_chest_pain_station_v1",
-    identityScope: "learner_runtime_opaque_bundle" as const,
-    sceneManifest: {
-      manifestId: "scene_manifest:ed_chest_pain_priority_v1:ed_chest_pain_station_v1",
-      schemaVersion: "openclinxr.encounter-runtime-scene-manifest.v1",
-      roomProps: [{ propId: "bed", propType: "bed", semanticRole: "patient_support", evidenceCue: "stretcher" }],
-      actorPlacements: {
-        patient_robert_hayes_v1: { position: [0, 0, 0], rotationYDegrees: 0 },
-        nurse_maria_alvarez_v1: { position: [1, 0, 0], rotationYDegrees: 0 },
-        spouse_anna_hayes_v1: { position: [-1, 0, 0], rotationYDegrees: 0 },
-      },
-      equipmentPlacements: {},
-      dialogueTurns: [
-        { actorId: "patient_robert_hayes_v1", text: "It hurts.", emotionState: "anxious", gazeTarget: "learner" },
-        { actorId: "nurse_maria_alvarez_v1", text: "I can get the ECG.", emotionState: "focused", gazeTarget: "patient_robert_hayes_v1" },
-        { actorId: "spouse_anna_hayes_v1", text: "Is he okay?", emotionState: "worried", gazeTarget: "learner" },
-      ],
+  schemaVersion: "openclinxr.generated-ed-station-runtime-bundle.v1",
+  status: "bundle_ready",
+  bundle: null,
+  learnerBundle: createEdChestPainLocalLearnerRuntimeAssetBundle({
+    assetStore: {
+      storeKind: "azurite_blob",
+      containerName: "openclinxr-assets",
     },
-    actors: [
-      { actorId: "patient_robert_hayes_v1", role: "patient", embodiment: "humanoid", gazeProfile: { defaultTarget: "learner", supportedTargets: ["learner"] }, affectTimeline: [{ atSecond: 0, emotionState: "focused" }], model: { assetId: "patient", kind: "humanoid_model", blob: { storeKind: "app_public_fixture", url: "/xr-assets/humanoids/neutral-generated-human.glb", blobName: "neutral-generated-human.glb" }, reviewStatus: "fixture_approved_for_local_runtime" }, animationClips: [], phonemeMap: { assetId: "patient_phoneme", kind: "phoneme_map", blob: { storeKind: "app_public_fixture", url: "/phoneme.json", blobName: "phoneme.json" }, reviewStatus: "fixture_approved_for_local_runtime" } },
-      { actorId: "nurse_maria_alvarez_v1", role: "nurse", embodiment: "humanoid", gazeProfile: { defaultTarget: "learner", supportedTargets: ["learner"] }, affectTimeline: [{ atSecond: 0, emotionState: "focused" }], model: { assetId: "nurse", kind: "humanoid_model", blob: { storeKind: "app_public_fixture", url: "/xr-assets/humanoids/neutral-generated-human.glb", blobName: "neutral-generated-human.glb" }, reviewStatus: "fixture_approved_for_local_runtime" }, animationClips: [], phonemeMap: { assetId: "nurse_phoneme", kind: "phoneme_map", blob: { storeKind: "app_public_fixture", url: "/phoneme.json", blobName: "phoneme.json" }, reviewStatus: "fixture_approved_for_local_runtime" } },
-      { actorId: "spouse_anna_hayes_v1", role: "family", embodiment: "humanoid", gazeProfile: { defaultTarget: "learner", supportedTargets: ["learner"] }, affectTimeline: [{ atSecond: 0, emotionState: "focused" }], model: { assetId: "spouse", kind: "humanoid_model", blob: { storeKind: "app_public_fixture", url: "/xr-assets/humanoids/neutral-generated-human.glb", blobName: "neutral-generated-human.glb" }, reviewStatus: "fixture_approved_for_local_runtime" }, animationClips: [], phonemeMap: { assetId: "spouse_phoneme", kind: "phoneme_map", blob: { storeKind: "app_public_fixture", url: "/phoneme.json", blobName: "phoneme.json" }, reviewStatus: "fixture_approved_for_local_runtime" } },
-    ],
-    equipment: [{ equipmentId: "ecg_cart_equipment", model: { assetId: "ecg", kind: "equipment_model", blob: { storeKind: "app_public_fixture", url: "/xr-assets/medical-equipment/ecg.glb", blobName: "ecg.glb" }, reviewStatus: "fixture_approved_for_local_runtime" } }],
-    environment: { assetId: "ed_env", kind: "environment_model", blob: { storeKind: "app_public_fixture", url: "/xr-assets/environment/ed.glb", blobName: "ed.glb" }, reviewStatus: "fixture_approved_for_local_runtime" },
-    uiSurfaces: [],
-    evidenceGateRefs: [],
-    notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
-  },
+  }),
+  actorHumanoidMaterializationContract: null,
+  bundleBlobName: null,
+  runtimeAssetReviewDecisions: [],
   blockers: [],
+  productionCloudCall: false,
+  notEvidenceFor,
+});
+
+const humanoidHandoff = (
+  actorRole: string,
+  workOrderIds: string[],
+  requiredSignalIds: string[],
+): EncounterPublicationCaseDefinedHumanoidRuntimeHandoff => ({
+  claimBoundary: "case_definition_humanoid_runtime_handoff_metadata_only",
+  actorRole,
+  humanoidVariantProfile: {
+    bodyScaleSource: "scenario_actor_role_and_factory_work_order",
+    clothingLayer: actorRole === "patient"
+      ? "patient_gown"
+      : actorRole === "nurse"
+        ? "clinical_scrubs"
+        : actorRole === "family"
+          ? "civilian_family"
+          : "role_specific",
+    hairFaceRequired: true,
+    faceEyeLipRigRequired: true,
+    idlePoseRequired: true,
+    locomotionRequired: true,
+  },
+  workOrderIds,
+  locomotionRequired: true,
+  expressionRequired: true,
+  gazeRequired: true,
+  lipSyncRequired: true,
+  interactiveRequired: true,
+  requiredSignalIds,
+  blockers: [
+    "runtime_realism_evidence_not_attached_to_encounter_bundle",
+    "visual_qa_evidence_not_attached_to_encounter_bundle",
+  ],
+  notEvidenceFor: [
+    "generated_humanoid_asset_readiness",
+    "animation_quality",
+    "quest_readiness",
+    "runtime_readiness",
+    "clinical_validity",
+    "scoring_validity",
+  ],
 });
 
 describe("encounter local launch selection", () => {
@@ -80,7 +113,7 @@ describe("encounter local launch selection", () => {
           expect.objectContaining({
             actorId: "patient_robert_hayes_v1",
             actorRole: "patient",
-            modelAssetId: "patient",
+            modelAssetId: expect.any(String),
             source: "learner_runtime_bundle_humanoid_requirement",
           }),
           expect.objectContaining({
@@ -158,35 +191,19 @@ describe("encounter local launch selection", () => {
     const actorRoles = ["patient", "family", "nurse"];
     const caseDefinedPublication = {
       ...publication,
-      caseDefinedHumanoidRuntimeHandoff: actorRoles.map((actorRole) => ({
-        claimBoundary: "case_definition_humanoid_runtime_handoff_metadata_only" as const,
-        actorRole,
-        workOrderIds: [`${actorRole}:role_specific_humanoid_glb`, `${actorRole}:role_idle_animation_glb`],
-        locomotionRequired: true as const,
-        expressionRequired: true,
-        gazeRequired: true,
-        lipSyncRequired: true,
-        interactiveRequired: true,
-        requiredSignalIds: [
+      caseDefinedHumanoidRuntimeHandoff: actorRoles.map((actorRole) =>
+        humanoidHandoff(
+          actorRole,
+          [`${actorRole}:role_specific_humanoid_glb`, `${actorRole}:role_idle_animation_glb`],
+          [
           "animated_humanoid_runtime_playback",
           "emotion_aligned_expression_transition_cue",
           "dialogue_viseme_and_gaze_mapping",
           "dialogue_eye_micro_saccade_blink_cue",
           "generated_eyelid_blink_control_cue",
-        ],
-        blockers: [
-          "runtime_realism_evidence_not_attached_to_encounter_bundle",
-          "visual_qa_evidence_not_attached_to_encounter_bundle",
-        ] as const,
-        notEvidenceFor: [
-          "generated_humanoid_asset_readiness",
-          "animation_quality",
-          "quest_readiness",
-          "runtime_readiness",
-          "clinical_validity",
-          "scoring_validity",
-        ],
-      })),
+          ],
+        )
+      ),
       caseDefinitionDrivenFactoryCoverage: {
         ...publication.caseDefinitionDrivenFactoryCoverage,
         coverage: {
@@ -279,22 +296,9 @@ describe("encounter local launch selection", () => {
     });
     const report = buildEncounterLocalLaunchSelectionReport({
       ...publication,
-      caseDefinedHumanoidRuntimeHandoff: [{
-        claimBoundary: "case_definition_humanoid_runtime_handoff_metadata_only",
-        actorRole: "patient",
-        workOrderIds: ["patient:role_specific_humanoid_glb"],
-        locomotionRequired: true,
-        expressionRequired: true,
-        gazeRequired: true,
-        lipSyncRequired: true,
-        interactiveRequired: true,
-        requiredSignalIds: ["animated_humanoid_runtime_playback"],
-        blockers: [
-          "runtime_realism_evidence_not_attached_to_encounter_bundle",
-          "visual_qa_evidence_not_attached_to_encounter_bundle",
-        ],
-        notEvidenceFor: ["generated_humanoid_asset_readiness", "runtime_readiness", "quest_readiness"],
-      }],
+      caseDefinedHumanoidRuntimeHandoff: [
+        humanoidHandoff("patient", ["patient:role_specific_humanoid_glb"], ["animated_humanoid_runtime_playback"]),
+      ],
     }, "2026-05-23T13:45:00.000Z");
     const validation = validateEncounterLocalLaunchSelectionReport({
       ...report,
