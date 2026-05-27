@@ -1,0 +1,682 @@
+{
+  "bundleId": "peds_asthma_parent_anxiety_v1:learner-runtime-bundle:v1",
+  "stationId": "pediatric_urgent_care_station_v1",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "assetStoreKind": "azurite_blob",
+  "environment": {
+    "assetId": "pediatric_urgent_care_bay_environment",
+    "version": "v1",
+    "kind": "environment_model",
+    "displayName": "Pediatric Urgent Care Bay",
+    "scenarioAssetId": "pediatric_urgent_care_bay_environment",
+    "blob": {
+      "storeKind": "azurite_blob",
+      "containerName": "openclinxr-assets",
+      "blobName": "pediatric_urgent_care_bay_environment.glb",
+      "url": "http://127.0.0.1/pediatric_urgent_care_bay_environment.glb"
+    },
+    "reviewStatus": "approved_for_local_runtime",
+    "provenanceRefs": [
+      "fixture"
+    ],
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "actors": [
+    {
+      "actorId": "patient_maya_johnson_v1",
+      "role": "patient",
+      "model": {
+        "assetId": "patient_maya_johnson_character",
+        "version": "v1",
+        "kind": "humanoid_model",
+        "displayName": "Maya Johnson",
+        "scenarioAssetId": "patient_maya_johnson_character",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "patient.glb",
+          "url": "http://127.0.0.1/patient.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "fixture"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
+    },
+    {
+      "actorId": "parent_tara_johnson_v1",
+      "role": "family",
+      "model": {
+        "assetId": "parent_tara_johnson_character",
+        "version": "v1",
+        "kind": "humanoid_model",
+        "displayName": "Tara Johnson",
+        "scenarioAssetId": "parent_tara_johnson_character",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "spouse.glb",
+          "url": "http://127.0.0.1/spouse.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "fixture"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
+    },
+    {
+      "actorId": "nurse_kevin_lee_v1",
+      "role": "nurse",
+      "model": {
+        "assetId": "nurse_kevin_lee_character",
+        "version": "v1",
+        "kind": "humanoid_model",
+        "displayName": "Kevin Lee",
+        "scenarioAssetId": "nurse_kevin_lee_character",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "nurse.glb",
+          "url": "http://127.0.0.1/nurse.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "fixture"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
+    }
+  ],
+  "equipment": [
+    {
+      "equipmentId": "pulse_oximeter_equipment",
+      "model": {
+        "assetId": "pulse_oximeter_equipment",
+        "version": "v1",
+        "kind": "equipment_model",
+        "displayName": "pulse oximeter equipment",
+        "scenarioAssetId": "pulse_oximeter_equipment",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "pulse_oximeter_equipment.glb",
+          "url": "http://127.0.0.1/pulse_oximeter_equipment.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "fixture"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      }
+    },
+    {
+      "equipmentId": "nebulizer_mask_equipment",
+      "model": {
+        "assetId": "nebulizer_mask_equipment",
+        "version": "v1",
+        "kind": "equipment_model",
+        "displayName": "nebulizer mask equipment",
+        "scenarioAssetId": "nebulizer_mask_equipment",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "nebulizer_mask_equipment.glb",
+          "url": "http://127.0.0.1/nebulizer_mask_equipment.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "fixture"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      }
+    },
+    {
+      "equipmentId": "oxygen_wall_port_equipment",
+      "model": {
+        "assetId": "oxygen_wall_port_equipment",
+        "version": "v1",
+        "kind": "equipment_model",
+        "displayName": "oxygen wall port equipment",
+        "scenarioAssetId": "oxygen_wall_port_equipment",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "oxygen_wall_port_equipment.glb",
+          "url": "http://127.0.0.1/oxygen_wall_port_equipment.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "fixture"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      }
+    },
+    {
+      "equipmentId": "pediatric_stretcher_equipment",
+      "model": {
+        "assetId": "pediatric_stretcher_equipment",
+        "version": "v1",
+        "kind": "equipment_model",
+        "displayName": "pediatric stretcher equipment",
+        "scenarioAssetId": "pediatric_stretcher_equipment",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "pediatric_stretcher_equipment.glb",
+          "url": "http://127.0.0.1/pediatric_stretcher_equipment.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "fixture"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      }
+    },
+    {
+      "equipmentId": "parent_chair_equipment",
+      "model": {
+        "assetId": "parent_chair_equipment",
+        "version": "v1",
+        "kind": "equipment_model",
+        "displayName": "parent chair equipment",
+        "scenarioAssetId": "parent_chair_equipment",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "parent_chair_equipment.glb",
+          "url": "http://127.0.0.1/parent_chair_equipment.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "fixture"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      }
+    },
+    {
+      "equipmentId": "inhaler_spacer_equipment",
+      "model": {
+        "assetId": "inhaler_spacer_equipment",
+        "version": "v1",
+        "kind": "equipment_model",
+        "displayName": "inhaler spacer equipment",
+        "scenarioAssetId": "inhaler_spacer_equipment",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "inhaler_spacer_equipment.glb",
+          "url": "http://127.0.0.1/inhaler_spacer_equipment.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "fixture"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      }
+    }
+  ],
+  "uiSurfaces": [],
+  "sceneManifest": {
+    "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+    "manifestId": "scene_manifest:peds_asthma_parent_anxiety_v1:pediatric_urgent_care_station_v1",
+    "source": "generated_scene_pipeline",
+    "scenarioId": "peds_asthma_parent_anxiety_v1",
+    "stationId": "pediatric_urgent_care_station_v1",
+    "roomProps": [
+      {
+        "propId": "monitor",
+        "label": "Monitor",
+        "colorHex": "#111827",
+        "accentColorHex": "#f59e0b",
+        "position": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "affordanceCueIds": [
+          "vitals_monitor"
+        ],
+        "interactionTags": [
+          "monitor"
+        ],
+        "generatedBy": "scene_manifest"
+      }
+    ],
+    "dialogueTurns": [
+      {
+        "traceTag": "work_of_breathing_assessment",
+        "actorId": "patient_maya_johnson_v1",
+        "text": "Maya Johnson: It is hard to breathe and my chest feels tight.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null,
+        "affectTimeline": {
+          "emotion": "anxious",
+          "intensity": 0.78,
+          "onsetMs": 120,
+          "transitionMs": 650,
+          "decayMs": 900,
+          "evidenceCueIds": [
+            "emotion_aligned_expression_transition_cue",
+            "visible_runtime_eyebrow_jaw_cheek_cue",
+            "dialogue_viseme_and_gaze_mapping"
+          ],
+          "notEvidenceFor": [
+            "clinical_validity",
+            "scoring_validity",
+            "production_asset_readiness"
+          ]
+        }
+      },
+      {
+        "traceTag": "inhaler_history",
+        "actorId": "parent_tara_johnson_v1",
+        "text": "Tara Johnson: Her rescue inhaler ran out yesterday.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null,
+        "affectTimeline": {
+          "emotion": "anxious",
+          "intensity": 0.7,
+          "onsetMs": 120,
+          "transitionMs": 650,
+          "decayMs": 900,
+          "evidenceCueIds": [
+            "emotion_aligned_expression_transition_cue",
+            "visible_runtime_eyebrow_jaw_cheek_cue",
+            "dialogue_viseme_and_gaze_mapping"
+          ],
+          "notEvidenceFor": [
+            "clinical_validity",
+            "scoring_validity",
+            "production_asset_readiness"
+          ]
+        }
+      },
+      {
+        "traceTag": "trigger_history",
+        "actorId": "parent_tara_johnson_v1",
+        "text": "Tara Johnson: We visited family with cats before this got worse.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null,
+        "affectTimeline": {
+          "emotion": "concerned",
+          "intensity": 0.64,
+          "onsetMs": 120,
+          "transitionMs": 950,
+          "decayMs": 900,
+          "evidenceCueIds": [
+            "emotion_aligned_expression_transition_cue",
+            "visible_runtime_eyebrow_jaw_cheek_cue",
+            "dialogue_viseme_and_gaze_mapping"
+          ],
+          "notEvidenceFor": [
+            "clinical_validity",
+            "scoring_validity",
+            "production_asset_readiness"
+          ]
+        }
+      },
+      {
+        "traceTag": "oxygen_request",
+        "actorId": "nurse_kevin_lee_v1",
+        "text": "Kevin Lee: Oxygen is started and her saturation is being watched closely.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null,
+        "affectTimeline": {
+          "emotion": "concerned",
+          "intensity": 0.56,
+          "onsetMs": 120,
+          "transitionMs": 950,
+          "decayMs": 900,
+          "evidenceCueIds": [
+            "emotion_aligned_expression_transition_cue",
+            "visible_runtime_eyebrow_jaw_cheek_cue",
+            "dialogue_viseme_and_gaze_mapping"
+          ],
+          "notEvidenceFor": [
+            "clinical_validity",
+            "scoring_validity",
+            "production_asset_readiness"
+          ]
+        }
+      },
+      {
+        "traceTag": "bronchodilator_plan",
+        "actorId": "nurse_kevin_lee_v1",
+        "text": "Kevin Lee: Nebulized bronchodilator treatment is ready.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null,
+        "affectTimeline": {
+          "emotion": "reassured",
+          "intensity": 0.36,
+          "onsetMs": 120,
+          "transitionMs": 950,
+          "decayMs": 900,
+          "evidenceCueIds": [
+            "emotion_aligned_expression_transition_cue",
+            "visible_runtime_eyebrow_jaw_cheek_cue",
+            "dialogue_viseme_and_gaze_mapping"
+          ],
+          "notEvidenceFor": [
+            "clinical_validity",
+            "scoring_validity",
+            "production_asset_readiness"
+          ]
+        }
+      },
+      {
+        "traceTag": "urgent_escalation",
+        "actorId": "nurse_kevin_lee_v1",
+        "text": "Kevin Lee: I will call for urgent pediatric support if her work of breathing worsens.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null,
+        "affectTimeline": {
+          "emotion": "concerned",
+          "intensity": 0.6,
+          "onsetMs": 120,
+          "transitionMs": 950,
+          "decayMs": 900,
+          "evidenceCueIds": [
+            "emotion_aligned_expression_transition_cue",
+            "visible_runtime_eyebrow_jaw_cheek_cue",
+            "dialogue_viseme_and_gaze_mapping"
+          ],
+          "notEvidenceFor": [
+            "clinical_validity",
+            "scoring_validity",
+            "production_asset_readiness"
+          ]
+        }
+      },
+      {
+        "traceTag": "parent_communication",
+        "actorId": "parent_tara_johnson_v1",
+        "text": "Tara Johnson: Please tell me exactly what I can do to help her.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null,
+        "affectTimeline": {
+          "emotion": "anxious",
+          "intensity": 0.66,
+          "onsetMs": 120,
+          "transitionMs": 650,
+          "decayMs": 900,
+          "evidenceCueIds": [
+            "emotion_aligned_expression_transition_cue",
+            "visible_runtime_eyebrow_jaw_cheek_cue",
+            "dialogue_viseme_and_gaze_mapping"
+          ],
+          "notEvidenceFor": [
+            "clinical_validity",
+            "scoring_validity",
+            "production_asset_readiness"
+          ]
+        }
+      },
+      {
+        "traceTag": "empathy_statement",
+        "actorId": "patient_maya_johnson_v1",
+        "text": "Maya Johnson: I feel a little better when you explain it slowly.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null,
+        "affectTimeline": {
+          "emotion": "reassured",
+          "intensity": 0.32,
+          "onsetMs": 120,
+          "transitionMs": 950,
+          "decayMs": 900,
+          "evidenceCueIds": [
+            "emotion_aligned_expression_transition_cue",
+            "visible_runtime_eyebrow_jaw_cheek_cue",
+            "dialogue_viseme_and_gaze_mapping"
+          ],
+          "notEvidenceFor": [
+            "clinical_validity",
+            "scoring_validity",
+            "production_asset_readiness"
+          ]
+        }
+      },
+      {
+        "traceTag": "patient_note_submitted",
+        "actorId": "nurse_kevin_lee_v1",
+        "text": "System: Pediatric asthma note saved for faculty review.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null,
+        "affectTimeline": {
+          "emotion": "neutral",
+          "intensity": 0.2,
+          "onsetMs": 120,
+          "transitionMs": 950,
+          "decayMs": 900,
+          "evidenceCueIds": [
+            "emotion_aligned_expression_transition_cue",
+            "visible_runtime_eyebrow_jaw_cheek_cue",
+            "dialogue_viseme_and_gaze_mapping"
+          ],
+          "notEvidenceFor": [
+            "clinical_validity",
+            "scoring_validity",
+            "production_asset_readiness"
+          ]
+        }
+      }
+    ],
+    "actorPlacements": {
+      "patient_maya_johnson_v1": {
+        "slotKind": "primary_patient",
+        "position": {
+          "x": -0.12,
+          "y": 0.9,
+          "z": -1.05
+        },
+        "scale": {
+          "x": 0.82,
+          "y": 0.82,
+          "z": 0.82
+        },
+        "verticalOffsetMeters": -0.72,
+        "labelPrefix": "Patient"
+      },
+      "parent_tara_johnson_v1": {
+        "slotKind": "family_or_observer",
+        "position": {
+          "x": -1.35,
+          "y": 0.95,
+          "z": -0.62
+        },
+        "scale": {
+          "x": 0.96,
+          "y": 0.96,
+          "z": 0.96
+        },
+        "verticalOffsetMeters": -0.92,
+        "labelPrefix": "Parent"
+      },
+      "nurse_kevin_lee_v1": {
+        "slotKind": "clinical_team",
+        "position": {
+          "x": 1.25,
+          "y": 0.95,
+          "z": -0.72
+        },
+        "scale": {
+          "x": 0.98,
+          "y": 0.98,
+          "z": 0.98
+        },
+        "verticalOffsetMeters": -0.94,
+        "labelPrefix": "Nurse"
+      }
+    },
+    "equipmentPlacements": {
+      "pulse_oximeter_equipment": {
+        "position": {
+          "x": 0.55,
+          "y": 0.7,
+          "z": -0.88
+        },
+        "label": "Pulse oximeter",
+        "interactionCueIds": [
+          "selectable_equipment_reference",
+          "clinical_workflow_cue"
+        ]
+      },
+      "nebulizer_mask_equipment": {
+        "position": {
+          "x": 0.2,
+          "y": 0.82,
+          "z": -0.7
+        },
+        "label": "Nebulizer mask",
+        "interactionCueIds": [
+          "selectable_equipment_reference",
+          "clinical_workflow_cue"
+        ]
+      },
+      "oxygen_wall_port_equipment": {
+        "position": {
+          "x": 1.55,
+          "y": 1.2,
+          "z": -1.36
+        },
+        "label": "Oxygen wall port",
+        "interactionCueIds": [
+          "selectable_equipment_reference",
+          "clinical_workflow_cue"
+        ]
+      },
+      "pediatric_stretcher_equipment": {
+        "position": {
+          "x": -0.15,
+          "y": 0,
+          "z": -0.98
+        },
+        "label": "Pediatric stretcher",
+        "interactionCueIds": [
+          "selectable_equipment_reference"
+        ]
+      },
+      "parent_chair_equipment": {
+        "position": {
+          "x": -1.62,
+          "y": 0,
+          "z": -0.45
+        },
+        "label": "Parent chair",
+        "interactionCueIds": [
+          "selectable_equipment_reference"
+        ]
+      },
+      "inhaler_spacer_equipment": {
+        "position": {
+          "x": 0.68,
+          "y": 0.74,
+          "z": -0.54
+        },
+        "label": "Inhaler spacer",
+        "interactionCueIds": [
+          "selectable_equipment_reference",
+          "clinical_workflow_cue"
+        ]
+      }
+    },
+    "productionReadinessClaimed": false,
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ],
+    "stationContext": {
+      "title": "Pediatric Asthma",
+      "subtitle": "Child, parent, and nurse in a pediatric urgent-care respiratory distress encounter.",
+      "chiefConcern": "Wheezing and increased work of breathing",
+      "initialVitals": "HR 128, RR 32, SpO2 91% on room air",
+      "interruption": "Parent interrupts if breathing distress is not acknowledged",
+      "stageAriaLabel": "Pediatric urgent-care station scene",
+      "canvasAriaLabel": "3D pediatric urgent-care bay preview",
+      "initialDialogueText": "Maya Johnson: It is hard to breathe."
+    }
+  },
+  "generatedAt": "2026-05-23T12:00:00.000Z",
+  "expiresAt": null,
+  "frozenForEncounter": true,
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ],
+  "identityScope": "learner_runtime_opaque_bundle"
+}

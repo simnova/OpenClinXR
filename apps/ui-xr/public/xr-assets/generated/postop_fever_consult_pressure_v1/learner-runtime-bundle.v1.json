@@ -1,0 +1,494 @@
+{
+  "bundleId": "local_exam_run:postop_fever_consult_pressure_encounter_v1:generated-runtime-assets",
+  "stationId": "postop_fever_consult_pressure_station_v1",
+  "scenarioId": "postop_fever_consult_pressure_v1",
+  "assetStoreKind": "azurite_blob",
+  "environment": {
+    "assetId": "openclinxr.postop_fever_consult_pressure_v1.environment.generated-glb",
+    "version": "environment-2026-05-23",
+    "kind": "environment_model",
+    "displayName": "postop fever consult pressure environment",
+    "scenarioAssetId": "postop_fever_consult_pressure_v1:environment",
+    "blob": {
+      "storeKind": "azurite_blob",
+      "containerName": "openclinxr-assets",
+      "blobName": ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb",
+      "contentHash": "bytes:65012",
+      "contentType": "model/gltf-binary",
+      "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+    },
+    "reviewStatus": "approved_for_local_runtime",
+    "provenanceRefs": [
+      ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-layout.json",
+      ".openclinxr/asset-production/ed-chest-pain/environment/equipment-placement-manifest.json",
+      ".openclinxr/asset-production/ed-chest-pain/environment/quest-environment-budget.json",
+      ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+    ],
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "actors": [
+    {
+      "actorId": "patient_priya_shah_v1",
+      "role": "patient",
+      "model": {
+        "assetId": "openclinxr.postop_fever_consult_pressure_v1.patient_priya_shah_v1.generated-humanoid-glb",
+        "version": "generated-human-rigging-2026-05-23",
+        "kind": "humanoid_model",
+        "displayName": "patient priya shah",
+        "scenarioAssetId": "patient_priya_shah_character",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+          "contentHash": "bytes:3901100:declared:3901100",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+          "generated_human_rigging_report"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
+    },
+    {
+      "actorId": "floor_nurse_bennett_v1",
+      "role": "nurse",
+      "model": {
+        "assetId": "openclinxr.postop_fever_consult_pressure_v1.floor_nurse_bennett_v1.generated-humanoid-glb",
+        "version": "generated-human-rigging-2026-05-23",
+        "kind": "humanoid_model",
+        "displayName": "floor nurse bennett",
+        "scenarioAssetId": "floor_nurse_bennett_character",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+          "contentHash": "bytes:3901100:declared:3901100",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+          "generated_human_rigging_report"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
+    },
+    {
+      "actorId": "surgery_resident_kim_v1",
+      "role": "consultant",
+      "model": {
+        "assetId": "openclinxr.postop_fever_consult_pressure_v1.surgery_resident_kim_v1.generated-humanoid-glb",
+        "version": "generated-human-rigging-2026-05-23",
+        "kind": "humanoid_model",
+        "displayName": "surgery resident kim",
+        "scenarioAssetId": "surgery_resident_kim_character",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+          "contentHash": "bytes:3901100:declared:3901100",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+          "generated_human_rigging_report"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
+    }
+  ],
+  "equipment": [
+    {
+      "equipmentId": "post_op_bed_equipment",
+      "model": {
+        "assetId": "openclinxr.postop_fever_consult_pressure_v1.post_op_bed_equipment.generated-glb",
+        "version": "medical-equipment-2026-05-23",
+        "kind": "equipment_model",
+        "displayName": "post op bed",
+        "scenarioAssetId": "postop_fever_consult_pressure_v1:post_op_bed_equipment",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+          "contentHash": "bytes:22988",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      }
+    },
+    {
+      "equipmentId": "abdominal_dressing_equipment",
+      "model": {
+        "assetId": "openclinxr.postop_fever_consult_pressure_v1.abdominal_dressing_equipment.generated-glb",
+        "version": "medical-equipment-2026-05-23",
+        "kind": "equipment_model",
+        "displayName": "abdominal dressing",
+        "scenarioAssetId": "postop_fever_consult_pressure_v1:abdominal_dressing_equipment",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+          "contentHash": "bytes:15664",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      }
+    }
+  ],
+  "uiSurfaces": [],
+  "sceneManifest": {
+    "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+    "manifestId": "scene_manifest:postop_fever_consult_pressure_v1:postop_fever_consult_pressure_station_v1",
+    "source": "generated_scene_pipeline",
+    "scenarioId": "postop_fever_consult_pressure_v1",
+    "stationId": "postop_fever_consult_pressure_station_v1",
+    "stationContext": {
+      "title": "Postop Fever Consult Pressure",
+      "subtitle": "Postoperative patient with floor nurse and surgery resident under consult-pressure dynamics.",
+      "chiefConcern": "Fever, worsening abdominal pain, and chills after surgery",
+      "initialVitals": "Post-op bed and abdominal dressing cues drive focused exam and escalation",
+      "interruption": "Consultant pressure risks premature closure unless the learner maintains safety priorities",
+      "stageAriaLabel": "Postoperative fever consult-pressure station scene",
+      "canvasAriaLabel": "3D postoperative fever room preview",
+      "initialDialogueText": "Priya Shah: My belly hurts more today, and I have chills."
+    },
+    "dialogueTurns": [
+      {
+        "traceTag": "history_opqrst",
+        "actorId": "patient_priya_shah_v1",
+        "text": "Priya Shah: I can tell you what has been happening if we go step by step.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null
+      },
+      {
+        "traceTag": "risk_factor_question",
+        "actorId": "patient_priya_shah_v1",
+        "text": "Priya Shah: There may be details I only mention if asked clearly.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null
+      },
+      {
+        "traceTag": "associated_symptom_question",
+        "actorId": "patient_priya_shah_v1",
+        "text": "Priya Shah: I have noticed a few related symptoms that worry me.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null
+      },
+      {
+        "traceTag": "vitals_review",
+        "actorId": "floor_nurse_bennett_v1",
+        "text": "Nurse Bennett: I can help review the available status information.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null
+      },
+      {
+        "traceTag": "ecg_request",
+        "actorId": "floor_nurse_bennett_v1",
+        "text": "Nurse Bennett: I will help gather the next piece of clinical information.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null
+      },
+      {
+        "traceTag": "urgent_escalation",
+        "actorId": "surgery_resident_kim_v1",
+        "text": "Resident Kim: I need to know when this becomes urgent.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null
+      },
+      {
+        "traceTag": "team_communication",
+        "actorId": "floor_nurse_bennett_v1",
+        "text": "Nurse Bennett: A clear shared plan will help the team respond.",
+        "gazeTargetKind": "actor",
+        "gazeTargetActorId": "floor_nurse_bennett_v1"
+      },
+      {
+        "traceTag": "family_communication",
+        "actorId": "surgery_resident_kim_v1",
+        "text": "Resident Kim: Please include us in a way that supports the patient.",
+        "gazeTargetKind": "actor",
+        "gazeTargetActorId": "surgery_resident_kim_v1"
+      },
+      {
+        "traceTag": "empathy_statement",
+        "actorId": "patient_priya_shah_v1",
+        "text": "Priya Shah: It helps when you acknowledge how stressful this feels.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null
+      },
+      {
+        "traceTag": "patient_note_submitted",
+        "actorId": "patient_priya_shah_v1",
+        "text": "System: Patient note saved for faculty review.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null
+      }
+    ],
+    "actorPlacements": {
+      "patient_priya_shah_v1": {
+        "slotKind": "primary_patient",
+        "position": {
+          "x": -0.72,
+          "y": 1.06,
+          "z": -0.12
+        },
+        "scale": {
+          "x": 1.1,
+          "y": 1.1,
+          "z": 1.1
+        },
+        "verticalOffsetMeters": -0.98,
+        "labelPrefix": "Patient"
+      },
+      "floor_nurse_bennett_v1": {
+        "slotKind": "clinical_team",
+        "position": {
+          "x": 1.45,
+          "y": 0.95,
+          "z": 0.55
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "verticalOffsetMeters": -0.95,
+        "labelPrefix": "Team"
+      },
+      "surgery_resident_kim_v1": {
+        "slotKind": "family_or_observer",
+        "position": {
+          "x": -2,
+          "y": 0.95,
+          "z": 0.7
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "verticalOffsetMeters": -0.95,
+        "labelPrefix": "Consultant"
+      }
+    },
+    "equipmentPlacements": {
+      "post_op_bed_equipment": {
+        "position": {
+          "x": 1.6,
+          "y": 0,
+          "z": 0.28
+        },
+        "label": "Post Op Bed",
+        "interactionCueIds": [
+          "post_op_bed_equipment:selectable_equipment_reference",
+          "post_op_bed_equipment:clinical_workflow_cue"
+        ]
+      },
+      "abdominal_dressing_equipment": {
+        "position": {
+          "x": 0.95,
+          "y": 0,
+          "z": 0.98
+        },
+        "label": "Abdominal Dressing",
+        "interactionCueIds": [
+          "abdominal_dressing_equipment:selectable_equipment_reference",
+          "abdominal_dressing_equipment:clinical_workflow_cue"
+        ]
+      }
+    },
+    "roomProps": [
+      {
+        "propId": "postop-fever-consult-pressure-primary-context",
+        "label": "Postoperative Fever With Surgical Consultant Pressure",
+        "semanticRole": "scenario_context",
+        "evidenceCue": "postop_fever_consult_pressure:primary_context_cue",
+        "colorHex": "#f8fafc",
+        "accentColorHex": "#0f766e",
+        "position": {
+          "x": -0.6,
+          "y": 0.85,
+          "z": -0.7
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "postop-fever-consult-pressure-primary-context:scenario_context",
+          "postop_fever_consult_pressure:primary_context_cue"
+        ],
+        "interactionTags": [
+          "scenario_context",
+          "postop_fever_consult_pressure_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "postop-fever-consult-pressure-objective-cue",
+        "label": "Develop focused postoperative fever differential",
+        "semanticRole": "objective_cue",
+        "evidenceCue": "postop_fever_consult_pressure:objective_cue",
+        "colorHex": "#eff6ff",
+        "accentColorHex": "#2563eb",
+        "position": {
+          "x": 1.25,
+          "y": 0.95,
+          "z": -0.4
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "postop-fever-consult-pressure-objective-cue:objective_cue",
+          "postop_fever_consult_pressure:objective_cue"
+        ],
+        "interactionTags": [
+          "objective_cue",
+          "postop_fever_consult_pressure_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "postop-fever-consult-pressure-communication-cue",
+        "label": "postop_day_identified",
+        "semanticRole": "communication_cue",
+        "evidenceCue": "postop_fever_consult_pressure:communication_cue",
+        "colorHex": "#fef3c7",
+        "accentColorHex": "#d97706",
+        "position": {
+          "x": -1.45,
+          "y": 0.65,
+          "z": 0.75
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "postop-fever-consult-pressure-communication-cue:communication_cue",
+          "postop_fever_consult_pressure:communication_cue"
+        ],
+        "interactionTags": [
+          "communication_cue",
+          "postop_fever_consult_pressure_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "postop-fever-consult-pressure-review-cue",
+        "label": "Faculty review evidence cue",
+        "semanticRole": "review_cue",
+        "evidenceCue": "postop_fever_consult_pressure:faculty_review_cue",
+        "colorHex": "#f3e8ff",
+        "accentColorHex": "#7c3aed",
+        "position": {
+          "x": 1.5,
+          "y": 0.7,
+          "z": 0.65
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "postop-fever-consult-pressure-review-cue:review_cue",
+          "postop_fever_consult_pressure:faculty_review_cue"
+        ],
+        "interactionTags": [
+          "review_cue",
+          "postop_fever_consult_pressure_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      }
+    ],
+    "productionReadinessClaimed": false,
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "generatedAt": "2026-05-23T17:46:10.499Z",
+  "expiresAt": null,
+  "frozenForEncounter": true,
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ],
+  "identityScope": "learner_runtime_opaque_bundle"
+}

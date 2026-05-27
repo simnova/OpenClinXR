@@ -1,0 +1,327 @@
+{
+  "bundleId": "ed_chest_pain_encounter_v1:learner-runtime-bundle:v1",
+  "stationId": "ed_chest_pain_station_v1",
+  "scenarioId": "ed_chest_pain_priority_v2",
+  "assetStoreKind": "azurite_blob",
+  "environment": {
+    "assetId": "ed_environment",
+    "version": "v1",
+    "kind": "environment_model",
+    "displayName": "ED",
+    "scenarioAssetId": "ed",
+    "blob": {
+      "storeKind": "azurite_blob",
+      "containerName": "openclinxr-assets",
+      "blobName": "ed.glb",
+      "url": "http://127.0.0.1/ed.glb"
+    },
+    "reviewStatus": "approved_for_local_runtime",
+    "provenanceRefs": [
+      "fixture"
+    ],
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "actors": [
+    {
+      "actorId": "patient_robert_hayes_v1",
+      "role": "patient",
+      "model": {
+        "assetId": "patient",
+        "version": "v1",
+        "kind": "humanoid_model",
+        "displayName": "Patient",
+        "scenarioAssetId": "patient",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "patient.glb",
+          "url": "http://127.0.0.1/patient.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "fixture"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
+    },
+    {
+      "actorId": "nurse_maria_alvarez_v1",
+      "role": "nurse",
+      "model": {
+        "assetId": "nurse",
+        "version": "v1",
+        "kind": "humanoid_model",
+        "displayName": "Nurse",
+        "scenarioAssetId": "nurse",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "nurse.glb",
+          "url": "http://127.0.0.1/nurse.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "fixture"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
+    },
+    {
+      "actorId": "spouse_anna_hayes_v1",
+      "role": "family",
+      "model": {
+        "assetId": "spouse",
+        "version": "v1",
+        "kind": "humanoid_model",
+        "displayName": "Family Member",
+        "scenarioAssetId": "spouse",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "spouse.glb",
+          "url": "http://127.0.0.1/spouse.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "fixture"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
+    }
+  ],
+  "equipment": [
+    {
+      "equipmentId": "ecg_cart_equipment",
+      "model": {
+        "assetId": "ecg",
+        "version": "v1",
+        "kind": "equipment_model",
+        "displayName": "ECG",
+        "scenarioAssetId": "ecg",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "ecg.glb",
+          "url": "http://127.0.0.1/ecg.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "fixture"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      }
+    }
+  ],
+  "uiSurfaces": [],
+  "sceneManifest": {
+    "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+    "manifestId": "scene_manifest:ed_chest_pain_priority_v2:ed_chest_pain_station_v1",
+    "source": "generated_scene_pipeline",
+    "scenarioId": "ed_chest_pain_priority_v2",
+    "stationId": "ed_chest_pain_station_v1",
+    "roomProps": [
+      {
+        "propId": "monitor",
+        "label": "Monitor",
+        "colorHex": "#111827",
+        "accentColorHex": "#f59e0b",
+        "position": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "affordanceCueIds": [
+          "vitals_monitor"
+        ],
+        "interactionTags": [
+          "monitor"
+        ],
+        "generatedBy": "scene_manifest"
+      }
+    ],
+    "dialogueTurns": [
+      {
+        "traceTag": "opening_patient_chest_pain",
+        "actorId": "patient_robert_hayes_v1",
+        "text": "My chest is tight and it started about twenty minutes ago.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null,
+        "affectTimeline": {
+          "emotion": "pain",
+          "intensity": 0.82,
+          "onsetMs": 120,
+          "transitionMs": 650,
+          "decayMs": 900,
+          "evidenceCueIds": [
+            "emotion_aligned_expression_transition_cue",
+            "visible_runtime_eyebrow_jaw_cheek_cue",
+            "dialogue_viseme_and_gaze_mapping"
+          ],
+          "notEvidenceFor": [
+            "clinical_validity",
+            "scoring_validity",
+            "production_asset_readiness"
+          ]
+        }
+      },
+      {
+        "traceTag": "nurse_interruption_ecg",
+        "actorId": "nurse_maria_alvarez_v1",
+        "text": "Doctor, the ECG is ready and his blood pressure is drifting down.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null,
+        "affectTimeline": {
+          "emotion": "concerned",
+          "intensity": 0.58,
+          "onsetMs": 120,
+          "transitionMs": 950,
+          "decayMs": 900,
+          "evidenceCueIds": [
+            "emotion_aligned_expression_transition_cue",
+            "visible_runtime_eyebrow_jaw_cheek_cue",
+            "dialogue_viseme_and_gaze_mapping"
+          ],
+          "notEvidenceFor": [
+            "clinical_validity",
+            "scoring_validity",
+            "production_asset_readiness"
+          ]
+        }
+      },
+      {
+        "traceTag": "spouse_anxiety_context",
+        "actorId": "spouse_anna_hayes_v1",
+        "text": "He never complains like this. Is he going to be okay?",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null,
+        "affectTimeline": {
+          "emotion": "anxious",
+          "intensity": 0.68,
+          "onsetMs": 120,
+          "transitionMs": 650,
+          "decayMs": 900,
+          "evidenceCueIds": [
+            "emotion_aligned_expression_transition_cue",
+            "visible_runtime_eyebrow_jaw_cheek_cue",
+            "dialogue_viseme_and_gaze_mapping"
+          ],
+          "notEvidenceFor": [
+            "clinical_validity",
+            "scoring_validity",
+            "production_asset_readiness"
+          ]
+        }
+      }
+    ],
+    "actorPlacements": {
+      "patient_robert_hayes_v1": {
+        "slotKind": "primary_patient",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": -1.2
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "verticalOffsetMeters": 0,
+        "labelPrefix": "Patient"
+      },
+      "nurse_maria_alvarez_v1": {
+        "slotKind": "clinical_team",
+        "position": {
+          "x": -1.2,
+          "y": 0,
+          "z": -0.8
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "verticalOffsetMeters": 0,
+        "labelPrefix": "Nurse"
+      },
+      "spouse_anna_hayes_v1": {
+        "slotKind": "family_or_observer",
+        "position": {
+          "x": 1.2,
+          "y": 0,
+          "z": -0.8
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "verticalOffsetMeters": 0,
+        "labelPrefix": "Family"
+      }
+    },
+    "equipmentPlacements": {},
+    "productionReadinessClaimed": false,
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "generatedAt": "2026-05-23T12:00:00.000Z",
+  "expiresAt": null,
+  "frozenForEncounter": true,
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ],
+  "identityScope": "learner_runtime_opaque_bundle"
+}

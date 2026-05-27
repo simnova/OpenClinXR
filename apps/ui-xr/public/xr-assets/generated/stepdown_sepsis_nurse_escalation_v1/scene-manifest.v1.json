@@ -1,0 +1,279 @@
+{
+  "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+  "manifestId": "scene_manifest:stepdown_sepsis_nurse_escalation_v1:stepdown_sepsis_nurse_escalation_station_v1",
+  "source": "generated_scene_pipeline",
+  "scenarioId": "stepdown_sepsis_nurse_escalation_v1",
+  "stationId": "stepdown_sepsis_nurse_escalation_station_v1",
+  "stationContext": {
+    "title": "Stepdown Sepsis Escalation",
+    "subtitle": "Deteriorating patient with nurse and respiratory therapist in a stepdown escalation encounter.",
+    "chiefConcern": "Worsening fever, chills, and respiratory concern after earlier stability",
+    "initialVitals": "Monitor and IV pump cues support escalation and closed-loop team communication",
+    "interruption": "Respiratory therapist requests prioritization while nurse seeks escalation orders",
+    "stageAriaLabel": "Stepdown sepsis escalation station scene",
+    "canvasAriaLabel": "3D stepdown sepsis room preview",
+    "initialDialogueText": "Helen Carter: I feel worse than this morning, and I am shaking again."
+  },
+  "dialogueTurns": [
+    {
+      "traceTag": "history_opqrst",
+      "actorId": "patient_helen_carter_v1",
+      "text": "Helen Carter: I can tell you what has been happening if we go step by step.",
+      "gazeTargetKind": "learner_camera",
+      "gazeTargetActorId": null
+    },
+    {
+      "traceTag": "risk_factor_question",
+      "actorId": "patient_helen_carter_v1",
+      "text": "Helen Carter: There may be details I only mention if asked clearly.",
+      "gazeTargetKind": "learner_camera",
+      "gazeTargetActorId": null
+    },
+    {
+      "traceTag": "associated_symptom_question",
+      "actorId": "patient_helen_carter_v1",
+      "text": "Helen Carter: I have noticed a few related symptoms that worry me.",
+      "gazeTargetKind": "learner_camera",
+      "gazeTargetActorId": null
+    },
+    {
+      "traceTag": "vitals_review",
+      "actorId": "stepdown_nurse_rivera_v1",
+      "text": "Nurse Rivera: I can help review the available status information.",
+      "gazeTargetKind": "learner_camera",
+      "gazeTargetActorId": null
+    },
+    {
+      "traceTag": "ecg_request",
+      "actorId": "stepdown_nurse_rivera_v1",
+      "text": "Nurse Rivera: I will help gather the next piece of clinical information.",
+      "gazeTargetKind": "learner_camera",
+      "gazeTargetActorId": null
+    },
+    {
+      "traceTag": "urgent_escalation",
+      "actorId": "respiratory_therapist_ng_v1",
+      "text": "Respiratory Therapist Ng: I need to know when this becomes urgent.",
+      "gazeTargetKind": "learner_camera",
+      "gazeTargetActorId": null
+    },
+    {
+      "traceTag": "team_communication",
+      "actorId": "stepdown_nurse_rivera_v1",
+      "text": "Nurse Rivera: A clear shared plan will help the team respond.",
+      "gazeTargetKind": "actor",
+      "gazeTargetActorId": "stepdown_nurse_rivera_v1"
+    },
+    {
+      "traceTag": "family_communication",
+      "actorId": "respiratory_therapist_ng_v1",
+      "text": "Respiratory Therapist Ng: Please include us in a way that supports the patient.",
+      "gazeTargetKind": "actor",
+      "gazeTargetActorId": "respiratory_therapist_ng_v1"
+    },
+    {
+      "traceTag": "empathy_statement",
+      "actorId": "patient_helen_carter_v1",
+      "text": "Helen Carter: It helps when you acknowledge how stressful this feels.",
+      "gazeTargetKind": "learner_camera",
+      "gazeTargetActorId": null
+    },
+    {
+      "traceTag": "patient_note_submitted",
+      "actorId": "patient_helen_carter_v1",
+      "text": "System: Patient note saved for faculty review.",
+      "gazeTargetKind": "learner_camera",
+      "gazeTargetActorId": null
+    }
+  ],
+  "actorPlacements": {
+    "patient_helen_carter_v1": {
+      "slotKind": "primary_patient",
+      "position": {
+        "x": -0.72,
+        "y": 1.06,
+        "z": -0.12
+      },
+      "scale": {
+        "x": 1.1,
+        "y": 1.1,
+        "z": 1.1
+      },
+      "verticalOffsetMeters": -0.98,
+      "labelPrefix": "Patient"
+    },
+    "stepdown_nurse_rivera_v1": {
+      "slotKind": "clinical_team",
+      "position": {
+        "x": 1.45,
+        "y": 0.95,
+        "z": 0.55
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1
+      },
+      "verticalOffsetMeters": -0.95,
+      "labelPrefix": "Team"
+    },
+    "respiratory_therapist_ng_v1": {
+      "slotKind": "family_or_observer",
+      "position": {
+        "x": -2,
+        "y": 0.95,
+        "z": 0.7
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1
+      },
+      "verticalOffsetMeters": -0.95,
+      "labelPrefix": "Family"
+    }
+  },
+  "equipmentPlacements": {
+    "monitor_equipment": {
+      "position": {
+        "x": 1.6,
+        "y": 0,
+        "z": 0.28
+      },
+      "label": "Monitor",
+      "interactionCueIds": [
+        "monitor_equipment:selectable_equipment_reference",
+        "monitor_equipment:clinical_workflow_cue"
+      ]
+    },
+    "iv_pump_equipment": {
+      "position": {
+        "x": 0.95,
+        "y": 0,
+        "z": 0.98
+      },
+      "label": "Iv Pump",
+      "interactionCueIds": [
+        "iv_pump_equipment:selectable_equipment_reference",
+        "iv_pump_equipment:clinical_workflow_cue"
+      ]
+    }
+  },
+  "roomProps": [
+    {
+      "propId": "stepdown-sepsis-nurse-escalation-primary-context",
+      "label": "Sepsis In ICU Stepdown With Nurse Escalation",
+      "semanticRole": "scenario_context",
+      "evidenceCue": "stepdown_sepsis_nurse_escalation:primary_context_cue",
+      "colorHex": "#f8fafc",
+      "accentColorHex": "#0f766e",
+      "position": {
+        "x": -0.6,
+        "y": 0.85,
+        "z": -0.7
+      },
+      "scale": {
+        "x": 0.7,
+        "y": 0.18,
+        "z": 0.42
+      },
+      "affordanceCueIds": [
+        "stepdown-sepsis-nurse-escalation-primary-context:scenario_context",
+        "stepdown_sepsis_nurse_escalation:primary_context_cue"
+      ],
+      "interactionTags": [
+        "scenario_context",
+        "stepdown_sepsis_nurse_escalation_v1"
+      ],
+      "generatedBy": "scene_manifest"
+    },
+    {
+      "propId": "stepdown-sepsis-nurse-escalation-objective-cue",
+      "label": "Recognize sepsis and clinical deterioration",
+      "semanticRole": "objective_cue",
+      "evidenceCue": "stepdown_sepsis_nurse_escalation:objective_cue",
+      "colorHex": "#eff6ff",
+      "accentColorHex": "#2563eb",
+      "position": {
+        "x": 1.25,
+        "y": 0.95,
+        "z": -0.4
+      },
+      "scale": {
+        "x": 0.7,
+        "y": 0.18,
+        "z": 0.42
+      },
+      "affordanceCueIds": [
+        "stepdown-sepsis-nurse-escalation-objective-cue:objective_cue",
+        "stepdown_sepsis_nurse_escalation:objective_cue"
+      ],
+      "interactionTags": [
+        "objective_cue",
+        "stepdown_sepsis_nurse_escalation_v1"
+      ],
+      "generatedBy": "scene_manifest"
+    },
+    {
+      "propId": "stepdown-sepsis-nurse-escalation-communication-cue",
+      "label": "sepsis_recognition",
+      "semanticRole": "communication_cue",
+      "evidenceCue": "stepdown_sepsis_nurse_escalation:communication_cue",
+      "colorHex": "#fef3c7",
+      "accentColorHex": "#d97706",
+      "position": {
+        "x": -1.45,
+        "y": 0.65,
+        "z": 0.75
+      },
+      "scale": {
+        "x": 0.7,
+        "y": 0.18,
+        "z": 0.42
+      },
+      "affordanceCueIds": [
+        "stepdown-sepsis-nurse-escalation-communication-cue:communication_cue",
+        "stepdown_sepsis_nurse_escalation:communication_cue"
+      ],
+      "interactionTags": [
+        "communication_cue",
+        "stepdown_sepsis_nurse_escalation_v1"
+      ],
+      "generatedBy": "scene_manifest"
+    },
+    {
+      "propId": "stepdown-sepsis-nurse-escalation-review-cue",
+      "label": "Faculty review evidence cue",
+      "semanticRole": "review_cue",
+      "evidenceCue": "stepdown_sepsis_nurse_escalation:faculty_review_cue",
+      "colorHex": "#f3e8ff",
+      "accentColorHex": "#7c3aed",
+      "position": {
+        "x": 1.5,
+        "y": 0.7,
+        "z": 0.65
+      },
+      "scale": {
+        "x": 0.7,
+        "y": 0.18,
+        "z": 0.42
+      },
+      "affordanceCueIds": [
+        "stepdown-sepsis-nurse-escalation-review-cue:review_cue",
+        "stepdown_sepsis_nurse_escalation:faculty_review_cue"
+      ],
+      "interactionTags": [
+        "review_cue",
+        "stepdown_sepsis_nurse_escalation_v1"
+      ],
+      "generatedBy": "scene_manifest"
+    }
+  ],
+  "productionReadinessClaimed": false,
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ]
+}

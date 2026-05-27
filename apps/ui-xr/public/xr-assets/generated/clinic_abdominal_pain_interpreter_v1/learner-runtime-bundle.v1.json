@@ -1,0 +1,497 @@
+{
+  "bundleId": "local_exam_run:clinic_abdominal_pain_interpreter_encounter_v1:generated-runtime-assets",
+  "stationId": "clinic_abdominal_pain_interpreter_station_v1",
+  "scenarioId": "clinic_abdominal_pain_interpreter_v1",
+  "assetStoreKind": "azurite_blob",
+  "environment": {
+    "assetId": "openclinxr.clinic_abdominal_pain_interpreter_v1.environment.generated-glb",
+    "version": "environment-2026-05-23",
+    "kind": "environment_model",
+    "displayName": "clinic abdominal pain interpreter environment",
+    "scenarioAssetId": "clinic_abdominal_pain_interpreter_v1:environment",
+    "blob": {
+      "storeKind": "azurite_blob",
+      "containerName": "openclinxr-assets",
+      "blobName": ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb",
+      "contentHash": "bytes:65012",
+      "contentType": "model/gltf-binary",
+      "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+    },
+    "reviewStatus": "approved_for_local_runtime",
+    "provenanceRefs": [
+      ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-layout.json",
+      ".openclinxr/asset-production/ed-chest-pain/environment/equipment-placement-manifest.json",
+      ".openclinxr/asset-production/ed-chest-pain/environment/quest-environment-budget.json",
+      ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+    ],
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "actors": [
+    {
+      "actorId": "patient_lucia_morales_v1",
+      "embodiment": "humanoid",
+      "role": "patient",
+      "model": {
+        "assetId": "openclinxr.clinic_abdominal_pain_interpreter_v1.patient_lucia_morales_v1.generated-humanoid-glb",
+        "version": "generated-human-rigging-2026-05-23",
+        "kind": "humanoid_model",
+        "displayName": "patient lucia morales",
+        "scenarioAssetId": "patient_lucia_morales_character",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+          "contentHash": "bytes:3901100:declared:3901100",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+          "generated_human_rigging_report"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
+    },
+    {
+      "actorId": "father_carlos_morales_v1",
+      "embodiment": "humanoid",
+      "role": "family",
+      "model": {
+        "assetId": "openclinxr.clinic_abdominal_pain_interpreter_v1.father_carlos_morales_v1.generated-humanoid-glb",
+        "version": "generated-human-rigging-2026-05-23",
+        "kind": "humanoid_model",
+        "displayName": "father carlos morales",
+        "scenarioAssetId": "father_carlos_morales_character",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+          "contentHash": "bytes:3901100:declared:3901100",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+          "generated_human_rigging_report"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
+    },
+    {
+      "actorId": "remote_interpreter_tablet_v1",
+      "embodiment": "virtual_device",
+      "role": "interpreter",
+      "model": {
+        "assetId": "openclinxr.clinic_abdominal_pain_interpreter_v1.remote_interpreter_tablet_v1.generated-humanoid-glb",
+        "version": "generated-human-rigging-2026-05-23",
+        "kind": "humanoid_model",
+        "displayName": "remote interpreter tablet",
+        "scenarioAssetId": "remote_interpreter_tablet_character",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+          "contentHash": "bytes:3901100:declared:3901100",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+          "generated_human_rigging_report"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
+    }
+  ],
+  "equipment": [
+    {
+      "equipmentId": "exam_table_equipment",
+      "model": {
+        "assetId": "openclinxr.clinic_abdominal_pain_interpreter_v1.exam_table_equipment.generated-glb",
+        "version": "medical-equipment-2026-05-23",
+        "kind": "equipment_model",
+        "displayName": "exam table",
+        "scenarioAssetId": "clinic_abdominal_pain_interpreter_v1:exam_table_equipment",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+          "contentHash": "bytes:22988",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      }
+    },
+    {
+      "equipmentId": "abdominal_exam_zone_equipment",
+      "model": {
+        "assetId": "openclinxr.clinic_abdominal_pain_interpreter_v1.abdominal_exam_zone_equipment.generated-glb",
+        "version": "medical-equipment-2026-05-23",
+        "kind": "equipment_model",
+        "displayName": "abdominal exam zone",
+        "scenarioAssetId": "clinic_abdominal_pain_interpreter_v1:abdominal_exam_zone_equipment",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+          "contentHash": "bytes:15664",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      }
+    }
+  ],
+  "uiSurfaces": [],
+  "sceneManifest": {
+    "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+    "manifestId": "scene_manifest:clinic_abdominal_pain_interpreter_v1:clinic_abdominal_pain_interpreter_station_v1",
+    "source": "generated_scene_pipeline",
+    "scenarioId": "clinic_abdominal_pain_interpreter_v1",
+    "stationId": "clinic_abdominal_pain_interpreter_station_v1",
+    "stationContext": {
+      "title": "Clinic Abdominal Pain Interpreter",
+      "subtitle": "Patient, father, and remote interpreter tablet in an ambulatory abdominal-pain encounter.",
+      "chiefConcern": "Right-lower-quadrant abdominal pain with interpreter-mediated history",
+      "initialVitals": "Exam table and abdominal exam zone cues anchor the focused assessment",
+      "interruption": "Family member answers out of turn unless the learner uses interpreter best practices",
+      "stageAriaLabel": "Clinic abdominal pain interpreter station scene",
+      "canvasAriaLabel": "3D clinic interpreter room preview",
+      "initialDialogueText": "Lucia Morales: The pain is mostly on the lower right side, and I need the interpreter."
+    },
+    "dialogueTurns": [
+      {
+        "traceTag": "history_opqrst",
+        "actorId": "patient_lucia_morales_v1",
+        "text": "Lucia Morales: I can tell you what has been happening if we go step by step.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null
+      },
+      {
+        "traceTag": "risk_factor_question",
+        "actorId": "patient_lucia_morales_v1",
+        "text": "Lucia Morales: There may be details I only mention if asked clearly.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null
+      },
+      {
+        "traceTag": "associated_symptom_question",
+        "actorId": "patient_lucia_morales_v1",
+        "text": "Lucia Morales: I have noticed a few related symptoms that worry me.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null
+      },
+      {
+        "traceTag": "vitals_review",
+        "actorId": "remote_interpreter_tablet_v1",
+        "text": "Interpreter Tablet: I can help review the available status information.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null
+      },
+      {
+        "traceTag": "ecg_request",
+        "actorId": "remote_interpreter_tablet_v1",
+        "text": "Interpreter Tablet: I will help gather the next piece of clinical information.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null
+      },
+      {
+        "traceTag": "urgent_escalation",
+        "actorId": "father_carlos_morales_v1",
+        "text": "Carlos Morales: I need to know when this becomes urgent.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null
+      },
+      {
+        "traceTag": "team_communication",
+        "actorId": "remote_interpreter_tablet_v1",
+        "text": "Interpreter Tablet: A clear shared plan will help the team respond.",
+        "gazeTargetKind": "actor",
+        "gazeTargetActorId": "remote_interpreter_tablet_v1"
+      },
+      {
+        "traceTag": "family_communication",
+        "actorId": "father_carlos_morales_v1",
+        "text": "Carlos Morales: Please include us in a way that supports the patient.",
+        "gazeTargetKind": "actor",
+        "gazeTargetActorId": "father_carlos_morales_v1"
+      },
+      {
+        "traceTag": "empathy_statement",
+        "actorId": "patient_lucia_morales_v1",
+        "text": "Lucia Morales: It helps when you acknowledge how stressful this feels.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null
+      },
+      {
+        "traceTag": "patient_note_submitted",
+        "actorId": "patient_lucia_morales_v1",
+        "text": "System: Patient note saved for faculty review.",
+        "gazeTargetKind": "learner_camera",
+        "gazeTargetActorId": null
+      }
+    ],
+    "actorPlacements": {
+      "patient_lucia_morales_v1": {
+        "slotKind": "primary_patient",
+        "position": {
+          "x": -0.72,
+          "y": 1.06,
+          "z": -0.12
+        },
+        "scale": {
+          "x": 1.1,
+          "y": 1.1,
+          "z": 1.1
+        },
+        "verticalOffsetMeters": -0.98,
+        "labelPrefix": "Patient"
+      },
+      "remote_interpreter_tablet_v1": {
+        "slotKind": "clinical_team",
+        "position": {
+          "x": 1.45,
+          "y": 0.95,
+          "z": 0.55
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "verticalOffsetMeters": -0.95,
+        "labelPrefix": "Interpreter"
+      },
+      "father_carlos_morales_v1": {
+        "slotKind": "family_or_observer",
+        "position": {
+          "x": -2,
+          "y": 0.95,
+          "z": 0.7
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "verticalOffsetMeters": -0.95,
+        "labelPrefix": "Family"
+      }
+    },
+    "equipmentPlacements": {
+      "exam_table_equipment": {
+        "position": {
+          "x": 1.6,
+          "y": 0,
+          "z": 0.28
+        },
+        "label": "Exam Table",
+        "interactionCueIds": [
+          "exam_table_equipment:selectable_equipment_reference",
+          "exam_table_equipment:clinical_workflow_cue"
+        ]
+      },
+      "abdominal_exam_zone_equipment": {
+        "position": {
+          "x": 0.95,
+          "y": 0,
+          "z": 0.98
+        },
+        "label": "Abdominal Exam Zone",
+        "interactionCueIds": [
+          "abdominal_exam_zone_equipment:selectable_equipment_reference",
+          "abdominal_exam_zone_equipment:clinical_workflow_cue"
+        ]
+      }
+    },
+    "roomProps": [
+      {
+        "propId": "clinic-abdominal-pain-interpreter-primary-context",
+        "label": "Abdominal Pain With Parent Interpreter Issue",
+        "semanticRole": "scenario_context",
+        "evidenceCue": "clinic_abdominal_pain_interpreter:primary_context_cue",
+        "colorHex": "#f8fafc",
+        "accentColorHex": "#0f766e",
+        "position": {
+          "x": -0.6,
+          "y": 0.85,
+          "z": -0.7
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "clinic-abdominal-pain-interpreter-primary-context:scenario_context",
+          "clinic_abdominal_pain_interpreter:primary_context_cue"
+        ],
+        "interactionTags": [
+          "scenario_context",
+          "clinic_abdominal_pain_interpreter_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "clinic-abdominal-pain-interpreter-objective-cue",
+        "label": "Elicit migratory abdominal pain and associated symptoms",
+        "semanticRole": "objective_cue",
+        "evidenceCue": "clinic_abdominal_pain_interpreter:objective_cue",
+        "colorHex": "#eff6ff",
+        "accentColorHex": "#2563eb",
+        "position": {
+          "x": 1.25,
+          "y": 0.95,
+          "z": -0.4
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "clinic-abdominal-pain-interpreter-objective-cue:objective_cue",
+          "clinic_abdominal_pain_interpreter:objective_cue"
+        ],
+        "interactionTags": [
+          "objective_cue",
+          "clinic_abdominal_pain_interpreter_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "clinic-abdominal-pain-interpreter-communication-cue",
+        "label": "pain_migration_question",
+        "semanticRole": "communication_cue",
+        "evidenceCue": "clinic_abdominal_pain_interpreter:communication_cue",
+        "colorHex": "#fef3c7",
+        "accentColorHex": "#d97706",
+        "position": {
+          "x": -1.45,
+          "y": 0.65,
+          "z": 0.75
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "clinic-abdominal-pain-interpreter-communication-cue:communication_cue",
+          "clinic_abdominal_pain_interpreter:communication_cue"
+        ],
+        "interactionTags": [
+          "communication_cue",
+          "clinic_abdominal_pain_interpreter_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "clinic-abdominal-pain-interpreter-review-cue",
+        "label": "Faculty review evidence cue",
+        "semanticRole": "review_cue",
+        "evidenceCue": "clinic_abdominal_pain_interpreter:faculty_review_cue",
+        "colorHex": "#f3e8ff",
+        "accentColorHex": "#7c3aed",
+        "position": {
+          "x": 1.5,
+          "y": 0.7,
+          "z": 0.65
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "clinic-abdominal-pain-interpreter-review-cue:review_cue",
+          "clinic_abdominal_pain_interpreter:faculty_review_cue"
+        ],
+        "interactionTags": [
+          "review_cue",
+          "clinic_abdominal_pain_interpreter_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      }
+    ],
+    "productionReadinessClaimed": false,
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "generatedAt": "2026-05-23T17:49:41.236Z",
+  "expiresAt": null,
+  "frozenForEncounter": true,
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ],
+  "identityScope": "learner_runtime_opaque_bundle"
+}

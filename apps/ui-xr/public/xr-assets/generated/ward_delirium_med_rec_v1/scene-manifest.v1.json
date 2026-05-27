@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+  "manifestId": "scene_manifest:ward_delirium_med_rec_v1:ward_delirium_med_rec_station_v1",
+  "source": "generated_scene_pipeline",
+  "scenarioId": "ward_delirium_med_rec_v1",
+  "stationId": "ward_delirium_med_rec_station_v1",
+  "roomProps": [
+    {
+      "propId": "ward-delirium-med-rec-primary-context",
+      "label": "Inpatient Ward Delirium And Medication Reconciliation",
+      "colorHex": "#f8fafc",
+      "accentColorHex": "#0f766e",
+      "position": {
+        "x": -0.6,
+        "y": 0.85,
+        "z": -0.7
+      },
+      "scale": {
+        "x": 0.7,
+        "y": 0.18,
+        "z": 0.42
+      },
+      "affordanceCueIds": [
+        "ward-delirium-med-rec-primary-context:scenario_context_cue"
+      ],
+      "interactionTags": [
+        "scenario_context",
+        "ward_delirium_med_rec_v1"
+      ],
+      "generatedBy": "scene_manifest"
+    },
+    {
+      "propId": "ward-delirium-med-rec-objective-cue",
+      "label": "Distinguish delirium from baseline cognitive impairment",
+      "colorHex": "#eff6ff",
+      "accentColorHex": "#2563eb",
+      "position": {
+        "x": 1.25,
+        "y": 0.95,
+        "z": -0.4
+      },
+      "scale": {
+        "x": 0.7,
+        "y": 0.18,
+        "z": 0.42
+      },
+      "affordanceCueIds": [
+        "ward-delirium-med-rec-objective-cue:scenario_context_cue"
+      ],
+      "interactionTags": [
+        "scenario_context",
+        "ward_delirium_med_rec_v1"
+      ],
+      "generatedBy": "scene_manifest"
+    },
+    {
+      "propId": "ward-delirium-med-rec-communication-cue",
+      "label": "orientation_assessment",
+      "colorHex": "#fef3c7",
+      "accentColorHex": "#d97706",
+      "position": {
+        "x": -1.45,
+        "y": 0.65,
+        "z": 0.75
+      },
+      "scale": {
+        "x": 0.7,
+        "y": 0.18,
+        "z": 0.42
+      },
+      "affordanceCueIds": [
+        "ward-delirium-med-rec-communication-cue:scenario_context_cue"
+      ],
+      "interactionTags": [
+        "scenario_context",
+        "ward_delirium_med_rec_v1"
+      ],
+      "generatedBy": "scene_manifest"
+    },
+    {
+      "propId": "ward-delirium-med-rec-review-cue",
+      "label": "Faculty review evidence cue",
+      "colorHex": "#f3e8ff",
+      "accentColorHex": "#7c3aed",
+      "position": {
+        "x": 1.5,
+        "y": 0.7,
+        "z": 0.65
+      },
+      "scale": {
+        "x": 0.7,
+        "y": 0.18,
+        "z": 0.42
+      },
+      "affordanceCueIds": [
+        "ward-delirium-med-rec-review-cue:scenario_context_cue"
+      ],
+      "interactionTags": [
+        "scenario_context",
+        "ward_delirium_med_rec_v1"
+      ],
+      "generatedBy": "scene_manifest"
+    }
+  ],
+  "productionReadinessClaimed": false,
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ]
+}

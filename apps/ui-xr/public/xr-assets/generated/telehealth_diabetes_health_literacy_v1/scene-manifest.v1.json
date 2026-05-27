@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+  "manifestId": "scene_manifest:telehealth_diabetes_health_literacy_v1:telehealth_diabetes_health_literacy_station_v1",
+  "source": "generated_scene_pipeline",
+  "scenarioId": "telehealth_diabetes_health_literacy_v1",
+  "stationId": "telehealth_diabetes_health_literacy_station_v1",
+  "roomProps": [
+    {
+      "propId": "telehealth-tablet-stand",
+      "label": "Telehealth tablet stand",
+      "colorHex": "#e0f2fe",
+      "accentColorHex": "#0284c7",
+      "position": {
+        "x": 0.8,
+        "y": 1.05,
+        "z": -0.45
+      },
+      "scale": {
+        "x": 0.7,
+        "y": 0.18,
+        "z": 0.42
+      },
+      "affordanceCueIds": [
+        "telehealth-tablet-stand:scenario_context_cue"
+      ],
+      "interactionTags": [
+        "scenario_context",
+        "telehealth_diabetes_health_literacy_v1"
+      ],
+      "generatedBy": "scene_manifest"
+    },
+    {
+      "propId": "plain-language-plan-card",
+      "label": "Plain-language plan card",
+      "colorHex": "#fef9c3",
+      "accentColorHex": "#ca8a04",
+      "position": {
+        "x": -0.65,
+        "y": 0.75,
+        "z": -0.65
+      },
+      "scale": {
+        "x": 0.7,
+        "y": 0.18,
+        "z": 0.42
+      },
+      "affordanceCueIds": [
+        "plain-language-plan-card:scenario_context_cue"
+      ],
+      "interactionTags": [
+        "scenario_context",
+        "telehealth_diabetes_health_literacy_v1"
+      ],
+      "generatedBy": "scene_manifest"
+    },
+    {
+      "propId": "glucometer-log-review",
+      "label": "Glucometer log review",
+      "colorHex": "#dcfce7",
+      "accentColorHex": "#16a34a",
+      "position": {
+        "x": 1.45,
+        "y": 0.78,
+        "z": 0.45
+      },
+      "scale": {
+        "x": 0.7,
+        "y": 0.18,
+        "z": 0.42
+      },
+      "affordanceCueIds": [
+        "glucometer-log-review:scenario_context_cue"
+      ],
+      "interactionTags": [
+        "scenario_context",
+        "telehealth_diabetes_health_literacy_v1"
+      ],
+      "generatedBy": "scene_manifest"
+    },
+    {
+      "propId": "cost-access-barrier-cue",
+      "label": "Cost and access cue",
+      "colorHex": "#fee2e2",
+      "accentColorHex": "#dc2626",
+      "position": {
+        "x": -1.45,
+        "y": 0.65,
+        "z": 0.72
+      },
+      "scale": {
+        "x": 0.7,
+        "y": 0.18,
+        "z": 0.42
+      },
+      "affordanceCueIds": [
+        "cost-access-barrier-cue:scenario_context_cue"
+      ],
+      "interactionTags": [
+        "scenario_context",
+        "telehealth_diabetes_health_literacy_v1"
+      ],
+      "generatedBy": "scene_manifest"
+    }
+  ],
+  "productionReadinessClaimed": false,
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ]
+}

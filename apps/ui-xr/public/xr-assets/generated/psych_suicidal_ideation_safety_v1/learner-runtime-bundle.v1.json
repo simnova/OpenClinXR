@@ -1,0 +1,291 @@
+{
+  "bundleId": "local_exam_run:psych_suicidal_ideation_safety_encounter_v1:generated-runtime-assets",
+  "stationId": "psych_suicidal_ideation_safety_station_v1",
+  "scenarioId": "psych_suicidal_ideation_safety_v1",
+  "assetStoreKind": "azurite_blob",
+  "environment": {
+    "assetId": "openclinxr.psych_suicidal_ideation_safety_v1.environment.generated-glb",
+    "version": "environment-2026-05-23",
+    "kind": "environment_model",
+    "displayName": "psych suicidal ideation safety environment",
+    "scenarioAssetId": "psych_suicidal_ideation_safety_v1:environment",
+    "blob": {
+      "storeKind": "azurite_blob",
+      "containerName": "openclinxr-assets",
+      "blobName": ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb",
+      "contentHash": "bytes:65012",
+      "contentType": "model/gltf-binary",
+      "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+    },
+    "reviewStatus": "approved_for_local_runtime",
+    "provenanceRefs": [
+      ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-layout.json",
+      ".openclinxr/asset-production/ed-chest-pain/environment/equipment-placement-manifest.json",
+      ".openclinxr/asset-production/ed-chest-pain/environment/quest-environment-budget.json",
+      ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+    ],
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "actors": [
+    {
+      "actorId": "patient_morgan_lee_v1",
+      "role": "patient",
+      "model": {
+        "assetId": "openclinxr.psych_suicidal_ideation_safety_v1.patient_morgan_lee_v1.generated-humanoid-glb",
+        "version": "generated-human-rigging-2026-05-23",
+        "kind": "humanoid_model",
+        "displayName": "patient morgan lee",
+        "scenarioAssetId": "patient_morgan_lee_character",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+          "contentHash": "bytes:3901100:declared:3901100",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+          "generated_human_rigging_report"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
+    },
+    {
+      "actorId": "nurse_observer_jamie_v1",
+      "role": "nurse_observer",
+      "model": {
+        "assetId": "openclinxr.psych_suicidal_ideation_safety_v1.nurse_observer_jamie_v1.generated-humanoid-glb",
+        "version": "generated-human-rigging-2026-05-23",
+        "kind": "humanoid_model",
+        "displayName": "nurse observer jamie",
+        "scenarioAssetId": "nurse_observer_jamie_character",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+          "contentHash": "bytes:3901100:declared:3901100",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+          "generated_human_rigging_report"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
+    }
+  ],
+  "equipment": [
+    {
+      "equipmentId": "safe_room_chair_equipment",
+      "model": {
+        "assetId": "openclinxr.psych_suicidal_ideation_safety_v1.safe_room_chair_equipment.generated-glb",
+        "version": "medical-equipment-2026-05-23",
+        "kind": "equipment_model",
+        "displayName": "safe room chair",
+        "scenarioAssetId": "psych_suicidal_ideation_safety_v1:safe_room_chair_equipment",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+          "contentHash": "bytes:22988",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      }
+    },
+    {
+      "equipmentId": "observation_station_equipment",
+      "model": {
+        "assetId": "openclinxr.psych_suicidal_ideation_safety_v1.observation_station_equipment.generated-glb",
+        "version": "medical-equipment-2026-05-23",
+        "kind": "equipment_model",
+        "displayName": "observation station",
+        "scenarioAssetId": "psych_suicidal_ideation_safety_v1:observation_station_equipment",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+          "contentHash": "bytes:15664",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      }
+    }
+  ],
+  "uiSurfaces": [],
+  "sceneManifest": {
+    "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+    "manifestId": "scene_manifest:psych_suicidal_ideation_safety_v1:psych_suicidal_ideation_safety_station_v1",
+    "source": "generated_scene_pipeline",
+    "scenarioId": "psych_suicidal_ideation_safety_v1",
+    "stationId": "psych_suicidal_ideation_safety_station_v1",
+    "roomProps": [
+      {
+        "propId": "safe-room-soft-chair",
+        "label": "Safe room chair",
+        "colorHex": "#e5e7eb",
+        "accentColorHex": "#4b5563",
+        "position": {
+          "x": -0.8,
+          "y": 0.45,
+          "z": -0.2
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "safe-room-soft-chair:scenario_context_cue"
+        ],
+        "interactionTags": [
+          "scenario_context",
+          "psych_suicidal_ideation_safety_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "ligature-risk-cleared-zone",
+        "label": "Cleared safety zone",
+        "colorHex": "#f3f4f6",
+        "accentColorHex": "#0f766e",
+        "position": {
+          "x": 0.2,
+          "y": 0.08,
+          "z": 0.35
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "ligature-risk-cleared-zone:scenario_context_cue"
+        ],
+        "interactionTags": [
+          "scenario_context",
+          "psych_suicidal_ideation_safety_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "observer-station",
+        "label": "Observer station",
+        "colorHex": "#e0f2fe",
+        "accentColorHex": "#0284c7",
+        "position": {
+          "x": 1.65,
+          "y": 0.9,
+          "z": 0.65
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "observer-station:scenario_context_cue"
+        ],
+        "interactionTags": [
+          "scenario_context",
+          "psych_suicidal_ideation_safety_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "safety-plan-whiteboard",
+        "label": "Safety plan prompts",
+        "colorHex": "#fefce8",
+        "accentColorHex": "#ca8a04",
+        "position": {
+          "x": 0.4,
+          "y": 1.65,
+          "z": -0.95
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "safety-plan-whiteboard:scenario_context_cue"
+        ],
+        "interactionTags": [
+          "scenario_context",
+          "psych_suicidal_ideation_safety_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      }
+    ],
+    "productionReadinessClaimed": false,
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "generatedAt": "2026-05-23T15:46:56.813Z",
+  "expiresAt": null,
+  "frozenForEncounter": true,
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ],
+  "identityScope": "learner_runtime_opaque_bundle"
+}

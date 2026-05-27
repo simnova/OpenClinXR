@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+  "manifestId": "scene_manifest:psych_suicidal_ideation_safety_v1:psych_suicidal_ideation_safety_station_v1",
+  "source": "generated_scene_pipeline",
+  "scenarioId": "psych_suicidal_ideation_safety_v1",
+  "stationId": "psych_suicidal_ideation_safety_station_v1",
+  "roomProps": [
+    {
+      "propId": "safe-room-soft-chair",
+      "label": "Safe room chair",
+      "colorHex": "#e5e7eb",
+      "accentColorHex": "#4b5563",
+      "position": {
+        "x": -0.8,
+        "y": 0.45,
+        "z": -0.2
+      },
+      "scale": {
+        "x": 0.7,
+        "y": 0.18,
+        "z": 0.42
+      },
+      "affordanceCueIds": [
+        "safe-room-soft-chair:scenario_context_cue"
+      ],
+      "interactionTags": [
+        "scenario_context",
+        "psych_suicidal_ideation_safety_v1"
+      ],
+      "generatedBy": "scene_manifest"
+    },
+    {
+      "propId": "ligature-risk-cleared-zone",
+      "label": "Cleared safety zone",
+      "colorHex": "#f3f4f6",
+      "accentColorHex": "#0f766e",
+      "position": {
+        "x": 0.2,
+        "y": 0.08,
+        "z": 0.35
+      },
+      "scale": {
+        "x": 0.7,
+        "y": 0.18,
+        "z": 0.42
+      },
+      "affordanceCueIds": [
+        "ligature-risk-cleared-zone:scenario_context_cue"
+      ],
+      "interactionTags": [
+        "scenario_context",
+        "psych_suicidal_ideation_safety_v1"
+      ],
+      "generatedBy": "scene_manifest"
+    },
+    {
+      "propId": "observer-station",
+      "label": "Observer station",
+      "colorHex": "#e0f2fe",
+      "accentColorHex": "#0284c7",
+      "position": {
+        "x": 1.65,
+        "y": 0.9,
+        "z": 0.65
+      },
+      "scale": {
+        "x": 0.7,
+        "y": 0.18,
+        "z": 0.42
+      },
+      "affordanceCueIds": [
+        "observer-station:scenario_context_cue"
+      ],
+      "interactionTags": [
+        "scenario_context",
+        "psych_suicidal_ideation_safety_v1"
+      ],
+      "generatedBy": "scene_manifest"
+    },
+    {
+      "propId": "safety-plan-whiteboard",
+      "label": "Safety plan prompts",
+      "colorHex": "#fefce8",
+      "accentColorHex": "#ca8a04",
+      "position": {
+        "x": 0.4,
+        "y": 1.65,
+        "z": -0.95
+      },
+      "scale": {
+        "x": 0.7,
+        "y": 0.18,
+        "z": 0.42
+      },
+      "affordanceCueIds": [
+        "safety-plan-whiteboard:scenario_context_cue"
+      ],
+      "interactionTags": [
+        "scenario_context",
+        "psych_suicidal_ideation_safety_v1"
+      ],
+      "generatedBy": "scene_manifest"
+    }
+  ],
+  "productionReadinessClaimed": false,
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ]
+}
