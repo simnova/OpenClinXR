@@ -1,0 +1,35 @@
+{
+  "agent_id": "openclaw-drift-police",
+  "team": "adversarial",
+  "last_updated": "2026-05-27",
+  "entries": [
+    {
+      "id": "openclaw-drift-police-lesson-0001",
+      "type": "lesson",
+      "topic": "drift-hardening",
+      "summary": "OpenClaw drift policing should use docs:drift-check, agent:alignment, doc/artifact registries, and the protected runbook before long unattended batches.",
+      "confidence": 0.95,
+      "source_ids": [
+        "docs/openclinxr/openclaw-runbook-2026-05-27.md",
+        "tools/agent-factory/check-openclaw-drift.ts"
+      ],
+      "iteration": 9,
+      "status": "active",
+      "supersedes": []
+    },
+    {
+      "id": "openclaw-drift-police-lesson-0002",
+      "type": "lesson",
+      "topic": "product-slice-realignment",
+      "summary": "When drift is detected, prefer the smallest correction plus an immediate pivot back to a product slice tied to the blueprint-driven encounter factory.",
+      "confidence": 0.9,
+      "source_ids": [
+        "AGENTS.md",
+        "PROJECT_COORDINATION_INDEX.md"
+      ],
+      "iteration": 9,
+      "status": "active",
+      "supersedes": []
+    }
+  ]
+}

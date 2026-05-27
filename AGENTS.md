@@ -38,6 +38,10 @@ The target system should support:
 
 `docs/openclinxr/generated-artifact-registry-2026-05-27.md` and `docs/openclinxr/generated-artifact-registry-2026-05-27.json` classify generated non-Markdown artifacts. Agents must consult the registry before deleting, ignoring, or committing generated JSON, screenshots, local cache outputs, or runtime asset artifacts.
 
+`docs/openclinxr/openclaw-runbook-2026-05-27.md` is the protected OpenClaw runbook for unattended repo-native execution.
+
+`docs/openclinxr/openclaw-tool-adapters-2026-05-27.md` is the protected host-adapter guide for running OpenClaw across Codex, Claude, Grok, Cursor, and other agent tools. It defines host prompts, capability fallbacks, and Drift Police rules for tool-agnostic execution. It defines the Required Per-Slice Record, canonical automation prompt, and `pnpm docs:drift-check` guard. Agents must not delete, weaken, bypass, rename, or reinterpret it.
+
 OpenClinXR is not a collection of handcrafted XR scenes. OpenClinXR is a blueprint-driven encounter factory. The encounter specification/blueprint must drive environment, actors, conversation tooling, emotion state, locomotion, gaze/lip-sync, clothing, equipment, interactions, traces, persistence, review packets, provider gates, shared asset reuse, and runtime/screenshot evidence.
 
 Conversation tooling is first-class. Actor dialogue policies, learner utterance/action intake, turn-taking, interruptions, emotion transitions, trace tags, replayable actor turns, and review-safe conversation evidence must not be displaced by one-off asset or screenshot work.
@@ -110,6 +114,7 @@ When Patrick asks for unattended or multi-hour/multi-day work:
 - Do not wait for chat confirmation after a slice, verification pass, screenshot, evidence review, doc update, or heartbeat.
 - If a tool, skill, plugin, or methodology asks for approval, require chat approval only for new scope, destructive operations, paid/cloud/API use, production deployment, credentials, physical hardware action, runtime dependency changes, or an explicit user-requested planning gate. For already-approved local deterministic slices, record assumptions/defaults in operator files and continue.
 - If context compacts, re-read the resume docs and continue; do not infer completion from compaction.
+- Before long unattended runs after cleanup or suspected drift, run `pnpm docs:drift-check` and apply the required per-slice record in `docs/openclinxr/openclaw-runbook-2026-05-27.md`.
 - If a heartbeat arrives, perform at least one productive approved slice before any heartbeat response unless all lanes are blocked.
 - If the platform forces a response, keep it minimal and continuation-oriented; do not summarize files changed or ask whether to continue unless a stop condition is reached.
 - Every batch ends by selecting the next approved slice, not by reporting completion.
@@ -160,6 +165,7 @@ OpenClaw orchestration-agent rule:
 Mandatory agent use rules:
 
 - After any context compaction, suspected drift, or two consecutive evidence/gate-only slices, consult at least the Chief Coordinator, Implementation Planning Lead, Implementation Plan Gap Attacker, and VP Engineering Delivery memories/charters before selecting the next slice.
+- When suspected drift involves scattered artifacts, one-off encounter work, evidence toil, weakened guardrails, wrong-cwd subagents, or noncanonical process, consult `agents/adversarial/openclaw-drift-police/charter.md` and `agents/adversarial/openclaw-drift-police/memory.md`, run or request `pnpm docs:drift-check`, apply the smallest correction, and pivot back to a product slice.
 - For XR/humanoid/asset work, also consult XR Systems Architect and Asset Pipeline Lead memory/charter when the next slice changes runtime behavior, visual evidence rules, generated assets, rigging, animation, Quest/WebXR posture, or IWSDK posture.
 - For scenario-bank, clinical, scoring, review, or safety language changes, consult the relevant physician/simulation, psychometric, clinical-safety, legal/compliance, and security/privacy agents.
 - When live subagent tools are available, spawn narrow non-overlapping agents for independent review or implementation only when they materially reduce drift, review cost, or implementation risk.

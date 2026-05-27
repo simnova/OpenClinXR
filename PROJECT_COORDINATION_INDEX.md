@@ -117,12 +117,17 @@ If the answer is no, do not do the slice.
 
 `docs/openclinxr/generated-artifact-registry-2026-05-27.md` is the generated artifact authority map. Use it before deleting, ignoring, or committing generated JSON, screenshots, local cache outputs, or runtime asset artifacts.
 
+`docs/openclinxr/openclaw-runbook-2026-05-27.md` is the protected OpenClaw runbook.
+
+`docs/openclinxr/openclaw-tool-adapters-2026-05-27.md` is the protected host-adapter guide for Codex, Claude, Grok, Cursor, and other agent tools. Use it before long unattended batches or after cleanup/drift suspicion; it defines `pnpm docs:drift-check`, the Required Per-Slice Record, and the canonical automation prompt.
+
 Coordinator rule:
 
 - Reject slices that polish one fixture, garment, screenshot, prop, or room without strengthening the blueprint-to-runtime factory contract.
 - Keep conversation tooling first-class: actor dialogue, learner utterance/action intake, turn-taking, interruptions, emotion transitions, trace tags, replayable actor turns, and review-safe evidence.
 - If three consecutive slices focus on visual assets, clothing, provider metadata, or screenshots without advancing conversation/runtime/review behavior, consult Chief Coordinator, Implementation Planning Lead, Implementation Plan Gap Attacker, VP Engineering Delivery, Clinical Simulation Lead, Data Trace Architect, Voice/Speech Engineer, XR Systems Architect, and Asset Pipeline Lead before selecting the next slice.
 - Agents may not delete, weaken, bypass, rename, or reinterpret the guardrails during autonomous work.
+- Agents may not create scattered markdown/status/prompt artifacts or unregistered generated artifacts; `pnpm docs:drift-check` must pass before claiming the repo is ready for long unattended OpenClaw execution.
 
 ## Evidence-Toil Stop Rule
 
@@ -178,6 +183,7 @@ Use repo-defined agents as focus roles:
 - Chief Coordinator: task selection, drift prevention, source-of-truth enforcement.
 - Implementation Planning Lead: file ownership, sequence, and verification fit.
 - Implementation Plan Gap Attacker: challenges whether the slice is real product progress or toil.
+- OpenClaw Drift Police: detects scattered artifacts, one-off encounter work, evidence toil, weakened guardrails, wrong-cwd subagents, and noncanonical process; recommends the smallest correction and a product-slice pivot.
 - VP Engineering Delivery: rejects optional runtime/evidence work that does not reduce product gap.
 - Solution Architect: checks cross-package boundaries and integration shape.
 - UX Product Lead: faculty/admin workflow quality.

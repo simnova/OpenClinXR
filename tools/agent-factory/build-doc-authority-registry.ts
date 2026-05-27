@@ -35,6 +35,8 @@ const protectedPaths = new Set([
   "docs/openclinxr/worker-backlog-and-validation-matrix.md",
   "docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md",
   "docs/openclinxr/codex-openclaw-operating-bridge-2026-05-27.md",
+  "docs/openclinxr/openclaw-runbook-2026-05-27.md",
+  "docs/openclinxr/openclaw-tool-adapters-2026-05-27.md",
   "docs/openclinxr/doc-authority-registry-2026-05-27.md",
   "docs/openclinxr/doc-authority-registry-2026-05-27.json",
   "docs/openclinxr/generated-artifact-registry-2026-05-27.md",

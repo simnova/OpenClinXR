@@ -182,6 +182,7 @@
     "asset:humanoid-toolchain:bakeoff": "tsx tools/openclinxr/humanoid-toolchain-bakeoff.ts",
     "asset:humanoid-toolchain:validate": "tsx tools/openclinxr/humanoid-toolchain-bakeoff.ts --validate-latest",
     "docs:artifacts": "tsx tools/agent-factory/build-generated-artifact-registry.ts",
+    "docs:drift-check": "tsx tools/agent-factory/check-openclaw-drift.ts",
     "docs:evidence-index": "tsx tools/agent-factory/build-evidence-index.ts",
     "docs:worktree-cleanup": "tsx tools/agent-factory/build-worktree-cleanup-report.ts"
   },

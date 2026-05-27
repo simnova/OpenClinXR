@@ -5,9 +5,9 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "evidence": 44,
-    "protected-policy": 10,
+    "protected-policy": 12,
     "current-reference": 49,
-    "agent-memory": 138,
+    "agent-memory": 140,
     "agent-methodology": 8,
     "historical-synthesis": 81,
     "decision-record": 18,
@@ -233,6 +233,20 @@
     },
     {
       "path": "agents/adversarial/open-source-sustainability-critic/memory.md",
+      "authority": "agent-memory",
+      "agentInstructionWeight": "medium",
+      "action": "summarize-before-use",
+      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
+    },
+    {
+      "path": "agents/adversarial/openclaw-drift-police/charter.md",
+      "authority": "agent-memory",
+      "agentInstructionWeight": "medium",
+      "action": "summarize-before-use",
+      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
+    },
+    {
+      "path": "agents/adversarial/openclaw-drift-police/memory.md",
       "authority": "agent-memory",
       "agentInstructionWeight": "medium",
       "action": "summarize-before-use",
@@ -1532,6 +1546,20 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/openclinxr/openclaw-runbook-2026-05-27.md",
+      "authority": "protected-policy",
+      "agentInstructionWeight": "highest",
+      "action": "protect",
+      "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
+    },
+    {
+      "path": "docs/openclinxr/openclaw-tool-adapters-2026-05-27.md",
+      "authority": "protected-policy",
+      "agentInstructionWeight": "highest",
+      "action": "protect",
+      "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
     },
     {
       "path": "docs/openclinxr/psychometric-and-review-governance.md",
