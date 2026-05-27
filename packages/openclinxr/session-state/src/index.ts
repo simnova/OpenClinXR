@@ -234,6 +234,18 @@ export type DurableClinicalEventReviewProjection = {
   durableStore: DurableStorePosture;
 };
 
+export type DurableClinicalEventReviewProjectionSummary = {
+  stationRunId: string | null;
+  eventCount: number;
+  redactedEventCount: number;
+  clinicalEventKinds: Record<DurableClinicalEventKind, number>;
+  traceTags: string[];
+  statusCounts: Record<string, number>;
+  latestAtSecond: number | null;
+  durableStore: DurableStorePosture | "mixed" | null;
+  safeForFacultyReview: boolean;
+};
+
 export type SessionStateWebSocketMessageDirection = "client_to_server" | "server_to_client";
 export type SessionStateWebSocketMessageTransport = "websocket_design_contract";
 export type SessionStateWebSocketMessageType =
@@ -918,6 +930,7 @@ export function evaluateSessionStateWebSocketMessageDesign(): SessionStateWebSoc
 export function projectDurableClinicalEventForReview(
   record: DurableClinicalEventRecord,
 ): DurableClinicalEventReviewProjection {
+  assertValidDurableClinicalEventRecord(record);
   return {
     clinicalEventId: record.clinicalEventId,
     stationRunId: record.stationRunId,
@@ -934,12 +947,44 @@ export function projectDurableClinicalEventForReview(
   };
 }
 
+const durableClinicalEventKindList: DurableClinicalEventKind[] = [
+  "clinical_action_recorded",
+  "order_status_changed",
+  "finding_recorded",
+  "checklist_item_updated",
+  "rubric_progress_updated",
+  "case_status_changed",
+];
+
+export function summarizeDurableClinicalEventReviewProjections(
+  projections: readonly DurableClinicalEventReviewProjection[],
+): DurableClinicalEventReviewProjectionSummary {
+  const stationRunIds = uniqueProjectionValues(projections.map((projection) => projection.stationRunId));
+  const durableStores = uniqueProjectionValues(projections.map((projection) => projection.durableStore));
+
+  return {
+    stationRunId: stationRunIds.length === 1 ? stationRunIds[0]! : null,
+    eventCount: projections.length,
+    redactedEventCount: projections.filter((projection) => projection.privatePayloadRedacted).length,
+    clinicalEventKinds: countClinicalEventKinds(projections),
+    traceTags: uniqueProjectionValues(projections.map((projection) => projection.traceTag).filter((tag): tag is string => Boolean(tag))),
+    statusCounts: countProjectionStatuses(projections),
+    latestAtSecond: projections.length === 0 ? null : Math.max(...projections.map((projection) => projection.atSecond)),
+    durableStore: durableStores.length === 0 ? null : durableStores.length === 1 ? durableStores[0]! : "mixed",
+    safeForFacultyReview: projections.every((projection) =>
+      projection.durableStore === "database_source_of_truth"
+      && projectionPayloadIsReviewSafe(projection)
+    ),
+  };
+}
+
 class InMemoryDurableMultiActorSessionStore implements DurableMultiActorSessionStore {
   private readonly conversationTurns = new Map<string, DurableConversationTurnRecord[]>();
   private readonly emotionalStateTimeline = new Map<string, DurableEmotionalStateTimelineRecord[]>();
   private readonly clinicalEvents = new Map<string, DurableClinicalEventRecord[]>();
 
   saveConversationTurn(record: DurableConversationTurnRecord): void {
+    assertValidDurableConversationTurnRecord(record);
     const existing = this.conversationTurns.get(record.stationRunId) ?? [];
     this.conversationTurns.set(record.stationRunId, [...existing, cloneConversationTurn(record)]);
   }
@@ -951,6 +996,7 @@ class InMemoryDurableMultiActorSessionStore implements DurableMultiActorSessionS
   }
 
   saveEmotionalStateTimeline(record: DurableEmotionalStateTimelineRecord): void {
+    assertValidDurableEmotionalStateTimelineRecord(record);
     const key = emotionalStateTimelineKey(record.stationRunId, record.actorId);
     const existing = this.emotionalStateTimeline.get(key) ?? [];
     this.emotionalStateTimeline.set(key, [...existing, cloneEmotionalStateRecord(record)]);
@@ -963,6 +1009,7 @@ class InMemoryDurableMultiActorSessionStore implements DurableMultiActorSessionS
   }
 
   saveClinicalEvent(record: DurableClinicalEventRecord): void {
+    assertValidDurableClinicalEventRecord(record);
     const existing = this.clinicalEvents.get(record.stationRunId) ?? [];
     if (existing.some((event) => event.clinicalEventId === record.clinicalEventId)) {
       return;
@@ -979,6 +1026,38 @@ class InMemoryDurableMultiActorSessionStore implements DurableMultiActorSessionS
   listClinicalEventReviewProjections(stationRunId: string): DurableClinicalEventReviewProjection[] {
     return this.listClinicalEvents(stationRunId).map(projectDurableClinicalEventForReview);
   }
+}
+
+function countClinicalEventKinds(
+  projections: readonly DurableClinicalEventReviewProjection[],
+): Record<DurableClinicalEventKind, number> {
+  const counts = Object.fromEntries(durableClinicalEventKindList.map((kind) => [kind, 0])) as Record<DurableClinicalEventKind, number>;
+  for (const projection of projections) {
+    counts[projection.eventKind] += 1;
+  }
+  return counts;
+}
+
+function countProjectionStatuses(projections: readonly DurableClinicalEventReviewProjection[]): Record<string, number> {
+  const counts: Record<string, number> = {};
+  for (const projection of projections) {
+    if (!projection.status) {
+      continue;
+    }
+    counts[projection.status] = (counts[projection.status] ?? 0) + 1;
+  }
+  return counts;
+}
+
+function projectionPayloadIsReviewSafe(projection: DurableClinicalEventReviewProjection): boolean {
+  const payloadJson = JSON.stringify(projection.payload);
+  return !payloadJson.includes("hiddenFactRefs")
+    && !payloadJson.includes("serverOnlyNotes")
+    && !payloadJson.includes("hiddenClinicalTruth");
+}
+
+function uniqueProjectionValues<T extends string>(values: readonly T[]): T[] {
+  return [...new Set(values)];
 }
 
 class InMemoryRealtimeSessionCache implements RealtimeSessionCache {
@@ -1302,15 +1381,148 @@ function cloneClinicalEventRecord(record: DurableClinicalEventRecord): DurableCl
       public: cloneJsonRecord(record.payload.public),
       ...(record.payload.private
         ? {
-          private: {
-            ...record.payload.private,
-            hiddenFactRefs: [...(record.payload.private.hiddenFactRefs ?? [])],
-            serverOnlyNotes: [...(record.payload.private.serverOnlyNotes ?? [])],
-          },
+          private: cloneClinicalEventPrivatePayload(record.payload.private),
         }
         : {}),
     },
     provenanceRefs: [...record.provenanceRefs],
+  };
+}
+
+function assertDurableClinicalEventStorePosture(record: DurableClinicalEventRecord): void {
+  if (record.durableStore !== "database_source_of_truth") {
+    throw new Error("durable clinical-event records must use durableStore database_source_of_truth");
+  }
+}
+
+function assertDurableActorTurnStorePosture(record: DurableConversationTurnRecord | DurableEmotionalStateTimelineRecord): void {
+  if (record.durableStore !== "database_source_of_truth") {
+    throw new Error("durable actor-turn records must use durableStore database_source_of_truth");
+  }
+}
+
+const interactionTurnSourceKinds = new Set<InteractionTurnSource["kind"]>(["text", "voice_transcript"]);
+const interactionRoutingReasons = new Set<InteractionRoutingReason>([
+  "addressed_actor_name",
+  "addressed_role_keyword",
+  "single_patient_default",
+  "fallback_first_actor",
+]);
+
+function assertValidDurableConversationTurnRecord(record: DurableConversationTurnRecord): void {
+  assertDurableActorTurnStorePosture(record);
+  assertNonblankDurableActorTurnField(record.turnId, "turnId");
+  assertNonblankDurableActorTurnField(record.stationRunId, "stationRunId");
+  assertNonblankDurableActorTurnField(record.actorId, "actorId");
+  assertNonblankDurableActorTurnField(record.text, "text");
+  assertNonblankDurableActorTurnField(record.emotionalState, "emotionalState");
+  assertNonblankDurableActorTurnArray(record.traceContextTags, "traceContextTags");
+  assertNonblankDurableActorTurnArray(record.provenanceRefs, "provenanceRefs");
+  if (!interactionTurnSourceKinds.has(record.sourceKind)) {
+    throw new Error("durable actor-turn records require a known sourceKind");
+  }
+  if (!interactionRoutingReasons.has(record.routingReason)) {
+    throw new Error("durable actor-turn records require a known routingReason");
+  }
+  if (record.rawAudioStored !== false) {
+    throw new Error("durable actor-turn records must not persist raw audio");
+  }
+  if (!Number.isFinite(record.atSecond) || record.atSecond < 0) {
+    throw new Error("durable actor-turn records require a nonnegative finite atSecond");
+  }
+}
+
+function assertValidDurableEmotionalStateTimelineRecord(record: DurableEmotionalStateTimelineRecord): void {
+  assertDurableActorTurnStorePosture(record);
+  assertNonblankDurableActorTurnField(record.stationRunId, "stationRunId");
+  assertNonblankDurableActorTurnField(record.actorId, "actorId");
+  assertNonblankDurableActorTurnField(record.sourceTurnId, "sourceTurnId");
+  assertNonblankDurableActorTurnField(record.emotionalState, "emotionalState");
+  if (!Number.isFinite(record.atSecond) || record.atSecond < 0) {
+    throw new Error("durable actor-turn records require a nonnegative finite atSecond");
+  }
+}
+
+function assertNonblankDurableActorTurnField(value: string, fieldName: string): void {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new Error(`durable actor-turn records require nonblank ${fieldName}`);
+  }
+}
+
+function assertNonblankDurableActorTurnArray(values: readonly string[], fieldName: string): void {
+  if (!Array.isArray(values) || values.some((value) => typeof value !== "string" || value.trim().length === 0)) {
+    throw new Error(`durable actor-turn records require nonblank ${fieldName}`);
+  }
+}
+
+const durableClinicalEventKinds = new Set<DurableClinicalEventKind>([
+  "clinical_action_recorded",
+  "order_status_changed",
+  "finding_recorded",
+  "checklist_item_updated",
+  "rubric_progress_updated",
+  "case_status_changed",
+]);
+
+function assertValidDurableClinicalEventRecord(record: DurableClinicalEventRecord): void {
+  assertDurableClinicalEventStorePosture(record);
+  assertNonblankDurableClinicalEventField(record.clinicalEventId, "clinicalEventId");
+  assertNonblankDurableClinicalEventField(record.stationRunId, "stationRunId");
+  assertNonblankDurableClinicalEventField(record.label, "label");
+  assertNonblankDurableActorTurnArray(record.provenanceRefs, "provenanceRefs");
+  assertDurableClinicalEventProvenanceRefsMatchStationRun(record);
+  if (record.actorId !== undefined) {
+    assertNonblankDurableClinicalEventField(record.actorId, "actorId");
+  }
+  if (record.traceTag !== undefined) {
+    assertNonblankDurableClinicalEventField(record.traceTag, "traceTag");
+  }
+  if (record.status !== undefined) {
+    assertNonblankDurableClinicalEventField(record.status, "status");
+  }
+  if (!durableClinicalEventKinds.has(record.eventKind)) {
+    throw new Error("durable clinical-event records require a known eventKind");
+  }
+  if (!Number.isFinite(record.atSecond) || record.atSecond < 0) {
+    throw new Error("durable clinical-event records require a nonnegative finite atSecond");
+  }
+}
+
+function assertNonblankDurableClinicalEventField(value: string, fieldName: string): void {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new Error(`durable clinical-event records require nonblank ${fieldName}`);
+  }
+}
+
+function assertDurableClinicalEventProvenanceRefsMatchStationRun(record: DurableClinicalEventRecord): void {
+  const malformedTraceRef = record.provenanceRefs.find((ref) => {
+    if (!ref.startsWith("trace:")) {
+      return false;
+    }
+    const [, stationRunId, sequenceOrTimestamp] = ref.split(":");
+    return !stationRunId || stationRunId.trim().length === 0 || !sequenceOrTimestamp || sequenceOrTimestamp.trim().length === 0;
+  });
+  if (malformedTraceRef) {
+    throw new Error(`durable clinical-event provenanceRefs trace ref ${malformedTraceRef} must include stationRunId and sequence`);
+  }
+  const mismatchedTraceRef = record.provenanceRefs.find((ref) => {
+    const [scheme, stationRunId] = ref.split(":");
+    return scheme === "trace" && stationRunId !== record.stationRunId;
+  });
+  if (mismatchedTraceRef) {
+    throw new Error(
+      `durable clinical-event provenanceRefs trace ref ${mismatchedTraceRef} must match stationRunId ${record.stationRunId}`,
+    );
+  }
+}
+
+function cloneClinicalEventPrivatePayload(
+  payload: NonNullable<DurableClinicalEventRecord["payload"]["private"]>,
+): NonNullable<DurableClinicalEventRecord["payload"]["private"]> {
+  return {
+    ...(cloneJsonRecord(payload) as NonNullable<DurableClinicalEventRecord["payload"]["private"]>),
+    hiddenFactRefs: [...(payload.hiddenFactRefs ?? [])],
+    serverOnlyNotes: [...(payload.serverOnlyNotes ?? [])],
   };
 }
 

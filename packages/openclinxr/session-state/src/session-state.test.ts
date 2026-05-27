@@ -479,6 +479,37 @@ describe("session state", () => {
     });
 
     const reviewReplay = stores.durable.listClinicalEventReviewProjections(stationRunId);
+    const reviewSummary = summarizeDurableClinicalEventReviewProjections(reviewReplay);
+    expect(reviewSummary).toEqual({
+      stationRunId,
+      eventCount: 7,
+      redactedEventCount: 2,
+      clinicalEventKinds: {
+        clinical_action_recorded: 1,
+        order_status_changed: 2,
+        finding_recorded: 1,
+        checklist_item_updated: 1,
+        rubric_progress_updated: 1,
+        case_status_changed: 1,
+      },
+      traceTags: [
+        "ecg_request",
+        "physical_exam_general",
+        "diagnostic_reasoning_acs",
+        "escalation_to_attending",
+        "team_communication",
+      ],
+      statusCounts: {
+        requested: 1,
+        completed: 2,
+        met: 1,
+        escalated: 1,
+        observed: 1,
+      },
+      latestAtSecond: 320,
+      durableStore: "database_source_of_truth",
+      safeForFacultyReview: true,
+    });
     expect(reviewReplay.map((event) => event.clinicalEventId)).toEqual([
       "event_001_ecg_order_requested",
       "event_002_finding_diaphoresis",
@@ -503,6 +534,123 @@ describe("session state", () => {
     expect(JSON.stringify(reviewReplay)).not.toContain("Recent cocaine use");
     expect(JSON.stringify(reviewReplay)).not.toContain("hiddenFactRefs");
     expect(JSON.stringify(reviewReplay)).not.toContain("hiddenClinicalTruth");
+  });
+
+  it("keeps clinical-event idempotency insert-only while preserving same-second replay order", () => {
+    const stores = createPersistenceSpikeStores();
+    const stationRunId = "station_run_durable_clinical_event_same_second_001";
+
+    stores.durable.saveClinicalEvent(clinicalEvent({
+      clinicalEventId: "event_b_finding_recorded",
+      stationRunId,
+      atSecond: 200,
+      eventKind: "finding_recorded",
+      label: "Diaphoresis observed",
+      payload: {
+        public: {
+          findingId: "finding_1_diaphoretic",
+          observed: true,
+        },
+      },
+    }));
+    stores.durable.saveClinicalEvent(clinicalEvent({
+      clinicalEventId: "event_a_order_requested",
+      stationRunId,
+      atSecond: 200,
+      eventKind: "order_status_changed",
+      traceTag: "ecg_request",
+      label: "12-lead ECG",
+      status: "requested",
+      payload: {
+        public: {
+          orderId: "order_1_ecg_request",
+          requestedOrder: "12-lead ECG",
+        },
+      },
+    }));
+    stores.durable.saveClinicalEvent(clinicalEvent({
+      clinicalEventId: "event_a_order_requested",
+      stationRunId,
+      atSecond: 200,
+      eventKind: "order_status_changed",
+      traceTag: "ecg_request",
+      label: "12-lead ECG",
+      status: "conflicting_duplicate_should_not_replace",
+      payload: {
+        public: {
+          orderId: "order_1_ecg_request",
+          requestedOrder: "12-lead ECG",
+          resultSummary: "This conflicting duplicate must not replace the original event.",
+        },
+      },
+    }));
+
+    const replay = stores.durable.listClinicalEvents(stationRunId);
+
+    expect(replay.map((event) => [event.clinicalEventId, event.status])).toEqual([
+      ["event_a_order_requested", "requested"],
+      ["event_b_finding_recorded", undefined],
+    ]);
+    expect(replay[0]?.payload.public).toEqual({
+      orderId: "order_1_ecg_request",
+      requestedOrder: "12-lead ECG",
+    });
+  });
+
+  it("clones nested clinical-event private payload before storing", () => {
+    const stores = createPersistenceSpikeStores();
+    const stationRunId = "station_run_durable_clinical_event_private_clone_001";
+    const nestedPrivate = {
+      serverOnlyDetail: "Recent cocaine use remains hidden until elicited.",
+      reviewerSuppressionReasons: ["hidden_fact_not_elicited"],
+    };
+    const record = clinicalEvent({
+      clinicalEventId: "event_private_clone_001",
+      stationRunId,
+      atSecond: 240,
+      eventKind: "finding_recorded",
+      label: "Risk factor documented",
+      payload: {
+        public: {
+          findingId: "finding_1_risk_factor",
+        },
+        private: {
+          hiddenFactRefs: ["fact:patient_robert_hayes_v1:1"],
+          serverOnlyNotes: ["Keep hidden from learner-facing review until elicited."],
+          nestedPrivate,
+        },
+      },
+    });
+
+    stores.durable.saveClinicalEvent(record);
+    nestedPrivate.reviewerSuppressionReasons.push("mutated_by_caller");
+    nestedPrivate.serverOnlyDetail = "mutated_by_caller";
+
+    expect(stores.durable.listClinicalEvents(stationRunId)[0]?.payload.private?.nestedPrivate).toEqual({
+      serverOnlyDetail: "Recent cocaine use remains hidden until elicited.",
+      reviewerSuppressionReasons: ["hidden_fact_not_elicited"],
+    });
+  });
+
+  it("rejects non-database durable-store posture for clinical events", () => {
+    const stores = createPersistenceSpikeStores();
+    const stationRunId = "station_run_durable_clinical_event_store_posture_001";
+    const invalidRecord = {
+      ...clinicalEvent({
+        clinicalEventId: "event_invalid_store_posture_001",
+        stationRunId,
+        atSecond: 260,
+        eventKind: "clinical_action_recorded",
+        label: "Invalid cache-backed clinical event",
+      }),
+      durableStore: "redis_redka_ephemeral_cache" as never,
+    };
+
+    expect(() => stores.durable.saveClinicalEvent(invalidRecord))
+      .toThrow("durable clinical-event records must use durableStore database_source_of_truth");
+    expect(() => projectDurableClinicalEventForReview(invalidRecord))
+      .toThrow("durable clinical-event records must use durableStore database_source_of_truth");
+    expect(stores.durable.listClinicalEvents(stationRunId)).toEqual([]);
   });
 
   it("creates design-only WebSocket snapshot messages without leaking private actor memory", () => {
@@ -721,6 +869,122 @@ describe("session state", () => {
   });
 });
 
+it("rejects durable clinical events with blank identity fields before persistence or review projection", () => {
+  const stores = createPersistenceSpikeStores();
+  const stationRunId = "station_run_durable_clinical_event_identity_001";
+  const validEvent = clinicalEvent({
+    clinicalEventId: "event_identity_guard_001",
+    stationRunId,
+    atSecond: 1,
+    eventKind: "clinical_action_recorded",
+    label: "Identity guard action",
+  });
+
+  expect(() => stores.durable.saveClinicalEvent({ ...validEvent, clinicalEventId: " " }))
+    .toThrow("durable clinical-event records require nonblank clinicalEventId");
+  expect(() => stores.durable.saveClinicalEvent({ ...validEvent, stationRunId: " " }))
+    .toThrow("durable clinical-event records require nonblank stationRunId");
+  expect(() => stores.durable.saveClinicalEvent({ ...validEvent, label: " " }))
+    .toThrow("durable clinical-event records require nonblank label");
+  expect(() => stores.durable.saveClinicalEvent({ ...validEvent, atSecond: Number.NaN }))
+    .toThrow("durable clinical-event records require a nonnegative finite atSecond");
+  expect(() => projectDurableClinicalEventForReview({ ...validEvent, traceTag: " " }))
+    .toThrow("durable clinical-event records require nonblank traceTag");
+  expect(stores.durable.listClinicalEvents(stationRunId)).toEqual([]);
+});
+
+it("rejects durable clinical events whose trace provenance refs point at another station run", () => {
+  const stores = createPersistenceSpikeStores();
+  const stationRunId = "station_run_durable_clinical_event_provenance_001";
+  const validEvent = clinicalEvent({
+    clinicalEventId: "event_provenance_guard_001",
+    stationRunId,
+    atSecond: 1,
+    eventKind: "clinical_action_recorded",
+    label: "Provenance guard action",
+    provenanceRefs: [
+      `trace:${stationRunId}:1`,
+      "review:faculty:manual-overread",
+    ],
+  });
+  const invalidEvent = {
+    ...validEvent,
+    clinicalEventId: "event_provenance_guard_cross_run",
+    provenanceRefs: [
+      "trace:station_run_other:1",
+      "review:faculty:manual-overread",
+    ],
+  };
+
+  expect(() => stores.durable.saveClinicalEvent(validEvent)).not.toThrow();
+  expect(() => stores.durable.saveClinicalEvent(invalidEvent))
+    .toThrow("durable clinical-event provenanceRefs trace ref trace:station_run_other:1 must match stationRunId station_run_durable_clinical_event_provenance_001");
+  expect(() => projectDurableClinicalEventForReview(invalidEvent))
+    .toThrow("durable clinical-event provenanceRefs trace ref trace:station_run_other:1 must match stationRunId station_run_durable_clinical_event_provenance_001");
+  expect(stores.durable.listClinicalEvents(stationRunId).map((event) => event.clinicalEventId))
+    .toEqual(["event_provenance_guard_001"]);
+});
+
+it("rejects durable clinical events with malformed trace provenance refs", () => {
+  const stores = createPersistenceSpikeStores();
+  const stationRunId = "station_run_durable_clinical_event_malformed_provenance_001";
+  const invalidEvent = clinicalEvent({
+    clinicalEventId: "event_malformed_provenance_guard_001",
+    stationRunId,
+    atSecond: 1,
+    eventKind: "clinical_action_recorded",
+    label: "Malformed provenance guard action",
+    provenanceRefs: [`trace:${stationRunId}`],
+  });
+
+  expect(() => stores.durable.saveClinicalEvent(invalidEvent))
+    .toThrow(`durable clinical-event provenanceRefs trace ref trace:${stationRunId} must include stationRunId and sequence`);
+  expect(() => projectDurableClinicalEventForReview(invalidEvent))
+    .toThrow(`durable clinical-event provenanceRefs trace ref trace:${stationRunId} must include stationRunId and sequence`);
+  expect(stores.durable.listClinicalEvents(stationRunId)).toEqual([]);
+});
+
+it("rejects durable actor-turn and emotional-state records with blank identity fields before in-memory persistence", () => {
+  const stores = createPersistenceSpikeStores();
+  const validTurn = {
+    turnId: "turn_identity_guard_001",
+    stationRunId: "station_run_actor_turn_identity_001",
+    actorId: "spouse_anna_hayes_v1",
+    atSecond: 10,
+    sourceKind: "voice_transcript" as const,
+    text: "He said the pain started while walking upstairs.",
+    traceContextTags: ["history_onset"],
+    emotionalState: "anxious",
+    routingReason: "addressed_actor_name" as const,
+    rawAudioStored: false as const,
+    provenanceRefs: ["voice:segment_001"],
+    durableStore: "database_source_of_truth" as const,
+  };
+  const validEmotionalState = {
+    stationRunId: validTurn.stationRunId,
+    actorId: validTurn.actorId,
+    atSecond: 11,
+    emotionalState: "anxious",
+    sourceTurnId: validTurn.turnId,
+    durableStore: "database_source_of_truth" as const,
+  };
+
+  expect(() => stores.durable.saveConversationTurn({ ...validTurn, turnId: " " }))
+    .toThrow("durable actor-turn records require nonblank turnId");
+  expect(() => stores.durable.saveConversationTurn({ ...validTurn, traceContextTags: [" "] }))
+    .toThrow("durable actor-turn records require nonblank traceContextTags");
+  expect(() => stores.durable.saveConversationTurn({ ...validTurn, rawAudioStored: true as false }))
+    .toThrow("durable actor-turn records must not persist raw audio");
+  expect(() => stores.durable.saveConversationTurn({ ...validTurn, atSecond: Number.NaN }))
+    .toThrow("durable actor-turn records require a nonnegative finite atSecond");
+  expect(() => stores.durable.saveEmotionalStateTimeline({ ...validEmotionalState, sourceTurnId: " " }))
+    .toThrow("durable actor-turn records require nonblank sourceTurnId");
+  expect(() => stores.durable.saveEmotionalStateTimeline({ ...validEmotionalState, atSecond: -1 }))
+    .toThrow("durable actor-turn records require a nonnegative finite atSecond");
+  expect(stores.durable.listConversationTurns(validTurn.stationRunId)).toEqual([]);
+  expect(stores.durable.listEmotionalStateTimeline(validTurn.stationRunId, validTurn.actorId)).toEqual([]);
+});
+
 function clinicalEvent(input: {
   clinicalEventId: string;
   stationRunId: string;
@@ -747,3 +1011,4 @@ function clinicalEvent(input: {
     ...(input.status ? { status: input.status } : {}),
   };
 }
+import { summarizeDurableClinicalEventReviewProjections } from "./index.js";

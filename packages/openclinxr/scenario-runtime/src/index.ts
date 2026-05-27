@@ -27,7 +27,7 @@ import {
   type RecordClinicalActionInput,
   type RouteActorInteractionInput,
 } from "@openclinxr/session-state";
-import type { ProviderHealth, ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
+import { validateProviderHealth, type ProviderHealth, type ReviewPacket, type Scenario, type TraceEvent } from "@openclinxr/shared-schemas";
 import { InMemoryTraceLedger } from "@openclinxr/trace-ledger";
 import {
   collectVoiceStream,
@@ -270,7 +270,11 @@ export class ScenarioRuntime {
       source: "session-state",
       actorId: routed.routedActorId,
       ...(primaryTag ? { tag: primaryTag } : {}),
-      payload: actorInteractionRoutePayload(input, routed.routingReason),
+      payload: withDurableEventRef(
+        actorInteractionRoutePayload(input, routed.routingReason),
+        stationRunId,
+        session.nextSequence,
+      ),
     });
 
     return {
@@ -323,6 +327,7 @@ export class ScenarioRuntime {
 
     const audioEvents = await collectVoiceStream(
       this.options.voiceGateway.synthesize({
+        requestId: voiceSynthesisRequestId(stationRunId, input.actorId, input.voiceId),
         stationRunId,
         actorId: input.actorId,
         voiceId: input.voiceId,
@@ -524,11 +529,13 @@ export class ScenarioRuntime {
       payload: {
         text: input.learnerUtterance,
         traceContextTags,
+        durableEventRef: durableEventRef(session.run.stationRunId, session.nextSequence),
       },
     });
     let response: ActorResponseResult;
     try {
       response = await this.options.modelGateway.generateActorResponse({
+        requestId: modelActorResponseRequestId(session.run.stationRunId, actor.actorId, input.conversationTurn),
         stationRunId: session.run.stationRunId,
         scenarioId: this.options.scenario.scenarioId,
         scenarioVersion: this.options.scenario.version,
@@ -557,6 +564,7 @@ export class ScenarioRuntime {
         payload: {
           errorCode: "model_provider_error",
           traceContextTags,
+          durableEventRef: durableEventRef(session.run.stationRunId, session.nextSequence),
         },
       });
       throw new Error("Actor response generation failed");
@@ -572,6 +580,7 @@ export class ScenarioRuntime {
         responseKind: response.responseKind,
         traceTags: response.traceTags,
         provenance: response.provenance,
+        durableEventRef: durableEventRef(session.run.stationRunId, session.nextSequence),
       },
     });
 
@@ -582,6 +591,29 @@ export class ScenarioRuntime {
       actorResponseEvent,
     };
   }
+}
+
+function modelActorResponseRequestId(stationRunId: string, actorId: string, conversationTurn: number): string {
+  return `model:${stationRunId}:${actorId}:turn-${conversationTurn}`;
+}
+
+function voiceSynthesisRequestId(stationRunId: string, actorId: string, voiceId: string): string {
+  return `voice:${stationRunId}:${actorId}:${voiceId}:synthesis`;
+}
+
+function durableEventRef(stationRunId: string, sequence: number): string {
+  return `durable://station-runs/${stationRunId}/events/${sequence}`;
+}
+
+function withDurableEventRef<T extends Record<string, unknown>>(
+  payload: T,
+  stationRunId: string,
+  sequence: number,
+): T & { durableEventRef: string } {
+  return {
+    ...payload,
+    durableEventRef: durableEventRef(stationRunId, sequence),
+  };
 }
 
 export function createDefaultScenarioRuntime(): ScenarioRuntime {
@@ -656,6 +688,10 @@ function requireProviderHealth(health: ProviderHealth[], providerId: string): Pr
   const provider = health.find((entry) => entry.providerId === providerId);
   if (!provider) {
     throw new Error(`Missing provider health for ${providerId}`);
+  }
+  const validation = validateProviderHealth(provider);
+  if (!validation.ok) {
+    throw new Error(`Invalid provider health for ${providerId}: ${validation.errors.join("; ")}`);
   }
   return provider;
 }
