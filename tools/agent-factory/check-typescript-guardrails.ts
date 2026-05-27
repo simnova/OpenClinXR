@@ -1,8 +1,6 @@
 import { glob, readFile } from "node:fs/promises";
 
-const allowedTsNoCheckFiles = new Set([
-  "tools/openclinxr/encounter-publication-payloads.test.ts",
-]);
+const allowedTsNoCheckFiles = new Set<string>();
 
 async function main(): Promise<void> {
   const findings: string[] = [];

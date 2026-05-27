@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -20,12 +19,106 @@ import {
   summarizeEncounterFactoryDryRunPlan,
   validateEncounterPublicationPayloadReport,
 } from "./encounter-publication-payloads.js";
+import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-station-runtime-bundle.js";
+import type { VisualQaRemediationWorkOrderRef } from "./visual-qa-evidence-check.js";
+
+const notEvidenceFor: GeneratedEdStationRuntimeBundleReport["notEvidenceFor"] = [
+  "production_asset_readiness",
+  "quest_readiness",
+  "clinical_validity",
+  "scoring_validity",
+];
+
+const actorHumanoidMaterializationContract: NonNullable<GeneratedEdStationRuntimeBundleReport["actorHumanoidMaterializationContract"]> = {
+  schemaVersion: "openclinxr.actor-humanoid-materialization-contract.v1",
+  scenarioId: "ed_chest_pain_priority_v1",
+  source: "generated_station_runtime_bundle",
+  actorSpecificVariantKeysRequired: true,
+  sharedNeutralMeshReuseDetected: false,
+  sharedNeutralMeshReuseActorIds: [],
+  actorVariants: [
+    {
+      actorId: "patient_robert_hayes_v1",
+      actorRole: "patient",
+      modelAssetId: "patient",
+      variantSemanticKey: "ed_chest_pain_priority_v1:patient_robert_hayes_v1:patient:anny_humanoid_variant",
+      sourceBlobName: "patient.glb",
+      humanoidVariantProfile: {
+        ageBand: "adult",
+        bodyScale: "adult_standard",
+        clothingLayer: "patient_gown",
+        hairFaceRequired: true,
+        faceEyeLipRigRequired: true,
+        idlePoseRequired: true,
+        locomotionRequired: true,
+      },
+      requiredMaterializationCueIds: [
+        "role_specific_body_scale_and_silhouette",
+        "role_specific_clothing_layer",
+        "hair_face_eye_lip_rig_presence",
+        "idle_pose_and_locomotion_animation_set",
+      ],
+    },
+    {
+      actorId: "nurse_maria_alvarez_v1",
+      actorRole: "nurse",
+      modelAssetId: "nurse",
+      variantSemanticKey: "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1:nurse:anny_humanoid_variant",
+      sourceBlobName: "nurse.glb",
+      humanoidVariantProfile: {
+        ageBand: "adult",
+        bodyScale: "adult_standard",
+        clothingLayer: "clinical_scrubs",
+        hairFaceRequired: true,
+        faceEyeLipRigRequired: true,
+        idlePoseRequired: true,
+        locomotionRequired: true,
+      },
+      requiredMaterializationCueIds: [
+        "role_specific_body_scale_and_silhouette",
+        "role_specific_clothing_layer",
+        "hair_face_eye_lip_rig_presence",
+        "idle_pose_and_locomotion_animation_set",
+      ],
+    },
+    {
+      actorId: "spouse_anna_hayes_v1",
+      actorRole: "family",
+      modelAssetId: "spouse",
+      variantSemanticKey: "ed_chest_pain_priority_v1:spouse_anna_hayes_v1:family:anny_humanoid_variant",
+      sourceBlobName: "spouse.glb",
+      humanoidVariantProfile: {
+        ageBand: "adult",
+        bodyScale: "adult_standard",
+        clothingLayer: "civilian_family",
+        hairFaceRequired: true,
+        faceEyeLipRigRequired: true,
+        idlePoseRequired: true,
+        locomotionRequired: true,
+      },
+      requiredMaterializationCueIds: [
+        "role_specific_body_scale_and_silhouette",
+        "role_specific_clothing_layer",
+        "hair_face_eye_lip_rig_presence",
+        "idle_pose_and_locomotion_animation_set",
+      ],
+    },
+  ],
+  recommendedNextAction: "materialize_actor_specific_humanoid_variants_before_runtime_readiness_claim",
+  notEvidenceFor: [
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "animation_quality",
+  ],
+};
 
 describe("encounter publication payloads", () => {
   it("materializes generated scene manifest and learner runtime bundle payloads", async () => {
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-publication-payloads-"));
     try {
-      const remediationWorkOrderRefs = [
+      const remediationWorkOrderRefs: VisualQaRemediationWorkOrderRef[] = [
         {
           schemaVersion: "openclinxr.visual-qa-remediation-work-order-ref.v1",
           scenarioId: "ed_chest_pain_priority_v1",
@@ -386,7 +479,7 @@ describe("encounter publication payloads", () => {
               "dialogue_eye_micro_saccade_blink_cue",
               "generated_eyelid_blink_control_cue",
             ]),
-            notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+            notEvidenceFor,
           }),
         ]),
       );
@@ -435,9 +528,7 @@ describe("encounter publication payloads", () => {
         generatedAt: "2026-05-23T12:30:00.000Z",
         artifactRoot: tempDir,
       });
-      const learnerBundle = (await readFile(report.localArtifacts.learnerRuntimeBundlePath, "utf8").then(JSON.parse)) as {
-        actors: Array<{ actorId: string; role: string; embodiment: string }>;
-      };
+      const learnerBundle = (await readFile(report.localArtifacts.learnerRuntimeBundlePath, "utf8").then(JSON.parse)) as NonNullable<GeneratedEdStationRuntimeBundleReport["learnerBundle"]>;
       const encounterFactorySummary = summarizeEncounterFactoryDryRunPlan(report);
       const expectedContract = buildEncounterFactorySummaryContracts({
         requestId: report.requestId,
@@ -556,7 +647,7 @@ describe("encounter publication payloads", () => {
       bundleReport: {
         ...bundleReport(),
         learnerBundle: {
-          ...bundleReport().learnerBundle,
+          ...(bundleReport().learnerBundle as NonNullable<GeneratedEdStationRuntimeBundleReport["learnerBundle"]>),
           scenarioId: "peds_asthma_parent_anxiety_v1",
         },
       },
@@ -590,22 +681,22 @@ describe("encounter publication payloads", () => {
       ...(invalid.encounterAssetNeedsReadinessManifest ?? {}),
       schemaVersion: "wrong-version",
       blockers: "not-an-array",
-    } as typeof invalid.encounterAssetNeedsReadinessManifest;
+    } as unknown as typeof invalid.encounterAssetNeedsReadinessManifest;
     invalid.payloadSummary.humanoidRuntimeRequirementActorCount = 99;
     invalid.payloadSummary.humanoidRealismProfileCount = 99;
     invalid.humanoidRealismProfiles[0].actorRole = "unmatched_actor";
     invalid.humanoidRealismProfiles[0].requiredRealismEvidenceIds = ["dialogue_viseme_and_gaze_mapping"];
-    invalid.humanoidRuntimeRequirements[0].gazeTargetRequired = false;
+    (invalid.humanoidRuntimeRequirements[0] as { gazeTargetRequired: boolean }).gazeTargetRequired = false;
     invalid.humanoidRuntimeRequirements[0].requiredSignalIds = ["dialogue_viseme_and_gaze_mapping"];
-    invalid.humanoidRuntimeRequirements[0].notEvidenceFor = ["production_asset_readiness"];
+    (invalid.humanoidRuntimeRequirements[0] as { notEvidenceFor: string[] }).notEvidenceFor = ["production_asset_readiness"];
     invalid.realismEvidenceRefs.refs = invalid.realismEvidenceRefs.refs.filter((ref) => ref.refId !== "runtime-realism-evidence-check");
     invalid.realismEvidenceRefs.refs[0].notEvidenceFor = ["quest_readiness"];
-    invalid.realismEvidenceRefs.runtimeExecutionAllowed = true;
+    (invalid.realismEvidenceRefs as { runtimeExecutionAllowed: boolean }).runtimeExecutionAllowed = true;
     invalid.operationalNotes.providerDisabledBoundary.claimBoundary = "local_only_asset_pipeline_metadata_not_live_provider_readiness";
     invalid.operationalNotes.providerDisabledBoundary.missingEvidenceIds = [];
     invalid.operationalNotes.localOnlyBoundary.missingEvidenceIds = ["azurite_or_queue_emulator_evidence_missing"];
-    invalid.dynamicEncounterBehaviorCoverage.claimBoundary = "runtime_behavior_evidence_claimed";
-    invalid.dynamicEncounterBehaviorCoverage.dialogueTurnCoverage = {
+    (invalid.dynamicEncounterBehaviorCoverage as { claimBoundary: string }).claimBoundary = "runtime_behavior_evidence_claimed";
+    (invalid.dynamicEncounterBehaviorCoverage as { dialogueTurnCoverage: unknown }).dialogueTurnCoverage = {
       actorRolesWithDialogueTurns: ["patient"],
       missingActorRoles: [],
       dialogueTurnCount: "zero",
@@ -625,8 +716,8 @@ describe("encounter publication payloads", () => {
     invalid.encounterFactoryDryRunPlan.stages = invalid.encounterFactoryDryRunPlan.stages.filter((stage) =>
       stage.stageId !== "runtime_bundle_binding_plan"
     );
-    invalid.encounterFactoryDryRunPlan.evidenceBoundaries.generatedAssetsMaterialized = true;
-    invalid.encounterFactoryDryRunPlan.generationWorkOrders[0].sharedAssetLibraryReuse.cacheDisposition = "generate_without_lookup";
+    (invalid.encounterFactoryDryRunPlan.evidenceBoundaries as { generatedAssetsMaterialized: boolean }).generatedAssetsMaterialized = true;
+    (invalid.encounterFactoryDryRunPlan.generationWorkOrders[0].sharedAssetLibraryReuse as { cacheDisposition: string }).cacheDisposition = "generate_without_lookup";
 
     expect(validateEncounterPublicationPayloadReport(invalid)).toEqual({
       ok: false,
@@ -828,6 +919,10 @@ describe("encounter publication payloads", () => {
         };
         caseDefinedHumanoidRuntimeHandoff: Array<{
           actorRole: string;
+          humanoidVariantProfile?: {
+            faceEyeLipRigRequired?: boolean;
+            idlePoseRequired?: boolean;
+          };
           requiredSignalIds: string[];
           blockers: string[];
           claimBoundary: string;
@@ -895,7 +990,7 @@ describe("encounter publication payloads", () => {
           assetNeedsCarriedByWorkOrders: true,
         },
         blockers: [],
-        notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+        notEvidenceFor,
       });
       expect(report.caseDefinitionDrivenFactoryCoverage.requiredTraceTags).toEqual(
         expect.arrayContaining(pediatricAsthmaScenario.requiredTraceTags),
@@ -1021,17 +1116,29 @@ describe("encounter publication payloads", () => {
   });
 });
 
-function bundleReport() {
-  const sceneManifest = {
+function bundleReport(): GeneratedEdStationRuntimeBundleReport {
+  const sceneManifest: NonNullable<GeneratedEdStationRuntimeBundleReport["learnerBundle"]>["sceneManifest"] = {
     schemaVersion: "openclinxr.runtime-scene-manifest.v1",
     manifestId: "scene_manifest:ed_chest_pain_priority_v1:ed_chest_pain_station_v1",
     source: "generated_scene_pipeline",
     scenarioId: "ed_chest_pain_priority_v1",
     stationId: "ed_chest_pain_station_v1",
+    stationContext: {
+      title: "ED Chest Pain",
+      subtitle: "Patient, spouse, and nurse in a time-boxed emergency department encounter.",
+      chiefConcern: "Crushing substernal chest pressure",
+      initialVitals: "BP 152/92, HR 104, RR 20, SpO2 96%",
+      interruption: "Nurse repeats vitals at minute seven",
+      stageAriaLabel: "Emergency department station scene",
+      canvasAriaLabel: "3D emergency department bay preview",
+      initialDialogueText: "Robert Hayes: It feels heavy, like someone is sitting on my chest.",
+    },
     roomProps: [
       {
         propId: "monitor",
         label: "Monitor",
+        semanticRole: "objective_cue",
+        evidenceCue: "Vitals monitor anchors the ED chest pain assessment.",
         colorHex: "#111827",
         accentColorHex: "#f59e0b",
         position: { x: 1, y: 1, z: 1 },
@@ -1092,9 +1199,9 @@ function bundleReport() {
     },
     equipmentPlacements: {},
     productionReadinessClaimed: false,
-    notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+    notEvidenceFor,
   };
-  const learnerBundle = {
+  const learnerBundle: NonNullable<GeneratedEdStationRuntimeBundleReport["learnerBundle"]> = {
     bundleId: "ed_chest_pain_encounter_v1:learner-runtime-bundle:v1",
     stationId: "ed_chest_pain_station_v1",
     scenarioId: "ed_chest_pain_priority_v1",
@@ -1108,11 +1215,12 @@ function bundleReport() {
       blob: { storeKind: "azurite_blob", containerName: "openclinxr-assets", blobName: "ed.glb", url: "http://127.0.0.1/ed.glb" },
       reviewStatus: "approved_for_local_runtime",
       provenanceRefs: ["fixture"],
-      notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+      notEvidenceFor,
     },
     actors: [
       {
         actorId: "patient_robert_hayes_v1",
+        embodiment: "humanoid",
         role: "patient",
         model: {
           assetId: "patient",
@@ -1123,13 +1231,14 @@ function bundleReport() {
           blob: { storeKind: "azurite_blob", containerName: "openclinxr-assets", blobName: "patient.glb", url: "http://127.0.0.1/patient.glb" },
           reviewStatus: "approved_for_local_runtime",
           provenanceRefs: ["fixture"],
-          notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+          notEvidenceFor,
         },
         animationClips: [],
         gazeProfile: { defaultTarget: "learner_camera", supportsActorTargets: true },
       },
       {
         actorId: "nurse_maria_alvarez_v1",
+        embodiment: "humanoid",
         role: "nurse",
         model: {
           assetId: "nurse",
@@ -1140,13 +1249,14 @@ function bundleReport() {
           blob: { storeKind: "azurite_blob", containerName: "openclinxr-assets", blobName: "nurse.glb", url: "http://127.0.0.1/nurse.glb" },
           reviewStatus: "approved_for_local_runtime",
           provenanceRefs: ["fixture"],
-          notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+          notEvidenceFor,
         },
         animationClips: [],
         gazeProfile: { defaultTarget: "learner_camera", supportsActorTargets: true },
       },
       {
         actorId: "spouse_anna_hayes_v1",
+        embodiment: "humanoid",
         role: "family",
         model: {
           assetId: "spouse",
@@ -1157,7 +1267,7 @@ function bundleReport() {
           blob: { storeKind: "azurite_blob", containerName: "openclinxr-assets", blobName: "spouse.glb", url: "http://127.0.0.1/spouse.glb" },
           reviewStatus: "approved_for_local_runtime",
           provenanceRefs: ["fixture"],
-          notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+          notEvidenceFor,
         },
         animationClips: [],
         gazeProfile: { defaultTarget: "learner_camera", supportsActorTargets: true },
@@ -1175,7 +1285,7 @@ function bundleReport() {
           blob: { storeKind: "azurite_blob", containerName: "openclinxr-assets", blobName: "ecg.glb", url: "http://127.0.0.1/ecg.glb" },
           reviewStatus: "approved_for_local_runtime",
           provenanceRefs: ["fixture"],
-          notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+          notEvidenceFor,
         },
       },
     ],
@@ -1184,7 +1294,25 @@ function bundleReport() {
     generatedAt: "2026-05-23T12:00:00.000Z",
     expiresAt: null,
     frozenForEncounter: true,
-    notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+    evidenceGateRefs: [],
+    assemblyAuditMetadata: {
+      schemaVersion: "openclinxr.runtime-bundle-assembly-audit.v1",
+      claimBoundary: "asset_reference_audit_metadata_not_materialized_assets",
+      sourceDefinitionRefs: ["test_fixture:encounter-publication-payloads"],
+      workOrderRefs: [],
+      factoryRequestRefs: [],
+      generatedAssetRefs: [],
+      humanoidMetadataRefs: [],
+      remediationPlanRefs: [],
+      evidenceGateIds: [],
+      fallbackPosture: {
+        usesLocalFixtureFallbackAssets: true,
+        fallbackAssetIds: ["patient", "nurse", "spouse", "ecg"],
+        learnerUseBlockedUntilEvidenceGatesAttach: true,
+      },
+      notEvidenceFor,
+    },
+    notEvidenceFor,
     identityScope: "learner_runtime_opaque_bundle",
   };
   return {
@@ -1193,39 +1321,44 @@ function bundleReport() {
     status: "bundle_ready",
     bundle: null,
     learnerBundle,
+    actorHumanoidMaterializationContract,
     bundleBlobName: null,
     runtimeAssetReviewDecisions: [],
     blockers: [],
     productionCloudCall: false,
-    notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
-  } as const;
+    notEvidenceFor,
+  };
 }
 
-function bundleReportForScenario(scenarioId: string) {
+function bundleReportForScenario(scenarioId: string): GeneratedEdStationRuntimeBundleReport {
   const report = bundleReport();
+  const learnerBundle = report.learnerBundle;
+  if (!learnerBundle) {
+    throw new Error("typed test fixture expected learner bundle");
+  }
   if (scenarioId === pediatricAsthmaScenario.scenarioId) {
     return {
       ...report,
       learnerBundle: {
-        ...report.learnerBundle,
+        ...learnerBundle,
         scenarioId,
         stationId: "pediatric_urgent_care_station_v1",
         bundleId: "peds_asthma_parent_anxiety_v1:learner-runtime-bundle:v1",
         environment: {
-          ...report.learnerBundle.environment,
+          ...learnerBundle.environment,
           assetId: "pediatric_urgent_care_bay_environment",
           displayName: "Pediatric Urgent Care Bay",
           scenarioAssetId: "pediatric_urgent_care_bay_environment",
           blob: {
-            ...report.learnerBundle.environment.blob,
+            ...learnerBundle.environment.blob,
             blobName: "pediatric_urgent_care_bay_environment.glb",
             url: "http://127.0.0.1/pediatric_urgent_care_bay_environment.glb",
           },
         },
         actors: [
-          { ...report.learnerBundle.actors[0], actorId: "patient_maya_johnson_v1", role: "patient", model: { ...report.learnerBundle.actors[0]!.model, assetId: "patient_maya_johnson_character", displayName: "Maya Johnson", scenarioAssetId: "patient_maya_johnson_character" } },
-          { ...report.learnerBundle.actors[2], actorId: "parent_tara_johnson_v1", role: "family", model: { ...report.learnerBundle.actors[2]!.model, assetId: "parent_tara_johnson_character", displayName: "Tara Johnson", scenarioAssetId: "parent_tara_johnson_character" } },
-          { ...report.learnerBundle.actors[1], actorId: "nurse_kevin_lee_v1", role: "nurse", model: { ...report.learnerBundle.actors[1]!.model, assetId: "nurse_kevin_lee_character", displayName: "Kevin Lee", scenarioAssetId: "nurse_kevin_lee_character" } },
+          { ...learnerBundle.actors[0], actorId: "patient_maya_johnson_v1", role: "patient", model: { ...learnerBundle.actors[0]!.model, assetId: "patient_maya_johnson_character", displayName: "Maya Johnson", scenarioAssetId: "patient_maya_johnson_character" } },
+          { ...learnerBundle.actors[2], actorId: "parent_tara_johnson_v1", role: "family", model: { ...learnerBundle.actors[2]!.model, assetId: "parent_tara_johnson_character", displayName: "Tara Johnson", scenarioAssetId: "parent_tara_johnson_character" } },
+          { ...learnerBundle.actors[1], actorId: "nurse_kevin_lee_v1", role: "nurse", model: { ...learnerBundle.actors[1]!.model, assetId: "nurse_kevin_lee_character", displayName: "Kevin Lee", scenarioAssetId: "nurse_kevin_lee_character" } },
         ],
         equipment: [
           "pulse_oximeter_equipment",
@@ -1237,19 +1370,19 @@ function bundleReportForScenario(scenarioId: string) {
         ].map((equipmentId) => ({
           equipmentId,
           model: {
-            ...report.learnerBundle.equipment[0]!.model,
+            ...learnerBundle.equipment[0]!.model,
             assetId: equipmentId,
             displayName: equipmentId.replace(/_/g, " "),
             scenarioAssetId: equipmentId,
             blob: {
-              ...report.learnerBundle.equipment[0]!.model.blob,
+              ...learnerBundle.equipment[0]!.model.blob,
               blobName: `${equipmentId}.glb`,
               url: `http://127.0.0.1/${equipmentId}.glb`,
             },
           },
         })),
         sceneManifest: {
-          ...report.learnerBundle.sceneManifest,
+          ...learnerBundle.sceneManifest,
           scenarioId,
           stationId: "pediatric_urgent_care_station_v1",
           manifestId: `scene_manifest:${scenarioId}:pediatric_urgent_care_station_v1`,
@@ -1294,11 +1427,11 @@ function bundleReportForScenario(scenarioId: string) {
   return {
     ...report,
     learnerBundle: {
-      ...report.learnerBundle,
+      ...learnerBundle,
       scenarioId,
-      bundleId: report.learnerBundle.bundleId.replace("ed_chest_pain_priority_v1", scenarioId),
+      bundleId: learnerBundle.bundleId.replace("ed_chest_pain_priority_v1", scenarioId),
       sceneManifest: {
-        ...report.learnerBundle.sceneManifest,
+        ...learnerBundle.sceneManifest,
         scenarioId,
         manifestId: `scene_manifest:${scenarioId}:ed_chest_pain_station_v1`,
       },
@@ -1319,6 +1452,6 @@ function affectTimeline(emotion: "neutral" | "anxious" | "concerned" | "reassure
       "visible_runtime_eyebrow_jaw_cheek_cue",
       "dialogue_viseme_and_gaze_mapping",
     ],
-    notEvidenceFor: ["clinical_validity", "scoring_validity", "production_asset_readiness"],
+    notEvidenceFor: ["clinical_validity", "scoring_validity", "production_asset_readiness"] as Array<"clinical_validity" | "scoring_validity" | "production_asset_readiness">,
   };
 }
