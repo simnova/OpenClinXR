@@ -114,11 +114,13 @@ describe("asset production evidence ladder report", () => {
   it("writes a report from the CLI without mutating production readiness claims", async () => {
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-asset-ladder-"));
     const outputPath = path.join(tempDir, "asset-production-evidence-ladder.json");
+    const readinessPath = path.join(tempDir, "asset-production-readiness-benchmark.json");
 
     try {
+      await writeReadinessFixture(readinessPath);
       await runAssetProductionEvidenceLadderCli([
         "--readiness",
-        "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+        readinessPath,
         "--output",
         outputPath,
       ]);
@@ -136,14 +138,16 @@ describe("asset production evidence ladder report", () => {
   it("validates generated ladder reports before reuse", async () => {
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-asset-ladder-validate-"));
     const outputPath = path.join(tempDir, "asset-production-evidence-ladder.json");
+    const readinessPath = path.join(tempDir, "asset-production-readiness-benchmark.json");
     const invalidPath = path.join(tempDir, "asset-production-evidence-ladder-invalid.json");
     const staleSourcePath = path.join(tempDir, "asset-production-evidence-ladder-stale-source.json");
     const previousExitCode = process.exitCode;
 
     try {
+      await writeReadinessFixture(readinessPath);
       await runAssetProductionEvidenceLadderCli([
         "--readiness",
-        "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+        readinessPath,
         "--output",
         outputPath,
       ]);
@@ -295,6 +299,18 @@ describe("asset production evidence ladder report", () => {
     });
   });
 });
+
+async function writeReadinessFixture(filePath: string): Promise<void> {
+  const readiness = buildAssetProductionReadinessReport({
+    generatedAt: "2026-05-06T12:00:00.000Z",
+    gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
+    blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+    gltfPipelineSmoke: gltfSmoke(),
+    blenderAssetBakeSmoke: blenderSmokeWithClinicalInventory(),
+    useLocalAssetEvidenceFixture: true,
+  });
+  await writeFile(filePath, `${JSON.stringify(readiness, null, 2)}\n`, "utf8");
+}
 
 function gltfSmoke() {
   return {
