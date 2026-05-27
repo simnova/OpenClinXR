@@ -12,12 +12,18 @@ This directory contains product references, evidence, gates, and historical note
 6. `codex-openclaw-operating-bridge-2026-05-27.md` - Codex/OpenClaw execution-mode bridge.
 7. `doc-authority-registry-2026-05-27.md` - generated authority map for Markdown files.
 8. `generated-artifact-registry-2026-05-27.md` - generated cleanup map for JSON, screenshots, local caches, and runtime assets.
+9. `evidence-index-2026-05-27.md` - generated navigation index for representative retained evidence.
+10. `worktree-cleanup-handoff-2026-05-27.md` - generated categorization of remaining dirty worktree entries.
 
 ## Authority Rule
 
 Use `doc-authority-registry-2026-05-27.md` before using older plans, evidence reports, temporary notes, unattended-run notes, proposals, or iteration outputs as instructions.
 
 Use `generated-artifact-registry-2026-05-27.md` before deleting, ignoring, or committing generated non-Markdown artifacts.
+
+Use `evidence-index-2026-05-27.md` to find representative retained evidence quickly without scanning every generated artifact.
+
+Use `worktree-cleanup-handoff-2026-05-27.md` to keep cleanup commits separate from product-code, generated-code, operator-note, and evidence batches.
 
 Protected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.
 

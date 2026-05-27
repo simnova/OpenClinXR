@@ -1,0 +1,535 @@
+# Worktree Cleanup Handoff
+
+Date: 2026-05-27
+
+This generated report categorizes the remaining dirty worktree so cleanup commits do not accidentally absorb unrelated product work. It is a navigation aid only.
+
+## Counts
+
+- agent-memory-docs: 6
+- generated-code: 11
+- local-cache: 2
+- operator-notes: 2
+- other: 6
+- product-code: 173
+- retained-evidence: 315
+- runtime-assets: 1
+
+## Entries
+
+- `M` `.agent-factory/benchmark-gate-report.json` - local-cache; Ignore or delete if untracked; do not commit as durable evidence.
+- `M` `.agent-factory/quest-cdp-smoke-check.json` - local-cache; Ignore or delete if untracked; do not commit as durable evidence.
+- `M` `agents/coordinator/chief-coordinator/memory.md` - agent-memory-docs; Review as agent-memory update; commit only if it reflects current OpenClaw guidance.
+- `M` `agents/core/implementation-planning-lead/memory.md` - agent-memory-docs; Review as agent-memory update; commit only if it reflects current OpenClaw guidance.
+- `M` `agents/leadership/vp-engineering-delivery/memory.md` - agent-memory-docs; Review as agent-memory update; commit only if it reflects current OpenClaw guidance.
+- `M` `apps/api/src/app.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `apps/api/src/app.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `apps/ui-admin/package.json` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `apps/ui-admin/src/App.test.tsx` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `apps/ui-admin/src/App.tsx` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `apps/ui-admin/src/api-client.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `apps/ui-admin/src/api-client.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `apps/ui-admin/src/styles.css` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `apps/ui-xr-iwsdk-spike/src/main.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `apps/ui-xr-iwsdk-spike/src/sidecar-state.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `apps/ui-xr/package.json` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `apps/ui-xr/src/api-client.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `apps/ui-xr/src/api-client.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `apps/ui-xr/src/main.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `apps/ui-xr/src/runtime-state.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `apps/ui-xr/src/runtime-state.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `apps/ui-xr/src/static-assets.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `apps/ui-xr/src/styles.css` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `docs/agent-factory/README.md` - agent-memory-docs; Review as agent-memory update; commit only if it reflects current OpenClaw guidance.
+- `M` `docs/openclinxr/asset-generation-pipeline.md` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `M` `docs/openclinxr/local-ai-voice-model-strategy.md` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `M` `docs/openclinxr/quest3-usb-webxr-smoke-checklist.md` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `M` `docs/openclinxr/security-audit-exceptions.md` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `M` `docs/openclinxr/server-side-multi-actor-state-persistence-phase2-2026-05-05.md` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `M` `iterations/iteration-0009/07-final-synthesis.md` - agent-memory-docs; Review as agent-memory update; commit only if it reflects current OpenClaw guidance.
+- `M` `iterations/iteration-0009/08-memory-update-log.md` - agent-memory-docs; Review as agent-memory update; commit only if it reflects current OpenClaw guidance.
+- `M` `operator-open-questions.md` - operator-notes; Review for active blockers/defaults; avoid mixing with product-code commits.
+- `M` `operator-steering-needed-questions.md` - operator-notes; Review for active blockers/defaults; avoid mixing with product-code commits.
+- `M` `packages/openclinxr/architecture-rules/src/workspace-architecture.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/asset-registry/package.json` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/asset-registry/src/asset-registry.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/asset-registry/src/index.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/capability-gateway/package.json` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/capability-gateway/src/asset-generation-jobs.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/capability-gateway/src/asset-generation-jobs.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/capability-gateway/src/capability-gateway.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/capability-gateway/src/index.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/data-mongodb/src/api-persistence-sink.integration.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/data-mongodb/src/mongodb-repositories.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/data-mongodb/src/repositories.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/data-sources-mongoose-models/src/index.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/domain/src/station-state.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/domain/src/station-state.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/exam-assembly/src/exam-assembly.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/exam-assembly/src/index.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/graphql/src/documents/exam-form-workbench.graphql` - generated-code; Commit only with its owning schema/API/package change after focused verification.
+- `M` `packages/openclinxr/graphql/src/documents/review-packet-replay.graphql` - generated-code; Commit only with its owning schema/API/package change after focused verification.
+- `M` `packages/openclinxr/graphql/src/documents/scenario-bank.graphql` - generated-code; Commit only with its owning schema/API/package change after focused verification.
+- `M` `packages/openclinxr/graphql/src/documents/scenario-detail.graphql` - generated-code; Commit only with its owning schema/API/package change after focused verification.
+- `M` `packages/openclinxr/graphql/src/documents/submit-scenario-review.graphql` - generated-code; Commit only with its owning schema/API/package change after focused verification.
+- `M` `packages/openclinxr/graphql/src/generated/client/gql.ts` - generated-code; Commit only with its owning schema/API/package change after focused verification.
+- `M` `packages/openclinxr/graphql/src/generated/client/graphql.ts` - generated-code; Commit only with its owning schema/API/package change after focused verification.
+- `M` `packages/openclinxr/graphql/src/generated/documents.generated.ts` - generated-code; Commit only with its owning schema/API/package change after focused verification.
+- `M` `packages/openclinxr/graphql/src/generated/resolvers.generated.ts` - generated-code; Commit only with its owning schema/API/package change after focused verification.
+- `M` `packages/openclinxr/graphql/src/generated/schema.generated.ts` - generated-code; Commit only with its owning schema/API/package change after focused verification.
+- `M` `packages/openclinxr/graphql/src/index.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/graphql/src/schema.graphql` - generated-code; Commit only with its owning schema/API/package change after focused verification.
+- `M` `packages/openclinxr/model-gateway/src/index.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/model-gateway/src/model-gateway.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/rest/src/index.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/rest/src/rest-routes.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/review-workflow/src/index.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/review-workflow/src/review-packet.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/review-workflow/src/review-packet.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/review-workflow/src/scenario-publication.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/review-workflow/src/scenario-publication.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/scenario-fixtures/package.json` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/scenario-fixtures/src/ed-chest-pain.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/scenario-fixtures/src/ed-chest-pain.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/scenario-fixtures/src/scenario-bank.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/scenario-fixtures/src/scenario-bank.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/scenario-runtime/src/index.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/scenario-runtime/src/scenario-runtime.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/session-state/src/index.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/session-state/src/session-state.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/shared-schemas/src/schemas.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/shared-schemas/src/schemas.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/shared-schemas/src/validators.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/test-harness/package.json` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/test-harness/src/adversarial-report.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/test-harness/src/benchmark-report.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/test-harness/src/benchmark-report.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/test-harness/src/station-simulation.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/test-harness/src/station-simulation.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/trace-ledger/src/in-memory-trace-ledger.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/trace-ledger/src/in-memory-trace-ledger.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/voice-gateway/src/index.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `packages/openclinxr/voice-gateway/src/voice-gateway.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `pnpm-lock.yaml` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `sources/makehuman-makeclothes-github-2026.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `M` `tools/agent-factory/benchmark-gate-report.test.ts` - other; Review manually before commit, delete, or ignore.
+- `M` `tools/agent-factory/build-benchmark-gate-report.ts` - other; Review manually before commit, delete, or ignore.
+- `M` `tools/openclinxr/asset-production-artifact-evidence.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `tools/openclinxr/asset-production-artifact-evidence.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `tools/openclinxr/asset-production-readiness-benchmark.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `tools/openclinxr/blender-asset-bake-smoke.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `tools/openclinxr/blender-asset-bake-smoke.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `tools/openclinxr/check-quest-manual-performance.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `tools/openclinxr/quest-cdp-smoke.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `tools/openclinxr/quest-cdp-smoke.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `tools/openclinxr/quest-manual-performance-check.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `tools/openclinxr/visual-qa-evidence-check.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `tools/openclinxr/visual-qa-evidence-check.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `apps/ui-admin/src/EnvironmentGenerationQueuePanel.test.tsx` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `apps/ui-admin/src/EnvironmentGenerationQueuePanel.tsx` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `apps/ui-admin/src/FacultyReviewDecisionPanel.test.tsx` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `apps/ui-admin/src/FacultyReviewDecisionPanel.tsx` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `apps/ui-admin/src/ReviewReplayReadinessSummaryPanel.test.tsx` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `apps/ui-admin/src/ReviewReplayReadinessSummaryPanel.tsx` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `apps/ui-admin/src/ReviewReplaySafetyPanel.tsx` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `apps/ui-admin/src/RuntimeSelectionReviewPacketPanel.test.tsx` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `apps/ui-admin/src/RuntimeSelectionReviewPacketPanel.tsx` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `apps/ui-admin/src/ScenarioBankMaturityPanel.tsx` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `apps/ui-admin/src/SeedExamReadinessBoundaryPanel.test.tsx` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `apps/ui-admin/src/SeedExamReadinessBoundaryPanel.tsx` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `apps/ui-admin/src/status-view-model.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `apps/ui-xr/public/xr-assets/` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
+- `??` `docs/openclinxr/asset-capability-job-evidence-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/asset-production-artifact-evidence-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/asset-production-evidence-ladder-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/asset-production-readiness-benchmark-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/asset-production-support-artifacts-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/blender-asset-bake-smoke-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/blender-normal-refine-ob-nurse-williams-generated-human-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/blender-normal-refine-ob-partner-omar-generated-human-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/blender-normal-refine-ob-patient-aisha-generated-human-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/body-measurements-adult-average-reom-current-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/dynamic-encounter-factory-completion-gate-packet-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/dynamic-session-asset-strategy.md` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-projection-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-queue-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-queue-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-queue-clinic-abdominal-pain-interpreter-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-queue-ed-stroke-alert-handoff-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-queue-ob-headache-preeclampsia-triage-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-queue-oncology-bad-news-family-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-queue-oncology-bad-news-family-realism-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-queue-peds-asthma-parent-anxiety-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-queue-postop-fever-consult-pressure-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-queue-psych-suicidal-ideation-safety-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-queue-stepdown-sepsis-nurse-escalation-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-queue-telehealth-diabetes-health-literacy-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-queue-ward-delirium-med-rec-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-worker-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-worker-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-worker-clinic-abdominal-pain-interpreter-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-worker-ed-stroke-alert-handoff-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-worker-ob-headache-preeclampsia-triage-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-worker-oncology-bad-news-family-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-worker-peds-asthma-parent-anxiety-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-worker-postop-fever-consult-pressure-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-worker-psych-suicidal-ideation-safety-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-worker-stepdown-sepsis-nurse-escalation-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-worker-telehealth-diabetes-health-literacy-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-asset-generation-worker-ward-delirium-med-rec-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-guarded-runtime-selection-intent-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-local-factory-handoff-preflight-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-local-factory-handoff-preflight-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-local-factory-operation-manifest-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-local-factory-operation-manifest-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-local-launch-selection-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-local-launch-selection-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-publication-payloads-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-publication-payloads-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-publication-payloads-clinic-abdominal-pain-interpreter-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-publication-payloads-ed-stroke-alert-handoff-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-publication-payloads-ob-headache-preeclampsia-triage-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-publication-payloads-oncology-bad-news-family-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-publication-payloads-oncology-bad-news-family-realism-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-publication-payloads-peds-asthma-parent-anxiety-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-publication-payloads-postop-fever-consult-pressure-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-publication-payloads-psych-suicidal-ideation-safety-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-publication-payloads-stepdown-sepsis-nurse-escalation-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-publication-payloads-telehealth-diabetes-health-literacy-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-publication-payloads-ward-delirium-med-rec-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-runtime-selection-review-packet-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/encounter-runtime-selection-review-packet-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/environment-artifacts-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/environment-artifacts-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/environment-artifacts-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/environment-artifacts-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/evidence/` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/external-ai-asset-pipeline-integration-plan.md` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/external-ai-asset-provider-preflight-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/full-app-resmoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/full-app-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-allowlist-candidate-shirts01-elvs-crude-tshirt-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-allowlist-namuhekam-male-polo-shirt-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-allowlist-toigo-basic-tucked-tshirt-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-archetype-evidence-reom-namuhekam-polo-measured-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-automation-queue-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-body-archetype-fit-requirements-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-cache-provider-metadata-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-fit-quality-reom-shirts01-cc0-derived-transform-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-fit-quality-reom-shirts01-cc0-derived-transform-pass2-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-fit-quality-reom-shirts01-cc0-transform-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-fit-transform-comparison-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-hundred-slice-run-2026-05-27/` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-ingestion-contract-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-license-compatible-source-options-2026-05-27.md` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-pipeline-slices-2026-05-27.md` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-promotion-gate-ob-reom-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-promotion-gate-ob-reom-archetype-required-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-promotion-gate-ob-reom-shirts01-cc0-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-provider-gate-ingest-ob-reom-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-provider-gate-ingest-ob-reom-shirts01-cc0-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-provider-gate-ingest-ob-reom-shirts01-cc0-derived-transform-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-provider-gate-ingest-ob-reom-shirts01-cc0-derived-transform-pass2-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-provider-gate-ingest-ob-reom-shirts01-cc0-transform-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-provider-gate-ob-reom-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-provider-gate-ob-reom-namuhekam-polo-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-provider-gate-ob-reom-namuhekam-polo-clearance-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-provider-gate-ob-reom-namuhekam-polo-filtered-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-provider-gate-ob-reom-namuhekam-polo-filtered-no-legacy-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-provider-gate-ob-reom-namuhekam-polo-materialized-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-provider-gate-ob-reom-namuhekam-polo-measured-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-provider-gate-ob-reom-namuhekam-polo-no-legacy-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-provider-gate-ob-reom-namuhekam-polo-torso-normalized-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-provider-gate-ob-reom-shirts01-cc0-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-provider-gate-ob-reom-toigo-basic-tucked-tshirt-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-source-allowlist-template-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-work-order-ob-reom-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-work-order-ob-reom-namuhekam-polo-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-work-order-ob-reom-namuhekam-polo-measured-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-work-order-ob-reom-shirts01-cc0-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-work-order-ob-reom-shirts01-cc0-derived-transform-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-work-order-ob-reom-shirts01-cc0-derived-transform-pass2-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-work-order-ob-reom-shirts01-cc0-transform-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-work-order-ob-reom-toigo-basic-tucked-tshirt-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/garment-work-order-peds-patient-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-clinic-abdominal-pain-interpreter-runtime-bundle-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-ed-station-runtime-bundle-2026-05-22.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-ed-station-runtime-bundle-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-ed-station-runtime-bundle-2026-05-25-v2.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-ed-station-runtime-bundle-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-ed-stroke-alert-handoff-runtime-bundle-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-human-rigging-artifacts-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-human-rigging-artifacts-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-human-rigging-artifacts-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-human-rigging-artifacts-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-human-rigging-artifacts-adult_standard-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-human-rigging-artifacts-bariatric_adult-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-human-rigging-artifacts-older_adult_kyphotic-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-human-rigging-artifacts-pediatric_school_age-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-human-rigging-variant-matrix-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-ob-headache-preeclampsia-triage-runtime-bundle-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-oncology-bad-news-family-runtime-bundle-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-oncology-bad-news-family-runtime-bundle-realism-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-peds-asthma-runtime-bundle-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-postop-fever-consult-pressure-runtime-bundle-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-psych-suicidal-ideation-runtime-bundle-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-stepdown-sepsis-nurse-escalation-runtime-bundle-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-telehealth-diabetes-runtime-bundle-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/generated-ward-delirium-med-rec-runtime-bundle-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/gltf-pipeline-smoke-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-clothing-tooling-research-2026-05-27.md` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-collision-probe-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-collision-probe-collision-linked-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-provider-upgrade-plan-2026-05-27.md` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-realism-gate-charmorph-antonia-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-realism-gate-charmorph-reom-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-realism-gate-mpfb-ob-patient-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-realism-gate-neutral-generated-human-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-realism-gate-neutral-generated-human-animated-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-realism-gate-neutral-generated-human-clinical-idle-clip-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-realism-gate-neutral-generated-human-clinical-idle-v2-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-realism-gate-neutral-generated-human-clinical-idle-v3-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-realism-gate-neutral-generated-human-face-consolidated-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-realism-gate-neutral-generated-human-material-contrast-v2-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-realism-gate-neutral-generated-human-material-contrast-v3-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-realism-gate-neutral-generated-human-mesh-face-paint-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-realism-gate-neutral-generated-human-posture-debt-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-realism-gate-neutral-generated-human-primitive-stripped-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-realism-gate-neutral-generated-human-proportioned-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-realism-gate-neutral-generated-human-silhouette-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-realism-gate-neutral-generated-human-surface-clothing-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-realism-gate-neutral-generated-human-surface-face-refinement-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-realism-gate-neutral-generated-human-visual-debt-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-realism-gate-neutral-generated-human-visual-detail-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-realism-gate-ob-nurse-williams-generated-human-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-realism-gate-ob-partner-omar-generated-human-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-realism-gate-ob-patient-aisha-generated-human-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-source-bplus-blocker-report-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-source-bplus-scorecard-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-source-quality-gate-2026-05-27.md` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-source-visual-comparator-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-toolchain-bakeoff-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-toolchain-bakeoff-2026-05-27.md` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-toolchain-options-2026-05-27.md` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/humanoid-variant-materialization-next-slice-2026-05-26.md` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/local-model-cache-evidence-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/local-model-runtime-benchmark-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/local-model-source-currentness-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/local-provider-benchmark-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/local-realtime-voice-model-cache-evidence-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/local-realtime-voice-model-source-currentness-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/local-runtime-probe-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/materialize-clinical-idle-pose-clip-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/materialize-clinical-idle-pose-clip-rerun-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/materialize-clinical-idle-pose-clip-v2-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/materialize-clinical-idle-pose-clip-v3-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/materialize-clinical-idle-pose-lower-arms-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/medical-equipment-artifacts-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/medical-equipment-artifacts-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/medical-equipment-artifacts-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/medical-equipment-artifacts-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/mpfb-makehuman-garment-license-intake-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/next-autonomous-worker-handoff-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ob-humanoid-source-variants-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/quest-cdp-manual-harvest-diagnostic-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/quest-cdp-smoke-authorized-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/quest-cdp-smoke-enter-vr-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/quest-cdp-smoke-enter-vr-clean-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/quest-cdp-smoke-foreground-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/quest-cdp-smoke-foreground-clean-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/quest-manual-performance-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/refine-humanoid-material-contrast-v2-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/refine-humanoid-material-contrast-v3-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/runtime-realism-evidence-check-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/runtime-realism-evidence-check-active-viseme-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/runtime-realism-evidence-check-actor-close-material-contrast-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/runtime-realism-evidence-check-animated-humanoid-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/runtime-realism-evidence-check-asset-surface-decluttered-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/runtime-realism-evidence-check-authored-idle-pose-required-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/runtime-realism-evidence-check-authored-idle-pose-runtime-signal-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/runtime-realism-evidence-check-authored-idle-pose-runtime-signal-v2-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/runtime-realism-evidence-check-combined-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/runtime-realism-evidence-check-emotion-transition-contract-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/runtime-realism-evidence-check-mesh-face-paint-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/runtime-realism-evidence-check-mouth-gaze-pose-2026-05-24.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/runtime-realism-evidence-check-oncology-expression-v3-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/screenshots/` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/security-audit-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/security-audit-policy-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/shared-asset-library-cache-evidence-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/skin-clothing-provenance-artifacts-2026-05-21.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/skin-clothing-provenance-artifacts-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/strip-humanoid-primitive-proxies-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-admin-route-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-encounter-realism-review-2026-05-26.md` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-multimodal-review-cued-evidence-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-multimodal-review-evidence-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-ob-humanoid-source-closeup-comparator-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-ob-humanoid-source-comparator-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-pediatric-urgent-escalation-interaction-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-active-actor-launch-badge-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-actor-realism-badge-boundary-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-actor-realism-panel-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-case-defined-emotion-expression-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-case-defined-humanoid-contract-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-declutter-overlay-hidden-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-declutter-role-pose-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-declutter-role-pose-v2-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-declutter-role-pose-v3-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-declutter-role-pose-v4-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-dynamic-actor-nameplate-names-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-dynamic-controller-object-names-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-dynamic-humanoid-cue-names-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-dynamic-input-object-names-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-dynamic-locomotion-rig-name-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-dynamic-role-visual-names-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-dynamic-room-prop-names-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-dynamic-scene-object-naming-audit-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-dynamic-scene-object-naming-evidence-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-empathy-deescalation-cues-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-empathy-patient-routing-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-explicit-bundle-humanoid-contract-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-history-equipment-cues-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-humanoid-acting-cues-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-note-completion-cues-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-parent-communication-equipment-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-refreshed-humanoid-contract-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-respiratory-equipment-cues-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-role-distinct-humanoid-cues-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-role-distinction-cues-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-runtime-actor-realism-requirements-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-runtime-equipment-state-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-runtime-monitor-state-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-runtime-refined-dialogue-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-runtime-trace-actions-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-runtime-trace-click-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-runtime-trace-metadata-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-runtime-turn-case-definition-signals-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-static-generated-bundle-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-urgent-escalation-cues-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-peds-work-of-breathing-state-smoke-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-portal-entry-dynamic-world-evidence-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-realism-review-fixed-screenshots-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-realism-review-fixed2-screenshots-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-realism-review-fixed3-screenshots-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-realism-review-screenshots-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-webxr-only-artifact-review-after-evidence-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-webxr-only-artifact-review-before-evidence-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-webxr-only-dynamic-cleanup-evidence-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-webxr-only-round2-evidence-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-webxr-only-round2-final-evidence-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/ui-xr-webxr-only-round2-refined-evidence-2026-05-26.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/videos/visual-qa-mouth-gaze-pose-posture-remediation-placeholder-2026-05-25.webm` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/videos/visual-qa-temporal-eye-fixture.webm` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/videos/visual-qa-temporal-eye-placeholder.webm` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-qa-evidence-authored-idle-clip-active-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-qa-evidence-authored-idle-clip-active-report-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-qa-evidence-authored-idle-clip-v2-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-qa-evidence-authored-idle-clip-v2-report-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-qa-evidence-dynamic-only-generated-scene-overview-2026-05-24.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-qa-evidence-dynamic-only-generated-scene-overview-report-2026-05-24.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-qa-evidence-face-rig-morph-target-lip-eye-detail-2026-05-24.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-qa-evidence-face-rig-morph-target-lip-eye-detail-report-2026-05-24.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-qa-evidence-generated-human-rigging-variant-matrix-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-qa-evidence-generated-human-rigging-variant-matrix-report-2026-05-25.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-qa-evidence-manifest-prop-variety-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-qa-evidence-manifest-prop-variety-report-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-qa-evidence-mouth-gaze-pose-2026-05-24.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-qa-evidence-mouth-gaze-pose-generated-idle-v6-2026-05-24.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-qa-evidence-mouth-gaze-pose-generated-idle-v6-report-2026-05-24.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-qa-evidence-mouth-gaze-pose-posture-refinement-2026-05-24.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-qa-evidence-mouth-gaze-pose-posture-refinement-report-2026-05-24.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-qa-evidence-mouth-gaze-pose-report-2026-05-24.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-qa-evidence-neutral-bone-restore-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-qa-evidence-neutral-bone-restore-report-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-realism-review-face-consolidated-2026-05-23.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-review-reom-namuhekam-polo-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-review-reom-namuhekam-polo-filtered-no-legacy-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-review-reom-shirts01-cc0-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/openclinxr/visual-review-reom-toigo-basic-tucked-tshirt-2026-05-27.json` - retained-evidence; Commit in coherent evidence batches if registry/index classify it as retained evidence.
+- `??` `docs/superpowers/plans/2026-05-21-faculty-review-decision-panel.md` - other; Review manually before commit, delete, or ignore.
+- `??` `docs/superpowers/plans/2026-05-24-encounter-factory-completion.md` - other; Review manually before commit, delete, or ignore.
+- `??` `docs/superpowers/plans/2026-05-25-dynamic-encounter-factory-completion.md` - other; Review manually before commit, delete, or ignore.
+- `??` `docs/superpowers/specs/2026-05-21-faculty-review-decision-panel-design.md` - other; Review manually before commit, delete, or ignore.
+- `??` `packages/openclinxr/asset-registry/src/asset-writer.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `packages/openclinxr/asset-registry/src/asset-writer.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `packages/openclinxr/asset-registry/src/object-store.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `packages/openclinxr/asset-registry/src/object-store.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `packages/openclinxr/asset-registry/src/runtime-asset-review.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `packages/openclinxr/asset-registry/src/runtime-asset-review.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `packages/openclinxr/asset-registry/src/runtime-bundles.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `packages/openclinxr/asset-registry/src/runtime-bundles.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `packages/openclinxr/capability-gateway/src/azure-storage-queue-client.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `packages/openclinxr/capability-gateway/src/azure-storage-queue-client.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `packages/openclinxr/data-sources-mongoose-models/src/encounter-asset-generation-job-model.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `packages/openclinxr/data-sources-mongoose-models/src/encounter-asset-generation-job-model.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `packages/openclinxr/data-sources-mongoose-models/src/encounter-asset-generation-job-repository.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `packages/openclinxr/data-sources-mongoose-models/src/encounter-asset-generation-job-repository.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `packages/openclinxr/review-workflow/src/faculty-review-path.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `packages/openclinxr/review-workflow/src/faculty-review-path.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/asset-production-support-artifacts.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/asset-production-support-artifacts.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/azurite-asset-upload-smoke.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/azurite-asset-upload-smoke.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/blender/` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/derive-garment-fit-transform.mjs` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/encounter-asset-generation-queue.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/encounter-asset-generation-queue.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/encounter-asset-generation-worker.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/encounter-asset-generation-worker.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/encounter-guarded-runtime-selection-intent.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/encounter-guarded-runtime-selection-intent.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/encounter-local-factory-handoff-preflight.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/encounter-local-factory-handoff-preflight.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/encounter-local-factory-operation-manifest.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/encounter-local-factory-operation-manifest.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/encounter-local-launch-selection.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/encounter-local-launch-selection.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/encounter-publication-payloads.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/encounter-publication-payloads.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/encounter-runtime-handoff-adapter.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/encounter-runtime-handoff-adapter.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/encounter-runtime-selection-review-packet.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/encounter-runtime-selection-review-packet.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/environment-artifacts.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/environment-artifacts.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/external-ai-asset-provider-preflight.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/external-ai-asset-provider-preflight.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/garment-archetype-evidence.mjs` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/garment-cache-index.mjs` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/garment-hundred-slice-runner.mjs` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/garment-ingest-and-fit.mjs` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/garment-promotion-gate.mjs` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/garment-provider-gate.mjs` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/garment-provider-registry.json` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/garment-work-order.mjs` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/generated-ed-station-runtime-bundle.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/generated-ed-station-runtime-bundle.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/generated-human-rigging-artifacts.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/generated-human-rigging-artifacts.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/generated-human-rigging-variant-matrix.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/humanoid-collision-probe.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/humanoid-collision-probe.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/humanoid-realism-gate.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/humanoid-realism-gate.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/humanoid-source-closeup-comparator.mjs` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/humanoid-toolchain-bakeoff.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/humanoid-toolchain-bakeoff.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/materialize-clinical-idle-pose-clip.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/materialize-ob-humanoid-source-variants.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/medical-equipment-artifacts.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/medical-equipment-artifacts.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/provider-boundary-notes.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/publish-generated-learner-runtime-bundle.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/publish-generated-learner-runtime-bundle.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/refine-humanoid-material-contrast.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/runtime-realism-evidence-check.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/runtime-realism-evidence-check.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/scene-generation-review-decision-export.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/scene-generation-review-decision-export.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/shared-asset-library-cache-evidence.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/shared-asset-library-cache-evidence.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/skin-clothing-provenance-artifacts.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/skin-clothing-provenance-artifacts.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/strip-humanoid-primitive-proxies.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.

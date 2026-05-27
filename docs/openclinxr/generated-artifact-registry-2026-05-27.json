@@ -4,7 +4,7 @@
   "protectedRule": "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
-    "keep-evidence": 703,
+    "keep-evidence": 705,
     "keep-current": 70,
     "keep-template": 14
   },
@@ -1173,6 +1173,13 @@
     },
     {
       "path": "docs/openclinxr/environment-artifacts-2026-05-26.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
+    },
+    {
+      "path": "docs/openclinxr/evidence-index-2026-05-27.json",
       "authority": "keep-evidence",
       "tracked": false,
       "action": "keep",
@@ -5506,6 +5513,13 @@
     },
     {
       "path": "docs/openclinxr/visual-review-reom-toigo-basic-tucked-tshirt-2026-05-27.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
+    },
+    {
+      "path": "docs/openclinxr/worktree-cleanup-handoff-2026-05-27.json",
       "authority": "keep-evidence",
       "tracked": false,
       "action": "keep",

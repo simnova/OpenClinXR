@@ -11,7 +11,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 ## Counts
 
 - keep-current: 70
-- keep-evidence: 703
+- keep-evidence: 705
 - keep-template: 14
 
 ## Cleanup Actions
@@ -179,6 +179,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `docs/openclinxr/environment-artifacts-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/environment-artifacts-2026-05-25.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/environment-artifacts-2026-05-26.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
+- `docs/openclinxr/evidence-index-2026-05-27.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/evidence/clinic-interpreter-device-dialogue-v5-runtime-state-2026-05-23.json` - keep-evidence; keep; Purpose-built evidence directory artifact; retain unless a later evidence compaction policy supersedes it.
 - `docs/openclinxr/evidence/clinic-interpreter-device-pulse-v6-runtime-state-2026-05-23.json` - keep-evidence; keep; Purpose-built evidence directory artifact; retain unless a later evidence compaction policy supersedes it.
 - `docs/openclinxr/evidence/clinic-interpreter-embodiment-v3-runtime-state-2026-05-23.json` - keep-evidence; keep; Purpose-built evidence directory artifact; retain unless a later evidence compaction policy supersedes it.
@@ -788,6 +789,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `docs/openclinxr/visual-review-reom-namuhekam-polo-filtered-no-legacy-2026-05-27.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/visual-review-reom-shirts01-cc0-2026-05-27.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/visual-review-reom-toigo-basic-tucked-tshirt-2026-05-27.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
+- `docs/openclinxr/worktree-cleanup-handoff-2026-05-27.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/xr-reproducibility-metadata-browser-smoke-2026-05-05.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/dependency-license-policy-2026-05-03.json` - keep-template; keep; Reusable template/checklist/policy fixture.
 - `docs/openclinxr/dependency-license-policy-2026-05-04-iwsdk-libvips-exception.json` - keep-template; keep; Reusable template/checklist/policy fixture.

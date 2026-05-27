@@ -17,7 +17,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - evidence: 44
 - historical-synthesis: 81
 - proposal: 21
-- protected-policy: 8
+- protected-policy: 10
 
 ## Highest-Value Current Navigation
 
@@ -47,6 +47,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `docs/openclinxr/communication-style-and-emotion-qa.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/doc-authority-registry-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/dynamic-session-asset-strategy.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
+- `docs/openclinxr/evidence-index-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/exam-scenario-architecture.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/external-ai-asset-pipeline-integration-plan.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/garment-license-compatible-source-options-2026-05-27.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
@@ -70,6 +71,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `docs/openclinxr/ux-flows.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/virtual-patient-agent-model.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/worker-backlog-and-validation-matrix.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
+- `docs/openclinxr/worktree-cleanup-handoff-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `packages/cellix/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `packages/cellix/config-typescript/CHANGELOG.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `packages/cellix/config-vitest/CHANGELOG.md` - current-reference; Package/app-local README or provenance reference; local to its module.

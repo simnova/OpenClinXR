@@ -5,7 +5,7 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "evidence": 44,
-    "protected-policy": 8,
+    "protected-policy": 10,
     "current-reference": 49,
     "agent-memory": 138,
     "agent-methodology": 8,
@@ -1338,6 +1338,13 @@
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
+      "path": "docs/openclinxr/evidence-index-2026-05-27.md",
+      "authority": "protected-policy",
+      "agentInstructionWeight": "highest",
+      "action": "protect",
+      "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
+    },
+    {
       "path": "docs/openclinxr/evidence/gltf-transform-neutral-humanoid-animated-inspect-2026-05-23.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
@@ -1682,6 +1689,13 @@
     },
     {
       "path": "docs/openclinxr/worker-backlog-and-validation-matrix.md",
+      "authority": "protected-policy",
+      "agentInstructionWeight": "highest",
+      "action": "protect",
+      "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
+    },
+    {
+      "path": "docs/openclinxr/worktree-cleanup-handoff-2026-05-27.md",
       "authority": "protected-policy",
       "agentInstructionWeight": "highest",
       "action": "protect",

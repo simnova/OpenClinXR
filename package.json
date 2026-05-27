@@ -181,7 +181,9 @@
     "asset:external-ai-provider:validate": "tsx tools/openclinxr/external-ai-asset-provider-preflight.ts --validate-latest",
     "asset:humanoid-toolchain:bakeoff": "tsx tools/openclinxr/humanoid-toolchain-bakeoff.ts",
     "asset:humanoid-toolchain:validate": "tsx tools/openclinxr/humanoid-toolchain-bakeoff.ts --validate-latest",
-    "docs:artifacts": "tsx tools/agent-factory/build-generated-artifact-registry.ts"
+    "docs:artifacts": "tsx tools/agent-factory/build-generated-artifact-registry.ts",
+    "docs:evidence-index": "tsx tools/agent-factory/build-evidence-index.ts",
+    "docs:worktree-cleanup": "tsx tools/agent-factory/build-worktree-cleanup-report.ts"
   },
   "dependencies": {
     "@azure/storage-queue": "^12.29.0",
