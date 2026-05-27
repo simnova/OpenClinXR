@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@openclinxr/voice-gateway": "workspace:*",
-    "hono": "4.12.16",
-    "ws": "8.20.0"
+    "hono": "4.12.18",
+    "ws": "8.20.1"
   },
   "devDependencies": {
     "@types/ws": "8.18.1",

@@ -87,9 +87,15 @@ None.
 
 | Package | Pinned version | Rationale | Owner | Review-by | Removal condition |
 | --- | --- | --- | --- | --- | --- |
+| `brace-expansion` | `5.0.6` | Force transitive minimatch users onto the patched release that resolves the brace-expansion ReDoS advisory while upstream toolchain packages catch up. | security-posture-steward | 2026-06-27 | Remove when all lockfile paths resolve `brace-expansion >=5.0.6` without a root override. |
 | `fast-uri` | `3.1.2` | Force AJV's transitive URI parser onto the patched version that resolves GHSA-q3j6-qgpj-74h6 and GHSA-v39h-62p7-jpjc while keeping `ajv@8.20.0` pinned. | security-posture-steward | 2026-06-21 | Remove when `ajv` or the lockfile resolves `fast-uri >=3.1.2` without a root override. |
-| `three` | `0.184.0` | Keep IWSDK sidecar and production XR packages on one reviewed Three.js version while `@iwsdk/core` permits a broad Three.js range. | frontend-platform-lead | 2026-06-05 | Remove when all workspace packages declare the same exact Three.js version without a root override. |
+| `hono` | `4.12.18` | Keep direct API packages and transitive MCP/IWSDK dev-tool paths on the patched release that resolves current Hono audit advisories. | security-posture-steward | 2026-06-27 | Remove when every workspace package and transitive lockfile path resolves `hono >=4.12.18` without a root override. |
+| `ip-address` | `10.1.1` | Force express-rate-limit transitive resolution in the IWSDK dev-tool spike onto the patched release while preserving the isolated sidecar evaluation. | security-posture-steward | 2026-06-27 | Remove when the IWSDK dev-tool path resolves `ip-address >=10.1.1` without a root override or the sidecar spike is removed. |
+| `protobufjs` | `8.2.0` | Force Cesium/gltf-pipeline transitive resolution onto the patched release while keeping local GLTF asset tooling available. | security-posture-steward | 2026-06-27 | Remove when GLTF tooling resolves `protobufjs >=8.2.0` without a root override or the dependency path is replaced. |
+| `qs` | `6.15.2` | Force transitive Express/MCP/IWSDK dev-tool resolution onto the patched release that resolves the qs prototype pollution advisory. | security-posture-steward | 2026-06-27 | Remove when all lockfile paths resolve `qs >=6.15.2` without a root override. |
 | `rolldown` | `1.0.0-rc.18` | Keep packaging and local preview bundling aligned while the existing build scripts are validated against this pinned `rolldown` version. | frontend-platform-lead | 2026-06-05 | Remove when the full stack lockfile and workspace overrides can be moved to a newer pinned version after compatibility validation. |
+| `three` | `0.184.0` | Keep IWSDK sidecar and production XR packages on one reviewed Three.js version while `@iwsdk/core` permits a broad Three.js range. | frontend-platform-lead | 2026-06-05 | Remove when all workspace packages declare the same exact Three.js version without a root override. |
+| `ws` | `8.20.1` | Keep the mock realtime voice server and transitive GraphQL/IWSDK dev-tool WebSocket paths on the patched release that resolves the ws DoS advisory. | security-posture-steward | 2026-06-27 | Remove when all workspace packages and transitive lockfile paths resolve `ws >=8.20.1` without a root override. |
 
 ## Active License Inventory Normalizations
 

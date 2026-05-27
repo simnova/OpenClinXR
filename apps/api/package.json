@@ -30,7 +30,7 @@
     "@openclinxr/scenario-runtime": "workspace:*",
     "@openclinxr/telemetry": "workspace:*",
     "@openclinxr/voice-gateway": "workspace:*",
-    "hono": "4.12.16",
+    "hono": "4.12.18",
     "tsx": "4.21.0"
   },
   "devDependencies": {
