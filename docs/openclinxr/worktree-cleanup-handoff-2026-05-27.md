@@ -6,7 +6,6 @@ This generated report categorizes the remaining dirty worktree so cleanup commit
 
 ## Counts
 
-- agent-memory-docs: 4
 - generated-code: 11
 - local-cache: 2
 - product-code: 175
@@ -33,10 +32,6 @@ This generated report categorizes the remaining dirty worktree so cleanup commit
 - `M` `apps/ui-xr/src/runtime-state.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `apps/ui-xr/src/static-assets.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `apps/ui-xr/src/styles.css` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
-- `A` `docs/superpowers/plans/2026-05-21-faculty-review-decision-panel.md` - agent-memory-docs; Review as agent-memory update; commit only if it reflects current OpenClaw guidance.
-- `A` `docs/superpowers/plans/2026-05-24-encounter-factory-completion.md` - agent-memory-docs; Review as agent-memory update; commit only if it reflects current OpenClaw guidance.
-- `A` `docs/superpowers/plans/2026-05-25-dynamic-encounter-factory-completion.md` - agent-memory-docs; Review as agent-memory update; commit only if it reflects current OpenClaw guidance.
-- `A` `docs/superpowers/specs/2026-05-21-faculty-review-decision-panel-design.md` - agent-memory-docs; Review as agent-memory update; commit only if it reflects current OpenClaw guidance.
 - `M` `packages/openclinxr/architecture-rules/src/workspace-architecture.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `packages/openclinxr/asset-registry/package.json` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `packages/openclinxr/asset-registry/src/asset-registry.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.

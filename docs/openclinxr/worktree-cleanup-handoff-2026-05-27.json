@@ -5,7 +5,6 @@
   "counts": {
     "local-cache": 2,
     "product-code": 175,
-    "agent-memory-docs": 4,
     "generated-code": 11
   },
   "entries": [
@@ -128,30 +127,6 @@
       "path": "apps/ui-xr/src/styles.css",
       "category": "product-code",
       "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "A",
-      "path": "docs/superpowers/plans/2026-05-21-faculty-review-decision-panel.md",
-      "category": "agent-memory-docs",
-      "recommendedAction": "Review as agent-memory update; commit only if it reflects current OpenClaw guidance."
-    },
-    {
-      "status": "A",
-      "path": "docs/superpowers/plans/2026-05-24-encounter-factory-completion.md",
-      "category": "agent-memory-docs",
-      "recommendedAction": "Review as agent-memory update; commit only if it reflects current OpenClaw guidance."
-    },
-    {
-      "status": "A",
-      "path": "docs/superpowers/plans/2026-05-25-dynamic-encounter-factory-completion.md",
-      "category": "agent-memory-docs",
-      "recommendedAction": "Review as agent-memory update; commit only if it reflects current OpenClaw guidance."
-    },
-    {
-      "status": "A",
-      "path": "docs/superpowers/specs/2026-05-21-faculty-review-decision-panel-design.md",
-      "category": "agent-memory-docs",
-      "recommendedAction": "Review as agent-memory update; commit only if it reflects current OpenClaw guidance."
     },
     {
       "status": "M",
