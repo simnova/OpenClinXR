@@ -1,0 +1,1006 @@
+{
+  "schemaVersion": "openclinxr.generated-ed-station-runtime-bundle.v1",
+  "generatedAt": "2026-05-23T17:45:17.830Z",
+  "productionCloudCall": false,
+  "runtimeAssetReviewDecisions": [],
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ],
+  "status": "bundle_ready",
+  "bundle": {
+    "bundleId": "local_exam_run:ed_stroke_alert_handoff_encounter_v1:generated-runtime-assets",
+    "tenantId": "local-dev-tenant",
+    "userId": "quest3_local_learner",
+    "examRunId": "local_exam_run_ed_stroke_alert_handoff_v1",
+    "encounterId": "ed_stroke_alert_handoff_encounter_v1",
+    "stationId": "ed_stroke_alert_handoff_station_v1",
+    "scenarioId": "ed_stroke_alert_handoff_v1",
+    "assetStoreKind": "azurite_blob",
+    "environment": {
+      "assetId": "openclinxr.ed_stroke_alert_handoff_v1.environment.generated-glb",
+      "version": "environment-2026-05-23",
+      "kind": "environment_model",
+      "displayName": "ed stroke alert handoff environment",
+      "scenarioAssetId": "ed_stroke_alert_handoff_v1:environment",
+      "blob": {
+        "storeKind": "azurite_blob",
+        "containerName": "openclinxr-assets",
+        "blobName": ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb",
+        "contentHash": "bytes:65012",
+        "contentType": "model/gltf-binary",
+        "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+      },
+      "reviewStatus": "approved_for_local_runtime",
+      "provenanceRefs": [
+        ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-layout.json",
+        ".openclinxr/asset-production/ed-chest-pain/environment/equipment-placement-manifest.json",
+        ".openclinxr/asset-production/ed-chest-pain/environment/quest-environment-budget.json",
+        ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+      ],
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    },
+    "actors": [
+      {
+        "actorId": "patient_samuel_brooks_v1",
+        "role": "patient",
+        "model": {
+          "assetId": "openclinxr.ed_stroke_alert_handoff_v1.patient_samuel_brooks_v1.generated-humanoid-glb",
+          "version": "generated-human-rigging-2026-05-23",
+          "kind": "humanoid_model",
+          "displayName": "patient samuel brooks",
+          "scenarioAssetId": "patient_samuel_brooks_character",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:3901100:declared:3901100",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_rigging_report"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "animationClips": [],
+        "gazeProfile": {
+          "defaultTarget": "learner_camera",
+          "supportsActorTargets": true
+        }
+      },
+      {
+        "actorId": "son_eric_brooks_v1",
+        "role": "family",
+        "model": {
+          "assetId": "openclinxr.ed_stroke_alert_handoff_v1.son_eric_brooks_v1.generated-humanoid-glb",
+          "version": "generated-human-rigging-2026-05-23",
+          "kind": "humanoid_model",
+          "displayName": "son eric brooks",
+          "scenarioAssetId": "son_eric_brooks_character",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:3901100:declared:3901100",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_rigging_report"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "animationClips": [],
+        "gazeProfile": {
+          "defaultTarget": "learner_camera",
+          "supportsActorTargets": true
+        }
+      },
+      {
+        "actorId": "stroke_nurse_chen_v1",
+        "role": "nurse",
+        "model": {
+          "assetId": "openclinxr.ed_stroke_alert_handoff_v1.stroke_nurse_chen_v1.generated-humanoid-glb",
+          "version": "generated-human-rigging-2026-05-23",
+          "kind": "humanoid_model",
+          "displayName": "stroke nurse chen",
+          "scenarioAssetId": "stroke_nurse_chen_character",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:3901100:declared:3901100",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_rigging_report"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "animationClips": [],
+        "gazeProfile": {
+          "defaultTarget": "learner_camera",
+          "supportsActorTargets": true
+        }
+      }
+    ],
+    "equipment": [
+      {
+        "equipmentId": "wall_clock_equipment",
+        "model": {
+          "assetId": "openclinxr.ed_stroke_alert_handoff_v1.wall_clock_equipment.generated-glb",
+          "version": "medical-equipment-2026-05-23",
+          "kind": "equipment_model",
+          "displayName": "wall clock",
+          "scenarioAssetId": "ed_stroke_alert_handoff_v1:wall_clock_equipment",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+            "contentHash": "bytes:22988",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        }
+      },
+      {
+        "equipmentId": "bedside_monitor_equipment",
+        "model": {
+          "assetId": "openclinxr.ed_stroke_alert_handoff_v1.bedside_monitor_equipment.generated-glb",
+          "version": "medical-equipment-2026-05-23",
+          "kind": "equipment_model",
+          "displayName": "bedside monitor",
+          "scenarioAssetId": "ed_stroke_alert_handoff_v1:bedside_monitor_equipment",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+            "contentHash": "bytes:15664",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        }
+      }
+    ],
+    "uiSurfaces": [],
+    "sceneManifest": {
+      "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+      "manifestId": "scene_manifest:ed_stroke_alert_handoff_v1:ed_stroke_alert_handoff_station_v1",
+      "source": "generated_scene_pipeline",
+      "scenarioId": "ed_stroke_alert_handoff_v1",
+      "stationId": "ed_stroke_alert_handoff_station_v1",
+      "stationContext": {
+        "title": "ED Stroke Alert Handoff",
+        "subtitle": "Patient, family member, and stroke nurse in a time-critical handoff with clock and bedside monitor cues.",
+        "chiefConcern": "Acute speech difficulty and right-sided weakness",
+        "initialVitals": "Bedside monitor and last-known-well clock drive urgency",
+        "interruption": "Family member adds timeline details while stroke nurse presses for handoff clarity",
+        "stageAriaLabel": "ED stroke alert handoff station scene",
+        "canvasAriaLabel": "3D stroke alert room preview",
+        "initialDialogueText": "Samuel Brooks: My right arm feels weak, and I cannot get the words out clearly."
+      },
+      "dialogueTurns": [
+        {
+          "traceTag": "history_opqrst",
+          "actorId": "patient_samuel_brooks_v1",
+          "text": "Samuel Brooks: I can tell you what has been happening if we go step by step.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null
+        },
+        {
+          "traceTag": "risk_factor_question",
+          "actorId": "patient_samuel_brooks_v1",
+          "text": "Samuel Brooks: There may be details I only mention if asked clearly.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null
+        },
+        {
+          "traceTag": "associated_symptom_question",
+          "actorId": "patient_samuel_brooks_v1",
+          "text": "Samuel Brooks: I have noticed a few related symptoms that worry me.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null
+        },
+        {
+          "traceTag": "vitals_review",
+          "actorId": "stroke_nurse_chen_v1",
+          "text": "Nurse Chen: I can help review the available status information.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null
+        },
+        {
+          "traceTag": "ecg_request",
+          "actorId": "stroke_nurse_chen_v1",
+          "text": "Nurse Chen: I will help gather the next piece of clinical information.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null
+        },
+        {
+          "traceTag": "urgent_escalation",
+          "actorId": "son_eric_brooks_v1",
+          "text": "Eric Brooks: I need to know when this becomes urgent.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null
+        },
+        {
+          "traceTag": "team_communication",
+          "actorId": "stroke_nurse_chen_v1",
+          "text": "Nurse Chen: A clear shared plan will help the team respond.",
+          "gazeTargetKind": "actor",
+          "gazeTargetActorId": "stroke_nurse_chen_v1"
+        },
+        {
+          "traceTag": "family_communication",
+          "actorId": "son_eric_brooks_v1",
+          "text": "Eric Brooks: Please include us in a way that supports the patient.",
+          "gazeTargetKind": "actor",
+          "gazeTargetActorId": "son_eric_brooks_v1"
+        },
+        {
+          "traceTag": "empathy_statement",
+          "actorId": "patient_samuel_brooks_v1",
+          "text": "Samuel Brooks: It helps when you acknowledge how stressful this feels.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null
+        },
+        {
+          "traceTag": "patient_note_submitted",
+          "actorId": "patient_samuel_brooks_v1",
+          "text": "System: Patient note saved for faculty review.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null
+        }
+      ],
+      "actorPlacements": {
+        "patient_samuel_brooks_v1": {
+          "slotKind": "primary_patient",
+          "position": {
+            "x": -0.72,
+            "y": 1.06,
+            "z": -0.12
+          },
+          "scale": {
+            "x": 1.1,
+            "y": 1.1,
+            "z": 1.1
+          },
+          "verticalOffsetMeters": -0.98,
+          "labelPrefix": "Patient"
+        },
+        "stroke_nurse_chen_v1": {
+          "slotKind": "clinical_team",
+          "position": {
+            "x": 1.45,
+            "y": 0.95,
+            "z": 0.55
+          },
+          "scale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          },
+          "verticalOffsetMeters": -0.95,
+          "labelPrefix": "Team"
+        },
+        "son_eric_brooks_v1": {
+          "slotKind": "family_or_observer",
+          "position": {
+            "x": -2,
+            "y": 0.95,
+            "z": 0.7
+          },
+          "scale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          },
+          "verticalOffsetMeters": -0.95,
+          "labelPrefix": "Family"
+        }
+      },
+      "equipmentPlacements": {
+        "wall_clock_equipment": {
+          "position": {
+            "x": 1.6,
+            "y": 0,
+            "z": 0.28
+          },
+          "label": "Wall Clock",
+          "interactionCueIds": [
+            "wall_clock_equipment:selectable_equipment_reference",
+            "wall_clock_equipment:clinical_workflow_cue"
+          ]
+        },
+        "bedside_monitor_equipment": {
+          "position": {
+            "x": 0.95,
+            "y": 0,
+            "z": 0.98
+          },
+          "label": "Bedside Monitor",
+          "interactionCueIds": [
+            "bedside_monitor_equipment:selectable_equipment_reference",
+            "bedside_monitor_equipment:clinical_workflow_cue"
+          ]
+        }
+      },
+      "roomProps": [
+        {
+          "propId": "ed-stroke-alert-handoff-primary-context",
+          "label": "Stroke Alert With Time Pressure And Handoff",
+          "semanticRole": "scenario_context",
+          "evidenceCue": "ed_stroke_alert_handoff:primary_context_cue",
+          "colorHex": "#f8fafc",
+          "accentColorHex": "#0f766e",
+          "position": {
+            "x": -0.6,
+            "y": 0.85,
+            "z": -0.7
+          },
+          "scale": {
+            "x": 0.7,
+            "y": 0.18,
+            "z": 0.42
+          },
+          "affordanceCueIds": [
+            "ed-stroke-alert-handoff-primary-context:scenario_context",
+            "ed_stroke_alert_handoff:primary_context_cue"
+          ],
+          "interactionTags": [
+            "scenario_context",
+            "ed_stroke_alert_handoff_v1"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "ed-stroke-alert-handoff-objective-cue",
+          "label": "Elicit last-known-well and focused stroke history",
+          "semanticRole": "objective_cue",
+          "evidenceCue": "ed_stroke_alert_handoff:objective_cue",
+          "colorHex": "#eff6ff",
+          "accentColorHex": "#2563eb",
+          "position": {
+            "x": 1.25,
+            "y": 0.95,
+            "z": -0.4
+          },
+          "scale": {
+            "x": 0.7,
+            "y": 0.18,
+            "z": 0.42
+          },
+          "affordanceCueIds": [
+            "ed-stroke-alert-handoff-objective-cue:objective_cue",
+            "ed_stroke_alert_handoff:objective_cue"
+          ],
+          "interactionTags": [
+            "objective_cue",
+            "ed_stroke_alert_handoff_v1"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "ed-stroke-alert-handoff-communication-cue",
+          "label": "last_known_well",
+          "semanticRole": "communication_cue",
+          "evidenceCue": "ed_stroke_alert_handoff:communication_cue",
+          "colorHex": "#fef3c7",
+          "accentColorHex": "#d97706",
+          "position": {
+            "x": -1.45,
+            "y": 0.65,
+            "z": 0.75
+          },
+          "scale": {
+            "x": 0.7,
+            "y": 0.18,
+            "z": 0.42
+          },
+          "affordanceCueIds": [
+            "ed-stroke-alert-handoff-communication-cue:communication_cue",
+            "ed_stroke_alert_handoff:communication_cue"
+          ],
+          "interactionTags": [
+            "communication_cue",
+            "ed_stroke_alert_handoff_v1"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "ed-stroke-alert-handoff-review-cue",
+          "label": "Faculty review evidence cue",
+          "semanticRole": "review_cue",
+          "evidenceCue": "ed_stroke_alert_handoff:faculty_review_cue",
+          "colorHex": "#f3e8ff",
+          "accentColorHex": "#7c3aed",
+          "position": {
+            "x": 1.5,
+            "y": 0.7,
+            "z": 0.65
+          },
+          "scale": {
+            "x": 0.7,
+            "y": 0.18,
+            "z": 0.42
+          },
+          "affordanceCueIds": [
+            "ed-stroke-alert-handoff-review-cue:review_cue",
+            "ed_stroke_alert_handoff:faculty_review_cue"
+          ],
+          "interactionTags": [
+            "review_cue",
+            "ed_stroke_alert_handoff_v1"
+          ],
+          "generatedBy": "scene_manifest"
+        }
+      ],
+      "productionReadinessClaimed": false,
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    },
+    "generatedAt": "2026-05-23T17:45:17.830Z",
+    "expiresAt": null,
+    "frozenForEncounter": true,
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "learnerBundle": {
+    "bundleId": "local_exam_run:ed_stroke_alert_handoff_encounter_v1:generated-runtime-assets",
+    "stationId": "ed_stroke_alert_handoff_station_v1",
+    "scenarioId": "ed_stroke_alert_handoff_v1",
+    "assetStoreKind": "azurite_blob",
+    "environment": {
+      "assetId": "openclinxr.ed_stroke_alert_handoff_v1.environment.generated-glb",
+      "version": "environment-2026-05-23",
+      "kind": "environment_model",
+      "displayName": "ed stroke alert handoff environment",
+      "scenarioAssetId": "ed_stroke_alert_handoff_v1:environment",
+      "blob": {
+        "storeKind": "azurite_blob",
+        "containerName": "openclinxr-assets",
+        "blobName": ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb",
+        "contentHash": "bytes:65012",
+        "contentType": "model/gltf-binary",
+        "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+      },
+      "reviewStatus": "approved_for_local_runtime",
+      "provenanceRefs": [
+        ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-layout.json",
+        ".openclinxr/asset-production/ed-chest-pain/environment/equipment-placement-manifest.json",
+        ".openclinxr/asset-production/ed-chest-pain/environment/quest-environment-budget.json",
+        ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+      ],
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    },
+    "actors": [
+      {
+        "actorId": "patient_samuel_brooks_v1",
+        "role": "patient",
+        "model": {
+          "assetId": "openclinxr.ed_stroke_alert_handoff_v1.patient_samuel_brooks_v1.generated-humanoid-glb",
+          "version": "generated-human-rigging-2026-05-23",
+          "kind": "humanoid_model",
+          "displayName": "patient samuel brooks",
+          "scenarioAssetId": "patient_samuel_brooks_character",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:3901100:declared:3901100",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_rigging_report"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "animationClips": [],
+        "gazeProfile": {
+          "defaultTarget": "learner_camera",
+          "supportsActorTargets": true
+        }
+      },
+      {
+        "actorId": "son_eric_brooks_v1",
+        "role": "family",
+        "model": {
+          "assetId": "openclinxr.ed_stroke_alert_handoff_v1.son_eric_brooks_v1.generated-humanoid-glb",
+          "version": "generated-human-rigging-2026-05-23",
+          "kind": "humanoid_model",
+          "displayName": "son eric brooks",
+          "scenarioAssetId": "son_eric_brooks_character",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:3901100:declared:3901100",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_rigging_report"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "animationClips": [],
+        "gazeProfile": {
+          "defaultTarget": "learner_camera",
+          "supportsActorTargets": true
+        }
+      },
+      {
+        "actorId": "stroke_nurse_chen_v1",
+        "role": "nurse",
+        "model": {
+          "assetId": "openclinxr.ed_stroke_alert_handoff_v1.stroke_nurse_chen_v1.generated-humanoid-glb",
+          "version": "generated-human-rigging-2026-05-23",
+          "kind": "humanoid_model",
+          "displayName": "stroke nurse chen",
+          "scenarioAssetId": "stroke_nurse_chen_character",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:3901100:declared:3901100",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_rigging_report"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "animationClips": [],
+        "gazeProfile": {
+          "defaultTarget": "learner_camera",
+          "supportsActorTargets": true
+        }
+      }
+    ],
+    "equipment": [
+      {
+        "equipmentId": "wall_clock_equipment",
+        "model": {
+          "assetId": "openclinxr.ed_stroke_alert_handoff_v1.wall_clock_equipment.generated-glb",
+          "version": "medical-equipment-2026-05-23",
+          "kind": "equipment_model",
+          "displayName": "wall clock",
+          "scenarioAssetId": "ed_stroke_alert_handoff_v1:wall_clock_equipment",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+            "contentHash": "bytes:22988",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        }
+      },
+      {
+        "equipmentId": "bedside_monitor_equipment",
+        "model": {
+          "assetId": "openclinxr.ed_stroke_alert_handoff_v1.bedside_monitor_equipment.generated-glb",
+          "version": "medical-equipment-2026-05-23",
+          "kind": "equipment_model",
+          "displayName": "bedside monitor",
+          "scenarioAssetId": "ed_stroke_alert_handoff_v1:bedside_monitor_equipment",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+            "contentHash": "bytes:15664",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        }
+      }
+    ],
+    "uiSurfaces": [],
+    "sceneManifest": {
+      "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+      "manifestId": "scene_manifest:ed_stroke_alert_handoff_v1:ed_stroke_alert_handoff_station_v1",
+      "source": "generated_scene_pipeline",
+      "scenarioId": "ed_stroke_alert_handoff_v1",
+      "stationId": "ed_stroke_alert_handoff_station_v1",
+      "stationContext": {
+        "title": "ED Stroke Alert Handoff",
+        "subtitle": "Patient, family member, and stroke nurse in a time-critical handoff with clock and bedside monitor cues.",
+        "chiefConcern": "Acute speech difficulty and right-sided weakness",
+        "initialVitals": "Bedside monitor and last-known-well clock drive urgency",
+        "interruption": "Family member adds timeline details while stroke nurse presses for handoff clarity",
+        "stageAriaLabel": "ED stroke alert handoff station scene",
+        "canvasAriaLabel": "3D stroke alert room preview",
+        "initialDialogueText": "Samuel Brooks: My right arm feels weak, and I cannot get the words out clearly."
+      },
+      "dialogueTurns": [
+        {
+          "traceTag": "history_opqrst",
+          "actorId": "patient_samuel_brooks_v1",
+          "text": "Samuel Brooks: I can tell you what has been happening if we go step by step.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null
+        },
+        {
+          "traceTag": "risk_factor_question",
+          "actorId": "patient_samuel_brooks_v1",
+          "text": "Samuel Brooks: There may be details I only mention if asked clearly.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null
+        },
+        {
+          "traceTag": "associated_symptom_question",
+          "actorId": "patient_samuel_brooks_v1",
+          "text": "Samuel Brooks: I have noticed a few related symptoms that worry me.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null
+        },
+        {
+          "traceTag": "vitals_review",
+          "actorId": "stroke_nurse_chen_v1",
+          "text": "Nurse Chen: I can help review the available status information.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null
+        },
+        {
+          "traceTag": "ecg_request",
+          "actorId": "stroke_nurse_chen_v1",
+          "text": "Nurse Chen: I will help gather the next piece of clinical information.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null
+        },
+        {
+          "traceTag": "urgent_escalation",
+          "actorId": "son_eric_brooks_v1",
+          "text": "Eric Brooks: I need to know when this becomes urgent.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null
+        },
+        {
+          "traceTag": "team_communication",
+          "actorId": "stroke_nurse_chen_v1",
+          "text": "Nurse Chen: A clear shared plan will help the team respond.",
+          "gazeTargetKind": "actor",
+          "gazeTargetActorId": "stroke_nurse_chen_v1"
+        },
+        {
+          "traceTag": "family_communication",
+          "actorId": "son_eric_brooks_v1",
+          "text": "Eric Brooks: Please include us in a way that supports the patient.",
+          "gazeTargetKind": "actor",
+          "gazeTargetActorId": "son_eric_brooks_v1"
+        },
+        {
+          "traceTag": "empathy_statement",
+          "actorId": "patient_samuel_brooks_v1",
+          "text": "Samuel Brooks: It helps when you acknowledge how stressful this feels.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null
+        },
+        {
+          "traceTag": "patient_note_submitted",
+          "actorId": "patient_samuel_brooks_v1",
+          "text": "System: Patient note saved for faculty review.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null
+        }
+      ],
+      "actorPlacements": {
+        "patient_samuel_brooks_v1": {
+          "slotKind": "primary_patient",
+          "position": {
+            "x": -0.72,
+            "y": 1.06,
+            "z": -0.12
+          },
+          "scale": {
+            "x": 1.1,
+            "y": 1.1,
+            "z": 1.1
+          },
+          "verticalOffsetMeters": -0.98,
+          "labelPrefix": "Patient"
+        },
+        "stroke_nurse_chen_v1": {
+          "slotKind": "clinical_team",
+          "position": {
+            "x": 1.45,
+            "y": 0.95,
+            "z": 0.55
+          },
+          "scale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          },
+          "verticalOffsetMeters": -0.95,
+          "labelPrefix": "Team"
+        },
+        "son_eric_brooks_v1": {
+          "slotKind": "family_or_observer",
+          "position": {
+            "x": -2,
+            "y": 0.95,
+            "z": 0.7
+          },
+          "scale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          },
+          "verticalOffsetMeters": -0.95,
+          "labelPrefix": "Family"
+        }
+      },
+      "equipmentPlacements": {
+        "wall_clock_equipment": {
+          "position": {
+            "x": 1.6,
+            "y": 0,
+            "z": 0.28
+          },
+          "label": "Wall Clock",
+          "interactionCueIds": [
+            "wall_clock_equipment:selectable_equipment_reference",
+            "wall_clock_equipment:clinical_workflow_cue"
+          ]
+        },
+        "bedside_monitor_equipment": {
+          "position": {
+            "x": 0.95,
+            "y": 0,
+            "z": 0.98
+          },
+          "label": "Bedside Monitor",
+          "interactionCueIds": [
+            "bedside_monitor_equipment:selectable_equipment_reference",
+            "bedside_monitor_equipment:clinical_workflow_cue"
+          ]
+        }
+      },
+      "roomProps": [
+        {
+          "propId": "ed-stroke-alert-handoff-primary-context",
+          "label": "Stroke Alert With Time Pressure And Handoff",
+          "semanticRole": "scenario_context",
+          "evidenceCue": "ed_stroke_alert_handoff:primary_context_cue",
+          "colorHex": "#f8fafc",
+          "accentColorHex": "#0f766e",
+          "position": {
+            "x": -0.6,
+            "y": 0.85,
+            "z": -0.7
+          },
+          "scale": {
+            "x": 0.7,
+            "y": 0.18,
+            "z": 0.42
+          },
+          "affordanceCueIds": [
+            "ed-stroke-alert-handoff-primary-context:scenario_context",
+            "ed_stroke_alert_handoff:primary_context_cue"
+          ],
+          "interactionTags": [
+            "scenario_context",
+            "ed_stroke_alert_handoff_v1"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "ed-stroke-alert-handoff-objective-cue",
+          "label": "Elicit last-known-well and focused stroke history",
+          "semanticRole": "objective_cue",
+          "evidenceCue": "ed_stroke_alert_handoff:objective_cue",
+          "colorHex": "#eff6ff",
+          "accentColorHex": "#2563eb",
+          "position": {
+            "x": 1.25,
+            "y": 0.95,
+            "z": -0.4
+          },
+          "scale": {
+            "x": 0.7,
+            "y": 0.18,
+            "z": 0.42
+          },
+          "affordanceCueIds": [
+            "ed-stroke-alert-handoff-objective-cue:objective_cue",
+            "ed_stroke_alert_handoff:objective_cue"
+          ],
+          "interactionTags": [
+            "objective_cue",
+            "ed_stroke_alert_handoff_v1"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "ed-stroke-alert-handoff-communication-cue",
+          "label": "last_known_well",
+          "semanticRole": "communication_cue",
+          "evidenceCue": "ed_stroke_alert_handoff:communication_cue",
+          "colorHex": "#fef3c7",
+          "accentColorHex": "#d97706",
+          "position": {
+            "x": -1.45,
+            "y": 0.65,
+            "z": 0.75
+          },
+          "scale": {
+            "x": 0.7,
+            "y": 0.18,
+            "z": 0.42
+          },
+          "affordanceCueIds": [
+            "ed-stroke-alert-handoff-communication-cue:communication_cue",
+            "ed_stroke_alert_handoff:communication_cue"
+          ],
+          "interactionTags": [
+            "communication_cue",
+            "ed_stroke_alert_handoff_v1"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "ed-stroke-alert-handoff-review-cue",
+          "label": "Faculty review evidence cue",
+          "semanticRole": "review_cue",
+          "evidenceCue": "ed_stroke_alert_handoff:faculty_review_cue",
+          "colorHex": "#f3e8ff",
+          "accentColorHex": "#7c3aed",
+          "position": {
+            "x": 1.5,
+            "y": 0.7,
+            "z": 0.65
+          },
+          "scale": {
+            "x": 0.7,
+            "y": 0.18,
+            "z": 0.42
+          },
+          "affordanceCueIds": [
+            "ed-stroke-alert-handoff-review-cue:review_cue",
+            "ed_stroke_alert_handoff:faculty_review_cue"
+          ],
+          "interactionTags": [
+            "review_cue",
+            "ed_stroke_alert_handoff_v1"
+          ],
+          "generatedBy": "scene_manifest"
+        }
+      ],
+      "productionReadinessClaimed": false,
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    },
+    "generatedAt": "2026-05-23T17:45:17.830Z",
+    "expiresAt": null,
+    "frozenForEncounter": true,
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ],
+    "identityScope": "learner_runtime_opaque_bundle"
+  },
+  "bundleBlobName": null,
+  "blockers": []
+}

@@ -1,0 +1,91 @@
+{
+  "generatedAt": "2026-05-26T00:03:36.898Z",
+  "schemaVersion": "openclinxr.encounter-local-factory-handoff-preflight.v1",
+  "source": "encounter_local_factory_operation_manifest",
+  "selectedScenarioId": "ed_chest_pain_priority_v2",
+  "selectedEncounterId": "encounter_assets_ed_chest_pain_priority_executable_v1",
+  "selectedStationId": "ed_chest_pain_priority_station_v1",
+  "handoffMode": "local_filesystem_preflight_only",
+  "localArtifactChecks": [
+    {
+      "artifactKind": "scene_manifest",
+      "path": ".openclinxr/encounter-publication/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/scene-manifest.v1.json",
+      "present": true,
+      "scenarioIdMatches": true
+    },
+    {
+      "artifactKind": "learner_runtime_bundle",
+      "path": ".openclinxr/encounter-publication/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/learner-runtime-bundle.v1.json",
+      "present": true,
+      "scenarioIdMatches": true
+    },
+    {
+      "artifactKind": "ui_xr_public_scene_manifest",
+      "path": "apps/ui-xr/public/xr-assets/generated/ed_chest_pain_priority_v2/scene-manifest.v1.json",
+      "present": true,
+      "scenarioIdMatches": true
+    },
+    {
+      "artifactKind": "ui_xr_public_learner_runtime_bundle",
+      "path": "apps/ui-xr/public/xr-assets/generated/ed_chest_pain_priority_v2/learner-runtime-bundle.v1.json",
+      "present": true,
+      "scenarioIdMatches": true
+    }
+  ],
+  "internallyPaired": true,
+  "guardedRuntimeSelectorDecision": {
+    "schemaVersion": "openclinxr.guarded-runtime-selector-disabled-decision.v1",
+    "selectionStatus": "blocked_intent_bundle_missing",
+    "claimBoundary": "guarded_runtime_selector_seam_not_runtime_execution",
+    "selectedScenarioId": "ed_chest_pain_priority_v2",
+    "selectedStationId": "ed_chest_pain_priority_station_v1",
+    "selectedRuntimeAssetBundleId": "ed_chest_pain_priority_encounter_v1:learner-runtime-bundle:v1",
+    "selectedBundleId": null,
+    "selectedBundleIdForFutureRuntime": null,
+    "matchedBundleSummary": null,
+    "runtimeExecutionAllowed": false,
+    "learnerLaunchAllowed": false,
+    "providerExecutionPerformed": false,
+    "uiLaunchPerformed": false,
+    "questEvidenceRefreshed": false,
+    "blockers": [
+      "runtime_selector_disabled_guard_not_wired",
+      "provider_execution_disabled_by_policy",
+      "learner_launch_disabled_until_evidence_gates_clear",
+      "guarded_runtime_intent_bundle_missing",
+      "humanoid_realism_requirement_actor_missing:family",
+      "publication_payload_not_materialized",
+      "runtime_realism_evidence_not_attached",
+      "humanoid_visual_qa_evidence_not_attached",
+      "quest_webxr_evidence_not_attached"
+    ],
+    "nextAllowedStep": "wire_runtime_selector_behind_disabled_guard",
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "runtimeBridgeAllowed": false,
+  "learnerLaunchAllowed": false,
+  "blockers": [
+    "humanoid_realism_requirement_actor_missing:family",
+    "publication_payload_not_materialized",
+    "runtime_realism_evidence_not_attached",
+    "humanoid_visual_qa_evidence_not_attached",
+    "quest_webxr_evidence_not_attached"
+  ],
+  "evidenceBoundaries": {
+    "uiLaunchPerformed": false,
+    "cloudOperationPerformed": false,
+    "providerExecutionPerformed": false,
+    "questEvidenceRefreshed": false,
+    "broadVerificationPerformed": false,
+    "learnerLaunchEnabled": false,
+    "productionReadinessClaimed": false,
+    "clinicalValidityClaimed": false,
+    "scoringValidityClaimed": false
+  },
+  "claimBoundary": "local_factory_handoff_preflight_not_runtime_execution"
+}

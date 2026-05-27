@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "openclinxr.medical-equipment-artifacts.v1",
+  "kind": "medical_equipment_artifacts",
+  "generatedAt": "2026-05-21T19:59:06.467Z",
+  "tool": {
+    "name": "tools/openclinxr/medical-equipment-artifacts.ts",
+    "blenderVersion": "Blender 5.1.1",
+    "elapsedMs": 1016
+  },
+  "policy": {
+    "localOnly": true,
+    "installsIntroduced": false,
+    "cloudApisUsed": false,
+    "paidApisUsed": false,
+    "externalAssetsUsed": false,
+    "generatedThirdPartyAssetsCommitted": false,
+    "productionAssetReadinessClaimed": false
+  },
+  "input": {
+    "laneId": "medicalEquipmentLibrary",
+    "stationSlug": "ed-chest-pain",
+    "generationMode": "local_blender_scripted_equipment_fixture"
+  },
+  "artifacts": {
+    "ecgCartGlbPath": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+    "ivPoleWithPumpGlbPath": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+    "equipmentProvenancePath": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json"
+  },
+  "output": {
+    "ecgCartGlbBytes": 22988,
+    "ivPoleWithPumpGlbBytes": 15664,
+    "requiredObjectNames": [
+      "ecg_cart_12_lead",
+      "ecg_monitor_screen",
+      "ecg_lead_bundle",
+      "iv_pole_with_pump",
+      "iv_infusion_pump"
+    ],
+    "caveats": [
+      "These are deterministic local low-poly fixture props, not final production medical-device assets.",
+      "Clinical affordance, scale, safety cue, visual fidelity, and Quest frame-pacing review remain required.",
+      "No external model, texture, cloud API, paid API, or production-readiness claim is introduced."
+    ]
+  },
+  "verdict": {
+    "passed": true,
+    "readyForProductionAssets": false,
+    "blockers": []
+  }
+}

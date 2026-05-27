@@ -1,0 +1,42 @@
+{
+  "generatedAt": "2026-05-23T17:45:23.888Z",
+  "schemaVersion": "openclinxr.encounter-publication-payloads.v1",
+  "status": "materialized",
+  "requestId": "encounter_assets_ed_stroke_alert_handoff_executable_v1",
+  "scenarioId": "ed_stroke_alert_handoff_v1",
+  "stationId": "ed_stroke_alert_handoff_station_v1",
+  "publicationTargets": {
+    "generatedSceneManifestBlobName": "encounter-assets/local_tenant/ed_stroke_alert_handoff_v1/ed_stroke_alert_handoff_encounter_v1/scene-manifest.v1.json",
+    "learnerRuntimeBundleBlobName": "encounter-assets/local_tenant/ed_stroke_alert_handoff_v1/ed_stroke_alert_handoff_encounter_v1/learner-runtime-bundle.v1.json",
+    "learnerRuntimeBundleId": "ed_stroke_alert_handoff_encounter_v1:learner-runtime-bundle:v1",
+    "learnerRuntimeBundleMongoCollection": "learner_runtime_asset_bundles",
+    "jobStateMongoCollection": "encounter_asset_generation_jobs"
+  },
+  "localArtifacts": {
+    "sceneManifestPath": ".openclinxr/encounter-publication/local_tenant/ed_stroke_alert_handoff_v1/ed_stroke_alert_handoff_encounter_v1/scene-manifest.v1.json",
+    "learnerRuntimeBundlePath": ".openclinxr/encounter-publication/local_tenant/ed_stroke_alert_handoff_v1/ed_stroke_alert_handoff_encounter_v1/learner-runtime-bundle.v1.json",
+    "uiXrPublicSceneManifestPath": "apps/ui-xr/public/xr-assets/generated/ed_stroke_alert_handoff_v1/scene-manifest.v1.json",
+    "uiXrPublicLearnerRuntimeBundlePath": "apps/ui-xr/public/xr-assets/generated/ed_stroke_alert_handoff_v1/learner-runtime-bundle.v1.json"
+  },
+  "payloadSummary": {
+    "sceneManifestId": "scene_manifest:ed_stroke_alert_handoff_v1:ed_stroke_alert_handoff_station_v1",
+    "roomPropCount": 4,
+    "learnerBundleId": "local_exam_run:ed_stroke_alert_handoff_encounter_v1:generated-runtime-assets",
+    "actorCount": 3,
+    "equipmentCount": 2,
+    "uiSurfaceCount": 0
+  },
+  "evidenceBoundaries": {
+    "localPayloadsMaterialized": true,
+    "dynamicEncounterPayload": true,
+    "runtimeHardcodingRequired": false,
+    "azureCloudOperationPerformed": false,
+    "mongoWritePerformed": false,
+    "paidApisUsed": false,
+    "productionReadinessClaimed": false,
+    "questReadinessClaimed": false,
+    "clinicalValidityClaimed": false,
+    "scoringValidityClaimed": false
+  },
+  "blockers": []
+}

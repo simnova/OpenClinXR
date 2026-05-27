@@ -810,371 +810,371 @@
     {
       "path": "docs/openclinxr/dynamic-encounter-factory-completion-gate-packet-2026-05-25.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-projection-2026-05-25.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-queue-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-queue-2026-05-25.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-queue-clinic-abdominal-pain-interpreter-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-queue-ed-stroke-alert-handoff-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-queue-ob-headache-preeclampsia-triage-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-queue-oncology-bad-news-family-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-queue-oncology-bad-news-family-realism-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-queue-peds-asthma-parent-anxiety-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-queue-postop-fever-consult-pressure-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-queue-psych-suicidal-ideation-safety-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-queue-stepdown-sepsis-nurse-escalation-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-queue-telehealth-diabetes-health-literacy-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-queue-ward-delirium-med-rec-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-worker-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-worker-2026-05-25.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-worker-clinic-abdominal-pain-interpreter-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-worker-ed-stroke-alert-handoff-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-worker-ob-headache-preeclampsia-triage-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-worker-oncology-bad-news-family-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-worker-peds-asthma-parent-anxiety-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-worker-postop-fever-consult-pressure-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-worker-psych-suicidal-ideation-safety-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-worker-stepdown-sepsis-nurse-escalation-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-worker-telehealth-diabetes-health-literacy-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-worker-ward-delirium-med-rec-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-guarded-runtime-selection-intent-2026-05-25.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-local-factory-handoff-preflight-2026-05-25.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-local-factory-handoff-preflight-2026-05-26.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/encounter-local-factory-operation-manifest-2026-05-25.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-local-factory-operation-manifest-2026-05-26.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/encounter-local-launch-selection-2026-05-25.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-local-launch-selection-2026-05-26.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/encounter-publication-payloads-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-publication-payloads-2026-05-25.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-publication-payloads-clinic-abdominal-pain-interpreter-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-publication-payloads-ed-stroke-alert-handoff-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-publication-payloads-ob-headache-preeclampsia-triage-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-publication-payloads-oncology-bad-news-family-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-publication-payloads-oncology-bad-news-family-realism-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-publication-payloads-peds-asthma-parent-anxiety-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-publication-payloads-postop-fever-consult-pressure-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-publication-payloads-psych-suicidal-ideation-safety-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-publication-payloads-stepdown-sepsis-nurse-escalation-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-publication-payloads-telehealth-diabetes-health-literacy-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-publication-payloads-ward-delirium-med-rec-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-runtime-selection-review-packet-2026-05-25.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/encounter-runtime-selection-review-packet-2026-05-26.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/environment-artifacts-2026-05-21.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/environment-artifacts-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/environment-artifacts-2026-05-25.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/environment-artifacts-2026-05-26.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
@@ -2574,42 +2574,42 @@
     {
       "path": "docs/openclinxr/generated-clinic-abdominal-pain-interpreter-runtime-bundle-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/generated-ed-station-runtime-bundle-2026-05-22.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/generated-ed-station-runtime-bundle-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/generated-ed-station-runtime-bundle-2026-05-25-v2.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/generated-ed-station-runtime-bundle-2026-05-25.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/generated-ed-stroke-alert-handoff-runtime-bundle-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
@@ -2679,63 +2679,63 @@
     {
       "path": "docs/openclinxr/generated-ob-headache-preeclampsia-triage-runtime-bundle-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/generated-oncology-bad-news-family-runtime-bundle-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/generated-oncology-bad-news-family-runtime-bundle-realism-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/generated-peds-asthma-runtime-bundle-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/generated-postop-fever-consult-pressure-runtime-bundle-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/generated-psych-suicidal-ideation-runtime-bundle-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/generated-stepdown-sepsis-nurse-escalation-runtime-bundle-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/generated-telehealth-diabetes-runtime-bundle-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/generated-ward-delirium-med-rec-runtime-bundle-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
@@ -3456,28 +3456,28 @@
     {
       "path": "docs/openclinxr/medical-equipment-artifacts-2026-05-21.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/medical-equipment-artifacts-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/medical-equipment-artifacts-2026-05-25.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/medical-equipment-artifacts-2026-05-26.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
@@ -3491,7 +3491,7 @@
     {
       "path": "docs/openclinxr/next-autonomous-worker-handoff-2026-05-25.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },

@@ -1,0 +1,42 @@
+{
+  "generatedAt": "2026-05-23T17:45:11.198Z",
+  "schemaVersion": "openclinxr.encounter-publication-payloads.v1",
+  "status": "materialized",
+  "requestId": "encounter_assets_ob_headache_preeclampsia_triage_executable_v1",
+  "scenarioId": "ob_headache_preeclampsia_triage_v1",
+  "stationId": "ob_headache_preeclampsia_triage_station_v1",
+  "publicationTargets": {
+    "generatedSceneManifestBlobName": "encounter-assets/local_tenant/ob_headache_preeclampsia_triage_v1/ob_headache_preeclampsia_triage_encounter_v1/scene-manifest.v1.json",
+    "learnerRuntimeBundleBlobName": "encounter-assets/local_tenant/ob_headache_preeclampsia_triage_v1/ob_headache_preeclampsia_triage_encounter_v1/learner-runtime-bundle.v1.json",
+    "learnerRuntimeBundleId": "ob_headache_preeclampsia_triage_encounter_v1:learner-runtime-bundle:v1",
+    "learnerRuntimeBundleMongoCollection": "learner_runtime_asset_bundles",
+    "jobStateMongoCollection": "encounter_asset_generation_jobs"
+  },
+  "localArtifacts": {
+    "sceneManifestPath": ".openclinxr/encounter-publication/local_tenant/ob_headache_preeclampsia_triage_v1/ob_headache_preeclampsia_triage_encounter_v1/scene-manifest.v1.json",
+    "learnerRuntimeBundlePath": ".openclinxr/encounter-publication/local_tenant/ob_headache_preeclampsia_triage_v1/ob_headache_preeclampsia_triage_encounter_v1/learner-runtime-bundle.v1.json",
+    "uiXrPublicSceneManifestPath": "apps/ui-xr/public/xr-assets/generated/ob_headache_preeclampsia_triage_v1/scene-manifest.v1.json",
+    "uiXrPublicLearnerRuntimeBundlePath": "apps/ui-xr/public/xr-assets/generated/ob_headache_preeclampsia_triage_v1/learner-runtime-bundle.v1.json"
+  },
+  "payloadSummary": {
+    "sceneManifestId": "scene_manifest:ob_headache_preeclampsia_triage_v1:ob_headache_preeclampsia_triage_station_v1",
+    "roomPropCount": 4,
+    "learnerBundleId": "local_exam_run:ob_headache_preeclampsia_triage_encounter_v1:generated-runtime-assets",
+    "actorCount": 3,
+    "equipmentCount": 2,
+    "uiSurfaceCount": 0
+  },
+  "evidenceBoundaries": {
+    "localPayloadsMaterialized": true,
+    "dynamicEncounterPayload": true,
+    "runtimeHardcodingRequired": false,
+    "azureCloudOperationPerformed": false,
+    "mongoWritePerformed": false,
+    "paidApisUsed": false,
+    "productionReadinessClaimed": false,
+    "questReadinessClaimed": false,
+    "clinicalValidityClaimed": false,
+    "scoringValidityClaimed": false
+  },
+  "blockers": []
+}

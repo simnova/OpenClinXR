@@ -1,0 +1,1920 @@
+{
+  "schemaVersion": "openclinxr.generated-ed-station-runtime-bundle.v1",
+  "generatedAt": "2026-05-23T14:52:08.909Z",
+  "productionCloudCall": false,
+  "runtimeAssetReviewDecisions": [],
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ],
+  "status": "bundle_ready",
+  "bundle": {
+    "bundleId": "local_exam_run:ed_chest_pain_local_encounter:generated-runtime-assets",
+    "tenantId": "local-dev-tenant",
+    "userId": "quest3_local_learner",
+    "examRunId": "local_exam_run",
+    "encounterId": "ed_chest_pain_local_encounter",
+    "stationId": "ed_chest_pain_station_v1",
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "assetStoreKind": "azurite_blob",
+    "environment": {
+      "assetId": "ed_exam_bay_environment_shell_glb",
+      "version": "environment-2026-05-23",
+      "kind": "environment_model",
+      "displayName": "ED exam bay environment shell GLB",
+      "scenarioAssetId": "ed_exam_bay_environment",
+      "blob": {
+        "storeKind": "azurite_blob",
+        "containerName": "openclinxr-assets",
+        "blobName": ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb",
+        "contentHash": "bytes:65012",
+        "contentType": "model/gltf-binary",
+        "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+      },
+      "reviewStatus": "approved_for_local_runtime",
+      "provenanceRefs": [
+        ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-layout.json",
+        ".openclinxr/asset-production/ed-chest-pain/environment/equipment-placement-manifest.json",
+        ".openclinxr/asset-production/ed-chest-pain/environment/quest-environment-budget.json",
+        ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+      ],
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    },
+    "actors": [
+      {
+        "actorId": "patient_robert_hayes_v1",
+        "role": "patient",
+        "model": {
+          "assetId": "neutral_generated_humanoid_model_glb",
+          "version": "generated-human-rigging-2026-05-23",
+          "kind": "humanoid_model",
+          "displayName": "Neutral generated humanoid GLB",
+          "scenarioAssetId": "patient_robert_hayes_character",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:3901100:declared:3901100",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_rigging_report"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "animationClips": [],
+        "gazeProfile": {
+          "defaultTarget": "learner_camera",
+          "supportsActorTargets": true
+        }
+      },
+      {
+        "actorId": "nurse_maria_alvarez_v1",
+        "role": "nurse",
+        "model": {
+          "assetId": "neutral_generated_humanoid_model_glb",
+          "version": "generated-human-rigging-2026-05-23",
+          "kind": "humanoid_model",
+          "displayName": "Neutral generated humanoid GLB",
+          "scenarioAssetId": "nurse_maria_alvarez_character",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:3901100:declared:3901100",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_rigging_report"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "animationClips": [],
+        "gazeProfile": {
+          "defaultTarget": "learner_camera",
+          "supportsActorTargets": true
+        }
+      },
+      {
+        "actorId": "spouse_anna_hayes_v1",
+        "role": "spouse",
+        "model": {
+          "assetId": "neutral_generated_humanoid_model_glb",
+          "version": "generated-human-rigging-2026-05-23",
+          "kind": "humanoid_model",
+          "displayName": "Neutral generated humanoid GLB",
+          "scenarioAssetId": "spouse_anna_hayes_character",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:3901100:declared:3901100",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_rigging_report"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "animationClips": [],
+        "gazeProfile": {
+          "defaultTarget": "learner_camera",
+          "supportsActorTargets": true
+        }
+      }
+    ],
+    "equipment": [
+      {
+        "equipmentId": "ecg_cart_equipment",
+        "model": {
+          "assetId": "ecg_cart_12_lead_glb",
+          "version": "medical-equipment-2026-05-23",
+          "kind": "equipment_model",
+          "displayName": "12-lead ECG cart GLB",
+          "scenarioAssetId": "ecg_cart_12_lead",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+            "contentHash": "bytes:22988",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        }
+      },
+      {
+        "equipmentId": "iv_stand_equipment",
+        "model": {
+          "assetId": "iv_pole_with_pump_glb",
+          "version": "medical-equipment-2026-05-23",
+          "kind": "equipment_model",
+          "displayName": "IV pole with pump GLB",
+          "scenarioAssetId": "iv_stand_equipment",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+            "contentHash": "bytes:15664",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        }
+      }
+    ],
+    "uiSurfaces": [],
+    "sceneManifest": {
+      "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+      "manifestId": "ed_chest_pain_runtime_scene_manifest_v1",
+      "source": "generated_scene_pipeline",
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "stationId": "ed_chest_pain_station_v1",
+      "roomProps": [
+        {
+          "propId": "oxygen-panel",
+          "label": "O2",
+          "colorHex": "c7d8df",
+          "accentColorHex": "305a6c",
+          "position": {
+            "x": 1.85,
+            "y": 1.35,
+            "z": -1.46
+          },
+          "scale": {
+            "x": 0.36,
+            "y": 0.22,
+            "z": 0.04
+          },
+          "interactionTags": [
+            "equipment_wall"
+          ],
+          "affordanceCueIds": [
+            "oxygen-panel:visual_context",
+            "oxygen-panel:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "suction-canister",
+          "label": "Suction",
+          "colorHex": "e7f5f8",
+          "accentColorHex": "2e7280",
+          "position": {
+            "x": 1.34,
+            "y": 1.06,
+            "z": -1.42
+          },
+          "scale": {
+            "x": 0.12,
+            "y": 0.2,
+            "z": 0.08
+          },
+          "interactionTags": [
+            "equipment_wall"
+          ],
+          "affordanceCueIds": [
+            "suction-canister:visual_context",
+            "suction-canister:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "glove-box-stack",
+          "label": "Gloves",
+          "colorHex": "f1f5f7",
+          "accentColorHex": "7c8c96",
+          "position": {
+            "x": -2.14,
+            "y": 1.3,
+            "z": 0.58
+          },
+          "scale": {
+            "x": 0.08,
+            "y": 0.24,
+            "z": 0.3
+          },
+          "interactionTags": [
+            "clinical_supplies"
+          ],
+          "affordanceCueIds": [
+            "glove-box-stack:visual_context",
+            "glove-box-stack:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "sharps-bin",
+          "label": "Sharps",
+          "colorHex": "d94c3d",
+          "accentColorHex": "6f1e17",
+          "position": {
+            "x": -2,
+            "y": 0.48,
+            "z": -1.22
+          },
+          "scale": {
+            "x": 0.22,
+            "y": 0.34,
+            "z": 0.16
+          },
+          "interactionTags": [
+            "clinical_supplies"
+          ],
+          "affordanceCueIds": [
+            "sharps-bin:visual_context",
+            "sharps-bin:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "biohazard-trash",
+          "label": "Biohazard",
+          "colorHex": "9e2f27",
+          "accentColorHex": "5c1714",
+          "position": {
+            "x": -2.04,
+            "y": 0.3,
+            "z": 0.85
+          },
+          "scale": {
+            "x": 0.24,
+            "y": 0.3,
+            "z": 0.22
+          },
+          "interactionTags": [
+            "clinical_supplies"
+          ],
+          "affordanceCueIds": [
+            "biohazard-trash:visual_context",
+            "biohazard-trash:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "supply-cabinet",
+          "label": "Supplies",
+          "colorHex": "e9ece8",
+          "accentColorHex": "7a837f",
+          "position": {
+            "x": -2.08,
+            "y": 1.05,
+            "z": 1.05
+          },
+          "scale": {
+            "x": 0.34,
+            "y": 0.72,
+            "z": 0.26
+          },
+          "interactionTags": [
+            "clinical_supplies"
+          ],
+          "affordanceCueIds": [
+            "supply-cabinet:visual_context",
+            "supply-cabinet:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "hand-sanitizer",
+          "label": "Foam",
+          "colorHex": "e8fbff",
+          "accentColorHex": "3c9eb2",
+          "position": {
+            "x": -2.18,
+            "y": 1.02,
+            "z": 1.48
+          },
+          "scale": {
+            "x": 0.08,
+            "y": 0.18,
+            "z": 0.05
+          },
+          "interactionTags": [
+            "clinical_supplies"
+          ],
+          "affordanceCueIds": [
+            "hand-sanitizer:visual_context",
+            "hand-sanitizer:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "privacy-curtain",
+          "label": "Curtain",
+          "colorHex": "7fb6c7",
+          "accentColorHex": "3f7482",
+          "position": {
+            "x": 2.18,
+            "y": 1.12,
+            "z": 0.25
+          },
+          "scale": {
+            "x": 0.035,
+            "y": 0.86,
+            "z": 1.25
+          },
+          "interactionTags": [
+            "ambient_safety"
+          ],
+          "affordanceCueIds": [
+            "privacy-curtain:visual_context",
+            "privacy-curtain:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "wall-clock",
+          "label": "Clock",
+          "colorHex": "ffffff",
+          "accentColorHex": "24313a",
+          "position": {
+            "x": 0.95,
+            "y": 1.55,
+            "z": -1.42
+          },
+          "scale": {
+            "x": 0.18,
+            "y": 0.18,
+            "z": 0.035
+          },
+          "interactionTags": [
+            "ambient_safety"
+          ],
+          "affordanceCueIds": [
+            "wall-clock:visual_context",
+            "wall-clock:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "ceiling-exam-light",
+          "label": "Light",
+          "colorHex": "ffefb0",
+          "accentColorHex": "b68b22",
+          "position": {
+            "x": 0.45,
+            "y": 2,
+            "z": -0.35
+          },
+          "scale": {
+            "x": 0.48,
+            "y": 0.035,
+            "z": 0.22
+          },
+          "interactionTags": [
+            "urgent_escalation"
+          ],
+          "affordanceCueIds": [
+            "ceiling-exam-light:visual_context",
+            "ceiling-exam-light:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "doorway-station-sign",
+          "label": "ED Bay",
+          "colorHex": "f4d35e",
+          "accentColorHex": "7c6220",
+          "position": {
+            "x": -1.02,
+            "y": 1.92,
+            "z": 1.86
+          },
+          "scale": {
+            "x": 0.34,
+            "y": 0.09,
+            "z": 0.025
+          },
+          "interactionTags": [
+            "room_identification"
+          ],
+          "affordanceCueIds": [
+            "doorway-station-sign:visual_context",
+            "doorway-station-sign:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "floor-scuff-path",
+          "label": "Traffic",
+          "colorHex": "8e989d",
+          "accentColorHex": "5e686d",
+          "position": {
+            "x": -0.18,
+            "y": 0.012,
+            "z": 0.62
+          },
+          "scale": {
+            "x": 1.22,
+            "y": 0.01,
+            "z": 0.045
+          },
+          "interactionTags": [
+            "environmental_texture"
+          ],
+          "affordanceCueIds": [
+            "floor-scuff-path:visual_context",
+            "floor-scuff-path:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "infection-control-sign",
+          "label": "Wash",
+          "colorHex": "f7fbff",
+          "accentColorHex": "2f6f9f",
+          "position": {
+            "x": -2.18,
+            "y": 1.55,
+            "z": 1.28
+          },
+          "scale": {
+            "x": 0.08,
+            "y": 0.2,
+            "z": 0.28
+          },
+          "interactionTags": [
+            "environmental_texture"
+          ],
+          "affordanceCueIds": [
+            "infection-control-sign:visual_context",
+            "infection-control-sign:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "patient-handoff-whiteboard",
+          "label": "Handoff",
+          "colorHex": "f3f8f7",
+          "accentColorHex": "276f66",
+          "position": {
+            "x": -1.15,
+            "y": 1.52,
+            "z": -1.42
+          },
+          "scale": {
+            "x": 0.58,
+            "y": 0.25,
+            "z": 0.035
+          },
+          "interactionTags": [
+            "environmental_texture"
+          ],
+          "affordanceCueIds": [
+            "patient-handoff-whiteboard:visual_context",
+            "patient-handoff-whiteboard:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "supply-drawer-labels",
+          "label": "Drawers",
+          "colorHex": "f6f0df",
+          "accentColorHex": "8a6c2b",
+          "position": {
+            "x": -1.78,
+            "y": 0.82,
+            "z": 1.24
+          },
+          "scale": {
+            "x": 0.3,
+            "y": 0.14,
+            "z": 0.035
+          },
+          "interactionTags": [
+            "environmental_texture"
+          ],
+          "affordanceCueIds": [
+            "supply-drawer-labels:visual_context",
+            "supply-drawer-labels:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "privacy-zone-floor-tape",
+          "label": "Zone",
+          "colorHex": "f2c94c",
+          "accentColorHex": "8c6d1f",
+          "position": {
+            "x": 0.82,
+            "y": 0.015,
+            "z": 1.08
+          },
+          "scale": {
+            "x": 0.68,
+            "y": 0.01,
+            "z": 0.035
+          },
+          "interactionTags": [
+            "environmental_texture"
+          ],
+          "affordanceCueIds": [
+            "privacy-zone-floor-tape:visual_context",
+            "privacy-zone-floor-tape:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "curtain-track-rings",
+          "label": "Rings",
+          "colorHex": "dfe9ee",
+          "accentColorHex": "5e8292",
+          "position": {
+            "x": 2.12,
+            "y": 1.98,
+            "z": 0.25
+          },
+          "scale": {
+            "x": 0.035,
+            "y": 0.035,
+            "z": 0.62
+          },
+          "interactionTags": [
+            "environmental_texture"
+          ],
+          "affordanceCueIds": [
+            "curtain-track-rings:visual_context",
+            "curtain-track-rings:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "ekg-leads-on-bed",
+          "label": "Leads",
+          "colorHex": "f6f1e6",
+          "accentColorHex": "4f5a60",
+          "position": {
+            "x": -0.18,
+            "y": 0.62,
+            "z": -0.12
+          },
+          "scale": {
+            "x": 0.34,
+            "y": 0.025,
+            "z": 0.2
+          },
+          "interactionTags": [
+            "ecg_request"
+          ],
+          "affordanceCueIds": [
+            "ekg-leads-on-bed:visual_context",
+            "ekg-leads-on-bed:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "monitor-lead-cable",
+          "label": "Cable",
+          "colorHex": "2f3437",
+          "accentColorHex": "8a969c",
+          "position": {
+            "x": -0.52,
+            "y": 0.76,
+            "z": -0.42
+          },
+          "scale": {
+            "x": 0.04,
+            "y": 0.025,
+            "z": 0.62
+          },
+          "interactionTags": [
+            "environmental_texture"
+          ],
+          "affordanceCueIds": [
+            "monitor-lead-cable:visual_context",
+            "monitor-lead-cable:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "patient-blanket",
+          "label": "Blanket",
+          "colorHex": "d8e6ef",
+          "accentColorHex": "6e8795",
+          "position": {
+            "x": 0.18,
+            "y": 0.54,
+            "z": 0.1
+          },
+          "scale": {
+            "x": 0.5,
+            "y": 0.045,
+            "z": 0.62
+          },
+          "interactionTags": [
+            "patient_bedside"
+          ],
+          "affordanceCueIds": [
+            "patient-blanket:visual_context",
+            "patient-blanket:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "bed-wheel-locks",
+          "label": "Locks",
+          "colorHex": "38424a",
+          "accentColorHex": "d24a34",
+          "position": {
+            "x": -0.82,
+            "y": 0.2,
+            "z": 0.82
+          },
+          "scale": {
+            "x": 0.1,
+            "y": 0.055,
+            "z": 0.1
+          },
+          "interactionTags": [
+            "environmental_texture"
+          ],
+          "affordanceCueIds": [
+            "bed-wheel-locks:visual_context",
+            "bed-wheel-locks:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "clipboard-case-notes",
+          "label": "Notes",
+          "colorHex": "f8f1d7",
+          "accentColorHex": "74663b",
+          "position": {
+            "x": 1.15,
+            "y": 0.86,
+            "z": 1.1
+          },
+          "scale": {
+            "x": 0.26,
+            "y": 0.025,
+            "z": 0.36
+          },
+          "interactionTags": [
+            "patient_bedside"
+          ],
+          "affordanceCueIds": [
+            "clipboard-case-notes:visual_context",
+            "clipboard-case-notes:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "iv-tubing-line",
+          "label": "Line",
+          "colorHex": "dff7ff",
+          "accentColorHex": "6fb2c6",
+          "position": {
+            "x": 0.75,
+            "y": 1.05,
+            "z": 0.54
+          },
+          "scale": {
+            "x": 0.025,
+            "y": 0.42,
+            "z": 0.025
+          },
+          "interactionTags": [
+            "environmental_texture"
+          ],
+          "affordanceCueIds": [
+            "iv-tubing-line:visual_context",
+            "iv-tubing-line:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "monitor-waveform-card",
+          "label": "Sinus",
+          "colorHex": "07121c",
+          "accentColorHex": "55f0a6",
+          "position": {
+            "x": -0.92,
+            "y": 1.34,
+            "z": -0.82
+          },
+          "scale": {
+            "x": 0.34,
+            "y": 0.18,
+            "z": 0.035
+          },
+          "interactionTags": [
+            "vitals_review"
+          ],
+          "affordanceCueIds": [
+            "monitor-waveform-card:visual_context",
+            "monitor-waveform-card:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "monitor-vitals-badge",
+          "label": "HR",
+          "colorHex": "ffd166",
+          "accentColorHex": "b05d16",
+          "position": {
+            "x": -0.5,
+            "y": 1.36,
+            "z": -0.82
+          },
+          "scale": {
+            "x": 0.12,
+            "y": 0.07,
+            "z": 0.025
+          },
+          "interactionTags": [
+            "vitals_review"
+          ],
+          "affordanceCueIds": [
+            "monitor-vitals-badge:visual_context",
+            "monitor-vitals-badge:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "ecg-paper-strip",
+          "label": "ECG",
+          "colorHex": "f8f5e6",
+          "accentColorHex": "4b5d67",
+          "position": {
+            "x": 1.35,
+            "y": 0.86,
+            "z": 0.28
+          },
+          "scale": {
+            "x": 0.36,
+            "y": 0.018,
+            "z": 0.08
+          },
+          "interactionTags": [
+            "ecg_request"
+          ],
+          "affordanceCueIds": [
+            "ecg-paper-strip:visual_context",
+            "ecg-paper-strip:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "nurse-task-tray",
+          "label": "Tray",
+          "colorHex": "e7edf2",
+          "accentColorHex": "5a6f9f",
+          "position": {
+            "x": 1.08,
+            "y": 0.9,
+            "z": 0.72
+          },
+          "scale": {
+            "x": 0.32,
+            "y": 0.035,
+            "z": 0.2
+          },
+          "interactionTags": [
+            "ecg_request"
+          ],
+          "affordanceCueIds": [
+            "nurse-task-tray:visual_context",
+            "nurse-task-tray:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "doorway-escalation-badge",
+          "label": "STAT",
+          "colorHex": "f25f5c",
+          "accentColorHex": "7f1d1d",
+          "position": {
+            "x": -0.62,
+            "y": 1.9,
+            "z": 1.86
+          },
+          "scale": {
+            "x": 0.09,
+            "y": 0.075,
+            "z": 0.025
+          },
+          "interactionTags": [
+            "urgent_escalation"
+          ],
+          "affordanceCueIds": [
+            "doorway-escalation-badge:visual_context",
+            "doorway-escalation-badge:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "trash-liner-fold",
+          "label": "Liner",
+          "colorHex": "e8eef0",
+          "accentColorHex": "9e2f27",
+          "position": {
+            "x": -2.04,
+            "y": 0.56,
+            "z": 0.85
+          },
+          "scale": {
+            "x": 0.2,
+            "y": 0.035,
+            "z": 0.18
+          },
+          "interactionTags": [
+            "environmental_texture"
+          ],
+          "affordanceCueIds": [
+            "trash-liner-fold:visual_context",
+            "trash-liner-fold:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "call-light-remote",
+          "label": "Call",
+          "colorHex": "fff4bf",
+          "accentColorHex": "ba8d1c",
+          "position": {
+            "x": 0.62,
+            "y": 0.72,
+            "z": 0.54
+          },
+          "scale": {
+            "x": 0.09,
+            "y": 0.035,
+            "z": 0.2
+          },
+          "interactionTags": [
+            "ecg_request"
+          ],
+          "affordanceCueIds": [
+            "call-light-remote:visual_context",
+            "call-light-remote:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        }
+      ],
+      "productionReadinessClaimed": false,
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    },
+    "generatedAt": "2026-05-23T14:52:08.909Z",
+    "expiresAt": null,
+    "frozenForEncounter": true,
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "learnerBundle": {
+    "bundleId": "local_exam_run:ed_chest_pain_local_encounter:generated-runtime-assets",
+    "stationId": "ed_chest_pain_station_v1",
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "assetStoreKind": "azurite_blob",
+    "environment": {
+      "assetId": "ed_exam_bay_environment_shell_glb",
+      "version": "environment-2026-05-23",
+      "kind": "environment_model",
+      "displayName": "ED exam bay environment shell GLB",
+      "scenarioAssetId": "ed_exam_bay_environment",
+      "blob": {
+        "storeKind": "azurite_blob",
+        "containerName": "openclinxr-assets",
+        "blobName": ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb",
+        "contentHash": "bytes:65012",
+        "contentType": "model/gltf-binary",
+        "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+      },
+      "reviewStatus": "approved_for_local_runtime",
+      "provenanceRefs": [
+        ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-layout.json",
+        ".openclinxr/asset-production/ed-chest-pain/environment/equipment-placement-manifest.json",
+        ".openclinxr/asset-production/ed-chest-pain/environment/quest-environment-budget.json",
+        ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+      ],
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    },
+    "actors": [
+      {
+        "actorId": "patient_robert_hayes_v1",
+        "role": "patient",
+        "model": {
+          "assetId": "neutral_generated_humanoid_model_glb",
+          "version": "generated-human-rigging-2026-05-23",
+          "kind": "humanoid_model",
+          "displayName": "Neutral generated humanoid GLB",
+          "scenarioAssetId": "patient_robert_hayes_character",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:3901100:declared:3901100",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_rigging_report"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "animationClips": [],
+        "gazeProfile": {
+          "defaultTarget": "learner_camera",
+          "supportsActorTargets": true
+        }
+      },
+      {
+        "actorId": "nurse_maria_alvarez_v1",
+        "role": "nurse",
+        "model": {
+          "assetId": "neutral_generated_humanoid_model_glb",
+          "version": "generated-human-rigging-2026-05-23",
+          "kind": "humanoid_model",
+          "displayName": "Neutral generated humanoid GLB",
+          "scenarioAssetId": "nurse_maria_alvarez_character",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:3901100:declared:3901100",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_rigging_report"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "animationClips": [],
+        "gazeProfile": {
+          "defaultTarget": "learner_camera",
+          "supportsActorTargets": true
+        }
+      },
+      {
+        "actorId": "spouse_anna_hayes_v1",
+        "role": "spouse",
+        "model": {
+          "assetId": "neutral_generated_humanoid_model_glb",
+          "version": "generated-human-rigging-2026-05-23",
+          "kind": "humanoid_model",
+          "displayName": "Neutral generated humanoid GLB",
+          "scenarioAssetId": "spouse_anna_hayes_character",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:3901100:declared:3901100",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_rigging_report"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "animationClips": [],
+        "gazeProfile": {
+          "defaultTarget": "learner_camera",
+          "supportsActorTargets": true
+        }
+      }
+    ],
+    "equipment": [
+      {
+        "equipmentId": "ecg_cart_equipment",
+        "model": {
+          "assetId": "ecg_cart_12_lead_glb",
+          "version": "medical-equipment-2026-05-23",
+          "kind": "equipment_model",
+          "displayName": "12-lead ECG cart GLB",
+          "scenarioAssetId": "ecg_cart_12_lead",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+            "contentHash": "bytes:22988",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        }
+      },
+      {
+        "equipmentId": "iv_stand_equipment",
+        "model": {
+          "assetId": "iv_pole_with_pump_glb",
+          "version": "medical-equipment-2026-05-23",
+          "kind": "equipment_model",
+          "displayName": "IV pole with pump GLB",
+          "scenarioAssetId": "iv_stand_equipment",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+            "contentHash": "bytes:15664",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        }
+      }
+    ],
+    "uiSurfaces": [],
+    "sceneManifest": {
+      "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+      "manifestId": "ed_chest_pain_runtime_scene_manifest_v1",
+      "source": "generated_scene_pipeline",
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "stationId": "ed_chest_pain_station_v1",
+      "roomProps": [
+        {
+          "propId": "oxygen-panel",
+          "label": "O2",
+          "colorHex": "c7d8df",
+          "accentColorHex": "305a6c",
+          "position": {
+            "x": 1.85,
+            "y": 1.35,
+            "z": -1.46
+          },
+          "scale": {
+            "x": 0.36,
+            "y": 0.22,
+            "z": 0.04
+          },
+          "interactionTags": [
+            "equipment_wall"
+          ],
+          "affordanceCueIds": [
+            "oxygen-panel:visual_context",
+            "oxygen-panel:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "suction-canister",
+          "label": "Suction",
+          "colorHex": "e7f5f8",
+          "accentColorHex": "2e7280",
+          "position": {
+            "x": 1.34,
+            "y": 1.06,
+            "z": -1.42
+          },
+          "scale": {
+            "x": 0.12,
+            "y": 0.2,
+            "z": 0.08
+          },
+          "interactionTags": [
+            "equipment_wall"
+          ],
+          "affordanceCueIds": [
+            "suction-canister:visual_context",
+            "suction-canister:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "glove-box-stack",
+          "label": "Gloves",
+          "colorHex": "f1f5f7",
+          "accentColorHex": "7c8c96",
+          "position": {
+            "x": -2.14,
+            "y": 1.3,
+            "z": 0.58
+          },
+          "scale": {
+            "x": 0.08,
+            "y": 0.24,
+            "z": 0.3
+          },
+          "interactionTags": [
+            "clinical_supplies"
+          ],
+          "affordanceCueIds": [
+            "glove-box-stack:visual_context",
+            "glove-box-stack:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "sharps-bin",
+          "label": "Sharps",
+          "colorHex": "d94c3d",
+          "accentColorHex": "6f1e17",
+          "position": {
+            "x": -2,
+            "y": 0.48,
+            "z": -1.22
+          },
+          "scale": {
+            "x": 0.22,
+            "y": 0.34,
+            "z": 0.16
+          },
+          "interactionTags": [
+            "clinical_supplies"
+          ],
+          "affordanceCueIds": [
+            "sharps-bin:visual_context",
+            "sharps-bin:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "biohazard-trash",
+          "label": "Biohazard",
+          "colorHex": "9e2f27",
+          "accentColorHex": "5c1714",
+          "position": {
+            "x": -2.04,
+            "y": 0.3,
+            "z": 0.85
+          },
+          "scale": {
+            "x": 0.24,
+            "y": 0.3,
+            "z": 0.22
+          },
+          "interactionTags": [
+            "clinical_supplies"
+          ],
+          "affordanceCueIds": [
+            "biohazard-trash:visual_context",
+            "biohazard-trash:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "supply-cabinet",
+          "label": "Supplies",
+          "colorHex": "e9ece8",
+          "accentColorHex": "7a837f",
+          "position": {
+            "x": -2.08,
+            "y": 1.05,
+            "z": 1.05
+          },
+          "scale": {
+            "x": 0.34,
+            "y": 0.72,
+            "z": 0.26
+          },
+          "interactionTags": [
+            "clinical_supplies"
+          ],
+          "affordanceCueIds": [
+            "supply-cabinet:visual_context",
+            "supply-cabinet:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "hand-sanitizer",
+          "label": "Foam",
+          "colorHex": "e8fbff",
+          "accentColorHex": "3c9eb2",
+          "position": {
+            "x": -2.18,
+            "y": 1.02,
+            "z": 1.48
+          },
+          "scale": {
+            "x": 0.08,
+            "y": 0.18,
+            "z": 0.05
+          },
+          "interactionTags": [
+            "clinical_supplies"
+          ],
+          "affordanceCueIds": [
+            "hand-sanitizer:visual_context",
+            "hand-sanitizer:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "privacy-curtain",
+          "label": "Curtain",
+          "colorHex": "7fb6c7",
+          "accentColorHex": "3f7482",
+          "position": {
+            "x": 2.18,
+            "y": 1.12,
+            "z": 0.25
+          },
+          "scale": {
+            "x": 0.035,
+            "y": 0.86,
+            "z": 1.25
+          },
+          "interactionTags": [
+            "ambient_safety"
+          ],
+          "affordanceCueIds": [
+            "privacy-curtain:visual_context",
+            "privacy-curtain:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "wall-clock",
+          "label": "Clock",
+          "colorHex": "ffffff",
+          "accentColorHex": "24313a",
+          "position": {
+            "x": 0.95,
+            "y": 1.55,
+            "z": -1.42
+          },
+          "scale": {
+            "x": 0.18,
+            "y": 0.18,
+            "z": 0.035
+          },
+          "interactionTags": [
+            "ambient_safety"
+          ],
+          "affordanceCueIds": [
+            "wall-clock:visual_context",
+            "wall-clock:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "ceiling-exam-light",
+          "label": "Light",
+          "colorHex": "ffefb0",
+          "accentColorHex": "b68b22",
+          "position": {
+            "x": 0.45,
+            "y": 2,
+            "z": -0.35
+          },
+          "scale": {
+            "x": 0.48,
+            "y": 0.035,
+            "z": 0.22
+          },
+          "interactionTags": [
+            "urgent_escalation"
+          ],
+          "affordanceCueIds": [
+            "ceiling-exam-light:visual_context",
+            "ceiling-exam-light:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "doorway-station-sign",
+          "label": "ED Bay",
+          "colorHex": "f4d35e",
+          "accentColorHex": "7c6220",
+          "position": {
+            "x": -1.02,
+            "y": 1.92,
+            "z": 1.86
+          },
+          "scale": {
+            "x": 0.34,
+            "y": 0.09,
+            "z": 0.025
+          },
+          "interactionTags": [
+            "room_identification"
+          ],
+          "affordanceCueIds": [
+            "doorway-station-sign:visual_context",
+            "doorway-station-sign:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "floor-scuff-path",
+          "label": "Traffic",
+          "colorHex": "8e989d",
+          "accentColorHex": "5e686d",
+          "position": {
+            "x": -0.18,
+            "y": 0.012,
+            "z": 0.62
+          },
+          "scale": {
+            "x": 1.22,
+            "y": 0.01,
+            "z": 0.045
+          },
+          "interactionTags": [
+            "environmental_texture"
+          ],
+          "affordanceCueIds": [
+            "floor-scuff-path:visual_context",
+            "floor-scuff-path:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "infection-control-sign",
+          "label": "Wash",
+          "colorHex": "f7fbff",
+          "accentColorHex": "2f6f9f",
+          "position": {
+            "x": -2.18,
+            "y": 1.55,
+            "z": 1.28
+          },
+          "scale": {
+            "x": 0.08,
+            "y": 0.2,
+            "z": 0.28
+          },
+          "interactionTags": [
+            "environmental_texture"
+          ],
+          "affordanceCueIds": [
+            "infection-control-sign:visual_context",
+            "infection-control-sign:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "patient-handoff-whiteboard",
+          "label": "Handoff",
+          "colorHex": "f3f8f7",
+          "accentColorHex": "276f66",
+          "position": {
+            "x": -1.15,
+            "y": 1.52,
+            "z": -1.42
+          },
+          "scale": {
+            "x": 0.58,
+            "y": 0.25,
+            "z": 0.035
+          },
+          "interactionTags": [
+            "environmental_texture"
+          ],
+          "affordanceCueIds": [
+            "patient-handoff-whiteboard:visual_context",
+            "patient-handoff-whiteboard:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "supply-drawer-labels",
+          "label": "Drawers",
+          "colorHex": "f6f0df",
+          "accentColorHex": "8a6c2b",
+          "position": {
+            "x": -1.78,
+            "y": 0.82,
+            "z": 1.24
+          },
+          "scale": {
+            "x": 0.3,
+            "y": 0.14,
+            "z": 0.035
+          },
+          "interactionTags": [
+            "environmental_texture"
+          ],
+          "affordanceCueIds": [
+            "supply-drawer-labels:visual_context",
+            "supply-drawer-labels:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "privacy-zone-floor-tape",
+          "label": "Zone",
+          "colorHex": "f2c94c",
+          "accentColorHex": "8c6d1f",
+          "position": {
+            "x": 0.82,
+            "y": 0.015,
+            "z": 1.08
+          },
+          "scale": {
+            "x": 0.68,
+            "y": 0.01,
+            "z": 0.035
+          },
+          "interactionTags": [
+            "environmental_texture"
+          ],
+          "affordanceCueIds": [
+            "privacy-zone-floor-tape:visual_context",
+            "privacy-zone-floor-tape:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "curtain-track-rings",
+          "label": "Rings",
+          "colorHex": "dfe9ee",
+          "accentColorHex": "5e8292",
+          "position": {
+            "x": 2.12,
+            "y": 1.98,
+            "z": 0.25
+          },
+          "scale": {
+            "x": 0.035,
+            "y": 0.035,
+            "z": 0.62
+          },
+          "interactionTags": [
+            "environmental_texture"
+          ],
+          "affordanceCueIds": [
+            "curtain-track-rings:visual_context",
+            "curtain-track-rings:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "ekg-leads-on-bed",
+          "label": "Leads",
+          "colorHex": "f6f1e6",
+          "accentColorHex": "4f5a60",
+          "position": {
+            "x": -0.18,
+            "y": 0.62,
+            "z": -0.12
+          },
+          "scale": {
+            "x": 0.34,
+            "y": 0.025,
+            "z": 0.2
+          },
+          "interactionTags": [
+            "ecg_request"
+          ],
+          "affordanceCueIds": [
+            "ekg-leads-on-bed:visual_context",
+            "ekg-leads-on-bed:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "monitor-lead-cable",
+          "label": "Cable",
+          "colorHex": "2f3437",
+          "accentColorHex": "8a969c",
+          "position": {
+            "x": -0.52,
+            "y": 0.76,
+            "z": -0.42
+          },
+          "scale": {
+            "x": 0.04,
+            "y": 0.025,
+            "z": 0.62
+          },
+          "interactionTags": [
+            "environmental_texture"
+          ],
+          "affordanceCueIds": [
+            "monitor-lead-cable:visual_context",
+            "monitor-lead-cable:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "patient-blanket",
+          "label": "Blanket",
+          "colorHex": "d8e6ef",
+          "accentColorHex": "6e8795",
+          "position": {
+            "x": 0.18,
+            "y": 0.54,
+            "z": 0.1
+          },
+          "scale": {
+            "x": 0.5,
+            "y": 0.045,
+            "z": 0.62
+          },
+          "interactionTags": [
+            "patient_bedside"
+          ],
+          "affordanceCueIds": [
+            "patient-blanket:visual_context",
+            "patient-blanket:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "bed-wheel-locks",
+          "label": "Locks",
+          "colorHex": "38424a",
+          "accentColorHex": "d24a34",
+          "position": {
+            "x": -0.82,
+            "y": 0.2,
+            "z": 0.82
+          },
+          "scale": {
+            "x": 0.1,
+            "y": 0.055,
+            "z": 0.1
+          },
+          "interactionTags": [
+            "environmental_texture"
+          ],
+          "affordanceCueIds": [
+            "bed-wheel-locks:visual_context",
+            "bed-wheel-locks:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "clipboard-case-notes",
+          "label": "Notes",
+          "colorHex": "f8f1d7",
+          "accentColorHex": "74663b",
+          "position": {
+            "x": 1.15,
+            "y": 0.86,
+            "z": 1.1
+          },
+          "scale": {
+            "x": 0.26,
+            "y": 0.025,
+            "z": 0.36
+          },
+          "interactionTags": [
+            "patient_bedside"
+          ],
+          "affordanceCueIds": [
+            "clipboard-case-notes:visual_context",
+            "clipboard-case-notes:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "iv-tubing-line",
+          "label": "Line",
+          "colorHex": "dff7ff",
+          "accentColorHex": "6fb2c6",
+          "position": {
+            "x": 0.75,
+            "y": 1.05,
+            "z": 0.54
+          },
+          "scale": {
+            "x": 0.025,
+            "y": 0.42,
+            "z": 0.025
+          },
+          "interactionTags": [
+            "environmental_texture"
+          ],
+          "affordanceCueIds": [
+            "iv-tubing-line:visual_context",
+            "iv-tubing-line:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "monitor-waveform-card",
+          "label": "Sinus",
+          "colorHex": "07121c",
+          "accentColorHex": "55f0a6",
+          "position": {
+            "x": -0.92,
+            "y": 1.34,
+            "z": -0.82
+          },
+          "scale": {
+            "x": 0.34,
+            "y": 0.18,
+            "z": 0.035
+          },
+          "interactionTags": [
+            "vitals_review"
+          ],
+          "affordanceCueIds": [
+            "monitor-waveform-card:visual_context",
+            "monitor-waveform-card:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "monitor-vitals-badge",
+          "label": "HR",
+          "colorHex": "ffd166",
+          "accentColorHex": "b05d16",
+          "position": {
+            "x": -0.5,
+            "y": 1.36,
+            "z": -0.82
+          },
+          "scale": {
+            "x": 0.12,
+            "y": 0.07,
+            "z": 0.025
+          },
+          "interactionTags": [
+            "vitals_review"
+          ],
+          "affordanceCueIds": [
+            "monitor-vitals-badge:visual_context",
+            "monitor-vitals-badge:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "ecg-paper-strip",
+          "label": "ECG",
+          "colorHex": "f8f5e6",
+          "accentColorHex": "4b5d67",
+          "position": {
+            "x": 1.35,
+            "y": 0.86,
+            "z": 0.28
+          },
+          "scale": {
+            "x": 0.36,
+            "y": 0.018,
+            "z": 0.08
+          },
+          "interactionTags": [
+            "ecg_request"
+          ],
+          "affordanceCueIds": [
+            "ecg-paper-strip:visual_context",
+            "ecg-paper-strip:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "nurse-task-tray",
+          "label": "Tray",
+          "colorHex": "e7edf2",
+          "accentColorHex": "5a6f9f",
+          "position": {
+            "x": 1.08,
+            "y": 0.9,
+            "z": 0.72
+          },
+          "scale": {
+            "x": 0.32,
+            "y": 0.035,
+            "z": 0.2
+          },
+          "interactionTags": [
+            "ecg_request"
+          ],
+          "affordanceCueIds": [
+            "nurse-task-tray:visual_context",
+            "nurse-task-tray:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "doorway-escalation-badge",
+          "label": "STAT",
+          "colorHex": "f25f5c",
+          "accentColorHex": "7f1d1d",
+          "position": {
+            "x": -0.62,
+            "y": 1.9,
+            "z": 1.86
+          },
+          "scale": {
+            "x": 0.09,
+            "y": 0.075,
+            "z": 0.025
+          },
+          "interactionTags": [
+            "urgent_escalation"
+          ],
+          "affordanceCueIds": [
+            "doorway-escalation-badge:visual_context",
+            "doorway-escalation-badge:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "trash-liner-fold",
+          "label": "Liner",
+          "colorHex": "e8eef0",
+          "accentColorHex": "9e2f27",
+          "position": {
+            "x": -2.04,
+            "y": 0.56,
+            "z": 0.85
+          },
+          "scale": {
+            "x": 0.2,
+            "y": 0.035,
+            "z": 0.18
+          },
+          "interactionTags": [
+            "environmental_texture"
+          ],
+          "affordanceCueIds": [
+            "trash-liner-fold:visual_context",
+            "trash-liner-fold:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "call-light-remote",
+          "label": "Call",
+          "colorHex": "fff4bf",
+          "accentColorHex": "ba8d1c",
+          "position": {
+            "x": 0.62,
+            "y": 0.72,
+            "z": 0.54
+          },
+          "scale": {
+            "x": 0.09,
+            "y": 0.035,
+            "z": 0.2
+          },
+          "interactionTags": [
+            "ecg_request"
+          ],
+          "affordanceCueIds": [
+            "call-light-remote:visual_context",
+            "call-light-remote:runtime_scene_manifest_prop"
+          ],
+          "generatedBy": "scene_manifest"
+        }
+      ],
+      "productionReadinessClaimed": false,
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    },
+    "generatedAt": "2026-05-23T14:52:08.909Z",
+    "expiresAt": null,
+    "frozenForEncounter": true,
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ],
+    "identityScope": "learner_runtime_opaque_bundle"
+  },
+  "bundleBlobName": null,
+  "blockers": []
+}

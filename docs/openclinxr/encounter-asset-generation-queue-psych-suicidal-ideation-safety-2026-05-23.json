@@ -1,0 +1,177 @@
+{
+  "generatedAt": "2026-05-23T15:37:34.590Z",
+  "schemaVersion": "openclinxr.encounter-asset-generation-queue-report.v1",
+  "status": "planned",
+  "queue": {
+    "queueName": "encounter-asset-generation",
+    "messageKind": "encounter_definition_to_executable_encounter",
+    "encodedMessage": "eyJzY2hlbWFWZXJzaW9uIjoib3BlbmNsaW54ci5henVyZS1zdG9yYWdlLXF1ZXVlLmVuY291bnRlci1hc3NldC1nZW5lcmF0aW9uLnYxIiwicXVldWVOYW1lIjoiZW5jb3VudGVyLWFzc2V0LWdlbmVyYXRpb24iLCJtZXNzYWdlS2luZCI6ImVuY291bnRlcl9kZWZpbml0aW9uX3RvX2V4ZWN1dGFibGVfZW5jb3VudGVyIiwidmlzaWJpbGl0eVRpbWVvdXRTZWNvbmRzIjozMDAsInRpbWVUb0xpdmVTZWNvbmRzIjo2MDQ4MDAsImRlcXVldWVBdHRlbXB0TGltaXQiOjI1LCJyZXF1ZXN0Ijp7InJlcXVlc3RJZCI6ImVuY291bnRlcl9hc3NldHNfcHN5Y2hfc3VpY2lkYWxfaWRlYXRpb25fc2FmZXR5X2V4ZWN1dGFibGVfdjEiLCJ0ZW5hbnRJZCI6ImxvY2FsX3RlbmFudCIsImV4YW1SdW5JZCI6ImxvY2FsX2V4YW1fcnVuX3BzeWNoX3N1aWNpZGFsX2lkZWF0aW9uX3NhZmV0eV92MSIsImVuY291bnRlcklkIjoicHN5Y2hfc3VpY2lkYWxfaWRlYXRpb25fc2FmZXR5X2VuY291bnRlcl92MSIsInNjZW5hcmlvSWQiOiJwc3ljaF9zdWljaWRhbF9pZGVhdGlvbl9zYWZldHlfdjEiLCJzdGF0aW9uSWQiOiJwc3ljaF9zdWljaWRhbF9pZGVhdGlvbl9zYWZldHlfc3RhdGlvbl92MSIsImVuY291bnRlckRlZmluaXRpb25SZWYiOnsic3RvcmVLaW5kIjoibW9uZ29vc2UiLCJjb2xsZWN0aW9uTmFtZSI6InNjZW5hcmlvX2RlZmluaXRpb25zIiwiZG9jdW1lbnRJZCI6InNjZW5hcmlvX3BzeWNoX3N1aWNpZGFsX2lkZWF0aW9uX3NhZmV0eV92MSIsImNvbnRlbnRIYXNoIjoibG9jYWwtZGV0ZXJtaW5pc3RpYy1lbmNvdW50ZXItZGVmaW5pdGlvbi1jb250cmFjdCJ9LCJ0YXJnZXRBc3NldFN0b3JlIjp7InN0b3JlS2luZCI6ImF6dXJpdGVfYmxvYiIsImNvbnRhaW5lck5hbWUiOiJvcGVuY2xpbnhyLWFzc2V0cyIsImJsb2JQcmVmaXgiOiJlbmNvdW50ZXItYXNzZXRzL2xvY2FsX3RlbmFudC9wc3ljaF9zdWljaWRhbF9pZGVhdGlvbl9zYWZldHlfdjEvcHN5Y2hfc3VpY2lkYWxfaWRlYXRpb25fc2FmZXR5X2VuY291bnRlcl92MS8ifSwicGVyc2lzdGVuY2VUYXJnZXQiOnsic3RvcmVLaW5kIjoibW9uZ29vc2UiLCJjb2xsZWN0aW9uTmFtZSI6ImVuY291bnRlcl9hc3NldF9nZW5lcmF0aW9uX2pvYnMifSwicmVxdWVzdGVkU3RhZ2VzIjpbImVuY291bnRlci1kZWZpbml0aW9uLWluZ2VzdGVkIiwiY2hhcmFjdGVyLWdlbmVyYXRpb24iLCJtZWRpY2FsLWVxdWlwbWVudC1nZW5lcmF0aW9uIiwiZW52aXJvbm1lbnQtZ2VuZXJhdGlvbiIsImFuaW1hdGlvbi1nZW5lcmF0aW9uIiwidm9pY2UtYXNzZXQtZ2VuZXJhdGlvbiIsImFzc2V0LWJha2UiLCJzY2VuZS1tYW5pZmVzdC1mcmVlemUiLCJydW50aW1lLWJ1bmRsZS1wdWJsaWNhdGlvbiIsInJldmlldy1ldmlkZW5jZS1nYXRlIl0sIm9wdGltaXphdGlvbldpbmRvdyI6eyJleHBlY3RlZE1pbmltdW1Ib3VycyI6NCwiZXhwZWN0ZWRNYXhpbXVtSG91cnMiOjEyMCwibWF5UnVuRm9yRGF5cyI6dHJ1ZSwiY2hlY2twb2ludEludGVydmFsTWludXRlcyI6MzB9LCJldmlkZW5jZUdhdGVzIjp7InJlcXVpcmVHZW5lcmF0ZWRTY2VuZU1hbmlmZXN0Ijp0cnVlLCJyZXF1aXJlUnVudGltZUJ1bmRsZVB1YmxpY2F0aW9uIjp0cnVlLCJyZXF1aXJlSHVtYW5SZXZpZXdCZWZvcmVMZWFybmVyVXNlIjp0cnVlLCJyZXF1aXJlUXVlc3RFdmlkZW5jZUJlZm9yZVF1ZXN0UmVhZGluZXNzQ2xhaW0iOnRydWV9LCJwb2xpY3kiOnsiYWxsb3dQYWlkQ2xvdWRBcGlzIjpmYWxzZSwiYWxsb3dQcm9kdWN0aW9uRGVwbG95bWVudCI6ZmFsc2UsInByb2R1Y3Rpb25SZWFkaW5lc3NDbGFpbWVkIjpmYWxzZX19LCJub3RFdmlkZW5jZUZvciI6WyJwcm9kdWN0aW9uX2Fzc2V0X3JlYWRpbmVzcyIsInF1ZXN0X3JlYWRpbmVzcyIsImNsaW5pY2FsX3ZhbGlkaXR5Iiwic2NvcmluZ192YWxpZGl0eSJdfQ==",
+    "encodedMessageBytes": 2564,
+    "visibilityTimeoutSeconds": 300,
+    "timeToLiveSeconds": 604800,
+    "dequeueAttemptLimit": 25
+  },
+  "request": {
+    "requestId": "encounter_assets_psych_suicidal_ideation_safety_executable_v1",
+    "tenantId": "local_tenant",
+    "examRunId": "local_exam_run_psych_suicidal_ideation_safety_v1",
+    "encounterId": "psych_suicidal_ideation_safety_encounter_v1",
+    "scenarioId": "psych_suicidal_ideation_safety_v1",
+    "stationId": "psych_suicidal_ideation_safety_station_v1",
+    "encounterDefinitionRef": {
+      "storeKind": "mongoose",
+      "collectionName": "scenario_definitions",
+      "documentId": "scenario_psych_suicidal_ideation_safety_v1",
+      "contentHash": "local-deterministic-encounter-definition-contract"
+    },
+    "targetAssetStore": {
+      "storeKind": "azurite_blob",
+      "containerName": "openclinxr-assets",
+      "blobPrefix": "encounter-assets/local_tenant/psych_suicidal_ideation_safety_v1/psych_suicidal_ideation_safety_encounter_v1/"
+    },
+    "persistenceTarget": {
+      "storeKind": "mongoose",
+      "collectionName": "encounter_asset_generation_jobs"
+    },
+    "requestedStages": [
+      "encounter-definition-ingested",
+      "character-generation",
+      "medical-equipment-generation",
+      "environment-generation",
+      "animation-generation",
+      "voice-asset-generation",
+      "asset-bake",
+      "scene-manifest-freeze",
+      "runtime-bundle-publication",
+      "review-evidence-gate"
+    ],
+    "optimizationWindow": {
+      "expectedMinimumHours": 4,
+      "expectedMaximumHours": 120,
+      "mayRunForDays": true,
+      "checkpointIntervalMinutes": 30
+    },
+    "evidenceGates": {
+      "requireGeneratedSceneManifest": true,
+      "requireRuntimeBundlePublication": true,
+      "requireHumanReviewBeforeLearnerUse": true,
+      "requireQuestEvidenceBeforeQuestReadinessClaim": true
+    },
+    "policy": {
+      "allowPaidCloudApis": false,
+      "allowProductionDeployment": false,
+      "productionReadinessClaimed": false
+    }
+  },
+  "plan": {
+    "schemaVersion": "openclinxr.encounter-asset-generation-plan.v1",
+    "requestId": "encounter_assets_psych_suicidal_ideation_safety_executable_v1",
+    "queueName": "encounter-asset-generation",
+    "stages": [
+      {
+        "stage": "encounter-definition-ingested",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob"
+      },
+      {
+        "stage": "character-generation",
+        "capabilityId": "character-generation",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob"
+      },
+      {
+        "stage": "medical-equipment-generation",
+        "capabilityId": "medical-equipment-generation",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob"
+      },
+      {
+        "stage": "environment-generation",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob"
+      },
+      {
+        "stage": "animation-generation",
+        "capabilityId": "animation-generation",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob"
+      },
+      {
+        "stage": "voice-asset-generation",
+        "capabilityId": "voice-asset-generation",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob"
+      },
+      {
+        "stage": "asset-bake",
+        "capabilityId": "asset-bake",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob"
+      },
+      {
+        "stage": "scene-manifest-freeze",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob_and_mongoose"
+      },
+      {
+        "stage": "runtime-bundle-publication",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob_and_mongoose"
+      },
+      {
+        "stage": "review-evidence-gate",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "mongoose"
+      }
+    ],
+    "expectedDuration": {
+      "minimumHours": 4,
+      "maximumHours": 120,
+      "mayRunForDays": true
+    },
+    "executableEncounterReadyOnlyAfter": [
+      "generated_scene_manifest_persisted",
+      "assets_written_to_blob_store",
+      "learner_runtime_bundle_persisted_to_mongoose_or_mongodb",
+      "human_review_gate_passed_for_local_runtime"
+    ],
+    "productionReadinessClaimed": false
+  },
+  "storageTargets": {
+    "blobStoreKind": "azurite_blob",
+    "blobContainerName": "openclinxr-assets",
+    "blobPrefix": "encounter-assets/local_tenant/psych_suicidal_ideation_safety_v1/psych_suicidal_ideation_safety_encounter_v1/",
+    "durableStateStoreKind": "mongoose",
+    "durableStateCollectionName": "encounter_asset_generation_jobs"
+  },
+  "operationalNotes": {
+    "longRunningOptimizationAccepted": true,
+    "expectedMinimumHours": 4,
+    "expectedMaximumHours": 120,
+    "mayRunForDays": true,
+    "checkpointIntervalMinutes": 30,
+    "generatedAssetsMustRemainDynamic": true,
+    "sceneIsNotHardcodedInRuntime": true
+  },
+  "evidenceBoundaries": {
+    "azureQueueMessagePrepared": true,
+    "azuriteCompatible": true,
+    "azureCloudOperationPerformed": false,
+    "paidApisUsed": false,
+    "productionDeploymentPerformed": false,
+    "productionReadinessClaimed": false,
+    "questReadinessClaimed": false,
+    "clinicalValidityClaimed": false,
+    "scoringValidityClaimed": false
+  }
+}

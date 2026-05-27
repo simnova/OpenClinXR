@@ -1,0 +1,3158 @@
+{
+  "schemaVersion": "openclinxr.generated-ed-station-runtime-bundle.v1",
+  "generatedAt": "2026-05-25T11:12:18.732Z",
+  "productionCloudCall": false,
+  "runtimeAssetReviewDecisions": [],
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ],
+  "status": "bundle_ready",
+  "bundle": {
+    "bundleId": "local_exam_run:ed_chest_pain_local_encounter:generated-runtime-assets",
+    "tenantId": "local-dev-tenant",
+    "userId": "quest3_local_learner",
+    "examRunId": "local_exam_run_ed_chest_pain_priority_v1",
+    "encounterId": "ed_chest_pain_local_encounter",
+    "stationId": "ed_chest_pain_station_v1",
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "assetStoreKind": "azurite_blob",
+    "environment": {
+      "assetId": "openclinxr.ed_chest_pain_priority_v1.environment.generated-glb",
+      "version": "environment-2026-05-25",
+      "kind": "environment_model",
+      "displayName": "ed chest pain priority environment",
+      "scenarioAssetId": "ed_chest_pain_priority_v1:environment",
+      "blob": {
+        "storeKind": "azurite_blob",
+        "containerName": "openclinxr-assets",
+        "blobName": ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb",
+        "contentHash": "bytes:65012",
+        "contentType": "model/gltf-binary",
+        "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+      },
+      "reviewStatus": "approved_for_local_runtime",
+      "provenanceRefs": [
+        ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-layout.json",
+        ".openclinxr/asset-production/ed-chest-pain/environment/equipment-placement-manifest.json",
+        ".openclinxr/asset-production/ed-chest-pain/environment/quest-environment-budget.json",
+        ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+      ],
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    },
+    "actors": [
+      {
+        "actorId": "patient_robert_hayes_v1",
+        "embodiment": "humanoid",
+        "role": "patient",
+        "model": {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.generated-humanoid-glb",
+          "version": "generated-human-rigging-2026-05-25",
+          "kind": "humanoid_model",
+          "displayName": "patient robert hayes",
+          "scenarioAssetId": "generated_patient_robert_hayes_humanoid_glb",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:5594308:declared:5594308",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_morph_target_viseme_contract",
+            "generated_human_rigging_report"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "animationClips": [
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.idle_listen.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "patient robert hayes idle listen",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:patient_robert_hayes_v1:idle_listen",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/idle_listen.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/idle_listen.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          },
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.speak_emphasis.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "patient robert hayes speak emphasis",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:patient_robert_hayes_v1:speak_emphasis",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/speak_emphasis.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/speak_emphasis.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          },
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.concern_reaction.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "patient robert hayes concern reaction",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:patient_robert_hayes_v1:concern_reaction",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/concern_reaction.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/concern_reaction.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          },
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.gaze_shift.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "patient robert hayes gaze shift",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:patient_robert_hayes_v1:gaze_shift",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/gaze_shift.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/gaze_shift.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          }
+        ],
+        "phonemeMap": {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.phoneme-map",
+          "version": "generated-runtime-2026-05-23",
+          "kind": "phoneme_map",
+          "displayName": "patient robert hayes phoneme viseme map",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:patient_robert_hayes_v1:phoneme-map",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/phoneme-map.v1.json",
+            "contentType": "application/json",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/phoneme-map.v1.json"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            "openclinxr-deterministic-phoneme-viseme-runtime-map",
+            "rhubarb-lip-sync-compatible-mouth-cue-contract",
+            "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "gazeProfile": {
+          "defaultTarget": "learner_camera",
+          "supportsActorTargets": true
+        }
+      },
+      {
+        "actorId": "nurse_maria_alvarez_v1",
+        "embodiment": "humanoid",
+        "role": "nurse",
+        "model": {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.generated-humanoid-glb",
+          "version": "generated-human-rigging-2026-05-25",
+          "kind": "humanoid_model",
+          "displayName": "nurse maria alvarez",
+          "scenarioAssetId": "nurse_maria_alvarez_character",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:5594308:declared:5594308",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_morph_target_viseme_contract",
+            "generated_human_rigging_report"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "animationClips": [
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.idle_listen.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "nurse maria alvarez idle listen",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1:idle_listen",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/idle_listen.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/idle_listen.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          },
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.speak_emphasis.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "nurse maria alvarez speak emphasis",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1:speak_emphasis",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/speak_emphasis.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/speak_emphasis.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          },
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.concern_reaction.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "nurse maria alvarez concern reaction",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1:concern_reaction",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/concern_reaction.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/concern_reaction.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          },
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.gaze_shift.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "nurse maria alvarez gaze shift",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1:gaze_shift",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/gaze_shift.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/gaze_shift.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          }
+        ],
+        "phonemeMap": {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.phoneme-map",
+          "version": "generated-runtime-2026-05-23",
+          "kind": "phoneme_map",
+          "displayName": "nurse maria alvarez phoneme viseme map",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1:phoneme-map",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/phoneme-map.v1.json",
+            "contentType": "application/json",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/phoneme-map.v1.json"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            "openclinxr-deterministic-phoneme-viseme-runtime-map",
+            "rhubarb-lip-sync-compatible-mouth-cue-contract",
+            "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "gazeProfile": {
+          "defaultTarget": "learner_camera",
+          "supportsActorTargets": true
+        }
+      },
+      {
+        "actorId": "spouse_anna_hayes_v1",
+        "embodiment": "humanoid",
+        "role": "family_member",
+        "model": {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.generated-humanoid-glb",
+          "version": "generated-human-rigging-2026-05-25",
+          "kind": "humanoid_model",
+          "displayName": "spouse anna hayes",
+          "scenarioAssetId": "spouse_anna_hayes_character",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:5594308:declared:5594308",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_morph_target_viseme_contract",
+            "generated_human_rigging_report"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "animationClips": [
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.idle_listen.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "spouse anna hayes idle listen",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:spouse_anna_hayes_v1:idle_listen",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/idle_listen.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/idle_listen.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          },
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.speak_emphasis.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "spouse anna hayes speak emphasis",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:spouse_anna_hayes_v1:speak_emphasis",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/speak_emphasis.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/speak_emphasis.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          },
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.concern_reaction.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "spouse anna hayes concern reaction",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:spouse_anna_hayes_v1:concern_reaction",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/concern_reaction.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/concern_reaction.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          },
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.gaze_shift.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "spouse anna hayes gaze shift",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:spouse_anna_hayes_v1:gaze_shift",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/gaze_shift.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/gaze_shift.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          }
+        ],
+        "phonemeMap": {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.phoneme-map",
+          "version": "generated-runtime-2026-05-23",
+          "kind": "phoneme_map",
+          "displayName": "spouse anna hayes phoneme viseme map",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:spouse_anna_hayes_v1:phoneme-map",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/phoneme-map.v1.json",
+            "contentType": "application/json",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/phoneme-map.v1.json"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            "openclinxr-deterministic-phoneme-viseme-runtime-map",
+            "rhubarb-lip-sync-compatible-mouth-cue-contract",
+            "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "gazeProfile": {
+          "defaultTarget": "learner_camera",
+          "supportsActorTargets": true
+        }
+      }
+    ],
+    "equipment": [
+      {
+        "equipmentId": "ecg_cart_equipment",
+        "model": {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.ecg_cart_equipment.generated-glb",
+          "version": "medical-equipment-2026-05-25",
+          "kind": "equipment_model",
+          "displayName": "ecg cart",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:ecg_cart_equipment",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+            "contentHash": "bytes:22988",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        }
+      },
+      {
+        "equipmentId": "iv_stand_equipment",
+        "model": {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.iv_stand_equipment.generated-glb",
+          "version": "medical-equipment-2026-05-25",
+          "kind": "equipment_model",
+          "displayName": "iv stand",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:iv_stand_equipment",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+            "contentHash": "bytes:15664",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        }
+      }
+    ],
+    "uiSurfaces": [],
+    "sceneManifest": {
+      "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+      "manifestId": "scene_manifest:ed_chest_pain_priority_v1:ed_chest_pain_station_v1",
+      "source": "generated_scene_pipeline",
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "stationId": "ed_chest_pain_station_v1",
+      "stationContext": {
+        "title": "ED Chest Pain",
+        "subtitle": "Patient, spouse, and nurse in a time-boxed emergency department encounter.",
+        "chiefConcern": "Crushing substernal chest pressure",
+        "initialVitals": "BP 152/92, HR 104, RR 20, SpO2 96%",
+        "interruption": "Nurse repeats vitals at minute seven",
+        "stageAriaLabel": "Emergency department station scene",
+        "canvasAriaLabel": "3D emergency department bay preview",
+        "initialDialogueText": "Robert Hayes: It feels heavy, like someone is sitting on my chest."
+      },
+      "dialogueTurns": [
+        {
+          "traceTag": "history_opqrst",
+          "actorId": "patient_robert_hayes_v1",
+          "text": "Robert Hayes: I can tell you what has been happening if we go step by step.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null,
+          "affectTimeline": {
+            "emotion": "neutral",
+            "intensity": 0.2,
+            "onsetMs": 120,
+            "transitionMs": 950,
+            "decayMs": 900,
+            "evidenceCueIds": [
+              "emotion_aligned_expression_transition_cue",
+              "visible_runtime_eyebrow_jaw_cheek_cue",
+              "dialogue_viseme_and_gaze_mapping"
+            ],
+            "notEvidenceFor": [
+              "clinical_validity",
+              "scoring_validity",
+              "production_asset_readiness"
+            ]
+          }
+        },
+        {
+          "traceTag": "risk_factor_question",
+          "actorId": "patient_robert_hayes_v1",
+          "text": "Robert Hayes: There may be details I only mention if asked clearly.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null,
+          "affectTimeline": {
+            "emotion": "neutral",
+            "intensity": 0.2,
+            "onsetMs": 120,
+            "transitionMs": 950,
+            "decayMs": 900,
+            "evidenceCueIds": [
+              "emotion_aligned_expression_transition_cue",
+              "visible_runtime_eyebrow_jaw_cheek_cue",
+              "dialogue_viseme_and_gaze_mapping"
+            ],
+            "notEvidenceFor": [
+              "clinical_validity",
+              "scoring_validity",
+              "production_asset_readiness"
+            ]
+          }
+        },
+        {
+          "traceTag": "associated_symptom_question",
+          "actorId": "patient_robert_hayes_v1",
+          "text": "Robert Hayes: I have noticed a few related symptoms that worry me.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null,
+          "affectTimeline": {
+            "emotion": "concerned",
+            "intensity": 0.58,
+            "onsetMs": 120,
+            "transitionMs": 950,
+            "decayMs": 900,
+            "evidenceCueIds": [
+              "emotion_aligned_expression_transition_cue",
+              "visible_runtime_eyebrow_jaw_cheek_cue",
+              "dialogue_viseme_and_gaze_mapping"
+            ],
+            "notEvidenceFor": [
+              "clinical_validity",
+              "scoring_validity",
+              "production_asset_readiness"
+            ]
+          }
+        },
+        {
+          "traceTag": "vitals_review",
+          "actorId": "nurse_maria_alvarez_v1",
+          "text": "Nurse Maria Alvarez: I can help review the available status information.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null,
+          "affectTimeline": {
+            "emotion": "neutral",
+            "intensity": 0.2,
+            "onsetMs": 120,
+            "transitionMs": 950,
+            "decayMs": 900,
+            "evidenceCueIds": [
+              "emotion_aligned_expression_transition_cue",
+              "visible_runtime_eyebrow_jaw_cheek_cue",
+              "dialogue_viseme_and_gaze_mapping"
+            ],
+            "notEvidenceFor": [
+              "clinical_validity",
+              "scoring_validity",
+              "production_asset_readiness"
+            ]
+          }
+        },
+        {
+          "traceTag": "ecg_request",
+          "actorId": "nurse_maria_alvarez_v1",
+          "text": "Nurse Maria Alvarez: I will help gather the next piece of clinical information.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null,
+          "affectTimeline": {
+            "emotion": "neutral",
+            "intensity": 0.2,
+            "onsetMs": 120,
+            "transitionMs": 950,
+            "decayMs": 900,
+            "evidenceCueIds": [
+              "emotion_aligned_expression_transition_cue",
+              "visible_runtime_eyebrow_jaw_cheek_cue",
+              "dialogue_viseme_and_gaze_mapping"
+            ],
+            "notEvidenceFor": [
+              "clinical_validity",
+              "scoring_validity",
+              "production_asset_readiness"
+            ]
+          }
+        },
+        {
+          "traceTag": "urgent_escalation",
+          "actorId": "spouse_anna_hayes_v1",
+          "text": "Anna Hayes: I need to know when this becomes urgent.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null,
+          "affectTimeline": {
+            "emotion": "anxious",
+            "intensity": 0.68,
+            "onsetMs": 120,
+            "transitionMs": 650,
+            "decayMs": 900,
+            "evidenceCueIds": [
+              "emotion_aligned_expression_transition_cue",
+              "visible_runtime_eyebrow_jaw_cheek_cue",
+              "dialogue_viseme_and_gaze_mapping"
+            ],
+            "notEvidenceFor": [
+              "clinical_validity",
+              "scoring_validity",
+              "production_asset_readiness"
+            ]
+          }
+        },
+        {
+          "traceTag": "team_communication",
+          "actorId": "nurse_maria_alvarez_v1",
+          "text": "Nurse Maria Alvarez: A clear shared plan will help the team respond.",
+          "gazeTargetKind": "actor",
+          "gazeTargetActorId": "nurse_maria_alvarez_v1",
+          "affectTimeline": {
+            "emotion": "neutral",
+            "intensity": 0.2,
+            "onsetMs": 120,
+            "transitionMs": 950,
+            "decayMs": 900,
+            "evidenceCueIds": [
+              "emotion_aligned_expression_transition_cue",
+              "visible_runtime_eyebrow_jaw_cheek_cue",
+              "dialogue_viseme_and_gaze_mapping"
+            ],
+            "notEvidenceFor": [
+              "clinical_validity",
+              "scoring_validity",
+              "production_asset_readiness"
+            ]
+          }
+        },
+        {
+          "traceTag": "family_communication",
+          "actorId": "spouse_anna_hayes_v1",
+          "text": "Anna Hayes: Please include us in a way that supports the patient.",
+          "gazeTargetKind": "actor",
+          "gazeTargetActorId": "spouse_anna_hayes_v1",
+          "affectTimeline": {
+            "emotion": "anxious",
+            "intensity": 0.68,
+            "onsetMs": 120,
+            "transitionMs": 650,
+            "decayMs": 900,
+            "evidenceCueIds": [
+              "emotion_aligned_expression_transition_cue",
+              "visible_runtime_eyebrow_jaw_cheek_cue",
+              "dialogue_viseme_and_gaze_mapping"
+            ],
+            "notEvidenceFor": [
+              "clinical_validity",
+              "scoring_validity",
+              "production_asset_readiness"
+            ]
+          }
+        },
+        {
+          "traceTag": "empathy_statement",
+          "actorId": "patient_robert_hayes_v1",
+          "text": "Robert Hayes: It helps when you acknowledge how stressful this feels.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null,
+          "affectTimeline": {
+            "emotion": "concerned",
+            "intensity": 0.58,
+            "onsetMs": 120,
+            "transitionMs": 950,
+            "decayMs": 900,
+            "evidenceCueIds": [
+              "emotion_aligned_expression_transition_cue",
+              "visible_runtime_eyebrow_jaw_cheek_cue",
+              "dialogue_viseme_and_gaze_mapping"
+            ],
+            "notEvidenceFor": [
+              "clinical_validity",
+              "scoring_validity",
+              "production_asset_readiness"
+            ]
+          }
+        },
+        {
+          "traceTag": "patient_note_submitted",
+          "actorId": "patient_robert_hayes_v1",
+          "text": "System: Patient note saved for faculty review.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null,
+          "affectTimeline": {
+            "emotion": "neutral",
+            "intensity": 0.2,
+            "onsetMs": 120,
+            "transitionMs": 950,
+            "decayMs": 900,
+            "evidenceCueIds": [
+              "emotion_aligned_expression_transition_cue",
+              "visible_runtime_eyebrow_jaw_cheek_cue",
+              "dialogue_viseme_and_gaze_mapping"
+            ],
+            "notEvidenceFor": [
+              "clinical_validity",
+              "scoring_validity",
+              "production_asset_readiness"
+            ]
+          }
+        }
+      ],
+      "actorPlacements": {
+        "patient_robert_hayes_v1": {
+          "slotKind": "primary_patient",
+          "position": {
+            "x": -0.72,
+            "y": 1.06,
+            "z": -0.12
+          },
+          "scale": {
+            "x": 1.1,
+            "y": 1.1,
+            "z": 1.1
+          },
+          "verticalOffsetMeters": -0.98,
+          "labelPrefix": "Patient"
+        },
+        "nurse_maria_alvarez_v1": {
+          "slotKind": "clinical_team",
+          "position": {
+            "x": 1.45,
+            "y": 0.95,
+            "z": 0.55
+          },
+          "scale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          },
+          "verticalOffsetMeters": -0.95,
+          "labelPrefix": "Team"
+        },
+        "spouse_anna_hayes_v1": {
+          "slotKind": "family_or_observer",
+          "position": {
+            "x": -2,
+            "y": 0.95,
+            "z": 0.7
+          },
+          "scale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          },
+          "verticalOffsetMeters": -0.95,
+          "labelPrefix": "Family"
+        }
+      },
+      "equipmentPlacements": {
+        "ecg_cart_equipment": {
+          "position": {
+            "x": 1.6,
+            "y": 0,
+            "z": 0.28
+          },
+          "label": "Ecg Cart",
+          "interactionCueIds": [
+            "ecg_cart_equipment:selectable_equipment_reference",
+            "ecg_cart_equipment:clinical_workflow_cue"
+          ]
+        },
+        "iv_stand_equipment": {
+          "position": {
+            "x": 0.95,
+            "y": 0,
+            "z": 0.98
+          },
+          "label": "Iv Stand",
+          "interactionCueIds": [
+            "iv_stand_equipment:selectable_equipment_reference",
+            "iv_stand_equipment:clinical_workflow_cue"
+          ]
+        }
+      },
+      "roomProps": [
+        {
+          "propId": "ecg-priority-zone",
+          "label": "ECG priority zone",
+          "semanticRole": "objective_cue",
+          "evidenceCue": "ecg_priority_workflow_cue",
+          "colorHex": "#fef3c7",
+          "accentColorHex": "#f59e0b",
+          "position": {
+            "x": 1.5,
+            "y": 0.75,
+            "z": 0.25
+          },
+          "scale": {
+            "x": 0.7,
+            "y": 0.18,
+            "z": 0.42
+          },
+          "affordanceCueIds": [
+            "ecg-priority-zone:objective_cue",
+            "ecg_priority_workflow_cue"
+          ],
+          "interactionTags": [
+            "objective_cue",
+            "ed_chest_pain_priority_v1"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "handoff-whiteboard",
+          "label": "Handoff whiteboard",
+          "semanticRole": "review_cue",
+          "evidenceCue": "handoff_review_cue",
+          "colorHex": "#f8fafc",
+          "accentColorHex": "#14b8a6",
+          "position": {
+            "x": -1.2,
+            "y": 1.6,
+            "z": -0.85
+          },
+          "scale": {
+            "x": 0.7,
+            "y": 0.18,
+            "z": 0.42
+          },
+          "affordanceCueIds": [
+            "handoff-whiteboard:review_cue",
+            "handoff_review_cue"
+          ],
+          "interactionTags": [
+            "review_cue",
+            "ed_chest_pain_priority_v1"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "chest-pain-monitor",
+          "label": "Cardiac monitor",
+          "semanticRole": "scenario_context",
+          "evidenceCue": "cardiac_monitor_context_cue",
+          "colorHex": "#dbeafe",
+          "accentColorHex": "#ef4444",
+          "position": {
+            "x": 1.65,
+            "y": 1.3,
+            "z": -0.5
+          },
+          "scale": {
+            "x": 0.7,
+            "y": 0.18,
+            "z": 0.42
+          },
+          "affordanceCueIds": [
+            "chest-pain-monitor:scenario_context",
+            "cardiac_monitor_context_cue"
+          ],
+          "interactionTags": [
+            "scenario_context",
+            "ed_chest_pain_priority_v1"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "family-communication-zone",
+          "label": "Family communication zone",
+          "semanticRole": "communication_cue",
+          "evidenceCue": "family_communication_zone_cue",
+          "colorHex": "#ffedd5",
+          "accentColorHex": "#f97316",
+          "position": {
+            "x": -1.8,
+            "y": 0.6,
+            "z": 0.8
+          },
+          "scale": {
+            "x": 0.7,
+            "y": 0.18,
+            "z": 0.42
+          },
+          "affordanceCueIds": [
+            "family-communication-zone:communication_cue",
+            "family_communication_zone_cue"
+          ],
+          "interactionTags": [
+            "communication_cue",
+            "ed_chest_pain_priority_v1"
+          ],
+          "generatedBy": "scene_manifest"
+        }
+      ],
+      "productionReadinessClaimed": false,
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    },
+    "evidenceGateRefs": [],
+    "generatedAt": "2026-05-25T11:12:18.732Z",
+    "expiresAt": null,
+    "frozenForEncounter": true,
+    "assemblyAuditMetadata": {
+      "schemaVersion": "openclinxr.runtime-bundle-assembly-audit.v1",
+      "claimBoundary": "asset_reference_audit_metadata_not_materialized_assets",
+      "sourceDefinitionRefs": [
+        "scenario_definition:ed_chest_pain_priority_v1",
+        "station_definition:ed_chest_pain_station_v1",
+        "runtime_scene_manifest:scene_manifest:ed_chest_pain_priority_v1:ed_chest_pain_station_v1"
+      ],
+      "workOrderRefs": [
+        "scene_generation_work_order:ed_chest_pain_priority_v1",
+        "runtime_bundle_binding:local_exam_run:ed_chest_pain_local_encounter:generated-runtime-assets"
+      ],
+      "factoryRequestRefs": [
+        "runtime_bundle:local_exam_run:ed_chest_pain_local_encounter:generated-runtime-assets",
+        "asset_store:azurite_blob"
+      ],
+      "generatedAssetRefs": [
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.environment.generated-glb",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:environment",
+          "kind": "environment_model",
+          "version": "environment-2026-05-25",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb",
+            "contentHash": "bytes:65012"
+          },
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-layout.json",
+            ".openclinxr/asset-production/ed-chest-pain/environment/equipment-placement-manifest.json",
+            ".openclinxr/asset-production/ed-chest-pain/environment/quest-environment-budget.json",
+            ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.generated-humanoid-glb",
+          "scenarioAssetId": "generated_patient_robert_hayes_humanoid_glb",
+          "kind": "humanoid_model",
+          "version": "generated-human-rigging-2026-05-25",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:5594308:declared:5594308"
+          },
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_morph_target_viseme_contract",
+            "generated_human_rigging_report"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.generated-humanoid-glb",
+          "scenarioAssetId": "nurse_maria_alvarez_character",
+          "kind": "humanoid_model",
+          "version": "generated-human-rigging-2026-05-25",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:5594308:declared:5594308"
+          },
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_morph_target_viseme_contract",
+            "generated_human_rigging_report"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.generated-humanoid-glb",
+          "scenarioAssetId": "spouse_anna_hayes_character",
+          "kind": "humanoid_model",
+          "version": "generated-human-rigging-2026-05-25",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:5594308:declared:5594308"
+          },
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_morph_target_viseme_contract",
+            "generated_human_rigging_report"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.idle_listen.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:patient_robert_hayes_v1:idle_listen",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/idle_listen.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.speak_emphasis.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:patient_robert_hayes_v1:speak_emphasis",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/speak_emphasis.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.concern_reaction.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:patient_robert_hayes_v1:concern_reaction",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/concern_reaction.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.gaze_shift.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:patient_robert_hayes_v1:gaze_shift",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/gaze_shift.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.idle_listen.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1:idle_listen",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/idle_listen.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.speak_emphasis.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1:speak_emphasis",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/speak_emphasis.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.concern_reaction.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1:concern_reaction",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/concern_reaction.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.gaze_shift.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1:gaze_shift",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/gaze_shift.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.idle_listen.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:spouse_anna_hayes_v1:idle_listen",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/idle_listen.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.speak_emphasis.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:spouse_anna_hayes_v1:speak_emphasis",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/speak_emphasis.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.concern_reaction.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:spouse_anna_hayes_v1:concern_reaction",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/concern_reaction.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.gaze_shift.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:spouse_anna_hayes_v1:gaze_shift",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/gaze_shift.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.phoneme-map",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:patient_robert_hayes_v1:phoneme-map",
+          "kind": "phoneme_map",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/phoneme-map.v1.json"
+          },
+          "provenanceRefs": [
+            "openclinxr-deterministic-phoneme-viseme-runtime-map",
+            "rhubarb-lip-sync-compatible-mouth-cue-contract",
+            "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.phoneme-map",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1:phoneme-map",
+          "kind": "phoneme_map",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/phoneme-map.v1.json"
+          },
+          "provenanceRefs": [
+            "openclinxr-deterministic-phoneme-viseme-runtime-map",
+            "rhubarb-lip-sync-compatible-mouth-cue-contract",
+            "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.phoneme-map",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:spouse_anna_hayes_v1:phoneme-map",
+          "kind": "phoneme_map",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/phoneme-map.v1.json"
+          },
+          "provenanceRefs": [
+            "openclinxr-deterministic-phoneme-viseme-runtime-map",
+            "rhubarb-lip-sync-compatible-mouth-cue-contract",
+            "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.ecg_cart_equipment.generated-glb",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:ecg_cart_equipment",
+          "kind": "equipment_model",
+          "version": "medical-equipment-2026-05-25",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+            "contentHash": "bytes:22988"
+          },
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.iv_stand_equipment.generated-glb",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:iv_stand_equipment",
+          "kind": "equipment_model",
+          "version": "medical-equipment-2026-05-25",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+            "contentHash": "bytes:15664"
+          },
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
+          ]
+        }
+      ],
+      "humanoidMetadataRefs": [
+        {
+          "actorId": "patient_robert_hayes_v1",
+          "actorRole": "patient",
+          "embodiment": "humanoid",
+          "modelAssetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.generated-humanoid-glb",
+          "animationClipAssetIds": [
+            "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.idle_listen.animation-clip",
+            "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.speak_emphasis.animation-clip",
+            "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.concern_reaction.animation-clip",
+            "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.gaze_shift.animation-clip"
+          ],
+          "phonemeMapAssetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.phoneme-map",
+          "metadataRefIds": [
+            "generated_patient_robert_hayes_humanoid_glb",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_morph_target_viseme_contract",
+            "generated_human_rigging_report",
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness",
+            "openclinxr-deterministic-phoneme-viseme-runtime-map",
+            "rhubarb-lip-sync-compatible-mouth-cue-contract",
+            "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+          ],
+          "requiredSignalIds": [
+            "animated_humanoid_runtime_playback",
+            "authored_clinical_idle_pose_runtime_cue",
+            "visible_mouth_eye_expression_cues",
+            "dialogue_viseme_and_gaze_mapping",
+            "dialogue_eye_micro_saccade_blink_cue",
+            "generated_eyelid_blink_control_cue",
+            "emotion_aligned_expression_transition_cue"
+          ],
+          "claimScope": "metadata_only_not_visual_quality_evidence"
+        },
+        {
+          "actorId": "nurse_maria_alvarez_v1",
+          "actorRole": "nurse",
+          "embodiment": "humanoid",
+          "modelAssetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.generated-humanoid-glb",
+          "animationClipAssetIds": [
+            "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.idle_listen.animation-clip",
+            "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.speak_emphasis.animation-clip",
+            "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.concern_reaction.animation-clip",
+            "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.gaze_shift.animation-clip"
+          ],
+          "phonemeMapAssetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.phoneme-map",
+          "metadataRefIds": [
+            "nurse_maria_alvarez_character",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_morph_target_viseme_contract",
+            "generated_human_rigging_report",
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness",
+            "openclinxr-deterministic-phoneme-viseme-runtime-map",
+            "rhubarb-lip-sync-compatible-mouth-cue-contract",
+            "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+          ],
+          "requiredSignalIds": [
+            "animated_humanoid_runtime_playback",
+            "authored_clinical_idle_pose_runtime_cue",
+            "visible_mouth_eye_expression_cues",
+            "dialogue_viseme_and_gaze_mapping",
+            "dialogue_eye_micro_saccade_blink_cue",
+            "generated_eyelid_blink_control_cue",
+            "emotion_aligned_expression_transition_cue"
+          ],
+          "claimScope": "metadata_only_not_visual_quality_evidence"
+        },
+        {
+          "actorId": "spouse_anna_hayes_v1",
+          "actorRole": "family_member",
+          "embodiment": "humanoid",
+          "modelAssetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.generated-humanoid-glb",
+          "animationClipAssetIds": [
+            "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.idle_listen.animation-clip",
+            "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.speak_emphasis.animation-clip",
+            "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.concern_reaction.animation-clip",
+            "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.gaze_shift.animation-clip"
+          ],
+          "phonemeMapAssetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.phoneme-map",
+          "metadataRefIds": [
+            "spouse_anna_hayes_character",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_morph_target_viseme_contract",
+            "generated_human_rigging_report",
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness",
+            "openclinxr-deterministic-phoneme-viseme-runtime-map",
+            "rhubarb-lip-sync-compatible-mouth-cue-contract",
+            "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+          ],
+          "requiredSignalIds": [
+            "animated_humanoid_runtime_playback",
+            "authored_clinical_idle_pose_runtime_cue",
+            "visible_mouth_eye_expression_cues",
+            "dialogue_viseme_and_gaze_mapping",
+            "dialogue_eye_micro_saccade_blink_cue",
+            "generated_eyelid_blink_control_cue",
+            "emotion_aligned_expression_transition_cue"
+          ],
+          "claimScope": "metadata_only_not_visual_quality_evidence"
+        }
+      ],
+      "evidenceGateIds": [],
+      "fallbackPosture": {
+        "usesLocalFixtureFallbackAssets": false,
+        "fallbackAssetIds": [],
+        "learnerUseBlockedUntilEvidenceGatesAttach": true
+      },
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    },
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "learnerBundle": {
+    "bundleId": "local_exam_run:ed_chest_pain_local_encounter:generated-runtime-assets",
+    "stationId": "ed_chest_pain_station_v1",
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "assetStoreKind": "azurite_blob",
+    "environment": {
+      "assetId": "openclinxr.ed_chest_pain_priority_v1.environment.generated-glb",
+      "version": "environment-2026-05-25",
+      "kind": "environment_model",
+      "displayName": "ed chest pain priority environment",
+      "scenarioAssetId": "ed_chest_pain_priority_v1:environment",
+      "blob": {
+        "storeKind": "azurite_blob",
+        "containerName": "openclinxr-assets",
+        "blobName": ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb",
+        "contentHash": "bytes:65012",
+        "contentType": "model/gltf-binary",
+        "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+      },
+      "reviewStatus": "approved_for_local_runtime",
+      "provenanceRefs": [
+        ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-layout.json",
+        ".openclinxr/asset-production/ed-chest-pain/environment/equipment-placement-manifest.json",
+        ".openclinxr/asset-production/ed-chest-pain/environment/quest-environment-budget.json",
+        ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+      ],
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    },
+    "actors": [
+      {
+        "actorId": "patient_robert_hayes_v1",
+        "embodiment": "humanoid",
+        "role": "patient",
+        "model": {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.generated-humanoid-glb",
+          "version": "generated-human-rigging-2026-05-25",
+          "kind": "humanoid_model",
+          "displayName": "patient robert hayes",
+          "scenarioAssetId": "generated_patient_robert_hayes_humanoid_glb",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:5594308:declared:5594308",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_morph_target_viseme_contract",
+            "generated_human_rigging_report"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "animationClips": [
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.idle_listen.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "patient robert hayes idle listen",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:patient_robert_hayes_v1:idle_listen",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/idle_listen.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/idle_listen.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          },
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.speak_emphasis.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "patient robert hayes speak emphasis",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:patient_robert_hayes_v1:speak_emphasis",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/speak_emphasis.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/speak_emphasis.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          },
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.concern_reaction.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "patient robert hayes concern reaction",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:patient_robert_hayes_v1:concern_reaction",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/concern_reaction.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/concern_reaction.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          },
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.gaze_shift.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "patient robert hayes gaze shift",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:patient_robert_hayes_v1:gaze_shift",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/gaze_shift.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/gaze_shift.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          }
+        ],
+        "phonemeMap": {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.phoneme-map",
+          "version": "generated-runtime-2026-05-23",
+          "kind": "phoneme_map",
+          "displayName": "patient robert hayes phoneme viseme map",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:patient_robert_hayes_v1:phoneme-map",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/phoneme-map.v1.json",
+            "contentType": "application/json",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/phoneme-map.v1.json"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            "openclinxr-deterministic-phoneme-viseme-runtime-map",
+            "rhubarb-lip-sync-compatible-mouth-cue-contract",
+            "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "gazeProfile": {
+          "defaultTarget": "learner_camera",
+          "supportsActorTargets": true
+        }
+      },
+      {
+        "actorId": "nurse_maria_alvarez_v1",
+        "embodiment": "humanoid",
+        "role": "nurse",
+        "model": {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.generated-humanoid-glb",
+          "version": "generated-human-rigging-2026-05-25",
+          "kind": "humanoid_model",
+          "displayName": "nurse maria alvarez",
+          "scenarioAssetId": "nurse_maria_alvarez_character",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:5594308:declared:5594308",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_morph_target_viseme_contract",
+            "generated_human_rigging_report"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "animationClips": [
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.idle_listen.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "nurse maria alvarez idle listen",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1:idle_listen",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/idle_listen.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/idle_listen.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          },
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.speak_emphasis.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "nurse maria alvarez speak emphasis",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1:speak_emphasis",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/speak_emphasis.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/speak_emphasis.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          },
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.concern_reaction.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "nurse maria alvarez concern reaction",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1:concern_reaction",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/concern_reaction.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/concern_reaction.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          },
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.gaze_shift.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "nurse maria alvarez gaze shift",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1:gaze_shift",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/gaze_shift.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/gaze_shift.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          }
+        ],
+        "phonemeMap": {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.phoneme-map",
+          "version": "generated-runtime-2026-05-23",
+          "kind": "phoneme_map",
+          "displayName": "nurse maria alvarez phoneme viseme map",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1:phoneme-map",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/phoneme-map.v1.json",
+            "contentType": "application/json",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/phoneme-map.v1.json"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            "openclinxr-deterministic-phoneme-viseme-runtime-map",
+            "rhubarb-lip-sync-compatible-mouth-cue-contract",
+            "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "gazeProfile": {
+          "defaultTarget": "learner_camera",
+          "supportsActorTargets": true
+        }
+      },
+      {
+        "actorId": "spouse_anna_hayes_v1",
+        "embodiment": "humanoid",
+        "role": "family_member",
+        "model": {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.generated-humanoid-glb",
+          "version": "generated-human-rigging-2026-05-25",
+          "kind": "humanoid_model",
+          "displayName": "spouse anna hayes",
+          "scenarioAssetId": "spouse_anna_hayes_character",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:5594308:declared:5594308",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_morph_target_viseme_contract",
+            "generated_human_rigging_report"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "animationClips": [
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.idle_listen.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "spouse anna hayes idle listen",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:spouse_anna_hayes_v1:idle_listen",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/idle_listen.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/idle_listen.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          },
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.speak_emphasis.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "spouse anna hayes speak emphasis",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:spouse_anna_hayes_v1:speak_emphasis",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/speak_emphasis.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/speak_emphasis.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          },
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.concern_reaction.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "spouse anna hayes concern reaction",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:spouse_anna_hayes_v1:concern_reaction",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/concern_reaction.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/concern_reaction.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          },
+          {
+            "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.gaze_shift.animation-clip",
+            "version": "generated-runtime-2026-05-23",
+            "kind": "animation_clip",
+            "displayName": "spouse anna hayes gaze shift",
+            "scenarioAssetId": "ed_chest_pain_priority_v1:spouse_anna_hayes_v1:gaze_shift",
+            "blob": {
+              "storeKind": "azurite_blob",
+              "containerName": "openclinxr-assets",
+              "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/gaze_shift.glb",
+              "contentType": "model/gltf-binary",
+              "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/gaze_shift.glb"
+            },
+            "reviewStatus": "approved_for_local_runtime",
+            "provenanceRefs": [
+              "openclinxr-generated-human-rigging-artifacts",
+              "openclinxr-procedural-animation-placeholder-contract",
+              "requires-retargeted-clip-materialization-before-production-readiness"
+            ],
+            "notEvidenceFor": [
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ]
+          }
+        ],
+        "phonemeMap": {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.phoneme-map",
+          "version": "generated-runtime-2026-05-23",
+          "kind": "phoneme_map",
+          "displayName": "spouse anna hayes phoneme viseme map",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:spouse_anna_hayes_v1:phoneme-map",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/phoneme-map.v1.json",
+            "contentType": "application/json",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/phoneme-map.v1.json"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            "openclinxr-deterministic-phoneme-viseme-runtime-map",
+            "rhubarb-lip-sync-compatible-mouth-cue-contract",
+            "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        "gazeProfile": {
+          "defaultTarget": "learner_camera",
+          "supportsActorTargets": true
+        }
+      }
+    ],
+    "equipment": [
+      {
+        "equipmentId": "ecg_cart_equipment",
+        "model": {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.ecg_cart_equipment.generated-glb",
+          "version": "medical-equipment-2026-05-25",
+          "kind": "equipment_model",
+          "displayName": "ecg cart",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:ecg_cart_equipment",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+            "contentHash": "bytes:22988",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        }
+      },
+      {
+        "equipmentId": "iv_stand_equipment",
+        "model": {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.iv_stand_equipment.generated-glb",
+          "version": "medical-equipment-2026-05-25",
+          "kind": "equipment_model",
+          "displayName": "iv stand",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:iv_stand_equipment",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+            "contentHash": "bytes:15664",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        }
+      }
+    ],
+    "uiSurfaces": [],
+    "sceneManifest": {
+      "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+      "manifestId": "scene_manifest:ed_chest_pain_priority_v1:ed_chest_pain_station_v1",
+      "source": "generated_scene_pipeline",
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "stationId": "ed_chest_pain_station_v1",
+      "stationContext": {
+        "title": "ED Chest Pain",
+        "subtitle": "Patient, spouse, and nurse in a time-boxed emergency department encounter.",
+        "chiefConcern": "Crushing substernal chest pressure",
+        "initialVitals": "BP 152/92, HR 104, RR 20, SpO2 96%",
+        "interruption": "Nurse repeats vitals at minute seven",
+        "stageAriaLabel": "Emergency department station scene",
+        "canvasAriaLabel": "3D emergency department bay preview",
+        "initialDialogueText": "Robert Hayes: It feels heavy, like someone is sitting on my chest."
+      },
+      "dialogueTurns": [
+        {
+          "traceTag": "history_opqrst",
+          "actorId": "patient_robert_hayes_v1",
+          "text": "Robert Hayes: I can tell you what has been happening if we go step by step.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null,
+          "affectTimeline": {
+            "emotion": "neutral",
+            "intensity": 0.2,
+            "onsetMs": 120,
+            "transitionMs": 950,
+            "decayMs": 900,
+            "evidenceCueIds": [
+              "emotion_aligned_expression_transition_cue",
+              "visible_runtime_eyebrow_jaw_cheek_cue",
+              "dialogue_viseme_and_gaze_mapping"
+            ],
+            "notEvidenceFor": [
+              "clinical_validity",
+              "scoring_validity",
+              "production_asset_readiness"
+            ]
+          }
+        },
+        {
+          "traceTag": "risk_factor_question",
+          "actorId": "patient_robert_hayes_v1",
+          "text": "Robert Hayes: There may be details I only mention if asked clearly.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null,
+          "affectTimeline": {
+            "emotion": "neutral",
+            "intensity": 0.2,
+            "onsetMs": 120,
+            "transitionMs": 950,
+            "decayMs": 900,
+            "evidenceCueIds": [
+              "emotion_aligned_expression_transition_cue",
+              "visible_runtime_eyebrow_jaw_cheek_cue",
+              "dialogue_viseme_and_gaze_mapping"
+            ],
+            "notEvidenceFor": [
+              "clinical_validity",
+              "scoring_validity",
+              "production_asset_readiness"
+            ]
+          }
+        },
+        {
+          "traceTag": "associated_symptom_question",
+          "actorId": "patient_robert_hayes_v1",
+          "text": "Robert Hayes: I have noticed a few related symptoms that worry me.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null,
+          "affectTimeline": {
+            "emotion": "concerned",
+            "intensity": 0.58,
+            "onsetMs": 120,
+            "transitionMs": 950,
+            "decayMs": 900,
+            "evidenceCueIds": [
+              "emotion_aligned_expression_transition_cue",
+              "visible_runtime_eyebrow_jaw_cheek_cue",
+              "dialogue_viseme_and_gaze_mapping"
+            ],
+            "notEvidenceFor": [
+              "clinical_validity",
+              "scoring_validity",
+              "production_asset_readiness"
+            ]
+          }
+        },
+        {
+          "traceTag": "vitals_review",
+          "actorId": "nurse_maria_alvarez_v1",
+          "text": "Nurse Maria Alvarez: I can help review the available status information.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null,
+          "affectTimeline": {
+            "emotion": "neutral",
+            "intensity": 0.2,
+            "onsetMs": 120,
+            "transitionMs": 950,
+            "decayMs": 900,
+            "evidenceCueIds": [
+              "emotion_aligned_expression_transition_cue",
+              "visible_runtime_eyebrow_jaw_cheek_cue",
+              "dialogue_viseme_and_gaze_mapping"
+            ],
+            "notEvidenceFor": [
+              "clinical_validity",
+              "scoring_validity",
+              "production_asset_readiness"
+            ]
+          }
+        },
+        {
+          "traceTag": "ecg_request",
+          "actorId": "nurse_maria_alvarez_v1",
+          "text": "Nurse Maria Alvarez: I will help gather the next piece of clinical information.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null,
+          "affectTimeline": {
+            "emotion": "neutral",
+            "intensity": 0.2,
+            "onsetMs": 120,
+            "transitionMs": 950,
+            "decayMs": 900,
+            "evidenceCueIds": [
+              "emotion_aligned_expression_transition_cue",
+              "visible_runtime_eyebrow_jaw_cheek_cue",
+              "dialogue_viseme_and_gaze_mapping"
+            ],
+            "notEvidenceFor": [
+              "clinical_validity",
+              "scoring_validity",
+              "production_asset_readiness"
+            ]
+          }
+        },
+        {
+          "traceTag": "urgent_escalation",
+          "actorId": "spouse_anna_hayes_v1",
+          "text": "Anna Hayes: I need to know when this becomes urgent.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null,
+          "affectTimeline": {
+            "emotion": "anxious",
+            "intensity": 0.68,
+            "onsetMs": 120,
+            "transitionMs": 650,
+            "decayMs": 900,
+            "evidenceCueIds": [
+              "emotion_aligned_expression_transition_cue",
+              "visible_runtime_eyebrow_jaw_cheek_cue",
+              "dialogue_viseme_and_gaze_mapping"
+            ],
+            "notEvidenceFor": [
+              "clinical_validity",
+              "scoring_validity",
+              "production_asset_readiness"
+            ]
+          }
+        },
+        {
+          "traceTag": "team_communication",
+          "actorId": "nurse_maria_alvarez_v1",
+          "text": "Nurse Maria Alvarez: A clear shared plan will help the team respond.",
+          "gazeTargetKind": "actor",
+          "gazeTargetActorId": "nurse_maria_alvarez_v1",
+          "affectTimeline": {
+            "emotion": "neutral",
+            "intensity": 0.2,
+            "onsetMs": 120,
+            "transitionMs": 950,
+            "decayMs": 900,
+            "evidenceCueIds": [
+              "emotion_aligned_expression_transition_cue",
+              "visible_runtime_eyebrow_jaw_cheek_cue",
+              "dialogue_viseme_and_gaze_mapping"
+            ],
+            "notEvidenceFor": [
+              "clinical_validity",
+              "scoring_validity",
+              "production_asset_readiness"
+            ]
+          }
+        },
+        {
+          "traceTag": "family_communication",
+          "actorId": "spouse_anna_hayes_v1",
+          "text": "Anna Hayes: Please include us in a way that supports the patient.",
+          "gazeTargetKind": "actor",
+          "gazeTargetActorId": "spouse_anna_hayes_v1",
+          "affectTimeline": {
+            "emotion": "anxious",
+            "intensity": 0.68,
+            "onsetMs": 120,
+            "transitionMs": 650,
+            "decayMs": 900,
+            "evidenceCueIds": [
+              "emotion_aligned_expression_transition_cue",
+              "visible_runtime_eyebrow_jaw_cheek_cue",
+              "dialogue_viseme_and_gaze_mapping"
+            ],
+            "notEvidenceFor": [
+              "clinical_validity",
+              "scoring_validity",
+              "production_asset_readiness"
+            ]
+          }
+        },
+        {
+          "traceTag": "empathy_statement",
+          "actorId": "patient_robert_hayes_v1",
+          "text": "Robert Hayes: It helps when you acknowledge how stressful this feels.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null,
+          "affectTimeline": {
+            "emotion": "concerned",
+            "intensity": 0.58,
+            "onsetMs": 120,
+            "transitionMs": 950,
+            "decayMs": 900,
+            "evidenceCueIds": [
+              "emotion_aligned_expression_transition_cue",
+              "visible_runtime_eyebrow_jaw_cheek_cue",
+              "dialogue_viseme_and_gaze_mapping"
+            ],
+            "notEvidenceFor": [
+              "clinical_validity",
+              "scoring_validity",
+              "production_asset_readiness"
+            ]
+          }
+        },
+        {
+          "traceTag": "patient_note_submitted",
+          "actorId": "patient_robert_hayes_v1",
+          "text": "System: Patient note saved for faculty review.",
+          "gazeTargetKind": "learner_camera",
+          "gazeTargetActorId": null,
+          "affectTimeline": {
+            "emotion": "neutral",
+            "intensity": 0.2,
+            "onsetMs": 120,
+            "transitionMs": 950,
+            "decayMs": 900,
+            "evidenceCueIds": [
+              "emotion_aligned_expression_transition_cue",
+              "visible_runtime_eyebrow_jaw_cheek_cue",
+              "dialogue_viseme_and_gaze_mapping"
+            ],
+            "notEvidenceFor": [
+              "clinical_validity",
+              "scoring_validity",
+              "production_asset_readiness"
+            ]
+          }
+        }
+      ],
+      "actorPlacements": {
+        "patient_robert_hayes_v1": {
+          "slotKind": "primary_patient",
+          "position": {
+            "x": -0.72,
+            "y": 1.06,
+            "z": -0.12
+          },
+          "scale": {
+            "x": 1.1,
+            "y": 1.1,
+            "z": 1.1
+          },
+          "verticalOffsetMeters": -0.98,
+          "labelPrefix": "Patient"
+        },
+        "nurse_maria_alvarez_v1": {
+          "slotKind": "clinical_team",
+          "position": {
+            "x": 1.45,
+            "y": 0.95,
+            "z": 0.55
+          },
+          "scale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          },
+          "verticalOffsetMeters": -0.95,
+          "labelPrefix": "Team"
+        },
+        "spouse_anna_hayes_v1": {
+          "slotKind": "family_or_observer",
+          "position": {
+            "x": -2,
+            "y": 0.95,
+            "z": 0.7
+          },
+          "scale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          },
+          "verticalOffsetMeters": -0.95,
+          "labelPrefix": "Family"
+        }
+      },
+      "equipmentPlacements": {
+        "ecg_cart_equipment": {
+          "position": {
+            "x": 1.6,
+            "y": 0,
+            "z": 0.28
+          },
+          "label": "Ecg Cart",
+          "interactionCueIds": [
+            "ecg_cart_equipment:selectable_equipment_reference",
+            "ecg_cart_equipment:clinical_workflow_cue"
+          ]
+        },
+        "iv_stand_equipment": {
+          "position": {
+            "x": 0.95,
+            "y": 0,
+            "z": 0.98
+          },
+          "label": "Iv Stand",
+          "interactionCueIds": [
+            "iv_stand_equipment:selectable_equipment_reference",
+            "iv_stand_equipment:clinical_workflow_cue"
+          ]
+        }
+      },
+      "roomProps": [
+        {
+          "propId": "ecg-priority-zone",
+          "label": "ECG priority zone",
+          "semanticRole": "objective_cue",
+          "evidenceCue": "ecg_priority_workflow_cue",
+          "colorHex": "#fef3c7",
+          "accentColorHex": "#f59e0b",
+          "position": {
+            "x": 1.5,
+            "y": 0.75,
+            "z": 0.25
+          },
+          "scale": {
+            "x": 0.7,
+            "y": 0.18,
+            "z": 0.42
+          },
+          "affordanceCueIds": [
+            "ecg-priority-zone:objective_cue",
+            "ecg_priority_workflow_cue"
+          ],
+          "interactionTags": [
+            "objective_cue",
+            "ed_chest_pain_priority_v1"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "handoff-whiteboard",
+          "label": "Handoff whiteboard",
+          "semanticRole": "review_cue",
+          "evidenceCue": "handoff_review_cue",
+          "colorHex": "#f8fafc",
+          "accentColorHex": "#14b8a6",
+          "position": {
+            "x": -1.2,
+            "y": 1.6,
+            "z": -0.85
+          },
+          "scale": {
+            "x": 0.7,
+            "y": 0.18,
+            "z": 0.42
+          },
+          "affordanceCueIds": [
+            "handoff-whiteboard:review_cue",
+            "handoff_review_cue"
+          ],
+          "interactionTags": [
+            "review_cue",
+            "ed_chest_pain_priority_v1"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "chest-pain-monitor",
+          "label": "Cardiac monitor",
+          "semanticRole": "scenario_context",
+          "evidenceCue": "cardiac_monitor_context_cue",
+          "colorHex": "#dbeafe",
+          "accentColorHex": "#ef4444",
+          "position": {
+            "x": 1.65,
+            "y": 1.3,
+            "z": -0.5
+          },
+          "scale": {
+            "x": 0.7,
+            "y": 0.18,
+            "z": 0.42
+          },
+          "affordanceCueIds": [
+            "chest-pain-monitor:scenario_context",
+            "cardiac_monitor_context_cue"
+          ],
+          "interactionTags": [
+            "scenario_context",
+            "ed_chest_pain_priority_v1"
+          ],
+          "generatedBy": "scene_manifest"
+        },
+        {
+          "propId": "family-communication-zone",
+          "label": "Family communication zone",
+          "semanticRole": "communication_cue",
+          "evidenceCue": "family_communication_zone_cue",
+          "colorHex": "#ffedd5",
+          "accentColorHex": "#f97316",
+          "position": {
+            "x": -1.8,
+            "y": 0.6,
+            "z": 0.8
+          },
+          "scale": {
+            "x": 0.7,
+            "y": 0.18,
+            "z": 0.42
+          },
+          "affordanceCueIds": [
+            "family-communication-zone:communication_cue",
+            "family_communication_zone_cue"
+          ],
+          "interactionTags": [
+            "communication_cue",
+            "ed_chest_pain_priority_v1"
+          ],
+          "generatedBy": "scene_manifest"
+        }
+      ],
+      "productionReadinessClaimed": false,
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    },
+    "evidenceGateRefs": [],
+    "generatedAt": "2026-05-25T11:12:18.732Z",
+    "expiresAt": null,
+    "frozenForEncounter": true,
+    "assemblyAuditMetadata": {
+      "schemaVersion": "openclinxr.runtime-bundle-assembly-audit.v1",
+      "claimBoundary": "asset_reference_audit_metadata_not_materialized_assets",
+      "sourceDefinitionRefs": [
+        "scenario_definition:ed_chest_pain_priority_v1",
+        "station_definition:ed_chest_pain_station_v1",
+        "runtime_scene_manifest:scene_manifest:ed_chest_pain_priority_v1:ed_chest_pain_station_v1"
+      ],
+      "workOrderRefs": [
+        "scene_generation_work_order:ed_chest_pain_priority_v1",
+        "runtime_bundle_binding:local_exam_run:ed_chest_pain_local_encounter:generated-runtime-assets"
+      ],
+      "factoryRequestRefs": [
+        "runtime_bundle:local_exam_run:ed_chest_pain_local_encounter:generated-runtime-assets",
+        "asset_store:azurite_blob"
+      ],
+      "generatedAssetRefs": [
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.environment.generated-glb",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:environment",
+          "kind": "environment_model",
+          "version": "environment-2026-05-25",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb",
+            "contentHash": "bytes:65012"
+          },
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-layout.json",
+            ".openclinxr/asset-production/ed-chest-pain/environment/equipment-placement-manifest.json",
+            ".openclinxr/asset-production/ed-chest-pain/environment/quest-environment-budget.json",
+            ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.generated-humanoid-glb",
+          "scenarioAssetId": "generated_patient_robert_hayes_humanoid_glb",
+          "kind": "humanoid_model",
+          "version": "generated-human-rigging-2026-05-25",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:5594308:declared:5594308"
+          },
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_morph_target_viseme_contract",
+            "generated_human_rigging_report"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.generated-humanoid-glb",
+          "scenarioAssetId": "nurse_maria_alvarez_character",
+          "kind": "humanoid_model",
+          "version": "generated-human-rigging-2026-05-25",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:5594308:declared:5594308"
+          },
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_morph_target_viseme_contract",
+            "generated_human_rigging_report"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.generated-humanoid-glb",
+          "scenarioAssetId": "spouse_anna_hayes_character",
+          "kind": "humanoid_model",
+          "version": "generated-human-rigging-2026-05-25",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+            "contentHash": "bytes:5594308:declared:5594308"
+          },
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_morph_target_viseme_contract",
+            "generated_human_rigging_report"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.idle_listen.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:patient_robert_hayes_v1:idle_listen",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/idle_listen.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.speak_emphasis.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:patient_robert_hayes_v1:speak_emphasis",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/speak_emphasis.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.concern_reaction.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:patient_robert_hayes_v1:concern_reaction",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/concern_reaction.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.gaze_shift.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:patient_robert_hayes_v1:gaze_shift",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/animations/gaze_shift.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.idle_listen.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1:idle_listen",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/idle_listen.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.speak_emphasis.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1:speak_emphasis",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/speak_emphasis.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.concern_reaction.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1:concern_reaction",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/concern_reaction.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.gaze_shift.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1:gaze_shift",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/animations/gaze_shift.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.idle_listen.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:spouse_anna_hayes_v1:idle_listen",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/idle_listen.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.speak_emphasis.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:spouse_anna_hayes_v1:speak_emphasis",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/speak_emphasis.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.concern_reaction.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:spouse_anna_hayes_v1:concern_reaction",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/concern_reaction.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.gaze_shift.animation-clip",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:spouse_anna_hayes_v1:gaze_shift",
+          "kind": "animation_clip",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/animations/gaze_shift.glb"
+          },
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.phoneme-map",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:patient_robert_hayes_v1:phoneme-map",
+          "kind": "phoneme_map",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/patient_robert_hayes_v1/phoneme-map.v1.json"
+          },
+          "provenanceRefs": [
+            "openclinxr-deterministic-phoneme-viseme-runtime-map",
+            "rhubarb-lip-sync-compatible-mouth-cue-contract",
+            "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.phoneme-map",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1:phoneme-map",
+          "kind": "phoneme_map",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/nurse_maria_alvarez_v1/phoneme-map.v1.json"
+          },
+          "provenanceRefs": [
+            "openclinxr-deterministic-phoneme-viseme-runtime-map",
+            "rhubarb-lip-sync-compatible-mouth-cue-contract",
+            "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.phoneme-map",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:spouse_anna_hayes_v1:phoneme-map",
+          "kind": "phoneme_map",
+          "version": "generated-runtime-2026-05-23",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/ed_chest_pain_priority_v1/actors/spouse_anna_hayes_v1/phoneme-map.v1.json"
+          },
+          "provenanceRefs": [
+            "openclinxr-deterministic-phoneme-viseme-runtime-map",
+            "rhubarb-lip-sync-compatible-mouth-cue-contract",
+            "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.ecg_cart_equipment.generated-glb",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:ecg_cart_equipment",
+          "kind": "equipment_model",
+          "version": "medical-equipment-2026-05-25",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+            "contentHash": "bytes:22988"
+          },
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
+          ]
+        },
+        {
+          "assetId": "openclinxr.ed_chest_pain_priority_v1.iv_stand_equipment.generated-glb",
+          "scenarioAssetId": "ed_chest_pain_priority_v1:iv_stand_equipment",
+          "kind": "equipment_model",
+          "version": "medical-equipment-2026-05-25",
+          "reviewStatus": "approved_for_local_runtime",
+          "blobRef": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+            "contentHash": "bytes:15664"
+          },
+          "provenanceRefs": [
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+            ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
+          ]
+        }
+      ],
+      "humanoidMetadataRefs": [
+        {
+          "actorId": "patient_robert_hayes_v1",
+          "actorRole": "patient",
+          "embodiment": "humanoid",
+          "modelAssetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.generated-humanoid-glb",
+          "animationClipAssetIds": [
+            "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.idle_listen.animation-clip",
+            "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.speak_emphasis.animation-clip",
+            "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.concern_reaction.animation-clip",
+            "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.gaze_shift.animation-clip"
+          ],
+          "phonemeMapAssetId": "openclinxr.ed_chest_pain_priority_v1.patient_robert_hayes_v1.phoneme-map",
+          "metadataRefIds": [
+            "generated_patient_robert_hayes_humanoid_glb",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_morph_target_viseme_contract",
+            "generated_human_rigging_report",
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness",
+            "openclinxr-deterministic-phoneme-viseme-runtime-map",
+            "rhubarb-lip-sync-compatible-mouth-cue-contract",
+            "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+          ],
+          "requiredSignalIds": [
+            "animated_humanoid_runtime_playback",
+            "authored_clinical_idle_pose_runtime_cue",
+            "visible_mouth_eye_expression_cues",
+            "dialogue_viseme_and_gaze_mapping",
+            "dialogue_eye_micro_saccade_blink_cue",
+            "generated_eyelid_blink_control_cue",
+            "emotion_aligned_expression_transition_cue"
+          ],
+          "claimScope": "metadata_only_not_visual_quality_evidence"
+        },
+        {
+          "actorId": "nurse_maria_alvarez_v1",
+          "actorRole": "nurse",
+          "embodiment": "humanoid",
+          "modelAssetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.generated-humanoid-glb",
+          "animationClipAssetIds": [
+            "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.idle_listen.animation-clip",
+            "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.speak_emphasis.animation-clip",
+            "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.concern_reaction.animation-clip",
+            "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.gaze_shift.animation-clip"
+          ],
+          "phonemeMapAssetId": "openclinxr.ed_chest_pain_priority_v1.nurse_maria_alvarez_v1.phoneme-map",
+          "metadataRefIds": [
+            "nurse_maria_alvarez_character",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_morph_target_viseme_contract",
+            "generated_human_rigging_report",
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness",
+            "openclinxr-deterministic-phoneme-viseme-runtime-map",
+            "rhubarb-lip-sync-compatible-mouth-cue-contract",
+            "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+          ],
+          "requiredSignalIds": [
+            "animated_humanoid_runtime_playback",
+            "authored_clinical_idle_pose_runtime_cue",
+            "visible_mouth_eye_expression_cues",
+            "dialogue_viseme_and_gaze_mapping",
+            "dialogue_eye_micro_saccade_blink_cue",
+            "generated_eyelid_blink_control_cue",
+            "emotion_aligned_expression_transition_cue"
+          ],
+          "claimScope": "metadata_only_not_visual_quality_evidence"
+        },
+        {
+          "actorId": "spouse_anna_hayes_v1",
+          "actorRole": "family_member",
+          "embodiment": "humanoid",
+          "modelAssetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.generated-humanoid-glb",
+          "animationClipAssetIds": [
+            "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.idle_listen.animation-clip",
+            "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.speak_emphasis.animation-clip",
+            "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.concern_reaction.animation-clip",
+            "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.gaze_shift.animation-clip"
+          ],
+          "phonemeMapAssetId": "openclinxr.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.phoneme-map",
+          "metadataRefIds": [
+            "spouse_anna_hayes_character",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+            ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+            "generated_human_morph_target_viseme_contract",
+            "generated_human_rigging_report",
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness",
+            "openclinxr-deterministic-phoneme-viseme-runtime-map",
+            "rhubarb-lip-sync-compatible-mouth-cue-contract",
+            "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+          ],
+          "requiredSignalIds": [
+            "animated_humanoid_runtime_playback",
+            "authored_clinical_idle_pose_runtime_cue",
+            "visible_mouth_eye_expression_cues",
+            "dialogue_viseme_and_gaze_mapping",
+            "dialogue_eye_micro_saccade_blink_cue",
+            "generated_eyelid_blink_control_cue",
+            "emotion_aligned_expression_transition_cue"
+          ],
+          "claimScope": "metadata_only_not_visual_quality_evidence"
+        }
+      ],
+      "evidenceGateIds": [],
+      "fallbackPosture": {
+        "usesLocalFixtureFallbackAssets": false,
+        "fallbackAssetIds": [],
+        "learnerUseBlockedUntilEvidenceGatesAttach": true
+      },
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    },
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ],
+    "identityScope": "learner_runtime_opaque_bundle"
+  },
+  "bundleBlobName": null,
+  "blockers": []
+}

@@ -1,0 +1,177 @@
+{
+  "generatedAt": "2026-05-23T16:03:56.636Z",
+  "schemaVersion": "openclinxr.encounter-asset-generation-queue-report.v1",
+  "status": "planned",
+  "queue": {
+    "queueName": "encounter-asset-generation",
+    "messageKind": "encounter_definition_to_executable_encounter",
+    "encodedMessage": "eyJzY2hlbWFWZXJzaW9uIjoib3BlbmNsaW54ci5henVyZS1zdG9yYWdlLXF1ZXVlLmVuY291bnRlci1hc3NldC1nZW5lcmF0aW9uLnYxIiwicXVldWVOYW1lIjoiZW5jb3VudGVyLWFzc2V0LWdlbmVyYXRpb24iLCJtZXNzYWdlS2luZCI6ImVuY291bnRlcl9kZWZpbml0aW9uX3RvX2V4ZWN1dGFibGVfZW5jb3VudGVyIiwidmlzaWJpbGl0eVRpbWVvdXRTZWNvbmRzIjozMDAsInRpbWVUb0xpdmVTZWNvbmRzIjo2MDQ4MDAsImRlcXVldWVBdHRlbXB0TGltaXQiOjI1LCJyZXF1ZXN0Ijp7InJlcXVlc3RJZCI6ImVuY291bnRlcl9hc3NldHNfcG9zdG9wX2ZldmVyX2NvbnN1bHRfcHJlc3N1cmVfZXhlY3V0YWJsZV92MSIsInRlbmFudElkIjoibG9jYWxfdGVuYW50IiwiZXhhbVJ1bklkIjoibG9jYWxfZXhhbV9ydW5fcG9zdG9wX2ZldmVyX2NvbnN1bHRfcHJlc3N1cmVfdjEiLCJlbmNvdW50ZXJJZCI6InBvc3RvcF9mZXZlcl9jb25zdWx0X3ByZXNzdXJlX2VuY291bnRlcl92MSIsInNjZW5hcmlvSWQiOiJwb3N0b3BfZmV2ZXJfY29uc3VsdF9wcmVzc3VyZV92MSIsInN0YXRpb25JZCI6InBvc3RvcF9mZXZlcl9jb25zdWx0X3ByZXNzdXJlX3N0YXRpb25fdjEiLCJlbmNvdW50ZXJEZWZpbml0aW9uUmVmIjp7InN0b3JlS2luZCI6Im1vbmdvb3NlIiwiY29sbGVjdGlvbk5hbWUiOiJzY2VuYXJpb19kZWZpbml0aW9ucyIsImRvY3VtZW50SWQiOiJzY2VuYXJpb19wb3N0b3BfZmV2ZXJfY29uc3VsdF9wcmVzc3VyZV92MSIsImNvbnRlbnRIYXNoIjoibG9jYWwtZGV0ZXJtaW5pc3RpYy1lbmNvdW50ZXItZGVmaW5pdGlvbi1jb250cmFjdCJ9LCJ0YXJnZXRBc3NldFN0b3JlIjp7InN0b3JlS2luZCI6ImF6dXJpdGVfYmxvYiIsImNvbnRhaW5lck5hbWUiOiJvcGVuY2xpbnhyLWFzc2V0cyIsImJsb2JQcmVmaXgiOiJlbmNvdW50ZXItYXNzZXRzL2xvY2FsX3RlbmFudC9wb3N0b3BfZmV2ZXJfY29uc3VsdF9wcmVzc3VyZV92MS9wb3N0b3BfZmV2ZXJfY29uc3VsdF9wcmVzc3VyZV9lbmNvdW50ZXJfdjEvIn0sInBlcnNpc3RlbmNlVGFyZ2V0Ijp7InN0b3JlS2luZCI6Im1vbmdvb3NlIiwiY29sbGVjdGlvbk5hbWUiOiJlbmNvdW50ZXJfYXNzZXRfZ2VuZXJhdGlvbl9qb2JzIn0sInJlcXVlc3RlZFN0YWdlcyI6WyJlbmNvdW50ZXItZGVmaW5pdGlvbi1pbmdlc3RlZCIsImNoYXJhY3Rlci1nZW5lcmF0aW9uIiwibWVkaWNhbC1lcXVpcG1lbnQtZ2VuZXJhdGlvbiIsImVudmlyb25tZW50LWdlbmVyYXRpb24iLCJhbmltYXRpb24tZ2VuZXJhdGlvbiIsInZvaWNlLWFzc2V0LWdlbmVyYXRpb24iLCJhc3NldC1iYWtlIiwic2NlbmUtbWFuaWZlc3QtZnJlZXplIiwicnVudGltZS1idW5kbGUtcHVibGljYXRpb24iLCJyZXZpZXctZXZpZGVuY2UtZ2F0ZSJdLCJvcHRpbWl6YXRpb25XaW5kb3ciOnsiZXhwZWN0ZWRNaW5pbXVtSG91cnMiOjIsImV4cGVjdGVkTWF4aW11bUhvdXJzIjo5NiwibWF5UnVuRm9yRGF5cyI6dHJ1ZSwiY2hlY2twb2ludEludGVydmFsTWludXRlcyI6MzB9LCJldmlkZW5jZUdhdGVzIjp7InJlcXVpcmVHZW5lcmF0ZWRTY2VuZU1hbmlmZXN0Ijp0cnVlLCJyZXF1aXJlUnVudGltZUJ1bmRsZVB1YmxpY2F0aW9uIjp0cnVlLCJyZXF1aXJlSHVtYW5SZXZpZXdCZWZvcmVMZWFybmVyVXNlIjp0cnVlLCJyZXF1aXJlUXVlc3RFdmlkZW5jZUJlZm9yZVF1ZXN0UmVhZGluZXNzQ2xhaW0iOnRydWV9LCJwb2xpY3kiOnsiYWxsb3dQYWlkQ2xvdWRBcGlzIjpmYWxzZSwiYWxsb3dQcm9kdWN0aW9uRGVwbG95bWVudCI6ZmFsc2UsInByb2R1Y3Rpb25SZWFkaW5lc3NDbGFpbWVkIjpmYWxzZX19LCJub3RFdmlkZW5jZUZvciI6WyJwcm9kdWN0aW9uX2Fzc2V0X3JlYWRpbmVzcyIsInF1ZXN0X3JlYWRpbmVzcyIsImNsaW5pY2FsX3ZhbGlkaXR5Iiwic2NvcmluZ192YWxpZGl0eSJdfQ==",
+    "encodedMessageBytes": 2552,
+    "visibilityTimeoutSeconds": 300,
+    "timeToLiveSeconds": 604800,
+    "dequeueAttemptLimit": 25
+  },
+  "request": {
+    "requestId": "encounter_assets_postop_fever_consult_pressure_executable_v1",
+    "tenantId": "local_tenant",
+    "examRunId": "local_exam_run_postop_fever_consult_pressure_v1",
+    "encounterId": "postop_fever_consult_pressure_encounter_v1",
+    "scenarioId": "postop_fever_consult_pressure_v1",
+    "stationId": "postop_fever_consult_pressure_station_v1",
+    "encounterDefinitionRef": {
+      "storeKind": "mongoose",
+      "collectionName": "scenario_definitions",
+      "documentId": "scenario_postop_fever_consult_pressure_v1",
+      "contentHash": "local-deterministic-encounter-definition-contract"
+    },
+    "targetAssetStore": {
+      "storeKind": "azurite_blob",
+      "containerName": "openclinxr-assets",
+      "blobPrefix": "encounter-assets/local_tenant/postop_fever_consult_pressure_v1/postop_fever_consult_pressure_encounter_v1/"
+    },
+    "persistenceTarget": {
+      "storeKind": "mongoose",
+      "collectionName": "encounter_asset_generation_jobs"
+    },
+    "requestedStages": [
+      "encounter-definition-ingested",
+      "character-generation",
+      "medical-equipment-generation",
+      "environment-generation",
+      "animation-generation",
+      "voice-asset-generation",
+      "asset-bake",
+      "scene-manifest-freeze",
+      "runtime-bundle-publication",
+      "review-evidence-gate"
+    ],
+    "optimizationWindow": {
+      "expectedMinimumHours": 2,
+      "expectedMaximumHours": 96,
+      "mayRunForDays": true,
+      "checkpointIntervalMinutes": 30
+    },
+    "evidenceGates": {
+      "requireGeneratedSceneManifest": true,
+      "requireRuntimeBundlePublication": true,
+      "requireHumanReviewBeforeLearnerUse": true,
+      "requireQuestEvidenceBeforeQuestReadinessClaim": true
+    },
+    "policy": {
+      "allowPaidCloudApis": false,
+      "allowProductionDeployment": false,
+      "productionReadinessClaimed": false
+    }
+  },
+  "plan": {
+    "schemaVersion": "openclinxr.encounter-asset-generation-plan.v1",
+    "requestId": "encounter_assets_postop_fever_consult_pressure_executable_v1",
+    "queueName": "encounter-asset-generation",
+    "stages": [
+      {
+        "stage": "encounter-definition-ingested",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob"
+      },
+      {
+        "stage": "character-generation",
+        "capabilityId": "character-generation",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob"
+      },
+      {
+        "stage": "medical-equipment-generation",
+        "capabilityId": "medical-equipment-generation",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob"
+      },
+      {
+        "stage": "environment-generation",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob"
+      },
+      {
+        "stage": "animation-generation",
+        "capabilityId": "animation-generation",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob"
+      },
+      {
+        "stage": "voice-asset-generation",
+        "capabilityId": "voice-asset-generation",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob"
+      },
+      {
+        "stage": "asset-bake",
+        "capabilityId": "asset-bake",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob"
+      },
+      {
+        "stage": "scene-manifest-freeze",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob_and_mongoose"
+      },
+      {
+        "stage": "runtime-bundle-publication",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob_and_mongoose"
+      },
+      {
+        "stage": "review-evidence-gate",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "mongoose"
+      }
+    ],
+    "expectedDuration": {
+      "minimumHours": 2,
+      "maximumHours": 96,
+      "mayRunForDays": true
+    },
+    "executableEncounterReadyOnlyAfter": [
+      "generated_scene_manifest_persisted",
+      "assets_written_to_blob_store",
+      "learner_runtime_bundle_persisted_to_mongoose_or_mongodb",
+      "human_review_gate_passed_for_local_runtime"
+    ],
+    "productionReadinessClaimed": false
+  },
+  "storageTargets": {
+    "blobStoreKind": "azurite_blob",
+    "blobContainerName": "openclinxr-assets",
+    "blobPrefix": "encounter-assets/local_tenant/postop_fever_consult_pressure_v1/postop_fever_consult_pressure_encounter_v1/",
+    "durableStateStoreKind": "mongoose",
+    "durableStateCollectionName": "encounter_asset_generation_jobs"
+  },
+  "operationalNotes": {
+    "longRunningOptimizationAccepted": true,
+    "expectedMinimumHours": 2,
+    "expectedMaximumHours": 96,
+    "mayRunForDays": true,
+    "checkpointIntervalMinutes": 30,
+    "generatedAssetsMustRemainDynamic": true,
+    "sceneIsNotHardcodedInRuntime": true
+  },
+  "evidenceBoundaries": {
+    "azureQueueMessagePrepared": true,
+    "azuriteCompatible": true,
+    "azureCloudOperationPerformed": false,
+    "paidApisUsed": false,
+    "productionDeploymentPerformed": false,
+    "productionReadinessClaimed": false,
+    "questReadinessClaimed": false,
+    "clinicalValidityClaimed": false,
+    "scoringValidityClaimed": false
+  }
+}

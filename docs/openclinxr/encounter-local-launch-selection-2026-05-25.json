@@ -1,0 +1,63 @@
+{
+  "generatedAt": "2026-05-26T00:00:37.725Z",
+  "schemaVersion": "openclinxr.encounter-local-launch-selection.v1",
+  "selectedScenarioId": "ed_chest_pain_priority_v2",
+  "selectedEncounterId": "encounter_assets_ed_chest_pain_priority_executable_v1",
+  "selectedStationId": "ed_chest_pain_priority_station_v1",
+  "selectedRuntimeAssetBundleId": "ed_chest_pain_priority_encounter_v1:learner-runtime-bundle:v1",
+  "selectionSource": "materialized_publication_payload",
+  "launchMode": "local_static_public_assets",
+  "sceneManifestUrl": "/xr-assets/generated/ed_chest_pain_priority_v2/scene-manifest.v1.json",
+  "learnerRuntimeBundleUrl": "/xr-assets/generated/ed_chest_pain_priority_v2/learner-runtime-bundle.v1.json",
+  "localFilesystemPaths": {
+    "sceneManifestPath": ".openclinxr/encounter-publication/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/scene-manifest.v1.json",
+    "learnerRuntimeBundlePath": ".openclinxr/encounter-publication/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/learner-runtime-bundle.v1.json",
+    "uiXrPublicSceneManifestPath": "apps/ui-xr/public/xr-assets/generated/ed_chest_pain_priority_v2/scene-manifest.v1.json",
+    "uiXrPublicLearnerRuntimeBundlePath": "apps/ui-xr/public/xr-assets/generated/ed_chest_pain_priority_v2/learner-runtime-bundle.v1.json"
+  },
+  "dynamicBehaviorTags": [],
+  "actorRoles": [
+    "patient",
+    "family",
+    "nurse"
+  ],
+  "selectedAssetCounts": {
+    "actors": 0,
+    "humanoidRuntimeRequirements": 0,
+    "equipment": 0,
+    "roomProps": 0,
+    "uiSurfaces": 0
+  },
+  "realismEvidenceRefs": {
+    "claimBoundary": "metadata_only_not_runtime_or_visual_quality_evidence",
+    "refIds": [
+      "humanoid-realism-gate",
+      "runtime-realism-evidence-check",
+      "visual-qa-evidence-check"
+    ],
+    "requiredBefore": "guarded_runtime_wiring",
+    "runtimeExecutionAllowed": false,
+    "providerExecutionPerformed": false,
+    "questReadinessClaimed": false
+  },
+  "learnerLaunchAllowed": false,
+  "blockers": [
+    "humanoid_realism_requirement_actor_missing:family",
+    "publication_payload_not_materialized",
+    "runtime_realism_evidence_not_attached",
+    "humanoid_visual_qa_evidence_not_attached",
+    "quest_webxr_evidence_not_attached"
+  ],
+  "evidenceBoundaries": {
+    "localStaticAssetSelectionOnly": true,
+    "cloudOperationPerformed": false,
+    "providerExecutionPerformed": false,
+    "generatedAssetsMaterialized": false,
+    "learnerLaunchEnabled": false,
+    "questReadinessClaimed": false,
+    "productionReadinessClaimed": false,
+    "clinicalValidityClaimed": false,
+    "scoringValidityClaimed": false
+  },
+  "claimBoundary": "local_launch_selection_not_runtime_readiness"
+}

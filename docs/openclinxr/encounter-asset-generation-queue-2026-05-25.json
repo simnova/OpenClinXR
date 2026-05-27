@@ -1,0 +1,2432 @@
+{
+  "generatedAt": "2026-05-25T15:06:29.374Z",
+  "schemaVersion": "openclinxr.encounter-asset-generation-queue-report.v1",
+  "status": "planned",
+  "queue": {
+    "queueName": "encounter-asset-generation",
+    "messageKind": "encounter_definition_to_executable_encounter",
+    "encodedMessage": "eyJzY2hlbWFWZXJzaW9uIjoib3BlbmNsaW54ci5henVyZS1zdG9yYWdlLXF1ZXVlLmVuY291bnRlci1hc3NldC1nZW5lcmF0aW9uLnYxIiwicXVldWVOYW1lIjoiZW5jb3VudGVyLWFzc2V0LWdlbmVyYXRpb24iLCJtZXNzYWdlS2luZCI6ImVuY291bnRlcl9kZWZpbml0aW9uX3RvX2V4ZWN1dGFibGVfZW5jb3VudGVyIiwidmlzaWJpbGl0eVRpbWVvdXRTZWNvbmRzIjozMDAsInRpbWVUb0xpdmVTZWNvbmRzIjo2MDQ4MDAsImRlcXVldWVBdHRlbXB0TGltaXQiOjI1LCJyZXF1ZXN0Ijp7InJlcXVlc3RJZCI6ImVuY291bnRlcl9hc3NldHNfZWRfY2hlc3RfcGFpbl9wcmlvcml0eV9leGVjdXRhYmxlX3YxIiwidGVuYW50SWQiOiJsb2NhbF90ZW5hbnQiLCJleGFtUnVuSWQiOiJsb2NhbF9leGFtX3J1bl9lZF9jaGVzdF9wYWluX3ByaW9yaXR5X3YyIiwiZW5jb3VudGVySWQiOiJlZF9jaGVzdF9wYWluX3ByaW9yaXR5X2VuY291bnRlcl92MSIsInNjZW5hcmlvSWQiOiJlZF9jaGVzdF9wYWluX3ByaW9yaXR5X3YyIiwic3RhdGlvbklkIjoiZWRfY2hlc3RfcGFpbl9wcmlvcml0eV9zdGF0aW9uX3YxIiwiZW5jb3VudGVyRGVmaW5pdGlvblJlZiI6eyJzdG9yZUtpbmQiOiJtb25nb29zZSIsImNvbGxlY3Rpb25OYW1lIjoic2NlbmFyaW9fZGVmaW5pdGlvbnMiLCJkb2N1bWVudElkIjoic2NlbmFyaW9fZWRfY2hlc3RfcGFpbl9wcmlvcml0eV92MiIsImNvbnRlbnRIYXNoIjoibG9jYWwtZGV0ZXJtaW5pc3RpYy1lbmNvdW50ZXItZGVmaW5pdGlvbi1jb250cmFjdCJ9LCJ0YXJnZXRBc3NldFN0b3JlIjp7InN0b3JlS2luZCI6ImF6dXJpdGVfYmxvYiIsImNvbnRhaW5lck5hbWUiOiJvcGVuY2xpbnhyLWFzc2V0cyIsImJsb2JQcmVmaXgiOiJlbmNvdW50ZXItYXNzZXRzL2xvY2FsX3RlbmFudC9lZF9jaGVzdF9wYWluX3ByaW9yaXR5X3YyL2VkX2NoZXN0X3BhaW5fcHJpb3JpdHlfZW5jb3VudGVyX3YxLyJ9LCJwZXJzaXN0ZW5jZVRhcmdldCI6eyJzdG9yZUtpbmQiOiJtb25nb29zZSIsImNvbGxlY3Rpb25OYW1lIjoiZW5jb3VudGVyX2Fzc2V0X2dlbmVyYXRpb25fam9icyJ9LCJyZXF1ZXN0ZWRTdGFnZXMiOlsiZW5jb3VudGVyLWRlZmluaXRpb24taW5nZXN0ZWQiLCJjaGFyYWN0ZXItZ2VuZXJhdGlvbiIsIm1lZGljYWwtZXF1aXBtZW50LWdlbmVyYXRpb24iLCJlbnZpcm9ubWVudC1nZW5lcmF0aW9uIiwiYW5pbWF0aW9uLWdlbmVyYXRpb24iLCJ2b2ljZS1hc3NldC1nZW5lcmF0aW9uIiwiYXNzZXQtYmFrZSIsInNjZW5lLW1hbmlmZXN0LWZyZWV6ZSIsInJ1bnRpbWUtYnVuZGxlLXB1YmxpY2F0aW9uIiwicmV2aWV3LWV2aWRlbmNlLWdhdGUiXSwiaHVtYW5vaWRSZWFsaXNtUmVxdWlyZW1lbnRzIjp7InNjaGVtYVZlcnNpb24iOiJvcGVuY2xpbnhyLmVuY291bnRlci1odW1hbm9pZC1yZWFsaXNtLXJlcXVpcmVtZW50cy52MSIsInNvdXJjZSI6InNjZW5hcmlvX2FjdG9yX2RlZmluaXRpb25zIiwicmVxdWlyZW1lbnRzIjpbeyJhY3RvclJvbGUiOiJwYXRpZW50IiwicmVxdWlyZWRBc3NldEtpbmRzIjpbImdlbmVyYXRlZF9odW1hbm9pZF9tZXNoIiwic2tpbl9tYXRlcmlhbF9vcl9tb3JwaF90YXJnZXRzIiwiY2xpbmljYWxfaWRsZV9hbmltYXRpb24iLCJjb252ZXJzYXRpb25fYW5pbWF0aW9uIiwidmlzZW1lX3Bob25lbWVfbWFwIiwiZ2F6ZV9ibGlua19jb250cm9sIiwicm9sZV9hcHByb3ByaWF0ZV9jbG90aGluZyJdLCJyZXF1aXJlZFNpZ25hbElkcyI6WyJhbmltYXRlZF9odW1hbm9pZF9ydW50aW1lX3BsYXliYWNrIiwiYXV0aG9yZWRfY2xpbmljYWxfaWRsZV9wb3NlX3J1bnRpbWVfY3VlIiwidmlzaWJsZV9tb3V0aF9leWVfZXhwcmVzc2lvbl9jdWVzIiwiZGlhbG9ndWVfdmlzZW1lX2FuZF9nYXplX21hcHBpbmciLCJkaWFsb2d1ZV9leWVfbWljcm9fc2FjY2FkZV9ibGlua19jdWUiLCJnZW5lcmF0ZWRfZXllbGlkX2JsaW5rX2NvbnRyb2xfY3VlIiwiZW1vdGlvbl9hbGlnbmVkX2V4cHJlc3Npb25fdHJhbnNpdGlvbl9jdWUiXSwicmVhbGlzbVByb2ZpbGUiOnsiYWdlQmFuZCI6ImFkdWx0IiwiYm9keVBvc3R1cmVOb3RlcyI6WyJyb2xlX2FwcHJvcHJpYXRlX2JvZHlfc2NhbGVfYW5kX3N0YW5jZSIsImNsaW5pY2FsX2lkbGVfcG9zZV9tdXN0X21hdGNoX2VuY291bnRlcl9jb250ZXh0Il0sImNsb3RoaW5nQ2xpbmljYWxDb250ZXh0Q3VlcyI6WyJwYXRpZW50X3JvbGVfYXBwcm9wcmlhdGVfY2xvdGhpbmciLCJjbGluaWNhbF9lbnZpcm9ubWVudF9jb25zaXN0ZW50X21hdGVyaWFscyJdLCJleHByZXNzaW9uQWZmZWN0Q3VlcyI6WyJkaWFsb2d1ZV9saW5rZWRfbW91dGhfZXllX2V4cHJlc3Npb24iLCJzdWJ0bGVfYmxpbmtfYW5kX21pY3JvX3NhY2NhZGVfbW90aW9uIl0sIm1vYmlsaXR5UG9zaXRpb25pbmdDb25zdHJhaW50cyI6WyJpbml0aWFsX3Bvc2VfZnJvbV9lbmNvdW50ZXJfZGVmaW5pdGlvbiIsIm1vdmVtZW50X211c3RfcHJlc2VydmVfY2xpbmljYWxfc3BhdGlhbF9ibG9ja2luZyJdLCJyZXF1aXJlZFJlYWxpc21FdmlkZW5jZUlkcyI6WyJhbmltYXRlZF9odW1hbm9pZF9ydW50aW1lX3BsYXliYWNrIiwiYXV0aG9yZWRfY2xpbmljYWxfaWRsZV9wb3NlX3J1bnRpbWVfY3VlIiwidmlzaWJsZV9tb3V0aF9leWVfZXhwcmVzc2lvbl9jdWVzIiwiZGlhbG9ndWVfdmlzZW1lX2FuZF9nYXplX21hcHBpbmciLCJkaWFsb2d1ZV9leWVfbWljcm9fc2FjY2FkZV9ibGlua19jdWUiLCJnZW5lcmF0ZWRfZXllbGlkX2JsaW5rX2NvbnRyb2xfY3VlIiwiZW1vdGlvbl9hbGlnbmVkX2V4cHJlc3Npb25fdHJhbnNpdGlvbl9jdWUiXSwiY2xhaW1TY29wZSI6Im1ldGFkYXRhX29ubHlfbm90X3Zpc3VhbF9xdWFsaXR5X2V2aWRlbmNlIn19LHsiYWN0b3JSb2xlIjoiZmFtaWx5IiwicmVxdWlyZWRBc3NldEtpbmRzIjpbImdlbmVyYXRlZF9odW1hbm9pZF9tZXNoIiwic2tpbl9tYXRlcmlhbF9vcl9tb3JwaF90YXJnZXRzIiwiY2xpbmljYWxfaWRsZV9hbmltYXRpb24iLCJjb252ZXJzYXRpb25fYW5pbWF0aW9uIiwidmlzZW1lX3Bob25lbWVfbWFwIiwiZ2F6ZV9ibGlua19jb250cm9sIiwicm9sZV9hcHByb3ByaWF0ZV9jbG90aGluZyJdLCJyZXF1aXJlZFNpZ25hbElkcyI6WyJhbmltYXRlZF9odW1hbm9pZF9ydW50aW1lX3BsYXliYWNrIiwiYXV0aG9yZWRfY2xpbmljYWxfaWRsZV9wb3NlX3J1bnRpbWVfY3VlIiwidmlzaWJsZV9tb3V0aF9leWVfZXhwcmVzc2lvbl9jdWVzIiwiZGlhbG9ndWVfdmlzZW1lX2FuZF9nYXplX21hcHBpbmciLCJkaWFsb2d1ZV9leWVfbWljcm9fc2FjY2FkZV9ibGlua19jdWUiLCJnZW5lcmF0ZWRfZXllbGlkX2JsaW5rX2NvbnRyb2xfY3VlIiwiZW1vdGlvbl9hbGlnbmVkX2V4cHJlc3Npb25fdHJhbnNpdGlvbl9jdWUiXSwicmVhbGlzbVByb2ZpbGUiOnsiYWdlQmFuZCI6ImNvbnRleHR1YWxfYWR1bHQiLCJib2R5UG9zdHVyZU5vdGVzIjpbInJvbGVfYXBwcm9wcmlhdGVfYm9keV9zY2FsZV9hbmRfc3RhbmNlIiwiY2xpbmljYWxfaWRsZV9wb3NlX211c3RfbWF0Y2hfZW5jb3VudGVyX2NvbnRleHQiXSwiY2xvdGhpbmdDbGluaWNhbENvbnRleHRDdWVzIjpbImZhbWlseV9yb2xlX2FwcHJvcHJpYXRlX2Nsb3RoaW5nIiwiY2xpbmljYWxfZW52aXJvbm1lbnRfY29uc2lzdGVudF9tYXRlcmlhbHMiXSwiZXhwcmVzc2lvbkFmZmVjdEN1ZXMiOlsiZGlhbG9ndWVfbGlua2VkX21vdXRoX2V5ZV9leHByZXNzaW9uIiwic3VidGxlX2JsaW5rX2FuZF9taWNyb19zYWNjYWRlX21vdGlvbiJdLCJtb2JpbGl0eVBvc2l0aW9uaW5nQ29uc3RyYWludHMiOlsiaW5pdGlhbF9wb3NlX2Zyb21fZW5jb3VudGVyX2RlZmluaXRpb24iLCJtb3ZlbWVudF9tdXN0X3ByZXNlcnZlX2NsaW5pY2FsX3NwYXRpYWxfYmxvY2tpbmciXSwicmVxdWlyZWRSZWFsaXNtRXZpZGVuY2VJZHMiOlsiYW5pbWF0ZWRfaHVtYW5vaWRfcnVudGltZV9wbGF5YmFjayIsImF1dGhvcmVkX2NsaW5pY2FsX2lkbGVfcG9zZV9ydW50aW1lX2N1ZSIsInZpc2libGVfbW91dGhfZXllX2V4cHJlc3Npb25fY3VlcyIsImRpYWxvZ3VlX3Zpc2VtZV9hbmRfZ2F6ZV9tYXBwaW5nIiwiZGlhbG9ndWVfZXllX21pY3JvX3NhY2NhZGVfYmxpbmtfY3VlIiwiZ2VuZXJhdGVkX2V5ZWxpZF9ibGlua19jb250cm9sX2N1ZSIsImVtb3Rpb25fYWxpZ25lZF9leHByZXNzaW9uX3RyYW5zaXRpb25fY3VlIl0sImNsYWltU2NvcGUiOiJtZXRhZGF0YV9vbmx5X25vdF92aXN1YWxfcXVhbGl0eV9ldmlkZW5jZSJ9fSx7ImFjdG9yUm9sZSI6Im51cnNlIiwicmVxdWlyZWRBc3NldEtpbmRzIjpbImdlbmVyYXRlZF9odW1hbm9pZF9tZXNoIiwic2tpbl9tYXRlcmlhbF9vcl9tb3JwaF90YXJnZXRzIiwiY2xpbmljYWxfaWRsZV9hbmltYXRpb24iLCJjb252ZXJzYXRpb25fYW5pbWF0aW9uIiwidmlzZW1lX3Bob25lbWVfbWFwIiwiZ2F6ZV9ibGlua19jb250cm9sIiwicm9sZV9hcHByb3ByaWF0ZV9jbG90aGluZyJdLCJyZXF1aXJlZFNpZ25hbElkcyI6WyJhbmltYXRlZF9odW1hbm9pZF9ydW50aW1lX3BsYXliYWNrIiwiYXV0aG9yZWRfY2xpbmljYWxfaWRsZV9wb3NlX3J1bnRpbWVfY3VlIiwidmlzaWJsZV9tb3V0aF9leWVfZXhwcmVzc2lvbl9jdWVzIiwiZGlhbG9ndWVfdmlzZW1lX2FuZF9nYXplX21hcHBpbmciLCJkaWFsb2d1ZV9leWVfbWljcm9fc2FjY2FkZV9ibGlua19jdWUiLCJnZW5lcmF0ZWRfZXllbGlkX2JsaW5rX2NvbnRyb2xfY3VlIiwiZW1vdGlvbl9hbGlnbmVkX2V4cHJlc3Npb25fdHJhbnNpdGlvbl9jdWUiXSwicmVhbGlzbVByb2ZpbGUiOnsiYWdlQmFuZCI6ImNvbnRleHR1YWxfYWR1bHQiLCJib2R5UG9zdHVyZU5vdGVzIjpbInJvbGVfYXBwcm9wcmlhdGVfYm9keV9zY2FsZV9hbmRfc3RhbmNlIiwiY2xpbmljYWxfaWRsZV9wb3NlX211c3RfbWF0Y2hfZW5jb3VudGVyX2NvbnRleHQiXSwiY2xvdGhpbmdDbGluaWNhbENvbnRleHRDdWVzIjpbIm51cnNlX3JvbGVfYXBwcm9wcmlhdGVfY2xvdGhpbmciLCJjbGluaWNhbF9lbnZpcm9ubWVudF9jb25zaXN0ZW50X21hdGVyaWFscyJdLCJleHByZXNzaW9uQWZmZWN0Q3VlcyI6WyJkaWFsb2d1ZV9saW5rZWRfbW91dGhfZXllX2V4cHJlc3Npb24iLCJzdWJ0bGVfYmxpbmtfYW5kX21pY3JvX3NhY2NhZGVfbW90aW9uIl0sIm1vYmlsaXR5UG9zaXRpb25pbmdDb25zdHJhaW50cyI6WyJpbml0aWFsX3Bvc2VfZnJvbV9lbmNvdW50ZXJfZGVmaW5pdGlvbiIsIm1vdmVtZW50X211c3RfcHJlc2VydmVfY2xpbmljYWxfc3BhdGlhbF9ibG9ja2luZyJdLCJyZXF1aXJlZFJlYWxpc21FdmlkZW5jZUlkcyI6WyJhbmltYXRlZF9odW1hbm9pZF9ydW50aW1lX3BsYXliYWNrIiwiYXV0aG9yZWRfY2xpbmljYWxfaWRsZV9wb3NlX3J1bnRpbWVfY3VlIiwidmlzaWJsZV9tb3V0aF9leWVfZXhwcmVzc2lvbl9jdWVzIiwiZGlhbG9ndWVfdmlzZW1lX2FuZF9nYXplX21hcHBpbmciLCJkaWFsb2d1ZV9leWVfbWljcm9fc2FjY2FkZV9ibGlua19jdWUiLCJnZW5lcmF0ZWRfZXllbGlkX2JsaW5rX2NvbnRyb2xfY3VlIiwiZW1vdGlvbl9hbGlnbmVkX2V4cHJlc3Npb25fdHJhbnNpdGlvbl9jdWUiXSwiY2xhaW1TY29wZSI6Im1ldGFkYXRhX29ubHlfbm90X3Zpc3VhbF9xdWFsaXR5X2V2aWRlbmNlIn19XSwibm90RXZpZGVuY2VGb3IiOlsicHJvZHVjdGlvbl9hc3NldF9yZWFkaW5lc3MiLCJxdWVzdF9yZWFkaW5lc3MiLCJjbGluaWNhbF92YWxpZGl0eSIsInNjb3JpbmdfdmFsaWRpdHkiXX0sIm9wdGltaXphdGlvbldpbmRvdyI6eyJleHBlY3RlZE1pbmltdW1Ib3VycyI6MiwiZXhwZWN0ZWRNYXhpbXVtSG91cnMiOjk2LCJtYXlSdW5Gb3JEYXlzIjp0cnVlLCJjaGVja3BvaW50SW50ZXJ2YWxNaW51dGVzIjozMH0sImV2aWRlbmNlR2F0ZXMiOnsicmVxdWlyZUdlbmVyYXRlZFNjZW5lTWFuaWZlc3QiOnRydWUsInJlcXVpcmVSdW50aW1lQnVuZGxlUHVibGljYXRpb24iOnRydWUsInJlcXVpcmVIdW1hblJldmlld0JlZm9yZUxlYXJuZXJVc2UiOnRydWUsInJlcXVpcmVRdWVzdEV2aWRlbmNlQmVmb3JlUXVlc3RSZWFkaW5lc3NDbGFpbSI6dHJ1ZX0sInBvbGljeSI6eyJhbGxvd1BhaWRDbG91ZEFwaXMiOmZhbHNlLCJhbGxvd1Byb2R1Y3Rpb25EZXBsb3ltZW50IjpmYWxzZSwicHJvZHVjdGlvblJlYWRpbmVzc0NsYWltZWQiOmZhbHNlfX0sIm5vdEV2aWRlbmNlRm9yIjpbInByb2R1Y3Rpb25fYXNzZXRfcmVhZGluZXNzIiwicXVlc3RfcmVhZGluZXNzIiwiY2xpbmljYWxfdmFsaWRpdHkiLCJzY29yaW5nX3ZhbGlkaXR5Il19",
+    "encodedMessageBytes": 8324,
+    "visibilityTimeoutSeconds": 300,
+    "timeToLiveSeconds": 604800,
+    "dequeueAttemptLimit": 25
+  },
+  "request": {
+    "requestId": "encounter_assets_ed_chest_pain_priority_executable_v1",
+    "tenantId": "local_tenant",
+    "examRunId": "local_exam_run_ed_chest_pain_priority_v2",
+    "encounterId": "ed_chest_pain_priority_encounter_v1",
+    "scenarioId": "ed_chest_pain_priority_v2",
+    "stationId": "ed_chest_pain_priority_station_v1",
+    "encounterDefinitionRef": {
+      "storeKind": "mongoose",
+      "collectionName": "scenario_definitions",
+      "documentId": "scenario_ed_chest_pain_priority_v2",
+      "contentHash": "local-deterministic-encounter-definition-contract"
+    },
+    "targetAssetStore": {
+      "storeKind": "azurite_blob",
+      "containerName": "openclinxr-assets",
+      "blobPrefix": "encounter-assets/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/"
+    },
+    "persistenceTarget": {
+      "storeKind": "mongoose",
+      "collectionName": "encounter_asset_generation_jobs"
+    },
+    "requestedStages": [
+      "encounter-definition-ingested",
+      "character-generation",
+      "medical-equipment-generation",
+      "environment-generation",
+      "animation-generation",
+      "voice-asset-generation",
+      "asset-bake",
+      "scene-manifest-freeze",
+      "runtime-bundle-publication",
+      "review-evidence-gate"
+    ],
+    "humanoidRealismRequirements": {
+      "schemaVersion": "openclinxr.encounter-humanoid-realism-requirements.v1",
+      "source": "scenario_actor_definitions",
+      "requirements": [
+        {
+          "actorRole": "patient",
+          "requiredAssetKinds": [
+            "generated_humanoid_mesh",
+            "skin_material_or_morph_targets",
+            "clinical_idle_animation",
+            "conversation_animation",
+            "viseme_phoneme_map",
+            "gaze_blink_control",
+            "role_appropriate_clothing"
+          ],
+          "requiredSignalIds": [
+            "animated_humanoid_runtime_playback",
+            "authored_clinical_idle_pose_runtime_cue",
+            "visible_mouth_eye_expression_cues",
+            "dialogue_viseme_and_gaze_mapping",
+            "dialogue_eye_micro_saccade_blink_cue",
+            "generated_eyelid_blink_control_cue",
+            "emotion_aligned_expression_transition_cue"
+          ],
+          "realismProfile": {
+            "ageBand": "adult",
+            "bodyPostureNotes": [
+              "role_appropriate_body_scale_and_stance",
+              "clinical_idle_pose_must_match_encounter_context"
+            ],
+            "clothingClinicalContextCues": [
+              "patient_role_appropriate_clothing",
+              "clinical_environment_consistent_materials"
+            ],
+            "expressionAffectCues": [
+              "dialogue_linked_mouth_eye_expression",
+              "subtle_blink_and_micro_saccade_motion"
+            ],
+            "mobilityPositioningConstraints": [
+              "initial_pose_from_encounter_definition",
+              "movement_must_preserve_clinical_spatial_blocking"
+            ],
+            "requiredRealismEvidenceIds": [
+              "animated_humanoid_runtime_playback",
+              "authored_clinical_idle_pose_runtime_cue",
+              "visible_mouth_eye_expression_cues",
+              "dialogue_viseme_and_gaze_mapping",
+              "dialogue_eye_micro_saccade_blink_cue",
+              "generated_eyelid_blink_control_cue",
+              "emotion_aligned_expression_transition_cue"
+            ],
+            "claimScope": "metadata_only_not_visual_quality_evidence"
+          }
+        },
+        {
+          "actorRole": "family",
+          "requiredAssetKinds": [
+            "generated_humanoid_mesh",
+            "skin_material_or_morph_targets",
+            "clinical_idle_animation",
+            "conversation_animation",
+            "viseme_phoneme_map",
+            "gaze_blink_control",
+            "role_appropriate_clothing"
+          ],
+          "requiredSignalIds": [
+            "animated_humanoid_runtime_playback",
+            "authored_clinical_idle_pose_runtime_cue",
+            "visible_mouth_eye_expression_cues",
+            "dialogue_viseme_and_gaze_mapping",
+            "dialogue_eye_micro_saccade_blink_cue",
+            "generated_eyelid_blink_control_cue",
+            "emotion_aligned_expression_transition_cue"
+          ],
+          "realismProfile": {
+            "ageBand": "contextual_adult",
+            "bodyPostureNotes": [
+              "role_appropriate_body_scale_and_stance",
+              "clinical_idle_pose_must_match_encounter_context"
+            ],
+            "clothingClinicalContextCues": [
+              "family_role_appropriate_clothing",
+              "clinical_environment_consistent_materials"
+            ],
+            "expressionAffectCues": [
+              "dialogue_linked_mouth_eye_expression",
+              "subtle_blink_and_micro_saccade_motion"
+            ],
+            "mobilityPositioningConstraints": [
+              "initial_pose_from_encounter_definition",
+              "movement_must_preserve_clinical_spatial_blocking"
+            ],
+            "requiredRealismEvidenceIds": [
+              "animated_humanoid_runtime_playback",
+              "authored_clinical_idle_pose_runtime_cue",
+              "visible_mouth_eye_expression_cues",
+              "dialogue_viseme_and_gaze_mapping",
+              "dialogue_eye_micro_saccade_blink_cue",
+              "generated_eyelid_blink_control_cue",
+              "emotion_aligned_expression_transition_cue"
+            ],
+            "claimScope": "metadata_only_not_visual_quality_evidence"
+          }
+        },
+        {
+          "actorRole": "nurse",
+          "requiredAssetKinds": [
+            "generated_humanoid_mesh",
+            "skin_material_or_morph_targets",
+            "clinical_idle_animation",
+            "conversation_animation",
+            "viseme_phoneme_map",
+            "gaze_blink_control",
+            "role_appropriate_clothing"
+          ],
+          "requiredSignalIds": [
+            "animated_humanoid_runtime_playback",
+            "authored_clinical_idle_pose_runtime_cue",
+            "visible_mouth_eye_expression_cues",
+            "dialogue_viseme_and_gaze_mapping",
+            "dialogue_eye_micro_saccade_blink_cue",
+            "generated_eyelid_blink_control_cue",
+            "emotion_aligned_expression_transition_cue"
+          ],
+          "realismProfile": {
+            "ageBand": "contextual_adult",
+            "bodyPostureNotes": [
+              "role_appropriate_body_scale_and_stance",
+              "clinical_idle_pose_must_match_encounter_context"
+            ],
+            "clothingClinicalContextCues": [
+              "nurse_role_appropriate_clothing",
+              "clinical_environment_consistent_materials"
+            ],
+            "expressionAffectCues": [
+              "dialogue_linked_mouth_eye_expression",
+              "subtle_blink_and_micro_saccade_motion"
+            ],
+            "mobilityPositioningConstraints": [
+              "initial_pose_from_encounter_definition",
+              "movement_must_preserve_clinical_spatial_blocking"
+            ],
+            "requiredRealismEvidenceIds": [
+              "animated_humanoid_runtime_playback",
+              "authored_clinical_idle_pose_runtime_cue",
+              "visible_mouth_eye_expression_cues",
+              "dialogue_viseme_and_gaze_mapping",
+              "dialogue_eye_micro_saccade_blink_cue",
+              "generated_eyelid_blink_control_cue",
+              "emotion_aligned_expression_transition_cue"
+            ],
+            "claimScope": "metadata_only_not_visual_quality_evidence"
+          }
+        }
+      ],
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    },
+    "optimizationWindow": {
+      "expectedMinimumHours": 2,
+      "expectedMaximumHours": 96,
+      "mayRunForDays": true,
+      "checkpointIntervalMinutes": 30
+    },
+    "evidenceGates": {
+      "requireGeneratedSceneManifest": true,
+      "requireRuntimeBundlePublication": true,
+      "requireHumanReviewBeforeLearnerUse": true,
+      "requireQuestEvidenceBeforeQuestReadinessClaim": true
+    },
+    "policy": {
+      "allowPaidCloudApis": false,
+      "allowProductionDeployment": false,
+      "productionReadinessClaimed": false
+    }
+  },
+  "plan": {
+    "schemaVersion": "openclinxr.encounter-asset-generation-plan.v1",
+    "requestId": "encounter_assets_ed_chest_pain_priority_executable_v1",
+    "queueName": "encounter-asset-generation",
+    "stages": [
+      {
+        "stage": "encounter-definition-ingested",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob"
+      },
+      {
+        "stage": "character-generation",
+        "capabilityId": "character-generation",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob"
+      },
+      {
+        "stage": "medical-equipment-generation",
+        "capabilityId": "medical-equipment-generation",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob"
+      },
+      {
+        "stage": "environment-generation",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob"
+      },
+      {
+        "stage": "animation-generation",
+        "capabilityId": "animation-generation",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob"
+      },
+      {
+        "stage": "voice-asset-generation",
+        "capabilityId": "voice-asset-generation",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob"
+      },
+      {
+        "stage": "asset-bake",
+        "capabilityId": "asset-bake",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob"
+      },
+      {
+        "stage": "scene-manifest-freeze",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob_and_mongoose"
+      },
+      {
+        "stage": "runtime-bundle-publication",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "blob_and_mongoose"
+      },
+      {
+        "stage": "review-evidence-gate",
+        "queueMessageRequired": true,
+        "durableCheckpointRequired": true,
+        "outputTarget": "mongoose"
+      }
+    ],
+    "expectedDuration": {
+      "minimumHours": 2,
+      "maximumHours": 96,
+      "mayRunForDays": true
+    },
+    "executableEncounterReadyOnlyAfter": [
+      "generated_scene_manifest_persisted",
+      "assets_written_to_blob_store",
+      "learner_runtime_bundle_persisted_to_mongoose_or_mongodb",
+      "human_review_gate_passed_for_local_runtime",
+      "runtime_realism_evidence_attached",
+      "humanoid_visual_qa_evidence_attached",
+      "quest_runtime_evidence_attached_before_quest_readiness_claim"
+    ],
+    "humanoidRealismRequirements": {
+      "schemaVersion": "openclinxr.encounter-humanoid-realism-requirements.v1",
+      "source": "scenario_actor_definitions",
+      "requirements": [
+        {
+          "actorRole": "patient",
+          "requiredAssetKinds": [
+            "generated_humanoid_mesh",
+            "skin_material_or_morph_targets",
+            "clinical_idle_animation",
+            "conversation_animation",
+            "viseme_phoneme_map",
+            "gaze_blink_control",
+            "role_appropriate_clothing"
+          ],
+          "requiredSignalIds": [
+            "animated_humanoid_runtime_playback",
+            "authored_clinical_idle_pose_runtime_cue",
+            "visible_mouth_eye_expression_cues",
+            "dialogue_viseme_and_gaze_mapping",
+            "dialogue_eye_micro_saccade_blink_cue",
+            "generated_eyelid_blink_control_cue",
+            "emotion_aligned_expression_transition_cue"
+          ],
+          "realismProfile": {
+            "ageBand": "adult",
+            "bodyPostureNotes": [
+              "role_appropriate_body_scale_and_stance",
+              "clinical_idle_pose_must_match_encounter_context"
+            ],
+            "clothingClinicalContextCues": [
+              "patient_role_appropriate_clothing",
+              "clinical_environment_consistent_materials"
+            ],
+            "expressionAffectCues": [
+              "dialogue_linked_mouth_eye_expression",
+              "subtle_blink_and_micro_saccade_motion"
+            ],
+            "mobilityPositioningConstraints": [
+              "initial_pose_from_encounter_definition",
+              "movement_must_preserve_clinical_spatial_blocking"
+            ],
+            "requiredRealismEvidenceIds": [
+              "animated_humanoid_runtime_playback",
+              "authored_clinical_idle_pose_runtime_cue",
+              "visible_mouth_eye_expression_cues",
+              "dialogue_viseme_and_gaze_mapping",
+              "dialogue_eye_micro_saccade_blink_cue",
+              "generated_eyelid_blink_control_cue",
+              "emotion_aligned_expression_transition_cue"
+            ],
+            "claimScope": "metadata_only_not_visual_quality_evidence"
+          }
+        },
+        {
+          "actorRole": "family",
+          "requiredAssetKinds": [
+            "generated_humanoid_mesh",
+            "skin_material_or_morph_targets",
+            "clinical_idle_animation",
+            "conversation_animation",
+            "viseme_phoneme_map",
+            "gaze_blink_control",
+            "role_appropriate_clothing"
+          ],
+          "requiredSignalIds": [
+            "animated_humanoid_runtime_playback",
+            "authored_clinical_idle_pose_runtime_cue",
+            "visible_mouth_eye_expression_cues",
+            "dialogue_viseme_and_gaze_mapping",
+            "dialogue_eye_micro_saccade_blink_cue",
+            "generated_eyelid_blink_control_cue",
+            "emotion_aligned_expression_transition_cue"
+          ],
+          "realismProfile": {
+            "ageBand": "contextual_adult",
+            "bodyPostureNotes": [
+              "role_appropriate_body_scale_and_stance",
+              "clinical_idle_pose_must_match_encounter_context"
+            ],
+            "clothingClinicalContextCues": [
+              "family_role_appropriate_clothing",
+              "clinical_environment_consistent_materials"
+            ],
+            "expressionAffectCues": [
+              "dialogue_linked_mouth_eye_expression",
+              "subtle_blink_and_micro_saccade_motion"
+            ],
+            "mobilityPositioningConstraints": [
+              "initial_pose_from_encounter_definition",
+              "movement_must_preserve_clinical_spatial_blocking"
+            ],
+            "requiredRealismEvidenceIds": [
+              "animated_humanoid_runtime_playback",
+              "authored_clinical_idle_pose_runtime_cue",
+              "visible_mouth_eye_expression_cues",
+              "dialogue_viseme_and_gaze_mapping",
+              "dialogue_eye_micro_saccade_blink_cue",
+              "generated_eyelid_blink_control_cue",
+              "emotion_aligned_expression_transition_cue"
+            ],
+            "claimScope": "metadata_only_not_visual_quality_evidence"
+          }
+        },
+        {
+          "actorRole": "nurse",
+          "requiredAssetKinds": [
+            "generated_humanoid_mesh",
+            "skin_material_or_morph_targets",
+            "clinical_idle_animation",
+            "conversation_animation",
+            "viseme_phoneme_map",
+            "gaze_blink_control",
+            "role_appropriate_clothing"
+          ],
+          "requiredSignalIds": [
+            "animated_humanoid_runtime_playback",
+            "authored_clinical_idle_pose_runtime_cue",
+            "visible_mouth_eye_expression_cues",
+            "dialogue_viseme_and_gaze_mapping",
+            "dialogue_eye_micro_saccade_blink_cue",
+            "generated_eyelid_blink_control_cue",
+            "emotion_aligned_expression_transition_cue"
+          ],
+          "realismProfile": {
+            "ageBand": "contextual_adult",
+            "bodyPostureNotes": [
+              "role_appropriate_body_scale_and_stance",
+              "clinical_idle_pose_must_match_encounter_context"
+            ],
+            "clothingClinicalContextCues": [
+              "nurse_role_appropriate_clothing",
+              "clinical_environment_consistent_materials"
+            ],
+            "expressionAffectCues": [
+              "dialogue_linked_mouth_eye_expression",
+              "subtle_blink_and_micro_saccade_motion"
+            ],
+            "mobilityPositioningConstraints": [
+              "initial_pose_from_encounter_definition",
+              "movement_must_preserve_clinical_spatial_blocking"
+            ],
+            "requiredRealismEvidenceIds": [
+              "animated_humanoid_runtime_playback",
+              "authored_clinical_idle_pose_runtime_cue",
+              "visible_mouth_eye_expression_cues",
+              "dialogue_viseme_and_gaze_mapping",
+              "dialogue_eye_micro_saccade_blink_cue",
+              "generated_eyelid_blink_control_cue",
+              "emotion_aligned_expression_transition_cue"
+            ],
+            "claimScope": "metadata_only_not_visual_quality_evidence"
+          }
+        }
+      ],
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    },
+    "generationWorkOrders": [
+      {
+        "workOrderId": "encounter_assets_ed_chest_pain_priority_executable_v1:patient:role-specific-humanoid",
+        "scenarioId": "ed_chest_pain_priority_v2",
+        "encounterId": "ed_chest_pain_priority_encounter_v1",
+        "targetKind": "role_specific_humanoid_glb",
+        "capabilityId": "character-generation",
+        "providerRoute": "open-source-local-model-planned",
+        "providerRoutingPreference": [
+          "meshy_cloud_requires_approval",
+          "hunyuan3d_local",
+          "blender_mixamo_style_rigging_fallback"
+        ],
+        "modelProviderPolicy": {
+          "executionStatus": "metadata_only_not_executed",
+          "allowPaidCloudApis": false,
+          "allowExternalNetwork": false,
+          "secretsRequired": false,
+          "providerRoutesRequireExplicitApproval": true
+        },
+        "sharedAssetLibraryReuse": {
+          "lookupKey": "role_specific_humanoid_glb__patient__adult__role_appropriate_body_scale_and_stance__clinical_idle_pose_must_match_encounter_context__patient_role_appropriate_clothing__clinical_environment_consistent_materials__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion__generated_humanoid_mesh__skin_material_or_morph_targets__clinical_idle_animation__conversation_animation__viseme_phoneme_map__gaze_blink_control__role_appropriate_clothing",
+          "lookupKeySource": "encounter_definition_semantic_requirements",
+          "sharedLibraryRefs": {
+            "blobPrefix": "blob://openclinxr-assets/shared-encounter-assets/role_specific_humanoid_glb__patient__adult__role_appropriate_body_scale_and_stance__clinical_idle_pose_must_match_encounter_context__patient_role_appropriate_clothing__clinical_environment_consistent_materials__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion__generated_humanoid_mesh__skin_material_or_morph_targets__clinical_idle_animation__conversation_animation__viseme_phoneme_map__gaze_blink_control__role_appropriate_clothing/",
+            "mongooseCollectionName": "shared_encounter_asset_library"
+          },
+          "lruCache": {
+            "enabled": true,
+            "maxEntries": 500,
+            "evictionPolicy": "least_recently_used",
+            "reuseRequiresEvidenceGateCompatibility": true,
+            "updateRecencyOnHit": true
+          },
+          "cacheDisposition": "lookup_before_generate"
+        },
+        "actorRole": "patient",
+        "inputRefs": [
+          "mongoose://scenario_definitions/scenario_ed_chest_pain_priority_v2",
+          "humanoid-realism-requirement://ed_chest_pain_priority_v2/patient",
+          "shared-asset-library-lookup://role_specific_humanoid_glb__patient__adult__role_appropriate_body_scale_and_stance__clinical_idle_pose_must_match_encounter_context__patient_role_appropriate_clothing__clinical_environment_consistent_materials__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion__generated_humanoid_mesh__skin_material_or_morph_targets__clinical_idle_animation__conversation_animation__viseme_phoneme_map__gaze_blink_control__role_appropriate_clothing"
+        ],
+        "outputRefs": [
+          "blob://openclinxr-assets/encounter-assets/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/humanoids/patient/model.glb",
+          "blob://openclinxr-assets/encounter-assets/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/humanoids/patient/clothing-and-materials.json",
+          "blob://openclinxr-assets/shared-encounter-assets/role_specific_humanoid_glb__patient__adult__role_appropriate_body_scale_and_stance__clinical_idle_pose_must_match_encounter_context__patient_role_appropriate_clothing__clinical_environment_consistent_materials__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion__generated_humanoid_mesh__skin_material_or_morph_targets__clinical_idle_animation__conversation_animation__viseme_phoneme_map__gaze_blink_control__role_appropriate_clothing/model.glb",
+          "mongoose://shared_encounter_asset_library/role_specific_humanoid_glb__patient__adult__role_appropriate_body_scale_and_stance__clinical_idle_pose_must_match_encounter_context__patient_role_appropriate_clothing__clinical_environment_consistent_materials__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion__generated_humanoid_mesh__skin_material_or_morph_targets__clinical_idle_animation__conversation_animation__viseme_phoneme_map__gaze_blink_control__role_appropriate_clothing"
+        ],
+        "evidenceGateRefs": [
+          "asset_production_review",
+          "runtime_realism_evidence",
+          "visual_qa_evidence"
+        ],
+        "visualQaBlockerRefs": [
+          "role_readability",
+          "clothing_authenticity",
+          "anatomy_plausibility",
+          "pose_intent",
+          "variation"
+        ],
+        "acceptanceCriteria": [
+          "actor_role_is_distinguishable_without_runtime_overlay_labels",
+          "clothing_matches_encounter_role_and_clinical_context",
+          "mesh_includes_face_eye_lip_rig_metadata_or_morph_targets",
+          "pose_matches_encounter_definition_blocking"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      {
+        "workOrderId": "encounter_assets_ed_chest_pain_priority_executable_v1:patient:role-animation",
+        "scenarioId": "ed_chest_pain_priority_v2",
+        "encounterId": "ed_chest_pain_priority_encounter_v1",
+        "targetKind": "role_idle_animation_glb",
+        "capabilityId": "animation-generation",
+        "providerRoute": "local-runtime-planned",
+        "providerRoutingPreference": [
+          "blender_mixamo_style_rigging_fallback",
+          "meshy_cloud_requires_approval"
+        ],
+        "modelProviderPolicy": {
+          "executionStatus": "metadata_only_not_executed",
+          "allowPaidCloudApis": false,
+          "allowExternalNetwork": false,
+          "secretsRequired": false,
+          "providerRoutesRequireExplicitApproval": true
+        },
+        "sharedAssetLibraryReuse": {
+          "lookupKey": "role_idle_animation_glb__patient__animated_humanoid_runtime_playback__authored_clinical_idle_pose_runtime_cue__visible_mouth_eye_expression_cues__dialogue_viseme_and_gaze_mapping__dialogue_eye_micro_saccade_blink_cue__generated_eyelid_blink_control_cue__emotion_aligned_expression_transition_cue__initial_pose_from_encounter_definition__movement_must_preserve_clinical_spatial_blocking__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion",
+          "lookupKeySource": "encounter_definition_semantic_requirements",
+          "sharedLibraryRefs": {
+            "blobPrefix": "blob://openclinxr-assets/shared-encounter-assets/role_idle_animation_glb__patient__animated_humanoid_runtime_playback__authored_clinical_idle_pose_runtime_cue__visible_mouth_eye_expression_cues__dialogue_viseme_and_gaze_mapping__dialogue_eye_micro_saccade_blink_cue__generated_eyelid_blink_control_cue__emotion_aligned_expression_transition_cue__initial_pose_from_encounter_definition__movement_must_preserve_clinical_spatial_blocking__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion/",
+            "mongooseCollectionName": "shared_encounter_asset_library"
+          },
+          "lruCache": {
+            "enabled": true,
+            "maxEntries": 500,
+            "evictionPolicy": "least_recently_used",
+            "reuseRequiresEvidenceGateCompatibility": true,
+            "updateRecencyOnHit": true
+          },
+          "cacheDisposition": "lookup_before_generate"
+        },
+        "actorRole": "patient",
+        "inputRefs": [
+          "blob://openclinxr-assets/encounter-assets/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/humanoids/patient/model.glb",
+          "humanoid-realism-signals://ed_chest_pain_priority_v2/patient",
+          "shared-asset-library-lookup://role_idle_animation_glb__patient__animated_humanoid_runtime_playback__authored_clinical_idle_pose_runtime_cue__visible_mouth_eye_expression_cues__dialogue_viseme_and_gaze_mapping__dialogue_eye_micro_saccade_blink_cue__generated_eyelid_blink_control_cue__emotion_aligned_expression_transition_cue__initial_pose_from_encounter_definition__movement_must_preserve_clinical_spatial_blocking__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion"
+        ],
+        "outputRefs": [
+          "blob://openclinxr-assets/encounter-assets/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/humanoids/patient/clinical-idle.anim.glb",
+          "blob://openclinxr-assets/encounter-assets/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/humanoids/patient/facial-viseme-gaze.anim.json",
+          "blob://openclinxr-assets/shared-encounter-assets/role_idle_animation_glb__patient__animated_humanoid_runtime_playback__authored_clinical_idle_pose_runtime_cue__visible_mouth_eye_expression_cues__dialogue_viseme_and_gaze_mapping__dialogue_eye_micro_saccade_blink_cue__generated_eyelid_blink_control_cue__emotion_aligned_expression_transition_cue__initial_pose_from_encounter_definition__movement_must_preserve_clinical_spatial_blocking__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion/clinical-idle.anim.glb",
+          "mongoose://shared_encounter_asset_library/role_idle_animation_glb__patient__animated_humanoid_runtime_playback__authored_clinical_idle_pose_runtime_cue__visible_mouth_eye_expression_cues__dialogue_viseme_and_gaze_mapping__dialogue_eye_micro_saccade_blink_cue__generated_eyelid_blink_control_cue__emotion_aligned_expression_transition_cue__initial_pose_from_encounter_definition__movement_must_preserve_clinical_spatial_blocking__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion"
+        ],
+        "evidenceGateRefs": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence"
+        ],
+        "visualQaBlockerRefs": [
+          "eye_contact_logic",
+          "facial_state",
+          "mouth_talking_realism",
+          "idle_motion",
+          "interaction_timing"
+        ],
+        "acceptanceCriteria": [
+          "idle_motion_includes_breathing_blink_micro_saccades_and_weight_shift",
+          "dialogue_animation_includes_viseme_phoneme_gaze_and_emotion_transition_tracks",
+          "animation_timing_aligns_with_scenario_dialogue_and_affect_timeline"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      {
+        "workOrderId": "encounter_assets_ed_chest_pain_priority_executable_v1:family:role-specific-humanoid",
+        "scenarioId": "ed_chest_pain_priority_v2",
+        "encounterId": "ed_chest_pain_priority_encounter_v1",
+        "targetKind": "role_specific_humanoid_glb",
+        "capabilityId": "character-generation",
+        "providerRoute": "open-source-local-model-planned",
+        "providerRoutingPreference": [
+          "meshy_cloud_requires_approval",
+          "hunyuan3d_local",
+          "blender_mixamo_style_rigging_fallback"
+        ],
+        "modelProviderPolicy": {
+          "executionStatus": "metadata_only_not_executed",
+          "allowPaidCloudApis": false,
+          "allowExternalNetwork": false,
+          "secretsRequired": false,
+          "providerRoutesRequireExplicitApproval": true
+        },
+        "sharedAssetLibraryReuse": {
+          "lookupKey": "role_specific_humanoid_glb__family__contextual_adult__role_appropriate_body_scale_and_stance__clinical_idle_pose_must_match_encounter_context__family_role_appropriate_clothing__clinical_environment_consistent_materials__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion__generated_humanoid_mesh__skin_material_or_morph_targets__clinical_idle_animation__conversation_animation__viseme_phoneme_map__gaze_blink_control__role_appropriate_clothing",
+          "lookupKeySource": "encounter_definition_semantic_requirements",
+          "sharedLibraryRefs": {
+            "blobPrefix": "blob://openclinxr-assets/shared-encounter-assets/role_specific_humanoid_glb__family__contextual_adult__role_appropriate_body_scale_and_stance__clinical_idle_pose_must_match_encounter_context__family_role_appropriate_clothing__clinical_environment_consistent_materials__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion__generated_humanoid_mesh__skin_material_or_morph_targets__clinical_idle_animation__conversation_animation__viseme_phoneme_map__gaze_blink_control__role_appropriate_clothing/",
+            "mongooseCollectionName": "shared_encounter_asset_library"
+          },
+          "lruCache": {
+            "enabled": true,
+            "maxEntries": 500,
+            "evictionPolicy": "least_recently_used",
+            "reuseRequiresEvidenceGateCompatibility": true,
+            "updateRecencyOnHit": true
+          },
+          "cacheDisposition": "lookup_before_generate"
+        },
+        "actorRole": "family",
+        "inputRefs": [
+          "mongoose://scenario_definitions/scenario_ed_chest_pain_priority_v2",
+          "humanoid-realism-requirement://ed_chest_pain_priority_v2/family",
+          "shared-asset-library-lookup://role_specific_humanoid_glb__family__contextual_adult__role_appropriate_body_scale_and_stance__clinical_idle_pose_must_match_encounter_context__family_role_appropriate_clothing__clinical_environment_consistent_materials__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion__generated_humanoid_mesh__skin_material_or_morph_targets__clinical_idle_animation__conversation_animation__viseme_phoneme_map__gaze_blink_control__role_appropriate_clothing"
+        ],
+        "outputRefs": [
+          "blob://openclinxr-assets/encounter-assets/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/humanoids/family/model.glb",
+          "blob://openclinxr-assets/encounter-assets/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/humanoids/family/clothing-and-materials.json",
+          "blob://openclinxr-assets/shared-encounter-assets/role_specific_humanoid_glb__family__contextual_adult__role_appropriate_body_scale_and_stance__clinical_idle_pose_must_match_encounter_context__family_role_appropriate_clothing__clinical_environment_consistent_materials__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion__generated_humanoid_mesh__skin_material_or_morph_targets__clinical_idle_animation__conversation_animation__viseme_phoneme_map__gaze_blink_control__role_appropriate_clothing/model.glb",
+          "mongoose://shared_encounter_asset_library/role_specific_humanoid_glb__family__contextual_adult__role_appropriate_body_scale_and_stance__clinical_idle_pose_must_match_encounter_context__family_role_appropriate_clothing__clinical_environment_consistent_materials__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion__generated_humanoid_mesh__skin_material_or_morph_targets__clinical_idle_animation__conversation_animation__viseme_phoneme_map__gaze_blink_control__role_appropriate_clothing"
+        ],
+        "evidenceGateRefs": [
+          "asset_production_review",
+          "runtime_realism_evidence",
+          "visual_qa_evidence"
+        ],
+        "visualQaBlockerRefs": [
+          "role_readability",
+          "clothing_authenticity",
+          "anatomy_plausibility",
+          "pose_intent",
+          "variation"
+        ],
+        "acceptanceCriteria": [
+          "actor_role_is_distinguishable_without_runtime_overlay_labels",
+          "clothing_matches_encounter_role_and_clinical_context",
+          "mesh_includes_face_eye_lip_rig_metadata_or_morph_targets",
+          "pose_matches_encounter_definition_blocking"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      {
+        "workOrderId": "encounter_assets_ed_chest_pain_priority_executable_v1:family:role-animation",
+        "scenarioId": "ed_chest_pain_priority_v2",
+        "encounterId": "ed_chest_pain_priority_encounter_v1",
+        "targetKind": "role_idle_animation_glb",
+        "capabilityId": "animation-generation",
+        "providerRoute": "local-runtime-planned",
+        "providerRoutingPreference": [
+          "blender_mixamo_style_rigging_fallback",
+          "meshy_cloud_requires_approval"
+        ],
+        "modelProviderPolicy": {
+          "executionStatus": "metadata_only_not_executed",
+          "allowPaidCloudApis": false,
+          "allowExternalNetwork": false,
+          "secretsRequired": false,
+          "providerRoutesRequireExplicitApproval": true
+        },
+        "sharedAssetLibraryReuse": {
+          "lookupKey": "role_idle_animation_glb__family__animated_humanoid_runtime_playback__authored_clinical_idle_pose_runtime_cue__visible_mouth_eye_expression_cues__dialogue_viseme_and_gaze_mapping__dialogue_eye_micro_saccade_blink_cue__generated_eyelid_blink_control_cue__emotion_aligned_expression_transition_cue__initial_pose_from_encounter_definition__movement_must_preserve_clinical_spatial_blocking__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion",
+          "lookupKeySource": "encounter_definition_semantic_requirements",
+          "sharedLibraryRefs": {
+            "blobPrefix": "blob://openclinxr-assets/shared-encounter-assets/role_idle_animation_glb__family__animated_humanoid_runtime_playback__authored_clinical_idle_pose_runtime_cue__visible_mouth_eye_expression_cues__dialogue_viseme_and_gaze_mapping__dialogue_eye_micro_saccade_blink_cue__generated_eyelid_blink_control_cue__emotion_aligned_expression_transition_cue__initial_pose_from_encounter_definition__movement_must_preserve_clinical_spatial_blocking__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion/",
+            "mongooseCollectionName": "shared_encounter_asset_library"
+          },
+          "lruCache": {
+            "enabled": true,
+            "maxEntries": 500,
+            "evictionPolicy": "least_recently_used",
+            "reuseRequiresEvidenceGateCompatibility": true,
+            "updateRecencyOnHit": true
+          },
+          "cacheDisposition": "lookup_before_generate"
+        },
+        "actorRole": "family",
+        "inputRefs": [
+          "blob://openclinxr-assets/encounter-assets/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/humanoids/family/model.glb",
+          "humanoid-realism-signals://ed_chest_pain_priority_v2/family",
+          "shared-asset-library-lookup://role_idle_animation_glb__family__animated_humanoid_runtime_playback__authored_clinical_idle_pose_runtime_cue__visible_mouth_eye_expression_cues__dialogue_viseme_and_gaze_mapping__dialogue_eye_micro_saccade_blink_cue__generated_eyelid_blink_control_cue__emotion_aligned_expression_transition_cue__initial_pose_from_encounter_definition__movement_must_preserve_clinical_spatial_blocking__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion"
+        ],
+        "outputRefs": [
+          "blob://openclinxr-assets/encounter-assets/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/humanoids/family/clinical-idle.anim.glb",
+          "blob://openclinxr-assets/encounter-assets/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/humanoids/family/facial-viseme-gaze.anim.json",
+          "blob://openclinxr-assets/shared-encounter-assets/role_idle_animation_glb__family__animated_humanoid_runtime_playback__authored_clinical_idle_pose_runtime_cue__visible_mouth_eye_expression_cues__dialogue_viseme_and_gaze_mapping__dialogue_eye_micro_saccade_blink_cue__generated_eyelid_blink_control_cue__emotion_aligned_expression_transition_cue__initial_pose_from_encounter_definition__movement_must_preserve_clinical_spatial_blocking__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion/clinical-idle.anim.glb",
+          "mongoose://shared_encounter_asset_library/role_idle_animation_glb__family__animated_humanoid_runtime_playback__authored_clinical_idle_pose_runtime_cue__visible_mouth_eye_expression_cues__dialogue_viseme_and_gaze_mapping__dialogue_eye_micro_saccade_blink_cue__generated_eyelid_blink_control_cue__emotion_aligned_expression_transition_cue__initial_pose_from_encounter_definition__movement_must_preserve_clinical_spatial_blocking__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion"
+        ],
+        "evidenceGateRefs": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence"
+        ],
+        "visualQaBlockerRefs": [
+          "eye_contact_logic",
+          "facial_state",
+          "mouth_talking_realism",
+          "idle_motion",
+          "interaction_timing"
+        ],
+        "acceptanceCriteria": [
+          "idle_motion_includes_breathing_blink_micro_saccades_and_weight_shift",
+          "dialogue_animation_includes_viseme_phoneme_gaze_and_emotion_transition_tracks",
+          "animation_timing_aligns_with_scenario_dialogue_and_affect_timeline"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      {
+        "workOrderId": "encounter_assets_ed_chest_pain_priority_executable_v1:nurse:role-specific-humanoid",
+        "scenarioId": "ed_chest_pain_priority_v2",
+        "encounterId": "ed_chest_pain_priority_encounter_v1",
+        "targetKind": "role_specific_humanoid_glb",
+        "capabilityId": "character-generation",
+        "providerRoute": "open-source-local-model-planned",
+        "providerRoutingPreference": [
+          "meshy_cloud_requires_approval",
+          "hunyuan3d_local",
+          "blender_mixamo_style_rigging_fallback"
+        ],
+        "modelProviderPolicy": {
+          "executionStatus": "metadata_only_not_executed",
+          "allowPaidCloudApis": false,
+          "allowExternalNetwork": false,
+          "secretsRequired": false,
+          "providerRoutesRequireExplicitApproval": true
+        },
+        "sharedAssetLibraryReuse": {
+          "lookupKey": "role_specific_humanoid_glb__nurse__contextual_adult__role_appropriate_body_scale_and_stance__clinical_idle_pose_must_match_encounter_context__nurse_role_appropriate_clothing__clinical_environment_consistent_materials__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion__generated_humanoid_mesh__skin_material_or_morph_targets__clinical_idle_animation__conversation_animation__viseme_phoneme_map__gaze_blink_control__role_appropriate_clothing",
+          "lookupKeySource": "encounter_definition_semantic_requirements",
+          "sharedLibraryRefs": {
+            "blobPrefix": "blob://openclinxr-assets/shared-encounter-assets/role_specific_humanoid_glb__nurse__contextual_adult__role_appropriate_body_scale_and_stance__clinical_idle_pose_must_match_encounter_context__nurse_role_appropriate_clothing__clinical_environment_consistent_materials__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion__generated_humanoid_mesh__skin_material_or_morph_targets__clinical_idle_animation__conversation_animation__viseme_phoneme_map__gaze_blink_control__role_appropriate_clothing/",
+            "mongooseCollectionName": "shared_encounter_asset_library"
+          },
+          "lruCache": {
+            "enabled": true,
+            "maxEntries": 500,
+            "evictionPolicy": "least_recently_used",
+            "reuseRequiresEvidenceGateCompatibility": true,
+            "updateRecencyOnHit": true
+          },
+          "cacheDisposition": "lookup_before_generate"
+        },
+        "actorRole": "nurse",
+        "inputRefs": [
+          "mongoose://scenario_definitions/scenario_ed_chest_pain_priority_v2",
+          "humanoid-realism-requirement://ed_chest_pain_priority_v2/nurse",
+          "shared-asset-library-lookup://role_specific_humanoid_glb__nurse__contextual_adult__role_appropriate_body_scale_and_stance__clinical_idle_pose_must_match_encounter_context__nurse_role_appropriate_clothing__clinical_environment_consistent_materials__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion__generated_humanoid_mesh__skin_material_or_morph_targets__clinical_idle_animation__conversation_animation__viseme_phoneme_map__gaze_blink_control__role_appropriate_clothing"
+        ],
+        "outputRefs": [
+          "blob://openclinxr-assets/encounter-assets/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/humanoids/nurse/model.glb",
+          "blob://openclinxr-assets/encounter-assets/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/humanoids/nurse/clothing-and-materials.json",
+          "blob://openclinxr-assets/shared-encounter-assets/role_specific_humanoid_glb__nurse__contextual_adult__role_appropriate_body_scale_and_stance__clinical_idle_pose_must_match_encounter_context__nurse_role_appropriate_clothing__clinical_environment_consistent_materials__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion__generated_humanoid_mesh__skin_material_or_morph_targets__clinical_idle_animation__conversation_animation__viseme_phoneme_map__gaze_blink_control__role_appropriate_clothing/model.glb",
+          "mongoose://shared_encounter_asset_library/role_specific_humanoid_glb__nurse__contextual_adult__role_appropriate_body_scale_and_stance__clinical_idle_pose_must_match_encounter_context__nurse_role_appropriate_clothing__clinical_environment_consistent_materials__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion__generated_humanoid_mesh__skin_material_or_morph_targets__clinical_idle_animation__conversation_animation__viseme_phoneme_map__gaze_blink_control__role_appropriate_clothing"
+        ],
+        "evidenceGateRefs": [
+          "asset_production_review",
+          "runtime_realism_evidence",
+          "visual_qa_evidence"
+        ],
+        "visualQaBlockerRefs": [
+          "role_readability",
+          "clothing_authenticity",
+          "anatomy_plausibility",
+          "pose_intent",
+          "variation"
+        ],
+        "acceptanceCriteria": [
+          "actor_role_is_distinguishable_without_runtime_overlay_labels",
+          "clothing_matches_encounter_role_and_clinical_context",
+          "mesh_includes_face_eye_lip_rig_metadata_or_morph_targets",
+          "pose_matches_encounter_definition_blocking"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      {
+        "workOrderId": "encounter_assets_ed_chest_pain_priority_executable_v1:nurse:role-animation",
+        "scenarioId": "ed_chest_pain_priority_v2",
+        "encounterId": "ed_chest_pain_priority_encounter_v1",
+        "targetKind": "role_idle_animation_glb",
+        "capabilityId": "animation-generation",
+        "providerRoute": "local-runtime-planned",
+        "providerRoutingPreference": [
+          "blender_mixamo_style_rigging_fallback",
+          "meshy_cloud_requires_approval"
+        ],
+        "modelProviderPolicy": {
+          "executionStatus": "metadata_only_not_executed",
+          "allowPaidCloudApis": false,
+          "allowExternalNetwork": false,
+          "secretsRequired": false,
+          "providerRoutesRequireExplicitApproval": true
+        },
+        "sharedAssetLibraryReuse": {
+          "lookupKey": "role_idle_animation_glb__nurse__animated_humanoid_runtime_playback__authored_clinical_idle_pose_runtime_cue__visible_mouth_eye_expression_cues__dialogue_viseme_and_gaze_mapping__dialogue_eye_micro_saccade_blink_cue__generated_eyelid_blink_control_cue__emotion_aligned_expression_transition_cue__initial_pose_from_encounter_definition__movement_must_preserve_clinical_spatial_blocking__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion",
+          "lookupKeySource": "encounter_definition_semantic_requirements",
+          "sharedLibraryRefs": {
+            "blobPrefix": "blob://openclinxr-assets/shared-encounter-assets/role_idle_animation_glb__nurse__animated_humanoid_runtime_playback__authored_clinical_idle_pose_runtime_cue__visible_mouth_eye_expression_cues__dialogue_viseme_and_gaze_mapping__dialogue_eye_micro_saccade_blink_cue__generated_eyelid_blink_control_cue__emotion_aligned_expression_transition_cue__initial_pose_from_encounter_definition__movement_must_preserve_clinical_spatial_blocking__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion/",
+            "mongooseCollectionName": "shared_encounter_asset_library"
+          },
+          "lruCache": {
+            "enabled": true,
+            "maxEntries": 500,
+            "evictionPolicy": "least_recently_used",
+            "reuseRequiresEvidenceGateCompatibility": true,
+            "updateRecencyOnHit": true
+          },
+          "cacheDisposition": "lookup_before_generate"
+        },
+        "actorRole": "nurse",
+        "inputRefs": [
+          "blob://openclinxr-assets/encounter-assets/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/humanoids/nurse/model.glb",
+          "humanoid-realism-signals://ed_chest_pain_priority_v2/nurse",
+          "shared-asset-library-lookup://role_idle_animation_glb__nurse__animated_humanoid_runtime_playback__authored_clinical_idle_pose_runtime_cue__visible_mouth_eye_expression_cues__dialogue_viseme_and_gaze_mapping__dialogue_eye_micro_saccade_blink_cue__generated_eyelid_blink_control_cue__emotion_aligned_expression_transition_cue__initial_pose_from_encounter_definition__movement_must_preserve_clinical_spatial_blocking__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion"
+        ],
+        "outputRefs": [
+          "blob://openclinxr-assets/encounter-assets/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/humanoids/nurse/clinical-idle.anim.glb",
+          "blob://openclinxr-assets/encounter-assets/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/humanoids/nurse/facial-viseme-gaze.anim.json",
+          "blob://openclinxr-assets/shared-encounter-assets/role_idle_animation_glb__nurse__animated_humanoid_runtime_playback__authored_clinical_idle_pose_runtime_cue__visible_mouth_eye_expression_cues__dialogue_viseme_and_gaze_mapping__dialogue_eye_micro_saccade_blink_cue__generated_eyelid_blink_control_cue__emotion_aligned_expression_transition_cue__initial_pose_from_encounter_definition__movement_must_preserve_clinical_spatial_blocking__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion/clinical-idle.anim.glb",
+          "mongoose://shared_encounter_asset_library/role_idle_animation_glb__nurse__animated_humanoid_runtime_playback__authored_clinical_idle_pose_runtime_cue__visible_mouth_eye_expression_cues__dialogue_viseme_and_gaze_mapping__dialogue_eye_micro_saccade_blink_cue__generated_eyelid_blink_control_cue__emotion_aligned_expression_transition_cue__initial_pose_from_encounter_definition__movement_must_preserve_clinical_spatial_blocking__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion"
+        ],
+        "evidenceGateRefs": [
+          "runtime_realism_evidence",
+          "visual_qa_evidence"
+        ],
+        "visualQaBlockerRefs": [
+          "eye_contact_logic",
+          "facial_state",
+          "mouth_talking_realism",
+          "idle_motion",
+          "interaction_timing"
+        ],
+        "acceptanceCriteria": [
+          "idle_motion_includes_breathing_blink_micro_saccades_and_weight_shift",
+          "dialogue_animation_includes_viseme_phoneme_gaze_and_emotion_transition_tracks",
+          "animation_timing_aligns_with_scenario_dialogue_and_affect_timeline"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      {
+        "workOrderId": "encounter_assets_ed_chest_pain_priority_executable_v1:scenario-medical-equipment",
+        "scenarioId": "ed_chest_pain_priority_v2",
+        "encounterId": "ed_chest_pain_priority_encounter_v1",
+        "targetKind": "medical_equipment_glb",
+        "capabilityId": "medical-equipment-generation",
+        "providerRoute": "open-source-local-model-planned",
+        "providerRoutingPreference": [
+          "hunyuan3d_local",
+          "meshy_cloud_requires_approval",
+          "tripo_cloud_requires_approval"
+        ],
+        "modelProviderPolicy": {
+          "executionStatus": "metadata_only_not_executed",
+          "allowPaidCloudApis": false,
+          "allowExternalNetwork": false,
+          "secretsRequired": false,
+          "providerRoutesRequireExplicitApproval": true
+        },
+        "sharedAssetLibraryReuse": {
+          "lookupKey": "medical_equipment_glb__scenario__ed_chest_pain_priority_station_v1__clinical_zone_layout__recognizable_ed_props__functional_placement__scale_validation__cable_tube_logic",
+          "lookupKeySource": "encounter_definition_semantic_requirements",
+          "sharedLibraryRefs": {
+            "blobPrefix": "blob://openclinxr-assets/shared-encounter-assets/medical_equipment_glb__scenario__ed_chest_pain_priority_station_v1__clinical_zone_layout__recognizable_ed_props__functional_placement__scale_validation__cable_tube_logic/",
+            "mongooseCollectionName": "shared_encounter_asset_library"
+          },
+          "lruCache": {
+            "enabled": true,
+            "maxEntries": 500,
+            "evictionPolicy": "least_recently_used",
+            "reuseRequiresEvidenceGateCompatibility": true,
+            "updateRecencyOnHit": true
+          },
+          "cacheDisposition": "lookup_before_generate"
+        },
+        "inputRefs": [
+          "mongoose://scenario_definitions/scenario_ed_chest_pain_priority_v2",
+          "encounter-room-grammar://ed_chest_pain_priority_v2/clinical-zones",
+          "shared-asset-library-lookup://medical_equipment_glb__scenario__ed_chest_pain_priority_station_v1__clinical_zone_layout__recognizable_ed_props__functional_placement__scale_validation__cable_tube_logic"
+        ],
+        "outputRefs": [
+          "blob://openclinxr-assets/encounter-assets/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/equipment/semantic-medical-props.manifest.json",
+          "blob://openclinxr-assets/shared-encounter-assets/medical_equipment_glb__scenario__ed_chest_pain_priority_station_v1__clinical_zone_layout__recognizable_ed_props__functional_placement__scale_validation__cable_tube_logic/semantic-medical-props.manifest.json",
+          "mongoose://shared_encounter_asset_library/medical_equipment_glb__scenario__ed_chest_pain_priority_station_v1__clinical_zone_layout__recognizable_ed_props__functional_placement__scale_validation__cable_tube_logic"
+        ],
+        "evidenceGateRefs": [
+          "asset_production_review",
+          "visual_qa_evidence"
+        ],
+        "visualQaBlockerRefs": [
+          "recognizable_ed_props",
+          "functional_placement",
+          "scale_validation",
+          "cable_tube_logic",
+          "clinical_affordances"
+        ],
+        "acceptanceCriteria": [
+          "every_prop_has_semantic_type_scale_anchor_surface_and_room_zone",
+          "monitor_leads_iv_lines_and_tubing_have_plausible_connection_endpoints",
+          "unlabeled_blockout_geometry_is_removed_or_replaced"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      {
+        "workOrderId": "encounter_assets_ed_chest_pain_priority_executable_v1:adversarial-visual-feedback-closure",
+        "scenarioId": "ed_chest_pain_priority_v2",
+        "encounterId": "ed_chest_pain_priority_encounter_v1",
+        "targetKind": "visual_feedback_closure",
+        "capabilityId": "asset-bake",
+        "providerRoute": "deterministic-mock",
+        "providerRoutingPreference": [
+          "local_open_vlm_if_available",
+          "frontier_cloud_vlm_requires_approval",
+          "deterministic_fixture"
+        ],
+        "modelProviderPolicy": {
+          "executionStatus": "metadata_only_not_executed",
+          "allowPaidCloudApis": false,
+          "allowExternalNetwork": false,
+          "secretsRequired": false,
+          "providerRoutesRequireExplicitApproval": true
+        },
+        "sharedAssetLibraryReuse": {
+          "lookupKey": "visual_feedback_closure__scenario__adversarial_visual_feedback__blocked_visual_qa_items__screenshot_or_video_evidence_required",
+          "lookupKeySource": "encounter_definition_semantic_requirements",
+          "sharedLibraryRefs": {
+            "blobPrefix": "blob://openclinxr-assets/shared-encounter-assets/visual_feedback_closure__scenario__adversarial_visual_feedback__blocked_visual_qa_items__screenshot_or_video_evidence_required/",
+            "mongooseCollectionName": "shared_encounter_asset_library"
+          },
+          "lruCache": {
+            "enabled": true,
+            "maxEntries": 500,
+            "evictionPolicy": "least_recently_used",
+            "reuseRequiresEvidenceGateCompatibility": true,
+            "updateRecencyOnHit": true
+          },
+          "cacheDisposition": "lookup_before_generate"
+        },
+        "inputRefs": [
+          "visual-qa-evidence://ed_chest_pain_priority_v2/latest-adversarial-review",
+          "screenshot-analysis://ed_chest_pain_priority_v2/latest-multimodal-findings"
+        ],
+        "outputRefs": [
+          "mongoose://encounter_asset_generation_jobs/encounter_assets_ed_chest_pain_priority_executable_v1/visualFeedbackClosureWorkOrders",
+          "blob://openclinxr-assets/encounter-assets/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/visual-feedback/remediation-plan.json"
+        ],
+        "evidenceGateRefs": [
+          "visual_qa_evidence"
+        ],
+        "visualQaBlockerRefs": [
+          "floating_geometry",
+          "body_clipping",
+          "duplicate_humanoids",
+          "unlabeled_abstractions",
+          "render_polish"
+        ],
+        "acceptanceCriteria": [
+          "adversarial_multimodal_findings_are_converted_to_worker_remediation_inputs",
+          "blocked_visual_qa_items_remain_pending_until_new_screenshot_or_video_evidence_closes_them",
+          "framework_can_apply_the_same_feedback_to_many_encounter_definitions"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      }
+    ],
+    "productionReadinessClaimed": false
+  },
+  "storageTargets": {
+    "blobStoreKind": "azurite_blob",
+    "blobContainerName": "openclinxr-assets",
+    "blobPrefix": "encounter-assets/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/",
+    "durableStateStoreKind": "mongoose",
+    "durableStateCollectionName": "encounter_asset_generation_jobs"
+  },
+  "operationalNotes": {
+    "longRunningOptimizationAccepted": true,
+    "expectedMinimumHours": 2,
+    "expectedMaximumHours": 96,
+    "mayRunForDays": true,
+    "checkpointIntervalMinutes": 30,
+    "generatedAssetsMustRemainDynamic": true,
+    "sceneIsNotHardcodedInRuntime": true
+  },
+  "humanoidRealismRequirements": {
+    "schemaVersion": "openclinxr.encounter-humanoid-realism-requirements.v1",
+    "source": "scenario_actor_definitions",
+    "requirements": [
+      {
+        "actorRole": "patient",
+        "requiredAssetKinds": [
+          "generated_humanoid_mesh",
+          "skin_material_or_morph_targets",
+          "clinical_idle_animation",
+          "conversation_animation",
+          "viseme_phoneme_map",
+          "gaze_blink_control",
+          "role_appropriate_clothing"
+        ],
+        "requiredSignalIds": [
+          "animated_humanoid_runtime_playback",
+          "authored_clinical_idle_pose_runtime_cue",
+          "visible_mouth_eye_expression_cues",
+          "dialogue_viseme_and_gaze_mapping",
+          "dialogue_eye_micro_saccade_blink_cue",
+          "generated_eyelid_blink_control_cue",
+          "emotion_aligned_expression_transition_cue"
+        ],
+        "realismProfile": {
+          "ageBand": "adult",
+          "bodyPostureNotes": [
+            "role_appropriate_body_scale_and_stance",
+            "clinical_idle_pose_must_match_encounter_context"
+          ],
+          "clothingClinicalContextCues": [
+            "patient_role_appropriate_clothing",
+            "clinical_environment_consistent_materials"
+          ],
+          "expressionAffectCues": [
+            "dialogue_linked_mouth_eye_expression",
+            "subtle_blink_and_micro_saccade_motion"
+          ],
+          "mobilityPositioningConstraints": [
+            "initial_pose_from_encounter_definition",
+            "movement_must_preserve_clinical_spatial_blocking"
+          ],
+          "requiredRealismEvidenceIds": [
+            "animated_humanoid_runtime_playback",
+            "authored_clinical_idle_pose_runtime_cue",
+            "visible_mouth_eye_expression_cues",
+            "dialogue_viseme_and_gaze_mapping",
+            "dialogue_eye_micro_saccade_blink_cue",
+            "generated_eyelid_blink_control_cue",
+            "emotion_aligned_expression_transition_cue"
+          ],
+          "claimScope": "metadata_only_not_visual_quality_evidence"
+        }
+      },
+      {
+        "actorRole": "family",
+        "requiredAssetKinds": [
+          "generated_humanoid_mesh",
+          "skin_material_or_morph_targets",
+          "clinical_idle_animation",
+          "conversation_animation",
+          "viseme_phoneme_map",
+          "gaze_blink_control",
+          "role_appropriate_clothing"
+        ],
+        "requiredSignalIds": [
+          "animated_humanoid_runtime_playback",
+          "authored_clinical_idle_pose_runtime_cue",
+          "visible_mouth_eye_expression_cues",
+          "dialogue_viseme_and_gaze_mapping",
+          "dialogue_eye_micro_saccade_blink_cue",
+          "generated_eyelid_blink_control_cue",
+          "emotion_aligned_expression_transition_cue"
+        ],
+        "realismProfile": {
+          "ageBand": "contextual_adult",
+          "bodyPostureNotes": [
+            "role_appropriate_body_scale_and_stance",
+            "clinical_idle_pose_must_match_encounter_context"
+          ],
+          "clothingClinicalContextCues": [
+            "family_role_appropriate_clothing",
+            "clinical_environment_consistent_materials"
+          ],
+          "expressionAffectCues": [
+            "dialogue_linked_mouth_eye_expression",
+            "subtle_blink_and_micro_saccade_motion"
+          ],
+          "mobilityPositioningConstraints": [
+            "initial_pose_from_encounter_definition",
+            "movement_must_preserve_clinical_spatial_blocking"
+          ],
+          "requiredRealismEvidenceIds": [
+            "animated_humanoid_runtime_playback",
+            "authored_clinical_idle_pose_runtime_cue",
+            "visible_mouth_eye_expression_cues",
+            "dialogue_viseme_and_gaze_mapping",
+            "dialogue_eye_micro_saccade_blink_cue",
+            "generated_eyelid_blink_control_cue",
+            "emotion_aligned_expression_transition_cue"
+          ],
+          "claimScope": "metadata_only_not_visual_quality_evidence"
+        }
+      },
+      {
+        "actorRole": "nurse",
+        "requiredAssetKinds": [
+          "generated_humanoid_mesh",
+          "skin_material_or_morph_targets",
+          "clinical_idle_animation",
+          "conversation_animation",
+          "viseme_phoneme_map",
+          "gaze_blink_control",
+          "role_appropriate_clothing"
+        ],
+        "requiredSignalIds": [
+          "animated_humanoid_runtime_playback",
+          "authored_clinical_idle_pose_runtime_cue",
+          "visible_mouth_eye_expression_cues",
+          "dialogue_viseme_and_gaze_mapping",
+          "dialogue_eye_micro_saccade_blink_cue",
+          "generated_eyelid_blink_control_cue",
+          "emotion_aligned_expression_transition_cue"
+        ],
+        "realismProfile": {
+          "ageBand": "contextual_adult",
+          "bodyPostureNotes": [
+            "role_appropriate_body_scale_and_stance",
+            "clinical_idle_pose_must_match_encounter_context"
+          ],
+          "clothingClinicalContextCues": [
+            "nurse_role_appropriate_clothing",
+            "clinical_environment_consistent_materials"
+          ],
+          "expressionAffectCues": [
+            "dialogue_linked_mouth_eye_expression",
+            "subtle_blink_and_micro_saccade_motion"
+          ],
+          "mobilityPositioningConstraints": [
+            "initial_pose_from_encounter_definition",
+            "movement_must_preserve_clinical_spatial_blocking"
+          ],
+          "requiredRealismEvidenceIds": [
+            "animated_humanoid_runtime_playback",
+            "authored_clinical_idle_pose_runtime_cue",
+            "visible_mouth_eye_expression_cues",
+            "dialogue_viseme_and_gaze_mapping",
+            "dialogue_eye_micro_saccade_blink_cue",
+            "generated_eyelid_blink_control_cue",
+            "emotion_aligned_expression_transition_cue"
+          ],
+          "claimScope": "metadata_only_not_visual_quality_evidence"
+        }
+      }
+    ],
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "encounterAssetNeedsReadinessManifest": {
+    "schemaVersion": "openclinxr.encounter-asset-needs-readiness.v1",
+    "scenarioId": "ed_chest_pain_priority_v2",
+    "scenarioTitle": "ED Chest Pain With Nurse Interruption And Family Pressure (v2)",
+    "scenarioStatus": "approved",
+    "generatedAt": "2026-05-25T00:00:00.000Z",
+    "requiredHumanoids": [
+      {
+        "actorId": "patient_robert_hayes_v1",
+        "actorRole": "patient",
+        "assetNeedId": "patient_robert_hayes_character",
+        "hasExplicitAssetNeed": true,
+        "inferredFromActorId": true,
+        "behaviorCategoryRequirements": {
+          "animation": [
+            "clinical_idle_animation",
+            "conversation_animation",
+            "brief_closed_posture",
+            "guarded_listening_pose",
+            "history_question_pose",
+            "history_turn_taking_animation",
+            "risk_review_turn_taking_animation",
+            "risk_focus_body_posture_shift",
+            "symptom_discussion_pose",
+            "symptom_listening_pose",
+            "monitor_check_pose",
+            "urgent_focus_step",
+            "ecg_request_transition",
+            "order_acknowledgement_pose",
+            "order_delivery_animation",
+            "escalation_posture_shift",
+            "closed_loop_escalation_pose",
+            "team_turn_taking_pose",
+            "role_check_pose",
+            "interruption_acknowledgement_pose",
+            "family_checkin_pose",
+            "empathy_pause_pose",
+            "reflective_acknowledgement_motion",
+            "completion_pose",
+            "handoff_preparation_pose",
+            "mood:anxious",
+            "mood:guarded",
+            "mood:in_pain",
+            "communicativeness:answers_concrete_symptom_questions_but_becomes_guarded_if_pain_is_dismissed"
+          ],
+          "emotion": [
+            "patient_reporting_affect_clarity",
+            "guarded_readability_support",
+            "emotion_tone_continuity",
+            "concerned_listen_and_build_rapport",
+            "risk_discussion_clarity",
+            "reassurance_during_exploration",
+            "escalation_attention",
+            "urgency_tempered_by_clarity",
+            "heightened_attentive_state",
+            "team_alignment_readiness",
+            "concern_regulation_support",
+            "empathy_presence",
+            "closure_readiness"
+          ],
+          "gaze": [
+            "learner_camera_facing",
+            "speaker_targeting",
+            "limited_face_tracking",
+            "dialogue_gaze_profile",
+            "learner_camera_transition_to_speaker",
+            "speaker_facing_shift",
+            "learner_camera_and_patient_alignment",
+            "monitor_and_provider_head_turn",
+            "team_member_targeting",
+            "distributed_attention_scan",
+            "family_targeting",
+            "softened_face_alignment",
+            "final_confirmation_alignment"
+          ],
+          "lip_sync": [
+            "patient_voice_projection",
+            "careful_clarity_timing",
+            "viseme_phoneme_map",
+            "dialogue_viseme_and_gaze_mapping",
+            "clear_questioning_timing",
+            "rationale_focused_pauses",
+            "empathetic_question_timing",
+            "short_directive_timing",
+            "directive_pronunciation_timing",
+            "compressed_escalation_timing",
+            "closed_loop_turn_taking_timing",
+            "empathetic_reassurance_timing",
+            "empathetic_vocal_pause_timing",
+            "handoff_turn_timing"
+          ]
+        },
+        "sharedAssetLibraryLookupKeys": [
+          {
+            "targetKind": "role_specific_humanoid_glb",
+            "actorRole": "patient",
+            "semanticInputs": [
+              "patient",
+              "patient_robert_hayes_v1",
+              "clinical_idle_animation",
+              "conversation_animation",
+              "brief_closed_posture",
+              "guarded_listening_pose",
+              "history_question_pose",
+              "history_turn_taking_animation",
+              "risk_review_turn_taking_animation",
+              "risk_focus_body_posture_shift",
+              "symptom_discussion_pose",
+              "symptom_listening_pose",
+              "monitor_check_pose",
+              "urgent_focus_step",
+              "ecg_request_transition",
+              "order_acknowledgement_pose",
+              "order_delivery_animation",
+              "escalation_posture_shift",
+              "closed_loop_escalation_pose",
+              "team_turn_taking_pose",
+              "role_check_pose",
+              "interruption_acknowledgement_pose",
+              "family_checkin_pose",
+              "empathy_pause_pose",
+              "reflective_acknowledgement_motion",
+              "completion_pose",
+              "handoff_preparation_pose",
+              "mood_anxious",
+              "mood_guarded",
+              "mood_in_pain",
+              "communicativeness_answers_concrete_symptom_questions_but_becomes_guarded_if_pain_is_dismissed",
+              "patient_reporting_affect_clarity",
+              "guarded_readability_support",
+              "emotion_tone_continuity",
+              "concerned_listen_and_build_rapport",
+              "risk_discussion_clarity",
+              "reassurance_during_exploration",
+              "escalation_attention",
+              "urgency_tempered_by_clarity",
+              "heightened_attentive_state",
+              "team_alignment_readiness",
+              "concern_regulation_support",
+              "empathy_presence",
+              "closure_readiness",
+              "learner_camera_facing",
+              "speaker_targeting",
+              "limited_face_tracking",
+              "dialogue_gaze_profile",
+              "learner_camera_transition_to_speaker",
+              "speaker_facing_shift",
+              "learner_camera_and_patient_alignment",
+              "monitor_and_provider_head_turn",
+              "team_member_targeting",
+              "distributed_attention_scan",
+              "family_targeting",
+              "softened_face_alignment",
+              "final_confirmation_alignment",
+              "ed_chest_pain_priority_v2"
+            ],
+            "lookupKey": "role_specific_humanoid_glb__patient__patient__patient_robert_hayes_v1__clinical_idle_animation__conversation_animation__brief_closed_posture__guarded_listening_pose__history_question_pose__history_turn_taking_animation__risk_review_turn_taking_animation__risk_focus_body_posture_shift__symptom_discussion_pose__symptom_listening_pose__monitor_check_pose__urgent_focus_step__ecg_request_transition__order_acknowledgement_pose__order_delivery_animation__escalation_posture_shift__closed_loop_escalation_pose__team_turn_taking_pose__role_check_pose__interruption_acknowledgement_pose__family_checkin_pose__empathy_pause_pose__reflective_acknowledgement_motion__completion_pose__handoff_preparation_pose__mood_anxious__mood_guarded__mood_in_pain__communicativeness_answers_concrete_symptom_questions_but_becomes_guarded_if_pain_is_dismissed__patient_reporting_affect_clarity__guarded_readability_support__emotion_tone_continuity__concerned_listen_and_build_rapport__risk_discussion_clarity__reassurance_during_exploration__escalation_attention__urgency_tempered_by_clarity__heightened_attentive_state__team_alignment_readiness__concern_regulation_support__empathy_presence__closure_readiness__learner_camera_facing__speaker_targeting__limited_face_tracking__dialogue_gaze_profile__learner_camera_transition_to_speaker__speaker_facing_shift__learner_camera_and_patient_alignment__monitor_and_provider_head_turn__team_member_targeting__distributed_attention_scan__family_targeting__softened_face_alignment__final_confirmation_alignment__ed_chest_pain_priority_v2"
+          },
+          {
+            "targetKind": "role_idle_animation_glb",
+            "actorRole": "patient",
+            "semanticInputs": [
+              "patient",
+              "clinical_idle_animation",
+              "conversation_animation",
+              "brief_closed_posture",
+              "guarded_listening_pose",
+              "history_question_pose",
+              "history_turn_taking_animation",
+              "risk_review_turn_taking_animation",
+              "risk_focus_body_posture_shift",
+              "symptom_discussion_pose",
+              "symptom_listening_pose",
+              "monitor_check_pose",
+              "urgent_focus_step",
+              "ecg_request_transition",
+              "order_acknowledgement_pose",
+              "order_delivery_animation",
+              "escalation_posture_shift",
+              "closed_loop_escalation_pose",
+              "team_turn_taking_pose",
+              "role_check_pose",
+              "interruption_acknowledgement_pose",
+              "family_checkin_pose",
+              "empathy_pause_pose",
+              "reflective_acknowledgement_motion",
+              "completion_pose",
+              "handoff_preparation_pose",
+              "mood_anxious",
+              "mood_guarded",
+              "mood_in_pain",
+              "communicativeness_answers_concrete_symptom_questions_but_becomes_guarded_if_pain_is_dismissed",
+              "patient_reporting_affect_clarity",
+              "guarded_readability_support",
+              "emotion_tone_continuity",
+              "concerned_listen_and_build_rapport",
+              "risk_discussion_clarity",
+              "reassurance_during_exploration",
+              "escalation_attention",
+              "urgency_tempered_by_clarity",
+              "heightened_attentive_state",
+              "team_alignment_readiness",
+              "concern_regulation_support",
+              "empathy_presence",
+              "closure_readiness",
+              "ed_chest_pain_priority_v2"
+            ],
+            "lookupKey": "role_idle_animation_glb__patient__patient__clinical_idle_animation__conversation_animation__brief_closed_posture__guarded_listening_pose__history_question_pose__history_turn_taking_animation__risk_review_turn_taking_animation__risk_focus_body_posture_shift__symptom_discussion_pose__symptom_listening_pose__monitor_check_pose__urgent_focus_step__ecg_request_transition__order_acknowledgement_pose__order_delivery_animation__escalation_posture_shift__closed_loop_escalation_pose__team_turn_taking_pose__role_check_pose__interruption_acknowledgement_pose__family_checkin_pose__empathy_pause_pose__reflective_acknowledgement_motion__completion_pose__handoff_preparation_pose__mood_anxious__mood_guarded__mood_in_pain__communicativeness_answers_concrete_symptom_questions_but_becomes_guarded_if_pain_is_dismissed__patient_reporting_affect_clarity__guarded_readability_support__emotion_tone_continuity__concerned_listen_and_build_rapport__risk_discussion_clarity__reassurance_during_exploration__escalation_attention__urgency_tempered_by_clarity__heightened_attentive_state__team_alignment_readiness__concern_regulation_support__empathy_presence__closure_readiness__ed_chest_pain_priority_v2"
+          },
+          {
+            "targetKind": "facial_lipsync_gaze_animation",
+            "actorRole": "patient",
+            "semanticInputs": [
+              "patient",
+              "learner_camera_facing",
+              "speaker_targeting",
+              "limited_face_tracking",
+              "dialogue_gaze_profile",
+              "learner_camera_transition_to_speaker",
+              "speaker_facing_shift",
+              "learner_camera_and_patient_alignment",
+              "monitor_and_provider_head_turn",
+              "team_member_targeting",
+              "distributed_attention_scan",
+              "family_targeting",
+              "softened_face_alignment",
+              "final_confirmation_alignment",
+              "patient_voice_projection",
+              "careful_clarity_timing",
+              "viseme_phoneme_map",
+              "dialogue_viseme_and_gaze_mapping",
+              "clear_questioning_timing",
+              "rationale_focused_pauses",
+              "empathetic_question_timing",
+              "short_directive_timing",
+              "directive_pronunciation_timing",
+              "compressed_escalation_timing",
+              "closed_loop_turn_taking_timing",
+              "empathetic_reassurance_timing",
+              "empathetic_vocal_pause_timing",
+              "handoff_turn_timing",
+              "ed_chest_pain_priority_v2"
+            ],
+            "lookupKey": "facial_lipsync_gaze_animation__patient__patient__learner_camera_facing__speaker_targeting__limited_face_tracking__dialogue_gaze_profile__learner_camera_transition_to_speaker__speaker_facing_shift__learner_camera_and_patient_alignment__monitor_and_provider_head_turn__team_member_targeting__distributed_attention_scan__family_targeting__softened_face_alignment__final_confirmation_alignment__patient_voice_projection__careful_clarity_timing__viseme_phoneme_map__dialogue_viseme_and_gaze_mapping__clear_questioning_timing__rationale_focused_pauses__empathetic_question_timing__short_directive_timing__directive_pronunciation_timing__compressed_escalation_timing__closed_loop_turn_taking_timing__empathetic_reassurance_timing__empathetic_vocal_pause_timing__handoff_turn_timing__ed_chest_pain_priority_v2"
+          }
+        ]
+      },
+      {
+        "actorId": "spouse_anna_hayes_v1",
+        "actorRole": "family",
+        "assetNeedId": "spouse_anna_hayes_character",
+        "hasExplicitAssetNeed": true,
+        "inferredFromActorId": true,
+        "behaviorCategoryRequirements": {
+          "animation": [
+            "clinical_idle_animation",
+            "conversation_animation",
+            "concern_response_wait_pose",
+            "emotional_escalation_cue",
+            "concern_response_pose",
+            "history_question_pose",
+            "history_turn_taking_animation",
+            "risk_review_turn_taking_animation",
+            "risk_focus_body_posture_shift",
+            "symptom_discussion_pose",
+            "symptom_listening_pose",
+            "monitor_check_pose",
+            "urgent_focus_step",
+            "ecg_request_transition",
+            "order_acknowledgement_pose",
+            "order_delivery_animation",
+            "escalation_posture_shift",
+            "closed_loop_escalation_pose",
+            "team_turn_taking_pose",
+            "role_check_pose",
+            "interruption_acknowledgement_pose",
+            "family_checkin_pose",
+            "empathy_pause_pose",
+            "reflective_acknowledgement_motion",
+            "completion_pose",
+            "handoff_preparation_pose",
+            "mood:worried",
+            "mood:protective",
+            "mood:frustrated",
+            "communicativeness:interrupts_for_updates_but_responds_to_clear_explanations_and_explicit_next_steps"
+          ],
+          "emotion": [
+            "concern_acknowledgement_clarity",
+            "emotion_tone_continuity",
+            "concerned_listen_and_build_rapport",
+            "risk_discussion_clarity",
+            "reassurance_during_exploration",
+            "escalation_attention",
+            "urgency_tempered_by_clarity",
+            "heightened_attentive_state",
+            "team_alignment_readiness",
+            "concern_regulation_support",
+            "empathy_presence",
+            "closure_readiness"
+          ],
+          "gaze": [
+            "learner_camera_and_actor_targeting",
+            "family_targeting",
+            "dialogue_gaze_profile",
+            "learner_camera_transition_to_speaker",
+            "speaker_facing_shift",
+            "learner_camera_and_patient_alignment",
+            "monitor_and_provider_head_turn",
+            "team_member_targeting",
+            "distributed_attention_scan",
+            "softened_face_alignment",
+            "final_confirmation_alignment"
+          ],
+          "lip_sync": [
+            "concern_statement_timing",
+            "urgent_empathy_timing",
+            "viseme_phoneme_map",
+            "dialogue_viseme_and_gaze_mapping",
+            "clear_questioning_timing",
+            "rationale_focused_pauses",
+            "empathetic_question_timing",
+            "short_directive_timing",
+            "directive_pronunciation_timing",
+            "compressed_escalation_timing",
+            "closed_loop_turn_taking_timing",
+            "empathetic_reassurance_timing",
+            "empathetic_vocal_pause_timing",
+            "handoff_turn_timing"
+          ]
+        },
+        "sharedAssetLibraryLookupKeys": [
+          {
+            "targetKind": "role_specific_humanoid_glb",
+            "actorRole": "family",
+            "semanticInputs": [
+              "family",
+              "spouse_anna_hayes_v1",
+              "clinical_idle_animation",
+              "conversation_animation",
+              "concern_response_wait_pose",
+              "emotional_escalation_cue",
+              "concern_response_pose",
+              "history_question_pose",
+              "history_turn_taking_animation",
+              "risk_review_turn_taking_animation",
+              "risk_focus_body_posture_shift",
+              "symptom_discussion_pose",
+              "symptom_listening_pose",
+              "monitor_check_pose",
+              "urgent_focus_step",
+              "ecg_request_transition",
+              "order_acknowledgement_pose",
+              "order_delivery_animation",
+              "escalation_posture_shift",
+              "closed_loop_escalation_pose",
+              "team_turn_taking_pose",
+              "role_check_pose",
+              "interruption_acknowledgement_pose",
+              "family_checkin_pose",
+              "empathy_pause_pose",
+              "reflective_acknowledgement_motion",
+              "completion_pose",
+              "handoff_preparation_pose",
+              "mood_worried",
+              "mood_protective",
+              "mood_frustrated",
+              "communicativeness_interrupts_for_updates_but_responds_to_clear_explanations_and_explicit_next_steps",
+              "concern_acknowledgement_clarity",
+              "emotion_tone_continuity",
+              "concerned_listen_and_build_rapport",
+              "risk_discussion_clarity",
+              "reassurance_during_exploration",
+              "escalation_attention",
+              "urgency_tempered_by_clarity",
+              "heightened_attentive_state",
+              "team_alignment_readiness",
+              "concern_regulation_support",
+              "empathy_presence",
+              "closure_readiness",
+              "learner_camera_and_actor_targeting",
+              "family_targeting",
+              "dialogue_gaze_profile",
+              "learner_camera_transition_to_speaker",
+              "speaker_facing_shift",
+              "learner_camera_and_patient_alignment",
+              "monitor_and_provider_head_turn",
+              "team_member_targeting",
+              "distributed_attention_scan",
+              "softened_face_alignment",
+              "final_confirmation_alignment",
+              "ed_chest_pain_priority_v2"
+            ],
+            "lookupKey": "role_specific_humanoid_glb__family__family__spouse_anna_hayes_v1__clinical_idle_animation__conversation_animation__concern_response_wait_pose__emotional_escalation_cue__concern_response_pose__history_question_pose__history_turn_taking_animation__risk_review_turn_taking_animation__risk_focus_body_posture_shift__symptom_discussion_pose__symptom_listening_pose__monitor_check_pose__urgent_focus_step__ecg_request_transition__order_acknowledgement_pose__order_delivery_animation__escalation_posture_shift__closed_loop_escalation_pose__team_turn_taking_pose__role_check_pose__interruption_acknowledgement_pose__family_checkin_pose__empathy_pause_pose__reflective_acknowledgement_motion__completion_pose__handoff_preparation_pose__mood_worried__mood_protective__mood_frustrated__communicativeness_interrupts_for_updates_but_responds_to_clear_explanations_and_explicit_next_steps__concern_acknowledgement_clarity__emotion_tone_continuity__concerned_listen_and_build_rapport__risk_discussion_clarity__reassurance_during_exploration__escalation_attention__urgency_tempered_by_clarity__heightened_attentive_state__team_alignment_readiness__concern_regulation_support__empathy_presence__closure_readiness__learner_camera_and_actor_targeting__family_targeting__dialogue_gaze_profile__learner_camera_transition_to_speaker__speaker_facing_shift__learner_camera_and_patient_alignment__monitor_and_provider_head_turn__team_member_targeting__distributed_attention_scan__softened_face_alignment__final_confirmation_alignment__ed_chest_pain_priority_v2"
+          },
+          {
+            "targetKind": "role_idle_animation_glb",
+            "actorRole": "family",
+            "semanticInputs": [
+              "family",
+              "clinical_idle_animation",
+              "conversation_animation",
+              "concern_response_wait_pose",
+              "emotional_escalation_cue",
+              "concern_response_pose",
+              "history_question_pose",
+              "history_turn_taking_animation",
+              "risk_review_turn_taking_animation",
+              "risk_focus_body_posture_shift",
+              "symptom_discussion_pose",
+              "symptom_listening_pose",
+              "monitor_check_pose",
+              "urgent_focus_step",
+              "ecg_request_transition",
+              "order_acknowledgement_pose",
+              "order_delivery_animation",
+              "escalation_posture_shift",
+              "closed_loop_escalation_pose",
+              "team_turn_taking_pose",
+              "role_check_pose",
+              "interruption_acknowledgement_pose",
+              "family_checkin_pose",
+              "empathy_pause_pose",
+              "reflective_acknowledgement_motion",
+              "completion_pose",
+              "handoff_preparation_pose",
+              "mood_worried",
+              "mood_protective",
+              "mood_frustrated",
+              "communicativeness_interrupts_for_updates_but_responds_to_clear_explanations_and_explicit_next_steps",
+              "concern_acknowledgement_clarity",
+              "emotion_tone_continuity",
+              "concerned_listen_and_build_rapport",
+              "risk_discussion_clarity",
+              "reassurance_during_exploration",
+              "escalation_attention",
+              "urgency_tempered_by_clarity",
+              "heightened_attentive_state",
+              "team_alignment_readiness",
+              "concern_regulation_support",
+              "empathy_presence",
+              "closure_readiness",
+              "ed_chest_pain_priority_v2"
+            ],
+            "lookupKey": "role_idle_animation_glb__family__family__clinical_idle_animation__conversation_animation__concern_response_wait_pose__emotional_escalation_cue__concern_response_pose__history_question_pose__history_turn_taking_animation__risk_review_turn_taking_animation__risk_focus_body_posture_shift__symptom_discussion_pose__symptom_listening_pose__monitor_check_pose__urgent_focus_step__ecg_request_transition__order_acknowledgement_pose__order_delivery_animation__escalation_posture_shift__closed_loop_escalation_pose__team_turn_taking_pose__role_check_pose__interruption_acknowledgement_pose__family_checkin_pose__empathy_pause_pose__reflective_acknowledgement_motion__completion_pose__handoff_preparation_pose__mood_worried__mood_protective__mood_frustrated__communicativeness_interrupts_for_updates_but_responds_to_clear_explanations_and_explicit_next_steps__concern_acknowledgement_clarity__emotion_tone_continuity__concerned_listen_and_build_rapport__risk_discussion_clarity__reassurance_during_exploration__escalation_attention__urgency_tempered_by_clarity__heightened_attentive_state__team_alignment_readiness__concern_regulation_support__empathy_presence__closure_readiness__ed_chest_pain_priority_v2"
+          },
+          {
+            "targetKind": "facial_lipsync_gaze_animation",
+            "actorRole": "family",
+            "semanticInputs": [
+              "family",
+              "learner_camera_and_actor_targeting",
+              "family_targeting",
+              "dialogue_gaze_profile",
+              "learner_camera_transition_to_speaker",
+              "speaker_facing_shift",
+              "learner_camera_and_patient_alignment",
+              "monitor_and_provider_head_turn",
+              "team_member_targeting",
+              "distributed_attention_scan",
+              "softened_face_alignment",
+              "final_confirmation_alignment",
+              "concern_statement_timing",
+              "urgent_empathy_timing",
+              "viseme_phoneme_map",
+              "dialogue_viseme_and_gaze_mapping",
+              "clear_questioning_timing",
+              "rationale_focused_pauses",
+              "empathetic_question_timing",
+              "short_directive_timing",
+              "directive_pronunciation_timing",
+              "compressed_escalation_timing",
+              "closed_loop_turn_taking_timing",
+              "empathetic_reassurance_timing",
+              "empathetic_vocal_pause_timing",
+              "handoff_turn_timing",
+              "ed_chest_pain_priority_v2"
+            ],
+            "lookupKey": "facial_lipsync_gaze_animation__family__family__learner_camera_and_actor_targeting__family_targeting__dialogue_gaze_profile__learner_camera_transition_to_speaker__speaker_facing_shift__learner_camera_and_patient_alignment__monitor_and_provider_head_turn__team_member_targeting__distributed_attention_scan__softened_face_alignment__final_confirmation_alignment__concern_statement_timing__urgent_empathy_timing__viseme_phoneme_map__dialogue_viseme_and_gaze_mapping__clear_questioning_timing__rationale_focused_pauses__empathetic_question_timing__short_directive_timing__directive_pronunciation_timing__compressed_escalation_timing__closed_loop_turn_taking_timing__empathetic_reassurance_timing__empathetic_vocal_pause_timing__handoff_turn_timing__ed_chest_pain_priority_v2"
+          }
+        ]
+      },
+      {
+        "actorId": "nurse_maria_alvarez_v1",
+        "actorRole": "nurse",
+        "assetNeedId": "nurse_maria_alvarez_character",
+        "hasExplicitAssetNeed": true,
+        "inferredFromActorId": true,
+        "behaviorCategoryRequirements": {
+          "animation": [
+            "clinical_idle_animation",
+            "conversation_animation",
+            "alertness_adjustment",
+            "clinical_reasoning_pose",
+            "stepwise_instruction_pose",
+            "history_question_pose",
+            "history_turn_taking_animation",
+            "risk_review_turn_taking_animation",
+            "risk_focus_body_posture_shift",
+            "symptom_discussion_pose",
+            "symptom_listening_pose",
+            "monitor_check_pose",
+            "urgent_focus_step",
+            "ecg_request_transition",
+            "order_acknowledgement_pose",
+            "order_delivery_animation",
+            "escalation_posture_shift",
+            "closed_loop_escalation_pose",
+            "team_turn_taking_pose",
+            "role_check_pose",
+            "interruption_acknowledgement_pose",
+            "family_checkin_pose",
+            "empathy_pause_pose",
+            "reflective_acknowledgement_motion",
+            "completion_pose",
+            "handoff_preparation_pose",
+            "mood:focused",
+            "mood:concerned",
+            "mood:direct",
+            "communicativeness:gives_concise_clinical_updates_and_escalates_when_learner_action_is_delayed"
+          ],
+          "emotion": [
+            "calm_under_pressure_clarity",
+            "focused_rationale_clarity",
+            "emotion_tone_continuity",
+            "concerned_listen_and_build_rapport",
+            "risk_discussion_clarity",
+            "reassurance_during_exploration",
+            "escalation_attention",
+            "urgency_tempered_by_clarity",
+            "heightened_attentive_state",
+            "team_alignment_readiness",
+            "concern_regulation_support",
+            "empathy_presence",
+            "closure_readiness"
+          ],
+          "gaze": [
+            "team_and_learnercamera_targeting",
+            "evidence_focused_gaze",
+            "dialogue_gaze_profile",
+            "learner_camera_transition_to_speaker",
+            "speaker_facing_shift",
+            "learner_camera_and_patient_alignment",
+            "monitor_and_provider_head_turn",
+            "team_member_targeting",
+            "distributed_attention_scan",
+            "family_targeting",
+            "softened_face_alignment",
+            "final_confirmation_alignment"
+          ],
+          "lip_sync": [
+            "directive_clarity_timing",
+            "logic_and_ordered_timing",
+            "viseme_phoneme_map",
+            "dialogue_viseme_and_gaze_mapping",
+            "clear_questioning_timing",
+            "rationale_focused_pauses",
+            "empathetic_question_timing",
+            "short_directive_timing",
+            "directive_pronunciation_timing",
+            "compressed_escalation_timing",
+            "closed_loop_turn_taking_timing",
+            "empathetic_reassurance_timing",
+            "empathetic_vocal_pause_timing",
+            "handoff_turn_timing"
+          ]
+        },
+        "sharedAssetLibraryLookupKeys": [
+          {
+            "targetKind": "role_specific_humanoid_glb",
+            "actorRole": "nurse",
+            "semanticInputs": [
+              "nurse",
+              "nurse_maria_alvarez_v1",
+              "clinical_idle_animation",
+              "conversation_animation",
+              "alertness_adjustment",
+              "clinical_reasoning_pose",
+              "stepwise_instruction_pose",
+              "history_question_pose",
+              "history_turn_taking_animation",
+              "risk_review_turn_taking_animation",
+              "risk_focus_body_posture_shift",
+              "symptom_discussion_pose",
+              "symptom_listening_pose",
+              "monitor_check_pose",
+              "urgent_focus_step",
+              "ecg_request_transition",
+              "order_acknowledgement_pose",
+              "order_delivery_animation",
+              "escalation_posture_shift",
+              "closed_loop_escalation_pose",
+              "team_turn_taking_pose",
+              "role_check_pose",
+              "interruption_acknowledgement_pose",
+              "family_checkin_pose",
+              "empathy_pause_pose",
+              "reflective_acknowledgement_motion",
+              "completion_pose",
+              "handoff_preparation_pose",
+              "mood_focused",
+              "mood_concerned",
+              "mood_direct",
+              "communicativeness_gives_concise_clinical_updates_and_escalates_when_learner_action_is_delayed",
+              "calm_under_pressure_clarity",
+              "focused_rationale_clarity",
+              "emotion_tone_continuity",
+              "concerned_listen_and_build_rapport",
+              "risk_discussion_clarity",
+              "reassurance_during_exploration",
+              "escalation_attention",
+              "urgency_tempered_by_clarity",
+              "heightened_attentive_state",
+              "team_alignment_readiness",
+              "concern_regulation_support",
+              "empathy_presence",
+              "closure_readiness",
+              "team_and_learnercamera_targeting",
+              "evidence_focused_gaze",
+              "dialogue_gaze_profile",
+              "learner_camera_transition_to_speaker",
+              "speaker_facing_shift",
+              "learner_camera_and_patient_alignment",
+              "monitor_and_provider_head_turn",
+              "team_member_targeting",
+              "distributed_attention_scan",
+              "family_targeting",
+              "softened_face_alignment",
+              "final_confirmation_alignment",
+              "ed_chest_pain_priority_v2"
+            ],
+            "lookupKey": "role_specific_humanoid_glb__nurse__nurse__nurse_maria_alvarez_v1__clinical_idle_animation__conversation_animation__alertness_adjustment__clinical_reasoning_pose__stepwise_instruction_pose__history_question_pose__history_turn_taking_animation__risk_review_turn_taking_animation__risk_focus_body_posture_shift__symptom_discussion_pose__symptom_listening_pose__monitor_check_pose__urgent_focus_step__ecg_request_transition__order_acknowledgement_pose__order_delivery_animation__escalation_posture_shift__closed_loop_escalation_pose__team_turn_taking_pose__role_check_pose__interruption_acknowledgement_pose__family_checkin_pose__empathy_pause_pose__reflective_acknowledgement_motion__completion_pose__handoff_preparation_pose__mood_focused__mood_concerned__mood_direct__communicativeness_gives_concise_clinical_updates_and_escalates_when_learner_action_is_delayed__calm_under_pressure_clarity__focused_rationale_clarity__emotion_tone_continuity__concerned_listen_and_build_rapport__risk_discussion_clarity__reassurance_during_exploration__escalation_attention__urgency_tempered_by_clarity__heightened_attentive_state__team_alignment_readiness__concern_regulation_support__empathy_presence__closure_readiness__team_and_learnercamera_targeting__evidence_focused_gaze__dialogue_gaze_profile__learner_camera_transition_to_speaker__speaker_facing_shift__learner_camera_and_patient_alignment__monitor_and_provider_head_turn__team_member_targeting__distributed_attention_scan__family_targeting__softened_face_alignment__final_confirmation_alignment__ed_chest_pain_priority_v2"
+          },
+          {
+            "targetKind": "role_idle_animation_glb",
+            "actorRole": "nurse",
+            "semanticInputs": [
+              "nurse",
+              "clinical_idle_animation",
+              "conversation_animation",
+              "alertness_adjustment",
+              "clinical_reasoning_pose",
+              "stepwise_instruction_pose",
+              "history_question_pose",
+              "history_turn_taking_animation",
+              "risk_review_turn_taking_animation",
+              "risk_focus_body_posture_shift",
+              "symptom_discussion_pose",
+              "symptom_listening_pose",
+              "monitor_check_pose",
+              "urgent_focus_step",
+              "ecg_request_transition",
+              "order_acknowledgement_pose",
+              "order_delivery_animation",
+              "escalation_posture_shift",
+              "closed_loop_escalation_pose",
+              "team_turn_taking_pose",
+              "role_check_pose",
+              "interruption_acknowledgement_pose",
+              "family_checkin_pose",
+              "empathy_pause_pose",
+              "reflective_acknowledgement_motion",
+              "completion_pose",
+              "handoff_preparation_pose",
+              "mood_focused",
+              "mood_concerned",
+              "mood_direct",
+              "communicativeness_gives_concise_clinical_updates_and_escalates_when_learner_action_is_delayed",
+              "calm_under_pressure_clarity",
+              "focused_rationale_clarity",
+              "emotion_tone_continuity",
+              "concerned_listen_and_build_rapport",
+              "risk_discussion_clarity",
+              "reassurance_during_exploration",
+              "escalation_attention",
+              "urgency_tempered_by_clarity",
+              "heightened_attentive_state",
+              "team_alignment_readiness",
+              "concern_regulation_support",
+              "empathy_presence",
+              "closure_readiness",
+              "ed_chest_pain_priority_v2"
+            ],
+            "lookupKey": "role_idle_animation_glb__nurse__nurse__clinical_idle_animation__conversation_animation__alertness_adjustment__clinical_reasoning_pose__stepwise_instruction_pose__history_question_pose__history_turn_taking_animation__risk_review_turn_taking_animation__risk_focus_body_posture_shift__symptom_discussion_pose__symptom_listening_pose__monitor_check_pose__urgent_focus_step__ecg_request_transition__order_acknowledgement_pose__order_delivery_animation__escalation_posture_shift__closed_loop_escalation_pose__team_turn_taking_pose__role_check_pose__interruption_acknowledgement_pose__family_checkin_pose__empathy_pause_pose__reflective_acknowledgement_motion__completion_pose__handoff_preparation_pose__mood_focused__mood_concerned__mood_direct__communicativeness_gives_concise_clinical_updates_and_escalates_when_learner_action_is_delayed__calm_under_pressure_clarity__focused_rationale_clarity__emotion_tone_continuity__concerned_listen_and_build_rapport__risk_discussion_clarity__reassurance_during_exploration__escalation_attention__urgency_tempered_by_clarity__heightened_attentive_state__team_alignment_readiness__concern_regulation_support__empathy_presence__closure_readiness__ed_chest_pain_priority_v2"
+          },
+          {
+            "targetKind": "facial_lipsync_gaze_animation",
+            "actorRole": "nurse",
+            "semanticInputs": [
+              "nurse",
+              "team_and_learnercamera_targeting",
+              "evidence_focused_gaze",
+              "dialogue_gaze_profile",
+              "learner_camera_transition_to_speaker",
+              "speaker_facing_shift",
+              "learner_camera_and_patient_alignment",
+              "monitor_and_provider_head_turn",
+              "team_member_targeting",
+              "distributed_attention_scan",
+              "family_targeting",
+              "softened_face_alignment",
+              "final_confirmation_alignment",
+              "directive_clarity_timing",
+              "logic_and_ordered_timing",
+              "viseme_phoneme_map",
+              "dialogue_viseme_and_gaze_mapping",
+              "clear_questioning_timing",
+              "rationale_focused_pauses",
+              "empathetic_question_timing",
+              "short_directive_timing",
+              "directive_pronunciation_timing",
+              "compressed_escalation_timing",
+              "closed_loop_turn_taking_timing",
+              "empathetic_reassurance_timing",
+              "empathetic_vocal_pause_timing",
+              "handoff_turn_timing",
+              "ed_chest_pain_priority_v2"
+            ],
+            "lookupKey": "facial_lipsync_gaze_animation__nurse__nurse__team_and_learnercamera_targeting__evidence_focused_gaze__dialogue_gaze_profile__learner_camera_transition_to_speaker__speaker_facing_shift__learner_camera_and_patient_alignment__monitor_and_provider_head_turn__team_member_targeting__distributed_attention_scan__family_targeting__softened_face_alignment__final_confirmation_alignment__directive_clarity_timing__logic_and_ordered_timing__viseme_phoneme_map__dialogue_viseme_and_gaze_mapping__clear_questioning_timing__rationale_focused_pauses__empathetic_question_timing__short_directive_timing__directive_pronunciation_timing__compressed_escalation_timing__closed_loop_turn_taking_timing__empathetic_reassurance_timing__empathetic_vocal_pause_timing__handoff_turn_timing__ed_chest_pain_priority_v2"
+          }
+        ]
+      }
+    ],
+    "requiredEnvironment": {
+      "environmentId": "ed_exam_bay_v1",
+      "assetNeedId": "ed_exam_bay_environment",
+      "hasExplicitAssetNeed": true,
+      "roomSemanticTokens": [
+        "history_opqrst",
+        "risk_factor_question",
+        "associated_symptom_question",
+        "vitals_review",
+        "ecg_request",
+        "urgent_escalation",
+        "team_communication",
+        "family_communication",
+        "empathy_statement",
+        "patient_note_submitted",
+        "curtained",
+        "ed",
+        "bay",
+        "with",
+        "stretcher",
+        "bedside",
+        "monitor",
+        "ecg",
+        "cart",
+        "nearby",
+        "and",
+        "hallway",
+        "interruptions",
+        "exam",
+        "v1"
+      ],
+      "sharedAssetLibraryLookupKey": {
+        "targetKind": "environment_shell_glb",
+        "actorRole": null,
+        "semanticInputs": [
+          "history_opqrst",
+          "risk_factor_question",
+          "associated_symptom_question",
+          "vitals_review",
+          "ecg_request",
+          "urgent_escalation",
+          "team_communication",
+          "family_communication",
+          "empathy_statement",
+          "patient_note_submitted",
+          "curtained",
+          "ed",
+          "bay",
+          "with",
+          "stretcher",
+          "bedside",
+          "monitor",
+          "ecg",
+          "cart",
+          "nearby",
+          "and",
+          "hallway",
+          "interruptions",
+          "exam",
+          "v1",
+          "ed_chest_pain_priority_v2"
+        ],
+        "lookupKey": "environment_shell_glb__scenario__history_opqrst__risk_factor_question__associated_symptom_question__vitals_review__ecg_request__urgent_escalation__team_communication__family_communication__empathy_statement__patient_note_submitted__curtained__ed__bay__with__stretcher__bedside__monitor__ecg__cart__nearby__and__hallway__interruptions__exam__v1__ed_chest_pain_priority_v2"
+      }
+    },
+    "requiredPropsAndEquipment": [
+      {
+        "source": "ed_chest_pain_priority_v2:12-lead ECG machine",
+        "assetNeedId": "12_lead_ecg_machine_equipment",
+        "hasExplicitAssetNeed": true,
+        "semanticTokens": [
+          "12_lead_ecg_machine",
+          "12",
+          "lead",
+          "ecg",
+          "machine",
+          "ed_chest_pain_priority_v2"
+        ],
+        "sharedAssetLibraryLookupKey": {
+          "targetKind": "medical_equipment_glb",
+          "actorRole": null,
+          "semanticInputs": [
+            "12_lead_ecg_machine",
+            "12",
+            "lead",
+            "ecg",
+            "machine",
+            "ed_chest_pain_priority_v2"
+          ],
+          "lookupKey": "medical_equipment_glb__scenario__12_lead_ecg_machine__12__lead__ecg__machine__ed_chest_pain_priority_v2"
+        }
+      },
+      {
+        "source": "ed_chest_pain_priority_v2:bedside monitor",
+        "assetNeedId": "bedside_monitor_equipment",
+        "hasExplicitAssetNeed": true,
+        "semanticTokens": [
+          "bedside_monitor",
+          "bedside",
+          "monitor",
+          "ed_chest_pain_priority_v2"
+        ],
+        "sharedAssetLibraryLookupKey": {
+          "targetKind": "medical_equipment_glb",
+          "actorRole": null,
+          "semanticInputs": [
+            "bedside_monitor",
+            "bedside",
+            "monitor",
+            "ed_chest_pain_priority_v2"
+          ],
+          "lookupKey": "medical_equipment_glb__scenario__bedside_monitor__bedside__monitor__ed_chest_pain_priority_v2"
+        }
+      },
+      {
+        "source": "ed_chest_pain_priority_v2:stretcher",
+        "assetNeedId": "stretcher_equipment",
+        "hasExplicitAssetNeed": true,
+        "semanticTokens": [
+          "stretcher",
+          "ed_chest_pain_priority_v2"
+        ],
+        "sharedAssetLibraryLookupKey": {
+          "targetKind": "medical_equipment_glb",
+          "actorRole": null,
+          "semanticInputs": [
+            "stretcher",
+            "ed_chest_pain_priority_v2"
+          ],
+          "lookupKey": "medical_equipment_glb__scenario__stretcher__ed_chest_pain_priority_v2"
+        }
+      },
+      {
+        "source": "ed_chest_pain_priority_v2:IV pole",
+        "assetNeedId": "iv_pole_equipment",
+        "hasExplicitAssetNeed": true,
+        "semanticTokens": [
+          "iv_pole",
+          "iv",
+          "pole",
+          "ed_chest_pain_priority_v2"
+        ],
+        "sharedAssetLibraryLookupKey": {
+          "targetKind": "medical_equipment_glb",
+          "actorRole": null,
+          "semanticInputs": [
+            "iv_pole",
+            "iv",
+            "pole",
+            "ed_chest_pain_priority_v2"
+          ],
+          "lookupKey": "medical_equipment_glb__scenario__iv_pole__iv__pole__ed_chest_pain_priority_v2"
+        }
+      },
+      {
+        "source": "ed_chest_pain_priority_v2:oxygen nasal cannula",
+        "assetNeedId": "oxygen_nasal_cannula_equipment",
+        "hasExplicitAssetNeed": true,
+        "semanticTokens": [
+          "oxygen_nasal_cannula",
+          "oxygen",
+          "nasal",
+          "cannula",
+          "ed_chest_pain_priority_v2"
+        ],
+        "sharedAssetLibraryLookupKey": {
+          "targetKind": "medical_equipment_glb",
+          "actorRole": null,
+          "semanticInputs": [
+            "oxygen_nasal_cannula",
+            "oxygen",
+            "nasal",
+            "cannula",
+            "ed_chest_pain_priority_v2"
+          ],
+          "lookupKey": "medical_equipment_glb__scenario__oxygen_nasal_cannula__oxygen__nasal__cannula__ed_chest_pain_priority_v2"
+        }
+      },
+      {
+        "source": "ed_chest_pain_priority_v2:wall clock",
+        "assetNeedId": "wall_clock_equipment",
+        "hasExplicitAssetNeed": true,
+        "semanticTokens": [
+          "wall_clock",
+          "wall",
+          "clock",
+          "ed_chest_pain_priority_v2"
+        ],
+        "sharedAssetLibraryLookupKey": {
+          "targetKind": "medical_equipment_glb",
+          "actorRole": null,
+          "semanticInputs": [
+            "wall_clock",
+            "wall",
+            "clock",
+            "ed_chest_pain_priority_v2"
+          ],
+          "lookupKey": "medical_equipment_glb__scenario__wall_clock__wall__clock__ed_chest_pain_priority_v2"
+        }
+      }
+    ],
+    "animationRequirements": {
+      "requiredSignalIds": [
+        "clinical_idle_animation",
+        "conversation_animation",
+        "brief_closed_posture",
+        "guarded_listening_pose",
+        "history_question_pose",
+        "history_turn_taking_animation",
+        "risk_review_turn_taking_animation",
+        "risk_focus_body_posture_shift",
+        "symptom_discussion_pose",
+        "symptom_listening_pose",
+        "monitor_check_pose",
+        "urgent_focus_step",
+        "ecg_request_transition",
+        "order_acknowledgement_pose",
+        "order_delivery_animation",
+        "escalation_posture_shift",
+        "closed_loop_escalation_pose",
+        "team_turn_taking_pose",
+        "role_check_pose",
+        "interruption_acknowledgement_pose",
+        "family_checkin_pose",
+        "empathy_pause_pose",
+        "reflective_acknowledgement_motion",
+        "completion_pose",
+        "handoff_preparation_pose",
+        "mood:anxious",
+        "mood:guarded",
+        "mood:in_pain",
+        "communicativeness:answers_concrete_symptom_questions_but_becomes_guarded_if_pain_is_dismissed",
+        "concern_response_wait_pose",
+        "emotional_escalation_cue",
+        "concern_response_pose",
+        "mood:worried",
+        "mood:protective",
+        "mood:frustrated",
+        "communicativeness:interrupts_for_updates_but_responds_to_clear_explanations_and_explicit_next_steps",
+        "alertness_adjustment",
+        "clinical_reasoning_pose",
+        "stepwise_instruction_pose",
+        "mood:focused",
+        "mood:concerned",
+        "mood:direct",
+        "communicativeness:gives_concise_clinical_updates_and_escalates_when_learner_action_is_delayed",
+        "role_specific_humanoid_glb"
+      ],
+      "requiredAssetKinds": [
+        "clinical_idle_animation",
+        "conversation_animation",
+        "role_idle_animation_glb"
+      ]
+    },
+    "emotionRequirements": {
+      "requiredSignalIds": [
+        "patient_reporting_affect_clarity",
+        "guarded_readability_support",
+        "emotion_tone_continuity",
+        "concerned_listen_and_build_rapport",
+        "risk_discussion_clarity",
+        "reassurance_during_exploration",
+        "escalation_attention",
+        "urgency_tempered_by_clarity",
+        "heightened_attentive_state",
+        "team_alignment_readiness",
+        "concern_regulation_support",
+        "empathy_presence",
+        "closure_readiness",
+        "concern_acknowledgement_clarity",
+        "calm_under_pressure_clarity",
+        "focused_rationale_clarity",
+        "emotion_transition_control"
+      ],
+      "requiredAssetKinds": [
+        "emotion_tone_continuity",
+        "family_warmth_modulation",
+        "stress_signal_stability"
+      ]
+    },
+    "gazeRequirements": {
+      "requiredSignalIds": [
+        "learner_camera_facing",
+        "speaker_targeting",
+        "limited_face_tracking",
+        "dialogue_gaze_profile",
+        "learner_camera_transition_to_speaker",
+        "speaker_facing_shift",
+        "learner_camera_and_patient_alignment",
+        "monitor_and_provider_head_turn",
+        "team_member_targeting",
+        "distributed_attention_scan",
+        "family_targeting",
+        "softened_face_alignment",
+        "final_confirmation_alignment",
+        "learner_camera_and_actor_targeting",
+        "team_and_learnercamera_targeting",
+        "evidence_focused_gaze"
+      ],
+      "requiredAssetKinds": [
+        "dialogue_gaze_profile",
+        "speaker_targeting",
+        "family_targeting",
+        "team_targeting"
+      ]
+    },
+    "lipSyncRequirements": {
+      "requiredSignalIds": [
+        "patient_voice_projection",
+        "careful_clarity_timing",
+        "viseme_phoneme_map",
+        "dialogue_viseme_and_gaze_mapping",
+        "clear_questioning_timing",
+        "rationale_focused_pauses",
+        "empathetic_question_timing",
+        "short_directive_timing",
+        "directive_pronunciation_timing",
+        "compressed_escalation_timing",
+        "closed_loop_turn_taking_timing",
+        "empathetic_reassurance_timing",
+        "empathetic_vocal_pause_timing",
+        "handoff_turn_timing",
+        "concern_statement_timing",
+        "urgent_empathy_timing",
+        "directive_clarity_timing",
+        "logic_and_ordered_timing",
+        "gaze_blink_control_map"
+      ],
+      "requiredAssetKinds": [
+        "viseme_phoneme_map",
+        "facial_lipsync_gaze_animation"
+      ]
+    },
+    "sharedAssetLibrarySemanticKeys": [
+      "role_specific_humanoid_glb__patient__patient__patient_robert_hayes_v1__clinical_idle_animation__conversation_animation__brief_closed_posture__guarded_listening_pose__history_question_pose__history_turn_taking_animation__risk_review_turn_taking_animation__risk_focus_body_posture_shift__symptom_discussion_pose__symptom_listening_pose__monitor_check_pose__urgent_focus_step__ecg_request_transition__order_acknowledgement_pose__order_delivery_animation__escalation_posture_shift__closed_loop_escalation_pose__team_turn_taking_pose__role_check_pose__interruption_acknowledgement_pose__family_checkin_pose__empathy_pause_pose__reflective_acknowledgement_motion__completion_pose__handoff_preparation_pose__mood_anxious__mood_guarded__mood_in_pain__communicativeness_answers_concrete_symptom_questions_but_becomes_guarded_if_pain_is_dismissed__patient_reporting_affect_clarity__guarded_readability_support__emotion_tone_continuity__concerned_listen_and_build_rapport__risk_discussion_clarity__reassurance_during_exploration__escalation_attention__urgency_tempered_by_clarity__heightened_attentive_state__team_alignment_readiness__concern_regulation_support__empathy_presence__closure_readiness__learner_camera_facing__speaker_targeting__limited_face_tracking__dialogue_gaze_profile__learner_camera_transition_to_speaker__speaker_facing_shift__learner_camera_and_patient_alignment__monitor_and_provider_head_turn__team_member_targeting__distributed_attention_scan__family_targeting__softened_face_alignment__final_confirmation_alignment__ed_chest_pain_priority_v2",
+      "role_idle_animation_glb__patient__patient__clinical_idle_animation__conversation_animation__brief_closed_posture__guarded_listening_pose__history_question_pose__history_turn_taking_animation__risk_review_turn_taking_animation__risk_focus_body_posture_shift__symptom_discussion_pose__symptom_listening_pose__monitor_check_pose__urgent_focus_step__ecg_request_transition__order_acknowledgement_pose__order_delivery_animation__escalation_posture_shift__closed_loop_escalation_pose__team_turn_taking_pose__role_check_pose__interruption_acknowledgement_pose__family_checkin_pose__empathy_pause_pose__reflective_acknowledgement_motion__completion_pose__handoff_preparation_pose__mood_anxious__mood_guarded__mood_in_pain__communicativeness_answers_concrete_symptom_questions_but_becomes_guarded_if_pain_is_dismissed__patient_reporting_affect_clarity__guarded_readability_support__emotion_tone_continuity__concerned_listen_and_build_rapport__risk_discussion_clarity__reassurance_during_exploration__escalation_attention__urgency_tempered_by_clarity__heightened_attentive_state__team_alignment_readiness__concern_regulation_support__empathy_presence__closure_readiness__ed_chest_pain_priority_v2",
+      "facial_lipsync_gaze_animation__patient__patient__learner_camera_facing__speaker_targeting__limited_face_tracking__dialogue_gaze_profile__learner_camera_transition_to_speaker__speaker_facing_shift__learner_camera_and_patient_alignment__monitor_and_provider_head_turn__team_member_targeting__distributed_attention_scan__family_targeting__softened_face_alignment__final_confirmation_alignment__patient_voice_projection__careful_clarity_timing__viseme_phoneme_map__dialogue_viseme_and_gaze_mapping__clear_questioning_timing__rationale_focused_pauses__empathetic_question_timing__short_directive_timing__directive_pronunciation_timing__compressed_escalation_timing__closed_loop_turn_taking_timing__empathetic_reassurance_timing__empathetic_vocal_pause_timing__handoff_turn_timing__ed_chest_pain_priority_v2",
+      "role_specific_humanoid_glb__family__family__spouse_anna_hayes_v1__clinical_idle_animation__conversation_animation__concern_response_wait_pose__emotional_escalation_cue__concern_response_pose__history_question_pose__history_turn_taking_animation__risk_review_turn_taking_animation__risk_focus_body_posture_shift__symptom_discussion_pose__symptom_listening_pose__monitor_check_pose__urgent_focus_step__ecg_request_transition__order_acknowledgement_pose__order_delivery_animation__escalation_posture_shift__closed_loop_escalation_pose__team_turn_taking_pose__role_check_pose__interruption_acknowledgement_pose__family_checkin_pose__empathy_pause_pose__reflective_acknowledgement_motion__completion_pose__handoff_preparation_pose__mood_worried__mood_protective__mood_frustrated__communicativeness_interrupts_for_updates_but_responds_to_clear_explanations_and_explicit_next_steps__concern_acknowledgement_clarity__emotion_tone_continuity__concerned_listen_and_build_rapport__risk_discussion_clarity__reassurance_during_exploration__escalation_attention__urgency_tempered_by_clarity__heightened_attentive_state__team_alignment_readiness__concern_regulation_support__empathy_presence__closure_readiness__learner_camera_and_actor_targeting__family_targeting__dialogue_gaze_profile__learner_camera_transition_to_speaker__speaker_facing_shift__learner_camera_and_patient_alignment__monitor_and_provider_head_turn__team_member_targeting__distributed_attention_scan__softened_face_alignment__final_confirmation_alignment__ed_chest_pain_priority_v2",
+      "role_idle_animation_glb__family__family__clinical_idle_animation__conversation_animation__concern_response_wait_pose__emotional_escalation_cue__concern_response_pose__history_question_pose__history_turn_taking_animation__risk_review_turn_taking_animation__risk_focus_body_posture_shift__symptom_discussion_pose__symptom_listening_pose__monitor_check_pose__urgent_focus_step__ecg_request_transition__order_acknowledgement_pose__order_delivery_animation__escalation_posture_shift__closed_loop_escalation_pose__team_turn_taking_pose__role_check_pose__interruption_acknowledgement_pose__family_checkin_pose__empathy_pause_pose__reflective_acknowledgement_motion__completion_pose__handoff_preparation_pose__mood_worried__mood_protective__mood_frustrated__communicativeness_interrupts_for_updates_but_responds_to_clear_explanations_and_explicit_next_steps__concern_acknowledgement_clarity__emotion_tone_continuity__concerned_listen_and_build_rapport__risk_discussion_clarity__reassurance_during_exploration__escalation_attention__urgency_tempered_by_clarity__heightened_attentive_state__team_alignment_readiness__concern_regulation_support__empathy_presence__closure_readiness__ed_chest_pain_priority_v2",
+      "facial_lipsync_gaze_animation__family__family__learner_camera_and_actor_targeting__family_targeting__dialogue_gaze_profile__learner_camera_transition_to_speaker__speaker_facing_shift__learner_camera_and_patient_alignment__monitor_and_provider_head_turn__team_member_targeting__distributed_attention_scan__softened_face_alignment__final_confirmation_alignment__concern_statement_timing__urgent_empathy_timing__viseme_phoneme_map__dialogue_viseme_and_gaze_mapping__clear_questioning_timing__rationale_focused_pauses__empathetic_question_timing__short_directive_timing__directive_pronunciation_timing__compressed_escalation_timing__closed_loop_turn_taking_timing__empathetic_reassurance_timing__empathetic_vocal_pause_timing__handoff_turn_timing__ed_chest_pain_priority_v2",
+      "role_specific_humanoid_glb__nurse__nurse__nurse_maria_alvarez_v1__clinical_idle_animation__conversation_animation__alertness_adjustment__clinical_reasoning_pose__stepwise_instruction_pose__history_question_pose__history_turn_taking_animation__risk_review_turn_taking_animation__risk_focus_body_posture_shift__symptom_discussion_pose__symptom_listening_pose__monitor_check_pose__urgent_focus_step__ecg_request_transition__order_acknowledgement_pose__order_delivery_animation__escalation_posture_shift__closed_loop_escalation_pose__team_turn_taking_pose__role_check_pose__interruption_acknowledgement_pose__family_checkin_pose__empathy_pause_pose__reflective_acknowledgement_motion__completion_pose__handoff_preparation_pose__mood_focused__mood_concerned__mood_direct__communicativeness_gives_concise_clinical_updates_and_escalates_when_learner_action_is_delayed__calm_under_pressure_clarity__focused_rationale_clarity__emotion_tone_continuity__concerned_listen_and_build_rapport__risk_discussion_clarity__reassurance_during_exploration__escalation_attention__urgency_tempered_by_clarity__heightened_attentive_state__team_alignment_readiness__concern_regulation_support__empathy_presence__closure_readiness__team_and_learnercamera_targeting__evidence_focused_gaze__dialogue_gaze_profile__learner_camera_transition_to_speaker__speaker_facing_shift__learner_camera_and_patient_alignment__monitor_and_provider_head_turn__team_member_targeting__distributed_attention_scan__family_targeting__softened_face_alignment__final_confirmation_alignment__ed_chest_pain_priority_v2",
+      "role_idle_animation_glb__nurse__nurse__clinical_idle_animation__conversation_animation__alertness_adjustment__clinical_reasoning_pose__stepwise_instruction_pose__history_question_pose__history_turn_taking_animation__risk_review_turn_taking_animation__risk_focus_body_posture_shift__symptom_discussion_pose__symptom_listening_pose__monitor_check_pose__urgent_focus_step__ecg_request_transition__order_acknowledgement_pose__order_delivery_animation__escalation_posture_shift__closed_loop_escalation_pose__team_turn_taking_pose__role_check_pose__interruption_acknowledgement_pose__family_checkin_pose__empathy_pause_pose__reflective_acknowledgement_motion__completion_pose__handoff_preparation_pose__mood_focused__mood_concerned__mood_direct__communicativeness_gives_concise_clinical_updates_and_escalates_when_learner_action_is_delayed__calm_under_pressure_clarity__focused_rationale_clarity__emotion_tone_continuity__concerned_listen_and_build_rapport__risk_discussion_clarity__reassurance_during_exploration__escalation_attention__urgency_tempered_by_clarity__heightened_attentive_state__team_alignment_readiness__concern_regulation_support__empathy_presence__closure_readiness__ed_chest_pain_priority_v2",
+      "facial_lipsync_gaze_animation__nurse__nurse__team_and_learnercamera_targeting__evidence_focused_gaze__dialogue_gaze_profile__learner_camera_transition_to_speaker__speaker_facing_shift__learner_camera_and_patient_alignment__monitor_and_provider_head_turn__team_member_targeting__distributed_attention_scan__family_targeting__softened_face_alignment__final_confirmation_alignment__directive_clarity_timing__logic_and_ordered_timing__viseme_phoneme_map__dialogue_viseme_and_gaze_mapping__clear_questioning_timing__rationale_focused_pauses__empathetic_question_timing__short_directive_timing__directive_pronunciation_timing__compressed_escalation_timing__closed_loop_turn_taking_timing__empathetic_reassurance_timing__empathetic_vocal_pause_timing__handoff_turn_timing__ed_chest_pain_priority_v2",
+      "environment_shell_glb__scenario__history_opqrst__risk_factor_question__associated_symptom_question__vitals_review__ecg_request__urgent_escalation__team_communication__family_communication__empathy_statement__patient_note_submitted__curtained__ed__bay__with__stretcher__bedside__monitor__ecg__cart__nearby__and__hallway__interruptions__exam__v1__ed_chest_pain_priority_v2",
+      "medical_equipment_glb__scenario__12_lead_ecg_machine__12__lead__ecg__machine__ed_chest_pain_priority_v2",
+      "medical_equipment_glb__scenario__bedside_monitor__bedside__monitor__ed_chest_pain_priority_v2",
+      "medical_equipment_glb__scenario__stretcher__ed_chest_pain_priority_v2",
+      "medical_equipment_glb__scenario__iv_pole__iv__pole__ed_chest_pain_priority_v2",
+      "medical_equipment_glb__scenario__oxygen_nasal_cannula__oxygen__nasal__cannula__ed_chest_pain_priority_v2",
+      "medical_equipment_glb__scenario__wall_clock__wall__clock__ed_chest_pain_priority_v2"
+    ],
+    "missingRequiredAssetNeedIds": [],
+    "blockers": [],
+    "warnings": [],
+    "readyForDeterministicGeneration": true
+  },
+  "humanoidRealismProfiles": [
+    {
+      "actorRole": "patient",
+      "ageBand": "adult",
+      "bodyPostureNotes": [
+        "role_appropriate_body_scale_and_stance",
+        "clinical_idle_pose_must_match_encounter_context"
+      ],
+      "clothingClinicalContextCues": [
+        "patient_role_appropriate_clothing",
+        "clinical_environment_consistent_materials"
+      ],
+      "expressionAffectCues": [
+        "dialogue_linked_mouth_eye_expression",
+        "subtle_blink_and_micro_saccade_motion"
+      ],
+      "mobilityPositioningConstraints": [
+        "initial_pose_from_encounter_definition",
+        "movement_must_preserve_clinical_spatial_blocking"
+      ],
+      "requiredRealismEvidenceIds": [
+        "animated_humanoid_runtime_playback",
+        "authored_clinical_idle_pose_runtime_cue",
+        "visible_mouth_eye_expression_cues",
+        "dialogue_viseme_and_gaze_mapping",
+        "dialogue_eye_micro_saccade_blink_cue",
+        "generated_eyelid_blink_control_cue",
+        "emotion_aligned_expression_transition_cue"
+      ],
+      "claimScope": "metadata_only_not_visual_quality_evidence"
+    },
+    {
+      "actorRole": "family",
+      "ageBand": "contextual_adult",
+      "bodyPostureNotes": [
+        "role_appropriate_body_scale_and_stance",
+        "clinical_idle_pose_must_match_encounter_context"
+      ],
+      "clothingClinicalContextCues": [
+        "family_role_appropriate_clothing",
+        "clinical_environment_consistent_materials"
+      ],
+      "expressionAffectCues": [
+        "dialogue_linked_mouth_eye_expression",
+        "subtle_blink_and_micro_saccade_motion"
+      ],
+      "mobilityPositioningConstraints": [
+        "initial_pose_from_encounter_definition",
+        "movement_must_preserve_clinical_spatial_blocking"
+      ],
+      "requiredRealismEvidenceIds": [
+        "animated_humanoid_runtime_playback",
+        "authored_clinical_idle_pose_runtime_cue",
+        "visible_mouth_eye_expression_cues",
+        "dialogue_viseme_and_gaze_mapping",
+        "dialogue_eye_micro_saccade_blink_cue",
+        "generated_eyelid_blink_control_cue",
+        "emotion_aligned_expression_transition_cue"
+      ],
+      "claimScope": "metadata_only_not_visual_quality_evidence"
+    },
+    {
+      "actorRole": "nurse",
+      "ageBand": "contextual_adult",
+      "bodyPostureNotes": [
+        "role_appropriate_body_scale_and_stance",
+        "clinical_idle_pose_must_match_encounter_context"
+      ],
+      "clothingClinicalContextCues": [
+        "nurse_role_appropriate_clothing",
+        "clinical_environment_consistent_materials"
+      ],
+      "expressionAffectCues": [
+        "dialogue_linked_mouth_eye_expression",
+        "subtle_blink_and_micro_saccade_motion"
+      ],
+      "mobilityPositioningConstraints": [
+        "initial_pose_from_encounter_definition",
+        "movement_must_preserve_clinical_spatial_blocking"
+      ],
+      "requiredRealismEvidenceIds": [
+        "animated_humanoid_runtime_playback",
+        "authored_clinical_idle_pose_runtime_cue",
+        "visible_mouth_eye_expression_cues",
+        "dialogue_viseme_and_gaze_mapping",
+        "dialogue_eye_micro_saccade_blink_cue",
+        "generated_eyelid_blink_control_cue",
+        "emotion_aligned_expression_transition_cue"
+      ],
+      "claimScope": "metadata_only_not_visual_quality_evidence"
+    }
+  ],
+  "projectionArtifactConsumption": {
+    "source": "scenario_bank_dynamic_encounter_factory_projection_artifact",
+    "sourceSchemaVersion": "openclinxr.dynamic-encounter-factory-projection-artifact.v1",
+    "anchorScenarioId": "ed_chest_pain_priority_v1",
+    "nextFactoryPlanningScenarioId": "ed_chest_pain_priority_v2",
+    "nextFactoryPlanningScenarioSelectionMode": "approved_encounter_variant",
+    "scenarioBankSliceSize": 3,
+    "sharedAssetReuseSummary": {
+      "scenarioBankSliceScenarioIds": [
+        "ed_chest_pain_priority_v1",
+        "ed_chest_pain_priority_v2",
+        "ed_chest_pain_priority_v3"
+      ],
+      "scenarioBankSliceSize": 3,
+      "workOrderCount": 8,
+      "distinctLookupKeys": [
+        "role_specific_humanoid_glb__patient__adult__role_appropriate_body_scale_and_stance__clinical_idle_pose_must_match_encounter_context__patient_role_appropriate_clothing__clinical_environment_consistent_materials__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion__generated_humanoid_mesh__skin_material_or_morph_targets__clinical_idle_animation__conversation_animation__viseme_phoneme_map__gaze_blink_control__role_appropriate_clothing",
+        "role_idle_animation_glb__patient__animated_humanoid_runtime_playback__authored_clinical_idle_pose_runtime_cue__visible_mouth_eye_expression_cues__dialogue_viseme_and_gaze_mapping__dialogue_eye_micro_saccade_blink_cue__generated_eyelid_blink_control_cue__emotion_aligned_expression_transition_cue__initial_pose_from_encounter_definition__movement_must_preserve_clinical_spatial_blocking__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion",
+        "role_specific_humanoid_glb__family__contextual_adult__role_appropriate_body_scale_and_stance__clinical_idle_pose_must_match_encounter_context__family_role_appropriate_clothing__clinical_environment_consistent_materials__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion__generated_humanoid_mesh__skin_material_or_morph_targets__clinical_idle_animation__conversation_animation__viseme_phoneme_map__gaze_blink_control__role_appropriate_clothing",
+        "role_idle_animation_glb__family__animated_humanoid_runtime_playback__authored_clinical_idle_pose_runtime_cue__visible_mouth_eye_expression_cues__dialogue_viseme_and_gaze_mapping__dialogue_eye_micro_saccade_blink_cue__generated_eyelid_blink_control_cue__emotion_aligned_expression_transition_cue__initial_pose_from_encounter_definition__movement_must_preserve_clinical_spatial_blocking__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion",
+        "role_specific_humanoid_glb__nurse__contextual_adult__role_appropriate_body_scale_and_stance__clinical_idle_pose_must_match_encounter_context__nurse_role_appropriate_clothing__clinical_environment_consistent_materials__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion__generated_humanoid_mesh__skin_material_or_morph_targets__clinical_idle_animation__conversation_animation__viseme_phoneme_map__gaze_blink_control__role_appropriate_clothing",
+        "role_idle_animation_glb__nurse__animated_humanoid_runtime_playback__authored_clinical_idle_pose_runtime_cue__visible_mouth_eye_expression_cues__dialogue_viseme_and_gaze_mapping__dialogue_eye_micro_saccade_blink_cue__generated_eyelid_blink_control_cue__emotion_aligned_expression_transition_cue__initial_pose_from_encounter_definition__movement_must_preserve_clinical_spatial_blocking__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion",
+        "medical_equipment_glb__scenario__ed_chest_pain_priority_station_v1__clinical_zone_layout__recognizable_ed_props__functional_placement__scale_validation__cable_tube_logic",
+        "visual_feedback_closure__scenario__adversarial_visual_feedback__blocked_visual_qa_items__screenshot_or_video_evidence_required"
+      ],
+      "distinctSharedLibraryBlobPrefixes": [
+        "blob://openclinxr-assets/shared-encounter-assets/role_specific_humanoid_glb__patient__adult__role_appropriate_body_scale_and_stance__clinical_idle_pose_must_match_encounter_context__patient_role_appropriate_clothing__clinical_environment_consistent_materials__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion__generated_humanoid_mesh__skin_material_or_morph_targets__clinical_idle_animation__conversation_animation__viseme_phoneme_map__gaze_blink_control__role_appropriate_clothing/",
+        "blob://openclinxr-assets/shared-encounter-assets/role_idle_animation_glb__patient__animated_humanoid_runtime_playback__authored_clinical_idle_pose_runtime_cue__visible_mouth_eye_expression_cues__dialogue_viseme_and_gaze_mapping__dialogue_eye_micro_saccade_blink_cue__generated_eyelid_blink_control_cue__emotion_aligned_expression_transition_cue__initial_pose_from_encounter_definition__movement_must_preserve_clinical_spatial_blocking__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion/",
+        "blob://openclinxr-assets/shared-encounter-assets/role_specific_humanoid_glb__family__contextual_adult__role_appropriate_body_scale_and_stance__clinical_idle_pose_must_match_encounter_context__family_role_appropriate_clothing__clinical_environment_consistent_materials__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion__generated_humanoid_mesh__skin_material_or_morph_targets__clinical_idle_animation__conversation_animation__viseme_phoneme_map__gaze_blink_control__role_appropriate_clothing/",
+        "blob://openclinxr-assets/shared-encounter-assets/role_idle_animation_glb__family__animated_humanoid_runtime_playback__authored_clinical_idle_pose_runtime_cue__visible_mouth_eye_expression_cues__dialogue_viseme_and_gaze_mapping__dialogue_eye_micro_saccade_blink_cue__generated_eyelid_blink_control_cue__emotion_aligned_expression_transition_cue__initial_pose_from_encounter_definition__movement_must_preserve_clinical_spatial_blocking__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion/",
+        "blob://openclinxr-assets/shared-encounter-assets/role_specific_humanoid_glb__nurse__contextual_adult__role_appropriate_body_scale_and_stance__clinical_idle_pose_must_match_encounter_context__nurse_role_appropriate_clothing__clinical_environment_consistent_materials__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion__generated_humanoid_mesh__skin_material_or_morph_targets__clinical_idle_animation__conversation_animation__viseme_phoneme_map__gaze_blink_control__role_appropriate_clothing/",
+        "blob://openclinxr-assets/shared-encounter-assets/role_idle_animation_glb__nurse__animated_humanoid_runtime_playback__authored_clinical_idle_pose_runtime_cue__visible_mouth_eye_expression_cues__dialogue_viseme_and_gaze_mapping__dialogue_eye_micro_saccade_blink_cue__generated_eyelid_blink_control_cue__emotion_aligned_expression_transition_cue__initial_pose_from_encounter_definition__movement_must_preserve_clinical_spatial_blocking__dialogue_linked_mouth_eye_expression__subtle_blink_and_micro_saccade_motion/",
+        "blob://openclinxr-assets/shared-encounter-assets/medical_equipment_glb__scenario__ed_chest_pain_priority_station_v1__clinical_zone_layout__recognizable_ed_props__functional_placement__scale_validation__cable_tube_logic/",
+        "blob://openclinxr-assets/shared-encounter-assets/visual_feedback_closure__scenario__adversarial_visual_feedback__blocked_visual_qa_items__screenshot_or_video_evidence_required/"
+      ],
+      "sharedLibraryMongooseCollectionName": "shared_encounter_asset_library"
+    }
+  },
+  "evidenceBoundaries": {
+    "azureQueueMessagePrepared": true,
+    "azuriteCompatible": true,
+    "azureCloudOperationPerformed": false,
+    "paidApisUsed": false,
+    "productionDeploymentPerformed": false,
+    "productionReadinessClaimed": false,
+    "questReadinessClaimed": false,
+    "clinicalValidityClaimed": false,
+    "scoringValidityClaimed": false
+  }
+}
