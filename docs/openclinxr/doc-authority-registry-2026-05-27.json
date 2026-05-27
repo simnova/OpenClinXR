@@ -5,7 +5,7 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "evidence": 44,
-    "protected-policy": 7,
+    "protected-policy": 8,
     "current-reference": 49,
     "agent-memory": 138,
     "agent-methodology": 8,
@@ -1385,6 +1385,13 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/openclinxr/generated-artifact-registry-2026-05-27.md",
+      "authority": "protected-policy",
+      "agentInstructionWeight": "highest",
+      "action": "protect",
+      "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
     },
     {
       "path": "docs/openclinxr/github-pages-site-2026-05-06.md",

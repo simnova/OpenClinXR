@@ -37,6 +37,8 @@ const protectedPaths = new Set([
   "docs/openclinxr/codex-openclaw-operating-bridge-2026-05-27.md",
   "docs/openclinxr/doc-authority-registry-2026-05-27.md",
   "docs/openclinxr/doc-authority-registry-2026-05-27.json",
+  "docs/openclinxr/generated-artifact-registry-2026-05-27.md",
+  "docs/openclinxr/generated-artifact-registry-2026-05-27.json",
 ]);
 const currentReferences = new Set([
   "README.md",

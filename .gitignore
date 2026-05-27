@@ -2,8 +2,11 @@ node_modules/
 .turbo/
 .DS_Store
 .env.openclinxr.local
+.openclinxr/
 .openclinxr-local/
 .agent-factory/browser-evidence/
+.agent-factory/*-check.json
+.agent-factory/*-current.json
 apps/*/.codex/
 .venv/
 __pycache__/

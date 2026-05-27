@@ -27,6 +27,8 @@ const requiredFiles = [
   "docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md",
   "docs/openclinxr/doc-authority-registry-2026-05-27.md",
   "docs/openclinxr/doc-authority-registry-2026-05-27.json",
+  "docs/openclinxr/generated-artifact-registry-2026-05-27.md",
+  "docs/openclinxr/generated-artifact-registry-2026-05-27.json",
   "docs/agent-factory/README.md",
   "iterations/iteration-0009/07-final-synthesis.md",
 ] as const;
@@ -85,6 +87,18 @@ const requiredMarkers: Record<string, string[]> = {
     "\"usageRule\"",
     "\"protected-policy\"",
   ],
+  "docs/openclinxr/generated-artifact-registry-2026-05-27.md": [
+    "Generated Artifact Registry",
+    "Protected Rule",
+    "Cleanup Actions",
+    "current representative evidence",
+  ],
+  "docs/openclinxr/generated-artifact-registry-2026-05-27.json": [
+    "\"schemaVersion\": \"2026-05-27\"",
+    "\"protectedRule\"",
+    "\"usageRule\"",
+    "\"keep-current\"",
+  ],
   "docs/agent-factory/README.md": [
     "Implementation-Time Steering Rule",
     "PROJECT_COORDINATION_INDEX.md",
@@ -140,6 +154,12 @@ export function buildCoordinationAlignmentReport(input: CoordinationAlignmentInp
     failures.push({
       file: "package.json",
       message: "docs:authority script must regenerate the Markdown authority registry",
+    });
+  }
+  if (scripts["docs:artifacts"] !== "tsx tools/agent-factory/build-generated-artifact-registry.ts") {
+    failures.push({
+      file: "package.json",
+      message: "docs:artifacts script must regenerate the generated artifact registry",
     });
   }
   if (!scripts["agent:verify"]?.startsWith("pnpm agent:alignment && ")) {
