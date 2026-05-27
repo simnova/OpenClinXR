@@ -4,7 +4,7 @@
   "usageRule": "Use this report to keep cleanup commits separate from product-code and generated-code stabilization work.",
   "counts": {
     "local-cache": 2,
-    "product-code": 175,
+    "product-code": 99,
     "generated-code": 11
   },
   "entries": [
@@ -22,54 +22,6 @@
     },
     {
       "status": "M",
-      "path": "apps/api/src/app.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "apps/api/src/app.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "apps/ui-admin/package.json",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "apps/ui-admin/src/App.test.tsx",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "apps/ui-admin/src/App.tsx",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "apps/ui-admin/src/api-client.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "apps/ui-admin/src/api-client.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "apps/ui-admin/src/styles.css",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
       "path": "apps/ui-xr-iwsdk-spike/src/main.ts",
       "category": "product-code",
       "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
@@ -82,103 +34,7 @@
     },
     {
       "status": "M",
-      "path": "apps/ui-xr/package.json",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "apps/ui-xr/src/api-client.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "apps/ui-xr/src/api-client.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "apps/ui-xr/src/main.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "apps/ui-xr/src/runtime-state.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "apps/ui-xr/src/runtime-state.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "apps/ui-xr/src/static-assets.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "apps/ui-xr/src/styles.css",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
       "path": "packages/openclinxr/architecture-rules/src/workspace-architecture.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/asset-registry/package.json",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/asset-registry/src/asset-registry.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/asset-registry/src/index.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/capability-gateway/package.json",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/capability-gateway/src/asset-generation-jobs.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/capability-gateway/src/asset-generation-jobs.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/capability-gateway/src/capability-gateway.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/capability-gateway/src/index.ts",
       "category": "product-code",
       "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
     },
@@ -203,18 +59,6 @@
     {
       "status": "M",
       "path": "packages/openclinxr/data-sources-mongoose-models/src/index.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/domain/src/station-state.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/domain/src/station-state.ts",
       "category": "product-code",
       "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
     },
@@ -304,18 +148,6 @@
     },
     {
       "status": "M",
-      "path": "packages/openclinxr/model-gateway/src/index.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/model-gateway/src/model-gateway.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
       "path": "packages/openclinxr/rest/src/index.ts",
       "category": "product-code",
       "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
@@ -323,114 +155,6 @@
     {
       "status": "M",
       "path": "packages/openclinxr/rest/src/rest-routes.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/review-workflow/src/index.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/review-workflow/src/review-packet.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/review-workflow/src/review-packet.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/review-workflow/src/scenario-publication.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/review-workflow/src/scenario-publication.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/scenario-fixtures/package.json",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/scenario-fixtures/src/ed-chest-pain.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/scenario-fixtures/src/ed-chest-pain.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/scenario-fixtures/src/scenario-bank.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/scenario-fixtures/src/scenario-bank.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/scenario-runtime/src/index.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/scenario-runtime/src/scenario-runtime.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/session-state/src/index.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/session-state/src/session-state.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/shared-schemas/src/schemas.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/shared-schemas/src/schemas.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/shared-schemas/src/validators.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/test-harness/package.json",
       "category": "product-code",
       "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
     },
@@ -461,36 +185,6 @@
     {
       "status": "M",
       "path": "packages/openclinxr/test-harness/src/station-simulation.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/trace-ledger/src/in-memory-trace-ledger.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/trace-ledger/src/in-memory-trace-ledger.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/voice-gateway/src/index.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "packages/openclinxr/voice-gateway/src/voice-gateway.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "pnpm-lock.yaml",
       "category": "product-code",
       "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
     },
@@ -574,144 +268,6 @@
     },
     {
       "status": "??",
-      "path": "apps/ui-admin/src/EnvironmentGenerationQueuePanel.test.tsx",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "apps/ui-admin/src/EnvironmentGenerationQueuePanel.tsx",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "apps/ui-admin/src/FacultyReviewDecisionPanel.test.tsx",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "apps/ui-admin/src/FacultyReviewDecisionPanel.tsx",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "apps/ui-admin/src/ReviewReplayReadinessSummaryPanel.test.tsx",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "apps/ui-admin/src/ReviewReplayReadinessSummaryPanel.tsx",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "apps/ui-admin/src/ReviewReplaySafetyPanel.tsx",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "apps/ui-admin/src/RuntimeSelectionReviewPacketPanel.test.tsx",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "apps/ui-admin/src/RuntimeSelectionReviewPacketPanel.tsx",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "apps/ui-admin/src/ScenarioBankMaturityPanel.tsx",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "apps/ui-admin/src/SeedExamReadinessBoundaryPanel.test.tsx",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "apps/ui-admin/src/SeedExamReadinessBoundaryPanel.tsx",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "apps/ui-admin/src/status-view-model.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "packages/openclinxr/asset-registry/src/asset-writer.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "packages/openclinxr/asset-registry/src/asset-writer.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "packages/openclinxr/asset-registry/src/object-store.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "packages/openclinxr/asset-registry/src/object-store.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "packages/openclinxr/asset-registry/src/runtime-asset-review.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "packages/openclinxr/asset-registry/src/runtime-asset-review.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "packages/openclinxr/asset-registry/src/runtime-bundles.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "packages/openclinxr/asset-registry/src/runtime-bundles.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "packages/openclinxr/capability-gateway/src/azure-storage-queue-client.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "packages/openclinxr/capability-gateway/src/azure-storage-queue-client.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
       "path": "packages/openclinxr/data-sources-mongoose-models/src/encounter-asset-generation-job-model.test.ts",
       "category": "product-code",
       "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
@@ -731,18 +287,6 @@
     {
       "status": "??",
       "path": "packages/openclinxr/data-sources-mongoose-models/src/encounter-asset-generation-job-repository.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "packages/openclinxr/review-workflow/src/faculty-review-path.test.ts",
-      "category": "product-code",
-      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "packages/openclinxr/review-workflow/src/faculty-review-path.ts",
       "category": "product-code",
       "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
     },
