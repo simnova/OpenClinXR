@@ -2,6 +2,15 @@
 
 This file tracks non-blocking operator questions that need a better answer after more evidence. Blockers that require operator action stay in `operator-steering-needed-questions.md`.
 
+## Quest foreground performance capture blocked in this session
+
+- Asked: 2026-05-25
+- Question: Can we complete the single honest Quest 3 foreground performance capture in this session, or should we keep the report as a prepared draft until a human worn-headset pass is available?
+- Current answer: Keep the report as a prepared draft for now. A real headset pass is still required to honestly record comfort, readability, immersive-session, and sustained-frame observations.
+- Confidence: High
+- Current evidence: No live headset action or fresh manual performance artifact was produced in this session; the report is prepared as a blocker-aware draft only.
+- Recommended default: Use the new dated draft report as-is, keep the Quest Browser setup to one foreground window, disable DevTools screencast before the next real capture, and resume the manual checklist only when the operator can physically wear the headset.
+
 ## VibeVoice as a Grok Voice development substitute
 
 - Asked: 2026-05-04
@@ -20,3 +29,34 @@ This file tracks non-blocking operator questions that need a better answer after
   - Measure on the actual target hardware profile: M4 Pro or M4 Max.
   - Add pronunciation checks for medical phrases and names.
   - Compare one short scenario line set against Grok Voice only if/when API spend is explicitly approved.
+
+## 2026-05-25 Faculty review posture detail
+
+Question: Should the reviewer-decision posture also surface a one-line `late behavior present` summary next to existing trace-quality metrics?
+
+Recommended default: Keep the current timeline/note/posture exposure as-is unless faculty reviewers ask for a more explicit late-behavior badge. Existing blocker IDs and decision reasons already surface late behavior without adding another UI chip.
+
+## Nonblocking - ui-xr typecheck has pre-existing runtime interaction variable errors
+
+- Context: `pnpm --filter @openclinxr/ui-xr typecheck` currently fails in `apps/ui-xr/src/main.ts` because `latestRuntimeInteractionEvidence` is referenced at two sites but is not in scope.
+- Impact: focused `runtime-state.test.ts` passed for the XR trace summary slice, but full ui-xr typecheck remains blocked until this existing runtime wiring issue is corrected.
+- Recommended default: fix the `latestRuntimeInteractionEvidence` scope issue in a focused ui-xr runtime wiring slice before using full package typecheck as a gate for future XR work.
+
+## 2026-05-25 Resolution - ui-xr runtime interaction scope blocker
+
+- Prior question: `latestRuntimeInteractionEvidence` was referenced outside scope in `apps/ui-xr/src/main.ts`, blocking full `@openclinxr/ui-xr` typecheck.
+- Resolution: The runtime interaction evidence variable was moved to shared file scope in a focused ui-xr slice.
+- Current evidence: `pnpm --filter @openclinxr/ui-xr typecheck` passed after the fix.
+- Recommended default: Treat this blocker as resolved and keep future XR trace slices gated by focused ui-xr tests plus package typecheck when touched.
+
+## 2026-05-27 - MPFB/MakeHuman garment license allowlist
+
+Question: Which specific MPFB/MakeHuman garment source should be allowlisted first for Reom OB/pediatric fitting?
+
+Recommended default: keep `mpfb_makehuman_clothing_library` blocked for materialized runtime assets until a specific garment has source URL, license, author, redistribution permission, hash, and semantic key. Continue local procedural fitter only as pipeline test evidence.
+
+## 2026-05-27 - License-compatible garment allowlist source
+
+Question: Which specific external garment mesh source should be reviewed first for allowlisting into the provider-routed garment pipeline?
+
+Recommended default: do not materialize any external garment; keep MPFB/MakeHuman blocked pending a concrete source URL, license, author, redistribution permission, local hash, and semantic garment key. Continue automation around provider gates, cache reuse, and B+ screenshot scoring.

@@ -6,7 +6,6 @@ This generated report categorizes the remaining dirty worktree so cleanup commit
 
 ## Counts
 
-- agent-memory-docs: 6
 - generated-code: 11
 - local-cache: 2
 - operator-notes: 2
@@ -18,9 +17,6 @@ This generated report categorizes the remaining dirty worktree so cleanup commit
 
 - `M` `.agent-factory/benchmark-gate-report.json` - local-cache; Ignore or delete if untracked; do not commit as durable evidence.
 - `M` `.agent-factory/quest-cdp-smoke-check.json` - local-cache; Ignore or delete if untracked; do not commit as durable evidence.
-- `M` `agents/coordinator/chief-coordinator/memory.md` - agent-memory-docs; Review as agent-memory update; commit only if it reflects current OpenClaw guidance.
-- `M` `agents/core/implementation-planning-lead/memory.md` - agent-memory-docs; Review as agent-memory update; commit only if it reflects current OpenClaw guidance.
-- `M` `agents/leadership/vp-engineering-delivery/memory.md` - agent-memory-docs; Review as agent-memory update; commit only if it reflects current OpenClaw guidance.
 - `M` `apps/api/src/app.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `apps/api/src/app.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `apps/ui-admin/package.json` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
@@ -39,9 +35,6 @@ This generated report categorizes the remaining dirty worktree so cleanup commit
 - `M` `apps/ui-xr/src/runtime-state.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `apps/ui-xr/src/static-assets.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `apps/ui-xr/src/styles.css` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
-- `M` `docs/agent-factory/README.md` - agent-memory-docs; Review as agent-memory update; commit only if it reflects current OpenClaw guidance.
-- `M` `iterations/iteration-0009/07-final-synthesis.md` - agent-memory-docs; Review as agent-memory update; commit only if it reflects current OpenClaw guidance.
-- `M` `iterations/iteration-0009/08-memory-update-log.md` - agent-memory-docs; Review as agent-memory update; commit only if it reflects current OpenClaw guidance.
 - `M` `operator-open-questions.md` - operator-notes; Review for active blockers/defaults; avoid mixing with product-code commits.
 - `M` `operator-steering-needed-questions.md` - operator-notes; Review for active blockers/defaults; avoid mixing with product-code commits.
 - `M` `packages/openclinxr/architecture-rules/src/workspace-architecture.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.

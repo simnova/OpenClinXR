@@ -4,7 +4,6 @@
   "usageRule": "Use this report to keep cleanup commits separate from product-code and generated-code stabilization work.",
   "counts": {
     "local-cache": 2,
-    "agent-memory-docs": 6,
     "product-code": 173,
     "operator-notes": 2,
     "generated-code": 11,
@@ -23,24 +22,6 @@
       "path": ".agent-factory/quest-cdp-smoke-check.json",
       "category": "local-cache",
       "recommendedAction": "Ignore or delete if untracked; do not commit as durable evidence."
-    },
-    {
-      "status": "M",
-      "path": "agents/coordinator/chief-coordinator/memory.md",
-      "category": "agent-memory-docs",
-      "recommendedAction": "Review as agent-memory update; commit only if it reflects current OpenClaw guidance."
-    },
-    {
-      "status": "M",
-      "path": "agents/core/implementation-planning-lead/memory.md",
-      "category": "agent-memory-docs",
-      "recommendedAction": "Review as agent-memory update; commit only if it reflects current OpenClaw guidance."
-    },
-    {
-      "status": "M",
-      "path": "agents/leadership/vp-engineering-delivery/memory.md",
-      "category": "agent-memory-docs",
-      "recommendedAction": "Review as agent-memory update; commit only if it reflects current OpenClaw guidance."
     },
     {
       "status": "M",
@@ -149,24 +130,6 @@
       "path": "apps/ui-xr/src/styles.css",
       "category": "product-code",
       "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "M",
-      "path": "docs/agent-factory/README.md",
-      "category": "agent-memory-docs",
-      "recommendedAction": "Review as agent-memory update; commit only if it reflects current OpenClaw guidance."
-    },
-    {
-      "status": "M",
-      "path": "iterations/iteration-0009/07-final-synthesis.md",
-      "category": "agent-memory-docs",
-      "recommendedAction": "Review as agent-memory update; commit only if it reflects current OpenClaw guidance."
-    },
-    {
-      "status": "M",
-      "path": "iterations/iteration-0009/08-memory-update-log.md",
-      "category": "agent-memory-docs",
-      "recommendedAction": "Review as agent-memory update; commit only if it reflects current OpenClaw guidance."
     },
     {
       "status": "M",
