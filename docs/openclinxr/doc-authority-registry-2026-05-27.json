@@ -4,13 +4,12 @@
   "protectedRule": "Protected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.",
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
-    "evidence": 36,
+    "evidence": 44,
     "protected-policy": 7,
-    "current-reference": 41,
+    "current-reference": 49,
     "agent-memory": 138,
     "agent-methodology": 8,
-    "archive-candidate": 24,
-    "historical-synthesis": 77,
+    "historical-synthesis": 81,
     "decision-record": 18,
     "proposal": 21
   },
@@ -1242,17 +1241,10 @@
     },
     {
       "path": "docs/openclinxr/admin-ux-and-testing-brief.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": "docs/openclinxr/ant-design-cli-local-spike-2026-05-04.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/openclinxr/api-bun-python-proxy-smoke-2026-05-05.md",
@@ -1291,10 +1283,10 @@
     },
     {
       "path": "docs/openclinxr/cellix-package-adoption-brief.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/openclinxr/claims-consent-privacy-governance.md",
@@ -1312,10 +1304,10 @@
     },
     {
       "path": "docs/openclinxr/code-implementation-plan.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/openclinxr/codex-openclaw-operating-bridge-2026-05-27.md",
@@ -1396,10 +1388,10 @@
     },
     {
       "path": "docs/openclinxr/github-pages-site-2026-05-06.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "low",
       "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "rationale": "Substantive historical design or milestone synthesis; use as background, not active instruction."
     },
     {
       "path": "docs/openclinxr/godot-quest-voice-client-spike.md",
@@ -1452,17 +1444,17 @@
     },
     {
       "path": "docs/openclinxr/immersive-web-sdk-evaluation-2026-05-04.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "low",
       "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "rationale": "Substantive historical design or milestone synthesis; use as background, not active instruction."
     },
     {
       "path": "docs/openclinxr/implementation-milestone-1-results.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "low",
       "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "rationale": "Substantive historical design or milestone synthesis; use as background, not active instruction."
     },
     {
       "path": "docs/openclinxr/iwsdk-codex-mcp-runbook.md",
@@ -1480,31 +1472,31 @@
     },
     {
       "path": "docs/openclinxr/knowledge-graph-and-indexing.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/openclinxr/local-ai-voice-model-strategy.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/openclinxr/local-hardware-spike-results.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Retained spike/evidence record; use only to verify touched behavior or avoid repeating settled investigation."
     },
     {
       "path": "docs/openclinxr/local-realtime-voice-model-download-plan-2026-05-06.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Retained spike/evidence record; use only to verify touched behavior or avoid repeating settled investigation."
     },
     {
       "path": "docs/openclinxr/model-provider-and-voice-routing.md",
@@ -1522,17 +1514,10 @@
     },
     {
       "path": "docs/openclinxr/mongodb-memory-server-test-strategy.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": "docs/openclinxr/portless-local-spike-2026-05-04.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/openclinxr/psychometric-and-review-governance.md",
@@ -1564,24 +1549,24 @@
     },
     {
       "path": "docs/openclinxr/realtime-voice-transport-spike-2026-05-04.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Retained spike/evidence record; use only to verify touched behavior or avoid repeating settled investigation."
     },
     {
       "path": "docs/openclinxr/realtime-voice-transport-spike-2026-05-05.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Retained spike/evidence record; use only to verify touched behavior or avoid repeating settled investigation."
     },
     {
       "path": "docs/openclinxr/research-brief-step2cs-llm-vsp.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "low",
       "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "rationale": "Substantive historical design or milestone synthesis; use as background, not active instruction."
     },
     {
       "path": "docs/openclinxr/sample-case-bank-v1.md",
@@ -1606,31 +1591,31 @@
     },
     {
       "path": "docs/openclinxr/server-side-multi-actor-state-persistence-phase2-2026-05-05.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Retained spike/evidence record; use only to verify touched behavior or avoid repeating settled investigation."
     },
     {
       "path": "docs/openclinxr/server-side-multi-actor-state-spike-2026-05-05.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Retained spike/evidence record; use only to verify touched behavior or avoid repeating settled investigation."
     },
     {
       "path": "docs/openclinxr/session-state-websocket-message-design.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/openclinxr/spikes/vibevoice-local-voice-spike.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Retained spike/evidence record; use only to verify touched behavior or avoid repeating settled investigation."
     },
     {
       "path": "docs/openclinxr/statecharts-and-sequences.md",
@@ -1648,17 +1633,10 @@
     },
     {
       "path": "docs/openclinxr/technology-approach-brief.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": "docs/openclinxr/tsdown-api-bundle-spike-2026-05-04.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/openclinxr/ui-xr-encounter-realism-review-2026-05-26.md",
@@ -1669,10 +1647,10 @@
     },
     {
       "path": "docs/openclinxr/uikitml-spatial-text-sidecar-2026-05-05.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Retained spike/evidence record; use only to verify touched behavior or avoid repeating settled investigation."
     },
     {
       "path": "docs/openclinxr/ux-flows.md",
@@ -1701,13 +1679,6 @@
       "agentInstructionWeight": "highest",
       "action": "protect",
       "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
-    },
-    {
-      "path": "docs/openclinxr/workspace-relocation-performance-2026-05-05.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/superpowers/plans/2026-05-02-openclinxr-agent-factory-scaffold.md",

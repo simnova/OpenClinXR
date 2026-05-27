@@ -62,9 +62,35 @@ const currentReferences = new Set([
   "docs/openclinxr/humanoid-toolchain-bakeoff-2026-05-27.md",
   "docs/openclinxr/humanoid-toolchain-options-2026-05-27.md",
   "docs/openclinxr/humanoid-variant-materialization-next-slice-2026-05-26.md",
+  "docs/openclinxr/admin-ux-and-testing-brief.md",
+  "docs/openclinxr/cellix-package-adoption-brief.md",
+  "docs/openclinxr/code-implementation-plan.md",
+  "docs/openclinxr/knowledge-graph-and-indexing.md",
+  "docs/openclinxr/local-ai-voice-model-strategy.md",
+  "docs/openclinxr/mongodb-memory-server-test-strategy.md",
+  "docs/openclinxr/session-state-websocket-message-design.md",
+  "docs/openclinxr/technology-approach-brief.md",
   "templates/decision-record.md",
   "templates/risk-record.md",
   "templates/source-record.md",
+]);
+
+const historicalSyntheses = new Set([
+  "docs/openclinxr/github-pages-site-2026-05-06.md",
+  "docs/openclinxr/immersive-web-sdk-evaluation-2026-05-04.md",
+  "docs/openclinxr/implementation-milestone-1-results.md",
+  "docs/openclinxr/research-brief-step2cs-llm-vsp.md",
+]);
+
+const retainedEvidence = new Set([
+  "docs/openclinxr/local-hardware-spike-results.md",
+  "docs/openclinxr/local-realtime-voice-model-download-plan-2026-05-06.md",
+  "docs/openclinxr/realtime-voice-transport-spike-2026-05-04.md",
+  "docs/openclinxr/realtime-voice-transport-spike-2026-05-05.md",
+  "docs/openclinxr/server-side-multi-actor-state-persistence-phase2-2026-05-05.md",
+  "docs/openclinxr/server-side-multi-actor-state-spike-2026-05-05.md",
+  "docs/openclinxr/spikes/vibevoice-local-voice-spike.md",
+  "docs/openclinxr/uikitml-spatial-text-sidecar-2026-05-05.md",
 ]);
 
 function walk(dir: string, out: string[] = []): string[] {
@@ -106,6 +132,12 @@ function classify(file: string): DocAuthorityEntry {
   }
   if (currentReferences.has(file)) {
     return { path: file, authority: "current-reference", agentInstructionWeight: "medium", action: "use-as-current", rationale: "Current product reference, subordinate to protected guardrails and active queue." };
+  }
+  if (historicalSyntheses.has(file)) {
+    return { path: file, authority: "historical-synthesis", agentInstructionWeight: "low", action: "summarize-before-use", rationale: "Substantive historical design or milestone synthesis; use as background, not active instruction." };
+  }
+  if (retainedEvidence.has(file)) {
+    return { path: file, authority: "evidence", agentInstructionWeight: "low", action: "treat-as-evidence", rationale: "Retained spike/evidence record; use only to verify touched behavior or avoid repeating settled investigation." };
   }
   if (file.startsWith("docs/superpowers/")) {
     return { path: file, authority: "historical-synthesis", agentInstructionWeight: "low", action: "summarize-before-use", rationale: "Skill-era implementation/spec planning history; use as evidence, not active queue." };
