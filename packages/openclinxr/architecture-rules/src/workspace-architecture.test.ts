@@ -109,6 +109,19 @@ describe("workspace architecture rules", () => {
     expect(rootPackage.scripts?.test).not.toContain("pnpm -r");
   });
 
+  it("keeps the asset-registry browser barrel free of Node-only object-store runtime exports", () => {
+    const barrel = readFileSync(join(workspaceRoot, "packages/openclinxr/asset-registry/src/index.ts"), "utf8");
+    const manifest = JSON.parse(readFileSync(join(workspaceRoot, "packages/openclinxr/asset-registry/package.json"), "utf8")) as {
+      exports?: Record<string, string>;
+    };
+
+    expect(barrel).not.toContain('export * from "./object-store.js"');
+    expect(barrel).toContain("export type {");
+    expect(barrel).toContain('} from "./object-store.js"');
+    expect(manifest.exports?.["./object-store"]).toBe("./src/object-store.ts");
+    expect(manifest.exports?.["./asset-writer"]).toBe("./src/asset-writer.ts");
+  });
+
   it("exposes IWSDK spike verification as an explicit opt-in lane outside the default verify gate", () => {
     const rootPackage = JSON.parse(readFileSync(join(workspaceRoot, "package.json"), "utf8")) as {
       scripts?: Record<string, string>;
@@ -423,6 +436,39 @@ describe("workspace architecture rules", () => {
     expect(violations).toEqual([]);
   });
 
+  it("keeps the domain package independent of runtime, persistence, and UI layers", () => {
+    const domainPackage = JSON.parse(readFileSync(join(workspaceRoot, "packages/openclinxr/domain/package.json"), "utf8")) as {
+      dependencies?: Record<string, string>;
+      optionalDependencies?: Record<string, string>;
+      peerDependencies?: Record<string, string>;
+    };
+    const blockedManifestDependencies = [
+      "@openclinxr/data-mongodb",
+      "@openclinxr/data-sources-mongoose-models",
+      "@openclinxr/model-gateway",
+      "@openclinxr/voice-gateway",
+      "@openclinxr/rest",
+      "mongodb",
+      "mongoose",
+      "react",
+      "@types/react",
+    ];
+    const manifestDependencies = {
+      ...domainPackage.dependencies,
+      ...domainPackage.optionalDependencies,
+      ...domainPackage.peerDependencies,
+    };
+
+    expect(Object.keys(manifestDependencies).filter((dependency) => blockedManifestDependencies.includes(dependency))).toEqual([]);
+    expect(domainPackage.dependencies).toEqual({
+      "@openclinxr/shared-schemas": "workspace:*",
+    });
+
+    const forbiddenImports =
+      /\bfrom\s+["'](?:@openclinxr\/(?:data-mongodb|data-sources-mongoose-models|model-gateway|voice-gateway|rest)|mongodb|mongoose|react|apps\/)/;
+    expect(filesWithContentMatching("packages/openclinxr/domain/src", forbiddenImports)).toEqual([]);
+  });
+
   it("keeps UI REST route catalog usage behind app-local API clients", () => {
     const violations = filesWithContentMatching("apps", /@openclinxr\/rest/)
       .filter((filePath) => /^apps\/ui-[^/]+\/src\//.test(filePath))
@@ -708,17 +754,37 @@ describe("workspace architecture rules", () => {
     };
     const forbiddenDependencies = [
       "@colyseus/schema",
+      "@fails-components/webtransport",
+      "@openclinxr/api",
+      "@openclinxr/api-python-backend",
       "@openclinxr/data-mongodb",
       "@openclinxr/data-sources-mongoose-models",
+      "@openclinxr/graphql",
+      "@openclinxr/rest",
       "@openclinxr/scenario-runtime",
+      "@solana/web3.js",
+      "@walletconnect/modal",
+      "@walletconnect/sign-client",
+      "@web3modal/wagmi",
+      "aioquic",
       "bitecs",
       "colyseus",
+      "ethers",
+      "hono",
       "ioredis",
       "ioredis-mock",
       "mongodb",
       "mongodb-memory-server",
+      "quic",
       "redka",
       "redis",
+      "siwe",
+      "viem",
+      "wagmi",
+      "web3",
+      "webtransport",
+      "webtransport-polyfill",
+      "ws",
     ];
     const sourceViolations = forbiddenDependencies.flatMap((dependency) =>
       sourceImportReferences(

@@ -64,6 +64,31 @@ const result: SimulationResult = {
     localModel: { providerId: "local-model", status: "not_configured", blockers: ["local_model_runtime_not_configured"] },
     localVoice: { providerId: "local-voice", status: "not_configured", blockers: ["local_voice_runtime_not_configured"] },
   },
+  optionalRuntimeSkips: [
+    {
+      runtime: "local_model",
+      providerId: "local-model",
+      status: "not_configured",
+      blockers: ["local_model_runtime_not_configured"],
+    },
+    {
+      runtime: "local_voice",
+      providerId: "local-voice",
+      status: "not_configured",
+      blockers: ["local_voice_runtime_not_configured"],
+    },
+  ],
+  dialogueSeedReplay: {
+    routeId: "actor-dialogue-offline-v1",
+    providerId: "mock-model",
+    scenarioCount: 12,
+    seedCount: 48,
+    guardrailProbeCount: 12,
+    blockedGuardrailCount: 12,
+    hiddenFactLeakCount: 0,
+    traceTagMismatchCount: 0,
+    passed: true,
+  },
 };
 
 describe("adversarial probe report", () => {

@@ -1573,6 +1573,55 @@ const completedQuestTextPanelEvidence = {
   ],
 };
 
+const completedQuestSceneAssetEvidence = {
+  source: "window.__openClinXrSceneAssetEvidence",
+  expectedAssetCount: 6,
+  loadedCount: 6,
+  failedCount: 0,
+  pendingCount: 0,
+  fallbackActiveCount: 0,
+  productionAssetReadinessClaimed: false,
+  assets: [
+    {
+      assetId: "openclinxr.ed-chest-pain.patient-robert-hayes.generated-humanoid",
+      assetPath: "/xr-assets/humanoids/neutral-generated-human.glb",
+      status: "loaded",
+      fallbackActive: false,
+    },
+    {
+      assetId: "openclinxr.ed-chest-pain.nurse-maria-alvarez.generated-humanoid",
+      assetPath: "/xr-assets/humanoids/neutral-generated-human.glb",
+      status: "loaded",
+      fallbackActive: false,
+    },
+    {
+      assetId: "openclinxr.ed-chest-pain.spouse-anna-hayes.generated-humanoid",
+      assetPath: "/xr-assets/humanoids/neutral-generated-human.glb",
+      status: "loaded",
+      fallbackActive: false,
+    },
+    {
+      assetId: "openclinxr.ed-chest-pain.ecg-cart.generated-glb",
+      assetPath: "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+      status: "loaded",
+      fallbackActive: false,
+    },
+    {
+      assetId: "openclinxr.ed-chest-pain.iv-pole-with-pump.generated-glb",
+      assetPath: "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+      status: "loaded",
+      fallbackActive: false,
+    },
+    {
+      assetId: "openclinxr.ed-chest-pain.environment-shell.generated-glb",
+      assetPath: "/xr-assets/environment/ed-exam-bay-shell.glb",
+      status: "loaded",
+      fallbackActive: false,
+    },
+  ],
+};
+
+
 const completedQuestMixedRealityManualReport: QuestMixedRealityManualReport = {
   schemaVersion: "openclinxr.quest-mixed-reality-manual.v1",
   generatedAt: "2026-05-04T20:45:00.000Z",
@@ -1715,6 +1764,40 @@ describe("benchmark gate report", () => {
     expect(selected).toEqual({
       file: rawPath,
       value: { kind: "raw" },
+    });
+  });
+
+  it("selects copied UI Quest manual performance payloads through the manual evidence path", async () => {
+    const tempDir = await mkdtemp(path.join(tmpdir(), "openclinxr-quest-manual-copy-latest-"));
+    const wrapperPath = path.join(tempDir, "quest-manual-performance-2026-05-05.json");
+    const templatePath = path.join(tempDir, "quest-manual-performance-template.json");
+    await writeFile(wrapperPath, `${JSON.stringify({
+      manualPerformanceDraft: { generatedAt: "2026-05-05T00:00:00.000Z" },
+      captureSummary: {
+        draftAvailable: true,
+        manualValidationReady: true,
+        frameStatsFresh: true,
+        blockers: [],
+      },
+    })}\n`, "utf8");
+    await writeFile(templatePath, `${JSON.stringify({ kind: "template" })}\n`, "utf8");
+
+    const selected = await latestJson<{ manualPerformanceDraft?: { generatedAt?: string } }>(
+      `${tempDir}/quest-manual-performance-*.json`,
+      isQuestManualPerformanceRawReportPath,
+    );
+
+    expect(selected).toEqual({
+      file: wrapperPath,
+      value: {
+        manualPerformanceDraft: { generatedAt: "2026-05-05T00:00:00.000Z" },
+        captureSummary: {
+          draftAvailable: true,
+          manualValidationReady: true,
+          frameStatsFresh: true,
+          blockers: [],
+        },
+      },
     });
   });
 
@@ -1972,7 +2055,8 @@ describe("benchmark gate report", () => {
     expect(gatesById.get("evidence-leadership-0008-001")).toEqual(expect.objectContaining({
       ready_to_resolve: false,
       blockers: expect.arrayContaining([
-        "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
+        "quest_smoke:evidence_stale_over_24h",
+        "quest_frame_quality_evidence_missing",
         "quest_immersive_entry_activation_not_received",
         "quest_immersive_session_not_started",
         "quest_manual_performance:duration_under_10_minutes",
@@ -1989,7 +2073,8 @@ describe("benchmark gate report", () => {
     expect(gatesById.get("evidence-leadership-0009-001")).toEqual(expect.objectContaining({
       ready_to_resolve: false,
       blockers: expect.arrayContaining([
-        "quest_foreground_preflight:quest_3_asleep_or_not_foreground_ready",
+        "quest_smoke:evidence_stale_over_24h",
+        "quest_frame_quality_evidence_missing",
         "quest_immersive_entry_activation_not_received",
         "quest_immersive_session_not_started",
         "quest_manual_performance:duration_under_10_minutes",
@@ -4349,7 +4434,7 @@ describe("benchmark gate report", () => {
       status: "blocked",
       summary: {
         allRequiredLanesObserved: true,
-        allArtifactFilesMaterialized: false,
+        allArtifactFilesMaterialized: true,
         artifactBackedProductionEvidenceObserved: false,
       },
       verdict: {
@@ -4357,7 +4442,7 @@ describe("benchmark gate report", () => {
         readyForProductionAssets: false,
         blockers: expect.arrayContaining([
           "artifact_backed_production_asset_evidence_missing",
-          "generatedHumanRigging:artifact_files_missing",
+          "generatedHumanRigging:evidence_tier_not_reviewed_generated_production_source",
         ]),
       },
     });
@@ -4369,7 +4454,6 @@ describe("benchmark gate report", () => {
     expect(assetGate?.blockers).toEqual(expect.arrayContaining([
       "asset_production:artifact_evidence:artifact_backed_production_asset_evidence_missing",
       "asset_production:artifact_evidence:generatedHumanRigging:evidence_tier_not_reviewed_generated_production_source",
-      "asset_production:artifact_evidence:generatedHumanRigging:artifact_files_missing",
     ]));
   });
 
@@ -4716,17 +4800,23 @@ describe("benchmark gate report", () => {
             blockers: [],
           },
           textPanelEvidence: completedQuestTextPanelEvidence,
+          sceneAssetEvidence: completedQuestSceneAssetEvidence,
         },
       },
     });
     const questGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0008-001");
 
-    expect(report.quest_manual_performance?.adversarial_findings).toEqual(["copied_ui_manual_performance_payload"]);
+    expect(report.quest_manual_performance?.adversarial_findings).toEqual([
+      "copied_ui_manual_performance_payload",
+      "generated_scene_asset_evidence:runtime_asset_load_status_only",
+      "generated_scene_assets_are_visual_runtime_presence_evidence_only",
+    ]);
     expect(questGate?.satisfied_conditions).toEqual(expect.arrayContaining([
       "quest_manual_frame_pacing_ready",
       "frame_sample_600_or_more",
       "immersive_frame_count_recorded",
       "controller_select_latency_150ms_or_lower",
+      "generated_scene_assets_loaded",
     ]));
     expect(questGate?.blockers).not.toContain("quest_manual_performance:missing_quest_manual_performance_report");
   });
@@ -4926,6 +5016,13 @@ describe("benchmark gate report", () => {
             timedOut: true,
             blockers: ["headset_trace_latency_missing"],
             elapsedWallMs: 9000,
+            signalSnapshot: {
+              sceneAssetEvidencePresent: true,
+              generatedSceneAssetsLoaded: true,
+              generatedSceneAssetExpectedCount: 6,
+              generatedSceneAssetLoadedCount: 6,
+              generatedSceneAssetFallbackCount: 0,
+            },
           },
         },
       },
@@ -4937,17 +5034,25 @@ describe("benchmark gate report", () => {
         timed_out?: boolean;
         blockers?: string[];
         elapsed_wall_ms?: number | null;
+        signal_snapshot?: Record<string, unknown> | null;
       };
       next_steps?: string[];
     };
     const questGate = report.evidence_gates.find((gate) => gate.evidence_id === "evidence-leadership-0008-001");
 
-    expect(questManualPerformance?.harvest_summary).toEqual({
+    expect(questManualPerformance?.harvest_summary).toMatchObject({
       source: "quest_cdp_manual_evidence_harvest",
       ready: false,
       timed_out: true,
       blockers: ["headset_trace_latency_missing"],
       elapsed_wall_ms: 9000,
+      signal_snapshot: {
+        sceneAssetEvidencePresent: true,
+        generatedSceneAssetsLoaded: true,
+        generatedSceneAssetExpectedCount: 6,
+        generatedSceneAssetLoadedCount: 6,
+        generatedSceneAssetFallbackCount: 0,
+      },
     });
     expect(report.quest_manual_performance?.blockers).toEqual([
       "manual_evidence_harvest_not_ready",

@@ -26,21 +26,13 @@ describe("Blender asset bake smoke", () => {
   });
 
   it("validates a baked GLB header and records Quest-budget fixture metadata", () => {
-    const placeholderObjectNames = [
-      "patient_placeholder_head",
-      "patient_placeholder_torso",
-      "patient_placeholder_left_arm",
-      "patient_placeholder_right_arm",
-      "patient_placeholder_left_leg",
-      "patient_placeholder_right_leg",
-      "clinical_scale_marker",
-    ];
+    const placeholderObjectNames = clinicalAssetPackObjectNames();
     const buffer = glbBufferWithJson({
       scene: 0,
-      scenes: [{ name: "clinical_placeholder_scene", nodes: placeholderObjectNames.map((_, index) => index) }],
+      scenes: [{ name: "ed_chest_pain_clinical_asset_pack_scene", nodes: placeholderObjectNames.map((_, index) => index) }],
       nodes: placeholderObjectNames.map((name, index) => ({ name, mesh: index })),
       meshes: placeholderObjectNames.map((name) => ({ name: `${name}_mesh` })),
-      materials: [{ name: "clinical_placeholder_skin" }],
+      materials: [{ name: "clinical_equipment_matte_metal" }],
     });
 
     const report = buildBlenderBakeSmokeReportFromGlb({
@@ -50,7 +42,7 @@ describe("Blender asset bake smoke", () => {
       glb: buffer,
     });
 
-    expect(report.input.fixture).toBe("low_poly_clinical_humanoid");
+    expect(report.input.fixture).toBe("ed_chest_pain_clinical_asset_pack");
     expect(report.output).toMatchObject({
       glbBytes: buffer.length,
       magic: "glTF",
@@ -58,10 +50,10 @@ describe("Blender asset bake smoke", () => {
       declaredLength: buffer.length,
       semanticInventory: {
         sceneCount: 1,
-        nodeCount: 7,
-        meshCount: 7,
+        nodeCount: placeholderObjectNames.length,
+        meshCount: placeholderObjectNames.length,
         materialCount: 1,
-        requiredObjectNames: [],
+        requiredObjectNames: clinicalAssetPackObjectNames(),
         missingRequiredObjectNames: [],
       },
     });
@@ -164,10 +156,10 @@ describe("Blender asset bake smoke", () => {
         elapsedMs: 42,
         glb: glbBufferWithJson({
           scene: 0,
-          scenes: [{ name: "clinical_placeholder_scene", nodes: [0] }],
-          nodes: [{ name: "patient_placeholder_head", mesh: 0 }],
-          meshes: [{ name: "patient_placeholder_head_mesh" }],
-          materials: [{ name: "clinical_placeholder_skin" }],
+          scenes: [{ name: "ed_chest_pain_clinical_asset_pack_scene", nodes: clinicalAssetPackObjectNames().map((_, index) => index) }],
+          nodes: clinicalAssetPackObjectNames().map((name, index) => ({ name, mesh: index })),
+          meshes: clinicalAssetPackObjectNames().map((name) => ({ name: `${name}_mesh` })),
+          materials: [{ name: "clinical_equipment_matte_metal" }],
         }),
       });
       await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
@@ -243,14 +235,10 @@ describe("Blender asset bake smoke", () => {
     });
   });
 
-  it("creates a Python bake script that exports a humanoid GLB without external assets", () => {
-    const script = createBlenderBakePythonScript("/tmp/openclinxr-humanoid.glb");
-
-    expect(script).toContain("primitive_uv_sphere_add");
-    expect(script).toContain("primitive_cube_add");
-    expect(script).toContain("clinical_placeholder_skin");
-    expect(script).toContain("bpy.ops.export_scene.gltf");
-    expect(script).toContain("/tmp/openclinxr-humanoid.glb");
+  it("rejects the removed legacy low-poly humanoid fixture", async () => {
+    await expect(runBlenderBakeSmokeCli(["--fixture", "low_poly_clinical_humanoid"])).rejects.toThrow(
+      "Unsupported Blender bake fixture: low_poly_clinical_humanoid",
+    );
   });
 
   it("creates a reviewed ED chest-pain clinical asset-pack script with named equipment and rig anchors", () => {

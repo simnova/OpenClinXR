@@ -145,14 +145,14 @@ describe("asset production readiness report", () => {
     expect(report.stationBudgetEvidence).toEqual({
       scenarioId: "ed_chest_pain_priority_v1",
       source: "@openclinxr/asset-registry:createEdChestPainPlaceholderManifests",
-      requiredAssetCount: 3,
+      requiredAssetCount: 8,
       budget: {
         maxVisibleTriangles: 180000,
         maxTextureMegabytes: 512,
         maxDrawCalls: 120,
-        totalTriangles: 60000,
-        totalTextureMegabytes: 80,
-        totalDrawCalls: 28,
+        totalTriangles: 98000,
+        totalTextureMegabytes: 136,
+        totalDrawCalls: 52,
         blockers: [],
       },
       placeholderOnly: true,
@@ -569,10 +569,10 @@ function blenderSmoke(input: {
       license: "GPL-3.0-or-later-tooling",
     },
     input: {
-      fixture: "low_poly_clinical_humanoid",
+      fixture: "ed_chest_pain_clinical_asset_pack",
       externalAssetsUsed: false,
       sourceLicensePosture: input.sourceLicensePosture,
-      expectedObjectCount: 7,
+      expectedObjectCount: clinicalAssetPackObjectNames().length,
     },
     output: {
       glbBytes: input.glbBytes ?? 27284,

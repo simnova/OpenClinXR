@@ -1714,6 +1714,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
             timed_out: questManualPerformance.value.harvestSummary.timedOut,
             blockers: [...(questManualPerformance.value.harvestSummary.blockers ?? [])],
             elapsed_wall_ms: questManualPerformance.value.harvestSummary.elapsedWallMs ?? null,
+            signal_snapshot: questManualPerformance.value.harvestSummary.signalSnapshot ?? null,
           },
         } : {}),
       },

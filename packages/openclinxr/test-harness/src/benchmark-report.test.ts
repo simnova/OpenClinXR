@@ -64,6 +64,31 @@ const result: SimulationResult = {
     localModel: { providerId: "local-model", status: "not_configured", blockers: ["local_model_runtime_not_configured"] },
     localVoice: { providerId: "local-voice", status: "not_configured", blockers: ["local_voice_runtime_not_configured"] },
   },
+  optionalRuntimeSkips: [
+    {
+      runtime: "local_model",
+      providerId: "local-model",
+      status: "not_configured",
+      blockers: ["local_model_runtime_not_configured"],
+    },
+    {
+      runtime: "local_voice",
+      providerId: "local-voice",
+      status: "not_configured",
+      blockers: ["local_voice_runtime_not_configured"],
+    },
+  ],
+  dialogueSeedReplay: {
+    routeId: "actor-dialogue-offline-v1",
+    providerId: "mock-model",
+    scenarioCount: 12,
+    seedCount: 48,
+    guardrailProbeCount: 12,
+    blockedGuardrailCount: 12,
+    hiddenFactLeakCount: 0,
+    traceTagMismatchCount: 0,
+    passed: true,
+  },
 };
 
 describe("mock benchmark report", () => {
@@ -87,6 +112,16 @@ describe("mock benchmark report", () => {
         lateTraceTagCount: 1,
         unsafeEventCount: 0,
       },
+      facultyReviewPath: {
+        decision: {
+          title: "Needs scenario iteration",
+          color: "gold",
+        },
+        posture: {
+          title: "Changes requested draft recommended",
+          color: "gold",
+        },
+      },
       telemetryPlan: {
         spanNames: {
           modelGenerateActorResponse: "openclinxr.model.generate_actor_response",
@@ -108,7 +143,36 @@ describe("mock benchmark report", () => {
           { probeId: "actor_response_provider_failures", status: "passed" },
         ],
       },
+      dialogueSeedReplay: {
+        scenarioCount: 12,
+        seedCount: 48,
+        guardrailProbeCount: 12,
+        blockedGuardrailCount: 12,
+        hiddenFactLeakCount: 0,
+        traceTagMismatchCount: 0,
+        passed: true,
+      },
+      optionalRuntimeSkips: [
+        { runtime: "local_model", status: "not_configured" },
+        { runtime: "local_voice", status: "not_configured" },
+      ],
     });
     expect(JSON.stringify(report.telemetryPlan.benchmarkAttributes)).not.toContain("run_ed_chest_pain_priority_v1_learner_001");
+  });
+
+  it("uses trace-quality counts as the authoritative unsafe-event signal", () => {
+    const report = buildMockBenchmarkReport({
+      ...result,
+      reviewPacket: {
+        ...result.reviewPacket,
+        unsafeEvents: [],
+        traceQuality: {
+          ...result.reviewPacket.traceQuality,
+          unsafeEventCount: 2,
+        },
+      },
+    }, 12.34);
+
+    expect(report.reviewSignals.unsafeEventCount).toBe(2);
   });
 });

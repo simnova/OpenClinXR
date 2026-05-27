@@ -18,11 +18,11 @@ type CliOptions = {
   fixture: BlenderBakeFixture;
 };
 
-export type BlenderBakeFixture = "low_poly_clinical_humanoid" | "ed_chest_pain_clinical_asset_pack";
+export type BlenderBakeFixture = "ed_chest_pain_clinical_asset_pack";
 
 type BlenderBakeFixtureMetadata = {
   fixture: BlenderBakeFixture;
-  sourceLicensePosture: "repo_generated_placeholder" | "reviewed_local_clinical_asset_fixture";
+  sourceLicensePosture: "reviewed_local_clinical_asset_fixture";
   expectedObjectCount: number;
   requiredObjectNames: string[];
 };
@@ -111,7 +111,7 @@ function parseArgs(args: string[]): CliOptions {
   const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
   const options: CliOptions = {
     validateLatest: false,
-    fixture: "low_poly_clinical_humanoid",
+    fixture: "ed_chest_pain_clinical_asset_pack",
   };
 
   for (let index = 0; index < normalizedArgs.length; index += 1) {
@@ -155,7 +155,7 @@ function requireValue(args: string[], index: number, flag: string): string {
 }
 
 function parseFixture(value: string): BlenderBakeFixture {
-  if (value === "low_poly_clinical_humanoid" || value === "ed_chest_pain_clinical_asset_pack") {
+  if (value === "ed_chest_pain_clinical_asset_pack") {
     return value;
   }
   throw new Error(`Unsupported Blender bake fixture: ${value}`);
@@ -165,7 +165,7 @@ export async function runBlenderBakeSmoke(input: {
   fixture?: BlenderBakeFixture;
 } = {}): Promise<BlenderBakeSmokeReport> {
   const started = performance.now();
-  const fixture = input.fixture ?? "low_poly_clinical_humanoid";
+  const fixture = input.fixture ?? "ed_chest_pain_clinical_asset_pack";
   const blenderVersion = await getBlenderVersion();
   const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-blender-bake-"));
   const scriptPath = path.join(tempDir, "bake.py");
@@ -199,7 +199,7 @@ export function buildBlenderBakeSmokeReportFromGlb(input: {
   glb: Buffer;
   fixture?: BlenderBakeFixture;
 }): BlenderBakeSmokeReport {
-  const fixtureMetadata = blenderBakeFixtureMetadata(input.fixture ?? "low_poly_clinical_humanoid");
+  const fixtureMetadata = blenderBakeFixtureMetadata(input.fixture ?? "ed_chest_pain_clinical_asset_pack");
   const magic = input.glb.subarray(0, 4).toString("utf8");
   const parsedVersion = input.glb.length >= 8 ? input.glb.readUInt32LE(4) : null;
   const declaredLength = input.glb.length >= 12 ? input.glb.readUInt32LE(8) : null;
@@ -265,11 +265,11 @@ export function validateBlenderBakeSmokeReport(value: unknown): ValidationResult
   }
   requireRecord(value.input, "/input", errors);
   if (isRecord(value.input)) {
-    requireOneOf(value.input.fixture, ["low_poly_clinical_humanoid", "ed_chest_pain_clinical_asset_pack"], "/input/fixture", errors);
+    requireOneOf(value.input.fixture, ["ed_chest_pain_clinical_asset_pack"], "/input/fixture", errors);
     requireLiteral(value.input.externalAssetsUsed, false, "/input/externalAssetsUsed", errors);
     requireOneOf(
       value.input.sourceLicensePosture,
-      ["repo_generated_placeholder", "reviewed_local_clinical_asset_fixture"],
+      ["reviewed_local_clinical_asset_fixture"],
       "/input/sourceLicensePosture",
       errors,
     );
@@ -342,20 +342,11 @@ function expectedReportBlockers(output: Record<string, unknown>): string[] {
 }
 
 function blenderBakeFixtureMetadata(fixture: BlenderBakeFixture): BlenderBakeFixtureMetadata {
-  if (fixture === "ed_chest_pain_clinical_asset_pack") {
-    return {
-      fixture,
-      sourceLicensePosture: "reviewed_local_clinical_asset_fixture",
-      expectedObjectCount: clinicalAssetPackRequiredObjectNames.length,
-      requiredObjectNames: clinicalAssetPackRequiredObjectNames,
-    };
-  }
-
   return {
     fixture,
-    sourceLicensePosture: "repo_generated_placeholder",
-    expectedObjectCount: 7,
-    requiredObjectNames: [],
+    sourceLicensePosture: "reviewed_local_clinical_asset_fixture",
+    expectedObjectCount: clinicalAssetPackRequiredObjectNames.length,
+    requiredObjectNames: clinicalAssetPackRequiredObjectNames,
   };
 }
 
@@ -517,55 +508,13 @@ const clinicalAssetPackRequiredObjectNames = [
 
 export function createBlenderBakePythonScript(
   outputPath: string,
-  fixture: BlenderBakeFixture = "low_poly_clinical_humanoid",
+  fixture: BlenderBakeFixture = "ed_chest_pain_clinical_asset_pack",
 ): string {
   if (fixture === "ed_chest_pain_clinical_asset_pack") {
     return createClinicalAssetPackBlenderScript(outputPath);
   }
 
-  return createPlaceholderHumanoidBlenderScript(outputPath);
-}
-
-function createPlaceholderHumanoidBlenderScript(outputPath: string): string {
-  const escapedOutputPath = JSON.stringify(outputPath);
-  return `
-import bpy
-
-bpy.ops.object.select_all(action="SELECT")
-bpy.ops.object.delete()
-
-skin = bpy.data.materials.new("clinical_placeholder_skin")
-skin.diffuse_color = (0.78, 0.55, 0.43, 1.0)
-scrubs = bpy.data.materials.new("clinical_placeholder_scrubs")
-scrubs.diffuse_color = (0.08, 0.32, 0.42, 1.0)
-
-def add_cube(name, location, scale, material):
-    bpy.ops.mesh.primitive_cube_add(size=1, location=location)
-    obj = bpy.context.object
-    obj.name = name
-    obj.scale = scale
-    obj.data.materials.append(material)
-    return obj
-
-bpy.ops.mesh.primitive_uv_sphere_add(segments=16, ring_count=8, radius=0.22, location=(0, 0, 1.72))
-head = bpy.context.object
-head.name = "patient_placeholder_head"
-head.data.materials.append(skin)
-
-add_cube("patient_placeholder_torso", (0, 0, 1.18), (0.28, 0.18, 0.42), scrubs)
-add_cube("patient_placeholder_left_arm", (-0.36, 0, 1.17), (0.08, 0.08, 0.38), skin)
-add_cube("patient_placeholder_right_arm", (0.36, 0, 1.17), (0.08, 0.08, 0.38), skin)
-add_cube("patient_placeholder_left_leg", (-0.11, 0, 0.52), (0.09, 0.09, 0.5), scrubs)
-add_cube("patient_placeholder_right_leg", (0.11, 0, 0.52), (0.09, 0.09, 0.5), scrubs)
-add_cube("clinical_scale_marker", (0, -0.35, 0.05), (0.35, 0.02, 0.02), scrubs)
-
-bpy.ops.export_scene.gltf(
-    filepath=${escapedOutputPath},
-    export_format="GLB",
-    export_apply=True,
-    export_materials="EXPORT",
-)
-`.trimStart();
+  throw new Error(`Unsupported Blender bake fixture: ${fixture}`);
 }
 
 function createClinicalAssetPackBlenderScript(outputPath: string): string {

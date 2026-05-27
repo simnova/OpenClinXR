@@ -1,4 +1,5 @@
 import type { ProviderHealth } from "@openclinxr/shared-schemas";
+import { buildFacultyReviewPath, type FacultyReviewPath } from "@openclinxr/review-workflow";
 import { openClinXrSpanNames, telemetryRouteAttributes } from "@openclinxr/telemetry";
 import { buildAdversarialProbeReport, type AdversarialProbeReport } from "./adversarial-report.js";
 import type { SimulationResult } from "./station-simulation.js";
@@ -19,17 +20,20 @@ export type MockBenchmarkReport = {
     lateTraceTagCount: number;
     unsafeEventCount: number;
   };
+  facultyReviewPath: FacultyReviewPath;
   telemetryPlan: {
     spanNames: typeof openClinXrSpanNames;
     benchmarkAttributes: ReturnType<typeof telemetryRouteAttributes>;
   };
   adversarialReport: AdversarialProbeReport;
+  dialogueSeedReplay: SimulationResult["dialogueSeedReplay"];
   providerHealth: {
     model: ProviderHealth;
     voice: ProviderHealth;
     localModel: ProviderHealth;
     localVoice: ProviderHealth;
   };
+  optionalRuntimeSkips: SimulationResult["optionalRuntimeSkips"];
 };
 
 export function buildMockBenchmarkReport(result: SimulationResult, elapsedMs: number): MockBenchmarkReport {
@@ -47,8 +51,15 @@ export function buildMockBenchmarkReport(result: SimulationResult, elapsedMs: nu
     reviewSignals: {
       missingRequiredTraceTagCount: result.reviewPacket.missingRequiredTraceTags.length,
       lateTraceTagCount: result.reviewPacket.lateTraceTags.length,
-      unsafeEventCount: result.reviewPacket.unsafeEvents.length,
+      unsafeEventCount: result.reviewPacket.traceQuality.unsafeEventCount,
     },
+    facultyReviewPath: buildFacultyReviewPath({
+      packet: result.reviewPacket,
+      hasDurableSummary: true,
+      durableSummaryIsSafe: true,
+      traceEventCount: result.eventCount,
+      safetyFlagLabels: result.reviewPacket.unsafeEvents,
+    }),
     telemetryPlan: {
       spanNames: openClinXrSpanNames,
       benchmarkAttributes: telemetryRouteAttributes({
@@ -62,6 +73,8 @@ export function buildMockBenchmarkReport(result: SimulationResult, elapsedMs: nu
     adversarialReport: buildAdversarialProbeReport(result, {
       hiddenFactCanaries: ["Father died of myocardial infarction"],
     }),
+    dialogueSeedReplay: result.dialogueSeedReplay,
     providerHealth: result.providerHealth,
+    optionalRuntimeSkips: result.optionalRuntimeSkips,
   };
 }

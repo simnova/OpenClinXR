@@ -12,6 +12,7 @@ type ProductionAssetLaneId =
   | "generatedHumanRigging"
   | "skinClothingProvenance"
   | "medicalEquipmentLibrary"
+  | "environmentShell"
   | "animationRetargeting"
   | "lodTextureColliderBudget"
   | "multiActorQuestBudget";
@@ -71,6 +72,7 @@ const productionAssetLaneIds: ProductionAssetLaneId[] = [
   "generatedHumanRigging",
   "skinClothingProvenance",
   "medicalEquipmentLibrary",
+  "environmentShell",
   "animationRetargeting",
   "lodTextureColliderBudget",
   "multiActorQuestBudget",
@@ -97,6 +99,7 @@ const laneDefinitions: Array<{
       ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
       ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
       ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+      ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human-realism-manifest.json",
     ],
     requiredReviewReports: [
       "canonical skeleton hierarchy review",
@@ -125,11 +128,28 @@ const laneDefinitions: Array<{
       ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
       ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
       ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+      ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ed-chest-pain-equipment-realism-manifest.json",
     ],
     requiredReviewReports: [
       "clinical equipment affordance review",
       "equipment license provenance review",
       "scale and interaction anchor review",
+    ],
+  },
+  {
+    laneId: "environmentShell",
+    title: "ED bay environment shell",
+    requiredArtifactPaths: [
+      ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb",
+      ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-layout.json",
+      ".openclinxr/asset-production/ed-chest-pain/environment/equipment-placement-manifest.json",
+      ".openclinxr/asset-production/ed-chest-pain/environment/quest-environment-budget.json",
+    ],
+    requiredReviewReports: [
+      "environment spatial layout review",
+      "equipment placement manifest review",
+      "Quest environment budget review",
+      "clinical visual environment critique",
     ],
   },
   {
@@ -321,11 +341,12 @@ function buildRecord(
   const materializedArtifactPaths = definition.requiredArtifactPaths.filter((artifactPath) => existsSync(artifactPath));
   const missingArtifactPaths = definition.requiredArtifactPaths.filter((artifactPath) => !existsSync(artifactPath));
   const artifactBacked = evidenceTier === "reviewed_generated_production_source" && missingArtifactPaths.length === 0;
+  const artifactFilesMissing = missingArtifactPaths.length > 0;
   const blockers = [
     evidenceTier === "reviewed_generated_production_source"
       ? undefined
       : "evidence_tier_not_reviewed_generated_production_source",
-    artifactBacked ? undefined : "artifact_files_missing",
+    artifactFilesMissing ? "artifact_files_missing" : undefined,
   ].filter((blocker): blocker is string => typeof blocker === "string");
 
   return {
