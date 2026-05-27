@@ -30,6 +30,13 @@ describe("scenario publication readiness", () => {
     expect(readiness.canPublishForLearnerUse).toBe(true);
     expect(readiness.releaseLabel).toBe("formative_local_only");
     expect(readiness.missingReviewerRoles).toEqual([]);
+    expect(readiness.blockerVisibility).toEqual({
+      claimBoundary: "publication_blocker_visibility_not_readiness_claim",
+      humanReviewRequired: true,
+      blockerIds: [],
+      warningIds: ["publication_gate_warning:asset_readiness"],
+      recommendedNextAction: "review_asset_warnings_before_local_formative_use",
+    });
     expect(readiness.gateResults.filter((gate) => gate.status === "block")).toEqual([]);
     expect(readiness.gateResults).toContainEqual({
       gate: "asset_readiness",
@@ -48,10 +55,101 @@ describe("scenario publication readiness", () => {
 
     expect(readiness.canPublishForLearnerUse).toBe(false);
     expect(readiness.missingReviewerRoles).toEqual(["legal"]);
+    expect(readiness.blockerVisibility).toMatchObject({
+      claimBoundary: "publication_blocker_visibility_not_readiness_claim",
+      humanReviewRequired: true,
+      blockerIds: ["publication_gate_blocked:reviewer_evidence"],
+      recommendedNextAction: "collect_required_reviewer_evidence",
+    });
     expect(readiness.gateResults).toContainEqual({
       gate: "reviewer_evidence",
       status: "block",
       details: ["Missing approved reviewer evidence for: legal"],
+    });
+  });
+
+  it("deduplicates repeated required reviewer roles before reporting missing evidence", () => {
+    const readiness = evaluateScenarioPublicationReadiness({
+      scenario: {
+        ...edChestPainScenario,
+        governance: {
+          ...edChestPainScenario.governance,
+          requiredReviewerRoles: [...edChestPainScenario.governance.requiredReviewerRoles, "legal"],
+        },
+      },
+      targetUse: "local_formative",
+      reviewerEvidence: completeReviewerEvidence.filter((evidence) => evidence.reviewerRole !== "legal"),
+      assetReadiness: devReadyAssets,
+    });
+
+    expect(readiness.missingReviewerRoles).toEqual(["legal"]);
+    expect(readiness.gateResults).toContainEqual({
+      gate: "reviewer_evidence",
+      status: "block",
+      details: ["Missing approved reviewer evidence for: legal"],
+    });
+  });
+
+  it("does not accept blank reviewer evidence references", () => {
+    const readiness = evaluateScenarioPublicationReadiness({
+      scenario: edChestPainScenario,
+      targetUse: "local_formative",
+      reviewerEvidence: completeReviewerEvidence.map((evidence) =>
+        evidence.reviewerRole === "legal" ? { ...evidence, evidenceRefs: ["   "] } : evidence
+      ),
+      assetReadiness: devReadyAssets,
+    });
+
+    expect(readiness.canPublishForLearnerUse).toBe(false);
+    expect(readiness.missingReviewerRoles).toEqual(["legal"]);
+  });
+
+  it("blocks publication when a required reviewer requests changes", () => {
+    const readiness = evaluateScenarioPublicationReadiness({
+      scenario: edChestPainScenario,
+      targetUse: "local_formative",
+      reviewerEvidence: completeReviewerEvidence.map((evidence) =>
+        evidence.reviewerRole === "legal"
+          ? {
+            ...evidence,
+            decision: "changes_requested",
+            comments: "Legal review requested changes before learner publication.",
+          }
+          : evidence
+      ),
+      assetReadiness: devReadyAssets,
+    });
+
+    expect(readiness.canPublishForLearnerUse).toBe(false);
+    expect(readiness.missingReviewerRoles).toEqual(["legal"]);
+    expect(readiness.blockerVisibility).toMatchObject({
+      blockerIds: ["publication_gate_blocked:reviewer_evidence"],
+      recommendedNextAction: "collect_required_reviewer_evidence",
+    });
+    expect(readiness.gateResults).toContainEqual({
+      gate: "reviewer_evidence",
+      status: "block",
+      details: ["Missing approved reviewer evidence for: legal"],
+    });
+  });
+
+  it("blocks publication when asset readiness belongs to a different scenario", () => {
+    const readiness = evaluateScenarioPublicationReadiness({
+      scenario: edChestPainScenario,
+      targetUse: "local_formative",
+      reviewerEvidence: completeReviewerEvidence,
+      assetReadiness: { ...devReadyAssets, scenarioId: "different_scenario_v1" },
+    });
+
+    expect(readiness.canPublishForLearnerUse).toBe(false);
+    expect(readiness.blockerVisibility).toMatchObject({
+      blockerIds: ["publication_gate_blocked:asset_readiness"],
+      recommendedNextAction: "repair_asset_readiness",
+    });
+    expect(readiness.gateResults).toContainEqual({
+      gate: "asset_readiness",
+      status: "block",
+      details: ["Asset readiness scenario ID must match scenario ed_chest_pain_priority_v1."],
     });
   });
 
@@ -69,6 +167,14 @@ describe("scenario publication readiness", () => {
     });
 
     expect(readiness.canPublishForLearnerUse).toBe(false);
+    expect(readiness.blockerVisibility).toMatchObject({
+      blockerIds: expect.arrayContaining([
+        "publication_gate_blocked:scenario_status",
+        "publication_gate_blocked:review_state",
+        "publication_gate_blocked:validation_stage",
+      ]),
+      recommendedNextAction: "complete_scenario_review_gates",
+    });
     expect(readiness.gateResults).toContainEqual({
       gate: "scenario_status",
       status: "block",

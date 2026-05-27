@@ -36,6 +36,20 @@ export type ScenarioPublicationReadiness = {
   requiredReviewerRoles: string[];
   missingReviewerRoles: string[];
   gateResults: PublicationGateResult[];
+  blockerVisibility: {
+    claimBoundary: "publication_blocker_visibility_not_readiness_claim";
+    humanReviewRequired: boolean;
+    blockerIds: string[];
+    warningIds: string[];
+    recommendedNextAction:
+      | "collect_required_reviewer_evidence"
+      | "complete_scenario_review_gates"
+      | "advance_governance_validation_stage"
+      | "repair_hidden_fact_policy"
+      | "repair_asset_readiness"
+      | "review_asset_warnings_before_local_formative_use"
+      | "ready_for_operator_publication_review";
+  };
 };
 
 export type EvaluateScenarioPublicationReadinessInput = {
@@ -47,7 +61,7 @@ export type EvaluateScenarioPublicationReadinessInput = {
 
 export function evaluateScenarioPublicationReadiness(input: EvaluateScenarioPublicationReadinessInput): ScenarioPublicationReadiness {
   const gateResults: PublicationGateResult[] = [];
-  const requiredReviewerRoles = [...input.scenario.governance.requiredReviewerRoles];
+  const requiredReviewerRoles = [...new Set(input.scenario.governance.requiredReviewerRoles)];
   const missingReviewerRoles = missingApprovedReviewerRoles(requiredReviewerRoles, input.reviewerEvidence);
 
   gateResults.push(scenarioStatusGate(input.scenario));
@@ -56,7 +70,7 @@ export function evaluateScenarioPublicationReadiness(input: EvaluateScenarioPubl
   gateResults.push(scoreUseGate(input.scenario, input.targetUse));
   gateResults.push(reviewerEvidenceGate(missingReviewerRoles));
   gateResults.push(hiddenFactPolicyGate(input.scenario));
-  gateResults.push(assetReadinessGate(input.assetReadiness, input.targetUse));
+  gateResults.push(assetReadinessGate(input.assetReadiness, input.scenario.scenarioId, input.targetUse));
 
   return {
     scenarioId: input.scenario.scenarioId,
@@ -66,7 +80,36 @@ export function evaluateScenarioPublicationReadiness(input: EvaluateScenarioPubl
     requiredReviewerRoles,
     missingReviewerRoles,
     gateResults,
+    blockerVisibility: buildPublicationBlockerVisibility(gateResults),
   };
+}
+
+function buildPublicationBlockerVisibility(
+  gateResults: readonly PublicationGateResult[],
+): ScenarioPublicationReadiness["blockerVisibility"] {
+  const blockingGateIds = gateResults.filter((gate) => gate.status === "block").map((gate) => gate.gate);
+  const warningGateIds = gateResults.filter((gate) => gate.status === "warn").map((gate) => gate.gate);
+
+  return {
+    claimBoundary: "publication_blocker_visibility_not_readiness_claim",
+    humanReviewRequired: blockingGateIds.length > 0 || warningGateIds.length > 0,
+    blockerIds: blockingGateIds.map((gate) => `publication_gate_blocked:${gate}`),
+    warningIds: warningGateIds.map((gate) => `publication_gate_warning:${gate}`),
+    recommendedNextAction: publicationRecommendedNextAction(blockingGateIds, warningGateIds),
+  };
+}
+
+function publicationRecommendedNextAction(
+  blockingGateIds: readonly PublicationGate[],
+  warningGateIds: readonly PublicationGate[],
+): ScenarioPublicationReadiness["blockerVisibility"]["recommendedNextAction"] {
+  if (blockingGateIds.includes("reviewer_evidence")) return "collect_required_reviewer_evidence";
+  if (blockingGateIds.includes("scenario_status") || blockingGateIds.includes("review_state")) return "complete_scenario_review_gates";
+  if (blockingGateIds.includes("validation_stage") || blockingGateIds.includes("score_use")) return "advance_governance_validation_stage";
+  if (blockingGateIds.includes("hidden_fact_policy")) return "repair_hidden_fact_policy";
+  if (blockingGateIds.includes("asset_readiness")) return "repair_asset_readiness";
+  if (warningGateIds.includes("asset_readiness")) return "review_asset_warnings_before_local_formative_use";
+  return "ready_for_operator_publication_review";
 }
 
 function scenarioStatusGate(scenario: Scenario): PublicationGateResult {
@@ -137,7 +180,15 @@ function hiddenFactPolicyGate(scenario: Scenario): PublicationGateResult {
   return block("hidden_fact_policy", "Hidden facts must be redacted from learner view and require explicit disclosure triggers.");
 }
 
-function assetReadinessGate(assetReadiness: PublicationAssetReadiness, targetUse: PublicationTargetUse): PublicationGateResult {
+function assetReadinessGate(
+  assetReadiness: PublicationAssetReadiness,
+  scenarioId: string,
+  targetUse: PublicationTargetUse,
+): PublicationGateResult {
+  if (assetReadiness.scenarioId !== scenarioId) {
+    return block("asset_readiness", `Asset readiness scenario ID must match scenario ${scenarioId}.`);
+  }
+
   if (!assetReadiness.devReady) {
     const blockers = [
       ...assetReadiness.missingRequiredAssetIds.map((assetId) => `missing:${assetId}`),
@@ -162,7 +213,7 @@ function missingApprovedReviewerRoles(requiredReviewerRoles: readonly string[], 
       .filter((evidence) => evidence.decision === "approved")
       .filter((evidence) => evidence.reviewerId.trim().length > 0)
       .filter((evidence) => evidence.comments.trim().length > 0)
-      .filter((evidence) => evidence.evidenceRefs.length > 0)
+      .filter((evidence) => evidence.evidenceRefs.length > 0 && evidence.evidenceRefs.every((ref) => ref.trim().length > 0))
       .filter((evidence) => !Number.isNaN(Date.parse(evidence.reviewedAt)))
       .map((evidence) => evidence.reviewerRole),
   );
