@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "2026-05-27",
+  "claimBoundary": "pipeline contract only; not production, Quest, clinical, legal, or scoring readiness",
+  "approvedEntrypoint": "tools/openclinxr/garment-ingest-and-fit.mjs",
+  "directBlenderFitterPolicy": "internal_only_after_provider_gate_pass",
+  "requiredInputs": [
+    "workOrder",
+    "sourceGarment",
+    "licenseRecord",
+    "providerGatePass",
+    "visualScorecard"
+  ],
+  "blockedInputs": [
+    "hand_authored_promoted_runtime_clothing",
+    "procedural_fallback_promoted_runtime_clothing",
+    "unlicensed_external_garment_mesh",
+    "provider_requires_approval_without_approval_record"
+  ],
+  "promotionRule": "provider gate must pass and screenshot score must meet B+ threshold before a garment candidate can move beyond evidence-only cache metadata"
+}

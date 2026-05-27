@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "2026-05-27",
+  "claimBoundary": "candidate allowlist metadata only; not legal advice, production, Quest, clinical, or scoring readiness",
+  "status": "source_extracted_and_hashed_ready_for_provider_gate",
+  "garmentSemanticKey": "garment:ob-triage-patient-fitted-clinical-top:adult:toigo-basic-tucked-tshirt:v1",
+  "sourceUrl": "https://static.makehumancommunity.org/assets/assetpacks/shirts01.html",
+  "downloadArchiveUrl": "https://files2.makehumancommunity.org/asset_packs/shirts01/shirts01_cc0.zip",
+  "sourceRepositoryOrArchive": "shirts01 asset pack",
+  "candidateAssetName": "toigo_basic_tucked_t-shirt",
+  "assetType": "clothes",
+  "author": "toigo",
+  "license": "CC0",
+  "redistributionPermission": "candidate_allowed_by_shirts01_cc0_pack_page_and_archive_hash_recorded",
+  "assetFilePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/t_shirt_basic_tucked.obj",
+  "sourceFileHash": "22159cf14d1f6831f931b49625f8f7692910bac22499c43466c0b5a2159b4d03",
+  "textureFilePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/T-shirt_basic.png",
+  "textureFileHash": "c1992ad975e14aa2cef891ff9632d28283607b2de6160d72e350f059043a063b",
+  "materialFilePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/t_shirt_basic_tucked.mhmat",
+  "materialFileHash": "44098003a7ed47cd4c613d04adcdccaae47fe0d2b380bf3c25f105a739814f94",
+  "fitTargetHumanoidRef": "apps/ui-xr/public/xr-assets/humanoids/candidates/charmorph-reom-ob-patient-candidate.glb",
+  "reviewedAt": "2026-05-27T17:00:00Z"
+}

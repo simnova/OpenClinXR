@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "2026-05-27",
+  "claimBoundary": "local garment work order only; not production, Quest, clinical, scoring, or licensing readiness",
+  "scenarioId": "ob_headache_preeclampsia_triage_v1",
+  "actorId": "ob_patient_aisha_khan",
+  "semanticGarmentKey": "garment:ob-triage-patient-fitted-clinical-top:adult:cc0-shirt-source:v1:derived-transform-v1",
+  "providerId": "garment_fitter_local",
+  "providerStatus": "enabled_local",
+  "approvedEntrypoint": "tools/openclinxr/garment-ingest-and-fit.mjs",
+  "inputHumanoid": "apps/ui-xr/public/xr-assets/humanoids/candidates/charmorph-reom-ob-patient-candidate.glb",
+  "preferredSourceLibraries": [
+    "mpfb_makehuman_clothing_library"
+  ],
+  "sourceGarment": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/elvs_crude_t-shirt_male/crude_male_shirt.obj",
+  "licenseRecord": "docs/openclinxr/garment-allowlist-candidate-shirts01-elvs-crude-tshirt-2026-05-27.json",
+  "fallbackSource": null,
+  "generationPolicy": "external_garment_source_required_no_hand_authored_or_procedural_fallback_promotion",
+  "promotionBlockedUntil": [
+    "sourceGarmentProvided",
+    "licenseRecordProvided",
+    "providerGatePasses",
+    "webxrScreenshotScoreImprovesBaseline"
+  ],
+  "outputCandidate": ".openclinxr-local/provider-cache/garments/generated/reom-shirts01-cc0-elvs-crude-tshirt-derived-transform-candidate.glb",
+  "visualGate": {
+    "baselineGrade": "B",
+    "baselineScore": 84,
+    "targetGrade": "B+",
+    "screenshot": "docs/openclinxr/screenshots/ui-xr-ob-humanoid-source-reom-local-fitted-garment-face-pose-2026-05-27.png",
+    "criteria": [
+      "fit",
+      "clipping",
+      "silhouette",
+      "role_match",
+      "material_believability",
+      "pose_compatibility"
+    ]
+  },
+  "nextAction": "Source a license-compatible MPFB/MakeHuman garment mesh, fit it with tools/openclinxr/blender/fit_garment_to_humanoid.py --garment, then rerun WebXR-only comparator.",
+  "fitTransform": {
+    "offset": [
+      0,
+      1.2869,
+      1.135
+    ],
+    "rotation": [
+      0,
+      0,
+      0
+    ],
+    "scale": [
+      1.021,
+      0.65,
+      1.35
+    ],
+    "derivedFrom": "docs/openclinxr/garment-fit-quality-reom-shirts01-cc0-transform-2026-05-27.json",
+    "policy": "automatic_bounds_centering_and_width_height_normalization"
+  }
+}

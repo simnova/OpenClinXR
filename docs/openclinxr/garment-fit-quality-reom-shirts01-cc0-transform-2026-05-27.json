@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "2026-05-27",
+  "claimBoundary": "geometric fit heuristic only; not visual, Quest, production, clinical, or scoring readiness",
+  "asset": ".openclinxr-local/provider-cache/garments/generated/reom-shirts01-cc0-elvs-crude-tshirt-transform-candidate.glb",
+  "bodyObject": "charmorph_reom_ob_patient_tunic",
+  "garmentObject": "openclinxr_imported_fitted_garment_candidate",
+  "bodyBounds": {
+    "min": [
+      -0.2199999988079071,
+      -0.054999999701976776,
+      0.9200000166893005
+    ],
+    "max": [
+      0.2199999988079071,
+      0.04500000178813934,
+      1.340000033378601
+    ]
+  },
+  "garmentBounds": {
+    "min": [
+      -0.21527330577373505,
+      -1.3578805923461914,
+      -0.07281025499105453
+    ],
+    "max": [
+      0.21527330577373505,
+      -1.2259094715118408,
+      0.0628470703959465
+    ]
+  },
+  "metrics": {
+    "widthRatio": 0.979,
+    "heightRatio": 1.32,
+    "centerOffset": [
+      0.0,
+      -1.2869,
+      -1.135
+    ],
+    "frontBackDepth": 0.1357
+  },
+  "heuristicFinding": "has_some_depth"
+}

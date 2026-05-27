@@ -1,0 +1,37 @@
+{
+  "updatedAt": "2026-05-27T16:14:34Z",
+  "claimBoundary": "desktop WebXR comparator evidence only; not Quest, production, clinical, or scoring readiness",
+  "target": "B+ visual realism gate for case-definition-driven humanoid source candidate",
+  "currentBest": {
+    "provider": "charmorph_reom_local",
+    "asset": "apps/ui-xr/public/xr-assets/humanoids/candidates/charmorph-reom-ob-patient-candidate.glb",
+    "screenshot": "docs/openclinxr/screenshots/ui-xr-ob-humanoid-source-charmorph-reom-face-pose-2026-05-27.png",
+    "grade": "B",
+    "score": 84,
+    "passesBPlus": false,
+    "strengths": [
+      "decluttered source-clean WebXR crop",
+      "removed floating diagnostic speech/gaze cues",
+      "removed stale room panels and doorway clutter",
+      "source has one coherent scrub/tunic layer instead of detached blocks",
+      "patient arm posture moved out of full bind/T-pose toward lowered clinical rest"
+    ],
+    "remainingGaps": [
+      "tunic remains planar/apron-like rather than fitted cloth",
+      "hands/forearms now need more natural relaxed rotation",
+      "hair/face surface needs better material/detail",
+      "needs real garment generation/rigged-cloth source before B+ claim"
+    ]
+  },
+  "nextRecommendedSlice": "refine forearm/hand rotations and replace planar tunic with imported/generated fitted garment mesh before rerunning B+ screenshot gate",
+  "latestSourceBackedCandidate": {
+    "id": "reom_shirts01_cc0_patient",
+    "source": "MakeHuman Shirts01 CC0 elvs_crude_t-shirt_male",
+    "screenshot": "docs/openclinxr/screenshots/ui-xr-ob-humanoid-source-reom-shirts01-cc0-face-pose-2026-05-27.png",
+    "grade": "B",
+    "score": 84,
+    "passesBPlus": false,
+    "finding": "Source-backed garment ingestion works, but fit still reads planar/apron-like and does not improve over B/84 baseline.",
+    "promotionDecision": "do_not_promote"
+  }
+}

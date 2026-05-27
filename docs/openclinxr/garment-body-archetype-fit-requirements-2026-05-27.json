@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "2026-05-27",
+  "claimBoundary": "garment promotion requirements only; not production, Quest, clinical, legal, or scoring readiness",
+  "purpose": "Prevent a garment from being promoted as reusable unless it fits multiple Anny-generated body classes instead of only one Reom-like adult.",
+  "requiredArchetypes": [
+    {
+      "id": "child_small",
+      "description": "Small pediatric body; validates neckline, sleeve scale, torso length, and non-adult proportions."
+    },
+    {
+      "id": "child_average",
+      "description": "Average pediatric body; validates pediatric encounter clothing reuse."
+    },
+    {
+      "id": "adult_thin",
+      "description": "Thin adult body; validates that shrinkwrap and clearance do not collapse or look baggy/slab-like."
+    },
+    {
+      "id": "adult_average",
+      "description": "Average adult body; baseline adult reuse case."
+    },
+    {
+      "id": "adult_overweight",
+      "description": "Overweight adult body; validates belly/chest/hip adaptation without clipping or stretched texture artifacts."
+    },
+    {
+      "id": "adult_tall",
+      "description": "Tall adult body; validates vertical garment scaling and sleeve/hem placement."
+    },
+    {
+      "id": "adult_short",
+      "description": "Short adult body; validates that garment does not overrun hips/arms or distort proportions."
+    }
+  ],
+  "promotionRule": "Every required archetype must have a source-backed fitted candidate, WebXR-only screenshot evidence, pass=true, and score >= requiredScore before shared-cache runtime reuse is allowed.",
+  "recommendedNextImplementation": [
+    "Add body measurement extraction for each generated humanoid: height, shoulder width, chest/belly/hip bounds, arm length, and neck position.",
+    "Generate archetype fixture humanoids through the same Anny/Charmorph source path when available, otherwise block promotion instead of assuming compatibility.",
+    "Run garment-ingest-and-fit per archetype using the same semantic garment key and source license record.",
+    "Run screenshot scoring per archetype and feed the aggregate evidence into garment-promotion-gate.mjs via --archetype-evidence."
+  ]
+}

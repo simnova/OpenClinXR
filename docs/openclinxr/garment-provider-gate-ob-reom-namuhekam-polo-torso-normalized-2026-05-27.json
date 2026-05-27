@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "2026-05-27",
+  "claimBoundary": "garment provider gate only; not production, Quest, clinical, legal, or scoring readiness",
+  "workOrder": "docs/openclinxr/garment-work-order-ob-reom-namuhekam-polo-2026-05-27.json",
+  "providerId": "garment_fitter_local",
+  "sourceProviderId": "mpfb_makehuman_clothing_library",
+  "licenseRecord": "docs/openclinxr/garment-allowlist-namuhekam-male-polo-shirt-2026-05-27.json",
+  "licenseRecordComplete": true,
+  "pass": true,
+  "failures": [],
+  "promotionDecision": "candidate_can_run_fit_and_visual_gate",
+  "requiredEntrypoint": "tools/openclinxr/garment-ingest-and-fit.mjs",
+  "recommendedDefault": "If blocked, do not materialize/promote garment; continue cache/scoring/provider integration work."
+}

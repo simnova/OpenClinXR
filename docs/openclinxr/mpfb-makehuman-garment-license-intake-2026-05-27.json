@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "2026-05-27",
+  "claimBoundary": "license intake gate only; not legal advice, redistribution approval, production readiness, Quest readiness, clinical validity, or scoring validity",
+  "status": "blocked_pending_specific_garment_allowlist",
+  "requiredFieldsBeforeUse": [
+    "garmentSemanticKey",
+    "sourceUrl",
+    "sourceRepositoryOrArchive",
+    "license",
+    "author",
+    "redistributionPermission",
+    "localHash",
+    "fitTargetHumanoidRef",
+    "reviewedAt"
+  ],
+  "currentDecision": "Do not materialize MPFB/MakeHuman garment assets into committed runtime paths until a specific garment allowlist entry satisfies every required field.",
+  "recommendedDefault": "Use local procedural garment fitter only for pipeline testing; use MPFB/MakeHuman garment meshes only after allowlist/provenance completion."
+}

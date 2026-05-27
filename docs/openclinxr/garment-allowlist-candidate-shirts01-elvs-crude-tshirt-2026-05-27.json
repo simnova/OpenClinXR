@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "2026-05-27",
+  "claimBoundary": "candidate allowlist metadata only; not legal advice, redistribution approval, runtime readiness, Quest readiness, clinical validity, or scoring validity",
+  "status": "source_extracted_and_hashed_ready_for_provider_gate",
+  "garmentSemanticKey": "garment:ob-triage-patient-fitted-clinical-top:adult:cc0-shirt-source:v1",
+  "sourceFamily": "makehuman_mpfb_asset_pack",
+  "sourceUrl": "https://static.makehumancommunity.org/assets/assetpacks/shirts01.html",
+  "sourceRepositoryOrArchive": "shirts01 asset pack",
+  "candidateAssetName": "elvs_crude_t-shirt_male",
+  "assetType": "clothes",
+  "author": "Elvaerwyn",
+  "license": "CC0",
+  "redistributionPermission": "candidate_allowed_by_shirts01_cc0_pack_page_and_archive_hash_recorded",
+  "fitTargetHumanoidRef": "apps/ui-xr/public/xr-assets/humanoids/candidates/charmorph-reom-ob-patient-candidate.glb",
+  "requiredBeforeMaterialization": [
+    "extractSelectedAsset",
+    "sourceFileHash",
+    "ingestionWorkOrderWithLicenseRecord",
+    "providerGatePass",
+    "visualGatePass"
+  ],
+  "evidenceSources": [
+    {
+      "url": "https://static.makehumancommunity.org/makehuman/faq/are_makehuman_files_free.html",
+      "finding": "MakeHuman FAQ states asset license is CC0 for core assets."
+    },
+    {
+      "url": "https://github.com/makehumancommunity/makehuman-assets",
+      "finding": "MakeHuman bundled assets repository states assets released under Creative Commons CC0 universal as of September 2020, while noting transition from older licenses."
+    },
+    {
+      "url": "https://static.makehumancommunity.org/assets/assetpacks.html",
+      "finding": "Asset packs page lists Shirts 01 as CC0 mesh asset pack category."
+    },
+    {
+      "url": "https://static.makehumancommunity.org/assets/assetpacks/shirts01.html",
+      "finding": "Search result/source page identifies elvs_crude_t-shirt_male as clothes by Elvaerwyn from asset repo under CC0."
+    }
+  ],
+  "reviewedAt": "2026-05-27T14:44:34Z",
+  "nextAction": "Extract selected asset to local provider cache, create work order with licenseRecord/sourceGarment, run garment-ingest-and-fit provider gate.",
+  "downloadArchiveUrl": "https://files2.makehumancommunity.org/asset_packs/shirts01/shirts01_cc0.zip",
+  "localArchivePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/shirts01_cc0.zip",
+  "localHash": "a5a723b0e84a109bb190fcfeac7f1de4138d875da3e30fe5b3340eac9f38bcd3",
+  "assetFilePathInArchive": "clothes/elvs_crude_t-shirt_male/crude_male_shirt.obj",
+  "materialFilePathInArchive": "clothes/elvs_crude_t-shirt_male/crude_male_shirt.mhmat",
+  "textureFilePathInArchive": "clothes/elvs_crude_t-shirt_male/crude_male_tex.png",
+  "assetFilePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/elvs_crude_t-shirt_male/crude_male_shirt.obj",
+  "textureFilePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/elvs_crude_t-shirt_male/crude_male_tex.png",
+  "materialFilePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/elvs_crude_t-shirt_male/crude_male_shirt.mhmat",
+  "sourceFileHash": "3389b981a826396213cce2e69f40b3d9eca6cdfadcfcbee2774acb1dfb322fa7",
+  "textureFileHash": "0704c69ec9ebaf4a9ab0ba04a103a9350939971ca8222f130f4e3defecdc2231",
+  "materialFileHash": "4e456f7b85ff3023b2ec3b4ed58b0ccceac621f3a02f4887d04eaa2a781b229a"
+}

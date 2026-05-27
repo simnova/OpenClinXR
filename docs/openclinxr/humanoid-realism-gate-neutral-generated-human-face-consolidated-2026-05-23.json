@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "openclinxr.humanoid-realism-gate.v1",
+  "generatedAt": "2026-05-23T19:58:47.192Z",
+  "inputPath": "apps/ui-xr/public/xr-assets/humanoids/neutral-generated-human.glb",
+  "tool": {
+    "package": "@gltf-transform/core",
+    "purpose": "humanoid_animation_morph_target_realism_gate"
+  },
+  "metrics": {
+    "sceneCount": 1,
+    "meshCount": 42,
+    "skinCount": 1,
+    "animationCount": 2,
+    "morphTargetPrimitiveCount": 1,
+    "vertexCount": 97668
+  },
+  "verdict": {
+    "status": "clip_and_morph_ready",
+    "blockers": [],
+    "nextPipelineActions": [
+      "run_gltf_transform_optimization_and_quest_visual_capture"
+    ]
+  },
+  "productionReadinessClaimed": false,
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ]
+}

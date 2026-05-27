@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "2026-05-27",
+  "claimBoundary": "candidate allowlist metadata only; not readiness evidence",
+  "status": "source_extracted_and_hashed_ready_for_provider_gate",
+  "garmentSemanticKey": "garment:ob-triage-patient-fitted-clinical-top:adult:namuhekam-male-polo:v1",
+  "sourceUrl": "https://static.makehumancommunity.org/assets/assetpacks/shirts01.html",
+  "downloadArchiveUrl": "https://files2.makehumancommunity.org/asset_packs/shirts01/shirts01_cc0.zip",
+  "sourceRepositoryOrArchive": "shirts01 asset pack",
+  "candidateAssetName": "namuhekam_male_polo_shirt",
+  "assetType": "clothes",
+  "author": "namuhekam",
+  "license": "CC0",
+  "redistributionPermission": "candidate_allowed_by_shirts01_cc0_pack_page_and_archive_hash_recorded",
+  "assetFilePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/namuhekam_male_polo_shirt/Polo_t-shirt.obj",
+  "sourceFileHash": "aaee5f49077a8bacb8b1077910e4b9cc7946d587c75e367273f4ecaf94abd627",
+  "textureFilePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/namuhekam_male_polo_shirt/Polo_Base_Color.png",
+  "textureFileHash": "d8e74dbcc3e79227dd7f6d8b1e0ed6c614eb11d4dc3cfeb935222783c23ae64b",
+  "materialFilePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/namuhekam_male_polo_shirt/Polo_t-shirt.mhmat",
+  "materialFileHash": "fb47735dab1f3aacf39b9aea7e9c8343ea47c39f8a13fab559ba505b7c28356c",
+  "fitTargetHumanoidRef": "apps/ui-xr/public/xr-assets/humanoids/candidates/charmorph-reom-ob-patient-candidate.glb",
+  "reviewedAt": "2026-05-27T17:10:00Z"
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "openclinxr.blender-humanoid-normal-refine.v1",
+  "input": "apps/ui-xr/public/xr-assets/humanoids/variants/ob-patient-aisha-generated-human.glb",
+  "output": "apps/ui-xr/public/xr-assets/humanoids/variants/ob-patient-aisha-generated-human.glb",
+  "meshCount": 7,
+  "weightedNormalModifierCount": 7,
+  "smoothPolygonCount": 33913,
+  "claimBoundaries": {
+    "notEvidenceFor": [
+      "aaa_humanoid_realism",
+      "quest_readiness",
+      "production_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  }
+}

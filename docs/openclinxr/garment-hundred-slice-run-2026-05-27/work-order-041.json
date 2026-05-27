@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "2026-05-27",
+  "scenarioId": "clinic_abdominal_pain_interpreter_v1",
+  "actorId": "clinic_patient",
+  "semanticGarmentKey": "garment:clinic-abdominal-pain-modest-top:adult:clinical-top:v1",
+  "providerId": "garment_fitter_local",
+  "approvedEntrypoint": "tools/openclinxr/garment-ingest-and-fit.mjs",
+  "preferredSourceLibraries": [
+    "mpfb_makehuman_clothing_library"
+  ],
+  "sourceGarment": null,
+  "licenseRecord": null,
+  "promotionBlockedUntil": [
+    "sourceGarmentProvided",
+    "licenseRecordProvided",
+    "providerGatePasses",
+    "webxrScreenshotScoreImprovesBaseline"
+  ]
+}

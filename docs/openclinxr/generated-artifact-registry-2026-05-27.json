@@ -733,21 +733,21 @@
     {
       "path": "docs/openclinxr/blender-normal-refine-ob-nurse-williams-generated-human-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/blender-normal-refine-ob-partner-omar-generated-human-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/blender-normal-refine-ob-patient-aisha-generated-human-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
@@ -768,7 +768,7 @@
     {
       "path": "docs/openclinxr/body-measurements-adult-average-reom-current-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
@@ -1181,7 +1181,7 @@
     {
       "path": "docs/openclinxr/evidence-index-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
@@ -2098,469 +2098,469 @@
     {
       "path": "docs/openclinxr/garment-allowlist-candidate-shirts01-elvs-crude-tshirt-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-allowlist-namuhekam-male-polo-shirt-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-allowlist-toigo-basic-tucked-tshirt-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-archetype-evidence-reom-namuhekam-polo-measured-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-automation-queue-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-body-archetype-fit-requirements-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-cache-provider-metadata-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-fit-quality-reom-shirts01-cc0-derived-transform-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-fit-quality-reom-shirts01-cc0-derived-transform-pass2-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-fit-quality-reom-shirts01-cc0-transform-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-fit-transform-comparison-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/summary.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-026.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-027.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-028.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-029.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-030.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-031.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-032.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-033.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-034.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-035.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-036.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-037.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-038.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-039.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-040.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-041.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-042.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-043.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-044.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-045.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-046.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-047.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-048.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-049.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-hundred-slice-run-2026-05-27/work-order-050.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-ingestion-contract-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-promotion-gate-ob-reom-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-promotion-gate-ob-reom-archetype-required-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-promotion-gate-ob-reom-shirts01-cc0-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-provider-gate-ingest-ob-reom-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-provider-gate-ingest-ob-reom-shirts01-cc0-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-provider-gate-ingest-ob-reom-shirts01-cc0-derived-transform-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-provider-gate-ingest-ob-reom-shirts01-cc0-derived-transform-pass2-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-provider-gate-ingest-ob-reom-shirts01-cc0-transform-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-provider-gate-ob-reom-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-provider-gate-ob-reom-namuhekam-polo-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-provider-gate-ob-reom-namuhekam-polo-clearance-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-provider-gate-ob-reom-namuhekam-polo-filtered-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-provider-gate-ob-reom-namuhekam-polo-filtered-no-legacy-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-provider-gate-ob-reom-namuhekam-polo-materialized-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-provider-gate-ob-reom-namuhekam-polo-measured-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-provider-gate-ob-reom-namuhekam-polo-no-legacy-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-provider-gate-ob-reom-namuhekam-polo-torso-normalized-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-provider-gate-ob-reom-shirts01-cc0-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-provider-gate-ob-reom-toigo-basic-tucked-tshirt-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-source-allowlist-template-2026-05-27.json",
       "authority": "keep-template",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Template/license/provenance/source artifact; never prune as generated clutter."
     },
     {
       "path": "docs/openclinxr/garment-work-order-ob-reom-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-work-order-ob-reom-namuhekam-polo-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-work-order-ob-reom-namuhekam-polo-measured-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-work-order-ob-reom-shirts01-cc0-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-work-order-ob-reom-shirts01-cc0-derived-transform-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-work-order-ob-reom-shirts01-cc0-derived-transform-pass2-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-work-order-ob-reom-shirts01-cc0-transform-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-work-order-ob-reom-toigo-basic-tucked-tshirt-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/garment-work-order-peds-patient-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
@@ -2784,210 +2784,210 @@
     {
       "path": "docs/openclinxr/humanoid-collision-probe-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/humanoid-collision-probe-collision-linked-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-charmorph-antonia-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-charmorph-reom-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-mpfb-ob-patient-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-neutral-generated-human-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-neutral-generated-human-animated-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-neutral-generated-human-clinical-idle-clip-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-neutral-generated-human-clinical-idle-v2-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-neutral-generated-human-clinical-idle-v3-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-neutral-generated-human-face-consolidated-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-neutral-generated-human-material-contrast-v2-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-neutral-generated-human-material-contrast-v3-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-neutral-generated-human-mesh-face-paint-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-neutral-generated-human-posture-debt-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-neutral-generated-human-primitive-stripped-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-neutral-generated-human-proportioned-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-neutral-generated-human-silhouette-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-neutral-generated-human-surface-clothing-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-neutral-generated-human-surface-face-refinement-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-neutral-generated-human-visual-debt-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-neutral-generated-human-visual-detail-2026-05-23.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-ob-nurse-williams-generated-human-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-ob-partner-omar-generated-human-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-ob-patient-aisha-generated-human-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/humanoid-source-bplus-blocker-report-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/humanoid-source-bplus-scorecard-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/humanoid-source-visual-comparator-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/humanoid-toolchain-bakeoff-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
@@ -3484,7 +3484,7 @@
     {
       "path": "docs/openclinxr/mpfb-makehuman-garment-license-intake-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
@@ -3498,7 +3498,7 @@
     {
       "path": "docs/openclinxr/ob-humanoid-source-variants-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
@@ -3862,77 +3862,77 @@
     {
       "path": "docs/openclinxr/screenshots/ui-xr-ob-humanoid-source-anny-fallback-2026-05-27.png",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent visual evidence for realism or full-app review."
     },
     {
       "path": "docs/openclinxr/screenshots/ui-xr-ob-humanoid-source-charmorph-antonia-comparator-2026-05-27.png",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent visual evidence for realism or full-app review."
     },
     {
       "path": "docs/openclinxr/screenshots/ui-xr-ob-humanoid-source-charmorph-antonia-face-pose-2026-05-27.png",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent visual evidence for realism or full-app review."
     },
     {
       "path": "docs/openclinxr/screenshots/ui-xr-ob-humanoid-source-charmorph-reom-comparator-2026-05-27.png",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent visual evidence for realism or full-app review."
     },
     {
       "path": "docs/openclinxr/screenshots/ui-xr-ob-humanoid-source-charmorph-reom-face-pose-2026-05-27.png",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent visual evidence for realism or full-app review."
     },
     {
       "path": "docs/openclinxr/screenshots/ui-xr-ob-humanoid-source-mpfb-comparator-2026-05-27.png",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent visual evidence for realism or full-app review."
     },
     {
       "path": "docs/openclinxr/screenshots/ui-xr-ob-humanoid-source-reom-local-authored-curved-garment-face-pose-2026-05-27.png",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent visual evidence for realism or full-app review."
     },
     {
       "path": "docs/openclinxr/screenshots/ui-xr-ob-humanoid-source-reom-local-fitted-garment-face-pose-2026-05-27.png",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent visual evidence for realism or full-app review."
     },
     {
       "path": "docs/openclinxr/screenshots/ui-xr-ob-humanoid-source-reom-namuhekam-polo-face-pose-2026-05-27.png",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent visual evidence for realism or full-app review."
     },
     {
       "path": "docs/openclinxr/screenshots/ui-xr-ob-humanoid-source-reom-shirts01-cc0-face-pose-2026-05-27.png",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent visual evidence for realism or full-app review."
     },
     {
       "path": "docs/openclinxr/screenshots/ui-xr-ob-humanoid-source-reom-toigo-basic-tucked-tshirt-face-pose-2026-05-27.png",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent visual evidence for realism or full-app review."
     },
@@ -5521,7 +5521,7 @@
     {
       "path": "docs/openclinxr/worktree-cleanup-handoff-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },

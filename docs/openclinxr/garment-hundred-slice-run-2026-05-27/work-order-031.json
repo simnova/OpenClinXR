@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "2026-05-27",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "actorId": "peds_patient",
+  "semanticGarmentKey": "garment:pediatric-asthma-patient-soft-shirt:school-age:clinical-top:v1",
+  "providerId": "garment_fitter_local",
+  "approvedEntrypoint": "tools/openclinxr/garment-ingest-and-fit.mjs",
+  "preferredSourceLibraries": [
+    "mpfb_makehuman_clothing_library"
+  ],
+  "sourceGarment": null,
+  "licenseRecord": null,
+  "promotionBlockedUntil": [
+    "sourceGarmentProvided",
+    "licenseRecordProvided",
+    "providerGatePasses",
+    "webxrScreenshotScoreImprovesBaseline"
+  ]
+}

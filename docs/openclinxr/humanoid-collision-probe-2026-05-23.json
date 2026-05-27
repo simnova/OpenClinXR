@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "openclinxr.humanoid-collision-probe.v1",
+  "generatedAt": "2026-05-23T19:47:56.863Z",
+  "inputFile": "docs/openclinxr/evidence/realism-review-active-viseme-runtime-2026-05-23.json",
+  "dependency": {
+    "packageName": "@dimforge/rapier3d-compat",
+    "purpose": "local deterministic humanoid interaction-volume contact probe"
+  },
+  "result": {
+    "status": "collision_probe_ready",
+    "humanoidProxyCount": 2,
+    "contactProbeCount": 2,
+    "blockers": [],
+    "passedSignals": [
+      "humanoid_ragdoll_collision_proxy_cues_present",
+      "rapier_contact_probe_detected_proxy_overlap"
+    ]
+  },
+  "productionReadinessClaimed": false,
+  "notEvidenceFor": [
+    "production_physics_readiness",
+    "validated_ragdoll_biomechanics",
+    "quest_readiness",
+    "clinical_validity"
+  ]
+}

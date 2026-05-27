@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "2026-05-27",
+  "claimBoundary": "allowlist template only; not legal advice or redistribution approval",
+  "requiredFields": {
+    "garmentSemanticKey": "garment:<scenario-or-role>:<garment-kind>:<body-profile>:<style>:vN",
+    "sourceUrl": "https://example.invalid/source",
+    "sourceRepositoryOrArchive": "repository-or-archive-name",
+    "license": "SPDX-or-verbatim-license",
+    "author": "author-or-community",
+    "redistributionPermission": "explicitly_allowed_or_blocked",
+    "localHash": "sha256-after-download",
+    "fitTargetHumanoidRef": "humanoid asset path or semantic ref",
+    "reviewedAt": "ISO-8601 timestamp"
+  },
+  "defaultDecision": "blocked_until_every_required_field_is_real"
+}

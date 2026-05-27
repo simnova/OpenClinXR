@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "2026-05-27",
+  "claimBoundary": "promotion gate metadata only; not production, Quest, clinical, legal, or scoring readiness",
+  "providerGate": "docs/openclinxr/garment-provider-gate-ob-reom-2026-05-27.json",
+  "scorecard": "docs/openclinxr/humanoid-source-bplus-scorecard-2026-05-27.json",
+  "requiredScore": 87,
+  "observedScore": 84,
+  "pass": false,
+  "failures": [
+    "provider_gate_failed",
+    "score_below_required:84<87",
+    "bplus_flag_not_true"
+  ],
+  "promotionDecision": "do_not_promote_keep_as_candidate_evidence_only",
+  "nextAction": "complete source garment/license allowlist before fit/promotion"
+}
