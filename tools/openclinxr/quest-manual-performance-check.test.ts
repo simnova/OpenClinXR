@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { execFile } from "node:child_process";
 import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
@@ -580,6 +579,13 @@ describe("Quest manual performance checker", () => {
           sampleWindowSize: 120,
           immersiveFrameReady: true,
           sampleWindowReady: true,
+          sceneAssetEvidencePresent: true,
+          generatedSceneAssetsLoaded: true,
+          generatedSceneAssetExpectedCount: 6,
+          generatedSceneAssetLoadedCount: 6,
+          generatedSceneAssetFailedCount: 0,
+          generatedSceneAssetFallbackCount: 0,
+          generatedSceneAssetFallbackActiveCount: 0,
           traceSource: "xr_hand_select",
           lastTraceTag: "ecg_request",
           lastTraceLatencyMs: 18,
@@ -589,6 +595,7 @@ describe("Quest manual performance checker", () => {
           lastLocomotionAtMs: null,
           locomotionDistanceMeters: null,
           locomotionTurnRadians: null,
+          locomotionDelta: null,
           locomotionEvidencePresent: false,
           locomotionProbeReasonCodes: ["hand_arming_dwell"],
           technicalGaps: ["locomotion_delta_missing"],
