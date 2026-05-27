@@ -8,8 +8,8 @@
     "protected-policy": 7,
     "current-reference": 30,
     "agent-memory": 138,
-    "archive-candidate": 37,
     "agent-methodology": 8,
+    "archive-candidate": 35,
     "historical-synthesis": 77,
     "decision-record": 18,
     "proposal": 21
@@ -1176,13 +1176,6 @@
       "agentInstructionWeight": "low",
       "action": "use-as-current",
       "rationale": "Package/app-local README or provenance reference; local to its module."
-    },
-    {
-      "path": "cellixjs-feedback.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/agent-factory/README.md",
@@ -2408,13 +2401,6 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": "operator-suggestion-backlog.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "packages/cellix/README.md",

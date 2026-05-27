@@ -12,7 +12,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 138
 - agent-methodology: 8
-- archive-candidate: 37
+- archive-candidate: 35
 - current-reference: 30
 - decision-record: 18
 - evidence: 36
@@ -64,7 +64,6 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 These files should be summarized, archived, or explicitly marked historical before agents use them as instructions.
 
-- `cellixjs-feedback.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/admin-ux-and-testing-brief.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/ant-design-cli-local-spike-2026-05-04.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/cellix-package-adoption-brief.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -97,7 +96,6 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/tsdown-api-bundle-spike-2026-05-04.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/uikitml-spatial-text-sidecar-2026-05-05.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/workspace-relocation-performance-2026-05-05.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `operator-suggestion-backlog.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `templates/decision-record.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `templates/risk-record.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `templates/source-record.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
