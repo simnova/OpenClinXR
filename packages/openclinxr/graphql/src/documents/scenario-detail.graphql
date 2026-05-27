@@ -30,6 +30,18 @@ query ScenarioDetail($scenarioId: ID!, $version: Int!) {
       role
       displayName
       demeanor
+      communicationProfile {
+        styleFamily
+        style
+        intensity
+        baselineMood
+        communicativeness
+        topicsToAvoid
+        adverseResponse
+        deescalationTriggers
+        escalationTriggers
+        culturalLanguageNotes
+      }
     }
     assetNeeds {
       assetId
@@ -50,6 +62,31 @@ query ScenarioDetail($scenarioId: ID!, $version: Int!) {
     productionBlockedAssets {
       assetId
       blockers
+    }
+    productionReadinessLadder {
+      productionReady
+      assetCount
+      productionReadyAssetIds
+      blockedAssetIds
+      missingRequiredAssetIds
+      blockers
+      stationBudget {
+        totalTriangles
+        totalTextureMegabytes
+        totalDrawCalls
+        blockers
+      }
+      assetLadders {
+        assetId
+        productionReady
+        blockers
+        steps {
+          step
+          status
+          evidenceRefs
+          blockers
+        }
+      }
     }
   }
 }

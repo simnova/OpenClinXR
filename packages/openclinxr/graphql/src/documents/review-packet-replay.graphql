@@ -5,6 +5,7 @@ query ReviewPacketReplay($stationRunId: ID!) {
     observedTraceTags
     missingRequiredTraceTags
     lateTraceTags
+    unsafeEvents
     timeline {
       sequence
       atSecond
@@ -34,6 +35,32 @@ query ReviewPacketReplay($stationRunId: ID!) {
       status
       comments
     }
+  }
+  clinicalEventReviewSummary(stationRunId: $stationRunId) {
+    stationRunId
+    eventCount
+    redactedEventCount
+    clinicalEventKinds
+    traceTags
+    statusCounts
+    latestAtSecond
+    durableStore
+    safeForFacultyReview
+  }
+  reviewReplayReadinessSummary(stationRunId: $stationRunId) {
+    stationRunId
+    replayEvidenceReady
+    facultyReviewSafe
+    timelineEntryCount
+    traceEventCount
+    durableEventCount
+    redactedDurableEventCount
+    missingRequiredBehaviorCount
+    lateBehaviorCount
+    safetySignalCount
+    blockers
+    recommendedNextAction
+    replayBoundary
   }
   traceEvents(stationRunId: $stationRunId) {
     sequence

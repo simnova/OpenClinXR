@@ -19,5 +19,12 @@ query ExamFormWorkbench($examFormId: ID!, $scenarioId: ID!, $scenarioVersion: In
       assetId
       blockers
     }
+    productionReadinessLadder {
+      productionReady
+      assetCount
+      productionReadyAssetIds
+      blockedAssetIds
+      blockers
+    }
   }
 }

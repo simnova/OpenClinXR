@@ -15,6 +15,7 @@ export type Scalars = {
 export type Actor = {
   __typename?: 'Actor';
   actorId: Scalars['ID']['output'];
+  communicationProfile?: Maybe<CommunicationProfile>;
   demeanor?: Maybe<Scalars['String']['output']>;
   displayName: Scalars['String']['output'];
   role: Scalars['String']['output'];
@@ -40,20 +41,65 @@ export type AssetNeed = {
   licenseStatus: Scalars['String']['output'];
 };
 
+export type AssetProductionReadinessLadder = {
+  __typename?: 'AssetProductionReadinessLadder';
+  assetId: Scalars['ID']['output'];
+  blockers: Array<Scalars['String']['output']>;
+  productionReady: Scalars['Boolean']['output'];
+  scenarioId: Scalars['ID']['output'];
+  steps: Array<AssetProductionReadinessStep>;
+};
+
+export type AssetProductionReadinessStep = {
+  __typename?: 'AssetProductionReadinessStep';
+  blockers: Array<Scalars['String']['output']>;
+  evidenceRefs: Array<Scalars['String']['output']>;
+  status: Scalars['String']['output'];
+  step: Scalars['String']['output'];
+};
+
 export type AssetReadiness = {
   __typename?: 'AssetReadiness';
   blockedAssets: Array<AssetBlocker>;
   devReady: Scalars['Boolean']['output'];
   missingRequiredAssetIds: Array<Scalars['ID']['output']>;
   productionBlockedAssets: Array<AssetBlocker>;
+  productionReadinessLadder: ScenarioAssetProductionReadinessLadder;
   productionReady: Scalars['Boolean']['output'];
   scenarioId: Scalars['ID']['output'];
+};
+
+export type CommunicationProfile = {
+  __typename?: 'CommunicationProfile';
+  adverseResponse: Scalars['String']['output'];
+  baselineMood: Array<Scalars['String']['output']>;
+  communicativeness: Scalars['String']['output'];
+  culturalLanguageNotes: Array<Scalars['String']['output']>;
+  deescalationTriggers: Array<Scalars['String']['output']>;
+  escalationTriggers: Array<Scalars['String']['output']>;
+  intensity: Scalars['Float']['output'];
+  style: Scalars['String']['output'];
+  styleFamily: Scalars['String']['output'];
+  topicsToAvoid: Array<Scalars['String']['output']>;
 };
 
 export type CreateStationRunQueueSnapshotInput = {
   createdAt?: InputMaybe<Scalars['String']['input']>;
   reviewerId?: InputMaybe<Scalars['ID']['input']>;
   snapshotId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type DurableClinicalEventReviewSummary = {
+  __typename?: 'DurableClinicalEventReviewSummary';
+  clinicalEventKinds: Scalars['JSON']['output'];
+  durableStore?: Maybe<Scalars['String']['output']>;
+  eventCount: Scalars['Int']['output'];
+  latestAtSecond?: Maybe<Scalars['Int']['output']>;
+  redactedEventCount: Scalars['Int']['output'];
+  safeForFacultyReview: Scalars['Boolean']['output'];
+  stationRunId?: Maybe<Scalars['ID']['output']>;
+  statusCounts: Scalars['JSON']['output'];
+  traceTags: Array<Scalars['String']['output']>;
 };
 
 export type ExamBreakCheckpoint = {
@@ -146,8 +192,10 @@ export type PatientNote = {
 export type Query = {
   __typename?: 'Query';
   assetReadiness: AssetReadiness;
+  clinicalEventReviewSummary: DurableClinicalEventReviewSummary;
   examForm?: Maybe<ExamForm>;
   reviewPacket?: Maybe<ReviewPacket>;
+  reviewReplayReadinessSummary: ReviewReplayReadinessSummary;
   scenario?: Maybe<Scenario>;
   scenarioReviewDecisions: Array<ScenarioReviewDecisionRecord>;
   scenarios: Array<Scenario>;
@@ -162,12 +210,22 @@ export type QueryAssetReadinessArgs = {
 };
 
 
+export type QueryClinicalEventReviewSummaryArgs = {
+  stationRunId: Scalars['ID']['input'];
+};
+
+
 export type QueryExamFormArgs = {
   examFormId: Scalars['ID']['input'];
 };
 
 
 export type QueryReviewPacketArgs = {
+  stationRunId: Scalars['ID']['input'];
+};
+
+
+export type QueryReviewReplayReadinessSummaryArgs = {
   stationRunId: Scalars['ID']['input'];
 };
 
@@ -217,6 +275,23 @@ export type ReviewPacket = {
   unsafeEvents: Array<Scalars['String']['output']>;
 };
 
+export type ReviewReplayReadinessSummary = {
+  __typename?: 'ReviewReplayReadinessSummary';
+  blockers: Array<Scalars['String']['output']>;
+  durableEventCount: Scalars['Int']['output'];
+  facultyReviewSafe: Scalars['Boolean']['output'];
+  lateBehaviorCount: Scalars['Int']['output'];
+  missingRequiredBehaviorCount: Scalars['Int']['output'];
+  recommendedNextAction: Scalars['String']['output'];
+  redactedDurableEventCount: Scalars['Int']['output'];
+  replayBoundary: Scalars['String']['output'];
+  replayEvidenceReady: Scalars['Boolean']['output'];
+  safetySignalCount: Scalars['Int']['output'];
+  stationRunId?: Maybe<Scalars['ID']['output']>;
+  timelineEntryCount: Scalars['Int']['output'];
+  traceEventCount: Scalars['Int']['output'];
+};
+
 export type ReviewTraceQuality = {
   __typename?: 'ReviewTraceQuality';
   blockedGuardrailCount: Scalars['Int']['output'];
@@ -244,6 +319,30 @@ export type Scenario = {
   status: ScenarioStatus;
   title: Scalars['String']['output'];
   version: Scalars['Int']['output'];
+};
+
+export type ScenarioAssetBudget = {
+  __typename?: 'ScenarioAssetBudget';
+  blockers: Array<Scalars['String']['output']>;
+  maxDrawCalls: Scalars['Int']['output'];
+  maxTextureMegabytes: Scalars['Int']['output'];
+  maxVisibleTriangles: Scalars['Int']['output'];
+  totalDrawCalls: Scalars['Int']['output'];
+  totalTextureMegabytes: Scalars['Int']['output'];
+  totalTriangles: Scalars['Int']['output'];
+};
+
+export type ScenarioAssetProductionReadinessLadder = {
+  __typename?: 'ScenarioAssetProductionReadinessLadder';
+  assetCount: Scalars['Int']['output'];
+  assetLadders: Array<AssetProductionReadinessLadder>;
+  blockedAssetIds: Array<Scalars['ID']['output']>;
+  blockers: Array<Scalars['String']['output']>;
+  missingRequiredAssetIds: Array<Scalars['ID']['output']>;
+  productionReady: Scalars['Boolean']['output'];
+  productionReadyAssetIds: Array<Scalars['ID']['output']>;
+  scenarioId: Scalars['ID']['output'];
+  stationBudget: ScenarioAssetBudget;
 };
 
 export type ScenarioEnvironment = {
@@ -449,15 +548,20 @@ export type ResolversTypes = {
   AssembleExamFormInput: AssembleExamFormInput;
   AssetBlocker: ResolverTypeWrapper<AssetBlocker>;
   AssetNeed: ResolverTypeWrapper<AssetNeed>;
+  AssetProductionReadinessLadder: ResolverTypeWrapper<AssetProductionReadinessLadder>;
+  AssetProductionReadinessStep: ResolverTypeWrapper<AssetProductionReadinessStep>;
   AssetReadiness: ResolverTypeWrapper<AssetReadiness>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  CommunicationProfile: ResolverTypeWrapper<CommunicationProfile>;
   CreateStationRunQueueSnapshotInput: CreateStationRunQueueSnapshotInput;
+  DurableClinicalEventReviewSummary: ResolverTypeWrapper<DurableClinicalEventReviewSummary>;
   ExamBreakCheckpoint: ResolverTypeWrapper<ExamBreakCheckpoint>;
   ExamForm: ResolverTypeWrapper<ExamForm>;
   ExamStationTimingWindow: ResolverTypeWrapper<ExamStationTimingWindow>;
   ExamTimingWindow: ResolverTypeWrapper<ExamTimingWindow>;
   FacultyScoreDraft: ResolverTypeWrapper<FacultyScoreDraft>;
   FacultyScoreDraftInput: FacultyScoreDraftInput;
+  Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   HiddenFactPolicy: ResolverTypeWrapper<HiddenFactPolicy>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
@@ -467,8 +571,11 @@ export type ResolversTypes = {
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
   ReviewDecision: ReviewDecision;
   ReviewPacket: ResolverTypeWrapper<ReviewPacket>;
+  ReviewReplayReadinessSummary: ResolverTypeWrapper<ReviewReplayReadinessSummary>;
   ReviewTraceQuality: ResolverTypeWrapper<ReviewTraceQuality>;
   Scenario: ResolverTypeWrapper<Scenario>;
+  ScenarioAssetBudget: ResolverTypeWrapper<ScenarioAssetBudget>;
+  ScenarioAssetProductionReadinessLadder: ResolverTypeWrapper<ScenarioAssetProductionReadinessLadder>;
   ScenarioEnvironment: ResolverTypeWrapper<ScenarioEnvironment>;
   ScenarioGovernance: ResolverTypeWrapper<ScenarioGovernance>;
   ScenarioReviewDecisionInput: ScenarioReviewDecisionInput;
@@ -491,15 +598,20 @@ export type ResolversParentTypes = {
   AssembleExamFormInput: AssembleExamFormInput;
   AssetBlocker: AssetBlocker;
   AssetNeed: AssetNeed;
+  AssetProductionReadinessLadder: AssetProductionReadinessLadder;
+  AssetProductionReadinessStep: AssetProductionReadinessStep;
   AssetReadiness: AssetReadiness;
   Boolean: Scalars['Boolean']['output'];
+  CommunicationProfile: CommunicationProfile;
   CreateStationRunQueueSnapshotInput: CreateStationRunQueueSnapshotInput;
+  DurableClinicalEventReviewSummary: DurableClinicalEventReviewSummary;
   ExamBreakCheckpoint: ExamBreakCheckpoint;
   ExamForm: ExamForm;
   ExamStationTimingWindow: ExamStationTimingWindow;
   ExamTimingWindow: ExamTimingWindow;
   FacultyScoreDraft: FacultyScoreDraft;
   FacultyScoreDraftInput: FacultyScoreDraftInput;
+  Float: Scalars['Float']['output'];
   HiddenFactPolicy: HiddenFactPolicy;
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
@@ -508,8 +620,11 @@ export type ResolversParentTypes = {
   PatientNote: PatientNote;
   Query: Record<PropertyKey, never>;
   ReviewPacket: ReviewPacket;
+  ReviewReplayReadinessSummary: ReviewReplayReadinessSummary;
   ReviewTraceQuality: ReviewTraceQuality;
   Scenario: Scenario;
+  ScenarioAssetBudget: ScenarioAssetBudget;
+  ScenarioAssetProductionReadinessLadder: ScenarioAssetProductionReadinessLadder;
   ScenarioEnvironment: ScenarioEnvironment;
   ScenarioGovernance: ScenarioGovernance;
   ScenarioReviewDecisionInput: ScenarioReviewDecisionInput;
@@ -527,6 +642,7 @@ export type ResolversParentTypes = {
 
 export type ActorResolvers<ContextType = any, ParentType extends ResolversParentTypes['Actor'] = ResolversParentTypes['Actor']> = {
   actorId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  communicationProfile?: Resolver<Maybe<ResolversTypes['CommunicationProfile']>, ParentType, ContextType>;
   demeanor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   displayName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   role?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -544,13 +660,54 @@ export type AssetNeedResolvers<ContextType = any, ParentType extends ResolversPa
   licenseStatus?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
 
+export type AssetProductionReadinessLadderResolvers<ContextType = any, ParentType extends ResolversParentTypes['AssetProductionReadinessLadder'] = ResolversParentTypes['AssetProductionReadinessLadder']> = {
+  assetId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  blockers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  productionReady?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  scenarioId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  steps?: Resolver<Array<ResolversTypes['AssetProductionReadinessStep']>, ParentType, ContextType>;
+};
+
+export type AssetProductionReadinessStepResolvers<ContextType = any, ParentType extends ResolversParentTypes['AssetProductionReadinessStep'] = ResolversParentTypes['AssetProductionReadinessStep']> = {
+  blockers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  evidenceRefs?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  step?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+};
+
 export type AssetReadinessResolvers<ContextType = any, ParentType extends ResolversParentTypes['AssetReadiness'] = ResolversParentTypes['AssetReadiness']> = {
   blockedAssets?: Resolver<Array<ResolversTypes['AssetBlocker']>, ParentType, ContextType>;
   devReady?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   missingRequiredAssetIds?: Resolver<Array<ResolversTypes['ID']>, ParentType, ContextType>;
   productionBlockedAssets?: Resolver<Array<ResolversTypes['AssetBlocker']>, ParentType, ContextType>;
+  productionReadinessLadder?: Resolver<ResolversTypes['ScenarioAssetProductionReadinessLadder'], ParentType, ContextType>;
   productionReady?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   scenarioId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+};
+
+export type CommunicationProfileResolvers<ContextType = any, ParentType extends ResolversParentTypes['CommunicationProfile'] = ResolversParentTypes['CommunicationProfile']> = {
+  adverseResponse?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  baselineMood?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  communicativeness?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  culturalLanguageNotes?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  deescalationTriggers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  escalationTriggers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  intensity?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  style?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  styleFamily?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  topicsToAvoid?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+};
+
+export type DurableClinicalEventReviewSummaryResolvers<ContextType = any, ParentType extends ResolversParentTypes['DurableClinicalEventReviewSummary'] = ResolversParentTypes['DurableClinicalEventReviewSummary']> = {
+  clinicalEventKinds?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
+  durableStore?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  eventCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  latestAtSecond?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  redactedEventCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  safeForFacultyReview?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  stationRunId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  statusCounts?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
+  traceTags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
 };
 
 export type ExamBreakCheckpointResolvers<ContextType = any, ParentType extends ResolversParentTypes['ExamBreakCheckpoint'] = ResolversParentTypes['ExamBreakCheckpoint']> = {
@@ -611,8 +768,10 @@ export type PatientNoteResolvers<ContextType = any, ParentType extends Resolvers
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   assetReadiness?: Resolver<ResolversTypes['AssetReadiness'], ParentType, ContextType, RequireFields<QueryAssetReadinessArgs, 'scenarioId' | 'version'>>;
+  clinicalEventReviewSummary?: Resolver<ResolversTypes['DurableClinicalEventReviewSummary'], ParentType, ContextType, RequireFields<QueryClinicalEventReviewSummaryArgs, 'stationRunId'>>;
   examForm?: Resolver<Maybe<ResolversTypes['ExamForm']>, ParentType, ContextType, RequireFields<QueryExamFormArgs, 'examFormId'>>;
   reviewPacket?: Resolver<Maybe<ResolversTypes['ReviewPacket']>, ParentType, ContextType, RequireFields<QueryReviewPacketArgs, 'stationRunId'>>;
+  reviewReplayReadinessSummary?: Resolver<ResolversTypes['ReviewReplayReadinessSummary'], ParentType, ContextType, RequireFields<QueryReviewReplayReadinessSummaryArgs, 'stationRunId'>>;
   scenario?: Resolver<Maybe<ResolversTypes['Scenario']>, ParentType, ContextType, RequireFields<QueryScenarioArgs, 'scenarioId'>>;
   scenarioReviewDecisions?: Resolver<Array<ResolversTypes['ScenarioReviewDecisionRecord']>, ParentType, ContextType, RequireFields<QueryScenarioReviewDecisionsArgs, 'scenarioId' | 'version'>>;
   scenarios?: Resolver<Array<ResolversTypes['Scenario']>, ParentType, ContextType, Partial<QueryScenariosArgs>>;
@@ -631,6 +790,22 @@ export type ReviewPacketResolvers<ContextType = any, ParentType extends Resolver
   timeline?: Resolver<Array<ResolversTypes['TraceTimelineEntry']>, ParentType, ContextType>;
   traceQuality?: Resolver<ResolversTypes['ReviewTraceQuality'], ParentType, ContextType>;
   unsafeEvents?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+};
+
+export type ReviewReplayReadinessSummaryResolvers<ContextType = any, ParentType extends ResolversParentTypes['ReviewReplayReadinessSummary'] = ResolversParentTypes['ReviewReplayReadinessSummary']> = {
+  blockers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  durableEventCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  facultyReviewSafe?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  lateBehaviorCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  missingRequiredBehaviorCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  recommendedNextAction?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  redactedDurableEventCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  replayBoundary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  replayEvidenceReady?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  safetySignalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  stationRunId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  timelineEntryCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  traceEventCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
 };
 
 export type ReviewTraceQualityResolvers<ContextType = any, ParentType extends ResolversParentTypes['ReviewTraceQuality'] = ResolversParentTypes['ReviewTraceQuality']> = {
@@ -658,6 +833,28 @@ export type ScenarioResolvers<ContextType = any, ParentType extends ResolversPar
   status?: Resolver<ResolversTypes['ScenarioStatus'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+};
+
+export type ScenarioAssetBudgetResolvers<ContextType = any, ParentType extends ResolversParentTypes['ScenarioAssetBudget'] = ResolversParentTypes['ScenarioAssetBudget']> = {
+  blockers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  maxDrawCalls?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  maxTextureMegabytes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  maxVisibleTriangles?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  totalDrawCalls?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  totalTextureMegabytes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  totalTriangles?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+};
+
+export type ScenarioAssetProductionReadinessLadderResolvers<ContextType = any, ParentType extends ResolversParentTypes['ScenarioAssetProductionReadinessLadder'] = ResolversParentTypes['ScenarioAssetProductionReadinessLadder']> = {
+  assetCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  assetLadders?: Resolver<Array<ResolversTypes['AssetProductionReadinessLadder']>, ParentType, ContextType>;
+  blockedAssetIds?: Resolver<Array<ResolversTypes['ID']>, ParentType, ContextType>;
+  blockers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  missingRequiredAssetIds?: Resolver<Array<ResolversTypes['ID']>, ParentType, ContextType>;
+  productionReady?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  productionReadyAssetIds?: Resolver<Array<ResolversTypes['ID']>, ParentType, ContextType>;
+  scenarioId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  stationBudget?: Resolver<ResolversTypes['ScenarioAssetBudget'], ParentType, ContextType>;
 };
 
 export type ScenarioEnvironmentResolvers<ContextType = any, ParentType extends ResolversParentTypes['ScenarioEnvironment'] = ResolversParentTypes['ScenarioEnvironment']> = {
@@ -762,7 +959,11 @@ export type Resolvers<ContextType = any> = {
   Actor?: ActorResolvers<ContextType>;
   AssetBlocker?: AssetBlockerResolvers<ContextType>;
   AssetNeed?: AssetNeedResolvers<ContextType>;
+  AssetProductionReadinessLadder?: AssetProductionReadinessLadderResolvers<ContextType>;
+  AssetProductionReadinessStep?: AssetProductionReadinessStepResolvers<ContextType>;
   AssetReadiness?: AssetReadinessResolvers<ContextType>;
+  CommunicationProfile?: CommunicationProfileResolvers<ContextType>;
+  DurableClinicalEventReviewSummary?: DurableClinicalEventReviewSummaryResolvers<ContextType>;
   ExamBreakCheckpoint?: ExamBreakCheckpointResolvers<ContextType>;
   ExamForm?: ExamFormResolvers<ContextType>;
   ExamStationTimingWindow?: ExamStationTimingWindowResolvers<ContextType>;
@@ -774,8 +975,11 @@ export type Resolvers<ContextType = any> = {
   PatientNote?: PatientNoteResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   ReviewPacket?: ReviewPacketResolvers<ContextType>;
+  ReviewReplayReadinessSummary?: ReviewReplayReadinessSummaryResolvers<ContextType>;
   ReviewTraceQuality?: ReviewTraceQualityResolvers<ContextType>;
   Scenario?: ScenarioResolvers<ContextType>;
+  ScenarioAssetBudget?: ScenarioAssetBudgetResolvers<ContextType>;
+  ScenarioAssetProductionReadinessLadder?: ScenarioAssetProductionReadinessLadderResolvers<ContextType>;
   ScenarioEnvironment?: ScenarioEnvironmentResolvers<ContextType>;
   ScenarioGovernance?: ScenarioGovernanceResolvers<ContextType>;
   ScenarioReviewDecisionRecord?: ScenarioReviewDecisionRecordResolvers<ContextType>;

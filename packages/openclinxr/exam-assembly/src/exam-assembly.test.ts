@@ -47,6 +47,21 @@ describe("exam assembly", () => {
     expect(form.coverage.missingTraceTags).toEqual(["shared_decision_making"]);
   });
 
+  it("deduplicates repeated blueprint trace requirements before coverage reporting", () => {
+    const blueprint = {
+      ...createDefaultClinicalSkillsBlueprint(),
+      requiredTraceTags: [...edChestPainScenario.requiredTraceTags, "shared_decision_making", "shared_decision_making"],
+    };
+    const form = assembleExamForm({
+      examFormId: "form_openclinxr_pilot_duplicate_blueprint_trace",
+      blueprint,
+      scenarios: [edChestPainScenario],
+    });
+
+    expect(form.coverage.missingTraceTags).toEqual(["shared_decision_making"]);
+    expect(form.assemblyIssues.filter((issue) => issue === "missing_trace_coverage:shared_decision_making")).toHaveLength(1);
+  });
+
   it("reports station count, environment, and safety-critical coverage gaps", () => {
     const defaultBlueprint = createDefaultClinicalSkillsBlueprint();
     const blueprint = {
@@ -146,6 +161,56 @@ describe("exam assembly", () => {
     expect(plan.totalStationTimeSeconds).toBe(18720);
   });
 
+  it("orders timing windows and break checkpoints deterministically when blueprint input is unsorted", () => {
+    const blueprint = createStep2CsStyleSeedBlueprint();
+    const unsortedBlueprint = {
+      ...blueprint,
+      stationSlots: [blueprint.stationSlots[2], blueprint.stationSlots[0], blueprint.stationSlots[1]].filter((slot) => slot !== undefined),
+      timing: {
+        ...blueprint.timing,
+        breakAfterStationOrders: [3, 3, 1],
+      },
+    };
+
+    const plan = createExamTimingPlan(unsortedBlueprint);
+
+    expect(plan.stationWindows.map((window) => window.stationOrder)).toEqual([1, 2, 3]);
+    expect(plan.breakCheckpoints).toEqual([
+      { afterStationOrder: 1, atSecond: 1560 },
+      { afterStationOrder: 3, atSecond: 4680 },
+    ]);
+  });
+
+  it("assigns exam form station refs by sorted blueprint station order", () => {
+    const blueprint = createStep2CsStyleSeedBlueprint();
+    const unsortedBlueprint = {
+      ...blueprint,
+      stationSlots: [blueprint.stationSlots[2], blueprint.stationSlots[0], blueprint.stationSlots[1]].filter((slot) => slot !== undefined),
+    };
+    const approvedScenarios = scenarioBank.slice(0, 3).map((scenario) => ({
+      ...scenario,
+      status: "approved" as const,
+      review: {
+        clinical: "approved" as const,
+        psychometric: "approved" as const,
+        legal: "approved" as const,
+        simulationQa: "approved" as const,
+      },
+    }));
+
+    const form = assembleExamForm({
+      examFormId: "form_unsorted_blueprint_station_refs",
+      blueprint: unsortedBlueprint,
+      scenarios: approvedScenarios,
+    });
+
+    expect(form.stationRefs.map((station) => [station.order, station.scenarioId])).toEqual([
+      [1, approvedScenarios[0]?.scenarioId],
+      [2, approvedScenarios[1]?.scenarioId],
+      [3, approvedScenarios[2]?.scenarioId],
+    ]);
+  });
+
   it("creates a sequenced seed station run queue without unlocking draft stations", () => {
     const queue = createExamStationRunQueue(createStep2CsStyleSeedBlueprint(), scenarioBank);
 
@@ -181,5 +246,34 @@ describe("exam assembly", () => {
       { afterStationOrder: 6, atSecond: 9360 },
       { afterStationOrder: 9, atSecond: 14040 },
     ]);
+  });
+
+  it("keeps approved scenarios blocked from learner launch when replayable dialogue seeds are missing", () => {
+    const scenarioWithoutDialogueSeeds = {
+      ...edChestPainScenario,
+      scenarioId: "approved_missing_dialogue_replay_v1",
+    };
+    const blueprint = createStep2CsStyleSeedBlueprint([scenarioWithoutDialogueSeeds]);
+    const readiness = evaluateBlueprintScenarioReadiness(blueprint, [scenarioWithoutDialogueSeeds]);
+
+    expect(readiness.canAssembleReadyForm).toBe(false);
+    expect(readiness.activationEligibleScenarioIds).toEqual([]);
+    expect(readiness.blockedScenarioIds).toEqual([
+      { scenarioId: "approved_missing_dialogue_replay_v1", reason: "dialogue_seed_not_ready" },
+    ]);
+
+    const queue = createExamStationRunQueue(blueprint, [scenarioWithoutDialogueSeeds]);
+    expect(queue.canStartLearnerExam).toBe(false);
+    expect(queue.summary).toEqual({
+      activationReady: 0,
+      draftBlocked: 0,
+      governanceBlocked: 1,
+      missingScenario: 0,
+    });
+    expect(queue.stationQueue[0]).toMatchObject({
+      scenarioId: "approved_missing_dialogue_replay_v1",
+      status: "governance_blocked",
+      blockers: ["dialogue_seed_replay_not_ready"],
+    });
   });
 });

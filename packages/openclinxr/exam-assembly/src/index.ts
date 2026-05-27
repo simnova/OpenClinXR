@@ -1,29 +1,16 @@
-import { edChestPainScenario, scenarioBank } from "@openclinxr/scenario-fixtures";
-import type { Scenario } from "@openclinxr/shared-schemas";
+import { edChestPainScenario, scenarioBank, scenarioDialogueSeedBank } from "@openclinxr/scenario-fixtures";
+import type {
+  ExamBlueprint as SharedExamBlueprint,
+  ExamBlueprintTiming as SharedExamBlueprintTiming,
+  ExamStationSlot as SharedExamStationSlot,
+  Scenario,
+} from "@openclinxr/shared-schemas";
 
-export type ExamBlueprint = {
-  blueprintId: string;
-  title: string;
-  stationSlots: ExamStationSlot[];
-  timing: ExamBlueprintTiming;
-  requiredTraceTags: string[];
-  requiredSafetyCriticalTraceTags: string[];
-};
+export type ExamBlueprint = SharedExamBlueprint;
 
-export type ExamBlueprintTiming = {
-  doorwaySeconds: number;
-  encounterSeconds: number;
-  noteSeconds: number;
-  breakAfterStationOrders: number[];
-};
+export type ExamBlueprintTiming = SharedExamBlueprintTiming;
 
-export type ExamStationSlot = {
-  slotId: string;
-  order: number;
-  label: string;
-  requiredEnvironmentIds: string[];
-  requiredTraceTags: string[];
-};
+export type ExamStationSlot = SharedExamStationSlot;
 
 export type ExamStationRef = {
   order: number;
@@ -82,7 +69,7 @@ export type BlueprintScenarioReadiness = {
     activationEligible: number;
   };
   activationEligibleScenarioIds: string[];
-  blockedScenarioIds: Array<{ scenarioId: string; reason: "not_approved" | "governance_not_ready" }>;
+  blockedScenarioIds: Array<{ scenarioId: string; reason: "not_approved" | "governance_not_ready" | "dialogue_seed_not_ready" }>;
   missingScenarioSlotIds: string[];
 };
 
@@ -192,7 +179,11 @@ export function evaluateBlueprintScenarioReadiness(blueprint: ExamBlueprint, sce
 
     blockedScenarioIds.push({
       scenarioId: scenario.scenarioId,
-      reason: scenario.status !== "approved" ? "not_approved" : "governance_not_ready",
+      reason: scenario.status !== "approved"
+        ? "not_approved"
+        : hasReplayReadyDialogueSeeds(scenario)
+          ? "governance_not_ready"
+          : "dialogue_seed_not_ready",
     });
   }
 
@@ -211,7 +202,7 @@ export function evaluateBlueprintScenarioReadiness(blueprint: ExamBlueprint, sce
 }
 
 export function createExamTimingPlan(blueprint: ExamBlueprint): ExamTimingPlan {
-  const sortedSlots = [...blueprint.stationSlots].sort((left, right) => left.order - right.order);
+  const sortedSlots = [...blueprint.stationSlots].sort((left, right) => left.order - right.order || left.slotId.localeCompare(right.slotId));
   const stationWindows = sortedSlots.map((slot, index): ExamStationTimingWindow => {
     const startsAtSecond = index * stationDurationSeconds(blueprint.timing);
     const doorway = timingWindow(startsAtSecond, blueprint.timing.doorwaySeconds);
@@ -228,12 +219,13 @@ export function createExamTimingPlan(blueprint: ExamBlueprint): ExamTimingPlan {
     };
   });
 
-  const breakCheckpoints = blueprint.timing.breakAfterStationOrders
+  const breakCheckpoints = [...new Set(blueprint.timing.breakAfterStationOrders)]
     .map((afterStationOrder) => {
       const station = stationWindows.find((window) => window.stationOrder === afterStationOrder);
       return station ? { afterStationOrder, atSecond: station.note.endsAtSecond } : undefined;
     })
-    .filter((checkpoint): checkpoint is { afterStationOrder: number; atSecond: number } => Boolean(checkpoint));
+    .filter((checkpoint): checkpoint is { afterStationOrder: number; atSecond: number } => Boolean(checkpoint))
+    .sort((left, right) => left.atSecond - right.atSecond || left.afterStationOrder - right.afterStationOrder);
 
   return {
     blueprintId: blueprint.blueprintId,
@@ -291,8 +283,9 @@ export function assembleExamForm(input: AssembleExamFormInput): ExamForm {
     }
   }
 
+  const sortedSlots = [...input.blueprint.stationSlots].sort((left, right) => left.order - right.order || left.slotId.localeCompare(right.slotId));
   const stationRefs = input.scenarios.map((scenario, index) => {
-    const slot = input.blueprint.stationSlots[index];
+    const slot = sortedSlots[index];
     return {
       order: slot?.order ?? index + 1,
       scenarioId: scenario.scenarioId,
@@ -301,13 +294,15 @@ export function assembleExamForm(input: AssembleExamFormInput): ExamForm {
     };
   }).sort((left, right) => left.order - right.order);
 
+  const requiredTraceTags = uniqueInOrder(input.blueprint.requiredTraceTags);
   const coveredTraceTags = uniqueInOrder(input.scenarios.flatMap((scenario) => scenario.requiredTraceTags));
-  const missingTraceTags = input.blueprint.requiredTraceTags.filter((tag) => !coveredTraceTags.includes(tag));
+  const missingTraceTags = requiredTraceTags.filter((tag) => !coveredTraceTags.includes(tag));
   const requiredEnvironmentIds = uniqueInOrder(input.blueprint.stationSlots.flatMap((slot) => slot.requiredEnvironmentIds));
   const coveredEnvironmentIds = uniqueInOrder(input.scenarios.map((scenario) => scenario.environment?.environmentId).filter((environmentId): environmentId is string => Boolean(environmentId)));
   const missingEnvironmentIds = requiredEnvironmentIds.filter((environmentId) => !coveredEnvironmentIds.includes(environmentId));
+  const requiredSafetyCriticalTraceTags = uniqueInOrder(input.blueprint.requiredSafetyCriticalTraceTags);
   const coveredSafetyCriticalTraceTags = uniqueInOrder(input.scenarios.flatMap((scenario) => scenario.governance.safetyCriticalTraceTags));
-  const missingSafetyCriticalTraceTags = input.blueprint.requiredSafetyCriticalTraceTags.filter((tag) => !coveredSafetyCriticalTraceTags.includes(tag));
+  const missingSafetyCriticalTraceTags = requiredSafetyCriticalTraceTags.filter((tag) => !coveredSafetyCriticalTraceTags.includes(tag));
   const stationCount = {
     required: input.blueprint.stationSlots.length,
     actual: input.scenarios.length,
@@ -326,13 +321,13 @@ export function assembleExamForm(input: AssembleExamFormInput): ExamForm {
     title: input.blueprint.title,
     stationRefs,
     coverage: {
-      requiredTraceTags: [...input.blueprint.requiredTraceTags],
+      requiredTraceTags,
       coveredTraceTags,
       missingTraceTags,
       requiredEnvironmentIds,
       coveredEnvironmentIds,
       missingEnvironmentIds,
-      requiredSafetyCriticalTraceTags: [...input.blueprint.requiredSafetyCriticalTraceTags],
+      requiredSafetyCriticalTraceTags,
       coveredSafetyCriticalTraceTags,
       missingSafetyCriticalTraceTags,
       stationCount,
@@ -382,7 +377,8 @@ function isActivationEligible(scenario: Scenario): boolean {
   return scenario.status === "approved"
     && Object.values(scenario.review).every((state) => state === "approved")
     && scenario.governance.validationStage !== "stage_0_synthetic_draft"
-    && scenario.governance.scoreUseLabel !== "validated_summative";
+    && scenario.governance.scoreUseLabel !== "validated_summative"
+    && hasReplayReadyDialogueSeeds(scenario);
 }
 
 function stationRunQueueStatus(scenario: Scenario): ExamStationRunQueueStatus {
@@ -415,8 +411,31 @@ function stationRunQueueBlockers(scenario: Scenario, status: ExamStationRunQueue
   if (scenario.governance.scoreUseLabel === "validated_summative") {
     blockers.push("summative_score_use_not_allowed_for_seed_queue");
   }
+  if (!hasReplayReadyDialogueSeeds(scenario)) {
+    blockers.push("dialogue_seed_replay_not_ready");
+  }
 
   return blockers.length > 0 ? blockers : ["governance_not_ready"];
+}
+
+function hasReplayReadyDialogueSeeds(scenario: Scenario): boolean {
+  const actorIds = new Set(scenario.actors.map((actor) => actor.actorId));
+  const allowedTraceTags = new Set([
+    ...scenario.requiredTraceTags,
+    ...scenario.governance.safetyCriticalTraceTags,
+    "guardrail_hidden_truth",
+  ]);
+  const seedEntry = scenarioDialogueSeedBank.find((entry) => entry.scenarioId === scenario.scenarioId);
+
+  return Boolean(seedEntry)
+    && seedEntry!.seeds.length > 0
+    && seedEntry!.seeds.some((seed) => seed.safetyExpectation === "blocks_hidden_truth_probe")
+    && seedEntry!.seeds.every((seed) =>
+      actorIds.has(seed.actorId)
+      && seed.visibleFacts.length > 0
+      && seed.hiddenFactCanaries.length > 0
+      && seed.expectedTraceTags.every((tag) => allowedTraceTags.has(tag))
+    );
 }
 
 function stationRunQueueSummary(stationQueue: readonly ExamStationRunQueueItem[]): ExamStationRunQueue["summary"] {

@@ -30,6 +30,18 @@ mutation SubmitScenarioReview($input: ScenarioReviewDecisionInput!) {
       role
       displayName
       demeanor
+      communicationProfile {
+        styleFamily
+        style
+        intensity
+        baselineMood
+        communicativeness
+        topicsToAvoid
+        adverseResponse
+        deescalationTriggers
+        escalationTriggers
+        culturalLanguageNotes
+      }
     }
     assetNeeds {
       assetId

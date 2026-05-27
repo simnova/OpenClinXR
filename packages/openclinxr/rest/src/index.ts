@@ -8,6 +8,13 @@ export type OpenClinXrRestRoute = {
   path: `/${string}`;
   surface: OpenClinXrRestSurface;
   stationRunScoped: boolean;
+  contractBoundary?: {
+    posture: "read_only_review_packet";
+    providerExecutionAllowed: false;
+    runtimeExecutionAllowed: false;
+    learnerLaunchAllowed: false;
+    questEvidenceRefreshAllowed: false;
+  };
 };
 
 export type OpenClinXrRestRouteMatch = {
@@ -16,6 +23,7 @@ export type OpenClinXrRestRouteMatch = {
     stationRunId?: string;
     capabilityId?: string;
     jobId?: string;
+    bundleId?: string;
   };
 };
 
@@ -23,13 +31,39 @@ export const openClinXrRestRoutes = Object.freeze([
   route("health", "GET", "/health", "control-plane"),
   route("providers-health", "GET", "/providers/health", "control-plane"),
   route("runtime-protocols", "GET", "/runtime/protocols", "control-plane"),
+  route("runtime-provider-readiness", "GET", "/runtime/provider-readiness", "control-plane"),
+  route("runtime-selection-review-packet", "GET", "/runtime/selection-review-packet", "control-plane", false, {
+    posture: "read_only_review_packet",
+    providerExecutionAllowed: false,
+    runtimeExecutionAllowed: false,
+    learnerLaunchAllowed: false,
+    questEvidenceRefreshAllowed: false,
+  }),
+  route("learner-runtime-asset-bundle-list", "GET", "/runtime/asset-bundles", "xr-runtime"),
+  route("learner-runtime-asset-bundle", "GET", "/runtime/asset-bundles/:bundleId", "xr-runtime"),
   route("realtime-voice-posture", "GET", "/voice/realtime/posture", "xr-runtime"),
   route("admin-graphql-schema", "GET", "/admin/graphql/schema", "admin-graphql"),
   route("admin-graphql-codegen-plan", "GET", "/admin/graphql/codegen-plan", "admin-graphql"),
   route("admin-graphql-documents", "GET", "/admin/graphql/documents", "admin-graphql"),
   route("admin-graphql-execute", "POST", "/admin/graphql", "admin-graphql"),
   route("learner-scenario", "GET", "/scenarios/ed-chest-pain", "control-plane"),
+  route("scenario-bank-maturity", "GET", "/scenario-bank/maturity", "control-plane"),
+  route("scenario-bank-exam-sequence", "GET", "/scenario-bank/exam-sequence", "control-plane"),
+  route("scenario-bank-dynamic-encounter-factory-planning", "GET", "/scenario-bank/dynamic-encounter-factory/planning", "control-plane", false, {
+    posture: "read_only_review_packet",
+    providerExecutionAllowed: false,
+    runtimeExecutionAllowed: false,
+    learnerLaunchAllowed: false,
+    questEvidenceRefreshAllowed: false,
+  }),
   route("scenario-bank-asset-readiness", "GET", "/scenario-bank/assets/readiness", "control-plane"),
+  route("scenario-bank-environment-generation-queue", "GET", "/scenario-bank/environments/generation-queue", "control-plane"),
+  route("scenario-bank-environment-work-order-queue", "GET", "/scenario-bank/environments/work-orders", "control-plane"),
+  route("scenario-bank-scene-generation-pipeline", "GET", "/scenario-bank/scene-generation/pipeline", "control-plane"),
+  route("list-scenario-scene-generation-requests", "GET", "/scenario-bank/scene-generation/requests", "control-plane"),
+  route("create-scenario-scene-generation-request", "POST", "/scenario-bank/scene-generation/requests", "control-plane"),
+  route("submit-scenario-scene-generation-request-review", "POST", "/scenario-bank/scene-generation/requests/:requestId/runtime-asset-review-decisions", "control-plane"),
+  route("scenario-scene-generation-request-publication-readiness", "GET", "/scenario-bank/scene-generation/requests/:requestId/publication-readiness", "control-plane"),
   route("scenario-asset-readiness", "GET", "/scenarios/ed-chest-pain/assets/readiness", "control-plane"),
   route("scenario-publication-readiness", "POST", "/scenarios/ed-chest-pain/publication-readiness", "control-plane"),
   route("default-exam-blueprint", "GET", "/exam-blueprints/default", "control-plane"),
@@ -51,6 +85,7 @@ export const openClinXrRestRoutes = Object.freeze([
   route("actor-response", "POST", "/sessions/:stationRunId/actor-response", "xr-runtime", true),
   route("voice-synthesis", "POST", "/sessions/:stationRunId/voice-synthesis", "xr-runtime", true),
   route("submit-note", "POST", "/sessions/:stationRunId/note", "xr-runtime", true),
+  route("review-replay-readiness-summary", "GET", "/sessions/:stationRunId/review-replay-readiness", "xr-runtime", true),
   route("review-packet", "GET", "/sessions/:stationRunId/review-packet", "xr-runtime", true),
   route("trace-events", "GET", "/sessions/:stationRunId/trace-events", "xr-runtime", true),
 ] as const);
@@ -69,7 +104,7 @@ export function routeById(routeId: OpenClinXrRestRouteId): Extract<(typeof openC
 }
 
 export function buildSessionRoutePath(routeId: OpenClinXrRestRouteId, stationRunId: string): string {
-  if (!stationRunId) {
+  if (stationRunId.trim().length === 0) {
     throw new Error("stationRunId is required");
   }
 
@@ -105,14 +140,23 @@ function route<const TId extends string, const TMethod extends OpenClinXrRestMet
   path: TPath,
   surface: OpenClinXrRestSurface,
   stationRunScoped = false,
+  contractBoundary?: OpenClinXrRestRoute["contractBoundary"],
 ): Readonly<{
   id: TId;
   method: TMethod;
   path: TPath;
   surface: OpenClinXrRestSurface;
   stationRunScoped: boolean;
+  contractBoundary?: OpenClinXrRestRoute["contractBoundary"];
 }> {
-  return Object.freeze({ id, method, path, surface, stationRunScoped });
+  return Object.freeze({
+    id,
+    method,
+    path,
+    surface,
+    stationRunScoped,
+    ...(contractBoundary ? { contractBoundary } : {}),
+  });
 }
 
 function matchRouteSegments(routePath: string, pathSegments: string[]): OpenClinXrRestRouteMatch["params"] | undefined {
@@ -138,6 +182,10 @@ function matchRouteSegments(routePath: string, pathSegments: string[]): OpenClin
       params.jobId = decodePathSegment(pathSegment ?? "");
       continue;
     }
+    if (routeSegment === ":bundleId") {
+      params.bundleId = decodePathSegment(pathSegment ?? "");
+      continue;
+    }
 
     if (routeSegment !== pathSegment) {
       return undefined;
@@ -148,7 +196,7 @@ function matchRouteSegments(routePath: string, pathSegments: string[]): OpenClin
 }
 
 function splitPath(pathname: string): string[] {
-  return pathname.split("/").filter(Boolean);
+  return pathname.split(/[?#]/, 1)[0]?.split("/").filter(Boolean) ?? [];
 }
 
 function decodePathSegment(value: string): string {

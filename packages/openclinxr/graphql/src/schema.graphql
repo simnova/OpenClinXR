@@ -19,6 +19,8 @@ type Query {
   examForm(examFormId: ID!): ExamForm
   stationRunQueueSnapshots(blueprintId: ID!): [StationRunQueueSnapshot!]!
   reviewPacket(stationRunId: ID!): ReviewPacket
+  clinicalEventReviewSummary(stationRunId: ID!): DurableClinicalEventReviewSummary!
+  reviewReplayReadinessSummary(stationRunId: ID!): ReviewReplayReadinessSummary!
   traceEvents(stationRunId: ID!): [TraceEvent!]!
   assetReadiness(scenarioId: ID!, version: Int!): AssetReadiness!
 }
@@ -50,6 +52,20 @@ type Actor {
   role: String!
   displayName: String!
   demeanor: String
+  communicationProfile: CommunicationProfile
+}
+
+type CommunicationProfile {
+  styleFamily: String!
+  style: String!
+  intensity: Float!
+  baselineMood: [String!]!
+  communicativeness: String!
+  topicsToAvoid: [String!]!
+  adverseResponse: String!
+  deescalationTriggers: [String!]!
+  escalationTriggers: [String!]!
+  culturalLanguageNotes: [String!]!
 }
 
 type ScenarioReviewState {
@@ -106,10 +122,48 @@ type AssetReadiness {
   missingRequiredAssetIds: [ID!]!
   blockedAssets: [AssetBlocker!]!
   productionBlockedAssets: [AssetBlocker!]!
+  productionReadinessLadder: ScenarioAssetProductionReadinessLadder!
 }
 
 type AssetBlocker {
   assetId: ID!
+  blockers: [String!]!
+}
+
+type ScenarioAssetProductionReadinessLadder {
+  scenarioId: ID!
+  productionReady: Boolean!
+  assetCount: Int!
+  productionReadyAssetIds: [ID!]!
+  blockedAssetIds: [ID!]!
+  missingRequiredAssetIds: [ID!]!
+  blockers: [String!]!
+  stationBudget: ScenarioAssetBudget!
+  assetLadders: [AssetProductionReadinessLadder!]!
+}
+
+type ScenarioAssetBudget {
+  maxVisibleTriangles: Int!
+  maxTextureMegabytes: Int!
+  maxDrawCalls: Int!
+  totalTriangles: Int!
+  totalTextureMegabytes: Int!
+  totalDrawCalls: Int!
+  blockers: [String!]!
+}
+
+type AssetProductionReadinessLadder {
+  assetId: ID!
+  scenarioId: ID!
+  productionReady: Boolean!
+  blockers: [String!]!
+  steps: [AssetProductionReadinessStep!]!
+}
+
+type AssetProductionReadinessStep {
+  step: String!
+  status: String!
+  evidenceRefs: [String!]!
   blockers: [String!]!
 }
 
@@ -195,6 +249,34 @@ type ReviewPacket {
   facultyScoreDraft: FacultyScoreDraft!
 }
 
+type DurableClinicalEventReviewSummary {
+  stationRunId: ID
+  eventCount: Int!
+  redactedEventCount: Int!
+  clinicalEventKinds: JSON!
+  traceTags: [String!]!
+  statusCounts: JSON!
+  latestAtSecond: Int
+  durableStore: String
+  safeForFacultyReview: Boolean!
+}
+
+type ReviewReplayReadinessSummary {
+  stationRunId: ID
+  replayEvidenceReady: Boolean!
+  facultyReviewSafe: Boolean!
+  timelineEntryCount: Int!
+  traceEventCount: Int!
+  durableEventCount: Int!
+  redactedDurableEventCount: Int!
+  missingRequiredBehaviorCount: Int!
+  lateBehaviorCount: Int!
+  safetySignalCount: Int!
+  blockers: [String!]!
+  recommendedNextAction: String!
+  replayBoundary: String!
+}
+
 type TraceTimelineEntry {
   sequence: Int!
   atSecond: Int!
@@ -238,7 +320,11 @@ type TraceEvent {
   source: String!
   actorId: ID
   tag: String
-  payload: JSON!
+  """
+  Runtime/debug payload only. Faculty/admin review surfaces should use review-safe
+  summary projections instead of this raw payload field.
+  """
+  payload: JSON! @deprecated(reason: "Use review-safe replay summaries for faculty/admin UI; raw payload is not review-safe.")
 }
 
 input AssembleExamFormInput {

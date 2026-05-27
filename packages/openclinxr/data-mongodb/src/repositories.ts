@@ -1,4 +1,4 @@
-import type { ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
+import { validateReviewPacket, validateScenario, validateTraceEvent, type ReviewPacket, type Scenario, type TraceEvent } from "@openclinxr/shared-schemas";
 import type { ExamForm, ExamStationRunQueue } from "@openclinxr/exam-assembly";
 import type {
   AsyncDurableMultiActorSessionStore,
@@ -9,6 +9,8 @@ import type {
 } from "@openclinxr/session-state";
 import { projectDurableClinicalEventForReview } from "@openclinxr/session-state";
 import type { Collection, Db } from "mongodb";
+import { promoteEncounterRuntimeAssetBundleForLocalUse } from "../../asset-registry/src/runtime-asset-review.js";
+import type { EncounterRuntimeAssetBundle, LearnerRuntimeAssetBundle } from "../../asset-registry/src/runtime-bundles.js";
 
 export type ExamStationRunQueueSnapshot = {
   snapshotId: string;
@@ -72,7 +74,7 @@ export class MongoDurableConversationTurnRepository {
   }
 
   async save(record: DurableConversationTurnRecord): Promise<void> {
-    assertDatabaseSourceOfTruth(record);
+    assertValidConversationTurnForMongo(record);
     const storedRecord = cloneConversationTurnForMongo(record);
     await this.collection.updateOne(
       { stationRunId: storedRecord.stationRunId, turnId: storedRecord.turnId },
@@ -103,7 +105,7 @@ export class MongoDurableClinicalEventRepository {
   }
 
   async save(record: DurableClinicalEventRecord): Promise<void> {
-    assertDatabaseSourceOfTruth(record);
+    assertValidClinicalEventForMongo(record);
     const storedRecord = cloneClinicalEventForMongo(record);
     await this.collection.updateOne(
       { stationRunId: storedRecord.stationRunId, clinicalEventId: storedRecord.clinicalEventId },
@@ -137,7 +139,7 @@ export class MongoDurableEmotionalStateTimelineRepository {
   }
 
   async save(record: DurableEmotionalStateTimelineRecord): Promise<void> {
-    assertDatabaseSourceOfTruth(record);
+    assertValidEmotionalStateTimelineForMongo(record);
     const storedRecord = { ...record };
     await this.collection.updateOne(
       {
@@ -221,9 +223,15 @@ export class MongoScenarioRepository {
   async ensureIndexes(): Promise<void> {
     await this.collection.createIndex({ scenarioId: 1, version: 1 }, { unique: true });
     await this.collection.createIndex({ status: 1 });
+    await this.collection.createIndex({ "governance.sourceIds": 1, status: 1 });
   }
 
   async save(scenario: Scenario): Promise<void> {
+    const validation = validateScenario(scenario);
+    if (!validation.ok) {
+      throw new Error(`Invalid scenario: ${validation.errors.join("; ")}`);
+    }
+
     await this.collection.updateOne(
       { scenarioId: scenario.scenarioId, version: scenario.version },
       { $set: scenario },
@@ -254,7 +262,8 @@ export class MongoTraceRepository {
   }
 
   async append(event: TraceEvent): Promise<void> {
-    await this.collection.insertOne(event);
+    assertValidTraceEvent(event);
+    await this.collection.insertOne(cloneTraceEventForMongo(event));
   }
 
   async upsertMany(events: TraceEvent[]): Promise<void> {
@@ -262,11 +271,12 @@ export class MongoTraceRepository {
       return;
     }
 
+    events.forEach(assertValidTraceEvent);
     await this.collection.bulkWrite(
       events.map((event) => ({
         updateOne: {
           filter: { stationRunId: event.stationRunId, sequence: event.sequence },
-          update: { $set: event },
+          update: { $set: cloneTraceEventForMongo(event) },
           upsert: true,
         },
       })),
@@ -284,6 +294,13 @@ export class MongoTraceRepository {
   }
 }
 
+function assertValidTraceEvent(event: TraceEvent): void {
+  const validation = validateTraceEvent(event);
+  if (!validation.ok) {
+    throw new Error(`Invalid trace event: ${validation.errors.join("; ")}`);
+  }
+}
+
 export class MongoReviewPacketRepository {
   private readonly collection: Collection<ReviewPacket>;
 
@@ -294,9 +311,15 @@ export class MongoReviewPacketRepository {
   async ensureIndexes(): Promise<void> {
     await this.collection.createIndex({ stationRunId: 1 }, { unique: true });
     await this.collection.createIndex({ scenarioId: 1 });
+    await this.collection.createIndex({ "facultyScoreDraft.status": 1, scenarioId: 1 });
   }
 
   async save(packet: ReviewPacket): Promise<void> {
+    const validation = validateReviewPacket(packet);
+    if (!validation.ok) {
+      throw new Error(`Invalid review packet: ${validation.errors.join("; ")}`);
+    }
+
     await this.collection.updateOne(
       { stationRunId: packet.stationRunId },
       { $set: packet },
@@ -322,10 +345,11 @@ export class MongoScenarioReviewDecisionRepository {
 
   async ensureIndexes(): Promise<void> {
     await this.collection.createIndex({ scenarioId: 1, version: 1, reviewerRole: 1, reviewedAt: 1 }, { unique: true });
-    await this.collection.createIndex({ scenarioId: 1, version: 1, reviewedAt: 1 });
+    await this.collection.createIndex({ scenarioId: 1, version: 1, reviewedAt: 1, reviewerRole: 1, reviewerId: 1 });
   }
 
   async save(record: ScenarioReviewDecisionRecord): Promise<void> {
+    assertValidScenarioReviewDecision(record);
     const storedRecord = {
       ...record,
       evidenceRefs: [...record.evidenceRefs],
@@ -343,7 +367,23 @@ export class MongoScenarioReviewDecisionRepository {
   }
 
   async list(): Promise<ScenarioReviewDecisionRecord[]> {
-    return this.collection.find({}, { projection: { _id: 0 } }).sort({ reviewedAt: 1, scenarioId: 1, reviewerRole: 1 }).toArray();
+    return this.collection.find({}, { projection: { _id: 0 } })
+      .sort({ reviewedAt: 1, scenarioId: 1, version: 1, reviewerRole: 1, reviewerId: 1 })
+      .toArray();
+  }
+}
+
+function assertValidScenarioReviewDecision(record: ScenarioReviewDecisionRecord): void {
+  const errors = [
+    ...(record.scenarioId.trim().length === 0 ? ["scenarioId is required"] : []),
+    ...(record.reviewerId.trim().length === 0 ? ["reviewerId is required"] : []),
+    ...(record.evidenceRefs.length === 0 || record.evidenceRefs.some((ref) => ref.trim().length === 0)
+      ? ["nonblank evidenceRefs are required"]
+      : []),
+    ...(record.reviewedAt.trim().length === 0 ? ["reviewedAt is required"] : []),
+  ];
+  if (errors.length > 0) {
+    throw new Error(`Invalid scenario review decision: ${errors.join("; ")}`);
   }
 }
 
@@ -406,6 +446,66 @@ export class MongoStationRunQueueRepository {
   }
 }
 
+export class MongoRuntimeAssetBundleRepository {
+  private readonly collection: Collection<LearnerRuntimeAssetBundle>;
+
+  constructor(db: Db) {
+    this.collection = db.collection<LearnerRuntimeAssetBundle>("learner_runtime_asset_bundles");
+  }
+
+  async ensureIndexes(): Promise<void> {
+    await this.collection.createIndex({ bundleId: 1 }, { unique: true });
+    await this.collection.createIndex({ identityScope: 1, bundleId: 1 });
+  }
+
+  async saveLearnerBundle(bundle: LearnerRuntimeAssetBundle): Promise<void> {
+    assertLearnerSafeRuntimeAssetBundle(bundle);
+    await this.collection.updateOne(
+      { bundleId: bundle.bundleId },
+      { $set: cloneLearnerRuntimeAssetBundleForMongo(bundle) },
+      { upsert: true },
+    );
+  }
+
+  async findLearnerBundleById(bundleId: string): Promise<LearnerRuntimeAssetBundle | null> {
+    return this.collection.findOne({ bundleId }, { projection: { _id: 0 } });
+  }
+
+  async listLearnerBundles(): Promise<LearnerRuntimeAssetBundle[]> {
+    return this.collection.find({}, { projection: { _id: 0 } }).sort({ bundleId: 1 }).toArray();
+  }
+}
+
+export async function saveLearnerRuntimeAssetBundleFromGeneratedReport(
+  repository: MongoRuntimeAssetBundleRepository,
+  reportValue: unknown,
+): Promise<LearnerRuntimeAssetBundle> {
+  if (!isRecord(reportValue)) {
+    throw new Error("generated runtime bundle report must be an object");
+  }
+  if (reportValue.schemaVersion !== "openclinxr.generated-ed-station-runtime-bundle.v1") {
+    throw new Error("generated runtime bundle report schemaVersion is unsupported");
+  }
+  if (reportValue.status !== "bundle_ready") {
+    throw new Error(`generated runtime bundle report is not bundle_ready: ${String(reportValue.status)}`);
+  }
+  if (!isRecord(reportValue.learnerBundle)) {
+    throw new Error("generated runtime bundle report requires learnerBundle");
+  }
+  if (isRecord(reportValue.bundle)) {
+    const promotion = promoteEncounterRuntimeAssetBundleForLocalUse({
+      bundle: reportValue.bundle as EncounterRuntimeAssetBundle,
+      decisions: Array.isArray(reportValue.runtimeAssetReviewDecisions) ? reportValue.runtimeAssetReviewDecisions : [],
+    });
+    if (!promotion.promoted) {
+      throw new Error(`generated runtime bundle report did not pass local runtime promotion: ${promotion.blockers.join(", ")}`);
+    }
+  }
+  const learnerBundle = reportValue.learnerBundle as LearnerRuntimeAssetBundle;
+  await repository.saveLearnerBundle(learnerBundle);
+  return learnerBundle;
+}
+
 export class MongoApiPersistenceSink {
   private readonly examForms: MongoExamFormRepository;
   private readonly stationRunQueueSnapshots: MongoStationRunQueueRepository;
@@ -413,6 +513,7 @@ export class MongoApiPersistenceSink {
   private readonly reviewPackets: MongoReviewPacketRepository;
   private readonly scenarioReviewDecisions: MongoScenarioReviewDecisionRepository;
   private readonly durableMultiActorSessions: MongoDurableMultiActorSessionStore;
+  private readonly runtimeAssetBundles: MongoRuntimeAssetBundleRepository;
 
   constructor(db: Db) {
     this.examForms = new MongoExamFormRepository(db);
@@ -421,6 +522,7 @@ export class MongoApiPersistenceSink {
     this.reviewPackets = new MongoReviewPacketRepository(db);
     this.scenarioReviewDecisions = new MongoScenarioReviewDecisionRepository(db);
     this.durableMultiActorSessions = new MongoDurableMultiActorSessionStore(db);
+    this.runtimeAssetBundles = new MongoRuntimeAssetBundleRepository(db);
   }
 
   async ensureIndexes(): Promise<void> {
@@ -431,6 +533,7 @@ export class MongoApiPersistenceSink {
       this.reviewPackets.ensureIndexes(),
       this.scenarioReviewDecisions.ensureIndexes(),
       this.durableMultiActorSessions.ensureIndexes(),
+      this.runtimeAssetBundles.ensureIndexes(),
     ]);
   }
 
@@ -446,11 +549,19 @@ export class MongoApiPersistenceSink {
     return this.stationRunQueueSnapshots.listByBlueprint(blueprintId);
   }
 
-  async saveTraceEvents(_stationRunId: string, events: TraceEvent[]): Promise<void> {
+  async saveTraceEvents(stationRunId: string, events: TraceEvent[]): Promise<void> {
+    if (events.some((event) => event.stationRunId !== stationRunId)) {
+      throw new Error("Trace event stationRunId must match sink stationRunId");
+    }
+
     await this.traces.upsertMany(events);
   }
 
-  async saveReviewPacket(_stationRunId: string, packet: ReviewPacket): Promise<void> {
+  async saveReviewPacket(stationRunId: string, packet: ReviewPacket): Promise<void> {
+    if (packet.stationRunId !== stationRunId) {
+      throw new Error("Review packet stationRunId must match sink stationRunId");
+    }
+
     await this.reviewPackets.save(packet);
   }
 
@@ -460,6 +571,18 @@ export class MongoApiPersistenceSink {
 
   async listScenarioReviewDecisions(): Promise<ScenarioReviewDecisionRecord[]> {
     return this.scenarioReviewDecisions.list();
+  }
+
+  async saveLearnerRuntimeAssetBundle(bundle: LearnerRuntimeAssetBundle): Promise<void> {
+    await this.runtimeAssetBundles.saveLearnerBundle(bundle);
+  }
+
+  async getLearnerRuntimeAssetBundle(bundleId: string): Promise<LearnerRuntimeAssetBundle | undefined> {
+    return (await this.runtimeAssetBundles.findLearnerBundleById(bundleId)) ?? undefined;
+  }
+
+  async listLearnerRuntimeAssetBundles(): Promise<LearnerRuntimeAssetBundle[]> {
+    return this.runtimeAssetBundles.listLearnerBundles();
   }
 
   async saveConversationTurn(record: DurableConversationTurnRecord): Promise<void> {
@@ -511,9 +634,146 @@ function cloneConversationTurnForMongo(record: DurableConversationTurnRecord): D
   };
 }
 
+function cloneTraceEventForMongo(event: TraceEvent): TraceEvent {
+  return {
+    ...event,
+    payload: cloneJsonRecord(event.payload),
+  };
+}
+
+function cloneLearnerRuntimeAssetBundleForMongo(bundle: LearnerRuntimeAssetBundle): LearnerRuntimeAssetBundle {
+  return JSON.parse(JSON.stringify(bundle)) as LearnerRuntimeAssetBundle;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function assertLearnerSafeRuntimeAssetBundle(bundle: LearnerRuntimeAssetBundle): void {
+  assertNonblankMongoField(bundle.bundleId, "bundleId");
+  if (bundle.identityScope !== "learner_runtime_opaque_bundle") {
+    throw new Error("learner runtime asset bundles must use identityScope learner_runtime_opaque_bundle");
+  }
+  const forbiddenIdentityFields = ["tenantId", "userId", "examRunId", "encounterId"];
+  const leakedIdentityFields = forbiddenIdentityFields.filter((field) => field in (bundle as unknown as Record<string, unknown>));
+  if (leakedIdentityFields.length > 0) {
+    throw new Error(`learner runtime asset bundles must not expose identity fields: ${leakedIdentityFields.join(", ")}`);
+  }
+  if (!Array.isArray(bundle.actors) || bundle.actors.length === 0) {
+    throw new Error("learner runtime asset bundles require actors");
+  }
+}
+
 function assertDatabaseSourceOfTruth(record: { durableStore: string }): void {
   if (record.durableStore !== "database_source_of_truth") {
     throw new Error("durable Mongo records must use durableStore database_source_of_truth");
+  }
+}
+
+function assertValidConversationTurnForMongo(record: DurableConversationTurnRecord): void {
+  assertDatabaseSourceOfTruth(record);
+  assertNonblankMongoField(record.turnId, "turnId");
+  assertNonblankMongoField(record.stationRunId, "stationRunId");
+  assertNonblankMongoField(record.actorId, "actorId");
+  assertNonblankMongoField(record.text, "text");
+  assertNonblankMongoField(record.emotionalState, "emotionalState");
+  assertNonblankMongoField(record.routingReason, "routingReason");
+  if (record.sourceKind !== "text" && record.sourceKind !== "voice_transcript") {
+    throw new Error("durable Mongo conversation turns require a known sourceKind");
+  }
+  if (record.rawAudioStored !== false) {
+    throw new Error("durable Mongo conversation turns must not store raw audio");
+  }
+  assertNonnegativeFiniteMongoSecond(record.atSecond, "conversation turns");
+  assertNonblankMongoStringArray(record.traceContextTags, "traceContextTags");
+  assertNonblankMongoStringArray(record.provenanceRefs, "provenanceRefs");
+}
+
+function assertValidEmotionalStateTimelineForMongo(record: DurableEmotionalStateTimelineRecord): void {
+  assertDatabaseSourceOfTruth(record);
+  assertNonblankMongoField(record.stationRunId, "stationRunId");
+  assertNonblankMongoField(record.actorId, "actorId");
+  assertNonblankMongoField(record.emotionalState, "emotionalState");
+  assertNonblankMongoField(record.sourceTurnId, "sourceTurnId");
+  assertNonnegativeFiniteMongoSecond(record.atSecond, "emotional-state timeline records");
+}
+
+function assertNonblankMongoField(value: string, fieldName: string): void {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new Error(`durable Mongo records require nonblank ${fieldName}`);
+  }
+}
+
+function assertNonblankMongoStringArray(values: string[], fieldName: string): void {
+  if (!Array.isArray(values) || values.some((value) => typeof value !== "string" || value.trim().length === 0)) {
+    throw new Error(`durable Mongo records require ${fieldName} to contain only nonblank strings`);
+  }
+}
+
+function assertNonnegativeFiniteMongoSecond(value: number, recordLabel: string): void {
+  if (!Number.isFinite(value) || value < 0) {
+    throw new Error(`durable Mongo ${recordLabel} require a nonnegative finite atSecond`);
+  }
+}
+
+const durableClinicalEventKinds = new Set<DurableClinicalEventRecord["eventKind"]>([
+  "clinical_action_recorded",
+  "order_status_changed",
+  "finding_recorded",
+  "checklist_item_updated",
+  "rubric_progress_updated",
+  "case_status_changed",
+]);
+
+function assertValidClinicalEventForMongo(record: DurableClinicalEventRecord): void {
+  assertDatabaseSourceOfTruth(record);
+  assertNonblankClinicalEventField(record.clinicalEventId, "clinicalEventId");
+  assertNonblankClinicalEventField(record.stationRunId, "stationRunId");
+  assertNonblankClinicalEventField(record.label, "label");
+  assertNonblankMongoStringArray(record.provenanceRefs, "provenanceRefs");
+  assertClinicalEventProvenanceRefsMatchStationRun(record);
+  if (record.actorId !== undefined) {
+    assertNonblankClinicalEventField(record.actorId, "actorId");
+  }
+  if (record.traceTag !== undefined) {
+    assertNonblankClinicalEventField(record.traceTag, "traceTag");
+  }
+  if (record.status !== undefined) {
+    assertNonblankClinicalEventField(record.status, "status");
+  }
+  if (!durableClinicalEventKinds.has(record.eventKind)) {
+    throw new Error("durable Mongo clinical-event records require a known eventKind");
+  }
+  if (!Number.isFinite(record.atSecond) || record.atSecond < 0) {
+    throw new Error("durable Mongo clinical-event records require a nonnegative finite atSecond");
+  }
+}
+
+function assertNonblankClinicalEventField(value: string, fieldName: string): void {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new Error(`durable Mongo clinical-event records require nonblank ${fieldName}`);
+  }
+}
+
+function assertClinicalEventProvenanceRefsMatchStationRun(record: DurableClinicalEventRecord): void {
+  const malformedTraceRef = record.provenanceRefs.find((ref) => {
+    if (!ref.startsWith("trace:")) {
+      return false;
+    }
+    const [, stationRunId, sequenceOrTimestamp] = ref.split(":");
+    return !stationRunId || stationRunId.trim().length === 0 || !sequenceOrTimestamp || sequenceOrTimestamp.trim().length === 0;
+  });
+  if (malformedTraceRef) {
+    throw new Error(`durable Mongo clinical-event provenanceRefs trace ref ${malformedTraceRef} must include stationRunId and sequence`);
+  }
+  const mismatchedTraceRef = record.provenanceRefs.find((ref) => {
+    const [scheme, stationRunId] = ref.split(":");
+    return scheme === "trace" && stationRunId !== record.stationRunId;
+  });
+  if (mismatchedTraceRef) {
+    throw new Error(
+      `durable Mongo clinical-event provenanceRefs trace ref ${mismatchedTraceRef} must match stationRunId ${record.stationRunId}`,
+    );
   }
 }
 
@@ -524,15 +784,21 @@ function cloneClinicalEventForMongo(record: DurableClinicalEventRecord): Durable
       public: cloneJsonRecord(record.payload.public),
       ...(record.payload.private
         ? {
-          private: {
-            ...record.payload.private,
-            hiddenFactRefs: [...(record.payload.private.hiddenFactRefs ?? [])],
-            serverOnlyNotes: [...(record.payload.private.serverOnlyNotes ?? [])],
-          },
+          private: cloneClinicalEventPrivatePayload(record.payload.private),
         }
         : {}),
     },
     provenanceRefs: [...record.provenanceRefs],
+  };
+}
+
+function cloneClinicalEventPrivatePayload(
+  payload: NonNullable<DurableClinicalEventRecord["payload"]["private"]>,
+): NonNullable<DurableClinicalEventRecord["payload"]["private"]> {
+  return {
+    ...(cloneJsonRecord(payload) as NonNullable<DurableClinicalEventRecord["payload"]["private"]>),
+    hiddenFactRefs: [...(payload.hiddenFactRefs ?? [])],
+    serverOnlyNotes: [...(payload.serverOnlyNotes ?? [])],
   };
 }
 

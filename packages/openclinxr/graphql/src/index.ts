@@ -8,17 +8,21 @@ import type {
   MutationSaveFacultyScoreDraftArgs,
   MutationSubmitScenarioReviewArgs,
   QueryAssetReadinessArgs,
+  QueryClinicalEventReviewSummaryArgs,
   QueryReviewPacketArgs,
+  QueryReviewReplayReadinessSummaryArgs,
   QueryScenarioArgs,
   QueryScenarioReviewDecisionsArgs,
   QueryScenariosArgs,
   QueryStationRunQueueSnapshotsArgs,
   QueryTraceEventsArgs,
   ReviewPacket,
+  ReviewReplayReadinessSummary,
   Scenario,
   ScenarioReviewDecisionRecord,
   StationRunQueueSnapshot,
   TraceEvent,
+  DurableClinicalEventReviewSummary,
 } from "./generated/resolvers.generated.js";
 export {
   ReviewDecision as AdminGraphqlReviewDecision,
@@ -65,6 +69,12 @@ export type AdminGraphqlRootValue = {
   reviewPacket?: (
     args: QueryReviewPacketArgs,
   ) => Promise<ReviewPacket | null | undefined> | ReviewPacket | null | undefined;
+  clinicalEventReviewSummary?: (
+    args: QueryClinicalEventReviewSummaryArgs,
+  ) => Promise<DurableClinicalEventReviewSummary> | DurableClinicalEventReviewSummary;
+  reviewReplayReadinessSummary?: (
+    args: QueryReviewReplayReadinessSummaryArgs,
+  ) => Promise<ReviewReplayReadinessSummary> | ReviewReplayReadinessSummary;
   traceEvents?: (
     args: QueryTraceEventsArgs,
   ) => Promise<TraceEvent[]> | TraceEvent[];

@@ -7,13 +7,27 @@ describe("OpenClinXR REST route contract", () => {
       "health",
       "providers-health",
       "runtime-protocols",
+      "runtime-provider-readiness",
+      "runtime-selection-review-packet",
+      "learner-runtime-asset-bundle-list",
+      "learner-runtime-asset-bundle",
       "realtime-voice-posture",
       "admin-graphql-schema",
       "admin-graphql-codegen-plan",
       "admin-graphql-documents",
       "admin-graphql-execute",
       "learner-scenario",
+      "scenario-bank-maturity",
+      "scenario-bank-exam-sequence",
+      "scenario-bank-dynamic-encounter-factory-planning",
       "scenario-bank-asset-readiness",
+      "scenario-bank-environment-generation-queue",
+      "scenario-bank-environment-work-order-queue",
+      "scenario-bank-scene-generation-pipeline",
+      "list-scenario-scene-generation-requests",
+      "create-scenario-scene-generation-request",
+      "submit-scenario-scene-generation-request-review",
+      "scenario-scene-generation-request-publication-readiness",
       "scenario-asset-readiness",
       "scenario-publication-readiness",
       "default-exam-blueprint",
@@ -35,6 +49,7 @@ describe("OpenClinXR REST route contract", () => {
       "actor-response",
       "voice-synthesis",
       "submit-note",
+      "review-replay-readiness-summary",
       "review-packet",
       "trace-events",
     ]);
@@ -60,10 +75,96 @@ describe("OpenClinXR REST route contract", () => {
       path: "/scenario-bank/assets/readiness",
       surface: "control-plane",
     });
+    expect(routeById("scenario-bank-maturity")).toMatchObject({
+      method: "GET",
+      path: "/scenario-bank/maturity",
+      surface: "control-plane",
+    });
+    expect(routeById("scenario-bank-exam-sequence")).toMatchObject({
+      method: "GET",
+      path: "/scenario-bank/exam-sequence",
+      surface: "control-plane",
+    });
+    expect(routeById("scenario-bank-dynamic-encounter-factory-planning")).toMatchObject({
+      method: "GET",
+      path: "/scenario-bank/dynamic-encounter-factory/planning",
+      surface: "control-plane",
+      stationRunScoped: false,
+      contractBoundary: {
+        posture: "read_only_review_packet",
+        providerExecutionAllowed: false,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+      },
+    });
+    expect(routeById("scenario-bank-environment-generation-queue")).toMatchObject({
+      method: "GET",
+      path: "/scenario-bank/environments/generation-queue",
+      surface: "control-plane",
+    });
+    expect(routeById("scenario-bank-environment-work-order-queue")).toMatchObject({
+      method: "GET",
+      path: "/scenario-bank/environments/work-orders",
+      surface: "control-plane",
+    });
+    expect(routeById("scenario-bank-scene-generation-pipeline")).toMatchObject({
+      method: "GET",
+      path: "/scenario-bank/scene-generation/pipeline",
+      surface: "control-plane",
+    });
+    expect(routeById("list-scenario-scene-generation-requests")).toMatchObject({
+      method: "GET",
+      path: "/scenario-bank/scene-generation/requests",
+      surface: "control-plane",
+    });
+    expect(routeById("create-scenario-scene-generation-request")).toMatchObject({
+      method: "POST",
+      path: "/scenario-bank/scene-generation/requests",
+      surface: "control-plane",
+    });
+    expect(routeById("submit-scenario-scene-generation-request-review")).toMatchObject({
+      method: "POST",
+      path: "/scenario-bank/scene-generation/requests/:requestId/runtime-asset-review-decisions",
+      surface: "control-plane",
+    });
+    expect(routeById("scenario-scene-generation-request-publication-readiness")).toMatchObject({
+      method: "GET",
+      path: "/scenario-bank/scene-generation/requests/:requestId/publication-readiness",
+      surface: "control-plane",
+    });
     expect(routeById("runtime-protocols")).toMatchObject({
       method: "GET",
       path: "/runtime/protocols",
       surface: "control-plane",
+    });
+    expect(routeById("runtime-provider-readiness")).toMatchObject({
+      method: "GET",
+      path: "/runtime/provider-readiness",
+      surface: "control-plane",
+    });
+    expect(routeById("runtime-selection-review-packet")).toMatchObject({
+      method: "GET",
+      path: "/runtime/selection-review-packet",
+      surface: "control-plane",
+      stationRunScoped: false,
+      contractBoundary: {
+        posture: "read_only_review_packet",
+        providerExecutionAllowed: false,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+      },
+    });
+    expect(routeById("learner-runtime-asset-bundle")).toMatchObject({
+      method: "GET",
+      path: "/runtime/asset-bundles/:bundleId",
+      surface: "xr-runtime",
+    });
+    expect(routeById("learner-runtime-asset-bundle-list")).toMatchObject({
+      method: "GET",
+      path: "/runtime/asset-bundles",
+      surface: "xr-runtime",
     });
     expect(routeById("realtime-voice-posture")).toMatchObject({
       method: "GET",
@@ -122,11 +223,15 @@ describe("OpenClinXR REST route contract", () => {
       "/sessions/run%201%2F2/clinical-actions",
     );
     expect(buildSessionRoutePath("trace-events", "run_001")).toBe("/sessions/run_001/trace-events");
+    expect(buildSessionRoutePath("review-replay-readiness-summary", "run_001")).toBe(
+      "/sessions/run_001/review-replay-readiness",
+    );
   });
 
   it("rejects route ids that are not station-run scoped", () => {
     expect(() => buildSessionRoutePath("health", "run_001")).toThrow("Route health is not station-run scoped");
     expect(() => buildSessionRoutePath("actor-response", "")).toThrow("stationRunId is required");
+    expect(() => buildSessionRoutePath("actor-response", "   ")).toThrow("stationRunId is required");
   });
 
   it("matches concrete request paths to stable route ids and decoded params", () => {
@@ -151,6 +256,37 @@ describe("OpenClinXR REST route contract", () => {
       route: { id: "read-internal-capability-job" },
       params: { capabilityId: "asset-bake", jobId: "job/1" },
     });
+    expect(matchOpenClinXrRestRoute("GET", "/sessions/run_001/trace-events?limit=10#latest")).toMatchObject({
+      route: { id: "trace-events" },
+      params: { stationRunId: "run_001" },
+    });
+    expect(matchOpenClinXrRestRoute("GET", "/sessions/run_001/review-replay-readiness")).toMatchObject({
+      route: { id: "review-replay-readiness-summary" },
+      params: { stationRunId: "run_001" },
+    });
+    expect(matchOpenClinXrRestRoute("GET", "/scenario-bank/maturity")?.route.id).toBe("scenario-bank-maturity");
+    expect(matchOpenClinXrRestRoute("GET", "/scenario-bank/exam-sequence")?.route.id).toBe(
+      "scenario-bank-exam-sequence",
+    );
+    expect(matchOpenClinXrRestRoute("GET", "/scenario-bank/dynamic-encounter-factory/planning")?.route.id).toBe(
+      "scenario-bank-dynamic-encounter-factory-planning",
+    );
+    expect(matchOpenClinXrRestRoute("GET", "/scenario-bank/environments/generation-queue")?.route.id).toBe(
+      "scenario-bank-environment-generation-queue",
+    );
+    expect(matchOpenClinXrRestRoute("GET", "/scenario-bank/environments/work-orders")?.route.id).toBe(
+      "scenario-bank-environment-work-order-queue",
+    );
+    expect(matchOpenClinXrRestRoute("GET", "/runtime/asset-bundles/local%2Fbundle%231")).toMatchObject({
+      route: { id: "learner-runtime-asset-bundle" },
+      params: { bundleId: "local/bundle#1" },
+    });
+    expect(matchOpenClinXrRestRoute("GET", "/runtime/asset-bundles")?.route.id).toBe(
+      "learner-runtime-asset-bundle-list",
+    );
+    expect(matchOpenClinXrRestRoute("GET", "/runtime/selection-review-packet")?.route.id).toBe(
+      "runtime-selection-review-packet",
+    );
     expect(matchOpenClinXrRestRoute("GET", "/sessions/run_001/actor-response")).toBeUndefined();
     expect(matchOpenClinXrRestRoute("GET", "/unknown")).toBeUndefined();
   });

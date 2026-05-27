@@ -2,6 +2,7 @@ import { createApiApp } from "@openclinxr/api";
 import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
 import type { AsyncDurableMultiActorSessionStore } from "@openclinxr/session-state";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "../../asset-registry/src/runtime-bundles.js";
 import { createMongoApiPersistenceSink } from "./index.js";
 import { createMongoMemoryTestContext, type MongoMemoryTestContext } from "./mongo-memory-context.js";
 
@@ -130,6 +131,43 @@ describe("Mongo-backed API persistence sink", () => {
       }),
     ]);
     expect(JSON.stringify(restartedDecisions)).not.toContain("hiddenFacts");
+  });
+
+  it("serves a persisted learner runtime asset bundle after API app recreation", async () => {
+    const bundle = {
+      ...createEdChestPainLocalLearnerRuntimeAssetBundle(),
+      bundleId: "restart_persisted_ed_chest_pain_runtime_bundle",
+    };
+    const sink = createMongoApiPersistenceSink(context.db);
+    await sink.ensureIndexes();
+    await sink.saveLearnerRuntimeAssetBundle(bundle);
+
+    const restartedSink = createMongoApiPersistenceSink(context.db);
+    await restartedSink.ensureIndexes();
+    const restartedApp = createApiApp(undefined, restartedSink);
+    const response = await restartedApp.request("/runtime/asset-bundles/restart_persisted_ed_chest_pain_runtime_bundle");
+    const body = await json(response) as {
+      bundleId: string;
+      identityScope: string;
+      retrievalMode: string;
+      productionCloudCall: boolean;
+      tenantId?: string;
+      userId?: string;
+      examRunId?: string;
+      encounterId?: string;
+    };
+
+    expect(response.status).toBe(200);
+    expect(body).toMatchObject({
+      bundleId: "restart_persisted_ed_chest_pain_runtime_bundle",
+      identityScope: "learner_runtime_opaque_bundle",
+      retrievalMode: "persistence_sink",
+      productionCloudCall: false,
+    });
+    expect(body.tenantId).toBeUndefined();
+    expect(body.userId).toBeUndefined();
+    expect(body.examRunId).toBeUndefined();
+    expect(body.encounterId).toBeUndefined();
   });
 
   it("replays durable multi-actor records after persistence sink recreation without API route wiring", async () => {

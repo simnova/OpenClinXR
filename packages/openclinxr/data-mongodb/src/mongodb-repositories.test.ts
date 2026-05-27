@@ -13,6 +13,7 @@ import {
 } from "@openclinxr/exam-assembly";
 import type { Document } from "mongodb";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { createEdChestPainLocalEncounterRuntimeAssetBundle, createEdChestPainLocalLearnerRuntimeAssetBundle, toLearnerRuntimeAssetBundle, type EncounterRuntimeAsset, type EncounterRuntimeAssetBundle } from "../../asset-registry/src/runtime-bundles.js";
 import {
   MongoExamFormRepository,
   createMongoApiPersistenceSink,
@@ -21,6 +22,8 @@ import {
   MongoStationRunQueueRepository,
   MongoTraceRepository,
   MongoReviewPacketRepository,
+  MongoRuntimeAssetBundleRepository,
+  saveLearnerRuntimeAssetBundleFromGeneratedReport,
   MongoDurableConversationTurnRepository,
   MongoDurableClinicalEventRepository,
   MongoDurableEmotionalStateTimelineRepository,
@@ -217,6 +220,79 @@ const clinicalEventFinding: DurableClinicalEventRecord = {
   durableStore: "database_source_of_truth",
 };
 
+function clinicalEventForStationRun(
+  record: DurableClinicalEventRecord,
+  stationRunId: string,
+  overrides: Partial<DurableClinicalEventRecord> = {},
+): DurableClinicalEventRecord {
+  const next = { ...record, ...overrides, stationRunId };
+  return {
+    ...next,
+    provenanceRefs: next.provenanceRefs.map((ref) =>
+      ref.startsWith("trace:")
+        ? `trace:${stationRunId}:${next.atSecond}`
+        : ref
+    ),
+  };
+}
+
+it("rejects durable clinical events with blank identity fields before Mongo upsert", async () => {
+  const context = await createMongoMemoryTestContext();
+  try {
+    const repository = new MongoDurableClinicalEventRepository(context.db);
+    await repository.ensureIndexes();
+
+    await expect(repository.save({ ...clinicalEventOrderRequested, clinicalEventId: " " }))
+      .rejects.toThrow("durable Mongo clinical-event records require nonblank clinicalEventId");
+    await expect(repository.save({ ...clinicalEventOrderRequested, stationRunId: " " }))
+      .rejects.toThrow("durable Mongo clinical-event records require nonblank stationRunId");
+    await expect(repository.save({ ...clinicalEventOrderRequested, label: " " }))
+      .rejects.toThrow("durable Mongo clinical-event records require nonblank label");
+    await expect(repository.save({ ...clinicalEventOrderRequested, atSecond: Number.NaN }))
+      .rejects.toThrow("durable Mongo clinical-event records require a nonnegative finite atSecond");
+    await expect(repository.save({ ...clinicalEventOrderRequested, traceTag: " " }))
+      .rejects.toThrow("durable Mongo clinical-event records require nonblank traceTag");
+    await expect(repository.listByStationRunId(clinicalEventOrderRequested.stationRunId)).resolves.toEqual([]);
+  } finally {
+    await context.close();
+  }
+});
+
+it("rejects durable actor-turn and emotional-state timeline records with blank identity fields before Mongo upsert", async () => {
+  const context = await createMongoMemoryTestContext();
+  try {
+    const turns = new MongoDurableConversationTurnRepository(context.db);
+    const emotionalStates = new MongoDurableEmotionalStateTimelineRepository(context.db);
+    await Promise.all([turns.ensureIndexes(), emotionalStates.ensureIndexes()]);
+
+    await expect(turns.save({ ...spouseConversationTurn, turnId: " " }))
+      .rejects.toThrow("durable Mongo records require nonblank turnId");
+    await expect(turns.save({ ...spouseConversationTurn, stationRunId: " " }))
+      .rejects.toThrow("durable Mongo records require nonblank stationRunId");
+    await expect(turns.save({ ...spouseConversationTurn, actorId: " " }))
+      .rejects.toThrow("durable Mongo records require nonblank actorId");
+    await expect(turns.save({ ...spouseConversationTurn, text: " " }))
+      .rejects.toThrow("durable Mongo records require nonblank text");
+    await expect(turns.save({ ...spouseConversationTurn, atSecond: Number.POSITIVE_INFINITY }))
+      .rejects.toThrow("durable Mongo conversation turns require a nonnegative finite atSecond");
+    await expect(turns.save({ ...spouseConversationTurn, traceContextTags: ["history_onset", " "] }))
+      .rejects.toThrow("durable Mongo records require traceContextTags to contain only nonblank strings");
+    await expect(turns.listByStationRunId(spouseConversationTurn.stationRunId)).resolves.toEqual([]);
+
+    await expect(emotionalStates.save({ ...spouseEmotionalState, actorId: " " }))
+      .rejects.toThrow("durable Mongo records require nonblank actorId");
+    await expect(emotionalStates.save({ ...spouseEmotionalState, sourceTurnId: " " }))
+      .rejects.toThrow("durable Mongo records require nonblank sourceTurnId");
+    await expect(emotionalStates.save({ ...spouseEmotionalState, atSecond: Number.NaN }))
+      .rejects.toThrow("durable Mongo emotional-state timeline records require a nonnegative finite atSecond");
+    await expect(
+      emotionalStates.listByStationRunIdAndActorId(spouseEmotionalState.stationRunId, spouseEmotionalState.actorId),
+    ).resolves.toEqual([]);
+  } finally {
+    await context.close();
+  }
+});
+
 function planUsesIndex(plan: Document, indexName: string): boolean {
   return visitPlan(plan, (node) => node.indexName === indexName);
 }
@@ -295,17 +371,46 @@ describe("MongoDB memory repositories", () => {
       status: "approved",
     });
 
+    await expect(context.db.collection("scenarios").indexes()).resolves.toContainEqual(
+      expect.objectContaining({
+        key: { "governance.sourceIds": 1, status: 1 },
+      }),
+    );
     await expect(repository.approved()).resolves.toHaveLength(1);
+  });
+
+  it("rejects invalid scenarios before Mongo upsert", async () => {
+    const repository = new MongoScenarioRepository(context.db);
+    await repository.ensureIndexes();
+
+    await expect(repository.save({
+      ...scenario,
+      scenarioId: "invalid_review_gate_scenario",
+      review: { ...scenario.review, legal: "draft" },
+    })).rejects.toThrow("Invalid scenario");
+    await expect(repository.findByIdAndVersion("invalid_review_gate_scenario", scenario.version)).resolves.toBeNull();
   });
 
   it("enforces trace sequence uniqueness and replays in order", async () => {
     const repository = new MongoTraceRepository(context.db);
     await repository.ensureIndexes();
-    await repository.append(trace(0, "station_started"));
+    const stationStarted = trace(0, "station_started");
+    await repository.append(stationStarted);
     await repository.append(trace(1, "ecg_request"));
 
+    expect("_id" in stationStarted).toBe(false);
     await expect(repository.append(trace(1, "duplicate_sequence"))).rejects.toThrow();
     await expect(repository.replay("run_001")).resolves.toEqual([expect.objectContaining({ sequence: 0 }), expect.objectContaining({ sequence: 1 })]);
+  });
+
+  it("rejects invalid trace events before Mongo insert or replay upsert", async () => {
+    const repository = new MongoTraceRepository(context.db);
+    await repository.ensureIndexes();
+    const invalidTrace = { ...trace(0, "invalid_trace_identity", "run_invalid_trace"), source: " " };
+
+    await expect(repository.append(invalidTrace)).rejects.toThrow("Invalid trace event");
+    await expect(repository.upsertMany([invalidTrace])).rejects.toThrow("Invalid trace event");
+    await expect(repository.replay("run_invalid_trace")).resolves.toEqual([]);
   });
 
   it("upserts replay snapshots idempotently and reports the latest sequence", async () => {
@@ -341,7 +446,27 @@ describe("MongoDB memory repositories", () => {
       },
     });
 
+    await expect(context.db.collection("review_packets").indexes()).resolves.toContainEqual(
+      expect.objectContaining({
+        key: { "facultyScoreDraft.status": 1, scenarioId: 1 },
+      }),
+    );
     await expect(repository.listByScenario("ed_chest_pain_priority_v1")).resolves.toHaveLength(1);
+  });
+
+  it("rejects invalid review packets before Mongo upsert", async () => {
+    const repository = new MongoReviewPacketRepository(context.db);
+    await repository.ensureIndexes();
+
+    await expect(repository.save({
+      ...reviewPacket,
+      stationRunId: "run_invalid_review_packet",
+      traceQuality: {
+        ...reviewPacket.traceQuality,
+        eventCount: reviewPacket.timeline.length + 1,
+      },
+    })).rejects.toThrow("Invalid review packet");
+    await expect(repository.findByStationRunId("run_invalid_review_packet")).resolves.toBeNull();
   });
 
   it("stores scenario review decisions in replay order for API startup reconstruction", async () => {
@@ -355,6 +480,24 @@ describe("MongoDB memory repositories", () => {
       reviewedAt: "2026-05-04T11:00:00.000Z",
     });
     await repository.save(scenarioReviewDecision);
+    const tiedReviewedAt = "2026-05-04T12:00:00.000Z";
+    await repository.save({
+      ...scenarioReviewDecision,
+      version: 2,
+      reviewerId: "clinical_002",
+      reviewedAt: tiedReviewedAt,
+    });
+    await repository.save({
+      ...scenarioReviewDecision,
+      reviewerRole: "legal",
+      reviewerId: "legal_001",
+      reviewedAt: tiedReviewedAt,
+    });
+    await repository.save({
+      ...scenarioReviewDecision,
+      reviewerId: "clinical_001",
+      reviewedAt: tiedReviewedAt,
+    });
 
     await expect(repository.list()).resolves.toEqual([
       expect.objectContaining({
@@ -366,7 +509,38 @@ describe("MongoDB memory repositories", () => {
         reviewerRole: "legal",
         reviewerId: "legal_001",
       }),
+      expect.objectContaining({
+        version: 1,
+        reviewerRole: "clinical",
+        reviewerId: "clinical_001",
+      }),
+      expect.objectContaining({
+        version: 1,
+        reviewerRole: "legal",
+        reviewerId: "legal_001",
+      }),
+      expect.objectContaining({
+        version: 2,
+        reviewerRole: "clinical",
+        reviewerId: "clinical_002",
+      }),
     ]);
+  });
+
+  it("rejects invalid scenario review decisions before Mongo upsert", async () => {
+    const repository = new MongoScenarioReviewDecisionRepository(context.db);
+    await repository.ensureIndexes();
+
+    await expect(repository.save({
+      ...scenarioReviewDecision,
+      scenarioId: "invalid_review_decision_scenario",
+      reviewerId: " ",
+    })).rejects.toThrow("Invalid scenario review decision");
+    await expect(repository.list()).resolves.not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ scenarioId: "invalid_review_decision_scenario" }),
+      ]),
+    );
   });
 
   it("stores exam forms with locked scenario versions for drift review", async () => {
@@ -412,12 +586,12 @@ describe("MongoDB memory repositories", () => {
       queue: {
         blueprintId: "blueprint_openclinxr_step2cs_style_seed_v1",
         canStartLearnerExam: false,
-        summary: {
-          activationReady: 1,
-          draftBlocked: 11,
-          governanceBlocked: 0,
-          missingScenario: 0,
-        },
+          summary: {
+            activationReady: 0,
+            draftBlocked: 11,
+            governanceBlocked: 1,
+            missingScenario: 0,
+          },
         stationQueue: expect.arrayContaining([
           expect.objectContaining({
             stationOrder: 9,
@@ -450,7 +624,11 @@ describe("MongoDB memory repositories", () => {
     await sink.saveExamForm(form);
     await sink.saveTraceEvents("run_sink", [trace(0, "station_started", "run_sink"), trace(1, "ecg_request", "run_sink")]);
     await sink.saveTraceEvents("run_sink", [trace(0, "station_started", "run_sink"), trace(1, "ecg_request", "run_sink"), trace(2, "team_communication", "run_sink")]);
-    await sink.saveReviewPacket("run_sink", { ...reviewPacket, stationRunId: "run_sink" });
+    await sink.saveReviewPacket("run_sink", {
+      ...reviewPacket,
+      stationRunId: "run_sink",
+      patientNote: { ...reviewPacket.patientNote!, stationRunId: "run_sink" },
+    });
     await sink.saveScenarioReviewDecision(scenarioReviewDecision);
     await sink.saveStationRunQueueSnapshot({
       snapshotId: "queue_snapshot_sink_001",
@@ -476,7 +654,7 @@ describe("MongoDB memory repositories", () => {
     await expect(new MongoStationRunQueueRepository(context.db).findById("queue_snapshot_sink_001")).resolves.toMatchObject({
       snapshotId: "queue_snapshot_sink_001",
       queue: {
-        summary: { activationReady: 1, draftBlocked: 11 },
+        summary: { activationReady: 0, draftBlocked: 11 },
       },
     });
     await expect(sink.listStationRunQueueSnapshots("blueprint_openclinxr_step2cs_style_seed_v1")).resolves.toEqual(
@@ -490,6 +668,139 @@ describe("MongoDB memory repositories", () => {
         }),
       ]),
     );
+  });
+
+  it("persists learner-safe runtime asset bundles through repository and API sink", async () => {
+    const bundle = {
+      ...createEdChestPainLocalLearnerRuntimeAssetBundle(),
+      bundleId: "mongo_ed_chest_pain_runtime_bundle_001",
+    };
+    const repository = new MongoRuntimeAssetBundleRepository(context.db);
+    await repository.ensureIndexes();
+    await repository.saveLearnerBundle(bundle);
+
+    await expect(repository.findLearnerBundleById(bundle.bundleId)).resolves.toMatchObject({
+      bundleId: "mongo_ed_chest_pain_runtime_bundle_001",
+      identityScope: "learner_runtime_opaque_bundle",
+    });
+
+    const sink = createMongoApiPersistenceSink(context.db);
+    await sink.ensureIndexes();
+    await sink.saveLearnerRuntimeAssetBundle({
+      ...bundle,
+      bundleId: "mongo_ed_chest_pain_runtime_bundle_002",
+    });
+
+    await expect(sink.getLearnerRuntimeAssetBundle("mongo_ed_chest_pain_runtime_bundle_002")).resolves.toMatchObject({
+      bundleId: "mongo_ed_chest_pain_runtime_bundle_002",
+      identityScope: "learner_runtime_opaque_bundle",
+    });
+    await expect(sink.listLearnerRuntimeAssetBundles()).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ bundleId: "mongo_ed_chest_pain_runtime_bundle_001" }),
+        expect.objectContaining({ bundleId: "mongo_ed_chest_pain_runtime_bundle_002" }),
+      ]),
+    );
+  });
+
+  it("rejects learner runtime asset bundles that expose identity fields", async () => {
+    const repository = new MongoRuntimeAssetBundleRepository(context.db);
+    await repository.ensureIndexes();
+    const unsafeBundle = {
+      ...createEdChestPainLocalLearnerRuntimeAssetBundle(),
+      bundleId: "unsafe_runtime_bundle_identity_leak",
+      tenantId: "tenant_001",
+    };
+
+    await expect(repository.saveLearnerBundle(unsafeBundle)).rejects.toThrow("must not expose identity fields");
+  });
+
+  it("publishes the learner-safe bundle from a generated station report", async () => {
+    const bundle = {
+      ...createEdChestPainLocalLearnerRuntimeAssetBundle(),
+      bundleId: "generated_report_learner_runtime_bundle_001",
+    };
+    const repository = new MongoRuntimeAssetBundleRepository(context.db);
+    await repository.ensureIndexes();
+
+    await expect(saveLearnerRuntimeAssetBundleFromGeneratedReport(repository, {
+      schemaVersion: "openclinxr.generated-ed-station-runtime-bundle.v1",
+      status: "bundle_ready",
+      learnerBundle: bundle,
+    })).resolves.toMatchObject({
+      bundleId: "generated_report_learner_runtime_bundle_001",
+      identityScope: "learner_runtime_opaque_bundle",
+    });
+    await expect(repository.findLearnerBundleById("generated_report_learner_runtime_bundle_001")).resolves.toMatchObject({
+      bundleId: "generated_report_learner_runtime_bundle_001",
+    });
+  });
+
+  it("does not publish blocked generated station reports", async () => {
+    const repository = new MongoRuntimeAssetBundleRepository(context.db);
+    await repository.ensureIndexes();
+
+    await expect(saveLearnerRuntimeAssetBundleFromGeneratedReport(repository, {
+      schemaVersion: "openclinxr.generated-ed-station-runtime-bundle.v1",
+      status: "blocked",
+      learnerBundle: createEdChestPainLocalLearnerRuntimeAssetBundle(),
+    })).rejects.toThrow("not bundle_ready");
+  });
+
+  it("does not publish full generated station reports before local runtime asset promotion passes", async () => {
+    const repository = new MongoRuntimeAssetBundleRepository(context.db);
+    await repository.ensureIndexes();
+
+    await expect(saveLearnerRuntimeAssetBundleFromGeneratedReport(repository, {
+      schemaVersion: "openclinxr.generated-ed-station-runtime-bundle.v1",
+      status: "bundle_ready",
+      bundle: createEdChestPainLocalEncounterRuntimeAssetBundle(),
+      learnerBundle: createEdChestPainLocalLearnerRuntimeAssetBundle(),
+      runtimeAssetReviewDecisions: [],
+    })).rejects.toThrow("did not pass local runtime promotion");
+  });
+
+  it("publishes full generated station reports after local runtime asset promotion passes", async () => {
+    const repository = new MongoRuntimeAssetBundleRepository(context.db);
+    await repository.ensureIndexes();
+    const bundle = localRuntimeReviewApprovedBundle();
+    const learnerBundle = toLearnerRuntimeAssetBundle(bundle);
+
+    await expect(saveLearnerRuntimeAssetBundleFromGeneratedReport(repository, {
+      schemaVersion: "openclinxr.generated-ed-station-runtime-bundle.v1",
+      status: "bundle_ready",
+      bundle,
+      learnerBundle,
+      runtimeAssetReviewDecisions: runtimeAssetReviewDecisionsForBundle(bundle),
+    })).resolves.toMatchObject({
+      bundleId: learnerBundle.bundleId,
+      identityScope: "learner_runtime_opaque_bundle",
+    });
+    await expect(repository.findLearnerBundleById(learnerBundle.bundleId)).resolves.toMatchObject({
+      bundleId: learnerBundle.bundleId,
+      identityScope: "learner_runtime_opaque_bundle",
+    });
+  });
+
+  it("rejects API sink review packets whose path station run does not match the packet", async () => {
+    const sink = createMongoApiPersistenceSink(context.db);
+    await sink.ensureIndexes();
+
+    await expect(sink.saveReviewPacket("run_sink_path", {
+      ...reviewPacket,
+      stationRunId: "run_sink_packet",
+      patientNote: { ...reviewPacket.patientNote!, stationRunId: "run_sink_packet" },
+    })).rejects.toThrow("Review packet stationRunId must match sink stationRunId");
+    await expect(new MongoReviewPacketRepository(context.db).findByStationRunId("run_sink_packet")).resolves.toBeNull();
+  });
+
+  it("rejects API sink trace events whose station run does not match the path", async () => {
+    const sink = createMongoApiPersistenceSink(context.db);
+    await sink.ensureIndexes();
+
+    await expect(sink.saveTraceEvents("run_trace_path", [trace(0, "station_started", "run_trace_packet")]))
+      .rejects.toThrow("Trace event stationRunId must match sink stationRunId");
+    await expect(new MongoTraceRepository(context.db).replay("run_trace_packet")).resolves.toEqual([]);
   });
 
   it("exposes durable multi-actor session methods through the Mongo API persistence sink without runtime wiring", async () => {
@@ -506,8 +817,7 @@ describe("MongoDB memory repositories", () => {
       stationRunId,
     });
     await sink.saveClinicalEvent({
-      ...clinicalEventOrderRequested,
-      stationRunId,
+      ...clinicalEventForStationRun(clinicalEventOrderRequested, stationRunId),
     });
 
     await expect(sink.listConversationTurns(stationRunId)).resolves.toEqual([
@@ -524,8 +834,7 @@ describe("MongoDB memory repositories", () => {
     ]);
     await expect(sink.listClinicalEvents(stationRunId)).resolves.toEqual([
       {
-        ...clinicalEventOrderRequested,
-        stationRunId,
+        ...clinicalEventForStationRun(clinicalEventOrderRequested, stationRunId),
       },
     ]);
     await expect(sink.listClinicalEventReviewProjections(stationRunId)).resolves.toEqual([
@@ -803,6 +1112,42 @@ describe("MongoDB memory repositories", () => {
     });
   });
 
+  it("keeps Mongo clinical-event idempotency insert-only while preserving same-second replay order", async () => {
+    const repository = new MongoDurableClinicalEventRepository(context.db);
+    await repository.ensureIndexes();
+    const stationRunId = "station_run_durable_clinical_event_same_second_001";
+    const orderRequested = clinicalEventForStationRun(clinicalEventOrderRequested, stationRunId, {
+      clinicalEventId: "event_a_order_requested",
+      atSecond: 200,
+    });
+    const findingRecorded = clinicalEventForStationRun(clinicalEventFinding, stationRunId, {
+      clinicalEventId: "event_b_finding_recorded",
+      atSecond: 200,
+    });
+
+    await repository.save(findingRecorded);
+    await repository.save(orderRequested);
+    await repository.save({
+      ...orderRequested,
+      status: "conflicting_duplicate_should_not_replace",
+      payload: {
+        public: {
+          orderId: "order_1_ecg_request",
+          requestedOrder: "12-lead ECG",
+          resultSummary: "This conflicting duplicate must not replace the original event.",
+        },
+        ...(orderRequested.payload.private
+          ? { private: orderRequested.payload.private }
+          : {}),
+      },
+    });
+
+    await expect(repository.listByStationRunId(stationRunId)).resolves.toEqual([
+      orderRequested,
+      findingRecorded,
+    ]);
+  });
+
   it("rejects Redis or Redka cache posture at durable clinical-event Mongo boundaries", async () => {
     const repository = new MongoDurableClinicalEventRepository(context.db);
     await repository.ensureIndexes();
@@ -820,18 +1165,65 @@ describe("MongoDB memory repositories", () => {
     );
   });
 
+  it("rejects durable clinical events whose trace provenance refs point at another station run before Mongo persistence", async () => {
+    const repository = new MongoDurableClinicalEventRepository(context.db);
+    await repository.ensureIndexes();
+    const stationRunId = "station_run_durable_clinical_event_mongo_provenance_001";
+    const validEvent = {
+      ...clinicalEventOrderRequested,
+      stationRunId,
+      clinicalEventId: "event_valid_same_run_trace_provenance",
+      provenanceRefs: [
+        `trace:${stationRunId}:180`,
+        "review:cardiology:ecg-overread",
+      ],
+    };
+    const invalidEvent = {
+      ...validEvent,
+      clinicalEventId: "event_invalid_cross_run_trace_provenance",
+      provenanceRefs: [
+        "trace:station_run_other:180",
+        "review:cardiology:ecg-overread",
+      ],
+    };
+
+    await expect(repository.save(validEvent)).resolves.toBeUndefined();
+    await expect(repository.save(invalidEvent))
+      .rejects.toThrow("durable Mongo clinical-event provenanceRefs trace ref trace:station_run_other:180 must match stationRunId station_run_durable_clinical_event_mongo_provenance_001");
+    await expect(repository.listByStationRunId(stationRunId)).resolves.toEqual([validEvent]);
+    await expect(repository.listReviewProjectionsByStationRunId(stationRunId)).resolves.toEqual([
+      expect.objectContaining({
+        clinicalEventId: "event_valid_same_run_trace_provenance",
+        provenanceRefs: validEvent.provenanceRefs,
+      }),
+    ]);
+  });
+
+  it("rejects durable clinical events with malformed trace provenance refs before Mongo persistence", async () => {
+    const repository = new MongoDurableClinicalEventRepository(context.db);
+    await repository.ensureIndexes();
+    const stationRunId = "station_run_durable_clinical_event_mongo_malformed_provenance_001";
+    const invalidEvent = {
+      ...clinicalEventForStationRun(clinicalEventOrderRequested, stationRunId),
+      clinicalEventId: "event_invalid_malformed_trace_provenance",
+      provenanceRefs: [`trace:${stationRunId}`],
+    };
+
+    await expect(repository.save(invalidEvent))
+      .rejects.toThrow(`durable Mongo clinical-event provenanceRefs trace ref trace:${stationRunId} must include stationRunId and sequence`);
+    await expect(repository.listByStationRunId(stationRunId)).resolves.toEqual([]);
+  });
+
   it("keeps durable clinical-event replay and review queries on indexed sort paths", async () => {
     const repository = new MongoDurableClinicalEventRepository(context.db);
     await repository.ensureIndexes();
 
     await repository.save({
-      ...clinicalEventOrderRequested,
-      stationRunId: "station_run_clinical_event_index_001",
+      ...clinicalEventForStationRun(clinicalEventOrderRequested, "station_run_clinical_event_index_001"),
       clinicalEventId: "event_001_order_requested",
     });
     await repository.save({
-      ...clinicalEventFinding,
-      stationRunId: "station_run_clinical_event_index_001",
+      ...clinicalEventForStationRun(clinicalEventFinding, "station_run_clinical_event_index_001"),
       clinicalEventId: "event_002_finding",
     });
 
@@ -877,8 +1269,7 @@ describe("MongoDB memory repositories", () => {
     await repository.ensureIndexes();
 
     await repository.save({
-      ...clinicalEventOrderRequested,
-      stationRunId: "station_run_durable_clinical_event_projection_001",
+      ...clinicalEventForStationRun(clinicalEventOrderRequested, "station_run_durable_clinical_event_projection_001"),
       payload: {
         public: {
           orderId: "order_1_ecg_request",
@@ -919,14 +1310,12 @@ describe("MongoDB memory repositories", () => {
     await store.ensureIndexes?.();
 
     await store.saveClinicalEvent({
-      ...clinicalEventOrderRequested,
-      stationRunId: "station_run_durable_clinical_event_store_001",
+      ...clinicalEventForStationRun(clinicalEventOrderRequested, "station_run_durable_clinical_event_store_001"),
     });
 
     await expect(store.listClinicalEvents("station_run_durable_clinical_event_store_001")).resolves.toEqual([
       {
-        ...clinicalEventOrderRequested,
-        stationRunId: "station_run_durable_clinical_event_store_001",
+        ...clinicalEventForStationRun(clinicalEventOrderRequested, "station_run_durable_clinical_event_store_001"),
       },
     ]);
     await expect(store.listClinicalEventReviewProjections("station_run_durable_clinical_event_store_001"))
@@ -950,3 +1339,62 @@ describe("MongoDB memory repositories", () => {
     await expect(store.listConversationTurns("station_run_durable_clinical_event_store_001")).resolves.toEqual([]);
   });
 });
+
+function localRuntimeReviewApprovedBundle(): EncounterRuntimeAssetBundle {
+  const bundle = createEdChestPainLocalEncounterRuntimeAssetBundle();
+  const approve = (asset: EncounterRuntimeAsset): EncounterRuntimeAsset => ({
+    ...asset,
+    reviewStatus: "approved_for_local_runtime",
+  });
+  return {
+    ...bundle,
+    environment: approve(bundle.environment),
+    actors: bundle.actors.map((actor) => ({
+      ...actor,
+      model: approve(actor.model),
+      animationClips: actor.animationClips.map(approve),
+      phonemeMap: actor.phonemeMap ? approve(actor.phonemeMap) : undefined,
+    })),
+    equipment: bundle.equipment.map((equipment) => ({
+      ...equipment,
+      model: approve(equipment.model),
+    })),
+    uiSurfaces: bundle.uiSurfaces.map((surface) => ({
+      ...surface,
+      schema: surface.schema ? approve(surface.schema) : undefined,
+      data: surface.data ? approve(surface.data) : undefined,
+    })),
+  };
+}
+
+function runtimeAssetReviewDecisionsForBundle(bundle: EncounterRuntimeAssetBundle) {
+  const assets = new Map<string, EncounterRuntimeAsset>();
+  for (const asset of [
+    bundle.environment,
+    ...bundle.actors.flatMap((actor) => [actor.model, ...actor.animationClips, ...(actor.phonemeMap ? [actor.phonemeMap] : [])]),
+    ...bundle.equipment.map((equipment) => equipment.model),
+    ...bundle.uiSurfaces.flatMap((surface) => [surface.schema, surface.data].filter((asset): asset is EncounterRuntimeAsset => asset !== undefined)),
+  ]) {
+    assets.set(asset.assetId, asset);
+  }
+  return [...assets.keys()].flatMap((assetId) => [
+    {
+      assetId,
+      reviewerRole: "asset_pipeline" as const,
+      reviewerId: "asset_pipeline_reviewer",
+      decision: "approved_for_local_runtime" as const,
+      comments: "Local runtime asset evidence attached.",
+      evidenceRefs: [`${assetId}:asset_pipeline`],
+      reviewedAt: "2026-05-23T08:40:00.000Z",
+    },
+    {
+      assetId,
+      reviewerRole: "security_privacy" as const,
+      reviewerId: "security_privacy_reviewer",
+      decision: "approved_for_local_runtime" as const,
+      comments: "Local runtime asset reference privacy evidence attached.",
+      evidenceRefs: [`${assetId}:security_privacy`],
+      reviewedAt: "2026-05-23T08:41:00.000Z",
+    },
+  ]);
+}
