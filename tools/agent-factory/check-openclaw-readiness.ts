@@ -80,6 +80,7 @@ async function main(): Promise<void> {
   run("pnpm", ["docs:artifacts"]);
   run("pnpm", ["docs:drift-check"]);
   run("pnpm", ["agent:alignment"]);
+  run("pnpm", ["openclaw:post-slice"]);
 
   const final = buildOpenClawReadinessReport(gitStatus());
   if (!final.ok) {

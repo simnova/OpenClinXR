@@ -4,6 +4,8 @@ Date: 2026-05-27
 
 This runbook is a protected OpenClaw control surface for OpenClinXR. Routine agents must not delete, weaken, bypass, rename, or reinterpret it during autonomous work.
 
+Important naming clarification: this repository uses an OpenClaw-style execution pattern, not an external OpenClaw runtime, daemon, SaaS product, or privileged orchestration service. OpenClinXR uses repo-native guardrail files, repo-defined roles, deterministic checks, host adapter prompts, and a drift-police role that can be used from Codex, Claude, Grok, Cursor, or another capable agent host.
+
 ## Purpose
 
 OpenClaw mode exists to keep unattended work advancing the OpenClinXR product instead of producing scattered notes, one-off scenes, stale screenshots, or generic agent-status artifacts.
@@ -12,17 +14,19 @@ Use this runbook with `AGENTS.md`, `PROJECT_COORDINATION_INDEX.md`, `AUTONOMOUS_
 
 ## OpenClaw Start Sequence
 
-1. Read `AGENTS.md`.
-2. Read `PROJECT_COORDINATION_INDEX.md`.
-3. Read `AUTONOMOUS_WORK_PLAN.md`.
-4. Read `docs/openclinxr/worker-backlog-and-validation-matrix.md`.
-5. Run `pnpm docs:drift-check` before a long unattended batch when the repo has just been reorganized or when drift is suspected.
+1. Run `pnpm openclaw:preflight` before long unattended work from a supposedly clean checkout.
+2. Read `AGENTS.md`.
+3. Read `PROJECT_COORDINATION_INDEX.md`.
+4. Read `AUTONOMOUS_WORK_PLAN.md`.
+5. Read `docs/openclinxr/worker-backlog-and-validation-matrix.md`.
+6. Run `pnpm docs:drift-check` before a long unattended batch when the repo has just been reorganized or when drift is suspected.
 6. Select the highest-value approved product slice from the active queue.
 7. Use repo-defined roles only when they reduce drift, risk, or review cost.
 8. Invoke `agents/adversarial/openclaw-drift-police/` when scattered artifacts, one-off encounter work, evidence toil, wrong-cwd subagents, weakened guardrails, or noncanonical process is suspected.
 9. Implement the smallest coherent product advancement.
 10. Verify the touched behavior with focused tests or runtime/browser evidence when relevant.
-11. Update canonical state files only, then immediately queue the next slice unless a true stop condition is reached.
+11. Update canonical state files only, then run `pnpm openclaw:post-slice` before claiming the slice is ready for the next queue transition.
+12. Immediately queue the next slice unless a true stop condition is reached.
 
 ## Allowed OpenClaw Execution Modes
 
@@ -79,6 +83,22 @@ The drift check verifies:
 - generated artifacts under known evidence/cache/runtime roots are registered in `docs/openclinxr/generated-artifact-registry-2026-05-27.json`.
 - canonical guardrail files still link the OpenClaw runbook, drift check, and protected factory guardrails.
 - common one-off status/checkpoint/prompt artifact names are rejected unless explicitly registered.
+
+## Operational Redundancy Commands
+
+Use these commands to reduce unattended-run drift:
+
+```bash
+pnpm openclaw:preflight
+pnpm openclaw:post-slice
+pnpm openclaw:automation-prompt
+```
+
+`openclaw:preflight` runs the full readiness gate and should pass before a long unattended run starts.
+
+`openclaw:post-slice` checks that the operational redundancy surface still has the required preflight, post-slice, automation-prompt, per-slice ledger, and host-adapter markers.
+
+`openclaw:automation-prompt` prints the canonical automation prompt from this runbook so recurring automations can be refreshed from the protected source instead of hand-maintained chat fragments.
 
 ## Canonical Automation Prompt
 

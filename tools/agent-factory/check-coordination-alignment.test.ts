@@ -86,10 +86,15 @@ const alignedFiles = {
   ].join("\n"),
   "docs/openclinxr/openclaw-runbook-2026-05-27.md": [
     "protected OpenClaw control surface",
+    "OpenClaw-style execution pattern",
+    "not an external OpenClaw runtime",
     "OpenClaw Start Sequence",
     "Required Per-Slice Record",
     "Canonical Automation Prompt",
     "pnpm openclaw:ready",
+    "pnpm openclaw:preflight",
+    "pnpm openclaw:post-slice",
+    "pnpm openclaw:automation-prompt",
     "pnpm docs:drift-check",
     "case-definition-driven WebXR encounter factory",
     "agents/adversarial/openclaw-drift-police/",
@@ -160,6 +165,9 @@ const alignedFiles = {
 };
 
 const alignedScripts = {
+  "openclaw:preflight": "pnpm openclaw:ready",
+  "openclaw:post-slice": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --post-slice",
+  "openclaw:automation-prompt": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --print-automation-prompt",
   "openclaw:ready": "tsx tools/agent-factory/check-openclaw-readiness.ts",
   "agent:alignment": "tsx tools/agent-factory/check-coordination-alignment.ts",
   "docs:authority": "tsx tools/agent-factory/build-doc-authority-registry.ts",

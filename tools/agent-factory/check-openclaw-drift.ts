@@ -60,9 +60,14 @@ const requiredMarkers: Record<string, string[]> = {
   ],
   "docs/openclinxr/openclaw-runbook-2026-05-27.md": [
     "protected OpenClaw control surface",
+    "OpenClaw-style execution pattern",
+    "not an external OpenClaw runtime",
     "Required Per-Slice Record",
     "Canonical Automation Prompt",
     "pnpm openclaw:ready",
+    "pnpm openclaw:preflight",
+    "pnpm openclaw:post-slice",
+    "pnpm openclaw:automation-prompt",
     "pnpm docs:drift-check",
     "case-definition-driven WebXR encounter factory",
     "openclaw-tool-adapters-2026-05-27.md",
@@ -134,6 +139,15 @@ export function buildOpenClawDriftReport(input: OpenClawDriftInput): OpenClawDri
   }
 
   const scripts = input.packageJson?.scripts ?? {};
+  if (scripts["openclaw:preflight"] !== "pnpm openclaw:ready") {
+    failures.push({ file: "package.json", message: "openclaw:preflight script must run the readiness gate" });
+  }
+  if (scripts["openclaw:post-slice"] !== "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --post-slice") {
+    failures.push({ file: "package.json", message: "openclaw:post-slice script must run the operational redundancy checker" });
+  }
+  if (scripts["openclaw:automation-prompt"] !== "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --print-automation-prompt") {
+    failures.push({ file: "package.json", message: "openclaw:automation-prompt script must print the canonical automation prompt" });
+  }
   if (scripts["openclaw:ready"] !== "tsx tools/agent-factory/check-openclaw-readiness.ts") {
     failures.push({ file: "package.json", message: "openclaw:ready script must run the OpenClaw readiness checker" });
   }

@@ -2,6 +2,8 @@
 
 2026-05-27 OpenClaw hardening validation lane: long unattended runs must preserve `docs/openclinxr/openclaw-runbook-2026-05-27.md`, run `pnpm docs:drift-check` after cleanup or suspected drift, and keep each slice tied to a product path plus blueprint/factory contract. The Required Per-Slice Record belongs in `AUTONOMOUS_WORK_PLAN.md` or this backlog, not in scattered checkpoint/status files.
 
+Required Per-Slice Record fields for OpenClaw-style operation: `Product path advanced`, `Blueprint/factory tie`, `Touched files`, `Evidence`, and `Next queued slice`. Use these fields here or in `AUTONOMOUS_WORK_PLAN.md` after each slice before queue transition.
+
 2026-05-26 Worker 9 encounter realism screenshot review: Captured actor-realism screenshots for pediatric asthma and the five default exam-sequence encounters, then wrote `docs/openclinxr/ui-xr-encounter-realism-review-2026-05-26.md`. Findings: pediatric asthma is the only scenario-specific rendered encounter; ED Chest Pain actor-realism capture has a 3D boot blocker; OB/Clinic/Oncology/Postop fall back to ED Chest Pain visuals/text and cannot count as scenario-specific realism evidence. Next lanes: ED boot fix, non-ED fallback guard, actor-specific humanoid materialization, scenario-specific minimal room manifests.
 
 2026-05-26 Worker 11/9 heartbeat guard slice: generated station runtime bundle validation now fails if actor humanoid materialization contracts drop actor-specific Anny variant keys or body/clothing/hair-face/rig-preservation cue IDs. Verification: `pnpm exec vitest run tools/openclinxr/generated-ed-station-runtime-bundle.test.ts`; `pnpm --filter @openclinxr/asset-registry typecheck`.

@@ -17,7 +17,7 @@ function alignedInput(overrides: Partial<OpenClawDriftInput> = {}): OpenClawDrif
       "PROJECT_COORDINATION_INDEX.md": "openclaw-runbook-2026-05-27.md\nopenclaw-tool-adapters-2026-05-27.md\ndocs:drift-check\nRequired Per-Slice Record",
       "AUTONOMOUS_WORK_PLAN.md": "openclaw-runbook-2026-05-27.md\ndocs:drift-check",
       "docs/openclinxr/worker-backlog-and-validation-matrix.md": "openclaw-runbook-2026-05-27.md\ndocs:drift-check",
-      "docs/openclinxr/openclaw-runbook-2026-05-27.md": "protected OpenClaw control surface\nRequired Per-Slice Record\nCanonical Automation Prompt\npnpm openclaw:ready\npnpm docs:drift-check\ncase-definition-driven WebXR encounter factory\nopenclaw-tool-adapters-2026-05-27.md",
+      "docs/openclinxr/openclaw-runbook-2026-05-27.md": "protected OpenClaw control surface\nOpenClaw-style execution pattern\nnot an external OpenClaw runtime\nRequired Per-Slice Record\nCanonical Automation Prompt\npnpm openclaw:ready\npnpm openclaw:preflight\npnpm openclaw:post-slice\npnpm openclaw:automation-prompt\npnpm docs:drift-check\ncase-definition-driven WebXR encounter factory\nopenclaw-tool-adapters-2026-05-27.md",
       "docs/openclinxr/openclaw-tool-adapters-2026-05-27.md": "protected OpenClaw control surface\nOpenClaw is repo-native, not Codex-native\nCapability Fallback Matrix\nUniversal OpenClaw Prompt\nCodex Adapter\nClaude Adapter\nGrok Adapter\nCursor Adapter\nDrift Police Rule For All Hosts",
       "docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md": "Protected Status",
       "docs/openclinxr/doc-authority-registry-2026-05-27.json": "{}",
@@ -29,6 +29,9 @@ function alignedInput(overrides: Partial<OpenClawDriftInput> = {}): OpenClawDrif
     artifactRegistry: { entries: generatedArtifactFiles.map((path) => ({ path, authority: "keep-current" })) },
     packageJson: {
       scripts: {
+        "openclaw:preflight": "pnpm openclaw:ready",
+        "openclaw:post-slice": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --post-slice",
+        "openclaw:automation-prompt": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --print-automation-prompt",
         "openclaw:ready": "tsx tools/agent-factory/check-openclaw-readiness.ts",
         "docs:drift-check": "tsx tools/agent-factory/check-openclaw-drift.ts",
         "agent:verify": "pnpm agent:alignment && pnpm agent:validate",
