@@ -1,21 +1,78 @@
 {
-  "generatedAt": "2026-05-04T13:40:53.377Z",
+  "generatedAt": "2026-05-21T12:25:43.900Z",
   "inputFile": "docs/openclinxr/quest-cdp-smoke-2026-05-04.json",
   "readyForForegroundQuestClaim": false,
-  "classification": "shell_interaction_only_hidden_page",
+  "classification": "blocked",
+  "immersiveEntryOutcome": "activation_missed",
+  "readinessMatrix": {
+    "foregroundDevice": {
+      "status": "ready",
+      "satisfiedConditions": [
+        "quest_cdp_adb_device_recorded",
+        "quest_cdp_adb_quest_device_recorded",
+        "quest_cdp_user_agent_recorded",
+        "quest_cdp_browser_quest_user_agent_recorded",
+        "quest_page_visible"
+      ],
+      "blockers": []
+    },
+    "shellInteraction": {
+      "status": "ready",
+      "satisfiedConditions": [
+        "quest_shell_loaded",
+        "quest_trace_interaction_advanced"
+      ],
+      "blockers": []
+    },
+    "immersiveEntry": {
+      "status": "blocked",
+      "satisfiedConditions": [],
+      "blockers": [
+        "quest_immersive_entry_activation_not_received",
+        "quest_immersive_session_not_started"
+      ],
+      "outcome": "activation_missed"
+    },
+    "framePacingSample": {
+      "status": "blocked",
+      "satisfiedConditions": [
+        "quest_cdp_frame_sample_complete",
+        "quest_latest_frame_fresh",
+        "quest_frames_advanced_during_probe"
+      ],
+      "blockers": [
+        "quest_frame_quality_evidence_missing"
+      ]
+    },
+    "stationRuntimeEvidence": {
+      "status": "blocked",
+      "satisfiedConditions": [],
+      "blockers": [
+        "quest_text_panel_metadata_missing",
+        "quest_input_evidence_shape_missing",
+        "quest_frame_quality_evidence_missing"
+      ]
+    }
+  },
   "satisfiedConditions": [
     "quest_cdp_generated_at_valid",
     "quest_cdp_adb_device_recorded",
+    "quest_cdp_adb_quest_device_recorded",
     "quest_cdp_user_agent_recorded",
+    "quest_cdp_browser_quest_user_agent_recorded",
     "quest_shell_loaded",
     "quest_trace_interaction_advanced",
-    "quest_frame_stats_present"
+    "quest_page_visible",
+    "quest_cdp_frame_sample_complete",
+    "quest_frame_stats_present",
+    "quest_latest_frame_fresh",
+    "quest_frames_advanced_during_probe"
   ],
   "blockers": [
-    "quest_cdp_frame_sample_incomplete",
-    "quest_cdp_frame_sample_timed_out",
-    "quest_latest_frame_stale_over_1000ms",
-    "quest_no_frames_observed_during_probe",
-    "quest_page_hidden_or_inactive"
+    "quest_frame_quality_evidence_missing",
+    "quest_immersive_entry_activation_not_received",
+    "quest_immersive_session_not_started",
+    "quest_input_evidence_shape_missing",
+    "quest_text_panel_metadata_missing"
   ]
 }
