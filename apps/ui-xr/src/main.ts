@@ -6853,15 +6853,39 @@ function resolveEmulatorRuntimeAssetUrl(asset: EncounterRuntimeAsset): string {
     return resolveRuntimeAssetUrl(asset);
   }
   if (asset.kind === "humanoid_model") {
-    return `/xr-assets/humanoids/${fileName}`;
+    return `/xr-assets/humanoids/${resolveLocalHumanoidRuntimeAssetFileName(fileName)}`;
   }
   if (asset.kind === "environment_model") {
-    return `/xr-assets/environment/${fileName}`;
+    return `/xr-assets/environment/${resolveLocalEnvironmentRuntimeAssetFileName(fileName)}`;
   }
   if (asset.kind === "equipment_model") {
-    return `/xr-assets/medical-equipment/${fileName}`;
+    return `/xr-assets/medical-equipment/${resolveLocalEquipmentRuntimeAssetFileName(fileName)}`;
   }
   return resolveRuntimeAssetUrl(asset);
+}
+
+function resolveLocalHumanoidRuntimeAssetFileName(fileName: string): string {
+  if (fileName === "patient.glb" || fileName === "nurse.glb" || fileName === "spouse.glb") {
+    return "neutral-generated-human.glb";
+  }
+  return fileName;
+}
+
+function resolveLocalEnvironmentRuntimeAssetFileName(fileName: string): string {
+  if (fileName === "ed.glb") {
+    return "ed-exam-bay-shell.glb";
+  }
+  return fileName;
+}
+
+function resolveLocalEquipmentRuntimeAssetFileName(fileName: string): string {
+  if (fileName === "ecg.glb") {
+    return "ecg-cart-12-lead.glb";
+  }
+  if (fileName === "iv-pole.glb" || fileName === "iv_pole.glb") {
+    return "iv-pole-with-pump.glb";
+  }
+  return fileName;
 }
 
 function runtimeGeneratedSceneObjectName(asset: EncounterRuntimeAsset): string {

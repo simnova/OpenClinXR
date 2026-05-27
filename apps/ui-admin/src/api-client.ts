@@ -1032,7 +1032,7 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
 
 async function get<TResponse>(fetcher: typeof fetch, baseUrl: string, path: string): Promise<TResponse> {
   const url = `${baseUrl}${path}`;
-  const response = await fetcher(url, { method: "GET" });
+  const response = await fetcher(url, { method: "GET", cache: "no-store" });
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));

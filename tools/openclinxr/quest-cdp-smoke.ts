@@ -609,6 +609,7 @@ export function browserSnapshotExpression(): string {
       frameStats: window.__openClinXrFrameStats ?? null,
       inputEvidence: window.__openClinXrInputEvidence ?? null,
       textPanelEvidence: window.__openClinXrTextPanelEvidence ?? null,
+      sceneAssetEvidence: window.__openClinXrSceneAssetEvidence ?? null,
       traceLatencyEvidence: window.__openClinXrTraceLatencyEvidence ?? null,
       xrEntryEvidence: window.__openClinXrXrEntryEvidence ?? null,
       manualPerformanceDraft: window.__openClinXrManualPerformanceDraft ?? null,
@@ -782,6 +783,7 @@ export function manualEvidenceHarvestExpression(input: {
       const manualPerformanceDraft = window.__openClinXrManualPerformanceDraft ?? null;
       const captureSummary = window.__openClinXrManualPerformanceCaptureSummary ?? null;
       const textPanelEvidence = window.__openClinXrTextPanelEvidence ?? null;
+      const sceneAssetEvidence = window.__openClinXrSceneAssetEvidence ?? null;
       const performanceEvidence = manualPerformanceDraft?.performance ?? {};
       const stationEvidence = manualPerformanceDraft?.station ?? {};
       const inputEvidence = manualPerformanceDraft?.input ?? {};
@@ -821,6 +823,14 @@ export function manualEvidenceHarvestExpression(input: {
         && inputEvidence?.activeLocomotionSource !== "none"
         && ((typeof locomotionDistanceMeters === "number" && locomotionDistanceMeters > 0)
           || (typeof locomotionTurnRadians === "number" && locomotionTurnRadians > 0));
+      const sceneAssetLoaded = sceneAssetEvidence?.source === "window.__openClinXrSceneAssetEvidence"
+        && typeof (sceneAssetEvidence?.expectedCount ?? sceneAssetEvidence?.expectedAssetCount) === "number"
+        && (sceneAssetEvidence.expectedCount ?? sceneAssetEvidence.expectedAssetCount) > 0
+        && sceneAssetEvidence.loadedCount === (sceneAssetEvidence.expectedCount ?? sceneAssetEvidence.expectedAssetCount)
+        && sceneAssetEvidence.failedCount === 0
+        && sceneAssetEvidence.pendingCount === 0
+        && (sceneAssetEvidence.fallbackCount ?? sceneAssetEvidence.fallbackActiveCount) === 0
+        && sceneAssetEvidence.productionAssetReadinessClaimed !== true;
       const blockers = [
         manualPerformanceDraft ? undefined : "manual_performance_draft_missing",
         captureSummary ? undefined : "manual_performance_capture_summary_missing",
@@ -844,6 +854,15 @@ export function manualEvidenceHarvestExpression(input: {
         sampleWindowSize,
         immersiveFrameReady,
         sampleWindowReady,
+        sceneAssetEvidencePresent: !!sceneAssetEvidence,
+        generatedSceneAssetsLoaded: sceneAssetLoaded,
+        generatedSceneAssetExpectedCount: typeof (sceneAssetEvidence?.expectedCount ?? sceneAssetEvidence?.expectedAssetCount) === "number"
+          ? sceneAssetEvidence.expectedCount ?? sceneAssetEvidence.expectedAssetCount
+          : null,
+        generatedSceneAssetLoadedCount: typeof sceneAssetEvidence?.loadedCount === "number" ? sceneAssetEvidence.loadedCount : null,
+        generatedSceneAssetFallbackCount: typeof (sceneAssetEvidence?.fallbackCount ?? sceneAssetEvidence?.fallbackActiveCount) === "number"
+          ? sceneAssetEvidence.fallbackCount ?? sceneAssetEvidence.fallbackActiveCount
+          : null,
         traceSource,
         lastTraceTag,
         lastTraceLatencyMs,
@@ -851,6 +870,7 @@ export function manualEvidenceHarvestExpression(input: {
         activeLocomotionSource: inputEvidence?.activeLocomotionSource ?? captureSummary?.activeLocomotionSource ?? null,
         locomotionAttempt: inputEvidence?.locomotionAttempt ?? captureSummary?.locomotionAttempt ?? null,
         lastLocomotionAtMs: inputEvidence?.lastLocomotionAtMs ?? captureSummary?.lastLocomotionAtMs ?? null,
+        locomotionDelta: sanitizeLocomotionDeltaForHarvest(locomotionDelta),
         locomotionDistanceMeters,
         locomotionTurnRadians,
         locomotionEvidencePresent: hasLocomotionEvidence,
@@ -865,6 +885,7 @@ export function manualEvidenceHarvestExpression(input: {
         manualPerformanceDraft,
         captureSummary,
         textPanelEvidence,
+        sceneAssetEvidence,
         signalSnapshot,
       };
     };
@@ -889,6 +910,7 @@ export function buildManualEvidenceHarvestPayload(input: unknown): Record<string
     manualPerformanceDraft: result.manualPerformanceDraft ?? null,
     captureSummary: result.captureSummary ?? null,
     textPanelEvidence: result.textPanelEvidence ?? null,
+    sceneAssetEvidence: result.sceneAssetEvidence ?? null,
     harvestSummary: {
       source: "quest_cdp_manual_evidence_harvest",
       ready: result.ready === true,
@@ -918,6 +940,11 @@ function sanitizeManualEvidenceHarvestSignalSnapshot(value: unknown): Record<str
     sampleWindowSize: finiteNumberOrNull(record.sampleWindowSize),
     immersiveFrameReady: record.immersiveFrameReady === true,
     sampleWindowReady: record.sampleWindowReady === true,
+    sceneAssetEvidencePresent: record.sceneAssetEvidencePresent === true,
+    generatedSceneAssetsLoaded: record.generatedSceneAssetsLoaded === true,
+    generatedSceneAssetExpectedCount: finiteNumberOrNull(record.generatedSceneAssetExpectedCount),
+    generatedSceneAssetLoadedCount: finiteNumberOrNull(record.generatedSceneAssetLoadedCount),
+    generatedSceneAssetFallbackCount: finiteNumberOrNull(record.generatedSceneAssetFallbackCount),
     traceSource: stringOrNull(record.traceSource),
     lastTraceTag: stringOrNull(record.lastTraceTag),
     lastTraceLatencyMs: finiteNumberOrNull(record.lastTraceLatencyMs),
@@ -925,12 +952,56 @@ function sanitizeManualEvidenceHarvestSignalSnapshot(value: unknown): Record<str
     activeLocomotionSource: stringOrNull(record.activeLocomotionSource),
     locomotionAttempt: stringOrNull(record.locomotionAttempt),
     lastLocomotionAtMs: finiteNumberOrNull(record.lastLocomotionAtMs),
+    locomotionDelta: sanitizeLocomotionDeltaForHarvest(record.locomotionDelta),
     locomotionDistanceMeters: finiteNumberOrNull(record.locomotionDistanceMeters),
     locomotionTurnRadians: finiteNumberOrNull(record.locomotionTurnRadians),
     locomotionEvidencePresent: record.locomotionEvidencePresent === true,
     locomotionProbeReasonCodes: stringArray(record.locomotionProbeReasonCodes),
     technicalGaps: stringArray(record.technicalGaps),
   };
+}
+
+function sanitizeLocomotionDeltaForHarvest(value: unknown): Record<string, unknown> | null {
+  const record = asRecord(value);
+  if (Object.keys(record).length === 0) {
+    return null;
+  }
+
+  const from = sanitizeLocomotionPose(record.from);
+  const to = sanitizeLocomotionPose(record.to);
+  const delta = sanitizeLocomotionPose(record.delta);
+  const distanceMeters = finiteNumberOrNull(record.distanceMeters);
+  const turnRadians = finiteNumberOrNull(record.turnRadians);
+
+  if (!from && !to && !delta && distanceMeters === null && turnRadians === null) {
+    return null;
+  }
+
+  return {
+    from,
+    to,
+    delta,
+    distanceMeters,
+    turnRadians,
+  };
+}
+
+function sanitizeLocomotionPose(value: unknown): Record<string, number> | null {
+  const record = asRecord(value);
+  const x = finiteNumberOrNull(record.x);
+  const z = finiteNumberOrNull(record.z);
+  const yawRadians = finiteNumberOrNull(record.yawRadians);
+  const sanitized: Record<string, number> = {};
+  if (x !== null) {
+    sanitized.x = x;
+  }
+  if (z !== null) {
+    sanitized.z = z;
+  }
+  if (yawRadians !== null) {
+    sanitized.yawRadians = yawRadians;
+  }
+  return Object.keys(sanitized).length > 0 ? sanitized : null;
 }
 
 export function buildReport(input: QuestSmokeReportInput): QuestSmokeReport {

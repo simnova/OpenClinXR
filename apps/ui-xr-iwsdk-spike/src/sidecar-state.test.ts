@@ -350,6 +350,7 @@ describe("IWSDK sidecar runtime state", () => {
     expect(source).toContain("inputSourceKinds");
     expect(source).toContain("keyboardVector");
     expect(source).toContain("xrVector");
+    expect(source).toContain("locomotionDelta");
   });
 
   it("keeps the cleaner IWER visual evidence layout query-gated", () => {

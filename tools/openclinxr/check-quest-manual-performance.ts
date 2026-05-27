@@ -276,6 +276,7 @@ export type QuestManualPerformanceCopiedPayload = {
       readabilityClaim?: string;
     }>;
   } | null;
+  sceneAssetEvidence?: SceneAssetEvidence | null;
   harvestSummary?: {
     source?: string;
     ready?: boolean;
@@ -287,6 +288,28 @@ export type QuestManualPerformanceCopiedPayload = {
 };
 
 export type QuestManualPerformancePayload = QuestManualPerformanceReport | QuestManualPerformanceCopiedPayload;
+type SceneAssetEvidence = {
+  source?: string;
+  expectedAssetCount?: number;
+  expectedCount?: number;
+  loadedCount?: number;
+  failedCount?: number;
+  pendingCount?: number;
+  fallbackActiveCount?: number;
+  fallbackCount?: number;
+  notEvidenceFor?: string[];
+  productionAssetReadinessClaimed?: boolean;
+  assets?: Array<{
+    assetId?: string;
+    assetPath?: string;
+    sceneObjectName?: string;
+    name?: string;
+    url?: string;
+    status?: "loaded" | "failed" | "pending";
+    fallbackActive?: boolean;
+    error?: string | null;
+  }>;
+};
 type QuestManualLocomotionDelta = NonNullable<NonNullable<QuestManualPerformanceReport["input"]>["locomotionDelta"]>;
 export type QuestManualPerformanceHarvestSignalSnapshot = {
   textPanelMetadataPresent: boolean;
@@ -296,6 +319,11 @@ export type QuestManualPerformanceHarvestSignalSnapshot = {
   sampleWindowSize: number | null;
   immersiveFrameReady: boolean;
   sampleWindowReady: boolean;
+  sceneAssetEvidencePresent: boolean;
+  generatedSceneAssetsLoaded: boolean;
+  generatedSceneAssetExpectedCount: number | null;
+  generatedSceneAssetLoadedCount: number | null;
+  generatedSceneAssetFallbackCount: number | null;
   traceSource: string | null;
   lastTraceTag: string | null;
   lastTraceLatencyMs: number | null;
@@ -303,6 +331,7 @@ export type QuestManualPerformanceHarvestSignalSnapshot = {
   activeLocomotionSource: string | null;
   locomotionAttempt: string | null;
   lastLocomotionAtMs: number | null;
+  locomotionDelta: QuestManualLocomotionDelta | null;
   locomotionDistanceMeters: number | null;
   locomotionTurnRadians: number | null;
   locomotionEvidencePresent: boolean;
@@ -611,6 +640,7 @@ export function buildQuestManualPerformanceCheck(inputFile: string | undefined, 
       locomotionObserved ? "locomotion_observed" : undefined,
       isSupportingTraceLatencyProxy(traceLatencyProxy) ? "trace_latency_proxy_recorded_as_supporting_evidence" : undefined,
       ...reproducibilityEvidence.satisfiedConditions,
+      ...normalizedPayload.satisfiedConditions,
       motionComfortConfirmed ? "motion_comfort_confirmed" : undefined,
       batteryDropPercentValid && batteryDropPercent <= 20 ? "battery_drop_recorded_under_20" : undefined,
     ].filter((condition): condition is string => typeof condition === "string"),
@@ -647,17 +677,19 @@ function questManualEvidencePosture(
 function normalizeQuestManualPerformancePayload(payload: QuestManualPerformancePayload | undefined): {
   report: QuestManualPerformanceReport | undefined;
   blockers: string[];
+  satisfiedConditions: string[];
   adversarialFindings: string[];
   harvestSummary?: QuestManualPerformanceHarvestSummary;
 } {
   if (!payload) {
-    return { report: undefined, blockers: [], adversarialFindings: [] };
+    return { report: undefined, blockers: [], satisfiedConditions: [], adversarialFindings: [] };
   }
   if (!isCopiedManualPerformancePayload(payload)) {
     const rawReport = payload as QuestManualPerformanceReport;
     return {
       report: rawReport,
       blockers: [],
+      satisfiedConditions: [],
       adversarialFindings: isRecord(rawReport.reproducibility) ? [] : ["raw_manual_report_without_copied_ui_payload"],
     };
   }
@@ -674,6 +706,8 @@ function normalizeQuestManualPerformancePayload(payload: QuestManualPerformanceP
     : [];
   const textPanelEvidence = isRecord(payload.textPanelEvidence) ? payload.textPanelEvidence : undefined;
   const textPanelMetadataPresent = hasCopiedTextPanelMetadataEvidence(textPanelEvidence);
+  const sceneAssetEvidence = isRecord(payload.sceneAssetEvidence) ? payload.sceneAssetEvidence : undefined;
+  const sceneAssetReadiness = buildCopiedSceneAssetEvidenceReadiness(sceneAssetEvidence);
   const locomotionProbeSummary = isRecord(captureSummary?.locomotionProbeSummary)
     ? captureSummary.locomotionProbeSummary
     : undefined;
@@ -701,6 +735,7 @@ function normalizeQuestManualPerformancePayload(payload: QuestManualPerformanceP
     captureSummary && captureSummary.draftAvailable !== true ? "copied_payload_summary_missing_draft_or_frame_stats" : undefined,
     captureSummary?.frameStatsFresh === true ? undefined : "frame_stats_stale_or_unsampled",
     report?.station?.textReadable === true && !textPanelMetadataPresent ? "copied_payload_text_panel_metadata_missing" : undefined,
+    ...sceneAssetReadiness.blockers,
     summaryTechnicalGaps.length > 0 ? "copied_payload_technical_gaps_present" : undefined,
     ...summaryTechnicalGaps.map((gap) => `copied_payload_technical_gap:${gap}`),
     locomotionProbeSummary && locomotionProbeSummary.claimScope !== "runtime_probe_only"
@@ -723,12 +758,73 @@ function normalizeQuestManualPerformancePayload(payload: QuestManualPerformanceP
   return {
     report,
     blockers,
+    satisfiedConditions: sceneAssetReadiness.satisfiedConditions,
     adversarialFindings: [
       "copied_ui_manual_performance_payload",
       locomotionProbeSummary?.claimScope === "runtime_probe_only" ? "locomotion_probe:runtime_probe_only" : undefined,
+      sceneAssetEvidence ? "generated_scene_asset_evidence:runtime_asset_load_status_only" : undefined,
       harvestSummary ? "cdp_manual_evidence_harvest_payload" : undefined,
+      ...sceneAssetReadiness.adversarialFindings,
     ].filter((finding): finding is string => typeof finding === "string"),
     ...(harvestSummary ? { harvestSummary: sanitizeHarvestSummary(harvestSummary) } : {}),
+  };
+}
+
+function buildCopiedSceneAssetEvidenceReadiness(value: Record<string, unknown> | undefined): {
+  blockers: string[];
+  satisfiedConditions: string[];
+  adversarialFindings: string[];
+} {
+  if (!value) {
+    return { blockers: [], satisfiedConditions: [], adversarialFindings: [] };
+  }
+
+  const assets = Array.isArray(value.assets) ? value.assets.filter(isRecord) : [];
+  const expectedCount = finiteNumberOrNull(value.expectedCount ?? value.expectedAssetCount);
+  const loadedCount = finiteNumberOrNull(value.loadedCount);
+  const failedCount = finiteNumberOrNull(value.failedCount);
+  const pendingCount = finiteNumberOrNull(value.pendingCount);
+  const fallbackCount = finiteNumberOrNull(value.fallbackCount ?? value.fallbackActiveCount);
+  const sourceValid = value.source === "window.__openClinXrSceneAssetEvidence";
+  const productionClaimed = value.productionAssetReadinessClaimed === true;
+  const countShapeValid = isNonNegativeInteger(expectedCount)
+    && isNonNegativeInteger(loadedCount)
+    && isNonNegativeInteger(failedCount)
+    && isNonNegativeInteger(pendingCount)
+    && isNonNegativeInteger(fallbackCount);
+  const loadedMatchesExpected = countShapeValid
+    && expectedCount > 0
+    && loadedCount === expectedCount
+    && failedCount === 0
+    && pendingCount === 0
+    && fallbackCount === 0;
+  const assetsMatchCounts = countShapeValid
+    && assets.length === expectedCount
+    && assets.every((asset) => asset.status === "loaded" && asset.fallbackActive === false);
+  const allExpectedAssetsNamed = assets.every((asset) =>
+    typeof (asset.name ?? asset.assetId) === "string"
+    && (asset.name ?? asset.assetId as string).trim().length > 0
+    && typeof (asset.url ?? asset.assetPath) === "string"
+    && (asset.url ?? asset.assetPath as string).trim().length > 0
+  );
+
+  return {
+    blockers: [
+      sourceValid ? undefined : "generated_scene_asset_evidence_source_invalid",
+      countShapeValid ? undefined : "generated_scene_asset_evidence_counts_invalid",
+      loadedMatchesExpected ? undefined : "generated_scene_asset_loads_incomplete",
+      assetsMatchCounts ? undefined : "generated_scene_asset_records_mismatch_counts",
+      allExpectedAssetsNamed ? undefined : "generated_scene_asset_records_missing_name_or_url",
+      productionClaimed ? "generated_scene_asset_evidence_claims_production_readiness" : undefined,
+    ].filter((blocker): blocker is string => typeof blocker === "string"),
+    satisfiedConditions: [
+      sourceValid && loadedMatchesExpected && assetsMatchCounts && allExpectedAssetsNamed && !productionClaimed
+        ? "generated_scene_assets_loaded"
+        : undefined,
+    ].filter((condition): condition is string => typeof condition === "string"),
+    adversarialFindings: [
+      "generated_scene_assets_are_visual_runtime_presence_evidence_only",
+    ],
   };
 }
 
@@ -780,6 +876,11 @@ function sanitizeHarvestSignalSnapshot(value: unknown): QuestManualPerformanceHa
     sampleWindowSize: finiteNumberOrNull(record.sampleWindowSize),
     immersiveFrameReady: record.immersiveFrameReady === true,
     sampleWindowReady: record.sampleWindowReady === true,
+    sceneAssetEvidencePresent: record.sceneAssetEvidencePresent === true,
+    generatedSceneAssetsLoaded: record.generatedSceneAssetsLoaded === true,
+    generatedSceneAssetExpectedCount: finiteNumberOrNull(record.generatedSceneAssetExpectedCount),
+    generatedSceneAssetLoadedCount: finiteNumberOrNull(record.generatedSceneAssetLoadedCount),
+    generatedSceneAssetFallbackCount: finiteNumberOrNull(record.generatedSceneAssetFallbackCount),
     traceSource: stringOrNull(record.traceSource),
     lastTraceTag: stringOrNull(record.lastTraceTag),
     lastTraceLatencyMs: finiteNumberOrNull(record.lastTraceLatencyMs),
@@ -787,12 +888,60 @@ function sanitizeHarvestSignalSnapshot(value: unknown): QuestManualPerformanceHa
     activeLocomotionSource: stringOrNull(record.activeLocomotionSource),
     locomotionAttempt: stringOrNull(record.locomotionAttempt),
     lastLocomotionAtMs: finiteNumberOrNull(record.lastLocomotionAtMs),
+    locomotionDelta: sanitizeHarvestLocomotionDelta(record.locomotionDelta),
     locomotionDistanceMeters: finiteNumberOrNull(record.locomotionDistanceMeters),
     locomotionTurnRadians: finiteNumberOrNull(record.locomotionTurnRadians),
     locomotionEvidencePresent: record.locomotionEvidencePresent === true,
     locomotionProbeReasonCodes: stringArray(record.locomotionProbeReasonCodes),
     technicalGaps: stringArray(record.technicalGaps),
   };
+}
+
+function sanitizeHarvestLocomotionDelta(value: unknown): QuestManualLocomotionDelta | null {
+  const record = isRecord(value) ? value : undefined;
+  if (!record) {
+    return null;
+  }
+
+  const from = sanitizeHarvestLocomotionPose(record.from);
+  const to = sanitizeHarvestLocomotionPose(record.to);
+  const delta = sanitizeHarvestLocomotionPose(record.delta);
+  const distanceMeters = finiteNumberOrNull(record.distanceMeters);
+  const turnRadians = finiteNumberOrNull(record.turnRadians);
+
+  if (!from && !to && !delta && distanceMeters === null && turnRadians === null) {
+    return null;
+  }
+
+  return {
+    ...(from ? { from } : {}),
+    ...(to ? { to } : {}),
+    ...(delta ? { delta } : {}),
+    ...(distanceMeters === null ? {} : { distanceMeters }),
+    ...(turnRadians === null ? {} : { turnRadians }),
+  };
+}
+
+function sanitizeHarvestLocomotionPose(value: unknown): NonNullable<QuestManualLocomotionDelta["from"]> | null {
+  const record = isRecord(value) ? value : undefined;
+  if (!record) {
+    return null;
+  }
+
+  const x = finiteNumberOrNull(record.x);
+  const z = finiteNumberOrNull(record.z);
+  const yawRadians = finiteNumberOrNull(record.yawRadians);
+  const sanitized: NonNullable<QuestManualLocomotionDelta["from"]> = {};
+  if (x !== null) {
+    sanitized.x = x;
+  }
+  if (z !== null) {
+    sanitized.z = z;
+  }
+  if (yawRadians !== null) {
+    sanitized.yawRadians = yawRadians;
+  }
+  return Object.keys(sanitized).length > 0 ? sanitized : null;
 }
 
 function buildAdversarialFindings(input: {
@@ -903,6 +1052,10 @@ function questManualNextStepForAdversarialFinding(finding: string): string {
       return "Preserve harvestSummary with the copied payload so CDP harvest readiness remains auditable.";
     case "locomotion_probe:runtime_probe_only":
       return "Preserve captureSummary.locomotionProbeSummary so failed locomotion attempts keep their runtime-probe reason codes.";
+    case "generated_scene_asset_evidence:runtime_asset_load_status_only":
+      return "Preserve sceneAssetEvidence so generated humanoid and equipment GLB load status remains auditable as visual runtime evidence only.";
+    case "generated_scene_assets_are_visual_runtime_presence_evidence_only":
+      return "Treat generated scene asset evidence as runtime visual-presence support, not a production asset readiness, Quest readiness, clinical validity, or scoring claim.";
     case "devtools_screencast_enabled_during_run":
       return "Rerun with DevTools screencast disabled so headset frame timing is less distorted.";
     case "trace_interaction_attempt_status_missing":
@@ -1089,6 +1242,18 @@ function questManualNextStepForBlocker(blocker: string): string {
       return "Re-copy the in-app Quest Evidence payload so captureSummary.locomotionProbeSummary has claimScope runtime_probe_only.";
     case "copied_payload_summary_missing_draft_or_frame_stats":
       return "Copy the in-app Quest Evidence payload after the draft and frame stats are both available.";
+    case "generated_scene_asset_evidence_source_invalid":
+      return "Re-copy the in-app Quest Evidence payload so sceneAssetEvidence.source is window.__openClinXrSceneAssetEvidence.";
+    case "generated_scene_asset_evidence_counts_invalid":
+      return "Re-copy generated scene asset evidence with non-negative expected, loaded, failed, pending, and fallback counts.";
+    case "generated_scene_asset_loads_incomplete":
+      return "Keep the scene foregrounded until every expected generated humanoid/equipment asset is loaded with no failed, pending, or fallback-active records.";
+    case "generated_scene_asset_records_mismatch_counts":
+      return "Re-copy scene asset evidence after the per-asset records match the expected loaded asset count.";
+    case "generated_scene_asset_records_missing_name_or_url":
+      return "Preserve generated scene asset names and URLs in sceneAssetEvidence.assets.";
+    case "generated_scene_asset_evidence_claims_production_readiness":
+      return "Clear productionAssetReadinessClaimed; generated scene asset evidence is visual runtime presence evidence only.";
     case "frame_stats_stale_or_unsampled":
       return "Keep the headset foreground and copy the evidence only while frameStatsFresh is true.";
     case "manual_evidence_harvest_summary_invalid":

@@ -298,6 +298,7 @@ describe("Quest CDP smoke probe", () => {
     expect(browserSnapshotExpression()).toContain("window.__openClinXrIwsdkSidecarEvidence");
     expect(browserSnapshotExpression()).toContain("window.__openClinXrXrEntryEvidence");
     expect(browserSnapshotExpression()).toContain("window.__openClinXrTextPanelEvidence");
+    expect(browserSnapshotExpression()).toContain("window.__openClinXrSceneAssetEvidence");
     expect(browserSnapshotExpression()).toContain("ED Chest Pain");
     expect(interactionExpression()).toContain("ecg request");
     expect(interactionExpression()).toContain("urgent escalation");
@@ -362,6 +363,16 @@ describe("Quest CDP smoke probe", () => {
       minImmersiveFrames: 600,
       minSampleWindowSize: 120,
     })).toContain("window.__openClinXrTextPanelEvidence");
+    expect(manualEvidenceHarvestExpression({
+      timeoutMs: 9000,
+      minImmersiveFrames: 600,
+      minSampleWindowSize: 120,
+    })).toContain("window.__openClinXrSceneAssetEvidence");
+    expect(manualEvidenceHarvestExpression({
+      timeoutMs: 9000,
+      minImmersiveFrames: 600,
+      minSampleWindowSize: 120,
+    })).toContain("generatedSceneAssetsLoaded");
   });
 
   it("wraps harvested in-app Quest evidence without upgrading it to manual readiness", () => {
@@ -386,6 +397,29 @@ describe("Quest CDP smoke probe", () => {
         },
       ],
     };
+    const sceneAssetEvidence = {
+      source: "window.__openClinXrSceneAssetEvidence",
+      expectedAssetCount: 6,
+      loadedCount: 6,
+      failedCount: 0,
+      pendingCount: 0,
+      fallbackActiveCount: 0,
+      productionAssetReadinessClaimed: false,
+      assets: [
+        {
+          assetId: "openclinxr.ed-chest-pain.patient-robert-hayes.generated-humanoid",
+          assetPath: "/xr-assets/humanoids/neutral-generated-human.glb",
+          status: "loaded",
+          fallbackActive: false,
+        },
+        {
+          assetId: "openclinxr.ed-chest-pain.environment-shell.generated-glb",
+          assetPath: "/xr-assets/environment/ed-exam-bay-shell.glb",
+          status: "loaded",
+          fallbackActive: false,
+        },
+      ],
+    };
     const payload = buildManualEvidenceHarvestPayload({
       ready: true,
       timedOut: false,
@@ -405,7 +439,15 @@ describe("Quest CDP smoke probe", () => {
         activeLocomotionSource: "xr_hand_gesture",
         locomotionAttempt: "runtime_event_observed",
         lastLocomotionAtMs: 601_000,
+        locomotionDelta: {
+          from: { x: 0, z: 1.35, yawRadians: 0 },
+          to: { x: 0.4, z: 1.35, yawRadians: 0.1 },
+          delta: { x: 0.4, z: 0, yawRadians: 0.1 },
+          distanceMeters: 0.4,
+          turnRadians: 0.1,
+        },
         locomotionDistanceMeters: 0.4,
+        locomotionTurnRadians: 0.1,
         locomotionProbeSummary: {
           claimScope: "runtime_probe_only",
           readiness: "ready",
@@ -423,6 +465,11 @@ describe("Quest CDP smoke probe", () => {
         sampleWindowSize: 180,
         immersiveFrameReady: true,
         sampleWindowReady: true,
+        sceneAssetEvidencePresent: true,
+        generatedSceneAssetsLoaded: true,
+        generatedSceneAssetExpectedCount: 6,
+        generatedSceneAssetLoadedCount: 6,
+        generatedSceneAssetFallbackCount: 0,
         traceSource: "xr_hand_select",
         lastTraceTag: "ecg_request",
         lastTraceLatencyMs: 18,
@@ -430,13 +477,21 @@ describe("Quest CDP smoke probe", () => {
         activeLocomotionSource: "xr_hand_gesture",
         locomotionAttempt: "runtime_event_observed",
         lastLocomotionAtMs: 601_000,
+        locomotionDelta: {
+          from: { x: 0, z: 1.35, yawRadians: 0 },
+          to: { x: 0.4, z: 1.35, yawRadians: 0.1 },
+          delta: { x: 0.4, z: 0, yawRadians: 0.1 },
+          distanceMeters: 0.4,
+          turnRadians: 0.1,
+        },
         locomotionDistanceMeters: 0.4,
-        locomotionTurnRadians: null,
+        locomotionTurnRadians: 0.1,
         locomotionEvidencePresent: true,
         locomotionProbeReasonCodes: [],
         technicalGaps: [],
       },
       textPanelEvidence,
+      sceneAssetEvidence,
     });
 
     expect(payload).toEqual({
@@ -454,7 +509,15 @@ describe("Quest CDP smoke probe", () => {
         activeLocomotionSource: "xr_hand_gesture",
         locomotionAttempt: "runtime_event_observed",
         lastLocomotionAtMs: 601_000,
+        locomotionDelta: {
+          from: { x: 0, z: 1.35, yawRadians: 0 },
+          to: { x: 0.4, z: 1.35, yawRadians: 0.1 },
+          delta: { x: 0.4, z: 0, yawRadians: 0.1 },
+          distanceMeters: 0.4,
+          turnRadians: 0.1,
+        },
         locomotionDistanceMeters: 0.4,
+        locomotionTurnRadians: 0.1,
         locomotionProbeSummary: {
           claimScope: "runtime_probe_only",
           readiness: "ready",
@@ -465,6 +528,7 @@ describe("Quest CDP smoke probe", () => {
         blockers: ["performed_by_missing"],
       },
       textPanelEvidence,
+      sceneAssetEvidence,
       harvestSummary: {
         source: "quest_cdp_manual_evidence_harvest",
         ready: true,
@@ -479,6 +543,11 @@ describe("Quest CDP smoke probe", () => {
           sampleWindowSize: 180,
           immersiveFrameReady: true,
           sampleWindowReady: true,
+          sceneAssetEvidencePresent: true,
+          generatedSceneAssetsLoaded: true,
+          generatedSceneAssetExpectedCount: 6,
+          generatedSceneAssetLoadedCount: 6,
+          generatedSceneAssetFallbackCount: 0,
           traceSource: "xr_hand_select",
           lastTraceTag: "ecg_request",
           lastTraceLatencyMs: 18,
@@ -486,8 +555,15 @@ describe("Quest CDP smoke probe", () => {
           activeLocomotionSource: "xr_hand_gesture",
           locomotionAttempt: "runtime_event_observed",
           lastLocomotionAtMs: 601_000,
+          locomotionDelta: {
+            from: { x: 0, z: 1.35, yawRadians: 0 },
+            to: { x: 0.4, z: 1.35, yawRadians: 0.1 },
+            delta: { x: 0.4, z: 0, yawRadians: 0.1 },
+            distanceMeters: 0.4,
+            turnRadians: 0.1,
+          },
           locomotionDistanceMeters: 0.4,
-          locomotionTurnRadians: null,
+          locomotionTurnRadians: 0.1,
           locomotionEvidencePresent: true,
           locomotionProbeReasonCodes: [],
           technicalGaps: [],

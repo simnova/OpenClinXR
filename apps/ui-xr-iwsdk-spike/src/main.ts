@@ -110,7 +110,28 @@ type OpenClinXrInputEvidence = {
   keyboardVector: LocomotionVectorEvidence;
   xrVector: LocomotionVectorEvidence;
   xrInputSources: XrInputSourceEvidence[];
+  locomotionDelta: OpenClinXrLocomotionDeltaEvidence | null;
   rigPosition: { x: number; z: number };
+};
+
+type OpenClinXrLocomotionDeltaEvidence = {
+  from: {
+    x: number;
+    z: number;
+    yawRadians: number;
+  };
+  to: {
+    x: number;
+    z: number;
+    yawRadians: number;
+  };
+  delta: {
+    x: number;
+    z: number;
+    yawRadians: number;
+  };
+  distanceMeters: number;
+  turnRadians: number;
 };
 
 type OpenClinXrBootEvidence = {
@@ -1144,6 +1165,11 @@ function applyLocomotion(input: {
   handModelStatus: OpenClinXrInputEvidence["handModelStatus"];
 }): OpenClinXrInputEvidence {
   const xrLocomotion = readXrGamepadLocomotion(input.session);
+  const fromRigPosition = {
+    x: input.locomotionRig.position.x,
+    z: input.locomotionRig.position.z,
+    yawRadians: input.locomotionRig.rotation.y,
+  };
   const keyboardVector = roundedVector({
     forward: input.keyboardLocomotion.forward,
     strafe: input.keyboardLocomotion.strafe,
@@ -1171,6 +1197,11 @@ function applyLocomotion(input: {
     .addScaledVector(rightVector, strafe * speedMetersPerSecond * input.deltaSeconds);
   input.locomotionRig.position.x = clamp(input.locomotionRig.position.x, -2.75, 2.75);
   input.locomotionRig.position.z = clamp(input.locomotionRig.position.z, -2.25, 2.25);
+  const toRigPosition = {
+    x: input.locomotionRig.position.x,
+    z: input.locomotionRig.position.z,
+    yawRadians: input.locomotionRig.rotation.y,
+  };
 
   return {
     handModelCount: input.handModelCount,
@@ -1189,10 +1220,52 @@ function applyLocomotion(input: {
     keyboardVector,
     xrVector,
     xrInputSources: xrLocomotion.inputSources,
+    locomotionDelta: moved
+      ? buildLocomotionDeltaEvidence({
+        from: fromRigPosition,
+        to: toRigPosition,
+      })
+      : null,
     rigPosition: {
       x: Number(input.locomotionRig.position.x.toFixed(3)),
       z: Number(input.locomotionRig.position.z.toFixed(3)),
     },
+  };
+}
+
+function buildLocomotionDeltaEvidence(input: {
+  from: {
+    x: number;
+    z: number;
+    yawRadians: number;
+  };
+  to: {
+    x: number;
+    z: number;
+    yawRadians: number;
+  };
+}): OpenClinXrLocomotionDeltaEvidence {
+  const deltaX = input.to.x - input.from.x;
+  const deltaZ = input.to.z - input.from.z;
+  const deltaYawRadians = input.to.yawRadians - input.from.yawRadians;
+  return {
+    from: {
+      x: Number(input.from.x.toFixed(3)),
+      z: Number(input.from.z.toFixed(3)),
+      yawRadians: Number(input.from.yawRadians.toFixed(3)),
+    },
+    to: {
+      x: Number(input.to.x.toFixed(3)),
+      z: Number(input.to.z.toFixed(3)),
+      yawRadians: Number(input.to.yawRadians.toFixed(3)),
+    },
+    delta: {
+      x: Number(deltaX.toFixed(3)),
+      z: Number(deltaZ.toFixed(3)),
+      yawRadians: Number(deltaYawRadians.toFixed(3)),
+    },
+    distanceMeters: Number(Math.hypot(deltaX, deltaZ).toFixed(3)),
+    turnRadians: Number(Math.abs(deltaYawRadians).toFixed(3)),
   };
 }
 

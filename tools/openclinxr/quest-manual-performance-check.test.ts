@@ -151,6 +151,70 @@ function completedTextPanelEvidence(): NonNullable<Parameters<typeof buildQuestM
   };
 }
 
+function completedSceneAssetEvidence(): NonNullable<Parameters<typeof buildQuestManualPerformanceCheck>[1]> {
+  return {
+    sceneAssetEvidence: {
+      source: "window.__openClinXrSceneAssetEvidence",
+      expectedAssetCount: 6,
+      loadedCount: 6,
+      failedCount: 0,
+      pendingCount: 0,
+      fallbackActiveCount: 0,
+      notEvidenceFor: [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity",
+      ],
+      productionAssetReadinessClaimed: false,
+      assets: [
+        {
+          assetId: "openclinxr.ed-chest-pain.patient-robert-hayes.generated-humanoid",
+          assetPath: "/xr-assets/humanoids/neutral-generated-human.glb",
+          status: "loaded",
+          fallbackActive: false,
+          error: null,
+        },
+        {
+          assetId: "openclinxr.ed-chest-pain.nurse-maria-alvarez.generated-humanoid",
+          assetPath: "/xr-assets/humanoids/neutral-generated-human.glb",
+          status: "loaded",
+          fallbackActive: false,
+          error: null,
+        },
+        {
+          assetId: "openclinxr.ed-chest-pain.spouse-anna-hayes.generated-humanoid",
+          assetPath: "/xr-assets/humanoids/neutral-generated-human.glb",
+          status: "loaded",
+          fallbackActive: false,
+          error: null,
+        },
+        {
+          assetId: "openclinxr.ed-chest-pain.ecg-cart.generated-glb",
+          assetPath: "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+          status: "loaded",
+          fallbackActive: false,
+          error: null,
+        },
+        {
+          assetId: "openclinxr.ed-chest-pain.iv-pole-with-pump.generated-glb",
+          assetPath: "/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+          status: "loaded",
+          fallbackActive: false,
+          error: null,
+        },
+        {
+          assetId: "openclinxr.ed-chest-pain.environment-shell.generated-glb",
+          assetPath: "/xr-assets/environment/ed-exam-bay-shell.glb",
+          status: "loaded",
+          fallbackActive: false,
+          error: null,
+        },
+      ],
+    },
+  };
+}
+
 describe("Quest manual performance checker", () => {
   it("accepts a completed foreground headset report at the current readiness thresholds", async () => {
     const dir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-quest-manual-pass-"));
@@ -272,6 +336,17 @@ describe("Quest manual performance checker", () => {
     ]));
   });
 
+  it("does not flag complete raw reports with reproducibility metadata as missing copied payload evidence", () => {
+    const check = buildQuestManualPerformanceCheck(
+      "docs/openclinxr/quest-manual-performance-raw-complete.json",
+      completedQuestManualReport(),
+    );
+
+    expect(check.readyToClaimFramePacing).toBe(true);
+    expect(check.adversarialFindings).not.toContain("raw_manual_report_without_copied_ui_payload");
+    expect(check.blockers).toEqual([]);
+  });
+
   it("accepts deliberate hand-select trace latency for hand-tracking-only headset reports", () => {
     const report = completedQuestManualReport();
     report.traceLatencyProxy = {
@@ -331,6 +406,105 @@ describe("Quest manual performance checker", () => {
     expect(check.adversarialFindings).toEqual(["copied_ui_manual_performance_payload"]);
     expect(check.nextSteps).toEqual(expect.arrayContaining([
       "Keep the headset foreground and copy the evidence only while frameStatsFresh is true.",
+    ]));
+  });
+
+  it("keeps raw and copied payload readiness aligned when copied capture metadata is ready", () => {
+    const rawReport = completedQuestManualReport();
+    const rawCheck = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-raw.json", rawReport);
+    const copiedCheck = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-copy.json", {
+      manualPerformanceDraft: rawReport,
+      captureSummary: {
+        draftAvailable: true,
+        manualValidationReady: true,
+        frameStatsFresh: true,
+        blockers: [],
+        technicalGaps: [],
+      },
+      ...completedTextPanelEvidence(),
+    });
+
+    expect(copiedCheck.readyToClaimFramePacing).toBe(rawCheck.readyToClaimFramePacing);
+    expect(copiedCheck.evidencePosture).toBe(rawCheck.evidencePosture);
+    expect(copiedCheck.blockers).toEqual(rawCheck.blockers);
+    expect(copiedCheck.satisfiedConditions).toEqual(expect.arrayContaining([
+      "frame_sample_600_or_more",
+      "immersive_frame_count_recorded",
+      "controller_select_latency_150ms_or_lower",
+      "locomotion_observed",
+    ]));
+    expect(copiedCheck.adversarialFindings).toEqual(["copied_ui_manual_performance_payload"]);
+    expect(rawCheck.adversarialFindings).not.toContain("raw_manual_report_without_copied_ui_payload");
+  });
+
+  it("accepts generated scene asset evidence as visual runtime support for copied payloads", () => {
+    const copiedCheck = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-copy.json", {
+      manualPerformanceDraft: completedQuestManualReport(),
+      captureSummary: {
+        draftAvailable: true,
+        manualValidationReady: true,
+        frameStatsFresh: true,
+        blockers: [],
+        technicalGaps: [],
+      },
+      ...completedTextPanelEvidence(),
+      ...completedSceneAssetEvidence(),
+    });
+
+    expect(copiedCheck.readyToClaimFramePacing).toBe(true);
+    expect(copiedCheck.blockers).toEqual([]);
+    expect(copiedCheck.satisfiedConditions).toEqual(expect.arrayContaining([
+      "generated_scene_assets_loaded",
+      "frame_sample_600_or_more",
+      "immersive_frame_count_recorded",
+    ]));
+    expect(copiedCheck.adversarialFindings).toEqual([
+      "copied_ui_manual_performance_payload",
+      "generated_scene_asset_evidence:runtime_asset_load_status_only",
+      "generated_scene_assets_are_visual_runtime_presence_evidence_only",
+    ]);
+    expect(copiedCheck.nextSteps).toEqual(expect.arrayContaining([
+      "Treat generated scene asset evidence as runtime visual-presence support, not a production asset readiness, Quest readiness, clinical validity, or scoring claim.",
+    ]));
+  });
+
+  it("blocks copied payload readiness when generated scene assets are still on fallback paths", () => {
+    const sceneAssetPayload = completedSceneAssetEvidence();
+    if (!("sceneAssetEvidence" in sceneAssetPayload) || !sceneAssetPayload.sceneAssetEvidence) {
+      throw new Error("completedSceneAssetEvidence helper must return sceneAssetEvidence");
+    }
+    sceneAssetPayload.sceneAssetEvidence.loadedCount = 5;
+    sceneAssetPayload.sceneAssetEvidence.pendingCount = 1;
+    sceneAssetPayload.sceneAssetEvidence.fallbackCount = 1;
+    sceneAssetPayload.sceneAssetEvidence.assets = sceneAssetPayload.sceneAssetEvidence.assets?.map((asset, index) =>
+      index === 0
+        ? { ...asset, status: "pending", fallbackActive: true }
+        : asset
+    );
+
+    const copiedCheck = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-copy.json", {
+      manualPerformanceDraft: completedQuestManualReport(),
+      captureSummary: {
+        draftAvailable: true,
+        manualValidationReady: true,
+        frameStatsFresh: true,
+        blockers: [],
+        technicalGaps: [],
+      },
+      ...completedTextPanelEvidence(),
+      ...sceneAssetPayload,
+    });
+
+    expect(copiedCheck.readyToClaimFramePacing).toBe(false);
+    expect(copiedCheck.satisfiedConditions).not.toEqual(expect.arrayContaining([
+      "generated_scene_assets_loaded",
+    ]));
+    expect(copiedCheck.blockers).toEqual(expect.arrayContaining([
+      "generated_scene_asset_loads_incomplete",
+      "generated_scene_asset_records_mismatch_counts",
+    ]));
+    expect(copiedCheck.nextSteps).toEqual(expect.arrayContaining([
+      "Keep the scene foregrounded until every expected generated humanoid/equipment asset is loaded with no failed, pending, or fallback-active records.",
     ]));
   });
 
@@ -434,7 +608,7 @@ describe("Quest manual performance checker", () => {
     };
 
     expect(check.readyToClaimFramePacing).toBe(false);
-    expect(checkWithHarvestSummary.harvestSummary).toEqual({
+    expect(checkWithHarvestSummary.harvestSummary).toMatchObject({
       source: "quest_cdp_manual_evidence_harvest",
       ready: false,
       timedOut: true,

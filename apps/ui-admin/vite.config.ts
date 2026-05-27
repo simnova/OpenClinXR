@@ -7,6 +7,8 @@ export function createOpenClinXrApiProxy(apiTarget = process.env.OPENCLINXR_API_
   return Object.freeze({
     "/health": localApiProxyTarget(apiTarget),
     "/providers": localApiProxyTarget(apiTarget),
+    "/runtime": localApiProxyTarget(apiTarget),
+    "/voice": localApiProxyTarget(apiTarget),
     "/admin": localApiProxyTarget(apiTarget),
     "/scenario-bank": localApiProxyTarget(apiTarget),
     "/exam-blueprints": localApiProxyTarget(apiTarget),
