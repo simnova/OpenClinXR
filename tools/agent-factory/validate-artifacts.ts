@@ -1,7 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { type AnySchema } from "ajv";
 import { Ajv2020 } from "ajv/dist/2020.js";
-import matter from "gray-matter";
 import { globFiles, readJson, type AgentIndex } from "./lib.js";
 
 type ValidationFailure = {
@@ -11,6 +10,26 @@ type ValidationFailure = {
 
 async function loadSchema(file: string): Promise<AnySchema> {
   return JSON.parse(await readFile(file, "utf8")) as AnySchema;
+}
+
+function parseSimpleYamlFrontmatter(source: string): Record<string, string> {
+  const match = /^---\n(?<frontmatter>[\s\S]*?)\n---/u.exec(source);
+  const frontmatter = match?.groups?.frontmatter;
+  if (!frontmatter) {
+    return {};
+  }
+
+  const data: Record<string, string> = {};
+  for (const line of frontmatter.split("\n")) {
+    const keyValue = /^(?<key>[A-Za-z0-9_-]+):\s*(?<value>.*)$/u.exec(line);
+    const key = keyValue?.groups?.key;
+    const rawValue = keyValue?.groups?.value;
+    if (!key || rawValue === undefined) {
+      continue;
+    }
+    data[key] = rawValue.trim().replace(/^["']|["']$/gu, "");
+  }
+  return data;
 }
 
 async function main(): Promise<void> {
@@ -61,10 +80,10 @@ async function main(): Promise<void> {
 
   const charterFiles = await globFiles("agents/**/charter.md");
   for (const file of charterFiles) {
-    const parsed = matter(await readFile(file, "utf8"));
-    const agentId = parsed.data.agent_id;
-    const team = parsed.data.team;
-    const name = parsed.data.name;
+    const frontmatter = parseSimpleYamlFrontmatter(await readFile(file, "utf8"));
+    const agentId = frontmatter.agent_id;
+    const team = frontmatter.team;
+    const name = frontmatter.name;
     if (typeof agentId !== "string" || typeof team !== "string" || typeof name !== "string") {
       failures.push({ file, message: "charter frontmatter must include agent_id, team, and name" });
       continue;

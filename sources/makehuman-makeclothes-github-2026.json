@@ -1,28 +1,22 @@
 {
-  "schemaVersion": "2026-05-27",
-  "claimBoundary": "source intake metadata only; not redistribution, production, Quest, clinical, or scoring readiness",
-  "sourceFamily": "makehuman_mpfb_makeclothes",
-  "status": "blocked_until_specific_garment_allowlist_complete",
-  "policy": {
-    "allowUseOnlyWhen": [
-      "sourceUrlRecorded",
-      "licenseRecorded",
-      "authorRecorded",
-      "redistributionPermissionRecorded",
-      "garmentSemanticKeyRecorded",
-      "provenanceHashRecorded"
-    ],
-    "defaultDecision": "do_not_materialize_or_commit_garment_assets_without_allowlist_entry"
-  },
-  "candidateSources": [
-    {
-      "sourceId": "mpfb_makehuman_asset_family",
-      "sourceUrl": "https://github.com/makehumancommunity/mpfb2",
-      "license": "pending_per_asset_review",
-      "author": "MakeHuman Community / individual asset authors pending per asset review",
-      "redistributionPermission": "pending",
-      "notes": "Use as tooling/source-library candidate only until individual garment assets are allowlisted. Do not assume every third-party garment is redistributable."
-    }
+  "source_id": "makehuman-mpfb-makeclothes-github-2026",
+  "title": "MakeHuman Community MPFB2 / MakeClothes garment tooling candidate",
+  "url": "https://github.com/makehumancommunity/mpfb2",
+  "source_type": "vendor",
+  "citation": "MakeHuman Community. MPFB2 GitHub repository.",
+  "accessed_at": "2026-05-27",
+  "permitted_uses": [
+    "Record as a candidate source family for future license-compatible garment-source intake.",
+    "Use only as metadata for pipeline planning until specific garment assets have recorded source URL, license, author, redistribution permission, semantic key, and provenance hash."
   ],
-  "allowlistedGarments": []
+  "claims_supported": [
+    "MPFB2 / MakeHuman tooling is a candidate ecosystem for garment-source intake research.",
+    "Individual garment assets require per-asset license and redistribution review before materialization or commit."
+  ],
+  "claims_not_supported": [
+    "This record does not allowlist any specific garment asset.",
+    "This record is not evidence of production asset readiness, Quest readiness, clinical validity, or scoring validity.",
+    "This record does not authorize redistribution of third-party MakeHuman garments."
+  ],
+  "confidence": 0.72
 }
