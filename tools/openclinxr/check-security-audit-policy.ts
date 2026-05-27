@@ -137,13 +137,15 @@ const requiredPackageManagerOverrideColumns = [
 
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
-  const [rootPackageJson, exceptionsMarkdown, auditJson] = await Promise.all([
+  const [rootPackageJson, workspaceYaml, exceptionsMarkdown, auditJson] = await Promise.all([
     readJsonFile<PackageJson>("package.json"),
+    readFile("pnpm-workspace.yaml", "utf8"),
     readFile("docs/openclinxr/security-audit-exceptions.md", "utf8"),
     options.auditJsonPath ? readJsonFile<PnpmAuditJson>(options.auditJsonPath) : undefined,
   ]);
   const report = buildSecurityAuditPolicyReport({
     rootPackageJson,
+    rootPackageManagerOverrides: parseWorkspaceOverrides(workspaceYaml),
     exceptionsMarkdown,
     auditJson,
     auditJsonSourcePath: options.auditJsonPath,
@@ -163,6 +165,9 @@ async function main(): Promise<void> {
     for (const finding of report.exceptionFindings) {
       console.error(`${finding.advisory} ${finding.packageName}: ${finding.finding}`);
     }
+    for (const finding of report.packageManagerOverrideFindings) {
+      console.error(`${finding.packageName}: ${finding.finding}`);
+    }
     for (const finding of report.unresolvedAuditFindings) {
       console.error(`${finding.packageName} ${finding.advisory}: unresolved ${finding.severity} audit finding`);
     }
@@ -177,6 +182,7 @@ async function main(): Promise<void> {
 
 export function buildSecurityAuditPolicyReport(input: {
   rootPackageJson: PackageJson;
+  rootPackageManagerOverrides?: Record<string, string>;
   exceptionsMarkdown: string;
   auditJson?: PnpmAuditJson;
   auditJsonSourcePath?: string;
@@ -193,7 +199,7 @@ export function buildSecurityAuditPolicyReport(input: {
     ...packageManagerOverrideParse.findings,
     ...packageManagerOverrideParse.overrides.flatMap(validatePackageManagerOverride),
     ...validateRootPackageManagerOverrides(
-      input.rootPackageJson.pnpm?.overrides ?? {},
+      input.rootPackageManagerOverrides ?? input.rootPackageJson.pnpm?.overrides ?? {},
       packageManagerOverrideParse.overrides,
     ),
   ];
@@ -457,6 +463,33 @@ function validateRootPackageManagerOverrides(
   }
 
   return findings;
+}
+
+function parseWorkspaceOverrides(workspaceYaml: string): Record<string, string> {
+  const overrides: Record<string, string> = {};
+  const lines = workspaceYaml.split("\n");
+  const start = lines.findIndex((line) => line.trim() === "overrides:");
+  if (start === -1) {
+    return overrides;
+  }
+
+  for (const line of lines.slice(start + 1)) {
+    if (/^\S/u.test(line)) {
+      break;
+    }
+
+    const match = line.match(/^\s{2}([^:#]+):\s*"?([^"#]+)"?\s*(?:#.*)?$/u);
+    if (!match) {
+      continue;
+    }
+    const packageName = match[1]?.trim();
+    const pinnedVersion = match[2]?.trim();
+    if (packageName && pinnedVersion) {
+      overrides[packageName] = pinnedVersion;
+    }
+  }
+
+  return overrides;
 }
 
 function auditFindings(auditJson: PnpmAuditJson): AuditFinding[] {

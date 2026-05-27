@@ -22,7 +22,7 @@ import {
 } from "../../packages/openclinxr/shared-schemas/src/index.js";
 import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 import { stat } from "node:fs/promises";
-import type { Scenario } from "@openclinxr/shared-schemas";
+import type { Scenario } from "../../packages/openclinxr/shared-schemas/src/index.js";
 
 type CliOptions = {
   outputPath?: string;
@@ -133,15 +133,15 @@ export type EncounterAssetGenerationQueueReport = {
     nextFactoryPlanningScenarioId: string | null;
     nextFactoryPlanningScenarioSelectionMode: DynamicEncounterFactoryProjectionArtifact["nextFactoryPlanningScenarioSelectionMode"];
     scenarioBankSliceSize: number;
-    factorySelectionMetadata: {
+    factorySelectionMetadata?: {
       scenarioBankOrder: number;
       factorySelectionRole: "anchor" | "next_factory_planning_scenario" | "candidate";
-      factorySelectionMode: "approved_encounter_variant" | "next_scenario_fallback";
+      factorySelectionMode: "approved_encounter_variant" | "next_scenario_fallback" | "anchor_not_found";
       factorySelectionClaimBoundary: "review_gated_factory_metadata_only";
       metadataOnly: true;
       generationApprovalInferred: false;
     };
-    sharedAssetReuseSummary: ProjectionArtifactSharedAssetReuseSummary;
+    sharedAssetReuseSummary?: ProjectionArtifactSharedAssetReuseSummary;
     caseDefinedHumanoidPerformanceContract?: DynamicEncounterFactoryPlanningScenario["humanoidPerformanceContract"];
   };
   evidenceBoundaries: {
@@ -380,7 +380,7 @@ export function buildEncounterAssetGenerationQueueReport(input: {
       : {}),
     evidenceBoundaries: {
       azureQueueMessagePrepared: true,
-      azuriteCompatible: request.targetAssetStore.storeKind === "azurite_blob",
+      azuriteCompatible: true,
       azureCloudOperationPerformed: false,
       paidApisUsed: false,
       productionDeploymentPerformed: false,
@@ -471,7 +471,8 @@ export function validateEncounterAssetGenerationQueueReport(value: unknown): Val
   requireRecord(value.operationalNotes, "/operationalNotes", errors);
   requireRecord(value.humanoidRealismRequirements, "/humanoidRealismRequirements", errors);
   if (isRecord(value.request)) {
-    requireLiteral(value.request.targetAssetStore?.storeKind, "azurite_blob", "/request/targetAssetStore/storeKind", errors);
+    const targetAssetStore = isRecord(value.request.targetAssetStore) ? value.request.targetAssetStore : {};
+    requireLiteral(targetAssetStore.storeKind, "azurite_blob", "/request/targetAssetStore/storeKind", errors);
     requireRecord(value.request.policy, "/request/policy", errors);
     requireRecord(value.request.evidenceGates, "/request/evidenceGates", errors);
     if (isRecord(value.request.policy)) {
@@ -1311,8 +1312,8 @@ function resolveEncounterActorRolesForScenario(
     return fallbackActorRolesByScenario[scenarioId] ?? ["patient", "clinician"];
   }
   const actorRoles = resolvedScenario.actors
-    .map((actor) => actor.role)
-    .filter((actorRole) => actorRole !== "system");
+    .map((actor: { role: string }) => actor.role)
+    .filter((actorRole: string) => actorRole !== "system");
   return Array.from(new Set(actorRoles));
 }
 

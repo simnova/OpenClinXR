@@ -102,7 +102,7 @@ function runRapierContactProbe(): number {
   const learnerHandCollider = world.createCollider(RAPIER.ColliderDesc.ball(0.18), learnerHandBody);
   world.step();
   let contactCount = 0;
-  world.contactPair(humanoidCollider, learnerHandCollider, (manifold) => {
+  world.contactPair(humanoidCollider, learnerHandCollider, (manifold: { numContacts(): number }) => {
     contactCount += manifold.numContacts();
   });
   world.free();

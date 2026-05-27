@@ -803,9 +803,9 @@ function buildCopiedSceneAssetEvidenceReadiness(value: Record<string, unknown> |
     && assets.every((asset) => asset.status === "loaded" && asset.fallbackActive === false);
   const allExpectedAssetsNamed = assets.every((asset) =>
     typeof (asset.name ?? asset.assetId) === "string"
-    && (asset.name ?? asset.assetId as string).trim().length > 0
+    && ((asset.name ?? asset.assetId) as string).trim().length > 0
     && typeof (asset.url ?? asset.assetPath) === "string"
-    && (asset.url ?? asset.assetPath as string).trim().length > 0
+    && ((asset.url ?? asset.assetPath) as string).trim().length > 0
   );
 
   return {

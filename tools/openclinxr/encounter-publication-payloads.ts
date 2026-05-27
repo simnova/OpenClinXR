@@ -25,7 +25,7 @@ import {
   type EncounterOperationalBoundaryNotes,
 } from "./provider-boundary-notes.js";
 import type { VisualQaRemediationWorkOrderRef } from "./visual-qa-evidence-check.js";
-import type { DynamicEncounterFactoryProjectionArtifact } from "@openclinxr/shared-schemas";
+import type { DynamicEncounterFactoryProjectionArtifact } from "../../packages/openclinxr/shared-schemas/src/index.js";
 import type { EncounterAssetGenerationQueueReport } from "./encounter-asset-generation-queue.js";
 import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-station-runtime-bundle.js";
 import type {

@@ -1,0 +1,53 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "package.json",
+    "tools/openclinxr/derive-garment-fit-transform.mjs",
+    "tools/openclinxr/garment-archetype-evidence.mjs",
+    "tools/openclinxr/garment-cache-index.mjs",
+    "tools/openclinxr/garment-hundred-slice-runner.mjs",
+    "tools/openclinxr/garment-ingest-and-fit.mjs",
+    "tools/openclinxr/garment-promotion-gate.mjs",
+    "tools/openclinxr/garment-provider-gate.mjs",
+    "tools/openclinxr/garment-work-order.mjs",
+    "tools/openclinxr/humanoid-source-closeup-comparator.mjs",
+    "tools/openclinxr/materialize-ob-humanoid-source-variants.ts",
+    "tools/openclinxr/strip-humanoid-primitive-proxies.ts"
+  ],
+  "project": [
+    "apps/**/*.{ts,tsx,js,jsx,mjs,cjs}",
+    "packages/**/*.{ts,tsx,js,jsx,mjs,cjs}",
+    "tools/**/*.{ts,tsx,js,jsx,mjs,cjs}"
+  ],
+  "ignoreDependencies": [
+    "@gltf-transform/cli",
+    "@gltf-transform/extensions",
+    "@gltf-transform/functions",
+    "@pmndrs/uikit",
+    "archunit",
+    "gltf-pipeline"
+  ],
+  "ignoreBinaries": [
+    "python3"
+  ],
+  "ignoreIssues": {
+    "apps/ui-admin/src/EnvironmentGenerationQueuePanel.tsx": ["types"],
+    "apps/ui-admin/src/FacultyReviewDecisionPanel.tsx": ["types"],
+    "apps/ui-admin/src/ReviewReplayReadinessSummaryPanel.tsx": ["types"],
+    "apps/ui-admin/src/ReviewReplaySafetyPanel.tsx": ["types"],
+    "apps/ui-admin/src/RuntimeSelectionReviewPacketPanel.tsx": ["types"],
+    "apps/ui-admin/src/ScenarioBankMaturityPanel.tsx": ["types"],
+    "apps/ui-admin/src/SeedExamReadinessBoundaryPanel.tsx": ["types"],
+    "apps/ui-admin/src/api-client.ts": ["exports", "types"],
+    "apps/ui-xr-iwsdk-spike/src/mixed-reality-state.ts": ["types"],
+    "apps/ui-xr-iwsdk-spike/src/uikitml-spatial-text.ts": ["types"],
+    "apps/ui-xr/src/api-client.ts": ["types"],
+    "packages/openclinxr/shared-schemas/src/schemas.ts": ["duplicates", "exports", "types"],
+    "packages/openclinxr/test-harness/src/benchmark-report.ts": ["types"],
+    "tools/agent-factory/agent-loop-plan.ts": ["types"],
+    "tools/agent-factory/agent-roster.ts": ["types"],
+    "tools/openclinxr/encounter-runtime-handoff-adapter.ts": ["types"],
+    "tools/openclinxr/media-artifact-integrity.ts": ["exports", "types"],
+    "tools/openclinxr/provider-boundary-notes.ts": ["types"]
+  }
+}

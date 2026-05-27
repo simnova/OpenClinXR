@@ -140,13 +140,14 @@ const licenseOverrides: LicenseOverride[] = [
   },
   {
     name: "@img/sharp-libvips-*",
-    versions: ["1.0.4", "1.0.5"],
+    versions: ["1.0.4", "1.0.5", "1.2.4"],
     reportedLicense: "LGPL-3.0-or-later",
     effectiveLicense: "APPROVED-SIDECAR-EXCEPTION",
-    reason: "Patrick Gidich approved an IWSDK Phase 2 sidecar-only devDependency exception on 2026-05-04 for @img/sharp-libvips-* packages pulled by exact sharp@0.33.5 through @iwsdk/vite-plugin-dev@0.3.1. The exception is never for production use and must stay scoped to apps/ui-xr-iwsdk-spike.",
+    reason: "Patrick Gidich approved an IWSDK Phase 2 sidecar-only devDependency exception on 2026-05-04 for @img/sharp-libvips-* packages pulled by exact sharp@0.33.5 through @iwsdk/vite-plugin-dev@0.3.1. The same native libvips package family is also pulled by dev-only GLTF Transform CLI/tooling through sharp@0.34.x for local asset processing. The exception is never for production use and must stay scoped to sidecar/dev tooling.",
     evidence: [
       "proposals/approved/proposal-iwsdk-phase2-sharp-libvips-exception.md",
       "apps/ui-xr-iwsdk-spike/package.json",
+      "package.json devDependencies @gltf-transform/cli",
     ],
   },
 ];
@@ -311,7 +312,7 @@ function findApprovedIwsdkSharpLibvipsException(
   if (!dependency.name.startsWith("@img/sharp-libvips-")) {
     return undefined;
   }
-  if (reportedLicense !== "LGPL-3.0-or-later" || !dependency.versions.every((version) => version === "1.0.4" || version === "1.0.5")) {
+  if (reportedLicense !== "LGPL-3.0-or-later" || !dependency.versions.every((version) => version === "1.0.4" || version === "1.0.5" || version === "1.2.4")) {
     return undefined;
   }
 

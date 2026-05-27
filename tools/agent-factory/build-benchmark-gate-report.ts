@@ -3,6 +3,7 @@ import { pathToFileURL } from "node:url";
 import {
   buildQuestManualPerformanceCheck,
   type QuestManualPerformanceCheck,
+  type QuestManualPerformanceHarvestSignalSnapshot,
   type QuestManualPerformancePayload,
 } from "../openclinxr/check-quest-manual-performance.js";
 import {
@@ -710,6 +711,7 @@ type EvidenceGateReport = {
       timed_out?: boolean;
       blockers: string[];
       elapsed_wall_ms?: number | null;
+      signal_snapshot?: QuestManualPerformanceHarvestSignalSnapshot | null;
     };
   };
   quest_mixed_reality_manual?: {

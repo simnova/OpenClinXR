@@ -128,7 +128,7 @@ export type EncounterFactoryInputSummary = {
   source: "scenario_definition_and_dialogue_seed_bank";
   scenarioBankOrder?: number;
   factorySelectionRole?: "anchor" | "next_factory_planning_scenario" | "candidate";
-  factorySelectionMode?: "approved_encounter_variant" | "next_scenario_fallback";
+  factorySelectionMode?: "approved_encounter_variant" | "next_scenario_fallback" | "anchor_not_found";
   factorySelectionClaimBoundary?: "review_gated_factory_metadata_only";
   actorAssetWorkOrderCount: number;
   environmentAssetWorkOrderCount: number;

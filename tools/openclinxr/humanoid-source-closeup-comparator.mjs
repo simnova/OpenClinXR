@@ -1,4 +1,4 @@
-import { chromium } from '/Volumes/files/src/openclinxr/node_modules/.pnpm/playwright@1.59.1/node_modules/playwright/index.mjs';
+import { chromium } from 'playwright';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 

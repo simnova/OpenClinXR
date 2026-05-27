@@ -61,7 +61,7 @@ async function materializeClinicalIdlePoseClip(options: CliOptions): Promise<Rec
   for (const pose of clinicalConversationPose) {
     const nodeName = pose.nodeNames.find((candidate) => nodesByName.has(candidate));
     const node = nodeName ? nodesByName.get(nodeName) : undefined;
-    if (!node) {
+    if (!nodeName || !node) {
       missing.push(pose.nodeNames.join("|"));
       continue;
     }

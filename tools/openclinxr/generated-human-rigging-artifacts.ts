@@ -506,8 +506,8 @@ export function buildGeneratedHumanoidRealismManifest(report: GeneratedHumanRigg
         clothingEvidenceNodes,
       },
       poseLocomotionPosture: {
-        hasAnimationCurves: report.output.animationCount > 0,
-        animationCount: report.output.animationCount,
+        hasAnimationCurves: report.output.semanticInventory.animationCount > 0,
+        animationCount: report.output.semanticInventory.animationCount,
         primaryPostureIntent: "neutral-clinical-stand",
         locomotionProxyPosture: "asset_pose_static",
       },

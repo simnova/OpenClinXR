@@ -2,3 +2,19 @@ packages:
   - "apps/*"
   - "packages/cellix/*"
   - "packages/openclinxr/*"
+
+overrides:
+  fast-uri: "3.1.2"
+  three: "0.184.0"
+  rolldown: "1.0.0-rc.18"
+
+# Emergency security exception: @gltf-transform/cli currently resolves tmp@0.2.7,
+# which clears the high-severity tmp advisory before the normal maturity window.
+minimumReleaseAgeExclude:
+  - "tmp@0.2.7"
+
+allowBuilds:
+  esbuild: true
+  mongodb-memory-server: true
+  protobufjs: true
+  sharp: true

@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22.19.0",
+    "node": ">=24.15.0",
     "pnpm": ">=10.33.0"
   },
-  "packageManager": "pnpm@10.33.0",
+  "packageManager": "pnpm@11.4.0+sha512.f0febc7e37552ab485494a914241b338e0b3580b93d54ce31f00933015880863129038a1b4ae4e414a0ee63ac35bf21197e990172c4a68256450b5636310968f",
   "scripts": {
     "agent:generate": "tsx tools/agent-factory/generate-agent-scaffold.ts",
     "agent:validate": "tsx tools/agent-factory/validate-artifacts.ts",
@@ -195,7 +195,6 @@
     "docs:worktree-cleanup": "tsx tools/agent-factory/build-worktree-cleanup-report.ts"
   },
   "dependencies": {
-    "@azure/storage-queue": "^12.29.0",
     "ajv": "8.20.0",
     "fast-glob": "3.3.3",
     "gray-matter": "4.0.3",
@@ -213,16 +212,10 @@
     "archunit": "2.3.0",
     "gltf-pipeline": "4.3.1",
     "knip": "6.11.0",
+    "playwright": "1.59.1",
     "tsx": "4.21.0",
     "turbo": "2.9.8",
     "typescript": "6.0.3",
     "vitest": "4.1.5"
-  },
-  "pnpm": {
-    "overrides": {
-      "fast-uri": "3.1.2",
-      "three": "0.184.0",
-      "rolldown": "1.0.0-rc.18"
-    }
   }
 }

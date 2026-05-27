@@ -460,7 +460,7 @@ function scenarioRuntimePreset(scenarioId: string): {
   const scenario = scenarioId === "ed_chest_pain_priority_v1" ? undefined : scenarioBank.find((candidate) => candidate.scenarioId === scenarioId);
   if (scenario) {
     const scenarioSlug = scenarioId.replace(/_v\d+$/u, "");
-    const scenarioEquipment = scenario.equipment.length > 0 ? scenario.equipment.slice(0, 2) : ["primary_room_equipment", "secondary_room_equipment"];
+    const scenarioEquipment = (scenario.equipment?.length ?? 0) > 0 ? scenario.equipment!.slice(0, 2) : ["primary_room_equipment", "secondary_room_equipment"];
     return {
       scenarioId,
       encounterId: `${scenarioSlug}_encounter_v1`,
