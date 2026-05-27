@@ -3,10 +3,12 @@ import {
   collectVoiceStream,
   createDefaultVoiceGateway,
   createRealtimeVoiceGatewayPosture,
+  createVibeVoiceProviderAdapter,
   LocalVoiceProviderAdapter,
   MockVoiceProviderAdapter,
   realtimeVoiceProtocol,
   selectRealtimeVoiceProtocol,
+  type VoiceProviderAdapter,
 } from "./index.js";
 
 describe("voice gateway", () => {
@@ -82,6 +84,40 @@ describe("voice gateway", () => {
           blockers: ["mlx_moshi_or_qwen3_tts_not_installed"],
         },
       },
+      providerGates: expect.arrayContaining([
+        expect.objectContaining({
+          gateId: "stt",
+          capability: "transcription",
+          liveProviderReady: false,
+          credentialEvidencePresent: false,
+          runtimeEvidencePresent: false,
+          blockers: expect.arrayContaining([
+            "python_backend_proxy_reachability_evidence_missing",
+            "real_model_inference_not_observed",
+            "stt_medical_vocabulary_wer_evidence_missing",
+          ]),
+          claimBoundary: "voice_provider_gate_metadata_not_live_dialog_readiness",
+        }),
+        expect.objectContaining({
+          gateId: "tts",
+          capability: "synthesis",
+          liveProviderReady: false,
+          blockers: expect.arrayContaining([
+            "tts_first_audio_latency_evidence_missing",
+            "voice_safety_review_missing",
+          ]),
+        }),
+        expect.objectContaining({
+          gateId: "emotional_prosody",
+          state: "blocked",
+          blockers: ["emotional_prosody_policy_review_missing", "affect_safety_review_missing"],
+        }),
+        expect.objectContaining({
+          gateId: "lip_sync_timing",
+          state: "blocked",
+          blockers: ["lip_sync_timing_evidence_missing", "viseme_phoneme_alignment_review_missing"],
+        }),
+      ]),
     });
     expect(posture.protocolLanes).toEqual(expect.arrayContaining([
       expect.objectContaining({
@@ -169,6 +205,11 @@ describe("voice gateway", () => {
       "opus_codec_not_verified",
       "clinical_voice_safety_not_exercised",
     ]));
+    expect(posture.providerGates.every((gate) => gate.liveProviderReady === false)).toBe(true);
+    expect(posture.providerGates.find((gate) => gate.gateId === "stt")?.blockers).toEqual(expect.arrayContaining([
+      "real_model_inference_not_observed",
+      "stt_medical_vocabulary_wer_evidence_missing",
+    ]));
   });
 
   it("does not promote proxy reachability evidence when the backend URL is not configured", () => {
@@ -229,6 +270,47 @@ describe("voice gateway", () => {
     ]));
   });
 
+  it("classifies production STT and TTS gates as cloud-approved without live readiness", () => {
+    const posture = createRealtimeVoiceGatewayPosture({
+      providerProfile: "production",
+      bunAvailable: true,
+      pythonBackendWebSocketUrlConfigured: true,
+      pythonBackendDependenciesInstalled: true,
+      pythonInferenceRuntimeInstalled: true,
+    });
+
+    expect(posture.providerGates).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        gateId: "stt",
+        providerPath: "cloud-approved",
+        state: "planned_pending_evidence",
+        liveProviderReady: false,
+        credentialEvidencePresent: false,
+        runtimeEvidencePresent: false,
+        blockers: expect.arrayContaining([
+          "cloud_voice_provider_approval_missing",
+          "voice_provider_credentials_missing",
+          "real_model_inference_not_observed",
+          "stt_medical_vocabulary_wer_evidence_missing",
+        ]),
+      }),
+      expect.objectContaining({
+        gateId: "tts",
+        providerPath: "cloud-approved",
+        state: "planned_pending_evidence",
+        liveProviderReady: false,
+        credentialEvidencePresent: false,
+        runtimeEvidencePresent: false,
+        blockers: expect.arrayContaining([
+          "cloud_voice_provider_approval_missing",
+          "voice_provider_credentials_missing",
+          "real_model_inference_not_observed",
+          "tts_first_audio_latency_evidence_missing",
+        ]),
+      }),
+    ]));
+  });
+
   it("negotiates preferred realtime protocol lanes without allowing Web3 to carry media", () => {
     const posture = createRealtimeVoiceGatewayPosture({
       bunAvailable: true,
@@ -280,6 +362,7 @@ describe("voice gateway", () => {
 
     const transcript = await collectVoiceStream(
       gateway.transcribe({
+        requestId: "voice-transcribe-request-001",
         stationRunId: "run_001",
         streamId: "learner-mic-001",
         language: "en-US",
@@ -297,19 +380,32 @@ describe("voice gateway", () => {
         text: "When did",
         confidence: 0.75,
         atMs: 120,
-        provenance: expect.objectContaining({ providerId: "mock-voice", modelId: "deterministic-voice-mock" }),
+        provenance: expect.objectContaining({
+          requestId: "voice-transcribe-request-001",
+          providerId: "mock-voice",
+          modelId: "deterministic-voice-mock",
+          modelRuntimeName: "deterministic-voice-mock-runtime",
+          safetyStatus: "not_exercised",
+        }),
       },
       {
         eventType: "final_transcript",
         text: "When did the chest pressure start?",
         confidence: 0.99,
         atMs: 420,
-        provenance: expect.objectContaining({ providerId: "mock-voice", modelId: "deterministic-voice-mock" }),
+        provenance: expect.objectContaining({
+          requestId: "voice-transcribe-request-001",
+          providerId: "mock-voice",
+          modelId: "deterministic-voice-mock",
+          modelRuntimeName: "deterministic-voice-mock-runtime",
+          safetyStatus: "not_exercised",
+        }),
       },
     ]);
 
     const audio = await collectVoiceStream(
       gateway.synthesize({
+        requestId: "voice-synthesis-request-001",
         stationRunId: "run_001",
         actorId: "patient_robert_hayes_v1",
         voiceId: "mock-robert-hayes",
@@ -328,9 +424,78 @@ describe("voice gateway", () => {
         chunkIndex: 0,
         durationMs: 1100,
         visemeCue: "neutral-pain",
-        provenance: expect.objectContaining({ providerId: "mock-voice", modelId: "deterministic-voice-mock" }),
+        provenance: expect.objectContaining({
+          requestId: "voice-synthesis-request-001",
+          providerId: "mock-voice",
+          modelId: "deterministic-voice-mock",
+          modelRuntimeName: "deterministic-voice-mock-runtime",
+          safetyStatus: "not_exercised",
+        }),
       },
     ]);
+  });
+
+  it("skips adapters with contradictory ready health blockers", async () => {
+    const contradictoryReadyAdapter: VoiceProviderAdapter = {
+      id: "contradictory-ready-voice",
+      capabilities: ["synthesis"],
+      async health() {
+        return {
+          providerId: "contradictory-ready-voice",
+          status: "ready",
+          blockers: ["runtime_still_blocked"],
+        };
+      },
+      async *transcribe() {
+        throw new Error("Contradictory adapter should not be selected");
+      },
+      async *synthesize() {
+        throw new Error("Contradictory adapter should not be selected");
+      },
+    };
+    const gateway = createDefaultVoiceGateway({
+      adapters: [contradictoryReadyAdapter, new MockVoiceProviderAdapter()],
+      routeId: "voice-offline-v1",
+    });
+
+    const audio = await collectVoiceStream(
+      gateway.synthesize({
+        requestId: "voice-synthesis-request-guard",
+        stationRunId: "run_001",
+        actorId: "patient_robert_hayes_v1",
+        voiceId: "mock-robert-hayes",
+        text: "It started while I was walking upstairs.",
+        policy: {
+          requestPolicyId: "voice-offline-v1",
+          safetyPolicyVersion: "clinical-simulation-safety-v1",
+        },
+      }),
+    );
+
+    expect(audio[0]?.provenance.providerId).toBe("mock-voice");
+  });
+
+  it("falls back to deterministic voice request IDs when supplied request IDs are blank", async () => {
+    const gateway = createDefaultVoiceGateway({
+      adapters: [new MockVoiceProviderAdapter()],
+      routeId: "voice-offline-v1",
+    });
+
+    const audio = await collectVoiceStream(
+      gateway.synthesize({
+        requestId: "   ",
+        stationRunId: "run_001",
+        actorId: "patient_robert_hayes_v1",
+        voiceId: "mock-robert-hayes",
+        text: "It started while I was walking upstairs.",
+        policy: {
+          requestPolicyId: "voice-offline-v1",
+          safetyPolicyVersion: "clinical-simulation-safety-v1",
+        },
+      }),
+    );
+
+    expect(audio[0]?.provenance.requestId).toBe("run_001:patient_robert_hayes_v1:mock-robert-hayes:synthesis");
   });
 
   it("keeps local voice adapters visible but unavailable until configured", async () => {
@@ -360,6 +525,36 @@ describe("voice gateway", () => {
         }),
       ),
     ).rejects.toThrow("No ready voice provider");
+  });
+
+  it("exposes the named VibeVoice local runtime stub as not configured by default", async () => {
+    const gateway = createDefaultVoiceGateway({
+      adapters: [createVibeVoiceProviderAdapter()],
+      routeId: "voice-local-v1",
+    });
+
+    expect(await gateway.health()).toEqual([
+      {
+        providerId: "local-vibevoice",
+        status: "not_configured",
+        blockers: ["local_voice_runtime_not_configured"],
+      },
+    ]);
+  });
+
+  it("returns immutable local adapter health blockers", async () => {
+    const adapter = new LocalVoiceProviderAdapter({
+      providerId: "local-vibevoice",
+      blockers: ["local_voice_runtime_not_configured"],
+    });
+    const firstHealth = await adapter.health();
+    firstHealth.blockers?.push("mutated_by_caller");
+
+    expect(await adapter.health()).toEqual({
+      providerId: "local-vibevoice",
+      status: "not_configured",
+      blockers: ["local_voice_runtime_not_configured"],
+    });
   });
 
   it("reports local VibeVoice benchmark evidence as blocked for live Quest dialog", async () => {

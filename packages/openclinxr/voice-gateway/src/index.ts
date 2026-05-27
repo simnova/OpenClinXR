@@ -1,6 +1,6 @@
-import type { ProviderHealth } from "@openclinxr/shared-schemas";
+import { validateProviderHealth, type ProviderAuditRecord, type ProviderHealth } from "@openclinxr/shared-schemas";
 
-export type VoiceCapability = "transcription" | "synthesis" | "viseme_cues";
+export type VoiceCapability = "transcription" | "synthesis" | "viseme_cues" | "emotional_prosody" | "lip_sync_timing";
 
 export type RealtimeVoiceProtocolLaneId =
   | "websocket-media"
@@ -101,6 +101,20 @@ export type RealtimeVoiceGatewayPosture = {
     }>;
   };
   protocolLanes: RealtimeVoiceProtocolLane[];
+  providerGates: VoiceSpeechProviderGate[];
+};
+
+export type VoiceSpeechProviderGate = {
+  gateId: "stt" | "tts" | "emotional_prosody" | "lip_sync_timing";
+  capability: VoiceCapability;
+  providerPath: "deterministic-replay" | "local-runtime" | "cloud-approved" | "blocked";
+  state: "ready_for_deterministic_replay" | "planned_pending_evidence" | "blocked";
+  liveProviderReady: false;
+  credentialEvidencePresent: false;
+  runtimeEvidencePresent: false;
+  blockers: string[];
+  recommendedNextAction: string;
+  claimBoundary: "voice_provider_gate_metadata_not_live_dialog_readiness";
 };
 
 export type VoiceRequestPolicy = {
@@ -108,17 +122,12 @@ export type VoiceRequestPolicy = {
   safetyPolicyVersion: string;
 };
 
-export type VoiceProvenance = {
-  providerId: string;
-  modelId: string;
-  modelVersion: string;
-  requestPolicyId: string;
-  safetyPolicyVersion: string;
-  latencyMs: number;
-  costEstimateUsd: number;
-};
+export type VoiceSafetyStatus = ProviderAuditRecord["safetyStatus"];
+
+export type VoiceProvenance = ProviderAuditRecord;
 
 export type SpeechInput = {
+  requestId?: string;
   stationRunId: string;
   streamId: string;
   language: string;
@@ -127,6 +136,7 @@ export type SpeechInput = {
 };
 
 export type SpeechSynthesisRequest = {
+  requestId?: string;
   stationRunId: string;
   actorId: string;
   voiceId: string;
@@ -184,7 +194,7 @@ export class VoiceGateway {
   private async firstReadyAdapter(capability: VoiceCapability): Promise<VoiceProviderAdapter> {
     for (const adapter of this.options.adapters) {
       const health = await adapter.health();
-      if (health.status === "ready" && adapter.capabilities.includes(capability)) {
+      if (validateProviderHealth(health).ok && health.status === "ready" && adapter.capabilities.includes(capability)) {
         return adapter;
       }
     }
@@ -198,6 +208,7 @@ export function createDefaultVoiceGateway(options: VoiceGatewayOptions): VoiceGa
 }
 
 export type RealtimeVoiceGatewayPostureInput = {
+  providerProfile?: "local-development" | "local-production" | "production";
   bunAvailable: boolean;
   pythonBackendWebSocketUrlConfigured?: boolean;
   pythonBackendDependenciesInstalled: boolean;
@@ -338,6 +349,7 @@ export function createRealtimeVoiceGatewayPosture(input: RealtimeVoiceGatewayPos
         notes: "Web3 is scoped to identity, signaling, consent, or audit experiments; it is not a clinical audio media path.",
       },
     ],
+    providerGates: buildVoiceSpeechProviderGates(input, pythonBackendProxyReachabilityEvidence),
   };
 }
 
@@ -348,6 +360,66 @@ const liveDialogReadinessBlockers = [
   "opus_codec_not_verified",
   "clinical_voice_safety_not_exercised",
 ] as const;
+
+function buildVoiceSpeechProviderGates(
+  input: RealtimeVoiceGatewayPostureInput,
+  reachabilityEvidence: RealtimeVoicePythonBackendProxyReachabilityEvidence | undefined,
+): VoiceSpeechProviderGate[] {
+  const sttTtsProviderPath = input.providerProfile === "production" ? "cloud-approved" : "local-runtime";
+  const localRuntimeBlockers = [
+    ...(input.pythonBackendDependenciesInstalled ? [] : ["fastapi_uvicorn_websockets_not_installed"]),
+    ...(input.pythonInferenceRuntimeInstalled ? [] : ["mlx_moshi_or_qwen3_tts_not_installed"]),
+    ...(reachabilityEvidence ? [] : ["python_backend_proxy_reachability_evidence_missing"]),
+    ...liveDialogReadinessBlockers,
+  ];
+
+  return [
+    voiceSpeechProviderGate({
+      gateId: "stt",
+      capability: "transcription",
+      providerPath: sttTtsProviderPath,
+      state: "planned_pending_evidence",
+      blockers: [...localRuntimeBlockers, ...(input.providerProfile === "production" ? ["cloud_voice_provider_approval_missing", "voice_provider_credentials_missing"] : []), "stt_medical_vocabulary_wer_evidence_missing"],
+      recommendedNextAction: "attach_stt_medical_vocabulary_and_latency_evidence",
+    }),
+    voiceSpeechProviderGate({
+      gateId: "tts",
+      capability: "synthesis",
+      providerPath: sttTtsProviderPath,
+      state: "planned_pending_evidence",
+      blockers: [...localRuntimeBlockers, ...(input.providerProfile === "production" ? ["cloud_voice_provider_approval_missing", "voice_provider_credentials_missing"] : []), "tts_first_audio_latency_evidence_missing", "voice_safety_review_missing"],
+      recommendedNextAction: "attach_tts_latency_and_voice_safety_evidence",
+    }),
+    voiceSpeechProviderGate({
+      gateId: "emotional_prosody",
+      capability: "emotional_prosody",
+      providerPath: "blocked",
+      state: "blocked",
+      blockers: ["emotional_prosody_policy_review_missing", "affect_safety_review_missing"],
+      recommendedNextAction: "complete_emotional_prosody_policy_review_before_enabling",
+    }),
+    voiceSpeechProviderGate({
+      gateId: "lip_sync_timing",
+      capability: "lip_sync_timing",
+      providerPath: "blocked",
+      state: "blocked",
+      blockers: ["lip_sync_timing_evidence_missing", "viseme_phoneme_alignment_review_missing"],
+      recommendedNextAction: "attach_lip_sync_timing_and_viseme_alignment_evidence",
+    }),
+  ];
+}
+
+function voiceSpeechProviderGate(
+  input: Omit<VoiceSpeechProviderGate, "liveProviderReady" | "credentialEvidencePresent" | "runtimeEvidencePresent" | "claimBoundary">,
+): VoiceSpeechProviderGate {
+  return {
+    ...input,
+    liveProviderReady: false,
+    credentialEvidencePresent: false,
+    runtimeEvidencePresent: false,
+    claimBoundary: "voice_provider_gate_metadata_not_live_dialog_readiness",
+  };
+}
 
 function realtimeVoiceTransportProxyStatus(
   input: RealtimeVoiceGatewayPostureInput,
@@ -456,7 +528,7 @@ export class MockVoiceProviderAdapter implements VoiceProviderAdapter {
   }
 
   async *transcribe(input: SpeechInput): AsyncIterable<TranscriptEvent> {
-    const provenance = this.provenance(input.policy);
+    const provenance = this.provenance(input);
     yield {
       eventType: "partial_transcript",
       text: "When did",
@@ -480,25 +552,45 @@ export class MockVoiceProviderAdapter implements VoiceProviderAdapter {
       chunkIndex: 0,
       durationMs: 1100,
       visemeCue: "neutral-pain",
-      provenance: this.provenance(input.policy),
+      provenance: this.provenance(input),
     };
   }
 
-  private provenance(policy: VoiceRequestPolicy): VoiceProvenance {
+  private provenance(input: SpeechInput | SpeechSynthesisRequest): VoiceProvenance {
     return {
+      requestId: voiceRequestId(input),
       providerId: this.id,
       modelId: "deterministic-voice-mock",
       modelVersion: "1.0.0",
-      requestPolicyId: policy.requestPolicyId,
-      safetyPolicyVersion: policy.safetyPolicyVersion,
+      modelRuntimeName: "deterministic-voice-mock-runtime",
+      requestPolicyId: input.policy.requestPolicyId,
+      safetyPolicyVersion: input.policy.safetyPolicyVersion,
       latencyMs: 0,
       costEstimateUsd: 0,
+      safetyStatus: "not_exercised",
     };
   }
 }
 
+function voiceRequestId(input: SpeechInput | SpeechSynthesisRequest): string {
+  if (input.requestId && input.requestId.trim().length > 0) {
+    return input.requestId;
+  }
+
+  if ("streamId" in input) {
+    return `${input.stationRunId}:${input.streamId}:transcription`;
+  }
+
+  return `${input.stationRunId}:${input.actorId}:${input.voiceId}:synthesis`;
+}
+
 export type LocalVoiceProviderOptions = {
   providerId: string;
+  blockers?: string[];
+  runtimeEvidence?: LocalVoiceRuntimeBenchmarkEvidence;
+};
+
+export type LocalVoiceProviderStubOptions = {
   blockers?: string[];
   runtimeEvidence?: LocalVoiceRuntimeBenchmarkEvidence;
 };
@@ -544,13 +636,13 @@ export class LocalVoiceProviderAdapter implements VoiceProviderAdapter {
 
   async health(): Promise<ProviderHealth> {
     if (this.options.runtimeEvidence) {
-      return localVoiceRuntimeEvidenceHealth(this.id, this.options.runtimeEvidence, this.options.blockers ?? []);
+      return localVoiceRuntimeEvidenceHealth(this.id, this.options.runtimeEvidence, [...(this.options.blockers ?? [])]);
     }
 
     return {
       providerId: this.id,
       status: "not_configured",
-      blockers: this.options.blockers ?? ["local_voice_runtime_not_configured"],
+      blockers: [...(this.options.blockers ?? ["local_voice_runtime_not_configured"])],
     };
   }
 
@@ -561,6 +653,21 @@ export class LocalVoiceProviderAdapter implements VoiceProviderAdapter {
   async *synthesize(): AsyncIterable<AudioEvent> {
     throw new Error(`Local voice provider ${this.id} is not configured`);
   }
+}
+
+export function createVibeVoiceProviderAdapter(options: LocalVoiceProviderStubOptions = {}): LocalVoiceProviderAdapter {
+  const adapterOptions: LocalVoiceProviderOptions = {
+    providerId: "local-vibevoice",
+  };
+
+  if (options.blockers) {
+    adapterOptions.blockers = options.blockers;
+  }
+  if (options.runtimeEvidence) {
+    adapterOptions.runtimeEvidence = options.runtimeEvidence;
+  }
+
+  return new LocalVoiceProviderAdapter(adapterOptions);
 }
 
 function localVoiceRuntimeEvidenceHealth(
