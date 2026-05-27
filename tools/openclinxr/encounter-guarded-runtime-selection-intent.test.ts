@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -41,6 +40,18 @@ const preflight = (): EncounterLocalFactoryHandoffPreflightReport => ({
   },
   runtimeBridgeAllowed: false,
   learnerLaunchAllowed: false,
+  caseDefinedActorRealismLaunchBadges: [
+    {
+      actorId: "patient_child",
+      actorRole: "patient",
+      baselineMood: ["anxious"],
+      requiredCueIds: ["work_of_breathing"],
+      requiredDimensions: ["age_appropriate_body_scale", "respiratory_distress_pose", "caregiver_context"],
+      status: "realismBlocked",
+      blockers: ["humanoid_visual_qa_evidence_not_attached"],
+      claimBoundary: "case_defined_actor_realism_launch_badge_metadata_only",
+    },
+  ],
   blockers: ["runtime_realism_evidence_not_attached", "humanoid_visual_qa_evidence_not_attached", "quest_webxr_evidence_not_attached"],
   evidenceBoundaries: {
     uiLaunchPerformed: false,

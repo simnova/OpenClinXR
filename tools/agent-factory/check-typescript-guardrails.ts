@@ -4,13 +4,10 @@ const allowedTsNoCheckFiles = new Set([
   "tools/agent-factory/benchmark-gate-report.test.ts",
   "tools/openclinxr/encounter-asset-generation-queue.test.ts",
   "tools/openclinxr/encounter-asset-generation-worker.test.ts",
-  "tools/openclinxr/encounter-guarded-runtime-selection-intent.test.ts",
   "tools/openclinxr/encounter-local-factory-handoff-preflight.test.ts",
-  "tools/openclinxr/encounter-local-factory-operation-manifest.test.ts",
   "tools/openclinxr/encounter-local-launch-selection.test.ts",
   "tools/openclinxr/encounter-publication-payloads.test.ts",
   "tools/openclinxr/humanoid-realism-gate.test.ts",
-  "tools/openclinxr/publish-generated-learner-runtime-bundle.test.ts",
   "tools/openclinxr/quest-manual-performance-check.test.ts",
 ]);
 

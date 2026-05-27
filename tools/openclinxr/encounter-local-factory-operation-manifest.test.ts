@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -30,6 +29,60 @@ const launchSelection = (): EncounterLocalLaunchSelectionReport => ({
   dynamicBehaviorTags: ["dialogue:patient", "gaze:patient"],
   actorRoles: ["patient", "family", "nurse"],
   selectedAssetCounts: { actors: 3, humanoidRuntimeRequirements: 3, equipment: 1, roomProps: 1, uiSurfaces: 0 },
+  launchContract: {
+    schemaVersion: "openclinxr.case-definition-driven-webxr-launch-contract.v1",
+    contractId: "encounter_assets_ed_chest_pain_executable_v1:webxr-launch-contract:v1",
+    status: "blocked_pending_evidence",
+    selectedScenarioId: "ed_chest_pain_priority_v1",
+    selectedEncounterId: "encounter_assets_ed_chest_pain_executable_v1",
+    selectedStationId: "ed_chest_pain_station_v1",
+    runtimeAssetBundleId: "ed_chest_pain_encounter_v1:learner-runtime-bundle:v1",
+    actorRoster: [
+      {
+        actorId: "patient_robert_hayes_v1",
+        actorRole: "patient",
+        modelAssetId: "robert_hayes_runtime_model_v1",
+        source: "learner_runtime_bundle_humanoid_requirement",
+      },
+    ],
+    caseDefinedActorRealismRequirements: [
+      {
+        actorId: "patient_robert_hayes_v1",
+        actorRole: "patient",
+        sourceWorkOrderIds: ["ed_chest_pain_patient_actor_runtime_v1"],
+        requiredSignalIds: ["case_definition_driven_expression_selection", "dialogue_viseme_and_gaze_mapping", "actor_target_gaze_from_trace_intent"],
+        locomotionRequired: true,
+        expressionRequired: true,
+        gazeRequired: true,
+        lipSyncRequired: true,
+        interactiveRequired: true,
+        claimBoundary: "case_definition_humanoid_runtime_handoff_metadata_only",
+      },
+    ],
+    actorRealismLaunchBadges: [
+      {
+        actorId: "patient_robert_hayes_v1",
+        actorRole: "patient",
+        status: "realismBlocked",
+        blockers: ["actor_specific_humanoid_realism_gate_not_attached", "runtime_realism_evidence_not_attached", "humanoid_visual_qa_evidence_not_attached"],
+        claimBoundary: "actor_specific_humanoid_gate_required_before_runtime_launch",
+      },
+    ],
+    caseDefinitionCoverage: {
+      actorRolesCovered: true,
+      traceTagsCovered: true,
+      equipmentPlacementsPresent: true,
+      assetNeedsCarriedByWorkOrders: true,
+      blockers: [],
+    },
+    launchBlockingReasons: [
+      "runtime_realism_evidence_not_attached",
+      "humanoid_visual_qa_evidence_not_attached",
+      "quest_webxr_evidence_not_attached",
+      "actor_specific_humanoid_realism_gate_not_attached",
+    ],
+    notEvidenceFor: ["runtime_readiness", "quest_readiness", "production_readiness", "clinical_validity", "scoring_validity"],
+  },
   realismEvidenceRefs: {
     claimBoundary: "metadata_only_not_runtime_or_visual_quality_evidence",
     refIds: ["humanoid-realism-gate", "runtime-realism-evidence-check", "visual-qa-evidence-check"],

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { describe, expect, it } from "vitest";
 import {
   buildGeneratedLearnerRuntimeBundlePublicationReport,
@@ -186,7 +185,10 @@ describe("generated learner runtime bundle publication report", () => {
 
   it("rejects corrupted publication reports that overclaim runtime use", () => {
     const report = buildGeneratedLearnerRuntimeBundlePublicationReport();
-    const invalid = structuredClone(report);
+    const invalid = structuredClone(report) as unknown as {
+      publication: { learnerRuntimeUseBlocked: boolean };
+      evidenceBoundaries: { questReadinessClaimed: boolean };
+    };
     invalid.publication.learnerRuntimeUseBlocked = false;
     invalid.evidenceBoundaries.questReadinessClaimed = true;
 
