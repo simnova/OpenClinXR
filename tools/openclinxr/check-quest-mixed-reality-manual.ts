@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import fg from "fast-glob";
+import { glob } from "tinyglobby";
 
 type CliOptions = {
   inputPath?: string;
@@ -128,7 +128,7 @@ function requireValue(args: string[], index: number, flag: string): string {
 }
 
 async function latestMixedRealityManualReportPath(): Promise<string | undefined> {
-  const files = (await fg("docs/openclinxr/quest-mixed-reality-manual-*.json", { onlyFiles: true }))
+  const files = (await glob("docs/openclinxr/quest-mixed-reality-manual-*.json", { onlyFiles: true }))
     .filter((file) => !file.endsWith("quest-mixed-reality-manual-template.json"))
     .filter((file) => !path.basename(file).startsWith("quest-mixed-reality-manual-check-"))
     .sort();

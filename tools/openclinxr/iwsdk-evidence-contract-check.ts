@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import fg from "fast-glob";
+import { glob } from "tinyglobby";
 import {
   buildIwsdkCoreRequiredTransitivePackageNames,
   buildIwsdkCoreTransitivePackageLicenseEvidence,
@@ -129,7 +129,7 @@ async function main(): Promise<void> {
 }
 
 async function validateLatestReportFile(pattern: string): Promise<void> {
-  const files = (await fg(pattern, { onlyFiles: true })).sort();
+  const files = (await glob(pattern, { onlyFiles: true })).sort();
   const latestFile = files.at(-1);
   if (!latestFile) {
     throw new Error(`No IWSDK evidence contract snapshots matched ${pattern}`);

@@ -1,6 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import fg from "fast-glob";
+import { glob } from "tinyglobby";
 
 export const scoreWeights = {
   clinical_validity: 10,
@@ -52,7 +52,7 @@ export type AgentIndex = {
 };
 
 export async function globFiles(patterns: string | string[]): Promise<string[]> {
-  return fg(patterns, {
+  return glob(patterns, {
     cwd: process.cwd(),
     absolute: false,
     dot: true,

@@ -4,7 +4,7 @@ import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
-import fg from "fast-glob";
+import { glob } from "tinyglobby";
 
 const execFileAsync = promisify(execFile);
 
@@ -511,7 +511,7 @@ async function enterImmersiveVr(client: CdpClient): Promise<Record<string, unkno
 }
 
 async function latestQuestSmokeReportPath(pattern: string): Promise<string | undefined> {
-  return (await fg(pattern, { onlyFiles: true })).sort().at(-1);
+  return (await glob(pattern, { onlyFiles: true })).sort().at(-1);
 }
 
 async function readJson<TValue>(filePath: string): Promise<TValue> {

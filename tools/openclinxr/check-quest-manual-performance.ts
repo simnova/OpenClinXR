@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import fg from "fast-glob";
+import { glob } from "tinyglobby";
 
 type CliOptions = {
   inputPath?: string;
@@ -401,7 +401,7 @@ function requireValue(args: string[], index: number, flag: string): string {
 }
 
 async function latestManualReportPath(): Promise<string | undefined> {
-  const files = (await fg("docs/openclinxr/quest-manual-performance-*.json", { onlyFiles: true }))
+  const files = (await glob("docs/openclinxr/quest-manual-performance-*.json", { onlyFiles: true }))
     .filter((file) => !file.endsWith("quest-manual-performance-template.json"))
     .filter((file) => !path.basename(file).startsWith("quest-manual-performance-check-"))
     .sort();
