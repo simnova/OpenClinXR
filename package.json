@@ -5,7 +5,7 @@
   "type": "module",
   "engines": {
     "node": ">=24.15.0",
-    "pnpm": ">=10.33.0"
+    "pnpm": ">=11.4.0"
   },
   "packageManager": "pnpm@11.4.0+sha512.f0febc7e37552ab485494a914241b338e0b3580b93d54ce31f00933015880863129038a1b4ae4e414a0ee63ac35bf21197e990172c4a68256450b5636310968f",
   "scripts": {
@@ -33,7 +33,10 @@
     "packages:typecheck:affected": "TURBO_TELEMETRY_DISABLED=1 DO_NOT_TRACK=1 turbo run typecheck --affected --filter '@openclinxr/*' --filter '@cellix/*'",
     "packages:test:affected": "TURBO_TELEMETRY_DISABLED=1 DO_NOT_TRACK=1 turbo run test --affected --filter '@openclinxr/*' --filter '@cellix/*'",
     "packages:build:affected": "TURBO_TELEMETRY_DISABLED=1 DO_NOT_TRACK=1 turbo run build --affected --filter '@openclinxr/*' --filter '@cellix/*'",
-    "typecheck": "tsgo --noEmit && pnpm packages:typecheck",
+    "typecheck": "pnpm typecheck:strict && pnpm typecheck:relaxed && pnpm typecheck:guardrails && pnpm packages:typecheck",
+    "typecheck:strict": "tsgo --noEmit",
+    "typecheck:relaxed": "tsgo --noEmit -p tsconfig.tools-relaxed.json",
+    "typecheck:guardrails": "tsx tools/agent-factory/check-typescript-guardrails.ts",
     "test": "pnpm test:tools && pnpm packages:test",
     "test:tools": "vitest run tools/**/*.test.ts",
     "security:audit": "pnpm audit --audit-level=high",
@@ -173,6 +176,7 @@
     "xr:quest:mr:check": "tsx tools/openclinxr/check-quest-mixed-reality-manual.ts",
     "xr:quest:http3:check": "tsx tools/openclinxr/check-quest-http3-compatibility.ts",
     "hygiene:knip": "knip --no-progress --reporter compact --no-exit-code",
+    "hygiene:biome": "biome ci biome.json package.json tsconfig.json tsconfig.tools-relaxed.json tools/agent-factory/check-typescript-guardrails.ts",
     "hygiene:e18e:help": "e18e-cli analyze --help",
     "hygiene:e18e:analyze": "e18e-cli analyze --log-level error",
     "asset:shared-library-cache:evidence": "tsx tools/openclinxr/shared-asset-library-cache-evidence.ts",
@@ -184,7 +188,7 @@
     "hooks:install": "git config core.hooksPath .githooks",
     "hooks:pre-commit": "pnpm docs:drift-check && pnpm agent:alignment && pnpm openclaw:post-slice",
     "hooks:pre-push": "pnpm docs:drift-check && pnpm agent:alignment && pnpm openclaw:post-slice",
-    "hooks:strict": "pnpm typecheck && pnpm security:audit && pnpm security:audit-policy && pnpm security:licenses && pnpm hygiene:knip && pnpm hygiene:e18e:analyze",
+    "hooks:strict": "pnpm typecheck && pnpm security:audit && pnpm security:audit-policy && pnpm security:licenses && pnpm hygiene:knip && pnpm hygiene:biome && pnpm hygiene:e18e:analyze",
     "openclaw:preflight": "pnpm openclaw:ready",
     "openclaw:post-slice": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --post-slice",
     "openclaw:automation-prompt": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --print-automation-prompt",
@@ -201,6 +205,7 @@
     "mongoose": "9.6.1"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.4.15",
     "@dimforge/rapier3d-compat": "^0.19.3",
     "@e18e/cli": "0.5.0",
     "@gltf-transform/cli": "^4.3.0",

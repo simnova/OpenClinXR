@@ -1,9 +1,9 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "exactOptionalPropertyTypes": false,
-    "noUncheckedIndexedAccess": false,
     "types": ["node"]
   },
-  "include": ["tools/**/*.ts"]
+  "include": [
+    "tools/agent-factory/check-typescript-guardrails.ts"
+  ]
 }
