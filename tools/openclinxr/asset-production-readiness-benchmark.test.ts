@@ -145,14 +145,14 @@ describe("asset production readiness report", () => {
     expect(report.stationBudgetEvidence).toEqual({
       scenarioId: "ed_chest_pain_priority_v1",
       source: "@openclinxr/asset-registry:createEdChestPainPlaceholderManifests",
-      requiredAssetCount: 8,
+      requiredAssetCount: 10,
       budget: {
         maxVisibleTriangles: 180000,
         maxTextureMegabytes: 512,
         maxDrawCalls: 120,
-        totalTriangles: 98000,
-        totalTextureMegabytes: 136,
-        totalDrawCalls: 52,
+        totalTriangles: 108000,
+        totalTextureMegabytes: 152,
+        totalDrawCalls: 60,
         blockers: [],
       },
       placeholderOnly: true,
