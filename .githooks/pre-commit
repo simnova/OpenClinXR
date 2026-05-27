@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+set -eu
+
+if [ "${OPENCLAW_SKIP_HOOKS:-}" = "1" ]; then
+  echo "OPENCLAW_SKIP_HOOKS=1 set; skipping pre-commit hook."
+  exit 0
+fi
+
+export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+  # shellcheck disable=SC1090
+  . "$NVM_DIR/nvm.sh"
+  nvm use >/dev/null
+fi
+
+echo "Running OpenClaw pre-commit guardrails..."
+pnpm docs:drift-check
+pnpm agent:alignment
+pnpm openclaw:post-slice

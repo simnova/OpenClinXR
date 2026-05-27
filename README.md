@@ -53,6 +53,26 @@ For the full high-confidence readiness gate:
 pnpm openclaw:ready
 ```
 
+Install repo-local Git hooks:
+
+```bash
+pnpm hooks:install
+```
+
+The `pre-commit` hook runs fast OpenClaw hygiene: `docs:drift-check`, `agent:alignment`, and `openclaw:post-slice`.
+
+The `pre-push` hook repeats the fast OpenClaw hygiene so pushes do not publish drift.
+
+Run the strict local gate before release branches or broad merges:
+
+```bash
+pnpm hooks:strict
+```
+
+The strict gate runs TypeScript checks, `pnpm audit`, security policy/license checks, `knip`, and `e18e`. It is not installed as a blocking Git hook until the existing TypeScript baseline is repaired.
+
+Use `OPENCLAW_SKIP_HOOKS=1` only for intentional emergency bypasses.
+
 If the readiness gate is unavailable, or when debugging suspected drift, run the component checks:
 
 ```bash

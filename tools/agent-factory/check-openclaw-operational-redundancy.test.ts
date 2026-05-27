@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildOperationalRedundancyReport, type OperationalRedundancyInput } from "./check-openclaw-operational-redundancy";
+import { buildOperationalRedundancyReport, type OperationalRedundancyInput } from "./check-openclaw-operational-redundancy.js";
 
 const packageJson = {
   scripts: {
