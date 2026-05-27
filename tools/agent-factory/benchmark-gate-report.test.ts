@@ -2,21 +2,21 @@ import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import {
-  buildBenchmarkGateReport,
-  isQuestManualPerformanceRawReportPath,
-  isQuestMixedRealityManualRawReportPath,
-  latestVisualQaEvidenceJson,
-  latestJson,
-} from "./build-benchmark-gate-report.js";
+import { buildAssetProductionArtifactEvidenceReport } from "../openclinxr/asset-production-artifact-evidence.js";
+import { buildAssetProductionEvidenceLadderReport } from "../openclinxr/asset-production-evidence-ladder.js";
+import type { AssetProductionReadinessReport } from "../openclinxr/asset-production-readiness-benchmark.js";
 import type { QuestManualPerformanceReport } from "../openclinxr/check-quest-manual-performance.js";
 import type { QuestMixedRealityManualReport } from "../openclinxr/check-quest-mixed-reality-manual.js";
 import type { LocalMoshiRuntimePackageEvidenceReport } from "../openclinxr/local-moshi-runtime-package-evidence.js";
 import type { LocalQwenTtsRuntimeSmokeReport } from "../openclinxr/local-qwen-tts-runtime-smoke.js";
 import type { VisualQaEvidence } from "../openclinxr/visual-qa-evidence-check.js";
-import { buildAssetProductionEvidenceLadderReport } from "../openclinxr/asset-production-evidence-ladder.js";
-import { buildAssetProductionArtifactEvidenceReport } from "../openclinxr/asset-production-artifact-evidence.js";
-import type { AssetProductionReadinessReport } from "../openclinxr/asset-production-readiness-benchmark.js";
+import {
+  buildBenchmarkGateReport,
+  isQuestManualPerformanceRawReportPath,
+  isQuestMixedRealityManualRawReportPath,
+  latestJson,
+  latestVisualQaEvidenceJson,
+} from "./build-benchmark-gate-report.js";
 
 type BlockerGroup = {
   group_id: string;

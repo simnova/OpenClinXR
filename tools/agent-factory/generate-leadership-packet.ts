@@ -1,6 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { iterationScorecardPaths, readJson, requireArgs, scorecardSummary, type Scorecard } from "./lib.js";
+import { iterationScorecardPaths, readJson, requireArgs, type Scorecard, scorecardSummary } from "./lib.js";
 
 const orderedFiles = [
   "00-brief.md",
@@ -23,7 +23,7 @@ async function main(): Promise<void> {
     sections.push("## Score Summary");
     for (const file of scorecards.sort()) {
       const scorecard = await readJson<Scorecard>(file);
-      sections.push("```text\n" + scorecardSummary(file, scorecard) + "\n```");
+      sections.push(`\`\`\`text\n${scorecardSummary(file, scorecard)}\n\`\`\``);
     }
   }
 

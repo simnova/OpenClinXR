@@ -1,6 +1,6 @@
-import { Ajv2020 } from "ajv/dist/2020.js";
 import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
+import { Ajv2020 } from "ajv/dist/2020.js";
 import { buildIwsdkSourceRecordIdContract } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
 import { globFiles, readJson } from "./lib.js";
 

@@ -1,5 +1,5 @@
-import { globFiles, readJson, writeJson, type Scorecard } from "./lib.js";
 import { pathToFileURL } from "node:url";
+import { globFiles, readJson, type Scorecard, writeJson } from "./lib.js";
 
 export type RiskRecord = {
   id: string;

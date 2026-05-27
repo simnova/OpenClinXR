@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, statSync, writeFileSync, mkdirSync } from "node:fs";
+import { mkdirSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 export type DocAuthority =

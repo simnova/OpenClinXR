@@ -176,7 +176,7 @@
     "xr:quest:mr:check": "tsx tools/openclinxr/check-quest-mixed-reality-manual.ts",
     "xr:quest:http3:check": "tsx tools/openclinxr/check-quest-http3-compatibility.ts",
     "hygiene:knip": "knip --no-progress --reporter compact --no-exit-code",
-    "hygiene:biome": "biome ci biome.json package.json tsconfig.json tsconfig.tools-relaxed.json tools/agent-factory/check-typescript-guardrails.ts apps/*/package.json packages/*/*/package.json packages/openclinxr/*/package.json",
+    "hygiene:biome": "biome ci biome.json package.json tsconfig.json tsconfig.tools-relaxed.json tools/agent-factory apps/*/package.json packages/*/*/package.json packages/openclinxr/*/package.json",
     "hygiene:e18e:help": "e18e-cli analyze --help",
     "hygiene:e18e:analyze": "e18e-cli analyze --log-level error",
     "asset:shared-library-cache:evidence": "tsx tools/openclinxr/shared-asset-library-cache-evidence.ts",

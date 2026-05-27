@@ -1,5 +1,24 @@
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import type { ApiBunPythonProxyRuntimeSmokeReport } from "../openclinxr/api-bun-python-proxy-runtime-smoke.js";
+import type { ApiBunWebSocketRuntimeSmokeReport } from "../openclinxr/api-bun-websocket-runtime-smoke.js";
+import type { ApiPythonBackendRuntimeSmokeReport } from "../openclinxr/api-python-backend-runtime-smoke.js";
+import {
+  type AssetCapabilityJobEvidenceReport,
+  validateAssetCapabilityJobEvidenceReport,
+} from "../openclinxr/asset-capability-job-evidence.js";
+import {
+  type AssetProductionArtifactEvidenceReport,
+  validateAssetProductionArtifactEvidenceReport,
+} from "../openclinxr/asset-production-artifact-evidence.js";
+import {
+  type AssetProductionEvidenceLadderReport,
+  validateAssetProductionEvidenceLadderReport,
+} from "../openclinxr/asset-production-evidence-ladder.js";
+import {
+  type AssetProductionReadinessReport,
+  validateAssetProductionReadinessReport,
+} from "../openclinxr/asset-production-readiness-benchmark.js";
 import {
   buildQuestManualPerformanceCheck,
   type QuestManualPerformanceCheck,
@@ -11,41 +30,22 @@ import {
   type QuestMixedRealityManualCheck,
   type QuestMixedRealityManualReport,
 } from "../openclinxr/check-quest-mixed-reality-manual.js";
+import type { GodotProjectImportCheck } from "../openclinxr/godot-project-import-check.js";
+import type { GodotQuestVoiceEvidenceReport } from "../openclinxr/godot-quest-voice-evidence-check.js";
+import type { LocalModelCacheEvidenceReport } from "../openclinxr/local-model-cache-evidence.js";
+import type { LocalMoshiRuntimePackageEvidenceReport } from "../openclinxr/local-moshi-runtime-package-evidence.js";
+import type { LocalQwenTtsRuntimeSmokeReport } from "../openclinxr/local-qwen-tts-runtime-smoke.js";
+import type { LocalRealtimeVoiceModelSourceCurrentnessReport } from "../openclinxr/local-realtime-voice-model-source-currentness-check.js";
 import {
   buildQuestSmokeEvidenceCheck,
   type QuestSmokeEvidenceCheck,
   type QuestSmokeReport,
 } from "../openclinxr/quest-cdp-smoke.js";
-import type { ApiBunWebSocketRuntimeSmokeReport } from "../openclinxr/api-bun-websocket-runtime-smoke.js";
-import type { ApiBunPythonProxyRuntimeSmokeReport } from "../openclinxr/api-bun-python-proxy-runtime-smoke.js";
-import type { ApiPythonBackendRuntimeSmokeReport } from "../openclinxr/api-python-backend-runtime-smoke.js";
-import {
-  validateAssetCapabilityJobEvidenceReport,
-  type AssetCapabilityJobEvidenceReport,
-} from "../openclinxr/asset-capability-job-evidence.js";
-import {
-  validateAssetProductionEvidenceLadderReport,
-  type AssetProductionEvidenceLadderReport,
-} from "../openclinxr/asset-production-evidence-ladder.js";
-import {
-  validateAssetProductionArtifactEvidenceReport,
-  type AssetProductionArtifactEvidenceReport,
-} from "../openclinxr/asset-production-artifact-evidence.js";
-import {
-  validateAssetProductionReadinessReport,
-  type AssetProductionReadinessReport,
-} from "../openclinxr/asset-production-readiness-benchmark.js";
-import type { LocalMoshiRuntimePackageEvidenceReport } from "../openclinxr/local-moshi-runtime-package-evidence.js";
-import type { LocalModelCacheEvidenceReport } from "../openclinxr/local-model-cache-evidence.js";
-import type { LocalQwenTtsRuntimeSmokeReport } from "../openclinxr/local-qwen-tts-runtime-smoke.js";
-import type { LocalRealtimeVoiceModelSourceCurrentnessReport } from "../openclinxr/local-realtime-voice-model-source-currentness-check.js";
-import type { GodotProjectImportCheck } from "../openclinxr/godot-project-import-check.js";
 import {
   buildVisualQaEvidenceReport,
   type VisualQaEvidence,
   type VisualQaEvidenceReport,
 } from "../openclinxr/visual-qa-evidence-check.js";
-import type { GodotQuestVoiceEvidenceReport } from "../openclinxr/godot-quest-voice-evidence-check.js";
 import { globFiles, readJson, writeJson } from "./lib.js";
 
 type GateStatus = {

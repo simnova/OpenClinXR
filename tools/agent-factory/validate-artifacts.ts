@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
-import { type AnySchema } from "ajv";
+import type { AnySchema } from "ajv";
 import { Ajv2020 } from "ajv/dist/2020.js";
-import { globFiles, readJson, type AgentIndex } from "./lib.js";
+import { type AgentIndex, globFiles, readJson } from "./lib.js";
 
 type ValidationFailure = {
   file: string;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildMaturityReport } from "./build-maturity-report.js";
-import { scoreWeights, type Scorecard } from "./lib.js";
+import { type Scorecard, scoreWeights } from "./lib.js";
 
 describe("maturity report builder", () => {
   it("surfaces exact selected blocker ids for the latest iteration", () => {

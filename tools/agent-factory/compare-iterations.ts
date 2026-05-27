@@ -1,4 +1,4 @@
-import { compositeScore, readJson, requireArgs, scoreWeights, weightedScore, type ScoreDimension, type Scorecard } from "./lib.js";
+import { compositeScore, readJson, requireArgs, type Scorecard, type ScoreDimension, scoreWeights, weightedScore } from "./lib.js";
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);

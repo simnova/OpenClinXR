@@ -1,6 +1,6 @@
 import path from "node:path";
 import { buildAgentLoopArtifact, canonicalAgentLoopArtifact, inferPreviousIterationDir } from "./agent-loop-plan.js";
-import { scoreWeights, globFiles, readJson, readText, type ScoreDimension } from "./lib.js";
+import { globFiles, readJson, readText, type ScoreDimension, scoreWeights } from "./lib.js";
 
 type Failure = {
   file: string;

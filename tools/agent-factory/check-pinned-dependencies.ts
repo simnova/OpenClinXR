@@ -1,5 +1,5 @@
-import { globFiles, readJson } from "./lib.js";
 import { pathToFileURL } from "node:url";
+import { globFiles, readJson } from "./lib.js";
 
 type PackageJson = {
   name?: string;

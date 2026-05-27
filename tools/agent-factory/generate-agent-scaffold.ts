@@ -1,6 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { agentRoster, type AgentDefinition } from "./agent-roster.js";
+import { type AgentDefinition, agentRoster } from "./agent-roster.js";
 
 const today = "2026-05-03";
 
@@ -88,7 +88,7 @@ ${agent.memoryTopics.map((topic) => `- Track ${topic} across iterations.`).join(
 }
 
 function index(agent: AgentDefinition): string {
-  return JSON.stringify(
+  return `${JSON.stringify(
     {
       agent_id: agent.id,
       team: agent.team,
@@ -109,11 +109,11 @@ function index(agent: AgentDefinition): string {
     },
     null,
     2,
-  ) + "\n";
+  )}\n`;
 }
 
 function scoreHistory(agent: AgentDefinition): string {
-  return JSON.stringify(
+  return `${JSON.stringify(
     {
       agent_id: agent.id,
       team: agent.team,
@@ -121,7 +121,7 @@ function scoreHistory(agent: AgentDefinition): string {
     },
     null,
     2,
-  ) + "\n";
+  )}\n`;
 }
 
 async function writeIfMissing(filePath: string, content: string): Promise<"created" | "kept"> {

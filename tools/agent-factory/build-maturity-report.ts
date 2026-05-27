@@ -1,13 +1,13 @@
+import { pathToFileURL } from "node:url";
 import {
   compositeScore,
   globFiles,
   readJson,
+  type Scorecard,
+  type ScoreDimension,
   weightedScore,
   writeJson,
-  type ScoreDimension,
-  type Scorecard,
 } from "./lib.js";
-import { pathToFileURL } from "node:url";
 
 export type ScorecardFile = {
   file: string;

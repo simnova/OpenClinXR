@@ -1,4 +1,4 @@
-import { iterationScorecardPaths, missingScoreDimensions, readJson, scorecardSummary, type Scorecard } from "./lib.js";
+import { iterationScorecardPaths, missingScoreDimensions, readJson, type Scorecard, scorecardSummary } from "./lib.js";
 
 async function main(): Promise<void> {
   const iterationDir = process.argv[2] ?? "iterations/iteration-0001";

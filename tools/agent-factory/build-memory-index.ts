@@ -1,5 +1,5 @@
-import { globFiles, readJson, writeJson, type AgentIndex } from "./lib.js";
 import { pathToFileURL } from "node:url";
+import { type AgentIndex, globFiles, readJson, writeJson } from "./lib.js";
 
 export type MemoryIndexAgentFile = AgentIndex & {
   source_file: string;
