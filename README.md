@@ -11,11 +11,97 @@ This repository is early-stage infrastructure, not a clinical product. Runtime, 
 Useful entry points:
 
 - [OpenClinXR docs](docs/openclinxr/)
+- [Agent operating contract](AGENTS.md)
+- [Project coordination index](PROJECT_COORDINATION_INDEX.md)
+- [Autonomous work plan](AUTONOMOUS_WORK_PLAN.md)
+- [OpenClaw runbook](docs/openclinxr/openclaw-runbook-2026-05-27.md)
+- [OpenClaw tool adapters](docs/openclinxr/openclaw-tool-adapters-2026-05-27.md)
+- [Blueprint-factory drift guardrails](docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md)
 - [Implementation plan](docs/openclinxr/code-implementation-plan.md)
 - [PNPM audit cadence runbook](docs/openclinxr/security-audit-cadence.md)
 - [Quest 3 USB WebXR smoke checklist](docs/openclinxr/quest3-usb-webxr-smoke-checklist.md)
 - [Local AI voice model strategy](docs/openclinxr/local-ai-voice-model-strategy.md)
 - [Automated asset generation pipeline](docs/openclinxr/asset-generation-pipeline.md)
+
+## OpenClaw Agent Kickoff
+
+OpenClaw mode is repo-native, not tied to one agent host. Codex, Claude, Grok Code, Cursor, or another tool can participate if it follows the same canonical files and keeps work blueprint/factory-driven.
+
+Before a long run or after suspected drift:
+
+```bash
+pnpm docs:authority
+pnpm docs:artifacts
+pnpm docs:drift-check
+pnpm agent:alignment
+```
+
+Use this universal kickoff prompt when switching tools:
+
+```text
+Continue in repo-native OpenClaw mode in /Volumes/files/src/openclinxr.
+
+Use AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, docs/openclinxr/openclaw-runbook-2026-05-27.md, docs/openclinxr/openclaw-tool-adapters-2026-05-27.md, and docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md as the source of truth.
+
+Do not use generic chat autonomy. Do not hand-design individual encounters. All scene, humanoid, clothing, animation, conversation, emotion, locomotion, gaze/lip-sync, equipment, trace, persistence, provider, and review work must flow from encounter specifications/blueprints through reusable factory/provider/cache pipelines.
+
+Before selecting work, apply the OpenClaw drift guard: no scattered markdown, no one-off status/checkpoint/prompt artifacts, no unregistered generated artifacts, no evidence refresh unless it unlocks a concrete implementation decision. If drift is suspected, consult agents/adversarial/openclaw-drift-police/ and run or request pnpm docs:drift-check.
+
+Use live subagents only if this host supports them and they materially reduce drift/risk/review cost. Otherwise use local role consultation from agents/** charters/memory. Record only canonical outcomes.
+
+After each slice, run focused verification when available, update canonical state with product path advanced, blueprint/factory tie, touched files, evidence, and next queued slice, then continue. Stop only if explicitly told to pause/stop or all approved lanes are truly blocked and recorded.
+```
+
+Host-specific shortcuts:
+
+- `Codex`: use for local implementation, terminal verification, Browser screenshots, and optional live-subagent orchestration.
+- `Claude`: use for high-level reasoning, adversarial review, specs, or implementation when shell/files are available; do not claim verification without evidence.
+- `Grok Code`: use as a bounded specialist for critique, external tooling/options, and adversarial review; keep provider/license gates explicit.
+- `Cursor`: use for focused local code edits with visible diffs; avoid broad refactors unless a canonical cleanup plan requires them.
+
+If any host creates clutter, one-off encounter work, or unregistered artifacts, invoke the Drift Police role in [agents/adversarial/openclaw-drift-police](agents/adversarial/openclaw-drift-police/) and correct back to the active product queue.
+
+Copy-paste kickoff prompts:
+
+`Codex`
+
+```text
+Continue in repo-native OpenClaw mode in /Volumes/files/src/openclinxr using Codex local tools.
+
+Read AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, docs/openclinxr/openclaw-runbook-2026-05-27.md, docs/openclinxr/openclaw-tool-adapters-2026-05-27.md, and docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md as needed.
+
+Use terminal, file edits, focused verification, and Browser screenshots when they directly advance or prove the case-definition-driven WebXR encounter factory. Run pnpm docs:drift-check and pnpm agent:alignment before long unattended work or after suspected drift. Select the next approved product slice from AUTONOMOUS_WORK_PLAN.md and continue without treating slice completion as a stop condition.
+```
+
+`Claude`
+
+```text
+Operate as a repo-native OpenClaw agent for /Volumes/files/src/openclinxr, not as generic Claude chat.
+
+Use AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/openclaw-runbook-2026-05-27.md, and docs/openclinxr/openclaw-tool-adapters-2026-05-27.md as the source of truth. Keep work blueprint/factory-driven and avoid hand-designing individual encounters.
+
+If you have shell and file access, implement the next smallest approved product slice and run focused verification. If you do not have execution access, act as a bounded planner/reviewer: identify the exact slice, risks, files, verification commands, and Drift Police concerns without creating new status artifacts.
+```
+
+`Grok Code`
+
+```text
+Act as a bounded OpenClaw specialist for /Volumes/files/src/openclinxr.
+
+Use the repository guardrails in AGENTS.md, PROJECT_COORDINATION_INDEX.md, docs/openclinxr/openclaw-runbook-2026-05-27.md, docs/openclinxr/openclaw-tool-adapters-2026-05-27.md, and docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md.
+
+Focus on adversarial critique, external tooling/options, provider/license constraints, realism scoring, and narrowly scoped implementation only when it advances the encounter-factory pipeline. Do not use paid/cloud providers, claim readiness, or introduce one-off encounter assets unless explicitly approved and routed through provider/cache/provenance gates.
+```
+
+`Cursor`
+
+```text
+Run Cursor in repo-native OpenClaw mode for /Volumes/files/src/openclinxr.
+
+Use AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/openclaw-runbook-2026-05-27.md, docs/openclinxr/openclaw-tool-adapters-2026-05-27.md, and docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md before editing.
+
+Make focused diffs against the next approved product slice, preserve the case-definition-driven factory architecture, avoid broad cleanup unless backed by a canonical plan, and run the smallest relevant verification command before claiming completion. If drift appears, invoke the OpenClaw Drift Police role and correct back to the canonical queue.
+```
 
 ## Verification
 
