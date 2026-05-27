@@ -209,7 +209,6 @@
     "@types/node": "25.6.0",
     "@typescript/native-preview": "7.0.0-dev.20260503.1",
     "ajv": "8.20.0",
-    "archunit": "2.3.0",
     "gltf-pipeline": "4.3.1",
     "knip": "6.11.0",
     "mongoose": "9.6.1",
