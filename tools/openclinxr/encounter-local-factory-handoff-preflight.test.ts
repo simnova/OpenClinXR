@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -75,6 +74,14 @@ function manifest(root: string): EncounterLocalFactoryOperationManifest {
         requiredCueIds: ["scenario_actor_interaction_affordance"],
       },
     ],
+    realismEvidenceRefs: {
+      claimBoundary: "metadata_only_not_runtime_or_visual_quality_evidence",
+      refIds: ["humanoid-realism-gate", "runtime-realism-evidence-check", "visual-qa-evidence-check"],
+      requiredBefore: "guarded_runtime_wiring",
+      runtimeExecutionAllowed: false,
+      providerExecutionPerformed: false,
+      questReadinessClaimed: false,
+    },
     guardedRuntimeSelectorDecision: {
       schemaVersion: "openclinxr.guarded-runtime-selector-disabled-decision.v1",
       selectionStatus: "blocked_intent_bundle_missing",

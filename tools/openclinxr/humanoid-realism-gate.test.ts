@@ -1,10 +1,10 @@
-// @ts-nocheck
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 import { buildDynamicEncounterFactoryPlanningProjection } from "../../packages/openclinxr/scenario-fixtures/src/index.js";
 import {
   buildCaseDefinedActorRealismLaunchBadges,
   buildHumanoidRealismGateReport,
+  type HumanoidRealismGateReport,
   validateHumanoidRealismGateReport,
 } from "./humanoid-realism-gate.js";
 
@@ -128,12 +128,17 @@ describe("humanoid realism gate", () => {
       blockedDimensions: [],
       blockers: [],
       claimBoundary: "case_defined_actor_realism_launch_badge_metadata_only",
-      notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+      notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"] as [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity",
+      ],
     })]);
   });
 
   it("blocks actor readiness badges when humanoid gate evidence or case cues are missing", () => {
-    const blockedReport = {
+    const blockedReport: HumanoidRealismGateReport = {
       schemaVersion: "openclinxr.humanoid-realism-gate.v1" as const,
       generatedAt: "2026-05-23T00:00:00.000Z",
       inputPath: "neutral.glb",
@@ -158,7 +163,12 @@ describe("humanoid realism gate", () => {
         nextPipelineActions: [],
       },
       productionReadinessClaimed: false as const,
-      notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"] as const,
+      notEvidenceFor: [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity",
+      ],
     };
 
     const [badge] = buildCaseDefinedActorRealismLaunchBadges([

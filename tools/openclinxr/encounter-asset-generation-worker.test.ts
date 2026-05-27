@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -6,10 +5,12 @@ import { describe, expect, it } from "vitest";
 import { buildEncounterAssetGenerationQueueReport } from "./encounter-asset-generation-queue.js";
 import {
   buildEncounterAssetGenerationWorkerReport,
+  type EncounterAssetGenerationWorkerReport,
   isAzuriteConnectionString,
   runEncounterAssetGenerationWorkerCli,
   validateEncounterAssetGenerationWorkerReport,
 } from "./encounter-asset-generation-worker.js";
+import type { VisualQaRemediationWorkOrderRef } from "./visual-qa-evidence-check.js";
 
 describe("encounter asset generation worker report", () => {
   it("exposes worker generation and validation scripts", async () => {
@@ -29,7 +30,7 @@ describe("encounter asset generation worker report", () => {
   });
 
   it("turns a queue report into one persisted worker execution", async () => {
-    const remediationWorkOrderRefs = [
+    const remediationWorkOrderRefs: VisualQaRemediationWorkOrderRef[] = [
       {
         schemaVersion: "openclinxr.visual-qa-remediation-work-order-ref.v1",
         scenarioId: "ed_chest_pain_priority_v1",
@@ -226,7 +227,12 @@ describe("encounter asset generation worker report", () => {
       queueReport,
       generatedAt: "2026-05-23T12:30:00.000Z",
     });
-    const invalidReport = structuredClone(workerReport);
+    const invalidReport = structuredClone(workerReport) as EncounterAssetGenerationWorkerReport & {
+      operationalNotes: {
+        providerDisabledBoundary: { claimBoundary: string; missingEvidenceIds: string[] };
+        localOnlyBoundary: { missingEvidenceIds: string[] };
+      };
+    };
     invalidReport.operationalNotes.providerDisabledBoundary.claimBoundary = "local_only_asset_pipeline_metadata_not_live_provider_readiness";
     invalidReport.operationalNotes.providerDisabledBoundary.missingEvidenceIds = [];
     invalidReport.operationalNotes.localOnlyBoundary.missingEvidenceIds = ["azurite_or_queue_emulator_evidence_missing"];
@@ -261,18 +267,29 @@ describe("encounter asset generation worker report", () => {
       await runEncounterAssetGenerationWorkerCli(["--queue-report", queueReportPath, "--output", outputPath]);
       await expect(runEncounterAssetGenerationWorkerCli(["--validate", outputPath])).resolves.toBeUndefined();
 
-      const invalidReport = JSON.parse(await readFile(outputPath, "utf8"));
+      const invalidReport = JSON.parse(await readFile(outputPath, "utf8")) as {
+        evidenceBoundaries: { azureCloudOperationPerformed: boolean };
+        persistedExecutions: Array<{
+          plan: { humanoidRealismRequirements: { requirements: Array<{ requiredAssetKinds: string[] }> } };
+          evidenceGateRefs: Array<{ gateId: string; requiredSignalIds: string[] }>;
+          sharedAssetLibraryCacheEvents: Array<{
+            notEvidenceFor: string[];
+            generationDisposition: string;
+            evidenceGateCompatibility: { checkedBeforeReuse: boolean };
+          }>;
+        }>;
+      };
       invalidReport.evidenceBoundaries.azureCloudOperationPerformed = true;
-      invalidReport.persistedExecutions[0].plan.humanoidRealismRequirements.requirements[0].requiredAssetKinds = [
+      invalidReport.persistedExecutions[0]!.plan.humanoidRealismRequirements.requirements[0]!.requiredAssetKinds = [
         "generated_humanoid_mesh",
       ];
-      invalidReport.persistedExecutions[0].evidenceGateRefs.find((gate) => gate.gateId === "runtime_realism_evidence").requiredSignalIds = [
+      invalidReport.persistedExecutions[0]!.evidenceGateRefs.find((gate) => gate.gateId === "runtime_realism_evidence")!.requiredSignalIds = [
         "animated_humanoid_runtime_playback",
       ];
-      invalidReport.persistedExecutions[0].sharedAssetLibraryCacheEvents[0].notEvidenceFor = ["quest_readiness"];
-      invalidReport.persistedExecutions[0].sharedAssetLibraryCacheEvents[1].generationDisposition = "skip_generation_reuse_cached_asset";
-      invalidReport.persistedExecutions[0].sharedAssetLibraryCacheEvents[1].evidenceGateCompatibility.checkedBeforeReuse = false;
-      invalidReport.persistedExecutions[0].sharedAssetLibraryCacheEvents.pop();
+      invalidReport.persistedExecutions[0]!.sharedAssetLibraryCacheEvents[0]!.notEvidenceFor = ["quest_readiness"];
+      invalidReport.persistedExecutions[0]!.sharedAssetLibraryCacheEvents[1]!.generationDisposition = "skip_generation_reuse_cached_asset";
+      invalidReport.persistedExecutions[0]!.sharedAssetLibraryCacheEvents[1]!.evidenceGateCompatibility.checkedBeforeReuse = false;
+      invalidReport.persistedExecutions[0]!.sharedAssetLibraryCacheEvents.pop();
       await writeFile(invalidPath, `${JSON.stringify(invalidReport, null, 2)}\n`, "utf8");
 
       process.exitCode = undefined;
