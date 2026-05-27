@@ -28,4 +28,4 @@ Benchmark gates should not change the meaning of an existing scorecard evidence 
 
 ## Go-Forward Rule
 
-Continue narrow verified implementation slices. Every slice should either close an evidence gate, enforce an architecture decision, keep evidence-ledger mappings current, or add a facade/test that makes future local/native/provider swaps safer.
+Continue narrow verified implementation slices, but do not let evidence closure become the product. Prefer slices that make the learner, faculty, admin, XR runtime, scenario bank, persistence, provider, or asset pipeline path more complete. Evidence-gate work remains valid when it unlocks one of those slices, verifies touched code, or captures a newly available runtime/hardware fact; otherwise it is toil and should be deferred.

@@ -15,6 +15,23 @@ Specialty physicians, legal counsel, compliance counsel, and IP/open-source coun
 
 The factory is for planning and design maturity. It must not generate OpenClinXR product implementation code unless a separate implementation plan is reviewed and approved.
 
+## Implementation-Time Steering Rule
+
+During autonomous code work, use the Agent Factory as focus memory, not as a reason to restart broad planning.
+
+`PROJECT_COORDINATION_INDEX.md` is the short coordinator-facing control index that decides when to consult this factory during implementation.
+
+Use `agents/**/charter.md`, `agents/**/memory.md`, and the latest `iterations/iteration-*/07-final-synthesis.md` when:
+
+- task selection feels scattered;
+- evidence refresh work has repeated without product advancement;
+- a slice needs adversarial or leadership-style critique before implementation;
+- model assignment or specialist ownership is unclear.
+
+Do not run a full factory loop just to continue routine implementation. First try to pick a product-shaping worker slice from `AUTONOMOUS_WORK_PLAN.md` and `docs/openclinxr/worker-backlog-and-validation-matrix.md`.
+
+Evidence, scorecards, and maturity reports are steering signals. They are not a substitute for making the learner, faculty, scenario-author, reviewer, XR runtime, persistence, provider, or asset pipeline paths more complete.
+
 ## Standard Workflow
 
 1. Create an iteration brief in `iterations/iteration-XXXX/00-brief.md`.
