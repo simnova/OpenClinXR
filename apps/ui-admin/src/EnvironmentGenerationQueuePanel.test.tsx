@@ -46,7 +46,7 @@ describe("EnvironmentGenerationQueuePanel", () => {
                 factoryPlanningClaimBoundary: "review_gated_factory_metadata_only",
                 generationApprovalInferred: false,
               },
-              workOrder: sceneGenerationPipelineQueueFixture().workOrders[0],
+              workOrder: sceneGenerationPipelineQueueFixture().workOrders[0]!,
             },
           ],
         }}
@@ -415,7 +415,7 @@ describe("EnvironmentGenerationQueuePanel", () => {
               accepted: true,
               productionAssetReadinessClaimed: false,
               claimBoundary: "scene_generation_request_not_asset_production",
-              workOrder: sceneGenerationPipelineQueueFixture().workOrders[0],
+              workOrder: sceneGenerationPipelineQueueFixture().workOrders[0]!,
             },
           ],
         }}
@@ -459,7 +459,7 @@ describe("EnvironmentGenerationQueuePanel", () => {
                 factoryPlanningClaimBoundary: "review_gated_factory_metadata_only",
                 generationApprovalInferred: false,
               },
-              workOrder: sceneGenerationPipelineQueueFixture().workOrders[1],
+              workOrder: sceneGenerationPipelineQueueFixture().workOrders[1]!,
             },
           ],
         }}

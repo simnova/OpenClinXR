@@ -1556,7 +1556,7 @@ function fakeControlPlaneClient(): AdminControlPlaneClient {
       accepted: true,
       productionAssetReadinessClaimed: false,
       claimBoundary: "scene_generation_request_not_asset_production",
-      workOrder: (await fakeControlPlaneClient().getScenarioBankSceneGenerationPipelineQueue()).workOrders[0],
+      workOrder: (await fakeControlPlaneClient().getScenarioBankSceneGenerationPipelineQueue()).workOrders[0]!,
     }),
     listScenarioSceneGenerationRequests: async () => ({
       requestCount: 0,
@@ -1574,7 +1574,7 @@ function fakeControlPlaneClient(): AdminControlPlaneClient {
       accepted: true,
       productionAssetReadinessClaimed: false,
       claimBoundary: "scene_generation_request_not_asset_production",
-      workOrder: (await fakeControlPlaneClient().getScenarioBankSceneGenerationPipelineQueue()).workOrders[0],
+      workOrder: (await fakeControlPlaneClient().getScenarioBankSceneGenerationPipelineQueue()).workOrders[0]!,
     }),
     getScenarioSceneGenerationRequestPublicationReadiness: async () => ({
       requestId: "scene_generation_request:ed_chest_pain_priority_v1:local-admin",

@@ -377,7 +377,9 @@ function ReviewReplayWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
           {reviewReplayReadinessSummary ? (
             <ReviewReplayReadinessSummaryPanel
               summary={reviewReplayReadinessSummary}
-              humanoidPerformanceContract={reviewReplayReadinessSummary.caseDefinedHumanoidPerformanceContract}
+              {...(reviewReplayReadinessSummary.caseDefinedHumanoidPerformanceContract
+                ? { humanoidPerformanceContract: reviewReplayReadinessSummary.caseDefinedHumanoidPerformanceContract }
+                : {})}
             />
           ) : null}
 
@@ -385,7 +387,9 @@ function ReviewReplayWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
             packet={packet}
             clinicalEventReviewSummary={clinicalEventReviewSummary}
             reviewReplayReadinessSummary={reviewReplayReadinessSummary}
-            humanoidPerformanceContract={reviewReplayReadinessSummary?.caseDefinedHumanoidPerformanceContract}
+            {...(reviewReplayReadinessSummary?.caseDefinedHumanoidPerformanceContract
+              ? { humanoidPerformanceContract: reviewReplayReadinessSummary.caseDefinedHumanoidPerformanceContract }
+              : {})}
             traceEventCount={traceEventCount}
             safetyFlagLabels={safetyFlagLabels}
           />
@@ -817,7 +821,7 @@ function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: A
     ])
       .then(([detail, publicationReadiness]) => {
         if (active) {
-          setState({ status: "ready", detail, publicationReadiness });
+          setState(publicationReadiness ? { status: "ready", detail, publicationReadiness } : { status: "ready", detail });
         }
       })
       .catch((error: unknown) => {
@@ -1368,7 +1372,7 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
           environmentGenerationWorkOrderQueue={state.environmentGenerationWorkOrderQueue}
           sceneGenerationPipelineQueue={state.sceneGenerationPipelineQueue}
           sceneGenerationRequestQueue={state.sceneGenerationRequestQueue}
-          sceneGenerationPublicationReadiness={sceneGenerationPublicationReadiness}
+          {...(sceneGenerationPublicationReadiness ? { sceneGenerationPublicationReadiness } : {})}
           onInitiateSceneGeneration={(scenarioId) => void initiateSceneGeneration(scenarioId)}
           onAttachSceneGenerationReview={(request) => void attachSceneGenerationReview(request)}
           onCheckSceneGenerationPublicationReadiness={(request) => void checkSceneGenerationPublicationReadiness(request)}

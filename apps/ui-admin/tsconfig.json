@@ -3,9 +3,7 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "types": ["vitest/globals", "@testing-library/jest-dom"],
-    "noEmit": true,
-    "exactOptionalPropertyTypes": false,
-    "noUncheckedIndexedAccess": false
+    "noEmit": true
   },
   "include": ["src", "vite.config.ts", "vite.config.test.ts"]
 }
