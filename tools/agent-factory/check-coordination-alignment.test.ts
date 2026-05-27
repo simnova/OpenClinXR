@@ -89,6 +89,7 @@ const alignedFiles = {
     "OpenClaw Start Sequence",
     "Required Per-Slice Record",
     "Canonical Automation Prompt",
+    "pnpm openclaw:ready",
     "pnpm docs:drift-check",
     "case-definition-driven WebXR encounter factory",
     "agents/adversarial/openclaw-drift-police/",
@@ -159,6 +160,7 @@ const alignedFiles = {
 };
 
 const alignedScripts = {
+  "openclaw:ready": "tsx tools/agent-factory/check-openclaw-readiness.ts",
   "agent:alignment": "tsx tools/agent-factory/check-coordination-alignment.ts",
   "docs:authority": "tsx tools/agent-factory/build-doc-authority-registry.ts",
   "docs:artifacts": "tsx tools/agent-factory/build-generated-artifact-registry.ts",

@@ -105,6 +105,14 @@ Stop only if explicitly told to pause/stop or if all approved lanes are truly bl
 The repo is ready for longer unattended OpenClaw work only when the following pass:
 
 ```bash
+pnpm openclaw:ready
+```
+
+`openclaw:ready` is the preferred high-confidence gate because it checks the worktree is clean, the current branch is synchronized with upstream, the doc/artifact registries are reproducible, and the drift/alignment checks pass.
+
+If the readiness gate is unavailable, use the component checks directly:
+
+```bash
 pnpm docs:authority
 pnpm docs:artifacts
 pnpm docs:drift-check
@@ -112,3 +120,5 @@ pnpm agent:alignment
 ```
 
 A run can proceed with at least 80% confidence when those checks pass and the next slice is selected from the active product queue rather than from stale chat context.
+
+A run can proceed with 95%+ confidence only when `pnpm openclaw:ready` passes from a clean, upstream-synchronized checkout and the next slice has a clear product path plus blueprint/factory tie.

@@ -62,6 +62,7 @@ const requiredMarkers: Record<string, string[]> = {
     "protected OpenClaw control surface",
     "Required Per-Slice Record",
     "Canonical Automation Prompt",
+    "pnpm openclaw:ready",
     "pnpm docs:drift-check",
     "case-definition-driven WebXR encounter factory",
     "openclaw-tool-adapters-2026-05-27.md",
@@ -133,6 +134,9 @@ export function buildOpenClawDriftReport(input: OpenClawDriftInput): OpenClawDri
   }
 
   const scripts = input.packageJson?.scripts ?? {};
+  if (scripts["openclaw:ready"] !== "tsx tools/agent-factory/check-openclaw-readiness.ts") {
+    failures.push({ file: "package.json", message: "openclaw:ready script must run the OpenClaw readiness checker" });
+  }
   if (scripts["docs:drift-check"] !== "tsx tools/agent-factory/check-openclaw-drift.ts") {
     failures.push({ file: "package.json", message: "docs:drift-check script must run the OpenClaw drift checker" });
   }

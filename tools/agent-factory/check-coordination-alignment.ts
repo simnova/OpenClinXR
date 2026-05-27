@@ -130,6 +130,7 @@ const requiredMarkers: Record<string, string[]> = {
     "OpenClaw Start Sequence",
     "Required Per-Slice Record",
     "Canonical Automation Prompt",
+    "pnpm openclaw:ready",
     "pnpm docs:drift-check",
     "case-definition-driven WebXR encounter factory",
     "agents/adversarial/openclaw-drift-police/",
@@ -233,6 +234,12 @@ export function buildCoordinationAlignmentReport(input: CoordinationAlignmentInp
   }
 
   const scripts = input.packageJson?.scripts ?? {};
+  if (scripts["openclaw:ready"] !== "tsx tools/agent-factory/check-openclaw-readiness.ts") {
+    failures.push({
+      file: "package.json",
+      message: "openclaw:ready script must run the OpenClaw readiness checker",
+    });
+  }
   if (scripts["agent:alignment"] !== "tsx tools/agent-factory/check-coordination-alignment.ts") {
     failures.push({
       file: "package.json",
