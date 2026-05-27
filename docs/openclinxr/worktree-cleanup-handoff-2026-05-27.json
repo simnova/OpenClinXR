@@ -4,10 +4,9 @@
   "usageRule": "Use this report to keep cleanup commits separate from product-code and generated-code stabilization work.",
   "counts": {
     "local-cache": 2,
-    "product-code": 173,
-    "runtime-assets": 23,
-    "generated-code": 35,
-    "other": 6
+    "product-code": 175,
+    "agent-memory-docs": 4,
+    "generated-code": 11
   },
   "entries": [
     {
@@ -89,288 +88,6 @@
       "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
     },
     {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/environment/PROVENANCE.md",
-      "category": "runtime-assets",
-      "recommendedAction": "Commit only with provenance/source/registry coverage and package-level asset verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/environment/ed-exam-bay-shell.glb",
-      "category": "runtime-assets",
-      "recommendedAction": "Commit only with provenance/source/registry coverage and package-level asset verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/clinic_abdominal_pain_interpreter_v1/learner-runtime-bundle.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/clinic_abdominal_pain_interpreter_v1/scene-manifest.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/ed_chest_pain_priority_v1/learner-runtime-bundle.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/ed_chest_pain_priority_v1/scene-manifest.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/ed_chest_pain_priority_v2/learner-runtime-bundle.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/ed_chest_pain_priority_v2/scene-manifest.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/ed_stroke_alert_handoff_v1/learner-runtime-bundle.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/ed_stroke_alert_handoff_v1/scene-manifest.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/ob_headache_preeclampsia_triage_v1/learner-runtime-bundle.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/ob_headache_preeclampsia_triage_v1/scene-manifest.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/oncology_bad_news_family_v1/learner-runtime-bundle.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/oncology_bad_news_family_v1/scene-manifest.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/peds_asthma_parent_anxiety_v1/learner-runtime-bundle.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/peds_asthma_parent_anxiety_v1/scene-manifest.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/postop_fever_consult_pressure_v1/learner-runtime-bundle.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/postop_fever_consult_pressure_v1/scene-manifest.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/psych_suicidal_ideation_safety_v1/learner-runtime-bundle.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/psych_suicidal_ideation_safety_v1/scene-manifest.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/stepdown_sepsis_nurse_escalation_v1/learner-runtime-bundle.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/stepdown_sepsis_nurse_escalation_v1/scene-manifest.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/telehealth_diabetes_health_literacy_v1/learner-runtime-bundle.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/telehealth_diabetes_health_literacy_v1/scene-manifest.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/ward_delirium_med_rec_v1/learner-runtime-bundle.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/generated/ward_delirium_med_rec_v1/scene-manifest.v1.json",
-      "category": "generated-code",
-      "recommendedAction": "Commit only with its owning schema/API/package change after focused verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/humanoids/PROVENANCE.md",
-      "category": "runtime-assets",
-      "recommendedAction": "Commit only with provenance/source/registry coverage and package-level asset verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/charmorph-antonia-ob-patient-candidate.glb",
-      "category": "runtime-assets",
-      "recommendedAction": "Commit only with provenance/source/registry coverage and package-level asset verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/charmorph-reom-ob-patient-candidate.glb",
-      "category": "runtime-assets",
-      "recommendedAction": "Commit only with provenance/source/registry coverage and package-level asset verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb",
-      "category": "runtime-assets",
-      "recommendedAction": "Commit only with provenance/source/registry coverage and package-level asset verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/reom-local-authored-curved-clinical-top-candidate.glb",
-      "category": "runtime-assets",
-      "recommendedAction": "Commit only with provenance/source/registry coverage and package-level asset verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/reom-local-fitted-scrub-top-candidate.glb",
-      "category": "runtime-assets",
-      "recommendedAction": "Commit only with provenance/source/registry coverage and package-level asset verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/reom-namuhekam-polo-candidate.glb",
-      "category": "runtime-assets",
-      "recommendedAction": "Commit only with provenance/source/registry coverage and package-level asset verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/reom-namuhekam-polo-clearance-candidate.glb",
-      "category": "runtime-assets",
-      "recommendedAction": "Commit only with provenance/source/registry coverage and package-level asset verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/reom-shirts01-cc0-elvs-crude-tshirt-candidate.glb",
-      "category": "runtime-assets",
-      "recommendedAction": "Commit only with provenance/source/registry coverage and package-level asset verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/reom-toigo-basic-tucked-tshirt-candidate.glb",
-      "category": "runtime-assets",
-      "recommendedAction": "Commit only with provenance/source/registry coverage and package-level asset verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/humanoids/neutral-generated-human.glb",
-      "category": "runtime-assets",
-      "recommendedAction": "Commit only with provenance/source/registry coverage and package-level asset verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/humanoids/variants/adult-standard-generated-human.glb",
-      "category": "runtime-assets",
-      "recommendedAction": "Commit only with provenance/source/registry coverage and package-level asset verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/humanoids/variants/bariatric-adult-generated-human.glb",
-      "category": "runtime-assets",
-      "recommendedAction": "Commit only with provenance/source/registry coverage and package-level asset verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/humanoids/variants/ob-nurse-williams-generated-human.glb",
-      "category": "runtime-assets",
-      "recommendedAction": "Commit only with provenance/source/registry coverage and package-level asset verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/humanoids/variants/ob-partner-omar-generated-human.glb",
-      "category": "runtime-assets",
-      "recommendedAction": "Commit only with provenance/source/registry coverage and package-level asset verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/humanoids/variants/ob-patient-aisha-generated-human.glb",
-      "category": "runtime-assets",
-      "recommendedAction": "Commit only with provenance/source/registry coverage and package-level asset verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/humanoids/variants/older-adult-kyphotic-generated-human.glb",
-      "category": "runtime-assets",
-      "recommendedAction": "Commit only with provenance/source/registry coverage and package-level asset verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/humanoids/variants/pediatric-school-age-generated-human.glb",
-      "category": "runtime-assets",
-      "recommendedAction": "Commit only with provenance/source/registry coverage and package-level asset verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/medical-equipment/PROVENANCE.md",
-      "category": "runtime-assets",
-      "recommendedAction": "Commit only with provenance/source/registry coverage and package-level asset verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
-      "category": "runtime-assets",
-      "recommendedAction": "Commit only with provenance/source/registry coverage and package-level asset verification."
-    },
-    {
-      "status": "A",
-      "path": "apps/ui-xr/public/xr-assets/medical-equipment/iv-pole-with-pump.glb",
-      "category": "runtime-assets",
-      "recommendedAction": "Commit only with provenance/source/registry coverage and package-level asset verification."
-    },
-    {
       "status": "M",
       "path": "apps/ui-xr/src/api-client.test.ts",
       "category": "product-code",
@@ -411,6 +128,30 @@
       "path": "apps/ui-xr/src/styles.css",
       "category": "product-code",
       "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
+    },
+    {
+      "status": "A",
+      "path": "docs/superpowers/plans/2026-05-21-faculty-review-decision-panel.md",
+      "category": "agent-memory-docs",
+      "recommendedAction": "Review as agent-memory update; commit only if it reflects current OpenClaw guidance."
+    },
+    {
+      "status": "A",
+      "path": "docs/superpowers/plans/2026-05-24-encounter-factory-completion.md",
+      "category": "agent-memory-docs",
+      "recommendedAction": "Review as agent-memory update; commit only if it reflects current OpenClaw guidance."
+    },
+    {
+      "status": "A",
+      "path": "docs/superpowers/plans/2026-05-25-dynamic-encounter-factory-completion.md",
+      "category": "agent-memory-docs",
+      "recommendedAction": "Review as agent-memory update; commit only if it reflects current OpenClaw guidance."
+    },
+    {
+      "status": "A",
+      "path": "docs/superpowers/specs/2026-05-21-faculty-review-decision-panel-design.md",
+      "category": "agent-memory-docs",
+      "recommendedAction": "Review as agent-memory update; commit only if it reflects current OpenClaw guidance."
     },
     {
       "status": "M",
@@ -781,14 +522,14 @@
     {
       "status": "M",
       "path": "tools/agent-factory/benchmark-gate-report.test.ts",
-      "category": "other",
-      "recommendedAction": "Review manually before commit, delete, or ignore."
+      "category": "product-code",
+      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
     },
     {
       "status": "M",
       "path": "tools/agent-factory/build-benchmark-gate-report.ts",
-      "category": "other",
-      "recommendedAction": "Review manually before commit, delete, or ignore."
+      "category": "product-code",
+      "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
     },
     {
       "status": "M",
@@ -933,30 +674,6 @@
       "path": "apps/ui-admin/src/status-view-model.ts",
       "category": "product-code",
       "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
-    },
-    {
-      "status": "??",
-      "path": "docs/superpowers/plans/2026-05-21-faculty-review-decision-panel.md",
-      "category": "other",
-      "recommendedAction": "Review manually before commit, delete, or ignore."
-    },
-    {
-      "status": "??",
-      "path": "docs/superpowers/plans/2026-05-24-encounter-factory-completion.md",
-      "category": "other",
-      "recommendedAction": "Review manually before commit, delete, or ignore."
-    },
-    {
-      "status": "??",
-      "path": "docs/superpowers/plans/2026-05-25-dynamic-encounter-factory-completion.md",
-      "category": "other",
-      "recommendedAction": "Review manually before commit, delete, or ignore."
-    },
-    {
-      "status": "??",
-      "path": "docs/superpowers/specs/2026-05-21-faculty-review-decision-panel-design.md",
-      "category": "other",
-      "recommendedAction": "Review manually before commit, delete, or ignore."
     },
     {
       "status": "??",

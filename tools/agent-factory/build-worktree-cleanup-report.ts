@@ -29,13 +29,13 @@ function categorize(file: string): Category {
   if (/^(AGENTS\.md|PROJECT_COORDINATION_INDEX\.md|AUTONOMOUS_WORK_PLAN\.md|package\.json|\.gitignore|tools\/agent-factory\/build-.*registry|tools\/agent-factory\/build-evidence-index|tools\/agent-factory\/build-worktree-cleanup-report|tools\/agent-factory\/check-coordination-alignment|docs\/openclinxr\/(README|doc-authority-registry|generated-artifact-registry|evidence-index|worktree-cleanup-handoff)-2026-05-27|docs\/openclinxr\/README)/u.test(file)) {
     return "cleanup-control-plane";
   }
-  if (file.startsWith("agents/") || file.startsWith("docs/agent-factory/") || file.startsWith("iterations/")) return "agent-memory-docs";
+  if (file.startsWith("agents/") || file.startsWith("docs/agent-factory/") || file.startsWith("docs/superpowers/") || file.startsWith("iterations/")) return "agent-memory-docs";
   if (file.startsWith("operator-")) return "operator-notes";
   if (file.startsWith(".agent-factory/") || file.startsWith(".openclinxr/") || file.startsWith(".openclinxr-local/")) return "local-cache";
   if (file.startsWith("docs/openclinxr/") || file.startsWith("sources/")) return "retained-evidence";
   if (file.includes("/generated/") || file.endsWith(".generated.ts") || file.endsWith(".graphql")) return "generated-code";
   if (file.startsWith("apps/ui-xr/public/xr-assets/") || file.startsWith("apps/ui-xr/dist/xr-assets/")) return "runtime-assets";
-  if (file.startsWith("apps/") || file.startsWith("packages/") || file.startsWith("tools/openclinxr/") || file === "pnpm-lock.yaml") return "product-code";
+  if (file.startsWith("apps/") || file.startsWith("packages/") || file.startsWith("tools/openclinxr/") || file.startsWith("tools/agent-factory/") || file === "pnpm-lock.yaml") return "product-code";
   return "other";
 }
 

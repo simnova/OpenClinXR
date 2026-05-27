@@ -6,11 +6,10 @@ This generated report categorizes the remaining dirty worktree so cleanup commit
 
 ## Counts
 
-- generated-code: 35
+- agent-memory-docs: 4
+- generated-code: 11
 - local-cache: 2
-- other: 6
-- product-code: 173
-- runtime-assets: 23
+- product-code: 175
 
 ## Entries
 
@@ -27,53 +26,6 @@ This generated report categorizes the remaining dirty worktree so cleanup commit
 - `M` `apps/ui-xr-iwsdk-spike/src/main.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `apps/ui-xr-iwsdk-spike/src/sidecar-state.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `apps/ui-xr/package.json` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
-- `A` `apps/ui-xr/public/xr-assets/environment/PROVENANCE.md` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
-- `A` `apps/ui-xr/public/xr-assets/environment/ed-exam-bay-shell.glb` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/clinic_abdominal_pain_interpreter_v1/learner-runtime-bundle.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/clinic_abdominal_pain_interpreter_v1/scene-manifest.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/ed_chest_pain_priority_v1/learner-runtime-bundle.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/ed_chest_pain_priority_v1/scene-manifest.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/ed_chest_pain_priority_v2/learner-runtime-bundle.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/ed_chest_pain_priority_v2/scene-manifest.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/ed_stroke_alert_handoff_v1/learner-runtime-bundle.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/ed_stroke_alert_handoff_v1/scene-manifest.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/ob_headache_preeclampsia_triage_v1/learner-runtime-bundle.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/ob_headache_preeclampsia_triage_v1/scene-manifest.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/oncology_bad_news_family_v1/learner-runtime-bundle.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/oncology_bad_news_family_v1/scene-manifest.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/peds_asthma_parent_anxiety_v1/learner-runtime-bundle.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/peds_asthma_parent_anxiety_v1/scene-manifest.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/postop_fever_consult_pressure_v1/learner-runtime-bundle.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/postop_fever_consult_pressure_v1/scene-manifest.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/psych_suicidal_ideation_safety_v1/learner-runtime-bundle.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/psych_suicidal_ideation_safety_v1/scene-manifest.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/stepdown_sepsis_nurse_escalation_v1/learner-runtime-bundle.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/stepdown_sepsis_nurse_escalation_v1/scene-manifest.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/telehealth_diabetes_health_literacy_v1/learner-runtime-bundle.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/telehealth_diabetes_health_literacy_v1/scene-manifest.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/ward_delirium_med_rec_v1/learner-runtime-bundle.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/generated/ward_delirium_med_rec_v1/scene-manifest.v1.json` - generated-code; Commit only with its owning schema/API/package change after focused verification.
-- `A` `apps/ui-xr/public/xr-assets/humanoids/PROVENANCE.md` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
-- `A` `apps/ui-xr/public/xr-assets/humanoids/candidates/charmorph-antonia-ob-patient-candidate.glb` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
-- `A` `apps/ui-xr/public/xr-assets/humanoids/candidates/charmorph-reom-ob-patient-candidate.glb` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
-- `A` `apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
-- `A` `apps/ui-xr/public/xr-assets/humanoids/candidates/reom-local-authored-curved-clinical-top-candidate.glb` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
-- `A` `apps/ui-xr/public/xr-assets/humanoids/candidates/reom-local-fitted-scrub-top-candidate.glb` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
-- `A` `apps/ui-xr/public/xr-assets/humanoids/candidates/reom-namuhekam-polo-candidate.glb` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
-- `A` `apps/ui-xr/public/xr-assets/humanoids/candidates/reom-namuhekam-polo-clearance-candidate.glb` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
-- `A` `apps/ui-xr/public/xr-assets/humanoids/candidates/reom-shirts01-cc0-elvs-crude-tshirt-candidate.glb` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
-- `A` `apps/ui-xr/public/xr-assets/humanoids/candidates/reom-toigo-basic-tucked-tshirt-candidate.glb` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
-- `A` `apps/ui-xr/public/xr-assets/humanoids/neutral-generated-human.glb` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
-- `A` `apps/ui-xr/public/xr-assets/humanoids/variants/adult-standard-generated-human.glb` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
-- `A` `apps/ui-xr/public/xr-assets/humanoids/variants/bariatric-adult-generated-human.glb` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
-- `A` `apps/ui-xr/public/xr-assets/humanoids/variants/ob-nurse-williams-generated-human.glb` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
-- `A` `apps/ui-xr/public/xr-assets/humanoids/variants/ob-partner-omar-generated-human.glb` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
-- `A` `apps/ui-xr/public/xr-assets/humanoids/variants/ob-patient-aisha-generated-human.glb` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
-- `A` `apps/ui-xr/public/xr-assets/humanoids/variants/older-adult-kyphotic-generated-human.glb` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
-- `A` `apps/ui-xr/public/xr-assets/humanoids/variants/pediatric-school-age-generated-human.glb` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
-- `A` `apps/ui-xr/public/xr-assets/medical-equipment/PROVENANCE.md` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
-- `A` `apps/ui-xr/public/xr-assets/medical-equipment/ecg-cart-12-lead.glb` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
-- `A` `apps/ui-xr/public/xr-assets/medical-equipment/iv-pole-with-pump.glb` - runtime-assets; Commit only with provenance/source/registry coverage and package-level asset verification.
 - `M` `apps/ui-xr/src/api-client.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `apps/ui-xr/src/api-client.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `apps/ui-xr/src/main.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
@@ -81,6 +33,10 @@ This generated report categorizes the remaining dirty worktree so cleanup commit
 - `M` `apps/ui-xr/src/runtime-state.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `apps/ui-xr/src/static-assets.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `apps/ui-xr/src/styles.css` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `A` `docs/superpowers/plans/2026-05-21-faculty-review-decision-panel.md` - agent-memory-docs; Review as agent-memory update; commit only if it reflects current OpenClaw guidance.
+- `A` `docs/superpowers/plans/2026-05-24-encounter-factory-completion.md` - agent-memory-docs; Review as agent-memory update; commit only if it reflects current OpenClaw guidance.
+- `A` `docs/superpowers/plans/2026-05-25-dynamic-encounter-factory-completion.md` - agent-memory-docs; Review as agent-memory update; commit only if it reflects current OpenClaw guidance.
+- `A` `docs/superpowers/specs/2026-05-21-faculty-review-decision-panel-design.md` - agent-memory-docs; Review as agent-memory update; commit only if it reflects current OpenClaw guidance.
 - `M` `packages/openclinxr/architecture-rules/src/workspace-architecture.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `packages/openclinxr/asset-registry/package.json` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `packages/openclinxr/asset-registry/src/asset-registry.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
@@ -142,8 +98,8 @@ This generated report categorizes the remaining dirty worktree so cleanup commit
 - `M` `packages/openclinxr/voice-gateway/src/index.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `packages/openclinxr/voice-gateway/src/voice-gateway.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `pnpm-lock.yaml` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
-- `M` `tools/agent-factory/benchmark-gate-report.test.ts` - other; Review manually before commit, delete, or ignore.
-- `M` `tools/agent-factory/build-benchmark-gate-report.ts` - other; Review manually before commit, delete, or ignore.
+- `M` `tools/agent-factory/benchmark-gate-report.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `tools/agent-factory/build-benchmark-gate-report.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `tools/openclinxr/asset-production-artifact-evidence.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `tools/openclinxr/asset-production-artifact-evidence.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `tools/openclinxr/asset-production-readiness-benchmark.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
@@ -168,10 +124,6 @@ This generated report categorizes the remaining dirty worktree so cleanup commit
 - `??` `apps/ui-admin/src/SeedExamReadinessBoundaryPanel.test.tsx` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `??` `apps/ui-admin/src/SeedExamReadinessBoundaryPanel.tsx` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `??` `apps/ui-admin/src/status-view-model.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
-- `??` `docs/superpowers/plans/2026-05-21-faculty-review-decision-panel.md` - other; Review manually before commit, delete, or ignore.
-- `??` `docs/superpowers/plans/2026-05-24-encounter-factory-completion.md` - other; Review manually before commit, delete, or ignore.
-- `??` `docs/superpowers/plans/2026-05-25-dynamic-encounter-factory-completion.md` - other; Review manually before commit, delete, or ignore.
-- `??` `docs/superpowers/specs/2026-05-21-faculty-review-decision-panel-design.md` - other; Review manually before commit, delete, or ignore.
 - `??` `packages/openclinxr/asset-registry/src/asset-writer.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `??` `packages/openclinxr/asset-registry/src/asset-writer.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `??` `packages/openclinxr/asset-registry/src/object-store.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
