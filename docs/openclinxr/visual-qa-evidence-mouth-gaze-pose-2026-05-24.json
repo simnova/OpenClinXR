@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "openclinxr.visual-qa-evidence.v1",
+  "visualQaFocus": "humanoid_realism",
+  "humanoidRealismSignalIds": [
+    "animated_humanoid_runtime_playback",
+    "authored_clinical_idle_pose_runtime_cue",
+    "visible_mouth_eye_expression_cues",
+    "dialogue_viseme_and_gaze_mapping"
+  ],
+  "visualRegressionCueIds": [],
+  "humanoidVisualAnalysis": {
+    "face_visibility": {
+      "status": "pass",
+      "notes": ["Face is centered and visible in the desktop capture for review."]
+    },
+    "mouth_movement_readability": {
+      "status": "blocked",
+      "notes": ["Live dialogue is active, but the captured mouth reads closed/static; next slice should improve visible mouth opening or capture timing/video evidence."]
+    },
+    "gaze_target_alignment": {
+      "status": "concern",
+      "notes": ["Actor appears forward-facing toward the learner/camera, but screenshot-only evidence cannot prove dynamic gaze tracking during speech."]
+    },
+    "pose_naturalness": {
+      "status": "blocked",
+      "notes": ["Humanoid still reads as a mannequin/T-pose-like stance with rigid shoulders and arms rather than a realistic clinical idle pose."]
+    },
+    "hand_arm_naturalness": {
+      "status": "blocked",
+      "notes": ["Hands and arms look stiff/misaligned and need retargeted idle animation or rigging refinement before realism claims."]
+    }
+  },
+  "capture": {
+    "source": "desktop_browser",
+    "artifactType": "screenshot",
+    "artifact": "docs/openclinxr/screenshots/realism-review-mouth-gaze-pose-2026-05-24.png",
+    "mimeType": "image/png",
+    "dimensions": { "width": 1440, "height": 1000 },
+    "runtimeUrl": "http://127.0.0.1:5173/?scenarioId=oncology_bad_news_family_v1&station=oncology_bad_news_family_v1&capture=actor-pose-mouth-gaze-review-2026-05-24",
+    "route": "/",
+    "scenarioId": "oncology_bad_news_family_v1",
+    "xrMode": "desktop_browser_webgl_preview_not_immersive_session",
+    "cameraPose": "actor_pose_mouth_gaze_review_desktop_capture",
+    "captureCommand": "chrome-devtools screenshot plus runtime evidence extraction"
+  },
+  "adversarialReview": {
+    "reviewers": ["test-automation-lead", "ux-friction-critic", "clinical-safety-critic", "xr-systems-architect", "asset-pipeline-lead"],
+    "checks": {
+      "clinical_scene_fidelity": { "status": "concern", "notes": ["Oncology scenario context is visible, but the environment remains sparse and clinical realism is not production-level."] },
+      "actor_equipment_realism": { "status": "blocked", "notes": ["Humanoid pose, arms/hands, and static mouth fail realism review despite generated actor loading."] },
+      "ui_readability": { "status": "pass", "notes": ["Desktop EHR, dialogue, timer, and trace controls are readable in the capture."] },
+      "interaction_affordances": { "status": "concern", "notes": ["Trace controls and runtime cues are visible, but controller/hand interaction quality is not proven by this desktop screenshot."] },
+      "occlusion_scale": { "status": "concern", "notes": ["Actor is visible, but right-side UI and room props partially crowd the review frame; use a dedicated deoccluded actor review capture next."] },
+      "evidence_limits": { "status": "pass", "notes": ["Desktop screenshot evidence only; no production, Quest, clinical-validity, biomechanics, or scoring claim."] }
+    }
+  },
+  "claimBoundaries": {
+    "notEvidenceFor": ["physical_quest_foreground_frame_pacing", "quest_controller_latency", "quest_hand_tracking_quality", "in_headset_text_readability", "thermal_or_battery_behavior", "production_runtime_readiness"],
+    "allowedClaims": ["adversarial_visual_iteration_artifact"]
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "generatedAt": "2026-05-23T21:57:44.368Z",
+  "inputFile": "docs/openclinxr/visual-qa-evidence-manifest-prop-variety-2026-05-23.json",
+  "evidence": {
+    "schemaVersion": "openclinxr.visual-qa-evidence.v1",
+    "generatedAt": "2026-05-23T21:56:46.000Z",
+    "capture": {
+      "source": "desktop_browser",
+      "artifactType": "screenshot",
+      "artifact": "docs/openclinxr/screenshots/realism-review-manifest-prop-variety-2026-05-23.png",
+      "mimeType": "image/png",
+      "dimensions": {
+        "width": 2880,
+        "height": 2000
+      },
+      "runtimeUrl": "http://127.0.0.1:5173/?scenarioId=oncology_bad_news_family_v1&station=oncology_bad_news_family_v1&capture=actor-close-manifest-prop-variety",
+      "route": "/",
+      "scenarioId": "oncology_bad_news_family_v1",
+      "xrMode": "desktop_browser_webgl_preview_not_immersive_session",
+      "cameraPose": "actor_close_realism_review_face_torso_posture_capture",
+      "captureCommand": "chrome-devtools screenshot after manifest-derived room prop detail variety"
+    },
+    "adversarialReview": {
+      "reviewers": [
+        "test-automation-lead",
+        "ux-friction-critic",
+        "clinical-safety-critic",
+        "xr-systems-architect",
+        "asset-pipeline-lead"
+      ],
+      "checks": {
+        "clinical_scene_fidelity": {
+          "status": "concern",
+          "notes": [
+            "Manifest-derived chairs, doorway/sign, tissue/communication, and review-surface details are now visible, but room texture and medical-consult realism remain early-stage."
+          ]
+        },
+        "actor_equipment_realism": {
+          "status": "concern",
+          "notes": [
+            "The actor remains the dominant realism debt: Anny body is visible but arms, hands, and facial expression still read mannequin-like."
+          ]
+        },
+        "ui_readability": {
+          "status": "pass",
+          "notes": [
+            "The scenario panel remains readable while the added room details do not obscure core trace actions."
+          ]
+        },
+        "interaction_affordances": {
+          "status": "concern",
+          "notes": [
+            "Generated prop detail cue IDs are present in runtime evidence, but screenshot-only evidence does not prove physical interaction or controller selection quality."
+          ]
+        },
+        "occlusion_scale": {
+          "status": "concern",
+          "notes": [
+            "Prop variety improves environmental depth, but foreground bed and actor pose still need headset-scale validation and better camera samples."
+          ]
+        },
+        "evidence_limits": {
+          "status": "pass",
+          "notes": [
+            "Desktop browser/WebGL preview supports iterative visual QA only; no Quest, production, scoring, or clinical-validity claim is made."
+          ]
+        }
+      }
+    },
+    "claimBoundaries": {
+      "notEvidenceFor": [
+        "physical_quest_foreground_frame_pacing",
+        "quest_controller_latency",
+        "quest_hand_tracking_quality",
+        "in_headset_text_readability",
+        "thermal_or_battery_behavior",
+        "production_runtime_readiness"
+      ],
+      "allowedClaims": [
+        "adversarial_visual_iteration_artifact"
+      ]
+    }
+  },
+  "result": {
+    "readyForAdversarialVisualQa": true,
+    "readyForProductionRuntime": false,
+    "readyForPhysicalQuestClaim": false,
+    "blockers": []
+  }
+}

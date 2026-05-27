@@ -1,0 +1,14 @@
+{
+  "reviewedAt": "2026-05-27T17:44:35Z",
+  "candidateId": "reom_namuhekam_polo_filtered_no_legacy",
+  "screenshot": "docs/openclinxr/screenshots/ui-xr-ob-humanoid-source-reom-namuhekam-polo-face-pose-2026-05-27.png",
+  "grade": "C+",
+  "numericScore": 78,
+  "promotionDecision": "reject",
+  "visualFindings": [
+    "Legacy horizontal torso slab artifact is removed after filtering generated tunic meshes before fitting.",
+    "Imported polo is not visibly worn on the torso; the avatar appears mostly unclothed in the close-up view.",
+    "A small flattened garment-like shape appears displaced near the left hand/wrist area, indicating source garment origin/axis/bounds assumptions are still wrong."
+  ],
+  "nextFitterHypothesis": "Normalize imported garment mesh bounds to the humanoid upper-torso target volume before shrinkwrap instead of trusting source OBJ coordinates or origin."
+}

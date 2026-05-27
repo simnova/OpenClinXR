@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "openclinxr.generated-human-rigging-variant-matrix.v1",
+  "generatedAt": "2026-05-25T03:40:59.911Z",
+  "claimBoundary": "local_static_rigging_matrix_not_visual_or_production_readiness",
+  "adversarialReviewers": [
+    "ux-friction-critic",
+    "clinical-safety-critic",
+    "implementation-plan-gap-attacker"
+  ],
+  "screenshotArtifact": "docs/openclinxr/screenshots/generated-human-rigging-variant-matrix-2026-05-25.png",
+  "bodyProfiles": [
+    {
+      "bodyProfile": "adult_standard",
+      "reportPath": "docs/openclinxr/generated-human-rigging-artifacts-adult_standard-2026-05-25.json",
+      "glbPath": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging-variant-matrix/adult_standard/neutral-generated-human.glb",
+      "passed": true,
+      "blockers": [],
+      "requiredBoneCoverage": {
+        "observed": 17,
+        "required": 17
+      },
+      "requiredEmbodimentNodeCoverage": {
+        "missing": []
+      },
+      "requiredMorphTargetCoverage": {
+        "missing": []
+      }
+    },
+    {
+      "bodyProfile": "pediatric_school_age",
+      "reportPath": "docs/openclinxr/generated-human-rigging-artifacts-pediatric_school_age-2026-05-25.json",
+      "glbPath": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging-variant-matrix/pediatric_school_age/neutral-generated-human.glb",
+      "passed": true,
+      "blockers": [],
+      "requiredBoneCoverage": {
+        "observed": 17,
+        "required": 17
+      },
+      "requiredEmbodimentNodeCoverage": {
+        "missing": []
+      },
+      "requiredMorphTargetCoverage": {
+        "missing": []
+      }
+    },
+    {
+      "bodyProfile": "older_adult_kyphotic",
+      "reportPath": "docs/openclinxr/generated-human-rigging-artifacts-older_adult_kyphotic-2026-05-25.json",
+      "glbPath": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging-variant-matrix/older_adult_kyphotic/neutral-generated-human.glb",
+      "passed": true,
+      "blockers": [],
+      "requiredBoneCoverage": {
+        "observed": 17,
+        "required": 17
+      },
+      "requiredEmbodimentNodeCoverage": {
+        "missing": []
+      },
+      "requiredMorphTargetCoverage": {
+        "missing": []
+      }
+    },
+    {
+      "bodyProfile": "bariatric_adult",
+      "reportPath": "docs/openclinxr/generated-human-rigging-artifacts-bariatric_adult-2026-05-25.json",
+      "glbPath": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging-variant-matrix/bariatric_adult/neutral-generated-human.glb",
+      "passed": true,
+      "blockers": [],
+      "requiredBoneCoverage": {
+        "observed": 17,
+        "required": 17
+      },
+      "requiredEmbodimentNodeCoverage": {
+        "missing": []
+      },
+      "requiredMorphTargetCoverage": {
+        "missing": []
+      }
+    }
+  ],
+  "verdict": {
+    "passed": true,
+    "blockers": []
+  }
+}

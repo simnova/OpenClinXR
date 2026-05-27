@@ -1,0 +1,40 @@
+{
+  "evidenceId": "visual-qa-mouth-gaze-pose-posture-refinement-2026-05-24",
+  "capturedAt": "2026-05-24T02:47:34.821Z",
+  "scenarioId": "oncology_bad_news_family_v1",
+  "captureMode": "mouth-gaze-pose-posture-refinement-2026-05-24",
+  "screenshot": "docs/openclinxr/screenshots/realism-review-mouth-gaze-pose-posture-refinement-2026-05-24.png",
+  "reviewer": "codex-visual-analysis",
+  "focus": "humanoid",
+  "checks": [
+    "animated_humanoid_runtime_playback",
+    "authored_clinical_idle_pose_runtime_cue",
+    "visible_mouth_eye_expression_cues",
+    "scenario_specific_vr_clinical_panel",
+    "dialogue_viseme_and_gaze_mapping",
+    "examinee_locomotion_observed"
+  ],
+  "humanoidVisualAnalysis": {
+    "face_visibility": {
+      "status": "concern",
+      "notes": "Face is visible enough for review but remains low-poly and partially affected by cue overlays."
+    },
+    "mouth_movement_readability": {
+      "status": "concern",
+      "notes": "Mouth cue is visible during extended dialogue playback, but it remains a procedural cue rather than mesh or morph-target lip-sync."
+    },
+    "gaze_target_alignment": {
+      "status": "concern",
+      "notes": "Eye-focus cues are less intrusive and support target review, but gaze remains cue-based rather than skeletal/ocular animation."
+    },
+    "pose_naturalness": {
+      "status": "blocked",
+      "notes": "Standing pose remains mannequin-like with visible stiffness in shoulders and torso."
+    },
+    "hand_arm_naturalness": {
+      "status": "blocked",
+      "notes": "Arms and hands remain visibly rigid and partly over-rotated; next slice reduces arm abduction and hand offset."
+    }
+  },
+  "recommendation": "Keep runtime gate blocked for learner-use until authored/retargeted upper-limb idle animation or better bone posture evidence improves hand and arm naturalness."
+}

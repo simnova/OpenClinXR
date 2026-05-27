@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "openclinxr.visual-qa-evidence.v1",
+  "generatedAt": "2026-05-23T22:08:53.000Z",
+  "capture": {
+    "source": "desktop_browser",
+    "artifactType": "screenshot",
+    "artifact": "docs/openclinxr/screenshots/realism-review-authored-idle-clip-active-2026-05-23.png",
+    "mimeType": "image/png",
+    "dimensions": { "width": 2880, "height": 2000 },
+    "runtimeUrl": "http://127.0.0.1:5173/?scenarioId=oncology_bad_news_family_v1&station=oncology_bad_news_family_v1&capture=actor-close-authored-idle-clip-active",
+    "route": "/",
+    "scenarioId": "oncology_bad_news_family_v1",
+    "xrMode": "desktop_browser_webgl_preview_not_immersive_session",
+    "cameraPose": "actor_close_realism_review_face_torso_posture_capture",
+    "captureCommand": "chrome-devtools screenshot after authored clinical idle clip activation"
+  },
+  "adversarialReview": {
+    "reviewers": ["test-automation-lead", "ux-friction-critic", "clinical-safety-critic", "xr-systems-architect", "asset-pipeline-lead"],
+    "checks": {
+      "clinical_scene_fidelity": { "status": "concern", "notes": ["Manifest-derived consultation props and scenario text remain visible, but the room still needs richer clinical furnishings, textures, and scale validation."] },
+      "actor_equipment_realism": { "status": "concern", "notes": ["The authored clinical idle pose clip is active and reduces pure runtime-posture dependency, but shoulders/hands still read mannequin-like and require retargeted pose refinement."] },
+      "ui_readability": { "status": "pass", "notes": ["The EHR and trace actions remain readable in the actor-close capture."] },
+      "interaction_affordances": { "status": "concern", "notes": ["Speech/gaze/body-motion evidence exists, but screenshot-only evidence does not prove physical collision or controller affordance quality."] },
+      "occlusion_scale": { "status": "concern", "notes": ["Foreground bed/equipment still occludes lower-body posture; headset-scale confirmation remains required."] },
+      "evidence_limits": { "status": "pass", "notes": ["Desktop WebGL visual QA only; no production, Quest, clinical-validity, scoring, or biomechanics claim is made."] }
+    }
+  },
+  "claimBoundaries": {
+    "notEvidenceFor": ["physical_quest_foreground_frame_pacing", "quest_controller_latency", "quest_hand_tracking_quality", "in_headset_text_readability", "thermal_or_battery_behavior", "production_runtime_readiness"],
+    "allowedClaims": ["adversarial_visual_iteration_artifact"]
+  }
+}

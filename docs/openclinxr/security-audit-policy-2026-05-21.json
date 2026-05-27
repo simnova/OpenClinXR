@@ -1,0 +1,48 @@
+{
+  "generatedAt": "2026-05-21T03:03:22.957Z",
+  "auditEvidence": {
+    "supplied": true,
+    "sourcePath": "docs/openclinxr/security-audit-2026-05-21.json",
+    "totalFindingCount": 0,
+    "blockingFindingCount": 0,
+    "blockingSeverityThreshold": "high"
+  },
+  "activeExceptions": [],
+  "activePackageManagerOverrides": [
+    {
+      "packageName": "fast-uri",
+      "pinnedVersion": "3.1.2",
+      "rationale": "Force AJV's transitive URI parser onto the patched version that resolves GHSA-q3j6-qgpj-74h6 and GHSA-v39h-62p7-jpjc while keeping `ajv@8.20.0` pinned.",
+      "owner": "security-posture-steward",
+      "reviewBy": "2026-06-21",
+      "removalCondition": "Remove when `ajv` or the lockfile resolves `fast-uri >=3.1.2` without a root override."
+    },
+    {
+      "packageName": "three",
+      "pinnedVersion": "0.184.0",
+      "rationale": "Keep IWSDK sidecar and production XR packages on one reviewed Three.js version while `@iwsdk/core` permits a broad Three.js range.",
+      "owner": "frontend-platform-lead",
+      "reviewBy": "2026-06-05",
+      "removalCondition": "Remove when all workspace packages declare the same exact Three.js version without a root override."
+    },
+    {
+      "packageName": "rolldown",
+      "pinnedVersion": "1.0.0-rc.18",
+      "rationale": "Keep packaging and local preview bundling aligned while the existing build scripts are validated against this pinned `rolldown` version.",
+      "owner": "frontend-platform-lead",
+      "reviewBy": "2026-06-05",
+      "removalCondition": "Remove when the full stack lockfile and workspace overrides can be moved to a newer pinned version after compatibility validation."
+    }
+  ],
+  "scriptFindings": [],
+  "exceptionFindings": [],
+  "packageManagerOverrideFindings": [],
+  "unresolvedAuditFindings": [],
+  "verdict": {
+    "passed": true,
+    "scriptFindingCount": 0,
+    "exceptionFindingCount": 0,
+    "packageManagerOverrideFindingCount": 0,
+    "unresolvedAuditFindingCount": 0
+  }
+}

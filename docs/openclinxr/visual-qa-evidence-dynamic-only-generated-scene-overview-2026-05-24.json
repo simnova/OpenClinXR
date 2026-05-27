@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "openclinxr.visual-qa-evidence.v1",
+  "visualQaFocus": "humanoid_realism",
+  "humanoidRealismSignalIds": [
+    "animated_humanoid_runtime_playback",
+    "authored_clinical_idle_pose_runtime_cue",
+    "visible_mouth_eye_expression_cues",
+    "scenario_specific_vr_clinical_panel",
+    "dialogue_viseme_and_gaze_mapping",
+    "examinee_locomotion_observed"
+  ],
+  "visualRegressionCueIds": [],
+  "humanoidVisualAnalysis": {
+    "face_visibility": { "status": "concern", "notes": ["Both generated actors are visible in the overview, but face fidelity remains low-poly at room scale."] },
+    "mouth_movement_readability": { "status": "concern", "notes": ["Overview framing is not close enough to assess lip-sync quality; use face-detail evidence for mouth movement."] },
+    "gaze_target_alignment": { "status": "concern", "notes": ["Actors are visible and oriented into the encounter, but gaze needs close/video evidence for target alignment."] },
+    "pose_naturalness": { "status": "concern", "notes": ["Generated clinical-idle posture is improved, but both actors still read as prototype humanoids rather than natural standardized patients."] },
+    "hand_arm_naturalness": { "status": "concern", "notes": ["Hands and forearms remain visibly low-detail and should be improved at the asset-generation level."] }
+  },
+  "generatedAt": "2026-05-24T04:00:30.000Z",
+  "capture": {
+    "source": "desktop_browser",
+    "artifactType": "screenshot",
+    "artifact": "docs/openclinxr/screenshots/realism-review-dynamic-only-generated-scene-overview-2026-05-24.png",
+    "mimeType": "image/png",
+    "dimensions": { "width": 2880, "height": 2000 },
+    "runtimeUrl": "http://127.0.0.1:5173/?scenarioId=oncology_bad_news_family_v1&station=oncology_bad_news_family_v1&capture=dynamic-only-generated-scene-overview-2026-05-24&assetCacheBust=20260524dynamic3",
+    "route": "/",
+    "scenarioId": "oncology_bad_news_family_v1",
+    "xrMode": "desktop_browser_webgl_preview_not_immersive_session",
+    "cameraPose": "generated_scene_overview_multi_actor_dynamic_encounter_capture",
+    "captureCommand": "chrome-devtools screenshot after dynamic-only scene cleanup and overview framing"
+  },
+  "adversarialReview": {
+    "reviewers": ["test-automation-lead", "ux-friction-critic", "clinical-safety-critic", "xr-systems-architect", "asset-pipeline-lead"],
+    "checks": {
+      "clinical_scene_fidelity": { "status": "concern", "notes": ["Legacy hardcoded bed/monitor primitives and runtime markers are hidden; generated scene still needs richer dynamically generated room detail and lighting."] },
+      "actor_equipment_realism": { "status": "concern", "notes": ["Generated actors/equipment are present, but geometry remains visibly low fidelity and should continue through the asset pipeline refinement loop."] },
+      "ui_readability": { "status": "pass", "notes": ["2D encounter panel and in-scene EHR/dialogue panels remain readable in overview framing."] },
+      "interaction_affordances": { "status": "concern", "notes": ["Affordance markers are correctly hidden for the learner-facing scene; separate evidence/debug captures remain required for interaction proof."] },
+      "occlusion_scale": { "status": "concern", "notes": ["Overview framing now includes both actors, but equipment and panels still compete visually with actors."] },
+      "evidence_limits": { "status": "pass", "notes": ["Desktop WebGL preview evidence only; no production, Quest, clinical-validity, biomechanics, or scoring claim."] }
+    }
+  },
+  "claimBoundaries": {
+    "notEvidenceFor": ["physical_quest_foreground_frame_pacing", "quest_controller_latency", "quest_hand_tracking_quality", "in_headset_text_readability", "thermal_or_battery_behavior", "production_runtime_readiness"],
+    "allowedClaims": ["adversarial_visual_iteration_artifact", "local_desktop_runtime_evidence_candidate"]
+  }
+}

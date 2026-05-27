@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "openclinxr.visual-realism-review.v1",
+  "generatedAt": "2026-05-23T19:59:30.000Z",
+  "screenshot": "docs/openclinxr/screenshots/realism-review-face-consolidated-2026-05-23.png",
+  "runtimeEvidence": "docs/openclinxr/evidence/realism-review-face-consolidated-runtime-2026-05-23.json",
+  "assetGate": "docs/openclinxr/humanoid-realism-gate-neutral-generated-human-face-consolidated-2026-05-23.json",
+  "assessment": {
+    "improvedSignals": [
+      "single_visible_proportioned_humanoid_layer",
+      "readable_head_torso_limbs_clothing_from_examinee_view",
+      "visible_eye_brow_mouth_hair_cues",
+      "legacy_blocky_mesh_dimmed_not_primary_visual_layer",
+      "animation_and_morph_gate_preserved"
+    ],
+    "remainingRealismDebt": [
+      "primitive_visual_proxy_not_true_generated_human_base_mesh",
+      "hands_and_limb_attachment_not_anatomically_realistic",
+      "facial_expression_controls_are_symbolic_not_photorealistic",
+      "headset_immersive_visual_quality_not_confirmed",
+      "production_humanoid_realism_not_claimed"
+    ],
+    "recommendedNextAction": "replace primitive visual proxy with Anny/VRM-quality generated base mesh, then retarget current animation/morph/phoneme and collision gates to that mesh"
+  },
+  "productionReadinessClaimed": false,
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+    "photorealistic_humanoid_readiness"
+  ]
+}

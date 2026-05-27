@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "2026-05-27",
+  "claimBoundary": "desktop WebXR screenshot visual review only; not Quest, production, clinical, or scoring readiness",
+  "screenshot": "docs/openclinxr/screenshots/ui-xr-ob-humanoid-source-reom-shirts01-cc0-face-pose-2026-05-27.png",
+  "description": "The XR view shows the Reom humanoid centered against a plain source-clean background. The source-backed CC0 shirt candidate appears as a broad flat teal panel across the torso rather than a fitted garment. The arms are lower than a T-pose but still stiff and mannequin-like, with hands hanging unnaturally. Face and hair remain low-detail and statue-like. No side UI or diagnostic panels are visible inside the screenshot crop.",
+  "progress": "Pipeline progress is real: external CC0 source, provider gate, ingestion, WebXR comparator, and promotion gate all work. Visual realism has not improved enough because garment fit/transform is wrong.",
+  "grade": "B",
+  "score": 84,
+  "passesBPlus": false,
+  "nextRemediation": "derive garment transform from body/garment bounds and regenerate source-backed candidate before another screenshot review"
+}

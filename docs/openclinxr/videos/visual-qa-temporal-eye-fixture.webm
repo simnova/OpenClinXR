@@ -1,0 +1,15 @@
+openclinxr visual qa temporal eye fixture placeholder
+This deterministic fixture is intentionally larger than the tiny-placeholder guard used by the visual QA evidence checker.
+It is not clinical evidence, not Quest evidence, not production video evidence, and not proof of humanoid realism quality.
+It exists only to exercise the evidence contract that permits video artifacts to carry temporal blink and micro-saccade review.
+Future generated or headset-captured videos should replace this fixture when judging actual actor eye realism.
+The checker separately blocks still screenshots from claiming temporal blink or micro-saccade pass status.
+Frame 000: eyes open, gaze toward learner camera, mouth phoneme active.
+Frame 001: eyelids begin deterministic blink closure, gaze remains target-aligned.
+Frame 002: eyelids closed at blink apex, micro-saccade yaw perturbation recorded.
+Frame 003: eyes reopen, micro-saccade pitch settles, dialogue viseme continues.
+Frame 004: gaze target remains actor or learner according to encounter turn metadata.
+Frame 005: blink cycle completed; no production ocular animation claim is made.
+This file is textual fixture content with a webm extension and should never be used as visual proof.
+The contract-level test only requires size and metadata gates; real visual QA must provide actual video evidence.
+Temporal evidence pass claims require a video artifact, not this placeholder fixture in production review.

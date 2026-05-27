@@ -1,0 +1,118 @@
+{
+  "schemaVersion": "openclinxr.generated-human-rigging-artifacts.v1",
+  "kind": "generated_human_rigging_artifacts",
+  "generatedAt": "2026-05-21T19:49:31.982Z",
+  "tool": {
+    "name": "tools/openclinxr/generated-human-rigging-artifacts.ts",
+    "blenderVersion": "Blender 5.1.1",
+    "elapsedMs": 1625
+  },
+  "policy": {
+    "localOnly": true,
+    "installsIntroduced": false,
+    "cloudApisUsed": false,
+    "paidApisUsed": false,
+    "externalAssetsUsed": false,
+    "generatedThirdPartyAssetsCommitted": false,
+    "productionAssetReadinessClaimed": false
+  },
+  "input": {
+    "laneId": "generatedHumanRigging",
+    "stationSlug": "ed-chest-pain",
+    "actorSlug": "neutral-generated-human",
+    "generationMode": "local_blender_scripted_fixture",
+    "sourceLicensePosture": "repo_authored_no_external_assets"
+  },
+  "artifacts": {
+    "glbPath": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+    "canonicalSkeletonBindingPath": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+    "skinWeightQualityPath": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json"
+  },
+  "output": {
+    "glbBytes": 27644,
+    "magic": "glTF",
+    "version": 2,
+    "declaredLength": 27644,
+    "semanticInventory": {
+      "nodeCount": 21,
+      "meshCount": 1,
+      "skinCount": 1,
+      "materialCount": 3,
+      "animationCount": 0,
+      "nodeNames": [
+        "head",
+        "neck",
+        "hand.L",
+        "forearm.L",
+        "upper_arm.L",
+        "hand.R",
+        "forearm.R",
+        "upper_arm.R",
+        "chest",
+        "spine",
+        "foot.L",
+        "shin.L",
+        "thigh.L",
+        "foot.R",
+        "shin.R",
+        "thigh.R",
+        "pelvis",
+        "neutral_generated_human_skinned_mesh",
+        "openclinxr_canonical_humanoid_armature",
+        "patient_robert_hayes_canonical_skeleton_anchor",
+        "nurse_maria_alvarez_canonical_skeleton_anchor"
+      ],
+      "skinJointNames": [
+        "chest",
+        "foot.L",
+        "foot.R",
+        "forearm.L",
+        "forearm.R",
+        "hand.L",
+        "hand.R",
+        "head",
+        "neck",
+        "pelvis",
+        "shin.L",
+        "shin.R",
+        "spine",
+        "thigh.L",
+        "thigh.R",
+        "upper_arm.L",
+        "upper_arm.R"
+      ],
+      "requiredBoneNames": [
+        "pelvis",
+        "spine",
+        "chest",
+        "neck",
+        "head",
+        "upper_arm.L",
+        "forearm.L",
+        "hand.L",
+        "upper_arm.R",
+        "forearm.R",
+        "hand.R",
+        "thigh.L",
+        "shin.L",
+        "foot.L",
+        "thigh.R",
+        "shin.R",
+        "foot.R"
+      ],
+      "missingRequiredBoneNames": [],
+      "requiredAnchorNodeNames": [
+        "neutral_generated_human_skinned_mesh",
+        "openclinxr_canonical_humanoid_armature",
+        "patient_robert_hayes_canonical_skeleton_anchor",
+        "nurse_maria_alvarez_canonical_skeleton_anchor"
+      ],
+      "missingRequiredAnchorNodeNames": []
+    }
+  },
+  "verdict": {
+    "passed": true,
+    "readyForProductionAssets": false,
+    "blockers": []
+  }
+}

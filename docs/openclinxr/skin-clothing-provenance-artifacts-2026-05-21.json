@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "openclinxr.skin-clothing-provenance-artifacts.v1",
+  "kind": "skin_clothing_provenance_artifacts",
+  "generatedAt": "2026-05-21T19:55:35.793Z",
+  "tool": "tools/openclinxr/skin-clothing-provenance-artifacts.ts",
+  "policy": {
+    "localOnly": true,
+    "installsIntroduced": false,
+    "cloudApisUsed": false,
+    "paidApisUsed": false,
+    "externalAssetsUsed": false,
+    "generatedThirdPartyAssetsCommitted": false,
+    "productionAssetReadinessClaimed": false
+  },
+  "input": {
+    "laneId": "skinClothingProvenance",
+    "stationSlug": "ed-chest-pain",
+    "sourceRigArtifactPath": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+    "generationMode": "repo_authored_procedural_material_and_scrub_fixture"
+  },
+  "artifacts": {
+    "skinTextureProvenancePath": ".openclinxr/asset-production/ed-chest-pain/skin-clothing-provenance/skin-texture-provenance.json",
+    "clothingMeshProvenancePath": ".openclinxr/asset-production/ed-chest-pain/skin-clothing-provenance/clothing-mesh-provenance.json",
+    "runtimeSafeMaterialsPath": ".openclinxr/asset-production/ed-chest-pain/skin-clothing-provenance/runtime-safe-materials.json"
+  },
+  "summary": {
+    "artifactFilesMaterialized": true,
+    "missingArtifactPaths": [],
+    "provenanceRecords": [
+      "procedural skin material parameters authored in repo",
+      "procedural scrub blockout material authored in repo",
+      "runtime-safe material policy documented without texture downloads"
+    ],
+    "caveats": [
+      "This fixture records local provenance and runtime material posture only.",
+      "It does not claim final skin realism, clothing simulation quality, or production avatar readiness.",
+      "No external texture, clothing mesh, cloud API, paid API, or third-party generated asset is introduced."
+    ]
+  },
+  "verdict": {
+    "passed": true,
+    "readyForProductionAssets": false,
+    "blockers": []
+  }
+}

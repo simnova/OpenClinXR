@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "openclinxr.visual-qa-evidence.v1",
+  "visualQaFocus": "humanoid_realism",
+  "humanoidRealismSignalIds": [
+    "animated_humanoid_runtime_playback",
+    "authored_clinical_idle_pose_runtime_cue",
+    "visible_mouth_eye_expression_cues",
+    "dialogue_viseme_and_gaze_mapping"
+  ],
+  "visualRegressionCueIds": [],
+  "humanoidVisualAnalysis": {
+    "face_visibility": { "status": "pass", "notes": ["Face is visible enough for screenshot-level review."] },
+    "mouth_movement_readability": { "status": "concern", "notes": ["Mouth and expression cues are present in runtime evidence, but screenshot-only review does not prove production lip sync."] },
+    "gaze_target_alignment": { "status": "concern", "notes": ["Actor appears learner-facing, but dynamic gaze target behavior still needs video/headset evidence."] },
+    "pose_naturalness": { "status": "concern", "notes": ["Clinical idle pose v2 is authored, but visual review still shows broad shoulders and unnatural hands."] },
+    "hand_arm_naturalness": { "status": "concern", "notes": ["Hands and arms remain mannequin-like and should be refined with retargeted animation or pose QA."] }
+  },
+  "generatedAt": "2026-05-23T22:13:30.000Z",
+  "capture": {
+    "source": "desktop_browser",
+    "artifactType": "screenshot",
+    "artifact": "docs/openclinxr/screenshots/realism-review-authored-idle-clip-v2-2026-05-23.png",
+    "mimeType": "image/png",
+    "dimensions": { "width": 2880, "height": 2000 },
+    "runtimeUrl": "http://127.0.0.1:5173/?scenarioId=oncology_bad_news_family_v1&station=oncology_bad_news_family_v1&capture=actor-close-authored-idle-clip-v2",
+    "route": "/",
+    "scenarioId": "oncology_bad_news_family_v1",
+    "xrMode": "desktop_browser_webgl_preview_not_immersive_session",
+    "cameraPose": "actor_close_realism_review_face_torso_posture_capture",
+    "captureCommand": "chrome-devtools screenshot after clinical idle pose v2 refinement"
+  },
+  "adversarialReview": {
+    "reviewers": ["test-automation-lead", "ux-friction-critic", "clinical-safety-critic", "xr-systems-architect", "asset-pipeline-lead"],
+    "checks": {
+      "clinical_scene_fidelity": { "status": "concern", "notes": ["Generated room-detail cues remain visible, but the scene still needs richer room texture and headset-scale review."] },
+      "actor_equipment_realism": { "status": "concern", "notes": ["Clinical idle pose v2 is authored and active, but visual review still shows broad shoulders/arms and unnatural hands; next iteration should use a real retargeted idle source or Blender pose QA, not more blind runtime guesses."] },
+      "ui_readability": { "status": "pass", "notes": ["Scenario context, timer, EHR, and trace controls remain readable."] },
+      "interaction_affordances": { "status": "concern", "notes": ["Runtime affordances and speech/gaze cues are present, but physical interaction quality remains unproven from screenshot-only evidence."] },
+      "occlusion_scale": { "status": "concern", "notes": ["Foreground bed hides lower body and makes hand/arm judgment harder; add alternate pose-review camera or Blender asset render before more pose tuning."] },
+      "evidence_limits": { "status": "pass", "notes": ["Desktop WebGL preview evidence only; no production, Quest, clinical-validity, biomechanics, or scoring claim."] }
+    }
+  },
+  "claimBoundaries": {
+    "notEvidenceFor": ["physical_quest_foreground_frame_pacing", "quest_controller_latency", "quest_hand_tracking_quality", "in_headset_text_readability", "thermal_or_battery_behavior", "production_runtime_readiness"],
+    "allowedClaims": ["adversarial_visual_iteration_artifact"]
+  }
+}
