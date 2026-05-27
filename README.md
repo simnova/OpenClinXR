@@ -27,7 +27,33 @@ Useful entry points:
 
 OpenClaw mode is repo-native, not tied to one agent host. Codex, Claude, Grok Code, Cursor, or another tool can participate if it follows the same canonical files and keeps work blueprint/factory-driven.
 
-Before a long run or after suspected drift:
+Naming clarification: this repo is not running an external OpenClaw runtime, daemon, SaaS product, or privileged orchestration service. It uses an OpenClaw-style execution pattern made of repo-native guardrails, role charters, deterministic checks, host adapter prompts, and drift-police enforcement.
+
+Before a long run:
+
+```bash
+pnpm openclaw:preflight
+```
+
+After a slice, before queue transition or completion claims:
+
+```bash
+pnpm openclaw:post-slice
+```
+
+To print the canonical automation prompt from the protected runbook:
+
+```bash
+pnpm openclaw:automation-prompt
+```
+
+For the full high-confidence readiness gate:
+
+```bash
+pnpm openclaw:ready
+```
+
+If the readiness gate is unavailable, or when debugging suspected drift, run the component checks:
 
 ```bash
 pnpm docs:authority
