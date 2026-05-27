@@ -15,6 +15,7 @@
     "bench:mock": "tsx src/bench-mock.ts"
   },
   "dependencies": {
+    "@openclinxr/review-workflow": "workspace:*",
     "@openclinxr/scenario-runtime": "workspace:*",
     "@openclinxr/shared-schemas": "workspace:*",
     "@openclinxr/telemetry": "workspace:*",

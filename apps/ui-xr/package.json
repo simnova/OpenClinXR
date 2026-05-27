@@ -11,6 +11,7 @@
     "test": "vitest run --root ."
   },
   "dependencies": {
+    "@openclinxr/asset-registry": "workspace:*",
     "@openclinxr/scenario-fixtures": "workspace:*",
     "three": "0.184.0"
   },

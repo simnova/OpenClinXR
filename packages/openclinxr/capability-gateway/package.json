@@ -11,6 +11,7 @@
     "test": "vitest run --root ."
   },
   "dependencies": {
+    "@azure/storage-queue": "^12.29.0",
     "@openclinxr/shared-schemas": "workspace:*"
   },
   "devDependencies": {

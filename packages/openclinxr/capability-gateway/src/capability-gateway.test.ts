@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildOpenClinXrCapabilityRoutingMatrix,
   evaluateCapabilityRoutingMatrix,
+  evaluateRuntimeProviderReadinessSurface,
   RuntimeCapabilityFacade,
   type CapabilityProviderBinding,
   type RuntimeCapabilityAdapter,
@@ -68,7 +69,7 @@ describe("OpenClinXR runtime capability gateway", () => {
     expect(productionAssetPipelineBindings.every((binding) =>
       binding.facadePackage === "@openclinxr/capability-gateway"
     )).toBe(true);
-    expect(productionAssetPipelineBindings.every((binding) =>
+    expect(productionAssetPipelineBindings.filter((binding) => binding.providerKind !== "paid-cloud-provider").every((binding) =>
       binding.transport === "main-api-tunnel" && binding.networkExposure === "single-main-api-external"
     )).toBe(true);
     expect(productionInteractiveBindings.map((binding) => binding.capabilityId)).toEqual([
@@ -90,6 +91,169 @@ describe("OpenClinXR runtime capability gateway", () => {
     expect(providerFor(matrix.bindings, "local-development", "persistence")).toBe("mongodb-memory-server");
     expect(providerFor(matrix.bindings, "local-production", "persistence")).toBe("local-mongodb");
     expect(providerFor(matrix.bindings, "production", "persistence")).toBe("microsoft-documentdb");
+  });
+
+  it("summarizes deterministic replay readiness separately from live provider readiness", () => {
+    const matrix = buildOpenClinXrCapabilityRoutingMatrix();
+
+    expect(evaluateRuntimeProviderReadinessSurface(matrix, "local-development")).toMatchObject({
+      profile: "local-development",
+      providerProfile: "deterministic-replay",
+      deterministicReplayReady: true,
+      liveInteractiveProviderReady: false,
+      interactiveRuntime: {
+        readyCapabilityIds: ["model-dialogue", "scenario-generation", "speech-recognition", "voice-synthesis"],
+        notConfiguredCapabilityIds: [],
+        plannedCapabilityIds: [],
+        blockedCapabilityIds: [],
+      },
+      assetPipeline: {
+        readyCapabilityIds: ["adversarial-visual-review"],
+        notConfiguredCapabilityIds: [],
+        plannedCapabilityIds: [
+          "character-generation",
+          "voice-asset-generation",
+          "medical-equipment-generation",
+          "animation-generation",
+          "asset-bake",
+        ],
+        blockedCapabilityIds: ["medical-equipment-generation"],
+      },
+      providerGates: expect.arrayContaining([
+        expect.objectContaining({
+          gateId: "local-development:deterministic-replay:model-dialogue",
+          path: "deterministic-replay",
+          state: "ready_for_deterministic_replay",
+          liveProviderReady: false,
+          blockers: [],
+          recommendedNextAction: "use_deterministic_replay_for_local_review",
+        }),
+        expect.objectContaining({
+          gateId: "local-development:local/manual:asset-generation",
+          path: "local/manual",
+          state: "available_for_local_manual_review",
+          liveProviderReady: false,
+          blockers: ["manual_asset_generation_review_evidence_not_attached"],
+        }),
+        expect.objectContaining({
+          gateId: "local-development:emulator-queue:asset-generation",
+          path: "emulator-queue",
+          liveProviderReady: false,
+          blockers: ["azurite_or_queue_emulator_evidence_missing", "durable_job_checkpoint_evidence_missing"],
+        }),
+        expect.objectContaining({
+          gateId: "local-development:cloud-approved:asset-generation",
+          path: "cloud-approved",
+          state: "blocked",
+          liveProviderReady: false,
+          credentialEvidencePresent: false,
+          runtimeEvidencePresent: false,
+        }),
+      ]),
+      recommendedNextAction: "attach_manual_asset_generation_review_evidence",
+      warnings: expect.arrayContaining(["deterministic_mock_only_not_live_provider_readiness"]),
+    });
+
+    expect(evaluateRuntimeProviderReadinessSurface(matrix, "local-production")).toMatchObject({
+      profile: "local-production",
+      providerProfile: "local-production",
+      deterministicReplayReady: false,
+      liveInteractiveProviderReady: false,
+      interactiveRuntime: {
+        readyCapabilityIds: [],
+        notConfiguredCapabilityIds: ["model-dialogue", "scenario-generation", "speech-recognition", "voice-synthesis"],
+        plannedCapabilityIds: [],
+        blockedCapabilityIds: [],
+      },
+      warnings: expect.arrayContaining([
+        "local-production:model-dialogue:not-configured:local-qwen-or-deepseek",
+        "local-production:voice-synthesis:not-configured:local-vibevoice-provider",
+        "local-production:local-production:local-toolchain:asset-generation:capture_local_toolchain_runtime_evidence_before_enabling",
+      ]),
+    });
+  });
+
+  it("registers planned external AI asset and adversarial-review providers without enabling execution", () => {
+    const matrix = buildOpenClinXrCapabilityRoutingMatrix();
+    const providerIds = matrix.bindings.map((binding) => binding.providerId);
+
+    expect(providerIds).toEqual(expect.arrayContaining([
+      "hunyuan3d-local",
+      "meshy-cloud-requires-approval",
+      "tripo-cloud-requires-approval",
+      "vlm-adversarial-reviewer-requires-approval",
+    ]));
+    expect(matrix.bindings.find((binding) => binding.providerId === "hunyuan3d-local")).toMatchObject({
+      providerKind: "python-worker",
+      transport: "local-executable-worker",
+      networkExposure: "none",
+      status: "blocked",
+      requiredControls: expect.arrayContaining([
+        "local_model_license_review",
+        "shared_asset_library_lru_lookup",
+      ]),
+    });
+    for (const providerId of [
+      "meshy-cloud-requires-approval",
+      "tripo-cloud-requires-approval",
+      "vlm-adversarial-reviewer-requires-approval",
+    ]) {
+      expect(matrix.bindings.find((binding) => binding.providerId === providerId)).toMatchObject({
+        providerKind: "paid-cloud-provider",
+        transport: "outbound-provider-api",
+        networkExposure: "outbound-provider-only",
+        status: "blocked",
+      });
+    }
+    expect(evaluateRuntimeProviderReadinessSurface(matrix, "production").providerGates).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        gateId: "production:cloud-approved:asset-generation",
+        blockers: expect.arrayContaining(["meshy_tripo_vlm_provider_approval_missing"]),
+      }),
+    ]));
+  });
+
+  it("does not mark live provider gates ready without credentials and runtime evidence", () => {
+    const matrix = buildOpenClinXrCapabilityRoutingMatrix();
+
+    for (const profile of matrix.profiles) {
+      const surface = evaluateRuntimeProviderReadinessSurface(matrix, profile);
+      expect(surface.liveInteractiveProviderReady).toBe(false);
+      expect(surface.providerGates.every((gate) => gate.liveProviderReady === false)).toBe(true);
+      expect(surface.providerGates.every((gate) => gate.credentialEvidencePresent === false)).toBe(true);
+      expect(surface.providerGates.every((gate) => gate.runtimeEvidencePresent === false)).toBe(true);
+    }
+
+    const productionSurface = evaluateRuntimeProviderReadinessSurface(matrix, "production");
+    expect(productionSurface.providerGates).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        gateId: "production:cloud-approved:asset-generation",
+        blockers: expect.arrayContaining([
+          "cloud_provider_approval_missing",
+          "paid_api_budget_and_procurement_missing",
+          "production_storage_evidence_missing",
+        ]),
+        recommendedNextAction: "complete_security_privacy_procurement_review_before_cloud_generation",
+      }),
+      expect.objectContaining({
+        gateId: "production:stt:speech",
+        path: "cloud-approved",
+        state: "planned_pending_evidence",
+        liveProviderReady: false,
+        blockers: expect.arrayContaining(["provider_credentials_or_operator_approval_missing", "provider_runtime_evidence_missing"]),
+      }),
+      expect.objectContaining({
+        gateId: "production:tts:voice",
+        path: "cloud-approved",
+        state: "planned_pending_evidence",
+        liveProviderReady: false,
+        blockers: expect.arrayContaining(["provider_credentials_or_operator_approval_missing", "provider_runtime_evidence_missing"]),
+      }),
+      expect.objectContaining({
+        gateId: "production:lip-sync-timing:voice",
+        blockers: expect.arrayContaining(["lip_sync_timing_evidence_missing", "viseme_phoneme_alignment_review_missing"]),
+      }),
+    ]));
   });
 
   it("reports direct public Python endpoints as architecture blockers", () => {
@@ -129,6 +293,29 @@ describe("OpenClinXR runtime capability gateway", () => {
       capabilityId: "model-dialogue",
       payload: { learnerUtterance: "When did the pain start?" },
     })).resolves.toEqual({ text: "mock response" });
+  });
+
+  it("skips contradictory ready provider health with blockers", async () => {
+    const matrix = buildOpenClinXrCapabilityRoutingMatrix();
+    const modelBinding = matrix.bindings.find((binding) =>
+      binding.profile === "local-development" && binding.capabilityId === "model-dialogue"
+    );
+    if (!modelBinding) {
+      throw new Error("Missing local-development model binding");
+    }
+    const facade = new RuntimeCapabilityFacade([
+      new StaticCapabilityAdapter(
+        { ...modelBinding, providerId: "contradictory-ready-model" },
+        { providerId: "contradictory-ready-model", status: "ready", blockers: ["runtime_still_blocked"] },
+      ),
+      new StaticCapabilityAdapter(modelBinding, { providerId: modelBinding.providerId, status: "ready" }, { text: "validated mock response" }),
+    ]);
+
+    await expect(facade.execute({
+      profile: "local-development",
+      capabilityId: "model-dialogue",
+      payload: { learnerUtterance: "When did the pain start?" },
+    })).resolves.toEqual({ text: "validated mock response" });
   });
 });
 

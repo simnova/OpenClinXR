@@ -16,6 +16,7 @@
     "@openclinxr/domain": "workspace:*",
     "@openclinxr/exam-assembly": "workspace:*",
     "@openclinxr/graphql": "workspace:*",
+    "@openclinxr/review-workflow": "workspace:*",
     "@openclinxr/rest": "workspace:*",
     "@openclinxr/ui-route-admin": "workspace:*",
     "@openclinxr/ui-shared": "workspace:*",

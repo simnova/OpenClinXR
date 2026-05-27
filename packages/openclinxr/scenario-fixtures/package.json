@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./ed-chest-pain": "./src/ed-chest-pain.ts"
+    "./ed-chest-pain": "./src/ed-chest-pain.ts",
+    "./scenario-bank": "./src/scenario-bank.ts"
   },
   "scripts": {
     "typecheck": "tsgo --noEmit -p tsconfig.json",
