@@ -198,11 +198,6 @@
     "docs:evidence-index": "tsx tools/agent-factory/build-evidence-index.ts",
     "docs:worktree-cleanup": "tsx tools/agent-factory/build-worktree-cleanup-report.ts"
   },
-  "dependencies": {
-    "ajv": "8.20.0",
-    "mongoose": "9.6.1",
-    "tinyglobby": "^0.2.16"
-  },
   "devDependencies": {
     "@biomejs/biome": "^2.4.15",
     "@dimforge/rapier3d-compat": "^0.19.3",
@@ -213,10 +208,13 @@
     "@gltf-transform/functions": "^4.3.0",
     "@types/node": "25.6.0",
     "@typescript/native-preview": "7.0.0-dev.20260503.1",
+    "ajv": "8.20.0",
     "archunit": "2.3.0",
     "gltf-pipeline": "4.3.1",
     "knip": "6.11.0",
+    "mongoose": "9.6.1",
     "playwright": "1.59.1",
+    "tinyglobby": "^0.2.16",
     "tsx": "4.21.0",
     "turbo": "2.9.8",
     "typescript": "6.0.3",
