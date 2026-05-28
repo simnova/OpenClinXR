@@ -9,7 +9,7 @@
     "current-reference": 49,
     "agent-memory": 140,
     "agent-methodology": 8,
-    "archive-candidate": 1,
+    "archive-candidate": 2,
     "historical-synthesis": 81,
     "decision-record": 18,
     "proposal": 21
@@ -1428,6 +1428,13 @@
       "agentInstructionWeight": "low",
       "action": "summarize-before-use",
       "rationale": "Substantive historical design or milestone synthesis; use as background, not active instruction."
+    },
+    {
+      "path": "docs/openclinxr/gltf-transform-replacement-decision-2026-05-27.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/godot-quest-voice-client-spike.md",

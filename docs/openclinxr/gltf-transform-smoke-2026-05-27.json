@@ -1,0 +1,42 @@
+{
+  "generatedAt": "2026-05-28T01:00:22.425Z",
+  "tool": {
+    "command": "gltf-transform-node-api",
+    "package": "@gltf-transform/core",
+    "version": "v4.3.0",
+    "license": "MIT"
+  },
+  "input": {
+    "primitive": "single_triangle",
+    "vertices": 3,
+    "triangles": 1,
+    "gltfBytes": 701
+  },
+  "output": {
+    "glbBytes": 816,
+    "magic": "glTF",
+    "version": 2,
+    "declaredLength": 816,
+    "elapsedMs": 5.97
+  },
+  "replacementAssessment": {
+    "candidateFor": "gltf-pipeline_root_dependency_reduction",
+    "paritySignals": [
+      "node_api_available",
+      "glb_magic_ok",
+      "glb_version_2",
+      "declared_length_matches"
+    ],
+    "remainingGaps": [
+      "asset-production-readiness still consumes gltf-pipeline smoke evidence shape",
+      "local-runtime-probe still checks gltf-pipeline availability as an approved tool",
+      "gltf-transform CLI is currently blocked by the repo brace-expansion security override, so replacement must use @gltf-transform/core or fix CLI dependency compatibility first",
+      "security/license notes still identify gltf-pipeline as the approved local conversion CLI"
+    ],
+    "demoteGltfPipelineRecommended": false
+  },
+  "verdict": {
+    "passed": true,
+    "blockers": []
+  }
+}

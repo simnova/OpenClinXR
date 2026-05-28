@@ -31,7 +31,7 @@ These warnings are known and should not become toil by themselves:
 
 ## First real reduction candidates
 
-1. Evaluate whether `@gltf-transform/*` can replace or isolate `gltf-pipeline` usage.
+1. Generalize asset source-smoke consumers so `@gltf-transform/core` Node API evidence can replace `gltf-pipeline` evidence after downstream validators are migrated.
 2. Check whether newer IWSDK plugins support Vite 8 before any dedupe or Vite alignment attempt.
 3. Move legacy optional asset tools behind capability-specific install/runtime gates if they remain required.
 

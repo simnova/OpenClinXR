@@ -26,7 +26,7 @@
     "agent:loop:verify": "tsx tools/agent-factory/check-agent-loop-artifacts.ts",
     "agent:maturity": "tsx tools/agent-factory/build-maturity-report.ts",
     "docs:authority": "tsx tools/agent-factory/build-doc-authority-registry.ts",
-    "agent:verify": "pnpm agent:alignment && pnpm agent:validate && pnpm agent:index && pnpm agent:sources && pnpm agent:pins && pnpm agent:loop:verify && pnpm agent:risks && pnpm agent:evidence && pnpm agent:maturity && pnpm agent:benchmarks && pnpm local:provider:benchmark:validate && pnpm local:model:cache:validate && pnpm local:model:source-currentness:validate && pnpm local:model:quality:validate && pnpm local:voice:runtime:validate && pnpm local:voice:model-cache:validate && pnpm local:voice:model-source-currentness:validate && pnpm local:voice:qwen-tts-smoke:validate && pnpm local:voice:moshi-package:validate && pnpm local:voice:bun-websocket-smoke:validate && pnpm local:voice:python-backend-smoke:validate && pnpm local:voice:bun-python-proxy-smoke:validate && pnpm local:voice:blueprint-simulation:validate && pnpm local:voice:realtime-spike:validate && pnpm local:voice:live-dialog:validate && pnpm godot:project:import-check:validate && pnpm asset:gltf:smoke:validate && pnpm asset:blender:bake:validate && pnpm asset:capability:evidence:validate && pnpm asset:production:readiness:validate && pnpm asset:production:ladder:validate && pnpm asset:production:artifact-evidence:validate && pnpm pages:validate && pnpm agent:benchmark-ids",
+    "agent:verify": "pnpm agent:alignment && pnpm agent:validate && pnpm agent:index && pnpm agent:sources && pnpm agent:pins && pnpm agent:loop:verify && pnpm agent:risks && pnpm agent:evidence && pnpm agent:maturity && pnpm agent:benchmarks && pnpm local:provider:benchmark:validate && pnpm local:model:cache:validate && pnpm local:model:source-currentness:validate && pnpm local:model:quality:validate && pnpm local:voice:runtime:validate && pnpm local:voice:model-cache:validate && pnpm local:voice:model-source-currentness:validate && pnpm local:voice:qwen-tts-smoke:validate && pnpm local:voice:moshi-package:validate && pnpm local:voice:bun-websocket-smoke:validate && pnpm local:voice:python-backend-smoke:validate && pnpm local:voice:bun-python-proxy-smoke:validate && pnpm local:voice:blueprint-simulation:validate && pnpm local:voice:realtime-spike:validate && pnpm local:voice:live-dialog:validate && pnpm godot:project:import-check:validate && pnpm asset:gltf:smoke:validate && pnpm asset:gltf-transform:smoke:validate && pnpm asset:blender:bake:validate && pnpm asset:capability:evidence:validate && pnpm asset:production:readiness:validate && pnpm asset:production:ladder:validate && pnpm asset:production:artifact-evidence:validate && pnpm pages:validate && pnpm agent:benchmark-ids",
     "packages:typecheck": "TURBO_TELEMETRY_DISABLED=1 DO_NOT_TRACK=1 turbo run typecheck --filter '@openclinxr/*' --filter '@cellix/*'",
     "packages:test": "TURBO_TELEMETRY_DISABLED=1 DO_NOT_TRACK=1 turbo run test --filter '@openclinxr/*' --filter '@cellix/*'",
     "packages:build": "TURBO_TELEMETRY_DISABLED=1 DO_NOT_TRACK=1 turbo run build --filter '@openclinxr/*' --filter '@cellix/*'",
@@ -198,7 +198,9 @@
     "docs:evidence-index": "tsx tools/agent-factory/build-evidence-index.ts",
     "docs:worktree-cleanup": "tsx tools/agent-factory/build-worktree-cleanup-report.ts",
     "hygiene:e18e:summary": "tsx tools/agent-factory/summarize-e18e-hygiene.ts",
-    "hygiene:e18e:summary:write": "tsx tools/agent-factory/summarize-e18e-hygiene.ts --write"
+    "hygiene:e18e:summary:write": "tsx tools/agent-factory/summarize-e18e-hygiene.ts --write",
+    "asset:gltf-transform:smoke": "tsx tools/openclinxr/gltf-transform-smoke.ts",
+    "asset:gltf-transform:smoke:validate": "tsx tools/openclinxr/gltf-transform-smoke.ts --validate-latest"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.15",

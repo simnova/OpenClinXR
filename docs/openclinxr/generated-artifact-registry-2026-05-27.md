@@ -11,7 +11,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 ## Counts
 
 - keep-current: 70
-- keep-evidence: 705
+- keep-evidence: 707
 - keep-template: 14
 
 ## Cleanup Actions
@@ -404,6 +404,8 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/gltf-pipeline-smoke-2026-05-21.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
+- `docs/openclinxr/gltf-pipeline-smoke-2026-05-27.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
+- `docs/openclinxr/gltf-transform-smoke-2026-05-27.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/godot-project-import-check-2026-05-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/godot-quest-voice-evidence-2026-05-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/humanoid-collision-probe-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
