@@ -1,8 +1,8 @@
 import { existsSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import {
-  AssetGenerationCapabilityFacade,
   type AssetGenerationArtifactKind,
+  AssetGenerationCapabilityFacade,
   type AssetGenerationCapabilityId,
   type AssetGenerationJobRecord,
 } from "../../packages/openclinxr/capability-gateway/src/index.js";
@@ -264,7 +264,9 @@ export function validateAssetCapabilityJobEvidenceReport(value: unknown): Valida
   }
   requireArray(value.jobs, "/jobs", errors);
   if (Array.isArray(value.jobs)) {
-    value.jobs.forEach((job, index) => validateJobEvidence(job, `/jobs/${index}`, errors));
+    value.jobs.forEach((job, index) => {
+      validateJobEvidence(job, `/jobs/${index}`, errors);
+    });
   }
   requireRecord(value.verdict, "/verdict", errors);
   if (isRecord(value.verdict)) {
@@ -514,7 +516,9 @@ function requireCapabilityIdArray(value: unknown, pathName: string, errors: stri
     return;
   }
 
-  value.forEach((entry, index) => requireOneOf(entry, requiredCapabilityIds, `${pathName}/${index}`, errors));
+  value.forEach((entry, index) => {
+    requireOneOf(entry, requiredCapabilityIds, `${pathName}/${index}`, errors);
+  });
 }
 
 function requireBoolean(value: unknown, pathName: string, errors: string[]): void {

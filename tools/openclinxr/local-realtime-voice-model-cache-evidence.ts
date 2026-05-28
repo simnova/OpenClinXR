@@ -1,4 +1,4 @@
-import { readFile, readdir, stat } from "node:fs/promises";
+import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
@@ -144,11 +144,15 @@ export function validateLocalRealtimeVoiceModelCacheEvidenceReport(value: unknow
   requireBoolean(value.ready, "/ready", errors);
   requireArray(value.models, "/models", errors);
   if (Array.isArray(value.models)) {
-    value.models.forEach((model, index) => validateModel(model, `/models/${index}`, errors));
+    value.models.forEach((model, index) => {
+      validateModel(model, `/models/${index}`, errors);
+    });
   }
   requireArray(value.support_directories, "/support_directories", errors);
   if (Array.isArray(value.support_directories)) {
-    value.support_directories.forEach((entry, index) => validateSupportDirectory(entry, `/support_directories/${index}`, errors));
+    value.support_directories.forEach((entry, index) => {
+      validateSupportDirectory(entry, `/support_directories/${index}`, errors);
+    });
   }
   validateReadinessConsistency(value, errors);
 
