@@ -1,36 +1,36 @@
-import type { ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
-import type {
-  AsyncDurableMultiActorSessionStore,
-  DurableClinicalEventRecord,
-  DurableConversationTurnRecord,
-  DurableEmotionalStateTimelineRecord,
-} from "@openclinxr/session-state";
 import {
   assembleExamForm,
   createDefaultClinicalSkillsBlueprint,
   createExamStationRunQueue,
   createStep2CsStyleSeedBlueprint,
 } from "@openclinxr/exam-assembly";
+import type {
+  AsyncDurableMultiActorSessionStore,
+  DurableClinicalEventRecord,
+  DurableConversationTurnRecord,
+  DurableEmotionalStateTimelineRecord,
+} from "@openclinxr/session-state";
+import type { ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
 import type { Document } from "mongodb";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { createEdChestPainLocalEncounterRuntimeAssetBundle, createEdChestPainLocalLearnerRuntimeAssetBundle, toLearnerRuntimeAssetBundle, type EncounterRuntimeAsset, type EncounterRuntimeAssetBundle } from "../../asset-registry/src/runtime-bundles.js";
+import { createEdChestPainLocalEncounterRuntimeAssetBundle, createEdChestPainLocalLearnerRuntimeAssetBundle, type EncounterRuntimeAsset, type EncounterRuntimeAssetBundle, toLearnerRuntimeAssetBundle } from "../../asset-registry/src/runtime-bundles.js";
 import {
-  MongoExamFormRepository,
   createMongoApiPersistenceSink,
+  createMongoDurableMultiActorSessionStore,
+  durableActorTurnPersistenceScope,
+  durableClinicalEventPersistenceScope,
+  MongoDurableClinicalEventRepository,
+  MongoDurableConversationTurnRepository,
+  MongoDurableEmotionalStateTimelineRepository,
+  MongoExamFormRepository,
+  MongoReviewPacketRepository,
+  MongoRuntimeAssetBundleRepository,
   MongoScenarioRepository,
   MongoScenarioReviewDecisionRepository,
   MongoStationRunQueueRepository,
   MongoTraceRepository,
-  MongoReviewPacketRepository,
-  MongoRuntimeAssetBundleRepository,
-  saveLearnerRuntimeAssetBundleFromGeneratedReport,
-  MongoDurableConversationTurnRepository,
-  MongoDurableClinicalEventRepository,
-  MongoDurableEmotionalStateTimelineRepository,
-  createMongoDurableMultiActorSessionStore,
-  durableClinicalEventPersistenceScope,
-  durableActorTurnPersistenceScope,
   type ScenarioReviewDecisionRecord,
+  saveLearnerRuntimeAssetBundleFromGeneratedReport,
 } from "./index.js";
 import { createMongoMemoryTestContext, type MongoMemoryTestContext } from "./mongo-memory-context.js";
 
@@ -624,10 +624,14 @@ describe("MongoDB memory repositories", () => {
     await sink.saveExamForm(form);
     await sink.saveTraceEvents("run_sink", [trace(0, "station_started", "run_sink"), trace(1, "ecg_request", "run_sink")]);
     await sink.saveTraceEvents("run_sink", [trace(0, "station_started", "run_sink"), trace(1, "ecg_request", "run_sink"), trace(2, "team_communication", "run_sink")]);
+    const patientNote = reviewPacket.patientNote;
+    if (!patientNote) {
+      throw new Error("Expected review packet fixture to include a patient note");
+    }
     await sink.saveReviewPacket("run_sink", {
       ...reviewPacket,
       stationRunId: "run_sink",
-      patientNote: { ...reviewPacket.patientNote!, stationRunId: "run_sink" },
+      patientNote: { ...patientNote, stationRunId: "run_sink" },
     });
     await sink.saveScenarioReviewDecision(scenarioReviewDecision);
     await sink.saveStationRunQueueSnapshot({
@@ -785,11 +789,15 @@ describe("MongoDB memory repositories", () => {
   it("rejects API sink review packets whose path station run does not match the packet", async () => {
     const sink = createMongoApiPersistenceSink(context.db);
     await sink.ensureIndexes();
+    const patientNote = reviewPacket.patientNote;
+    if (!patientNote) {
+      throw new Error("Expected review packet fixture to include a patient note");
+    }
 
     await expect(sink.saveReviewPacket("run_sink_path", {
       ...reviewPacket,
       stationRunId: "run_sink_packet",
-      patientNote: { ...reviewPacket.patientNote!, stationRunId: "run_sink_packet" },
+      patientNote: { ...patientNote, stationRunId: "run_sink_packet" },
     })).rejects.toThrow("Review packet stationRunId must match sink stationRunId");
     await expect(new MongoReviewPacketRepository(context.db).findByStationRunId("run_sink_packet")).resolves.toBeNull();
   });

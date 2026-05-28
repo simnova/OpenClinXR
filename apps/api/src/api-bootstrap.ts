@@ -1,10 +1,10 @@
-import type { ExamForm } from "@openclinxr/exam-assembly";
+import { existsSync, readFileSync } from "node:fs";
 import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
+import type { ExamForm } from "@openclinxr/exam-assembly";
 import { createDefaultScenarioRuntime, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createNoopTelemetryRecorder, type TelemetryRecorder } from "@openclinxr/telemetry";
-import { realtimeVoiceProtocol, type RealtimeVoiceGatewayPostureInput } from "@openclinxr/voice-gateway";
-import { existsSync, readFileSync } from "node:fs";
-import { createApiApp, type ApiPersistenceSink, type ApiScenarioReviewDecisionRecord, type ApiStationRunQueueSnapshot } from "./app.js";
+import { type RealtimeVoiceGatewayPostureInput, realtimeVoiceProtocol } from "@openclinxr/voice-gateway";
+import { type ApiPersistenceSink, type ApiScenarioReviewDecisionRecord, type ApiStationRunQueueSnapshot, createApiApp } from "./app.js";
 import { createOpenClinXrApiProtocolPosture, type OpenClinXrApiProtocolSupport } from "./protocol-support.js";
 
 export type AzureFunctionHttpMethod = "GET" | "POST" | "PATCH" | "PUT" | "DELETE" | "OPTIONS" | "HEAD";
@@ -72,12 +72,12 @@ export type BunRealtimeVoiceWebSocket = {
     backendSocket?: BunRealtimeVoiceBackendWebSocket;
     queuedBackendFrames: Array<string | Uint8Array>;
   };
-  send(frame: string | Uint8Array): void | number | Promise<void | number>;
+  send(frame: string | Uint8Array): number | undefined | Promise<number | undefined>;
 };
 
 export type BunRealtimeVoiceBackendWebSocket = {
   readyState?: number;
-  send(frame: string | Uint8Array): void | number | Promise<void | number>;
+  send(frame: string | Uint8Array): number | undefined | Promise<number | undefined>;
   close(): void;
   addEventListener(type: "open" | "message" | "close" | "error", listener: (event: { data?: unknown; message?: string; error?: unknown }) => void): void;
 };

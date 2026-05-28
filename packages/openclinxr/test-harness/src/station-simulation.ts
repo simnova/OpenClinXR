@@ -143,7 +143,11 @@ export async function runDialogueSeedReplayEvidence(): Promise<DialogueSeedRepla
     const requests = buildActorResponseRequestsForDialogueSeeds(scenario, entry.seeds);
 
     for (const [index, request] of requests.entries()) {
-      const seed = entry.seeds[index]!;
+      const seed = entry.seeds[index];
+      if (!seed) {
+        throw new Error(`Missing dialogue seed ${index} for replay ${entry.scenarioId}`);
+      }
+
       const response = await gateway.generateActorResponse(request);
 
       seedCount += 1;

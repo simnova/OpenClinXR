@@ -1,6 +1,6 @@
 import { readdir, readFile, writeFile } from "node:fs/promises";
-import { pathToFileURL } from "node:url";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const evidenceDocsDir = "docs/openclinxr";
 const evidencePageRepoRoot = "docs/index.html";

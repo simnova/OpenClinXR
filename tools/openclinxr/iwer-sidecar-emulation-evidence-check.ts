@@ -4,8 +4,8 @@ import { pathToFileURL } from "node:url";
 import { buildIwsdkMcpToolInventory } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
 import { globFiles } from "../agent-factory/lib.js";
 import {
-  evaluateAdversarialVisualQaEvidence,
   type AdversarialVisualQaEvidence,
+  evaluateAdversarialVisualQaEvidence,
 } from "./adversarial-visual-qa-evidence.js";
 import {
   inspectMediaArtifact,

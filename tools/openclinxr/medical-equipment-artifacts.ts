@@ -6,10 +6,10 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import {
-  registerGeneratedRuntimeAssetReference,
-  resolveRuntimeAssetStoreConfig,
   type EncounterRuntimeAsset,
   type RuntimeAssetStoreConfig,
+  registerGeneratedRuntimeAssetReference,
+  resolveRuntimeAssetStoreConfig,
 } from "../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
 
 const execFileAsync = promisify(execFile);

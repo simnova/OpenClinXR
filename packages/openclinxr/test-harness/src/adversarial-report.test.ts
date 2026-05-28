@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { SimulationResult } from "./station-simulation.js";
 import { buildAdversarialProbeReport } from "./adversarial-report.js";
+import type { SimulationResult } from "./station-simulation.js";
 
 const result: SimulationResult = {
   stationRunId: "run_ed_chest_pain_priority_v1_learner_001",

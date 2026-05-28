@@ -1,21 +1,21 @@
 import { describe, expect, it } from "vitest";
 import {
   AssetGenerationCapabilityFacade,
-  buildEncounterAssetGenerationPlan,
-  buildEncounterAssetGenerationPublicationTargets,
-  createDeterministicAssetGenerationAdapter,
-  createEncounterAssetGenerationQueueMessage,
-  buildDefaultHumanoidRemediationLoopInputs,
-  buildEncounterAssetGenerationEvidenceGateRefs,
-  buildVisualQaRemediationWorkOrderPlans,
-  decodeAzureStorageQueueMessage,
-  encodeAzureStorageQueueMessage,
-  processNextEncounterAssetGenerationQueueMessage,
-  processEncounterAssetGenerationQueueMessage,
   type AssetGenerationJobRequest,
   type AssetGenerationWorkerAdapter,
+  buildDefaultHumanoidRemediationLoopInputs,
+  buildEncounterAssetGenerationEvidenceGateRefs,
+  buildEncounterAssetGenerationPlan,
+  buildEncounterAssetGenerationPublicationTargets,
+  buildVisualQaRemediationWorkOrderPlans,
   type CommandRunner,
+  createDeterministicAssetGenerationAdapter,
+  createEncounterAssetGenerationQueueMessage,
+  decodeAzureStorageQueueMessage,
   type EncounterAssetGenerationQueueClient,
+  encodeAzureStorageQueueMessage,
+  processEncounterAssetGenerationQueueMessage,
+  processNextEncounterAssetGenerationQueueMessage,
 } from "./index.js";
 
 describe("asset-generation job facade", () => {
@@ -1102,7 +1102,11 @@ describe("asset-generation job facade", () => {
     expect(await facade.list()).toEqual([record]);
 
     record.history.push({ status: "failed", at: "2026-01-01T00:00:03.000Z" });
-    record.artifacts[0]!.path = "mutated.json";
+    const firstArtifact = record.artifacts[0];
+    if (firstArtifact === undefined) {
+      throw new Error("Expected job record to include at least one artifact");
+    }
+    firstArtifact.path = "mutated.json";
     await expect(facade.get("job-1")).resolves.toMatchObject({
       artifacts: [
         {
@@ -1347,5 +1351,15 @@ describe("asset-generation job facade", () => {
 
 function fixedClock(values: string[]): () => string {
   let index = 0;
-  return () => values[Math.min(index++, values.length - 1)] ?? values[values.length - 1]!;
+  return () => {
+    const value = values[Math.min(index++, values.length - 1)];
+    const fallback = values[values.length - 1];
+    if (value !== undefined) {
+      return value;
+    }
+    if (fallback !== undefined) {
+      return fallback;
+    }
+    throw new Error("fixedClock requires at least one value");
+  };
 }

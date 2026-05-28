@@ -1,6 +1,6 @@
+import { buildFacultyReviewPath } from "@openclinxr/review-workflow";
 import { Tag, Typography } from "antd";
 import type { ReactElement } from "react";
-import { buildFacultyReviewPath } from "@openclinxr/review-workflow";
 import type { AdminCaseDefinedHumanoidPerformanceContract, AdminReviewPacketReplay } from "./api-client.js";
 
 type ReviewPacket = NonNullable<AdminReviewPacketReplay["reviewPacket"]>;
@@ -49,7 +49,7 @@ export function FacultyReviewDecisionPanel({
       <Typography.Paragraph type="secondary">
         Faculty decision support only; this does not approve score use, clinical-validity, Quest readiness, raw-payload readiness, or full runtime readiness.
       </Typography.Paragraph>
-      <div className="readiness-strip review-replay-strip" aria-label="Faculty review decision metrics">
+      <div className="readiness-strip review-replay-strip">
         <FacultyReviewDecisionMetric label={`${packet.timeline.length} timeline ${pluralize(packet.timeline.length, "entry")}`} detail={`${traceEventCount} trace metadata events`} />
         <FacultyReviewDecisionMetric
           label={`${packet.missingRequiredTraceTags.length} missing required ${pluralize(packet.missingRequiredTraceTags.length, "behavior")}`}
@@ -132,7 +132,7 @@ export function FacultyReviewDecisionPanel({
         </>
       ) : null}
       <Typography.Text strong>Reviewer decision posture</Typography.Text>
-      <div className="readiness-strip review-replay-strip" aria-label="Reviewer decision posture metrics">
+      <div className="readiness-strip review-replay-strip">
         <FacultyReviewDecisionMetric
           label={`${packet.timeline.length} timeline ${pluralize(packet.timeline.length, "entry")}`}
           detail={packet.timeline.length > 0 ? `latest at ${packet.timeline[packet.timeline.length - 1]?.atSecond ?? 0}s` : "timeline evidence missing"}
@@ -197,7 +197,7 @@ function renderXrTraceEvidenceHandoff(summary: NonNullable<ReviewReplayReadiness
     return null;
   }
   return (
-    <Typography.Paragraph type="secondary" aria-label="XR trace evidence handoff">
+    <Typography.Paragraph type="secondary">
       {formatXrTraceEvidenceSummary(xrSummary)}
     </Typography.Paragraph>
   );
@@ -212,7 +212,7 @@ function renderCaseDefinedHumanoidPerformanceContract(
       <Typography.Paragraph type="secondary">
         Humanoid behavior metadata is derived from the encounter definition for faculty planning only; it is not generated-humanoid-asset readiness, animation-quality approval, Quest-readiness, runtime-readiness, or clinical-validity.
       </Typography.Paragraph>
-      <Typography.Paragraph type="secondary" aria-label="Case-defined humanoid performance metadata">
+      <Typography.Paragraph type="secondary">
         {[
           `${contract.actorCount} humanoid actors`,
           `${contract.emotionStateCount} emotion states`,

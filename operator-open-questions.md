@@ -60,3 +60,8 @@ Recommended default: keep `mpfb_makehuman_clothing_library` blocked for material
 Question: Which specific external garment mesh source should be reviewed first for allowlisting into the provider-routed garment pipeline?
 
 Recommended default: do not materialize any external garment; keep MPFB/MakeHuman blocked pending a concrete source URL, license, author, redistribution permission, local hash, and semantic garment key. Continue automation around provider gates, cache reuse, and B+ screenshot scoring.
+
+## 2026-05-28 Nonblocking runtime-proof default
+
+- Question: Should generated pediatric runtime bundles be allowed to report `bundle_ready` when actor/equipment records still wrap shared neutral generated blobs under scenario-specific names?
+- Recommended default: keep the bundle constructible for local pipeline proof, but attach explicit blocked visual-realism/non-learner-use caveats and require actor/equipment variant materialization evidence before promotion.

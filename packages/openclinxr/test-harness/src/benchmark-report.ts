@@ -1,7 +1,7 @@
-import type { ProviderHealth } from "@openclinxr/shared-schemas";
 import { buildFacultyReviewPath, type FacultyReviewPath } from "@openclinxr/review-workflow";
+import type { ProviderHealth } from "@openclinxr/shared-schemas";
 import { openClinXrSpanNames, telemetryRouteAttributes } from "@openclinxr/telemetry";
-import { buildAdversarialProbeReport, type AdversarialProbeReport } from "./adversarial-report.js";
+import { type AdversarialProbeReport, buildAdversarialProbeReport } from "./adversarial-report.js";
 import type { SimulationResult } from "./station-simulation.js";
 
 export type MockBenchmarkReport = {

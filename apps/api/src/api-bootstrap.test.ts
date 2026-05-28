@@ -1,11 +1,11 @@
-import { describe, expect, it } from "vitest";
 import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
+import { describe, expect, it } from "vitest";
 import {
   createBunRealtimeVoiceGatewayPostureInputFromEnvironment,
   createBunServerConfig,
-  createOpenClinXrApiStartup,
   createNodeServerConfig,
+  createOpenClinXrApiStartup,
 } from "./index.js";
 
 describe("OpenClinXR API startup", () => {

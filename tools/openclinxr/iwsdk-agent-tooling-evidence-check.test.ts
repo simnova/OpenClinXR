@@ -4,11 +4,11 @@ import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
+import { buildIwsdkMcpToolInventory } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
 import {
   buildIwsdkAgentToolingEvidenceReport,
   type IwsdkAgentToolingEvidenceReport,
 } from "./iwsdk-agent-tooling-evidence-check.js";
-import { buildIwsdkMcpToolInventory } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
 
 const execFileAsync = promisify(execFile);
 

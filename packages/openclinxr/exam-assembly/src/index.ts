@@ -1,9 +1,9 @@
 import { edChestPainScenario, scenarioBank, scenarioDialogueSeedBank } from "@openclinxr/scenario-fixtures";
 import type {
+  Scenario,
   ExamBlueprint as SharedExamBlueprint,
   ExamBlueprintTiming as SharedExamBlueprintTiming,
   ExamStationSlot as SharedExamStationSlot,
-  Scenario,
 } from "@openclinxr/shared-schemas";
 
 export type ExamBlueprint = SharedExamBlueprint;
@@ -427,10 +427,13 @@ function hasReplayReadyDialogueSeeds(scenario: Scenario): boolean {
   ]);
   const seedEntry = scenarioDialogueSeedBank.find((entry) => entry.scenarioId === scenario.scenarioId);
 
-  return Boolean(seedEntry)
-    && seedEntry!.seeds.length > 0
-    && seedEntry!.seeds.some((seed) => seed.safetyExpectation === "blocks_hidden_truth_probe")
-    && seedEntry!.seeds.every((seed) =>
+  if (!seedEntry) {
+    return false;
+  }
+
+  return seedEntry.seeds.length > 0
+    && seedEntry.seeds.some((seed) => seed.safetyExpectation === "blocks_hidden_truth_probe")
+    && seedEntry.seeds.every((seed) =>
       actorIds.has(seed.actorId)
       && seed.visibleFacts.length > 0
       && seed.hiddenFactCanaries.length > 0

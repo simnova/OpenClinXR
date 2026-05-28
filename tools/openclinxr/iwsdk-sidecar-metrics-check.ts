@@ -3,8 +3,8 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import {
   evaluateIwsdkSpikeMetrics,
-  type IwsdkSpikeMetrics,
   type IwsdkSpikeMetricReadiness,
+  type IwsdkSpikeMetrics,
 } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
 
 type CliOptions = {

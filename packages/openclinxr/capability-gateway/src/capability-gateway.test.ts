@@ -2,11 +2,11 @@ import type { ProviderHealth } from "@openclinxr/shared-schemas";
 import { describe, expect, it } from "vitest";
 import {
   buildOpenClinXrCapabilityRoutingMatrix,
+  type CapabilityProviderBinding,
   evaluateCapabilityRoutingMatrix,
   evaluateRuntimeProviderReadinessSurface,
-  RuntimeCapabilityFacade,
-  type CapabilityProviderBinding,
   type RuntimeCapabilityAdapter,
+  RuntimeCapabilityFacade,
   type RuntimeCapabilityRequest,
 } from "./index.js";
 

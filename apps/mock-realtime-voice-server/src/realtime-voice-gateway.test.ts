@@ -1,11 +1,11 @@
-import { afterEach, describe, expect, it } from "vitest";
 import { realtimeVoiceProtocol } from "@openclinxr/voice-gateway";
+import { afterEach, describe, expect, it } from "vitest";
 import {
   createRealtimeVoiceGatewayPosture,
   runRealtimeVoiceProxyHarness,
+  type StoppableServer,
   startPythonCompatibleVoiceBackendFixture,
   startRealtimeVoiceGatewayServer,
-  type StoppableServer,
 } from "./index.js";
 
 const startedServers: StoppableServer[] = [];

@@ -924,3 +924,12 @@ Current cleanup direction:
 - Continue pruning or compacting historical/scratchpad Markdown only after preserving source-control checkpoints.
 - Do not delete templates, current references, evidence records, or historical syntheses merely because they are old; classify first, then prune only clear clutter.
 - After cleanup, return to blueprint-to-runtime product slices: encounter specification intake, conversation tooling, reusable generated assets, adaptive humanoid/clothing pipeline, review/replay/persistence, and evidence that verifies touched factory behavior.
+
+## 2026-05-28 OpenClaw runtime-proof queue transition
+
+- Execution mode: live_subagents with read-only OpenClaw coordinator, Worker 9 UI-XR runtime consumer, adversarial drift reviewer, and Worker 11 asset-registry runtime-bundle worker. Completed agents were closed after handoff.
+- Proof target: `peds_asthma_parent_anxiety_v1` remains the active end-to-end encounter-factory runtime proof because it already carries case-defined actors, equipment, trace tags, dialogue, actor realism requirements, and UI-XR/Admin linkage.
+- Slice completed: UI-XR now exposes runtime manifest evidence from the active learner bundle, including station context, actor roster, equipment IDs, dialogue trace tags, room props, and selected-scenario match/mismatch status; mismatched API/static generated bundles are rejected/labeled before fallback.
+- Slice completed: asset-registry runtime bundle construction no longer silently falls back to the ED Chest Pain scene manifest when no scene manifest is supplied; omitted manifests now produce scenario/station-keyed generated fallback manifests from the supplied actors and equipment, while ED remains an explicit local fixture helper.
+- Focused verification: `pnpm exec biome check apps/ui-xr/src/main.ts apps/ui-xr/src/runtime-state.ts apps/ui-xr/src/static-assets.test.ts packages/openclinxr/asset-registry/src/runtime-bundles.ts packages/openclinxr/asset-registry/src/runtime-bundles.test.ts` passed; `pnpm exec vitest run apps/ui-xr/src/runtime-state.test.ts apps/ui-xr/src/static-assets.test.ts packages/openclinxr/asset-registry/src/runtime-bundles.test.ts` passed with 3 files and 81 tests.
+- Next queued slice: promote actor/equipment materialization contracts so the pediatric generated runtime bundle reports blocked visual-realism status or explicit non-learner-use caveats when distinct actor/equipment variant blobs are not attached, instead of allowing scenario-specific names to wrap shared neutral generated assets.

@@ -1,6 +1,6 @@
 import { fileURLToPath } from "node:url";
-import { iwsdkDev, type DevPluginOptions } from "@iwsdk/vite-plugin-dev";
-import { compileUIKit, type CompileUIKitOptions } from "@iwsdk/vite-plugin-uikitml";
+import { type DevPluginOptions, iwsdkDev } from "@iwsdk/vite-plugin-dev";
+import { type CompileUIKitOptions, compileUIKit } from "@iwsdk/vite-plugin-uikitml";
 import { defineConfig } from "vitest/config";
 
 export const openClinXrIwsdkSpikeDevPluginOptions = Object.freeze({

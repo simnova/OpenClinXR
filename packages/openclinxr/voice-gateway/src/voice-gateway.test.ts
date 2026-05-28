@@ -446,10 +446,10 @@ describe("voice gateway", () => {
           blockers: ["runtime_still_blocked"],
         };
       },
-      async *transcribe() {
+      transcribe() {
         throw new Error("Contradictory adapter should not be selected");
       },
-      async *synthesize() {
+      synthesize() {
         throw new Error("Contradictory adapter should not be selected");
       },
     };

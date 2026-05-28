@@ -4,15 +4,15 @@ import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
+import { buildIwsdkMcpToolInventory, type IwsdkAgentToolingEvidence } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
+import type { IwerSidecarEmulationEvidence } from "./iwer-sidecar-emulation-evidence-check.js";
 import {
   buildIwsdkEvidenceContractReport,
+  type IwsdkEvidenceContractReport,
   mapIwerSidecarEvidenceToIwsdkAgentToolingEvidence,
   validateIwsdkEvidenceContractReport,
-  type IwsdkEvidenceContractReport,
 } from "./iwsdk-evidence-contract-check.js";
-import type { IwerSidecarEmulationEvidence } from "./iwer-sidecar-emulation-evidence-check.js";
 import { buildIwsdkMcpInventoryEvidenceReport } from "./iwsdk-mcp-inventory-evidence.js";
-import { buildIwsdkMcpToolInventory, type IwsdkAgentToolingEvidence } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
 
 const execFileAsync = promisify(execFile);
 

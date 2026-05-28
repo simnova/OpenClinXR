@@ -4,10 +4,37 @@ import {
   buildEncounterFactoryDryRunSummary,
   buildEncounterFactoryInputPlanningSummary,
   buildEncounterFactorySummaryContracts,
-  buildGuardedRuntimeSelectorDisabledDecision,
   buildEncounterRuntimeAssetBundle,
+  buildGuardedRuntimeSelectorDisabledDecision,
   createEdChestPainLocalLearnerRuntimeAssetBundle,
 } from "./index.js";
+
+function testRuntimeAsset(
+  input: {
+    assetId: string;
+    scenarioAssetId: string;
+    kind: import("./index.js").RuntimeAssetKind;
+    displayName: string;
+  },
+): import("./index.js").EncounterRuntimeAsset {
+  return {
+    assetId: input.assetId,
+    version: "test-fixture",
+    kind: input.kind,
+    displayName: input.displayName,
+    scenarioAssetId: input.scenarioAssetId,
+    blob: {
+      storeKind: "app_public_fixture",
+      containerName: "openclinxr-assets",
+      blobName: `xr-assets/test/${input.assetId}.glb`,
+      contentType: "model/gltf-binary",
+      url: `/xr-assets/test/${input.assetId}.glb`,
+    },
+    reviewStatus: "fixture_approved_for_local_runtime",
+    provenanceRefs: [`${input.assetId}:test-provenance`],
+    notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+  };
+}
 
 describe("encounter factory summary contracts", () => {
   it("builds aligned dynamic behavior coverage and dry-run summary objects", () => {
@@ -172,6 +199,89 @@ describe("encounter factory summary contracts", () => {
     expect(bundle.assemblyAuditMetadata.remediationPlanRefs[0]?.executionStatus).toBe("metadata_only_not_executed");
     expect(bundle.assemblyAuditMetadata.remediationPlanRefs[0]?.notEvidenceFor).toContain("quest_readiness");
     expect(bundle.evidenceGateRefs.some((gateRef) => gateRef.status === "pending")).toBe(true);
+  });
+
+  it("generates a scenario-keyed fallback scene manifest instead of silently using the ED fixture", () => {
+    const humanoidModel = testRuntimeAsset({
+      assetId: "peds_generated_humanoid_model_glb",
+      scenarioAssetId: "peds_asthma_actor_character",
+      kind: "humanoid_model",
+      displayName: "Pediatric asthma humanoid GLB fixture",
+    });
+    const bundle = buildEncounterRuntimeAssetBundle({
+      bundleId: "local_exam_run:peds_asthma_local_encounter:runtime-assets",
+      tenantId: "tenant_alpha",
+      userId: "learner_alpha",
+      examRunId: "exam_run_1",
+      encounterId: "encounter_1",
+      stationId: "peds_urgent_care_station_v1",
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      assetStore: {
+        storeKind: "app_public_fixture",
+        containerName: "openclinxr-assets",
+      },
+      environment: testRuntimeAsset({
+        assetId: "peds_urgent_care_room_glb",
+        scenarioAssetId: "peds_urgent_care_environment",
+        kind: "environment_model",
+        displayName: "Pediatric urgent care room GLB fixture",
+      }),
+      actors: [
+        {
+          actorId: "patient_maya_johnson_v1",
+          embodiment: "humanoid",
+          role: "patient",
+          model: humanoidModel,
+          animationClips: [],
+          gazeProfile: { defaultTarget: "learner_camera", supportsActorTargets: true },
+        },
+        {
+          actorId: "parent_taylor_johnson_v1",
+          embodiment: "humanoid",
+          role: "parent",
+          model: { ...humanoidModel, scenarioAssetId: "parent_taylor_johnson_character" },
+          animationClips: [],
+          gazeProfile: { defaultTarget: "learner_camera", supportsActorTargets: true },
+        },
+      ],
+      equipment: [
+        {
+          equipmentId: "nebulizer_mask_equipment",
+          model: testRuntimeAsset({
+            assetId: "nebulizer_mask_glb",
+            scenarioAssetId: "nebulizer_mask_equipment",
+            kind: "equipment_model",
+            displayName: "Nebulizer mask GLB fixture",
+          }),
+        },
+      ],
+      uiSurfaces: [],
+    });
+
+    expect(bundle.sceneManifest.manifestId).toBe(
+      "generated_runtime_scene_manifest:peds_asthma_parent_anxiety_v1:peds_urgent_care_station_v1",
+    );
+    expect(bundle.sceneManifest.scenarioId).toBe("peds_asthma_parent_anxiety_v1");
+    expect(bundle.sceneManifest.stationId).toBe("peds_urgent_care_station_v1");
+    expect(JSON.stringify(bundle.sceneManifest.stationContext)).not.toMatch(/\bED\b|Chest Pain|Robert|Hayes|emergency department/i);
+    expect(Object.keys(bundle.sceneManifest.actorPlacements)).toEqual([
+      "patient_maya_johnson_v1",
+      "parent_taylor_johnson_v1",
+    ]);
+    expect(Object.keys(bundle.sceneManifest.actorPlacements)).not.toEqual(expect.arrayContaining([
+      "patient_robert_hayes_v1",
+      "nurse_maria_alvarez_v1",
+      "spouse_anna_hayes_v1",
+    ]));
+    expect(Object.keys(bundle.sceneManifest.equipmentPlacements)).toEqual(["nebulizer_mask_equipment"]);
+    expect(Object.keys(bundle.sceneManifest.equipmentPlacements)).not.toEqual(expect.arrayContaining([
+      "ecg_cart_equipment",
+      "iv_stand_equipment",
+    ]));
+    expect(bundle.assemblyAuditMetadata.sourceDefinitionRefs).toContain(
+      "runtime_scene_manifest:generated_runtime_scene_manifest:peds_asthma_parent_anxiety_v1:peds_urgent_care_station_v1",
+    );
+    expect(bundle.assemblyAuditMetadata.sourceDefinitionRefs.join("|")).not.toContain("ed_chest_pain_runtime_scene_manifest_v1");
   });
 
   it("builds a guarded disabled runtime selector decision for matching bundle intent", () => {

@@ -6,15 +6,56 @@ const allowedRelaxedTsconfigOptions = new Map<string, ReadonlySet<string>>([
 ]);
 const forbiddenRelaxedTsconfigOptions = new Set([
   "exactOptionalPropertyTypes",
+  "noFallthroughCasesInSwitch",
+  "noImplicitOverride",
+  "noImplicitReturns",
   "noUncheckedIndexedAccess",
   "noPropertyAccessFromIndexSignature",
-  "noImplicitOverride",
+  "noUncheckedSideEffectImports",
   "strict",
+]);
+const rootInheritedStrictConfig = "packages/cellix/config-typescript/tsconfig.base.json";
+const requiredRootInheritedStrictOptions = new Set([
+  "strict",
+  "exactOptionalPropertyTypes",
+  "noUncheckedIndexedAccess",
+  "noImplicitReturns",
+  "noImplicitOverride",
+  "noFallthroughCasesInSwitch",
+  "noPropertyAccessFromIndexSignature",
+  "noUncheckedSideEffectImports",
+]);
+const requiredRootInheritedFalseOptions = new Set([
+  "allowUnreachableCode",
+  "allowUnusedLabels",
 ]);
 
 async function main(): Promise<void> {
   const findings: string[] = [];
+  const assert = (condition: boolean, message: string): void => {
+    if (!condition) {
+      findings.push(message);
+    }
+  };
   const seenAllowedFiles = new Set<string>();
+
+  const biomeSource = await readFile("biome.json", "utf8");
+  const biome = JSON.parse(biomeSource) as {
+    assist?: {
+      enabled?: boolean;
+      actions?: {
+        source?: {
+          organizeImports?: string;
+        };
+      };
+    };
+  };
+  const assist = biome.assist;
+  assert(assist?.enabled === true, "biome.json must enable assist");
+  assert(
+    assist?.actions?.source?.organizeImports === "on",
+    "biome.json must enable source.organizeImports",
+  );
 
   for await (const filePath of glob("{apps,packages,tools}/**/*.{ts,tsx}")) {
     const source = await readFile(filePath, "utf8");
@@ -49,8 +90,22 @@ async function main(): Promise<void> {
       }
     }
 
-    if (compilerOptions.skipLibCheck === true && !allowedRelaxations.has("skipLibCheck")) {
+    if (compilerOptions["skipLibCheck"] === true && !allowedRelaxations.has("skipLibCheck")) {
       findings.push(`${filePath}: skipLibCheck must not be enabled without an explicit guardrail allowlist entry`);
+    }
+
+    if (filePath === rootInheritedStrictConfig) {
+      for (const option of requiredRootInheritedStrictOptions) {
+        if (compilerOptions[option] !== true) {
+          findings.push(`${filePath}: ${option} must remain true in the root inherited strict config`);
+        }
+      }
+
+      for (const option of requiredRootInheritedFalseOptions) {
+        if (compilerOptions[option] !== false) {
+          findings.push(`${filePath}: ${option} must remain false in the root inherited strict config`);
+        }
+      }
     }
   }
 

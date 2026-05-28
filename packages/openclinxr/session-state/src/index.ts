@@ -961,16 +961,18 @@ export function summarizeDurableClinicalEventReviewProjections(
 ): DurableClinicalEventReviewProjectionSummary {
   const stationRunIds = uniqueProjectionValues(projections.map((projection) => projection.stationRunId));
   const durableStores = uniqueProjectionValues(projections.map((projection) => projection.durableStore));
+  const stationRunId = stationRunIds.length === 1 ? (stationRunIds[0] ?? null) : null;
+  const durableStore = durableStores.length === 0 ? null : durableStores.length === 1 ? (durableStores[0] ?? null) : "mixed";
 
   return {
-    stationRunId: stationRunIds.length === 1 ? stationRunIds[0]! : null,
+    stationRunId,
     eventCount: projections.length,
     redactedEventCount: projections.filter((projection) => projection.privatePayloadRedacted).length,
     clinicalEventKinds: countClinicalEventKinds(projections),
     traceTags: uniqueProjectionValues(projections.map((projection) => projection.traceTag).filter((tag): tag is string => Boolean(tag))),
     statusCounts: countProjectionStatuses(projections),
     latestAtSecond: projections.length === 0 ? null : Math.max(...projections.map((projection) => projection.atSecond)),
-    durableStore: durableStores.length === 0 ? null : durableStores.length === 1 ? durableStores[0]! : "mixed",
+    durableStore,
     safeForFacultyReview: projections.every((projection) =>
       projection.durableStore === "database_source_of_truth"
       && projectionPayloadIsReviewSafe(projection)

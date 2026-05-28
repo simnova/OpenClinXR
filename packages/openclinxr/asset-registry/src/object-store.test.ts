@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { registerGeneratedRuntimeAssetReference, resolveRuntimeAssetStoreConfig } from "./runtime-bundles.js";
 import {
   assertLocalAzuriteEndpoint,
   buildAzuriteConnectionSummary,
   buildSharedKeyAuthorizationHeader,
   createAzuriteAssetObjectStore,
 } from "./object-store.js";
+import { registerGeneratedRuntimeAssetReference, resolveRuntimeAssetStoreConfig } from "./runtime-bundles.js";
 
 describe("asset object store", () => {
   it("summarizes Azurite emulator endpoints without production cloud calls", () => {

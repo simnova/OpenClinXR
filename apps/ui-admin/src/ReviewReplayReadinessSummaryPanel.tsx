@@ -34,7 +34,7 @@ export function ReviewReplayReadinessSummaryPanel({
       <Typography.Paragraph type="secondary">
         Summary packet readiness only; this does not mean Quest readiness, score-use readiness, clinical validity, raw-payload readiness, or full runtime readiness.
       </Typography.Paragraph>
-      <div className="readiness-strip review-replay-strip" aria-label="Review replay readiness metrics">
+      <div className="readiness-strip review-replay-strip">
         <ReviewReplayReadinessMetric label={`${summary.timelineEntryCount} timeline entries`} detail={`${summary.traceEventCount} trace events`} />
         <ReviewReplayReadinessMetric label={`${summary.durableEventCount} durable events`} detail={`${summary.redactedDurableEventCount} redacted summaries`} />
         <ReviewReplayReadinessMetric label={`${summary.missingRequiredBehaviorCount} missing behaviors`} detail={`${summary.lateBehaviorCount} late behaviors`} />
@@ -45,7 +45,7 @@ export function ReviewReplayReadinessSummaryPanel({
       {summary.generatedBundlePosture ? (
         <>
           <Typography.Text strong>Generated bundle blocked posture</Typography.Text>
-          <div className="readiness-strip review-replay-strip" aria-label="Generated bundle blocked posture">
+          <div className="readiness-strip review-replay-strip">
             <ReviewReplayReadinessMetric label={summary.generatedBundlePosture.bundleId} detail={summary.generatedBundlePosture.status} />
             <ReviewReplayReadinessMetric
               label={summary.generatedBundlePosture.learnerRuntimeUseBlocked ? "Learner runtime blocked" : "Learner runtime unblocked"}
@@ -60,7 +60,7 @@ export function ReviewReplayReadinessSummaryPanel({
               detail={summary.generatedBundlePosture.learnerRuntimeUseBlockers.join(", ") || "none"}
             />
           </div>
-          <Typography.Paragraph type="secondary" aria-label="Review-safe learner launch link">
+          <Typography.Paragraph type="secondary">
             <Typography.Link href={learnerRuntimeLaunchHref(summary.generatedBundlePosture)}>
               Open learner runtime with this opaque bundle id
             </Typography.Link>
@@ -71,7 +71,7 @@ export function ReviewReplayReadinessSummaryPanel({
       {summary.reviewPacketEvidenceHandoff ? (
         <>
           <Typography.Text strong>Replay evidence handoff</Typography.Text>
-          <div className="readiness-strip review-replay-strip" aria-label="Replay evidence handoff">
+          <div className="readiness-strip review-replay-strip">
             <ReviewReplayReadinessMetric label={summary.reviewPacketEvidenceHandoff.reviewPacketRef} detail={summary.reviewPacketEvidenceHandoff.claimBoundary} />
             <ReviewReplayReadinessMetric label={`${summary.reviewPacketEvidenceHandoff.traceEventRefs.length} trace refs`} detail={`${summary.reviewPacketEvidenceHandoff.actorTurnCount} actor turns`} />
             <ReviewReplayReadinessMetric
@@ -97,7 +97,7 @@ export function ReviewReplayReadinessSummaryPanel({
           <Typography.Paragraph type="secondary">
             XR trace summary only; it is not raw payload access, not an execution trace, and not evidence of Quest, clinical, scoring, or runtime readiness.
           </Typography.Paragraph>
-          <div className="readiness-strip review-replay-strip" aria-label="XR trace evidence handoff">
+          <div className="readiness-strip review-replay-strip">
             {(() => {
               const xrSummary = summary.xrTraceEvidenceSummary ?? summary.reviewPacketEvidenceHandoff?.xrTraceEvidenceSummary;
               return xrSummary ? (
@@ -185,7 +185,7 @@ function CaseDefinedHumanoidRuntimeHandoffSection({
       <Typography.Paragraph type="secondary">
         Case-defined humanoid runtime handoff context only; not generated-humanoid-asset readiness, not animation-quality approval, not runtime-readiness, not Quest-readiness, not clinical-validity, and not scoring-validity.
       </Typography.Paragraph>
-      <div className="readiness-strip review-replay-strip" aria-label="Case-defined humanoid runtime handoff">
+      <div className="readiness-strip review-replay-strip">
         <ReviewReplayReadinessMetric label={`${handoff.length} actor runtime handoffs`} detail={actorRoles.join(", ") || "none"} />
         <ReviewReplayReadinessMetric label={`${requiredSignalIds.length} required runtime signals`} detail={requiredSignalIds.join(", ") || "none"} />
         <ReviewReplayReadinessMetric label={`${blockers.length} runtime handoff blockers`} detail={blockers.join(", ") || "none"} />
@@ -206,7 +206,7 @@ function CaseDefinedHumanoidPerformanceContractSection({
       <Typography.Paragraph type="secondary">
         Encounter-definition derived humanoid behavior contract only; this is not generated-humanoid-asset readiness, animation-quality approval, Quest-readiness, runtime-readiness, or clinical-validity.
       </Typography.Paragraph>
-      <div className="readiness-strip review-replay-strip" aria-label="Case-defined humanoid performance metadata">
+      <div className="readiness-strip review-replay-strip">
         <ReviewReplayReadinessMetric label={`${contract.actorCount} humanoid actors`} detail={`${contract.emotionStateCount} emotion states`} />
         <ReviewReplayReadinessMetric label={`${contract.locomotionActorRoles.length} locomotion roles`} detail={contract.locomotionActorRoles.join(", ") || "none"} />
         <ReviewReplayReadinessMetric label={`${contract.expressionActorRoles.length} expression roles`} detail={contract.expressionActorRoles.join(", ") || "none"} />

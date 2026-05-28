@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
+import { buildVisualQaRemediationWorkOrderPlans } from "../../packages/openclinxr/capability-gateway/src/index.js";
 import {
   buildVisualQaEvidenceReport,
   buildVisualQaLoopReadinessSummary,
@@ -12,7 +13,6 @@ import {
   type VisualQaEvidence,
   type VisualQaEvidenceReport,
 } from "./visual-qa-evidence-check.js";
-import { buildVisualQaRemediationWorkOrderPlans } from "../../packages/openclinxr/capability-gateway/src/index.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -43,13 +43,17 @@ describe("visual QA evidence checker", () => {
 
   it("rejects missing artifact metadata, missing review dimensions, and unsafe claims", () => {
     const evidence = readyEvidence();
-    evidence.capture!.artifact = "/tmp/untracked-screenshot.jpg";
-    evidence.capture!.mimeType = "image/jpeg";
-    evidence.capture!.dimensions = { width: 100, height: 100 };
-    evidence.adversarialReview!.checks!.ui_readability = { status: "not_assessed", notes: [] };
-    evidence.adversarialReview!.checks!.evidence_limits = undefined;
-    evidence.claimBoundaries!.allowedClaims = ["production_runtime_readiness"];
-    evidence.claimBoundaries!.notEvidenceFor = ["psychometric_validity"];
+    const capture = requireFixtureValue(evidence.capture, "visual QA fixture capture");
+    const adversarialReview = requireFixtureValue(evidence.adversarialReview, "visual QA fixture adversarial review");
+    const checks = requireFixtureValue(adversarialReview.checks, "visual QA fixture adversarial review checks");
+    const claimBoundaries = requireFixtureValue(evidence.claimBoundaries, "visual QA fixture claim boundaries");
+    capture.artifact = "/tmp/untracked-screenshot.jpg";
+    capture.mimeType = "image/jpeg";
+    capture.dimensions = { width: 100, height: 100 };
+    checks.ui_readability = { status: "not_assessed", notes: [] };
+    checks.evidence_limits = undefined;
+    claimBoundaries.allowedClaims = ["production_runtime_readiness"];
+    claimBoundaries.notEvidenceFor = ["psychometric_validity"];
 
     const report = buildVisualQaEvidenceReport({
       generatedAt: "2026-05-05T00:00:00.000Z",
@@ -168,8 +172,10 @@ describe("visual QA evidence checker", () => {
 
   it("rejects missing deterministic realism-metadata review checks for equipment necessity and clutter removal", () => {
     const evidence = readyEvidence();
-    evidence.adversarialReview!.checks!.equipment_necessity = undefined;
-    evidence.adversarialReview!.checks!.scene_clutter_removal = undefined;
+    const adversarialReview = requireFixtureValue(evidence.adversarialReview, "visual QA fixture adversarial review");
+    const checks = requireFixtureValue(adversarialReview.checks, "visual QA fixture adversarial review checks");
+    checks.equipment_necessity = undefined;
+    checks.scene_clutter_removal = undefined;
 
     const report = buildVisualQaEvidenceReport({
       generatedAt: "2026-05-24T00:00:00.000Z",
@@ -196,8 +202,10 @@ describe("visual QA evidence checker", () => {
       "dynamic_encounter_factory_scene_bundle_loaded",
       "generated_humanoid_role_slots_visible",
     ];
-    delete evidence.adversarialReview!.checks!.equipment_necessity;
-    delete evidence.adversarialReview!.checks!.scene_clutter_removal;
+    const adversarialReview = requireFixtureValue(evidence.adversarialReview, "visual QA fixture adversarial review");
+    const checks = requireFixtureValue(adversarialReview.checks, "visual QA fixture adversarial review checks");
+    delete checks.equipment_necessity;
+    delete checks.scene_clutter_removal;
 
     const report = buildVisualQaEvidenceReport({
       generatedAt: "2026-05-26T00:00:00.000Z",
@@ -312,7 +320,9 @@ describe("visual QA evidence checker", () => {
       emotion_expression_transition_readability: { status: "blocked", notes: ["Expression snaps instead of easing between emotions."] },
       locomotion_path_realism: { status: "blocked", notes: ["Walk path clips through the stretcher."] },
     };
-    evidence.adversarialReview!.checks!.equipment_necessity = {
+    const adversarialReview = requireFixtureValue(evidence.adversarialReview, "visual QA fixture adversarial review");
+    const checks = requireFixtureValue(adversarialReview.checks, "visual QA fixture adversarial review checks");
+    checks.equipment_necessity = {
       status: "blocked",
       notes: ["Unneeded visual clutter is competing with required ED equipment."],
     };
@@ -805,6 +815,13 @@ describe("visual QA evidence checker", () => {
     expect(report.result.readyForAdversarialVisualQa).toBe(true);
   });
 });
+
+function requireFixtureValue<T>(value: T | null | undefined, label: string): NonNullable<T> {
+  if (value === undefined || value === null) {
+    throw new Error(`Missing required ${label}`);
+  }
+  return value;
+}
 
 function readyEvidence(): VisualQaEvidence {
   return {

@@ -1,4 +1,4 @@
-import { validateTraceEvent, type TraceEvent } from "@openclinxr/shared-schemas";
+import { type TraceEvent, validateTraceEvent } from "@openclinxr/shared-schemas";
 
 export class InMemoryTraceLedger {
   private readonly eventsByRun = new Map<string, TraceEvent[]>();

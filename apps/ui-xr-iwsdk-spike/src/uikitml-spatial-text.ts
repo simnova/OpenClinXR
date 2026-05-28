@@ -1,5 +1,5 @@
-import type { Group } from "three";
 import type { ElementJson } from "@pmndrs/uikitml";
+import type { Group } from "three";
 
 export const uikitmlSpatialTextSourcePath = "ui/spatial-text-readability.uikitml" as const;
 export const uikitmlSpatialTextCompiledConfigPath = "/uikitml/spatial-text-readability.json" as const;

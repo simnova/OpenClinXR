@@ -1,4 +1,4 @@
-import { validateProviderHealth, type ProviderAuditRecord, type ProviderHealth } from "@openclinxr/shared-schemas";
+import { type ProviderAuditRecord, type ProviderHealth, validateProviderHealth } from "@openclinxr/shared-schemas";
 
 export type ModelCapability = "actor_response" | "scenario_draft" | "scenario_review";
 

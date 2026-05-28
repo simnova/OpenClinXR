@@ -2,12 +2,12 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { globFiles } from "../agent-factory/lib.js";
-import { requiredRuntimeRealismSignalIds } from "./runtime-realism-evidence-check.js";
 import type {
   AssetGenerationCapabilityId,
   EncounterGenerationWorkOrderTargetKind,
 } from "../../packages/openclinxr/capability-gateway/src/index.js";
+import { globFiles } from "../agent-factory/lib.js";
+import { requiredRuntimeRealismSignalIds } from "./runtime-realism-evidence-check.js";
 
 type CliOptions = {
   inputPath?: string;

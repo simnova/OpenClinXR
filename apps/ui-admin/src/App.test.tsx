@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { findUnsafeClaimLanguage } from "@openclinxr/domain/claim-language";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { AdminApp } from "./App.js";
 import type { AdminControlPlaneClient } from "./api-client.js";
@@ -495,7 +495,7 @@ describe("AdminApp", () => {
 
   it("creates a review snapshot from the station run queue", async () => {
     const client = fakeControlPlaneClient();
-    const savedSnapshots = new Array<Awaited<ReturnType<typeof client.createStep2CsSeedStationRunQueueSnapshot>>>();
+    const savedSnapshots: Awaited<ReturnType<typeof client.createStep2CsSeedStationRunQueueSnapshot>>[] = [];
     const listSnapshots = vi.fn(async () => savedSnapshots);
     const createSnapshot = vi.fn(async (input: Parameters<typeof client.createStep2CsSeedStationRunQueueSnapshot>[0]) => {
       const snapshot = await fakeControlPlaneClient().createStep2CsSeedStationRunQueueSnapshot(input);
@@ -1545,37 +1545,51 @@ function fakeControlPlaneClient(): AdminControlPlaneClient {
         },
       ],
     }),
-    createScenarioSceneGenerationRequest: async (input) => ({
-      requestId: `scene_generation_request:${input.scenarioId}:local-admin`,
-      scenarioId: input.scenarioId,
-      createdAt: "2026-05-22T23:09:00.000Z",
-      status: "accepted",
-      reviewStatus: "pending_runtime_asset_review",
-      nextAction: "attach_runtime_asset_review_decisions",
-      runtimeAssetReviewDecisionCount: 0,
-      accepted: true,
-      productionAssetReadinessClaimed: false,
-      claimBoundary: "scene_generation_request_not_asset_production",
-      workOrder: (await fakeControlPlaneClient().getScenarioBankSceneGenerationPipelineQueue()).workOrders[0]!,
-    }),
+    createScenarioSceneGenerationRequest: async (input) => {
+      const workOrder = (await fakeControlPlaneClient().getScenarioBankSceneGenerationPipelineQueue()).workOrders.at(0);
+      if (!workOrder) {
+        throw new Error("Expected scenario bank scene generation pipeline queue fixture to include a work order.");
+      }
+
+      return {
+        requestId: `scene_generation_request:${input.scenarioId}:local-admin`,
+        scenarioId: input.scenarioId,
+        createdAt: "2026-05-22T23:09:00.000Z",
+        status: "accepted",
+        reviewStatus: "pending_runtime_asset_review",
+        nextAction: "attach_runtime_asset_review_decisions",
+        runtimeAssetReviewDecisionCount: 0,
+        accepted: true,
+        productionAssetReadinessClaimed: false,
+        claimBoundary: "scene_generation_request_not_asset_production",
+        workOrder,
+      };
+    },
     listScenarioSceneGenerationRequests: async () => ({
       requestCount: 0,
       claimBoundary: "scene_generation_request_queue_not_asset_production",
       requests: [],
     }),
-    submitScenarioSceneGenerationRequestReview: async () => ({
-      requestId: "scene_generation_request:ed_chest_pain_priority_v1:local-admin",
-      scenarioId: "ed_chest_pain_priority_v1",
-      createdAt: "2026-05-22T23:09:00.000Z",
-      status: "accepted",
-      reviewStatus: "runtime_asset_review_attached",
-      nextAction: "run_generated_bundle_publisher",
-      runtimeAssetReviewDecisionCount: 1,
-      accepted: true,
-      productionAssetReadinessClaimed: false,
-      claimBoundary: "scene_generation_request_not_asset_production",
-      workOrder: (await fakeControlPlaneClient().getScenarioBankSceneGenerationPipelineQueue()).workOrders[0]!,
-    }),
+    submitScenarioSceneGenerationRequestReview: async () => {
+      const workOrder = (await fakeControlPlaneClient().getScenarioBankSceneGenerationPipelineQueue()).workOrders.at(0);
+      if (!workOrder) {
+        throw new Error("Expected scenario bank scene generation pipeline queue fixture to include a work order.");
+      }
+
+      return {
+        requestId: "scene_generation_request:ed_chest_pain_priority_v1:local-admin",
+        scenarioId: "ed_chest_pain_priority_v1",
+        createdAt: "2026-05-22T23:09:00.000Z",
+        status: "accepted",
+        reviewStatus: "runtime_asset_review_attached",
+        nextAction: "run_generated_bundle_publisher",
+        runtimeAssetReviewDecisionCount: 1,
+        accepted: true,
+        productionAssetReadinessClaimed: false,
+        claimBoundary: "scene_generation_request_not_asset_production",
+        workOrder,
+      };
+    },
     getScenarioSceneGenerationRequestPublicationReadiness: async () => ({
       requestId: "scene_generation_request:ed_chest_pain_priority_v1:local-admin",
       scenarioId: "ed_chest_pain_priority_v1",

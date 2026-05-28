@@ -1,22 +1,22 @@
 import { existsSync } from "node:fs";
-import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { writeEncounterRuntimeAssetBundle } from "../../packages/openclinxr/asset-registry/src/asset-writer.js";
+import { createAzuriteAssetObjectStore } from "../../packages/openclinxr/asset-registry/src/object-store.js";
+import type { RuntimeAssetReviewDecision } from "../../packages/openclinxr/asset-registry/src/runtime-asset-review.js";
 import {
   buildEncounterRuntimeAssetBundle,
-  registerGeneratedRuntimeAssetReference,
-  resolveRuntimeAssetStoreConfig,
-  toLearnerRuntimeAssetBundle,
   type EncounterRuntimeAssetBundle,
   type LearnerRuntimeAssetBundle,
   type RuntimeAssetStoreConfig,
+  registerGeneratedRuntimeAssetReference,
+  resolveRuntimeAssetStoreConfig,
+  toLearnerRuntimeAssetBundle,
 } from "../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
-import type { RuntimeAssetReviewDecision } from "../../packages/openclinxr/asset-registry/src/runtime-asset-review.js";
-import { writeEncounterRuntimeAssetBundle } from "../../packages/openclinxr/asset-registry/src/asset-writer.js";
-import { createAzuriteAssetObjectStore } from "../../packages/openclinxr/asset-registry/src/object-store.js";
 import { scenarioBank } from "../../packages/openclinxr/scenario-fixtures/src/index.js";
+import { buildEnvironmentRuntimeAssetReference, defaultEnvironmentArtifactsReportPath, type EnvironmentArtifactsReport } from "./environment-artifacts.js";
 import { buildGeneratedHumanRiggingRuntimeAssetReference, defaultGeneratedHumanRiggingReportPath, type GeneratedHumanRiggingReport } from "./generated-human-rigging-artifacts.js";
 import { buildMedicalEquipmentRuntimeAssetReferences, defaultMedicalEquipmentReportPath, type MedicalEquipmentArtifactsReport } from "./medical-equipment-artifacts.js";
-import { buildEnvironmentRuntimeAssetReference, defaultEnvironmentArtifactsReportPath, type EnvironmentArtifactsReport } from "./environment-artifacts.js";
 
 export type GeneratedEdStationRuntimeBundleReport = {
   schemaVersion: "openclinxr.generated-ed-station-runtime-bundle.v1";
@@ -460,7 +460,11 @@ function scenarioRuntimePreset(scenarioId: string): {
   const scenario = scenarioId === "ed_chest_pain_priority_v1" ? undefined : scenarioBank.find((candidate) => candidate.scenarioId === scenarioId);
   if (scenario) {
     const scenarioSlug = scenarioId.replace(/_v\d+$/u, "");
-    const scenarioEquipment = (scenario.equipment?.length ?? 0) > 0 ? scenario.equipment!.slice(0, 2) : ["primary_room_equipment", "secondary_room_equipment"];
+    const authoredScenarioEquipment = scenario.equipment;
+    const scenarioEquipment =
+      authoredScenarioEquipment === undefined || authoredScenarioEquipment.length === 0
+        ? ["primary_room_equipment", "secondary_room_equipment"]
+        : authoredScenarioEquipment.slice(0, 2);
     return {
       scenarioId,
       encounterId: `${scenarioSlug}_encounter_v1`,

@@ -5,10 +5,10 @@ import path from "node:path";
 import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
 import {
-  buildAdversarialVisualQaEvidenceReport,
-  evaluateAdversarialVisualQaEvidence,
   type AdversarialVisualQaEvidence,
   type AdversarialVisualQaEvidenceReport,
+  buildAdversarialVisualQaEvidenceReport,
+  evaluateAdversarialVisualQaEvidence,
 } from "./adversarial-visual-qa-evidence.js";
 
 const execFileAsync = promisify(execFile);
@@ -69,8 +69,12 @@ describe("adversarial visual QA evidence evaluator", () => {
 
   it("rejects missing and nonexistent artifacts", () => {
     const evidence = readyEvidence();
-    evidence.media![0]!.artifact = "docs/openclinxr/screenshots/not-captured.png";
-    evidence.media![0]!.bytes = undefined;
+    const first = evidence.media?.[0];
+    if (!first) {
+      throw new Error("Expected readyEvidence fixture to include media[0]");
+    }
+    first.artifact = "docs/openclinxr/screenshots/not-captured.png";
+    first.bytes = undefined;
 
     const result = evaluateAdversarialVisualQaEvidence(evidence);
 
@@ -83,8 +87,12 @@ describe("adversarial visual QA evidence evaluator", () => {
 
   it("rejects screenshot metadata that does not match the local PNG artifact", () => {
     const evidence = readyEvidence();
-    evidence.media![0]!.bytes = 1;
-    evidence.media![0]!.dimensions = { width: 499, height: 500 };
+    const first = evidence.media?.[0];
+    if (!first) {
+      throw new Error("Expected readyEvidence fixture to include media[0]");
+    }
+    first.bytes = 1;
+    first.dimensions = { width: 499, height: 500 };
 
     const result = evaluateAdversarialVisualQaEvidence(evidence);
 
@@ -97,7 +105,11 @@ describe("adversarial visual QA evidence evaluator", () => {
 
   it("rejects artifacts outside the allowed screenshot and video directories", () => {
     const screenshotEvidence = readyEvidence();
-    screenshotEvidence.media![0]!.artifact = "docs/openclinxr/iwer-sidecar-agent-browser-2026-05-04.png";
+    const first = screenshotEvidence.media?.[0];
+    if (!first) {
+      throw new Error("Expected readyEvidence fixture to include media[0]");
+    }
+    first.artifact = "docs/openclinxr/iwer-sidecar-agent-browser-2026-05-04.png";
 
     const videoEvidence = readyEvidence({
       artifactType: "video",

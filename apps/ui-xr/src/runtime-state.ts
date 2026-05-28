@@ -1,4 +1,3 @@
-import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
 import type {
   EncounterRuntimeDialogueTurn,
   EncounterRuntimeEvidenceGateId,
@@ -6,6 +5,7 @@ import type {
   LearnerRuntimeAssetBundle,
   RuntimeAssetStoreKind,
 } from "@openclinxr/asset-registry/runtime-bundles";
+import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
 
 export type XrRuntimeState = {
   scenarioId: string;
@@ -684,6 +684,19 @@ export type RuntimeSceneManifestEvidence = {
   source: "learner_runtime_asset_bundle_scene_manifest";
   manifestId: string;
   schemaVersion: "openclinxr.runtime-scene-manifest.v1";
+  selectedScenarioId: string;
+  bundleScenarioId: string;
+  selectedScenarioMatchesBundle: boolean;
+  stationId: string;
+  stationContextTitle: string | null;
+  stationContextChiefConcern: string | null;
+  actorRoster: Array<{
+    actorId: string;
+    role: string;
+    embodiment: LearnerRuntimeAssetBundle["actors"][number]["embodiment"];
+  }>;
+  equipmentIds: string[];
+  dialogueTraceTags: string[];
   roomPropCount: number;
   semanticRoomPropCount: number;
   actorPlacementCount: number;

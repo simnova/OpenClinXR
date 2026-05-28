@@ -1,4 +1,4 @@
-import { validateProviderHealth, type ProviderAuditRecord, type ProviderHealth } from "@openclinxr/shared-schemas";
+import { type ProviderAuditRecord, type ProviderHealth, validateProviderHealth } from "@openclinxr/shared-schemas";
 
 export type VoiceCapability = "transcription" | "synthesis" | "viseme_cues" | "emotional_prosody" | "lip_sync_timing";
 
@@ -646,11 +646,11 @@ export class LocalVoiceProviderAdapter implements VoiceProviderAdapter {
     };
   }
 
-  async *transcribe(): AsyncIterable<TranscriptEvent> {
+  transcribe(): AsyncIterable<TranscriptEvent> {
     throw new Error(`Local voice provider ${this.id} is not configured`);
   }
 
-  async *synthesize(): AsyncIterable<AudioEvent> {
+  synthesize(): AsyncIterable<AudioEvent> {
     throw new Error(`Local voice provider ${this.id} is not configured`);
   }
 }

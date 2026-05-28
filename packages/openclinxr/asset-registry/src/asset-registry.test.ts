@@ -1,45 +1,44 @@
 import { edChestPainScenario, pediatricAsthmaScenario, scenarioBank } from "@openclinxr/scenario-fixtures";
 import { describe, expect, it } from "vitest";
 import {
+  type AssetManifest,
   buildAssetProductionReviewPacket,
   buildEncounterAssetNeedsReadinessManifest,
   buildEncounterDynamicBehaviorCoverageSummary,
   buildEncounterFactoryDryRunSummary,
   buildEncounterRuntimeAssetBundle,
   buildEncounterRuntimeBundlePublicationMetadata,
-  createEdChestPainLocalLearnerRuntimeAssetBundle,
   buildEnvironmentGenerationPacket,
   buildEnvironmentGenerationQueue,
   buildEnvironmentGenerationWorkOrder,
   buildEnvironmentGenerationWorkOrderQueue,
   buildScenarioSceneGenerationPipelineWorkOrder,
   buildScenarioSceneGenerationPipelineWorkOrderQueue,
-  createEdChestPainLocalEncounterRuntimeAssetBundle,
   createEdChestPainLocalAssetEvidenceFixtureManifests,
+  createEdChestPainLocalEncounterRuntimeAssetBundle,
+  createEdChestPainLocalLearnerRuntimeAssetBundle,
   createEdChestPainPlaceholderManifests,
   createScenarioPlaceholderManifests,
   evaluateAssetManifest,
-  evaluateEncounterRuntimeLearnerUseGate,
   evaluateAssetPipelineTool,
   evaluateAssetPipelineToolMatrix,
   evaluateAssetProductionReadinessLadder,
+  evaluateEncounterRuntimeLearnerUseGate,
   evaluateScenarioGenerationEvidence,
   evaluateScenarioOptimizationEvidence,
-  InMemoryAssetRegistry,
   findRuntimeActorAsset,
   findRuntimeEquipmentAsset,
+  type HumanoidRealismMetadata,
+  InMemoryAssetRegistry,
   promoteEncounterRuntimeAssetBundleForLocalUse,
   recommendedAssetPipelineTools,
   registerGeneratedRuntimeAssetReference,
   resolveRuntimeAssetBlobUrl,
   resolveRuntimeAssetStoreConfig,
   resolveRuntimeAssetUrl,
-  toLearnerRuntimeAssetBundle,
   selectAssetPipelineToolsForLane,
+  toLearnerRuntimeAssetBundle,
   validateAssetManifestStructure,
-  type AssetManifest,
-  type EncounterAssetNeedsReadinessManifest,
-  type HumanoidRealismMetadata,
 } from "./index.js";
 
 function requireManifest(manifests: AssetManifest[], index: number): AssetManifest {
@@ -1039,11 +1038,17 @@ describe("asset registry", () => {
     expect(blocked.blockers).toContain("generated_patient_model_review_gate_v1:missing_runtime_asset_review:security_privacy");
     expect(blocked.blockers).toContain("generated_ed_room_review_gate_v1:missing_runtime_asset_review:asset_pipeline");
 
+    const firstActor = bundle.actors[0];
+    expect(firstActor).toBeDefined();
+    if (!firstActor) {
+      throw new Error("Expected runtime bundle to include an actor for promotion gating.");
+    }
+
     const promoted = promoteEncounterRuntimeAssetBundleForLocalUse({
       bundle: {
         ...bundle,
         environment: { ...bundle.environment, reviewStatus: "approved_for_local_runtime" },
-        actors: [{ ...bundle.actors[0]!, model: { ...patientModel, reviewStatus: "approved_for_local_runtime" } }],
+        actors: [{ ...firstActor, model: { ...patientModel, reviewStatus: "approved_for_local_runtime" } }],
       },
       decisions: [patientModel, roomShell].flatMap((asset) => [
         {
@@ -1615,8 +1620,12 @@ describe("asset registry", () => {
     }
 
     for (const manifest of characterManifests) {
-      expect(manifest.humanoidRealismMetadata).toBeDefined();
-      expectHumanoidRealismMetadata(manifest.humanoidRealismMetadata!, manifest.tags.includes("nurse") ? "nurse" : manifest.tags.includes("patient") ? "patient" : "family");
+      const humanoidRealismMetadata = manifest.humanoidRealismMetadata;
+      expect(humanoidRealismMetadata).toBeDefined();
+      if (!humanoidRealismMetadata) {
+        throw new Error(`Expected humanoid realism metadata for ${manifest.id}.`);
+      }
+      expectHumanoidRealismMetadata(humanoidRealismMetadata, manifest.tags.includes("nurse") ? "nurse" : manifest.tags.includes("patient") ? "patient" : "family");
       expect(validateAssetManifestStructure(manifest).ok).toBe(true);
     }
   });
@@ -1675,8 +1684,12 @@ describe("asset registry", () => {
       expect(Object.values(actorWorkOrder.humanoidRealismMetadata.claimBoundaries).every((claimed) => claimed === false)).toBe(true);
     }
     for (const manifest of characterManifests) {
-      expect(manifest.humanoidRealismMetadata).toBeDefined();
-      expectHumanoidRealismMetadata(manifest.humanoidRealismMetadata!, manifest.tags.includes("nurse") ? "nurse" : manifest.tags.includes("patient") ? "patient" : "family");
+      const humanoidRealismMetadata = manifest.humanoidRealismMetadata;
+      expect(humanoidRealismMetadata).toBeDefined();
+      if (!humanoidRealismMetadata) {
+        throw new Error(`Expected humanoid realism metadata for ${manifest.id}.`);
+      }
+      expectHumanoidRealismMetadata(humanoidRealismMetadata, manifest.tags.includes("nurse") ? "nurse" : manifest.tags.includes("patient") ? "patient" : "family");
       expect(validateAssetManifestStructure(manifest).ok).toBe(true);
     }
   });

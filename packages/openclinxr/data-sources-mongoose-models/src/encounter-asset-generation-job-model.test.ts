@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { Mongoose } from "mongoose";
+import { describe, expect, it } from "vitest";
 import { createEncounterAssetGenerationJobModel } from "./encounter-asset-generation-job-model.js";
 
 describe("Encounter asset generation job Mongoose model", () => {

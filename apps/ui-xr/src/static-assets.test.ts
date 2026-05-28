@@ -77,7 +77,7 @@ describe("static browser assets", () => {
     expect(mainSource).toContain(`recordLearnerRuntimeUseGateEvidence(
         bundle,
         "static_generated_bundle"`);
-    expect(mainSource).toContain("blocking ${evidence.blockingGateIds.join");
+    expect(mainSource).toContain(`blocking \${evidence.blockingGateIds.join`);
     expect(mainSource).toContain("generated learner use blocked");
     expect(mainSource).toContain("runtime_realism_evidence");
     expect(mainSource).toContain("visual_qa_evidence");
@@ -94,7 +94,7 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("__openClinXrExamFlowEvidence");
     expect(mainSource).toContain("__openClinXrExamRunSummaryEvidence");
     expect(mainSource).toContain("configuredExamRunId");
-    expect(mainSource).toContain("openclinxr.patientNote.${examRunId}.${examScenarioId}");
+    expect(mainSource).toContain(`openclinxr.patientNote.\${examRunId}.\${examScenarioId}`);
     expect(mainSource).toContain("configuredExamSequence");
     expect(mainSource).toContain("examEncounterSeconds");
     expect(mainSource).toContain("examNoteSeconds");
@@ -111,9 +111,9 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("examFlowEvidence");
     expect(mainSource).toContain("examRunSummaryEvidence");
     expect(mainSource).toContain("recordExamRunStationOutcome");
-    expect(mainSource).toContain("openclinxr.examRunSummary.${examRunId}");
-    expect(mainSource).toContain("Exam: ${examFlowEvidence.scenarioIndex + 1}/${examFlowEvidence.totalScenarios}");
-    expect(mainSource).toContain("Note: ${examFlowEvidence.noteTextLength} chars");
+    expect(mainSource).toContain(`openclinxr.examRunSummary.\${examRunId}`);
+    expect(mainSource).toContain(`Exam: \${examFlowEvidence.scenarioIndex + 1}/\${examFlowEvidence.totalScenarios}`);
+    expect(mainSource).toContain(`Note: \${examFlowEvidence.noteTextLength} chars`);
     expect(mainSource).toContain("lastObservedLocomotionSummary");
     expect(mainSource).toContain("formatRuntimeLocomotionLine");
     expect(styles).toContain(".exam-flow-panel");
@@ -210,7 +210,7 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("previousRoomScalePose");
     expect(mainSource).toContain("roomScalePose");
     expect(mainSource).toContain("Movement: room-scale walking, thumbstick, keyboard, or armed hand gesture");
-    expect(mainSource).toContain("Speech affect: ${formatHumanoidSpeechAffectEvidence");
+    expect(mainSource).toContain(`Speech affect: \${formatHumanoidSpeechAffectEvidence`);
     expect(mainSource).toContain("emotion-transition-cue-present");
     expect(mainSource).toContain("scenarioDialogueEmotionContext");
     expect(mainSource).toContain("emotionForScenarioActorProfile");
@@ -271,7 +271,7 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("window.__openClinXrCaseDefinedHumanoidPerformanceContractEvidence = buildCaseDefinedHumanoidPerformanceContractEvidence()");
     expect(mainSource).toContain("buildCaseDefinedHumanoidPerformanceContractEvidence(encounterRuntimeAssetBundle.scenarioId)");
     expect(mainSource).toContain("formatCaseDefinedHumanoidPerformanceContractEvidence");
-    expect(mainSource).toContain("case humanoid contract ${evidence.actorCount} actors");
+    expect(mainSource).toContain(`case humanoid contract \${evidence.actorCount} actors`);
     expect(mainSource).toContain("case_definition_humanoid_performance_metadata_only");
     expect(mainSource).toContain("caseDefinedHumanoidPerformanceContractEvidence: window.__openClinXrCaseDefinedHumanoidPerformanceContractEvidence");
     expect(runtimeStateSource).toContain("xr_room_scale");
@@ -491,9 +491,9 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("learner_runtime_asset_bundle_fallback");
     expect(mainSource).toContain("resolveRuntimeAssetUrl");
     expect(mainSource).toContain("resolveEmulatorRuntimeAssetUrl");
-    expect(mainSource).toContain("/xr-assets/humanoids/${resolveLocalHumanoidRuntimeAssetFileName(fileName)}");
-    expect(mainSource).toContain("/xr-assets/environment/${resolveLocalEnvironmentRuntimeAssetFileName(fileName)}");
-    expect(mainSource).toContain("/xr-assets/medical-equipment/${resolveLocalEquipmentRuntimeAssetFileName(fileName)}");
+    expect(mainSource).toContain(`/xr-assets/humanoids/\${resolveLocalHumanoidRuntimeAssetFileName(fileName)}`);
+    expect(mainSource).toContain(`/xr-assets/environment/\${resolveLocalEnvironmentRuntimeAssetFileName(fileName)}`);
+    expect(mainSource).toContain(`/xr-assets/medical-equipment/\${resolveLocalEquipmentRuntimeAssetFileName(fileName)}`);
     expect(mainSource).toContain("resolveLocalHumanoidRuntimeAssetFileName");
     expect(mainSource).toContain("resolveLocalEnvironmentRuntimeAssetFileName");
     expect(mainSource).toContain("resolveLocalEquipmentRuntimeAssetFileName");
@@ -718,7 +718,7 @@ describe("static browser assets", () => {
       scripts?: Record<string, string>;
     };
 
-    expect(packageJson.scripts?.["dev:portless"]).toBe("vite --host 127.0.0.1 --port ${PORT:-5173} --strictPort");
+    expect(packageJson.scripts?.["dev:portless"]).toBe(`vite --host 127.0.0.1 --port \${PORT:-5173} --strictPort`);
   });
 
   it("bounds the desktop XR stage to the viewport while letting the runtime panel scroll", () => {
@@ -739,6 +739,10 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("isSelectedScenarioRuntimeBundleMismatch");
     expect(mainSource).toContain("selectedScenarioId() !== encounterRuntimeAssetBundle.scenarioId");
     expect(mainSource).toContain("selected_scenario_specific_3d_pending_ed_fallback_hidden_to_prevent_false_realism_evidence");
+    expect(mainSource).toContain("runtimeBundleMatchesSelectedScenario");
+    expect(mainSource).toContain("mismatchedRuntimeBundleFallbackReason");
+    expect(mainSource).toContain("learner_runtime_asset_bundle_static_generated_scenario_mismatch_suppressed");
+    expect(mainSource).toContain("api learner runtime asset bundle scenario mismatch");
     expect(mainSource).toContain("Scenario-specific 3D bundle is not loaded yet.");
     expect(mainSource).toContain("Fallback bundle hidden");
     expect(mainSource).toContain("Use factory materialization before realism review.");
@@ -779,6 +783,23 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("emotion-mouth-line-viseme-anchor-cue");
     expect(mainSource).toContain("emotion-brow-tension-cue");
     expect(mainSource).toContain("actor-specific-clothing-layer-silhouette-cue");
+  });
+
+  it("surfaces selected runtime bundle manifest evidence in the headset clinical panel", () => {
+    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
+
+    expect(mainSource).toContain("Bundle scenario:");
+    expect(mainSource).toContain("Station context:");
+    expect(mainSource).toContain("Actor roster:");
+    expect(mainSource).toContain("Equipment IDs:");
+    expect(mainSource).toContain("Dialogue turns:");
+    expect(mainSource).toContain("Room props:");
+    expect(mainSource).toContain("selectedScenarioMatchesBundle");
+    expect(runtimeStateSource).toContain("actorRoster");
+    expect(runtimeStateSource).toContain("equipmentIds");
+    expect(runtimeStateSource).toContain("dialogueTraceTags");
+    expect(runtimeStateSource).toContain("stationContextChiefConcern");
   });
 
   it("derives doorway visual theme from the selected encounter bundle instead of hardcoding one shared room identity", () => {

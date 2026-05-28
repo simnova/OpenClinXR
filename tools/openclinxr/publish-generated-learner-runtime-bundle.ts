@@ -1,10 +1,10 @@
-import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 import {
   buildEncounterRuntimeBundlePublicationMetadata,
   createEdChestPainLocalLearnerRuntimeAssetBundle,
   type EncounterRuntimeBundlePublicationMetadata,
   type LearnerRuntimeAssetBundle,
 } from "../../packages/openclinxr/asset-registry/src/index.js";
+import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-station-runtime-bundle.js";
 
 type CliOptions = {
@@ -99,7 +99,7 @@ export function validateGeneratedLearnerRuntimeBundlePublicationReport(value: un
     requireArrayIncludes(value.publication.pendingEvidenceGateIds, "visual_qa_evidence", "/publication/pendingEvidenceGateIds", errors);
     requireArrayIncludes(value.publication.pendingEvidenceGateIds, "quest_runtime_evidence", "/publication/pendingEvidenceGateIds", errors);
   }
-  if (Object.prototype.hasOwnProperty.call(value, "sourceBundleReportPath")) {
+  if (Object.hasOwn(value, "sourceBundleReportPath")) {
     requireString(value.sourceBundleReportPath, "/sourceBundleReportPath", errors);
   }
   if (isRecord(value.persistence)) {

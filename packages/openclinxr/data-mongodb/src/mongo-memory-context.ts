@@ -1,4 +1,4 @@
-import { MongoClient, type Db } from "mongodb";
+import { type Db, MongoClient } from "mongodb";
 import { MongoMemoryServer } from "mongodb-memory-server";
 
 export const mongoMemoryServerTestOptions = {

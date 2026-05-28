@@ -58,7 +58,7 @@ export function EnvironmentGenerationQueuePanel({
       <Typography.Paragraph type="secondary">
         Admin-initiated scene generation starts after scenario configuration and covers humanoids, hair, clothing, rigging, animation, equipment, environment assets, blob publication, runtime bundle binding, and review evidence. Planning/review packet only; no generated asset, runtime dependency, or Quest evidence is implied.
       </Typography.Paragraph>
-      <div className="readiness-strip" aria-label="3D environment queue metrics">
+      <div className="readiness-strip">
         <EnvironmentQueueMetric label={`${environmentGenerationQueue.packetCount} environment packets`} detail={`${environmentGenerationQueue.scenarioCount} seed-bank scenarios`} />
         <EnvironmentQueueMetric label={`${environmentGenerationQueue.readyForGenerationReviewScenarioIds.length} ready for generation review`} detail={`${environmentGenerationQueue.blockedScenarioIds.length} blocked before generation review`} />
         <EnvironmentQueueMetric label="Next blocked gate" detail={nextGateSummary} />
@@ -80,7 +80,7 @@ export function EnvironmentGenerationQueuePanel({
         ) : null}
       </div>
       {featuredPipeline ? (
-        <div className="station-queue-row" aria-label="Admin initiated scene generation pipeline">
+        <div className="station-queue-row">
           <Typography.Text strong>{`Scene pipeline: ${featuredPipeline.scenarioId}`}</Typography.Text>
           <Tag color="gold">review-gated factory target</Tag>
           <Tag color="blue">{featuredPipeline.initiatedFrom}</Tag>
@@ -94,13 +94,13 @@ export function EnvironmentGenerationQueuePanel({
         </div>
       ) : null}
       {featuredPipeline ? (
-        <div className="station-queue-row" aria-label="Humanoid runtime readiness handoff">
+        <div className="station-queue-row">
           <Typography.Text strong>Humanoid runtime readiness handoff</Typography.Text>
           <Typography.Text type="secondary">{summarizeHumanoidRuntimeReadinessHandoff(featuredPipeline)}</Typography.Text>
         </div>
       ) : null}
       {latestSceneGenerationRequest ? (
-        <div className="station-queue-row" aria-label="Latest scene generation request review status">
+        <div className="station-queue-row">
           <Typography.Text strong>{`Latest scene request: ${latestSceneGenerationRequest.scenarioId}`}</Typography.Text>
           <Tag color={sceneGenerationRequestReviewStatusColor(latestSceneGenerationRequest.reviewStatus)}>{latestSceneGenerationRequest.reviewStatus}</Tag>
           <Tag color={sceneGenerationRequestProjectionArtifactStatusColor(latestSceneGenerationRequest.reviewStatus)}>
@@ -128,7 +128,7 @@ export function EnvironmentGenerationQueuePanel({
         </div>
       ) : null}
       {sceneGenerationPublicationReadiness ? (
-        <div className="station-queue-row" aria-label="Scene generation publication readiness">
+        <div className="station-queue-row">
           <Typography.Text strong>{sceneGenerationPublicationReadiness.canRunGeneratedBundlePublisher ? "Publication gate: ready to run generated bundle publisher" : "Publication gate: blocked"}</Typography.Text>
           <Tag color={sceneGenerationPublicationReadiness.canRunGeneratedBundlePublisher ? "blue" : "gold"}>{sceneGenerationPublicationReadiness.claimBoundary}</Tag>
           <Tag color={sceneGenerationPublicationReadiness.canUseGeneratedBundleForLearnerRuntime ? "blue" : "gold"}>
@@ -150,7 +150,7 @@ export function EnvironmentGenerationQueuePanel({
         </div>
       ) : null}
       {prohibitedActionEntries.length > 0 ? (
-        <div className="station-queue-row" aria-label="3D environment prohibited action guardrails">
+        <div className="station-queue-row">
           {prohibitedActionEntries.map((entry) => (
             <Tag color="orange" key={entry}>
               {entry}

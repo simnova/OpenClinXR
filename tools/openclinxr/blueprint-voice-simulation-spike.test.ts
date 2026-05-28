@@ -1,9 +1,9 @@
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { describe, expect, it } from "vitest";
 import { createStep2CsStyleSeedBlueprint } from "../../packages/openclinxr/exam-assembly/src/index.js";
 import { edChestPainScenario, scenarioBank } from "../../packages/openclinxr/scenario-fixtures/src/index.js";
-import { describe, expect, it } from "vitest";
 import {
   buildBlueprintVoiceSimulationPlan,
   buildBlueprintVoiceSimulationSpikeReport,

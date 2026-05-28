@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  type AzureStorageQueueClientLike,
   createAzureStorageEncounterAssetGenerationQueueClient,
   createEncounterAssetGenerationQueueMessage,
   encodeAzureStorageQueueMessage,
   processNextEncounterAssetGenerationQueueMessage,
-  type AzureStorageQueueClientLike,
 } from "./index.js";
 
 describe("Azure Storage Queue encounter asset generation client", () => {

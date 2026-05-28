@@ -15,6 +15,7 @@
     "tools/openclinxr/strip-humanoid-primitive-proxies.ts"
   ],
   "project": [
+    "vitest.config.ts",
     "apps/**/*.{ts,tsx,js,jsx,mjs,cjs}",
     "packages/**/*.{ts,tsx,js,jsx,mjs,cjs}",
     "tools/**/*.{ts,tsx,js,jsx,mjs,cjs}"

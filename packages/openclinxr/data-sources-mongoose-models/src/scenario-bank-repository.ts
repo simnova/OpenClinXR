@@ -1,5 +1,5 @@
 import type { Model } from "mongoose";
-import type { LearnerScenarioProjection, ScenarioBankRecord, ScenarioReviewerRole, ScenarioReviewDecision } from "./scenario-bank-model.js";
+import type { LearnerScenarioProjection, ScenarioBankRecord, ScenarioReviewDecision, ScenarioReviewerRole } from "./scenario-bank-model.js";
 import { scenarioBankLearnerProjection } from "./scenario-bank-model.js";
 
 export type ScenarioBankRepositoryFilters = {

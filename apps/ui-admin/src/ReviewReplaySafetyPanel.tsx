@@ -40,7 +40,7 @@ export function ReviewReplaySafetyPanel({
       <Typography.Paragraph type="secondary">
         Private clinical-event payloads stay out of the replay UI; durable events appear as redacted summary counts and trace links.
       </Typography.Paragraph>
-      <div className="readiness-strip review-replay-strip" aria-label="Review-safe evidence metrics">
+      <div className="readiness-strip review-replay-strip">
         <ReviewSafetyMetric label={`${packet.timeline.length} timeline ${pluralize(packet.timeline.length, "entry")}`} detail={`${traceEventCount} trace metadata events`} />
         <ReviewSafetyMetric
           label={`${clinicalEventReviewSummary.eventCount} durable clinical ${pluralize(clinicalEventReviewSummary.eventCount, "event")}`}

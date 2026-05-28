@@ -9,8 +9,8 @@
     "current-reference": 49,
     "agent-memory": 140,
     "agent-methodology": 8,
-    "archive-candidate": 2,
-    "historical-synthesis": 81,
+    "archive-candidate": 3,
+    "historical-synthesis": 84,
     "decision-record": 18,
     "proposal": 21
   },
@@ -1696,6 +1696,13 @@
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
+      "path": "docs/openclinxr/typescript-strictness-gap-matrix-2026-05-27.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
       "path": "docs/openclinxr/ui-xr-encounter-realism-review-2026-05-26.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
@@ -1774,6 +1781,27 @@
     },
     {
       "path": "docs/superpowers/plans/2026-05-25-dynamic-encounter-factory-completion.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "low",
+      "action": "summarize-before-use",
+      "rationale": "Skill-era implementation/spec planning history; use as evidence, not active queue."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-05-27-biome-coverage-expansion-batch-2.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "low",
+      "action": "summarize-before-use",
+      "rationale": "Skill-era implementation/spec planning history; use as evidence, not active queue."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-05-27-biome-coverage-hardening.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "low",
+      "action": "summarize-before-use",
+      "rationale": "Skill-era implementation/spec planning history; use as evidence, not active queue."
+    },
+    {
+      "path": "docs/superpowers/plans/2026-05-27-typescript-biome-cellix-hardening.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "low",
       "action": "summarize-before-use",

@@ -1,10 +1,10 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { createMongooseMemoryTestContext, type MongooseMemoryTestContext } from "./mongoose-memory-context.js";
 import {
   createScenarioReviewDecisionModel,
   ScenarioReviewDecisionMongooseRepository,
   type ScenarioReviewDecisionRecord,
 } from "./index.js";
+import { createMongooseMemoryTestContext, type MongooseMemoryTestContext } from "./mongoose-memory-context.js";
 
 function decision(overrides: Partial<ScenarioReviewDecisionRecord> = {}): ScenarioReviewDecisionRecord {
   return {

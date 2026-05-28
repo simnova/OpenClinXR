@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
-import { describe, expect, it } from "vitest";
 import { GraphQLObjectType, parse, validate } from "graphql";
+import { describe, expect, it } from "vitest";
 import { adminGraphqlDocumentByOperationName, adminGraphqlDocuments, buildAdminGraphqlSchema, createGraphqlCodegenPlan, openClinXrAdminSchemaSdl } from "./index.js";
 
 describe("OpenClinXR admin GraphQL contract", () => {

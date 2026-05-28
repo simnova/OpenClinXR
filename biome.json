@@ -18,18 +18,62 @@
   "formatter": {
     "enabled": false
   },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
   "linter": {
     "enabled": true,
     "rules": {
       "recommended": true,
       "suspicious": {
-        "noExplicitAny": "warn"
+        "noExplicitAny": "warn",
+        "noVar": "error",
+        "noConfusingVoidType": "error",
+        "noDebugger": "error",
+        "noExtraNonNullAssertion": "error",
+        "noFallthroughSwitchClause": "error"
       },
       "style": {
-        "useImportType": "warn"
+        "noCommonJs": "error",
+        "noNamespace": "error",
+        "noNonNullAssertion": "error",
+        "useImportType": "error",
+        "useConst": "error",
+        "useAsConstAssertion": "error"
       }
     }
   },
+  "overrides": [
+    {
+      "includes": [
+        "packages/openclinxr/graphql/src/generated/**"
+      ],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "tools/agent-factory/check-typescript-guardrails.ts"
+      ],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "useLiteralKeys": "off"
+          }
+        }
+      }
+    }
+  ],
   "javascript": {
     "parser": {
       "unsafeParameterDecoratorsEnabled": true

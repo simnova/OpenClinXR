@@ -5,12 +5,10 @@ import { pathToFileURL } from "node:url";
 import { deflateSync } from "node:zlib";
 import {
   CANONICAL_HUMANOID_BONES,
-  CANONICAL_HUMANOID_EMBODIMENT_NODES,
-  CANONICAL_HUMANOID_MORPH_TARGETS,
   GENERATED_HUMAN_RIGGING_BODY_PROFILES,
-  runGeneratedHumanRiggingArtifactsCli,
   type GeneratedHumanRiggingBodyProfile,
   type GeneratedHumanRiggingReport,
+  runGeneratedHumanRiggingArtifactsCli,
 } from "./generated-human-rigging-artifacts.js";
 
 type VariantMatrixReport = {
@@ -241,8 +239,12 @@ function drawText(
       continue;
     }
     for (let row = 0; row < glyph.length; row += 1) {
-      for (let col = 0; col < glyph[row]!.length; col += 1) {
-        if (glyph[row]![col] !== "1") continue;
+      const glyphRow = glyph[row];
+      if (glyphRow === undefined) {
+        throw new Error(`Missing font glyph row ${row} for character ${char}.`);
+      }
+      for (let col = 0; col < glyphRow.length; col += 1) {
+        if (glyphRow[col] !== "1") continue;
         fillRect(bytes, width, height, cursorX + col * scale, y + row * scale, scale, scale, color);
       }
     }

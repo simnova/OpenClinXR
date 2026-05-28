@@ -1,13 +1,12 @@
-import { describe, expect, it } from "vitest";
-import {
-  buildGeneratedLearnerRuntimeBundlePublicationReport,
-  validateGeneratedLearnerRuntimeBundlePublicationReport,
-} from "./publish-generated-learner-runtime-bundle.js";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { runGeneratedLearnerRuntimeBundlePublicationCli } from "./publish-generated-learner-runtime-bundle.js";
+import { describe, expect, it } from "vitest";
 import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "../../packages/openclinxr/asset-registry/src/index.js";
+import {
+  buildGeneratedLearnerRuntimeBundlePublicationReport,runGeneratedLearnerRuntimeBundlePublicationCli, 
+  validateGeneratedLearnerRuntimeBundlePublicationReport
+} from "./publish-generated-learner-runtime-bundle.js";
 
 describe("generated learner runtime bundle publication report", () => {
   it("exposes a root package script", async () => {

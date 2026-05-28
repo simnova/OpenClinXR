@@ -1,5 +1,5 @@
 import { evaluateRequiredTraceTags } from "@openclinxr/domain";
-import { validateReviewPacket, type PatientNote, type ReviewPacket } from "@openclinxr/shared-schemas";
+import { type PatientNote, type ReviewPacket, validateReviewPacket } from "@openclinxr/shared-schemas";
 
 export type ReviewTraceInput = {
   sequence?: number;

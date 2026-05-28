@@ -1,4 +1,4 @@
-import { Schema, type Model, type Mongoose } from "mongoose";
+import { type Model, type Mongoose, Schema } from "mongoose";
 
 export type StationRunQueueSnapshotStatus = "activation_ready" | "draft_blocked" | "governance_blocked" | "missing_scenario";
 

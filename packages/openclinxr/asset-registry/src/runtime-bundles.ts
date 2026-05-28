@@ -575,6 +575,12 @@ export function buildEncounterRuntimeAssetBundle(
   input: BuildEncounterRuntimeAssetBundleInput,
 ): EncounterRuntimeAssetBundle {
   const assetStore = resolveRuntimeAssetStoreConfig(input.assetStore);
+  const sceneManifest = input.sceneManifest ?? createGeneratedRuntimeSceneManifest({
+    scenarioId: input.scenarioId,
+    stationId: input.stationId,
+    actors: input.actors,
+    equipment: input.equipment ?? [],
+  });
   return {
     bundleId: input.bundleId,
     tenantId: input.tenantId,
@@ -591,10 +597,7 @@ export function buildEncounterRuntimeAssetBundle(
     })),
     equipment: [...(input.equipment ?? [])],
     uiSurfaces: [...(input.uiSurfaces ?? [])],
-    sceneManifest: input.sceneManifest ?? createEdChestPainRuntimeSceneManifest({
-      scenarioId: input.scenarioId,
-      stationId: input.stationId,
-    }),
+    sceneManifest,
     evidenceGateRefs: input.evidenceGateRefs?.map((gateRef) => ({
       ...gateRef,
       evidenceRefs: [...gateRef.evidenceRefs],
@@ -614,10 +617,7 @@ export function buildEncounterRuntimeAssetBundle(
       actors: input.actors,
       equipment: input.equipment ?? [],
       uiSurfaces: input.uiSurfaces ?? [],
-      sceneManifest: input.sceneManifest ?? createEdChestPainRuntimeSceneManifest({
-        scenarioId: input.scenarioId,
-        stationId: input.stationId,
-      }),
+      sceneManifest,
       evidenceGateRefs: input.evidenceGateRefs ?? [],
       remediationPlanRefs: input.remediationPlanRefs ?? [],
       frozenForEncounter: true,
@@ -746,6 +746,10 @@ export function createEdChestPainLocalEncounterRuntimeAssetBundle(
       },
     ],
     uiSurfaces: [],
+    sceneManifest: createEdChestPainRuntimeSceneManifest({
+      scenarioId: input.scenarioId ?? "ed_chest_pain_priority_v1",
+      stationId: input.stationId ?? "ed_chest_pain_station_v1",
+    }),
     generatedAt,
     expiresAt: null,
   });
@@ -1299,6 +1303,92 @@ export function buildEncounterRuntimeBundlePublicationMetadata(
     ...(humanoidRealismProfileSummary ? { humanoidRealismProfileSummary } : {}),
     claimBoundary: "local_publication_metadata_not_runtime_readiness",
     notEvidenceFor: [...LOCAL_RUNTIME_NOT_EVIDENCE_FOR],
+  };
+}
+
+function createGeneratedRuntimeSceneManifest(input: {
+  scenarioId: string;
+  stationId: string;
+  actors: readonly EncounterRuntimeActorAsset[];
+  equipment: readonly EncounterRuntimeEquipmentAsset[];
+}): EncounterRuntimeSceneManifest {
+  return {
+    schemaVersion: "openclinxr.runtime-scene-manifest.v1",
+    manifestId: `generated_runtime_scene_manifest:${safeRuntimeManifestKey(input.scenarioId)}:${safeRuntimeManifestKey(input.stationId)}`,
+    source: "generated_scene_pipeline",
+    scenarioId: input.scenarioId,
+    stationId: input.stationId,
+    stationContext: {
+      title: `Runtime scene for ${input.stationId}`,
+      subtitle: `Generated fallback manifest for ${input.scenarioId}; provide an explicit sceneManifest for case-authored clinical context.`,
+      chiefConcern: `Scenario context pending explicit scene manifest for ${input.scenarioId}`,
+      initialVitals: "Not provided by generated fallback manifest",
+      interruption: "No interruption configured",
+      stageAriaLabel: `Runtime station scene for ${input.stationId}`,
+      canvasAriaLabel: `3D runtime preview for ${input.stationId}`,
+      initialDialogueText: "Explicit dialogue not provided for this generated fallback manifest.",
+    },
+    dialogueTurns: input.actors
+      .filter((actor) => actor.embodiment !== "virtual_device")
+      .map((actor) => ({
+        traceTag: `generated_fallback_dialogue:${actor.actorId}`,
+        actorId: actor.actorId,
+        text: `${generatedActorLabel(actor)}: Explicit dialogue not provided for this generated fallback manifest.`,
+        gazeTargetKind: "learner_camera" as const,
+        gazeTargetActorId: null,
+      })),
+    actorPlacements: Object.fromEntries(
+      input.actors
+        .filter((actor) => actor.embodiment === "humanoid")
+        .map((actor, index) => [actor.actorId, generatedActorPlacement(actor, index)]),
+    ),
+    equipmentPlacements: Object.fromEntries(
+      input.equipment.map((equipment, index) => [equipment.equipmentId, generatedEquipmentPlacement(equipment, index)]),
+    ),
+    roomProps: [],
+    productionReadinessClaimed: false,
+    notEvidenceFor: [...LOCAL_RUNTIME_NOT_EVIDENCE_FOR],
+  };
+}
+
+function safeRuntimeManifestKey(value: string): string {
+  return value.trim().replace(/[^a-zA-Z0-9_.:-]+/gu, "_") || "unknown";
+}
+
+function generatedActorLabel(actor: EncounterRuntimeActorAsset): string {
+  return actor.role
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function generatedActorPlacement(
+  actor: EncounterRuntimeActorAsset,
+  index: number,
+): EncounterRuntimeActorPlacement {
+  const slotKind: EncounterRuntimeActorPlacement["slotKind"] = actor.role === "patient"
+    ? "primary_patient"
+    : ["nurse", "consultant", "respiratory_therapist", "nurse_observer"].includes(actor.role)
+      ? "clinical_team"
+      : "family_or_observer";
+
+  return {
+    slotKind,
+    position: { x: -0.8 + (index * 0.8), y: 0.95, z: 0.3 + (index % 2) * 0.45 },
+    scale: { x: 1, y: 1, z: 1 },
+    verticalOffsetMeters: -0.95,
+    labelPrefix: generatedActorLabel(actor),
+  };
+}
+
+function generatedEquipmentPlacement(
+  equipment: EncounterRuntimeEquipmentAsset,
+  index: number,
+): EncounterRuntimeEquipmentPlacement {
+  return {
+    position: { x: 1.2 + (index * 0.45), y: 0, z: 0.45 + (index % 2) * 0.45 },
+    label: equipment.model.displayName,
+    interactionCueIds: ["selectable_equipment_reference"],
   };
 }
 

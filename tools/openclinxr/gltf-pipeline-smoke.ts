@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { mkdtemp, mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { performance } from "node:perf_hooks";
@@ -359,8 +359,12 @@ function requireLiteral<T extends string | boolean | number>(
 function createTriangleBuffer(): Buffer {
   const buffer = Buffer.alloc(44);
   const positions = [0, 0, 0, 1, 0, 0, 0, 1, 0];
-  positions.forEach((value, index) => buffer.writeFloatLE(value, index * 4));
-  [0, 1, 2].forEach((value, index) => buffer.writeUInt16LE(value, 36 + index * 2));
+  positions.forEach((value, index) => {
+    buffer.writeFloatLE(value, index * 4);
+  });
+  [0, 1, 2].forEach((value, index) => {
+    buffer.writeUInt16LE(value, 36 + index * 2);
+  });
   return buffer;
 }
 

@@ -1,22 +1,22 @@
 import { readFileSync } from "node:fs";
-import { describe, expect, it } from "vitest";
 import { buildIwsdkUiXrStationParityContract } from "@openclinxr/iwsdk-spike";
+import { describe, expect, it } from "vitest";
 import {
-  buildIwsdkSidecarLocalMetricsEvidence,
-  buildIwsdkSidecarIwerInputProbeEvidence,
   buildIwsdkSidecarFrameStats,
-  buildIwsdkSidecarXrEntryEvidence,
+  buildIwsdkSidecarIwerInputProbeEvidence,
+  buildIwsdkSidecarLocalMetricsEvidence,
   buildIwsdkSidecarRuntimeEvidence,
+  buildIwsdkSidecarXrEntryEvidence,
   completeIwsdkSidecarTraceAction,
   createIwsdkSidecarRuntimeState,
   evaluateIwsdkSidecarIwerInputProbeEvidence,
-  recordIwsdkSidecarXrEntryEvidence,
   formatIwsdkSidecarClock,
-  iwsdkSidecarHandRepresentationKind,
   iwsdkSidecarControllerSelectTraceTag,
+  iwsdkSidecarHandRepresentationKind,
   iwsdkSidecarPrimitiveHandModelProfile,
   iwsdkSidecarSceneObjectNames,
   iwsdkSidecarSmokePlanHash,
+  recordIwsdkSidecarXrEntryEvidence,
   summarizeIwsdkSidecarFrameDeltas,
   summarizeIwsdkSidecarReadiness,
 } from "./sidecar-state.js";

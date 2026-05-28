@@ -1,11 +1,11 @@
-import { describe, expect, it } from "vitest";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { describe, expect, it } from "vitest";
 import {
+  type ApiBunWebSocketRuntimeSmokeObservation,
   buildApiBunWebSocketRuntimeSmokeReport,
   main,
-  type ApiBunWebSocketRuntimeSmokeObservation,
   validateApiBunWebSocketRuntimeSmokeReport,
 } from "./api-bun-websocket-runtime-smoke.js";
 

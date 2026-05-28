@@ -1,5 +1,5 @@
-import { readFile, unlink, writeFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
+import { readFile, unlink, writeFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 import { syncGithubPagesEvidenceLinks } from "./sync-github-pages-evidence-links.js";
 

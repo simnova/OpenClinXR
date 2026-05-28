@@ -1,14 +1,14 @@
 import { execFile } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { promisify } from "node:util";
 import { pathToFileURL } from "node:url";
+import { promisify } from "node:util";
+import { createOpenClinXrApiProtocolPosture, type OpenClinXrApiProtocolPosture } from "../../apps/api/src/index.js";
 import {
   runRealtimeVoiceProxyHarness,
   startPythonCompatibleVoiceBackendFixture,
   startRealtimeVoiceGatewayServer,
 } from "../../apps/mock-realtime-voice-server/src/index.js";
-import { createOpenClinXrApiProtocolPosture, type OpenClinXrApiProtocolPosture } from "../../apps/api/src/index.js";
 import { realtimeVoiceProtocol } from "../../packages/openclinxr/voice-gateway/src/index.js";
 import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 import type { LocalQwenTtsRuntimeSmokeReport } from "./local-qwen-tts-runtime-smoke.js";

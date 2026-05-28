@@ -1,6 +1,5 @@
-import { access, readFile, writeFile } from "node:fs/promises";
 import { constants } from "node:fs";
-import { rename } from "node:fs/promises";
+import { access, readFile, rename, writeFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 import { validateGitHubPagesSite } from "./check-github-pages-site.js";
 

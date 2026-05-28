@@ -95,14 +95,14 @@ export function SeedExamReadinessBoundaryPanel({
         {`Realtime voice posture: ${selectedVoiceLane?.id ?? "no media lane selected"} selected, Python proxy ${voiceProxyStatus}, cloud APIs used: ${realtimeVoicePosture.policy.cloudApisUsed ? "yes" : "no"}.`}
       </Typography.Paragraph>
       {missingVoiceGateIds.length > 0 ? (
-        <Typography.Paragraph type="secondary" aria-label="Missing voice provider gates">
+        <Typography.Paragraph type="secondary">
           {`Voice/speech gates pending evidence: ${missingVoiceGateIds.join(", ")}.`}
         </Typography.Paragraph>
       ) : null}
       <Typography.Paragraph type="secondary">
         3D environment generation queue is planning evidence only; it does not mean assets have been produced or Quest runtime evidence is attached.
       </Typography.Paragraph>
-      <div className="readiness-strip" aria-label="Seed exam boundary metrics">
+      <div className="readiness-strip">
         <BoundaryReadinessMetric label={`${developmentPlaceholderScenes} development placeholder scenes`} detail={`${productionBlockedScenes} production-blocked scenes`} />
         <BoundaryReadinessMetric label={`${releaseLadderAssetCount} release-ladder assets`} detail={`${blockedReleaseAssetCount} release-blocked assets`} />
         <BoundaryReadinessMetric label={`${releaseBlockerTypes.count} release blocker ${releaseBlockerTypes.count === 1 ? "type" : "types"}`} detail={releaseBlockerTypes.summary} />

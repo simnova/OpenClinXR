@@ -1,4 +1,4 @@
-import { Schema, type Model, type Mongoose } from "mongoose";
+import { type Model, type Mongoose, Schema } from "mongoose";
 
 export type ScenarioReviewDecisionValue = "approved" | "changes_requested";
 export type ScenarioReviewDecisionReviewerRole = "clinical" | "psychometric" | "legal" | "simulationQa";

@@ -3,10 +3,10 @@ import {
   assertSafeClaimLanguage,
   buildScenarioGovernanceCopy,
   findUnsafeClaimLanguage,
+  type ScenarioGovernanceCopy,
   safeUserFacingClaimLanguage,
   scoreUseCopy,
   validationStageCopy,
-  type ScenarioGovernanceCopy,
 } from "./index.js";
 
 describe("safe claim language", () => {

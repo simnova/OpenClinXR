@@ -5,10 +5,10 @@ import {
   openClinXrSpanNames,
   safeTelemetryAttributes,
   summarizeTelemetrySpans,
-  telemetryAttributeNames,
-  telemetryRouteAttributes,
   type TelemetryAttributeInput,
   type TelemetrySpanRecord,
+  telemetryAttributeNames,
+  telemetryRouteAttributes,
 } from "./index.js";
 
 describe("OpenClinXR telemetry contract", () => {

@@ -1,17 +1,17 @@
 import { describe, expect, it } from "vitest";
 import {
+  type AgentMemoryEntry,
   buildAgentMemoryIndex,
-  createAgentLoopPlan,
   createAgentDispatchPackets,
+  createAgentLoopPlan,
   defaultAgentLoopRoster,
   evaluateMaturityDelta,
+  type IterationScorecard,
   normalizeLegacyScorecard,
   recommendAgentModelForWorkOrder,
   recommendBackgroundAgentModel,
   recommendWorkflowSkillsForWorkOrder,
   serializeAgentLoopPlan,
-  type AgentMemoryEntry,
-  type IterationScorecard,
 } from "./index.js";
 
 function scorecard(overrides: Partial<IterationScorecard> = {}): IterationScorecard {
@@ -271,17 +271,29 @@ describe("agent-loop synthesis planning", () => {
       reasoningEffort: "xhigh",
       policyTier: "frontier_thinking",
     });
-    expect(recommendAgentModelForWorkOrder(plan.workOrders.find((order) => order.stage === "core_revision")!)).toMatchObject({
+    const coreRevisionWorkOrder = plan.workOrders.find((order) => order.stage === "core_revision");
+    if (!coreRevisionWorkOrder) {
+      throw new Error("Expected core revision work order");
+    }
+    expect(recommendAgentModelForWorkOrder(coreRevisionWorkOrder)).toMatchObject({
       model: "gpt-5.4",
       reasoningEffort: "medium",
       policyTier: "standard_execution",
     });
-    expect(recommendAgentModelForWorkOrder(plan.workOrders.find((order) => order.stage === "physician_specialty_review")!)).toMatchObject({
+    const physicianSpecialtyReviewWorkOrder = plan.workOrders.find((order) => order.stage === "physician_specialty_review");
+    if (!physicianSpecialtyReviewWorkOrder) {
+      throw new Error("Expected physician specialty review work order");
+    }
+    expect(recommendAgentModelForWorkOrder(physicianSpecialtyReviewWorkOrder)).toMatchObject({
       model: "gpt-5.4",
       reasoningEffort: "high",
       policyTier: "expert_review",
     });
-    expect(recommendAgentModelForWorkOrder(plan.workOrders.find((order) => order.stage === "adversarial_counterplan")!)).toMatchObject({
+    const adversarialCounterplanWorkOrder = plan.workOrders.find((order) => order.stage === "adversarial_counterplan");
+    if (!adversarialCounterplanWorkOrder) {
+      throw new Error("Expected adversarial counterplan work order");
+    }
+    expect(recommendAgentModelForWorkOrder(adversarialCounterplanWorkOrder)).toMatchObject({
       model: "gpt-5.5",
       reasoningEffort: "xhigh",
       policyTier: "frontier_thinking",

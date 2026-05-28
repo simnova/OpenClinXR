@@ -3,9 +3,9 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  type ApiBunPythonProxyRuntimeSmokeObservation,
   buildApiBunPythonProxyRuntimeSmokeReport,
   main,
-  type ApiBunPythonProxyRuntimeSmokeObservation,
   validateApiBunPythonProxyRuntimeSmokeReport,
 } from "./api-bun-python-proxy-runtime-smoke.js";
 

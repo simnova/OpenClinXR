@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import type { EnvironmentGenerationQueue, ScenarioSceneGenerationPipelineWorkOrderQueue } from "@openclinxr/asset-registry";
 import { findUnsafeClaimLanguage } from "@openclinxr/domain/claim-language";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { EnvironmentGenerationQueuePanel } from "./EnvironmentGenerationQueuePanel.js";
 import {
@@ -19,6 +19,10 @@ describe("EnvironmentGenerationQueuePanel", () => {
     const onInitiateSceneGeneration = vi.fn();
     const onAttachSceneGenerationReview = vi.fn();
     const onCheckSceneGenerationPublicationReadiness = vi.fn();
+    const workOrder = sceneGenerationPipelineQueueFixture().workOrders.at(0);
+    if (!workOrder) {
+      throw new Error("Expected scene generation pipeline queue fixture to include the first work order.");
+    }
 
     render(
       <EnvironmentGenerationQueuePanel
@@ -46,7 +50,7 @@ describe("EnvironmentGenerationQueuePanel", () => {
                 factoryPlanningClaimBoundary: "review_gated_factory_metadata_only",
                 generationApprovalInferred: false,
               },
-              workOrder: sceneGenerationPipelineQueueFixture().workOrders[0]!,
+              workOrder,
             },
           ],
         }}
@@ -396,6 +400,11 @@ describe("EnvironmentGenerationQueuePanel", () => {
   });
 
   it("colors attached scene generation review status as the attached state", () => {
+    const workOrder = sceneGenerationPipelineQueueFixture().workOrders.at(0);
+    if (!workOrder) {
+      throw new Error("Expected scene generation pipeline queue fixture to include the first work order.");
+    }
+
     render(
       <EnvironmentGenerationQueuePanel
         environmentGenerationQueue={environmentGenerationQueueFixture()}
@@ -415,7 +424,7 @@ describe("EnvironmentGenerationQueuePanel", () => {
               accepted: true,
               productionAssetReadinessClaimed: false,
               claimBoundary: "scene_generation_request_not_asset_production",
-              workOrder: sceneGenerationPipelineQueueFixture().workOrders[0]!,
+              workOrder,
             },
           ],
         }}
@@ -433,6 +442,11 @@ describe("EnvironmentGenerationQueuePanel", () => {
   });
 
   it("keeps draft scenario publication readiness visibly blocked after runtime review attaches", () => {
+    const workOrder = sceneGenerationPipelineQueueFixture().workOrders.at(1);
+    if (!workOrder) {
+      throw new Error("Expected scene generation pipeline queue fixture to include the second work order.");
+    }
+
     render(
       <EnvironmentGenerationQueuePanel
         environmentGenerationQueue={environmentGenerationQueueFixture()}
@@ -459,7 +473,7 @@ describe("EnvironmentGenerationQueuePanel", () => {
                 factoryPlanningClaimBoundary: "review_gated_factory_metadata_only",
                 generationApprovalInferred: false,
               },
-              workOrder: sceneGenerationPipelineQueueFixture().workOrders[1]!,
+              workOrder,
             },
           ],
         }}

@@ -3,9 +3,9 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { glob } from "tinyglobby";
 import {
+  buildIwsdkCompatibilityContract,
   buildIwsdkCoreRequiredTransitivePackageNames,
   buildIwsdkCoreTransitivePackageLicenseEvidence,
-  buildIwsdkCompatibilityContract,
   buildIwsdkMcpToolInventory,
   buildIwsdkOperatorApprovalContract,
   buildIwsdkOperatorSteeringBlockers,
@@ -36,8 +36,8 @@ import {
   type IwsdkPreInstallPackagePolicy,
   type IwsdkPreInstallPackageSelectionResult,
   type IwsdkSidecarReadinessContract,
-  type IwsdkSpikeMetrics,
   type IwsdkSpikeMetricReadiness,
+  type IwsdkSpikeMetrics,
   type IwsdkUiXrStationParityContract,
   type IwsdkVerificationToolSelectionContract,
   type IwsdkViteAiDevConfigContract,

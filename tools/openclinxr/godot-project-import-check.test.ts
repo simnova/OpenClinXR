@@ -4,9 +4,9 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   buildGodotProjectImportCheck,
+  type GodotProjectImportInput,
   runGodotProjectImportCheckCli,
   validateGodotProjectImportCheckReport,
-  type GodotProjectImportInput,
 } from "./godot-project-import-check.js";
 
 const appPath = "apps/ui-quest-voice-godot";

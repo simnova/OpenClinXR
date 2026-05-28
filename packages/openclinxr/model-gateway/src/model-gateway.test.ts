@@ -1,16 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { scenarioBank, scenarioDialogueSeedBank } from "../../scenario-fixtures/src/scenario-bank.js";
 import {
-  buildActorResponseRequestsForDialogueSeeds,
-  buildActorResponseProviderPromptInput,
   buildActorCommunicationProfilePromptContext,
+  buildActorResponseProviderPromptInput,
+  buildActorResponseRequestsForDialogueSeeds,
   createDefaultModelGateway,
   createLlamaCppModelProviderAdapter,
   createMlxModelProviderAdapter,
   createOllamaModelProviderAdapter,
   LocalModelProviderAdapter,
-  type ModelProviderAdapter,
   MockModelProviderAdapter,
+  type ModelProviderAdapter,
 } from "./index.js";
 
 describe("model gateway", () => {
@@ -152,7 +152,10 @@ describe("model gateway", () => {
       expect(requests).toHaveLength(entry.seeds.length);
 
       for (const [index, request] of requests.entries()) {
-        const seed = entry.seeds[index]!;
+        const seed = entry.seeds[index];
+        if (!seed) {
+          throw new Error(`Missing dialogue seed at index ${index} for ${entry.scenarioId}`);
+        }
         const actor = scenario.actors.find((candidate) => candidate.actorId === seed.actorId);
         const response = await gateway.generateActorResponse(request);
 

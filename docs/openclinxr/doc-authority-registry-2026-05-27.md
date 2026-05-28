@@ -12,11 +12,11 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 140
 - agent-methodology: 8
-- archive-candidate: 2
+- archive-candidate: 3
 - current-reference: 49
 - decision-record: 18
 - evidence: 44
-- historical-synthesis: 81
+- historical-synthesis: 84
 - proposal: 21
 - protected-policy: 12
 
@@ -90,3 +90,4 @@ These files should be summarized, archived, or explicitly marked historical befo
 
 - `docs/openclinxr/dependency-hygiene-and-e18e-policy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/gltf-transform-replacement-decision-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/typescript-strictness-gap-matrix-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

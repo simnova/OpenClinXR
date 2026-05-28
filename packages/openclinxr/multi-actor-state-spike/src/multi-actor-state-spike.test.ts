@@ -4,14 +4,14 @@ import {
   buildActorModelContext,
   createMultiActorClinicalSession,
   createPersistenceSpikeStores,
-  evaluateMultiActorStateOptions,
   evaluateMultiActorPersistencePhase2Strategy,
+  evaluateMultiActorStateOptions,
   persistLatestInteractionTurn,
-  rehydrateRealtimeCacheFromDurableState,
-  writeRealtimeCacheSnapshot,
   recordClinicalAction,
+  rehydrateRealtimeCacheFromDurableState,
   routeActorInteraction,
   updateActorSpatialState,
+  writeRealtimeCacheSnapshot,
 } from "./index.js";
 
 describe("multi-actor clinical state spike", () => {
@@ -27,7 +27,7 @@ describe("multi-actor clinical state spike", () => {
       ["nurse_maria_alvarez_v1", "nurse", 1],
     ]);
     expect(session.clinicalState.requiredTraceTags).toContain("urgent_escalation");
-    expect(session.spatialState.actorTransforms["patient_robert_hayes_v1"]).toMatchObject({
+    expect(session.spatialState.actorTransforms.patient_robert_hayes_v1).toMatchObject({
       position: { x: 0, y: 0, z: -1.15 },
       interactionState: "idle",
     });
@@ -155,7 +155,7 @@ describe("multi-actor clinical state spike", () => {
         traceTag: "ecg_request",
       },
     ]);
-    expect(session.spatialState.actorTransforms["nurse_maria_alvarez_v1"]).toMatchObject({
+    expect(session.spatialState.actorTransforms.nurse_maria_alvarez_v1).toMatchObject({
       position: { x: 1.2, y: 0, z: -0.6 },
       rotationYRadians: -0.4,
       interactionState: "holding_equipment",

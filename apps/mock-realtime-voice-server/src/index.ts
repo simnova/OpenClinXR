@@ -3,7 +3,7 @@ import { createServer, type IncomingMessage, type Server as NodeHttpServer, type
 import { performance } from "node:perf_hooks";
 import { createRealtimeVoiceGatewayPosture, realtimeVoiceProtocol } from "@openclinxr/voice-gateway";
 import { Hono } from "hono";
-import WebSocket, { WebSocketServer, type RawData } from "ws";
+import WebSocket, { type RawData, WebSocketServer } from "ws";
 
 export { createRealtimeVoiceGatewayPosture, type RealtimeVoiceGatewayPosture } from "@openclinxr/voice-gateway";
 

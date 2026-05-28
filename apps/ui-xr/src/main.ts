@@ -1,17 +1,19 @@
-import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
-import { scenarioBank } from "@openclinxr/scenario-fixtures/scenario-bank";
 import {
   createEdChestPainLocalLearnerRuntimeAssetBundle,
   ENCOUNTER_LEARNER_RUNTIME_REQUIRED_GATE_IDS,
+  type EncounterRuntimeAsset,
+  type EncounterRuntimeRoomProp,
   evaluateEncounterRuntimeLearnerUseGate,
   findRuntimeActorAsset,
   findRuntimeEquipmentAsset,
-  resolveRuntimeAssetUrl,
-  type EncounterRuntimeRoomProp,
-  type EncounterRuntimeAsset,
   type LearnerRuntimeAssetBundle,
+  resolveRuntimeAssetUrl,
 } from "@openclinxr/asset-registry/runtime-bundles";
+import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
+import { scenarioBank } from "@openclinxr/scenario-fixtures/scenario-bank";
 import {
+  AnimationClip,
+  AnimationMixer,
   BoxGeometry,
   BufferGeometry,
   CanvasTexture,
@@ -28,8 +30,6 @@ import {
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
-  AnimationClip,
-  AnimationMixer,
   PerspectiveCamera,
   PlaneGeometry,
   Scene,
@@ -40,46 +40,41 @@ import {
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
 import { XRHandModelFactory } from "three/addons/webxr/XRHandModelFactory.js";
+import { createStationApiClient, type StationApiClient } from "./api-client.js";
 import {
   actorIdForTraceTag,
   actorResponseTextFromApiResult,
   buildManualPerformanceCaptureSummary,
+  buildManualPerformanceDraft,
   buildManualPerformanceEvidencePayload,
   buildManualPerformanceInputEvidence,
-  buildManualPerformanceDraft,
   buildManualPerformanceReproducibility,
   buildReadableVrTextPanelEvidence,
-  buildRuntimeFrameStats,
   buildRuntimeEvidencePosture,
+  buildRuntimeFrameStats,
+  buildXrRuntimeReadinessDecision,
   buildXrTraceActionHandoffEvidence,
   buildXrTraceInteractionEvidenceSummary,
-  buildXrRuntimeReadinessDecision,
+  type CaseDefinedHumanoidPerformanceContractEvidence,
+  type CaseDefinedHumanoidRuntimeHandoffEvidence,
   completeTraceAction,
   createInitialRuntimeState,
   createRuntimeStateFromBundle,
+  type EnvironmentStateEvidence,
+  type ExamineeLocomotionEvidence,
   eventTypeForTraceTag,
   formatManualEvidenceCopyStatus,
   formatStationClock,
-  iwsdkStationSceneObjects,
-  iwsdkStationSceneObjectNames,
-  isImmersiveFrameEvidenceActive,
-  localHandMeshPath,
+  type HumanoidSpeechEvidence,
   handGestureLocomotionOriginMeters,
   handGestureRelativeOffsetMeters,
-  mapHandGestureLocomotionVector,
-  meshHandModelProfile,
-  meshHandRepresentationKind,
-  primitiveHandModelProfile,
-  primitiveHandRepresentationKind,
-  remoteActorTurnForTraceTag,
-  summarizeTraceReadiness,
+  isImmersiveFrameEvidenceActive,
+  iwsdkStationSceneObjectNames,
+  iwsdkStationSceneObjects,
+  type LearnerRuntimeUseGateEvidence,
   type LocomotionAttemptDiagnosticsEvidence,
   type LocomotionVectorEvidence,
-  type ExamineeLocomotionEvidence,
-  type HumanoidSpeechEvidence,
-  type EnvironmentStateEvidence,
-  type CaseDefinedHumanoidRuntimeHandoffEvidence,
-  type CaseDefinedHumanoidPerformanceContractEvidence,
+  localHandMeshPath,
   type ManualEvidenceCopyDisposition,
   type ManualPerformanceCaptureSummary,
   type ManualPerformanceDraft,
@@ -87,26 +82,31 @@ import {
   type ManualPerformanceInputEvidence,
   type ManualPerformanceReproducibilityEvidence,
   type ManualPerformanceTraceLatencyEvidence,
-  type LearnerRuntimeUseGateEvidence,
-  type RigPoseEvidence,
+  mapHandGestureLocomotionVector,
+  meshHandModelProfile,
+  meshHandRepresentationKind,
+  primitiveHandModelProfile,
+  primitiveHandRepresentationKind,
   type ReadableVrTextPanelEvidence,
   type ReadableVrTextPanelEvidenceSet,
-  type RuntimeInteractionEvidence,
+  type RigPoseEvidence,
   type RuntimeEvidencePosture,
+  type RuntimeInteractionEvidence,
   type RuntimeSceneManifestEvidence,
+  remoteActorTurnForTraceTag,
   type SceneAssetEvidence,
+  summarizeTraceReadiness,
+  type XrExperienceModeEvidence,
+  type XrHandGestureStateEvidence,
+  type XrHandSelectStateEvidence,
+  type XrInputSourceEvidence,
   type XrRuntimeReadinessDecision,
+  type XrRuntimeState,
   type XrTraceActionHandoffAction,
   type XrTraceActionHandoffEvidence,
   type XrTraceInteractionEvidenceSummary,
-  type XrInputSourceEvidence,
-  type XrHandGestureStateEvidence,
-  type XrHandSelectStateEvidence,
-  type XrExperienceModeEvidence,
-  type XrRuntimeState,
   xrExperienceModeEvidence,
 } from "./runtime-state.js";
-import { createStationApiClient, type StationApiClient } from "./api-client.js";
 import "./styles.css";
 
 type NavigatorWithXr = Navigator & {
@@ -131,6 +131,8 @@ let latestRuntimeInteractionEvidence: RuntimeInteractionEvidence | null = null;
 type DynamicSceneObjectNamingEvidence = {
   source: "window.__openClinXrDynamicSceneObjectNamingEvidence";
   scenarioId: string;
+  selectedScenarioId: string;
+  selectedScenarioMatchesBundle: boolean;
   totalNamedObjects: number;
   scenarioPrefixedObjectCount: number;
   stableIwsdkLegacyObjectNameCount: number;
@@ -470,6 +472,19 @@ function useEncounterRuntimeAssetBundle(
   );
 }
 
+function runtimeBundleMatchesSelectedScenario(bundle: LearnerRuntimeAssetBundle): boolean {
+  return bundle.scenarioId === selectedScenarioId();
+}
+
+function mismatchedRuntimeBundleFallbackReason(
+  bundle: LearnerRuntimeAssetBundle,
+  source: ActiveRuntimeAssetBundleSource,
+): string | null {
+  return runtimeBundleMatchesSelectedScenario(bundle)
+    ? null
+    : `${source}_scenario_mismatch_selected:${selectedScenarioId()}:bundle:${bundle.scenarioId}`;
+}
+
 function recordLearnerRuntimeUseGateEvidence(
   bundle: LearnerRuntimeAssetBundle,
   source: ActiveRuntimeAssetBundleSource,
@@ -657,6 +672,19 @@ function buildRuntimeSceneManifestEvidence(bundle: LearnerRuntimeAssetBundle): R
     source: "learner_runtime_asset_bundle_scene_manifest",
     manifestId: bundle.sceneManifest.manifestId,
     schemaVersion: bundle.sceneManifest.schemaVersion,
+    selectedScenarioId: selectedScenarioId(),
+    bundleScenarioId: bundle.scenarioId,
+    selectedScenarioMatchesBundle: runtimeBundleMatchesSelectedScenario(bundle),
+    stationId: bundle.stationId,
+    stationContextTitle: bundle.sceneManifest.stationContext?.title ?? null,
+    stationContextChiefConcern: bundle.sceneManifest.stationContext?.chiefConcern ?? null,
+    actorRoster: bundle.actors.map((actor) => ({
+      actorId: actor.actorId,
+      role: actor.role,
+      embodiment: actor.embodiment,
+    })),
+    equipmentIds: bundle.equipment.map((equipment) => equipment.equipmentId),
+    dialogueTraceTags: (bundle.sceneManifest.dialogueTurns ?? []).map((turn) => turn.traceTag),
     roomPropCount: bundle.sceneManifest.roomProps.length,
     semanticRoomPropCount: bundle.sceneManifest.roomProps.filter((prop) => Boolean(prop.semanticRole && prop.evidenceCue)).length,
     actorPlacementCount: Object.keys(bundle.sceneManifest.actorPlacements ?? {}).length,
@@ -696,6 +724,11 @@ async function initializeLearnerRuntimeAssetBundle(client: StationApiClient | un
       recordBootPhase("learner_runtime_asset_bundle_static_generated_loaded");
       return;
     }
+    recordLearnerRuntimeUseGateEvidence(
+      encounterRuntimeAssetBundle,
+      "local_fixture_fallback",
+      mismatchedRuntimeBundleFallbackReason(encounterRuntimeAssetBundle, "local_fixture_fallback"),
+    );
     recordBootPhase("learner_runtime_asset_bundle_local_fallback");
     return;
   }
@@ -712,6 +745,14 @@ async function initializeLearnerRuntimeAssetBundle(client: StationApiClient | un
       );
       recordBootPhase("learner_runtime_asset_bundle_api_generated_blocked_by_evidence_gates");
       return;
+    }
+    if (!runtimeBundleMatchesSelectedScenario(bundle)) {
+      recordLearnerRuntimeUseGateEvidence(
+        bundle,
+        "api_bundle",
+        mismatchedRuntimeBundleFallbackReason(bundle, "api_bundle"),
+      );
+      throw new Error(`api learner runtime asset bundle scenario mismatch: selected ${selectedScenarioId()} bundle ${bundle.scenarioId}`);
     }
     useEncounterRuntimeAssetBundle(bundle, { source: "api_bundle" });
     recordBootPhase("learner_runtime_asset_bundle_loaded");
@@ -743,6 +784,11 @@ async function initializeLearnerRuntimeAssetBundle(client: StationApiClient | un
       recordBootPhase("learner_runtime_asset_bundle_static_generated_loaded_after_api_fallback", error);
       return;
     }
+    recordLearnerRuntimeUseGateEvidence(
+      encounterRuntimeAssetBundle,
+      "local_fixture_fallback",
+      mismatchedRuntimeBundleFallbackReason(encounterRuntimeAssetBundle, "local_fixture_fallback"),
+    );
     recordBootPhase("learner_runtime_asset_bundle_fallback", error);
   }
 }
@@ -770,6 +816,15 @@ async function initializeStaticGeneratedLearnerRuntimeAssetBundle(): Promise<boo
     const bundle = await response.json() as LearnerRuntimeAssetBundle;
     if (bundle.identityScope !== "learner_runtime_opaque_bundle") {
       throw new Error("static learner runtime asset bundle identity scope mismatch");
+    }
+    if (!runtimeBundleMatchesSelectedScenario(bundle)) {
+      recordLearnerRuntimeUseGateEvidence(
+        bundle,
+        "static_generated_bundle",
+        mismatchedRuntimeBundleFallbackReason(bundle, "static_generated_bundle"),
+      );
+      recordBootPhase("learner_runtime_asset_bundle_static_generated_scenario_mismatch_suppressed");
+      return false;
     }
     if (!shouldUseLearnerRuntimeAssetBundle(bundle)) {
       recordLearnerRuntimeUseGateEvidence(
@@ -883,7 +938,7 @@ function shouldSuppressGeneratedEnvironmentShell(asset: EncounterRuntimeAsset): 
   return isGeneratedPlaceholderAssetForDifferentScenario(asset);
 }
 
-function shouldSuppressGeneratedEquipmentModel(assetId: string, assetPath: string): boolean {
+function shouldSuppressGeneratedEquipmentModel(_assetId: string, assetPath: string): boolean {
   return isGeneratedPlaceholderSourceForDifferentScenario(assetPath);
 }
 
@@ -1517,9 +1572,9 @@ function refreshStationContextFromRuntimeBundle(): void {
   const subtitle = document.querySelector<HTMLElement>("header .subtle");
   if (subtitle) subtitle.textContent = selectedStationContext.subtitle;
   const ehrValues = document.querySelectorAll<HTMLElement>(".ehr-panel dd");
-  ehrValues[0]!.textContent = selectedStationContext.chiefConcern;
-  ehrValues[1]!.textContent = selectedStationContext.initialVitals;
-  ehrValues[2]!.textContent = selectedStationContext.interruption;
+  if (ehrValues[0]) ehrValues[0].textContent = selectedStationContext.chiefConcern;
+  if (ehrValues[1]) ehrValues[1].textContent = selectedStationContext.initialVitals;
+  if (ehrValues[2]) ehrValues[2].textContent = selectedStationContext.interruption;
   const dialogue = document.querySelector<HTMLElement>("#dialogue-line");
   if (dialogue) dialogue.textContent = initialDialogueText;
 }
@@ -3407,6 +3462,8 @@ function recordDynamicSceneObjectNamingEvidence(scene: Scene): DynamicSceneObjec
   const evidence: DynamicSceneObjectNamingEvidence = {
     source: "window.__openClinXrDynamicSceneObjectNamingEvidence",
     scenarioId: encounterRuntimeAssetBundle.scenarioId,
+    selectedScenarioId: selectedScenarioId(),
+    selectedScenarioMatchesBundle: !isSelectedScenarioRuntimeBundleMismatch(),
     totalNamedObjects: namedObjects.length,
     scenarioPrefixedObjectCount: namedObjects.filter((name) => name.startsWith(scenarioPrefix)).length,
     stableIwsdkLegacyObjectNameCount: stableIwsdkLegacyObjectNames.length,
@@ -4096,7 +4153,7 @@ function addActorSpecificIdentityVariantCue(
     "actor_specific_clothing_accent_variant_cue",
     "actor_specific_clothing_layer_silhouette_cue",
   ];
-  let hairCapName = `${runtimeSceneObjectPrefix()}.${actorId}.actor-specific-hair-cap-variant-cue`;
+  const hairCapName = `${runtimeSceneObjectPrefix()}.${actorId}.actor-specific-hair-cap-variant-cue`;
   if (showProceduralFaceOverlay) {
     const hairCap = new Mesh(new SphereGeometry(0.155, 18, 10), new MeshStandardMaterial({ color: hairColor, roughness: 0.86 }));
     hairCap.name = hairCapName;
@@ -4136,8 +4193,8 @@ function addActorSpecificIdentityVariantCue(
   } else if (faceCueMode === "generated_glb" && isHumanoidFaceDetailCaptureMode()) {
     addGeneratedGlbClothingContinuityCue(humanoid, actorId, accentColor);
   }
-  let torsoLayerName = `${runtimeSceneObjectPrefix()}.${actorId}.actor-specific-clothing-layer-silhouette-cue`;
-  let roleAccentName = `${runtimeSceneObjectPrefix()}.${actorId}.actor-specific-role-accent-cue`;
+  const torsoLayerName = `${runtimeSceneObjectPrefix()}.${actorId}.actor-specific-clothing-layer-silhouette-cue`;
+  const roleAccentName = `${runtimeSceneObjectPrefix()}.${actorId}.actor-specific-role-accent-cue`;
   if (showProceduralFaceOverlay) {
     const torsoLayer = new Mesh(new BoxGeometry(0.31, 0.44, 0.018), new MeshStandardMaterial({ color: accentColor, roughness: 0.82, transparent: true, opacity: 0.38 }));
     torsoLayer.name = torsoLayerName;
@@ -4218,6 +4275,12 @@ function clinicalPanelLinesForSelectedStation(): string[] {
     `Vitals/context: ${selectedStationContext.initialVitals}`,
     `Interruption: ${selectedStationContext.interruption}`,
     `Scenario: ${selectedStationContext.title}`,
+    `Bundle scenario: ${encounterRuntimeAssetBundle.scenarioId}${isSelectedScenarioRuntimeBundleMismatch() ? ` (selected ${selectedScenarioId()} mismatch hidden)` : " (selected match)"}`,
+    `Station context: ${encounterRuntimeAssetBundle.sceneManifest.stationContext?.title ?? "manifest stationContext missing"}`,
+    `Actor roster: ${encounterRuntimeAssetBundle.actors.map((actor) => `${actor.actorId}:${actor.role}`).join(", ") || "none"}`,
+    `Equipment IDs: ${encounterRuntimeAssetBundle.equipment.map((equipment) => equipment.equipmentId).join(", ") || "none"}`,
+    `Dialogue turns: ${(encounterRuntimeAssetBundle.sceneManifest.dialogueTurns ?? []).map((turn) => `${turn.traceTag}->${turn.actorId}`).join(", ") || "none"}`,
+    `Room props: ${encounterRuntimeAssetBundle.sceneManifest.roomProps.map((prop) => prop.propId).join(", ") || "none"}`,
   ];
 }
 
@@ -5391,7 +5454,7 @@ function createAffordanceMarker(cueId: string, color: number): Mesh {
   return marker;
 }
 
-function createHumanoidSpeechMouthCue(assetId: string, color: number): Mesh {
+function createHumanoidSpeechMouthCue(assetId: string, _color: number): Mesh {
   const cue = new Mesh(
     new BoxGeometry(0.13, 0.03, 0.014),
     new MeshBasicMaterial({ color: 0x7a3434, transparent: true, opacity: 0.58 }),
@@ -7366,6 +7429,9 @@ async function bootStationScene(): Promise<void> {
     window.__openClinXrLastStationSceneBootErrorStack = error instanceof Error ? error.stack ?? error.message : String(error);
     xrStatus.textContent = "Station boot blocked";
     sceneBootMessage.hidden = false;
-    sceneBootMessage.querySelector("span")!.textContent = `3D scene blocked: ${formatUnknownError(error)}. Use Quest/manual evidence before readiness claims.`;
+    const sceneBootMessageText = sceneBootMessage.querySelector("span");
+    if (sceneBootMessageText) {
+      sceneBootMessageText.textContent = `3D scene blocked: ${formatUnknownError(error)}. Use Quest/manual evidence before readiness claims.`;
+    }
   }
 }

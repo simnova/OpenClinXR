@@ -1,10 +1,10 @@
 import {
   buildEncounterDynamicBehaviorCoverageSummary,
   buildEncounterFactorySummaryContracts,
-  buildGuardedRuntimeSelectorDisabledDecision,
+  buildEncounterRuntimeBundlePublicationMetadata,
   buildEnvironmentGenerationQueue,
   buildEnvironmentGenerationWorkOrderQueue,
-  buildEncounterRuntimeBundlePublicationMetadata,
+  buildGuardedRuntimeSelectorDisabledDecision,
   buildScenarioSceneGenerationPipelineWorkOrderQueue,
   createEdChestPainLocalLearnerRuntimeAssetBundle,
   createScenarioPlaceholderManifests,
@@ -14,42 +14,35 @@ import {
   type RuntimeAssetReviewDecision,
 } from "@openclinxr/asset-registry";
 import {
+  AssetGenerationCapabilityFacade,
+  type AssetGenerationCapabilityId,
+  type AssetGenerationJobPolicyInput,
+  buildOpenClinXrCapabilityRoutingMatrix,
+  evaluateRuntimeProviderReadinessSurface,
+  type RuntimeProfile,
+} from "@openclinxr/capability-gateway";
+import {
   assembleExamForm,
   createDefaultClinicalSkillsBlueprint,
   createExamStationRunQueue,
   createExamTimingPlan,
   createStep2CsStyleSeedBlueprint,
-  evaluateBlueprintScenarioReadiness,
-  evaluateScenarioVersionDrift,
   type ExamForm,
   type ExamStationRunQueue,
+  evaluateBlueprintScenarioReadiness,
+  evaluateScenarioVersionDrift,
 } from "@openclinxr/exam-assembly";
 import {
   AdminGraphqlReviewDecision,
+  type AdminGraphqlRootValue,
+  type AdminGraphqlScenario,
   AdminGraphqlScenarioStatus,
   adminGraphqlDocuments,
   createGraphqlCodegenPlan,
   executeAdminGraphql,
   openClinXrAdminSchemaSdl,
-  type AdminGraphqlScenario,
-  type AdminGraphqlRootValue,
 } from "@openclinxr/graphql";
-import {
-  AssetGenerationCapabilityFacade,
-  buildOpenClinXrCapabilityRoutingMatrix,
-  evaluateRuntimeProviderReadinessSurface,
-  type AssetGenerationCapabilityId,
-  type AssetGenerationJobPolicyInput,
-  type RuntimeProfile,
-} from "@openclinxr/capability-gateway";
 import { matchOpenClinXrRestRoute, routeById } from "@openclinxr/rest";
-import {
-  createDefaultScenarioRuntime,
-  type PublicationTargetUse,
-  type ReviewerEvidence,
-  type RouteRuntimeActorInteractionInput,
-  type ScenarioRuntime,
-} from "@openclinxr/scenario-runtime";
 import {
   buildDynamicEncounterFactoryPlanningProjection,
   buildScenarioBankExamSequenceProjection,
@@ -59,17 +52,24 @@ import {
   scenarioBank,
 } from "@openclinxr/scenario-fixtures";
 import {
+  createDefaultScenarioRuntime,
+  type PublicationTargetUse,
+  type ReviewerEvidence,
+  type RouteRuntimeActorInteractionInput,
+  type ScenarioRuntime,
+} from "@openclinxr/scenario-runtime";
+import {
   createNoopTelemetryRecorder,
   openClinXrSpanNames,
-  telemetryRouteAttributes,
   type TelemetryRecorder,
   type TelemetrySpanRecord,
+  telemetryRouteAttributes,
 } from "@openclinxr/telemetry";
 import {
   createRealtimeVoiceGatewayPosture,
-  selectRealtimeVoiceProtocol,
   type RealtimeVoiceGatewayPostureInput,
   type RealtimeVoiceProtocolLaneId,
+  selectRealtimeVoiceProtocol,
 } from "@openclinxr/voice-gateway";
 import { Hono } from "hono";
 import { createOpenClinXrApiProtocolPosture } from "./protocol-support.js";
@@ -424,7 +424,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     });
   });
 
-  app.get(routeById("admin-graphql-schema").path, (context) =>
+  app.get(routeById("admin-graphql-schema").path, () =>
     new Response(openClinXrAdminSchemaSdl, {
       headers: { "content-type": "text/plain; charset=utf-8" },
     }),
@@ -1112,18 +1112,18 @@ function summarizeClinicalEventReviewProjections(projections: ApiClinicalEventRe
   const stationRunIds = uniqueStrings(projections.map((projection) => projection.stationRunId));
   const durableStores = uniqueStrings(projections.map((projection) => projection.durableStore));
   return {
-    stationRunId: stationRunIds.length === 1 ? stationRunIds[0]! : null,
+    stationRunId: stationRunIds.length === 1 ? (stationRunIds[0] ?? null) : null,
     eventCount: projections.length,
     redactedEventCount: projections.filter((projection) => projection.privatePayloadRedacted).length,
     clinicalEventKinds: countBy(projections.map((projection) => projection.eventKind)),
     traceTags: uniqueStrings(projections.map((projection) => projection.traceTag).filter((tag): tag is string => Boolean(tag))),
     statusCounts: countBy(projections.map((projection) => projection.status ?? "unknown")),
     latestAtSecond: projections.length === 0 ? null : Math.max(...projections.map((projection) => projection.atSecond)),
-    durableStore: durableStores.length === 0 ? null : durableStores.length === 1 ? durableStores[0]! : "mixed",
+    durableStore: durableStores.length === 0 ? null : durableStores.length === 1 ? (durableStores[0] ?? null) : "mixed",
     safeForFacultyReview: projections.every((projection) =>
       projection.durableStore === "database_source_of_truth"
       && projection.privatePayloadRedacted
-      && !Object.prototype.hasOwnProperty.call(projection.payload, "private")
+      && !Object.hasOwn(projection.payload, "private")
     ),
   };
 }

@@ -23,7 +23,7 @@ export function RuntimeSelectionReviewPacketPanel({ packet }: RuntimeSelectionRe
       {packet.operatorReviewReadiness ? (
         <>
           <Typography.Title level={5}>Operator review readiness</Typography.Title>
-          <div className="readiness-strip" aria-label="Operator review readiness metrics">
+          <div className="readiness-strip">
             <RuntimeSelectionMetric
               label={packet.operatorReviewReadiness.status}
               detail={`${packet.operatorReviewReadiness.blockingArtifactCount} blockers across ${packet.operatorReviewReadiness.reviewedArtifactCount} artifacts`}
@@ -46,7 +46,7 @@ export function RuntimeSelectionReviewPacketPanel({ packet }: RuntimeSelectionRe
           </ul>
         </>
       ) : null}
-      <div className="readiness-strip" aria-label="Runtime selection review metrics">
+      <div className="readiness-strip">
         <RuntimeSelectionMetric label={packet.selectedScenarioId} detail={packet.selectedStationId} />
         <RuntimeSelectionMetric label={packet.selectedRuntimeAssetBundleId} detail={packet.reviewPacketMode} />
         <RuntimeSelectionMetric label={`model ${packet.runtimeCandidates.model}`} detail={`voice ${packet.runtimeCandidates.voice}`} />
@@ -56,7 +56,7 @@ export function RuntimeSelectionReviewPacketPanel({ packet }: RuntimeSelectionRe
       <Typography.Paragraph type="secondary">
         This review-only link carries the selected scenario, encounter, station, and runtime bundle into the local XR surface for operator inspection. It does not clear evidence gates, launch a learner exam, execute providers, refresh Quest evidence, or make runtime-readiness claims.
       </Typography.Paragraph>
-      <div className="readiness-strip" aria-label="Prepare local XR handoff metrics">
+      <div className="readiness-strip">
         <RuntimeSelectionMetric label="local XR review URL" detail={localXrHandoffUrl} />
         <RuntimeSelectionMetric label="handoff carries" detail="scenario, encounter, station, runtime bundle, actor-realism capture mode" />
         <RuntimeSelectionMetric label="launch remains blocked" detail={packet.blockers.join(", ") || "no blockers listed"} />
@@ -77,7 +77,7 @@ export function RuntimeSelectionReviewPacketPanel({ packet }: RuntimeSelectionRe
       {packet.publicationPayloadLinkage ? (
         <>
           <Typography.Title level={5}>Publication materialization gate</Typography.Title>
-          <div className="readiness-strip" aria-label="Publication materialization metrics">
+          <div className="readiness-strip">
             <RuntimeSelectionMetric
               label={packet.publicationPayloadLinkage.status}
               detail={`materialized ${packet.publicationPayloadLinkage.localMaterializationHandoff.materializedOutputCount}/${packet.publicationPayloadLinkage.localMaterializationHandoff.plannedOutputCount}`}

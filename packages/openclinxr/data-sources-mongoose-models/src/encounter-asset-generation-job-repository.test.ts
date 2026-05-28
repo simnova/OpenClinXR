@@ -1,14 +1,14 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
+  createEncounterAssetGenerationQueueMessage,
+  type EncounterAssetGenerationQueueMessageEnvelope,
+  encodeAzureStorageQueueMessage,
+  processEncounterAssetGenerationQueueMessage,
+} from "../../capability-gateway/src/index.js";
+import {
   createEncounterAssetGenerationJobModel,
   EncounterAssetGenerationJobMongooseRepository,
 } from "./index.js";
-import {
-  createEncounterAssetGenerationQueueMessage,
-  encodeAzureStorageQueueMessage,
-  processEncounterAssetGenerationQueueMessage,
-  type EncounterAssetGenerationQueueMessageEnvelope,
-} from "../../capability-gateway/src/index.js";
 import { createMongooseMemoryTestContext, type MongooseMemoryTestContext } from "./mongoose-memory-context.js";
 
 describe("Encounter asset generation job Mongoose repository", () => {

@@ -145,4 +145,5 @@ async function get<TResponse>(fetcher: typeof fetch, baseUrl: string, path: stri
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
+
 import type { LearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";

@@ -3,9 +3,9 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  type GltfPipelineSmokeReport,
   runGltfPipelineSmokeCli,
   validateGltfPipelineSmokeReport,
-  type GltfPipelineSmokeReport,
 } from "./gltf-pipeline-smoke.js";
 
 describe("gltf-pipeline smoke report", () => {

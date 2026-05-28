@@ -4,22 +4,22 @@ import {
   buildActorModelContext,
   createActorInteractionRoutedMessage,
   createActorInteractionRouteMessage,
-  createSessionStateClinicalEventMessage,
   createMultiActorClinicalSession,
   createPersistenceSpikeStores,
+  createSessionStateClinicalEventMessage,
   createSessionStateSnapshotMessage,
   createSpatialActorTransformMessage,
+  type DurableClinicalEventKind,
+  type DurableClinicalEventRecord,
   evaluateMultiActorPersistencePhase2Strategy,
   evaluateSessionStateWebSocketMessageDesign,
   persistLatestInteractionTurn,
   projectDurableClinicalEventForReview,
-  rehydrateRealtimeCacheFromDurableState,
   recordClinicalAction,
+  rehydrateRealtimeCacheFromDurableState,
   routeActorInteraction,
   updateActorSpatialState,
   writeRealtimeCacheSnapshot,
-  type DurableClinicalEventKind,
-  type DurableClinicalEventRecord,
 } from "./index.js";
 
 describe("session state", () => {
@@ -144,7 +144,7 @@ describe("session state", () => {
         traceTag: "ecg_request",
       },
     ]);
-    expect(session.spatialState.actorTransforms["nurse_maria_alvarez_v1"]).toMatchObject({
+    expect(session.spatialState.actorTransforms.nurse_maria_alvarez_v1).toMatchObject({
       position: { x: 1.2, y: 0, z: -0.6 },
       rotationYRadians: -0.4,
       interactionState: "holding_equipment",
@@ -727,7 +727,11 @@ describe("session state", () => {
       routingReason: routed.routingReason,
       traceContextTags: ["vitals_review", "ecg_request"],
     });
-    const transformMessage = createSpatialActorTransformMessage(session.spatialState.actorTransforms.nurse_maria_alvarez_v1!, {
+    const nurseTransform = session.spatialState.actorTransforms.nurse_maria_alvarez_v1;
+    if (!nurseTransform) {
+      throw new Error("Expected nurse_maria_alvarez_v1 transform to exist before creating spatial actor transform message.");
+    }
+    const transformMessage = createSpatialActorTransformMessage(nurseTransform, {
       messageId: "ws_msg_004_transform",
       sequence: 4,
       stationRunId: session.stationRunId,
@@ -1011,4 +1015,5 @@ function clinicalEvent(input: {
     ...(input.status ? { status: input.status } : {}),
   };
 }
+
 import { summarizeDurableClinicalEventReviewProjections } from "./index.js";

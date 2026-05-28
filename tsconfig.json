@@ -4,6 +4,7 @@
     "types": ["node"]
   },
   "include": [
-    "tools/agent-factory/check-typescript-guardrails.ts"
+    "tools/agent-factory/check-typescript-guardrails.ts",
+    "vitest.config.ts"
   ]
 }

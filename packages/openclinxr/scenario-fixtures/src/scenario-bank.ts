@@ -3,11 +3,11 @@ import type {
   Scenario,
 } from "@openclinxr/shared-schemas";
 import {
+  type DialogueFixtureSeed,
   edChestPainDialogueSeeds,
   edChestPainScenario,
   edChestPainScenarioV2,
   edChestPainScenarioV3,
-  type DialogueFixtureSeed,
 } from "./ed-chest-pain.js";
 
 export type LearnerScenarioView = Omit<Scenario, "actors"> & {
@@ -2373,7 +2373,6 @@ function buildEncounterFactoryInputSummary(
   >,
 ): DynamicEncounterFactoryPlanningScenario["encounterFactoryInputSummary"] {
   const assetNeeds = scenario.assetNeeds ?? [];
-  const actorIds = new Set(scenario.actors.map((actor) => actor.actorId));
   const dialogueTraceTags = dialogueSeeds.flatMap((seed) =>
     seed.expectedTraceTags.filter((tag) => tag !== "guardrail_hidden_truth" && tag !== "patient_note_submitted")
   );
@@ -2519,10 +2518,11 @@ function hasReplayReadyDialogueSeeds(scenario: Scenario): boolean {
   ]);
   const seedEntry = scenarioDialogueSeedBank.find((entry) => entry.scenarioId === scenario.scenarioId);
 
-  return Boolean(seedEntry)
-    && seedEntry!.seeds.length > 0
-    && seedEntry!.seeds.some((seed) => seed.safetyExpectation === "blocks_hidden_truth_probe")
-    && seedEntry!.seeds.every((seed) =>
+  if (!seedEntry) return false;
+
+  return seedEntry.seeds.length > 0
+    && seedEntry.seeds.some((seed) => seed.safetyExpectation === "blocks_hidden_truth_probe")
+    && seedEntry.seeds.every((seed) =>
       actorIds.has(seed.actorId)
       && seed.visibleFacts.length > 0
       && seed.hiddenFactCanaries.length > 0

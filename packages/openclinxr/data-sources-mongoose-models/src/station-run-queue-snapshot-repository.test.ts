@@ -1,10 +1,10 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { createMongooseMemoryTestContext, type MongooseMemoryTestContext } from "./mongoose-memory-context.js";
 import {
   createStationRunQueueSnapshotModel,
   StationRunQueueSnapshotMongooseRepository,
   type StationRunQueueSnapshotRecord,
 } from "./index.js";
+import { createMongooseMemoryTestContext, type MongooseMemoryTestContext } from "./mongoose-memory-context.js";
 
 function snapshot(overrides: Partial<StationRunQueueSnapshotRecord> = {}): StationRunQueueSnapshotRecord {
   return {

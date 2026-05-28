@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { registerGeneratedRuntimeAssetReference, resolveRuntimeAssetStoreConfig } from "./runtime-bundles.js";
 import { promoteRuntimeAssetForLocalUse } from "./runtime-asset-review.js";
+import { registerGeneratedRuntimeAssetReference, resolveRuntimeAssetStoreConfig } from "./runtime-bundles.js";
 
 describe("runtime asset review promotion", () => {
   it("promotes generated assets to local runtime only after required review roles approve with evidence", () => {

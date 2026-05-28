@@ -1,5 +1,5 @@
-import { Mongoose } from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
+import { Mongoose } from "mongoose";
 
 export const mongoMemoryServerTestOptions = {
   binary: {

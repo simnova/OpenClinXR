@@ -4,19 +4,19 @@ import {
   ActorCardSchema,
   AssetManifestSchema,
   CommunicationProfileSchema,
+  DynamicEncounterFactoryPlanningProjectionSchema,
+  DynamicEncounterFactoryProjectionArtifactSchema,
   EnvironmentManifestSchema,
   ExamBlueprintSchema,
-  DynamicEncounterFactoryPlanningProjectionSchema,
-  SharedAssetLibraryReuseSchema,
   ModelProviderAuditSchema,
   PatientNoteSchema,
   ProviderAuditRecordSchema,
   ProviderHealthSchema,
   ReviewPacketSchema,
   ScenarioSchema,
+  SharedAssetLibraryReuseSchema,
   StationRunSchema,
   TraceEventSchema,
-  DynamicEncounterFactoryProjectionArtifactSchema,
   VoiceProviderAuditSchema,
 } from "./schemas.js";
 
@@ -220,7 +220,7 @@ export function validateTraceEvent(value: unknown): ValidationResult {
     ...(trace.source.trim().length === 0 ? ["trace event source is required"] : []),
     ...(trace.actorId !== undefined && trace.actorId.trim().length === 0 ? ["trace event actorId cannot be blank"] : []),
     ...(trace.tag !== undefined && trace.tag.trim().length === 0 ? ["trace event tag cannot be blank"] : []),
-    ...(trace.payload && Object.prototype.hasOwnProperty.call(trace.payload, "durableEventRef") && durableEventRef === undefined
+    ...(trace.payload && Object.hasOwn(trace.payload, "durableEventRef") && durableEventRef === undefined
       ? ["trace event payload durableEventRef must be string"]
       : []),
     ...(durableEventRef !== undefined && durableEventRef !== expectedDurableEventRef(trace.stationRunId, trace.sequence)

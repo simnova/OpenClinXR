@@ -1,10 +1,10 @@
 import { createScenarioPlaceholderManifests, InMemoryAssetRegistry, type ScenarioAssetReadiness } from "@openclinxr/asset-registry";
-import { createStationRun, transitionStation, type StationRun } from "@openclinxr/domain";
+import { createStationRun, type StationRun, transitionStation } from "@openclinxr/domain";
 import {
+  type ActorResponseResult,
   createDefaultModelGateway,
   LocalModelProviderAdapter,
   MockModelProviderAdapter,
-  type ActorResponseResult,
   type ModelGateway,
   type ModelRequestPolicy,
 } from "@openclinxr/model-gateway";
@@ -17,24 +17,24 @@ import {
 } from "@openclinxr/review-workflow";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import {
+  type ActorModelContext,
   buildActorModelContext,
   createMultiActorClinicalSession,
-  recordClinicalAction as recordSessionClinicalAction,
-  routeActorInteraction,
-  type ActorModelContext,
   type InteractionRoutingReason,
   type MultiActorClinicalSession,
   type RecordClinicalActionInput,
   type RouteActorInteractionInput,
+  recordClinicalAction as recordSessionClinicalAction,
+  routeActorInteraction,
 } from "@openclinxr/session-state";
-import { validateProviderHealth, type ProviderHealth, type ReviewPacket, type Scenario, type TraceEvent } from "@openclinxr/shared-schemas";
+import { type ProviderHealth, type ReviewPacket, type Scenario, type TraceEvent, validateProviderHealth } from "@openclinxr/shared-schemas";
 import { InMemoryTraceLedger } from "@openclinxr/trace-ledger";
 import {
+  type AudioEvent,
   collectVoiceStream,
   createDefaultVoiceGateway,
   LocalVoiceProviderAdapter,
   MockVoiceProviderAdapter,
-  type AudioEvent,
   type VoiceGateway,
   type VoiceRequestPolicy,
 } from "@openclinxr/voice-gateway";
@@ -171,7 +171,7 @@ export class ScenarioRuntime {
       throw new Error("Consent is required before starting a station session");
     }
 
-    let run = createStationRun(this.options.scenario.scenarioId, input.learnerId);
+    const run = createStationRun(this.options.scenario.scenarioId, input.learnerId);
     this.options.ledger.append(traceEvent({ stationRunId: run.stationRunId, sequence: 0, eventType: "station.started", atSecond: 0, source: "system" }));
     this.options.ledger.append(traceEvent({ stationRunId: run.stationRunId, sequence: 1, eventType: "consent.accepted", atSecond: 0, source: "learner" }));
     this.sessions.set(run.stationRunId, {

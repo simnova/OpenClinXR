@@ -4,11 +4,11 @@ import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
+import { buildIwsdkMcpToolInventory } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
 import {
   buildIwerSidecarEmulationEvidenceReport,
   type IwerSidecarEmulationEvidenceReport,
 } from "./iwer-sidecar-emulation-evidence-check.js";
-import { buildIwsdkMcpToolInventory } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -37,8 +37,13 @@ describe("IWER sidecar emulation evidence checker", () => {
 
   it("rejects evidence that omits Quest/production claim boundaries", () => {
     const evidence = readyEvidence();
-    evidence.classification!.notEvidenceFor = ["psychometric_validity"];
-    evidence.productionBuildOutputInspection!.distIndexHtmlContainsDevRuntimeInjection = true;
+    const classification = requireFixtureValue(evidence.classification, "sidecar evidence fixture classification");
+    const productionBuildOutputInspection = requireFixtureValue(
+      evidence.productionBuildOutputInspection,
+      "sidecar evidence fixture production build output inspection",
+    );
+    classification.notEvidenceFor = ["psychometric_validity"];
+    productionBuildOutputInspection.distIndexHtmlContainsDevRuntimeInjection = true;
 
     const report = buildIwerSidecarEmulationEvidenceReport({
       generatedAt: "2026-05-05T00:00:00.000Z",
@@ -59,10 +64,13 @@ describe("IWER sidecar emulation evidence checker", () => {
 
   it("rejects non-local endpoints, package drift, incomplete tool inventory, and weak screenshot evidence", () => {
     const evidence = readyEvidence();
-    evidence.sidecar!.runtimeUrl = "https://example.com/";
-    evidence.sidecar!.mcpWebSocketEndpoint = "wss://example.com/__iwer_mcp";
-    evidence.packages = evidence.packages!.filter((pkg) => pkg.name !== "@iwer/sem");
-    evidence.mcpToolInventory!.toolNames = ["xr_get_session_status"];
+    const sidecar = requireFixtureValue(evidence.sidecar, "sidecar evidence fixture sidecar");
+    const packages = requireFixtureValue(evidence.packages, "sidecar evidence fixture packages");
+    const mcpToolInventory = requireFixtureValue(evidence.mcpToolInventory, "sidecar evidence fixture MCP tool inventory");
+    sidecar.runtimeUrl = "https://example.com/";
+    sidecar.mcpWebSocketEndpoint = "wss://example.com/__iwer_mcp";
+    evidence.packages = packages.filter((pkg) => pkg.name !== "@iwer/sem");
+    mcpToolInventory.toolNames = ["xr_get_session_status"];
     evidence.rawWebSocketProbes = [
       { id: "screenshot", method: "screenshot", ok: true, artifact: "/tmp/screenshot.jpg", mimeType: "image/jpeg", bytes: 0, dimensions: { width: 100, height: 100 } },
     ];
@@ -90,7 +98,14 @@ describe("IWER sidecar emulation evidence checker", () => {
 
   it("rejects screenshot probe metadata that does not match the local PNG artifact", () => {
     const evidence = readyEvidence();
-    const screenshotProbe = evidence.rawWebSocketProbes!.find((probe) => probe.method === "screenshot")!;
+    const rawWebSocketProbes = requireFixtureValue(
+      evidence.rawWebSocketProbes,
+      "sidecar evidence fixture raw WebSocket probes",
+    );
+    const screenshotProbe = requireFixtureValue(
+      rawWebSocketProbes.find((probe) => probe.method === "screenshot"),
+      "sidecar evidence fixture screenshot probe",
+    );
     screenshotProbe.bytes = 1;
     screenshotProbe.dimensions = { width: 499, height: 500 };
 
@@ -176,6 +191,13 @@ describe("IWER sidecar emulation evidence checker", () => {
     expect(stdout.trim()).toBe("Validated docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json");
   });
 });
+
+function requireFixtureValue<T>(value: T | null | undefined, label: string): NonNullable<T> {
+  if (value === undefined || value === null) {
+    throw new Error(`Missing required ${label}`);
+  }
+  return value;
+}
 
 function readyEvidence(): IwerSidecarEmulationEvidenceReport["evidence"] {
   return {

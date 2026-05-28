@@ -47,21 +47,37 @@ describe("Godot Quest voice evidence checker", () => {
 
   it("separates binary transport from microphone, codec, playback, latency, and unsafe claim blockers", () => {
     const evidence = readyEvidence();
-    evidence.audio!.microphoneCaptureObserved = false;
-    evidence.audio!.opusEncodeDecodeObserved = false;
-    evidence.audio!.playbackObserved = false;
-    evidence.audio!.sampleRateHz = 44100;
-    evidence.latency!.endToEndLatencyMs = {
+    const audio = evidence.audio;
+    if (!audio) {
+      throw new Error("Expected readyEvidence fixture to include audio");
+    }
+    const latency = evidence.latency;
+    if (!latency) {
+      throw new Error("Expected readyEvidence fixture to include latency");
+    }
+    const gateway = evidence.gateway;
+    if (!gateway) {
+      throw new Error("Expected readyEvidence fixture to include gateway");
+    }
+    const claims = evidence.claims;
+    if (!claims) {
+      throw new Error("Expected readyEvidence fixture to include claims");
+    }
+    audio.microphoneCaptureObserved = false;
+    audio.opusEncodeDecodeObserved = false;
+    audio.playbackObserved = false;
+    audio.sampleRateHz = 44100;
+    latency.endToEndLatencyMs = {
       firstPacket: 0,
       p50: 90,
       p95: 50,
       sampleCount: 1,
     };
-    evidence.gateway!.cloudApisUsed = true;
-    evidence.gateway!.http3Enabled = true;
-    evidence.gateway!.webTransportUsed = true;
-    evidence.claims!.readyForProductionRuntime = true;
-    evidence.claims!.readyForLowLatencyVoiceClaim = true;
+    gateway.cloudApisUsed = true;
+    gateway.http3Enabled = true;
+    gateway.webTransportUsed = true;
+    claims.readyForProductionRuntime = true;
+    claims.readyForLowLatencyVoiceClaim = true;
 
     const report = buildGodotQuestVoiceEvidenceReport({
       generatedAt: "2026-05-05T23:20:00.000Z",

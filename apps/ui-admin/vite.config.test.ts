@@ -38,7 +38,8 @@ describe("ui-admin Vite local API proxy", () => {
     const packageJson = JSON.parse(readFileSync("package.json", "utf8")) as {
       scripts?: Record<string, string>;
     };
+    const portParameter = "$" + "{PORT:-5174}";
 
-    expect(packageJson.scripts?.["dev:portless"]).toBe("vite --host 127.0.0.1 --port ${PORT:-5174} --strictPort");
+    expect(packageJson.scripts?.["dev:portless"]).toBe(`vite --host 127.0.0.1 --port ${portParameter} --strictPort`);
   });
 });

@@ -1,39 +1,39 @@
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
 import { buildScenarioGovernanceCopy, safeUserFacingClaimLanguage, scoreUseCopy, validationStageCopy } from "@openclinxr/domain/claim-language";
+import { buildFacultyReviewPath } from "@openclinxr/review-workflow";
 import { adminPublicationGates, adminWorkbenchRoutes } from "@openclinxr/ui-route-admin";
 import { adminWorkbenchCapabilityTags, openClinXrAdminTheme } from "@openclinxr/ui-shared";
 import { Alert, Button, Card, ConfigProvider, Input, Layout, Space, Spin, Steps, Tag, Typography } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { BrowserRouter, Link, MemoryRouter, Route, Routes, useParams, useSearchParams } from "react-router";
-import { buildFacultyReviewPath } from "@openclinxr/review-workflow";
 import {
-  createAdminControlPlaneClient,
-  buildAdminGraphqlEndpoint,
-  type CreateScenarioSceneGenerationRequestResult,
-  type ScenarioSceneGenerationRequestPublicationReadiness,
-  type AdminScenario,
-  type AdminScenarioDetail,
   type AdminControlPlaneClient,
+  type AdminDynamicEncounterFactoryPlanningProjection,
   type AdminRealtimeVoicePosture,
+  type AdminReviewPacketReplay,
   type AdminRuntimeProtocolPosture,
   type AdminRuntimeProviderReadiness,
   type AdminRuntimeSelectionReviewPacket,
-  type AdminDynamicEncounterFactoryPlanningProjection,
+  type AdminScenario,
   type AdminScenarioBankExamSequenceProjection,
   type AdminScenarioBankMaturityReport,
+  type AdminScenarioDetail,
   type AdminScenarioPublicationReadiness,
-  type AdminReviewPacketReplay,
   type AdminStationRunQueueSnapshot,
   type BlueprintScenarioReadiness,
+  buildAdminGraphqlEndpoint,
+  type CreateScenarioSceneGenerationRequestResult,
+  createAdminControlPlaneClient,
   type EnvironmentGenerationQueue,
   type EnvironmentGenerationWorkOrderQueue,
-  type ScenarioSceneGenerationRequestQueue,
-  type ScenarioSceneGenerationPipelineWorkOrderQueue,
   type ExamBlueprint,
   type ExamStationRunQueue,
   type ExamTimingPlan,
   type ScenarioAssetReadiness,
+  type ScenarioSceneGenerationPipelineWorkOrderQueue,
+  type ScenarioSceneGenerationRequestPublicationReadiness,
+  type ScenarioSceneGenerationRequestQueue,
 } from "./api-client.js";
 import { EnvironmentGenerationQueuePanel } from "./EnvironmentGenerationQueuePanel.js";
 import { FacultyReviewDecisionPanel } from "./FacultyReviewDecisionPanel.js";
@@ -314,7 +314,7 @@ function ReviewReplayWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
   const facultyActionChecklist = facultyReviewPath?.actionChecklist ?? [];
 
   return (
-    <section className="review-replay-workbench" aria-labelledby="review-replay-title" aria-label="Review packet replay workbench">
+    <section className="review-replay-workbench" aria-labelledby="review-replay-title">
       <div className="workbench-title-row">
         <div>
           <Typography.Text className="eyebrow">Generated ReviewPacketReplay</Typography.Text>
@@ -358,7 +358,7 @@ function ReviewReplayWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
 
       {packet ? (
         <>
-          <div className="readiness-strip review-replay-strip" aria-label="Review replay trace summary">
+          <div className="readiness-strip review-replay-strip">
             <ReadinessMetric label={packet.scenarioId} detail={packet.stationRunId} />
             <ReadinessMetric label={`${packet.observedTraceTags.length} observed tags`} detail={`${packet.missingRequiredTraceTags.length} missing required`} />
             <ReadinessMetric label={`${packet.traceQuality.eventCount} trace events`} detail={`${packet.traceQuality.modelGeneratedEventCount} model generated`} />
@@ -543,7 +543,7 @@ function ReviewReplayWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
 
             <section className="workbench-panel faculty-score-panel" aria-label="Faculty score draft">
               <Typography.Title level={4}>Faculty Draft</Typography.Title>
-              <label className="field-label">
+              <label className="field-label" htmlFor="faculty-reviewer-id">
                 <Typography.Text strong>Faculty reviewer ID</Typography.Text>
                 <Input
                   aria-label="Faculty reviewer ID"
@@ -553,7 +553,7 @@ function ReviewReplayWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
                   onChange={(event) => setReviewerId(event.target.value)}
                 />
               </label>
-              <label className="field-label">
+              <label className="field-label" htmlFor="faculty-draft-comments">
                 <Typography.Text strong>Faculty draft comments</Typography.Text>
                 <TextArea
                   aria-label="Faculty draft comments"
@@ -565,7 +565,7 @@ function ReviewReplayWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
                 />
               </label>
               <div className="score-input-grid">
-                <label className="field-label">
+                <label className="field-label" htmlFor="urgent-recognition-score">
                   <Typography.Text strong>Urgent recognition score</Typography.Text>
                   <Input
                     aria-label="Urgent recognition score"
@@ -578,7 +578,7 @@ function ReviewReplayWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
                     onChange={(event) => setUrgentRecognitionScore(event.target.value)}
                   />
                 </label>
-                <label className="field-label">
+                <label className="field-label" htmlFor="team-communication-score">
                   <Typography.Text strong>Team communication score</Typography.Text>
                   <Input
                     aria-label="Team communication score"
@@ -671,7 +671,7 @@ function ScenarioBankWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
   const behaviorProfileCount = state.scenarios.reduce((total, scenario) => total + countActorCommunicationProfiles(scenario.actors), 0);
 
   return (
-    <section className="scenario-bank-workbench" aria-labelledby="scenario-bank-title" aria-label="Scenario bank governance">
+    <section className="scenario-bank-workbench" aria-labelledby="scenario-bank-title">
       <div className="workbench-title-row">
         <div>
           <Typography.Text className="eyebrow">Generated ScenarioBank</Typography.Text>
@@ -686,7 +686,7 @@ function ScenarioBankWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
         </Space>
       </div>
 
-      <div className="readiness-strip scenario-bank-strip" aria-label="Scenario bank status summary">
+      <div className="readiness-strip scenario-bank-strip">
         <ReadinessMetric label={`${state.scenarios.length} scenarios`} detail={`${uniqueValues(state.scenarios.flatMap((scenario) => scenario.governance.requiredReviewerRoles)).length} reviewer roles`} />
         <ReadinessMetric label={`${approvedCount} approved`} detail={`${draftCount + readyForReviewCount} awaiting gates`} />
         <ReadinessMetric label={`${uniqueValues(state.scenarios.flatMap((scenario) => scenario.actors.map((actor) => actor.role))).length} actor roles`} detail={`${actorCount} virtual actors`} />
@@ -705,7 +705,7 @@ function ScenarioBankWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
         <Typography.Paragraph type="secondary">
           {`Boundary: ${state.dynamicEncounterFactoryPlanning.claimBoundary}; next scenario: ${state.dynamicEncounterFactoryPlanning.nextFactoryPlanningScenarioId ?? "none"} via ${state.dynamicEncounterFactoryPlanning.nextFactoryPlanningScenarioSelectionMode}.`}
         </Typography.Paragraph>
-        <div className="readiness-strip" aria-label="Scenario bank dynamic encounter factory planning metrics">
+        <div className="readiness-strip">
           <ReadinessMetric
             label={`${state.dynamicEncounterFactoryPlanning.scenarios.length} factory candidates`}
             detail={`anchor ${state.dynamicEncounterFactoryPlanning.anchorScenarioId}`}
@@ -910,7 +910,7 @@ function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: A
   };
 
   return (
-    <section className="scenario-detail-workbench" aria-labelledby="scenario-detail-title" aria-label="Scenario detail governance">
+    <section className="scenario-detail-workbench" aria-labelledby="scenario-detail-title">
       <div className="workbench-title-row">
         <div>
           <Link to="/scenarios">Back to Scenario Bank</Link>
@@ -955,7 +955,7 @@ function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: A
         <Alert type="error" title="Review decision failed" description={reviewDecisionState.message} showIcon />
       ) : null}
 
-      <div className="readiness-strip scenario-bank-strip" aria-label="Scenario detail summary">
+      <div className="readiness-strip scenario-bank-strip">
         <ReadinessMetric label={`${scenario.clinicalObjectives.length} objectives`} detail={`${scenario.requiredTraceTags.length} required trace tags`} />
         <ReadinessMetric label={`${scenario.actors.length} actors`} detail={`${countActorCommunicationProfiles(scenario.actors)} behavior profiles`} />
         <ReadinessMetric label={`${scenario.assetNeeds.length} asset needs`} detail={`${assetReadiness.productionBlockedAssets.length} production blockers`} />
@@ -1306,7 +1306,7 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
         showIcon
       />
 
-      <div className="readiness-strip" aria-label="Seed exam readiness summary">
+      <div className="readiness-strip">
         <ReadinessMetric label={`${state.blueprint.stationSlots.length} stations`} detail={`${state.blueprint.requiredTraceTags.length} trace tags`} />
         <ReadinessMetric label={`${state.readiness.activationEligibleScenarioIds.length} activation ready`} detail={`${state.readiness.stationCount.candidate} candidates`} />
         <ReadinessMetric label={`${state.readiness.blockedScenarioIds.length} blocked drafts`} detail={firstBlockedScenario?.reason ?? "none"} />
@@ -1340,7 +1340,7 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
           <Typography.Paragraph type="secondary">
             {`Boundary: ${state.dynamicEncounterFactoryPlanning.claimBoundary}; next scenario: ${state.dynamicEncounterFactoryPlanning.nextFactoryPlanningScenarioId ?? "none"} via ${state.dynamicEncounterFactoryPlanning.nextFactoryPlanningScenarioSelectionMode}.`}
           </Typography.Paragraph>
-          <div className="readiness-strip" aria-label="Dynamic encounter factory planning metrics">
+          <div className="readiness-strip">
             <ReadinessMetric
               label={`${state.dynamicEncounterFactoryPlanning.scenarios.length} factory candidates`}
               detail={`anchor ${state.dynamicEncounterFactoryPlanning.anchorScenarioId}`}

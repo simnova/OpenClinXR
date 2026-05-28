@@ -1,4 +1,4 @@
-import { access, constants, readFile, readdir } from "node:fs/promises";
+import { access, constants, readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -151,10 +151,10 @@ export async function validateGitHubPagesSite(): Promise<ValidationResult> {
 
 function githubDocsLinkMatchPattern(indexHtml: string): RegExp {
   if (indexHtml.includes("https://github.com/simnova/OpenClinXR/tree/main/docs/openclinxr/")) {
-    return /href="https:\/\/github\.com\/simnova\/OpenClinXR\/tree\/main\/([^\"]+)"/g;
+    return /href="https:\/\/github\.com\/simnova\/OpenClinXR\/tree\/main\/([^"]+)"/g;
   }
 
-  return /href="https:\/\/github\.com\/simnova\/OpenClinXR\/blob\/main\/([^\"]+)"/g;
+  return /href="https:\/\/github\.com\/simnova\/OpenClinXR\/blob\/main\/([^"]+)"/g;
 }
 
 async function fileExists(pathname: string): Promise<boolean> {

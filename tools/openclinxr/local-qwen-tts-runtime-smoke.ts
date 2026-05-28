@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
-import { type LocalRealtimeVoiceModelCacheEvidenceReport } from "./local-realtime-voice-model-cache-evidence.js";
+import type { LocalRealtimeVoiceModelCacheEvidenceReport } from "./local-realtime-voice-model-cache-evidence.js";
 
 type CliOptions = {
   validatePath?: string;
@@ -354,11 +354,12 @@ function expectedBlockersFor(value: Record<string, unknown>): string[] {
   const runtime = isRecord(value.runtime) ? value.runtime : {};
   const audio = isRecord(value.audio) ? value.audio : {};
   const modelCache = isRecord(value.modelCache) ? value.modelCache : {};
+  const audioDurationMs = numberOrNull(audio.durationMs);
 
   return [
     runtime.exitStatus === null ? "runtime_exit_status_missing" : undefined,
     typeof runtime.exitStatus === "number" && runtime.exitStatus !== 0 ? `runtime_exit_status_${runtime.exitStatus}` : undefined,
-    numberOrNull(audio.durationMs) !== null && numberOrNull(audio.durationMs)! > 0 ? undefined : "audio_duration_missing",
+    audioDurationMs !== null && audioDurationMs > 0 ? undefined : "audio_duration_missing",
     ...stringArray(modelCache.blockers).map((blocker) => `model_cache:${blocker}`),
   ].filter((blocker): blocker is string => typeof blocker === "string");
 }

@@ -7,11 +7,11 @@ import {
   evaluateIwsdkWorkspacePosture,
   type IwsdkWorkspaceDependency,
   type IwsdkWorkspaceDependencyField,
-  type IwsdkWorkspacePackageManagerReference,
   type IwsdkWorkspacePackageManagerControls,
+  type IwsdkWorkspacePackageManagerReference,
   type IwsdkWorkspacePostureReadiness,
-  type IwsdkWorkspaceSidecarProductionUiCoupling,
   type IwsdkWorkspaceScriptReference,
+  type IwsdkWorkspaceSidecarProductionUiCoupling,
   type IwsdkWorkspaceSourceReference,
 } from "../../packages/openclinxr/iwsdk-spike/src/index.js";
 
@@ -474,7 +474,7 @@ function scanYamlLikePackageManagerReferences(
     const indent = match[1]?.length ?? 0;
     const key = stripYamlQuotes((match[2] ?? "").trim());
     const value = stripYamlQuotes((match[3] ?? "").trim());
-    while (stack.length > 0 && stack[stack.length - 1]!.indent >= indent) {
+    while (stack.length > 0 && stack[stack.length - 1]?.indent >= indent) {
       stack.pop();
     }
 

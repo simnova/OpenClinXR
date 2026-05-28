@@ -15,7 +15,6 @@ import {
   edChestPainScenarioV2,
   edChestPainScenarioV3,
   evaluateScenarioBankMaturity,
-  variantScenarioBank,
   obPreeclampsiaDialogueSeeds,
   obPreeclampsiaScenario,
   oncologyBadNewsScenario,
@@ -32,6 +31,7 @@ import {
   strokeAlertScenario,
   telehealthDiabetesDialogueSeeds,
   telehealthDiabetesScenario,
+  variantScenarioBank,
   wardDeliriumDialogueSeeds,
   wardDeliriumScenario,
 } from "./index.js";

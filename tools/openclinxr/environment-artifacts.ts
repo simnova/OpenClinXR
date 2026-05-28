@@ -1,14 +1,14 @@
-import { existsSync } from "node:fs";
 import { execFile } from "node:child_process";
+import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import {
-  registerGeneratedRuntimeAssetReference,
-  resolveRuntimeAssetStoreConfig,
   type EncounterRuntimeAsset,
   type RuntimeAssetStoreConfig,
+  registerGeneratedRuntimeAssetReference,
+  resolveRuntimeAssetStoreConfig,
 } from "../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
 
 const execFileAsync = promisify(execFile);

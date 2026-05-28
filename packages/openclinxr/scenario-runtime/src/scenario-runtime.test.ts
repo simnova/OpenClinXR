@@ -1,13 +1,13 @@
-import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { createEdChestPainPlaceholderManifests, InMemoryAssetRegistry } from "@openclinxr/asset-registry";
 import {
-  createDefaultModelGateway,
-  LocalModelProviderAdapter,
   type ActorResponseRequest,
   type ActorResponseResult,
+  createDefaultModelGateway,
+  LocalModelProviderAdapter,
   type ModelCapability,
   type ModelProviderAdapter,
 } from "@openclinxr/model-gateway";
+import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { InMemoryTraceLedger } from "@openclinxr/trace-ledger";
 import { createDefaultVoiceGateway, LocalVoiceProviderAdapter, MockVoiceProviderAdapter } from "@openclinxr/voice-gateway";
 import { describe, expect, it } from "vitest";

@@ -44,12 +44,32 @@ describe("IWER auto-entry browser smoke checker", () => {
 
   it("rejects contradictory session-start claims and unsafe claim boundaries", () => {
     const evidence = readyEvidence();
-    evidence.classification!.notEvidenceFor = ["psychometric_validity"];
-    evidence.sessionEntryEvidence!.appEvidence!.lastStatus = "failed";
-    evidence.sessionEntryEvidence!.appEvidence!.lastOutcome = "request_failed";
-    evidence.sessionEntryEvidence!.pageEvidence!.xrStatusText = "Enter Full VR";
-    evidence.screenshot!.artifact = "/tmp/iwer-auto-entry.png";
-    evidence.screenshot!.bytes = 1;
+    const classification = evidence.classification;
+    if (!classification) {
+      throw new Error("Expected readyEvidence fixture to include classification");
+    }
+    const sessionEntryEvidence = evidence.sessionEntryEvidence;
+    if (!sessionEntryEvidence) {
+      throw new Error("Expected readyEvidence fixture to include sessionEntryEvidence");
+    }
+    const appEvidence = sessionEntryEvidence.appEvidence;
+    if (!appEvidence) {
+      throw new Error("Expected readyEvidence fixture to include sessionEntryEvidence.appEvidence");
+    }
+    const pageEvidence = sessionEntryEvidence.pageEvidence;
+    if (!pageEvidence) {
+      throw new Error("Expected readyEvidence fixture to include sessionEntryEvidence.pageEvidence");
+    }
+    const screenshot = evidence.screenshot;
+    if (!screenshot) {
+      throw new Error("Expected readyEvidence fixture to include screenshot");
+    }
+    classification.notEvidenceFor = ["psychometric_validity"];
+    appEvidence.lastStatus = "failed";
+    appEvidence.lastOutcome = "request_failed";
+    pageEvidence.xrStatusText = "Enter Full VR";
+    screenshot.artifact = "/tmp/iwer-auto-entry.png";
+    screenshot.bytes = 1;
 
     const report = buildIwerAutoEntryBrowserSmokeReport({
       generatedAt: "2026-05-05T02:45:00.000Z",
@@ -134,7 +154,11 @@ describe("IWER auto-entry browser smoke checker", () => {
 
   it("rejects stale hand-model status vocabulary in IWER input evidence", () => {
     const evidence = readyEvidence({ richAppRuntimeEvidence: true });
-    evidence.inputEvidence!.handModelStatus = "active";
+    const inputEvidence = evidence.inputEvidence;
+    if (!inputEvidence) {
+      throw new Error("Expected readyEvidence fixture to include inputEvidence");
+    }
+    inputEvidence.handModelStatus = "active";
 
     const report = buildIwerAutoEntryBrowserSmokeReport({
       generatedAt: "2026-05-05T02:45:00.000Z",
@@ -147,7 +171,11 @@ describe("IWER auto-entry browser smoke checker", () => {
 
   it("warns when XR hand evidence omits the primitive/mesh representation kind", () => {
     const evidence = readyEvidence({ richAppRuntimeEvidence: true });
-    delete evidence.inputEvidence!.handRepresentationKind;
+    const inputEvidence = evidence.inputEvidence;
+    if (!inputEvidence) {
+      throw new Error("Expected readyEvidence fixture to include inputEvidence");
+    }
+    delete inputEvidence.handRepresentationKind;
 
     const report = buildIwerAutoEntryBrowserSmokeReport({
       generatedAt: "2026-05-05T02:45:00.000Z",
@@ -160,8 +188,12 @@ describe("IWER auto-entry browser smoke checker", () => {
 
   it("warns without claiming Quest hand readiness when an IWER hand model failed", () => {
     const evidence = readyEvidence({ richAppRuntimeEvidence: true });
-    evidence.inputEvidence!.handModelStatus = "failed";
-    evidence.inputEvidence!.handRepresentationKind = "primitive_spheres";
+    const inputEvidence = evidence.inputEvidence;
+    if (!inputEvidence) {
+      throw new Error("Expected readyEvidence fixture to include inputEvidence");
+    }
+    inputEvidence.handModelStatus = "failed";
+    inputEvidence.handRepresentationKind = "primitive_spheres";
 
     const report = buildIwerAutoEntryBrowserSmokeReport({
       generatedAt: "2026-05-05T02:45:00.000Z",

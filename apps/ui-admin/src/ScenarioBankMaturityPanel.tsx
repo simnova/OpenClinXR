@@ -42,7 +42,7 @@ export function ScenarioBankMaturityPanel({ scenarios, maturityReport, examSeque
       <Typography.Paragraph>
         This admin/report surface summarizes authoring, visual-loop, and asset maturity signals. It does not claim Quest, learner, or production readiness.
       </Typography.Paragraph>
-      <div className="readiness-strip scenario-bank-strip" aria-label="Scenario bank maturity metrics">
+      <div className="readiness-strip scenario-bank-strip">
         <ScenarioBankMaturityMetric label={`${scenarios.length} scenarios in bank`} detail={`${approvedCount} approved for local formative review`} />
         <ScenarioBankMaturityMetric label={`${readyForReviewCount} ready for review`} detail={`${draftCount} drafts awaiting gates`} />
         <ScenarioBankMaturityMetric

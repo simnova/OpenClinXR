@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   createOpenClinXrIwsdkSpikePlugins,
-  openClinXrIwsdkSpikeDevPluginOptions,
-  resolveOpenClinXrIwsdkSpikeModulePreloads,
   openClinXrIwsdkSpikeBuildOutput,
+  openClinXrIwsdkSpikeDevPluginOptions,
   openClinXrIwsdkSpikeUIKitmlOutputDir,
   openClinXrIwsdkSpikeUIKitmlSourceDir,
+  resolveOpenClinXrIwsdkSpikeModulePreloads,
 } from "./vite.config.js";
 
 describe("IWSDK sidecar Vite config", () => {

@@ -3,13 +3,13 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
-  CANONICAL_HUMANOID_BONES,
-  CANONICAL_HUMANOID_EMBODIMENT_NODES,
   buildCanonicalSkeletonBindingReport,
+  buildGeneratedHumanoidRealismManifest,
   buildGeneratedHumanRiggingReportFromGlb,
   buildGeneratedHumanRiggingRuntimeAssetReference,
-  buildGeneratedHumanoidRealismManifest,
   buildSkinWeightQualityReport,
+  CANONICAL_HUMANOID_BONES,
+  CANONICAL_HUMANOID_EMBODIMENT_NODES,
   GENERATED_HUMAN_RIGGING_BODY_PROFILES,
   runGeneratedHumanRiggingArtifactsCli,
   validateGeneratedHumanRiggingArtifactsReport,

@@ -1,5 +1,5 @@
-import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
 import { buildIwsdkUiXrStationParityContract, type IwsdkSpikeMetrics } from "@openclinxr/iwsdk-spike";
+import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
 
 export type IwsdkSidecarRuntimeState = {
   scenarioId: string;

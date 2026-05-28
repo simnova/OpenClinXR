@@ -24,29 +24,29 @@ import {
 import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
 import { XRHandModelFactory } from "three/addons/webxr/XRHandModelFactory.js";
 import {
+  buildMixedRealitySupportState,
+  hasApprovedMixedRealityOperatorGate,
+  type MixedRealitySupportState,
+  mixedRealityOptionalFeatures,
+} from "./mixed-reality-state.js";
+import {
   buildIwsdkSidecarFrameStats,
-  buildIwsdkSidecarXrEntryEvidence,
   buildIwsdkSidecarRuntimeEvidence,
+  buildIwsdkSidecarXrEntryEvidence,
   completeIwsdkSidecarTraceAction,
   createIwsdkSidecarRuntimeState,
   formatIwsdkSidecarClock,
-  iwsdkSidecarPrimitiveHandModelProfile,
-  iwsdkSidecarSceneObjectNames,
-  recordIwsdkSidecarXrEntryEvidence,
-  summarizeIwsdkSidecarReadiness,
   type IwsdkSidecarFrameQualitySource,
   type IwsdkSidecarFrameStats,
   type IwsdkSidecarRuntimeEvidence,
   type IwsdkSidecarRuntimeState,
   type IwsdkSidecarXrEntryEvidence,
   type IwsdkSidecarXrEntryStatus,
+  iwsdkSidecarPrimitiveHandModelProfile,
+  iwsdkSidecarSceneObjectNames,
+  recordIwsdkSidecarXrEntryEvidence,
+  summarizeIwsdkSidecarReadiness,
 } from "./sidecar-state.js";
-import {
-  buildMixedRealitySupportState,
-  hasApprovedMixedRealityOperatorGate,
-  mixedRealityOptionalFeatures,
-  type MixedRealitySupportState,
-} from "./mixed-reality-state.js";
 import {
   buildUikitmlSpatialTextEvidence,
   createUikitmlSpatialTextPanel,

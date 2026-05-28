@@ -4,10 +4,10 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   buildLocalVoiceLiveDialogBenchmarkReport,
-  runLocalVoiceLiveDialogBenchmarkCli,
-  validateLocalVoiceLiveDialogBenchmarkReport,
   type LocalRealtimeVoiceModelCacheEvidenceReport,
   type LocalVoiceRuntimeBenchmarkReport,
+  runLocalVoiceLiveDialogBenchmarkCli,
+  validateLocalVoiceLiveDialogBenchmarkReport,
 } from "./local-voice-live-dialog-benchmark.js";
 
 describe("local voice live-dialog benchmark report", () => {

@@ -69,9 +69,11 @@ describe("IWER controller/input probe checker", () => {
 
   it("rejects unsafe production or physical Quest claim boundaries", () => {
     const evidence = readyEvidence();
-    evidence.classification!.notEvidenceFor = ["in_headset_text_readability"];
-    evidence.sidecar!.runtimeUrl = "https://example.com/iwer";
-    evidence.sidecar!.mcpWebSocketEndpoint = "wss://example.com/__iwer_mcp";
+    const classification = requireFixtureValue(evidence.classification, "controller input fixture classification");
+    const sidecar = requireFixtureValue(evidence.sidecar, "controller input fixture sidecar");
+    classification.notEvidenceFor = ["in_headset_text_readability"];
+    sidecar.runtimeUrl = "https://example.com/iwer";
+    sidecar.mcpWebSocketEndpoint = "wss://example.com/__iwer_mcp";
     evidence.probe.readyForProductionRuntime = true;
     evidence.probe.readyForPhysicalQuestClaim = true;
 
@@ -147,6 +149,13 @@ describe("IWER controller/input probe checker", () => {
     expect(stdout.trim()).toBe("Validated docs/openclinxr/iwer-controller-input-probe-2026-05-05.json");
   });
 });
+
+function requireFixtureValue<T>(value: T | null | undefined, label: string): NonNullable<T> {
+  if (value === undefined || value === null) {
+    throw new Error(`Missing required ${label}`);
+  }
+  return value;
+}
 
 function readyEvidence(): IwerControllerInputProbeEvidence {
   return {
