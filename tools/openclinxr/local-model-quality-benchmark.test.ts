@@ -3,16 +3,16 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
-  buildLocalModelQualityBenchmarkReport,
-  runLocalModelQualityBenchmarkCli,
-  validateLocalModelQualityBenchmarkReport,
-  type LocalModelRuntimeBenchmarkReport,
-} from "./local-model-quality-benchmark.js";
-import {
-  runApprovedLocalModelActorPolicyBenchmark,
   type ActorPolicyProbeId,
   type LocalModelActorPolicyProbeResult,
+  runApprovedLocalModelActorPolicyBenchmark,
 } from "./local-model-actor-policy-benchmark.js";
+import {
+  buildLocalModelQualityBenchmarkReport,
+  type LocalModelRuntimeBenchmarkReport,
+  runLocalModelQualityBenchmarkCli,
+  validateLocalModelQualityBenchmarkReport,
+} from "./local-model-quality-benchmark.js";
 
 describe("local model quality benchmark report", () => {
   it("exposes generation and validation scripts", async () => {
@@ -241,7 +241,9 @@ describe("local model quality benchmark report", () => {
     expect(evidence.probeResults.every((probe) => probe.passed)).toBe(true);
     expect(evidence.probeResults.every((probe) => probe.rawLogPath?.startsWith(logDir))).toBe(true);
     expect(evidence.probeResults.every((probe) => /^[a-f0-9]{64}$/.test(probe.rawLogSha256 ?? ""))).toBe(true);
-    const rawLog = await readFile(evidence.probeResults[0].rawLogPath!, "utf8");
+    const firstRawLogPath = evidence.probeResults[0]?.rawLogPath;
+    expect(firstRawLogPath).toBeDefined();
+    const rawLog = await readFile(String(firstRawLogPath), "utf8");
     expect(rawLog).toContain("--offline");
     expect(rawLog).toContain("exit_status=0");
     expect(rawLog).toContain("Learner utterance: Can you describe the chest pressure?");

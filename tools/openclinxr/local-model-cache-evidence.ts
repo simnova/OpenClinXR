@@ -156,7 +156,9 @@ export function validateLocalModelCacheEvidenceReport(value: unknown): Validatio
   }
   requireArray(value.models, "/models", errors);
   if (Array.isArray(value.models)) {
-    value.models.forEach((model, index) => validateModel(model, `/models/${index}`, errors));
+    value.models.forEach((model, index) => {
+      validateModel(model, `/models/${index}`, errors);
+    });
   }
   validateReadinessConsistency(value, errors);
 

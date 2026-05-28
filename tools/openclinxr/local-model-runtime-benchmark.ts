@@ -1,5 +1,5 @@
-import { createHash } from "node:crypto";
 import { execFile } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -517,7 +517,8 @@ function classifyStructuredOutputCaveats(input: {
     caveats.push("The model output did not include a parsable JSON object.");
     return caveats;
   }
-  const missingKeys = requiredStructuredKeys.filter((key) => !(key in input.parsedJson!));
+  const parsedJson = input.parsedJson;
+  const missingKeys = requiredStructuredKeys.filter((key) => !(key in parsedJson));
   if (missingKeys.length > 0) {
     caveats.push(`The JSON object was parsable, but missing required keys: ${missingKeys.join(", ")}.`);
   }

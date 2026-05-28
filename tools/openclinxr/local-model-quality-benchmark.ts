@@ -1,8 +1,8 @@
 import { pathToFileURL } from "node:url";
 import {
+  type ActorResponseRequest,
   createDefaultModelGateway,
   MockModelProviderAdapter,
-  type ActorResponseRequest,
 } from "../../packages/openclinxr/model-gateway/src/index.js";
 import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 import type {
@@ -350,7 +350,9 @@ function validateActorPolicy(value: unknown, errors: string[]): void {
   requireActorPolicyProbeIdArray(value.missingRealLocalProbeIds, "/actorPolicy/missingRealLocalProbeIds", errors);
   requireArray(value.probes, "/actorPolicy/probes", errors);
   if (Array.isArray(value.probes)) {
-    value.probes.forEach((probe, index) => validateActorPolicyProbe(probe, `/actorPolicy/probes/${index}`, errors));
+    value.probes.forEach((probe, index) => {
+      validateActorPolicyProbe(probe, `/actorPolicy/probes/${index}`, errors);
+    });
   }
 }
 
@@ -436,7 +438,7 @@ function inspectStructuredOutput(report: LocalModelRuntimeBenchmarkReport): Loca
   const parsedJson = report.output.parsedJson ?? {};
   const observedKeys = Object.keys(parsedJson).sort();
   const caveats = [...(report.output.structuredOutputCaveats ?? []), ...report.verdict.caveats];
-  const requiredKeysPresent = requiredKeys.every((key) => Object.prototype.hasOwnProperty.call(parsedJson, key));
+  const requiredKeysPresent = requiredKeys.every((key) => Object.hasOwn(parsedJson, key));
   const noReasoningMarkup = !caveats.some((caveat) => caveat.toLowerCase().includes("<think>"));
   const allowedGuardrailLabels: string[] = [...allowedStructuredOutputGuardrailLabels];
   const observedSafetyFlags = stringArrayValue(parsedJson.safety_flags).sort();
@@ -699,7 +701,9 @@ function requireActorPolicyProbeIdArray(value: unknown, pathName: string, errors
     return;
   }
 
-  value.forEach((entry, index) => requireActorPolicyProbeId(entry, `${pathName}/${index}`, errors));
+  value.forEach((entry, index) => {
+    requireActorPolicyProbeId(entry, `${pathName}/${index}`, errors);
+  });
 }
 
 function requireSha256(value: unknown, pathName: string, errors: string[]): void {

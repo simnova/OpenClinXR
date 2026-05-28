@@ -2,13 +2,13 @@ import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import type { LocalModelCacheEvidenceReport } from "./local-model-cache-evidence.js";
 import {
   buildLocalModelSourceCurrentnessReport,
-  main,
   type LocalModelSourceMetadataSnapshot,
+  main,
   validateLocalModelSourceMetadataSnapshot,
 } from "./local-model-source-currentness-check.js";
-import type { LocalModelCacheEvidenceReport } from "./local-model-cache-evidence.js";
 
 const modelRevision = "bc640142c66e1fdd12af0bd68f40445458f3869b";
 

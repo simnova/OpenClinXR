@@ -1,4 +1,3 @@
-import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 import type { LocalModelCacheEvidenceReport } from "./local-model-cache-evidence.js";

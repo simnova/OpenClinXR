@@ -232,7 +232,9 @@ export function validateLocalRealtimeVoiceModelSourceMetadataSnapshot(value: unk
   if (!Array.isArray(value.models)) {
     errors.push("/models must be array");
   } else {
-    value.models.forEach((model, index) => validateSourceMetadataModel(model, `/models/${index}`, errors));
+    value.models.forEach((model, index) => {
+      validateSourceMetadataModel(model, `/models/${index}`, errors);
+    });
   }
 
   return errors.length === 0 ? { ok: true } : { ok: false, errors };

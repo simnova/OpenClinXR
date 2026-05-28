@@ -2,13 +2,13 @@ import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import type { LocalRealtimeVoiceModelCacheEvidenceReport } from "./local-realtime-voice-model-cache-evidence.js";
 import {
   buildLocalRealtimeVoiceModelSourceCurrentnessReport,
-  main,
   type LocalRealtimeVoiceModelSourceMetadataSnapshot,
+  main,
   validateLocalRealtimeVoiceModelSourceMetadataSnapshot,
 } from "./local-realtime-voice-model-source-currentness-check.js";
-import type { LocalRealtimeVoiceModelCacheEvidenceReport } from "./local-realtime-voice-model-cache-evidence.js";
 
 const moshiRevision = "18e4df760a34d5977a34517d7d1580e07acbb2f1";
 const qwenTtsRevision = "0d6bb6fe33f92d47a507e23b9148940e8366ab5b";
