@@ -48,8 +48,37 @@ export type GeneratedEdStationRuntimeBundleReport = {
       };
       requiredMaterializationCueIds: string[];
     }>;
+    materializationBlockers: string[];
+    caveats: string[];
     recommendedNextAction: string;
     notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity", "animation_quality"];
+  } | null;
+  equipmentMaterializationContract: {
+    schemaVersion: "openclinxr.equipment-materialization-contract.v1";
+    scenarioId: string | null;
+    source: "generated_station_runtime_bundle";
+    equipmentSpecificVariantKeysRequired: boolean;
+    genericEquipmentReuseDetected: boolean;
+    genericEquipmentReuseEquipmentIds: string[];
+    equipmentVariants: Array<{
+      equipmentId: string;
+      modelAssetId: string;
+      variantSemanticKey: string;
+      sourceBlobName: string;
+      equipmentVariantProfile: {
+        equipmentFamily: string;
+        pediatricUseRequired: boolean;
+        scenarioPlacementRequired: true;
+        scaleValidationRequired: true;
+        interactionAffordanceRequired: boolean;
+      };
+      requiredMaterializationCueIds: string[];
+      requiredEvidenceRefs: string[];
+    }>;
+    materializationBlockers: string[];
+    caveats: string[];
+    recommendedNextAction: string;
+    notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"];
   } | null;
   bundleBlobName: string | null;
   runtimeAssetReviewDecisions: RuntimeAssetReviewDecision[];
@@ -181,15 +210,16 @@ export async function buildGeneratedEdStationRuntimeBundleReport(input: {
 
   const learnerBundle = toLearnerRuntimeAssetBundle(bundle);
   const actorHumanoidMaterializationContract = buildActorHumanoidMaterializationContract(bundle);
+  const equipmentMaterializationContract = buildEquipmentMaterializationContract(bundle);
 
-  if (blockedAssets.length > 0) return report({ status: "blocked", bundle, learnerBundle, actorHumanoidMaterializationContract, bundleBlobName: null, blockers: blockedAssets, runtimeAssetReviewDecisions });
+  if (blockedAssets.length > 0) return report({ status: "blocked", bundle, learnerBundle, actorHumanoidMaterializationContract, equipmentMaterializationContract, bundleBlobName: null, blockers: blockedAssets, runtimeAssetReviewDecisions });
   if (input.writeAzurite) {
     const accountKey = process.env.AZURITE_ACCOUNT_KEY || process.env.OPENCLINXR_AZURITE_ACCOUNT_KEY;
-    if (!accountKey) return report({ status: "not_configured", bundle, learnerBundle, actorHumanoidMaterializationContract, bundleBlobName: null, blockers: ["azurite_account_key_missing"], runtimeAssetReviewDecisions });
+    if (!accountKey) return report({ status: "not_configured", bundle, learnerBundle, actorHumanoidMaterializationContract, equipmentMaterializationContract, bundleBlobName: null, blockers: ["azurite_account_key_missing"], runtimeAssetReviewDecisions });
     const result = await writeEncounterRuntimeAssetBundle({ store: createAzuriteAssetObjectStore({ accountKey }), bundle });
-    return report({ status: "bundle_ready", bundle, learnerBundle, actorHumanoidMaterializationContract, bundleBlobName: result.bundleBlobName, blockers: [], runtimeAssetReviewDecisions });
+    return report({ status: "bundle_ready", bundle, learnerBundle, actorHumanoidMaterializationContract, equipmentMaterializationContract, bundleBlobName: result.bundleBlobName, blockers: [], runtimeAssetReviewDecisions });
   }
-  return report({ status: "bundle_ready", bundle, learnerBundle, actorHumanoidMaterializationContract, bundleBlobName: null, blockers: [], runtimeAssetReviewDecisions });
+  return report({ status: "bundle_ready", bundle, learnerBundle, actorHumanoidMaterializationContract, equipmentMaterializationContract, bundleBlobName: null, blockers: [], runtimeAssetReviewDecisions });
 }
 
 export function validateGeneratedEdStationRuntimeBundleReport(reportValue: unknown): { ok: boolean; errors: string[] } {
@@ -220,6 +250,16 @@ export function validateGeneratedEdStationRuntimeBundleReport(reportValue: unkno
       if (reportValue.actorHumanoidMaterializationContract.actorSpecificVariantKeysRequired !== true) {
         errors.push("/actorHumanoidMaterializationContract/actorSpecificVariantKeysRequired must be true");
       }
+      if (reportValue.actorHumanoidMaterializationContract.sharedNeutralMeshReuseDetected === true) {
+        const materializationBlockers = Array.isArray(reportValue.actorHumanoidMaterializationContract.materializationBlockers)
+          ? reportValue.actorHumanoidMaterializationContract.materializationBlockers
+          : [];
+        const caveats = Array.isArray(reportValue.actorHumanoidMaterializationContract.caveats)
+          ? reportValue.actorHumanoidMaterializationContract.caveats
+          : [];
+        if (materializationBlockers.length === 0) errors.push("/actorHumanoidMaterializationContract/materializationBlockers required when shared neutral mesh reuse is detected");
+        if (caveats.length === 0) errors.push("/actorHumanoidMaterializationContract/caveats required when shared neutral mesh reuse is detected");
+      }
       const actorVariants = Array.isArray(reportValue.actorHumanoidMaterializationContract.actorVariants)
         ? reportValue.actorHumanoidMaterializationContract.actorVariants
         : [];
@@ -246,6 +286,48 @@ export function validateGeneratedEdStationRuntimeBundleReport(reportValue: unkno
         }
       });
     }
+    if (!isRecord(reportValue.equipmentMaterializationContract)) errors.push("/equipmentMaterializationContract required when bundle_ready");
+    else {
+      if (reportValue.equipmentMaterializationContract.schemaVersion !== "openclinxr.equipment-materialization-contract.v1") {
+        errors.push("/equipmentMaterializationContract/schemaVersion invalid");
+      }
+      if (reportValue.equipmentMaterializationContract.equipmentSpecificVariantKeysRequired !== true) {
+        errors.push("/equipmentMaterializationContract/equipmentSpecificVariantKeysRequired must be true");
+      }
+      if (reportValue.equipmentMaterializationContract.genericEquipmentReuseDetected === true) {
+        const materializationBlockers = Array.isArray(reportValue.equipmentMaterializationContract.materializationBlockers)
+          ? reportValue.equipmentMaterializationContract.materializationBlockers
+          : [];
+        const caveats = Array.isArray(reportValue.equipmentMaterializationContract.caveats)
+          ? reportValue.equipmentMaterializationContract.caveats
+          : [];
+        if (materializationBlockers.length === 0) errors.push("/equipmentMaterializationContract/materializationBlockers required when generic equipment reuse is detected");
+        if (caveats.length === 0) errors.push("/equipmentMaterializationContract/caveats required when generic equipment reuse is detected");
+      }
+      const equipmentVariants = Array.isArray(reportValue.equipmentMaterializationContract.equipmentVariants)
+        ? reportValue.equipmentMaterializationContract.equipmentVariants
+        : [];
+      if (equipmentVariants.length === 0) errors.push("/equipmentMaterializationContract/equipmentVariants must not be empty");
+      equipmentVariants.forEach((variant, index) => {
+        if (!isRecord(variant)) {
+          errors.push(`/equipmentMaterializationContract/equipmentVariants/${index} must be an object`);
+          return;
+        }
+        if (typeof variant.equipmentId !== "string" || variant.equipmentId.length === 0) errors.push(`/equipmentMaterializationContract/equipmentVariants/${index}/equipmentId required`);
+        if (typeof variant.variantSemanticKey !== "string" || !variant.variantSemanticKey.includes(":equipment_materialization_variant")) {
+          errors.push(`/equipmentMaterializationContract/equipmentVariants/${index}/variantSemanticKey must be equipment-specific materialization variant key`);
+        }
+        if (!isRecord(variant.equipmentVariantProfile)) errors.push(`/equipmentMaterializationContract/equipmentVariants/${index}/equipmentVariantProfile required`);
+        const cueIds = Array.isArray(variant.requiredMaterializationCueIds) ? variant.requiredMaterializationCueIds : [];
+        for (const cueId of ["equipment_specific_mesh_required", "equipment_specific_scale_required", "equipment_specific_placement_required", "equipment_specific_affordance_required"]) {
+          if (!cueIds.includes(cueId)) errors.push(`/equipmentMaterializationContract/equipmentVariants/${index}/requiredMaterializationCueIds must include ${cueId}`);
+        }
+        const evidenceRefs = Array.isArray(variant.requiredEvidenceRefs) ? variant.requiredEvidenceRefs : [];
+        for (const evidenceRef of ["scenario_specific_equipment_variant_evidence", "equipment_scale_validation_evidence", "equipment_placement_anchor_evidence"]) {
+          if (!evidenceRefs.includes(evidenceRef)) errors.push(`/equipmentMaterializationContract/equipmentVariants/${index}/requiredEvidenceRefs must include ${evidenceRef}`);
+        }
+      });
+    }
     if (learnerBundle && learnerBundle.identityScope !== "learner_runtime_opaque_bundle") errors.push("/learnerBundle/identityScope must be learner_runtime_opaque_bundle");
     for (const forbidden of ["tenantId", "userId", "examRunId", "encounterId"]) {
       if (learnerBundle && forbidden in learnerBundle) errors.push(`/learnerBundle must not include ${forbidden}`);
@@ -263,6 +345,12 @@ function buildActorHumanoidMaterializationContract(bundle: EncounterRuntimeAsset
     blobActorIds.set(actor.model.blob.blobName, actorIds);
   }
   const sharedNeutralMeshReuseActorIds = Array.from(new Set(Array.from(blobActorIds.values()).filter((actorIds) => actorIds.length > 1).flat())).sort();
+  const materializationBlockers = sharedNeutralMeshReuseActorIds.length > 0
+    ? ["shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness"]
+    : [];
+  const caveats = sharedNeutralMeshReuseActorIds.length > 0
+    ? ["Shared neutral humanoid reuse is local runtime scaffolding only until actor-specific Anny mesh, rig, hair/face, clothing, and animation evidence attaches."]
+    : [];
   return {
     schemaVersion: "openclinxr.actor-humanoid-materialization-contract.v1",
     scenarioId: bundle.scenarioId,
@@ -284,10 +372,75 @@ function buildActorHumanoidMaterializationContract(bundle: EncounterRuntimeAsset
         "actor_specific_rig_preservation_required",
       ],
     })),
+    materializationBlockers,
+    caveats,
     recommendedNextAction: sharedNeutralMeshReuseActorIds.length > 0
       ? "materialize actor-specific Anny humanoid GLBs before treating visual role distinction as asset-level progress"
       : "preserve actor-specific humanoid variant keys through publication and visual QA",
     notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity", "animation_quality"],
+  };
+}
+
+function buildEquipmentMaterializationContract(bundle: EncounterRuntimeAssetBundle): NonNullable<GeneratedEdStationRuntimeBundleReport["equipmentMaterializationContract"]> {
+  const blobEquipmentIds = new Map<string, string[]>();
+  for (const equipment of bundle.equipment) {
+    const equipmentIds = blobEquipmentIds.get(equipment.model.blob.blobName) ?? [];
+    equipmentIds.push(equipment.equipmentId);
+    blobEquipmentIds.set(equipment.model.blob.blobName, equipmentIds);
+  }
+  const genericEquipmentReuseEquipmentIds = Array.from(new Set(Array.from(blobEquipmentIds.values()).filter((equipmentIds) => equipmentIds.length > 1).flat())).sort();
+  const genericEquipmentReuseDetected = genericEquipmentReuseEquipmentIds.length > 0
+    || bundle.equipment.some((equipment) => equipment.model.provenanceRefs.some((ref) => ref.includes("shared-asset-library-lookup")));
+  return {
+    schemaVersion: "openclinxr.equipment-materialization-contract.v1",
+    scenarioId: bundle.scenarioId,
+    source: "generated_station_runtime_bundle",
+    equipmentSpecificVariantKeysRequired: true,
+    genericEquipmentReuseDetected,
+    genericEquipmentReuseEquipmentIds,
+    equipmentVariants: bundle.equipment.map((equipment) => ({
+      equipmentId: equipment.equipmentId,
+      modelAssetId: equipment.model.assetId,
+      variantSemanticKey: `${bundle.scenarioId}:${equipment.equipmentId}:equipment_materialization_variant`,
+      sourceBlobName: equipment.model.blob.blobName,
+      equipmentVariantProfile: buildEquipmentVariantProfile(bundle.scenarioId, equipment.equipmentId),
+      requiredMaterializationCueIds: [
+        "equipment_specific_mesh_required",
+        "equipment_specific_scale_required",
+        "equipment_specific_placement_required",
+        "equipment_specific_affordance_required",
+      ],
+      requiredEvidenceRefs: [
+        "scenario_specific_equipment_variant_evidence",
+        "equipment_scale_validation_evidence",
+        "equipment_placement_anchor_evidence",
+        "clinical_affordance_evidence",
+      ],
+    })),
+    materializationBlockers: genericEquipmentReuseDetected
+      ? ["generic_equipment_reuse_blocks_equipment_specific_asset_readiness"]
+      : [],
+    caveats: genericEquipmentReuseDetected
+      ? ["Generic equipment reuse is local runtime scaffolding only until equipment-specific mesh/prefab, scale, placement, affordance, and scenario variant evidence attaches."]
+      : [],
+    recommendedNextAction: genericEquipmentReuseDetected
+      ? "materialize equipment-specific generated GLBs or prefabs before treating pediatric equipment as Quest, clinical, scoring, or production-ready"
+      : "preserve equipment-specific materialization variant keys through publication and visual QA",
+    notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+  };
+}
+
+function buildEquipmentVariantProfile(
+  scenarioId: string,
+  equipmentId: string,
+): NonNullable<GeneratedEdStationRuntimeBundleReport["equipmentMaterializationContract"]>["equipmentVariants"][number]["equipmentVariantProfile"] {
+  const equipmentFamily = equipmentId.replace(/_equipment$/u, "");
+  return {
+    equipmentFamily,
+    pediatricUseRequired: scenarioId === "peds_asthma_parent_anxiety_v1",
+    scenarioPlacementRequired: true,
+    scaleValidationRequired: true,
+    interactionAffordanceRequired: /pulse|nebulizer|oxygen|stretcher|chair|inhaler|spacer|ecg|iv|pump|monitor/u.test(equipmentId),
   };
 }
 
@@ -315,8 +468,8 @@ function buildHumanoidVariantProfile(
   };
 }
 
-function report(input: Pick<GeneratedEdStationRuntimeBundleReport, "status" | "bundle" | "learnerBundle" | "bundleBlobName" | "blockers"> & { actorHumanoidMaterializationContract?: GeneratedEdStationRuntimeBundleReport["actorHumanoidMaterializationContract"] | undefined; runtimeAssetReviewDecisions?: RuntimeAssetReviewDecision[] | undefined }): GeneratedEdStationRuntimeBundleReport {
-  return { schemaVersion: "openclinxr.generated-ed-station-runtime-bundle.v1", generatedAt: new Date().toISOString(), productionCloudCall: false, runtimeAssetReviewDecisions: [], actorHumanoidMaterializationContract: null, notEvidenceFor: [...NOT_EVIDENCE_FOR], ...input };
+function report(input: Pick<GeneratedEdStationRuntimeBundleReport, "status" | "bundle" | "learnerBundle" | "bundleBlobName" | "blockers"> & { actorHumanoidMaterializationContract?: GeneratedEdStationRuntimeBundleReport["actorHumanoidMaterializationContract"] | undefined; equipmentMaterializationContract?: GeneratedEdStationRuntimeBundleReport["equipmentMaterializationContract"] | undefined; runtimeAssetReviewDecisions?: RuntimeAssetReviewDecision[] | undefined }): GeneratedEdStationRuntimeBundleReport {
+  return { schemaVersion: "openclinxr.generated-ed-station-runtime-bundle.v1", generatedAt: new Date().toISOString(), productionCloudCall: false, runtimeAssetReviewDecisions: [], actorHumanoidMaterializationContract: null, equipmentMaterializationContract: null, notEvidenceFor: [...NOT_EVIDENCE_FOR], ...input };
 }
 
 function runtimeActorEmbodiment(actor: ReturnType<typeof scenarioRuntimePreset>["actors"][number]): EncounterRuntimeAssetBundle["actors"][number]["embodiment"] {

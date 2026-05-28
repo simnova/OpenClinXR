@@ -185,6 +185,15 @@ describe("generated ED station runtime bundle", () => {
         ],
         recommendedNextAction: expect.stringContaining("materialize actor-specific Anny humanoid GLBs"),
       });
+      expect(report.actorHumanoidMaterializationContract?.materializationBlockers).toContain("shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness");
+      expect(report.actorHumanoidMaterializationContract?.caveats.join(" ")).toContain("Shared neutral humanoid reuse is local runtime scaffolding only");
+      expect(report.actorHumanoidMaterializationContract?.notEvidenceFor).toEqual([
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity",
+        "animation_quality",
+      ]);
       expect(report.actorHumanoidMaterializationContract?.actorVariants).toEqual(expect.arrayContaining([
         expect.objectContaining({
           actorId: "patient_maya_johnson_v1",
@@ -223,6 +232,37 @@ describe("generated ED station runtime bundle", () => {
             faceEyeLipRigRequired: true,
           }),
         }),
+      ]));
+      expect(report.equipmentMaterializationContract).toMatchObject({
+        schemaVersion: "openclinxr.equipment-materialization-contract.v1",
+        scenarioId: "peds_asthma_parent_anxiety_v1",
+        equipmentSpecificVariantKeysRequired: true,
+        genericEquipmentReuseDetected: true,
+        genericEquipmentReuseEquipmentIds: [
+          "inhaler_spacer_equipment",
+          "nebulizer_mask_equipment",
+          "oxygen_wall_port_equipment",
+          "parent_chair_equipment",
+          "pediatric_stretcher_equipment",
+          "pulse_oximeter_equipment",
+        ],
+        materializationBlockers: ["generic_equipment_reuse_blocks_equipment_specific_asset_readiness"],
+        recommendedNextAction: expect.stringContaining("before treating pediatric equipment as Quest, clinical, scoring, or production-ready"),
+        notEvidenceFor: [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity",
+        ],
+      });
+      expect(report.equipmentMaterializationContract?.caveats.join(" ")).toContain("Generic equipment reuse is local runtime scaffolding only");
+      expect(report.equipmentMaterializationContract?.equipmentVariants).toEqual(expect.arrayContaining([
+        equipmentVariantExpectation("pulse_oximeter_equipment"),
+        equipmentVariantExpectation("nebulizer_mask_equipment"),
+        equipmentVariantExpectation("oxygen_wall_port_equipment"),
+        equipmentVariantExpectation("pediatric_stretcher_equipment"),
+        equipmentVariantExpectation("parent_chair_equipment"),
+        equipmentVariantExpectation("inhaler_spacer_equipment"),
       ]));
       expect(report.bundle?.equipment.map((equipment) => equipment.equipmentId)).toEqual([
         "pulse_oximeter_equipment",
@@ -395,6 +435,7 @@ describe("generated ED station runtime bundle", () => {
           },
         ],
       },
+      equipmentMaterializationContract: validEquipmentMaterializationContract(),
       bundleBlobName: null,
       runtimeAssetReviewDecisions: [],
       blockers: [],
@@ -421,6 +462,72 @@ describe("generated ED station runtime bundle", () => {
     expect(rootPackage.scripts["asset:generated-station-bundle:validate"]).toBe("tsx tools/openclinxr/generated-ed-station-runtime-bundle.ts --validate-latest");
   });
 });
+
+function equipmentVariantExpectation(equipmentId: string) {
+  return expect.objectContaining({
+    equipmentId,
+    variantSemanticKey: `peds_asthma_parent_anxiety_v1:${equipmentId}:equipment_materialization_variant`,
+    equipmentVariantProfile: expect.objectContaining({
+      pediatricUseRequired: true,
+      scenarioPlacementRequired: true,
+      scaleValidationRequired: true,
+    }),
+    requiredMaterializationCueIds: expect.arrayContaining([
+      "equipment_specific_mesh_required",
+      "equipment_specific_scale_required",
+      "equipment_specific_placement_required",
+      "equipment_specific_affordance_required",
+    ]),
+    requiredEvidenceRefs: expect.arrayContaining([
+      "scenario_specific_equipment_variant_evidence",
+      "equipment_scale_validation_evidence",
+      "equipment_placement_anchor_evidence",
+      "clinical_affordance_evidence",
+    ]),
+  });
+}
+
+function validEquipmentMaterializationContract() {
+  return {
+    schemaVersion: "openclinxr.equipment-materialization-contract.v1",
+    scenarioId: "peds_asthma_parent_anxiety_v1",
+    source: "generated_station_runtime_bundle",
+    equipmentSpecificVariantKeysRequired: true,
+    genericEquipmentReuseDetected: true,
+    genericEquipmentReuseEquipmentIds: ["pulse_oximeter_equipment", "nebulizer_mask_equipment"],
+    equipmentVariants: [
+      {
+        equipmentId: "pulse_oximeter_equipment",
+        modelAssetId: "openclinxr.peds_asthma_parent_anxiety_v1.pulse_oximeter_equipment.generated-glb",
+        variantSemanticKey: "peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment:equipment_materialization_variant",
+        sourceBlobName: "xr-assets/generated/equipment/ecg-cart-12-lead.glb",
+        equipmentVariantProfile: {
+          equipmentFamily: "pulse_oximeter",
+          pediatricUseRequired: true,
+          scenarioPlacementRequired: true,
+          scaleValidationRequired: true,
+          interactionAffordanceRequired: true,
+        },
+        requiredMaterializationCueIds: [
+          "equipment_specific_mesh_required",
+          "equipment_specific_scale_required",
+          "equipment_specific_placement_required",
+          "equipment_specific_affordance_required",
+        ],
+        requiredEvidenceRefs: [
+          "scenario_specific_equipment_variant_evidence",
+          "equipment_scale_validation_evidence",
+          "equipment_placement_anchor_evidence",
+          "clinical_affordance_evidence",
+        ],
+      },
+    ],
+    materializationBlockers: ["generic_equipment_reuse_blocks_equipment_specific_asset_readiness"],
+    caveats: ["Generic equipment reuse is local runtime scaffolding only until equipment-specific evidence attaches."],
+    recommendedNextAction: "materialize equipment-specific generated GLBs or prefabs before treating pediatric equipment as Quest, clinical, scoring, or production-ready",
+    notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+  };
+}
 
 function humanReport() {
   return {
