@@ -356,6 +356,7 @@ Approved IWSDK posture:
 - Use `apps/ui-xr-iwsdk-spike`, `packages/openclinxr/iwsdk-spike`, and the documented IWSDK evidence commands as the allowed work areas.
 - Keep physical Quest 3 foreground evidence as the required source for readiness claims; IWSDK and IWER evidence are supporting/emulation evidence only.
 - Do not add IWSDK packages to `apps/ui-xr`, shared production packages, default startup, or broad verification unless explicitly approved.
+- Latest observed IWSDK package metadata remains sidecar-gated: `@iwsdk/*` packages are current at `0.4.1`, but Vite plugins still peer on `vite: ^7.0.0` while the repo uses Vite `8.0.10`; do not promote IWSDK runtime adoption from package freshness alone.
 - Respect the existing IWSDK gates for exact package versions, sidecar-only devtools, package weight, license posture, Vite/Node compatibility, native dependency exceptions, and metadata/source evidence.
 - If IWSDK is not used for an XR slice, record the reason briefly in `AUTONOMOUS_WORK_PLAN.md` or the worker backlog so the decision is explicit rather than forgotten.
 

@@ -698,7 +698,7 @@
     {
       "path": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
@@ -3106,7 +3106,7 @@
     {
       "path": "docs/openclinxr/iwsdk-npm-currentness-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
@@ -3120,7 +3120,7 @@
     {
       "path": "docs/openclinxr/iwsdk-npm-metadata-snapshot-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },

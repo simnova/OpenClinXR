@@ -283,7 +283,7 @@ All equipment must include:
 
 ## Optimization Bake
 
-Use a deterministic build script around Blender and a permissive GLB conversion/optimization CLI. The current pinned local CLI is `gltf-pipeline` 4.3.1 (Apache-2.0). Blender 5.1.1 is installed locally as GPL-licensed workstation tooling, and `pnpm asset:blender:bake` now proves a headless placeholder clinical humanoid GLB bake can run without external assets. Treat `gltf-transform` as an optional external workstation tool until its current CLI dependency path satisfies the copyleft policy.
+Use a deterministic build script around Blender and a permissive GLB conversion/construction path. The current legacy pinned local CLI is `gltf-pipeline` 4.3.1 (Apache-2.0), but the `@gltf-transform/core` Node API resolved at 4.3.0 is now the preferred replacement candidate for deterministic source-smoke evidence and runtime capability checks. Blender 5.1.1 is installed locally as GPL-licensed workstation tooling, and `pnpm asset:blender:bake` proves a headless clinical fixture GLB bake can run without external assets. Treat the `gltf-transform` CLI path as review-gated because its native Sharp/libvips dependency path remains license-sensitive.
 
 Suggested build phases:
 
@@ -303,13 +303,19 @@ Suggested build phases:
 13. generate-qa-report
 ```
 
-Example optimization command shape:
+Legacy optimization command shape:
 
 ```bash
 gltf-pipeline -i input.gltf -o output.glb -b
 ```
 
-The first executable local smoke is:
+The preferred replacement smoke is:
+
+```bash
+pnpm asset:gltf-transform:smoke -- --output docs/openclinxr/gltf-transform-smoke-2026-05-27.json
+```
+
+The legacy executable local smoke remains available until the removal/isolation decision is complete:
 
 ```bash
 pnpm asset:gltf:smoke -- --output docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json
@@ -322,6 +328,7 @@ Do not treat a successful conversion command as proof of runtime readiness. Runt
 Current machine-readable production-asset evidence:
 
 - `pnpm asset:gltf:smoke:validate`
+- `pnpm asset:gltf-transform:smoke:validate`
 - `pnpm asset:blender:bake:validate`
 - `pnpm asset:production:readiness -- --use-local-asset-evidence-fixture --output docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json`
 - `pnpm asset:capability:evidence:validate`
@@ -377,7 +384,7 @@ Add these fields to `assets` or a dedicated `asset_versions` collection:
   "asset_id": "patient_robert_hayes_v1_lod0",
   "asset_family": "patient_robert_hayes",
   "asset_type": "character",
-  "source_tools": ["anny", "blender", "mesh2motion", "gltf-pipeline"],
+  "source_tools": ["anny", "blender", "mesh2motion", "@gltf-transform/core", "gltf-pipeline-legacy"],
   "source_license_ids": ["apache-2.0", "cc0", "mit"],
   "forbidden_runtime_dependencies": ["stablegen-gpl3"],
   "gltf_url": "https://cdn.openclinxr.local/assets/patient_robert_hayes_v1_lod0.glb",

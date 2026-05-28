@@ -29,5 +29,6 @@ Both paths produced valid GLB output for the deterministic single-triangle smoke
 
 ## Next migration order
 
-1. Update security and asset-pipeline docs after dependency evidence shows code consumers no longer require `gltf-pipeline`.
-2. Run `pnpm hygiene:e18e:summary`, `pnpm peers check`, and `pnpm hooks:strict`; only then remove or isolate `gltf-pipeline` if the duplicate count or install footprint improves.
+1. Keep `gltf-pipeline` installed for now because `agent:verify` still validates the legacy `asset:gltf:smoke` lane and e18e evidence has not shown an install-size or duplicate-count improvement from removal/isolation.
+2. Treat a future removal/isolation attempt as a separate dependency slice: update `agent:verify`, remove or isolate `asset:gltf:smoke`, run `pnpm install`, compare `pnpm hygiene:e18e:summary`, then require `pnpm peers check` and `pnpm hooks:strict` before committing.
+3. Do not substitute the `@gltf-transform/cli` path for this decision while its native Sharp/libvips dependency path remains review-gated.

@@ -37,8 +37,9 @@ Important note: this is not the M4 Pro mentioned by the user. Treat these result
 | Android Platform Tools | Installed on 2026-05-03 | `adb` is available for Quest 3 USB-C WebXR smoke testing |
 | Bun | 1.3.13 available at `/Users/patrick/.bun/bin/bun` by 2026-05-05 | Bun/Hono WebSocket runtime smoke passed locally; keep HTTP/3/WebTransport/QUIC/Web3 out of scope until separately exercised |
 | Blender | 5.1.1 installed through Homebrew cask on 2026-05-04 | Headless placeholder asset bake passed; keep as workstation tooling, not bundled runtime |
-| gltf-pipeline | 4.3.1 installed as a pinned pnpm dev dependency | Apache-2.0 local GLB conversion/optimization CLI available through pnpm |
-| gltf-transform | Not installed | Keep as optional external workstation tool until its current CLI dependency path is cleared by license review |
+| gltf-pipeline | 4.3.1 installed as a pinned pnpm dev dependency | Legacy Apache-2.0 local GLB conversion/optimization CLI available through pnpm |
+| @gltf-transform/core | Resolved at 4.3.0 through pnpm dev dependency | Preferred Node API replacement candidate for deterministic GLB source-smoke and runtime capability checks |
+| gltf-transform CLI | Installed through dev dependency but review-gated | Keep CLI path out of production/runtime adoption until its native Sharp/libvips dependency path is cleared by license review |
 | ImageMagick | Not installed | Texture pipeline needs install gate or alternative |
 | Ollama | Not installed | Local LLM convenience runtime unavailable until installed |
 | llama.cpp binaries | 9010 installed through Homebrew on 2026-05-04 | Local GGUF runtime and server are available; no model weights selected or benchmarked |
@@ -317,7 +318,7 @@ Local strengths:
 Local gaps:
 
 - Bun must be installed or the first implementation must use a Node Hono adapter locally.
-- Blender is installed and has passed the placeholder asset bake smoke. `gltf-pipeline` is available as the pinned pnpm CLI for permissive local GLB conversion/optimization checks.
+- Blender is installed and has passed the clinical fixture bake smoke. `@gltf-transform/core` is available as the preferred local Node API source-smoke path; `gltf-pipeline` remains available as the legacy pinned pnpm CLI until e18e/security evidence supports removal or isolation.
 - llama.cpp is installed and visible as `llama-cli`/`llama-server`; Ollama, MLX LM, and VibeVoice are not installed.
 - Quest 3 USB debugging was authorized, `adb reverse tcp:5173 tcp:5173` succeeded, and Quest Browser loaded both a static local smoke page and the OpenClinXR XR station shell.
 - No immersive WebXR runtime benchmark has been run yet; the current evidence is browser-shell rendering and interaction only.
@@ -325,7 +326,7 @@ Local gaps:
 Recommended local-only next spikes:
 
 1. Install Bun and verify Hono WebSocket local server if Bun remains a desired local networking path.
-2. Extend the Blender bake from placeholder GLB validation into mesh decimation, texture atlas, LOD, and collider evidence; keep `gltf-transform` as an optional external workstation tool until its CLI dependency path satisfies the copyleft policy.
+2. Extend the Blender bake from GLB validation into mesh decimation, texture atlas, LOD, and collider evidence; use `@gltf-transform/core` Node API where possible and keep the `gltf-transform` CLI path review-gated until its native dependency path satisfies the copyleft policy.
 3. Select and approve one small local model download for the installed `llama.cpp` runtime, then benchmark Qwen3-4B/Qwen3-8B or DeepSeek-R1-Distill-Qwen-7B quantized model.
 4. Use `docs/openclinxr/spikes/vibevoice-local-voice-spike.md` as the VibeVoice intake gate; install VibeVoice-Realtime-0.5B only after reviewing model terms, disk/runtime requirements, and voice-safety constraints.
 5. Add a measured Quest 3 10-minute performance and comfort smoke for the real station shell with DevTools screencasting disabled.

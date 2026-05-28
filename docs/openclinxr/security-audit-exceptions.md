@@ -91,7 +91,7 @@ None.
 | `fast-uri` | `3.1.2` | Force AJV's transitive URI parser onto the patched version that resolves GHSA-q3j6-qgpj-74h6 and GHSA-v39h-62p7-jpjc while keeping `ajv@8.20.0` pinned. | security-posture-steward | 2026-06-21 | Remove when `ajv` or the lockfile resolves `fast-uri >=3.1.2` without a root override. |
 | `hono` | `4.12.18` | Keep direct API packages and transitive MCP/IWSDK dev-tool paths on the patched release that resolves current Hono audit advisories. | security-posture-steward | 2026-06-27 | Remove when every workspace package and transitive lockfile path resolves `hono >=4.12.18` without a root override. |
 | `ip-address` | `10.1.1` | Force express-rate-limit transitive resolution in the IWSDK dev-tool spike onto the patched release while preserving the isolated sidecar evaluation. | security-posture-steward | 2026-06-27 | Remove when the IWSDK dev-tool path resolves `ip-address >=10.1.1` without a root override or the sidecar spike is removed. |
-| `protobufjs` | `8.2.0` | Force Cesium/gltf-pipeline transitive resolution onto the patched release while keeping local GLTF asset tooling available. | security-posture-steward | 2026-06-27 | Remove when GLTF tooling resolves `protobufjs >=8.2.0` without a root override or the dependency path is replaced. |
+| `protobufjs` | `8.2.0` | Force Cesium/gltf-pipeline transitive resolution onto the patched release while the legacy local GLTF CLI remains installed. `@gltf-transform/core` Node API is now the preferred replacement candidate for source-smoke/runtime gates. | security-posture-steward | 2026-06-27 | Remove when `gltf-pipeline` is removed/isolated or all remaining GLTF tooling resolves `protobufjs >=8.2.0` without a root override. |
 | `qs` | `6.15.2` | Force transitive Express/MCP/IWSDK dev-tool resolution onto the patched release that resolves the qs prototype pollution advisory. | security-posture-steward | 2026-06-27 | Remove when all lockfile paths resolve `qs >=6.15.2` without a root override. |
 | `rolldown` | `1.0.0-rc.18` | Keep packaging and local preview bundling aligned while the existing build scripts are validated against this pinned `rolldown` version. | frontend-platform-lead | 2026-06-05 | Remove when the full stack lockfile and workspace overrides can be moved to a newer pinned version after compatibility validation. |
 | `three` | `0.184.0` | Keep IWSDK sidecar and production XR packages on one reviewed Three.js version while `@iwsdk/core` permits a broad Three.js range. | frontend-platform-lead | 2026-06-05 | Remove when all workspace packages declare the same exact Three.js version without a root override. |
@@ -134,8 +134,9 @@ Supporting checks run during the decision:
 
 ## Dependency Decisions With No Exception
 
-- `@gltf-transform/cli@4.3.0` was evaluated on 2026-05-03 and removed before commit because its current CLI dependency path installed `sharp@0.34.5`, which installed `@img/sharp-libvips-darwin-arm64@1.2.4` reporting `LGPL-3.0-or-later`. No pnpm override, audit ignore, or license exception was added.
-- `gltf-pipeline@4.3.1` was selected instead as the pinned local GLB conversion/optimization CLI because it is Apache-2.0 and passes the current license gate.
+- `@gltf-transform/cli@4.3.0` remains dev-only and review-gated because its CLI dependency path installs `sharp@0.34.x` and native `@img/sharp-libvips-*` packages. Do not promote the CLI path into production/runtime adoption without an explicit license review.
+- `@gltf-transform/core` resolved at `4.3.0` is the preferred local Node API replacement candidate for deterministic GLB source-smoke evidence. It avoids relying on the blocked GLTF Transform CLI path and is already used by humanoid/asset tooling.
+- `gltf-pipeline@4.3.1` remains the legacy pinned local GLB conversion/optimization CLI because it is Apache-2.0 and passes the current license gate. Do not remove it until `pnpm hygiene:e18e:summary`, `pnpm peers check`, and `pnpm hooks:strict` show that removal or isolation is safe and beneficial.
 
 ## Build Script Approval Notes
 

@@ -4439,7 +4439,7 @@ describe("benchmark gate report", () => {
       status: "blocked",
       summary: {
         allRequiredLanesObserved: true,
-        allArtifactFilesMaterialized: true,
+        allArtifactFilesMaterialized: false,
         artifactBackedProductionEvidenceObserved: false,
       },
       verdict: {
