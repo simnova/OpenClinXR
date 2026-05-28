@@ -5,14 +5,15 @@ import { describe, expect, it } from "vitest";
 import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "../../packages/openclinxr/asset-registry/src/index.js";
 import { buildEncounterAssetGenerationQueueReport } from "./encounter-asset-generation-queue.js";
 import {
-  buildEncounterPublicationPayloadReport,
-  type EncounterPublicationCaseDefinedHumanoidRuntimeHandoff,
-} from "./encounter-publication-payloads.js";
-import {
   buildEncounterLocalLaunchSelectionReport,
   runEncounterLocalLaunchSelectionCli,
   validateEncounterLocalLaunchSelectionReport,
 } from "./encounter-local-launch-selection.js";
+import {
+  buildEncounterPublicationPayloadReport,
+  type EncounterPublicationCaseDefinedHumanoidRuntimeHandoff,
+  type EncounterPublicationHumanoidRuntimeRequirement,
+} from "./encounter-publication-payloads.js";
 import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-station-runtime-bundle.js";
 
 const notEvidenceFor: GeneratedEdStationRuntimeBundleReport["notEvidenceFor"] = [
@@ -83,6 +84,30 @@ const humanoidHandoff = (
   ],
 });
 
+const humanoidRuntimeRequirement = (
+  actorRole: string,
+  actorId: string,
+): EncounterPublicationHumanoidRuntimeRequirement => ({
+  actorId,
+  actorRole,
+  modelAssetId: `${actorId}:model`,
+  requiredAssetKinds: [
+    "generated_humanoid_mesh",
+    "viseme_phoneme_map",
+    "gaze_blink_control",
+  ],
+  requiredSignalIds: [
+    "animated_humanoid_runtime_playback",
+    "emotion_aligned_expression_transition_cue",
+    "dialogue_viseme_and_gaze_mapping",
+    "dialogue_eye_micro_saccade_blink_cue",
+    "generated_eyelid_blink_control_cue",
+  ],
+  gazeTargetRequired: true,
+  visemeMapRequired: true,
+  notEvidenceFor,
+});
+
 describe("encounter local launch selection", () => {
   it("selects local static publication assets while keeping learner launch blocked", async () => {
     const publication = await buildEncounterPublicationPayloadReport({
@@ -109,28 +134,11 @@ describe("encounter local launch selection", () => {
         selectedScenarioId: "ed_chest_pain_priority_v1",
         selectedStationId: "ed_chest_pain_station_v1",
         runtimeAssetBundleId: "ed_chest_pain_encounter_v1:learner-runtime-bundle:v1",
-        actorRoster: expect.arrayContaining([
-          expect.objectContaining({
-            actorId: "patient_robert_hayes_v1",
-            actorRole: "patient",
-            modelAssetId: expect.any(String),
-            source: "learner_runtime_bundle_humanoid_requirement",
-          }),
-          expect.objectContaining({
-            actorId: "spouse_anna_hayes_v1",
-            actorRole: "family",
-            source: "learner_runtime_bundle_humanoid_requirement",
-          }),
-          expect.objectContaining({
-            actorId: "nurse_maria_alvarez_v1",
-            actorRole: "nurse",
-            source: "learner_runtime_bundle_humanoid_requirement",
-          }),
-        ]),
+        actorRoster: [],
         caseDefinedActorRealismRequirements: [],
         actorRealismLaunchBadges: [],
         caseDefinitionCoverage: {
-          actorRolesCovered: true,
+          actorRolesCovered: false,
           traceTagsCovered: true,
           equipmentPlacementsPresent: false,
           assetNeedsCarriedByWorkOrders: true,
@@ -139,10 +147,12 @@ describe("encounter local launch selection", () => {
           ]),
         },
         launchBlockingReasons: expect.arrayContaining([
+          "publication_payload_not_materialized",
           "runtime_realism_evidence_not_attached",
           "humanoid_visual_qa_evidence_not_attached",
           "quest_webxr_evidence_not_attached",
-          "case_defined_actor_realism_requirements_incomplete",
+          "runtime_bundle_missing_for_case_definition_coverage",
+          "actor_roster_empty",
         ]),
         notEvidenceFor: ["runtime_readiness", "quest_readiness", "production_readiness", "clinical_validity", "scoring_validity"],
       },
@@ -173,10 +183,10 @@ describe("encounter local launch selection", () => {
       },
       claimBoundary: "local_launch_selection_not_runtime_readiness",
     });
-    expect(report.dynamicBehaviorTags).toEqual(expect.arrayContaining(["dialogue:patient", "gaze:patient"]));
+    expect(report.dynamicBehaviorTags).toEqual([]);
     expect(report.actorRoles).toEqual(["patient", "family", "nurse"]);
-    expect(report.selectedAssetCounts).toMatchObject({ actors: 3, equipment: 1, roomProps: 1 });
-    expect(report.launchContract.actorRoster.map((actor) => actor.actorRole).sort()).toEqual([...report.actorRoles].sort());
+    expect(report.selectedAssetCounts).toMatchObject({ actors: 0, equipment: 0, roomProps: 0 });
+    expect(report.launchContract.actorRoster).toEqual([]);
     expect(report.launchContract.caseDefinedActorRealismRequirements).toHaveLength(0);
     expect(report.launchContract.actorRealismLaunchBadges).toHaveLength(0);
     expect(validateEncounterLocalLaunchSelectionReport(report)).toEqual({ ok: true });
@@ -191,6 +201,18 @@ describe("encounter local launch selection", () => {
     const actorRoles = ["patient", "family", "nurse"];
     const caseDefinedPublication = {
       ...publication,
+      status: "materialized" as const,
+      blockers: [],
+      payloadSummary: {
+        ...publication.payloadSummary,
+        actorCount: 3,
+        humanoidRuntimeRequirementActorCount: 3,
+      },
+      humanoidRuntimeRequirements: [
+        humanoidRuntimeRequirement("patient", "patient_robert_hayes_v1"),
+        humanoidRuntimeRequirement("family", "spouse_anna_hayes_v1"),
+        humanoidRuntimeRequirement("nurse", "nurse_maria_alvarez_v1"),
+      ],
       caseDefinedHumanoidRuntimeHandoff: actorRoles.map((actorRole) =>
         humanoidHandoff(
           actorRole,
@@ -296,6 +318,16 @@ describe("encounter local launch selection", () => {
     });
     const report = buildEncounterLocalLaunchSelectionReport({
       ...publication,
+      status: "materialized",
+      blockers: [],
+      payloadSummary: {
+        ...publication.payloadSummary,
+        actorCount: 1,
+        humanoidRuntimeRequirementActorCount: 1,
+      },
+      humanoidRuntimeRequirements: [
+        humanoidRuntimeRequirement("patient", "patient_robert_hayes_v1"),
+      ],
       caseDefinedHumanoidRuntimeHandoff: [
         humanoidHandoff("patient", ["patient:role_specific_humanoid_glb"], ["animated_humanoid_runtime_playback"]),
       ],
