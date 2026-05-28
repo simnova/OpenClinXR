@@ -1,4 +1,4 @@
-import { mkdir, copyFile } from "node:fs/promises";
+import { copyFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 
