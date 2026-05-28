@@ -2,14 +2,21 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { buildDynamicEncounterFactoryProjectionArtifact, edChestPainScenario, edChestPainScenarioV2, edChestPainScenarioV3, variantScenarioBank } from "../../packages/openclinxr/scenario-fixtures/src/index.js";
 import {
   buildEncounterAssetGenerationQueueReport,
   buildEncounterAssetGenerationRequestForScenario,
-  type EncounterAssetGenerationQueueReport,
   runEncounterAssetGenerationQueueCli,
   validateEncounterAssetGenerationQueueReport,
 } from "./encounter-asset-generation-queue.js";
-import { buildDynamicEncounterFactoryProjectionArtifact, edChestPainScenario, edChestPainScenarioV2, edChestPainScenarioV3, variantScenarioBank } from "../../packages/openclinxr/scenario-fixtures/src/index.js";
+
+const requireFixtureValue = <T>(value: T | null | undefined, label: string): T => {
+  expect(value, label).toBeDefined();
+  if (value == null) {
+    throw new Error(`Missing required fixture value: ${label}`);
+  }
+  return value;
+};
 
 describe("encounter asset generation queue report", () => {
   it("exposes generation and validation scripts", async () => {
@@ -546,26 +553,41 @@ describe("encounter asset generation queue report", () => {
     expect(validateEncounterAssetGenerationQueueReport(report)).toEqual({ ok: true });
 
     const invalid = structuredClone(report);
-    invalid.caseDefinedHumanoidPerformanceContract!.claimBoundary = "runtime_ready" as never;
-    invalid.caseDefinedHumanoidPerformanceContract!.actorCount = 0;
-    invalid.caseDefinedHumanoidPerformanceContract!.notEvidenceFor = ["quest_readiness"] as never;
-    invalid.projectionArtifactConsumption!.caseDefinedHumanoidPerformanceContract = undefined as never;
-    invalid.caseDefinedHumanoidPerformanceWorkOrderCoverage!.missingActorRoles = ["patient"];
-    invalid.caseDefinedHumanoidPerformanceWorkOrderCoverage!.actorRoleCoverage.pop();
-    invalid.caseDefinedHumanoidPerformanceWorkOrderCoverage!.notEvidenceFor = ["quest_readiness"] as never;
-    const invalidPatientWorkOrder = invalid.plan.generationWorkOrders.find((workOrder) =>
-      workOrder.targetKind === "role_specific_humanoid_glb" && workOrder.actorRole === "patient"
+    const performanceContract = requireFixtureValue(
+      invalid.caseDefinedHumanoidPerformanceContract,
+      "case-defined humanoid performance contract",
     );
-    if (invalidPatientWorkOrder) {
-      invalidPatientWorkOrder.caseDefinedHumanoidPerformanceRequirements = {
-        ...invalidPatientWorkOrder.caseDefinedHumanoidPerformanceRequirements!,
-        claimBoundary: "runtime_ready" as never,
-        gazeRequired: "yes" as never,
-        expressionRequired: false,
-        locomotionPlanningRequired: false,
-        notEvidenceFor: ["quest_readiness"] as never,
-      };
-    }
+    performanceContract.claimBoundary = "runtime_ready" as never;
+    performanceContract.actorCount = 0;
+    performanceContract.notEvidenceFor = ["quest_readiness"] as never;
+    requireFixtureValue(
+      invalid.projectionArtifactConsumption,
+      "projection artifact consumption",
+    ).caseDefinedHumanoidPerformanceContract = undefined as never;
+    const workOrderCoverage = requireFixtureValue(
+      invalid.caseDefinedHumanoidPerformanceWorkOrderCoverage,
+      "case-defined humanoid performance work order coverage",
+    );
+    workOrderCoverage.missingActorRoles = ["patient"];
+    workOrderCoverage.actorRoleCoverage.pop();
+    workOrderCoverage.notEvidenceFor = ["quest_readiness"] as never;
+    const invalidPatientWorkOrder = requireFixtureValue(
+      invalid.plan.generationWorkOrders.find(
+        (workOrder) => workOrder.targetKind === "role_specific_humanoid_glb" && workOrder.actorRole === "patient",
+      ),
+      "patient role-specific humanoid work order",
+    );
+    invalidPatientWorkOrder.caseDefinedHumanoidPerformanceRequirements = {
+      ...requireFixtureValue(
+        invalidPatientWorkOrder.caseDefinedHumanoidPerformanceRequirements,
+        "patient humanoid performance requirements",
+      ),
+      claimBoundary: "runtime_ready" as never,
+      gazeRequired: "yes" as never,
+      expressionRequired: false,
+      locomotionPlanningRequired: false,
+      notEvidenceFor: ["quest_readiness"] as never,
+    };
 
     expect(validateEncounterAssetGenerationQueueReport(invalid)).toEqual({
       ok: false,
@@ -627,18 +649,30 @@ describe("encounter asset generation queue report", () => {
     };
     invalid.evidenceBoundaries.productionReadinessClaimed = true;
     invalid.operationalNotes.mayRunForDays = false;
-    invalid.humanoidRealismRequirements!.requirements[0]!.requiredSignalIds = ["animated_humanoid_runtime_playback"];
-    invalid.humanoidRealismRequirements!.requirements[0]!.realismProfile!.requiredRealismEvidenceIds = ["dialogue_viseme_and_gaze_mapping"];
-    invalid.humanoidRealismRequirements!.requirements[0]!.realismProfile = undefined as never;
-    invalid.humanoidRealismRequirements!.requirements[1]!.actorRole = invalid.humanoidRealismRequirements!.requirements[0]!.actorRole;
-    invalid.humanoidRealismProfiles[0]!.requiredRealismEvidenceIds = ["dialogue_viseme_and_gaze_mapping"];
-    invalid.humanoidRealismProfiles[0]!.actorRole = "unmatched_actor";
+    const firstRequirement = requireFixtureValue(
+      invalid.humanoidRealismRequirements.requirements[0],
+      "first humanoid realism requirement",
+    );
+    const secondRequirement = requireFixtureValue(
+      invalid.humanoidRealismRequirements.requirements[1],
+      "second humanoid realism requirement",
+    );
+    firstRequirement.requiredSignalIds = ["animated_humanoid_runtime_playback"];
+    requireFixtureValue(firstRequirement.realismProfile, "first humanoid realism profile").requiredRealismEvidenceIds = [
+      "dialogue_viseme_and_gaze_mapping",
+    ];
+    firstRequirement.realismProfile = undefined as never;
+    secondRequirement.actorRole = firstRequirement.actorRole;
+    const firstProfile = requireFixtureValue(invalid.humanoidRealismProfiles[0], "first humanoid realism profile");
+    firstProfile.requiredRealismEvidenceIds = ["dialogue_viseme_and_gaze_mapping"];
+    firstProfile.actorRole = "unmatched_actor";
     invalid.humanoidRealismProfiles.pop();
     invalid.plan.generationWorkOrders = invalid.plan.generationWorkOrders.filter((workOrder) => workOrder.targetKind !== "visual_feedback_closure");
-    invalid.plan.generationWorkOrders[0]!.modelProviderPolicy.allowPaidCloudApis = true;
-    invalid.plan.generationWorkOrders[0]!.sharedAssetLibraryReuse.lruCache.enabled = false;
-    invalid.plan.generationWorkOrders[0]!.providerRoutingPreference = [];
-    invalid.plan.generationWorkOrders[0]!.providerRoute = "cloud-approved-planned";
+    const firstWorkOrder = requireFixtureValue(invalid.plan.generationWorkOrders[0], "first generation work order");
+    firstWorkOrder.modelProviderPolicy.allowPaidCloudApis = true;
+    firstWorkOrder.sharedAssetLibraryReuse.lruCache.enabled = false;
+    firstWorkOrder.providerRoutingPreference = [];
+    firstWorkOrder.providerRoute = "cloud-approved-planned";
     invalid.operationalNotes.providerDisabledBoundary.claimBoundary = "metadata_only_claimed_as_live_provider_readiness";
     invalid.operationalNotes.providerDisabledBoundary.missingEvidenceIds = [];
     invalid.operationalNotes.localOnlyBoundary.missingEvidenceIds = ["azurite_or_queue_emulator_evidence_missing"];

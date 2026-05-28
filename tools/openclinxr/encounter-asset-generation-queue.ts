@@ -1,28 +1,28 @@
-import {
-  buildEncounterAssetGenerationPlan,
-  createEncounterAssetGenerationQueueMessage,
-  decodeAzureStorageQueueMessage,
-  encodeAzureStorageQueueMessage,
-  type EncounterHumanoidRealismRequirements,
-  type EncounterExecutableAssetGenerationRequest,
-} from "../../packages/openclinxr/capability-gateway/src/index.js";
-import { ENCOUNTER_HUMANOID_RUNTIME_REQUIRED_SIGNAL_IDS } from "../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
+import { stat } from "node:fs/promises";
 import {
   buildEncounterAssetNeedsReadinessManifest,
   type EncounterAssetNeedsReadinessManifest,
 } from "../../packages/openclinxr/asset-registry/src/index.js";
+import { ENCOUNTER_HUMANOID_RUNTIME_REQUIRED_SIGNAL_IDS } from "../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
+import {
+  buildEncounterAssetGenerationPlan,
+  createEncounterAssetGenerationQueueMessage,
+  decodeAzureStorageQueueMessage,
+  type EncounterExecutableAssetGenerationRequest,
+  type EncounterHumanoidRealismRequirements,
+  encodeAzureStorageQueueMessage,
+} from "../../packages/openclinxr/capability-gateway/src/index.js";
 import { findScenarioFixtureById } from "../../packages/openclinxr/scenario-fixtures/src/index.js";
 import {
   buildDynamicEncounterFactoryPlanningProjection,
   type DynamicEncounterFactoryPlanningScenario,
 } from "../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js";
+import type { Scenario } from "../../packages/openclinxr/shared-schemas/src/index.js";
 import {
-  validateDynamicEncounterFactoryProjectionArtifact,
   type DynamicEncounterFactoryProjectionArtifact,
+  validateDynamicEncounterFactoryProjectionArtifact,
 } from "../../packages/openclinxr/shared-schemas/src/index.js";
 import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
-import { stat } from "node:fs/promises";
-import type { Scenario } from "../../packages/openclinxr/shared-schemas/src/index.js";
 
 type CliOptions = {
   outputPath?: string;
@@ -487,14 +487,14 @@ export function validateEncounterAssetGenerationQueueReport(value: unknown): Val
       requireLiteral(value.request.evidenceGates.requireQuestEvidenceBeforeQuestReadinessClaim, true, "/request/evidenceGates/requireQuestEvidenceBeforeQuestReadinessClaim", errors);
     }
   }
-  if (Object.prototype.hasOwnProperty.call(value, "encounterAssetNeedsReadinessManifest")) {
+  if (Object.hasOwn(value, "encounterAssetNeedsReadinessManifest")) {
     if (isRecord(value.encounterAssetNeedsReadinessManifest)) {
       validateEncounterAssetNeedsReadinessManifest(value.encounterAssetNeedsReadinessManifest, errors);
     } else {
       errors.push("/encounterAssetNeedsReadinessManifest must be object");
     }
   }
-  if (Object.prototype.hasOwnProperty.call(value, "projectionArtifactConsumption")) {
+  if (Object.hasOwn(value, "projectionArtifactConsumption")) {
     if (isRecord(value.projectionArtifactConsumption)) {
       requireLiteral(
         value.projectionArtifactConsumption.source,
@@ -592,7 +592,7 @@ export function validateEncounterAssetGenerationQueueReport(value: unknown): Val
       errors.push("/projectionArtifactConsumption must be object");
     }
   }
-  if (Object.prototype.hasOwnProperty.call(value, "caseDefinedHumanoidPerformanceContract")) {
+  if (Object.hasOwn(value, "caseDefinedHumanoidPerformanceContract")) {
     validateCaseDefinedHumanoidPerformanceContract(
       value.caseDefinedHumanoidPerformanceContract,
       "/caseDefinedHumanoidPerformanceContract",
@@ -607,7 +607,7 @@ export function validateEncounterAssetGenerationQueueReport(value: unknown): Val
       errors.push("/caseDefinedHumanoidPerformanceContract must match /projectionArtifactConsumption/caseDefinedHumanoidPerformanceContract");
     }
   }
-  if (Object.prototype.hasOwnProperty.call(value, "caseDefinedHumanoidPerformanceWorkOrderCoverage")) {
+  if (Object.hasOwn(value, "caseDefinedHumanoidPerformanceWorkOrderCoverage")) {
     validateCaseDefinedHumanoidPerformanceWorkOrderCoverage(
       value.caseDefinedHumanoidPerformanceWorkOrderCoverage,
       "/caseDefinedHumanoidPerformanceWorkOrderCoverage",
@@ -842,8 +842,9 @@ export function validateEncounterAssetGenerationQueueReport(value: unknown): Val
           return;
         }
         const normalizedActorRole = normalizeHumanoidActorRole(requirement.actorRole);
-        requirementActorRoleCounts.set(normalizedActorRole, (requirementActorRoleCounts.get(normalizedActorRole) ?? 0) + 1);
-        if (requirementActorRoleCounts.get(normalizedActorRole)! > 1) {
+        const actorRoleCount = (requirementActorRoleCounts.get(normalizedActorRole) ?? 0) + 1;
+        requirementActorRoleCounts.set(normalizedActorRole, actorRoleCount);
+        if (actorRoleCount > 1) {
           errors.push(`/humanoidRealismRequirements/requirements/${index}/actorRole must be unique`);
         }
         if (!isRecord(requirement.realismProfile)) {
@@ -1358,10 +1359,6 @@ function buildHumanoidRealismProfile(
   };
 }
 
-function buildDefaultEncounterAssetGenerationRequest(): EncounterExecutableAssetGenerationRequest {
-  return buildEncounterAssetGenerationRequestForScenario("ed_chest_pain_priority_v1");
-}
-
 const scenarioPresetById: Record<string, {
   encounterId: string;
   stationId: string;
@@ -1465,7 +1462,7 @@ function requireLiteral(value: unknown, expected: string | number | boolean, pat
 
 function requireNumber(value: unknown, path: string, errors: string[]): void {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    errors.push(` must be number`);
+    errors.push(`${path} must be number`);
   }
 }
 
@@ -1489,7 +1486,7 @@ function requireBoolean(value: unknown, path: string, errors: string[]): void {
 
 function requireString(value: unknown, path: string, errors: string[]): void {
   if (typeof value !== "string" || value.trim().length === 0) {
-    errors.push(` must be non-empty string`);
+    errors.push(`${path} must be non-empty string`);
   }
 }
 

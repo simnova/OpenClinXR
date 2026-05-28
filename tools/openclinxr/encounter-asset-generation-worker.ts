@@ -1,11 +1,13 @@
+import { stat } from "node:fs/promises";
+import { Mongoose } from "mongoose";
 import {
   createAzureStorageEncounterAssetGenerationQueueClientFromConnectionString,
   decodeAzureStorageQueueMessage,
-  processNextEncounterAssetGenerationQueueMessage,
   type EncounterAssetGenerationQueueClient,
   type EncounterAssetGenerationQueueMessageEnvelope,
   type EncounterAssetGenerationQueueProcessingResult,
   type EncounterAssetGenerationWorkerExecution,
+  processNextEncounterAssetGenerationQueueMessage,
 } from "../../packages/openclinxr/capability-gateway/src/index.js";
 import {
   createEncounterAssetGenerationJobModel,
@@ -15,12 +17,10 @@ import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 import type { EncounterAssetGenerationQueueReport } from "./encounter-asset-generation-queue.js";
 import {
   buildEncounterOperationalBoundaryNotes,
-  validateEncounterOperationalBoundaryNotes,
   type EncounterOperationalBoundaryNotes,
+  validateEncounterOperationalBoundaryNotes,
 } from "./provider-boundary-notes.js";
 import type { VisualQaRemediationWorkOrderRef } from "./visual-qa-evidence-check.js";
-import { Mongoose } from "mongoose";
-import { stat } from "node:fs/promises";
 
 type CliOptions = {
   queueReportPath?: string;
@@ -212,7 +212,7 @@ export function validateEncounterAssetGenerationWorkerReport(value: unknown): Va
   requireRecord(value.processingResult, "/processingResult", errors);
   requireArray(value.persistedExecutions, "/persistedExecutions", errors);
   requireRecord(value.evidenceBoundaries, "/evidenceBoundaries", errors);
-  if (Object.prototype.hasOwnProperty.call(value, "remediationWorkOrderRefs")) {
+  if (Object.hasOwn(value, "remediationWorkOrderRefs")) {
     validateVisualQaRemediationWorkOrderRefs(value.remediationWorkOrderRefs, "/remediationWorkOrderRefs", errors);
   }
 
@@ -244,7 +244,7 @@ export function validateEncounterAssetGenerationWorkerReport(value: unknown): Va
       validateSharedAssetLibraryCacheEvents(execution.sharedAssetLibraryCacheEvents, "/persistedExecutions/0/sharedAssetLibraryCacheEvents", errors);
     }
   }
-  if (Object.prototype.hasOwnProperty.call(value, "workerMaterializationPlan")) {
+  if (Object.hasOwn(value, "workerMaterializationPlan")) {
     validateWorkerMaterializationPlan(value.workerMaterializationPlan, "/workerMaterializationPlan", errors);
   }
   requireRecord(value.sharedAssetLibraryCacheSummary, "/sharedAssetLibraryCacheSummary", errors);

@@ -12,6 +12,14 @@ import {
 } from "./encounter-asset-generation-worker.js";
 import type { VisualQaRemediationWorkOrderRef } from "./visual-qa-evidence-check.js";
 
+const requireFixtureValue = <T>(value: T | null | undefined, label: string): T => {
+  expect(value, label).toBeDefined();
+  if (value == null) {
+    throw new Error(`Missing required fixture value: ${label}`);
+  }
+  return value;
+};
+
 describe("encounter asset generation worker report", () => {
   it("exposes worker generation and validation scripts", async () => {
     const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
@@ -280,16 +288,26 @@ describe("encounter asset generation worker report", () => {
         }>;
       };
       invalidReport.evidenceBoundaries.azureCloudOperationPerformed = true;
-      invalidReport.persistedExecutions[0]!.plan.humanoidRealismRequirements.requirements[0]!.requiredAssetKinds = [
-        "generated_humanoid_mesh",
-      ];
-      invalidReport.persistedExecutions[0]!.evidenceGateRefs.find((gate) => gate.gateId === "runtime_realism_evidence")!.requiredSignalIds = [
-        "animated_humanoid_runtime_playback",
-      ];
-      invalidReport.persistedExecutions[0]!.sharedAssetLibraryCacheEvents[0]!.notEvidenceFor = ["quest_readiness"];
-      invalidReport.persistedExecutions[0]!.sharedAssetLibraryCacheEvents[1]!.generationDisposition = "skip_generation_reuse_cached_asset";
-      invalidReport.persistedExecutions[0]!.sharedAssetLibraryCacheEvents[1]!.evidenceGateCompatibility.checkedBeforeReuse = false;
-      invalidReport.persistedExecutions[0]!.sharedAssetLibraryCacheEvents.pop();
+      const persistedExecution = requireFixtureValue(invalidReport.persistedExecutions[0], "persisted worker execution");
+      requireFixtureValue(
+        persistedExecution.plan.humanoidRealismRequirements.requirements[0],
+        "first humanoid realism requirement",
+      ).requiredAssetKinds = ["generated_humanoid_mesh"];
+      requireFixtureValue(
+        persistedExecution.evidenceGateRefs.find((gate) => gate.gateId === "runtime_realism_evidence"),
+        "runtime realism evidence gate",
+      ).requiredSignalIds = ["animated_humanoid_runtime_playback"];
+      requireFixtureValue(
+        persistedExecution.sharedAssetLibraryCacheEvents[0],
+        "first shared asset library cache event",
+      ).notEvidenceFor = ["quest_readiness"];
+      const secondCacheEvent = requireFixtureValue(
+        persistedExecution.sharedAssetLibraryCacheEvents[1],
+        "second shared asset library cache event",
+      );
+      secondCacheEvent.generationDisposition = "skip_generation_reuse_cached_asset";
+      secondCacheEvent.evidenceGateCompatibility.checkedBeforeReuse = false;
+      persistedExecution.sharedAssetLibraryCacheEvents.pop();
       await writeFile(invalidPath, `${JSON.stringify(invalidReport, null, 2)}\n`, "utf8");
 
       process.exitCode = undefined;
