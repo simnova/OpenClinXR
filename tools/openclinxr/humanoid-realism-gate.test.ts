@@ -209,8 +209,12 @@ describe("humanoid realism gate", () => {
       generatedAt: "2026-05-23T00:00:00.000Z",
     });
 
+    if (!pediatricPlanningScenario) {
+      throw new Error("Expected pediatric planning scenario fixture");
+    }
+
     const badges = buildCaseDefinedActorRealismLaunchBadges(
-      pediatricPlanningScenario!.humanoidPerformanceContract.actorRuntimeRealismRequirements,
+      pediatricPlanningScenario.humanoidPerformanceContract.actorRuntimeRealismRequirements,
       gateReport,
     );
 

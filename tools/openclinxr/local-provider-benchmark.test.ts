@@ -1,13 +1,13 @@
-import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
+import { describe, expect, it } from "vitest";
 import {
+  type BenchmarkResult,
+  buildLocalProviderBenchmarkReport,
   buildUserLocalCommandCandidatePath,
   buildUserLocalCommandCandidatePaths,
-  buildLocalProviderBenchmarkReport,
   parseLocalProviderEnvFileContent,
   runLocalProviderBenchmarkCli,
   validateLocalProviderBenchmarkReport,
-  type BenchmarkResult,
 } from "./local-provider-benchmark.js";
 
 describe("local provider benchmark report", () => {
