@@ -491,9 +491,12 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("learner_runtime_asset_bundle_fallback");
     expect(mainSource).toContain("resolveRuntimeAssetUrl");
     expect(mainSource).toContain("resolveEmulatorRuntimeAssetUrl");
-    expect(mainSource).toContain('/xr-assets/humanoids/${fileName}');
-    expect(mainSource).toContain('/xr-assets/environment/${fileName}');
-    expect(mainSource).toContain('/xr-assets/medical-equipment/${fileName}');
+    expect(mainSource).toContain("/xr-assets/humanoids/${resolveLocalHumanoidRuntimeAssetFileName(fileName)}");
+    expect(mainSource).toContain("/xr-assets/environment/${resolveLocalEnvironmentRuntimeAssetFileName(fileName)}");
+    expect(mainSource).toContain("/xr-assets/medical-equipment/${resolveLocalEquipmentRuntimeAssetFileName(fileName)}");
+    expect(mainSource).toContain("resolveLocalHumanoidRuntimeAssetFileName");
+    expect(mainSource).toContain("resolveLocalEnvironmentRuntimeAssetFileName");
+    expect(mainSource).toContain("resolveLocalEquipmentRuntimeAssetFileName");
     expect(mainSource).toContain("findRuntimeActorAsset");
     expect(mainSource).toContain("findRuntimeEquipmentAsset");
     expect(mainSource).toContain("generated_equipment_asset_loaded");

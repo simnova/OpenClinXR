@@ -8,6 +8,7 @@ node_modules/
 .agent-factory/*-check.json
 .agent-factory/*-current.json
 apps/*/.codex/
+tmp/
 .venv/
 __pycache__/
 *.pyc
