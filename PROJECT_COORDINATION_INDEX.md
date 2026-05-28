@@ -121,6 +121,8 @@ If the answer is no, do not do the slice.
 
 `docs/openclinxr/openclaw-tool-adapters-2026-05-27.md` is the protected host-adapter guide for Codex, Claude, Grok, Cursor, and other agent tools. Use it before long unattended batches or after cleanup/drift suspicion; it defines `pnpm docs:drift-check`, the Required Per-Slice Record, and the canonical automation prompt.
 
+`docs/openclinxr/dependency-hygiene-and-e18e-policy.md` is the dependency-hygiene policy. Use it before attempting `e18e`, `pnpm dedupe`, TypeScript compiler-preview, IWSDK/Vite, GLTF toolchain, or lockfile cleanup work.
+
 Coordinator rule:
 
 - Reject slices that polish one fixture, garment, screenshot, prop, or room without strengthening the blueprint-to-runtime factory contract.
@@ -128,6 +130,7 @@ Coordinator rule:
 - If three consecutive slices focus on visual assets, clothing, provider metadata, or screenshots without advancing conversation/runtime/review behavior, consult Chief Coordinator, Implementation Planning Lead, Implementation Plan Gap Attacker, VP Engineering Delivery, Clinical Simulation Lead, Data Trace Architect, Voice/Speech Engineer, XR Systems Architect, and Asset Pipeline Lead before selecting the next slice.
 - Agents may not delete, weaken, bypass, rename, or reinterpret the guardrails during autonomous work.
 - Agents may not create scattered markdown/status/prompt artifacts or unregistered generated artifacts; `pnpm docs:drift-check` must pass before claiming the repo is ready for long unattended OpenClaw execution.
+- Agents may not treat `e18e` duplicate warnings as an autofix target; dependency cleanup must improve a measured signal while keeping `pnpm peers check` and `pnpm hooks:strict` green.
 
 ## Evidence-Toil Stop Rule
 

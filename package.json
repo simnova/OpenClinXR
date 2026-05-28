@@ -196,7 +196,9 @@
     "docs:artifacts": "tsx tools/agent-factory/build-generated-artifact-registry.ts",
     "docs:drift-check": "tsx tools/agent-factory/check-openclaw-drift.ts",
     "docs:evidence-index": "tsx tools/agent-factory/build-evidence-index.ts",
-    "docs:worktree-cleanup": "tsx tools/agent-factory/build-worktree-cleanup-report.ts"
+    "docs:worktree-cleanup": "tsx tools/agent-factory/build-worktree-cleanup-report.ts",
+    "hygiene:e18e:summary": "tsx tools/agent-factory/summarize-e18e-hygiene.ts",
+    "hygiene:e18e:summary:write": "tsx tools/agent-factory/summarize-e18e-hygiene.ts --write"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.15",

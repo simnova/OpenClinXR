@@ -9,6 +9,7 @@
     "current-reference": 49,
     "agent-memory": 140,
     "agent-methodology": 8,
+    "archive-candidate": 1,
     "historical-synthesis": 81,
     "decision-record": 18,
     "proposal": 21
@@ -1336,6 +1337,13 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/openclinxr/dependency-hygiene-and-e18e-policy.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/doc-authority-registry-2026-05-27.md",

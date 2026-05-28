@@ -24,3 +24,7 @@ allowBuilds:
   mongodb-memory-server: true
   protobufjs: true
   sharp: true
+
+peerDependencyRules:
+  allowedVersions:
+    vite: "8.0.10"

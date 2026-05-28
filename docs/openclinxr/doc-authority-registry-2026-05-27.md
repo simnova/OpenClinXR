@@ -12,6 +12,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 140
 - agent-methodology: 8
+- archive-candidate: 1
 - current-reference: 49
 - decision-record: 18
 - evidence: 44
@@ -87,4 +88,4 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 These files should be summarized, archived, or explicitly marked historical before agents use them as instructions.
 
-
+- `docs/openclinxr/dependency-hygiene-and-e18e-policy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
