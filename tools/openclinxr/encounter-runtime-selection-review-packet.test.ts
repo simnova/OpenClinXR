@@ -2,12 +2,12 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import type { EncounterGuardedRuntimeSelectionIntent } from "./encounter-guarded-runtime-selection-intent.js";
 import {
   buildEncounterRuntimeSelectionReviewPacket,
   runEncounterRuntimeSelectionReviewPacketCli,
   validateEncounterRuntimeSelectionReviewPacket,
 } from "./encounter-runtime-selection-review-packet.js";
-import type { EncounterGuardedRuntimeSelectionIntent } from "./encounter-guarded-runtime-selection-intent.js";
 
 const selectionIntent = (): EncounterGuardedRuntimeSelectionIntent => ({
   generatedAt: "2026-05-23T14:30:00.000Z",
