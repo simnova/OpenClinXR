@@ -3,7 +3,6 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { buildEncounterFactorySummaryContracts } from "../../packages/openclinxr/asset-registry/src/index.js";
-import { buildEncounterAssetGenerationQueueReport } from "./encounter-asset-generation-queue.js";
 import {
   buildDynamicEncounterFactoryProjectionArtifact,
   edChestPainScenario,
@@ -13,6 +12,7 @@ import {
   scenarioBank,
   variantScenarioBank,
 } from "../../packages/openclinxr/scenario-fixtures/src/index.js";
+import { buildEncounterAssetGenerationQueueReport } from "./encounter-asset-generation-queue.js";
 import {
   buildEncounterPublicationPayloadReport,
   runEncounterPublicationPayloadsCli,
@@ -28,6 +28,14 @@ const notEvidenceFor: GeneratedEdStationRuntimeBundleReport["notEvidenceFor"] = 
   "clinical_validity",
   "scoring_validity",
 ];
+
+const requireFixtureValue = <T>(value: T | null | undefined, label: string): T => {
+  expect(value, label).toBeDefined();
+  if (value == null) {
+    throw new Error(`Missing required fixture value: ${label}`);
+  }
+  return value;
+};
 
 const actorHumanoidMaterializationContract: NonNullable<GeneratedEdStationRuntimeBundleReport["actorHumanoidMaterializationContract"]> = {
   schemaVersion: "openclinxr.actor-humanoid-materialization-contract.v1",
@@ -1337,6 +1345,10 @@ function bundleReportForScenario(scenarioId: string): GeneratedEdStationRuntimeB
     throw new Error("typed test fixture expected learner bundle");
   }
   if (scenarioId === pediatricAsthmaScenario.scenarioId) {
+    const patientActor = requireFixtureValue(learnerBundle.actors[0], "pediatric source patient actor");
+    const familyActor = requireFixtureValue(learnerBundle.actors[2], "pediatric source family actor");
+    const nurseActor = requireFixtureValue(learnerBundle.actors[1], "pediatric source nurse actor");
+    const equipmentTemplate = requireFixtureValue(learnerBundle.equipment[0], "pediatric equipment template");
     return {
       ...report,
       learnerBundle: {
@@ -1356,9 +1368,39 @@ function bundleReportForScenario(scenarioId: string): GeneratedEdStationRuntimeB
           },
         },
         actors: [
-          { ...learnerBundle.actors[0], actorId: "patient_maya_johnson_v1", role: "patient", model: { ...learnerBundle.actors[0]!.model, assetId: "patient_maya_johnson_character", displayName: "Maya Johnson", scenarioAssetId: "patient_maya_johnson_character" } },
-          { ...learnerBundle.actors[2], actorId: "parent_tara_johnson_v1", role: "family", model: { ...learnerBundle.actors[2]!.model, assetId: "parent_tara_johnson_character", displayName: "Tara Johnson", scenarioAssetId: "parent_tara_johnson_character" } },
-          { ...learnerBundle.actors[1], actorId: "nurse_kevin_lee_v1", role: "nurse", model: { ...learnerBundle.actors[1]!.model, assetId: "nurse_kevin_lee_character", displayName: "Kevin Lee", scenarioAssetId: "nurse_kevin_lee_character" } },
+          {
+            ...patientActor,
+            actorId: "patient_maya_johnson_v1",
+            role: "patient",
+            model: {
+              ...patientActor.model,
+              assetId: "patient_maya_johnson_character",
+              displayName: "Maya Johnson",
+              scenarioAssetId: "patient_maya_johnson_character",
+            },
+          },
+          {
+            ...familyActor,
+            actorId: "parent_tara_johnson_v1",
+            role: "family",
+            model: {
+              ...familyActor.model,
+              assetId: "parent_tara_johnson_character",
+              displayName: "Tara Johnson",
+              scenarioAssetId: "parent_tara_johnson_character",
+            },
+          },
+          {
+            ...nurseActor,
+            actorId: "nurse_kevin_lee_v1",
+            role: "nurse",
+            model: {
+              ...nurseActor.model,
+              assetId: "nurse_kevin_lee_character",
+              displayName: "Kevin Lee",
+              scenarioAssetId: "nurse_kevin_lee_character",
+            },
+          },
         ],
         equipment: [
           "pulse_oximeter_equipment",
@@ -1370,12 +1412,12 @@ function bundleReportForScenario(scenarioId: string): GeneratedEdStationRuntimeB
         ].map((equipmentId) => ({
           equipmentId,
           model: {
-            ...learnerBundle.equipment[0]!.model,
+            ...equipmentTemplate.model,
             assetId: equipmentId,
             displayName: equipmentId.replace(/_/g, " "),
             scenarioAssetId: equipmentId,
             blob: {
-              ...learnerBundle.equipment[0]!.model.blob,
+              ...equipmentTemplate.model.blob,
               blobName: `${equipmentId}.glb`,
               url: `http://127.0.0.1/${equipmentId}.glb`,
             },

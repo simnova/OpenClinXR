@@ -1,14 +1,9 @@
 import { mkdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
-import {
-  buildEncounterAssetGenerationPublicationTargets,
-  buildEncounterWorkerMaterializationPlan,
-  type EncounterAssetGenerationPublicationTargets,
-} from "../../packages/openclinxr/capability-gateway/src/index.js";
 import type {
   EncounterDynamicBehaviorCoverageSummary,
-  EncounterRuntimeSceneManifest,
   EncounterFactoryDryRunSummary,
+  EncounterRuntimeSceneManifest,
   LearnerRuntimeAssetBundle,
 } from "../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
 import {
@@ -17,23 +12,28 @@ import {
   buildEncounterFactorySummaryContracts,
   ENCOUNTER_HUMANOID_RUNTIME_REQUIRED_SIGNAL_IDS,
 } from "../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
-import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
-import { buildEncounterAssetGenerationQueueReport } from "./encounter-asset-generation-queue.js";
-import {
-  buildEncounterOperationalBoundaryNotes,
-  validateEncounterOperationalBoundaryNotes,
-  type EncounterOperationalBoundaryNotes,
-} from "./provider-boundary-notes.js";
-import type { VisualQaRemediationWorkOrderRef } from "./visual-qa-evidence-check.js";
-import type { DynamicEncounterFactoryProjectionArtifact } from "../../packages/openclinxr/shared-schemas/src/index.js";
-import type { EncounterAssetGenerationQueueReport } from "./encounter-asset-generation-queue.js";
-import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-station-runtime-bundle.js";
 import type {
   EncounterGenerationWorkOrder,
   EncounterHumanoidRealismRequirements,
   EncounterWorkerMaterializationPlan,
 } from "../../packages/openclinxr/capability-gateway/src/index.js";
+import {
+  buildEncounterAssetGenerationPublicationTargets,
+  buildEncounterWorkerMaterializationPlan,
+  type EncounterAssetGenerationPublicationTargets,
+} from "../../packages/openclinxr/capability-gateway/src/index.js";
+import type { DynamicEncounterFactoryProjectionArtifact } from "../../packages/openclinxr/shared-schemas/src/index.js";
 import { validateDynamicEncounterFactoryProjectionArtifact } from "../../packages/openclinxr/shared-schemas/src/index.js";
+import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
+import type { EncounterAssetGenerationQueueReport } from "./encounter-asset-generation-queue.js";
+import { buildEncounterAssetGenerationQueueReport } from "./encounter-asset-generation-queue.js";
+import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-station-runtime-bundle.js";
+import {
+  buildEncounterOperationalBoundaryNotes,
+  type EncounterOperationalBoundaryNotes,
+  validateEncounterOperationalBoundaryNotes,
+} from "./provider-boundary-notes.js";
+import type { VisualQaRemediationWorkOrderRef } from "./visual-qa-evidence-check.js";
 
 type CliOptions = {
   queueReportPath?: string;
@@ -656,10 +656,10 @@ export function validateEncounterPublicationPayloadReport(value: unknown): Valid
   requireRecord(value.localMaterializationHandoffManifest, "/localMaterializationHandoffManifest", errors);
   requireRecord(value.evidenceBoundaries, "/evidenceBoundaries", errors);
   requireArray(value.blockers, "/blockers", errors);
-  if (Object.prototype.hasOwnProperty.call(value, "encounterAssetNeedsReadinessManifest")) {
+  if (Object.hasOwn(value, "encounterAssetNeedsReadinessManifest")) {
     validateEncounterAssetNeedsReadinessManifest(value.encounterAssetNeedsReadinessManifest, errors);
   }
-  if (Object.prototype.hasOwnProperty.call(value, "remediationWorkOrderRefs")) {
+  if (Object.hasOwn(value, "remediationWorkOrderRefs")) {
     validateVisualQaRemediationWorkOrderRefs(value.remediationWorkOrderRefs, "/remediationWorkOrderRefs", errors);
   }
 
@@ -1038,7 +1038,7 @@ export function validateEncounterPublicationPayloadReport(value: unknown): Valid
       }
     }
   }
-  if (Object.prototype.hasOwnProperty.call(value, "projectionArtifactConsumption")) {
+  if (Object.hasOwn(value, "projectionArtifactConsumption")) {
     if (isRecord(value.projectionArtifactConsumption)) {
       requireLiteral(
         value.projectionArtifactConsumption.source,
