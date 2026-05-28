@@ -28,9 +28,9 @@ describe("asset production readiness report", () => {
   it("keeps placeholder Blender and GLTF smoke evidence blocked for production asset readiness", () => {
     const report = buildAssetProductionReadinessReport({
       generatedAt: "2026-05-04T20:30:00.000Z",
-      gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
+      gltfSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
       blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
-      gltfPipelineSmoke: gltfSmoke({ passed: true }),
+      gltfSmoke: gltfSmoke({ passed: true }),
       blenderAssetBakeSmoke: blenderSmoke({ passed: true, sourceLicensePosture: "repo_generated_placeholder" }),
     });
 
@@ -42,7 +42,7 @@ describe("asset production readiness report", () => {
       copyleftRuntimeAllowed: false,
     });
     expect(report.sourceEvidence).toMatchObject({
-      gltfPipelineSmokePassed: true,
+      gltfSmokePassed: true,
       blenderBakeSmokePassed: true,
       blenderSourceLicensePosture: "repo_generated_placeholder",
       placeholderBakeOnly: true,
@@ -114,9 +114,9 @@ describe("asset production readiness report", () => {
   it("passes when all production asset proof lanes are observed and smoke evidence is clean", () => {
     const report = buildAssetProductionReadinessReport({
       generatedAt: "2026-05-04T20:30:00.000Z",
-      gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
+      gltfSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
       blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
-      gltfPipelineSmoke: gltfSmoke({ passed: true }),
+      gltfSmoke: gltfSmoke({ passed: true }),
       blenderAssetBakeSmoke: blenderSmoke({ passed: true, sourceLicensePosture: "reviewed_generated_character_pipeline" }),
       proofOverrides: { multiActorQuestBudget: true },
       stationBudgetEvidence: completeStationBudgetEvidence(),
@@ -136,9 +136,9 @@ describe("asset production readiness report", () => {
   it("uses local ED placeholder manifests as station-level Quest budget evidence without releasing production assets", () => {
     const report = buildAssetProductionReadinessReport({
       generatedAt: "2026-05-04T20:30:00.000Z",
-      gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
+      gltfSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
       blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
-      gltfPipelineSmoke: gltfSmoke({ passed: true }),
+      gltfSmoke: gltfSmoke({ passed: true }),
       blenderAssetBakeSmoke: blenderSmoke({ passed: true, sourceLicensePosture: "repo_generated_placeholder" }),
     });
 
@@ -183,9 +183,9 @@ describe("asset production readiness report", () => {
   it("splits missing optimization evidence into LOD, texture, and collider blockers", () => {
     const report = buildAssetProductionReadinessReport({
       generatedAt: "2026-05-04T20:30:00.000Z",
-      gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
+      gltfSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
       blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
-      gltfPipelineSmoke: gltfSmoke({ passed: true }),
+      gltfSmoke: gltfSmoke({ passed: true }),
       blenderAssetBakeSmoke: blenderSmoke({ passed: true, sourceLicensePosture: "repo_generated_placeholder" }),
     });
 
@@ -210,9 +210,9 @@ describe("asset production readiness report", () => {
   it("splits missing generation evidence into manifest-derived production blockers", () => {
     const report = buildAssetProductionReadinessReport({
       generatedAt: "2026-05-04T20:30:00.000Z",
-      gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
+      gltfSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
       blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json",
-      gltfPipelineSmoke: gltfSmoke({ passed: true }),
+      gltfSmoke: gltfSmoke({ passed: true }),
       blenderAssetBakeSmoke: blenderSmoke({ passed: true, sourceLicensePosture: "repo_generated_placeholder" }),
     });
 
@@ -238,9 +238,9 @@ describe("asset production readiness report", () => {
   it("blocks reviewed source evidence when station budget still comes only from placeholder manifests", () => {
     const report = buildAssetProductionReadinessReport({
       generatedAt: "2026-05-06T02:15:00.000Z",
-      gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
+      gltfSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
       blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-05.json",
-      gltfPipelineSmoke: gltfSmoke({ passed: true }),
+      gltfSmoke: gltfSmoke({ passed: true }),
       blenderAssetBakeSmoke: blenderSmoke({ passed: true, sourceLicensePosture: "reviewed_generated_character_pipeline" }),
       proofOverrides: { multiActorQuestBudget: true },
       generationEvidence: completeGenerationEvidence(),
@@ -265,9 +265,9 @@ describe("asset production readiness report", () => {
   it("can consume local asset evidence fixture manifests while preserving the placeholder source blocker", () => {
     const report = buildAssetProductionReadinessReport({
       generatedAt: "2026-05-06T02:00:00.000Z",
-      gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
+      gltfSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-03.json",
       blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-05.json",
-      gltfPipelineSmoke: gltfSmoke({ passed: true }),
+      gltfSmoke: gltfSmoke({ passed: true }),
       blenderAssetBakeSmoke: blenderSmoke({ passed: true, sourceLicensePosture: "repo_generated_placeholder" }),
       useLocalAssetEvidenceFixture: true,
     });
@@ -311,9 +311,9 @@ describe("asset production readiness report", () => {
   it("blocks contract-only local evidence fixtures even when reviewed Blender source evidence is present", () => {
     const report = buildAssetProductionReadinessReport({
       generatedAt: "2026-05-06T06:45:00.000Z",
-      gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
+      gltfSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
       blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
-      gltfPipelineSmoke: gltfSmoke({ passed: true }),
+      gltfSmoke: gltfSmoke({ passed: true }),
       blenderAssetBakeSmoke: blenderSmoke({
         passed: true,
         sourceLicensePosture: "reviewed_local_clinical_asset_fixture",
@@ -362,9 +362,9 @@ describe("asset production readiness report", () => {
   it("blocks reviewed local clinical fixture evidence when semantic object inventory is missing", () => {
     const report = buildAssetProductionReadinessReport({
       generatedAt: "2026-05-06T07:30:00.000Z",
-      gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
+      gltfSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
       blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
-      gltfPipelineSmoke: gltfSmoke({ passed: true }),
+      gltfSmoke: gltfSmoke({ passed: true }),
       blenderAssetBakeSmoke: blenderSmoke({
         passed: true,
         sourceLicensePosture: "reviewed_local_clinical_asset_fixture",
@@ -384,9 +384,9 @@ describe("asset production readiness report", () => {
   it("blocks reviewed local clinical fixture evidence when required semantic objects are missing", () => {
     const report = buildAssetProductionReadinessReport({
       generatedAt: "2026-05-06T07:31:00.000Z",
-      gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
+      gltfSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
       blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
-      gltfPipelineSmoke: gltfSmoke({ passed: true }),
+      gltfSmoke: gltfSmoke({ passed: true }),
       blenderAssetBakeSmoke: blenderSmoke({
         passed: true,
         sourceLicensePosture: "reviewed_local_clinical_asset_fixture",
@@ -416,9 +416,9 @@ describe("asset production readiness report", () => {
   it("validates generated production readiness reports before aggregate reuse", () => {
     const report = buildAssetProductionReadinessReport({
       generatedAt: "2026-05-06T06:45:00.000Z",
-      gltfPipelineSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
+      gltfSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
       blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
-      gltfPipelineSmoke: gltfSmoke({ passed: true }),
+      gltfSmoke: gltfSmoke({ passed: true }),
       blenderAssetBakeSmoke: blenderSmoke({
         passed: true,
         sourceLicensePosture: "reviewed_local_clinical_asset_fixture",

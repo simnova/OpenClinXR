@@ -1159,7 +1159,7 @@ export function buildBenchmarkGateReport(input: BenchmarkGateReportInput, option
       ? "asset_production_capability_job_contract_observed"
       : undefined,
     assetProductionReadinessBenchmarkValid ? "asset_production_readiness_report_present" : undefined,
-    assetProductionReadinessBenchmarkValid && assetProductionReadinessBenchmark?.value.sourceEvidence.gltfPipelineSmokePassed && assetProductionReadinessBenchmark.value.sourceEvidence.blenderBakeSmokePassed ? "asset_production_source_smokes_passed" : undefined,
+    assetProductionReadinessBenchmarkValid && assetProductionReadinessBenchmark?.value.sourceEvidence.gltfSmokePassed && assetProductionReadinessBenchmark.value.sourceEvidence.blenderBakeSmokePassed ? "asset_production_source_smokes_passed" : undefined,
     assetProductionReadinessBenchmarkValid && assetProductionReadinessBenchmark?.value.generationEvidence?.generatedHumanRiggingObserved ? "asset_production_generated_human_rigging_observed" : undefined,
     assetProductionReadinessBenchmarkValid && assetProductionReadinessBenchmark?.value.generationEvidence?.skinClothingProvenanceObserved ? "asset_production_skin_clothing_provenance_observed" : undefined,
     assetProductionReadinessBenchmarkValid && assetProductionReadinessBenchmark?.value.generationEvidence?.medicalEquipmentLibraryObserved ? "asset_production_medical_equipment_library_observed" : undefined,

@@ -1,12 +1,14 @@
 import { execFile } from "node:child_process";
 import { constants as fsConstants } from "node:fs";
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
+import { createRequire } from "node:module";
 import { homedir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
+const require = createRequire(import.meta.url);
 
 export const LOCAL_RUNTIME_COMMAND_TIMEOUT_MS = 60_000;
 
@@ -35,6 +37,12 @@ export type PythonModuleProbe = {
   status: "available" | "missing" | "not_checked";
 };
 
+export type NodePackageProbe = {
+  packageName: string;
+  status: "available" | "missing";
+  path?: string;
+};
+
 export type GateStatus = {
   status: "ready" | "not_configured" | "blocked";
   blockers: string[];
@@ -45,6 +53,7 @@ export type LocalRuntimeProbeReport = {
   system: Record<string, unknown>;
   commands: CommandProbe[];
   pythonModules: PythonModuleProbe[];
+  nodePackages: NodePackageProbe[];
   adb: {
     devices: string;
     reverseList?: string;
@@ -96,11 +105,13 @@ const commandSpecs: CommandSpec[] = [
 export const localRuntimeCommandNames = commandSpecs.map((spec) => spec.command);
 
 const pythonModules = ["torch", "transformers", "numpy", "scipy", "mlx", "soundfile"] as const;
+const nodePackages = ["@gltf-transform/core"] as const;
 
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
   const commands = await Promise.all(commandSpecs.map((spec) => probeCommand(spec)));
   const modules = await probePythonModules(commands);
+  const nodePackageProbes = await probeNodePackages();
   const adbDevices = await runOptional("adb", ["devices", "-l"]);
   const adbReverse = await runOptional("adb", ["reverse", "--list"]);
   const adbPower = await runOptional("adb", ["shell", "dumpsys", "power"]);
@@ -111,6 +122,7 @@ async function main(): Promise<void> {
     system: await probeSystem(),
     commands,
     pythonModules: modules,
+    nodePackages: nodePackageProbes,
     adbDevices,
     adbReverse,
     adbPower,
@@ -262,11 +274,29 @@ async function probePythonModules(commands: CommandProbe[]): Promise<PythonModul
   return pythonModules.map((module) => ({ module, status: parsed[module] ? "available" : "missing" }));
 }
 
+async function probeNodePackages(): Promise<NodePackageProbe[]> {
+  return nodePackages.map((packageName) => {
+    try {
+      return {
+        packageName,
+        status: "available",
+        path: require.resolve(packageName),
+      };
+    } catch {
+      return {
+        packageName,
+        status: "missing",
+      };
+    }
+  });
+}
+
 export function buildLocalRuntimeProbeReport(input: {
   generatedAt?: string;
   system: Record<string, unknown>;
   commands: CommandProbe[];
   pythonModules: PythonModuleProbe[];
+  nodePackages?: NodePackageProbe[];
   adbDevices: string;
   adbReverse: string;
   adbPower: string;
@@ -276,6 +306,8 @@ export function buildLocalRuntimeProbeReport(input: {
     && probe.status === "available"
     && !probe.error);
   const hasModule = (module: string) => input.pythonModules.some((probe) => probe.module === module && probe.status === "available");
+  const hasNodePackage = (packageName: string) =>
+    input.nodePackages?.some((probe) => probe.packageName === packageName && probe.status === "available") === true;
   const bunRuntimeAvailable = hasCommand("bun");
   const bunWebSocketRuntimeSmokePassed = input.apiBunWebSocketRuntimeSmoke?.status === "passed"
     && input.apiBunWebSocketRuntimeSmoke.runtimeEvidenceBlockers?.length === 0
@@ -286,9 +318,10 @@ export function buildLocalRuntimeProbeReport(input: {
   const localModelRuntimeAvailable = hasCommand("ollama") || hasCommand("llama-cli") || hasCommand("llama-server") || hasCommand("mlx_lm") || hasModule("mlx");
   const localVoiceRuntimeAvailable = hasCommand("vibevoice");
   const hasGltfOptimizationCli = hasCommand("gltf-transform") || hasCommand("gltf-pipeline");
+  const hasGltfTransformNodeApi = hasNodePackage("@gltf-transform/core");
   const hasBlender = hasCommand("blender");
   const assetPipelineBlockers = [
-    hasGltfOptimizationCli ? undefined : "missing_permissive_gltf_optimization_cli",
+    hasGltfOptimizationCli || hasGltfTransformNodeApi ? undefined : "missing_permissive_gltf_conversion_runtime",
     hasBlender ? undefined : "missing_blender",
   ].filter((blocker): blocker is string => typeof blocker === "string");
 
@@ -297,6 +330,7 @@ export function buildLocalRuntimeProbeReport(input: {
     system: input.system,
     commands: input.commands,
     pythonModules: input.pythonModules,
+    nodePackages: input.nodePackages ?? [],
     adb: {
       devices: input.adbDevices,
       reverseList: input.adbReverse || undefined,

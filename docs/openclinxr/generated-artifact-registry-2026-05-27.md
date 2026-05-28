@@ -11,7 +11,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 ## Counts
 
 - keep-current: 70
-- keep-evidence: 707
+- keep-evidence: 710
 - keep-template: 14
 
 ## Cleanup Actions
@@ -114,6 +114,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `docs/openclinxr/asset-production-readiness-benchmark-2026-05-04.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/asset-production-readiness-benchmark-2026-05-05.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/asset-production-readiness-benchmark-2026-05-21.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
+- `docs/openclinxr/asset-production-readiness-benchmark-2026-05-27.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/asset-production-support-artifacts-2026-05-21.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/blender-asset-bake-smoke-2026-05-04.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/blender-asset-bake-smoke-2026-05-05.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
@@ -451,7 +452,9 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `docs/openclinxr/iwsdk-metadata-drift-evidence-2026-05-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/iwsdk-metadata-drift-evidence-2026-05-07.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/iwsdk-npm-currentness-2026-05-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/iwsdk-npm-currentness-2026-05-27.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/iwsdk-npm-metadata-snapshot-2026-05-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/iwsdk-npm-metadata-snapshot-2026-05-27.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/iwsdk-phase2-devtools-preinstall-proposal.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/iwsdk-phase2-devtools-preinstall-report-2026-05-04.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/iwsdk-phase2-devtools-workspace-posture-2026-05-04.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.

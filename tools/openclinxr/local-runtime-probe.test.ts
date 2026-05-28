@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
   buildLocalRuntimeProbeReport,
-  LOCAL_RUNTIME_COMMAND_TIMEOUT_MS,
   buildUserLocalCommandCandidatePath,
   buildUserLocalCommandCandidatePaths,
-  localRuntimeCommandNames,
-  selectCommandVersionOutput,
   type CommandProbe,
+  LOCAL_RUNTIME_COMMAND_TIMEOUT_MS,
+  localRuntimeCommandNames,
   type PythonModuleProbe,
+  selectCommandVersionOutput,
 } from "./local-runtime-probe.js";
 
 describe("local runtime probe gates", () => {
@@ -95,6 +95,42 @@ describe("local runtime probe gates", () => {
     expect(report.gates.localVoice).toEqual({
       status: "blocked",
       blockers: ["voice_model_not_selected_or_benchmarked"],
+    });
+  });
+
+  it("allows @gltf-transform/core Node API evidence to satisfy the GLTF conversion runtime gate", () => {
+    const report = buildLocalRuntimeProbeReport({
+      generatedAt: "2026-05-27T00:00:00.000Z",
+      system: {},
+      commands: [availableCommand("blender")],
+      pythonModules: [],
+      nodePackages: [{ packageName: "@gltf-transform/core", status: "available", path: "/repo/node_modules/@gltf-transform/core" }],
+      adbDevices: "List of devices attached\n",
+      adbReverse: "",
+      adbPower: "",
+    });
+
+    expect(report.nodePackages).toEqual([
+      { packageName: "@gltf-transform/core", status: "available", path: "/repo/node_modules/@gltf-transform/core" },
+    ]);
+    expect(report.gates.assetPipeline).toEqual({ status: "ready", blockers: [] });
+  });
+
+  it("uses a generic GLTF conversion runtime blocker when neither CLI nor Node API is available", () => {
+    const report = buildLocalRuntimeProbeReport({
+      generatedAt: "2026-05-27T00:00:00.000Z",
+      system: {},
+      commands: [availableCommand("blender")],
+      pythonModules: [],
+      nodePackages: [{ packageName: "@gltf-transform/core", status: "missing" }],
+      adbDevices: "List of devices attached\n",
+      adbReverse: "",
+      adbPower: "",
+    });
+
+    expect(report.gates.assetPipeline).toEqual({
+      status: "not_configured",
+      blockers: ["missing_permissive_gltf_conversion_runtime"],
     });
   });
 

@@ -92,7 +92,7 @@ function validReport(): GltfTransformSmokeReport {
     replacementAssessment: {
       candidateFor: "gltf-pipeline_root_dependency_reduction",
       paritySignals: ["node_api_available", "glb_magic_ok", "glb_version_2", "declared_length_matches"],
-      remainingGaps: ["asset-production-readiness still consumes gltf-pipeline smoke evidence shape"],
+      remainingGaps: ["security/license notes still identify gltf-pipeline as the approved local conversion CLI"],
       demoteGltfPipelineRecommended: false,
     },
     verdict: {

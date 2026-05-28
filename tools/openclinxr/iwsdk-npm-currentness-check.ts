@@ -70,36 +70,36 @@ export type IwsdkNpmCurrentnessReport = {
 type ValidationResult = { ok: true } | { ok: false; errors: string[] };
 
 const expectedPackages: ExpectedIwsdkPackage[] = [
-  { name: "@iwsdk/core", latestVersion: "0.3.1", license: "MIT" },
-  { name: "@iwsdk/xr-input", latestVersion: "0.3.1", license: "MIT" },
-  { name: "@iwsdk/locomotor", latestVersion: "0.3.1", license: "MIT" },
-  { name: "@iwsdk/glxf", latestVersion: "0.3.1", license: "MIT" },
+  { name: "@iwsdk/core", latestVersion: "0.4.1", license: "MIT" },
+  { name: "@iwsdk/xr-input", latestVersion: "0.4.1", license: "MIT" },
+  { name: "@iwsdk/locomotor", latestVersion: "0.4.1", license: "MIT" },
+  { name: "@iwsdk/glxf", latestVersion: "0.4.1", license: "MIT" },
   {
     name: "@iwsdk/vite-plugin-dev",
-    latestVersion: "0.3.1",
+    latestVersion: "0.4.1",
     license: "MIT",
     expectedPeerDependencies: { vite: "^7.0.0" },
   },
   {
     name: "@iwsdk/vite-plugin-gltf-optimizer",
-    latestVersion: "0.3.1",
+    latestVersion: "0.4.1",
     license: "MIT",
     expectedPeerDependencies: { vite: "^7.0.0" },
   },
   {
     name: "@iwsdk/vite-plugin-uikitml",
-    latestVersion: "0.3.1",
+    latestVersion: "0.4.1",
     license: "MIT",
     expectedPeerDependencies: { vite: "^7.0.0" },
   },
   {
     name: "@iwsdk/vite-plugin-metaspatial",
-    latestVersion: "0.3.1",
+    latestVersion: "0.4.1",
     license: "MIT",
     expectedPeerDependencies: { vite: "^7.0.0" },
   },
-  { name: "@iwsdk/reference", latestVersion: "0.3.2", license: "MIT" },
-  { name: "@meta-quest/hzdb", latestVersion: "1.1.0", license: "UNLICENSED" },
+  { name: "@iwsdk/reference", latestVersion: "0.4.1", license: "MIT" },
+  { name: "@meta-quest/hzdb", latestVersion: "1.2.1", license: "UNLICENSED" },
 ];
 
 export async function main(args = process.argv.slice(2)): Promise<void> {
@@ -231,7 +231,9 @@ export function validateIwsdkNpmMetadataSnapshot(value: unknown): ValidationResu
   if (!Array.isArray(value.packages)) {
     errors.push("/packages must be array");
   } else {
-    value.packages.forEach((entry, index) => validatePackageMetadata(entry, `/packages/${index}`, errors));
+    value.packages.forEach((entry, index) => {
+      validatePackageMetadata(entry, `/packages/${index}`, errors);
+    });
   }
 
   return errors.length === 0 ? { ok: true } : { ok: false, errors };

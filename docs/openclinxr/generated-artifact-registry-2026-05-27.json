@@ -4,7 +4,7 @@
   "protectedRule": "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
-    "keep-evidence": 707,
+    "keep-evidence": 710,
     "keep-current": 70,
     "keep-template": 14
   },
@@ -692,6 +692,13 @@
       "path": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-21.json",
       "authority": "keep-evidence",
       "tracked": true,
+      "action": "keep",
+      "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
+    },
+    {
+      "path": "docs/openclinxr/asset-production-readiness-benchmark-2026-05-27.json",
+      "authority": "keep-evidence",
+      "tracked": false,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
@@ -2763,14 +2770,14 @@
     {
       "path": "docs/openclinxr/gltf-pipeline-smoke-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/gltf-transform-smoke-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
@@ -3097,11 +3104,25 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
+      "path": "docs/openclinxr/iwsdk-npm-currentness-2026-05-27.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
+    },
+    {
       "path": "docs/openclinxr/iwsdk-npm-metadata-snapshot-2026-05-06.json",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/iwsdk-npm-metadata-snapshot-2026-05-27.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work."
     },
     {
       "path": "docs/openclinxr/iwsdk-phase2-devtools-preinstall-proposal.json",

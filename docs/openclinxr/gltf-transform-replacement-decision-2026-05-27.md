@@ -4,9 +4,9 @@ Date: 2026-05-27
 
 ## Decision
 
-Do not demote or remove `gltf-pipeline` yet.
+Do not demote or remove `gltf-pipeline` yet, but the first downstream consumers now accept `@gltf-transform/core` evidence.
 
-Add `@gltf-transform/core` Node API smoke evidence as the replacement candidate path, but keep `gltf-pipeline` as the currently approved local conversion CLI until downstream source-evidence consumers are migrated.
+Add `@gltf-transform/core` Node API smoke evidence as the replacement candidate path, and allow source-readiness/runtime gates to consume that evidence. Keep `gltf-pipeline` as an approved local conversion CLI until security notes and dependency-footprint evidence prove removal or isolation is safe.
 
 ## Evidence compared
 
@@ -22,15 +22,12 @@ Both paths produced valid GLB output for the deterministic single-triangle smoke
 
 ## Why removal is not safe yet
 
-- `asset-production-readiness` still consumes the `gltf-pipeline` smoke report shape.
-- `local-runtime-probe` still checks `gltf-pipeline` as an approved local asset command.
+- `asset-production-readiness` now consumes either `gltf-pipeline` smoke evidence or GLTF Transform Node API smoke evidence.
+- `local-runtime-probe` can now satisfy the asset conversion runtime gate with `@gltf-transform/core` Node package availability even if the GLTF Transform CLI is blocked.
 - `security-audit-exceptions.md` and asset pipeline docs still describe `gltf-pipeline` as the approved local conversion CLI.
 - The `gltf-transform` CLI is currently blocked by the repo `brace-expansion` security override, so the safe replacement route is `@gltf-transform/core` Node API, not `@gltf-transform/cli`.
 
 ## Next migration order
 
-1. Generalize asset source-smoke consumers to accept an abstract GLTF conversion smoke report.
-2. Teach `asset-production-readiness` to accept either the current `gltf-pipeline` evidence or a passing GLTF Transform Node API evidence file.
-3. Update `local-runtime-probe` so GLTF conversion capability can be satisfied by `@gltf-transform/core` scripts, not only `gltf-pipeline` CLI.
-4. Update security and asset-pipeline docs after code consumers no longer require `gltf-pipeline`.
-5. Run `pnpm hygiene:e18e:summary`, `pnpm peers check`, and `pnpm hooks:strict`; only then remove or isolate `gltf-pipeline` if the duplicate count or install footprint improves.
+1. Update security and asset-pipeline docs after dependency evidence shows code consumers no longer require `gltf-pipeline`.
+2. Run `pnpm hygiene:e18e:summary`, `pnpm peers check`, and `pnpm hooks:strict`; only then remove or isolate `gltf-pipeline` if the duplicate count or install footprint improves.

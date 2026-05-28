@@ -1,0 +1,154 @@
+{
+  "generatedAt": "2026-05-28T01:20:21.604Z",
+  "status": "blocked",
+  "policy": {
+    "cloudApisUsed": false,
+    "paidApisUsed": false,
+    "externalAssetsUsed": false,
+    "productionUseAllowed": false,
+    "copyleftRuntimeAllowed": false
+  },
+  "input": {
+    "gltfSmokeFile": "docs/openclinxr/gltf-transform-smoke-2026-05-27.json",
+    "gltfSmokeTool": "@gltf-transform/core",
+    "blenderAssetBakeSmokeFile": "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+    "gltfGeneratedAt": "2026-05-28T01:18:49.926Z",
+    "blenderGeneratedAt": "2026-05-06T08:19:07.305Z",
+    "localAssetEvidenceFixtureUsed": true
+  },
+  "sourceEvidence": {
+    "gltfSmokePassed": true,
+    "gltfSmokeTool": "@gltf-transform/core",
+    "blenderBakeSmokePassed": true,
+    "blenderSourceLicensePosture": "reviewed_local_clinical_asset_fixture",
+    "placeholderBakeOnly": false,
+    "blenderSemanticInventoryObserved": true,
+    "blenderMissingRequiredObjectNames": [],
+    "blockers": []
+  },
+  "productionProofs": {
+    "generatedHumanRigging": {
+      "observed": true,
+      "requiredEvidence": [
+        "neutral generated human GLB",
+        "canonical skeleton binding",
+        "skin-weight or rigging report"
+      ],
+      "blockers": []
+    },
+    "skinClothingProvenance": {
+      "observed": true,
+      "requiredEvidence": [
+        "skin/texture provenance",
+        "clothing mesh provenance",
+        "runtime-safe material report"
+      ],
+      "blockers": []
+    },
+    "medicalEquipmentLibrary": {
+      "observed": true,
+      "requiredEvidence": [
+        "equipment GLB library",
+        "clinical equipment metadata",
+        "license provenance"
+      ],
+      "blockers": []
+    },
+    "animationRetargeting": {
+      "observed": true,
+      "requiredEvidence": [
+        "canonical skeleton clips",
+        "viseme or facial target mapping",
+        "retargeting QA report"
+      ],
+      "blockers": []
+    },
+    "lodTextureColliderBudget": {
+      "observed": true,
+      "requiredEvidence": [
+        "LOD tiers",
+        "KTX2 or texture budget report",
+        "collider simplification report"
+      ],
+      "blockers": []
+    },
+    "multiActorQuestBudget": {
+      "observed": true,
+      "requiredEvidence": [
+        "multi-actor station budget",
+        "Quest frame budget",
+        "draw-call and texture-memory budget"
+      ],
+      "blockers": []
+    }
+  },
+  "stationBudgetEvidence": {
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "source": "@openclinxr/asset-registry:createEdChestPainLocalAssetEvidenceFixtureManifests",
+    "requiredAssetCount": 10,
+    "budget": {
+      "maxVisibleTriangles": 180000,
+      "maxTextureMegabytes": 512,
+      "maxDrawCalls": 120,
+      "totalTriangles": 108000,
+      "totalTextureMegabytes": 152,
+      "totalDrawCalls": 60,
+      "blockers": []
+    },
+    "placeholderOnly": false,
+    "observed": true,
+    "blockers": []
+  },
+  "generationEvidence": {
+    "generatedHumanRiggingObserved": true,
+    "skinClothingProvenanceObserved": true,
+    "medicalEquipmentLibraryObserved": true,
+    "animationRetargetingObserved": true,
+    "placeholderOnly": false,
+    "blockers": []
+  },
+  "optimizationEvidence": {
+    "lodTiersObserved": true,
+    "textureCompressionBudgetObserved": true,
+    "colliderSimplificationObserved": true,
+    "placeholderOnly": false,
+    "blockers": []
+  },
+  "runtimeBudget": {
+    "singleAssetPackGlbBytes": 109040,
+    "targetStationBundleMb": 80,
+    "maxVisibleTriangles": 180000,
+    "maxDrawCalls": 120,
+    "maxTextureMemoryMb": 512,
+    "multiActorBudgetObserved": true,
+    "blockers": []
+  },
+  "claimBoundaries": {
+    "localAssetEvidenceFixtureIsContractOnly": true,
+    "artifactBackedProductionAssetEvidenceObserved": false,
+    "allowedClaims": [
+      "local asset evidence fixture contract slots observed",
+      "reviewed local clinical fixture semantic inventory observed"
+    ],
+    "notEvidenceFor": [
+      "production clinical asset generation readiness",
+      "artifact-backed generated human rigging",
+      "artifact-backed skin and clothing provenance",
+      "artifact-backed medical equipment library coverage",
+      "artifact-backed animation retargeting",
+      "artifact-backed Quest 3 production bundle budget"
+    ]
+  },
+  "verdict": {
+    "passed": false,
+    "readyForProductionAssets": false,
+    "blockers": [
+      "artifact_backed_production_asset_evidence_missing"
+    ],
+    "caveats": [
+      "This report evaluates production-readiness evidence from local smoke outputs only; it does not generate new third-party assets.",
+      "Reviewed local clinical fixture output still requires visual QA, clinical fidelity review, and headset frame-pacing evidence before production use.",
+      "The local asset evidence fixture supplies contract-level proof slots only; fixture IDs are not artifact-backed generated production assets."
+    ]
+  }
+}

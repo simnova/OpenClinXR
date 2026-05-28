@@ -180,10 +180,9 @@ async function runSmoke(): Promise<GltfTransformSmokeReport> {
         candidateFor: "gltf-pipeline_root_dependency_reduction",
         paritySignals,
         remainingGaps: [
-          "asset-production-readiness still consumes gltf-pipeline smoke evidence shape",
-          "local-runtime-probe still checks gltf-pipeline availability as an approved tool",
-          "gltf-transform CLI is currently blocked by the repo brace-expansion security override, so replacement must use @gltf-transform/core or fix CLI dependency compatibility first",
           "security/license notes still identify gltf-pipeline as the approved local conversion CLI",
+          "dependency-footprint evidence has not yet proven that removing or isolating gltf-pipeline improves e18e duplicate count or install size",
+          "gltf-transform CLI is currently blocked by the repo brace-expansion security override, so replacement must use @gltf-transform/core or fix CLI dependency compatibility first",
         ],
         demoteGltfPipelineRecommended: false,
       },

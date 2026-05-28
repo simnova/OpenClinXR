@@ -104,8 +104,8 @@ function buildSummary(): E18eSummary {
       "Do not remove nested workspace exports solely because e18e flags them; validate package-resolution intent first.",
     ],
     nextReductionCandidates: [
-      "Generalize asset source-smoke consumers so @gltf-transform/core Node API evidence can replace gltf-pipeline evidence after downstream validators are migrated.",
-      "Check whether newer IWSDK plugins support Vite 8 before any dedupe or Vite alignment attempt.",
+      "Finish the gltf-pipeline removal decision only after security notes, asset-pipeline docs, and e18e summary evidence all show @gltf-transform/core covers required source-smoke and conversion-runtime gates.",
+      "Keep IWSDK Vite plugins sidecar-gated until a published IWSDK plugin peer range accepts Vite 8 or an explicitly approved compatibility override is recorded.",
       "Move legacy optional asset tools behind capability-specific install/runtime gates if they remain required.",
     ],
     rawOutputExcerpt: output.split("\n").slice(0, 80),

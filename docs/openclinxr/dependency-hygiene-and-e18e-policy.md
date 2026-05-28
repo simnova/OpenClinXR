@@ -26,13 +26,13 @@ These warnings are known and should not become toil by themselves:
 
 - Transitive duplicate dependencies owned by older upstream toolchains.
 - Workspace package `exports` warnings pending a separate package-boundary decision.
-- IWSDK/Vite compatibility posture is pinned through `pnpm-workspace.yaml`; changing it requires compatibility proof before any Vite or IWSDK change.
-- Legacy GLTF tooling dependencies while `gltf-pipeline` remains an approved local asset capability.
+- IWSDK/Vite compatibility posture is pinned through `pnpm-workspace.yaml`; latest observed IWSDK plugin metadata is `0.4.1`, and the Vite plugins still peer on `vite: ^7.0.0` while the repo uses Vite `8.0.10`.
+- Legacy GLTF tooling dependencies while `gltf-pipeline` remains an approved local asset capability and `@gltf-transform/core` Node API evidence is promoted through source-smoke consumers.
 
 ## First real reduction candidates
 
-1. Generalize asset source-smoke consumers so `@gltf-transform/core` Node API evidence can replace `gltf-pipeline` evidence after downstream validators are migrated.
-2. Check whether newer IWSDK plugins support Vite 8 before any dedupe or Vite alignment attempt.
+1. Finish the `gltf-pipeline` removal decision only after security notes, asset-pipeline docs, and e18e summary evidence all show `@gltf-transform/core` can cover the required source-smoke and conversion-runtime gates.
+2. Keep IWSDK Vite plugins sidecar-gated until a published IWSDK plugin peer range accepts Vite 8 or an explicitly approved compatibility override is recorded.
 3. Move legacy optional asset tools behind capability-specific install/runtime gates if they remain required.
 
 ## Required validation for dependency cleanup

@@ -13,11 +13,15 @@ import {
 import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 import { validateBlenderBakeSmokeReport } from "./blender-asset-bake-smoke.js";
 import { validateGltfPipelineSmokeReport } from "./gltf-pipeline-smoke.js";
+import {
+  type GltfTransformSmokeReport,
+  validateGltfTransformSmokeReport,
+} from "./gltf-transform-smoke.js";
 
 type CliOptions = {
   validatePath?: string;
   validateLatest: boolean;
-  gltfPipelineSmokePath?: string;
+  gltfSmokePath?: string;
   blenderAssetBakeSmokePath?: string;
   outputPath?: string;
   useLocalAssetEvidenceFixture: boolean;
@@ -43,6 +47,8 @@ export type GltfPipelineSmokeReport = {
     blockers: string[];
   };
 };
+
+export type GltfSourceSmokeReport = GltfPipelineSmokeReport | GltfTransformSmokeReport;
 
 export type BlenderAssetBakeSmokeReport = {
   generatedAt: string;
@@ -128,14 +134,16 @@ export type AssetProductionReadinessReport = {
     copyleftRuntimeAllowed: false;
   };
   input: {
-    gltfPipelineSmokeFile: string;
+    gltfSmokeFile: string;
+    gltfSmokeTool: string;
     blenderAssetBakeSmokeFile: string;
     gltfGeneratedAt: string;
     blenderGeneratedAt: string;
     localAssetEvidenceFixtureUsed: boolean;
   };
   sourceEvidence: {
-    gltfPipelineSmokePassed: boolean;
+    gltfSmokePassed: boolean;
+    gltfSmokeTool: string;
     blenderBakeSmokePassed: boolean;
     blenderSourceLicensePosture: string;
     placeholderBakeOnly: boolean;
@@ -206,19 +214,19 @@ export async function runAssetProductionReadinessCli(args: string[]): Promise<vo
     return;
   }
 
-  const gltfPipelineSmokeFile = options.gltfPipelineSmokePath ?? await latestPath("docs/openclinxr/gltf-pipeline-smoke-*.json");
+  const gltfSmokeFile = options.gltfSmokePath ?? await latestGltfSmokePath();
   const blenderAssetBakeSmokeFile = options.blenderAssetBakeSmokePath ?? await latestPath("docs/openclinxr/blender-asset-bake-smoke-*.json");
-  if (!gltfPipelineSmokeFile) {
-    throw new Error("Missing GLTF pipeline smoke report. Run asset:gltf:smoke first or pass --gltf-smoke.");
+  if (!gltfSmokeFile) {
+    throw new Error("Missing GLTF smoke report. Run asset:gltf:smoke or asset:gltf-transform:smoke first, or pass --gltf-smoke.");
   }
   if (!blenderAssetBakeSmokeFile) {
     throw new Error("Missing Blender asset bake smoke report. Run asset:blender:bake first or pass --blender-smoke.");
   }
 
   const report = buildAssetProductionReadinessReport({
-    gltfPipelineSmokeFile,
+    gltfSmokeFile,
     blenderAssetBakeSmokeFile,
-    gltfPipelineSmoke: await readJson<GltfPipelineSmokeReport>(gltfPipelineSmokeFile),
+    gltfSmoke: await readJson<GltfSourceSmokeReport>(gltfSmokeFile),
     blenderAssetBakeSmoke: await readJson<BlenderAssetBakeSmokeReport>(blenderAssetBakeSmokeFile),
     useLocalAssetEvidenceFixture: options.useLocalAssetEvidenceFixture,
   });
@@ -251,7 +259,7 @@ function parseArgs(args: string[]): CliOptions {
       continue;
     }
     if (arg === "--gltf-smoke") {
-      options.gltfPipelineSmokePath = requireValue(normalizedArgs, index, arg);
+      options.gltfSmokePath = requireValue(normalizedArgs, index, arg);
       index += 1;
       continue;
     }
@@ -288,11 +296,19 @@ async function latestPath(pattern: string): Promise<string | undefined> {
   return files.sort().at(-1);
 }
 
+async function latestGltfSmokePath(): Promise<string | undefined> {
+  const files = [
+    ...await globFiles("docs/openclinxr/gltf-pipeline-smoke-*.json"),
+    ...await globFiles("docs/openclinxr/gltf-transform-smoke-*.json"),
+  ];
+  return files.sort().at(-1);
+}
+
 export function buildAssetProductionReadinessReport(input: {
   generatedAt?: string;
-  gltfPipelineSmokeFile: string;
+  gltfSmokeFile: string;
   blenderAssetBakeSmokeFile: string;
-  gltfPipelineSmoke: GltfPipelineSmokeReport;
+  gltfSmoke: GltfSourceSmokeReport;
   blenderAssetBakeSmoke: BlenderAssetBakeSmokeReport;
   proofOverrides?: Partial<ProofLanes>;
   stationBudgetEvidence?: StationBudgetEvidence;
@@ -307,7 +323,7 @@ export function buildAssetProductionReadinessReport(input: {
   const generationEvidence = input.generationEvidence ?? buildEdChestPainGenerationEvidence(localEvidenceFixtureManifests);
   const optimizationEvidence = input.optimizationEvidence ?? buildEdChestPainOptimizationEvidence(localEvidenceFixtureManifests);
   const proofs = buildProofLanes(input.proofOverrides ?? {}, stationBudgetEvidence, generationEvidence, optimizationEvidence);
-  const sourceEvidence = inspectSourceEvidence(input.gltfPipelineSmoke, input.blenderAssetBakeSmoke);
+  const sourceEvidence = inspectSourceEvidence(input.gltfSmoke, input.blenderAssetBakeSmoke);
   const runtimeBudget = inspectRuntimeBudget(input.blenderAssetBakeSmoke, stationBudgetEvidence.observed);
   const claimBoundaries = buildClaimBoundaries(
     input.useLocalAssetEvidenceFixture === true,
@@ -343,9 +359,10 @@ export function buildAssetProductionReadinessReport(input: {
       copyleftRuntimeAllowed: false,
     },
     input: {
-      gltfPipelineSmokeFile: input.gltfPipelineSmokeFile,
+      gltfSmokeFile: input.gltfSmokeFile,
+      gltfSmokeTool: sourceEvidence.gltfSmokeTool,
       blenderAssetBakeSmokeFile: input.blenderAssetBakeSmokeFile,
-      gltfGeneratedAt: input.gltfPipelineSmoke.generatedAt,
+      gltfGeneratedAt: input.gltfSmoke.generatedAt,
       blenderGeneratedAt: input.blenderAssetBakeSmoke.generatedAt,
       localAssetEvidenceFixtureUsed: input.useLocalAssetEvidenceFixture === true,
     },
@@ -392,7 +409,8 @@ export function validateAssetProductionReadinessReport(value: unknown): Validati
   }
   requireRecord(value.input, "/input", errors);
   if (isRecord(value.input)) {
-    requireString(value.input.gltfPipelineSmokeFile, "/input/gltfPipelineSmokeFile", errors);
+    requireString(value.input.gltfSmokeFile, "/input/gltfSmokeFile", errors);
+    requireString(value.input.gltfSmokeTool, "/input/gltfSmokeTool", errors);
     requireString(value.input.blenderAssetBakeSmokeFile, "/input/blenderAssetBakeSmokeFile", errors);
     requireString(value.input.gltfGeneratedAt, "/input/gltfGeneratedAt", errors);
     requireString(value.input.blenderGeneratedAt, "/input/blenderGeneratedAt", errors);
@@ -400,7 +418,8 @@ export function validateAssetProductionReadinessReport(value: unknown): Validati
   }
   requireRecord(value.sourceEvidence, "/sourceEvidence", errors);
   if (isRecord(value.sourceEvidence)) {
-    requireBoolean(value.sourceEvidence.gltfPipelineSmokePassed, "/sourceEvidence/gltfPipelineSmokePassed", errors);
+    requireBoolean(value.sourceEvidence.gltfSmokePassed, "/sourceEvidence/gltfSmokePassed", errors);
+    requireString(value.sourceEvidence.gltfSmokeTool, "/sourceEvidence/gltfSmokeTool", errors);
     requireBoolean(value.sourceEvidence.blenderBakeSmokePassed, "/sourceEvidence/blenderBakeSmokePassed", errors);
     requireString(value.sourceEvidence.blenderSourceLicensePosture, "/sourceEvidence/blenderSourceLicensePosture", errors);
     requireBoolean(value.sourceEvidence.placeholderBakeOnly, "/sourceEvidence/placeholderBakeOnly", errors);
@@ -450,7 +469,7 @@ export function validateAssetProductionReadinessReport(value: unknown): Validati
 
 async function validateLinkedSmokeReports(report: AssetProductionReadinessReport): Promise<ValidationResult> {
   const errors: string[] = [];
-  const gltfSmoke = await readLinkedGltfSmoke(report.input.gltfPipelineSmokeFile, errors);
+  const gltfSmoke = await readLinkedGltfSmoke(report.input.gltfSmokeFile, errors);
   const blenderSmoke = await readLinkedBlenderSmoke(report.input.blenderAssetBakeSmokeFile, errors);
 
   if (gltfSmoke) {
@@ -466,22 +485,26 @@ async function validateLinkedSmokeReports(report: AssetProductionReadinessReport
 async function readLinkedGltfSmoke(
   filePath: string,
   errors: string[],
-): Promise<GltfPipelineSmokeReport | undefined> {
+): Promise<GltfSourceSmokeReport | undefined> {
   let linkedSmoke: unknown;
   try {
     linkedSmoke = await readJson<unknown>(filePath);
   } catch (error) {
-    errors.push(`/input/gltfPipelineSmokeFile could not be read: ${formatError(error)}`);
+    errors.push(`/input/gltfSmokeFile could not be read: ${formatError(error)}`);
     return undefined;
   }
 
-  const validation = validateGltfPipelineSmokeReport(linkedSmoke);
-  if (!validation.ok) {
-    errors.push(...validation.errors.map((error) => `/input/gltfPipelineSmokeFile ${error}`));
+  const pipelineValidation = validateGltfPipelineSmokeReport(linkedSmoke);
+  const transformValidation = validateGltfTransformSmokeReport(linkedSmoke);
+  if (!pipelineValidation.ok && !transformValidation.ok) {
+    errors.push(
+      ...pipelineValidation.errors.map((error) => `/input/gltfSmokeFile pipeline ${error}`),
+      ...transformValidation.errors.map((error) => `/input/gltfSmokeFile transform ${error}`),
+    );
     return undefined;
   }
 
-  return linkedSmoke as GltfPipelineSmokeReport;
+  return linkedSmoke as GltfSourceSmokeReport;
 }
 
 async function readLinkedBlenderSmoke(
@@ -507,14 +530,17 @@ async function readLinkedBlenderSmoke(
 
 function compareLinkedGltfSmoke(
   report: AssetProductionReadinessReport,
-  smoke: GltfPipelineSmokeReport,
+  smoke: GltfSourceSmokeReport,
   errors: string[],
 ): void {
   if (report.input.gltfGeneratedAt !== smoke.generatedAt) {
-    errors.push("/input/gltfGeneratedAt must match linked GLTF pipeline smoke generatedAt");
+    errors.push("/input/gltfGeneratedAt must match linked GLTF smoke generatedAt");
   }
-  if (report.sourceEvidence.gltfPipelineSmokePassed !== smoke.verdict.passed) {
-    errors.push("/sourceEvidence/gltfPipelineSmokePassed must match linked GLTF pipeline smoke verdict.passed");
+  if (report.input.gltfSmokeTool !== smoke.tool.package || report.sourceEvidence.gltfSmokeTool !== smoke.tool.package) {
+    errors.push("/input/gltfSmokeTool and /sourceEvidence/gltfSmokeTool must match linked GLTF smoke tool.package");
+  }
+  if (report.sourceEvidence.gltfSmokePassed !== smoke.verdict.passed) {
+    errors.push("/sourceEvidence/gltfSmokePassed must match linked GLTF smoke verdict.passed");
   }
 }
 
@@ -801,7 +827,7 @@ function manifestsArePlaceholderOnly(manifests: readonly AssetManifest[]): boole
 }
 
 function inspectSourceEvidence(
-  gltfSmoke: GltfPipelineSmokeReport,
+  gltfSmoke: GltfSourceSmokeReport,
   blenderSmoke: BlenderAssetBakeSmokeReport,
 ): AssetProductionReadinessReport["sourceEvidence"] {
   const placeholderBakeOnly = blenderSmoke.input.sourceLicensePosture === "repo_generated_placeholder";
@@ -809,7 +835,7 @@ function inspectSourceEvidence(
   const blenderSemanticInventoryObserved = blenderSmoke.output.semanticInventory !== null && blenderSmoke.output.semanticInventory !== undefined;
   const blenderMissingRequiredObjectNames = blenderSmoke.output.semanticInventory?.missingRequiredObjectNames ?? [];
   const blockers = [
-    gltfSmoke.verdict.passed ? undefined : "gltf_pipeline_smoke_failed",
+    gltfSmoke.verdict.passed ? undefined : "gltf_source_smoke_failed",
     blenderSmoke.verdict.passed ? undefined : "blender_bake_smoke_failed",
     placeholderBakeOnly ? "placeholder_bake_only" : undefined,
     blenderSmoke.input.externalAssetsUsed ? "external_asset_provenance_not_reviewed" : undefined,
@@ -818,7 +844,8 @@ function inspectSourceEvidence(
   ].filter((blocker): blocker is string => typeof blocker === "string");
 
   return {
-    gltfPipelineSmokePassed: gltfSmoke.verdict.passed,
+    gltfSmokePassed: gltfSmoke.verdict.passed,
+    gltfSmokeTool: gltfSmoke.tool.package,
     blenderBakeSmokePassed: blenderSmoke.verdict.passed,
     blenderSourceLicensePosture: blenderSmoke.input.sourceLicensePosture,
     placeholderBakeOnly,
