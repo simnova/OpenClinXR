@@ -1,6 +1,6 @@
 import { stat } from "node:fs/promises";
-import {
-  type EncounterGenerationWorkOrder,
+import type {
+  EncounterGenerationWorkOrder,
 } from "../../packages/openclinxr/capability-gateway/src/index.js";
 import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 import {
