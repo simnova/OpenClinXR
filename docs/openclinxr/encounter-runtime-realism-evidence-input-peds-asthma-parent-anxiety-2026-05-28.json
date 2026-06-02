@@ -1,0 +1,214 @@
+{
+  "schemaVersion": "openclinxr.encounter-runtime-realism-evidence-input-draft.v1",
+  "generatedAt": "2026-05-28T13:59:11.201Z",
+  "source": "encounter_runtime_selection_review_packet",
+  "selectedScenarioId": "peds_asthma_parent_anxiety_v1",
+  "selectedEncounterId": "encounter_assets_peds_asthma_parent_anxiety_executable_v1",
+  "selectedStationId": "peds_asthma_parent_anxiety_station_v1",
+  "selectedRuntimeAssetBundleId": "encounter_assets_peds_asthma_parent_anxiety_executable_v1:runtime-selection-intent",
+  "status": "draft_inputs_required_not_attached",
+  "runtimeActorEvidenceInputs": [
+    {
+      "evidenceInputId": "runtime-realism-evidence-input:patient_maya_johnson_v1",
+      "inputKind": "runtime_realism_signal_input",
+      "actorId": "patient_maya_johnson_v1",
+      "actorRole": "patient",
+      "requiredSignalCount": 7,
+      "sourceEvidenceRef": "encounter-publication-realism://peds_asthma_parent_anxiety_v1/encounter_assets_peds_asthma_parent_anxiety_executable_v1/runtime-realism-evidence-check/patient/patient_maya_johnson_v1",
+      "requiredEvidenceStatus": "required_not_attached",
+      "reviewerAction": "attach_runtime_realism_evidence_metadata_before_guarded_runtime_selection",
+      "providerExecutionStatus": "metadata_only_not_executed",
+      "claimBoundary": "runtime_realism_evidence_input_metadata_only_not_runtime_readiness"
+    },
+    {
+      "evidenceInputId": "runtime-realism-evidence-input:parent_tara_johnson_v1",
+      "inputKind": "runtime_realism_signal_input",
+      "actorId": "parent_tara_johnson_v1",
+      "actorRole": "family",
+      "requiredSignalCount": 7,
+      "sourceEvidenceRef": "encounter-publication-realism://peds_asthma_parent_anxiety_v1/encounter_assets_peds_asthma_parent_anxiety_executable_v1/runtime-realism-evidence-check/family/parent_tara_johnson_v1",
+      "requiredEvidenceStatus": "required_not_attached",
+      "reviewerAction": "attach_runtime_realism_evidence_metadata_before_guarded_runtime_selection",
+      "providerExecutionStatus": "metadata_only_not_executed",
+      "claimBoundary": "runtime_realism_evidence_input_metadata_only_not_runtime_readiness"
+    },
+    {
+      "evidenceInputId": "runtime-realism-evidence-input:nurse_kevin_lee_v1",
+      "inputKind": "runtime_realism_signal_input",
+      "actorId": "nurse_kevin_lee_v1",
+      "actorRole": "nurse",
+      "requiredSignalCount": 7,
+      "sourceEvidenceRef": "encounter-publication-realism://peds_asthma_parent_anxiety_v1/encounter_assets_peds_asthma_parent_anxiety_executable_v1/runtime-realism-evidence-check/nurse/nurse_kevin_lee_v1",
+      "requiredEvidenceStatus": "required_not_attached",
+      "reviewerAction": "attach_runtime_realism_evidence_metadata_before_guarded_runtime_selection",
+      "providerExecutionStatus": "metadata_only_not_executed",
+      "claimBoundary": "runtime_realism_evidence_input_metadata_only_not_runtime_readiness"
+    }
+  ],
+  "visualQaEvidenceInputs": [
+    {
+      "evidenceInputId": "visual-qa-evidence-input:patient_maya_johnson_v1",
+      "inputKind": "visual_qa_review_input",
+      "targetId": "patient_maya_johnson_v1",
+      "targetKind": "humanoid_actor",
+      "requiredReviewFocus": [
+        "face_gaze_lip_sync_expression",
+        "locomotion_pose"
+      ],
+      "sourceEvidenceRef": "encounter-publication-realism://peds_asthma_parent_anxiety_v1/encounter_assets_peds_asthma_parent_anxiety_executable_v1/visual-qa-evidence-check/humanoid/patient/patient_maya_johnson_v1",
+      "requiredEvidenceStatus": "required_not_attached",
+      "reviewerAction": "attach_visual_qa_evidence_metadata_before_learner_launch_review",
+      "providerExecutionStatus": "metadata_only_not_executed",
+      "claimBoundary": "visual_qa_evidence_input_metadata_only_not_visual_quality_evidence"
+    },
+    {
+      "evidenceInputId": "visual-qa-evidence-input:parent_tara_johnson_v1",
+      "inputKind": "visual_qa_review_input",
+      "targetId": "parent_tara_johnson_v1",
+      "targetKind": "humanoid_actor",
+      "requiredReviewFocus": [
+        "face_gaze_lip_sync_expression",
+        "locomotion_pose"
+      ],
+      "sourceEvidenceRef": "encounter-publication-realism://peds_asthma_parent_anxiety_v1/encounter_assets_peds_asthma_parent_anxiety_executable_v1/visual-qa-evidence-check/humanoid/family/parent_tara_johnson_v1",
+      "requiredEvidenceStatus": "required_not_attached",
+      "reviewerAction": "attach_visual_qa_evidence_metadata_before_learner_launch_review",
+      "providerExecutionStatus": "metadata_only_not_executed",
+      "claimBoundary": "visual_qa_evidence_input_metadata_only_not_visual_quality_evidence"
+    },
+    {
+      "evidenceInputId": "visual-qa-evidence-input:nurse_kevin_lee_v1",
+      "inputKind": "visual_qa_review_input",
+      "targetId": "nurse_kevin_lee_v1",
+      "targetKind": "humanoid_actor",
+      "requiredReviewFocus": [
+        "face_gaze_lip_sync_expression",
+        "locomotion_pose"
+      ],
+      "sourceEvidenceRef": "encounter-publication-realism://peds_asthma_parent_anxiety_v1/encounter_assets_peds_asthma_parent_anxiety_executable_v1/visual-qa-evidence-check/humanoid/nurse/nurse_kevin_lee_v1",
+      "requiredEvidenceStatus": "required_not_attached",
+      "reviewerAction": "attach_visual_qa_evidence_metadata_before_learner_launch_review",
+      "providerExecutionStatus": "metadata_only_not_executed",
+      "claimBoundary": "visual_qa_evidence_input_metadata_only_not_visual_quality_evidence"
+    },
+    {
+      "evidenceInputId": "visual-qa-evidence-input:pulse_oximeter_equipment",
+      "inputKind": "visual_qa_review_input",
+      "targetId": "pulse_oximeter_equipment",
+      "targetKind": "equipment",
+      "requiredReviewFocus": [
+        "equipment_scale_placement_affordance"
+      ],
+      "sourceEvidenceRef": "encounter-publication-realism://peds_asthma_parent_anxiety_v1/encounter_assets_peds_asthma_parent_anxiety_executable_v1/visual-qa-evidence-check/equipment/pulse_oximeter_equipment",
+      "requiredEvidenceStatus": "required_not_attached",
+      "reviewerAction": "attach_visual_qa_evidence_metadata_before_learner_launch_review",
+      "providerExecutionStatus": "metadata_only_not_executed",
+      "claimBoundary": "visual_qa_evidence_input_metadata_only_not_visual_quality_evidence"
+    },
+    {
+      "evidenceInputId": "visual-qa-evidence-input:nebulizer_mask_equipment",
+      "inputKind": "visual_qa_review_input",
+      "targetId": "nebulizer_mask_equipment",
+      "targetKind": "equipment",
+      "requiredReviewFocus": [
+        "equipment_scale_placement_affordance"
+      ],
+      "sourceEvidenceRef": "encounter-publication-realism://peds_asthma_parent_anxiety_v1/encounter_assets_peds_asthma_parent_anxiety_executable_v1/visual-qa-evidence-check/equipment/nebulizer_mask_equipment",
+      "requiredEvidenceStatus": "required_not_attached",
+      "reviewerAction": "attach_visual_qa_evidence_metadata_before_learner_launch_review",
+      "providerExecutionStatus": "metadata_only_not_executed",
+      "claimBoundary": "visual_qa_evidence_input_metadata_only_not_visual_quality_evidence"
+    },
+    {
+      "evidenceInputId": "visual-qa-evidence-input:oxygen_wall_port_equipment",
+      "inputKind": "visual_qa_review_input",
+      "targetId": "oxygen_wall_port_equipment",
+      "targetKind": "equipment",
+      "requiredReviewFocus": [
+        "equipment_scale_placement_affordance"
+      ],
+      "sourceEvidenceRef": "encounter-publication-realism://peds_asthma_parent_anxiety_v1/encounter_assets_peds_asthma_parent_anxiety_executable_v1/visual-qa-evidence-check/equipment/oxygen_wall_port_equipment",
+      "requiredEvidenceStatus": "required_not_attached",
+      "reviewerAction": "attach_visual_qa_evidence_metadata_before_learner_launch_review",
+      "providerExecutionStatus": "metadata_only_not_executed",
+      "claimBoundary": "visual_qa_evidence_input_metadata_only_not_visual_quality_evidence"
+    },
+    {
+      "evidenceInputId": "visual-qa-evidence-input:pediatric_stretcher_equipment",
+      "inputKind": "visual_qa_review_input",
+      "targetId": "pediatric_stretcher_equipment",
+      "targetKind": "equipment",
+      "requiredReviewFocus": [
+        "equipment_scale_placement_affordance"
+      ],
+      "sourceEvidenceRef": "encounter-publication-realism://peds_asthma_parent_anxiety_v1/encounter_assets_peds_asthma_parent_anxiety_executable_v1/visual-qa-evidence-check/equipment/pediatric_stretcher_equipment",
+      "requiredEvidenceStatus": "required_not_attached",
+      "reviewerAction": "attach_visual_qa_evidence_metadata_before_learner_launch_review",
+      "providerExecutionStatus": "metadata_only_not_executed",
+      "claimBoundary": "visual_qa_evidence_input_metadata_only_not_visual_quality_evidence"
+    },
+    {
+      "evidenceInputId": "visual-qa-evidence-input:parent_chair_equipment",
+      "inputKind": "visual_qa_review_input",
+      "targetId": "parent_chair_equipment",
+      "targetKind": "equipment",
+      "requiredReviewFocus": [
+        "equipment_scale_placement_affordance"
+      ],
+      "sourceEvidenceRef": "encounter-publication-realism://peds_asthma_parent_anxiety_v1/encounter_assets_peds_asthma_parent_anxiety_executable_v1/visual-qa-evidence-check/equipment/parent_chair_equipment",
+      "requiredEvidenceStatus": "required_not_attached",
+      "reviewerAction": "attach_visual_qa_evidence_metadata_before_learner_launch_review",
+      "providerExecutionStatus": "metadata_only_not_executed",
+      "claimBoundary": "visual_qa_evidence_input_metadata_only_not_visual_quality_evidence"
+    },
+    {
+      "evidenceInputId": "visual-qa-evidence-input:inhaler_spacer_equipment",
+      "inputKind": "visual_qa_review_input",
+      "targetId": "inhaler_spacer_equipment",
+      "targetKind": "equipment",
+      "requiredReviewFocus": [
+        "equipment_scale_placement_affordance"
+      ],
+      "sourceEvidenceRef": "encounter-publication-realism://peds_asthma_parent_anxiety_v1/encounter_assets_peds_asthma_parent_anxiety_executable_v1/visual-qa-evidence-check/equipment/inhaler_spacer_equipment",
+      "requiredEvidenceStatus": "required_not_attached",
+      "reviewerAction": "attach_visual_qa_evidence_metadata_before_learner_launch_review",
+      "providerExecutionStatus": "metadata_only_not_executed",
+      "claimBoundary": "visual_qa_evidence_input_metadata_only_not_visual_quality_evidence"
+    }
+  ],
+  "gateBoundary": {
+    "providerExecutionAllowed": false,
+    "providerExecutionPerformed": false,
+    "runtimeExecutionAllowed": false,
+    "learnerLaunchAllowed": false,
+    "questEvidenceRefreshAllowed": false,
+    "productionAssetReadinessClaimed": false,
+    "clinicalValidityClaimed": false,
+    "scoringValidityClaimed": false,
+    "claimBoundary": "runtime_realism_evidence_inputs_do_not_clear_launch_gates"
+  },
+  "blockers": [
+    "runtime_realism_evidence_not_attached",
+    "humanoid_visual_qa_evidence_not_attached",
+    "runtime_selector_disabled_guard_not_wired",
+    "quest_webxr_evidence_not_attached",
+    "runtime_realism_evidence_inputs_not_attached",
+    "visual_qa_evidence_inputs_not_attached"
+  ],
+  "recommendedNextActions": [
+    "draft runtime realism evidence from actor hook signals before guarded runtime selection",
+    "attach visual QA evidence for humanoid and equipment hook targets before learner launch review",
+    "keep provider execution, learner launch, and Quest refresh disabled until review evidence attaches",
+    "attach reviewer-supplied runtime realism evidence metadata for each actor before guarded runtime selection is reconsidered",
+    "attach reviewer-supplied visual QA evidence metadata for each actor/equipment target before learner launch review is reconsidered"
+  ],
+  "notEvidenceFor": [
+    "provider_availability",
+    "runtime_readiness",
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "learner_launch_readiness"
+  ]
+}

@@ -92,6 +92,7 @@ Use these commands to reduce unattended-run drift:
 pnpm openclaw:preflight
 pnpm openclaw:post-slice
 pnpm openclaw:automation-prompt
+pnpm openclaw:lease -- status
 ```
 
 `openclaw:preflight` runs the full readiness gate and should pass before a long unattended run starts.
@@ -99,6 +100,8 @@ pnpm openclaw:automation-prompt
 `openclaw:post-slice` checks that the operational redundancy surface still has the required preflight, post-slice, automation-prompt, per-slice ledger, and host-adapter markers.
 
 `openclaw:automation-prompt` prints the canonical automation prompt from this runbook so recurring automations can be refreshed from the protected source instead of hand-maintained chat fragments.
+
+`openclaw:lease` coordinates recurring heartbeat workers through `.openclinxr/openclaw/automation-lease.json`, an ignored local runtime file. Before starting a slice, acquire a lease with `pnpm openclaw:lease -- acquire --owner codex-heartbeat --slice "<slice-name>"`; if another unexpired owner holds it, do not start overlapping edits. During long slices, refresh with `pnpm openclaw:lease -- heartbeat --owner codex-heartbeat --slice "<slice-name>"`; after canonical state updates and verification, release with `pnpm openclaw:lease -- release --owner codex-heartbeat`. Expired leases are recoverable by the next run.
 
 ## Canonical Automation Prompt
 
@@ -110,6 +113,8 @@ Continue in repo-native OpenClaw mode in /Volumes/files/src/openclinxr.
 Use AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, and docs/openclinxr/openclaw-runbook-2026-05-27.md as the source of truth. Do not use generic chat autonomy.
 
 Before selecting work, run or mentally apply the OpenClaw drift guard: no scattered markdown, no one-off hand-designed encounters, no unregistered generated artifacts, no evidence refresh unless it unlocks a concrete implementation decision.
+
+Before editing, run `pnpm openclaw:lease -- acquire --owner codex-heartbeat --slice "<short-slice-name>"`. If the lease output says another unexpired owner holds the slice, do not overlap that work; re-read canonical state and wait for the next heartbeat. Refresh the lease during long work and release it only after focused verification and canonical state updates. If the lease is expired, recover it and inspect `git status --short` before continuing.
 
 Stay focused on the case-definition-driven WebXR encounter factory. Scene, humanoid, clothing, animation, conversation, emotion, locomotion, gaze/lip-sync, equipment, trace, persistence, provider, and review work must flow from encounter specifications/blueprints through reusable factory/provider/cache pipelines.
 

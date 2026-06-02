@@ -93,6 +93,7 @@ import {
   type RuntimeEvidencePosture,
   type RuntimeInteractionEvidence,
   type RuntimeSceneManifestEvidence,
+  readRuntimeActorEquipmentMaterializationGate,
   remoteActorTurnForTraceTag,
   type SceneAssetEvidence,
   summarizeTraceReadiness,
@@ -494,6 +495,7 @@ function recordLearnerRuntimeUseGateEvidence(
   const approvedLocalFixtureOnly = bundleUsesOnlyApprovedLocalFixtureAssets(bundle);
   const blockingGateIds = ENCOUNTER_LEARNER_RUNTIME_REQUIRED_GATE_IDS
     .filter((gateId) => learnerUseGate.pendingGateIds.includes(gateId));
+  const actorEquipmentMaterializationGate = readRuntimeActorEquipmentMaterializationGate(bundle);
   const evidence: LearnerRuntimeUseGateEvidence = {
     ...learnerUseGate,
     source: "window.__openClinXrLearnerRuntimeUseGateEvidence",
@@ -511,6 +513,7 @@ function recordLearnerRuntimeUseGateEvidence(
     ],
     blockingGateIds,
     approvedLocalFixtureOnly,
+    actorEquipmentMaterializationGate,
     claimBoundary: "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach",
   };
   window.__openClinXrLearnerRuntimeUseGateEvidence = evidence;
@@ -2293,12 +2296,38 @@ function formatLearnerRuntimeUseGate(evidence: LearnerRuntimeUseGateEvidence | n
     : evidence.approvedLocalFixtureOnly
       ? "approved local fixture assets only"
       : "generated learner use gate clear";
+  const materializationText = evidence.actorEquipmentMaterializationGate?.runtimeSelectionBlockedUntilEvidenceAttached
+    ? `actor/equipment materialization blocked ${[
+      ...evidence.actorEquipmentMaterializationGate.actorBlockers,
+      ...evidence.actorEquipmentMaterializationGate.equipmentBlockers,
+    ].join(", ")}${formatMaterializationAttachmentSummary(evidence.actorEquipmentMaterializationGate.materializationEvidenceAttachmentSummary)}${formatRemainingRuntimeBlockerReasons(evidence.actorEquipmentMaterializationGate.remainingRuntimeBlockerReasons)}`
+    : "actor/equipment materialization gate not attached";
   return [
     sourceText,
     generatedText,
     gateText,
+    materializationText,
     evidence.fallbackReason ? `fallback ${evidence.fallbackReason}` : "no production/clinical/scoring claim",
   ].join(" | ");
+}
+
+function formatRemainingRuntimeBlockerReasons(
+  reasons: LearnerRuntimeUseGateEvidence["actorEquipmentMaterializationGate"]["remainingRuntimeBlockerReasons"] | null | undefined,
+): string {
+  if (!reasons) {
+    return "";
+  }
+  const categories = reasons.categories.map((category) => `${category.category}:${category.blockerIds.join("+")}`).join(", ");
+  return `; remaining runtime blockers after materialization complete ${String(reasons.materializationEvidenceComplete)}: ${categories}; runtime ${reasons.runtimeSelectionAllowed ? "allowed" : "blocked"}`;
+}
+
+function formatMaterializationAttachmentSummary(
+  summary: LearnerRuntimeUseGateEvidence["actorEquipmentMaterializationGate"]["materializationEvidenceAttachmentSummary"] | null | undefined,
+): string {
+  if (!summary) {
+    return "";
+  }
+  return `; materialization evidence slots ${summary.attachedSlotCount}/${summary.totalRequiredSlotCount} attached, ${summary.missingSlotCount} missing, runtime ${summary.runtimeSelectionAllowed ? "allowed" : "blocked"}`;
 }
 
 function formatRuntimePostureLane(lane: RuntimeEvidencePosture["lanes"][number] | undefined): string {

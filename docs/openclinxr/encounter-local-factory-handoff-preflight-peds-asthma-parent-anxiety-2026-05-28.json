@@ -1,0 +1,188 @@
+{
+  "generatedAt": "2026-05-28T04:55:04.906Z",
+  "schemaVersion": "openclinxr.encounter-local-factory-handoff-preflight.v1",
+  "source": "encounter_local_factory_operation_manifest",
+  "selectedScenarioId": "peds_asthma_parent_anxiety_v1",
+  "selectedEncounterId": "encounter_assets_peds_asthma_parent_anxiety_executable_v1",
+  "selectedStationId": "peds_asthma_parent_anxiety_station_v1",
+  "handoffMode": "local_filesystem_preflight_only",
+  "localArtifactChecks": [
+    {
+      "artifactKind": "scene_manifest",
+      "path": ".openclinxr/encounter-publication/local_tenant/peds_asthma_parent_anxiety_v1/peds_asthma_parent_anxiety_encounter_v1/scene-manifest.v1.json",
+      "present": true,
+      "scenarioIdMatches": true
+    },
+    {
+      "artifactKind": "learner_runtime_bundle",
+      "path": ".openclinxr/encounter-publication/local_tenant/peds_asthma_parent_anxiety_v1/peds_asthma_parent_anxiety_encounter_v1/learner-runtime-bundle.v1.json",
+      "present": true,
+      "scenarioIdMatches": true
+    },
+    {
+      "artifactKind": "ui_xr_public_scene_manifest",
+      "path": "apps/ui-xr/public/xr-assets/generated/peds_asthma_parent_anxiety_v1/scene-manifest.v1.json",
+      "present": true,
+      "scenarioIdMatches": true
+    },
+    {
+      "artifactKind": "ui_xr_public_learner_runtime_bundle",
+      "path": "apps/ui-xr/public/xr-assets/generated/peds_asthma_parent_anxiety_v1/learner-runtime-bundle.v1.json",
+      "present": true,
+      "scenarioIdMatches": true
+    }
+  ],
+  "internallyPaired": true,
+  "guardedRuntimeSelectorDecision": {
+    "schemaVersion": "openclinxr.guarded-runtime-selector-disabled-decision.v1",
+    "selectionStatus": "blocked_intent_bundle_missing",
+    "claimBoundary": "guarded_runtime_selector_seam_not_runtime_execution",
+    "selectedScenarioId": "peds_asthma_parent_anxiety_v1",
+    "selectedStationId": "peds_asthma_parent_anxiety_station_v1",
+    "selectedRuntimeAssetBundleId": "peds_asthma_parent_anxiety_encounter_v1:learner-runtime-bundle:v1",
+    "selectedBundleId": null,
+    "selectedBundleIdForFutureRuntime": null,
+    "matchedBundleSummary": null,
+    "runtimeExecutionAllowed": false,
+    "learnerLaunchAllowed": false,
+    "providerExecutionPerformed": false,
+    "uiLaunchPerformed": false,
+    "questEvidenceRefreshed": false,
+    "blockers": [
+      "runtime_selector_disabled_guard_not_wired",
+      "provider_execution_disabled_by_policy",
+      "learner_launch_disabled_until_evidence_gates_clear",
+      "guarded_runtime_intent_bundle_missing",
+      "runtime_realism_evidence_not_attached",
+      "humanoid_visual_qa_evidence_not_attached",
+      "quest_webxr_evidence_not_attached",
+      "shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness",
+      "generic_equipment_reuse_blocks_equipment_specific_asset_readiness",
+      "actor_equipment_materialization_evidence_not_attached"
+    ],
+    "nextAllowedStep": "wire_runtime_selector_behind_disabled_guard",
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "runtimeBridgeAllowed": false,
+  "learnerLaunchAllowed": false,
+  "caseDefinedActorRealismLaunchBadges": [
+    {
+      "actorId": "patient_maya_johnson_v1",
+      "actorRole": "patient",
+      "baselineMood": [
+        "frightened",
+        "breathless",
+        "seeking reassurance"
+      ],
+      "requiredCueIds": [
+        "case_definition_driven_expression_selection",
+        "dialogue_viseme_and_gaze_mapping",
+        "actor_target_gaze_from_trace_intent",
+        "scenario_actor_interaction_affordance",
+        "scenario_timeline_locomotion_or_posture_change"
+      ],
+      "requiredDimensions": [
+        "locomotion",
+        "expression",
+        "gaze",
+        "lip_sync",
+        "interaction"
+      ],
+      "status": "realismBlocked",
+      "blockers": [
+        "actor_specific_humanoid_realism_gate_not_attached",
+        "runtime_realism_evidence_not_attached",
+        "humanoid_visual_qa_evidence_not_attached",
+        "quest_webxr_evidence_not_attached"
+      ],
+      "claimBoundary": "case_defined_actor_realism_launch_badge_metadata_only"
+    },
+    {
+      "actorId": "parent_tara_johnson_v1",
+      "actorRole": "family",
+      "baselineMood": [
+        "anxious",
+        "protective",
+        "frustrated"
+      ],
+      "requiredCueIds": [
+        "case_definition_driven_expression_selection",
+        "dialogue_viseme_and_gaze_mapping",
+        "actor_target_gaze_from_trace_intent",
+        "scenario_actor_interaction_affordance",
+        "scenario_timeline_locomotion_or_posture_change"
+      ],
+      "requiredDimensions": [
+        "locomotion",
+        "expression",
+        "gaze",
+        "lip_sync",
+        "interaction"
+      ],
+      "status": "realismBlocked",
+      "blockers": [
+        "actor_specific_humanoid_realism_gate_not_attached",
+        "runtime_realism_evidence_not_attached",
+        "humanoid_visual_qa_evidence_not_attached",
+        "quest_webxr_evidence_not_attached"
+      ],
+      "claimBoundary": "case_defined_actor_realism_launch_badge_metadata_only"
+    },
+    {
+      "actorId": "nurse_kevin_lee_v1",
+      "actorRole": "nurse",
+      "baselineMood": [
+        "focused",
+        "concerned",
+        "ready to act"
+      ],
+      "requiredCueIds": [
+        "case_definition_driven_expression_selection",
+        "dialogue_viseme_and_gaze_mapping",
+        "actor_target_gaze_from_trace_intent",
+        "scenario_actor_interaction_affordance",
+        "scenario_timeline_locomotion_or_posture_change"
+      ],
+      "requiredDimensions": [
+        "locomotion",
+        "expression",
+        "gaze",
+        "lip_sync",
+        "interaction"
+      ],
+      "status": "realismBlocked",
+      "blockers": [
+        "actor_specific_humanoid_realism_gate_not_attached",
+        "runtime_realism_evidence_not_attached",
+        "humanoid_visual_qa_evidence_not_attached",
+        "quest_webxr_evidence_not_attached"
+      ],
+      "claimBoundary": "case_defined_actor_realism_launch_badge_metadata_only"
+    }
+  ],
+  "blockers": [
+    "runtime_realism_evidence_not_attached",
+    "humanoid_visual_qa_evidence_not_attached",
+    "quest_webxr_evidence_not_attached",
+    "shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness",
+    "generic_equipment_reuse_blocks_equipment_specific_asset_readiness",
+    "actor_equipment_materialization_evidence_not_attached"
+  ],
+  "evidenceBoundaries": {
+    "uiLaunchPerformed": false,
+    "cloudOperationPerformed": false,
+    "providerExecutionPerformed": false,
+    "questEvidenceRefreshed": false,
+    "broadVerificationPerformed": false,
+    "learnerLaunchEnabled": false,
+    "productionReadinessClaimed": false,
+    "clinicalValidityClaimed": false,
+    "scoringValidityClaimed": false
+  },
+  "claimBoundary": "local_factory_handoff_preflight_not_runtime_execution"
+}

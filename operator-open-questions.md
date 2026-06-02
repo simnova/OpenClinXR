@@ -65,3 +65,14 @@ Recommended default: do not materialize any external garment; keep MPFB/MakeHuma
 
 - Question: Should generated pediatric runtime bundles be allowed to report `bundle_ready` when actor/equipment records still wrap shared neutral generated blobs under scenario-specific names?
 - Recommended default: keep the bundle constructible for local pipeline proof, but attach explicit blocked visual-realism/non-learner-use caveats and require actor/equipment variant materialization evidence before promotion.
+
+## 2026-05-28 Nonblocking API runtime-selection test fixture drift
+
+- Question: Should `/runtime/selection-review-packet` API tests prefer the durable pediatric runtime-selection artifact when present, or keep asserting the older API-local ED fixture by default?
+- Recommended default: prefer the durable pediatric artifact when it exists because it is the current blueprint-to-runtime factory chain, and split any ED-local fixture expectation into an explicit fallback-only test.
+
+## 2026-05-28 Nonblocking UI-XR strict typecheck drift
+
+- Question: Should the next UI-XR cleanup slice repair the broad `noPropertyAccessFromIndexSignature` and legacy fixture-shape typecheck failures now surfaced by `pnpm --filter @openclinxr/ui-xr typecheck`?
+- Current answer: Not required to complete the runtime evidence capture scaffold slice because focused UI-XR tests, Biome, and cross-boundary API attachment tests passed, but the full package typecheck is not a usable gate until the existing strict-index-signature and fixture errors are cleaned up.
+- Recommended default: schedule a dedicated UI-XR typecheck cleanup slice before using full `@openclinxr/ui-xr typecheck` as a required gate for future runtime wiring changes.

@@ -34,6 +34,7 @@ import {
   type ScenarioSceneGenerationPipelineWorkOrderQueue,
   type ScenarioSceneGenerationRequestPublicationReadiness,
   type ScenarioSceneGenerationRequestQueue,
+  type SubmitRuntimeVisualEvidenceAttachmentInput,
 } from "./api-client.js";
 import { EnvironmentGenerationQueuePanel } from "./EnvironmentGenerationQueuePanel.js";
 import { FacultyReviewDecisionPanel } from "./FacultyReviewDecisionPanel.js";
@@ -671,7 +672,7 @@ function ScenarioBankWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
   const behaviorProfileCount = state.scenarios.reduce((total, scenario) => total + countActorCommunicationProfiles(scenario.actors), 0);
 
   return (
-    <section className="scenario-bank-workbench" aria-labelledby="scenario-bank-title">
+    <section className="scenario-bank-workbench" aria-label="Scenario bank governance">
       <div className="workbench-title-row">
         <div>
           <Typography.Text className="eyebrow">Generated ScenarioBank</Typography.Text>
@@ -705,7 +706,7 @@ function ScenarioBankWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
         <Typography.Paragraph type="secondary">
           {`Boundary: ${state.dynamicEncounterFactoryPlanning.claimBoundary}; next scenario: ${state.dynamicEncounterFactoryPlanning.nextFactoryPlanningScenarioId ?? "none"} via ${state.dynamicEncounterFactoryPlanning.nextFactoryPlanningScenarioSelectionMode}.`}
         </Typography.Paragraph>
-        <div className="readiness-strip">
+        <fieldset className="readiness-strip" aria-label="Scenario bank dynamic encounter factory planning metrics">
           <ReadinessMetric
             label={`${state.dynamicEncounterFactoryPlanning.scenarios.length} factory candidates`}
             detail={`anchor ${state.dynamicEncounterFactoryPlanning.anchorScenarioId}`}
@@ -714,7 +715,7 @@ function ScenarioBankWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
             label={state.dynamicEncounterFactoryPlanning.routeContractBoundary?.posture ?? "read_only_review_packet"}
             detail={`provider ${String(state.dynamicEncounterFactoryPlanning.routeContractBoundary?.providerExecutionAllowed ?? false)}; runtime ${String(state.dynamicEncounterFactoryPlanning.routeContractBoundary?.runtimeExecutionAllowed ?? false)}; learner ${String(state.dynamicEncounterFactoryPlanning.routeContractBoundary?.learnerLaunchAllowed ?? false)}; Quest ${String(state.dynamicEncounterFactoryPlanning.routeContractBoundary?.questEvidenceRefreshAllowed ?? false)}`}
           />
-        </div>
+        </fieldset>
         <ul className="compact-list" aria-label="Scenario bank dynamic encounter factory candidate summaries">
           {state.dynamicEncounterFactoryPlanning.scenarios.slice(0, 3).map((scenario) => (
             <li key={scenario.scenarioId}>
@@ -910,7 +911,7 @@ function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: A
   };
 
   return (
-    <section className="scenario-detail-workbench" aria-labelledby="scenario-detail-title">
+    <section className="scenario-detail-workbench" aria-label="Scenario detail governance">
       <div className="workbench-title-row">
         <div>
           <Link to="/scenarios">Back to Scenario Bank</Link>
@@ -1140,6 +1141,12 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
     | { status: "error"; message: string }
   >({ status: "idle" });
   const [sceneGenerationPublicationReadiness, setSceneGenerationPublicationReadiness] = useState<ScenarioSceneGenerationRequestPublicationReadiness | undefined>();
+  const [runtimeVisualEvidenceAttachmentSubmitState, setRuntimeVisualEvidenceAttachmentSubmitState] = useState<
+    | { status: "idle" }
+    | { status: "submitting" }
+    | { status: "submitted"; message: string }
+    | { status: "error"; message: string }
+  >({ status: "idle" });
 
   useEffect(() => {
     let active = true;
@@ -1279,6 +1286,31 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
     setSceneGenerationPublicationReadiness(publicationReadiness);
   };
 
+  const submitRuntimeVisualEvidenceAttachment = async (input: SubmitRuntimeVisualEvidenceAttachmentInput) => {
+    setRuntimeVisualEvidenceAttachmentSubmitState({ status: "submitting" });
+    try {
+      const record = await controlPlaneClient.submitRuntimeVisualEvidenceAttachment(input);
+      const runtimeSelectionReviewPacket = await controlPlaneClient.getRuntimeSelectionReviewPacket();
+      setState((currentState) => currentState.status === "ready"
+        ? { ...currentState, runtimeSelectionReviewPacket }
+        : currentState);
+      setSceneGenerationPublicationReadiness((currentReadiness) =>
+        currentReadiness?.scenarioId === record.scenarioId
+          ? { ...currentReadiness, runtimeVisualEvidenceAttachmentRecord: record }
+          : currentReadiness
+      );
+      setRuntimeVisualEvidenceAttachmentSubmitState({
+        status: "submitted",
+        message: `${record.attachmentCount} metadata-only runtime visual evidence attachment ref${record.attachmentCount === 1 ? "" : "s"} accepted; launch gates remain blocked.`,
+      });
+    } catch (error) {
+      setRuntimeVisualEvidenceAttachmentSubmitState({
+        status: "error",
+        message: error instanceof Error ? error.message : "Unknown runtime visual evidence attachment error",
+      });
+    }
+  };
+
   return (
     <section className="seed-workbench" aria-labelledby="seed-exam-readiness-title">
       <div className="workbench-title-row">
@@ -1333,14 +1365,19 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
           environmentGenerationQueue={state.environmentGenerationQueue}
         />
 
-        <RuntimeSelectionReviewPacketPanel packet={state.runtimeSelectionReviewPacket} />
+        <RuntimeSelectionReviewPacketPanel
+          packet={state.runtimeSelectionReviewPacket}
+          runtimeVisualEvidenceAttachmentSubmitStatus={runtimeVisualEvidenceAttachmentSubmitState.status}
+          runtimeVisualEvidenceAttachmentSubmitMessage={"message" in runtimeVisualEvidenceAttachmentSubmitState ? runtimeVisualEvidenceAttachmentSubmitState.message : undefined}
+          onSubmitRuntimeVisualEvidenceAttachment={(input) => void submitRuntimeVisualEvidenceAttachment(input)}
+        />
 
         <section className="workbench-panel" aria-label="Dynamic encounter factory planning">
           <Typography.Title level={4}>Dynamic Encounter Factory Planning</Typography.Title>
           <Typography.Paragraph type="secondary">
             {`Boundary: ${state.dynamicEncounterFactoryPlanning.claimBoundary}; next scenario: ${state.dynamicEncounterFactoryPlanning.nextFactoryPlanningScenarioId ?? "none"} via ${state.dynamicEncounterFactoryPlanning.nextFactoryPlanningScenarioSelectionMode}.`}
           </Typography.Paragraph>
-          <div className="readiness-strip">
+          <fieldset className="readiness-strip" aria-label="Dynamic encounter factory planning metrics">
             <ReadinessMetric
               label={`${state.dynamicEncounterFactoryPlanning.scenarios.length} factory candidates`}
               detail={`anchor ${state.dynamicEncounterFactoryPlanning.anchorScenarioId}`}
@@ -1349,7 +1386,7 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
               label={state.dynamicEncounterFactoryPlanning.routeContractBoundary?.posture ?? "read_only_review_packet"}
               detail={`provider ${String(state.dynamicEncounterFactoryPlanning.routeContractBoundary?.providerExecutionAllowed ?? false)}; runtime ${String(state.dynamicEncounterFactoryPlanning.routeContractBoundary?.runtimeExecutionAllowed ?? false)}; Quest ${String(state.dynamicEncounterFactoryPlanning.routeContractBoundary?.questEvidenceRefreshAllowed ?? false)}`}
             />
-          </div>
+          </fieldset>
           <ul className="compact-list" aria-label="Dynamic encounter factory candidate summaries">
             {state.dynamicEncounterFactoryPlanning.scenarios.slice(0, 3).map((scenario) => (
               <li key={scenario.scenarioId}>

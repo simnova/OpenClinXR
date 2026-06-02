@@ -33,9 +33,12 @@ export type EncounterLocalLaunchSelectionReport = {
     uiSurfaces: number;
   };
   launchContract: EncounterLocalLaunchContract;
+  actorEquipmentMaterializationGate: EncounterLocalLaunchContract["actorEquipmentMaterializationGate"];
   realismEvidenceRefs: {
     claimBoundary: "metadata_only_not_runtime_or_visual_quality_evidence" | "unavailable";
     refIds: string[];
+    runtimeRealismEvidenceHookCount: number;
+    visualQaEvidenceHookCount: number;
     requiredBefore: "guarded_runtime_wiring" | "unavailable";
     runtimeExecutionAllowed: false;
     providerExecutionPerformed: false;
@@ -90,6 +93,17 @@ export type EncounterLocalLaunchContract = {
     blockers: string[];
     claimBoundary: "actor_specific_humanoid_gate_required_before_runtime_launch";
   }>;
+  actorEquipmentMaterializationGate: {
+    runtimeSelectionBlockedUntilEvidenceAttached: boolean;
+    actorBlockers: string[];
+    equipmentBlockers: string[];
+    caveats: string[];
+    recommendedNextActions: string[];
+    materializationEvidenceAttachment?: NonNullable<EncounterPublicationPayloadReport["actorEquipmentMaterializationGate"]["materializationEvidenceAttachment"]>;
+    materializationEvidenceAttachmentSummary?: NonNullable<EncounterPublicationPayloadReport["actorEquipmentMaterializationGate"]["materializationEvidenceAttachmentSummary"]>;
+    remainingRuntimeBlockerReasons?: EncounterPublicationPayloadReport["actorEquipmentMaterializationGate"]["remainingRuntimeBlockerReasons"];
+    claimBoundary: "materialization_contract_metadata_only_not_runtime_readiness";
+  };
   caseDefinitionCoverage: {
     actorRolesCovered: boolean;
     traceTagsCovered: boolean;
@@ -142,6 +156,7 @@ export function buildEncounterLocalLaunchSelectionReport(
     ...(gateBlockers(publicationReport, "quest_runtime_evidence").length > 0
       ? gateBlockers(publicationReport, "quest_runtime_evidence")
       : ["quest_webxr_evidence_not_attached"]),
+    ...actorEquipmentMaterializationBlockers(publicationReport),
   ]);
   return {
     generatedAt,
@@ -169,6 +184,7 @@ export function buildEncounterLocalLaunchSelectionReport(
       uiSurfaces: publicationReport.payloadSummary.uiSurfaceCount,
     },
     launchContract: buildEncounterLocalLaunchContract(publicationReport, blockers),
+    actorEquipmentMaterializationGate: summarizeActorEquipmentMaterializationGate(publicationReport),
     realismEvidenceRefs: summarizeRealismEvidenceRefs(publicationReport),
     learnerLaunchAllowed: false,
     blockers,
@@ -198,6 +214,7 @@ export function validateEncounterLocalLaunchSelectionReport(value: unknown): Val
   requireRecord(value.localFilesystemPaths, "/localFilesystemPaths", errors);
   requireRecord(value.selectedAssetCounts, "/selectedAssetCounts", errors);
   validateLaunchContract(value.launchContract, errors);
+  validateLaunchMaterializationGate(value.actorEquipmentMaterializationGate, "/actorEquipmentMaterializationGate", errors);
   validateRealismEvidenceRefs(value.realismEvidenceRefs, errors);
   requireRecord(value.evidenceBoundaries, "/evidenceBoundaries", errors);
   requireArray(value.dynamicBehaviorTags, "/dynamicBehaviorTags", errors);
@@ -287,6 +304,7 @@ function buildEncounterLocalLaunchContract(
     assetNeedsCarriedByWorkOrders: coverage?.assetNeedsCarriedByWorkOrders ?? false,
     blockers: [...coverageBlockers],
   };
+  const actorEquipmentMaterializationGate = summarizeActorEquipmentMaterializationGate(publicationReport);
   const actorRealismLaunchBadges = caseDefinedActorRealismRequirements.map((requirement) => ({
     actorId: requirement.actorId,
     actorRole: requirement.actorRole,
@@ -297,12 +315,16 @@ function buildEncounterLocalLaunchContract(
       "humanoid_visual_qa_evidence_not_attached",
       ...(publicationReport.status === "materialized" ? [] : ["publication_payload_not_materialized"]),
       ...caseDefinitionCoverage.blockers,
+      ...actorEquipmentMaterializationGate.actorBlockers,
+      ...actorEquipmentMaterializationGate.equipmentBlockers,
     ]),
     claimBoundary: "actor_specific_humanoid_gate_required_before_runtime_launch" as const,
   }));
   const launchBlockingReasons = uniqueStrings([
     ...blockers,
     ...caseDefinitionCoverage.blockers,
+    ...actorEquipmentMaterializationGate.actorBlockers,
+    ...actorEquipmentMaterializationGate.equipmentBlockers,
     ...actorRealismLaunchBadges.flatMap((badge) => badge.blockers),
     ...(actorRoster.length === 0 ? ["actor_roster_empty"] : []),
     ...(caseDefinedActorRealismRequirements.length === actorRoster.length ? [] : ["case_defined_actor_realism_requirements_incomplete"]),
@@ -320,6 +342,7 @@ function buildEncounterLocalLaunchContract(
     actorRoster,
     caseDefinedActorRealismRequirements,
     actorRealismLaunchBadges,
+    actorEquipmentMaterializationGate,
     caseDefinitionCoverage,
     launchBlockingReasons,
     notEvidenceFor: ["runtime_readiness", "quest_readiness", "production_readiness", "clinical_validity", "scoring_validity"],
@@ -333,6 +356,7 @@ function validateLaunchContract(value: unknown, errors: string[]): void {
   requireArray(value.actorRoster, "/launchContract/actorRoster", errors);
   requireArray(value.caseDefinedActorRealismRequirements, "/launchContract/caseDefinedActorRealismRequirements", errors);
   requireArray(value.actorRealismLaunchBadges, "/launchContract/actorRealismLaunchBadges", errors);
+  validateLaunchMaterializationGate(value.actorEquipmentMaterializationGate, "/launchContract/actorEquipmentMaterializationGate", errors);
   requireRecord(value.caseDefinitionCoverage, "/launchContract/caseDefinitionCoverage", errors);
   requireArray(value.launchBlockingReasons, "/launchContract/launchBlockingReasons", errors);
   requireArray(value.notEvidenceFor, "/launchContract/notEvidenceFor", errors);
@@ -398,11 +422,110 @@ function gateBlockers(report: EncounterPublicationPayloadReport, gateId: string)
   return [];
 }
 
+function actorEquipmentMaterializationBlockers(report: EncounterPublicationPayloadReport): string[] {
+  const gate = report.actorEquipmentMaterializationGate;
+  return uniqueStrings([
+    ...(gate?.combinedBlockers ?? []),
+    ...(gate?.runtimeSelectionBlockedUntilEvidenceAttached === true ? ["actor_equipment_materialization_evidence_not_attached"] : []),
+  ]);
+}
+
+function summarizeActorEquipmentMaterializationGate(
+  report: EncounterPublicationPayloadReport,
+): EncounterLocalLaunchContract["actorEquipmentMaterializationGate"] {
+  const gate = report.actorEquipmentMaterializationGate;
+  const attachmentBlockers = gate?.materializationEvidenceAttachment?.blockers ?? [];
+  const attachmentSummaryBlockers = gate?.materializationEvidenceAttachmentSummary?.blockers ?? [];
+  const actorBlockers = uniqueStrings([
+    ...(gate?.actorGate.materializationBlockers ?? ["actor_humanoid_materialization_contract_not_attached"]),
+    ...attachmentBlockers.filter((blocker) => blocker.startsWith("actor_materialization_evidence_missing:") || blocker.includes("humanoid")),
+    ...attachmentSummaryBlockers.filter((blocker) => blocker.includes("actor-materialization-attachment")),
+  ]);
+  const equipmentBlockers = uniqueStrings([
+    ...(gate?.equipmentGate.materializationBlockers ?? ["equipment_materialization_contract_not_attached"]),
+    ...attachmentBlockers.filter((blocker) => blocker.startsWith("equipment_materialization_evidence_missing:") || blocker.includes("equipment")),
+    ...attachmentSummaryBlockers.filter((blocker) => blocker.includes("equipment-materialization-attachment")),
+  ]);
+  return {
+    runtimeSelectionBlockedUntilEvidenceAttached: gate?.runtimeSelectionBlockedUntilEvidenceAttached ?? true,
+    actorBlockers: [...actorBlockers],
+    equipmentBlockers: [...equipmentBlockers],
+    caveats: uniqueStrings([
+      ...(gate?.actorGate.caveats ?? []),
+      ...(gate?.equipmentGate.caveats ?? []),
+      ...(gate?.combinedCaveats ?? []),
+    ]),
+    recommendedNextActions: uniqueStrings([
+      gate?.actorGate.recommendedNextAction ?? "attach actor-specific humanoid materialization evidence",
+      gate?.equipmentGate.recommendedNextAction ?? "attach equipment-specific materialization evidence",
+      ...(gate?.materializationEvidenceAttachmentSummary?.allRequiredSlotsSatisfied === false
+        ? ["attach missing actor/equipment materialization evidence slots before local launch selection"]
+        : []),
+    ]),
+    ...(gate?.materializationEvidenceAttachment ? { materializationEvidenceAttachment: gate.materializationEvidenceAttachment } : {}),
+    ...(gate?.materializationEvidenceAttachmentSummary ? { materializationEvidenceAttachmentSummary: gate.materializationEvidenceAttachmentSummary } : {}),
+    ...(gate?.remainingRuntimeBlockerReasons ? { remainingRuntimeBlockerReasons: gate.remainingRuntimeBlockerReasons } : {}),
+    claimBoundary: "materialization_contract_metadata_only_not_runtime_readiness",
+  };
+}
+
+function validateLaunchMaterializationGate(value: unknown, path: string, errors: string[]): void {
+  requireRecord(value, path, errors);
+  if (!isRecord(value)) return;
+  if (typeof value.runtimeSelectionBlockedUntilEvidenceAttached !== "boolean") {
+    errors.push(`${path}/runtimeSelectionBlockedUntilEvidenceAttached must be boolean`);
+  }
+  requireArray(value.actorBlockers, `${path}/actorBlockers`, errors);
+  requireArray(value.equipmentBlockers, `${path}/equipmentBlockers`, errors);
+  requireArray(value.caveats, `${path}/caveats`, errors);
+  requireArray(value.recommendedNextActions, `${path}/recommendedNextActions`, errors);
+  if (value.materializationEvidenceAttachment !== undefined) requireRecord(value.materializationEvidenceAttachment, `${path}/materializationEvidenceAttachment`, errors);
+  if (value.materializationEvidenceAttachmentSummary !== undefined) {
+    requireRecord(value.materializationEvidenceAttachmentSummary, `${path}/materializationEvidenceAttachmentSummary`, errors);
+    if (isRecord(value.materializationEvidenceAttachmentSummary)) {
+      requireLiteral(
+        value.materializationEvidenceAttachmentSummary.runtimeSelectionAllowed,
+        false,
+        `${path}/materializationEvidenceAttachmentSummary/runtimeSelectionAllowed`,
+        errors,
+      );
+      requireLiteral(
+        value.materializationEvidenceAttachmentSummary.learnerLaunchAllowed,
+        false,
+        `${path}/materializationEvidenceAttachmentSummary/learnerLaunchAllowed`,
+        errors,
+      );
+      requireLiteral(
+        value.materializationEvidenceAttachmentSummary.questEvidenceRefreshAllowed,
+        false,
+        `${path}/materializationEvidenceAttachmentSummary/questEvidenceRefreshAllowed`,
+        errors,
+      );
+      requireLiteral(
+        value.materializationEvidenceAttachmentSummary.claimBoundary,
+        "metadata_only_materialization_evidence_attachment_summary",
+        `${path}/materializationEvidenceAttachmentSummary/claimBoundary`,
+        errors,
+      );
+      requireArray(value.materializationEvidenceAttachmentSummary.blockers, `${path}/materializationEvidenceAttachmentSummary/blockers`, errors);
+    }
+  }
+  if (value.remainingRuntimeBlockerReasons !== undefined) requireRecord(value.remainingRuntimeBlockerReasons, `${path}/remainingRuntimeBlockerReasons`, errors);
+  requireLiteral(value.claimBoundary, "materialization_contract_metadata_only_not_runtime_readiness", `${path}/claimBoundary`, errors);
+  if (value.runtimeSelectionBlockedUntilEvidenceAttached === true) {
+    const blockerCount = (Array.isArray(value.actorBlockers) ? value.actorBlockers.length : 0)
+      + (Array.isArray(value.equipmentBlockers) ? value.equipmentBlockers.length : 0);
+    if (blockerCount === 0) errors.push(`${path} must include actor or equipment blockers when runtime selection is blocked`);
+  }
+}
+
 function summarizeRealismEvidenceRefs(report: EncounterPublicationPayloadReport): EncounterLocalLaunchSelectionReport["realismEvidenceRefs"] {
   const refsRecord = report.realismEvidenceRefs;
   return {
     claimBoundary: refsRecord?.claimBoundary ?? "unavailable",
     refIds: refsRecord?.refs.map((ref) => ref.refId) ?? [],
+    runtimeRealismEvidenceHookCount: refsRecord?.runtimeRealismEvidenceHooks.length ?? 0,
+    visualQaEvidenceHookCount: refsRecord?.visualQaEvidenceHooks.length ?? 0,
     requiredBefore: refsRecord?.refs.find((ref) => ref.requiredBefore === "guarded_runtime_wiring")?.requiredBefore ?? "unavailable",
     runtimeExecutionAllowed: false,
     providerExecutionPerformed: false,
@@ -417,6 +540,8 @@ function validateRealismEvidenceRefs(value: unknown, errors: string[]): void {
   requireLiteral(value.providerExecutionPerformed, false, "/realismEvidenceRefs/providerExecutionPerformed", errors);
   requireLiteral(value.questReadinessClaimed, false, "/realismEvidenceRefs/questReadinessClaimed", errors);
   requireArray(value.refIds, "/realismEvidenceRefs/refIds", errors);
+  requireNumber(value.runtimeRealismEvidenceHookCount, "/realismEvidenceRefs/runtimeRealismEvidenceHookCount", errors);
+  requireNumber(value.visualQaEvidenceHookCount, "/realismEvidenceRefs/visualQaEvidenceHookCount", errors);
   if (Array.isArray(value.refIds)) {
     for (const requiredRefId of ["humanoid-realism-gate", "runtime-realism-evidence-check", "visual-qa-evidence-check"]) {
       if (!value.refIds.includes(requiredRefId)) errors.push(`/realismEvidenceRefs/refIds must include ${requiredRefId}`);
@@ -475,6 +600,10 @@ function requireRecord(value: unknown, path: string, errors: string[]): void {
 
 function requireArray(value: unknown, path: string, errors: string[]): void {
   if (!Array.isArray(value)) errors.push(`${path} must be array`);
+}
+
+function requireNumber(value: unknown, path: string, errors: string[]): void {
+  if (typeof value !== "number" || !Number.isFinite(value)) errors.push(`${path} must be number`);
 }
 
 function requireLiteral<T>(value: unknown, expected: T, path: string, errors: string[]): void {

@@ -4,10 +4,22 @@
   "source": "generated_scene_pipeline",
   "scenarioId": "peds_asthma_parent_anxiety_v1",
   "stationId": "pediatric_urgent_care_station_v1",
+  "stationContext": {
+    "title": "Pediatric Asthma",
+    "subtitle": "Child, parent, and nurse in a pediatric urgent-care respiratory distress encounter.",
+    "chiefConcern": "Wheezing and increased work of breathing",
+    "initialVitals": "HR 128, RR 32, SpO2 91% on room air",
+    "interruption": "Parent interrupts if breathing distress is not acknowledged",
+    "stageAriaLabel": "Pediatric urgent-care station scene",
+    "canvasAriaLabel": "3D pediatric urgent-care bay preview",
+    "initialDialogueText": "Maya Johnson: It is hard to breathe."
+  },
   "roomProps": [
     {
       "propId": "monitor",
       "label": "Monitor",
+      "semanticRole": "objective_cue",
+      "evidenceCue": "Vitals monitor anchors the ED chest pain assessment.",
       "colorHex": "#111827",
       "accentColorHex": "#f59e0b",
       "position": {
@@ -373,16 +385,6 @@
     "clinical_validity",
     "scoring_validity"
   ],
-  "stationContext": {
-    "title": "Pediatric Asthma",
-    "subtitle": "Child, parent, and nurse in a pediatric urgent-care respiratory distress encounter.",
-    "chiefConcern": "Wheezing and increased work of breathing",
-    "initialVitals": "HR 128, RR 32, SpO2 91% on room air",
-    "interruption": "Parent interrupts if breathing distress is not acknowledged",
-    "stageAriaLabel": "Pediatric urgent-care station scene",
-    "canvasAriaLabel": "3D pediatric urgent-care bay preview",
-    "initialDialogueText": "Maya Johnson: It is hard to breathe."
-  },
   "caseDefinedHumanoidRuntimeHandoff": [
     {
       "claimBoundary": "case_definition_humanoid_runtime_handoff_metadata_only",

@@ -10,6 +10,7 @@ import {
   buildManualPerformanceInputEvidence,
   buildManualPerformanceReproducibility,
   buildReadableVrTextPanelEvidence,
+  buildRuntimeEvidenceConsumerReadiness,
   buildRuntimeEvidencePosture,
   buildRuntimeFrameStats,
   buildXrTraceActionHandoffEvidence,
@@ -41,6 +42,7 @@ import {
   primitiveHandRepresentationKind,
   type ReadableVrTextPanelEvidenceSet,
   type RuntimeInteractionEvidence,
+  readRuntimeActorEquipmentMaterializationGate,
   remoteActorTurnForTraceTag,
   type SceneAssetEvidence,
   stationTraceActionTags,
@@ -191,6 +193,132 @@ describe("XR runtime state", () => {
         "parent_communication",
       ],
       completedTraceTags: ["oxygen_request"],
+    });
+  });
+
+  it("preserves actor/equipment materialization blockers from generated learner runtime bundles", () => {
+    const bundle: LearnerRuntimeAssetBundle = {
+      ...createEdChestPainLocalLearnerRuntimeAssetBundle({
+        scenarioId: "peds_asthma_parent_anxiety_v1",
+        stationId: "peds_asthma_parent_anxiety_station_v1",
+      }),
+      actorEquipmentMaterializationGate: {
+        claimBoundary: "materialization_contract_metadata_only_not_runtime_readiness",
+        runtimeSelectionBlockedUntilEvidenceAttached: true,
+        actorGate: {
+          materializationBlockers: ["shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness"],
+          caveats: [
+            "shared_neutral_humanoid_reuse_is_local_runtime_scaffolding_until_actor_specific_mesh_rig_hair_face_clothing_animation_evidence_attaches",
+          ],
+          recommendedNextAction: "attach_actor_specific_humanoid_materialization_evidence",
+        },
+        equipmentGate: {
+          materializationBlockers: ["generic_equipment_reuse_blocks_equipment_specific_asset_readiness"],
+          caveats: [
+            "generic_equipment_reuse_is_local_runtime_scaffolding_until_equipment_specific_mesh_prefab_scale_placement_affordance_variant_evidence_attaches",
+          ],
+          recommendedNextAction: "attach_equipment_specific_materialization_evidence",
+        },
+        notEvidenceFor: ["runtime_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+      },
+    } as LearnerRuntimeAssetBundle;
+
+    expect(readRuntimeActorEquipmentMaterializationGate(bundle)).toEqual({
+      claimBoundary: "actor_equipment_materialization_contract_not_runtime_readiness",
+      runtimeSelectionBlockedUntilEvidenceAttached: true,
+      actorBlockers: ["shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness"],
+      equipmentBlockers: ["generic_equipment_reuse_blocks_equipment_specific_asset_readiness"],
+      caveats: [
+        "shared_neutral_humanoid_reuse_is_local_runtime_scaffolding_until_actor_specific_mesh_rig_hair_face_clothing_animation_evidence_attaches",
+        "generic_equipment_reuse_is_local_runtime_scaffolding_until_equipment_specific_mesh_prefab_scale_placement_affordance_variant_evidence_attaches",
+      ],
+      recommendedNextActions: [
+        "attach_actor_specific_humanoid_materialization_evidence",
+        "attach_equipment_specific_materialization_evidence",
+      ],
+      materializationEvidenceAttachmentSummary: null,
+      remainingRuntimeBlockerReasons: null,
+      notEvidenceFor: ["runtime_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+    });
+  });
+
+  it("preserves partial materialization evidence attachment summaries in learner runtime gate evidence", () => {
+    const bundle: LearnerRuntimeAssetBundle = {
+      ...createEdChestPainLocalLearnerRuntimeAssetBundle({
+        scenarioId: "peds_asthma_parent_anxiety_v1",
+        stationId: "peds_asthma_parent_anxiety_station_v1",
+      }),
+      actorEquipmentMaterializationGate: {
+        claimBoundary: "materialization_contract_metadata_only_not_runtime_readiness",
+        runtimeSelectionBlockedUntilEvidenceAttached: true,
+        actorGate: {
+          materializationBlockers: ["shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness"],
+          caveats: [],
+          recommendedNextAction: "attach_actor_specific_humanoid_materialization_evidence",
+        },
+        equipmentGate: {
+          materializationBlockers: ["generic_equipment_reuse_blocks_equipment_specific_asset_readiness"],
+          caveats: [],
+          recommendedNextAction: "attach_equipment_specific_materialization_evidence",
+        },
+        materializationEvidenceAttachmentSummary: {
+          source: "encounter_materialization_evidence_attachments",
+          totalRequiredSlotCount: 36,
+          attachedSlotCount: 36,
+          missingSlotCount: 0,
+          heldOrInvalidAttachmentCount: 0,
+          allRequiredSlotsSatisfied: true,
+          runtimeSelectionAllowed: false,
+          learnerLaunchAllowed: false,
+          questEvidenceRefreshAllowed: false,
+          claimBoundary: "metadata_only_materialization_evidence_attachment_summary",
+        },
+        remainingRuntimeBlockerReasons: {
+          source: "materialization_attachment_summary_and_publication_runtime_gates",
+          materializationEvidenceComplete: true,
+          runtimeSelectionAllowed: false,
+          learnerLaunchAllowed: false,
+          questEvidenceRefreshAllowed: false,
+          categories: [
+            {
+              category: "runtime_selector",
+              blockerIds: ["runtime_selector_disabled_guard_not_wired"],
+              recommendedNextAction: "review selector wiring later",
+            },
+            {
+              category: "metadata_only_assets",
+              blockerIds: ["materialization_evidence_refs_are_metadata_only_not_generated_asset_readiness"],
+              recommendedNextAction: "keep runtime blocked",
+            },
+          ],
+          claimBoundary: "remaining_runtime_blockers_after_materialization_metadata_only",
+        },
+        notEvidenceFor: ["runtime_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+      },
+    } as LearnerRuntimeAssetBundle;
+
+    expect(readRuntimeActorEquipmentMaterializationGate(bundle)?.materializationEvidenceAttachmentSummary).toMatchObject({
+      totalRequiredSlotCount: 36,
+      attachedSlotCount: 36,
+      missingSlotCount: 0,
+      allRequiredSlotsSatisfied: true,
+      runtimeSelectionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+    });
+    expect(readRuntimeActorEquipmentMaterializationGate(bundle)?.remainingRuntimeBlockerReasons).toMatchObject({
+      materializationEvidenceComplete: true,
+      runtimeSelectionAllowed: false,
+      categories: [
+        expect.objectContaining({
+          category: "runtime_selector",
+          blockerIds: ["runtime_selector_disabled_guard_not_wired"],
+        }),
+        expect.objectContaining({
+          category: "metadata_only_assets",
+          blockerIds: ["materialization_evidence_refs_are_metadata_only_not_generated_asset_readiness"],
+        }),
+      ],
     });
   });
 
@@ -1352,6 +1480,103 @@ describe("XR runtime state", () => {
       locomotionPlanningRequired: true,
     });
     expect(payload.caseDefinedHumanoidPerformanceContractEvidence?.notEvidenceFor).toContain("generated_humanoid_asset_readiness");
+    expect(payload.runtimeVisualEvidenceCaptureScaffold).toMatchObject({
+      schemaVersion: "openclinxr.ui-xr-runtime-visual-evidence-capture-scaffold.v1",
+      source: "ui_xr_manual_performance_evidence_payload",
+      scenarioId: "ed_chest_pain_priority_v1",
+      runtimeEvidenceCandidateCount: 1,
+      visualQaEvidenceCandidateCount: 1,
+      providerExecutionAllowed: false,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      clinicalValidityClaimed: false,
+      scoringValidityClaimed: false,
+      claimBoundary: "ui_xr_capture_scaffold_not_runtime_visual_evidence",
+    });
+    expect(payload.runtimeVisualEvidenceCaptureScaffold?.attachmentCandidates).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        actionId: "attach_runtime_realism_evidence_refs",
+        inputId: "runtime-realism-evidence-input:patient_robert_hayes_v1",
+        inputKind: "runtime_realism_signal_input",
+        evidenceRef: "ui-xr-manual-runtime-evidence://ed_chest_pain_priority_v1/patient_robert_hayes_v1",
+        attachmentStatus: "attached_metadata_only",
+        claimBoundary: "ui_xr_metadata_only_attachment_candidate_not_submitted",
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+      }),
+      expect.objectContaining({
+        actionId: "attach_visual_qa_evidence_refs",
+        inputId: "visual-qa-evidence-input:patient_robert_hayes_v1",
+        inputKind: "visual_qa_review_input",
+        evidenceRef: "ui-xr-manual-visual-qa-evidence://ed_chest_pain_priority_v1/patient_robert_hayes_v1",
+        attachmentStatus: "attached_metadata_only",
+      }),
+    ]));
+    expect(payload.runtimeVisualEvidenceCaptureScaffold?.submitRuntimeVisualEvidenceAttachmentInput).toEqual({
+      scenarioId: "ed_chest_pain_priority_v1",
+      attachments: expect.arrayContaining([
+        expect.objectContaining({
+          actionId: "attach_runtime_realism_evidence_refs",
+          inputId: "runtime-realism-evidence-input:patient_robert_hayes_v1",
+          inputKind: "runtime_realism_signal_input",
+          evidenceRef: "ui-xr-manual-runtime-evidence://ed_chest_pain_priority_v1/patient_robert_hayes_v1",
+          localArtifactPath: "ui-xr/manual-performance-evidence/ed_chest_pain_priority_v1/patient_robert_hayes_v1-runtime-realism.json",
+          reviewerId: "ui_xr_manual_runtime_evidence_capture_scaffold",
+          attachmentStatus: "attached_metadata_only",
+        }),
+        expect.objectContaining({
+          actionId: "attach_visual_qa_evidence_refs",
+          inputKind: "visual_qa_review_input",
+          evidenceRef: "ui-xr-manual-visual-qa-evidence://ed_chest_pain_priority_v1/patient_robert_hayes_v1",
+        }),
+      ]),
+    });
+    expect(payload.runtimeVisualEvidenceCaptureScaffold?.submitRuntimeVisualEvidenceAttachmentInput.attachments).toHaveLength(2);
+    expect(payload.runtimeVisualEvidenceCaptureScaffold?.submitRuntimeVisualEvidenceAttachmentInput.attachments[0]).not.toHaveProperty("runtimeExecutionAllowed");
+    expect(payload.runtimeVisualEvidenceCaptureScaffold?.submitRuntimeVisualEvidenceAttachmentInput.attachments[0]).not.toHaveProperty("learnerLaunchAllowed");
+    expect(payload.runtimeEvidenceConsumerReadiness).toMatchObject({
+      schemaVersion: "openclinxr.ui-xr-runtime-evidence-consumer-readiness.v1",
+      source: "runtimeVisualEvidenceCaptureScaffold",
+      status: "consumer_ready_metadata_only",
+      scenarioId: "ed_chest_pain_priority_v1",
+      attachmentCount: 2,
+      runtimeEvidenceAttachmentCount: 1,
+      visualQaEvidenceAttachmentCount: 1,
+      targetRoute: "/runtime/visual-evidence-attachments",
+      submitBodyRef: "runtimeVisualEvidenceCaptureScaffold.submitRuntimeVisualEvidenceAttachmentInput",
+      submitPreview: {
+        route: "/runtime/visual-evidence-attachments",
+        bodyRef: "runtimeVisualEvidenceCaptureScaffold.submitRuntimeVisualEvidenceAttachmentInput",
+        attachmentCount: 2,
+        actionIds: ["attach_runtime_realism_evidence_refs", "attach_visual_qa_evidence_refs"],
+        inputIds: [
+          "runtime-realism-evidence-input:patient_robert_hayes_v1",
+          "visual-qa-evidence-input:patient_robert_hayes_v1",
+        ],
+        localArtifactPaths: [
+          "ui-xr/manual-performance-evidence/ed_chest_pain_priority_v1/patient_robert_hayes_v1-runtime-realism.json",
+          "ui-xr/manual-performance-evidence/ed_chest_pain_priority_v1/patient_robert_hayes_v1-visual-qa.json",
+        ],
+        rawPayloadDisplayed: false,
+        claimBoundary: "ui_xr_consumer_readiness_submit_preview_metadata_only",
+      },
+      blockerIds: [],
+      rawPayloadDisplayed: false,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      claimBoundary: "ui_xr_consumer_readiness_metadata_only_not_runtime_visual_evidence",
+    });
+    expect(payload.runtimeVisualEvidenceCaptureScaffold?.notEvidenceFor).toEqual([
+      "provider_availability",
+      "runtime_readiness",
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity",
+      "learner_launch_readiness",
+    ]);
   });
 
   it("bundles the selected runtime asset bundle id into copied Quest evidence payloads", () => {
@@ -1366,6 +1591,43 @@ describe("XR runtime state", () => {
     });
 
     expect(payload.runtimeAssetBundleId).toBe("generated-ed-bundle-001");
+  });
+
+  it("keeps runtime evidence consumer readiness blocked when no scaffold can be copied", () => {
+    expect(buildRuntimeEvidenceConsumerReadiness(null)).toMatchObject({
+      schemaVersion: "openclinxr.ui-xr-runtime-evidence-consumer-readiness.v1",
+      source: "runtimeVisualEvidenceCaptureScaffold",
+      status: "consumer_blocked",
+      scenarioId: null,
+      runtimeAssetBundleId: null,
+      attachmentCount: 0,
+      runtimeEvidenceAttachmentCount: 0,
+      visualQaEvidenceAttachmentCount: 0,
+      targetRoute: "/runtime/visual-evidence-attachments",
+      submitBodyRef: "runtimeVisualEvidenceCaptureScaffold.submitRuntimeVisualEvidenceAttachmentInput",
+      submitPreview: {
+        route: "/runtime/visual-evidence-attachments",
+        bodyRef: "runtimeVisualEvidenceCaptureScaffold.submitRuntimeVisualEvidenceAttachmentInput",
+        attachmentCount: 0,
+        actionIds: [],
+        inputIds: [],
+        localArtifactPaths: [],
+        rawPayloadDisplayed: false,
+        claimBoundary: "ui_xr_consumer_readiness_submit_preview_metadata_only",
+      },
+      blockerIds: [
+        "runtime_visual_evidence_capture_scaffold_missing",
+        "runtime_visual_evidence_submit_attachments_missing",
+      ],
+      rawPayloadDisplayed: false,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      productionAssetReadinessClaimed: false,
+      clinicalValidityClaimed: false,
+      scoringValidityClaimed: false,
+      claimBoundary: "ui_xr_consumer_readiness_metadata_only_not_runtime_visual_evidence",
+    });
   });
 
   it("bundles generated runtime scene manifest evidence into copied Quest evidence payloads", () => {

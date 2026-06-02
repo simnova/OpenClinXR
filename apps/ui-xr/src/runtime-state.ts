@@ -638,6 +638,108 @@ export type ManualPerformanceEvidencePayload = {
   examineeLocomotionEvidence: ExamineeLocomotionEvidence | null;
   runtimeInteractionEvidence: RuntimeInteractionEvidence | null;
   traceInteractionEvidenceSummary: XrTraceInteractionEvidenceSummary | null;
+  runtimeVisualEvidenceCaptureScaffold: RuntimeVisualEvidenceCaptureScaffold | null;
+  runtimeEvidenceConsumerReadiness: RuntimeEvidenceConsumerReadiness | null;
+};
+
+export type RuntimeVisualEvidenceAttachmentCandidate = {
+  actionId: "attach_runtime_realism_evidence_refs" | "attach_visual_qa_evidence_refs";
+  inputId: string;
+  inputKind: "runtime_realism_signal_input" | "visual_qa_review_input";
+  evidenceRef: string;
+  localArtifactPath: string;
+  reviewerId: "ui_xr_manual_runtime_evidence_capture_scaffold";
+  attachmentStatus: "attached_metadata_only";
+  comments: string;
+  attachedAt: string;
+  providerExecutionAllowed: false;
+  runtimeExecutionAllowed: false;
+  learnerLaunchAllowed: false;
+  questEvidenceRefreshAllowed: false;
+  productionAssetReadinessClaimed: false;
+  clinicalValidityClaimed: false;
+  scoringValidityClaimed: false;
+  claimBoundary: "ui_xr_metadata_only_attachment_candidate_not_submitted";
+  notEvidenceFor: [
+    "provider_availability",
+    "runtime_readiness",
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "learner_launch_readiness",
+  ];
+};
+
+export type RuntimeVisualEvidenceAttachmentSubmitInput = {
+  scenarioId: string;
+  attachments: Array<Pick<
+    RuntimeVisualEvidenceAttachmentCandidate,
+    | "actionId"
+    | "inputId"
+    | "inputKind"
+    | "evidenceRef"
+    | "localArtifactPath"
+    | "reviewerId"
+    | "attachmentStatus"
+    | "comments"
+    | "attachedAt"
+  >>;
+};
+
+export type RuntimeVisualEvidenceCaptureScaffold = {
+  schemaVersion: "openclinxr.ui-xr-runtime-visual-evidence-capture-scaffold.v1";
+  source: "ui_xr_manual_performance_evidence_payload";
+  scenarioId: string;
+  runtimeAssetBundleId: string | null;
+  status: "metadata_only_attachment_candidates_not_submitted";
+  runtimeEvidenceCandidateCount: number;
+  visualQaEvidenceCandidateCount: number;
+  attachmentCandidates: RuntimeVisualEvidenceAttachmentCandidate[];
+  submitRuntimeVisualEvidenceAttachmentInput: RuntimeVisualEvidenceAttachmentSubmitInput;
+  providerExecutionAllowed: false;
+  runtimeExecutionAllowed: false;
+  learnerLaunchAllowed: false;
+  questEvidenceRefreshAllowed: false;
+  productionAssetReadinessClaimed: false;
+  clinicalValidityClaimed: false;
+  scoringValidityClaimed: false;
+  claimBoundary: "ui_xr_capture_scaffold_not_runtime_visual_evidence";
+  notEvidenceFor: RuntimeVisualEvidenceAttachmentCandidate["notEvidenceFor"];
+};
+
+export type RuntimeEvidenceConsumerReadiness = {
+  schemaVersion: "openclinxr.ui-xr-runtime-evidence-consumer-readiness.v1";
+  source: "runtimeVisualEvidenceCaptureScaffold";
+  status: "consumer_ready_metadata_only" | "consumer_blocked";
+  scenarioId: string | null;
+  runtimeAssetBundleId: string | null;
+  attachmentCount: number;
+  runtimeEvidenceAttachmentCount: number;
+  visualQaEvidenceAttachmentCount: number;
+  targetRoute: "/runtime/visual-evidence-attachments";
+  submitBodyRef: "runtimeVisualEvidenceCaptureScaffold.submitRuntimeVisualEvidenceAttachmentInput";
+  submitPreview: {
+    route: "/runtime/visual-evidence-attachments";
+    bodyRef: "runtimeVisualEvidenceCaptureScaffold.submitRuntimeVisualEvidenceAttachmentInput";
+    attachmentCount: number;
+    actionIds: RuntimeVisualEvidenceAttachmentCandidate["actionId"][];
+    inputIds: string[];
+    localArtifactPaths: string[];
+    rawPayloadDisplayed: false;
+    claimBoundary: "ui_xr_consumer_readiness_submit_preview_metadata_only";
+  };
+  blockerIds: string[];
+  rawPayloadDisplayed: false;
+  providerExecutionAllowed: false;
+  runtimeExecutionAllowed: false;
+  learnerLaunchAllowed: false;
+  questEvidenceRefreshAllowed: false;
+  productionAssetReadinessClaimed: false;
+  clinicalValidityClaimed: false;
+  scoringValidityClaimed: false;
+  claimBoundary: "ui_xr_consumer_readiness_metadata_only_not_runtime_visual_evidence";
+  notEvidenceFor: RuntimeVisualEvidenceAttachmentCandidate["notEvidenceFor"];
 };
 
 export type LearnerRuntimeUseGateEvidence = EncounterRuntimeLearnerUseGate & {
@@ -656,8 +758,109 @@ export type LearnerRuntimeUseGateEvidence = EncounterRuntimeLearnerUseGate & {
   ];
   blockingGateIds: EncounterRuntimeEvidenceGateId[];
   approvedLocalFixtureOnly: boolean;
+  actorEquipmentMaterializationGate: RuntimeActorEquipmentMaterializationGateEvidence | null;
   claimBoundary: "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach";
 };
+
+export type RuntimeActorEquipmentMaterializationGateEvidence = {
+  claimBoundary: "actor_equipment_materialization_contract_not_runtime_readiness";
+  runtimeSelectionBlockedUntilEvidenceAttached: boolean;
+  actorBlockers: string[];
+  equipmentBlockers: string[];
+  caveats: string[];
+  recommendedNextActions: string[];
+  materializationEvidenceAttachmentSummary: RuntimeMaterializationEvidenceAttachmentSummary | null;
+  remainingRuntimeBlockerReasons: RuntimeRemainingRuntimeBlockerReasons | null;
+  notEvidenceFor: string[];
+};
+
+export type RuntimeRemainingRuntimeBlockerReasons = {
+  source: "materialization_attachment_summary_and_publication_runtime_gates";
+  materializationEvidenceComplete: boolean;
+  runtimeSelectionAllowed: false;
+  learnerLaunchAllowed: false;
+  questEvidenceRefreshAllowed: false;
+  categories: Array<{
+    category: string;
+    blockerIds: string[];
+    recommendedNextAction: string;
+  }>;
+  claimBoundary: "remaining_runtime_blockers_after_materialization_metadata_only";
+};
+
+export type RuntimeMaterializationEvidenceAttachmentSummary = {
+  source: "encounter_materialization_evidence_attachments";
+  totalRequiredSlotCount: number;
+  attachedSlotCount: number;
+  missingSlotCount: number;
+  heldOrInvalidAttachmentCount: number;
+  allRequiredSlotsSatisfied: boolean;
+  runtimeSelectionAllowed: false;
+  learnerLaunchAllowed: false;
+  questEvidenceRefreshAllowed: false;
+  claimBoundary: "metadata_only_materialization_evidence_attachment_summary";
+};
+
+type RuntimePublicationActorEquipmentMaterializationGate = {
+  claimBoundary: "materialization_contract_metadata_only_not_runtime_readiness";
+  runtimeSelectionBlockedUntilEvidenceAttached: boolean;
+  actorGate: {
+    materializationBlockers: string[];
+    caveats: string[];
+    recommendedNextAction: string;
+  };
+  equipmentGate: {
+    materializationBlockers: string[];
+    caveats: string[];
+    recommendedNextAction: string;
+  };
+  materializationEvidenceAttachmentSummary?: RuntimeMaterializationEvidenceAttachmentSummary;
+  remainingRuntimeBlockerReasons?: RuntimeRemainingRuntimeBlockerReasons;
+  notEvidenceFor: string[];
+};
+
+export type LearnerRuntimeAssetBundleWithMaterializationGate = LearnerRuntimeAssetBundle & {
+  actorEquipmentMaterializationGate?: RuntimeActorEquipmentMaterializationGateEvidence | RuntimePublicationActorEquipmentMaterializationGate | undefined;
+};
+
+export function readRuntimeActorEquipmentMaterializationGate(
+  bundle: LearnerRuntimeAssetBundle,
+): RuntimeActorEquipmentMaterializationGateEvidence | null {
+  const gate = (bundle as LearnerRuntimeAssetBundleWithMaterializationGate).actorEquipmentMaterializationGate;
+  if (!gate) {
+    return null;
+  }
+  if (gate.claimBoundary === "materialization_contract_metadata_only_not_runtime_readiness") {
+    return {
+      claimBoundary: "actor_equipment_materialization_contract_not_runtime_readiness",
+      runtimeSelectionBlockedUntilEvidenceAttached: gate.runtimeSelectionBlockedUntilEvidenceAttached === true,
+      actorBlockers: [...gate.actorGate.materializationBlockers],
+      equipmentBlockers: [...gate.equipmentGate.materializationBlockers],
+      caveats: [...gate.actorGate.caveats, ...gate.equipmentGate.caveats],
+      recommendedNextActions: [
+        gate.actorGate.recommendedNextAction,
+        gate.equipmentGate.recommendedNextAction,
+      ],
+      materializationEvidenceAttachmentSummary: gate.materializationEvidenceAttachmentSummary ?? null,
+      remainingRuntimeBlockerReasons: gate.remainingRuntimeBlockerReasons ?? null,
+      notEvidenceFor: [...gate.notEvidenceFor],
+    };
+  }
+  if (gate.claimBoundary !== "actor_equipment_materialization_contract_not_runtime_readiness") {
+    return null;
+  }
+  return {
+    claimBoundary: gate.claimBoundary,
+    runtimeSelectionBlockedUntilEvidenceAttached: gate.runtimeSelectionBlockedUntilEvidenceAttached === true,
+    actorBlockers: [...gate.actorBlockers],
+    equipmentBlockers: [...gate.equipmentBlockers],
+    caveats: [...gate.caveats],
+    recommendedNextActions: [...gate.recommendedNextActions],
+    materializationEvidenceAttachmentSummary: gate.materializationEvidenceAttachmentSummary ?? null,
+    remainingRuntimeBlockerReasons: gate.remainingRuntimeBlockerReasons ?? null,
+    notEvidenceFor: [...gate.notEvidenceFor],
+  };
+}
 
 export type CaseDefinedHumanoidRuntimeHandoffEvidence = {
   claimBoundary: "case_definition_humanoid_runtime_handoff_metadata_only";
@@ -1883,7 +2086,7 @@ export function buildManualPerformanceEvidencePayload(input: {
   runtimeInteractionEvidence?: RuntimeInteractionEvidence | null | undefined;
   traceInteractionEvidenceSummary?: XrTraceInteractionEvidenceSummary | null | undefined;
 }): ManualPerformanceEvidencePayload {
-  return {
+  const payloadWithoutScaffold = {
     manualPerformanceDraft: input.manualPerformanceDraft,
     captureSummary: input.captureSummary,
     runtimeAssetBundleId: input.runtimeAssetBundleId ?? null,
@@ -1899,6 +2102,220 @@ export function buildManualPerformanceEvidencePayload(input: {
     runtimeInteractionEvidence: input.runtimeInteractionEvidence ?? null,
     traceInteractionEvidenceSummary: input.traceInteractionEvidenceSummary ?? null,
   };
+  const runtimeVisualEvidenceCaptureScaffold = buildRuntimeVisualEvidenceCaptureScaffold(payloadWithoutScaffold);
+  return {
+    ...payloadWithoutScaffold,
+    runtimeVisualEvidenceCaptureScaffold,
+    runtimeEvidenceConsumerReadiness: buildRuntimeEvidenceConsumerReadiness(runtimeVisualEvidenceCaptureScaffold),
+  };
+}
+
+const RUNTIME_VISUAL_EVIDENCE_NOT_EVIDENCE_FOR = [
+  "provider_availability",
+  "runtime_readiness",
+  "production_asset_readiness",
+  "quest_readiness",
+  "clinical_validity",
+  "scoring_validity",
+  "learner_launch_readiness",
+] as const satisfies RuntimeVisualEvidenceAttachmentCandidate["notEvidenceFor"];
+
+type RuntimeVisualEvidenceCaptureScaffoldInput = Omit<
+  ManualPerformanceEvidencePayload,
+  "runtimeVisualEvidenceCaptureScaffold"
+>;
+
+export function buildRuntimeVisualEvidenceCaptureScaffold(
+  input: RuntimeVisualEvidenceCaptureScaffoldInput,
+): RuntimeVisualEvidenceCaptureScaffold | null {
+  const scenarioId = input.runtimeSceneManifestEvidence?.selectedScenarioId
+    ?? input.learnerRuntimeUseGateEvidence?.scenarioId
+    ?? input.caseDefinedHumanoidPerformanceContractEvidence?.scenarioId
+    ?? null;
+  if (!scenarioId) {
+    return null;
+  }
+
+  const attachedAt = input.captureSummary.generatedAt
+    ?? input.manualPerformanceDraft?.generatedAt
+    ?? "1970-01-01T00:00:00.000Z";
+  const runtimeAssetBundleId = input.runtimeAssetBundleId
+    ?? input.learnerRuntimeUseGateEvidence?.bundleId
+    ?? null;
+  const attachmentCandidates = [
+    ...buildRuntimeEvidenceAttachmentCandidates({ input, scenarioId, attachedAt }),
+    ...buildVisualQaEvidenceAttachmentCandidates({ input, scenarioId, attachedAt }),
+  ];
+  if (attachmentCandidates.length === 0) {
+    return null;
+  }
+
+  return {
+    schemaVersion: "openclinxr.ui-xr-runtime-visual-evidence-capture-scaffold.v1",
+    source: "ui_xr_manual_performance_evidence_payload",
+    scenarioId,
+    runtimeAssetBundleId,
+    status: "metadata_only_attachment_candidates_not_submitted",
+    runtimeEvidenceCandidateCount: attachmentCandidates.filter((candidate) => candidate.inputKind === "runtime_realism_signal_input").length,
+    visualQaEvidenceCandidateCount: attachmentCandidates.filter((candidate) => candidate.inputKind === "visual_qa_review_input").length,
+    attachmentCandidates,
+    submitRuntimeVisualEvidenceAttachmentInput: {
+      scenarioId,
+      attachments: attachmentCandidates.map(stripRuntimeVisualEvidenceAttachmentCandidate),
+    },
+    providerExecutionAllowed: false,
+    runtimeExecutionAllowed: false,
+    learnerLaunchAllowed: false,
+    questEvidenceRefreshAllowed: false,
+    productionAssetReadinessClaimed: false,
+    clinicalValidityClaimed: false,
+    scoringValidityClaimed: false,
+    claimBoundary: "ui_xr_capture_scaffold_not_runtime_visual_evidence",
+    notEvidenceFor: [...RUNTIME_VISUAL_EVIDENCE_NOT_EVIDENCE_FOR],
+  };
+}
+
+export function buildRuntimeEvidenceConsumerReadiness(
+  scaffold: RuntimeVisualEvidenceCaptureScaffold | null,
+): RuntimeEvidenceConsumerReadiness {
+  const attachments = scaffold?.submitRuntimeVisualEvidenceAttachmentInput.attachments ?? [];
+  const blockerIds = [
+    scaffold ? undefined : "runtime_visual_evidence_capture_scaffold_missing",
+    scaffold && attachments.length > 0 ? undefined : "runtime_visual_evidence_submit_attachments_missing",
+  ].filter((blocker): blocker is string => Boolean(blocker));
+  return {
+    schemaVersion: "openclinxr.ui-xr-runtime-evidence-consumer-readiness.v1",
+    source: "runtimeVisualEvidenceCaptureScaffold",
+    status: blockerIds.length === 0 ? "consumer_ready_metadata_only" : "consumer_blocked",
+    scenarioId: scaffold?.scenarioId ?? null,
+    runtimeAssetBundleId: scaffold?.runtimeAssetBundleId ?? null,
+    attachmentCount: attachments.length,
+    runtimeEvidenceAttachmentCount: scaffold?.runtimeEvidenceCandidateCount ?? 0,
+    visualQaEvidenceAttachmentCount: scaffold?.visualQaEvidenceCandidateCount ?? 0,
+    targetRoute: "/runtime/visual-evidence-attachments",
+    submitBodyRef: "runtimeVisualEvidenceCaptureScaffold.submitRuntimeVisualEvidenceAttachmentInput",
+    submitPreview: {
+      route: "/runtime/visual-evidence-attachments",
+      bodyRef: "runtimeVisualEvidenceCaptureScaffold.submitRuntimeVisualEvidenceAttachmentInput",
+      attachmentCount: attachments.length,
+      actionIds: attachments.map((attachment) => attachment.actionId),
+      inputIds: attachments.map((attachment) => attachment.inputId),
+      localArtifactPaths: attachments.map((attachment) => attachment.localArtifactPath),
+      rawPayloadDisplayed: false,
+      claimBoundary: "ui_xr_consumer_readiness_submit_preview_metadata_only",
+    },
+    blockerIds,
+    rawPayloadDisplayed: false,
+    providerExecutionAllowed: false,
+    runtimeExecutionAllowed: false,
+    learnerLaunchAllowed: false,
+    questEvidenceRefreshAllowed: false,
+    productionAssetReadinessClaimed: false,
+    clinicalValidityClaimed: false,
+    scoringValidityClaimed: false,
+    claimBoundary: "ui_xr_consumer_readiness_metadata_only_not_runtime_visual_evidence",
+    notEvidenceFor: [...RUNTIME_VISUAL_EVIDENCE_NOT_EVIDENCE_FOR],
+  };
+}
+
+function stripRuntimeVisualEvidenceAttachmentCandidate(
+  candidate: RuntimeVisualEvidenceAttachmentCandidate,
+): RuntimeVisualEvidenceAttachmentSubmitInput["attachments"][number] {
+  return {
+    actionId: candidate.actionId,
+    inputId: candidate.inputId,
+    inputKind: candidate.inputKind,
+    evidenceRef: candidate.evidenceRef,
+    localArtifactPath: candidate.localArtifactPath,
+    reviewerId: candidate.reviewerId,
+    attachmentStatus: candidate.attachmentStatus,
+    comments: candidate.comments,
+    attachedAt: candidate.attachedAt,
+  };
+}
+
+function buildRuntimeEvidenceAttachmentCandidates(input: {
+  input: RuntimeVisualEvidenceCaptureScaffoldInput;
+  scenarioId: string;
+  attachedAt: string;
+}): RuntimeVisualEvidenceAttachmentCandidate[] {
+  const activeActorId = input.input.humanoidSpeechEvidence?.activeActorId;
+  if (!activeActorId) {
+    return [];
+  }
+  const actorRole = input.input.humanoidSpeechEvidence?.activeActorRuntimeRealismRequirement?.role
+    ?? input.input.humanoidSpeechEvidence?.activeActorRealismLaunchBadge?.actorRole
+    ?? "actor";
+  return [
+    buildRuntimeVisualEvidenceAttachmentCandidate({
+      actionId: "attach_runtime_realism_evidence_refs",
+      inputId: `runtime-realism-evidence-input:${activeActorId}`,
+      inputKind: "runtime_realism_signal_input",
+      evidenceRef: `ui-xr-manual-runtime-evidence://${input.scenarioId}/${activeActorId}`,
+      localArtifactPath: `ui-xr/manual-performance-evidence/${sanitizeEvidencePathSegment(input.scenarioId)}/${sanitizeEvidencePathSegment(activeActorId)}-runtime-realism.json`,
+      comments: `Metadata-only UI-XR runtime capture scaffold for ${actorRole} ${activeActorId}; submit through Admin/API review before it can attach to runtime selection gates.`,
+      attachedAt: input.attachedAt,
+    }),
+  ];
+}
+
+function buildVisualQaEvidenceAttachmentCandidates(input: {
+  input: RuntimeVisualEvidenceCaptureScaffoldInput;
+  scenarioId: string;
+  attachedAt: string;
+}): RuntimeVisualEvidenceAttachmentCandidate[] {
+  const targets = new Set<string>();
+  if (input.input.runtimeSceneManifestEvidence?.manifestId) {
+    targets.add(input.input.runtimeSceneManifestEvidence.manifestId);
+  }
+  if (input.input.humanoidSpeechEvidence?.activeActorId) {
+    targets.add(input.input.humanoidSpeechEvidence.activeActorId);
+  }
+  return [...targets].map((targetId) =>
+    buildRuntimeVisualEvidenceAttachmentCandidate({
+      actionId: "attach_visual_qa_evidence_refs",
+      inputId: `visual-qa-evidence-input:${targetId}`,
+      inputKind: "visual_qa_review_input",
+      evidenceRef: `ui-xr-manual-visual-qa-evidence://${input.scenarioId}/${targetId}`,
+      localArtifactPath: `ui-xr/manual-performance-evidence/${sanitizeEvidencePathSegment(input.scenarioId)}/${sanitizeEvidencePathSegment(targetId)}-visual-qa.json`,
+      comments: `Metadata-only UI-XR visual-QA capture scaffold for ${targetId}; this is not visual quality evidence until reviewed and submitted.`,
+      attachedAt: input.attachedAt,
+    }),
+  );
+}
+
+function buildRuntimeVisualEvidenceAttachmentCandidate(input: Omit<
+  RuntimeVisualEvidenceAttachmentCandidate,
+  | "reviewerId"
+  | "attachmentStatus"
+  | "providerExecutionAllowed"
+  | "runtimeExecutionAllowed"
+  | "learnerLaunchAllowed"
+  | "questEvidenceRefreshAllowed"
+  | "productionAssetReadinessClaimed"
+  | "clinicalValidityClaimed"
+  | "scoringValidityClaimed"
+  | "claimBoundary"
+  | "notEvidenceFor"
+>): RuntimeVisualEvidenceAttachmentCandidate {
+  return {
+    ...input,
+    reviewerId: "ui_xr_manual_runtime_evidence_capture_scaffold",
+    attachmentStatus: "attached_metadata_only",
+    providerExecutionAllowed: false,
+    runtimeExecutionAllowed: false,
+    learnerLaunchAllowed: false,
+    questEvidenceRefreshAllowed: false,
+    productionAssetReadinessClaimed: false,
+    clinicalValidityClaimed: false,
+    scoringValidityClaimed: false,
+    claimBoundary: "ui_xr_metadata_only_attachment_candidate_not_submitted",
+    notEvidenceFor: [...RUNTIME_VISUAL_EVIDENCE_NOT_EVIDENCE_FOR],
+  };
+}
+
+function sanitizeEvidencePathSegment(value: string): string {
+  return value.replace(/[^a-zA-Z0-9._:-]+/g, "_");
 }
 
 export function manualPerformanceMetricsFromFrameStats(stats: ManualPerformanceFrameStats): ManualPerformanceMetrics {

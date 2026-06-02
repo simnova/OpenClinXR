@@ -9,6 +9,8 @@ describe("OpenClinXR REST route contract", () => {
       "runtime-protocols",
       "runtime-provider-readiness",
       "runtime-selection-review-packet",
+      "submit-runtime-realism-evidence-input-review",
+      "submit-runtime-visual-evidence-attachment",
       "learner-runtime-asset-bundle-list",
       "learner-runtime-asset-bundle",
       "realtime-voice-posture",
@@ -27,6 +29,7 @@ describe("OpenClinXR REST route contract", () => {
       "list-scenario-scene-generation-requests",
       "create-scenario-scene-generation-request",
       "submit-scenario-scene-generation-request-review",
+      "submit-scenario-scene-generation-materialization-input-review",
       "scenario-scene-generation-request-publication-readiness",
       "scenario-asset-readiness",
       "scenario-publication-readiness",
@@ -128,6 +131,11 @@ describe("OpenClinXR REST route contract", () => {
       path: "/scenario-bank/scene-generation/requests/:requestId/runtime-asset-review-decisions",
       surface: "control-plane",
     });
+    expect(routeById("submit-scenario-scene-generation-materialization-input-review")).toMatchObject({
+      method: "POST",
+      path: "/scenario-bank/scene-generation/requests/:requestId/materialization-input-review-decisions",
+      surface: "control-plane",
+    });
     expect(routeById("scenario-scene-generation-request-publication-readiness")).toMatchObject({
       method: "GET",
       path: "/scenario-bank/scene-generation/requests/:requestId/publication-readiness",
@@ -155,6 +163,16 @@ describe("OpenClinXR REST route contract", () => {
         learnerLaunchAllowed: false,
         questEvidenceRefreshAllowed: false,
       },
+    });
+    expect(routeById("submit-runtime-realism-evidence-input-review")).toMatchObject({
+      method: "POST",
+      path: "/runtime/realism-evidence-input-review-decisions",
+      surface: "control-plane",
+    });
+    expect(routeById("submit-runtime-visual-evidence-attachment")).toMatchObject({
+      method: "POST",
+      path: "/runtime/visual-evidence-attachments",
+      surface: "control-plane",
     });
     expect(routeById("learner-runtime-asset-bundle")).toMatchObject({
       method: "GET",

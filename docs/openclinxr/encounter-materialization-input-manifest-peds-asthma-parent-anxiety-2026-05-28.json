@@ -1,0 +1,359 @@
+{
+  "schemaVersion": "openclinxr.encounter-materialization-input-manifest.v1",
+  "generatedAt": "2026-05-28T05:44:16.158Z",
+  "source": "encounter_materialization_evidence_report",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "status": "planned_metadata_only_blocked_until_provider_approval",
+  "actorWorkOrderInputs": [
+    {
+      "workOrderInputId": "actor-materialization-input:patient_maya_johnson_v1",
+      "actorId": "patient_maya_johnson_v1",
+      "actorRole": "patient",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_humanoid_variant",
+      "sourceBlobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+      "requiredEvidenceRefs": [
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_humanoid_variant/actor_specific_body_profile_required",
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_humanoid_variant/actor_specific_clothing_required",
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_humanoid_variant/actor_specific_hair_face_required",
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_humanoid_variant/actor_specific_rig_preservation_required"
+      ],
+      "requiredCueIds": [
+        "actor_specific_body_profile_required",
+        "actor_specific_clothing_required",
+        "actor_specific_hair_face_required",
+        "actor_specific_rig_preservation_required"
+      ],
+      "blockerIds": [
+        "shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness",
+        "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_body_profile_required",
+        "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_clothing_required",
+        "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_hair_face_required",
+        "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_rig_preservation_required"
+      ],
+      "targetCapabilityIds": [
+        "character-generation",
+        "animation-generation",
+        "asset-bake"
+      ],
+      "providerExecutionStatus": "metadata_only_not_executed",
+      "claimBoundary": "provider_neutral_materialization_input_not_asset_readiness"
+    },
+    {
+      "workOrderInputId": "actor-materialization-input:parent_tara_johnson_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "actorRole": "family",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_humanoid_variant",
+      "sourceBlobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+      "requiredEvidenceRefs": [
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_humanoid_variant/actor_specific_body_profile_required",
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_humanoid_variant/actor_specific_clothing_required",
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_humanoid_variant/actor_specific_hair_face_required",
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_humanoid_variant/actor_specific_rig_preservation_required"
+      ],
+      "requiredCueIds": [
+        "actor_specific_body_profile_required",
+        "actor_specific_clothing_required",
+        "actor_specific_hair_face_required",
+        "actor_specific_rig_preservation_required"
+      ],
+      "blockerIds": [
+        "shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness",
+        "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_body_profile_required",
+        "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_clothing_required",
+        "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_hair_face_required",
+        "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_rig_preservation_required"
+      ],
+      "targetCapabilityIds": [
+        "character-generation",
+        "animation-generation",
+        "asset-bake"
+      ],
+      "providerExecutionStatus": "metadata_only_not_executed",
+      "claimBoundary": "provider_neutral_materialization_input_not_asset_readiness"
+    },
+    {
+      "workOrderInputId": "actor-materialization-input:nurse_kevin_lee_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "actorRole": "nurse",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_humanoid_variant",
+      "sourceBlobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+      "requiredEvidenceRefs": [
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_humanoid_variant/actor_specific_body_profile_required",
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_humanoid_variant/actor_specific_clothing_required",
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_humanoid_variant/actor_specific_hair_face_required",
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_humanoid_variant/actor_specific_rig_preservation_required"
+      ],
+      "requiredCueIds": [
+        "actor_specific_body_profile_required",
+        "actor_specific_clothing_required",
+        "actor_specific_hair_face_required",
+        "actor_specific_rig_preservation_required"
+      ],
+      "blockerIds": [
+        "shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness",
+        "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_body_profile_required",
+        "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_clothing_required",
+        "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_hair_face_required",
+        "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_rig_preservation_required"
+      ],
+      "targetCapabilityIds": [
+        "character-generation",
+        "animation-generation",
+        "asset-bake"
+      ],
+      "providerExecutionStatus": "metadata_only_not_executed",
+      "claimBoundary": "provider_neutral_materialization_input_not_asset_readiness"
+    }
+  ],
+  "equipmentWorkOrderInputs": [
+    {
+      "workOrderInputId": "equipment-materialization-input:pulse_oximeter_equipment",
+      "equipmentId": "pulse_oximeter_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment:equipment_materialization_variant",
+      "sourceBlobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+      "requiredEvidenceRefs": [
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment:equipment_materialization_variant/clinical_affordance_evidence"
+      ],
+      "requiredCueIds": [
+        "scenario_specific_equipment_variant_evidence",
+        "equipment_scale_validation_evidence",
+        "equipment_placement_anchor_evidence",
+        "clinical_affordance_evidence"
+      ],
+      "blockerIds": [
+        "generic_equipment_reuse_blocks_equipment_specific_asset_readiness",
+        "equipment_materialization_evidence_missing:pulse_oximeter_equipment:scenario_specific_equipment_variant_evidence",
+        "equipment_materialization_evidence_missing:pulse_oximeter_equipment:equipment_scale_validation_evidence",
+        "equipment_materialization_evidence_missing:pulse_oximeter_equipment:equipment_placement_anchor_evidence",
+        "equipment_materialization_evidence_missing:pulse_oximeter_equipment:clinical_affordance_evidence"
+      ],
+      "targetCapabilityIds": [
+        "medical-equipment-generation",
+        "asset-bake"
+      ],
+      "providerExecutionStatus": "metadata_only_not_executed",
+      "claimBoundary": "provider_neutral_materialization_input_not_asset_readiness"
+    },
+    {
+      "workOrderInputId": "equipment-materialization-input:nebulizer_mask_equipment",
+      "equipmentId": "nebulizer_mask_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:nebulizer_mask_equipment:equipment_materialization_variant",
+      "sourceBlobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+      "requiredEvidenceRefs": [
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:nebulizer_mask_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:nebulizer_mask_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:nebulizer_mask_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:nebulizer_mask_equipment:equipment_materialization_variant/clinical_affordance_evidence"
+      ],
+      "requiredCueIds": [
+        "scenario_specific_equipment_variant_evidence",
+        "equipment_scale_validation_evidence",
+        "equipment_placement_anchor_evidence",
+        "clinical_affordance_evidence"
+      ],
+      "blockerIds": [
+        "generic_equipment_reuse_blocks_equipment_specific_asset_readiness",
+        "equipment_materialization_evidence_missing:nebulizer_mask_equipment:scenario_specific_equipment_variant_evidence",
+        "equipment_materialization_evidence_missing:nebulizer_mask_equipment:equipment_scale_validation_evidence",
+        "equipment_materialization_evidence_missing:nebulizer_mask_equipment:equipment_placement_anchor_evidence",
+        "equipment_materialization_evidence_missing:nebulizer_mask_equipment:clinical_affordance_evidence"
+      ],
+      "targetCapabilityIds": [
+        "medical-equipment-generation",
+        "asset-bake"
+      ],
+      "providerExecutionStatus": "metadata_only_not_executed",
+      "claimBoundary": "provider_neutral_materialization_input_not_asset_readiness"
+    },
+    {
+      "workOrderInputId": "equipment-materialization-input:oxygen_wall_port_equipment",
+      "equipmentId": "oxygen_wall_port_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:oxygen_wall_port_equipment:equipment_materialization_variant",
+      "sourceBlobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+      "requiredEvidenceRefs": [
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:oxygen_wall_port_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:oxygen_wall_port_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:oxygen_wall_port_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:oxygen_wall_port_equipment:equipment_materialization_variant/clinical_affordance_evidence"
+      ],
+      "requiredCueIds": [
+        "scenario_specific_equipment_variant_evidence",
+        "equipment_scale_validation_evidence",
+        "equipment_placement_anchor_evidence",
+        "clinical_affordance_evidence"
+      ],
+      "blockerIds": [
+        "generic_equipment_reuse_blocks_equipment_specific_asset_readiness",
+        "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:scenario_specific_equipment_variant_evidence",
+        "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:equipment_scale_validation_evidence",
+        "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:equipment_placement_anchor_evidence",
+        "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:clinical_affordance_evidence"
+      ],
+      "targetCapabilityIds": [
+        "medical-equipment-generation",
+        "asset-bake"
+      ],
+      "providerExecutionStatus": "metadata_only_not_executed",
+      "claimBoundary": "provider_neutral_materialization_input_not_asset_readiness"
+    },
+    {
+      "workOrderInputId": "equipment-materialization-input:pediatric_stretcher_equipment",
+      "equipmentId": "pediatric_stretcher_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:pediatric_stretcher_equipment:equipment_materialization_variant",
+      "sourceBlobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+      "requiredEvidenceRefs": [
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pediatric_stretcher_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pediatric_stretcher_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pediatric_stretcher_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pediatric_stretcher_equipment:equipment_materialization_variant/clinical_affordance_evidence"
+      ],
+      "requiredCueIds": [
+        "scenario_specific_equipment_variant_evidence",
+        "equipment_scale_validation_evidence",
+        "equipment_placement_anchor_evidence",
+        "clinical_affordance_evidence"
+      ],
+      "blockerIds": [
+        "generic_equipment_reuse_blocks_equipment_specific_asset_readiness",
+        "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:scenario_specific_equipment_variant_evidence",
+        "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:equipment_scale_validation_evidence",
+        "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:equipment_placement_anchor_evidence",
+        "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:clinical_affordance_evidence"
+      ],
+      "targetCapabilityIds": [
+        "medical-equipment-generation",
+        "asset-bake"
+      ],
+      "providerExecutionStatus": "metadata_only_not_executed",
+      "claimBoundary": "provider_neutral_materialization_input_not_asset_readiness"
+    },
+    {
+      "workOrderInputId": "equipment-materialization-input:parent_chair_equipment",
+      "equipmentId": "parent_chair_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:parent_chair_equipment:equipment_materialization_variant",
+      "sourceBlobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+      "requiredEvidenceRefs": [
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_chair_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_chair_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_chair_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_chair_equipment:equipment_materialization_variant/clinical_affordance_evidence"
+      ],
+      "requiredCueIds": [
+        "scenario_specific_equipment_variant_evidence",
+        "equipment_scale_validation_evidence",
+        "equipment_placement_anchor_evidence",
+        "clinical_affordance_evidence"
+      ],
+      "blockerIds": [
+        "generic_equipment_reuse_blocks_equipment_specific_asset_readiness",
+        "equipment_materialization_evidence_missing:parent_chair_equipment:scenario_specific_equipment_variant_evidence",
+        "equipment_materialization_evidence_missing:parent_chair_equipment:equipment_scale_validation_evidence",
+        "equipment_materialization_evidence_missing:parent_chair_equipment:equipment_placement_anchor_evidence",
+        "equipment_materialization_evidence_missing:parent_chair_equipment:clinical_affordance_evidence"
+      ],
+      "targetCapabilityIds": [
+        "medical-equipment-generation",
+        "asset-bake"
+      ],
+      "providerExecutionStatus": "metadata_only_not_executed",
+      "claimBoundary": "provider_neutral_materialization_input_not_asset_readiness"
+    },
+    {
+      "workOrderInputId": "equipment-materialization-input:inhaler_spacer_equipment",
+      "equipmentId": "inhaler_spacer_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:inhaler_spacer_equipment:equipment_materialization_variant",
+      "sourceBlobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+      "requiredEvidenceRefs": [
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:inhaler_spacer_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:inhaler_spacer_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:inhaler_spacer_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:inhaler_spacer_equipment:equipment_materialization_variant/clinical_affordance_evidence"
+      ],
+      "requiredCueIds": [
+        "scenario_specific_equipment_variant_evidence",
+        "equipment_scale_validation_evidence",
+        "equipment_placement_anchor_evidence",
+        "clinical_affordance_evidence"
+      ],
+      "blockerIds": [
+        "generic_equipment_reuse_blocks_equipment_specific_asset_readiness",
+        "equipment_materialization_evidence_missing:inhaler_spacer_equipment:scenario_specific_equipment_variant_evidence",
+        "equipment_materialization_evidence_missing:inhaler_spacer_equipment:equipment_scale_validation_evidence",
+        "equipment_materialization_evidence_missing:inhaler_spacer_equipment:equipment_placement_anchor_evidence",
+        "equipment_materialization_evidence_missing:inhaler_spacer_equipment:clinical_affordance_evidence"
+      ],
+      "targetCapabilityIds": [
+        "medical-equipment-generation",
+        "asset-bake"
+      ],
+      "providerExecutionStatus": "metadata_only_not_executed",
+      "claimBoundary": "provider_neutral_materialization_input_not_asset_readiness"
+    }
+  ],
+  "providerBoundary": {
+    "providerExecutionPerformed": false,
+    "paidApisUsed": false,
+    "externalNetworkUsed": false,
+    "productionAssetReadinessClaimed": false,
+    "questReadinessClaimed": false,
+    "runtimeReadinessClaimed": false,
+    "claimBoundary": "provider_neutral_input_manifest_no_execution"
+  },
+  "blockers": [
+    "shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness",
+    "generic_equipment_reuse_blocks_equipment_specific_asset_readiness",
+    "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_body_profile_required",
+    "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_clothing_required",
+    "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_hair_face_required",
+    "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_rig_preservation_required",
+    "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_body_profile_required",
+    "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_clothing_required",
+    "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_hair_face_required",
+    "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_rig_preservation_required",
+    "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_body_profile_required",
+    "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_clothing_required",
+    "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_hair_face_required",
+    "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_rig_preservation_required",
+    "equipment_materialization_evidence_missing:pulse_oximeter_equipment:scenario_specific_equipment_variant_evidence",
+    "equipment_materialization_evidence_missing:pulse_oximeter_equipment:equipment_scale_validation_evidence",
+    "equipment_materialization_evidence_missing:pulse_oximeter_equipment:equipment_placement_anchor_evidence",
+    "equipment_materialization_evidence_missing:pulse_oximeter_equipment:clinical_affordance_evidence",
+    "equipment_materialization_evidence_missing:nebulizer_mask_equipment:scenario_specific_equipment_variant_evidence",
+    "equipment_materialization_evidence_missing:nebulizer_mask_equipment:equipment_scale_validation_evidence",
+    "equipment_materialization_evidence_missing:nebulizer_mask_equipment:equipment_placement_anchor_evidence",
+    "equipment_materialization_evidence_missing:nebulizer_mask_equipment:clinical_affordance_evidence",
+    "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:scenario_specific_equipment_variant_evidence",
+    "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:equipment_scale_validation_evidence",
+    "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:equipment_placement_anchor_evidence",
+    "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:clinical_affordance_evidence",
+    "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:scenario_specific_equipment_variant_evidence",
+    "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:equipment_scale_validation_evidence",
+    "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:equipment_placement_anchor_evidence",
+    "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:clinical_affordance_evidence",
+    "equipment_materialization_evidence_missing:parent_chair_equipment:scenario_specific_equipment_variant_evidence",
+    "equipment_materialization_evidence_missing:parent_chair_equipment:equipment_scale_validation_evidence",
+    "equipment_materialization_evidence_missing:parent_chair_equipment:equipment_placement_anchor_evidence",
+    "equipment_materialization_evidence_missing:parent_chair_equipment:clinical_affordance_evidence",
+    "equipment_materialization_evidence_missing:inhaler_spacer_equipment:scenario_specific_equipment_variant_evidence",
+    "equipment_materialization_evidence_missing:inhaler_spacer_equipment:equipment_scale_validation_evidence",
+    "equipment_materialization_evidence_missing:inhaler_spacer_equipment:equipment_placement_anchor_evidence",
+    "equipment_materialization_evidence_missing:inhaler_spacer_equipment:clinical_affordance_evidence"
+  ],
+  "recommendedNextActions": [
+    "materialize actor-specific Anny humanoid GLBs before treating visual role distinction as asset-level progress",
+    "materialize equipment-specific generated GLBs or prefabs before treating pediatric equipment as Quest, clinical, scoring, or production-ready",
+    "attach this report to publication/local-launch/runtime-selection only after every actor and equipment evidence ref resolves",
+    "review provider-neutral work-order inputs before approving any local or external materialization provider execution"
+  ],
+  "notEvidenceFor": [
+    "runtime_readiness",
+    "quest_readiness",
+    "production_asset_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "learner_launch_readiness"
+  ]
+}

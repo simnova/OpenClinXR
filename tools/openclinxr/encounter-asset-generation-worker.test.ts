@@ -10,6 +10,9 @@ import {
   runEncounterAssetGenerationWorkerCli,
   validateEncounterAssetGenerationWorkerReport,
 } from "./encounter-asset-generation-worker.js";
+import type { EncounterMaterializationAttachmentPlan } from "./encounter-materialization-attachment-plan.js";
+import type { EncounterMaterializationEvidenceAttachmentRecords } from "./encounter-materialization-evidence-attachments.js";
+import type { EncounterMaterializationInputManifest } from "./encounter-materialization-input-manifest.js";
 import type { VisualQaRemediationWorkOrderRef } from "./visual-qa-evidence-check.js";
 
 const requireFixtureValue = <T>(value: T | null | undefined, label: string): T => {
@@ -19,6 +22,186 @@ const requireFixtureValue = <T>(value: T | null | undefined, label: string): T =
   }
   return value;
 };
+
+function materializationInputManifestFixture(): EncounterMaterializationInputManifest {
+  return {
+    schemaVersion: "openclinxr.encounter-materialization-input-manifest.v1",
+    generatedAt: "2026-05-28T00:00:00.000Z",
+    source: "encounter_materialization_evidence_report",
+    scenarioId: "ed_chest_pain_priority_v1",
+    status: "planned_metadata_only_blocked_until_provider_approval",
+    actorWorkOrderInputs: [{
+      workOrderInputId: "actor-materialization-input:patient_robert_hayes_v1",
+      actorId: "patient_robert_hayes_v1",
+      actorRole: "patient",
+      variantSemanticKey: "ed_chest_pain_priority_v1:patient_robert_hayes_v1:patient:anny_humanoid_variant",
+      sourceBlobName: "patient.glb",
+      requiredEvidenceRefs: [
+        "actor-materialization-evidence://ed_chest_pain_priority_v1:patient_robert_hayes_v1:patient:anny_humanoid_variant/role_specific_body_scale_and_silhouette",
+        "actor-materialization-evidence://ed_chest_pain_priority_v1:patient_robert_hayes_v1:patient:anny_humanoid_variant/role_specific_clothing_layer",
+      ],
+      requiredCueIds: ["role_specific_body_scale_and_silhouette", "role_specific_clothing_layer"],
+      blockerIds: ["actor_materialization_evidence_missing:patient_robert_hayes_v1:role_specific_body_scale_and_silhouette"],
+      targetCapabilityIds: ["character-generation", "animation-generation", "asset-bake"],
+      providerExecutionStatus: "metadata_only_not_executed",
+      claimBoundary: "provider_neutral_materialization_input_not_asset_readiness",
+    }],
+    equipmentWorkOrderInputs: [{
+      workOrderInputId: "equipment-materialization-input:ecg_cart_equipment",
+      equipmentId: "ecg_cart_equipment",
+      variantSemanticKey: "ed_chest_pain_priority_v1:ecg_cart_equipment:equipment_materialization_variant",
+      sourceBlobName: "ecg.glb",
+      requiredEvidenceRefs: [
+        "equipment-materialization-evidence://ed_chest_pain_priority_v1:ecg_cart_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+        "equipment-materialization-evidence://ed_chest_pain_priority_v1:ecg_cart_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+      ],
+      requiredCueIds: ["scenario_specific_equipment_variant_evidence", "equipment_scale_validation_evidence"],
+      blockerIds: ["equipment_materialization_evidence_missing:ecg_cart_equipment:scenario_specific_equipment_variant_evidence"],
+      targetCapabilityIds: ["medical-equipment-generation", "asset-bake"],
+      providerExecutionStatus: "metadata_only_not_executed",
+      claimBoundary: "provider_neutral_materialization_input_not_asset_readiness",
+    }],
+    providerBoundary: {
+      providerExecutionPerformed: false,
+      paidApisUsed: false,
+      externalNetworkUsed: false,
+      productionAssetReadinessClaimed: false,
+      questReadinessClaimed: false,
+      runtimeReadinessClaimed: false,
+      claimBoundary: "provider_neutral_input_manifest_no_execution",
+    },
+    blockers: [
+      "actor_materialization_evidence_missing:patient_robert_hayes_v1:role_specific_body_scale_and_silhouette",
+      "equipment_materialization_evidence_missing:ecg_cart_equipment:scenario_specific_equipment_variant_evidence",
+    ],
+    recommendedNextActions: ["review provider-neutral work-order inputs before execution"],
+    notEvidenceFor: ["runtime_readiness", "quest_readiness", "production_asset_readiness", "clinical_validity", "scoring_validity", "learner_launch_readiness"],
+  };
+}
+
+function materializationAttachmentPlanFixture(): EncounterMaterializationAttachmentPlan {
+  return {
+    schemaVersion: "openclinxr.encounter-materialization-attachment-plan.v1",
+    generatedAt: "2026-05-28T07:00:00.000Z",
+    source: "encounter_materialization_input_manifest",
+    scenarioId: "ed_chest_pain_priority_v1",
+    status: "attachment_slots_created_not_evidence_attached",
+    attachableToRuntimeSelection: false,
+    actorAttachmentSlots: [{
+      attachmentSlotId: "actor-materialization-attachment:patient_robert_hayes_v1:role_specific_body_scale_and_silhouette",
+      workOrderInputId: "actor-materialization-input:patient_robert_hayes_v1",
+      actorId: "patient_robert_hayes_v1",
+      actorRole: "patient",
+      variantSemanticKey: "ed_chest_pain_priority_v1:patient_robert_hayes_v1:patient:anny_humanoid_variant",
+      requiredCueId: "role_specific_body_scale_and_silhouette",
+      requiredEvidenceRef: "actor-materialization-evidence://ed_chest_pain_priority_v1:patient_robert_hayes_v1:patient:anny_humanoid_variant/role_specific_body_scale_and_silhouette",
+      expectedArtifactKinds: ["actor_specific_humanoid_glb", "actor_materialization_review_packet", "humanoid_visual_qa_reference"],
+      attachmentStatus: "missing_evidence",
+      providerExecutionAllowed: false,
+      runtimeSelectionAllowed: false,
+      claimBoundary: "materialization_attachment_slot_not_runtime_readiness",
+    }],
+    equipmentAttachmentSlots: [{
+      attachmentSlotId: "equipment-materialization-attachment:ecg_cart_equipment:scenario_specific_equipment_variant_evidence",
+      workOrderInputId: "equipment-materialization-input:ecg_cart_equipment",
+      equipmentId: "ecg_cart_equipment",
+      variantSemanticKey: "ed_chest_pain_priority_v1:ecg_cart_equipment:equipment_materialization_variant",
+      requiredCueId: "scenario_specific_equipment_variant_evidence",
+      requiredEvidenceRef: "equipment-materialization-evidence://ed_chest_pain_priority_v1:ecg_cart_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+      expectedArtifactKinds: ["equipment_specific_glb_or_prefab", "equipment_scale_placement_review_packet", "clinical_affordance_review_packet"],
+      attachmentStatus: "missing_evidence",
+      providerExecutionAllowed: false,
+      runtimeSelectionAllowed: false,
+      claimBoundary: "materialization_attachment_slot_not_runtime_readiness",
+    }],
+    attachmentBoundary: {
+      providerExecutionPerformed: false,
+      paidApisUsed: false,
+      externalNetworkUsed: false,
+      runtimeSelectionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      claimBoundary: "materialization_attachment_plan_metadata_only",
+    },
+    blockers: [
+      "actor_materialization_attachment_missing:patient_robert_hayes_v1:role_specific_body_scale_and_silhouette",
+      "equipment_materialization_attachment_missing:ecg_cart_equipment:scenario_specific_equipment_variant_evidence",
+    ],
+    recommendedNextActions: ["attach actor/equipment evidence before runtime selection can clear"],
+    claimBoundary: "materialization_attachment_plan_not_provider_or_runtime_execution",
+    notEvidenceFor: ["runtime_readiness", "quest_readiness", "production_asset_readiness", "clinical_validity", "scoring_validity", "learner_launch_readiness"],
+  };
+}
+
+function materializationEvidenceAttachmentRecordsFixture(): EncounterMaterializationEvidenceAttachmentRecords {
+  return {
+    schemaVersion: "openclinxr.encounter-materialization-evidence-attachments.v1",
+    generatedAt: "2026-05-28T07:40:00.000Z",
+    source: "encounter_materialization_attachment_plan",
+    scenarioId: "ed_chest_pain_priority_v1",
+    status: "partial_slots_attached_runtime_blocked",
+    actorAttachmentRecords: [{
+      attachmentSlotId: "actor-materialization-attachment:patient_robert_hayes_v1:role_specific_body_scale_and_silhouette",
+      workOrderInputId: "actor-materialization-input:patient_robert_hayes_v1",
+      requiredCueId: "role_specific_body_scale_and_silhouette",
+      requiredEvidenceRef: "actor-materialization-evidence://ed_chest_pain_priority_v1:patient_robert_hayes_v1:patient:anny_humanoid_variant/role_specific_body_scale_and_silhouette",
+      expectedArtifactKinds: ["actor_specific_humanoid_glb", "actor_materialization_review_packet", "humanoid_visual_qa_reference"],
+      evidenceAttachmentStatus: "attached_metadata_only",
+      slotSatisfiedByEvidence: true,
+      attachedEvidenceRefs: [
+        "actor-materialization-evidence://ed_chest_pain_priority_v1:patient_robert_hayes_v1:patient:anny_humanoid_variant/role_specific_body_scale_and_silhouette",
+      ],
+      localArtifactPaths: ["docs/openclinxr/materialization-evidence/robert-hayes-body-profile.json"],
+      unsatisfiedReasonIds: [],
+      providerExecutionAllowed: false,
+      runtimeSelectionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      claimBoundary: "materialization_evidence_attachment_record_not_runtime_readiness",
+      actorId: "patient_robert_hayes_v1",
+      actorRole: "patient",
+      variantSemanticKey: "ed_chest_pain_priority_v1:patient_robert_hayes_v1:patient:anny_humanoid_variant",
+    }],
+    equipmentAttachmentRecords: [{
+      attachmentSlotId: "equipment-materialization-attachment:ecg_cart_equipment:scenario_specific_equipment_variant_evidence",
+      workOrderInputId: "equipment-materialization-input:ecg_cart_equipment",
+      requiredCueId: "scenario_specific_equipment_variant_evidence",
+      requiredEvidenceRef: "equipment-materialization-evidence://ed_chest_pain_priority_v1:ecg_cart_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+      expectedArtifactKinds: ["equipment_specific_glb_or_prefab", "equipment_scale_placement_review_packet", "clinical_affordance_review_packet"],
+      evidenceAttachmentStatus: "missing_evidence",
+      slotSatisfiedByEvidence: false,
+      attachedEvidenceRefs: [],
+      localArtifactPaths: [],
+      unsatisfiedReasonIds: [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:ecg_cart_equipment:scenario_specific_equipment_variant_evidence",
+      ],
+      providerExecutionAllowed: false,
+      runtimeSelectionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      claimBoundary: "materialization_evidence_attachment_record_not_runtime_readiness",
+      equipmentId: "ecg_cart_equipment",
+      variantSemanticKey: "ed_chest_pain_priority_v1:ecg_cart_equipment:equipment_materialization_variant",
+    }],
+    attachmentCompleteness: {
+      totalRequiredSlotCount: 2,
+      attachedSlotCount: 1,
+      missingSlotCount: 1,
+      heldOrInvalidAttachmentCount: 0,
+      allRequiredSlotsSatisfied: false,
+      runtimeSelectionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      claimBoundary: "materialization_evidence_attachment_completeness_not_runtime_readiness",
+    },
+    blockers: [
+      "materialization_evidence_attachment_missing:equipment-materialization-attachment:ecg_cart_equipment:scenario_specific_equipment_variant_evidence",
+    ],
+    recommendedNextActions: ["attach reviewed local evidence refs for every actor/equipment materialization slot before runtime-selection blockers can be reconsidered"],
+    claimBoundary: "materialization_evidence_attachments_not_provider_or_runtime_execution",
+    notEvidenceFor: ["runtime_readiness", "quest_readiness", "production_asset_readiness", "clinical_validity", "scoring_validity", "learner_launch_readiness"],
+  };
+}
 
 describe("encounter asset generation worker report", () => {
   it("exposes worker generation and validation scripts", async () => {
@@ -65,6 +248,9 @@ describe("encounter asset generation worker report", () => {
       sourceQueueReportPath: "docs/openclinxr/encounter-asset-generation-queue-2026-05-23.json",
       generatedAt: "2026-05-23T12:30:00.000Z",
       remediationWorkOrderRefs,
+      materializationInputManifest: materializationInputManifestFixture(),
+      materializationAttachmentPlan: materializationAttachmentPlanFixture(),
+      materializationEvidenceAttachments: materializationEvidenceAttachmentRecordsFixture(),
     });
 
     expect(workerReport).toMatchObject({
@@ -94,6 +280,60 @@ describe("encounter asset generation worker report", () => {
         lruEvictionCount: 0,
         generatedAssetsStillDynamic: true,
         lookupBeforeGenerate: true,
+      },
+      materializationInputManifestSummary: {
+        schemaVersion: "openclinxr.encounter-materialization-input-manifest-summary.v1",
+        source: "encounter_materialization_input_manifest",
+        scenarioId: "ed_chest_pain_priority_v1",
+        actorWorkOrderInputCount: 1,
+        equipmentWorkOrderInputCount: 1,
+        requiredActorCueIds: ["role_specific_body_scale_and_silhouette", "role_specific_clothing_layer"],
+        requiredEquipmentCueIds: ["scenario_specific_equipment_variant_evidence", "equipment_scale_validation_evidence"],
+        blockerIds: [
+          "actor_materialization_evidence_missing:patient_robert_hayes_v1:role_specific_body_scale_and_silhouette",
+          "equipment_materialization_evidence_missing:ecg_cart_equipment:scenario_specific_equipment_variant_evidence",
+        ],
+        providerExecutionPerformed: false,
+        paidApisUsed: false,
+        externalNetworkUsed: false,
+        claimBoundary: "metadata_only_provider_neutral_materialization_inputs",
+      },
+      materializationAttachmentPlanSummary: {
+        schemaVersion: "openclinxr.encounter-materialization-attachment-plan-summary.v1",
+        source: "encounter_materialization_attachment_plan",
+        scenarioId: "ed_chest_pain_priority_v1",
+        actorAttachmentSlotCount: 1,
+        equipmentAttachmentSlotCount: 1,
+        missingAttachmentCount: 2,
+        actorRequiredCueIds: ["role_specific_body_scale_and_silhouette"],
+        equipmentRequiredCueIds: ["scenario_specific_equipment_variant_evidence"],
+        blockerIds: [
+          "actor_materialization_attachment_missing:patient_robert_hayes_v1:role_specific_body_scale_and_silhouette",
+          "equipment_materialization_attachment_missing:ecg_cart_equipment:scenario_specific_equipment_variant_evidence",
+        ],
+        providerExecutionPerformed: false,
+        runtimeSelectionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+        claimBoundary: "metadata_only_materialization_attachment_plan",
+      },
+      materializationEvidenceAttachmentSummary: {
+        schemaVersion: "openclinxr.encounter-materialization-evidence-attachment-summary.v1",
+        source: "encounter_materialization_evidence_attachments",
+        scenarioId: "ed_chest_pain_priority_v1",
+        totalRequiredSlotCount: 2,
+        attachedSlotCount: 1,
+        missingSlotCount: 1,
+        heldOrInvalidAttachmentCount: 0,
+        allRequiredSlotsSatisfied: false,
+        blockerIds: [
+          "materialization_evidence_attachment_missing:equipment-materialization-attachment:ecg_cart_equipment:scenario_specific_equipment_variant_evidence",
+        ],
+        providerExecutionPerformed: false,
+        runtimeSelectionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+        claimBoundary: "metadata_only_materialization_evidence_attachment_summary",
       },
       operationalNotes: {
         providerDisabledBoundary: {

@@ -60,10 +60,69 @@ export type EncounterRuntimeSelectionReviewPacket = {
         status: "required_not_attached";
         notEvidenceFor: string[];
       }>;
+      runtimeRealismEvidenceHookCount: number;
+      visualQaEvidenceHookCount: number;
+      runtimeRealismEvidenceHooks: Array<{
+        actorId: string;
+        actorRole: string;
+        requiredSignalIds: string[];
+        evidenceRef: string;
+        status: "required_not_attached";
+        claimBoundary: "runtime_realism_hook_metadata_only_not_runtime_readiness";
+      }>;
+      visualQaEvidenceHooks: Array<{
+        targetId: string;
+        targetKind: "humanoid_actor" | "equipment" | string;
+        requiredReviewFocus: string[];
+        evidenceRef: string;
+        status: "required_not_attached";
+        claimBoundary: "visual_qa_hook_metadata_only_not_visual_quality_evidence";
+      }>;
       requiredBefore: "guarded_runtime_wiring" | "unavailable";
       runtimeExecutionAllowed: false;
       providerExecutionPerformed: false;
       questReadinessClaimed: false;
+    };
+    actorEquipmentMaterializationGate: {
+      runtimeSelectionBlockedUntilEvidenceAttached: boolean;
+      actorBlockers: string[];
+      equipmentBlockers: string[];
+      caveats: string[];
+      recommendedNextActions: string[];
+      materializationEvidenceAttachment?: {
+        reportStatus: string;
+        attachableToRuntimeSelection: boolean;
+        actorRequiredEvidenceRefCount: number;
+        equipmentRequiredEvidenceRefCount: number;
+        blockers: string[];
+        claimBoundary: "materialization_evidence_attachment_contract_not_runtime_readiness";
+      };
+      materializationEvidenceAttachmentSummary?: {
+        totalRequiredSlotCount: number;
+        attachedSlotCount: number;
+        missingSlotCount: number;
+        heldOrInvalidAttachmentCount: number;
+        allRequiredSlotsSatisfied: boolean;
+        blockers: string[];
+        runtimeSelectionAllowed: false;
+        learnerLaunchAllowed: false;
+        questEvidenceRefreshAllowed: false;
+        claimBoundary: "metadata_only_materialization_evidence_attachment_summary";
+      };
+      remainingRuntimeBlockerReasons?: {
+        source: "materialization_attachment_summary_and_publication_runtime_gates";
+        materializationEvidenceComplete: boolean;
+        runtimeSelectionAllowed: false;
+        learnerLaunchAllowed: false;
+        questEvidenceRefreshAllowed: false;
+        categories: Array<{
+          category: string;
+          blockerIds: string[];
+          recommendedNextAction: string;
+        }>;
+        claimBoundary: "remaining_runtime_blockers_after_materialization_metadata_only";
+      };
+      claimBoundary: "materialization_contract_metadata_only_not_runtime_readiness" | "unavailable";
     };
   };
   operatorReviewReadiness: {
@@ -77,6 +136,33 @@ export type EncounterRuntimeSelectionReviewPacket = {
     runtimeExecutionAllowed: false;
     questEvidenceRefreshAllowed: false;
     claimBoundary: "operator_review_readiness_metadata_only";
+  };
+  runtimeRealismEvidenceDraftReview: {
+    status: "draft_required_not_attached";
+    runtimeRealismEvidenceHookCount: number;
+    visualQaEvidenceHookCount: number;
+    runtimeHookDrafts: Array<{
+      actorId: string;
+      actorRole: string;
+      requiredSignalCount: number;
+      status: "required_not_attached";
+      evidenceRef: string;
+      claimBoundary: "runtime_realism_hook_metadata_only_not_runtime_readiness";
+    }>;
+    visualQaHookDrafts: Array<{
+      targetId: string;
+      targetKind: string;
+      requiredReviewFocus: string[];
+      status: "required_not_attached";
+      evidenceRef: string;
+      claimBoundary: "visual_qa_hook_metadata_only_not_visual_quality_evidence";
+    }>;
+    blockerIds: string[];
+    recommendedNextActions: string[];
+    runtimeExecutionAllowed: false;
+    learnerLaunchAllowed: false;
+    questEvidenceRefreshAllowed: false;
+    claimBoundary: "runtime_realism_evidence_draft_review_metadata_only";
   };
   runtimeExecutionAllowed: false;
   learnerLaunchAllowed: false;
@@ -148,6 +234,11 @@ export function buildEncounterRuntimeSelectionReviewPacket(
       : []),
     ...publicationPayloadLinkage.assetNeedsReadiness.blockers,
     ...publicationPayloadLinkage.assetNeedsReadiness.missingRequiredAssetNeedIds.map((assetNeedId) => `missing_required_asset_need:${assetNeedId}`),
+    ...publicationPayloadLinkage.actorEquipmentMaterializationGate.actorBlockers,
+    ...publicationPayloadLinkage.actorEquipmentMaterializationGate.equipmentBlockers,
+    ...(publicationPayloadLinkage.actorEquipmentMaterializationGate.runtimeSelectionBlockedUntilEvidenceAttached
+      ? ["actor_equipment_materialization_evidence_not_attached"]
+      : []),
   ]);
   return {
     generatedAt,
@@ -166,6 +257,7 @@ export function buildEncounterRuntimeSelectionReviewPacket(
     guardedRuntimeSelectorDecision: selectionIntent.guardedRuntimeSelectorDecision,
     publicationPayloadLinkage,
     operatorReviewReadiness: buildOperatorReviewReadiness(publicationPayloadLinkage, blockers),
+    runtimeRealismEvidenceDraftReview: buildRuntimeRealismEvidenceDraftReview(publicationPayloadLinkage),
     runtimeExecutionAllowed: false,
     learnerLaunchAllowed: false,
     providerExecutionPerformed: false,
@@ -208,6 +300,7 @@ export function validateEncounterRuntimeSelectionReviewPacket(value: unknown): V
   requireRecord(value.guardedRuntimeSelectorDecision, "/guardedRuntimeSelectorDecision", errors);
   validatePublicationPayloadLinkage(value.publicationPayloadLinkage, errors);
   validateOperatorReviewReadiness(value.operatorReviewReadiness, errors);
+  validateRuntimeRealismEvidenceDraftReview(value.runtimeRealismEvidenceDraftReview, errors);
   requireArray(value.reviewerChecklist, "/reviewerChecklist", errors);
   requireArray(value.blockers, "/blockers", errors);
   requireArray(value.notEvidenceFor, "/notEvidenceFor", errors);
@@ -224,6 +317,93 @@ export function validateEncounterRuntimeSelectionReviewPacket(value: unknown): V
   return errors.length === 0 ? { ok: true } : { ok: false, errors };
 }
 
+function buildRuntimeRealismEvidenceDraftReview(
+  publicationPayloadLinkage: EncounterRuntimeSelectionReviewPacket["publicationPayloadLinkage"],
+): EncounterRuntimeSelectionReviewPacket["runtimeRealismEvidenceDraftReview"] {
+  const runtimeHookCount = publicationPayloadLinkage.realismEvidenceRefs.runtimeRealismEvidenceHookCount;
+  const visualQaHookCount = publicationPayloadLinkage.realismEvidenceRefs.visualQaEvidenceHookCount;
+  return {
+    status: "draft_required_not_attached",
+    runtimeRealismEvidenceHookCount: runtimeHookCount,
+    visualQaEvidenceHookCount: visualQaHookCount,
+    runtimeHookDrafts: publicationPayloadLinkage.realismEvidenceRefs.runtimeRealismEvidenceHooks.map((hook) => ({
+      actorId: hook.actorId,
+      actorRole: hook.actorRole,
+      requiredSignalCount: hook.requiredSignalIds.length,
+      status: hook.status,
+      evidenceRef: hook.evidenceRef,
+      claimBoundary: hook.claimBoundary,
+    })),
+    visualQaHookDrafts: publicationPayloadLinkage.realismEvidenceRefs.visualQaEvidenceHooks.map((hook) => ({
+      targetId: hook.targetId,
+      targetKind: hook.targetKind,
+      requiredReviewFocus: [...hook.requiredReviewFocus],
+      status: hook.status,
+      evidenceRef: hook.evidenceRef,
+      claimBoundary: hook.claimBoundary,
+    })),
+    blockerIds: uniqueStrings([
+      ...(runtimeHookCount > 0 ? ["runtime_realism_evidence_not_attached"] : ["runtime_realism_hooks_not_available"]),
+      ...(visualQaHookCount > 0 ? ["humanoid_visual_qa_evidence_not_attached"] : ["visual_qa_hooks_not_available"]),
+      "runtime_selector_disabled_guard_not_wired",
+      "quest_webxr_evidence_not_attached",
+    ]),
+    recommendedNextActions: uniqueStrings([
+      "draft runtime realism evidence from actor hook signals before guarded runtime selection",
+      "attach visual QA evidence for humanoid and equipment hook targets before learner launch review",
+      "keep provider execution, learner launch, and Quest refresh disabled until review evidence attaches",
+    ]),
+    runtimeExecutionAllowed: false,
+    learnerLaunchAllowed: false,
+    questEvidenceRefreshAllowed: false,
+    claimBoundary: "runtime_realism_evidence_draft_review_metadata_only",
+  };
+}
+
+function validateRuntimeRealismEvidenceDraftReview(value: unknown, errors: string[]): void {
+  requireRecord(value, "/runtimeRealismEvidenceDraftReview", errors);
+  if (!isRecord(value)) return;
+  requireLiteral(value.status, "draft_required_not_attached", "/runtimeRealismEvidenceDraftReview/status", errors);
+  requireNumber(value.runtimeRealismEvidenceHookCount, "/runtimeRealismEvidenceDraftReview/runtimeRealismEvidenceHookCount", errors);
+  requireNumber(value.visualQaEvidenceHookCount, "/runtimeRealismEvidenceDraftReview/visualQaEvidenceHookCount", errors);
+  requireArray(value.runtimeHookDrafts, "/runtimeRealismEvidenceDraftReview/runtimeHookDrafts", errors);
+  requireArray(value.visualQaHookDrafts, "/runtimeRealismEvidenceDraftReview/visualQaHookDrafts", errors);
+  if (Array.isArray(value.runtimeHookDrafts)) {
+    value.runtimeHookDrafts.forEach((draft, index) => {
+      if (!isRecord(draft)) {
+        errors.push(`/runtimeRealismEvidenceDraftReview/runtimeHookDrafts/${index} must be object`);
+        return;
+      }
+      requireString(draft.actorId, `/runtimeRealismEvidenceDraftReview/runtimeHookDrafts/${index}/actorId`, errors);
+      requireString(draft.actorRole, `/runtimeRealismEvidenceDraftReview/runtimeHookDrafts/${index}/actorRole`, errors);
+      requireNumber(draft.requiredSignalCount, `/runtimeRealismEvidenceDraftReview/runtimeHookDrafts/${index}/requiredSignalCount`, errors);
+      requireLiteral(draft.status, "required_not_attached", `/runtimeRealismEvidenceDraftReview/runtimeHookDrafts/${index}/status`, errors);
+      requireString(draft.evidenceRef, `/runtimeRealismEvidenceDraftReview/runtimeHookDrafts/${index}/evidenceRef`, errors);
+      requireLiteral(draft.claimBoundary, "runtime_realism_hook_metadata_only_not_runtime_readiness", `/runtimeRealismEvidenceDraftReview/runtimeHookDrafts/${index}/claimBoundary`, errors);
+    });
+  }
+  if (Array.isArray(value.visualQaHookDrafts)) {
+    value.visualQaHookDrafts.forEach((draft, index) => {
+      if (!isRecord(draft)) {
+        errors.push(`/runtimeRealismEvidenceDraftReview/visualQaHookDrafts/${index} must be object`);
+        return;
+      }
+      requireString(draft.targetId, `/runtimeRealismEvidenceDraftReview/visualQaHookDrafts/${index}/targetId`, errors);
+      requireString(draft.targetKind, `/runtimeRealismEvidenceDraftReview/visualQaHookDrafts/${index}/targetKind`, errors);
+      requireArray(draft.requiredReviewFocus, `/runtimeRealismEvidenceDraftReview/visualQaHookDrafts/${index}/requiredReviewFocus`, errors);
+      requireLiteral(draft.status, "required_not_attached", `/runtimeRealismEvidenceDraftReview/visualQaHookDrafts/${index}/status`, errors);
+      requireString(draft.evidenceRef, `/runtimeRealismEvidenceDraftReview/visualQaHookDrafts/${index}/evidenceRef`, errors);
+      requireLiteral(draft.claimBoundary, "visual_qa_hook_metadata_only_not_visual_quality_evidence", `/runtimeRealismEvidenceDraftReview/visualQaHookDrafts/${index}/claimBoundary`, errors);
+    });
+  }
+  requireArray(value.blockerIds, "/runtimeRealismEvidenceDraftReview/blockerIds", errors);
+  requireArray(value.recommendedNextActions, "/runtimeRealismEvidenceDraftReview/recommendedNextActions", errors);
+  requireLiteral(value.runtimeExecutionAllowed, false, "/runtimeRealismEvidenceDraftReview/runtimeExecutionAllowed", errors);
+  requireLiteral(value.learnerLaunchAllowed, false, "/runtimeRealismEvidenceDraftReview/learnerLaunchAllowed", errors);
+  requireLiteral(value.questEvidenceRefreshAllowed, false, "/runtimeRealismEvidenceDraftReview/questEvidenceRefreshAllowed", errors);
+  requireLiteral(value.claimBoundary, "runtime_realism_evidence_draft_review_metadata_only", "/runtimeRealismEvidenceDraftReview/claimBoundary", errors);
+}
+
 function buildOperatorReviewReadiness(
   publicationPayloadLinkage: EncounterRuntimeSelectionReviewPacket["publicationPayloadLinkage"],
   blockers: string[],
@@ -237,6 +417,9 @@ function buildOperatorReviewReadiness(
     blockerIds: blockers,
     requiredOperatorActions: uniqueStrings([
       ...(materializationRequiredBeforeRuntime ? ["materialize_or_attach_generated_assets_before_guarded_runtime_wiring"] : []),
+      ...(publicationPayloadLinkage.actorEquipmentMaterializationGate.actorBlockers.length > 0 ? ["attach_actor_specific_humanoid_materialization_evidence"] : []),
+      ...(publicationPayloadLinkage.actorEquipmentMaterializationGate.equipmentBlockers.length > 0 ? ["attach_equipment_specific_materialization_evidence"] : []),
+      ...publicationPayloadLinkage.actorEquipmentMaterializationGate.recommendedNextActions,
       ...(publicationPayloadLinkage.realismEvidenceRefs.refs.length > 0 ? ["attach_humanoid_runtime_visual_qa_evidence_refs"] : []),
       "confirm_provider_execution_remains_disabled_until_explicit_approval",
       "confirm_runtime_selector_remains_disabled_until_evidence_gates_clear",
@@ -380,6 +563,7 @@ function buildPublicationPayloadLinkage(publicationPayloads: unknown): Encounter
       sharedAssetLibrarySemanticKeyCount: arrayLength(readiness.sharedAssetLibrarySemanticKeys),
     },
     realismEvidenceRefs: buildRealismEvidenceRefsSummary(value.realismEvidenceRefs),
+    actorEquipmentMaterializationGate: buildActorEquipmentMaterializationGateSummary(value.actorEquipmentMaterializationGate),
   };
 }
 
@@ -426,6 +610,10 @@ function validatePublicationPayloadLinkage(value: unknown, errors: string[]): vo
       }
     }
     requireArray(value.realismEvidenceRefs.refs, "/publicationPayloadLinkage/realismEvidenceRefs/refs", errors);
+    requireNumber(value.realismEvidenceRefs.runtimeRealismEvidenceHookCount, "/publicationPayloadLinkage/realismEvidenceRefs/runtimeRealismEvidenceHookCount", errors);
+    requireNumber(value.realismEvidenceRefs.visualQaEvidenceHookCount, "/publicationPayloadLinkage/realismEvidenceRefs/visualQaEvidenceHookCount", errors);
+    requireArray(value.realismEvidenceRefs.runtimeRealismEvidenceHooks, "/publicationPayloadLinkage/realismEvidenceRefs/runtimeRealismEvidenceHooks", errors);
+    requireArray(value.realismEvidenceRefs.visualQaEvidenceHooks, "/publicationPayloadLinkage/realismEvidenceRefs/visualQaEvidenceHooks", errors);
     if (Array.isArray(value.realismEvidenceRefs.refs)) {
       value.realismEvidenceRefs.refs.forEach((ref, index) => {
         if (!isRecord(ref)) {
@@ -439,7 +627,36 @@ function validatePublicationPayloadLinkage(value: unknown, errors: string[]): vo
         requireArray(ref.notEvidenceFor, `/publicationPayloadLinkage/realismEvidenceRefs/refs/${index}/notEvidenceFor`, errors);
       });
     }
+    if (Array.isArray(value.realismEvidenceRefs.runtimeRealismEvidenceHooks)) {
+      value.realismEvidenceRefs.runtimeRealismEvidenceHooks.forEach((hook, index) => {
+        if (!isRecord(hook)) {
+          errors.push(`/publicationPayloadLinkage/realismEvidenceRefs/runtimeRealismEvidenceHooks/${index} must be object`);
+          return;
+        }
+        requireString(hook.actorId, `/publicationPayloadLinkage/realismEvidenceRefs/runtimeRealismEvidenceHooks/${index}/actorId`, errors);
+        requireString(hook.actorRole, `/publicationPayloadLinkage/realismEvidenceRefs/runtimeRealismEvidenceHooks/${index}/actorRole`, errors);
+        requireArray(hook.requiredSignalIds, `/publicationPayloadLinkage/realismEvidenceRefs/runtimeRealismEvidenceHooks/${index}/requiredSignalIds`, errors);
+        requireString(hook.evidenceRef, `/publicationPayloadLinkage/realismEvidenceRefs/runtimeRealismEvidenceHooks/${index}/evidenceRef`, errors);
+        requireLiteral(hook.status, "required_not_attached", `/publicationPayloadLinkage/realismEvidenceRefs/runtimeRealismEvidenceHooks/${index}/status`, errors);
+        requireLiteral(hook.claimBoundary, "runtime_realism_hook_metadata_only_not_runtime_readiness", `/publicationPayloadLinkage/realismEvidenceRefs/runtimeRealismEvidenceHooks/${index}/claimBoundary`, errors);
+      });
+    }
+    if (Array.isArray(value.realismEvidenceRefs.visualQaEvidenceHooks)) {
+      value.realismEvidenceRefs.visualQaEvidenceHooks.forEach((hook, index) => {
+        if (!isRecord(hook)) {
+          errors.push(`/publicationPayloadLinkage/realismEvidenceRefs/visualQaEvidenceHooks/${index} must be object`);
+          return;
+        }
+        requireString(hook.targetId, `/publicationPayloadLinkage/realismEvidenceRefs/visualQaEvidenceHooks/${index}/targetId`, errors);
+        requireString(hook.targetKind, `/publicationPayloadLinkage/realismEvidenceRefs/visualQaEvidenceHooks/${index}/targetKind`, errors);
+        requireArray(hook.requiredReviewFocus, `/publicationPayloadLinkage/realismEvidenceRefs/visualQaEvidenceHooks/${index}/requiredReviewFocus`, errors);
+        requireString(hook.evidenceRef, `/publicationPayloadLinkage/realismEvidenceRefs/visualQaEvidenceHooks/${index}/evidenceRef`, errors);
+        requireLiteral(hook.status, "required_not_attached", `/publicationPayloadLinkage/realismEvidenceRefs/visualQaEvidenceHooks/${index}/status`, errors);
+        requireLiteral(hook.claimBoundary, "visual_qa_hook_metadata_only_not_visual_quality_evidence", `/publicationPayloadLinkage/realismEvidenceRefs/visualQaEvidenceHooks/${index}/claimBoundary`, errors);
+      });
+    }
   }
+  validateActorEquipmentMaterializationGateSummary(value.actorEquipmentMaterializationGate, errors);
 }
 
 function stringArray(value: unknown): string[] {
@@ -450,9 +667,123 @@ function arrayLength(value: unknown): number {
   return Array.isArray(value) ? value.length : 0;
 }
 
+function buildActorEquipmentMaterializationGateSummary(
+  value: unknown,
+): EncounterRuntimeSelectionReviewPacket["publicationPayloadLinkage"]["actorEquipmentMaterializationGate"] {
+  const gate = isRecord(value) ? value : {};
+  const actorGate = isRecord(gate.actorGate) ? gate.actorGate : {};
+  const equipmentGate = isRecord(gate.equipmentGate) ? gate.equipmentGate : {};
+  const attachment = isRecord(gate.materializationEvidenceAttachment) ? gate.materializationEvidenceAttachment : {};
+  const attachmentSummary = isRecord(gate.materializationEvidenceAttachmentSummary) ? gate.materializationEvidenceAttachmentSummary : {};
+  const remainingRuntimeBlockerReasons = isRecord(gate.remainingRuntimeBlockerReasons) ? gate.remainingRuntimeBlockerReasons : undefined;
+  const attachmentBlockers = stringArray(attachment.blockers);
+  return {
+    runtimeSelectionBlockedUntilEvidenceAttached: gate.runtimeSelectionBlockedUntilEvidenceAttached !== false,
+    actorBlockers: uniqueStrings([
+      ...stringArray(actorGate.materializationBlockers),
+      ...attachmentBlockers.filter((blocker) => blocker.startsWith("actor_materialization_evidence_missing:") || blocker.includes("humanoid")),
+    ]),
+    equipmentBlockers: uniqueStrings([
+      ...stringArray(equipmentGate.materializationBlockers),
+      ...attachmentBlockers.filter((blocker) => blocker.startsWith("equipment_materialization_evidence_missing:") || blocker.includes("equipment")),
+    ]),
+    caveats: uniqueStrings([
+      ...stringArray(actorGate.caveats),
+      ...stringArray(equipmentGate.caveats),
+      ...stringArray(gate.combinedCaveats),
+    ]),
+    recommendedNextActions: uniqueStrings([
+      typeof actorGate.recommendedNextAction === "string" ? actorGate.recommendedNextAction : "",
+      typeof equipmentGate.recommendedNextAction === "string" ? equipmentGate.recommendedNextAction : "",
+    ]),
+    ...(isRecord(gate.materializationEvidenceAttachment) ? {
+      materializationEvidenceAttachment: {
+        reportStatus: typeof attachment.reportStatus === "string" ? attachment.reportStatus : "unknown",
+        attachableToRuntimeSelection: attachment.attachableToRuntimeSelection === true,
+        actorRequiredEvidenceRefCount: stringArray(attachment.actorRequiredEvidenceRefs).length,
+        equipmentRequiredEvidenceRefCount: stringArray(attachment.equipmentRequiredEvidenceRefs).length,
+        blockers: attachmentBlockers,
+        claimBoundary: attachment.claimBoundary === "materialization_evidence_attachment_contract_not_runtime_readiness"
+          ? "materialization_evidence_attachment_contract_not_runtime_readiness"
+          : "materialization_evidence_attachment_contract_not_runtime_readiness",
+      },
+    } : {}),
+    ...(isRecord(gate.materializationEvidenceAttachmentSummary) ? {
+      materializationEvidenceAttachmentSummary: {
+        totalRequiredSlotCount: typeof attachmentSummary.totalRequiredSlotCount === "number" ? attachmentSummary.totalRequiredSlotCount : 0,
+        attachedSlotCount: typeof attachmentSummary.attachedSlotCount === "number" ? attachmentSummary.attachedSlotCount : 0,
+        missingSlotCount: typeof attachmentSummary.missingSlotCount === "number" ? attachmentSummary.missingSlotCount : 0,
+        heldOrInvalidAttachmentCount: typeof attachmentSummary.heldOrInvalidAttachmentCount === "number" ? attachmentSummary.heldOrInvalidAttachmentCount : 0,
+        allRequiredSlotsSatisfied: attachmentSummary.allRequiredSlotsSatisfied === true,
+        blockers: stringArray(attachmentSummary.blockers),
+        runtimeSelectionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+        claimBoundary: "metadata_only_materialization_evidence_attachment_summary",
+      },
+    } : {}),
+    ...(remainingRuntimeBlockerReasons ? {
+      remainingRuntimeBlockerReasons: {
+        source: "materialization_attachment_summary_and_publication_runtime_gates",
+        materializationEvidenceComplete: remainingRuntimeBlockerReasons.materializationEvidenceComplete === true,
+        runtimeSelectionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+        categories: Array.isArray(remainingRuntimeBlockerReasons.categories)
+          ? remainingRuntimeBlockerReasons.categories.filter(isRecord).map((category) => ({
+            category: typeof category.category === "string" ? category.category : "unknown",
+            blockerIds: stringArray(category.blockerIds),
+            recommendedNextAction: typeof category.recommendedNextAction === "string" ? category.recommendedNextAction : "review remaining runtime blocker",
+          }))
+          : [],
+        claimBoundary: "remaining_runtime_blockers_after_materialization_metadata_only",
+      },
+    } : {}),
+    claimBoundary: gate.claimBoundary === "materialization_contract_metadata_only_not_runtime_readiness"
+      ? "materialization_contract_metadata_only_not_runtime_readiness"
+      : "unavailable",
+  };
+}
+
+function validateActorEquipmentMaterializationGateSummary(value: unknown, errors: string[]): void {
+  requireRecord(value, "/publicationPayloadLinkage/actorEquipmentMaterializationGate", errors);
+  if (!isRecord(value)) return;
+  if (typeof value.runtimeSelectionBlockedUntilEvidenceAttached !== "boolean") {
+    errors.push("/publicationPayloadLinkage/actorEquipmentMaterializationGate/runtimeSelectionBlockedUntilEvidenceAttached must be boolean");
+  }
+  requireArray(value.actorBlockers, "/publicationPayloadLinkage/actorEquipmentMaterializationGate/actorBlockers", errors);
+  requireArray(value.equipmentBlockers, "/publicationPayloadLinkage/actorEquipmentMaterializationGate/equipmentBlockers", errors);
+  requireArray(value.caveats, "/publicationPayloadLinkage/actorEquipmentMaterializationGate/caveats", errors);
+  requireArray(value.recommendedNextActions, "/publicationPayloadLinkage/actorEquipmentMaterializationGate/recommendedNextActions", errors);
+  if (value.materializationEvidenceAttachment !== undefined) requireRecord(value.materializationEvidenceAttachment, "/publicationPayloadLinkage/actorEquipmentMaterializationGate/materializationEvidenceAttachment", errors);
+  if (value.materializationEvidenceAttachmentSummary !== undefined) requireRecord(value.materializationEvidenceAttachmentSummary, "/publicationPayloadLinkage/actorEquipmentMaterializationGate/materializationEvidenceAttachmentSummary", errors);
+  if (value.remainingRuntimeBlockerReasons !== undefined) requireRecord(value.remainingRuntimeBlockerReasons, "/publicationPayloadLinkage/actorEquipmentMaterializationGate/remainingRuntimeBlockerReasons", errors);
+  requireOneOf(value.claimBoundary, ["materialization_contract_metadata_only_not_runtime_readiness", "unavailable"], "/publicationPayloadLinkage/actorEquipmentMaterializationGate/claimBoundary", errors);
+}
+
 function buildRealismEvidenceRefsSummary(value: unknown): EncounterRuntimeSelectionReviewPacket["publicationPayloadLinkage"]["realismEvidenceRefs"] {
   const refsRecord = isRecord(value) ? value : {};
   const refs = Array.isArray(refsRecord.refs) ? refsRecord.refs.filter(isRecord) : [];
+  const runtimeRealismEvidenceHooks = Array.isArray(refsRecord.runtimeRealismEvidenceHooks)
+    ? refsRecord.runtimeRealismEvidenceHooks.filter(isRecord).map((hook) => ({
+      actorId: typeof hook.actorId === "string" ? hook.actorId : "unknown-actor",
+      actorRole: typeof hook.actorRole === "string" ? hook.actorRole : "unknown",
+      requiredSignalIds: stringArray(hook.requiredSignalIds),
+      evidenceRef: typeof hook.evidenceRef === "string" ? hook.evidenceRef : "unavailable",
+      status: "required_not_attached" as const,
+      claimBoundary: "runtime_realism_hook_metadata_only_not_runtime_readiness" as const,
+    }))
+    : [];
+  const visualQaEvidenceHooks = Array.isArray(refsRecord.visualQaEvidenceHooks)
+    ? refsRecord.visualQaEvidenceHooks.filter(isRecord).map((hook) => ({
+      targetId: typeof hook.targetId === "string" ? hook.targetId : "unknown-target",
+      targetKind: typeof hook.targetKind === "string" ? hook.targetKind : "unknown",
+      requiredReviewFocus: stringArray(hook.requiredReviewFocus),
+      evidenceRef: typeof hook.evidenceRef === "string" ? hook.evidenceRef : "unavailable",
+      status: "required_not_attached" as const,
+      claimBoundary: "visual_qa_hook_metadata_only_not_visual_quality_evidence" as const,
+    }))
+    : [];
   const requiredBefore = refs
     .map((ref) => ref.requiredBefore)
     .find((candidate): candidate is "guarded_runtime_wiring" => candidate === "guarded_runtime_wiring") ?? "unavailable";
@@ -468,6 +799,10 @@ function buildRealismEvidenceRefsSummary(value: unknown): EncounterRuntimeSelect
       status: "required_not_attached",
       notEvidenceFor: stringArray(ref.notEvidenceFor),
     })),
+    runtimeRealismEvidenceHookCount: runtimeRealismEvidenceHooks.length,
+    visualQaEvidenceHookCount: visualQaEvidenceHooks.length,
+    runtimeRealismEvidenceHooks,
+    visualQaEvidenceHooks,
     requiredBefore,
     runtimeExecutionAllowed: false,
     providerExecutionPerformed: false,

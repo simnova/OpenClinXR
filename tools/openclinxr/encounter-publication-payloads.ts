@@ -27,6 +27,8 @@ import { validateDynamicEncounterFactoryProjectionArtifact } from "../../package
 import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 import type { EncounterAssetGenerationQueueReport } from "./encounter-asset-generation-queue.js";
 import { buildEncounterAssetGenerationQueueReport } from "./encounter-asset-generation-queue.js";
+import type { EncounterMaterializationEvidenceReport } from "./encounter-materialization-evidence.js";
+import type { EncounterMaterializationEvidenceAttachmentRecords } from "./encounter-materialization-evidence-attachments.js";
 import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-station-runtime-bundle.js";
 import {
   buildEncounterOperationalBoundaryNotes,
@@ -39,6 +41,8 @@ type CliOptions = {
   queueReportPath?: string;
   projectionArtifactPath?: string;
   bundleReportPath?: string;
+  materializationEvidenceReportPath?: string;
+  materializationEvidenceAttachmentsPath?: string;
   outputPath?: string;
   validatePath?: string;
   summarizeDryRunPlanPath?: string;
@@ -76,6 +80,7 @@ export type EncounterPublicationPayloadReport = {
   humanoidRealismProfiles: EncounterAssetGenerationQueueReport["humanoidRealismProfiles"];
   humanoidRuntimeRequirements: EncounterPublicationHumanoidRuntimeRequirement[];
   caseDefinedHumanoidRuntimeHandoff: EncounterPublicationCaseDefinedHumanoidRuntimeHandoff[];
+  actorEquipmentMaterializationGate: EncounterPublicationActorEquipmentMaterializationGate;
   caseDefinitionDrivenFactoryCoverage: EncounterPublicationCaseDefinitionDrivenFactoryCoverage;
   realismEvidenceRefs: EncounterPublicationRealismEvidenceRefs;
   dynamicEncounterBehaviorCoverage: EncounterDynamicBehaviorCoverageSummary;
@@ -176,6 +181,69 @@ export type EncounterPublicationCaseDefinedHumanoidRuntimeHandoff = {
   notEvidenceFor: Array<"generated_humanoid_asset_readiness" | "animation_quality" | "quest_readiness" | "runtime_readiness" | "clinical_validity" | "scoring_validity">;
 };
 
+export type EncounterPublicationActorEquipmentMaterializationGate = {
+  schemaVersion: "openclinxr.actor-equipment-materialization-gate.v1";
+  claimBoundary: "materialization_contract_metadata_only_not_runtime_readiness";
+  source: "generated_station_runtime_bundle_materialization_contracts";
+  runtimeSelectionBlockedUntilEvidenceAttached: boolean;
+  actorGate: {
+    actorSpecificVariantKeysRequired: boolean;
+    sharedNeutralMeshReuseDetected: boolean;
+    actorVariantCount: number;
+    actorRoles: string[];
+    materializationBlockers: string[];
+    caveats: string[];
+    recommendedNextAction: string;
+  };
+  equipmentGate: {
+    equipmentSpecificVariantKeysRequired: boolean;
+    genericEquipmentReuseDetected: boolean;
+    equipmentVariantCount: number;
+    equipmentIds: string[];
+    materializationBlockers: string[];
+    caveats: string[];
+    recommendedNextAction: string;
+  };
+  combinedBlockers: string[];
+  combinedCaveats: string[];
+  notEvidenceFor: Array<"runtime_readiness" | "quest_readiness" | "production_asset_readiness" | "clinical_validity" | "scoring_validity">;
+  materializationEvidenceAttachment?: {
+    source: "encounter_materialization_evidence_report";
+    reportStatus: EncounterMaterializationEvidenceReport["status"];
+    attachableToRuntimeSelection: boolean;
+    actorRequiredEvidenceRefs: string[];
+    equipmentRequiredEvidenceRefs: string[];
+    blockers: string[];
+    claimBoundary: "materialization_evidence_attachment_contract_not_runtime_readiness";
+  };
+  materializationEvidenceAttachmentSummary?: {
+    source: "encounter_materialization_evidence_attachments";
+    totalRequiredSlotCount: number;
+    attachedSlotCount: number;
+    missingSlotCount: number;
+    heldOrInvalidAttachmentCount: number;
+    allRequiredSlotsSatisfied: boolean;
+    blockers: string[];
+    runtimeSelectionAllowed: false;
+    learnerLaunchAllowed: false;
+    questEvidenceRefreshAllowed: false;
+    claimBoundary: "metadata_only_materialization_evidence_attachment_summary";
+  };
+  remainingRuntimeBlockerReasons: {
+    source: "materialization_attachment_summary_and_publication_runtime_gates";
+    materializationEvidenceComplete: boolean;
+    runtimeSelectionAllowed: false;
+    learnerLaunchAllowed: false;
+    questEvidenceRefreshAllowed: false;
+    categories: Array<{
+      category: "runtime_selector" | "runtime_realism" | "visual_qa" | "quest_evidence" | "metadata_only_assets";
+      blockerIds: string[];
+      recommendedNextAction: string;
+    }>;
+    claimBoundary: "remaining_runtime_blockers_after_materialization_metadata_only";
+  };
+};
+
 export type EncounterPublicationRealismEvidenceRefs = {
   schemaVersion: "openclinxr.encounter-publication-realism-evidence-refs.v1";
   claimBoundary: "metadata_only_not_runtime_or_visual_quality_evidence";
@@ -184,7 +252,23 @@ export type EncounterPublicationRealismEvidenceRefs = {
     evidenceRef: string;
     requiredBefore: "guarded_runtime_wiring";
     status: "required_not_attached";
-    notEvidenceFor: Array<"production_asset_readiness" | "quest_readiness" | "clinical_validity" | "scoring_validity">;
+      notEvidenceFor: Array<"production_asset_readiness" | "quest_readiness" | "clinical_validity" | "scoring_validity">;
+  }>;
+  runtimeRealismEvidenceHooks: Array<{
+    actorId: string;
+    actorRole: string;
+    requiredSignalIds: string[];
+    evidenceRef: string;
+    status: "required_not_attached";
+    claimBoundary: "runtime_realism_hook_metadata_only_not_runtime_readiness";
+  }>;
+  visualQaEvidenceHooks: Array<{
+    targetId: string;
+    targetKind: "humanoid_actor" | "equipment";
+    requiredReviewFocus: Array<"face_gaze_lip_sync_expression" | "locomotion_pose" | "equipment_scale_placement_affordance">;
+    evidenceRef: string;
+    status: "required_not_attached";
+    claimBoundary: "visual_qa_hook_metadata_only_not_visual_quality_evidence";
   }>;
   runtimeExecutionAllowed: false;
   providerExecutionPerformed: false;
@@ -270,19 +354,46 @@ export async function runEncounterPublicationPayloadsCli(args: string[]): Promis
   }
   if (!bundleReportPath) throw new Error("Missing generated bundle report. Run asset:generated-station-bundle first.");
 
+  const materializationEvidenceReport = options.materializationEvidenceReportPath
+    ? await readJson<EncounterMaterializationEvidenceReport>(options.materializationEvidenceReportPath)
+    : undefined;
+  const materializationEvidenceAttachments = options.materializationEvidenceAttachmentsPath
+    ? await readJson<EncounterMaterializationEvidenceAttachmentRecords>(options.materializationEvidenceAttachmentsPath)
+    : undefined;
   const report = await buildEncounterPublicationPayloadReport({
     queueReport: queueReport
       ? queueReport
       : await readJson<EncounterAssetGenerationQueueReport>(queueReportPath ?? ""),
     bundleReport: await readJson<GeneratedEdStationRuntimeBundleReport>(bundleReportPath),
+    materializationEvidenceReport,
+    materializationEvidenceAttachments,
   });
+  await syncPublishedLearnerRuntimeMaterializationGate(report);
   await writeJson(options.outputPath ?? defaultOutputPath, report);
   console.log(`Wrote ${options.outputPath ?? defaultOutputPath}`);
+}
+
+async function syncPublishedLearnerRuntimeMaterializationGate(report: EncounterPublicationPayloadReport): Promise<void> {
+  const paths = [
+    report.localArtifacts.learnerRuntimeBundlePath,
+    report.localArtifacts.uiXrPublicLearnerRuntimeBundlePath,
+  ];
+  for (const bundlePath of paths) {
+    try {
+      const bundle = await readJson<Record<string, unknown>>(bundlePath);
+      bundle.actorEquipmentMaterializationGate = report.actorEquipmentMaterializationGate;
+      await writeFile(bundlePath, `${JSON.stringify(bundle, null, 2)}\n`, "utf8");
+    } catch {
+      // Blocked publication reports may not have emitted learner runtime bundle files yet.
+    }
+  }
 }
 
 export async function buildEncounterPublicationPayloadReport(input: {
   queueReport: EncounterAssetGenerationQueueReport;
   bundleReport: GeneratedEdStationRuntimeBundleReport;
+  materializationEvidenceReport?: EncounterMaterializationEvidenceReport;
+  materializationEvidenceAttachments?: EncounterMaterializationEvidenceAttachmentRecords;
   generatedAt?: string;
   artifactRoot?: string;
   remediationWorkOrderRefs?: VisualQaRemediationWorkOrderRef[];
@@ -318,6 +429,7 @@ export async function buildEncounterPublicationPayloadReport(input: {
       learnerRuntimeBundlePath,
       uiXrPublicSceneManifestPath,
       uiXrPublicLearnerRuntimeBundlePath,
+      bundleReport: input.bundleReport,
       blockers: uniqueStrings([
         ...(input.bundleReport.blockers.length > 0 ? input.bundleReport.blockers : ["generated_bundle_not_ready"]),
         ...manifestBlockers,
@@ -338,6 +450,7 @@ export async function buildEncounterPublicationPayloadReport(input: {
       learnerRuntimeBundlePath,
       uiXrPublicSceneManifestPath,
       uiXrPublicLearnerRuntimeBundlePath,
+      bundleReport: input.bundleReport,
       blockers: [
         `scenario_mismatch:queue=${input.queueReport.request.scenarioId}:bundle=${learnerBundle.scenarioId}`,
         ...manifestBlockers,
@@ -350,6 +463,12 @@ export async function buildEncounterPublicationPayloadReport(input: {
     learnerBundle.sceneManifest,
     caseDefinedHumanoidRuntimeHandoff,
   );
+  const actorEquipmentMaterializationGate = buildActorEquipmentMaterializationGate(input.bundleReport, input.materializationEvidenceReport, input.materializationEvidenceAttachments);
+  const learnerRuntimeBundlePayload = {
+    ...learnerBundle,
+    sceneManifest,
+    actorEquipmentMaterializationGate,
+  };
   const caseDefinitionDrivenFactoryCoverage = buildCaseDefinitionDrivenFactoryCoverage({
     queueReport: input.queueReport,
     learnerBundle,
@@ -380,9 +499,9 @@ export async function buildEncounterPublicationPayloadReport(input: {
   await mkdir(localPrefix, { recursive: true });
   await mkdir(publicPrefix, { recursive: true });
   await writeFile(sceneManifestPath, `${JSON.stringify(sceneManifest, null, 2)}\n`, "utf8");
-  await writeFile(learnerRuntimeBundlePath, `${JSON.stringify(learnerBundle, null, 2)}\n`, "utf8");
+  await writeFile(learnerRuntimeBundlePath, `${JSON.stringify(learnerRuntimeBundlePayload, null, 2)}\n`, "utf8");
   await writeFile(uiXrPublicSceneManifestPath, `${JSON.stringify(sceneManifest, null, 2)}\n`, "utf8");
-  await writeFile(uiXrPublicLearnerRuntimeBundlePath, `${JSON.stringify(learnerBundle, null, 2)}\n`, "utf8");
+  await writeFile(uiXrPublicLearnerRuntimeBundlePath, `${JSON.stringify(learnerRuntimeBundlePayload, null, 2)}\n`, "utf8");
   const encounterFactorySummary = buildEncounterFactorySummaryContracts({
     requestId: input.queueReport.request.requestId,
     scenarioId: input.queueReport.request.scenarioId,
@@ -416,11 +535,13 @@ export async function buildEncounterPublicationPayloadReport(input: {
     encounterAssetNeedsReadinessManifest,
     humanoidRuntimeRequirements,
     caseDefinedHumanoidRuntimeHandoff,
+    actorEquipmentMaterializationGate,
     caseDefinitionDrivenFactoryCoverage,
     realismEvidenceRefs: buildPublicationRealismEvidenceRefs({
       requestId: input.queueReport.request.requestId,
       scenarioId: input.queueReport.request.scenarioId,
-      humanoidRuntimeRequirementCount: humanoidRuntimeRequirements.length,
+      humanoidRuntimeRequirements,
+      equipmentIds: learnerBundle.equipment.map((equipment) => equipment.equipmentId),
     }),
     dynamicEncounterBehaviorCoverage: encounterFactorySummary.dynamicBehaviorCoverage,
     encounterFactoryDryRunPlan: buildEncounterFactoryDryRunPlan({
@@ -649,6 +770,7 @@ export function validateEncounterPublicationPayloadReport(value: unknown): Valid
   requireArray(value.humanoidRealismProfiles, "/humanoidRealismProfiles", errors);
   requireArray(value.humanoidRuntimeRequirements, "/humanoidRuntimeRequirements", errors);
   requireArray(value.caseDefinedHumanoidRuntimeHandoff, "/caseDefinedHumanoidRuntimeHandoff", errors);
+  validateActorEquipmentMaterializationGate(value.actorEquipmentMaterializationGate, errors);
   requireRecord(value.caseDefinitionDrivenFactoryCoverage, "/caseDefinitionDrivenFactoryCoverage", errors);
   validatePublicationRealismEvidenceRefs(value.realismEvidenceRefs, "/realismEvidenceRefs", errors);
   requireRecord(value.dynamicEncounterBehaviorCoverage, "/dynamicEncounterBehaviorCoverage", errors);
@@ -789,6 +911,12 @@ export function validateEncounterPublicationPayloadReport(value: unknown): Valid
         requireStringArrayIncludes(handoff.notEvidenceFor, notEvidenceFor, `/caseDefinedHumanoidRuntimeHandoff/${index}/notEvidenceFor`, errors);
       }
     });
+  }
+  if (isRecord(value.actorEquipmentMaterializationGate)) {
+    const gate = value.actorEquipmentMaterializationGate;
+    if (gate.runtimeSelectionBlockedUntilEvidenceAttached === true && Array.isArray(gate.combinedBlockers) && gate.combinedBlockers.length === 0) {
+      errors.push("/actorEquipmentMaterializationGate/combinedBlockers must not be empty when runtime selection is blocked");
+    }
   }
   if (isRecord(value.caseDefinitionDrivenFactoryCoverage)) {
     requireLiteral(value.caseDefinitionDrivenFactoryCoverage.schemaVersion, "openclinxr.case-definition-driven-factory-coverage.v1", "/caseDefinitionDrivenFactoryCoverage/schemaVersion", errors);
@@ -1185,11 +1313,186 @@ function collectEncounterAssetNeedsReadinessBlockers(
     .filter((blocker): blocker is string => typeof blocker === "string");
 }
 
+function validateActorEquipmentMaterializationGate(value: unknown, errors: string[]): void {
+  requireRecord(value, "/actorEquipmentMaterializationGate", errors);
+  if (!isRecord(value)) return;
+  requireLiteral(value.schemaVersion, "openclinxr.actor-equipment-materialization-gate.v1", "/actorEquipmentMaterializationGate/schemaVersion", errors);
+  requireLiteral(value.claimBoundary, "materialization_contract_metadata_only_not_runtime_readiness", "/actorEquipmentMaterializationGate/claimBoundary", errors);
+  requireLiteral(value.source, "generated_station_runtime_bundle_materialization_contracts", "/actorEquipmentMaterializationGate/source", errors);
+  if (typeof value.runtimeSelectionBlockedUntilEvidenceAttached !== "boolean") {
+    errors.push("/actorEquipmentMaterializationGate/runtimeSelectionBlockedUntilEvidenceAttached must be boolean");
+  }
+  requireRecord(value.actorGate, "/actorEquipmentMaterializationGate/actorGate", errors);
+  if (isRecord(value.actorGate)) {
+    requireLiteral(value.actorGate.actorSpecificVariantKeysRequired, true, "/actorEquipmentMaterializationGate/actorGate/actorSpecificVariantKeysRequired", errors);
+    requireArray(value.actorGate.actorRoles, "/actorEquipmentMaterializationGate/actorGate/actorRoles", errors);
+    requireArray(value.actorGate.materializationBlockers, "/actorEquipmentMaterializationGate/actorGate/materializationBlockers", errors);
+    requireArray(value.actorGate.caveats, "/actorEquipmentMaterializationGate/actorGate/caveats", errors);
+    requireString(value.actorGate.recommendedNextAction, "/actorEquipmentMaterializationGate/actorGate/recommendedNextAction", errors);
+  }
+  requireRecord(value.equipmentGate, "/actorEquipmentMaterializationGate/equipmentGate", errors);
+  if (isRecord(value.equipmentGate)) {
+    requireLiteral(value.equipmentGate.equipmentSpecificVariantKeysRequired, true, "/actorEquipmentMaterializationGate/equipmentGate/equipmentSpecificVariantKeysRequired", errors);
+    requireArray(value.equipmentGate.equipmentIds, "/actorEquipmentMaterializationGate/equipmentGate/equipmentIds", errors);
+    requireArray(value.equipmentGate.materializationBlockers, "/actorEquipmentMaterializationGate/equipmentGate/materializationBlockers", errors);
+    requireArray(value.equipmentGate.caveats, "/actorEquipmentMaterializationGate/equipmentGate/caveats", errors);
+    requireString(value.equipmentGate.recommendedNextAction, "/actorEquipmentMaterializationGate/equipmentGate/recommendedNextAction", errors);
+  }
+  requireArray(value.combinedBlockers, "/actorEquipmentMaterializationGate/combinedBlockers", errors);
+  requireArray(value.combinedCaveats, "/actorEquipmentMaterializationGate/combinedCaveats", errors);
+  requireArray(value.notEvidenceFor, "/actorEquipmentMaterializationGate/notEvidenceFor", errors);
+  if (value.materializationEvidenceAttachment !== undefined) {
+    requireRecord(value.materializationEvidenceAttachment, "/actorEquipmentMaterializationGate/materializationEvidenceAttachment", errors);
+    if (isRecord(value.materializationEvidenceAttachment)) {
+      requireLiteral(value.materializationEvidenceAttachment.source, "encounter_materialization_evidence_report", "/actorEquipmentMaterializationGate/materializationEvidenceAttachment/source", errors);
+      if (typeof value.materializationEvidenceAttachment.attachableToRuntimeSelection !== "boolean") {
+        errors.push("/actorEquipmentMaterializationGate/materializationEvidenceAttachment/attachableToRuntimeSelection must be boolean");
+      }
+      requireArray(value.materializationEvidenceAttachment.actorRequiredEvidenceRefs, "/actorEquipmentMaterializationGate/materializationEvidenceAttachment/actorRequiredEvidenceRefs", errors);
+      requireArray(value.materializationEvidenceAttachment.equipmentRequiredEvidenceRefs, "/actorEquipmentMaterializationGate/materializationEvidenceAttachment/equipmentRequiredEvidenceRefs", errors);
+      requireArray(value.materializationEvidenceAttachment.blockers, "/actorEquipmentMaterializationGate/materializationEvidenceAttachment/blockers", errors);
+      requireLiteral(value.materializationEvidenceAttachment.claimBoundary, "materialization_evidence_attachment_contract_not_runtime_readiness", "/actorEquipmentMaterializationGate/materializationEvidenceAttachment/claimBoundary", errors);
+    }
+  }
+  if (value.materializationEvidenceAttachmentSummary !== undefined) {
+    requireRecord(value.materializationEvidenceAttachmentSummary, "/actorEquipmentMaterializationGate/materializationEvidenceAttachmentSummary", errors);
+    if (isRecord(value.materializationEvidenceAttachmentSummary)) {
+      requireLiteral(value.materializationEvidenceAttachmentSummary.source, "encounter_materialization_evidence_attachments", "/actorEquipmentMaterializationGate/materializationEvidenceAttachmentSummary/source", errors);
+      requireNumber(value.materializationEvidenceAttachmentSummary.totalRequiredSlotCount, "/actorEquipmentMaterializationGate/materializationEvidenceAttachmentSummary/totalRequiredSlotCount", errors);
+      requireNumber(value.materializationEvidenceAttachmentSummary.attachedSlotCount, "/actorEquipmentMaterializationGate/materializationEvidenceAttachmentSummary/attachedSlotCount", errors);
+      requireNumber(value.materializationEvidenceAttachmentSummary.missingSlotCount, "/actorEquipmentMaterializationGate/materializationEvidenceAttachmentSummary/missingSlotCount", errors);
+      requireLiteral(value.materializationEvidenceAttachmentSummary.runtimeSelectionAllowed, false, "/actorEquipmentMaterializationGate/materializationEvidenceAttachmentSummary/runtimeSelectionAllowed", errors);
+      requireLiteral(value.materializationEvidenceAttachmentSummary.learnerLaunchAllowed, false, "/actorEquipmentMaterializationGate/materializationEvidenceAttachmentSummary/learnerLaunchAllowed", errors);
+      requireLiteral(value.materializationEvidenceAttachmentSummary.questEvidenceRefreshAllowed, false, "/actorEquipmentMaterializationGate/materializationEvidenceAttachmentSummary/questEvidenceRefreshAllowed", errors);
+      requireLiteral(value.materializationEvidenceAttachmentSummary.claimBoundary, "metadata_only_materialization_evidence_attachment_summary", "/actorEquipmentMaterializationGate/materializationEvidenceAttachmentSummary/claimBoundary", errors);
+    }
+  }
+}
+
+function buildActorEquipmentMaterializationGate(
+  bundleReport?: GeneratedEdStationRuntimeBundleReport,
+  materializationEvidenceReport?: EncounterMaterializationEvidenceReport,
+  materializationEvidenceAttachments?: EncounterMaterializationEvidenceAttachmentRecords,
+): EncounterPublicationActorEquipmentMaterializationGate {
+  const actorContract = bundleReport?.actorHumanoidMaterializationContract;
+  const equipmentContract = bundleReport?.equipmentMaterializationContract;
+  const actorBlockers = actorContract?.materializationBlockers ?? ["actor_humanoid_materialization_contract_not_attached"];
+  const equipmentBlockers = equipmentContract?.materializationBlockers ?? ["equipment_materialization_contract_not_attached"];
+  const actorCaveats = actorContract?.caveats ?? ["Actor-specific humanoid variant evidence is not attached to the generated station runtime bundle."];
+  const equipmentCaveats = equipmentContract?.caveats ?? ["Equipment-specific materialization evidence is not attached to the generated station runtime bundle."];
+  const materializationEvidenceBlockers = materializationEvidenceReport?.attachableToRuntimeSelection === false
+    ? materializationEvidenceReport.blockers
+    : [];
+  const combinedBlockers = uniqueStrings([...actorBlockers, ...equipmentBlockers, ...materializationEvidenceBlockers]);
+  const combinedCaveats = uniqueStrings([...actorCaveats, ...equipmentCaveats]);
+  const gate: EncounterPublicationActorEquipmentMaterializationGate = {
+    schemaVersion: "openclinxr.actor-equipment-materialization-gate.v1",
+    claimBoundary: "materialization_contract_metadata_only_not_runtime_readiness",
+    source: "generated_station_runtime_bundle_materialization_contracts",
+    runtimeSelectionBlockedUntilEvidenceAttached: combinedBlockers.length > 0,
+    actorGate: {
+      actorSpecificVariantKeysRequired: actorContract?.actorSpecificVariantKeysRequired ?? true,
+      sharedNeutralMeshReuseDetected: actorContract?.sharedNeutralMeshReuseDetected ?? true,
+      actorVariantCount: actorContract?.actorVariants.length ?? 0,
+      actorRoles: uniqueStrings(actorContract?.actorVariants.map((variant) => variant.actorRole) ?? []),
+      materializationBlockers: [...actorBlockers],
+      caveats: [...actorCaveats],
+      recommendedNextAction: actorContract?.recommendedNextAction ?? "attach actor-specific humanoid materialization contract evidence before guarded runtime selection",
+    },
+    equipmentGate: {
+      equipmentSpecificVariantKeysRequired: equipmentContract?.equipmentSpecificVariantKeysRequired ?? true,
+      genericEquipmentReuseDetected: equipmentContract?.genericEquipmentReuseDetected ?? true,
+      equipmentVariantCount: equipmentContract?.equipmentVariants.length ?? 0,
+      equipmentIds: uniqueStrings(equipmentContract?.equipmentVariants.map((variant) => variant.equipmentId) ?? []),
+      materializationBlockers: [...equipmentBlockers],
+      caveats: [...equipmentCaveats],
+      recommendedNextAction: equipmentContract?.recommendedNextAction ?? "attach equipment-specific materialization contract evidence before guarded runtime selection",
+    },
+    combinedBlockers,
+    combinedCaveats,
+    notEvidenceFor: ["runtime_readiness", "quest_readiness", "production_asset_readiness", "clinical_validity", "scoring_validity"],
+    remainingRuntimeBlockerReasons: buildRemainingRuntimeBlockerReasons(materializationEvidenceAttachments),
+  };
+  if (materializationEvidenceReport) {
+    gate.materializationEvidenceAttachment = {
+      source: "encounter_materialization_evidence_report",
+      reportStatus: materializationEvidenceReport.status,
+      attachableToRuntimeSelection: materializationEvidenceReport.attachableToRuntimeSelection,
+      actorRequiredEvidenceRefs: uniqueStrings(materializationEvidenceReport.actorEvidence.flatMap((entry) => entry.requiredEvidenceRefs)),
+      equipmentRequiredEvidenceRefs: uniqueStrings(materializationEvidenceReport.equipmentEvidence.flatMap((entry) => entry.requiredEvidenceRefs)),
+      blockers: [...materializationEvidenceReport.blockers],
+      claimBoundary: materializationEvidenceReport.claimBoundary,
+    };
+  }
+  if (materializationEvidenceAttachments) {
+    gate.materializationEvidenceAttachmentSummary = {
+      source: "encounter_materialization_evidence_attachments",
+      totalRequiredSlotCount: materializationEvidenceAttachments.attachmentCompleteness.totalRequiredSlotCount,
+      attachedSlotCount: materializationEvidenceAttachments.attachmentCompleteness.attachedSlotCount,
+      missingSlotCount: materializationEvidenceAttachments.attachmentCompleteness.missingSlotCount,
+      heldOrInvalidAttachmentCount: materializationEvidenceAttachments.attachmentCompleteness.heldOrInvalidAttachmentCount,
+      allRequiredSlotsSatisfied: materializationEvidenceAttachments.attachmentCompleteness.allRequiredSlotsSatisfied,
+      blockers: [...materializationEvidenceAttachments.blockers],
+      runtimeSelectionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      claimBoundary: "metadata_only_materialization_evidence_attachment_summary",
+    };
+  }
+  return gate;
+}
+
+function buildRemainingRuntimeBlockerReasons(
+  materializationEvidenceAttachments?: EncounterMaterializationEvidenceAttachmentRecords,
+): EncounterPublicationActorEquipmentMaterializationGate["remainingRuntimeBlockerReasons"] {
+  const materializationEvidenceComplete = materializationEvidenceAttachments?.attachmentCompleteness.allRequiredSlotsSatisfied === true;
+  return {
+    source: "materialization_attachment_summary_and_publication_runtime_gates",
+    materializationEvidenceComplete,
+    runtimeSelectionAllowed: false,
+    learnerLaunchAllowed: false,
+    questEvidenceRefreshAllowed: false,
+    categories: [
+      {
+        category: "runtime_selector",
+        blockerIds: ["runtime_selector_disabled_guard_not_wired"],
+        recommendedNextAction: "review guarded runtime selector wiring only after runtime, visual QA, and Quest evidence refs attach",
+      },
+      {
+        category: "runtime_realism",
+        blockerIds: ["runtime_realism_evidence_not_attached"],
+        recommendedNextAction: "attach case-derived runtime realism evidence for actor motion, gaze, expression, and lip-sync before runtime selection",
+      },
+      {
+        category: "visual_qa",
+        blockerIds: ["humanoid_visual_qa_evidence_not_attached"],
+        recommendedNextAction: "attach screenshot or visual QA evidence for generated humanoids and equipment before learner launch review",
+      },
+      {
+        category: "quest_evidence",
+        blockerIds: ["quest_webxr_evidence_not_attached"],
+        recommendedNextAction: "keep Quest/WebXR readiness blocked until foreground headset or approved local runtime evidence is attached",
+      },
+      {
+        category: "metadata_only_assets",
+        blockerIds: materializationEvidenceComplete
+          ? ["materialization_evidence_refs_are_metadata_only_not_generated_asset_readiness"]
+          : ["actor_equipment_materialization_evidence_attachment_incomplete"],
+        recommendedNextAction: materializationEvidenceComplete
+          ? "treat completed actor/equipment evidence refs as review metadata, not generated asset or runtime readiness"
+          : "finish attaching actor/equipment materialization evidence refs before reviewing downstream runtime blockers",
+      },
+    ],
+    claimBoundary: "remaining_runtime_blockers_after_materialization_metadata_only",
+  };
+}
+
 function blockedReport(input: {
   generatedAt: string;
   input: {
     queueReport: EncounterAssetGenerationQueueReport;
   };
+  bundleReport?: GeneratedEdStationRuntimeBundleReport;
   humanoidRealismRequirements: EncounterHumanoidRealismRequirements;
   encounterAssetNeedsReadinessManifest?: EncounterAssetGenerationQueueReport["encounterAssetNeedsReadinessManifest"];
   targets: EncounterAssetGenerationPublicationTargets;
@@ -1243,6 +1546,7 @@ function blockedReport(input: {
     humanoidRealismProfiles: deriveHumanoidRealismProfiles(input.input.queueReport, input.humanoidRealismRequirements),
     humanoidRuntimeRequirements: [],
     caseDefinedHumanoidRuntimeHandoff: buildCaseDefinedHumanoidRuntimeHandoff(input.input.queueReport.plan.generationWorkOrders),
+    actorEquipmentMaterializationGate: buildActorEquipmentMaterializationGate(input.bundleReport, input.materializationEvidenceReport),
     caseDefinitionDrivenFactoryCoverage: buildCaseDefinitionDrivenFactoryCoverage({
       queueReport: input.input.queueReport,
       learnerBundle: null,
@@ -1250,7 +1554,8 @@ function blockedReport(input: {
     realismEvidenceRefs: buildPublicationRealismEvidenceRefs({
       requestId: input.input.queueReport.request.requestId,
       scenarioId: input.input.queueReport.request.scenarioId,
-      humanoidRuntimeRequirementCount: 0,
+      humanoidRuntimeRequirements: [],
+      equipmentIds: [],
     }),
     encounterAssetNeedsReadinessManifest: input.encounterAssetNeedsReadinessManifest,
     dynamicEncounterBehaviorCoverage: encounterFactorySummary.dynamicBehaviorCoverage,
@@ -1378,9 +1683,11 @@ function buildHumanoidRuntimeRequirements(
 function buildPublicationRealismEvidenceRefs(input: {
   requestId: string;
   scenarioId: string;
-  humanoidRuntimeRequirementCount: number;
+  humanoidRuntimeRequirements: EncounterPublicationHumanoidRuntimeRequirement[];
+  equipmentIds: string[];
 }): EncounterPublicationRealismEvidenceRefs {
   const base = `encounter-publication-realism://${input.scenarioId}/${input.requestId}`;
+  const humanoidRuntimeRequirementCount = input.humanoidRuntimeRequirements.length;
   return {
     schemaVersion: "openclinxr.encounter-publication-realism-evidence-refs.v1",
     claimBoundary: "metadata_only_not_runtime_or_visual_quality_evidence",
@@ -1390,7 +1697,7 @@ function buildPublicationRealismEvidenceRefs(input: {
       "visual-qa-evidence-check",
     ].map((refId) => ({
       refId: refId as EncounterPublicationRealismEvidenceRefs["refs"][number]["refId"],
-      evidenceRef: `${base}/${refId}/${input.humanoidRuntimeRequirementCount}-actors`,
+      evidenceRef: `${base}/${refId}/${humanoidRuntimeRequirementCount}-actors`,
       requiredBefore: "guarded_runtime_wiring",
       status: "required_not_attached",
       notEvidenceFor: [
@@ -1400,6 +1707,32 @@ function buildPublicationRealismEvidenceRefs(input: {
         "scoring_validity",
       ],
     })),
+    runtimeRealismEvidenceHooks: input.humanoidRuntimeRequirements.map((requirement) => ({
+      actorId: requirement.actorId,
+      actorRole: requirement.actorRole,
+      requiredSignalIds: [...requirement.requiredSignalIds],
+      evidenceRef: `${base}/runtime-realism-evidence-check/${requirement.actorRole}/${requirement.actorId}`,
+      status: "required_not_attached",
+      claimBoundary: "runtime_realism_hook_metadata_only_not_runtime_readiness",
+    })),
+    visualQaEvidenceHooks: [
+      ...input.humanoidRuntimeRequirements.map((requirement) => ({
+        targetId: requirement.actorId,
+        targetKind: "humanoid_actor" as const,
+        requiredReviewFocus: ["face_gaze_lip_sync_expression", "locomotion_pose"] as const,
+        evidenceRef: `${base}/visual-qa-evidence-check/humanoid/${requirement.actorRole}/${requirement.actorId}`,
+        status: "required_not_attached" as const,
+        claimBoundary: "visual_qa_hook_metadata_only_not_visual_quality_evidence" as const,
+      })),
+      ...uniqueStrings(input.equipmentIds).map((equipmentId) => ({
+        targetId: equipmentId,
+        targetKind: "equipment" as const,
+        requiredReviewFocus: ["equipment_scale_placement_affordance"] as const,
+        evidenceRef: `${base}/visual-qa-evidence-check/equipment/${equipmentId}`,
+        status: "required_not_attached" as const,
+        claimBoundary: "visual_qa_hook_metadata_only_not_visual_quality_evidence" as const,
+      })),
+    ],
     runtimeExecutionAllowed: false,
     providerExecutionPerformed: false,
     questReadinessClaimed: false,
@@ -1525,6 +1858,8 @@ function validatePublicationRealismEvidenceRefs(value: unknown, pathName: string
   requireLiteral(value.providerExecutionPerformed, false, `${pathName}/providerExecutionPerformed`, errors);
   requireLiteral(value.questReadinessClaimed, false, `${pathName}/questReadinessClaimed`, errors);
   requireArray(value.refs, `${pathName}/refs`, errors);
+  requireArray(value.runtimeRealismEvidenceHooks, `${pathName}/runtimeRealismEvidenceHooks`, errors);
+  requireArray(value.visualQaEvidenceHooks, `${pathName}/visualQaEvidenceHooks`, errors);
   if (!Array.isArray(value.refs)) return;
   value.refs.forEach((ref, index) => {
     const refPath = `${pathName}/refs/${index}`;
@@ -1625,6 +1960,16 @@ function parseArgs(args: string[]): CliOptions {
     }
     if (arg === "--bundle-report") {
       options.bundleReportPath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--materialization-evidence-report") {
+      options.materializationEvidenceReportPath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--materialization-evidence-attachments") {
+      options.materializationEvidenceAttachmentsPath = requireValue(normalizedArgs, index, arg);
       index += 1;
       continue;
     }

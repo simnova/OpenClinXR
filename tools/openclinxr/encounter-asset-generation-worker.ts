@@ -15,6 +15,9 @@ import {
 } from "../../packages/openclinxr/data-sources-mongoose-models/src/index.js";
 import { globFiles, readJson, writeJson } from "../agent-factory/lib.js";
 import type { EncounterAssetGenerationQueueReport } from "./encounter-asset-generation-queue.js";
+import type { EncounterMaterializationAttachmentPlan } from "./encounter-materialization-attachment-plan.js";
+import type { EncounterMaterializationEvidenceAttachmentRecords } from "./encounter-materialization-evidence-attachments.js";
+import type { EncounterMaterializationInputManifest } from "./encounter-materialization-input-manifest.js";
 import {
   buildEncounterOperationalBoundaryNotes,
   type EncounterOperationalBoundaryNotes,
@@ -24,6 +27,9 @@ import type { VisualQaRemediationWorkOrderRef } from "./visual-qa-evidence-check
 
 type CliOptions = {
   queueReportPath?: string;
+  materializationInputManifestPath?: string;
+  materializationAttachmentPlanPath?: string;
+  materializationEvidenceAttachmentsPath?: string;
   outputPath?: string;
   stdout: boolean;
   validatePath?: string;
@@ -44,6 +50,52 @@ export type EncounterAssetGenerationWorkerReport = {
   processingResult: EncounterAssetGenerationQueueProcessingResult;
   persistedExecutions: EncounterAssetGenerationWorkerExecution[];
   remediationWorkOrderRefs?: VisualQaRemediationWorkOrderRef[];
+  materializationInputManifestSummary?: {
+    schemaVersion: "openclinxr.encounter-materialization-input-manifest-summary.v1";
+    source: "encounter_materialization_input_manifest";
+    scenarioId: string | null;
+    actorWorkOrderInputCount: number;
+    equipmentWorkOrderInputCount: number;
+    requiredActorCueIds: string[];
+    requiredEquipmentCueIds: string[];
+    blockerIds: string[];
+    providerExecutionPerformed: false;
+    paidApisUsed: false;
+    externalNetworkUsed: false;
+    claimBoundary: "metadata_only_provider_neutral_materialization_inputs";
+  };
+  materializationAttachmentPlanSummary?: {
+    schemaVersion: "openclinxr.encounter-materialization-attachment-plan-summary.v1";
+    source: "encounter_materialization_attachment_plan";
+    scenarioId: string | null;
+    actorAttachmentSlotCount: number;
+    equipmentAttachmentSlotCount: number;
+    missingAttachmentCount: number;
+    actorRequiredCueIds: string[];
+    equipmentRequiredCueIds: string[];
+    blockerIds: string[];
+    providerExecutionPerformed: false;
+    runtimeSelectionAllowed: false;
+    learnerLaunchAllowed: false;
+    questEvidenceRefreshAllowed: false;
+    claimBoundary: "metadata_only_materialization_attachment_plan";
+  };
+  materializationEvidenceAttachmentSummary?: {
+    schemaVersion: "openclinxr.encounter-materialization-evidence-attachment-summary.v1";
+    source: "encounter_materialization_evidence_attachments";
+    scenarioId: string | null;
+    totalRequiredSlotCount: number;
+    attachedSlotCount: number;
+    missingSlotCount: number;
+    heldOrInvalidAttachmentCount: number;
+    allRequiredSlotsSatisfied: boolean;
+    blockerIds: string[];
+    providerExecutionPerformed: false;
+    runtimeSelectionAllowed: false;
+    learnerLaunchAllowed: false;
+    questEvidenceRefreshAllowed: false;
+    claimBoundary: "metadata_only_materialization_evidence_attachment_summary";
+  };
   workerMaterializationPlan?: EncounterAssetGenerationWorkerExecution["workerMaterializationPlan"];
   sharedAssetLibraryCacheSummary: {
     cacheEventCount: number;
@@ -99,9 +151,21 @@ export async function runEncounterAssetGenerationWorkerCli(args: string[]): Prom
     throw new Error("Missing queue report. Run asset:encounter-queue:plan first.");
   }
   const queueReport = await readJson<EncounterAssetGenerationQueueReport>(queueReportPath);
+  const materializationInputManifest = options.materializationInputManifestPath
+    ? await readJson<EncounterMaterializationInputManifest>(options.materializationInputManifestPath)
+    : undefined;
+  const materializationAttachmentPlan = options.materializationAttachmentPlanPath
+    ? await readJson<EncounterMaterializationAttachmentPlan>(options.materializationAttachmentPlanPath)
+    : undefined;
+  const materializationEvidenceAttachments = options.materializationEvidenceAttachmentsPath
+    ? await readJson<EncounterMaterializationEvidenceAttachmentRecords>(options.materializationEvidenceAttachmentsPath)
+    : undefined;
   const report = await buildEncounterAssetGenerationWorkerReport({
     queueReport,
     sourceQueueReportPath: queueReportPath,
+    materializationInputManifest,
+    materializationAttachmentPlan,
+    materializationEvidenceAttachments,
     ...(options.azureStorageQueue
       ? {
           queueClient: createAzuriteEncounterAssetGenerationQueueClient({
@@ -130,6 +194,9 @@ export async function buildEncounterAssetGenerationWorkerReport(input: {
   queueClient?: EncounterAssetGenerationQueueClient;
   mongooseUri?: string;
   remediationWorkOrderRefs?: VisualQaRemediationWorkOrderRef[];
+  materializationInputManifest?: EncounterMaterializationInputManifest;
+  materializationAttachmentPlan?: EncounterMaterializationAttachmentPlan;
+  materializationEvidenceAttachments?: EncounterMaterializationEvidenceAttachmentRecords;
 }): Promise<EncounterAssetGenerationWorkerReport> {
   const persistedExecutions: EncounterAssetGenerationWorkerExecution[] = [];
   const mongoose = input.mongooseUri ? new Mongoose() : undefined;
@@ -180,6 +247,15 @@ export async function buildEncounterAssetGenerationWorkerReport(input: {
       processingResult,
       persistedExecutions,
       ...(remediationWorkOrderRefs?.length ? { remediationWorkOrderRefs } : {}),
+      ...(input.materializationInputManifest
+        ? { materializationInputManifestSummary: summarizeMaterializationInputManifest(input.materializationInputManifest) }
+        : {}),
+      ...(input.materializationAttachmentPlan
+        ? { materializationAttachmentPlanSummary: summarizeMaterializationAttachmentPlan(input.materializationAttachmentPlan) }
+        : {}),
+      ...(input.materializationEvidenceAttachments
+        ? { materializationEvidenceAttachmentSummary: summarizeMaterializationEvidenceAttachments(input.materializationEvidenceAttachments) }
+        : {}),
       ...(persistedExecutions[0]?.workerMaterializationPlan
         ? { workerMaterializationPlan: persistedExecutions[0].workerMaterializationPlan }
         : {}),
@@ -214,6 +290,15 @@ export function validateEncounterAssetGenerationWorkerReport(value: unknown): Va
   requireRecord(value.evidenceBoundaries, "/evidenceBoundaries", errors);
   if (Object.hasOwn(value, "remediationWorkOrderRefs")) {
     validateVisualQaRemediationWorkOrderRefs(value.remediationWorkOrderRefs, "/remediationWorkOrderRefs", errors);
+  }
+  if (Object.hasOwn(value, "materializationInputManifestSummary")) {
+    validateMaterializationInputManifestSummary(value.materializationInputManifestSummary, errors);
+  }
+  if (Object.hasOwn(value, "materializationAttachmentPlanSummary")) {
+    validateMaterializationAttachmentPlanSummary(value.materializationAttachmentPlanSummary, errors);
+  }
+  if (Object.hasOwn(value, "materializationEvidenceAttachmentSummary")) {
+    validateMaterializationEvidenceAttachmentSummary(value.materializationEvidenceAttachmentSummary, errors);
   }
 
   if (isRecord(value.processingResult)) {
@@ -326,6 +411,121 @@ function validateWorkerMaterializationPlan(value: unknown, path: string, errors:
       requireArray(output.outputRefs, `${outputPath}/outputRefs`, errors);
     }
   }
+}
+
+function summarizeMaterializationInputManifest(
+  manifest: EncounterMaterializationInputManifest,
+): NonNullable<EncounterAssetGenerationWorkerReport["materializationInputManifestSummary"]> {
+  return {
+    schemaVersion: "openclinxr.encounter-materialization-input-manifest-summary.v1",
+    source: "encounter_materialization_input_manifest",
+    scenarioId: manifest.scenarioId,
+    actorWorkOrderInputCount: manifest.actorWorkOrderInputs.length,
+    equipmentWorkOrderInputCount: manifest.equipmentWorkOrderInputs.length,
+    requiredActorCueIds: uniqueStrings(manifest.actorWorkOrderInputs.flatMap((input) => input.requiredCueIds)),
+    requiredEquipmentCueIds: uniqueStrings(manifest.equipmentWorkOrderInputs.flatMap((input) => input.requiredCueIds)),
+    blockerIds: uniqueStrings(manifest.blockers),
+    providerExecutionPerformed: false,
+    paidApisUsed: false,
+    externalNetworkUsed: false,
+    claimBoundary: "metadata_only_provider_neutral_materialization_inputs",
+  };
+}
+
+function summarizeMaterializationAttachmentPlan(
+  plan: EncounterMaterializationAttachmentPlan,
+): NonNullable<EncounterAssetGenerationWorkerReport["materializationAttachmentPlanSummary"]> {
+  const actorRequiredCueIds = uniqueStrings(plan.actorAttachmentSlots.map((slot) => slot.requiredCueId));
+  const equipmentRequiredCueIds = uniqueStrings(plan.equipmentAttachmentSlots.map((slot) => slot.requiredCueId));
+  return {
+    schemaVersion: "openclinxr.encounter-materialization-attachment-plan-summary.v1",
+    source: "encounter_materialization_attachment_plan",
+    scenarioId: plan.scenarioId,
+    actorAttachmentSlotCount: plan.actorAttachmentSlots.length,
+    equipmentAttachmentSlotCount: plan.equipmentAttachmentSlots.length,
+    missingAttachmentCount: [...plan.actorAttachmentSlots, ...plan.equipmentAttachmentSlots].filter((slot) => slot.attachmentStatus === "missing_evidence").length,
+    actorRequiredCueIds,
+    equipmentRequiredCueIds,
+    blockerIds: uniqueStrings(plan.blockers),
+    providerExecutionPerformed: false,
+    runtimeSelectionAllowed: false,
+    learnerLaunchAllowed: false,
+    questEvidenceRefreshAllowed: false,
+    claimBoundary: "metadata_only_materialization_attachment_plan",
+  };
+}
+
+function summarizeMaterializationEvidenceAttachments(
+  records: EncounterMaterializationEvidenceAttachmentRecords,
+): NonNullable<EncounterAssetGenerationWorkerReport["materializationEvidenceAttachmentSummary"]> {
+  return {
+    schemaVersion: "openclinxr.encounter-materialization-evidence-attachment-summary.v1",
+    source: "encounter_materialization_evidence_attachments",
+    scenarioId: records.scenarioId,
+    totalRequiredSlotCount: records.attachmentCompleteness.totalRequiredSlotCount,
+    attachedSlotCount: records.attachmentCompleteness.attachedSlotCount,
+    missingSlotCount: records.attachmentCompleteness.missingSlotCount,
+    heldOrInvalidAttachmentCount: records.attachmentCompleteness.heldOrInvalidAttachmentCount,
+    allRequiredSlotsSatisfied: records.attachmentCompleteness.allRequiredSlotsSatisfied,
+    blockerIds: uniqueStrings(records.blockers),
+    providerExecutionPerformed: false,
+    runtimeSelectionAllowed: false,
+    learnerLaunchAllowed: false,
+    questEvidenceRefreshAllowed: false,
+    claimBoundary: "metadata_only_materialization_evidence_attachment_summary",
+  };
+}
+
+function validateMaterializationInputManifestSummary(value: unknown, errors: string[]): void {
+  requireRecord(value, "/materializationInputManifestSummary", errors);
+  if (!isRecord(value)) return;
+  requireLiteral(value.schemaVersion, "openclinxr.encounter-materialization-input-manifest-summary.v1", "/materializationInputManifestSummary/schemaVersion", errors);
+  requireLiteral(value.source, "encounter_materialization_input_manifest", "/materializationInputManifestSummary/source", errors);
+  requireNumber(value.actorWorkOrderInputCount, "/materializationInputManifestSummary/actorWorkOrderInputCount", errors);
+  requireNumber(value.equipmentWorkOrderInputCount, "/materializationInputManifestSummary/equipmentWorkOrderInputCount", errors);
+  requireArray(value.requiredActorCueIds, "/materializationInputManifestSummary/requiredActorCueIds", errors);
+  requireArray(value.requiredEquipmentCueIds, "/materializationInputManifestSummary/requiredEquipmentCueIds", errors);
+  requireArray(value.blockerIds, "/materializationInputManifestSummary/blockerIds", errors);
+  requireLiteral(value.providerExecutionPerformed, false, "/materializationInputManifestSummary/providerExecutionPerformed", errors);
+  requireLiteral(value.paidApisUsed, false, "/materializationInputManifestSummary/paidApisUsed", errors);
+  requireLiteral(value.externalNetworkUsed, false, "/materializationInputManifestSummary/externalNetworkUsed", errors);
+  requireLiteral(value.claimBoundary, "metadata_only_provider_neutral_materialization_inputs", "/materializationInputManifestSummary/claimBoundary", errors);
+}
+
+function validateMaterializationAttachmentPlanSummary(value: unknown, errors: string[]): void {
+  requireRecord(value, "/materializationAttachmentPlanSummary", errors);
+  if (!isRecord(value)) return;
+  requireLiteral(value.schemaVersion, "openclinxr.encounter-materialization-attachment-plan-summary.v1", "/materializationAttachmentPlanSummary/schemaVersion", errors);
+  requireLiteral(value.source, "encounter_materialization_attachment_plan", "/materializationAttachmentPlanSummary/source", errors);
+  requireNumber(value.actorAttachmentSlotCount, "/materializationAttachmentPlanSummary/actorAttachmentSlotCount", errors);
+  requireNumber(value.equipmentAttachmentSlotCount, "/materializationAttachmentPlanSummary/equipmentAttachmentSlotCount", errors);
+  requireNumber(value.missingAttachmentCount, "/materializationAttachmentPlanSummary/missingAttachmentCount", errors);
+  requireArray(value.actorRequiredCueIds, "/materializationAttachmentPlanSummary/actorRequiredCueIds", errors);
+  requireArray(value.equipmentRequiredCueIds, "/materializationAttachmentPlanSummary/equipmentRequiredCueIds", errors);
+  requireArray(value.blockerIds, "/materializationAttachmentPlanSummary/blockerIds", errors);
+  requireLiteral(value.providerExecutionPerformed, false, "/materializationAttachmentPlanSummary/providerExecutionPerformed", errors);
+  requireLiteral(value.runtimeSelectionAllowed, false, "/materializationAttachmentPlanSummary/runtimeSelectionAllowed", errors);
+  requireLiteral(value.learnerLaunchAllowed, false, "/materializationAttachmentPlanSummary/learnerLaunchAllowed", errors);
+  requireLiteral(value.questEvidenceRefreshAllowed, false, "/materializationAttachmentPlanSummary/questEvidenceRefreshAllowed", errors);
+  requireLiteral(value.claimBoundary, "metadata_only_materialization_attachment_plan", "/materializationAttachmentPlanSummary/claimBoundary", errors);
+}
+
+function validateMaterializationEvidenceAttachmentSummary(value: unknown, errors: string[]): void {
+  requireRecord(value, "/materializationEvidenceAttachmentSummary", errors);
+  if (!isRecord(value)) return;
+  requireLiteral(value.schemaVersion, "openclinxr.encounter-materialization-evidence-attachment-summary.v1", "/materializationEvidenceAttachmentSummary/schemaVersion", errors);
+  requireLiteral(value.source, "encounter_materialization_evidence_attachments", "/materializationEvidenceAttachmentSummary/source", errors);
+  requireNumber(value.totalRequiredSlotCount, "/materializationEvidenceAttachmentSummary/totalRequiredSlotCount", errors);
+  requireNumber(value.attachedSlotCount, "/materializationEvidenceAttachmentSummary/attachedSlotCount", errors);
+  requireNumber(value.missingSlotCount, "/materializationEvidenceAttachmentSummary/missingSlotCount", errors);
+  requireNumber(value.heldOrInvalidAttachmentCount, "/materializationEvidenceAttachmentSummary/heldOrInvalidAttachmentCount", errors);
+  requireLiteral(typeof value.allRequiredSlotsSatisfied, "boolean", "/materializationEvidenceAttachmentSummary/allRequiredSlotsSatisfiedType", errors);
+  requireArray(value.blockerIds, "/materializationEvidenceAttachmentSummary/blockerIds", errors);
+  requireLiteral(value.providerExecutionPerformed, false, "/materializationEvidenceAttachmentSummary/providerExecutionPerformed", errors);
+  requireLiteral(value.runtimeSelectionAllowed, false, "/materializationEvidenceAttachmentSummary/runtimeSelectionAllowed", errors);
+  requireLiteral(value.learnerLaunchAllowed, false, "/materializationEvidenceAttachmentSummary/learnerLaunchAllowed", errors);
+  requireLiteral(value.questEvidenceRefreshAllowed, false, "/materializationEvidenceAttachmentSummary/questEvidenceRefreshAllowed", errors);
+  requireLiteral(value.claimBoundary, "metadata_only_materialization_evidence_attachment_summary", "/materializationEvidenceAttachmentSummary/claimBoundary", errors);
 }
 
 export function createAzuriteEncounterAssetGenerationQueueClient(input: {
@@ -538,6 +738,21 @@ function parseArgs(args: string[]): CliOptions {
       index += 1;
       continue;
     }
+    if (arg === "--materialization-input-manifest") {
+      options.materializationInputManifestPath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--materialization-attachment-plan") {
+      options.materializationAttachmentPlanPath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--materialization-evidence-attachments") {
+      options.materializationEvidenceAttachmentsPath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
     if (arg === "--output") {
       options.outputPath = requireValue(normalizedArgs, index, arg);
       index += 1;
@@ -680,6 +895,10 @@ function requireOneOf(value: unknown, expectedValues: string[], path: string, er
   if (!expectedValues.includes(String(value))) {
     errors.push(`${path} must be one of ${expectedValues.join(", ")}`);
   }
+}
+
+function uniqueStrings(values: string[]): string[] {
+  return Array.from(new Set(values.filter((value) => value.length > 0)));
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

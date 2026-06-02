@@ -104,6 +104,39 @@ const publicationPayloads = () => ({
       { refId: "visual-qa-evidence-check", evidenceRef: "encounter-publication-realism://scenario/request/visual-qa-evidence-check/3-actors", requiredBefore: "guarded_runtime_wiring", status: "required_not_attached", notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"] },
     ],
   },
+  actorEquipmentMaterializationGate: {
+    schemaVersion: "openclinxr.actor-equipment-materialization-gate.v1",
+    claimBoundary: "materialization_contract_metadata_only_not_runtime_readiness",
+    source: "generated_station_runtime_bundle_materialization_contracts",
+    runtimeSelectionBlockedUntilEvidenceAttached: true,
+    actorGate: {
+      actorSpecificVariantKeysRequired: true,
+      sharedNeutralMeshReuseDetected: true,
+      actorVariantCount: 3,
+      actorRoles: ["patient", "family", "nurse"],
+      materializationBlockers: ["shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness"],
+      caveats: ["Shared neutral humanoid reuse is fixture scaffolding."],
+      recommendedNextAction: "materialize actor-specific humanoid GLBs before runtime selection",
+    },
+    equipmentGate: {
+      equipmentSpecificVariantKeysRequired: true,
+      genericEquipmentReuseDetected: true,
+      equipmentVariantCount: 1,
+      equipmentIds: ["ecg_cart_equipment"],
+      materializationBlockers: ["generic_equipment_reuse_blocks_equipment_specific_asset_readiness"],
+      caveats: ["Generic equipment reuse is fixture scaffolding."],
+      recommendedNextAction: "materialize equipment-specific GLBs before runtime selection",
+    },
+    combinedBlockers: [
+      "shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness",
+      "generic_equipment_reuse_blocks_equipment_specific_asset_readiness",
+    ],
+    combinedCaveats: [
+      "Shared neutral humanoid reuse is fixture scaffolding.",
+      "Generic equipment reuse is fixture scaffolding.",
+    ],
+    notEvidenceFor: ["runtime_readiness", "quest_readiness", "production_asset_readiness", "clinical_validity", "scoring_validity"],
+  },
 });
 
 describe("encounter runtime selection review packet", () => {
@@ -169,11 +202,17 @@ describe("encounter runtime selection review packet", () => {
           providerExecutionPerformed: false,
           questReadinessClaimed: false,
         },
+        actorEquipmentMaterializationGate: {
+          runtimeSelectionBlockedUntilEvidenceAttached: true,
+          actorBlockers: ["shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness"],
+          equipmentBlockers: ["generic_equipment_reuse_blocks_equipment_specific_asset_readiness"],
+          claimBoundary: "materialization_contract_metadata_only_not_runtime_readiness",
+        },
       },
       operatorReviewReadiness: {
         status: "not_ready_for_operator_review",
         reviewedArtifactCount: 4,
-        blockingArtifactCount: 6,
+        blockingArtifactCount: 9,
         blockerIds: expect.arrayContaining([
           "runtime_selector_disabled_guard_not_wired",
           "publication_payload_not_materialized",
@@ -181,6 +220,8 @@ describe("encounter runtime selection review packet", () => {
         ]),
         requiredOperatorActions: expect.arrayContaining([
           "materialize_or_attach_generated_assets_before_guarded_runtime_wiring",
+          "attach_actor_specific_humanoid_materialization_evidence",
+          "attach_equipment_specific_materialization_evidence",
           "attach_humanoid_runtime_visual_qa_evidence_refs",
           "confirm_provider_execution_remains_disabled_until_explicit_approval",
           "confirm_runtime_selector_remains_disabled_until_evidence_gates_clear",
@@ -214,6 +255,8 @@ describe("encounter runtime selection review packet", () => {
       "guarded_runtime_intent_bundle_missing",
       "publication_payload_not_materialized",
       "humanoid_realism_requirement_actor_missing:family",
+      "shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness",
+      "generic_equipment_reuse_blocks_equipment_specific_asset_readiness",
     ]));
     expect(validateEncounterRuntimeSelectionReviewPacket(packet)).toEqual({ ok: true });
   });

@@ -50,6 +50,34 @@ describe("FacultyReviewDecisionPanel", () => {
     expect(humanoidContract).toHaveTextContent("quest_readiness");
     expect(humanoidContract).toHaveTextContent("runtime_readiness");
     expect(humanoidContract).toHaveTextContent("clinical_validity");
+    const runtimeVisualEvidenceContext = within(panel).getByLabelText("Faculty runtime visual evidence context");
+    expect(runtimeVisualEvidenceContext).toHaveTextContent("3 accepted metadata refs");
+    expect(runtimeVisualEvidenceContext).toHaveTextContent("1 runtime refs");
+    expect(runtimeVisualEvidenceContext).toHaveTextContent("2 visual QA refs");
+    expect(runtimeVisualEvidenceContext).toHaveTextContent("2 reviewed");
+    expect(runtimeVisualEvidenceContext).toHaveTextContent("1 held");
+    expect(runtimeVisualEvidenceContext).toHaveTextContent("attach_runtime_realism_evidence_refs");
+    expect(runtimeVisualEvidenceContext).toHaveTextContent("raw payload hidden");
+    expect(runtimeVisualEvidenceContext).toHaveTextContent("runtime false");
+    expect(runtimeVisualEvidenceContext).toHaveTextContent("learner false");
+    expect(runtimeVisualEvidenceContext).toHaveTextContent("Quest false");
+    expect(runtimeVisualEvidenceContext).toHaveTextContent("production false");
+    expect(runtimeVisualEvidenceContext).toHaveTextContent("summary_only_runtime_visual_evidence_replay_projection_not_raw_payload_or_readiness");
+    const runtimeVisualFollowUp = within(panel).getByLabelText("Faculty runtime visual evidence follow-up actions");
+    expect(runtimeVisualFollowUp).toHaveTextContent("review 3 accepted metadata-only runtime/visual refs during faculty debrief preparation");
+    expect(runtimeVisualFollowUp).toHaveTextContent("carry forward blockers runtime_realism_evidence_not_attached_to_encounter_bundle");
+    expect(runtimeVisualFollowUp).toHaveTextContent("keep runtime, learner, Quest, production, clinical, and scoring gates blocked");
+    const assetReleaseLadderContext = within(panel).getByLabelText("Faculty asset release ladder context");
+    expect(assetReleaseLadderContext).toHaveTextContent("9 assets");
+    expect(assetReleaseLadderContext).toHaveTextContent("2 release-ladder complete");
+    expect(assetReleaseLadderContext).toHaveTextContent("7 blocked");
+    expect(assetReleaseLadderContext).toHaveTextContent("station budget ready");
+    expect(assetReleaseLadderContext).toHaveTextContent("patient_robert_hayes_character:provenance_license");
+    expect(assetReleaseLadderContext).toHaveTextContent("runtime false");
+    expect(assetReleaseLadderContext).toHaveTextContent("learner false");
+    expect(assetReleaseLadderContext).toHaveTextContent("Quest false");
+    expect(assetReleaseLadderContext).toHaveTextContent("production false");
+    expect(assetReleaseLadderContext).toHaveTextContent("summary_only_asset_release_ladder_replay_projection_not_release_readiness");
     const remediationPlanningContext = within(panel).getByLabelText("Remediation planning context");
     expect(remediationPlanningContext).toHaveTextContent("runtime remediation plan ref: remediation-plan:ed-chest-pain-runtime-evidence");
     expect(remediationPlanningContext).toHaveTextContent("local-voice-provider: disabled");
@@ -189,5 +217,59 @@ function reviewReplayReadinessSummaryFixture(): AdminReviewPacketReplay["reviewR
         claimBoundary: "provider_disabled_remediation_metadata_not_runtime_readiness",
       },
     ],
+    runtimeVisualEvidenceReplayProjection: {
+      schemaVersion: "openclinxr.runtime-visual-evidence-replay-projection.v1",
+      source: "runtime_visual_evidence_attachment_record_summary",
+      stationRunId: "station_run_001",
+      scenarioId: "ed_chest_pain_priority_v1",
+      reviewedMetadataOnlyCount: 2,
+      heldMetadataOnlyCount: 1,
+      acceptedAttachmentRefCount: 3,
+      runtimeEvidenceRefCount: 1,
+      visualQaEvidenceRefCount: 2,
+      acceptedActionIds: ["attach_runtime_realism_evidence_refs", "attach_visual_qa_evidence_refs"],
+      rawPayloadDisplayed: false,
+      providerExecutionAllowed: false,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      productionAssetReadinessClaimed: false,
+      clinicalValidityClaimed: false,
+      scoringValidityClaimed: false,
+      replayEvidenceReady: false,
+      blockerIds: ["runtime_realism_evidence_not_attached_to_encounter_bundle"],
+      claimBoundary: "summary_only_runtime_visual_evidence_replay_projection_not_raw_payload_or_readiness",
+      notEvidenceFor: ["runtime_readiness", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+    },
+    assetReleaseLadderReplayProjection: {
+      schemaVersion: "openclinxr.asset-release-ladder-replay-projection.v1",
+      source: "scenario_asset_production_readiness_ladder",
+      scenarioId: "ed_chest_pain_priority_v1",
+      productionReady: false,
+      assetCount: 9,
+      productionReadyAssetCount: 2,
+      blockedAssetCount: 7,
+      missingRequiredAssetCount: 0,
+      stationBudgetStatus: "ready",
+      blockerCount: 8,
+      blockerIds: ["asset_release_ladder_blocked:patient_robert_hayes_character"],
+      blockedAssets: [
+        {
+          assetId: "patient_robert_hayes_character",
+          blockerCount: 2,
+          firstBlockedStep: "provenance_license",
+          blockerIds: ["license_review_required", "optimization_report_missing"],
+        },
+      ],
+      providerExecutionAllowed: false,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      productionAssetReadinessClaimed: false,
+      clinicalValidityClaimed: false,
+      scoringValidityClaimed: false,
+      claimBoundary: "summary_only_asset_release_ladder_replay_projection_not_release_readiness",
+      notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+    },
   };
 }

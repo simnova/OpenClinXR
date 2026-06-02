@@ -286,6 +286,7 @@ export type ReviewReplayReadinessSummary = {
   redactedDurableEventCount: Scalars['Int']['output'];
   replayBoundary: Scalars['String']['output'];
   replayEvidenceReady: Scalars['Boolean']['output'];
+  runtimeVisualEvidenceReplayProjection?: Maybe<RuntimeVisualEvidenceReplayProjection>;
   safetySignalCount: Scalars['Int']['output'];
   stationRunId?: Maybe<Scalars['ID']['output']>;
   timelineEntryCount: Scalars['Int']['output'];
@@ -303,6 +304,34 @@ export type ReviewTraceQuality = {
   modelGeneratedEventCount: Scalars['Int']['output'];
   unsafeEventCount: Scalars['Int']['output'];
   voiceAudioEventCount: Scalars['Int']['output'];
+};
+
+export type RuntimeVisualEvidenceReplayProjection = {
+  __typename?: 'RuntimeVisualEvidenceReplayProjection';
+  acceptedActionIds: Array<Scalars['String']['output']>;
+  acceptedAttachmentRefCount: Scalars['Int']['output'];
+  blockerIds: Array<Scalars['String']['output']>;
+  claimBoundary: Scalars['String']['output'];
+  clinicalValidityClaimed: Scalars['Boolean']['output'];
+  heldMetadataOnlyCount: Scalars['Int']['output'];
+  learnerLaunchAllowed: Scalars['Boolean']['output'];
+  nextActions: Array<Scalars['String']['output']>;
+  notEvidenceFor: Array<Scalars['String']['output']>;
+  productionAssetReadinessClaimed: Scalars['Boolean']['output'];
+  providerExecutionAllowed: Scalars['Boolean']['output'];
+  questEvidenceRefreshAllowed: Scalars['Boolean']['output'];
+  rawPayloadDisplayed: Scalars['Boolean']['output'];
+  replayEvidenceReady: Scalars['Boolean']['output'];
+  reviewedMetadataOnlyCount: Scalars['Int']['output'];
+  runtimeEvidenceRefCount: Scalars['Int']['output'];
+  runtimeExecutionAllowed: Scalars['Boolean']['output'];
+  scenarioId: Scalars['ID']['output'];
+  schemaVersion: Scalars['String']['output'];
+  scoringValidityClaimed: Scalars['Boolean']['output'];
+  source: Scalars['String']['output'];
+  stationRunId: Scalars['ID']['output'];
+  uiXrConsumerOperatorWorkflowSummary?: Maybe<UiXrConsumerOperatorWorkflowSummary>;
+  visualQaEvidenceRefCount: Scalars['Int']['output'];
 };
 
 export type Scenario = {
@@ -453,6 +482,11 @@ export type TraceEvent = {
   atSecond: Scalars['Int']['output'];
   eventType: Scalars['String']['output'];
   occurredAt: Scalars['String']['output'];
+  /**
+   * Runtime/debug payload only. Faculty/admin review surfaces should use review-safe
+   * summary projections instead of this raw payload field.
+   * @deprecated Use review-safe replay summaries for faculty/admin UI; raw payload is not review-safe.
+   */
   payload: Scalars['JSON']['output'];
   sequence: Scalars['Int']['output'];
   source: Scalars['String']['output'];
@@ -469,6 +503,46 @@ export type TraceTimelineEntry = {
   source: Scalars['String']['output'];
   summary: Scalars['String']['output'];
   tag?: Maybe<Scalars['String']['output']>;
+};
+
+export type UiXrConsumerOperatorWorkflowSummary = {
+  __typename?: 'UiXrConsumerOperatorWorkflowSummary';
+  acceptedAttachmentRefCount: Scalars['Int']['output'];
+  blockerIds: Array<Scalars['String']['output']>;
+  claimBoundary: Scalars['String']['output'];
+  clinicalValidityClaimed: Scalars['Boolean']['output'];
+  learnerLaunchAllowed: Scalars['Boolean']['output'];
+  method: Scalars['String']['output'];
+  nextActions: Array<Scalars['String']['output']>;
+  notEvidenceFor: Array<Scalars['String']['output']>;
+  preflightChecks: Array<Scalars['String']['output']>;
+  productionAssetReadinessClaimed: Scalars['Boolean']['output'];
+  providerExecutionAllowed: Scalars['Boolean']['output'];
+  questEvidenceRefreshAllowed: Scalars['Boolean']['output'];
+  rawPayloadDisplayed: Scalars['Boolean']['output'];
+  reviewerAction: Scalars['String']['output'];
+  runtimeEvidenceRefCount: Scalars['Int']['output'];
+  runtimeExecutionAllowed: Scalars['Boolean']['output'];
+  scenarioId: Scalars['ID']['output'];
+  schemaVersion: Scalars['String']['output'];
+  scoringValidityClaimed: Scalars['Boolean']['output'];
+  source: Scalars['String']['output'];
+  submitBodyRef: Scalars['String']['output'];
+  submitPreview: UiXrConsumerWorkflowSubmitPreview;
+  targetRoute: Scalars['String']['output'];
+  visualQaEvidenceRefCount: Scalars['Int']['output'];
+};
+
+export type UiXrConsumerWorkflowSubmitPreview = {
+  __typename?: 'UiXrConsumerWorkflowSubmitPreview';
+  actionIds: Array<Scalars['String']['output']>;
+  attachmentCount: Scalars['Int']['output'];
+  bodyRef: Scalars['String']['output'];
+  claimBoundary: Scalars['String']['output'];
+  inputIds: Array<Scalars['String']['output']>;
+  localArtifactPaths: Array<Scalars['String']['output']>;
+  rawPayloadDisplayed: Scalars['Boolean']['output'];
+  route: Scalars['String']['output'];
 };
 
 
@@ -573,6 +647,7 @@ export type ResolversTypes = {
   ReviewPacket: ResolverTypeWrapper<ReviewPacket>;
   ReviewReplayReadinessSummary: ResolverTypeWrapper<ReviewReplayReadinessSummary>;
   ReviewTraceQuality: ResolverTypeWrapper<ReviewTraceQuality>;
+  RuntimeVisualEvidenceReplayProjection: ResolverTypeWrapper<RuntimeVisualEvidenceReplayProjection>;
   Scenario: ResolverTypeWrapper<Scenario>;
   ScenarioAssetBudget: ResolverTypeWrapper<ScenarioAssetBudget>;
   ScenarioAssetProductionReadinessLadder: ResolverTypeWrapper<ScenarioAssetProductionReadinessLadder>;
@@ -590,6 +665,8 @@ export type ResolversTypes = {
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   TraceEvent: ResolverTypeWrapper<TraceEvent>;
   TraceTimelineEntry: ResolverTypeWrapper<TraceTimelineEntry>;
+  UiXrConsumerOperatorWorkflowSummary: ResolverTypeWrapper<UiXrConsumerOperatorWorkflowSummary>;
+  UiXrConsumerWorkflowSubmitPreview: ResolverTypeWrapper<UiXrConsumerWorkflowSubmitPreview>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -622,6 +699,7 @@ export type ResolversParentTypes = {
   ReviewPacket: ReviewPacket;
   ReviewReplayReadinessSummary: ReviewReplayReadinessSummary;
   ReviewTraceQuality: ReviewTraceQuality;
+  RuntimeVisualEvidenceReplayProjection: RuntimeVisualEvidenceReplayProjection;
   Scenario: Scenario;
   ScenarioAssetBudget: ScenarioAssetBudget;
   ScenarioAssetProductionReadinessLadder: ScenarioAssetProductionReadinessLadder;
@@ -638,6 +716,8 @@ export type ResolversParentTypes = {
   String: Scalars['String']['output'];
   TraceEvent: TraceEvent;
   TraceTimelineEntry: TraceTimelineEntry;
+  UiXrConsumerOperatorWorkflowSummary: UiXrConsumerOperatorWorkflowSummary;
+  UiXrConsumerWorkflowSubmitPreview: UiXrConsumerWorkflowSubmitPreview;
 };
 
 export type ActorResolvers<ContextType = any, ParentType extends ResolversParentTypes['Actor'] = ResolversParentTypes['Actor']> = {
@@ -802,6 +882,7 @@ export type ReviewReplayReadinessSummaryResolvers<ContextType = any, ParentType 
   redactedDurableEventCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   replayBoundary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   replayEvidenceReady?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  runtimeVisualEvidenceReplayProjection?: Resolver<Maybe<ResolversTypes['RuntimeVisualEvidenceReplayProjection']>, ParentType, ContextType>;
   safetySignalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   stationRunId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   timelineEntryCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -818,6 +899,33 @@ export type ReviewTraceQualityResolvers<ContextType = any, ParentType extends Re
   modelGeneratedEventCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   unsafeEventCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   voiceAudioEventCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+};
+
+export type RuntimeVisualEvidenceReplayProjectionResolvers<ContextType = any, ParentType extends ResolversParentTypes['RuntimeVisualEvidenceReplayProjection'] = ResolversParentTypes['RuntimeVisualEvidenceReplayProjection']> = {
+  acceptedActionIds?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  acceptedAttachmentRefCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  blockerIds?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  claimBoundary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  clinicalValidityClaimed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  heldMetadataOnlyCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  learnerLaunchAllowed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  nextActions?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  notEvidenceFor?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  productionAssetReadinessClaimed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  providerExecutionAllowed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  questEvidenceRefreshAllowed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  rawPayloadDisplayed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  replayEvidenceReady?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  reviewedMetadataOnlyCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  runtimeEvidenceRefCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  runtimeExecutionAllowed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  scenarioId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  schemaVersion?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  scoringValidityClaimed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  source?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  stationRunId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  uiXrConsumerOperatorWorkflowSummary?: Resolver<Maybe<ResolversTypes['UiXrConsumerOperatorWorkflowSummary']>, ParentType, ContextType>;
+  visualQaEvidenceRefCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
 };
 
 export type ScenarioResolvers<ContextType = any, ParentType extends ResolversParentTypes['Scenario'] = ResolversParentTypes['Scenario']> = {
@@ -955,6 +1063,44 @@ export type TraceTimelineEntryResolvers<ContextType = any, ParentType extends Re
   tag?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 };
 
+export type UiXrConsumerOperatorWorkflowSummaryResolvers<ContextType = any, ParentType extends ResolversParentTypes['UiXrConsumerOperatorWorkflowSummary'] = ResolversParentTypes['UiXrConsumerOperatorWorkflowSummary']> = {
+  acceptedAttachmentRefCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  blockerIds?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  claimBoundary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  clinicalValidityClaimed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  learnerLaunchAllowed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  method?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  nextActions?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  notEvidenceFor?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  preflightChecks?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  productionAssetReadinessClaimed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  providerExecutionAllowed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  questEvidenceRefreshAllowed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  rawPayloadDisplayed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  reviewerAction?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  runtimeEvidenceRefCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  runtimeExecutionAllowed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  scenarioId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  schemaVersion?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  scoringValidityClaimed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  source?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  submitBodyRef?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  submitPreview?: Resolver<ResolversTypes['UiXrConsumerWorkflowSubmitPreview'], ParentType, ContextType>;
+  targetRoute?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  visualQaEvidenceRefCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+};
+
+export type UiXrConsumerWorkflowSubmitPreviewResolvers<ContextType = any, ParentType extends ResolversParentTypes['UiXrConsumerWorkflowSubmitPreview'] = ResolversParentTypes['UiXrConsumerWorkflowSubmitPreview']> = {
+  actionIds?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  attachmentCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  bodyRef?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  claimBoundary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  inputIds?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  localArtifactPaths?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  rawPayloadDisplayed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  route?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+};
+
 export type Resolvers<ContextType = any> = {
   Actor?: ActorResolvers<ContextType>;
   AssetBlocker?: AssetBlockerResolvers<ContextType>;
@@ -977,6 +1123,7 @@ export type Resolvers<ContextType = any> = {
   ReviewPacket?: ReviewPacketResolvers<ContextType>;
   ReviewReplayReadinessSummary?: ReviewReplayReadinessSummaryResolvers<ContextType>;
   ReviewTraceQuality?: ReviewTraceQualityResolvers<ContextType>;
+  RuntimeVisualEvidenceReplayProjection?: RuntimeVisualEvidenceReplayProjectionResolvers<ContextType>;
   Scenario?: ScenarioResolvers<ContextType>;
   ScenarioAssetBudget?: ScenarioAssetBudgetResolvers<ContextType>;
   ScenarioAssetProductionReadinessLadder?: ScenarioAssetProductionReadinessLadderResolvers<ContextType>;
@@ -991,5 +1138,7 @@ export type Resolvers<ContextType = any> = {
   StationRunQueueSummary?: StationRunQueueSummaryResolvers<ContextType>;
   TraceEvent?: TraceEventResolvers<ContextType>;
   TraceTimelineEntry?: TraceTimelineEntryResolvers<ContextType>;
+  UiXrConsumerOperatorWorkflowSummary?: UiXrConsumerOperatorWorkflowSummaryResolvers<ContextType>;
+  UiXrConsumerWorkflowSubmitPreview?: UiXrConsumerWorkflowSubmitPreviewResolvers<ContextType>;
 };
 

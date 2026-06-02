@@ -1,3 +1,4 @@
+import path from "node:path";
 import {
   buildEncounterFactorySummaryContracts,
   createEdChestPainLocalLearnerRuntimeAssetBundle,
@@ -529,23 +530,177 @@ describe("OpenClinXR API shell", () => {
       headers: { "content-type": "application/json" },
     });
     const reviewed = await json(reviewResponse) as { nextAction: string; reviewStatus: string };
+    const materializationReviewResponse = await app.request(`/scenario-bank/scene-generation/requests/${encodeURIComponent(created.requestId)}/materialization-input-review-decisions`, {
+      method: "POST",
+      body: JSON.stringify({
+        decisions: [
+          {
+            actionId: "hold_actor_materialization_inputs",
+            reviewerId: "asset_pipeline_reviewer",
+            decision: "held_metadata_only",
+            comments: "Hold actor inputs until body/clothing/hair-face/rig evidence can attach.",
+            evidenceRefs: ["encounter-materialization-input-manifest-peds-asthma-parent-anxiety-2026-05-28"],
+            reviewedAt: "2026-05-28T06:30:00.000Z",
+          },
+          {
+            actionId: "review_equipment_materialization_inputs",
+            reviewerId: "asset_pipeline_reviewer",
+            decision: "reviewed_metadata_only",
+            comments: "Equipment input cue groups are ready for future provider-neutral planning review.",
+            evidenceRefs: ["encounter-materialization-input-manifest-peds-asthma-parent-anxiety-2026-05-28"],
+            reviewedAt: "2026-05-28T06:31:00.000Z",
+          },
+        ],
+      }),
+      headers: { "content-type": "application/json" },
+    });
+    const materializationReview = await json(materializationReviewResponse) as { decisionCount: number };
     const readinessResponse = await app.request(`/scenario-bank/scene-generation/requests/${encodeURIComponent(created.requestId)}/publication-readiness`);
     const readiness = await json(readinessResponse) as {
       canRunGeneratedBundlePublisher: boolean;
       nextAction: string;
       blockers: string[];
       scenarioReviewGate: { learnerUseBlocked: boolean };
+      materializationInputManifestSummary?: {
+        actorWorkOrderInputCount: number;
+        equipmentWorkOrderInputCount: number;
+        providerExecutionPerformed: boolean;
+        paidApisUsed: boolean;
+        externalNetworkUsed: boolean;
+        claimBoundary: string;
+      };
+      runtimeEvidenceCaptureScaffold?: {
+        runtimeEvidenceCandidateCount: number;
+        visualQaEvidenceCandidateCount: number;
+        submitRuntimeVisualEvidenceAttachmentInput: {
+          scenarioId: string;
+          attachments: Array<{ inputId: string; actionId: string }>;
+        };
+        gateBoundary: {
+          providerExecutionAllowed: boolean;
+          runtimeExecutionAllowed: boolean;
+          learnerLaunchAllowed: boolean;
+          questEvidenceRefreshAllowed: boolean;
+          productionAssetReadinessClaimed: boolean;
+          clinicalValidityClaimed: boolean;
+          scoringValidityClaimed: boolean;
+        };
+        claimBoundary: string;
+      };
+      runtimeRealismEvidenceInputDraft?: {
+        status: string;
+        runtimeActorEvidenceInputs: Array<{ actorId: string; requiredEvidenceStatus: string }>;
+        visualQaEvidenceInputs: Array<{ targetId: string; requiredEvidenceStatus: string }>;
+        gateBoundary: {
+          providerExecutionAllowed: boolean;
+          providerExecutionPerformed: boolean;
+          runtimeExecutionAllowed: boolean;
+          learnerLaunchAllowed: boolean;
+          questEvidenceRefreshAllowed: boolean;
+          productionAssetReadinessClaimed: boolean;
+          clinicalValidityClaimed: boolean;
+          scoringValidityClaimed: boolean;
+        };
+      };
+      materializationEvidenceAttachmentSummary?: {
+        totalRequiredSlotCount: number;
+        attachedSlotCount: number;
+        missingSlotCount: number;
+        heldOrInvalidAttachmentCount: number;
+        allRequiredSlotsSatisfied: boolean;
+        runtimeSelectionAllowed: boolean;
+        learnerLaunchAllowed: boolean;
+        questEvidenceRefreshAllowed: boolean;
+        claimBoundary: string;
+      };
+      materializationInputReviewActionPacket?: {
+        availableActions: Array<{
+          actionId: string;
+          inputCount: number;
+          blockerCount: number;
+          providerExecutionAllowed: boolean;
+          runtimeExecutionAllowed: boolean;
+        }>;
+        providerExecutionAllowed: boolean;
+        runtimeExecutionAllowed: boolean;
+        learnerLaunchAllowed: boolean;
+        questEvidenceRefreshAllowed: boolean;
+        claimBoundary: string;
+      };
+      materializationInputReviewDecisionRecord?: {
+        decisionCount: number;
+        reviewedDecisionCount: number;
+        heldDecisionCount: number;
+        providerExecutionAllowed: boolean;
+        runtimeExecutionAllowed: boolean;
+        learnerLaunchAllowed: boolean;
+        questEvidenceRefreshAllowed: boolean;
+        claimBoundary: string;
+      };
     };
 
     expect(reviewed).toMatchObject({
       reviewStatus: "runtime_asset_review_attached",
       nextAction: "attach_runtime_asset_review_decisions",
     });
+    expect(materializationReview).toMatchObject({ decisionCount: 2 });
     expect(readiness).toMatchObject({
       canRunGeneratedBundlePublisher: false,
       nextAction: "attach_runtime_asset_review_decisions",
       blockers: ["scenario_status:draft", "human_scenario_approval_required"],
       scenarioReviewGate: { learnerUseBlocked: true },
+      materializationInputManifestSummary: {
+        actorWorkOrderInputCount: 3,
+        equipmentWorkOrderInputCount: 6,
+        providerExecutionPerformed: false,
+        paidApisUsed: false,
+        externalNetworkUsed: false,
+        claimBoundary: "metadata_only_provider_neutral_materialization_inputs",
+      },
+      materializationEvidenceAttachmentSummary: {
+        totalRequiredSlotCount: 36,
+        attachedSlotCount: 36,
+        missingSlotCount: 0,
+        heldOrInvalidAttachmentCount: 0,
+        allRequiredSlotsSatisfied: true,
+        runtimeSelectionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+        claimBoundary: "metadata_only_materialization_evidence_attachment_summary",
+      },
+      materializationInputReviewActionPacket: {
+        availableActions: expect.arrayContaining([
+          expect.objectContaining({
+            actionId: "review_actor_materialization_inputs",
+            inputCount: 3,
+            blockerCount: 13,
+            providerExecutionAllowed: false,
+            runtimeExecutionAllowed: false,
+          }),
+          expect.objectContaining({
+            actionId: "hold_equipment_materialization_inputs",
+            inputCount: 6,
+            blockerCount: 25,
+            providerExecutionAllowed: false,
+            runtimeExecutionAllowed: false,
+          }),
+        ]),
+        providerExecutionAllowed: false,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+        claimBoundary: "metadata_only_materialization_input_review_actions",
+      },
+      materializationInputReviewDecisionRecord: {
+        decisionCount: 2,
+        reviewedDecisionCount: 1,
+        heldDecisionCount: 1,
+        providerExecutionAllowed: false,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+        claimBoundary: "metadata_only_materialization_input_review_decisions",
+      },
     });
   });
 
@@ -966,6 +1121,64 @@ describe("OpenClinXR API shell", () => {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ eventType: "learner.order", atSecond: 83, tag: "ecg_request", actorId: "nurse_maria_alvarez_v1" }),
     });
+    await app.request("/runtime/realism-evidence-input-review-decisions", {
+      method: "POST",
+      body: JSON.stringify({
+        scenarioId: "ed_chest_pain_priority_v1",
+        decisions: [
+          {
+            inputId: "runtime-realism-evidence-input:patient_robert_hayes_v1",
+            inputKind: "runtime_realism_signal_input",
+            reviewerId: "runtime_replay_reviewer",
+            decision: "reviewed_metadata_only",
+            comments: "Runtime actor evidence input reviewed as metadata-only replay context.",
+            evidenceRefs: ["runtime-evidence://metadata-only/replay/ed_chest_pain_priority_v1/patient_robert_hayes_v1"],
+            reviewedAt: "2026-05-28T15:05:00.000Z",
+          },
+          {
+            inputId: "visual-qa-evidence-input:ecg_monitor_equipment",
+            inputKind: "visual_qa_review_input",
+            reviewerId: "runtime_replay_reviewer",
+            decision: "reviewed_metadata_only",
+            comments: "Visual QA equipment evidence input reviewed as metadata-only replay context.",
+            evidenceRefs: ["visual-qa-evidence://metadata-only/replay/ed_chest_pain_priority_v1/ecg_monitor_equipment"],
+            reviewedAt: "2026-05-28T15:06:00.000Z",
+          },
+        ],
+      }),
+      headers: { "content-type": "application/json" },
+    });
+    await app.request("/runtime/visual-evidence-attachments", {
+      method: "POST",
+      body: JSON.stringify({
+        scenarioId: "ed_chest_pain_priority_v1",
+        attachments: [
+          {
+            actionId: "attach_runtime_realism_evidence_refs",
+            inputId: "runtime-realism-evidence-input:patient_robert_hayes_v1",
+            inputKind: "runtime_realism_signal_input",
+            evidenceRef: "ui-xr-manual-runtime-evidence://ed_chest_pain_priority_v1/patient_robert_hayes_v1",
+            localArtifactPath: "ui-xr/manual-performance-evidence/ed_chest_pain_priority_v1/patient_robert_hayes_v1-runtime-realism.json",
+            reviewerId: "ui_xr_manual_runtime_evidence_capture_scaffold",
+            attachmentStatus: "attached_metadata_only",
+            comments: "Accepted as summary-only runtime replay projection context.",
+            attachedAt: "2026-05-28T15:07:00.000Z",
+          },
+          {
+            actionId: "attach_visual_qa_evidence_refs",
+            inputId: "visual-qa-evidence-input:ecg_monitor_equipment",
+            inputKind: "visual_qa_review_input",
+            evidenceRef: "ui-xr-manual-visual-qa-evidence://ed_chest_pain_priority_v1/ecg_monitor_equipment",
+            localArtifactPath: "ui-xr/manual-performance-evidence/ed_chest_pain_priority_v1/ecg_monitor_equipment-visual-qa.json",
+            reviewerId: "ui_xr_manual_runtime_evidence_capture_scaffold",
+            attachmentStatus: "attached_metadata_only",
+            comments: "Accepted as summary-only visual QA replay projection context.",
+            attachedAt: "2026-05-28T15:08:00.000Z",
+          },
+        ],
+      }),
+      headers: { "content-type": "application/json" },
+    });
     const response = await app.request(`/sessions/${session.stationRunId}/review-replay-readiness`);
     const body = await json(response) as {
       stationRunId: string;
@@ -991,6 +1204,67 @@ describe("OpenClinXR API shell", () => {
         patientNoteRef: string | null;
         actorTurnRefs: string[];
         privatePayloadRedacted: true;
+        claimBoundary: string;
+      };
+      runtimeVisualEvidenceReplayProjection?: {
+        schemaVersion: string;
+        source: string;
+        stationRunId: string;
+        scenarioId: string;
+        reviewedMetadataOnlyCount: number;
+        heldMetadataOnlyCount: number;
+        acceptedAttachmentRefCount: number;
+        runtimeEvidenceRefCount: number;
+        visualQaEvidenceRefCount: number;
+        acceptedActionIds: string[];
+        rawPayloadDisplayed: boolean;
+        runtimeExecutionAllowed: boolean;
+        learnerLaunchAllowed: boolean;
+        questEvidenceRefreshAllowed: boolean;
+        replayEvidenceReady: boolean;
+        blockerIds: string[];
+        nextActions: string[];
+        uiXrConsumerOperatorWorkflowSummary?: {
+          schemaVersion: string;
+          source: string;
+          scenarioId: string;
+          acceptedAttachmentRefCount: number;
+          runtimeEvidenceRefCount: number;
+          visualQaEvidenceRefCount: number;
+          targetRoute: string;
+          method: string;
+          submitBodyRef: string;
+          reviewerAction: string;
+          preflightChecks: string[];
+          nextActions: string[];
+          rawPayloadDisplayed: boolean;
+          runtimeExecutionAllowed: boolean;
+          learnerLaunchAllowed: boolean;
+          questEvidenceRefreshAllowed: boolean;
+          blockerIds: string[];
+          claimBoundary: string;
+        };
+        claimBoundary: string;
+      };
+      assetReleaseLadderReplayProjection?: {
+        schemaVersion: string;
+        source: string;
+        scenarioId: string;
+        productionReady: boolean;
+        assetCount: number;
+        productionReadyAssetCount: number;
+        blockedAssetCount: number;
+        missingRequiredAssetCount: number;
+        stationBudgetStatus: string;
+        blockerCount: number;
+        blockerIds: string[];
+        blockedAssets: Array<{ assetId: string; firstBlockedStep: string | null; blockerIds: string[] }>;
+        runtimeExecutionAllowed: boolean;
+        learnerLaunchAllowed: boolean;
+        questEvidenceRefreshAllowed: boolean;
+        productionAssetReadinessClaimed: boolean;
+        clinicalValidityClaimed: boolean;
+        scoringValidityClaimed: boolean;
         claimBoundary: string;
       };
       caseDefinedHumanoidPerformanceContract: {
@@ -1058,6 +1332,97 @@ describe("OpenClinXR API shell", () => {
       privatePayloadRedacted: true,
       claimBoundary: "review_packet_handoff_summary_only_no_private_payloads",
     });
+    expect(body.runtimeVisualEvidenceReplayProjection).toMatchObject({
+      schemaVersion: "openclinxr.runtime-visual-evidence-replay-projection.v1",
+      source: "runtime_visual_evidence_attachment_record_summary",
+      stationRunId: session.stationRunId,
+      scenarioId: "ed_chest_pain_priority_v1",
+      reviewedMetadataOnlyCount: 2,
+      heldMetadataOnlyCount: 0,
+      acceptedAttachmentRefCount: 2,
+      runtimeEvidenceRefCount: 1,
+      visualQaEvidenceRefCount: 1,
+      acceptedActionIds: ["attach_runtime_realism_evidence_refs", "attach_visual_qa_evidence_refs"],
+      rawPayloadDisplayed: false,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      replayEvidenceReady: false,
+      blockerIds: ["runtime_visual_evidence_refs_are_metadata_only_not_replay_payloads"],
+      nextActions: [
+        "review 2 accepted metadata-only runtime/visual refs before scenario iteration",
+        "carry forward projection blockers runtime_visual_evidence_refs_are_metadata_only_not_replay_payloads",
+        "keep runtime, learner, Quest, production, clinical, and scoring gates blocked until real runtime and visual-QA evidence clears review",
+      ],
+      uiXrConsumerOperatorWorkflowSummary: {
+        schemaVersion: "openclinxr.ui-xr-runtime-evidence-consumer-workflow-summary.v1",
+        source: "ui_xr_runtime_evidence_consumer_operator_workflow",
+        scenarioId: "ed_chest_pain_priority_v1",
+        acceptedAttachmentRefCount: 2,
+        runtimeEvidenceRefCount: 1,
+        visualQaEvidenceRefCount: 1,
+        targetRoute: "/runtime/visual-evidence-attachments",
+        method: "POST",
+        submitBodyRef: "submitRuntimeVisualEvidenceAttachmentInput",
+        submitPreview: {
+          route: "/runtime/visual-evidence-attachments",
+          bodyRef: "submitRuntimeVisualEvidenceAttachmentInput",
+          attachmentCount: 2,
+          actionIds: ["attach_runtime_realism_evidence_refs", "attach_visual_qa_evidence_refs"],
+          inputIds: [
+            "runtime-realism-evidence-input:patient_robert_hayes_v1",
+            "visual-qa-evidence-input:ecg_monitor_equipment",
+          ],
+          localArtifactPaths: [
+            "ui-xr/manual-performance-evidence/ed_chest_pain_priority_v1/patient_robert_hayes_v1-runtime-realism.json",
+            "ui-xr/manual-performance-evidence/ed_chest_pain_priority_v1/ecg_monitor_equipment-visual-qa.json",
+          ],
+          rawPayloadDisplayed: false,
+          claimBoundary: "ui_xr_consumer_workflow_submit_preview_metadata_only",
+        },
+        reviewerAction: "submit_metadata_only_runtime_visual_evidence_refs",
+        preflightChecks: [
+          "scenario_id_matches_payload_and_expected_scenario",
+          "attachments_non_empty",
+          "raw_payload_hidden",
+          "all_execution_and_readiness_gates_false",
+        ],
+        nextActions: [
+          "submit 2 metadata-only UI-XR runtime/visual refs through the guarded attachment route",
+          "confirm Admin replay projection shows raw payload hidden and all readiness gates false",
+          "keep runtime, learner, Quest, production, clinical, and scoring gates blocked until real runtime and visual-QA evidence clears review",
+        ],
+        rawPayloadDisplayed: false,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+        blockerIds: ["ui_xr_consumer_refs_are_metadata_only_not_runtime_or_visual_proof"],
+        claimBoundary: "summary_only_ui_xr_consumer_workflow_not_raw_payload_or_readiness",
+      },
+      claimBoundary: "summary_only_runtime_visual_evidence_replay_projection_not_raw_payload_or_readiness",
+    });
+    expect(body.assetReleaseLadderReplayProjection).toMatchObject({
+      schemaVersion: "openclinxr.asset-release-ladder-replay-projection.v1",
+      source: "scenario_asset_production_readiness_ladder",
+      scenarioId: "ed_chest_pain_priority_v1",
+      productionReady: false,
+      missingRequiredAssetCount: 0,
+      stationBudgetStatus: "blocked",
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      productionAssetReadinessClaimed: false,
+      clinicalValidityClaimed: false,
+      scoringValidityClaimed: false,
+      claimBoundary: "summary_only_asset_release_ladder_replay_projection_not_release_readiness",
+    });
+    expect(body.assetReleaseLadderReplayProjection?.assetCount).toBeGreaterThan(0);
+    expect(body.assetReleaseLadderReplayProjection?.blockedAssetCount).toBeGreaterThan(0);
+    expect(body.assetReleaseLadderReplayProjection?.blockerCount).toBeGreaterThan(0);
+    expect(body.assetReleaseLadderReplayProjection?.blockedAssets).toEqual(expect.arrayContaining([
+      expect.objectContaining({ assetId: "patient_robert_hayes_character" }),
+    ]));
+    expect(JSON.stringify(body.assetReleaseLadderReplayProjection)).not.toContain("production release ready");
     expect(body.caseDefinedHumanoidPerformanceContract).toMatchObject({
       claimBoundary: "case_definition_humanoid_performance_metadata_only",
       actorCount: 3,
@@ -1100,6 +1465,267 @@ describe("OpenClinXR API shell", () => {
       }),
     ]));
     expect(body.reviewPacketEvidenceHandoff.traceEventRefs.length).toBe(body.traceEventCount);
+  });
+
+  it("threads runtime visual evidence replay projection through admin GraphQL review replay readiness summary", async () => {
+    const app = createApiApp();
+    const start = await app.request("/sessions", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ learnerId: "learner_graphql_runtime_visual_001", consentAccepted: true }),
+    });
+    const session = await json(start) as { stationRunId: string };
+    await app.request(`/sessions/${session.stationRunId}/start-encounter`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ atSecond: 60 }),
+    });
+    await app.request(`/sessions/${session.stationRunId}/events`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ eventType: "learner.order", atSecond: 83, tag: "ecg_request", actorId: "nurse_maria_alvarez_v1" }),
+    });
+    await app.request("/runtime/realism-evidence-input-review-decisions", {
+      method: "POST",
+      body: JSON.stringify({
+        scenarioId: "ed_chest_pain_priority_v1",
+        decisions: [
+          {
+            inputId: "runtime-realism-evidence-input:patient_robert_hayes_v1",
+            inputKind: "runtime_realism_signal_input",
+            reviewerId: "runtime_replay_reviewer",
+            decision: "reviewed_metadata_only",
+            comments: "Runtime actor evidence input reviewed as metadata-only replay context.",
+            evidenceRefs: ["runtime-evidence://metadata-only/replay/ed_chest_pain_priority_v1/patient_robert_hayes_v1"],
+            reviewedAt: "2026-05-28T15:05:00.000Z",
+          },
+          {
+            inputId: "visual-qa-evidence-input:ecg_monitor_equipment",
+            inputKind: "visual_qa_review_input",
+            reviewerId: "runtime_replay_reviewer",
+            decision: "reviewed_metadata_only",
+            comments: "Visual QA equipment evidence input reviewed as metadata-only replay context.",
+            evidenceRefs: ["visual-qa-evidence://metadata-only/replay/ed_chest_pain_priority_v1/ecg_monitor_equipment"],
+            reviewedAt: "2026-05-28T15:06:00.000Z",
+          },
+        ],
+      }),
+      headers: { "content-type": "application/json" },
+    });
+    await app.request("/runtime/visual-evidence-attachments", {
+      method: "POST",
+      body: JSON.stringify({
+        scenarioId: "ed_chest_pain_priority_v1",
+        attachments: [
+          {
+            actionId: "attach_runtime_realism_evidence_refs",
+            inputId: "runtime-realism-evidence-input:patient_robert_hayes_v1",
+            inputKind: "runtime_realism_signal_input",
+            evidenceRef: "ui-xr-manual-runtime-evidence://ed_chest_pain_priority_v1/patient_robert_hayes_v1",
+            localArtifactPath: "ui-xr/manual-performance-evidence/ed_chest_pain_priority_v1/patient_robert_hayes_v1-runtime-realism.json",
+            reviewerId: "ui_xr_manual_runtime_evidence_capture_scaffold",
+            attachmentStatus: "attached_metadata_only",
+            comments: "Accepted as summary-only runtime replay projection context.",
+            attachedAt: "2026-05-28T15:07:00.000Z",
+          },
+          {
+            actionId: "attach_visual_qa_evidence_refs",
+            inputId: "visual-qa-evidence-input:ecg_monitor_equipment",
+            inputKind: "visual_qa_review_input",
+            evidenceRef: "ui-xr-manual-visual-qa-evidence://ed_chest_pain_priority_v1/ecg_monitor_equipment",
+            localArtifactPath: "ui-xr/manual-performance-evidence/ed_chest_pain_priority_v1/ecg_monitor_equipment-visual-qa.json",
+            reviewerId: "ui_xr_manual_runtime_evidence_capture_scaffold",
+            attachmentStatus: "attached_metadata_only",
+            comments: "Accepted as summary-only visual QA replay projection context.",
+            attachedAt: "2026-05-28T15:08:00.000Z",
+          },
+        ],
+      }),
+      headers: { "content-type": "application/json" },
+    });
+
+    const document = adminGraphqlDocumentByOperationName("ReviewPacketReplay");
+    const response = await app.request("/admin/graphql", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        query: document.source,
+        operationName: "ReviewPacketReplay",
+        variables: { stationRunId: session.stationRunId },
+      }),
+    });
+    const body = await json(response) as {
+      data?: {
+        reviewReplayReadinessSummary: {
+          runtimeVisualEvidenceReplayProjection: {
+            acceptedAttachmentRefCount: number;
+            runtimeEvidenceRefCount: number;
+            visualQaEvidenceRefCount: number;
+            rawPayloadDisplayed: boolean;
+            runtimeExecutionAllowed: boolean;
+            learnerLaunchAllowed: boolean;
+            questEvidenceRefreshAllowed: boolean;
+            nextActions: string[];
+            uiXrConsumerOperatorWorkflowSummary?: {
+              acceptedAttachmentRefCount: number;
+              runtimeEvidenceRefCount: number;
+              visualQaEvidenceRefCount: number;
+              targetRoute: string;
+              method: string;
+              submitBodyRef: string;
+              submitPreview: {
+                route: string;
+                bodyRef: string;
+                attachmentCount: number;
+                actionIds: string[];
+                inputIds: string[];
+                localArtifactPaths: string[];
+                rawPayloadDisplayed: boolean;
+                claimBoundary: string;
+              };
+              reviewerAction: string;
+              preflightChecks: string[];
+              nextActions: string[];
+              rawPayloadDisplayed: boolean;
+              runtimeExecutionAllowed: boolean;
+              learnerLaunchAllowed: boolean;
+              questEvidenceRefreshAllowed: boolean;
+              blockerIds: string[];
+              claimBoundary: string;
+            };
+            claimBoundary: string;
+          } | null;
+        };
+      };
+      errors?: Array<{ message: string }>;
+    };
+
+    expect(response.status).toBe(200);
+    expect(body.errors).toBeUndefined();
+    expect(body.data?.reviewReplayReadinessSummary.runtimeVisualEvidenceReplayProjection).toMatchObject({
+      acceptedAttachmentRefCount: 2,
+      runtimeEvidenceRefCount: 1,
+      visualQaEvidenceRefCount: 1,
+      rawPayloadDisplayed: false,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      nextActions: [
+        "review 2 accepted metadata-only runtime/visual refs before scenario iteration",
+        "carry forward projection blockers runtime_visual_evidence_refs_are_metadata_only_not_replay_payloads",
+        "keep runtime, learner, Quest, production, clinical, and scoring gates blocked until real runtime and visual-QA evidence clears review",
+      ],
+      uiXrConsumerOperatorWorkflowSummary: {
+        acceptedAttachmentRefCount: 2,
+        runtimeEvidenceRefCount: 1,
+        visualQaEvidenceRefCount: 1,
+        targetRoute: "/runtime/visual-evidence-attachments",
+        method: "POST",
+        submitBodyRef: "submitRuntimeVisualEvidenceAttachmentInput",
+        submitPreview: {
+          route: "/runtime/visual-evidence-attachments",
+          bodyRef: "submitRuntimeVisualEvidenceAttachmentInput",
+          attachmentCount: 2,
+          actionIds: ["attach_runtime_realism_evidence_refs", "attach_visual_qa_evidence_refs"],
+          inputIds: [
+            "runtime-realism-evidence-input:patient_robert_hayes_v1",
+            "visual-qa-evidence-input:ecg_monitor_equipment",
+          ],
+          localArtifactPaths: [
+            "ui-xr/manual-performance-evidence/ed_chest_pain_priority_v1/patient_robert_hayes_v1-runtime-realism.json",
+            "ui-xr/manual-performance-evidence/ed_chest_pain_priority_v1/ecg_monitor_equipment-visual-qa.json",
+          ],
+          rawPayloadDisplayed: false,
+          claimBoundary: "ui_xr_consumer_workflow_submit_preview_metadata_only",
+        },
+        reviewerAction: "submit_metadata_only_runtime_visual_evidence_refs",
+        preflightChecks: [
+          "scenario_id_matches_payload_and_expected_scenario",
+          "attachments_non_empty",
+          "raw_payload_hidden",
+          "all_execution_and_readiness_gates_false",
+        ],
+        nextActions: [
+          "submit 2 metadata-only UI-XR runtime/visual refs through the guarded attachment route",
+          "confirm Admin replay projection shows raw payload hidden and all readiness gates false",
+          "keep runtime, learner, Quest, production, clinical, and scoring gates blocked until real runtime and visual-QA evidence clears review",
+        ],
+        rawPayloadDisplayed: false,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+        blockerIds: ["ui_xr_consumer_refs_are_metadata_only_not_runtime_or_visual_proof"],
+        claimBoundary: "summary_only_ui_xr_consumer_workflow_not_raw_payload_or_readiness",
+      },
+      claimBoundary: "summary_only_runtime_visual_evidence_replay_projection_not_raw_payload_or_readiness",
+    });
+  });
+
+  it("omits runtime visual evidence replay projection from admin GraphQL when records do not match the packet scenario", async () => {
+    const app = createApiApp();
+    const start = await app.request("/sessions", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ learnerId: "learner_graphql_runtime_visual_mismatch_001", consentAccepted: true }),
+    });
+    const session = await json(start) as { stationRunId: string };
+    await app.request("/runtime/realism-evidence-input-review-decisions", {
+      method: "POST",
+      body: JSON.stringify({
+        scenarioId: "peds_asthma_parent_anxiety_v1",
+        decisions: [
+          {
+            inputId: "runtime-realism-evidence-input:patient_maya_johnson_v1",
+            inputKind: "runtime_realism_signal_input",
+            reviewerId: "runtime_replay_reviewer",
+            decision: "reviewed_metadata_only",
+            comments: "Pediatric runtime evidence metadata reviewed.",
+            evidenceRefs: ["runtime-evidence://metadata-only/replay/peds/patient_maya_johnson_v1"],
+            reviewedAt: "2026-05-28T15:15:00.000Z",
+          },
+        ],
+      }),
+      headers: { "content-type": "application/json" },
+    });
+    await app.request("/runtime/visual-evidence-attachments", {
+      method: "POST",
+      body: JSON.stringify({
+        scenarioId: "peds_asthma_parent_anxiety_v1",
+        attachments: [
+          {
+            actionId: "attach_runtime_realism_evidence_refs",
+            inputId: "runtime-realism-evidence-input:patient_maya_johnson_v1",
+            inputKind: "runtime_realism_signal_input",
+            evidenceRef: "runtime-evidence://metadata-only/replay/peds/patient_maya_johnson_v1",
+            localArtifactPath: "docs/openclinxr/replay-evidence-summary-peds-runtime.json",
+            reviewerId: "runtime_replay_reviewer",
+            attachmentStatus: "attached_metadata_only",
+            comments: "Pediatric metadata ref must not leak into ED replay.",
+            attachedAt: "2026-05-28T15:16:00.000Z",
+          },
+        ],
+      }),
+      headers: { "content-type": "application/json" },
+    });
+
+    const document = adminGraphqlDocumentByOperationName("ReviewPacketReplay");
+    const response = await app.request("/admin/graphql", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        query: document.source,
+        operationName: "ReviewPacketReplay",
+        variables: { stationRunId: session.stationRunId },
+      }),
+    });
+    const body = await json(response) as {
+      data?: { reviewReplayReadinessSummary: { runtimeVisualEvidenceReplayProjection: unknown | null } };
+      errors?: Array<{ message: string }>;
+    };
+
+    expect(response.status).toBe(200);
+    expect(body.errors).toBeUndefined();
+    expect(body.data?.reviewReplayReadinessSummary.runtimeVisualEvidenceReplayProjection).toBeNull();
   });
 
   it("reports API runtime protocol posture with Bun/Hono as the primary target", async () => {
@@ -1252,6 +1878,14 @@ describe("OpenClinXR API shell", () => {
         questEvidenceRefreshAllowed: boolean;
         claimBoundary: string;
       };
+      materializationInputManifestSummary?: {
+        actorWorkOrderInputCount: number;
+        equipmentWorkOrderInputCount: number;
+        providerExecutionPerformed: boolean;
+        paidApisUsed: boolean;
+        externalNetworkUsed: boolean;
+        claimBoundary: string;
+      };
       blockers: string[];
       nextAllowedStep: string;
       claimBoundary: string;
@@ -1345,6 +1979,832 @@ describe("OpenClinXR API shell", () => {
       "materialize_or_attach_generated_assets_before_guarded_runtime_wiring",
       "attach_humanoid_runtime_visual_qa_evidence_refs",
     ]));
+    if (body.selectedScenarioId === "peds_asthma_parent_anxiety_v1") {
+      expect(body.materializationInputManifestSummary).toMatchObject({
+        actorWorkOrderInputCount: 3,
+        equipmentWorkOrderInputCount: 6,
+        providerExecutionPerformed: false,
+        paidApisUsed: false,
+        externalNetworkUsed: false,
+        claimBoundary: "metadata_only_provider_neutral_materialization_inputs",
+      });
+      expect(body.materializationEvidenceAttachmentSummary).toMatchObject({
+        totalRequiredSlotCount: 36,
+        attachedSlotCount: 36,
+        missingSlotCount: 0,
+        heldOrInvalidAttachmentCount: 0,
+        allRequiredSlotsSatisfied: true,
+        runtimeSelectionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+        claimBoundary: "metadata_only_materialization_evidence_attachment_summary",
+      });
+      expect(body.runtimeRealismEvidenceInputDraft).toMatchObject({
+        status: "draft_inputs_required_not_attached",
+        gateBoundary: {
+          providerExecutionAllowed: false,
+          providerExecutionPerformed: false,
+          runtimeExecutionAllowed: false,
+          learnerLaunchAllowed: false,
+          questEvidenceRefreshAllowed: false,
+          productionAssetReadinessClaimed: false,
+          clinicalValidityClaimed: false,
+          scoringValidityClaimed: false,
+        },
+      });
+      expect(body.runtimeRealismEvidenceInputDraft?.runtimeActorEvidenceInputs).toHaveLength(3);
+      expect(body.runtimeRealismEvidenceInputDraft?.visualQaEvidenceInputs).toHaveLength(9);
+      expect(body.runtimeRealismEvidenceInputDraft?.runtimeActorEvidenceInputs).toEqual(expect.arrayContaining([
+        expect.objectContaining({ actorId: "patient_maya_johnson_v1", requiredEvidenceStatus: "required_not_attached" }),
+      ]));
+      expect(body.runtimeRealismEvidenceInputDraft?.visualQaEvidenceInputs).toEqual(expect.arrayContaining([
+        expect.objectContaining({ targetId: "pulse_oximeter_equipment", requiredEvidenceStatus: "required_not_attached" }),
+      ]));
+      expect(body.runtimeEvidenceCaptureScaffold).toMatchObject({
+        runtimeEvidenceCandidateCount: 3,
+        visualQaEvidenceCandidateCount: 9,
+        submitRuntimeVisualEvidenceAttachmentInput: {
+          scenarioId: "peds_asthma_parent_anxiety_v1",
+          attachments: expect.arrayContaining([
+            expect.objectContaining({
+              inputId: "runtime-realism-evidence-input:patient_maya_johnson_v1",
+              actionId: "attach_runtime_realism_evidence_refs",
+            }),
+            expect.objectContaining({
+              inputId: "visual-qa-evidence-input:pulse_oximeter_equipment",
+              actionId: "attach_visual_qa_evidence_refs",
+            }),
+          ]),
+        },
+        gateBoundary: {
+          providerExecutionAllowed: false,
+          runtimeExecutionAllowed: false,
+          learnerLaunchAllowed: false,
+          questEvidenceRefreshAllowed: false,
+          productionAssetReadinessClaimed: false,
+          clinicalValidityClaimed: false,
+          scoringValidityClaimed: false,
+        },
+        claimBoundary: "metadata_only_runtime_evidence_capture_scaffold_not_runtime_or_visual_evidence",
+      });
+      expect(body.runtimeEvidenceCaptureScaffold?.submitRuntimeVisualEvidenceAttachmentInput.attachments).toHaveLength(12);
+    }
+  });
+
+  it("carries materialization input review decisions into runtime selection review without clearing launch gates", async () => {
+    const app = createApiApp();
+    const createResponse = await app.request("/scenario-bank/scene-generation/requests", {
+      method: "POST",
+      body: JSON.stringify({ scenarioId: "ed_chest_pain_priority_v1" }),
+      headers: { "content-type": "application/json" },
+    });
+    const created = await json(createResponse) as { requestId: string };
+    const materializationReviewResponse = await app.request(`/scenario-bank/scene-generation/requests/${encodeURIComponent(created.requestId)}/materialization-input-review-decisions`, {
+      method: "POST",
+      body: JSON.stringify({
+        decisions: [
+          {
+            actionId: "review_actor_materialization_inputs",
+            reviewerId: "asset_pipeline_reviewer",
+            decision: "reviewed_metadata_only",
+            comments: "Actor materialization inputs reviewed as metadata only.",
+            evidenceRefs: ["encounter-materialization-input-manifest-ed-chest-pain-2026-05-28"],
+            reviewedAt: "2026-05-28T06:40:00.000Z",
+          },
+          {
+            actionId: "hold_equipment_materialization_inputs",
+            reviewerId: "asset_pipeline_reviewer",
+            decision: "held_metadata_only",
+            comments: "Equipment-specific materialization remains held until generated evidence attaches.",
+            evidenceRefs: ["encounter-materialization-input-manifest-ed-chest-pain-2026-05-28"],
+            reviewedAt: "2026-05-28T06:41:00.000Z",
+          },
+        ],
+      }),
+      headers: { "content-type": "application/json" },
+    });
+    expect(materializationReviewResponse.status).toBe(200);
+
+    const response = await app.request("/runtime/selection-review-packet");
+    const body = await json(response) as {
+      materializationInputReviewDecisionRecord?: {
+        requestId: string;
+        scenarioId: string;
+        decisionCount: number;
+        reviewedDecisionCount: number;
+        heldDecisionCount: number;
+        providerExecutionAllowed: boolean;
+        runtimeExecutionAllowed: boolean;
+        learnerLaunchAllowed: boolean;
+        questEvidenceRefreshAllowed: boolean;
+        claimBoundary: string;
+        notEvidenceFor: string[];
+      };
+      runtimeExecutionAllowed: boolean;
+      learnerLaunchAllowed: boolean;
+      providerExecutionPerformed: boolean;
+      questEvidenceRefreshed: boolean;
+      blockers: string[];
+    };
+
+    expect(response.status).toBe(200);
+    expect(body.materializationInputReviewDecisionRecord).toMatchObject({
+      requestId: created.requestId,
+      scenarioId: "ed_chest_pain_priority_v1",
+      decisionCount: 2,
+      reviewedDecisionCount: 1,
+      heldDecisionCount: 1,
+      providerExecutionAllowed: false,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      claimBoundary: "metadata_only_materialization_input_review_decisions",
+      notEvidenceFor: expect.arrayContaining([
+        "runtime_readiness",
+        "production_asset_readiness",
+        "quest_readiness",
+        "learner_launch_readiness",
+      ]),
+    });
+    expect(body.runtimeExecutionAllowed).toBe(false);
+    expect(body.learnerLaunchAllowed).toBe(false);
+    expect(body.providerExecutionPerformed).toBe(false);
+    expect(body.questEvidenceRefreshed).toBe(false);
+    expect(body.blockers).toEqual(expect.arrayContaining(["runtime_selector_disabled_guard_not_wired"]));
+  });
+
+  it("carries runtime realism evidence input review decisions into runtime selection review without clearing gates", async () => {
+    const app = createApiApp();
+    const reviewResponse = await app.request("/runtime/realism-evidence-input-review-decisions", {
+      method: "POST",
+      body: JSON.stringify({
+        scenarioId: "ed_chest_pain_priority_v1",
+        decisions: [
+          {
+            inputId: "runtime-realism-evidence-input:patient_maya_johnson_v1",
+            inputKind: "runtime_realism_signal_input",
+            reviewerId: "runtime_reviewer",
+            decision: "reviewed_metadata_only",
+            comments: "Runtime actor evidence input reviewed as metadata only.",
+            evidenceRefs: ["runtime-realism-evidence-input://patient"],
+            reviewedAt: "2026-05-28T10:20:00.000Z",
+          },
+          {
+            inputId: "visual-qa-evidence-input:pulse_oximeter_equipment",
+            inputKind: "visual_qa_review_input",
+            reviewerId: "runtime_reviewer",
+            decision: "held_metadata_only",
+            comments: "Visual QA equipment input held until evidence attaches.",
+            evidenceRefs: ["visual-qa-evidence-input://pulse-oximeter"],
+            reviewedAt: "2026-05-28T10:21:00.000Z",
+          },
+        ],
+      }),
+      headers: { "content-type": "application/json" },
+    });
+    expect(reviewResponse.status).toBe(200);
+
+    const response = await app.request("/runtime/selection-review-packet");
+    const body = await json(response) as {
+      selectedScenarioId: string;
+      runtimeRealismEvidenceInputReviewDecisionRecord?: {
+        scenarioId: string;
+        decisionCount: number;
+        reviewedDecisionCount: number;
+        heldDecisionCount: number;
+        providerExecutionAllowed: boolean;
+        runtimeExecutionAllowed: boolean;
+        learnerLaunchAllowed: boolean;
+        questEvidenceRefreshAllowed: boolean;
+        productionAssetReadinessClaimed: boolean;
+        clinicalValidityClaimed: boolean;
+        scoringValidityClaimed: boolean;
+        claimBoundary: string;
+        decisions: Array<{ inputId: string; decision: string }>;
+      };
+      runtimeVisualEvidenceAttachmentSummary?: {
+        reviewedMetadataOnlyCount: number;
+        heldMetadataOnlyCount: number;
+        attachedRuntimeEvidenceCount: number;
+        attachedVisualQaEvidenceCount: number;
+        runtimeExecutionAllowed: boolean;
+        learnerLaunchAllowed: boolean;
+        questEvidenceRefreshAllowed: boolean;
+        claimBoundary: string;
+      };
+      runtimeVisualEvidenceAttachmentActionPacket?: {
+        availableActions: Array<{
+          actionId: string;
+          requiredInputCount: number;
+          reviewedMetadataOnlyCount: number;
+          heldMetadataOnlyCount: number;
+          attachedEvidenceCount: number;
+          runtimeExecutionAllowed: boolean;
+          learnerLaunchAllowed: boolean;
+        }>;
+        providerExecutionAllowed: boolean;
+        runtimeExecutionAllowed: boolean;
+        learnerLaunchAllowed: boolean;
+        questEvidenceRefreshAllowed: boolean;
+        claimBoundary: string;
+      };
+      runtimeExecutionAllowed: boolean;
+      learnerLaunchAllowed: boolean;
+      providerExecutionPerformed: boolean;
+      questEvidenceRefreshed: boolean;
+    };
+
+    expect(body.selectedScenarioId).toBe("ed_chest_pain_priority_v1");
+    expect(body.runtimeRealismEvidenceInputReviewDecisionRecord).toMatchObject({
+      scenarioId: "ed_chest_pain_priority_v1",
+      decisionCount: 2,
+      reviewedDecisionCount: 1,
+      heldDecisionCount: 1,
+      providerExecutionAllowed: false,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      productionAssetReadinessClaimed: false,
+      clinicalValidityClaimed: false,
+      scoringValidityClaimed: false,
+      claimBoundary: "metadata_only_runtime_realism_evidence_input_review_decisions",
+    });
+    expect(body.runtimeRealismEvidenceInputReviewDecisionRecord?.decisions).toEqual(expect.arrayContaining([
+      expect.objectContaining({ inputId: "runtime-realism-evidence-input:patient_maya_johnson_v1", decision: "reviewed_metadata_only" }),
+      expect.objectContaining({ inputId: "visual-qa-evidence-input:pulse_oximeter_equipment", decision: "held_metadata_only" }),
+    ]));
+    expect(body.runtimeVisualEvidenceAttachmentSummary).toMatchObject({
+      reviewedMetadataOnlyCount: 1,
+      heldMetadataOnlyCount: 1,
+      attachedRuntimeEvidenceCount: 0,
+      attachedVisualQaEvidenceCount: 0,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      claimBoundary: "runtime_visual_evidence_attachment_summary_metadata_only_until_artifacts_attach",
+    });
+    expect(body.runtimeVisualEvidenceAttachmentActionPacket).toMatchObject({
+      providerExecutionAllowed: false,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      claimBoundary: "metadata_only_runtime_visual_evidence_attachment_actions",
+    });
+    expect(body.runtimeVisualEvidenceAttachmentActionPacket?.availableActions).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        actionId: "attach_runtime_realism_evidence_refs",
+        requiredInputCount: 1,
+        reviewedMetadataOnlyCount: 1,
+        heldMetadataOnlyCount: 0,
+        attachedEvidenceCount: 0,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+      }),
+      expect.objectContaining({
+        actionId: "attach_visual_qa_evidence_refs",
+        requiredInputCount: 1,
+        reviewedMetadataOnlyCount: 0,
+        heldMetadataOnlyCount: 1,
+        attachedEvidenceCount: 0,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+      }),
+    ]));
+    expect(body.runtimeExecutionAllowed).toBe(false);
+    expect(body.learnerLaunchAllowed).toBe(false);
+    expect(body.providerExecutionPerformed).toBe(false);
+    expect(body.questEvidenceRefreshed).toBe(false);
+  });
+
+  it("rejects raw UI-XR manual payload bodies at the guarded runtime visual attachment route", async () => {
+    const app = createApiApp();
+    await app.request("/runtime/realism-evidence-input-review-decisions", {
+      method: "POST",
+      body: JSON.stringify({
+        scenarioId: "ed_chest_pain_priority_v1",
+        decisions: [
+          {
+            inputId: "runtime-realism-evidence-input:patient_robert_hayes_v1",
+            inputKind: "runtime_realism_signal_input",
+            reviewerId: "runtime_reviewer",
+            decision: "reviewed_metadata_only",
+            comments: "Runtime actor evidence input reviewed as metadata only.",
+            evidenceRefs: ["runtime-realism-evidence-input://patient"],
+            reviewedAt: "2026-05-28T10:20:00.000Z",
+          },
+        ],
+      }),
+      headers: { "content-type": "application/json" },
+    });
+
+    const rawPayloadResponse = await app.request("/runtime/visual-evidence-attachments", {
+      method: "POST",
+      body: JSON.stringify({
+        scenarioId: "ed_chest_pain_priority_v1",
+        manualPerformanceDraft: { source: "window.__openClinXrManualPerformanceDraft" },
+        captureSummary: { source: "window.__openClinXrManualPerformanceCaptureSummary" },
+        runtimeVisualEvidenceCaptureScaffold: {
+          submitRuntimeVisualEvidenceAttachmentInput: {
+            scenarioId: "ed_chest_pain_priority_v1",
+            attachments: [],
+          },
+        },
+        runtimeEvidenceConsumerReadiness: {
+          rawPayloadDisplayed: false,
+          runtimeExecutionAllowed: false,
+        },
+      }),
+      headers: { "content-type": "application/json" },
+    });
+    const rawPayloadBody = await json(rawPayloadResponse) as {
+      error: string;
+      acceptedBodyRef: string;
+      rawPayloadDisplayed: boolean;
+      runtimeExecutionAllowed: boolean;
+      learnerLaunchAllowed: boolean;
+      questEvidenceRefreshAllowed: boolean;
+      productionAssetReadinessClaimed: boolean;
+      clinicalValidityClaimed: boolean;
+      scoringValidityClaimed: boolean;
+      claimBoundary: string;
+    };
+
+    expect(rawPayloadResponse.status).toBe(400);
+    expect(rawPayloadBody).toMatchObject({
+      error: "raw_ui_xr_payload_not_accepted",
+      acceptedBodyRef: "submitRuntimeVisualEvidenceAttachmentInput",
+      rawPayloadDisplayed: false,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      productionAssetReadinessClaimed: false,
+      clinicalValidityClaimed: false,
+      scoringValidityClaimed: false,
+      claimBoundary: "runtime_visual_evidence_attachment_route_rejects_raw_ui_xr_payloads",
+    });
+  });
+
+  it("attaches runtime visual evidence attachment refs only for reviewed metadata inputs without clearing gates", async () => {
+    const app = createApiApp();
+    await app.request("/runtime/realism-evidence-input-review-decisions", {
+      method: "POST",
+      body: JSON.stringify({
+        scenarioId: "ed_chest_pain_priority_v1",
+        decisions: [
+          {
+            inputId: "runtime-realism-evidence-input:patient_maya_johnson_v1",
+            inputKind: "runtime_realism_signal_input",
+            reviewerId: "runtime_reviewer",
+            decision: "reviewed_metadata_only",
+            comments: "Runtime actor evidence input reviewed as metadata only.",
+            evidenceRefs: ["runtime-realism-evidence-input://patient"],
+            reviewedAt: "2026-05-28T10:20:00.000Z",
+          },
+          {
+            inputId: "visual-qa-evidence-input:pulse_oximeter_equipment",
+            inputKind: "visual_qa_review_input",
+            reviewerId: "runtime_reviewer",
+            decision: "held_metadata_only",
+            comments: "Visual QA equipment input held until evidence attaches.",
+            evidenceRefs: ["visual-qa-evidence-input://pulse-oximeter"],
+            reviewedAt: "2026-05-28T10:21:00.000Z",
+          },
+        ],
+      }),
+      headers: { "content-type": "application/json" },
+    });
+
+    const attachmentResponse = await app.request("/runtime/visual-evidence-attachments", {
+      method: "POST",
+      body: JSON.stringify({
+        scenarioId: "ed_chest_pain_priority_v1",
+        attachments: [
+          {
+            actionId: "attach_runtime_realism_evidence_refs",
+            inputId: "runtime-realism-evidence-input:patient_maya_johnson_v1",
+            inputKind: "runtime_realism_signal_input",
+            evidenceRef: "runtime-evidence://local-browser/patient-gaze-expression",
+            localArtifactPath: "docs/openclinxr/evidence/runtime/patient-gaze-expression.json",
+            reviewerId: "runtime_reviewer",
+            attachmentStatus: "attached_metadata_only",
+            comments: "Metadata ref attached to reviewed runtime realism input.",
+            attachedAt: "2026-05-28T10:30:00.000Z",
+          },
+          {
+            actionId: "attach_visual_qa_evidence_refs",
+            inputId: "visual-qa-evidence-input:pulse_oximeter_equipment",
+            inputKind: "visual_qa_review_input",
+            evidenceRef: "visual-qa://held-pulse-oximeter",
+            localArtifactPath: "docs/openclinxr/evidence/visual/pulse-oximeter.json",
+            reviewerId: "runtime_reviewer",
+            attachmentStatus: "attached_metadata_only",
+            comments: "Held input must not accept attachment refs.",
+            attachedAt: "2026-05-28T10:31:00.000Z",
+          },
+          {
+            actionId: "attach_runtime_realism_evidence_refs",
+            inputId: "runtime-realism-evidence-input:unknown_actor",
+            inputKind: "runtime_realism_signal_input",
+            evidenceRef: "runtime-evidence://unknown",
+            localArtifactPath: "docs/openclinxr/evidence/runtime/unknown.json",
+            reviewerId: "runtime_reviewer",
+            attachmentStatus: "attached_metadata_only",
+            comments: "Unknown input must not accept attachment refs.",
+            attachedAt: "2026-05-28T10:32:00.000Z",
+          },
+        ],
+      }),
+      headers: { "content-type": "application/json" },
+    });
+    const attachmentRecord = await json(attachmentResponse) as {
+      attachmentCount: number;
+      runtimeEvidenceAttachmentCount: number;
+      visualQaEvidenceAttachmentCount: number;
+      attachments: Array<{ inputId: string }>;
+      runtimeExecutionAllowed: boolean;
+      learnerLaunchAllowed: boolean;
+      questEvidenceRefreshAllowed: boolean;
+      claimBoundary: string;
+    };
+
+    expect(attachmentResponse.status).toBe(200);
+    expect(attachmentRecord).toMatchObject({
+      attachmentCount: 1,
+      runtimeEvidenceAttachmentCount: 1,
+      visualQaEvidenceAttachmentCount: 0,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      claimBoundary: "metadata_only_runtime_visual_evidence_attachment_refs_not_launch_evidence",
+    });
+    expect(attachmentRecord.attachments).toEqual([
+      expect.objectContaining({ inputId: "runtime-realism-evidence-input:patient_maya_johnson_v1" }),
+    ]);
+
+    const response = await app.request("/runtime/selection-review-packet");
+    const body = await json(response) as {
+      runtimeVisualEvidenceAttachmentRecord?: { attachmentCount: number };
+      runtimeVisualEvidenceAttachmentSummary?: {
+        attachedRuntimeEvidenceCount: number;
+        attachedVisualQaEvidenceCount: number;
+        blockerIds: string[];
+        runtimeExecutionAllowed: boolean;
+        learnerLaunchAllowed: boolean;
+      };
+      runtimeVisualEvidenceAttachmentActionPacket?: {
+        availableActions: Array<{ actionId: string; attachedEvidenceCount: number; blockerIds: string[] }>;
+      };
+      runtimeExecutionAllowed: boolean;
+      learnerLaunchAllowed: boolean;
+    };
+
+    expect(body.runtimeVisualEvidenceAttachmentRecord).toMatchObject({ attachmentCount: 1 });
+    expect(body.runtimeVisualEvidenceAttachmentSummary).toMatchObject({
+      attachedRuntimeEvidenceCount: 1,
+      attachedVisualQaEvidenceCount: 0,
+      blockerIds: ["visual_qa_evidence_not_attached_to_encounter_bundle"],
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+    });
+    expect(body.runtimeVisualEvidenceAttachmentActionPacket?.availableActions).toEqual(expect.arrayContaining([
+      expect.objectContaining({ actionId: "attach_runtime_realism_evidence_refs", attachedEvidenceCount: 1, blockerIds: [] }),
+      expect.objectContaining({ actionId: "attach_visual_qa_evidence_refs", attachedEvidenceCount: 0 }),
+    ]));
+    expect(body.runtimeExecutionAllowed).toBe(false);
+    expect(body.learnerLaunchAllowed).toBe(false);
+  });
+
+  it("accepts scaffold capture candidates only after reviewed metadata decisions without clearing gates", async () => {
+    const previousCwd = process.cwd();
+    process.chdir(path.resolve(previousCwd, "../.."));
+    try {
+    const app = createApiApp();
+    const reviewPacketResponse = await app.request("/runtime/selection-review-packet");
+    const reviewPacket = await json(reviewPacketResponse) as {
+      selectedScenarioId: string;
+      runtimeEvidenceCaptureScaffold?: {
+        runtimeEvidenceCandidateCount: number;
+        visualQaEvidenceCandidateCount: number;
+        submitRuntimeVisualEvidenceAttachmentInput: {
+          scenarioId: string;
+          attachments: Array<{
+            actionId: "attach_runtime_realism_evidence_refs" | "attach_visual_qa_evidence_refs";
+            inputId: string;
+            inputKind: "runtime_realism_signal_input" | "visual_qa_review_input";
+            evidenceRef: string;
+            localArtifactPath: string;
+            reviewerId: string;
+            attachmentStatus: "attached_metadata_only";
+            comments: string;
+            attachedAt: string;
+          }>;
+        };
+        gateBoundary: {
+          runtimeExecutionAllowed: boolean;
+          learnerLaunchAllowed: boolean;
+          questEvidenceRefreshAllowed: boolean;
+        };
+        claimBoundary: string;
+      };
+    };
+    const scaffold = reviewPacket.runtimeEvidenceCaptureScaffold;
+
+    expect(reviewPacket.selectedScenarioId).toBe("peds_asthma_parent_anxiety_v1");
+    expect(scaffold).toMatchObject({
+      runtimeEvidenceCandidateCount: 3,
+      visualQaEvidenceCandidateCount: 9,
+      gateBoundary: {
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+      },
+      claimBoundary: "metadata_only_runtime_evidence_capture_scaffold_not_runtime_or_visual_evidence",
+    });
+    expect(scaffold?.submitRuntimeVisualEvidenceAttachmentInput.attachments).toHaveLength(12);
+
+    const preReviewResponse = await app.request("/runtime/visual-evidence-attachments", {
+      method: "POST",
+      body: JSON.stringify(scaffold?.submitRuntimeVisualEvidenceAttachmentInput),
+      headers: { "content-type": "application/json" },
+    });
+    const preReviewRecord = await json(preReviewResponse) as {
+      scenarioId: string;
+      error: string;
+    };
+
+    expect(preReviewResponse.status).toBe(400);
+    expect(preReviewRecord).toMatchObject({
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      error: "runtime_realism_evidence_input_review_required",
+    });
+
+    const decisions = scaffold?.submitRuntimeVisualEvidenceAttachmentInput.attachments.map((attachment) => ({
+      inputId: attachment.inputId,
+      inputKind: attachment.inputKind,
+      reviewerId: "runtime_scaffold_fixture_reviewer",
+      decision: "reviewed_metadata_only",
+      comments: "Scaffold candidate reviewed as metadata-only before attachment.",
+      evidenceRefs: [attachment.evidenceRef],
+      reviewedAt: "2026-05-28T14:59:00.000Z",
+    })) ?? [];
+    await app.request("/runtime/realism-evidence-input-review-decisions", {
+      method: "POST",
+      body: JSON.stringify({
+        scenarioId: scaffold?.submitRuntimeVisualEvidenceAttachmentInput.scenarioId,
+        decisions,
+      }),
+      headers: { "content-type": "application/json" },
+    });
+
+    const reviewedAttachmentResponse = await app.request("/runtime/visual-evidence-attachments", {
+      method: "POST",
+      body: JSON.stringify(scaffold?.submitRuntimeVisualEvidenceAttachmentInput),
+      headers: { "content-type": "application/json" },
+    });
+    const reviewedAttachmentRecord = await json(reviewedAttachmentResponse) as {
+      scenarioId: string;
+      attachmentCount: number;
+      runtimeEvidenceAttachmentCount: number;
+      visualQaEvidenceAttachmentCount: number;
+      attachments: Array<{ inputId: string; evidenceRef: string }>;
+      providerExecutionAllowed: boolean;
+      runtimeExecutionAllowed: boolean;
+      learnerLaunchAllowed: boolean;
+      questEvidenceRefreshAllowed: boolean;
+      productionAssetReadinessClaimed: boolean;
+      clinicalValidityClaimed: boolean;
+      scoringValidityClaimed: boolean;
+      claimBoundary: string;
+    };
+
+    expect(reviewedAttachmentResponse.status).toBe(200);
+    expect(reviewedAttachmentRecord).toMatchObject({
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      attachmentCount: 12,
+      runtimeEvidenceAttachmentCount: 3,
+      visualQaEvidenceAttachmentCount: 9,
+      providerExecutionAllowed: false,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      productionAssetReadinessClaimed: false,
+      clinicalValidityClaimed: false,
+      scoringValidityClaimed: false,
+      claimBoundary: "metadata_only_runtime_visual_evidence_attachment_refs_not_launch_evidence",
+    });
+    expect(reviewedAttachmentRecord.attachments).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        inputId: "runtime-realism-evidence-input:patient_maya_johnson_v1",
+        evidenceRef: "runtime-evidence://metadata-only/local-capture-scaffold/peds_asthma_parent_anxiety_v1/patient_maya_johnson_v1",
+      }),
+      expect.objectContaining({
+        inputId: "visual-qa-evidence-input:pulse_oximeter_equipment",
+        evidenceRef: "visual-qa-evidence://metadata-only/local-capture-scaffold/peds_asthma_parent_anxiety_v1/pulse_oximeter_equipment",
+      }),
+    ]));
+
+    const refreshedResponse = await app.request("/runtime/selection-review-packet");
+    const refreshedPacket = await json(refreshedResponse) as {
+      runtimeVisualEvidenceAttachmentRecord?: {
+        attachmentCount: number;
+        runtimeEvidenceAttachmentCount: number;
+        visualQaEvidenceAttachmentCount: number;
+        runtimeExecutionAllowed: boolean;
+        learnerLaunchAllowed: boolean;
+        questEvidenceRefreshAllowed: boolean;
+      };
+      runtimeVisualEvidenceAttachmentSummary?: {
+        attachedRuntimeEvidenceCount: number;
+        attachedVisualQaEvidenceCount: number;
+        blockerIds: string[];
+      };
+      runtimeExecutionAllowed: boolean;
+      learnerLaunchAllowed: boolean;
+      questEvidenceRefreshed: boolean;
+    };
+
+    expect(refreshedPacket.runtimeVisualEvidenceAttachmentRecord).toMatchObject({
+      attachmentCount: 12,
+      runtimeEvidenceAttachmentCount: 3,
+      visualQaEvidenceAttachmentCount: 9,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+    });
+    expect(refreshedPacket.runtimeVisualEvidenceAttachmentSummary).toMatchObject({
+      attachedRuntimeEvidenceCount: 3,
+      attachedVisualQaEvidenceCount: 9,
+      blockerIds: [],
+    });
+    expect(refreshedPacket.runtimeExecutionAllowed).toBe(false);
+    expect(refreshedPacket.learnerLaunchAllowed).toBe(false);
+    expect(refreshedPacket.questEvidenceRefreshed).toBe(false);
+    } finally {
+      process.chdir(previousCwd);
+    }
+  });
+
+  it("carries runtime realism evidence input review decisions into publication readiness without clearing gates", async () => {
+    const app = createApiApp();
+    const createResponse = await app.request("/scenario-bank/scene-generation/requests", {
+      method: "POST",
+      body: JSON.stringify({ scenarioId: "peds_asthma_parent_anxiety_v1" }),
+      headers: { "content-type": "application/json" },
+    });
+    const created = await json(createResponse) as { requestId: string };
+
+    const reviewResponse = await app.request("/runtime/realism-evidence-input-review-decisions", {
+      method: "POST",
+      body: JSON.stringify({
+        scenarioId: "peds_asthma_parent_anxiety_v1",
+        decisions: [
+          {
+            inputId: "runtime-realism-evidence-input:patient_maya_johnson_v1",
+            inputKind: "runtime_realism_signal_input",
+            reviewerId: "runtime_reviewer",
+            decision: "reviewed_metadata_only",
+            comments: "Runtime actor evidence input reviewed as metadata only.",
+            evidenceRefs: ["runtime-realism-evidence-input://patient"],
+            reviewedAt: "2026-05-28T10:20:00.000Z",
+          },
+          {
+            inputId: "visual-qa-evidence-input:pulse_oximeter_equipment",
+            inputKind: "visual_qa_review_input",
+            reviewerId: "runtime_reviewer",
+            decision: "held_metadata_only",
+            comments: "Visual QA equipment input held until evidence attaches.",
+            evidenceRefs: ["visual-qa-evidence-input://pulse-oximeter"],
+            reviewedAt: "2026-05-28T10:21:00.000Z",
+          },
+        ],
+      }),
+      headers: { "content-type": "application/json" },
+    });
+    expect(reviewResponse.status).toBe(200);
+
+    const readinessResponse = await app.request(`/scenario-bank/scene-generation/requests/${encodeURIComponent(created.requestId)}/publication-readiness`);
+    const readiness = await json(readinessResponse) as {
+      runtimeRealismEvidenceInputReviewDecisionRecord?: {
+        scenarioId: string;
+        decisionCount: number;
+        reviewedDecisionCount: number;
+        heldDecisionCount: number;
+        providerExecutionAllowed: boolean;
+        runtimeExecutionAllowed: boolean;
+        learnerLaunchAllowed: boolean;
+        questEvidenceRefreshAllowed: boolean;
+        productionAssetReadinessClaimed: boolean;
+        clinicalValidityClaimed: boolean;
+        scoringValidityClaimed: boolean;
+        claimBoundary: string;
+        decisions: Array<{ inputId: string; decision: string }>;
+      };
+      runtimeVisualEvidenceAttachmentSummary?: {
+        reviewedMetadataOnlyCount: number;
+        heldMetadataOnlyCount: number;
+        attachedRuntimeEvidenceCount: number;
+        attachedVisualQaEvidenceCount: number;
+        runtimeExecutionAllowed: boolean;
+        learnerLaunchAllowed: boolean;
+        questEvidenceRefreshAllowed: boolean;
+        claimBoundary: string;
+      };
+      runtimeVisualEvidenceAttachmentActionPacket?: {
+        availableActions: Array<{
+          actionId: string;
+          requiredInputCount: number;
+          reviewedMetadataOnlyCount: number;
+          heldMetadataOnlyCount: number;
+          attachedEvidenceCount: number;
+          runtimeExecutionAllowed: boolean;
+          learnerLaunchAllowed: boolean;
+        }>;
+        providerExecutionAllowed: boolean;
+        runtimeExecutionAllowed: boolean;
+        learnerLaunchAllowed: boolean;
+        questEvidenceRefreshAllowed: boolean;
+        claimBoundary: string;
+      };
+      assetReleaseLadderReplayProjection?: {
+        schemaVersion: string;
+        scenarioId: string;
+        productionReady: boolean;
+        assetCount: number;
+        productionReadyAssetCount: number;
+        blockedAssetCount: number;
+        missingRequiredAssetCount: number;
+        stationBudgetStatus: string;
+        blockerCount: number;
+        blockerIds: string[];
+        blockedAssets: Array<{ assetId: string }>;
+        runtimeExecutionAllowed: boolean;
+        learnerLaunchAllowed: boolean;
+        questEvidenceRefreshAllowed: boolean;
+        productionAssetReadinessClaimed: boolean;
+        clinicalValidityClaimed: boolean;
+        scoringValidityClaimed: boolean;
+        claimBoundary: string;
+      };
+      canUseGeneratedBundleForLearnerRuntime: boolean;
+    };
+
+    expect(readiness.runtimeRealismEvidenceInputReviewDecisionRecord).toMatchObject({
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      decisionCount: 2,
+      reviewedDecisionCount: 1,
+      heldDecisionCount: 1,
+      providerExecutionAllowed: false,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      productionAssetReadinessClaimed: false,
+      clinicalValidityClaimed: false,
+      scoringValidityClaimed: false,
+      claimBoundary: "metadata_only_runtime_realism_evidence_input_review_decisions",
+    });
+    expect(readiness.runtimeRealismEvidenceInputReviewDecisionRecord?.decisions).toEqual(expect.arrayContaining([
+      expect.objectContaining({ inputId: "runtime-realism-evidence-input:patient_maya_johnson_v1", decision: "reviewed_metadata_only" }),
+      expect.objectContaining({ inputId: "visual-qa-evidence-input:pulse_oximeter_equipment", decision: "held_metadata_only" }),
+    ]));
+    expect(readiness.runtimeVisualEvidenceAttachmentSummary).toMatchObject({
+      reviewedMetadataOnlyCount: 1,
+      heldMetadataOnlyCount: 1,
+      attachedRuntimeEvidenceCount: 0,
+      attachedVisualQaEvidenceCount: 0,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      claimBoundary: "runtime_visual_evidence_attachment_summary_metadata_only_until_artifacts_attach",
+    });
+    expect(readiness.runtimeVisualEvidenceAttachmentActionPacket).toMatchObject({
+      providerExecutionAllowed: false,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      claimBoundary: "metadata_only_runtime_visual_evidence_attachment_actions",
+    });
+    expect(readiness.runtimeVisualEvidenceAttachmentActionPacket?.availableActions).toEqual(expect.arrayContaining([
+      expect.objectContaining({ actionId: "attach_runtime_realism_evidence_refs", requiredInputCount: 1, attachedEvidenceCount: 0 }),
+      expect.objectContaining({ actionId: "attach_visual_qa_evidence_refs", requiredInputCount: 1, attachedEvidenceCount: 0 }),
+    ]));
+    expect(readiness.assetReleaseLadderReplayProjection).toMatchObject({
+      schemaVersion: "openclinxr.asset-release-ladder-replay-projection.v1",
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      productionReady: false,
+      missingRequiredAssetCount: 0,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      productionAssetReadinessClaimed: false,
+      clinicalValidityClaimed: false,
+      scoringValidityClaimed: false,
+      claimBoundary: "summary_only_asset_release_ladder_replay_projection_not_release_readiness",
+    });
+    expect(readiness.assetReleaseLadderReplayProjection?.assetCount).toBeGreaterThan(0);
+    expect(readiness.assetReleaseLadderReplayProjection?.blockedAssetCount).toBeGreaterThan(0);
+    expect(readiness.assetReleaseLadderReplayProjection?.blockerCount).toBeGreaterThan(0);
+    expect(JSON.stringify(readiness.assetReleaseLadderReplayProjection)).not.toContain("production release ready");
+    expect(readiness.canUseGeneratedBundleForLearnerRuntime).toBe(false);
   });
 
   it("serves dynamic encounter factory planning as read-only metadata without provider or runtime execution", async () => {

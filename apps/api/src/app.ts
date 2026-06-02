@@ -1,3 +1,5 @@
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
 import {
   buildEncounterDynamicBehaviorCoverageSummary,
   buildEncounterFactorySummaryContracts,
@@ -77,6 +79,411 @@ import { createOpenClinXrApiProtocolPosture } from "./protocol-support.js";
 type RuntimeTraceEvents = ReturnType<ScenarioRuntime["traceEvents"]>;
 type RuntimeReviewPacket = ReturnType<ScenarioRuntime["reviewPacket"]>;
 
+function readGeneratedJsonIfExists(relativePath: string): unknown | null {
+  const absolutePath = path.resolve(process.cwd(), relativePath);
+  if (!existsSync(absolutePath)) return null;
+  return JSON.parse(readFileSync(absolutePath, "utf8")) as unknown;
+}
+
+function readRepoGeneratedJsonIfExists(relativePath: string): unknown | null {
+  const direct = readGeneratedJsonIfExists(relativePath);
+  if (direct) return direct;
+  const repoRootPath = path.resolve(process.cwd(), "../..", relativePath);
+  if (!existsSync(repoRootPath)) return null;
+  return JSON.parse(readFileSync(repoRootPath, "utf8")) as unknown;
+}
+
+function readMaterializationInputManifestSummaryForScenario(scenarioId: string): unknown | undefined {
+  const workerReport = readRepoGeneratedJsonIfExists(
+    "docs/openclinxr/encounter-asset-generation-worker-peds-asthma-parent-anxiety-2026-05-28.json",
+  );
+  if (!isRecord(workerReport)) return undefined;
+  const summary = workerReport.materializationInputManifestSummary;
+  if (!isRecord(summary)) return undefined;
+  const summaryScenarioId = summary.scenarioId;
+  if (typeof summaryScenarioId === "string" && summaryScenarioId !== scenarioId) return undefined;
+  return summary;
+}
+
+function readMaterializationAttachmentPlanSummaryForScenario(scenarioId: string): unknown | undefined {
+  const workerReport = readRepoGeneratedJsonIfExists(
+    "docs/openclinxr/encounter-asset-generation-worker-peds-asthma-parent-anxiety-2026-05-28.json",
+  );
+  if (!isRecord(workerReport)) return undefined;
+  const summary = workerReport.materializationAttachmentPlanSummary;
+  if (!isRecord(summary)) return undefined;
+  const summaryScenarioId = summary.scenarioId;
+  if (typeof summaryScenarioId === "string" && summaryScenarioId !== scenarioId) return undefined;
+  return summary;
+}
+
+function readMaterializationEvidenceAttachmentSummaryForScenario(scenarioId: string): unknown | undefined {
+  const workerReport = readRepoGeneratedJsonIfExists(
+    "docs/openclinxr/encounter-asset-generation-worker-peds-asthma-parent-anxiety-2026-05-28.json",
+  );
+  if (!isRecord(workerReport)) return undefined;
+  const summary = workerReport.materializationEvidenceAttachmentSummary;
+  if (!isRecord(summary)) return undefined;
+  const summaryScenarioId = summary.scenarioId;
+  if (typeof summaryScenarioId === "string" && summaryScenarioId !== scenarioId) return undefined;
+  return summary;
+}
+
+function readRuntimeEvidenceCaptureScaffoldForScenario(scenarioId: string): unknown | undefined {
+  const scaffold = readRepoGeneratedJsonIfExists(
+    "docs/openclinxr/encounter-runtime-evidence-capture-scaffold-peds-asthma-parent-anxiety-2026-05-28.json",
+  );
+  if (!isRecord(scaffold)) return undefined;
+  const scaffoldScenarioId = scaffold.selectedScenarioId;
+  if (typeof scaffoldScenarioId === "string" && scaffoldScenarioId !== scenarioId) return undefined;
+  return scaffold;
+}
+
+function readRuntimeRealismEvidenceInputDraftForScenario(scenarioId: string): unknown | undefined {
+  const draft = readRepoGeneratedJsonIfExists(
+    "docs/openclinxr/encounter-runtime-realism-evidence-input-peds-asthma-parent-anxiety-2026-05-28.json",
+  );
+  if (!isRecord(draft)) return undefined;
+  const selectedScenarioId = draft.selectedScenarioId;
+  if (typeof selectedScenarioId === "string" && selectedScenarioId !== scenarioId) return undefined;
+  return draft;
+}
+
+function attachMaterializationInputManifestSummary(packet: unknown): unknown {
+  if (!isRecord(packet)) return packet;
+  if (packet.materializationInputManifestSummary) return packet;
+  const selectedScenarioId = packet.selectedScenarioId;
+  if (typeof selectedScenarioId !== "string") return packet;
+  const materializationInputManifestSummary = readMaterializationInputManifestSummaryForScenario(selectedScenarioId);
+  return materializationInputManifestSummary ? { ...packet, materializationInputManifestSummary } : packet;
+}
+
+function attachMaterializationAttachmentPlanSummary(packet: unknown): unknown {
+  if (!isRecord(packet)) return packet;
+  if (packet.materializationAttachmentPlanSummary) return packet;
+  const selectedScenarioId = packet.selectedScenarioId;
+  if (typeof selectedScenarioId !== "string") return packet;
+  const materializationAttachmentPlanSummary = readMaterializationAttachmentPlanSummaryForScenario(selectedScenarioId);
+  return materializationAttachmentPlanSummary ? { ...packet, materializationAttachmentPlanSummary } : packet;
+}
+
+function attachMaterializationEvidenceAttachmentSummary(packet: unknown): unknown {
+  if (!isRecord(packet)) return packet;
+  if (packet.materializationEvidenceAttachmentSummary) return packet;
+  const selectedScenarioId = packet.selectedScenarioId;
+  if (typeof selectedScenarioId !== "string") return packet;
+  const materializationEvidenceAttachmentSummary = readMaterializationEvidenceAttachmentSummaryForScenario(selectedScenarioId);
+  return materializationEvidenceAttachmentSummary ? { ...packet, materializationEvidenceAttachmentSummary } : packet;
+}
+
+function attachRuntimeRealismEvidenceInputDraft(packet: unknown): unknown {
+  if (!isRecord(packet)) return packet;
+  if (packet.runtimeRealismEvidenceInputDraft) return packet;
+  const selectedScenarioId = packet.selectedScenarioId;
+  if (typeof selectedScenarioId !== "string") return packet;
+  const runtimeRealismEvidenceInputDraft = readRuntimeRealismEvidenceInputDraftForScenario(selectedScenarioId);
+  return runtimeRealismEvidenceInputDraft ? { ...packet, runtimeRealismEvidenceInputDraft } : packet;
+}
+
+function attachRuntimeRealismEvidenceInputReviewDecisionRecord(
+  packet: unknown,
+  decisionRecord: ApiRuntimeRealismEvidenceInputReviewDecisionRecord | undefined,
+): unknown {
+  if (!decisionRecord || !isRecord(packet)) return packet;
+  if (packet.runtimeRealismEvidenceInputReviewDecisionRecord) return packet;
+  const selectedScenarioId = packet.selectedScenarioId;
+  if (typeof selectedScenarioId === "string" && selectedScenarioId !== decisionRecord.scenarioId) return packet;
+  return { ...packet, runtimeRealismEvidenceInputReviewDecisionRecord: decisionRecord };
+}
+
+function attachRuntimeVisualEvidenceAttachmentSummary(
+  packet: unknown,
+  decisionRecord: ApiRuntimeRealismEvidenceInputReviewDecisionRecord | undefined,
+  attachmentRecord?: ApiRuntimeVisualEvidenceAttachmentRecord,
+): unknown {
+  if (!decisionRecord || !isRecord(packet)) return packet;
+  if (packet.runtimeVisualEvidenceAttachmentSummary) return packet;
+  const selectedScenarioId = packet.selectedScenarioId;
+  if (typeof selectedScenarioId === "string" && selectedScenarioId !== decisionRecord.scenarioId) return packet;
+  const summary = buildRuntimeRealismEvidenceAttachmentSummary(decisionRecord, attachmentRecord);
+  return summary ? { ...packet, runtimeVisualEvidenceAttachmentSummary: summary } : packet;
+}
+
+function attachRuntimeVisualEvidenceAttachmentActionPacket(
+  packet: unknown,
+  decisionRecord: ApiRuntimeRealismEvidenceInputReviewDecisionRecord | undefined,
+  attachmentRecord?: ApiRuntimeVisualEvidenceAttachmentRecord,
+): unknown {
+  if (!decisionRecord || !isRecord(packet)) return packet;
+  if (packet.runtimeVisualEvidenceAttachmentActionPacket) return packet;
+  const selectedScenarioId = packet.selectedScenarioId;
+  if (typeof selectedScenarioId === "string" && selectedScenarioId !== decisionRecord.scenarioId) return packet;
+  const summary = buildRuntimeRealismEvidenceAttachmentSummary(decisionRecord, attachmentRecord);
+  const actionPacket = buildRuntimeVisualEvidenceAttachmentActionPacket(summary);
+  return actionPacket ? { ...packet, runtimeVisualEvidenceAttachmentActionPacket: actionPacket } : packet;
+}
+
+function attachRuntimeVisualEvidenceAttachmentRecord(
+  packet: unknown,
+  attachmentRecord: ApiRuntimeVisualEvidenceAttachmentRecord | undefined,
+): unknown {
+  if (!attachmentRecord || !isRecord(packet)) return packet;
+  if (packet.runtimeVisualEvidenceAttachmentRecord) return packet;
+  const selectedScenarioId = packet.selectedScenarioId;
+  if (typeof selectedScenarioId === "string" && selectedScenarioId !== attachmentRecord.scenarioId) return packet;
+  return { ...packet, runtimeVisualEvidenceAttachmentRecord: attachmentRecord };
+}
+
+function attachRuntimeEvidenceCaptureScaffold(packet: unknown): unknown {
+  if (!isRecord(packet)) return packet;
+  if (packet.runtimeEvidenceCaptureScaffold) return packet;
+  const scenarioId = packet.selectedScenarioId;
+  if (typeof scenarioId !== "string") return packet;
+  const scaffold = readRuntimeEvidenceCaptureScaffoldForScenario(scenarioId);
+  return scaffold ? { ...packet, runtimeEvidenceCaptureScaffold: scaffold } : packet;
+}
+
+function attachMaterializationInputReviewDecisionRecord(
+  packet: unknown,
+  decisionRecord: ApiMaterializationInputReviewDecisionRecord | undefined,
+): unknown {
+  if (!decisionRecord || !isRecord(packet)) return packet;
+  if (packet.materializationInputReviewDecisionRecord) return packet;
+  const selectedScenarioId = packet.selectedScenarioId;
+  if (typeof selectedScenarioId === "string" && selectedScenarioId !== decisionRecord.scenarioId) return packet;
+  return { ...packet, materializationInputReviewDecisionRecord: decisionRecord };
+}
+
+function buildMaterializationInputReviewActionPacket(summary: unknown, notEvidenceFor: readonly string[]): unknown | undefined {
+  if (!isRecord(summary)) return undefined;
+  const actorWorkOrderInputCount = typeof summary.actorWorkOrderInputCount === "number" ? summary.actorWorkOrderInputCount : 0;
+  const equipmentWorkOrderInputCount = typeof summary.equipmentWorkOrderInputCount === "number" ? summary.equipmentWorkOrderInputCount : 0;
+  const blockerIds = parseStringArray(summary.blockerIds);
+  const actorBlockerCount = blockerIds.filter((blocker) => blocker.includes("actor")).length;
+  const equipmentBlockerCount = blockerIds.filter((blocker) => blocker.includes("equipment")).length;
+  return {
+    schemaVersion: "openclinxr.encounter-materialization-input-review-action-packet.v1",
+    source: "materialization_input_manifest_summary",
+    scenarioId: typeof summary.scenarioId === "string" ? summary.scenarioId : null,
+    actionMode: "metadata_only_review_actions_not_provider_execution",
+    availableActions: [
+      {
+        actionId: "review_actor_materialization_inputs",
+        status: "available",
+        inputCount: actorWorkOrderInputCount,
+        blockerCount: actorBlockerCount,
+        requiredCueIds: parseStringArray(summary.requiredActorCueIds),
+        providerExecutionAllowed: false,
+        runtimeExecutionAllowed: false,
+        claimBoundary: "materialization_input_review_action_not_provider_execution",
+      },
+      {
+        actionId: "hold_actor_materialization_inputs",
+        status: "available",
+        inputCount: actorWorkOrderInputCount,
+        blockerCount: actorBlockerCount,
+        requiredCueIds: parseStringArray(summary.requiredActorCueIds),
+        providerExecutionAllowed: false,
+        runtimeExecutionAllowed: false,
+        claimBoundary: "materialization_input_review_action_not_provider_execution",
+      },
+      {
+        actionId: "review_equipment_materialization_inputs",
+        status: "available",
+        inputCount: equipmentWorkOrderInputCount,
+        blockerCount: equipmentBlockerCount,
+        requiredCueIds: parseStringArray(summary.requiredEquipmentCueIds),
+        providerExecutionAllowed: false,
+        runtimeExecutionAllowed: false,
+        claimBoundary: "materialization_input_review_action_not_provider_execution",
+      },
+      {
+        actionId: "hold_equipment_materialization_inputs",
+        status: "available",
+        inputCount: equipmentWorkOrderInputCount,
+        blockerCount: equipmentBlockerCount,
+        requiredCueIds: parseStringArray(summary.requiredEquipmentCueIds),
+        providerExecutionAllowed: false,
+        runtimeExecutionAllowed: false,
+        claimBoundary: "materialization_input_review_action_not_provider_execution",
+      },
+    ],
+    providerExecutionAllowed: false,
+    runtimeExecutionAllowed: false,
+    learnerLaunchAllowed: false,
+    questEvidenceRefreshAllowed: false,
+    claimBoundary: "metadata_only_materialization_input_review_actions",
+    notEvidenceFor,
+  };
+}
+
+function buildMaterializationInputReviewDecisionRecord(input: {
+  requestId: string;
+  scenarioId: string;
+  decisions: ApiMaterializationInputReviewDecision[];
+}): ApiMaterializationInputReviewDecisionRecord {
+  return {
+    schemaVersion: "openclinxr.encounter-materialization-input-review-decision-record.v1",
+    source: "admin_materialization_input_review_decisions",
+    requestId: input.requestId,
+    scenarioId: input.scenarioId,
+    decisionCount: input.decisions.length,
+    reviewedDecisionCount: input.decisions.filter((decision) => decision.decision === "reviewed_metadata_only").length,
+    heldDecisionCount: input.decisions.filter((decision) => decision.decision === "held_metadata_only").length,
+    decisions: input.decisions,
+    providerExecutionAllowed: false,
+    runtimeExecutionAllowed: false,
+    learnerLaunchAllowed: false,
+    questEvidenceRefreshAllowed: false,
+    claimBoundary: "metadata_only_materialization_input_review_decisions",
+    notEvidenceFor: ["provider_availability", "runtime_readiness", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity", "learner_launch_readiness"],
+  };
+}
+
+function buildRuntimeRealismEvidenceInputReviewDecisionRecord(input: {
+  scenarioId: string;
+  decisions: ApiRuntimeRealismEvidenceInputReviewDecision[];
+}): ApiRuntimeRealismEvidenceInputReviewDecisionRecord {
+  return {
+    schemaVersion: "openclinxr.runtime-realism-evidence-input-review-decision-record.v1",
+    source: "admin_runtime_realism_evidence_input_review_decisions",
+    scenarioId: input.scenarioId,
+    decisionCount: input.decisions.length,
+    reviewedDecisionCount: input.decisions.filter((decision) => decision.decision === "reviewed_metadata_only").length,
+    heldDecisionCount: input.decisions.filter((decision) => decision.decision === "held_metadata_only").length,
+    decisions: input.decisions,
+    providerExecutionAllowed: false,
+    runtimeExecutionAllowed: false,
+    learnerLaunchAllowed: false,
+    questEvidenceRefreshAllowed: false,
+    productionAssetReadinessClaimed: false,
+    clinicalValidityClaimed: false,
+    scoringValidityClaimed: false,
+    claimBoundary: "metadata_only_runtime_realism_evidence_input_review_decisions",
+    notEvidenceFor: ["provider_availability", "runtime_readiness", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity", "learner_launch_readiness"],
+  };
+}
+
+function buildRuntimeRealismEvidenceAttachmentSummary(
+  decisionRecord: ApiRuntimeRealismEvidenceInputReviewDecisionRecord | undefined,
+  attachmentRecord?: ApiRuntimeVisualEvidenceAttachmentRecord,
+): ApiRuntimeRealismEvidenceAttachmentSummary | undefined {
+  if (!decisionRecord) return undefined;
+  const runtimeEvidenceAttachmentCount = attachmentRecord?.runtimeEvidenceAttachmentCount ?? 0;
+  const visualQaEvidenceAttachmentCount = attachmentRecord?.visualQaEvidenceAttachmentCount ?? 0;
+  return {
+    schemaVersion: "openclinxr.runtime-realism-evidence-attachment-summary.v1",
+    source: "runtime_realism_evidence_input_review_decisions",
+    scenarioId: decisionRecord.scenarioId,
+    runtimeActorEvidenceInputCount: decisionRecord.decisions.filter((decision) => decision.inputKind === "runtime_realism_signal_input").length,
+    visualQaEvidenceInputCount: decisionRecord.decisions.filter((decision) => decision.inputKind === "visual_qa_review_input").length,
+    reviewedMetadataOnlyCount: decisionRecord.reviewedDecisionCount,
+    heldMetadataOnlyCount: decisionRecord.heldDecisionCount,
+    attachedRuntimeEvidenceCount: runtimeEvidenceAttachmentCount,
+    attachedVisualQaEvidenceCount: visualQaEvidenceAttachmentCount,
+    reviewedMetadataOnlyInputIds: decisionRecord.decisions
+      .filter((decision) => decision.decision === "reviewed_metadata_only")
+      .map((decision) => decision.inputId),
+    heldMetadataOnlyInputIds: decisionRecord.decisions
+      .filter((decision) => decision.decision === "held_metadata_only")
+      .map((decision) => decision.inputId),
+    blockerIds: [
+      ...(runtimeEvidenceAttachmentCount > 0 ? [] : ["runtime_realism_evidence_not_attached_to_encounter_bundle"]),
+      ...(visualQaEvidenceAttachmentCount > 0 ? [] : ["visual_qa_evidence_not_attached_to_encounter_bundle"]),
+    ],
+    providerExecutionAllowed: false,
+    runtimeExecutionAllowed: false,
+    learnerLaunchAllowed: false,
+    questEvidenceRefreshAllowed: false,
+    productionAssetReadinessClaimed: false,
+    clinicalValidityClaimed: false,
+    scoringValidityClaimed: false,
+    claimBoundary: "runtime_visual_evidence_attachment_summary_metadata_only_until_artifacts_attach",
+    notEvidenceFor: ["provider_availability", "runtime_readiness", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity", "learner_launch_readiness"],
+  };
+}
+
+function buildRuntimeVisualEvidenceAttachmentRecord(input: {
+  scenarioId: string;
+  attachments: ApiRuntimeVisualEvidenceAttachment[];
+}): ApiRuntimeVisualEvidenceAttachmentRecord {
+  return {
+    schemaVersion: "openclinxr.runtime-visual-evidence-attachment-record.v1",
+    source: "admin_runtime_visual_evidence_attachment_refs",
+    scenarioId: input.scenarioId,
+    attachmentCount: input.attachments.length,
+    runtimeEvidenceAttachmentCount: input.attachments.filter((attachment) => attachment.inputKind === "runtime_realism_signal_input" && attachment.attachmentStatus === "attached_metadata_only").length,
+    visualQaEvidenceAttachmentCount: input.attachments.filter((attachment) => attachment.inputKind === "visual_qa_review_input" && attachment.attachmentStatus === "attached_metadata_only").length,
+    attachments: input.attachments,
+    providerExecutionAllowed: false,
+    runtimeExecutionAllowed: false,
+    learnerLaunchAllowed: false,
+    questEvidenceRefreshAllowed: false,
+    productionAssetReadinessClaimed: false,
+    clinicalValidityClaimed: false,
+    scoringValidityClaimed: false,
+    claimBoundary: "metadata_only_runtime_visual_evidence_attachment_refs_not_launch_evidence",
+    notEvidenceFor: ["provider_availability", "runtime_readiness", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity", "learner_launch_readiness"],
+  };
+}
+
+function buildRuntimeVisualEvidenceAttachmentActionPacket(
+  summary: ApiRuntimeRealismEvidenceAttachmentSummary | undefined,
+): ApiRuntimeVisualEvidenceAttachmentActionPacket | undefined {
+  if (!summary) return undefined;
+  const runtimeReviewedCount = summary.reviewedMetadataOnlyInputIds
+    .filter((inputId) => inputId.startsWith("runtime-realism-evidence-input:")).length;
+  const visualReviewedCount = summary.reviewedMetadataOnlyInputIds
+    .filter((inputId) => inputId.startsWith("visual-qa-evidence-input:")).length;
+  const runtimeHeldCount = summary.heldMetadataOnlyInputIds
+    .filter((inputId) => inputId.startsWith("runtime-realism-evidence-input:")).length;
+  const visualHeldCount = summary.heldMetadataOnlyInputIds
+    .filter((inputId) => inputId.startsWith("visual-qa-evidence-input:")).length;
+  return {
+    schemaVersion: "openclinxr.runtime-visual-evidence-attachment-action-packet.v1",
+    source: "runtime_visual_evidence_attachment_summary",
+    scenarioId: summary.scenarioId,
+    actionMode: "metadata_only_attachment_actions_not_runtime_execution",
+    availableActions: [
+      {
+        actionId: "attach_runtime_realism_evidence_refs",
+        status: "available",
+        requiredInputCount: summary.runtimeActorEvidenceInputCount,
+        reviewedMetadataOnlyCount: runtimeReviewedCount,
+        heldMetadataOnlyCount: runtimeHeldCount,
+        attachedEvidenceCount: summary.attachedRuntimeEvidenceCount,
+        blockerIds: summary.attachedRuntimeEvidenceCount > 0 ? [] : ["runtime_realism_evidence_not_attached_to_encounter_bundle"],
+        providerExecutionAllowed: false,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+        claimBoundary: "runtime_visual_evidence_attachment_action_not_runtime_execution",
+      },
+      {
+        actionId: "attach_visual_qa_evidence_refs",
+        status: "available",
+        requiredInputCount: summary.visualQaEvidenceInputCount,
+        reviewedMetadataOnlyCount: visualReviewedCount,
+        heldMetadataOnlyCount: visualHeldCount,
+        attachedEvidenceCount: summary.attachedVisualQaEvidenceCount,
+        blockerIds: summary.attachedVisualQaEvidenceCount > 0 ? [] : ["visual_qa_evidence_not_attached_to_encounter_bundle"],
+        providerExecutionAllowed: false,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+        claimBoundary: "runtime_visual_evidence_attachment_action_not_runtime_execution",
+      },
+    ],
+    providerExecutionAllowed: false,
+    runtimeExecutionAllowed: false,
+    learnerLaunchAllowed: false,
+    questEvidenceRefreshAllowed: false,
+    productionAssetReadinessClaimed: false,
+    clinicalValidityClaimed: false,
+    scoringValidityClaimed: false,
+    claimBoundary: "metadata_only_runtime_visual_evidence_attachment_actions",
+    notEvidenceFor: [...summary.notEvidenceFor],
+  };
+}
+
 export type ApiClinicalEventReviewProjection = {
   clinicalEventId: string;
   stationRunId: string;
@@ -149,6 +556,8 @@ export type ApiScenarioSceneGenerationRequestRecord = {
   nextAction: "attach_runtime_asset_review_decisions" | "run_generated_bundle_publisher";
   runtimeAssetReviewDecisionCount: number;
   runtimeAssetReviewDecisions: RuntimeAssetReviewDecision[];
+  materializationInputReviewDecisions: ApiMaterializationInputReviewDecision[];
+  materializationInputReviewDecisionRecord?: ApiMaterializationInputReviewDecisionRecord;
   scenarioReviewGate: ApiScenarioReviewGateSummary;
   humanReviewActions: ApiHumanReviewActionSummary[];
   productionAssetReadinessClaimed: false;
@@ -161,6 +570,278 @@ export type ApiScenarioSceneGenerationRequestRecord = {
     generationApprovalInferred: false;
   };
   workOrder: ReturnType<typeof buildScenarioSceneGenerationPipelineWorkOrderQueue>["workOrders"][number];
+};
+
+export type ApiMaterializationInputReviewDecision = {
+  actionId:
+    | "review_actor_materialization_inputs"
+    | "hold_actor_materialization_inputs"
+    | "review_equipment_materialization_inputs"
+    | "hold_equipment_materialization_inputs";
+  reviewerId: string;
+  decision: "reviewed_metadata_only" | "held_metadata_only";
+  comments: string;
+  evidenceRefs: string[];
+  reviewedAt: string;
+};
+
+export type ApiMaterializationInputReviewDecisionRecord = {
+  schemaVersion: "openclinxr.encounter-materialization-input-review-decision-record.v1";
+  source: "admin_materialization_input_review_decisions";
+  requestId: string;
+  scenarioId: string;
+  decisionCount: number;
+  reviewedDecisionCount: number;
+  heldDecisionCount: number;
+  decisions: ApiMaterializationInputReviewDecision[];
+  providerExecutionAllowed: false;
+  runtimeExecutionAllowed: false;
+  learnerLaunchAllowed: false;
+  questEvidenceRefreshAllowed: false;
+  claimBoundary: "metadata_only_materialization_input_review_decisions";
+  notEvidenceFor: string[];
+};
+
+export type ApiRuntimeRealismEvidenceInputReviewDecision = {
+  inputId: string;
+  inputKind: "runtime_realism_signal_input" | "visual_qa_review_input";
+  reviewerId: string;
+  decision: "reviewed_metadata_only" | "held_metadata_only";
+  comments: string;
+  evidenceRefs: string[];
+  reviewedAt: string;
+};
+
+export type ApiRuntimeRealismEvidenceInputReviewDecisionRecord = {
+  schemaVersion: "openclinxr.runtime-realism-evidence-input-review-decision-record.v1";
+  source: "admin_runtime_realism_evidence_input_review_decisions";
+  scenarioId: string;
+  decisionCount: number;
+  reviewedDecisionCount: number;
+  heldDecisionCount: number;
+  decisions: ApiRuntimeRealismEvidenceInputReviewDecision[];
+  providerExecutionAllowed: false;
+  runtimeExecutionAllowed: false;
+  learnerLaunchAllowed: false;
+  questEvidenceRefreshAllowed: false;
+  productionAssetReadinessClaimed: false;
+  clinicalValidityClaimed: false;
+  scoringValidityClaimed: false;
+  claimBoundary: "metadata_only_runtime_realism_evidence_input_review_decisions";
+  notEvidenceFor: string[];
+};
+
+export type ApiRuntimeVisualEvidenceAttachment = {
+  actionId: "attach_runtime_realism_evidence_refs" | "attach_visual_qa_evidence_refs";
+  inputId: string;
+  inputKind: "runtime_realism_signal_input" | "visual_qa_review_input";
+  evidenceRef: string;
+  localArtifactPath: string;
+  reviewerId: string;
+  attachmentStatus: "attached_metadata_only" | "held_metadata_only";
+  comments: string;
+  attachedAt: string;
+};
+
+export type ApiRuntimeVisualEvidenceAttachmentRecord = {
+  schemaVersion: "openclinxr.runtime-visual-evidence-attachment-record.v1";
+  source: "admin_runtime_visual_evidence_attachment_refs";
+  scenarioId: string;
+  attachmentCount: number;
+  runtimeEvidenceAttachmentCount: number;
+  visualQaEvidenceAttachmentCount: number;
+  attachments: ApiRuntimeVisualEvidenceAttachment[];
+  providerExecutionAllowed: false;
+  runtimeExecutionAllowed: false;
+  learnerLaunchAllowed: false;
+  questEvidenceRefreshAllowed: false;
+  productionAssetReadinessClaimed: false;
+  clinicalValidityClaimed: false;
+  scoringValidityClaimed: false;
+  claimBoundary: "metadata_only_runtime_visual_evidence_attachment_refs_not_launch_evidence";
+  notEvidenceFor: string[];
+};
+
+export type ApiRuntimeRealismEvidenceAttachmentSummary = {
+  schemaVersion: "openclinxr.runtime-realism-evidence-attachment-summary.v1";
+  source: "runtime_realism_evidence_input_review_decisions";
+  scenarioId: string;
+  runtimeActorEvidenceInputCount: number;
+  visualQaEvidenceInputCount: number;
+  reviewedMetadataOnlyCount: number;
+  heldMetadataOnlyCount: number;
+  attachedRuntimeEvidenceCount: number;
+  attachedVisualQaEvidenceCount: number;
+  reviewedMetadataOnlyInputIds: string[];
+  heldMetadataOnlyInputIds: string[];
+  blockerIds: string[];
+  providerExecutionAllowed: false;
+  runtimeExecutionAllowed: false;
+  learnerLaunchAllowed: false;
+  questEvidenceRefreshAllowed: false;
+  productionAssetReadinessClaimed: false;
+  clinicalValidityClaimed: false;
+  scoringValidityClaimed: false;
+  claimBoundary: "runtime_visual_evidence_attachment_summary_metadata_only_until_artifacts_attach";
+  notEvidenceFor: string[];
+};
+
+export type ApiRuntimeVisualEvidenceAttachmentActionPacket = {
+  schemaVersion: "openclinxr.runtime-visual-evidence-attachment-action-packet.v1";
+  source: "runtime_visual_evidence_attachment_summary";
+  scenarioId: string;
+  actionMode: "metadata_only_attachment_actions_not_runtime_execution";
+  availableActions: Array<{
+    actionId: "attach_runtime_realism_evidence_refs" | "attach_visual_qa_evidence_refs";
+    status: "available";
+    requiredInputCount: number;
+    reviewedMetadataOnlyCount: number;
+    heldMetadataOnlyCount: number;
+    attachedEvidenceCount: number;
+    blockerIds: string[];
+    providerExecutionAllowed: false;
+    runtimeExecutionAllowed: false;
+    learnerLaunchAllowed: false;
+    claimBoundary: "runtime_visual_evidence_attachment_action_not_runtime_execution";
+  }>;
+  providerExecutionAllowed: false;
+  runtimeExecutionAllowed: false;
+  learnerLaunchAllowed: false;
+  questEvidenceRefreshAllowed: false;
+  productionAssetReadinessClaimed: false;
+  clinicalValidityClaimed: false;
+  scoringValidityClaimed: false;
+  claimBoundary: "metadata_only_runtime_visual_evidence_attachment_actions";
+  notEvidenceFor: string[];
+};
+
+export type ApiRuntimeVisualEvidenceReplayProjection = {
+  schemaVersion: "openclinxr.runtime-visual-evidence-replay-projection.v1";
+  source: "runtime_visual_evidence_attachment_record_summary";
+  stationRunId: string;
+  scenarioId: string;
+  reviewedMetadataOnlyCount: number;
+  heldMetadataOnlyCount: number;
+  acceptedAttachmentRefCount: number;
+  runtimeEvidenceRefCount: number;
+  visualQaEvidenceRefCount: number;
+  acceptedActionIds: Array<"attach_runtime_realism_evidence_refs" | "attach_visual_qa_evidence_refs">;
+  rawPayloadDisplayed: false;
+  providerExecutionAllowed: false;
+  runtimeExecutionAllowed: false;
+  learnerLaunchAllowed: false;
+  questEvidenceRefreshAllowed: false;
+  productionAssetReadinessClaimed: false;
+  clinicalValidityClaimed: false;
+  scoringValidityClaimed: false;
+  replayEvidenceReady: false;
+  blockerIds: string[];
+  nextActions: string[];
+  uiXrConsumerOperatorWorkflowSummary?: ApiUiXrRuntimeEvidenceConsumerWorkflowSummary;
+  claimBoundary: "summary_only_runtime_visual_evidence_replay_projection_not_raw_payload_or_readiness";
+  notEvidenceFor: string[];
+};
+
+export type ApiUiXrRuntimeEvidenceConsumerWorkflowSummary = {
+  schemaVersion: "openclinxr.ui-xr-runtime-evidence-consumer-workflow-summary.v1";
+  source: "ui_xr_runtime_evidence_consumer_operator_workflow";
+  scenarioId: string;
+  acceptedAttachmentRefCount: number;
+  runtimeEvidenceRefCount: number;
+  visualQaEvidenceRefCount: number;
+  targetRoute: "/runtime/visual-evidence-attachments";
+  method: "POST";
+  submitBodyRef: "submitRuntimeVisualEvidenceAttachmentInput";
+  submitPreview: {
+    route: "/runtime/visual-evidence-attachments";
+    bodyRef: "submitRuntimeVisualEvidenceAttachmentInput";
+    attachmentCount: number;
+    actionIds: Array<"attach_runtime_realism_evidence_refs" | "attach_visual_qa_evidence_refs">;
+    inputIds: string[];
+    localArtifactPaths: string[];
+    rawPayloadDisplayed: false;
+    claimBoundary: "ui_xr_consumer_workflow_submit_preview_metadata_only";
+  };
+  reviewerAction: "submit_metadata_only_runtime_visual_evidence_refs";
+  preflightChecks: string[];
+  nextActions: string[];
+  rawPayloadDisplayed: false;
+  providerExecutionAllowed: false;
+  runtimeExecutionAllowed: false;
+  learnerLaunchAllowed: false;
+  questEvidenceRefreshAllowed: false;
+  productionAssetReadinessClaimed: false;
+  clinicalValidityClaimed: false;
+  scoringValidityClaimed: false;
+  blockerIds: string[];
+  claimBoundary: "summary_only_ui_xr_consumer_workflow_not_raw_payload_or_readiness";
+  notEvidenceFor: string[];
+};
+
+export type ApiAssetReleaseLadderReplayProjection = {
+  schemaVersion: "openclinxr.asset-release-ladder-replay-projection.v1";
+  source: "scenario_asset_production_readiness_ladder";
+  scenarioId: string;
+  productionReady: false;
+  assetCount: number;
+  productionReadyAssetCount: number;
+  blockedAssetCount: number;
+  missingRequiredAssetCount: number;
+  stationBudgetStatus: "ready" | "blocked";
+  blockerCount: number;
+  blockerIds: string[];
+  blockedAssets: Array<{
+    assetId: string;
+    blockerCount: number;
+    firstBlockedStep: string | null;
+    blockerIds: string[];
+  }>;
+  providerExecutionAllowed: false;
+  runtimeExecutionAllowed: false;
+  learnerLaunchAllowed: false;
+  questEvidenceRefreshAllowed: false;
+  productionAssetReadinessClaimed: false;
+  clinicalValidityClaimed: false;
+  scoringValidityClaimed: false;
+  claimBoundary: "summary_only_asset_release_ladder_replay_projection_not_release_readiness";
+  notEvidenceFor: string[];
+};
+
+export type ApiRuntimeEvidenceCaptureScaffold = {
+  schemaVersion: "openclinxr.encounter-runtime-evidence-capture-scaffold.v1";
+  source: "encounter_runtime_realism_evidence_input_draft";
+  selectedScenarioId: string;
+  status: "metadata_only_attachment_candidates_not_submitted";
+  runtimeEvidenceCandidateCount: number;
+  visualQaEvidenceCandidateCount: number;
+  attachmentCandidates: Array<ApiRuntimeVisualEvidenceAttachment & {
+    sourceEvidenceRef: string;
+    providerExecutionAllowed: false;
+    runtimeExecutionAllowed: false;
+    learnerLaunchAllowed: false;
+    questEvidenceRefreshAllowed: false;
+    productionAssetReadinessClaimed: false;
+    clinicalValidityClaimed: false;
+    scoringValidityClaimed: false;
+    claimBoundary: "metadata_only_runtime_evidence_capture_candidate_not_submitted";
+    notEvidenceFor: string[];
+  }>;
+  submitRuntimeVisualEvidenceAttachmentInput: {
+    scenarioId: string;
+    attachments: ApiRuntimeVisualEvidenceAttachment[];
+  };
+  gateBoundary: {
+    providerExecutionAllowed: false;
+    runtimeExecutionAllowed: false;
+    learnerLaunchAllowed: false;
+    questEvidenceRefreshAllowed: false;
+    productionAssetReadinessClaimed: false;
+    clinicalValidityClaimed: false;
+    scoringValidityClaimed: false;
+    claimBoundary: "runtime_evidence_capture_scaffold_does_not_clear_launch_gates";
+  };
+  claimBoundary: "metadata_only_runtime_evidence_capture_scaffold_not_runtime_or_visual_evidence";
+  notEvidenceFor: string[];
 };
 
 export type ApiScenarioReviewGateSummary = {
@@ -197,6 +878,22 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   const realtimeVoiceGatewayPosture = options.realtimeVoiceGatewayPosture ?? createDefaultRealtimeVoiceGatewayPostureInput();
   const adminScenarioOverrides = new Map<string, AdminGraphqlScenario>();
   const sceneGenerationRequests: ApiScenarioSceneGenerationRequestRecord[] = [];
+  const runtimeRealismEvidenceInputReviewDecisions: ApiRuntimeRealismEvidenceInputReviewDecision[] = [];
+  const runtimeVisualEvidenceAttachments: ApiRuntimeVisualEvidenceAttachment[] = [];
+  let runtimeRealismEvidenceInputReviewDecisionRecord: ApiRuntimeRealismEvidenceInputReviewDecisionRecord | undefined;
+  let runtimeVisualEvidenceAttachmentRecord: ApiRuntimeVisualEvidenceAttachmentRecord | undefined;
+  const latestMaterializationInputReviewDecisionRecordForScenario = (
+    scenarioId: string,
+  ): ApiMaterializationInputReviewDecisionRecord | undefined =>
+    sceneGenerationRequests.find((candidate) =>
+      candidate.scenarioId === scenarioId && candidate.materializationInputReviewDecisionRecord
+    )?.materializationInputReviewDecisionRecord;
+  const latestMaterializationInputReviewDecisionRecordForPacket = (
+    packet: unknown,
+  ): ApiMaterializationInputReviewDecisionRecord | undefined => {
+    if (!isRecord(packet) || typeof packet.selectedScenarioId !== "string") return undefined;
+    return latestMaterializationInputReviewDecisionRecordForScenario(packet.selectedScenarioId);
+  };
 
   app.use("*", async (context, next) => {
     context.header("access-control-allow-origin", "*");
@@ -258,7 +955,32 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   );
 
   app.get(routeById("runtime-selection-review-packet").path, (context) => {
+    const durablePacket = readGeneratedJsonIfExists(
+      "docs/openclinxr/encounter-runtime-selection-review-packet-peds-asthma-parent-anxiety-2026-05-28.json",
+    );
+    if (durablePacket) {
+      const packetWithSummary = attachMaterializationEvidenceAttachmentSummary(
+        attachMaterializationAttachmentPlanSummary(
+          attachMaterializationInputManifestSummary(attachRuntimeRealismEvidenceInputDraft(durablePacket)),
+        ),
+      );
+      const packetWithRuntimeReviewRecord = attachRuntimeRealismEvidenceInputReviewDecisionRecord(packetWithSummary, runtimeRealismEvidenceInputReviewDecisionRecord);
+      const packetWithRuntimeEvidenceScaffold = attachMaterializationInputReviewDecisionRecord(
+        attachRuntimeVisualEvidenceAttachmentRecord(
+          attachRuntimeVisualEvidenceAttachmentActionPacket(
+            attachRuntimeVisualEvidenceAttachmentSummary(packetWithRuntimeReviewRecord, runtimeRealismEvidenceInputReviewDecisionRecord, runtimeVisualEvidenceAttachmentRecord),
+            runtimeRealismEvidenceInputReviewDecisionRecord,
+            runtimeVisualEvidenceAttachmentRecord,
+          ),
+          runtimeVisualEvidenceAttachmentRecord,
+        ),
+        latestMaterializationInputReviewDecisionRecordForPacket(packetWithSummary),
+      );
+      return context.json(attachRuntimeEvidenceCaptureScaffold(packetWithRuntimeEvidenceScaffold));
+    }
+
     const bundle = createEdChestPainLocalLearnerRuntimeAssetBundle();
+    const materializationInputReviewDecisionRecord = latestMaterializationInputReviewDecisionRecordForScenario(bundle.scenarioId);
     const guardedRuntimeSelectorDecision = buildGuardedRuntimeSelectorDisabledDecision({
       selectedRuntimeAssetBundleId: bundle.bundleId,
       selectedScenarioId: bundle.scenarioId,
@@ -341,6 +1063,19 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
         questEvidenceRefreshAllowed: false,
         claimBoundary: "operator_review_readiness_metadata_only",
       },
+      materializationInputManifestSummary: readMaterializationInputManifestSummaryForScenario(bundle.scenarioId),
+      materializationAttachmentPlanSummary: readMaterializationAttachmentPlanSummaryForScenario(bundle.scenarioId),
+      materializationEvidenceAttachmentSummary: readMaterializationEvidenceAttachmentSummaryForScenario(bundle.scenarioId),
+      materializationInputReviewDecisionRecord,
+      runtimeRealismEvidenceInputReviewDecisionRecord,
+      runtimeVisualEvidenceAttachmentSummary: runtimeRealismEvidenceInputReviewDecisionRecord?.scenarioId === bundle.scenarioId
+        ? buildRuntimeRealismEvidenceAttachmentSummary(runtimeRealismEvidenceInputReviewDecisionRecord, runtimeVisualEvidenceAttachmentRecord)
+        : undefined,
+      runtimeVisualEvidenceAttachmentActionPacket: runtimeRealismEvidenceInputReviewDecisionRecord?.scenarioId === bundle.scenarioId
+        ? buildRuntimeVisualEvidenceAttachmentActionPacket(buildRuntimeRealismEvidenceAttachmentSummary(runtimeRealismEvidenceInputReviewDecisionRecord, runtimeVisualEvidenceAttachmentRecord))
+        : undefined,
+      runtimeVisualEvidenceAttachmentRecord: runtimeVisualEvidenceAttachmentRecord?.scenarioId === bundle.scenarioId ? runtimeVisualEvidenceAttachmentRecord : undefined,
+      runtimeEvidenceCaptureScaffold: readRuntimeEvidenceCaptureScaffoldForScenario(bundle.scenarioId),
       runtimeExecutionAllowed: false,
       learnerLaunchAllowed: false,
       providerExecutionPerformed: false,
@@ -363,6 +1098,65 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
       claimBoundary: "runtime_selection_review_packet_not_runtime_execution",
       notEvidenceFor: ["provider_availability", "runtime_readiness", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity", "learner_launch_readiness"],
     });
+  });
+
+  app.post(routeById("submit-runtime-realism-evidence-input-review").path, async (context) => {
+    const body = (await context.req.json().catch(() => ({}))) as { scenarioId?: unknown; decisions?: unknown };
+    const scenarioId = typeof body.scenarioId === "string" ? body.scenarioId : "peds_asthma_parent_anxiety_v1";
+    const decisions = Array.isArray(body.decisions) ? body.decisions.filter(isRuntimeRealismEvidenceInputReviewDecision) : [];
+    runtimeRealismEvidenceInputReviewDecisions.push(...decisions);
+    runtimeRealismEvidenceInputReviewDecisionRecord = buildRuntimeRealismEvidenceInputReviewDecisionRecord({
+      scenarioId,
+      decisions: runtimeRealismEvidenceInputReviewDecisions,
+    });
+    return context.json(runtimeRealismEvidenceInputReviewDecisionRecord);
+  });
+
+  app.post(routeById("submit-runtime-visual-evidence-attachment").path, async (context) => {
+    const body = (await context.req.json().catch(() => ({}))) as { scenarioId?: unknown; attachments?: unknown };
+    const scenarioId = typeof body.scenarioId === "string" ? body.scenarioId : runtimeRealismEvidenceInputReviewDecisionRecord?.scenarioId ?? "peds_asthma_parent_anxiety_v1";
+    if (isRecord(body) && isRawUiXrManualPerformancePayload(body)) {
+      return context.json({
+        error: "raw_ui_xr_payload_not_accepted",
+        scenarioId,
+        acceptedBodyRef: "submitRuntimeVisualEvidenceAttachmentInput",
+        rawPayloadDisplayed: false,
+        providerExecutionAllowed: false,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+        productionAssetReadinessClaimed: false,
+        clinicalValidityClaimed: false,
+        scoringValidityClaimed: false,
+        claimBoundary: "runtime_visual_evidence_attachment_route_rejects_raw_ui_xr_payloads",
+      }, 400);
+    }
+    if (!runtimeRealismEvidenceInputReviewDecisionRecord || runtimeRealismEvidenceInputReviewDecisionRecord.scenarioId !== scenarioId) {
+      return context.json({ error: "runtime_realism_evidence_input_review_required", scenarioId }, 400);
+    }
+    const actionPacket = buildRuntimeVisualEvidenceAttachmentActionPacket(
+      buildRuntimeRealismEvidenceAttachmentSummary(runtimeRealismEvidenceInputReviewDecisionRecord, undefined),
+    );
+    const reviewedInputIds = new Set(runtimeRealismEvidenceInputReviewDecisionRecord.decisions
+      .filter((decision) => decision.decision === "reviewed_metadata_only")
+      .map((decision) => decision.inputId));
+    const allowedActionIds = new Set(actionPacket?.availableActions.map((action) => action.actionId) ?? []);
+    const attachments = Array.isArray(body.attachments)
+      ? body.attachments.filter((attachment): attachment is ApiRuntimeVisualEvidenceAttachment =>
+        isRuntimeVisualEvidenceAttachment(attachment)
+        && allowedActionIds.has(attachment.actionId)
+        && reviewedInputIds.has(attachment.inputId)
+        && (
+          (attachment.actionId === "attach_runtime_realism_evidence_refs" && attachment.inputKind === "runtime_realism_signal_input")
+          || (attachment.actionId === "attach_visual_qa_evidence_refs" && attachment.inputKind === "visual_qa_review_input")
+        ))
+      : [];
+    runtimeVisualEvidenceAttachments.push(...attachments);
+    runtimeVisualEvidenceAttachmentRecord = buildRuntimeVisualEvidenceAttachmentRecord({
+      scenarioId,
+      attachments: runtimeVisualEvidenceAttachments,
+    });
+    return context.json(runtimeVisualEvidenceAttachmentRecord);
   });
 
   app.get(routeById("learner-runtime-asset-bundle-list").path, async (context) => {
@@ -459,7 +1253,10 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
         ...(isRecord(body.variables) ? { variables: body.variables } : {}),
         ...(graphqlOperationName !== "anonymous" ? { operationName: graphqlOperationName } : {}),
       },
-      createAdminGraphqlRoot(runtime, persistence, adminScenarioOverrides),
+      createAdminGraphqlRoot(runtime, persistence, adminScenarioOverrides, {
+        runtimeRealismEvidenceInputReviewDecisionRecord,
+        runtimeVisualEvidenceAttachmentRecord,
+      }),
     );
     await recordGraphqlOperationSpan(telemetry, {
       operationName: graphqlOperationName,
@@ -509,6 +1306,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
       nextAction: "attach_runtime_asset_review_decisions",
       runtimeAssetReviewDecisionCount: 0,
       runtimeAssetReviewDecisions: [],
+      materializationInputReviewDecisions: [],
       scenarioReviewGate: buildScenarioReviewGateSummary(scenarioId),
       humanReviewActions: buildHumanReviewActions({
         scenarioId,
@@ -556,6 +1354,27 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     });
 
     return context.json(record);
+  });
+
+  app.post(routeById("submit-scenario-scene-generation-materialization-input-review").path, async (context) => {
+    const requestId = context.req.param("requestId");
+    const body = (await context.req.json().catch(() => ({}))) as { decisions?: unknown };
+    const record = sceneGenerationRequests.find((candidate) => candidate.requestId === requestId);
+    if (!record) {
+      return context.json({ error: "scene_generation_request_not_found", requestId }, 404);
+    }
+    const decisions = Array.isArray(body.decisions) ? body.decisions.filter(isMaterializationInputReviewDecision) : [];
+    record.materializationInputReviewDecisions = [
+      ...record.materializationInputReviewDecisions,
+      ...decisions,
+    ];
+    record.materializationInputReviewDecisionRecord = buildMaterializationInputReviewDecisionRecord({
+      requestId: record.requestId,
+      scenarioId: record.scenarioId,
+      decisions: record.materializationInputReviewDecisions,
+    });
+
+    return context.json(record.materializationInputReviewDecisionRecord);
   });
 
   app.get(routeById("scenario-scene-generation-request-publication-readiness").path, (context) => {
@@ -632,6 +1451,8 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     });
     record.scenarioReviewGate = scenarioReviewGate;
     record.humanReviewActions = humanReviewActions;
+    const materializationInputManifestSummary = readMaterializationInputManifestSummaryForScenario(record.scenarioId);
+    const materializationEvidenceAttachmentSummary = readMaterializationEvidenceAttachmentSummaryForScenario(record.scenarioId);
     return context.json({
       requestId,
       scenarioId: record.scenarioId,
@@ -695,6 +1516,22 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
         warningIds: dynamicBehaviorCoverageSummary.warningIds,
       },
       encounterFactoryDryRunSummary: encounterFactorySummary.encounterFactoryDryRunSummary,
+      materializationInputManifestSummary,
+      materializationEvidenceAttachmentSummary,
+      materializationInputReviewActionPacket: buildMaterializationInputReviewActionPacket(materializationInputManifestSummary, notEvidenceFor),
+      materializationInputReviewDecisionRecord: record.materializationInputReviewDecisionRecord,
+      runtimeRealismEvidenceInputReviewDecisionRecord: runtimeRealismEvidenceInputReviewDecisionRecord?.scenarioId === record.scenarioId
+        ? runtimeRealismEvidenceInputReviewDecisionRecord
+        : undefined,
+      runtimeVisualEvidenceAttachmentSummary: runtimeRealismEvidenceInputReviewDecisionRecord?.scenarioId === record.scenarioId
+        ? buildRuntimeRealismEvidenceAttachmentSummary(runtimeRealismEvidenceInputReviewDecisionRecord, runtimeVisualEvidenceAttachmentRecord)
+        : undefined,
+      runtimeVisualEvidenceAttachmentActionPacket: runtimeRealismEvidenceInputReviewDecisionRecord?.scenarioId === record.scenarioId
+        ? buildRuntimeVisualEvidenceAttachmentActionPacket(buildRuntimeRealismEvidenceAttachmentSummary(runtimeRealismEvidenceInputReviewDecisionRecord, runtimeVisualEvidenceAttachmentRecord))
+        : undefined,
+      runtimeVisualEvidenceAttachmentRecord: runtimeVisualEvidenceAttachmentRecord?.scenarioId === record.scenarioId ? runtimeVisualEvidenceAttachmentRecord : undefined,
+      assetReleaseLadderReplayProjection: buildAssetReleaseLadderReplayProjection(record.scenarioId),
+      runtimeEvidenceCaptureScaffold: readRuntimeEvidenceCaptureScaffoldForScenario(record.scenarioId),
       claimBoundary: "publication_readiness_not_learner_bundle_persistence",
       notEvidenceFor,
     });
@@ -1019,6 +1856,8 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
         packet: runtime.reviewPacket(stationRunId),
         clinicalEventReviewSummary,
         traceEvents: runtime.traceEvents(stationRunId),
+        runtimeRealismEvidenceInputReviewDecisionRecord,
+        runtimeVisualEvidenceAttachmentRecord,
       }));
     } catch (error) {
       return sessionErrorResponse(context, error);
@@ -1041,6 +1880,10 @@ function createAdminGraphqlRoot(
   runtime: ScenarioRuntime,
   persistence: ApiPersistenceSink,
   scenarioOverrides: Map<string, AdminGraphqlScenario>,
+  state: {
+    runtimeRealismEvidenceInputReviewDecisionRecord?: ApiRuntimeRealismEvidenceInputReviewDecisionRecord;
+    runtimeVisualEvidenceAttachmentRecord?: ApiRuntimeVisualEvidenceAttachmentRecord;
+  } = {},
 ): AdminGraphqlRootValue {
   return {
     assetReadiness: ({ scenarioId, version }) => findSeedBankAssetReadiness(String(scenarioId), version),
@@ -1068,6 +1911,8 @@ function createAdminGraphqlRoot(
         packet: runtime.reviewPacket(stationRunIdString),
         clinicalEventReviewSummary,
         traceEvents: runtime.traceEvents(stationRunIdString),
+        runtimeRealismEvidenceInputReviewDecisionRecord: state.runtimeRealismEvidenceInputReviewDecisionRecord,
+        runtimeVisualEvidenceAttachmentRecord: state.runtimeVisualEvidenceAttachmentRecord,
       });
     },
     traceEvents: ({ stationRunId }) => runtime.traceEvents(String(stationRunId)),
@@ -1133,6 +1978,8 @@ function summarizeReviewReplayReadiness(input: {
   packet: RuntimeReviewPacket;
   clinicalEventReviewSummary: ReturnType<typeof summarizeClinicalEventReviewProjections>;
   traceEvents: RuntimeTraceEvents;
+  runtimeRealismEvidenceInputReviewDecisionRecord?: ApiRuntimeRealismEvidenceInputReviewDecisionRecord;
+  runtimeVisualEvidenceAttachmentRecord?: ApiRuntimeVisualEvidenceAttachmentRecord;
 }) {
   const traceSafetyLabels = input.traceEvents.flatMap((event) => {
     const tag = event.tag ?? "";
@@ -1159,6 +2006,13 @@ function summarizeReviewReplayReadiness(input: {
     safetySignalCount > 0 ? "safety_signals_present" : undefined,
   ].filter((blocker): blocker is string => Boolean(blocker));
   const reviewPacketEvidenceHandoff = buildReviewPacketEvidenceHandoff(input);
+  const runtimeVisualEvidenceReplayProjection = buildRuntimeVisualEvidenceReplayProjection({
+    stationRunId: input.stationRunId,
+    scenarioId: input.packet.scenarioId,
+    decisionRecord: input.runtimeRealismEvidenceInputReviewDecisionRecord,
+    attachmentRecord: input.runtimeVisualEvidenceAttachmentRecord,
+  });
+  const assetReleaseLadderReplayProjection = buildAssetReleaseLadderReplayProjection(input.packet.scenarioId);
   const caseDefinedHumanoidPerformanceContract = buildDynamicEncounterFactoryPlanningProjection(
     scenarioBank,
     input.packet.scenarioId,
@@ -1186,11 +2040,190 @@ function summarizeReviewReplayReadiness(input: {
     runtimeEvidenceGateRefs: runtimeEvidenceGateRefsForReviewReplay(),
     generatedBundlePosture: generatedBundlePostureForReviewReplay(),
     reviewPacketEvidenceHandoff,
+    ...(runtimeVisualEvidenceReplayProjection ? { runtimeVisualEvidenceReplayProjection } : {}),
+    ...(assetReleaseLadderReplayProjection ? { assetReleaseLadderReplayProjection } : {}),
     ...(caseDefinedHumanoidPerformanceContract ? { caseDefinedHumanoidPerformanceContract } : {}),
     ...(caseDefinedHumanoidRuntimeHandoff.length > 0 ? { caseDefinedHumanoidRuntimeHandoff } : {}),
     ...(reviewPacketEvidenceHandoff.xrTraceEvidenceSummary
       ? { xrTraceEvidenceSummary: reviewPacketEvidenceHandoff.xrTraceEvidenceSummary }
       : {}),
+  };
+}
+
+function buildRuntimeVisualEvidenceReplayProjection(input: {
+  stationRunId: string;
+  scenarioId: string;
+  decisionRecord?: ApiRuntimeRealismEvidenceInputReviewDecisionRecord;
+  attachmentRecord?: ApiRuntimeVisualEvidenceAttachmentRecord;
+}): ApiRuntimeVisualEvidenceReplayProjection | undefined {
+  if (input.attachmentRecord?.scenarioId !== input.scenarioId) {
+    return undefined;
+  }
+
+  const decisionRecord = input.decisionRecord?.scenarioId === input.scenarioId
+    ? input.decisionRecord
+    : undefined;
+  const reviewedMetadataOnlyCount = decisionRecord?.reviewedDecisionCount ?? 0;
+  const heldMetadataOnlyCount = decisionRecord?.heldDecisionCount ?? 0;
+  const acceptedActionIds = Array.from(new Set(input.attachmentRecord.attachments.map((attachment) => attachment.actionId))).sort((left, right) => left.localeCompare(right)) as ApiRuntimeVisualEvidenceReplayProjection["acceptedActionIds"];
+  const blockerIds = [
+    reviewedMetadataOnlyCount === 0 ? "runtime_visual_evidence_review_decisions_missing" : undefined,
+    input.attachmentRecord.runtimeEvidenceAttachmentCount === 0 ? "runtime_realism_evidence_refs_missing" : undefined,
+    input.attachmentRecord.visualQaEvidenceAttachmentCount === 0 ? "visual_qa_evidence_refs_missing" : undefined,
+    "runtime_visual_evidence_refs_are_metadata_only_not_replay_payloads",
+  ].filter((blocker): blocker is string => Boolean(blocker));
+  const nextActions = [
+    input.attachmentRecord.attachmentCount > 0 ? `review ${input.attachmentRecord.attachmentCount} accepted metadata-only runtime/visual refs before scenario iteration` : "attach runtime/visual metadata refs before scenario iteration",
+    blockerIds.length > 0 ? `carry forward projection blockers ${blockerIds.slice(0, 3).join(", ")}` : "confirm no runtime/visual projection blockers before scenario iteration",
+    "keep runtime, learner, Quest, production, clinical, and scoring gates blocked until real runtime and visual-QA evidence clears review",
+  ];
+  const uiXrConsumerOperatorWorkflowSummary = buildUiXrConsumerWorkflowSummary(input.attachmentRecord);
+
+  return {
+    schemaVersion: "openclinxr.runtime-visual-evidence-replay-projection.v1",
+    source: "runtime_visual_evidence_attachment_record_summary",
+    stationRunId: input.stationRunId,
+    scenarioId: input.scenarioId,
+    reviewedMetadataOnlyCount,
+    heldMetadataOnlyCount,
+    acceptedAttachmentRefCount: input.attachmentRecord.attachmentCount,
+    runtimeEvidenceRefCount: input.attachmentRecord.runtimeEvidenceAttachmentCount,
+    visualQaEvidenceRefCount: input.attachmentRecord.visualQaEvidenceAttachmentCount,
+    acceptedActionIds,
+    rawPayloadDisplayed: false,
+    providerExecutionAllowed: false,
+    runtimeExecutionAllowed: false,
+    learnerLaunchAllowed: false,
+    questEvidenceRefreshAllowed: false,
+    productionAssetReadinessClaimed: false,
+    clinicalValidityClaimed: false,
+    scoringValidityClaimed: false,
+    replayEvidenceReady: false,
+    blockerIds,
+    nextActions,
+    ...(uiXrConsumerOperatorWorkflowSummary ? { uiXrConsumerOperatorWorkflowSummary } : {}),
+    claimBoundary: "summary_only_runtime_visual_evidence_replay_projection_not_raw_payload_or_readiness",
+    notEvidenceFor: [
+      "raw_payload_display",
+      "runtime_readiness",
+      "learner_launch_readiness",
+      "quest_readiness",
+      "production_asset_readiness",
+      "clinical_validity",
+      "scoring_validity",
+    ],
+  };
+}
+
+function buildUiXrConsumerWorkflowSummary(
+  attachmentRecord: ApiRuntimeVisualEvidenceAttachmentRecord,
+): ApiUiXrRuntimeEvidenceConsumerWorkflowSummary | undefined {
+  const uiXrAttachments = attachmentRecord.attachments.filter((attachment) =>
+    attachment.reviewerId === "ui_xr_manual_runtime_evidence_capture_scaffold"
+    || attachment.evidenceRef.startsWith("ui-xr-manual-runtime-evidence://")
+    || attachment.evidenceRef.startsWith("ui-xr-manual-visual-qa-evidence://")
+  );
+  if (uiXrAttachments.length === 0) return undefined;
+  return {
+    schemaVersion: "openclinxr.ui-xr-runtime-evidence-consumer-workflow-summary.v1",
+    source: "ui_xr_runtime_evidence_consumer_operator_workflow",
+    scenarioId: attachmentRecord.scenarioId,
+    acceptedAttachmentRefCount: uiXrAttachments.length,
+    runtimeEvidenceRefCount: uiXrAttachments.filter((attachment) => attachment.actionId === "attach_runtime_realism_evidence_refs").length,
+    visualQaEvidenceRefCount: uiXrAttachments.filter((attachment) => attachment.actionId === "attach_visual_qa_evidence_refs").length,
+    targetRoute: "/runtime/visual-evidence-attachments",
+    method: "POST",
+    submitBodyRef: "submitRuntimeVisualEvidenceAttachmentInput",
+    submitPreview: {
+      route: "/runtime/visual-evidence-attachments",
+      bodyRef: "submitRuntimeVisualEvidenceAttachmentInput",
+      attachmentCount: uiXrAttachments.length,
+      actionIds: uiXrAttachments.map((attachment) => attachment.actionId),
+      inputIds: uiXrAttachments.map((attachment) => attachment.inputId),
+      localArtifactPaths: uiXrAttachments.map((attachment) => attachment.localArtifactPath),
+      rawPayloadDisplayed: false,
+      claimBoundary: "ui_xr_consumer_workflow_submit_preview_metadata_only",
+    },
+    reviewerAction: "submit_metadata_only_runtime_visual_evidence_refs",
+    preflightChecks: [
+      "scenario_id_matches_payload_and_expected_scenario",
+      "attachments_non_empty",
+      "raw_payload_hidden",
+      "all_execution_and_readiness_gates_false",
+    ],
+    nextActions: [
+      `submit ${uiXrAttachments.length} metadata-only UI-XR runtime/visual refs through the guarded attachment route`,
+      "confirm Admin replay projection shows raw payload hidden and all readiness gates false",
+      "keep runtime, learner, Quest, production, clinical, and scoring gates blocked until real runtime and visual-QA evidence clears review",
+    ],
+    rawPayloadDisplayed: false,
+    providerExecutionAllowed: false,
+    runtimeExecutionAllowed: false,
+    learnerLaunchAllowed: false,
+    questEvidenceRefreshAllowed: false,
+    productionAssetReadinessClaimed: false,
+    clinicalValidityClaimed: false,
+    scoringValidityClaimed: false,
+    blockerIds: ["ui_xr_consumer_refs_are_metadata_only_not_runtime_or_visual_proof"],
+    claimBoundary: "summary_only_ui_xr_consumer_workflow_not_raw_payload_or_readiness",
+    notEvidenceFor: [
+      "raw_payload_display",
+      "runtime_readiness",
+      "learner_launch_readiness",
+      "quest_readiness",
+      "production_asset_readiness",
+      "clinical_validity",
+      "scoring_validity",
+    ],
+  };
+}
+
+function buildAssetReleaseLadderReplayProjection(scenarioId: string): ApiAssetReleaseLadderReplayProjection | undefined {
+  const scenario = scenarioBank.find((candidate) => candidate.scenarioId === scenarioId);
+  if (!scenario) return undefined;
+  const ladder = findSeedBankAssetReadiness(scenarioId, scenario.version).productionReadinessLadder;
+  const blockedAssets = ladder.assetLadders
+    .filter((assetLadder) => !assetLadder.productionReady)
+    .map((assetLadder) => {
+      const firstBlockedStep = assetLadder.steps.find((step) => step.status === "blocked")?.step ?? null;
+      return {
+        assetId: assetLadder.assetId,
+        blockerCount: assetLadder.blockers.length,
+        firstBlockedStep,
+        blockerIds: [...assetLadder.blockers],
+      };
+    });
+
+  return {
+    schemaVersion: "openclinxr.asset-release-ladder-replay-projection.v1",
+    source: "scenario_asset_production_readiness_ladder",
+    scenarioId,
+    productionReady: false,
+    assetCount: ladder.assetCount,
+    productionReadyAssetCount: ladder.productionReadyAssetIds.length,
+    blockedAssetCount: ladder.blockedAssetIds.length,
+    missingRequiredAssetCount: ladder.missingRequiredAssetIds.length,
+    stationBudgetStatus: ladder.stationBudget.ready ? "ready" : "blocked",
+    blockerCount: ladder.blockers.length,
+    blockerIds: [...ladder.blockers],
+    blockedAssets,
+    providerExecutionAllowed: false,
+    runtimeExecutionAllowed: false,
+    learnerLaunchAllowed: false,
+    questEvidenceRefreshAllowed: false,
+    productionAssetReadinessClaimed: false,
+    clinicalValidityClaimed: false,
+    scoringValidityClaimed: false,
+    claimBoundary: "summary_only_asset_release_ladder_replay_projection_not_release_readiness",
+    notEvidenceFor: [
+      "provider_availability",
+      "runtime_readiness",
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity",
+      "learner_launch_readiness",
+    ],
   };
 }
 
@@ -1646,6 +2679,54 @@ function isRuntimeAssetReviewDecision(value: unknown): value is RuntimeAssetRevi
     && Array.isArray(value.evidenceRefs)
     && value.evidenceRefs.every((ref) => typeof ref === "string")
     && typeof value.reviewedAt === "string";
+}
+
+function isMaterializationInputReviewDecision(value: unknown): value is ApiMaterializationInputReviewDecision {
+  return isRecord(value)
+    && (
+      value.actionId === "review_actor_materialization_inputs"
+      || value.actionId === "hold_actor_materialization_inputs"
+      || value.actionId === "review_equipment_materialization_inputs"
+      || value.actionId === "hold_equipment_materialization_inputs"
+    )
+    && typeof value.reviewerId === "string"
+    && (value.decision === "reviewed_metadata_only" || value.decision === "held_metadata_only")
+    && typeof value.comments === "string"
+    && Array.isArray(value.evidenceRefs)
+    && value.evidenceRefs.every((ref) => typeof ref === "string")
+    && typeof value.reviewedAt === "string";
+}
+
+function isRuntimeRealismEvidenceInputReviewDecision(value: unknown): value is ApiRuntimeRealismEvidenceInputReviewDecision {
+  return isRecord(value)
+    && typeof value.inputId === "string"
+    && (value.inputKind === "runtime_realism_signal_input" || value.inputKind === "visual_qa_review_input")
+    && typeof value.reviewerId === "string"
+    && (value.decision === "reviewed_metadata_only" || value.decision === "held_metadata_only")
+    && typeof value.comments === "string"
+    && Array.isArray(value.evidenceRefs)
+    && value.evidenceRefs.every((ref) => typeof ref === "string")
+    && typeof value.reviewedAt === "string";
+}
+
+function isRuntimeVisualEvidenceAttachment(value: unknown): value is ApiRuntimeVisualEvidenceAttachment {
+  return isRecord(value)
+    && (value.actionId === "attach_runtime_realism_evidence_refs" || value.actionId === "attach_visual_qa_evidence_refs")
+    && typeof value.inputId === "string"
+    && (value.inputKind === "runtime_realism_signal_input" || value.inputKind === "visual_qa_review_input")
+    && typeof value.evidenceRef === "string"
+    && typeof value.localArtifactPath === "string"
+    && typeof value.reviewerId === "string"
+    && (value.attachmentStatus === "attached_metadata_only" || value.attachmentStatus === "held_metadata_only")
+    && typeof value.comments === "string"
+    && typeof value.attachedAt === "string";
+}
+
+function isRawUiXrManualPerformancePayload(value: Record<string, unknown>): boolean {
+  return "runtimeVisualEvidenceCaptureScaffold" in value
+    || "manualPerformanceDraft" in value
+    || "captureSummary" in value
+    || "runtimeEvidenceConsumerReadiness" in value;
 }
 
 function isExamForm(value: unknown): value is ExamForm {

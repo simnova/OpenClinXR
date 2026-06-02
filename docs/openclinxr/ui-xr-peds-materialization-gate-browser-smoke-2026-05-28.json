@@ -1,0 +1,254 @@
+{
+  "schemaVersion": "openclinxr.ui-xr-materialization-gate-browser-smoke.v1",
+  "capturedAt": "2026-05-28T04:56:53.624Z",
+  "source": "playwright_local_browser",
+  "url": "http://127.0.0.1:5173/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1&openclinxrStationId=peds_asthma_parent_anxiety_station_v1&openclinxrRuntimeAssetBundleId=local_exam_run%3Apeds_asthma_parent_anxiety_encounter_v1%3Agenerated-runtime-assets&openclinxrCaptureMode=actor-realism",
+  "ok": true,
+  "pageErrors": [],
+  "consoleErrors": [],
+  "evidence": {
+    "url": "http://127.0.0.1:5173/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1&openclinxrStationId=peds_asthma_parent_anxiety_station_v1&openclinxrRuntimeAssetBundleId=local_exam_run%3Apeds_asthma_parent_anxiety_encounter_v1%3Agenerated-runtime-assets&openclinxrCaptureMode=actor-realism",
+    "title": "OpenClinXR Station Runtime",
+    "selectedRuntimeAssetBundleId": "local_exam_run:peds_asthma_parent_anxiety_encounter_v1:generated-runtime-assets",
+    "learnerRuntimeUseGateEvidence": {
+      "canUseGeneratedBundleForLearnerRuntime": false,
+      "blockers": [
+        "runtime_realism_evidence_not_attached_to_encounter_bundle",
+        "visual_qa_evidence_not_attached_to_encounter_bundle",
+        "quest_runtime_evidence_not_attached_to_encounter_bundle"
+      ],
+      "pendingGateIds": [
+        "runtime_realism_evidence",
+        "visual_qa_evidence",
+        "quest_runtime_evidence"
+      ],
+      "attachedGateIds": [],
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ],
+      "source": "window.__openClinXrLearnerRuntimeUseGateEvidence",
+      "bundleId": "local_exam_run:peds_asthma_parent_anxiety_encounter_v1:generated-runtime-assets",
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "assetStoreKind": "azurite_blob",
+      "activeBundleSource": "static_generated_bundle",
+      "generatedBundleLearnerUseBlocked": true,
+      "fallbackActive": true,
+      "fallbackReason": "static_generated_visual_review_only_learner_use_blocked:local_exam_run:peds_asthma_parent_anxiety_encounter_v1:generated-runtime-assets",
+      "requiredGateIds": [
+        "runtime_realism_evidence",
+        "visual_qa_evidence",
+        "quest_runtime_evidence"
+      ],
+      "blockingGateIds": [
+        "runtime_realism_evidence",
+        "visual_qa_evidence",
+        "quest_runtime_evidence"
+      ],
+      "approvedLocalFixtureOnly": false,
+      "actorEquipmentMaterializationGate": {
+        "claimBoundary": "actor_equipment_materialization_contract_not_runtime_readiness",
+        "runtimeSelectionBlockedUntilEvidenceAttached": true,
+        "actorBlockers": [
+          "shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness"
+        ],
+        "equipmentBlockers": [
+          "generic_equipment_reuse_blocks_equipment_specific_asset_readiness"
+        ],
+        "caveats": [
+          "Shared neutral humanoid reuse is local runtime scaffolding only until actor-specific Anny mesh, rig, hair/face, clothing, and animation evidence attaches.",
+          "Generic equipment reuse is local runtime scaffolding only until equipment-specific mesh/prefab, scale, placement, affordance, and scenario variant evidence attaches."
+        ],
+        "recommendedNextActions": [
+          "materialize actor-specific Anny humanoid GLBs before treating visual role distinction as asset-level progress",
+          "materialize equipment-specific generated GLBs or prefabs before treating pediatric equipment as Quest, clinical, scoring, or production-ready"
+        ],
+        "notEvidenceFor": [
+          "runtime_readiness",
+          "quest_readiness",
+          "production_asset_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "claimBoundary": "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach"
+    },
+    "postureText": "\n    \n  \n    \n      \n      \n        3D scene unavailable\n        WebGL or headset rendering did not initialize. Use Quest/manual evidence before readiness claims.\n      \n      \n        WebXR unavailable\n        Trace 0/9\n        Enter Full VR\n      \n    \n    \n      \n        Doorway\n        Pediatric Asthma\n        Child-sized urgent-care bay with pulse oximeter, nebulizer setup, parent chair, and pediatric distraction items.\n      \n      \n        Encounter\n        00:02\n      \n      \n        Simulated EHR\n        \n          Chief concernAssess pediatric respiratory distress\n          Initial vitalsHR 128, RR 32, SpO2 91% on room air\n          InterruptionNurse Kevin Lee cue at 300s: oxygen request\n        \n      \n      \n        Mock Dialogue\n        Maya Johnson: short sentences, scared, audible wheeze\n      \n      \n        Trace Actions\n        work of breathing assessmentinhaler historytrigger historyoxygen requestbronchodilator planurgent escalationparent communicationempathy statementpatient note submitted\n      \n      \n        Encounter Flow\n        \n          Station1/6: peds_asthma_parent_anxiety_v1\n          Phase timerencounter 00:02 / 15:00\n          Advanceportal_crossing_started_or_resumed_encounter\n        \n        Patient note\n        \n        \n          End encounter / start note\n          Submit note / next encounter\n        \n      \n      \n        Room State\n        baseline room state\n      \n      \n        Runtime Posture\n        Mock model/voice active; local voice, Quest, and MR remain evidence-gated.\n        \n          Modelmock-model active; local model gated; 1 blocker\n          Voicemock-voice active; VibeVoice RTF 5.24x; 4 blockers\n          QuestFull VR evidence blocked; 22 blockers\n          MRMR separate lane; immersive-ar unsupported; 2 blockers\n          Bundle Gateusing static_generated_bundle | generated learner use blocked | blocking runtime_realism_evidence, visual_qa_evidence, quest_runtime_evidence | actor/equipment materialization blocked shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness, generic_equipment_reuse_blocks_equipment_specific_asset_readiness | fallback static_generated_visual_review_only_learner_use_blocked:local_exam_run:peds_asthma_parent_anxiety_encounter_v1:generated-runtime-assets\n          Launchlearner launch blocked | 29 blockers | next complete_full_vr_manual_evidence_before_runtime_claim\n        \n      \n      \n        Quest Evidence\n        \n          Frames8 / 7 | vr 0 | preview 8 | frame gap\n          Loopwebxr_animation_loop | not presenting | visible | 388.1ms fresh\n          Input0 hand inputs | hand rep not_visible | no source\n          Assets10/10 generated loaded | no load failures | 6 fallbacks active | 61 affordance cues\n          Speech affectemotion pain | transition 993ms | mouth 0.209; brow 0.52; cheek 0.441 | actor realism requirement pending | emotion transition cue present | case humanoid contract 3 actors | locomotion 3 | expression 3 | gaze 3 | lip-sync 3 | interactivity 3 | emotion states 9 | viseme true | case_definition_humanoid_performance_metadata_only | not readiness generated_humanoid_asset_readiness,animation_quality,quest_readiness,runtime_readiness,clinical_validity\n          Movementportal dynamic_encounter_world; entered dynamic encounter; portal started encounter; exterior shell hidden; note reusable_exterior_anteroom | none | locomotion gap | attempt not_attempted | no movement timestamp | no distance delta | no turn delta | path no delta | diag gp 0/0; hand 0/2; blocked missing_joints | probe no_gamepad_sources; ctrl 0/0; hand 0/2\n          Trace interactionno learner action | no source | not_observed | 0/9 required | next work_of_breathing_assessment | review-safe | xr_trace_interaction_summary_not_quest_readiness\n          Tracexr_hand_select | headset latency gap | attempt xr_hand_select_attempted_no_runtime_event | hand select blocked; dwell 0ms; fired 0; trace_unavailable | no tag | no latency\n          Validationdraft only | 22 blockers | gap headset_select_trace_latency_missing\n        \n        \n          Copy Evidence\n          Not copied: draft; 22 blockers\n        \n        \n      \n    \n  \n\n    \n  \n\n",
+    "runtimeSceneManifestEvidence": {
+      "source": "learner_runtime_asset_bundle_scene_manifest",
+      "manifestId": "scene_manifest:peds_asthma_parent_anxiety_v1:peds_asthma_parent_anxiety_station_v1",
+      "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+      "selectedScenarioId": "peds_asthma_parent_anxiety_v1",
+      "bundleScenarioId": "peds_asthma_parent_anxiety_v1",
+      "selectedScenarioMatchesBundle": true,
+      "stationId": "peds_asthma_parent_anxiety_station_v1",
+      "stationContextTitle": "Pediatric Asthma",
+      "stationContextChiefConcern": "Assess pediatric respiratory distress",
+      "actorRoster": [
+        {
+          "actorId": "patient_maya_johnson_v1",
+          "role": "patient",
+          "embodiment": "humanoid"
+        },
+        {
+          "actorId": "parent_tara_johnson_v1",
+          "role": "family",
+          "embodiment": "humanoid"
+        },
+        {
+          "actorId": "nurse_kevin_lee_v1",
+          "role": "nurse",
+          "embodiment": "humanoid"
+        }
+      ],
+      "equipmentIds": [
+        "pulse_oximeter_equipment",
+        "nebulizer_mask_equipment",
+        "oxygen_wall_port_equipment",
+        "pediatric_stretcher_equipment",
+        "parent_chair_equipment",
+        "inhaler_spacer_equipment"
+      ],
+      "dialogueTraceTags": [
+        "work_of_breathing_assessment",
+        "inhaler_history",
+        "trigger_history",
+        "oxygen_request",
+        "bronchodilator_plan",
+        "urgent_escalation",
+        "parent_communication",
+        "empathy_statement",
+        "patient_note_submitted"
+      ],
+      "roomPropCount": 4,
+      "semanticRoomPropCount": 4,
+      "actorPlacementCount": 3,
+      "equipmentPlacementCount": 6,
+      "dialogueTurnCount": 9,
+      "virtualDeviceActorCount": 0,
+      "virtualDeviceDialogueRoutedCount": 0,
+      "generatedBySceneManifestCount": 4,
+      "propIds": [
+        "pediatric-nebulizer-station",
+        "parent-coaching-chair",
+        "pediatric-pulse-ox-monitor",
+        "child-calm-breathing-card"
+      ],
+      "caseDefinedHumanoidRuntimeHandoffCount": 0,
+      "caseDefinedHumanoidRuntimeHandoffActorRoles": [],
+      "caseDefinedHumanoidRuntimeHandoffRequiredSignalIds": [],
+      "caseDefinedHumanoidRuntimeHandoff": [],
+      "storageBackedBundle": true,
+      "productionReadinessClaimed": false,
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    },
+    "bootEvidence": {
+      "app": "ui-xr",
+      "events": [
+        {
+          "phase": "controls_start",
+          "atMs": 4.5
+        },
+        {
+          "phase": "controls_ready",
+          "atMs": 5.5
+        },
+        {
+          "phase": "clock_started",
+          "atMs": 12.3
+        },
+        {
+          "phase": "learner_runtime_asset_bundle_static_generated_loaded_for_visual_review_with_blocked_learner_use",
+          "atMs": 36.1
+        },
+        {
+          "phase": "learner_runtime_asset_bundle_static_generated_loaded",
+          "atMs": 36.1
+        },
+        {
+          "phase": "station_scene_start",
+          "atMs": 37
+        },
+        {
+          "phase": "station_render_loop_started",
+          "atMs": 92.5
+        },
+        {
+          "phase": "station_scene_ready",
+          "atMs": 92.5
+        },
+        {
+          "phase": "generated_environment_asset_loaded",
+          "atMs": 714.9
+        },
+        {
+          "phase": "generated_equipment_placeholder_suppressed",
+          "atMs": 716.3
+        },
+        {
+          "phase": "generated_equipment_placeholder_suppressed",
+          "atMs": 716.3
+        },
+        {
+          "phase": "generated_equipment_placeholder_suppressed",
+          "atMs": 716.4
+        },
+        {
+          "phase": "generated_equipment_placeholder_suppressed",
+          "atMs": 717.7
+        },
+        {
+          "phase": "generated_equipment_placeholder_suppressed",
+          "atMs": 717.8
+        },
+        {
+          "phase": "generated_equipment_placeholder_suppressed",
+          "atMs": 717.8
+        },
+        {
+          "phase": "generated_humanoid_procedural_idle_started",
+          "atMs": 781.9
+        },
+        {
+          "phase": "generated_humanoid_asset_loaded",
+          "atMs": 781.9
+        },
+        {
+          "phase": "generated_humanoid_animation_clips_started",
+          "atMs": 802.1
+        },
+        {
+          "phase": "generated_humanoid_asset_loaded",
+          "atMs": 802.2
+        },
+        {
+          "phase": "generated_humanoid_animation_clips_started",
+          "atMs": 802.9
+        },
+        {
+          "phase": "generated_humanoid_asset_loaded",
+          "atMs": 802.9
+        },
+        {
+          "phase": "humanoid_dialogue_phoneme_mapping_started",
+          "atMs": 979.5
+        }
+      ]
+    }
+  },
+  "notEvidenceFor": [
+    "quest_readiness",
+    "runtime_readiness",
+    "production_asset_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "learner_launch_readiness"
+  ]
+}

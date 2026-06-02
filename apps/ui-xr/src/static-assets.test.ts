@@ -396,6 +396,11 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("posture-voice");
     expect(mainSource).toContain("posture-quest");
     expect(mainSource).toContain("posture-mr");
+    expect(mainSource).toContain("readRuntimeActorEquipmentMaterializationGate(bundle)");
+    expect(mainSource).toContain("actor/equipment materialization blocked");
+    expect(mainSource).toContain("materialization evidence slots");
+    expect(runtimeStateSource).toContain("actorEquipmentMaterializationGate: RuntimeActorEquipmentMaterializationGateEvidence | null");
+    expect(runtimeStateSource).toContain("materializationEvidenceAttachmentSummary: RuntimeMaterializationEvidenceAttachmentSummary | null");
     expect(mainSource).toContain("Mock model/voice active");
   });
 

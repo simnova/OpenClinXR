@@ -1,0 +1,598 @@
+{
+  "generatedAt": "2026-05-28T13:46:31.784Z",
+  "schemaVersion": "openclinxr.encounter-local-launch-selection.v1",
+  "selectedScenarioId": "peds_asthma_parent_anxiety_v1",
+  "selectedEncounterId": "encounter_assets_peds_asthma_parent_anxiety_executable_v1",
+  "selectedStationId": "peds_asthma_parent_anxiety_station_v1",
+  "selectedRuntimeAssetBundleId": "peds_asthma_parent_anxiety_encounter_v1:learner-runtime-bundle:v1",
+  "selectionSource": "materialized_publication_payload",
+  "launchMode": "local_static_public_assets",
+  "sceneManifestUrl": "/xr-assets/generated/peds_asthma_parent_anxiety_v1/scene-manifest.v1.json",
+  "learnerRuntimeBundleUrl": "/xr-assets/generated/peds_asthma_parent_anxiety_v1/learner-runtime-bundle.v1.json",
+  "localFilesystemPaths": {
+    "sceneManifestPath": ".openclinxr/encounter-publication/local_tenant/peds_asthma_parent_anxiety_v1/peds_asthma_parent_anxiety_encounter_v1/scene-manifest.v1.json",
+    "learnerRuntimeBundlePath": ".openclinxr/encounter-publication/local_tenant/peds_asthma_parent_anxiety_v1/peds_asthma_parent_anxiety_encounter_v1/learner-runtime-bundle.v1.json",
+    "uiXrPublicSceneManifestPath": "apps/ui-xr/public/xr-assets/generated/peds_asthma_parent_anxiety_v1/scene-manifest.v1.json",
+    "uiXrPublicLearnerRuntimeBundlePath": "apps/ui-xr/public/xr-assets/generated/peds_asthma_parent_anxiety_v1/learner-runtime-bundle.v1.json"
+  },
+  "dynamicBehaviorTags": [
+    "dialogue:patient",
+    "dialogue:nurse",
+    "dialogue:family",
+    "gaze:patient",
+    "gaze:family",
+    "gaze:nurse",
+    "affect:patient",
+    "affect:nurse",
+    "affect:family"
+  ],
+  "actorRoles": [
+    "patient",
+    "family",
+    "nurse"
+  ],
+  "selectedAssetCounts": {
+    "actors": 3,
+    "humanoidRuntimeRequirements": 3,
+    "equipment": 6,
+    "roomProps": 4,
+    "uiSurfaces": 0
+  },
+  "launchContract": {
+    "schemaVersion": "openclinxr.case-definition-driven-webxr-launch-contract.v1",
+    "contractId": "encounter_assets_peds_asthma_parent_anxiety_executable_v1:webxr-launch-contract:v1",
+    "status": "blocked_pending_evidence",
+    "selectedScenarioId": "peds_asthma_parent_anxiety_v1",
+    "selectedEncounterId": "encounter_assets_peds_asthma_parent_anxiety_executable_v1",
+    "selectedStationId": "peds_asthma_parent_anxiety_station_v1",
+    "runtimeAssetBundleId": "peds_asthma_parent_anxiety_encounter_v1:learner-runtime-bundle:v1",
+    "actorRoster": [
+      {
+        "actorId": "patient_maya_johnson_v1",
+        "actorRole": "patient",
+        "modelAssetId": "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.generated-humanoid-glb",
+        "source": "learner_runtime_bundle_humanoid_requirement"
+      },
+      {
+        "actorId": "parent_tara_johnson_v1",
+        "actorRole": "family",
+        "modelAssetId": "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.generated-humanoid-glb",
+        "source": "learner_runtime_bundle_humanoid_requirement"
+      },
+      {
+        "actorId": "nurse_kevin_lee_v1",
+        "actorRole": "nurse",
+        "modelAssetId": "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.generated-humanoid-glb",
+        "source": "learner_runtime_bundle_humanoid_requirement"
+      }
+    ],
+    "caseDefinedActorRealismRequirements": [],
+    "actorRealismLaunchBadges": [],
+    "actorEquipmentMaterializationGate": {
+      "runtimeSelectionBlockedUntilEvidenceAttached": true,
+      "actorBlockers": [
+        "shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness",
+        "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_body_profile_required",
+        "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_clothing_required",
+        "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_hair_face_required",
+        "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_rig_preservation_required",
+        "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_body_profile_required",
+        "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_clothing_required",
+        "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_hair_face_required",
+        "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_rig_preservation_required",
+        "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_body_profile_required",
+        "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_clothing_required",
+        "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_hair_face_required",
+        "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_rig_preservation_required"
+      ],
+      "equipmentBlockers": [
+        "generic_equipment_reuse_blocks_equipment_specific_asset_readiness",
+        "equipment_materialization_evidence_missing:pulse_oximeter_equipment:scenario_specific_equipment_variant_evidence",
+        "equipment_materialization_evidence_missing:pulse_oximeter_equipment:equipment_scale_validation_evidence",
+        "equipment_materialization_evidence_missing:pulse_oximeter_equipment:equipment_placement_anchor_evidence",
+        "equipment_materialization_evidence_missing:pulse_oximeter_equipment:clinical_affordance_evidence",
+        "equipment_materialization_evidence_missing:nebulizer_mask_equipment:scenario_specific_equipment_variant_evidence",
+        "equipment_materialization_evidence_missing:nebulizer_mask_equipment:equipment_scale_validation_evidence",
+        "equipment_materialization_evidence_missing:nebulizer_mask_equipment:equipment_placement_anchor_evidence",
+        "equipment_materialization_evidence_missing:nebulizer_mask_equipment:clinical_affordance_evidence",
+        "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:scenario_specific_equipment_variant_evidence",
+        "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:equipment_scale_validation_evidence",
+        "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:equipment_placement_anchor_evidence",
+        "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:clinical_affordance_evidence",
+        "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:scenario_specific_equipment_variant_evidence",
+        "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:equipment_scale_validation_evidence",
+        "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:equipment_placement_anchor_evidence",
+        "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:clinical_affordance_evidence",
+        "equipment_materialization_evidence_missing:parent_chair_equipment:scenario_specific_equipment_variant_evidence",
+        "equipment_materialization_evidence_missing:parent_chair_equipment:equipment_scale_validation_evidence",
+        "equipment_materialization_evidence_missing:parent_chair_equipment:equipment_placement_anchor_evidence",
+        "equipment_materialization_evidence_missing:parent_chair_equipment:clinical_affordance_evidence",
+        "equipment_materialization_evidence_missing:inhaler_spacer_equipment:scenario_specific_equipment_variant_evidence",
+        "equipment_materialization_evidence_missing:inhaler_spacer_equipment:equipment_scale_validation_evidence",
+        "equipment_materialization_evidence_missing:inhaler_spacer_equipment:equipment_placement_anchor_evidence",
+        "equipment_materialization_evidence_missing:inhaler_spacer_equipment:clinical_affordance_evidence"
+      ],
+      "caveats": [
+        "Shared neutral humanoid reuse is local runtime scaffolding only until actor-specific Anny mesh, rig, hair/face, clothing, and animation evidence attaches.",
+        "Generic equipment reuse is local runtime scaffolding only until equipment-specific mesh/prefab, scale, placement, affordance, and scenario variant evidence attaches."
+      ],
+      "recommendedNextActions": [
+        "materialize actor-specific Anny humanoid GLBs before treating visual role distinction as asset-level progress",
+        "materialize equipment-specific generated GLBs or prefabs before treating pediatric equipment as Quest, clinical, scoring, or production-ready"
+      ],
+      "materializationEvidenceAttachment": {
+        "source": "encounter_materialization_evidence_report",
+        "reportStatus": "blocked_missing_actor_or_equipment_specific_evidence",
+        "attachableToRuntimeSelection": false,
+        "actorRequiredEvidenceRefs": [
+          "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_humanoid_variant/actor_specific_body_profile_required",
+          "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_humanoid_variant/actor_specific_clothing_required",
+          "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_humanoid_variant/actor_specific_hair_face_required",
+          "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_humanoid_variant/actor_specific_rig_preservation_required",
+          "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_humanoid_variant/actor_specific_body_profile_required",
+          "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_humanoid_variant/actor_specific_clothing_required",
+          "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_humanoid_variant/actor_specific_hair_face_required",
+          "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_humanoid_variant/actor_specific_rig_preservation_required",
+          "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_humanoid_variant/actor_specific_body_profile_required",
+          "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_humanoid_variant/actor_specific_clothing_required",
+          "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_humanoid_variant/actor_specific_hair_face_required",
+          "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_humanoid_variant/actor_specific_rig_preservation_required"
+        ],
+        "equipmentRequiredEvidenceRefs": [
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment:equipment_materialization_variant/clinical_affordance_evidence",
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:nebulizer_mask_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:nebulizer_mask_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:nebulizer_mask_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:nebulizer_mask_equipment:equipment_materialization_variant/clinical_affordance_evidence",
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:oxygen_wall_port_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:oxygen_wall_port_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:oxygen_wall_port_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:oxygen_wall_port_equipment:equipment_materialization_variant/clinical_affordance_evidence",
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pediatric_stretcher_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pediatric_stretcher_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pediatric_stretcher_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pediatric_stretcher_equipment:equipment_materialization_variant/clinical_affordance_evidence",
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_chair_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_chair_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_chair_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_chair_equipment:equipment_materialization_variant/clinical_affordance_evidence",
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:inhaler_spacer_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:inhaler_spacer_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:inhaler_spacer_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+          "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:inhaler_spacer_equipment:equipment_materialization_variant/clinical_affordance_evidence"
+        ],
+        "blockers": [
+          "shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness",
+          "generic_equipment_reuse_blocks_equipment_specific_asset_readiness",
+          "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_body_profile_required",
+          "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_clothing_required",
+          "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_hair_face_required",
+          "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_rig_preservation_required",
+          "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_body_profile_required",
+          "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_clothing_required",
+          "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_hair_face_required",
+          "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_rig_preservation_required",
+          "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_body_profile_required",
+          "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_clothing_required",
+          "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_hair_face_required",
+          "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_rig_preservation_required",
+          "equipment_materialization_evidence_missing:pulse_oximeter_equipment:scenario_specific_equipment_variant_evidence",
+          "equipment_materialization_evidence_missing:pulse_oximeter_equipment:equipment_scale_validation_evidence",
+          "equipment_materialization_evidence_missing:pulse_oximeter_equipment:equipment_placement_anchor_evidence",
+          "equipment_materialization_evidence_missing:pulse_oximeter_equipment:clinical_affordance_evidence",
+          "equipment_materialization_evidence_missing:nebulizer_mask_equipment:scenario_specific_equipment_variant_evidence",
+          "equipment_materialization_evidence_missing:nebulizer_mask_equipment:equipment_scale_validation_evidence",
+          "equipment_materialization_evidence_missing:nebulizer_mask_equipment:equipment_placement_anchor_evidence",
+          "equipment_materialization_evidence_missing:nebulizer_mask_equipment:clinical_affordance_evidence",
+          "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:scenario_specific_equipment_variant_evidence",
+          "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:equipment_scale_validation_evidence",
+          "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:equipment_placement_anchor_evidence",
+          "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:clinical_affordance_evidence",
+          "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:scenario_specific_equipment_variant_evidence",
+          "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:equipment_scale_validation_evidence",
+          "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:equipment_placement_anchor_evidence",
+          "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:clinical_affordance_evidence",
+          "equipment_materialization_evidence_missing:parent_chair_equipment:scenario_specific_equipment_variant_evidence",
+          "equipment_materialization_evidence_missing:parent_chair_equipment:equipment_scale_validation_evidence",
+          "equipment_materialization_evidence_missing:parent_chair_equipment:equipment_placement_anchor_evidence",
+          "equipment_materialization_evidence_missing:parent_chair_equipment:clinical_affordance_evidence",
+          "equipment_materialization_evidence_missing:inhaler_spacer_equipment:scenario_specific_equipment_variant_evidence",
+          "equipment_materialization_evidence_missing:inhaler_spacer_equipment:equipment_scale_validation_evidence",
+          "equipment_materialization_evidence_missing:inhaler_spacer_equipment:equipment_placement_anchor_evidence",
+          "equipment_materialization_evidence_missing:inhaler_spacer_equipment:clinical_affordance_evidence"
+        ],
+        "claimBoundary": "materialization_evidence_attachment_contract_not_runtime_readiness"
+      },
+      "materializationEvidenceAttachmentSummary": {
+        "source": "encounter_materialization_evidence_attachments",
+        "totalRequiredSlotCount": 36,
+        "attachedSlotCount": 36,
+        "missingSlotCount": 0,
+        "heldOrInvalidAttachmentCount": 0,
+        "allRequiredSlotsSatisfied": true,
+        "blockers": [],
+        "runtimeSelectionAllowed": false,
+        "learnerLaunchAllowed": false,
+        "questEvidenceRefreshAllowed": false,
+        "claimBoundary": "metadata_only_materialization_evidence_attachment_summary"
+      },
+      "remainingRuntimeBlockerReasons": {
+        "source": "materialization_attachment_summary_and_publication_runtime_gates",
+        "materializationEvidenceComplete": true,
+        "runtimeSelectionAllowed": false,
+        "learnerLaunchAllowed": false,
+        "questEvidenceRefreshAllowed": false,
+        "categories": [
+          {
+            "category": "runtime_selector",
+            "blockerIds": [
+              "runtime_selector_disabled_guard_not_wired"
+            ],
+            "recommendedNextAction": "review guarded runtime selector wiring only after runtime, visual QA, and Quest evidence refs attach"
+          },
+          {
+            "category": "runtime_realism",
+            "blockerIds": [
+              "runtime_realism_evidence_not_attached"
+            ],
+            "recommendedNextAction": "attach case-derived runtime realism evidence for actor motion, gaze, expression, and lip-sync before runtime selection"
+          },
+          {
+            "category": "visual_qa",
+            "blockerIds": [
+              "humanoid_visual_qa_evidence_not_attached"
+            ],
+            "recommendedNextAction": "attach screenshot or visual QA evidence for generated humanoids and equipment before learner launch review"
+          },
+          {
+            "category": "quest_evidence",
+            "blockerIds": [
+              "quest_webxr_evidence_not_attached"
+            ],
+            "recommendedNextAction": "keep Quest/WebXR readiness blocked until foreground headset or approved local runtime evidence is attached"
+          },
+          {
+            "category": "metadata_only_assets",
+            "blockerIds": [
+              "materialization_evidence_refs_are_metadata_only_not_generated_asset_readiness"
+            ],
+            "recommendedNextAction": "treat completed actor/equipment evidence refs as review metadata, not generated asset or runtime readiness"
+          }
+        ],
+        "claimBoundary": "remaining_runtime_blockers_after_materialization_metadata_only"
+      },
+      "claimBoundary": "materialization_contract_metadata_only_not_runtime_readiness"
+    },
+    "caseDefinitionCoverage": {
+      "actorRolesCovered": true,
+      "traceTagsCovered": true,
+      "equipmentPlacementsPresent": true,
+      "assetNeedsCarriedByWorkOrders": true,
+      "blockers": []
+    },
+    "launchBlockingReasons": [
+      "runtime_realism_evidence_not_attached",
+      "humanoid_visual_qa_evidence_not_attached",
+      "quest_webxr_evidence_not_attached",
+      "shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness",
+      "generic_equipment_reuse_blocks_equipment_specific_asset_readiness",
+      "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_body_profile_required",
+      "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_clothing_required",
+      "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_hair_face_required",
+      "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_rig_preservation_required",
+      "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_body_profile_required",
+      "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_clothing_required",
+      "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_hair_face_required",
+      "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_rig_preservation_required",
+      "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_body_profile_required",
+      "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_clothing_required",
+      "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_hair_face_required",
+      "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_rig_preservation_required",
+      "equipment_materialization_evidence_missing:pulse_oximeter_equipment:scenario_specific_equipment_variant_evidence",
+      "equipment_materialization_evidence_missing:pulse_oximeter_equipment:equipment_scale_validation_evidence",
+      "equipment_materialization_evidence_missing:pulse_oximeter_equipment:equipment_placement_anchor_evidence",
+      "equipment_materialization_evidence_missing:pulse_oximeter_equipment:clinical_affordance_evidence",
+      "equipment_materialization_evidence_missing:nebulizer_mask_equipment:scenario_specific_equipment_variant_evidence",
+      "equipment_materialization_evidence_missing:nebulizer_mask_equipment:equipment_scale_validation_evidence",
+      "equipment_materialization_evidence_missing:nebulizer_mask_equipment:equipment_placement_anchor_evidence",
+      "equipment_materialization_evidence_missing:nebulizer_mask_equipment:clinical_affordance_evidence",
+      "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:scenario_specific_equipment_variant_evidence",
+      "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:equipment_scale_validation_evidence",
+      "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:equipment_placement_anchor_evidence",
+      "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:clinical_affordance_evidence",
+      "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:scenario_specific_equipment_variant_evidence",
+      "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:equipment_scale_validation_evidence",
+      "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:equipment_placement_anchor_evidence",
+      "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:clinical_affordance_evidence",
+      "equipment_materialization_evidence_missing:parent_chair_equipment:scenario_specific_equipment_variant_evidence",
+      "equipment_materialization_evidence_missing:parent_chair_equipment:equipment_scale_validation_evidence",
+      "equipment_materialization_evidence_missing:parent_chair_equipment:equipment_placement_anchor_evidence",
+      "equipment_materialization_evidence_missing:parent_chair_equipment:clinical_affordance_evidence",
+      "equipment_materialization_evidence_missing:inhaler_spacer_equipment:scenario_specific_equipment_variant_evidence",
+      "equipment_materialization_evidence_missing:inhaler_spacer_equipment:equipment_scale_validation_evidence",
+      "equipment_materialization_evidence_missing:inhaler_spacer_equipment:equipment_placement_anchor_evidence",
+      "equipment_materialization_evidence_missing:inhaler_spacer_equipment:clinical_affordance_evidence",
+      "actor_equipment_materialization_evidence_not_attached",
+      "case_defined_actor_realism_requirements_incomplete"
+    ],
+    "notEvidenceFor": [
+      "runtime_readiness",
+      "quest_readiness",
+      "production_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "actorEquipmentMaterializationGate": {
+    "runtimeSelectionBlockedUntilEvidenceAttached": true,
+    "actorBlockers": [
+      "shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness",
+      "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_body_profile_required",
+      "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_clothing_required",
+      "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_hair_face_required",
+      "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_rig_preservation_required",
+      "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_body_profile_required",
+      "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_clothing_required",
+      "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_hair_face_required",
+      "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_rig_preservation_required",
+      "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_body_profile_required",
+      "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_clothing_required",
+      "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_hair_face_required",
+      "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_rig_preservation_required"
+    ],
+    "equipmentBlockers": [
+      "generic_equipment_reuse_blocks_equipment_specific_asset_readiness",
+      "equipment_materialization_evidence_missing:pulse_oximeter_equipment:scenario_specific_equipment_variant_evidence",
+      "equipment_materialization_evidence_missing:pulse_oximeter_equipment:equipment_scale_validation_evidence",
+      "equipment_materialization_evidence_missing:pulse_oximeter_equipment:equipment_placement_anchor_evidence",
+      "equipment_materialization_evidence_missing:pulse_oximeter_equipment:clinical_affordance_evidence",
+      "equipment_materialization_evidence_missing:nebulizer_mask_equipment:scenario_specific_equipment_variant_evidence",
+      "equipment_materialization_evidence_missing:nebulizer_mask_equipment:equipment_scale_validation_evidence",
+      "equipment_materialization_evidence_missing:nebulizer_mask_equipment:equipment_placement_anchor_evidence",
+      "equipment_materialization_evidence_missing:nebulizer_mask_equipment:clinical_affordance_evidence",
+      "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:scenario_specific_equipment_variant_evidence",
+      "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:equipment_scale_validation_evidence",
+      "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:equipment_placement_anchor_evidence",
+      "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:clinical_affordance_evidence",
+      "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:scenario_specific_equipment_variant_evidence",
+      "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:equipment_scale_validation_evidence",
+      "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:equipment_placement_anchor_evidence",
+      "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:clinical_affordance_evidence",
+      "equipment_materialization_evidence_missing:parent_chair_equipment:scenario_specific_equipment_variant_evidence",
+      "equipment_materialization_evidence_missing:parent_chair_equipment:equipment_scale_validation_evidence",
+      "equipment_materialization_evidence_missing:parent_chair_equipment:equipment_placement_anchor_evidence",
+      "equipment_materialization_evidence_missing:parent_chair_equipment:clinical_affordance_evidence",
+      "equipment_materialization_evidence_missing:inhaler_spacer_equipment:scenario_specific_equipment_variant_evidence",
+      "equipment_materialization_evidence_missing:inhaler_spacer_equipment:equipment_scale_validation_evidence",
+      "equipment_materialization_evidence_missing:inhaler_spacer_equipment:equipment_placement_anchor_evidence",
+      "equipment_materialization_evidence_missing:inhaler_spacer_equipment:clinical_affordance_evidence"
+    ],
+    "caveats": [
+      "Shared neutral humanoid reuse is local runtime scaffolding only until actor-specific Anny mesh, rig, hair/face, clothing, and animation evidence attaches.",
+      "Generic equipment reuse is local runtime scaffolding only until equipment-specific mesh/prefab, scale, placement, affordance, and scenario variant evidence attaches."
+    ],
+    "recommendedNextActions": [
+      "materialize actor-specific Anny humanoid GLBs before treating visual role distinction as asset-level progress",
+      "materialize equipment-specific generated GLBs or prefabs before treating pediatric equipment as Quest, clinical, scoring, or production-ready"
+    ],
+    "materializationEvidenceAttachment": {
+      "source": "encounter_materialization_evidence_report",
+      "reportStatus": "blocked_missing_actor_or_equipment_specific_evidence",
+      "attachableToRuntimeSelection": false,
+      "actorRequiredEvidenceRefs": [
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_humanoid_variant/actor_specific_body_profile_required",
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_humanoid_variant/actor_specific_clothing_required",
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_humanoid_variant/actor_specific_hair_face_required",
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_humanoid_variant/actor_specific_rig_preservation_required",
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_humanoid_variant/actor_specific_body_profile_required",
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_humanoid_variant/actor_specific_clothing_required",
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_humanoid_variant/actor_specific_hair_face_required",
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_humanoid_variant/actor_specific_rig_preservation_required",
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_humanoid_variant/actor_specific_body_profile_required",
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_humanoid_variant/actor_specific_clothing_required",
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_humanoid_variant/actor_specific_hair_face_required",
+        "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_humanoid_variant/actor_specific_rig_preservation_required"
+      ],
+      "equipmentRequiredEvidenceRefs": [
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment:equipment_materialization_variant/clinical_affordance_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:nebulizer_mask_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:nebulizer_mask_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:nebulizer_mask_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:nebulizer_mask_equipment:equipment_materialization_variant/clinical_affordance_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:oxygen_wall_port_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:oxygen_wall_port_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:oxygen_wall_port_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:oxygen_wall_port_equipment:equipment_materialization_variant/clinical_affordance_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pediatric_stretcher_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pediatric_stretcher_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pediatric_stretcher_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pediatric_stretcher_equipment:equipment_materialization_variant/clinical_affordance_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_chair_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_chair_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_chair_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_chair_equipment:equipment_materialization_variant/clinical_affordance_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:inhaler_spacer_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:inhaler_spacer_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:inhaler_spacer_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+        "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:inhaler_spacer_equipment:equipment_materialization_variant/clinical_affordance_evidence"
+      ],
+      "blockers": [
+        "shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness",
+        "generic_equipment_reuse_blocks_equipment_specific_asset_readiness",
+        "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_body_profile_required",
+        "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_clothing_required",
+        "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_hair_face_required",
+        "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_rig_preservation_required",
+        "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_body_profile_required",
+        "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_clothing_required",
+        "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_hair_face_required",
+        "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_rig_preservation_required",
+        "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_body_profile_required",
+        "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_clothing_required",
+        "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_hair_face_required",
+        "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_rig_preservation_required",
+        "equipment_materialization_evidence_missing:pulse_oximeter_equipment:scenario_specific_equipment_variant_evidence",
+        "equipment_materialization_evidence_missing:pulse_oximeter_equipment:equipment_scale_validation_evidence",
+        "equipment_materialization_evidence_missing:pulse_oximeter_equipment:equipment_placement_anchor_evidence",
+        "equipment_materialization_evidence_missing:pulse_oximeter_equipment:clinical_affordance_evidence",
+        "equipment_materialization_evidence_missing:nebulizer_mask_equipment:scenario_specific_equipment_variant_evidence",
+        "equipment_materialization_evidence_missing:nebulizer_mask_equipment:equipment_scale_validation_evidence",
+        "equipment_materialization_evidence_missing:nebulizer_mask_equipment:equipment_placement_anchor_evidence",
+        "equipment_materialization_evidence_missing:nebulizer_mask_equipment:clinical_affordance_evidence",
+        "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:scenario_specific_equipment_variant_evidence",
+        "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:equipment_scale_validation_evidence",
+        "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:equipment_placement_anchor_evidence",
+        "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:clinical_affordance_evidence",
+        "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:scenario_specific_equipment_variant_evidence",
+        "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:equipment_scale_validation_evidence",
+        "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:equipment_placement_anchor_evidence",
+        "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:clinical_affordance_evidence",
+        "equipment_materialization_evidence_missing:parent_chair_equipment:scenario_specific_equipment_variant_evidence",
+        "equipment_materialization_evidence_missing:parent_chair_equipment:equipment_scale_validation_evidence",
+        "equipment_materialization_evidence_missing:parent_chair_equipment:equipment_placement_anchor_evidence",
+        "equipment_materialization_evidence_missing:parent_chair_equipment:clinical_affordance_evidence",
+        "equipment_materialization_evidence_missing:inhaler_spacer_equipment:scenario_specific_equipment_variant_evidence",
+        "equipment_materialization_evidence_missing:inhaler_spacer_equipment:equipment_scale_validation_evidence",
+        "equipment_materialization_evidence_missing:inhaler_spacer_equipment:equipment_placement_anchor_evidence",
+        "equipment_materialization_evidence_missing:inhaler_spacer_equipment:clinical_affordance_evidence"
+      ],
+      "claimBoundary": "materialization_evidence_attachment_contract_not_runtime_readiness"
+    },
+    "materializationEvidenceAttachmentSummary": {
+      "source": "encounter_materialization_evidence_attachments",
+      "totalRequiredSlotCount": 36,
+      "attachedSlotCount": 36,
+      "missingSlotCount": 0,
+      "heldOrInvalidAttachmentCount": 0,
+      "allRequiredSlotsSatisfied": true,
+      "blockers": [],
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "metadata_only_materialization_evidence_attachment_summary"
+    },
+    "remainingRuntimeBlockerReasons": {
+      "source": "materialization_attachment_summary_and_publication_runtime_gates",
+      "materializationEvidenceComplete": true,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "categories": [
+        {
+          "category": "runtime_selector",
+          "blockerIds": [
+            "runtime_selector_disabled_guard_not_wired"
+          ],
+          "recommendedNextAction": "review guarded runtime selector wiring only after runtime, visual QA, and Quest evidence refs attach"
+        },
+        {
+          "category": "runtime_realism",
+          "blockerIds": [
+            "runtime_realism_evidence_not_attached"
+          ],
+          "recommendedNextAction": "attach case-derived runtime realism evidence for actor motion, gaze, expression, and lip-sync before runtime selection"
+        },
+        {
+          "category": "visual_qa",
+          "blockerIds": [
+            "humanoid_visual_qa_evidence_not_attached"
+          ],
+          "recommendedNextAction": "attach screenshot or visual QA evidence for generated humanoids and equipment before learner launch review"
+        },
+        {
+          "category": "quest_evidence",
+          "blockerIds": [
+            "quest_webxr_evidence_not_attached"
+          ],
+          "recommendedNextAction": "keep Quest/WebXR readiness blocked until foreground headset or approved local runtime evidence is attached"
+        },
+        {
+          "category": "metadata_only_assets",
+          "blockerIds": [
+            "materialization_evidence_refs_are_metadata_only_not_generated_asset_readiness"
+          ],
+          "recommendedNextAction": "treat completed actor/equipment evidence refs as review metadata, not generated asset or runtime readiness"
+        }
+      ],
+      "claimBoundary": "remaining_runtime_blockers_after_materialization_metadata_only"
+    },
+    "claimBoundary": "materialization_contract_metadata_only_not_runtime_readiness"
+  },
+  "realismEvidenceRefs": {
+    "claimBoundary": "metadata_only_not_runtime_or_visual_quality_evidence",
+    "refIds": [
+      "humanoid-realism-gate",
+      "runtime-realism-evidence-check",
+      "visual-qa-evidence-check"
+    ],
+    "runtimeRealismEvidenceHookCount": 3,
+    "visualQaEvidenceHookCount": 9,
+    "requiredBefore": "guarded_runtime_wiring",
+    "runtimeExecutionAllowed": false,
+    "providerExecutionPerformed": false,
+    "questReadinessClaimed": false
+  },
+  "learnerLaunchAllowed": false,
+  "blockers": [
+    "runtime_realism_evidence_not_attached",
+    "humanoid_visual_qa_evidence_not_attached",
+    "quest_webxr_evidence_not_attached",
+    "shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness",
+    "generic_equipment_reuse_blocks_equipment_specific_asset_readiness",
+    "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_body_profile_required",
+    "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_clothing_required",
+    "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_hair_face_required",
+    "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_rig_preservation_required",
+    "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_body_profile_required",
+    "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_clothing_required",
+    "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_hair_face_required",
+    "actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_rig_preservation_required",
+    "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_body_profile_required",
+    "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_clothing_required",
+    "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_hair_face_required",
+    "actor_materialization_evidence_missing:nurse_kevin_lee_v1:actor_specific_rig_preservation_required",
+    "equipment_materialization_evidence_missing:pulse_oximeter_equipment:scenario_specific_equipment_variant_evidence",
+    "equipment_materialization_evidence_missing:pulse_oximeter_equipment:equipment_scale_validation_evidence",
+    "equipment_materialization_evidence_missing:pulse_oximeter_equipment:equipment_placement_anchor_evidence",
+    "equipment_materialization_evidence_missing:pulse_oximeter_equipment:clinical_affordance_evidence",
+    "equipment_materialization_evidence_missing:nebulizer_mask_equipment:scenario_specific_equipment_variant_evidence",
+    "equipment_materialization_evidence_missing:nebulizer_mask_equipment:equipment_scale_validation_evidence",
+    "equipment_materialization_evidence_missing:nebulizer_mask_equipment:equipment_placement_anchor_evidence",
+    "equipment_materialization_evidence_missing:nebulizer_mask_equipment:clinical_affordance_evidence",
+    "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:scenario_specific_equipment_variant_evidence",
+    "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:equipment_scale_validation_evidence",
+    "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:equipment_placement_anchor_evidence",
+    "equipment_materialization_evidence_missing:oxygen_wall_port_equipment:clinical_affordance_evidence",
+    "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:scenario_specific_equipment_variant_evidence",
+    "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:equipment_scale_validation_evidence",
+    "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:equipment_placement_anchor_evidence",
+    "equipment_materialization_evidence_missing:pediatric_stretcher_equipment:clinical_affordance_evidence",
+    "equipment_materialization_evidence_missing:parent_chair_equipment:scenario_specific_equipment_variant_evidence",
+    "equipment_materialization_evidence_missing:parent_chair_equipment:equipment_scale_validation_evidence",
+    "equipment_materialization_evidence_missing:parent_chair_equipment:equipment_placement_anchor_evidence",
+    "equipment_materialization_evidence_missing:parent_chair_equipment:clinical_affordance_evidence",
+    "equipment_materialization_evidence_missing:inhaler_spacer_equipment:scenario_specific_equipment_variant_evidence",
+    "equipment_materialization_evidence_missing:inhaler_spacer_equipment:equipment_scale_validation_evidence",
+    "equipment_materialization_evidence_missing:inhaler_spacer_equipment:equipment_placement_anchor_evidence",
+    "equipment_materialization_evidence_missing:inhaler_spacer_equipment:clinical_affordance_evidence",
+    "actor_equipment_materialization_evidence_not_attached"
+  ],
+  "evidenceBoundaries": {
+    "localStaticAssetSelectionOnly": true,
+    "cloudOperationPerformed": false,
+    "providerExecutionPerformed": false,
+    "generatedAssetsMaterialized": false,
+    "learnerLaunchEnabled": false,
+    "questReadinessClaimed": false,
+    "productionReadinessClaimed": false,
+    "clinicalValidityClaimed": false,
+    "scoringValidityClaimed": false
+  },
+  "claimBoundary": "local_launch_selection_not_runtime_readiness"
+}

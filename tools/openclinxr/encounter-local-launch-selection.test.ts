@@ -35,6 +35,7 @@ const bundleReport = (): GeneratedEdStationRuntimeBundleReport => ({
     },
   }),
   actorHumanoidMaterializationContract: null,
+  equipmentMaterializationContract: null,
   bundleBlobName: null,
   runtimeAssetReviewDecisions: [],
   blockers: [],
@@ -236,6 +237,25 @@ describe("encounter local launch selection", () => {
         },
         blockers: [],
       },
+      actorEquipmentMaterializationGate: {
+        ...publication.actorEquipmentMaterializationGate,
+        materializationEvidenceAttachmentSummary: {
+          source: "encounter_materialization_evidence_attachments",
+          totalRequiredSlotCount: 36,
+          attachedSlotCount: 1,
+          missingSlotCount: 35,
+          heldOrInvalidAttachmentCount: 0,
+          allRequiredSlotsSatisfied: false,
+          blockers: [
+            "materialization_evidence_attachment_missing:actor-materialization-attachment:patient_robert_hayes_v1:actor_specific_clothing_required",
+            "materialization_evidence_attachment_missing:equipment-materialization-attachment:ecg_cart_equipment:scenario_specific_equipment_variant_evidence",
+          ],
+          runtimeSelectionAllowed: false,
+          learnerLaunchAllowed: false,
+          questEvidenceRefreshAllowed: false,
+          claimBoundary: "metadata_only_materialization_evidence_attachment_summary",
+        },
+      },
     };
 
     const report = buildEncounterLocalLaunchSelectionReport(caseDefinedPublication, "2026-05-23T13:15:00.000Z");
@@ -279,7 +299,24 @@ describe("encounter local launch selection", () => {
       "humanoid_visual_qa_evidence_not_attached",
       "quest_webxr_evidence_not_attached",
       "actor_specific_humanoid_realism_gate_not_attached",
+      "materialization_evidence_attachment_missing:actor-materialization-attachment:patient_robert_hayes_v1:actor_specific_clothing_required",
+      "materialization_evidence_attachment_missing:equipment-materialization-attachment:ecg_cart_equipment:scenario_specific_equipment_variant_evidence",
     ]));
+    expect(report.actorEquipmentMaterializationGate.materializationEvidenceAttachmentSummary).toMatchObject({
+      totalRequiredSlotCount: 36,
+      attachedSlotCount: 1,
+      missingSlotCount: 35,
+      allRequiredSlotsSatisfied: false,
+      runtimeSelectionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+    });
+    expect(report.launchContract.actorEquipmentMaterializationGate.materializationEvidenceAttachmentSummary).toMatchObject({
+      totalRequiredSlotCount: 36,
+      attachedSlotCount: 1,
+      missingSlotCount: 35,
+      allRequiredSlotsSatisfied: false,
+    });
     expect(validateEncounterLocalLaunchSelectionReport(report)).toEqual({ ok: true });
   });
 

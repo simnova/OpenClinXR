@@ -29,6 +29,7 @@
   "actors": [
     {
       "actorId": "patient_robert_hayes_v1",
+      "embodiment": "humanoid",
       "role": "patient",
       "model": {
         "assetId": "patient",
@@ -61,6 +62,7 @@
     },
     {
       "actorId": "nurse_maria_alvarez_v1",
+      "embodiment": "humanoid",
       "role": "nurse",
       "model": {
         "assetId": "nurse",
@@ -93,6 +95,7 @@
     },
     {
       "actorId": "spouse_anna_hayes_v1",
+      "embodiment": "humanoid",
       "role": "family",
       "model": {
         "assetId": "spouse",
@@ -159,10 +162,22 @@
     "source": "generated_scene_pipeline",
     "scenarioId": "ed_chest_pain_priority_v2",
     "stationId": "ed_chest_pain_station_v1",
+    "stationContext": {
+      "title": "ED Chest Pain",
+      "subtitle": "Patient, spouse, and nurse in a time-boxed emergency department encounter.",
+      "chiefConcern": "Crushing substernal chest pressure",
+      "initialVitals": "BP 152/92, HR 104, RR 20, SpO2 96%",
+      "interruption": "Nurse repeats vitals at minute seven",
+      "stageAriaLabel": "Emergency department station scene",
+      "canvasAriaLabel": "3D emergency department bay preview",
+      "initialDialogueText": "Robert Hayes: It feels heavy, like someone is sitting on my chest."
+    },
     "roomProps": [
       {
         "propId": "monitor",
         "label": "Monitor",
+        "semanticRole": "objective_cue",
+        "evidenceCue": "Vitals monitor anchors the ED chest pain assessment.",
         "colorHex": "#111827",
         "accentColorHex": "#f59e0b",
         "position": {
@@ -312,16 +327,269 @@
       "quest_readiness",
       "clinical_validity",
       "scoring_validity"
+    ],
+    "caseDefinedHumanoidRuntimeHandoff": [
+      {
+        "claimBoundary": "case_definition_humanoid_runtime_handoff_metadata_only",
+        "actorRole": "patient",
+        "humanoidVariantProfile": {
+          "bodyScaleSource": "scenario_actor_role_and_factory_work_order",
+          "clothingLayer": "patient_gown",
+          "hairFaceRequired": true,
+          "faceEyeLipRigRequired": true,
+          "idlePoseRequired": true,
+          "locomotionRequired": true
+        },
+        "workOrderIds": [
+          "encounter_assets_ed_chest_pain_priority_executable_v1:patient:role-specific-humanoid",
+          "encounter_assets_ed_chest_pain_priority_executable_v1:patient:role-animation"
+        ],
+        "locomotionRequired": true,
+        "expressionRequired": true,
+        "gazeRequired": true,
+        "lipSyncRequired": false,
+        "interactiveRequired": true,
+        "requiredSignalIds": [
+          "animated_humanoid_runtime_playback",
+          "emotion_aligned_expression_transition_cue",
+          "dialogue_viseme_and_gaze_mapping",
+          "dialogue_eye_micro_saccade_blink_cue",
+          "generated_eyelid_blink_control_cue",
+          "humanoid-realism-signals://ed_chest_pain_priority_v2/patient"
+        ],
+        "blockers": [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle"
+        ],
+        "notEvidenceFor": [
+          "generated_humanoid_asset_readiness",
+          "animation_quality",
+          "quest_readiness",
+          "runtime_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      {
+        "claimBoundary": "case_definition_humanoid_runtime_handoff_metadata_only",
+        "actorRole": "family",
+        "humanoidVariantProfile": {
+          "bodyScaleSource": "scenario_actor_role_and_factory_work_order",
+          "clothingLayer": "civilian_family",
+          "hairFaceRequired": true,
+          "faceEyeLipRigRequired": true,
+          "idlePoseRequired": true,
+          "locomotionRequired": true
+        },
+        "workOrderIds": [
+          "encounter_assets_ed_chest_pain_priority_executable_v1:family:role-specific-humanoid",
+          "encounter_assets_ed_chest_pain_priority_executable_v1:family:role-animation"
+        ],
+        "locomotionRequired": true,
+        "expressionRequired": true,
+        "gazeRequired": true,
+        "lipSyncRequired": false,
+        "interactiveRequired": true,
+        "requiredSignalIds": [
+          "animated_humanoid_runtime_playback",
+          "emotion_aligned_expression_transition_cue",
+          "dialogue_viseme_and_gaze_mapping",
+          "dialogue_eye_micro_saccade_blink_cue",
+          "generated_eyelid_blink_control_cue",
+          "humanoid-realism-signals://ed_chest_pain_priority_v2/family"
+        ],
+        "blockers": [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle"
+        ],
+        "notEvidenceFor": [
+          "generated_humanoid_asset_readiness",
+          "animation_quality",
+          "quest_readiness",
+          "runtime_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      {
+        "claimBoundary": "case_definition_humanoid_runtime_handoff_metadata_only",
+        "actorRole": "nurse",
+        "humanoidVariantProfile": {
+          "bodyScaleSource": "scenario_actor_role_and_factory_work_order",
+          "clothingLayer": "clinical_scrubs",
+          "hairFaceRequired": true,
+          "faceEyeLipRigRequired": true,
+          "idlePoseRequired": true,
+          "locomotionRequired": true
+        },
+        "workOrderIds": [
+          "encounter_assets_ed_chest_pain_priority_executable_v1:nurse:role-specific-humanoid",
+          "encounter_assets_ed_chest_pain_priority_executable_v1:nurse:role-animation"
+        ],
+        "locomotionRequired": true,
+        "expressionRequired": true,
+        "gazeRequired": true,
+        "lipSyncRequired": false,
+        "interactiveRequired": true,
+        "requiredSignalIds": [
+          "animated_humanoid_runtime_playback",
+          "emotion_aligned_expression_transition_cue",
+          "dialogue_viseme_and_gaze_mapping",
+          "dialogue_eye_micro_saccade_blink_cue",
+          "generated_eyelid_blink_control_cue",
+          "humanoid-realism-signals://ed_chest_pain_priority_v2/nurse"
+        ],
+        "blockers": [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle"
+        ],
+        "notEvidenceFor": [
+          "generated_humanoid_asset_readiness",
+          "animation_quality",
+          "quest_readiness",
+          "runtime_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      }
     ]
   },
   "generatedAt": "2026-05-23T12:00:00.000Z",
   "expiresAt": null,
   "frozenForEncounter": true,
+  "evidenceGateRefs": [],
+  "assemblyAuditMetadata": {
+    "schemaVersion": "openclinxr.runtime-bundle-assembly-audit.v1",
+    "claimBoundary": "asset_reference_audit_metadata_not_materialized_assets",
+    "sourceDefinitionRefs": [
+      "test_fixture:encounter-publication-payloads"
+    ],
+    "workOrderRefs": [],
+    "factoryRequestRefs": [],
+    "generatedAssetRefs": [],
+    "humanoidMetadataRefs": [],
+    "remediationPlanRefs": [],
+    "evidenceGateIds": [],
+    "fallbackPosture": {
+      "usesLocalFixtureFallbackAssets": true,
+      "fallbackAssetIds": [
+        "patient",
+        "nurse",
+        "spouse",
+        "ecg"
+      ],
+      "learnerUseBlockedUntilEvidenceGatesAttach": true
+    },
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
   "notEvidenceFor": [
     "production_asset_readiness",
     "quest_readiness",
     "clinical_validity",
     "scoring_validity"
   ],
-  "identityScope": "learner_runtime_opaque_bundle"
+  "identityScope": "learner_runtime_opaque_bundle",
+  "actorEquipmentMaterializationGate": {
+    "schemaVersion": "openclinxr.actor-equipment-materialization-gate.v1",
+    "claimBoundary": "materialization_contract_metadata_only_not_runtime_readiness",
+    "source": "generated_station_runtime_bundle_materialization_contracts",
+    "runtimeSelectionBlockedUntilEvidenceAttached": true,
+    "actorGate": {
+      "actorSpecificVariantKeysRequired": true,
+      "sharedNeutralMeshReuseDetected": false,
+      "actorVariantCount": 3,
+      "actorRoles": [
+        "patient",
+        "nurse",
+        "family"
+      ],
+      "materializationBlockers": [
+        "shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness"
+      ],
+      "caveats": [
+        "Shared neutral humanoid reuse is fixture scaffolding until actor-specific variants attach."
+      ],
+      "recommendedNextAction": "materialize_actor_specific_humanoid_variants_before_runtime_readiness_claim"
+    },
+    "equipmentGate": {
+      "equipmentSpecificVariantKeysRequired": true,
+      "genericEquipmentReuseDetected": true,
+      "equipmentVariantCount": 1,
+      "equipmentIds": [
+        "ecg_cart_equipment"
+      ],
+      "materializationBlockers": [
+        "generic_equipment_reuse_blocks_equipment_specific_asset_readiness"
+      ],
+      "caveats": [
+        "Generic equipment reuse is fixture scaffolding until equipment-specific scale and affordance evidence attaches."
+      ],
+      "recommendedNextAction": "materialize_equipment_specific_variants_before_runtime_readiness_claim"
+    },
+    "combinedBlockers": [
+      "shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness",
+      "generic_equipment_reuse_blocks_equipment_specific_asset_readiness"
+    ],
+    "combinedCaveats": [
+      "Shared neutral humanoid reuse is fixture scaffolding until actor-specific variants attach.",
+      "Generic equipment reuse is fixture scaffolding until equipment-specific scale and affordance evidence attaches."
+    ],
+    "notEvidenceFor": [
+      "runtime_readiness",
+      "quest_readiness",
+      "production_asset_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ],
+    "remainingRuntimeBlockerReasons": {
+      "source": "materialization_attachment_summary_and_publication_runtime_gates",
+      "materializationEvidenceComplete": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "categories": [
+        {
+          "category": "runtime_selector",
+          "blockerIds": [
+            "runtime_selector_disabled_guard_not_wired"
+          ],
+          "recommendedNextAction": "review guarded runtime selector wiring only after runtime, visual QA, and Quest evidence refs attach"
+        },
+        {
+          "category": "runtime_realism",
+          "blockerIds": [
+            "runtime_realism_evidence_not_attached"
+          ],
+          "recommendedNextAction": "attach case-derived runtime realism evidence for actor motion, gaze, expression, and lip-sync before runtime selection"
+        },
+        {
+          "category": "visual_qa",
+          "blockerIds": [
+            "humanoid_visual_qa_evidence_not_attached"
+          ],
+          "recommendedNextAction": "attach screenshot or visual QA evidence for generated humanoids and equipment before learner launch review"
+        },
+        {
+          "category": "quest_evidence",
+          "blockerIds": [
+            "quest_webxr_evidence_not_attached"
+          ],
+          "recommendedNextAction": "keep Quest/WebXR readiness blocked until foreground headset or approved local runtime evidence is attached"
+        },
+        {
+          "category": "metadata_only_assets",
+          "blockerIds": [
+            "actor_equipment_materialization_evidence_attachment_incomplete"
+          ],
+          "recommendedNextAction": "finish attaching actor/equipment materialization evidence refs before reviewing downstream runtime blockers"
+        }
+      ],
+      "claimBoundary": "remaining_runtime_blockers_after_materialization_metadata_only"
+    }
+  }
 }

@@ -275,6 +275,72 @@ type ReviewReplayReadinessSummary {
   blockers: [String!]!
   recommendedNextAction: String!
   replayBoundary: String!
+  runtimeVisualEvidenceReplayProjection: RuntimeVisualEvidenceReplayProjection
+}
+
+type RuntimeVisualEvidenceReplayProjection {
+  schemaVersion: String!
+  source: String!
+  stationRunId: ID!
+  scenarioId: ID!
+  reviewedMetadataOnlyCount: Int!
+  heldMetadataOnlyCount: Int!
+  acceptedAttachmentRefCount: Int!
+  runtimeEvidenceRefCount: Int!
+  visualQaEvidenceRefCount: Int!
+  acceptedActionIds: [String!]!
+  rawPayloadDisplayed: Boolean!
+  providerExecutionAllowed: Boolean!
+  runtimeExecutionAllowed: Boolean!
+  learnerLaunchAllowed: Boolean!
+  questEvidenceRefreshAllowed: Boolean!
+  productionAssetReadinessClaimed: Boolean!
+  clinicalValidityClaimed: Boolean!
+  scoringValidityClaimed: Boolean!
+  replayEvidenceReady: Boolean!
+  blockerIds: [String!]!
+  nextActions: [String!]!
+  uiXrConsumerOperatorWorkflowSummary: UiXrConsumerOperatorWorkflowSummary
+  claimBoundary: String!
+  notEvidenceFor: [String!]!
+}
+
+type UiXrConsumerOperatorWorkflowSummary {
+  schemaVersion: String!
+  source: String!
+  scenarioId: ID!
+  acceptedAttachmentRefCount: Int!
+  runtimeEvidenceRefCount: Int!
+  visualQaEvidenceRefCount: Int!
+  targetRoute: String!
+  method: String!
+  submitBodyRef: String!
+  submitPreview: UiXrConsumerWorkflowSubmitPreview!
+  reviewerAction: String!
+  preflightChecks: [String!]!
+  nextActions: [String!]!
+  rawPayloadDisplayed: Boolean!
+  providerExecutionAllowed: Boolean!
+  runtimeExecutionAllowed: Boolean!
+  learnerLaunchAllowed: Boolean!
+  questEvidenceRefreshAllowed: Boolean!
+  productionAssetReadinessClaimed: Boolean!
+  clinicalValidityClaimed: Boolean!
+  scoringValidityClaimed: Boolean!
+  blockerIds: [String!]!
+  claimBoundary: String!
+  notEvidenceFor: [String!]!
+}
+
+type UiXrConsumerWorkflowSubmitPreview {
+  route: String!
+  bodyRef: String!
+  attachmentCount: Int!
+  actionIds: [String!]!
+  inputIds: [String!]!
+  localArtifactPaths: [String!]!
+  rawPayloadDisplayed: Boolean!
+  claimBoundary: String!
 }
 
 type TraceTimelineEntry {

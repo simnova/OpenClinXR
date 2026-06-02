@@ -1,0 +1,991 @@
+{
+  "schemaVersion": "openclinxr.encounter-materialization-evidence-attachments.v1",
+  "generatedAt": "2026-05-28T07:45:54.293Z",
+  "source": "encounter_materialization_attachment_plan",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "status": "no_slots_attached",
+  "actorAttachmentRecords": [
+    {
+      "attachmentSlotId": "actor-materialization-attachment:patient_maya_johnson_v1:actor_specific_body_profile_required",
+      "workOrderInputId": "actor-materialization-input:patient_maya_johnson_v1",
+      "requiredCueId": "actor_specific_body_profile_required",
+      "requiredEvidenceRef": "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_humanoid_variant/actor_specific_body_profile_required",
+      "expectedArtifactKinds": [
+        "actor_specific_humanoid_glb",
+        "actor_materialization_review_packet",
+        "humanoid_visual_qa_reference"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:actor-materialization-attachment:patient_maya_johnson_v1:actor_specific_body_profile_required"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "actorId": "patient_maya_johnson_v1",
+      "actorRole": "patient",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_humanoid_variant"
+    },
+    {
+      "attachmentSlotId": "actor-materialization-attachment:patient_maya_johnson_v1:actor_specific_clothing_required",
+      "workOrderInputId": "actor-materialization-input:patient_maya_johnson_v1",
+      "requiredCueId": "actor_specific_clothing_required",
+      "requiredEvidenceRef": "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_humanoid_variant/actor_specific_clothing_required",
+      "expectedArtifactKinds": [
+        "actor_specific_humanoid_glb",
+        "actor_materialization_review_packet",
+        "humanoid_visual_qa_reference"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:actor-materialization-attachment:patient_maya_johnson_v1:actor_specific_clothing_required"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "actorId": "patient_maya_johnson_v1",
+      "actorRole": "patient",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_humanoid_variant"
+    },
+    {
+      "attachmentSlotId": "actor-materialization-attachment:patient_maya_johnson_v1:actor_specific_hair_face_required",
+      "workOrderInputId": "actor-materialization-input:patient_maya_johnson_v1",
+      "requiredCueId": "actor_specific_hair_face_required",
+      "requiredEvidenceRef": "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_humanoid_variant/actor_specific_hair_face_required",
+      "expectedArtifactKinds": [
+        "actor_specific_humanoid_glb",
+        "actor_materialization_review_packet",
+        "humanoid_visual_qa_reference"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:actor-materialization-attachment:patient_maya_johnson_v1:actor_specific_hair_face_required"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "actorId": "patient_maya_johnson_v1",
+      "actorRole": "patient",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_humanoid_variant"
+    },
+    {
+      "attachmentSlotId": "actor-materialization-attachment:patient_maya_johnson_v1:actor_specific_rig_preservation_required",
+      "workOrderInputId": "actor-materialization-input:patient_maya_johnson_v1",
+      "requiredCueId": "actor_specific_rig_preservation_required",
+      "requiredEvidenceRef": "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_humanoid_variant/actor_specific_rig_preservation_required",
+      "expectedArtifactKinds": [
+        "actor_specific_humanoid_glb",
+        "actor_materialization_review_packet",
+        "humanoid_visual_qa_reference"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:actor-materialization-attachment:patient_maya_johnson_v1:actor_specific_rig_preservation_required"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "actorId": "patient_maya_johnson_v1",
+      "actorRole": "patient",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_humanoid_variant"
+    },
+    {
+      "attachmentSlotId": "actor-materialization-attachment:parent_tara_johnson_v1:actor_specific_body_profile_required",
+      "workOrderInputId": "actor-materialization-input:parent_tara_johnson_v1",
+      "requiredCueId": "actor_specific_body_profile_required",
+      "requiredEvidenceRef": "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_humanoid_variant/actor_specific_body_profile_required",
+      "expectedArtifactKinds": [
+        "actor_specific_humanoid_glb",
+        "actor_materialization_review_packet",
+        "humanoid_visual_qa_reference"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:actor-materialization-attachment:parent_tara_johnson_v1:actor_specific_body_profile_required"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "actorId": "parent_tara_johnson_v1",
+      "actorRole": "family",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_humanoid_variant"
+    },
+    {
+      "attachmentSlotId": "actor-materialization-attachment:parent_tara_johnson_v1:actor_specific_clothing_required",
+      "workOrderInputId": "actor-materialization-input:parent_tara_johnson_v1",
+      "requiredCueId": "actor_specific_clothing_required",
+      "requiredEvidenceRef": "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_humanoid_variant/actor_specific_clothing_required",
+      "expectedArtifactKinds": [
+        "actor_specific_humanoid_glb",
+        "actor_materialization_review_packet",
+        "humanoid_visual_qa_reference"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:actor-materialization-attachment:parent_tara_johnson_v1:actor_specific_clothing_required"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "actorId": "parent_tara_johnson_v1",
+      "actorRole": "family",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_humanoid_variant"
+    },
+    {
+      "attachmentSlotId": "actor-materialization-attachment:parent_tara_johnson_v1:actor_specific_hair_face_required",
+      "workOrderInputId": "actor-materialization-input:parent_tara_johnson_v1",
+      "requiredCueId": "actor_specific_hair_face_required",
+      "requiredEvidenceRef": "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_humanoid_variant/actor_specific_hair_face_required",
+      "expectedArtifactKinds": [
+        "actor_specific_humanoid_glb",
+        "actor_materialization_review_packet",
+        "humanoid_visual_qa_reference"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:actor-materialization-attachment:parent_tara_johnson_v1:actor_specific_hair_face_required"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "actorId": "parent_tara_johnson_v1",
+      "actorRole": "family",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_humanoid_variant"
+    },
+    {
+      "attachmentSlotId": "actor-materialization-attachment:parent_tara_johnson_v1:actor_specific_rig_preservation_required",
+      "workOrderInputId": "actor-materialization-input:parent_tara_johnson_v1",
+      "requiredCueId": "actor_specific_rig_preservation_required",
+      "requiredEvidenceRef": "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_humanoid_variant/actor_specific_rig_preservation_required",
+      "expectedArtifactKinds": [
+        "actor_specific_humanoid_glb",
+        "actor_materialization_review_packet",
+        "humanoid_visual_qa_reference"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:actor-materialization-attachment:parent_tara_johnson_v1:actor_specific_rig_preservation_required"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "actorId": "parent_tara_johnson_v1",
+      "actorRole": "family",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_humanoid_variant"
+    },
+    {
+      "attachmentSlotId": "actor-materialization-attachment:nurse_kevin_lee_v1:actor_specific_body_profile_required",
+      "workOrderInputId": "actor-materialization-input:nurse_kevin_lee_v1",
+      "requiredCueId": "actor_specific_body_profile_required",
+      "requiredEvidenceRef": "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_humanoid_variant/actor_specific_body_profile_required",
+      "expectedArtifactKinds": [
+        "actor_specific_humanoid_glb",
+        "actor_materialization_review_packet",
+        "humanoid_visual_qa_reference"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:actor-materialization-attachment:nurse_kevin_lee_v1:actor_specific_body_profile_required"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "actorId": "nurse_kevin_lee_v1",
+      "actorRole": "nurse",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_humanoid_variant"
+    },
+    {
+      "attachmentSlotId": "actor-materialization-attachment:nurse_kevin_lee_v1:actor_specific_clothing_required",
+      "workOrderInputId": "actor-materialization-input:nurse_kevin_lee_v1",
+      "requiredCueId": "actor_specific_clothing_required",
+      "requiredEvidenceRef": "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_humanoid_variant/actor_specific_clothing_required",
+      "expectedArtifactKinds": [
+        "actor_specific_humanoid_glb",
+        "actor_materialization_review_packet",
+        "humanoid_visual_qa_reference"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:actor-materialization-attachment:nurse_kevin_lee_v1:actor_specific_clothing_required"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "actorId": "nurse_kevin_lee_v1",
+      "actorRole": "nurse",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_humanoid_variant"
+    },
+    {
+      "attachmentSlotId": "actor-materialization-attachment:nurse_kevin_lee_v1:actor_specific_hair_face_required",
+      "workOrderInputId": "actor-materialization-input:nurse_kevin_lee_v1",
+      "requiredCueId": "actor_specific_hair_face_required",
+      "requiredEvidenceRef": "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_humanoid_variant/actor_specific_hair_face_required",
+      "expectedArtifactKinds": [
+        "actor_specific_humanoid_glb",
+        "actor_materialization_review_packet",
+        "humanoid_visual_qa_reference"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:actor-materialization-attachment:nurse_kevin_lee_v1:actor_specific_hair_face_required"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "actorId": "nurse_kevin_lee_v1",
+      "actorRole": "nurse",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_humanoid_variant"
+    },
+    {
+      "attachmentSlotId": "actor-materialization-attachment:nurse_kevin_lee_v1:actor_specific_rig_preservation_required",
+      "workOrderInputId": "actor-materialization-input:nurse_kevin_lee_v1",
+      "requiredCueId": "actor_specific_rig_preservation_required",
+      "requiredEvidenceRef": "actor-materialization-evidence://peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_humanoid_variant/actor_specific_rig_preservation_required",
+      "expectedArtifactKinds": [
+        "actor_specific_humanoid_glb",
+        "actor_materialization_review_packet",
+        "humanoid_visual_qa_reference"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:actor-materialization-attachment:nurse_kevin_lee_v1:actor_specific_rig_preservation_required"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "actorId": "nurse_kevin_lee_v1",
+      "actorRole": "nurse",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_humanoid_variant"
+    }
+  ],
+  "equipmentAttachmentRecords": [
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:pulse_oximeter_equipment:scenario_specific_equipment_variant_evidence",
+      "workOrderInputId": "equipment-materialization-input:pulse_oximeter_equipment",
+      "requiredCueId": "scenario_specific_equipment_variant_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:pulse_oximeter_equipment:scenario_specific_equipment_variant_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "pulse_oximeter_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment:equipment_materialization_variant"
+    },
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:pulse_oximeter_equipment:equipment_scale_validation_evidence",
+      "workOrderInputId": "equipment-materialization-input:pulse_oximeter_equipment",
+      "requiredCueId": "equipment_scale_validation_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:pulse_oximeter_equipment:equipment_scale_validation_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "pulse_oximeter_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment:equipment_materialization_variant"
+    },
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:pulse_oximeter_equipment:equipment_placement_anchor_evidence",
+      "workOrderInputId": "equipment-materialization-input:pulse_oximeter_equipment",
+      "requiredCueId": "equipment_placement_anchor_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:pulse_oximeter_equipment:equipment_placement_anchor_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "pulse_oximeter_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment:equipment_materialization_variant"
+    },
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:pulse_oximeter_equipment:clinical_affordance_evidence",
+      "workOrderInputId": "equipment-materialization-input:pulse_oximeter_equipment",
+      "requiredCueId": "clinical_affordance_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment:equipment_materialization_variant/clinical_affordance_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:pulse_oximeter_equipment:clinical_affordance_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "pulse_oximeter_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment:equipment_materialization_variant"
+    },
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:nebulizer_mask_equipment:scenario_specific_equipment_variant_evidence",
+      "workOrderInputId": "equipment-materialization-input:nebulizer_mask_equipment",
+      "requiredCueId": "scenario_specific_equipment_variant_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:nebulizer_mask_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:nebulizer_mask_equipment:scenario_specific_equipment_variant_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "nebulizer_mask_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:nebulizer_mask_equipment:equipment_materialization_variant"
+    },
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:nebulizer_mask_equipment:equipment_scale_validation_evidence",
+      "workOrderInputId": "equipment-materialization-input:nebulizer_mask_equipment",
+      "requiredCueId": "equipment_scale_validation_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:nebulizer_mask_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:nebulizer_mask_equipment:equipment_scale_validation_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "nebulizer_mask_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:nebulizer_mask_equipment:equipment_materialization_variant"
+    },
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:nebulizer_mask_equipment:equipment_placement_anchor_evidence",
+      "workOrderInputId": "equipment-materialization-input:nebulizer_mask_equipment",
+      "requiredCueId": "equipment_placement_anchor_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:nebulizer_mask_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:nebulizer_mask_equipment:equipment_placement_anchor_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "nebulizer_mask_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:nebulizer_mask_equipment:equipment_materialization_variant"
+    },
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:nebulizer_mask_equipment:clinical_affordance_evidence",
+      "workOrderInputId": "equipment-materialization-input:nebulizer_mask_equipment",
+      "requiredCueId": "clinical_affordance_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:nebulizer_mask_equipment:equipment_materialization_variant/clinical_affordance_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:nebulizer_mask_equipment:clinical_affordance_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "nebulizer_mask_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:nebulizer_mask_equipment:equipment_materialization_variant"
+    },
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:oxygen_wall_port_equipment:scenario_specific_equipment_variant_evidence",
+      "workOrderInputId": "equipment-materialization-input:oxygen_wall_port_equipment",
+      "requiredCueId": "scenario_specific_equipment_variant_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:oxygen_wall_port_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:oxygen_wall_port_equipment:scenario_specific_equipment_variant_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "oxygen_wall_port_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:oxygen_wall_port_equipment:equipment_materialization_variant"
+    },
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:oxygen_wall_port_equipment:equipment_scale_validation_evidence",
+      "workOrderInputId": "equipment-materialization-input:oxygen_wall_port_equipment",
+      "requiredCueId": "equipment_scale_validation_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:oxygen_wall_port_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:oxygen_wall_port_equipment:equipment_scale_validation_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "oxygen_wall_port_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:oxygen_wall_port_equipment:equipment_materialization_variant"
+    },
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:oxygen_wall_port_equipment:equipment_placement_anchor_evidence",
+      "workOrderInputId": "equipment-materialization-input:oxygen_wall_port_equipment",
+      "requiredCueId": "equipment_placement_anchor_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:oxygen_wall_port_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:oxygen_wall_port_equipment:equipment_placement_anchor_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "oxygen_wall_port_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:oxygen_wall_port_equipment:equipment_materialization_variant"
+    },
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:oxygen_wall_port_equipment:clinical_affordance_evidence",
+      "workOrderInputId": "equipment-materialization-input:oxygen_wall_port_equipment",
+      "requiredCueId": "clinical_affordance_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:oxygen_wall_port_equipment:equipment_materialization_variant/clinical_affordance_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:oxygen_wall_port_equipment:clinical_affordance_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "oxygen_wall_port_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:oxygen_wall_port_equipment:equipment_materialization_variant"
+    },
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:pediatric_stretcher_equipment:scenario_specific_equipment_variant_evidence",
+      "workOrderInputId": "equipment-materialization-input:pediatric_stretcher_equipment",
+      "requiredCueId": "scenario_specific_equipment_variant_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pediatric_stretcher_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:pediatric_stretcher_equipment:scenario_specific_equipment_variant_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "pediatric_stretcher_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:pediatric_stretcher_equipment:equipment_materialization_variant"
+    },
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:pediatric_stretcher_equipment:equipment_scale_validation_evidence",
+      "workOrderInputId": "equipment-materialization-input:pediatric_stretcher_equipment",
+      "requiredCueId": "equipment_scale_validation_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pediatric_stretcher_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:pediatric_stretcher_equipment:equipment_scale_validation_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "pediatric_stretcher_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:pediatric_stretcher_equipment:equipment_materialization_variant"
+    },
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:pediatric_stretcher_equipment:equipment_placement_anchor_evidence",
+      "workOrderInputId": "equipment-materialization-input:pediatric_stretcher_equipment",
+      "requiredCueId": "equipment_placement_anchor_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pediatric_stretcher_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:pediatric_stretcher_equipment:equipment_placement_anchor_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "pediatric_stretcher_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:pediatric_stretcher_equipment:equipment_materialization_variant"
+    },
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:pediatric_stretcher_equipment:clinical_affordance_evidence",
+      "workOrderInputId": "equipment-materialization-input:pediatric_stretcher_equipment",
+      "requiredCueId": "clinical_affordance_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:pediatric_stretcher_equipment:equipment_materialization_variant/clinical_affordance_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:pediatric_stretcher_equipment:clinical_affordance_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "pediatric_stretcher_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:pediatric_stretcher_equipment:equipment_materialization_variant"
+    },
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:parent_chair_equipment:scenario_specific_equipment_variant_evidence",
+      "workOrderInputId": "equipment-materialization-input:parent_chair_equipment",
+      "requiredCueId": "scenario_specific_equipment_variant_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_chair_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:parent_chair_equipment:scenario_specific_equipment_variant_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "parent_chair_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:parent_chair_equipment:equipment_materialization_variant"
+    },
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:parent_chair_equipment:equipment_scale_validation_evidence",
+      "workOrderInputId": "equipment-materialization-input:parent_chair_equipment",
+      "requiredCueId": "equipment_scale_validation_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_chair_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:parent_chair_equipment:equipment_scale_validation_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "parent_chair_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:parent_chair_equipment:equipment_materialization_variant"
+    },
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:parent_chair_equipment:equipment_placement_anchor_evidence",
+      "workOrderInputId": "equipment-materialization-input:parent_chair_equipment",
+      "requiredCueId": "equipment_placement_anchor_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_chair_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:parent_chair_equipment:equipment_placement_anchor_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "parent_chair_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:parent_chair_equipment:equipment_materialization_variant"
+    },
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:parent_chair_equipment:clinical_affordance_evidence",
+      "workOrderInputId": "equipment-materialization-input:parent_chair_equipment",
+      "requiredCueId": "clinical_affordance_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:parent_chair_equipment:equipment_materialization_variant/clinical_affordance_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:parent_chair_equipment:clinical_affordance_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "parent_chair_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:parent_chair_equipment:equipment_materialization_variant"
+    },
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:inhaler_spacer_equipment:scenario_specific_equipment_variant_evidence",
+      "workOrderInputId": "equipment-materialization-input:inhaler_spacer_equipment",
+      "requiredCueId": "scenario_specific_equipment_variant_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:inhaler_spacer_equipment:equipment_materialization_variant/scenario_specific_equipment_variant_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:inhaler_spacer_equipment:scenario_specific_equipment_variant_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "inhaler_spacer_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:inhaler_spacer_equipment:equipment_materialization_variant"
+    },
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:inhaler_spacer_equipment:equipment_scale_validation_evidence",
+      "workOrderInputId": "equipment-materialization-input:inhaler_spacer_equipment",
+      "requiredCueId": "equipment_scale_validation_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:inhaler_spacer_equipment:equipment_materialization_variant/equipment_scale_validation_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:inhaler_spacer_equipment:equipment_scale_validation_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "inhaler_spacer_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:inhaler_spacer_equipment:equipment_materialization_variant"
+    },
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:inhaler_spacer_equipment:equipment_placement_anchor_evidence",
+      "workOrderInputId": "equipment-materialization-input:inhaler_spacer_equipment",
+      "requiredCueId": "equipment_placement_anchor_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:inhaler_spacer_equipment:equipment_materialization_variant/equipment_placement_anchor_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:inhaler_spacer_equipment:equipment_placement_anchor_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "inhaler_spacer_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:inhaler_spacer_equipment:equipment_materialization_variant"
+    },
+    {
+      "attachmentSlotId": "equipment-materialization-attachment:inhaler_spacer_equipment:clinical_affordance_evidence",
+      "workOrderInputId": "equipment-materialization-input:inhaler_spacer_equipment",
+      "requiredCueId": "clinical_affordance_evidence",
+      "requiredEvidenceRef": "equipment-materialization-evidence://peds_asthma_parent_anxiety_v1:inhaler_spacer_equipment:equipment_materialization_variant/clinical_affordance_evidence",
+      "expectedArtifactKinds": [
+        "equipment_specific_glb_or_prefab",
+        "equipment_scale_placement_review_packet",
+        "clinical_affordance_review_packet"
+      ],
+      "evidenceAttachmentStatus": "missing_evidence",
+      "slotSatisfiedByEvidence": false,
+      "attachedEvidenceRefs": [],
+      "localArtifactPaths": [],
+      "unsatisfiedReasonIds": [
+        "materialization_evidence_attachment_missing:equipment-materialization-attachment:inhaler_spacer_equipment:clinical_affordance_evidence"
+      ],
+      "providerExecutionAllowed": false,
+      "runtimeSelectionAllowed": false,
+      "learnerLaunchAllowed": false,
+      "questEvidenceRefreshAllowed": false,
+      "claimBoundary": "materialization_evidence_attachment_record_not_runtime_readiness",
+      "equipmentId": "inhaler_spacer_equipment",
+      "variantSemanticKey": "peds_asthma_parent_anxiety_v1:inhaler_spacer_equipment:equipment_materialization_variant"
+    }
+  ],
+  "attachmentCompleteness": {
+    "totalRequiredSlotCount": 36,
+    "attachedSlotCount": 0,
+    "missingSlotCount": 36,
+    "heldOrInvalidAttachmentCount": 0,
+    "allRequiredSlotsSatisfied": false,
+    "runtimeSelectionAllowed": false,
+    "learnerLaunchAllowed": false,
+    "questEvidenceRefreshAllowed": false,
+    "claimBoundary": "materialization_evidence_attachment_completeness_not_runtime_readiness"
+  },
+  "blockers": [
+    "materialization_evidence_attachment_missing:actor-materialization-attachment:patient_maya_johnson_v1:actor_specific_body_profile_required",
+    "materialization_evidence_attachment_missing:actor-materialization-attachment:patient_maya_johnson_v1:actor_specific_clothing_required",
+    "materialization_evidence_attachment_missing:actor-materialization-attachment:patient_maya_johnson_v1:actor_specific_hair_face_required",
+    "materialization_evidence_attachment_missing:actor-materialization-attachment:patient_maya_johnson_v1:actor_specific_rig_preservation_required",
+    "materialization_evidence_attachment_missing:actor-materialization-attachment:parent_tara_johnson_v1:actor_specific_body_profile_required",
+    "materialization_evidence_attachment_missing:actor-materialization-attachment:parent_tara_johnson_v1:actor_specific_clothing_required",
+    "materialization_evidence_attachment_missing:actor-materialization-attachment:parent_tara_johnson_v1:actor_specific_hair_face_required",
+    "materialization_evidence_attachment_missing:actor-materialization-attachment:parent_tara_johnson_v1:actor_specific_rig_preservation_required",
+    "materialization_evidence_attachment_missing:actor-materialization-attachment:nurse_kevin_lee_v1:actor_specific_body_profile_required",
+    "materialization_evidence_attachment_missing:actor-materialization-attachment:nurse_kevin_lee_v1:actor_specific_clothing_required",
+    "materialization_evidence_attachment_missing:actor-materialization-attachment:nurse_kevin_lee_v1:actor_specific_hair_face_required",
+    "materialization_evidence_attachment_missing:actor-materialization-attachment:nurse_kevin_lee_v1:actor_specific_rig_preservation_required",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:pulse_oximeter_equipment:scenario_specific_equipment_variant_evidence",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:pulse_oximeter_equipment:equipment_scale_validation_evidence",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:pulse_oximeter_equipment:equipment_placement_anchor_evidence",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:pulse_oximeter_equipment:clinical_affordance_evidence",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:nebulizer_mask_equipment:scenario_specific_equipment_variant_evidence",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:nebulizer_mask_equipment:equipment_scale_validation_evidence",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:nebulizer_mask_equipment:equipment_placement_anchor_evidence",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:nebulizer_mask_equipment:clinical_affordance_evidence",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:oxygen_wall_port_equipment:scenario_specific_equipment_variant_evidence",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:oxygen_wall_port_equipment:equipment_scale_validation_evidence",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:oxygen_wall_port_equipment:equipment_placement_anchor_evidence",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:oxygen_wall_port_equipment:clinical_affordance_evidence",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:pediatric_stretcher_equipment:scenario_specific_equipment_variant_evidence",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:pediatric_stretcher_equipment:equipment_scale_validation_evidence",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:pediatric_stretcher_equipment:equipment_placement_anchor_evidence",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:pediatric_stretcher_equipment:clinical_affordance_evidence",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:parent_chair_equipment:scenario_specific_equipment_variant_evidence",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:parent_chair_equipment:equipment_scale_validation_evidence",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:parent_chair_equipment:equipment_placement_anchor_evidence",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:parent_chair_equipment:clinical_affordance_evidence",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:inhaler_spacer_equipment:scenario_specific_equipment_variant_evidence",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:inhaler_spacer_equipment:equipment_scale_validation_evidence",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:inhaler_spacer_equipment:equipment_placement_anchor_evidence",
+    "materialization_evidence_attachment_missing:equipment-materialization-attachment:inhaler_spacer_equipment:clinical_affordance_evidence"
+  ],
+  "recommendedNextActions": [
+    "materialize actor-specific Anny humanoid GLBs before treating visual role distinction as asset-level progress",
+    "materialize equipment-specific generated GLBs or prefabs before treating pediatric equipment as Quest, clinical, scoring, or production-ready",
+    "attach this report to publication/local-launch/runtime-selection only after every actor and equipment evidence ref resolves",
+    "review provider-neutral work-order inputs before approving any local or external materialization provider execution",
+    "attach actor-specific humanoid GLB plus review/visual-QA evidence to every actor materialization slot before runtime selection can clear",
+    "attach equipment-specific GLB or prefab plus scale/placement/affordance evidence to every equipment materialization slot before runtime selection can clear",
+    "attach reviewed local evidence refs for every actor/equipment materialization slot before runtime-selection blockers can be reconsidered",
+    "keep provider/runtime/learner/Quest gates disabled until attachment completeness and downstream review gates pass"
+  ],
+  "claimBoundary": "materialization_evidence_attachments_not_provider_or_runtime_execution",
+  "notEvidenceFor": [
+    "runtime_readiness",
+    "quest_readiness",
+    "production_asset_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "learner_launch_readiness"
+  ]
+}

@@ -94,13 +94,13 @@ export function EnvironmentGenerationQueuePanel({
         </div>
       ) : null}
       {featuredPipeline ? (
-        <div className="station-queue-row">
+        <fieldset className="station-queue-row" aria-label="Humanoid runtime readiness handoff">
           <Typography.Text strong>Humanoid runtime readiness handoff</Typography.Text>
           <Typography.Text type="secondary">{summarizeHumanoidRuntimeReadinessHandoff(featuredPipeline)}</Typography.Text>
-        </div>
+        </fieldset>
       ) : null}
       {latestSceneGenerationRequest ? (
-        <div className="station-queue-row">
+        <fieldset className="station-queue-row" aria-label="Latest scene generation request review status">
           <Typography.Text strong>{`Latest scene request: ${latestSceneGenerationRequest.scenarioId}`}</Typography.Text>
           <Tag color={sceneGenerationRequestReviewStatusColor(latestSceneGenerationRequest.reviewStatus)}>{latestSceneGenerationRequest.reviewStatus}</Tag>
           <Tag color={sceneGenerationRequestProjectionArtifactStatusColor(latestSceneGenerationRequest.reviewStatus)}>
@@ -125,7 +125,7 @@ export function EnvironmentGenerationQueuePanel({
               Check publication readiness
             </Button>
           ) : null}
-        </div>
+        </fieldset>
       ) : null}
       {sceneGenerationPublicationReadiness ? (
         <div className="station-queue-row">
@@ -146,6 +146,16 @@ export function EnvironmentGenerationQueuePanel({
           <Typography.Text type="secondary">{summarizeHumanReviewActions(sceneGenerationPublicationReadiness)}</Typography.Text>
           <Typography.Text type="secondary">{summarizeDynamicBehaviorCoverage(sceneGenerationPublicationReadiness)}</Typography.Text>
           <Typography.Text type="secondary">{summarizeEncounterFactoryInputPlanning(sceneGenerationPublicationReadiness)}</Typography.Text>
+          <Typography.Text type="secondary">{summarizeMaterializationInputManifest(sceneGenerationPublicationReadiness)}</Typography.Text>
+          <Typography.Text type="secondary">{summarizeMaterializationEvidenceAttachments(sceneGenerationPublicationReadiness)}</Typography.Text>
+          <Typography.Text type="secondary">{summarizeMaterializationInputReviewActions(sceneGenerationPublicationReadiness)}</Typography.Text>
+          <Typography.Text type="secondary">{summarizeMaterializationInputReviewDecisionRecord(sceneGenerationPublicationReadiness)}</Typography.Text>
+          <Typography.Text type="secondary">{summarizeRuntimeRealismEvidenceInputReviewDecisionRecord(sceneGenerationPublicationReadiness)}</Typography.Text>
+          <Typography.Text type="secondary">{summarizeRuntimeVisualEvidenceAttachmentSummary(sceneGenerationPublicationReadiness)}</Typography.Text>
+          <Typography.Text type="secondary">{summarizeRuntimeVisualEvidenceAttachmentRecord(sceneGenerationPublicationReadiness)}</Typography.Text>
+          <Typography.Text type="secondary">{summarizeAssetReleaseLadderReplayProjection(sceneGenerationPublicationReadiness)}</Typography.Text>
+          <Typography.Text type="secondary">{summarizeRuntimeVisualEvidenceAttachmentActions(sceneGenerationPublicationReadiness)}</Typography.Text>
+          <Typography.Text type="secondary">{summarizeRuntimeEvidenceCaptureScaffold(sceneGenerationPublicationReadiness)}</Typography.Text>
           <Typography.Text type="secondary">{summarizeEncounterFactoryDryRun(sceneGenerationPublicationReadiness)}</Typography.Text>
         </div>
       ) : null}
@@ -356,6 +366,99 @@ function summarizeEncounterFactoryInputPlanning(readiness: ScenarioSceneGenerati
     ? `; factory selection ${summary.factorySelectionMetadata.factorySelectionRole} order ${summary.factorySelectionMetadata.scenarioBankOrder ?? "unspecified"} via ${summary.factorySelectionMetadata.factorySelectionMode} (${summary.factorySelectionMetadata.factorySelectionClaimBoundary})`
     : "";
   return `Encounter factory input planning: ${summary.assetWorkOrderIntent.total} work-order intents (actors ${summary.assetWorkOrderIntent.actor}, environment ${summary.assetWorkOrderIntent.environment}, equipment ${summary.assetWorkOrderIntent.equipment}); shared asset lookup keys ${summary.sharedAssetLibraryReuse.lookupKeyCount}; dynamic behavior tags ${summary.dynamicBehaviorTraceTags.join(", ") || "none"}${selection}; blockers ${summary.blockerIds.join(", ") || "none"}; ${summary.claimBoundary}`;
+}
+
+function summarizeMaterializationInputManifest(readiness: ScenarioSceneGenerationRequestPublicationReadiness): string {
+  const summary = readiness.materializationInputManifestSummary;
+  if (!summary) {
+    return "Materialization input manifest: not attached";
+  }
+  return `Materialization input manifest: ${summary.actorWorkOrderInputCount} actor inputs; ${summary.equipmentWorkOrderInputCount} equipment inputs; actor cues ${summary.requiredActorCueIds.join(", ") || "none"}; equipment cues ${summary.requiredEquipmentCueIds.join(", ") || "none"}; blockers ${summary.blockerIds.length}; provider ${String(summary.providerExecutionPerformed)}; paid APIs ${String(summary.paidApisUsed)}; external network ${String(summary.externalNetworkUsed)}; ${summary.claimBoundary}`;
+}
+
+function summarizeMaterializationEvidenceAttachments(readiness: ScenarioSceneGenerationRequestPublicationReadiness): string {
+  const summary = readiness.materializationEvidenceAttachmentSummary;
+  if (!summary) {
+    return "Materialization evidence attachments: not attached";
+  }
+  return `Materialization evidence attachments: ${summary.attachedSlotCount}/${summary.totalRequiredSlotCount} slots attached; missing ${summary.missingSlotCount}; held or invalid ${summary.heldOrInvalidAttachmentCount}; all slots satisfied ${String(summary.allRequiredSlotsSatisfied)}; blockers ${summary.blockerIds.length}; runtime ${String(summary.runtimeSelectionAllowed)}; learner ${String(summary.learnerLaunchAllowed)}; Quest ${String(summary.questEvidenceRefreshAllowed)}; ${summary.claimBoundary}`;
+}
+
+function summarizeMaterializationInputReviewActions(readiness: ScenarioSceneGenerationRequestPublicationReadiness): string {
+  const packet = readiness.materializationInputReviewActionPacket;
+  if (!packet) {
+    return "Materialization input review actions: not attached";
+  }
+  return `Materialization input review actions: ${packet.availableActions.map((action) => `${action.actionId} ${action.status} (${action.inputCount} inputs; ${action.blockerCount} blockers; provider ${String(action.providerExecutionAllowed)}; runtime ${String(action.runtimeExecutionAllowed)})`).join(", ")}; provider ${String(packet.providerExecutionAllowed)}; runtime ${String(packet.runtimeExecutionAllowed)}; learner ${String(packet.learnerLaunchAllowed)}; Quest ${String(packet.questEvidenceRefreshAllowed)}; ${packet.claimBoundary}`;
+}
+
+function summarizeMaterializationInputReviewDecisionRecord(readiness: ScenarioSceneGenerationRequestPublicationReadiness): string {
+  const record = readiness.materializationInputReviewDecisionRecord;
+  if (!record) {
+    return "Materialization input review decisions: not attached";
+  }
+  return `Materialization input review decisions: ${record.decisionCount} decisions; reviewed ${record.reviewedDecisionCount}; held ${record.heldDecisionCount}; provider ${String(record.providerExecutionAllowed)}; runtime ${String(record.runtimeExecutionAllowed)}; learner ${String(record.learnerLaunchAllowed)}; Quest ${String(record.questEvidenceRefreshAllowed)}; ${record.claimBoundary}`;
+}
+
+function summarizeRuntimeRealismEvidenceInputReviewDecisionRecord(readiness: ScenarioSceneGenerationRequestPublicationReadiness): string {
+  const record = readiness.runtimeRealismEvidenceInputReviewDecisionRecord;
+  if (!record) {
+    return "Runtime realism evidence input review decisions: not attached";
+  }
+  const sampleDecisionIds = record.decisions.slice(0, 3).map((decision) => decision.inputId).join(", ") || "no sample decisions";
+  return `Runtime realism evidence input review decisions: ${record.decisionCount} decisions; reviewed ${record.reviewedDecisionCount}; held ${record.heldDecisionCount}; sample inputs ${sampleDecisionIds}; provider ${String(record.providerExecutionAllowed)}; runtime ${String(record.runtimeExecutionAllowed)}; learner ${String(record.learnerLaunchAllowed)}; Quest ${String(record.questEvidenceRefreshAllowed)}; ${record.claimBoundary}`;
+}
+
+function summarizeRuntimeVisualEvidenceAttachmentSummary(readiness: ScenarioSceneGenerationRequestPublicationReadiness): string {
+  const summary = readiness.runtimeVisualEvidenceAttachmentSummary;
+  if (!summary) {
+    return "Runtime visual evidence attachment summary: not attached";
+  }
+  return `Runtime visual evidence attachment summary: reviewed metadata-only ${summary.reviewedMetadataOnlyCount}; held metadata-only ${summary.heldMetadataOnlyCount}; attached runtime evidence ${summary.attachedRuntimeEvidenceCount}; attached visual QA evidence ${summary.attachedVisualQaEvidenceCount}; blockers ${summary.blockerIds.join(", ") || "none"}; runtime ${String(summary.runtimeExecutionAllowed)}; learner ${String(summary.learnerLaunchAllowed)}; Quest ${String(summary.questEvidenceRefreshAllowed)}; ${summary.claimBoundary}`;
+}
+
+function summarizeRuntimeVisualEvidenceAttachmentRecord(readiness: ScenarioSceneGenerationRequestPublicationReadiness): string {
+  const record = readiness.runtimeVisualEvidenceAttachmentRecord;
+  if (!record) {
+    return "Runtime visual evidence attachment record: not attached";
+  }
+  const sampleRefs = record.attachments
+    .slice(0, 3)
+    .map((attachment) => `${attachment.inputId} -> ${attachment.evidenceRef}`)
+    .join(", ") || "no accepted refs";
+  return `Runtime visual evidence attachment record: ${record.attachmentCount} metadata-only refs; runtime refs ${record.runtimeEvidenceAttachmentCount}; visual QA refs ${record.visualQaEvidenceAttachmentCount}; accepted refs ${sampleRefs}; provider ${String(record.providerExecutionAllowed)}; runtime ${String(record.runtimeExecutionAllowed)}; learner ${String(record.learnerLaunchAllowed)}; Quest ${String(record.questEvidenceRefreshAllowed)}; ${record.claimBoundary}`;
+}
+
+function summarizeAssetReleaseLadderReplayProjection(readiness: ScenarioSceneGenerationRequestPublicationReadiness): string {
+  const summary = readiness.assetReleaseLadderReplayProjection;
+  if (!summary) {
+    return "Asset release ladder replay projection: not attached";
+  }
+  const sampleBlockedAssets = summary.blockedAssets
+    .slice(0, 3)
+    .map((asset) => `${asset.assetId}:${asset.firstBlockedStep ?? "blocked"}`)
+    .join(", ") || "no blocked assets";
+  return `Asset release ladder replay projection: ${summary.assetCount} assets; release-ladder complete ${summary.productionReadyAssetCount}; blocked ${summary.blockedAssetCount}; missing required ${summary.missingRequiredAssetCount}; blockers ${summary.blockerCount}; station budget ${summary.stationBudgetStatus}; sample blocked assets ${sampleBlockedAssets}; runtime ${String(summary.runtimeExecutionAllowed)}; learner ${String(summary.learnerLaunchAllowed)}; Quest ${String(summary.questEvidenceRefreshAllowed)}; production ${String(summary.productionAssetReadinessClaimed)}; ${summary.claimBoundary}`;
+}
+
+function summarizeRuntimeVisualEvidenceAttachmentActions(readiness: ScenarioSceneGenerationRequestPublicationReadiness): string {
+  const packet = readiness.runtimeVisualEvidenceAttachmentActionPacket;
+  if (!packet) {
+    return "Runtime visual evidence attachment actions: not attached";
+  }
+  return `Runtime visual evidence attachment actions: ${packet.availableActions.map((action) => `${action.actionId} ${action.status} (${action.requiredInputCount} inputs; reviewed ${action.reviewedMetadataOnlyCount}; held ${action.heldMetadataOnlyCount}; attached ${action.attachedEvidenceCount}; runtime ${String(action.runtimeExecutionAllowed)}; learner ${String(action.learnerLaunchAllowed)})`).join(", ")}; provider ${String(packet.providerExecutionAllowed)}; runtime ${String(packet.runtimeExecutionAllowed)}; learner ${String(packet.learnerLaunchAllowed)}; Quest ${String(packet.questEvidenceRefreshAllowed)}; ${packet.claimBoundary}`;
+}
+
+function summarizeRuntimeEvidenceCaptureScaffold(readiness: ScenarioSceneGenerationRequestPublicationReadiness): string {
+  const scaffold = readiness.runtimeEvidenceCaptureScaffold;
+  if (!scaffold) {
+    return "Runtime evidence capture scaffold: not attached";
+  }
+  const sampleRefs = scaffold.attachmentCandidates
+    .slice(0, 3)
+    .map((candidate) => `${candidate.inputId} -> ${candidate.evidenceRef}`)
+    .join(", ") || "no candidate refs";
+  return `Runtime evidence capture scaffold: ${scaffold.runtimeEvidenceCandidateCount} runtime candidates; ${scaffold.visualQaEvidenceCandidateCount} visual QA candidates; submit candidates ${scaffold.submitRuntimeVisualEvidenceAttachmentInput.attachments.length}; candidate refs ${sampleRefs}; provider ${String(scaffold.gateBoundary.providerExecutionAllowed)}; runtime ${String(scaffold.gateBoundary.runtimeExecutionAllowed)}; learner ${String(scaffold.gateBoundary.learnerLaunchAllowed)}; Quest ${String(scaffold.gateBoundary.questEvidenceRefreshAllowed)}; ${scaffold.claimBoundary}`;
 }
 
 function summarizeEvidenceGateRefs(

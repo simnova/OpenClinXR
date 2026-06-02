@@ -51,6 +51,8 @@ describe("AdminApp", () => {
     client.listScenarioSceneGenerationRequests = listScenarioSceneGenerationRequests;
     const getRuntimeSelectionReviewPacket = vi.fn(client.getRuntimeSelectionReviewPacket);
     client.getRuntimeSelectionReviewPacket = getRuntimeSelectionReviewPacket;
+    const submitRuntimeVisualEvidenceAttachment = vi.fn(client.submitRuntimeVisualEvidenceAttachment);
+    client.submitRuntimeVisualEvidenceAttachment = submitRuntimeVisualEvidenceAttachment;
     const getDynamicEncounterFactoryPlanning = vi.fn(client.getDynamicEncounterFactoryPlanning);
     client.getDynamicEncounterFactoryPlanning = getDynamicEncounterFactoryPlanning;
     const createScenarioSceneGenerationRequest = vi.fn(client.createScenarioSceneGenerationRequest);
@@ -104,6 +106,47 @@ describe("AdminApp", () => {
     expect(screen.getByLabelText("Publication materialization metrics")).toHaveTextContent("humanoid-realism-gate, runtime-realism-evidence-check, visual-qa-evidence-check");
     expect(screen.getByLabelText("Publication realism evidence trace")).toHaveTextContent("encounter-publication-realism://scenario/request/humanoid-realism-gate/3-actors");
     expect(screen.getByLabelText("Publication materialization blockers")).toHaveTextContent("humanoid_realism_requirement_actor_missing:family");
+    expect(screen.getByLabelText("Prepare local XR handoff metrics")).toHaveTextContent("actor/equipment materialization evidence required");
+    expect(screen.getByLabelText("Actor equipment materialization metrics")).toHaveTextContent("runtime selection blocked: true");
+    expect(screen.getByLabelText("Actor equipment materialization metrics")).toHaveTextContent("shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness");
+    expect(screen.getByLabelText("Actor equipment materialization metrics")).toHaveTextContent("generic_equipment_reuse_blocks_equipment_specific_asset_readiness");
+    expect(screen.getByLabelText("Actor equipment materialization caveats")).toHaveTextContent("attach_actor_specific_humanoid_materialization_evidence");
+    expect(screen.getByLabelText("Actor equipment materialization caveats")).toHaveTextContent("attach_equipment_specific_materialization_evidence");
+    expect(screen.getByLabelText("Worker materialization input review decision metrics")).toHaveTextContent("2 materialization input decisions");
+    expect(screen.getByLabelText("Worker materialization input review decision metrics")).toHaveTextContent("reviewed 1; held 1");
+    expect(screen.getByLabelText("Worker materialization input review decision metrics")).toHaveTextContent("metadata_only_materialization_input_review_decisions");
+    expect(screen.getByLabelText("Worker materialization input review decision metrics")).toHaveTextContent("provider false; runtime false; learner false; Quest false");
+    expect(screen.getByLabelText("Worker materialization input review decision details")).toHaveTextContent("review_actor_materialization_inputs: reviewed_metadata_only");
+    expect(screen.getByLabelText("Worker materialization input review decision details")).toHaveTextContent("hold_equipment_materialization_inputs: held_metadata_only");
+    expect(screen.getByLabelText("Worker materialization attachment plan metrics")).toHaveTextContent("36 missing attachment slots");
+    expect(screen.getByLabelText("Worker materialization attachment plan metrics")).toHaveTextContent("12 actor slots; 24 equipment slots");
+    expect(screen.getByLabelText("Worker materialization attachment plan metrics")).toHaveTextContent("metadata_only_materialization_attachment_plan");
+    expect(screen.getByLabelText("Worker materialization attachment plan metrics")).toHaveTextContent("provider false; runtime false; learner false; Quest false");
+    expect(screen.getByLabelText("Worker materialization attachment plan metrics")).toHaveTextContent("actor_specific_body_profile_required");
+    expect(screen.getByLabelText("Worker materialization attachment plan metrics")).toHaveTextContent("clinical_affordance_evidence");
+    expect(screen.getByLabelText("Worker materialization attachment blockers")).toHaveTextContent("actor_materialization_attachment_missing:patient_ed_chest_pain_v1:actor_specific_body_profile_required");
+    expect(screen.getByLabelText("Worker materialization attachment blockers")).toHaveTextContent("equipment_materialization_attachment_missing:exam_room_ecg_cart:clinical_affordance_evidence");
+    expect(screen.getByLabelText("Worker materialization evidence attachment metrics")).toHaveTextContent("36/36 attachment slots satisfied");
+    expect(screen.getByLabelText("Worker materialization evidence attachment metrics")).toHaveTextContent("0 missing; 0 held or invalid");
+    expect(screen.getByLabelText("Worker materialization evidence attachment metrics")).toHaveTextContent("metadata_only_materialization_evidence_attachment_summary");
+    expect(screen.getByLabelText("Worker materialization evidence attachment metrics")).toHaveTextContent("all slots satisfied true; runtime false; learner false; Quest false");
+    expect(screen.getByLabelText("Worker materialization evidence attachment blockers")).toHaveTextContent("materialization_evidence_attachment_missing:actor-materialization-attachment:patient_ed_chest_pain_v1:actor_specific_clothing_required");
+    expect(screen.getByRole("button", { name: "Submit metadata-only runtime evidence ref" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "Submit metadata-only runtime evidence ref" }));
+    expect(submitRuntimeVisualEvidenceAttachment).toHaveBeenCalledWith(expect.objectContaining({
+      scenarioId: "ed_chest_pain_priority_v1",
+      attachments: [
+        expect.objectContaining({
+          actionId: "attach_runtime_realism_evidence_refs",
+          inputId: "runtime-realism-evidence-input:patient_ed_chest_pain_v1",
+          inputKind: "runtime_realism_signal_input",
+          evidenceRef: "runtime-realism-evidence-input://patient",
+          attachmentStatus: "attached_metadata_only",
+        }),
+      ],
+    }));
+    expect(await screen.findByText("1 metadata-only runtime visual evidence attachment ref accepted; launch gates remain blocked.")).toBeInTheDocument();
+    expect(getRuntimeSelectionReviewPacket).toHaveBeenCalledTimes(2);
     expect(screen.getByLabelText("Runtime selection blockers")).toHaveTextContent("runtime_selector_disabled_guard_not_wired");
     expect(screen.getByLabelText("Runtime selection blockers")).toHaveTextContent("publication_payload_not_materialized");
     expect(screen.getAllByText("12 environment packets").length).toBeGreaterThan(0);
@@ -134,6 +177,7 @@ describe("AdminApp", () => {
       requestId: "scene_generation_request:ed_chest_pain_priority_v1:local-admin",
     });
     expect(await screen.findByText("Publication gate: ready to run generated bundle publisher")).toBeInTheDocument();
+    expect(screen.getByText("Materialization evidence attachments: 36/36 slots attached; missing 0; held or invalid 0; all slots satisfied true; blockers 2; runtime false; learner false; Quest false; metadata_only_materialization_evidence_attachment_summary")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Check publication readiness" }));
     expect(getScenarioSceneGenerationRequestPublicationReadiness).toHaveBeenCalledTimes(2);
     expect(screen.getByText("websocket-media")).toBeInTheDocument();
@@ -361,7 +405,7 @@ describe("AdminApp", () => {
     expect(within(replayReadinessSummary).getByText("review_missing_required_behavior")).toBeInTheDocument();
     expect(within(replayReadinessSummary).getByText("missing_required_behavior")).toBeInTheDocument();
     expect(within(replayReadinessSummary).getByText("late_behavior_present")).toBeInTheDocument();
-    expect(within(replayReadinessSummary).getByLabelText("XR trace evidence handoff")).toHaveTextContent("ecg_request");
+    expect(within(replayReadinessSummary).getAllByLabelText("XR trace evidence handoff").at(-1)).toHaveTextContent("ecg_request");
     expect(within(replayReadinessSummary).getByLabelText("Generated bundle blocked posture")).toHaveTextContent("Learner runtime blocked");
     expect(within(replayReadinessSummary).getByText("generated_bundle_posture_blocks_learner_use_until_evidence_gates_attach")).toBeInTheDocument();
     expect(within(replayReadinessSummary).getByLabelText("Review-safe learner launch link")).toHaveTextContent("Open learner runtime with this opaque bundle id");
@@ -380,6 +424,13 @@ describe("AdminApp", () => {
     expect(within(facultyDecisionHandoff).getByText("Needs scenario iteration")).toBeInTheDocument();
     expect(within(facultyDecisionHandoff).getByText("Canonical replay action: review_missing_required_behavior")).toBeInTheDocument();
     expect(within(facultyDecisionHandoff).getByLabelText("Case-defined humanoid performance metadata")).toHaveTextContent("lip-sync roles patient, nurse, family");
+    expect(within(facultyDecisionHandoff).getByLabelText("Faculty runtime visual evidence context")).toHaveTextContent("3 accepted metadata refs");
+    expect(within(facultyDecisionHandoff).getByLabelText("Faculty runtime visual evidence context")).toHaveTextContent("raw payload hidden");
+    expect(within(facultyDecisionHandoff).getByLabelText("Faculty runtime visual evidence context")).toHaveTextContent("runtime false; learner false; Quest false; production false");
+    expect(within(facultyDecisionHandoff).getByLabelText("Faculty runtime visual evidence follow-up actions")).toHaveTextContent("review 3 accepted metadata-only runtime/visual refs");
+    expect(within(facultyDecisionHandoff).getByLabelText("Faculty runtime visual evidence follow-up actions")).toHaveTextContent("keep runtime, learner, Quest, production, clinical, and scoring gates blocked");
+    expect(within(facultyDecisionHandoff).getByLabelText("Faculty asset release ladder context")).toHaveTextContent("7 blocked");
+    expect(within(facultyDecisionHandoff).getByLabelText("Faculty asset release ladder context")).toHaveTextContent("runtime false; learner false; Quest false; production false");
     expect(within(facultyDecisionHandoff).getByText("Summary-only durable clinical-event evidence is attached and safe for faculty review.")).toBeInTheDocument();
     const reviewerDecisionPostureMetrics = within(facultyDecisionHandoff).getByLabelText("Reviewer decision posture metrics");
     expect(within(reviewerDecisionPostureMetrics).getByText("Faculty draft draft")).toBeInTheDocument();
@@ -433,10 +484,11 @@ describe("AdminApp", () => {
       },
     });
 
-    const replayWorkbench = screen.getByLabelText("Review packet replay workbench");
-    expect(findUnsafeClaimLanguage(replayWorkbench.textContent ?? "")).toEqual([]);
-    expect(replayWorkbench.textContent).not.toContain("Father died of myocardial infarction");
-    expect(replayWorkbench.textContent).not.toContain("hiddenFacts");
+    const replayWorkbench = screen.getByRole("heading", { name: "Review Replay" }).closest("section");
+    expect(replayWorkbench).not.toBeNull();
+    expect(findUnsafeClaimLanguage(replayWorkbench?.textContent ?? "")).toEqual([]);
+    expect(replayWorkbench?.textContent).not.toContain("Father died of myocardial infarction");
+    expect(replayWorkbench?.textContent).not.toContain("hiddenFacts");
   });
 
   it("shows review-packet unsafe events when raw trace events are not available", async () => {
@@ -882,6 +934,21 @@ function fakeControlPlaneClient(): AdminControlPlaneClient {
           providerExecutionPerformed: false,
           questReadinessClaimed: false,
         },
+        actorEquipmentMaterializationGate: {
+          claimBoundary: "actor_equipment_materialization_contract_not_runtime_readiness",
+          runtimeSelectionBlockedUntilEvidenceAttached: true,
+          actorBlockers: ["shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness"],
+          equipmentBlockers: ["generic_equipment_reuse_blocks_equipment_specific_asset_readiness"],
+          caveats: [
+            "shared_neutral_humanoid_reuse_is_local_runtime_scaffolding_until_actor_specific_mesh_rig_hair_face_clothing_animation_evidence_attaches",
+            "generic_equipment_reuse_is_local_runtime_scaffolding_until_equipment_specific_mesh_prefab_scale_placement_affordance_variant_evidence_attaches",
+          ],
+          recommendedNextActions: [
+            "attach_actor_specific_humanoid_materialization_evidence",
+            "attach_equipment_specific_materialization_evidence",
+          ],
+          notEvidenceFor: ["provider_availability", "runtime_readiness", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity", "learner_launch_readiness"],
+        },
       },
       operatorReviewReadiness: {
         status: "not_ready_for_operator_review",
@@ -890,6 +957,8 @@ function fakeControlPlaneClient(): AdminControlPlaneClient {
         blockerIds: ["runtime_selector_disabled_guard_not_wired", "publication_payload_not_materialized"],
         requiredOperatorActions: [
           "materialize_or_attach_generated_assets_before_guarded_runtime_wiring",
+          "attach_actor_specific_humanoid_materialization_evidence",
+          "attach_equipment_specific_materialization_evidence",
           "attach_humanoid_runtime_visual_qa_evidence_refs",
           "confirm_provider_execution_remains_disabled_until_explicit_approval",
           "confirm_runtime_selector_remains_disabled_until_evidence_gates_clear",
@@ -899,6 +968,193 @@ function fakeControlPlaneClient(): AdminControlPlaneClient {
         runtimeExecutionAllowed: false,
         questEvidenceRefreshAllowed: false,
         claimBoundary: "operator_review_readiness_metadata_only",
+      },
+      materializationInputReviewDecisionRecord: {
+        schemaVersion: "openclinxr.encounter-materialization-input-review-decision-record.v1",
+        source: "admin_materialization_input_review_decisions",
+        requestId: "scene_generation_request:ed_chest_pain_priority_v1:local-admin",
+        scenarioId: "ed_chest_pain_priority_v1",
+        decisionCount: 2,
+        reviewedDecisionCount: 1,
+        heldDecisionCount: 1,
+        decisions: [
+          {
+            actionId: "review_actor_materialization_inputs",
+            reviewerId: "asset_pipeline_reviewer",
+            decision: "reviewed_metadata_only",
+            comments: "Actor materialization input metadata reviewed; evidence remains required.",
+            evidenceRefs: ["encounter-materialization-input-manifest-ed-chest-pain-2026-05-28"],
+            reviewedAt: "2026-05-28T06:40:00.000Z",
+          },
+          {
+            actionId: "hold_equipment_materialization_inputs",
+            reviewerId: "asset_pipeline_reviewer",
+            decision: "held_metadata_only",
+            comments: "Equipment input metadata held until equipment-specific evidence attaches.",
+            evidenceRefs: ["encounter-materialization-input-manifest-ed-chest-pain-2026-05-28"],
+            reviewedAt: "2026-05-28T06:41:00.000Z",
+          },
+        ],
+        providerExecutionAllowed: false,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+        claimBoundary: "metadata_only_materialization_input_review_decisions",
+        notEvidenceFor: ["provider_availability", "runtime_readiness", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity", "learner_launch_readiness"],
+      },
+      materializationAttachmentPlanSummary: {
+        schemaVersion: "openclinxr.encounter-materialization-attachment-plan-summary.v1",
+        source: "encounter_materialization_attachment_plan",
+        scenarioId: "ed_chest_pain_priority_v1",
+        actorAttachmentSlotCount: 12,
+        equipmentAttachmentSlotCount: 24,
+        missingAttachmentCount: 36,
+        actorRequiredCueIds: [
+          "actor_specific_body_profile_required",
+          "actor_specific_clothing_required",
+          "actor_specific_hair_face_required",
+          "actor_specific_rig_preservation_required",
+        ],
+        equipmentRequiredCueIds: [
+          "scenario_specific_equipment_variant_evidence",
+          "equipment_scale_validation_evidence",
+          "equipment_placement_anchor_evidence",
+          "clinical_affordance_evidence",
+        ],
+        blockerIds: [
+          "actor_materialization_attachment_missing:patient_ed_chest_pain_v1:actor_specific_body_profile_required",
+          "equipment_materialization_attachment_missing:exam_room_ecg_cart:clinical_affordance_evidence",
+        ],
+        providerExecutionPerformed: false,
+        runtimeSelectionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+        claimBoundary: "metadata_only_materialization_attachment_plan",
+      },
+      materializationEvidenceAttachmentSummary: {
+        schemaVersion: "openclinxr.encounter-materialization-evidence-attachment-summary.v1",
+        source: "encounter_materialization_evidence_attachments",
+        scenarioId: "ed_chest_pain_priority_v1",
+        totalRequiredSlotCount: 36,
+        attachedSlotCount: 36,
+        missingSlotCount: 0,
+        heldOrInvalidAttachmentCount: 0,
+        allRequiredSlotsSatisfied: true,
+        blockerIds: [
+          "materialization_evidence_attachment_missing:actor-materialization-attachment:patient_ed_chest_pain_v1:actor_specific_clothing_required",
+          "materialization_evidence_attachment_missing:equipment-materialization-attachment:exam_room_ecg_cart:clinical_affordance_evidence",
+        ],
+        providerExecutionPerformed: false,
+        runtimeSelectionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+        claimBoundary: "metadata_only_materialization_evidence_attachment_summary",
+      },
+      runtimeRealismEvidenceInputReviewDecisionRecord: {
+        schemaVersion: "openclinxr.runtime-realism-evidence-input-review-decision-record.v1",
+        source: "admin_runtime_realism_evidence_input_review_decisions",
+        scenarioId: "ed_chest_pain_priority_v1",
+        decisionCount: 2,
+        reviewedDecisionCount: 1,
+        heldDecisionCount: 1,
+        decisions: [
+          {
+            inputId: "runtime-realism-evidence-input:patient_ed_chest_pain_v1",
+            inputKind: "runtime_realism_signal_input",
+            reviewerId: "runtime_reviewer",
+            decision: "reviewed_metadata_only",
+            comments: "Runtime actor evidence input reviewed as metadata only.",
+            evidenceRefs: ["runtime-realism-evidence-input://patient"],
+            reviewedAt: "2026-05-28T10:20:00.000Z",
+          },
+          {
+            inputId: "visual-qa-evidence-input:exam_room_ecg_cart",
+            inputKind: "visual_qa_review_input",
+            reviewerId: "runtime_reviewer",
+            decision: "held_metadata_only",
+            comments: "Visual QA equipment input held until evidence attaches.",
+            evidenceRefs: ["visual-qa-evidence-input://ecg-cart"],
+            reviewedAt: "2026-05-28T10:21:00.000Z",
+          },
+        ],
+        providerExecutionAllowed: false,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+        productionAssetReadinessClaimed: false,
+        clinicalValidityClaimed: false,
+        scoringValidityClaimed: false,
+        claimBoundary: "metadata_only_runtime_realism_evidence_input_review_decisions",
+        notEvidenceFor: ["provider_availability", "runtime_readiness", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity", "learner_launch_readiness"],
+      },
+      runtimeVisualEvidenceAttachmentSummary: {
+        schemaVersion: "openclinxr.runtime-realism-evidence-attachment-summary.v1",
+        source: "runtime_realism_evidence_input_review_decisions",
+        scenarioId: "ed_chest_pain_priority_v1",
+        runtimeActorEvidenceInputCount: 1,
+        visualQaEvidenceInputCount: 1,
+        reviewedMetadataOnlyCount: 1,
+        heldMetadataOnlyCount: 1,
+        attachedRuntimeEvidenceCount: 0,
+        attachedVisualQaEvidenceCount: 0,
+        reviewedMetadataOnlyInputIds: ["runtime-realism-evidence-input:patient_ed_chest_pain_v1"],
+        heldMetadataOnlyInputIds: ["visual-qa-evidence-input:exam_room_ecg_cart"],
+        blockerIds: [
+          "runtime_realism_evidence_not_attached_to_encounter_bundle",
+          "visual_qa_evidence_not_attached_to_encounter_bundle",
+        ],
+        providerExecutionAllowed: false,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+        productionAssetReadinessClaimed: false,
+        clinicalValidityClaimed: false,
+        scoringValidityClaimed: false,
+        claimBoundary: "runtime_visual_evidence_attachment_summary_metadata_only_until_artifacts_attach",
+        notEvidenceFor: ["provider_availability", "runtime_readiness", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity", "learner_launch_readiness"],
+      },
+      runtimeVisualEvidenceAttachmentActionPacket: {
+        schemaVersion: "openclinxr.runtime-visual-evidence-attachment-action-packet.v1",
+        source: "runtime_visual_evidence_attachment_summary",
+        scenarioId: "ed_chest_pain_priority_v1",
+        actionMode: "metadata_only_attachment_actions_not_runtime_execution",
+        availableActions: [
+          {
+            actionId: "attach_runtime_realism_evidence_refs",
+            status: "available",
+            requiredInputCount: 1,
+            reviewedMetadataOnlyCount: 1,
+            heldMetadataOnlyCount: 0,
+            attachedEvidenceCount: 0,
+            blockerIds: ["runtime_realism_evidence_not_attached_to_encounter_bundle"],
+            providerExecutionAllowed: false,
+            runtimeExecutionAllowed: false,
+            learnerLaunchAllowed: false,
+            claimBoundary: "runtime_visual_evidence_attachment_action_not_runtime_execution",
+          },
+          {
+            actionId: "attach_visual_qa_evidence_refs",
+            status: "available",
+            requiredInputCount: 1,
+            reviewedMetadataOnlyCount: 0,
+            heldMetadataOnlyCount: 1,
+            attachedEvidenceCount: 0,
+            blockerIds: ["visual_qa_evidence_not_attached_to_encounter_bundle"],
+            providerExecutionAllowed: false,
+            runtimeExecutionAllowed: false,
+            learnerLaunchAllowed: false,
+            claimBoundary: "runtime_visual_evidence_attachment_action_not_runtime_execution",
+          },
+        ],
+        providerExecutionAllowed: false,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+        productionAssetReadinessClaimed: false,
+        clinicalValidityClaimed: false,
+        scoringValidityClaimed: false,
+        claimBoundary: "metadata_only_runtime_visual_evidence_attachment_actions",
+        notEvidenceFor: ["provider_availability", "runtime_readiness", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity", "learner_launch_readiness"],
       },
       runtimeExecutionAllowed: false,
       learnerLaunchAllowed: false,
@@ -1015,6 +1271,60 @@ function fakeControlPlaneClient(): AdminControlPlaneClient {
           "runtime_readiness",
           "clinical_validity",
         ],
+      },
+      runtimeVisualEvidenceReplayProjection: {
+        schemaVersion: "openclinxr.runtime-visual-evidence-replay-projection.v1",
+        source: "runtime_visual_evidence_attachment_record_summary",
+        stationRunId: input.stationRunId,
+        scenarioId: "ed_chest_pain_priority_v1",
+        reviewedMetadataOnlyCount: 2,
+        heldMetadataOnlyCount: 1,
+        acceptedAttachmentRefCount: 3,
+        runtimeEvidenceRefCount: 1,
+        visualQaEvidenceRefCount: 2,
+        acceptedActionIds: ["attach_runtime_realism_evidence_refs", "attach_visual_qa_evidence_refs"],
+        rawPayloadDisplayed: false,
+        providerExecutionAllowed: false,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+        productionAssetReadinessClaimed: false,
+        clinicalValidityClaimed: false,
+        scoringValidityClaimed: false,
+        replayEvidenceReady: false,
+        blockerIds: ["runtime_realism_evidence_not_attached_to_encounter_bundle"],
+        claimBoundary: "summary_only_runtime_visual_evidence_replay_projection_not_raw_payload_or_readiness",
+        notEvidenceFor: ["runtime_readiness", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+      },
+      assetReleaseLadderReplayProjection: {
+        schemaVersion: "openclinxr.asset-release-ladder-replay-projection.v1",
+        source: "scenario_asset_production_readiness_ladder",
+        scenarioId: "ed_chest_pain_priority_v1",
+        productionReady: false,
+        assetCount: 9,
+        productionReadyAssetCount: 2,
+        blockedAssetCount: 7,
+        missingRequiredAssetCount: 0,
+        stationBudgetStatus: "ready",
+        blockerCount: 8,
+        blockerIds: ["asset_release_ladder_blocked:patient_robert_hayes_character"],
+        blockedAssets: [
+          {
+            assetId: "patient_robert_hayes_character",
+            blockerCount: 2,
+            firstBlockedStep: "provenance_license",
+            blockerIds: ["license_review_required", "optimization_report_missing"],
+          },
+        ],
+        providerExecutionAllowed: false,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+        productionAssetReadinessClaimed: false,
+        clinicalValidityClaimed: false,
+        scoringValidityClaimed: false,
+        claimBoundary: "summary_only_asset_release_ladder_replay_projection_not_release_readiness",
+        notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
       },
     }),
     getScenarioBankMaturity: async () => ({
@@ -1590,12 +1900,61 @@ function fakeControlPlaneClient(): AdminControlPlaneClient {
         workOrder,
       };
     },
+    submitRuntimeVisualEvidenceAttachment: async () => ({
+      schemaVersion: "openclinxr.runtime-visual-evidence-attachment-record.v1",
+      source: "admin_runtime_visual_evidence_attachment_refs",
+      scenarioId: "ed_chest_pain_priority_v1",
+      attachmentCount: 1,
+      runtimeEvidenceAttachmentCount: 1,
+      visualQaEvidenceAttachmentCount: 0,
+      attachments: [
+        {
+          actionId: "attach_runtime_realism_evidence_refs",
+          inputId: "runtime-realism-evidence-input:patient_ed_chest_pain_v1",
+          inputKind: "runtime_realism_signal_input",
+          evidenceRef: "runtime-realism-evidence-input://patient",
+          localArtifactPath: "metadata-only-admin-review/runtime-realism-evidence-input_patient_ed_chest_pain_v1.json",
+          reviewerId: "admin_runtime_visual_evidence_reviewer",
+          attachmentStatus: "attached_metadata_only",
+          comments: "Admin reviewer attached a metadata-only evidence ref; this does not clear runtime, learner, Quest, production, clinical, or scoring gates.",
+          attachedAt: "2026-05-28T10:30:00.000Z",
+        },
+      ],
+      providerExecutionAllowed: false,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      productionAssetReadinessClaimed: false,
+      clinicalValidityClaimed: false,
+      scoringValidityClaimed: false,
+      claimBoundary: "metadata_only_runtime_visual_evidence_attachment_refs_not_launch_evidence",
+      notEvidenceFor: ["provider_availability", "runtime_readiness", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity", "learner_launch_readiness"],
+    }),
     getScenarioSceneGenerationRequestPublicationReadiness: async () => ({
       requestId: "scene_generation_request:ed_chest_pain_priority_v1:local-admin",
       scenarioId: "ed_chest_pain_priority_v1",
       canRunGeneratedBundlePublisher: true,
       blockers: [],
       nextAction: "run_generated_bundle_publisher",
+      materializationEvidenceAttachmentSummary: {
+        schemaVersion: "openclinxr.encounter-materialization-evidence-attachment-summary.v1",
+        source: "encounter_materialization_evidence_attachments",
+        scenarioId: "ed_chest_pain_priority_v1",
+        totalRequiredSlotCount: 36,
+        attachedSlotCount: 36,
+        missingSlotCount: 0,
+        heldOrInvalidAttachmentCount: 0,
+        allRequiredSlotsSatisfied: true,
+        blockerIds: [
+          "materialization_evidence_attachment_missing:actor-materialization-attachment:patient_ed_chest_pain_v1:actor_specific_clothing_required",
+          "materialization_evidence_attachment_missing:equipment-materialization-attachment:exam_room_ecg_cart:clinical_affordance_evidence",
+        ],
+        providerExecutionPerformed: false,
+        runtimeSelectionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+        claimBoundary: "metadata_only_materialization_evidence_attachment_summary",
+      },
       claimBoundary: "publication_readiness_not_learner_bundle_persistence",
       notEvidenceFor: ["provider_availability", "runtime_readiness", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity", "learner_launch_readiness"],
     }),

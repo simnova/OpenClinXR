@@ -61,6 +61,66 @@ query ReviewPacketReplay($stationRunId: ID!) {
     blockers
     recommendedNextAction
     replayBoundary
+    runtimeVisualEvidenceReplayProjection {
+      schemaVersion
+      source
+      stationRunId
+      scenarioId
+      reviewedMetadataOnlyCount
+      heldMetadataOnlyCount
+      acceptedAttachmentRefCount
+      runtimeEvidenceRefCount
+      visualQaEvidenceRefCount
+      acceptedActionIds
+      rawPayloadDisplayed
+      providerExecutionAllowed
+      runtimeExecutionAllowed
+      learnerLaunchAllowed
+      questEvidenceRefreshAllowed
+      productionAssetReadinessClaimed
+      clinicalValidityClaimed
+      scoringValidityClaimed
+      replayEvidenceReady
+      blockerIds
+      nextActions
+      uiXrConsumerOperatorWorkflowSummary {
+        schemaVersion
+        source
+        scenarioId
+        acceptedAttachmentRefCount
+        runtimeEvidenceRefCount
+        visualQaEvidenceRefCount
+        targetRoute
+        method
+        submitBodyRef
+        submitPreview {
+          route
+          bodyRef
+          attachmentCount
+          actionIds
+          inputIds
+          localArtifactPaths
+          rawPayloadDisplayed
+          claimBoundary
+        }
+        reviewerAction
+        preflightChecks
+        nextActions
+        rawPayloadDisplayed
+        providerExecutionAllowed
+        runtimeExecutionAllowed
+        learnerLaunchAllowed
+        questEvidenceRefreshAllowed
+        productionAssetReadinessClaimed
+        clinicalValidityClaimed
+        scoringValidityClaimed
+        blockerIds
+        claimBoundary
+        notEvidenceFor
+      }
+      claimBoundary
+      notEvidenceFor
+    }
   }
   traceEvents(stationRunId: $stationRunId) {
     sequence

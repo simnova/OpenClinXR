@@ -90,6 +90,9 @@ export function FacultyReviewDecisionPanel({
             {`Canonical replay action: ${reviewReplayReadinessSummary.recommendedNextAction}`}
           </Typography.Paragraph>
           {humanoidPerformanceContract ? renderCaseDefinedHumanoidPerformanceContract(humanoidPerformanceContract) : null}
+          {renderRuntimeVisualEvidenceReplayProjection(reviewReplayReadinessSummary)}
+          {renderRuntimeVisualEvidenceFacultyFollowUp(reviewReplayReadinessSummary)}
+          {renderAssetReleaseLadderReplayProjection(reviewReplayReadinessSummary)}
           {renderXrTraceEvidenceHandoff(reviewReplayReadinessSummary)}
           {hasRemediationPlanningContext(reviewReplayReadinessSummary) ? (
             <>
@@ -132,7 +135,7 @@ export function FacultyReviewDecisionPanel({
         </>
       ) : null}
       <Typography.Text strong>Reviewer decision posture</Typography.Text>
-      <div className="readiness-strip review-replay-strip">
+      <fieldset className="readiness-strip review-replay-strip" aria-label="Reviewer decision posture metrics">
         <FacultyReviewDecisionMetric
           label={`${packet.timeline.length} timeline ${pluralize(packet.timeline.length, "entry")}`}
           detail={packet.timeline.length > 0 ? `latest at ${packet.timeline[packet.timeline.length - 1]?.atSecond ?? 0}s` : "timeline evidence missing"}
@@ -153,7 +156,7 @@ export function FacultyReviewDecisionPanel({
           label={`${packet.traceQuality.missingRequiredTraceTagCount} trace-quality missing ${pluralize(packet.traceQuality.missingRequiredTraceTagCount, "tag")}`}
           detail={packet.traceQuality.hasModelProvenance ? "model provenance present" : "model provenance missing"}
         />
-      </div>
+      </fieldset>
       <Typography.Paragraph type="secondary">
         Faculty draft status is a review artifact only; it does not authorize score use or imply scoring validity.
       </Typography.Paragraph>
@@ -197,9 +200,105 @@ function renderXrTraceEvidenceHandoff(summary: NonNullable<ReviewReplayReadiness
     return null;
   }
   return (
-    <Typography.Paragraph type="secondary">
-      {formatXrTraceEvidenceSummary(xrSummary)}
-    </Typography.Paragraph>
+    <fieldset className="station-queue-row" aria-label="XR trace evidence handoff">
+      <Typography.Text type="secondary">
+        {formatXrTraceEvidenceSummary(xrSummary)}
+      </Typography.Text>
+    </fieldset>
+  );
+}
+
+function renderRuntimeVisualEvidenceReplayProjection(summary: NonNullable<ReviewReplayReadinessSummary>): ReactElement | null {
+  const projection = summary.runtimeVisualEvidenceReplayProjection;
+  if (!projection) {
+    return null;
+  }
+
+  return (
+    <fieldset className="station-queue-row" aria-label="Faculty runtime visual evidence context">
+      <Typography.Text strong>Faculty runtime visual evidence context</Typography.Text>
+      <Typography.Paragraph type="secondary">
+        Runtime/visual evidence posture is a read-only replay projection for faculty planning; accepted metadata refs are not raw payloads, runtime-readiness, Quest-readiness, production-readiness, clinical-validity, or scoring-validity evidence.
+      </Typography.Paragraph>
+      <Typography.Paragraph type="secondary">
+        {[
+          `${projection.acceptedAttachmentRefCount} accepted metadata refs`,
+          `${projection.runtimeEvidenceRefCount} runtime refs`,
+          `${projection.visualQaEvidenceRefCount} visual QA refs`,
+          `${projection.reviewedMetadataOnlyCount} reviewed`,
+          `${projection.heldMetadataOnlyCount} held`,
+          `actions ${projection.acceptedActionIds.join(", ") || "none"}`,
+          projection.rawPayloadDisplayed ? "raw payload visible" : "raw payload hidden",
+          `blockers ${projection.blockerIds.length}`,
+          `runtime ${String(projection.runtimeExecutionAllowed)}`,
+          `learner ${String(projection.learnerLaunchAllowed)}`,
+          `Quest ${String(projection.questEvidenceRefreshAllowed)}`,
+          `production ${String(projection.productionAssetReadinessClaimed)}`,
+          projection.claimBoundary,
+        ].join("; ")}
+      </Typography.Paragraph>
+    </fieldset>
+  );
+}
+
+function renderRuntimeVisualEvidenceFacultyFollowUp(summary: NonNullable<ReviewReplayReadinessSummary>): ReactElement | null {
+  const projection = summary.runtimeVisualEvidenceReplayProjection;
+  if (!projection) {
+    return null;
+  }
+  const followUpActions = projection.nextActions && projection.nextActions.length > 0 ? projection.nextActions : [
+    projection.acceptedAttachmentRefCount > 0 ? `review ${projection.acceptedAttachmentRefCount} accepted metadata-only runtime/visual refs during faculty debrief preparation` : "request runtime/visual metadata refs before faculty debrief preparation",
+    projection.blockerIds.length > 0 ? `carry forward blockers ${projection.blockerIds.slice(0, 3).join(", ")}` : "confirm no runtime/visual projection blockers before scenario iteration",
+    "keep runtime, learner, Quest, production, clinical, and scoring gates blocked until real runtime and visual-QA evidence clears review",
+  ];
+
+  return (
+    <fieldset className="station-queue-row" aria-label="Faculty runtime visual evidence follow-up actions">
+      <Typography.Text strong>Faculty runtime visual evidence follow-up actions</Typography.Text>
+      <ul className="compact-list">
+        {followUpActions.map((action) => (
+          <li key={action}>
+            <Typography.Text>{action}</Typography.Text>
+          </li>
+        ))}
+      </ul>
+    </fieldset>
+  );
+}
+
+function renderAssetReleaseLadderReplayProjection(summary: NonNullable<ReviewReplayReadinessSummary>): ReactElement | null {
+  const projection = summary.assetReleaseLadderReplayProjection;
+  if (!projection) {
+    return null;
+  }
+  const sampleBlockedAssets = projection.blockedAssets
+    .slice(0, 3)
+    .map((asset) => `${asset.assetId}:${asset.firstBlockedStep ?? "blocked"}`)
+    .join(", ") || "no blocked assets";
+
+  return (
+    <fieldset className="station-queue-row" aria-label="Faculty asset release ladder context">
+      <Typography.Text strong>Faculty asset release ladder context</Typography.Text>
+      <Typography.Paragraph type="secondary">
+        Asset release-ladder posture is summary-only for faculty planning; it is not production-release approval, Quest-readiness, runtime-readiness, clinical-validity, or scoring-validity evidence.
+      </Typography.Paragraph>
+      <Typography.Paragraph type="secondary">
+        {[
+          `${projection.assetCount} assets`,
+          `${projection.productionReadyAssetCount} release-ladder complete`,
+          `${projection.blockedAssetCount} blocked`,
+          `${projection.missingRequiredAssetCount} missing required`,
+          `${projection.blockerCount} blockers`,
+          `station budget ${projection.stationBudgetStatus}`,
+          `sample blocked assets ${sampleBlockedAssets}`,
+          `runtime ${String(projection.runtimeExecutionAllowed)}`,
+          `learner ${String(projection.learnerLaunchAllowed)}`,
+          `Quest ${String(projection.questEvidenceRefreshAllowed)}`,
+          `production ${String(projection.productionAssetReadinessClaimed)}`,
+          projection.claimBoundary,
+        ].join("; ")}
+      </Typography.Paragraph>
+    </fieldset>
   );
 }
 
@@ -207,7 +306,7 @@ function renderCaseDefinedHumanoidPerformanceContract(
   contract: AdminCaseDefinedHumanoidPerformanceContract,
 ): ReactElement {
   return (
-    <>
+    <fieldset className="station-queue-row" aria-label="Case-defined humanoid performance metadata">
       <Typography.Text strong>Case-defined humanoid performance metadata</Typography.Text>
       <Typography.Paragraph type="secondary">
         Humanoid behavior metadata is derived from the encounter definition for faculty planning only; it is not generated-humanoid-asset readiness, animation-quality approval, Quest-readiness, runtime-readiness, or clinical-validity.
@@ -228,7 +327,7 @@ function renderCaseDefinedHumanoidPerformanceContract(
           `not evidence for ${contract.notEvidenceFor.join(", ")}`,
         ].join("; ")}
       </Typography.Paragraph>
-    </>
+    </fieldset>
   );
 }
 

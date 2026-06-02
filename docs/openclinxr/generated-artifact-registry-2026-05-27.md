@@ -10,12 +10,20 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 
 ## Counts
 
+- ignore-local-cache: 6
 - keep-current: 70
-- keep-evidence: 710
+- keep-evidence: 728
 - keep-template: 14
+- prune-stale: 1
 
 ## Cleanup Actions
 
+- `.openclinxr/encounter-publication/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/learner-runtime-bundle.v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/encounter-publication/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/scene-manifest.v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/encounter-publication/local_tenant/peds_asthma_parent_anxiety_v1/peds_asthma_parent_anxiety_encounter_v1/learner-runtime-bundle.v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/encounter-publication/local_tenant/peds_asthma_parent_anxiety_v1/peds_asthma_parent_anxiety_encounter_v1/scene-manifest.v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/test-publication/local_tenant/ed_chest_pain_priority_v1/ed_chest_pain_encounter_v1/learner-runtime-bundle.v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/test-publication/local_tenant/ed_chest_pain_priority_v1/ed_chest_pain_encounter_v1/scene-manifest.v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `apps/ui-xr/dist/xr-assets/environment/ed-exam-bay-shell.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/dist/xr-assets/generated/clinic_abdominal_pain_interpreter_v1/learner-runtime-bundle.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/dist/xr-assets/generated/clinic_abdominal_pain_interpreter_v1/scene-manifest.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
@@ -137,6 +145,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `docs/openclinxr/encounter-asset-generation-queue-oncology-bad-news-family-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/encounter-asset-generation-queue-oncology-bad-news-family-realism-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/encounter-asset-generation-queue-peds-asthma-parent-anxiety-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
+- `docs/openclinxr/encounter-asset-generation-queue-peds-asthma-parent-anxiety-2026-05-28.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/encounter-asset-generation-queue-postop-fever-consult-pressure-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/encounter-asset-generation-queue-psych-suicidal-ideation-safety-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/encounter-asset-generation-queue-stepdown-sepsis-nurse-escalation-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
@@ -149,18 +158,29 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `docs/openclinxr/encounter-asset-generation-worker-ob-headache-preeclampsia-triage-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/encounter-asset-generation-worker-oncology-bad-news-family-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/encounter-asset-generation-worker-peds-asthma-parent-anxiety-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
+- `docs/openclinxr/encounter-asset-generation-worker-peds-asthma-parent-anxiety-2026-05-28.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/encounter-asset-generation-worker-postop-fever-consult-pressure-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/encounter-asset-generation-worker-psych-suicidal-ideation-safety-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/encounter-asset-generation-worker-stepdown-sepsis-nurse-escalation-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/encounter-asset-generation-worker-telehealth-diabetes-health-literacy-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/encounter-asset-generation-worker-ward-delirium-med-rec-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/encounter-guarded-runtime-selection-intent-2026-05-25.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
+- `docs/openclinxr/encounter-guarded-runtime-selection-intent-peds-asthma-parent-anxiety-2026-05-28.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/encounter-local-factory-handoff-preflight-2026-05-25.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/encounter-local-factory-handoff-preflight-2026-05-26.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
+- `docs/openclinxr/encounter-local-factory-handoff-preflight-peds-asthma-parent-anxiety-2026-05-28.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/encounter-local-factory-operation-manifest-2026-05-25.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/encounter-local-factory-operation-manifest-2026-05-26.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
+- `docs/openclinxr/encounter-local-factory-operation-manifest-peds-asthma-parent-anxiety-2026-05-28.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/encounter-local-launch-selection-2026-05-25.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/encounter-local-launch-selection-2026-05-26.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
+- `docs/openclinxr/encounter-local-launch-selection-peds-asthma-parent-anxiety-2026-05-28.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/encounter-materialization-attachment-plan-peds-asthma-parent-anxiety-2026-05-28.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/encounter-materialization-evidence-attachment-inputs-peds-asthma-parent-anxiety-partial-2026-05-28.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/encounter-materialization-evidence-attachments-peds-asthma-parent-anxiety-2026-05-28.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/encounter-materialization-evidence-attachments-peds-asthma-parent-anxiety-partial-2026-05-28.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/encounter-materialization-evidence-peds-asthma-parent-anxiety-2026-05-28.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/encounter-materialization-input-manifest-peds-asthma-parent-anxiety-2026-05-28.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/encounter-publication-payloads-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/encounter-publication-payloads-2026-05-25.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/encounter-publication-payloads-clinic-abdominal-pain-interpreter-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
@@ -169,13 +189,17 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `docs/openclinxr/encounter-publication-payloads-oncology-bad-news-family-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/encounter-publication-payloads-oncology-bad-news-family-realism-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/encounter-publication-payloads-peds-asthma-parent-anxiety-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
+- `docs/openclinxr/encounter-publication-payloads-peds-asthma-parent-anxiety-2026-05-28.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/encounter-publication-payloads-postop-fever-consult-pressure-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/encounter-publication-payloads-psych-suicidal-ideation-safety-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/encounter-publication-payloads-stepdown-sepsis-nurse-escalation-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/encounter-publication-payloads-telehealth-diabetes-health-literacy-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/encounter-publication-payloads-ward-delirium-med-rec-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
+- `docs/openclinxr/encounter-runtime-evidence-capture-scaffold-peds-asthma-parent-anxiety-2026-05-28.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/encounter-runtime-realism-evidence-input-peds-asthma-parent-anxiety-2026-05-28.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/encounter-runtime-selection-review-packet-2026-05-25.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/encounter-runtime-selection-review-packet-2026-05-26.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
+- `docs/openclinxr/encounter-runtime-selection-review-packet-peds-asthma-parent-anxiety-2026-05-28.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/environment-artifacts-2026-05-21.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/environment-artifacts-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/environment-artifacts-2026-05-25.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
@@ -383,6 +407,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `docs/openclinxr/generated-ed-station-runtime-bundle-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/generated-ed-station-runtime-bundle-2026-05-25-v2.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/generated-ed-station-runtime-bundle-2026-05-25.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
+- `docs/openclinxr/generated-ed-station-runtime-bundle-2026-05-28.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/generated-ed-stroke-alert-handoff-runtime-bundle-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/generated-human-rigging-artifacts-2026-05-21.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
 - `docs/openclinxr/generated-human-rigging-artifacts-2026-05-23.json` - keep-evidence; keep; Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work.
@@ -723,6 +748,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `docs/openclinxr/ui-xr-peds-explicit-bundle-humanoid-contract-smoke-2026-05-26.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/ui-xr-peds-history-equipment-cues-smoke-2026-05-26.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/ui-xr-peds-humanoid-acting-cues-smoke-2026-05-26.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
+- `docs/openclinxr/ui-xr-peds-materialization-gate-browser-smoke-2026-05-28.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/ui-xr-peds-note-completion-cues-smoke-2026-05-26.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/ui-xr-peds-parent-communication-equipment-smoke-2026-05-26.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/ui-xr-peds-refreshed-humanoid-contract-smoke-2026-05-26.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
@@ -810,3 +836,4 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `docs/openclinxr/security-audit-policy-2026-05-05.json` - keep-template; keep; Reusable template/checklist/policy fixture.
 - `docs/openclinxr/security-audit-policy-2026-05-07.json` - keep-template; keep; Reusable template/checklist/policy fixture.
 - `docs/openclinxr/security-audit-policy-2026-05-21.json` - keep-template; keep; Reusable template/checklist/policy fixture.
+- `docs/openclinxr/screenshots/ui-xr-peds-materialization-gate-browser-smoke-2026-05-28.png` - prune-stale; delete-if-untracked; Older screenshot evidence superseded by newer contact sheets and scenario captures.
