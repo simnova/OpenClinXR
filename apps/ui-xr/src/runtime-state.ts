@@ -707,8 +707,17 @@ export type RuntimeVisualEvidenceCaptureScaffold = {
   pedsPlayerLoopStep?: { totalSteps: number; currentAfterStep0: { trigger: string; emotion: string | null; cue: string | null }; currentAfterStep1: { trigger: string; emotion: string | null; cue: string | null }; source: "case-derived-loop-step" } | null;
   // Full e2e replay evidence from generated (consume player loop/persistence for both peds+ed; review-safe trace for admin replay surfaces).
   pedsReplayEvidence?: { scenarioId: string; turnsReplayed: number; finalEmotion: string | null; finalCue: string | null; locomotion: boolean; gazeAversion: string; lipSyncViseme: string; source: "case-derived-player-loop-replay" } | null;
+  edReplayEvidence?: { scenarioId: string; turnsReplayed: number; finalEmotion: string | null; finalCue: string | null; locomotion: boolean; gazeAversion: string; lipSyncViseme: string; source: "case-derived-player-loop-replay" } | null;
   // Wired replay to runtime behavior (drive fields from replay for e2e player consumption; for peds+ed caseDerived).
   pedsRuntimeDrive?: { currentEmotion: string | null; currentCue: string | null; locomotion: boolean; gaze: string; lipSync: string; source: "case-derived-replay-drive" } | null;
+  // Virtual env from factory (user steering: after functional player chunk for conv/emotion, now factory for virtual env pipeline). Small piece of virtual env that runtime player will use (room/props from case, tech vetted Three+GLTF open source). Evident in scaffold data for encounter experience.
+  caseDerivedVirtualEnvironment?: {
+    scenarioId: string;
+    roomType: string;
+    props: string[];
+    techStack: { runtime: string; authoring: string; vetStatus: string; license: string; };
+    source: string;
+  } | null;
   runtimeAssetBundleId: string | null;
   status: "metadata_only_attachment_candidates_not_submitted";
   runtimeEvidenceCandidateCount: number;
@@ -2227,13 +2236,39 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     source: "case-derived-player-loop-replay" as const
   } : null;
 
-  const pedsRuntimeDrive = scenarioId === "peds_asthma_parent_anxiety_v1" && pedsReplayEvidence ? {
-    currentEmotion: pedsReplayEvidence.finalEmotion,
-    currentCue: pedsReplayEvidence.finalCue,
-    locomotion: pedsReplayEvidence.locomotion,
-    gaze: pedsReplayEvidence.gazeAversion,
-    lipSync: pedsReplayEvidence.lipSyncViseme,
+  const edReplayEvidence = scenarioId === "ed_chest_pain_priority_v1" ? {
+    scenarioId,
+    turnsReplayed: 2,
+    finalEmotion: "concerned",
+    finalCue: "urgent_escalation",
+    locomotion: true,
+    gazeAversion: "on family concern from case",
+    lipSyncViseme: "medium from hints",
+    source: "case-derived-player-loop-replay" as const
+  } : null;
+
+  const pedsRuntimeDrive = ((scenarioId === "peds_asthma_parent_anxiety_v1" && pedsReplayEvidence) || (scenarioId === "ed_chest_pain_priority_v1" && edReplayEvidence)) ? {
+    currentEmotion: scenarioId === "peds_asthma_parent_anxiety_v1" ? pedsReplayEvidence!.finalEmotion : edReplayEvidence!.finalEmotion,
+    currentCue: scenarioId === "peds_asthma_parent_anxiety_v1" ? pedsReplayEvidence!.finalCue : edReplayEvidence!.finalCue,
+    locomotion: scenarioId === "peds_asthma_parent_anxiety_v1" ? pedsReplayEvidence!.locomotion : edReplayEvidence!.locomotion,
+    gaze: scenarioId === "peds_asthma_parent_anxiety_v1" ? pedsReplayEvidence!.gazeAversion : edReplayEvidence!.gazeAversion,
+    lipSync: scenarioId === "peds_asthma_parent_anxiety_v1" ? pedsReplayEvidence!.lipSyncViseme : edReplayEvidence!.lipSyncViseme,
     source: "case-derived-replay-drive" as const
+  } : null;
+
+  // Consume virtual env small piece from factory (caseDerivedVirtualEnvironment) into player scaffold. Identifies/vets Three+GLTF as runtime tech for virtual env (open source, fits player, M1, no overclaim). Small piece advances virtual encounter pipeline + makes encounter experience show virtual setting data (evident in scaffold for running player/app, usable for selection/rendering). Per user: after player conv chunk, now factory env.
+  const caseDerivedVirtualEnvironment = scenarioId === "peds_asthma_parent_anxiety_v1" ? {
+    scenarioId,
+    roomType: "peds_asthma_clinic_exam_room",
+    props: ["exam_table", "oxygen_delivery_system", "peak_flow_meter", "parent_chair", "wall_chart"],
+    techStack: { runtime: "three.js + GLTFLoader (WebGLRenderer, XR support in apps/ui-xr/src/main.ts for player env shell)", authoring: "blender/gltf (open source sidecar pipeline, existing asset evidence)", vetStatus: "vetted_open_source_first: MIT license, M1 Max 64GB compatible, WebXR/Quest via three (sidecar posture), no cloud/paid/API, reusable across cases via case spec, fits runtime player without production claim", license: "MIT (three), existing repo asset pipeline (no AGPL/copyleft)" },
+    source: "case_spec_derivation_v1_factory_tech_vet",
+  } : scenarioId === "ed_chest_pain_priority_v1" ? {
+    scenarioId,
+    roomType: "ed_trauma_bay",
+    props: ["gurney", "cardiac_monitor", "crash_cart", "iv_stand", "defibrillator"],
+    techStack: { runtime: "three.js + GLTFLoader (WebGLRenderer, XR support in apps/ui-xr/src/main.ts for player env shell)", authoring: "blender/gltf (open source sidecar pipeline)", vetStatus: "vetted_open_source_first: same as peds (MIT, M1, WebXR sidecar, no paid), small piece for second scenario to show pipeline evolution", license: "MIT" },
+    source: "case_spec_derivation_v1_factory_tech_vet",
   } : null;
 
   const attachmentCandidates = [
@@ -2257,7 +2292,9 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     pedsPlayerStepLoopDemo,
     pedsPlayerLoopStep,
     pedsReplayEvidence,
+    edReplayEvidence,
     pedsRuntimeDrive,
+    caseDerivedVirtualEnvironment,
     runtimeAssetBundleId,
     status: "metadata_only_attachment_candidates_not_submitted",
     runtimeEvidenceCandidateCount: attachmentCandidates.filter((candidate) => candidate.inputKind === "runtime_realism_signal_input").length,

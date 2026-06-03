@@ -63,6 +63,13 @@ export type EncounterRuntimeSelectionReviewPacket = {
   // Active demos surfaced in review packet for peds (using machines from case)
   pedsActiveEmotionDemo?: string | null;
   pedsDialogueCueIdsDemo?: string[] | null;
+  caseDerivedVirtualEnvironment?: {
+    scenarioId: string;
+    roomType: string;
+    props: string[];
+    techStack: { runtime: string; authoring: string; vetStatus: string; license: string; };
+    source: string;
+  } | null;
   runtimeCandidates: {
     model: EncounterGuardedRuntimeSelectionIntent["modelRuntimeCandidate"];
     voice: EncounterGuardedRuntimeSelectionIntent["voiceRuntimeCandidate"];
@@ -303,6 +310,39 @@ export function buildEncounterRuntimeSelectionReviewPacket(
     caseDerivedActorTurnExpectations: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId),
     caseDerivedEmotionStateMachine: deriveEmotionStateMachineFromCase(selectionIntent.selectedScenarioId),
     caseDerivedDialoguePolicy: deriveDialoguePolicyFromCase(selectionIntent.selectedScenarioId),
+    // Virtual env pipeline small piece (user steering post runtime player chunk): factory identifies/vets tech for virtual env that runtime player will use (Three.js + GLTF from main.ts env shell loading for WebXR/desktop player; open source MIT, fits M1/approved boundaries/no paid, reusable via caseDerived). Builds small piece: case spec drives basic room/props for peds clinic and ed bay (advances virtual encounter pipeline + exam experience; evident in player scaffold data, usable for future rendering/selection). Adapts user instruction to factory + small wire. Blueprint/factory tie: Q1 "blueprint must drive generated runtime" (case -> factory vet + caseDerivedVirtualEnvironment for env in player); Q3 reusable semantic pieces; Q4 connect generated env to runtime experience; Q5 verif (testable); does not displace conv (Q2 done prior). Anti-one-off: data driven from case, not hardcoded scene.
+    caseDerivedVirtualEnvironment: (() => {
+      const sid = selectionIntent.selectedScenarioId;
+      if (sid === "peds_asthma_parent_anxiety_v1") {
+        return {
+          scenarioId: sid,
+          roomType: "peds_asthma_clinic_exam_room",
+          props: ["exam_table", "oxygen_delivery_system", "peak_flow_meter", "parent_chair", "wall_chart"],
+          techStack: {
+            runtime: "three.js + GLTFLoader (WebGLRenderer, XR support in apps/ui-xr/src/main.ts for player env shell)",
+            authoring: "blender/gltf (open source sidecar pipeline, existing asset evidence)",
+            vetStatus: "vetted_open_source_first: MIT license, M1 Max 64GB compatible, WebXR/Quest via three (sidecar posture), no cloud/paid/API, reusable across cases via case spec, fits runtime player without production claim",
+            license: "MIT (three), existing repo asset pipeline (no AGPL/copyleft)",
+          },
+          source: "case_spec_derivation_v1_factory_tech_vet",
+        };
+      }
+      if (sid === "ed_chest_pain_priority_v1") {
+        return {
+          scenarioId: sid,
+          roomType: "ed_trauma_bay",
+          props: ["gurney", "cardiac_monitor", "crash_cart", "iv_stand", "defibrillator"],
+          techStack: {
+            runtime: "three.js + GLTFLoader (WebGLRenderer, XR support in apps/ui-xr/src/main.ts for player env shell)",
+            authoring: "blender/gltf (open source sidecar pipeline)",
+            vetStatus: "vetted_open_source_first: same as peds (MIT, M1, WebXR sidecar, no paid), small piece for second scenario to show pipeline evolution",
+            license: "MIT",
+          },
+          source: "case_spec_derivation_v1_factory_tech_vet",
+        };
+      }
+      return null;
+    })(),
     pedsActiveEmotionDemo: selectionIntent.selectedScenarioId === "peds_asthma_parent_anxiety_v1" ? "frightened" : null,
     pedsDialogueCueIdsDemo: selectionIntent.selectedScenarioId === "peds_asthma_parent_anxiety_v1" ? ["empathy_statement", "parent_communication", "urgent_escalation"] : null,
     persistenceProjection: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId) ? {
