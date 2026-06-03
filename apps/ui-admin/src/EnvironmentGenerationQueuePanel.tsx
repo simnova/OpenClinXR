@@ -489,5 +489,12 @@ function summarizePedsGeneratedPlayerAndEmotion(readiness: ScenarioSceneGenerati
   if (emotionReq != null) {
     return `Peds materialization emotion req from active case cues: ${emotionReq}; (player demo not attached for this packet)`;
   }
+  // Virtual env pipeline (caseDerivedVirtualEnvironment from factory + player three render): surface in admin publication queue for review/attach readiness (review-safe; makes virtual env from case spec visible to faculty alongside player/emotion). Ties player visual (main.ts three props for peds/ed) to review surface. Per user evolution: evident in runnable app (player + admin).
+  const virtualEnv = scaffold?.caseDerivedVirtualEnvironment ?? (scaffold as any)?.virtualEnvForPlayer ? { roomType: (scaffold as any).virtualEnvForPlayer } : null;
+  if (virtualEnv && (scaffold?.caseDerivedVirtualEnvironment || (scaffold as any)?.virtualEnvForPlayer)) {
+    const ve = scaffold?.caseDerivedVirtualEnvironment;
+    const veSummary = ve ? `${ve.roomType} props:${ve.props?.length ?? "?"} tech:${ve.techStack?.runtime?.split(" + ")[0] ?? "three"}` : (scaffold as any)?.virtualEnvForPlayer ?? "virtual env attached";
+    return `Virtual env from case (factory caseDerivedVirtualEnvironment + three player render): ${veSummary}; (review-safe metadata, gates false; see player for visual props; attach via consumer)`;
+  }
   return "Peds generated player/emotion req: not attached (non-peds or no active cues from case)";
 }
