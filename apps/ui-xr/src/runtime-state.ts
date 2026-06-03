@@ -2278,6 +2278,8 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     props: ["gurney", "cardiac_monitor", "crash_cart", "iv_stand", "defibrillator"],
     techStack: { runtime: "three.js + GLTFLoader (WebGLRenderer, XR support in apps/ui-xr/src/main.ts for player env shell)", authoring: "blender/gltf (open source sidecar pipeline)", vetStatus: "vetted_open_source_first: same as peds (MIT, M1, WebXR sidecar, no paid), small piece for second scenario to show pipeline evolution", license: "MIT" },
     authoringVet: { pipeline: "blender/gltf export + gltf-pipeline opt; cues from ed spec escalation (ignored_emotion etc) to gltf extras/morphs; 2nd scen to demonstrate authoring vet reuse", cues: "eventSchedule/clinicalObjectives + emotionTimeline -> gltf clip weights; provenance for review packet" },
+    fullEnvGenForSecond: true,
+    envCuesFromSpec: ["gurney for patient position on ignored_emotion", "cardiac_monitor for vitals on urgent_escalation", "crash_cart for priority response", "iv_stand for fluid", "defibrillator for chest pain escalation"],
     source: "case_spec_derivation_v1_factory_tech_vet",
   } : null;
 

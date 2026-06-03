@@ -346,6 +346,8 @@ export function buildEncounterRuntimeSelectionReviewPacket(
             pipeline: "blender/gltf export + gltf-pipeline opt; cues from ed spec escalation (ignored_emotion etc) to gltf extras/morphs; 2nd scen to demonstrate authoring vet reuse",
             cues: "eventSchedule/clinicalObjectives + emotionTimeline -> gltf clip weights; provenance for review packet",
           },
+          fullEnvGenForSecond: true,
+          envCuesFromSpec: ["gurney for patient position on ignored_emotion", "cardiac_monitor for vitals on urgent_escalation", "crash_cart for priority response", "iv_stand for fluid", "defibrillator for chest pain escalation"],
           source: "case_spec_derivation_v1_factory_tech_vet",
         };
       }
