@@ -12,7 +12,7 @@ Recent direction (consumer + meta bloat/docs/validation) was necessary for agent
 
 **Active lanes (from worker matrix, highest value first)**: Worker 9/7/11 runtime visual evidence consumer + preflight/submit-preview + review/replay pipeline (UI-XR + Admin/GraphQL/API); Worker 11/7 materialization evidence attachment continuation and surfaces; Worker 7/8/9 faculty/admin review posture and replay safety; XR trace/locomotion and actor-realism in UI-XR; scenario bank expansion.
 
-**Last slice (one-liner)**: 2026-06-03 player gltf hook + build evid (product: main hook for gltf handoff + build success for running app verification; + prior gltf/integrate/visual/admin/tech vet; user query + new steering complete: evolution evident/usable in app (build + manual desc) + not assumed (experienced via build/hook); no mcp browser found, proxy used). See AUTONOMOUS.
+**Last slice (one-liner)**: 2026-06-03 authoring vet for env + publish (product: packet/runtime authoringVet pipeline/cues from case for gltf 2nd scen; + prior hook/build/visual/admin/integrate/gltf/tech vet; query + new steering complete). See AUTONOMOUS.
 
 **Next queued slice (do this)**: per user query + this visual wire complete (system evolution now evident: case spec -> factory caseDerivedVirtualEnvironment + three tech vet -> running ui-xr player renders peds/ed virtual env props visibly/usably); next: more props/deeper pipeline (e.g. gltf handoff for case env or authoring vet in factory for 2nd scen), or integrate env backdrop with player gen emotion/loco/gaze loop, or wire caseDerivedVirtualEnvironment + asset attach to admin review surfaces via consumer; record Per-Slice, focused, post+guards, pick from worker. (Continue local det per snapshots.)
 
