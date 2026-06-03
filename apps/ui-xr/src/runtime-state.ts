@@ -2249,12 +2249,15 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     source: "case-derived-player-loop-replay" as const
   } : null;
 
+  // Early virtual env room for drive (caseDerivedVirtualEnvironment const is declared later in fn; hoisted lookup keeps init order safe while integrating env with gen loop data).
+  const virtualEnvRoomForDrive = scenarioId === "peds_asthma_parent_anxiety_v1" ? "peds_asthma_clinic_exam_room" : scenarioId === "ed_chest_pain_priority_v1" ? "ed_trauma_bay" : null;
   const pedsRuntimeDrive = ((scenarioId === "peds_asthma_parent_anxiety_v1" && pedsReplayEvidence) || (scenarioId === "ed_chest_pain_priority_v1" && edReplayEvidence)) ? {
     currentEmotion: scenarioId === "peds_asthma_parent_anxiety_v1" ? pedsReplayEvidence!.finalEmotion : edReplayEvidence!.finalEmotion,
     currentCue: scenarioId === "peds_asthma_parent_anxiety_v1" ? pedsReplayEvidence!.finalCue : edReplayEvidence!.finalCue,
     locomotion: scenarioId === "peds_asthma_parent_anxiety_v1" ? pedsReplayEvidence!.locomotion : edReplayEvidence!.locomotion,
     gaze: scenarioId === "peds_asthma_parent_anxiety_v1" ? pedsReplayEvidence!.gazeAversion : edReplayEvidence!.gazeAversion,
     lipSync: scenarioId === "peds_asthma_parent_anxiety_v1" ? pedsReplayEvidence!.lipSyncViseme : edReplayEvidence!.lipSyncViseme,
+    virtualEnv: virtualEnvRoomForDrive,
     source: "case-derived-replay-drive" as const
   } : null;
 
