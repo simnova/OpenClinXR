@@ -699,6 +699,8 @@ export type RuntimeVisualEvidenceCaptureScaffold = {
   // Further integrated active demos using the step/policy for peds (active emotion/dialogue fields in runtime evidence)
   pedsActiveEmotionDemo?: string | null;
   pedsDialogueCueIdsDemo?: string[] | null;
+  // Player consumption of generated (rebalance continuation): peds case spec (via packet machines/policies + step) now drives active runtime player state in scaffold for UI-XR runtime-state to consume (current emotion + next cue for turn/gaze/lip/viseme drive in player loop). Desktop fallback. Gates false. Consumer ref only.
+  pedsRuntimePlayerDemo?: { currentEmotion: string | null; nextCueId: string | null; source: "case-derived-step+policy"; visemeHint?: string } | null;
   runtimeAssetBundleId: string | null;
   status: "metadata_only_attachment_candidates_not_submitted";
   runtimeEvidenceCandidateCount: number;
@@ -2183,6 +2185,16 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     ? ["empathy_statement", "parent_communication", "urgent_escalation"]
     : null;
 
+  // Consume generated for peds player (smallest step to make runtime-state scaffold a consumer of case-derived emotion/dialogue from packet machines/policies): step + policy -> current/next for turn simulation in player (locomotion/gaze/lip/viseme hooks later). Ties to rebalance "spec drives ... into runtime" + "player consuming the generated behavior".
+  const pedsRuntimePlayerDemo = scenarioId === "peds_asthma_parent_anxiety_v1" && pedsActiveEmotionDemo && pedsDialogueCueIdsDemo
+    ? {
+        currentEmotion: pedsActiveEmotionDemo,
+        nextCueId: pedsDialogueCueIdsDemo[0] || null,
+        source: "case-derived-step+policy" as const,
+        visemeHint: "medium"
+      }
+    : null;
+
   const attachmentCandidates = [
     ...buildRuntimeEvidenceAttachmentCandidates({ input, scenarioId, attachedAt }),
     ...buildVisualQaEvidenceAttachmentCandidates({ input, scenarioId, attachedAt }),
@@ -2200,6 +2212,7 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     pedsDialoguePolicyDemo,
     pedsActiveEmotionDemo,
     pedsDialogueCueIdsDemo,
+    pedsRuntimePlayerDemo,
     runtimeAssetBundleId,
     status: "metadata_only_attachment_candidates_not_submitted",
     runtimeEvidenceCandidateCount: attachmentCandidates.filter((candidate) => candidate.inputKind === "runtime_realism_signal_input").length,
