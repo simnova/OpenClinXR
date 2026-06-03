@@ -4,10 +4,10 @@
   "protectedRule": "Protected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.",
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
-    "archive-candidate": 4,
+    "archive-candidate": 5,
     "evidence": 26,
     "protected-policy": 12,
-    "current-reference": 49,
+    "current-reference": 44,
     "agent-memory": 18,
     "agent-methodology": 8,
     "decision-record": 18,
@@ -111,6 +111,13 @@
       "agentInstructionWeight": "highest",
       "action": "protect",
       "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
+    },
+    {
+      "path": "AUTONOMOUS/PROJECT/worker.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "AUTONOMOUS_WORK_PLAN.md",
@@ -272,41 +279,6 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": "apps/ui-xr/dist/xr-assets/environment/PROVENANCE.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
-    },
-    {
-      "path": "apps/ui-xr/dist/xr-assets/humanoids/PROVENANCE.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
-    },
-    {
-      "path": "apps/ui-xr/dist/xr-assets/medical-equipment/PROVENANCE.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
-    },
-    {
-      "path": "apps/ui-xr/dist/xr-hands/generic-hand/LICENSE.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
-    },
-    {
-      "path": "apps/ui-xr/dist/xr-hands/generic-hand/PROVENANCE.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/environment/PROVENANCE.md",

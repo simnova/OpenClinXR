@@ -12,8 +12,8 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 18
 - agent-methodology: 8
-- archive-candidate: 4
-- current-reference: 49
+- archive-candidate: 5
+- current-reference: 44
 - decision-record: 18
 - evidence: 26
 - historical-synthesis: 9
@@ -26,11 +26,6 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `PROJECT_COORDINATION_INDEX.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `README.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `apps/api-python-backend/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/ui-xr/dist/xr-assets/environment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/ui-xr/dist/xr-assets/humanoids/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/ui-xr/dist/xr-assets/medical-equipment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/ui-xr/dist/xr-hands/generic-hand/LICENSE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/ui-xr/dist/xr-hands/generic-hand/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/environment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/humanoids/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/medical-equipment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
@@ -88,6 +83,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 These files should be summarized, archived, or explicitly marked historical before agents use them as instructions.
 
 - `.openclinxr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `AUTONOMOUS/PROJECT/worker.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/dependency-hygiene-and-e18e-policy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/gltf-transform-replacement-decision-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/typescript-strictness-gap-matrix-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
