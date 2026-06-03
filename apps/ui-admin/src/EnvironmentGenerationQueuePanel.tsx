@@ -156,6 +156,7 @@ export function EnvironmentGenerationQueuePanel({
           <Typography.Text type="secondary">{summarizeAssetReleaseLadderReplayProjection(sceneGenerationPublicationReadiness)}</Typography.Text>
           <Typography.Text type="secondary">{summarizeRuntimeVisualEvidenceAttachmentActions(sceneGenerationPublicationReadiness)}</Typography.Text>
           <Typography.Text type="secondary">{summarizeRuntimeEvidenceCaptureScaffold(sceneGenerationPublicationReadiness)}</Typography.Text>
+          <Typography.Text type="secondary">{summarizePedsGeneratedPlayerAndEmotion(sceneGenerationPublicationReadiness)}</Typography.Text>
           <Typography.Text type="secondary">{summarizeEncounterFactoryDryRun(sceneGenerationPublicationReadiness)}</Typography.Text>
         </div>
       ) : null}
@@ -474,4 +475,17 @@ function summarizeEvidenceGateRefs(
       return `${gateRef.gateId} ${gateRef.status}${blockerSummary}${signalSummary}`;
     })
     .join(", ");
+}
+
+function summarizePedsGeneratedPlayerAndEmotion(readiness: ScenarioSceneGenerationRequestPublicationReadiness): string {
+  const scaffold = readiness.runtimeEvidenceCaptureScaffold;
+  const emotionReq = (readiness as any).assetNeedsReadiness?.emotionRequirementCount ?? (readiness as any).packets?.[0]?.assetNeedsReadiness?.emotionRequirementCount;
+  const player = scaffold?.pedsRuntimePlayerDemo;
+  if (player) {
+    return `Peds generated player (from case spec machines/policies): emotion ${player.currentEmotion} nextCue ${player.nextCueId} source ${player.source} visemeHint ${player.visemeHint}; materialization emotion req count ${emotionReq ?? "n/a"}; (review-safe metadata only, gates false, no readiness claim)`;
+  }
+  if (emotionReq != null) {
+    return `Peds materialization emotion req from active case cues: ${emotionReq}; (player demo not attached for this packet)`;
+  }
+  return "Peds generated player/emotion req: not attached (non-peds or no active cues from case)";
 }
