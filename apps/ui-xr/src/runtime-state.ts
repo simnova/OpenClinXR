@@ -701,6 +701,8 @@ export type RuntimeVisualEvidenceCaptureScaffold = {
   pedsDialogueCueIdsDemo?: string[] | null;
   // Player consumption of generated (rebalance continuation): peds case spec (via packet machines/policies + step) now drives active runtime player state in scaffold for UI-XR runtime-state to consume (current emotion + next cue for turn/gaze/lip/viseme drive in player loop). Desktop fallback. Gates false. Consumer ref only.
   pedsRuntimePlayerDemo?: { currentEmotion: string | null; nextCueId: string | null; source: "case-derived-step+policy"; visemeHint?: string } | null;
+  // Expanded to simple step loop (using triggers from peds spec/timeline): demonstrates player consuming sequence of generated emotion/dialogue turns from case (for locomotion/gaze/lip/viseme drive later). 
+  pedsPlayerStepLoopDemo?: Array<{ trigger: string; emotion: string | null; cue: string | null }> | null;
   runtimeAssetBundleId: string | null;
   status: "metadata_only_attachment_candidates_not_submitted";
   runtimeEvidenceCandidateCount: number;
@@ -2195,6 +2197,12 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
       }
     : null;
 
+  // Expand player to simple step loop using triggers from peds spec (case-derived timeline/emotion machine + policy cues): player now "consumes" generated sequence for turn simulation (step 0: escalation on ignored -> frightened/urgent; step 1: deesc on ack -> reassured/empathy). Ties to "expand to simple step loop in player using timeline triggers" queued.
+  const pedsPlayerStepLoopDemo = scenarioId === "peds_asthma_parent_anxiety_v1" ? [
+    { trigger: "ignored_breathing", emotion: stepEmotionStateFromCaseMachine({ initialEmotion: "frightened", escalationTriggers: ["ignored_breathing", "rapid_questioning"], deescalationTriggers: ["breathing_effort_acknowledged", "simple_next_step"] }, "frightened", "ignored_breathing"), cue: "urgent_escalation" },
+    { trigger: "breathing_effort_acknowledged", emotion: stepEmotionStateFromCaseMachine({ initialEmotion: "frightened", escalationTriggers: ["ignored_breathing", "rapid_questioning"], deescalationTriggers: ["breathing_effort_acknowledged", "simple_next_step"] }, "frightened", "breathing_effort_acknowledged"), cue: "empathy_statement" }
+  ] : null;
+
   const attachmentCandidates = [
     ...buildRuntimeEvidenceAttachmentCandidates({ input, scenarioId, attachedAt }),
     ...buildVisualQaEvidenceAttachmentCandidates({ input, scenarioId, attachedAt }),
@@ -2213,6 +2221,7 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     pedsActiveEmotionDemo,
     pedsDialogueCueIdsDemo,
     pedsRuntimePlayerDemo,
+    pedsPlayerStepLoopDemo,
     runtimeAssetBundleId,
     status: "metadata_only_attachment_candidates_not_submitted",
     runtimeEvidenceCandidateCount: attachmentCandidates.filter((candidate) => candidate.inputKind === "runtime_realism_signal_input").length,
