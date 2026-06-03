@@ -693,6 +693,9 @@ export type RuntimeVisualEvidenceCaptureScaffold = {
   scenarioId: string;
   // Rebalanced gen wire (2026-06): caseDerived* (emotionTimeline/runtimeExecutionHints from deriveBasic... in factory/ using peds commProfile + requiredTraceTags + triggers) flows here for runtime player stub. Full: from review packet caseDerivedActorTurnExpectations at handoff. UI-XR consumer is supporting ref only.
   caseDerivedEmotionSeed?: { baseEmotion: string; primaryCueIds: string[]; source: "case_spec_derivation" } | null;
+  // Integrated emotion step demo from machine stub for peds (rebalance)
+  pedsEmotionStepDemo?: string | null;
+  pedsDialoguePolicyDemo?: { style: string; topicsToAvoid: string[] } | null;
   runtimeAssetBundleId: string | null;
   status: "metadata_only_attachment_candidates_not_submitted";
   runtimeEvidenceCandidateCount: number;
@@ -2150,6 +2153,21 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     ? { baseEmotion: "frightened", primaryCueIds: ["empathy_statement", "parent_communication", "urgent_escalation", "work_of_breathing_assessment"], source: "case_spec_derivation" as const }
     : null;
 
+  const pedsEmotionStepDemo = scenarioId === "peds_asthma_parent_anxiety_v1"
+    ? stepEmotionStateFromCaseMachine(
+        { initialEmotion: "frightened", escalationTriggers: ["ignored_breathing", "rapid_questioning"], deescalationTriggers: ["breathing_effort_acknowledged", "simple_next_step"] },
+        "frightened",
+        "ignored_breathing"
+      )
+    : null;
+
+  const pedsDialoguePolicyDemo = scenarioId === "peds_asthma_parent_anxiety_v1"
+    ? getDialoguePolicyForActorFromCase(
+        { actors: [{ actorId: "parent_tara_johnson_v1", style: "angry_family_member", baselineMood: ["anxious"], topicsToAvoid: ["blame_for_delay"], adverseResponse: "louder" }] } as any,
+        "parent_tara_johnson_v1"
+      )
+    : null;
+
   const attachmentCandidates = [
     ...buildRuntimeEvidenceAttachmentCandidates({ input, scenarioId, attachedAt }),
     ...buildVisualQaEvidenceAttachmentCandidates({ input, scenarioId, attachedAt }),
@@ -2163,6 +2181,8 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     source: "ui_xr_manual_performance_evidence_payload",
     scenarioId,
     caseDerivedEmotionSeed,
+    pedsEmotionStepDemo,
+    pedsDialoguePolicyDemo,
     runtimeAssetBundleId,
     status: "metadata_only_attachment_candidates_not_submitted",
     runtimeEvidenceCandidateCount: attachmentCandidates.filter((candidate) => candidate.inputKind === "runtime_realism_signal_input").length,
@@ -3259,4 +3279,33 @@ export function buildXrRuntimeReadinessDecision(
     recommendedNextAction,
     notEvidenceFor: input.posture.notEvidenceFor,
   };
+}
+
+// Emotion state machine stub wired from peds case spec (rebalance continuation).
+// Consumes caseDerivedEmotionStateMachine (or equivalent timeline/triggers from review packet / derive in factory/).
+// Provides simple step for runtime player to advance activeEmotionState on learner cues/triggers.
+// Full version will drive expression, gaze, lip-sync, voice from the machine state. Consumer attachments remain supporting ref only.
+export function stepEmotionStateFromCaseMachine(
+  machine: { initialEmotion: string; escalationTriggers: string[]; deescalationTriggers: string[] } | null,
+  current: string | undefined,
+  trigger: string
+): string {
+  if (!machine) return current || "neutral";
+  const t = trigger.toLowerCase();
+  if (machine.escalationTriggers.some((e: string) => t.includes(e) || t.includes("ignored_breathing") || t.includes("rapid_questioning"))) {
+    return "frightened";
+  }
+  if (machine.deescalationTriggers.some((d: string) => t.includes(d) || t.includes("breathing_effort") || t.includes("validated") || t.includes("plan_explained"))) {
+    return "reassured";
+  }
+  if (t.includes("empathy") || t.includes("parent_communication") || t.includes("parent")) {
+    return "anxious";
+  }
+  return current || machine.initialEmotion;
+}
+
+// Dialogue policy stub wired from peds case (rebalance). Provides actor-specific policy notes (style, avoid, adverse) for dialogue orchestration in runtime from case spec.
+export function getDialoguePolicyForActorFromCase(policy: { actors: Array<{ actorId: string; style: string; baselineMood: string[]; topicsToAvoid: string[]; adverseResponse: string }> } | null, actorId: string) {
+  if (!policy) return null;
+  return policy.actors.find((a: any) => a.actorId === actorId) || null;
 }

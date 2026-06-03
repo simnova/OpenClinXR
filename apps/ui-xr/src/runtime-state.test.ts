@@ -25,6 +25,7 @@ import {
   findXrExperienceModeContract,
   formatManualEvidenceCopyStatus,
   formatStationClock,
+  getDialoguePolicyForActorFromCase,
   handGestureLocomotionOriginMeters,
   handGestureRelativeOffsetMeters,
   isImmersiveFrameEvidenceActive,
@@ -46,6 +47,7 @@ import {
   remoteActorTurnForTraceTag,
   type SceneAssetEvidence,
   stationTraceActionTags,
+  stepEmotionStateFromCaseMachine,
   summarizeFrameDeltas,
   summarizeTraceReadiness,
   xrExperienceModeContracts,
@@ -2930,4 +2932,27 @@ it("wires caseDerivedEmotionSeed (from peds spec via factory derive) into ui-xr 
   expect(seedShape.caseDerivedEmotionSeed?.primaryCueIds).toContain("empathy_statement");
   const nullShape: { caseDerivedEmotionSeed?: { baseEmotion: string } | null } = { caseDerivedEmotionSeed: null };
   expect(nullShape.caseDerivedEmotionSeed).toBeNull();
+  const policyDemoShape: { pedsDialoguePolicyDemo?: { style: string } | null } = { pedsDialoguePolicyDemo: { style: "angry_family_member" } };
+  expect(policyDemoShape.pedsDialoguePolicyDemo?.style).toBe("angry_family_member");
+});
+
+it("steps emotion state machine stub from peds case triggers (rebalance gen primary)", () => {
+  const machine = { initialEmotion: "frightened", escalationTriggers: ["ignored_breathing", "rapid_questioning"], deescalationTriggers: ["breathing_effort_acknowledged", "simple_next_step"] };
+  expect(stepEmotionStateFromCaseMachine(machine, undefined, "ignored_breathing")).toBe("frightened");
+  expect(stepEmotionStateFromCaseMachine(machine, "frightened", "breathing_effort_acknowledged")).toBe("reassured");
+  expect(stepEmotionStateFromCaseMachine(machine, "anxious", "empathy_statement")).toBe("anxious");
+  expect(stepEmotionStateFromCaseMachine(null, "neutral", "foo")).toBe("neutral");
+});
+
+it("gets dialogue policy stub for peds actors from case (rebalance gen primary)", () => {
+  const policy = {
+    actors: [
+      { actorId: "patient_maya_johnson_v1", style: "appeaser", baselineMood: ["frightened"], topicsToAvoid: ["being_rushed"], adverseResponse: "shorter answers" },
+      { actorId: "parent_tara_johnson_v1", style: "angry_family_member", baselineMood: ["anxious"], topicsToAvoid: ["blame_for_delay"], adverseResponse: "louder" },
+    ],
+  };
+  const parentPolicy = getDialoguePolicyForActorFromCase(policy as any, "parent_tara_johnson_v1");
+  expect(parentPolicy?.style).toBe("angry_family_member");
+  expect(parentPolicy?.topicsToAvoid).toContain("blame_for_delay");
+  expect(getDialoguePolicyForActorFromCase(null as any, "foo")).toBeNull();
 });

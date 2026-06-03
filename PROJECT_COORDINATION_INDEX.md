@@ -12,7 +12,7 @@ Recent direction (consumer + meta bloat/docs/validation) was necessary for agent
 
 **Active lanes (from worker matrix, highest value first)**: Worker 9/7/11 runtime visual evidence consumer + preflight/submit-preview + review/replay pipeline (UI-XR + Admin/GraphQL/API); Worker 11/7 materialization evidence attachment continuation and surfaces; Worker 7/8/9 faculty/admin review posture and replay safety; XR trace/locomotion and actor-realism in UI-XR; scenario bank expansion.
 
-**Last slice (one-liner)**: 2026-06-03: expand peds actor turn generator (richer derive from 3-actor comm+tags+triggers -> turns/emotionTimeline/hints) + wire caseDerivedEmotionSeed to ui-xr runtime-state scaffold (type/build/comment). Tests 4+2 pass; post guards green; lease released. Per-Slice recorded. Publish of prior all-changes was previous (fe58d65 on main). See AUTONOMOUS. 
+**Last slice (one-liner)**: 2026-06-03: integrate dialogue + emotion demos (pedsDialoguePolicyDemo + pedsEmotionStepDemo in ui-xr scaffold). Full turn from case now in runtime. Guards green. See AUTONOMOUS. 
 
 **Next queued slice (do this)**: Per rebalance + this expand: continue local gen (no Quest toil). Next: emotion state machine / dialogue policy stub from same peds spec (commProfile triggers + timeline -> transitions in runtime); or materialization continuation; wire more caseDerived to review/replay if unblocks. Record Per-Slice, focused verif, post+guards, pick. (Or pivot per worker if higher value.)
 

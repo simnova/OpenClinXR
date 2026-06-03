@@ -43,6 +43,18 @@ export type EncounterRuntimeSelectionReviewPacket = {
       locomotionEnabled: boolean;
     };
   } | null;
+  caseDerivedEmotionStateMachine?: {
+    scenarioId: string;
+    initialEmotion: string;
+    escalationTriggers: string[];
+    deescalationTriggers: string[];
+    source: string;
+  } | null;
+  caseDerivedDialoguePolicy?: {
+    scenarioId: string;
+    source: string;
+    actors: Array<{ actorId: string; style: string; baselineMood: string[]; topicsToAvoid: string[]; adverseResponse: string }>;
+  } | null;
   runtimeCandidates: {
     model: EncounterGuardedRuntimeSelectionIntent["modelRuntimeCandidate"];
     voice: EncounterGuardedRuntimeSelectionIntent["voiceRuntimeCandidate"];
@@ -277,6 +289,8 @@ export function buildEncounterRuntimeSelectionReviewPacket(
       reviewRubricCommunication: ((pediatricAsthmaScenario as unknown) as { reviewRubric?: Array<Record<string, unknown>> }).reviewRubric?.find((r: Record<string, unknown>) => (r.label as string | undefined)?.toLowerCase().includes("guardian") || (r.label as string | undefined)?.toLowerCase().includes("communication")) ?? null,
     } : null,
     caseDerivedActorTurnExpectations: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId),
+    caseDerivedEmotionStateMachine: deriveEmotionStateMachineFromCase(selectionIntent.selectedScenarioId),
+    caseDerivedDialoguePolicy: deriveDialoguePolicyFromCase(selectionIntent.selectedScenarioId),
     reviewPacketMode: "read_only_guarded_runtime_handoff",
     handoffArtifactsInternallyPaired: selectionIntent.handoffArtifactsInternallyPaired,
     runtimeCandidates: {
@@ -911,6 +925,51 @@ export function deriveBasicActorTurnExpectationsFromCase(scenarioId: string) {
     source: "case_spec_derivation_v1",
     emotionTimeline,
     runtimeExecutionHints: hints,
+  };
+}
+
+export function deriveEmotionStateMachineFromCase(scenarioId: string) {
+  if (scenarioId !== "peds_asthma_parent_anxiety_v1") return null;
+  // Simple data-driven machine spec from peds case comm profiles + triggers (for runtime stub player)
+  // Transitions: escalation -> frightened, deescalation -> reassured, parent/empathy cues -> anxious
+  return {
+    scenarioId,
+    initialEmotion: "frightened",
+    escalationTriggers: ["ignored_breathing", "rapid_questioning", "parent_excluded"],
+    deescalationTriggers: ["breathing_effort_acknowledged", "simple_next_step", "parent_included", "child_distress_validated", "oxygen_plan_explained", "closed_loop_order", "bronchodilator_plan"],
+    source: "case_spec_derivation_v1",
+  };
+}
+
+export function deriveDialoguePolicyFromCase(scenarioId: string) {
+  if (scenarioId !== "peds_asthma_parent_anxiety_v1") return null;
+  // Stub policy from peds case comm profiles (style, topicsToAvoid, communicativeness, adverse for turn/dialogue generation)
+  return {
+    scenarioId,
+    source: "case_spec_derivation_v1",
+    actors: [
+      {
+        actorId: "patient_maya_johnson_v1",
+        style: "appeaser",
+        baselineMood: ["frightened", "breathless", "seeking reassurance"],
+        topicsToAvoid: ["being_rushed", "dismissed_breathing", "medical_jargon"],
+        adverseResponse: "Gives shorter answers, clutches parent, and becomes harder to redirect if distress is minimized.",
+      },
+      {
+        actorId: "parent_tara_johnson_v1",
+        style: "angry_family_member",
+        baselineMood: ["anxious", "protective", "frustrated"],
+        topicsToAvoid: ["blame_for_delay", "minimizing_wheeze", "excluding_parent"],
+        adverseResponse: "Becomes louder, repeats that Maya cannot breathe, and challenges the plan if no concrete next step is offered.",
+      },
+      {
+        actorId: "nurse_kevin_lee_v1",
+        style: "rationalizer",
+        baselineMood: ["focused", "concerned", "ready to act"],
+        topicsToAvoid: ["ambiguous_orders", "ignored_spo2", "lack_of_escalation_plan"],
+        adverseResponse: "Repeats oxygen saturation and asks for specific oxygen, bronchodilator, or escalation orders.",
+      },
+    ],
   };
 }
 
