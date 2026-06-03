@@ -2934,6 +2934,9 @@ it("wires caseDerivedEmotionSeed (from peds spec via factory derive) into ui-xr 
   expect(nullShape.caseDerivedEmotionSeed).toBeNull();
   const policyDemoShape: { pedsDialoguePolicyDemo?: { style: string } | null } = { pedsDialoguePolicyDemo: { style: "angry_family_member" } };
   expect(policyDemoShape.pedsDialoguePolicyDemo?.style).toBe("angry_family_member");
+  const activeDemoShape: { pedsActiveEmotionDemo?: string | null; pedsDialogueCueIdsDemo?: string[] | null } = { pedsActiveEmotionDemo: "frightened", pedsDialogueCueIdsDemo: ["empathy_statement"] };
+  expect(activeDemoShape.pedsActiveEmotionDemo).toBe("frightened");
+  expect(activeDemoShape.pedsDialogueCueIdsDemo).toContain("empathy_statement");
 });
 
 it("steps emotion state machine stub from peds case triggers (rebalance gen primary)", () => {

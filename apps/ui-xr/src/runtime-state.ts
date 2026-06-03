@@ -696,6 +696,9 @@ export type RuntimeVisualEvidenceCaptureScaffold = {
   // Integrated emotion step demo from machine stub for peds (rebalance)
   pedsEmotionStepDemo?: string | null;
   pedsDialoguePolicyDemo?: { style: string; topicsToAvoid: string[] } | null;
+  // Further integrated active demos using the step/policy for peds (active emotion/dialogue fields in runtime evidence)
+  pedsActiveEmotionDemo?: string | null;
+  pedsDialogueCueIdsDemo?: string[] | null;
   runtimeAssetBundleId: string | null;
   status: "metadata_only_attachment_candidates_not_submitted";
   runtimeEvidenceCandidateCount: number;
@@ -2168,6 +2171,18 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
       )
     : null;
 
+  const pedsActiveEmotionDemo = scenarioId === "peds_asthma_parent_anxiety_v1"
+    ? stepEmotionStateFromCaseMachine(
+        { initialEmotion: "frightened", escalationTriggers: ["ignored_breathing", "rapid_questioning"], deescalationTriggers: ["breathing_effort_acknowledged", "simple_next_step"] },
+        "frightened",
+        "ignored_breathing"
+      )
+    : null;
+
+  const pedsDialogueCueIdsDemo = scenarioId === "peds_asthma_parent_anxiety_v1"
+    ? ["empathy_statement", "parent_communication", "urgent_escalation"]
+    : null;
+
   const attachmentCandidates = [
     ...buildRuntimeEvidenceAttachmentCandidates({ input, scenarioId, attachedAt }),
     ...buildVisualQaEvidenceAttachmentCandidates({ input, scenarioId, attachedAt }),
@@ -2183,6 +2198,8 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     caseDerivedEmotionSeed,
     pedsEmotionStepDemo,
     pedsDialoguePolicyDemo,
+    pedsActiveEmotionDemo,
+    pedsDialogueCueIdsDemo,
     runtimeAssetBundleId,
     status: "metadata_only_attachment_candidates_not_submitted",
     runtimeEvidenceCandidateCount: attachmentCandidates.filter((candidate) => candidate.inputKind === "runtime_realism_signal_input").length,
