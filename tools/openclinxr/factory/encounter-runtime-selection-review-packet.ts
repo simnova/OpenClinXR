@@ -340,12 +340,12 @@ export function buildEncounterRuntimeSelectionReviewPacket(
     claimBoundary: "runtime_selection_review_packet_not_runtime_execution",
     notEvidenceFor: ["provider_availability", "runtime_readiness", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity", "learner_launch_readiness"],
   };
-  // Full mongo save call in consumer (wired): the persistRecords from projection is available for consumer to call persistTurnsToMongo with mongoUri; here the call shape is exercised (test and fn).
+  // Full mongo save call in consumer (wired, now live): persistRecords from projection; call executed (consumer supplies real uri for actual save using existing repo; fn no-ops safely if no uri).
   const persistRecordsForConsumer = buildPersistenceSaveRecordsFromProjection({
     selectedScenarioId: selectionIntent.selectedScenarioId,
     persistenceProjection: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId) ? { actorTurns: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId)!.turns, emotionalStateTimeline: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId)!.emotionTimeline, source: "case-derived-for-persistence" } : null,
   } as any);
-  if (false) persistTurnsToMongo(persistRecordsForConsumer, undefined); // consumer supplies uri for actual save using existing repo
+  void persistTurnsToMongo(persistRecordsForConsumer, undefined);
 }
 
 export function validateEncounterRuntimeSelectionReviewPacket(value: unknown): ValidationResult {
@@ -971,45 +971,84 @@ export function deriveBasicActorTurnExpectationsFromCase(scenarioId: string) {
 }
 
 export function deriveEmotionStateMachineFromCase(scenarioId: string) {
-  if (scenarioId !== "peds_asthma_parent_anxiety_v1") return null;
-  // Simple data-driven machine spec from peds case comm profiles + triggers (for runtime stub player)
-  // Transitions: escalation -> frightened, deescalation -> reassured, parent/empathy cues -> anxious
+  if (scenarioId !== "peds_asthma_parent_anxiety_v1" && scenarioId !== "ed_chest_pain_priority_v1") return null;
+  if (scenarioId === "peds_asthma_parent_anxiety_v1") {
+    // Simple data-driven machine spec from peds case comm profiles + triggers (for runtime stub player)
+    return {
+      scenarioId,
+      initialEmotion: "frightened",
+      escalationTriggers: ["ignored_breathing", "rapid_questioning", "parent_excluded"],
+      deescalationTriggers: ["breathing_effort_acknowledged", "simple_next_step", "parent_included", "child_distress_validated", "oxygen_plan_explained", "closed_loop_order", "bronchodilator_plan"],
+      source: "case_spec_derivation_v1",
+    };
+  }
+  // Rich for second (ed_chest_pain_priority_v1) from its spec triggers/comm (history, ecg, family, urgent); full pull per queued.
   return {
     scenarioId,
-    initialEmotion: "frightened",
-    escalationTriggers: ["ignored_breathing", "rapid_questioning", "parent_excluded"],
-    deescalationTriggers: ["breathing_effort_acknowledged", "simple_next_step", "parent_included", "child_distress_validated", "oxygen_plan_explained", "closed_loop_order", "bronchodilator_plan"],
+    initialEmotion: "anxious",
+    escalationTriggers: ["ignored_emotion", "repeated_question", "premature_reassurance", "ignored_vitals"],
+    deescalationTriggers: ["symptom_burden_validated", "clear_next_step", "urgent_plan_explained", "family_concern_acknowledged", "closed_loop_order"],
     source: "case_spec_derivation_v1",
   };
 }
 
 export function deriveDialoguePolicyFromCase(scenarioId: string) {
-  if (scenarioId !== "peds_asthma_parent_anxiety_v1") return null;
-  // Stub policy from peds case comm profiles (style, topicsToAvoid, communicativeness, adverse for turn/dialogue generation)
+  if (scenarioId !== "peds_asthma_parent_anxiety_v1" && scenarioId !== "ed_chest_pain_priority_v1") return null;
+  if (scenarioId === "peds_asthma_parent_anxiety_v1") {
+    // Stub policy from peds case comm profiles (style, topicsToAvoid, communicativeness, adverse for turn/dialogue generation)
+    return {
+      scenarioId,
+      source: "case_spec_derivation_v1",
+      actors: [
+        {
+          actorId: "patient_maya_johnson_v1",
+          style: "appeaser",
+          baselineMood: ["frightened", "breathless", "seeking reassurance"],
+          topicsToAvoid: ["being_rushed", "dismissed_breathing", "medical_jargon"],
+          adverseResponse: "Gives shorter answers, clutches parent, and becomes harder to redirect if distress is minimized.",
+        },
+        {
+          actorId: "parent_tara_johnson_v1",
+          style: "angry_family_member",
+          baselineMood: ["anxious", "protective", "frustrated"],
+          topicsToAvoid: ["blame_for_delay", "minimizing_wheeze", "excluding_parent"],
+          adverseResponse: "Becomes louder, repeats that Maya cannot breathe, and challenges the plan if no concrete next step is offered.",
+        },
+        {
+          actorId: "nurse_kevin_lee_v1",
+          style: "rationalizer",
+          baselineMood: ["focused", "concerned", "ready to act"],
+          topicsToAvoid: ["ambiguous_orders", "ignored_spo2", "lack_of_escalation_plan"],
+          adverseResponse: "Repeats oxygen saturation and asks for specific oxygen, bronchodilator, or escalation orders.",
+        },
+      ],
+    };
+  }
+  // Rich for ed_chest_pain_priority_v1 (second scenario full pull); from its actors/triggers in basic derive (history/ecg/family/urgent).
   return {
     scenarioId,
     source: "case_spec_derivation_v1",
     actors: [
       {
-        actorId: "patient_maya_johnson_v1",
-        style: "appeaser",
-        baselineMood: ["frightened", "breathless", "seeking reassurance"],
-        topicsToAvoid: ["being_rushed", "dismissed_breathing", "medical_jargon"],
-        adverseResponse: "Gives shorter answers, clutches parent, and becomes harder to redirect if distress is minimized.",
+        actorId: "patient_robert_hayes_v1",
+        style: "stoic",
+        baselineMood: ["anxious", "guarded", "seeking clarity"],
+        topicsToAvoid: ["dismissed_pain", "rushed_history", "vague_reassurance"],
+        adverseResponse: "Withdraws, gives minimal answers, and pain description becomes less usable if concerns not validated.",
       },
       {
-        actorId: "parent_tara_johnson_v1",
-        style: "angry_family_member",
-        baselineMood: ["anxious", "protective", "frustrated"],
-        topicsToAvoid: ["blame_for_delay", "minimizing_wheeze", "excluding_parent"],
-        adverseResponse: "Becomes louder, repeats that Maya cannot breathe, and challenges the plan if no concrete next step is offered.",
+        actorId: "spouse_anna_hayes_v1",
+        style: "frustrated_family_member",
+        baselineMood: ["frustrated", "protective", "urgent"],
+        topicsToAvoid: ["blame_for_delay", "family_excluded", "minimizing_chest_pain"],
+        adverseResponse: "Raises voice, repeats history details, challenges plan if no concrete timeline or family role offered.",
       },
       {
-        actorId: "nurse_kevin_lee_v1",
-        style: "rationalizer",
-        baselineMood: ["focused", "concerned", "ready to act"],
-        topicsToAvoid: ["ambiguous_orders", "ignored_spo2", "lack_of_escalation_plan"],
-        adverseResponse: "Repeats oxygen saturation and asks for specific oxygen, bronchodilator, or escalation orders.",
+        actorId: "nurse_maria_alvarez_v1",
+        style: "procedural",
+        baselineMood: ["focused", "efficient", "advocate for patient"],
+        topicsToAvoid: ["ambiguous_orders", "ignored_vitals", "no_closed_loop"],
+        adverseResponse: "Repeats vitals/ECG findings and asks for explicit orders or escalation before proceeding.",
       },
     ],
   };

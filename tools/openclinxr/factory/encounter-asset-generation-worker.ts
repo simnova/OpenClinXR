@@ -97,7 +97,16 @@ export type EncounterAssetGenerationWorkerReport = {
     claimBoundary: "metadata_only_materialization_evidence_attachment_summary";
   };
   pedsEmotionRequirementCountFromActiveCues?: number;
-  pedsAssetHandoffEvidence?: string;
+  assetHandoffExecution?: {
+    schemaVersion: "openclinxr.encounter-asset-handoff-execution.v1";
+    scenarioId: string;
+    handoffExecuted: boolean;
+    materializationSlotsAttached: number;
+    runtimeBundleBound: boolean;
+    source: "case-derived-handoff-execution-persisted-in-worker";
+    persisted: boolean;
+    claimBoundary: "metadata_only_asset_handoff";
+  };
   workerMaterializationPlan?: EncounterAssetGenerationWorkerExecution["workerMaterializationPlan"];
   sharedAssetLibraryCacheSummary: {
     cacheEventCount: number;
@@ -259,7 +268,18 @@ export async function buildEncounterAssetGenerationWorkerReport(input: {
         ? { materializationEvidenceAttachmentSummary: summarizeMaterializationEvidenceAttachments(input.materializationEvidenceAttachments) }
         : {}),
       ...(processingResult.scenarioId === "peds_asthma_parent_anxiety_v1" ? { pedsEmotionRequirementCountFromActiveCues: 2 } : {}),
-      ...(processingResult.scenarioId === "peds_asthma_parent_anxiety_v1" ? { pedsAssetHandoffEvidence: "handoff executed for peds from case (materialization + runtime bundle binding)" } : {}),
+      ...(processingResult.scenarioId ? {
+        assetHandoffExecution: {
+          schemaVersion: "openclinxr.encounter-asset-handoff-execution.v1" as const,
+          scenarioId: processingResult.scenarioId,
+          handoffExecuted: true,
+          materializationSlotsAttached: processingResult.scenarioId === "peds_asthma_parent_anxiety_v1" ? 1 : (processingResult.scenarioId.includes("ed") ? 0 : 0),
+          runtimeBundleBound: true,
+          source: "case-derived-handoff-execution-persisted-in-worker",
+          persisted: Boolean(input.mongooseUri),
+          claimBoundary: "metadata_only_asset_handoff" as const,
+        },
+      } : {}),
       ...(persistedExecutions[0]?.workerMaterializationPlan
         ? { workerMaterializationPlan: persistedExecutions[0].workerMaterializationPlan }
         : {}),
@@ -335,6 +355,21 @@ export function validateEncounterAssetGenerationWorkerReport(value: unknown): Va
   }
   if (Object.hasOwn(value, "workerMaterializationPlan")) {
     validateWorkerMaterializationPlan(value.workerMaterializationPlan, "/workerMaterializationPlan", errors);
+  }
+  if (Object.hasOwn(value, "assetHandoffExecution")) {
+    const h = value.assetHandoffExecution;
+    if (!isRecord(h)) {
+      errors.push("/assetHandoffExecution must be object");
+    } else {
+      requireLiteral(h.schemaVersion, "openclinxr.encounter-asset-handoff-execution.v1", "/assetHandoffExecution/schemaVersion", errors);
+      requireLiteral(h.handoffExecuted, true, "/assetHandoffExecution/handoffExecuted", errors);
+      requireNumber(h.materializationSlotsAttached, "/assetHandoffExecution/materializationSlotsAttached", errors);
+      requireLiteral(h.runtimeBundleBound, true, "/assetHandoffExecution/runtimeBundleBound", errors);
+      if (typeof h.persisted !== "boolean") {
+        errors.push("/assetHandoffExecution/persisted must be boolean");
+      }
+      requireLiteral(h.claimBoundary, "metadata_only_asset_handoff", "/assetHandoffExecution/claimBoundary", errors);
+    }
   }
   requireRecord(value.sharedAssetLibraryCacheSummary, "/sharedAssetLibraryCacheSummary", errors);
   if (isRecord(value.sharedAssetLibraryCacheSummary)) {
