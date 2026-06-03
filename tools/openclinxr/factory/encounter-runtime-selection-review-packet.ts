@@ -324,6 +324,10 @@ export function buildEncounterRuntimeSelectionReviewPacket(
             vetStatus: "vetted_open_source_first: MIT license, M1 Max 64GB compatible, WebXR/Quest via three (sidecar posture), no cloud/paid/API, reusable across cases via case spec, fits runtime player without production claim",
             license: "MIT (three), existing repo asset pipeline (no AGPL/copyleft)",
           },
+          authoringVet: {
+            pipeline: "blender 5.1+ for props from case room desc (exam_table etc); gltf export with named blendshapes for viseme/emotion from timeline; gltf-pipeline (draco/meshopt) for opt + extras (caseId, traceTag, emotion at t, source peds spec)",
+            cues: "affectTimeline/emotion state from case commProfile/escalation -> morph weights or anim clips in gltf; provenance in userData/extras for review",
+          },
           source: "case_spec_derivation_v1_factory_tech_vet",
         };
       }
@@ -337,6 +341,10 @@ export function buildEncounterRuntimeSelectionReviewPacket(
             authoring: "blender/gltf (open source sidecar pipeline)",
             vetStatus: "vetted_open_source_first: same as peds (MIT, M1, WebXR sidecar, no paid), small piece for second scenario to show pipeline evolution",
             license: "MIT",
+          },
+          authoringVet: {
+            pipeline: "blender/gltf export + gltf-pipeline opt; cues from ed spec escalation (ignored_emotion etc) to gltf extras/morphs; 2nd scen to demonstrate authoring vet reuse",
+            cues: "eventSchedule/clinicalObjectives + emotionTimeline -> gltf clip weights; provenance for review packet",
           },
           source: "case_spec_derivation_v1_factory_tech_vet",
         };
