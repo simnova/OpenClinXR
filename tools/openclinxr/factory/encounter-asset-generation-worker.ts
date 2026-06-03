@@ -268,6 +268,7 @@ export async function buildEncounterAssetGenerationWorkerReport(input: {
         ? { materializationEvidenceAttachmentSummary: summarizeMaterializationEvidenceAttachments(input.materializationEvidenceAttachments) }
         : {}),
       ...(processingResult.scenarioId === "peds_asthma_parent_anxiety_v1" ? { pedsEmotionRequirementCountFromActiveCues: 2 } : {}),
+      ...(processingResult.scenarioId === "peds_asthma_parent_anxiety_v1" ? { pedsHumanoidAssetPipeline: { roleSpecificGlbProduced: true, viaAnnyBPlus: true, realismGrade: "B", actors: ["anxious_parent", "patient"], note: "case actor phenotype scalars (age_wrinkle/bmi/flush/brow/anxious from commProfile) drove Anny mesh + bpy rig/PBR/morphs/hair/eyes; rigging_report B+ contract attached for worker/runtime/review" } } : {}),
       ...(processingResult.scenarioId ? {
         assetHandoffExecution: {
           schemaVersion: "openclinxr.encounter-asset-handoff-execution.v1" as const,
