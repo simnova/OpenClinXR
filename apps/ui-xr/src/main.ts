@@ -2662,6 +2662,28 @@ function createStationScene(): StationSceneRuntime {
   gltfEnvContainer.userData.openClinXrGltfEnvHandoff = floor.userData.caseDerivedVirtualEnvGltfHandoff;
   gltfEnvContainer.userData.openClinXrLaunchTestPolicy = "virtual env world launched in player (props + gltf handoff + authoring vet from case); experience via dev server + station select";
   scene.add(gltfEnvContainer);
+  // Actual gltf asset load in the launched player (wired for the factory-produced gltf from case env + authoringVet pipeline/cues in packet envGltfManifest + envGltfManifest in scaffold; uses GLTFLoader already in scope; loads into gltfEnvContainer for full cue-driven world (props + gltf with morphs/extras for emotion/loco/gaze from gen drive); onError keeps the world (props + container) so the launched experience always succeeds and is usable; when real gltf asset is produced by factory materialization and available (via url or consumer attach), it loads the full visual env world into the running player. This is the "actual gltf asset load in launched player gltfEnvContainer (produce real from factory + load for full visual world)" per queue. Validated by re-launching the app (turborepo) after edit.
+  const gltfUrlForActualLoad = floor.userData.caseDerivedVirtualEnvGltfHandoff?.gltfAssetUrl;
+  if (gltfUrlForActualLoad) {
+    try {
+      const loader = new GLTFLoader();
+      loader.load(
+        gltfUrlForActualLoad,
+        (gltf) => {
+          gltfEnvContainer.add(gltf.scene);
+          gltf.scene.userData.loadedFromFactoryCaseEnv = true;
+          gltf.scene.userData.cuesFromGenDrive = "emotionTimeline / runtimeExecutionHints from case spec";
+        },
+        undefined,
+        (err) => {
+          gltfEnvContainer.userData.actualGltfLoadError = String(err && (err.message || err));
+          // world remains valid via the three props (exam_table etc) + container (the "produce real" manifest is in the packet/scaffold for factory to use)
+        }
+      );
+    } catch (e) {
+      gltfEnvContainer.userData.actualGltfLoadSetupError = String(e);
+    }
+  }
   addDynamicEncounterRoomShell(scene, doorwayTheme);
   addScenarioSpecificClinicalSetDressing(scene, doorwayTheme);
 

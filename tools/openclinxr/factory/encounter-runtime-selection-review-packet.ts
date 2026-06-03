@@ -328,6 +328,19 @@ export function buildEncounterRuntimeSelectionReviewPacket(
             pipeline: "blender 5.1+ for props from case room desc (exam_table etc); gltf export with named blendshapes for viseme/emotion from timeline; gltf-pipeline (draco/meshopt) for opt + extras (caseId, traceTag, emotion at t, source peds spec)",
             cues: "affectTimeline/emotion state from case commProfile/escalation -> morph weights or anim clips in gltf; provenance in userData/extras for review",
           },
+          envGltfManifest: {
+            asset: { version: "2.0", generator: "openclinxr-factory-from-case-spec+authoringVet" },
+            scenes: [{ nodes: [0] }],
+            nodes: [{ name: "peds-asthma-clinic-exam-room", children: [1,2,3,4,5] }],
+            meshes: [
+              { name: "exam_table", primitives: [{ attributes: { POSITION: 0 } }] },
+              { name: "oxygen_delivery_system", primitives: [{ attributes: { POSITION: 1 } }] },
+              { name: "peak_flow_meter", primitives: [{ attributes: { POSITION: 2 } }] },
+              { name: "parent_chair", primitives: [{ attributes: { POSITION: 3 } }] },
+              { name: "wall_chart", primitives: [{ attributes: { POSITION: 4 } }] },
+            ],
+            extras: { caseId: sid, cues: ["exam_table", "oxygen_delivery_system", "peak_flow_meter", "parent_chair", "wall_chart"], source: "factory materialization stub (authoringVet pipeline + case spec) for actual gltf load in launched player gltfEnvContainer" },
+          },
           source: "case_spec_derivation_v1_factory_tech_vet",
         };
       }
@@ -348,6 +361,19 @@ export function buildEncounterRuntimeSelectionReviewPacket(
           },
           fullEnvGenForSecond: true,
           envCuesFromSpec: ["gurney for patient position on ignored_emotion", "cardiac_monitor for vitals on urgent_escalation", "crash_cart for priority response", "iv_stand for fluid", "defibrillator for chest pain escalation"],
+          envGltfManifest: {
+            asset: { version: "2.0", generator: "openclinxr-factory-from-case-spec+authoringVet" },
+            scenes: [{ nodes: [0] }],
+            nodes: [{ name: "ed-trauma-bay", children: [1,2,3,4,5] }],
+            meshes: [
+              { name: "gurney", primitives: [{ attributes: { POSITION: 0 } }] },
+              { name: "cardiac_monitor", primitives: [{ attributes: { POSITION: 1 } }] },
+              { name: "crash_cart", primitives: [{ attributes: { POSITION: 2 } }] },
+              { name: "iv_stand", primitives: [{ attributes: { POSITION: 3 } }] },
+              { name: "defibrillator", primitives: [{ attributes: { POSITION: 4 } }] },
+            ],
+            extras: { caseId: sid, cues: ["gurney for patient position on ignored_emotion", "cardiac_monitor for vitals on urgent_escalation", "crash_cart for priority response", "iv_stand for fluid", "defibrillator for chest pain escalation"], source: "factory materialization stub (authoringVet pipeline + case spec eventSchedule/clinicalObjectives) for actual gltf load in launched player gltfEnvContainer" },
+          },
           source: "case_spec_derivation_v1_factory_tech_vet",
         };
       }
