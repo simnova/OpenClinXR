@@ -143,6 +143,8 @@ export type UiXrRuntimeEvidenceConsumerPreflightReport = {
     attachableViaConsumer: true;
     operatorSelectable: true;
     source: string;
+    producedGltfManifest?: any;
+    producedBy?: string;
   } | null;
   nextActions: string[];
   rawPayloadDisplayed: false;
@@ -311,6 +313,8 @@ export function buildUiXrRuntimeEvidenceConsumerPreflightReport(input: {
       attachableViaConsumer: true,
       operatorSelectable: true,
       source: "caseDerivedVirtualEnvironment_from_launched_player_world",
+      producedGltfManifest: (scaffold as any).caseDerivedVirtualEnvironment?.envGltfManifest ?? null,
+      producedBy: "factory materialization from case envGltfManifest + authoringVet (wired to consumer for attach of the produced asset for the launched world)",
     } : null,
     nextActions: blockerIds.length === 0
       ? [
