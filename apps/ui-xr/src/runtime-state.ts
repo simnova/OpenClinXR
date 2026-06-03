@@ -703,6 +703,8 @@ export type RuntimeVisualEvidenceCaptureScaffold = {
   pedsRuntimePlayerDemo?: { currentEmotion: string | null; nextCueId: string | null; source: "case-derived-step+policy"; visemeHint?: string } | null;
   // Expanded to simple step loop (using triggers from peds spec/timeline): demonstrates player consuming sequence of generated emotion/dialogue turns from case (for locomotion/gaze/lip/viseme drive later). 
   pedsPlayerStepLoopDemo?: Array<{ trigger: string; emotion: string | null; cue: string | null }> | null;
+  // Full player loop consumption for peds (step the loop from case spec to drive current state over turns; for humanoid locomotion/gaze/lip/viseme in runtime player with desktop fallback).
+  pedsPlayerLoopStep?: { totalSteps: number; currentAfterStep0: { trigger: string; emotion: string | null; cue: string | null }; currentAfterStep1: { trigger: string; emotion: string | null; cue: string | null }; source: "case-derived-loop-step" } | null;
   runtimeAssetBundleId: string | null;
   status: "metadata_only_attachment_candidates_not_submitted";
   runtimeEvidenceCandidateCount: number;
@@ -2203,6 +2205,13 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     { trigger: "breathing_effort_acknowledged", emotion: stepEmotionStateFromCaseMachine({ initialEmotion: "frightened", escalationTriggers: ["ignored_breathing", "rapid_questioning"], deescalationTriggers: ["breathing_effort_acknowledged", "simple_next_step"] }, "frightened", "breathing_effort_acknowledged"), cue: "empathy_statement" }
   ] : null;
 
+  const pedsPlayerLoopStep = scenarioId === "peds_asthma_parent_anxiety_v1" && pedsPlayerStepLoopDemo ? {
+    totalSteps: pedsPlayerStepLoopDemo.length,
+    currentAfterStep0: pedsPlayerStepLoopDemo[0],
+    currentAfterStep1: pedsPlayerStepLoopDemo[1] || pedsPlayerStepLoopDemo[0],
+    source: "case-derived-loop-step" as const
+  } : null;
+
   const attachmentCandidates = [
     ...buildRuntimeEvidenceAttachmentCandidates({ input, scenarioId, attachedAt }),
     ...buildVisualQaEvidenceAttachmentCandidates({ input, scenarioId, attachedAt }),
@@ -2222,6 +2231,7 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     pedsDialogueCueIdsDemo,
     pedsRuntimePlayerDemo,
     pedsPlayerStepLoopDemo,
+    pedsPlayerLoopStep,
     runtimeAssetBundleId,
     status: "metadata_only_attachment_candidates_not_submitted",
     runtimeEvidenceCandidateCount: attachmentCandidates.filter((candidate) => candidate.inputKind === "runtime_realism_signal_input").length,
