@@ -1016,3 +1016,13 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     process.exitCode = 1;
   });
 }
+
+export function buildPersistenceSaveRecordsFromProjection(packet: EncounterRuntimeSelectionReviewPacket | null) {
+  if (!packet?.persistenceProjection) return null;
+  return {
+    actorTurns: packet.persistenceProjection.actorTurns,
+    emotionalStateTimeline: packet.persistenceProjection.emotionalStateTimeline,
+    source: "review-packet-case-derived",
+    scenarioId: packet.selectedScenarioId,
+  };
+}

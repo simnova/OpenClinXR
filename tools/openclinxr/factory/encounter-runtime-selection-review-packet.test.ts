@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import type { EncounterGuardedRuntimeSelectionIntent } from "./encounter-guarded-runtime-selection-intent.js";
 import {
   buildEncounterRuntimeSelectionReviewPacket,
+  buildPersistenceSaveRecordsFromProjection,
   deriveBasicActorTurnExpectationsFromCase,
   deriveDialoguePolicyFromCase,
   deriveEmotionStateMachineFromCase,
@@ -145,6 +146,10 @@ const publicationPayloads = () => ({
 describe("encounter runtime selection review packet", () => {
   it("builds a read-only review packet from guarded runtime selection intent", () => {
     const packet = buildEncounterRuntimeSelectionReviewPacket(selectionIntent(), "2026-05-23T15:00:00.000Z", publicationPayloads());
+    const persistRecords = buildPersistenceSaveRecordsFromProjection(packet);
+    expect(persistRecords).toBeTruthy();
+    expect(persistRecords?.actorTurns).toBeDefined();
+    expect(persistRecords?.emotionalStateTimeline).toBeDefined();
     expect(packet).toMatchObject({
       generatedAt: "2026-05-23T15:00:00.000Z",
       schemaVersion: "openclinxr.encounter-runtime-selection-review-packet.v1",
