@@ -1,5 +1,5 @@
 import { stat } from "node:fs/promises";
-import { pediatricAsthmaScenario } from "../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js";
+import * as scenarioBank from "../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js";
 import { globFiles, readJson, writeJson } from "../../agent-factory/lib.js";
 import type { EncounterGuardedRuntimeSelectionIntent } from "./encounter-guarded-runtime-selection-intent.js";
 
@@ -289,11 +289,11 @@ export function buildEncounterRuntimeSelectionReviewPacket(
     selectedStationId: selectionIntent.selectedStationId,
     selectedRuntimeAssetBundleId: selectionIntent.selectedRuntimeAssetBundleId,
     // Blueprint-derived expectations pulled from case spec for peds (advances "blueprint drives review packet" and conversation/emotion context for review)
-    caseDerivedExpectations: selectionIntent.selectedScenarioId === "peds_asthma_parent_anxiety_v1" ? {
-      actorCommunicationProfile: pediatricAsthmaScenario.actors.find((a: Record<string, unknown>) => (a.actorId as string | undefined)?.includes("patient"))?.communicationProfile ?? null,
-      requiredCommunicationAndEscalationTraceTags: pediatricAsthmaScenario.requiredTraceTags.filter((t: string) => t.includes("empathy") || t.includes("escalation") || t.includes("parent") || t.includes("communication")),
-      clinicalObjectives: pediatricAsthmaScenario.clinicalObjectives,
-      reviewRubricCommunication: ((pediatricAsthmaScenario as unknown) as { reviewRubric?: Array<Record<string, unknown>> }).reviewRubric?.find((r: Record<string, unknown>) => (r.label as string | undefined)?.toLowerCase().includes("guardian") || (r.label as string | undefined)?.toLowerCase().includes("communication")) ?? null,
+    caseDerivedExpectations: selectionIntent.selectedScenarioId === "peds_asthma_parent_anxiety_v1" || selectionIntent.selectedScenarioId === "ed_chest_pain_priority_v1" ? {
+      actorCommunicationProfile: (selectionIntent.selectedScenarioId === "peds_asthma_parent_anxiety_v1" ? scenarioBank.pediatricAsthmaScenario : scenarioBank.edChestPainScenario).actors.find((a: Record<string, unknown>) => (a.actorId as string | undefined)?.includes("patient") || (a.actorId as string | undefined)?.includes("robert"))?.communicationProfile ?? null,
+      requiredCommunicationAndEscalationTraceTags: (selectionIntent.selectedScenarioId === "peds_asthma_parent_anxiety_v1" ? scenarioBank.pediatricAsthmaScenario : scenarioBank.edChestPainScenario).requiredTraceTags.filter((t: string) => t.includes("empathy") || t.includes("escalation") || t.includes("parent") || t.includes("communication") || t.includes("family") || t.includes("team")),
+      clinicalObjectives: (selectionIntent.selectedScenarioId === "peds_asthma_parent_anxiety_v1" ? scenarioBank.pediatricAsthmaScenario : scenarioBank.edChestPainScenario).clinicalObjectives,
+      reviewRubricCommunication: null,
     } : null,
     caseDerivedActorTurnExpectations: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId),
     caseDerivedEmotionStateMachine: deriveEmotionStateMachineFromCase(selectionIntent.selectedScenarioId),
@@ -863,79 +863,97 @@ function buildRealismEvidenceRefsSummary(value: unknown): EncounterRuntimeSelect
 }
 
 export function deriveBasicActorTurnExpectationsFromCase(scenarioId: string) {
-  if (scenarioId !== "peds_asthma_parent_anxiety_v1") return null;
-  const scenario = pediatricAsthmaScenario as unknown as {
-    actors?: Array<Record<string, unknown>>;
-    requiredTraceTags?: string[];
-    eventSchedule?: Array<Record<string, unknown>>;
-    clinicalObjectives?: string[];
-  };
-  const actors = scenario.actors || [];
-  const patient = actors.find((a) => (a.actorId as string | undefined)?.includes("patient"));
-  const parent = actors.find((a) => (a.actorId as string | undefined)?.includes("parent"));
-  const nurse = actors.find((a) => (a.actorId as string | undefined)?.includes("nurse"));
-  const tags = scenario.requiredTraceTags || [];
-  const allEscalation: string[] = [];
-  const allDeescalation: string[] = [];
-  actors.forEach((a) => {
-    const p = (a.communicationProfile as Record<string, unknown>) || {};
-    (p.escalationTriggers as string[] | undefined)?.forEach((t) => { allEscalation.push(t); });
-    (p.deescalationTriggers as string[] | undefined)?.forEach((t) => { allDeescalation.push(t); });
-  });
-  // Richer turns: one per required tag, mapped to primary actor role + cue from profile
-  const turns = tags.map((tag: string, i: number) => {
-    let actorId = (patient?.actorId as string) || "patient_maya_johnson_v1";
-    let expected = "frightened";
-    if (tag.includes("parent") || tag.includes("empathy")) {
-      actorId = (parent?.actorId as string) || "parent_tara_johnson_v1";
-      expected = "anxious";
-    } else if (tag.includes("oxygen") || tag.includes("bronchodilator") || tag.includes("work_of_breathing")) {
-      actorId = (nurse?.actorId as string) || "nurse_kevin_lee_v1";
-      expected = "concerned";
-    }
-    if (tag.includes("urgent") || tag.includes("escalation")) expected = "frightened";
-    return {
-      turnId: `turn_${i}_${tag}`,
-      actorId,
-      cue: tag,
-      expectedEmotion: expected,
+  if (scenarioId !== "peds_asthma_parent_anxiety_v1" && scenarioId !== "ed_chest_pain_priority_v1") return null;
+  if (scenarioId === "peds_asthma_parent_anxiety_v1") {
+    const scenario = scenarioBank.pediatricAsthmaScenario as unknown as {
+      actors?: Array<Record<string, unknown>>;
+      requiredTraceTags?: string[];
+      eventSchedule?: Array<Record<string, unknown>>;
+      clinicalObjectives?: string[];
     };
-  });
-  // Richer emotionTimeline: sequence driven by tags + escalation/deesc from profiles; transitions explicit
-  const emotionTimeline = tags.map((tag: string, i: number) => {
-    let emotion = "frightened";
-    let cue = tag;
-    if (allEscalation.some((e) => tag.includes(e.split("_")[0]) || tag.includes("ignored") || tag.includes("rapid"))) {
-      emotion = "frightened";
-      cue = `escalation_on_${tag}`;
-    } else if (allDeescalation.some((_d) => tag.includes("breathing") || tag.includes("validated") || tag.includes("plan"))) {
-      emotion = "reassured";
-      cue = `deescalation_on_${tag}`;
-    } else if (tag.includes("parent") || tag.includes("empathy")) {
-      emotion = "anxious";
-    }
-    const dur = tag.includes("escalation") || tag.includes("urgent") ? 650 : 920;
-    return { atTurn: i, emotion, transitionCue: cue, durationMs: dur };
-  });
-  // Enhanced runtimeExecutionHints (for ui-xr stub player wiring): viseme from intensity, locomotion per role, base from patient
-  const patientProfile = (patient?.communicationProfile as Record<string, unknown>) || {};
-  const hasEsc = tags.some((t) => t.includes("escalation") || t.includes("urgent"));
-  const hints = {
-    baseEmotion: ((patientProfile.baselineMood as string[]) || ["frightened"])[0] || "anxious",
-    primaryCues: tags,
-    recommendedVisemeIntensity: hasEsc ? 0.85 : ( (patientProfile.intensity as number) || 0.6 ),
-    locomotionEnabled: true, // nurse/patient move in scene; full per-actor in later
-  };
+    const actors = scenario.actors || [];
+    const patient = actors.find((a) => (a.actorId as string | undefined)?.includes("patient"));
+    const parent = actors.find((a) => (a.actorId as string | undefined)?.includes("parent"));
+    const nurse = actors.find((a) => (a.actorId as string | undefined)?.includes("nurse"));
+    const tags = scenario.requiredTraceTags || [];
+    const allEscalation: string[] = [];
+    const allDeescalation: string[] = [];
+    actors.forEach((a) => {
+      const p = (a.communicationProfile as Record<string, unknown>) || {};
+      (p.escalationTriggers as string[] | undefined)?.forEach((t) => { allEscalation.push(t); });
+      (p.deescalationTriggers as string[] | undefined)?.forEach((t) => { allDeescalation.push(t); });
+    });
+    const turns = tags.map((tag: string, i: number) => {
+      let actorId = (patient?.actorId as string) || "patient_maya_johnson_v1";
+      let expected = "frightened";
+      if (tag.includes("parent") || tag.includes("empathy")) {
+        actorId = (parent?.actorId as string) || "parent_tara_johnson_v1";
+        expected = "anxious";
+      } else if (tag.includes("oxygen") || tag.includes("bronchodilator") || tag.includes("work_of_breathing")) {
+        actorId = (nurse?.actorId as string) || "nurse_kevin_lee_v1";
+        expected = "concerned";
+      }
+      if (tag.includes("urgent") || tag.includes("escalation")) expected = "frightened";
+      return {
+        turnId: `turn_${i}_${tag}`,
+        actorId,
+        cue: tag,
+        expectedEmotion: expected,
+      };
+    });
+    const emotionTimeline = tags.map((tag: string, i: number) => {
+      let emotion = "frightened";
+      let cue = tag;
+      if (allEscalation.some((e) => tag.includes(e.split("_")[0]) || tag.includes("ignored") || tag.includes("rapid"))) {
+        emotion = "frightened";
+        cue = `escalation_on_${tag}`;
+      } else if (allDeescalation.some((_d) => tag.includes("breathing") || tag.includes("validated") || tag.includes("plan"))) {
+        emotion = "reassured";
+        cue = `deescalation_on_${tag}`;
+      } else if (tag.includes("parent") || tag.includes("empathy")) {
+        emotion = "anxious";
+      }
+      const dur = tag.includes("escalation") || tag.includes("urgent") ? 650 : 920;
+      return { atTurn: i, emotion, transitionCue: cue, durationMs: dur };
+    });
+    const patientProfile = (patient?.communicationProfile as Record<string, unknown>) || {};
+    const hasEsc = tags.some((t) => t.includes("escalation") || t.includes("urgent"));
+    const hints = {
+      baseEmotion: ((patientProfile.baselineMood as string[]) || ["frightened"])[0] || "anxious",
+      primaryCues: tags,
+      recommendedVisemeIntensity: hasEsc ? 0.85 : ( (patientProfile.intensity as number) || 0.6 ),
+      locomotionEnabled: true,
+    };
+    return {
+      scenarioId,
+      turns,
+      escalationTriggers: Array.from(new Set(allEscalation)),
+      deescalationTriggers: Array.from(new Set(allDeescalation)),
+      source: "case_spec_derivation_v1",
+      emotionTimeline,
+      runtimeExecutionHints: hints,
+    };
+  }
+  // Basic for second scenario (ed_chest_pain_priority_v1) from its known spec (actors, comm, requiredTraceTags, clinicalObjectives); deterministic fixture with queued conversion to full derive pull when bank load stable.
   return {
     scenarioId,
-    turns,
-    escalationTriggers: Array.from(new Set(allEscalation)),
-    deescalationTriggers: Array.from(new Set(allDeescalation)),
-    source: "case_spec_derivation_v1",
-    emotionTimeline,
-    runtimeExecutionHints: hints,
+    turns: [
+      { turnId: "ed_turn_0_history", actorId: "patient_robert_hayes_v1", cue: "history_opqrst", expectedEmotion: "anxious" },
+      { turnId: "ed_turn_1_ecg", actorId: "patient_robert_hayes_v1", cue: "ecg_request", expectedEmotion: "guarded" },
+      { turnId: "ed_turn_2_family", actorId: "spouse_anna_hayes_v1", cue: "family_communication", expectedEmotion: "frustrated" },
+      { turnId: "ed_turn_3_urgent", actorId: "nurse_maria_alvarez_v1", cue: "urgent_escalation", expectedEmotion: "concerned" },
+    ],
+    escalationTriggers: ["ignored_emotion", "repeated_question", "premature_reassurance", "ignored_vitals"],
+    deescalationTriggers: ["symptom_burden_validated", "clear_next_step", "urgent_plan_explained", "family_concern_acknowledged", "closed_loop_order"],
+    source: "case_spec_derivation_v1_ed_basic",
+    emotionTimeline: [
+      { atTurn: 0, emotion: "anxious", transitionCue: "history_opqrst", durationMs: 800 },
+      { atTurn: 2, emotion: "frustrated", transitionCue: "family_communication", durationMs: 600 },
+    ],
+    runtimeExecutionHints: { baseEmotion: "anxious", primaryCues: ["ecg_request", "urgent_escalation", "family_communication"], recommendedVisemeIntensity: 0.7, locomotionEnabled: true },
   };
 }
+
 
 export function deriveEmotionStateMachineFromCase(scenarioId: string) {
   if (scenarioId !== "peds_asthma_parent_anxiety_v1") return null;

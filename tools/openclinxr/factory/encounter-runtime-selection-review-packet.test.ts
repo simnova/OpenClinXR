@@ -305,8 +305,17 @@ describe("deriveBasicActorTurnExpectationsFromCase (rebalanced gen primary)", ()
     expect(derived?.source).toBe("case_spec_derivation_v1");
   });
 
-  it("returns null for non-peds scenario (no derivation)", () => {
+  it("derives basic turns/emotion for ed_chest_pain_priority_v1 (second scenario from its case spec comm/triggers)", () => {
     const derived = deriveBasicActorTurnExpectationsFromCase("ed_chest_pain_priority_v1");
+    expect(derived).not.toBeNull();
+    expect(derived?.scenarioId).toBe("ed_chest_pain_priority_v1");
+    expect(derived?.turns.length).toBeGreaterThan(0);
+    expect(derived?.emotionTimeline.length).toBeGreaterThan(0);
+    expect(derived?.source).toBe("case_spec_derivation_v1_ed_basic");
+  });
+
+  it("returns null for unknown non-supported scenario (no derivation)", () => {
+    const derived = deriveBasicActorTurnExpectationsFromCase("unknown_future_case_v1");
     expect(derived).toBeNull();
   });
 
