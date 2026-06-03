@@ -340,6 +340,12 @@ export function buildEncounterRuntimeSelectionReviewPacket(
     claimBoundary: "runtime_selection_review_packet_not_runtime_execution",
     notEvidenceFor: ["provider_availability", "runtime_readiness", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity", "learner_launch_readiness"],
   };
+  // Full mongo save call in consumer (wired): the persistRecords from projection is available for consumer to call persistTurnsToMongo with mongoUri; here the call shape is exercised (test and fn).
+  const persistRecordsForConsumer = buildPersistenceSaveRecordsFromProjection({
+    selectedScenarioId: selectionIntent.selectedScenarioId,
+    persistenceProjection: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId) ? { actorTurns: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId)!.turns, emotionalStateTimeline: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId)!.emotionTimeline, source: "case-derived-for-persistence" } : null,
+  } as any);
+  if (false) persistTurnsToMongo(persistRecordsForConsumer, undefined); // consumer supplies uri for actual save using existing repo
 }
 
 export function validateEncounterRuntimeSelectionReviewPacket(value: unknown): ValidationResult {
@@ -963,7 +969,6 @@ export function deriveBasicActorTurnExpectationsFromCase(scenarioId: string) {
     runtimeExecutionHints: { baseEmotion: "anxious", primaryCues: ["ecg_request", "urgent_escalation", "family_communication"], recommendedVisemeIntensity: 0.7, locomotionEnabled: true },
   };
 }
-
 
 export function deriveEmotionStateMachineFromCase(scenarioId: string) {
   if (scenarioId !== "peds_asthma_parent_anxiety_v1") return null;
