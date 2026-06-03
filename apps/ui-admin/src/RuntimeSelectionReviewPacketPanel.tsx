@@ -454,6 +454,12 @@ export function RuntimeSelectionReviewPacketPanel({
               label="animation evidence requirements"
               detail={`animation ${packet.publicationPayloadLinkage.assetNeedsReadiness.animationRequirementCount}; emotion ${packet.publicationPayloadLinkage.assetNeedsReadiness.emotionRequirementCount}; gaze ${packet.publicationPayloadLinkage.assetNeedsReadiness.gazeRequirementCount}; lip-sync ${packet.publicationPayloadLinkage.assetNeedsReadiness.lipSyncRequirementCount}`}
             />
+            {packet.pedsActiveEmotionDemo ? (
+              <RuntimeSelectionMetric label="peds active emotion demo (from case machine)" detail={packet.pedsActiveEmotionDemo} />
+            ) : null}
+            {packet.pedsDialogueCueIdsDemo ? (
+              <RuntimeSelectionMetric label="peds dialogue cue ids demo (from case policy)" detail={packet.pedsDialogueCueIdsDemo.join(", ")} />
+            ) : null}
             {packet.publicationPayloadLinkage.realismEvidenceRefs ? (
               <RuntimeSelectionMetric
                 label="realism evidence refs"

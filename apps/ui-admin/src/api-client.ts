@@ -879,6 +879,8 @@ export type AdminRuntimeSelectionReviewPacket = {
   nextAllowedStep: "review_disabled_runtime_selector_before_guarded_wiring" | "review_publication_materialization_blockers_before_guarded_wiring";
   claimBoundary: "runtime_selection_review_packet_not_runtime_execution";
   notEvidenceFor: AdminNoReadinessEvidenceClaim[];
+  pedsActiveEmotionDemo?: string | null;
+  pedsDialogueCueIdsDemo?: string[] | null;
 };
 
 export type AdminScenarioBankMaturityReport = {
