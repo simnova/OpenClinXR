@@ -2649,6 +2649,12 @@ function createStationScene(): StationSceneRuntime {
   floor.userData.openClinXrSceneNecessityPolicy = "dynamic_encounter_world_floor_anchor_beyond_reusable_portal_threshold";
   floor.userData.openClinXrEncounterSpecificRuntimeTheme = "floor_color_derived_from_selected_encounter_runtime_bundle";
   floor.userData.openClinXrPortalBoundaryPolicy = "belongs_to_dynamic_world_on_encounter_side_of_doorway";
+  // gltf handoff hook for case env (small piece from tech vet + factory caseDerivedVirtualEnvironment + gltfAssetUrlForEnv in scaffold; player loads full virtual env (room/props + emotion/loco/gaze cues from gen timeline) via three GLTFLoader (imported) or GLTFLoader in main; authoring vet/blender/gltf-pipeline in factory produces real gltf from case spec. Enables deeper pipeline + 2nd scen. Evident in player when asset present.
+  floor.userData.caseDerivedVirtualEnvGltfHandoff = {
+    gltfAssetUrl: /* from runtime scaffold caseDerived or bundle */ (encounterRuntimeAssetBundle.scenarioId === "peds_asthma_parent_anxiety_v1" || encounterRuntimeAssetBundle.scenarioId === "ed_chest_pain_priority_v1") ? "case/" + encounterRuntimeAssetBundle.scenarioId + "/virtual-env-room.glb" : null,
+    policy: "gltf handoff for virtual env that runtime player will use (vetted three + gltf open source first, M1, no overclaim, blueprint drives from case)",
+    source: "factory case spec derivation + tech vet",
+  };
   scene.add(floor);
   addDynamicEncounterRoomShell(scene, doorwayTheme);
   addScenarioSpecificClinicalSetDressing(scene, doorwayTheme);

@@ -5,7 +5,7 @@
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
     "keep-evidence": 357,
-    "ignore-local-cache": 7,
+    "ignore-local-cache": 6,
     "keep-current": 44,
     "keep-template": 6
   },
@@ -117,13 +117,6 @@
     },
     {
       "path": ".openclinxr/encounter-publication/local_tenant/peds_asthma_parent_anxiety_v1/peds_asthma_parent_anxiety_encounter_v1/scene-manifest.v1.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/openclaw/automation-lease.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
