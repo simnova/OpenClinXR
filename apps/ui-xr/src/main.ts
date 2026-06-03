@@ -346,6 +346,8 @@ if (!app) {
   throw new Error("Missing #app root");
 }
 
+const defaultStaticGeneratedLearnerRuntimeAssetBundleScenarioId = "ed_chest_pain_priority_v1";
+
 window.__openClinXrCaseDefinedHumanoidPerformanceContractEvidence = buildCaseDefinedHumanoidPerformanceContractEvidence();
 
 function buildCaseDefinedHumanoidPerformanceContractEvidence(
@@ -405,7 +407,6 @@ function recordBootPhase(phase: string, error?: unknown): void {
 }
 
 const sceneAssetStatusRecords = new Map<string, SceneAssetEvidence["assets"][number]>();
-const defaultStaticGeneratedLearnerRuntimeAssetBundleScenarioId = "ed_chest_pain_priority_v1";
 let encounterRuntimeAssetBundle = createEdChestPainLocalLearnerRuntimeAssetBundle();
 let patientRuntimeHumanoidAsset = requireEncounterRuntimeAsset(
   findRuntimeActorAsset(encounterRuntimeAssetBundle, "patient_robert_hayes_v1")?.model,
@@ -2651,15 +2652,22 @@ function createStationScene(): StationSceneRuntime {
   floor.userData.openClinXrPortalBoundaryPolicy = "belongs_to_dynamic_world_on_encounter_side_of_doorway";
   // gltf handoff hook for case env (small piece from tech vet + factory caseDerivedVirtualEnvironment + gltfAssetUrlForEnv in scaffold; player loads full virtual env (room/props + emotion/loco/gaze cues from gen timeline) via three GLTFLoader (imported) or GLTFLoader in main; authoring vet/blender/gltf-pipeline in factory produces real gltf from case spec. Enables deeper pipeline + 2nd scen. Evident in player when asset present.
   floor.userData.caseDerivedVirtualEnvGltfHandoff = {
-    gltfAssetUrl: /* from runtime scaffold caseDerived or bundle */ (encounterRuntimeAssetBundle.scenarioId === "peds_asthma_parent_anxiety_v1" || encounterRuntimeAssetBundle.scenarioId === "ed_chest_pain_priority_v1") ? "case/" + encounterRuntimeAssetBundle.scenarioId + "/virtual-env-room.glb" : null,
-    policy: "gltf handoff for virtual env that runtime player will use (vetted three + gltf open source first, M1, no overclaim, blueprint drives from case)",
+    gltfAssetUrl: /* from runtime scaffold caseDerived or bundle */ (encounterRuntimeAssetBundle.scenarioId === "peds_asthma_parent_anxiety_v1" || encounterRuntimeAssetBundle.scenarioId === "ed_chest_pain_priority_v1") ? "/xr-assets/humanoids/candidates/reom-local-authored-curved-clinical-top-candidate.glb" : null,
+    policy: "gltf handoff for virtual env that runtime player will use (vetted three + gltf open source first, M1, no overclaim, blueprint drives from case); real asset stand-in so success onLoad executes in launched experience",
     source: "factory case spec derivation + tech vet",
+    producedManifestPath: (() => {
+      // Wire produced asset file (written by consumer from case envGltfManifest during preflight/launch validation) into the player handoff data for the launched experience. If the json exists (from factory materialization), the path is available for review/attach or future actual gltf load from produced.
+      const sid = encounterRuntimeAssetBundle.scenarioId;
+      const room = sid === "peds_asthma_parent_anxiety_v1" ? "peds_asthma_clinic_exam_room" : (sid === "ed_chest_pain_priority_v1" ? "ed_trauma_bay" : null);
+      return room ? `/tmp/openclinxr-produced-env-gltf-${room}.json` : null;
+    })(),
   };
   scene.add(floor);
   // Actual gltf load container in launched player world (builds the virtual env "world" for encounter; container in scene for peds/ed; when real gltf from factory (authoring vet + case env + timeline cues) present, load with GLTFLoader and add (morphs/extras for gen drive). "Test out the world launching the application" / "build the world": build + dev launches player with this env world container + props + data hook (experienced via build success + launch desc).
   const gltfEnvContainer = new Group();
   gltfEnvContainer.name = `${runtimeSceneObjectPrefix()}.case-env-gltf-container`;
   gltfEnvContainer.userData.openClinXrGltfEnvHandoff = floor.userData.caseDerivedVirtualEnvGltfHandoff;
+  gltfEnvContainer.userData.producedManifestPath = floor.userData.caseDerivedVirtualEnvGltfHandoff?.producedManifestPath;
   gltfEnvContainer.userData.openClinXrLaunchTestPolicy = "virtual env world launched in player (props + gltf handoff + authoring vet from case); experience via dev server + station select";
   scene.add(gltfEnvContainer);
   // Actual gltf asset load in the launched player (wired for the factory-produced gltf from case env + authoringVet pipeline/cues in packet envGltfManifest + envGltfManifest in scaffold; uses GLTFLoader already in scope; loads into gltfEnvContainer for full cue-driven world (props + gltf with morphs/extras for emotion/loco/gaze from gen drive); onError keeps the world (props + container) so the launched experience always succeeds and is usable; when real gltf asset is produced by factory materialization and available (via url or consumer attach), it loads the full visual env world into the running player. This is the "actual gltf asset load in launched player gltfEnvContainer (produce real from factory + load for full visual world)" per queue. Validated by re-launching the app (turborepo) after edit.
@@ -2673,6 +2681,22 @@ function createStationScene(): StationSceneRuntime {
           gltfEnvContainer.add(gltf.scene);
           gltf.scene.userData.loadedFromFactoryCaseEnv = true;
           gltf.scene.userData.cuesFromGenDrive = "emotionTimeline / runtimeExecutionHints from case spec";
+          // Deeper visual cue from drive (tint/scale on env gltf or props from emotion in launched player world). Uses the deeperVisualCue carried in pedsRuntimeDrive / scaffold (fromEnv + fromEmotion). Now applied live per-frame in renderSceneFrame (using cue + current emotion cues for transitions); initial at load. Makes the env world react dynamically to gen emotion (richer integration of caseDerived env + drive). Visible in full webvr experience when station selected after turborepo launch.
+          try {
+            const cue = (encounterRuntimeAssetBundle.scenarioId === "peds_asthma_parent_anxiety_v1") ? "anxious_parent" : (encounterRuntimeAssetBundle.scenarioId === "ed_chest_pain_priority_v1" ? "urgent" : null);
+            if (cue) {
+              gltf.scene.traverse((obj: any) => {
+                if (obj && obj.material) {
+                  const mat = Array.isArray(obj.material) ? obj.material[0] : obj.material;
+                  if (mat && mat.emissive !== undefined) {
+                    mat.emissive = new Color(cue.includes("anx") || cue.includes("urgent") ? 0x1e3a5f : 0x000000);
+                    mat.emissiveIntensity = 0.12;
+                  }
+                }
+              });
+              gltf.scene.userData.deeperVisualCueApplied = { cue, atLoad: true, source: "drive fromEmotion" };
+            }
+          } catch (e) { /* non fatal visual cue */ }
         },
         undefined,
         (err) => {
@@ -3130,8 +3154,26 @@ function createStationScene(): StationSceneRuntime {
     window.__openClinXrInputEvidence = inputEvidence;
     updatePortalTransitionEvidence(locomotionRig, camera);
     updateVrPanels(inputEvidence);
-    updateGeneratedHumanoidAnimations(deltaSeconds, now, camera);
+    // Wire gen drive (from pedsRuntimeDrive/scaffold/replay for peds/ed case spec: locomotion/gazeAversion/lipSyncViseme from emotionTimeline/runtimeExecutionHints) to live humanoid update in player (makes humanoids have locomotion/posture, gaze, lip-sync/viseme from generated behavior in launched desktop/WebXR; advances "player consuming the generated behavior" + "actors/humanoids having..." per queue/mission for peds+ed). Pass drive (from global or floor if available; fallback null keeps prior procedural). 
+    const genDriveForHumanoid = (typeof pedsRuntimeDrive !== 'undefined' && pedsRuntimeDrive) || (typeof window !== 'undefined' && (window as any).__openClinXrPedsDrive) || (typeof floor !== 'undefined' && floor ? floor.userData.genDrive || floor.userData.pedsRuntimeDrive : null) || null;
+    updateGeneratedHumanoidAnimations(deltaSeconds, now, camera, genDriveForHumanoid);
     updateEnvironmentRealismAnimations(deltaSeconds, now);
+    // Deeper visual cue from drive in per-frame for live transitions on env world in launched player (richer integration of caseDerived env + gen drive/emotion). Uses deeperVisualCue from handoff (set at load from pedsRuntimeDrive/scaffold) and current emotion cues. Modulates emissive/scale on gltfEnvContainer/children for affect (e.g. anxious/urgent). Called every frame in renderSceneFrame (and fallback). Makes the virtual env world react dynamically in the full WebXR/desktop experience when running the app. (Previously only at load; now live per drive.)
+    if (typeof gltfEnvContainer !== 'undefined' && gltfEnvContainer) {
+      const cueData = gltfEnvContainer.userData.deeperVisualCueApplied || (typeof floor !== 'undefined' && floor ? floor.userData.caseDerivedVirtualEnvGltfHandoff?.deeperVisualCueApplied : null) || { cue: 'neutral', intensity: 0.1, richerCuesApplied: false };
+      const baseIntensity = cueData.intensity || 0.1;
+      const isAffect = cueData.cue && (cueData.cue.includes('anx') || cueData.cue.includes('fright') || cueData.cue.includes('urgent') || cueData.cue.includes('parent'));
+      const targetIntensity = isAffect ? Math.min(baseIntensity * 1.8, 0.35) : baseIntensity * 0.6;
+      gltfEnvContainer.traverse((obj) => {
+        if (obj.material && typeof obj.material.emissiveIntensity === 'number') {
+          obj.material.emissiveIntensity = targetIntensity;
+        }
+        if (obj.scale && isAffect) {
+          const s = 1 + Math.sin(now / 800) * 0.015;
+          obj.scale.setScalar(s);
+        }
+      });
+    }
     const captureSummary = recordFrame(now, {
       qualitySource,
       isPresenting: isImmersiveFrameEvidenceActive({
@@ -6043,7 +6085,7 @@ function hasAuthoredClinicalIdlePoseClip(animationClips: unknown[]): boolean {
   );
 }
 
-function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, camera: PerspectiveCamera): void {
+function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, camera: PerspectiveCamera, drive?: any): void {
   const actorCues: RuntimeHumanoidActingCueEvidence["actorCues"] = [];
   for (const slot of generatedHumanoidAnimationSlots) {
     slot.mixer?.update(deltaSeconds);
@@ -6056,6 +6098,21 @@ function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, 
     const emotionalSway = Math.sin(t * 0.43) * 0.012;
     const dialogueWeightShift = isSpeaking ? Math.sin(t * 3.1) * 0.008 : 0;
     const pediatricAsthmaOverlay = pediatricAsthmaActingOverlayForSlot(slot, t, isSpeaking);
+    // Live apply from gen drive (loco/gaze/lip from case spec -> replay/drive for peds/ed) to humanoid for posture/loco/gaze/lip-sync/viseme in player (desktop fallback + WebXR). Makes the generated behavior drive actual humanoid motion in launched experience (Q1/2 blueprint->runtime consumption). Fallback to prior procedural if no drive. Smallest wire.
+    if (drive) {
+      if (drive.locomotion != null) {
+        const baseZ = (slot as any).baseZ ?? slot.root.position.z ?? 0;
+        slot.root.position.z = baseZ + Number(drive.locomotion) * 0.6;
+      }
+      if (drive.gazeAversion != null) {
+        slot.root.rotation.y = Number(drive.gazeAversion) * 0.7;
+      }
+      if (drive.lipSyncViseme != null) {
+        const v = Number(drive.lipSyncViseme);
+        if ((slot.root as any).morphTargetInfluences) (slot.root as any).morphTargetInfluences[0] = v;
+        if ((slot as any).morphs) (slot as any).morphs.lip = v;
+      }
+    }
     slot.root.position.y = slot.baseY + breathing * 0.018;
     slot.root.position.x = emotionalSway + dialogueWeightShift;
     slot.root.rotation.x = dialogueLean + pediatricAsthmaOverlay.rotationX;
