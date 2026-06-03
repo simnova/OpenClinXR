@@ -482,7 +482,9 @@ function summarizePedsGeneratedPlayerAndEmotion(readiness: ScenarioSceneGenerati
   const emotionReq = (readiness as any).assetNeedsReadiness?.emotionRequirementCount ?? (readiness as any).packets?.[0]?.assetNeedsReadiness?.emotionRequirementCount;
   const player = scaffold?.pedsRuntimePlayerDemo;
   if (player) {
-    return `Peds generated player (from case spec machines/policies): emotion ${player.currentEmotion} nextCue ${player.nextCueId} source ${player.source} visemeHint ${player.visemeHint}; materialization emotion req count ${emotionReq ?? "n/a"}; (review-safe metadata only, gates false, no readiness claim)`;
+    const loop = scaffold?.pedsPlayerStepLoopDemo;
+    const loopSummary = loop ? `; stepLoop ${loop.length} steps (first: ${loop[0]?.trigger} -> ${loop[0]?.emotion}/${loop[0]?.cue})` : "";
+    return `Peds generated player (from case spec machines/policies): emotion ${player.currentEmotion} nextCue ${player.nextCueId} source ${player.source} visemeHint ${player.visemeHint}${loopSummary}; materialization emotion req count ${emotionReq ?? "n/a"}; (review-safe metadata only, gates false, no readiness claim)`;
   }
   if (emotionReq != null) {
     return `Peds materialization emotion req from active case cues: ${emotionReq}; (player demo not attached for this packet)`;
