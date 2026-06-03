@@ -137,6 +137,13 @@ export type UiXrRuntimeEvidenceConsumerPreflightReport = {
   operatorSelectableAttachmentCount: number;
   operatorSelectionSupport: 'subset-via-count';
   blockerIds: string[];
+  envWorldAsset?: {
+    roomType: string;
+    gltfAssetUrl: string | null;
+    attachableViaConsumer: true;
+    operatorSelectable: true;
+    source: string;
+  } | null;
   nextActions: string[];
   rawPayloadDisplayed: false;
   providerExecutionAllowed: false;
@@ -298,12 +305,20 @@ export function buildUiXrRuntimeEvidenceConsumerPreflightReport(input: {
       claimBoundary: "ui_xr_consumer_preflight_submit_preview_metadata_only",
     },
     blockerIds,
+    envWorldAsset: scaffold?.caseDerivedVirtualEnvironment ? {
+      roomType: scaffold.caseDerivedVirtualEnvironment.roomType,
+      gltfAssetUrl: (scaffold as any).gltfAssetUrlForEnv ?? null,
+      attachableViaConsumer: true,
+      operatorSelectable: true,
+      source: "caseDerivedVirtualEnvironment_from_launched_player_world",
+    } : null,
     nextActions: blockerIds.length === 0
       ? [
         `operator-select and submit up to ${attachmentCount} metadata-only UI-XR refs via guarded route (use operatorSelectableAttachmentCount)`,
         "confirm Admin replay projection shows raw payload hidden and all readiness gates false",
         "keep runtime, learner, Quest, production, clinical, and scoring gates blocked until real runtime and visual-QA evidence clears review",
-      ]
+        scaffold?.caseDerivedVirtualEnvironment ? `operator-select the launched virtual env world (${scaffold.caseDerivedVirtualEnvironment.roomType} + gltf) for guarded attach via consumer (review-safe metadata for the real scene validated in running player)` : undefined,
+      ].filter(Boolean) as string[]
       : [
         "repair the copied UI-XR manual performance payload before attachment submission",
         "rerun UI-XR runtime evidence consumer preflight before writing a consumer artifact",
