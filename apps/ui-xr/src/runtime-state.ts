@@ -709,7 +709,7 @@ export type RuntimeVisualEvidenceCaptureScaffold = {
   pedsReplayEvidence?: { scenarioId: string; turnsReplayed: number; finalEmotion: string | null; finalCue: string | null; locomotion: boolean; gazeAversion: string; lipSyncViseme: string; source: "case-derived-player-loop-replay" } | null;
   edReplayEvidence?: { scenarioId: string; turnsReplayed: number; finalEmotion: string | null; finalCue: string | null; locomotion: boolean; gazeAversion: string; lipSyncViseme: string; source: "case-derived-player-loop-replay" } | null;
   // Wired replay to runtime behavior (drive fields from replay for e2e player consumption; for peds+ed caseDerived).
-  pedsRuntimeDrive?: { currentEmotion: string | null; currentCue: string | null; locomotion: boolean; gaze: string; lipSync: string; source: "case-derived-replay-drive" } | null;
+  pedsRuntimeDrive?: { currentEmotion: string | null; currentCue: string | null; locomotion: boolean; gaze: string; lipSync: string; virtualEnv: string | null; source: "case-derived-replay-drive" } | null;
   // Virtual env from factory (user steering: after functional player chunk for conv/emotion, now factory for virtual env pipeline). Small piece of virtual env that runtime player will use (room/props from case, tech vetted Three+GLTF open source). Evident in scaffold data for encounter experience.
   caseDerivedVirtualEnvironment?: {
     scenarioId: string;
@@ -720,6 +720,8 @@ export type RuntimeVisualEvidenceCaptureScaffold = {
   } | null;
   // Visual hint for running player/app (per user: make evident when running the app and usable by end users the virtual env setting for the encounter).
   virtualEnvForPlayer?: string | null;
+  // Small gltf handoff piece (tech vet gltf as interchange for virtual env player will use; factory materialization from case env + cues; loadable via three GLTFLoader in main.ts).
+  gltfAssetUrlForEnv?: string | null;
   runtimeAssetBundleId: string | null;
   status: "metadata_only_attachment_candidates_not_submitted";
   runtimeEvidenceCandidateCount: number;
@@ -2278,6 +2280,8 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
 
   // Visual string for player (makes the virtual env evident in scaffold data when running the app/player; usable for encounter experience).
   const virtualEnvForPlayer = caseDerivedVirtualEnvironment ? `virtual ${caseDerivedVirtualEnvironment.roomType} with ${caseDerivedVirtualEnvironment.props.length} props (runtime tech: ${caseDerivedVirtualEnvironment.techStack.runtime}; vetted: ${caseDerivedVirtualEnvironment.techStack.vetStatus})` : null;
+  // Small gltf handoff piece for case env (from tech vet: gltf as interchange for virtual env player will use; open source gltf-transform/draco in pipeline, blender/gltf authoring; case spec room/props + emotionTimeline cues -> materialization produces gltf with blendshapes/extras for provenance; player loads via three GLTFLoader in main.ts). Stub url for peds/ed to unblock deeper pipeline (factory can attach real from case env desc). Advances "gltf handoff for case env" queued.
+  const gltfAssetUrlForEnv = scenarioId === "peds_asthma_parent_anxiety_v1" ? "case/peds_asthma_parent_anxiety_v1/virtual-env-room.glb" : scenarioId === "ed_chest_pain_priority_v1" ? "case/ed_chest_pain_priority_v1/virtual-env-room.glb" : null;
 
   const attachmentCandidates = [
     ...buildRuntimeEvidenceAttachmentCandidates({ input, scenarioId, attachedAt }),
@@ -2304,6 +2308,7 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     pedsRuntimeDrive,
     caseDerivedVirtualEnvironment,
     virtualEnvForPlayer,
+    gltfAssetUrlForEnv,
     runtimeAssetBundleId,
     status: "metadata_only_attachment_candidates_not_submitted",
     runtimeEvidenceCandidateCount: attachmentCandidates.filter((candidate) => candidate.inputKind === "runtime_realism_signal_input").length,
