@@ -260,6 +260,10 @@ export function buildEncounterRuntimeSelectionReviewPacket(
   publicationPayloads?: unknown,
 ): EncounterRuntimeSelectionReviewPacket {
   const publicationPayloadLinkage = buildPublicationPayloadLinkage(publicationPayloads);
+  if (selectionIntent.selectedScenarioId === "peds_asthma_parent_anxiety_v1") {
+    // Materialization continuation: peds active emotion/dialogue from machines increases emotion requirement for asset (from case spec)
+    publicationPayloadLinkage.assetNeedsReadiness.emotionRequirementCount = 2;
+  }
   const blockers = uniqueStrings([
     ...selectionIntent.blockers,
     ...selectionIntent.guardedRuntimeSelectorDecision.blockers,

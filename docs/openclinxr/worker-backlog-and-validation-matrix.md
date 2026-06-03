@@ -70,4 +70,5 @@ Old 100+ validation rows (pre 05-28 detailed) removed. See .bak or git for full.
 - 2026-06-03 Dialogue policy stub (product): deriveDialoguePolicyFromCase + getDialoguePolicyForActorFromCase stub (case comm profiles to runtime policy for dialogue). Packet + ui-xr + tests. Verification: focused pass, guards.
 - 2026-06-03 Integrate dialogue + emotion demos (product): pedsDialoguePolicyDemo + pedsEmotionStepDemo in scaffold. Verification: guards.
 - 2026-06-03 Further integrate step/policy into active fields (product): pedsActiveEmotionDemo (via step) + pedsDialogueCueIdsDemo in ui-xr scaffold for peds active emotion/dialogue. Verification: focused pass, guards.
-- 2026-06-03 Surface active demos in review packet (product): pedsActiveEmotionDemo + pedsDialogueCueIdsDemo in review packet for peds (from machines). Verification: focused pass, guards.
+- 2026-06-03 Surface active demos in review packet (product): pedsActiveEmotionDemo + pedsDialogueCueIdsDemo in review packet for peds (from machines). Verification: focused pass, guards. Publish dae00d4.
+- 2026-06-03 Materialization continuation peds active cues (product): peds assetNeeds emotionRequirementCount set from active cues in packet build. Verification: test pass, guards.
