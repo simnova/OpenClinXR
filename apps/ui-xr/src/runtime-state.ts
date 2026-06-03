@@ -707,6 +707,8 @@ export type RuntimeVisualEvidenceCaptureScaffold = {
   pedsPlayerLoopStep?: { totalSteps: number; currentAfterStep0: { trigger: string; emotion: string | null; cue: string | null }; currentAfterStep1: { trigger: string; emotion: string | null; cue: string | null }; source: "case-derived-loop-step" } | null;
   // Full e2e replay evidence from generated (consume player loop/persistence for both peds+ed; review-safe trace for admin replay surfaces).
   pedsReplayEvidence?: { scenarioId: string; turnsReplayed: number; finalEmotion: string | null; finalCue: string | null; locomotion: boolean; gazeAversion: string; lipSyncViseme: string; source: "case-derived-player-loop-replay" } | null;
+  // Wired replay to runtime behavior (drive fields from replay for e2e player consumption; for peds+ed caseDerived).
+  pedsRuntimeDrive?: { currentEmotion: string | null; currentCue: string | null; locomotion: boolean; gaze: string; lipSync: string; source: "case-derived-replay-drive" } | null;
   runtimeAssetBundleId: string | null;
   status: "metadata_only_attachment_candidates_not_submitted";
   runtimeEvidenceCandidateCount: number;
@@ -2225,6 +2227,15 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     source: "case-derived-player-loop-replay" as const
   } : null;
 
+  const pedsRuntimeDrive = scenarioId === "peds_asthma_parent_anxiety_v1" && pedsReplayEvidence ? {
+    currentEmotion: pedsReplayEvidence.finalEmotion,
+    currentCue: pedsReplayEvidence.finalCue,
+    locomotion: pedsReplayEvidence.locomotion,
+    gaze: pedsReplayEvidence.gazeAversion,
+    lipSync: pedsReplayEvidence.lipSyncViseme,
+    source: "case-derived-replay-drive" as const
+  } : null;
+
   const attachmentCandidates = [
     ...buildRuntimeEvidenceAttachmentCandidates({ input, scenarioId, attachedAt }),
     ...buildVisualQaEvidenceAttachmentCandidates({ input, scenarioId, attachedAt }),
@@ -2246,6 +2257,7 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     pedsPlayerStepLoopDemo,
     pedsPlayerLoopStep,
     pedsReplayEvidence,
+    pedsRuntimeDrive,
     runtimeAssetBundleId,
     status: "metadata_only_attachment_candidates_not_submitted",
     runtimeEvidenceCandidateCount: attachmentCandidates.filter((candidate) => candidate.inputKind === "runtime_realism_signal_input").length,
