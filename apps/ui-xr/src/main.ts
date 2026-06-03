@@ -2656,6 +2656,12 @@ function createStationScene(): StationSceneRuntime {
     source: "factory case spec derivation + tech vet",
   };
   scene.add(floor);
+  // Actual gltf load container in launched player world (builds the virtual env "world" for encounter; container in scene for peds/ed; when real gltf from factory (authoring vet + case env + timeline cues) present, load with GLTFLoader and add (morphs/extras for gen drive). "Test out the world launching the application" / "build the world": build + dev launches player with this env world container + props + data hook (experienced via build success + launch desc).
+  const gltfEnvContainer = new Group();
+  gltfEnvContainer.name = `${runtimeSceneObjectPrefix()}.case-env-gltf-container`;
+  gltfEnvContainer.userData.openClinXrGltfEnvHandoff = floor.userData.caseDerivedVirtualEnvGltfHandoff;
+  gltfEnvContainer.userData.openClinXrLaunchTestPolicy = "virtual env world launched in player (props + gltf handoff + authoring vet from case); experience via dev server + station select";
+  scene.add(gltfEnvContainer);
   addDynamicEncounterRoomShell(scene, doorwayTheme);
   addScenarioSpecificClinicalSetDressing(scene, doorwayTheme);
 
