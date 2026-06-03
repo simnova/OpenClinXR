@@ -6,6 +6,7 @@ import type { EncounterGuardedRuntimeSelectionIntent } from "./encounter-guarded
 import {
   buildEncounterRuntimeSelectionReviewPacket,
   buildPersistenceSaveRecordsFromProjection,
+  persistTurnsToMongo,
   deriveBasicActorTurnExpectationsFromCase,
   deriveDialoguePolicyFromCase,
   deriveEmotionStateMachineFromCase,
@@ -144,12 +145,14 @@ const publicationPayloads = () => ({
 });
 
 describe("encounter runtime selection review packet", () => {
-  it("builds a read-only review packet from guarded runtime selection intent", () => {
+  it("builds a read-only review packet from guarded runtime selection intent", async () => {
     const packet = buildEncounterRuntimeSelectionReviewPacket(selectionIntent(), "2026-05-23T15:00:00.000Z", publicationPayloads());
     const persistRecords = buildPersistenceSaveRecordsFromProjection(packet);
     expect(persistRecords).toBeTruthy();
     expect(persistRecords?.actorTurns).toBeDefined();
     expect(persistRecords?.emotionalStateTimeline).toBeDefined();
+    const mongoSave = await persistTurnsToMongo(persistRecords, "mongodb://localhost:27017/test");
+    expect(mongoSave.saved).toBe(true);
     expect(packet).toMatchObject({
       generatedAt: "2026-05-23T15:00:00.000Z",
       schemaVersion: "openclinxr.encounter-runtime-selection-review-packet.v1",

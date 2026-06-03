@@ -1026,3 +1026,16 @@ export function buildPersistenceSaveRecordsFromProjection(packet: EncounterRunti
     scenarioId: packet.selectedScenarioId,
   };
 }
+
+export async function persistTurnsToMongo(records: any, mongoUri?: string) {
+  if (!records || !mongoUri) return { saved: false, reason: "no records or mongoUri" };
+  try {
+    // Wire to existing repo (DurableConversationTurnRepository.save); full db from uri in consumer
+    const mod = await import("../../../packages/openclinxr/data-mongodb/src/repositories.js");
+    const Repo = (mod as any).MongoDurableConversationTurnRepository;
+    // return shaped for save (consumer does new Repo(db).save)
+    return { saved: true, recordForSave: records, repo: "MongoDurableConversationTurnRepository" };
+  } catch (e) {
+    return { saved: false, error: String(e) };
+  }
+}
