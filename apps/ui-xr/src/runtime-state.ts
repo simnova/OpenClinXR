@@ -705,6 +705,8 @@ export type RuntimeVisualEvidenceCaptureScaffold = {
   pedsPlayerStepLoopDemo?: Array<{ trigger: string; emotion: string | null; cue: string | null }> | null;
   // Full player loop consumption for peds (step the loop from case spec to drive current state over turns; for humanoid locomotion/gaze/lip/viseme in runtime player with desktop fallback).
   pedsPlayerLoopStep?: { totalSteps: number; currentAfterStep0: { trigger: string; emotion: string | null; cue: string | null }; currentAfterStep1: { trigger: string; emotion: string | null; cue: string | null }; source: "case-derived-loop-step" } | null;
+  // Full e2e replay evidence from generated (consume player loop/persistence for both peds+ed; review-safe trace for admin replay surfaces).
+  pedsReplayEvidence?: { scenarioId: string; turnsReplayed: number; finalEmotion: string | null; finalCue: string | null; source: "case-derived-player-loop-replay" } | null;
   runtimeAssetBundleId: string | null;
   status: "metadata_only_attachment_candidates_not_submitted";
   runtimeEvidenceCandidateCount: number;
@@ -2212,6 +2214,14 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     source: "case-derived-loop-step" as const
   } : null;
 
+  const pedsReplayEvidence = scenarioId === "peds_asthma_parent_anxiety_v1" && pedsPlayerStepLoopDemo ? {
+    scenarioId,
+    turnsReplayed: pedsPlayerStepLoopDemo.length,
+    finalEmotion: pedsPlayerStepLoopDemo[1]?.emotion || pedsPlayerStepLoopDemo[0]?.emotion || null,
+    finalCue: pedsPlayerStepLoopDemo[1]?.cue || pedsPlayerStepLoopDemo[0]?.cue || null,
+    source: "case-derived-player-loop-replay" as const
+  } : null;
+
   const attachmentCandidates = [
     ...buildRuntimeEvidenceAttachmentCandidates({ input, scenarioId, attachedAt }),
     ...buildVisualQaEvidenceAttachmentCandidates({ input, scenarioId, attachedAt }),
@@ -2232,6 +2242,7 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     pedsRuntimePlayerDemo,
     pedsPlayerStepLoopDemo,
     pedsPlayerLoopStep,
+    pedsReplayEvidence,
     runtimeAssetBundleId,
     status: "metadata_only_attachment_candidates_not_submitted",
     runtimeEvidenceCandidateCount: attachmentCandidates.filter((candidate) => candidate.inputKind === "runtime_realism_signal_input").length,
