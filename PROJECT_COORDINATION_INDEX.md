@@ -12,9 +12,9 @@ Recent direction (consumer + meta bloat/docs/validation) was necessary for agent
 
 **Active lanes (from worker matrix, highest value first)**: Worker 9/7/11 runtime visual evidence consumer + preflight/submit-preview + review/replay pipeline (UI-XR + Admin/GraphQL/API); Worker 11/7 materialization evidence attachment continuation and surfaces; Worker 7/8/9 faculty/admin review posture and replay safety; XR trace/locomotion and actor-realism in UI-XR; scenario bank expansion.
 
-**Last slice (one-liner)**: 2026-06-03: further integrate step/policy into active fields (pedsActiveEmotionDemo via step + pedsDialogueCueIdsDemo in scaffold for peds). Builds on prior demos. Guards. See AUTONOMOUS. 
+**Last slice (one-liner)**: 2026-06-03: surface active demos in review packet (pedsActiveEmotionDemo + pedsDialogueCueIdsDemo from machines in packet for peds surfaces). Guards. See AUTONOMOUS. 
 
-**Next queued slice (do this)**: Per rebalance + completed emotion+dialogue machines + active demos integrate (further in scaffold): continue local gen. Next: surface the active demos in review packet surfaces or more runtime builders for peds, or materialization continuation. Record Per-Slice, focused verif, post+guards, pick. (Or pivot per worker if higher value.)
+**Next queued slice (do this)**: Per rebalance + surface active in review packet: continue local gen. Next: materialization continuation or full active in more runtime builders/review for peds. Record Per-Slice, focused verif, post+guards, pick. (Or pivot per worker if higher value.)
 
 **Rehydration checklist (required at start of session/after compaction/heartbeat)**: 1. Re-read AGENTS.md. 2. Read PROJECT_COORDINATION_INDEX.md (this; stop at first '---' or line ~80 for continuation). 3. Read AUTONOMOUS_WORK_PLAN.md (front snapshot + latest entries). 4. Read docs/openclinxr/worker-backlog-and-validation-matrix.md. 5. Run `pnpm docs:drift-check` if cleanup/drift suspected or long run. 6. `pnpm openclaw:lease -- status` if unattended. 7. Pick from active queue or worker matrix. 8. Consult agents/** (read charter+memory) or live subagents only for drift/review/plan if materially reduces cost. 9. Do small slice, verify, update state files only, continue.
 

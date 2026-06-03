@@ -55,6 +55,9 @@ export type EncounterRuntimeSelectionReviewPacket = {
     source: string;
     actors: Array<{ actorId: string; style: string; baselineMood: string[]; topicsToAvoid: string[]; adverseResponse: string }>;
   } | null;
+  // Active demos surfaced in review packet for peds (using machines from case)
+  pedsActiveEmotionDemo?: string | null;
+  pedsDialogueCueIdsDemo?: string[] | null;
   runtimeCandidates: {
     model: EncounterGuardedRuntimeSelectionIntent["modelRuntimeCandidate"];
     voice: EncounterGuardedRuntimeSelectionIntent["voiceRuntimeCandidate"];
@@ -291,6 +294,8 @@ export function buildEncounterRuntimeSelectionReviewPacket(
     caseDerivedActorTurnExpectations: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId),
     caseDerivedEmotionStateMachine: deriveEmotionStateMachineFromCase(selectionIntent.selectedScenarioId),
     caseDerivedDialoguePolicy: deriveDialoguePolicyFromCase(selectionIntent.selectedScenarioId),
+    pedsActiveEmotionDemo: selectionIntent.selectedScenarioId === "peds_asthma_parent_anxiety_v1" ? "frightened" : null,
+    pedsDialogueCueIdsDemo: selectionIntent.selectedScenarioId === "peds_asthma_parent_anxiety_v1" ? ["empathy_statement", "parent_communication", "urgent_escalation"] : null,
     reviewPacketMode: "read_only_guarded_runtime_handoff",
     handoffArtifactsInternallyPaired: selectionIntent.handoffArtifactsInternallyPaired,
     runtimeCandidates: {

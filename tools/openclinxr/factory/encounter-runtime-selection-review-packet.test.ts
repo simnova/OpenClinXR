@@ -155,6 +155,8 @@ describe("encounter runtime selection review packet", () => {
       caseDerivedActorTurnExpectations: null,
       caseDerivedEmotionStateMachine: null,
       caseDerivedDialoguePolicy: null,
+      pedsActiveEmotionDemo: null,
+      pedsDialogueCueIdsDemo: null,
       runtimeCandidates: {
         model: "local_configured_not_executed",
         voice: "local_configured_not_executed",
