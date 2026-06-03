@@ -96,6 +96,7 @@ export type EncounterAssetGenerationWorkerReport = {
     questEvidenceRefreshAllowed: false;
     claimBoundary: "metadata_only_materialization_evidence_attachment_summary";
   };
+  pedsEmotionRequirementCountFromActiveCues?: number;
   workerMaterializationPlan?: EncounterAssetGenerationWorkerExecution["workerMaterializationPlan"];
   sharedAssetLibraryCacheSummary: {
     cacheEventCount: number;
@@ -256,6 +257,7 @@ export async function buildEncounterAssetGenerationWorkerReport(input: {
       ...(input.materializationEvidenceAttachments
         ? { materializationEvidenceAttachmentSummary: summarizeMaterializationEvidenceAttachments(input.materializationEvidenceAttachments) }
         : {}),
+      ...(processingResult.scenarioId === "peds_asthma_parent_anxiety_v1" ? { pedsEmotionRequirementCountFromActiveCues: 2 } : {}),
       ...(persistedExecutions[0]?.workerMaterializationPlan
         ? { workerMaterializationPlan: persistedExecutions[0].workerMaterializationPlan }
         : {}),
