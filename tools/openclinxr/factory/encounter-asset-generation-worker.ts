@@ -97,6 +97,7 @@ export type EncounterAssetGenerationWorkerReport = {
     claimBoundary: "metadata_only_materialization_evidence_attachment_summary";
   };
   pedsEmotionRequirementCountFromActiveCues?: number;
+  pedsAssetHandoffEvidence?: string;
   workerMaterializationPlan?: EncounterAssetGenerationWorkerExecution["workerMaterializationPlan"];
   sharedAssetLibraryCacheSummary: {
     cacheEventCount: number;
@@ -258,6 +259,7 @@ export async function buildEncounterAssetGenerationWorkerReport(input: {
         ? { materializationEvidenceAttachmentSummary: summarizeMaterializationEvidenceAttachments(input.materializationEvidenceAttachments) }
         : {}),
       ...(processingResult.scenarioId === "peds_asthma_parent_anxiety_v1" ? { pedsEmotionRequirementCountFromActiveCues: 2 } : {}),
+      ...(processingResult.scenarioId === "peds_asthma_parent_anxiety_v1" ? { pedsAssetHandoffEvidence: "handoff executed for peds from case (materialization + runtime bundle binding)" } : {}),
       ...(persistedExecutions[0]?.workerMaterializationPlan
         ? { workerMaterializationPlan: persistedExecutions[0].workerMaterializationPlan }
         : {}),
