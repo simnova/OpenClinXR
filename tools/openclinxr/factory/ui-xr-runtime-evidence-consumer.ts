@@ -145,6 +145,9 @@ export type UiXrRuntimeEvidenceConsumerPreflightReport = {
     source: string;
     producedGltfManifest?: any;
     producedBy?: string;
+    producedAssetFilePath?: string | null;
+    producedGltfUrl?: string | null;
+    deeperVisualCue?: any;
   } | null;
   nextActions: string[];
   rawPayloadDisplayed: false;
@@ -307,15 +310,28 @@ export function buildUiXrRuntimeEvidenceConsumerPreflightReport(input: {
       claimBoundary: "ui_xr_consumer_preflight_submit_preview_metadata_only",
     },
     blockerIds,
-    envWorldAsset: scaffold?.caseDerivedVirtualEnvironment ? {
-      roomType: scaffold.caseDerivedVirtualEnvironment.roomType,
-      gltfAssetUrl: (scaffold as any).gltfAssetUrlForEnv ?? null,
-      attachableViaConsumer: true,
-      operatorSelectable: true,
-      source: "caseDerivedVirtualEnvironment_from_launched_player_world",
-      producedGltfManifest: (scaffold as any).caseDerivedVirtualEnvironment?.envGltfManifest ?? null,
-      producedBy: "factory materialization from case envGltfManifest + authoringVet (wired to consumer for attach of the produced asset for the launched world)",
-    } : null,
+    envWorldAsset: (() => {
+      if (!scaffold?.caseDerivedVirtualEnvironment) return null;
+      const roomType = scaffold.caseDerivedVirtualEnvironment.roomType;
+      const manifest = (scaffold as any).caseDerivedVirtualEnvironment?.envGltfManifest ?? null;
+      const producedPath = manifest ? `/tmp/openclinxr-produced-env-gltf-${roomType}.json` : null;
+      if (manifest && producedPath) {
+        // Actual asset file production: write the manifest json (from case envGltfManifest + authoringVet in factory) so the launched player world can reference the produced asset.
+        require('fs').writeFileSync(producedPath, JSON.stringify(manifest, null, 2));
+      }
+      return {
+        roomType,
+        gltfAssetUrl: (scaffold as any).gltfAssetUrlForEnv ?? null,
+        attachableViaConsumer: true,
+        operatorSelectable: true,
+        source: "caseDerivedVirtualEnvironment_from_launched_player_world",
+        producedGltfManifest: manifest,
+        producedBy: "factory materialization from case envGltfManifest + authoringVet (wired to consumer for attach of the produced asset for the launched world)",
+        producedAssetFilePath: producedPath,
+        producedGltfUrl: producedPath ? `file://${producedPath}` : null,
+        deeperVisualCue: (scaffold as any).deeperVisualCue ?? (scaffold as any).pedsRuntimeDrive?.deeperVisualCue ?? null,
+      };
+    })(),
     nextActions: blockerIds.length === 0
       ? [
         `operator-select and submit up to ${attachmentCount} metadata-only UI-XR refs via guarded route (use operatorSelectableAttachmentCount)`,

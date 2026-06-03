@@ -2661,6 +2661,13 @@ function createStationScene(): StationSceneRuntime {
       const room = sid === "peds_asthma_parent_anxiety_v1" ? "peds_asthma_clinic_exam_room" : (sid === "ed_chest_pain_priority_v1" ? "ed_trauma_bay" : null);
       return room ? `/tmp/openclinxr-produced-env-gltf-${room}.json` : null;
     })(),
+    producedGltfUrl: (() => {
+      // Wire produced url (from consumer envWorldAsset.producedGltfUrl or computed) into handoff for gltf load/attach in launched player (full factory produced from case for cue world).
+      const sid = encounterRuntimeAssetBundle.scenarioId;
+      const room = sid === "peds_asthma_parent_anxiety_v1" ? "peds_asthma_clinic_exam_room" : (sid === "ed_chest_pain_priority_v1" ? "ed_trauma_bay" : null);
+      const p = room ? `/tmp/openclinxr-produced-env-gltf-${room}.json` : null;
+      return p ? `file://${p}` : null;
+    })(),
   };
   scene.add(floor);
   // Actual gltf load container in launched player world (builds the virtual env "world" for encounter; container in scene for peds/ed; when real gltf from factory (authoring vet + case env + timeline cues) present, load with GLTFLoader and add (morphs/extras for gen drive). "Test out the world launching the application" / "build the world": build + dev launches player with this env world container + props + data hook (experienced via build success + launch desc).
@@ -2668,10 +2675,12 @@ function createStationScene(): StationSceneRuntime {
   gltfEnvContainer.name = `${runtimeSceneObjectPrefix()}.case-env-gltf-container`;
   gltfEnvContainer.userData.openClinXrGltfEnvHandoff = floor.userData.caseDerivedVirtualEnvGltfHandoff;
   gltfEnvContainer.userData.producedManifestPath = floor.userData.caseDerivedVirtualEnvGltfHandoff?.producedManifestPath;
+  gltfEnvContainer.userData.producedGltfUrl = floor.userData.caseDerivedVirtualEnvGltfHandoff?.producedGltfUrl;
   gltfEnvContainer.userData.openClinXrLaunchTestPolicy = "virtual env world launched in player (props + gltf handoff + authoring vet from case); experience via dev server + station select";
   scene.add(gltfEnvContainer);
   // Actual gltf asset load in the launched player (wired for the factory-produced gltf from case env + authoringVet pipeline/cues in packet envGltfManifest + envGltfManifest in scaffold; uses GLTFLoader already in scope; loads into gltfEnvContainer for full cue-driven world (props + gltf with morphs/extras for emotion/loco/gaze from gen drive); onError keeps the world (props + container) so the launched experience always succeeds and is usable; when real gltf asset is produced by factory materialization and available (via url or consumer attach), it loads the full visual env world into the running player. This is the "actual gltf asset load in launched player gltfEnvContainer (produce real from factory + load for full visual world)" per queue. Validated by re-launching the app (turborepo) after edit.
-  const gltfUrlForActualLoad = floor.userData.caseDerivedVirtualEnvGltfHandoff?.gltfAssetUrl;
+  const gltfUrlForActualLoad = floor.userData.caseDerivedVirtualEnvGltfHandoff?.producedGltfUrl || floor.userData.caseDerivedVirtualEnvGltfHandoff?.gltfAssetUrl;
+  // producedGltfUrl wired from consumer (file:// /tmp ... or manifest) for full factory produced gltf from case env + authoringVet; falls back to stub if not real asset yet. Makes produced url consumable in launched player gltf load for cue-driven world.
   if (gltfUrlForActualLoad) {
     try {
       const loader = new GLTFLoader();
