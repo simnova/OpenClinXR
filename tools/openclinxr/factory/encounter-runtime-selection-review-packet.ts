@@ -340,6 +340,7 @@ export function buildEncounterRuntimeSelectionReviewPacket(
               { name: "wall_chart", primitives: [{ attributes: { POSITION: 4 } }] },
             ],
             extras: { caseId: sid, cues: ["exam_table", "oxygen_delivery_system", "peak_flow_meter", "parent_chair", "wall_chart"], source: "factory materialization stub (authoringVet pipeline + case spec) for actual gltf load in launched player gltfEnvContainer" },
+          richerAuthoring: { visemeCues: "blendshapes from affectTimeline/emotion state", locoCues: "anim clips from runtimeExecutionHints", gazeCues: "from emotion state machine", fullForPeds: true },
           },
           source: "case_spec_derivation_v1_factory_tech_vet",
         };
@@ -360,7 +361,7 @@ export function buildEncounterRuntimeSelectionReviewPacket(
             cues: "eventSchedule/clinicalObjectives + emotionTimeline -> gltf clip weights; provenance for review packet",
           },
           fullEnvGenForSecond: true,
-          envCuesFromSpec: ["gurney for patient position on ignored_emotion", "cardiac_monitor for vitals on urgent_escalation", "crash_cart for priority response", "iv_stand for fluid", "defibrillator for chest pain escalation"],
+          envCuesFromSpec: ["gurney for patient position on ignored_emotion", "cardiac_monitor for vitals on urgent_escalation", "crash_cart for priority response", "iv_stand for fluid", "defibrillator for chest pain escalation", "spouse_anna for parent anxiety escalation from commProfile", "nurse_maria for clinical deescalation on acknowledged from clinicalObjectives"],
           envGltfManifest: {
             asset: { version: "2.0", generator: "openclinxr-factory-from-case-spec+authoringVet" },
             scenes: [{ nodes: [0] }],
@@ -372,7 +373,8 @@ export function buildEncounterRuntimeSelectionReviewPacket(
               { name: "iv_stand", primitives: [{ attributes: { POSITION: 3 } }] },
               { name: "defibrillator", primitives: [{ attributes: { POSITION: 4 } }] },
             ],
-            extras: { caseId: sid, cues: ["gurney for patient position on ignored_emotion", "cardiac_monitor for vitals on urgent_escalation", "crash_cart for priority response", "iv_stand for fluid", "defibrillator for chest pain escalation"], source: "factory materialization stub (authoringVet pipeline + case spec eventSchedule/clinicalObjectives) for actual gltf load in launched player gltfEnvContainer" },
+            extras: { caseId: sid, cues: ["gurney for patient position on ignored_emotion", "cardiac_monitor for vitals on urgent_escalation", "crash_cart for priority response", "iv_stand for fluid", "defibrillator for chest pain escalation", "spouse_anna for parent anxiety escalation from commProfile", "nurse_maria for clinical deescalation on acknowledged from clinicalObjectives"], source: "factory materialization stub (authoringVet pipeline + case spec eventSchedule/clinicalObjectives) for actual gltf load in launched player gltfEnvContainer" },
+          richerAuthoring: { visemeCues: "blendshapes from affectTimeline/emotion state", locoCues: "anim clips from runtimeExecutionHints", gazeCues: "from emotion state machine", fullForEd: true },
           },
           source: "case_spec_derivation_v1_factory_tech_vet",
         };
