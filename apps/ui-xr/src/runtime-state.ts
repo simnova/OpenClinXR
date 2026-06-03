@@ -718,6 +718,8 @@ export type RuntimeVisualEvidenceCaptureScaffold = {
     techStack: { runtime: string; authoring: string; vetStatus: string; license: string; };
     source: string;
   } | null;
+  // Visual hint for running player/app (per user: make evident when running the app and usable by end users the virtual env setting for the encounter).
+  virtualEnvForPlayer?: string | null;
   runtimeAssetBundleId: string | null;
   status: "metadata_only_attachment_candidates_not_submitted";
   runtimeEvidenceCandidateCount: number;
@@ -2256,7 +2258,7 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     source: "case-derived-replay-drive" as const
   } : null;
 
-  // Consume virtual env small piece from factory (caseDerivedVirtualEnvironment) into player scaffold. Identifies/vets Three+GLTF as runtime tech for virtual env (open source, fits player, M1, no overclaim). Small piece advances virtual encounter pipeline + makes encounter experience show virtual setting data (evident in scaffold for running player/app, usable for selection/rendering). Per user: after player conv chunk, now factory env.
+  // Consume virtual env small piece from factory (caseDerivedVirtualEnvironment) into player scaffold. Identifies/vets Three+GLTF as runtime tech for virtual env (open source, fits player, M1, no overclaim). Small piece advances virtual encounter pipeline + makes encounter experience show virtual setting data (evident in scaffold for running player/app, usable for selection/rendering). Per user: after player conv chunk, now factory env. Visual rendering of props (for peds/ed) now wired in main.ts three scene (addScenarioSpecificClinicalSetDressing) so running ui-xr shows the case-derived virtual env setting (evolution evident in app).
   const caseDerivedVirtualEnvironment = scenarioId === "peds_asthma_parent_anxiety_v1" ? {
     scenarioId,
     roomType: "peds_asthma_clinic_exam_room",
@@ -2270,6 +2272,9 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     techStack: { runtime: "three.js + GLTFLoader (WebGLRenderer, XR support in apps/ui-xr/src/main.ts for player env shell)", authoring: "blender/gltf (open source sidecar pipeline)", vetStatus: "vetted_open_source_first: same as peds (MIT, M1, WebXR sidecar, no paid), small piece for second scenario to show pipeline evolution", license: "MIT" },
     source: "case_spec_derivation_v1_factory_tech_vet",
   } : null;
+
+  // Visual string for player (makes the virtual env evident in scaffold data when running the app/player; usable for encounter experience).
+  const virtualEnvForPlayer = caseDerivedVirtualEnvironment ? `virtual ${caseDerivedVirtualEnvironment.roomType} with ${caseDerivedVirtualEnvironment.props.length} props (runtime tech: ${caseDerivedVirtualEnvironment.techStack.runtime}; vetted: ${caseDerivedVirtualEnvironment.techStack.vetStatus})` : null;
 
   const attachmentCandidates = [
     ...buildRuntimeEvidenceAttachmentCandidates({ input, scenarioId, attachedAt }),
@@ -2295,6 +2300,7 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     edReplayEvidence,
     pedsRuntimeDrive,
     caseDerivedVirtualEnvironment,
+    virtualEnvForPlayer,
     runtimeAssetBundleId,
     status: "metadata_only_attachment_candidates_not_submitted",
     runtimeEvidenceCandidateCount: attachmentCandidates.filter((candidate) => candidate.inputKind === "runtime_realism_signal_input").length,

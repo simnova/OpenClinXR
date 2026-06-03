@@ -3415,64 +3415,133 @@ function addScenarioSpecificClinicalSetDressing(scene: Scene, doorwayTheme: Scen
   if (shouldUseCleanHumanoidSourceComparatorCapture()) {
     return;
   }
-  if (encounterRuntimeAssetBundle.scenarioId !== "ob_headache_preeclampsia_triage_v1") {
+  const sid = encounterRuntimeAssetBundle.scenarioId;
+  // Support peds/ed (caseDerivedVirtualEnvironment from factory) + ob (existing). Blueprint drives: case spec -> factory caseDerivedVirtualEnvironment (roomType/props list vetted for three runtime) -> visual props rendered in three player scene (makes virtual encounter pipeline + exam experience evident + usable when running ui-xr desktop player for the scenario). See packet.ts:314 derive and runtime-state.ts:2262 scaffold for the source lists (duplicated here for main player render loop; anti-one-off via case spec). Tech: pure three (Box/Cylinder/Mesh already in main) per vetted open-source MIT + M1 fit + no overclaim.
+  if (sid !== "ob_headache_preeclampsia_triage_v1" && sid !== "peds_asthma_parent_anxiety_v1" && sid !== "ed_chest_pain_priority_v1") {
     return;
   }
   const linenMaterial = new MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.86 });
   const accentMaterial = new MeshStandardMaterial({ color: new Color(doorwayTheme.panelAccent), roughness: 0.78 });
-  const bedFrame = new Mesh(new BoxGeometry(1.75, 0.16, 0.72), new MeshStandardMaterial({ color: 0xd8dee8, roughness: 0.72 }));
-  bedFrame.name = `${runtimeSceneObjectPrefix()}.ob-triage-recliner-bed-frame`;
-  bedFrame.position.set(-1.62, 0.42, -0.22);
-  bedFrame.userData.openClinXrScenarioSetDressing =
-    "ob_triage_recliner_generated_from_encounter_context";
-  scene.add(bedFrame);
-  const pillow = new Mesh(new BoxGeometry(0.46, 0.1, 0.34), linenMaterial.clone());
-  pillow.name = `${runtimeSceneObjectPrefix()}.ob-triage-pillow`;
-  pillow.position.set(-2.08, 0.62, -0.2);
-  pillow.rotation.z = -0.06;
-  pillow.userData.openClinXrScenarioSetDressing = "ob_headache_reclined_patient_context";
-  scene.add(pillow);
-  const blanket = new Mesh(new BoxGeometry(0.82, 0.055, 0.66), new MeshStandardMaterial({ color: 0xdbeafe, roughness: 0.9 }));
-  blanket.name = `${runtimeSceneObjectPrefix()}.ob-triage-blanket`;
-  blanket.position.set(-1.45, 0.57, -0.18);
-  blanket.userData.openClinXrScenarioSetDressing = "ob_triage_bed_linen_context";
-  scene.add(blanket);
-  const bpCuff = new Mesh(new BoxGeometry(0.2, 0.07, 0.03), new MeshStandardMaterial({ color: 0x111827, roughness: 0.74 }));
-  bpCuff.name = `${runtimeSceneObjectPrefix()}.ob-severe-bp-cuff-on-side-rail`;
-  bpCuff.position.set(-1.62, 0.73, 0.2);
-  bpCuff.rotation.y = -0.12;
-  bpCuff.userData.openClinXrScenarioSetDressing = "severe_blood_pressure_repeat_workflow_cue";
-  scene.add(bpCuff);
-  const urineCup = new Mesh(new CylinderGeometry(0.065, 0.05, 0.12, 18), new MeshStandardMaterial({ color: 0xfef3c7, roughness: 0.66, transparent: true, opacity: 0.78 }));
-  urineCup.name = `${runtimeSceneObjectPrefix()}.ob-urine-protein-cup-cue`;
-  urineCup.position.set(0.18, 0.74, -0.58);
-  urineCup.userData.openClinXrScenarioSetDressing = "preeclampsia_urine_protein_context_cue";
-  scene.add(urineCup);
-  const wallMonitor = new Group();
-  wallMonitor.name = `${runtimeSceneObjectPrefix()}.ob-wall-vitals-monitor-group`;
-  wallMonitor.userData.openClinXrScenarioSetDressing = 'severe_range_bp_vitals_monitor_generated_from_ob_case_definition';
-  const monitorBack = new Mesh(new BoxGeometry(0.48, 0.28, 0.035), new MeshStandardMaterial({ color: 0x1f2937, roughness: 0.68 }));
-  monitorBack.name = `${runtimeSceneObjectPrefix()}.ob-wall-vitals-monitor`;
-  monitorBack.position.set(0.82, 1.42, -0.83);
-  wallMonitor.add(monitorBack);
-  const bpTrace = new Mesh(new BoxGeometry(0.36, 0.035, 0.018), new MeshBasicMaterial({ color: 0x60a5fa }));
-  bpTrace.name = `${runtimeSceneObjectPrefix()}.ob-wall-vitals-severe-bp-trace`;
-  bpTrace.position.set(0.82, 1.45, -0.8);
-  wallMonitor.add(bpTrace);
-  const privacyCurtain = new Mesh(new BoxGeometry(0.035, 1.12, 0.86), new MeshStandardMaterial({ color: 0xe9d5ff, roughness: 0.92, transparent: true, opacity: 0.62 }));
-  privacyCurtain.name = `${runtimeSceneObjectPrefix()}.ob-triage-privacy-curtain-edge`;
-  privacyCurtain.position.set(1.42, 0.92, -0.18);
-  privacyCurtain.userData.openClinXrScenarioSetDressing = 'ob_triage_privacy_boundary_generated_from_encounter_environment';
-  privacyCurtain.visible = false;
-  privacyCurtain.userData.openClinXrObVisualReviewPolicy = "hidden_after_visual_review_showed_edge_artifact";
-  scene.add(privacyCurtain);
-  scene.add(wallMonitor);
-  const escalationFolder = new Mesh(new BoxGeometry(0.44, 0.035, 0.3), accentMaterial);
-  escalationFolder.name = `${runtimeSceneObjectPrefix()}.ob-escalation-plan-folder`;
-  escalationFolder.position.set(0.5, 0.71, -0.56);
-  escalationFolder.rotation.y = 0.1;
-  escalationFolder.userData.openClinXrScenarioSetDressing = "ob_escalation_plan_workflow_cue";
-  scene.add(escalationFolder);
+  if (sid === "ob_headache_preeclampsia_triage_v1") {
+    const bedFrame = new Mesh(new BoxGeometry(1.75, 0.16, 0.72), new MeshStandardMaterial({ color: 0xd8dee8, roughness: 0.72 }));
+    bedFrame.name = `${runtimeSceneObjectPrefix()}.ob-triage-recliner-bed-frame`;
+    bedFrame.position.set(-1.62, 0.42, -0.22);
+    bedFrame.userData.openClinXrScenarioSetDressing =
+      "ob_triage_recliner_generated_from_encounter_context";
+    scene.add(bedFrame);
+    const pillow = new Mesh(new BoxGeometry(0.46, 0.1, 0.34), linenMaterial.clone());
+    pillow.name = `${runtimeSceneObjectPrefix()}.ob-triage-pillow`;
+    pillow.position.set(-2.08, 0.62, -0.2);
+    pillow.rotation.z = -0.06;
+    pillow.userData.openClinXrScenarioSetDressing = "ob_headache_reclined_patient_context";
+    scene.add(pillow);
+    const blanket = new Mesh(new BoxGeometry(0.82, 0.055, 0.66), new MeshStandardMaterial({ color: 0xdbeafe, roughness: 0.9 }));
+    blanket.name = `${runtimeSceneObjectPrefix()}.ob-triage-blanket`;
+    blanket.position.set(-1.45, 0.57, -0.18);
+    blanket.userData.openClinXrScenarioSetDressing = "ob_triage_bed_linen_context";
+    scene.add(blanket);
+    const bpCuff = new Mesh(new BoxGeometry(0.2, 0.07, 0.03), new MeshStandardMaterial({ color: 0x111827, roughness: 0.74 }));
+    bpCuff.name = `${runtimeSceneObjectPrefix()}.ob-severe-bp-cuff-on-side-rail`;
+    bpCuff.position.set(-1.62, 0.73, 0.2);
+    bpCuff.rotation.y = -0.12;
+    bpCuff.userData.openClinXrScenarioSetDressing = "severe_blood_pressure_repeat_workflow_cue";
+    scene.add(bpCuff);
+    const urineCup = new Mesh(new CylinderGeometry(0.065, 0.05, 0.12, 18), new MeshStandardMaterial({ color: 0xfef3c7, roughness: 0.66, transparent: true, opacity: 0.78 }));
+    urineCup.name = `${runtimeSceneObjectPrefix()}.ob-urine-protein-cup-cue`;
+    urineCup.position.set(0.18, 0.74, -0.58);
+    urineCup.userData.openClinXrScenarioSetDressing = "preeclampsia_urine_protein_context_cue";
+    scene.add(urineCup);
+    const wallMonitor = new Group();
+    wallMonitor.name = `${runtimeSceneObjectPrefix()}.ob-wall-vitals-monitor-group`;
+    wallMonitor.userData.openClinXrScenarioSetDressing = 'severe_range_bp_vitals_monitor_generated_from_ob_case_definition';
+    const monitorBack = new Mesh(new BoxGeometry(0.48, 0.28, 0.035), new MeshStandardMaterial({ color: 0x1f2937, roughness: 0.68 }));
+    monitorBack.name = `${runtimeSceneObjectPrefix()}.ob-wall-vitals-monitor`;
+    monitorBack.position.set(0.82, 1.42, -0.83);
+    wallMonitor.add(monitorBack);
+    const bpTrace = new Mesh(new BoxGeometry(0.36, 0.035, 0.018), new MeshBasicMaterial({ color: 0x60a5fa }));
+    bpTrace.name = `${runtimeSceneObjectPrefix()}.ob-wall-vitals-severe-bp-trace`;
+    bpTrace.position.set(0.82, 1.45, -0.8);
+    wallMonitor.add(bpTrace);
+    const privacyCurtain = new Mesh(new BoxGeometry(0.035, 1.12, 0.86), new MeshStandardMaterial({ color: 0xe9d5ff, roughness: 0.92, transparent: true, opacity: 0.62 }));
+    privacyCurtain.name = `${runtimeSceneObjectPrefix()}.ob-triage-privacy-curtain-edge`;
+    privacyCurtain.position.set(1.42, 0.92, -0.18);
+    privacyCurtain.userData.openClinXrScenarioSetDressing = 'ob_triage_privacy_boundary_generated_from_encounter_environment';
+    privacyCurtain.visible = false;
+    privacyCurtain.userData.openClinXrObVisualReviewPolicy = "hidden_after_visual_review_showed_edge_artifact";
+    scene.add(privacyCurtain);
+    scene.add(wallMonitor);
+    const escalationFolder = new Mesh(new BoxGeometry(0.44, 0.035, 0.3), accentMaterial);
+    escalationFolder.name = `${runtimeSceneObjectPrefix()}.ob-escalation-plan-folder`;
+    escalationFolder.position.set(0.5, 0.71, -0.56);
+    escalationFolder.rotation.y = 0.1;
+    escalationFolder.userData.openClinXrScenarioSetDressing = "ob_escalation_plan_workflow_cue";
+    scene.add(escalationFolder);
+    return;
+  }
+  // peds_asthma_parent_anxiety_v1 and ed_chest_pain_priority_v1: render caseDerivedVirtualEnvironment small piece (from factory vet of three + case spec room/props) as basic visual room props in the three clinical encounter scene. Makes entire system evolution evident when running the app: case authoring (spec with env cues) -> virtual encounter pipeline (factory identify/vet + caseDerivedVirtualEnvironment) -> exam encounter experience (player three scene shows peds clinic exam_table/oxygen/parent_chair vs ed gurney/monitor/crash_cart; desktop fallback usable). Positions in dynamic clinical room (beyond anteroom portal, using floor at z~-0.78 area). No new deps (pure three primitives); gates false; no overclaim.
+  if (sid === "peds_asthma_parent_anxiety_v1") {
+    // props from case: exam_table, oxygen_delivery_system, peak_flow_meter, parent_chair, wall_chart (matches packet.ts caseDerivedVirtualEnvironment + runtime-state scaffold)
+    const tableMat = new MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.7 });
+    const examTable = new Mesh(new BoxGeometry(1.6, 0.82, 0.7), tableMat);
+    examTable.name = `${runtimeSceneObjectPrefix()}.peds-exam-table`;
+    examTable.position.set(-0.8, 0.41, -0.65);
+    examTable.userData.openClinXrCaseDerivedVirtualEnvironmentProp = "exam_table_from_peds_asthma_clinic_exam_room";
+    scene.add(examTable);
+    const o2Tank = new Mesh(new CylinderGeometry(0.12, 0.12, 0.9, 12), new MeshStandardMaterial({ color: 0x1e3a5f, roughness: 0.6 }));
+    o2Tank.name = `${runtimeSceneObjectPrefix()}.peds-oxygen-delivery-system`;
+    o2Tank.position.set(1.1, 0.45, -0.35);
+    o2Tank.userData.openClinXrCaseDerivedVirtualEnvironmentProp = "oxygen_delivery_system_case_spec";
+    scene.add(o2Tank);
+    const peak = new Mesh(new BoxGeometry(0.22, 0.12, 0.18), new MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.5 }));
+    peak.name = `${runtimeSceneObjectPrefix()}.peds-peak-flow-meter`;
+    peak.position.set(0.6, 0.82, -0.9);
+    peak.userData.openClinXrCaseDerivedVirtualEnvironmentProp = "peak_flow_meter_parent_communication_cue";
+    scene.add(peak);
+    const chairSeat = new Mesh(new BoxGeometry(0.48, 0.08, 0.48), new MeshStandardMaterial({ color: 0x334155, roughness: 0.85 }));
+    chairSeat.name = `${runtimeSceneObjectPrefix()}.peds-parent-chair-seat`;
+    chairSeat.position.set(1.6, 0.38, -1.1);
+    scene.add(chairSeat);
+    const chairBack = new Mesh(new BoxGeometry(0.48, 0.55, 0.06), new MeshStandardMaterial({ color: 0x334155, roughness: 0.85 }));
+    chairBack.name = `${runtimeSceneObjectPrefix()}.peds-parent-chair-back`;
+    chairBack.position.set(1.6, 0.68, -1.32);
+    scene.add(chairBack);
+    const chart = new Mesh(new BoxGeometry(0.6, 0.4, 0.02), new MeshStandardMaterial({ color: 0xfefce8, roughness: 0.9 }));
+    chart.name = `${runtimeSceneObjectPrefix()}.peds-wall-chart`;
+    chart.position.set(-2.9, 1.6, -1.55);
+    chart.rotation.y = 1.57;
+    chart.userData.openClinXrCaseDerivedVirtualEnvironmentProp = "wall_chart_clinic_review_cue";
+    scene.add(chart);
+  }
+  if (sid === "ed_chest_pain_priority_v1") {
+    // props from case: gurney, cardiac_monitor, crash_cart, iv_stand, defibrillator (matches factory caseDerived for ed_trauma_bay)
+    const gurney = new Mesh(new BoxGeometry(2.0, 0.55, 0.75), new MeshStandardMaterial({ color: 0x475569, roughness: 0.65 }));
+    gurney.name = `${runtimeSceneObjectPrefix()}.ed-gurney`;
+    gurney.position.set(-0.3, 0.28, -0.7);
+    gurney.userData.openClinXrCaseDerivedVirtualEnvironmentProp = "gurney_ed_trauma_bay_center";
+    scene.add(gurney);
+    const monBack = new Mesh(new BoxGeometry(0.55, 0.32, 0.04), new MeshStandardMaterial({ color: 0x0f172a, roughness: 0.6 }));
+    monBack.name = `${runtimeSceneObjectPrefix()}.ed-cardiac-monitor`;
+    monBack.position.set(-2.6, 1.45, -1.4);
+    monBack.rotation.y = 0.8;
+    monBack.userData.openClinXrCaseDerivedVirtualEnvironmentProp = "cardiac_monitor_priority_vitals";
+    scene.add(monBack);
+    const cart = new Mesh(new BoxGeometry(0.55, 0.7, 0.35), new MeshStandardMaterial({ color: 0x1f2937, roughness: 0.55 }));
+    cart.name = `${runtimeSceneObjectPrefix()}.ed-crash-cart`;
+    cart.position.set(2.1, 0.35, -0.4);
+    cart.userData.openClinXrCaseDerivedVirtualEnvironmentProp = "crash_cart_urgent_escalation";
+    scene.add(cart);
+    const ivPole = new Mesh(new CylinderGeometry(0.03, 0.03, 1.4, 6), new MeshStandardMaterial({ color: 0x64748b, roughness: 0.7 }));
+    ivPole.name = `${runtimeSceneObjectPrefix()}.ed-iv-stand`;
+    ivPole.position.set(-1.8, 0.7, -0.95);
+    ivPole.userData.openClinXrCaseDerivedVirtualEnvironmentProp = "iv_stand_fluid_case";
+    scene.add(ivPole);
+    const defib = new Mesh(new BoxGeometry(0.38, 0.28, 0.18), new MeshStandardMaterial({ color: 0xdc2626, roughness: 0.5 }));
+    defib.name = `${runtimeSceneObjectPrefix()}.ed-defibrillator`;
+    defib.position.set(1.7, 0.9, -1.25);
+    defib.rotation.y = -0.4;
+    defib.userData.openClinXrCaseDerivedVirtualEnvironmentProp = "defibrillator_chest_pain_priority";
+    scene.add(defib);
+  }
 }
 
 function recordDynamicSceneObjectNamingEvidence(scene: Scene): DynamicSceneObjectNamingEvidence {
