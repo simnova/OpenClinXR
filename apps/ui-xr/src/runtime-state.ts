@@ -709,7 +709,7 @@ export type RuntimeVisualEvidenceCaptureScaffold = {
   pedsReplayEvidence?: { scenarioId: string; turnsReplayed: number; finalEmotion: string | null; finalCue: string | null; locomotion: boolean; gazeAversion: string; lipSyncViseme: string; source: "case-derived-player-loop-replay" } | null;
   edReplayEvidence?: { scenarioId: string; turnsReplayed: number; finalEmotion: string | null; finalCue: string | null; locomotion: boolean; gazeAversion: string; lipSyncViseme: string; source: "case-derived-player-loop-replay" } | null;
   // Wired replay to runtime behavior (drive fields from replay for e2e player consumption; for peds+ed caseDerived).
-  pedsRuntimeDrive?: { currentEmotion: string | null; currentCue: string | null; locomotion: boolean; gaze: string; lipSync: string; virtualEnv: string | null; source: "case-derived-replay-drive" } | null;
+  pedsRuntimeDrive?: { currentEmotion: string | null; currentCue: string | null; locomotion: boolean; gaze: string; lipSync: string; virtualEnv: string | null; gltfEnvWorld: { room: string | null; containerPolicy: string } | null; source: "case-derived-replay-drive" } | null;
   // Virtual env from factory (user steering: after functional player chunk for conv/emotion, now factory for virtual env pipeline). Small piece of virtual env that runtime player will use (room/props from case, tech vetted Three+GLTF open source). Evident in scaffold data for encounter experience.
   caseDerivedVirtualEnvironment?: {
     scenarioId: string;
@@ -2260,6 +2260,7 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     gaze: scenarioId === "peds_asthma_parent_anxiety_v1" ? pedsReplayEvidence!.gazeAversion : edReplayEvidence!.gazeAversion,
     lipSync: scenarioId === "peds_asthma_parent_anxiety_v1" ? pedsReplayEvidence!.lipSyncViseme : edReplayEvidence!.lipSyncViseme,
     virtualEnv: virtualEnvRoomForDrive,
+    gltfEnvWorld: virtualEnvRoomForDrive ? { room: virtualEnvRoomForDrive, containerPolicy: "gltf handoff container in launched player world (props + authoring vet + cues from gen drive)" } : null,
     source: "case-derived-replay-drive" as const
   } : null;
 
