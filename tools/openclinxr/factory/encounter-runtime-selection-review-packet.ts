@@ -43,6 +43,11 @@ export type EncounterRuntimeSelectionReviewPacket = {
       locomotionEnabled: boolean;
     };
   } | null;
+  persistenceProjection?: {
+    actorTurns: unknown[];
+    emotionalStateTimeline: unknown[];
+    source: "case-derived-for-persistence";
+  } | null;
   caseDerivedEmotionStateMachine?: {
     scenarioId: string;
     initialEmotion: string;
@@ -289,10 +294,10 @@ export function buildEncounterRuntimeSelectionReviewPacket(
     selectedStationId: selectionIntent.selectedStationId,
     selectedRuntimeAssetBundleId: selectionIntent.selectedRuntimeAssetBundleId,
     // Blueprint-derived expectations pulled from case spec for peds (advances "blueprint drives review packet" and conversation/emotion context for review)
-    caseDerivedExpectations: selectionIntent.selectedScenarioId === "peds_asthma_parent_anxiety_v1" || selectionIntent.selectedScenarioId === "ed_chest_pain_priority_v1" ? {
-      actorCommunicationProfile: (selectionIntent.selectedScenarioId === "peds_asthma_parent_anxiety_v1" ? scenarioBank.pediatricAsthmaScenario : scenarioBank.edChestPainScenario).actors.find((a: Record<string, unknown>) => (a.actorId as string | undefined)?.includes("patient") || (a.actorId as string | undefined)?.includes("robert"))?.communicationProfile ?? null,
-      requiredCommunicationAndEscalationTraceTags: (selectionIntent.selectedScenarioId === "peds_asthma_parent_anxiety_v1" ? scenarioBank.pediatricAsthmaScenario : scenarioBank.edChestPainScenario).requiredTraceTags.filter((t: string) => t.includes("empathy") || t.includes("escalation") || t.includes("parent") || t.includes("communication") || t.includes("family") || t.includes("team")),
-      clinicalObjectives: (selectionIntent.selectedScenarioId === "peds_asthma_parent_anxiety_v1" ? scenarioBank.pediatricAsthmaScenario : scenarioBank.edChestPainScenario).clinicalObjectives,
+    caseDerivedExpectations: selectionIntent.selectedScenarioId === "peds_asthma_parent_anxiety_v1" ? {
+      actorCommunicationProfile: scenarioBank.pediatricAsthmaScenario.actors.find((a: Record<string, unknown>) => (a.actorId as string | undefined)?.includes("patient"))?.communicationProfile ?? null,
+      requiredCommunicationAndEscalationTraceTags: scenarioBank.pediatricAsthmaScenario.requiredTraceTags.filter((t: string) => t.includes("empathy") || t.includes("escalation") || t.includes("parent") || t.includes("communication")),
+      clinicalObjectives: scenarioBank.pediatricAsthmaScenario.clinicalObjectives,
       reviewRubricCommunication: null,
     } : null,
     caseDerivedActorTurnExpectations: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId),
@@ -300,6 +305,11 @@ export function buildEncounterRuntimeSelectionReviewPacket(
     caseDerivedDialoguePolicy: deriveDialoguePolicyFromCase(selectionIntent.selectedScenarioId),
     pedsActiveEmotionDemo: selectionIntent.selectedScenarioId === "peds_asthma_parent_anxiety_v1" ? "frightened" : null,
     pedsDialogueCueIdsDemo: selectionIntent.selectedScenarioId === "peds_asthma_parent_anxiety_v1" ? ["empathy_statement", "parent_communication", "urgent_escalation"] : null,
+    persistenceProjection: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId) ? {
+      actorTurns: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId)!.turns,
+      emotionalStateTimeline: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId)!.emotionTimeline,
+      source: "case-derived-for-persistence"
+    } : null,
     reviewPacketMode: "read_only_guarded_runtime_handoff",
     handoffArtifactsInternallyPaired: selectionIntent.handoffArtifactsInternallyPaired,
     runtimeCandidates: {
