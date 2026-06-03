@@ -16,3 +16,7 @@ apps/*/dist/
 apps/*/deploy/
 packages/*/dist/
 packages/*/*/dist/
+
+# allow doc for local state (see .openclinxr/README.md)
+!.openclinxr/README.md
+

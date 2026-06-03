@@ -1,5 +1,7 @@
 # Operating Loop
 
+**Note (aligned to current AGENTS.md state):** This describes the *full iteration loop* (briefs, core plans, adversarial counterplans, leadership review, synthesis). Per current working model: use the full loop only for plateau recovery, major planning, broad drift review, or leadership synthesis. The daily driver for product advancement is OpenClaw-style continuous small deterministic slices (see `docs/openclinxr/openclaw-runbook-2026-05-27.md`, AGENTS.md "Hyper Token-Efficient & Long-Run Practices", snapshots + Efficiency Quick Refs in PROJECT_COORDINATION_INDEX.md / AUTONOMOUS_WORK_PLAN.md / worker-backlog-and-validation-matrix.md for rehydration, per-slice records, lease for unattended). Re-read only snapshots for continuation; use `grep` tool + limits. After edits, run `pnpm agent:alignment && pnpm docs:drift-check`.
+
 The Agent Factory loop is designed to force constructive planning, adversarial improvement, and senior review.
 
 ## Loop Sequence

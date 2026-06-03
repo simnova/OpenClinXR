@@ -17,22 +17,27 @@ The factory is for planning and design maturity. It must not generate OpenClinXR
 
 ## Implementation-Time Steering Rule
 
-During autonomous code work, use the Agent Factory as focus memory, not as a reason to restart broad planning.
+During autonomous code work, use the Agent Factory as focus memory (via `agents/**/charter.md`, `agents/**/memory.md`, `.agent-factory/memory-index.json`), not as a reason to restart broad planning.
 
-`PROJECT_COORDINATION_INDEX.md` is the short coordinator-facing control index that decides when to consult this factory during implementation.
+Per current AGENTS.md and state files (PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, worker-backlog-and-validation-matrix.md):
 
-Use `agents/**/charter.md`, `agents/**/memory.md`, and the latest `iterations/iteration-*/07-final-synthesis.md` when:
+- Primary daily driver for product advancement: OpenClaw-style continuous small deterministic slices using per-slice records in the canonical state md files, lease for unattended, `pnpm docs:drift-check` + `agent:alignment` guards.
+- Full iteration loop (this factory's 00-brief through 08-memory-update-log, or `pnpm agent:loop`): use only for plateau recovery, major planning, broad drift review, or leadership synthesis. Do not run for routine implementation.
+- Rehydration for any session/compact/heartbeat: read only the "Current State Snapshot" blocks (first ~60-80 lines) in the 3 state files + AGENTS top. Use `tail | grep` or `grep` tool for history. Use `read_file` with offset+limit on long files.
+- Hyper token-efficient & long-run practices (see AGENTS.md): focused cmds/tests (`-t "name"`), `pnpm openclaw:lease` before edits, snapshots + Efficiency Quick Refs, scheduler/monitor for persistent heartbeats, no chat summaries (status only in canonical files).
+- Consult agent roles when: task selection scattered, repeated evidence toil, need critique, unclear ownership. Map to repo roles. Coordinator/orchestration first.
 
-- task selection feels scattered;
-- evidence refresh work has repeated without product advancement;
-- a slice needs adversarial or leadership-style critique before implementation;
-- model assignment or specialist ownership is unclear.
+`PROJECT_COORDINATION_INDEX.md` is the short coordinator-facing control index (with active queue and Efficiency Quick Ref) that decides slices and when to consult factory memory.
 
-Do not run a full factory loop just to continue routine implementation. First try to pick a product-shaping worker slice from `AUTONOMOUS_WORK_PLAN.md` and `docs/openclinxr/worker-backlog-and-validation-matrix.md`.
+Do not run full factory loop just to continue routine implementation. Pick product-shaping worker slice from `AUTONOMOUS_WORK_PLAN.md` and `docs/openclinxr/worker-backlog-and-validation-matrix.md` (current: UI-XR runtime evidence consumer + materialization continuation for peds factory).
 
-Evidence, scorecards, and maturity reports are steering signals. They are not a substitute for making the learner, faculty, scenario-author, reviewer, XR runtime, persistence, provider, or asset pipeline paths more complete.
+Evidence, scorecards, maturity reports, and .agent-factory/ are steering signals. They are not a substitute for advancing the blueprint-to-runtime factory, conversation tooling, reusable assets, review/persistence/replay, or focused verification of touched behavior.
 
-## Standard Workflow
+After any coordination or agentic doc edits, always run `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## Standard Workflow (Full Iteration Loop - Use Only When AGENTS Calls For It)
+
+The full loop below is for plateau recovery, major planning, broad drift review, or leadership synthesis (per AGENTS.md "Full iteration loop ... only for ..."). For routine product slices, use OpenClaw continuous slices with snapshots in state files for rehydration, per-slice records, lease, etc.
 
 1. Create an iteration brief in `iterations/iteration-XXXX/00-brief.md`.
 2. Retrieve relevant memory from `agents/**/index.json` and `.agent-factory/memory-index.json`.
@@ -45,6 +50,8 @@ Evidence, scorecards, and maturity reports are steering signals. They are not a 
 9. Produce `07-final-synthesis.md`.
 10. Record memory changes in `08-memory-update-log.md`.
 
+For daily driver, see OpenClaw runbook + AGENTS hyper practices + current snapshots in PROJECT/AUTONOMOUS/worker-backlog.
+
 ## Key Commands
 
 ```bash
@@ -54,8 +61,8 @@ pnpm agent:index
 pnpm agent:evidence
 pnpm agent:risks
 pnpm agent:maturity
-pnpm agent:score -- iterations/iteration-0001
-pnpm agent:leadership -- iterations/iteration-0001
+pnpm agent:score -- iterations/iteration-0009
+pnpm agent:leadership -- iterations/iteration-0009
 pnpm agent:verify
 ```
 

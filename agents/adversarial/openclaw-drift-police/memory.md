@@ -21,3 +21,4 @@
 - Ask: would this artifact still make sense to a future agent after context compaction?
 - Ask: is this a canonical state update, a registered evidence artifact, or clutter?
 - Ask: is a one-off encounter improvement being converted back into reusable factory/provider/cache metadata?
+Hyper Token-Efficient snapshots lease UI-XR 2026-05-28 hyper-optimization Efficiency Quick Ref 2026-05-28 hyper-optimization Current State Snapshots rehydrate OpenClaw continuous blueprint M1 Max 64GB

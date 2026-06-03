@@ -59,6 +59,21 @@ Each autonomous slice must leave a short canonical record in `AUTONOMOUS_WORK_PL
 - `Evidence`: focused tests, API smoke, browser screenshot, runtime JSON, or explicit reason evidence was not appropriate.
 - `Next queued slice`: the next approved product-advancement action, not a checkpoint stop.
 
+## Token-Efficient & Long-Run Hyper-Opt Rules (for uninterrupted completion) [snapshots-first; Efficiency Quick Ref]
+
+To support days-long agentic runs with minimal token use and no interruption:
+
+- Rehydrate exclusively via snapshots (first 60-80 lines of the 3 state files) + AGENTS top. Use `tail | grep` for "Next queued" / recent records; full ledger reads only for rare synthesis.
+- Searches: `grep` tool (with path/glob/head_limit) or terminal `grep` / `tail` before any `read_file` on large files. Always `read_file` + `offset` + `limit` (e.g. 30) for files >100 lines.
+- Verification: always focused (`vitest ... -t "name"`, `biome check specific.ts`). Never full `agent:verify` for routine; use `agent:alignment` first (~0.5s).
+- Long-run protocol: acquire `pnpm openclaw:lease -- acquire --owner <role> --slice <id> --ttl-minutes 60` before any write; release after canonical update. Run `pnpm openclaw:preflight && pnpm docs:drift-check` at start of unattended. Use `pnpm openclaw:automation-prompt` to seed external heartbeats/schedulers (or AI scheduler_create + monitor for persistent watch).
+- On any platform heartbeat/compact/force response: rehydrate snapshots, check `git status --short` + lease status, finish/repair/pivot, record in next slice, continue. No chat status.
+- Avoid token bloat: no broad ls on docs/openclinxr (400+ JSONs), no full cat of ledgers, no un-focused tests, no evidence refresh without decision unlock.
+- Subagent: coordinator first (read-only), narrow, map to agents/**, close fast, integrate results to state only.
+- These + snapshots + lease + drift/alignment make hyper-optimized, low-interruption, token-efficient multi-day completion possible while advancing the factory.
+
+Update the canonical automation prompt (via openclaw:automation-prompt) to reference these rules for any external scheduler.
+
 ## Drift Rules
 
 - Do not hand-design individual encounters when the factory/specification should drive them.

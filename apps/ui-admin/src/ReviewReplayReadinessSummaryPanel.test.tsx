@@ -47,6 +47,8 @@ describe("ReviewReplayReadinessSummaryPanel", () => {
     expect(uiXrWorkflow).toHaveTextContent("2 UI-XR metadata refs");
     expect(uiXrWorkflow).toHaveTextContent("1 runtime refs; 1 visual QA refs");
     expect(uiXrWorkflow).toHaveTextContent("2 submit-preview refs");
+    expect(uiXrWorkflow).toHaveTextContent("operator-selectable up to 2");
+    expect(uiXrWorkflow).toHaveTextContent("subset-via-count");
     expect(uiXrWorkflow).toHaveTextContent("runtime-realism-evidence-input:patient_robert_hayes_v1");
     expect(uiXrWorkflow).toHaveTextContent("visual-qa-evidence-input:ecg_monitor_equipment");
     expect(uiXrWorkflow).toHaveTextContent("2 local artifact refs");
@@ -192,6 +194,9 @@ function summaryFixture(): ReviewReplayReadinessSummary {
           route: "/runtime/visual-evidence-attachments",
           bodyRef: "submitRuntimeVisualEvidenceAttachmentInput",
           attachmentCount: 2,
+          operatorSelectableAttachmentCount: 2,
+          operatorSelectionEnabled: true,
+          operatorSelectionSupport: 'subset-via-count',
           actionIds: ["attach_runtime_realism_evidence_refs", "attach_visual_qa_evidence_refs"],
           inputIds: [
             "runtime-realism-evidence-input:patient_robert_hayes_v1",

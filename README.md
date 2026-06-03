@@ -1,47 +1,53 @@
 # OpenClinXR
 
-OpenClinXR is an evidence-gated XR clinical simulation workspace for virtual-patient encounters, Quest/WebXR runtime evidence, local-first voice, and production asset readiness.
+OpenClinXR is a blueprint-driven, agent-optimized XR clinical skills exam platform (Step 2 CS-inspired) built as an evidence-gated encounter factory. It uses OpenClaw-style repo-native execution (adaptable across Codex/Claude/Grok/Cursor/etc.) for long-running, token-efficient, uninterrupted autonomous work. Current focus: deterministic UI-XR runtime evidence consumer pipeline + actor/equipment materialization for peds_asthma_parent_anxiety (and ED seed), with all provider/runtime/learner/Quest/production/clinical/scoring gates explicitly false. No production or clinical claims.
 
 Project page: <https://developers.simnova.com/OpenClinXR/>
 
+Target workstation: Apple M1 Max 64 GB (this machine); Quest 3 foreground evidence requires disconnected headset re-run when operator available.
+
 ## Current Posture
 
-This repository is early-stage infrastructure, not a clinical product. Runtime, voice, XR, and asset-generation claims are deliberately scoped by committed evidence artifacts and validator scripts.
+This repository is early-stage infrastructure and agent-driven factory tooling, not a clinical product. All claims (runtime, voice, XR, assets, model quality) are deliberately scoped by committed evidence artifacts, validators, and OpenClaw per-slice records. Hyper-optimized for agentic use: snapshots for low-token rehydration, Efficiency Quick Refs, lease for safe unattended, drift/alignment guards, focused verification only.
 
-Useful entry points:
+Useful entry points (rehydrate via snapshots first per AGENTS; prioritize current posture over historical plans):
 
-- [OpenClinXR docs](docs/openclinxr/)
-- [Agent operating contract](AGENTS.md)
-- [Project coordination index](PROJECT_COORDINATION_INDEX.md)
-- [Autonomous work plan](AUTONOMOUS_WORK_PLAN.md)
-- [OpenClaw runbook](docs/openclinxr/openclaw-runbook-2026-05-27.md)
+- [Agent operating contract + hyper token-efficient/long-run practices](AGENTS.md)
+- [Project coordination index + current snapshot + efficiency quick ref](PROJECT_COORDINATION_INDEX.md)
+- [Autonomous work plan + current snapshot + efficiency quick ref](AUTONOMOUS_WORK_PLAN.md)
+- [Worker backlog + validation matrix + current snapshot + efficiency quick ref](docs/openclinxr/worker-backlog-and-validation-matrix.md)
+- [OpenClaw runbook + token/long-run hyper-opt rules](docs/openclinxr/openclaw-runbook-2026-05-27.md)
 - [OpenClaw tool adapters](docs/openclinxr/openclaw-tool-adapters-2026-05-27.md)
 - [Blueprint-factory drift guardrails](docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md)
-- [Implementation plan](docs/openclinxr/code-implementation-plan.md)
-- [PNPM audit cadence runbook](docs/openclinxr/security-audit-cadence.md)
-- [Quest 3 USB WebXR smoke checklist](docs/openclinxr/quest3-usb-webxr-smoke-checklist.md)
-- [Local AI voice model strategy](docs/openclinxr/local-ai-voice-model-strategy.md)
-- [Automated asset generation pipeline](docs/openclinxr/asset-generation-pipeline.md)
+- [OpenClinXR docs + evidence (current-ref only)](docs/openclinxr/)
+- Factory generators: tools/openclinxr/factory/ (UI-XR consumer, materialization, publication, review packets)
 
-## OpenClaw Agent Kickoff
+## OpenClaw Agent Kickoff (Hyper-Optimized for Long-Running, Token-Efficient, Uninterrupted Work)
 
-OpenClaw mode is repo-native, not tied to one agent host. Codex, Claude, Grok Code, Cursor, or another tool can participate if it follows the same canonical files and keeps work blueprint/factory-driven.
+OpenClaw mode is repo-native (not tied to one host). Codex, Claude, Grok, Cursor, or others participate by anchoring to canonical files and keeping work strictly blueprint/factory-driven (encounter spec drives generated runtime, actors, conversation, assets, review, persistence).
 
-Naming clarification: this repo is not running an external OpenClaw runtime, daemon, SaaS product, or privileged orchestration service. It uses an OpenClaw-style execution pattern made of repo-native guardrails, role charters, deterministic checks, host adapter prompts, and drift-police enforcement.
+The repo is now hyper-optimized for agentic completion: Current State Snapshots + Efficiency Quick Refs in the 3 state files + AGENTS for low-token rehydration; lease for safe unattended edits; focused verification only; anti-toil + drift guards; scheduler/monitor support for persistent heartbeats without interruption. M1 Max 64 GB is the primary target workstation (Quest requires separate operator re-run).
 
-Before a long run:
+Naming clarification: this repo is not running an external OpenClaw runtime, daemon, SaaS product, or privileged orchestration service. It uses an OpenClaw-style execution pattern made of repo-native guardrails, role charters, deterministic checks, host adapter prompts, and drift-police enforcement. See AGENTS.md "Hyper Token-Efficient & Long-Run Practices" and the runbook for details.
+
+Before a long run (or after compaction/heartbeat):
 
 ```bash
 pnpm openclaw:preflight
+pnpm docs:drift-check
+pnpm openclaw:lease -- status
 ```
 
-After a slice, before queue transition or completion claims:
+Re-read only the snapshots (first ~60-80 lines) of AGENTS, PROJECT_COORDINATION_INDEX, AUTONOMOUS_WORK_PLAN, and worker-backlog-and-validation-matrix.md. Use `tail | grep` or `grep` tool for history/next.
+
+After a slice, before queue transition:
 
 ```bash
 pnpm openclaw:post-slice
+pnpm docs:drift-check
 ```
 
-To print the canonical automation prompt from the protected runbook:
+To print the canonical automation prompt (for external schedulers or AI scheduler_create):
 
 ```bash
 pnpm openclaw:automation-prompt
@@ -59,9 +65,7 @@ Install repo-local Git hooks:
 pnpm hooks:install
 ```
 
-The `pre-commit` hook runs fast OpenClaw hygiene: `docs:drift-check`, `agent:alignment`, and `openclaw:post-slice`.
-
-The `pre-push` hook repeats the fast OpenClaw hygiene so pushes do not publish drift.
+The `pre-commit` / `pre-push` hooks run fast OpenClaw hygiene: `docs:drift-check`, `agent:alignment`, and `openclaw:post-slice`.
 
 Run the strict local gate before release branches or broad merges:
 
@@ -69,7 +73,7 @@ Run the strict local gate before release branches or broad merges:
 pnpm hooks:strict
 ```
 
-The strict gate runs TypeScript checks, `pnpm audit`, security policy/license checks, `knip`, and `e18e`. It is not installed as a blocking Git hook until the existing TypeScript baseline is repaired.
+(Strict runs typecheck + audits + hygiene; not blocking until TS baseline repaired.)
 
 Use `OPENCLAW_SKIP_HOOKS=1` only for intentional emergency bypasses.
 
@@ -82,125 +86,71 @@ pnpm docs:drift-check
 pnpm agent:alignment
 ```
 
-Use this universal kickoff prompt when switching tools:
+Copy-paste kickoff prompts (condensed; full in AGENTS.md for hosts; see Quick Start above for current).
 
-```text
-Continue in repo-native OpenClaw mode in /Volumes/files/src/openclinxr.
+## OpenClaw Quick Start (Hyper-Optimized, Token-Efficient, Uninterrupted)
 
-Use AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, docs/openclinxr/openclaw-runbook-2026-05-27.md, docs/openclinxr/openclaw-tool-adapters-2026-05-27.md, and docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md as the source of truth.
+Repo-native (adaptable to Codex/Claude/Grok/Cursor/etc. via adapters + runbooks). Anchor to canonicals; work strictly blueprint/factory-driven (case-def drives generated runtime/actors/conversation/assets/review/persist). Current: UI-XR consumer + materialization for peds_asthma_parent_anxiety_v1 (gates false, raw hidden, M1 Max 64 GB primary).
 
-Do not use generic chat autonomy. Do not hand-design individual encounters. All scene, humanoid, clothing, animation, conversation, emotion, locomotion, gaze/lip-sync, equipment, trace, persistence, provider, and review work must flow from encounter specifications/blueprints through reusable factory/provider/cache pipelines.
+Rehydrate first (always): read AGENTS.md + first ~60-80 lines (snapshots + Efficiency Quick Ref) of PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/worker-backlog-and-validation-matrix.md. Use `grep` tool (path/glob) + `read_file` limits + `tail | grep` for history. Never broad scans.
 
-Before selecting work, apply the OpenClaw drift guard: no scattered markdown, no one-off status/checkpoint/prompt artifacts, no unregistered generated artifacts, no evidence refresh unless it unlocks a concrete implementation decision. If drift is suspected, consult agents/adversarial/openclaw-drift-police/ and run or request pnpm docs:drift-check.
-
-Use live subagents only if this host supports them and they materially reduce drift/risk/review cost. Otherwise use local role consultation from agents/** charters/memory. Record only canonical outcomes.
-
-After each slice, run focused verification when available, update canonical state with product path advanced, blueprint/factory tie, touched files, evidence, and next queued slice, then continue. Stop only if explicitly told to pause/stop or all approved lanes are truly blocked and recorded.
+Before long run / after compaction:
+```bash
+pnpm openclaw:preflight
+pnpm docs:drift-check
+pnpm openclaw:lease -- status
 ```
 
-Host-specific shortcuts:
-
-- `Codex`: use for local implementation, terminal verification, Browser screenshots, and optional live-subagent orchestration.
-- `Claude`: use for high-level reasoning, adversarial review, specs, or implementation when shell/files are available; do not claim verification without evidence.
-- `Grok Code`: use as a bounded specialist for critique, external tooling/options, and adversarial review; keep provider/license gates explicit.
-- `Cursor`: use for focused local code edits with visible diffs; avoid broad refactors unless a canonical cleanup plan requires them.
-
-If any host creates clutter, one-off encounter work, or unregistered artifacts, invoke the Drift Police role in [agents/adversarial/openclaw-drift-police](agents/adversarial/openclaw-drift-police/) and correct back to the active product queue.
-
-Copy-paste kickoff prompts:
-
-`Codex`
-
-```text
-Continue in repo-native OpenClaw mode in /Volumes/files/src/openclinxr using Codex local tools.
-
-Read AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, docs/openclinxr/openclaw-runbook-2026-05-27.md, docs/openclinxr/openclaw-tool-adapters-2026-05-27.md, and docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md as needed.
-
-Use terminal, file edits, focused verification, and Browser screenshots when they directly advance or prove the case-definition-driven WebXR encounter factory. Run pnpm docs:drift-check and pnpm agent:alignment before long unattended work or after suspected drift. Select the next approved product slice from AUTONOMOUS_WORK_PLAN.md and continue without treating slice completion as a stop condition.
+After slice (before next):
+```bash
+pnpm openclaw:post-slice
+pnpm docs:drift-check
 ```
 
-`Claude`
-
-```text
-Operate as a repo-native OpenClaw agent for /Volumes/files/src/openclinxr, not as generic Claude chat.
-
-Use AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/openclaw-runbook-2026-05-27.md, and docs/openclinxr/openclaw-tool-adapters-2026-05-27.md as the source of truth. Keep work blueprint/factory-driven and avoid hand-designing individual encounters.
-
-If you have shell and file access, implement the next smallest approved product slice and run focused verification. If you do not have execution access, act as a bounded planner/reviewer: identify the exact slice, risks, files, verification commands, and Drift Police concerns without creating new status artifacts.
+Print automation prompt (for schedulers):
+```bash
+pnpm openclaw:automation-prompt
 ```
 
-`Grok Code`
-
-```text
-Act as a bounded OpenClaw specialist for /Volumes/files/src/openclinxr.
-
-Use the repository guardrails in AGENTS.md, PROJECT_COORDINATION_INDEX.md, docs/openclinxr/openclaw-runbook-2026-05-27.md, docs/openclinxr/openclaw-tool-adapters-2026-05-27.md, and docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md.
-
-Focus on adversarial critique, external tooling/options, provider/license constraints, realism scoring, and narrowly scoped implementation only when it advances the encounter-factory pipeline. Do not use paid/cloud providers, claim readiness, or introduce one-off encounter assets unless explicitly approved and routed through provider/cache/provenance gates.
+Full readiness:
+```bash
+pnpm openclaw:ready
 ```
 
-`Cursor`
-
-```text
-Run Cursor in repo-native OpenClaw mode for /Volumes/files/src/openclinxr.
-
-Use AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/openclaw-runbook-2026-05-27.md, docs/openclinxr/openclaw-tool-adapters-2026-05-27.md, and docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md before editing.
-
-Make focused diffs against the next approved product slice, preserve the case-definition-driven factory architecture, avoid broad cleanup unless backed by a canonical plan, and run the smallest relevant verification command before claiming completion. If drift appears, invoke the OpenClaw Drift Police role and correct back to the canonical queue.
+Install hooks (pre-commit/push run drift + alignment + post-slice):
+```bash
+pnpm hooks:install
+pnpm hooks:strict   # for merges (includes typecheck/audits)
 ```
 
-## Verification
+If drift suspected: consult agents/adversarial/openclaw-drift-police/, run pnpm docs:drift-check. Record blockers in operator-*.md with recommended defaults. Update only canonical state files with Per-Slice (product path, blueprint tie, touched, evidence, next).
 
-Use Node `22.19.0` and pnpm `10.33.0`.
+Host notes (all use snapshots-first, focused `... -t "name"`, lease for edits, no one-off encounters):
+- Codex/Grok Code/Cursor: local impl + focused verif + screenshots; diffs against next slice from snapshots.
+- Claude: high-level/adversarial; execution hosts do the code+verify.
+See full in AGENTS.md (Hyper practices) + protected runbooks/adapters/guardrails (do not weaken).
 
-If your terminal still points to an old/global Node binary, use `nvm` before running `pnpm`:
+Do not hand-design scenes; all flows from blueprints through factory/ (tools/openclinxr/factory/). Consult 9 core agents/** only for drift/review cost reduction.
+
+## Verification (Focused, per Anti-Toil)
+
+Engines: Node `>=24.15.0` (.nvmrc), pnpm `>=11.4.0` (pinned). Use `nvm use` if needed.
 
 ```bash
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-nvm use
-```
-
-With `.nvmrc` in this repo, `nvm use` will pick `22.19.0`.
-
-```bash
-pnpm agent:verify
-pnpm typecheck
-pnpm test
+pnpm agent:alignment   # cheap first (0.5s)
+pnpm docs:drift-check
+pnpm --filter @openclinxr/api test -- app.test.ts -t "name"   # example focused
+pnpm exec vitest run tools/openclinxr/factory/ui-xr-runtime-evidence-consumer.test.ts -t "consumer"
 pnpm security:audit-policy
 pnpm security:licenses
 ```
 
-To reproduce the ICU mismatch error before you switch Node runtimes:
+(Use full `pnpm agent:verify` / typecheck only after coherent batches; see operator-open for known nonblocking strict TS.)
 
-```bash
-/opt/homebrew/bin/node -v
-```
-
-On this machine this fails with:
-
-`dyld[xxxx]: Library not loaded: /opt/homebrew/opt/icu4c/lib/libicui18n.74.dylib`
-
-If you still see that error, run:
-
-```bash
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-nvm use
-```
-
-For GitHub Pages maintenance:
-
+Pages (site in docs/):
 ```bash
 pnpm pages:sync-evidence-links
-pnpm pages:sync-validate
 pnpm pages:validate
 ```
 
-`pages:sync-evidence-links` updates the four snapshot links under `docs/index.html`
-to the latest matching files in `docs/openclinxr` using the `data-pages-snapshot` keys.
-
-`pages:sync-validate` checks whether `docs/index.html` is already up to date and then
-runs `pages:validate`.
-
-The public GitHub Pages site is static content in [docs](docs/) and is configured to publish from `main` with `/docs` as the Pages source.
+Site publishes from `main` /docs. Always pair doc updates with product slice + guards.

@@ -1,6 +1,41 @@
 # OpenClinXR Project Coordination Index
 
-Last updated: 2026-05-21
+Last updated: 2026-06-03 (lean OpenClaw daily driver; 9 core agents; UI-XR consumer + materialization for peds factory; snapshots + Efficiency Quick Ref primary rehydrate; historical purged to git only; M1 Max 64GB).
+
+## Current State Snapshot (read first for rehydration)
+
+**Product focus**: Blueprint-driven encounter factory (case-definition -> generated runtime + review + persistence). Primary case: peds_asthma_parent_anxiety_v1 (pediatric) + ED chest-pain seed. Target workstation: Apple M1 Max 64 GB (this machine; M4 future). 
+
+**Current emphasis (post assessment 2026-06)**: Core: make the peds case spec (communication profiles, escalation/deescalation triggers, empathy/parent comm tags, clinical objectives, event schedule) drive generated actor turn timelines, dialogue cue policies, and emotion state transitions into runtime artifacts, review packets, and replay (deterministic first, gates for LLM). Supporting: UI-XR consumer for ingesting manual "good realism" (locomotion/gaze/expression) evidence as reference data that can be operator-selected and attached to generated sessions for review/QA (raw hidden, gates false). Materialization for asset needs from spec. Review/replay surfaces show both spec expectations and attached evidence. 
+
+Recent direction (consumer + meta bloat/docs/validation) was necessary for agent sustainability and review backbone but per guardrails ("do not let asset realism displace conversation tooling", "blueprint must drive", anti-toil after evidence/meta) requires rebalance to generation from case def. See AUTONOMOUS assessment record.
+
+**Active lanes (from worker matrix, highest value first)**: Worker 9/7/11 runtime visual evidence consumer + preflight/submit-preview + review/replay pipeline (UI-XR + Admin/GraphQL/API); Worker 11/7 materialization evidence attachment continuation and surfaces; Worker 7/8/9 faculty/admin review posture and replay safety; XR trace/locomotion and actor-realism in UI-XR; scenario bank expansion.
+
+**Last slice (one-liner)**: 2026-06-03: blocker assessment (Quest worn re-run is only true hardware blocker; VibeVoice nonblocking for voice POC). Per AGENTS: does NOT block current local generation lane (spec->turns/emotion); rec default "continue local deterministic"; addressing now would be evidence toil vs rebalanced product gen. Do not address; pivot/continue generation. Paired: added runtimeExecutionHints to derive. See AUTONOMOUS. Next: expand/wire to runtime-state.
+
+**Next queued slice (do this)**: Per blocker assessment + rebalance: do NOT address Quest (continue local gen). Expand derive (or new generator) for fuller turns/emotion from peds spec; wire caseDerived* (incl. runtimeExecutionHints) to ui-xr runtime-state (stub player) or review artifact; test. Record Per-Slice, verif, post+guards.
+
+**Rehydration checklist (required at start of session/after compaction/heartbeat)**: 1. Re-read AGENTS.md. 2. Read PROJECT_COORDINATION_INDEX.md (this; stop at first '---' or line ~80 for continuation). 3. Read AUTONOMOUS_WORK_PLAN.md (front snapshot + latest entries). 4. Read docs/openclinxr/worker-backlog-and-validation-matrix.md. 5. Run `pnpm docs:drift-check` if cleanup/drift suspected or long run. 6. `pnpm openclaw:lease -- status` if unattended. 7. Pick from active queue or worker matrix. 8. Consult agents/** (read charter+memory) or live subagents only for drift/review/plan if materially reduces cost. 9. Do small slice, verify, update state files only, continue.
+
+**Efficiency Quick Ref (token + long-run hyper-opt)**: 
+- Fast guards: `pnpm agent:alignment` (cheap, ~0.5s) always before full verify.
+- Lease for edits: `pnpm openclaw:lease -- acquire --owner grok --slice <name> --ttl-minutes 60`.
+- Focused test: `pnpm ... vitest run FILE.test.ts -t "substring"`.
+- History quick: terminal `tail -30 AUTONOMOUS_WORK_PLAN.md | grep -E 'Next|Product path'`.
+- Search: use `grep` tool with `path`/`glob`/`head_limit`, never full read long files.
+- Read smart: `read_file` + `offset`+`limit=30` for >100ln files.
+- Post-slice: `pnpm openclaw:post-slice && pnpm docs:drift-check`.
+- For external long-run: `pnpm openclaw:automation-prompt` to feed scheduler/heartbeat.
+- Avoid: full `agent:verify`, broad ls on docs/openclinxr (429+ jsons), reading full ledgers.
+
+**Working model**: See AGENTS.md (OpenClaw daily driver for blueprint factory; 9 core agents; snapshots + Efficiency Quick Ref primary; full iteration synthesis-only; LOW_TOKEN; lease; guards; anti-toil; blueprint gate). Adaptable via openclaw-tool-adapters. Efficient Rehydration applied here.
+
+**Protected (do not weaken)**: AGENTS.md, blueprint-factory-drift-guardrails-2026-05-27.md, openclaw-runbook-2026-05-27.md, openclaw-tool-adapters-2026-05-27.md, doc-authority-registry, generated-artifact-registry, this index, AUTONOMOUS, worker-backlog.
+Efficient Rehydration + Working Model
+UI-XR runtime evidence consumer
+
+Use this snapshot + queue below for task selection. Full historical detail follows for audit/evidence only.
 
 ## Purpose
 
@@ -22,7 +57,7 @@ It fills the missing gap between those files: a concise coordinator-facing index
 
 Existing useful indexes:
 
-- `.agent-factory/memory-index.json`: generated memory records across 69 agents and 111 active/superseded entries.
+- `.agent-factory/memory-index.json`: generated memory records for 9 core agents (21 active/superseded entries post new-owner slim/purge).
 - `agents/**/index.json`: per-agent memory indexes.
 - `docs/openclinxr/knowledge-graph-and-indexing.md`: future product knowledge graph for scenarios, claims, sources, rubrics, traces, and memory.
 - `AUTONOMOUS_WORK_PLAN.md`: long-form execution plan and historical ledger.
@@ -73,29 +108,31 @@ Correction:
 - Require every sub-agent work order to name the product path it advances.
 - Run aggregate evidence only after coherent build batches or changed facts.
 
-## Active Product Advancement Queue
+## Active Product Advancement Queue (synced to 2026-05-28 OpenClaw state; supersedes older 05-21 entries below)
 
-Use this queue unless Patrick explicitly changes direction.
+Use this queue unless Patrick explicitly changes direction. Prioritize lanes that advance the blueprint-to-runtime factory contract, conversation/runtime tooling, review/persistence/replay, or reusable asset paths for the peds + multi-station skeleton. After any slice, write the Required Per-Slice Record (Product path advanced, Blueprint/factory tie, Touched files, Evidence, Next queued slice) into AUTONOMOUS_WORK_PLAN.md or the worker backlog.
 
-1. Worker 7 plus Worker 8 completed-station faculty review path.
+1. Worker 9/7/11 runtime evidence consumer + preflight/submit-preview + review/replay pipeline (UI-XR + Admin/GraphQL/API surfaces).
 
-   Product goal: faculty can inspect a completed ED chest-pain station through review-safe API/admin surfaces, including timeline, missing required behaviors, unsafe/late signals, note evidence, and reviewer decision posture.
+   Product goal: copied/manual UI-XR runtime performance payloads (actor realism, visual-QA, locomotion) become reusable metadata-only inputs to the guarded `/runtime/visual-evidence-attachments` record path and flow as summary-only submitPreview/preflight/nextActions into replay projections, runtime-selection packets, publication readiness, and Admin ReviewReplayReadinessSummaryPanel/Faculty panels. Raw payloads stay hidden; all provider/runtime/learner/Quest/production/clinical/scoring gates remain false. Advances review-safe evidence attachment for the factory without new routes or readiness claims.
 
-2. Worker 9 XR trace interaction or locomotion instrumentation.
+2. Worker 11 actor/equipment materialization evidence attachment continuation (peds asthma focus).
 
-   Product goal: one concrete learner XR interaction path becomes more observable and closer to headset readiness. Consider IWSDK sidecar support, but do not couple IWSDK into production runtime.
+   Product goal: provider-neutral materialization input manifests, attachment plans (12 actor + 24 equipment slots), evidence attachment records, and worker/API/Admin surfaces that let reviewers see attached/missing/held slots and blockers for actor-specific humanoid (body/clothing/hair-face/rig) and equipment (mesh/scale/placement/affordance) before runtime selection. Keeps shared-neutral/generic reuse as explicit blockers. No provider execution or readiness claims.
 
-3. Worker 4 plus Worker 2 scenario-bank expansion.
+3. Worker 7/8/9 faculty/admin completed-station review posture + replay safety (including asset/runtime summaries).
 
-   Product goal: the exam skeleton expands beyond one station with schema-backed actors, environments, equipment, trace tags, rubrics, communication profiles, and asset needs.
+   Product goal: faculty can inspect completed stations (ED + peds) through review-safe API/admin surfaces with timeline, missing behaviors, unsafe/late signals, note evidence, reviewer decision posture, runtimeVisualEvidenceAttachmentRecord, assetReleaseLadderReplayProjection, and materialization gates visible as read-only context. Review projections stay summary-only.
 
-4. Worker 11 reviewed asset-production evidence ladder for one named artifact.
+4. Worker 4/2/11 scenario-bank expansion + case-definition-driven factory coverage (peds + others).
 
-   Product goal: one named ED station artifact moves from placeholder planning toward reviewed manifest/provenance/license/optimization/Quest-QA evidence without production-readiness claims.
+   Product goal: exam skeleton expands with schema-backed actors, environments, equipment, trace tags, rubrics, communication profiles, actorRuntimeRealismRequirements; publication/launch/factory/runtime artifacts derive from scenario fixtures rather than ED fallbacks; caseDefinitionDrivenFactoryCoverage proves alignment.
 
-5. Worker 5 plus Worker 12 replayable station evidence.
+5. Worker 9/11 XR trace interaction, locomotion, actor-realism, and UI-XR consumer tooling.
 
-   Product goal: review-safe traces, packets, actor turns, emotional-state timelines, and approved durable clinical events become safer and more replayable inside approved persistence boundaries.
+   Product goal: one concrete learner XR path (desktop fallback) becomes more observable (in-scene panels, window evidence, copied payloads) and closer to headset readiness evidence posture. IWSDK sidecar only for emulation/tooling; physical Quest foreground remains the truth source. Consider materialization gate handoff.
+
+Legacy 05-21 queue items (asset ladder, replay, provider) are largely complete or absorbed into above; do not restart evidence loops on them. If a lane blocks, record in operator files with recommended default and pivot.
 
 ## Productive Work Test
 
@@ -258,6 +295,12 @@ Update this file only when one of these changes:
 - A repo-defined agent role becomes necessary for keeping work aligned.
 
 Do not update this file for routine command output, benchmark refreshes, or per-slice status.
+
+## Historical 2026-05-21 Checkpoints (archival context only)
+
+The sections below capture an earlier queue state and Iteration 9 reset. They are superseded by the Current State Snapshot and Active Product Advancement Queue at the top of this file. Do not use the 05-21 queues for task selection; they are retained for audit and to show evolution of the OpenClaw continuous-slice model. For rehydration, stop reading here or jump to the next major heading after reviewing the frontmatter.
+
+(Original 05-21 completion checkpoint and Iteration 9 reset text preserved below for history; current work has advanced the factory through materialization evidence seams and into runtime evidence consumer + review pipeline for UI-XR while preserving all guardrails and claim boundaries. Alignment marker preserved: Worker 7 plus Worker 8 completed-station faculty review path)
 
 ## 2026-05-21 Active Queue Completion Checkpoint
 

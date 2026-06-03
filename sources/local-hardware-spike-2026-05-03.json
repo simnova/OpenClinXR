@@ -16,7 +16,7 @@
     "The Quest 3 USB-C local development loop loaded a static local page through Quest Browser using ADB reverse and exposed the page through the Chrome DevTools remote endpoint."
   ],
   "claims_not_supported": [
-    "That the user's target M4 Pro or M4 Max hardware will perform identically.",
+    "That future higher-end M4 Pro or M4 Max hardware will perform identically to the current target M1 Max 64 GB workstation (now primary target).",
     "That any local LLM or VibeVoice model has been installed or benchmarked.",
     "That OpenClinXR XR scene runtime performance has been validated."
   ],

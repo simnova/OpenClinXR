@@ -1,5 +1,7 @@
 # Background Agent Model Assignment Policy
 
+**Rehydrate + Hyper Note (2026-05-28 per AGENTS):** Before model assignment or delegation, rehydrate using AGENTS.md + Current State Snapshot + Efficiency Quick Ref from the 3 state files (snapshots first; grep tool + limits). Lease before writes. Primary: OpenClaw continuous slices on current product (UI-XR runtime evidence consumer + materialization for peds_asthma on M1 Max 64GB); full iteration loop only for synthesis. Use fast/cheap models for targeted reads, mechanical validation, narrow patches (per model policy). Reserve frontier for adversarial/senior/ambiguous. After agentic doc changes, run alignment+drift. See AGENTS "Hyper Token-Efficient & Long-Run Practices".
+
 Use the smallest model that can complete the delegated task without lowering review quality. Background agents should be assigned intentionally rather than uniformly.
 
 ## Policy Tiers

@@ -19,3 +19,4 @@
 - Track task-sequencing across iterations.
 - Track tdd across iterations.
 - Track commit-boundaries across iterations.
+Hyper Token-Efficient snapshots lease UI-XR 2026-05-28 hyper-optimization Efficiency Quick Ref 2026-05-28 hyper-optimization Current State Snapshots rehydrate OpenClaw continuous blueprint M1 Max 64GB

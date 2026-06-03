@@ -130,6 +130,10 @@ export function ReviewReplayReadinessSummaryPanel({
                   detail={summary.runtimeVisualEvidenceReplayProjection.uiXrConsumerOperatorWorkflowSummary.submitPreview.inputIds.join(", ")}
                 />
                 <ReviewReplayReadinessMetric
+                  label={summary.runtimeVisualEvidenceReplayProjection.uiXrConsumerOperatorWorkflowSummary.submitPreview.operatorSelectionEnabled ? `operator-selectable up to ${summary.runtimeVisualEvidenceReplayProjection.uiXrConsumerOperatorWorkflowSummary.submitPreview.operatorSelectableAttachmentCount ?? summary.runtimeVisualEvidenceReplayProjection.uiXrConsumerOperatorWorkflowSummary.submitPreview.attachmentCount}` : "operator selection not enabled"}
+                  detail={summary.runtimeVisualEvidenceReplayProjection.uiXrConsumerOperatorWorkflowSummary.submitPreview.operatorSelectionSupport ?? "n/a"}
+                />
+                <ReviewReplayReadinessMetric
                   label={`${summary.runtimeVisualEvidenceReplayProjection.uiXrConsumerOperatorWorkflowSummary.submitPreview.localArtifactPaths.length} local artifact refs`}
                   detail={summary.runtimeVisualEvidenceReplayProjection.uiXrConsumerOperatorWorkflowSummary.submitPreview.claimBoundary}
                 />

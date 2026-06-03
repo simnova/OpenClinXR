@@ -136,4 +136,6 @@ Use Browser and screenshot evidence for runtime visual changes. Use multimodal/a
 After each slice, update AUTONOMOUS_WORK_PLAN.md and docs/openclinxr/worker-backlog-and-validation-matrix.md, record nonblocking blockers in operator-open-questions.md with recommended defaults, then immediately continue to the next approved slice.
 
 Do not treat slice completion, screenshots, tests, documentation updates, heartbeats, or evidence checkpoints as stop conditions. Keep chat minimal. Stop only if I explicitly say pause/stop or all approved lanes are truly blocked.
+
+For Grok (this harness): hyper token opt - always `read_file` with `offset`/`limit` on long files; `grep` tool (path/glob) for searches; `run_terminal_command` + `| tail -N` + short `timeout`; re-read *only* the 4-file snapshots on every wake/compact; use `scheduler_create` + `monitor` for persistent lease/heartbeat watch to avoid chat blocks in long runs. Follow the "Hyper Token-Efficient & Long-Run Practices" in AGENTS.md exactly.
 ```

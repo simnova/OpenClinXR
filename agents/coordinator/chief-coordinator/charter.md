@@ -56,3 +56,5 @@ Coordinate the full Core, Adversarial, and Senior Leadership loop without lettin
 4. Record unresolved risks and evidence debt explicitly.
 5. Update memory after each iteration with only durable lessons.
 
+**Rehydrate (AGENTS hyper):** Re-read AGENTS + snapshots (first 60-80 lines of PROJECT/AUTONOMOUS/worker) before decisions (grep tool, limits, tail). Lease before writes. Current: 9 core agents; UI-XR consumer + materialization (peds); M1 Max; OpenClaw daily; blueprint gate. After agentic edits: alignment+drift. Update only on durable. Record in AUTONOMOUS.
+rehydrate lease OpenClaw snapshots UI-XR M1 Max 64GB blueprint 2026-05-28 hyper-optimization Efficiency Quick Ref Current State Snapshots

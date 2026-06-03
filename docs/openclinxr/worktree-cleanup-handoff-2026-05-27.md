@@ -65,9 +65,9 @@ This generated report categorizes the remaining dirty worktree so cleanup commit
 - `??` `tools/openclinxr/azurite-asset-upload-smoke.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `??` `tools/openclinxr/blender/` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `??` `tools/openclinxr/derive-garment-fit-transform.mjs` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
-- `??` `tools/openclinxr/encounter-asset-generation-queue.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
-- `??` `tools/openclinxr/encounter-asset-generation-queue.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
-- `??` `tools/openclinxr/encounter-asset-generation-worker.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/factory/encounter-asset-generation-queue.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/factory/encounter-asset-generation-queue.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `??` `tools/openclinxr/factory/encounter-asset-generation-worker.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `??` `tools/openclinxr/encounter-asset-generation-worker.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `??` `tools/openclinxr/encounter-guarded-runtime-selection-intent.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `??` `tools/openclinxr/encounter-guarded-runtime-selection-intent.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.

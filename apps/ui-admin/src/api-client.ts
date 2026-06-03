@@ -1053,6 +1053,9 @@ export type AdminRuntimeVisualEvidenceReplayProjection = {
       route: "/runtime/visual-evidence-attachments";
       bodyRef: "submitRuntimeVisualEvidenceAttachmentInput";
       attachmentCount: number;
+      operatorSelectableAttachmentCount?: number;
+      operatorSelectionEnabled?: boolean;
+      operatorSelectionSupport?: 'subset-via-count';
       actionIds: Array<"attach_runtime_realism_evidence_refs" | "attach_visual_qa_evidence_refs">;
       inputIds: string[];
       localArtifactPaths: string[];

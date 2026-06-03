@@ -1,7 +1,0 @@
-
-error: The following error occured:
-       - Invalid value for option --format.
-         Expected one of 'pretty', 'csv', 'md', but got "json".
-       
-       Synopsis: cli.js inspect <input> [OPTIONS...]
-

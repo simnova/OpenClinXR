@@ -129,7 +129,7 @@ function classify(file: string): DocAuthorityEntry {
   if (file.startsWith("proposals/")) {
     return { path: file, authority: "proposal", agentInstructionWeight: "low", action: "treat-as-evidence", rationale: "Approved/recorded scope evidence; check current guardrails before acting on it." };
   }
-  if (file.startsWith("madr/")) {
+  if (file.startsWith("docs/madr/")) {
     return { path: file, authority: "decision-record", agentInstructionWeight: "medium", action: "treat-as-evidence", rationale: "Architecture decision record; durable context but subordinate to protected guardrails and active queue." };
   }
   if (file.includes("temporary") || file.includes("unattended-runs") || file.includes("handoff") || file.includes("continuation") || file === "blender-bake-temporary-note.md") {

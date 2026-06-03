@@ -2,7 +2,7 @@
 
 ## Durable Lessons
 
-- No durable lessons recorded yet.
+- (see AGENTS + state snapshots for current model; update only on durable lessons from slices).
 
 ## Active Risks
 

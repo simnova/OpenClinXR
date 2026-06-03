@@ -59,3 +59,5 @@ Protect the plan from unrealistic headset, WebXR, rendering, asset, and interact
 3. Separate confirmed facts, reasonable inferences, strategic bets, and unknowns.
 4. Record unresolved risks and evidence debt explicitly.
 5. Update memory after each iteration with only durable lessons.
+Hyper Token-Efficient snapshots lease UI-XR 2026-05-28 hyper-optimization Efficiency Quick Ref 2026-05-28 hyper-optimization Current State Snapshots rehydrate OpenClaw continuous blueprint M1 Max 64GB
+UI-XR runtime evidence consumer

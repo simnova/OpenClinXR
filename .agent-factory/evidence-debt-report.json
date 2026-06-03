@@ -54,7 +54,7 @@
       "plan_type": "leadership-review",
       "scored_by": "senior-leadership-panel",
       "owner": "local-ai-inference-engineer",
-      "summary": "Run structured-output, hidden-truth, actor-policy, and target M4 Pro or M4 Max local model benchmarks before enabling local dialogue in station runtime.",
+      "summary": "Run structured-output, hidden-truth, actor-policy, and M1 Max 64GB primary (M4 future) local model benchmarks before enabling local dialogue in station runtime.",
       "status": "open"
     },
     {
@@ -529,7 +529,7 @@
       "plan_type": "leadership-review",
       "scored_by": "senior-leadership-panel",
       "owner": "local-ai-inference-engineer",
-      "summary": "Run structured-output, hidden-truth, actor-policy, and target M4 Pro or M4 Max local model benchmarks before enabling local dialogue in station runtime.",
+      "summary": "Run structured-output, hidden-truth, actor-policy, and M1 Max 64GB primary (M4 future) local model benchmarks before enabling local dialogue in station runtime.",
       "status": "open"
     },
     {
@@ -861,7 +861,7 @@
       "plan_type": "leadership-review",
       "scored_by": "senior-leadership-panel",
       "owner": "local-ai-inference-engineer",
-      "summary": "Run structured-output, hidden-truth, actor-policy, and target M4 Pro or M4 Max local model benchmarks before enabling local dialogue in station runtime.",
+      "summary": "Run structured-output, hidden-truth, actor-policy, and M1 Max 64GB primary (M4 future) local model benchmarks before enabling local dialogue in station runtime.",
       "status": "open"
     },
     {

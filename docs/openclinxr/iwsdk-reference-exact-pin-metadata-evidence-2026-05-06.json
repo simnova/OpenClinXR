@@ -1,8 +1,0 @@
-{
-  "packageName": "@iwsdk/reference",
-  "docsVersion": "0.3.1",
-  "npmLatestVersion": "0.3.2",
-  "exactPinApproved": true,
-  "exactPinVersion": "0.3.2",
-  "approvalRecordId": "iwsdk-reference-warmup-download-approval"
-}

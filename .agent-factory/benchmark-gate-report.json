@@ -1139,7 +1139,7 @@
       "caveats": [
         "Good enough for a local adapter latency smoke; not good enough for clinical actor quality or validated scoring.",
         "Structured-output enforcement needs a follow-up grammar/schema spike before any autonomous planning or scoring dependency.",
-        "Hardware result is for this Apple M1 Max machine, not the target M4 Pro or M4 Max claim.",
+        "Hardware result is for this Apple M1 Max 64GB machine (primary target workstation), not an M4 Pro or M4 Max future profile claim.",
         "This report was produced by the repo-managed local execution mode after explicit operator approval."
       ]
     }
@@ -1245,12 +1245,13 @@
     "target_hardware": {
       "observedDevice": "MTL0 (Apple M1 Max)",
       "requiredFamilies": [
+        "Apple M1 Max",
         "Apple M4 Pro",
         "Apple M4 Max"
       ],
       "passed": false,
       "blockers": [
-        "target_hardware_not_m4_profile"
+        "target_hardware_not_m1_profile"
       ]
     },
     "verdict": {
@@ -2917,7 +2918,7 @@
             "blockers": [
               "local_model_quality:target_hardware:target_hardware_not_m4_profile"
             ],
-            "next_step": "Close remaining local model quality blockers, especially target M4 Pro/Max hardware evidence, before enabling local dialogue in station runtime."
+            "next_step": "Close remaining local model quality blockers, especially target hardware profile evidence (now aligned to Apple M1 Max 64 GB current workstation; M4 higher-end future), before enabling local dialogue in station runtime."
           }
         ],
         "ungrouped_blockers": []

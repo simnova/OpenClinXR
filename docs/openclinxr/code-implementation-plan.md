@@ -1,18 +1,18 @@
-# OpenClinXR Code Implementation Plan
+# OpenClinXR Code Implementation Plan (Historical Context)
 
-Date: 2026-05-03
-Status: Exhaustive implementation planning draft
+**Note (2026-06, post new-owner efficiency + reorg):** Superseded by current snapshots in PROJECT_COORDINATION_INDEX.md / AUTONOMOUS_WORK_PLAN.md / worker-backlog-and-validation-matrix.md (UI-XR runtime evidence consumer + materialization for peds_asthma_parent_anxiety_v1, OpenClaw daily driver, M1 Max 64GB, gates false). See AGENTS.md + factory/ generators for active blueprint-to-runtime slices. This file retained as current-ref per doc-authority-registry for historical reference only; do not treat as active marching orders. Trimmed for relevance.
 
-Companion artifacts:
+Date: 2026-05-03 (original)
+Status: Historical draft (early exhaustive planning)
 
-- `docs/openclinxr/worker-backlog-and-validation-matrix.md`
-- `docs/superpowers/plans/2026-05-03-openclinxr-code-implementation-plan.md`
-- `docs/openclinxr/local-hardware-spike-results.md`
-- `docs/openclinxr/local-ai-voice-model-strategy.md`
-- `docs/openclinxr/mongodb-memory-server-test-strategy.md`
-- `docs/openclinxr/quest3-usb-webxr-smoke-checklist.md`
+Companion artifacts (many now in snapshots or purged historical):
 
-## Goal
+- `docs/openclinxr/worker-backlog-and-validation-matrix.md` (current)
+- (historical superpowers/ purged)
+- `docs/openclinxr/local-hardware-spike-results.md` (M1-aligned)
+- etc.
+
+## Goal (Historical)
 
 Build the first OpenClinXR codebase: a deterministic, single-user, Step 2 CS-inspired XR clinical-skills station skeleton with scenario authoring, review gates, trace replay, mock actor dialogue, local-only model/voice adapter contracts, and a path to Quest 3 validation.
 
@@ -377,7 +377,7 @@ The first milestone is complete when:
 
 The task-by-task plan lives at:
 
-- `docs/superpowers/plans/2026-05-03-openclinxr-code-implementation-plan.md`
+- (historical superpowers/ path purged; this doc is now in docs/openclinxr/ as current-ref per new-owner align)
 
 ## Sources
 

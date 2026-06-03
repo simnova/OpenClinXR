@@ -1368,6 +1368,9 @@ describe("OpenClinXR API shell", () => {
           route: "/runtime/visual-evidence-attachments",
           bodyRef: "submitRuntimeVisualEvidenceAttachmentInput",
           attachmentCount: 2,
+          operatorSelectableAttachmentCount: 2,
+          operatorSelectionEnabled: true,
+          operatorSelectionSupport: 'subset-via-count',
           actionIds: ["attach_runtime_realism_evidence_refs", "attach_visual_qa_evidence_refs"],
           inputIds: [
             "runtime-realism-evidence-input:patient_robert_hayes_v1",
@@ -1577,6 +1580,9 @@ describe("OpenClinXR API shell", () => {
                 route: string;
                 bodyRef: string;
                 attachmentCount: number;
+                operatorSelectableAttachmentCount?: number;
+                operatorSelectionEnabled?: boolean;
+                operatorSelectionSupport?: 'subset-via-count';
                 actionIds: string[];
                 inputIds: string[];
                 localArtifactPaths: string[];

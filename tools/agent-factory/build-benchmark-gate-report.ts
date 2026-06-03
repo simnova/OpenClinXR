@@ -2246,8 +2246,8 @@ function localModelQualityBlockers(
   if (benchmark.value.verdict.caveats.length > 0) {
     blockers.push("local_model_quality:structured_output_caveats_present");
   }
-  if (!runtimeDeviceLooksLikeTargetM4(benchmark.value.runtime.device)) {
-    blockers.push("local_model_quality:target_hardware_not_m4_profile");
+  if (!runtimeDeviceLooksLikeTargetM1OrM4(benchmark.value.runtime.device)) {
+    blockers.push("local_model_quality:target_hardware_not_m1_profile");
   }
   blockers.push(
     "local_model_quality:missing_hidden_truth_actor_policy_benchmark",
@@ -2810,8 +2810,10 @@ function assetCapabilityJobEvidenceBlockers(
   ]);
 }
 
-function runtimeDeviceLooksLikeTargetM4(device: unknown): boolean {
-  return typeof device === "string" && /\bM4\b/.test(device);
+function runtimeDeviceLooksLikeTargetM1OrM4(device: unknown): boolean {
+  // Primary target workstation: Apple M1 Max 64GB unified (this machine). M4 Pro/Max are higher-end future profiles.
+  // Aligns with tools/openclinxr/local-model-*-benchmark.ts and AGENTS.md M1 Max primary.
+  return typeof device === "string" && /\b(M1 Max|M4)\b/.test(device);
 }
 
 function numberMetric(value: unknown): number {
@@ -2950,7 +2952,7 @@ const blockerGroups = [
     title: "Local model structured-output and actor-policy evidence",
     owner: "local-ai-inference-engineer",
     matches: (blocker: string) => blocker.startsWith("local_model_quality:"),
-    nextStep: "Close remaining local model quality blockers, especially target M4 Pro/Max hardware evidence, before enabling local dialogue in station runtime.",
+    nextStep: "Close remaining local model quality blockers, especially target hardware profile evidence (now aligned to Apple M1 Max 64 GB current workstation; M4 higher-end future), before enabling local dialogue in station runtime.",
   },
   {
     groupId: "local_voice_live_dialog",

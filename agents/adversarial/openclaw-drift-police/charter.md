@@ -75,3 +75,4 @@ The Drift Police is adversarial but constructive: it does not own product implem
 6. For each confirmed drift, recommend the smallest correction and a product-slice pivot.
 7. If no drift is found, explicitly say the run can proceed and name the next product path to advance.
 8. Update memory only with durable drift patterns that future agents should recognize.
+Hyper Token-Efficient snapshots lease UI-XR 2026-05-28 hyper-optimization Efficiency Quick Ref 2026-05-28 hyper-optimization Current State Snapshots

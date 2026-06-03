@@ -1,13 +1,15 @@
-# Automated Asset Generation Pipeline
+# Automated Asset Generation Pipeline (Historical Context)
 
-Date: 2026-05-06
-Status: Development-team guidance with registry contracts and production evidence ladder implemented
+**Note (2026-06 post reorg/purge):** Superseded by active snapshots (UI-XR consumer + peds materialization in AUTONOMOUS/PROJECT/worker, factory/ generators like encounter-materialization-*.ts + 05-28 evidence JSONs, M1 Max, gates false). See current-ref asset-pipeline.md, garment-*-2026-05-27.md, AGENTS.md. This long plan retained as current-ref for background only; trimmed for succinct/relevant (original exhaustive guidance now in code + artifacts + worker ownership).
 
-## Goal
+Date: 2026-05-06 (original)
+Status: Historical development-team guidance
+
+## Goal (Historical)
 
 Create station-specific 3D characters, clothing, room environments, props, equipment, speech/audio, gesture clips, and optimized runtime bundles in a repeatable way. The pipeline should maximize open and permissive technology while isolating copyleft or commercial tools behind non-runtime boundaries.
 
-## Pipeline Overview
+## Pipeline Overview (Historical)
 
 ```mermaid
 flowchart LR
@@ -415,16 +417,18 @@ Station runtime should load in tiers:
 
 Quest 3 should never block the station on nonessential props. If an asset misses a performance or network deadline, load a simplified placeholder and record an asset degradation event.
 
-## M4 Max Local Workstation Mode
+## Apple Silicon 64 GB Local Workstation Mode (Current Target: M1 Max)
 
-The M4 Max MacBook Pro with 64 GB RAM should be treated as:
+The current target workstation (Apple M1 Max with 64 GB RAM, this host machine) should be treated as:
 
 - Asset generation workstation.
 - Local LLM/ASR/TTS experimentation host.
 - End-to-end demo server for one learner.
-- Blender/ComfyUI/NVIDIA or alternative animation experimentation machine.
+- Blender/ComfyUI or alternative animation experimentation machine.
 
-It should not define production infrastructure. Production should rely on pre-baked assets, managed storage/CDN, external model APIs or separately scaled inference, and lightweight orchestration.
+M4 Max / M4 Pro 64 GB profiles are higher-end future workstations for heavier concurrent loads.
+
+This (and similar Apple Silicon 64 GB class) should not define production infrastructure. Production should rely on pre-baked assets, managed storage/CDN, external model APIs or separately scaled inference, and lightweight orchestration.
 
 ## Sources
 

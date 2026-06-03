@@ -22,7 +22,7 @@ The local machine reports:
 | Memory | 64 GB |
 | Free disk | About 2.5 TiB available |
 
-Important note: this is not the M4 Pro mentioned by the user. Treat these results as a conservative local-machine snapshot. Re-run this spike on the target M4 Pro or M4 Max machine before locking local model sizes.
+Important note: The current target workstation is this Apple M1 Max with 64 GB RAM (host machine). Results and spikes are on the target profile. M4 Pro or M4 Max are noted as higher-end future profiles for heavier loads; re-benchmark on M4 only if/when that hardware becomes available for comparison. This machine (M1 Max 64 GB unified memory, 10 cores) is now the approved target for local dev, model, voice, and asset workstation work.
 
 ## Installed Runtime Tools
 
@@ -290,7 +290,7 @@ Implication: trace event serialization is not a local bottleneck for single-user
 
 Smoke:
 
-- 20,000 validations of the iteration-0003 leadership scorecard schema.
+- 20,000 validations of the (purged historical) iteration-0003 leadership scorecard schema (see git for old synthesis evidence).
 
 Result:
 

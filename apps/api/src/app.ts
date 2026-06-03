@@ -756,6 +756,9 @@ export type ApiUiXrRuntimeEvidenceConsumerWorkflowSummary = {
     route: "/runtime/visual-evidence-attachments";
     bodyRef: "submitRuntimeVisualEvidenceAttachmentInput";
     attachmentCount: number;
+    operatorSelectableAttachmentCount?: number;
+    operatorSelectionEnabled?: boolean;
+    operatorSelectionSupport?: 'subset-via-count';
     actionIds: Array<"attach_runtime_realism_evidence_refs" | "attach_visual_qa_evidence_refs">;
     inputIds: string[];
     localArtifactPaths: string[];
@@ -2138,6 +2141,9 @@ function buildUiXrConsumerWorkflowSummary(
       route: "/runtime/visual-evidence-attachments",
       bodyRef: "submitRuntimeVisualEvidenceAttachmentInput",
       attachmentCount: uiXrAttachments.length,
+      operatorSelectableAttachmentCount: uiXrAttachments.length,
+      operatorSelectionEnabled: true,
+      operatorSelectionSupport: 'subset-via-count',
       actionIds: uiXrAttachments.map((attachment) => attachment.actionId),
       inputIds: uiXrAttachments.map((attachment) => attachment.inputId),
       localArtifactPaths: uiXrAttachments.map((attachment) => attachment.localArtifactPath),

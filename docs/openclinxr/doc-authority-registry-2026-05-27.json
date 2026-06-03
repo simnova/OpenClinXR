@@ -4,17 +4,23 @@
   "protectedRule": "Protected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.",
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
-    "evidence": 44,
+    "archive-candidate": 4,
+    "evidence": 26,
     "protected-policy": 12,
     "current-reference": 49,
-    "agent-memory": 140,
+    "agent-memory": 18,
     "agent-methodology": 8,
-    "archive-candidate": 3,
-    "historical-synthesis": 84,
     "decision-record": 18,
-    "proposal": 21
+    "historical-synthesis": 9
   },
   "entries": [
+    {
+      "path": ".openclinxr/README.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
     {
       "path": ".openclinxr/tool-runtimes/anny-py311/anny/data/mpfb2/LICENSE.md",
       "authority": "evidence",
@@ -142,48 +148,6 @@
       "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
     },
     {
-      "path": "agents/adversarial/competitor-fork-strategist/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/competitor-fork-strategist/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/cost-performance-attacker/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/cost-performance-attacker/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/feasibility-skeptic/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/feasibility-skeptic/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
       "path": "agents/adversarial/implementation-plan-gap-attacker/charter.md",
       "authority": "agent-memory",
       "agentInstructionWeight": "medium",
@@ -192,48 +156,6 @@
     },
     {
       "path": "agents/adversarial/implementation-plan-gap-attacker/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/legal-liability-attacker/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/legal-liability-attacker/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/local-model-performance-skeptic/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/local-model-performance-skeptic/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/open-source-sustainability-critic/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/open-source-sustainability-critic/memory.md",
       "authority": "agent-memory",
       "agentInstructionWeight": "medium",
       "action": "summarize-before-use",
@@ -254,118 +176,6 @@
       "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
     },
     {
-      "path": "agents/adversarial/procurement-gtm-critic/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/procurement-gtm-critic/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/psychometric-overclaim-critic/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/psychometric-overclaim-critic/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/red-team-coordinator/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/red-team-coordinator/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/security-privacy-attacker/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/security-privacy-attacker/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/specialty-clinical-attacker/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/specialty-clinical-attacker/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/supply-chain-dependency-attacker/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/supply-chain-dependency-attacker/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/ux-friction-critic/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/ux-friction-critic/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/voice-safety-misuse-attacker/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/adversarial/voice-safety-misuse-attacker/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
       "path": "agents/coordinator/chief-coordinator/charter.md",
       "authority": "agent-memory",
       "agentInstructionWeight": "medium",
@@ -374,48 +184,6 @@
     },
     {
       "path": "agents/coordinator/chief-coordinator/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/coordinator/memory-archivist/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/coordinator/memory-archivist/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/coordinator/rubric-steward/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/coordinator/rubric-steward/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/coordinator/source-librarian/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/coordinator/source-librarian/memory.md",
       "authority": "agent-memory",
       "agentInstructionWeight": "medium",
       "action": "summarize-before-use",
@@ -436,48 +204,6 @@
       "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
     },
     {
-      "path": "agents/core/business-gtm-lead/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/core/business-gtm-lead/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/core/clinical-simulation-lead/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/core/clinical-simulation-lead/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/core/data-trace-architect/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/core/data-trace-architect/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
       "path": "agents/core/implementation-planning-lead/charter.md",
       "authority": "agent-memory",
       "agentInstructionWeight": "medium",
@@ -486,132 +212,6 @@
     },
     {
       "path": "agents/core/implementation-planning-lead/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/core/local-ai-inference-engineer/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/core/local-ai-inference-engineer/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/core/open-source-governance-lead/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/core/open-source-governance-lead/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/core/platform-devops-lead/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/core/platform-devops-lead/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/core/psychometrics-lead/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/core/psychometrics-lead/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/core/security-privacy-lead/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/core/security-privacy-lead/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/core/solution-architect/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/core/solution-architect/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/core/test-automation-lead/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/core/test-automation-lead/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/core/ux-product-lead/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/core/ux-product-lead/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/core/voice-speech-engineer/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/core/voice-speech-engineer/memory.md",
       "authority": "agent-memory",
       "agentInstructionWeight": "medium",
       "action": "summarize-before-use",
@@ -632,244 +232,6 @@
       "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
     },
     {
-      "path": "agents/leadership/ceo-strategy-chair/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/ceo-strategy-chair/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/cfo-operations-lead/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/cfo-operations-lead/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/chief-ai-safety-officer/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/chief-ai-safety-officer/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/chief-compliance-officer/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/chief-compliance-officer/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/chief-medical-education-officer/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/chief-medical-education-officer/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/chief-medical-officer/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/chief-medical-officer/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/chief-nursing-interprofessional-officer/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/chief-nursing-interprofessional-officer/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/chief-psychometrician/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/chief-psychometrician/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/chief-security-privacy-officer/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/chief-security-privacy-officer/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/cto/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/cto/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/external-academic-advisor/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/external-academic-advisor/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/general-counsel/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/general-counsel/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/investor-board-skeptic/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/investor-board-skeptic/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/product-growth-executive/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/product-growth-executive/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/rotating-specialty-physician-reviewer/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/rotating-specialty-physician-reviewer/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/simulation-center-director/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/simulation-center-director/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/specialty-advisory-board-chair/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/leadership/specialty-advisory-board-chair/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
       "path": "agents/leadership/vp-engineering-delivery/charter.md",
       "authority": "agent-memory",
       "agentInstructionWeight": "medium",
@@ -884,174 +246,6 @@
       "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
     },
     {
-      "path": "agents/legal/ai-governance-counsel/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/legal/ai-governance-counsel/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/legal/healthcare-compliance-counsel/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/legal/healthcare-compliance-counsel/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/legal/ip-open-source-counsel/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/legal/ip-open-source-counsel/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/legal/legal-regulatory-counsel/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/legal/legal-regulatory-counsel/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/physicians/anesthesiology-critical-care-physician/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/physicians/anesthesiology-critical-care-physician/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/physicians/cardiology-physician/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/physicians/cardiology-physician/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/physicians/emergency-medicine-physician/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/physicians/emergency-medicine-physician/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/physicians/family-medicine-physician/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/physicians/family-medicine-physician/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/physicians/infectious-disease-physician/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/physicians/infectious-disease-physician/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/physicians/internal-medicine-physician/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/physicians/internal-medicine-physician/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/physicians/neurology-physician/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/physicians/neurology-physician/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/physicians/obgyn-physician/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/physicians/obgyn-physician/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
       "path": "agents/physicians/pediatrics-physician/charter.md",
       "authority": "agent-memory",
       "agentInstructionWeight": "medium",
@@ -1060,48 +254,6 @@
     },
     {
       "path": "agents/physicians/pediatrics-physician/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/physicians/psychiatry-physician/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/physicians/psychiatry-physician/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/physicians/radiology-imaging-physician/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/physicians/radiology-imaging-physician/memory.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/physicians/surgery-physician/charter.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "summarize-before-use",
-      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
-    },
-    {
-      "path": "agents/physicians/surgery-physician/memory.md",
       "authority": "agent-memory",
       "agentInstructionWeight": "medium",
       "action": "summarize-before-use",
@@ -1248,6 +400,132 @@
       "rationale": "OpenClaw-style methodology and agent-factory operating manual; applies when planning or realigning agents."
     },
     {
+      "path": "docs/madr/0011-step2cs-inspired-sequential-exam.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0012-llm-bounded-actor-dialogue.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0013-mongodb-knowledge-graph-and-indexing.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0014-cellixjs-inspired-domain-contexts.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0015-human-governed-exam-bank-review.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0016-oss-first-asset-generation-pipeline.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0017-websocket-first-realtime-transport.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0018-first-class-communication-style-layer.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0019-provider-adapter-model-and-voice-routing.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0020-ant-design-storybook-serenity-admin-ux.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0021-local-first-no-cloud-implementation-spikes.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0022-local-llm-runtime-and-model-tiering.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0023-vibevoice-as-local-voice-candidate.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0024-pnpm-node-first-bun-deployment-gate.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0025-implementation-plan-as-versioned-artifact.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0026-mongodb-memory-server-local-tests.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0027-quest3-usb-webxr-smoke-gate.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0028-iwsdk-sidecar-spike.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
       "path": "docs/openclinxr/README.md",
       "authority": "current-reference",
       "agentInstructionWeight": "medium",
@@ -1260,27 +538,6 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "docs/openclinxr/api-bun-python-proxy-smoke-2026-05-05.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-04.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": "docs/openclinxr/api-python-backend-runtime-smoke-2026-05-05.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
       "path": "docs/openclinxr/asset-generation-pipeline.md",
@@ -1309,13 +566,6 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "docs/openclinxr/clean-checkout-workspace-evidence-2026-05-06.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
       "path": "docs/openclinxr/code-implementation-plan.md",
@@ -1367,27 +617,6 @@
       "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
     },
     {
-      "path": "docs/openclinxr/evidence/gltf-transform-neutral-humanoid-animated-inspect-2026-05-23.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": "docs/openclinxr/evidence/gltf-transform-neutral-humanoid-inspect-2026-05-23.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": "docs/openclinxr/evidence/gltf-transform-neutral-humanoid-visual-detail-inspect-2026-05-23.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
       "path": "docs/openclinxr/exam-scenario-architecture.md",
       "authority": "current-reference",
       "agentInstructionWeight": "medium",
@@ -1421,13 +650,6 @@
       "agentInstructionWeight": "highest",
       "action": "protect",
       "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
-    },
-    {
-      "path": "docs/openclinxr/github-pages-site-2026-05-06.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Substantive historical design or milestone synthesis; use as background, not active instruction."
     },
     {
       "path": "docs/openclinxr/gltf-transform-replacement-decision-2026-05-27.md",
@@ -1486,28 +708,7 @@
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
-      "path": "docs/openclinxr/immersive-web-sdk-evaluation-2026-05-04.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Substantive historical design or milestone synthesis; use as background, not active instruction."
-    },
-    {
-      "path": "docs/openclinxr/implementation-milestone-1-results.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Substantive historical design or milestone synthesis; use as background, not active instruction."
-    },
-    {
       "path": "docs/openclinxr/iwsdk-codex-mcp-runbook.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": "docs/openclinxr/iwsdk-sidecar-quest-cdp-evidence-2026-05-04.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
@@ -1529,13 +730,6 @@
     },
     {
       "path": "docs/openclinxr/local-hardware-spike-results.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Retained spike/evidence record; use only to verify touched behavior or avoid repeating settled investigation."
-    },
-    {
-      "path": "docs/openclinxr/local-realtime-voice-model-download-plan-2026-05-06.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
@@ -1584,39 +778,11 @@
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
-      "path": "docs/openclinxr/quest-foreground-capture-packet-2026-05-04.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": "docs/openclinxr/quest-headset-observations-2026-05-04.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
       "path": "docs/openclinxr/quest3-usb-webxr-smoke-checklist.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": "docs/openclinxr/realtime-voice-transport-spike-2026-05-04.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Retained spike/evidence record; use only to verify touched behavior or avoid repeating settled investigation."
-    },
-    {
-      "path": "docs/openclinxr/realtime-voice-transport-spike-2026-05-05.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Retained spike/evidence record; use only to verify touched behavior or avoid repeating settled investigation."
     },
     {
       "path": "docs/openclinxr/research-brief-step2cs-llm-vsp.md",
@@ -1645,20 +811,6 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": "docs/openclinxr/server-side-multi-actor-state-persistence-phase2-2026-05-05.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Retained spike/evidence record; use only to verify touched behavior or avoid repeating settled investigation."
-    },
-    {
-      "path": "docs/openclinxr/server-side-multi-actor-state-spike-2026-05-05.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Retained spike/evidence record; use only to verify touched behavior or avoid repeating settled investigation."
     },
     {
       "path": "docs/openclinxr/session-state-websocket-message-design.md",
@@ -1710,13 +862,6 @@
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
-      "path": "docs/openclinxr/uikitml-spatial-text-sidecar-2026-05-05.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Retained spike/evidence record; use only to verify touched behavior or avoid repeating settled investigation."
-    },
-    {
       "path": "docs/openclinxr/ux-flows.md",
       "authority": "current-reference",
       "agentInstructionWeight": "medium",
@@ -1750,524 +895,6 @@
       "agentInstructionWeight": "highest",
       "action": "protect",
       "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
-    },
-    {
-      "path": "docs/superpowers/plans/2026-05-02-openclinxr-agent-factory-scaffold.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Skill-era implementation/spec planning history; use as evidence, not active queue."
-    },
-    {
-      "path": "docs/superpowers/plans/2026-05-03-openclinxr-code-implementation-plan.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Skill-era implementation/spec planning history; use as evidence, not active queue."
-    },
-    {
-      "path": "docs/superpowers/plans/2026-05-21-faculty-review-decision-panel.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": "docs/superpowers/plans/2026-05-24-encounter-factory-completion.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Skill-era implementation/spec planning history; use as evidence, not active queue."
-    },
-    {
-      "path": "docs/superpowers/plans/2026-05-25-dynamic-encounter-factory-completion.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Skill-era implementation/spec planning history; use as evidence, not active queue."
-    },
-    {
-      "path": "docs/superpowers/plans/2026-05-27-biome-coverage-expansion-batch-2.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Skill-era implementation/spec planning history; use as evidence, not active queue."
-    },
-    {
-      "path": "docs/superpowers/plans/2026-05-27-biome-coverage-hardening.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Skill-era implementation/spec planning history; use as evidence, not active queue."
-    },
-    {
-      "path": "docs/superpowers/plans/2026-05-27-typescript-biome-cellix-hardening.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Skill-era implementation/spec planning history; use as evidence, not active queue."
-    },
-    {
-      "path": "docs/superpowers/specs/2026-05-02-openclinxr-agent-factory-design.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Skill-era implementation/spec planning history; use as evidence, not active queue."
-    },
-    {
-      "path": "docs/superpowers/specs/2026-05-21-faculty-review-decision-panel-design.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": "iterations/iteration-0001/00-brief.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0001/01-core-plan.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0001/03-adversarial-counterplan.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0001/05-core-revision.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0001/06-leadership-review.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0001/07-final-synthesis.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0001/08-memory-update-log.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0001/leadership-packet.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0002/00-brief.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0002/01-core-plan.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0002/03-adversarial-counterplan.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0002/05-core-revision.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0002/06-leadership-review.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0002/07-final-synthesis.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0002/08-memory-update-log.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0002/leadership-packet.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0003/00-brief.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0003/01-core-plan.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0003/03-adversarial-counterplan.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0003/05-core-revision.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0003/06-leadership-review.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0003/07-final-synthesis.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0003/08-memory-update-log.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0003/leadership-packet.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0004/00-brief.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0004/01-core-plan.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0004/03-adversarial-counterplan.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0004/05-core-revision.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0004/06-leadership-review.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0004/07-final-synthesis.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0004/08-memory-update-log.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0004/leadership-packet.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0005/00-brief.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0005/01-core-plan.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0005/03-adversarial-counterplan.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0005/05-core-revision.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0005/06-leadership-review.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0005/07-final-synthesis.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0005/08-memory-update-log.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0005/leadership-packet.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0006/00-brief.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0006/01-core-plan.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0006/03-adversarial-counterplan.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0006/05-core-revision.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0006/06-leadership-review.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0006/07-final-synthesis.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0006/08-memory-update-log.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0006/leadership-packet.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0007/00-brief.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0007/01-core-plan.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0007/03-adversarial-counterplan.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0007/05-core-revision.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0007/06-leadership-review.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0007/07-final-synthesis.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0007/08-memory-update-log.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0007/leadership-packet.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0008/00-brief.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0008/01-core-plan.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0008/03-adversarial-counterplan.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0008/05-core-revision.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0008/06-leadership-review.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0008/07-final-synthesis.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0008/08-memory-update-log.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
-    },
-    {
-      "path": "iterations/iteration-0008/leadership-packet.md",
-      "authority": "historical-synthesis",
-      "agentInstructionWeight": "low",
-      "action": "summarize-before-use",
-      "rationale": "Historical planning/synthesis evidence; not active marching orders."
     },
     {
       "path": "iterations/iteration-0009/00-brief.md",
@@ -2326,132 +953,6 @@
       "rationale": "Historical planning/synthesis evidence; not active marching orders."
     },
     {
-      "path": "madr/0011-step2cs-inspired-sequential-exam.md",
-      "authority": "decision-record",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "madr/0012-llm-bounded-actor-dialogue.md",
-      "authority": "decision-record",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "madr/0013-mongodb-knowledge-graph-and-indexing.md",
-      "authority": "decision-record",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "madr/0014-cellixjs-inspired-domain-contexts.md",
-      "authority": "decision-record",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "madr/0015-human-governed-exam-bank-review.md",
-      "authority": "decision-record",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "madr/0016-oss-first-asset-generation-pipeline.md",
-      "authority": "decision-record",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "madr/0017-websocket-first-realtime-transport.md",
-      "authority": "decision-record",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "madr/0018-first-class-communication-style-layer.md",
-      "authority": "decision-record",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "madr/0019-provider-adapter-model-and-voice-routing.md",
-      "authority": "decision-record",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "madr/0020-ant-design-storybook-serenity-admin-ux.md",
-      "authority": "decision-record",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "madr/0021-local-first-no-cloud-implementation-spikes.md",
-      "authority": "decision-record",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "madr/0022-local-llm-runtime-and-model-tiering.md",
-      "authority": "decision-record",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "madr/0023-vibevoice-as-local-voice-candidate.md",
-      "authority": "decision-record",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "madr/0024-pnpm-node-first-bun-deployment-gate.md",
-      "authority": "decision-record",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "madr/0025-implementation-plan-as-versioned-artifact.md",
-      "authority": "decision-record",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "madr/0026-mongodb-memory-server-local-tests.md",
-      "authority": "decision-record",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "madr/0027-quest3-usb-webxr-smoke-gate.md",
-      "authority": "decision-record",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "madr/0028-iwsdk-sidecar-spike.md",
-      "authority": "decision-record",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
-    },
-    {
       "path": "operator-open-questions.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
@@ -2499,153 +1000,6 @@
       "agentInstructionWeight": "low",
       "action": "use-as-current",
       "rationale": "Package/app-local README or provenance reference; local to its module."
-    },
-    {
-      "path": "proposals/approved/proposal-blueprint-driven-multi-agent-voice-simulation-spike.md",
-      "authority": "proposal",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Approved/recorded scope evidence; check current guardrails before acting on it."
-    },
-    {
-      "path": "proposals/approved/proposal-durable-actor-turn-persistence-promotion.md",
-      "authority": "proposal",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Approved/recorded scope evidence; check current guardrails before acting on it."
-    },
-    {
-      "path": "proposals/approved/proposal-durable-clinical-event-persistence.md",
-      "authority": "proposal",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Approved/recorded scope evidence; check current guardrails before acting on it."
-    },
-    {
-      "path": "proposals/approved/proposal-iwer-sidecar-emulation-spike.md",
-      "authority": "proposal",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Approved/recorded scope evidence; check current guardrails before acting on it."
-    },
-    {
-      "path": "proposals/approved/proposal-iwsdk-phase2-devtools.md",
-      "authority": "proposal",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Approved/recorded scope evidence; check current guardrails before acting on it."
-    },
-    {
-      "path": "proposals/approved/proposal-iwsdk-phase2-sharp-libvips-exception.md",
-      "authority": "proposal",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Approved/recorded scope evidence; check current guardrails before acting on it."
-    },
-    {
-      "path": "proposals/approved/proposal-iwsdk-sidecar-install.md",
-      "authority": "proposal",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Approved/recorded scope evidence; check current guardrails before acting on it."
-    },
-    {
-      "path": "proposals/approved/proposal-local-bun-runtime-websocket-smoke.md",
-      "authority": "proposal",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Approved/recorded scope evidence; check current guardrails before acting on it."
-    },
-    {
-      "path": "proposals/approved/proposal-local-model-benchmark.md",
-      "authority": "proposal",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Approved/recorded scope evidence; check current guardrails before acting on it."
-    },
-    {
-      "path": "proposals/approved/proposal-local-realtime-voice-model-inference.md",
-      "authority": "proposal",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Approved/recorded scope evidence; check current guardrails before acting on it."
-    },
-    {
-      "path": "proposals/approved/proposal-local-voice-runtime.md",
-      "authority": "proposal",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Approved/recorded scope evidence; check current guardrails before acting on it."
-    },
-    {
-      "path": "proposals/approved/proposal-local-webxr-hand-mesh-assets.md",
-      "authority": "proposal",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Approved/recorded scope evidence; check current guardrails before acting on it."
-    },
-    {
-      "path": "proposals/approved/proposal-multi-actor-runtime-promotion.md",
-      "authority": "proposal",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Approved/recorded scope evidence; check current guardrails before acting on it."
-    },
-    {
-      "path": "proposals/approved/proposal-production-asset-evidence-ladder.md",
-      "authority": "proposal",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Approved/recorded scope evidence; check current guardrails before acting on it."
-    },
-    {
-      "path": "proposals/approved/proposal-quest-foreground-performance-capture.md",
-      "authority": "proposal",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Approved/recorded scope evidence; check current guardrails before acting on it."
-    },
-    {
-      "path": "proposals/approved/proposal-quest-http3-compatibility-spike.md",
-      "authority": "proposal",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Approved/recorded scope evidence; check current guardrails before acting on it."
-    },
-    {
-      "path": "proposals/approved/proposal-quic-web3-protocol-posture.md",
-      "authority": "proposal",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Approved/recorded scope evidence; check current guardrails before acting on it."
-    },
-    {
-      "path": "proposals/approved/proposal-server-side-multi-actor-state-context-persistence-phase2.md",
-      "authority": "proposal",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Approved/recorded scope evidence; check current guardrails before acting on it."
-    },
-    {
-      "path": "proposals/approved/proposal-server-side-multi-actor-state-context.md",
-      "authority": "proposal",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Approved/recorded scope evidence; check current guardrails before acting on it."
-    },
-    {
-      "path": "proposals/approved/proposal-uikitml-spatial-text-sidecar.md",
-      "authority": "proposal",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Approved/recorded scope evidence; check current guardrails before acting on it."
-    },
-    {
-      "path": "proposals/approved/proposal-webxr-mixed-reality-mode.md",
-      "authority": "proposal",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Approved/recorded scope evidence; check current guardrails before acting on it."
     },
     {
       "path": "templates/decision-record.md",
