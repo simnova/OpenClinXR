@@ -841,36 +841,76 @@ function buildRealismEvidenceRefsSummary(value: unknown): EncounterRuntimeSelect
 
 export function deriveBasicActorTurnExpectationsFromCase(scenarioId: string) {
   if (scenarioId !== "peds_asthma_parent_anxiety_v1") return null;
-  const scenario = pediatricAsthmaScenario as unknown as { actors?: Array<Record<string, unknown>>; requiredTraceTags?: string[] };
-  const patient = scenario.actors?.find((a: Record<string, unknown>) => (a.actorId as string | undefined)?.includes("patient"));
-  const profile = (patient?.communicationProfile as Record<string, unknown>) || {};
+  const scenario = pediatricAsthmaScenario as unknown as {
+    actors?: Array<Record<string, unknown>>;
+    requiredTraceTags?: string[];
+    eventSchedule?: Array<Record<string, unknown>>;
+    clinicalObjectives?: string[];
+  };
+  const actors = scenario.actors || [];
+  const patient = actors.find((a) => (a.actorId as string | undefined)?.includes("patient"));
+  const parent = actors.find((a) => (a.actorId as string | undefined)?.includes("parent"));
+  const nurse = actors.find((a) => (a.actorId as string | undefined)?.includes("nurse"));
   const tags = scenario.requiredTraceTags || [];
-  const commTags = tags.filter((t: string) => t.includes("empathy") || t.includes("parent") || t.includes("communication") || t.includes("escalation"));
+  const allEscalation: string[] = [];
+  const allDeescalation: string[] = [];
+  actors.forEach((a) => {
+    const p = (a.communicationProfile as Record<string, unknown>) || {};
+    (p.escalationTriggers as string[] | undefined)?.forEach((t) => { allEscalation.push(t); });
+    (p.deescalationTriggers as string[] | undefined)?.forEach((t) => { allDeescalation.push(t); });
+  });
+  // Richer turns: one per required tag, mapped to primary actor role + cue from profile
+  const turns = tags.map((tag: string, i: number) => {
+    let actorId = (patient?.actorId as string) || "patient_maya_johnson_v1";
+    let expected = "frightened";
+    if (tag.includes("parent") || tag.includes("empathy")) {
+      actorId = (parent?.actorId as string) || "parent_tara_johnson_v1";
+      expected = "anxious";
+    } else if (tag.includes("oxygen") || tag.includes("bronchodilator") || tag.includes("work_of_breathing")) {
+      actorId = (nurse?.actorId as string) || "nurse_kevin_lee_v1";
+      expected = "concerned";
+    }
+    if (tag.includes("urgent") || tag.includes("escalation")) expected = "frightened";
+    return {
+      turnId: `turn_${i}_${tag}`,
+      actorId,
+      cue: tag,
+      expectedEmotion: expected,
+    };
+  });
+  // Richer emotionTimeline: sequence driven by tags + escalation/deesc from profiles; transitions explicit
+  const emotionTimeline = tags.map((tag: string, i: number) => {
+    let emotion = "frightened";
+    let cue = tag;
+    if (allEscalation.some((e) => tag.includes(e.split("_")[0]) || tag.includes("ignored") || tag.includes("rapid"))) {
+      emotion = "frightened";
+      cue = `escalation_on_${tag}`;
+    } else if (allDeescalation.some((_d) => tag.includes("breathing") || tag.includes("validated") || tag.includes("plan"))) {
+      emotion = "reassured";
+      cue = `deescalation_on_${tag}`;
+    } else if (tag.includes("parent") || tag.includes("empathy")) {
+      emotion = "anxious";
+    }
+    const dur = tag.includes("escalation") || tag.includes("urgent") ? 650 : 920;
+    return { atTurn: i, emotion, transitionCue: cue, durationMs: dur };
+  });
+  // Enhanced runtimeExecutionHints (for ui-xr stub player wiring): viseme from intensity, locomotion per role, base from patient
+  const patientProfile = (patient?.communicationProfile as Record<string, unknown>) || {};
+  const hasEsc = tags.some((t) => t.includes("escalation") || t.includes("urgent"));
+  const hints = {
+    baseEmotion: ((patientProfile.baselineMood as string[]) || ["frightened"])[0] || "anxious",
+    primaryCues: tags,
+    recommendedVisemeIntensity: hasEsc ? 0.85 : ( (patientProfile.intensity as number) || 0.6 ),
+    locomotionEnabled: true, // nurse/patient move in scene; full per-actor in later
+  };
   return {
     scenarioId,
-    turns: commTags.slice(0, 3).map((tag: string, i: number) => ({
-      turnId: `turn_${i}_${tag}`,
-      actorId: (patient?.actorId as string) || "patient_maya_johnson_v1",
-      cue: tag,
-      expectedEmotion: ((profile.baselineMood as string[]) || ["frightened"])[0] || "anxious",
-    })),
-    escalationTriggers: (profile.escalationTriggers as string[]) || [],
-    deescalationTriggers: (profile.deescalationTriggers as string[]) || [],
+    turns,
+    escalationTriggers: Array.from(new Set(allEscalation)),
+    deescalationTriggers: Array.from(new Set(allDeescalation)),
     source: "case_spec_derivation_v1",
-    // Stub for emotion timeline driven by turns (per plan: spec -> generated emotion state)
-    emotionTimeline: commTags.map((tag: string, i: number) => ({
-      atTurn: i,
-      emotion: ((profile.baselineMood as string[]) || ["frightened"])[0] || "anxious",
-      transitionCue: tag,
-      durationMs: tag.includes("escalation") ? 650 : 950,
-    })),
-    // Stub runtime execution hints from turns (for wiring to ui-xr runtime-state player per plan)
-    runtimeExecutionHints: {
-      baseEmotion: ((profile.baselineMood as string[]) || ["frightened"])[0] || "anxious",
-      primaryCues: commTags,
-      recommendedVisemeIntensity: commTags.some((t: string) => t.includes("escalation")) ? 0.8 : 0.5,
-      locomotionEnabled: true,
-    },
+    emotionTimeline,
+    runtimeExecutionHints: hints,
   };
 }
 

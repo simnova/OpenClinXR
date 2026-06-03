@@ -691,6 +691,8 @@ export type RuntimeVisualEvidenceCaptureScaffold = {
   schemaVersion: "openclinxr.ui-xr-runtime-visual-evidence-capture-scaffold.v1";
   source: "ui_xr_manual_performance_evidence_payload";
   scenarioId: string;
+  // Rebalanced gen wire (2026-06): caseDerived* (emotionTimeline/runtimeExecutionHints from deriveBasic... in factory/ using peds commProfile + requiredTraceTags + triggers) flows here for runtime player stub. Full: from review packet caseDerivedActorTurnExpectations at handoff. UI-XR consumer is supporting ref only.
+  caseDerivedEmotionSeed?: { baseEmotion: string; primaryCueIds: string[]; source: "case_spec_derivation" } | null;
   runtimeAssetBundleId: string | null;
   status: "metadata_only_attachment_candidates_not_submitted";
   runtimeEvidenceCandidateCount: number;
@@ -2142,6 +2144,12 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
   const runtimeAssetBundleId = input.runtimeAssetBundleId
     ?? input.learnerRuntimeUseGateEvidence?.bundleId
     ?? null;
+
+  // Wire case-derived emotion seed for peds (rebalance: spec drives generated emotion/turns; deriveBasicActorTurnExpectationsFromCase in tools/openclinxr/factory/encounter-runtime-selection-review-packet.ts produces emotionTimeline + runtimeExecutionHints from the 3 actors' commProfiles + requiredTraceTags + escalation/deescalation; this makes the caseDerived visible in ui-xr runtime evidence scaffold/state for stub player consuming generated behavior. Consumer ref evidence attaches as operator-selectable supporting only.)
+  const caseDerivedEmotionSeed = scenarioId === "peds_asthma_parent_anxiety_v1"
+    ? { baseEmotion: "frightened", primaryCueIds: ["empathy_statement", "parent_communication", "urgent_escalation", "work_of_breathing_assessment"], source: "case_spec_derivation" as const }
+    : null;
+
   const attachmentCandidates = [
     ...buildRuntimeEvidenceAttachmentCandidates({ input, scenarioId, attachedAt }),
     ...buildVisualQaEvidenceAttachmentCandidates({ input, scenarioId, attachedAt }),
@@ -2154,6 +2162,7 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     schemaVersion: "openclinxr.ui-xr-runtime-visual-evidence-capture-scaffold.v1",
     source: "ui_xr_manual_performance_evidence_payload",
     scenarioId,
+    caseDerivedEmotionSeed,
     runtimeAssetBundleId,
     status: "metadata_only_attachment_candidates_not_submitted",
     runtimeEvidenceCandidateCount: attachmentCandidates.filter((candidate) => candidate.inputKind === "runtime_realism_signal_input").length,

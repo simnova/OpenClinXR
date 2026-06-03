@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import type { EncounterGuardedRuntimeSelectionIntent } from "./encounter-guarded-runtime-selection-intent.js";
 import {
   buildEncounterRuntimeSelectionReviewPacket,
+  deriveBasicActorTurnExpectationsFromCase,
   runEncounterRuntimeSelectionReviewPacketCli,
   validateEncounterRuntimeSelectionReviewPacket,
 } from "./encounter-runtime-selection-review-packet.js";
@@ -276,5 +277,30 @@ describe("encounter runtime selection review packet", () => {
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
+  });
+});
+
+describe("deriveBasicActorTurnExpectationsFromCase (rebalanced gen primary)", () => {
+  it("derives richer turns/emotionTimeline/hints for peds_asthma_parent_anxiety_v1 from full case spec (commProfile + tags + triggers + 3 actors)", () => {
+    const derived = deriveBasicActorTurnExpectationsFromCase("peds_asthma_parent_anxiety_v1");
+    expect(derived).not.toBeNull();
+    expect(derived!.scenarioId).toBe("peds_asthma_parent_anxiety_v1");
+    expect(derived!.turns.length).toBeGreaterThan(3);
+    expect(derived!.turns.some((t) => t.cue === "empathy_statement" && t.actorId.includes("parent"))).toBe(true);
+    expect(derived!.turns.some((t) => t.cue === "work_of_breathing_assessment" && t.actorId.includes("nurse"))).toBe(true);
+    expect(derived!.emotionTimeline.length).toBeGreaterThan(3);
+    expect(derived!.emotionTimeline.some((e) => e.emotion === "frightened" || e.emotion === "anxious")).toBe(true);
+    expect(derived!.emotionTimeline.some((e) => e.transitionCue.includes("deescalation") || e.transitionCue.includes("escalation"))).toBe(true);
+    expect(derived!.runtimeExecutionHints.baseEmotion).toBe("frightened");
+    expect(derived!.runtimeExecutionHints.locomotionEnabled).toBe(true);
+    expect(derived!.runtimeExecutionHints.primaryCues).toContain("urgent_escalation");
+    expect(derived!.escalationTriggers.length).toBeGreaterThan(0);
+    expect(derived!.deescalationTriggers.length).toBeGreaterThan(0);
+    expect(derived!.source).toBe("case_spec_derivation_v1");
+  });
+
+  it("returns null for non-peds scenario (no derivation)", () => {
+    const derived = deriveBasicActorTurnExpectationsFromCase("ed_chest_pain_priority_v1");
+    expect(derived).toBeNull();
   });
 });
