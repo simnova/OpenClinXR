@@ -1,0 +1,28 @@
+{
+  "servers": {
+    "tsserver": {
+      "command": "typescript-language-server",
+      "args": ["--stdio"],
+      "filetypes": ["typescript", "typescriptreact", "json"],
+      "rootPatterns": ["tsconfig.json", "package.json", "turbo.json"],
+      "initializationOptions": {
+        "preferences": {
+          "importModuleSpecifierPreference": "relative",
+          "includePackageJsonAutoImports": "on"
+        },
+        "hostInfo": "grok-build-monorepo",
+        "tsserver": {
+          "useSyntaxServer": "auto"
+        }
+      },
+      "settings": {
+        "typescript": {
+          "tsdk": "node_modules/typescript/lib",
+          "suggest": {
+            "completeFunctionCalls": true
+          }
+        }
+      }
+    }
+  }
+}

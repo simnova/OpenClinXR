@@ -38,6 +38,12 @@ min_score = 0.15   # low threshold to inject relevant prior agent memory on rehy
 max_results = 8
 min_score = 0.2
 
+[memory.watcher]
+enabled = true  # watch .agent-factory/memory-index.json and agents/*/memory.md for external updates (e.g. from pnpm agent:index)
+
+# Role integration: SessionStart hooks (see .grok/hooks/) + agents/rules/agent-consult.md encourage reading specific role memory/charter (chief-coordinator etc) before slices per subagent-protocol and "repo-agent consultation" in AGENTS.md.
+# Subagents (explore) can be instructed to consult index + role memory for lens.
+
 # --- Features for large agentic monorepo ---
 [features]
 codebase_indexing = true   # helps Grok understand packages/, tools/agent-factory/, agents/ roles, docs/agent-factory/, schemas/, sources/ etc.

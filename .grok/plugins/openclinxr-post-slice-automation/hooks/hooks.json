@@ -1,0 +1,29 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Plugin openclinxr-post-slice-automation: turn Stop. Run full post-slice now: pnpm openclaw:post-slice && pnpm agent:alignment && pnpm docs:drift-check && pnpm openclaw:lease -- status. Update AUTONOMOUS_WORK_PLAN.md + worker matrix with per-slice record (product path, Q1/Q4/Q5 tie, touched, evidence, next). Release lease if held. See agents/rules/long-running-autonomy.md and openclaw-runbook.'",
+            "timeout": 30,
+            "env": {
+              "OPENCLINXR_PLUGIN_POST_SLICE": "1"
+            }
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Plugin notification: consider post-slice automation (lease check + guards + state update) per AGENTS.md after coherent slice.'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -11,9 +11,9 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 ## Counts
 
 - agent-memory: 18
-- agent-methodology: 8
-- archive-candidate: 60
-- current-reference: 47
+- agent-methodology: 20
+- archive-candidate: 32
+- current-reference: 84
 - decision-record: 19
 - evidence: 27
 - historical-synthesis: 9
@@ -21,6 +21,43 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 ## Highest-Value Current Navigation
 
+- `.claude/rules/README.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.claude/rules/agent-consult.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.claude/rules/blueprint-factory-guardrails.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.claude/rules/drift-toil-prevention.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.claude/rules/grok-harness-usage.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.claude/rules/hyper-token-efficient-long-run-practices.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.claude/rules/long-running-autonomy.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.claude/rules/persistent-memory-scoring.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.claude/rules/rehydration-low-token.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.claude/rules/repo-defined-agents-worker-roles.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.claude/rules/source-of-truth.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.claude/rules/subagent-protocol.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.cursor/rules/README.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.cursor/rules/agent-consult.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.cursor/rules/blueprint-factory-guardrails.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.cursor/rules/drift-toil-prevention.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.cursor/rules/grok-harness-usage.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.cursor/rules/hyper-token-efficient-long-run-practices.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.cursor/rules/long-running-autonomy.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.cursor/rules/persistent-memory-scoring.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.cursor/rules/rehydration-low-token.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.cursor/rules/repo-defined-agents-worker-roles.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.cursor/rules/source-of-truth.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.cursor/rules/subagent-protocol.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.grok/plugins/openclinxr-post-slice-automation/README.md` - current-reference; Project plugin for harness automation (hooks, LSP, skills, agents). See 09-plugins.md and .grok/config.toml [plugins]. Subordinate to protected guardrails.
+- `.grok/rules/README.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.grok/rules/agent-consult.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.grok/rules/blueprint-factory-guardrails.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.grok/rules/drift-toil-prevention.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.grok/rules/grok-harness-usage.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.grok/rules/hyper-token-efficient-long-run-practices.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.grok/rules/long-running-autonomy.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.grok/rules/persistent-memory-scoring.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.grok/rules/rehydration-low-token.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.grok/rules/repo-defined-agents-worker-roles.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.grok/rules/source-of-truth.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.grok/rules/subagent-protocol.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `AGENTS.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `AUTONOMOUS_WORK_PLAN.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `PROJECT_COORDINATION_INDEX.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
@@ -111,35 +148,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `.agents/skills/turborepo/references/filtering/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.agents/skills/turborepo/references/filtering/patterns.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.agents/skills/turborepo/references/watch/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.claude/rules/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.claude/rules/drift-toil-prevention.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.claude/rules/grok-harness-usage.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.claude/rules/long-running-autonomy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.claude/rules/rehydration-low-token.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.claude/rules/source-of-truth.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.claude/rules/subagent-protocol.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.cursor/rules/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.cursor/rules/drift-toil-prevention.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.cursor/rules/grok-harness-usage.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.cursor/rules/long-running-autonomy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.cursor/rules/rehydration-low-token.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.cursor/rules/source-of-truth.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.cursor/rules/subagent-protocol.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.grok/rules/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.grok/rules/drift-toil-prevention.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.grok/rules/grok-harness-usage.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.grok/rules/long-running-autonomy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.grok/rules/rehydration-low-token.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.grok/rules/source-of-truth.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.grok/rules/subagent-protocol.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `agents/rules/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `agents/rules/drift-toil-prevention.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `agents/rules/grok-harness-usage.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `agents/rules/long-running-autonomy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `agents/rules/rehydration-low-token.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `agents/rules/source-of-truth.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `agents/rules/subagent-protocol.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/anny-character-asset-pipeline-implementation-2026-06-03.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/dependency-hygiene-and-e18e-policy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/gltf-transform-replacement-decision-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

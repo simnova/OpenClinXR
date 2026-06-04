@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'SessionStart memory + role consult (per AGENTS.md + agents/rules/agent-consult.md): re-read snapshots first. For coordinator/drift work: cat agents/coordinator/chief-coordinator/{charter,memory}.md | head -30; node -e \"const i=require(\\\"./.agent-factory/memory-index.json\\\"); console.log(\\\"memory entries:\\\", i.agent_count, i.entry_count); const cc=i.entries.filter(e=>/chief|coordinator|drift/.test(e.agent_id||e.topic||'')).slice(0,2); console.dir(cc.map(e=>({id:e.id,topic:e.topic})))\" 2>/dev/null || true; echo \"Use source-of-truth order; map subagent (explore) to repo role only for independent review/implementation that cuts drift cost.\"; echo \"See .agent-factory/memory-index.json and agents/**/memory.md .\"; pnpm openclaw:lease -- status 2>/dev/null || true",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

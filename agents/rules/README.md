@@ -43,4 +43,16 @@ See also:
 - `.grok/config.toml` (skills + other agentic tuning)
 - `docs/agent-factory/workflow-skill-policy.md` (for the skills parallel)
 - `agents/**/charter.md` and `memory.md` for role-specific guidance.
-- Specific rules in this dir: rehydration-low-token.md, subagent-protocol.md, drift-toil-prevention.md, source-of-truth.md, long-running-autonomy.md, grok-harness-usage.md (the .grok/ setup).
+- Specific rules in this dir:
+  - rehydration-low-token.md (resume + low-token targeted reads/greps)
+  - subagent-protocol.md (coordinator first, map to repo roles, live subagent discovery)
+  - drift-toil-prevention.md (anti-toil gate, after 1-2 evidence pivot to product or coordinator+drift-police)
+  - source-of-truth.md (AGENTS > states > operator-*.md > docs/agent-factory + agents/**)
+  - long-running-autonomy.md (days-long unattended, heartbeat continuation, no chat summaries)
+  - grok-harness-usage.md (the .grok/config + hooks + plugins + multi-harness setup)
+  - hyper-token-efficient-long-run-practices.md (snapshots-first, commands for longevity, token-saving, M1 Max posture)
+  - blueprint-factory-guardrails.md (protected 6 files + Q1/Q4/Q5 slice gate; "do not weaken")
+  - repo-defined-agents-worker-roles.md (ownership from worker matrix; when + how to use/consult agents/** + subagents)
+  - persistent-memory-scoring.md (file-backed primary memory files + iteration record + rubric for architecture outputs)
+
+Run `./scripts/sync-harness-agent-files.sh` after adding. Then `pnpm docs:authority` (to register new agent-methodology MDs) + `pnpm agent:alignment && pnpm docs:drift-check`.

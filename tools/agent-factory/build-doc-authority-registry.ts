@@ -120,6 +120,15 @@ function classify(file: string): DocAuthorityEntry {
   if (file.startsWith("docs/agent-factory/")) {
     return { path: file, authority: "agent-methodology", agentInstructionWeight: "medium", action: "use-as-current", rationale: "OpenClaw-style methodology and agent-factory operating manual; applies when planning or realigning agents." };
   }
+  if (file.startsWith("agents/rules/") || file === "agents/rules/README.md") {
+    return { path: file, authority: "agent-methodology", agentInstructionWeight: "medium", action: "use-as-current", rationale: "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)." };
+  }
+  if (/^\.(grok|claude|cursor)\/rules\//.test(file)) {
+    return { path: file, authority: "current-reference", agentInstructionWeight: "low", action: "use-as-current", rationale: "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml." };
+  }
+  if (file.startsWith(".grok/plugins/")) {
+    return { path: file, authority: "current-reference", agentInstructionWeight: "low", action: "use-as-current", rationale: "Project plugin for harness automation (hooks, LSP, skills, agents). See 09-plugins.md and .grok/config.toml [plugins]. Subordinate to protected guardrails." };
+  }
   if (file.startsWith("iterations/")) {
     return { path: file, authority: "historical-synthesis", agentInstructionWeight: "low", action: "summarize-before-use", rationale: "Historical planning/synthesis evidence; not active marching orders." };
   }

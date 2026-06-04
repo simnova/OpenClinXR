@@ -6,8 +6,18 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'PostToolUse (coord edit guard per AGENTS.md): running pnpm agent:alignment && pnpm docs:drift-check'; pnpm agent:alignment && pnpm docs:drift-check || echo 'Guard check completed with notes (exit non-zero ignored for PostToolUse; review output)'",
+            "command": "echo 'PostToolUse (coord edit guard per AGENTS.md + .githooks/agentic-hook-runner.ts tie): running pnpm agent:alignment && pnpm docs:drift-check'; pnpm agent:alignment && pnpm docs:drift-check || echo 'Guard check completed with notes (exit non-zero ignored for PostToolUse; review output)'; echo 'OpenClaw tie: .githooks pre-commit/pre-push also run the agentic-hook-runner.ts (drift/alignment/architecture/post-slice) on git ops for these files.'",
             "timeout": 120
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'PostToolUse Bash: consider affected package test or runner if coord change (see tools/openclinxr/openclaw/agentic-hook-runner.ts --profile local-exam or pre-commit)'",
+            "timeout": 5
           }
         ]
       }
@@ -30,6 +40,15 @@
             "type": "command",
             "command": "echo 'SessionStart for openclinxr (AgenticEx): follow Required Resume Sequence in AGENTS.md exactly (re-read 4 files snapshots first). Project hooks active (PostToolUse auto-guards on edits to coord files; PreCompact rehydrate). Lease before edits. After coord changes always pnpm agent:alignment && pnpm docs:drift-check. See agents/rules/ for modular policies.'",
             "timeout": 5
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'SessionStart memory + role consult (per AGENTS.md + agents/rules/agent-consult.md): re-read snapshots first. For coordinator/drift work: cat agents/coordinator/chief-coordinator/{charter,memory}.md | head -30; node -e \"const i=require(\\\"./.agent-factory/memory-index.json\\\"); console.log(\\\"memory entries:\\\", i.agent_count, i.entry_count); const cc=i.entries.filter(e=>/chief|coordinator|drift/.test(e.agent_id||e.topic||'')).slice(0,2); console.dir(cc.map(e=>({id:e.id,topic:e.topic})))\" 2>/dev/null || true; echo \"Use source-of-truth order; map subagent (explore) to repo role only for independent review/implementation that cuts drift cost.\"; echo \"See .agent-factory/memory-index.json and agents/**/memory.md .\"; pnpm openclaw:lease -- status 2>/dev/null || true",
+            "timeout": 15
           }
         ]
       }

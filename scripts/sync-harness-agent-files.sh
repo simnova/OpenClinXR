@@ -54,12 +54,24 @@ echo "  (Agents roles: using root agents/ to avoid registry path duplication; se
 mkdir -p .grok/hooks
 # For claude/cursor compat: place hooks.json at the .claude/ .cursor/ root (their expected location for hooks.json compat).
 # Overwrite with content from the grok canonical post-coord guard (keeps single source of truth for the guard logic).
-if [ -f .grok/hooks/post-coord-edit-guards.json ]; then
-  cp .grok/hooks/post-coord-edit-guards.json .claude/hooks.json
-  cp .grok/hooks/post-coord-edit-guards.json .cursor/hooks.json
-  echo "  Synced hooks: .grok/hooks/post-coord-edit-guards.json -> .claude/hooks.json + .cursor/hooks.json"
+# Merge all .grok/hooks/*.json into single hooks.json for claude/cursor compat (their loader expects one file with all events).
+if ls .grok/hooks/*.json >/dev/null 2>&1; then
+  node -e '
+    const fs = require("fs");
+    const hooks = {};
+    for (const f of fs.readdirSync(".grok/hooks").filter(n => n.endsWith(".json"))) {
+      const j = JSON.parse(fs.readFileSync(".grok/hooks/" + f, "utf8"));
+      for (const [ev, arr] of Object.entries(j.hooks || {})) {
+        hooks[ev] = (hooks[ev] || []).concat(arr);
+      }
+    }
+    const out = { hooks };
+    fs.writeFileSync(".claude/hooks.json", JSON.stringify(out, null, 2) + "\n");
+    fs.writeFileSync(".cursor/hooks.json", JSON.stringify(out, null, 2) + "\n");
+    console.log("  Merged .grok/hooks/*.json -> .claude/hooks.json + .cursor/hooks.json (all events)");
+  '
 else
-  echo "  Warning: .grok/hooks/post-coord-edit-guards.json not found; run after creating it."
+  echo "  Warning: no .grok/hooks/*.json found."
 fi
 # Note: .claude/settings.json or other may also be used by some; hooks.json is the one we maintain for Cursor/Claude compat here.
 echo "  (Grok native loads from .grok/hooks/*.json automatically when project trusted via /hooks-trust or modal.)"
