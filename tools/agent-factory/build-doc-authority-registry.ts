@@ -129,6 +129,9 @@ function classify(file: string): DocAuthorityEntry {
   if (file.startsWith(".grok/plugins/")) {
     return { path: file, authority: "current-reference", agentInstructionWeight: "low", action: "use-as-current", rationale: "Project plugin for harness automation (hooks, LSP, skills, agents). See 09-plugins.md and .grok/config.toml [plugins]. Subordinate to protected guardrails." };
   }
+  if (file.startsWith(".grok/agents/")) {
+    return { path: file, authority: "current-reference", agentInstructionWeight: "low", action: "use-as-current", rationale: "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules." };
+  }
   if (file.startsWith("iterations/")) {
     return { path: file, authority: "historical-synthesis", agentInstructionWeight: "low", action: "summarize-before-use", rationale: "Historical planning/synthesis evidence; not active marching orders." };
   }

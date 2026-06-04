@@ -18,6 +18,8 @@ Last updated: 2026-06-04 (compact checkpoint edition after historical evidence/l
 
 **Support (harness)**: 2026-06-04 agentex-openclaw-full-autonomy-gaps analysis (new doc in docs/agent-factory/, 21 agent-methodology). Gaps for full autonomy using repo agents/**: orchestration heartbeat loop (scheduler+plugin), native role subagent mapping, memory write-back, auto-lease in hooks, Grok primary runner assertion, self drift-police, e2e smoke. 1-5+6 foundation strong.
 
+**Execute 1-7**: 2026-06-04 full implementation of the 7 gaps (orchestrator plugin + actual scheduler_create 30m recurring heartbeat with loop + role consult; .grok/agents/ safe pointers; memory write-back demo in hooks; PreToolUse lease auto; SessionStart primary + universal prompt; plugin self-drift; subagent E2E smoke verifying all). Touched hooks/plugin/agents/config. Subagent smoke (chief-coordinator read-only) + scheduler exec confirm ready. States updated. Guards + post-slice next. Enables product.
+
 **Next queued slice**: Worker 9/7/11 UI-XR runtime evidence consumer + Admin ReviewReplay stay metadata-only; or faculty review path determinism; or deeper peds launch with handoff in runtime bundle (post 11/9 propagation). Keep IWSDK sidecar on approved 0.3.1 packages unless explicitly upgraded. No real-Anny, B+, Quest, clinical, scoring, production, or learner-readiness claims.
 
 ## Efficient Rehydration + Working Model

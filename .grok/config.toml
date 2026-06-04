@@ -126,9 +126,11 @@ progress_bar = true
 # --- Agents / Project-scoped Agent Definitions ---
 # Per Grok project rules doc, .grok/agents/ for project-scoped agent definitions.
 # The source is agents/** (the 9 core roles with charter.md + memory.md + index.json, plus rules/ for modularity).
-# (Symlinks avoided in .grok/agents/ to prevent drift/registry path duplication with agents/rules/; see script note.)
-# Rely on root agents/ + agents/rules/. Grok can be prompted to consult specific role charters/memories using the source-of-truth order.
-# This + subagents config amps the "persistent expert team" and "repo-agent consultation" from AGENTS.md.
+# Safe pointers (no full content dup) now in .grok/agents/ (README + e.g. chief-coordinator.md) for first-class subagent discovery/mapping (gap2). 
+# These point to root agents/<role>/ without duplicating MDs (avoids previous drift/registry issues with full symlinks).
+# Grok can be prompted to consult specific role charters/memories using the source-of-truth order + agent-consult.md.
+# This + subagents config (explore/plan) amps the "persistent expert team" and "repo-agent consultation" from AGENTS.md.
+# See .grok/agents/README.md and gaps doc for full 1-7 execution.
 
 # --- Hooks (lifecycle automation for AgenticEx) ---
 # Project hooks in .grok/hooks/*.json (trusted on first use via /hooks or Ctrl+L).

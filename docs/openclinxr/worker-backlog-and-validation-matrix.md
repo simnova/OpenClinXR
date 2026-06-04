@@ -42,6 +42,8 @@ Do not toil on evidence refreshes. Evidence supports product decisions; it is no
 
 2026-06-04 Support (harness): agentex-openclaw-full-autonomy-gaps analysis (docs/agent-factory/ new MD, registered). Remaining for full OpenClaw unattended with repo 9 agents (chief-coordinator etc. as team): heartbeat orchestrator (scheduler+plugin), first-class role subagents (mapping beyond prompts), memory write-back, lease auto-hooks, Grok primary assertion (per tool-adapters, this env has full exec), auto drift-police, e2e smoke. 1-5+6 provides excellent base (hooks, rules, plugin, config, proven subagent). Guards green.
 
+2026-06-04 Execute 1-7: implemented (enhanced post-coord hooks PreToolUse lease + SessionStart primary/universal; plugin as autonomy-orchestrator with Stop heartbeat including write-back demo + drift; .grok/agents/ pointers for roles; config notes; actual scheduler_create recurring 30m (ID 019e91da0de7) with full loop prompt; subagent chief-coordinator smoke (ID 019e91da-871f-7232-93a7-f8fcd2286167) verified all files/impl + "Ready for product with full autonomy: yes"). Touched: hooks json, plugin (hooks+README), .grok/agents/*, config. Evidence: subagent report + scheduler success + changes. Per-slice in states. Product next.
+
 2026-06-04 hooks/public alignment (Worker 0/7/9/11 support): hook runner, local exam smoke, Pages validation, and public copy now reinforce production/factory/asset-commons/arena/local/connected/Azure boundaries.
 
 ## Validation Rules
