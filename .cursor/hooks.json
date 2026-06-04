@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'PreToolUse (lease safety per gap4 + AGENTS long-running-autonomy): if editing coord/states/AGENTS, ensure lease. Running: pnpm openclaw:lease -- acquire --owner grok-autonomy --slice \"pre-edit-$(basename $0)\" --ttl-minutes 30 || echo \"Lease check/acquire suggested or held by other; re-read states and respect lease.\"; pnpm openclaw:lease -- status || true",
+            "command": "echo 'PreToolUse (lease safety per gap4 + AGENTS long-running-autonomy): if editing coord/states/AGENTS, ensure lease. Running: pnpm openclaw:lease -- acquire --owner harness-autonomy --slice \"pre-edit-$(basename $0)\" --ttl-minutes 30 || echo \"Lease check/acquire suggested or held by other; re-read states and respect lease.\"; pnpm openclaw:lease -- status || true",
             "timeout": 30
           }
         ]
@@ -50,7 +50,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'SessionStart for openclinxr (AgenticEx full autonomy): follow Required Resume Sequence (snapshots of 4 files). In this TUI env Grok has FULL local execution (shell, edit, spawn_subagent, scheduler_create, monitor, pnpm openclaw:*) so it is PRIMARY OpenClaw runner per Grok adapter in docs/openclinxr/openclaw-tool-adapters-2026-05-27.md (not just bounded specialist). Load universal prompt + Grok notes: Act as repo-native OpenClaw primary for /Volumes/files/src/openclinxr. Use states, lease before edits, repo agents/** for team (chief-coordinator first for orchestration, map via agent-consult), post-slice always, no scattered. Project hooks active (PostToolUse guards, PreCompact rehydrate, memory consult). See agents/rules/ and .grok/plugins/openclinxr-post-slice-automation/. Lease before edits. After coord: pnpm agent:alignment && pnpm docs:drift-check.'; cat docs/openclinxr/openclaw-tool-adapters-2026-05-27.md | sed -n '/## Grok Adapter/,/## Cursor Adapter/p' | head -20 || true; pnpm openclaw:lease -- status 2>/dev/null || true",
+            "command": "echo 'SessionStart for openclinxr (AgenticEx full autonomy): follow Required Resume Sequence (snapshots of 4 files). Use this harness as an OpenClaw runner only to the extent it has local file, shell, edit, browser, and subagent capabilities; otherwise follow the adapter fallback matrix. Load universal prompt + Harness notes: Act as repo-native OpenClaw primary for /Volumes/files/src/openclinxr. Use states, lease before edits, repo agents/** for team (chief-coordinator first for orchestration, map via agent-consult), post-slice always, no scattered. Project hooks active (PostToolUse guards, PreCompact rehydrate, memory consult). See agents/rules/ and .grok/plugins/openclinxr-post-slice-automation/. Lease before edits. After coord: pnpm agent:alignment && pnpm docs:drift-check.'; cat docs/openclinxr/openclaw-tool-adapters-2026-05-27.md | sed -n '/## Shared Host Requirements/,/## Universal OpenClaw Prompt/p' | head -40 || true; pnpm openclaw:lease -- status 2>/dev/null || true",
             "timeout": 15
           }
         ]

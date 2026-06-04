@@ -1,0 +1,78 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$(git rev-parse --show-toplevel)\" && pnpm codex:hook -- session-start",
+            "timeout": 20,
+            "statusMessage": "Loading OpenClaw session guidance"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|apply_patch|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$(git rev-parse --show-toplevel)\" && pnpm codex:hook -- pre-tool-use",
+            "timeout": 20,
+            "statusMessage": "Checking OpenClaw edit posture"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|apply_patch|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$(git rev-parse --show-toplevel)\" && pnpm codex:hook -- post-tool-use",
+            "timeout": 180,
+            "statusMessage": "Running scoped OpenClaw guards"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "manual|auto",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$(git rev-parse --show-toplevel)\" && pnpm codex:hook -- pre-compact",
+            "timeout": 20,
+            "statusMessage": "Preparing OpenClaw rehydration note"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$(git rev-parse --show-toplevel)\" && pnpm codex:hook -- user-prompt-submit",
+            "timeout": 20
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$(git rev-parse --show-toplevel)\" && pnpm codex:hook -- stop",
+            "timeout": 20
+          }
+        ]
+      }
+    ]
+  }
+}

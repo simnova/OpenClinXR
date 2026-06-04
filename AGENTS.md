@@ -122,6 +122,8 @@ The most common apparent "stop" is a heartbeat turn ending with the required hea
 When Patrick asks for unattended or multi-hour/multi-day work:
 
 - Treat the request as approval to run the repo autonomous loop until a stop condition in this file is reached.
+- Prefer the event-driven runner over recurring no-op heartbeats: use `pnpm openclaw:run-next` to select the next approved slice and write only `.openclinxr/openclaw/run-next-report.json`; use `pnpm openclaw:watchdog` only as a quiet local idle check. Do not append canonical state records unless product code, verification evidence, or a real blocker changed.
+- Codex lifecycle hooks live in `.codex/hooks.json` and route through `pnpm codex:hook`; trust/review them with `/hooks` after changes. They are guardrails and rehydration reminders, not a background product worker.
 - Rehydrate from `AGENTS.md`, `PROJECT_COORDINATION_INDEX.md`, `AUTONOMOUS_WORK_PLAN.md`, and `docs/openclinxr/worker-backlog-and-validation-matrix.md` before selecting work if context may have compacted.
 - Do not wait for chat confirmation after a slice, verification pass, screenshot, evidence review, doc update, or heartbeat.
 - If a tool, skill, plugin, or methodology asks for approval, require chat approval only for new scope, destructive operations, paid/cloud/API use, production deployment, credentials, physical hardware action, runtime dependency changes, or an explicit user-requested planning gate. For already-approved local deterministic slices, record assumptions/defaults in operator files and continue.

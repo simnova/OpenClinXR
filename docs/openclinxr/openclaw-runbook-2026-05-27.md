@@ -66,13 +66,14 @@ To support days-long agentic runs with minimal token use and no interruption:
 - Rehydrate exclusively via snapshots (first 60-80 lines of the 3 state files) + AGENTS top. Use `tail | grep` for "Next queued" / recent records; full ledger reads only for rare synthesis.
 - Searches: `grep` tool (with path/glob/head_limit) or terminal `grep` / `tail` before any `read_file` on large files. Always `read_file` + `offset` + `limit` (e.g. 30) for files >100 lines.
 - Verification: always focused (`vitest ... -t "name"`, `biome check specific.ts`). Never full `agent:verify` for routine; use `agent:alignment` first (~0.5s).
-- Long-run protocol: acquire `pnpm openclaw:lease -- acquire --owner <role> --slice <id> --ttl-minutes 60` before any write; release after canonical update. Run `pnpm openclaw:preflight && pnpm docs:drift-check` at start of unattended. Use `pnpm openclaw:automation-prompt` to seed external heartbeats/schedulers (or AI scheduler_create + monitor for persistent watch).
-- On any platform heartbeat/compact/force response: rehydrate snapshots, check `git status --short` + lease status, finish/repair/pivot, record in next slice, continue. No chat status.
+- Long-run protocol: use `pnpm openclaw:run-next` to select the next queued slice and write only `.openclinxr/openclaw/run-next-report.json`; acquire `pnpm openclaw:lease -- acquire --owner <role> --slice <id> --ttl-minutes 60` before any real write; release after canonical update. Run `pnpm openclaw:preflight && pnpm docs:drift-check` at start of unattended. Use `pnpm openclaw:watchdog` only as a quiet local idle check; it must not append no-op heartbeat records to canonical Markdown.
+- Codex native lifecycle hooks are project-local in `.codex/hooks.json` and route through `pnpm codex:hook`. They provide SessionStart/PreToolUse/PostToolUse/PreCompact/UserPromptSubmit/Stop reminders plus scoped alignment/drift guards for coordination/OpenClaw surfaces. They must be trusted with `/hooks` when their hash changes.
+- On any platform heartbeat/compact/force response: rehydrate snapshots, check `git status --short` + lease status, use `pnpm openclaw:run-next` if a new slice needs selection, finish/repair/pivot, record only real product changes, verification evidence, or blockers. No chat status.
 - Avoid token bloat: no broad ls on docs/openclinxr (400+ JSONs), no full cat of ledgers, no un-focused tests, no evidence refresh without decision unlock.
 - Subagent: coordinator first (read-only), narrow, map to agents/**, close fast, integrate results to state only.
 - These + snapshots + lease + drift/alignment make hyper-optimized, low-interruption, token-efficient multi-day completion possible while advancing the factory.
 
-Update the canonical automation prompt (via openclaw:automation-prompt) to reference these rules for any external scheduler.
+Update the canonical automation prompt (via openclaw:automation-prompt) to reference these rules for any external scheduler or runner.
 
 ## Drift Rules
 
@@ -107,6 +108,8 @@ Use these commands to reduce unattended-run drift:
 pnpm openclaw:preflight
 pnpm openclaw:post-slice
 pnpm openclaw:automation-prompt
+pnpm openclaw:run-next
+pnpm openclaw:watchdog
 pnpm openclaw:lease -- status
 ```
 
@@ -114,9 +117,13 @@ pnpm openclaw:lease -- status
 
 `openclaw:post-slice` checks that the operational redundancy surface still has the required preflight, post-slice, automation-prompt, per-slice ledger, and host-adapter markers.
 
-`openclaw:automation-prompt` prints the canonical automation prompt from this runbook so recurring automations can be refreshed from the protected source instead of hand-maintained chat fragments.
+`openclaw:automation-prompt` prints the canonical automation prompt from this runbook so agent starts and optional external automations can be refreshed from the protected source instead of hand-maintained chat fragments.
 
-`openclaw:lease` coordinates recurring heartbeat workers through `.openclinxr/openclaw/automation-lease.json`, an ignored local runtime file. Before starting a slice, acquire a lease with `pnpm openclaw:lease -- acquire --owner codex-heartbeat --slice "<slice-name>"`; if another unexpired owner holds it, do not start overlapping edits. During long slices, refresh with `pnpm openclaw:lease -- heartbeat --owner codex-heartbeat --slice "<slice-name>"`; after canonical state updates and verification, release with `pnpm openclaw:lease -- release --owner codex-heartbeat`. Expired leases are recoverable by the next run.
+`openclaw:run-next` selects the next queued product slice from canonical state and writes `.openclinxr/openclaw/run-next-report.json`, an ignored local runtime report. It does not edit `AUTONOMOUS_WORK_PLAN.md`, `PROJECT_COORDINATION_INDEX.md`, or the worker matrix by itself.
+
+`openclaw:watchdog` is an optional quiet local check. It recommends `run-next` only when the tree is clean, no active lease is held, the previous local report is stale, and a queued slice exists. If it idles, it writes only the local report; it must not produce repeated canonical heartbeat entries.
+
+`openclaw:lease` coordinates slice workers through `.openclinxr/openclaw/automation-lease.json`, an ignored local runtime file. Before starting a slice, acquire a lease with `pnpm openclaw:lease -- acquire --owner openclaw-run-next --slice "<slice-name>"`; if another unexpired owner holds it, do not start overlapping edits. During long slices, refresh with `pnpm openclaw:lease -- heartbeat --owner openclaw-run-next --slice "<slice-name>"`; after canonical state updates and verification, release with `pnpm openclaw:lease -- release --owner openclaw-run-next`. Expired leases are recoverable by the next run.
 
 ## Canonical Automation Prompt
 
@@ -129,7 +136,7 @@ Use AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/open
 
 Before selecting work, run or mentally apply the OpenClaw drift guard: no scattered markdown, no one-off hand-designed encounters, no unregistered generated artifacts, no evidence refresh unless it unlocks a concrete implementation decision.
 
-Before editing, run `pnpm openclaw:lease -- acquire --owner codex-heartbeat --slice "<short-slice-name>"`. If the lease output says another unexpired owner holds the slice, do not overlap that work; re-read canonical state and wait for the next heartbeat. Refresh the lease during long work and release it only after focused verification and canonical state updates. If the lease is expired, recover it and inspect `git status --short` before continuing.
+Before editing, run `pnpm openclaw:run-next` to identify the next queued slice, then acquire the lease with `pnpm openclaw:lease -- acquire --owner openclaw-run-next --slice "<short-slice-name>"`. If the lease output says another unexpired owner holds the slice, do not overlap that work; re-read canonical state and wait for a clean runner opportunity. Refresh the lease during long work and release it only after focused verification and canonical state updates. If the lease is expired, recover it and inspect `git status --short` before continuing.
 
 Stay focused on the case-definition-driven WebXR encounter factory. Scene, humanoid, clothing, animation, conversation, emotion, locomotion, gaze/lip-sync, equipment, trace, persistence, provider, and review work must flow from encounter specifications/blueprints through reusable factory/provider/cache pipelines.
 

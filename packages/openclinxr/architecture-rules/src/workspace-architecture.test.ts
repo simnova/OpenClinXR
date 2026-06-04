@@ -158,6 +158,31 @@ describe("workspace architecture rules", () => {
     expect(prePushHook).toContain("pnpm hooks:pre-push");
   });
 
+  it("keeps the OpenClaw bridge discoverable for Codex and Grok", () => {
+    const bridgeSkill = readFileSync(join(workspaceRoot, ".agents/skills/openclinxr-openclaw/SKILL.md"), "utf8");
+    const codexHooks = readFileSync(join(workspaceRoot, ".codex/hooks.json"), "utf8");
+    const grokConfig = readFileSync(join(workspaceRoot, ".grok/config.toml"), "utf8");
+    const grokAgentPointer = readFileSync(join(workspaceRoot, ".grok/agents/chief-coordinator.md"), "utf8");
+    const rootPackage = JSON.parse(readFileSync(join(workspaceRoot, "package.json"), "utf8")) as {
+      scripts?: Record<string, string>;
+    };
+
+    expect(rootPackage.scripts?.["codex:hook"]).toBe("tsx tools/openclinxr/openclaw/codex-lifecycle-hook.ts");
+    expect(codexHooks).toContain('"SessionStart"');
+    expect(codexHooks).toContain('"PreToolUse"');
+    expect(codexHooks).toContain('"PostToolUse"');
+    expect(codexHooks).toContain('"PreCompact"');
+    expect(codexHooks).toContain('"Stop"');
+    expect(codexHooks).toContain("pnpm codex:hook");
+    expect(grokConfig).toContain('paths = [".agents/skills"]');
+    expect(bridgeSkill).toContain("name: openclinxr-openclaw");
+    expect(bridgeSkill).toContain("pnpm openclaw:run-next");
+    expect(bridgeSkill).toContain("agents/rules/*.md");
+    expect(bridgeSkill).toContain("agents/coordinator/chief-coordinator/charter.md");
+    expect(grokAgentPointer).toContain("agents/coordinator/chief-coordinator/charter.md");
+    expect(grokAgentPointer).toContain("Target repo /Volumes/files/src/openclinxr");
+  });
+
   it("keeps the asset-registry browser barrel free of Node-only object-store runtime exports", () => {
     const barrel = readFileSync(join(workspaceRoot, "packages/openclinxr/asset-registry/src/index.ts"), "utf8");
     const manifest = JSON.parse(readFileSync(join(workspaceRoot, "packages/openclinxr/asset-registry/package.json"), "utf8")) as {

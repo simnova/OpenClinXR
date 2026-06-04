@@ -12,8 +12,8 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 18
 - agent-methodology: 21
-- archive-candidate: 32
-- current-reference: 86
+- archive-candidate: 63
+- current-reference: 94
 - decision-record: 19
 - evidence: 27
 - historical-synthesis: 9
@@ -46,7 +46,15 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `.cursor/rules/source-of-truth.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/subagent-protocol.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.grok/agents/README.md` - current-reference; Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules.
+- `.grok/agents/asset-pipeline-lead.md` - current-reference; Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules.
 - `.grok/agents/chief-coordinator.md` - current-reference; Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules.
+- `.grok/agents/clinical-safety-critic.md` - current-reference; Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules.
+- `.grok/agents/implementation-plan-gap-attacker.md` - current-reference; Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules.
+- `.grok/agents/implementation-planning-lead.md` - current-reference; Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules.
+- `.grok/agents/openclaw-drift-police.md` - current-reference; Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules.
+- `.grok/agents/pediatrics-physician.md` - current-reference; Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules.
+- `.grok/agents/vp-engineering-delivery.md` - current-reference; Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules.
+- `.grok/agents/xr-systems-architect.md` - current-reference; Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules.
 - `.grok/plugins/openclinxr-post-slice-automation/README.md` - current-reference; Project plugin for harness automation (hooks, LSP, skills, agents). See 09-plugins.md and .grok/config.toml [plugins]. Subordinate to protected guardrails.
 - `.grok/rules/README.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.grok/rules/agent-consult.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
@@ -124,6 +132,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 These files should be summarized, archived, or explicitly marked historical before agents use them as instructions.
 
 - `.agents/skills/antd/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/openclinxr-openclaw/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.agents/skills/turborepo/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.agents/skills/turborepo/command/turborepo.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.agents/skills/turborepo/references/best-practices/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -150,6 +159,36 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `.agents/skills/turborepo/references/filtering/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.agents/skills/turborepo/references/filtering/patterns.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.agents/skills/turborepo/references/watch/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/agents/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/agents/asset-pipeline-lead.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/agents/chief-coordinator.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/agents/clinical-safety-critic.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/agents/implementation-plan-gap-attacker.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/agents/implementation-planning-lead.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/agents/openclaw-drift-police.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/agents/pediatrics-physician.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/agents/vp-engineering-delivery.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/agents/xr-systems-architect.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.codex/agents/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.codex/agents/asset-pipeline-lead.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.codex/agents/chief-coordinator.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.codex/agents/clinical-safety-critic.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.codex/agents/implementation-plan-gap-attacker.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.codex/agents/implementation-planning-lead.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.codex/agents/openclaw-drift-police.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.codex/agents/pediatrics-physician.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.codex/agents/vp-engineering-delivery.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.codex/agents/xr-systems-architect.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.cursor/agents/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.cursor/agents/asset-pipeline-lead.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.cursor/agents/chief-coordinator.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.cursor/agents/clinical-safety-critic.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.cursor/agents/implementation-plan-gap-attacker.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.cursor/agents/implementation-planning-lead.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.cursor/agents/openclaw-drift-police.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.cursor/agents/pediatrics-physician.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.cursor/agents/vp-engineering-delivery.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.cursor/agents/xr-systems-architect.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/anny-character-asset-pipeline-implementation-2026-06-03.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/dependency-hygiene-and-e18e-policy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

@@ -7,6 +7,8 @@ const packageJson = {
     "openclaw:preflight": "pnpm openclaw:ready",
     "openclaw:post-slice": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --post-slice",
     "openclaw:automation-prompt": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --print-automation-prompt",
+    "openclaw:run-next": "tsx tools/openclinxr/openclaw/openclaw-slice-runner.ts",
+    "openclaw:watchdog": "tsx tools/openclinxr/openclaw/openclaw-slice-runner.ts --watchdog",
   },
 };
 
@@ -34,6 +36,8 @@ function alignedInput(overrides: Partial<OperationalRedundancyInput> = {}): Oper
         "pnpm openclaw:preflight",
         "pnpm openclaw:post-slice",
         "pnpm openclaw:automation-prompt",
+        "pnpm openclaw:run-next",
+        "pnpm openclaw:watchdog",
         sliceFields,
         "## Canonical Automation Prompt",
         "```text",
@@ -62,6 +66,26 @@ describe("OpenClaw operational redundancy checker", () => {
     expect(report.failures).toContainEqual({
       file: "package.json",
       message: "openclaw:preflight must be wired to 'pnpm openclaw:ready'",
+    });
+  });
+
+  it("fails when the quiet slice runner script is missing", () => {
+    const input = alignedInput({
+      packageJson: {
+        scripts: {
+          "openclaw:preflight": "pnpm openclaw:ready",
+          "openclaw:post-slice": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --post-slice",
+          "openclaw:automation-prompt": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --print-automation-prompt",
+        },
+      },
+    });
+
+    const report = buildOperationalRedundancyReport(input);
+
+    expect(report.ok).toBe(false);
+    expect(report.failures).toContainEqual({
+      file: "package.json",
+      message: "openclaw:run-next must be wired to 'tsx tools/openclinxr/openclaw/openclaw-slice-runner.ts'",
     });
   });
 

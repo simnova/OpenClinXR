@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'Plugin openclinxr-autonomy-orchestrator (was post-slice): turn Stop. Full autonomy heartbeat: re-read snapshots (AGENTS + 3 states), pnpm openclaw:lease -- acquire --owner grok-autonomy --slice \"next-from-queue\", select next approved product/support from AUTONOMOUS_WORK_PLAN (prefer UI-XR consumer or peds validation), execute (spawn_subagent as mapped repo role e.g. chief-coordinator per agent-consult if useful, or local consult charter/memory), update states ONLY with per-slice record (path, Q1/Q4/Q5 tie, touched, evidence, next), pnpm openclaw:post-slice, release. For memory write-back (gap3): extract lessons and append to relevant agents/<role>/memory.md (demo below). See gaps doc and long-running-autonomy.md.'; echo 'Memory write-back (gap3 exec demo): appending stub to plugin data (in real: use search_replace on agents/coordinator/chief-coordinator/memory.md with lesson from state).'; mkdir -p \"${GROK_PLUGIN_DATA:-/tmp/grok-autonomy}\"; echo \"$(date -u +%Y-%m-%dT%H:%M:%SZ): autonomy cycle complete - see latest AUTONOMOUS_WORK_PLAN per-slice record for new lessons (e.g. harness improvements). Append to role memory if durable.\" >> \"${GROK_PLUGIN_DATA:-/tmp/grok-autonomy}/memory-writeback-demo.log\"; cat \"${GROK_PLUGIN_DATA:-/tmp/grok-autonomy}/memory-writeback-demo.log\" | tail -5 || true",
+            "command": "echo 'Plugin openclinxr-slice-runner: turn Stop. Prefer event-driven autonomy: run pnpm openclaw:run-next to select the next approved product slice and write only .openclinxr/openclaw/run-next-report.json. Use pnpm openclaw:watchdog only as a quiet local idle check; it must not append no-op heartbeat records to AUTONOMOUS_WORK_PLAN.md or other canonical state. Canonical state updates happen only after product code, verification evidence, or a real blocker changes. For real slice execution: acquire lease, consult repo role if useful, implement/verify, update state once, run post-slice/guards, release.'; mkdir -p \"${GROK_PLUGIN_DATA:-/tmp/grok-autonomy}\"; echo \"$(date -u +%Y-%m-%dT%H:%M:%SZ): slice-runner reminder emitted; use openclaw:run-next/watchdog, keep no-op logs local.\" >> \"${GROK_PLUGIN_DATA:-/tmp/grok-autonomy}/slice-runner.log\"; tail -5 \"${GROK_PLUGIN_DATA:-/tmp/grok-autonomy}/slice-runner.log\" || true",
             "timeout": 60,
             "env": {
               "OPENCLINXR_PLUGIN_AUTONOMY": "1",
@@ -20,7 +20,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'Plugin notification (orchestrator): consider full autonomy cycle (lease + role consult via agent-consult + subagent if live + state record + post-slice + memory write-back stub). Use scheduler for recurring. Drift event? auto consult openclaw-drift-police (gap6).'",
+            "command": "echo 'Plugin notification: use pnpm openclaw:run-next for event-driven continuation. Optional pnpm openclaw:watchdog is quiet and local-report-only. Drift event? consult openclaw-drift-police before editing canonical state.'",
             "timeout": 10
           }
         ]
@@ -31,7 +31,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'UserPromptSubmit (autonomy): if prompt mentions heartbeat/orchestrate/next slice, run: rehydrate, lease acquire for autonomy, pick from states, delegate to repo role (chief-coordinator etc), record, post-slice.'",
+            "command": "echo 'UserPromptSubmit (autonomy): if prompt mentions heartbeat/orchestrate/next slice, prefer pnpm openclaw:run-next; then lease + execute only a real selected slice. No no-op heartbeat entries in canonical state.'",
             "timeout": 5
           }
         ]

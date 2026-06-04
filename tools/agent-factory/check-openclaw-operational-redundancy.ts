@@ -29,6 +29,8 @@ const requiredScripts: Record<string, string> = {
   "openclaw:preflight": "pnpm openclaw:ready",
   "openclaw:post-slice": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --post-slice",
   "openclaw:automation-prompt": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --print-automation-prompt",
+  "openclaw:run-next": "tsx tools/openclinxr/openclaw/openclaw-slice-runner.ts",
+  "openclaw:watchdog": "tsx tools/openclinxr/openclaw/openclaw-slice-runner.ts --watchdog",
 };
 
 const requiredFiles = [
@@ -70,6 +72,8 @@ export function buildOperationalRedundancyReport(input: OperationalRedundancyInp
     "pnpm openclaw:preflight",
     "pnpm openclaw:post-slice",
     "pnpm openclaw:automation-prompt",
+    "pnpm openclaw:run-next",
+    "pnpm openclaw:watchdog",
   ]) {
     if (!runbook.includes(marker)) {
       failures.push({ file: "docs/openclinxr/openclaw-runbook-2026-05-27.md", message: `missing operational redundancy marker: ${marker}` });
