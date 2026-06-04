@@ -4,7 +4,7 @@
 
 Current product: blueprint-driven encounter factory for peds_asthma_parent_anxiety_v1 plus ED seed. The active work should move case definitions into generated runtime behavior, review packets, replay/persistence, and reusable asset materialization. UI-XR runtime evidence consumer remains metadata-only, reviewer-gated, and not a learner/Quest/production readiness claim.
 
-Last support checkpoint: 2026-06-04 repo hygiene pruned historical evidence and compacted long-running logs. The worker matrix now keeps live ownership, checkpoints, and validation posture only. Detailed historical rows are in git.
+Last support checkpoint: 2026-06-04 1-5+6 harness AgenticEx (extractions of hyper-token-efficient, blueprint-factory-guardrails, repo-defined-agents-worker-roles, persistent-memory-scoring + agent-consult rules; .grok/plugins/ post-slice; .grok/lsp.json; hooks enhance + .githooks/agentic-hook-runner tie + memory-consult; config [memory] watcher + [plugins] + notifications + compat; registry classify; sync; authority/guards green 220 MDs). #6 proof executed (search_replace hook fire, subagent explore chief-coordinator per protocol/agent-consult with charter+memory reads + no drift, post-slice + grok inspect showing 12 rules/hooks/plugin/lsp, states 1-6 record, commit f90252a + push). Tree clean on origin. Guards green.
 
 Next action: Worker 9/7/11 UI-XR runtime evidence consumer surfaces + admin replay for handoff metadata; faculty review path; peds launch validation with handoff wired (post 11/9 slice complete).
 
