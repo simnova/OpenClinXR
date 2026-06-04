@@ -9,7 +9,7 @@
     "evidence": 27,
     "protected-policy": 11,
     "agent-memory": 18,
-    "agent-methodology": 20,
+    "agent-methodology": 21,
     "decision-record": 19,
     "historical-synthesis": 9
   },
@@ -870,6 +870,13 @@
     },
     {
       "path": "docs/agent-factory/README.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "OpenClaw-style methodology and agent-factory operating manual; applies when planning or realigning agents."
+    },
+    {
+      "path": "docs/agent-factory/agentex-openclaw-full-autonomy-gaps.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",

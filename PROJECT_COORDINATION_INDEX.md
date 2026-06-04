@@ -16,6 +16,8 @@ Last updated: 2026-06-04 (compact checkpoint edition after historical evidence/l
 
 **#6 full loop proof**: search_replace on coord fired PostToolUse hook (guard + runner tie + memory consult); spawn_subagent (explore, chief-coordinator read-only) followed protocol (confirmed files, read 9 role charter/memory, no drift, rec next Worker 9/7/11 UI-XR or peds handoff launch); post-slice/lease/inspect-sim green (12 rules, 2 hooks, plugin, lsp); states updated; guards green; 220 MDs. Blueprint Q1/Q4. Next: select UI-XR consumer / peds validation from queue + continue.
 
+**Support (harness)**: 2026-06-04 agentex-openclaw-full-autonomy-gaps analysis (new doc in docs/agent-factory/, 21 agent-methodology). Gaps for full autonomy using repo agents/**: orchestration heartbeat loop (scheduler+plugin), native role subagent mapping, memory write-back, auto-lease in hooks, Grok primary runner assertion, self drift-police, e2e smoke. 1-5+6 foundation strong.
+
 **Next queued slice**: Worker 9/7/11 UI-XR runtime evidence consumer + Admin ReviewReplay stay metadata-only; or faculty review path determinism; or deeper peds launch with handoff in runtime bundle (post 11/9 propagation). Keep IWSDK sidecar on approved 0.3.1 packages unless explicitly upgraded. No real-Anny, B+, Quest, clinical, scoring, production, or learner-readiness claims.
 
 ## Efficient Rehydration + Working Model

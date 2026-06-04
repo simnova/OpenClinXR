@@ -40,6 +40,8 @@ Do not toil on evidence refreshes. Evidence supports product decisions; it is no
 
 2026-06-04 #6 prove: search_replace (hook fire + guard + runner tie + memory-consult); subagent explore chief-coordinator (protocol followed, charter/memory read, no drift, rec: Worker 9/7/11 UI-XR consumer or peds handoff validation); post-slice + lease + inspect-sim (12 rules, 2 hooks, plugin, lsp); 3 states updated with 1-6 record; guards green (220 MDs). Touched during 1-6 incl 5 rules + AGENTS + registry ts + plugin/* + lsp + hooks(2) + config + sync + states. Evidence: subagent report (full protocol, harness good, next product); no drift. Next: select from queue (UI-XR / peds launch), focused verif, continue.
 
+2026-06-04 Support (harness): agentex-openclaw-full-autonomy-gaps analysis (docs/agent-factory/ new MD, registered). Remaining for full OpenClaw unattended with repo 9 agents (chief-coordinator etc. as team): heartbeat orchestrator (scheduler+plugin), first-class role subagents (mapping beyond prompts), memory write-back, lease auto-hooks, Grok primary assertion (per tool-adapters, this env has full exec), auto drift-police, e2e smoke. 1-5+6 provides excellent base (hooks, rules, plugin, config, proven subagent). Guards green.
+
 2026-06-04 hooks/public alignment (Worker 0/7/9/11 support): hook runner, local exam smoke, Pages validation, and public copy now reinforce production/factory/asset-commons/arena/local/connected/Azure boundaries.
 
 ## Validation Rules
