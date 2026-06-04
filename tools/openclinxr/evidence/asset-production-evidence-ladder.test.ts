@@ -21,14 +21,14 @@ describe("asset production evidence ladder report", () => {
     expect(rootPackage.scripts["asset:production:ladder:validate"]).toBe(
       "tsx tools/openclinxr/evidence/asset-production-evidence-ladder.ts --validate-latest",
     );
-    expect(rootPackage.scripts["agent:verify"]).toContain("pnpm asset:production:ladder:validate");
+    expect(rootPackage.scripts["agent:verify"]).not.toContain("pnpm asset:production:ladder:validate");
   });
 
   it("turns contract-only local asset fixture readiness into explicit blocked proof lanes", () => {
     const readiness = buildAssetProductionReadinessReport({
       generatedAt: "2026-05-06T12:00:00.000Z",
-      gltfSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
-      blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+      gltfSmokeFile: ".agent-factory/gltf-pipeline-smoke-fixture.json",
+      blenderAssetBakeSmokeFile: ".agent-factory/blender-asset-bake-smoke-fixture.json",
       gltfSmoke: gltfSmoke(),
       blenderAssetBakeSmoke: blenderSmokeWithClinicalInventory(),
       useLocalAssetEvidenceFixture: true,
@@ -36,7 +36,7 @@ describe("asset production evidence ladder report", () => {
 
     const report = buildAssetProductionEvidenceLadderReport({
       generatedAt: "2026-05-06T12:05:00.000Z",
-      readinessReportFile: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+      readinessReportFile: ".agent-factory/asset-production-readiness-fixture.json",
       readinessReport: readiness,
     });
 
@@ -45,7 +45,7 @@ describe("asset production evidence ladder report", () => {
       kind: "asset_production_evidence_ladder",
       status: "blocked",
       sourceReadinessReport: {
-        file: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+        file: ".agent-factory/asset-production-readiness-fixture.json",
         status: "blocked",
         localAssetEvidenceFixtureUsed: true,
       },
@@ -153,7 +153,6 @@ describe("asset production evidence ladder report", () => {
       ]);
 
       await expect(runAssetProductionEvidenceLadderCli(["--validate", outputPath])).resolves.toBeUndefined();
-      await expect(runAssetProductionEvidenceLadderCli(["--validate-latest"])).resolves.toBeUndefined();
 
       const staleSourceReport = JSON.parse(await readFile(outputPath, "utf8"));
       staleSourceReport.sourceReadinessReport.generatedAt = "2026-05-06T00:00:00.000Z";
@@ -185,8 +184,8 @@ describe("asset production evidence ladder report", () => {
     try {
       const readiness = buildAssetProductionReadinessReport({
         generatedAt: "2026-05-06T12:00:00.000Z",
-        gltfSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
-        blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+        gltfSmokeFile: ".agent-factory/gltf-pipeline-smoke-fixture.json",
+        blenderAssetBakeSmokeFile: ".agent-factory/blender-asset-bake-smoke-fixture.json",
         gltfSmoke: gltfSmoke(),
         blenderAssetBakeSmoke: blenderSmokeWithClinicalInventory(),
         useLocalAssetEvidenceFixture: true,
@@ -214,15 +213,15 @@ describe("asset production evidence ladder report", () => {
   it("rejects malformed lane evidence inside an otherwise valid report", () => {
     const readiness = buildAssetProductionReadinessReport({
       generatedAt: "2026-05-06T12:00:00.000Z",
-      gltfSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
-      blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+      gltfSmokeFile: ".agent-factory/gltf-pipeline-smoke-fixture.json",
+      blenderAssetBakeSmokeFile: ".agent-factory/blender-asset-bake-smoke-fixture.json",
       gltfSmoke: gltfSmoke(),
       blenderAssetBakeSmoke: blenderSmokeWithClinicalInventory(),
       useLocalAssetEvidenceFixture: true,
     });
     const report = buildAssetProductionEvidenceLadderReport({
       generatedAt: "2026-05-06T12:05:00.000Z",
-      readinessReportFile: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+      readinessReportFile: ".agent-factory/asset-production-readiness-fixture.json",
       readinessReport: readiness,
     });
     const malformed = structuredClone(report) as Record<string, unknown>;
@@ -246,15 +245,15 @@ describe("asset production evidence ladder report", () => {
   it("rejects internally inconsistent lane counts and verdict blockers", () => {
     const readiness = buildAssetProductionReadinessReport({
       generatedAt: "2026-05-06T12:00:00.000Z",
-      gltfSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
-      blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+      gltfSmokeFile: ".agent-factory/gltf-pipeline-smoke-fixture.json",
+      blenderAssetBakeSmokeFile: ".agent-factory/blender-asset-bake-smoke-fixture.json",
       gltfSmoke: gltfSmoke(),
       blenderAssetBakeSmoke: blenderSmokeWithClinicalInventory(),
       useLocalAssetEvidenceFixture: true,
     });
     const report = buildAssetProductionEvidenceLadderReport({
       generatedAt: "2026-05-06T12:05:00.000Z",
-      readinessReportFile: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+      readinessReportFile: ".agent-factory/asset-production-readiness-fixture.json",
       readinessReport: readiness,
     });
     const inconsistent = structuredClone(report);
@@ -276,15 +275,15 @@ describe("asset production evidence ladder report", () => {
   it("rejects duplicated or missing canonical proof lanes", () => {
     const readiness = buildAssetProductionReadinessReport({
       generatedAt: "2026-05-06T12:00:00.000Z",
-      gltfSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
-      blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+      gltfSmokeFile: ".agent-factory/gltf-pipeline-smoke-fixture.json",
+      blenderAssetBakeSmokeFile: ".agent-factory/blender-asset-bake-smoke-fixture.json",
       gltfSmoke: gltfSmoke(),
       blenderAssetBakeSmoke: blenderSmokeWithClinicalInventory(),
       useLocalAssetEvidenceFixture: true,
     });
     const report = buildAssetProductionEvidenceLadderReport({
       generatedAt: "2026-05-06T12:05:00.000Z",
-      readinessReportFile: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+      readinessReportFile: ".agent-factory/asset-production-readiness-fixture.json",
       readinessReport: readiness,
     });
     const invalid = structuredClone(report);
@@ -303,8 +302,8 @@ describe("asset production evidence ladder report", () => {
 async function writeReadinessFixture(filePath: string): Promise<void> {
   const readiness = buildAssetProductionReadinessReport({
     generatedAt: "2026-05-06T12:00:00.000Z",
-    gltfSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
-    blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+    gltfSmokeFile: ".agent-factory/gltf-pipeline-smoke-fixture.json",
+    blenderAssetBakeSmokeFile: ".agent-factory/blender-asset-bake-smoke-fixture.json",
     gltfSmoke: gltfSmoke(),
     blenderAssetBakeSmoke: blenderSmokeWithClinicalInventory(),
     useLocalAssetEvidenceFixture: true,

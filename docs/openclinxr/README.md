@@ -1,6 +1,8 @@
 # OpenClinXR Documentation Navigation
 
-This directory contains product references, evidence, gates, and historical notes. Agents must not treat every Markdown file here as equally authoritative.
+This directory contains protected product references, generated navigation registries, current evidence, and a small number of compatibility inputs. It is not a dumping ground for dated status files or historical generated artifacts.
+
+Agents must not treat every Markdown or JSON file here as equally authoritative. Historical evidence is disposable by default unless a current test, runtime path, provenance record, template, or registry entry explicitly justifies keeping it.
 
 ## Start Here
 
@@ -13,7 +15,6 @@ This directory contains product references, evidence, gates, and historical note
 7. `doc-authority-registry-2026-05-27.md` - generated authority map for Markdown files.
 8. `generated-artifact-registry-2026-05-27.md` - generated cleanup map for JSON, screenshots, local caches, and runtime assets.
 9. `evidence-index-2026-05-27.md` - generated navigation index for representative retained evidence.
-10. `worktree-cleanup-handoff-2026-05-27.md` - generated categorization of remaining dirty worktree entries.
 
 ## Authority Rule
 
@@ -23,18 +24,20 @@ Use `generated-artifact-registry-2026-05-27.md` before deleting, ignoring, or co
 
 Use `evidence-index-2026-05-27.md` to find representative retained evidence quickly without scanning every generated artifact.
 
-Use `worktree-cleanup-handoff-2026-05-27.md` to keep cleanup commits separate from product-code, generated-code, operator-note, and evidence batches.
+Use `pnpm docs:worktree-cleanup` when needed for a local `.agent-factory/worktree-cleanup-current.json` cache; do not keep dated worktree-status artifacts in this docs tree.
 
 Protected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.
 
 ## Cleanup Rule
 
-When a doc is outdated, prefer one of these actions:
+When a doc or artifact is outdated, prefer one of these actions:
 
-- mark it historical or evidence-only;
-- summarize it into a canonical current reference;
-- archive it through a deliberate cleanup slice;
-- update the doc authority registry.
+- delete it if it is historical evidence with no active consumer;
+- summarize durable lessons into a canonical current reference;
+- move active generated outputs behind a current product/test/runtime owner;
+- update the doc authority registry;
 - update the generated artifact registry when non-Markdown evidence/cache artifacts change.
 
 Do not create new prompt, status, handoff, or continuation docs unless they are linked from the canonical control surfaces.
+
+New dated JSON belongs here only when it is current product evidence, a reusable template, or a temporary compatibility input with an explicit consumer. Otherwise keep it local, write it under `.agent-factory`, or delete it after the decision it supported is made.

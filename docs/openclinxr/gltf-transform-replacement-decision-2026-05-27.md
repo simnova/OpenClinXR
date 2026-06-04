@@ -8,12 +8,9 @@ Do not demote or remove `gltf-pipeline` yet, but the first downstream consumers 
 
 Add `@gltf-transform/core` Node API smoke evidence as the replacement candidate path, and allow source-readiness/runtime gates to consume that evidence. Keep `gltf-pipeline` as an approved local conversion CLI until security notes and dependency-footprint evidence prove removal or isolation is safe.
 
-## Evidence compared
+## Evidence Compared
 
-- `docs/openclinxr/gltf-pipeline-smoke-2026-05-27.json`
-- `docs/openclinxr/gltf-transform-smoke-2026-05-27.json`
-
-Both paths produced valid GLB output for the deterministic single-triangle smoke:
+Historical point-in-time smoke JSON has been pruned from the active docs tree. The retained decision is that both paths produced valid GLB output for the deterministic single-triangle smoke:
 
 | Tool path | Package | Result | Output bytes | Notes |
 | --- | --- | --- | ---: | --- |

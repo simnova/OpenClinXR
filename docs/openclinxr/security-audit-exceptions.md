@@ -22,10 +22,7 @@ pnpm audit --json > docs/openclinxr/security-audit-YYYY-MM-DD.json
 pnpm security:audit-policy -- --audit-json docs/openclinxr/security-audit-YYYY-MM-DD.json --output docs/openclinxr/security-audit-policy-YYYY-MM-DD.json
 ```
 
-The latest local audit evidence is:
-
-- `docs/openclinxr/security-audit-2026-05-21.json`
-- `docs/openclinxr/security-audit-policy-2026-05-21.json`
+No point-in-time audit evidence artifact is currently retained as active evidence. Run `pnpm security:audit:snapshot` after dependency changes or before a release milestone if a fresh retained audit packet is needed.
 
 ## Audit Cadence (Backlog-Tracked)
 
@@ -75,9 +72,7 @@ OpenClinXR runs:
 pnpm security:licenses
 ```
 
-The gate reads `pnpm licenses list --json`, fails on AGPL/GPL/LGPL/SSPL/non-commercial/proprietary/unknown/unlicensed dependency records, applies only version-pinned license-file normalizations recorded in this file, and reports review-only licenses separately. The latest local report is:
-
-- `docs/openclinxr/dependency-license-policy-2026-05-05.json`
+The gate reads `pnpm licenses list --json`, fails on AGPL/GPL/LGPL/SSPL/non-commercial/proprietary/unknown/unlicensed dependency records, applies only version-pinned license-file normalizations recorded in this file, and reports review-only licenses separately. Historical license reports are not retained as active evidence by default; rerun `pnpm security:licenses` for current posture.
 
 ## Active Exceptions
 

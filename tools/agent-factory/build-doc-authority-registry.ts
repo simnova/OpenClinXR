@@ -43,8 +43,6 @@ const protectedPaths = new Set([
   "docs/openclinxr/generated-artifact-registry-2026-05-27.json",
   "docs/openclinxr/evidence-index-2026-05-27.md",
   "docs/openclinxr/evidence-index-2026-05-27.json",
-  "docs/openclinxr/worktree-cleanup-handoff-2026-05-27.md",
-  "docs/openclinxr/worktree-cleanup-handoff-2026-05-27.json",
 ]);
 const currentReferences = new Set([
   "README.md",
@@ -67,7 +65,6 @@ const currentReferences = new Set([
   "docs/openclinxr/garment-pipeline-slices-2026-05-27.md",
   "docs/openclinxr/humanoid-clothing-tooling-research-2026-05-27.md",
   "docs/openclinxr/humanoid-provider-upgrade-plan-2026-05-27.md",
-  "docs/openclinxr/humanoid-toolchain-bakeoff-2026-05-27.md",
   "docs/openclinxr/humanoid-toolchain-options-2026-05-27.md",
   "docs/openclinxr/humanoid-variant-materialization-next-slice-2026-05-26.md",
   "docs/openclinxr/admin-ux-and-testing-brief.md",

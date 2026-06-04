@@ -314,7 +314,7 @@ gltf-pipeline -i input.gltf -o output.glb -b
 The preferred replacement smoke is:
 
 ```bash
-pnpm asset:gltf-transform:smoke -- --output docs/openclinxr/gltf-transform-smoke-2026-05-27.json
+pnpm asset:gltf-transform:smoke -- --output .agent-factory/gltf-transform-smoke-current.json
 ```
 
 The legacy executable local smoke remains available until the removal/isolation decision is complete:
@@ -332,10 +332,12 @@ Current machine-readable production-asset evidence:
 - `pnpm asset:gltf:smoke:validate`
 - `pnpm asset:gltf-transform:smoke:validate`
 - `pnpm asset:blender:bake:validate`
-- `pnpm asset:production:readiness -- --use-local-asset-evidence-fixture --output docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json`
+- `pnpm asset:production:readiness -- --use-local-asset-evidence-fixture --output .agent-factory/asset-production-readiness-current.json`
+
+Point-in-time smoke and benchmark outputs are disposable by default. Promote them into `docs/openclinxr` only when they are current evidence for an active product slice or a reusable template.
 - `pnpm asset:capability:evidence:validate`
 - `pnpm asset:production:readiness:validate`
-- `pnpm asset:production:ladder -- --readiness docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json --output docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json`
+- `pnpm asset:production:ladder -- --readiness .agent-factory/asset-production-readiness-fixture.json --output .agent-factory/asset-production-evidence-ladder-fixture.json`
 - `pnpm asset:production:ladder:validate`
 - `pnpm asset:production:artifact-evidence -- --output docs/openclinxr/asset-production-artifact-evidence-2026-05-06.json`
 - `pnpm asset:production:artifact-evidence:validate`

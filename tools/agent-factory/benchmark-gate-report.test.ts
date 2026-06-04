@@ -3919,7 +3919,7 @@ describe("benchmark gate report", () => {
         },
       },
       assetProductionReadinessBenchmark: {
-        file: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+        file: ".agent-factory/asset-production-readiness-fixture.json",
         value: {
           generatedAt: "2026-05-04T20:30:00.000Z",
           status: "blocked",
@@ -4141,9 +4141,9 @@ describe("benchmark gate report", () => {
       generatedAt: "2026-05-06T08:19:18.833Z",
       status: "blocked" as const,
       input: {
-        gltfSmokeFile: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
+        gltfSmokeFile: ".agent-factory/gltf-pipeline-smoke-fixture.json",
         gltfSmokeTool: "gltf-pipeline",
-        blenderAssetBakeSmokeFile: "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+        blenderAssetBakeSmokeFile: ".agent-factory/blender-asset-bake-smoke-fixture.json",
         gltfGeneratedAt: "2026-05-06T08:05:00.000Z",
         blenderGeneratedAt: "2026-05-06T08:10:00.000Z",
         localAssetEvidenceFixtureUsed: true,
@@ -4278,7 +4278,7 @@ describe("benchmark gate report", () => {
         },
       },
       gltfPipelineSmoke: {
-        file: "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
+        file: ".agent-factory/gltf-pipeline-smoke-fixture.json",
         value: {
           generatedAt: "2026-05-06T08:05:00.000Z",
           tool: { command: "gltf-pipeline", package: "gltf-pipeline", version: "4.3.1", license: "Apache-2.0" },
@@ -4287,7 +4287,7 @@ describe("benchmark gate report", () => {
         },
       },
       blenderAssetBakeSmoke: {
-        file: "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+        file: ".agent-factory/blender-asset-bake-smoke-fixture.json",
         value: {
           generatedAt: "2026-05-06T08:10:00.000Z",
           tool: { command: "blender", package: "Blender", version: "Blender 5.1.1", license: "GPL-3.0-or-later-tooling" },
@@ -4303,14 +4303,14 @@ describe("benchmark gate report", () => {
       },
       assetCapabilityJobEvidence: passedAssetCapabilityJobEvidence("2026-05-06T08:15:00.000Z"),
       assetProductionReadinessBenchmark: {
-        file: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+        file: ".agent-factory/asset-production-readiness-fixture.json",
         value: assetProductionReadinessValue,
       },
       assetProductionEvidenceLadder: {
-        file: "docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
+        file: ".agent-factory/asset-production-evidence-ladder-fixture.json",
         value: buildAssetProductionEvidenceLadderReport({
           generatedAt: "2026-05-06T08:20:00.000Z",
-          readinessReportFile: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+          readinessReportFile: ".agent-factory/asset-production-readiness-fixture.json",
           readinessReport: assetProductionReadinessValue,
         }),
       },
@@ -4337,11 +4337,11 @@ describe("benchmark gate report", () => {
       localAssetEvidenceFixtureUsed: true,
     }));
     expect(report.asset_production_evidence_ladder).toMatchObject({
-      file: "docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
+      file: ".agent-factory/asset-production-evidence-ladder-fixture.json",
       schema_version: "openclinxr.asset-production-evidence-ladder.v1",
       status: "blocked",
       source_readiness_report: {
-        file: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+        file: ".agent-factory/asset-production-readiness-fixture.json",
         status: "blocked",
         localAssetEvidenceFixtureUsed: true,
       },
@@ -4363,21 +4363,21 @@ describe("benchmark gate report", () => {
     });
     expect(report.evidence_freshness?.find((entry) => entry.evidence_id === "asset_production_evidence_ladder")).toMatchObject({
       status: "fresh",
-      file: "docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
+      file: ".agent-factory/asset-production-evidence-ladder-fixture.json",
     });
   });
 
   it("flags invalid asset production ladder reports before consuming lane blockers", () => {
     const report = buildBenchmarkGateReport({
       assetProductionEvidenceLadder: {
-        file: "docs/openclinxr/asset-production-evidence-ladder-2026-05-06.json",
+        file: ".agent-factory/asset-production-evidence-ladder-fixture.json",
         value: {
           schemaVersion: "openclinxr.asset-production-evidence-ladder.v1",
           kind: "asset_production_evidence_ladder",
           generatedAt: "2026-05-06T08:20:00.000Z",
           status: "blocked",
           sourceReadinessReport: {
-            file: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+            file: ".agent-factory/asset-production-readiness-fixture.json",
             generatedAt: "2026-05-06T08:19:18.833Z",
             status: "blocked",
             localAssetEvidenceFixtureUsed: true,
@@ -4482,7 +4482,7 @@ describe("benchmark gate report", () => {
   it("flags invalid asset production readiness evidence before consuming readiness blockers", () => {
     const report = buildBenchmarkGateReport({
       assetProductionReadinessBenchmark: {
-        file: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+        file: ".agent-factory/asset-production-readiness-fixture.json",
         value: {
           generatedAt: "2026-05-06T08:19:18.833Z",
           status: "blocked",

@@ -20,7 +20,7 @@ describe("asset capability job evidence report", () => {
     expect(rootPackage.scripts["asset:capability:evidence:validate"]).toBe(
       "tsx tools/openclinxr/evidence/asset-capability-job-evidence.ts --validate-latest",
     );
-    expect(rootPackage.scripts["agent:verify"]).toContain("pnpm asset:capability:evidence:validate");
+    expect(rootPackage.scripts["agent:verify"]).not.toContain("pnpm asset:capability:evidence:validate");
   });
 
   it("proves deterministic asset generation job contracts without spend or network", async () => {
@@ -159,7 +159,6 @@ describe("asset capability job evidence report", () => {
       ]);
 
       await expect(runAssetCapabilityJobEvidenceCli(["--validate", outputPath])).resolves.toBeUndefined();
-      await expect(runAssetCapabilityJobEvidenceCli(["--validate-latest"])).resolves.toBeUndefined();
 
       const invalidReport = JSON.parse(await readFile(outputPath, "utf8"));
       delete invalidReport.policy.externalNetworkAllowed;

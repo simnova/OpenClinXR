@@ -5,9 +5,9 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "archive-candidate": 32,
-    "evidence": 28,
-    "protected-policy": 12,
-    "current-reference": 48,
+    "evidence": 27,
+    "protected-policy": 11,
+    "current-reference": 47,
     "agent-memory": 18,
     "agent-methodology": 8,
     "decision-record": 19,
@@ -883,13 +883,6 @@
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
-      "path": "docs/openclinxr/humanoid-toolchain-bakeoff-2026-05-27.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
-    },
-    {
       "path": "docs/openclinxr/humanoid-toolchain-options-2026-05-27.md",
       "authority": "current-reference",
       "agentInstructionWeight": "medium",
@@ -1051,13 +1044,6 @@
       "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
-      "path": "docs/openclinxr/ui-xr-encounter-realism-review-2026-05-26.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
       "path": "docs/openclinxr/ux-flows.md",
       "authority": "current-reference",
       "agentInstructionWeight": "medium",
@@ -1080,13 +1066,6 @@
     },
     {
       "path": "docs/openclinxr/worker-backlog-and-validation-matrix.md",
-      "authority": "protected-policy",
-      "agentInstructionWeight": "highest",
-      "action": "protect",
-      "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
-    },
-    {
-      "path": "docs/openclinxr/worktree-cleanup-handoff-2026-05-27.md",
       "authority": "protected-policy",
       "agentInstructionWeight": "highest",
       "action": "protect",

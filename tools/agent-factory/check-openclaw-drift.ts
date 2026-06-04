@@ -96,7 +96,6 @@ const generatedArtifactRoots = [
 const generatedArtifactExtensions = new Set([".json", ".png", ".jpg", ".jpeg", ".webp", ".glb", ".gltf", ".bin", ".mp3", ".wav", ".ogg", ".txt"]);
 const oneOffMarkdownNamePattern = /(?:checkpoint|status|progress|scratch|temporary|temp|handoff|prompt|continuation|notes?)(?:[-_].*)?\.md$/iu;
 const allowedOneOffMarkdownPaths = new Set([
-  "docs/openclinxr/worktree-cleanup-handoff-2026-05-27.md",
   "docs/openclinxr/openclaw-runbook-2026-05-27.md",
 ]);
 

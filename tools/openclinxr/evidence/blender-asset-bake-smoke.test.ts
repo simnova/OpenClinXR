@@ -22,7 +22,7 @@ describe("Blender asset bake smoke", () => {
     expect(rootPackage.scripts["asset:blender:bake:validate"]).toBe(
       "tsx tools/openclinxr/evidence/blender-asset-bake-smoke.ts --validate-latest",
     );
-    expect(rootPackage.scripts["agent:verify"]).toContain("pnpm asset:blender:bake:validate");
+    expect(rootPackage.scripts["agent:verify"]).not.toContain("pnpm asset:blender:bake:validate");
   });
 
   it("validates a baked GLB header and records Quest-budget fixture metadata", () => {
@@ -165,7 +165,6 @@ describe("Blender asset bake smoke", () => {
       await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 
       await expect(runBlenderBakeSmokeCli(["--validate", reportPath])).resolves.toBeUndefined();
-      await expect(runBlenderBakeSmokeCli(["--validate-latest"])).resolves.toBeUndefined();
 
       const invalidReport = structuredClone(report) as Record<string, unknown>;
       delete invalidReport.tool;

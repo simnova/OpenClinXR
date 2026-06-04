@@ -6,6 +6,7 @@ export type GeneratedArtifactAuthority =
   | "keep-current"
   | "keep-template"
   | "keep-evidence"
+  | "keep-compatibility-input"
   | "prune-stale"
   | "ignore-local-cache"
   | "needs-human-review";
@@ -50,16 +51,32 @@ const templatePatterns = [/template/u, /LICENSE$/u, /PROVENANCE$/u, /source-reco
 const currentEvidencePatterns = [
   /doc-authority-registry-2026-05-27/u,
   /generated-artifact-registry-2026-05-27/u,
-  /full-app-(re)?smoke-2026-05-26/u,
-  /ui-admin-route-smoke-2026-05-26/u,
-  /ui-xr-.*2026-05-26/u,
-  /garment-.*2026-05-27/u,
-  /humanoid-.*2026-05-27/u,
-  /body-measurements-.*2026-05-27/u,
-  /blender-normal-refine-.*2026-05-27/u,
-  /encounter-.*2026-05-26/u,
+  /evidence-index-2026-05-27/u,
+  /encounter-.*peds-asthma-parent-anxiety-2026-05-28/u,
+  /generated-ed-station-runtime-bundle-2026-05-28/u,
+  /ui-xr-peds-materialization-gate-browser-smoke-2026-05-28/u,
+  /peds-humanoid-materialization-handoff-2026-06-04/u,
+  /iwsdk-.*2026-06-04/u,
+  /godot-project-import-check-2026-06-04/u,
   /source.*2026/u,
   /provenance/u,
+];
+const compatibilityInputPatterns = [
+  /encounter-asset-generation-queue-2026-05-23/u,
+  /external-ai-asset-provider-preflight-2026-05-25/u,
+  /garment-(fit-quality|promotion-gate|provider-gate|work-order).*2026-05-27/u,
+  /humanoid-collision-probe(-active-viseme)?-2026-05-23/u,
+  /humanoid-realism-gate-neutral-generated-human-animated-2026-05-23/u,
+  /humanoid-source-bplus-scorecard-2026-05-27/u,
+  /iwsdk-(first-slice|phase2-devtools)-preinstall-proposal/u,
+  /iwsdk-npm-metadata-snapshot-2026-05-27/u,
+  /materialize-clinical-idle-pose-(clip|clip-rerun|clip-v2|clip-v3|lower-arms)-2026-05-(23|27)/u,
+  /mpfb-makehuman-garment-license-intake-2026-05-27/u,
+  /ob-humanoid-source-variants-2026-05-27/u,
+  /refine-humanoid-material-contrast-v[23]-2026-05-23/u,
+  /runtime-realism-evidence-check-authored-idle-pose-required-2026-05-23/u,
+  /strip-humanoid-primitive-proxies-2026-05-23/u,
+  /ui-xr-ob-humanoid-source-closeup-comparator-2026-05-27/u,
 ];
 const stalePatterns = [
   /quest-cdp-smoke-.*2026-05-04/u,
@@ -67,7 +84,6 @@ const stalePatterns = [
   /iwsdk-sidecar-quest-cdp-smoke-check-2026-05-04/u,
   /adversarial-visual-qa-evidence-iwer-sidecar-2026-05-04/u,
   /local-provider-benchmark-2026-05-04/u,
-  /asset-production-readiness-benchmark-2026-05-06/u,
   /visual-qa-evidence-2026-05-04/u,
 ];
 
@@ -129,6 +145,10 @@ function classify(file: string, tracked: boolean): GeneratedArtifactEntry {
     return { path: file, authority: "keep-evidence", tracked, action: "keep", rationale: "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes." };
   }
 
+  if (compatibilityInputPatterns.some((pattern) => pattern.test(file))) {
+    return { path: file, authority: "keep-compatibility-input", tracked, action: "review-before-change", rationale: "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output." };
+  }
+
   if (/template|checklist|policy|fixture/u.test(file)) {
     return { path: file, authority: "keep-template", tracked, action: "keep", rationale: "Reusable template/checklist/policy fixture." };
   }
@@ -138,7 +158,7 @@ function classify(file: string, tracked: boolean): GeneratedArtifactEntry {
   }
 
   if (/2026-05-2[1-7]/u.test(file)) {
-    return { path: file, authority: "keep-evidence", tracked, action: "keep", rationale: "Recent generated evidence from active encounter-factory, garment, humanoid, or runtime cleanup work." };
+    return { path: file, authority: "prune-stale", tracked, action: tracked ? "review-before-change" : "delete-if-untracked", rationale: "Historical generated evidence is not retained by default; keep only protected templates, current evidence, or explicitly listed compatibility inputs." };
   }
 
   if (file.startsWith("docs/openclinxr/")) {

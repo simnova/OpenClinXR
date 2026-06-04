@@ -6,7 +6,6 @@ import {
   buildUserLocalCommandCandidatePath,
   buildUserLocalCommandCandidatePaths,
   parseLocalProviderEnvFileContent,
-  runLocalProviderBenchmarkCli,
   validateLocalProviderBenchmarkReport,
 } from "./local-provider-benchmark.js";
 
@@ -170,7 +169,7 @@ describe("local provider benchmark report", () => {
     });
   });
 
-  it("keeps latest local provider benchmark validation wired into agent verification", async () => {
+  it("keeps local provider benchmark validation explicit and outside agent verification", async () => {
     const rootPackage = JSON.parse(readFileSync("package.json", "utf8")) as {
       scripts?: Record<string, string>;
     };
@@ -178,8 +177,7 @@ describe("local provider benchmark report", () => {
     expect(rootPackage.scripts?.["local:provider:benchmark:validate"]).toBe(
       "tsx tools/openclinxr/evidence/local-provider-benchmark.ts --validate-latest",
     );
-    expect(rootPackage.scripts?.["agent:verify"]).toContain("pnpm local:provider:benchmark:validate");
-    await expect(runLocalProviderBenchmarkCli(["--validate-latest"])).resolves.toBeUndefined();
+    expect(rootPackage.scripts?.["agent:verify"]).not.toContain("pnpm local:provider:benchmark:validate");
   });
 });
 

@@ -33,8 +33,6 @@ const requiredFiles = [
   "docs/openclinxr/openclaw-tool-adapters-2026-05-27.md",
   "docs/openclinxr/evidence-index-2026-05-27.md",
   "docs/openclinxr/evidence-index-2026-05-27.json",
-  "docs/openclinxr/worktree-cleanup-handoff-2026-05-27.md",
-  "docs/openclinxr/worktree-cleanup-handoff-2026-05-27.json",
   "agents/adversarial/openclaw-drift-police/charter.md",
   "agents/adversarial/openclaw-drift-police/memory.md",
   "agents/adversarial/openclaw-drift-police/index.json",
@@ -221,18 +219,6 @@ const requiredMarkers: Record<string, string[]> = {
     "\"laneSummaries\"",
     "\"unindexedEvidenceCount\"",
   ],
-  "docs/openclinxr/worktree-cleanup-handoff-2026-05-27.md": [
-    "Worktree Cleanup Handoff",
-    "Counts",
-    "Entries",
-    "cleanup commits do not accidentally absorb unrelated product work",
-  ],
-  "docs/openclinxr/worktree-cleanup-handoff-2026-05-27.json": [
-    "\"schemaVersion\": \"2026-05-27\"",
-    "\"usageRule\"",
-    "\"counts\"",
-    "\"entries\"",
-  ],
   "docs/agent-factory/README.md": [
     "Implementation-Time Steering Rule",
     "PROJECT_COORDINATION_INDEX.md",
@@ -374,7 +360,7 @@ export function buildCoordinationAlignmentReport(input: CoordinationAlignmentInp
   if (scripts["docs:worktree-cleanup"] !== "tsx tools/agent-factory/build-worktree-cleanup-report.ts") {
     failures.push({
       file: "package.json",
-      message: "docs:worktree-cleanup script must regenerate the worktree cleanup handoff",
+      message: "docs:worktree-cleanup script must regenerate the local worktree cleanup cache",
     });
   }
   if (!scripts["agent:verify"]?.startsWith("pnpm agent:alignment && ")) {

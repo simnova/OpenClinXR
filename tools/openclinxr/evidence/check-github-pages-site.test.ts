@@ -1,7 +1,19 @@
 import { constants } from "node:fs";
-import { access, readFile, rename, writeFile } from "node:fs/promises";
+import { access, readFile, rename, unlink, writeFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 import { validateGitHubPagesSite } from "./check-github-pages-site.js";
+
+const staleSnapshotPath = "docs/openclinxr/asset-production-readiness-benchmark-2098-01-01.json";
+const staleSnapshotUrl = `https://github.com/simnova/OpenClinXR/blob/main/${staleSnapshotPath}`;
+
+async function withTemporarySnapshotFixture(run: () => Promise<void>): Promise<void> {
+  await writeFile(staleSnapshotPath, "{}\n", "utf8");
+  try {
+    await run();
+  } finally {
+    await unlink(staleSnapshotPath).catch(() => undefined);
+  }
+}
 
 describe("GitHub Pages static site", () => {
   it("exposes a package validator and includes it in the unattended agent gate", async () => {
@@ -100,15 +112,17 @@ describe("GitHub Pages static site", () => {
 
     const staleIndex = index.replace(
       'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/encounter-local-launch-selection-peds-asthma-parent-anxiety-2026-05-28.json"',
-      'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/asset-production-readiness-benchmark-2026-05-21.json"',
+      `href="${staleSnapshotUrl}"`,
     );
     try {
       await writeFile(indexPath, staleIndex, "utf8");
-      const staleResult = await validateGitHubPagesSite();
-      expect(staleResult.passed).toBe(false);
-      expect(staleResult.blockers).toContain(
-        "pages_index_snapshot_not_latest:asset-production-readiness-benchmark:found:asset-production-readiness-benchmark-2026-05-21.json:expected:asset-production-readiness-benchmark-2026-05-28.json",
-      );
+      await withTemporarySnapshotFixture(async () => {
+        const staleResult = await validateGitHubPagesSite();
+        expect(staleResult.passed).toBe(false);
+        expect(staleResult.blockers).toContain(
+          "pages_index_snapshot_not_latest:asset-production-readiness-benchmark:found:asset-production-readiness-benchmark-2098-01-01.json:expected:asset-production-readiness-benchmark-2026-05-28.json",
+        );
+      });
     } finally {
       await writeFile(indexPath, index, "utf8");
     }

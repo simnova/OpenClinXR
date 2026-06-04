@@ -1,8 +1,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-const root = path.resolve('/Volumes/files/src/openclinxr');
-const outDir = path.join(root, 'docs/openclinxr/garment-hundred-slice-run-2026-05-27');
+const root = process.cwd();
+const outDir = path.join(root, '.agent-factory/garment-hundred-slice-run-current');
 const scenarios = [
   ['ob_headache_preeclampsia_triage_v1', 'ob_patient_aisha_khan', 'adult', 'ob-triage-patient-fitted-clinical-top'],
   ['peds_asthma_parent_anxiety_v1', 'peds_patient', 'school-age', 'pediatric-asthma-patient-soft-shirt'],
@@ -88,8 +88,8 @@ for (const item of queue) {
 }
 
 const summary = {
-  schemaVersion: '2026-05-27',
-  claimBoundary: '100-slice garment pipeline automation run only; not runtime, Quest, production, clinical, legal, or scoring readiness',
+  schemaVersion: '2026-06-04',
+  claimBoundary: 'local 100-slice garment pipeline cache only; not durable docs evidence, runtime, Quest, production, clinical, legal, or scoring readiness',
   sliceCount: ledger.length,
   countsByKind: ledger.reduce((acc, entry) => {
     acc[entry.kind] = (acc[entry.kind] ?? 0) + 1;

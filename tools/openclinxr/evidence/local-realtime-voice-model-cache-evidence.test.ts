@@ -20,7 +20,7 @@ describe("local realtime voice model cache evidence", () => {
     expect(rootPackage.scripts["local:voice:model-cache:validate"]).toBe(
       "tsx tools/openclinxr/evidence/local-realtime-voice-model-cache-evidence.ts --validate-latest",
     );
-    expect(rootPackage.scripts["agent:verify"]).toContain("pnpm local:voice:model-cache:validate");
+    expect(rootPackage.scripts["agent:verify"]).not.toContain("pnpm local:voice:model-cache:validate");
   });
 
   it("recognizes an approved Qwen3-TTS MLX cache with local weight evidence", async () => {
@@ -189,7 +189,6 @@ describe("local realtime voice model cache evidence", () => {
       await writeFile(outputPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 
       await expect(main(["--validate", outputPath])).resolves.toBeUndefined();
-      await expect(main(["--validate-latest"])).resolves.toBeUndefined();
 
       const invalidReport = structuredClone(report) as unknown as Record<string, unknown>;
       delete invalidReport.approved_model_ids;
